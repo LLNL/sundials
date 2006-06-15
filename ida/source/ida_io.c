@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-21 23:14:38 $
+ * $Revision: 1.6 $
+ * $Date: 2006-06-15 15:39:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -9,7 +9,7 @@
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * For details, see the LICENSE file
  * -----------------------------------------------------------------
  * This is the implementation file for the optional inputs and     
  * outputs for the IDA solver.                                    

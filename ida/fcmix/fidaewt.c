@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-03-24 01:38:38 $
+ * $Revision: 1.7 $
+ * $Date: 2006-06-15 15:39:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/ida/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * Fortran/C interface routines for IDA, for the case of a 
  * user-supplied error weight calculation routine.

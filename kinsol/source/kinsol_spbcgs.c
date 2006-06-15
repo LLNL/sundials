@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-03-24 02:37:59 $
+ * $Revision: 1.9 $
+ * $Date: 2006-06-15 15:39:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2004, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/kinsol/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the implementation file for the KINSOL interface to the
  * scaled, preconditioned Bi-CGSTAB (SPBCG) iterative linear solver.

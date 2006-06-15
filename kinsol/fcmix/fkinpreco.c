@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2006-02-02 00:36:20 $
+ * $Revision: 1.23 $
+ * $Date: 2006-06-15 15:39:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -9,7 +9,7 @@
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/kinsol/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This file contains the interfaces between KINSOL and the
  * user-supplied Fortran routines FK_PSET and FK_PSOL.

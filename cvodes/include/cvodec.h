@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-12 20:24:02 $
+ * $Revision: 1.7 $
+ * $Date: 2006-06-15 15:39:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL                              
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California 
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * For details, see the LICENSE file
  * -----------------------------------------------------------------
  * This is the interface file for CVODES derivative calculations
  * using the complex step method.

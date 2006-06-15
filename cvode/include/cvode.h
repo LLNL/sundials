@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.43 $
- * $Date: 2006-03-21 23:30:58 $
+ * $Revision: 1.44 $
+ * $Date: 2006-06-15 15:38:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -9,7 +9,7 @@
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/cvode/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the interface file for the main CVODE integrator.
  * -----------------------------------------------------------------
@@ -789,138 +789,6 @@ extern "C" {
    */
 
   void CVodeFree(void **cvode_mem);
-
-
-  /*
-   * =================================================================
-   *     I N T E R F A C E   T O    L I N E A R   S O L V E R S
-   * =================================================================
-   */
-
-  /*
-   * -----------------------------------------------------------------
-   * Communication between CVODE and a CVODE Linear Solver
-   * -----------------------------------------------------------------
-   * convfail (input to cv_lsetup)
-   *
-   * CV_NO_FAILURES : Either this is the first cv_setup call for this
-   *                  step, or the local error test failed on the
-   *                  previous attempt at this step (but the Newton
-   *                  iteration converged).
-   *
-   * CV_FAIL_BAD_J  : This value is passed to cv_lsetup if
-   *
-   *                  (a) The previous Newton corrector iteration
-   *                      did not converge and the linear solver's
-   *                      setup routine indicated that its Jacobian-
-   *                      related data is not current
-   *                                   or
-   *                  (b) During the previous Newton corrector
-   *                      iteration, the linear solver's solve routine
-   *                      failed in a recoverable manner and the
-   *                      linear solver's setup routine indicated that
-   *                      its Jacobian-related data is not current.
-   *
-   * CV_FAIL_OTHER  : During the current internal step try, the
-   *                  previous Newton iteration failed to converge
-   *                  even though the linear solver was using current
-   *                  Jacobian-related data.
-   * -----------------------------------------------------------------
-   */
-
-  /* Constants for convfail (input to cv_lsetup) */
-
-#define CV_NO_FAILURES 0
-#define CV_FAIL_BAD_J  1
-#define CV_FAIL_OTHER  2
-
-  /*
-   * -----------------------------------------------------------------
-   * int (*cv_linit)(CVodeMem cv_mem);
-   * -----------------------------------------------------------------
-   * The purpose of cv_linit is to complete initializations for a
-   * specific linear solver, such as counters and statistics.
-   * An LInitFn should return 0 if it has successfully initialized the
-   * CVODE linear solver and a negative value otherwise.
-   * If an error does occur, an appropriate message should be sent to
-   * (cv_mem->errfp)
-   * -----------------------------------------------------------------
-   */
-
-  /*
-   * -----------------------------------------------------------------
-   * int (*cv_lsetup)(CVodeMem cv_mem, int convfail, N_Vector ypred,
-   *                 N_Vector fpred, booleantype *jcurPtr,
-   *                 N_Vector vtemp1, N_Vector vtemp2,
-   *                 N_Vector vtemp3);
-   * -----------------------------------------------------------------
-   * The job of cv_lsetup is to prepare the linear solver for
-   * subsequent calls to cv_lsolve. It may recompute Jacobian-
-   * related data is it deems necessary. Its parameters are as
-   * follows:
-   *
-   * cv_mem - problem memory pointer of type CVodeMem. See the big
-   *          typedef earlier in this file.
-   *
-   * convfail - a flag to indicate any problem that occurred during
-   *            the solution of the nonlinear equation on the
-   *            current time step for which the linear solver is
-   *            being used. This flag can be used to help decide
-   *            whether the Jacobian data kept by a CVODE linear
-   *            solver needs to be updated or not.
-   *            Its possible values have been documented above.
-   *
-   * ypred - the predicted y vector for the current CVODE internal
-   *         step.
-   *
-   * fpred - f(tn, ypred).
-   *
-   * jcurPtr - a pointer to a boolean to be filled in by cv_lsetup.
-   *           The function should set *jcurPtr=TRUE if its Jacobian
-   *           data is current after the call and should set
-   *           *jcurPtr=FALSE if its Jacobian data is not current.
-   *           Note: If cv_lsetup calls for re-evaluation of
-   *           Jacobian data (based on convfail and CVODE state
-   *           data), it should return *jcurPtr=TRUE always;
-   *           otherwise an infinite loop can result.
-   *
-   * vtemp1 - temporary N_Vector provided for use by cv_lsetup.
-   *
-   * vtemp3 - temporary N_Vector provided for use by cv_lsetup.
-   *
-   * vtemp3 - temporary N_Vector provided for use by cv_lsetup.
-   *
-   * The cv_lsetup routine should return 0 if successful, a positive
-   * value for a recoverable error, and a negative value for an
-   * unrecoverable error.
-   * -----------------------------------------------------------------
-   */
-
-  /*
-   * -----------------------------------------------------------------
-   * int (*cv_lsolve)(CVodeMem cv_mem, N_Vector b, N_Vector weight,
-   *                  N_Vector ycur, N_Vector fcur);
-   * -----------------------------------------------------------------
-   * cv_lsolve must solve the linear equation P x = b, where
-   * P is some approximation to (I - gamma J), J = (df/dy)(tn,ycur)
-   * and the RHS vector b is input. The N-vector ycur contains
-   * the solver's current approximation to y(tn) and the vector
-   * fcur contains the N_Vector f(tn,ycur). The solution is to be
-   * returned in the vector b. cv_lsolve returns a positive value
-   * for a recoverable error and a negative value for an
-   * unrecoverable error. Success is indicated by a 0 return value.
-   * -----------------------------------------------------------------
-   */
-
-  /*
-   * -----------------------------------------------------------------
-   * void (*cv_lfree)(CVodeMem cv_mem);
-   * -----------------------------------------------------------------
-   * cv_lfree should free up any memory allocated by the linear
-   * solver. This routine is called once a problem has been
-   * completed and the linear solver is no longer needed.
-   * -----------------------------------------------------------------
-   */
 
 #ifdef __cplusplus
 }

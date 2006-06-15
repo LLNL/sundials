@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-04-04 19:03:02 $
+ * $Revision: 1.9 $
+ * $Date: 2006-06-15 15:39:20 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/idas/LICENSE
+ * For details, see the LICENSE file
  * -----------------------------------------------------------------
  * Implementation header file for the IDAA adjoint integrator.
  * -----------------------------------------------------------------

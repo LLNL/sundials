@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-02-14 19:09:48 $
+ * $Revision: 1.8 $
+ * $Date: 2006-06-15 15:39:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/cvodes/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * Implementation header file for the CVBBDPRE module.
  * -----------------------------------------------------------------

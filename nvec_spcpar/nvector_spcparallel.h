@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-11 21:14:01 $
+ * $Revision: 1.5 $
+ * $Date: 2006-06-15 15:39:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/shared/LICENSE.
+ * For details, see the LICENSE file.
  *-----------------------------------------------------------------
  * This is the header file for an implementation of an NVECTOR
  * package for for semi-discretized 2D or 3D PDEs and for which the 

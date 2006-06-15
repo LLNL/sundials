@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-04-04 19:03:02 $
+ * $Revision: 1.4 $
+ * $Date: 2006-06-15 15:39:21 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/idas/LICENSE
+ * For details, see the LICENSE file
  * -----------------------------------------------------------------
  * This is the header file (private version) for the IDAS band
  * linear solver module, IDABAND. It interfaces between the band

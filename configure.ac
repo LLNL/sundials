@@ -1,13 +1,13 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.33 $
-# $Date: 2006-03-23 22:44:56 $
+# $Revision: 1.34 $
+# $Date: 2006-06-15 15:38:45 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
 # Copyright (c) 2002, The Regents of the University of California.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
-# For details, see sundials/shared/LICENSE.
+# For details, see the LICENSE file.
 # ------------------------------------------------------------------------
 # Process this file with autoconf to produce a configure script.
 # ------------------------------------------------------------------------

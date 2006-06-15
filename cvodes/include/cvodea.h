@@ -1,21 +1,21 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.49 $
- * $Date: 2006-06-13 01:22:12 $
+ * $Revision: 1.50 $
+ * $Date: 2006-06-15 15:39:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/cvodes/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the interface file for the CVODEA adjoint integrator.
  *
  * Function types:
  *    CVRhsFnB
  *    CVQuadRhsFnB
- * Exported functions prototypes:
+ * Exported function prototypes:
  *    CVadjMalloc
  *    CVadjSetInterpType
  *    CVodeF

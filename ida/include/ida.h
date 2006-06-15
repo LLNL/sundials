@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46 $
- * $Date: 2006-02-21 23:07:36 $
+ * $Revision: 1.47 $
+ * $Date: 2006-06-15 15:39:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -9,7 +9,7 @@
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * For details, see the LICENSE file
  * -----------------------------------------------------------------
  * This is the header (include) file for the main IDA solver.
  * -----------------------------------------------------------------
@@ -946,97 +946,6 @@ extern "C" {
    */
 
   void IDAFree(void **ida_mem);
-
-  /*
-   * =================================================================
-   *     I N T E R F A C E   T O    L I N E A R   S O L V E R S     
-   * =================================================================
-   */
-
-  /*
-   * -----------------------------------------------------------------
-   * int (*ida_linit)(IDAMem IDA_mem);                               
-   * -----------------------------------------------------------------
-   * The purpose of ida_linit is to allocate memory for the          
-   * solver-specific fields in the structure *(idamem->ida_lmem) and 
-   * perform any needed initializations of solver-specific memory,   
-   * such as counters/statistics. An (*ida_linit) should return      
-   * 0 if it has successfully initialized the IDA linear solver and 
-   * a non-zero value otherwise. If an error does occur, an 
-   * appropriate message should be sent to (idamem->errfp).          
-   * ----------------------------------------------------------------
-   */                                                                 
-
-  /*
-   * -----------------------------------------------------------------
-   * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,   
-   *                  N_Vector resp,                                 
-   *            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);  
-   * -----------------------------------------------------------------
-   * The job of ida_lsetup is to prepare the linear solver for       
-   * subsequent calls to ida_lsolve. Its parameters are as follows:  
-   *                                                                 
-   * idamem - problem memory pointer of type IDAMem. See the big     
-   *          typedef earlier in this file.                          
-   *                                                                 
-   *                                                                 
-   * yyp   - the predicted y vector for the current IDA internal     
-   *         step.                                                   
-   *                                                                 
-   * ypp   - the predicted y' vector for the current IDA internal    
-   *         step.                                                   
-   *                                                                 
-   * resp  - F(tn, yyp, ypp).                                        
-   *                                                                 
-   * tempv1, tempv2, tempv3 - temporary N_Vectors provided for use   
-   *         by ida_lsetup.                                          
-   *                                                                 
-   * The ida_lsetup routine should return 0 if successful,
-   * a positive value for a recoverable error, and a negative value 
-   * for an unrecoverable error.
-   * -----------------------------------------------------------------
-   */                                                                 
-
-  /*
-   * -----------------------------------------------------------------
-   * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector weight,  
-   *               N_Vector ycur, N_Vector ypcur, N_Vector rescur);  
-   * -----------------------------------------------------------------
-   * ida_lsolve must solve the linear equation P x = b, where        
-   * P is some approximation to the system Jacobian                  
-   *                  J = (dF/dy) + cj (dF/dy')                      
-   * evaluated at (tn,ycur,ypcur) and the RHS vector b is input.     
-   * The N-vector ycur contains the solver's current approximation   
-   * to y(tn), ypcur contains that for y'(tn), and the vector rescur 
-   * contains the N-vector residual F(tn,ycur,ypcur).                
-   * The solution is to be returned in the vector b. 
-   *                                                                 
-   * The ida_lsolve routine should return 0 if successful,
-   * a positive value for a recoverable error, and a negative value 
-   * for an unrecoverable error.
-   * -----------------------------------------------------------------
-   */                                                                 
-
-  /*
-   * -----------------------------------------------------------------
-   * int (*ida_lperf)(IDAMem IDA_mem, int perftask);                 
-   * -----------------------------------------------------------------
-   * ida_lperf is called two places in IDA where linear solver       
-   * performance data is required by IDA. For perftask = 0, an       
-   * initialization of performance variables is performed, while for 
-   * perftask = 1, the performance is evaluated.                     
-   * -----------------------------------------------------------------
-   */                                                                 
-
-  /*
-   * -----------------------------------------------------------------
-   * int (*ida_lfree)(IDAMem IDA_mem);                               
-   * -----------------------------------------------------------------
-   * ida_lfree should free up any memory allocated by the linear     
-   * solver. This routine is called once a problem has been          
-   * completed and the linear solver is no longer needed.            
-   * -----------------------------------------------------------------
-   */                                                                 
 
 #ifdef __cplusplus
 }

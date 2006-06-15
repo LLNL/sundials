@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-03-23 01:21:36 $
+ * $Revision: 1.4 $
+ * $Date: 2006-06-15 15:39:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Aaron Collier @ LLNL
@@ -9,11 +9,11 @@
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/shared/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the header file for a simple C-language math library. The
  * routines listed here work with the type realtype as defined in
- * the header file shared/include/sundialstypes.h.
+ * the header file sundials_types.h.
  * -----------------------------------------------------------------
  */
 

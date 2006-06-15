@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-18 01:54:40 $
+ * $Revision: 1.6 $
+ * $Date: 2006-06-15 15:39:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -9,7 +9,7 @@
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/kinsol/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the header file for the KINBBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
@@ -31,12 +31,12 @@
  *
  * The user's calling program should have the following form:
  *
- *   #include "sundialstypes.h"
- *   #include "sundialsmath.h"
- *   #include "iterative.h"
+ *   #include "sundials_types.h"
+ *   #include "sundials_math.h"
+ *   #include "sundials_iterative.h"
  *   #include "nvector_parallel.h"
  *   #include "kinsol.h"
- *   #include "kinbbdpre.h"
+ *   #include "kinsol_bbdpre.h"
  *   ...
  *   void *p_data;
  *   ...
@@ -76,7 +76,7 @@
  *
  * Notes:
  *
- * 1) This header file (kinbbdpre.h) is included by the user for
+ * 1) This header file (kinsol_bbdpre.h) is included by the user for
  *    the definition of the KBBDData data type and for needed
  *    function prototypes.
  *

@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-14 20:36:18 $
+ * $Revision: 1.4 $
+ * $Date: 2006-06-15 15:39:14 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * For details, see the LICENSE file
  * -----------------------------------------------------------------
  * This is the header file for the IDA Scaled Preconditioned GMRES     
  * linear solver module, IDASPGMR.                                 

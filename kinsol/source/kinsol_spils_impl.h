@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-02-02 00:36:32 $
+ * $Revision: 1.2 $
+ * $Date: 2006-06-15 15:39:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/kinsol/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * Common implementation header file for the scaled, preconditioned
  * linear solver modules.

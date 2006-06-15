@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-16 00:42:36 $
+ * $Revision: 1.6 $
+ * $Date: 2006-06-15 15:39:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -9,7 +9,7 @@
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/ida/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the header file for the IDABBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
@@ -32,7 +32,7 @@
  *
  * The user's calling program should have the following form:
  *
- *   #include "idabbdpre.h"
+ *   #include "ida_bbdpre.h"
  *   #include "nvector_parallel.h"
  *   ...
  *   void *p_data;

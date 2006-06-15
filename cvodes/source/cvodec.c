@@ -7,7 +7,7 @@
  * Copyright (c) 2006, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
+ * For details, see the LICENSE file                        *
  *-----------------------------------------------------------------*
  * This is a set of wrappers for derivative calculations in CVODES *
  * using the complex step method.                                  *

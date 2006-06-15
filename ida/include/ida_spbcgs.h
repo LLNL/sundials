@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-14 20:36:18 $
+ * $Revision: 1.4 $
+ * $Date: 2006-06-15 15:39:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2004, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/ida/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the public header file for the IDA scaled preconditioned
  * Bi-CGSTAB linear solver module, IDASPBCG.

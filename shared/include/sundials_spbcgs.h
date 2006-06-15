@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-15 02:23:22 $
+ * $Revision: 1.4 $
+ * $Date: 2006-06-15 15:39:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Peter Brown and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2004, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/kinsol/LICENSE.
+ * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the header file for the implementation of the scaled,
  * preconditioned Bi-CGSTAB (SPBCG) iterative linear solver.
@@ -107,7 +107,7 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl);
  *     of the linear system (undisturbed by function)
  *
  *  pretype  variable (type int) indicating the type of
- *           preconditioning to be used (see shared/include/iterative.h)
+ *           preconditioning to be used (see sundials_iterative.h)
  *
  *  delta  tolerance on the L2 norm of the scaled, preconditioned
  *         residual (if return value == SPBCG_SUCCESS, then
@@ -124,11 +124,11 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl);
  *      for b (pass sb == NULL if scaling NOT required)
  *
  *  atimes  user-supplied routine responsible for computing the
- *          matrix-vector product Ax (see shared/include/iterative.h)
+ *          matrix-vector product Ax (see sundials_iterative.h)
  *
  *  psolve  user-supplied routine responsible for solving the
  *          preconditioned linear system Pz = r (ignored if
- *          pretype == PREC_NONE) (see shared/include/iterative.h)
+ *          pretype == PREC_NONE) (see sundials_iterative.h)
  *
  *  res_norm  pointer (type realtype*) to the L2 norm of the
  *            scaled, preconditioned residual (if return value
