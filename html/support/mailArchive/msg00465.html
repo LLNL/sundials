@@ -1,0 +1,240 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Roundoff problem in CVODE One&#45;Step&#45;Mode for large t and small h -->
+<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
+<!--X-Date: Tue, 06 Jun 2006 10:05:07 &#45;0700 -->
+<!--X-Message-Id: 4485B502.90905@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: op.taovpatft8lo91@smtp.kuleuven.ac.be -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00464.html">Date Prev</a>] [<a href="msg00466.html">Date Next</a>] [<a href="msg00464.html">Thread Prev</a>] [<a href="msg00470.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00465">Date Index</a></b>]
+[<b><a href="threads.html#00465">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Tue, 06 Jun 2006 10:01:54 -0700</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+Andreas Nicolai wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
+I have a small problem here that causes the solver to loop endlessly 
+without any progress. The problem is the accuracy limitation of double 
+variables when used for time steps. If tn/tstop becomes large (&gt; 1e6) 
+and the time step gets very low (&lt; 10-8), the solver returns 0 from a 
+call to CVode() (in one step mode) but does not progress in time 
+anylonger. That makes sense because only 14 digits are accurately 
+represented and 100000 + 1e-10 == 100000.<br>
+<br>
+However, it would be nice if the solver would detect such problems. I 
+noticed, that a variable &quot;troundoff&quot; is calculated (line 1063 in 
+cvode.c) and this value could be used to compare with the current time 
+step and if h or hprime  becomes less then troundoff (or a similar 
+criterion), a warning/error message could be used to indicate the 
+problem. Right now a user of CVODE will not notice a problem except for 
+the fact that the time points in many successive calls to f() will 
+always be the same.<br>
+<br>
+I know that adding more and more checks for the &quot;convenience&quot; of users 
+is in contradiction to a &quot;as fast as possible&quot; policy, but maybe such a 
+small check wouldn't hurt and could be integrated in one of the next 
+versions?<br>
+<br>
+Related to that I have a general question regarding numerical 
+simulations with long time spans (several years in my case) but 
+occasional need for very small steps (sudden change in boundary 
+condition etc.). Considering, that after a year of simulation time I 
+have 31536000 seconds (order 1e7) and that only leaves time steps in the 
+order of around 1e-6, which may be too &quot;long&quot; to obtain convergence of 
+the solver for sudden changes in BC. Is there a recommanded way to treat 
+this problem? (The only thing I could think of was to periodically 
+restart the solver while shifting my simulation starting point, but that 
+would hurt overall performance and is messy to program and analyse).<br>
+<br>
+<pre style="margin: 0em;">Thanks for any suggestions,
+Andreas</pre><br>
+</blockquote><pre style="margin: 0em;"><br>Hi Andreas,</pre><br>
+CVODE(S) does include a test like the one you suggest (block starting at line 1282 in cvode.c in CVODE v2.4.0). The test is (tn+h==tn). A 
+warning message is issued several times (default 10, but the user can overwrite this through CVodeSetMaxHnilWarns) while this condition is 
+satisfied, after which the warning message is disabled. Unfortunately, issuing this warning message is the only mechanism through which the 
+user is notified of such a situation (there is no special CVode return value to flag this situation -- we should probably revisit this).<br>
+<br>
+I don't know how you deal with error/warning messages (whether you use the default handler or define your own). Check the output to see if 
+this happens in your case. For now, the only way of automatically intercepting this warning is by defining your own error message handler 
+function and intercept a potential error_code=CV_WARNING (see the default error handling function, CVErrHandler at the end of the file 
+cvode.c). You can provide your own error handler function (of type CVErrHandlerFn) by calling the &quot;Set&quot; function CVodeSetErrHandlerFn.<br>
+<br>
+As to your question on dealing with this problem, I don't think there is a general solution as this is a problem-dependent issue. Is your 
+system autonomous? If not, how does it explicitly depend on t?<br>
+<br>
+You could consider scaling the independent variable (change of variables tau &lt;- t/FACTOR, with FACTOR = 1e7 or something similar), but 
+you'll have to think this through for your particular RHS.<br>
+<br>
+An option would indeed be to restart the integrator and shift the time (tau &lt;- t-t*). To decide when to reinitialize, you could intercept 
+the warning as suggested above or else include a similar test in your own code. If you integrate in ONE_STEP mode, you can check t+h==t 
+(probably you should use some safety factor, i.e. test something like |h| &lt; FACTOR * DBL_EPSILON * |t|) after CVode returns, using t=tret 
+and h from CVodeGetCurrentStep. If you integrate in NORMAL mode, you can perform such a test in the RHS function (you may have to store the 
+last time at which the RHS was evaluated, or else pass a pointer to cvode_mem through your user data so that you can call 
+CVodeGetCurrentStep) and return a negative value signaling an &quot;unrecoverable&quot; failure in which case CVode will halt and you can reinitialize 
+there.<br>
+<br>
+<pre style="margin: 0em;">Hope that this helps,</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+P.S.1. troundoff is used for something else. It could be indeed used to perform a test on small stepsize: |h| &lt; troundoff. However, ignoring 
+the multiplier FUZZ_FACTOR, this test would be the same as tn == tn+h.<br>
+<br>
+P.S.2. Beware of gcc compilers which, on many architectures, keep more precision than a &quot;double&quot; is supposed to have. Even if using a 
+compilation flag such as -ffloat-store, floating point arithmetic (i.e. &quot;tn+h&quot;) is still done in extended precision and as a consequence, 
+the test (tn+h==tn) passes only for h about 4 orders of magnitude smaller than what you'd expect from DBL_EPSILON.<br>
+<br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br>--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00464" href="msg00464.html">[sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</a></strong>
+<ul><li><em>From:</em> &quot;Andreas Nicolai&quot; &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00464.html">[sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00466.html">[sundials-users] Name and location changes of include and library files</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00464.html">[sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00470.html">Re: [sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00465">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00465">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

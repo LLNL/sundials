@@ -1,14 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Sequential optimization setup with sensitivities -->
-<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Mon, 29 May 2006 15:20:09 &#45;0700 (PDT) -->
-<!--X-Message-Id: 447B7246.5060209@llnl.gov -->
+<!--X-Subject: [sundials&#45;users] Name and location changes of include and library files -->
+<!--X-From-R13: Xbr Winavp <wvinavpNapvspes.tbi> -->
+<!--X-Date: Tue, 06 Jun 2006 12:52:01 &#45;0700 -->
+<!--X-Message-Id: 4485DC19.8000008@ncifcrf.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: B636D6447F138C478AA16E69B43CF26C036D5F40@elex3.campus.tue.nl -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Sequential optimization setup with sensitivities</title>
+<title>[sundials-users] Name and location changes of include and library files</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00457.html">Date Prev</a>] [<a href="msg00459.html">Date Next</a>] [<a href="msg00456.html">Thread Prev</a>] [<a href="msg00459.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00458">Date Index</a></b>]
-[<b><a href="threads.html#00458">Thread Index</a></b>]
+[<a href="msg00465.html">Date Prev</a>] [<a href="msg00467.html">Date Next</a>] [<a href="msg00464.html">Thread Prev</a>] [<a href="msg00467.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00466">Date Index</a></b>]
+[<b><a href="threads.html#00466">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Sequential optimization setup with sensitivities</h1>
+<h1>[sundials-users] Name and location changes of include and library files</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+Joe Ivanic &lt;<a href="mailto:jivanic%40ncifcrf.gov">jivanic@ncifcrf.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Mon, 29 May 2006 15:14:30 -0700</td>
+Tue, 06 Jun 2006 15:48:41 -0400</td>
 </tr>
 
 </table>
@@ -101,51 +100,49 @@ Mon, 29 May 2006 15:14:30 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-Nauta, K.M. wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu Serban (&amp; other people from the user list),</pre><br>
- 
-</blockquote><pre style="margin: 0em;"><br>Hi Maarten,</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>I am a PhD student working on optimization using reduced models. I am 
-currently using the sundials CVODES solver from Matlab and was wondering 
-when the IDAS solver will become available.<br>
+<pre style="margin: 0em;">Hi everybody,</pre><br>
+I am installing a program (BioNetGen2: network.c, run_network.c) that 
+uses a lot of include files and libraries from the SUNDIAL package, 
+really only for calling CVODE. However, it uses an older version of 
+SUNDIAL. I have downloaded the newest SUNDIAL and there seems to some 
+changes in header file names and libraries, including their location.<br>
 <br>
-</blockquote><br>IDAS is (still) 'under development'. I am working on it as time permits 
-so I cannot provide any estimate as to when it'll be released. Moreover, 
-sundialsTB was/is just a weekend project and estimates on when I'll be 
-able to add an IDAS Matlab interface are even fuzzier.<br>
+I have found most of the new names and locations of the include files. 
+For example, there is now a directory in /include, called /sundials and 
+this contains some of the old/new headers. I am not 100 % sure of which 
+old SUNDIAL version BioNetGen uses but there are some definite 
+differences in names and locations of the headers.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>Because I expect this will take still some time, I was also wondering if 
-you have a recommendation for setting up a ad-hoc sequential 
-optimization scheme for semi-explicit DAE&#x2019;s in Matlab (by passing 
-sensitivities from the DAE solver (preferably adjoint method) to an SQP 
-algorithm) which can handle medium sized systems (+- 100-300 eqs). Is 
-there any solver available which can be interfaced from Matlab, it 
-suitable for these sizes of systems, and can return sensitivities? If 
-not, would the easiest temporary solution be to extend the ode15s solver 
-(with mass matrix) with backward calculation of the sensitivity 
-equations, or is there another option?<br>
+Here is a list of the include files that BioNetGen is looking for 
+(presumed to be in /include):<br>
 <br>
-</blockquote><br>I am not aware of any other integrators with adjoint sensitivity 
-analysis that also provide a Matlab interface. However, your suggestion 
-of using the ode15s Matlab solver is certainly feasible for relatively 
-small size problems. You should actually be able to write a wrapper 
-around ode15s (i.e. without even touching its source code) for the 
-backward problem very much like the CVODEA module which is nothing but a 
-wrapper around the main CVODES integrator. Take a look at how the 
-interface functions CVArhs and CVAdenseJac (in cvodea.c) first call an 
-interpolation function to obtain the forward solution at the current 
-(backward) time and then call the corresponding RHS and Jacobian 
-functions for the backward problem. For ode15s, you could use deval to 
-get the forward solution when needed (assuming you stored the solution 
-structure returned by ode15s on the forward pass and passed it as &quot;user 
-data&quot; to the backward pass).<br>
+<pre style="margin: 0em;">#include &quot;sundialstypes.h&quot;
+#include &quot;cvode.h&quot;
+#include &quot;nvector_serial.h&quot;
+#include &quot;cvdense.h&quot;
+#include &quot;dense.h&quot;
+#include &quot;cvspgmr.h&quot;
+#include &quot;spgmr.h&quot;</pre><br>
+<pre style="margin: 0em;">I have matched all of these up I think to the new names and locations...</pre><br>
+<pre style="margin: 0em;">Here is a list of the libraries the linker is looking for:</pre><br>
+<pre style="margin: 0em;">SUNDIALS_LIBS    = -lsundials_cvode -lsundials_nvecserial -lsundials_shared</pre><br>
+<pre style="margin: 0em;">It is the last one (shared) that I cannot find anymore.</pre><br>
+Has anyone had to map the names and locations of include files and 
+libraries as SUNDIAL has been slowly modified? Does anyone have this 
+mapping?<br>
 <br>
-<pre style="margin: 0em;">Hope that this helps,
---Radu</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>Maarten Nauta</pre><br>
-<pre style="margin: 0em;">PhD Student</pre><br>
-<pre style="margin: 0em;">Eindhoven University of Technology</pre><br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">Joe</pre><br>
+<pre style="margin: 0em;">--</pre><br>
+Dr. Joe Ivanic<br>
+Scientist		<br>
+BHSAI/BIC<br>
+Bldg 363 
+Miller Drive<br>
+Ft. Deterick MD 21702<br>
+<br>
+Voice: 301 619 1976<br>
+Fax  : 301 619 1983 <br>
+<br>
 <br>
 
 <!--X-Body-of-Message-End-->
@@ -154,35 +151,35 @@ data&quot; to the backward pass).<br>
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00467" href="msg00467.html">Re: [sundials-users] Name and location changes of include and library files</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00456" href="msg00456.html">[sundials-users] Sequential optimization setup with sensitivities</a></strong>
-<ul><li><em>From:</em> &quot;Nauta, K.M.&quot; &lt;K.M.Nauta@tue.nl&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00457.html">Re: [sundials-users] error in sample examples</a></strong>
+<strong><a href="msg00465.html">Re: [sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00459.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<strong><a href="msg00467.html">Re: [sundials-users] Name and location changes of include and library files</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00456.html">[sundials-users] Sequential optimization setup with sensitivities</a></strong>
+<strong><a href="msg00464.html">[sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00459.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<strong><a href="msg00467.html">Re: [sundials-users] Name and location changes of include and library files</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00458">
+<li><a href="maillist.html#00466">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00458">
+<li><a href="threads.html#00466">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

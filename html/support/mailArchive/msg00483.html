@@ -1,14 +1,18 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Sequential optimization setup with sensitivities -->
-<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Mon, 29 May 2006 15:20:09 &#45;0700 (PDT) -->
-<!--X-Message-Id: 447B7246.5060209@llnl.gov -->
+<!--X-Subject: Re: [sundials&#45;users] Sundials installation... -->
+<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
+<!--X-Date: Thu, 08 Jun 2006 14:06:48 &#45;0700 -->
+<!--X-Message-Id: 44889100.8050308@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: B636D6447F138C478AA16E69B43CF26C036D5F40@elex3.campus.tue.nl -->
+<!--X-Reference: 44886DEA.6000909@et.byu.edu -->
+<!--X-Reference: 200606082057.24125.andrey@enginum.com -->
+<!--X-Reference: 4488875D.4070800@et.byu.edu -->
+<!--X-Reference: 44888891.9030503@llnl.gov -->
+<!--X-Reference: 44888D54.5020400@et.byu.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Sequential optimization setup with sensitivities</title>
+<title>Re: [sundials-users] Sundials installation...</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +71,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00457.html">Date Prev</a>] [<a href="msg00459.html">Date Next</a>] [<a href="msg00456.html">Thread Prev</a>] [<a href="msg00459.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00458">Date Index</a></b>]
-[<b><a href="threads.html#00458">Thread Index</a></b>]
+[<a href="msg00482.html">Date Prev</a>] [<a href="msg00484.html">Date Next</a>] [<a href="msg00488.html">Thread Prev</a>] [<a href="msg00486.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00483">Date Index</a></b>]
+[<b><a href="threads.html#00483">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Sequential optimization setup with sensitivities</h1>
+<h1>Re: [sundials-users] Sundials installation...</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +88,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Mon, 29 May 2006 15:14:30 -0700</td>
+Thu, 08 Jun 2006 14:05:04 -0700</td>
 </tr>
 
 </table>
@@ -101,52 +105,62 @@ Mon, 29 May 2006 15:14:30 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-Nauta, K.M. wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu Serban (&amp; other people from the user list),</pre><br>
- 
-</blockquote><pre style="margin: 0em;"><br>Hi Maarten,</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>I am a PhD student working on optimization using reduced models. I am 
-currently using the sundials CVODES solver from Matlab and was wondering 
-when the IDAS solver will become available.<br>
+<tt>Dan Smyth wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Do I need to?  I thought that they would be automatically made as part 
+of the `make install` script.  Is that not correct?  The new version of 
+Sundials seemed to do things automatically.  Is this something that has 
+changed with the most recent version?  Thanks.
+</tt></blockquote><tt><br>The configure script is supposed to create them if they do not exist, but there was a small bug in the older releases that prevented it from 
+doing so. Just create them manually and everything should work fine.<br>
+--Radu</tt><br>
 <br>
-</blockquote><br>IDAS is (still) 'under development'. I am working on it as time permits 
-so I cannot provide any estimate as to when it'll be released. Moreover, 
-sundialsTB was/is just a weekend project and estimates on when I'll be 
-able to add an IDAS Matlab interface are even fuzzier.<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>Dan</pre><br>
+<pre style="margin: 0em;">Radu Serban wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dan Smyth wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Yes.  I've already installed a number of other packages in this same 
+directory.  That's why I'm a little confused at the error.</tt><br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>Because I expect this will take still some time, I was also wondering if 
-you have a recommendation for setting up a ad-hoc sequential 
-optimization scheme for semi-explicit DAE&#x2019;s in Matlab (by passing 
-sensitivities from the DAE solver (preferably adjoint method) to an SQP 
-algorithm) which can handle medium sized systems (+- 100-300 eqs). Is 
-there any solver available which can be interfaced from Matlab, it 
-suitable for these sizes of systems, and can return sensitivities? If 
-not, would the easiest temporary solution be to extend the ode15s solver 
-(with mass matrix) with backward calculation of the sensitivity 
-equations, or is there another option?<br>
+</blockquote><tt><br>But did you create the directory sundials-install/ and the 
+subdirectories sundials-install/lib/ and sundials-install/include/ 
+before running 'make install'?<br>
+--Radu</tt><br>
 <br>
-</blockquote><br>I am not aware of any other integrators with adjoint sensitivity 
-analysis that also provide a Matlab interface. However, your suggestion 
-of using the ode15s Matlab solver is certainly feasible for relatively 
-small size problems. You should actually be able to write a wrapper 
-around ode15s (i.e. without even touching its source code) for the 
-backward problem very much like the CVODEA module which is nothing but a 
-wrapper around the main CVODES integrator. Take a look at how the 
-interface functions CVArhs and CVAdenseJac (in cvodea.c) first call an 
-interpolation function to obtain the forward solution at the current 
-(backward) time and then call the corresponding RHS and Jacobian 
-functions for the backward problem. For ode15s, you could use deval to 
-get the forward solution when needed (assuming you stored the solution 
-structure returned by ode15s on the forward pass and passed it as &quot;user 
-data&quot; to the backward pass).<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dan</pre><br>
+<pre style="margin: 0em;">Andrey Romanenko wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi!</pre><br>
+<tt>On Thursday 08 June 2006 19:35, Dan Smyth wrote:<br>
+ </tt><br>
 <br>
-<pre style="margin: 0em;">Hope that this helps,
---Radu</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>Maarten Nauta</pre><br>
-<pre style="margin: 0em;">PhD Student</pre><br>
-<pre style="margin: 0em;">Eindhoven University of Technology</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>/bin/sh ..//libtool --mode=install /usr/bin/install -c<br>
+libsundials_nvecserial.la 
+//auto/grp4/HMX_propellants/sundials-install/lib<br>
+/usr/bin/install -c .libs/libsundials_nvecserial.lai<br>
+//auto/grp4/HMX_propellants/sundials-install/libsundials_nvecserial.la<br>
+/usr/bin/install: cannot create regular file<br>
+`//auto/grp4/HMX_propellants/sundials-install/libsundials_nvecserial.la': </tt><br>
+<br>
+<tt>No such file or directory<br>
+make[1]: *** [install] Error 1<br>
+make[1]: Leaving directory<br>
+    
+</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+<tt><br>Do  you have writing permissions  to your target directories 
+(/auto/grp/...)?<br>
+Andrey</tt><br>
+<br>
+<pre style="margin: 0em;"><br></pre><br>
+<tt><br>  
+</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
-<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -158,31 +172,39 @@ data&quot; to the backward pass).<br>
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00456" href="msg00456.html">[sundials-users] Sequential optimization setup with sensitivities</a></strong>
-<ul><li><em>From:</em> &quot;Nauta, K.M.&quot; &lt;K.M.Nauta@tue.nl&gt;</li></ul></li>
+<li><strong><a name="00473" href="msg00473.html">[sundials-users] Sundials installation...</a></strong>
+<ul><li><em>From:</em> Dan Smyth &lt;das69@et.byu.edu&gt;</li></ul></li>
+<li><strong><a name="00478" href="msg00478.html">Re: [sundials-users] Sundials installation...</a></strong>
+<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
+<li><strong><a name="00479" href="msg00479.html">Re: [sundials-users] Sundials installation...</a></strong>
+<ul><li><em>From:</em> Dan Smyth &lt;das69@et.byu.edu&gt;</li></ul></li>
+<li><strong><a name="00480" href="msg00480.html">Re: [sundials-users] Sundials installation...</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00481" href="msg00481.html">Re: [sundials-users] Sundials installation...</a></strong>
+<ul><li><em>From:</em> Dan Smyth &lt;das69@et.byu.edu&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00457.html">Re: [sundials-users] error in sample examples</a></strong>
+<strong><a href="msg00482.html">Re: [sundials-users] Sundials installation...</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00459.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<strong><a href="msg00484.html">Re: [sundials-users] Sundials installation...</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00456.html">[sundials-users] Sequential optimization setup with sensitivities</a></strong>
+<strong><a href="msg00488.html">Re: [sundials-users] Sundials installation...</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00459.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<strong><a href="msg00486.html">[sundials-users] The lighter side of SUNDIALS</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00458">
+<li><a href="maillist.html#00483">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00458">
+<li><a href="threads.html#00483">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

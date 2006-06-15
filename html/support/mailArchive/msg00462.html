@@ -1,14 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Sequential optimization setup with sensitivities -->
+<!--X-Subject: Re: [sundials&#45;users] Step sizes for Jacobian approximation -->
 <!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Mon, 29 May 2006 15:20:09 &#45;0700 (PDT) -->
-<!--X-Message-Id: 447B7246.5060209@llnl.gov -->
+<!--X-Date: Wed, 31 May 2006 08:35:15 &#45;0700 (PDT) -->
+<!--X-Message-Id: 447DB6BC.8010102@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: B636D6447F138C478AA16E69B43CF26C036D5F40@elex3.campus.tue.nl -->
+<!--X-Reference: 447D9E1B.9060906@eas.iis.fraunhofer.de -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Sequential optimization setup with sensitivities</title>
+<title>Re: [sundials-users] Step sizes for Jacobian approximation</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00457.html">Date Prev</a>] [<a href="msg00459.html">Date Next</a>] [<a href="msg00456.html">Thread Prev</a>] [<a href="msg00459.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00458">Date Index</a></b>]
-[<b><a href="threads.html#00458">Thread Index</a></b>]
+[<a href="msg00461.html">Date Prev</a>] [<a href="msg00463.html">Date Next</a>] [<a href="msg00461.html">Thread Prev</a>] [Thread Next]<br>
+[<b><a href="maillist.html#00462">Date Index</a></b>]
+[<b><a href="threads.html#00462">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Sequential optimization setup with sensitivities</h1>
+<h1>Re: [sundials-users] Step sizes for Jacobian approximation</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -91,7 +91,7 @@ Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Mon, 29 May 2006 15:14:30 -0700</td>
+Wed, 31 May 2006 08:31:08 -0700</td>
 </tr>
 
 </table>
@@ -101,52 +101,39 @@ Mon, 29 May 2006 15:14:30 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-Nauta, K.M. wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu Serban (&amp; other people from the user list),</pre><br>
- 
-</blockquote><pre style="margin: 0em;"><br>Hi Maarten,</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>I am a PhD student working on optimization using reduced models. I am 
-currently using the sundials CVODES solver from Matlab and was wondering 
-when the IDAS solver will become available.<br>
+Jens Bastian wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello,</pre><br>
+<pre style="margin: 0em;">when using IDA I detected a problem when the initial values are 0 and
+atol is small. IDACalcIC() stops with</pre><br>
+<pre style="margin: 0em;">[IDA ERROR]  IDACalcIC
+  The residual routine or the linear setup or solve routine had a
+recoverable error, but IDACalcIC was unable to recover.</pre><br>
+<pre style="margin: 0em;">An example showing this behavior is attached.</pre><br>
+<pre style="margin: 0em;">I figured out that the reason for this is the calculation of the step
+sizes for the approximation of the Jacobian by difference quotients. For
+initial values 0 it holds |y(j)|=0 and |yp(j)|=0 and therefore the
+stepsize is sigma(j)=sqrt(epsmach)*abs(j). Obviously sigma(j) becomes
+too small for small values of the absolute error.</pre><br>
+<pre style="margin: 0em;">I changed the line
+    inc = srur*MAX(ABS(yj),MAX( ABS(hh*ypj), ONE/ewt_data[j]));
+in ida_dense.c into
+    inc = MAX(srur*(ABS(yj), ABS(hh*ypj)), ONE/ewt_data[j]);
+and now the example works.</pre><br>
+<pre style="margin: 0em;">Best regards
+Jens</pre><br>
 <br>
-</blockquote><br>IDAS is (still) 'under development'. I am working on it as time permits 
-so I cannot provide any estimate as to when it'll be released. Moreover, 
-sundialsTB was/is just a weekend project and estimates on when I'll be 
-able to add an IDAS Matlab interface are even fuzzier.<br>
+</blockquote><pre style="margin: 0em;"><br>Hi Jens,</pre><br>
+You're right. The safety minimum increment is not implemented right. Your fix is correct (and consistent with that in CVODE/CVODES). For 
+y=y'=0, the increment should be abstol. I'll made the necessary changes to ida_dense and ida_band.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>Because I expect this will take still some time, I was also wondering if 
-you have a recommendation for setting up a ad-hoc sequential 
-optimization scheme for semi-explicit DAE&#x2019;s in Matlab (by passing 
-sensitivities from the DAE solver (preferably adjoint method) to an SQP 
-algorithm) which can handle medium sized systems (+- 100-300 eqs). Is 
-there any solver available which can be interfaced from Matlab, it 
-suitable for these sizes of systems, and can return sensitivities? If 
-not, would the easiest temporary solution be to extend the ode15s solver 
-(with mass matrix) with backward calculation of the sensitivity 
-equations, or is there another option?<br>
-<br>
-</blockquote><br>I am not aware of any other integrators with adjoint sensitivity 
-analysis that also provide a Matlab interface. However, your suggestion 
-of using the ode15s Matlab solver is certainly feasible for relatively 
-small size problems. You should actually be able to write a wrapper 
-around ode15s (i.e. without even touching its source code) for the 
-backward problem very much like the CVODEA module which is nothing but a 
-wrapper around the main CVODES integrator. Take a look at how the 
-interface functions CVArhs and CVAdenseJac (in cvodea.c) first call an 
-interpolation function to obtain the forward solution at the current 
-(backward) time and then call the corresponding RHS and Jacobian 
-functions for the backward problem. For ode15s, you could use deval to 
-get the forward solution when needed (assuming you stored the solution 
-structure returned by ode15s on the forward pass and passed it as &quot;user 
-data&quot; to the backward pass).<br>
-<br>
-<pre style="margin: 0em;">Hope that this helps,
+<pre style="margin: 0em;">Thanks!
 --Radu</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>Maarten Nauta</pre><br>
-<pre style="margin: 0em;">PhD Student</pre><br>
-<pre style="margin: 0em;">Eindhoven University of Technology</pre><br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
-<br>
+<pre style="margin: 0em;">--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -158,31 +145,28 @@ data&quot; to the backward pass).<br>
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00456" href="msg00456.html">[sundials-users] Sequential optimization setup with sensitivities</a></strong>
-<ul><li><em>From:</em> &quot;Nauta, K.M.&quot; &lt;K.M.Nauta@tue.nl&gt;</li></ul></li>
+<li><strong><a name="00461" href="msg00461.html">[sundials-users] Step sizes for Jacobian approximation</a></strong>
+<ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00457.html">Re: [sundials-users] error in sample examples</a></strong>
+<strong><a href="msg00461.html">[sundials-users] Step sizes for Jacobian approximation</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00459.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<strong><a href="msg00463.html">Re: [sundials-users] Re: Inquiry regarding CVODE</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00456.html">[sundials-users] Sequential optimization setup with sensitivities</a></strong>
-</li>
-<li>Next by thread:
-<strong><a href="msg00459.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<strong><a href="msg00461.html">[sundials-users] Step sizes for Jacobian approximation</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00458">
+<li><a href="maillist.html#00462">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00458">
+<li><a href="threads.html#00462">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

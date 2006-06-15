@@ -1,14 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Sequential optimization setup with sensitivities -->
-<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Mon, 29 May 2006 15:20:09 &#45;0700 (PDT) -->
-<!--X-Message-Id: 447B7246.5060209@llnl.gov -->
+<!--X-Subject: [sundials&#45;users] Roundoff problem in CVODE One&#45;Step&#45;Mode for large t and small h -->
+<!--X-From-R13: "Oaqernf @vpbynv" <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Mon, 05 Jun 2006 13:15:35 &#45;0700 -->
+<!--X-Message-Id: op.taovpatft8lo91@smtp.kuleuven.ac.be -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: B636D6447F138C478AA16E69B43CF26C036D5F40@elex3.campus.tue.nl -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Sequential optimization setup with sensitivities</title>
+<title>[sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00457.html">Date Prev</a>] [<a href="msg00459.html">Date Next</a>] [<a href="msg00456.html">Thread Prev</a>] [<a href="msg00459.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00458">Date Index</a></b>]
-[<b><a href="threads.html#00458">Thread Index</a></b>]
+[<a href="msg00463.html">Date Prev</a>] [<a href="msg00465.html">Date Next</a>] [<a href="msg00461.html">Thread Prev</a>] [<a href="msg00465.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00464">Date Index</a></b>]
+[<b><a href="threads.html#00464">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Sequential optimization setup with sensitivities</h1>
+<h1>[sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+&quot;Andreas Nicolai&quot; &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Mon, 29 May 2006 15:14:30 -0700</td>
+Mon, 05 Jun 2006 16:11:24 -0400</td>
 </tr>
 
 </table>
@@ -101,52 +100,38 @@ Mon, 29 May 2006 15:14:30 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-Nauta, K.M. wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu Serban (&amp; other people from the user list),</pre><br>
- 
-</blockquote><pre style="margin: 0em;"><br>Hi Maarten,</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>I am a PhD student working on optimization using reduced models. I am 
-currently using the sundials CVODES solver from Matlab and was wondering 
-when the IDAS solver will become available.<br>
-<br>
-</blockquote><br>IDAS is (still) 'under development'. I am working on it as time permits 
-so I cannot provide any estimate as to when it'll be released. Moreover, 
-sundialsTB was/is just a weekend project and estimates on when I'll be 
-able to add an IDAS Matlab interface are even fuzzier.<br>
-<br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>Because I expect this will take still some time, I was also wondering if 
-you have a recommendation for setting up a ad-hoc sequential 
-optimization scheme for semi-explicit DAE&#x2019;s in Matlab (by passing 
-sensitivities from the DAE solver (preferably adjoint method) to an SQP 
-algorithm) which can handle medium sized systems (+- 100-300 eqs). Is 
-there any solver available which can be interfaced from Matlab, it 
-suitable for these sizes of systems, and can return sensitivities? If 
-not, would the easiest temporary solution be to extend the ode15s solver 
-(with mass matrix) with backward calculation of the sensitivity 
-equations, or is there another option?<br>
-<br>
-</blockquote><br>I am not aware of any other integrators with adjoint sensitivity 
-analysis that also provide a Matlab interface. However, your suggestion 
-of using the ode15s Matlab solver is certainly feasible for relatively 
-small size problems. You should actually be able to write a wrapper 
-around ode15s (i.e. without even touching its source code) for the 
-backward problem very much like the CVODEA module which is nothing but a 
-wrapper around the main CVODES integrator. Take a look at how the 
-interface functions CVArhs and CVAdenseJac (in cvodea.c) first call an 
-interpolation function to obtain the forward solution at the current 
-(backward) time and then call the corresponding RHS and Jacobian 
-functions for the backward problem. For ode15s, you could use deval to 
-get the forward solution when needed (assuming you stored the solution 
-structure returned by ode15s on the forward pass and passed it as &quot;user 
-data&quot; to the backward pass).<br>
-<br>
-<pre style="margin: 0em;">Hope that this helps,
---Radu</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>Maarten Nauta</pre><br>
-<pre style="margin: 0em;">PhD Student</pre><br>
-<pre style="margin: 0em;">Eindhoven University of Technology</pre><br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
-<br>
+<pre style="margin: 0em;">Hi there,</pre><br>
+<pre style="margin: 0em;">I have a small problem here that causes the solver to loop endlessly without any 
+progress. The problem is the accuracy limitation of double variables when used for 
+time steps. If tn/tstop becomes large (&gt; 1e6) and the time step gets very low 
+(&lt; 10-8), the solver returns 0 from a call to CVode() (in one step mode) but does 
+not progress in time anylonger. That makes sense because only 14 digits are 
+accurately represented and 100000 + 1e-10 == 100000.</pre><br>
+<pre style="margin: 0em;">However, it would be nice if the solver would detect such problems. I noticed, that a 
+variable &quot;troundoff&quot; is calculated (line 1063 in cvode.c) and this value could 
+be used to compare with the current time step and if h or hprime  becomes less then 
+troundoff (or a similar criterion), a warning/error message could be used to indicate the 
+problem. Right now a user of CVODE will not notice a problem except for the fact that the 
+time points in many successive calls to f() will always be the same.</pre><br>
+<pre style="margin: 0em;">I know that adding more and more checks for the &quot;convenience&quot; of users is in 
+contradiction to a &quot;as fast as possible&quot; policy, but maybe such a small check wouldn't 
+hurt and could be integrated in one of the next versions?</pre><br>
+<pre style="margin: 0em;">Related to that I have a general question regarding numerical simulations with long time 
+spans (several years in my case) but occasional need for very small steps (sudden change 
+in boundary condition etc.). Considering, that after a year of simulation time I have 
+31536000 seconds (order 1e7) and that only leaves time steps in the order of around 1e-6, 
+which may be too &quot;long&quot; to obtain convergence of the solver for sudden changes 
+in BC. Is there a recommanded way to treat this problem? (The only thing I could think of 
+was to periodically restart the solver while shifting my simulation starting point, but 
+that would hurt overall performance and is messy to program and analyse).</pre><br>
+<pre style="margin: 0em;">Thanks for any suggestions,
+Andreas</pre><br>
+<pre style="margin: 0em;">--
+Andreas Nicolai                         anicolai@syr.edu
+PhD Candidate, M.A.M.E                  (315) 443-1099
+Syracuse University
+151 Link Hall
+Syracuse, NY, 13244</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -154,35 +139,39 @@ data&quot; to the backward pass).<br>
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00471" href="msg00471.html">Re: [sundials-users] Roundoff problem in CVODE for large t and small h</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00470" href="msg00470.html">Re: [sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00465" href="msg00465.html">Re: [sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00456" href="msg00456.html">[sundials-users] Sequential optimization setup with sensitivities</a></strong>
-<ul><li><em>From:</em> &quot;Nauta, K.M.&quot; &lt;K.M.Nauta@tue.nl&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00457.html">Re: [sundials-users] error in sample examples</a></strong>
+<strong><a href="msg00463.html">Re: [sundials-users] Re: Inquiry regarding CVODE</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00459.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<strong><a href="msg00465.html">Re: [sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00456.html">[sundials-users] Sequential optimization setup with sensitivities</a></strong>
+<strong><a href="msg00461.html">[sundials-users] Step sizes for Jacobian approximation</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00459.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<strong><a href="msg00465.html">Re: [sundials-users] Roundoff problem in CVODE One-Step-Mode for large t and small h</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00458">
+<li><a href="maillist.html#00464">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00458">
+<li><a href="threads.html#00464">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

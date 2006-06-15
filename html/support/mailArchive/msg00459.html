@@ -1,14 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Sequential optimization setup with sensitivities -->
+<!--X-Subject: [sundials&#45;users] Re: Inquiry regarding CVODE -->
 <!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Mon, 29 May 2006 15:20:09 &#45;0700 (PDT) -->
-<!--X-Message-Id: 447B7246.5060209@llnl.gov -->
+<!--X-Date: Tue, 30 May 2006 10:53:42 &#45;0700 (PDT) -->
+<!--X-Message-Id: 447C851C.70405@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: B636D6447F138C478AA16E69B43CF26C036D5F40@elex3.campus.tue.nl -->
+<!--X-Reference: 90004056.1148981680079.JavaMail.wwwadmin@phoebe.mathworks.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Sequential optimization setup with sensitivities</title>
+<title>[sundials-users] Re: Inquiry regarding CVODE</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00457.html">Date Prev</a>] [<a href="msg00459.html">Date Next</a>] [<a href="msg00456.html">Thread Prev</a>] [<a href="msg00459.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00458">Date Index</a></b>]
-[<b><a href="threads.html#00458">Thread Index</a></b>]
+[<a href="msg00458.html">Date Prev</a>] [<a href="msg00460.html">Date Next</a>] [<a href="msg00456.html">Thread Prev</a>] [<a href="msg00460.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00459">Date Index</a></b>]
+[<b><a href="threads.html#00459">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Sequential optimization setup with sensitivities</h1>
+<h1>[sundials-users] Re: Inquiry regarding CVODE</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -91,7 +91,7 @@ Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Mon, 29 May 2006 15:14:30 -0700</td>
+Tue, 30 May 2006 10:47:08 -0700</td>
 </tr>
 
 </table>
@@ -101,52 +101,55 @@ Mon, 29 May 2006 15:14:30 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-Nauta, K.M. wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu Serban (&amp; other people from the user list),</pre><br>
- 
-</blockquote><pre style="margin: 0em;"><br>Hi Maarten,</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>I am a PhD student working on optimization using reduced models. I am 
-currently using the sundials CVODES solver from Matlab and was wondering 
-when the IDAS solver will become available.<br>
+Dotan Algranati wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Dear Sir,<br>
+It is of great honor for me to contact you after reading some of your papers.<br>
+I&#x2019;m a graduate student, investigating the flow in the coronary system (the blood vessels feeding the heart). 
+Making it as general as possible, I have a large-scale, stiff, fully non-linear ODE system to solve, that can be described as y'=Ay+b, where A and b should be updated each time step according to y. A is symmetric, positive definite, and sparse (5 elements per row) but poorly banded. The Jacobian itself is also sparse and poorly banded. I was able to solve a similar system with N~1000 using MATLAB&#x2019;s ode15s, and now I need to solve a system in which N is ~ 5*10^6.<br>
+I thought about trying to solve it with CVODE. In addition, I&#x2019;m not much of a programmer, driving me to think about using the MATLAB interface.<br>
 <br>
-</blockquote><br>IDAS is (still) 'under development'. I am working on it as time permits 
-so I cannot provide any estimate as to when it'll be released. Moreover, 
-sundialsTB was/is just a weekend project and estimates on when I'll be 
-able to add an IDAS Matlab interface are even fuzzier.<br>
+<pre style="margin: 0em;">1. From your experience, is CVODE the kind of tool I&#x2019;m looking for?
+2. How large a problem can I solve with CVODE? I know that ode15s allocates an n-by-n 
+Jacobian matrix, restricting me to &#x201C;small&#x201D; systems.
+3. What kind of hardware am I looking for?
+4. Any other comment would be of great help.</pre><br>
+<pre style="margin: 0em;">Thank you for your time,</pre><br>
+<pre style="margin: 0em;">Dotan Algranati
+B.Sc. in Biomedical Engineering</pre><br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>Because I expect this will take still some time, I was also wondering if 
-you have a recommendation for setting up a ad-hoc sequential 
-optimization scheme for semi-explicit DAE&#x2019;s in Matlab (by passing 
-sensitivities from the DAE solver (preferably adjoint method) to an SQP 
-algorithm) which can handle medium sized systems (+- 100-300 eqs). Is 
-there any solver available which can be interfaced from Matlab, it 
-suitable for these sizes of systems, and can return sensitivities? If 
-not, would the easiest temporary solution be to extend the ode15s solver 
-(with mass matrix) with backward calculation of the sensitivity 
-equations, or is there another option?<br>
+</blockquote><pre style="margin: 0em;"><br>Dear Dotan,</pre><br>
+Yes, CVODE is the right tool for the type of problem you have. It has been routinely used to solve systems with millions of unknowns. That 
+being said, the only linear solvers currently provided with SUNDIALS that can effectively deal with large-scale systems are the Krylov ones 
+which are matrix-free (i.e. never form the Jacobian matrix but rather require only Jacobian-vector products) but, for acceptable efficiency, 
+require preconditioning. We plan on including a sparse direct linear solver, but one is not currently available. There is, of course, the 
+option of providing your own linear solver (all SUNDIALS solvers define a generic interface to the linear solver module), but that's 
+probably more programming that you want.<br>
 <br>
-</blockquote><br>I am not aware of any other integrators with adjoint sensitivity 
-analysis that also provide a Matlab interface. However, your suggestion 
-of using the ode15s Matlab solver is certainly feasible for relatively 
-small size problems. You should actually be able to write a wrapper 
-around ode15s (i.e. without even touching its source code) for the 
-backward problem very much like the CVODEA module which is nothing but a 
-wrapper around the main CVODES integrator. Take a look at how the 
-interface functions CVArhs and CVAdenseJac (in cvodea.c) first call an 
-interpolation function to obtain the forward solution at the current 
-(backward) time and then call the corresponding RHS and Jacobian 
-functions for the backward problem. For ode15s, you could use deval to 
-get the forward solution when needed (assuming you stored the solution 
-structure returned by ode15s on the forward pass and passed it as &quot;user 
-data&quot; to the backward pass).<br>
+You say your system is of the form y' = A(y)*y + b(y). While from CVODE's point of view this is just y' = f(y) (i.e. for the integration we 
+do not assume anything about the structure of the right-hand side), this particular form may be useful in building an appropriate 
+preconditioner. I suspect your ODE arises from the semi-discretization of some PDE. Maybe you can give a few more details on the form of A 
+and b? Also, when you say that A (and J) are 'poorly banded', do you mean that they are banded but with several sub- and superdiagonals that 
+are zero (or could be brought to this form)? If that is the case, you may be able to use a modified version of the banded linear solver 
+module in CVODE which would explicitly take care of the zero diagonals.<br>
 <br>
-<pre style="margin: 0em;">Hope that this helps,
---Radu</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>Maarten Nauta</pre><br>
-<pre style="margin: 0em;">PhD Student</pre><br>
-<pre style="margin: 0em;">Eindhoven University of Technology</pre><br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
+You could certainly use the Matlab interface to CVODES to solve your problem, but you need to keep in mind that sundialsTB uses Matlab 
+m-files for the main driver and all user-provided functions which will negatively impact performance. Moreover, if you want to parallelize 
+your code, that will require additional Matlab tools (MPITB) as well as an MPI distribution that provides MPI-2 capabilities (LAM or MPICH2).<br>
 <br>
+Finally, SUNDIALS can be built on any platform that provides (at a minimum) a C compiler. The easiest installation is on a *NIX platform, 
+using the configure script, but SUNDIALS has also been built under Windows using various IDEs (look at the FAQ and browse the sundials-users 
+mailing list archive for discussions on this topic). For parallel support you'll also need an MPI distribution.<br>
+<br>
+<pre style="margin: 0em;">--Radu</pre><br>
+P.S. I've cc-ed this message to the sundials-users mailing list to which I encourage you to post inquiries such as this (you can subscribe 
+to the list from the Support page on the SUNDIALS website where you can also find an archive of previous messages).<br>
+<br>
+<pre style="margin: 0em;">--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -154,35 +157,35 @@ data&quot; to the backward pass).<br>
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00460" href="msg00460.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<ul><li><em>From:</em> dotana@techunix.technion.ac.il</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00456" href="msg00456.html">[sundials-users] Sequential optimization setup with sensitivities</a></strong>
-<ul><li><em>From:</em> &quot;Nauta, K.M.&quot; &lt;K.M.Nauta@tue.nl&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00457.html">Re: [sundials-users] error in sample examples</a></strong>
+<strong><a href="msg00458.html">Re: [sundials-users] Sequential optimization setup with sensitivities</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00459.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<strong><a href="msg00460.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
 </li>
 
 <li>Previous by thread:
 <strong><a href="msg00456.html">[sundials-users] Sequential optimization setup with sensitivities</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00459.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
+<strong><a href="msg00460.html">[sundials-users] Re: Inquiry regarding CVODE</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00458">
+<li><a href="maillist.html#00459">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00458">
+<li><a href="threads.html#00459">
 <strong>Thread</strong></a></li>
 </ul>
 </li>
