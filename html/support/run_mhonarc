@@ -1,8 +1,7 @@
 #!/bin/sh
 #
 
-#inbox='/home/radu/.mozilla/radu/3zv0ca2o.slt/Mail/Local Folders/Inbox.sbd/SUNDIALS.sbd/Mailing Lists.sbd/users'
-inbox='/home/radu/.thunderbird/e9wnmawn.default/Mail/Local Folders/Inbox.sbd/SUNDIALS.sbd/Mailing Lists.sbd/users'
+inbox='/home/radu/.thunderbird/e9wnmawn.default/Mail/Local Folders/SUNDIALS.sbd/Mailing Lists.sbd/users'
 
 cp "$inbox" inbox
 #cp inbox inbox_fmt
