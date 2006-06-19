@@ -1,5 +1,5 @@
                            CVODES 
-                 Release 2.4.0, March 2006
+                 Release 2.4.1, June 2006
                Alan C. Hindmarsh and Radu Serban
           Center for Applied Scientific Computing, LLNL
 
@@ -73,6 +73,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.4.1   - Jun. 2006
 v. 2.4.0   - Mar. 2006
 v. 2.3.0   - May. 2005
 v. 2.2.0   - Apr. 2005
@@ -84,6 +85,14 @@ v. 1.0     - Jul. 2002 (first SUNDIALS release)
 
 E. Revision History
 -------------------
+
+v. 2.4.0 (Mar. 2006) ---> v. 2.4.1 (Jun. 2006)
+---------------------------------------------------------
+
+- Bug fixes
+   - changed address variable type in CVadjCheckPointRec structure from
+     'unsigned int' to 'void *' to avoid address truncation/mangling on
+     64-bit platforms (see CVS_P1).
 
 v. 2.3.0 (May. 2005) ---> v. 2.4.0 (Mar. 2006)
 ---------------------------------------------------------

@@ -1,5 +1,5 @@
                                IDA
-                    Release 2.4.0, March 2006
+                    Release 2.4.1, June 2006
              Alan C. Hindmarsh, Allan G. Taylor, Radu Serban 
               Center for Applied Scientific Computing, LLNL
 
@@ -85,6 +85,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.4.1   - Jun. 2006
 v. 2.4.0   - Mar. 2006
 v. 2.3.0   - Apr. 2005
 v. 2.2.2   - Mar. 2005
@@ -96,6 +97,14 @@ v. 1.0     - Feb. 1999 (date written)
 
 E. Revision History
 -------------------
+
+v. 2.4.0 (Mar. 2006) ---> v. 2.4.1 (Jun. 2006)
+---------------------------------------------------------
+
+- Bug fixes
+   - fixed perturbation factor "underflow" issue in IDADenseDQJac and
+     IDABandDQJac routines which are used to compute a difference quotient
+     approximation to the system Jacobian (see IDA_P1).
 
 v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (Mar. 2006)
 ---------------------------------------------------------
