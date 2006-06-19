@@ -1,0 +1,159 @@
+diff -Naur sundials-2.2.0-ORIGINAL/cvodes/README sundials-2.2.0-PATCHED/cvodes/README
+--- sundials-2.2.0-ORIGINAL/cvodes/README	2006-03-24 12:16:06.000000000 -0800
++++ sundials-2.2.0-PATCHED/cvodes/README	2006-06-15 15:07:49.000000000 -0700
+@@ -1,5 +1,5 @@
+                            CVODES 
+-                 Release 2.4.0, March 2006
++                 Release 2.4.0-1, March 2006
+                Alan C. Hindmarsh and Radu Serban
+           Center for Applied Scientific Computing, LLNL
+ 
+diff -Naur sundials-2.2.0-ORIGINAL/cvodes/include/cvodea.h sundials-2.2.0-PATCHED/cvodes/include/cvodea.h
+--- sundials-2.2.0-ORIGINAL/cvodes/include/cvodea.h	2006-02-15 09:46:59.000000000 -0800
++++ sundials-2.2.0-PATCHED/cvodes/include/cvodea.h	2006-06-15 15:15:25.000000000 -0700
+@@ -263,26 +263,18 @@
+    */
+ 
+   int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y);
+-  
+-  /* 
+-   * ===============================================================
+-   * DEVELOPMENT USER-CALLABLE FUNCTIONS
+-   * ===============================================================
+-   */
+ 
+   /*
+    * -----------------------------------------------------------------
+    * CVadjGetCheckPointsInfo
+    *    Loads an array of nckpnts structures of type CVadjCheckPointRec.
+    *    The user must allocate space for ckpnt (ncheck+1).
+-   * CVadjGetCurrentCheckPoint
+-   *    Returns the address of the 'active' check point.
+    * -----------------------------------------------------------------
+    */
+ 
+   typedef struct {
+-    unsigned int my_addr;
+-    unsigned int next_addr;
++    void *my_addr;
++    void *next_addr;
+     realtype t0;
+     realtype t1;
+     long int nstep;
+@@ -291,7 +283,6 @@
+   } CVadjCheckPointRec;
+ 
+   int CVadjGetCheckPointsInfo(void *cvadj_mem, CVadjCheckPointRec *ckpnt);
+-  int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr);
+ 
+   /*
+    * -----------------------------------------------------------------
+@@ -313,7 +304,22 @@
+   
+   int CVadjGetDataPointPolynomial(void *cvadj_mem, long int which,
+                                   realtype *t, int *order, N_Vector y);
+-  
++
++  /* 
++   * ===============================================================
++   * DEVELOPMENT USER-CALLABLE FUNCTIONS
++   * ===============================================================
++   */
++
++  /*
++   * -----------------------------------------------------------------
++   * CVadjGetCurrentCheckPoint
++   *    Returns the address of the 'active' check point.
++   * -----------------------------------------------------------------
++   */
++
++  int CVadjGetCurrentCheckPoint(void *cvadj_mem, void **addr);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff -Naur sundials-2.2.0-ORIGINAL/cvodes/source/cvodea_io.c sundials-2.2.0-PATCHED/cvodes/source/cvodea_io.c
+--- sundials-2.2.0-ORIGINAL/cvodes/source/cvodea_io.c	2006-02-15 09:47:02.000000000 -0800
++++ sundials-2.2.0-PATCHED/cvodes/source/cvodea_io.c	2006-06-15 15:12:12.000000000 -0700
+@@ -393,12 +393,6 @@
+   return(name);
+ }
+ 
+-/* 
+- * -----------------------------------------------------------------
+- * UNDOCUMENTED development user-callable functions
+- * -----------------------------------------------------------------
+- */
+-
+ /*
+  * CVadjGetCheckPointsInfo
+  *
+@@ -422,8 +416,8 @@
+ 
+   while (ck_mem != NULL) {
+ 
+-    ckpnt[i].my_addr = (unsigned int) ck_mem;
+-    ckpnt[i].next_addr = (unsigned int) next_;
++    ckpnt[i].my_addr = (void *) ck_mem;
++    ckpnt[i].next_addr = (void *) next_;
+     ckpnt[i].t0 = t0_;
+     ckpnt[i].t1 = t1_;
+     ckpnt[i].nstep = nst_;
+@@ -440,27 +434,6 @@
+ }
+ 
+ /*
+- * CVadjGetCurrentCheckPoint
+- *
+- *  Returns the address of the 'active' check point.
+- */
+-
+-int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
+-{
+-  CVadjMem ca_mem;
+-
+-  if (cvadj_mem == NULL) {
+-    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjGetCurrentCheckPoint", MSGAM_NULL_CAMEM);
+-    return(CV_ADJMEM_NULL);
+-  }
+-  ca_mem = (CVadjMem) cvadj_mem;
+-
+-  *addr = (unsigned int) ckpntData;
+-
+-  return(CV_SUCCESS);
+-}
+-
+-/*
+  * CVadjGetDataPointHermite
+  *
+  * This routine returns the solution stored in the data structure
+@@ -537,3 +510,29 @@
+   return(CV_SUCCESS);
+ }
+ 
++/* 
++ * -----------------------------------------------------------------
++ * UNDOCUMENTED development user-callable functions
++ * -----------------------------------------------------------------
++ */
++
++/*
++ * CVadjGetCurrentCheckPoint
++ *
++ *  Returns the address of the 'active' check point.
++ */
++
++int CVadjGetCurrentCheckPoint(void *cvadj_mem, void **addr)
++{
++  CVadjMem ca_mem;
++
++  if (cvadj_mem == NULL) {
++    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjGetCurrentCheckPoint", MSGAM_NULL_CAMEM);
++    return(CV_ADJMEM_NULL);
++  }
++  ca_mem = (CVadjMem) cvadj_mem;
++
++  *addr = (void *) ckpntData;
++
++  return(CV_SUCCESS);
++}

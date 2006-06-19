@@ -1,0 +1,64 @@
+diff -Naur sundials-2.1.1-ORIGINAL/cvodes/README sundials-2.1.1-PATCHED/cvodes/README
+--- sundials-2.1.1-ORIGINAL/cvodes/README	2005-05-04 15:49:46.000000000 -0700
++++ sundials-2.1.1-PATCHED/cvodes/README	2006-06-14 18:13:37.000000000 -0700
+@@ -1,5 +1,5 @@
+                            CVODES 
+-                 Release 2.3.0, May 2005
++                 Release 2.3.0-1, May 2005
+                Alan C. Hindmarsh and Radu Serban
+           Center for Applied Scientific Computing, LLNL
+ 
+diff -Naur sundials-2.1.1-ORIGINAL/cvodes/include/cvodea.h sundials-2.1.1-PATCHED/cvodes/include/cvodea.h
+--- sundials-2.1.1-ORIGINAL/cvodes/include/cvodea.h	2005-04-28 13:06:35.000000000 -0700
++++ sundials-2.1.1-PATCHED/cvodes/include/cvodea.h	2006-06-14 16:55:38.000000000 -0700
+@@ -373,8 +373,8 @@
+    */
+ 
+   typedef struct {
+-    unsigned int my_addr;
+-    unsigned int next_addr;
++    void *my_addr;
++    void *next_addr;
+     realtype t0;
+     realtype t1;
+     long int nstep;
+@@ -383,7 +383,7 @@
+   } CheckPointRec;
+ 
+   int CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt);
+-  int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr);
++  int CVadjGetCurrentCheckPoint(void *cvadj_mem, void **addr);
+ 
+   /*
+    * -----------------------------------------------------------------
+diff -Naur sundials-2.1.1-ORIGINAL/cvodes/source/cvodea.c sundials-2.1.1-PATCHED/cvodes/source/cvodea.c
+--- sundials-2.1.1-ORIGINAL/cvodes/source/cvodea.c	2005-04-28 13:06:39.000000000 -0700
++++ sundials-2.1.1-PATCHED/cvodes/source/cvodea.c	2006-06-14 16:57:08.000000000 -0700
+@@ -1239,8 +1239,8 @@
+ 
+   while (ck_mem != NULL) {
+ 
+-    ckpnt[i].my_addr = (unsigned int) ck_mem;
+-    ckpnt[i].next_addr = (unsigned int) next_;
++    ckpnt[i].my_addr = (void *) ck_mem;
++    ckpnt[i].next_addr = (void *) next_;
+     ckpnt[i].t0 = t0_;
+     ckpnt[i].t1 = t1_;
+     ckpnt[i].nstep = nst_;
+@@ -1262,14 +1262,14 @@
+  *  Returns the address of the 'active' check point.
+  */
+ 
+-int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
++int CVadjGetCurrentCheckPoint(void *cvadj_mem, void **addr)
+ {
+   CVadjMem ca_mem;
+ 
+   if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+   ca_mem = (CVadjMem) cvadj_mem;
+ 
+-  *addr = (unsigned int) ckpntData;
++  *addr = (void *) ckpntData;
+ 
+   return(CV_SUCCESS);
+ }

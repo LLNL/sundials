@@ -119,6 +119,11 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <li></li>
   </ul>
 -->
+<li><a href="#miscellaneous">Miscellaneous</a>
+  <ul>
+  <li><a href="#find_version">How do I determine which version of SUNDIALS I have?</a></li>
+  <li><a href="#inst_patch">How do I apply a patch under UNIX or Linux?</a></li>
+  </ul>
 </ul>
 
 </div>
@@ -135,7 +140,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 Let's assume you downloaded <tt>sundials.tar.gz</tt>.
 First, you'll have to uncompress and unpack it:
 <pre>
-% tar -xzf sundials.tar
+% <b>tar -xzf sundials.tar</b>
 </pre>
 This will create a directory <tt>sundials</tt>, which we will call the <em>source tree</em>.
 <br><br>
@@ -161,9 +166,9 @@ options (e.g. debug and optimized), etc.
 That depends a lot on how your system is configured. If all compilers, libraries, and system 
 header files are in the usual places, configuring SUNDIALS can be as simple as:
 <pre>
-% /path/to/sundials/source/tree/configure
-% make
-% make install
+% &lt;sundials_source_dir&gt;<b>/configure</b>
+% <b>make</b>
+% <b>make install</b>
 </pre>
 In certain circumstances, more sophisticated configure lines may be needed, especially
 when building SUNDIALS with MPI support and/or the Fortran-C interfaces. For example, 
@@ -172,9 +177,9 @@ serial Fortran compiler, using the MPI compiler scripts <tt>mpicc</tt> and
 <tt>mpif77</tt> from a particular MPICH distribution, and using the additional 
 compiler flag <tt>-g3</tt>, you would use:
 <pre>
-% configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \
-      --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \ 
-      --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
+% <b>configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \</b>
+<b>      --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \</b>
+<b>      --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77</b>
 </pre>
 
 </div>
@@ -246,22 +251,22 @@ option to <tt>libtool</tt>.
 Remove, if they exist, the <tt>aclocal.m4</tt> file and <tt>autom4te.cache</tt>
 directory:
 <pre>
-% rm -rf aclocal.m4 autom4te.cache
+% <b>rm -rf aclocal.m4 autom4te.cache</b>
 </pre>
 </li>
 <li>
 Regenerate the <tt>configure</tt> script:
 <pre>
-% aclocal
-% autoconf
-% autoheader
+% <b>aclocal</b>
+% <b>autoconf</b>
+% <b>autoheader</b>
 </pre>
 </li>
 <li>
 Configure SUNDIALS, enabling creation of shared libraries and using the required
 flag:
 <pre>
-% /path/to/sundials/source/tree/configure --enable-shared --with-ldflags=-no-undefined
+% &lt;sundials_source_dir&gt;<b>/configure --enable-shared --with-ldflags=-no-undefined</b>
 </pre>
 </li>
 </ol>
@@ -577,6 +582,74 @@ a
 </div>
 
 -->
+
+<!-- ================ MISCELLANEOUS ================== -->
+
+<a name="miscellaneous"></a>
+<h1>Miscellaneous</h1>
+<div class="frame">
+
+<a name="find_version"></a>
+<div class="faq_q">How do I determine which version of SUNDIALS I have?</div>
+<div class="faq_a">
+If you still have access to the distribution files, then the SUNDIALS release number is indicated in the
+header of <tt>sundials/README</tt> and the corresponding solver versions can be determined by reading the
+appropriate row of the "Release History" table. Otherwise, you will need to find the value associated with
+the <tt>PACKAGE_VERSION</tt> or <tt>SUNDIALS_PACKAGE_VERSION</tt> variable defined in the
+<tt>sundials_config.h</tt> header file (located under either <tt>&lt;install_dir&gt;/include</tt> or
+<tt>&lt;install_dir&gt;/sundials/include</tt>), and then read the appropriate row of
+the following table:
+<br>
+<br>
+<center>
+<table border cellpadding=1 cellspacing=0>
+<!-- <tr align=center> <th rowspan=2>SUNDIALS Release</th> <th colspan=4>Solver Version</th> </tr> -->
+<tr align=center>
+     <td width=110 rowspan=2><b>SUNDIALS Release</b></td> <td colspan=4><b>Solver Version</b></td>
+</tr>
+<tr align=center>
+     <td width=50><b>CVODE</b></td> <td width=50><b>CVODES</b></td> <td width=50><b>IDA</b></td> <td width=50><b>KINSOL</b></td>
+</tr>
+<tr align=center>
+     <td>1.0</td> <td>2.0</td> <td>1.0</td> <td>2.0</td> <td>2.0</td>
+</tr>
+<tr align=center>
+     <td>2.0</td> <td>2.2.0</td> <td>2.1.0</td> <td>2.2.0</td> <td>2.2.0</td>
+</tr>
+<tr align=center>
+     <td>2.0.1</td> <td>2.2.1</td> <td>2.1.1</td> <td>2.2.1</td> <td>2.2.1</td>
+</tr>
+<tr align=center>
+     <td>2.0.2</td> <td>2.2.2</td> <td>2.1.2</td> <td>2.2.2</td> <td>2.2.2</td>
+</tr>
+<tr align=center>
+     <td>2.1.0</td> <td>2.3.0</td> <td>2.2.0</td> <td>2.3.0</td> <td>2.3.0</td>
+</tr>
+<tr align=center>
+     <td>2.1.1</td> <td>2.3.0</td> <td>2.3.0</td> <td>2.3.0</td> <td>2.3.0</td>
+</tr>
+<tr align=center>
+     <td>2.2.0</td> <td>2.4.0</td> <td>2.4.0</td> <td>2.4.0</td> <td>2.4.0</td>
+</tr>
+</table>
+</center>
+</div>
+
+<a name="inst_patch"></a>
+<div class="faq_q">How do I apply a patch under UNIX or Linux?</div>
+<div class="faq_a">
+To apply patch <tt>foobar.patch</tt> and rebuild SUNDIALS complete the following steps:
+<pre>
+% <b>cp foobar.patch</b> &lt;sundials_source_dir&gt;
+% <b>cd</b> &lt;sundials_source_dir&gt;
+% <b>patch -p1 < foobar.patch</b>
+% <b>cd</b> &lt;sundials_build_dir&gt;
+% <b>make</b>
+% <b>make install</b>
+</pre>
+</div>
+
+</div>
 
 <!-- ------ -->
 

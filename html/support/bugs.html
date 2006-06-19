@@ -1,0 +1,302 @@
+<html>
+
+<head>
+
+<title>SUNDIALS BUGS</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../graphics/support_button.png";
+//-->
+</script>
+<script src="../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+
+</head>
+
+<!-- ******************************************************************************** -->
+
+<body>
+
+
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+
+  <tr valign="top">
+  <td height="60" background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../graphics/head_support_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="127" background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+
+  <tr valign="top">
+  <td background="../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../graphics/table_bck5.gif">
+    <a href="../sitemap.html"><img SRC="../graphics/sitemap.png" border="0"></a><img SRC="../graphics/logo.png" border="0">
+  </td>
+
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+
+<!-- Start content for this page -->
+
+<div class="title">Bugs</div>
+<br><br>
+
+<table align="center" bgcolor="#e5e4d9" width="60%" cellpadding="5" cellspacing="0">
+<colgroup align="center">
+<tr>
+<td align="center">
+<b>
+<font color="#ff0000">WARNING</font>
+<br>
+Although we provide patches for prior releases, users are strongly encouraged<br>
+to upgrade to the latest version of SUNDIALS.
+<br>
+<font color="#ff0000">WARNING</font>
+</b>
+</td>
+</tr>
+</table>
+<br><br>
+
+<!-- ------ -->
+
+<h1>Contents</h1>
+
+<div class="frame">
+<ul>
+<li><a href="#buildsys">Build System</a>
+  <ul>
+  <li><a href="#buildsys_bug1"><tt>make install</tt> fails because installation directories do not exist</a></li>
+  </ul>
+<!--
+<li><a href="#cvode">CVODE</a>
+  <ul>
+  <li><a href="#cvode_bug1">Bug 1</a></li>
+  </ul>
+-->
+<li><a href="#cvodes">CVODES</a>
+  <ul>
+  <li><a href="#cvodes_bug1"><tt>CVadjCheckPointRec</tt> or <tt>CheckPointRec</tt> structure truncates/mangles 64-bit pointers</a></li>
+  </ul>
+<li><a href="#ida">IDA</a>
+  <ul>
+  <li><a href="#ida_bug1"><tt>IDADenseDQJac</tt> and <tt>IDABandDQJac</tt> increment floor issue</a></li>
+  </ul>
+<!--
+<li><a href="#kinsol">KINSOL</a>
+  <ul>
+  <li><a href="#kinsol_bug1">Bug 1</a></li>
+  </ul>
+</ul>
+-->
+
+</div>
+
+<!-- ================ BUILD SYSTEM ===========================  -->
+
+<a name="buildsys_bug1"></a>
+<h1>Build System</h1>
+<div class="frame">
+
+<a name="file_dne"></a>
+<div class="faq_q"><tt>make install</tt> fails because installation directories do not exist</div>
+<div class="faq_a">
+Releases of SUNDIALS prior to v2.2.0 may not create the installation directories during the
+configuration stage which causes <br> <tt>make install</tt> to fail with the following error message:
+<pre>
+/usr/bin/install: cannot create regular file `&lt;install_dir&gt;/libsundials_*.la':
+No such file or directory
+make[1]: *** [install] Error 1
+</pre>
+To remedy this problem simply create the destination directories if they do not already exist.
+</div>
+
+</div>
+
+<!-- ================= CVODE ===================== -->
+
+<!--
+
+<a name="cvode"></a>
+<h1>CVODE</h1>
+<div class="frame">
+
+<a name="cvode_bug1"></a>
+<div class="faq_q"><tt>add here</div>
+<div class="faq_a">
+add here
+</div>
+
+</div>
+
+-->
+
+<!-- ================= CVODES ===================== -->
+
+<a name="cvodes"></a>
+<h1>CVODES</h1>
+<div class="frame">
+
+<a name="cvodes_bug1"></a>
+<div class="faq_q"><tt>CVadjCheckPointRec</tt> or <tt>CheckPointRec</tt> structure truncates/mangles 64-bit pointers (CVS_P1)</div>
+<div class="faq_a">
+The <tt>CVadjCheckPointRec</tt> (SUNDIALS v2.2.0) or <tt>CheckPointRec</tt> (SUNDIALS v2.1.1)
+structure used by CVODES (<b>not</b> CVODE) for adjoint sensitivity analysis originally stored memory
+addresses in variables of type <tt>unsigned int</tt>. However, this approach is clearly problematic
+on 64-bit platforms since any memory address reference above the 4GB boundary would need to be
+truncated/mangled to fit into a 32-bit data type. In order to resolve this potential problem, the
+address variable storage type has been changed to <tt>void *</tt>.
+<br>
+<br>
+To update your copy of CVODES, download and apply the appropriate patch:
+<br>
+<a href="patches/cvodes/cvodes_v230_p1.patch">CVODES v2.3.0-1</a>
+<br>
+<a href="patches/cvodes/cvodes_v240_p1.patch">CVODES v2.4.0-1</a>
+<br>
+<br>
+For instructions on how to determine which patch you should download and/or how to apply a patch please
+refer to the <a href="faq.html"><b>FAQ</b></a> section.
+</div>
+
+</div>
+
+<!-- ================ IDA =================== -->
+
+<a name="ida"></a>
+<h1>IDA</h1>
+<div class="frame">
+
+<a name="ida_bug1"></a>
+<div class="faq_q"><tt>IDADenseDQJac</tt> and <tt>IDABandDQJac</tt> increment floor issue (IDA_P1)</div>
+<div class="faq_a">
+If you use either the DENSE or BAND direct linear solver module, but do <b>not</b> supply a system Jacobian
+approximation routine of type <tt>IDADenseJacFn</tt> or <tt>IDABandJacFn</tt> via the
+<tt>IDADenseSetJacFn</tt> or <tt>IDABandSetJacFn</tt> function, then you need to be aware of a
+potential issue with the internal routine. The default function used to compute a difference quotient
+approximation to the system Jacobian originally allowed the perturbation/increment to be below
+the absolute tolerance of the corresponding solution component. Consequently, if a given solution
+component is initially zero and the corresponding absolute tolerance is sufficiently small, then the
+<tt>IDACalcIC</tt> routine may exit abnormally with the following error message:
+<pre>
+[IDA ERROR] IDACalcIC
+  The residual routine or the linear setup or solve routine had a recoverable error, but
+  IDACalcIC was unable to recover.
+</pre>
+In order to ensure that the perturbation term is appropriately floored, the calculation of the
+variable <tt>inc</tt> in <tt>IDADenseDQJac</tt> and <tt>IDABandDQJac</tt> needs to be updated.
+<br>
+<br>
+To update your copy of IDA, download and apply the appropriate patch:
+<br>
+<a href="patches/ida/ida_v220_p1.patch">IDA v2.2.0-1</a>
+<br>
+<a href="patches/ida/ida_v221_p1.patch">IDA v2.2.1-1</a>
+<br>
+<a href="patches/ida/ida_v222_p1.patch">IDA v2.2.2-1</a>
+<br>
+<a href="patches/ida/ida_v230_p1.patch">IDA v2.3.0-1</a>
+<br>
+<a href="patches/ida/ida_v240_p1.patch">IDA v2.4.0-1</a>
+<br>
+<br>
+For instructions on how to determine which patch you should download and/or how to apply a patch please
+refer to the <a href="faq.html"><b>FAQ</b></a> section.
+</div>
+
+</div>
+
+<!-- ================ KINSOL ================== -->
+
+<!--
+
+<a name="kinsol"></a>
+<h1>KINSOL</h1>
+<div class="frame">
+
+<a name="kinsol_bug1"></a>
+<div class="faq_q">add here</div>
+<div class="faq_a">
+add here
+</div>
+
+</div>
+
+-->
+
+<!-- =============== sundialsTB ================== -->
+
+<!--
+
+<a name="stb"></a>
+<h1>sundialsTB</h1>
+<div class="frame">
+
+<a name=""></a>
+<div class="faq_q">Q?</div>
+<div class="faq_a">
+a
+</div>
+
+<a name=""></a>
+<div class="faq_q">Q?</div>
+<div class="faq_a">
+a
+</div>
+
+</div>
+
+-->
+
+<!-- ------ -->
+
+<!-- End content for this page -->
+  </div>
+  </td>
+
+  <td background="../graphics/table_bck3.gif"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="17" background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+
+  </table>
+
+</body>
+</html>

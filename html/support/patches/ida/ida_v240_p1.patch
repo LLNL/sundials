@@ -1,0 +1,43 @@
+diff -Naur sundials-2.2.0-ORIGINAL/ida/README sundials-2.2.0-PATCHED/ida/README
+--- sundials-2.2.0-ORIGINAL/ida/README	2006-03-24 12:16:09.000000000 -0800
++++ sundials-2.2.0-PATCHED/ida/README	2006-06-16 15:15:37.000000000 -0700
+@@ -1,5 +1,5 @@
+                                IDA
+-                    Release 2.4.0, March 2006
++                    Release 2.4.0-1, March 2006
+              Alan C. Hindmarsh, Allan G. Taylor, Radu Serban 
+               Center for Applied Scientific Computing, LLNL
+ 
+diff -Naur sundials-2.2.0-ORIGINAL/ida/source/ida_band.c sundials-2.2.0-PATCHED/ida/source/ida_band.c
+--- sundials-2.2.0-ORIGINAL/ida/source/ida_band.c	2006-02-14 12:36:19.000000000 -0800
++++ sundials-2.2.0-PATCHED/ida/source/ida_band.c	2006-06-16 15:16:42.000000000 -0700
+@@ -560,7 +560,7 @@
+         adjustments using ypj and ewtj if this is small, and a further
+         adjustment to give it the same sign as hh*ypj. */
+ 
+-        inc = srur*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
++        inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
+         if (hh*ypj < ZERO) inc = -inc;
+         inc = (yj + inc) - yj;
+ 
+@@ -597,7 +597,7 @@
+       
+       /* Set increment inc exactly as above. */
+       
+-      inc = srur*MAX(ABS(yj),MAX( ABS(hh*ypj), ONE/ewtj));
++      inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
+       if (hh*ypj < ZERO) inc = -inc;
+       inc = (yj + inc) - yj;
+       if (constraints != NULL) {
+diff -Naur sundials-2.2.0-ORIGINAL/ida/source/ida_dense.c sundials-2.2.0-PATCHED/ida/source/ida_dense.c
+--- sundials-2.2.0-ORIGINAL/ida/source/ida_dense.c	2006-02-14 12:36:20.000000000 -0800
++++ sundials-2.2.0-PATCHED/ida/source/ida_dense.c	2006-06-16 15:17:07.000000000 -0700
+@@ -521,7 +521,7 @@
+     adjustments using yp_j and ewt_j if this is small, and a further
+     adjustment to give it the same sign as hh*yp_j. */
+ 
+-    inc = srur*MAX(ABS(yj),MAX( ABS(hh*ypj), ONE/ewt_data[j]));
++    inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewt_data[j] );
+     if (hh*ypj < ZERO) inc = -inc;
+     inc = (yj + inc) - yj;
+ 
