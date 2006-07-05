@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-07-05 21:17:50 $
+# $Revision: 1.5 $
+# $Date: 2006-07-05 21:20:10 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -28,8 +28,6 @@ SUNDIALS_INITIALIZE
 # Test enable/disable features
 SUNDIALS_ENABLES
 SUNDIALS_DEV_ENABLES
-SUNDIALS_MPI_ENABLES
-SUNDIALS_STB_ENABLES
 
 # Set C compilation (Required)
 echo ""
