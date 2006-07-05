@@ -1,0 +1,17 @@
+List of parallel CVODE examples
+
+  cvnonx_p     : 1-D advection-diffusion (nonstiff)
+  cvkryx_p     : 2-D 2-species diurnal advection-diffusion
+  cvkryx_bbd_p : cvkryx_p with BBD preconditioner
+
+Sample results:
+
+  SUNDIALS was built with the following options:
+
+  ./configure CC=gcc F77=g77
+
+  System Architecture: IA-32
+  Processor Type: Intel Pentium 4 Xeon DP (i686)
+  Operating System: Red Hat Enterprise Linux WS 3
+  C/Fortran Compilers: gcc/g77 v3.4.3
+  MPI Implementation: MPICH-MPI v1.2.6

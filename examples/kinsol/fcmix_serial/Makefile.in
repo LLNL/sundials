@@ -1,0 +1,93 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-07-05 15:50:10 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for FKINSOL serial examples
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+srcdir       = @srcdir@
+top_builddir = @top_builddir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL        = @INSTALL@
+INSTALL_PROG   = @INSTALL_PROGRAM@
+INSTALL_FILE   = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+F77      = @F77@
+FFLAGS   = @FFLAGS@
+FLIBS    = @FLIBS@
+CC       = @CC@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+F77_LNKR = @F77_LNKR@
+
+OBJ_EXT = @OBJ_EXT@
+
+EXS_INSTDIR = @EXS_INSTDIR@
+
+top_srcdir = $(srcdir)/../../..
+
+SOLVER_SRCDIR = $(top_builddir)/src/kinsol
+NVEC_SRCDIR   = $(top_builddir)/src/nvec_ser
+
+
+SUNDIALS_LIBS = $(SOLVER_SRCDIR)/fcmix/libsundials_fkinsol.la $(SOLVER_SRCDIR)/libsundials_kinsol.la $(NVEC_SRCDIR)/libsundials_fnvecserial.la $(NVEC_SRCDIR)/libsundials_nvecserial.la
+
+fortran_update = @${SHELL} ${top_builddir}/examples/fortran_update.sh
+
+EXEC_FILES = fkinkryx
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+
+all: $(EXEC_FILES)
+
+fkinkryx: $(srcdir)/fkinkryx.f
+	@${fortran_update} ${srcdir} fkinkryx.f
+	$(LIBTOOL) --mode=compile $(F77) $(FFLAGS) -c $(builddir)/fkinkryx-updated.f
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                             \
+	   echo "$(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                                 \
+	   echo "$(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
+
+clean:
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+	rm -f *-updated.f
+	rm -f fortran_update.sh
+	rm -f $(EXEC_FILES)
+
+distclean: clean
+	rm -f Makefile
+
+install: $(EXEC_FILES)
+	$(mkinstalldirs) $(EXS_INSTDIR)/kinsol/fcmix_serial
+	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/fcmix_serial/fkinkryx    $(EXS_INSTDIR)/kinsol/fcmix_serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_serial/fkinkryx.out  $(EXS_INSTDIR)/kinsol/fcmix_serial/
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                \
+	${SHELL} ./config.status --recheck ; \
+	cd ${abs_builddir}

@@ -1,0 +1,96 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-07-05 15:50:05 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for CVODE parallel examples
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+srcdir       = @srcdir@
+top_builddir = @top_builddir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL        = @INSTALL@
+INSTALL_PROG   = @INSTALL_PROGRAM@
+INSTALL_FILE   = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+CPP         = @CPP@
+CPPFLAGS    = @CPPFLAGS@
+CC          = @CC@
+CFLAGS      = @CFLAGS@
+LDFLAGS     = @LDFLAGS@
+LIBS        = @LIBS@
+MPICC       = @MPICC@
+MPI_INC_DIR = @MPI_INC_DIR@
+MPI_LIB_DIR = @MPI_LIB_DIR@
+MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
+
+OBJ_EXT = @OBJ_EXT@
+
+EXS_INSTDIR = @EXS_INSTDIR@
+
+top_srcdir = $(srcdir)/../../..
+SUNDIALS_INCDIR = $(top_srcdir)/include
+SOLVER_SRCDIR   = $(top_builddir)/src/cvode
+NVEC_SRCDIR     = $(top_builddir)/src/nvec_par
+
+SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
+SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_cvode.la $(NVEC_SRCDIR)/libsundials_nvecparallel.la
+
+EXEC_FILES = cvnonx_p cvkryx_p cvkryx_bbd_p
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+
+all: $(EXEC_FILES)
+
+cvnonx_p: $(srcdir)/cvnonx_p.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvnonx_p.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvnonx_p $(builddir)/cvnonx_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvkryx_p: $(srcdir)/cvkryx_p.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkryx_p.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvkryx_p $(builddir)/cvkryx_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvkryx_bbd_p: $(srcdir)/cvkryx_bbd_p.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkryx_bbd_p.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvkryx_bbd_p $(builddir)/cvkryx_bbd_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+
+clean:
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+	rm -f $(EXEC_FILES)
+
+distclean: clean
+	rm -f Makefile
+
+install: $(EXEC_FILES)
+	$(mkinstalldirs) $(EXS_INSTDIR)/cvode/parallel
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/parallel/cvkryx_bbd_p      $(EXS_INSTDIR)/cvode/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/parallel/cvkryx_p          $(EXS_INSTDIR)/cvode/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/parallel/cvnonx_p          $(EXS_INSTDIR)/cvode/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/parallel/cvkryx_bbd_p.out    $(EXS_INSTDIR)/cvode/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/parallel/cvkryx_p.out        $(EXS_INSTDIR)/cvode/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/parallel/cvnonx_p.out        $(EXS_INSTDIR)/cvode/parallel/
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                \
+	${SHELL} ./config.status --recheck ; \
+	cd ${abs_builddir}

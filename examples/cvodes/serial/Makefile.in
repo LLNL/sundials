@@ -1,0 +1,156 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-07-05 15:50:06 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for CVODES serial examples
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+srcdir       = @srcdir@
+top_builddir = @top_builddir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL        = @INSTALL@
+INSTALL_PROG   = @INSTALL_PROGRAM@
+INSTALL_FILE   = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+OBJ_EXT = @OBJ_EXT@
+
+EXS_INSTDIR = @EXS_INSTDIR@
+
+top_srcdir = $(srcdir)/../../..
+SUNDIALS_INCDIR = $(top_srcdir)/include
+SOLVER_SRCDIR   = $(top_builddir)/src/cvodes
+NVEC_SRCDIR     = $(top_builddir)/src/nvec_ser
+
+SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
+SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_cvodes.la $(NVEC_SRCDIR)/libsundials_nvecserial.la
+
+EXEC_FILES = cvsdenx cvsdenx_uw cvsbanx cvskryx cvskryx_bp cvsdirectdem cvskrydem_pre cvsfwdnonx cvsfwddenx cvsfwdkryx cvsadjdenx cvsadjbanx cvsadjkryx_int cvsadjkryx_pnt cvskrydem_lin
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+
+all: $(EXEC_FILES)
+
+cvsdenx: $(srcdir)/cvsdenx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdenx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdenx $(builddir)/cvsdenx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsdenx_uw: $(srcdir)/cvsdenx_uw.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdenx_uw.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdenx_uw $(builddir)/cvsdenx_uw.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsbanx: $(srcdir)/cvsbanx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsbanx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsbanx $(builddir)/cvsbanx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvskryx: $(srcdir)/cvskryx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvskryx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskryx $(builddir)/cvskryx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvskryx_bp: $(srcdir)/cvskryx_bp.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvskryx_bp.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskryx_bp $(builddir)/cvskryx_bp.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsdirectdem: $(srcdir)/cvsdirectdem.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdirectdem.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdirectdem $(builddir)/cvsdirectdem.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvskrydem_pre: $(srcdir)/cvskrydem_pre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvskrydem_pre.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskrydem_pre $(builddir)/cvskrydem_pre.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsfwdnonx: $(srcdir)/cvsfwdnonx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsfwdnonx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwdnonx $(builddir)/cvsfwdnonx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsfwddenx: $(srcdir)/cvsfwddenx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsfwddenx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwddenx $(builddir)/cvsfwddenx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsfwdkryx: $(srcdir)/cvsfwdkryx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsfwdkryx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwdkryx $(builddir)/cvsfwdkryx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjdenx: $(srcdir)/cvsadjdenx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjdenx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjdenx $(builddir)/cvsadjdenx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjbanx: $(srcdir)/cvsadjbanx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjbanx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjbanx $(builddir)/cvsadjbanx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjkryx_int: $(srcdir)/cvsadjkryx_int.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjkryx_int.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjkryx_int $(builddir)/cvsadjkryx_int.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjkryx_pnt: $(srcdir)/cvsadjkryx_pnt.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjkryx_pnt.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjkryx_pnt $(builddir)/cvsadjkryx_pnt.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvskrydem_lin: $(srcdir)/cvskrydem_lin.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvskrydem_lin.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskrydem_lin $(builddir)/cvskrydem_lin.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+
+clean:
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+	rm -f $(EXEC_FILES)
+
+distclean: clean
+	rm -f Makefile
+
+install: $(EXEC_FILES)
+	$(mkinstalldirs) $(EXS_INSTDIR)/cvodes/serial
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsadjbanx          $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsadjdenx          $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsadjkryx_int      $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsadjkryx_pnt      $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsbanx             $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsdenx             $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsdenx_uw          $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsdirectdem        $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsfwddenx          $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsfwddenx          $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsfwdkryx          $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsfwdkryx          $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsfwdnonx          $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsfwdnonx          $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvskrydem_lin       $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvskrydem_pre       $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvskryx_bp          $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvskryx             $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjbanx.out        $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjdenx.out        $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjkryx_int.out    $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjkryx_pnt.out    $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsbanx.out           $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsdenx.out           $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsdenx_uw.out        $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsdirectdem.out      $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsfwddenx.out1       $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsfwddenx.out2       $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsfwdkryx.out1       $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsfwdkryx.out2       $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsfwdnonx.out1       $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsfwdnonx.out2       $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvskrydem_lin.out     $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvskrydem_pre.out     $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvskryx_bp.out        $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvskryx.out           $(EXS_INSTDIR)/cvodes/serial/
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                \
+	${SHELL} ./config.status --recheck ; \
+	cd ${abs_builddir}

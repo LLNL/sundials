@@ -1,0 +1,68 @@
+Krylov example problem:
+
+ Kinetics-transport, NEQ =  200
+
+
+ t =   0.720000E+04     no. steps =   190   order =   5   stepsize =   0.160964E+03
+  c1 (bot.left/middle/top rt.) =   0.104683E+05  0.296373E+05  0.111853E+05
+  c2 (bot.left/middle/top rt.) =   0.252672E+12  0.715377E+12  0.269977E+12
+
+ t =   0.144000E+05     no. steps =   221   order =   5   stepsize =   0.382686E+03
+  c1 (bot.left/middle/top rt.) =   0.665902E+07  0.531602E+07  0.730081E+07
+  c2 (bot.left/middle/top rt.) =   0.258192E+12  0.205680E+12  0.283286E+12
+
+ t =   0.216000E+05     no. steps =   246   order =   5   stepsize =   0.278112E+03
+  c1 (bot.left/middle/top rt.) =   0.266497E+08  0.103640E+08  0.293077E+08
+  c2 (bot.left/middle/top rt.) =   0.299279E+12  0.102815E+12  0.331344E+12
+
+ t =   0.288000E+05     no. steps =   290   order =   4   stepsize =   0.121912E+03
+  c1 (bot.left/middle/top rt.) =   0.870208E+07  0.129196E+08  0.965000E+07
+  c2 (bot.left/middle/top rt.) =   0.338035E+12  0.502927E+12  0.375095E+12
+
+ t =   0.360000E+05     no. steps =   324   order =   5   stepsize =   0.122670E+03
+  c1 (bot.left/middle/top rt.) =   0.140404E+05  0.202899E+05  0.156090E+05
+  c2 (bot.left/middle/top rt.) =   0.338677E+12  0.489432E+12  0.376516E+12
+
+ t =   0.432000E+05     no. steps =   375   order =   4   stepsize =   0.500085E+03
+  c1 (bot.left/middle/top rt.) =   0.114242E-07 -0.243708E-05  0.398098E-07
+  c2 (bot.left/middle/top rt.) =   0.338232E+12  0.135498E+12  0.380352E+12
+
+ t =   0.504000E+05     no. steps =   392   order =   5   stepsize =   0.313245E+03
+  c1 (bot.left/middle/top rt.) =  -0.761372E-10  0.520472E-07 -0.408103E-09
+  c2 (bot.left/middle/top rt.) =   0.335816E+12  0.493037E+12  0.386444E+12
+
+ t =   0.576000E+05     no. steps =   404   order =   5   stepsize =   0.492562E+03
+  c1 (bot.left/middle/top rt.) =   0.385439E-08  0.554294E-06  0.704690E-09
+  c2 (bot.left/middle/top rt.) =   0.332031E+12  0.964974E+12  0.390899E+12
+
+ t =   0.648000E+05     no. steps =   413   order =   5   stepsize =   0.844312E+03
+  c1 (bot.left/middle/top rt.) =   0.184621E-12  0.351899E-10 -0.130537E-12
+  c2 (bot.left/middle/top rt.) =   0.331302E+12  0.892187E+12  0.396342E+12
+
+ t =   0.720000E+05     no. steps =   422   order =   5   stepsize =   0.844312E+03
+  c1 (bot.left/middle/top rt.) =  -0.544342E-14  0.608023E-13 -0.635538E-19
+  c2 (bot.left/middle/top rt.) =   0.332971E+12  0.618612E+12  0.403884E+12
+
+ t =   0.792000E+05     no. steps =   430   order =   5   stepsize =   0.844312E+03
+  c1 (bot.left/middle/top rt.) =   0.552765E-14  0.431581E-12  0.902906E-18
+  c2 (bot.left/middle/top rt.) =   0.333441E+12  0.666942E+12  0.412026E+12
+
+ t =   0.864000E+05     no. steps =   439   order =   5   stepsize =   0.844312E+03
+  c1 (bot.left/middle/top rt.) =   0.479343E-14 -0.525480E-12 -0.208194E-17
+  c2 (bot.left/middle/top rt.) =   0.335178E+12  0.910639E+12  0.416249E+12
+
+
+Final statistics:
+
+ number of steps        =   439     number of f evals.     =   570
+ number of prec. setups =    78
+ number of prec. evals. =     8     number of prec. solves =  1026
+ number of nonl. iters. =   567     number of lin. iters.  =   524
+ average Krylov subspace dimension (NLI/NNI) =   0.924162E+00
+ number of conv. failures.. nonlinear =  0 linear =   0
+ number of error test failures =  27
+ main solver real/int workspace sizes   =  2089   50
+ linear solver real/int workspace sizes =  2046   10
+In CVBANDPRE:
+ real/int workspace sizes =  2400  200
+ number of f evaluations  =    40

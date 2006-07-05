@@ -1,0 +1,60 @@
+ Adjoint Sensitivity Example for Chemical Kinetics
+ -------------------------------------------------
+ 
+ODE: dy1/dt = -p1*y1 + p2*y2*y3
+     dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2
+     dy3/dt =  p3*(y2)^2
+ 
+Find dG/dp for
+     G = int_t0^tB0 g(t,p,y) dt
+     g(t,p,y) = y3
+ 
+ 
+Create and allocate CVODES memory for forward runs
+Allocate global memory
+Forward integration ... G:   3.9983e+07
+ 
+List of Check Points (ncheck = 2)
+ 
+Address:       0x9bb7ed0
+Next:          0x9bb76a8
+Time interval: 2.069985e+04  4.201867e+07
+Step number:   300
+Order:         3
+Step size:     7.507680e+02
+ 
+Address:       0x9bb76a8
+Next:          0x9ba9768
+Time interval: 9.253659e+01  2.069985e+04
+Step number:   150
+Order:         3
+Step size:     3.155919e+00
+ 
+Address:       0x9ba9768
+Next:          (nil)
+Time interval: 0.000000e+00  9.253659e+01
+Step number:   0
+Order:         1
+Step size:     0.000000e+00
+ 
+ 
+Create and allocate CVODES memory for backward run
+Integrate backwards
+Current check point: 0x9bb7ed0
+Done backward
+Current check point: 0x9ba9768
+--------------------------------------------------------
+tB0:          4.0000e+07
+dG/dp:        7.6998e+05  -3.0740e+00   5.0750e-04
+lambda(t0):   3.9967e+07   3.9967e+07   3.9967e+07
+--------------------------------------------------------
+ 
+Re-initialize CVODES memory for backward run
+Integrate backwards
+--------------------------------------------------------
+tB0:          4.0000e+07
+dG/dp:        1.7335e+02  -5.0534e-04   8.4218e-08
+lambda(t0):   8.4156e+00   1.6093e+01   1.6094e+01
+--------------------------------------------------------
+ 
+Free memory
