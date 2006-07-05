@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:55:53 $
+# $Revision: 1.2 $
+# $Date: 2006-07-05 18:02:38 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -9,7 +9,7 @@
 # All rights reserved.
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
-# Makefile for the CVODES parallel test examples
+# Makefile for CVODES parallel examples
 #
 # @configure_input@
 # -----------------------------------------------------------------
@@ -17,14 +17,20 @@
 SHELL = @SHELL@
 
 srcdir       = @srcdir@
-builddir     = @builddir@
 top_builddir = @top_builddir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
 prefix       = @prefix@
 exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-@LIBTOOL_CMD@
+INSTALL        = @INSTALL@
+INSTALL_PROG   = @INSTALL_PROGRAM@
+INSTALL_FILE   = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
 CPP         = @CPP@
 CPPFLAGS    = @CPPFLAGS@
@@ -40,30 +46,37 @@ MPI_FLAGS   = @MPI_FLAGS@
 
 OBJ_EXT = @OBJ_EXT@
 
-COMPILER_PREFIX = @COMPILER_PREFIX@
-LINKER_PREFIX   = @LINKER_PREFIX@
+top_srcdir = $(srcdir)/../../..
+SUNDIALS_INCDIR = $(top_srcdir)/include
+SOLVER_SRCDIR   = $(top_builddir)/src/cvodes
+NVEC_SRCDIR     = $(top_builddir)/src/nvec_par
 
-SUNDIALS_INC_DIR = $(includedir)
-SUNDIALS_INCS    = -I$(SUNDIALS_INC_DIR)
-
-SUNDIALS_LIB_DIR = $(libdir)
-SUNDIALS_LIBS    =  -L$(SUNDIALS_LIB_DIR) -lsundials_cvodes -lsundials_nvecparallel
+SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
+SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_cvodes.la $(NVEC_SRCDIR)/libsundials_nvecparallel.la
 
 EXEC_FILES = pvkt pvfkt
 
 all: $(EXEC_FILES)
 
 pvkt: $(srcdir)/pvkt.c
-	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkt.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkt $(builddir)/pvkt.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkt.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvkt $(builddir)/pvkt.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 pvfkt: $(srcdir)/pvfkt.c
-	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkt.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvfkt $(builddir)/pvfkt.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkt.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvfkt $(builddir)/pvfkt.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
 	rm -f *.lo
 	rm -f *.o
-
-uninstall: clean
 	rm -f $(EXEC_FILES)
+
+distclean: clean
+	rm -f Makefile
+
+install: $(EXEC_FILES)
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                \
+	${SHELL} ./config.status --recheck ; \
+	cd ${abs_builddir}

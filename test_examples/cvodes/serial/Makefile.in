@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:55:54 $
+# $Revision: 1.2 $
+# $Date: 2006-07-05 18:02:39 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -9,7 +9,7 @@
 # All rights reserved.
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
-# Makefile for CVODES serial test examples
+# Makefile for CVODES serial examples
 #
 # @configure_input@
 # -----------------------------------------------------------------
@@ -17,14 +17,20 @@
 SHELL = @SHELL@
 
 srcdir       = @srcdir@
-builddir     = @builddir@
 top_builddir = @top_builddir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
 prefix       = @prefix@
 exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-@LIBTOOL_CMD@
+INSTALL        = @INSTALL@
+INSTALL_PROG   = @INSTALL_PROGRAM@
+INSTALL_FILE   = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
 CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -35,42 +41,49 @@ LIBS     = @LIBS@
 
 OBJ_EXT = @OBJ_EXT@
 
-COMPILER_PREFIX = @COMPILER_PREFIX@
-LINKER_PREFIX   = @LINKER_PREFIX@
+top_srcdir = $(srcdir)/../../..
+SUNDIALS_INCDIR = $(top_srcdir)/include
+SOLVER_SRCDIR   = $(top_builddir)/src/cvodes
+NVEC_SRCDIR     = $(top_builddir)/src/nvec_ser
 
-SUNDIALS_INC_DIR = $(includedir)
-SUNDIALS_INCS    = -I$(SUNDIALS_INC_DIR)
+SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
+SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_cvodes.la $(NVEC_SRCDIR)/libsundials_nvecserial.la
 
-SUNDIALS_LIB_DIR = $(libdir)
-SUNDIALS_LIBS    = -L$(SUNDIALS_LIB_DIR) -lsundials_cvodes -lsundials_nvecserial
-
-EXEC_FILES = cvsminhx cvs2odex cvsdiscx cvsfwdswitchx cvsnegsolx cvsicx
+EXEC_FILES = cvsminhx cvs2odex cvsnegsolx cvsdiscx cvsfwdswitchx cvsicx
 
 all: $(EXEC_FILES)
 
 cvsminhx: $(srcdir)/cvsminhx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsminhx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsminhx $(builddir)/cvsminhx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-cvsnegsolx: $(srcdir)/cvsnegsolx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsnegsolx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsnegsolx $(builddir)/cvsnegsolx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsminhx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsminhx $(builddir)/cvsminhx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvs2odex: $(srcdir)/cvs2odex.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvs2odex.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvs2odex $(builddir)/cvs2odex.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvs2odex.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvs2odex $(builddir)/cvs2odex.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsnegsolx: $(srcdir)/cvsnegsolx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsnegsolx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsnegsolx $(builddir)/cvsnegsolx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsdiscx: $(srcdir)/cvsdiscx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdiscx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsdiscx $(builddir)/cvsdiscx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdiscx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdiscx $(builddir)/cvsdiscx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsfwdswitchx: $(srcdir)/cvsfwdswitchx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsfwdswitchx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsfwdswitchx $(builddir)/cvsfwdswitchx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsfwdswitchx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwdswitchx $(builddir)/cvsfwdswitchx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsicx: $(srcdir)/cvsicx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsicx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsicx $(builddir)/cvsicx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsicx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsicx $(builddir)/cvsicx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
 	rm -f *.lo
 	rm -f *.o
-
-uninstall: clean
 	rm -f $(EXEC_FILES)
+
+distclean: clean
+	rm -f Makefile
+
+install: $(EXEC_FILES)
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                \
+	${SHELL} ./config.status --recheck ; \
+	cd ${abs_builddir}

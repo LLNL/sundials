@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-05 18:02:36 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -308,6 +308,8 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
   flag = CVodeSetFdataB(cvadj_mem, wdata);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
+  flag = CVodeSetMaxNumStepsB(cvadj_mem, 1000);
+  if(check_flag(&flag, "CVodeSetMaxNumStepsB", 1)) return(1);
   flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, CV_SS, reltolB, &abstolB);
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
