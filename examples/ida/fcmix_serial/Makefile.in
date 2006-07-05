@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:50:08 $
+# $Revision: 1.2 $
+# $Date: 2006-07-05 22:19:27 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,6 +41,7 @@ LIBS     = @LIBS@
 F77_LNKR = @F77_LNKR@
 
 OBJ_EXT = @OBJ_EXT@
+EXE_EXT = @EXEEXT@
 
 EXS_INSTDIR = @EXS_INSTDIR@
 
@@ -52,21 +53,21 @@ LIBS = $(SOLVER_SRCDIR)/fcmix/libsundials_fida.la $(SOLVER_SRCDIR)/libsundials_i
 
 fortran_update = @${SHELL} ${top_builddir}/examples/fortran_update.sh
 
-EXEC_FILES = fidadenx
+EXEC_FILES = fidadenx$(EXE_EXT)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
 all: $(EXEC_FILES)
 
-fidadenx: $(srcdir)/fidadenx.f
+fidadenx$(EXE_EXT): $(srcdir)/fidadenx.f
 	@${fortran_update} ${srcdir} fidadenx.f
 	$(LIBTOOL) --mode=compile $(F77) $(FFLAGS) -c $(builddir)/fidadenx-updated.f
-	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                             \
-	   echo "$(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fidadenx ${builddir}/fidadenx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   $(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fidadenx ${builddir}/fidadenx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                                                 \
-	   echo "$(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fidadenx ${builddir}/fidadenx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   $(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fidadenx ${builddir}/fidadenx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                      \
+	   echo "$(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fidadenx$(EXE_EXT) ${builddir}/fidadenx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fidadenx$(EXE_EXT) ${builddir}/fidadenx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                          \
+	   echo "$(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fidadenx$(EXE_EXT) ${builddir}/fidadenx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fidadenx$(EXE_EXT) ${builddir}/fidadenx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
 	 fi
 
 clean:
@@ -82,7 +83,7 @@ distclean: clean
 
 install: $(EXEC_FILES)
 	$(mkinstalldirs) $(EXS_INSTDIR)/ida/fcmix_serial
-	$(INSTALL_PROG) $(top_builddir)/examples/ida/fcmix_serial/fidadenx        $(EXS_INSTDIR)/ida/fcmix_serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/ida/fcmix_serial/fidadenx$(EXE_EXT)        $(EXS_INSTDIR)/ida/fcmix_serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_serial/fidadenx.out      $(EXS_INSTDIR)/ida/fcmix_serial/
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)

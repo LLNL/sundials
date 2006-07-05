@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:50:10 $
+# $Revision: 1.2 $
+# $Date: 2006-07-05 22:19:34 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,6 +41,7 @@ LIBS     = @LIBS@
 F77_LNKR = @F77_LNKR@
 
 OBJ_EXT = @OBJ_EXT@
+EXE_EXT = @EXEEXT@
 
 EXS_INSTDIR = @EXS_INSTDIR@
 
@@ -54,21 +55,21 @@ SUNDIALS_LIBS = $(SOLVER_SRCDIR)/fcmix/libsundials_fkinsol.la $(SOLVER_SRCDIR)/l
 
 fortran_update = @${SHELL} ${top_builddir}/examples/fortran_update.sh
 
-EXEC_FILES = fkinkryx
+EXEC_FILES = fkinkryx$(EXE_EXT)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
 all: $(EXEC_FILES)
 
-fkinkryx: $(srcdir)/fkinkryx.f
+fkinkryx$(EXE_EXT): $(srcdir)/fkinkryx.f
 	@${fortran_update} ${srcdir} fkinkryx.f
 	$(LIBTOOL) --mode=compile $(F77) $(FFLAGS) -c $(builddir)/fkinkryx-updated.f
-	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                             \
-	   echo "$(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   $(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                                                 \
-	   echo "$(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   $(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                      \
+	   echo "$(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx$(EXE_EXT) ${builddir}/fkinkryx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx$(EXE_EXT) ${builddir}/fkinkryx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                          \
+	   echo "$(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx$(EXE_EXT) ${builddir}/fkinkryx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx$(EXE_EXT) ${builddir}/fkinkryx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
 	 fi
 
 clean:
@@ -84,7 +85,7 @@ distclean: clean
 
 install: $(EXEC_FILES)
 	$(mkinstalldirs) $(EXS_INSTDIR)/kinsol/fcmix_serial
-	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/fcmix_serial/fkinkryx    $(EXS_INSTDIR)/kinsol/fcmix_serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/fcmix_serial/fkinkryx$(EXE_EXT)    $(EXS_INSTDIR)/kinsol/fcmix_serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_serial/fkinkryx.out  $(EXS_INSTDIR)/kinsol/fcmix_serial/
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)

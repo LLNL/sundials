@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:50:04 $
+# $Revision: 1.2 $
+# $Date: 2006-07-05 22:19:13 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -45,6 +45,7 @@ MPI_FLAGS   = @MPI_FLAGS@
 MPIF77_LNKR = @MPIF77_LNKR@
 
 OBJ_EXT = @OBJ_EXT@
+EXE_EXT = @EXEEXT@
 
 EXS_INSTDIR = @EXS_INSTDIR@
 
@@ -56,42 +57,42 @@ SUNDIALS_LIBS = $(SOLVER_SRCDIR)/fcmix/libsundials_fcvode.la $(SOLVER_SRCDIR)/li
 
 fortran_update = @${SHELL} ${top_builddir}/examples/fortran_update.sh
 
-EXEC_FILES = fcvnonx_p fcvkryx_p fcvkryx_bbd_p
+EXEC_FILES = fcvnonx_p$(EXE_EXT) fcvkryx_p$(EXE_EXT) fcvkryx_bbd_p$(EXE_EXT)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
 all: $(EXEC_FILES)
-fcvnonx_p: $(srcdir)/fcvnonx_p.f
+fcvnonx_p$(EXE_EXT): $(srcdir)/fcvnonx_p.f
 	@${fortran_update} ${srcdir} fcvnonx_p.f
 	$(LIBTOOL) --mode=compile $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvnonx_p-updated.f
 	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                      \
-	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p$(EXE_EXT) ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p$(EXE_EXT) ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
 	 else                                                                                                                                                                                                                                \
-	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p$(EXE_EXT) ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p$(EXE_EXT) ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
 	 fi
 
-fcvkryx_p: $(srcdir)/fcvkryx_p.f
+fcvkryx_p$(EXE_EXT): $(srcdir)/fcvkryx_p.f
 	@${fortran_update} ${srcdir} fcvkryx_p.f
 	$(LIBTOOL) --mode=compile $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvkryx_p-updated.f
 	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                      \
-	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p$(EXE_EXT) ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p$(EXE_EXT) ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
 	 else                                                                                                                                                                                                                                \
-	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p$(EXE_EXT) ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p$(EXE_EXT) ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
 	 fi
 
-fcvkryx_bbd_p: $(srcdir)/fcvkryx_bbd_p.f
+fcvkryx_bbd_p$(EXE_EXT): $(srcdir)/fcvkryx_bbd_p.f
 	@${fortran_update} ${srcdir} fcvkryx_bbd_p.f
 	$(LIBTOOL) --mode=compile $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvkryx_bbd_p-updated.f
 	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                              \
-	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p$(EXE_EXT) ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p$(EXE_EXT) ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
 	 else                                                                                                                                                                                                                                        \
-	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	   echo "$(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p$(EXE_EXT) ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   $(LIBTOOL) --mode=link ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p$(EXE_EXT) ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
 	 fi
 
 clean:
@@ -107,9 +108,9 @@ distclean: clean
 
 install: $(EXEC_FILES)
 	$(mkinstalldirs) $(EXS_INSTDIR)/cvode/fcmix_parallel
-	$(INSTALL_PROG) $(top_builddir)/examples/cvode/fcmix_parallel/fcvkryx_bbd_p     $(EXS_INSTDIR)/cvode/fcmix_parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvode/fcmix_parallel/fcvkryx_p         $(EXS_INSTDIR)/cvode/fcmix_parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvode/fcmix_parallel/fcvnonx_p         $(EXS_INSTDIR)/cvode/fcmix_parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/fcmix_parallel/fcvkryx_bbd_p$(EXE_EXT)     $(EXS_INSTDIR)/cvode/fcmix_parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/fcmix_parallel/fcvkryx_p$(EXE_EXT)         $(EXS_INSTDIR)/cvode/fcmix_parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/fcmix_parallel/fcvnonx_p$(EXE_EXT)         $(EXS_INSTDIR)/cvode/fcmix_parallel/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_parallel/fcvkryx_bbd_p.out   $(EXS_INSTDIR)/cvode/fcmix_parallel/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_parallel/fcvkryx_p.out       $(EXS_INSTDIR)/cvode/fcmix_parallel/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_parallel/fcvnonx_p.out       $(EXS_INSTDIR)/cvode/fcmix_parallel/

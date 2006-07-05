@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:50:05 $
+# $Revision: 1.2 $
+# $Date: 2006-07-05 22:19:17 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -45,6 +45,7 @@ MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 
 OBJ_EXT = @OBJ_EXT@
+EXE_EXT = @EXEEXT@
 
 EXS_INSTDIR = @EXS_INSTDIR@
 
@@ -56,21 +57,21 @@ NVEC_SRCDIR     = $(top_builddir)/src/nvec_par
 SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
 SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_cvode.la $(NVEC_SRCDIR)/libsundials_nvecparallel.la
 
-EXEC_FILES = cvnonx_p cvkryx_p cvkryx_bbd_p
+EXEC_FILES = cvnonx_p$(EXE_EXT) cvkryx_p$(EXE_EXT) cvkryx_bbd_p$(EXE_EXT)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
 all: $(EXEC_FILES)
 
-cvnonx_p: $(srcdir)/cvnonx_p.c
+cvnonx_p$(EXE_EXT): $(srcdir)/cvnonx_p.c
 	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvnonx_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvnonx_p $(builddir)/cvnonx_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvkryx_p: $(srcdir)/cvkryx_p.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvnonx_p$(EXE_EXT) $(builddir)/cvnonx_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvkryx_p$(EXE_EXT): $(srcdir)/cvkryx_p.c
 	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkryx_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvkryx_p $(builddir)/cvkryx_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvkryx_bbd_p: $(srcdir)/cvkryx_bbd_p.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvkryx_p$(EXE_EXT) $(builddir)/cvkryx_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvkryx_bbd_p$(EXE_EXT): $(srcdir)/cvkryx_bbd_p.c
 	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkryx_bbd_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvkryx_bbd_p $(builddir)/cvkryx_bbd_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvkryx_bbd_p$(EXE_EXT) $(builddir)/cvkryx_bbd_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
@@ -83,9 +84,9 @@ distclean: clean
 
 install: $(EXEC_FILES)
 	$(mkinstalldirs) $(EXS_INSTDIR)/cvode/parallel
-	$(INSTALL_PROG) $(top_builddir)/examples/cvode/parallel/cvkryx_bbd_p      $(EXS_INSTDIR)/cvode/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvode/parallel/cvkryx_p          $(EXS_INSTDIR)/cvode/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvode/parallel/cvnonx_p          $(EXS_INSTDIR)/cvode/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/parallel/cvkryx_bbd_p$(EXE_EXT)      $(EXS_INSTDIR)/cvode/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/parallel/cvkryx_p$(EXE_EXT)          $(EXS_INSTDIR)/cvode/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/parallel/cvnonx_p$(EXE_EXT)          $(EXS_INSTDIR)/cvode/parallel/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/parallel/cvkryx_bbd_p.out    $(EXS_INSTDIR)/cvode/parallel/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/parallel/cvkryx_p.out        $(EXS_INSTDIR)/cvode/parallel/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/parallel/cvnonx_p.out        $(EXS_INSTDIR)/cvode/parallel/

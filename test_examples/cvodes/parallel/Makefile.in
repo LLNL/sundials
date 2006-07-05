@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-05 18:02:38 $
+# $Revision: 1.3 $
+# $Date: 2006-07-05 22:19:54 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -45,6 +45,7 @@ MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 
 OBJ_EXT = @OBJ_EXT@
+EXE_EXT = @EXEEXT@
 
 top_srcdir = $(srcdir)/../../..
 SUNDIALS_INCDIR = $(top_srcdir)/include
@@ -54,16 +55,16 @@ NVEC_SRCDIR     = $(top_builddir)/src/nvec_par
 SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
 SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_cvodes.la $(NVEC_SRCDIR)/libsundials_nvecparallel.la
 
-EXEC_FILES = pvkt pvfkt
+EXEC_FILES = pvkt$(EXE_EXT) pvfkt$(EXE_EXT)
 
 all: $(EXEC_FILES)
 
-pvkt: $(srcdir)/pvkt.c
+pvkt$(EXE_EXT): $(srcdir)/pvkt.c
 	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkt.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvkt $(builddir)/pvkt.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-pvfkt: $(srcdir)/pvfkt.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvkt$(EXE_EXT) $(builddir)/pvkt.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+pvfkt$(EXE_EXT): $(srcdir)/pvfkt.c
 	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkt.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvfkt $(builddir)/pvfkt.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvfkt$(EXE_EXT) $(builddir)/pvfkt.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
