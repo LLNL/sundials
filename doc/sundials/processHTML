@@ -1,0 +1,13 @@
+#!/bin/sh
+
+dir=$1
+
+cd $dir
+files=$(ls *.html)
+echo $files
+for i in $files ; do
+  echo $i
+  sed 's#--Navigation Panel-->#--Navigation Panel--><a href="../documentation.html"><img height="24" border="0" src="back.png"></a><br><br>#' $i > tmp ;
+  mv tmp $i ;
+done
+

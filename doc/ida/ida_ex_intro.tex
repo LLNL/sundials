@@ -1,0 +1,129 @@
+%===================================================================================
+\section{Introduction}\label{s:ex_intro}
+%===================================================================================
+
+This report is intended to serve as a companion document to the User
+Documentation of {\ida} \cite{ida2.4.0_ug}.  It provides details, with
+listings, on the example programs supplied with the {\ida} distribution
+package.
+
+The {\ida} distribution contains examples of four types: serial
+{\C} examples, parallel {\C} examples, and serial and parallel {\F}
+examples.  The following lists summarize all of these examples.
+
+The {\ida} distribution contains, in the \id{sundials/ida/examples\_ser}
+directory, the following four serial examples (using the {\nvecs} module):
+%%
+\begin{itemize}
+
+\item \id{idadenx}
+  solves the Robertson chemical kinetics problem~\cite{Rob:66}, which consists
+  of two differential equations and one algebraic constraint.  It also uses
+  the rootfinding feature of {\ida}.
+
+  The problem is solved with the {\idadense} linear solver using
+  a user-supplied Jacobian.
+
+\item \id{idabanx1}
+  solves a 2-D heat equation, semidiscretized to a DAE on the unit square.
+
+  This program solves the problem with the {\idaband} linear solver and
+  the default difference-quotient Jacobian approximation. For purposes of
+  illustration, \id{IDACalcIC} is called to compute correct values at the
+  boundary, given incorrect values as input initial guesses. The constraint
+  $u > 0.0$ is imposed for all components.
+
+\item \id{idakryx}
+  solves the same 2-D heat equation problem as \id{idabanx1}, with the Krylov
+  linear solver {\idaspgmr}. The preconditioner uses only the diagonal elements
+  of the Jacobian.
+
+\item \id{idabanx2}
+  solves a system of PDEs modelling a food web problem, with predator-prey
+  interaction and diffusion, on the unit square in 2-D.
+
+  The PDEs are discretized in space to a system of DAEs which are solved
+  using the {\idaband} linear solver with the default difference-quotient 
+  Jacobian approximation.
+
+\item \id{idakrydem\_lin}
+  solves the same problem as \id{idakryx}, with three Krylov linear solvers
+  {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}.  The preconditioner uses only
+  the diagonal elements of the Jacobian.
+
+\end{itemize}
+
+In the \id{sundials/ida/examples\_par} directory, the {\ida} 
+distribution contains the following four parallel examples 
+(using the {\nvecp} module):
+%%
+\begin{itemize}
+
+\item \id{idakryx1\_p}
+  solves the same 2-D heat equation problem as \id{idakryx}, with {\idaspgmr}
+  in parallel, and with a user-supplied diagonal preconditioner,
+  
+\item \id{idakryx1\_bbd\_p}
+  solves the same problem as \id{idakryx1\_p}.
+
+  This program solves the problem in parallel, using the Krylov linear solver
+  {\idaspgmr} and the band-block diagonal preconditioner {\idabbdpre} with
+  half-bandwidths equal to $1$.
+
+\item \id{idakryx2\_p}
+  solves the same food web problem as \id{idabanx2}, but with {\idaspgmr}
+  and a user-supplied preconditioner.
+  
+  The preconditioner supplied to {\idaspgmr} is the block-diagonal part of 
+  the Jacobian with $n_s \times n_s$ blocks arising from the reaction terms only
+  ($n_s$ is the number of species in the model).
+
+\item \id{idakryx2\_bbd\_p}
+  solves the same food web problem as \id{idakryx2\_p}.
+
+  This program solves the problem using {\idaspgmr} in parallel and the
+  {\idabbdpre} preconditioner.
+
+\end{itemize}
+
+With the {\fida} module, in the two directories
+\id{sundials/ida/fcmix/examples\_ser} and
+\newline \id{sundials/ida/fcmix/examples\_par}, are the following
+examples for the {\F}-{\C} interface:
+%
+\begin{itemize}
+\item \id{fidadenx} is a serial chemical kinetics example (\id{BDF}/{\dense})
+       with rootfinding, equivalent to \id{idadenx}.
+
+\item \id{fidakryx\_bbd\_p} is a parallel example (\id{BDF}/{\spgmr}/{\idabbdpre})
+       equivalent to the example \id{idakryx1\_bbd\_p}.
+
+\end{itemize}
+
+\vspace{0.2in}\noindent 
+In the following sections, we give detailed descriptions of some (but
+not all) of these examples.  The Appendices contain complete listings
+of those examples described below.  We also give our output files for
+each of these examples, but users should be cautioned that their
+results may differ slightly from these.  Solution
+values may differ within tolerances, and differences in cumulative
+counters, such as numbers of steps or Newton iterations, may differ
+from one machine environment to another by as much as 10\% to 20\%.
+
+In the descriptions below, we make frequent references to the {\ida}
+User Document \cite{ida2.4.0_ug}.  All citations to specific sections
+(e.g. \S\ref{s:types}) are references to parts of that User Document, unless
+explicitly stated otherwise.
+
+\vspace{0.2in}\noindent {\bf Note}. 
+The examples in the {\ida} distribution are written in such a way as
+to compile and run for any combination of configuration options during
+the installation of {\sundials} (see \ugref{s:install}). As a consequence,
+they contain portions of code that will not be typically present in a
+user program. For example, all example programs make use of the
+variable \id{SUNDIALS\_EXTENDED\_PRECISION} to test if the solver libraries
+were built in extended precision and use the appropriate conversion 
+specifiers in \id{printf} functions.  Similarly, the {\F} examples in
+{\fida} are automatically pre-processed to generate source code that
+corresponds to the manner in which the {\ida} libraries were built
+(see \ugref{s:ex_fortran} in this document for more details).

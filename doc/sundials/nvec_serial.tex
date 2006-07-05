@@ -1,0 +1,191 @@
+%% This is a shared SUNDIALS TEX file with description of
+%% the serial nvector implementation
+%%
+
+The serial implementation of the {\nvector} module provided with {\sundials},
+{\nvecs}, defines the {\em content} field of \id{N\_Vector} to be a structure 
+containing the length of the vector, a pointer to the beginning of a contiguous 
+data array, and a boolean flag {\em own\_data} which specifies the ownership 
+of {\em data}.
+%%
+\begin{verbatim} 
+struct _N_VectorContent_Serial {
+  long int length;
+  booleantype own_data;
+  realtype *data;
+};
+\end{verbatim}
+%%
+%%--------------------------------------------
+%%
+The following five macros are provided to access the content of an {\nvecs}
+vector. The suffix \id{\_S} in the names denotes serial version.
+%%
+\begin{itemize}
+
+\item \ID{NV\_CONTENT\_S}                             
+    
+  This routine gives access to the contents of the serial
+  vector \id{N\_Vector}.
+  
+  The assignment \id{v\_cont} $=$ \id{NV\_CONTENT\_S(v)} sets           
+  \id{v\_cont} to be a pointer to the serial \id{N\_Vector} content  
+  structure.                                             
+                                                            
+  Implementation: 
+  
+  \verb|#define NV_CONTENT_S(v) ( (N_VectorContent_Serial)(v->content) )|
+  
+\item \ID{NV\_OWN\_DATA\_S}, \ID{NV\_DATA\_S}, \ID{NV\_LENGTH\_S}                                 
+                                                            
+  These macros give individual access to the parts of    
+  the content of a serial \id{N\_Vector}.                        
+                                                               
+  The assignment \id{v\_data = NV\_DATA\_S(v)} sets \id{v\_data} to be     
+  a pointer to the first component of the data for the \id{N\_Vector} \id{v}. 
+  The assignment \id{NV\_DATA\_S(v) = v\_data} sets the component array of \id{v} to     
+  be \id{v\_data} by storing the pointer \id{v\_data}.                   
+  
+  The assignment \id{v\_len = NV\_LENGTH\_S(v)} sets \id{v\_len} to be     
+  the length of \id{v}. On the other hand, the call \id{NV\_LENGTH\_S(v) = len\_v} 
+  sets the length of \id{v} to be \id{len\_v}.
+                                                            
+  Implementation: 
+  
+  \verb|#define NV_OWN_DATA_S(v) ( NV_CONTENT_S(v)->own_data )|
+
+  \verb|#define NV_DATA_S(v) ( NV_CONTENT_S(v)->data )|
+  
+  \verb|#define NV_LENGTH_S(v) ( NV_CONTENT_S(v)->length )|
+
+\item \ID{NV\_Ith\_S}                                               
+                                                            
+  This macro gives access to the individual components of the data
+  array of an \id{N\_Vector}.
+
+  The assignment \id{r = NV\_Ith\_S(v,i)} sets \id{r} to be the value of 
+  the \id{i}-th component of \id{v}. The assignment \id{NV\_Ith\_S(v,i) = r}   
+  sets the value of the \id{i}-th component of \id{v} to be \id{r}.        
+  
+  Here $i$ ranges from $0$ to $n-1$ for a vector of length $n$.
+
+  Implementation:
+
+  \verb|#define NV_Ith_S(v,i) ( NV_DATA_S(v)[i] )|
+
+\end{itemize}
+%%
+%%----------------------------------------------
+%%
+The {\nvecs} module defines serial implementations of all vector operations listed 
+in Table \ref{t:nvecops}. Their names are obtained from those in Table \ref{t:nvecops} by
+appending the suffix \id{\_Serial}. The module {\nvecs} provides the following additional
+user-callable routines:
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item \ID{N\_VNew\_Serial}
+
+  This function creates and allocates memory for a serial \id{N\_Vector}.
+  Its only argument is the vector length.
+
+  
+
+  \verb|N_Vector N_VNew_Serial(long int vec_length);|
+
+%%--------------------------------------
+
+\item \ID{N\_VNewEmpty\_Serial}
+
+  This function creates a new serial \id{N\_Vector} with an empty (\id{NULL}) data array.
+
+  
+
+  \verb|N_Vector N_VNewEmpty_Serial(long int vec_length);|
+
+%%--------------------------------------
+
+\item \ID{N\_VMake\_Serial}
+
+ This function creates and allocates memory for a serial vector
+ with user-provided data array.
+
+ 
+
+ \verb|N_Vector N_VMake_Serial(long int vec_length, realtype *v_data);|
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneVectorArray\_Serial}
+
+ This function creates (by cloning) an array of \id{count} serial vectors.
+
+ 
+
+ \verb|N_Vector *N_VCloneVectorArray_Serial(int count, N_Vector w);|
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneVectorArrayEmpty\_Serial}
+
+ This function creates (by cloning) an array of \id{count} serial vectors, each with an empty (\id{NULL})
+ data array.
+
+ 
+
+ \verb|N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w);|
+
+%%--------------------------------------
+
+\item \ID{N\_VDestroyVectorArray\_Serial}
+
+ This function frees memory allocated for the array of \id{count} variables of type \id{N\_Vector}
+ created with \id{N\_VCloneVectorArray\_Serial} or with \id{N\_VCloneVectorArrayEmpty\_Serial}.
+
+ 
+
+ \verb|void N_VDestroyVectorArray_Serial(N_Vector *vs, int count);|
+
+%%--------------------------------------
+
+\item \ID{N\_VPrint\_Serial}
+
+ This function prints the content of a serial vector to \id{stdout}.
+
+ 
+ 
+ \verb|void N_VPrint_Serial(N_Vector v);|
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+\paragraph{\bf Notes}                                                      
+           
+\begin{itemize}
+                                        
+\item
+  When looping over the components of an \id{N\_Vector} \id{v}, it is     
+  more efficient to first obtain the component array via       
+  \id{v\_data = NV\_DATA\_S(v)} and then access \id{v\_data[i]} within the     
+  loop than it is to use \id{NV\_Ith\_S(v,i)} within the loop.        
+
+\item
+  {\warn}\id{N\_VNewEmpty\_Serial}, \id{N\_VMake\_Serial}, 
+  and \id{N\_VCloneVectorArrayEmpty\_Serial} set the field 
+  {\em own\_data} $=$ \id{FALSE}. 
+  \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
+  will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
+  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  deallocate the {\em data} pointer.
+                                     
+\item
+  {\warn}To maximize efficiency, vector operations in the {\nvecs} implementation
+  that have more than one \id{N\_Vector} argument do not check for
+  consistent internal representation of these vectors. It is the user's 
+  responsibility to ensure that such routines are called with \id{N\_Vector}
+  arguments that were all created with the same internal representations.
+
+\end{itemize}

@@ -1,0 +1,317 @@
+% This is a shared SUNDIALS TEX file with description of
+% the generic nvector abstraction
+%
+The {\sundials} solvers are written in a data-independent manner. 
+They all operate on generic vectors (of type \Id{N\_Vector}) through a set of
+operations defined by the particular {\nvector} implementation.
+Users can provide their own specific implementation of the {\nvector} module
+or use one of two provided within {\sundials}, a serial and an MPI parallel
+implementations.
+
+The generic \ID{N\_Vector} type is a pointer to a structure that has an 
+implementation-dependent {\em content} field containing the 
+description and actual data of the vector, and an {\em ops} field 
+pointing to a structure with generic vector operations.
+The type \id{N\_Vector} is defined as
+%%
+%%
+\begin{verbatim}
+typedef struct _generic_N_Vector *N_Vector;
+
+struct _generic_N_Vector {
+    void *content;
+    struct _generic_N_Vector_Ops *ops;
+};
+\end{verbatim}
+%%
+%%
+The \id{\_generic\_N\_Vector\_Ops} structure is essentially a list of pointers to
+the various actual vector operations, and is defined as
+%%
+\begin{verbatim}
+struct _generic_N_Vector_Ops {
+  N_Vector    (*nvclone)(N_Vector);
+  N_Vector    (*nvcloneempty)(N_Vector);
+  void        (*nvdestroy)(N_Vector);
+  void        (*nvspace)(N_Vector, long int *, long int *);
+  realtype*   (*nvgetarraypointer)(N_Vector);
+  void        (*nvsetarraypointer)(realtype *, N_Vector);
+  void        (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector); 
+  void        (*nvconst)(realtype, N_Vector);
+  void        (*nvprod)(N_Vector, N_Vector, N_Vector);
+  void        (*nvdiv)(N_Vector, N_Vector, N_Vector);
+  void        (*nvscale)(realtype, N_Vector, N_Vector);
+  void        (*nvabs)(N_Vector, N_Vector);
+  void        (*nvinv)(N_Vector, N_Vector);
+  void        (*nvaddconst)(N_Vector, realtype, N_Vector);
+  realtype    (*nvdotprod)(N_Vector, N_Vector);
+  realtype    (*nvmaxnorm)(N_Vector);
+  realtype    (*nvwrmsnorm)(N_Vector, N_Vector);
+  realtype    (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
+  realtype    (*nvmin)(N_Vector);
+  realtype    (*nvwl2norm)(N_Vector, N_Vector);
+  realtype    (*nvl1norm)(N_Vector);
+  void        (*nvcompare)(realtype, N_Vector, N_Vector);
+  booleantype (*nvinvtest)(N_Vector, N_Vector);
+  booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
+  realtype    (*nvminquotient)(N_Vector, N_Vector);
+};
+\end{verbatim}
+
+
+
+
+The generic {\nvector} module defines and implements the vector operations 
+acting on \id{N\_Vector}.
+These routines are nothing but wrappers for the vector operations defined by
+a particular {\nvector} implementation, which are accessed through the {\em ops}
+field of the \id{N\_Vector} structure. To illustrate this point we
+show below the implementation of a typical vector operation from the
+generic {\nvector} module, namely \id{N\_VScale}, which performs the scaling of a
+vector \id{x} by a scalar \id{c}:
+%%
+%%
+\begin{verbatim}
+void N_VScale(realtype c, N_Vector x, N_Vector z) 
+{
+   z->ops->nvscale(c, x, z);
+}
+\end{verbatim}
+%%
+%%
+Table \ref{t:nvecops} contains a complete list of all vector operations defined
+by the generic {\nvector} module.
+
+
+
+Finally, note that the generic {\nvector} module defines the functions \ID{N\_VCloneVectorArray}
+and \ID{N\_VCloneEmptyVectorArray}.  Both functions create (by cloning) an array of \id{count}
+variables of type \id{N\_Vector}, each of the same type as an existing \id{N\_Vector}. Their
+prototypes are
+\begin{verbatim}
+N_Vector *N_VCloneVectorArray(int count, N_Vector w);
+N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w);
+\end{verbatim}
+and their definitions are based on the implementation-specific \id{N\_VClone} and \id{N\_VCloneEmpty}
+operations, respectively.
+
+An array of variables of type \id{N\_Vector} can be destroyed by calling \ID{N\_VDestroyVectorArray},
+whose prototype is
+\begin{verbatim}
+void N_VDestroyVectorArray(N_Vector *vs, int count);
+\end{verbatim}
+and whose definition is based on the implementation-specific \id{N\_VDestroy} operation.
+
+
+
+
+A particular implementation of the {\nvector} module must:
+\begin{itemize}
+\item Specify the {\em content} field of \id{N\_Vector}.
+\item Define and implement the vector operations. 
+  Note that the names of these routines should be unique to that implementation in order 
+  to permit using more than one {\nvector} module (each with different \id{N\_Vector} 
+  internal data representations) in the same code.
+\item Define and implement user-callable constructor and destructor
+  routines to create and free an \id{N\_Vector} with
+  the new {\em content} field and with {\em ops} pointing to the
+  new vector operations.
+\item Optionally, define and implement additional user-callable routines
+  acting on the newly defined \id{N\_Vector} (e.g., a routine to print
+  the content for debugging purposes).
+\item Optionally, provide accessor macros as needed for that particular implementation to 
+  be used to access different parts in the {\em content} field of the newly defined \id{N\_Vector}.
+\end{itemize}
+
+
+
+%---------------------------------------------------------------------------
+% Table of vector kernels
+%---------------------------------------------------------------------------
+\newpage
+
+\newlength{\colone}
+\settowidth{\colone}{\id{N\_VGetArrayPointer}}
+\newlength{\coltwo}
+\setlength{\coltwo}{\textwidth}
+\addtolength{\coltwo}{-0.5in}
+\addtolength{\coltwo}{-\colone}
+
+\tablecaption{Description of the NVECTOR operations}\label{t:nvecops}
+\tablefirsthead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and Description} \\[3mm] \hline\hline}
+\tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
+           \hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and  Description} \\[3mm] \hline\hline}
+\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tablelasttail{\hline}
+\begin{supertabular}{|p{\colone}|p{\coltwo}|}
+%%
+\id{N\_VClone} & \id{v = N\_VClone(w);} \\ 
+& Creates a new \id{N\_Vector} of the same type as an existing vector \id{w} and sets the
+{\em ops} field.
+It does not copy the vector, but rather allocates storage for the new vector.
+\\[2mm]
+%%
+\id{N\_VCloneEmpty} & \id{v = N\_VCloneEmpty(w);} \\ 
+& Creates a new \id{N\_Vector} of the same type as an existing vector \id{w} and sets the
+{\em ops} field.
+It does not allocate storage for the data array.
+\\[2mm]
+%%
+\id{N\_VDestroy} & \id{N\_VDestroy(v);} \\
+& Destroys the \id{N\_Vector} \id{v} and frees memory allocated for its
+internal data.
+\\[2mm]
+%%
+\id{N\_VSpace} & \id{N\_VSpace(nvSpec, \&lrw, \&liw);} \\
+& Returns storage requirements for one \id{N\_Vector}.
+\id{lrw} contains the number of realtype words and \id{liw}
+contains the number of integer words.
+\\[2mm]
+%%
+\id{N\_VGetArrayPointer} & \id{vdata = N\_VGetArrayPointer(v);} \\
+& Returns a pointer to a \id{realtype} array from the \id{N\_Vector} \id{v}.
+Note that this assumes that the internal data in \id{N\_Vector} is
+a contiguous array of \id{realtype}.
+This routine is only used in the solver-specific interfaces to the 
+dense and banded linear solvers, as well as the interfaces to 
+the banded preconditioners provided with {\sundials}.
+\\[2mm]
+%%
+\id{N\_VSetArrayPointer} & \id{N\_VSetArrayPointer(vdata, v);} \\
+& Overwrites the data in an \id{N\_Vector} with a given array of \id{realtype}.
+Note that this assumes that the internal data in \id{N\_Vector} is
+a contiguous array of \id{realtype}.
+This routine is only used in the interfaces to the dense linear
+solver.
+\\[2mm]
+%%
+\id{N\_VLinearSum} & \id{N\_VLinearSum(a, x, b, y, z);} \\
+& Performs the operation $z = a x + b y$, where $a$ and $b$ are scalars
+and $x$ and $y$ are of type \id{N\_Vector}:
+$z_i = a x_i + b y_i, \: i=0,\ldots,n-1$.
+\\[2mm]
+%%
+\id{N\_VConst} & \id{N\_VConst(c, z);} \\
+& Sets all components of the \id{N\_Vector} \id{z} to \id{c}:
+$z_i = c,\: i=0,\ldots,n-1$.
+\\[2mm]
+%%
+\id{N\_VProd} & \id{N\_VProd(x, y, z);} \\
+& Sets the \id{N\_Vector} \id{z} to be the component-wise product of the
+\id{N\_Vector} inputs \id{x} and \id{y}:
+$z_i = x_i y_i,\: i=0,\ldots,n-1$.
+\\[2mm]
+%%
+\id{N\_VDiv} & \id{N\_VDiv(x, y, z);} \\
+& Sets the \id{N\_Vector} \id{z} to be the component-wise ratio of the
+\id{N\_Vector} inputs \id{x} and \id{y}:
+$z_i = x_i / y_i,\: i=0,\ldots,n-1$. The $y_i$ may not be tested 
+for $0$ values. It should only be called with an \id{x} that is
+guaranteed to have all nonzero components.
+\\[2mm]
+%%
+\id{N\_VScale} & \id{N\_VScale(c, x, z);} \\
+& Scales the \id{N\_Vector} \id{x} by the scalar \id{c} and returns
+the result in \id{z}:
+$z_i = c x_i , \: i=0,\ldots,n-1$.
+\\[2mm]
+%%
+\id{N\_VAbs} & \id{N\_VAbs(x, z);} \\
+& Sets the components of the \id{N\_Vector} \id{z} to be the absolute
+values of the components of the \id{N\_Vector} \id{x}:
+$y_i = | x_i | , \: i=0,\ldots,n-1$.
+\\[2mm]
+%%
+\id{N\_VInv} & \id{N\_VInv(x, z);} \\
+& Sets the components of the \id{N\_Vector} \id{z} to be the inverses
+of the components of the \id{N\_Vector} \id{x}:
+$z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$. This routine
+may not check for division by $0$. It should be called only with an 
+\id{x} which is guaranteed to have all nonzero components.
+\\[2mm]
+%%
+\id{N\_VAddConst} & \id{N\_VAddConst(x, b, z);} \\
+& Adds the scalar \id{b} to all components of \id{x} and returns the
+result in the \id{N\_Vector} \id{z}:
+$z_i = x_i + b , \: i=0,\ldots,n-1$.
+\\[2mm]
+%%
+\id{N\_VDotProd} & \id{d = N\_VDotProd(x, y);} \\
+& Returns the value of the ordinary dot product of \id{x} and \id{y}:
+$d=\sum_{i=0}^{n-1} x_i y_i$.
+\\[2mm]
+%%
+\id{N\_VMaxNorm} & \id{m = N\_VMaxNorm(x);} \\
+& Returns the maximum norm of the \id{N\_Vector} \id{x}:
+$m = \max_{i} | x_i |$.
+\\[2mm]
+%%
+\id{N\_VWrmsNorm} & \id{m = N\_VWrmsNorm(x, w)} \\
+& Returns the weighted root-mean-square norm of the \id{N\_Vector} \id{x} with
+weight vector \id{w}:
+$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}$.
+\\[2mm]
+%%
+\id{N\_VWrmsNormMask} & \id{m = N\_VWrmsNormMask(x, w, id);} \\
+& Returns the weighted root mean square norm of the \id{N\_Vector} \id{x} with
+weight vector \id{w} built using only the elements of \id{x} corresponding to
+nonzero elements of the \id{N\_Vector} \id{id}:\\
+&$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i \text{sign}(id_i))^2 \right) / n}$.
+\\[2mm]
+%%
+\id{N\_VMin} & \id{m = N\_VMin(x);} \\
+& Returns the smallest element of the \id{N\_Vector} \id{x}:
+$m = \min_i x_i $.
+\\[2mm]
+%%
+\id{N\_VWL2Norm} & \id{m = N\_VWL2Norm(x, w);} \\
+& Returns the weighted Euclidean $\ell_2$ norm of the \id{N\_Vector} \id{x}
+with weight vector \id{w}: 
+$m = \sqrt{\sum_{i=0}^{n-1} (x_i w_i)^2}$.
+\\[2mm]
+%%
+\id{N\_VL1Norm} & \id{m = N\_VL1Norm(x);} \\
+& Returns the $\ell_1$ norm of the \id{N\_Vector} \id{x}:
+$m = \sum_{i=0}^{n-1} | x_i |$.
+\\[2mm]
+%%
+\id{N\_VCompare} & \id{N\_VCompare(c, x, z);} \\
+& Compares the components of the \id{N\_Vector} \id{x} to the scalar
+\id{c} and returns an \id{N\_Vector} \id{z} such that:
+$z_i = 1.0$ if $| x_i | \ge c$ and $z_i = 0.0$ otherwise.
+\\[2mm]
+%%
+\id{N\_VInvTest} & \id{t = N\_VInvTest(x, z);} \\
+& Sets the components of the \id{N\_Vector} \id{z} to be the inverses
+of the components of the \id{N\_Vector} \id{x}, with prior testing
+for zero values:
+$z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$.
+This routine returns \id{TRUE} if all components of \id{x} are
+nonzero (successful inversion) and returns \id{FALSE} otherwise.  
+\\[2mm]
+%%
+\id{N\_VConstrMask} & \id{t = N\_VConstrMask(c, x, m);} \\
+& Performs the following constraint tests:
+$x_i > 0$ if $c_i=2$,
+$x_i \ge 0$ if $c_i=1$,
+$x_i \le 0$ if $c_i=-1$,
+$x_i < 0$ if $c_i=-2$.
+There is no constraint on $x_i$ if $c_i=0$.
+This routine returns \id{FALSE} if any element failed
+the constraint test, \id{TRUE} if all passed.  It also sets a
+mask vector \id{m}, with elements equal to $1.0$ where the constraint 
+test failed, and $0.0$ where the test passed.
+This routine is used only for constraint checking.
+\\[2mm]
+%%
+\id{N\_VMinQuotient} & \id{minq = N\_VMinQuotient(num, denom);} \\
+& This routine returns the minimum of the quotients obtained   
+by term-wise dividing \id{num}$_i$ by \id{denom}$_i$. 
+A zero element in \id{denom} will be skipped. 
+If no such quotients are found, then the large value 
+\Id{BIG\_REAL} (defined in the header file \id{sundials\_types.h})
+is returned. 
+\\
+%%
+\end{supertabular}
+\bigskip

@@ -1,0 +1,27 @@
+% This is a shared SUNDIALS TEX file with description of
+% the generic sptfqmr linear solver
+
+\section{The SPTFQMR module}\label{ss:sptfqmr}
+
+\index{generic linear solvers!SPTFQMR@{\sptfqmr}}
+\index{SPTFQMR@{\sptfqmr} generic linear solver!description of|(} 
+The {\sptfqmr} package, in the files \id{sundials\_sptfqmr.h} and \id{sundials\_sptfqmr.c}, includes an
+implementation of the scaled preconditioned TFQMR\index{TFQMR method} method.  
+For full details, including usage instructions, see the file \id{sundials\_sptfqmr.h}.
+\index{SPTFQMR@{\sptfqmr} generic linear solver!description of|)}
+
+{\warn}The {\sptfqmr} package can only be used in conjunction with an actual {\nvector} 
+implementation library, such as the {\nvecs} or {\nvecp} provided with {\sundials}.
+
+The files needed to use the {\sptfqmr} module by itself are the same as for the
+{\spgmr} module, with \id{sundials\_sptfqmr.(h,c)} replacing \id{sundials\_spgmr.(h,c)}.
+
+\subsection{Functions}
+\index{SPTFQMR@{\sptfqmr} generic linear solver!functions|(}
+The following functions are available in the {\sptfqmr} package:  
+\begin{itemize}
+\item \id{SptfqmrMalloc}: allocation of memory for \id{SptfqmrSolve};
+\item \id{SptfqmrSolve}: solution of $Ax = b$ by the {\sptfqmr} method;
+\item \id{SptfqmrFree}: free memory allocated by \id{SptfqmrMalloc}.
+\end{itemize}
+\index{SPTFQMR@{\sptfqmr} generic linear solver!functions|)}

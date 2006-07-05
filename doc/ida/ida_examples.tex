@@ -1,0 +1,48 @@
+\documentclass[twoside,titlepage,11pt]{article}
+%%\documentclass[titlepage,11pt]{article}
+
+\input{ug.tex}
+
+\externaldocument{ida_install}
+\externaldocument{ida_math}
+\externaldocument{ida_usage}
+\externaldocument{ida_nvec}
+\externaldocument{ida_linsolv}
+
+%===============================================================
+
+\title{Example Programs for {\ida} {\idarelease}}
+\author{
+  Alan C. Hindmarsh, Radu Serban, and Aaron Collier\\
+  {\em Center for Applied Scientific Computing} \\
+  {\em Lawrence Livermore National Laboratory}
+}
+\date{
+  \today 
+  \vfill {\centerline{\psfig{figure=doc_logo.eps,width=0.5\textwidth}}}
+  \vfill \idaucrlex
+}
+
+\makeindex
+
+\begin{document}
+
+\frontex
+\raggedbottom
+%===============================================================
+\include{ida_ex_intro}
+\include{ida_ex_serial}
+\include{ida_ex_parallel}
+\include{ida_ex_fortran}
+%===============================================================
+% References
+\bibliographystyle{plain}
+\bibliography{biblio}
+%===============================================================
+% Start appendices
+\appendix
+\include{ida_ex_codes}
+%===============================================================
+\clearemptydoublepage
+%===============================================================
+\end{document}

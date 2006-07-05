@@ -1,0 +1,99 @@
+%===================================================================================
+\section{Fortran example problems}\label{s:ex_fortran}
+%===================================================================================
+
+The {\F} example problem programs supplied with the {\kinsol}
+package are all written in standard F77 Fortran and use double-precision
+arithmetic. However, when the {\F} examples are built, the source code is
+automatically modified according to the configure options supplied by the
+user and the system type. Integer variables are declared as {\tt INTEGER*}{\em n},
+where {\em n} denotes the number of bytes in the corresponding {\C} type
+({\tt long int} or {\tt int}). Floating-point variable declarations remain
+unchanged if double-precision is used, but are changed to {\tt REAL*}{\em n},
+where {\em n} denotes the number of bytes in the {\sundials} type {\tt realtype},
+if using single-precision. Also, if using single-precision, declarations of
+floating-point constants are appropriately modified, e.g. {\tt 0.5D-4} is
+changed to {\tt 0.5E-4}.
+
+
+The two examples supplied with the {\fkinsol} module are very simple tests 
+of the {\F}-{\C} interface module. 
+They solve the nonlinear system
+\begin{equation*}
+  F(u) = 0 \, , \quad \text{where } f_i(u) = u_i^2 - i^2 \, , 1 \le i \le N \, . 
+\end{equation*}
+
+\subsection{A serial example: fkinkryx}\label{ss:fkinkryx}
+
+The \id{fkinkryx} program, for which the source code is listed in
+Appendix~\ref{s:fkinkryx_f}, solves the above problem using the
+{\nvecs} module.
+
+The main program begins by calling \id{fnvinits} to initialize computations
+with the {\nvecs} module. Next, the array \id{uu} is set to contain
+the initial guess $u_i = 2 i$, the array \id{scale} is set with all 
+components equal to $1.0$ (meaning that no scaling is done), and the array
+\id{constr} is set with all components equal to $0.0$ to indicate that no 
+inequality constraints should be imposed on the solution vector.
+
+The {\kinsol} solver is initialized and memory for it is allocated by
+calling \id{fkinmalloc}, which also specifies the \id{iout} and \id{rout}
+arrays which are used to store integer and real outputs, respectively
+(see Table~\ref{t:fkinsol_out}). Also,
+various integer, real and vector parameters are specified by calling the
+\id{fkinsetiin}, \id{fkinsetrin}, and \id{fkinsetvin} subroutines,
+respectively. In particular, the maximum number of 
+iterations between calls to the preconditioner setup routine (\id{msbpre} $=5$),
+the tolerance for stopping based on the function norm (\id{fnormtol} = $10^{-5}$),
+and the tolerance for stopping based on the step length (\id{scsteptol} $=10^{-4}$)
+are specified.
+
+Next, the {\kinspgmr} linear solver module is attached to {\kinsol} by calling
+\id{fkinspgmr}, which also specifies the maximum Krylov subspace dimension
+(\id{maxl} $=10$) and the maximum number of restarts allowed for {\spgmr}
+(\id{maxlrst} $=2$).  The {\kinspgmr} module is directed to use the supplied
+preconditioner by  calling the \id{fkinspilssetprec} routine
+with a first argument equal to $1$. The solution of the
+nonlinear system is obtained after a successful return from \id{fkinsol}, which
+is then printed to unit 6 (stdout).
+
+Finally, memory allocated for the {\kinsol} solver is released by
+calling \id{fkinfree}.
+
+The user-supplied routine \id{fkfun} contains a straightforward transcription
+of the nonlinear system function $f$, while the routine \id{fkpset} sets the
+array \id{pp} (in the common block \id{pcom}) to contain an approximation to 
+the reciprocals of the Jacobian diagonal elements. The components of \id{pp} are
+then used in \id{fkpsol} to solve the preconditioner linear system $Px=v$
+through simple multiplications.
+
+The following is sample output from \id{fkinkryx}, using $N = 128$.
+
+\includeOutput{fkinkryx}{../../examples/kinsol/fcmix_serial/fkinkryx.out}
+
+%%----------------------------------------------------------------------------
+
+\subsection{A parallel example: fkinkryx\_p}\label{ss:fkinkryx_p}
+
+The program \id{kindiapf}, listed in Appendix~\ref{s:fkinkryx_p_f}, is a
+straightforward modification of \id{fkinkryx} to use the {\mpi}-enabled
+{\nvecp} module.
+
+After initialization of {\mpi}, the {\nvecp} module is initialized by calling
+\id{fnvinitp} with the default {\mpi} communicator \id{mpi\_comm\_world} and
+local and global vector sizes as its first three arguments.
+The problem set-up ({\kinsol} initialization, {\kinspgmr} specification) and
+solution steps are the same as in \id{fkinkryx}. 
+Upon successful return from \id{fkinsol}, the solution segment local to 
+the process with id equal to $0$ is printed to the screen.
+Finally, the {\kinsol} memory is released and the {\mpi} environent is
+terminated. 
+
+For this simple example, no inter-process communication is required to
+evaluate the nonlinear system function $f$ or the preconditioner. 
+As a consequence, the user-supplied routines \id{fkfun}, \id{fkpset}, and
+\id{fkpsol} are basically identical to those in \id{fkinkryx}.
+
+Sample output from \id{fkinkryx\_p}, for $N=128$, follows.
+
+\includeOutput{fkinkryx\_p}{../../examples/kinsol/fcmix_parallel/fkinkryx_p.out}

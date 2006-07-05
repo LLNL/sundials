@@ -1,0 +1,203 @@
+%%========================================================================
+\chapter{CVODE Constants}\label{c:constants}
+%%========================================================================
+
+Below we list all input and output constants used by the main solver and 
+linear solver modules, together with their numerical values and a short
+description of their meaning.
+
+%%-------------------------------------------------------------------------
+%% Supertabular setings
+
+\newlength{\tcolone}
+\settowidth{\tcolone}{\id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}}
+\newlength{\tcoltwo}
+\settowidth{\tcoltwo}{-20}
+\newlength{\tcolthree}
+\setlength{\tcolthree}{\textwidth}
+\addtolength{\tcolthree}{-0.5in}
+\addtolength{\tcolthree}{-\tcolone}
+\addtolength{\tcolthree}{-\tcoltwo}
+
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+
+%%-------------------------------------------------------------------------
+
+\section{CVODE input constants}\label{s:cvode_in_constants}
+
+\begin{supertabular*}{\textwidth}{p{\tcolone}@{\hspace*{2mm}\extracolsep{\fill}}rp{\tcolthree}}
+
+\hline
+\multicolumn{3}{c}{\bf {\cvode} main solver module}\\
+\hline\\
+
+\id{CV\_ADAMS}            & 1 & Adams-Moulton linear multistep method. \\
+\id{CV\_BDF}              & 2 & BDF linear multistep method. \\
+\id{CV\_FUNCTIONAL}       & 1 & Nonlinear system solution through functional iterations. \\
+\id{CV\_NEWTON}           & 2 & Nonlinear system solution through Newton iterations. \\
+\id{CV\_SS}               & 1 & Scalar relative tolerance, scalar absolute tolerance. \\
+\id{CV\_SV}               & 2 & Scalar relative tolerance, vector absolute tolerance. \\
+\id{CV\_NORMAL}           & 1 & Solver returns at specified output time. \\
+\id{CV\_ONE\_STEP}        & 2 & Solver returns after each successful step. \\
+\id{CV\_NORMAL\_TSTOP}    & 3 & Solver returns at specified output time, but does not proceed past the specified stopping time. \\
+\id{CV\_ONE\_STEP\_TSTOP} & 4 & Solver returns after each successful step, but does not proceed past the specified stopping time. \\
+
+\\\hline
+\multicolumn{3}{c}{\bf Iterative linear solver module}\\
+\hline\\
+
+\id{PREC\_NONE} & 0 & No preconditioning \\
+\id{PREC\_LEFT} & 1 & Preconditioning on the left only. \\
+\id{PREC\_RIGHT} & 2 & Preconditioning on the right only. \\
+\id{PREC\_BOTH} & 3 & Preconditioning on both the left and the right. \\
+\id{MODIFIED\_GS} & 1 & Use modified Gram-Schmidt procedure. \\
+\id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure. \\
+
+\end{supertabular*}
+
+%%-------------------------------------------------------------------------
+
+\section{CVODE output constants}\label{s:cvode_out_constants}
+
+\begin{supertabular*}{\textwidth}{p{\tcolone}@{\hspace*{2mm}\extracolsep{\fill}}rp{\tcolthree}}
+
+\hline
+\multicolumn{3}{c}{\bf {\cvode} main solver module}\\
+\hline\\
+
+\id{CV\_SUCCESS}             &  0  & Successful function return. \\
+\id{CV\_TSTOP\_RETURN}       &  1  & \id{CVode} succeeded by reaching the specified stopping point. \\
+\id{CV\_ROOT\_RETURN}        &  2  & \id{CVode} succeeded and found one or more roots. \\
+\id{CV\_TOO\_MUCH\_WORK}     & -1  & The solver took \id{mxstep} internal steps but could not reach tout.\\
+\id{CV\_TOO\_MUCH\_ACC}      & -2  & The solver could not satisfy the accuracy demanded by the user for some internal step.\\
+\id{CV\_ERR\_FAILURE}        & -3  & Error test failures occurred too many times during one internal time step or minimum step size was reached. \\
+\id{CV\_CONV\_FAILURE}       & -4  & Convergence test failures occurred too many times during one internal time step or minimum step size was reached. \\
+\id{CV\_LINIT\_FAIL}         & -5  & The linear solver's initialization function failed.  \\
+\id{CV\_LSETUP\_FAIL}        & -6  & The linear solver's setup function failed in an unrecoverable manner. \\
+\id{CV\_LSOLVE\_FAIL}        & -7  & The linear solver's solve function failed in an unrecoverable manner. \\
+\id{CV\_RHSFUNC\_FAIL}       & -8  & The right-hand side function failed in an unrecoverable manner. \\
+\id{CV\_FIRST\_RHSFUNC\_ERR} & -9  & The right-hand side function failed at the first call. \\
+\id{CV\_REPTD\_RHSFUNC\_ERR} & -10 & The right-hand side function had repetead recoverable errors. \\
+\id{CV\_UNREC\_RHSFUNC\_ERR} & -11 & The right-hand side function had a recoverable error, but no recovery is possible. \\
+\id{CV\_RTFUNC\_FAIL}        & -12 & The rootfinding function failed in an unrecoverable manner. \\
+\id{CV\_MEM\_FAIL}           & -20 & A memory allocation failed. \\
+\id{CV\_MEM\_NULL}           & -21 & The \id{cvode\_mem} argument was \id{NULL}. \\
+\id{CV\_ILL\_INPUT}          & -22 & One of the function inputs is illegal. \\
+\id{CV\_NO\_MALLOC}          & -23 & The {\cvode} memory block was not allocated by a call to \id{CVodeMalloc}. \\
+\id{CV\_BAD\_K}              & -24 & The derivative order $k$ is larger than the order used. \\
+\id{CV\_BAD\_T}              & -25 & The time $t$ s outside the last step taken. \\
+\id{CV\_BAD\_DKY}            & -26 & The output derivative vector is \id{NULL}. \\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\cvdense} linear solver module}\\
+\hline\\
+
+\id{CVDENSE\_SUCCESS}          &  0 & Successful function return. \\
+\id{CVDENSE\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVDENSE\_LMEM\_NULL}       & -2 & The {\cvdense} linear solver has not been initialized.\\
+\id{CVDENSE\_ILL\_INPUT}       & -3 & The {\cvdense} solver is not compatible with the current {\nvector} module.\\
+\id{CVDENSE\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
+\id{CVDENSE\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
+\id{CVDENSE\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\cvband} linear solver module}\\
+\hline\\
+
+\id{CVBAND\_SUCCESS}          &  0 & Successful function return. \\
+\id{CVBAND\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVBAND\_LMEM\_NULL}       & -2 & The {\cvband} linear solver has not been initialized.\\
+\id{CVBAND\_ILL\_INPUT}       & -3 & The {\cvband} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
+\id{CVBAND\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
+\id{CVBAND\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
+\id{CVBAND\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\cvdiag} linear solver module}\\
+\hline\\
+
+\id{CVDIAG\_SUCCESS}    &  0 & Successful function return. \\
+\id{CVDIAG\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVDIAG\_LMEM\_NULL} & -2 & The {\cvdiag} linear solver has not been initialized.\\
+\id{CVDIAG\_ILL\_INPUT} & -3 & The {\cvdiag} solver is not compatible with the current {\nvector} module.\\
+\id{CVDIAG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\cvspils} linear solver modules}\\
+\hline\\
+
+\id{CVSPILS\_SUCCESS}    &  0 & Successful function return. \\
+\id{CVSPILS\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVSPILS\_LMEM\_NULL} & -2 & The linear solver has not been initialized.\\
+\id{CVSPILS\_ILL\_INPUT} & -3 & The solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
+\id{CVSPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\
+\hline\\
+
+\id{SPGMR\_SUCCESS}             &  0 & Converged. \\
+\id{SPGMR\_RES\_REDUCED}        &  1 & No convergence, but the residual norm was reduced. \\
+\id{SPGMR\_CONV\_FAIL}          &  2 & Failure to converge. \\
+\id{SPGMR\_QRFACT\_FAIL}        &  3 & A singular matrix was found during the QR factorization. \\
+\id{SPGMR\_PSOLVE\_FAIL\_REC}   &  4 & The preconditioner solve function failed recoverably.\\
+\id{SPGMR\_ATIMES\_FAIL\_REC}   &  5 & The Jacobian-times-vector function failed recoverably.\\
+\id{SPGMR\_PSET\_FAIL\_REC}     &  6 & The preconditioner setup function failed recoverably.\\
+\id{SPGMR\_MEM\_NULL}           & -1 & The {\spgmr} memory is \id{NULL}\\
+\id{SPGMR\_ATIMES\_FAIL\_UNREC} & -2 & The Jacobian-times-vector function failed unrecoverably. \\
+\id{SPGMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
+\id{SPGMR\_GS\_FAIL}            & -4 & Failure in the Gram-Schmidt procedure. \\
+\id{SPGMR\_QRSOL\_FAIL}         & -5 & The matrix $R$ was found to be singular during the QR solve phase. \\
+\id{SPGMR\_PSET\_FAIL\_UNREC}   & -6 & The preconditioner setup function failed unrecoverably. \\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\spbcg} generic linear solver module}\\
+\hline\\
+
+\id{SPBCG\_SUCCESS}             &  0 & Converged. \\
+\id{SPBCG\_RES\_REDUCED}        &  1 & No convergence, but the residual norm was reduced. \\
+\id{SPBCG\_CONV\_FAIL}          &  2 & Failure to converge. \\
+\id{SPBCG\_PSOLVE\_FAIL\_REC}   &  3 & The preconditioner solve function failed recoverably.\\
+\id{SPBCG\_ATIMES\_FAIL\_REC}   &  4 & The Jacobian-times-vector function failed recoverably.\\
+\id{SPBCG\_PSET\_FAIL\_REC}     &  5 & The preconditioner setup function failed recoverably.\\
+\id{SPBCG\_MEM\_NULL}           & -1 & The {\spbcg} memory is \id{NULL}\\
+\id{SPBCG\_ATIMES\_FAIL\_UNREC} & -2 & The Jacobian-times-vector function failed unrecoverably. \\
+\id{SPBCG\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
+\id{SPBCG\_PSET\_FAIL\_UNREC}   & -4 & The preconditioner setup function failed unrecoverably. \\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\sptfqmr} generic linear solver module}\\
+\hline\\
+
+\id{SPTFQMR\_SUCCESS}             &  0 & Converged. \\
+\id{SPTFQMR\_RES\_REDUCED}        &  1 & No convergence, but the residual norm was reduced. \\
+\id{SPTFQMR\_CONV\_FAIL}          &  2 & Failure to converge. \\
+\id{SPTFQMR\_PSOLVE\_FAIL\_REC}   &  3 & The preconditioner solve function failed recoverably.\\
+\id{SPTFQMR\_ATIMES\_FAIL\_REC}   &  4 & The Jacobian-times-vector function failed recoverably.\\
+\id{SPTFQMR\_PSET\_FAIL\_REC}     &  5 & The preconditioner setup function failed recoverably.\\
+\id{SPTFQMR\_MEM\_NULL}           & -1 & The {\sptfqmr} memory is \id{NULL}\\
+\id{SPTFQMR\_ATIMES\_FAIL\_UNREC} & -2 & The Jacobian-times-vector function failed. \\
+\id{SPTFQMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
+\id{SPTFQMR\_PSET\_FAIL\_UNREC}   & -4 & The preconditioner setup function failed unrecoverably. \\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\cvbandpre} preconditioner module}\\
+\hline\\
+
+\id{CVBANDPRE\_SUCCESS}          &  0  & Successful function return. \\
+\id{CVBANDPRE\_PDATA\_NULL}      & -11 & The preconditioner module has not been initialized. \\
+\id{CVBANDPRE\_RHSFUNC\_UNRECVR} & -12 & The right-hand side function failed unrecoverably. \\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\cvbbdpre} preconditioner module}\\
+\hline\\
+
+\id{CVBBDPRE\_SUCCESS}         &  0  & Successful function return. \\
+\id{CVBBDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
+\id{CVBBDPRE\_FUNC\_UNRECVR}   & -12 & A user supplied function failed unrecoverably.
+
+\end{supertabular*} 
+

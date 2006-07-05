@@ -1,0 +1,49 @@
+\documentclass[twoside,titlepage,11pt]{article}
+%%\documentclass[titlepage,11pt]{article}
+
+\input{ug.tex}
+
+\externaldocument{cvs_install}
+\externaldocument{cvs_math}
+\externaldocument{cvs_sim}
+\externaldocument{cvs_fwd}
+\externaldocument{cvs_adj}
+\externaldocument{cvs_nvec}
+\externaldocument{cvs_linsolv}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\title{Example Programs for {\cvodes} \\ \cvsrelease}
+\author{
+  Radu Serban and Alan C. Hindmarsh \\
+  {\em Center for Applied Scientific Computing} \\
+  {\em Lawrence Livermore National Laboratory}
+}
+\date{
+  \today 
+  \vfill 
+  {\centerline{\psfig{figure=doc_logo.eps,width=0.5\textwidth}}}
+  \vfill \cvsucrlex
+}
+
+\begin{document}
+
+\frontex
+\raggedbottom
+%===============================================================
+\include{cvs_ex_intro}
+\include{cvs_fwd_ex}
+\include{cvs_adj_ex}
+\include{cvs_ex_tests}
+%===============================================================
+% References
+\bibliographystyle{plain}
+\bibliography{biblio}
+%===============================================================
+% Start appendices
+\appendix
+\include{cvs_ex_codes}
+%===============================================================
+\clearemptydoublepage
+%===============================================================
+\end{document}

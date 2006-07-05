@@ -1,0 +1,189 @@
+% This is a shared SUNDIALS TEX file with description of
+% the generic dense linear solver
+
+\section{The DENSE module}\label{ss:dense}
+
+\index{generic linear solvers!DENSE@{\dense}}
+Relative to the {\sundials} {\em source\_tree}, the files comprising the
+{\dense} generic linear solver are as follows:
+\begin{itemize}
+\item header files (located in {\em source\_tree}\id{/shared/include})\\
+  \id{sundials\_dense.h} \id{sundials\_smalldense.h} \\
+  \id{sundials\_types.h} \id{sundials\_math.h}  \id{sundials\_config.h}
+\item source files (located in {\em source\_tree}\id{/shared/source})\\
+  \id{sundials\_dense.c} \id{sundials\_smalldense.c} \id{sundials\_math.c}
+\end{itemize}
+Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
+are relevant to the {\dense} package by itself (see \S\ref{ss:no_config} for details):
+\begin{itemize}
+\item (required) definition of the precision of the {\sundials} type \id{realtype}. 
+  One of the following lines must be present:\\
+  \id{\#define SUNDIALS\_DOUBLE\_PRECISION 1}\\
+  \id{\#define SUNDIALS\_SINGLE\_PRECISION 1}\\
+  \id{\#define SUNDIALS\_EXTENDED\_PRECISION 1}
+\item (optional) use of generic math functions:
+  \id{\#define SUNDIALS\_USE\_GENERIC\_MATH 1}
+\end{itemize}
+The \id{sundials\_types.h} header file defines the {\sundials}
+\id{realtype} and \id{booleantype} types and the macro \id{RCONST}, while the 
+\id{sundials\_math.h} header file is needed for the \id{ABS} macro and \id{RAbs} function.
+
+The eight files listed above can be extracted from the {\sundials} {\em source\_tree} and
+compiled by themselves into a {\dense} library or into a larger user code.
+
+\subsection{Type DenseMat}
+\index{DENSE@{\dense} generic linear solver!type \id{DenseMat}|(}
+The type \ID{DenseMat} is defined to be a pointer to a structure    
+with a size and a data field:
+\begin{verbatim}
+typedef struct {
+  long int size;
+  realtype  **data;
+} *DenseMat;
+\end{verbatim}
+The {\em size} field indicates the number of columns (which is the same as the
+number of rows) of a dense matrix, while the {\em data} field is a two 
+dimensional array used for component storage. 
+The elements of a dense matrix are stored columnwise (i.e columns are stored 
+one on top of the other in memory). If \id{A} is of type \id{DenseMat}, 
+then the (\id{i},\id{j})-th element of \id{A} 
+(with $0 \le$ \id{i}, \id{j} $\le$ \id{size}$-1$) 
+is given by the expression \id{(A->data)[j][i]} 
+or by the expression \id{(A->data)[0][j*size+i]}. The macros below     
+allow a user to efficiently access individual matrix           
+elements without writing out explicit data structure           
+references and without knowing too much about the underlying   
+element storage. The only storage assumption needed is that    
+elements are stored columnwise and that a pointer to the \id{j}-th   
+column of elements can be obtained via the \id{DENSE\_COL} macro.    
+Users should use these macros whenever possible.               
+\index{DENSE@{\dense} generic linear solver!type \id{DenseMat}|)}
+
+\subsection{Accessor Macros}
+\index{DENSE@{\dense} generic linear solver!macros|(}
+The following two macros are defined by the {\dense} module to provide
+access to data in the \id{DenseMat} type:
+\begin{itemize}
+\item \ID{DENSE\_ELEM}
+  \par Usage : \id{DENSE\_ELEM(A,i,j) = a\_ij;} or
+  \id{a\_ij = DENSE\_ELEM(A,i,j);}
+  \par \id{DENSE\_ELEM} references the (\id{i},\id{j})-th element of the $N \times N$
+  \id{DenseMat} \id{A}, $0 \le$ \id{i}, \id{j} $\le N-1$.
+  
+\item \ID{DENSE\_COL}
+  \par Usage : \id{col\_j = DENSE\_COL(A,j);}
+  \par \id{DENSE\_COL} references the \id{j}-th column of the $N \times N$
+  \id{DenseMat} \id{A}, $0 \le$ \id{j} $\le N-1$. The type of the expression          
+  \id{DENSE\_COL(A,j)} is \id{realtype *} . After the assignment in the usage    
+  above, \id{col\_j} may be treated as an array indexed from $0$ to $N-1$. 
+  The (\id{i}, \id{j})-th element of \id{A} is referenced by \id{col\_j[i]}.  
+\end{itemize}
+\index{DENSE@{\dense} generic linear solver!macros|)}
+
+\subsection{Functions}
+\index{DENSE@{\dense} generic linear solver!functions!large matrix|(}
+The following functions for \id{DenseMat} matrices are available
+in the {\dense} package.  For full details, see the header file \id{sundials\_dense.h}.
+\begin{itemize}
+\item \id{DenseAllocMat}: allocation of a \id{DenseMat} matrix;
+\item \id{DenseAllocPiv}: allocation of a pivot array for use
+  with \id{DenseFactor}/\id{DenseBacksolve};
+\item \id{DenseFactor}: LU factorization with partial pivoting;
+\item \id{DenseBacksolve}: solution of $Ax = b$ using LU factorization;
+\item \id{DenseZero}: load a matrix with zeros;
+\item \id{DenseCopy}: copy one matrix to another;
+\item \id{DenseScale}: scale a matrix by a scalar;
+\item \id{DenseAddI}: increment a matrix by the identity matrix;
+\item \id{DenseFreeMat}: free memory for a \id{DenseMat} matrix;
+\item \id{DenseFreePiv}: free memory for a pivot array;
+\item \id{DensePrint}: print a \id{DenseMat} matrix to standard output.
+\end{itemize}
+\index{DENSE@{\dense} generic linear solver!functions!large matrix|)}
+
+\subsection{Small Dense Matrix Functions}
+\index{DENSE@{\dense} generic linear solver!functions!small matrix|(}
+The following functions for small dense matrices are available in the
+{\dense} package:
+%
+\begin{itemize}
+
+\item \ID{denalloc}
+  \par \id{denalloc(n)} allocates storage for an  \id{n} by \id{n} dense matrix. 
+  It returns a pointer to the newly allocated storage if            
+  successful. If the memory request cannot be satisfied, then    
+  \id{denalloc} returns \id{NULL}. The underlying type of the dense matrix 
+  returned is \id{realtype**}. If we allocate a dense matrix \id{realtype** a} by 
+  \id{a = denalloc(n)}, then \id{a[j][i]} references the (\id{i},\id{j})-th element   
+  of the matrix \id{a}, $0 \le$ \id{i}, \id{j} $\le$ \id{n}$-1$, and \id{a[j]} 
+  is a pointer to the first element in the \id{j}-th column of \id{a}. 
+  The location \id{a[0]} contains a pointer to \id{n}$^2$ contiguous locations which contain   
+  the elements of \id{a}.
+
+\item \ID{denallocpiv}
+  \par \id{denallocpiv(n)} allocates an array of \id{n} integers. 
+  It returns a pointer to the first element in the array if successful. 
+  It returns \id{NULL} if the memory request could not be satisfied.
+
+\item \ID{gefa}
+  \par \id{gefa(a,n,p)} factors the \id{n} by \id{n} dense matrix \id{a}. 
+  It overwrites the elements of \id{a} with its LU factors and keeps track of the
+  pivot rows chosen in the pivot array \id{p}.
+
+  A successful LU factorization leaves the matrix \id{a} and the      
+  pivot array \id{p} with the following information:                  
+  \begin{enumerate}
+  \item 
+    \id{p[k]} contains the row number of the pivot element chosen   
+    at the beginning of elimination step \id{k}, \id{k} $ = 0, 1, ..., $\id{n}$-1$.  
+                                                                 
+  \item 
+    If the unique LU factorization of \id{a} is given by $Pa = LU$,   
+    where $P$ is a permutation matrix, $L$ is a lower triangular   
+    matrix with all $1$'s on the diagonal, and $U$ is an upper     
+    triangular matrix, then the upper triangular part of \id{a}     
+    (including its diagonal) contains $U$ and the strictly lower 
+    triangular part of \id{a} contains the multipliers, $I-L$. 
+                                                                  
+    \id{gefa} returns 0 if successful. Otherwise it encountered a zero  
+    diagonal element during the factorization. In this case it     
+    returns the column index (numbered from one) at which it       
+    encountered the zero.
+    \end{enumerate}
+
+\item \ID{gesl}
+  \par \id{gesl(a,n,p,b)} solves the \id{n} by \id{n} linear system $ax = b$. 
+  It assumes that \id{a} has been LU-factored and the pivot array \id{p} has  
+  been set by a successful call to \id{gefa(a,n,p)}. The solution $x$   
+  is written into the \id{b} array.
+
+\item \ID{denzero}
+  \par \id{denzero(a,n)} sets all the elements of the \id{n} by \id{n} dense matrix
+  \id{a} to be $0.0$;
+
+\item \ID{dencopy}
+  \par \id{dencopy(a,b,n)} copies the \id{n} by \id{n} dense matrix \id{a} into the
+  \id{n} by \id{n} dense matrix \id{b};
+
+\item \ID{denscale}
+  \par \id{denscale(c,a,n)} scales every element in the \id{n} by \id{n} dense
+  matrix \id{a} by \id{c};
+
+\item \ID{denaddI}
+  \par \id{denaddI(a,n)} increments the \id{n} by \id{n} dense matrix \id{a} by the
+  identity matrix;
+
+\item \ID{denfreepiv}
+  \par \id{denfreepiv(p)} frees the pivot array \id{p} allocated by \id{denallocpiv};
+
+\item \ID{denfree}
+  \par \id{denfree(a)} frees the dense matrix \id{a} allocated by \id{denalloc};
+
+\item \ID{denprint}
+  \par \id{denprint(a,n)} prints the \id{n} by \id{n} dense matrix \id{a} to standard     
+  output as it would normally appear on paper. It is intended as 
+  a debugging tool with small values of \id{n}. The elements are      
+  printed using the \id{\%g} option. A blank line is printed before    
+  and after the matrix. 
+
+\end{itemize}
+\index{DENSE@{\dense} generic linear solver!functions!small matrix|)}

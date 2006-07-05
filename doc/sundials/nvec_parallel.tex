@@ -1,0 +1,229 @@
+% This is a shared SUNDIALS TEX file with description of
+% the parallel nvector implementation
+%
+The parallel implementation of the {\nvector} module provided with {\sundials},
+{\nvecp}, defines the {\em content} 
+field of \id{N\_Vector} to be a structure containing the global and local lengths 
+of the vector, a pointer to the beginning of a contiguous local data array,
+an {\mpi} communicator, an a boolean flag {\em own\_data} indicating ownership of 
+the data array {\em data}.
+%%
+\begin{verbatim} 
+struct _N_VectorContent_Parallel {
+  long int local_length;
+  long int global_length;
+  booleantype own_data;
+  realtype *data;
+  MPI_Comm comm;
+};
+\end{verbatim}
+%%
+%%--------------------------------------------
+%%
+The following seven macros are provided to access the content of a {\nvecp}
+vector. The suffix \id{\_P} in the names denotes parallel version.
+\begin{itemize}
+
+\item 
+  \ID{NV\_CONTENT\_P}
+
+  This macro gives access to the contents of the parallel
+  vector \id{N\_Vector}.
+  
+  The assignment \id{v\_cont = NV\_CONTENT\_P(v)} sets       
+  \id{v\_cont} to be a pointer to the \id{N\_Vector} content    
+  structure of type \id{struct \_N\_VectorParallelContent}.
+  
+  Implementation:
+  
+  \verb|#define NV_CONTENT_P(v) ( (N_VectorContent_Parallel)(v->content) )|
+  
+\item 
+  \ID{NV\_OWN\_DATA\_P}, \ID{NV\_DATA\_P}, 
+  \ID{NV\_LOCLENGTH\_P}, \ID{NV\_GLOBLENGTH\_P}
+  
+  These macros give individual access to the parts of    
+  the content of a parallel \id{N\_Vector}.                        
+  
+  The assignment \id{v\_data = NV\_DATA\_P(v)} sets \id{v\_data} to be     
+  a pointer to the first component of the local data for the \id{N\_Vector} \id{v}. 
+  The assignment \id{NV\_DATA\_P(v) = v\_data} sets the component array of 
+  \id{v} to be \id{v\_data} by storing the pointer \id{v\_data}.                   
+  
+  The assignment \id{v\_llen = NV\_LOCLENGTH\_P(v)} sets \id{v\_llen} to be     
+  the length of the local part of \id{v}. 
+  The call \id{NV\_LENGTH\_P(v) = llen\_v} sets      
+  the local length of \id{v} to be \id{llen\_v}.
+  
+  The assignment \id{v\_glen = NV\_GLOBLENGTH\_P(v)} sets \id{v\_glen} to  
+  be the global length of the vector \id{v}.                    
+  The call \id{NV\_GLOBLENGTH\_P(v) = glen\_v} sets the global       
+  length of \id{v} to be \id{glen\_v}.
+  
+  Implementation:
+  
+  \verb|#define NV_OWN_DATA_P(v)   ( NV_CONTENT_P(v)->own_data )|
+
+  \verb|#define NV_DATA_P(v)       ( NV_CONTENT_P(v)->data )|
+
+  \verb|#define NV_LOCLENGTH_P(v)  ( NV_CONTENT_P(v)->local_length )|
+
+  \verb|#define NV_GLOBLENGTH_P(v) ( NV_CONTENT_P(v)->global_length )|
+  
+\item \ID{NV\_COMM\_P}
+
+  This macro provides access to the {\mpi} communicator used by the {\nvecp}
+  vectors.
+
+  Implementation:
+
+  \verb|#define NV_COMM_P(v) ( NV_CONTENT_P(v)->comm )|
+
+\item \ID{NV\_Ith\_P}
+
+  This macro gives access to the individual components of the local data
+  array of an \id{N\_Vector}.
+
+  The assignment \id{r = NV\_Ith\_P(v,i)} sets \id{r} to be the value of 
+  the \id{i}-th component of the local part of \id{v}. 
+  The assignment \id{NV\_Ith\_P(v,i) = r}   
+  sets the value of the \id{i}-th component of the local part of \id{v} 
+  to be \id{r}.        
+  
+  Here $i$ ranges from $0$ to $n-1$, where $n$ is the local length.
+      
+  Implementation:
+
+  \verb|#define NV_Ith_P(v,i) ( NV_DATA_P(v)[i] )|
+
+\end{itemize}
+%%
+%%--------------------------------------------
+%%
+The {\nvecp} module defines parallel implementations of all vector operations listed 
+in Table \ref{t:nvecops}  Their names are obtained from those in Table \ref{t:nvecops} by
+appending the suffix \id{\_Parallel}. The module {\nvecp} provides the following additional
+user-callable routines:
+%%
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item  \ID{N\_VNew\_Parallel}
+  
+  This function creates and allocates memory for a parallel vector.
+ 
+  
+
+\begin{verbatim}
+N_Vector N_VNew_Parallel(MPI_Comm comm, 
+                         long int local_length, 
+                         long int global_length);
+\end{verbatim}
+  
+%%--------------------------------------
+
+\item \ID{N\_VNewEmpty\_Parallel}
+ 
+  This function creates a new parallel \id{N\_Vector} with an empty (\id{NULL}) data array.
+ 
+  
+
+\begin{verbatim}
+N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, 
+                              long int local_length, 
+                              long int global_length);
+\end{verbatim}
+
+  
+%%--------------------------------------
+
+\item \ID{N\_VMake\_Parallel}
+  
+  This function creates and allocates memory for a parallel vector
+  with user-provided data array.
+ 
+  
+
+\begin{verbatim}
+N_Vector N_VMake_Parallel(MPI_Comm comm, 
+                          long int local_length,
+                          long int global_length,
+                          realtype *v_data);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneVectorArray\_Parallel}
+ 
+  This function creates (by cloning) an array of \id{count} parallel vectors.
+ 
+\begin{verbatim}
+N_Vector *N_VCloneVectorArray_Parallel(int count, N_Vector w);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneVectorArrayEmpty\_Parallel}
+ 
+  This function creates (by cloning) an array of \id{count} parallel vectors,
+  each with an empty (\id{NULL}) data array.
+ 
+\begin{verbatim}
+N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VDestroyVectorArray\_Parallel}
+ 
+ This function frees memory allocated for the array of \id{count} variables of type \id{N\_Vector}
+ created with \id{N\_VCloneVectorArray\_Parallel} or with \id{N\_VCloneVectorArrayEmpty\_Parallel}.
+ 
+
+ \verb|void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count);|
+
+
+%%--------------------------------------
+
+\item \ID{N\_VPrint\_Parallel}
+  
+  This function prints the content of a parallel vector to stdout.
+ 
+    
+  \verb|void N_VPrint_Parallel(N_Vector v);|
+
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+\paragraph{\bf Notes} 
+           
+\begin{itemize}
+                                        
+\item
+  When looping over the components of an \id{N\_Vector} \id{v}, it is     
+  more efficient to first obtain the local component array via       
+  \id{v\_data = NV\_DATA\_P(v)} and then access \id{v\_data[i]} within the     
+  loop than it is to use \id{NV\_Ith\_P(v,i)} within the loop.        
+                                                               
+\item
+  {\warn}\id{N\_VNewEmpty\_Parallel}, \id{N\_VMake\_Parallel}, 
+  and \id{N\_VCloneVectorArrayEmpty\_Parallel} set the field 
+  {\em own\_data} $=$ \id{FALSE}. 
+  \id{N\_VDestroy\_Parallel} and \id{N\_VDestroyVectorArray\_Parallel}
+  will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
+  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  deallocate the {\em data} pointer.
+
+\item
+  {\warn}To maximize efficiency, vector operations in the {\nvecp} implementation
+  that have more than one \id{N\_Vector} argument do not check for
+  consistent internal representation of these vectors. It is the user's 
+  responsibility to ensure that such routines are called with \id{N\_Vector}
+  arguments that were all created with the same internal representations.
+
+\end{itemize}
+

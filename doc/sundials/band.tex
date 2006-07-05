@@ -1,0 +1,162 @@
+% This is a shared SUNDIALS TEX file with description of
+% the generic band linear solver
+
+\section{The BAND module}\label{ss:band}
+
+\index{generic linear solvers!BAND@{\band}}
+Relative to the {\sundials} {\em source\_tree}, the files comprising the
+{\band} generic linear solver are as follows:
+\begin{itemize}
+\item header files (located in {\em source\_tree}\id{/shared/include})\\
+  \id{sundials\_band.h} \\
+  \id{sundials\_types.h} \id{sundials\_math.h}  \id{sundials\_config.h}
+\item source files (located in {\em source\_tree}\id{/shared/source})\\
+  \id{sundials\_band.c} \id{sundials\_math.c}
+\end{itemize}
+Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
+are required to use the {\band} package by itself (see \S\ref{ss:no_config} for details):
+\begin{itemize}
+\item (required) definition of the precision of the {\sundials} type \id{realtype}. 
+  One of the following lines must be present:\\
+  \id{\#define SUNDIALS\_DOUBLE\_PRECISION 1}\\
+  \id{\#define SUNDIALS\_SINGLE\_PRECISION 1}\\
+  \id{\#define SUNDIALS\_EXTENDED\_PRECISION 1}
+\item (optional) use of generic math functions:\\
+  \id{\#define SUNDIALS\_USE\_GENERIC\_MATH 1}
+\end{itemize}
+The \id{sundials\_types.h} header file defines of the {\sundials}
+\id{realtype} and \id{booleantype} types and the macro \id{RCONST}, while the 
+\id{sundials\_math.h} header file is needed for the \id{MIN}, \id{MAX}, and \id{ABS} macros 
+and \id{RAbs} function.
+
+The six files listed above can be extracted from the {\sundials} {\em source\_tree} and
+compiled by themselves into a {\band} library or into a larger user code.
+
+\subsection{Type BandMat}
+\index{BAND@{\band} generic linear solver!type \id{BandMat}|(}
+The type \ID{BandMat} is the type of a large band matrix A (possibly distributed). 
+It is defined to be a pointer to a structure defined by:
+\begin{verbatim}
+typedef struct {
+  long int size;
+  long int mu, ml, smu;
+  realtype **data;
+} *BandMat;
+\end{verbatim}
+The fields in the above structure are:
+\begin{itemize}
+
+\item {\em size} is the number of columns (which is the same as the number of  rows);
+                                                                  
+\item {\em mu} is the upper half-bandwidth, $0 \le$ {\em mu} $\le$ {\em size}$-1$;
+
+\item {\em ml} is the lower half-bandwidth, $0 \le$ {\em ml} $\le$ {\em size}$-1$;
+
+\item {\em smu} is the storage upper half-bandwidth, 
+  {\em mu} $\le$ {\em smu} $\le$ {\em size}$-1$.      
+  The \id{BandFactor} routine writes the LU factors           
+  into the storage for A. The upper triangular factor U, 
+  however, may have an upper half-bandwidth as big as         
+  $\min(${\em size}$-1$,{\em mu}$+${\em ml}$)$
+  because of partial pivoting. The {\em smu} field holds the upper 
+  half-bandwidth allocated for A.       
+  
+\item {\em data} is a two dimensional array used for component storage.    
+  The elements of a band matrix of type \id{BandMat} are      
+  stored columnwise (i.e. columns are stored one on top  
+  of the other in memory). Only elements within the      
+  specified half-bandwidths are stored.                       
+                                                                 
+  If we number rows and columns in the band matrix starting      
+  from $0$, then                                                   
+  \begin{itemize}
+  \item {\em data[0]} is a pointer to 
+    ({\em smu}+{\em ml}+1)*{\em size} contiguous locations   
+    which hold the elements within the band of A        
+    
+  \item {\em data[j]} is a pointer to the uppermost element within the band  
+    in the j-th column. This pointer may be treated as   
+    an array indexed from {\em smu}$-${\em mu} (to access the         
+    uppermost element within the band in the j-th        
+    column) to {\em smu}$+${\em ml} (to access the lowest element     
+    within the band in the j-th column). Indices from $0$ 
+    to {\em smu}$-${\em mu}$-1$ give access to extra storage elements   
+    required by \id{BandFactor}.                          
+    
+  \item {\em data[j][i-j+smu]} is the $(i,j)$-th element, 
+    $j-${\em mu} $\le i \le j+${\em ml}.    
+  \end{itemize}
+
+\end{itemize}               
+                                                  
+The macros below allow a user to access individual matrix      
+elements without writing out explicit data structure           
+references and without knowing too much about the underlying   
+element storage. The only storage assumption needed is that    
+elements are stored columnwise and that a pointer into the \id{j}-th 
+column of elements can be obtained via the \id{BAND\_COL} macro.
+Users should use these macros whenever possible.                                      
+
+See Figure \ref{f:bandmat} for a diagram of the \id{BandMat} type.
+
+\begin{figure}
+\centerline{\psfig{figure=bandmat.eps,width=4.5 in}}
+\caption[Diagram of the storage for a matrix of type \id{BandMat}]
+  {Diagram of the storage for a band matrix of type \id{BandMat}. Here \id{A} is an
+  $N \times N$ band matrix of type \id{BandMat} with upper and lower half-bandwidths \id{mu}
+  and \id{ml}, respectively. The rows and columns of \id{A} are numbered from $0$ to $N-1$
+  and the ($i,j$)-th element of \id{A} is denoted \id{A(i,j)}. The greyed out areas of
+  the underlying component storage are used by the \id{BandFactor} and
+  \id{BandBacksolve} routines.}\label{f:bandmat}
+\end{figure}
+
+ 
+\index{BAND@{\band} generic linear solver!type \id{BandMat}|)}
+
+\subsection{Accessor Macros}
+\index{BAND@{\band} generic linear solver!macros|(}
+The following three macros are defined by the {\band} module to provide
+access to data in the \id{BandMat} type:
+\begin{itemize}
+\item \ID{BAND\_ELEM}
+  \par Usage : \id{BAND\_ELEM(A,i,j) = a\_ij;} or \id{a\_ij = BAND\_ELEM(A,i,j);}
+  \par \id{BAND\_ELEM} references the (\id{i},\id{j})-th element of the
+  $N \times N$ band matrix \id{A}, where $0 \le$ \id{i}, \id{j} $\le N-1$.
+  The location (\id{i},\id{j}) should further satisfy 
+  \id{j}$-$\id{(A->mu)} $\le$ \id{i} $\le$ \id{j}$+$\id{(A->ml)}.
+\item \ID{BAND\_COL}
+  \par Usage : \id{col\_j = BAND\_COL(A,j);}
+  \par \id{BAND\_COL} references the diagonal element of the \id{j}-th
+  column of the $N \times N$ band matrix \id{A}, $0 \le$ \id{j} $\le N-1$.
+  The type of the expression \id{BAND\_COL(A,j)} is \id{realtype *}. 
+  The pointer returned by the call \id{BAND\_COL(A,j)} can be treated as 
+  an array which is indexed from $-$\id{(A->mu)} to \id{(A->ml)}.
+\item \ID{BAND\_COL\_ELEM}
+  \par Usage : \id{BAND\_COL\_ELEM(col\_j,i,j) = a\_ij;} or
+  \id{a\_ij = BAND\_COL\_ELEM(col\_j,i,j);}
+  \par This macro references the (\id{i},\id{j})-th entry of the band matrix \id{A}
+  when used in conjunction with \id{BAND\_COL} to reference the \id{j}-th column through
+  \id{col\_j}. The index (\id{i},\id{j}) should satisfy 
+  \id{j}$-$\id{(A->mu)} $\le$ \id{i} $\le$ \id{j}$+$\id{(A->ml)}.
+\end{itemize}
+\index{BAND@{\band} generic linear solver!macros|)}
+
+\subsection{Functions}
+\index{BAND@{\band} generic linear solver!functions|(}
+The following functions for \id{BandMat} matrices are available
+in the {\band} package.  For full details, see the header file \id{sundials\_band.h}.
+\begin{itemize}
+\item \id{BandAllocMat}: allocation of a \id{BandMat} matrix;
+\item \id{BandAllocPiv}: allocation of a pivot array for use
+      with \id{BandFactor}/\id{BandBacksolve};
+\item \id{BandFactor}: LU factorization with partial pivoting;
+\item \id{BandBacksolve}: solution of $Ax = b$ using LU factorization;
+\item \id{BandZero}: load a matrix with zeros;
+\item \id{BandCopy}: copy one matrix to another;
+\item \id{BandScale}: scale a matrix by a scalar;
+\item \id{BandAddI}: increment a matrix by the identity matrix;
+\item \id{BandFreeMat}: free memory for a \id{BandMat} matrix;
+\item \id{BandFreePiv}: free memory for a pivot array;
+\item \id{BandPrint}: print a \id{BandMat} matrix to standard output.
+\end{itemize}
+\index{BAND@{\band} generic linear solver!functions|)}

@@ -1,0 +1,80 @@
+%===================================================================================
+\chapter{Description of the NVECTOR module}\label{s:nvector}
+%===================================================================================
+\index{NVECTOR@\texttt{NVECTOR} module}
+\input{nvec_generic}
+
+%---------------------------------------------------------------------------
+\section{The NVECTOR\_SERIAL implementation}\label{ss:nvec_ser}
+\input{nvec_serial}
+
+%---------------------------------------------------------------------------
+\section{The NVECTOR\_PARALLEL implementation}\label{ss:nvec_par}
+\input{nvec_parallel}
+
+%---------------------------------------------------------------------------
+\section{NVECTOR functions used by IDA}
+
+In Table \ref{t:nvecuse} below, we list the vector functions in the 
+{\nvector} module used by the {\ida} package.
+The table also shows, for each function, which of the code modules uses
+the function. The {\ida} column shows function usage within the main
+integrator module, while the remaining five columns show function usage
+within each of the five {\ida} linear solvers ({\idaspils} stands for any
+of {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr}), the {\idabbdpre}
+preconditioner module, and the {\fida} module.
+
+There is one subtlety in the {\idaspils} column hidden by the table, explained
+here for the case of the {\idaspgmr} module). 
+The \id{N\_VDotProd} function is called both within the 
+implementation file \id{ida\_spgmr.c} for the {\idaspgmr} solver and within
+the implementation files \id{sundials\_spgmr.c} and \id{iterative.c} for the generic
+{\spgmr} solver upon which the {\idaspgmr} solver is implemented. Also, although
+\id{N\_VDiv} and \id{N\_VProd} are not called within the implementation file
+\id{idaspgmr.c}, they are called within the implementation file
+\id{spgmr.c} and so are required by the {\idaspgmr} solver module.
+This issue does not arise for the direct {\ida} linear solvers because
+the generic {\dense} and {\band} solvers (used in the implementation of
+{\idadense} and {\idaband}) do not make calls to any vector functions.
+
+\begin{table}[htb]
+\centering
+\caption{List of vector functions usage by {\ida} code modules}\label{t:nvecuse}
+\medskip
+\begin{tabular}{|r|c|c|c|c|c|c|} \hline
+                                            & 
+\begin{sideways}{\ida}       \end{sideways} & 
+\begin{sideways}{\idadense}  \end{sideways} & 
+\begin{sideways}{\idaband}   \end{sideways} & 
+\begin{sideways}{\idaspils}  \end{sideways} &
+\begin{sideways}{\idabbdpre} \end{sideways} &
+\begin{sideways}{\fida}      \end{sideways}  \\ \hline\hline 
+\id{N\_VClone}           & \cm &     &     & \cm & \cm &    \\ \hline
+\id{N\_VDestroy}         & \cm &     &     & \cm & \cm &    \\ \hline
+\id{N\_VSpace}           & \cm &     &     &     &     &    \\ \hline
+\id{N\_VGetArrayPointer} &     & \cm & \cm &     & \cm & \cm \\ \hline
+\id{N\_VSetArrayPointer} &     & \cm &     &     &     & \cm \\ \hline
+\id{N\_VLinearSum}       & \cm & \cm &     & \cm &     &    \\ \hline
+\id{N\_VConst}           & \cm &     &     & \cm &     &    \\ \hline
+\id{N\_VProd}            & \cm &     &     & \cm &     &    \\ \hline
+\id{N\_VDiv}             & \cm &     &     & \cm &     &    \\ \hline
+\id{N\_VScale}           & \cm & \cm & \cm & \cm & \cm &    \\ \hline
+\id{N\_VAbs}             & \cm &     &     &     &     &    \\ \hline
+\id{N\_VInv}             & \cm &     &     &     &     &    \\ \hline
+\id{N\_VAddConst}        & \cm &     &     &     &     &    \\ \hline
+\id{N\_VDotProd}         &     &     &     & \cm &     &    \\ \hline
+\id{N\_VMaxNorm}         & \cm &     &     &     &     &    \\ \hline
+\id{N\_VWrmsNorm}        & \cm &     &     &     &     &    \\ \hline
+\id{N\_VMin}             & \cm &     &     &     &     &    \\ \hline
+\id{N\_VMinQuotient}     & \cm &     &     &     &     &    \\ \hline
+\id{N\_VConstrMask}      & \cm &     &     &     &     &    \\ \hline
+\id{N\_VWrmsNormMask}    & \cm &     &     &     &     &    \\ \hline
+\id{N\_VCompare}         & \cm &     &     &     &     &    \\ \hline
+\end{tabular}
+\end{table}
+
+Of the functions listed in Table \ref{t:nvecops}, \id{N\_VWL2Norm}, 
+\id{N\_VL1Norm}, \id{N\_VCloneEmpty}, and \id{N\_VInvTest} 
+are {\em not} used by {\ida}. Therefore a user-supplied
+{\nvector} module for {\ida} could omit these four functions.
+%%

@@ -1,0 +1,75 @@
+% This is a shared SUNDIALS TEX file with description of
+% the generic spgmr linear solver
+
+\section{The SPGMR module}\label{ss:spgmr}
+
+\index{generic linear solvers!SPGMR@{\spgmr}}
+\index{SPGMR@{\spgmr} generic linear solver!description of|(} 
+The {\spgmr} package, in the files \id{sundials\_spgmr.h} and \id{sundials\_spgmr.c}, includes an
+implementation of the scaled preconditioned GMRES\index{GMRES method} method.  
+A separate code module, implemented in \id{sundials\_iterative.(h,c)}, contains auxiliary
+functions that support {\spgmr}, as well as the other Krylov solvers in {\sundials}
+({\spbcg} and {\sptfqmr}).
+For full details, including usage instructions, see the header
+files \id{sundials\_spgmr.h} and \id{sundials\_iterative.h}.
+\index{SPGMR@{\spgmr} generic linear solver!description of|)}
+
+Relative to the {\sundials} {\em source\_tree}, the files comprising the
+{\spgmr} generic linear solver are as follows:
+\begin{itemize}
+\item header files (located in {\em source\_tree}\id{/shared/include})\\
+  \id{sundials\_spgmr.h} \id{sundials\_iterative.h} \id{sundials\_nvector.h} \\
+  \id{sundials\_types.h} \id{sundials\_math.h}  \id{sundials\_config.h}
+\item source files (located in {\em source\_tree}\id{/shared/source})\\
+  \id{sundials\_spgmr.c} \id{sundials\_iterative.c} \id{sundials\_nvector.c}
+\end{itemize}
+Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
+are required to use the {\spgmr} package by itself (see \S\ref{ss:no_config} for details):
+\begin{itemize}
+\item (required) definition of the precision of the {\sundials} type \id{realtype}. 
+  One of the following lines must be present:\\
+  \id{\#define SUNDIALS\_DOUBLE\_PRECISION 1}\\
+  \id{\#define SUNDIALS\_SINGLE\_PRECISION 1}\\
+  \id{\#define SUNDIALS\_EXTENDED\_PRECISION 1}
+\item (optional) use of generic math functions:\\
+  \id{\#define SUNDIALS\_USE\_GENERIC\_MATH 1}
+\end{itemize}
+The \id{sundials\_types.h} header file defines the {\sundials}
+\id{realtype} and \id{booleantype} types and the macro \id{RCONST}, while the 
+\id{sundials\_math.h} header file is needed for the \id{MAX} and \id{ABS} macros
+and \id{RAbs} and \id{RSqrt} functions.
+
+The generic {\nvector} files, \id{sundials\_nvector.(h,c)} are needed for the
+definition of the generic \id{N\_Vector} type and functions. 
+The {\nvector} functions used by the {\spgmr} module are: 
+\id{N\_VDotProd}, \id{N\_VLinearSum}, \id{N\_VScale}, \id{N\_VProd}, \id{N\_VDiv}, 
+\id{N\_VConst}, \id{N\_VClone}, \id{N\_VCloneVectorArray}, \id{N\_VDestroy}, and
+\id{N\_VDestroyVectorArray}.
+
+{\warn}The {\spgmr} package can only be used in conjunction with an actual {\nvector} 
+implementation library, such as the {\nvecs} or {\nvecp} provided with {\sundials}.
+
+The nine files listed above can be extracted from the {\sundials} {\em source\_tree} and
+compiled by themselves into an {\spgmr} library or into a larger user code.
+ 
+\subsection{Functions}
+\index{SPGMR@{\spgmr} generic linear solver!functions|(}
+The following functions are available in the {\spgmr} package:  
+\begin{itemize}
+\item \id{SpgmrMalloc}: allocation of memory for \id{SpgmrSolve};
+\item \id{SpgmrSolve}: solution of $Ax = b$ by the {\spgmr} method;
+\item \id{SpgmrFree}: free memory allocated by \id{SpgmrMalloc}.
+\end{itemize}
+\index{SPGMR@{\spgmr} generic linear solver!functions|)}
+%
+\index{SPGMR@{\spgmr} generic linear solver!support functions|(}
+The following functions are available in the support package 
+\id{sundials\_iterative.(h,c)}:
+\begin{itemize}
+\item \id{ModifiedGS}: performs modified Gram-Schmidt procedure;
+\item \id{ClassicalGS}: performs classical Gram-Schmidt procedure; 
+\item \id{QRfact}: performs QR factorization of Hessenberg matrix;
+\item \id{QRsol}: solves a least squares problem with a Hessenberg
+       matrix factored by \id{QRfact}.
+\end{itemize}
+\index{SPGMR@{\spgmr} generic linear solver!support functions|)}
