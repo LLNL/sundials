@@ -1,0 +1,65 @@
+MXxMY = 100x100 (2x2, 50x50), PRINT_GRIDINFO = -1, MAXL = 10
+
+2-species diurnal advection-diffusion problem
+
+t = 7.20e+03   no. steps = 221   order = 4   stepsize = 7.86e+01
+At bottom left:  c1, c2 =    1.492e+04    3.602e+11 
+At top right:    c1, c2 =    2.072e+04    5.000e+11 
+
+t = 1.44e+04   no. steps = 269   order = 4   stepsize = 1.96e+02
+At bottom left:  c1, c2 =    1.143e+07    4.447e+11 
+At top right:    c1, c2 =    1.285e+07    5.003e+11 
+
+t = 2.16e+04   no. steps = 305   order = 4   stepsize = 1.96e+02
+At bottom left:  c1, c2 =    3.052e+07    3.460e+11 
+At top right:    c1, c2 =    4.652e+07    5.390e+11 
+
+t = 2.88e+04   no. steps = 342   order = 4   stepsize = 1.96e+02
+At bottom left:  c1, c2 =    8.675e+06    3.370e+11 
+At top right:    c1, c2 =    1.484e+07    5.779e+11 
+
+t = 3.60e+04   no. steps = 379   order = 4   stepsize = 1.33e+02
+At bottom left:  c1, c2 =    1.367e+04    3.297e+11 
+At top right:    c1, c2 =    2.397e+04    5.781e+11 
+
+t = 4.32e+04   no. steps = 449   order = 3   stepsize = 7.59e+02
+At bottom left:  c1, c2 =    4.536e-07    3.285e+11 
+At top right:    c1, c2 =   -4.281e-08    5.781e+11 
+
+t = 5.04e+04   no. steps = 459   order = 3   stepsize = 7.59e+02
+At bottom left:  c1, c2 =    8.551e-07    3.284e+11 
+At top right:    c1, c2 =    1.690e-09    5.781e+11 
+
+t = 5.76e+04   no. steps = 468   order = 3   stepsize = 7.59e+02
+At bottom left:  c1, c2 =   -1.336e-06    3.283e+11 
+At top right:    c1, c2 =    2.165e-08    5.780e+11 
+
+t = 6.48e+04   no. steps = 478   order = 3   stepsize = 7.59e+02
+At bottom left:  c1, c2 =    9.050e-08    3.283e+11 
+At top right:    c1, c2 =    2.923e-09    5.779e+11 
+
+t = 7.20e+04   no. steps = 487   order = 3   stepsize = 7.59e+02
+At bottom left:  c1, c2 =   -2.514e-09    3.283e+11 
+At top right:    c1, c2 =   -1.065e-09    5.778e+11 
+
+t = 7.92e+04   no. steps = 497   order = 3   stepsize = 7.59e+02
+At bottom left:  c1, c2 =   -5.114e-09    3.283e+11 
+At top right:    c1, c2 =    1.199e-10    5.776e+11 
+
+t = 8.64e+04   no. steps = 506   order = 3   stepsize = 7.59e+02
+At bottom left:  c1, c2 =    2.078e-10    3.283e+11 
+At top right:    c1, c2 =    5.651e-12    5.773e+11 
+
+
+Final Statistics.. 
+
+lenrw   = 200000     leniw =    80
+llrw    = 300141     lliw  =   120
+nst     =   506
+nfe     =   589     nfel  =  1298
+nni     =   586     nli   =  1298
+nsetups =    61     netf  =    15
+npe     =     9     nps   =  1852
+ncfn    =     0     ncfl  =     0
+
+seconds used: 21.5959

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.35 $
-# $Date: 2006-06-15 15:38:45 $
+# $Revision: 1.36 $
+# $Date: 2006-07-05 16:03:41 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -57,7 +57,7 @@ For details, see the LICENSE file.
 
 # Specify root of source tree
 # Given file is guaranteed to exist in all SUNDIALS packages
-AC_CONFIG_SRCDIR([shared/source/sundials_nvector.c])
+AC_CONFIG_SRCDIR([/src/sundials/sundials_nvector.c])
 
 # Get host information
 # AC_CANONICAL_BUILD defines the following variables: build, build_cpu,
@@ -66,11 +66,6 @@ AC_CANONICAL_BUILD
 # AC_CANONICAL_HOST defines the following variables: host, host_cpu,
 # host_vendor, and host_os
 AC_CANONICAL_HOST
-
-# Overwrite default installation path (/usr/local)
-# DEFAULT_PREFIX is defined for later use
-DEFAULT_PREFIX=`pwd`
-AC_PREFIX_DEFAULT(`pwd`)
 
 # Set MAKE if necessary
 # Must include @SET_MAKE@ in each Makefile.in file
@@ -186,7 +181,7 @@ if test "X${enableval}" = "Xno"; then
 fi
 ],
 [
-if test -d ${srcdir}/cvode ; then
+if test -d ${srcdir}/src/cvode ; then
   CVODE_ENABLED="yes"
 else
   CVODE_ENABLED="no"
@@ -203,7 +198,7 @@ if test "X${enableval}" = "Xno"; then
 fi
 ],
 [
-if test -d ${srcdir}/cvodes ; then
+if test -d ${srcdir}/src/cvodes ; then
   CVODES_ENABLED="yes"
 else
   CVODES_ENABLED="no"
@@ -220,7 +215,7 @@ if test "X${enableval}" = "Xno"; then
 fi
 ],
 [
-if test -d ${srcdir}/ida  ; then
+if test -d ${srcdir}/src/ida  ; then
   IDA_ENABLED="yes"
 else
   IDA_ENABLED="no"
@@ -237,21 +232,10 @@ if test "X${enableval}" = "Xno"; then
 fi
 ],
 [
-if test -d ${srcdir}/kinsol ; then
+if test -d ${srcdir}/src/kinsol ; then
   KINSOL_ENABLED="yes"
 else
   KINSOL_ENABLED="no"
-fi
-])
-
-# Check if user wants to disable all examples
-# Examples are built by default
-EXAMPLES_ENABLED="yes"
-AC_ARG_ENABLE(examples,
-[AC_HELP_STRING([--disable-examples],[disable configuration of examples])],
-[
-if test "X${enableval}" = "Xno"; then
-  EXAMPLES_ENABLED="no"
 fi
 ])
 
@@ -270,12 +254,56 @@ if test "X${CVODE_ENABLED}" = "Xno" && test "X${KINSOL_ENABLED}" = "Xno" && test
   F77_ENABLED="no"
   FCMIX_ENABLED="no"
 else
-  if test "X${EXAMPLES_ENABLED}" = "Xno"; then
-    F77_ENABLED="no"
-    FCMIX_ENABLED="yes"
+  F77_ENABLED="yes"
+  FCMIX_ENABLED="yes"
+fi
+])
+
+# Check if user wants to disable support for MPI
+# If not, then make certain source directory actually exists
+MPI_ENABLED="yes"
+AC_ARG_ENABLE([mpi],
+[AC_HELP_STRING([--disable-mpi],[disable MPI support])],
+[
+if test "X${enableval}" = "Xno"; then
+  MPI_ENABLED="no"
+fi
+],
+[
+if test -d ${srcdir}/src/nvec_par || test -d ${srcdir}/src/nvec_spcpar; then
+  MPI_ENABLED="yes"
+else
+  MPI_ENABLED="no"
+fi
+])
+
+# Check if user wants to enable all examples
+# Examples are NOT built by default
+EXAMPLES_ENABLED="no"
+AC_ARG_ENABLE(examples,
+[AC_HELP_STRING([--enable-examples],[enable configuration of examples])],
+[
+if test "X${enableval}" = "Xno"; then
+  EXAMPLES_ENABLED="no"
+else
+  EXAMPLES_ENABLED="yes"
+fi
+])
+
+# Check if user wants to enable support for MEX compilation
+# sundialsTB is NOT built by default
+# If yes, then make certain source directory actually exists
+STB_ENABLED="no"
+AC_ARG_ENABLE([sundialsTB],
+[AC_HELP_STRING([--enable-sundialsTB],[enable configuration of sundialsTB])],
+[
+if test "X${enableval}" = "Xno"; then
+  STB_ENABLED="no"
+else
+  if test -d ${srcdir}/sundialsTB ; then
+    STB_ENABLED="yes"
   else
-    F77_ENABLED="yes"
-    FCMIX_ENABLED="yes"
+    STB_ENABLED="no"
   fi
 fi
 ])
@@ -285,39 +313,13 @@ fi
 # Should NOT use uninitialized variables
 CXX_ENABLED="no"
 IDAS_ENABLED="no"
-MPI_ENABLED="no"
 CXX_OK="no"
 F77_OK="no"
 MPI_CXX_COMP_OK="no"
 MPI_F77_COMP_OK="no"
+STB_PARALLEL_OK="no"
 
 ]) dnl END SUNDIALS_ENABLES
-
-#------------------------------------------------------------------
-# TEST MPI ENABLES
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_MPI_ENABLES],
-[
-
-# Check if user wants to disable support for MPI
-# If not, then make certain source directory actually exists
-AC_ARG_ENABLE([mpi],
-[AC_HELP_STRING([--disable-mpi],[disable MPI support])],
-[
-if test "X${enableval}" = "Xno"; then
-  MPI_ENABLED="no"
-fi
-],
-[
-if test -d ${srcdir}/nvec_par || test -d ${srcdir}/nvec_spcpar; then
-  MPI_ENABLED="yes"
-else
-  MPI_ENABLED="no"
-fi
-])
-
-]) dnl END SUNDIALS_MPI_ENABLES
 
 #------------------------------------------------------------------
 # TEST DEVELOPMENT ENABLES
@@ -325,23 +327,6 @@ fi
 
 AC_DEFUN([SUNDIALS_DEV_ENABLES],
 [
-
-# Check if user wants to skip C++ checks
-# If not, then make certain source directory actually exists
-AC_ARG_ENABLE([cxx],
-[AC_HELP_STRING([--disable-cxx], [disable C++ support])],
-[
-if test "X${enableval}" = "Xno"; then
-  CXX_ENABLED="no"
-fi
-],
-[
-if test -d ${srcdir}/xs4c ; then
-  CXX_ENABLED="yes"
-else
-  CXX_ENABLED="no"
-fi
-])
 
 # Check if user wants to disable IDAS module
 # If not, then make certain source directory actually exists
@@ -353,7 +338,7 @@ if test "X${enableval}" = "Xno"; then
 fi
 ],
 [
-if test -d ${srcdir}/idas ; then
+if test -d ${srcdir}/src/idas ; then
   IDAS_ENABLED="yes"
 else
   IDAS_ENABLED="no"
@@ -555,7 +540,7 @@ if test "X${MATH_FABS_OK}" = "Xno" || test "X${MATH_POW_OK}" = "Xno" || test "X$
   AC_CHECK_LIB([m],pow,[],[AC_MSG_ERROR([cannot find pow function])])
   AC_CHECK_LIB([m],sqrt,[],[AC_MSG_ERROR([cannot find sqrt function])])
   # If all generic math routines are available, then set SUNDIALS_USE_GENERIC_MATH flag
-  # for use by shared/source/sundialsmath.c file (preprocessor macros)
+  # for use by sundials_math.c file (preprocessor macros)
   AC_DEFINE([SUNDIALS_USE_GENERIC_MATH],[1],[])
   GENERIC_MATH_LIB="#define SUNDIALS_USE_GENERIC_MATH 1"
 # If found all precision-specific routines, then set SUNDIALS_USE_GENERIC_MATH only if
@@ -1626,162 +1611,6 @@ LIBS="${SAVED_LIBS}"
 ]) dnl END SUNDIALS_CHECK_CC_WITH_MPI
 
 #------------------------------------------------------------------
-# TEST MPI-2 FUNCTIONALITY
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_CHECK_MPICOMMF2C],
-[
-
-# Determine if MPI implementation used to build SUNDIALS supports the
-# MPI_Comm_f2c() routine:
-#   (1) NO  : FNVECTOR_PARALLEL module will NOT allow user to specify
-#             an MPI communicator and MPI_COMM_WORLD will be used
-#   (2) YES : FNVECTOR_PARALLEL module will allow user to specify
-#             an MPI communicator
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-AH_TEMPLATE([SUNDIALS_MPI_COMM_F2C],
-            [FNVECTOR: Allow user to specify different MPI communicator])
-
-# Save copies of CPPFLAGS, LDFLAGS and LIBS (preserve information)
-# Temporarily overwritten so we can test MPI implementation
-SAVED_CPPFLAGS="${CPPFLAGS}"
-SAVED_LDFLAGS="${LDFLAGS}"
-SAVED_LIBS="${LIBS}"
-
-# Determine location of MPI header files (find MPI include directory)
-MPI_EXISTS="yes"
-
-# MPI include directory was NOT explicitly specified so check if MPI root
-# directory was given by user
-if test "X${MPI_INC_DIR}" = "X"; then
-  # MPI root directory was NOT given so issue a warning message
-  if test "X${MPI_ROOT_DIR}" = "X"; then
-    MPI_EXISTS="no"
-    AC_MSG_WARN([cannot find MPI implementation files])
-    echo ""
-    echo "   Unable to find MPI implementation files."
-    echo ""
-    echo "   Try using --with-mpicc to specify a MPI-C compiler script,"
-    echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-    echo "   to specify the locations of all relevant MPI files, or"
-    echo "   --with-mpi-root to specify the base installation directory"
-    echo "   of the MPI implementation to be used."
-    echo ""
-    echo "   Disabling FNVECTOR_PARALLEL support for user-specified"
-    echo "   MPI communicator..."
-    echo ""
-    SUNDIALS_WARN_FLAG="yes"
-  # MPI root directory was given so set MPI_INC_DIR accordingly
-  # Update CPPFLAGS
-  else
-    MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-    if test "X${CPPFLAGS}" = "X"; then
-      CPPFLAGS="-I${MPI_INC_DIR}"
-    else
-      CPPFLAGS="${CPPFLAGS} -I${MPI_INC_DIR}"
-    fi
-    # Add MPI_FLAGS if non-empty
-    if test "X${MPI_FLAGS}" = "X"; then
-      CPPFLAGS="${CPPFLAGS}"
-    else
-      CPPFLAGS="${CPPFLAGS} ${MPI_FLAGS}"
-    fi
-  fi
-# MPI include directory was specified so update CPPFLAGS
-else
-  if test "X${CPPFLAGS}" = "X"; then
-    CPPFLAGS="-I${MPI_INC_DIR}"
-  else
-    CPPFLAGS="${CPPFLAGS} -I${MPI_INC_DIR}"
-  fi
-  # Add MPI_FLAGS if non-empty
-  if test "X${MPI_FLAGS}" = "X"; then
-    CPPFLAGS="${CPPFLAGS}"
-  else
-    CPPFLAGS="${CPPFLAGS} ${MPI_FLAGS}"
-  fi
-fi
-
-# Only continue if found an MPI implementation
-if test "X${MPI_EXISTS}" = "Xyes"; then
-
-  # Determine location of MPI libraries
-  # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
-  # Update LDFLAGS
-  if test "X${MPI_LIB_DIR}" = "X"; then
-    MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
-    if test "X${LDFLAGS}" = "X"; then
-      LDFLAGS="-L${MPI_LIB_DIR}"
-    else
-      LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
-    fi
-  # MPI library directory was specified so update LDFLAGS
-  else
-    if test "X${LDFLAGS}" = "X"; then
-      LDFLAGS="-L${MPI_LIB_DIR}"
-    else
-      LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
-    fi
-  fi
-
-  # Check if user specified which MPI libraries linker should be use
-  if test "X${MPI_LIBS}" = "X"; then
-    :
-  # MPI libraries were specified so update LIBS
-  else
-    if test "X${LIBS}" = "X"; then
-      LIBS="${MPI_LIBS}"
-    else
-      LIBS="${LIBS} ${MPI_LIBS}"
-    fi
-  fi
-
-  # Since AC_LINK_IFELSE uses CC, set CC = MPICC if using
-  # an MPI compiler script
-  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
-    SAVED_CC="${CC}"
-    CC="${MPICC_COMP}"
-  fi
-
-  # Check if MPI implementation supports MPI_Comm_f2c() from
-  # MPI-2 specification
-  AC_MSG_CHECKING([for MPI_Comm_f2c() from MPI-2 specification])
-  AC_LINK_IFELSE(
-  [AC_LANG_PROGRAM([[#include "mpi.h"]],
-  [[
-      int c;
-      char **v;
-      MPI_Comm C_comm;
-      MPI_Init(&c, &v);
-      C_comm = MPI_Comm_f2c((MPI_Fint) 1);
-      MPI_Finalize();
-  ]])],
-  [AC_MSG_RESULT([yes])
-   AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[1],[])
-   F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 1"],
-  [AC_MSG_RESULT([no])
-   AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
-   F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"])
-
-  # Reset CC if necessary
-  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
-    CC="${SAVED_CC}"
-  fi
-
-else
-  AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
-  F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"
-fi
-
-# Restore CPPFLAGS, LDFLAGS and LIBS
-CPPFLAGS="${SAVED_CPPFLAGS}"
-LDFLAGS="${SAVED_LDFLAGS}"
-LIBS="${SAVED_LIBS}"
-
-]) dnl END SUNDIALS_CHECK_MPICOMMF2C
-
-#------------------------------------------------------------------
 # CHECK MPI-F77 COMPILER
 #------------------------------------------------------------------
 
@@ -1818,9 +1647,6 @@ if test "X${F77_OK}" = "Xyes"; then
     MPIF77="${F77}"
     SUNDIALS_CHECK_F77_WITH_MPI
   fi
-
-  # Determine if MPI_Comm_f2c() from MPI-2 is supported
-  SUNDIALS_CHECK_MPICOMMF2C
 
 else
 
@@ -2545,6 +2371,436 @@ AC_LANG_POP([C++])
 ]) dnl END SUNDIALS_CHECK_CXX_WITH_MPI
 
 #------------------------------------------------------------------
+# TEST MPI-2 FUNCTIONALITY
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_CHECK_MPI2],
+[
+
+# Determine if MPI implementation used to build SUNDIALS provides
+# MPI-2 functionality.
+#
+# Test for MPI_Comm_f2c() function:
+#   (1) NO  : FNVECTOR_PARALLEL module will NOT allow user to specify
+#             an MPI communicator and MPI_COMM_WORLD will be used
+#   (2) YES : FNVECTOR_PARALLEL module will allow user to specify
+#             an MPI communicator
+#
+# Test for MPI_Comm_spawn() funciton:
+#   (1) NO  : sundialsTB will NOT provide parallel support
+#   (2) YES : sundialsTB will be confoigured with parallel support
+ 
+# Provide variable description templates for config.hin and config.h files
+# Required by autoheader utility
+AH_TEMPLATE([SUNDIALS_MPI_COMM_F2C],
+            [FNVECTOR: Allow user to specify different MPI communicator])
+
+# Save copies of CPPFLAGS, LDFLAGS and LIBS (preserve information)
+# Temporarily overwritten so we can test MPI implementation
+SAVED_CPPFLAGS="${CPPFLAGS}"
+SAVED_LDFLAGS="${LDFLAGS}"
+SAVED_LIBS="${LIBS}"
+
+# Determine location of MPI header files (find MPI include directory)
+MPI_EXISTS="yes"
+
+# MPI include directory was NOT explicitly specified so check if MPI root
+# directory was given by user
+if test "X${MPI_INC_DIR}" = "X"; then
+  # MPI root directory was NOT given so issue a warning message
+  if test "X${MPI_ROOT_DIR}" = "X"; then
+    MPI_EXISTS="no"
+    AC_MSG_WARN([cannot find MPI implementation files])
+    echo ""
+    echo "   Unable to find MPI implementation files."
+    echo ""
+    echo "   Try using --with-mpicc to specify a MPI-C compiler script,"
+    echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
+    echo "   to specify the locations of all relevant MPI files, or"
+    echo "   --with-mpi-root to specify the base installation directory"
+    echo "   of the MPI implementation to be used."
+    echo ""
+    echo "   Disabling FNVECTOR_PARALLEL support for user-specified"
+    echo "   MPI communicator..."
+    echo ""
+    SUNDIALS_WARN_FLAG="yes"
+  # MPI root directory was given so set MPI_INC_DIR accordingly
+  # Update CPPFLAGS
+  else
+    MPI_INC_DIR="${MPI_ROOT_DIR}/include"
+    if test "X${CPPFLAGS}" = "X"; then
+      CPPFLAGS="-I${MPI_INC_DIR}"
+    else
+      CPPFLAGS="${CPPFLAGS} -I${MPI_INC_DIR}"
+    fi
+    # Add MPI_FLAGS if non-empty
+    if test "X${MPI_FLAGS}" = "X"; then
+      CPPFLAGS="${CPPFLAGS}"
+    else
+      CPPFLAGS="${CPPFLAGS} ${MPI_FLAGS}"
+    fi
+  fi
+# MPI include directory was specified so update CPPFLAGS
+else
+  if test "X${CPPFLAGS}" = "X"; then
+    CPPFLAGS="-I${MPI_INC_DIR}"
+  else
+    CPPFLAGS="${CPPFLAGS} -I${MPI_INC_DIR}"
+  fi
+  # Add MPI_FLAGS if non-empty
+  if test "X${MPI_FLAGS}" = "X"; then
+    CPPFLAGS="${CPPFLAGS}"
+  else
+    CPPFLAGS="${CPPFLAGS} ${MPI_FLAGS}"
+  fi
+fi
+
+# Only continue if found an MPI implementation
+if test "X${MPI_EXISTS}" = "Xyes"; then
+
+  # Determine location of MPI libraries
+  # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
+  # Update LDFLAGS
+  if test "X${MPI_LIB_DIR}" = "X"; then
+    MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+    if test "X${LDFLAGS}" = "X"; then
+      LDFLAGS="-L${MPI_LIB_DIR}"
+    else
+      LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
+    fi
+  # MPI library directory was specified so update LDFLAGS
+  else
+    if test "X${LDFLAGS}" = "X"; then
+      LDFLAGS="-L${MPI_LIB_DIR}"
+    else
+      LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
+    fi
+  fi
+
+  # Check if user specified which MPI libraries linker should be use
+  if test "X${MPI_LIBS}" = "X"; then
+    :
+  # MPI libraries were specified so update LIBS
+  else
+    if test "X${LIBS}" = "X"; then
+      LIBS="${MPI_LIBS}"
+    else
+      LIBS="${LIBS} ${MPI_LIBS}"
+    fi
+  fi
+
+  # Since AC_LINK_IFELSE uses CC, set CC = MPICC if using
+  # an MPI compiler script
+  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+    SAVED_CC="${CC}"
+    CC="${MPICC_COMP}"
+  fi
+
+  # Check if MPI implementation supports MPI_Comm_f2c() from
+  # MPI-2 specification
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    AC_MSG_CHECKING([for MPI_Comm_f2c() from MPI-2 specification])
+    AC_LINK_IFELSE(
+    [AC_LANG_PROGRAM([[#include "mpi.h"]],
+    [[
+        int c;
+        char **v;
+        MPI_Comm C_comm;
+        MPI_Init(&c, &v);
+        C_comm = MPI_Comm_f2c((MPI_Fint) 1);
+        MPI_Finalize();
+    ]])],
+    [AC_MSG_RESULT([yes])
+     AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[1],[])
+     F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 1"],
+    [AC_MSG_RESULT([no])
+     AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
+     F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"])
+  fi
+
+  # Check if MPI implementation supports MPI_Comm_spawn from
+  # MPI-2 specification
+  if test "X${STB_ENABLED}" = "Xyes"; then
+    AC_MSG_CHECKING([for MPI_Comm_spawn() from MPI-2 specification])
+    AC_LINK_IFELSE(
+    [AC_LANG_PROGRAM([[#include "mpi.h"]],
+    [[
+        int c;
+        char **v;
+        MPI_Info info;
+        MPI_Comm comm;
+        MPI_Init(&c, &v);
+        c = MPI_Comm_spawn(*v, v, c, info, c, comm, &comm, &c);
+        MPI_Finalize();
+    ]])],
+    [STB_PARALLEL_OK="yes"],
+    [STB_PARALLEL_OK="no"])
+     AC_MSG_RESULT([${STB_PARALLEL_OK}])
+  fi
+
+  # Reset CC if necessary
+  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+    CC="${SAVED_CC}"
+  fi
+
+else
+  AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
+  F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"
+fi
+
+# Restore CPPFLAGS, LDFLAGS and LIBS
+CPPFLAGS="${SAVED_CPPFLAGS}"
+LDFLAGS="${SAVED_LDFLAGS}"
+LIBS="${SAVED_LIBS}"
+
+]) dnl END SUNDIALS_CHECK_MPI2
+
+#------------------------------------------------------------------
+# CHECK MEX COMPILER
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_SET_MEX],
+[
+
+AC_REQUIRE([AC_CANONICAL_HOST])
+
+AC_ARG_WITH([],[      ],[])
+
+# Find Matlab installation
+
+AC_ARG_WITH([matlab], 
+[AC_HELP_STRING([--with-matlab=MATLAB], [specify location of Matlab installation])],
+[
+if [ test -d ${withval} ] ; then
+  MATLAB=${withval}
+else
+  AC_MSG_WARN([invalid value '$withval' for --with-matlab])
+  STB_ENABLED="no"
+fi
+])
+
+if test "X${STB_ENABLED}" = "Xyes"; then
+
+  AC_MSG_CHECKING([for Matlab installation])
+  if test "${MATLAB:+set}" = "set"; then
+    # $MATLAB is defined (either as an environment var. or passed with --with-matlab)
+    cv_matlab=`cd "${MATLAB-/}" > /dev/null 2>&1 && pwd`
+    AC_MSG_RESULT([$cv_matlab])
+  else
+    # $MATLAB is not defined. Look for it in $PATH (or in a default list if $PATH is not defined)
+    cv_matlab=
+    IFS=${IFS= 	} ; tmp_ifs=$IFS ; IFS=:
+    for i in ${PATH-/bin:/usr/bin:/usr/local/bin/:opt/bin} ; do
+       # Take care of "::" constructs in $PATH
+       if test -z "$i" ; then
+          i=.
+       fi
+       # Test if matlab exists
+       if test -x "$i/matlab" ; then
+         # Test if this is a symbolic link
+         sym_link=`file $i/matlab | grep symbolic`
+         if test -n "${sym_link}" ; then       
+            j=`echo "${sym_link}" | sed 's!^.*symbolic link to !!' | sed 's!/matlab$!!'`
+            i=`cd "${i}" ; cd "${j}" > /dev/null 2>&1 && pwd`
+         fi
+         # Remove "/bin" from the end
+         i=`echo "$i" | sed 's!/bin$!!'`
+         cv_matlab=`cd "${i-/}" > /dev/null 2>&1 && pwd`
+         # If I have a non-empty directory, break out
+         if test -n "$cv_matlab" ; then
+           break
+         fi
+       fi
+    done
+    IFS=$tmp_ifs
+    if test "${cv_matlab:+set}" = "set"; then
+       AC_MSG_RESULT([$cv_matlab])
+    else
+     STB_ENABLED="no"
+     AC_MSG_RESULT([not found])
+    fi
+  fi
+
+fi
+
+# Verify Matlab installation
+
+if test "X${STB_ENABLED}" = "Xyes"; then
+
+  # Strip trailing slashes.
+  MATLAB=`echo "$cv_matlab" | sed 's!/*$!!'`
+
+  AC_MSG_CHECKING([whether to enable Matlab support])
+  if test -d "$MATLAB/extern/include" ; then
+    AC_MSG_RESULT([ok])
+  else
+    STB_ENABLED="no"
+    AC_MSG_RESULT([failure])
+  fi
+
+fi
+
+# Look for MEX
+
+if test "X${STB_ENABLED}" = "Xyes"; then
+
+  AC_ARG_WITH([mex],
+  [AC_HELP_STRING([--with-mex=ARG], [specify location of the Matlab mex compiler])],
+  [
+  if [ test -x ${withval} ] ; then
+    MEX=${withval}
+  else
+    AC_MSG_WARN([invalid value '$withval' for --with-mex])
+    STB_ENABLED="no"
+  fi
+  ])
+  
+fi
+
+if test "X${STB_ENABLED}" = "Xyes"; then
+
+  if test "${MEX:+set}" = "set" ; then
+    AC_MSG_CHECKING([for mex])
+    AC_MSG_RESULT([${MEX}])
+  else
+    case $host_os in
+      *cygwin* | *mingw32*)
+	ax_list='mextool mex mex.bat'
+	;;
+      *)
+	ax_list='mex'
+	;;
+    esac
+    AC_PATH_PROGS([MEX], $ax_list, mex, $MATLAB/bin:$PATH)
+  fi
+
+  if test "${MEX+set}" = set ; then
+
+    if test "${MEXFLAGS+set}" != set ; then
+      MEXFLAGS=-O
+    fi
+    if test "${MEXLDADD+set}" != set ; then
+      MEXLDADD=
+    fi
+
+  else
+
+    STB_ENABLED="no"
+
+  fi
+
+fi
+
+# Look for mexopts file
+
+if test "X${STB_ENABLED}" = "Xyes"; then
+
+  MEXOPTS=
+  AC_ARG_WITH([mexopts], 
+  AC_HELP_STRING([--with-mexopts=ARG], [use MEX options file ARG [[standard]]]),
+  [
+    cv_mexopts_file=${withval}
+    if test -f "$cv_mexopts_file" ; then
+      cv_mexopts_dir=`echo "$cv_mexopts_file" | sed 's,[[^/]]*$,,'`
+      cv_mexopts_dir=`cd "${cv_mexopts_dir-.}" && pwd`
+      cv_mexopts_name=`echo "$cv_mexopts_file" | sed 's,.*/,,'`
+      cv_mexopts_file="$cv_mexopts_dir/$cv_mexopts_name"
+      MEXOPTS="-f $cv_mexopts_file"
+    else
+      AC_MSG_WARN([invalid value '$cv_mexopts_file' for --with-mexopts])
+      STB_ENABLED="no"
+    fi
+  ])
+
+fi
+
+# Test mex compiler and set extension of mex files
+
+if test "X${STB_ENABLED}" = "Xyes"; then
+
+  AC_MSG_CHECKING([if the mex compiler works])
+  cat > cvmextest.c <<_END_MEX
+#include "mex.h"
+void mexFunction(int nlhs, mxArray **plhs, int nrhs, const mxArray **prhs)
+{}
+_END_MEX
+  (eval $MEX $MEXOPTS $MEXFLAGS -output cvmextest cvmextest.c $MEXLDADD) 2>/dev/null 1>&2
+  cv_status=$?
+  if test "${cv_status}" = "0"; then
+     AC_MSG_RESULT([yes])
+     if test -f cvmextest.dll ; then
+        MEXEXT=dll
+     elif test -f cvmextest.mex ; then
+        MEXEXT=mex
+     elif test -f cvmextest.mexaxp ; then
+        MEXEXT=mexaxp
+     elif test -f cvmextest.mexglx ; then
+        MEXEXT=mexglx
+     elif test -f cvmextest.mexhp7 ; then
+        MEXEXT=mexhp7
+     elif test -f cvmextest.mexhpux ; then
+        MEXEXT=mexhpux
+     elif test -f cvmextest.mexrs6 ; then
+        MEXEXT=mexrs6
+     elif test -f cvmextest.mexsg ; then
+        MEXEXT=mexsg
+     elif test -f cvmextest.mexsol ; then
+        MEXEXT=mexsol
+     else
+	MEXEXT=
+     fi
+  else 
+     AC_MSG_RESULT([no])
+     STB_ENABLED="no"
+  fi
+  rm -f cvmextest*
+fi
+
+# Where should we install sundialsTB?
+
+if test "X${STB_ENABLED}" = "Xyes"; then
+  AC_ARG_WITH([],[           ],[])
+  AC_MSG_CHECKING([where to install sundialsTB])
+  AC_ARG_WITH([stb-instdir],
+  [AC_HELP_STRING([--with-stb-instdir=STBINSTDIR], [install sundialsTB in STBINSTDIR @<:@MATLAB/toolbox@:>@])],
+  [
+    STB_INSTDIR="${withval}"
+  ],
+  [
+    STB_INSTDIR="${MATLAB}/toolbox/sundialsTB"
+  ])
+  AC_MSG_RESULT([${STB_INSTDIR}])
+fi
+
+# Display message if Matlab support had to be disabled
+
+if test "X${STB_ENABLED}" = "Xno"; then
+  echo ""
+  echo "Matlab configuration for sundialsTB was disabled."
+  echo ""
+fi
+
+AC_ARG_WITH([],[        ],[])
+
+
+]) dnl END SUNDIALS_SET_MEX
+
+#------------------------------------------------------------------
+# ADD SOME MORE STUFF TO configure --help
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_MORE_HELP],
+[
+AC_ARG_WITH([],[          ],[])
+AC_ARG_WITH([],[NOTES],[])
+AC_ARG_WITH([],[  Both --with-examples-instdir and --with-stb-instdir can be set to "no", in which],[])
+AC_ARG_WITH([],[  case the examples and sundialsTB, respectively, are built but not installed.],[])
+AC_ARG_WITH([],[  Enabling the compilation of the examples (--enable-examples) but disabling their],[])
+AC_ARG_WITH([],[  installation (--with-examples-instdir=no) can be used to test the SUNDIALS libraries.],[])
+
+]) dnl END SUNDIALS_MORE_HELP
+
+#------------------------------------------------------------------
 # ENABLE EXAMPLES
 #------------------------------------------------------------------
 
@@ -2583,7 +2839,7 @@ fi
 
 # Check if we need to build the C++ examples
 CXX_EXAMPLES="no"
-if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes"; then
+if test "X${CXX_ENABLED}" = "Xyes"; then
   if test "X${CVODES_ENABLED}" = "Xyes" || test "X${IDAS_ENABLED}" = "Xyes"; then
     CXX_EXAMPLES="yes"
   fi
@@ -2599,21 +2855,18 @@ PARALLEL_CXX_EXAMPLES="no"
 PARALLEL_F77_EXAMPLES="no"
 
 # Check C examples
-if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
 
-  AC_MSG_CHECKING([if we can build serial C examples])
-  SERIAL_C_EXAMPLES="yes"
-  AC_MSG_RESULT([${SERIAL_C_EXAMPLES}])
+AC_MSG_CHECKING([if we can build serial C examples])
+SERIAL_C_EXAMPLES="yes"
+AC_MSG_RESULT([${SERIAL_C_EXAMPLES}])
 
-  if test "X${MPI_ENABLED}" = "Xyes"; then
+if test "X${MPI_ENABLED}" = "Xyes"; then
 
-    AC_MSG_CHECKING([if we can build parallel C examples])
-    if test "X${MPI_C_COMP_OK}" = "Xyes"; then
-      PARALLEL_C_EXAMPLES="yes"
-    fi
-    AC_MSG_RESULT([${PARALLEL_C_EXAMPLES}])
-
+  AC_MSG_CHECKING([if we can build parallel C examples])
+  if test "X${MPI_C_COMP_OK}" = "Xyes"; then
+    PARALLEL_C_EXAMPLES="yes"
   fi
+  AC_MSG_RESULT([${PARALLEL_C_EXAMPLES}])
 
 fi
 
@@ -2666,6 +2919,30 @@ if test "X${CXX_EXAMPLES}" = "Xyes"; then
 
 fi
 
+# Where should we install the examples?
+
+AC_ARG_WITH([],[   ],[])
+
+AC_MSG_CHECKING([where to install the SUNDIALS examples])
+AC_ARG_WITH([examples-instdir],
+[AC_HELP_STRING([--with-examples-instdir=EXINSTDIR], [install SUNDIALS examples in EXINSTDIR @<:@EPREFIX/examples@:>@])],
+[
+  EXS_INSTDIR="${withval}"
+],
+[
+  if test "X${exec_prefix}" = "XNONE"; then
+    if test "X${prefix}" = "XNONE"; then
+      EXS_INSTDIR="\${exec_prefix}/examples"
+    else
+      EXS_INSTDIR="${prefix}/examples"
+    fi
+  else
+    EXS_INSTDIR="${exec_prefix}/examples"
+  fi
+])
+AC_MSG_RESULT([${EXS_INSTDIR}])
+
+
 # Disable developer examples be default so output logic still works
 SERIAL_DEV_C_EXAMPLES="no"
 PARALLEL_DEV_C_EXAMPLES="no"
@@ -2688,20 +2965,17 @@ SERIAL_DEV_C_EXAMPLES="no"
 PARALLEL_DEV_C_EXAMPLES="no"
 
 # Check developer examples
-if test "X${EXAMPLES_ENABLED}" = "Xyes" ; then
 
-  AC_MSG_CHECKING([if we can build serial C developer examples])
-  SERIAL_DEV_C_EXAMPLES="yes"
-  AC_MSG_RESULT([${SERIAL_DEV_C_EXAMPLES}])
+AC_MSG_CHECKING([if we can build serial C developer examples])
+SERIAL_DEV_C_EXAMPLES="yes"
+AC_MSG_RESULT([${SERIAL_DEV_C_EXAMPLES}])
 
-  if test "X${MPI_ENABLED}" = "Xyes"; then
-    AC_MSG_CHECKING([if we can build parallel C developer examples])
-    if test "X${MPI_C_COMP_OK}" = "Xyes"; then
-      PARALLEL_DEV_C_EXAMPLES="yes"
-    fi
-    AC_MSG_RESULT([${PARALLEL_DEV_C_EXAMPLES}])
+if test "X${MPI_ENABLED}" = "Xyes"; then
+  AC_MSG_CHECKING([if we can build parallel C developer examples])
+  if test "X${MPI_C_COMP_OK}" = "Xyes"; then
+    PARALLEL_DEV_C_EXAMPLES="yes"
   fi
-
+  AC_MSG_RESULT([${PARALLEL_DEV_C_EXAMPLES}])
 fi
 
 ]) dnl END SUNDIALS_ENABLE_DEV_EXAMPLES
@@ -2713,69 +2987,56 @@ fi
 AC_DEFUN([SUNDIALS_BUILD_MODULES_LIST],
 [
 
-EXAMPLE_MODULES=""
-SUNDIALS_MAKEFILES="Makefile"
+EXS_MODULES=""
+STB_MODULES=""
 
 # SHARED module (always required)
-MODULES="shared/source"
-SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} shared/source/Makefile"
+SLV_MODULES="src/sundials"
 
 # NVECTOR modules (serial and parallel)
-NVEC_MODULES=""
-if test -d ${srcdir}/nvec_ser ; then
-  NVEC_MODULES="nvec_ser"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} nvec_ser/Makefile"
+if test -d ${srcdir}/src/nvec_ser ; then
+  SLV_MODULES="${SLV_MODULES} src/nvec_ser"
 fi
 
-if test -d ${srcdir}/nvec_par && test "X${MPI_C_COMP_OK}" = "Xyes"; then
-  NVEC_MODULES="${NVEC_MODULES} nvec_par"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} nvec_par/Makefile"
+if test -d ${srcdir}/src/nvec_par && test "X${MPI_C_COMP_OK}" = "Xyes"; then
+  SLV_MODULES="${SLV_MODULES} src/nvec_par"
 fi
 
-if test -d ${srcdir}/nvec_spcpar && test "X${MPI_C_COMP_OK}" = "Xyes"; then
-  NVEC_MODULES="${NVEC_MODULES} nvec_spcpar"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} nvec_spcpar/Makefile"
+if test -d ${srcdir}/src/nvec_spcpar && test "X${MPI_C_COMP_OK}" = "Xyes"; then
+  SLV_MODULES="${SLV_MODULES} src/nvec_spcpar"
 fi
 
 # CVODE module
 if test "X${CVODE_ENABLED}" = "Xyes"; then
 
-  MODULES="${MODULES} cvode/source"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/source/Makefile"
+  SLV_MODULES="${SLV_MODULES} src/cvode"
 
-  if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/cvode/fcmix ; then
-    MODULES="${MODULES} cvode/fcmix"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
+  if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/src/cvode/fcmix ; then
+    SLV_MODULES="${SLV_MODULES} src/cvode/fcmix"
   fi
 
-  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/examples_ser/Makefile"
+  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/serial ; then
+    EXS_MODULES="${EXS_MODULES} examples/cvode/serial"
   fi
 
-  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/test_examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/test_examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/test_examples_ser/Makefile"
+  if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/fcmix_serial ; then
+    EXS_MODULES="${EXS_MODULES} examples/cvode/fcmix_serial"
   fi
 
-  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/examples_par/Makefile"
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cvode/serial ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/cvode/serial"
   fi
 
-  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/test_examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/test_examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/test_examples_par/Makefile"
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/parallel ; then
+    EXS_MODULES="${EXS_MODULES} examples/cvode/parallel"
   fi
 
-  if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/fcmix/examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/fcmix/examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/examples_ser/Makefile"
+  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/fcmix_parallel ; then
+    EXS_MODULES="${EXS_MODULES} examples/cvode/fcmix_parallel"
   fi
 
-  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/fcmix/examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/fcmix/examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/examples_par/Makefile"
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cvode/parallel ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/cvode/parallel"
   fi
 
 fi
@@ -2783,27 +3044,22 @@ fi
 # CVODES module
 if test "X${CVODES_ENABLED}" = "Xyes"; then
 
-  MODULES="${MODULES} cvodes/source"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/source/Makefile"
+  SLV_MODULES="${SLV_MODULES} src/cvodes"
 
-  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvodes/examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/examples_ser/Makefile"
+  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvodes/serial ; then
+    EXS_MODULES="${EXS_MODULES} examples/cvodes/serial"
   fi
 
-  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/test_examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvodes/test_examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/test_examples_ser/Makefile"
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cvodes/serial ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/cvodes/serial"
   fi
 
-  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvodes/examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/examples_par/Makefile"
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvodes/parallel ; then
+    EXS_MODULES="${EXS_MODULES} examples/cvodes/parallel"
   fi
 
-  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/test_examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvodes/test_examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/test_examples_par/Makefile"
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cvodes/parallel ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/cvodes/parallel"
   fi
 
 fi
@@ -2811,42 +3067,34 @@ fi
 # IDA module
 if test "X${IDA_ENABLED}" = "Xyes"; then
 
-  MODULES="${MODULES} ida/source"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/source/Makefile"
+  SLV_MODULES="${SLV_MODULES} src/ida"
 
-  if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/ida/fcmix ; then
-    MODULES="${MODULES} ida/fcmix"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/fcmix/Makefile"
+  if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/src/ida/fcmix ; then
+    SLV_MODULES="${SLV_MODULES} src/ida/fcmix"
   fi
 
-  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/examples_ser/Makefile"
+  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/serial ; then
+    EXS_MODULES="${EXS_MODULES} examples/ida/serial"
   fi
 
-  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/test_examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/test_examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/test_examples_ser/Makefile"
+  if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/fcmix_serial ; then
+    EXS_MODULES="${EXS_MODULES} examples/ida/fcmix_serial"
   fi
 
-  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/examples_par/Makefile"
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/ida/serial ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/ida/serial"
   fi
 
-  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/test_examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/test_examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/test_examples_par/Makefile"
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/parallel ; then
+    EXS_MODULES="${EXS_MODULES} examples/ida/parallel"
   fi
 
-  if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/fcmix/examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/fcmix/examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/fcmix/examples_ser/Makefile"
+  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/fcmix_parallel ; then
+    EXS_MODULES="${EXS_MODULES} examples/ida/fcmix_parallel"
   fi
 
-  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/fcmix/examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/fcmix/examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/fcmix/examples_par/Makefile"
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/ida/parallel ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/ida/parallel"
   fi
 
 fi
@@ -2854,27 +3102,22 @@ fi
 # IDAS module
 if test "X${IDAS_ENABLED}" = "Xyes"; then
 
-  MODULES="${MODULES} idas/source"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/source/Makefile"
+  SLV_MODULES="${SLV_MODULES} src/idas"
 
-  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/idas/examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} idas/examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/examples_ser/Makefile"
+  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/idas/serial ; then
+    EXS_MODULES="${EXS_MODULES} examples/idas/serial"
   fi
 
-  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/idas/test_examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} idas/test_examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/test_examples_ser/Makefile"
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/idas/serial ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/idas/serial"
   fi
 
-  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/idas/examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} idas/examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/examples_par/Makefile"
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/idas/parallel ; then
+    EXS_MODULES="${EXS_MODULES} examples/idas/parallel"
   fi
 
-  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/idas/test_examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} idas/test_examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/test_examples_par/Makefile"
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/idas/parallel ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/idas/parallel"
   fi
 
 fi
@@ -2882,150 +3125,77 @@ fi
 # KINSOL module
 if test "X${KINSOL_ENABLED}" = "Xyes"; then
 
-  MODULES="${MODULES} kinsol/source"
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/source/Makefile"
+  SLV_MODULES="${SLV_MODULES} src/kinsol"
 
-  if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/kinsol/fcmix ; then
-    MODULES="${MODULES} kinsol/fcmix"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
+  if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/src/kinsol/fcmix ; then
+    SLV_MODULES="${SLV_MODULES} src/kinsol/fcmix"
   fi
 
-  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/examples_ser/Makefile"
+  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/serial ; then
+    EXS_MODULES="${EXS_MODULES} examples/kinsol/serial"
   fi
 
-  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/test_examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/test_examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/test_examples_ser/Makefile"
+  if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/fcmix_serial ; then
+    EXS_MODULES="${EXS_MODULES} examples/kinsol/fcmix_serial"
   fi
 
-  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/examples_par/Makefile"
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/kinsol/serial ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/kinsol/serial"
   fi
 
-  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/test_examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/test_examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/test_examples_par/Makefile"
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/parallel ; then
+    EXS_MODULES="${EXS_MODULES} examples/kinsol/parallel"
   fi
 
-  if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/fcmix/examples_ser ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/fcmix/examples_ser"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/examples_ser/Makefile"
+  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/fcmix_parallel ; then
+    EXS_MODULES="${EXS_MODULES} examples/kinsol/fcmix_parallel"
   fi
 
-  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/fcmix/examples_par ; then
-    EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/fcmix/examples_par"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/examples_par/Makefile"
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/kinsol/parallel ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/kinsol/parallel"
   fi
 
+fi
+
+# Set the list of Makefiles to be created
+SUNDIALS_MAKEFILES="Makefile"
+for i in ${SLV_MODULES} ; do
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ${i}/Makefile"
+done
+for i in ${EXS_MODULES} ; do
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ${i}/Makefile"
+done
+
+# sundialsTB modules and CVM and KIM makefiles
+if test "X${STB_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes"; then
+  STB_MODULES="${STB_MODULES} sundialsTB/cvodes/cvm/src"
+  if test "X${STB_PARALLEL_OK}" = "Xyes"; then
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/cvodes/cvm/src/Makefile:sundialsTB/cvodes/cvm/src/Makefile_par.in"
+  else
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/cvodes/cvm/src/Makefile:sundialsTB/cvodes/cvm/src/Makefile_ser.in"
+  fi
+fi
+if test "X${STB_ENABLED}" = "Xyes" && test "X${KINSOL_ENABLED}" = "Xyes"; then
+  STB_MODULES="${STB_MODULES} sundialsTB/kinsol/kim/src"
+  if test "X${STB_PARALLEL_OK}" = "Xyes"; then
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/kinsol/kim/src/Makefile:sundialsTB/kinsol/kim/src/Makefile_par.in"
+  else
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/kinsol/kim/src/Makefile:sundialsTB/kinsol/kim/src/Makefile_ser.in"
+  fi
+fi
+if test "X${STB_ENABLED}" = "Xyes"; then
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/startup_STB.m:sundialsTB/startup_STB.in"
 fi
 
 # Fortran update script
 if test "X${BUILD_F77_UPDATE_SCRIPT}" = "Xyes"; then
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/fortran_update.sh:config/fortran_update.in"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/fortran_update.sh:config/fortran_update.in"
 fi
 
 # Create sundials_config.h header file
-SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/sundials_config.h:config/sundials_config.in"
-
-# If examples are NOT to be built, then set EXAMPLE_MODULES to "no"
-# Note: This is required since some shells do NOT like empty variables
-if test "X${EXAMPLE_MODULES}" = "X"; then
-  EXAMPLE_MODULES="no"
-fi
+SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/sundials/sundials_config.h:src/sundials/sundials_config.in"
 
 ]) dnl END SUNDIALS_BUILD_MODULES_LIST
-
-#------------------------------------------------------------------
-# DETERMINE INSTALLATION PATH
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_INSTALL_PATH],
-[
-
-# Test for installation/destination directories...
-
-# Check for 'include' directory...
-AC_MSG_CHECKING([for 'include' directory])
-# If user did NOT specify prefix via --prefix=<dir> flag, then continue checks
-if test "X${prefix}" = "XNONE"; then
-  # If user did NOT specify includedir via --includedir=<dir> flag, then
-  # use default prefix and create directory if necessary
-  if test "X${includedir}" = "X\${prefix}/include"; then
-    SUNDIALS_INC_DIR="${DEFAULT_PREFIX}/include"
-    if test -d ${SUNDIALS_INC_DIR} ; then
-      :
-    else
-      AS_MKDIR_P(${SUNDIALS_INC_DIR})
-    fi
-  # User specified includedir, but create directory if necessary
-  else
-    SUNDIALS_INC_DIR="${includedir}"
-    if test -d ${SUNDIALS_INC_DIR} ; then
-      :
-    else
-      AS_MKDIR_P(${SUNDIALS_INC_DIR})
-    fi
-  fi
-# User specified prefix, but create 'include' directory if necessary
-else
-  SUNDIALS_INC_DIR="${prefix}/include"
-  if test -d ${SUNDIALS_INC_DIR} ; then
-    :
-  else
-    AS_MKDIR_P(${SUNDIALS_INC_DIR})
-  fi
-fi
-AC_MSG_RESULT([${SUNDIALS_INC_DIR}])
-
-# Check for 'lib' directory...
-AC_MSG_CHECKING([for 'lib' directory])
-# If user did NOT specify exec_prefix via --exec-prefix=<dir> flag, then continue checks
-if test "X${exec_prefix}" = "XNONE"; then
-  # If user did NOT specify prefix via --prefix=<dir> flag, then continue checks
-  # Note: this check is unusual...
-  if test "X${prefix}" = "XNONE"; then
-    # If user did NOT specify libdir via --libdir=<dir> flag, then use
-    # default prefix and create directory if necessary
-    if test "X${libdir}" = "X\${exec_prefix}/lib"; then
-      SUNDIALS_LIB_DIR="${DEFAULT_PREFIX}/lib"
-      if test -d ${SUNDIALS_LIB_DIR} ; then
-        :
-      else
-        AS_MKDIR_P(${SUNDIALS_LIB_DIR})
-      fi
-    # User specified libdir, but create directory if necessary
-    else
-      SUNDIALS_LIB_DIR="${libdir}"
-      if test -d ${SUNDIALS_LIB_DIR} ; then
-        :
-      else
-        AS_MKDIR_P(${SUNDIALS_LIB_DIR})
-      fi
-    fi
-  # User specified prefix, but create 'lib' directory if necessry
-  else
-    SUNDIALS_LIB_DIR="${prefix}/lib"
-    if test -d ${SUNDIALS_LIB_DIR} ; then
-      :
-    else
-      AS_MKDIR_P(${SUNDIALS_LIB_DIR})
-    fi
-  fi
-# User specified exec_prefix, but create 'lib' directory if necessary
-else
-  SUNDIALS_LIB_DIR="${exec_prefix}/lib"
-  if test -d ${SUNDIALS_LIB_DIR} ; then
-    :
-  else
-    AS_MKDIR_P(${SUNDIALS_LIB_DIR})
-  fi
-fi
-AC_MSG_RESULT([${SUNDIALS_LIB_DIR}])
-
-]) dnl END SUNDIALS_INSTALL_PATH
 
 #------------------------------------------------------------------
 # PRINT STATUS REPORT
@@ -3045,9 +3215,6 @@ Configuration
 
   Host System:               ${host}
   Build System:              ${build}
-  Source Code Location:      ${srcdir}
-  Install Path (include):    ${SUNDIALS_INC_DIR}
-  Install Path (lib):        ${SUNDIALS_LIB_DIR}
 
   C Preprocessor:            ${CPP} 
   C Preporcessor Flags:      ${CPPFLAGS}
@@ -3101,37 +3268,96 @@ echo "
   MPI-Fortran Linker:        ${MPIF77_LNKR_OUT}"
 fi
 
-echo "  
-  Type 'make' and then 'make install' to build and install ${PACKAGE_STRING}"
+
+if test "X${STB_ENABLED}" = "Xyes"; then
+echo "
+  Matlab installation:       ${MATLAB}
+  Matlab MEX compiler:       ${MEX}
+  Extension of MEX files:    ${MEXEXT}
+  Mex options file:          ${MEXOPTS}
+  Mex compiler options:      ${MEXFLAGS}"
+fi
+
+cv_srcdir=`cd "${srcdir}" > /dev/null 2>&1 && pwd`
+cv_builddir=`pwd`
+if test "X${exec_prefix}" = "XNONE"; then
+  cv_exec_prefix=${prefix}
+else
+  cv_exec_prefix=${exec_prefix}
+fi
+echo "
+  srcdir:                    ${cv_srcdir}
+  builddir:                  ${cv_builddir}
+  prefix:                    ${prefix}
+  exec_prefix:               ${cv_exec_prefix}
+  includedir:                ${includedir}
+  libdir:                    ${libdir}"
+
+if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
+echo "  examples installed in:     ${EXS_INSTDIR}"
+fi
+if test "X${STB_ENABLED}" = "Xyes"; then
+echo "  sundialsTB installed in:   ${STB_INSTDIR}"
+fi
 
 echo "
 Modules
 -------
 "
 
-if test "X${KINSOL_ENABLED}" = "Xyes"; then
-echo "  KINSOL"
-fi
 if test "X${CVODE_ENABLED}" = "Xyes"; then
-echo "  CVODE"
+  THIS_LINE="CVODE"
+  if test "X${FCMIX_ENABLED}" = "Xyes"; then
+    THIS_LINE="${THIS_LINE}  FCVODE"
+  fi
+  echo "  ${THIS_LINE}"
 fi
+
 if test "X${CVODES_ENABLED}" = "Xyes"; then
-echo "  CVODES"
+  THIS_LINE="CVODES"
+  echo "  ${THIS_LINE}"
 fi
+
 if test "X${IDA_ENABLED}" = "Xyes"; then
-echo "  IDA"
+  THIS_LINE="IDA"
+  if test "X${FCMIX_ENABLED}" = "Xyes"; then
+    THIS_LINE="${THIS_LINE}    FIDA"
+  fi
+  echo "  ${THIS_LINE}"
+
 fi
+
 if test "X${IDAS_ENABLED}" = "Xyes"; then
-echo "  IDAS"
+  THIS_LINE="IDAS"
+  echo "  ${THIS_LINE}"
 fi
+
+if test "X${KINSOL_ENABLED}" = "Xyes"; then
+  THIS_LINE="KINSOL"
+  if test "X${FCMIX_ENABLED}" = "Xyes"; then
+    THIS_LINE="${THIS_LINE} FKINSOL"
+  fi
+  echo "  ${THIS_LINE}"
+
+fi
+
+if test "X${STB_ENABLED}" = "Xyes"; then
+  THIS_LINE="sundialsTB:"
+  if test "X${CVODES_ENABLED}" = "Xyes"; then
+    THIS_LINE="${THIS_LINE} cvodes"
+  fi
+  if test "X${KINSOL_ENABLED}" = "Xyes"; then
+     THIS_LINE="${THIS_LINE} kinsol"
+  fi
+  echo "  ${THIS_LINE}"
+fi
+
 
 if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
 
 echo "
 Examples
 --------
-
-  Type 'make examples' to build the following examples:
 "
 
 if test "X${SERIAL_C_EXAMPLES}" = "Xyes"; then
@@ -3145,6 +3371,7 @@ if test "X${PARALLEL_C_EXAMPLES}" = "Xyes"; then
 elif test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xno"; then
   C_PARALLEL_BOX="NO "
 fi
+
 C_DEV_SERIAL_BOX="N/A"
 if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes"; then
   C_DEV_SERIAL_BOX="YES"
@@ -3266,6 +3493,11 @@ else
 fi
 
 fi
+
+echo "  
+  Type 'make' and then 'make install' to build and install ${PACKAGE_STRING}."
+
+
 
 echo "
 ----------------------------------

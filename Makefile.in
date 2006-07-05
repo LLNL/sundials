@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2006-06-15 15:38:45 $
+# $Revision: 1.12 $
+# $Date: 2006-07-05 16:03:41 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -25,118 +25,117 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-MODULES         = @MODULES@
-NVEC_MODULES    = @NVEC_MODULES@
-EXAMPLE_MODULES = @EXAMPLE_MODULES@
+SLV_MODULES  = @SLV_MODULES@
+EXS_MODULES  = @EXS_MODULES@
+STB_MODULES  = @STB_MODULES@
 
-COMPONENTS = $(NVEC_MODULES) $(MODULES)
-EXAMPLES   = $(EXAMPLE_MODULES)
+ALL_MODULES  = @SLV_MODULES@ @EXS_MODULES@ @STB_MODULES@
 
-FGREP   = @FGREP@
-INSTALL = @INSTALL@
-CP_FILE = @INSTALL_DATA@
+EXS_INSTDIR  = @EXS_INSTDIR@
+STB_INSTDIR  = @STB_INSTDIR@
+
+# -----------------------------------------------------------------
 
 all:
-	@for i in ${COMPONENTS} ; do  \
-	   if test -d $${i} ; then    \
-	     echo "Making $${i}..." ; \
-	     cd $${i} ;               \
-	     ${MAKE} ;                \
-	     cd ${abs_builddir} ;     \
-	     echo "" ;                \
-	   fi ;                       \
+	@for i in ${ALL_MODULES} ; do              \
+	   if test -d $${i} ; then                 \
+	     echo "----------------------";        \
+	     echo "Make $${i}..." ;                \
+	     echo "----------------------";        \
+	     cd $${i} ;                            \
+	     ${MAKE} ;                             \
+	     cd ${abs_builddir} ;                  \
+	     echo "" ;                             \
+	   fi ;                                    \
 	 done
 
 install:
-	@for i in ${COMPONENTS} ; do      \
-	   if test -d $${i} ; then        \
-	     echo "Installing $${i}..." ; \
-	     cd $${i} ;                   \
-	     ${MAKE} install ;            \
-	     cd ${abs_builddir} ;         \
-	     echo "" ;                    \
-	   fi ;                           \
+	@for i in ${SLV_MODULES} ; do              \
+	   if test -d $${i} ; then                 \
+	     echo "----------------------";        \
+	     echo "Install $${i}..." ;             \
+	     echo "----------------------";        \
+	     cd $${i} ;                            \
+	     ${MAKE} install ;                     \
+	     cd ${abs_builddir} ;                  \
+	     echo "" ;                             \
+	   fi ;                                    \
 	 done
+	@if test -n "${EXS_MODULES}" ; then        \
+	  if test "X${EXS_INSTDIR}" = "Xno"; then  \
+	    echo "" ;                              \
+	    echo "" ;                              \
+	    echo -n "Examples were built but" ;    \
+	    echo "installation was disabled." ;    \
+	    echo "" ;                              \
+	    echo "" ;                              \
+	  else                                     \
+	    for i in ${EXS_MODULES} ; do           \
+	      echo "----------------------";       \
+	      echo "Install $${i}..." ;            \
+	      echo "----------------------";       \
+	      cd $${i} ;                           \
+	      ${MAKE} install ;                    \
+	      cd ${abs_builddir} ;                 \
+	      echo "" ;                            \
+	    done ;                                 \
+	  fi ;                                     \
+	fi
+	@if test -n "${STB_MODULES}" ; then        \
+	  if test "X${STB_INSTDIR}" = "Xno"; then  \
+	    echo "" ;                              \
+	    echo "" ;                              \
+	    echo -n "sundialsSTB was built but" ;  \
+	    echo "installation was disabled." ;    \
+	    echo "" ;                              \
+	    echo "" ;                              \
+	  else                                     \
+	    for i in ${STB_MODULES} ; do           \
+	      echo "----------------------";       \
+	      echo "Install $${i}..." ;            \
+	      echo "----------------------";       \
+	      cd $${i} ;                           \
+	      ${MAKE} install ;                    \
+	      cd ${abs_builddir} ;                 \
+	      echo "" ;                            \
+	    done ;                                 \
+	  fi ;                                     \
+	fi
 
 clean:
-	@for i in ${COMPONENTS} ; do \
-	   if test -d $${i} ; then   \
-	     cd $${i} ;              \
-	     ${MAKE} clean ;         \
-	     cd ${abs_builddir} ;    \
-	   fi ;                      \
+	@for i in ${ALL_MODULES} ; do              \
+	   if test -d $${i} ; then                 \
+	     cd $${i} ;                            \
+	     ${MAKE} clean ;                       \
+	     cd ${abs_builddir} ;                  \
+	   fi ;                                    \
 	 done
 
-examples:
-	@if test "X${EXAMPLES}" = "Xno" ; then             \
-	   echo "Examples were NOT configured" ;           \
-	   echo "Rerun configure with --enable-examples" ; \
-	 else                                              \
-	   for i in ${EXAMPLES} ; do                       \
-	     if test -d $${i} ; then                       \
-	       echo "Making examples in $${i}..." ;        \
-	       cd $${i} ;                                  \
-	       ${MAKE} ;                                   \
-	       cd ${abs_builddir} ;                        \
-	       echo "" ;                                   \
-	     fi ;                                          \
-	   done ;                                          \
-	 fi
-
-examples_clean:
-	@if test "X${EXAMPLES}" = "Xno" ; then \
-	   : ;                                 \
-	 else                                  \
-	   for i in ${EXAMPLES} ; do           \
-	     if test -d $${i} ; then           \
-	       cd $${i} ;                      \
-	       ${MAKE} clean ;                 \
-	       cd ${abs_builddir} ;            \
-	     fi ;                              \
-	   done ;                              \
-	 fi
-
-examples_uninstall:
-	@if test "X${EXAMPLES}" = "Xno" ; then \
-	   : ;                                 \
-	 else                                  \
-	   for i in ${EXAMPLES} ; do           \
-	     if test -d $${i} ; then           \
-	       cd $${i} ;                      \
-	       ${MAKE} uninstall ;             \
-	       cd ${abs_builddir} ;            \
-	     fi ;                              \
-	   done ;                              \
-	 fi
-
-distclean: clean examples_clean
-	@for i in ${COMPONENTS} ; do           \
-	   if test -d $${i} ; then             \
-	     rm -f $${i}/Makefile ;            \
-	   fi ;                                \
+uninstall:
+	@for i in ${ALL_MODULES} ; do              \
+	   if test -d $${i} ; then                 \
+	     cd $${i} ;                            \
+	     ${MAKE} uninstall ;                   \
+	     cd ${abs_builddir} ;                  \
+	   fi ;                                    \
 	 done
-	@if test "X${EXAMPLES}" = "Xno" ; then \
-	   : ;                                 \
-	 else                                  \
-	   for i in ${EXAMPLES} ; do           \
-	     if test -d $${i} ; then           \
-	       rm -f $${i}/Makefile ;          \
-	     fi ;                              \
-	   done ;                              \
-	 fi
-	@rm -f config.log ;                    \
-	 rm -f config.status ;                 \
-	 rm -f config.cache ;                  \
-	 rm -f config.h                        \
-	 rm -f config/sundials_config.h ;      \
-	 rm -f config/fortran_update.sh ;      \
-	 rm -f Makefile
 
-uninstall: examples_uninstall
-	@for i in ${COMPONENTS} ; do \
-	   if test -d $${i} ; then   \
-	     cd $${i} ;              \
-	     ${MAKE} uninstall ;     \
-	     cd ${abs_builddir} ;    \
-	   fi ;                      \
-	 done
+# ---------------------------------------------------------------------
+
+distclean:
+	@for i in ${ALL_MODULES} ; do              \
+	  if test -d $${i} ; then                  \
+	    cd $${i};                              \
+	    ${MAKE} distclean;                     \
+	    cd ${abs_builddir} ;                   \
+	  fi ;                                     \
+	done
+	rm -f config.log
+	rm -f config.status
+	rm -f config.cache
+	rm -f config.h
+	rm -f libtool
+	rm -f src/sundials/sundials_config.h
+	rm -f examples/fortran_update.sh
+	rm -f Makefile
+

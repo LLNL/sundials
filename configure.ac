@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.34 $
-# $Date: 2006-06-15 15:38:45 $
+# $Revision: 1.35 $
+# $Date: 2006-07-05 16:03:41 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -13,8 +13,8 @@
 # ------------------------------------------------------------------------
 
 # Initialize configure
-AC_INIT(SUNDIALS, 2.2.0, radu@llnl.gov)
-LIB_REVISION="0:0:0"
+AC_INIT(SUNDIALS, 2.2.1, radu@llnl.gov)
+LIB_REVISION="1:0:"
 
 # Display greeting
 SUNDIALS_GREETING
@@ -27,7 +27,6 @@ SUNDIALS_INITIALIZE
 
 # Test enable/disable features
 SUNDIALS_ENABLES
-SUNDIALS_MPI_ENABLES
 
 # Set C compilation (Required)
 echo ""
@@ -50,17 +49,41 @@ fi
 # Set MPI support (Optional)
 if test "X${MPI_ENABLED}" = "Xyes"; then
   echo ""
-  echo "MPI-C Settings"
+  echo "MPI C Settings"
   echo "--------------"
   echo ""
   SUNDIALS_SET_MPICC
   if test "X${F77_ENABLED}" = "Xyes"; then
     echo ""
-    echo "MPI-Fortran Settings"
+    echo "MPI Fortran Settings"
     echo "--------------------"
     echo ""
     SUNDIALS_SET_MPIF77
   fi
+  echo ""
+  echo "MPI-2 functionality"
+  echo "-------------------"
+  echo ""
+  SUNDIALS_CHECK_MPI2
+fi
+
+# Set examples modules
+if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
+  echo ""
+  echo "Examples"
+  echo "--------"
+  echo ""
+  SUNDIALS_ENABLE_EXAMPLES
+fi
+
+# Set MEX support (optional)
+if test "X${STB_ENABLED}" = "Xyes"; then
+  echo ""
+  echo "MEX Settings"
+  echo "------------"
+  echo ""
+  
+  SUNDIALS_SET_MEX  
 fi
 
 # Run libtool checks
@@ -72,12 +95,8 @@ AC_DISABLE_SHARED
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
-# Set examples modules
-echo ""
-echo "Examples"
-echo "--------"
-echo ""
-SUNDIALS_ENABLE_EXAMPLES
+# Print a few more lines for configure --help
+SUNDIALS_MORE_HELP
 
 # Substitute variables
 AC_SUBST(COMPILER_PREFIX)
@@ -89,9 +108,6 @@ AC_SUBST(MPI_INC_DIR)
 AC_SUBST(MPI_LIB_DIR)
 AC_SUBST(MPI_LIBS)
 AC_SUBST(MPI_FLAGS)
-AC_SUBST(MODULES)
-AC_SUBST(NVEC_MODULES)
-AC_SUBST(EXAMPLE_MODULES)
 AC_SUBST(FCMIX_ENABLED)
 AC_SUBST(FLOAT_TYPE)
 AC_SUBST(LIBTOOL_CMD)
@@ -106,13 +122,17 @@ AC_SUBST(F77_MPI_COMM_F2C)
 AC_SUBST(F77_LNKR)
 AC_SUBST(MPIF77_LNKR)
 AC_SUBST(LIB_REVISION)
-
-# Set installation path
-echo ""
-echo "Installation Directories"
-echo "------------------------"
-echo ""
-SUNDIALS_INSTALL_PATH
+AC_SUBST(MATLAB)
+AC_SUBST(MEX)
+AC_SUBST(MEXEXT)
+AC_SUBST(MEXOPTS)
+AC_SUBST(MEXFLAGS)
+AC_SUBST(MEXLDADD)
+AC_SUBST(SLV_MODULES)
+AC_SUBST(EXS_MODULES)
+AC_SUBST(STB_MODULES)
+AC_SUBST(EXS_INSTDIR)
+AC_SUBST(STB_INSTDIR)
 
 # Generate makefiles
 echo ""
