@@ -2,145 +2,168 @@
 #
 # File tarscript: Script to build SUNDIALS tar-files.
 # Author: Radu Serban @ LLNL
-# Version of 29 November 2005
+# Version of 29 June 2005
 #
-
-#==============================================================================
-#
-# Prints usage if help was requested or if the script was incorectly called
-#
-#==============================================================================
-
-function print_usage
-{
-    echo ""
-    echo "Usage: tarscript [-h] [module]"
-    echo "   -h       : help"
-    echo "   module   : all, sundials, cvode, cvodes, ida, kinsol"
-    echo ""
-    echo "Note1: If the module is not specified, tar files are created"
-    echo "       for all of them."
-    echo "Note2: This script must be executed from within its directory" 
-    echo "       Default file will be created in $distrodir."
-    echo ""
-    exit 1
-}
-
-#==============================================================================
-#
-# Generates the tarball file for the given module
-#
-#==============================================================================
-
-function create_module
-{
-    what=$1
-
-    tail=".tar"
-    tarfile=$distrodir$what$tail
-    echo ">>> Generate $distrobase distribution tar-file $tarfile"
-
-    cd ..
-    echo "  >>> Create configure script"
-    aclocal
-    autoconf -f -o configure configure.ac
-    autoheader
-
-    rm -f aclocal.m4
-    rm -rf autom4te.cache
-
-    cd ..
-    $distrobase/scripts/shared $tarfile $distrobase
-    if [ $what = "cvode" -o $what = "sundials" ];  then
-        $distrobase/scripts/cvode $tarfile $distrobase
-    fi
-    if [ $what = "cvodes" -o $what = "sundials" ]; then
-        $distrobase/scripts/cvodes $tarfile $distrobase
-    fi
-    if [ $what = "ida" -o $what = "sundials" ];    then
-        $distrobase/scripts/ida $tarfile $distrobase
-    fi
-    if [ $what = "kinsol" -o $what = "sundials" ]; then
-        $distrobase/scripts/kinsol $tarfile $distrobase
-    fi
-
-    gzip $tarfile
-    
-    cd $scriptdir
-}
-
-#==============================================================================
-#
-# MAIN SCRIPT
-#
-#==============================================================================
 
 #---------------------------------------------------------
-# Test if the script is executed from within its directory
+# VERSION NUMBERS
 #---------------------------------------------------------
-scriptbase=`basename $0`
-if [ ! -f "$scriptbase" ] ; then
-    print_usage
-fi
 
-#-------------
-# Define flags
-#-------------
-err=F   # Error flag
-hlp=F   # Help flag
-
-#----------------
-# Process options
-#----------------
-while getopts ":h" name ; do
-    case $name in
-        h) hlp=T;;
-        ?) err=T;;
-    esac
-done
-
-#------------------------------
-# Extract argument (module name)
-#------------------------------
-shift $(($OPTIND - 1))
-module=$1
-
-#------------
-# Test module 
-#------------
-if [ -z $module ]; then
-    module="all"
-else
-    if [ $module != "all" -a $module != "sundials" -a $module != "cvode" -a $module != "cvodes" -a $module != "ida" -a $module != "kinsol" ]; then
-        err=T
-    fi
-fi
+SUN_VER="2.2.1"
+CV_VER="2.4.1"
+CVS_VER="2.4.1"
+IDA_VER="2.4.1"
+KIN_VER="2.4.1"
 
 #------------------
-# Define some names
+# Path to scripts
 #------------------
+
 scriptdir=`pwd`
-distrodir=`echo $PWD | sed -e 's/scripts//'`
-distrobase=`basename $distrodir`
 
-#------------
-# Print usage
-#------------
-if [ $err = "T" -o $hlp = "T" ]; then
-    print_usage
-fi
+#----------------------------------
+# Copy files in temporary directory
+#----------------------------------
+
+cd ../..
+tmpdir=`pwd`
+echo -e "\n--- Create temporary directory ---"
+echo "copy sundials to "$tmpdir"/tmp_dir"
+rm -rf tmp_dir
+cp -r sundials tmp_dir
+
+#----------------------------------
+# Create necessary files
+#----------------------------------
+
+cd tmp_dir
+
+echo -e "\n--- Generate configure script ---"
+aclocal
+autoconf -f -o configure configure.ac
+autoheader
+
+echo -e "\n--- Generate documentation ---"
+
+echo -e "   --- CVODE documentation"
+cd doc/cvode
+#make QUIET=-q purge
+#make QUIET=-q ug_pdf
+#make QUIET=-q ex_pdf
+cd -
+
+echo -e "   --- CVODES documentation"
+cd doc/cvodes
+#make QUIET=-q purge
+#make QUIET=-q ug_pdf
+#make QUIET=-q ex_pdf
+cd -
+
+echo -e "   --- IDA documentation"
+cd doc/ida
+#make QUIET=-q purge
+#make QUIET=-q ug_pdf
+#make QUIET=-q ex_pdf
+cd -
+
+echo -e "   --- KINSOL documentation"
+cd doc/kinsol
+#make QUIET=-q purge
+#make QUIET=-q ug_pdf
+#make QUIET=-q ex_pdf
+cd -
+
+cd ..
 
 #---------------------------
-# Create requested tar files
+# Create tar files
 #---------------------------
-if [ $module != "all" ]; then
-    create_module $module
-else
-    create_module "sundials"
-    create_module "cvode"
-    create_module "cvodes"
-    create_module "ida"
-    create_module "kinsol"
-fi
+
+distrobase="tmp_dir"
+
+# CVODE
+
+echo -e "\n--- Generate CVODE tarball ---"
+
+mv $distrobase cvode-$CV_VER
+distrobase="cvode-"$CV_VER
+filename="cvode-"$CV_VER
+
+tarfile=$filename".tar"
+$scriptdir/shared $tarfile $distrobase
+$scriptdir/cvode $tarfile $distrobase
+gzip $tarfile
+mv $filename".tar.gz" $filename".tgz"
+
+# CVODES
+
+echo -e "\n--- Generate CVODES tarball ---"
+
+mv $distrobase cvodes-$CVS_VER
+distrobase="cvodes-"$CVS_VER
+filename="cvodes-"$CVS_VER
+
+tarfile=$filename".tar"
+$scriptdir/shared $tarfile $distrobase
+$scriptdir/cvodes $tarfile $distrobase
+gzip $tarfile
+mv $filename".tar.gz" $filename".tgz"
+
+# IDA
+
+echo -e "\n--- Generate IDA tarball ---"
+
+mv $distrobase ida-$IDA_VER
+distrobase="ida-"$IDA_VER
+filename="ida-"$IDA_VER
+
+tarfile=$filename".tar"
+$scriptdir/shared $tarfile $distrobase
+$scriptdir/ida $tarfile $distrobase
+gzip $tarfile
+mv $filename".tar.gz" $filename".tgz"
+
+# KINSOL
+
+echo -e "\n--- Generate KINSOL tarball ---"
+
+mv $distrobase kinsol-$KIN_VER
+distrobase="kinsol-"$KIN_VER
+filename="kinsol-"$KIN_VER
+
+tarfile=$filename".tar"
+$scriptdir/shared $tarfile $distrobase
+$scriptdir/kinsol $tarfile $distrobase
+gzip $tarfile
+mv $filename".tar.gz" $filename".tgz"
+
+# SUNDIALS
+
+echo -e "\n--- Generate SUNDIALS tarball ---"
+
+mv $distrobase sundials-$SUN_VER
+distrobase="sundials-"$SUN_VER
+filename="sundials-"$SUN_VER
+
+tarfile=$filename".tar"
+$scriptdir/shared $tarfile $distrobase
+$scriptdir/cvode $tarfile $distrobase
+$scriptdir/cvodes $tarfile $distrobase
+$scriptdir/ida $tarfile $distrobase
+$scriptdir/kinsol $tarfile $distrobase
+$scriptdir/stb $tarfile $distrobase
+gzip $tarfile
+mv $filename".tar.gz" $filename".tgz"
+
+
+#---------------------------
+# Remove temporary directory
+#---------------------------
+
+rm -rf $distrobase
+
+du -h *.tgz
+
+exit 1
 
 # That's all folks...

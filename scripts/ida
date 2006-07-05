@@ -3,95 +3,87 @@
 tarfile=$1
 distrobase=$2
 
-echo "  >>> Generate ida documentation"
-cd $distrobase/ida/doc
-make QUIET=-q ug_pdf
-make QUIET=-q ex_pdf
-cd -
+echo -n "   --- Add ida module ... "
 
-echo "  >>> Add ida module"
+tar uf $tarfile $distrobase/src/ida/LICENSE
+tar uf $tarfile $distrobase/src/ida/README
 
-tar uf $tarfile $distrobase/ida/LICENSE
-tar uf $tarfile $distrobase/ida/README
+#tar uf $tarfile $distrobase/doc/ida/ida_guide.ps
+#tar uf $tarfile $distrobase/doc/ida/ida_guide.pdf
+#tar uf $tarfile $distrobase/doc/ida/ida_examples.ps
+#tar uf $tarfile $distrobase/doc/ida/ida_examples.pdf
 
-tar uf $tarfile $distrobase/ida/doc/ida_guide.ps
-tar uf $tarfile $distrobase/ida/doc/ida_guide.pdf
-tar uf $tarfile $distrobase/ida/doc/ida_examples.ps
-tar uf $tarfile $distrobase/ida/doc/ida_examples.pdf
+tar uf $tarfile $distrobase/include/ida/ida.h
+tar uf $tarfile $distrobase/include/ida/ida_dense.h
+tar uf $tarfile $distrobase/include/ida/ida_band.h
+tar uf $tarfile $distrobase/include/ida/ida_spgmr.h
+tar uf $tarfile $distrobase/include/ida/ida_spbcgs.h
+tar uf $tarfile $distrobase/include/ida/ida_sptfqmr.h
+tar uf $tarfile $distrobase/include/ida/ida_spils.h
+tar uf $tarfile $distrobase/include/ida/ida_bbdpre.h
 
-tar uf $tarfile $distrobase/ida/include/ida.h
-tar uf $tarfile $distrobase/ida/include/ida_dense.h
-tar uf $tarfile $distrobase/ida/include/ida_band.h
-tar uf $tarfile $distrobase/ida/include/ida_spgmr.h
-tar uf $tarfile $distrobase/ida/include/ida_spbcgs.h
-tar uf $tarfile $distrobase/ida/include/ida_sptfqmr.h
-tar uf $tarfile $distrobase/ida/include/ida_spils.h
-tar uf $tarfile $distrobase/ida/include/ida_bbdpre.h
+tar uf $tarfile $distrobase/src/ida/Makefile.in
+tar uf $tarfile $distrobase/src/ida/ida.c
+tar uf $tarfile $distrobase/src/ida/ida_io.c
+tar uf $tarfile $distrobase/src/ida/ida_ic.c
+tar uf $tarfile $distrobase/src/ida/ida_dense.c
+tar uf $tarfile $distrobase/src/ida/ida_band.c
+tar uf $tarfile $distrobase/src/ida/ida_spils.c
+tar uf $tarfile $distrobase/src/ida/ida_spgmr.c
+tar uf $tarfile $distrobase/src/ida/ida_spbcgs.c
+tar uf $tarfile $distrobase/src/ida/ida_sptfqmr.c
+tar uf $tarfile $distrobase/src/ida/ida_bbdpre.c
+tar uf $tarfile $distrobase/src/ida/ida_impl.h
+tar uf $tarfile $distrobase/src/ida/ida_dense_impl.h
+tar uf $tarfile $distrobase/src/ida/ida_band_impl.h
+tar uf $tarfile $distrobase/src/ida/ida_spils_impl.h
+tar uf $tarfile $distrobase/src/ida/ida_bbdpre_impl.h
 
-tar uf $tarfile $distrobase/ida/source/Makefile.in
-tar uf $tarfile $distrobase/ida/source/ida.c
-tar uf $tarfile $distrobase/ida/source/ida_io.c
-tar uf $tarfile $distrobase/ida/source/ida_ic.c
-tar uf $tarfile $distrobase/ida/source/ida_dense.c
-tar uf $tarfile $distrobase/ida/source/ida_band.c
-tar uf $tarfile $distrobase/ida/source/ida_spils.c
-tar uf $tarfile $distrobase/ida/source/ida_spgmr.c
-tar uf $tarfile $distrobase/ida/source/ida_spbcgs.c
-tar uf $tarfile $distrobase/ida/source/ida_sptfqmr.c
-tar uf $tarfile $distrobase/ida/source/ida_bbdpre.c
-tar uf $tarfile $distrobase/ida/source/ida_impl.h
-tar uf $tarfile $distrobase/ida/source/ida_dense_impl.h
-tar uf $tarfile $distrobase/ida/source/ida_band_impl.h
-tar uf $tarfile $distrobase/ida/source/ida_spils_impl.h
-tar uf $tarfile $distrobase/ida/source/ida_bbdpre_impl.h
+tar uf $tarfile $distrobase/src/ida/fcmix/Makefile.in
+tar uf $tarfile $distrobase/src/ida/fcmix/fidaband.c
+tar uf $tarfile $distrobase/src/ida/fcmix/fidabbd.c
+tar uf $tarfile $distrobase/src/ida/fcmix/fidabbd.h
+tar uf $tarfile $distrobase/src/ida/fcmix/fida.c
+tar uf $tarfile $distrobase/src/ida/fcmix/fidadense.c
+tar uf $tarfile $distrobase/src/ida/fcmix/fidaewt.c
+tar uf $tarfile $distrobase/src/ida/fcmix/fida.h
+tar uf $tarfile $distrobase/src/ida/fcmix/fidajtimes.c
+tar uf $tarfile $distrobase/src/ida/fcmix/fidapreco.c
+tar uf $tarfile $distrobase/src/ida/fcmix/fidaroot.c
+tar uf $tarfile $distrobase/src/ida/fcmix/fidaroot.h
 
-tar uf $tarfile $distrobase/ida/fcmix/Makefile.in
-tar uf $tarfile $distrobase/ida/fcmix/fidaband.c
-tar uf $tarfile $distrobase/ida/fcmix/fidabbd.c
-tar uf $tarfile $distrobase/ida/fcmix/fidabbd.h
-tar uf $tarfile $distrobase/ida/fcmix/fida.c
-tar uf $tarfile $distrobase/ida/fcmix/fidadense.c
-tar uf $tarfile $distrobase/ida/fcmix/fidaewt.c
-tar uf $tarfile $distrobase/ida/fcmix/fida.h
-tar uf $tarfile $distrobase/ida/fcmix/fidajtimes.c
-tar uf $tarfile $distrobase/ida/fcmix/fidapreco.c
-tar uf $tarfile $distrobase/ida/fcmix/fidaroot.c
-tar uf $tarfile $distrobase/ida/fcmix/fidaroot.h
+tar uf $tarfile $distrobase/examples/ida/serial/README
+tar uf $tarfile $distrobase/examples/ida/serial/Makefile.in
+tar uf $tarfile $distrobase/examples/ida/serial/idabanx1.c
+tar uf $tarfile $distrobase/examples/ida/serial/idabanx1.out
+tar uf $tarfile $distrobase/examples/ida/serial/idabanx2.c
+tar uf $tarfile $distrobase/examples/ida/serial/idabanx2.out
+tar uf $tarfile $distrobase/examples/ida/serial/idadenx.c
+tar uf $tarfile $distrobase/examples/ida/serial/idadenx.out
+tar uf $tarfile $distrobase/examples/ida/serial/idakrydem_lin.c
+tar uf $tarfile $distrobase/examples/ida/serial/idakrydem_lin.out
+tar uf $tarfile $distrobase/examples/ida/serial/idakryx.c
+tar uf $tarfile $distrobase/examples/ida/serial/idakryx.out
 
-tar uf $tarfile $distrobase/ida/examples_ser/README
-tar uf $tarfile $distrobase/ida/examples_ser/Makefile.in
-tar uf $tarfile $distrobase/ida/examples_ser/idabanx1.c
-tar uf $tarfile $distrobase/ida/examples_ser/idabanx1.out
-tar uf $tarfile $distrobase/ida/examples_ser/idabanx2.c
-tar uf $tarfile $distrobase/ida/examples_ser/idabanx2.out
-tar uf $tarfile $distrobase/ida/examples_ser/idadenx.c
-tar uf $tarfile $distrobase/ida/examples_ser/idadenx.out
-tar uf $tarfile $distrobase/ida/examples_ser/idakrydem_lin.c
-tar uf $tarfile $distrobase/ida/examples_ser/idakrydem_lin.out
-tar uf $tarfile $distrobase/ida/examples_ser/idakryx.c
-tar uf $tarfile $distrobase/ida/examples_ser/idakryx.out
+tar uf $tarfile $distrobase/examples/ida/fcmix_serial/README
+tar uf $tarfile $distrobase/examples/ida/fcmix_serial/Makefile.in
+tar uf $tarfile $distrobase/examples/ida/fcmix_serial/fidadenx.f
+tar uf $tarfile $distrobase/examples/ida/fcmix_serial/fidadenx.out
 
-tar uf $tarfile $distrobase/ida/fcmix/examples_ser/README
-tar uf $tarfile $distrobase/ida/fcmix/examples_ser/Makefile.in
-tar uf $tarfile $distrobase/ida/fcmix/examples_ser/fidadenx.f
-tar uf $tarfile $distrobase/ida/fcmix/examples_ser/fidadenx.out
+tar uf $tarfile $distrobase/examples/ida/parallel/README
+tar uf $tarfile $distrobase/examples/ida/parallel/Makefile.in
+tar uf $tarfile $distrobase/examples/ida/parallel/idakryx1_bbd_p.c
+tar uf $tarfile $distrobase/examples/ida/parallel/idakryx1_bbd_p.out
+tar uf $tarfile $distrobase/examples/ida/parallel/idakryx1_p.c
+tar uf $tarfile $distrobase/examples/ida/parallel/idakryx1_p.out
+tar uf $tarfile $distrobase/examples/ida/parallel/idakryx2_bbd_p.c
+tar uf $tarfile $distrobase/examples/ida/parallel/idakryx2_bbd_p.out
+tar uf $tarfile $distrobase/examples/ida/parallel/idakryx2_p.c
+tar uf $tarfile $distrobase/examples/ida/parallel/idakryx2_p.out
 
-tar uf $tarfile $distrobase/ida/examples_par/README
-tar uf $tarfile $distrobase/ida/examples_par/Makefile.in
-tar uf $tarfile $distrobase/ida/examples_par/idakryx1_bbd_p.c
-tar uf $tarfile $distrobase/ida/examples_par/idakryx1_bbd_p.out
-tar uf $tarfile $distrobase/ida/examples_par/idakryx1_p.c
-tar uf $tarfile $distrobase/ida/examples_par/idakryx1_p.out
-tar uf $tarfile $distrobase/ida/examples_par/idakryx2_bbd_p.c
-tar uf $tarfile $distrobase/ida/examples_par/idakryx2_bbd_p.out
-tar uf $tarfile $distrobase/ida/examples_par/idakryx2_p.c
-tar uf $tarfile $distrobase/ida/examples_par/idakryx2_p.out
+tar uf $tarfile $distrobase/examples/ida/fcmix_parallel/README
+tar uf $tarfile $distrobase/examples/ida/fcmix_parallel/Makefile.in
+tar uf $tarfile $distrobase/examples/ida/fcmix_parallel/fidakryx_bbd_p.f
+tar uf $tarfile $distrobase/examples/ida/fcmix_parallel/fidakryx_bbd_p.out
 
-tar uf $tarfile $distrobase/ida/fcmix/examples_par/README
-tar uf $tarfile $distrobase/ida/fcmix/examples_par/Makefile.in
-tar uf $tarfile $distrobase/ida/fcmix/examples_par/fidakryx_bbd_p.f
-tar uf $tarfile $distrobase/ida/fcmix/examples_par/fidakryx_bbd_p.out
-
-cd $distrobase/ida/doc
-make QUIET=-q clean
-cd -
+echo "done"

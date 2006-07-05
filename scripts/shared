@@ -3,73 +3,71 @@
 tarfile=$1
 distrobase=$2
 
-echo "  >>> Add top-level files"
+echo -n "   --- Add top-level files ... "
     
-tar cf $tarfile $distrobase/configure
+tar cf $tarfile $distrobase/README
+tar uf $tarfile $distrobase/INSTALL_NOTES
+tar uf $tarfile $distrobase/LICENSE
+
+tar uf $tarfile $distrobase/Makefile.in
+
+tar uf $tarfile $distrobase/configure.ac
+tar uf $tarfile $distrobase/acinclude.m4
+tar uf $tarfile $distrobase/config.hin
+tar uf $tarfile $distrobase/configure
+
 tar uf $tarfile $distrobase/config/config.guess
 tar uf $tarfile $distrobase/config/config.sub
 tar uf $tarfile $distrobase/config/install-sh
+tar uf $tarfile $distrobase/config/mkinstalldirs
 tar uf $tarfile $distrobase/config/ltmain.sh
-tar uf $tarfile $distrobase/config/sundials_config.in
 tar uf $tarfile $distrobase/config/fortran_update.in
 tar uf $tarfile $distrobase/config/mod_c.m4
 tar uf $tarfile $distrobase/config/mod_fortran.m4
 tar uf $tarfile $distrobase/config/cust_general.m4
 
-tar uf $tarfile $distrobase/configure.ac
-tar uf $tarfile $distrobase/acinclude.m4
+echo "done"
 
-tar uf $tarfile $distrobase/Makefile.in
-tar uf $tarfile $distrobase/config.hin
+echo -n "   --- Add shared module ... "
 
-tar uf $tarfile $distrobase/INSTALL_NOTES
-tar uf $tarfile $distrobase/README
+tar uf $tarfile $distrobase/include/sundials/sundials_types.h
+tar uf $tarfile $distrobase/include/sundials/sundials_math.h
+tar uf $tarfile $distrobase/include/sundials/sundials_nvector.h
+tar uf $tarfile $distrobase/include/sundials/sundials_fnvector.h
+tar uf $tarfile $distrobase/include/sundials/sundials_dense.h
+tar uf $tarfile $distrobase/include/sundials/sundials_smalldense.h
+tar uf $tarfile $distrobase/include/sundials/sundials_band.h
+tar uf $tarfile $distrobase/include/sundials/sundials_spgmr.h
+tar uf $tarfile $distrobase/include/sundials/sundials_spbcgs.h
+tar uf $tarfile $distrobase/include/sundials/sundials_sptfqmr.h
+tar uf $tarfile $distrobase/include/sundials/sundials_iterative.h
 
-echo "  >>> Add shared module"
+tar uf $tarfile $distrobase/include/nvector/nvector_serial.h
+tar uf $tarfile $distrobase/include/nvector/nvector_parallel.h
 
-tar uf $tarfile $distrobase/shared/LICENSE
-tar uf $tarfile $distrobase/shared/README
+tar uf $tarfile $distrobase/src/sundials/README
+tar uf $tarfile $distrobase/src/sundials/Makefile.in
+tar uf $tarfile $distrobase/src/sundials/sundials_config.in
+tar uf $tarfile $distrobase/src/sundials/sundials_math.c
+tar uf $tarfile $distrobase/src/sundials/sundials_nvector.c
+tar uf $tarfile $distrobase/src/sundials/sundials_dense.c
+tar uf $tarfile $distrobase/src/sundials/sundials_smalldense.c
+tar uf $tarfile $distrobase/src/sundials/sundials_band.c
+tar uf $tarfile $distrobase/src/sundials/sundials_spgmr.c
+tar uf $tarfile $distrobase/src/sundials/sundials_spbcgs.c
+tar uf $tarfile $distrobase/src/sundials/sundials_sptfqmr.c
+tar uf $tarfile $distrobase/src/sundials/sundials_iterative.c
 
-tar uf $tarfile $distrobase/shared/include/sundials_types.h
-tar uf $tarfile $distrobase/shared/include/sundials_math.h
-tar uf $tarfile $distrobase/shared/include/sundials_nvector.h
-tar uf $tarfile $distrobase/shared/include/sundials_fnvector.h
-tar uf $tarfile $distrobase/shared/include/sundials_dense.h
-tar uf $tarfile $distrobase/shared/include/sundials_smalldense.h
-tar uf $tarfile $distrobase/shared/include/sundials_band.h
-tar uf $tarfile $distrobase/shared/include/sundials_spgmr.h
-tar uf $tarfile $distrobase/shared/include/sundials_spbcgs.h
-tar uf $tarfile $distrobase/shared/include/sundials_sptfqmr.h
-tar uf $tarfile $distrobase/shared/include/sundials_iterative.h
+tar uf $tarfile $distrobase/src/nvec_ser/README
+tar uf $tarfile $distrobase/src/nvec_ser/fnvector_serial.h
+tar uf $tarfile $distrobase/src/nvec_ser/Makefile.in
+tar uf $tarfile $distrobase/src/nvec_ser/nvector_serial.c
+tar uf $tarfile $distrobase/src/nvec_ser/fnvector_serial.c
 
-tar uf $tarfile $distrobase/shared/source/Makefile.in
-tar uf $tarfile $distrobase/shared/source/sundials_math.c
-tar uf $tarfile $distrobase/shared/source/sundials_nvector.c
-tar uf $tarfile $distrobase/shared/source/sundials_dense.c
-tar uf $tarfile $distrobase/shared/source/sundials_smalldense.c
-tar uf $tarfile $distrobase/shared/source/sundials_band.c
-tar uf $tarfile $distrobase/shared/source/sundials_spgmr.c
-tar uf $tarfile $distrobase/shared/source/sundials_spbcgs.c
-tar uf $tarfile $distrobase/shared/source/sundials_sptfqmr.c
-tar uf $tarfile $distrobase/shared/source/sundials_iterative.c
+tar uf $tarfile $distrobase/src/nvec_par/README
+tar uf $tarfile $distrobase/src/nvec_par/fnvector_parallel.h
+tar uf $tarfile $distrobase/src/nvec_par/Makefile.in
+tar uf $tarfile $distrobase/src/nvec_par/nvector_parallel.c
+tar uf $tarfile $distrobase/src/nvec_par/fnvector_parallel.c
 
-tar uf $tarfile $distrobase/nvec_ser/README
-tar uf $tarfile $distrobase/nvec_ser/nvector_serial.h
-tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.h
-tar uf $tarfile $distrobase/nvec_ser/Makefile.in
-tar uf $tarfile $distrobase/nvec_ser/nvector_serial.c
-tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.c
-
-tar uf $tarfile $distrobase/nvec_par/README
-tar uf $tarfile $distrobase/nvec_par/nvector_parallel.h
-tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.h
-tar uf $tarfile $distrobase/nvec_par/Makefile.in
-tar uf $tarfile $distrobase/nvec_par/nvector_parallel.c
-tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.c
-
-#tar uf $tarfile $distrobase/nvec_spcpar/README
-#tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.h
-#tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.h
-#tar uf $tarfile $distrobase/nvec_spcpar/Makefile.in
-#tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.c
-#tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.c
+echo "done"

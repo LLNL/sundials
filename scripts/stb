@@ -1,0 +1,162 @@
+#!/bin/sh
+
+tarfile=$1
+distrobase=$2
+
+echo -n "   --- Add sundialsTB files ... "
+
+tar uf $tarfile $distrobase/sundialsTB/README
+tar uf $tarfile $distrobase/sundialsTB/LICENSE
+tar uf $tarfile $distrobase/sundialsTB/install_STB.m
+tar uf $tarfile $distrobase/sundialsTB/startup_STB.in
+
+#tar uf $tarfile $distrobase/sundialsTB/doc/sundialsTB.pdf
+#tar uf $tarfile $distrobase/sundialsTB/doc/sundialsTB.ps
+
+tar uf $tarfile $distrobase/sundialsTB/nvector/Contents.m
+tar uf $tarfile $distrobase/sundialsTB/nvector/N_VDotProd.m
+tar uf $tarfile $distrobase/sundialsTB/nvector/N_VL1Norm.m
+tar uf $tarfile $distrobase/sundialsTB/nvector/N_VMax.m
+tar uf $tarfile $distrobase/sundialsTB/nvector/N_VMaxNorm.m
+tar uf $tarfile $distrobase/sundialsTB/nvector/N_VMin.m
+tar uf $tarfile $distrobase/sundialsTB/nvector/N_VWL2Norm.m
+tar uf $tarfile $distrobase/sundialsTB/nvector/N_VWrmsNorm.m
+
+tar uf $tarfile $distrobase/sundialsTB/nvector/src/nvm.h
+tar uf $tarfile $distrobase/sundialsTB/nvector/src/nvm_ops.c
+tar uf $tarfile $distrobase/sundialsTB/nvector/src/nvm_parallel.c
+tar uf $tarfile $distrobase/sundialsTB/nvector/src/nvm_serial.c
+
+tar uf $tarfile $distrobase/sundialsTB/putils/Contents.m
+tar uf $tarfile $distrobase/sundialsTB/putils/mpirun.m
+tar uf $tarfile $distrobase/sundialsTB/putils/mpiruns.m
+tar uf $tarfile $distrobase/sundialsTB/putils/mpistart.m
+
+tar uf $tarfile $distrobase/sundialsTB/cvodes/Contents.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVadjMalloc.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVBandJacFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVDenseJacFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVGcommFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVGlocalFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVJacTimesVecFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVMonitorFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeB.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeFree.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeGet.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeGetStatsB.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeGetStats.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVode.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeMallocB.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeMalloc.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeMonitor.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeSensMalloc.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeSetFSAOptions.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVodeSetOptions.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVPrecSetupFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVPrecSolveFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVQuadRhsFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVRhsFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVRootFn.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/CVSensRhsFn.m
+
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/Contents.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_bjac.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_djac.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_gcom.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_gloc.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_jtv.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_monitor.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_pset.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_psol.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_rhs.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_rhsQ.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_rhsS.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/cvm_root.m
+
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/src/cvm.c
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/src/cvm.h
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/src/cvmOpts.c
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/src/cvmWrap.c
+tar uf $tarfile $distrobase/sundialsTB/cvodes/cvm/src/Makefile_ser.in
+
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvadx.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvbx_f.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvbx_J.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvbx.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvbx_q.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvdx_fB.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvdx_f.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvdx_fS.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvdx_g.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvdx_JB.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvdx_J.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvdx.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvdx_qB.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvdx_q.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvfdx.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvkxb.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvkx_f.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvkx.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvkx_pset.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvkx_psol.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/pleiades_f.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/pleiades_J.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/pleiades.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/vdp_f.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/vdp_J.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_ser/vdp.m
+
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_par/pvfnx_f.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_par/pvfnx.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_par/pvkx_fl.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_par/pvkx_f.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_par/pvkx.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_par/pvnx_f.m
+tar uf $tarfile $distrobase/sundialsTB/cvodes/examples_par/pvnx.m
+
+tar uf $tarfile $distrobase/sundialsTB/kinsol/Contents.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINBandJacFn.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINDenseJacFn.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINFree.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINGcommFn.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINGetStats.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINGlocalFn.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINJacTimesVecFn.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINMalloc.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINPrecSetupFn.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINPrecSolveFn.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINSetOptions.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINSol.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/KINSysFn.m
+
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/Contents.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/kim_bjac.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/kim_djac.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/kim_gcom.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/kim_gloc.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/kim_info.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/kim_jtv.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/kim_pset.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/kim_psol.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/kim_sys.m
+
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/src/kim.c
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/src/kim.h
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/src/kimOpts.c
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/src/kimWrap.c
+tar uf $tarfile $distrobase/sundialsTB/kinsol/kim/src/Makefile_ser.in
+
+tar uf $tarfile $distrobase/sundialsTB/kinsol/examples_ser/kindiag.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/examples_ser/kindiag_pset.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/examples_ser/kindiag_psol.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/examples_ser/kindiag_sys.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/examples_ser/kindx.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/examples_ser/kindx_sys.m
+
+tar uf $tarfile $distrobase/sundialsTB/kinsol/examples_par/kindiagp.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/examples_par/kindiagp_pset.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/examples_par/kindiagp_psol.m
+tar uf $tarfile $distrobase/sundialsTB/kinsol/examples_par/kindiagp_sys.m
+
+echo "done"
+

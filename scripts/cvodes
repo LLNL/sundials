@@ -3,112 +3,102 @@
 tarfile=$1
 distrobase=$2
 
-echo "  >>> Generate cvodes documentation"
-cd $distrobase/cvodes/doc
-make QUIET=-q ug_pdf
-make QUIET=-q ex_pdf
-cd -
+echo -n "   --- Add cvodes module ... "
 
-echo "  >>> Add cvodes module"
+tar uf $tarfile $distrobase/src/cvodes/LICENSE
+tar uf $tarfile $distrobase/src/cvodes/README
 
-tar uf $tarfile $distrobase/cvodes/LICENSE
-tar uf $tarfile $distrobase/cvodes/README
+#tar uf $tarfile $distrobase/doc/cvodes/cvs_guide.ps
+#tar uf $tarfile $distrobase/doc/cvodes/cvs_guide.pdf
+#tar uf $tarfile $distrobase/doc/cvodes/cvs_examples.ps
+#tar uf $tarfile $distrobase/doc/cvodes/cvs_examples.pdf
 
-tar uf $tarfile $distrobase/cvodes/doc/cvs_guide.ps
-tar uf $tarfile $distrobase/cvodes/doc/cvs_guide.pdf
-tar uf $tarfile $distrobase/cvodes/doc/cvs_examples.ps
-tar uf $tarfile $distrobase/cvodes/doc/cvs_examples.pdf
+tar uf $tarfile $distrobase/include/cvodes/cvodes.h
+tar uf $tarfile $distrobase/include/cvodes/cvodes_dense.h
+tar uf $tarfile $distrobase/include/cvodes/cvodes_band.h
+tar uf $tarfile $distrobase/include/cvodes/cvodes_diag.h
+tar uf $tarfile $distrobase/include/cvodes/cvodes_spgmr.h
+tar uf $tarfile $distrobase/include/cvodes/cvodes_spbcgs.h
+tar uf $tarfile $distrobase/include/cvodes/cvodes_sptfqmr.h
+tar uf $tarfile $distrobase/include/cvodes/cvodes_spils.h
+tar uf $tarfile $distrobase/include/cvodes/cvodes_bandpre.h
+tar uf $tarfile $distrobase/include/cvodes/cvodes_bbdpre.h
 
-tar uf $tarfile $distrobase/cvodes/include/cvodes.h
-tar uf $tarfile $distrobase/cvodes/include/cvodea.h
-tar uf $tarfile $distrobase/cvodes/include/cvodes_dense.h
-tar uf $tarfile $distrobase/cvodes/include/cvodes_band.h
-tar uf $tarfile $distrobase/cvodes/include/cvodes_diag.h
-tar uf $tarfile $distrobase/cvodes/include/cvodes_spgmr.h
-tar uf $tarfile $distrobase/cvodes/include/cvodes_spbcgs.h
-tar uf $tarfile $distrobase/cvodes/include/cvodes_sptfqmr.h
-tar uf $tarfile $distrobase/cvodes/include/cvodes_spils.h
-tar uf $tarfile $distrobase/cvodes/include/cvodes_bandpre.h
-tar uf $tarfile $distrobase/cvodes/include/cvodes_bbdpre.h
+tar uf $tarfile $distrobase/src/cvodes/Makefile.in
+tar uf $tarfile $distrobase/src/cvodes/cvodes.c
+tar uf $tarfile $distrobase/src/cvodes/cvodea.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_io.c
+tar uf $tarfile $distrobase/src/cvodes/cvodea_io.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_dense.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_band.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_diag.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_spils.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_spgmr.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_spbcgs.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_sptfqmr.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_bandpre.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_bbdpre.c
+tar uf $tarfile $distrobase/src/cvodes/cvodes_impl.h
+tar uf $tarfile $distrobase/src/cvodes/cvodes_dense_impl.h
+tar uf $tarfile $distrobase/src/cvodes/cvodes_band_impl.h
+tar uf $tarfile $distrobase/src/cvodes/cvodes_diag_impl.h
+tar uf $tarfile $distrobase/src/cvodes/cvodes_spils_impl.h
+tar uf $tarfile $distrobase/src/cvodes/cvodes_bandpre_impl.h
+tar uf $tarfile $distrobase/src/cvodes/cvodes_bbdpre_impl.h
 
-tar uf $tarfile $distrobase/cvodes/source/Makefile.in
-tar uf $tarfile $distrobase/cvodes/source/cvodes.c
-tar uf $tarfile $distrobase/cvodes/source/cvodea.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_io.c
-tar uf $tarfile $distrobase/cvodes/source/cvodea_io.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_dense.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_band.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_diag.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_spils.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_spgmr.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_spbcgs.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_sptfqmr.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_bandpre.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_bbdpre.c
-tar uf $tarfile $distrobase/cvodes/source/cvodes_impl.h
-tar uf $tarfile $distrobase/cvodes/source/cvodea_impl.h
-tar uf $tarfile $distrobase/cvodes/source/cvodes_dense_impl.h
-tar uf $tarfile $distrobase/cvodes/source/cvodes_band_impl.h
-tar uf $tarfile $distrobase/cvodes/source/cvodes_diag_impl.h
-tar uf $tarfile $distrobase/cvodes/source/cvodes_spils_impl.h
-tar uf $tarfile $distrobase/cvodes/source/cvodes_bandpre_impl.h
-tar uf $tarfile $distrobase/cvodes/source/cvodes_bbdpre_impl.h
+tar uf $tarfile $distrobase/examples/cvodes/serial/README
+tar uf $tarfile $distrobase/examples/cvodes/serial/Makefile.in
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsadjbanx.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsadjbanx.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsadjdenx.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsadjdenx.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsadjkryx_int.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsadjkryx_int.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsadjkryx_pnt.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsadjkryx_pnt.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsbanx.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsbanx.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsdenx.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsdenx.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsdenx_uw.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsdenx_uw.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsdirectdem.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsdirectdem.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsfwddenx.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsfwddenx.out1
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsfwddenx.out2
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsfwdkryx.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsfwdkryx.out1
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsfwdkryx.out2
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsfwdnonx.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsfwdnonx.out1
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvsfwdnonx.out2
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvskrydem_lin.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvskrydem_lin.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvskrydem_pre.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvskrydem_pre.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvskryx_bp.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvskryx_bp.out
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvskryx.c
+tar uf $tarfile $distrobase/examples/cvodes/serial/cvskryx.out
 
-tar uf $tarfile $distrobase/cvodes/examples_ser/README
-tar uf $tarfile $distrobase/cvodes/examples_ser/Makefile.in
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsadjbanx.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsadjbanx.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsadjdenx.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsadjdenx.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsadjkryx_int.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsadjkryx_int.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsadjkryx_pnt.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsadjkryx_pnt.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsbanx.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsbanx.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsdenx.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsdenx.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsdenx_uw.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsdenx_uw.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsdirectdem.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsdirectdem.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsfwddenx.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsfwddenx.out1
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsfwddenx.out2
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsfwdkryx.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsfwdkryx.out1
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsfwdkryx.out2
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsfwdnonx.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsfwdnonx.out1
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvsfwdnonx.out2
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvskrydem_lin.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvskrydem_lin.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvskrydem_pre.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvskrydem_pre.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvskryx_bp.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvskryx_bp.out
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvskryx.c
-tar uf $tarfile $distrobase/cvodes/examples_ser/cvskryx.out
+tar uf $tarfile $distrobase/examples/cvodes/parallel/README
+tar uf $tarfile $distrobase/examples/cvodes/parallel/Makefile.in
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsadjkryx_p.c
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsadjkryx_p.out
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsadjnonx_p.c
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsadjnonx_p.out
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsfwdkryx_p.c
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsfwdkryx_p.out1
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsfwdkryx_p.out2
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsfwdnonx_p.c
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsfwdnonx_p.out1
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsfwdnonx_p.out2
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvskryx_bbd_p.c
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvskryx_bbd_p.out
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvskryx_p.c
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvskryx_p.out
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsnonx_p.c
+tar uf $tarfile $distrobase/examples/cvodes/parallel/cvsnonx_p.out
 
-tar uf $tarfile $distrobase/cvodes/examples_par/README
-tar uf $tarfile $distrobase/cvodes/examples_par/Makefile.in
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsadjkryx_p.c
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsadjkryx_p.out
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsadjnonx_p.c
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsadjnonx_p.out
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsfwdkryx_p.c
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsfwdkryx_p.out1
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsfwdkryx_p.out2
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsfwdnonx_p.c
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsfwdnonx_p.out1
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsfwdnonx_p.out2
-tar uf $tarfile $distrobase/cvodes/examples_par/cvskryx_bbd_p.c
-tar uf $tarfile $distrobase/cvodes/examples_par/cvskryx_bbd_p.out
-tar uf $tarfile $distrobase/cvodes/examples_par/cvskryx_p.c
-tar uf $tarfile $distrobase/cvodes/examples_par/cvskryx_p.out
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsnonx_p.c
-tar uf $tarfile $distrobase/cvodes/examples_par/cvsnonx_p.out
-
-cd $distrobase/cvodes/doc
-make QUIET=-q clean
-cd -
+echo "done"
