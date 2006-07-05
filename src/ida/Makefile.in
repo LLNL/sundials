@@ -1,0 +1,137 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-07-05 15:32:34 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for IDA module
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+@SET_MAKE@
+
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+LIB_REVISION = @LIB_REVISION@
+
+top_srcdir = $(srcdir)/../..
+
+INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+
+IDA_LIB       = libsundials_ida.la
+IDA_LIB_FILES = ida.lo ida_ic.lo ida_io.lo ida_dense.lo ida_band.lo ida_spils.lo ida_spbcgs.lo ida_spgmr.lo ida_sptfqmr.lo ida_bbdpre.lo
+IDA_OBJ_FILES = ida.o ida_ic.o ida_io.o ida_dense.o ida_band.o ida_spils.o ida_spbcgs.o ida_spgmr.o ida_sptfqmr.o ida_bbdpre.o
+
+SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
+                   $(top_builddir)/src/sundials/sundials_dense.lo \
+                   $(top_builddir)/src/sundials/sundials_iterative.lo \
+                   $(top_builddir)/src/sundials/sundials_math.lo \
+                   $(top_builddir)/src/sundials/sundials_nvector.lo \
+                   $(top_builddir)/src/sundials/sundials_smalldense.lo \
+                   $(top_builddir)/src/sundials/sundials_spgmr.lo \
+                   $(top_builddir)/src/sundials/sundials_spbcgs.lo \
+                   $(top_builddir)/src/sundials/sundials_sptfqmr.lo
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+
+all: $(IDA_LIB)
+
+$(IDA_LIB): shared $(IDA_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDA_LIB) $(IDA_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+
+install: $(IDA_LIB)
+	$(mkinstalldirs)  $(includedir)/ida
+	$(mkinstalldirs)  $(libdir)
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(IDA_LIB) $(libdir)
+	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida.h         $(includedir)/ida/
+	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_dense.h   $(includedir)/ida/
+	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_band.h    $(includedir)/ida/
+	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_spbcgs.h  $(includedir)/ida/
+	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_spgmr.h   $(includedir)/ida/
+	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_sptfqmr.h $(includedir)/ida/
+	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_bbdpre.h  $(includedir)/ida/
+	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_spils.h   $(includedir)/ida/
+	$(INSTALL_HEADER) $(top_srcdir)/src/ida/ida_impl.h        $(includedir)/ida/
+
+uninstall:
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDA_LIB)
+	rm -f $(includedir)/ida/ida.h
+	rm -f $(includedir)/ida/ida_dense.h
+	rm -f $(includedir)/ida/ida_band.h
+	rm -f $(includedir)/ida/ida_spbcgs.h
+	rm -f $(includedir)/ida/ida_spgmr.h
+	rm -f $(includedir)/ida/ida_sptfqmr.h
+	rm -f $(includedir)/ida/ida_bbdpre.h
+	rm -f $(includedir)/ida/ida_spils.h
+	rm -f $(includedir)/ida/ida_impl.h
+	@if test -d ${includedir}/ida ; then \
+	   rmdir ${includedir}/ida ;         \
+	fi
+
+shared:
+	@cd $(top_builddir)/src/sundials ; \
+	 ${MAKE} ;                \
+	 cd ${abs_builddir}
+
+clean:
+	$(LIBTOOL) --mode=clean rm -f $(IDA_LIB)
+	rm -f $(IDA_LIB_FILES)
+	rm -f $(IDA_OBJ_FILES)
+
+distclean: clean
+	rm -f Makefile
+
+ida.lo: $(srcdir)/ida.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/ida.c
+ida_ic.lo: $(srcdir)/ida_ic.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/ida_ic.c
+ida_io.lo: $(srcdir)/ida_io.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/ida_io.c
+ida_dense.lo: $(srcdir)/ida_dense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/ida_dense.c
+ida_band.lo: $(srcdir)/ida_band.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/ida_band.c
+ida_spils.lo: $(srcdir)/ida_spils.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/ida_spils.c
+ida_spbcgs.lo: $(srcdir)/ida_spbcgs.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/ida_spbcgs.c
+ida_spgmr.lo: $(srcdir)/ida_spgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/ida_spgmr.c
+ida_sptfqmr.lo: $(srcdir)/ida_sptfqmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/ida_sptfqmr.c
+ida_bbdpre.lo: $(srcdir)/ida_bbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/ida_bbdpre.c
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

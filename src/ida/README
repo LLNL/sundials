@@ -1,0 +1,296 @@
+                               IDA
+                    Release 2.4.1, June 2006
+             Alan C. Hindmarsh, Allan G. Taylor, Radu Serban 
+              Center for Applied Scientific Computing, LLNL
+
+
+IDA is a package for the solution of differential-algebraic equation
+(DAE) systems.  It is written in C, but derived from the package DASPK
+[4,5], which is written in FORTRAN. 
+
+IDA can be used both on serial and parallel (MPI) computers.  The main
+difference is in the NVECTOR module of vector kernels.  The desired
+version is obtained when compiling the example files by linking the
+appropriate library of NVECTOR kernels.  In the parallel version,
+communication between processors is done with the MPI (Message Passage
+Interface) system.
+
+When used with the serial NVECTOR module, IDA provides both direct 
+(dense and band) linear solvers and preconditioned Krylov (iterative) 
+linear solvers. Three different iterative solvers are available: scaled 
+preconditioned GMRES (SPGMR), scaled preconditioned BiCGStab (SPBCG), and 
+scaled preconditioned TFQMR (SPTFQMR). When IDA is used with the parallel 
+NVECTOR module, only the Krylov linear solvers are available.  For the 
+latter case, in addition to the basic solver, the IDA package also contains 
+a preconditioner module called IDABBDPRE, which provides a band-block-diagonal 
+preconditioner.
+
+IDA is part of a software family called SUNDIALS: SUite of Nonlinear and 
+DIfferential/ALgebraic equation Solvers [3].  This suite consists of CVODE, 
+CVODES, IDA, and KINSOL.  The directory structure of the package supplied 
+reflects this family relationship.
+
+For use with Fortran applications, a set of Fortran/C interface routines,
+called FIDA, is also supplied.  These are written in C, but assume that
+the user calling program and all user-supplied routines are in Fortran.
+
+Several examples problem programs are included, covering both serial
+and parallel cases, both small and large problem sizes, and both
+linear and nonlinear problems.
+
+The notes below provide the location of documentation, directions for the 
+installation of the IDA package, and relevant references. Following that 
+is a brief history of revisions to the package.
+
+
+A. Documentation
+----------------
+
+/sundials/ida/doc contains PostScript and PDF files for the IDA User Guide [1] 
+(ida_guide.ps and ida_guide.pdf) and the IDA Examples [2] (ida_examples.ps and 
+ida_examples.pdf) documents.
+
+
+B. Installation
+---------------
+
+For basic installation instructions see the file /sundials/INSTALL_NOTES. 
+For complete installation instructions see the "IDA Installation Procedure"
+chapter in the IDA User Guide.
+
+
+C. References
+-------------
+
+[1] A. C. Hindmarsh, R. Serban, and A. Collier, "User Documentation for IDA v2.4.0," 
+    LLNL technical report UCRL-SM-208112, November 2004.
+
+[2] A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v2.4.0," 
+    LLNL technical report UCRL-SM-208113, November 2004.
+
+[3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
+    D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
+    Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
+    31(3), pp. 363-396, 2005.
+
+[4] P. N. Brown, A. C. Hindmarsh, and L. R. Petzold, Using Krylov Methods 
+    in the Solution of Large-Scale Differential-Algebraic Systems, 
+    SIAM J. Sci. Comp., 15 (1994), pp. 1467-1488.
+
+[5] P. N. Brown, A. C. Hindmarsh, and L. R. Petzold, Consistent Initial 
+    Condition Calculation for Differential-Algebraic Systems, 
+    SIAM J. Sci. Comp., 19 (1998), pp. 1495-1512.
+
+
+D. Releases
+-----------
+
+v. 2.4.1   - Jun. 2006
+v. 2.4.0   - Mar. 2006
+v. 2.3.0   - Apr. 2005
+v. 2.2.2   - Mar. 2005
+v. 2.2.1   - Jan. 2005
+v. 2.2.0   - Dec. 2004
+v. 2.0     - Jul. 2002 (first SUNDIALS release)
+v. 1.0     - Feb. 1999 (date written)
+
+
+E. Revision History
+-------------------
+
+v. 2.4.0 (Mar. 2006) ---> v. 2.4.1 (Jun. 2006)
+---------------------------------------------------------
+
+- Bug fixes
+   - fixed perturbation factor "underflow" issue in IDADenseDQJac and
+     IDABandDQJac routines which are used to compute a difference quotient
+     approximation to the system Jacobian (see IDA_P1).
+
+- Changes to user-callable functions
+
+v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (Mar. 2006)
+---------------------------------------------------------
+
+- New features
+   - added IDASPBCG interface module to allow IDA to interface with the
+     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
+   - added IDASPTFQMR interface module to allow IDA to interface with the
+     shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
+   - added support for SPBCG and SPTFQMR to the IDABBDPRE preconditioner module.
+   - added FIDA (Fortran interface to IDA).
+   - added rootfinding feature in IDA; modified irobx example problem.
+   - added support for interpreting failures in user-supplied functions.
+
+- Changes to user-callable functions
+   - changed argument of IDAFree and IDABBDPrecFree to be the address 
+     of the respective memory block pointer, so that its NULL value is 
+     propagated back to the calling function.
+   - added IDASPBCG module which defines appropriate IDSpbcg* functions to
+     allow IDA to interface with the shared SPBCG linear solver module.
+   - added IDABBDSpbcg function to IDABBDPRE module to support SPBCG linear
+     solver module.
+   - changed function type names (not the actual definition) to accomodate
+     all the Scaled Preconditioned Iterative Linear Solvers now available:
+       IDASpgmrJactimesVecFn -> IDASpilsJacTimesVecFn
+       IDASpgmrPrecSetupFn   -> IDASpilsPrecSetupFn
+       IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn
+   - changed some names for IDABBDPRE function outputs
+   - added option for user-supplied error handler function.
+   - added IDAGetEstLocalErrors() to return estimated local errors.
+   - renamed all exported header files (except for ida.h, all header files
+     have the prefix 'ida_')
+   - changed naming scheme for IDA examples
+
+- Changes related to the build system
+   - the main IDA header file (ida.h) is still exported to the install include
+     directory. However, all other IDA header files are exported into an 'ida'
+     subdirectory of the install include directory.
+   - the IDA library now contains all shared object files (there is no separate
+     libsundials_shared library anymore)
+
+v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
+----------------------------------------------
+
+- New features
+   - added option for user-provided error weight computation function
+     (of type IDAEwtFn specified through IDASetEwtFn).
+
+- Changes to user interface
+   - IDA now stores tolerances through values rather than references 
+     (to resolve potential scoping issues). 
+   - IDA now stores the constraints and id vectors (if defined) through
+     values ratherthan references.
+   - IDA now passes information back to the user through values rather
+     than references (error weights)
+   - IDAMalloc, IDAReInit, IDASetTolerances: added option itol=IDA_WF 
+     to indicate user-supplied function for computing the error weights; 
+     reltol is now declared as realtype. Note that it is now illegal to call
+     IDASetTolerances before IDAMalloc. It is now legal to deallocate
+     the absolute tolerance N_Vector right after its use.
+   - IDAGetErrorWeights: the user is now responsible for allocating space
+     for the N_Vector in which error weights will be copied.
+   - IDACalcIC takes as additional arguments (t0,y0,yp0). As a consequence,
+     it can be called at any time to correct a pair (y,y').
+   - Passing a value of 0 for the maximum step size or for maxsteps results 
+     in the solver using the corresponding default value (infinity, and 500, 
+     respectively)
+   - Several optional input functions were combined into a single one
+     (IDADenseSetJacFn and IDADenseSetJacData, IDABandSetJacFn and IDABandSetJacData, 
+     IDASpgmrSetPrecSolveFn and IDASpgmrSetPrecSetFn and IDASpgmrSetPrecData, 
+     IDASpgmrSetJacTimesVecFn and IDASpgmrSetJacData).
+
+v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
+----------------------------------------------
+
+- Bug fixes
+   - changed implicit type conversion to explicit in check_flag() routine in
+     examples to avoid C++ compiler errors
+
+- Changes to documentation
+   - added section with numerical values of all input and output solver constants
+   - added more detailed notes on the type of absolute tolerances
+   - fixed several typos and removed reference to inexistent function IDASetMinStep 
+   - added description of --with-mpi-flags option
+
+- Changes related to the build system
+   - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   - modified to use customized detection of the Fortran name mangling scheme 
+     (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
+   - added --with-mpi-flags as a configure option to allow user to specify
+     MPI-specific flags
+   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
+     CC and MPICC to link)
+
+
+v. 2.2.0 (Dec. 2004) ---> v. 2.2.1 (Jan. 2005)
+----------------------------------------------
+
+- Changes related to the build system
+   - changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+
+- Changes to documentation
+   - fixed various mistakes and typos in the user guide and example program
+     documents.
+
+v. 2.0 (Jul. 2002) ---> v. 2.2.0 (Dec. 2004)
+--------------------------------------------
+
+- New features
+   - added option to disable all error messages.
+
+- Bug fixes
+   - in the solution of the nonlinear system, the correction for small constraint 
+     violation is to ee, not y.
+   - besides delaying the order increase until the 2nd step, we now also delay
+     doubling the step size, to avoid using information from times before t0.
+
+- Changes related to the NVECTOR module 
+  (see also the file sundials/shared/README)
+   - removed machEnv, redefined table of vector operations (now contained
+     in the N_Vector structure itself).
+   - all IDA functions create new N_Vector variables through cloning, using
+     an N_Vector passed by the user as a template.
+
+- Changes to type names and IDA constants
+   - removed type 'integertype'; instead use int or long int, as appropriate.
+   - restructured the list of return values from the various IDA functions.
+   - changed all IDA constants (inputs and return values) to have the
+     prefix 'IDA_' (e.g. IDA_SUCCESS).
+   - renamed various function types to have the prefix 'IDA' (e.g. IDAResFn).
+
+- Changes to optional input/ouput
+   - added IDASet* and IDAGet* functions for optional inputs/outputs, 
+     replacing the arrays iopt and ropt.
+   - added new optional inputs (e.g. maximum number of Newton iterations,
+     maximum number of convergence failures, etc).
+   - added new function IDAGetSolution for dense output.
+   - the value of the last return flag from any function within a linear
+     solver module can be obtained as an optional output (e.g. IDADenseGetLastFlag).
+  
+- Changes to user-callable functions
+   - added new function IDACreate which initializes the IDA solver
+     object and returns a pointer to the IDA memory block.
+   - removed N (problem size) from all functions except the initialization
+     functions for the direct linear solvers (IDADense and IDABand).
+   - shortened argument lists of most IDA functions (the arguments that
+     were dropped can now be specified through IDASet* functions).
+   - removed reinitialization functions for band/dense/SPGMR linear
+     solvers (same functionality can be obtained using IDA*Set* functions).
+   - in IDABBDPRE, added a new function, IDABBDSpgmr to initialize the
+     SPGMR linear solver with the BBD preconditioner.
+   - function names changed in IDABBDPRE for uniformity.
+
+- Changes to user-supplied functions
+   - removed N (probem dimension) from argument lists.
+   - shortened argument lists for user dense/band/SPGMR Jacobian routines.
+   - in IDASPGMR, shortened argument lists for user preconditioner functions.
+   - in IDABBDPRE, added Nlocal, the local vector size, as an argument to 
+     IDABBDLocalFn and IDABBDCommFn.
+
+v. 1.0 (Feb. 1999) ---> v. 2.0 (Jul. 2002)
+------------------------------------------
+
+YYYYMMDD
+
+19990212  DATE WRITTEN; initial internal release (incomplete).
+19990514  IDABBDPRE preconditioner module added.
+19990720  Initial condition calculation routines (IDACalcIC) added.
+19991208  In IDABBDPRE, user routine argument lists changed.
+19991217  Generic SPGMR module revised to correct scalings.
+20000316  In parallel NVECTOR, comm arg. to PVecInitMPI is non-NULL.
+20000808  Fixed bug in N_VMin.  In IDACalcIC: added calculation of system
+          index in CALC_YA_YDP_INIT case, added scaling of fnorm when index = 0.
+20010110  Fixed two bugs in IDACalcIC and subordinate routines:
+          (1) Set hh in IDACalcIC independent of icopt, for lsetup.
+          (2) Set ypnew = yp0 in IDALineSrch in CALC_Y_INIT case.
+          Corrected #define ncfl0 line in idaspgmr.c.
+20011015  Fixed bug in IDAInterp (tn test).
+          Fixed minor bugs in error messages (missing arguments etc.)
+20011220  Default type 'integer' changed to 'long int' in llnltyps.h.
+20020313  Modified to work with new NVECTOR abstraction.
+20020626  Renamed types real, integer, boole as realtype, integertype,
+          and booleantype, and renamed related constants.  Renamed files
+          llnlmath.*, llnltypes.h as sundialsmath.*, sundialstypes.h.
+20020703  Added reinitialization routines for IDA, for each linear
+          solver module, and for IDABBDPRE.

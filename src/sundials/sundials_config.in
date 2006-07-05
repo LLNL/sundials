@@ -1,0 +1,37 @@
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.1 $
+ * $Date: 2006-07-05 15:32:38 $
+ * ----------------------------------------------------------------- 
+ * Programmer(s): Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2005, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ *------------------------------------------------------------------
+ * SUNDIALS configuration header file
+ *------------------------------------------------------------------
+ */
+
+/* Define SUNDIALS version number */
+#define SUNDIALS_PACKAGE_VERSION "@PACKAGE_VERSION@"
+
+/* FCMIX: Define Fortran name-mangling macro */
+@F77_MANGLE_MACRO1@
+@F77_MANGLE_MACRO2@
+
+/* FCMIX: Define case of function names */
+@F77_CASE@
+
+/* FCMIX: Define number of underscores to append to function names */
+@F77_UNDERSCORES@
+
+/* Define precision of SUNDIALS data type 'realtype' */
+@PRECISION_LEVEL@
+
+/* Use generic math functions */
+@GENERIC_MATH_LIB@
+
+/* FNVECTOR: Allow user to specify different MPI communicator */
+@F77_MPI_COMM_F2C@
