@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-05 16:03:41 $
+# $Revision: 1.4 $
+# $Date: 2006-07-05 21:17:50 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -121,6 +121,7 @@ AC_SUBST(F77_MPI_COMM_F2C)
 AC_SUBST(F77_LNKR)
 AC_SUBST(MPIF77_LNKR)
 AC_SUBST(LIB_REVISION)
+AC_SUBST(EXEEXT)
 AC_SUBST(MATLAB)
 AC_SUBST(MEX)
 AC_SUBST(MEXEXT)

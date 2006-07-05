@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.35 $
-# $Date: 2006-07-05 16:03:41 $
+# $Revision: 1.36 $
+# $Date: 2006-07-05 21:17:49 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -14,7 +14,7 @@
 
 # Initialize configure
 AC_INIT(SUNDIALS, 2.2.1, radu@llnl.gov)
-LIB_REVISION="1:0:"
+LIB_REVISION="1:0:0"
 
 # Display greeting
 SUNDIALS_GREETING
@@ -122,6 +122,7 @@ AC_SUBST(F77_MPI_COMM_F2C)
 AC_SUBST(F77_LNKR)
 AC_SUBST(MPIF77_LNKR)
 AC_SUBST(LIB_REVISION)
+AC_SUBST(EXEEXT)
 AC_SUBST(MATLAB)
 AC_SUBST(MEX)
 AC_SUBST(MEXEXT)
