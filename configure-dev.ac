@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-07-05 21:20:10 $
+# $Revision: 1.6 $
+# $Date: 2006-07-06 00:01:51 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -61,6 +61,11 @@ if test "X${MPI_ENABLED}" = "Xyes"; then
     echo ""
     SUNDIALS_SET_MPIF77
   fi
+  echo ""
+  echo "MPI-2 Functionality"
+  echo "-------------------"
+  echo ""
+  SUNDIALS_CHECK_MPI2
 fi
 
 # Set examples modules

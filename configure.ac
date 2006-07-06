@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.36 $
-# $Date: 2006-07-05 21:17:49 $
+# $Revision: 1.37 $
+# $Date: 2006-07-06 00:01:51 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -49,19 +49,19 @@ fi
 # Set MPI support (Optional)
 if test "X${MPI_ENABLED}" = "Xyes"; then
   echo ""
-  echo "MPI C Settings"
+  echo "MPI-C Settings"
   echo "--------------"
   echo ""
   SUNDIALS_SET_MPICC
   if test "X${F77_ENABLED}" = "Xyes"; then
     echo ""
-    echo "MPI Fortran Settings"
+    echo "MPI-Fortran Settings"
     echo "--------------------"
     echo ""
     SUNDIALS_SET_MPIF77
   fi
   echo ""
-  echo "MPI-2 functionality"
+  echo "MPI-2 Functionality"
   echo "-------------------"
   echo ""
   SUNDIALS_CHECK_MPI2
