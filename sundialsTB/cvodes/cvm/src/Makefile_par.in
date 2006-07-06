@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-06 17:23:21 $
+# $Revision: 1.3 $
+# $Date: 2006-07-06 19:18:51 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -76,9 +76,11 @@ clean:
 
 install: cvm
 #	Create directories
+	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/putils
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/nvector
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/cvm
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser
+	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/examples_par
 #	Install startup file
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/startup_STB.m               $(STB_INSTDIR)/sundialsTB/
 #	Install CVODES functions
@@ -124,7 +126,7 @@ install: cvm
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_root.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
 #	Install MEX file
 	$(INSTALL_PROG) $(top_builddir)/sundialsTB/cvodes/cvm/cvm.$(MEXEXT)  $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-#	Install example files
+#	Install serial example files
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvadx.m      $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvbx_f.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvbx_J.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
@@ -151,7 +153,28 @@ install: cvm
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/vdp_f.m      $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/vdp_J.m      $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/vdp.m        $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
-
+#	Install parallel example files
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvfnx_f.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvfnx.m      $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvkx_fl.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvkx_f.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvkx.m       $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvnx_f.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvnx.m       $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
+#	Install NVECTOR files
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/Contents.m               $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VDotProd.m             $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VL1Norm.m              $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMax.m                 $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMaxNorm.m             $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMin.m                 $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWL2Norm.m             $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWrmsNorm.m            $(STB_INSTDIR)/sundialsTB/nvector/
+#	Install PUTILS files
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/Contents.m                $(STB_INSTDIR)/sundialsTB/putils/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpirun.m                  $(STB_INSTDIR)/sundialsTB/putils/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpiruns.m                 $(STB_INSTDIR)/sundialsTB/putils/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpistart.m                $(STB_INSTDIR)/sundialsTB/putils/
 
 uninstall:
 	@if test -d $(STB_INSTDIR)/sundialsTB; then  \
