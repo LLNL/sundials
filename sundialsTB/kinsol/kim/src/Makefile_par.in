@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 16:00:44 $
+# $Revision: 1.2 $
+# $Date: 2006-07-06 17:23:21 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -70,10 +70,9 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 all: kim
 
 clean:
-	rm -rf .libs
 	rm -f *.lo
 	rm -f *.o
-	rm -f $(MEXFILE)
+	$(LIBTOOL) --mode=clean rm -f $(MEXFILE)
 
 install: kim
 #	Create directories
