@@ -16,12 +16,11 @@
 %   unrecoverable failure occurred, or FLAG>0 if a recoverable error
 %   occurred.
 %
-%   See also CVodeSetOptions
+%   See also CVodeSetFSAOptions
 %
-%   NOTE: ODESFUN is specified through the property FSARhsFn to CVodeSetOptions 
-%   and is used only if the property SensiAnalysis was set to 'FSA' and if the
-%   property FSARhsType was set to 'All'.
+%   NOTE: ODESFUN is specified through the property FSARhsFn to 
+%         CVodeSetFSAOptions. 
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
+% $Revision: 1.3 $Date: 2006/02/13 23:01:20 $

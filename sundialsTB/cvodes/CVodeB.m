@@ -12,7 +12,7 @@ function [status,t,yB,varargout] = CVodeB(tout,itask)
 %   integration and the rough scale of the problem. In either case, the time 
 %   reached by the solver is returned in T. 
 %
-%   If quadratures were computed (see CVodeSet), CVodeB will return their
+%   If quadratures were computed (see CVodeSetOptions), CVodeB will return their
 %   values at T in the vector YQB.
 %
 %   On return, STATUS is one of the following:
@@ -33,11 +33,11 @@ function [status,t,yB,varargout] = CVodeB(tout,itask)
 %  -104: Illegal attempt to call before CVodeMallocB.
 %  -108: Wrong value for TOUT.
 %
-%   See also CVodeSetOptions, CVodeGetstatsB
+%   See also CVodeSetOptions, CVodeGetStatsB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
+% $Revision: 1.3 $Date: 2006/03/07 01:19:50 $
 
 mode = 8;
 if nargout < 3 | nargout > 4

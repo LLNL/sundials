@@ -208,7 +208,7 @@ function options = CVodeSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:50 $
+% $Revision: 1.4 $Date: 2006/03/15 19:31:25 $
 
 % Based on Matlab's ODESET function
 
@@ -228,7 +228,7 @@ if (nargin == 0) & (nargout == 0)
   fprintf('        NumRoots: [ integer | {0} ]\n');
   fprintf(' StabilityLimDet: [ on | {off} ]\n');
   fprintf('\n');
-  fprintf('    LinearSolver: [ {Dense} | Band | GMRES | BiCGStab | TFQMR ]\n');
+  fprintf('    LinearSolver: [ {Dense} | Diag | Band | GMRES | BiCGStab | TFQMR ]\n');
   fprintf('      JacobianFn: [ function ]\n');
   fprintf('    KrylovMaxDim: [ integer | {5} ]\n');
   fprintf(' GramSchmidtType: [ Classical | {Modified} ]\n');

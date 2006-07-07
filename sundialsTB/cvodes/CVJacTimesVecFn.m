@@ -37,8 +37,8 @@
 %
 %   NOTE: JTVFUN and JTVFUNB are specified through the property
 %   JacobianFn to CVodeSetOptions and are used only if the property
-%   LinearSolver was set to 'GMRES' or 'BiCGStab'.
+%   LinearSolver was set to 'GMRES', 'BiCGStab', or 'TFQMR'.
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
+% $Revision: 1.3 $Date: 2006/02/13 23:01:20 $
