@@ -1,13 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] [Pkg&#45;octave&#45;devel] Sundials -->
-<!--X-From-R13: Dnsnry Znobvffvrer <ensnryNqrovna.bet> -->
-<!--X-Date: Thu, 08 Jun 2006 16:17:39 &#45;0700 -->
-<!--X-Message-Id: 20060608231525.GC28278@laboiss2 -->
-<!--X-Content-Type: multipart/mixed -->
+<!--X-Subject: RE: [sundials&#45;users] include file directory layout (was: The lighter side of SUNDIALS) -->
+<!--X-From-R13: "Vreoreg Enheb" <Vreoreg_EnhebNxtv.rqh> -->
+<!--X-Date: Tue, 13 Jun 2006 21:44:05 &#45;0700 -->
+<!--X-Message-Id: 601BBB4D9640CB4693A2384E4B37872E01D6289D@dell2650&#45;0550.kgi.edu -->
+<!--X-Content-Type: text/plain -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] [Pkg-octave-devel] Sundials</title>
+<title>RE: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00488.html">Date Prev</a>] [<a href="msg00490.html">Date Next</a>] [<a href="msg00486.html">Thread Prev</a>] [<a href="msg00500.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00489">Date Index</a></b>]
-[<b><a href="threads.html#00489">Thread Index</a></b>]
+[<a href="msg00496.html">Date Prev</a>] [<a href="msg00498.html">Date Next</a>] [<a href="msg00489.html">Thread Prev</a>] [<a href="msg00498.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00497">Date Index</a></b>]
+[<b><a href="threads.html#00497">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] [Pkg-octave-devel] Sundials</h1>
+<h1>RE: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Rafael Laboissiere &lt;<a href="mailto:rafael%40debian.org">rafael@debian.org</a>&gt;</td>
+&quot;Herbert Sauro&quot; &lt;<a href="mailto:Herbert_Sauro%40kgi.edu">Herbert_Sauro@kgi.edu</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 9 Jun 2006 01:15:25 +0200</td>
+Tue, 13 Jun 2006 21:40:05 -0700</td>
 </tr>
 
 </table>
@@ -100,98 +100,86 @@ Fri, 9 Jun 2006 01:15:25 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Dear SUNDIALS developers,
+<pre>
+I don't know where you guys got the idea that in a windows dev environment all 
+files in a project have to be in the same directory. Of course they don't. 
+Today I compiled CVODE 2.4 using VS 7., not a hitch. And I didn't have to move 
+a single file.
 
-First of all, let me introduce myself: I am a member of the Debian Octave
-Group, which is currently maintaining the sundials package in Debian. I
-am contacting you about a compilation issue that has been recently
-raised.
+I do not believe we need a different layout for Windows, the current one works 
+fine. All I do is run configure using cygwin then tell VS 7 where the include 
+and C source folders are and hit the compile button (Non-Windows OSs do the 
+same thing but using makefiles). I don't know what the user population of 
+sundials is with regards to OS usage, but depending on demand it would be nice 
+to have some VS projects files with the distribution for those who are not 
+familiar with the ./configure approach to installing source code.
 
-The Debian project decided to switch to gcc-4.1 as the default version of
-the GCC compiler [1].  Due to the more strict checks, many packages
-generate warnings about casts from integer to pointer (and vice-versa)
-with incompatible sizes.  The build logs can be found in [2] and the
-sundials package (version 2.1.1-6) is listed there.
+Herbert Sauro
 
-For sundials, the warnings appear all in file cvodea.c.  I checked the
-sources for version 2.2.0 and noticed that the problematic code was moved
-into file cvodea_io.c.  The problem comes from the fact that the
-&quot;unsinged int&quot; type is not large enough to hold a pointer in 64-bit
-architectures (e.g. alpha, amd64, and ia64).  One should instead use
-intptr_t, defined in stdint.h, probably by doing conditional compilation
-on HAVE_STDINT_H.
+-----Original Message-----
+From:   John W. Eaton [<a  href="mailto:jwe@bevo.che.wisc.edu">mailto:jwe@bevo.che.wisc.edu</a>]
+Sent:   Tue 6/13/2006 6:10 PM
+To:     sundials-users@llnl.gov
+Cc:     
+Subject:        [sundials-users] include file directory layout (was: The 
+lighter side of SUNDIALS)
 
-I prepared a patch for fixing the problem, which is attached below.  This
-patch was successfully tested on both i386 and amd64 architectures with
-stdint.h present.  It is slightly convoluted, because the topdir config.h
-file need to be #include'd in cvodea.h.  This file is generated by
-configure, but is not included by any other source file.
+On 13-Jun-2006, Radu Serban wrote:
 
-Best regards,
+| We decided to export header files in subdirectories in order to not pollute 
+the include/ directory (especially for a system-wide SUNDIALS 
+| install). I would have gladly use &quot;#include &lt;ida/whatever.h&gt; where necessary 
+(I like *NIX too :-)) but we had to make it relatively easy for 
+| those using other OS (read Windows) who cannot use the configure script and 
+thus need to collect all source and header files into a 
+| directory where their IDEs (e.g. Visual C++) can find them.
 
-Rafael
+Is it really so difficult for them to install things in multiple
+directories when using Visual C++?
+
+| With the current implementation they do not have to create these 
+subdirectories.
+| 
+| I know this is a bit more inconvenient, but there are not that many -I flags 
+that you need to add to CPPFLAGS (typically 3: -I***/include 
+| -I***/include/ida -I***/include/sundials).
+
+I think it would be much better to be consistent on all systems, and
+to do things in a way that would not require adding a bunch of -I
+flags to the compiler command line.  But if you really must have
+different directory layouts on different systems, then how about at
+least giving us the option of installing things in multiple
+directories, and not having to specify multiple -I options on the
+command line?  If you did something like
+
+  #if defined (INCLUDES_IN_ONE_DIRECTORY)
+  #include &lt;whatever.h&gt;
+  #else
+  #include &lt;ida/whatever.h&gt;
+  #endif
+
+in your sources, then I think we could just use
+
+  #include &lt;ida/ida.h&gt;
+
+in our builds and not have to add any extra -I flags to the compiler
+command line.
+
+Or, instead of all that mess, how about using a single subdirectory
+called sundials for all these files, and using
+
+  #include &lt;sundials/whatever.h&gt;
+
+in your sources?  That would avoid polluting the /usr/include
+directory, make it easy for VC++ users who want things in one
+directory, and allow the install to be the same on all systems.
+
+jwe
 
 
-[1] <a  href="http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html">http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html</a>
-[2] <a  href="http://people.debian.org/~tbm/logs/pointer/">http://people.debian.org/~tbm/logs/pointer/</a>
-</pre><pre>--- sundials-2.2.0.orig/cvodes/include/cvodea.h
-+++ sundials-2.2.0/cvodes/include/cvodea.h
-@@ -44,6 +44,13 @@
- #include &quot;cvodes.h&quot;
- #include &quot;sundials_nvector.h&quot;
- 
-+#include &quot;../../config.h&quot;
-+#ifdef HAVE_STDINT_H
-+#include &lt;stdint.h&gt;
-+#else
-+#define intptr_t unsigned int
-+#endif
-+
-   /* 
-    * ===============================================================
-    * DEFINITIONS OF CVODEA INPUTS
---- sundials-2.2.0.orig/cvodes/source/cvodea_io.c
-+++ sundials-2.2.0/cvodes/source/cvodea_io.c
-@@ -422,8 +422,8 @@
- 
-   while (ck_mem != NULL) {
- 
--    ckpnt[i].my_addr = (unsigned int) ck_mem;
--    ckpnt[i].next_addr = (unsigned int) next_;
-+    ckpnt[i].my_addr = (intptr_t) ck_mem;
-+    ckpnt[i].next_addr = (intptr_t) next_;
-     ckpnt[i].t0 = t0_;
-     ckpnt[i].t1 = t1_;
-     ckpnt[i].nstep = nst_;
-@@ -445,7 +445,7 @@
-  *  Returns the address of the 'active' check point.
-  */
- 
--int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
-+int CVadjGetCurrentCheckPoint(void *cvadj_mem, intptr_t *addr)
- {
-   CVadjMem ca_mem;
- 
-@@ -455,7 +455,7 @@
-   }
-   ca_mem = (CVadjMem) cvadj_mem;
- 
--  *addr = (unsigned int) ckpntData;
-+  *addr = (intptr_t) ckpntData;
- 
-   return(CV_SUCCESS);
- }
---- sundials-2.2.0.orig/kinsol/source/kinsol.c
-+++ sundials-2.2.0/kinsol/source/kinsol.c
-@@ -1737,7 +1737,7 @@
- 
-     /* If info_code = PRNT_RETVAL, decode the numeric value */
- 
--    ret = (int) (va_arg(ap, int *));
-+    ret = va_arg(ap, int);
- 
-     switch(ret) {
-     case KIN_SUCCESS:
+
+
+
 </pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -201,8 +189,10 @@ Rafael
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00500" href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
-<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00502" href="msg00502.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
+<ul><li><em>From:</em> &quot;Andreas Nicolai&quot; &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00498" href="msg00498.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
+<ul><li><em>From:</em> Andr&#xE9; Schneider &lt;Andre.Schneider@eas.iis.fraunhofer.de&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
@@ -210,24 +200,24 @@ Rafael
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00488.html">Re: [sundials-users] Sundials installation...</a></strong>
+<strong><a href="msg00496.html">Re: [sundials-users] include file directory layout</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00498.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00486.html">[sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00489.html">[sundials-users] [Pkg-octave-devel] Sundials</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
+<strong><a href="msg00498.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00489">
+<li><a href="maillist.html#00497">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00489">
+<li><a href="threads.html#00497">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

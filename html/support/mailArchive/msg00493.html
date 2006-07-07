@@ -1,13 +1,16 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] [Pkg&#45;octave&#45;devel] Sundials -->
-<!--X-From-R13: Dnsnry Znobvffvrer <ensnryNqrovna.bet> -->
-<!--X-Date: Thu, 08 Jun 2006 16:17:39 &#45;0700 -->
-<!--X-Message-Id: 20060608231525.GC28278@laboiss2 -->
-<!--X-Content-Type: multipart/mixed -->
+<!--X-Subject: Re: [sundials&#45;users] The lighter side of SUNDIALS -->
+<!--X-From-R13: Xbua Blr <wbua.clrNfghqrag.hafj.rqh.nh> -->
+<!--X-Date: Tue, 13 Jun 2006 16:48:07 &#45;0700 -->
+<!--X-Message-Id: 448F4E17.2030501@student.unsw.edu.au -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 44889F55.7050506@llnl.gov -->
+<!--X-Reference: 448910E5.1010505@student.unsw.edu.au -->
+<!--X-Reference: 4489E9DB.6020900@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] [Pkg-octave-devel] Sundials</title>
+<title>Re: [sundials-users] The lighter side of SUNDIALS</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +69,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00488.html">Date Prev</a>] [<a href="msg00490.html">Date Next</a>] [<a href="msg00486.html">Thread Prev</a>] [<a href="msg00500.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00489">Date Index</a></b>]
-[<b><a href="threads.html#00489">Thread Index</a></b>]
+[<a href="msg00492.html">Date Prev</a>] [<a href="msg00494.html">Date Next</a>] [<a href="msg00491.html">Thread Prev</a>] [<a href="msg00494.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00493">Date Index</a></b>]
+[<b><a href="threads.html#00493">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] [Pkg-octave-devel] Sundials</h1>
+<h1>Re: [sundials-users] The lighter side of SUNDIALS</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +86,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Rafael Laboissiere &lt;<a href="mailto:rafael%40debian.org">rafael@debian.org</a>&gt;</td>
+John Pye &lt;<a href="mailto:john.pye%40student.unsw.edu.au">john.pye@student.unsw.edu.au</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 9 Jun 2006 01:15:25 +0200</td>
+Wed, 14 Jun 2006 09:45:27 +1000</td>
 </tr>
 
 </table>
@@ -100,98 +103,76 @@ Fri, 9 Jun 2006 01:15:25 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Dear SUNDIALS developers,
+<pre>Hi Radu,
 
-First of all, let me introduce myself: I am a member of the Debian Octave
-Group, which is currently maintaining the sundials package in Debian. I
-am contacting you about a compilation issue that has been recently
-raised.
+I'm not yet sure what the highest index of DAEs we'll be dealing with
+will be. They could be order 2 or possibly higher: we have some stiff
+fixed-mass fixed-volume two-phase recycle systems that I would like to
+simulate, and I had trouble with some other (free) tools that I tried.
+We don't have Pantelides' algorithm implemented in ASCEND so I'm not
+sure how much success I can expect to have with this.
 
-The Debian project decided to switch to gcc-4.1 as the default version of
-the GCC compiler [1].  Due to the more strict checks, many packages
-generate warnings about casts from integer to pointer (and vice-versa)
-with incompatible sizes.  The build logs can be found in [2] and the
-sundials package (version 2.1.1-6) is listed there.
+One thing that will be interesting is whether or not we can re-use the
+'blocking' solver in ASCEND when using IDA. I have a lot to learn about
+its internal details but it seems that I may be able to use the 'lsolve'
+interface inside IDA for this purpose. It's also going to be
+challlenging when it comes to tying in with the evaluation of the
+Jacobian and root-finding capabilities.
 
-For sundials, the warnings appear all in file cvodea.c.  I checked the
-sources for version 2.2.0 and noticed that the problematic code was moved
-into file cvodea_io.c.  The problem comes from the fact that the
-&quot;unsinged int&quot; type is not large enough to hold a pointer in 64-bit
-architectures (e.g. alpha, amd64, and ia64).  One should instead use
-intptr_t, defined in stdint.h, probably by doing conditional compilation
-on HAVE_STDINT_H.
+On an aside: is there a reason why, when installing IDA, several of the
+header files are installed in subdirectories, but the top-level header
+files don't refer to the subdirectories by name? It means that I have to
+add *several* subdirectories to my compiler include-dir flags, rather
+than just one. It would be better if SUNDIALS referred to its other
+header files using &lt;sundials/whatever.h&gt; and &lt;ida/whatever.h&gt; rather
+than the current system. This also makes detection of SUNDIALS with
+autotools/SCons a bit harder to do. But perhaps you have a reason for
+this approach?
 
-I prepared a patch for fixing the problem, which is attached below.  This
-patch was successfully tested on both i386 and amd64 architectures with
-stdint.h present.  It is slightly convoluted, because the topdir config.h
-file need to be #include'd in cvodea.h.  This file is generated by
-configure, but is not included by any other source file.
+Cheers
+JP
 
-Best regards,
+Radu Serban wrote:
 
-Rafael
+&gt;<i> John Pye wrote:</i>
+&gt;<i></i>
+&gt;<i>&gt; Sorry dude, I think I broke it :-)</i>
+&gt;<i>&gt;</i>
+&gt;<i></i>
+&gt;<i> John,</i>
+&gt;<i></i>
+&gt;<i> You did not break it. You were not the only one to end up with empty</i>
+&gt;<i> values for lat and long... There's probably a bug in my coding.</i>
+&gt;<i></i>
+&gt;<i>&gt; I've been working on integrating IDA with the ASCEND simulation package</i>
+&gt;<i>&gt; recently. Work in progress, but it's been going well so far, thanks to</i>
+&gt;<i>&gt; the excellent documentation.</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; <a  href="https://pse.cheme.cmu.edu/wiki/view/Ascend/WebHome">https://pse.cheme.cmu.edu/wiki/view/Ascend/WebHome</a></i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> Thanks for pointing this out. Over the past couple of weeks I learned</i>
+&gt;<i> or was reminded of several packages that use SUNDIALS solvers. I'd</i>
+&gt;<i> appreciate if user would let us know of others.</i>
+&gt;<i></i>
+&gt;<i> What index DAEs are you interested in?</i>
+&gt;<i></i>
+&gt;<i> --radu</i>
+&gt;<i></i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; Cheers,</i>
+&gt;<i>&gt; JP</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; Radu Serban wrote:</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt;&gt; I'm looking forward to seeing this map populated!</i>
+&gt;<i>&gt;&gt;</i>
+&gt;<i>&gt;&gt; --Radu</i>
+&gt;<i>&gt;&gt;</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt;</i>
+&gt;<i></i>
 
-
-[1] <a  href="http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html">http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html</a>
-[2] <a  href="http://people.debian.org/~tbm/logs/pointer/">http://people.debian.org/~tbm/logs/pointer/</a>
-</pre><pre>--- sundials-2.2.0.orig/cvodes/include/cvodea.h
-+++ sundials-2.2.0/cvodes/include/cvodea.h
-@@ -44,6 +44,13 @@
- #include &quot;cvodes.h&quot;
- #include &quot;sundials_nvector.h&quot;
- 
-+#include &quot;../../config.h&quot;
-+#ifdef HAVE_STDINT_H
-+#include &lt;stdint.h&gt;
-+#else
-+#define intptr_t unsigned int
-+#endif
-+
-   /* 
-    * ===============================================================
-    * DEFINITIONS OF CVODEA INPUTS
---- sundials-2.2.0.orig/cvodes/source/cvodea_io.c
-+++ sundials-2.2.0/cvodes/source/cvodea_io.c
-@@ -422,8 +422,8 @@
- 
-   while (ck_mem != NULL) {
- 
--    ckpnt[i].my_addr = (unsigned int) ck_mem;
--    ckpnt[i].next_addr = (unsigned int) next_;
-+    ckpnt[i].my_addr = (intptr_t) ck_mem;
-+    ckpnt[i].next_addr = (intptr_t) next_;
-     ckpnt[i].t0 = t0_;
-     ckpnt[i].t1 = t1_;
-     ckpnt[i].nstep = nst_;
-@@ -445,7 +445,7 @@
-  *  Returns the address of the 'active' check point.
-  */
- 
--int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
-+int CVadjGetCurrentCheckPoint(void *cvadj_mem, intptr_t *addr)
- {
-   CVadjMem ca_mem;
- 
-@@ -455,7 +455,7 @@
-   }
-   ca_mem = (CVadjMem) cvadj_mem;
- 
--  *addr = (unsigned int) ckpntData;
-+  *addr = (intptr_t) ckpntData;
- 
-   return(CV_SUCCESS);
- }
---- sundials-2.2.0.orig/kinsol/source/kinsol.c
-+++ sundials-2.2.0/kinsol/source/kinsol.c
-@@ -1737,7 +1737,7 @@
- 
-     /* If info_code = PRNT_RETVAL, decode the numeric value */
- 
--    ret = (int) (va_arg(ap, int *));
-+    ret = va_arg(ap, int);
- 
-     switch(ret) {
-     case KIN_SUCCESS:
 </pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -201,33 +182,42 @@ Rafael
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00500" href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
-<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00494" href="msg00494.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00486" href="msg00486.html">[sundials-users] The lighter side of SUNDIALS</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00490" href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<ul><li><em>From:</em> John Pye &lt;john.pye@student.unsw.edu.au&gt;</li></ul></li>
+<li><strong><a name="00491" href="msg00491.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00488.html">Re: [sundials-users] Sundials installation...</a></strong>
+<strong><a href="msg00492.html">Re: [sundials-users] Roundoff problem in CVODE for large t and small h</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00494.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00486.html">[sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00491.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
+<strong><a href="msg00494.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00489">
+<li><a href="maillist.html#00493">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00489">
+<li><a href="threads.html#00493">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

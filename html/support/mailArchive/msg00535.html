@@ -1,13 +1,26 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] [Pkg&#45;octave&#45;devel] Sundials -->
-<!--X-From-R13: Dnsnry Znobvffvrer <ensnryNqrovna.bet> -->
-<!--X-Date: Thu, 08 Jun 2006 16:17:39 &#45;0700 -->
-<!--X-Message-Id: 20060608231525.GC28278@laboiss2 -->
-<!--X-Content-Type: multipart/mixed -->
+<!--X-Subject: Re: [sundials&#45;users] include file directory layout -->
+<!--X-From-R13: =?WEA&#45;8859&#45;1?C?Oaqe=S9_Epuarvqre?= <Oaqer.EpuarvqreNrnf.vvf.senhaubsre.qr> -->
+<!--X-Date: Tue, 20 Jun 2006 23:09:38 &#45;0700 -->
+<!--X-Message-Id: 4498E1C8.9070900@eas.iis.fraunhofer.de -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 601BBB4D9640CB4693A2384E4B37872E01D6289D@dell2650&#45;0550.kgi.edu -->
+<!--X-Reference: 44906F6A.8090301@llnl.gov -->
+<!--X-Reference: 4490925C.9040907@llnl.gov -->
+<!--X-Reference: 200606160154.29267.andrey@enginum.com -->
+<!--X-Reference: op.ta7t90u4t8lo91@smtp.kuleuven.ac.be -->
+<!--X-Reference: 44927593.4010702@eas.iis.fraunhofer.de -->
+<!--X-Reference: 44970811.4060907@llnl.gov -->
+<!--X-Reference: 17559.5302.956469.443518@segfault.lan -->
+<!--X-Reference: 44972190.8010805@eas.iis.fraunhofer.de -->
+<!--X-Reference: 4497350E.9080109@llnl.gov -->
+<!--X-Reference: 17559.18109.259391.790519@segfault.lan -->
+<!--X-Reference: 4497BDF7.8020604@eas.iis.fraunhofer.de -->
+<!--X-Reference: 4498142C.4060103@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] [Pkg-octave-devel] Sundials</title>
+<title>Re: [sundials-users] include file directory layout</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +79,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00488.html">Date Prev</a>] [<a href="msg00490.html">Date Next</a>] [<a href="msg00486.html">Thread Prev</a>] [<a href="msg00500.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00489">Date Index</a></b>]
-[<b><a href="threads.html#00489">Thread Index</a></b>]
+[<a href="msg00534.html">Date Prev</a>] [<a href="msg00536.html">Date Next</a>] [<a href="msg00534.html">Thread Prev</a>] [<a href="msg00536.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00535">Date Index</a></b>]
+[<b><a href="threads.html#00535">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] [Pkg-octave-devel] Sundials</h1>
+<h1>Re: [sundials-users] include file directory layout</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +96,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Rafael Laboissiere &lt;<a href="mailto:rafael%40debian.org">rafael@debian.org</a>&gt;</td>
+Andr&#xE9; Schneider &lt;<a href="mailto:Andre.Schneider%40eas.iis.fraunhofer.de">Andre.Schneider@eas.iis.fraunhofer.de</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 9 Jun 2006 01:15:25 +0200</td>
+Wed, 21 Jun 2006 08:06:00 +0200</td>
 </tr>
 
 </table>
@@ -100,98 +113,19 @@ Fri, 9 Jun 2006 01:15:25 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Dear SUNDIALS developers,
+<pre>Radu Serban wrote:
+&gt;<i> Hi Andr&#xE9;,</i>
+&gt;<i> </i>
+&gt;<i> Assuming you asked &quot;what do you think?&quot; and not &quot;what do you mean?&quot; :-),</i>
 
-First of all, let me introduce myself: I am a member of the Debian Octave
-Group, which is currently maintaining the sundials package in Debian. I
-am contacting you about a compilation issue that has been recently
-raised.
+Ops, yes - That is what I mean  ;-)
 
-The Debian project decided to switch to gcc-4.1 as the default version of
-the GCC compiler [1].  Due to the more strict checks, many packages
-generate warnings about casts from integer to pointer (and vice-versa)
-with incompatible sizes.  The build logs can be found in [2] and the
-sundials package (version 2.1.1-6) is listed there.
+(typical German mistake: Was meinst du? - meinen/mean)
 
-For sundials, the warnings appear all in file cvodea.c.  I checked the
-sources for version 2.2.0 and noticed that the problematic code was moved
-into file cvodea_io.c.  The problem comes from the fact that the
-&quot;unsinged int&quot; type is not large enough to hold a pointer in 64-bit
-architectures (e.g. alpha, amd64, and ia64).  One should instead use
-intptr_t, defined in stdint.h, probably by doing conditional compilation
-on HAVE_STDINT_H.
-
-I prepared a patch for fixing the problem, which is attached below.  This
-patch was successfully tested on both i386 and amd64 architectures with
-stdint.h present.  It is slightly convoluted, because the topdir config.h
-file need to be #include'd in cvodea.h.  This file is generated by
-configure, but is not included by any other source file.
-
-Best regards,
-
-Rafael
+Thanks,
+Andr&#xE9;
 
 
-[1] <a  href="http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html">http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html</a>
-[2] <a  href="http://people.debian.org/~tbm/logs/pointer/">http://people.debian.org/~tbm/logs/pointer/</a>
-</pre><pre>--- sundials-2.2.0.orig/cvodes/include/cvodea.h
-+++ sundials-2.2.0/cvodes/include/cvodea.h
-@@ -44,6 +44,13 @@
- #include &quot;cvodes.h&quot;
- #include &quot;sundials_nvector.h&quot;
- 
-+#include &quot;../../config.h&quot;
-+#ifdef HAVE_STDINT_H
-+#include &lt;stdint.h&gt;
-+#else
-+#define intptr_t unsigned int
-+#endif
-+
-   /* 
-    * ===============================================================
-    * DEFINITIONS OF CVODEA INPUTS
---- sundials-2.2.0.orig/cvodes/source/cvodea_io.c
-+++ sundials-2.2.0/cvodes/source/cvodea_io.c
-@@ -422,8 +422,8 @@
- 
-   while (ck_mem != NULL) {
- 
--    ckpnt[i].my_addr = (unsigned int) ck_mem;
--    ckpnt[i].next_addr = (unsigned int) next_;
-+    ckpnt[i].my_addr = (intptr_t) ck_mem;
-+    ckpnt[i].next_addr = (intptr_t) next_;
-     ckpnt[i].t0 = t0_;
-     ckpnt[i].t1 = t1_;
-     ckpnt[i].nstep = nst_;
-@@ -445,7 +445,7 @@
-  *  Returns the address of the 'active' check point.
-  */
- 
--int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
-+int CVadjGetCurrentCheckPoint(void *cvadj_mem, intptr_t *addr)
- {
-   CVadjMem ca_mem;
- 
-@@ -455,7 +455,7 @@
-   }
-   ca_mem = (CVadjMem) cvadj_mem;
- 
--  *addr = (unsigned int) ckpntData;
-+  *addr = (intptr_t) ckpntData;
- 
-   return(CV_SUCCESS);
- }
---- sundials-2.2.0.orig/kinsol/source/kinsol.c
-+++ sundials-2.2.0/kinsol/source/kinsol.c
-@@ -1737,7 +1737,7 @@
- 
-     /* If info_code = PRNT_RETVAL, decode the numeric value */
- 
--    ret = (int) (va_arg(ap, int *));
-+    ret = va_arg(ap, int);
- 
-     switch(ret) {
-     case KIN_SUCCESS:
 </pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -199,35 +133,59 @@ Rafael
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00500" href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
-<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00497" href="msg00497.html">RE: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
+<ul><li><em>From:</em> &quot;Herbert Sauro&quot; &lt;Herbert_Sauro@kgi.edu&gt;</li></ul></li>
+<li><strong><a name="00503" href="msg00503.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00509" href="msg00509.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00520" href="msg00520.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
+<li><strong><a name="00521" href="msg00521.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> &quot;Andreas Nicolai&quot; &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00523" href="msg00523.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> Andr&#xE9; Schneider &lt;Andre.Schneider@eas.iis.fraunhofer.de&gt;</li></ul></li>
+<li><strong><a name="00524" href="msg00524.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00525" href="msg00525.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> &quot;John W. Eaton&quot; &lt;jwe@bevo.che.wisc.edu&gt;</li></ul></li>
+<li><strong><a name="00526" href="msg00526.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> Andr&#xE9; Schneider &lt;Andre.Schneider@eas.iis.fraunhofer.de&gt;</li></ul></li>
+<li><strong><a name="00527" href="msg00527.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00528" href="msg00528.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> &quot;John W. Eaton&quot; &lt;jwe@bevo.che.wisc.edu&gt;</li></ul></li>
+<li><strong><a name="00532" href="msg00532.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> Andr&#xE9; Schneider &lt;Andre.Schneider@eas.iis.fraunhofer.de&gt;</li></ul></li>
+<li><strong><a name="00533" href="msg00533.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00488.html">Re: [sundials-users] Sundials installation...</a></strong>
+<strong><a href="msg00534.html">Re: [sundials-users] include file directory layout</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00536.html">Re: [sundials-users] include file directory layout</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00486.html">[sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00534.html">Re: [sundials-users] include file directory layout</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
+<strong><a href="msg00536.html">Re: [sundials-users] include file directory layout</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00489">
+<li><a href="maillist.html#00535">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00489">
+<li><a href="threads.html#00535">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

@@ -1,13 +1,16 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] [Pkg&#45;octave&#45;devel] Sundials -->
-<!--X-From-R13: Dnsnry Znobvffvrer <ensnryNqrovna.bet> -->
-<!--X-Date: Thu, 08 Jun 2006 16:17:39 &#45;0700 -->
-<!--X-Message-Id: 20060608231525.GC28278@laboiss2 -->
-<!--X-Content-Type: multipart/mixed -->
+<!--X-Subject: [sundials&#45;users] How to simplify that...Overview of steps to get sundials running on Windows... -->
+<!--X-From-R13: "Oaqernf @vpbynv" <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Wed, 14 Jun 2006 13:48:07 &#45;0700 -->
+<!--X-Message-Id: op.ta5lbxf2t8lo91@smtp.kuleuven.ac.be -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 601BBB4D9640CB4693A2384E4B37872E01D6289D@dell2650&#45;0550.kgi.edu -->
+<!--X-Reference: op.ta5ik9e6t8lo91@smtp.kuleuven.ac.be -->
+<!--X-Reference: 44906F6A.8090301@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] [Pkg-octave-devel] Sundials</title>
+<title>[sundials-users] How to simplify that...Overview of steps to get sundials running on Windows...</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +69,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00488.html">Date Prev</a>] [<a href="msg00490.html">Date Next</a>] [<a href="msg00486.html">Thread Prev</a>] [<a href="msg00500.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00489">Date Index</a></b>]
-[<b><a href="threads.html#00489">Thread Index</a></b>]
+[<a href="msg00503.html">Date Prev</a>] [<a href="msg00505.html">Date Next</a>] [<a href="msg00503.html">Thread Prev</a>] [<a href="msg00511.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00504">Date Index</a></b>]
+[<b><a href="threads.html#00504">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] [Pkg-octave-devel] Sundials</h1>
+<h1>[sundials-users] How to simplify that...Overview of steps to get sundials running on Windows...</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +86,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Rafael Laboissiere &lt;<a href="mailto:rafael%40debian.org">rafael@debian.org</a>&gt;</td>
+&quot;Andreas Nicolai&quot; &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 9 Jun 2006 01:15:25 +0200</td>
+Wed, 14 Jun 2006 16:46:35 -0400</td>
 </tr>
 
 </table>
@@ -100,99 +103,45 @@ Fri, 9 Jun 2006 01:15:25 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Dear SUNDIALS developers,
+<pre style="margin: 0em;">Hi again,</pre><br>
+<pre style="margin: 0em;">to provide some insight into the steps necessary to get sundials working under 
+windows and to evaluate the need and steps for improvements, here's a brief 
+summary about the steps necessary to get SUNDIALS working with native compilers 
+under windows:</pre><br>
+<pre style="margin: 0em;">1. create/download project files to compile SUNDIALS libs with your compiler 
+(since
+   project files and sundials_config.h files are often already available or 
+need to
+   be created only once, this step can be considered a minor issue)</pre><br>
+<pre style="margin: 0em;">   Btw, shouldn't we put the project files for VC8 and BCB6 on the FAQ page as 
+well?</pre><br>
+<pre style="margin: 0em;">2. add the following include directories to your project:
+   sundials/include (or whereever your own created sundials_config.h is)
+   sundials/cvode/include   (may be different, depending on the solver you are 
+using)
+   sundials/shared/include
+   sundials/nvec_serial</pre><br>
+<pre style="margin: 0em;">3. add the following library dependencies to your project:
+   libSundials  (if all compiled into one lib as in my setup)</pre><br>
+<pre style="margin: 0em;">   - or -</pre><br>
+<pre style="margin: 0em;">   libCVode
+   libShared
+   libNVecSerial</pre><br>
+<pre style="margin: 0em;"><br>That's all. With VC8 you don't even need to add the libraries explicitly, 
+simply add the
+sundials lib projects to your solution and check the appropriate dependency 
+check box.</pre><br>
+<pre style="margin: 0em;">Doesn't seem too complicated to me. But while we discuss improvements, how 
+about switching to a platform independent CMAKE based build system, instead of 
+using autotools?</pre><br>
+<pre style="margin: 0em;">Andreas</pre><br>
+<pre style="margin: 0em;">--
+Andreas Nicolai                         anicolai@syr.edu
+PhD Candidate, M.A.M.E                  (315) 443-1099
+Syracuse University
+151 Link Hall
+Syracuse, NY, 13244</pre><br>
 
-First of all, let me introduce myself: I am a member of the Debian Octave
-Group, which is currently maintaining the sundials package in Debian. I
-am contacting you about a compilation issue that has been recently
-raised.
-
-The Debian project decided to switch to gcc-4.1 as the default version of
-the GCC compiler [1].  Due to the more strict checks, many packages
-generate warnings about casts from integer to pointer (and vice-versa)
-with incompatible sizes.  The build logs can be found in [2] and the
-sundials package (version 2.1.1-6) is listed there.
-
-For sundials, the warnings appear all in file cvodea.c.  I checked the
-sources for version 2.2.0 and noticed that the problematic code was moved
-into file cvodea_io.c.  The problem comes from the fact that the
-&quot;unsinged int&quot; type is not large enough to hold a pointer in 64-bit
-architectures (e.g. alpha, amd64, and ia64).  One should instead use
-intptr_t, defined in stdint.h, probably by doing conditional compilation
-on HAVE_STDINT_H.
-
-I prepared a patch for fixing the problem, which is attached below.  This
-patch was successfully tested on both i386 and amd64 architectures with
-stdint.h present.  It is slightly convoluted, because the topdir config.h
-file need to be #include'd in cvodea.h.  This file is generated by
-configure, but is not included by any other source file.
-
-Best regards,
-
-Rafael
-
-
-[1] <a  href="http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html">http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html</a>
-[2] <a  href="http://people.debian.org/~tbm/logs/pointer/">http://people.debian.org/~tbm/logs/pointer/</a>
-</pre><pre>--- sundials-2.2.0.orig/cvodes/include/cvodea.h
-+++ sundials-2.2.0/cvodes/include/cvodea.h
-@@ -44,6 +44,13 @@
- #include &quot;cvodes.h&quot;
- #include &quot;sundials_nvector.h&quot;
- 
-+#include &quot;../../config.h&quot;
-+#ifdef HAVE_STDINT_H
-+#include &lt;stdint.h&gt;
-+#else
-+#define intptr_t unsigned int
-+#endif
-+
-   /* 
-    * ===============================================================
-    * DEFINITIONS OF CVODEA INPUTS
---- sundials-2.2.0.orig/cvodes/source/cvodea_io.c
-+++ sundials-2.2.0/cvodes/source/cvodea_io.c
-@@ -422,8 +422,8 @@
- 
-   while (ck_mem != NULL) {
- 
--    ckpnt[i].my_addr = (unsigned int) ck_mem;
--    ckpnt[i].next_addr = (unsigned int) next_;
-+    ckpnt[i].my_addr = (intptr_t) ck_mem;
-+    ckpnt[i].next_addr = (intptr_t) next_;
-     ckpnt[i].t0 = t0_;
-     ckpnt[i].t1 = t1_;
-     ckpnt[i].nstep = nst_;
-@@ -445,7 +445,7 @@
-  *  Returns the address of the 'active' check point.
-  */
- 
--int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
-+int CVadjGetCurrentCheckPoint(void *cvadj_mem, intptr_t *addr)
- {
-   CVadjMem ca_mem;
- 
-@@ -455,7 +455,7 @@
-   }
-   ca_mem = (CVadjMem) cvadj_mem;
- 
--  *addr = (unsigned int) ckpntData;
-+  *addr = (intptr_t) ckpntData;
- 
-   return(CV_SUCCESS);
- }
---- sundials-2.2.0.orig/kinsol/source/kinsol.c
-+++ sundials-2.2.0/kinsol/source/kinsol.c
-@@ -1737,7 +1737,7 @@
- 
-     /* If info_code = PRNT_RETVAL, decode the numeric value */
- 
--    ret = (int) (va_arg(ap, int *));
-+    ret = va_arg(ap, int);
- 
-     switch(ret) {
-     case KIN_SUCCESS:
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -201,33 +150,42 @@ Rafael
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00500" href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
-<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00511" href="msg00511.html">Re: [sundials-users] How to simplify that...Overview of steps to get sundials running on Windows...</a></strong>
+<ul><li><em>From:</em> Andr&#xE9; Schneider &lt;Andre.Schneider@eas.iis.fraunhofer.de&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00497" href="msg00497.html">RE: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
+<ul><li><em>From:</em> &quot;Herbert Sauro&quot; &lt;Herbert_Sauro@kgi.edu&gt;</li></ul></li>
+<li><strong><a name="00502" href="msg00502.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
+<ul><li><em>From:</em> &quot;Andreas Nicolai&quot; &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00503" href="msg00503.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00488.html">Re: [sundials-users] Sundials installation...</a></strong>
+<strong><a href="msg00503.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00505.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00486.html">[sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00503.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
+<strong><a href="msg00511.html">Re: [sundials-users] How to simplify that...Overview of steps to get sundials running on Windows...</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00489">
+<li><a href="maillist.html#00504">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00489">
+<li><a href="threads.html#00504">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

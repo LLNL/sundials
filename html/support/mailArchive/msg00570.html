@@ -1,13 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] [Pkg&#45;octave&#45;devel] Sundials -->
-<!--X-From-R13: Dnsnry Znobvffvrer <ensnryNqrovna.bet> -->
-<!--X-Date: Thu, 08 Jun 2006 16:17:39 &#45;0700 -->
-<!--X-Message-Id: 20060608231525.GC28278@laboiss2 -->
-<!--X-Content-Type: multipart/mixed -->
+<!--X-Subject: Re: [sundials&#45;users] IDA under mex interface between SUNDIALS and MATLAB -->
+<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
+<!--X-Date: Thu, 06 Jul 2006 10:01:21 &#45;0700 -->
+<!--X-Message-Id: 44AD4177.30805@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 6638778774B9F14997D316BCC99504CE87352F@hermes.mcb.ucdavis.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] [Pkg-octave-devel] Sundials</title>
+<title>Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00488.html">Date Prev</a>] [<a href="msg00490.html">Date Next</a>] [<a href="msg00486.html">Thread Prev</a>] [<a href="msg00500.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00489">Date Index</a></b>]
-[<b><a href="threads.html#00489">Thread Index</a></b>]
+[<a href="msg00569.html">Date Prev</a>] [Date Next] [<a href="msg00566.html">Thread Prev</a>] [<a href="msg00569.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00570">Date Index</a></b>]
+[<b><a href="threads.html#00570">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] [Pkg-octave-devel] Sundials</h1>
+<h1>Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Rafael Laboissiere &lt;<a href="mailto:rafael%40debian.org">rafael@debian.org</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 9 Jun 2006 01:15:25 +0200</td>
+Thu, 06 Jul 2006 09:59:35 -0700</td>
 </tr>
 
 </table>
@@ -100,134 +101,105 @@ Fri, 9 Jun 2006 01:15:25 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Dear SUNDIALS developers,
+<tt>Roy Wollman wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Dear Hannes, 
+ 
+I just finished setting up an Matlab / IDA solution. Its not a general<br>
+wrapper but a specific 
+solution to my problem and it was pretty easy to do. I'm not using mex<br>
+but rather the matlab compiler<br>
+which is a bit different but if you want to use mex it shouldn't be hard<br>
+as well. 
+Here is what I did:</tt><br>
+<br>
+<tt>1. wrote the C part and made sure it works as C &quot;main&quot; function. </tt><br>
+<br>
+<tt>2. wrote a mex gateway function, there are several example in the matlab<br>
+doc as to how to do it. 
+It basically  parse the input and output and call your 'real' other<br>
+function. look for matlab example timestwo.c<br>
+and others like that for reference. </tt><br>
+<br>
+<tt>3. translated the main from step 1 to be the 'real' function the<br>
+mexFunction gateways calls. </tt><br>
+<br>
+<tt>4. compile. This was a bit tricky. I couldn't figure out a way to link<br>
+the IDA libraries using mcc<br>
+so I first only generated the c code using mcc -c... then build it using<br>
+mbuild. I think if you use 
+mex and not mcc it should be straight forward regular<br>
+-I/usr/.../sundials  and -lsundials_ida etc. </tt><br>
+<br>
+<tt>I guess you could use these steps to build a general interface but<br>
+writing the function that calls 
+the solver in C and calling that function through the gateway<br>
+mexFunction was pretty simple as well. </tt><br>
+<br>
+<tt>Its really worth while doing, using IDA was 50(!) times then matlab's<br>
+ode15s, at least in my case. </tt><br>
+<br>
+<tt>Hope this helps, </tt><br>
+<br>
+<tt>Roy </tt><br>
+<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">Roy,</pre><br>
+<tt>If I understand it correctly (I haven't used mcc myself), your approach to interfacing IDA with Matlab is different than what sundialsTB 
+does. While sundialsTB provides a way to use the SUNDIALS solvers in a manner similar to that in which you'd use any of the Matlab existing 
+ones (e.g. ode15s), that is from within the Matlab environment, in your approach, you end up with a stand alone executable which you run 
+from outside Matlab.</tt><br>
+<br>
+<pre style="margin: 0em;">I'm not convinced that this is what Hannes is looking for...</pre><br>
+<tt>The main reason for writing the sundialsTB interfaces was to provide a fast prototyping tool (I needed a cvodes interface myself for some 
+other project and someone else here at LLNL is using the kinsol interface for testing out algorithms - this is why only these two are 
+available at this time). I never intended sundialsTB to be an end in itself (but apparently some of you are using it that way). Once done 
+with the prototyping, I converted everything to C, to get the efficiency of a compiled language (versus an interpreted one such as Matlab).</tt><br>
+<br>
+<tt>This brings me to your comments regarding the efficiency of IDA compared to that of ode15s. I suspect that only a relatively small fraction 
+of the factor of 50 that you report is due to the integrator itself. Most of it comes probably from the fact that you do not use any 
+interpreted code anymore. A fair test would require also compiling ode15s so that you compare apples to apples. When an ida mex interface 
+will be available within sundialsTB, I doubt you'll see such speed-ups over ode15s. The reason for this is that most of the time will end up 
+being spent not in the solver itself (which is a compiled library, hence fast), but rather in the user supplied functions (mostly the 
+residual function) which will still be Matlab functions (interpreted code, hence slow). Again, sundialsTB is (was) meant as a prototyping 
+tool and its main goal is not speed of execution, but rather speed and convenience in writing the code.</tt><br>
+<br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
 
-First of all, let me introduce myself: I am a member of the Debian Octave
-Group, which is currently maintaining the sundials package in Debian. I
-am contacting you about a compilation issue that has been recently
-raised.
-
-The Debian project decided to switch to gcc-4.1 as the default version of
-the GCC compiler [1].  Due to the more strict checks, many packages
-generate warnings about casts from integer to pointer (and vice-versa)
-with incompatible sizes.  The build logs can be found in [2] and the
-sundials package (version 2.1.1-6) is listed there.
-
-For sundials, the warnings appear all in file cvodea.c.  I checked the
-sources for version 2.2.0 and noticed that the problematic code was moved
-into file cvodea_io.c.  The problem comes from the fact that the
-&quot;unsinged int&quot; type is not large enough to hold a pointer in 64-bit
-architectures (e.g. alpha, amd64, and ia64).  One should instead use
-intptr_t, defined in stdint.h, probably by doing conditional compilation
-on HAVE_STDINT_H.
-
-I prepared a patch for fixing the problem, which is attached below.  This
-patch was successfully tested on both i386 and amd64 architectures with
-stdint.h present.  It is slightly convoluted, because the topdir config.h
-file need to be #include'd in cvodea.h.  This file is generated by
-configure, but is not included by any other source file.
-
-Best regards,
-
-Rafael
-
-
-[1] <a  href="http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html">http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html</a>
-[2] <a  href="http://people.debian.org/~tbm/logs/pointer/">http://people.debian.org/~tbm/logs/pointer/</a>
-</pre><pre>--- sundials-2.2.0.orig/cvodes/include/cvodea.h
-+++ sundials-2.2.0/cvodes/include/cvodea.h
-@@ -44,6 +44,13 @@
- #include &quot;cvodes.h&quot;
- #include &quot;sundials_nvector.h&quot;
- 
-+#include &quot;../../config.h&quot;
-+#ifdef HAVE_STDINT_H
-+#include &lt;stdint.h&gt;
-+#else
-+#define intptr_t unsigned int
-+#endif
-+
-   /* 
-    * ===============================================================
-    * DEFINITIONS OF CVODEA INPUTS
---- sundials-2.2.0.orig/cvodes/source/cvodea_io.c
-+++ sundials-2.2.0/cvodes/source/cvodea_io.c
-@@ -422,8 +422,8 @@
- 
-   while (ck_mem != NULL) {
- 
--    ckpnt[i].my_addr = (unsigned int) ck_mem;
--    ckpnt[i].next_addr = (unsigned int) next_;
-+    ckpnt[i].my_addr = (intptr_t) ck_mem;
-+    ckpnt[i].next_addr = (intptr_t) next_;
-     ckpnt[i].t0 = t0_;
-     ckpnt[i].t1 = t1_;
-     ckpnt[i].nstep = nst_;
-@@ -445,7 +445,7 @@
-  *  Returns the address of the 'active' check point.
-  */
- 
--int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
-+int CVadjGetCurrentCheckPoint(void *cvadj_mem, intptr_t *addr)
- {
-   CVadjMem ca_mem;
- 
-@@ -455,7 +455,7 @@
-   }
-   ca_mem = (CVadjMem) cvadj_mem;
- 
--  *addr = (unsigned int) ckpntData;
-+  *addr = (intptr_t) ckpntData;
- 
-   return(CV_SUCCESS);
- }
---- sundials-2.2.0.orig/kinsol/source/kinsol.c
-+++ sundials-2.2.0/kinsol/source/kinsol.c
-@@ -1737,7 +1737,7 @@
- 
-     /* If info_code = PRNT_RETVAL, decode the numeric value */
- 
--    ret = (int) (va_arg(ap, int *));
-+    ret = va_arg(ap, int);
- 
-     switch(ret) {
-     case KIN_SUCCESS:
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00500" href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
-<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00566" href="msg00566.html">RE: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+<ul><li><em>From:</em> &quot;Roy Wollman&quot; &lt;rwollman@ucdavis.edu&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00488.html">Re: [sundials-users] Sundials installation...</a></strong>
-</li>
-<li>Next by Date:
-<strong><a href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00569.html">Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00486.html">[sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00566.html">RE: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
+<strong><a href="msg00569.html">Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00489">
+<li><a href="maillist.html#00570">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00489">
+<li><a href="threads.html#00570">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

@@ -1,0 +1,353 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: RE: [sundials&#45;users] IDA under mex interface between SUNDIALS and MATLAB -->
+<!--X-From-R13: "Dbl Ibyyzna" <ejbyyznaNhpqnivf.rqh> -->
+<!--X-Date: Wed, 05 Jul 2006 23:17:10 &#45;0700 -->
+<!--X-Message-Id: 6638778774B9F14997D316BCC99504CE87352F@hermes.mcb.ucdavis.edu -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 44AC7D16.9090309@rose&#45;hulman.edu -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>RE: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00565.html">Date Prev</a>] [<a href="msg00567.html">Date Next</a>] [<a href="msg00565.html">Thread Prev</a>] [<a href="msg00570.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00566">Date Index</a></b>]
+[<b><a href="threads.html#00566">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>RE: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;Roy Wollman&quot; &lt;<a href="mailto:rwollman%40ucdavis.edu">rwollman@ucdavis.edu</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 5 Jul 2006 23:11:17 -0700</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Dear Hannes, 
+ 
+I just finished setting up an Matlab / IDA solution. Its not a general
+wrapper but a specific 
+solution to my problem and it was pretty easy to do. I'm not using mex
+but rather the matlab compiler
+which is a bit different but if you want to use mex it shouldn't be hard
+as well. 
+Here is what I did:
+
+1. wrote the C part and made sure it works as C &quot;main&quot; function. 
+
+2. wrote a mex gateway function, there are several example in the matlab
+doc as to how to do it. 
+It basically  parse the input and output and call your 'real' other
+function. look for matlab example timestwo.c
+and others like that for reference. 
+
+3. translated the main from step 1 to be the 'real' function the
+mexFunction gateways calls. 
+
+4. compile. This was a bit tricky. I couldn't figure out a way to link
+the IDA libraries using mcc
+so I first only generated the c code using mcc -c... then build it using
+mbuild. I think if you use 
+mex and not mcc it should be straight forward regular
+-I/usr/.../sundials  and -lsundials_ida etc. 
+
+I guess you could use these steps to build a general interface but
+writing the function that calls 
+the solver in C and calling that function through the gateway
+mexFunction was pretty simple as well. 
+
+Its really worth while doing, using IDA was 50(!) times then matlab's
+ode15s, at least in my case. 
+
+Hope this helps, 
+
+Roy 
+
+________________________________
+
+From: owner-sundials-users@lists.llnl.gov
+[<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of Hannes
+Gruschinski
+Sent: Wednesday, July 05, 2006 8:02 PM
+To: sundials-users@llnl.gov
+Subject: [sundials-users] IDA under mex interface between SUNDIALS and
+MATLAB
+
+
+Dear IDA/SUNDIALS users,
+
+I was wondering if anybody who works with IDA under MATLAB could help me
+a little and send a few command snippets so that I can continue with my
+work. Please see my questions below.
+
+My goal is to feed symbolically generated sets of DAEs to at least one
+of the DAE solvers written in fortran or C (DASSL, DASKP, RADAU,
+LSODI...) using MATLAB's inline functions and a mex interface under
+MATLAB.
+
+I was able to install SUNDIALS (2.2.0) according to the installation
+instructions but I am now a little stuck at making IDA and the mex
+interface for SUNDIALS and MATLAB work and don't know how to proceed.
+
+I have been emailing other SUNDIALS users to ask for their advice and
+they recommended to post my problem here.
+
+Radu Serban recently wrote me that there is no official IDA module for
+sundialsTB, yet which would conveniently interface IDA and MATLAB. He
+also wrote that other users expressed an interest in such an interface
+and ... see his reply below.
+
+Thank you for your help!
+
+Respectfully,
+
+Hannes
+Rose-Hulman Institute of Technology, Terre Haute, IN
+
+
+APPENDIX 0: QUESTIONS:
+
+If these questions have already been answered in the mailing list
+archive please send me the link.
+
+I installed SUNDIALS under cygwin by typing ./configure - make - make
+install - make examples - make clean. In the meantime I uninstalled
+cygwin and now work with mingw and msys.
+
+I could run the examples by opening a windows command line prompt cmd,
+cd-ing to examples_ser, and executing one of the exe files. 
+
+
+C:\SUNDIALS\sundials\ida\examples_ser&gt;idadenx.exe
+idadenx: Robertson kinetics DAE serial example problem for IDA
+         Three equation chemical kinetics problem.
+...
+Number of nonlinear conv. failures = 0
+Number of root fn. evaluations     = 617
+
+A) Is this THE way to run the examples??
+
+How do I properly run the example files (under MATLAB)?
+
+B) How can the actual solution vector can be extracted (under MATLAB)?
+
+C) Other SUNDIALS users wrote they are using IDA and the SUNDIALS mex
+interface.
+
+HOW? That is, how do I proceed in order to make the mex interface for
+SUNDIALS and MATLAB work? How do I run examples of IDA then?
+
+D) If someone already came up with a mex module for MATLAB that wraps
+around IDA, would he or she be willing to send it to the community?
+
+Thank you!
+
+APPENDIX 1: My background story and motivation:
+
+I have been solving sets of DAEs (up to 117 highly coupled and complex
+DAEs) with MATLAB's DAE solver ode23t.m but encounter numerical problems
+as for example high computational effort (for example 28min computing
+time for 10 sec of simulation time in the case of 75 DAEs) and
+non-converging integration processes possibly due to ill-conditioned
+Jacobian matrices. These DAEs were symbolically generated by heavily
+using the Symbolic Math Toolbox, converted to a so-called inline
+function and an anonymous function, and then fed to the solver. All this
+is done in MATLAB
+
+Earlier trials brought that I am able to compile DASSL and an according
+mex interface for MATLAB by Steinar Hauan
+(<a  href="http://www.andrew.cmu.edu/user/steinhau/Research/mex-interfaces.html">http://www.andrew.cmu.edu/user/steinhau/Research/mex-interfaces.html</a>)
+but running it would result in segmentation violation errors. This has
+been tried using MATLAB (7.1 and 6.5.1), Cygwin/mingw/gnumex, and later
+also with mingw/msys without any success. I have to stick to
+windows/MATLAB/Real-Time-Workshop since the drivers for my (controls)
+experiment are distributed for windows/MATLAB/Real-Time-Workshop, only.
+I also thought about working on a linux system using WINE but I am not
+sure if WINE would be capable of interfacing MATLAB/Real-Time-Workshop
+and the drivers for the controls hardware correctly.
+
+Since DASSL won't run on my computers I have been trying to make other
+DAE solvers written in C or fortran work so for example IDA (DASKP
+written in C) of SUNDIALS.
+
+I am aware of the mex interface between DAE solver RADAU and MATLAB
+written by Christian Ludwig
+(<a  href="http://www-m3.ma.tum.de/twiki/bin/view/Software/ODEWebHome">http://www-m3.ma.tum.de/twiki/bin/view/Software/ODEWebHome</a> and
+<a  href="http://www.unige.ch/~hairer/software.html">http://www.unige.ch/~hairer/software.html</a>
+&lt;<a  href="http://www.unige.ch/%7Ehairer/software.html">http://www.unige.ch/%7Ehairer/software.html</a>&gt; ) and currently try to
+make it work, too.
+
+I am also aware of the SLICOT libraries
+(<a  href="http://www.slicot.de/start.php?site=archives">http://www.slicot.de/start.php?site=archives</a>) but have not seriously
+touched them, yet.
+
+APPENDIX 2: Radu's reply:
+
+Dr. Serban, 
+
+When do you anticipate to publish/distribute an IDA module for
+sundialsTB so that the usage of IDA will be convenient using MATLAB? 
+
+Thanks. 
+
+Hannes 
+
+Dear Hannes, 
+I wrote (and maintain) the sundialsTB modules in my spare time and
+therefore cannot make any precise estimates on when an interface to IDA
+will be available. Moreover, to minimize duplication, I was
+contemplating writing such an interface only for the sensitivity-enabled
+IDAS solver (which is still in development) when this solver will be
+available. 
+However, since you're not the only one expressing interest in an IDA
+Matlab module, I'll consider writing a preliminary idas module which,
+for now, will wrap around IDA. My summer looks pretty busy, but I hope
+to have something  in a couple of months... 
+Regards, 
+--Radu 
+
+
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00570" href="msg00570.html">Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00565" href="msg00565.html">[sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+<ul><li><em>From:</em> Hannes Gruschinski &lt;gruschh@rose-hulman.edu&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00565.html">[sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00567.html">Re: [sundials-users] Dependency of solver success from log interval?</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00565.html">[sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00570.html">Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00566">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00566">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

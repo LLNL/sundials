@@ -1,15 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] The lighter side of SUNDIALS -->
+<!--X-Subject: Re: [sundials&#45;users] Sundials Toolbox on windows -->
 <!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Fri, 09 Jun 2006 14:39:51 &#45;0700 -->
-<!--X-Message-Id: 4489E9DB.6020900@llnl.gov -->
+<!--X-Date: Mon, 26 Jun 2006 08:23:04 &#45;0700 -->
+<!--X-Message-Id: 449FFABC.7050909@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 44889F55.7050506@llnl.gov -->
-<!--X-Reference: 448910E5.1010505@student.unsw.edu.au -->
+<!--X-Reference: 19544DDD29208A4A924C554E08BF789D117BCD@WCXLMAIL.wcrt.xeroxlabs.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] The lighter side of SUNDIALS</title>
+<title>Re: [sundials-users] Sundials Toolbox on windows</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00490.html">Date Prev</a>] [<a href="msg00492.html">Date Next</a>] [<a href="msg00490.html">Thread Prev</a>] [<a href="msg00493.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00491">Date Index</a></b>]
-[<b><a href="threads.html#00491">Thread Index</a></b>]
+[<a href="msg00545.html">Date Prev</a>] [<a href="msg00547.html">Date Next</a>] [<a href="msg00544.html">Thread Prev</a>] [<a href="msg00547.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00546">Date Index</a></b>]
+[<b><a href="threads.html#00546">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] The lighter side of SUNDIALS</h1>
+<h1>Re: [sundials-users] Sundials Toolbox on windows</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -92,7 +91,7 @@ Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 09 Jun 2006 14:36:27 -0700</td>
+Mon, 26 Jun 2006 08:18:20 -0700</td>
 </tr>
 
 </table>
@@ -102,27 +101,100 @@ Fri, 09 Jun 2006 14:36:27 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>John Pye wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Sorry dude, I think I broke it :-)</pre><br>
-</blockquote><pre style="margin: 0em;"><br>John,</pre><br>
-<pre style="margin: 0em;">You did not break it. You were not the only one to end up with empty values for 
-lat and long... There's probably a bug in my coding.</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I've been working on integrating IDA with the ASCEND simulation package
-recently. Work in progress, but it's been going well so far, thanks to
-the excellent documentation.</pre><br>
-<tt><a  href="https://pse.cheme.cmu.edu/wiki/view/Ascend/WebHome">https://pse.cheme.cmu.edu/wiki/view/Ascend/WebHome</a>
-</tt></blockquote><br>Thanks for pointing this out. Over the past couple of weeks I learned (or was reminded) of several packages that use SUNDIALS solvers. I'd 
-appreciate if users would let us know of others.<br>
+<pre style="margin: 0em;">Hi Dan,</pre><br>
+<tt>After a successful completion of install_STB you should get a mex file, kim.mexw32 (on my Windows laptop the extension is dll), in the 
+directory .../sundialsTB/kinsol/kim.<br>
+Does this file exist?<br>
+What do you get if, in Matlab, you type<br>
+&gt;&gt; which kim</tt><br>
 <br>
-<pre style="margin: 0em;">What index DAEs are you interested in?</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>Cheers,
-JP</pre><br>
-<pre style="margin: 0em;">Radu Serban wrote:</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I'm looking forward to seeing this map populated!</pre><br>
-<pre style="margin: 0em;">--Radu</pre><br>
+<pre style="margin: 0em;">P.S. 'help kim' just prints the comment in the file Content.m in the above 
+directory.</pre><br>
+<tt>Lopez, Daniel wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Radu, 
+I totally agree with you about Windows.  It sucks.  But, with this new<br>
+file, the toolbox finally went through the entire installation process.<br>
+So, onto the next issue.  When I try to run the KINSol function, I get<br>
+the following error:<br>
+Undefined command/function 'kim'.</tt><br>
+<br>
+<tt>Error in ==&gt; KINSol at 60<br>
+[status, y] = kim(mode, y0, strategy, yscale, fscale);<br>
+I don't know if this means the kim.mexw32 didn't compile properly or<br>
+what, but I do know that if I do help kim I get this:<br>
+MEX binding of KINSOL functions<br>
+ 
+ -- Radu Serban @ LLNL -- April 2005<br>
+Once again, thanks for your time, and I hope I'm at least being a little<br>
+helpful with debugging all of this windows stuff. 
+Thanks,<br>
+Dan Lopez</tt><br>
+<br>
+<pre style="margin: 0em;">-----Original Message-----
+From: owner-sundials-users@lists.llnl.gov
+[<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of Radu Serban
+Sent: Friday, June 23, 2006 4:35 PM
+To: sundials-users@llnl.gov
+Subject: Re: [sundials-users] Sundials Toolbox on windows</pre><br>
+<tt>Aargh, and people still ask me why I hate Windows :-)<br>
+Here's a modified install_STB.m which encloses all filenames in quotes<br>
+so that the mex script for Windows understands Windows-style paths 
+with spaces!<br>
+--Radu</tt><br>
+<br>
+<pre style="margin: 0em;"><br>Lopez, Daniel wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Radu,
+Once again, thanks for your time on this.  SundialsTB is in C:\Program
+Files\MATLAB\R2006a\toolbox\sundialsTB\src' as you had guessed, while
+sundials is simply in C:\sundials.  I hope that this helps you isolate
+the problem.  Also, here it the mex command itself:</pre><br>
+<pre style="margin: 0em;">mex -g -v -IC:\Program Files\MATLAB\R2006a\toolbox\sundialsTB\src
+-IC:\Program Files\MATLAB\R2006a\toolbox\sundialsTB\src\cvm
+</pre></blockquote><pre style="margin: 0em;"><br>-IC:\Program</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Files\MATLAB\R2006a\toolbox\sundialsTB\src\nvm<br>
+-IC:\sundials\cvodes\include -IC:\sundials\cvodes\source<br>
+-IC:\sundials\shared\include -IC:\sundials\nvec_ser  C:\Program<br>
+Files\MATLAB\R2006a\toolbox\sundialsTB\src\cvm\cvm.c C:\Program<br>
+Files\MATLAB\R2006a\toolbox\sundialsTB\src\cvm\cvmWrap.c C:\Program<br>
+Files\MATLAB\R2006a\toolbox\sundialsTB\src\cvm\cvmOpts.c C:\Program<br>
+Files\MATLAB\R2006a\toolbox\sundialsTB\src\nvm\nvm_serial.c C:\Program<br>
+Files\MATLAB\R2006a\toolbox\sundialsTB\src\nvm\nvm_ops.c<br>
+C:\sundials\cvodes\source\cvodes_band.c<br>
+C:\sundials\cvodes\source\cvodes_bandpre.c<br>
+C:\sundials\cvodes\source\cvodes_bbdpre.c<br>
+C:\sundials\cvodes\source\cvodes_dense.c<br>
+C:\sundials\cvodes\source\cvodes_diag.c<br>
+C:\sundials\cvodes\source\cvodea.c C:\sundials\cvodes\source\cvodes.c<br>
+C:\sundials\cvodes\source\cvodes_io.c<br>
+C:\sundials\cvodes\source\cvodea_io.c<br>
+C:\sundials\cvodes\source\cvodes_spils.c<br>
+C:\sundials\cvodes\source\cvodes_spbcgs.c<br>
+C:\sundials\cvodes\source\cvodes_spgmr.c<br>
+C:\sundials\cvodes\source\cvodes_sptfqmr.c<br>
+C:\sundials\shared\source\sundials_band.c<br>
+C:\sundials\shared\source\sundials_dense.c<br>
+C:\sundials\shared\source\sundials_iterative.c<br>
+C:\sundials\shared\source\sundials_nvector.c<br>
+C:\sundials\shared\source\sundials_smalldense.c<br>
+C:\sundials\shared\source\sundials_spbcgs.c<br>
+C:\sundials\shared\source\sundials_spgmr.c<br>
+C:\sundials\shared\source\sundials_sptfqmr.c<br>
+C:\sundials\shared\source\sundials_math.c<br>
+C:\sundials\nvec_ser\nvector_serial.c 
+This is mex, Copyright 1984-2005 The MathWorks, Inc.<br>
+Thanks,<br>
+Dan Lopez</tt><br>
+<br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
-</blockquote><br>
+<pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -132,40 +204,38 @@ JP</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00493" href="msg00493.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
-<ul><li><em>From:</em> John Pye &lt;john.pye@student.unsw.edu.au&gt;</li></ul></li>
+<li><strong><a name="00547" href="msg00547.html">RE: [sundials-users] Sundials Toolbox on windows</a></strong>
+<ul><li><em>From:</em> &quot;Lopez, Daniel&quot; &lt;Daniel.Lopez@xeroxlabs.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00486" href="msg00486.html">[sundials-users] The lighter side of SUNDIALS</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00490" href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
-<ul><li><em>From:</em> John Pye &lt;john.pye@student.unsw.edu.au&gt;</li></ul></li>
+<li><strong><a name="00544" href="msg00544.html">RE: [sundials-users] Sundials Toolbox on windows</a></strong>
+<ul><li><em>From:</em> &quot;Lopez, Daniel&quot; &lt;Daniel.Lopez@xeroxlabs.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00545.html">[sundials-users] Problems with IDACalcIC()</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00492.html">Re: [sundials-users] Roundoff problem in CVODE for large t and small h</a></strong>
+<strong><a href="msg00547.html">RE: [sundials-users] Sundials Toolbox on windows</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00544.html">RE: [sundials-users] Sundials Toolbox on windows</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00493.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00547.html">RE: [sundials-users] Sundials Toolbox on windows</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00491">
+<li><a href="maillist.html#00546">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00491">
+<li><a href="threads.html#00546">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

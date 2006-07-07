@@ -1,13 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] [Pkg&#45;octave&#45;devel] Sundials -->
-<!--X-From-R13: Dnsnry Znobvffvrer <ensnryNqrovna.bet> -->
-<!--X-Date: Thu, 08 Jun 2006 16:17:39 &#45;0700 -->
-<!--X-Message-Id: 20060608231525.GC28278@laboiss2 -->
-<!--X-Content-Type: multipart/mixed -->
+<!--X-Subject: RE: [sundials&#45;users] CV_TOO_MUCH_WORK -->
+<!--X-From-R13: "Oyna Uneal" <ntzyNuryyvk.pbz> -->
+<!--X-Date: Thu, 15 Jun 2006 01:33:35 &#45;0700 -->
+<!--X-Message-Id: 000c01c69055$811c1900$3df901a3@PCHEARTBREAK -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: Pine.LNX.4.58.0606141352510.25034@tux64.llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] [Pkg-octave-devel] Sundials</title>
+<title>RE: [sundials-users] CV_TOO_MUCH_WORK</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00488.html">Date Prev</a>] [<a href="msg00490.html">Date Next</a>] [<a href="msg00486.html">Thread Prev</a>] [<a href="msg00500.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00489">Date Index</a></b>]
-[<b><a href="threads.html#00489">Thread Index</a></b>]
+[<a href="msg00511.html">Date Prev</a>] [<a href="msg00513.html">Date Next</a>] [<a href="msg00507.html">Thread Prev</a>] [<a href="msg00514.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00512">Date Index</a></b>]
+[<b><a href="threads.html#00512">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] [Pkg-octave-devel] Sundials</h1>
+<h1>RE: [sundials-users] CV_TOO_MUCH_WORK</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Rafael Laboissiere &lt;<a href="mailto:rafael%40debian.org">rafael@debian.org</a>&gt;</td>
+&quot;Alan Garny&quot; &lt;<a href="mailto:agml%40hellix.com">agml@hellix.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 9 Jun 2006 01:15:25 +0200</td>
+Thu, 15 Jun 2006 09:27:13 +0100</td>
 </tr>
 
 </table>
@@ -100,98 +101,88 @@ Fri, 9 Jun 2006 01:15:25 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Dear SUNDIALS developers,
+<pre>Thanks for all the replies. It's much appreciated.
 
-First of all, let me introduce myself: I am a member of the Debian Octave
-Group, which is currently maintaining the sundials package in Debian. I
-am contacting you about a compilation issue that has been recently
-raised.
+&gt;<i> 1. Re CV_TOO_MUCH_WORK: I agree with Andreas's response.  You </i>
+&gt;<i> do not want to remove the max-steps check.  It is there for </i>
+&gt;<i> good reason -- to stop the integration when there is a real </i>
+&gt;<i> error somewhere.  In your case, it is easy enough to pick a </i>
+&gt;<i> large enough value of mxsteps to make sure you have only a </i>
+&gt;<i> few (if any) too-much-work returns, and then just keep </i>
+&gt;<i> calling CVode until you get to your next tout.</i>
+&gt;<i> (I trust you have good reason for NOT wanting to see the </i>
+&gt;<i> solution every 500 steps or so.  This is a rare situation.)</i>
 
-The Debian project decided to switch to gcc-4.1 as the default version of
-the GCC compiler [1].  Due to the more strict checks, many packages
-generate warnings about casts from integer to pointer (and vice-versa)
-with incompatible sizes.  The build logs can be found in [2] and the
-sundials package (version 2.1.1-6) is listed there.
+The kind of ODEs my users solve typically require a maximum number of steps
+of 300. That is, however, based on the assumption that sample their results
+every millisecond. Some of my users, however, need to sample every 10
+milliseconds (if not more), in which case they will need more than 300 and
+even more than 500 steps.
 
-For sundials, the warnings appear all in file cvodea.c.  I checked the
-sources for version 2.2.0 and noticed that the problematic code was moved
-into file cvodea_io.c.  The problem comes from the fact that the
-&quot;unsinged int&quot; type is not large enough to hold a pointer in 64-bit
-architectures (e.g. alpha, amd64, and ia64).  One should instead use
-intptr_t, defined in stdint.h, probably by doing conditional compilation
-on HAVE_STDINT_H.
+Anyway, before receiving you guys' reply, I did think that there had to be a
+good reason for max-steps check indeed. So, I updated my software so as to
+have 500 steps maximum by default, but with the possibility for the user of
+increasing that number if need be (i.e. if the the maximum number of steps
+is reached, then my software let the user know, in which case s/he can
+decide to either reduce the sampling rate or increasing the maximum number
+of steps). I believe that's the way it should be done, even though I would
+have liked to be in a position where the user's input could be avoided.
 
-I prepared a patch for fixing the problem, which is attached below.  This
-patch was successfully tested on both i386 and amd64 architectures with
-stdint.h present.  It is slightly convoluted, because the topdir config.h
-file need to be #include'd in cvodea.h.  This file is generated by
-configure, but is not included by any other source file.
+&gt;<i> 2. Re the ODEs/PDE issue: Again I agree with Andreas.  CVODE </i>
+&gt;<i> and IDA are heavily used for large PDE systems, which could </i>
+&gt;<i> easily include ODEs.</i>
+&gt;<i> Finite difference methods yield CVODE problems, while FEM </i>
+&gt;<i> yields IDA problems.  Either way, the issue then becomes one </i>
+&gt;<i> of careful ordering of variables, choice of linear solver </i>
+&gt;<i> (usually one of the Krylov solvers), and preconditioning.  </i>
+&gt;<i> Even so, solution of the fully coupled system is likely to be </i>
+&gt;<i> more efficient than equivalent multiple solutions of smaller </i>
+&gt;<i> subproblems (with frequent restarting).  The hardest part is </i>
+&gt;<i> preconditioning, but that need not be any more than the </i>
+&gt;<i> combination of all the individual preconditioners (or direct</i>
+&gt;<i> Jacobians) that you would generate for the subproblems.</i>
 
-Best regards,
+I currently solve my PDE system using a finite difference method and reading
+your comments, it now makes sense: I should rearrange things.
 
-Rafael
+To answer Radu's question, one of the systems I am trying to solve is:
+
+Am*(Cm*dVm/dt+Sum(Iion)) = div(D*grad(Vm))
+
+Where Am is the surfave-to-volume ratio of the cell, Cm is the capacitance
+of the cell, Vm is the transmembrane potential of the cell, Iion is one of
+the cell's currents, and D the conductivity tensor.
+
+At the moment, the way I solve that is:
+
+1) Solve dVm/dt = -1/Cm*Sum(Iion) for each cell, using CVODE,
+2) Compute 1/Am*div(D*grad(Vm)) for each cell,
+3) Update Vm using a simple forward Euler technique.
+
+Because of #3, I obviously have to reinitialise CVODE, which is where I lose
+an awful lot of time.
+
+I suppose I should rewrite the above equation as follows:
+
+dVm/dt = 1/Cm*(1/Am*div(D*grad(Vm))-Sum(Iion))
+
+&gt;<i>From there, it's going to be easy to use CVODE in an efficient way. I should</i>
+have thought of that before. I tried to get CVODE and my implementation of a
+'cell' to work together as well as possible, without having to modify the
+latter, but it would seem that it might be worth reworking my implementation
+of a 'cell'.
+
+This still leaves the problem of memory requirements though. CVODE does
+require quite a bit of it, even though I have been able to reduce its
+requirements by commenting out some of the stuff that I don't need (e.g.
+stability limit detection and rootfinding data). I guess there is no much
+that can be done about it though...
+
+Anyway, thanks again for a great library and useful comments!
+
+        Cheers, Alan.
 
 
-[1] <a  href="http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html">http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html</a>
-[2] <a  href="http://people.debian.org/~tbm/logs/pointer/">http://people.debian.org/~tbm/logs/pointer/</a>
-</pre><pre>--- sundials-2.2.0.orig/cvodes/include/cvodea.h
-+++ sundials-2.2.0/cvodes/include/cvodea.h
-@@ -44,6 +44,13 @@
- #include &quot;cvodes.h&quot;
- #include &quot;sundials_nvector.h&quot;
- 
-+#include &quot;../../config.h&quot;
-+#ifdef HAVE_STDINT_H
-+#include &lt;stdint.h&gt;
-+#else
-+#define intptr_t unsigned int
-+#endif
-+
-   /* 
-    * ===============================================================
-    * DEFINITIONS OF CVODEA INPUTS
---- sundials-2.2.0.orig/cvodes/source/cvodea_io.c
-+++ sundials-2.2.0/cvodes/source/cvodea_io.c
-@@ -422,8 +422,8 @@
- 
-   while (ck_mem != NULL) {
- 
--    ckpnt[i].my_addr = (unsigned int) ck_mem;
--    ckpnt[i].next_addr = (unsigned int) next_;
-+    ckpnt[i].my_addr = (intptr_t) ck_mem;
-+    ckpnt[i].next_addr = (intptr_t) next_;
-     ckpnt[i].t0 = t0_;
-     ckpnt[i].t1 = t1_;
-     ckpnt[i].nstep = nst_;
-@@ -445,7 +445,7 @@
-  *  Returns the address of the 'active' check point.
-  */
- 
--int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
-+int CVadjGetCurrentCheckPoint(void *cvadj_mem, intptr_t *addr)
- {
-   CVadjMem ca_mem;
- 
-@@ -455,7 +455,7 @@
-   }
-   ca_mem = (CVadjMem) cvadj_mem;
- 
--  *addr = (unsigned int) ckpntData;
-+  *addr = (intptr_t) ckpntData;
- 
-   return(CV_SUCCESS);
- }
---- sundials-2.2.0.orig/kinsol/source/kinsol.c
-+++ sundials-2.2.0/kinsol/source/kinsol.c
-@@ -1737,7 +1737,7 @@
- 
-     /* If info_code = PRNT_RETVAL, decode the numeric value */
- 
--    ret = (int) (va_arg(ap, int *));
-+    ret = va_arg(ap, int);
- 
-     switch(ret) {
-     case KIN_SUCCESS:
 </pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -201,33 +192,38 @@ Rafael
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00500" href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
-<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00514" href="msg00514.html">Re: [sundials-users] CV_TOO_MUCH_WORK</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00506" href="msg00506.html">Re: [sundials-users] CV_TOO_MUCH_WORK</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00488.html">Re: [sundials-users] Sundials installation...</a></strong>
+<strong><a href="msg00511.html">Re: [sundials-users] How to simplify that...Overview of steps to get sundials running on Windows...</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00513.html">Re: [sundials-users] include file directory layout</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00486.html">[sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00507.html">Re: [sundials-users] CV_TOO_MUCH_WORK</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
+<strong><a href="msg00514.html">Re: [sundials-users] CV_TOO_MUCH_WORK</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00489">
+<li><a href="maillist.html#00512">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00489">
+<li><a href="threads.html#00512">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

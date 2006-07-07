@@ -1,13 +1,18 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] [Pkg&#45;octave&#45;devel] Sundials -->
+<!--X-Subject: Re: [Pkg&#45;octave&#45;devel] Re: [sundials&#45;users] include file directory layout -->
 <!--X-From-R13: Dnsnry Znobvffvrer <ensnryNqrovna.bet> -->
-<!--X-Date: Thu, 08 Jun 2006 16:17:39 &#45;0700 -->
-<!--X-Message-Id: 20060608231525.GC28278@laboiss2 -->
-<!--X-Content-Type: multipart/mixed -->
+<!--X-Date: Fri, 16 Jun 2006 01:54:50 &#45;0700 -->
+<!--X-Message-Id: 20060616085213.GK8869@laboiss2 -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 601BBB4D9640CB4693A2384E4B37872E01D6289D@dell2650&#45;0550.kgi.edu -->
+<!--X-Reference: 44906F6A.8090301@llnl.gov -->
+<!--X-Reference: 4490925C.9040907@llnl.gov -->
+<!--X-Reference: 200606160154.29267.andrey@enginum.com -->
+<!--X-Reference: 1150443688.3573.12.camel@localhost -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] [Pkg-octave-devel] Sundials</title>
+<title>Re: [Pkg-octave-devel] Re: [sundials-users] include file directory layout</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +71,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00488.html">Date Prev</a>] [<a href="msg00490.html">Date Next</a>] [<a href="msg00486.html">Thread Prev</a>] [<a href="msg00500.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00489">Date Index</a></b>]
-[<b><a href="threads.html#00489">Thread Index</a></b>]
+[<a href="msg00521.html">Date Prev</a>] [<a href="msg00523.html">Date Next</a>] [<a href="msg00531.html">Thread Prev</a>] [<a href="msg00505.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00522">Date Index</a></b>]
+[<b><a href="threads.html#00522">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] [Pkg-octave-devel] Sundials</h1>
+<h1>Re: [Pkg-octave-devel] Re: [sundials-users] include file directory layout</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -90,7 +95,7 @@ Rafael Laboissiere &lt;<a href="mailto:rafael%40debian.org">rafael@debian.org</a
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 9 Jun 2006 01:15:25 +0200</td>
+Fri, 16 Jun 2006 10:52:13 +0200</td>
 </tr>
 
 </table>
@@ -100,98 +105,68 @@ Fri, 9 Jun 2006 01:15:25 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Dear SUNDIALS developers,
+<pre>* Thomas Weber &lt;thomas.weber.mail@gmail.com&gt; [2006-06-16 09:41]:
 
-First of all, let me introduce myself: I am a member of the Debian Octave
-Group, which is currently maintaining the sundials package in Debian. I
-am contacting you about a compilation issue that has been recently
-raised.
+&gt;<i> is this discussion archived somewhere? I couldn't find it at</i>
+&gt;<i> <a  href="http://www.llnl.gov/casc/sundials/support/mailArchive/maillist.html">http://www.llnl.gov/casc/sundials/support/mailArchive/maillist.html</a></i>
+&gt;<i> But the last archived posting is from 09 June.</i>
+&gt;<i> </i>
+&gt;<i> Andrey, while it is easy for you to post ot pkg-octave-devel, everyone</i>
+&gt;<i> outside who is not subscribed must wait for his message to be approved. </i>
+&gt;<i> </i>
+&gt;<i> So, we should probably have this discussion at one place only.</i>
 
-The Debian project decided to switch to gcc-4.1 as the default version of
-the GCC compiler [1].  Due to the more strict checks, many packages
-generate warnings about casts from integer to pointer (and vice-versa)
-with incompatible sizes.  The build logs can be found in [2] and the
-sundials package (version 2.1.1-6) is listed there.
+I would agree with you if the issues discussed concerned either only the
+SUNDIALS upstream development or only the Debian packaging.  I am
+reintroducing the sundials-users mailing list addrss to the Cc: of this
+message, because my comment below regards also the upstream development.
 
-For sundials, the warnings appear all in file cvodea.c.  I checked the
-sources for version 2.2.0 and noticed that the problematic code was moved
-into file cvodea_io.c.  The problem comes from the fact that the
-&quot;unsinged int&quot; type is not large enough to hold a pointer in 64-bit
-architectures (e.g. alpha, amd64, and ia64).  One should instead use
-intptr_t, defined in stdint.h, probably by doing conditional compilation
-on HAVE_STDINT_H.
+Notice that both sundials-users and pkg-octave-devel are closed mailing
+lists, only accepting posts from people subscribed to them.  I am the ML
+admin for the pkg-octave group and I use to act very quickly as regards
+admin message approvals.  Furthermore, I use to add people who send
+non-spam messages to the list of addresses allowed to post, such that
+their messages are always automatically aproved.
 
-I prepared a patch for fixing the problem, which is attached below.  This
-patch was successfully tested on both i386 and amd64 architectures with
-stdint.h present.  It is slightly convoluted, because the topdir config.h
-file need to be #include'd in cvodea.h.  This file is generated by
-configure, but is not included by any other source file.
+&gt;<i> &gt; Andrey</i>
+&gt;<i> &gt; p.s. The fresh 2.2.0 Debian package installs SUNDIALS headers and header </i>
+&gt;<i> &gt; subdirectories right into /usr/include. Guess we have to fix this  in </i>
+&gt;<i> &gt; Debian.</i>
+&gt;<i> </i>
+&gt;<i> Eh, fixing this in Debian only will mean different compiler options</i>
+&gt;<i> (-I ....). This is something we should avoid!</i>
 
-Best regards,
+Right.  Contrary to Andrey's opinion, I do not see the use of several
+$prefix/include/&lt;sub-pkg&gt; directories as a serious problem.  
 
+At any event, the SUNDIALS team could provide a pkg-config file (say,
+/usr/lib/pkgconfig/sundials.pc) that would give the appropriate compiler
+flags as in:
+
+    cc program.c `pkg-config --cflags --libs sundials`
+
+Just create a file called sundials.pc.in like this:
+
+#############################################################################
+prefix=@prefix@
+libdir=${prefix}/lib
+includedir=${prefix}/include/sundials
+
+Name: SUNDIALS
+Description: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
+Requires:
+Version: 2.2.0
+Libs: -L${libdir} -lsundials_cvode -lsundials_cvodes -lsundials_ida 
+-lsundials_kinsol
+Cflags: -I${includedir}
+#############################################################################
+
+And add sundials.pc to the list of arguments of AC_CONFIG_FILES in
+configure.ac.
+
+-- 
 Rafael
 
-
-[1] <a  href="http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html">http://lists.debian.org/debian-devel-announce/2006/06/msg00004.html</a>
-[2] <a  href="http://people.debian.org/~tbm/logs/pointer/">http://people.debian.org/~tbm/logs/pointer/</a>
-</pre><pre>--- sundials-2.2.0.orig/cvodes/include/cvodea.h
-+++ sundials-2.2.0/cvodes/include/cvodea.h
-@@ -44,6 +44,13 @@
- #include &quot;cvodes.h&quot;
- #include &quot;sundials_nvector.h&quot;
- 
-+#include &quot;../../config.h&quot;
-+#ifdef HAVE_STDINT_H
-+#include &lt;stdint.h&gt;
-+#else
-+#define intptr_t unsigned int
-+#endif
-+
-   /* 
-    * ===============================================================
-    * DEFINITIONS OF CVODEA INPUTS
---- sundials-2.2.0.orig/cvodes/source/cvodea_io.c
-+++ sundials-2.2.0/cvodes/source/cvodea_io.c
-@@ -422,8 +422,8 @@
- 
-   while (ck_mem != NULL) {
- 
--    ckpnt[i].my_addr = (unsigned int) ck_mem;
--    ckpnt[i].next_addr = (unsigned int) next_;
-+    ckpnt[i].my_addr = (intptr_t) ck_mem;
-+    ckpnt[i].next_addr = (intptr_t) next_;
-     ckpnt[i].t0 = t0_;
-     ckpnt[i].t1 = t1_;
-     ckpnt[i].nstep = nst_;
-@@ -445,7 +445,7 @@
-  *  Returns the address of the 'active' check point.
-  */
- 
--int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
-+int CVadjGetCurrentCheckPoint(void *cvadj_mem, intptr_t *addr)
- {
-   CVadjMem ca_mem;
- 
-@@ -455,7 +455,7 @@
-   }
-   ca_mem = (CVadjMem) cvadj_mem;
- 
--  *addr = (unsigned int) ckpntData;
-+  *addr = (intptr_t) ckpntData;
- 
-   return(CV_SUCCESS);
- }
---- sundials-2.2.0.orig/kinsol/source/kinsol.c
-+++ sundials-2.2.0/kinsol/source/kinsol.c
-@@ -1737,7 +1737,7 @@
- 
-     /* If info_code = PRNT_RETVAL, decode the numeric value */
- 
--    ret = (int) (va_arg(ap, int *));
-+    ret = va_arg(ap, int);
- 
-     switch(ret) {
-     case KIN_SUCCESS:
 </pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -199,35 +174,41 @@ Rafael
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00500" href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
-<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00497" href="msg00497.html">RE: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
+<ul><li><em>From:</em> &quot;Herbert Sauro&quot; &lt;Herbert_Sauro@kgi.edu&gt;</li></ul></li>
+<li><strong><a name="00503" href="msg00503.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00509" href="msg00509.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00520" href="msg00520.html">Re: [sundials-users] include file directory layout</a></strong>
+<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00488.html">Re: [sundials-users] Sundials installation...</a></strong>
+<strong><a href="msg00521.html">Re: [sundials-users] include file directory layout</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00490.html">Re: [sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00523.html">Re: [sundials-users] include file directory layout</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00486.html">[sundials-users] The lighter side of SUNDIALS</a></strong>
+<strong><a href="msg00531.html">Re: [sundials-users] include file directory layout</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00500.html">Re: [sundials-users] [Pkg-octave-devel] Sundials</a></strong>
+<strong><a href="msg00505.html">Re: [sundials-users] include file directory layout (was: The lighter side of SUNDIALS)</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00489">
+<li><a href="maillist.html#00522">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00489">
+<li><a href="threads.html#00522">
 <strong>Thread</strong></a></li>
 </ul>
 </li>
