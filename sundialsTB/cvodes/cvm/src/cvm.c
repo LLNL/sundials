@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 16:00:44 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-07 16:51:56 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1078,7 +1078,7 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   }
 
-  if ( (!cvm_quad) | (!cvm_fsa) ) {
+  if ( (!cvm_quad) || (!cvm_fsa) ) {
     mexErrMsgTxt("CVode:: too many output arguments (5).");
     return;
   }
@@ -1110,8 +1110,6 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   void *cvode_memB;
   booleantype iretB;
   double hB;
-
-  N_Vector yQB_tmp;
 
   /* Exract toutB */
 
@@ -1431,7 +1429,7 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   mxSetField(plhs[0], 0, "LSInfo", mx_ls);
 
-  /* forward Sensitivity Statistics */
+  /* Forward Sensitivity Statistics */
 
   if (cvm_fsa) {
 
