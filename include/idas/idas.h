@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-07 16:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -733,16 +733,13 @@ extern "C" {
    *                          |                                          
    * -------------------------------------------------------------- 
    *                          |                                         
-   * IDASetSensResFn          | sensitivity residual function.          
+   * IDASetSensResFn          | sensitivity residual function and
+   *                          | user data pointer.
    *                          | This function must compute residuals    
    *                          | for all sensitivity equations.          
    *                          | [IDAS difference quotient approx.]      
+   *                          | [internal]
    *                          |                                         
-   * IDASetSensRdata          | a pointer to user data that will be     
-   *                          | passed to the user's resS function      
-   *                          | every time resS is called.              
-   *                          | [NULL]                                  
-   *                          |                                     
    * IDASetSensRho            | controls the selection of finite        
    *                          | difference schemes used in evaluating   
    *                          | the sensitivity right hand sides.       
@@ -781,8 +778,7 @@ extern "C" {
    * ----------------------------------------------------------------
    */
 
-  int IDASetSensResFn(void *ida_mem, IDASensResFn resS);
-  int IDASetSensRdata(void *ida_mem, void *rdataS);
+  int IDASetSensResFn(void *ida_mem, IDASensResFn resS, void *rdataS);
   int IDASetSensRho(void *ida_mem, realtype rho);
   int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist);
   int IDASetSensErrCon(void *ida_mem, booleantype errconS);
@@ -1270,6 +1266,20 @@ extern "C" {
 
   int IDAGetQuadStats(void *ida_mem, long int *nrhsQevals, long int *nQetfails);
 
+  /*
+   * -----------------------------------------------------------------
+   * Sensitivity solution extraction routine
+   * -----------------------------------------------------------------
+   * The following functions can be called to obtain the sensitivity
+   * variables after a successful integration step.
+   * IDAGetSens returns all sensitivity vectors.
+   * IDAGetSens1 returns only the 'is'-th sensitivity vectors.
+   * If sensitivities were not computed, they returns IDA_NO_SENS.
+   * -----------------------------------------------------------------
+   */
+
+  int IDAGetSens(void *ida_mem, realtype t, N_Vector *yySout, N_Vector *ypSout);
+  int IDAGetSens1(void *ida_mem, realtype t, int is, N_Vector yySret, N_Vector ypSret);
 
   /*
    * -----------------------------------------------------------------
@@ -1390,7 +1400,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  int IDACreateB(void *ida_mem);
+  int IDACreateB(void *idaadj_mem);
   int IDAMallocB(void *idaadj_mem, IDAResFnB resB,
                  realtype tB0, N_Vector yyB0, N_Vector ypB0, 
                  int itolB, realtype *reltolB, void *abstolB);

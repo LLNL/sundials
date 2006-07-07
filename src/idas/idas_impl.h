@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-07 16:49:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -760,7 +760,7 @@ extern "C" {
 #define MSG_BAD_PBAR       "pbar has zero component(s) (illegal)."
 #define MSG_BAD_PLIST      "plist has negative component(s) (illegal)."
 #define MSG_BAD_NS         "NS <= 0 illegal."
-#define MSG_NULL_YS0       "yS0 = NULL illegal."
+#define MSG_NULL_YYS0      "yyS0 = NULL illegal."
 #define MSG_NULL_YPS0      "ypS0 = NULL illegal."
 #define MSG_BAD_ISM        "Illegal value for ism. Legal values are: IDA_SIMULTANEOUS and IDA_STAGGERED."
 #define MSG_BAD_IS         "Illegal value for is."

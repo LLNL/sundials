@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-07 16:49:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -791,7 +791,7 @@ int IDASetQuadErrCon(void *ida_mem, booleantype errconQ,
  * =================================================================
  */
 
-int IDASetSensResFn(void *ida_mem, IDASensResFn resS)
+int IDASetSensResFn(void *ida_mem, IDASensResFn resS, void *resS_data)
 {
   IDAMem IDA_mem;
 
@@ -804,30 +804,13 @@ int IDASetSensResFn(void *ida_mem, IDASensResFn resS)
 
   if (resS != NULL) {
     IDA_mem->ida_resS    = resS;
+    IDA_mem->ida_rdataS  = resS_data;
     IDA_mem->ida_resSDQ  = FALSE;
   } else {
     IDA_mem->ida_resS    = IDASensResDQ;
     IDA_mem->ida_rdataS  = ida_mem;
     IDA_mem->ida_resSDQ  = TRUE;
   }
-
-  return(IDA_SUCCESS);
-}
-
-/*-----------------------------------------------------------------*/
-
-int IDASetSensRdata(void *ida_mem, void *resS_data)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetSensRdata", MSG_NO_MEM);    
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  IDA_mem->ida_rdataS = resS_data;
 
   return(IDA_SUCCESS);
 }
