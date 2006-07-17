@@ -1,0 +1,55 @@
+\newpage
+\section{{\matlab} Interface to {\idas}}
+
+The {\matlab} interface to {\idas} provides access to all functionality of the 
+{\idas} solver, including DAE simulation and sensitvity analysis (both forward 
+and adjoint).
+
+The interface consists of 9 user-callable functions. The user must provide
+several required and optional user-supplied functions which define the problem to be solved.
+The user-callable functions and the types of user-supplied functions are listed in
+Table \ref{t:idas_fct} and fully documented later in this section.
+For more in depth details, consult also the {\idas} user guide~\cite{ida_ug}.
+
+To illustrate the use of the {\idas} {\matlab} interface, several example problems are provided
+with {\sundialsTB}, both for serial and parallel computations. Most of them are {\matlab} translations of example
+problems provided with {\idas}.
+
+\begin{table}[h]
+\centering
+\caption{{\idas} {\matlab} interface functions}
+\label{t:idas_fct}
+\medskip
+\begin{tabular}{|c||r|l|}
+  \hline
+  \multirow{9}{*}{\begin{sideways} Functions  \end{sideways}}
+  &  IDASetOptions & creates an options structure for {\idas}. \\
+%  &  IDASetFSAOptions & creates an options structure for FSA with {\idas}. \\
+  &  IDAMalloc     & allocates and initializes memory for {\idas}. \\
+%  &  IDASensMalloc & allocates and initializes memory for FSA with {\idas}. \\
+%  &  IDAadjMalloc     & allocates and initializes memory for ASA with {\idas}. \\
+%  &  IDAMallocB    & allocates and initializes backward memory for {\idas}. \\
+  &  IDASolve      & integrates the ODE. \\
+%  &  IDASolveB     & integrates the backward ODE. \\
+  &  IDAGetStats   & returns statistics for the {\idas} solver. \\
+%  &  IDAGetStatsB  & returns statistics for the backward {\idas} solver. \\
+%  &  IDAGet        & extracts data from {\idas} memory. \\
+  &  IDAFree       & deallocates memory for the {\idas} solver. \\
+  &  IDAMonitor    & sample monitoring function. \\
+  \hline
+  \multirow{13}{*}{\begin{sideways} Function types  \end{sideways}}
+  &  IDAResFn         &  residual function \\
+  &  IDARootFn        &  root-finding function  \\
+%  &  IDAQuadRhsFn     &  quadrature RHS function \\
+  &  IDADenseJacFn    &  dense Jacobian function \\
+  &  IDABandJacFn     &  banded Jacobian function \\
+  &  IDAJacTimesVecFn &  Jacobian times vector function \\
+  &  IDAPrecSetupFn   &  preconditioner setup function \\
+  &  IDAPrecSolveFn   &  preconditioner solve function \\
+  &  IDAGlocalFn      &  residual approximation function (BBDPre) \\
+  &  IDAGcommFn       &  communication function (BBDPre) \\
+%  &  IDASensResFn     &  sensitivity residual function \\
+  &  IDAMonitorFn     &  monitoring function \\
+ \hline
+\end{tabular}
+\end{table}

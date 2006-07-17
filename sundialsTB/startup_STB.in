@@ -3,7 +3,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/07 20:31:20 $
+% $Revision: 1.2 $Date: 2006/07/05 16:00:44 $
 
 stb = '@STB_INSTDIR@/sundialsTB';
 
@@ -19,6 +19,13 @@ q = fullfile(stb,'cvodes');
 if exist(q, 'dir')
   addpath(q);
   q = fullfile(stb,'cvodes','cvm');
+  addpath(q);
+end
+
+q = fullfile(stb,'idas');
+if exist(q, 'dir')
+  addpath(q);
+  q = fullfile(stb,'idas','idm');
   addpath(q);
 end
 

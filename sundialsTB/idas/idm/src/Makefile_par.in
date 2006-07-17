@@ -1,0 +1,164 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-07-17 16:49:51 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for the IDAS Matlab module using the serial NVECTOR
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+@SET_MAKE@
+
+srcdir       = @srcdir@
+top_builddir = @top_builddir@
+builddir     = @builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+INSTALL      = @INSTALL@
+INSTALL_PROG = @INSTALL_PROGRAM@
+INSTALL_FILE = @INSTALL_DATA@
+
+MEX      = @MEX@
+MEXEXT   = @MEXEXT@
+MEXOPTS  = @MEXOPTS@
+MEXFLAGS = @MEXFLAGS@
+MEXLDADD = @MEXLDADD@
+
+MPICC       = @MPICC@
+MPI_INC_DIR = @MPI_INC_DIR@
+MPI_LIB_DIR = @MPI_LIB_DIR@
+MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
+
+STB_INSTDIR = @STB_INSTDIR@
+
+IDM_SRCDIR = $(srcdir)
+NVM_SRCDIR = $(srcdir)/../../../nvector/src
+
+top_srcdir = $(srcdir)/../../../..
+SUNDIALS_INCDIR = $(top_srcdir)/include
+IDAS_SRCDIR   = $(top_builddir)/src/ida
+NVECSER_SRCDIR  = $(top_builddir)/src/nvec_ser
+NVECPAR_SRCDIR  = $(top_builddir)/src/nvec_par
+
+IDM_SRC  = $(IDM_SRCDIR)/idm.c $(IDM_SRCDIR)/idmWrap.c $(IDM_SRCDIR)/idmOpts.c
+NVM_SRC  = $(NVM_SRCDIR)/nvm_parallel.c $(NVM_SRCDIR)/nvm_ops.c
+SRCFILES = $(IDM_SRC) $(NVM_SRC)
+
+INCLUDES = -I$(IDM_SRCDIR) -I$(NVM_SRCDIR) -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src -I$(MPI_INC_DIR)
+LIBS = $(IDAS_SRCDIR)/libsundials_ida.la $(NVECSER_SRCDIR)/libsundials_nvecserial.la $(NVECPAR_SRCDIR)/libsundials_nvecparallel.la -L$(MPI_LIB_DIR) $(MPI_LIBS)
+
+MEXFILE = ../idm.$(MEXEXT)
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+
+all: idm
+
+clean:
+	rm -f *.lo
+	rm -f *.o
+	$(LIBTOOL) --mode=clean rm -f $(MEXFILE)
+
+install: idm
+#	Create directories
+	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/nvector
+	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/idas/idm
+	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/idas/examples_ser
+#	Install startup file
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/startup_STB.m             $(STB_INSTDIR)/sundialsTB/
+#	Install IDAS functions
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/Contents.m           $(STB_INSTDIR)/sundialsTB/idas/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAadjMalloc.m       $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDABandJacFn.m       $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDADenseJacFn.m      $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAGcommFn.m         $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAGlocalFn.m        $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAJacTimesVecFn.m   $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAMonitorFn.m       $(STB_INSTDIR)/sundialsTB/idas/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDASolveB.m          $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAFree.m            $(STB_INSTDIR)/sundialsTB/idas/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAGet.m             $(STB_INSTDIR)/sundialsTB/idas/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAGetStatsB.m       $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAGetStats.m        $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDASolve.m           $(STB_INSTDIR)/sundialsTB/idas/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAMallocB.m         $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAMalloc.m          $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAMonitor.m         $(STB_INSTDIR)/sundialsTB/idas/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDASensMalloc.m      $(STB_INSTDIR)/sundialsTB/idas/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDASetFSAOptions.m   $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDASetOptions.m      $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAPrecSetupFn.m     $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAPrecSolveFn.m     $(STB_INSTDIR)/sundialsTB/idas/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAQuadRhsFn.m       $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAResFn.m           $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDARootFn.m          $(STB_INSTDIR)/sundialsTB/idas/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDASensResFn.m       $(STB_INSTDIR)/sundialsTB/idas/
+#	Install idm functions
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/Contents.m       $(STB_INSTDIR)/sundialsTB/idas/idm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_bjac.m       $(STB_INSTDIR)/sundialsTB/idas/idm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_djac.m       $(STB_INSTDIR)/sundialsTB/idas/idm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_gcom.m       $(STB_INSTDIR)/sundialsTB/idas/idm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_gloc.m       $(STB_INSTDIR)/sundialsTB/idas/idm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_jtv.m        $(STB_INSTDIR)/sundialsTB/idas/idm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_monitor.m    $(STB_INSTDIR)/sundialsTB/idas/idm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_pset.m       $(STB_INSTDIR)/sundialsTB/idas/idm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_psol.m       $(STB_INSTDIR)/sundialsTB/idas/idm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_res.m        $(STB_INSTDIR)/sundialsTB/idas/idm/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_rhsQ.m       $(STB_INSTDIR)/sundialsTB/idas/idm/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_resS.m       $(STB_INSTDIR)/sundialsTB/idas/idm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/idm/idm_root.m       $(STB_INSTDIR)/sundialsTB/idas/idm/
+#	Install MEX file
+	$(INSTALL_PROG) $(top_builddir)/sundialsTB/idas/idm/idm.$(MEXEXT)  $(STB_INSTDIR)/sundialsTB/idas/idm/
+#	Install serial example files
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx_f.m    $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx_g.m    $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx_J.m    $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx.m      $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
+#	Install parallel example files
+#	Install NVECTOR files
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/Contents.m               $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VDotProd.m             $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VL1Norm.m              $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMax.m                 $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMaxNorm.m             $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMin.m                 $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWL2Norm.m             $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWrmsNorm.m            $(STB_INSTDIR)/sundialsTB/nvector/
+#	Install PUTILS files
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/Contents.m                $(STB_INSTDIR)/sundialsTB/putils/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpirun.m                  $(STB_INSTDIR)/sundialsTB/putils/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpiruns.m                 $(STB_INSTDIR)/sundialsTB/putils/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpistart.m                $(STB_INSTDIR)/sundialsTB/putils/
+
+uninstall:
+	@if test -d $(STB_INSTDIR)/sundialsTB; then  \
+	  rm -rf $(STB_INSTDIR)/sundialsTB;          \
+	fi
+
+distclean: clean
+	rm -f Makefile
+	rm -f $(top_srcdir)/sundialsTB/startup_STB.m
+
+idm:
+	$(LIBTOOL) --mode=link $(MEX) $(MEXOPTS) $(MEXFLAGS) CC=$(MPICC) $(MPI_FLAGS) $(INCLUDES) -o $(MEXFILE) $(SRCFILES) $(MEXLDADD) $(LIBS)
+
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	 @cd $(top_builddir) ;                 \
+	 $(SHELL) ./config.status --recheck ; \
+	 cd $(abs_builddir)

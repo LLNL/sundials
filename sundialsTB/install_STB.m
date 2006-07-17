@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.7 $Date: 2006/03/07 01:19:46 $
+% $Revision: 1.8 $Date: 2006/07/05 16:00:44 $
 
 % MEX compiler command
 
@@ -42,6 +42,7 @@ fclose(fi);
 % Compile MEX file
 
 compile_CVM(mexcompiler,stb,sun,par);
+compile_IDM(mexcompiler,stb,sun,par);
 compile_KIM(mexcompiler,stb,sun,par);
 
 % Remove sundials_config.h
@@ -81,7 +82,8 @@ stbi = fullfile(where,'sundialsTB');
 
 go = 1;
 if exist(stbi,'dir')
-  ans = input(['Directory ' stbi ' exists! Replace? (y/n) '],'s');
+  msg = sprintf('Directory %s exists! Replace? (y/n) ',stbi);
+  ans = input(msg,'s');
   if ans == 'y'
     rmdir(stbi,'s');
     go = 1;
@@ -99,6 +101,9 @@ mkdir(where,'sundialsTB');
 mkdir(fullfile(where,'sundialsTB'),'cvodes');
 mkdir(fullfile(where,'sundialsTB','cvodes'),'cvm');
 mkdir(fullfile(where,'sundialsTB','cvodes'),'examples_ser');
+mkdir(fullfile(where,'sundialsTB'),'idas');
+mkdir(fullfile(where,'sundialsTB','idas'),'idm');
+mkdir(fullfile(where,'sundialsTB','idas'),'examples_ser');
 mkdir(fullfile(where,'sundialsTB'),'kinsol');
 mkdir(fullfile(where,'sundialsTB','kinsol'),'kim');
 mkdir(fullfile(where,'sundialsTB','kinsol'),'examples_ser');
@@ -106,6 +111,7 @@ mkdir(fullfile(where,'sundialsTB'),'nvector');
 if par
   mkdir(fullfile(where,'sundialsTB'),'putils');
   mkdir(fullfile(where,'sundialsTB','cvodes'),'examples_par');
+  mkdir(fullfile(where,'sundialsTB','idas'),'examples_par');
   mkdir(fullfile(where,'sundialsTB','kinsol'),'examples_par');
 end
 
@@ -218,6 +224,114 @@ end
 
 cvm_dir = fullfile(stb,'cvodes','cvm');
 cd(cvm_dir)
+mex_cmd = sprintf('%s -v %s %s %s', mexcompiler, includes, sources, libraries);
+disp(mex_cmd);
+eval(mex_cmd);
+
+% Move back to sundialsTB
+
+cd(stb)
+
+%---------------------------------------------------------------------------------
+% compilation of idm MEX file
+%---------------------------------------------------------------------------------
+
+function [] = compile_IDM(mexcompiler,stb,sun,par)
+
+idm_sources = {
+    fullfile(stb,'idas','idm','src','idm.c')
+    fullfile(stb,'idas','idm','src','idmWrap.c')
+    fullfile(stb,'idas','idm','src','idmOpts.c')
+              };
+if par
+    nvm_sources = {
+        fullfile(stb,'nvector','src','nvm_parallel.c')
+        fullfile(stb,'nvector','src','nvm_ops.c')
+                  };
+else
+    nvm_sources = {
+        fullfile(stb,'nvector','src','nvm_serial.c')
+        fullfile(stb,'nvector','src','nvm_ops.c')
+                  };
+end
+sources = '';
+for i=1:length(idm_sources)
+    sources = sprintf('%s "%s"',sources,idm_sources{i});
+end
+for i=1:length(nvm_sources)
+    sources = sprintf('%s "%s"',sources,nvm_sources{i});
+end
+
+idm_incdir = fullfile(stb,'idas','idm','src');   % for idm.h
+nvm_incdir = fullfile(stb,'nvector','src');      % for nvm.h
+includes = sprintf('-I"%s" -I"%s" -I"%s"',stb,idm_incdir,nvm_incdir);
+
+libraries = '';
+
+% Add IDAS sources and header files
+
+ids_sources = {
+    fullfile(sun,'src','idas','idas_band.c')
+    fullfile(sun,'src','idas','idas_bbdpre.c')
+    fullfile(sun,'src','idas','idas_dense.c')
+%    fullfile(sun,'src','idas','idaa.c')
+    fullfile(sun,'src','idas','idas.c')
+    fullfile(sun,'src','idas','idas_ic.c')
+    fullfile(sun,'src','idas','idas_io.c')
+%    fullfile(sun,'src','idas','idaa_io.c')
+    fullfile(sun,'src','idas','idas_spils.c')
+    fullfile(sun,'src','idas','idas_spbcgs.c')
+    fullfile(sun,'src','idas','idas_spgmr.c')
+    fullfile(sun,'src','idas','idas_sptfqmr.c')
+              };
+shr_sources = {
+    fullfile(sun,'src','sundials','sundials_band.c')
+    fullfile(sun,'src','sundials','sundials_dense.c')
+    fullfile(sun,'src','sundials','sundials_iterative.c')
+    fullfile(sun,'src','sundials','sundials_nvector.c')
+    fullfile(sun,'src','sundials','sundials_smalldense.c')
+    fullfile(sun,'src','sundials','sundials_spbcgs.c')
+    fullfile(sun,'src','sundials','sundials_spgmr.c')
+    fullfile(sun,'src','sundials','sundials_sptfqmr.c')
+    fullfile(sun,'src','sundials','sundials_math.c')
+              };
+for i=1:length(ids_sources)
+    sources = sprintf('%s "%s"',sources,ids_sources{i});
+end
+for i=1:length(shr_sources)
+    sources = sprintf('%s "%s"',sources,shr_sources{i});
+end
+
+sun_incdir = fullfile(sun,'include');      % for SUNDIALS exported headers
+ids_srcdir = fullfile(sun,'src','idas');   % for idas_impl.h
+includes = sprintf('%s -I"%s" -I"%s"',includes,sun_incdir,ids_srcdir);
+
+% Add NVEC_SER sources and header files
+
+nvs_sources = fullfile(sun,'src','nvec_ser','nvector_serial.c');
+sources = sprintf('%s "%s"',sources, nvs_sources);
+
+if par
+  
+  % Add NVEC_PAR sources and header files
+
+  nvp_sources = fullfile(sun,'src','nvec_par','nvector_parallel.c');
+  sources = sprintf('%s "%s"',sources, nvp_sources);
+
+% Add LAM headers and libraries
+
+  lam = getenv('LAMHOME');
+  lam_incdir = fullfile(lam, 'include');
+  lam_libdir = fullfile(lam, 'lib');
+  includes = sprintf('%s -I"%s"',includes,lam_incdir);
+  libraries = sprintf('%s -L"%s" -lmpi -llam -lutil',libraries,lam_libdir);
+
+end
+
+% Create MEX file
+
+idm_dir = fullfile(stb,'idas','idm');
+cd(idm_dir)
 mex_cmd = sprintf('%s -v %s %s %s', mexcompiler, includes, sources, libraries);
 disp(mex_cmd);
 eval(mex_cmd);
@@ -359,6 +473,7 @@ fclose(fi);
 % Copy files to installation directory
 
 cvmmex = ['cvm.' mexext];
+idmmex = ['idm.' mexext];
 kimmex = ['kim.' mexext];
 
 cvm_files = {
@@ -444,6 +559,46 @@ cvm_exp = {
     fullfile('cvodes','examples_par','pvnx.m')    
           };
 
+idm_files = {
+    fullfile('idas','Contents.m')
+    fullfile('idas','IDABandJacFn.m')
+    fullfile('idas','IDADenseJacFn.m')
+    fullfile('idas','IDAGcommFn.m')
+    fullfile('idas','IDAGlocalFn.m')
+    fullfile('idas','IDAJacTimesVecFn.m')
+    fullfile('idas','IDAMonitorFn.m')
+    fullfile('idas','IDAFree.m')
+    fullfile('idas','IDAGet.m')
+    fullfile('idas','IDAGetStats.m')
+    fullfile('idas','IDASolve.m')
+    fullfile('idas','IDAMalloc.m')
+    fullfile('idas','IDAMonitor.m')
+    fullfile('idas','IDASetOptions.m')
+    fullfile('idas','IDAPrecSetupFn.m')
+    fullfile('idas','IDAPrecSolveFn.m')
+    fullfile('idas','IDAResFn.m')
+    fullfile('idas','IDARootFn.m')
+    fullfile('idas','idm','Contents.m')
+    fullfile('idas','idm','idm_bjac.m')
+    fullfile('idas','idm','idm_djac.m')
+    fullfile('idas','idm','idm_gcom.m')
+    fullfile('idas','idm','idm_gloc.m')
+    fullfile('idas','idm','idm_jtv.m')
+    fullfile('idas','idm','idm_monitor.m')
+    fullfile('idas','idm','idm_pset.m')
+    fullfile('idas','idm','idm_psol.m')
+    fullfile('idas','idm','idm_res.m')
+    fullfile('idas','idm','idm_root.m')
+    fullfile('idas','idm',idmmex)    
+            };
+
+idm_exs = {
+    fullfile('idas','examples_ser','idadenx.m')
+    fullfile('idas','examples_ser','idadenx_f.m')
+    fullfile('idas','examples_ser','idadenx_g.m')
+    fullfile('idas','examples_ser','idadenx_J.m')
+          };
+
 kim_files = {
     fullfile('kinsol','Contents.m')
     fullfile('kinsol','KINBandJacFn.m')
@@ -470,7 +625,6 @@ kim_files = {
     fullfile('kinsol','kim','kim_psol.m')
     fullfile('kinsol','kim','kim_sys.m')
     fullfile('kinsol','kim',kimmex)
-
             };
 
 kim_exs = {
@@ -507,7 +661,7 @@ put_files = {
     fullfile('putils','mpiruns.m')    
             };
 
-stb_files = [cvm_files ; kim_files ; nvm_files ; cvm_exs ; kim_exs];
+stb_files = [cvm_files; idm_files; kim_files; nvm_files; cvm_exs; idm_exs; kim_exs];
 if par
   stb_files = [stb_files ; put_files ; cvm_exp ; kim_exp];
 end
@@ -515,6 +669,7 @@ end
 for i=1:length(stb_files)
   src = fullfile(stb,stb_files{i});
   dest = fullfile(stbi,stb_files{i});
+  fprintf('        Copy  %s  ->  %s\n',src,dest);
   [success,msg,msgid] = copyfile(src,dest);
   if ~success
     disp(msg);

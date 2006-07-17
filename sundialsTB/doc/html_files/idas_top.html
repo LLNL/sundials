@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>User Guide for sundialsTB</title>
+<title>Matlab Interface to IDAS</title>
 
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
@@ -69,79 +69,132 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 
 <!-- Start content for this page -->
 
+<div><a href="sundialsTB.html"><b>sundialsTB</a> &gt; idas</b></div>
 
-<div class="title">sundialsTB, a Matlab Interface to SUNDIALS</div>
+<div class="title">
+sundialsTB, a Matlab Interface to SUNDIALS<br>IDAS
+</div>
 
+<h1>IDAS Functions</h1>
+<div class="frame">
+<table width="600">
+<colgroup width=120>
+<colgroup width=120>
+<colgroup width=120>
+<colgroup width=120>
+<colgroup width=120>
+<tr>
+<td><a href="idas/IDASetOptions.html" title="idas">IDASetOptions</a></td>  
+<td><a href="idas/IDAMalloc.html" title="idas">IDAMalloc</a></td>  
+<td><a href="idas/IDASolve.html" title="idas">IDASolve</a></td>  
+<td><a href="idas/IDAFree.html" title="idas">IDAFree</a></td>  
+<td><a href="idas/IDAMonitor.html" title="idas">IDAMonitor</a></td>  
+</tr>
+<!-- <td><a href="idas/IDASetFSAOptions.html" title="idas">IDASetFSAOptions</a></td>   -->
+<!-- <td><a href="idas/IDASensMalloc.html" title="idas">IDASensMalloc</a></td>   -->
+<td><a href="idas/IDAGetStats.html" title="idas">IDAGetStats</a></td>  
+<!-- <td><a href="idas/IDAGet.html" title="idas">IDAGet</a></td>   -->
+<td></td>
+<tr>
+</tr>
+<tr>
+<!-- <td><a href="idas/IDAadjMalloc.html" title="idas">IDAadjMalloc</a></td>   -->
+<!-- <td><a href="idas/IDAMallocB.html" title="idas">IDAMallocB</a></td>   -->
+<!-- <td><a href="idas/IDASolveB.html" title="idas">IDASolveB</a></td>   -->
+<!-- <td><a href="idas/IDAGetStatsB.html" title="idas">IDAGetStatsB</a></td>  -->
+<td></td>
+</tr>
+</table>
+</div>
+                              
+<h1>IDAS Function Types</h1>          
+<div class="frame">
+<table width="480">
+<colgroup width=120>
+<colgroup width=120>
+<colgroup width=120>
+<colgroup width=120>
+<tr> 
+<td><a href="idas/IDAResFn.html" title="idas">IDAResFn</a></td>  
+<td><a href="idas/IDABandJacFn.html" title="idas">IDABandJacFn</a></td>  
+<td><a href="idas/IDARootFn.html" title="idas">IDARootFn</a></td>  
+<td><a href="idas/IDAGcommFn.html" title="idas">IDAGcommFn</a></td>  
+</tr> 
+<tr>
+<!-- <td><a href="idas/IDAQuadRhsFn.html" title="idas">IDAQuadRhsFn</a></td>   -->
+<td><a href="idas/IDADenseJacFn.html" title="idas">IDADenseJacFn</a></td>  
+<td><a href="idas/IDAPrecSetupFn.html" title="idas">IDAPrecSetupFn</a></td>  
+<td><a href="idas/IDAGlocalFn.html" title="idas">IDAGlocalFn</a></td>  
+<td></td>
+</tr> 
+<tr>
+<!-- <td><a href="idas/IDASensResFn.html" title="idas">IDASensResFn</a></td>   -->
+<td><a href="idas/IDAJacTimesVecFn.html" title="idas">IDAJacTimesVecFn</a></td>  
+<td><a href="idas/IDAPrecSolveFn.html" title="idas">IDAPrecSolveFn</a></td> 
+<td><a href="idas/IDAMonitorFn.html" title="idas">IDAMonitorFn</a></td>  
+<td></td>
+</tr> 
+</table>
+</div>        
 
-<h1>Modules</h1>
+<h1>IDAS Serial Example Problems</h1>
 <div class="frame">
 <table>
+<colgroup width="60">
+<colgroup width="280">
+<colgroup width="30" align="center">
+<colgroup align="left">
 <tr>
-<td><img src="matlabicon.gif" alt="matlab" border=0 align="middle"></td>
-<td><a href="cvodes.html">cvodes</a></td>
+  <td><strong>Driver</strong></td>
+  <td><strong>Supporting functions</strong></td>
+  <td></td>
+  <td><strong>Description</strong></td>
 </tr>
 <tr>
-<td><img src="matlabicon.gif" alt="matlab" border=0 align="middle"></td>
-<td><a href="idas.html">idas</a></td>
+  <td><a href="idas/examples_ser/idadenx.html">idadenx</a></td>
+  <td>
+    <a href="idas/examples_ser/idadenx_f.html">idadenx_f</a>,
+    <a href="idas/examples_ser/idadenx_g.html">idadenx_g</a>,
+    <a href="idas/examples_ser/idadenx_J.html">idadenx_J</a>
+  </td>
+  <td></td>
+  <td>chemical kinetics problem</td>
 </tr>
 <tr>
-<td><img src="matlabicon.gif" alt="matlab" border=0 align="middle"></td>
-<td><a href="kinsol.html">kinsol</a></td>
+  <td><a href="idas/examples_ser/idabanx.html">idabanx</a></td>
+  <td>
+    <a href="idas/examples_ser/idabanx_f.html">idabanx_f</a>, 
+    <a href="idas/examples_ser/idabanx_q.html">idabanx_ic</a>,
+  </td>
+  <td></td>
+  <td>1D heat problem</td>
 </tr>
-<tr>
-<td><img src="matlabicon.gif" alt="matlab" border=0 align="middle"></td>
-<td><a href="nvector.html">nvector</a></td>
 </tr>
-<tr>
-<td><img src="matlabicon.gif" alt="matlab" border=0 align="middle"></td>
-<td><a href="putils.html">putils</a></td>
-</tr>
-</table>
+</table> 
 </div>
 
-<h1>Installation</h1>
+<h1>IDAS Parallel Example Problems</h1>
 <div class="frame">
 <table>
+<colgroup width="60">
+<colgroup width="280">
+<colgroup width="30" align="center">
+<colgroup align="left">
 <tr>
-<td><img src="matlabicon.gif" alt="matlab" border=0 align="middle"></td>
-<td><a href="install_STB.html">install_STB</a></td>
-<td> - installation script</td>
+  <td><strong>Driver</strong></td>
+  <td><strong>Supporting functions</strong></td>
+  <td></td>
+  <td><strong>Description</strong></td>
 </tr>
 </table>
 </div>
 
-
-<h1>Requirements</h1>
-<div class="frame">
-Corresponding release of SUNDIALS
-<br>
-Optionally, MPITB with LAM 7.1.1 (for MPI-2 features)
-</div>
-
-<h1>Links</h1>
-<div class="frame">
-<table border="0" cellspacing="0" cellpadding="0" style="font-size: 1.2em;">
-<tr>
- <td><a href="http://www.mathworks.com"><img src="matlab.png" alt="matlab" border=0 align="middle"></a></td>
- <td width="30"></td>
- <td><a href="http://atc.ugr.es/javier-bin/mpitb_eng"><img src="mpi.png" alt="mpitb" border=0 align="middle"></a></td>
- <td width="30"></td>
- <td><a href="http://www.lam-mpi.org"><img src="lam.png" alt="lam" border=0 align="middle"></a></td>
-</tr>
-<tr>
- <td align="center"><a href="http://www.mathworks.com">Matlab</a></td>
- <td></td>
- <td align="center"><a href="http://atc.ugr.es/javier-bin/mpitb_eng">mpiTB</a></td>
- <td></td>
- <td align="center"><a href="http://www.lam-mpi.org">LAM</a></td>
-</tr>
-</table>
-</div>
 
 <div id="contact">
 For further information, contact <br> 
 Radu Serban <a href="mailto:radu@llnl.gov">radu@llnl.gov</a>, (925) 424-4852 <br> 
 </div>
+
 
 
 <!-- End content for this page -->
@@ -162,4 +215,3 @@ Radu Serban <a href="mailto:radu@llnl.gov">radu@llnl.gov</a>, (925) 424-4852 <br
 
 </body>
 </html>
-
