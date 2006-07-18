@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.36 $
-# $Date: 2006-07-05 16:03:41 $
+# $Revision: 1.37 $
+# $Date: 2006-07-18 15:10:10 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -652,26 +652,26 @@ AC_DEFUN([SUNDIALS_DEFAULT_CFLAGS],
 # Specify "-ffloat-store" flag if using gcc on an IA-32 system (recommended)
 case $host in 
 
-  # IA-32 system running Linux
-  i*-pc-linux-*)
-
-    if test "X${GCC}" = "Xyes"; then
-      if test "X${CFLAGS}" = "X"; then
-        # If user wants extra precision (long double), then let program store
-        # floating-point values in registers
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          CFLAGS="-ffloat-store"
-        fi
-      else
-        # If user wants extra precision (long double), then let program store
-        # floating-point values in registers
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          CFLAGS="${CFLAGS} -ffloat-store"
-        fi
-      fi
-    fi
-
-  ;;
+#  # IA-32 system running Linux
+#  i*-pc-linux-*)
+#
+#    if test "X${GCC}" = "Xyes"; then
+#      if test "X${CFLAGS}" = "X"; then
+#        # If user wants extra precision (long double), then let program store
+#        # floating-point values in registers
+#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+#          CFLAGS="-ffloat-store"
+#        fi
+#      else
+#        # If user wants extra precision (long double), then let program store
+#        # floating-point values in registers
+#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+#          CFLAGS="${CFLAGS} -ffloat-store"
+#        fi
+#      fi
+#    fi
+#
+#  ;;
 
 esac
 
@@ -1069,26 +1069,26 @@ AC_DEFUN([SUNDIALS_DEFAULT_FFLAGS],
 # FIXME: Should IRIX and Tru64 options overwrite FFLAGS?
 case $host in
 
-  # IA-32 system running Linux
-  i*-pc-linux-*)
-
-    if test "X${G77}" = "Xyes"; then
-      if test "X${FFLAGS}" = "X"; then
-        # If user wants extra precision (long double), then let program store
-        # floating-point values in registers
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          FFLAGS="-ffloat-store"
-        fi
-      else
-        # If user wants extra precision (long double), then let program store
-        # floating-point values in registers
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          FFLAGS="${FFLAGS} -ffloat-store"
-        fi
-      fi
-    fi
-
-  ;;
+#  # IA-32 system running Linux
+#  i*-pc-linux-*)
+#
+#    if test "X${G77}" = "Xyes"; then
+#      if test "X${FFLAGS}" = "X"; then
+#        # If user wants extra precision (long double), then let program store
+#        # floating-point values in registers
+#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+#          FFLAGS="-ffloat-store"
+#        fi
+#      else
+#        # If user wants extra precision (long double), then let program store
+#        # floating-point values in registers
+#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+#          FFLAGS="${FFLAGS} -ffloat-store"
+#        fi
+#      fi
+#    fi
+#
+#  ;;
 
   # SGI/IRIX
   mips-sgi-irix*) 
@@ -1210,26 +1210,26 @@ AC_DEFUN([SUNDIALS_DEFAULT_CXXFLAGS],
 # Specify "-ffloat-store" flag if using g++ on an IA-32 system (recommended)
 case $host in 
 
-  # IA-32 system running Linux
-  i*-pc-linux-*)
-
-    if test "X${GXX}" = "Xyes"; then
-      if test "X${CXXFLAGS}" = "X"; then
-        # If user wants extra precision (long double), then let program store
-        # floating-point values in registers
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          CXXFLAGS="-ffloat-store"
-        fi
-      else
-        # If user wants extra precision (long double), then let program store
-        # floating-point values in registers
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          CXXFLAGS="${CXXFLAGS} -ffloat-store"
-        fi
-      fi
-    fi
-
-  ;;
+#  # IA-32 system running Linux
+#  i*-pc-linux-*)
+#
+#    if test "X${GXX}" = "Xyes"; then
+#      if test "X${CXXFLAGS}" = "X"; then
+#        # If user wants extra precision (long double), then let program store
+#        # floating-point values in registers
+#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+#          CXXFLAGS="-ffloat-store"
+#        fi
+#      else
+#        # If user wants extra precision (long double), then let program store
+#        # floating-point values in registers
+#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+#          CXXFLAGS="${CXXFLAGS} -ffloat-store"
+#        fi
+#      fi
+#    fi
+#
+#  ;;
 
 esac
 
@@ -2761,8 +2761,8 @@ fi
 if test "X${STB_ENABLED}" = "Xyes"; then
   AC_ARG_WITH([],[           ],[])
   AC_MSG_CHECKING([where to install sundialsTB])
-  AC_ARG_WITH([stb-instdir],
-  [AC_HELP_STRING([--with-stb-instdir=STBINSTDIR], [install sundialsTB in STBINSTDIR @<:@MATLAB/toolbox@:>@])],
+  AC_ARG_WITH([sundialsTB-instdir],
+  [AC_HELP_STRING([--with-sundialsTB-instdir=STBINSTDIR], [install sundialsTB in STBINSTDIR @<:@MATLAB/toolbox@:>@])],
   [
     STB_INSTDIR="${withval}"
   ],
@@ -2793,9 +2793,9 @@ AC_DEFUN([SUNDIALS_MORE_HELP],
 [
 AC_ARG_WITH([],[          ],[])
 AC_ARG_WITH([],[NOTES],[])
-AC_ARG_WITH([],[  Both --with-examples-instdir and --with-stb-instdir can be set to "no", in which],[])
-AC_ARG_WITH([],[  case the examples and sundialsTB, respectively, are built but not installed.],[])
-AC_ARG_WITH([],[  Enabling the compilation of the examples (--enable-examples) but disabling their],[])
+AC_ARG_WITH([],[    Both --with-examples-instdir and --with-sundialsTB-instdir can be set to "no",],[])
+AC_ARG_WITH([],[  in which case the examples and sundialsTB, respectively, are built but not installed.],[])
+AC_ARG_WITH([],[    Enabling the compilation of the examples (--enable-examples) but disabling their],[])
 AC_ARG_WITH([],[  installation (--with-examples-instdir=no) can be used to test the SUNDIALS libraries.],[])
 
 ]) dnl END SUNDIALS_MORE_HELP
@@ -3166,8 +3166,8 @@ for i in ${EXS_MODULES} ; do
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ${i}/Makefile"
 done
 
-# sundialsTB modules and CVM and KIM makefiles
-if test "X${STB_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes"; then
+# sundialsTB modules and CVM, IDM, and KIM makefiles
+if test "X${STB_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/cvodes ; then
   STB_MODULES="${STB_MODULES} sundialsTB/cvodes/cvm/src"
   if test "X${STB_PARALLEL_OK}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/cvodes/cvm/src/Makefile:sundialsTB/cvodes/cvm/src/Makefile_par.in"
@@ -3175,7 +3175,15 @@ if test "X${STB_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/cvodes/cvm/src/Makefile:sundialsTB/cvodes/cvm/src/Makefile_ser.in"
   fi
 fi
-if test "X${STB_ENABLED}" = "Xyes" && test "X${KINSOL_ENABLED}" = "Xyes"; then
+if test "X${STB_ENABLED}" = "Xyes" && test "X${IDA_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/idas ; then
+  STB_MODULES="${STB_MODULES} sundialsTB/idas/idm/src"
+  if test "X${STB_PARALLEL_OK}" = "Xyes"; then
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/idas/idm/src/Makefile:sundialsTB/idas/idm/src/Makefile_par.in"
+  else
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/idas/idm/src/Makefile:sundialsTB/idas/idm/src/Makefile_ser.in"
+  fi
+fi
+if test "X${STB_ENABLED}" = "Xyes" && test "X${KINSOL_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/kinsol ; then
   STB_MODULES="${STB_MODULES} sundialsTB/kinsol/kim/src"
   if test "X${STB_PARALLEL_OK}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/kinsol/kim/src/Makefile:sundialsTB/kinsol/kim/src/Makefile_par.in"
@@ -3343,10 +3351,13 @@ fi
 
 if test "X${STB_ENABLED}" = "Xyes"; then
   THIS_LINE="sundialsTB:"
-  if test "X${CVODES_ENABLED}" = "Xyes"; then
+  if test "X${CVODES_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/cvodes ; then
     THIS_LINE="${THIS_LINE} cvodes"
   fi
-  if test "X${KINSOL_ENABLED}" = "Xyes"; then
+  if test "X${KINSOL_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/idas ; then
+     THIS_LINE="${THIS_LINE} idas"
+  fi
+  if test "X${KINSOL_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/kinsol ; then
      THIS_LINE="${THIS_LINE} kinsol"
   fi
   echo "  ${THIS_LINE}"
