@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.37 $
-# $Date: 2006-07-18 15:10:10 $
+# $Revision: 1.38 $
+# $Date: 2006-07-18 20:39:07 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -649,29 +649,27 @@ AC_LANG_POP([C])
 AC_DEFUN([SUNDIALS_DEFAULT_CFLAGS],
 [
 
-# Specify "-ffloat-store" flag if using gcc on an IA-32 system (recommended)
+# Note: Although NOT "used", we will keep this particular test
+
+# Let user-specified CFLAGS variable pass through
 case $host in 
 
-#  # IA-32 system running Linux
-#  i*-pc-linux-*)
-#
-#    if test "X${GCC}" = "Xyes"; then
-#      if test "X${CFLAGS}" = "X"; then
-#        # If user wants extra precision (long double), then let program store
-#        # floating-point values in registers
-#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-#          CFLAGS="-ffloat-store"
-#        fi
-#      else
-#        # If user wants extra precision (long double), then let program store
-#        # floating-point values in registers
-#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-#          CFLAGS="${CFLAGS} -ffloat-store"
-#        fi
-#      fi
-#    fi
-#
-#  ;;
+  # IA-32 system running Linux
+  i*-pc-linux-*)
+
+    if test "X${GCC}" = "Xyes"; then
+      if test "X${CFLAGS}" = "X"; then
+        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+          CFLAGS=""
+        fi
+      else
+        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+          CFLAGS="${CFLAGS}"
+        fi
+      fi
+    fi
+
+  ;;
 
 esac
 
@@ -960,8 +958,10 @@ LIBS="f77_wrapper_check.${ac_objext} ${LIBS} ${FLIBS}"
 AC_LANG_PUSH([C])
 
 F77_WRAPPER_CHECK_OK="no"
-for i in "sundials" "SUNDIALS" ; do
-  for j in "" "_" "__" ; do
+for i in "sundials" "SUNDIALS"
+do
+  for j in "" "_" "__"
+  do
     F77_MANGLED_NAME="${i}${j}"
     AC_LINK_IFELSE([AC_LANG_CALL([],[${F77_MANGLED_NAME}])],[F77_WRAPPER_CHECK_OK="yes" ; break 2])
   done
@@ -1069,26 +1069,23 @@ AC_DEFUN([SUNDIALS_DEFAULT_FFLAGS],
 # FIXME: Should IRIX and Tru64 options overwrite FFLAGS?
 case $host in
 
-#  # IA-32 system running Linux
-#  i*-pc-linux-*)
-#
-#    if test "X${G77}" = "Xyes"; then
-#      if test "X${FFLAGS}" = "X"; then
-#        # If user wants extra precision (long double), then let program store
-#        # floating-point values in registers
-#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-#          FFLAGS="-ffloat-store"
-#        fi
-#      else
-#        # If user wants extra precision (long double), then let program store
-#        # floating-point values in registers
-#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-#          FFLAGS="${FFLAGS} -ffloat-store"
-#        fi
-#      fi
-#    fi
-#
-#  ;;
+  # IA-32 system running Linux
+  # Let user-specified FFLAGS variable pass through
+  i*-pc-linux-*)
+
+    if test "X${G77}" = "Xyes"; then
+      if test "X${FFLAGS}" = "X"; then
+        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+          FFLAGS=""
+        fi
+      else
+        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+          FFLAGS="${FFLAGS}"
+        fi
+      fi
+    fi
+
+  ;;
 
   # SGI/IRIX
   mips-sgi-irix*) 
@@ -1207,29 +1204,27 @@ AC_LANG_POP([C++])
 AC_DEFUN([SUNDIALS_DEFAULT_CXXFLAGS],
 [
 
-# Specify "-ffloat-store" flag if using g++ on an IA-32 system (recommended)
+# Note: Although NOT "used", we will keep this particular test
+
+# Let user-specified CXXFLAGS variable pass through
 case $host in 
 
-#  # IA-32 system running Linux
-#  i*-pc-linux-*)
-#
-#    if test "X${GXX}" = "Xyes"; then
-#      if test "X${CXXFLAGS}" = "X"; then
-#        # If user wants extra precision (long double), then let program store
-#        # floating-point values in registers
-#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-#          CXXFLAGS="-ffloat-store"
-#        fi
-#      else
-#        # If user wants extra precision (long double), then let program store
-#        # floating-point values in registers
-#        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-#          CXXFLAGS="${CXXFLAGS} -ffloat-store"
-#        fi
-#      fi
-#    fi
-#
-#  ;;
+  # IA-32 system running Linux
+  i*-pc-linux-*)
+
+    if test "X${GXX}" = "Xyes"; then
+      if test "X${CXXFLAGS}" = "X"; then
+        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+          CXXFLAGS=""
+        fi
+      else
+        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+          CXXFLAGS="${CXXFLAGS}"
+        fi
+      fi
+    fi
+
+  ;;
 
 esac
 
@@ -2518,7 +2513,7 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
      F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"])
   fi
 
-  # Check if MPI implementation supports MPI_Comm_spawn from
+  # Check if MPI implementation supports MPI_Comm_spawn() from
   # MPI-2 specification
   if test "X${STB_ENABLED}" = "Xyes"; then
     AC_MSG_CHECKING([for MPI_Comm_spawn() from MPI-2 specification])
@@ -2567,198 +2562,210 @@ AC_REQUIRE([AC_CANONICAL_HOST])
 AC_ARG_WITH([],[      ],[])
 
 # Find Matlab installation
-
+# Note: if --with-matlab=<matlab_dir> was passed to the configure script, then
+# we check if the matlab_dir directory exists and set the enviroment variable
+# MATLAB accordingly
 AC_ARG_WITH([matlab], 
-[AC_HELP_STRING([--with-matlab=MATLAB], [specify location of Matlab installation])],
+[AC_HELP_STRING([--with-matlab=MATLAB], [specify location of Matlab installation directory])],
 [
-if [ test -d ${withval} ] ; then
-  MATLAB=${withval}
+if test -d ${withval} ; then
+  MATLAB="${withval}"
 else
-  AC_MSG_WARN([invalid value '$withval' for --with-matlab])
+  AC_MSG_WARN([invalid value '${withval}' for --with-matlab])
   STB_ENABLED="no"
 fi
 ])
 
+# Continue under the following conditions:
+#   (1) If --enable-sundialsTB was passed to the configure script and the directory argument
+#       passed via --with-matlab exists, then continue
+#   (2) If --enable-sundialsTB was passed to the configure script, but --with-matlab was NOT,
+#       then continue as the environment variable MATLAB may have been defined by the user
 if test "X${STB_ENABLED}" = "Xyes"; then
 
-  AC_MSG_CHECKING([for Matlab installation])
-  if test "${MATLAB:+set}" = "set"; then
-    # $MATLAB is defined (either as an environment var. or passed with --with-matlab)
-    cv_matlab=`cd "${MATLAB-/}" > /dev/null 2>&1 && pwd`
-    AC_MSG_RESULT([$cv_matlab])
+  # MATLAB is NOT defined, so look for it in PATH (default search location for AC_PATH_PROG macro)
+  if test "X${MATLAB}" = "X"; then
+    cv_matlab=""
+    AC_PATH_PROG([cv_matlab],[matlab],[none])
+    if test "X${cv_matlab}" = "Xnone"; then
+      STB_ENABLED="no"
+    fi
+  # MATLAB is either defined as an environment variable or was passed via --with-matlab
   else
-    # $MATLAB is not defined. Look for it in $PATH (or in a default list if $PATH is not defined)
-    cv_matlab=
-    IFS=${IFS= 	} ; tmp_ifs=$IFS ; IFS=:
-    for i in ${PATH-/bin:/usr/bin:/usr/local/bin/:opt/bin} ; do
-       # Take care of "::" constructs in $PATH
-       if test -z "$i" ; then
-          i=.
-       fi
-       # Test if matlab exists
-       if test -x "$i/matlab" ; then
-         # Test if this is a symbolic link
-         sym_link=`file $i/matlab | grep symbolic`
-         if test -n "${sym_link}" ; then       
-            j=`echo "${sym_link}" | sed 's!^.*symbolic link to !!' | sed 's!/matlab$!!'`
-            i=`cd "${i}" ; cd "${j}" > /dev/null 2>&1 && pwd`
-         fi
-         # Remove "/bin" from the end
-         i=`echo "$i" | sed 's!/bin$!!'`
-         cv_matlab=`cd "${i-/}" > /dev/null 2>&1 && pwd`
-         # If I have a non-empty directory, break out
-         if test -n "$cv_matlab" ; then
-           break
-         fi
-       fi
-    done
-    IFS=$tmp_ifs
-    if test "${cv_matlab:+set}" = "set"; then
-       AC_MSG_RESULT([$cv_matlab])
-    else
-     STB_ENABLED="no"
-     AC_MSG_RESULT([not found])
+    if test -d ${MATLAB} ; then
+      cv_matlab="${MATLAB}"
+      AC_MSG_CHECKING([for Matlab installation directory])
+      AC_MSG_RESULT([${MATLAB}])
     fi
   fi
 
 fi
 
 # Verify Matlab installation
-
 if test "X${STB_ENABLED}" = "Xyes"; then
 
-  # Strip trailing slashes.
-  MATLAB=`echo "$cv_matlab" | sed 's!/*$!!'`
+  # Determine path to main Matlab executable (set MATLAB)
+  cv_matlab_dir=`AS_DIRNAME(["${cv_matlab}"])`
+  MATLAB="${cv_matlab_dir}/.."
 
+  # Perform sanity check...
   AC_MSG_CHECKING([whether to enable Matlab support])
-  if test -d "$MATLAB/extern/include" ; then
-    AC_MSG_RESULT([ok])
+  if test -d ${MATLAB}/extern/include ; then
+    AC_MSG_RESULT([yes])
   else
     STB_ENABLED="no"
-    AC_MSG_RESULT([failure])
+    AC_MSG_RESULT([no])
   fi
 
 fi
 
-# Look for MEX
-
+# Look for Matlab MEX compiler (set MEX)
 if test "X${STB_ENABLED}" = "Xyes"; then
 
   AC_ARG_WITH([mex],
-  [AC_HELP_STRING([--with-mex=ARG], [specify location of the Matlab mex compiler])],
+  [AC_HELP_STRING([--with-mex=ARG], [specify location of Matlab MEX compiler])],
   [
-  if [ test -x ${withval} ] ; then
-    MEX=${withval}
+  if test -f ${withval} ; then
+    MEX="${withval}"
   else
-    AC_MSG_WARN([invalid value '$withval' for --with-mex])
+    AC_MSG_WARN([invalid value '${withval}' for --with-mex])
     STB_ENABLED="no"
   fi
   ])
-  
+
 fi
 
+# Continue Matlab MEX compiler check (set MEXFLAGS and MEXLDADD)
 if test "X${STB_ENABLED}" = "Xyes"; then
 
-  if test "${MEX:+set}" = "set" ; then
-    AC_MSG_CHECKING([for mex])
-    AC_MSG_RESULT([${MEX}])
-  else
+  # MEX is NOT defined, so look for it in PATH (default search location for AC_PATH_PROG macro)
+  if test "X${MEX}" = "X"; then
+    MEX=""
     case $host_os in
+
       *cygwin* | *mingw32*)
-	ax_list='mextool mex mex.bat'
+	ax_list="mextool mex mex.bat"
 	;;
+
       *)
-	ax_list='mex'
+	ax_list="mex"
 	;;
+
     esac
-    AC_PATH_PROGS([MEX], $ax_list, mex, $MATLAB/bin:$PATH)
-  fi
-
-  if test "${MEX+set}" = set ; then
-
-    if test "${MEXFLAGS+set}" != set ; then
-      MEXFLAGS=-O
-    fi
-    if test "${MEXLDADD+set}" != set ; then
-      MEXLDADD=
-    fi
-
+    AC_PATH_PROGS([MEX],[${ax_list}],[],[${MATLAB}/bin:${PATH}])
+  # MEX is either defined as an environment variable or was passed via --with-mex
   else
-
-    STB_ENABLED="no"
-
+    AC_MSG_CHECKING([for Matlab MEX compiler])
+    if test -f ${MEX} ; then
+      AC_MSG_RESULT([${MEX}])
+    else
+      AC_MSG_RESULT([none])
+      STB_ENABLED="no"
+    fi
   fi
 
+  # Set MEXFLAGS and MEXLDADD environment variables if MEX compiler exists
+  if test "X${MEX}" = "X"; then
+    STB_ENABLED="no"
+  else
+    if test "X${MEXFLAGS}" = "X"; then
+      MEXFLAGS="-O"
+    else
+      :
+    fi
+    if test "X${MEXLDADD}" = "X"; then
+      MEXLDADD=""
+    else
+      :
+    fi
+  fi
 fi
 
-# Look for mexopts file
-
+# Look for 'mexopts' file (set MEXOPTS)
 if test "X${STB_ENABLED}" = "Xyes"; then
 
-  MEXOPTS=
+  MEXOPTS=""
   AC_ARG_WITH([mexopts], 
   AC_HELP_STRING([--with-mexopts=ARG], [use MEX options file ARG [[standard]]]),
   [
-    cv_mexopts_file=${withval}
-    if test -f "$cv_mexopts_file" ; then
-      cv_mexopts_dir=`echo "$cv_mexopts_file" | sed 's,[[^/]]*$,,'`
-      cv_mexopts_dir=`cd "${cv_mexopts_dir-.}" && pwd`
-      cv_mexopts_name=`echo "$cv_mexopts_file" | sed 's,.*/,,'`
-      cv_mexopts_file="$cv_mexopts_dir/$cv_mexopts_name"
-      MEXOPTS="-f $cv_mexopts_file"
+  cv_mexopts_file="${withval}"
+  if test -f ${cv_mexopts_file} ; then
+    cv_mexopts_dir=`AS_DIRNAME(["${cv_mexopts_file}"])`
+    # MEX options file is located under the current working directory
+    if test "X${cv_mexopts_dir}" = "X${cv_mexopts_file}"; then
+      cv_mexopts_dir="."
+      cv_mexopts_name="${cv_mexopts_file}"
+      cv_mexopts_file="${cv_mexopts_dir}/${cv_mexopts_name}"
+    # ARG is non-trivial (meaning contains directory information)
     else
-      AC_MSG_WARN([invalid value '$cv_mexopts_file' for --with-mexopts])
-      STB_ENABLED="no"
+      :
     fi
+    MEXOPTS="-f ${cv_mexopts_file}"
+  else
+    AC_MSG_WARN([invalid value '${cv_mexopts_file}' for --with-mexopts])
+    STB_ENABLED="no"
+  fi
   ])
 
 fi
 
-# Test mex compiler and set extension of mex files
-
+# Test Matlab MEX compiler and set extension for MEX files (set MEXEXT)
 if test "X${STB_ENABLED}" = "Xyes"; then
 
-  AC_MSG_CHECKING([if the mex compiler works])
+  AC_MSG_CHECKING([if the Matlab MEX compiler works])
+
+  # Create test file cvmextest.c (temporary file)
   cat > cvmextest.c <<_END_MEX
 #include "mex.h"
 void mexFunction(int nlhs, mxArray **plhs, int nrhs, const mxArray **prhs)
 {}
 _END_MEX
-  (eval $MEX $MEXOPTS $MEXFLAGS -output cvmextest cvmextest.c $MEXLDADD) 2>/dev/null 1>&2
+
+  # Test Matlab MEX compiler
+  # Warning: File descriptors and I/O redirection can be problematic
+  ( eval ${MEX} ${MEXOPTS} ${MEXFLAGS} -output cvmextest cvmextest.c ${MEXLDADD} ) 2>/dev/null 1>&2
+
+  # Get exit status of previous command (meaning eval statement)
   cv_status=$?
+
+  # MEX test succeeded
   if test "${cv_status}" = "0"; then
      AC_MSG_RESULT([yes])
      if test -f cvmextest.dll ; then
-        MEXEXT=dll
+        MEXEXT="dll"
      elif test -f cvmextest.mex ; then
-        MEXEXT=mex
+        MEXEXT="mex"
      elif test -f cvmextest.mexaxp ; then
-        MEXEXT=mexaxp
+        MEXEXT="mexaxp"
      elif test -f cvmextest.mexglx ; then
-        MEXEXT=mexglx
+        MEXEXT="mexglx"
      elif test -f cvmextest.mexhp7 ; then
-        MEXEXT=mexhp7
+        MEXEXT="mexhp7"
      elif test -f cvmextest.mexhpux ; then
-        MEXEXT=mexhpux
+        MEXEXT="mexhpux"
      elif test -f cvmextest.mexrs6 ; then
-        MEXEXT=mexrs6
+        MEXEXT="mexrs6"
      elif test -f cvmextest.mexsg ; then
-        MEXEXT=mexsg
+        MEXEXT="mexsg"
      elif test -f cvmextest.mexsol ; then
-        MEXEXT=mexsol
+        MEXEXT="mexsol"
      else
-	MEXEXT=
+	MEXEXT=""
      fi
+  # MEX test failed
   else 
      AC_MSG_RESULT([no])
      STB_ENABLED="no"
   fi
+
+  # Remove temporary files
   rm -f cvmextest*
+
 fi
 
-# Where should we install sundialsTB?
-
+# Determine where to install sundialsTB
 if test "X${STB_ENABLED}" = "Xyes"; then
+
   AC_ARG_WITH([],[           ],[])
   AC_MSG_CHECKING([where to install sundialsTB])
   AC_ARG_WITH([sundialsTB-instdir],
@@ -2770,18 +2777,20 @@ if test "X${STB_ENABLED}" = "Xyes"; then
     STB_INSTDIR="${MATLAB}/toolbox/sundialsTB"
   ])
   AC_MSG_RESULT([${STB_INSTDIR}])
+
 fi
 
 # Display message if Matlab support had to be disabled
-
 if test "X${STB_ENABLED}" = "Xno"; then
+
+  AC_MSG_WARN([Matlab support was disabled])
   echo ""
-  echo "Matlab configuration for sundialsTB was disabled."
+  echo "   Matlab configuration for sundialsTB was disabled."
   echo ""
+
 fi
 
 AC_ARG_WITH([],[        ],[])
-
 
 ]) dnl END SUNDIALS_SET_MEX
 
@@ -2791,11 +2800,12 @@ AC_ARG_WITH([],[        ],[])
 
 AC_DEFUN([SUNDIALS_MORE_HELP],
 [
+
 AC_ARG_WITH([],[          ],[])
 AC_ARG_WITH([],[NOTES],[])
-AC_ARG_WITH([],[    Both --with-examples-instdir and --with-sundialsTB-instdir can be set to "no",],[])
+AC_ARG_WITH([],[  Both --with-examples-instdir and --with-sundialsTB-instdir can be set to "no",],[])
 AC_ARG_WITH([],[  in which case the examples and sundialsTB, respectively, are built but not installed.],[])
-AC_ARG_WITH([],[    Enabling the compilation of the examples (--enable-examples) but disabling their],[])
+AC_ARG_WITH([],[  Enabling the compilation of the examples (--enable-examples) but disabling their],[])
 AC_ARG_WITH([],[  installation (--with-examples-instdir=no) can be used to test the SUNDIALS libraries.],[])
 
 ]) dnl END SUNDIALS_MORE_HELP
@@ -3159,14 +3169,16 @@ fi
 
 # Set the list of Makefiles to be created
 SUNDIALS_MAKEFILES="Makefile"
-for i in ${SLV_MODULES} ; do
+for i in ${SLV_MODULES}
+do
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ${i}/Makefile"
 done
-for i in ${EXS_MODULES} ; do
+for i in ${EXS_MODULES}
+do
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ${i}/Makefile"
 done
 
-# sundialsTB modules and CVM, IDM, and KIM makefiles
+# sundialsTB modules and CVM, IDM and KIM makefiles
 if test "X${STB_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/cvodes ; then
   STB_MODULES="${STB_MODULES} sundialsTB/cvodes/cvm/src"
   if test "X${STB_PARALLEL_OK}" = "Xyes"; then
@@ -3183,7 +3195,7 @@ if test "X${STB_ENABLED}" = "Xyes" && test "X${IDA_ENABLED}" = "Xyes" && test -d
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/idas/idm/src/Makefile:sundialsTB/idas/idm/src/Makefile_ser.in"
   fi
 fi
-if test "X${STB_ENABLED}" = "Xyes" && test "X${KINSOL_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/kinsol ; then
+if test "X${STB_ENABLED}" = "Xyes" && test "X${KINSOL_ENABLED}" = "Xyes"; then
   STB_MODULES="${STB_MODULES} sundialsTB/kinsol/kim/src"
   if test "X${STB_PARALLEL_OK}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/kinsol/kim/src/Makefile:sundialsTB/kinsol/kim/src/Makefile_par.in"
@@ -3286,13 +3298,15 @@ echo "
   Mex compiler options:      ${MEXFLAGS}"
 fi
 
-cv_srcdir=`cd "${srcdir}" > /dev/null 2>&1 && pwd`
+# Determine SOURCE, BUILD, and EXEC_PREFIX directories
+cv_srcdir=`( cd ${srcdir} ; pwd )`
 cv_builddir=`pwd`
 if test "X${exec_prefix}" = "XNONE"; then
-  cv_exec_prefix=${prefix}
+  cv_exec_prefix="${prefix}"
 else
-  cv_exec_prefix=${exec_prefix}
+  cv_exec_prefix="${exec_prefix}"
 fi
+
 echo "
   srcdir:                    ${cv_srcdir}
   builddir:                  ${cv_builddir}
@@ -3354,10 +3368,10 @@ if test "X${STB_ENABLED}" = "Xyes"; then
   if test "X${CVODES_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/cvodes ; then
     THIS_LINE="${THIS_LINE} cvodes"
   fi
-  if test "X${KINSOL_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/idas ; then
-     THIS_LINE="${THIS_LINE} idas"
+  if test "X${IDA_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/idas ; then
+    THIS_LINE="${THIS_LINE} idas"
   fi
-  if test "X${KINSOL_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/kinsol ; then
+  if test "X${KINSOL_ENABLED}" = "Xyes"; then
      THIS_LINE="${THIS_LINE} kinsol"
   fi
   echo "  ${THIS_LINE}"
