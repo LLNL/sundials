@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-17 16:49:51 $
+# $Revision: 1.2 $
+# $Date: 2006-07-18 15:11:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -118,6 +118,9 @@ install: idm
 #	Install MEX file
 	$(INSTALL_PROG) $(top_builddir)/sundialsTB/idas/idm/idm.$(MEXEXT)  $(STB_INSTDIR)/sundialsTB/idas/idm/
 #	Install serial example files
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idabanx_f.m    $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idabanx_ic.m   $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idabanx.m      $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx_f.m    $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx_g.m    $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx_J.m    $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
