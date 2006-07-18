@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-07 16:49:24 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-18 20:29:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -281,17 +281,17 @@ extern "C" {
     FILE *ida_errfp;           /* IDA error messages are sent to errfp          */
 
     /* Flags to verify correct calling sequence */
-
-    booleantype ida_SetupDone;     /* set to FALSE by IDAMalloc and IDAReInit   */
-    /* set to TRUE by IDACalcIC or IDASolve      */
+    
+    booleantype ida_SetupDone;     /* set to FALSE by IDAMalloc and IDAReInit
+                                      set to TRUE by IDACalcIC or IDASolve      */
 
     booleantype ida_VatolMallocDone;
     booleantype ida_constraintsMallocDone;
     booleantype ida_idMallocDone;
 
-    booleantype ida_MallocDone;    /* set to FALSE by IDACreate                 */
-    /* set to TRUE by IDAMAlloc                  */
-    /* tested by IDAReInit and IDASolve          */
+    booleantype ida_MallocDone;    /* set to FALSE by IDACreate
+                                      set to TRUE by IDAMAlloc
+                                      tested by IDAReInit and IDASolve          */
 
     booleantype ida_VatolQMallocDone;
     booleantype ida_quadMallocDone;

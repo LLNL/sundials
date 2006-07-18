@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-07 16:49:24 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-18 20:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -377,9 +377,11 @@ void *IDACreate(void)
   }
 
   /* Set unit roundoff in IDA_mem */
+
   IDA_mem->ida_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
+
   IDA_mem->ida_res         = NULL;
   IDA_mem->ida_rdata       = NULL;
   IDA_mem->ida_efun        = NULL;
@@ -402,9 +404,11 @@ void *IDACreate(void)
   IDA_mem->ida_tstopset    = FALSE;
 
   /* set the saved value maxord_alloc */
+
   IDA_mem->ida_maxord_alloc = MAXORD_DEFAULT;
 
   /* Set default values for IC optional inputs */
+
   IDA_mem->ida_epiccon = PT01 * EPCON;
   IDA_mem->ida_maxnh   = MAXNH;
   IDA_mem->ida_maxnj   = MAXNJ;
@@ -412,17 +416,48 @@ void *IDACreate(void)
   IDA_mem->ida_lsoff   = FALSE;
   IDA_mem->ida_steptol = RPowerR(IDA_mem->ida_uround, TWOTHIRDS);
 
+  /* Set default values for quad. optional inputs */
+
+  IDA_mem->ida_quadr   = FALSE;
+  IDA_mem->ida_rhsQ    = NULL;
+  IDA_mem->ida_rdataQ  = NULL;
+  IDA_mem->ida_errconQ = FALSE;
+
+  /* Set default values for sensi. optional inputs */
+
+  IDA_mem->ida_sensi        = FALSE;
+  IDA_mem->ida_rdataS       = (void *)IDA_mem;
+  IDA_mem->ida_resS         = IDASensResDQ;
+  IDA_mem->ida_resSDQ       = TRUE;
+  IDA_mem->ida_rhomax       = ZERO;
+  IDA_mem->ida_p            = NULL;
+  IDA_mem->ida_pbar         = NULL;
+  IDA_mem->ida_plist        = NULL;
+  IDA_mem->ida_errconS      = FALSE;
+  IDA_mem->ida_maxcorS      = MAXIT;
+  IDA_mem->ida_itolS        = IDA_EE;
+
   /* Initialize lrw and liw */
+
   IDA_mem->ida_lrw = 25 + 5*MXORDP1;
   IDA_mem->ida_liw = 38;
 
   /* No mallocs have been done yet */
-  IDA_mem->ida_VatolMallocDone = FALSE;
+
+  IDA_mem->ida_VatolMallocDone       = FALSE;
   IDA_mem->ida_constraintsMallocDone = FALSE;
-  IDA_mem->ida_idMallocDone = FALSE;
-  IDA_mem->ida_MallocDone = FALSE;
+  IDA_mem->ida_idMallocDone          = FALSE;
+  IDA_mem->ida_MallocDone            = FALSE;
+
+  IDA_mem->ida_VatolQMallocDone      = FALSE;
+  IDA_mem->ida_quadMallocDone        = FALSE;
+
+  IDA_mem->ida_VatolSMallocDone      = FALSE;
+  IDA_mem->ida_SatolSMallocDone      = FALSE;
+  IDA_mem->ida_sensMallocDone        = FALSE;
 
   /* Return pointer to IDA memory block */
+
   return((void *)IDA_mem);
 }
 
