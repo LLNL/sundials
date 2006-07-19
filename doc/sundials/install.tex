@@ -1,13 +1,13 @@
 The {\sundials} suite (or individual solvers) are distributed as compressed archives
-(\id{.tgz}). The name of the distributin archive is of the form {\em solver}\id{-x.x.x.tgz},
+(\id{.tgz}). The name of the distribution archive is of the form {\em solver}\id{-x.y.z.tgz},
 where {\em solver} is one of: \id{sundials}, \id{cvode}, \id{cvodes}, \id{ida}, or \id{kinsol},
-and \id{x.x.x} represents the version number (of the {\sundials} suite or of the individual solver).
+and \id{x.y.z} represents the version number (of the {\sundials} suite or of the individual solver).
 
 To begin the installation, first uncompress and expand the sources, by issuing
 \begin{verbatim}
-   % tar xzf solver-x.x.x.tgz
+   % tar xzf solver-x.y.z.tgz
 \end{verbatim}
-This will extract source files under a directory {\em solver}\id{-x.x.x}.
+This will extract source files under a directory {\em solver}\id{-x.y.z}.
 
 The installation procedure outlined below will work on commodity {\linux}/{\unix} 
 systems without modification. However, users are still encouraged to carefully read 
@@ -21,18 +21,18 @@ may be done by issuing
 \end{verbatim}
 from within the directory created above.
 
-In the sequel, we make the following distinctions:
+In the remainder of this chapter, we make the following distinctions:
 \begin{itemize}
 
 \item {\em srcdir} 
 
-  is the directory {\em solver}\id{-x.x.x} created above; i.e. the 
+  is the directory {\em solver}\id{-x.y.z} created above; i.e., the 
   directory containing the {\sundials} sources.
 
 \item {\em builddir}
 
-  is the directory under which {\sundials} is built; i.e. the directory
-  from within which the \id{configure} command is issued. Commonly, this is the same as
+  is the directory under which {\sundials} is built; i.e., the directory
+  from within which the \id{configure} command is issued. Usually, this is the same as
   {\em srcdir}.
 
 \item {\em instdir}
@@ -45,23 +45,23 @@ In the sequel, we make the following distinctions:
   including the special cases of the {\sundials} examples and the {\sundialsTB} toolbox.
 
 \end{itemize}
-{\noindent}{\warn}NOTE: The installation directory {\em instdir} should {\bf not} be the same as
+{\noindent}{\warn}{\em Note}: The installation directory {\em instdir} should {\em not} be the same as
 the source directory {\em srcdir}.
 
 \vspace{0.2in}
 {\noindent}The installation steps for {\sundials} can be as simple as 
 \begin{verbatim}
-   % tar xzf solver-x.x.x.tgz
-   % cd solver-x.x.x
+   % tar xzf solver-x.y.z.tgz
+   % cd solver-x.y.z
    % ./configure
    % make
    % make install
 \end{verbatim}
 in which case the {\sundials} header files and libraries are installed under \id{/usr/local/include}
-and \id{/usr/local/lib}, respectively. Note that, by default, neither the example programs, nor the 
+and \id{/usr/local/lib}, respectively. Note that, by default, neither the example programs nor the 
 {\sundialsTB} toolbox are built and installed.
 
-If disk space is a priority, to delete all files created by building {\sundials}, issue
+If disk space is a priority, then to delete all temporary files created by building {\sundials}, issue
 \begin{verbatim}
    % make clean
 \end{verbatim}
@@ -128,7 +128,7 @@ options.
 
 \item \id{--enable-examples}
   
-  Available example programs are {\bf not} built by default. Use this option
+  Available example programs are {\em not} built by default. Use this option
   to enable compilation of all pertinent example programs. Upon completion of 
   the \id{make} command, the example executables will be created under solver-specific
   subdirectories of {\em builddir}\id{/examples}:
@@ -333,7 +333,7 @@ the {\sundialsTB} Matlab toolbox:
 
 \item \id{--enable-sundialsTB}
 
-  The {\sundialsTB} Matlab toolbox is {\bf not} built by default. Use this option
+  The {\sundialsTB} Matlab toolbox is {\em not} built by default. Use this option
   to enable configuration and compilation of the \id{mex} files. Upon completion
   of the \id{make} command, the following \id{mex} files will be created:
   \begin{config}
@@ -349,7 +349,7 @@ the {\sundialsTB} Matlab toolbox:
   {\sundialsTB} is enabled). As for the example programs, installation of {\sundialsTB} can 
   be completely disabled by issuing \id{STBINSTDIR=no} (in case building the toolbox is desired 
   but its installtion will be done manually afterwards). Otherwise, all required {\sundialsTB} 
-  files will be installed in a directory \id{STBINSTDIR/sundialsTB}.
+  files will be installed under the directory \id{STBINSTDIR/sundialsTB}.
 
   Default: \id{DIR=MATLAB/toolbox}  (see below for the definition of \id{MATLAB}).
 
@@ -362,7 +362,7 @@ the {\sundialsTB} Matlab toolbox:
 
 \item \id{--with-mex=ARG}
 
-  Specify the \id{mex} compilr to be used.
+  Specify the \id{mex} compiler to be used.
 
   Default: \id{ARG=MATLAB/bin/mex}
 
@@ -370,7 +370,7 @@ the {\sundialsTB} Matlab toolbox:
 
   Specify the \id{mex} options file to be used.
 
-  Default: standard Matlab \id{mex} options file.
+  Default: Standard Matlab \id{mex} options file.
 
 \end{config}
 
@@ -417,7 +417,7 @@ The following examples are meant to help demonstrate proper usage of the configu
 
 To build {\sundials} using the default C and Fortran compilers,
 and default \id{mpicc} and \id{mpif77} parallel compilers, enable compilation of examples,
-and also build the Matlab \id{mex} files for {\sundialsTB} and install it under 
+build the Matlab \id{mex} files for {\sundialsTB}, and install it under 
 \id{/home/myname/matlab/sundialsTB}, use
 \begin{verbatim}
    % configure --prefix=/home/myname/sundials --enable-examples \
@@ -570,24 +570,24 @@ If the \id{configure} script cannot be used ({\em e.g.}, when building
 user prefers to own the build process ({\em e.g.}, when {\sundials} is
 incorporated into a larger project with its own build system), then
 the header and source files for a given module can be copied from the
-{\em source\_tree} to some other location and compiled separately.
+{\em srcdir} to some other location and compiled separately.
 
 The following files are required to compile a {\sundials} solver module:
 \begin{itemize}
 \item public header files located under 
-{\em source\_tree}\id{/include/}{\em solver}
+{\em srcdir}\id{/include/}{\em solver}
 \item implementation header files and source files located under
-{\em source\_tree}\id{/src/}{\em solver}
+{\em srcdir}\id{/src/}{\em solver}
 \item (optional) {\F}/{\C} interface files located under
-{\em source\_tree}\id{/src/}{\em solver}\id{/fcmix}
+{\em srcdir}\id{/src/}{\em solver}\id{/fcmix}
 \item shared public header files located under
-{\em source\_tree}\id{/include/sundials}
+{\em srcdir}\id{/include/sundials}
 \item shared source files located under
-{\em source\_tree}\id{/src/sundials}
+{\em srcdir}\id{/src/sundials}
 \item (optional) {\nvecs} header and source files located under
-{\em source\_tree}\id{/include/nvector} and {\em source\_tree}\id{/src/nvec\_ser} 
+{\em srcdir}\id{/include/nvector} and {\em srcdir}\id{/src/nvec\_ser} 
 \item (optional) {\nvecp} header and source files located under
-{\em source\_tree}\id{/include/nvector} and {\em source\_tree}\id{/src/nvec\_par} 
+{\em srcdir}\id{/include/nvector} and {\em srcdir}\id{/src/nvec\_par} 
 \item configuration header file \id{sundials\_config.h} (see below)
 \end{itemize}
 
@@ -676,7 +676,7 @@ macros defined within \id{sundials\_config.h} have the following uses:
 /* Define SUNDIALS version number
  * ------------------------------ */
 
-#define SUNDIALS_PACKAGE_VERSION "2.2.0"
+#define SUNDIALS_PACKAGE_VERSION "2.2.1"
  
 /* Define precision of SUNDIALS data type 'realtype'
  * ------------------------------------------------- */

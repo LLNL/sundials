@@ -50,8 +50,8 @@ the subdirectories
 \item {\em incdir}\id{/include/sundials}
 \end{itemize}
 The directories {\em libdir} and {\em incdir} are the install libray and include
-directories. For a default installation, these are {\em build\_tree}\id{/lib} and
-{\em build\_tree}\id{/include}, respectively, where {\em build\_tree} was defined in
+directories. For a default installation, these are {\em builddir}\id{/lib} and
+{\em builddir}\id{/include}, respectively, where {\em builddir} was defined in
 Chapter \ref{s:install}.
 
 %%----------------------------------
@@ -2934,7 +2934,7 @@ return value from a linear solver function.
   \id{SptfqmrSolve} and will be one of:
   \id{SPTFQMR\_MEM\_NULL}, indicating that the {\sptfqmr} memory is \id{NULL};
   \id{SPTFQMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
-  Jacobian-times-vector function; or
+  Jacobian-times-vector function; or \\
   \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably.
 }
