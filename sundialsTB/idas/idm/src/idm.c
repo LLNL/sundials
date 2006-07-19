@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-19 20:52:30 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-19 22:10:53 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1293,9 +1293,8 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   double *tmp;
   int nfields;
 
-  h0used = 0.0;
   flag = IDAGetIntegratorStats(ida_mem, &nst, &nre, &nsetups, 
-                               &netf, &qlast, &qcur, &hlast, &hcur, &tcur);
+                               &netf, &qlast, &qcur, &h0used, &hlast, &hcur, &tcur);
 
   flag = IDAGetNonlinSolvStats(ida_mem, &nni, &ncfn);
 
@@ -1529,9 +1528,8 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   ida_memB = IDAadjGetIDABmem(idaadj_mem);
 
-  h0used = 0.0;
   flag = IDAGetIntegratorStats(ida_memB, &nst, &nre, &nsetups, 
-                               &netf, &qlast, &qcur, &hlast, &hcur, &tcur);
+                               &netf, &qlast, &qcur, &h0used, &hlast, &hcur, &tcur);
 
   flag = IDAGetNonlinSolvStats(ida_memB, &nni, &ncfn);
 

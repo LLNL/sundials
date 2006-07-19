@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-07-19 20:52:22 $
+ * $Revision: 1.4 $
+ * $Date: 2006-07-19 22:10:41 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1181,7 +1181,7 @@ extern "C" {
   int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, 
                             long int *nrevals, long int *nlinsetups, 
                             long int *netfails, int *qlast, int *qcur, 
-                            realtype *hlast, realtype *hcur, 
+                            realtype *hinused, realtype *hlast, realtype *hcur, 
                             realtype *tcur);
 
   /*

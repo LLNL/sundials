@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-19 20:52:24 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-19 22:10:42 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -994,7 +994,7 @@ int IDAGetWorkSpace(void *ida_mem, long int *lenrw, long int *leniw)
 
 int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals, 
                           long int *nlinsetups, long int *netfails,
-                          int *klast, int *kcur, realtype *hlast, 
+                          int *klast, int *kcur, realtype *hinused, realtype *hlast, 
                           realtype *hcur, realtype *tcur)
 {
   IDAMem IDA_mem;
@@ -1012,6 +1012,7 @@ int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals,
   *netfails   = netf;
   *klast      = kused;
   *kcur       = kk;
+  *hinused    = h0u;
   *hlast      = hused;
   *hcur       = hh;  
   *tcur       = tn;

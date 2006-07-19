@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-19 20:52:25 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-19 22:10:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -619,6 +619,7 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
                         &IDA_iout[4],           /* NETF */
                         (int *) &IDA_iout[8],   /* KLAST */
                         (int *) &IDA_iout[9],   /* KCUR */
+                        &IDA_rout[0],           /* HINUSED */
                         &IDA_rout[1],           /* HLAST */
                         &IDA_rout[2],           /* HCUR */
                         &IDA_rout[3]);          /* TCUR */
@@ -627,8 +628,6 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
                         &IDA_iout[5]);          /* NCFN */
   IDAGetNumBacktrackOps(IDA_idamem, 
                         &IDA_iout[10]);         /* NBCKTRK */
-  IDAGetActualInitStep(IDA_idamem, 
-                       &IDA_rout[0]);           /* HINUSED */
   IDAGetTolScaleFactor(IDA_idamem,    
                        &IDA_rout[4]);           /* TOLSFAC */
   
