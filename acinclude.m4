@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.38 $
-# $Date: 2006-07-18 20:39:07 $
+# $Revision: 1.39 $
+# $Date: 2006-07-19 20:43:15 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -2589,6 +2589,9 @@ if test "X${STB_ENABLED}" = "Xyes"; then
     AC_PATH_PROG([cv_matlab],[matlab],[none])
     if test "X${cv_matlab}" = "Xnone"; then
       STB_ENABLED="no"
+    else
+      cv_matlab_dir=`AS_DIRNAME(["${cv_matlab}"])`
+      MATLAB="${cv_matlab_dir}/.."
     fi
   # MATLAB is either defined as an environment variable or was passed via --with-matlab
   else
@@ -2604,13 +2607,9 @@ fi
 # Verify Matlab installation
 if test "X${STB_ENABLED}" = "Xyes"; then
 
-  # Determine path to main Matlab executable (set MATLAB)
-  cv_matlab_dir=`AS_DIRNAME(["${cv_matlab}"])`
-  MATLAB="${cv_matlab_dir}/.."
-
   # Perform sanity check...
   AC_MSG_CHECKING([whether to enable Matlab support])
-  if test -d ${MATLAB}/extern/include ; then
+  if test -d "${MATLAB}/extern/include" ; then
     AC_MSG_RESULT([yes])
   else
     STB_ENABLED="no"
