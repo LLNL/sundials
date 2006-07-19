@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-07-18 20:29:00 $
+ * $Revision: 1.4 $
+ * $Date: 2006-07-19 22:34:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1887,7 +1887,7 @@ int IDAGetSens(void *ida_mem, realtype t, N_Vector *yySout, N_Vector *ypSout)
 
 
   for (is=0; is<Ns; is++) {
-    ier = IDAGetSens1(ida_mem, t, is+1, yySout[is], ypSout[is]);
+    ier = IDAGetSens1(ida_mem, t, is, yySout[is], ypSout[is]);
     if (ier!=IDA_SUCCESS) break;
   }
   
@@ -1919,14 +1919,11 @@ int IDAGetSens1(void *ida_mem, realtype t, int is, N_Vector yySret, N_Vector ypS
 
   /* TODO:  MORE CHECKS HERE */
 
-  if ((is < 1) || (is > Ns)) {
+  if ((is < 0) || (is > Ns-1)) {
     IDAProcessError(IDA_mem, IDA_BAD_IS, "IDAS", "IDAGetsens1", MSG_BAD_IS);
     return(IDA_BAD_IS);
   }
 
-
-  is--;
-  
   /* Check t for legality.  Here tn - hused is t_{n-1}. */
  
   tfuzz = HUNDRED * uround * (ABS(tn) + ABS(hh));
@@ -4977,7 +4974,6 @@ static int IDASensRes1DQ(int Ns, realtype t,
   int method;
   int which;
   int retval;
-  booleantype skipFP;
   realtype psave, pbari;
   realtype del , rdel;
   realtype Delp, rDelp, r2Delp;
@@ -4992,16 +4988,11 @@ static int IDASensRes1DQ(int Ns, realtype t,
   del  = RSqrt(MAX(rtol, uround));
   rdel = ONE/del;
 
-  if (plist!=NULL) {
-    which   = abs(plist[is]) - 1;
-    skipFP  = (plist[is] < 0);
-  } else {
-    which  = is;
-    skipFP = FALSE;
-  }
-  psave   = p[which];
-  if (pbar == NULL) pbari = ONE;
-  else              pbari = ABS(pbar[which]);
+  pbari = pbar[is];
+
+  which = plist[is];
+
+  psave = p[which];
 
   Delp  = pbari * del;
   rDelp = ONE/Delp;
@@ -5015,7 +5006,6 @@ static int IDASensRes1DQ(int Ns, realtype t,
     method = (rhomax >= ZERO) ? CENTERED1 : FORWARD1; 
   else
     method = (rhomax > ZERO) ? CENTERED2 : FORWARD2;
-
 
   switch (method) {
 
@@ -5075,32 +5065,28 @@ static int IDASensRes1DQ(int Ns, realtype t,
     /* Save the first difference quotient in resvalS */
     N_VLinearSum(r2Dely, resvalS, -r2Dely, restemp, resvalS);
 
-    if (!skipFP) {
+    /* Forward perturb parameter */
+    p[which] = psave + Delp;
 
-      /* Forward perturb parameter */
-      p[which] = psave + Delp;
+    /* Save residual in ytemp */
+    retval = res(t, yy, yp, ytemp, rdata);
+    nreS++;
+    if (retval != 0) return(retval);
 
-      /* Save residual in ytemp */
-      retval = res(t, yy, yp, ytemp, rdata);
-      nreS++;
-      if (retval != 0) return(retval);
+    /* Backward perturb parameter */
+    p[which] = psave - Delp;
 
-      /* Backward perturb parameter */
-      p[which] = psave - Delp;
-
-      /* Save residual in yptemp */
-      retval = res(t, yy, yp, yptemp, rdata);
-      nreS++;
-      if (retval != 0) return(retval);
-
-      /* Save the second difference quotient in restemp */
-      N_VLinearSum(r2Delp, ytemp, -r2Delp, yptemp, restemp);
-
-      /* Add the difference quotients for the sensitivity residual */
-      N_VLinearSum(ONE, resvalS, ONE, restemp, resvalS);
-
-    }
-
+    /* Save residual in yptemp */
+    retval = res(t, yy, yp, yptemp, rdata);
+    nreS++;
+    if (retval != 0) return(retval);
+    
+    /* Save the second difference quotient in restemp */
+    N_VLinearSum(r2Delp, ytemp, -r2Delp, yptemp, restemp);
+    
+    /* Add the difference quotients for the sensitivity residual */
+    N_VLinearSum(ONE, resvalS, ONE, restemp, resvalS);
+    
     break;
 
   case FORWARD1:
@@ -5137,23 +5123,19 @@ static int IDASensRes1DQ(int Ns, realtype t,
     /* Save the first difference quotient in resvalS */
     N_VLinearSum(rDely, resvalS, -rDely, resval, resvalS);
 
-    if (!skipFP) {
+    /* Forward perturb parameter */
+    p[which] = psave + Delp;
 
-      /* Forward perturb parameter */
-      p[which] = psave + Delp;
+    /* Save residual in restemp */
+    retval = res(t, yy, yp, restemp, rdata);
+    nreS++;
+    if (retval != 0) return(retval);
 
-      /* Save residual in restemp */
-      retval = res(t, yy, yp, restemp, rdata);
-      nreS++;
-      if (retval != 0) return(retval);
+    /* Save the second difference quotient in restemp */
+    N_VLinearSum(rDelp, restemp, -rDelp, resval, restemp);
 
-      /* Save the second difference quotient in restemp */
-      N_VLinearSum(rDelp, restemp, -rDelp, resval, restemp);
-
-      /* Add the difference quotients for the sensitivity residual */
-      N_VLinearSum(ONE, resvalS, ONE, restemp, resvalS);
-
-    }
+    /* Add the difference quotients for the sensitivity residual */
+    N_VLinearSum(ONE, resvalS, ONE, restemp, resvalS);
 
     break;
 

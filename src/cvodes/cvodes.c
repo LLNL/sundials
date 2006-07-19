@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:34 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-19 22:34:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2379,7 +2379,7 @@ int CVodeGetSensDky(void *cvode_mem, realtype t, int k, N_Vector *dkyS)
   }
   
   for (is=0; is<Ns; is++) {
-    ier = CVodeGetSensDky1(cvode_mem,t,k,is+1,dkyS[is]);
+    ier = CVodeGetSensDky1(cvode_mem,t,k,is,dkyS[is]);
     if (ier!=CV_SUCCESS) break;
   }
   
@@ -2393,15 +2393,14 @@ int CVodeGetSensDky(void *cvode_mem, realtype t, int k, N_Vector *dkyS)
  * time t, where tn-hu <= t <= tn, tn denotes the current         
  * internal time reached, and hu is the last internal step size   
  * successfully used by the solver. The user may request 
- * is=1, 2, ..., Ns and k=0, 1, ..., qu, where qu is the current
+ * is=0, 1, ..., Ns-1 and k=0, 1, ..., qu, where qu is the current
  * order. The derivative vector is returned in dky. This vector 
  * must be allocated by the caller. It is only legal to call this         
  * function after a successful return from CVode with sensitivity 
  * computation enabled.
  */
 
-int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is, 
-                     N_Vector dkyS)
+int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dkyS)
 { 
   realtype s, c, r;
   realtype tfuzz, tp, tn1;
@@ -2431,13 +2430,11 @@ int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is,
     return(CV_BAD_K);
   }
   
-  if ((is < 1) || (is > Ns)) {
+  if ((is < 0) || (is > Ns-1)) {
     CVProcessError(cv_mem, CV_BAD_IS, "CVODES", "CVodeGetSensDky1", MSGCV_BAD_IS);
     return(CV_BAD_IS);
   }
   
-  is--;
-
   /* Allow for some slack */
   tfuzz = FUZZ_FACTOR * uround * (ABS(tn) + ABS(hu));
   if (hu < ZERO) tfuzz = -tfuzz;
