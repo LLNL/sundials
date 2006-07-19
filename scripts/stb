@@ -119,6 +119,8 @@ tar uf $tarfile $distrobase/sundialsTB/idas/Contents.m
 tar uf $tarfile $distrobase/sundialsTB/idas/IDAadjMalloc.m
 tar uf $tarfile $distrobase/sundialsTB/idas/IDABandJacFn.m
 tar uf $tarfile $distrobase/sundialsTB/idas/IDADenseJacFn.m
+tar uf $tarfile $distrobase/sundialsTB/idas/IDACalcIC.m
+tar uf $tarfile $distrobase/sundialsTB/idas/IDACalcICB.m
 tar uf $tarfile $distrobase/sundialsTB/idas/IDAFree.m
 tar uf $tarfile $distrobase/sundialsTB/idas/IDAGcommFn.m
 tar uf $tarfile $distrobase/sundialsTB/idas/IDAGet.m

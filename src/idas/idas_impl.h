@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-07-18 20:29:01 $
+ * $Revision: 1.4 $
+ * $Date: 2006-07-19 20:52:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -823,7 +823,7 @@ extern "C" {
 #define MSG_SRHSFUNC_UNREC "At " MSG_TIME ", the sensitivity residual failed in a recoverable manner, but no recovery is possible."
 #define MSG_SRHSFUNC_REPTD "At " MSG_TIME "repeated recoverable sensitivity residual function errors."
 
-  /* IDASet* error messages */
+  /* IDASet* / IDAGet* error messages */
 
 #define MSG_NEG_MAXORD     "maxord<=0 illegal."
 #define MSG_BAD_MAXORD     "Illegal attempt to increase maximum order."
@@ -837,6 +837,7 @@ extern "C" {
 #define MSG_BAD_MAXNIT     "maxnit < 0 illegal."
 #define MSG_BAD_STEPTOL    "steptol < 0.0 illegal."
 
+#define MSG_TOO_LATE       "IDAGetConsistentIC can only be called before IDASolve."
 
   /*
    * =================================================================

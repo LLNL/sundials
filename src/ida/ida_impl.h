@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-19 20:52:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -455,7 +455,7 @@ extern "C" {
 #define MSG_FAILED_CONSTR  "At " MSG_TIME "unable to satisfy inequality constraints."
 #define MSG_RTFUNC_FAILED  "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 
-  /* IDASet* error messages */
+  /* IDASet* / IDAGet* error messages */
 
 #define MSG_NEG_MAXORD     "maxord<=0 illegal."
 #define MSG_BAD_MAXORD     "Illegal attempt to increase maximum order."
@@ -469,6 +469,7 @@ extern "C" {
 #define MSG_BAD_MAXNIT     "maxnit < 0 illegal."
 #define MSG_BAD_STEPTOL    "steptol < 0.0 illegal."
 
+#define MSG_TOO_LATE       "IDAGetConsistentIC can only be called before IDASolve."
 
 #ifdef __cplusplus
 }

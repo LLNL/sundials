@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-19 20:52:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -289,17 +289,13 @@
  *
  * (6.6) To compute consistent initial conditions for an index-one DAE system,
  * make the following call:
- *       CALL FIDACALCIC(T0, Y0, YP0, ICOPT, TOUT, IPAR, RPAR, IER)
+ *       CALL FIDACALCIC(ICOPT, TOUT, IER)
  * The arguments are:
- * T0    = initial value of t
- * Y0    = initial condition vector y(t0)
- * YP0   = initial condition vector y'(t0)
  * ICOPT = specifies the option: 1 = IDA_YP_YDP_INIT, 2 = IDA_Y_INIT.
  *         (See user guide for additional details.)
  * TOUT  = the first value of t at which a solution will be requested
  *         (from FIDASOLVE).
  * IER   = return completion flag.
- * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
  * 
  * -----------------------------------------------------------------------------
  *
@@ -796,8 +792,7 @@ void FIDA_SETRIN(char key_name[], realtype *rval, int *ier, int key_len);
 void FIDA_SETVIN(char key_name[], realtype *vval, int *ier, int key_len);
 
 void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier);
-void FIDA_CALCIC(realtype *t0, realtype *yy0, realtype *yp0,
-                 int *icopt, realtype *tout1, int *ier);
+void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier);
 void FIDA_SPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs, realtype *eplifac,

@@ -4,9 +4,9 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:26 $
+% $Revision: 1.2 $Date: 2006/07/17 16:49:50 $
 
-m = 10;
+m = 40;
 N = m^2;
 data.m = m;
 data.N = N;
@@ -14,11 +14,28 @@ data.dx = 1.0/(m-1);
 data.c = 1.0/data.dx^2;
 
 
+fp = figure;
+
 [t0,yy0,yp0,id,cnstr] = idabanx_ic(data); 
+
+figure(fp);
+subplot(2,2,1);
+hold on
+hs1 = surf(reshape(yy0,m,m));
+shading interp
+set(hs1,'FaceAlpha',0.35);
+box on
+view(-30,30)
+subplot(2,2,2);
+hold on
+hs2 = surf(reshape(yp0,m,m));
+shading interp
+set(hs2,'FaceAlpha',0.35);
+box on
+view(-30,30)
 
 options = IDASetOptions('RelTol',0.0,...
                         'AbsTol',1.0e-3,...
-                        'ICcalculation','FindAlgebraic',...
                         'VariableTypes',id,...
                         'ConstraintTypes',cnstr,...
                         'LinearSolver','Band',...
@@ -31,22 +48,57 @@ options = IDASetOptions(options,'MonitorFn',@IDAMonitor,'MonitorData',mondata);
 
 IDAMalloc(@idabanx_f,t0,yy0,yp0,options,data);
 
+tout = 0.01;
+[status, yy0_mod, yp0_mod] = IDACalcIC(tout, 'FindAlgebraic');
 
-fprintf('\n   Output Summary (umax = max-norm of solution) \n\n');
-fprintf('  time       ymax     k  nst  nni  nje   nre   nreLS    h      \n' );
-fprintf(' ------------------------------------------------------------- \n');
+figure(fp);
 
-nout = 11;
+subplot(2,2,1);
+hs1 = surf(reshape(yy0_mod,m,m));
+set(hs1,'FaceColor','none');
+subplot(2,2,2);
+hs2 = surf(reshape(yp0_mod,m,m));
+set(hs2,'FaceColor','none');
+
+
+subplot(2,2,3);
+hold on
+hs1 = surf(reshape(yy0_mod,m,m));
+shading interp
+view(-30,30)
+zlim_yy = get(gca,'ZLim');
+box on
+subplot(2,2,4);
+hold on
+hs2 = surf(reshape(yp0_mod,m,m));
+shading interp
+view(-30,30)
+zlim_yp = get(gca,'ZLim');
+box on
+
+pause;
+
+nout = 7;
 tout = 0.01;
 
 for iout = 1:nout
   [status,t,yy,yp] = IDASolve(tout,'Normal');
-  si = IDAGetStats;
-  ymax = N_VMaxNorm(yy);
-  fprintf(' %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n',...
-          t, ymax, si.qlast, si.nst, si.nni, si.LSInfo.njeB, si.nre, si.LSInfo.nreB, si.hlast);
-
   tout = 2*tout;
+
+  figure(fp);
+  subplot(2,2,3);
+  set(hs1,'FaceAlpha',0.15);
+  hs1 = surf(reshape(yy,m,m));
+  shading interp
+  set(gca,'ZLim',zlim_yy);
+  subplot(2,2,4);
+  set(hs2,'FaceAlpha',0.15);
+  hs2 = surf(reshape(yp,m,m));
+  shading interp
+  set(gca,'ZLim',zlim_yp);
+
+  pause;
+  
 end
 
 IDAFree;

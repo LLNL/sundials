@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-17 16:49:51 $
+# $Revision: 1.2 $
+# $Date: 2006-07-19 20:52:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -86,6 +86,8 @@ install: idm
 #	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAadjMalloc.m       $(STB_INSTDIR)/sundialsTB/idas/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDABandJacFn.m       $(STB_INSTDIR)/sundialsTB/idas/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDADenseJacFn.m      $(STB_INSTDIR)/sundialsTB/idas/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDACalcIC.m          $(STB_INSTDIR)/sundialsTB/idas/
+#	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDACalcICB.m         $(STB_INSTDIR)/sundialsTB/idas/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAGcommFn.m         $(STB_INSTDIR)/sundialsTB/idas/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAGlocalFn.m        $(STB_INSTDIR)/sundialsTB/idas/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/IDAJacTimesVecFn.m   $(STB_INSTDIR)/sundialsTB/idas/

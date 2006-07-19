@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-19 20:52:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -782,6 +782,30 @@ int IDAGetNumBacktrackOps(void *ida_mem, long int *nbacktracks)
   IDA_mem = (IDAMem) ida_mem;
 
   *nbacktracks = nbacktr;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetConsistentIC(void *ida_mem, N_Vector yy0, N_Vector yp0)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetConsistentIC", MSG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (IDA_mem->ida_kused != 0) {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAGetConsistentIC", MSG_TOO_LATE);
+    return(IDA_ILL_INPUT);
+  }
+
+  if(yy0 != NULL) N_VScale(ONE, IDA_mem->ida_phi[0], yy0);
+  if(yp0 != NULL) N_VScale(ONE, IDA_mem->ida_phi[1], yp0);
 
   return(IDA_SUCCESS);
 }

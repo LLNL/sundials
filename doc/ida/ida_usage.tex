@@ -233,7 +233,7 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
   {\bf Correct initial values}
 
   Optionally, call \id{IDACalcIC} to correct the initial values
-  \id{y0} and \id{yp0}.  See \S\ref{ss:idacalcic}.
+  \id{y0} and \id{yp0} passed to \id{IDAMalloc}.  See \S\ref{ss:idacalcic}.
   Also see \S\ref{sss:optin_iccalc} for relevant optional input calls.
 
 \item
@@ -755,14 +755,14 @@ initial conditions do not solve the given system.  Thus if
 then a call to \id{IDACalcIC} is generally {\em not} necessary.
 
 A call to \id{IDACalcIC} must be preceded by successful calls to  
-\id{IDACreate} and \id{IDAMalloc}, and by a successful call to the 
-linear system solver specification function.  
+\id{IDACreate} and \id{IDAMalloc} (or \id{IDAReInit}), and by a 
+successful call to the linear system solver specification function.  
 The call to \id{IDACalcIC} should precede the call(s) to \id{IDASolve}  
 for the given problem.
 %
 \ucfunction{IDACalcIC}
 {
-  flag = IDACalcIC(ida\_mem, t0, y0, yp0, icopt, tout1);
+  flag = IDACalcIC(ida\_mem, icopt, tout1);
 }
 {
   The function \ID{IDACalcIC} corrects the initial values \id{y0} and \id{yp0} at
@@ -773,15 +773,6 @@ for the given problem.
 
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-
-  \item[t0] (\id{realtype})
-    is the initial value of $t$.
-
-  \item[y0] (\id{N\_Vector})
-    is the initial value of $y$. 
-
-  \item[yp0] (\id{N\_Vector})
-    is the initial value of $y^\prime$.   
 
   \item[icopt] (\id{int})
     is one of the following two options for the initial condition calculation.
@@ -860,11 +851,9 @@ for the given problem.
   All failure return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{IDACalcIC} failures.
 
-  Note that \id{IDACalcIC} is typically called after \id{IDAMalloc} and before
-  the first call to \id{IDASolve}, to compute consistent initial conditions
-  for the DAE problem.  However, it can be also called at any other
-  time to correct a pair $(y, y^\prime)$.
-
+  Note that \id{IDACalcIC} will correct the values $y(t_0)$ and $y^\prime(t_0)$
+  which were specified in the previous call to \id{IDAMalloc} or \id{IDAReInit}.
+  To obtain the corrected values, call \id{IDAGetconsistentIC} (see \S\ref{sss:optout_iccalc}).
 }
 
 
@@ -3078,6 +3067,78 @@ These optional output functions are described next.
 {}
 %%
 \index{optional output!solver|)}
+%%
+%%==================================================================================
+%%
+\subsubsection{Initial condition calculation optional output functions}\label{sss:optout_iccalc}
+\index{optional output!initial condition calculation|(}
+%%
+\ucfunction{IDAGetNumBcktrackOps}
+{
+  flag = IDAGetNumBacktrackOps(ida\_mem, \&nbacktr);
+}
+{
+  The function \ID{IDAGetNumBacktrackOps} returns the number of backtrack          
+  operations done in the linesearch algorithm in \id{IDACalcIC}.
+}
+{
+  \begin{args}[nbacktr]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[nbacktr] (\id{long int})
+    the cumulative number of backtrack operations.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+\ucfunction{IDAGetConsistentIC}
+{
+  flag = IDAGetConsistentIC(ida\_mem, yy0\_mod, yp0\_mod);
+}
+{
+  The function \ID{IDAGetConsistentIC} returns the corrected initial conditions
+  calculated by \id{IDACalcIC}.
+}
+{
+  \begin{args}[yy0\_mod]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[yy0\_mod] (\id{N\_Vector})
+    consistent solution vector.
+  \item[yp0\_mod] (\id{N\_Vector})
+    consistent derivative vector.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    The fucntion was not called before the first call to \id{IDASolve}.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  If the consistent solution vector or consistent derivative vector
+  is not desired, pass \id{NULL} for the corresponding argument.
+
+  {\warn} The user must allocate space for \id{yy0\_mod} and \id{yp0\_mod}
+  (if not \id{NULL}).
+}
+%%
+\index{optional output!initial condition calculation|)}
+
 %%
 %%==================================================================================
 %%

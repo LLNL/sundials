@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-17 16:49:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-19 20:52:30 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -52,6 +52,7 @@ static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 static int IDM_ReInit(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_ReInitB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int IDM_CalcICB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
@@ -79,6 +80,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
      4 - initialize backward solver
      5 - reinitialize IDAS solver (NYI)
      6 - reinitialize backward solver (NYI)
+     7 - calculate consistent IC
+     8 - calculate backward consistent IC
     10 - solve problem
     11 - solve backward problem
     20 - get integrator stats
@@ -111,6 +114,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     break;
   case 6:
     IDM_ReInitB(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 7:
+    IDM_CalcIC(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 8:
+    IDM_CalcICB(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 10:
     IDM_Solve(nlhs, plhs, nrhs-1, &prhs[1]);
@@ -163,7 +172,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
 #define Nc          (idm_Cdata->Nc) 
 #define ls          (idm_Cdata->ls) 
 #define pm          (idm_Cdata->pm) 
-#define icopt       (idm_Cdata->icopt) 
 #define ism         (idm_Cdata->ism) 
 #define idaadj_mem  (idm_Cdata->idaadj_mem) 
 #define interp      (idm_Cdata->interp) 
@@ -174,7 +182,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
 #define NqB         (idm_Cdata->NqB) 
 #define lsB         (idm_Cdata->lsB) 
 #define pmB         (idm_Cdata->pmB) 
-#define icoptB      (idm_Cdata->icoptB) 
 
 #define mx_data     (idm_Mdata->mx_data)
 
@@ -903,6 +910,45 @@ static int IDM_ReInitB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   return(0);
 }
 
+static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+  double tout, t0;
+  int buflen, status, icopt;
+  char *bufval;
+
+  /* Extract tout */
+  tout = (double) mxGetScalar(prhs[0]);
+
+  /* Extract icopt */
+  icopt = -1;
+  buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
+  bufval = mxCalloc(buflen, sizeof(char));
+  status = mxGetString(prhs[1], bufval, buflen);
+  if(!strcmp(bufval,"FindAlgebraic")) icopt = IDA_YA_YDP_INIT;
+  else if(!strcmp(bufval,"FindAll"))  icopt = IDA_Y_INIT;
+  
+  /* Call IDACalcIC */
+  status = IDACalcIC(ida_mem, icopt, tout);
+
+  /* IDACalcIC return flag */
+  plhs[0] = mxCreateScalarDouble((double)status);
+
+  if (nlhs == 1) return(0);
+
+  /* Extract and return corrected IC */
+  IDAGetConsistentIC(ida_mem, yy, yp);
+  plhs[1] = mxCreateDoubleMatrix(N,1,mxREAL);
+  GetData(yy, mxGetPr(plhs[1]), N);
+  plhs[2] = mxCreateDoubleMatrix(N,1,mxREAL);
+  GetData(yp, mxGetPr(plhs[2]), N);
+
+  return(0);
+}
+
+static int IDM_CalcICB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+}
+
 static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double tout, tret, *yySdata, *ypSdata;
@@ -917,29 +963,17 @@ static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   double h;
 
   /* Extract tout */
-
   tout = (double)mxGetScalar(prhs[0]);
 
   /* Extract itask */
-
+  itask = -1;
   buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
   bufval = mxCalloc(buflen, sizeof(char));
   status = mxGetString(prhs[1], bufval, buflen);
   if(!strcmp(bufval,"Normal")) itask = IDA_NORMAL;
-  if(!strcmp(bufval,"OneStep")) itask = IDA_ONE_STEP;
-  if(!strcmp(bufval,"NormalTstop")) itask = IDA_NORMAL_TSTOP;
-  if(!strcmp(bufval,"OneStepTstop")) itask = IDA_ONE_STEP_TSTOP;
-
-  /* At first step, check if IC must be calculcated */
-
-  status = IDAGetNumSteps(ida_mem, &nst);
-  if ((nst==0) && (icopt!=-1)) {
-    status = IDAGetCurrentTime(ida_mem, &t0);
-    /* yy and yp contain yy0 and yp0 passed by the user
-       to IDAMalloc */
-
-    status = IDACalcIC(ida_mem, t0, yy, yp, icopt, tout); 
-  }
+  else if(!strcmp(bufval,"OneStep")) itask = IDA_ONE_STEP;
+  else if(!strcmp(bufval,"NormalTstop")) itask = IDA_NORMAL_TSTOP;
+  else if(!strcmp(bufval,"OneStepTstop")) itask = IDA_ONE_STEP_TSTOP;
 
   /* Call IDA */
 
@@ -1798,9 +1832,6 @@ static void IDM_init()
   lsB = LS_DENSE;
   pm  = PM_NONE;
   pmB = PM_NONE;
-
-  icopt  = -1;
-  icoptB = -1;
 
   /* Initialize global control variables */
 

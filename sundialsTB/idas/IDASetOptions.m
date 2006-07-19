@@ -61,8 +61,6 @@ function options = IDASetOptions(varargin)
 %VariableTypes - Alg./diff. variables [ vector ]
 %ConstraintTypes - Simple bound constraints [ vector ]
 %
-%ICcalculation - Consistent IC calculation [{None}|FindAlgebraic|FindAll]
-%
 %LinearSolver - Linear solver type [{Dense}|Band|GMRES|BiCGStab|TFQMR]
 %   Specifies the type of linear solver to be used for the Newton nonlinear 
 %   solver. Valid choices are: Dense (direct, dense Jacobian), Band (direct, 
@@ -181,7 +179,7 @@ function options = IDASetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:25 $
+% $Revision: 1.2 $Date: 2006/07/17 16:49:50 $
 
 % Based on Matlab's ODESET function
 
@@ -199,8 +197,6 @@ if (nargin == 0) & (nargout == 0)
   fprintf('\n');
   fprintf('   VariableTypes: [ vector ]\n');
   fprintf(' ConstraintTypes: [ vector ]\n');
-  fprintf('\n');
-  fprintf('   ICcalculation: [ {None} | FindAlgebraic | FindAll ]\n');
   fprintf('\n');
   fprintf('    LinearSolver: [ {Dense} | Band | GMRES | BiCGStab | TFQMR ]\n');
   fprintf('      JacobianFn: [ function ]\n');
@@ -244,7 +240,6 @@ Names = [
     'NumRoots        '
     'VariableTypes   '
     'ConstraintTypes '
-    'ICcalculation   '
     'LinearSolver    '
     'JacobianFn      '
     'PrecModule      '

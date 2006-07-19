@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-19 20:52:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -380,20 +380,10 @@ void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier)
 
 /*************************************************/
 
-void FIDA_CALCIC(realtype *t0, realtype *yy0, realtype *yp0,
-		 int *icopt, realtype *tout1, int *ier)
+void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier)
 {
-  /* Attach user data to vectors */
-  N_VSetArrayPointer(yy0, F2C_IDA_vec);
-  N_VSetArrayPointer(yp0, F2C_IDA_ypvec);
-
   *ier = 0;
-  *ier = IDACalcIC(IDA_idamem, *t0, F2C_IDA_vec, F2C_IDA_ypvec, *icopt, *tout1);
-
-  /* Reset data pointers */
-  N_VSetArrayPointer(NULL, F2C_IDA_vec);
-  N_VSetArrayPointer(NULL, F2C_IDA_ypvec);
-
+  *ier = IDACalcIC(IDA_idamem, *icopt, *tout1);
   return;
 }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-17 16:49:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-19 20:52:30 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -69,7 +69,6 @@ extern "C" {
     int Nc;            /* number of check points */
     int ls;            /* linear solver type */
     int pm;            /* preconditioner module */
-    int icopt;         /* IC calculation */
     int ism;           /* sensitivity method */
     
     void *idaadj_mem;  /* IDAS adjoint memory */
@@ -81,7 +80,6 @@ extern "C" {
     int NqB;
     int lsB;
     int pmB;
-    int icoptB;
 
   } *idm_IDASdata;
 

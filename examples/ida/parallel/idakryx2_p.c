@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:08 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-19 20:52:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -335,10 +335,10 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "IDASpilsSetPreconditioner", 1, thispe)) 
     MPI_Abort(comm, 1);
   
-  /* Call IDACalcIC (with default options) to correct the initial values. */
+  /* Call IDACalcIC to correct the initial values. */
 
   tout = RCONST(0.001);
-  flag = IDACalcIC(mem, t0, cc, cp, IDA_YA_YDP_INIT, tout);
+  flag = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
   if (check_flag(&flag, "IDACalcIC", 1, thispe)) 
     MPI_Abort(comm, 1);
 

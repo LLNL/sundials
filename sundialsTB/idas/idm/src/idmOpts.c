@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-17 16:49:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-19 20:52:30 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -44,11 +44,9 @@ extern idm_MATLABdata idm_Mdata; /* MATLAB data */
 #define NqB         (idm_Cdata->NqB) 
 #define Ng          (idm_Cdata->Ng) 
 #define ls          (idm_Cdata->ls) 
-#define icopt       (idm_Cdata->icopt) 
 #define pm          (idm_Cdata->pm) 
 #define lsB         (idm_Cdata->lsB) 
 #define pmB         (idm_Cdata->pmB) 
-#define icoptB      (idm_Cdata->icoptB) 
 
 #define mx_QUADfct  (idm_Mdata->mx_QUADfct)
 #define mx_JACfct   (idm_Mdata->mx_JACfct)
@@ -89,7 +87,7 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
 {
   mxArray *opt;
   char *bufval;
-  int i, buflen, status, q, m, n, tmp_icopt;
+  int i, buflen, status, q, m, n;
   double *tmp;
   booleantype tmp_quad;
 
@@ -112,7 +110,6 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
   *cnstr = NULL;
 
   tmp_quad = FALSE;
-  tmp_icopt = -1;
 
   /* Return now if options was empty */
 
@@ -202,24 +199,6 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
     *tstopSet = TRUE;
   }
 
-  /* Consistent IC calculation? */
-
-  opt = mxGetField(options,0,"ICcalculation");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0) 
-      mexErrMsgTxt("Cannot parse ICcalculation.");
-    if(!strcmp(bufval,"None")) tmp_icopt = -1;
-    else if(!strcmp(bufval,"FindAlgebraic")) tmp_icopt = IDA_YA_YDP_INIT;
-    else if(!strcmp(bufval,"FindAll")) tmp_icopt = IDA_Y_INIT;
-    else mexErrMsgTxt("ICcalculation has an illegal value.");
-
-    if (fwd) icopt  = tmp_icopt;
-    else     icoptB = tmp_icopt;
-  }
-
   /* ID vector */
 
   opt = mxGetField(options,0,"VariableTypes");
@@ -239,7 +218,6 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
     }
   }
 
-
   /* Constraints vector */
 
   opt = mxGetField(options,0,"ConstraintTypes");
@@ -258,7 +236,6 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
       mexErrMsgTxt("ConstraintTypes has wrong dimension.");
     }
   }
-
 
   /* Options interpreted only for forward phase */
 

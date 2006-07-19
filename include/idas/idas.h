@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-07 16:49:25 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-19 20:52:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -875,25 +875,13 @@ extern "C" {
    * IDAMalloc or IDAReInit for the given DAE problem, and by a     
    * successful call to the linear system solver specification      
    * routine.                                                       
-   * In addition, IDACalcIC assumes that the vectors y0, yp0, and   
-   * (if relevant) id and constraints that were set through         
-   * IDASetConstraints remain unaltered since that call.            
-   *                                                                
+   *
    * The call to IDACalcIC should precede the call(s) to IDASolve   
    * for the given problem.                                         
    *                                                                
-   * The arguments to IDACalcIC are as follows.  The first three -- 
-   * ida_mem, icopt, tout1 -- are required; the others are optional.
-   * A zero value passed for any optional input specifies that the  
-   * default value is to be used.                                   
+   * The arguments to IDACalcIC are as follows:                             
    *                                                                
-   * IDA_mem is the pointer to IDA memory returned by IDACreate.    
-   *                                                                
-   * t0      is the initial value of t, the independent variable.   
-   *                                                                
-   * yy0     is the initial condition vector y(t0).                 
-   *                                                                
-   * yp0     is the initial condition vector y'(t0)                 
+   * ida_mem is the pointer to IDA memory returned by IDACreate.    
    *                                                                
    * icopt  is the option of IDACalcIC to be used.                  
    *        icopt = IDA_YA_YDP_INIT   directs IDACalcIC to compute 
@@ -963,8 +951,7 @@ extern "C" {
    * ----------------------------------------------------------------
    */
 
-  int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0, 
-                 int icopt, realtype tout1); 
+  int IDACalcIC (void *ida_mem, int icopt, realtype tout1); 
 
   /*
    * ----------------------------------------------------------------
@@ -1128,6 +1115,8 @@ extern "C" {
    *       failures that have occured                               
    * IDAGetNumBacktrackOps returns the number of backtrack          
    *       operations done in the linesearch algorithm in IDACalcIC 
+   * IDAGetConsistentIC returns the consistent initial conditions
+   *       computed by IDACalcIC
    * IDAGetLastOrder returns the order used during the last         
    *       internal step                                            
    * IDAGetCurentOrder returns the order to be used on the next     
@@ -1158,6 +1147,7 @@ extern "C" {
    * IDAGet* return values:
    *   IDA_SUCCESS   if succesful
    *   IDA_MEM_NULL  if the IDAS memory was NULL
+   *   IDA_ILL_INPUT if some input is illegal
    *
    * ----------------------------------------------------------------
    */
@@ -1168,6 +1158,7 @@ extern "C" {
   int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups);
   int IDAGetNumErrTestFails(void *ida_mem, long int *netfails);
   int IDAGetNumBacktrackOps(void *ida_mem, long int *nbacktr);
+  int IDAGetConsistentIC(void *ida_mem, N_Vector yy0_mod, N_Vector yp0_mod);
   int IDAGetLastOrder(void *ida_mem, int *klast);
   int IDAGetCurrentOrder(void *ida_mem, int *kcur);
   int IDAGetActualInitStep(void *ida_mem, realtype *hinused);

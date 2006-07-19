@@ -606,11 +606,9 @@ apply to {\nvecp}.
 
   Optionally, to correct the initial values $y$ and/or $y'$, make the call
 \begin{verbatim}
-      CALL FIDACALCIC (T0, Y0, YP0, ICOPT, TOUT1, IER)
+      CALL FIDACALCIC (ICOPT, TOUT1, IER)
 \end{verbatim}
   (See \S\ref{ss:ivp_sol} for details.)  The arguments are as follows:
-  \id{T0} is $t_0$. \id{Y0} and \id{YP0} are the initial guesses for $y$
-  and $y'$ at $t_0$.
   \id{ICOPT} is 1 for initializing the algebraic components of $y$ and
   differential components of $y'$, or 2 for initializing all of $y$.
   \id{IER} is an error return flag, which is 0 for success, or negative

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:09 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-19 20:52:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -145,7 +145,7 @@ int main(void)
  
   /* Call IDACalcIC to correct the initial values. */
   
-  ier = IDACalcIC(mem, t0, uu, up, IDA_YA_YDP_INIT, t1);
+  ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
   if(check_flag(&ier, "IDACalcIC", 1)) return(1);
 
   /* Print output heading. */
