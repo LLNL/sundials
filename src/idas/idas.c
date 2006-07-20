@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-07-19 22:34:30 $
+ * $Revision: 1.5 $
+ * $Date: 2006-07-20 16:59:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -429,7 +429,8 @@ void *IDACreate(void)
   IDA_mem->ida_rdataS       = (void *)IDA_mem;
   IDA_mem->ida_resS         = IDASensResDQ;
   IDA_mem->ida_resSDQ       = TRUE;
-  IDA_mem->ida_rhomax       = ZERO;
+  IDA_mem->ida_DQtype       = IDA_CENTERED;
+  IDA_mem->ida_DQrhomax     = ZERO;
   IDA_mem->ida_p            = NULL;
   IDA_mem->ida_pbar         = NULL;
   IDA_mem->ida_plist        = NULL;
@@ -1331,7 +1332,8 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
 #define SatolS         (IDA_mem->ida_SatolS)
 #define VatolS         (IDA_mem->ida_VatolS)
 
-#define rhomax         (IDA_mem->ida_rhomax)
+#define DQtype         (IDA_mem->ida_DQtype)
+#define DQrhomax       (IDA_mem->ida_DQrhomax)
 #define pbar           (IDA_mem->ida_pbar)
 #define p              (IDA_mem->ida_p)
 #define plist          (IDA_mem->ida_plist)
@@ -5000,13 +5002,18 @@ static int IDASensRes1DQ(int Ns, realtype t,
   rDely = MAX(norms, rdel) / pbari;
   Dely  = ONE/rDely;
 
-  ratio = Dely * rDelp;
-
-  if ((MAX(ONE/ratio, ratio) <= ABS(rhomax)) || rhomax == ZERO)
-    method = (rhomax >= ZERO) ? CENTERED1 : FORWARD1; 
-  else
-    method = (rhomax > ZERO) ? CENTERED2 : FORWARD2;
-
+  if (DQrhomax == ZERO) {
+    /* No switching */
+    method = (DQtype==IDA_CENTERED) ? CENTERED1 : FORWARD1;
+  } else {
+    /* switch between simultaneous/separate DQ */
+    ratio = Dely * rDelp;
+    if ( MAX(ONE/ratio, ratio) <= DQrhomax ) 
+      method = (DQtype==IDA_CENTERED) ? CENTERED1 : FORWARD1;
+    else
+      method = (DQtype==IDA_CENTERED) ? CENTERED2 : FORWARD2;
+  }
+  
   switch (method) {
 
   case CENTERED1:

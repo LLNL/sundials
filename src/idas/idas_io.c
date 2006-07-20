@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-07-19 22:10:52 $
+ * $Revision: 1.5 $
+ * $Date: 2006-07-20 16:59:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -817,18 +817,29 @@ int IDASetSensResFn(void *ida_mem, IDASensResFn resS, void *resS_data)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetSensRho(void *ida_mem, realtype rho)
+int IDASetSensDQMethod(void *ida_mem, int DQtype, realtype DQrhomax)
 {
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetSensRho", MSG_NO_MEM);    
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetSensDQMethod", MSG_NO_MEM);    
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
-  IDA_mem->ida_rhomax = rho;
+  if ( (DQtype != IDA_CENTERED) && (DQtype != IDA_FORWARD) ) {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetSensDQMethod", MSG_BAD_DQTYPE);    
+    return(IDA_ILL_INPUT);
+  }
+
+  if (DQrhomax < ZERO ) {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetSensDQMethod", MSG_BAD_DQRHO);    
+    return(IDA_ILL_INPUT);
+  }
+
+  IDA_mem->ida_DQtype = DQtype;
+  IDA_mem->ida_DQrhomax = DQrhomax;
 
   return(IDA_SUCCESS);
 }

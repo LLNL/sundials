@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-19 20:52:30 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-20 16:59:44 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,6 +31,18 @@ extern idm_MATLABdata idm_Mdata; /* MATLAB data */
  */
 
 #define ONE RCONST(1.0)
+
+
+
+
+
+
+
+#define IDA_CENTERED 1
+#define IDA_FORWARD  2
+
+
+
 
 /*
  * ---------------------------------------------------------------------------------
@@ -582,7 +594,7 @@ int get_QuadOptions(const mxArray *options, booleantype fwd,
 
 int get_FSAOptions(const mxArray *options, 
                    char **pfield_name, int **plist, double **pbar,
-                   booleantype *userSRES, double *rho,
+                   booleantype *userSRES, int *dqtype, double *rho,
                    booleantype *errconS, int *itolS, double *reltolS, 
                    double **SabstolS, double **VabstolS)
 {
@@ -596,6 +608,7 @@ int get_FSAOptions(const mxArray *options,
   *userSRES = FALSE;
   *errconS = TRUE;
 
+  *dqtype = IDA_CENTERED;
   *rho = 0.0;
 
   /*  *itolS = IDA_EE;*/
@@ -612,29 +625,29 @@ int get_FSAOptions(const mxArray *options,
 
   /* Field name in data structure for params. */
 
-  opt = mxGetField(options,0,"FSAParamField");
+  opt = mxGetField(options,0,"ParamField");
   if ( !mxIsEmpty(opt) ) {
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
     if(status != 0)
-      mexErrMsgTxt("Could not parse FSAParamField.");
+      mexErrMsgTxt("Could not parse ParamField.");
     *pfield_name = mxCalloc(buflen, sizeof(char));
     strcpy((*pfield_name), bufval);
   }  
 
   /* PLIST */
 
-  opt = mxGetField(options,0,"FSAParamList");
+  opt = mxGetField(options,0,"ParamList");
   if ( !mxIsEmpty(opt) ) {
     tmp = mxGetPr(opt);
     m = mxGetM(opt);
     n = mxGetN(opt);
     if ( (n != 1) && (m != 1) )
-      mexErrMsgTxt("FSAParamList is not a vector.");
+      mexErrMsgTxt("ParamList is not a vector.");
     if (m > n) n = m;
     if ( n != Ns)
-      mexErrMsgTxt("FSAParamList does not contain Ns elements.");
+      mexErrMsgTxt("ParamList does not contain Ns elements.");
     *plist = (int *) malloc(Ns*sizeof(int));
     for (is=0;is<Ns;is++)
       (*plist)[is] = (int) tmp[is];
@@ -642,50 +655,63 @@ int get_FSAOptions(const mxArray *options,
 
   /* PBAR */
 
-  opt = mxGetField(options,0,"FSAParamScales");
+  opt = mxGetField(options,0,"ParamScales");
   if ( !mxIsEmpty(opt) ) {
     m = mxGetM(opt);
     n = mxGetN(opt);
     if ( (n != 1) && (m != 1) )
-      mexErrMsgTxt("FSAParamScales is not a vector.");
+      mexErrMsgTxt("ParamScales is not a vector.");
     if ( m > n ) n = m;
     if ( n != Ns)
-      mexErrMsgTxt("FSAParamScales does not contain Ns elements.");
+      mexErrMsgTxt("ParamScales does not contain Ns elements.");
     tmp = mxGetPr(opt);
     *pbar = (double *) malloc(Ns*sizeof(double));
     for(i=0;i<Ns;i++)
       (*pbar)[i] = tmp[i];
   }
 
-  /* Rho */
+  /* DQtype and DQparam */
 
-  opt = mxGetField(options,0,"FSADQparam");
-  if ( !mxIsEmpty(opt) )
-    *rho = *mxGetPr(opt);
-
-  /* Error control */
-
-  opt = mxGetField(options,0,"FSAErrControl");
+  opt = mxGetField(options,0,"SensDQtype");
   if ( !mxIsEmpty(opt) ) {
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
     if(status != 0)
-      mexErrMsgTxt("Canot parse FSAErrControl.");
+      mexErrMsgTxt("Cannot parse SensDQtype.");
+    if(!strcmp(bufval,"Centered")) *dqtype = IDA_CENTERED;
+    else if(!strcmp(bufval,"Forward")) *dqtype = IDA_FORWARD;
+    else mexErrMsgTxt("SensDQtype has an illegal value.");
+  }
+
+
+  opt = mxGetField(options,0,"SensDQparam");
+  if ( !mxIsEmpty(opt) )
+    *rho = *mxGetPr(opt);
+
+  /* Error control */
+
+  opt = mxGetField(options,0,"SensErrControl");
+  if ( !mxIsEmpty(opt) ) {
+    buflen = mxGetM(opt) * mxGetN(opt) + 1;
+    bufval = mxCalloc(buflen, sizeof(char));
+    status = mxGetString(opt, bufval, buflen);
+    if(status != 0)
+      mexErrMsgTxt("Canot parse SensErrControl.");
     if(!strcmp(bufval,"off")) *errconS = FALSE;
     else if(!strcmp(bufval,"on")) *errconS = TRUE;
-    else mexErrMsgTxt("FSAErrControl has an illegal value.");
+    else mexErrMsgTxt("SensErrControl has an illegal value.");
   }
 
   /* Tolerances */
   
-  opt = mxGetField(options,0,"FSARelTol");
+  opt = mxGetField(options,0,"SensRelTol");
 
   if ( !mxIsEmpty(opt) ) {
     *reltolS = *mxGetPr(opt);
     if (*reltolS < 0.0)
-      mexErrMsgTxt("FSARelTol is negative.");
-    opt = mxGetField(options,0,"FSAAbsTol");
+      mexErrMsgTxt("SensRelTol is negative.");
+    opt = mxGetField(options,0,"SensAbsTol");
     if ( !mxIsEmpty(opt) ) {
       m = mxGetM(opt);
       n = mxGetN(opt);
@@ -696,7 +722,7 @@ int get_FSAOptions(const mxArray *options,
         for (is=0; is<Ns; is++) {
           (*SabstolS)[is] = tmp[is];
           if ( tmp[is] < 0.0 )
-            mexErrMsgTxt("FSAAbsTol has a negative component.");
+            mexErrMsgTxt("SensAbsTol has a negative component.");
         }
       } else if ( (m == N) && (n == Ns) ) {
         *itolS = IDA_SV;
@@ -705,10 +731,10 @@ int get_FSAOptions(const mxArray *options,
         for (i=0; i<Ns*N; i++) {
           (*VabstolS)[i] = tmp[i];
           if ( tmp[i] < 0.0 )
-            mexErrMsgTxt("FSAAbsTol has a negative component.");
+            mexErrMsgTxt("SensAbsTol has a negative component.");
         }
       } else {
-        mexErrMsgTxt("FSAAbsTol must be either a 1xNs vector or a NxNs matrix.");
+        mexErrMsgTxt("SensAbsTol must be either a 1xNs vector or a NxNs matrix.");
       }
     } else {
       /**itolS = IDA_EE;*/
@@ -717,7 +743,7 @@ int get_FSAOptions(const mxArray *options,
 
   /* Sensitivity RES function type */
 
-  opt = mxGetField(options,0,"FSAResFn");
+  opt = mxGetField(options,0,"SensResFn");
   if ( !mxIsEmpty(opt) ) {
     *userSRES = TRUE;
     mx_SRESfct = mxDuplicateArray(opt);

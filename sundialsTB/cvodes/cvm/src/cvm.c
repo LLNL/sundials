@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-07 16:51:56 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-20 16:59:39 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -545,7 +545,7 @@ static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
   N_Vector *NV_abstolS;
   void *abstolS;
 
-  int *plist;
+  int *plist, dqtype;
   double *p, *pbar, rho;
 
   int is;
@@ -574,7 +574,7 @@ static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
 
   status = get_FSAOptions(prhs[3], 
                           &pfield_name, &plist, &pbar,
-                          &userSRHS, &rho,
+                          &userSRHS, &dqtype, &rho,
                           &errconS, &itolS, &reltolS, &SabstolS, &VabstolS);
 
   if(status) mexErrMsgTxt("CVodeMalloc:: illegal forward sensitivity input.");   
@@ -623,7 +623,7 @@ static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
   if (plist != NULL) free(plist);
   if (pbar != NULL)  free(pbar);
   
-  status = CVodeSetSensRho(cvode_mem, rho);
+  status = CVodeSetSensDQMethod(cvode_mem, dqtype, rho);
   
   status = CVodeSetSensErrCon(cvode_mem, errconS);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-07-19 22:10:41 $
+ * $Revision: 1.5 $
+ * $Date: 2006-07-20 16:59:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -70,12 +70,16 @@ extern "C" {
 #define IDA_Y_INIT           2
 
   /* ism */
-#define IDA_SIMULTANEOUS 1
-#define IDA_STAGGERED    2
+#define IDA_SIMULTANEOUS     1
+#define IDA_STAGGERED        2
+
+  /* DQtype */
+#define IDA_CENTERED         1
+#define IDA_FORWARD          2
 
   /* interp */
-#define IDA_HERMITE    1
-#define IDA_POLYNOMIAL 2
+#define IDA_HERMITE          1
+#define IDA_POLYNOMIAL       2
 
   /*
    * ===============================================================
@@ -124,14 +128,14 @@ extern "C" {
 #define IDA_SRES_FAIL       -42
 #define IDA_REP_SRES_ERR    -43
 
-#define IDA_ADJMEM_NULL -101
-#define IDA_BAD_TB0     -103
-#define IDA_BCKMEM_NULL -104
-#define IDA_REIFWD_FAIL -105
-#define IDA_FWD_FAIL    -106
-#define IDA_BAD_ITASK   -107
-#define IDA_BAD_TBOUT   -108
-#define IDA_GETY_BADT   -109
+#define IDA_ADJMEM_NULL     -101
+#define IDA_BAD_TB0         -103
+#define IDA_BCKMEM_NULL     -104
+#define IDA_REIFWD_FAIL     -105
+#define IDA_FWD_FAIL        -106
+#define IDA_BAD_ITASK       -107
+#define IDA_BAD_TBOUT       -108
+#define IDA_GETY_BADT       -109
 
   /*
    * =================================================================
@@ -740,10 +744,13 @@ extern "C" {
    *                          | [IDAS difference quotient approx.]      
    *                          | [internal]
    *                          |                                         
-   * IDASetSensRho            | controls the selection of finite        
-   *                          | difference schemes used in evaluating   
-   *                          | the sensitivity right hand sides.       
-   *                          | [0.0]                                   
+   * IDASetSensDQMethod       | controls the selection of finite
+   *                          | difference schemes used in evaluating
+   *                          | the sensitivity right hand sides:
+   *                          | (centered vs. forward and 
+   *                          | simultaneous vs. separate)
+   *                          | [DQtype=CV_CENTERED]
+   *                          | [DQrhomax=0.0]                                   
    *                          |                                         
    * IDASetSensParams         |   parameter information:
    *                          | p: pointer to problem parameters
@@ -779,7 +786,7 @@ extern "C" {
    */
 
   int IDASetSensResFn(void *ida_mem, IDASensResFn resS, void *rdataS);
-  int IDASetSensRho(void *ida_mem, realtype rho);
+  int IDASetSensDQMethod(void *ida_mem, int DQtype, realtype DQrhomax);
   int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist);
   int IDASetSensErrCon(void *ida_mem, booleantype errconS);
   int IDASetSensTolerances(void *ida_mem, int itolS, 

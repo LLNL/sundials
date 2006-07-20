@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:55:54 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-20 16:59:47 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
   /* Switch to internal DQ sensitivity RHS function */
   flag = CVodeSetSensRhs1Fn(cvode_mem, NULL, NULL);
   /* Specify DQ strategy */
-  flag = CVodeSetSensRho(cvode_mem, ONE);
+  flag = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
 
   /* Reinitialize solver and sensitivity calculations */
   flag = CVodeSensReInit(cvode_mem, CV_SIMULTANEOUS, yS0);

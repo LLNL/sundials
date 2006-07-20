@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 16:00:44 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-20 16:59:39 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -249,7 +249,7 @@ extern "C" {
 
   int get_FSAOptions(const mxArray *options, 
                      char **pfield_name, int **plist, double **pbar,
-                     booleantype *userSRHS, double *rho,
+                     booleantype *userSRHS, int *dqtype, double *rho,
                      booleantype *errconS, int *itolS, double *reltolS, 
                      double **SabstolS, double **VabstolS);
 

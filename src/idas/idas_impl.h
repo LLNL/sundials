@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-07-19 20:52:26 $
+ * $Revision: 1.5 $
+ * $Date: 2006-07-20 16:59:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -98,7 +98,8 @@ extern "C" {
     realtype      *ida_p;
     realtype      *ida_pbar;
     int           *ida_plist;
-    realtype       ida_rhomax;
+    int            ida_DQtype;
+    realtype       ida_DQrhomax;
 
     booleantype    ida_errconS;        /* TRUE if sensitivities in err. control  */
 
@@ -765,6 +766,8 @@ extern "C" {
 #define MSG_BAD_ISM        "Illegal value for ism. Legal values are: IDA_SIMULTANEOUS and IDA_STAGGERED."
 #define MSG_BAD_IS         "Illegal value for is."
 #define MSG_NULL_DKYA      "dkyA = NULL illegal."
+#define MSG_BAD_DQTYPE     "Illegal value for DQtype. Legal values are: IDA_CENTERED and IDA_FORWARD."
+#define MSG_BAD_DQRHO      "DQrhomax < 0 illegal."
 
   /* IDACalcIC error messages */
 

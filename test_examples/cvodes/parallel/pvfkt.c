@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:55:53 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-20 16:59:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -305,8 +305,8 @@ int main(int argc, char *argv[])
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if (check_flag(&flag, "CVodeSetSensErrCon", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVodeSetSensRho(cvode_mem, ZERO);
-    if (check_flag(&flag, "CVodeSetSensRho", 1, my_pe)) MPI_Abort(comm, 1);
+    flag = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
+    if (check_flag(&flag, "CVodeSetSensDQMethod", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
     if (check_flag(&flag, "CVodeSetSensParams", 1, my_pe)) MPI_Abort(comm, 1);

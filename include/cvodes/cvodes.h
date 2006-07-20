@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-20 16:59:32 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -109,18 +109,18 @@ extern "C" {
    */
 
   /* lmm */
-#define CV_ADAMS 1
-#define CV_BDF   2
+#define CV_ADAMS          1
+#define CV_BDF            2
 
   /* iter */
-#define CV_FUNCTIONAL 1
-#define CV_NEWTON     2
+#define CV_FUNCTIONAL     1
+#define CV_NEWTON         2
 
   /* itol */
-#define CV_SS 1
-#define CV_SV 2
-#define CV_WF 3
-#define CV_EE 4
+#define CV_SS             1
+#define CV_SV             2
+#define CV_WF             3
+#define CV_EE             4
 
   /* itask */
 #define CV_NORMAL         1
@@ -129,13 +129,17 @@ extern "C" {
 #define CV_ONE_STEP_TSTOP 4
 
   /* ism */
-#define CV_SIMULTANEOUS 1
-#define CV_STAGGERED    2
-#define CV_STAGGERED1   3
+#define CV_SIMULTANEOUS   1
+#define CV_STAGGERED      2
+#define CV_STAGGERED1     3
+
+  /* DQtype */
+#define CV_CENTERED       1
+#define CV_FORWARD        2
 
   /* interp */
-#define CV_HERMITE    1
-#define CV_POLYNOMIAL 2
+#define CV_HERMITE        1
+#define CV_POLYNOMIAL     2
 
   /* 
    * ----------------------------------------
@@ -190,14 +194,14 @@ extern "C" {
    * ----------------------------------------
    */
 
-#define CV_ADJMEM_NULL -101
-#define CV_BAD_TB0     -103
-#define CV_BCKMEM_NULL -104
-#define CV_REIFWD_FAIL -105
-#define CV_FWD_FAIL    -106
-#define CV_BAD_ITASK   -107
-#define CV_BAD_TBOUT   -108
-#define CV_GETY_BADT   -109
+#define CV_ADJMEM_NULL         -101
+#define CV_BAD_TB0             -103
+#define CV_BCKMEM_NULL         -104
+#define CV_REIFWD_FAIL         -105
+#define CV_FWD_FAIL            -106
+#define CV_BAD_ITASK           -107
+#define CV_BAD_TBOUT           -108
+#define CV_GETY_BADT           -109
 
   /*
    * =================================================================
@@ -798,10 +802,13 @@ extern "C" {
    *                            | [CVODES difference quotient approx.]
    *                            | [internal]
    *                            |
-   * CVodeSetSensRho            | controls the selection of finite
+   * CVodeSetSensDQMethod       | controls the selection of finite
    *                            | difference schemes used in evaluating
-   *                            | the sensitivity right hand sides.
-   *                            | [0.0]
+   *                            | the sensitivity right hand sides:
+   *                            | (centered vs. forward and 
+   *                            | simultaneous vs. separate)
+   *                            | [DQtype=CV_CENTERED]
+   *                            | [DQrhomax=0.0]
    *                            |
    * CVodeSetSensParams         | parameter information:
    *                            | p: pointer to problem parameters
@@ -842,7 +849,7 @@ extern "C" {
 
   int CVodeSetSensRhsFn(void *cvode_mem, CVSensRhsFn f, void *fS_dataS);
   int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS, void *fS_data);
-  int CVodeSetSensRho(void *cvode_mem, realtype rho);
+  int CVodeSetSensDQMethod(void *cvode_mem, int DQtype, realtype DQrhomax);
   int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS);
   int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS);
   int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist);

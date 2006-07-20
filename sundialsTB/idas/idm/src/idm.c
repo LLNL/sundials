@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-07-19 22:10:53 $
+ * $Revision: 1.4 $
+ * $Date: 2006-07-20 16:59:44 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -559,7 +559,7 @@ static int IDM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
   N_Vector *NV_abstolS;
   void *abstolS;
 
-  int *plist;
+  int *plist, dqtype;
   double *p, *pbar, rho;
 
   int is;
@@ -581,7 +581,7 @@ static int IDM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
 
   status = get_FSAOptions(prhs[4], 
                           &pfield_name, &plist, &pbar,
-                          &userSRES, &rho,
+                          &userSRES, &dqtype, &rho,
                           &errconS, &itolS, &reltolS, &SabstolS, &VabstolS);
 
   if(status) mexErrMsgTxt("IDAMalloc:: illegal forward sensitivity input.");   
@@ -630,7 +630,7 @@ static int IDM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
   if (plist != NULL) free(plist);
   if (pbar != NULL)  free(pbar);
   
-  status = IDASetSensRho(ida_mem, rho);
+  status = IDASetSensDQMethod(ida_mem, dqtype, rho);
   
   status = IDASetSensErrCon(ida_mem, errconS);
 

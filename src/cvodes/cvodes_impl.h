@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:34 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-20 16:59:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -115,15 +115,15 @@ extern "C" {
     CVSensRhsFn cv_fS;       /* fS = (df/dy)*yS + (df/dp)                    */
     CVSensRhs1Fn cv_fS1;     /* fS1 = (df/dy)*yS_i + (df/dp)                 */
     void *cv_user_fS_data;   /* user data pointer for fS                     */
-    void *cv_fS_data;        /* actial data pointer passed to fS             */
+    void *cv_fS_data;        /* actual data pointer passed to fS             */
     booleantype cv_fSDQ;
     int cv_ifS;              /* ifS = ALLSENS or ONESENS                     */
 
     realtype *cv_p;          /* parameters in f(t,y,p)                       */
     realtype *cv_pbar;       /* scale factors for parameters                 */
     int *cv_plist;           /* list of sensitivities                        */
-    realtype cv_rhomax;      /* cut-off value for centered/forward finite
-                                differences                                  */
+    int cv_DQtype;           /* central/forward finite differences           */
+    realtype cv_DQrhomax;    /* cut-off value for separate/simultaneous FD   */
 
     booleantype cv_errconS;  /* TRUE if sensitivities are in err. control    */
 
@@ -841,6 +841,8 @@ extern "C" {
 #define MSGCV_BAD_ISM "Illegal value for ism. Legal values are: CV_SIMULTANEOUS, CV_STAGGERED and CV_STAGGERED1."
 #define MSGCV_BAD_IS "Illegal value for is."
 #define MSGCV_NULL_DKYA "dkyA = NULL illegal."
+#define MSGCV_BAD_DQTYPE "Illegal value for DQtype. Legal values are: CV_CENTERED and CV_FORWARD."
+#define MSGCV_BAD_DQRHO "DQrhomax < 0 illegal."
 
 /* CVode Error Messages */
 

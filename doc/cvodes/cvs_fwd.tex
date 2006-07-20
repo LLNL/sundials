@@ -408,7 +408,7 @@ without having to allocate and deallocate memory, the following function is prov
   The return value \id{flag} of \id{CVodeSensToggle} is one of:
   \begin{args}[CV\_MEM\_NULL]
   \item[\Id{CV\_SUCCESS}] 
-    \id{CVodeGetSens} was successful.
+    \id{CVodeSensToggleOff} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
     \id{cvode\_mem} was \id{NULL}.
   \end{args}
@@ -659,7 +659,7 @@ remainder of this section.
 Sensitivity right-hand side fct. and data & \id{CVodeSetSensRhsFn} & internal DQ \\
 Sensitivity right-hand side fct. and data & \id{CVodeSetSensRhs1Fn} & internal DQ \\
 Sensitivity scaling factors & \id{CVodeSetSensPbar} & \id{NULL} \\
-Type of DQ approximation & \id{CVodeSetSensRho} & 0.0 \\
+DQ approximation method & \id{CVodeSetSensDQMethod} & 0.0 \\
 Error control strategy & \id{CVodeSetSensErrCon} & \id{FALSE} \\
 Sensitivity integration tolerances & \id{CVodeSetSensTolerances} & estimated \\
 Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
@@ -802,12 +802,12 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 }
 %%
 %%
-\ucfunction{CVodeSetSensRho}
+\ucfunction{CVodeSetSensDQMethod}
 {
-  flag = CVodeSetSensRho(cvode\_mem, rho);
+  flag = CVodeSetSensDQMethod(cvode\_mem, DQtype, DQrhomax);
 }
 {
-  The function \ID{CVodeSetSensRho} specifies the difference quotient strategy in
+  The function \ID{CVodeSetSensDQMethod} specifies the difference quotient strategy in
   the case in which the right-hand side of the sensitivity equations are to
   be computed by {\cvodes}.
 }
@@ -815,22 +815,35 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[rho] (\id{realtype})
-    value of the selection parameter.
+  \item[DQtype] (\id{int})
+    specifies the difference quotient type and can be one of \ID{CV\_CENTERED}
+    or \ID{CV\_FORWARD}.
+  \item[DQrhomax] (\id{realtype})
+    positive value of the selection parameter used in deciding switching between a simultaneous
+    or separate approximation of the two terms in the sensitivity right-hand side.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CV\_MEM\_NULL]
+  \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_ILL\_INPUT}]
+    An argument has an illegal value.
   \end{args}
 }
 {
-  The default value is \id{rho}$=0.0$. See \S\ref{ss:fwd_sensi} for
-  details.
+  If \id{DQrhomax} $= 0.0$, then no switching is performed. The approximation is done simultaneously
+  using either centered or forward finite differences, depending on the value of \id{DQtype}. 
+  For values of \id{DQrhomax} $\ge 1.0$ the simultaneous approximation is used whenever the 
+  estimated finite difference perturbations for states and parameters are within a factor of
+  \id{DQrhomax} and the separate approximation is used otherwise. Note that a value 
+  \id{DQrhomax} $< 1.0$ will effectively disable switching.   
+  See \S\ref{ss:fwd_sensi} for more details.
+
+  The default value are \id{DQtype}$=$\id{CV\_CENTERED} and \id{DQrhomax}$=0.0$. 
 }
 %%
 %%

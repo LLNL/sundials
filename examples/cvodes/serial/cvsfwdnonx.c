@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-20 16:59:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -175,8 +175,8 @@ int main(int argc, char *argv[])
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if(check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
 
-    flag = CVodeSetSensRho(cvode_mem, ZERO);
-    if(check_flag(&flag, "CVodeSetSensRho", 1)) return(1);
+    flag = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
+    if(check_flag(&flag, "CVodeSetSensDQMethod", 1)) return(1);
 
     flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
     if(check_flag(&flag, "CVodeSetSensParams", 1)) return(1);

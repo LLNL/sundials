@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-19 22:34:28 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-20 16:59:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -642,7 +642,8 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_fS1          = CVSensRhs1DQ;
   cv_mem->cv_fSDQ         = TRUE;
   cv_mem->cv_ifS          = CV_ONESENS;
-  cv_mem->cv_rhomax       = ZERO;
+  cv_mem->cv_DQtype       = CV_CENTERED;
+  cv_mem->cv_DQrhomax     = ZERO;
   cv_mem->cv_p            = NULL;
   cv_mem->cv_pbar         = NULL;
   cv_mem->cv_plist        = NULL;
@@ -1553,7 +1554,8 @@ int CVodeSensToggleOff(void *cvode_mem)
 #define fS             (cv_mem->cv_fS)
 #define fS1            (cv_mem->cv_fS1)
 #define fS_data        (cv_mem->cv_fS_data)
-#define rhomax         (cv_mem->cv_rhomax)
+#define DQtype         (cv_mem->cv_DQtype)
+#define DQrhomax       (cv_mem->cv_DQrhomax)
 #define pbar           (cv_mem->cv_pbar)
 #define errconS        (cv_mem->cv_errconS)
 #define maxcorS        (cv_mem->cv_maxcorS)
@@ -7001,13 +7003,18 @@ int CVSensRhs1DQ(int Ns, realtype t,
   rDeltay = MAX(norms, rdelta) / pbari;
   Deltay  = ONE/rDeltay;
   
-  ratio = Deltay * rDeltap;
-  
-  if ((MAX(ONE/ratio, ratio) <= ABS(rhomax)) || rhomax == ZERO)
-    method = (rhomax >= ZERO) ? CENTERED1 : FORWARD1; 
-  else
-    method = (rhomax > ZERO) ? CENTERED2 : FORWARD2;
-  
+  if (DQrhomax == ZERO) {
+    /* No switching */
+    method = (DQtype==CV_CENTERED) ? CENTERED1 : FORWARD1;
+  } else {
+    /* switch between simultaneous/separate DQ */
+    ratio = Deltay * rDeltap;
+    if ( MAX(ONE/ratio, ratio) <= DQrhomax ) 
+      method = (DQtype==CV_CENTERED) ? CENTERED1 : FORWARD1;
+    else
+      method = (DQtype==CV_CENTERED) ? CENTERED2 : FORWARD2;
+  }
+
   switch(method) {
     
   case CENTERED1:

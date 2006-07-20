@@ -29,7 +29,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
+% $Revision: 1.3 $Date: 2006/03/07 01:19:54 $
 
 % -------------------
 % User data structure
@@ -63,13 +63,13 @@ CVodeMalloc(@cvdx_f,t0,y0,options,data);
 
 % Case 1: user-provided sensitivity RHS
 
-FSAoptions = CVodeSetFSAOptions('FSAErrControl', 'on',...
-                                'FSAParamScales', [0.04; 1.0e4],...
-                                'FSARhsFn', @cvdx_fS);
+FSAoptions = CVodeSetFSAOptions('SensErrControl', 'on',...
+                                'ParamScales', [0.04; 1.0e4],...
+                                'SensRhsFn', @cvdx_fS);
 
 % Case 2: internal DQ approximation
 
-%FSAoptions = CVodeSetFSAOptions('FSAErrControl', 'on',...
+%FSAoptions = CVodeSetFSAOptions('SensErrControl', 'on',...
 %                                'ParamField', 'p',...
 %                                'ParamList', [1 2],...
 %                                'ParamScales', [0.04 1.0e4]);

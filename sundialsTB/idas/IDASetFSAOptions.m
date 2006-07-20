@@ -24,27 +24,28 @@ function options = IDASetFSAOptions(varargin)
 %IDASetFSAOptions properties
 %(See also the IDAS User Guide)
 %
-%FSAParamField - Problem parameters  [ string ]
+%ParamField - Problem parameters  [ string ]
 %   Specifies the name of the field in the user data structure (passed as an 
 %   argument to IDAMalloc) in which the nominal values of the problem 
 %   parameters are stored. This property is used only if  IDAS will use difference
-%   quotient approximations to the sensitivity residuals (see SensRHS and 
-%   SensRHStype).
-%FSAParamList - Parameters with respect to which FSA is performed [ integer vector ]
+%   quotient approximations to the sensitivity residuals (see SensResFn).
+%ParamList - Parameters with respect to which FSA is performed [ integer vector ]
 %   Specifies a list of Ns parameters with respect to which sensitivities are to
 %   be computed. This property is used only if IDAS will use difference-quotient
-%   approximations to the sensitivity residuals (see SensRHS and SensRHStype). 
-%   Its length must be Ns, consistent with the number of columns of FSAinitCond.
-%FSAParamScales - Order of magnitude for problem parameters [ vector ]
+%   approximations to the sensitivity residuals (see SensResFn below).
+%   Its length must be Ns, consistent with the number of columns of yS0
+%   (see IDASensMalloc).
+%ParamScales - Order of magnitude for problem parameters [ vector ]
 %   Provides order of magnitude information for the parameters with respect to
 %   which sensitivities are computed. This information is used if IDAS 
-%   approximates the sensitivity residuals (see SensRHS) or if IDAS estimates 
-%   integration tolerances for the sensitivity variables (see FSAReltol and FSAAbsTol).
-%FSARelTol - Relative tolerance for sensitivity variables [ positive scalar ]
+%   approximates the sensitivity residuals (see SensResFn below) or if IDAS 
+%   estimates integration tolerances for the sensitivity variables (see SensReltol 
+%   and SensAbsTol).
+%SensRelTol - Relative tolerance for sensitivity variables [ positive scalar ]
 %   Specifies the scalar relative tolerance for the sensitivity variables. 
-%   See FSAAbsTol.
-%FSAAbsTol - Absolute tolerance for sensitivity variables [ row-vector or matrix ]
-%   Specifies the absolute tolerance for sensitivity variables. FSAAbsTol must be
+%   See also SensAbsTol.
+%SensAbsTol - Absolute tolerance for sensitivity variables [ row-vector or matrix ]
+%   Specifies the absolute tolerance for sensitivity variables. SensAbsTol must be
 %   either a row vector of dimension Ns, in which case each of its components is
 %   used as a scalar absolute tolerance for the coresponding sensitivity vector,
 %   or a N x Ns matrix, in which case each of its columns is used as a vector
@@ -52,54 +53,64 @@ function options = IDASetFSAOptions(varargin)
 %   By default, IDAS estimates the integration tolerances for sensitivity 
 %   variables, based on those for the states and on the order of magnitude 
 %   information for the problem parameters specified through ParamScales.
-%FSAErrControl - Error control strategy for sensitivity variables [ on | {off} ]
+%SensErrControl - Error control strategy for sensitivity variables [ on | {off} ]
 %   Specifies whether sensitivity variables are included in the error control test.
 %   Note that sensitivity variables are always included in the nonlinear system
 %   convergence test.
-%FSAResFn - Sensitivity residual function [ function ]
-%   Specifies a user-supplied function to evaluate the sensitivity residuals.
-%   See SensRHStype. By default, IDAS uses an internal difference-quotient 
+%SensResFn - Sensitivity residual function [ function ]
+%   Specifies a user-supplied function to evaluate the sensitivity right-hand 
+%   sides. If not specified, IDAS uses a default internal difference-quotient 
 %   function to approximate the sensitivity residuals.
-%FSADQparam - Parameter for the DQ approx. of the sensi. residual [ scalar | {0.0} ]
+%SensDQtype - Type of DQ approx. of the sensi. RHS [{Centered} | Forward ]
+%   Specifies whether to use centered (second-order) or forward (first-order)
+%   difference quotient approximations of the sensitivity eqation right-hand 
+%   sides. This property is used only if a user-defined sensitivity right-hand 
+%   side function was not provided.
+%SensDQparam - Cut-off parameter for the DQ approx. of the sensi. RHS [ scalar | {0.0} ]
 %   Specifies the value which controls the selection of the difference-quotient 
-%   scheme used in evaluating the sensitivity residuals. This property is 
-%   used only if IDAS will use difference-quotient approximations. The default 
-%   value 0.0 indicates the use of the second-order centered directional derivative 
-%   formula exclusively. Otherwise, the magnitude of FSADQparam and its sign 
-%   (positive or negative) indicates whether this switching is done with regard 
-%   to (centered or forward) finite differences, respectively.
+%   scheme used in evaluating the sensitivity residuals (switch between 
+%   simultaneous or separate evaluations of the two components in the sensitivity 
+%   residual). The default value 0.0 indicates the use of simultaenous approximation
+%   exclusively (centered or forward, depending on the value of SensDQtype.
+%   For SensDQparam >= 1, IDAS uses a simultaneous approximation if the estimated
+%   DQ perturbations for states and parameters are within a factor of SensDQparam, 
+%   and separate approximations otherwise. Note that a value SensDQparam < 1
+%   will inhibit switching! This property is used only if a user-defined sensitivity 
+%   residual function was not provided. 
 %
 %   See also
-%        IDASensRhsFn
+%        IDASensMalloc, IDASensResFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/07 01:19:50 $
+% $Revision: 1.2 $Date: 2006/07/17 16:49:50 $
 
 % Based on Matlab's ODESET function
 
 % Print out possible values of properties.
 if (nargin == 0) & (nargout == 0)
-  fprintf('   FSAParamField: [ string ]\n');
-  fprintf('    FSAParamList: [ integer vector ]\n');
-  fprintf('  FSAParamScales: [ vector ]\n');
-  fprintf('       FSARelTol: [ positive scalar ]\n');
-  fprintf('       FSAAbsTol: [ row-vector or matrix ]\n');
-  fprintf('   FSAErrControl: [ off | {on} ]\n');
-  fprintf('        FSAResFn: [ function ]\n');
-  fprintf('      FSADQparam: [ scalar | {0.0} ]\n');
+  fprintf('      ParamField: [ string ]\n');
+  fprintf('       ParamList: [ integer vector ]\n');
+  fprintf('     ParamScales: [ vector ]\n');
+  fprintf('      SensRelTol: [ positive scalar ]\n');
+  fprintf('      SensAbsTol: [ row-vector or matrix ]\n');
+  fprintf('  SensErrControl: [ off | {on} ]\n');
+  fprintf('       SensResFn: [ function ]\n');
+  fprintf('      SensDQtype: [ {Centered} | {Forward} ]\n');
+  fprintf('     SensDQparam: [ scalar | {0.0} ]\n');
   return;
 end
 
 Names = [
-    'FSAParamField   '
-    'FSAParamList    '
-    'FSAParamScales  '
-    'FSARelTol       '
-    'FSAAbsTol       '
-    'FSAErrControl   '
-    'FSAResFn        '
-    'FSADQparam      '
+    'ParamField      '
+    'ParamList       '
+    'ParamScales     '
+    'SensRelTol      '
+    'SensAbsTol      '
+    'SensErrControl  '
+    'SensResFn       '
+    'SensDQtype      '
+    'SensDQparam     '
         ];
 [m,n] = size(Names);
 names = lower(Names);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:34 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-20 16:59:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -765,18 +765,29 @@ int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS1, void *fS_data)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetSensRho(void *cvode_mem, realtype rho)
+int CVodeSetSensDQMethod(void *cvode_mem, int DQtype, realtype DQrhomax)
 {
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    CVProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetSensRho", MSGCV_NO_MEM);    
+    CVProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetSensDQMethod", MSGCV_NO_MEM);    
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem->cv_rhomax = rho;
+  if ( (DQtype != CV_CENTERED) && (DQtype != CV_FORWARD) ) {
+    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetSensDQMethod", MSGCV_BAD_DQTYPE);    
+    return(CV_ILL_INPUT);
+  }
+
+  if (DQrhomax < ZERO ) {
+    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetSensDQMethod", MSGCV_BAD_DQRHO);    
+    return(CV_ILL_INPUT);
+  }
+
+  cv_mem->cv_DQtype = DQtype;
+  cv_mem->cv_DQrhomax = DQrhomax;
 
   return(CV_SUCCESS);
 }
