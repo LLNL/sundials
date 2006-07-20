@@ -3,79 +3,78 @@
 tarfile=$1
 distrobase=$2
 
-echo -n "   --- Add kinsol module ... "
+echo "   --- Add kinsol module to $tarfile"
 
-tar uf $tarfile $distrobase/src/kinsol/LICENSE
-tar uf $tarfile $distrobase/src/kinsol/README
+tar ufv $tarfile $distrobase/src/kinsol/LICENSE
+tar ufv $tarfile $distrobase/src/kinsol/README
 
-#tar uf $tarfile $distrobase/doc/kinsol/kin_guide.ps
-#tar uf $tarfile $distrobase/doc/kinsol/kin_guide.pdf
-#tar uf $tarfile $distrobase/doc/kinsol/kin_examples.ps
-#tar uf $tarfile $distrobase/doc/kinsol/kin_examples.pdf
+#tar ufv $tarfile $distrobase/doc/kinsol/kin_guide.ps
+tar ufv $tarfile $distrobase/doc/kinsol/kin_guide.pdf
+#tar ufv $tarfile $distrobase/doc/kinsol/kin_examples.ps
+tar ufv $tarfile $distrobase/doc/kinsol/kin_examples.pdf
 
-tar uf $tarfile $distrobase/include/kinsol/kinsol.h
-tar uf $tarfile $distrobase/include/kinsol/kinsol_spgmr.h
-tar uf $tarfile $distrobase/include/kinsol/kinsol_spbcgs.h
-tar uf $tarfile $distrobase/include/kinsol/kinsol_sptfqmr.h
-tar uf $tarfile $distrobase/include/kinsol/kinsol_dense.h
-tar uf $tarfile $distrobase/include/kinsol/kinsol_band.h
-tar uf $tarfile $distrobase/include/kinsol/kinsol_spils.h
-tar uf $tarfile $distrobase/include/kinsol/kinsol_bbdpre.h
+tar ufv $tarfile $distrobase/include/kinsol/kinsol.h
+tar ufv $tarfile $distrobase/include/kinsol/kinsol_spgmr.h
+tar ufv $tarfile $distrobase/include/kinsol/kinsol_spbcgs.h
+tar ufv $tarfile $distrobase/include/kinsol/kinsol_sptfqmr.h
+tar ufv $tarfile $distrobase/include/kinsol/kinsol_dense.h
+tar ufv $tarfile $distrobase/include/kinsol/kinsol_band.h
+tar ufv $tarfile $distrobase/include/kinsol/kinsol_spils.h
+tar ufv $tarfile $distrobase/include/kinsol/kinsol_bbdpre.h
 
-tar uf $tarfile $distrobase/src/kinsol/Makefile.in
-tar uf $tarfile $distrobase/src/kinsol/kinsol.c
-tar uf $tarfile $distrobase/src/kinsol/kinsol_io.c
-tar uf $tarfile $distrobase/src/kinsol/kinsol_spils.c
-tar uf $tarfile $distrobase/src/kinsol/kinsol_spgmr.c
-tar uf $tarfile $distrobase/src/kinsol/kinsol_spbcgs.c
-tar uf $tarfile $distrobase/src/kinsol/kinsol_sptfqmr.c
-tar uf $tarfile $distrobase/src/kinsol/kinsol_dense.c
-tar uf $tarfile $distrobase/src/kinsol/kinsol_band.c
-tar uf $tarfile $distrobase/src/kinsol/kinsol_bbdpre.c
-tar uf $tarfile $distrobase/src/kinsol/kinsol_impl.h
-tar uf $tarfile $distrobase/src/kinsol/kinsol_spils_impl.h
-tar uf $tarfile $distrobase/src/kinsol/kinsol_dense_impl.h
-tar uf $tarfile $distrobase/src/kinsol/kinsol_band_impl.h
-tar uf $tarfile $distrobase/src/kinsol/kinsol_bbdpre_impl.h
+tar ufv $tarfile $distrobase/src/kinsol/Makefile.in
+tar ufv $tarfile $distrobase/src/kinsol/kinsol.c
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_io.c
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_spils.c
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_spgmr.c
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_spbcgs.c
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_sptfqmr.c
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_dense.c
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_band.c
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_bbdpre.c
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_impl.h
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_spils_impl.h
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_dense_impl.h
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_band_impl.h
+tar ufv $tarfile $distrobase/src/kinsol/kinsol_bbdpre_impl.h
 
-tar uf $tarfile $distrobase/src/kinsol/fcmix/Makefile.in
-tar uf $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h
-tar uf $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c
-tar uf $tarfile $distrobase/src/kinsol/fcmix/fkindense.c
-tar uf $tarfile $distrobase/src/kinsol/fcmix/fkinband.c
-tar uf $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c
-tar uf $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c
-tar uf $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.h
-tar uf $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.c
+tar ufv $tarfile $distrobase/src/kinsol/fcmix/Makefile.in
+tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h
+tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c
+tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkindense.c
+tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinband.c
+tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c
+tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c
+tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.h
+tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.c
 
-tar uf $tarfile $distrobase/examples/kinsol/serial/README
-tar uf $tarfile $distrobase/examples/kinsol/serial/Makefile.in
-tar uf $tarfile $distrobase/examples/kinsol/serial/kinbanx.c
-tar uf $tarfile $distrobase/examples/kinsol/serial/kinbanx.out
-tar uf $tarfile $distrobase/examples/kinsol/serial/kindenx1.c
-tar uf $tarfile $distrobase/examples/kinsol/serial/kindenx1.out
-tar uf $tarfile $distrobase/examples/kinsol/serial/kindenx2.c
-tar uf $tarfile $distrobase/examples/kinsol/serial/kindenx2.out
-tar uf $tarfile $distrobase/examples/kinsol/serial/kinkrydem_lin.c
-tar uf $tarfile $distrobase/examples/kinsol/serial/kinkrydem_lin.out
-tar uf $tarfile $distrobase/examples/kinsol/serial/kinkryx.c
-tar uf $tarfile $distrobase/examples/kinsol/serial/kinkryx.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/README
+tar ufv $tarfile $distrobase/examples/kinsol/serial/Makefile.in
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinbanx.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinbanx.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kindenx1.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kindenx1.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kindenx2.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kindenx2.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinkrydem_lin.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinkrydem_lin.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinkryx.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinkryx.out
 
-tar uf $tarfile $distrobase/examples/kinsol/fcmix_serial/README
-tar uf $tarfile $distrobase/examples/kinsol/fcmix_serial/Makefile.in
-tar uf $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinkryx.f
-tar uf $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinkryx.out
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/README
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/Makefile.in
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinkryx.f
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinkryx.out
 
-tar uf $tarfile $distrobase/examples/kinsol/parallel/README
-tar uf $tarfile $distrobase/examples/kinsol/parallel/Makefile.in
-tar uf $tarfile $distrobase/examples/kinsol/parallel/kinkryx_bbd_p.c
-tar uf $tarfile $distrobase/examples/kinsol/parallel/kinkryx_bbd_p.out
-tar uf $tarfile $distrobase/examples/kinsol/parallel/kinkryx_p.c
-tar uf $tarfile $distrobase/examples/kinsol/parallel/kinkryx_p.out
+tar ufv $tarfile $distrobase/examples/kinsol/parallel/README
+tar ufv $tarfile $distrobase/examples/kinsol/parallel/Makefile.in
+tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinkryx_bbd_p.c
+tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinkryx_bbd_p.out
+tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinkryx_p.c
+tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinkryx_p.out
     
-tar uf $tarfile $distrobase/examples/kinsol/fcmix_parallel/README
-tar uf $tarfile $distrobase/examples/kinsol/fcmix_parallel/Makefile.in
-tar uf $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinkryx_p.f
-tar uf $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinkryx_p.out
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/README
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/Makefile.in
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinkryx_p.f
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinkryx_p.out
 
-echo "done"

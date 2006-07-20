@@ -47,30 +47,30 @@ echo -e "\n--- Generate documentation ---"
 
 echo -e "   --- CVODE documentation"
 cd doc/cvode
-#make QUIET=-q purge
-#make QUIET=-q ug_pdf
-#make QUIET=-q ex_pdf
+make QUIET=-q purge
+make QUIET=-q ug_pdf
+make QUIET=-q ex_pdf
 cd -
 
 echo -e "   --- CVODES documentation"
 cd doc/cvodes
-#make QUIET=-q purge
-#make QUIET=-q ug_pdf
-#make QUIET=-q ex_pdf
+make QUIET=-q purge
+make QUIET=-q ug_pdf
+make QUIET=-q ex_pdf
 cd -
 
 echo -e "   --- IDA documentation"
 cd doc/ida
-#make QUIET=-q purge
-#make QUIET=-q ug_pdf
-#make QUIET=-q ex_pdf
+make QUIET=-q purge
+make QUIET=-q ug_pdf
+make QUIET=-q ex_pdf
 cd -
 
 echo -e "   --- KINSOL documentation"
 cd doc/kinsol
-#make QUIET=-q purge
-#make QUIET=-q ug_pdf
-#make QUIET=-q ex_pdf
+make QUIET=-q purge
+make QUIET=-q ug_pdf
+make QUIET=-q ex_pdf
 cd -
 
 cd ..
