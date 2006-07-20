@@ -4,7 +4,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/07/17 16:49:50 $
+% $Revision: 1.3 $Date: 2006/07/19 20:52:29 $
 
 m = 40;
 N = m^2;
@@ -76,6 +76,7 @@ view(-30,30)
 zlim_yp = get(gca,'ZLim');
 box on
 
+fprintf('t = %.4f    [Press any key]\n',t0);
 pause;
 
 nout = 7;
@@ -97,6 +98,7 @@ for iout = 1:nout
   shading interp
   set(gca,'ZLim',zlim_yp);
 
+  fprintf('t = %.4f    [Press any key]\n',t);
   pause;
   
 end

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 16:00:44 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-20 21:14:23 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,8 +25,8 @@
  * ---------------------------------------------------------------------------------
  */
 
-kim_KINSOLdata kim_Kdata;  /* KINSOL data */
-kim_MATLABdata kim_Mdata;  /* MATLAB data */
+kim_KINSOLdata kim_Kdata= NULL;  /* KINSOL data */
+kim_MATLABdata kim_Mdata= NULL;  /* MATLAB data */
 
 /*
  * ---------------------------------------------------------------------------------
@@ -72,6 +72,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   switch(mode) {
   case 1:
+    if (kim_Kdata != NULL) {
+      /* a previous pb ws initialized, we must clear memory */
+      KIM_Free(nlhs, plhs, nrhs-1, &prhs[1]);
+      KIM_final();
+    }
     KIM_init();
     KIM_Malloc(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
@@ -93,7 +98,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     break;
   }
 
-  KIM_makePersistent();
+  /* do not call KIM_makePersistent after free */
+  if (mode != 6) KIM_makePersistent();
   mexLock();
 
   return;
@@ -175,6 +181,7 @@ static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
   /* Matlab user-provided function */
 
+  mxDestroyArray(mx_SYSfct);
   mx_SYSfct = mxDuplicateArray(prhs[0]);
   
   /* problem dimension */
@@ -194,6 +201,7 @@ static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
   /* User data -- optional argument */
 
+  mxDestroyArray(mx_data);
   mx_data = mxDuplicateArray(prhs[3]);
 
   /* 
@@ -367,13 +375,11 @@ static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
   }
   
-
+  return;
 }
 
 static void KIM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  
-
   double *y0, *ys, *fs;
   N_Vector yscale, fscale;
   int buflen, status, strategy;
@@ -382,6 +388,7 @@ static void KIM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   int i;
   double *tmp;
 
+  if ( kim_Kdata == NULL) return ;
   /* Exract y0 and load initial guess in y */
   y0 = mxGetPr(prhs[0]);
   PutData(y, y0, N);
@@ -417,6 +424,7 @@ static void KIM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   N_VDestroy(yscale);
   N_VDestroy(fscale);
 
+  return;
 }
 
 static void KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -452,6 +460,8 @@ static void KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   int flag;
   mxArray *mx_ls;
   int nfields;
+
+  if (kim_Kdata == NULL) return;
 
   flag = KINGetNumNonlinSolvIters(kin_mem, &nni);
   flag = KINGetNumFuncEvals(kin_mem, &nfe);
@@ -519,6 +529,7 @@ static void KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   mxSetField(plhs[0], 0, "LSInfo", mx_ls);
 
+  return;
 }
 
 
@@ -532,12 +543,14 @@ static void KIM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 static void KIM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
+  if (kim_Kdata == NULL) return ;
 
   N_VDestroy(y);
   if (pm == PM_BBDPRE) KINBBDPrecFree(bbd_data);
 
-  KINFree(kin_mem);
+  KINFree(&kin_mem);
 
+  return;
 }
 
 
@@ -593,11 +606,15 @@ static void KIM_makePersistent() {
   mexMakeMemoryPersistent(kim_Kdata);
   mexMakeMemoryPersistent(kim_Mdata);
 
+  return;
 }
 
 
 static void KIM_final()
 {
+
+  if (kim_Kdata== NULL) return;
+  
   mxDestroyArray(mx_data);
   
   mxDestroyArray(mx_SYSfct);
@@ -606,8 +623,9 @@ static void KIM_final()
   mxDestroyArray(mx_PSOLfct);
   mxDestroyArray(mx_GLOCfct);
   mxDestroyArray(mx_GCOMfct);
-
-  mxFree(kim_Kdata);
+  
+  mxFree(kim_Kdata);kim_Kdata= NULL;
   mxFree(kim_Mdata);
 
+  return;
 }

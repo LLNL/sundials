@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-07-20 16:59:39 $
+ * $Revision: 1.4 $
+ * $Date: 2006-07-20 21:14:16 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,7 +25,6 @@
  * ---------------------------------------------------------------------------------
  */
 
-cvm_CVODESdata cvm_Cdata;  /* CVODE data */
 booleantype cvm_quad;      /* Forward quadratures? */
 booleantype cvm_quadB;     /* Backward quadratures? */
 booleantype cvm_asa;       /* Adjoint sensitivity? */
@@ -33,7 +32,8 @@ booleantype cvm_fsa;       /* Forward sensitivity? */
 booleantype cvm_mon;       /* Forward monitoring? */ 
 booleantype cvm_monB;      /* Backward monitoring? */ 
 
-cvm_MATLABdata cvm_Mdata;  /* MATLAB data */
+cvm_CVODESdata cvm_Cdata = NULL;  /* CVODES data */
+cvm_MATLABdata cvm_Mdata = NULL;  /* MATLAB data */
 
 /*
  * ---------------------------------------------------------------------------------
@@ -93,6 +93,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   switch(mode) {
   case 1:
+    if (cvm_Cdata != NULL) {
+      /* a previous pb ws initialized, we must clear  memory */
+      CVM_Free(nlhs, plhs, nrhs-1, &prhs[1]);
+      CVM_final();
+    }
     CVM_init();
     CVM_Malloc(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
@@ -135,7 +140,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     return;
   }
 
-  CVM_makePersistent();
+  /* do not call CVM_makePersistent after free */
+  if (mode != 13) CVM_makePersistent();
   mexLock();
 
   return;
@@ -270,6 +276,7 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* Matlab user-provided function */
 
+  mxDestroyArray(mx_RHSfct);
   mx_RHSfct = mxDuplicateArray(prhs[0]);
   
   /* Initial time */
@@ -290,6 +297,7 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* User data -- optional argument */
 
+  mxDestroyArray(mx_data);
   mx_data = mxDuplicateArray(prhs[4]);
 
   /* 
@@ -727,6 +735,7 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
   /* Matlab user-provided function */
 
+  mxDestroyArray(mx_RHSfctB);
   mx_RHSfctB = mxDuplicateArray(prhs[0]);
   
   /* Final time */
@@ -1277,6 +1286,8 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   double *tmp;
   int nfields;
 
+  if (cvm_Cdata == NULL) return(0);
+
   flag = CVodeGetIntegratorStats(cvode_mem, &nst, &nfe, &nsetups, 
                                  &netf, &qlast, &qcur, &h0used, &hlast, &hcur, &tcur);
 
@@ -1771,6 +1782,8 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 static int CVM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
+  if (cvm_Cdata == NULL) return(0);
+
   if (cvm_mon) {
     mtlb_CVodeMonitor(2, 0.0, NULL, NULL, NULL);
   }
@@ -1918,11 +1931,15 @@ static void CVM_makePersistent()
   mexMakeMemoryPersistent(cvm_Cdata);
   mexMakeMemoryPersistent(cvm_Mdata);
 
+  return;
 }
 
 
 static void CVM_final()
 {  
+  
+  if (cvm_Cdata == NULL) return;
+
   mxDestroyArray(mx_data);
   
   mxDestroyArray(mx_RHSfct);
@@ -1950,5 +1967,9 @@ static void CVM_final()
   mxDestroyArray(mx_MONdataB);
 
   mxFree(cvm_Cdata);
+  cvm_Cdata = NULL;
   mxFree(cvm_Mdata);
+  cvm_Mdata = NULL;
+
+  return;
 }

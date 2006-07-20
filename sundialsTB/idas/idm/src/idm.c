@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-07-20 16:59:44 $
+ * $Revision: 1.5 $
+ * $Date: 2006-07-20 21:14:22 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,7 +25,6 @@
  * ---------------------------------------------------------------------------------
  */
 
-idm_IDASdata idm_Cdata;    /* IDA data */
 booleantype idm_quad;      /* Forward quadratures? */
 booleantype idm_quadB;     /* Backward quadratures? */
 booleantype idm_asa;       /* Adjoint sensitivity? */
@@ -33,7 +32,8 @@ booleantype idm_fsa;       /* Forward sensitivity? */
 booleantype idm_mon;       /* Forward monitoring? */ 
 booleantype idm_monB;      /* Backward monitoring? */ 
 
-idm_MATLABdata idm_Mdata;  /* MATLAB data */
+idm_IDASdata   idm_Cdata = NULL;  /* IDAS data */
+idm_MATLABdata idm_Mdata = NULL;  /* MATLAB data */
 
 /*
  * ---------------------------------------------------------------------------------
@@ -97,6 +97,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   switch(mode) {
   case 1:
+    if (idm_Cdata != NULL) {
+      /* a previous pb ws initialized, we must clear  memory */
+      IDM_Free(nlhs, plhs, nrhs-1, &prhs[1]);
+      IDM_final();
+    }
     IDM_init();
     IDM_Malloc(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
@@ -145,7 +150,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     return;
   }
 
-  IDM_makePersistent();
+  /* do not call IDM_makePersistent after free */
+  if (mode != 30) IDM_makePersistent();
   mexLock();
 
   return;
@@ -286,6 +292,7 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* Matlab user-provided function */
 
+  mxDestroyArray(mx_RESfct);
   mx_RESfct = mxDuplicateArray(prhs[0]);
   
   /* Initial time */
@@ -308,6 +315,7 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* User data -- optional argument */
 
+  mxDestroyArray(mx_data);
   mx_data = mxDuplicateArray(prhs[5]);
 
   /* 
@@ -723,6 +731,7 @@ static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
     idm_mon = FALSE;
   }
 
+  mxDestroyArray(mx_RESfctB);
   mx_RESfctB = mxDuplicateArray(prhs[0]);
   
   tB0 = (double)mxGetScalar(prhs[1]);
@@ -1293,6 +1302,8 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   double *tmp;
   int nfields;
 
+  if (idm_Cdata == NULL) return(0);
+
   flag = IDAGetIntegratorStats(ida_mem, &nst, &nre, &nsetups, 
                                &netf, &qlast, &qcur, &h0used, &hlast, &hcur, &tcur);
 
@@ -1747,6 +1758,8 @@ static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 static int IDM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
+  if (idm_Cdata == NULL) return(0);
+  
   if (idm_mon) {
     mtlb_IdaMonitor(2, 0.0, NULL, NULL, NULL, NULL, NULL);
   }
@@ -1908,11 +1921,15 @@ static void IDM_makePersistent()
   mexMakeMemoryPersistent(idm_Cdata);
   mexMakeMemoryPersistent(idm_Mdata);
 
+  return;
 }
 
 
 static void IDM_final()
 {  
+
+  if (idm_Cdata == NULL) return;
+
   mxDestroyArray(mx_data);
   
   mxDestroyArray(mx_RESfct);
@@ -1940,5 +1957,9 @@ static void IDM_final()
   mxDestroyArray(mx_MONdataB);
 
   mxFree(idm_Cdata);
+  idm_Cdata = NULL;
   mxFree(idm_Mdata);
+  idm_Mdata = NULL;
+
+  return;
 }

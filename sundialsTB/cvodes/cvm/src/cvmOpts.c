@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-20 16:59:39 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-20 21:14:16 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -263,6 +263,7 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
         /* Roots function */
         opt = mxGetField(options,0,"RootsFn");
         if ( !mxIsEmpty(opt) ) {
+          mxDestroyArray(mx_Gfct);
           mx_Gfct = mxDuplicateArray(opt);
         } else {
           mexErrMsgTxt("RootsFn required for NumRoots > 0");
@@ -295,15 +296,22 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
   if ( !mxIsEmpty(opt) ) {
     if (fwd) {
       cvm_mon = TRUE;
+      mxDestroyArray(mx_MONfct);
       mx_MONfct = mxDuplicateArray(opt);
     } else {
       cvm_monB = TRUE;
+      mxDestroyArray(mx_MONfctB);
       mx_MONfctB = mxDuplicateArray(opt);
     }
     opt = mxGetField(options,0,"MonitorData");
     if ( !mxIsEmpty(opt) ) {
-      if (fwd) mx_MONdata  = mxDuplicateArray(opt);
-      else     mx_MONdataB = mxDuplicateArray(opt);
+      if (fwd) {
+        mxDestroyArray(mx_MONdata);
+        mx_MONdata  = mxDuplicateArray(opt);
+      } else {
+        mxDestroyArray(mx_MONdataB);
+        mx_MONdataB = mxDuplicateArray(opt);
+      }
     }
   }
 
@@ -365,8 +373,13 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
 
   opt = mxGetField(options,0,"JacobianFn");
   if ( !mxIsEmpty(opt) )
-    if (fwd) mx_JACfct  = mxDuplicateArray(opt);
-    else     mx_JACfctB = mxDuplicateArray(opt);
+    if (fwd) {
+      mxDestroyArray(mx_JACfct);
+      mx_JACfct  = mxDuplicateArray(opt);
+    } else {
+      mxDestroyArray(mx_JACfctB);
+      mx_JACfctB = mxDuplicateArray(opt);
+    }
 
   /* Band linear solver */
 
@@ -435,14 +448,24 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
 
     opt = mxGetField(options,0,"PrecSetupFn");
     if ( !mxIsEmpty(opt) ) 
-      if (fwd) mx_PSETfct  = mxDuplicateArray(opt);
-      else     mx_PSETfctB = mxDuplicateArray(opt);
-  
+      if (fwd) {
+        mxDestroyArray(mx_PSETfct);
+        mx_PSETfct  = mxDuplicateArray(opt);
+      } else {
+        mxDestroyArray(mx_PSETfctB);
+        mx_PSETfctB = mxDuplicateArray(opt);
+      }
+
     opt = mxGetField(options,0,"PrecSolveFn");
     if ( !mxIsEmpty(opt) )
-      if (fwd) mx_PSOLfct  = mxDuplicateArray(opt);
-      else     mx_PSOLfctB = mxDuplicateArray(opt);
-    
+      if (fwd) {
+        mxDestroyArray(mx_PSOLfct);
+        mx_PSOLfct  = mxDuplicateArray(opt);
+      } else {
+        mxDestroyArray(mx_PSOLfctB);
+        mx_PSOLfctB = mxDuplicateArray(opt);
+      }    
+
     /* Preconditioner module */
   
     opt = mxGetField(options,0,"PrecModule");
@@ -485,16 +508,25 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
 
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) 
-        if (fwd) mx_GLOCfct  = mxDuplicateArray(opt);
-        else     mx_GLOCfctB = mxDuplicateArray(opt);
+        if (fwd) {
+          mxDestroyArray(mx_GLOCfct);
+          mx_GLOCfct  = mxDuplicateArray(opt);
+        } else {
+          mxDestroyArray(mx_GLOCfctB);
+          mx_GLOCfctB = mxDuplicateArray(opt);
+        }
       else 
         mexErrMsgTxt("GlocalFn required for BBD preconditioner.");
       
       opt = mxGetField(options,0,"GcommFn");
       if ( !mxIsEmpty(opt) ) 
-        if (fwd) mx_GCOMfct  = mxDuplicateArray(opt);
-        else     mx_GCOMfctB = mxDuplicateArray(opt);
-      
+        if (fwd) {
+          mxDestroyArray(mx_GCOMfct);
+          mx_GCOMfct  = mxDuplicateArray(opt);
+        } else {
+          mxDestroyArray(mx_GCOMfctB);
+          mx_GCOMfctB = mxDuplicateArray(opt);
+        }
     }
 
   }
@@ -554,8 +586,13 @@ int get_QuadOptions(const mxArray *options, booleantype fwd,
 
   opt = mxGetField(options,0,"QuadRhsFn");
   if ( !mxIsEmpty(opt) ) {
-    if (fwd) mx_QUADfct  = mxDuplicateArray(opt);
-    else     mx_QUADfctB = mxDuplicateArray(opt);
+    if (fwd) {
+      mxDestroyArray(mx_QUADfct);
+      mx_QUADfct  = mxDuplicateArray(opt);
+    } else {
+      mxDestroyArray(mx_QUADfctB);
+      mx_QUADfctB = mxDuplicateArray(opt);
+    }
   } else {
     mexErrMsgTxt("QuadRhsFn required for quadrature integration.");
   }
@@ -768,6 +805,7 @@ int get_FSAOptions(const mxArray *options,
   opt = mxGetField(options,0,"SensRhsFn");
   if ( !mxIsEmpty(opt) ) {
     *userSRHS = TRUE;
+    mxDestroyArray(mx_SRHSfct);      
     mx_SRHSfct = mxDuplicateArray(opt);
   } 
 
