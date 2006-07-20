@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:32:37 $
+# $Revision: 1.2 $
+# $Date: 2006-07-20 21:16:36 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -43,13 +43,14 @@ CFLAGS      = @CFLAGS@
 LDFLAGS     = @LDFLAGS@
 LIBS        = @LIBS@
 
-LIB_REVISION = @LIB_REVISION@
 
 FCMIX_ENABLED = @FCMIX_ENABLED@
 
 top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(MPI_INC_DIR)
+
+LIB_REVISION         = 0:1:0
 
 NVECSPCPAR_LIB       = libsundials_nvecspcparallel.la
 NVECSPCPAR_LIB_FILES = nvector_spcparallel.lo

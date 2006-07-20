@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:32:36 $
+# $Revision: 1.2 $
+# $Date: 2006-07-20 21:16:31 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,11 +41,11 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-LIB_REVISION = @LIB_REVISION@
-
 top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+
+LIB_REVISION     = 0:1:0
 
 KINSOL_LIB       = libsundials_kinsol.la
 KINSOL_LIB_FILES = kinsol.lo kinsol_io.lo kinsol_dense.lo kinsol_band.lo kinsol_spils.lo kinsol_spgmr.lo kinsol_spbcgs.lo kinsol_sptfqmr.lo kinsol_bbdpre.lo

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:32:35 $
+# $Revision: 1.2 $
+# $Date: 2006-07-20 21:16:29 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,12 +39,11 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-LIB_REVISION = @LIB_REVISION@
-
 top_srcdir = $(srcdir)/../../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(top_srcdir)/src/ida
 
+LIB_REVISION   = 1:0:0
 FIDA_LIB       = libsundials_fida.la
 FIDA_LIB_FILES = fida.lo fidaband.lo fidabbd.lo fidadense.lo fidajtimes.lo fidapreco.lo fidaewt.lo fidaroot.lo
 FIDA_OBJ_FILES = fida.o fidaband.o fidabbd.o fidadense.o fidajtimes.o fidapreco.o fidaewt.o fidaroot.o

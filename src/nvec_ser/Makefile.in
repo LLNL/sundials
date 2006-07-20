@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:32:37 $
+# $Revision: 1.2 $
+# $Date: 2006-07-20 21:16:35 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,13 +41,13 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-LIB_REVISION = @LIB_REVISION@
-
 FCMIX_ENABLED = @FCMIX_ENABLED@
 
 top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+
+LIB_REVISION      = 0:1:0
 
 NVECSER_LIB       = libsundials_nvecserial.la
 NVECSER_LIB_FILES = nvector_serial.lo

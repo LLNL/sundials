@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:32:35 $
+# $Revision: 1.2 $
+# $Date: 2006-07-20 21:16:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,11 +41,11 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-LIB_REVISION = @LIB_REVISION@
-
 top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+
+LIB_REVISION   = 0:0:0
 
 IDAS_LIB       = libsundials_idas.la
 IDAS_LIB_FILES = idas.lo idas_ic.lo idas_io.lo idas_dense.lo idas_band.lo idas_spils.lo idas_spbcgs.lo idas_spgmr.lo idas_sptfqmr.lo idas_bbdpre.lo

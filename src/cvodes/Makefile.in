@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:32:33 $
+# $Revision: 1.2 $
+# $Date: 2006-07-20 21:16:27 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,11 +41,11 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-LIB_REVISION = @LIB_REVISION@
-
 top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+
+LIB_REVISION     = 1:0:0
 
 CVODES_LIB       = libsundials_cvodes.la
 CVODES_LIB_FILES = cvodes.lo cvodes_io.lo cvodea.lo cvodea_io.lo cvodes_band.lo cvodes_dense.lo cvodes_diag.lo cvodes_spils.lo cvodes_spbcgs.lo cvodes_spgmr.lo cvodes_sptfqmr.lo cvodes_bandpre.lo cvodes_bbdpre.lo
