@@ -360,10 +360,9 @@ non-negative), the main program creates and initializes the {\ida}
 memory block and then attaches the {\idaspgmr} linear solver using the
 default \id{MODIFIED\_GS} Gram-Scmidt orthogonalization algorithm.
 
-The calls to \id{IDASpgmrSetPrecSetupFn} and \id{IDASpgmrSetPsolveFn}
-specify the use of the user-supplied preconditioner with \id{data}
-being the pointer to user data passed to \id{PsolveHeat} and \id{PsetupHeat} 
-whenever they are called (specified with the call to \id{IDASpgmrSetPrecData}).
+The user-supplied preconditioner setup and solve functions, \id{PsetupHeat}
+and \id{PsolveHeat}, and the pointer to user data (\id{data}) are specified
+through a call to \id{IDASpilsSetPreconditioner}.
 %%
 In a loop over the desired output times, \id{IDASolve} is called in \id{IDA\_NORMAL}
 mode and the maximum solution norm is printed.

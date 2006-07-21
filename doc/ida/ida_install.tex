@@ -7,12 +7,12 @@ file contains solvers other than {\ida}.\footnote{Files for both the
 serial and parallel versions of {\ida} are included in the distribution.
 For users in a serial computing environment, the files specific to parallel
 environments (which may be deleted) are as follows:
-all files in \id{nvec\_par/};
-\id{ida\_bbdpre.c, ida\_bbdpre\_impl.h} (in \id{ida/source/});
-\id{ida/include/ida\_bbdpre.h}; 
-\id{fidabbd.c, fidabbd.h} (in \id{ida/fcmix/});
-all files in \id{ida/examples\_par/};
-all files in \id{ida/fcmix/examples\_par/}.
+all files in \id{src/nvec\_par/};
+\id{ida\_bbdpre.c, ida\_bbdpre\_impl.h} (in \id{src/ida/});
+\id{ida\_bbdpre.h} (in \id{include/ida/}); 
+\id{fidabbd.c, fidabbd.h} (in \id{src/ida/fcmix/});
+all files in \id{examples/ida/parallel/};
+all files in \id{examples/ida/fcmix\_parallel/}.
 (By ``serial version'' of {\ida} we mean the {\ida} solver with the
 serial {\nvector} module attached, and similarly for ``parallel version''.)}
 

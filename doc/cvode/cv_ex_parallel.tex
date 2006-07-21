@@ -202,7 +202,7 @@ In \id{cvkryx\_bbd\_p.c}, the problem is solved twice --- first with preconditio
 on the left, and then on the right.  Thus prior to the second solution, calls
 are made to reset the initial values (\id{SetInitialProfiles}), the main solver
 memory (\id{CVodeReInit}), the {\cvbbdpre} memory (\id{CVBBDPrecReInit}),
-as well as the preconditioner type (\id{CVSpgmrSetPrecType}).
+as well as the preconditioner type (\id{CVSpilsSetPrecType}).
 
 Sample output from \id{cvkryx\_bbd\_p} follows, again using $5 \times 5$ subgrids 
 on a $2 \times 2$ processor grid.  The performance of the preconditioner,

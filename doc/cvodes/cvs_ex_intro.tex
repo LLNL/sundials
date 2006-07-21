@@ -7,7 +7,7 @@ Documentation of {\cvodes} \cite{cvodes2.3.0_ug}.  It provides details, with
 listings, on the example programs supplied with the {\cvodes} distribution
 package.
 
-The {\cvode} distribution contains examples of the following types: 
+The {\cvodes} distribution contains examples of the following types: 
 serial and parallel examples of Initial Value Problem (IVP) integration, 
 serial and parallel examples of forward sensitivity analysis (FSA), and 
 serial and parallel examples of adjoint sensitivity analysis (ASA).
@@ -38,7 +38,7 @@ These examples, listed in the table below, are briefly described next.
 \end{center}
 
 \vspace{0.2in}
-\noindent Supplied in the \id{sundials/cvodes/examples\_ser} directory are the
+\noindent Supplied in the \id{sundials/examples/cvodes/serial} directory are the
 following serial examples (using the {\nvecs} module):
 
 %%
@@ -196,7 +196,7 @@ following serial examples (using the {\nvecs} module):
 %%
 
 \vspace{0.2in}
-\noindent Supplied in the \id{sundials/cvode/examples\_par} directory are
+\noindent Supplied in the \id{sundials/examples/cvodes/parallel} directory are
 the following six parallel examples (using the {\nvecp} module):
 %%
 %%--------------------------------------
@@ -253,8 +253,8 @@ the {\cvode} Examples document~\cite{cvode2.4.0_ex}. Any {\cvode} problem
 will work with {\cvodes} with only two modifications: (1) the main program
 should include the header file \id{cvodes.h} instead of \id{cvode.h}, and
 (2) the loader command must reference
-{\em build\_tree}\id{/lib/libsundials\_cvodes.}{\em lib} instead of
-{\em build\_tree}\id{/lib/libsundials\_cvode.}{\em lib}.
+{\em builddir}\id{/lib/libsundials\_cvodes.}{\em lib} instead of
+{\em builddir}\id{/lib/libsundials\_cvode.}{\em lib}.
 
 The Appendices contain complete listings
 of the examples described below.  We also give our output files for
