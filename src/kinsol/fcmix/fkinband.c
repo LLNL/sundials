@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-22 01:58:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -77,7 +77,6 @@ int FKINBandJac(long int N, long int mupper, long int mlower,
                 N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;
-  realtype *jacdata;
   long int eband;
   int ier;
 
