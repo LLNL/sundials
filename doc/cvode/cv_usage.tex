@@ -518,24 +518,15 @@ preconditioned Bi-CGStab, and scaled preconditioned TFQMR, respectively.
 Together, they are refered to as {\cvspils} (from scaled preconditioned 
 iterative linear solvers).
 
-\index{preconditioning!advice on|(}With any of the Krylov methods, preconditioning 
-can be done on the left only, on the right only, on both the left and the right, 
-or not at all.  For a given preconditioner matrix, the merits of left vs. right
-preconditioning are unclear in general, and the user should experiment
-with both choices.  Performance will differ because the inverse of the
-left preconditioner is included in the linear system residual whose
-norm is being tested in the Krylov algorithm.  As a rule, however, if
-the preconditioner is the product of two matrices, we recommend that
-preconditioning be done either on the left only or the right only,
-rather than using one factor on each side. For the specification of a
-preconditioner, see the iterative linear solver sections in \S\ref{ss:optional_input} 
-and \S\ref{ss:user_fct_sim}.
+With any of the Krylov methods, preconditioning can be done on the left only, 
+on the right only, on both the left and the right, or not at all. 
+For the specification of a preconditioner, see the iterative linear solver sections 
+in \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
 
 If preconditioning is done, user-supplied functions define left and right 
 preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity
 matrix), such that the product $P_1 P_2$ approximates the Newton matrix
 $M = I - \gamma J$ of (\ref{e:Newtonmat}).
-\index{preconditioning!advice on|)}
 
 \index{CVODE@{\cvode} linear solvers!selecting one|(} 
 To specify a {\cvode} linear solver, after the call to \id{CVodeCreate}
