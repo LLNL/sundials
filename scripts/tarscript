@@ -9,11 +9,11 @@
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="2.2.1"
-CV_VER="2.4.1"
-CVS_VER="2.4.1"
-IDA_VER="2.4.1"
-KIN_VER="2.4.1"
+SUN_VER="2.3.0"
+CV_VER="2.5.0"
+CVS_VER="2.5.0"
+IDA_VER="2.5.0"
+KIN_VER="2.5.0"
 
 #------------------
 # Path to scripts
