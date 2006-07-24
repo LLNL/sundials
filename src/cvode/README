@@ -1,5 +1,5 @@
                               CVODE
-                    Release 2.4.0, March 2006
+                    Release 2.5.0, August 2006
              Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -75,6 +75,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.5.0       - Aug. 2006
 v. 2.4.0       - Mar. 2006
 v. 2.3.0       - Apr. 2005
 v. 2.2.2       - Mar. 2005
@@ -89,11 +90,17 @@ v. 1.0 (CVODE) - Sep. 1994 (date written)
 E. Revision History
 -------------------
 
-v. 2.4.0 (Mar. 2006) ---> v. 2.4.1 (Jun. 2006)
+v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Aug. 2006)
 ---------------------------------------------------------
 
-- Changes to user interface
+- Changes related to the build system
+   - reorganized source tree: header files in ${srcdir}/include/cvode,
+     source files in ${srcdir}/src/cvode, fcmix source files in
+     ${srcdir}/src/cvode/fcmix, examples in ${srcdir}/examples/cvode
+   - exported header files are installed unde ${includedir}/cvode
 
+- Changes to user interface
+   - all included header files use relative paths from ${includedir}
 
 v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (Mar. 2006)
 ---------------------------------------------------------

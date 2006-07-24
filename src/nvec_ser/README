@@ -1,5 +1,5 @@
                      NVECTOR_SERIAL
-                Release 2.2.0, March 2006
+                Release 2.3.0, august 2006
 
 Serial implementation of the NVECTOR module for SUNDIALS. 
 
@@ -52,6 +52,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.3.0 - Aug. 2006
 v. 2.2.0 - Mar. 2006
 v. 2.1.1 - May. 2005
 v. 2.1.0 - Apr. 2005
@@ -63,6 +64,15 @@ v. 1.0   - Jul. 2002 (first SUNDIALS release)
 
 E. Revision History
 -------------------
+
+v. 2.2.0 (Mar. 2006) ---> v. 2.3.0 (Aug. 2006)
+----------------------------------------------
+
+- Changes related to the build system
+   - reorganized source tree. Header files in ${srcdir}/include/nvector; 
+     sources in ${srcdir}/src/nvec_ser
+   - exported header files in ${includedir}/sundials
+
 
 v. 2.1.1 (May. 2005) ---> v. 2.2.0 (Mar. 2006)
 ----------------------------------------------

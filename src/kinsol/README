@@ -1,5 +1,5 @@
                              KINSOL
-                      Release 2.4.1, March 2006
+                      Release 2.5.0, August 2006
             Allan G. Taylor, Alan C. Hindmarsh, Radu Serban
              Center for Applied Scientific Computing, LLNL
 
@@ -83,6 +83,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.5.0   - Aug. 2006
 v. 2.4.0   - Mar. 2006
 v. 2.3.0   - Apr. 2005
 v. 2.2.2   - Mar. 2005
@@ -95,10 +96,17 @@ v. 1.0     - Aug. 1998 (date written)
 E. Revision History
 -------------------
 
-v. 2.4.0 (Mar. 2006) ---> v. 2.4.1 (Jun. 2006)
+v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Aug. 2006)
 ------------------------------------------------
 
+- Changes related to the build system
+   - reorganized source tree: header files in ${srcdir}/include/kinsol,
+     source files in ${srcdir}/src/kinsol, fcmix source files in
+     ${srcdir}/src/kinsol/fcmix, examples in ${srcdir}/examples/kinsol
+   - exported header files are installed unde ${includedir}/kinsol
+
 - Changes to user interface
+   - all included header files use relative paths from ${includedir}
 
 v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (Mar. 2006)
 ------------------------------------------------

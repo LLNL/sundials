@@ -1,6 +1,6 @@
                            SUNDIALS 
                         Shared Module
-                  Release 2.2.0, March 2006
+                  Release 2.3.0, August 2006
 
 
 The family of solvers referred to as SUNDIALS consists of solvers CVODE 
@@ -50,6 +50,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.3.0 - Aug. 2006
 v. 2.2.0 - Mar. 2006
 v. 2.1.1 - May. 2005
 v. 2.1.0 - Apr. 2005
@@ -62,6 +63,15 @@ v. 0.0   - Mar. 2002
 
 E. Revision History
 -------------------
+
+v. 2.2.0 (Mar. 2006) ---> v. 2.3.0 (Aug. 2006)
+----------------------------------------------
+
+- Changes related to the build system
+   - reorganized source tree
+   - exported header files are installed in solver-specific subdirectories
+     of ${includedir}
+   - sundialsTB is distributed only as part of the SUNDIALS tarball
 
 v. 2.1.1 (May 2005) ---> v. 2.2.0 (Mar. 2006)
 ----------------------------------------------

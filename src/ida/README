@@ -1,5 +1,5 @@
                                IDA
-                    Release 2.4.1, June 2006
+                    Release 2.5.0, august 2006
              Alan C. Hindmarsh, Allan G. Taylor, Radu Serban 
               Center for Applied Scientific Computing, LLNL
 
@@ -85,7 +85,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.4.1   - Jun. 2006
+v. 2.5.0   - Aug. 2006
 v. 2.4.0   - Mar. 2006
 v. 2.3.0   - Apr. 2005
 v. 2.2.2   - Mar. 2005
@@ -98,15 +98,29 @@ v. 1.0     - Feb. 1999 (date written)
 E. Revision History
 -------------------
 
-v. 2.4.0 (Mar. 2006) ---> v. 2.4.1 (Jun. 2006)
+v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Aug. 2006)
 ---------------------------------------------------------
+
+- Changes related to the build system
+   - reorganized source tree: header files in ${srcdir}/include/ida,
+     source files in ${srcdir}/src/ida, fcmix source files in
+     ${srcdir}/src/ida/fcmix, examples in ${srcdir}/examples/ida
+   - exported header files are installed unde ${includedir}/ida
 
 - Bug fixes
    - fixed perturbation factor "underflow" issue in IDADenseDQJac and
      IDABandDQJac routines which are used to compute a difference quotient
      approximation to the system Jacobian (see IDA_P1).
 
-- Changes to user-callable functions
+- Changes to user interface
+   - all included header files use relative paths from ${includedir}
+   - modified prototype and implementation of IDACalcIC (removed
+     arguments t0, yy0, yp0). IDACalcIC will always correct the
+     initial conditions passed through IDAMalloc (or IDAReInit)
+     which were stored in the Nordsieck history array
+   - added optional output IDAGetConsistentIC function (which can 
+     only be called before any IDASolve calls) to obtain the corrected 
+     initial conditions.
 
 v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (Mar. 2006)
 ---------------------------------------------------------

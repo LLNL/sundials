@@ -1,5 +1,5 @@
                            CVODES 
-                 Release 2.4.1, June 2006
+                 Release 2.5.0, August 2006
                Alan C. Hindmarsh and Radu Serban
           Center for Applied Scientific Computing, LLNL
 
@@ -73,7 +73,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.4.1   - Jun. 2006
+v. 2.5.0   - Aug. 2006
 v. 2.4.0   - Mar. 2006
 v. 2.3.0   - May. 2005
 v. 2.2.0   - Apr. 2005
@@ -86,7 +86,7 @@ v. 1.0     - Jul. 2002 (first SUNDIALS release)
 E. Revision History
 -------------------
 
-v. 2.4.0 (Mar. 2006) ---> v. 2.4.1 (Jun. 2006)
+v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Aug. 2006)
 ---------------------------------------------------------
 
 - Bug fixes
@@ -94,7 +94,18 @@ v. 2.4.0 (Mar. 2006) ---> v. 2.4.1 (Jun. 2006)
      'unsigned int' to 'void *' to avoid address truncation/mangling on
      64-bit platforms (see CVS_P1).
 
+- Changes related to the build system
+   - reorganized source tree: header files in ${srcdir}/include/cvodes,
+     source files in ${srcdir}/src/cvodes,examples in ${srcdir}/examples/cvodes
+   - exported header files are installed unde ${includedir}/cvodes
+
 - Changes to user interface
+   - all included header files use relative paths from ${includedir}
+   - changed the API for specifying the DQ method used to approximate 
+     the sensitivity equations: renamed CVodeSetSensRho to CVodeSetSensDQMethod.
+     The user passes two values: DQtype (CV_CENTERED or CV_FORWARD) and
+     DQrhomax (the cut-off value for switching between simultaneous and
+     separate approximations of the two terms in the sensi. eqs.)
 
 v. 2.3.0 (May. 2005) ---> v. 2.4.0 (Mar. 2006)
 ---------------------------------------------------------
