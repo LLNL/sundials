@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-25 21:33:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -386,7 +386,7 @@ extern "C" {
 #define MSG_USCALE_NONPOSITIVE "uscale has nonpositive elements."
 #define MSG_BAD_FSCALE         "fscale = NULL illegal."
 #define MSG_FSCALE_NONPOSITIVE "fscale has nonpositive elements."
-#define MSG_INITIAL_CNSTRNT    "Tnitial guess does NOT meet constraints."
+#define MSG_INITIAL_CNSTRNT    "Initial guess does NOT meet constraints."
 #define MSG_LINIT_FAIL         "The linear solver's init routine failed."
 
 #define MSG_SYSFUNC_FAILED      "The system function failed in an unrecoverable manner."
