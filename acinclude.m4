@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.39 $
-# $Date: 2006-07-19 20:43:15 $
+# $Revision: 1.40 $
+# $Date: 2006-07-25 17:51:02 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -3213,6 +3213,9 @@ fi
 
 # Create sundials_config.h header file
 SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/sundials/sundials_config.h:src/sundials/sundials_config.in"
+
+# Create sundials-config script
+SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundials-config:sundials-config.in"
 
 ]) dnl END SUNDIALS_BUILD_MODULES_LIST
 
