@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-20 21:14:23 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-25 22:17:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -138,8 +138,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
 static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  int i, status;
-  double *tmp;
+  int status;
 
   mxArray *mx_in[3], *mx_out[2];
 
@@ -154,8 +153,6 @@ static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   int mudq, mldq, mupper, mlower;
   int maxl, maxrs;
   double dqrely;
-
-  mxArray *options;
 
   /* 
    * -----------------------------
@@ -385,9 +382,6 @@ static void KIM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   int buflen, status, strategy;
   char *bufval;
  
-  int i;
-  double *tmp;
-
   if ( kim_Kdata == NULL) return ;
   /* Exract y0 and load initial guess in y */
   y0 = mxGetPr(prhs[0]);

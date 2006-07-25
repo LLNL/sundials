@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-07-20 21:14:16 $
+ * $Revision: 1.5 $
+ * $Date: 2006-07-25 22:17:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -225,7 +225,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double t0, *y0;
-  int i, status;
+  int status;
 
   int lmm, iter, maxord;
 
@@ -539,7 +539,7 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
 static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  double t0, *yS0;
+  double *yS0;
   int buflen, status;
   char *bufval;
 
@@ -680,7 +680,7 @@ static int CVM_AdjMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prh
 static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double tB0, *yB0;
-  int i, status;
+  int status;
 
   int lmmB, iterB, maxordB;
 
@@ -976,7 +976,7 @@ static int CVM_ReInitB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double tout, tret, *ydata;
-  int buflen, status, itask, i, is;
+  int buflen, status, itask, is;
   char *bufval;
 
   int itask1;
@@ -1064,7 +1064,7 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
   if (nlhs == 3)
-    return;
+    return(0);
 
   if (nlhs == 4) {
 
@@ -1072,24 +1072,24 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       plhs[3] = mxCreateDoubleMatrix(Nq,1,mxREAL);
       status = CVodeGetQuad(cvode_mem, tret, yQ);
       GetData(yQ, mxGetPr(plhs[3]), Nq);
-      return;
+      return(0);
     } else if (cvm_fsa) {
       plhs[3] = mxCreateDoubleMatrix(N,Ns,mxREAL);
       ydata = mxGetPr(plhs[3]);
       status = CVodeGetSens(cvode_mem, tret, yS);
       for (is=0; is<Ns; is++)
         GetData(yS[is], &ydata[is*N], N);
-      return;
+      return(0);
     } else {
       mexErrMsgTxt("CVode:: too many output arguments (4).");
-      return;
+      return(-1);
     }
 
   }
 
   if ( (!cvm_quad) || (!cvm_fsa) ) {
     mexErrMsgTxt("CVode:: too many output arguments (5).");
-    return;
+    return(-1);
   }
 
   /* Quadratures */
@@ -1112,8 +1112,7 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 {
   double toutB, tretB;
   int itaskB;
-  double *tmp;
-  int buflen, status, i;
+  int buflen, status;
   char *bufval;
 
   void *cvode_memB;
@@ -1186,17 +1185,16 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   GetData(yB, mxGetPr(plhs[2]), NB);
 
   if (nlhs == 3)
-    return;
+    return(0);
 
-  if (cvm_quadB) {
-    plhs[3] = mxCreateDoubleMatrix(NqB,1,mxREAL);
-    status = CVodeGetQuadB(cvadj_mem, yQB);
-    GetData(yQB, mxGetPr(plhs[3]), NqB);
-    return;
-  } else {
+  if(!cvm_quadB) {
     mexErrMsgTxt("CVodeB:: too many output arguments.");
-    return;
+    return(-1);
   }
+
+  plhs[3] = mxCreateDoubleMatrix(NqB,1,mxREAL);
+  status = CVodeGetQuadB(cvadj_mem, yQB);
+  GetData(yQB, mxGetPr(plhs[3]), NqB);
 
   return(0);
 }
@@ -1277,12 +1275,10 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   long int nfSe, nfeS, netfS, nsetupsS;
   long int nniS, ncfnS;
-  long int *nniSTGR1, *ncfnSTGR1;
 
   int i, flag;
-  mxArray *mx_root, *mx_ls, *mx_quad, *mx_fsa, *mx_asa;
+  mxArray *mx_root, *mx_ls, *mx_quad, *mx_fsa;
   mxArray *mx_rootsfound;
-  mxArray *mx_nniSTGR1, *mx_ncfnSTGR1;
   double *tmp;
   int nfields;
 
@@ -1529,9 +1525,8 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   long int nfQe, netfQ;
 
-  int i, flag;
+  int flag;
   mxArray *mx_ls, *mx_quad;
-  double *tmp;
   int nfields;
 
   cvode_memB = CVadjGetCVodeBmem(cvadj_mem);

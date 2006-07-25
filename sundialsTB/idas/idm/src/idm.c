@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-07-20 21:14:22 $
+ * $Revision: 1.6 $
+ * $Date: 2006-07-25 22:17:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -238,7 +238,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double t0, *yy0, *yp0;
-  int i, status;
+  int status;
 
   int maxord;
 
@@ -249,6 +249,7 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   N_Vector NV_abstol;
   void *abstol;
 
+  /*
   double *yQ0;
 
   booleantype errconQ;
@@ -256,6 +257,7 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   realtype reltolQ, SabstolQ, *VabstolQ;
   N_Vector NV_abstolQ;
   void *abstolQ;
+  */
 
   double hin, hmax;
 
@@ -921,7 +923,7 @@ static int IDM_ReInitB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
 static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  double tout, t0;
+  double tout;
   int buflen, status, icopt;
   char *bufval;
 
@@ -956,16 +958,18 @@ static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
 static int IDM_CalcICB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
+  return(0);
 }
 
 static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  double tout, tret, *yySdata, *ypSdata;
-  int buflen, status, itask, i, is;
+  double tout, tret;
+  int buflen, status, itask;
+  /*
+  double *yySdata, *ypSdata;
+  int is;
+  */
   char *bufval;
-
-  long int nst;
-  double t0;
 
   int itask1;
   booleantype iret;
@@ -1289,16 +1293,17 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   long int njeB, nreB;
   long int nli, npe, nps, ncfl, njeSG, nreSG;
 
+  /*
   long int nfQe, netfQ;
 
   long int nrSe, nreS, netfS, nsetupsS;
   long int nniS, ncfnS;
-  long int *nniSTGR1, *ncfnSTGR1;
+  */
 
   int i, flag;
-  mxArray *mx_root, *mx_ls, *mx_quad, *mx_fsa, *mx_asa;
+  mxArray *mx_root, *mx_ls;
+  /*mxArray *mx_quad, *mx_fsa, *mx_asa;*/
   mxArray *mx_rootsfound;
-  mxArray *mx_nniSTGR1, *mx_ncfnSTGR1;
   double *tmp;
   int nfields;
 

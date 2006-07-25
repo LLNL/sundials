@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-17 16:49:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-25 22:17:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1186,7 +1186,6 @@ void mtlb_IdaMonitor(int call, double t,
 void mtlb_IdaMonitorB(int call, double tB, N_Vector yyB, N_Vector ypB, N_Vector yQB)
 {
   mxArray *mx_in[10], *mx_out[1];
-  double *tmp;
 
   mx_in[0] = mxCreateScalarDouble(call);            /* 0: first, 1: interm. 2: last */
   mx_in[1] = mxCreateScalarDouble(tB);              /* current time */

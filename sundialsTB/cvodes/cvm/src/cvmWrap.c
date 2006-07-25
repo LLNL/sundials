@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 16:00:44 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-25 22:17:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1049,7 +1049,6 @@ void mtlb_CVodeMonitor(int call, double t, N_Vector y, N_Vector yQ, N_Vector *yS
 void mtlb_CVodeMonitorB(int call, double tB, N_Vector yB, N_Vector yQB)
 {
   mxArray *mx_in[8], *mx_out[1];
-  double *tmp;
 
   mx_in[0] = mxCreateScalarDouble(call);            /* 0: first, 1: interm. 2: last */
   mx_in[1] = mxCreateScalarDouble(tB);              /* current time */
