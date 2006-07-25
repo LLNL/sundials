@@ -156,154 +156,98 @@ corresponding {\sundials} solver. For parallel support, {\sundialsTB} depends on
 
 The following steps are required to install and setup {\sundialsTB}:
 
-\subsubsection{Choose ubication}
+\subsubsection{Compilation and installation of sundialsTB}
 
-\begin{enumerate}
+As of version 2.3.0, {\sundialsTB} is distributed only with the complete {\sundials} package
+and, on *nix systems (or under cygwin in Windows), the {\matlab} toolbox can be configured,
+built, and installed using the main {\sundials} configure script. For details see the
+{\sundials} file {\tt INSTALL\_NOTES}. 
 
-\item 
-  {\sundialsTB} for all MATLAB users (not usual)
-
-  Assume MATLAB is installed under \$MATLAB=/usr/local/matlab7.
-  Place sundialsTB where toolboxes are usually stored:
-\begin{verbatim}
-    $ cd /usr/local/matlab7/toolbox
-\end{verbatim}
-
-\item 
-  {\sundialsTB} for just one user (usual configuration)
-
-  Place sundialsTB in your "matlab" working subdir:
-\begin{verbatim}
-    $ cd ~/matlab
-\end{verbatim}
-
-\end{enumerate}
-
-\subsubsection{Decompress and untar}
-
-\begin{verbatim}
-    $ tar zxvf <wherever>/sundialsTB.tar.gz
-\end{verbatim}
-or
-\begin{verbatim}
-    $ cp <wherever>/sundialsTB.tar.gz
-    $ gunzip sundialsTB.tar.gz
-    $ tar xvf sundialsTB.tar
-    $ rm sundialsTB.tar
-\end{verbatim}
-Now there is a ~/matlab/sundialsTB (or \$MATLAB/toolbox/sundialsTB) subdirectory.
-
-\subsubsection{Configuring MATLAB's startup}
-
-{\sundialsTB} comes with a startup\_STB.m file in the top subdirectory
-
-\begin{enumerate}
-
-\item 
-  {\sundialsTB} for all MATLAB users (not usual)
-
-  Assume MATLAB is installed under \$MATLAB=/usr/local/matlab7.
-  Add {\sundialsTB} startup to the system-wide startup file:
-\begin{verbatim}
-    $ cd \$MATLAB/toolbox/local
-    $ ln -s ../sundialsTB/startup_STB.m
-\end{verbatim}
-  and add these lines to your original local startup.m
-\begin{verbatim}
-    % SUNDIALS Toolbox startup M-file, if it exists.
-    if exist('startup_STB','file')
-      startup_STB
-    end
-\end{verbatim}
-
-\item 
-  {\sundialsTB} for just one user (usual configuration)
-
-  Assume you do not need to keep any previously existing startup.m
-\begin{verbatim}
-    $ cd ~/matlab
-    $ ln -s sundialsTB/startup_STB.m startup.m
-\end{verbatim}
-  If you already had a startup.m, use the method described above,
-  first linking startup\_STB.m to the destination subdir and then
-  editing ~/matlab/startup.m to run startup\_STB.m
-  
-\item 
-  Since symbolic links do not work well with Matlab under Windows,
-  a different alternative of setting-up the startup is as follows:
-  
-  Copy startup\_STB next to MATLAB's startup.m and add these lines
-  to startup.m
-  
-\begin{verbatim}
-  % SUNDIALS Toolbox startup M-file
-  startup('path_to_sundialsTB')
-\end{verbatim}  
-
-  using the optional argument of startup\_STB to explicitly spceify
-  the location of sundialsTB.
-\end{enumerate}
-
-
-\subsubsection{Compile MEX files}
+For systems that do not support configure scripts (or if the configure script fails to
+configure {\sundialsTB}), we provide a {\matlab} script ({\tt install\_STB.m}) which can be used
+to build and install {\sundialsTB} from within {\matlab}. In the sequel, we assume that the 
+{\sundials} package was unpacked under the directory {\em srcdir}. The {\sundialsTB} files are 
+therefore in {\em srcdir}{\tt /sundialsTB}. 
 
 To facilitate the compilation of {\sundialsTB} on platforms that do not have
-a make system, we rely on MATLAB's mex command. Compilation of sundialsTB
-is done by running from under MATLAB the install\_STB.m script which is
-present in the sundialsTB top directory.
+a make system, we rely on {\matlab}'s mex command. Compilation of {\sundialsTB}
+is done by running from under {\matlab} the {\tt install\_STB.m} script which is
+present in the {\sundialsTB} top directory.
 
 \begin{enumerate}
 
-\item
-  If you have not already done so, download and unpack SUNDIALS.
-  Assume SUNDIALS is now located in /path/to/sundials
-
-\item
-  Launch matlab in sundialsTB:
+\item Launch matlab in sundialsTB
 \begin{verbatim}
-    $ cd $MATLAB/toolbox/sundialsTB
-    $ matlab
-\end{verbatim}
-  or
-\begin{verbatim}
-    $ cd ~/matlab/sundialsTB    
-    $ matlab
+    % cd srcdir/sundialsTB
+    % matlab
 \end{verbatim}
 
-\item
-  Run the install\_STB matlab script.
-  You will be asked for the location of the SUNDIALS source tree. 
-  Input /path/to/sundials.
+\item Run the install\_STB matlab script
 
-  Note that parallel support will be compiled into the MEX files only if
-  ALL of the following conditions are met:
-  \begin{itemize}
-     \item \$LAMHOME is defined
-     \item \$MPITB\_ROOT is defined
-     \item /path/to/sundials/nvec\_par exists 
-   \end{itemize}
+     Note that parallel support will be compiled into the MEX files only if
+     \$LAMHOME is defined {\bf and}
+     \$MPITB\_ROOT is defined {\bf and}
+     {\em srcdir}/src/nvec\_par exists.
+
+     After the MEX files are generated, you will be asked if you wish to install 
+     the {\sundialsTB} toolbox. If you answer yes, you will be then asked for the
+     installation directory (called in the sequel {\em instdir}). 
+     To install {\sundialsTB} for all {\matlab} users (not usual), assuming {\matlab} is 
+     installed under {\tt /usr/local/matlab7}, specify
+        {\em instdir} = {\tt /usr/local/matlab7/toolbox}.
+     To install {\sundialsTB} for just one user (usual configuration), install      
+     {\sundialsTB} under a directory of your choice (typically under your {\tt matlab}
+     working directory). In other words, specify
+        {\em instdir} = {\tt /home/user/matlab}.
 
 \end{enumerate}
 
-\subsubsection{Try one of the sundialsTB examples}
+\subsubsection{Configuring Matlab's startup}
 
-If everything went fine, you should now be able to try one of the CVODES
-or KINSOL examples (in matlab, type 'help cvodes' or 'help kinsol' to see
-a list of all examples available).
+After a successful installation, a {\sundialsTB}.m startup script is generated
+in {\em instdir}{\tt /sundialsTB}. This file must be called by {\matlab} at initialization.
 
-\begin{enumerate}
-\item
-  cd to the CVODES serial example directory
+If {\sundialsTB} was installed for all {\matlab} users (not usual), add the {\sundialsTB} 
+startup to the system-wide startup file (by linking or copying):
+
 \begin{verbatim}
-    $ cd $MATLAB/toolbox/sundialsTB/cvodes/examples_ser
+     % cd /usr/local/matlab7/toolbox/local
+     % ln -s ../sundialsTB/startup_STB.m .
 \end{verbatim}
-  or
+
+and add these lines to your original local startup.m
+
 \begin{verbatim}
-    $ cd ~/matlab/sundialsTB/cvodes/examples_ser
+     % SUNDIALS Toolbox startup M-file, if it exists.
+     if exist('startup_STB','file')
+        startup_STB
+     end
 \end{verbatim}
-\item
-  Launch matlab and execute cvdx
-\end{enumerate}
+
+If {\sundialsTB} was installed for just one user (usual configuration) and
+assuming you do not need to keep any previously existing startup.m, link 
+or copy the startup\_STB.m script to your working 'matlab' directory:
+
+\begin{verbatim}
+     % cd ~/matlab
+     % ln -s sundialsTB/startup_STB.m startup.m
+\end{verbatim}
+
+If you already have a startup.m, use the method described above, first linking 
+(or copying) {\tt startup\_STB.m} to the destination subdirectory and then editing 
+the file {\tt ~/matlab/startup.m} to run {\tt startup\_STB.m}.
+
+\subsubsection{Testing the installation}
+
+If everything went fine, you should now be able to try one of the {\cvodes}, IDAS,
+or KINSOL examples (in matlab, type 'help cvodes', 'help idas', or 'help kinsol' 
+to see a list of all examples available). For example, cd to the {\cvodes} serial 
+example directory:
+\begin{verbatim}
+     % cd instdir/sundialsTB/cvode/examples_ser
+\end{verbatim}
+and then launch matlab and execute cvdx.
+
 
 \subsection{Links} 
 

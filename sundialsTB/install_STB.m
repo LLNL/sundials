@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.8 $Date: 2006/07/05 16:00:44 $
+% $Revision: 1.9 $Date: 2006/07/17 16:49:49 $
 
 % MEX compiler command
 
@@ -271,18 +271,18 @@ libraries = '';
 % Add IDAS sources and header files
 
 ids_sources = {
-    fullfile(sun,'src','idas','idas_band.c')
-    fullfile(sun,'src','idas','idas_bbdpre.c')
-    fullfile(sun,'src','idas','idas_dense.c')
+    fullfile(sun,'src','ida','ida_band.c')
+    fullfile(sun,'src','ida','ida_bbdpre.c')
+    fullfile(sun,'src','ida','ida_dense.c')
 %    fullfile(sun,'src','idas','idaa.c')
-    fullfile(sun,'src','idas','idas.c')
-    fullfile(sun,'src','idas','idas_ic.c')
-    fullfile(sun,'src','idas','idas_io.c')
+    fullfile(sun,'src','ida','ida.c')
+    fullfile(sun,'src','ida','ida_ic.c')
+    fullfile(sun,'src','ida','ida_io.c')
 %    fullfile(sun,'src','idas','idaa_io.c')
-    fullfile(sun,'src','idas','idas_spils.c')
-    fullfile(sun,'src','idas','idas_spbcgs.c')
-    fullfile(sun,'src','idas','idas_spgmr.c')
-    fullfile(sun,'src','idas','idas_sptfqmr.c')
+    fullfile(sun,'src','ida','ida_spils.c')
+    fullfile(sun,'src','ida','ida_spbcgs.c')
+    fullfile(sun,'src','ida','ida_spgmr.c')
+    fullfile(sun,'src','ida','ida_sptfqmr.c')
               };
 shr_sources = {
     fullfile(sun,'src','sundials','sundials_band.c')
@@ -302,8 +302,8 @@ for i=1:length(shr_sources)
     sources = sprintf('%s "%s"',sources,shr_sources{i});
 end
 
-sun_incdir = fullfile(sun,'include');      % for SUNDIALS exported headers
-ids_srcdir = fullfile(sun,'src','idas');   % for idas_impl.h
+sun_incdir = fullfile(sun,'include');     % for SUNDIALS exported headers
+ids_srcdir = fullfile(sun,'src','ida');   % for idas_impl.h
 includes = sprintf('%s -I"%s" -I"%s"',includes,sun_incdir,ids_srcdir);
 
 % Add NVEC_SER sources and header files
