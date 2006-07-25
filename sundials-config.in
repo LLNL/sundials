@@ -1,4 +1,4 @@
-#!/bin/sh
+#! @SHELL@
 # -----------------------------------------------------------------------------------
 
     NAME_="sundials-config"
@@ -35,7 +35,8 @@ Notes:
 [ $# -eq 0 ] && { echo >&2 missing argument, type $NAME_ -h for help; exit 1; }
 
 # process args
-while getopts hvm:t:l:s: options; do
+while getopts hvm:t:l:s: options
+do
     case $options in
         m) module=$OPTARG ;;
         t) vector=$OPTARG ;;
