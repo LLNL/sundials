@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2006-07-25 22:07:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -795,8 +795,10 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
        This is the 2nd forward integration pass */
     if (ck_mem != ckpntData) {
       flag = CVAdataStore(ca_mem, ck_mem);
-      if (flag != CV_SUCCESS)
-        return(flag); /* error message is sent from forward CVODES functions */
+      if (flag != CV_SUCCESS) {
+        break;
+      /* error message is sent from forward CVODES functions */
+      }
     }
 
     /* Backward integration */
@@ -804,26 +806,30 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
     flag = CVode(cvb_mem, tBout, yBout, tBret, cv_itask);
 
     /* If an error occured, return now */
-    if (flag < 0) 
-      return(flag); /* error message is sent from backward CVODES function */
+    if (flag < 0) {
+      break;
+      /* error message is sent from backward CVODES function */
+    }
 
     /* Set the time at which CVodeGetQuadB will evaluate any quadratures */
     t_for_quad = *tBret;
 
     /* If in CV_ONE_STEP mode, return now (flag=CV_SUCCESS or flag=CV_TSTOP_RETURN) */
-    if (itaskB == CV_ONE_STEP) 
-      return(flag);
+    if (itaskB == CV_ONE_STEP) {
+      break;
+    }
 
     /* If succesfully reached tBout, return now */
-    if (*tBret == tBout) 
-      return(flag);
+    if (*tBret == tBout) {
+      break;
+    }
 
     /* Move check point in linked list to next one */
     ck_mem = next_;
 
   } 
 
-  return(CV_SUCCESS);
+  return(flag);
 }
 
 /* 
@@ -1086,7 +1092,7 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
  * CV_FWD_FAIL
  */
 
-int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
+static int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
 {
   CVodeMem cv_mem;
   DtpntMem *dt_mem;
