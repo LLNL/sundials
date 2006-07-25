@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.5 $
-# $Date: 2005-06-20 20:52:38 $
+# $Revision: 1.6 $
+# $Date: 2006-07-25 01:06:28 $
 ############################################################################
 #
 # Filename: sundials_test.sh
@@ -60,7 +60,7 @@ run_examples()
       TEMP_EXAMPLE_FILE=`basename "${TEMP_EXAMPLE_FILE}" .o`
       EXEC_TYPE=`basename "${EXAMPLES_DIR}"`
       # determine if serial or parallel example
-      if [ "${EXEC_TYPE}" = "examples_ser" -o "${EXEC_TYPE}" = "test_examples_ser" ]; then
+      if [ "${EXEC_TYPE}" = "serial" -o "${EXEC_TYPE}" = "fcmix_serial" ]; then
         STATUS="OK"
 	# if not using PSUB then generate execution script rather than job script
         if [ "${USE_PSUB}" = "no" ]; then
@@ -180,7 +180,7 @@ run_examples()
         fi
 # ----------------------------
       # parallel examples have different execution commands
-      elif [ "${EXEC_TYPE}" = "examples_par" -o "${EXEC_TYPE}" = "test_examples_par" ]; then
+      elif [ "${EXEC_TYPE}" = "parallel" -o "${EXEC_TYPE}" = "fcmix_parallel" ]; then
         STATUS="OK"
 	# if not using PSUB then generate executable script containing program execution commands
         if [ "${USE_PSUB}" = "no" ]; then
@@ -552,43 +552,45 @@ NUM_MODULES=`echo "${MODULE_LIST}" | wc -w`
 while [ $((${NUM_MODULES})) -gt 0 ]; do
   TEMP_MODULE=`echo "${MODULE_LIST}" | cut -d' ' -f$((${NUM_MODULES}))`
   echo -ne "\nChecking module ${TEMP_MODULE}..."
-  if [ -d "${BASE_DIR}/${TEMP_MODULE}" ]; then
-    MODULE_DIR="${BASE_DIR}/${TEMP_MODULE}"
+  if [ -d "${BASE_DIR}/examples/${TEMP_MODULE}" ]; then
+    MODULE_DIR="${BASE_DIR}/examples/${TEMP_MODULE}"
     echo "[CHECKING]"
 
-    if [ -d "${MODULE_DIR}/examples_ser" ]; then
+    if [ -d "${MODULE_DIR}/serial" ]; then
       echo -ne "\tChecking for serial examples..."
-      run_examples ${MODULE_DIR}/examples_ser
+      run_examples ${MODULE_DIR}/serial
       echo "[${STATUS}]"
     fi
 
-    if [ -d "${MODULE_DIR}/test_examples_ser" ]; then
-      echo -ne "\tChecking for dev serial examples..."
-      run_examples ${MODULE_DIR}/test_examples_ser
+    if [ -d "${BASE_DIR}/test_examples/${TEMP_MODULE}/serial" ]; then
+      MODULE_TEST_DIR="${BASE_DIR}/test_examples/${TEMP_MODULE}"
+      echo -ne "\tChecking for serial dev examples..."
+      run_examples ${MODULE_TEST_DIR}/serial
       echo "[${STATUS}]"
     fi
 
-    if [ -d "${MODULE_DIR}/examples_par" ]; then
+    if [ -d "${MODULE_DIR}/parallel" ]; then
       echo -ne "\tChecking for parallel examples..."
-      run_examples ${MODULE_DIR}/examples_par
+      run_examples ${MODULE_DIR}/parallel
       echo "[${STATUS}]"
     fi
 
-    if [ -d "${MODULE_DIR}/test_examples_par" ]; then
+    if [ -d "${BASE_DIR}/test_examples/${TEMP_MODULE}/parallel" ]; then
+      MODULE_TEST_DIR="${BASE_DIR}/test_examples/${TEMP_MODULE}"
       echo -ne "\tChecking for parallel dev examples..."
-      run_examples ${MODULE_DIR}/test_examples_par
+      run_examples ${MODULE_TEST_DIR}/parallel
       echo "[${STATUS}]"
     fi
 
-    if [ -d "${MODULE_DIR}/fcmix/examples_ser" ]; then
+    if [ -d "${MODULE_DIR}/fcmix_serial" ]; then
       echo -ne "\tChecking serial fcmix examples..."
-      run_examples ${MODULE_DIR}/fcmix/examples_ser
+      run_examples ${MODULE_DIR}/fcmix_serial
       echo "[${STATUS}]"
     fi
 
-    if [ -d "${MODULE_DIR}/fcmix/examples_par" ]; then
+    if [ -d "${MODULE_DIR}/fcmix_parallel" ]; then
       echo -ne "\tChecking parallel fcmix examples..."
-      run_examples ${MODULE_DIR}/fcmix/examples_par
+      run_examples ${MODULE_DIR}/fcmix_parallel
       echo "[${STATUS}]"
     fi
 

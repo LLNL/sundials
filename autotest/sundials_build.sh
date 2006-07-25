@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.2 $
-# $Date: 2004-09-27 22:50:25 $
+# $Revision: 1.3 $
+# $Date: 2006-07-25 01:06:28 $
 ############################################################################
 #
 # Filename: sundials_build.sh
@@ -117,6 +117,7 @@ if [ ! -d "${REMOTE_DIR}" ]; then
   echo -e "\a\n\tERROR: directory does not exist\n"
   exit 0
 else
+  USE_BUILD_DIR=`pwd`
   # set marker to allow motd header to be removed from log file (need a login shell)
   echo "START_HERE"
   cd "${PROJECT_NAME}"
@@ -129,19 +130,21 @@ else
   echo "echo \"#################################\"" >> "${SYSTEM_NAME}-build.sh"
   echo "echo \"#  Running configure script...  #\"" >> "${SYSTEM_NAME}-build.sh"
   echo "echo \"#################################\"" >> "${SYSTEM_NAME}-build.sh"
-  echo "./configure ${CONFIGURE_OPTS}" >> "${SYSTEM_NAME}-build.sh"
+  echo "./configure --prefix=${USE_BUILD_DIR} --with-examples-instdir=no ${CONFIGURE_OPTS}" >> "${SYSTEM_NAME}-build.sh"
   echo "echo \"#######################\"" >> "${SYSTEM_NAME}-build.sh"
   echo "echo \"#  Running 'make'...  #\"" >> "${SYSTEM_NAME}-build.sh"
   echo "echo \"#######################\"" >> "${SYSTEM_NAME}-build.sh"
   echo "make" >> "${SYSTEM_NAME}-build.sh"
-  echo "echo \"###############################\"" >> "${SYSTEM_NAME}-build.sh"
-  echo "echo \"#  Running 'make install'...  #\"" >> "${SYSTEM_NAME}-build.sh"
-  echo "echo \"###############################\"" >> "${SYSTEM_NAME}-build.sh"
-  echo "make install" >> "${SYSTEM_NAME}-build.sh"
-  echo "echo \"################################\"" >> "${SYSTEM_NAME}-build.sh"
-  echo "echo \"#  Running 'make examples'...  #\"" >> "${SYSTEM_NAME}-build.sh"
-  echo "echo \"################################\"" >> "${SYSTEM_NAME}-build.sh"
-  echo "make examples" >> "${SYSTEM_NAME}-build.sh"
+  # Note: we no longer need to run make examples, and running make install would be
+  # problematic in this particular case
+#  echo "echo \"###############################\"" >> "${SYSTEM_NAME}-build.sh"
+#  echo "echo \"#  Running 'make install'...  #\"" >> "${SYSTEM_NAME}-build.sh"
+#  echo "echo \"###############################\"" >> "${SYSTEM_NAME}-build.sh"
+#  echo "make install" >> "${SYSTEM_NAME}-build.sh"
+#  echo "echo \"################################\"" >> "${SYSTEM_NAME}-build.sh"
+#  echo "echo \"#  Running 'make examples'...  #\"" >> "${SYSTEM_NAME}-build.sh"
+#  echo "echo \"################################\"" >> "${SYSTEM_NAME}-build.sh"
+#  echo "make examples" >> "${SYSTEM_NAME}-build.sh"
   echo "" >> "${SYSTEM_NAME}-build.sh"
   echo "exit 0" >> "${SYSTEM_NAME}-build.sh"
   chmod +x "${SYSTEM_NAME}-build.sh"
