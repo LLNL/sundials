@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-20 21:16:25 $
+# $Revision: 1.3 $
+# $Date: 2006-07-25 18:31:34 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,7 +43,8 @@ top_srcdir = $(srcdir)/../../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(top_srcdir)/src/cvode
 
-LIB_REVISION     = 0:1:0
+LIB_REVISION = 0:1:0
+
 FCVODE_LIB       = libsundials_fcvode.la
 FCVODE_LIB_FILES = fcvode.lo fcvband.lo fcvdense.lo fcvjtimes.lo fcvpreco.lo fcvbbd.lo fcvbp.lo fcvroot.lo fcvewt.lo
 FCVODE_OBJ_FILES = fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvbbd.o fcvbp.o fcvroot.o fcvewt.o

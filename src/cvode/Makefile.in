@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-20 21:16:24 $
+# $Revision: 1.3 $
+# $Date: 2006-07-25 18:31:32 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -45,7 +45,7 @@ top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
 
-LIB_REVISION    = 0:1:0
+LIB_REVISION = 0:1:0
 
 CVODE_LIB       = libsundials_cvode.la
 CVODE_LIB_FILES = cvode.lo cvode_io.lo cvode_band.lo cvode_dense.lo cvode_diag.lo cvode_spils.lo cvode_spbcgs.lo cvode_spgmr.lo cvode_sptfqmr.lo cvode_bandpre.lo cvode_bbdpre.lo
@@ -69,8 +69,8 @@ $(CVODE_LIB): shared $(CVODE_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_LIB) $(CVODE_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 install: $(CVODE_LIB)
-	$(mkinstalldirs)  $(includedir)/cvode
-	$(mkinstalldirs)  $(libdir)
+	$(mkinstalldirs) $(includedir)/cvode
+	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CVODE_LIB) $(libdir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode.h         $(includedir)/cvode/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_dense.h   $(includedir)/cvode/
@@ -99,11 +99,11 @@ uninstall:
 	rm -f $(includedir)/cvode/cvode_impl.h
 	@if test -d ${includedir}/cvode ; then \
 	   rmdir ${includedir}/cvode ;         \
-	fi
+	 fi
 
 shared:
 	@cd $(top_builddir)/src/sundials ; \
-	 ${MAKE} ;                \
+	 ${MAKE} ;                         \
 	 cd ${abs_builddir}
 
 clean:
@@ -138,6 +138,6 @@ cvode_bbdpre.lo: $(srcdir)/cvode_bbdpre.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_bbdpre.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd ${top_builddir} ;                \
-	${SHELL} ./config.status --recheck ; \
-	cd ${abs_builddir}
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

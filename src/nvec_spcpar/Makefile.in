@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-20 21:16:36 $
+# $Revision: 1.3 $
+# $Date: 2006-07-25 18:31:53 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -50,7 +50,7 @@ top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(MPI_INC_DIR)
 
-LIB_REVISION         = 0:1:0
+LIB_REVISION = 0:1:0
 
 NVECSPCPAR_LIB       = libsundials_nvecspcparallel.la
 NVECSPCPAR_LIB_FILES = nvector_spcparallel.lo
@@ -74,8 +74,8 @@ $(FNVECSPCPAR_LIB): $(FNVECSPCPAR_LIB_FILES)
 	fi
 
 install: $(NVECSPCPAR_LIB) $(FNVECSPCPAR_LIB)
-	$(mkinstalldirs)  $(includedir)/nvector
-	$(mkinstalldirs)  $(libdir)
+	$(mkinstalldirs) $(includedir)/nvector
+	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECSPCPAR_LIB) $(libdir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/nvector/nvector_spcparallel.h $(includedir)/nvector/
 	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                                                     \
@@ -86,9 +86,9 @@ install: $(NVECSPCPAR_LIB) $(FNVECSPCPAR_LIB)
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECSPCPAR_LIB)
 	rm -f $(includedir)/nvector/nvector_spcparallel.h
-	@if test -d ${includedir}/nvector ; then                                   \
-	   rmdir --ignore-fail-on-non-empty ${includedir}/nvector ;                \
-	fi
+	@if test -d ${includedir}/nvector ; then \
+	   rm -rf ${includedir}/nvector ;        \
+	 fi
 	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                \
 	   echo "${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECSPCPAR_LIB}" ; \
 	   ${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECSPCPAR_LIB} ;        \
@@ -96,7 +96,7 @@ uninstall:
 
 shared:
 	@cd $(top_builddir)/src/sundials ; \
-	 ${MAKE} ;                \
+	 ${MAKE} ;                         \
 	 cd ${abs_builddir}
 
 clean:

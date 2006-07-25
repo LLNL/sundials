@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-05 22:19:24 $
+# $Revision: 1.3 $
+# $Date: 2006-07-25 18:31:08 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -25,9 +25,9 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-INSTALL        = @INSTALL@
-INSTALL_PROG   = @INSTALL_PROGRAM@
-INSTALL_FILE   = @INSTALL_DATA@
+INSTALL      = @INSTALL@
+INSTALL_PROG = @INSTALL_PROGRAM@
+INSTALL_FILE = @INSTALL_DATA@
 
 LIBTOOL      = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
@@ -50,6 +50,7 @@ EXE_EXT = @EXEEXT@
 EXS_INSTDIR = @EXS_INSTDIR@
 
 top_srcdir = $(srcdir)/../../..
+
 SUNDIALS_INCDIR = $(top_srcdir)/include
 SOLVER_SRCDIR   = $(top_builddir)/src/cvodes
 NVEC_SRCDIR     = $(top_builddir)/src/nvec_par
@@ -57,7 +58,14 @@ NVEC_SRCDIR     = $(top_builddir)/src/nvec_par
 SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
 SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_cvodes.la $(NVEC_SRCDIR)/libsundials_nvecparallel.la
 
-EXEC_FILES = cvsnonx_p$(EXE_EXT) cvskryx_p$(EXE_EXT) cvskryx_bbd_p$(EXE_EXT) cvsfwdnonx_p$(EXE_EXT) cvsfwdkryx_p$(EXE_EXT) cvsadjnonx_p$(EXE_EXT) cvsadjkryx_p$(EXE_EXT) cvsadjkryx_p3D$(EXE_EXT)
+EXEC_FILES = cvsnonx_p$(EXE_EXT) \
+	     cvskryx_p$(EXE_EXT) \
+	     cvskryx_bbd_p$(EXE_EXT) \
+	     cvsfwdnonx_p$(EXE_EXT) \
+	     cvsfwdkryx_p$(EXE_EXT) \
+	     cvsadjnonx_p$(EXE_EXT) \
+	     cvsadjkryx_p$(EXE_EXT) \
+	     cvsadjkryx_p3D$(EXE_EXT)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -99,27 +107,26 @@ distclean: clean
 
 install: $(EXEC_FILES)
 	$(mkinstalldirs) $(EXS_INSTDIR)/cvodes/parallel
-	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsadjkryx_p$(EXE_EXT)       $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsadjnonx_p$(EXE_EXT)       $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsfwdkryx_p$(EXE_EXT)       $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsfwdkryx_p$(EXE_EXT)       $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsfwdnonx_p$(EXE_EXT)       $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsfwdnonx_p$(EXE_EXT)       $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvskryx_bbd_p$(EXE_EXT)      $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvskryx_p$(EXE_EXT)          $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsnonx_p$(EXE_EXT)          $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsadjkryx_p.out     $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsadjnonx_p.out     $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdkryx_p.out1    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdkryx_p.out2    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdnonx_p.out1    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdnonx_p.out2    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvskryx_bbd_p.out    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvskryx_p.out        $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsnonx_p.out        $(EXS_INSTDIR)/cvodes/parallel/
-
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsadjkryx_p$(EXE_EXT)  $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsadjnonx_p$(EXE_EXT)  $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsfwdkryx_p$(EXE_EXT)  $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsfwdkryx_p$(EXE_EXT)  $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsfwdnonx_p$(EXE_EXT)  $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsfwdnonx_p$(EXE_EXT)  $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvskryx_bbd_p$(EXE_EXT) $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvskryx_p$(EXE_EXT)     $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/parallel/cvsnonx_p$(EXE_EXT)     $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsadjkryx_p.out          $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsadjnonx_p.out          $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdkryx_p.out1         $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdkryx_p.out2         $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdnonx_p.out1         $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdnonx_p.out2         $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvskryx_bbd_p.out         $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvskryx_p.out             $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsnonx_p.out             $(EXS_INSTDIR)/cvodes/parallel/
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd ${top_builddir} ;                \
-	${SHELL} ./config.status --recheck ; \
-	cd ${abs_builddir}
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

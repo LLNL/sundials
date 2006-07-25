@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:32:38 $
+# $Revision: 1.2 $
+# $Date: 2006-07-25 18:31:56 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -78,7 +78,7 @@ uninstall:
 	rm -f $(includedir)/sundials/sundials_config.h
 	@if test -d ${includedir}/sundials ; then \
 	   rmdir ${includedir}/sundials ;         \
-	fi
+	 fi
 
 clean:
 	rm -f $(SHARED_LIB_FILES)

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-20 21:16:31 $
+# $Revision: 1.3 $
+# $Date: 2006-07-25 18:31:44 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -45,7 +45,7 @@ top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
 
-LIB_REVISION     = 0:1:0
+LIB_REVISION = 0:1:0
 
 KINSOL_LIB       = libsundials_kinsol.la
 KINSOL_LIB_FILES = kinsol.lo kinsol_io.lo kinsol_dense.lo kinsol_band.lo kinsol_spils.lo kinsol_spgmr.lo kinsol_spbcgs.lo kinsol_sptfqmr.lo kinsol_bbdpre.lo
@@ -69,8 +69,8 @@ $(KINSOL_LIB): shared $(KINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 install: $(KINSOL_LIB)
-	$(mkinstalldirs)  $(includedir)/kinsol
-	$(mkinstalldirs)  $(libdir)
+	$(mkinstalldirs) $(includedir)/kinsol
+	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(KINSOL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol.h         $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_dense.h   $(includedir)/kinsol/
@@ -95,11 +95,11 @@ uninstall:
 	rm -f $(includedir)/kinsol/kinsol_impl.h
 	@if test -d ${includedir}/kinsol ; then \
 	   rmdir ${includedir}/kinsol ;         \
-	fi
+	 fi
 
 shared:
 	@cd $(top_builddir)/src/sundials ; \
-	 ${MAKE} ;                \
+	 ${MAKE} ;                         \
 	 cd ${abs_builddir}
 
 clean:

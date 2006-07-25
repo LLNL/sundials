@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-05 22:19:31 $
+# $Revision: 1.3 $
+# $Date: 2006-07-25 18:31:20 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -25,9 +25,9 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-INSTALL        = @INSTALL@
-INSTALL_PROG   = @INSTALL_PROGRAM@
-INSTALL_FILE   = @INSTALL_DATA@
+INSTALL      = @INSTALL@
+INSTALL_PROG = @INSTALL_PROGRAM@
+INSTALL_FILE = @INSTALL_DATA@
 
 LIBTOOL      = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
@@ -50,6 +50,7 @@ EXE_EXT = @EXEEXT@
 EXS_INSTDIR = @EXS_INSTDIR@
 
 top_srcdir = $(srcdir)/../../..
+
 SUNDIALS_INCDIR = $(top_srcdir)/include
 SOLVER_SRCDIR   = $(top_builddir)/src/idas
 NVEC_SRCDIR     = $(top_builddir)/src/nvec_par
@@ -57,7 +58,10 @@ NVEC_SRCDIR     = $(top_builddir)/src/nvec_par
 SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
 SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_idas.la $(NVEC_SRCDIR)/libsundials_nvecparallel.la
 
-EXEC_FILES = idaskryx1_p$(EXE_EXT) idaskryx1_bbd_p$(EXE_EXT) idaskryx2_p$(EXE_EXT) idaskryx2_bbd_p$(EXE_EXT)
+EXEC_FILES = idaskryx1_p$(EXE_EXT) \
+	     idaskryx1_bbd_p$(EXE_EXT) \
+	     idaskryx2_p$(EXE_EXT) \
+	     idaskryx2_bbd_p$(EXE_EXT)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -87,16 +91,16 @@ distclean: clean
 
 install: $(EXEC_FILES)
 	$(mkinstalldirs) $(EXS_INSTDIR)/idas/parallel
-	$(INSTALL_PROG) $(top_builddir)/examples/idas/parallel/idaskryx1_bbd_p$(EXE_EXT)        $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/idas/parallel/idaskryx1_p$(EXE_EXT)            $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/idas/parallel/idaskryx2_bbd_p$(EXE_EXT)        $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_PROG) $(top_builddir)/examples/idas/parallel/idaskryx2_p$(EXE_EXT)            $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idaskryx1_bbd_p.out      $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idaskryx1_p.out          $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idaskryx2_bbd_p.out      $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idaskryx2_p.out          $(EXS_INSTDIR)/idas/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/idas/parallel/idaskryx1_bbd_p$(EXE_EXT) $(EXS_INSTDIR)/idas/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/idas/parallel/idaskryx1_p$(EXE_EXT)     $(EXS_INSTDIR)/idas/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/idas/parallel/idaskryx2_bbd_p$(EXE_EXT) $(EXS_INSTDIR)/idas/parallel/
+	$(INSTALL_PROG) $(top_builddir)/examples/idas/parallel/idaskryx2_p$(EXE_EXT)     $(EXS_INSTDIR)/idas/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idaskryx1_bbd_p.out         $(EXS_INSTDIR)/idas/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idaskryx1_p.out             $(EXS_INSTDIR)/idas/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idaskryx2_bbd_p.out         $(EXS_INSTDIR)/idas/parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idaskryx2_p.out             $(EXS_INSTDIR)/idas/parallel/
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd ${top_builddir} ;                \
-	${SHELL} ./config.status --recheck ; \
-	cd ${abs_builddir}
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

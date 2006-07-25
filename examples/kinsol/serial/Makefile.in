@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-05 22:19:36 $
+# $Revision: 1.3 $
+# $Date: 2006-07-25 18:31:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -25,9 +25,9 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-INSTALL        = @INSTALL@
-INSTALL_PROG   = @INSTALL_PROGRAM@
-INSTALL_FILE   = @INSTALL_DATA@
+INSTALL      = @INSTALL@
+INSTALL_PROG = @INSTALL_PROGRAM@
+INSTALL_FILE = @INSTALL_DATA@
 
 LIBTOOL      = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
@@ -45,6 +45,7 @@ EXE_EXT = @EXEEXT@
 EXS_INSTDIR = @EXS_INSTDIR@
 
 top_srcdir = $(srcdir)/../../..
+
 SUNDIALS_INCDIR = $(top_srcdir)/include
 SOLVER_SRCDIR   = $(top_builddir)/src/kinsol
 NVEC_SRCDIR     = $(top_builddir)/src/nvec_ser
@@ -56,7 +57,11 @@ NVEC_BLDDIR   = $(top_blddir)/src/nvec_ser
 
 SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_kinsol.la $(NVEC_SRCDIR)/libsundials_nvecserial.la
 
-EXEC_FILES = kinkryx$(EXE_EXT) kindenx1$(EXE_EXT) kindenx2$(EXE_EXT) kinbanx$(EXE_EXT) kinkrydem_lin$(EXE_EXT)
+EXEC_FILES = kinkryx$(EXE_EXT) \
+	     kindenx1$(EXE_EXT) \
+	     kindenx2$(EXE_EXT) \
+	     kinbanx$(EXE_EXT) \
+	     kinkrydem_lin$(EXE_EXT)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -89,18 +94,18 @@ distclean: clean
 
 install: $(EXEC_FILES)
 	$(mkinstalldirs) $(EXS_INSTDIR)/kinsol/serial
-	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/serial/kinkryx$(EXE_EXT)         $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/serial/kindenx1$(EXE_EXT)        $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/serial/kindenx2$(EXE_EXT)        $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/serial/kinbanx$(EXE_EXT)         $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/serial/kinkrydem_lin$(EXE_EXT)   $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinkryx.out       $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kindenx1.out      $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kindenx2.out      $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinbanx.out       $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinkrydem_lin.out $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/serial/kinkryx$(EXE_EXT)       $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/serial/kindenx1$(EXE_EXT)      $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/serial/kindenx2$(EXE_EXT)      $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/serial/kinbanx$(EXE_EXT)       $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/kinsol/serial/kinkrydem_lin$(EXE_EXT) $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinkryx.out               $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kindenx1.out              $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kindenx2.out              $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinbanx.out               $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinkrydem_lin.out         $(EXS_INSTDIR)/kinsol/serial/
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd ${top_builddir} ;                \
-	${SHELL} ./config.status --recheck ; \
-	cd ${abs_builddir}
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

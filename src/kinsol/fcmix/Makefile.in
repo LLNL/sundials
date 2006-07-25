@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-20 21:16:32 $
+# $Revision: 1.3 $
+# $Date: 2006-07-25 18:31:47 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -44,7 +44,8 @@ top_srcdir = $(srcdir)/../../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(top_srcdir)/src/kinsol
 
-LIB_REVISION      = 0:1:0
+LIB_REVISION = 0:1:0
+
 FKINSOL_LIB       = libsundials_fkinsol.la
 FKINSOL_LIB_FILES = fkinsol.lo fkinpreco.lo fkinjtimes.lo fkinbbd.lo fkindense.lo
 FKINSOL_OBJ_FILES = fkinsol.o fkinpreco.o fkinjtimes.o fkinbbd.o fkindense.o

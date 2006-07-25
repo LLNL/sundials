@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-20 21:16:35 $
+# $Revision: 1.3 $
+# $Date: 2006-07-25 18:31:51 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -47,7 +47,7 @@ top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
 
-LIB_REVISION      = 0:1:0
+LIB_REVISION = 0:1:0
 
 NVECSER_LIB       = libsundials_nvecserial.la
 NVECSER_LIB_FILES = nvector_serial.lo
@@ -71,21 +71,21 @@ $(FNVECSER_LIB): $(FNVECSER_LIB_FILES)
 	fi
 
 install: $(NVECSER_LIB) $(FNVECSER_LIB)
-	$(mkinstalldirs)  $(includedir)/nvector
-	$(mkinstalldirs)  $(libdir)
+	$(mkinstalldirs) $(includedir)/nvector
+	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECSER_LIB) $(libdir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/nvector/nvector_serial.h $(includedir)/nvector/
-	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                               \
-	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECSER_LIB} ${libdir}" ;                                                                                                            \
-	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECSER_LIB} ${libdir} ;                                                                                                                   \
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                    \
+	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECSER_LIB} ${libdir}" ; \
+	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECSER_LIB} ${libdir} ;        \
 	 fi
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECSER_LIB)
 	rm -f $(includedir)/nvector/nvector_serial.h
-	@if test -d ${includedir}/nvector ; then                                \
-	   rmdir --ignore-fail-on-non-empty ${includedir}/nvector ;             \
-	fi
+	@if test -d ${includedir}/nvector ; then \
+	   rm -rf ${includedir}/nvector ;        \
+	 fi
 	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                             \
 	   echo "${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECSER_LIB}" ; \
 	   ${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECSER_LIB} ;        \
@@ -93,7 +93,7 @@ uninstall:
 
 shared:
 	@cd $(top_builddir)/src/sundials ; \
-	 ${MAKE} ;                \
+	 ${MAKE} ;                         \
 	 cd ${abs_builddir}
 
 clean:
