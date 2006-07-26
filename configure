@@ -26194,7 +26194,7 @@ done
 
 # Add Fortran update script to the list of additional files to be generated
 if test "X${BUILD_F77_UPDATE_SCRIPT}" = "Xyes"; then
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/fortran_update.sh:config/fortran_update.in"
+  SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} examples/fortran_update.sh:config/fortran_update.in"
 fi
 
 # sundialsTB modules

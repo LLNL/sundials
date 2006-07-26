@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.41 $
-# $Date: 2006-07-26 22:58:54 $
+# $Revision: 1.42 $
+# $Date: 2006-07-26 23:49:24 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -3146,7 +3146,7 @@ done
 
 # Add Fortran update script to the list of additional files to be generated
 if test "X${BUILD_F77_UPDATE_SCRIPT}" = "Xyes"; then
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/fortran_update.sh:config/fortran_update.in"
+  SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} examples/fortran_update.sh:config/fortran_update.in"
 fi
 
 # sundialsTB modules
