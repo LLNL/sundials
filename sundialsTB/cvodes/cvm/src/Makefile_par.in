@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-07-26 00:08:59 $
+# $Revision: 1.5 $
+# $Date: 2006-07-26 01:27:48 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -51,6 +51,7 @@ CVM_SRCDIR = $(srcdir)
 NVM_SRCDIR = $(srcdir)/../../../nvector/src
 
 top_srcdir = $(srcdir)/../../../..
+
 SUNDIALS_INCDIR = $(top_srcdir)/include
 CVODES_SRCDIR   = $(top_builddir)/src/cvodes
 NVECSER_SRCDIR  = $(top_builddir)/src/nvec_ser
@@ -83,50 +84,50 @@ install: cvm
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/examples_par
 #	Install startup file
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/startup_STB.m               $(STB_INSTDIR)/sundialsTB/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/startup_STB.m                    $(STB_INSTDIR)/sundialsTB/
 #	Install CVODES functions
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/Contents.m           $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVadjMalloc.m        $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVBandJacFn.m        $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVDenseJacFn.m       $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVGcommFn.m          $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVGlocalFn.m         $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVJacTimesVecFn.m    $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVMonitorFn.m        $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeB.m             $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeFree.m          $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeGet.m           $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeGetStatsB.m     $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeGetStats.m      $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVode.m              $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeMallocB.m       $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeMalloc.m        $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeMonitor.m       $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSensMalloc.m    $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSetFSAOptions.m $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSetOptions.m    $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVPrecSetupFn.m      $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVPrecSolveFn.m      $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVQuadRhsFn.m        $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVRhsFn.m            $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVRootFn.m           $(STB_INSTDIR)/sundialsTB/cvodes/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVSensRhsFn.m        $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/Contents.m                $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVadjMalloc.m             $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVBandJacFn.m             $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVDenseJacFn.m            $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVGcommFn.m               $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVGlocalFn.m              $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVJacTimesVecFn.m         $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVMonitorFn.m             $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeB.m                  $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeFree.m               $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeGet.m                $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeGetStatsB.m          $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeGetStats.m           $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVode.m                   $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeMallocB.m            $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeMalloc.m             $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeMonitor.m            $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSensMalloc.m         $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSetFSAOptions.m      $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSetOptions.m         $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVPrecSetupFn.m           $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVPrecSolveFn.m           $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVQuadRhsFn.m             $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVRhsFn.m                 $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVRootFn.m                $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVSensRhsFn.m             $(STB_INSTDIR)/sundialsTB/cvodes/
 #	Install cvm functions
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/Contents.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_bjac.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_djac.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_gcom.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_gloc.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_jtv.m        $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_monitor.m    $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_pset.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_psol.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_rhs.m        $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_rhsQ.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_rhsS.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_root.m       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/Contents.m            $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_bjac.m            $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_djac.m            $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_gcom.m            $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_gloc.m            $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_jtv.m             $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_monitor.m         $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_pset.m            $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_psol.m            $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_rhs.m             $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_rhsQ.m            $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_rhsS.m            $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/cvm/cvm_root.m            $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
 #	Install MEX file
-	$(INSTALL_PROG) $(top_builddir)/sundialsTB/cvodes/cvm/cvm.$(MEXEXT)  $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
+	$(INSTALL_PROG) $(top_builddir)/sundialsTB/cvodes/cvm/cvm.$(MEXEXT)       $(STB_INSTDIR)/sundialsTB/cvodes/cvm/
 #	Install serial example files
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvadx.m      $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvbx_f.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
@@ -178,9 +179,9 @@ install: cvm
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpistart.m                $(STB_INSTDIR)/sundialsTB/putils/
 
 uninstall:
-	@if test -d $(STB_INSTDIR)/sundialsTB; then  \
-	  rm -rf $(STB_INSTDIR)/sundialsTB;          \
-	fi
+	@if test -d ${STB_INSTDIR}/sundialsTB ; then \
+	   rm -rf ${STB_INSTDIR}/sundialsTB ;        \
+	 fi
 
 distclean: clean
 	rm -f Makefile
@@ -191,6 +192,6 @@ cvm:
 
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	 @cd $(top_builddir) ;                 \
-	 $(SHELL) ./config.status --recheck ; \
-	 cd $(abs_builddir)
+	 @cd ${top_builddir} ;                 \
+	  ${SHELL} ./config.status --recheck ; \
+	  cd ${abs_builddir}

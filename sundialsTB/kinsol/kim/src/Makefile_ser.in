@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-07-26 00:09:00 $
+# $Revision: 1.5 $
+# $Date: 2006-07-26 01:27:51 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -45,6 +45,7 @@ KIM_SRCDIR = ${srcdir}
 NVM_SRCDIR = ${srcdir}/../../../nvector/src
 
 top_srcdir = $(srcdir)/../../../..
+
 SUNDIALS_INCDIR = $(top_srcdir)/include
 KINSOL_SRCDIR   = ${top_builddir}/src/kinsol
 NVECSER_SRCDIR  = ${top_builddir}/src/nvec_ser
@@ -74,56 +75,56 @@ install: kim
 	$(mkinstalldirs) ${STB_INSTDIR}/sundialsTB/kinsol/kim
 	$(mkinstalldirs) ${STB_INSTDIR}/sundialsTB/kinsol/examples_ser
 #	Install startup file
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/startup_STB.m               $(STB_INSTDIR)/sundialsTB/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/startup_STB.m                      $(STB_INSTDIR)/sundialsTB/
 #	Install KINSOL functions
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/Contents.m           $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINBandJacFn.m       $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINDenseJacFn.m      $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINFree.m            $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINGcommFn.m         $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINGetStats.m        $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINGlocalFn.m        $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINJacTimesVecFn.m   $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINMalloc.m          $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINPrecSetupFn.m     $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINPrecSolveFn.m     $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINSetOptions.m      $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINSol.m             $(STB_INSTDIR)/sundialsTB/kinsol/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINSysFn.m           $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/Contents.m                  $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINBandJacFn.m              $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINDenseJacFn.m             $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINFree.m                   $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINGcommFn.m                $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINGetStats.m               $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINGlocalFn.m               $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINJacTimesVecFn.m          $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINMalloc.m                 $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINPrecSetupFn.m            $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINPrecSolveFn.m            $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINSetOptions.m             $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINSol.m                    $(STB_INSTDIR)/sundialsTB/kinsol/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/KINSysFn.m                  $(STB_INSTDIR)/sundialsTB/kinsol/
 #	Install kim functions
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/Contents.m       $(STB_INSTDIR)/sundialsTB/kinsol/kim/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_bjac.m       $(STB_INSTDIR)/sundialsTB/kinsol/kim/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_djac.m       $(STB_INSTDIR)/sundialsTB/kinsol/kim/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_gcom.m       $(STB_INSTDIR)/sundialsTB/kinsol/kim/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_gloc.m       $(STB_INSTDIR)/sundialsTB/kinsol/kim/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_info.m       $(STB_INSTDIR)/sundialsTB/kinsol/kim/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_jtv.m        $(STB_INSTDIR)/sundialsTB/kinsol/kim/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_pset.m       $(STB_INSTDIR)/sundialsTB/kinsol/kim/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_psol.m       $(STB_INSTDIR)/sundialsTB/kinsol/kim/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_sys.m        $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/Contents.m              $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_bjac.m              $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_djac.m              $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_gcom.m              $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_gloc.m              $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_info.m              $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_jtv.m               $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_pset.m              $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_psol.m              $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/kim/kim_sys.m               $(STB_INSTDIR)/sundialsTB/kinsol/kim/
 #	Install MEX file
-	$(INSTALL_PROG) $(top_builddir)/sundialsTB/kinsol/kim/kim.$(MEXEXT)  $(STB_INSTDIR)/sundialsTB/kinsol/kim/
+	$(INSTALL_PROG) $(top_builddir)/sundialsTB/kinsol/kim/kim.$(MEXEXT)         $(STB_INSTDIR)/sundialsTB/kinsol/kim/
 #	Install serial example files
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindiag.m       $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindiag_pset.m  $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindiag_psol.m  $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindiag_sys.m   $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindx.m         $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindx_sys.m     $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindiag.m      $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindiag_pset.m $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindiag_psol.m $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindiag_sys.m  $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindx.m        $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/kinsol/examples_ser/kindx_sys.m    $(STB_INSTDIR)/sundialsTB/kinsol/examples_ser/
 #	Install NVECTOR files
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/Contents.m               $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VDotProd.m             $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VL1Norm.m              $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMax.m                 $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMaxNorm.m             $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMin.m                 $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWL2Norm.m             $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWrmsNorm.m            $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/Contents.m                 $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VDotProd.m               $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VL1Norm.m                $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMax.m                   $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMaxNorm.m               $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMin.m                   $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWL2Norm.m               $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWrmsNorm.m              $(STB_INSTDIR)/sundialsTB/nvector/
 
 uninstall:
-	@if test -d $(STB_INSTDIR)/sundialsTB; then  \
-	  rm -rf $(STB_INSTDIR)/sundialsTB;          \
-	fi
+	@if test -d ${STB_INSTDIR}/sundialsTB ; then \
+	   rm -rf ${STB_INSTDIR}/sundialsTB ;        \
+	 fi
 
 distclean: clean
 	rm -f Makefile
@@ -133,6 +134,6 @@ kim:
 	${LIBTOOL} --mode=link ${MEX} ${MEXOPTS} ${MEXFLAGS} ${INCLUDES} -o ${MEXFILE} ${SRCFILES} ${MEXLDADD} ${LIBS}
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	 @cd ${top_builddir} ;                \
-	 ${SHELL} ./config.status --recheck ; \
-	 cd ${abs_builddir}
+	 @cd ${top_builddir} ;                 \
+	  ${SHELL} ./config.status --recheck ; \
+	  cd ${abs_builddir}
