@@ -122,12 +122,12 @@ end
 % ----------------------------
 
 if par
-  cc_cmd = mpicc;
+  cc_cmd = sprintf('CC=%s',mpicc);
 else
-  cc_cmd = cc;
+  cc_cmd = '';
 end
 
-mex_cmd = sprintf('mex %s %s CC=%s -v -outdir %s -output cvm %s %s %s', ...
+mex_cmd = sprintf('mex %s %s %s -v -outdir %s -output cvm %s %s %s', ...
                   mexopts, mexflags, cc_cmd, cvm_outdir, includes, sources, libraries);
 
 eval(mex_cmd);
