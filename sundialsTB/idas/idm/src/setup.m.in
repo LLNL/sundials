@@ -5,6 +5,7 @@ builddir = '@builddir@' ;
 mexopts  = '@MEXOPTS@' ;
 mexflags = '@MEXFLAGS@' ;
 
+cc          = '@CC@' ;
 mpicc       = '@MPICC@' ;
 mpi_incdir  = '@MPI_INC_DIR@' ;
 mpi_libdir  = '@MPI_LIB_DIR@' ;
