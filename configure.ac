@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.39 $
-# $Date: 2006-07-24 21:38:30 $
+# $Revision: 1.40 $
+# $Date: 2006-07-26 22:58:56 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -75,14 +75,14 @@ if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
   SUNDIALS_ENABLE_EXAMPLES
 fi
 
-# Set MEX support (optional)
+# Set Matlab support (optional)
 if test "X${STB_ENABLED}" = "Xyes"; then
   echo ""
-  echo "MEX Settings"
-  echo "------------"
+  echo "Matlab Settings"
+  echo "---------------"
   echo ""
   
-  SUNDIALS_SET_MEX  
+  SUNDIALS_SET_MATLAB  
 fi
 
 # Run libtool checks
@@ -121,8 +121,8 @@ AC_SUBST(F77_MPI_COMM_F2C)
 AC_SUBST(F77_LNKR)
 AC_SUBST(MPIF77_LNKR)
 AC_SUBST(EXEEXT)
-AC_SUBST(MATLAB)
-AC_SUBST(MEX)
+AC_SUBST(STB_PARALLEL)
+AC_SUBST(MATLAB_CMD)
 AC_SUBST(MEXEXT)
 AC_SUBST(MEXOPTS)
 AC_SUBST(MEXFLAGS)
@@ -135,11 +135,12 @@ AC_SUBST(STB_INSTDIR)
 
 # Generate makefiles
 echo ""
-echo "Create Makefiles"
-echo "----------------"
+echo "Create Makefiles and configuration files"
+echo "----------------------------------------"
 echo ""
 SUNDIALS_BUILD_MODULES_LIST
 AC_CONFIG_FILES([${SUNDIALS_MAKEFILES}])
+AC_CONFIG_FILES([${SUNDIALS_CONFIGFILES}])
 AC_OUTPUT
 
 # Display summary

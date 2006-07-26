@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2006-07-25 18:30:58 $
+# $Revision: 1.14 $
+# $Date: 2006-07-26 22:58:54 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -27,12 +27,10 @@ libdir       = @libdir@
 
 SLV_MODULES  = @SLV_MODULES@
 EXS_MODULES  = @EXS_MODULES@
-STB_MODULES  = @STB_MODULES@
 
-ALL_MODULES  = @SLV_MODULES@ @EXS_MODULES@ @STB_MODULES@
+ALL_MODULES  = @SLV_MODULES@ @EXS_MODULES@
 
 EXS_INSTDIR  = @EXS_INSTDIR@
-STB_INSTDIR  = @STB_INSTDIR@
 
 # -----------------------------------------------------------------
 
@@ -72,27 +70,6 @@ install:
 	     echo "" ;                                                        \
 	   else                                                               \
 	     for i in ${EXS_MODULES} ; do                                     \
-	       echo "----------------------";                                 \
-	       echo "Install $${i}..." ;                                      \
-	       echo "----------------------";                                 \
-	       cd $${i} ;                                                     \
-	       ${MAKE} install ;                                              \
-	       cd ${abs_builddir} ;                                           \
-	       echo "" ;                                                      \
-	     done ;                                                           \
-	   fi ;                                                               \
-	 fi
-	@if test "X${STB_MODULES}" = "X" ; then                               \
-	   : ;                                                                \
-	 else                                                                 \
-	   if test "X${STB_INSTDIR}" = "Xno"; then                            \
-	     echo "" ;                                                        \
-	     echo "" ;                                                        \
-	     echo -n "sundialsSTB was built but installation was disabled." ; \
-	     echo "" ;                                                        \
-	     echo "" ;                                                        \
-	   else                                                               \
-	     for i in ${STB_MODULES} ; do                                     \
 	       echo "----------------------";                                 \
 	       echo "Install $${i}..." ;                                      \
 	       echo "----------------------";                                 \

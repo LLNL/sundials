@@ -1,0 +1,117 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-07-26 22:58:58 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Main Makefile for sundialsTB toolbox
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+@SET_MAKE@
+
+srcdir       = @srcdir@
+abs_builddir = @abs_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+
+STB_MODULES  = @STB_MODULES@
+STB_INSTDIR  = @STB_INSTDIR@
+STB_PARALLEL = @STB_PARALLEL@
+
+INSTALL      = @INSTALL@
+INSTALL_FILE = @INSTALL_DATA@
+
+top_srcdir = $(srcdir)/..
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+
+# -----------------------------------------------------------------
+
+all:
+	@for i in ${STB_MODULES} ; do       \
+	   if test -d $${i} ; then          \
+	     echo "----------------------"; \
+	     echo "Make $${i}..." ;         \
+	     echo "----------------------"; \
+	     cd $${i} ;                     \
+	     ${MAKE} ;                      \
+	     cd ${abs_builddir} ;           \
+	     echo "" ;                      \
+	   fi ;                             \
+	 done
+
+install:
+	@if test "X${STB_INSTDIR}" = "Xno"; then                           \
+	  echo "" ;                                                        \
+	  echo "" ;                                                        \
+	  echo -n "sundialsSTB was built but installation was disabled." ; \
+	  echo "" ;                                                        \
+	  echo "" ;                                                        \
+	else                                                               \
+	  ${MAKE} install_ok ;                                             \
+	fi
+
+install_ok:
+#	Create top level directory and install startup file
+	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/startup_STB.m          $(STB_INSTDIR)/sundialsTB/
+#	Create nvector subdirectory and install nvector files
+	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/nvector
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/Contents.m     $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VDotProd.m   $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VL1Norm.m    $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMax.m       $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMaxNorm.m   $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMin.m       $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWL2Norm.m   $(STB_INSTDIR)/sundialsTB/nvector/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWrmsNorm.m  $(STB_INSTDIR)/sundialsTB/nvector/
+#	If needed, create putils subdirectory and install putils files
+	@if test "X${STB_PARALLEL}" = "Xyes"; then                                                          \
+	  $(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/putils ;                                               \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/Contents.m    $(STB_INSTDIR)/sundialsTB/putils/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpirun.m      $(STB_INSTDIR)/sundialsTB/putils/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpiruns.m     $(STB_INSTDIR)/sundialsTB/putils/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpistart.m    $(STB_INSTDIR)/sundialsTB/putils/ ; \
+	fi ;
+#	Install sundialsTB modules
+	@for i in ${STB_MODULES} ; do    \
+	  echo "----------------------"; \
+	  echo "Install $${i}..." ;      \
+	  echo "----------------------"; \
+	  cd $${i} ;                     \
+	  ${MAKE} install ;              \
+	  cd ${abs_builddir} ;           \
+	  echo "" ;                      \
+	done
+
+clean:
+	@for i in ${STB_MODULES} ; do \
+	  cd $${i} ;                  \
+	  ${MAKE} clean ;             \
+	  cd ${abs_builddir} ;        \
+	done
+
+uninstall:
+	@if test -d ${STB_INSTDIR}/sundialsTB ; then \
+	   rm -rf ${STB_INSTDIR}/sundialsTB ;        \
+	 fi
+
+# ---------------------------------------------------------------------
+
+distclean:
+	@for i in ${STB_MODULES} ; do  \
+	  cd $${i};                    \
+	  ${MAKE} distclean;           \
+	  cd ${abs_builddir} ;         \
+	done
+	rm -f startup_STB.m
+	rm -f Makefile

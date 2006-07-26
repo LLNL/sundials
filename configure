@@ -472,7 +472,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CC_COMP CPP EGREP FGREP F77 FFLAGS ac_ct_F77 F77_COMP FLIBS MPICC_COMP MPIF77_COMP cv_matlab MEX LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP DLLTOOL ac_ct_DLLTOOL AS ac_ct_AS OBJDUMP ac_ct_OBJDUMP CXX CXXFLAGS ac_ct_CXX CXXCPP LIBTOOL COMPILER_PREFIX LINKER_PREFIX OBJ_EXT MPICC MPIF77 MPI_INC_DIR MPI_LIB_DIR MPI_LIBS MPI_FLAGS FCMIX_ENABLED FLOAT_TYPE LIBTOOL_CMD LIBTOOL_DEPS F77_MANGLE_MACRO1 F77_MANGLE_MACRO2 F77_CASE F77_UNDERSCORES PRECISION_LEVEL GENERIC_MATH_LIB F77_MPI_COMM_F2C F77_LNKR MPIF77_LNKR MATLAB MEXEXT MEXOPTS MEXFLAGS MEXLDADD SLV_MODULES EXS_MODULES STB_MODULES EXS_INSTDIR STB_INSTDIR LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CC_COMP CPP EGREP FGREP F77 FFLAGS ac_ct_F77 F77_COMP FLIBS MPICC_COMP MPIF77_COMP MATLAB_CMD LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP DLLTOOL ac_ct_DLLTOOL AS ac_ct_AS OBJDUMP ac_ct_OBJDUMP CXX CXXFLAGS ac_ct_CXX CXXCPP LIBTOOL COMPILER_PREFIX LINKER_PREFIX OBJ_EXT MPICC MPIF77 MPI_INC_DIR MPI_LIB_DIR MPI_LIBS MPI_FLAGS FCMIX_ENABLED FLOAT_TYPE LIBTOOL_CMD LIBTOOL_DEPS F77_MANGLE_MACRO1 F77_MANGLE_MACRO2 F77_CASE F77_UNDERSCORES PRECISION_LEVEL GENERIC_MATH_LIB F77_MPI_COMM_F2C F77_LNKR MPIF77_LNKR STB_PARALLEL MEXEXT MEXOPTS MEXFLAGS MEXLDADD SLV_MODULES EXS_MODULES STB_MODULES EXS_INSTDIR STB_INSTDIR LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1053,21 +1053,21 @@ Optional Packages:
   --with-precision=ARG    specify floating-point precision
                           (single/double/extended) [double]
 
-  --with-cflags           add extra C compiler flags
-  --with-cppflags         add extra C/C++ preprocessor flags
-  --with-ldflags          add extra linker flags
-  --with-libs             add extra libraries
+  --with-cflags=ARG       add extra C compiler flags
+  --with-cppflags=ARG     add extra C/C++ preprocessor flags
+  --with-ldflags=ARG      add extra linker flags
+  --with-libs=ARG         add extra libraries
   --with-f77underscore=ARG
                           specify number of underscores to append to function
                           names (none/one/two) [AUTO]
   --with-f77case=ARG      specify case of function names (lower/upper) [AUTO]
-  --with-fflags           add extra Fortran compiler flags
+  --with-fflags=ARG       add extra Fortran compiler flags
 
   --with-mpi-root=MPIROOT use MPI root directory
   --with-mpi-incdir=DIR   MPI include directory [MPIROOT/include]
   --with-mpi-libdir=DIR   MPI library directory [MPIROOT/lib]
   --with-mpi-libs=ARG     MPI libraries
-  --with-mpi-flags        MPI-specific flags
+  --with-mpi-flags=ARG    MPI-specific flags
   --with-mpicc[=ARG]      specify MPI-C compiler to use [mpicc]
   --with-mpif77[=ARG]     specify MPI-Fortran compiler to use [mpif77]
 
@@ -1075,9 +1075,10 @@ Optional Packages:
                           install SUNDIALS examples in EXINSTDIR
                           [EPREFIX/examples]
 
-  --with-matlab=MATLAB    specify location of Matlab installation directory
-  --with-mex=ARG          specify location of Matlab MEX compiler
+  --with-matlab=MATLAB    specify Matlab executable
   --with-mexopts=ARG      use MEX options file ARG [standard]
+  --with-mexflags=ARG     specify MEX compiler flags
+  --with-mexldadd=ARG     specify additional MEX linker flags
 
   --with-sundialsTB-instdir=STBINSTDIR
                           install sundialsTB in STBINSTDIR
@@ -7266,7 +7267,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:7269:" \
+echo "$as_me:7270:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -7727,7 +7728,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:7730: \"$ac_link\") >&5
+(eval echo $as_me:7731: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -7809,7 +7810,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:7812: \"$ac_link\") >&5
+(eval echo $as_me:7813: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -10169,11 +10170,11 @@ fi
 
 fi
 
-# Set MEX support (optional)
+# Set Matlab support (optional)
 if test "X${STB_ENABLED}" = "Xyes"; then
   echo ""
-  echo "MEX Settings"
-  echo "------------"
+  echo "Matlab Settings"
+  echo "---------------"
   echo ""
 
 
@@ -10187,45 +10188,35 @@ if test "${with_+set}" = set; then
 
 fi;
 
-# Find Matlab installation
-# Note: if --with-matlab=<matlab_dir> was passed to the configure script, then
-# we check if the matlab_dir directory exists and set the enviroment variable
-# MATLAB accordingly
+# Find Matlab program. If --with-matlab=<matlab> was passed to the configure
+# script, then we only check if it exists and is an executable file. We'll try
+# to run it later... Otherwise, use AC_PATH_PROG to search for matlab.
+MATLAB_CMD="none"
 
 # Check whether --with-matlab or --without-matlab was given.
 if test "${with_matlab+set}" = set; then
   withval="$with_matlab"
 
-if test -d ${withval} ; then
-  MATLAB="${withval}"
+if test -x ${withval} ; then
+  MATLAB_CMD="${withval}"
 else
   { echo "$as_me:$LINENO: WARNING: invalid value '${withval}' for --with-matlab" >&5
 echo "$as_me: WARNING: invalid value '${withval}' for --with-matlab" >&2;}
   STB_ENABLED="no"
 fi
 
-fi;
+else
 
-# Continue under the following conditions:
-#   (1) If --enable-sundialsTB was passed to the configure script and the directory argument
-#       passed via --with-matlab exists, then continue
-#   (2) If --enable-sundialsTB was passed to the configure script, but --with-matlab was NOT,
-#       then continue as the environment variable MATLAB may have been defined by the user
-if test "X${STB_ENABLED}" = "Xyes"; then
-
-  # MATLAB is NOT defined, so look for it in PATH (default search location for AC_PATH_PROG macro)
-  if test "X${MATLAB}" = "X"; then
-    cv_matlab=""
-    # Extract the first word of "matlab", so it can be a program name with args.
+# Extract the first word of "matlab", so it can be a program name with args.
 set dummy matlab; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_path_cv_matlab+set}" = set; then
+if test "${ac_cv_path_MATLAB_CMD+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  case $cv_matlab in
+  case $MATLAB_CMD in
   [\\/]* | ?:[\\/]*)
-  ac_cv_path_cv_matlab="$cv_matlab" # Let the user override the test with a path.
+  ac_cv_path_MATLAB_CMD="$MATLAB_CMD" # Let the user override the test with a path.
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
@@ -10235,188 +10226,43 @@ do
   test -z "$as_dir" && as_dir=.
   for ac_exec_ext in '' $ac_executable_extensions; do
   if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_cv_matlab="$as_dir/$ac_word$ac_exec_ext"
+    ac_cv_path_MATLAB_CMD="$as_dir/$ac_word$ac_exec_ext"
     echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
 done
 done
 
-  test -z "$ac_cv_path_cv_matlab" && ac_cv_path_cv_matlab="none"
+  test -z "$ac_cv_path_MATLAB_CMD" && ac_cv_path_MATLAB_CMD=""none""
   ;;
 esac
 fi
-cv_matlab=$ac_cv_path_cv_matlab
+MATLAB_CMD=$ac_cv_path_MATLAB_CMD
 
-if test -n "$cv_matlab"; then
-  echo "$as_me:$LINENO: result: $cv_matlab" >&5
-echo "${ECHO_T}$cv_matlab" >&6
+if test -n "$MATLAB_CMD"; then
+  echo "$as_me:$LINENO: result: $MATLAB_CMD" >&5
+echo "${ECHO_T}$MATLAB_CMD" >&6
 else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
-    if test "X${cv_matlab}" = "Xnone"; then
-      STB_ENABLED="no"
-    else
-      cv_matlab_dir=`(dirname "${cv_matlab}") 2>/dev/null ||
-$as_expr X"${cv_matlab}" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"${cv_matlab}" : 'X\(//\)[^/]' \| \
-	 X"${cv_matlab}" : 'X\(//\)$' \| \
-	 X"${cv_matlab}" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"${cv_matlab}" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-      MATLAB="${cv_matlab_dir}/.."
-    fi
-  # MATLAB is either defined as an environment variable or was passed via --with-matlab
-  else
-    if test -d ${MATLAB} ; then
-      cv_matlab="${MATLAB}"
-      echo "$as_me:$LINENO: checking for Matlab installation directory" >&5
-echo $ECHO_N "checking for Matlab installation directory... $ECHO_C" >&6
-      echo "$as_me:$LINENO: result: ${MATLAB}" >&5
-echo "${ECHO_T}${MATLAB}" >&6
-    fi
-  fi
-
+if test "X${MATLAB_CMD}" = "Xnone"; then
+  STB_ENABLED="no"
 fi
-
-# Verify Matlab installation
-if test "X${STB_ENABLED}" = "Xyes"; then
-
-  # Perform sanity check...
-  echo "$as_me:$LINENO: checking whether to enable Matlab support" >&5
-echo $ECHO_N "checking whether to enable Matlab support... $ECHO_C" >&6
-  if test -d "${MATLAB}/extern/include" ; then
-    echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-  else
-    STB_ENABLED="no"
-    echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-  fi
-
-fi
-
-# Look for Matlab MEX compiler (set MEX)
-if test "X${STB_ENABLED}" = "Xyes"; then
-
-
-# Check whether --with-mex or --without-mex was given.
-if test "${with_mex+set}" = set; then
-  withval="$with_mex"
-
-  if test -f ${withval} ; then
-    MEX="${withval}"
-  else
-    { echo "$as_me:$LINENO: WARNING: invalid value '${withval}' for --with-mex" >&5
-echo "$as_me: WARNING: invalid value '${withval}' for --with-mex" >&2;}
-    STB_ENABLED="no"
-  fi
 
 fi;
 
-fi
-
-# Continue Matlab MEX compiler check (set MEXFLAGS and MEXLDADD)
+# Under cygwin, standardize MATLAB_CMD
 if test "X${STB_ENABLED}" = "Xyes"; then
-
-  # MEX is NOT defined, so look for it in PATH (default search location for AC_PATH_PROG macro)
-  if test "X${MEX}" = "X"; then
-    MEX=""
-    case $host_os in
-
-      *cygwin* | *mingw32*)
-	ax_list="mextool mex mex.bat"
-	;;
-
-      *)
-	ax_list="mex"
-	;;
-
-    esac
-    for ac_prog in ${ax_list}
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_path_MEX+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $MEX in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_MEX="$MEX" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="${MATLAB}/bin:${PATH}"
-for as_dir in $as_dummy
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_MEX="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-  ;;
-esac
-fi
-MEX=$ac_cv_path_MEX
-
-if test -n "$MEX"; then
-  echo "$as_me:$LINENO: result: $MEX" >&5
-echo "${ECHO_T}$MEX" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
+  case $build_os in
+    *cygwin*)
+      MATLAB_CMD=`cygpath -a -m "${MATLAB_CMD}"`
+      ;;
+  esac
 fi
 
-  test -n "$MEX" && break
-done
-
-  # MEX is either defined as an environment variable or was passed via --with-mex
-  else
-    echo "$as_me:$LINENO: checking for Matlab MEX compiler" >&5
-echo $ECHO_N "checking for Matlab MEX compiler... $ECHO_C" >&6
-    if test -f ${MEX} ; then
-      echo "$as_me:$LINENO: result: ${MEX}" >&5
-echo "${ECHO_T}${MEX}" >&6
-    else
-      echo "$as_me:$LINENO: result: none" >&5
-echo "${ECHO_T}none" >&6
-      STB_ENABLED="no"
-    fi
-  fi
-
-  # Set MEXFLAGS and MEXLDADD environment variables if MEX compiler exists
-  if test "X${MEX}" = "X"; then
-    STB_ENABLED="no"
-  else
-    if test "X${MEXFLAGS}" = "X"; then
-      MEXFLAGS="-O"
-    else
-      :
-    fi
-    if test "X${MEXLDADD}" = "X"; then
-      MEXLDADD=""
-    else
-      :
-    fi
-  fi
-fi
-
-# Look for 'mexopts' file (set MEXOPTS)
+# Set MEXOPTS (MEX options file)
 if test "X${STB_ENABLED}" = "Xyes"; then
 
   MEXOPTS=""
@@ -10444,9 +10290,6 @@ echo X"${cv_mexopts_file}" |
       cv_mexopts_dir="."
       cv_mexopts_name="${cv_mexopts_file}"
       cv_mexopts_file="${cv_mexopts_dir}/${cv_mexopts_name}"
-    # ARG is non-trivial (meaning contains directory information)
-    else
-      :
     fi
     MEXOPTS="-f ${cv_mexopts_file}"
   else
@@ -10459,22 +10302,89 @@ fi;
 
 fi
 
-# Test Matlab MEX compiler and set extension for MEX files (set MEXEXT)
+# Set MEXFLAGS and MEXLDADD
+if test "X${STB_ENABLED}" = "Xyes"; then
+
+  echo "$as_me:$LINENO: checking for MEX compiler compiler flags" >&5
+echo $ECHO_N "checking for MEX compiler compiler flags... $ECHO_C" >&6
+
+# Check whether --with-mexflags or --without-mexflags was given.
+if test "${with_mexflags+set}" = set; then
+  withval="$with_mexflags"
+
+  echo "$as_me:$LINENO: result: ${withval}" >&5
+echo "${ECHO_T}${withval}" >&6
+  MEXFLAGS="${withval}"
+
+else
+
+  # If MEXFLAGS is not defined, set it to the default -O
+  if test "X${MEXFLAGS}" = "X"; then
+    MEXFLAGS="-O"
+  fi
+  echo "$as_me:$LINENO: result: ${MEXFLAGS}" >&5
+echo "${ECHO_T}${MEXFLAGS}" >&6
+
+fi;
+
+  echo "$as_me:$LINENO: checking for additional MEX linker flags" >&5
+echo $ECHO_N "checking for additional MEX linker flags... $ECHO_C" >&6
+
+# Check whether --with-mexldadd or --without-mexldadd was given.
+if test "${with_mexldadd+set}" = set; then
+  withval="$with_mexldadd"
+
+  echo "$as_me:$LINENO: result: ${withval}" >&5
+echo "${ECHO_T}${withval}" >&6
+  MEXLDADD="${withval}"
+
+else
+
+  # If MEXLDADD is not defined, none are used
+  if test "X${MEXLDADD}" = "X"; then
+    MEXLDADD=""
+    echo "$as_me:$LINENO: result: none" >&5
+echo "${ECHO_T}none" >&6
+  else
+    echo "$as_me:$LINENO: result: ${MEXLDADD}" >&5
+echo "${ECHO_T}${MEXLDADD}" >&6
+  fi
+
+fi;
+
+fi
+
+# Decide whether to enable parallel support in sundialsTB
+if test "X${STB_ENABLED}" = "Xyes"; then
+  if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes"; then
+    STB_PARALLEL="yes"
+  else
+    STB_PARALLEL="no"
+  fi
+fi
+
+# Run matlab and try the MEX compiler. Set extension for MEX files (set MEXEXT)
 if test "X${STB_ENABLED}" = "Xyes"; then
 
   echo "$as_me:$LINENO: checking if the Matlab MEX compiler works" >&5
 echo $ECHO_N "checking if the Matlab MEX compiler works... $ECHO_C" >&6
 
   # Create test file cvmextest.c (temporary file)
-  cat > cvmextest.c <<_END_MEX
+  cat > cvmextest.c <<_END_MEX_C
 #include "mex.h"
 void mexFunction(int nlhs, mxArray **plhs, int nrhs, const mxArray **prhs)
 {}
-_END_MEX
+_END_MEX_C
 
-  # Test Matlab MEX compiler
+  # Create test file cvmextest_script.m (temporary file)
+  cat > cvmextest_script.m <<_END_MEX_M
+mex ${MEXOPTS} ${MEXFLAGS} -output cvmextest cvmextest.c ${MEXLDADD}
+exit
+_END_MEX_M
+
+  # Run matlab in batch mode
   # Warning: File descriptors and I/O redirection can be problematic
-  ( eval ${MEX} ${MEXOPTS} ${MEXFLAGS} -output cvmextest cvmextest.c ${MEXLDADD} ) 2>/dev/null 1>&2
+  ( eval ${MATLAB_CMD} -nojvm -nosplash -r cvmextest_script ) 2>/dev/null 1>&2
 
   # Get exit status of previous command (meaning eval statement)
   cv_status=$?
@@ -10483,6 +10393,8 @@ _END_MEX
   if test "${cv_status}" = "0"; then
      echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
+     echo "$as_me:$LINENO: checking for MEX file extension" >&5
+echo $ECHO_N "checking for MEX file extension... $ECHO_C" >&6
      if test -f cvmextest.dll ; then
         MEXEXT="dll"
      elif test -f cvmextest.mex ; then
@@ -10504,6 +10416,8 @@ echo "${ECHO_T}yes" >&6
      else
 	MEXEXT=""
      fi
+     echo "$as_me:$LINENO: result: ${MEXEXT}" >&5
+echo "${ECHO_T}${MEXEXT}" >&6
   # MEX test failed
   else
      echo "$as_me:$LINENO: result: no" >&5
@@ -11109,7 +11023,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 11112 "configure"' > conftest.$ac_ext
+  echo '#line 11026 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -13171,11 +13085,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13174: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13088: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13178: \$? = $ac_status" >&5
+   echo "$as_me:13092: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -13414,11 +13328,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13417: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13331: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13421: \$? = $ac_status" >&5
+   echo "$as_me:13335: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -13474,11 +13388,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13477: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13391: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13481: \$? = $ac_status" >&5
+   echo "$as_me:13395: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15659,7 +15573,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 15662 "configure"
+#line 15576 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -15757,7 +15671,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 15760 "configure"
+#line 15674 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -17951,11 +17865,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17954: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17868: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17958: \$? = $ac_status" >&5
+   echo "$as_me:17872: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -18011,11 +17925,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:18014: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17928: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:18018: \$? = $ac_status" >&5
+   echo "$as_me:17932: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19372,7 +19286,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 19375 "configure"
+#line 19289 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -19470,7 +19384,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 19473 "configure"
+#line 19387 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -20308,11 +20222,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:20311: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:20225: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:20315: \$? = $ac_status" >&5
+   echo "$as_me:20229: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -20368,11 +20282,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:20371: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:20285: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:20375: \$? = $ac_status" >&5
+   echo "$as_me:20289: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -22404,11 +22318,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:22407: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:22321: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:22411: \$? = $ac_status" >&5
+   echo "$as_me:22325: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -22647,11 +22561,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:22650: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:22564: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:22654: \$? = $ac_status" >&5
+   echo "$as_me:22568: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -22707,11 +22621,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:22710: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:22624: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:22714: \$? = $ac_status" >&5
+   echo "$as_me:22628: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -24892,7 +24806,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 24895 "configure"
+#line 24809 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -24990,7 +24904,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 24993 "configure"
+#line 24907 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -26085,20 +25999,26 @@ fi;
 
 
 
-# Generate makefiles
+# Generate makefiles and other configuration files
 echo ""
-echo "Create Makefiles"
-echo "----------------"
+echo "Create Makefiles and configuration files"
+echo "----------------------------------------"
 echo ""
 
 
+# Initialize the list of Makefiles to be created
+SUNDIALS_MAKEFILES="Makefile"
+
+# Initialize list of additional configure files to be created
+SUNDIALS_CONFIGFILES="src/sundials/sundials_config.h:src/sundials/sundials_config.in"
+SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundials-config:sundials-config.in"
+
+# Initialize lists of solver modules, exampel modules, and sundialsTB modules
+SLV_MODULES="src/sundials"
 EXS_MODULES=""
 STB_MODULES=""
 
-# SHARED module (always required)
-SLV_MODULES="src/sundials"
-
-# NVECTOR modules (serial and parallel)
+# NVECTOR modules
 if test -d ${srcdir}/src/nvec_ser ; then
   SLV_MODULES="${SLV_MODULES} src/nvec_ser"
 fi
@@ -26262,8 +26182,7 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
 
 fi
 
-# Set the list of Makefiles to be created
-SUNDIALS_MAKEFILES="Makefile"
+# Update the list of Makefiles to be created for all solver and example moduls
 for i in ${SLV_MODULES}
 do
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ${i}/Makefile"
@@ -26273,48 +26192,44 @@ do
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ${i}/Makefile"
 done
 
-# sundialsTB modules and CVM, IDM and KIM makefiles
-if test "X${STB_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/cvodes ; then
-  STB_MODULES="${STB_MODULES} sundialsTB/cvodes/cvm/src"
-  if test "X${STB_PARALLEL_OK}" = "Xyes"; then
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/cvodes/cvm/src/Makefile:sundialsTB/cvodes/cvm/src/Makefile_par.in"
-  else
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/cvodes/cvm/src/Makefile:sundialsTB/cvodes/cvm/src/Makefile_ser.in"
-  fi
-fi
-if test "X${STB_ENABLED}" = "Xyes" && test "X${IDA_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/idas ; then
-  STB_MODULES="${STB_MODULES} sundialsTB/idas/idm/src"
-  if test "X${STB_PARALLEL_OK}" = "Xyes"; then
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/idas/idm/src/Makefile:sundialsTB/idas/idm/src/Makefile_par.in"
-  else
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/idas/idm/src/Makefile:sundialsTB/idas/idm/src/Makefile_ser.in"
-  fi
-fi
-if test "X${STB_ENABLED}" = "Xyes" && test "X${KINSOL_ENABLED}" = "Xyes"; then
-  STB_MODULES="${STB_MODULES} sundialsTB/kinsol/kim/src"
-  if test "X${STB_PARALLEL_OK}" = "Xyes"; then
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/kinsol/kim/src/Makefile:sundialsTB/kinsol/kim/src/Makefile_par.in"
-  else
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/kinsol/kim/src/Makefile:sundialsTB/kinsol/kim/src/Makefile_ser.in"
-  fi
-fi
-if test "X${STB_ENABLED}" = "Xyes"; then
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/startup_STB.m:sundialsTB/startup_STB.in"
-fi
-
-# Fortran update script
+# Add Fortran update script to the list of additional files to be generated
 if test "X${BUILD_F77_UPDATE_SCRIPT}" = "Xyes"; then
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/fortran_update.sh:config/fortran_update.in"
 fi
 
-# Create sundials_config.h header file
-SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/sundials/sundials_config.h:src/sundials/sundials_config.in"
+# sundialsTB modules
+if test "X${STB_ENABLED}" = "Xyes"; then
 
-# Create sundials-config script
-SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundials-config:sundials-config.in"
+  if test "X${CVODES_ENABLED}" = "Xyes" || test "X${IDA_ENABLED}" = "Xyes" || test "X${KINSOL_ENABLED}" = "Xyes"; then
+    SLV_MODULES="${SLV_MODULES} sundialsTB"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/Makefile:sundialsTB/Makefile.in"
+    SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundialsTB/startup_STB.m:sundialsTB/startup_STB.in"
+  fi
+
+  if test "X${CVODES_ENABLED}" = "Xyes"; then
+    STB_MODULES="${STB_MODULES} cvodes/cvm/src"
+    SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundialsTB/cvodes/cvm/src/setup.m:sundialsTB/cvodes/cvm/src/setup.m.in"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/cvodes/cvm/src/Makefile:sundialsTB/cvodes/cvm/src/Makefile.in"
+  fi
+
+  if test "X${IDA_ENABLED}" = "Xyes"; then
+    STB_MODULES="${STB_MODULES} idas/idm/src"
+    SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundialsTB/idas/idm/src/setup.m:sundialsTB/idas/idm/src/setup.m.in"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/idas/idm/src/Makefile:sundialsTB/idas/idm/src/Makefile.in"
+  fi
+
+  if test "X${KINSOL_ENABLED}" = "Xyes"; then
+    STB_MODULES="${STB_MODULES} kinsol/kim/src"
+    SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundialsTB/kinsol/kim/src/setup.m:sundialsTB/kinsol/kim/src/setup.m.in"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/kinsol/kim/src/Makefile:sundialsTB/kinsol/kim/src/Makefile.in"
+  fi
+
+fi
 
 
           ac_config_files="$ac_config_files ${SUNDIALS_MAKEFILES}"
+
+          ac_config_files="$ac_config_files ${SUNDIALS_CONFIGFILES}"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -26842,6 +26757,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "${SUNDIALS_MAKEFILES}" ) CONFIG_FILES="$CONFIG_FILES ${SUNDIALS_MAKEFILES}" ;;
+  "${SUNDIALS_CONFIGFILES}" ) CONFIG_FILES="$CONFIG_FILES ${SUNDIALS_CONFIGFILES}" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h:config.hin" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -26957,8 +26873,7 @@ s,@F77_COMP@,$F77_COMP,;t t
 s,@FLIBS@,$FLIBS,;t t
 s,@MPICC_COMP@,$MPICC_COMP,;t t
 s,@MPIF77_COMP@,$MPIF77_COMP,;t t
-s,@cv_matlab@,$cv_matlab,;t t
-s,@MEX@,$MEX,;t t
+s,@MATLAB_CMD@,$MATLAB_CMD,;t t
 s,@LN_S@,$LN_S,;t t
 s,@ECHO@,$ECHO,;t t
 s,@AR@,$AR,;t t
@@ -27000,7 +26915,7 @@ s,@GENERIC_MATH_LIB@,$GENERIC_MATH_LIB,;t t
 s,@F77_MPI_COMM_F2C@,$F77_MPI_COMM_F2C,;t t
 s,@F77_LNKR@,$F77_LNKR,;t t
 s,@MPIF77_LNKR@,$MPIF77_LNKR,;t t
-s,@MATLAB@,$MATLAB,;t t
+s,@STB_PARALLEL@,$STB_PARALLEL,;t t
 s,@MEXEXT@,$MEXEXT,;t t
 s,@MEXOPTS@,$MEXOPTS,;t t
 s,@MEXFLAGS@,$MEXFLAGS,;t t
@@ -27574,11 +27489,11 @@ fi
 
 if test "X${STB_ENABLED}" = "Xyes"; then
 echo "
-  Matlab installation:       ${MATLAB}
-  Matlab MEX compiler:       ${MEX}
+  Matlab executable:         ${MATLAB_CMD}
   Extension of MEX files:    ${MEXEXT}
   Mex options file:          ${MEXOPTS}
-  Mex compiler options:      ${MEXFLAGS}"
+  Mex compiler options:      ${MEXFLAGS}
+  Mex linker flags:          ${MEXLDADD}"
 fi
 
 # Determine SOURCE, BUILD, and EXEC_PREFIX directories

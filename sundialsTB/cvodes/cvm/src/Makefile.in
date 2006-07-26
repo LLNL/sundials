@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-07-26 01:27:48 $
+# $Revision: 1.1 $
+# $Date: 2006-07-26 22:59:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -9,7 +9,7 @@
 # All rights reserved.
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
-# Makefile for the CVODES Matlab module using the serial NVECTOR
+# Makefile for the CVODES Matlab module
 #
 # @configure_input@
 # -----------------------------------------------------------------
@@ -21,70 +21,32 @@ SHELL = @SHELL@
 srcdir       = @srcdir@
 top_builddir = @top_builddir@
 builddir     = @builddir@
-prefix       = @prefix@
-exec_prefix  = @exec_prefix@
-includedir   = @includedir@
-libdir       = @libdir@
 
-LIBTOOL      = @LIBTOOL@
-LIBTOOL_DEPS = @LIBTOOL_DEPS@
+MATLAB_CMD   = @MATLAB_CMD@
+MEXEXT       = @MEXEXT@
 
 INSTALL      = @INSTALL@
 INSTALL_PROG = @INSTALL_PROGRAM@
 INSTALL_FILE = @INSTALL_DATA@
 
-MEX      = @MEX@
-MEXEXT   = @MEXEXT@
-MEXOPTS  = @MEXOPTS@
-MEXFLAGS = @MEXFLAGS@
-MEXLDADD = @MEXLDADD@
-
-MPICC       = @MPICC@
-MPI_INC_DIR = @MPI_INC_DIR@
-MPI_LIB_DIR = @MPI_LIB_DIR@
-MPI_LIBS    = @MPI_LIBS@
-MPI_FLAGS   = @MPI_FLAGS@
-
-STB_INSTDIR = @STB_INSTDIR@
-
-CVM_SRCDIR = $(srcdir)
-NVM_SRCDIR = $(srcdir)/../../../nvector/src
-
-top_srcdir = $(srcdir)/../../../..
-
-SUNDIALS_INCDIR = $(top_srcdir)/include
-CVODES_SRCDIR   = $(top_builddir)/src/cvodes
-NVECSER_SRCDIR  = $(top_builddir)/src/nvec_ser
-NVECPAR_SRCDIR  = $(top_builddir)/src/nvec_par
-
-CVM_SRC  = $(CVM_SRCDIR)/cvm.c $(CVM_SRCDIR)/cvmWrap.c $(CVM_SRCDIR)/cvmOpts.c
-NVM_SRC  = $(NVM_SRCDIR)/nvm_parallel.c $(NVM_SRCDIR)/nvm_ops.c
-SRCFILES = $(CVM_SRC) $(NVM_SRC)
-
-INCLUDES = -I$(CVM_SRCDIR) -I$(NVM_SRCDIR) -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src -I$(MPI_INC_DIR)
-LIBS = $(CVODES_SRCDIR)/libsundials_cvodes.la $(NVECSER_SRCDIR)/libsundials_nvecserial.la $(NVECPAR_SRCDIR)/libsundials_nvecparallel.la -L$(MPI_LIB_DIR) $(MPI_LIBS)
+STB_INSTDIR  = @STB_INSTDIR@
+STB_PARALLEL = @STB_PARALLEL@
 
 MEXFILE = ../cvm.$(MEXEXT)
+
+top_srcdir = $(srcdir)/../../../..
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
 all: cvm
 
-clean:
-	rm -f *.lo
-	rm -f *.o
-	rm -f $(MEXFILE)
-	rm -rf ../.libs
-
 install: cvm
 #	Create directories
-	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/putils
-	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/nvector
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/cvm
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser
-	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/examples_par
-#	Install startup file
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/startup_STB.m                    $(STB_INSTDIR)/sundialsTB/
+	@if test "X${STB_PARALLEL}" = "Xyes"; then                         \
+	  $(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/examples_par ; \
+	fi
 #	Install CVODES functions
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/Contents.m                $(STB_INSTDIR)/sundialsTB/cvodes/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVadjMalloc.m             $(STB_INSTDIR)/sundialsTB/cvodes/
@@ -156,42 +118,23 @@ install: cvm
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/vdp_J.m      $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/vdp.m        $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 #	Install parallel example files
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvfnx_f.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvfnx.m      $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvkx_fl.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvkx_f.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvkx.m       $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvnx_f.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvnx.m       $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/
-#	Install NVECTOR files
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/Contents.m               $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VDotProd.m             $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VL1Norm.m              $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMax.m                 $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMaxNorm.m             $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VMin.m                 $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWL2Norm.m             $(STB_INSTDIR)/sundialsTB/nvector/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/nvector/N_VWrmsNorm.m            $(STB_INSTDIR)/sundialsTB/nvector/
-#	Install PUTILS files
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/Contents.m                $(STB_INSTDIR)/sundialsTB/putils/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpirun.m                  $(STB_INSTDIR)/sundialsTB/putils/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpiruns.m                 $(STB_INSTDIR)/sundialsTB/putils/
-	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/putils/mpistart.m                $(STB_INSTDIR)/sundialsTB/putils/
+	@if test "X${STB_PARALLEL}" = "Xyes"; then                                                                                    \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvfnx_f.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/ ;  \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvfnx.m      $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/ ;  \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvkx_fl.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/ ;  \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvkx_f.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/ ;  \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvkx.m       $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/ ;  \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvnx_f.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/ ;  \
+	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvnx.m       $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/ ;  \
+	fi
 
-uninstall:
-	@if test -d ${STB_INSTDIR}/sundialsTB ; then \
-	   rm -rf ${STB_INSTDIR}/sundialsTB ;        \
-	 fi
+clean:
+	rm -f $(MEXFILE)
 
 distclean: clean
+	rm -f setup.m
 	rm -f Makefile
-	rm -f $(top_srcdir)/sundialsTB/startup_STB.m
+
 
 cvm:
-	$(LIBTOOL) --mode=link $(MEX) $(MEXOPTS) $(MEXFLAGS) CC=$(MPICC) $(MPI_FLAGS) $(INCLUDES) -o $(MEXFILE) $(SRCFILES) $(MEXLDADD) $(LIBS)
-
-
-libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	 @cd ${top_builddir} ;                 \
-	  ${SHELL} ./config.status --recheck ; \
-	  cd ${abs_builddir}
+	${MATLAB_CMD} -nojvm -nosplash -r setup
