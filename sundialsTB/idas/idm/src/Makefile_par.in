@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-19 20:52:30 $
+# $Revision: 1.3 $
+# $Date: 2006-07-26 00:09:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -72,7 +72,8 @@ all: idm
 clean:
 	rm -f *.lo
 	rm -f *.o
-	$(LIBTOOL) --mode=clean rm -f $(MEXFILE)
+	rm -f $(MEXFILE)
+	rm -rf ../.libs
 
 install: idm
 #	Create directories

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-07-20 21:14:22 $
+ * $Revision: 1.5 $
+ * $Date: 2006-07-26 00:09:00 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -371,7 +371,7 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
   /* Jacobian function */
 
   opt = mxGetField(options,0,"JacobianFn");
-  if ( !mxIsEmpty(opt) )
+  if ( !mxIsEmpty(opt) ) {
     if (fwd) {
       mxDestroyArray(mx_JACfct);
       mx_JACfct  = mxDuplicateArray(opt);
@@ -379,6 +379,7 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
       mxDestroyArray(mx_JACfctB);
       mx_JACfctB = mxDuplicateArray(opt);
     }
+  }
 
   /* Band linear solver */
 
@@ -430,7 +431,7 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
     /* User defined precoditioning */
 
     opt = mxGetField(options,0,"PrecSetupFn");
-    if ( !mxIsEmpty(opt) ) 
+    if ( !mxIsEmpty(opt) ) {
       if (fwd) {
         mxDestroyArray(mx_PSETfct);
         mx_PSETfct  = mxDuplicateArray(opt);
@@ -438,9 +439,10 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
         mxDestroyArray(mx_PSETfctB);
         mx_PSETfctB = mxDuplicateArray(opt);
       }
+    }
 
     opt = mxGetField(options,0,"PrecSolveFn");
-    if ( !mxIsEmpty(opt) )
+    if ( !mxIsEmpty(opt) ) {
       if (fwd) {
         mxDestroyArray(mx_PSOLfct);
         mx_PSOLfct  = mxDuplicateArray(opt);
@@ -448,6 +450,7 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
         mxDestroyArray(mx_PSOLfctB);
         mx_PSOLfctB = mxDuplicateArray(opt);
       }
+    }
 
     /* Preconditioner module */
   
@@ -485,7 +488,7 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
         *mldq = (int)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"GlocalFn");
-      if ( !mxIsEmpty(opt) ) 
+      if ( !mxIsEmpty(opt) ) {
         if (fwd) {
           mxDestroyArray(mx_GLOCfct);
           mx_GLOCfct  = mxDuplicateArray(opt);
@@ -493,11 +496,12 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
           mxDestroyArray(mx_GLOCfctB);
           mx_GLOCfctB = mxDuplicateArray(opt);
         }
-      else 
+      } else {
         mexErrMsgTxt("GlocalFn required for BBD preconditioner.");
-      
+      }      
+
       opt = mxGetField(options,0,"GcommFn");
-      if ( !mxIsEmpty(opt) ) 
+      if ( !mxIsEmpty(opt) ) {
         if (fwd) {
           mxDestroyArray(mx_GCOMfct);
           mx_GCOMfct  = mxDuplicateArray(opt);
@@ -505,6 +509,7 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
           mxDestroyArray(mx_GCOMfctB);
           mx_GCOMfctB = mxDuplicateArray(opt);
         }
+      }
     }
 
   }

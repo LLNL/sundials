@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-25 22:17:18 $
+ * $Revision: 1.3 $
+ * $Date: 2006-07-26 00:09:00 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -15,6 +15,7 @@
  */
 
 #include "idm.h"
+#include "nvm.h"
 
 static void UpdateUserData(mxArray *mx_data);
 static void UpdateMonitorData(mxArray *mx_data);

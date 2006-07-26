@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-06 19:18:51 $
+# $Revision: 1.4 $
+# $Date: 2006-07-26 00:09:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -65,7 +65,8 @@ all: kim
 clean:
 	rm -f *.lo
 	rm -f *.o
-	$(LIBTOOL) --mode=clean rm -f $(MEXFILE)
+	rm -f $(MEXFILE)
+	rm -rf ../.libs
 
 install: kim
 #	Create directories

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-07-25 22:17:18 $
+ * $Revision: 1.7 $
+ * $Date: 2006-07-26 00:09:00 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1271,6 +1271,7 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "njeSG",
     "nreSG"
   };
+  /*
   const char *fnames_quad[]={
     "nfQe",
     "netfQ"
@@ -1283,6 +1284,7 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "nniS",
     "ncfnS",
   };
+  */
 
   long int nst, nre, nsetups, nni, ncfn, netf, nge;
   int qlast, qcur;
