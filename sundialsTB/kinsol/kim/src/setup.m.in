@@ -12,11 +12,16 @@ mpi_libdir  = '@MPI_LIB_DIR@' ;
 mpi_libs    = '@MPI_LIBS@' ;
 mpi_flags   = '@MPI_FLAGS@' ;
 
-stb_parallel = '@STB_PARALLEL@' ;
+stb_parallel = '@STB_PARALLEL_OK@' ;
+stb_os       = '@STB_OS@' ;
 
 if strcmp(stb_parallel,'yes')
   par = true;
 else
+  par = false;
+end
+
+if strcmp(stb_os,'cygwin') || strcmp(stb_os,'mingw')
   par = false;
 end
 
@@ -105,30 +110,44 @@ end
 % Linker flags
 % ------------
 
-if par
-  libraries = sprintf('-L"%s" -lsundials_kinsol -L"%s" -lsundials_nvecparallel',kinsol_libdir, nvecpar_libdir);
-  if ~isempty(mpi_libdir)
-    libraries = sprintf('%s -L"%s"',libraries, mpi_libdir);
-  end
-  if ~isempty(mpi_libs)
-    libraries = sprintf('%s %s',libraries, mpi_libs);
-  end
+if strcmp(stb_os,'cygwin') || strcmp(stb_os,'mingw')
+  libraries=sprintf('%s %s',...
+                    fullfile(kinsol_libdir,'libsundials_kinsol.a'),...
+                    fullfile(nvecser_libdir,'libsundials_nvecserial.a'));        
 else
-  libraries = sprintf('-L"%s" -lsundials_kinsol -L"%s" -lsundials_nvecserial',kinsol_libdir, nvecser_libdir);  
+  if par
+    libraries = sprintf('-L"%s" -lsundials_kinsol -L"%s" -lsundials_nvecparallel',kinsol_libdir, nvecpar_libdir);
+    if ~isempty(mpi_libdir)
+      libraries = sprintf('%s -L"%s"',libraries, mpi_libdir);
+    end
+    if ~isempty(mpi_libs)
+      libraries = sprintf('%s %s',libraries, mpi_libs);
+    end
+  else
+    libraries = sprintf('-L"%s" -lsundials_kinsol -L"%s" -lsundials_nvecserial',kinsol_libdir, nvecser_libdir);  
+  end
 end
-
+  
 % Generate and run MEX command
 % ----------------------------
 
-if par
-  cc_cmd = sprintf('CC=%s',mpicc);
-else
+if strcmp(stb_os,'cygwin') || strcmp(stb_os,'mingw')
   cc_cmd = '';
+else
+  if par
+    cc_cmd = sprintf('CC=%s',mpicc);
+  else
+    cc_cmd = sprintf('CC=%s',cc);
+  end
 end
 
 mex_cmd = sprintf('mex %s %s %s -v -outdir %s -output kim %s %s %s', ...
                   mexopts, mexflags, cc_cmd, kim_outdir, includes, sources, libraries);
 
-eval(mex_cmd);
+try
+  eval(mex_cmd);
+catch
+  exit;
+end
 
 exit;

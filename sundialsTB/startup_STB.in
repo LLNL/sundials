@@ -3,9 +3,11 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/07/05 16:00:44 $
+% $Revision: 1.3 $Date: 2006/07/17 16:49:49 $
 
-stb = '@STB_INSTDIR@/sundialsTB';
+stb_path = '@STB_PATH@';
+
+stb = fullfile(stb_path,'sundialsTB');
 
 if ~exist(stb, 'dir')
   clear stb

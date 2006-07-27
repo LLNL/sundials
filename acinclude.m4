@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.42 $
-# $Date: 2006-07-26 23:49:24 $
+# $Revision: 1.43 $
+# $Date: 2006-07-27 21:27:11 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -87,27 +87,32 @@ if test "X${F77}" = "X"; then
   F77="f77"
 fi
 
-# Allow user to override default flags if corresponding environment
-# variable is already defined
-if test "X${CFLAGS}" = "X"; then
-  CFLAGS_USER_OVERRIDE="no"
+# Test if various environment variables exist.
+# If not, we may set some default values for them
+if test "X${CPPFLAGS}" = "X"; then
+  CPPFLAGS_PROVIDED="no"
 else
-  CFLAGS_USER_OVERRIDE="yes"
+  CPPFLAGS_PROVIDED="yes"
+fi
+if test "X${CFLAGS}" = "X"; then
+  CFLAGS_PROVIDED="no"
+else
+  CFLAGS_PROVIDED="yes"
 fi
 if test "X${CXXFLAGS}" = "X"; then
-  CXXFLAGS_USER_OVERRIDE="no"
+  CXXFLAGS_PROVIDED="no"
 else
-  CXXFLAGS_USER_OVERRIDE="yes"
+  CXXFLAGS_PROVIDED="yes"
+fi
+if test "X${LDFLAGS}" = "X"; then
+  LDFLAGS_PROVIDED="no"
+else
+  LDFLAGS_PROVIDED="yes"
 fi
 if test "X${FFLAGS}" = "X"; then
-  FFLAGS_USER_OVERRIDE="no"
+  FFLAGS_PROVIDED="no"
 else
-  FFLAGS_USER_OVERRIDE="yes"
-fi
-if test "X${FLIBS}" = "X"; then
-  FLIBS_USER_OVERRIDE="no"
-else
-  FLIBS_USER_OVERRIDE="yes"
+  FFLAGS_PROVIDED="yes"
 fi
 
 # Set defaults for config/sundials_config.in file
@@ -421,63 +426,61 @@ if test "X${CC_TEMP1}" = "X${CC_TEMP2}"; then
   fi
 fi
 
+# If CFLAGS is not provided, set defaults
+if test "X${CFLAGS_PROVIDED}" = "Xno"; then
+  SUNDIALS_DEFAULT_CFLAGS
+fi
+
+# Add any additional CFLAGS
 AC_MSG_CHECKING([for extra C compiler flags])
 AC_ARG_WITH(cflags,
 [AC_HELP_STRING([--with-cflags=ARG],[add extra C compiler flags])],
 [
 AC_MSG_RESULT([${withval}])
-USER_CFLAGS="${withval}"
+CFLAGS="${CFLAGS} ${withval}"
 ],
 [
 AC_MSG_RESULT([none])
-USER_CFLAGS=""
 ])
 
 # Set CPP to command that runs C preprocessor
-# Defines CPP
 AC_PROG_CPP
 
+# If CPPFLAGS is not provided, set defaults
+if test "X${CPPFLAGS_PROVIDED}" = "Xno"; then
+  SUNDIALS_DEFAULT_CPPFLAGS
+fi
+
+# Add any additional CPPFLAGS
 AC_MSG_CHECKING([for extra C/C++ preprocessor flags])
 AC_ARG_WITH(cppflags,
 [AC_HELP_STRING([--with-cppflags=ARG],[add extra C/C++ preprocessor flags])],
 [
 AC_MSG_RESULT([${withval}])
-if test "X${CPPFLAGS}" = "X"; then
-  CPPFLAGS="${withval}"
-else
-  CPPFLAGS="${CPPFLAGS} ${withval}"
-fi
+CPPFLAGS="${CPPFLAGS} ${withval}"
 ],
 [
 AC_MSG_RESULT([none])
 ])
 
-# Add default flag(s) to CFLAGS only if not already defined
-if test "X${CFLAGS_USER_OVERRIDE}" = "Xno"; then
-  SUNDIALS_DEFAULT_CFLAGS
+# If LDFLAGS is not provided, set defaults
+if test "X${LDFLAGS_PROVIDED}" = "Xno"; then
+  SUNDIALS_DEFAULT_LDFLAGS
 fi
 
-if test "X${USER_CFLAGS}" = "X"; then
-  CFLAGS="${CFLAGS}"
-else
-  CFLAGS="${CFLAGS} ${USER_CFLAGS}"
-fi
-
+# Add any additional linker flags 
 AC_MSG_CHECKING([for extra linker flags])
 AC_ARG_WITH(ldflags,
 [AC_HELP_STRING([--with-ldflags=ARG],[add extra linker flags])],
 [
 AC_MSG_RESULT([${withval}])
-if test "X${LDFLAGS}" = "X"; then
-  LDFLAGS="${withval}"
-else
-  LDFLAGS="${LDFLAGS} ${withval}"
-fi
+LDFLAGS="${LDFLAGS} ${withval}"
 ],
 [
 AC_MSG_RESULT([none])
 ])
 
+# Add any additional libraries
 AC_MSG_CHECKING([for extra libraries])
 AC_ARG_WITH(libs,
 [AC_HELP_STRING([--with-libs=ARG],[add extra libraries])],
@@ -649,27 +652,71 @@ AC_LANG_POP([C])
 AC_DEFUN([SUNDIALS_DEFAULT_CFLAGS],
 [
 
-# Note: Although NOT "used", we will keep this particular test
+# Set default CFLAGS (called only if CFLAGS is not provided)
 
-# Let user-specified CFLAGS variable pass through
 case $host in 
 
   # IA-32 system running Linux
   i*-pc-linux-*)
+    #if test "X${GCC}" = "Xyes"; then
+    #  if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+    #    CFLAGS="-ffloat-store"
+    #  fi
+    #fi
+    ;;
 
-    if test "X${GCC}" = "Xyes"; then
-      if test "X${CFLAGS}" = "X"; then
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          CFLAGS=""
-        fi
-      else
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          CFLAGS="${CFLAGS}"
-        fi
-      fi
-    fi
+  *)
+    CFLAGS=""
+    ;;
 
-  ;;
+esac
+
+]) dnl END SUNDIALS_DEFAULT_CFLAGS
+
+#------------------------------------------------------------------
+# DEFAULT CPPFLAGS
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_DEFAULT_CPPFLAGS],
+[
+
+# Set default CPPFLAGS (called only if CPPFLAGS is not provided)
+
+CPPFLAGS=""
+
+]) dnl END SUNDIALS_DEFAULT_CFLAGS
+
+#------------------------------------------------------------------
+# DEFAULT LDFLAGS
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_DEFAULT_LDFLAGS],
+[
+
+# Set default LDFLAGS (called only if LDFLAGS is not provided)
+
+case $build_os in
+
+  *cygwin*)
+     # Under cygwin, if building shared libraries, add -no-undefined
+     # and explicitly specify library extension
+     if test "X${enable_shared}" = "Xyes"; then
+       LDFLAGS="-no-undefined"
+     fi
+     ;;
+
+  *mingw*)
+     # Under mingw, if building shared libraries, add -no-undefined
+     # and explicitly specify library extension
+     if test "X${enable_shared}" = "Xyes"; then
+       LDFLAGS="-no-undefined"
+     fi
+     ;;
+
+
+  *)
+     LDFLAGS=""
+     ;;
 
 esac
 
@@ -794,29 +841,23 @@ else
     fi
   fi
 
+  # If FFLAGS is not provided, set defaults
+  if test "X${FFLAGS_PROVIDED}" = "Xno"; then
+    SUNDIALS_DEFAULT_FFLAGS
+  fi        
+
+  # Add any additional FFLAGS
   AC_MSG_CHECKING([for extra Fortran compiler flags])
   AC_ARG_WITH(fflags,
   [AC_HELP_STRING([--with-fflags=ARG],[add extra Fortran compiler flags])],
   [
   AC_MSG_RESULT([${withval}])
-  USER_FFLAGS="${withval}"
+  FFLAGS="${FFLAGS} ${withval}"
   ],
   [
   AC_MSG_RESULT([none])
-  USER_FFLAGS=""
   ])
   
-  # Add default flag(s) to FFLAGS only if not already defined
-  if test "X${FFLAGS_USER_OVERRIDE}" = "Xno"; then
-    SUNDIALS_DEFAULT_FFLAGS
-  fi
-
-  if test "X${USER_FFLAGS}" = "X"; then
-    FFLAGS="${FFLAGS}"
-  else
-    FFLAGS="${FFLAGS} ${USER_FFLAGS}"
-  fi
-
   # Add any required linker flags to FLIBS
   # Note: if FLIBS is defined, it is left unchanged
   AC_F77_LIBRARY_LDFLAGS
@@ -1066,42 +1107,32 @@ rm -f f77_wrapper_check.${ac_objext}
 AC_DEFUN([SUNDIALS_DEFAULT_FFLAGS],
 [
 
-# FIXME: Should IRIX and Tru64 options overwrite FFLAGS?
 case $host in
 
   # IA-32 system running Linux
-  # Let user-specified FFLAGS variable pass through
   i*-pc-linux-*)
-
-    if test "X${G77}" = "Xyes"; then
-      if test "X${FFLAGS}" = "X"; then
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          FFLAGS=""
-        fi
-      else
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          FFLAGS="${FFLAGS}"
-        fi
-      fi
-    fi
-
-  ;;
+    #if test "X${G77}" = "Xyes"; then
+    #  if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+    #    FFLAGS="-ffloat-store"
+    #  fi
+    #fi
+    ;;
 
   # SGI/IRIX
   mips-sgi-irix*) 
-
     FFLAGS="-64"
-
-  ;;
+    ;;
 
   # Compaq/Tru64
   *-dec-osf*)
-
     if test "X${F77_EXEC}" = "Xf77"; then
       FFLAGS="-O1"
     fi
+    ;;
 
-  ;;
+  *)
+    FFLAGS=""
+    ;;
 
 esac
 
@@ -1162,31 +1193,25 @@ else
     fi
   fi
 
+  # If CXXFLAGS is not provided, set defaults
+  if test "X${CXXFLAGS_PROVIDED}" = "Xno"; then
+    SUNDIALS_DEFAULT_CXXFLAGS
+  fi
+
+  # add any additional CXXFLAGS
   AC_MSG_CHECKING([for extra C++ compiler flags])
   AC_ARG_WITH(cxxflags,
   [AC_HELP_STRING([--with-cxxflags=ARG],[add extra C++ compiler flags])],
   [
   AC_MSG_RESULT([${withval}])
-  USER_CXXFLAGS="${withval}"
+  CXXFLAGS="${CXXFLAGS} ${withval}"
   ],
   [
   AC_MSG_RESULT([none])
-  USER_CXXFLAGS=""
   ])
 
   # Set CXXCPP to command that runs C++ preprocessor
   AC_PROG_CXXCPP
-
-  # Add default flag(s) to CXXFLAGS only if not already defined
-  if test "X${CXXFLAGS_USER_OVERRIDE}" = "Xno"; then
-    SUNDIALS_DEFAULT_CXXFLAGS
-  fi
-
-  if test "X${USER_CXXFLAGS}" = "X"; then
-    CXXFLAGS="${CXXFLAGS}"
-  else
-    CXXFLAGS="${CXXFLAGS} ${USER_CXXFLAGS}"
-  fi
 
   # Check for complex.h header file (required)
   AC_CHECK_HEADER([complex.h])
@@ -1204,27 +1229,20 @@ AC_LANG_POP([C++])
 AC_DEFUN([SUNDIALS_DEFAULT_CXXFLAGS],
 [
 
-# Note: Although NOT "used", we will keep this particular test
-
-# Let user-specified CXXFLAGS variable pass through
 case $host in 
 
   # IA-32 system running Linux
   i*-pc-linux-*)
+    #if test "X${GXX}" = "Xyes"; then
+    #  if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+    #    CXXFLAGS="-ffloat-store"
+    #  fi
+    #fi
+    ;;
 
-    if test "X${GXX}" = "Xyes"; then
-      if test "X${CXXFLAGS}" = "X"; then
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          CXXFLAGS=""
-        fi
-      else
-        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-          CXXFLAGS="${CXXFLAGS}"
-        fi
-      fi
-    fi
-
-  ;;
+  *)
+    CXXFLAGS=""
+    ;;
 
 esac
 
@@ -2559,6 +2577,19 @@ AC_DEFUN([SUNDIALS_SET_MATLAB],
 
 AC_REQUIRE([AC_CANONICAL_HOST])
 
+# Set the STB_OS variable, depending on the build OS
+case $build_os in
+  *cygwin*)
+    STB_OS="cygwin"
+    ;;
+  *mingw*)
+    STB_OS="mingw"
+    ;;
+  *) 
+    STB_OS="other"
+    ;;
+esac
+
 AC_ARG_WITH([],[      ],[])
 
 # Find Matlab program. If --with-matlab=<matlab> was passed to the configure 
@@ -2568,9 +2599,12 @@ MATLAB_CMD="none"
 AC_ARG_WITH([matlab], 
 [AC_HELP_STRING([--with-matlab=MATLAB], [specify Matlab executable])],
 [
+AC_MSG_CHECKING([for matlab])
 if test -x ${withval} ; then
+  AC_MSG_RESULT([${withval}])
   MATLAB_CMD="${withval}"
 else
+  AC_MSG_RESULT([none])
   AC_MSG_WARN([invalid value '${withval}' for --with-matlab])
   STB_ENABLED="no"
 fi
@@ -2582,14 +2616,7 @@ if test "X${MATLAB_CMD}" = "Xnone"; then
 fi
 ])
 
-# Under cygwin, standardize MATLAB_CMD
-if test "X${STB_ENABLED}" = "Xyes"; then
-  case $build_os in
-    *cygwin*)
-      MATLAB_CMD=`cygpath -a -m "${MATLAB_CMD}"`
-      ;;
-  esac
-fi
+MATLAB_CMD_FLAGS="-nojvm -nosplash"
 
 # Set MEXOPTS (MEX options file)
 if test "X${STB_ENABLED}" = "Xyes"; then
@@ -2653,15 +2680,6 @@ if test "X${STB_ENABLED}" = "Xyes"; then
 
 fi
 
-# Decide whether to enable parallel support in sundialsTB
-if test "X${STB_ENABLED}" = "Xyes"; then
-  if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes"; then
-    STB_PARALLEL="yes"
-  else
-    STB_PARALLEL="no"
-  fi
-fi
-
 # Run matlab and try the MEX compiler. Set extension for MEX files (set MEXEXT)
 if test "X${STB_ENABLED}" = "Xyes"; then
 
@@ -2682,7 +2700,7 @@ _END_MEX_M
 
   # Run matlab in batch mode
   # Warning: File descriptors and I/O redirection can be problematic
-  ( eval ${MATLAB_CMD} -nojvm -nosplash -r cvmextest_script ) 2>/dev/null 1>&2
+  ( eval ${MATLAB_CMD} ${MATLAB_CMD_FLAGS} -r cvmextest_script ) 2>/dev/null 1>&2
 
   # Get exit status of previous command (meaning eval statement)
   cv_status=$?
@@ -2735,9 +2753,23 @@ if test "X${STB_ENABLED}" = "Xyes"; then
     STB_INSTDIR="${withval}"
   ],
   [
-    STB_INSTDIR="${MATLAB}/toolbox/sundialsTB"
+    if test "X${MATLAB}" = "X"; then
+      STB_INSTDIR="no"
+    else
+      STB_INSTDIR="${MATLAB}/toolbox/sundialsTB"
+    fi
   ])
-  AC_MSG_RESULT([${STB_INSTDIR}])
+
+  # Set STB_PATH (usually same as STB_INSTDIR)
+  if test "X${STB_OS}" = "Xcygwin"; then
+    STB_PATH=`cygpath -a -m "${STB_INSTDIR}"`
+  elif test "X${STB_OS}" = "Xmingw"; then
+    STB_PATH=`cd "${STB_INSTDIR}" > /dev/null 2>&1 && pwd -W`
+  else
+    STB_PATH="${STB_INSTDIR}"
+  fi
+
+  AC_MSG_RESULT([${STB_PATH}])
 
 fi
 
@@ -3282,7 +3314,7 @@ if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
 echo "  examples installed in:     ${EXS_INSTDIR}"
 fi
 if test "X${STB_ENABLED}" = "Xyes"; then
-echo "  sundialsTB installed in:   ${STB_INSTDIR}"
+echo "  sundialsTB installed in:   ${STB_PATH}"
 fi
 
 echo "

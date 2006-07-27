@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-26 22:59:03 $
+# $Revision: 1.2 $
+# $Date: 2006-07-27 21:27:13 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -22,8 +22,9 @@ srcdir       = @srcdir@
 top_builddir = @top_builddir@
 builddir     = @builddir@
 
-MATLAB_CMD   = @MATLAB_CMD@
-MEXEXT       = @MEXEXT@
+MATLAB_CMD       = @MATLAB_CMD@
+MATLAB_CMD_FLAGS = @MATLAB_CMD_FLAGS@
+MEXEXT           = @MEXEXT@
 
 INSTALL      = @INSTALL@
 INSTALL_PROG = @INSTALL_PROGRAM@
@@ -97,4 +98,4 @@ distclean: clean
 	rm -f Makefile
 
 kim:
-	${MATLAB_CMD} -nojvm -nosplash -r setup
+	${MATLAB_CMD} ${MATLAB_CMD_FLAGS} -r setup
