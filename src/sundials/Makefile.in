@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-25 20:34:57 $
+# $Revision: 1.4 $
+# $Date: 2006-07-27 22:21:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -24,9 +24,10 @@ prefix       = @prefix@
 exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
+bindir       = @bindir@
 
 INSTALL        = @INSTALL@
-INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_PROG   = @INSTALL_PROGRAM@
 INSTALL_HEADER = @INSTALL_DATA@
 
 LIBTOOL      = @LIBTOOL@
@@ -52,6 +53,7 @@ all: $(SHARED_LIB_FILES)
 
 install: $(SHARED_LIB_FILES)
 	$(mkinstalldirs)  $(includedir)/sundials
+	$(mkinstalldirs)  $(bindir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_band.h       $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_dense.h      $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_iterative.h  $(includedir)/sundials/
@@ -63,6 +65,7 @@ install: $(SHARED_LIB_FILES)
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spbcgs.h     $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_sptfqmr.h    $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_builddir)/src/sundials/sundials_config.h       $(includedir)/sundials/
+	$(INSTALL_PROG)   $(top_builddir)/sundials-config                      $(bindir)/
 
 uninstall:
 	rm -f $(includedir)/sundials/sundials_band.h
@@ -79,6 +82,7 @@ uninstall:
 	@if test -d ${includedir}/sundials ; then \
 	   rmdir ${includedir}/sundials ;         \
 	 fi
+	rm -f $(bindir)/sundials-config
 
 clean:
 	rm -f $(SHARED_LIB_FILES)

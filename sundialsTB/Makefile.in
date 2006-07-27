@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-26 22:58:58 $
+# $Revision: 1.2 $
+# $Date: 2006-07-27 22:21:02 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -25,7 +25,7 @@ exec_prefix  = @exec_prefix@
 
 STB_MODULES  = @STB_MODULES@
 STB_INSTDIR  = @STB_INSTDIR@
-STB_PARALLEL = @STB_PARALLEL@
+STB_PARALLEL = @STB_PARALLEL_OK@
 
 INSTALL      = @INSTALL@
 INSTALL_FILE = @INSTALL_DATA@

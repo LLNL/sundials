@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-27 21:27:13 $
+# $Revision: 1.3 $
+# $Date: 2006-07-27 22:21:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -31,7 +31,7 @@ INSTALL_PROG = @INSTALL_PROGRAM@
 INSTALL_FILE = @INSTALL_DATA@
 
 STB_INSTDIR = @STB_INSTDIR@
-STB_PARALLEL = @STB_PARALLEL@
+STB_PARALLEL = @STB_PARALLEL_OK@
 
 MEXFILE = ../idm.$(MEXEXT)
 
@@ -45,7 +45,7 @@ install: idm
 #	Create directories
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/idas/idm
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/idas/examples_ser
-	@if test "X${STB_PARALLEL}" = "Xyes"; then                       \
+	if test "X${STB_PARALLEL}" = "Xyes"; then                        \
 	  $(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/idas/examples_par ; \
 	fi
 #	Install IDAS functions
@@ -102,7 +102,7 @@ install: idm
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx_J.m    $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx.m      $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
 #	Install parallel example files
-#	@if test "X${STB_PARALLEL}" = "Xyes"; then                                                                                \
+#	if test "X${STB_PARALLEL}" = "Xyes"; then                                                                                 \
 #	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_par/pexample.m    $(STB_INSTDIR)/sundialsTB/idas/examples_par/ ; \
 #	fi
 

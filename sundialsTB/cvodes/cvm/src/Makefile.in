@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2006-07-27 21:27:13 $
+# $Revision: 1.3 $
+# $Date: 2006-07-27 22:21:03 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -31,7 +31,7 @@ INSTALL_PROG = @INSTALL_PROGRAM@
 INSTALL_FILE = @INSTALL_DATA@
 
 STB_INSTDIR  = @STB_INSTDIR@
-STB_PARALLEL = @STB_PARALLEL@
+STB_PARALLEL = @STB_PARALLEL_OK@
 
 MEXFILE = ../cvm.$(MEXEXT)
 
@@ -45,7 +45,7 @@ install: cvm
 #	Create directories
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/cvm
 	$(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser
-	@if test "X${STB_PARALLEL}" = "Xyes"; then                         \
+	if test "X${STB_PARALLEL}" = "Xyes"; then                          \
 	  $(mkinstalldirs) $(STB_INSTDIR)/sundialsTB/cvodes/examples_par ; \
 	fi
 #	Install CVODES functions
@@ -119,7 +119,7 @@ install: cvm
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/vdp_J.m      $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/vdp.m        $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 #	Install parallel example files
-	@if test "X${STB_PARALLEL}" = "Xyes"; then                                                                                    \
+	if test "X${STB_PARALLEL}" = "Xyes"; then                                                                                     \
 	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvfnx_f.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/ ;  \
 	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvfnx.m      $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/ ;  \
 	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_par/pvkx_fl.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_par/ ;  \

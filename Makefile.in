@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2006-07-26 22:58:54 $
+# $Revision: 1.15 $
+# $Date: 2006-07-27 22:20:57 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -114,6 +114,7 @@ distclean:
 	rm -f config.cache
 	rm -f config.h
 	rm -f libtool
+	rm -f sundials-config
 	rm -f src/sundials/sundials_config.h
 	rm -f examples/fortran_update.sh
 	rm -f Makefile
