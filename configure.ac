@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.41 $
-# $Date: 2006-07-27 21:27:13 $
+# $Revision: 1.42 $
+# $Date: 2006-08-01 23:41:55 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -32,16 +32,16 @@ echo ""
 echo "C Compiler Settings"
 echo "-------------------"
 echo ""
-AC_PROG_CC(${CC} cc gcc)
+AC_PROG_CC(cc gcc)
 SUNDIALS_SET_CC
 
 # Set Fortran compilation (Optional)
-if test "X${F77_ENABLED}" = "Xyes" || test "X${FCMIX_ENABLED}" = "Xyes" ; then
+if test "X${F77_EXAMPLES_ENABLED}" = "Xyes"; then
   echo ""
   echo "Fortran Compiler Settings"
   echo "-------------------------"
   echo ""
-  AC_PROG_F77(${F77} f77 g77)
+  AC_PROG_F77(f77 g77)
   SUNDIALS_SET_F77
 fi
 
@@ -52,18 +52,22 @@ if test "X${MPI_ENABLED}" = "Xyes"; then
   echo "--------------"
   echo ""
   SUNDIALS_SET_MPICC
-  if test "X${F77_ENABLED}" = "Xyes"; then
+fi
+if test "X${MPI_C_COMP_OK}" = "Xyes"; then
+  if test "X${FCMIX_ENABLED}" = "Xyes" || test "X${STB_ENABLED}" = "Xyes"; then
+    echo ""
+    echo "MPI-2 Functionality"
+    echo "-------------------"
+    echo ""
+    SUNDIALS_CHECK_MPI2
+  fi
+  if test "X${F77_EXAMPLES_ENABLED}" = "Xyes"; then
     echo ""
     echo "MPI-Fortran Settings"
     echo "--------------------"
     echo ""
     SUNDIALS_SET_MPIF77
   fi
-  echo ""
-  echo "MPI-2 Functionality"
-  echo "-------------------"
-  echo ""
-  SUNDIALS_CHECK_MPI2
 fi
 
 # Set examples modules
@@ -72,7 +76,7 @@ if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
   echo "Examples"
   echo "--------"
   echo ""
-  SUNDIALS_ENABLE_EXAMPLES
+  SUNDIALS_SET_EXAMPLES
 fi
 
 # Set Matlab support (optional)
@@ -80,8 +84,7 @@ if test "X${STB_ENABLED}" = "Xyes"; then
   echo ""
   echo "Matlab Settings"
   echo "---------------"
-  echo ""
-  
+  echo ""  
   SUNDIALS_SET_MATLAB  
 fi
 

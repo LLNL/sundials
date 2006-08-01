@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.43 $
-# $Date: 2006-07-27 21:27:11 $
+# $Revision: 1.44 $
+# $Date: 2006-08-01 23:41:53 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -76,17 +76,6 @@ AC_PROG_MAKE_SET
 # Also sets INSTALL_PROGRAM and INSTALL_SCRIPT
 AC_PROG_INSTALL
 
-# Set CC to default value
-if test "X${CC}" = "X"; then
-  CC="cc"
-fi
-
-# Unfortunately, autoconf gets confused if F77 is undefined (it tries
-# to test the compiler before it actually searches for the compiler)
-if test "X${F77}" = "X"; then
-  F77="f77"
-fi
-
 # Test if various environment variables exist.
 # If not, we may set some default values for them
 if test "X${CPPFLAGS}" = "X"; then
@@ -98,11 +87,6 @@ if test "X${CFLAGS}" = "X"; then
   CFLAGS_PROVIDED="no"
 else
   CFLAGS_PROVIDED="yes"
-fi
-if test "X${CXXFLAGS}" = "X"; then
-  CXXFLAGS_PROVIDED="no"
-else
-  CXXFLAGS_PROVIDED="yes"
 fi
 if test "X${LDFLAGS}" = "X"; then
   LDFLAGS_PROVIDED="no"
@@ -123,6 +107,29 @@ F77_UNDERSCORES=""
 PRECISION_LEVEL=""
 GENERIC_MATH_LIB=""
 F77_MPI_COMM_F2C=""
+
+# Initialize enable status of various modules, options, and features
+# to their default values
+
+CVODE_ENABLED="yes"
+CVODES_ENABLED="yes"
+IDA_ENABLED="yes"
+#IDAS_ENABLED="yes"
+IDAS_ENABLED="no"
+KINSOL_ENABLED="yes"
+FCMIX_ENABLED="yes"
+MPI_ENABLED="yes"
+STB_ENABLED="no"
+EXAMPLES_ENABLED="no"
+F77_EXAMPLES_ENABLED="no"
+DEV_EXAMPLES_ENABLED="no"
+
+# Initialize variables that may NOT necessarily be initialized
+# during normal execution. Should NOT use uninitialized variables
+F77_OK="no"
+MPI_C_COMP_OK="no"
+MPI_F77_COMP_OK="no"
+STB_PARALLEL_OK="no"
 
 # This variable is set to "yes" if an AC_MSG_WARN statement
 # was executed
@@ -171,6 +178,19 @@ fi
 
 #------------------------------------------------------------------
 # TEST ENABLES
+#
+# The following variables may be changed here (default value in []):
+#
+#   CVODE_ENABLED    - enable CVODE module [yes]
+#   CVODES_ENABLED   - enable CVODES module [yes]
+#   IDA_ENABLED      - enable IDA module [yes]
+#   IDAS_ENABLED     - enable IDAS module [yes]
+#   KINSOL_ENABLED   - enable KINSOL module [yes]
+#   FCMIX_ENABLED    - enable Fortran-C inerfaces [yes]
+#   MPI_ENABLED      - enable parallel support [yes]
+#   EXAMPLES_ENABLED - enable example programs [no]
+#   STB_ENABLED      - enable sundialsTB Matlab interfaces [no]
+#  
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_ENABLES],
@@ -227,6 +247,23 @@ else
 fi
 ])
 
+# Check if user wants to disable IDAS module
+# If not, then make certain source directory actually exists
+#AC_ARG_ENABLE(ida,
+#[AC_HELP_STRING([--disable-idas],[disable configuration of IDAS])],
+#[
+#if test "X${enableval}" = "Xno"; then
+#  IDAS_ENABLED="no"
+#fi
+#],
+#[
+#if test -d ${srcdir}/src/idas  ; then
+#  IDAS_ENABLED="yes"
+#else
+#  IDAS_ENABLED="no"
+#fi
+#])
+
 # Check if user wants to disable KINSOL MODULE
 # If not, then make certain source directory actually exists
 AC_ARG_ENABLE(kinsol,
@@ -244,29 +281,22 @@ else
 fi
 ])
 
-# Check if user wants to disable Fortran support (FCMIX components)
-F77_ENABLED="yes"
-AC_ARG_ENABLE([f77],
-[AC_HELP_STRING([--disable-f77], [disable Fortran support])],
+# Check if user wants to disable Fortran support (FCMIX components).
+AC_ARG_ENABLE([fcmix],
+[AC_HELP_STRING([--disable-fcmix], [disable Fortran-C support])],
 [
 if test "X${enableval}" = "Xno"; then
-  F77_ENABLED="no"
   FCMIX_ENABLED="no"
 fi
 ],
 [
 if test "X${CVODE_ENABLED}" = "Xno" && test "X${KINSOL_ENABLED}" = "Xno" && test "X${IDA_ENABLED}" = "Xno"; then
-  F77_ENABLED="no"
   FCMIX_ENABLED="no"
-else
-  F77_ENABLED="yes"
-  FCMIX_ENABLED="yes"
 fi
 ])
 
-# Check if user wants to disable support for MPI
+# Check if user wants to disable support for MPI.
 # If not, then make certain source directory actually exists
-MPI_ENABLED="yes"
 AC_ARG_ENABLE([mpi],
 [AC_HELP_STRING([--disable-mpi],[disable MPI support])],
 [
@@ -284,7 +314,6 @@ fi
 
 # Check if user wants to enable all examples
 # Examples are NOT built by default
-EXAMPLES_ENABLED="no"
 AC_ARG_ENABLE(examples,
 [AC_HELP_STRING([--enable-examples],[enable configuration of examples])],
 [
@@ -298,7 +327,6 @@ fi
 # Check if user wants to enable support for MEX compilation
 # sundialsTB is NOT built by default
 # If yes, then make certain source directory actually exists
-STB_ENABLED="no"
 AC_ARG_ENABLE([sundialsTB],
 [AC_HELP_STRING([--enable-sundialsTB],[enable configuration of sundialsTB])],
 [
@@ -313,16 +341,10 @@ else
 fi
 ])
 
-# Initialize variables that may NOT necessarily be initialized
-# during normal execution
-# Should NOT use uninitialized variables
-CXX_ENABLED="no"
-IDAS_ENABLED="no"
-CXX_OK="no"
-F77_OK="no"
-MPI_CXX_COMP_OK="no"
-MPI_F77_COMP_OK="no"
-STB_PARALLEL_OK="no"
+# Fortran examples are enabled only if bot FCMIX and EXAMPLES are enabled
+if test "X${FCMIX_ENABLED}" = "Xyes" && test "X${EXAMPLES_ENABLED}" = "Xyes"; then
+  F77_EXAMPLES_ENABLED="yes"
+fi
 
 ]) dnl END SUNDIALS_ENABLES
 
@@ -333,6 +355,7 @@ STB_PARALLEL_OK="no"
 AC_DEFUN([SUNDIALS_DEV_ENABLES],
 [
 
+IDAS_ENABLED="yes"
 # Check if user wants to disable IDAS module
 # If not, then make certain source directory actually exists
 AC_ARG_ENABLE(idas,
@@ -357,6 +380,28 @@ fi
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_SET_CC],
+[
+
+if test "X${CC}" = "X"; then
+
+  echo ""
+  echo "   Unable to find a working C compiler"
+  echo ""
+  echo "   Try using CC to explicitly specify a C compiler"
+  echo ""
+
+  AC_MSG_ERROR([cannot find a C compiler])
+
+else
+
+  SUNDIALS_CHECK_CC
+
+fi
+
+]) dnl END SUNDIALS_SET_CC
+ 
+
+AC_DEFUN([SUNDIALS_CHECK_CC],
 [
 
 # Default is C programming language (initialize language stack)
@@ -409,22 +454,6 @@ PRECISION_LEVEL="#define SUNDIALS_DOUBLE_PRECISION 1"
 ])
 
 AC_ARG_WITH([],[ ],[])
-
-# Determine absolute pathname for specified C compiler
-CC_TEMP1="${CC}"
-CC_TEMP2=`basename "${CC}"`
-CC_EXEC="${CC_TEMP2}"
-# If only the executable name was given, then determine absolute pathname
-if test "X${CC_TEMP1}" = "X${CC_TEMP2}"; then
-  AC_PATH_PROG([CC_COMP],[${CC}],[none])
-  # We already know the C compiler exists, so this test is provided only
-  # for the sake of completeness
-  if test "X${CC_COMP}" = "Xnone"; then
-    CC="${CC_TEMP1}"
-  else
-    CC="${CC_COMP}"
-  fi
-fi
 
 # If CFLAGS is not provided, set defaults
 if test "X${CFLAGS_PROVIDED}" = "Xno"; then
@@ -647,12 +676,15 @@ AC_LANG_POP([C])
 
 #------------------------------------------------------------------
 # DEFAULT CFLAGS
+#
+# Set default CFLAGS (called only if CFLAGS is not provided)
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_DEFAULT_CFLAGS],
 [
 
-# Set default CFLAGS (called only if CFLAGS is not provided)
+# Extract executable name of C compiler, for optional use below
+CC_EXEC=`basename "${CC}"`
 
 case $host in 
 
@@ -724,160 +756,136 @@ esac
 
 #------------------------------------------------------------------
 # CHECK FORTRAN COMPILER
+#
+# If a working compiler cannot be found, set F77_OK="no" and issue
+# a warning that Fortran examples will be disabled
+#
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_SET_F77],
 [
 
-AC_LANG_PUSH([Fortran 77])
-
-F77_OK="yes"
-
-# Note: This check may no longer be needed
 if test "X${F77}" = "X"; then
 
-  # If F77="" then issue warning (means did NOT find a valid Fortran compiler)
-  # Do NOT abort since Fortran compiler is NOT required
-  AC_MSG_WARN([cannot find Fortran compiler])
+  AC_MSG_WARN([cannot find a Fortran compiler])
   echo ""
-  echo "   Unable to find a functional Fortran compiler."
+  echo "   Unable to find a working Fortran compiler"
   echo ""
-  echo "   Disabling Fortran support..."
+  echo "   Try using F77 to explicitly specify a C compiler"
   echo ""
+  echo "   Disabling F77 examples..."
+  echo ""
+
   F77_OK="no"
+  F77_EXAMPLES_ENABLED="no"
   SUNDIALS_WARN_FLAG="yes"
 
 else
 
-  # Provide variable description templates for config.hin and config.h files
-  # Required by autoheader utility
-  AH_TEMPLATE([SUNDIALS_UNDERSCORE_NONE],
-              [FCMIX: Do NOT append any underscores to functions names])
-  AH_TEMPLATE([SUNDIALS_UNDERSCORE_ONE],
-              [FCMIX: Append ONE underscore to function names])
-  AH_TEMPLATE([SUNDIALS_UNDERSCORE_TWO],
-              [FCMIX: Append TWO underscores to function names])
-
-  # Provided in case SUNDIALS_F77_WRAPPERS cannot determine name-mangling scheme
-  AC_ARG_WITH(f77underscore, 
-  [AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
-  [
-  UNDERSCORE_ARG_GIVEN="yes"
-  if test "X${withval}" = "Xnone"; then
-    AC_DEFINE([SUNDIALS_UNDERSCORE_NONE],[1],[])
-    F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_NONE 1"
-  elif test "X${withval}" = "Xone"; then
-    AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
-    F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_ONE 1"
-  elif test "X${withval}" = "Xtwo"; then
-    AC_DEFINE([SUNDIALS_UNDERSCORE_TWO],[1],[])
-    F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_TWO 1"
-  else
-    AC_MSG_ERROR([invalid input])
-  fi
-  ],
-  [
-  UNDERSCORE_ARG_GIVEN="no"
-  ])
-
-  # Provide variable description templates for config.hin and config.h files
-  # Required by autoheader utility
-  AH_TEMPLATE([SUNDIALS_CASE_UPPER],
-              [FCMIX: Make function names uppercase])
-  AH_TEMPLATE([SUNDIALS_CASE_LOWER],
-              [FCMIX: Make function names lowercase])
-
-  # Provided in case SUNDIALS_F77_WRAPPERS cannot determine name-mangling scheme
-  AC_ARG_WITH(f77case, 
-  [AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
-  [
-  CASE_ARG_GIVEN="yes"
-  if test "X${withval}" = "Xupper"; then
-    AC_DEFINE([SUNDIALS_CASE_UPPER],[1],[])
-    F77_CASE="#define SUNDIALS_CASE_UPPER 1"
-  elif test "X${withval}" = "Xlower"; then
-    AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
-    F77_CASE="#define SUNDIALS_CASE_LOWER 1"
-  else
-    AC_MSG_ERROR([invalid input])
-  fi
-  ],
-  [
-  CASE_ARG_GIVEN="no"
-  ])
-
-  # Check if user used "--with-f77underscore" or "--with-f77case"
-  # If both flags were used, then just continue
-  if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" || test "X${CASE_ARG_GIVEN}" = "Xyes"; then
-    # Only used "--with-f77underscore" flag, so set default case
-    if test "X${UNDERSCORE_ARG_GIVEN}" = "Xyes" && test "X${CASE_ARG_GIVEN}" = "Xno"; then
-      AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
-      F77_CASE="#define SUNDIALS_CASE_LOWER 1"
-    # Only used "--with-f77case" flag, so set default number of underscores
-    elif test "X${UNDERSCORE_ARG_GIVEN}" = "Xno" && test "X${CASE_ARG_GIVEN}" = "Xyes"; then
-      AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
-      F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_ONE 1"
-    fi
-    RUN_F77_WRAPPERS="no"
-  # Only call SUNDIALS_F77_WRAPPERS if user did NOT use "--with-f77underscore" or "--with-f77case" flags
-  else
-    RUN_F77_WRAPPERS="yes"
-  fi
-
-  # Determine absolute pathname for specified Fortran compiler
-  F77_TEMP1="${F77}"
-  F77_TEMP2=`basename "${F77}"`
-  # SUNDIALS_DEFAULT_FFLAGS needs just the executable name
-  F77_EXEC="${F77_TEMP2}"
-  # If only the executable name was given, then determine absolute pathname
-  if test "X${F77_TEMP1}" = "X${F77_TEMP2}"; then
-    AC_PATH_PROG([F77_COMP],[${F77}],[none])
-    # We already know the Fortran compiler exists, so this test is provided only
-    # for the sake of completeness
-    if test "X${F77_COMP}" = "Xnone"; then
-      F77="${F77_TEMP1}"
-    else
-      F77="${F77_COMP}"
-    fi
-  fi
-
-  # If FFLAGS is not provided, set defaults
-  if test "X${FFLAGS_PROVIDED}" = "Xno"; then
-    SUNDIALS_DEFAULT_FFLAGS
-  fi        
-
-  # Add any additional FFLAGS
-  AC_MSG_CHECKING([for extra Fortran compiler flags])
-  AC_ARG_WITH(fflags,
-  [AC_HELP_STRING([--with-fflags=ARG],[add extra Fortran compiler flags])],
-  [
-  AC_MSG_RESULT([${withval}])
-  FFLAGS="${FFLAGS} ${withval}"
-  ],
-  [
-  AC_MSG_RESULT([none])
-  ])
-  
-  # Add any required linker flags to FLIBS
-  # Note: if FLIBS is defined, it is left unchanged
-  AC_F77_LIBRARY_LDFLAGS
+  F77_OK="yes"
+  SUNDIALS_CHECK_F77
 
 fi
+
+]) dnl END SUNDIALS_SET_F77
+
+
+AC_DEFUN([SUNDIALS_CHECK_F77],
+[
+
+AC_LANG_PUSH([Fortran 77])
+
+# If FFLAGS is not provided, set defaults
+if test "X${FFLAGS_PROVIDED}" = "Xno"; then
+  SUNDIALS_DEFAULT_FFLAGS
+fi        
+
+# Add any additional FFLAGS
+AC_MSG_CHECKING([for extra Fortran compiler flags])
+AC_ARG_WITH(fflags,
+[AC_HELP_STRING([--with-fflags=ARG],[add extra Fortran compiler flags])],
+[
+AC_MSG_RESULT([${withval}])
+FFLAGS="${FFLAGS} ${withval}"
+],
+[
+AC_MSG_RESULT([none])
+])
+  
+# Add any required linker flags to FLIBS
+# Note: if FLIBS is defined, it is left unchanged
+AC_F77_LIBRARY_LDFLAGS
+
+# Provide variable description templates for config.hin and config.h files
+# Required by autoheader utility
+AH_TEMPLATE([SUNDIALS_UNDERSCORE_NONE],
+            [FCMIX: Do NOT append any underscores to functions names])
+AH_TEMPLATE([SUNDIALS_UNDERSCORE_ONE],
+            [FCMIX: Append ONE underscore to function names])
+AH_TEMPLATE([SUNDIALS_UNDERSCORE_TWO],
+            [FCMIX: Append TWO underscores to function names])
+
+# Provide variable description templates for config.hin and config.h files
+# Required by autoheader utility
+AH_TEMPLATE([SUNDIALS_CASE_UPPER],
+            [FCMIX: Make function names uppercase])
+AH_TEMPLATE([SUNDIALS_CASE_LOWER],
+            [FCMIX: Make function names lowercase])
+
+# Set default name-mangling scheme
+RUN_F77_WRAPPERS="yes"
+AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
+F77_CASE="#define SUNDIALS_CASE_LOWER 1"
+AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
+F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_ONE 1"
+
+# If user provides the number of underscores, overwrite default value
+AC_ARG_WITH(f77underscore, 
+[AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
+[
+if test "X${withval}" = "Xnone"; then
+  AC_DEFINE([SUNDIALS_UNDERSCORE_NONE],[1],[])
+  F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_NONE 1"
+elif test "X${withval}" = "Xone"; then
+  AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
+  F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_ONE 1"
+elif test "X${withval}" = "Xtwo"; then
+  AC_DEFINE([SUNDIALS_UNDERSCORE_TWO],[1],[])
+  F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_TWO 1"
+else
+  AC_MSG_ERROR([invalid input])
+fi
+RUN_F77_WRAPPERS="no"
+])
+
+# If user provides the case, overwrite default value
+AC_ARG_WITH(f77case, 
+[AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
+[
+if test "X${withval}" = "Xupper"; then
+  AC_DEFINE([SUNDIALS_CASE_UPPER],[1],[])
+  F77_CASE="#define SUNDIALS_CASE_UPPER 1"
+elif test "X${withval}" = "Xlower"; then
+  AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
+  F77_CASE="#define SUNDIALS_CASE_LOWER 1"
+else
+  AC_MSG_ERROR([invalid input])
+fi
+RUN_F77_WRAPPERS="no"
+])
 
 # Determine how to properly mangle function names so Fortran subroutines can
 # call C functions included in SUNDIALS libraries
 # Defines C preprocessor macros F77_FUNC and F77_FUNC_
 if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
-  if test "X${F77_OK}" = "Xyes"; then
-    SUNDIALS_F77_WRAPPERS
-  fi
+  SUNDIALS_F77_WRAPPERS
 fi
 
 # Check if we must use a Fortran compiler to link the Fortran examples
 # (default is to use CC)
-if test "X${F77_OK}" = "Xyes"; then
-  SUNDIALS_F77_LNKR_CHECK
-fi
+AC_MSG_CHECKING([which linker to use])
+SUNDIALS_F77_LNKR_CHECK
+AC_MSG_RESULT([${F77_LNKR_OUT}])
 
 AC_LANG_POP([Fortran 77])
 
@@ -885,22 +893,17 @@ AC_LANG_POP([Fortran 77])
 
 #------------------------------------------------------------------
 # DETERMINE F77 LINKER
+#
+# Set F77_LNKR variable
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_F77_LNKR_CHECK],
 [
 
+# Perform the next test only if using a C++ compiler to build SUNDIALS.
 # Note: SUNDIALS_CPLUSPLUS_CHECK macro was called by SUNDIALS_SET_CC,
-# so we need only check the value of USING_CPLUSPLUS_COMP
+#       so we need only check the value of USING_CPLUSPLUS_COMP.
 if test "X${USING_CPLUSPLUS_COMP}" = "Xyes"; then
-  RUN_F77_LNKR_CHECK="yes"
-else
-  RUN_F77_LNKR_CHECK="no"
-fi
-
-AC_MSG_CHECKING([which linker to use])
-# Perform the next test only if using a C++ compiler to build SUNDIALS
-if test "X${RUN_F77_LNKR_CHECK}" = "Xyes"; then
 
   # Compile simple Fortran example, but do NOT link
   # Note: result stored as conftest.${ac_objext}
@@ -956,7 +959,6 @@ else
   F77_LNKR_OUT="${F77}"
 
 fi
-AC_MSG_RESULT([${F77_LNKR_OUT}])
 
 ]) dnl SUNDIALS_F77_LNKR_CHECK
 
@@ -1072,6 +1074,7 @@ else
   echo "   Disabling Fortran support..."
   echo ""
   F77_OK="no"
+  F77_EXAMPLES_ENABLED="no"
   SUNDIALS_WARN_FLAG="yes"
 fi
 
@@ -1089,6 +1092,7 @@ echo ""
 echo "   Disabling Fortran support..."
 echo ""
 F77_OK="no"
+F77_EXAMPLES_ENABLED="no"
 
 ])
 
@@ -1102,10 +1106,15 @@ rm -f f77_wrapper_check.${ac_objext}
 
 #------------------------------------------------------------------
 # DEFAULT FFLAGS
+#
+# Set default FFLAGS (called only if FFLAGS is not provided)
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_DEFAULT_FFLAGS],
 [
+
+# Extract executable name of Fortran compiler, for optional use below
+F77_EXEC=`basename "${F77}"`
 
 case $host in
 
@@ -1137,116 +1146,6 @@ case $host in
 esac
 
 ]) dnl END SUNDIALS_DEFAULT_FFLAGS
-
-#------------------------------------------------------------------
-# CHECK C++ COMPILER
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_SET_CXX],
-[
-
-AC_LANG_PUSH([C++])
-
-CXX_OK="yes"
-
-# CXX and CCC are common so check both
-if test "X${CXX}" = "X"; then
-  if test "X${CCC}" = "X"; then
-    CXX=""
-  else
-    CXX="${CCC}"
-  fi
-fi
-
-# Sets GXX="yes" if CXX="g++" (GNU C++ compiler)
-# Search for C++ compiler given by user first
-AC_PROG_CXX(${CXX} g++ CC gcc c++ cxx)
-
-# If CXX="" then issue warning (means did NOT find a valid C++ compiler)
-# Do NOT abort since C++ compiler is NOT required
-if test "X${CXX}" = "X"; then
-
-  AC_MSG_WARN([cannot find C++ compiler])
-  echo ""
-  echo "   Unable to find a functional C++ compiler."
-  echo ""
-  echo "   Disabling dependent modules..."
-  echo ""
-  CXX_OK="no"
-  SUNDIALS_WARN_FLAG="yes"
-
-else
-
-  # Determine absolute pathname for specified C++ compiler
-  CXX_TEMP1="${CXX}"
-  CXX_TEMP2=`basename "${CXX}"`
-  CXX_EXEC="${CXX_TEMP2}"
-  # If only the executable name was given, then determine absolute pathname
-  if test "X${CXX_TEMP1}" = "X${CXX_TEMP2}"; then
-    AC_PATH_PROG([CXX_COMP],[${CXX}],[none])
-    # We already know the C++ compiler exists, so this test is provided only
-    # for the sake of completeness
-    if test "X${CXX_COMP}" = "Xnone"; then
-      CXX="${CXX_TEMP1}"
-    else
-      CXX="${CXX_COMP}"
-    fi
-  fi
-
-  # If CXXFLAGS is not provided, set defaults
-  if test "X${CXXFLAGS_PROVIDED}" = "Xno"; then
-    SUNDIALS_DEFAULT_CXXFLAGS
-  fi
-
-  # add any additional CXXFLAGS
-  AC_MSG_CHECKING([for extra C++ compiler flags])
-  AC_ARG_WITH(cxxflags,
-  [AC_HELP_STRING([--with-cxxflags=ARG],[add extra C++ compiler flags])],
-  [
-  AC_MSG_RESULT([${withval}])
-  CXXFLAGS="${CXXFLAGS} ${withval}"
-  ],
-  [
-  AC_MSG_RESULT([none])
-  ])
-
-  # Set CXXCPP to command that runs C++ preprocessor
-  AC_PROG_CXXCPP
-
-  # Check for complex.h header file (required)
-  AC_CHECK_HEADER([complex.h])
-
-fi
-
-AC_LANG_POP([C++])
-
-]) dnl END SUNDIALS_SET_CXX
-
-#------------------------------------------------------------------
-# DEFAULT CXXFLAGS
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_DEFAULT_CXXFLAGS],
-[
-
-case $host in 
-
-  # IA-32 system running Linux
-  i*-pc-linux-*)
-    #if test "X${GXX}" = "Xyes"; then
-    #  if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-    #    CXXFLAGS="-ffloat-store"
-    #  fi
-    #fi
-    ;;
-
-  *)
-    CXXFLAGS=""
-    ;;
-
-esac
-
-]) dnl END SUNDIALS_DEFAULT_CXXFLAGS
 
 #------------------------------------------------------------------
 # CHECK MPI-C COMPILER
@@ -1481,7 +1380,7 @@ MPI_EXISTS="yes"
 
 AC_MSG_CHECKING([for location of MPI implementation])
 
-# If MPI include directory was NOT explicitly specified so check if MPI root
+# If MPI include directory was NOT explicitly specified, check if MPI root
 # directory was given by user
 if test "X${MPI_INC_DIR}" = "X"; then
   # If MPI root directory was NOT given so issue a warning message
@@ -1625,6 +1524,11 @@ LIBS="${SAVED_LIBS}"
 
 #------------------------------------------------------------------
 # CHECK MPI-F77 COMPILER
+#
+# These tests are done only if all of the following are still true:
+#  - MPI is enabled
+#  - F77 examples are enabled
+#  - F77 works
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_SET_MPIF77],
@@ -1648,23 +1552,13 @@ MPIF77_COMP="mpif77"
 ])
 AC_MSG_RESULT([${USE_MPIF77_SCRIPT}])
 
-# Do NOT even check for MPI support for Fortran if serial Fortran compiler does NOT work
-# Need serial Fortran compiler to determine name-mangline scheme, and FCMIX libraries will
-# only be built if a serial Fortran compiler is found
-if test "X${F77_OK}" = "Xyes"; then
-  # Check MPI-Fortran compiler (either MPI compiler script or regular Fortran compiler)
-  if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
-    SUNDIALS_CHECK_MPIF77
-  else
-    MPIF77_COMP="${F77}"
-    MPIF77="${F77}"
-    SUNDIALS_CHECK_F77_WITH_MPI
-  fi
-
+# Check MPI-Fortran compiler (either MPI compiler script or regular Fortran compiler)
+if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
+  SUNDIALS_CHECK_MPIF77
 else
-
-  AC_MSG_WARN([serial F77 does not work so we do not even bother with MPI-F77])
-
+  MPIF77_COMP="${F77}"
+  MPIF77="${F77}"
+  SUNDIALS_CHECK_F77_WITH_MPI
 fi
 
 ]) dnl END SUNDIALS_SET_MPIF77
@@ -1913,49 +1807,37 @@ SAVED_FFLAGS="${FFLAGS}"
 SAVED_LDFLAGS="${LDFLAGS}"
 SAVED_LIBS="${LIBS}"
 
-# Only continue if actually found a valid Fortran compiler
-if test "X${F77_OK}" = "Xyes"; then
+# This may seem redundant, but we are not guaranteed that
+# SUNDIALS_CHECK_CC_WITH_MPI has been executed
+# Determine location of MPI header files (find MPI include directory)
+MPI_EXISTS="yes"
 
-  # This may seem redundant, but we are not guaranteed that
-  # SUNDIALS_CHECK_CC_WITH_MPI has been executed
-  # Determine location of MPI header files (find MPI include directory)
-  MPI_EXISTS="yes"
+AC_MSG_CHECKING([for location of MPI implementation])
 
-  AC_MSG_CHECKING([for location of MPI implementation])
-
-  # If MPI include directory was NOT explicitly specified so check if MPI root
-  # directory was given by user
-  if test "X${MPI_INC_DIR}" = "X"; then
-    # If MPI root directory was NOT given so issue a warning message
-    if test "X${MPI_ROOT_DIR}" = "X"; then
-      AC_MSG_RESULT([not found])
-      MPI_EXISTS="no"
-      AC_MSG_WARN([cannot find MPI implementation files])
-      echo ""
-      echo "   Unable to find MPI implementation files."
-      echo ""
-      echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
-      echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-      echo "   to specify the locations of all relevant MPI files, or"
-      echo "   --with-mpi-root to specify the base installation directory"
-      echo "   of the MPI implementation to be used."
-      echo ""
-      echo "   Disabling all parallel Fortran examples..."
-      echo ""
-      SUNDIALS_WARN_FLAG="yes"
-    # MPI root directory was given so set MPI_INC_DIR accordingly
-    # Update FFLAGS
-    else
-      MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      AC_MSG_RESULT([${MPI_INC_DIR}])
-      if test "X${FFLAGS}" = "X"; then
-        FFLAGS="-I${MPI_INC_DIR}"
-      else
-        FFLAGS="${FFLAGS} -I${MPI_INC_DIR}"
-      fi
-    fi
-  # MPI include directory was specified so update FFLAGS
+# If MPI include directory was NOT explicitly specified so check if MPI root
+# directory was given by user
+if test "X${MPI_INC_DIR}" = "X"; then
+  # If MPI root directory was NOT given so issue a warning message
+  if test "X${MPI_ROOT_DIR}" = "X"; then
+    AC_MSG_RESULT([not found])
+    MPI_EXISTS="no"
+    AC_MSG_WARN([cannot find MPI implementation files])
+    echo ""
+    echo "   Unable to find MPI implementation files."
+    echo ""
+    echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
+    echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
+    echo "   to specify the locations of all relevant MPI files, or"
+    echo "   --with-mpi-root to specify the base installation directory"
+    echo "   of the MPI implementation to be used."
+    echo ""
+    echo "   Disabling all parallel Fortran examples..."
+    echo ""
+    SUNDIALS_WARN_FLAG="yes"
+  # MPI root directory was given so set MPI_INC_DIR accordingly
+  # Update FFLAGS
   else
+    MPI_INC_DIR="${MPI_ROOT_DIR}/include"
     AC_MSG_RESULT([${MPI_INC_DIR}])
     if test "X${FFLAGS}" = "X"; then
       FFLAGS="-I${MPI_INC_DIR}"
@@ -1963,112 +1845,113 @@ if test "X${F77_OK}" = "Xyes"; then
       FFLAGS="${FFLAGS} -I${MPI_INC_DIR}"
     fi
   fi
-
-  # Only continue if found an MPI implementation
-  if test "X${MPI_EXISTS}" = "Xyes"; then
-
-    AC_MSG_CHECKING([for location of MPI libraries])
-
-    # Determine location of MPI libraries
-    # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
-    # Update LDFLAGS
-    if test "X${MPI_LIB_DIR}" = "X"; then
-      MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
-      AC_MSG_RESULT([${MPI_LIB_DIR}])
-      if test "X${LDFLAGS}" = "X"; then
-        LDFLAGS="-L${MPI_LIB_DIR}"
-      else
-        LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
-      fi
-    # MPI library directory was specified so update LDFLAGS
-    else
-      AC_MSG_RESULT([${MPI_LIB_DIR}])
-      if test "X${LDFLAGS}" = "X"; then
-        LDFLAGS="-L${MPI_LIB_DIR}"
-      else
-        LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
-      fi
-    fi
-
-    # Check if user specified which MPI libraries must be included
-    # If no libraries are given, then issue a warning message
-    AC_MSG_CHECKING([for MPI libraries])
-    if test "X${MPI_LIBS}" = "X"; then
-      AC_MSG_RESULT([none])
-      echo ""
-      echo "   Unable to compile MPI program using Fortran compiler because"
-      echo "   MPI libraries were not specified."
-      echo ""
-      echo "   Try using --with-mpi-libdir and --with-mpi-libs to"
-      echo "   specify the location and names of the MPI libraries."
-      echo ""
-      echo "   Disabling all parallel Fortran examples..."
-      echo ""
-      MPI_F77_COMP_OK="no"
-    # MPI libraries were specified so update LIBS
-    else
-      AC_MSG_RESULT([${MPI_LIBS}])
-      if test "X${LIBS}" = "X"; then
-        LIBS="${MPI_LIBS}"
-      else
-        LIBS="${LIBS} ${MPI_LIBS}"
-      fi
-      # Set the MPI_F77_COMP_OK variable to NULL so we can conditionally execute
-      # the next test
-      MPI_F77_COMP_OK=""
-    fi
-
-    if test "X${MPI_F77_COMP_OK}" = "X"; then
-      AC_MSG_CHECKING([if Fortran compiler can compile MPI programs])
-      AC_LINK_IFELSE(
-      [AC_LANG_PROGRAM([],
-      [      
-          INCLUDE "mpif.h"
-          CALL MPI_INIT(IER)
-      ])],
-      [AC_MSG_RESULT([yes])
-       MPI_F77_COMP_OK="yes"],
-      [AC_MSG_RESULT([no])
-       AC_MSG_WARN([Fortran compiler cannot compile MPI programs])
-       echo ""
-       echo "   Unable to compile MPI program using Fortran compiler."
-       echo ""
-       echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
-       echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-       echo "   to specify the locations of all relevant MPI files, or"
-       echo "   --with-mpi-root to specify the base installation directory"
-       echo "   of the MPI implementation to be used."
-       echo ""
-       echo "   Disabling all parallel Fortran examples..."
-       echo ""
-       MPI_F77_COMP_OK="no"
-       SUNDIALS_WARN_FLAG="yes"])
-
-      # Set MPIF77_LNKR based on value of F77_LNKR
-      # Note: setting MPIF77_LNKR is trivial if NOT using the MPI compiler script
-      # since the SUNDIALS_F77_LNKR_CHECK macro already checked if CC or F77
-      # should be used
-      AC_MSG_CHECKING([which linker to use])
-      if test "X${F77_LNKR}" = "X\$(CC)"; then
-        MPIF77_LNKR="\$(MPICC)"
-        MPIF77_LNKR_OUT="${MPICC}"
-      elif test "X${F77_LNKR}" = "X\$(F77)"; then
-        MPIF77_LNKR="\$(MPIF77)"
-        MPIF77_LNKR_OUT="${MPIF77}"
-      fi
-      AC_MSG_RESULT([${MPIF77_LNKR_OUT}])
-    fi
-
+# MPI include directory was specified so update FFLAGS
+else
+  AC_MSG_RESULT([${MPI_INC_DIR}])
+  if test "X${FFLAGS}" = "X"; then
+    FFLAGS="-I${MPI_INC_DIR}"
   else
+    FFLAGS="${FFLAGS} -I${MPI_INC_DIR}"
+  fi
+fi
+
+# Only continue if found an MPI implementation
+if test "X${MPI_EXISTS}" = "Xyes"; then
+
+  AC_MSG_CHECKING([for location of MPI libraries])
+
+  # Determine location of MPI libraries
+  # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
+  # Update LDFLAGS
+  if test "X${MPI_LIB_DIR}" = "X"; then
+    MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+    AC_MSG_RESULT([${MPI_LIB_DIR}])
+    if test "X${LDFLAGS}" = "X"; then
+      LDFLAGS="-L${MPI_LIB_DIR}"
+    else
+      LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
+    fi
+  # MPI library directory was specified so update LDFLAGS
+  else
+    AC_MSG_RESULT([${MPI_LIB_DIR}])
+    if test "X${LDFLAGS}" = "X"; then
+      LDFLAGS="-L${MPI_LIB_DIR}"
+    else
+      LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
+    fi
+  fi
+
+  # Check if user specified which MPI libraries must be included
+  # If no libraries are given, then issue a warning message
+  AC_MSG_CHECKING([for MPI libraries])
+  if test "X${MPI_LIBS}" = "X"; then
+    AC_MSG_RESULT([none])
+    echo ""
+    echo "   Unable to compile MPI program using Fortran compiler because"
+    echo "   MPI libraries were not specified."
+    echo ""
+    echo "   Try using --with-mpi-libdir and --with-mpi-libs to"
+    echo "   specify the location and names of the MPI libraries."
+    echo ""
+    echo "   Disabling all parallel Fortran examples..."
+    echo ""
     MPI_F77_COMP_OK="no"
+  # MPI libraries were specified so update LIBS
+  else
+    AC_MSG_RESULT([${MPI_LIBS}])
+    if test "X${LIBS}" = "X"; then
+      LIBS="${MPI_LIBS}"
+    else
+      LIBS="${LIBS} ${MPI_LIBS}"
+    fi
+    # Set the MPI_F77_COMP_OK variable to NULL so we can conditionally execute
+    # the next test
+    MPI_F77_COMP_OK=""
+  fi
+
+  if test "X${MPI_F77_COMP_OK}" = "X"; then
+    AC_MSG_CHECKING([if Fortran compiler can compile MPI programs])
+    AC_LINK_IFELSE(
+    [AC_LANG_PROGRAM([],
+    [      
+        INCLUDE "mpif.h"
+        CALL MPI_INIT(IER)
+    ])],
+    [AC_MSG_RESULT([yes])
+     MPI_F77_COMP_OK="yes"],
+    [AC_MSG_RESULT([no])
+     AC_MSG_WARN([Fortran compiler cannot compile MPI programs])
+     echo ""
+     echo "   Unable to compile MPI program using Fortran compiler."
+     echo ""
+     echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
+     echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
+     echo "   to specify the locations of all relevant MPI files, or"
+     echo "   --with-mpi-root to specify the base installation directory"
+     echo "   of the MPI implementation to be used."
+     echo ""
+     echo "   Disabling all parallel Fortran examples..."
+     echo ""
+     MPI_F77_COMP_OK="no"
+     SUNDIALS_WARN_FLAG="yes"])
+
+    # Set MPIF77_LNKR based on value of F77_LNKR
+    # Note: setting MPIF77_LNKR is trivial if NOT using the MPI compiler script
+    # since the SUNDIALS_F77_LNKR_CHECK macro already checked if CC or F77
+    # should be used
+    AC_MSG_CHECKING([which linker to use])
+    if test "X${F77_LNKR}" = "X\$(CC)"; then
+      MPIF77_LNKR="\$(MPICC)"
+      MPIF77_LNKR_OUT="${MPICC}"
+    elif test "X${F77_LNKR}" = "X\$(F77)"; then
+      MPIF77_LNKR="\$(MPIF77)"
+      MPIF77_LNKR_OUT="${MPIF77}"
+    fi
+    AC_MSG_RESULT([${MPIF77_LNKR_OUT}])
   fi
 
 else
-
-  AC_MSG_WARN([cannot find Fortran compiler])
   MPI_F77_COMP_OK="no"
-  SUNDIALS_WARN_FLAG="yes"
-
 fi
 
 # Restore FFLAGS, LDFLAGS and LIBS
@@ -2079,309 +1962,6 @@ LIBS="${SAVED_LIBS}"
 AC_LANG_POP([Fortran 77])
 
 ]) dnl END SUNDIALS_CHECK_F77_WITH_MPI
-
-#------------------------------------------------------------------
-# CHECK MPI-C++ COMPILER
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_SET_MPICXX],
-[
-
-AC_MSG_CHECKING([if using MPI-C++ script])
-AC_ARG_WITH(mpicxx,
-[AC_HELP_STRING([--with-mpicxx[[[[=ARG]]]]],[specify MPI-C++ compiler to use @<:@mpiCC@:>@],
-                [                                ])],
-[
-if test "X${withval}" = "Xno"; then
-  USE_MPICXX_SCRIPT="no"
-else
-  USE_MPICXX_SCRIPT="yes"
-  MPICXX_COMP="${withval}"
-fi
-],
-[
-USE_MPICXX_SCRIPT="yes"
-MPICXX_COMP="mpiCC"
-])
-AC_MSG_RESULT([${USE_MPICXX_SCRIPT}])
-
-# Check MPI-C++ compiler (either MPI compiler script or regular C++ compiler)
-if test "X${USE_MPICXX_SCRIPT}" = "Xyes"; then
-  SUNDIALS_CHECK_MPICXX
-else
-  MPICXX_COMP="${CXX}"
-  MPICXX="${CXX}"
-  SUNDIALS_CHECK_CXX_WITH_MPI
-fi
-
-AC_ARG_WITH([],[     ],[])
-
-]) dnl END SUNDIALS_SET_MPICXX
-
-#------------------------------------------------------------------
-# TEST MPI-C++ COMPILER
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_CHECK_MPICXX],
-[
-
-# Test the MPI-C++ compiler (meaning test MPICXX_COMP)
-# Check if MPI-C++ compiler can be found
-
-AC_MSG_CHECKING([if absolute path to ${MPICXX_COMP} was given])
-
-# CASE 1: MPICXX_COMP was found (cannot check if executable because the
-# "-x" flag is NOT portable)
-if test -f ${MPICXX_COMP} ; then
-
-  AC_MSG_RESULT([yes])
-  MPICXX_COMP_EXISTS="yes"
-  # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
-  MPI_BASE_DIR=`AS_DIRNAME(["${MPICXX_COMP}"])`
-
-# CASE 2: MPICXX_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
-# so search in PATH
-else
-
-  AC_MSG_RESULT([no])
-
-  if test "X${MPI_ROOT_DIR}" = "X"; then
-
-    # Try to find location of executable (perhaps directory was entered
-    # incorrectly)
-    TEMP_MPICXX_COMP=`basename "${MPICXX_COMP}"`
-    AC_PATH_PROG([MPICXX_COMP],[${TEMP_MPICXX_COMP}],[none])
-    # Cannot find executable in PATH
-    if test "X$S{MPICXX_COMP}" = "Xnone"; then
-      MPICXX_COMP_EXISTS="no"
-      MPICXX_COMP=""
-    # Found executable and set MPICXX_COMP to absolute pathname
-    else
-      MPICXX_COMP_EXISTS="yes"
-      MPI_BASE_DIR=`AS_DIRNAME(["${MPICXX_COMP}"])`
-    fi
-
-  # CASE 3: MPICXX_COMP could NOT be found, but MPI_ROOT_DIR was specified
-  else
-
-    AC_MSG_CHECKING([if ${MPICXX_COMP} exists in ${MPI_ROOT_DIR}/bin])
-    # MPICXX_COMP should really only contain an executable name
-    # Found location of MPICXX_COMP
-    if test -f ${MPI_ROOT_DIR}/bin/${MPICXX_COMP} ; then
-      AC_MSG_RESULT([yes])
-      MPICXX_COMP_EXISTS="yes"
-      MPICXX_COMP="${MPI_ROOT_DIR}/bin/${MPICXX_COMP}"
-    # Could NOT find MPICXX_COMP anywhere
-    else
-      AC_MSG_RESULT([no])
-      MPICXX_COMP_EXISTS="no"
-      MPICXX_COMP=""
-    fi
-
-  fi
-
-fi
-
-# Issue warning message if MPICXX_COMP does NOT exist, else set MPICXX
-if test "X${MPICXX_COMP_EXISTS}" = "Xyes"; then
-
-  MPICXX="${MPICXX_COMP}"
-  MPI_CXX_COMP_OK="yes"
-
-  # Note that we do not have to worry about empty MPI_INC_DIR and MPI_LIB_DIR
-  # here as they were set in SUNDIALS_CHECK_MPICC
-
-else
-
-  AC_MSG_WARN([cannot find MPI-C++ compiler])
-  echo ""
-  echo "   Unable to find a functional MPI-C++ compiler."
-  echo ""
-  echo "   Try using --with-mpicxx to specify a MPI-C++ compiler script,"
-  echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-  echo "   to specify the locations of all relevant MPI files, or"
-  echo "   --with-mpi-root to specify the base installation directory"
-  echo "   of the MPI implementation to be used."
-  echo ""
-  echo "   Disabling dependent modules...."
-  echo ""
-  MPICXX=""
-  MPI_CXX_COMP_OK="no"
-  SUNDIALS_WARN_FLAG="yes"
-
-fi
-
-]) dnl END SUNDIALS_CHECK_MPICXX
-
-#------------------------------------------------------------------
-# TEST C++ COMPILER WITH MPI
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_CHECK_CXX_WITH_MPI],
-[
-
-# Test if we can compile MPI programs using the C++ compiler
-# and current MPI settings
-
-AC_MSG_NOTICE([Testing C++ with MPI settings])
-
-AC_LANG_PUSH([C++])
-
-# Save copies of CPPFLAGS, LDFLAGS and LIBS
-# Temporarily overwritten so we can test MPI implementation
-SAVED_CPPFLAGS="${CPPFLAGS}"
-SAVED_LDFLAGS="${LDFLAGS}"
-SAVED_LIBS="${LIBS}"
-
-# Only continue if actually found a valid C++ compiler
-if test "X${CXX_OK}" = "Xyes"; then
-
-  # This may seem redundant, but we are not guaranteed that
-  # either SUNDIALS_CHECK_CC_WITH_MPI or SUNDIALS_CHECK_F77_WITH_MPI
-  # has been executed
-  # Determine location of MPI header files (find MPI include directory)
-  MPI_EXISTS="yes"
-
-  AC_MSG_CHECKING([for location of MPI implementation])
-
-  # MPI include directory was NOT explicitly specified so check if MPI root
-  # directory was given by user
-  if test "X${MPI_INC_DIR}" = "X"; then
-    # MPI root directory was NOT given so issue a warning message
-    if test "X${MPI_ROOT_DIR}" = "X"; then
-      AC_MSG_RESULT([not found])
-      MPI_EXISTS="no"
-      AC_MSG_WARN([cannot find MPI implementation files])
-      echo ""
-      echo "   Unable to find MPI implementation files."
-      echo ""
-      echo "   Try using --with-mpicxx to specify a MPI-C++ compiler script,"
-      echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-      echo "   to specify the locations of all relevant MPI files, or"
-      echo "   --with-mpi-root to specify the base installation directory"
-      echo "   of the MPI implementation to be used."
-      echo ""
-      echo "   Disabling dependent modules..."
-      echo ""
-      SUNDIALS_WARN_FLAG="yes"
-    # MPI root directory was given so set MPI_INC_DIR accordingly
-    # Update CPPFLAGS
-    else
-      MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      AC_MSG_RESULT([${MPI_INC_DIR}])
-      if test "X${CPPFLAGS}" = "X"; then
-        CPPFLAGS="-I${MPI_INC_DIR}"
-      else
-        CPPLAGS="${CPPFLAGS} -I${MPI_INC_DIR}"
-      fi
-    fi
-  # MPI include directory was specified so update CPPFLAGS
-  else
-    AC_MSG_RESULT([${MPI_INC_DIR}])
-    if test "X${CPPFLAGS}" = "X"; then
-      CPPFLAGS="-I${MPI_INC_DIR}"
-    else
-      CPPFLAGS="${CPPFLAGS} -I${MPI_INC_DIR}"
-    fi
-  fi
-
-  # Only continue if found an MPI implementation
-  if test "X${MPI_EXISTS}" = "Xyes"; then
-
-    AC_MSG_CHECKING([for location of MPI libraries])
-
-    # Determine location of MPI libraries
-    # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
-    # Update LDFLAGS
-    if test "X${MPI_LIB_DIR}" = "X"; then
-      MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
-      AC_MSG_RESULT([${MPI_LIB_DIR}])
-      if test "X${LDFLAGS}" = "X"; then
-        LDFLAGS="-L${MPI_LIB_DIR}"
-      else
-        LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
-      fi
-    # MPI library directory was specified so update LDFLAGS
-    else
-      AC_MSG_RESULT([${MPI_LIB_DIR}])
-      if test "X${LDFLAGS}" = "X"; then
-        LDFLAGS="-L${MPI_LIB_DIR}"
-      else
-        LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
-      fi
-    fi
-
-    # Check if user specified which MPI libraries must be included
-    # If no libraries are given, then issue a warning message
-    AC_MSG_CHECKING([for MPI libraries])
-    if test "X${MPI_LIBS}" = "X"; then
-      AC_MSG_RESULT([none])
-      echo ""
-      echo "   Unable to compile MPI program using C++ compiler because"
-      echo "   MPI libraries were not specified."
-      echo ""
-      echo "   Try using --with-mpi-libdir and --with-mpi-libs to"
-      echo "   specify the location and names of the MPI libraries."
-      echo ""
-      echo "   Disabling dependent modules..."
-      echo ""
-      MPI_CXX_COMP_OK="no"
-    # MPI libraries were specified so update LIBS
-    else
-      AC_MSG_RESULT([${MPI_LIBS}])
-      if test "X${LIBS}" = "X"; then
-        LIBS="${MPI_LIBS}"
-      else
-        LIBS="${LIBS} ${MPI_LIBS}"
-      fi
-      # Set the MPI_CXX_COMP_OK variable to NULL so we can conditionally execute
-      # the next test
-      MPI_CXX_COMP_OK=""
-    fi
-
-    if test "X${MPI_CXX_COMP_OK}" = "X"; then
-      AC_MSG_CHECKING([if C++ compiler can compile MPI programs])
-      AC_LINK_IFELSE(
-      [AC_LANG_PROGRAM([[#include "mpi.h"]],[[int c; car **v; MPI_Init(&c,&v);]])],
-      [AC_MSG_RESULT([yes])
-       MPI_CXX_COMP_OK="yes"],
-      [AC_MSG_RESULT([no])
-       AC_MSG_WARN([C++ compiler cannot compile MPI programs])
-       echo ""
-       echo "   Unable to compile MPI program using C++ compiler."
-       echo ""
-       echo "   Try using --with-mpicxx to specify a MPI-C++ compiler script,"
-       echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-       echo "   to specify the locations of all relevant MPI files, or"
-       echo "   --with-mpi-root to specify the base installation directory"
-       echo "   of the MPI implementation to be used."
-       echo ""
-       echo "   Disabling dependent modules..."
-       echo ""
-       MPI_CXX_COMP_OK="no"
-       SUNDIALS_WARN_FLAG="yes"])
-    fi
-
-  else
-    MPI_CXX_COMP_OK="no"
-  fi
-
-else
-
-  AC_MSG_WARN([cannot find C++ compiler])
-  MPI_CXX_COMP_OK="no"
-  SUNDIALS_WARN_FLAG="yes"
-
-fi
-
-# Restore CPPFLAGS, LDFLAGS and LIBS
-CPPFLAGS="${SAVED_CPPFLAGS}"
-LDFLAGS="${SAVED_LDFLAGS}"
-LIBS="${SAVED_LIBS}"
-
-AC_LANG_POP([C++])
-
-]) dnl END SUNDIALS_CHECK_CXX_WITH_MPI
 
 #------------------------------------------------------------------
 # TEST MPI-2 FUNCTIONALITY
@@ -2511,7 +2091,7 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
 
   # Check if MPI implementation supports MPI_Comm_f2c() from
   # MPI-2 specification
-  if test "X${F77_ENABLED}" = "Xyes"; then
+  if test "X${FCMIX_ENABLED}" = "Xyes"; then
     AC_MSG_CHECKING([for MPI_Comm_f2c() from MPI-2 specification])
     AC_LINK_IFELSE(
     [AC_LANG_PROGRAM([[#include "mpi.h"]],
@@ -2590,6 +2170,28 @@ case $build_os in
     ;;
 esac
 
+# Under cygwin, check if CFLGAGS contains -mno-cygwin 
+if test "X${STB_OS}" = "Xcygwin"; then
+  AC_MSG_CHECKING([if CFLAGS contains -mno-cygwin])
+  cv_no_cygwin_exists="no"
+  for i in ${CFLAGS}
+  do
+    if test "X${i}" = "X-mno-cygwin"; then
+      cv_no_cygwin_exists="yes"
+    fi
+  done
+  AC_MSG_RESULT([${cv_no_cygwin_exists}])
+  if test "X${cv_no_cygwin_exists}" = "Xno"; then
+    AC_MSG_WARN([compilation of sundialsTB mex files may fail])
+    echo ""
+    echo "   Building under CYGWIN without -mno-cygwin"
+    echo ""
+    echo "   Beware that compilation of the sundialsTB mex files may fail."
+    echo ""
+    SUNDIALS_WARN_FLAG="yes"
+  fi 
+fi
+
 AC_ARG_WITH([],[      ],[])
 
 # Find Matlab program. If --with-matlab=<matlab> was passed to the configure 
@@ -2600,12 +2202,18 @@ AC_ARG_WITH([matlab],
 [AC_HELP_STRING([--with-matlab=MATLAB], [specify Matlab executable])],
 [
 AC_MSG_CHECKING([for matlab])
-if test -x ${withval} ; then
+if test -f ${withval} ; then
   AC_MSG_RESULT([${withval}])
   MATLAB_CMD="${withval}"
 else
   AC_MSG_RESULT([none])
   AC_MSG_WARN([invalid value '${withval}' for --with-matlab])
+  echo ""
+  echo "   ${withval} does not exist"
+  echo ""
+  echo "   Disabling compilation of sundialsTB mex files..."
+  echo ""
+  SUNDIALS_WARN_FLAG="yes"
   STB_ENABLED="no"
 fi
 ],
@@ -2637,6 +2245,12 @@ if test "X${STB_ENABLED}" = "Xyes"; then
     MEXOPTS="-f ${cv_mexopts_file}"
   else
     AC_MSG_WARN([invalid value '${cv_mexopts_file}' for --with-mexopts])
+    echo ""
+    echo "   ${cv_mexopts_file} does not exist"
+    echo ""
+    echo "   Disabling compilation of sundialsTB mex files..."
+    echo ""
+    SUNDIALS_WARN_FLAG="yes"
     STB_ENABLED="no"
   fi
   ])
@@ -2773,16 +2387,6 @@ if test "X${STB_ENABLED}" = "Xyes"; then
 
 fi
 
-# Display message if Matlab support had to be disabled
-if test "X${STB_ENABLED}" = "Xno"; then
-
-  AC_MSG_WARN([Matlab support was disabled])
-  echo ""
-  echo "   Matlab configuration for sundialsTB was disabled."
-  echo ""
-
-fi
-
 AC_ARG_WITH([],[        ],[])
 
 ]) dnl END SUNDIALS_SET_MEX
@@ -2804,10 +2408,13 @@ AC_ARG_WITH([],[  installation (--with-examples-instdir=no) can be used to test 
 ]) dnl END SUNDIALS_MORE_HELP
 
 #------------------------------------------------------------------
-# ENABLE EXAMPLES
+# SET EXAMPLES
+#
+# Decide which examples can be built
+#
 #------------------------------------------------------------------
 
-AC_DEFUN([SUNDIALS_ENABLE_EXAMPLES],
+AC_DEFUN([SUNDIALS_SET_EXAMPLES],
 [
 
 # Check libtool settings to determine which compiler and linker commands
@@ -2831,102 +2438,62 @@ else
 
 fi
 
-# Check if we need to build the Fortran examples
-# Recall F77_ENABLED is set based upon CVODE_ENABLED and KINSOL_ENABLED,
-# so the check here is rather simple:
-# F77_EXAMPLES = F77_ENABLED
-F77_EXAMPLES="no";
-if test "X${F77_ENABLED}" = "Xyes"; then
-  F77_EXAMPLES="yes"
-fi
-
-# Check if we need to build the C++ examples
-CXX_EXAMPLES="no"
-if test "X${CXX_ENABLED}" = "Xyes"; then
-  if test "X${CVODES_ENABLED}" = "Xyes" || test "X${IDAS_ENABLED}" = "Xyes"; then
-    CXX_EXAMPLES="yes"
-  fi
-fi
-
-# Check if examples can actually be built
-SERIAL_C_EXAMPLES="no"
-SERIAL_CXX_EXAMPLES="no"
-SERIAL_F77_EXAMPLES="no"
-
-PARALLEL_C_EXAMPLES="no"
-PARALLEL_CXX_EXAMPLES="no"
-PARALLEL_F77_EXAMPLES="no"
-
-# Check C examples
-
-AC_MSG_CHECKING([if we can build serial C examples])
+# Check if serial C examples can actually be built
 SERIAL_C_EXAMPLES="yes"
-AC_MSG_RESULT([${SERIAL_C_EXAMPLES}])
 
+# Check if parallel C examples can actually be built
 if test "X${MPI_ENABLED}" = "Xyes"; then
-
-  AC_MSG_CHECKING([if we can build parallel C examples])
   if test "X${MPI_C_COMP_OK}" = "Xyes"; then
     PARALLEL_C_EXAMPLES="yes"
+  else
+    PARALLEL_C_EXAMPLES="no"
   fi
-  AC_MSG_RESULT([${PARALLEL_C_EXAMPLES}])
-
+else
+  PARALLEL_C_EXAMPLES="disabled"
 fi
 
-# Check Fortran examples
-if test "X${F77_EXAMPLES}" = "Xyes"; then
-
-  AC_MSG_CHECKING([if we can build serial Fortran examples])
+# Check if serial F77 examples can actually be built
+if test "X${FCMIX_ENABLED}" = "Xyes"; then
   if test "X${F77_OK}" = "Xyes"; then
     SERIAL_F77_EXAMPLES="yes"
+  else
+    SERIAL_F77_EXAMPLES="no"
   fi
-  AC_MSG_RESULT([${SERIAL_F77_EXAMPLES}])
-
-  if test "X${MPI_ENABLED}" = "Xyes"; then
-
-    AC_MSG_CHECKING([if we can build parallel Fortran examples])
-    if test "X${MPI_F77_COMP_OK}" = "Xyes"; then
-      PARALLEL_F77_EXAMPLES="yes"
-    fi
-    AC_MSG_RESULT([${PARALLEL_F77_EXAMPLES}])
-
-  fi
-
+else
+  SERIAL_F77_EXAMPLES="disabled"
 fi
 
-# Check if the Fortran update script (config/fortran_update.in) should
-# be initialized
-BUILD_F77_UPDATE_SCRIPT="no"
+# Check if parallel F77 examples can actually be built
+if test "X${FCMIX_ENABLED}" = "Xyes" &&  test "X${MPI_ENABLED}" = "Xyes"; then
+  if test "X${MPI_F77_COMP_OK}" = "Xyes"; then
+    PARALLEL_F77_EXAMPLES="yes"
+  else
+    PARALLEL_F77_EXAMPLES="no"
+  fi
+else
+  PARALLEL_F77_EXAMPLES="disabled"
+fi
+
+# Notify user
+AC_MSG_CHECKING([if we can build serial C examples])
+AC_MSG_RESULT([${SERIAL_C_EXAMPLES}])
+AC_MSG_CHECKING([if we can build parallel C examples])
+AC_MSG_RESULT([${PARALLEL_C_EXAMPLES}])
+AC_MSG_CHECKING([if we can build serial Fortran examples])
+AC_MSG_RESULT([${SERIAL_F77_EXAMPLES}])
+AC_MSG_CHECKING([if we can build parallel Fortran examples])
+AC_MSG_RESULT([${PARALLEL_F77_EXAMPLES}])
+
+# Check if the Fortran update script (config/fortran_update.in) is needed
 if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" || test "X${PARALLEL_F77_EXAMPLES}" = "Xyes"; then
   BUILD_F77_UPDATE_SCRIPT="yes";
-fi
-
-# Check C++ examples
-if test "X${CXX_EXAMPLES}" = "Xyes"; then
-
-  AC_MSG_CHECKING([if we can build serial C++ examples])
-  if test "X${CXX_OK}" = "Xyes"; then
-    SERIAL_CXX_EXAMPLES="yes"
-  fi
-  AC_MSG_RESULT([${SERIAL_CXX_EXAMPLES}])
-
-  if test "X${MPI_ENABLED}" = "Xyes"; then
-
-    AC_MSG_CHECKING([if we can build parallel C++ examples])
-    if test "X${MPI_CXX_COMP_OK}" = "Xyes"; then
-      PARALLEL_CXX_EXAMPLES="yes"
-    fi
-    AC_MSG_RESULT([${PARALLEL_CXX_EXAMPLES}])
-
-  fi
-
+else
+  BUILD_F77_UPDATE_SCRIPT="no"
 fi
 
 # Where should we install the examples?
-
-AC_ARG_WITH([],[   ],[])
-
 AC_MSG_CHECKING([where to install the SUNDIALS examples])
+AC_ARG_WITH([],[   ],[])
 AC_ARG_WITH([examples-instdir],
 [AC_HELP_STRING([--with-examples-instdir=EXINSTDIR], [install SUNDIALS examples in EXINSTDIR @<:@EPREFIX/examples@:>@])],
 [
@@ -2945,43 +2512,28 @@ AC_ARG_WITH([examples-instdir],
 ])
 AC_MSG_RESULT([${EXS_INSTDIR}])
 
+# Development examples are disabled
+SERIAL_DEV_C_EXAMPLES="disabled"
+PARALLEL_DEV_C_EXAMPLES="disabled"
+SERIAL_DEV_F77_EXAMPLES="disabled"
+PARALLEL_DEV_F77_EXAMPLES="disabled"
 
-# Disable developer examples be default so output logic still works
-SERIAL_DEV_C_EXAMPLES="no"
-PARALLEL_DEV_C_EXAMPLES="no"
-
-RAN_ENABLE_DEV_EXAMPLES="no"
-
-]) dnl END SUNDIALS_ENABLE_EXAMPLES
+]) dnl END SUNDIALS_SET_EXAMPLES
 
 #------------------------------------------------------------------
-# ENABLE DEVELOPER EXAMPLES
+# SET DEVELOPER EXAMPLES
 #------------------------------------------------------------------
 
-AC_DEFUN([SUNDIALS_ENABLE_DEV_EXAMPLES],
+AC_DEFUN([SUNDIALS_SET_DEV_EXAMPLES],
 [
 
-RAN_ENABLE_DEV_EXAMPLES="yes"
+DEV_EXAMPLES_ENABLED="${EXAMPLES_ENABLED}"
+SERIAL_DEV_C_EXAMPLES="${SERIAL_C_EXAMPLES}"
+PARALLEL_DEV_C_EXAMPLES="${PARALLEL_C_EXAMPLES}"
+SERIAL_DEV_F77_EXAMPLES="${SERIAL_F77_EXAMPLES}"
+PARALLEL_DEV_F77_EXAMPLES="${PARALEL_F77_EXAMPLES}"
 
-# Check if developer examples can actually be built
-SERIAL_DEV_C_EXAMPLES="no"
-PARALLEL_DEV_C_EXAMPLES="no"
-
-# Check developer examples
-
-AC_MSG_CHECKING([if we can build serial C developer examples])
-SERIAL_DEV_C_EXAMPLES="yes"
-AC_MSG_RESULT([${SERIAL_DEV_C_EXAMPLES}])
-
-if test "X${MPI_ENABLED}" = "Xyes"; then
-  AC_MSG_CHECKING([if we can build parallel C developer examples])
-  if test "X${MPI_C_COMP_OK}" = "Xyes"; then
-    PARALLEL_DEV_C_EXAMPLES="yes"
-  fi
-  AC_MSG_RESULT([${PARALLEL_DEV_C_EXAMPLES}])
-fi
-
-]) dnl END SUNDIALS_ENABLE_DEV_EXAMPLES
+]) dnl END SUNDIALS_SET_DEV_EXAMPLES
 
 #------------------------------------------------------------------
 # BUILD MODULES LIST
@@ -2995,7 +2547,7 @@ SUNDIALS_MAKEFILES="Makefile"
 
 # Initialize list of additional configure files to be created
 SUNDIALS_CONFIGFILES="src/sundials/sundials_config.h:src/sundials/sundials_config.in"
-SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundials-config:sundials-config.in"
+SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundials-config:config/sundials-config.in"
 
 # Initialize lists of solver modules, exampel modules, and sundialsTB modules
 SLV_MODULES="src/sundials"
@@ -3219,6 +2771,19 @@ fi
 AC_DEFUN([SUNDIALS_REPORT],
 [
 
+if test "X${SUNDIALS_WARN_FLAG}" = "Xyes"; then
+echo "
+***************
+*   WARNING   *
+***************
+
+At least one warning was issued. Some features were disabled.
+
+Review the configure output and/or the contents of config.log 
+before proceeding with the build.
+"
+fi
+
 echo "
 ------------------------------
 SUNDIALS Configuration Summary
@@ -3239,15 +2804,7 @@ Configuration
   Linker Flags:              ${LDFLAGS}
   Libraries:                 ${LIBS}"
 
-if test "X${CXX_ENABLED}" = "Xyes" && test "X${CXX_OK}" = "Xyes"; then
-echo "
-  C++ Preprocessor:          ${CPPCXX}
-  C++ Preprocessor Flags:    ${CPPFLAGS}
-  C++ Compiler:              ${CXX}
-  C++ Compiler Flags:        ${CXXFLAGS}"
-fi
-
-if test "X${F77_ENABLED}" = "Xyes" && test "X${F77_OK}" = "Xyes"; then
+if test "X${F77_EXAMPLES_ENABLED}" = "Xyes"; then
 echo "
   Fortran Compiler:          ${F77}
   Fortran Compiler Flags:    ${FFLAGS}
@@ -3255,34 +2812,24 @@ echo "
   Extra Fortran Libraries:   ${FLIBS}"
 fi
 
-if test "X${MPI_ENABLED}" = "Xyes" && (test "X${MPI_C_COMP_OK}" = "Xyes" || test "X${MPI_CXX_COMP_OK}" = "Xyes" || test "X${MPI_F77_COMP_OK}" = "Xyes"); then
+if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes"; then
 echo "
   MPI Root Directory:        ${MPI_ROOT_DIR}
   MPI Include Directory:     ${MPI_INC_DIR}
   MPI Library Directory:     ${MPI_LIB_DIR}
   MPI Flags:                 ${MPI_FLAGS}
-  Extra MPI Libraries:       ${MPI_LIBS}"
-fi
+  Extra MPI Libraries:       ${MPI_LIBS}
 
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes"; then
-echo "  
   Using MPI-C script?        ${USE_MPICC_SCRIPT}
   MPI-C:                     ${MPICC}"
 fi
 
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes" && test "X${MPI_CXX_COMP_OK}" = "Xyes"; then
-echo "  
-  Using MPI-C++ script?      ${USE_MPICXX_SCRIPT}
-  MPI-C++:                   ${MPICXX}"
-fi
-
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_ENABLED}" = "Xyes" && test "X${MPI_F77_COMP_OK}" = "Xyes"; then
+if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_EXAMPLES_ENABLED}" = "Xyes" && test "X${MPI_F77_COMP_OK}" = "Xyes"; then
 echo "
   Using MPI-Fortran script?  ${USE_MPIF77_SCRIPT}
   MPI-Fortran:               ${MPIF77}
   MPI-Fortran Linker:        ${MPIF77_LNKR_OUT}"
 fi
-
 
 if test "X${STB_ENABLED}" = "Xyes"; then
 echo "
@@ -3372,147 +2919,23 @@ if test "X${STB_ENABLED}" = "Xyes"; then
   echo "  ${THIS_LINE}"
 fi
 
-
 if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
-
 echo "
 Examples
 --------
 "
 
-if test "X${SERIAL_C_EXAMPLES}" = "Xyes"; then
-  C_SERIAL_BOX="YES"
-else
-  C_SERIAL_BOX="NO "
-fi
-C_PARALLEL_BOX="N/A"
-if test "X${PARALLEL_C_EXAMPLES}" = "Xyes"; then
-  C_PARALLEL_BOX="YES"
-elif test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xno"; then
-  C_PARALLEL_BOX="NO "
-fi
+echo "  Serial C examples:         ${SERIAL_C_EXAMPLES}"
+echo "  Parallel C examples:       ${PARALLEL_C_EXAMPLES}"
+echo "  Serial Fortran examples:   ${SERIAL_F77_EXAMPLES}"
+echo "  Parallel Fortran examples: ${PARALLEL_F77_EXAMPLES}"
 
-C_DEV_SERIAL_BOX="N/A"
-if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes"; then
-  C_DEV_SERIAL_BOX="YES"
-elif test "X${CVODES_ENABLED}" = "Xyes"; then
-  C_DEV_SERIAL_BOX="NO "
+if test "X${DEV_EXAMPLES_ENABLED}" = "Xyes"; then
+echo "  Serial C examples (dev):   ${SERIAL_DEV_C_EXAMPLES}"
+echo "  Parallel C examples (dev): ${PARALLEL_DEV_C_EXAMPLES}"
 fi
-C_DEV_PARALLEL_BOX="N/A"
-if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes"; then
-  C_DEV_PARALLEL_BOX="YES"
-elif test "X${CVODES_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xno"; then
-  C_DEV_PARALLEL_BOX="NO "
 fi
 
-CXX_SERIAL_BOX="N/A"
-if test "X${SERIAL_CXX_EXAMPLES}" = "Xyes"; then
-  CXX_SERIAL_BOX="YES"
-elif test "X${CXX_ENABLED}" = "Xyes" && test "X${CXX_OK}" = "Xno"; then
-  CXX_SERIAL_BOX="NO "
-fi
-CXX_PARALLEL_BOX="N/A"
-if test "X${PARALLEL_CXX_EXAMPLES}" = "Xyes"; then
-  CXX_PARALLEL_BOX="YES"
-elif test "X${CXX_ENABLED}" = "Xyes" && test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_CXX_COMP_OK}" = "Xno"; then
-  CXX_PARALLEL_BOX="NO "
-fi
-CXX_DEV_SERIAL_BOX="N/A"
-CXX_DEV_PARALLEL_BOX="N/A"
-
-F77_SERIAL_BOX="N/A"
-if test "X${SERIAL_F77_EXAMPLES}" = "Xyes"; then
-  F77_SERIAL_BOX="YES"
-elif test "X${F77_ENABLED}" = "Xyes" && test "X${F77_OK}" = "Xno"; then
-  F77_SERIAL_BOX="NO "
-fi
-F77_DEV_SERIAL_BOX="N/A"
-F77_DEV_PARALLEL_BOX="N/A"
-if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes"; then
-  F77_PARALLEL_BOX="YES"
-elif test "X${F77_ENABLED}" = "Xyes" && test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_F77_COMP_OK}" = "Xno"; then
-  F77_PARALLEL_BOX="NO "
-fi
-
-if test "X${MPI_ENABLED}" = "Xyes"; then
-
-  if test "X${RAN_ENABLE_DEV_EXAMPLES}" = "Xno"; then
-
-    echo "            SERIAL    PARALLEL"
-    echo "          ---------------------"
-    echo " C       |    ${C_SERIAL_BOX}   |    ${C_PARALLEL_BOX}   |"
-    echo "          ---------------------"
-
-    if test "X${CXX_ENABLED}" = "Xyes"; then
-      echo " C++     |    ${CXX_SERIAL_BOX}   |    ${CXX_PARALLEL_BOX}   |"
-      echo "          ---------------------"
-    fi
-
-    if test "X${F77_ENABLED}" = "Xyes"; then
-      echo " Fortran |    ${F77_SERIAL_BOX}   |    ${F77_PARALLEL_BOX}   |"
-      echo "          ---------------------"
-    fi
-
-  elif test "X${RAN_ENABLE_DEV_EXAMPLES}" = "Xyes"; then
-
-    echo "            SERIAL    PARALLEL    DEV_SERIAL    DEV_PARALLEL"
-    echo "          ---------------------------------------------------"
-    echo " C       |    ${C_SERIAL_BOX}   |    ${C_PARALLEL_BOX}   |      ${C_DEV_SERIAL_BOX}     |      ${C_DEV_PARALLEL_BOX}     |"
-    echo "          ---------------------------------------------------"
-
-    if test "X${CXX_ENABLED}" = "Xyes"; then
-      echo " C++     |    ${CXX_SERIAL_BOX}   |    ${CXX_PARALLEL_BOX}   |      ${CXX_DEV_SERIAL_BOX}     |      ${CXX_DEV_PARALLEL_BOX}     |"
-      echo "          ---------------------------------------------------"
-    fi
-
-    if test "X${F77_ENABLED}" = "Xyes"; then
-      echo " Fortran |    ${F77_SERIAL_BOX}   |    ${F77_PARALLEL_BOX}   |      ${F77_DEV_SERIAL_BOX}     |      ${F77_DEV_PARALLEL_BOX}     |"
-      echo "          ---------------------------------------------------"
-    fi
-
-  fi
-
-else
-
-  if test "X${RAN_ENABLE_DEV_EXAMPLES}" = "Xno"; then
-
-    echo "           SERIAL"
-    echo "          --------"
-    echo " C       |   ${C_SERIAL_BOX}  |"
-    echo "          --------"
-
-    if test "X${CXX_ENABLED}" = "Xyes"; then
-      echo " C++     |   ${CXX_SERIAL_BOX}  |"
-      echo "          --------"
-    fi
-
-    if test "X${F77_ENABLED}" = "Xyes"; then
-      echo " Fortran |   ${F77_SERIAL_BOX}  |"
-      echo "          --------"
-   fi
-
-  elif test "X${RAN_ENABLE_DEV_EXAMPLES}" = "Xyes"; then
-
-    echo "           SERIAL   DEV_SERIAL"
-    echo "          ---------------------"
-    echo " C       |   ${C_SERIAL_BOX}  |     ${C_DEV_SERIAL_BOX}    |"
-    echo "          ---------------------"
-
-    if test "X${CXX_ENABLED}" = "Xyes"; then
-      echo " C++     |   ${CXX_SERIAL_BOX}  |     ${CXX_DEV_SERIAL_BOX}    |"
-      echo "          ---------------------"
-    fi
-
-    if test "X${F77_ENABLED}" = "Xyes"; then
-      echo " Fortran |   ${F77_SERIAL_BOX}  |     ${F77_DEV_SERIAL_BOX}    |"
-      echo "          ---------------------"
-    fi
-
-  fi
-
-fi
-
-fi
 
 echo "  
   Type 'make' and then 'make install' to build and install ${PACKAGE_STRING}."
