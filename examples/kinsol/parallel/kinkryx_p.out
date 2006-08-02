@@ -26,6 +26,6 @@ At top right:
  1.25552 1.25552 1.25552 37663.2 37663.2 37663.2
 
 Final Statistics.. 
-nni    =    21    nli   =  1260
-nfe    =    22    nfeSG =  1281
-nps    =  1281    npe   =     3     ncfl  =    21
+nni    =    19    nli   =  1140
+nfe    =    20    nfeSG =  1159
+nps    =  1159    npe   =     2     ncfl  =    19
