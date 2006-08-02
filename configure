@@ -27463,7 +27463,7 @@ SUNDIALS_MAKEFILES="Makefile"
 
 # Initialize list of additional configure files to be created
 SUNDIALS_CONFIGFILES="src/sundials/sundials_config.h:src/sundials/sundials_config.in"
-SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundials-config:sundials-config.in"
+SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundials-config:config/sundials-config.in"
 
 # Initialize lists of solver modules, exampel modules, and sundialsTB modules
 SLV_MODULES="src/sundials"
