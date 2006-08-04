@@ -35,4 +35,4 @@ Number of Jacobian evaluations     = 79
 Number of nonlinear iterations     = 832
 Number of error test failures      = 14
 Number of nonlinear conv. failures = 0
-Number of root fn. evaluations     = 631
+Number of root fn. evaluations     = 617

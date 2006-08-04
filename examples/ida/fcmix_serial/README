@@ -6,9 +6,9 @@ Sample results:
 
   SUNDIALS was built with the following options:
 
-  ./configure CC=gcc F77=g77
+  ./configure CC=gcc F77=gfortran CFLAGS="-g3 -O0" FFLAGS="-g3 -O0" --enable-examples
 
   System Architecture: IA-32
   Processor Type: Intel Pentium 4 Xeon DP (i686)
-  Operating System: Red Hat Enterprise Linux WS 3
-  C/Fortran Compilers: gcc/g77 v3.4.3
+  Operating System: Red Hat Enterprise Linux WS 3 (Taroon Update 7)
+  C/Fortran Compilers: gcc/gfortran v4.1.0
