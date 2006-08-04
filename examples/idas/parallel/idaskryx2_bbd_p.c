@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-19 20:52:18 $
+ * $Revision: 1.3 $
+ * $Date: 2006-08-04 21:49:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -320,9 +320,9 @@ int main(int argc, char *argv[])
   
   /* Call IDABBDSpgmr to specify the IDA linear solver IDASPGMR and specify
      the preconditioner routines supplied
-     maxl (max. Krylov subspace dim.) is set to 12.   */
+     maxl (max. Krylov subspace dim.) is set to 20.   */
   
-  maxl = 12;
+  maxl = 20;
   retval = IDABBDSpgmr(mem, maxl, P_data);
   if(check_flag(&retval, "IDABBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
 
