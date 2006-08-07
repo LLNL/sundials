@@ -1,60 +1,81 @@
+
+
  Adjoint Sensitivity Example for Chemical Kinetics
  -------------------------------------------------
- 
+
 ODE: dy1/dt = -p1*y1 + p2*y2*y3
      dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2
      dy3/dt =  p3*(y2)^2
- 
+
 Find dG/dp for
      G = int_t0^tB0 g(t,p,y) dt
      g(t,p,y) = y3
- 
- 
+
+
 Create and allocate CVODES memory for forward runs
 Allocate global memory
-Forward integration ... G:   3.9983e+07
- 
-List of Check Points (ncheck = 2)
- 
-Address:       0x9bb7ed0
-Next:          0x9bb76a8
-Time interval: 2.069985e+04  4.201867e+07
+Forward integration ... done ( nst = 810 )   | G:   3.9983e+07 
+
+List of Check Points (ncheck = 5)
+
+Address:       0x81aba48
+Next:          0x81ab0e0
+Time interval: 3.409808e+06  4.004096e+07
+Step number:   750
+Order:         5
+Step size:     1.781763e+05
+
+Address:       0x81ab0e0
+Next:          0x81aa8b8
+Time interval: 3.102391e+04  3.409808e+06
+Step number:   600
+Order:         4
+Step size:     7.138392e+02
+
+Address:       0x81aa8b8
+Next:          0x81a9f50
+Time interval: 2.160859e+03  3.102391e+04
+Step number:   450
+Order:         3
+Step size:     4.211934e+01
+
+Address:       0x81a9f50
+Next:          0x81a95e8
+Time interval: 1.180457e+02  2.160859e+03
 Step number:   300
-Order:         3
-Step size:     7.507680e+02
- 
-Address:       0x9bb76a8
-Next:          0x9ba9768
-Time interval: 9.253659e+01  2.069985e+04
+Order:         4
+Step size:     3.171051e+00
+
+Address:       0x81a95e8
+Next:          0x819b6a8
+Time interval: 7.149483e+00  1.180457e+02
 Step number:   150
-Order:         3
-Step size:     3.155919e+00
- 
-Address:       0x9ba9768
+Order:         5
+Step size:     5.117873e-02
+
+Address:       0x819b6a8
 Next:          (nil)
-Time interval: 0.000000e+00  9.253659e+01
+Time interval: 0.000000e+00  7.149483e+00
 Step number:   0
 Order:         1
 Step size:     0.000000e+00
- 
- 
+
+
 Create and allocate CVODES memory for backward run
-Integrate backwards
-Current check point: 0x9bb7ed0
-Done backward
-Current check point: 0x9ba9768
+Backward integration ... done ( nst = 230 )
 --------------------------------------------------------
 tB0:          4.0000e+07
-dG/dp:        7.6998e+05  -3.0740e+00   5.0750e-04
+dG/dp:        7.6842e+05  -3.0691e+00   5.1145e-04
 lambda(t0):   3.9967e+07   3.9967e+07   3.9967e+07
 --------------------------------------------------------
- 
+
 Re-initialize CVODES memory for backward run
-Integrate backwards
+Backward integration ... done ( nst = 197 )
 --------------------------------------------------------
 tB0:          4.0000e+07
-dG/dp:        1.7335e+02  -5.0534e-04   8.4218e-08
-lambda(t0):   8.4156e+00   1.6093e+01   1.6094e+01
+dG/dp:        1.7341e+02  -5.0591e-04   8.4323e-08
+lambda(t0):   8.4191e+00   1.6097e+01   1.6097e+01
 --------------------------------------------------------
- 
+
 Free memory
+
