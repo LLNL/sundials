@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.6 $
-# $Date: 2006-07-25 01:06:28 $
+# $Revision: 1.7 $
+# $Date: 2006-08-07 18:48:23 $
 ############################################################################
 #
 # Filename: sundials_test.sh
@@ -47,7 +47,7 @@ run_examples()
 
   # generate list of all compiled examples by searching for object files
   EXAMPLE_FILES=`ls -1 ${EXAMPLES_DIR}/*.o 2>&1`
-  STATUS=`echo "${EXAMPLE_FILES}" | fgrep -i "no"`
+  STATUS=`echo "${EXAMPLE_FILES}" | fgrep -i "no such file"`
   # continue if current directory contains compiled examples
   if [ "${EXAMPLE_FILES}" != "" -a "${STATUS}" = "" ]; then
     # remove object file extension (*.o) to derive executable name
