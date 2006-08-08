@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.1 $
-# $Date: 2004-04-02 21:18:20 $
+# $Revision: 1.2 $
+# $Date: 2006-08-08 00:59:18 $
 ############################################################################
 #
 # Filename: sundials_check_bash.sh
@@ -14,6 +14,8 @@
 
 set CHANGE_FILE=$argv[1]
 set USE_LOGIN_SHELL=$argv[2]
+
+unalias cp
 
 # look for BASH
 set FIND_BASH=`which bash`

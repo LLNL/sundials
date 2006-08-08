@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.8 $
-# $Date: 2005-06-20 20:52:37 $
+# $Revision: 1.9 $
+# $Date: 2006-08-08 00:59:18 $
 ############################################################################
 #
 # Filename: sundials.sh
@@ -21,9 +21,11 @@
 MAIL_DOMAIN="llnl.gov"
 PROJECT_CVSROOT="/home/casc/repository"
 REMOTE_COPY_CMD="/usr/bin/scp"
-REMOTE_COPY_ARGS="-oProtocol=1"
+#REMOTE_COPY_ARGS="-oProtocol=1"
+REMOTE_COPY_ARGS=""
 REMOTE_LOGIN_CMD="/usr/bin/ssh"
-REMOTE_LOGIN_ARGS="-1"
+#REMOTE_LOGIN_ARGS="-1"
+REMOTE_LOGIN_ARGS=""
 MAIL_CMD="/bin/mail"
 ERROR_FLAG="no"
 ERROR_DETECTED="no"
@@ -958,17 +960,19 @@ while [ $((${NUM_MACHINES})) -gt 0 ]; do
     REMOTE_DIR=`cat temp-dir.txt`
     rm -f temp-dir.txt
     # determine absolute path to tar command on remote system
-    TAR_EXEC=`"${REMOTE_LOGIN_CMD}" "${REMOTE_LOGIN_ARGS}" -l "${REMOTE_USERNAME}" "${TEMP_REMOTE}" " which tar "`
+    TAR_EXEC=`${REMOTE_LOGIN_CMD} ${REMOTE_LOGIN_ARGS} -l ${REMOTE_USERNAME} ${TEMP_REMOTE} " which tar "`
     # remove old installation directory
     # uncompress and extract contents of project tar ball
-    "${REMOTE_LOGIN_CMD}" "${REMOTE_LOGIN_ARGS}" -l "${REMOTE_USERNAME}" "${TEMP_REMOTE}" \
+    ${REMOTE_LOGIN_CMD} ${REMOTE_LOGIN_ARGS} -l ${REMOTE_USERNAME} ${TEMP_REMOTE} \
     " rm -Rf ${REMOTE_DIR}/${TEMP_REMOTE} && \
     mkdir ${REMOTE_DIR}/${TEMP_REMOTE} && \
     cp -f ${PROJECT_NAME}-test.tar.gz ${REMOTE_DIR}/${TEMP_REMOTE} && \
     cd ${REMOTE_DIR}/${TEMP_REMOTE} && \
     gunzip -f ${PROJECT_NAME}-test.tar.gz && \
     ${TAR_EXEC} -xf ${PROJECT_NAME}-test.tar && \
+    echo "AAA AAA AAA" && \
     ./${FIX_BASH} ${BUILD_SCRIPT} yes && \
+    echo "BBB BBB BBB" && \
     ./${BUILD_SCRIPT} ${EXEC_NAME} " &> "${LOG_DIR}/${TEMP_REMOTE}"-build.log
     echo -e "[DONE]\n"
   # if local system then just change to appropriate directory and build software
@@ -1151,7 +1155,7 @@ while [ $((${NUM_MACHINES})) -gt 0 ]; do
     NODE_TEMP_REMOTE="${TEMP_REMOTE}"
 
     # begin software test on remote node
-    "${REMOTE_LOGIN_CMD}" "${REMOTE_LOGIN_ARGS}" -l "${REMOTE_USERNAME}" "${NODE_TEMP_REMOTE}" \
+    ${REMOTE_LOGIN_CMD} ${REMOTE_LOGIN_ARGS} -l ${REMOTE_USERNAME} ${NODE_TEMP_REMOTE} \
     " cd ${REMOTE_DIR}/${TEMP_REMOTE} && \
     ./${FIX_BASH} ${TIMEOUT_SCRIPT} no && \
     ./${FIX_BASH} ${TEST_SCRIPT} no && \
