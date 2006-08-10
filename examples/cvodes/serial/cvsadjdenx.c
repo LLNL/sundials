@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:06 $
+ * $Revision: 1.2 $
+ * $Date: 2006-08-10 17:51:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -118,7 +118,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
 
 /* Prototypes of private functions */
 
-static void PrintOutput(N_Vector yB, N_Vector qB);
+static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector qB);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
@@ -155,8 +155,8 @@ int main(int argc, char *argv[])
   y = yB = qB = NULL;
 
   /* Print problem description */
-  printf("\n\n Adjoint Sensitivity Example for Chemical Kinetics\n");
-  printf(" -------------------------------------------------\n\n");
+  printf("\nAdjoint Sensitivity Example for Chemical Kinetics\n");
+  printf("-------------------------------------------------\n\n");
   printf("ODE: dy1/dt = -p1*y1 + p2*y2*y3\n");
   printf("     dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2\n");
   printf("     dy3/dt =  p3*(y2)^2\n\n");
@@ -218,7 +218,6 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
 
   /* Allocate global memory */
-  printf("Allocate global memory\n");
 
   steps = STEPS;
   cvadj_mem = CVadjMalloc(cvode_mem, steps, CV_HERMITE);
@@ -235,20 +234,25 @@ int main(int argc, char *argv[])
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   if (check_flag(&flag, "CVodeGetNumSteps", 1)) return(1);
 
-  printf("done ( nst = %ld )   | ",nst);
+  printf("done ( nst = %ld )\n",nst);
 
   flag = CVodeGetQuad(cvode_mem, TOUT, q);
   if (check_flag(&flag, "CVodeGetQuad", 1)) return(1);
 
+  printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("G: %12.4Le \n",Ith(q,1));
+  printf("G:          %12.4Le \n",Ith(q,1));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("G: %12.4le \n",Ith(q,1));
+  printf("G:          %12.4le \n",Ith(q,1));
 #else
-  printf("G: %12.4e \n",Ith(q,1));
+  printf("G:          %12.4e \n",Ith(q,1));
 #endif
+printf("--------------------------------------------------------\n\n");
 
-  /* Test check point linked list */
+  /* Test check point linked list 
+     (uncomment next block to print check point information) */
+  
+  /*
   printf("\nList of Check Points (ncheck = %d)\n\n", ncheck);
   ckpnt = (CVadjCheckPointRec *) malloc ( (ncheck+1)*sizeof(CVadjCheckPointRec));
   CVadjGetCheckPointsInfo(cvadj_mem, ckpnt);
@@ -261,6 +265,7 @@ int main(int argc, char *argv[])
     printf("Step size:     %le\n",ckpnt[i].step);
     printf("\n");
   }
+  */
 
   /* Initialize yB */
   yB = N_VNew_Serial(NEQ);
@@ -286,7 +291,7 @@ int main(int argc, char *argv[])
   abstolQB = ATOLq;
 
   /* Create and allocate CVODES memory for backward run */
-  printf("\nCreate and allocate CVODES memory for backward run\n");
+  printf("Create and allocate CVODES memory for backward run\n");
 
   flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
   if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
@@ -323,7 +328,7 @@ int main(int argc, char *argv[])
   flag = CVodeGetQuadB(cvadj_mem, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
-  PrintOutput(yB, qB);
+  PrintOutput(TB1, yB, qB);
 
   /* Reinitialize backward phase (new tB0) */
 
@@ -353,7 +358,7 @@ int main(int argc, char *argv[])
   flag = CVodeGetQuadB(cvadj_mem, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
-  PrintOutput(yB, qB);
+  PrintOutput(TB2, yB, qB);
 
   /* Free memory */
   printf("Free memory\n\n");
@@ -567,23 +572,23 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
  * Print results after backward integration
  */
 
-static void PrintOutput(N_Vector yB, N_Vector qB)
+static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector qB)
 {
   printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("tB0:        %12.4Le\n",TB1);
+  printf("tB0:        %12.4Le\n",tfinal);
   printf("dG/dp:      %12.4Le %12.4Le %12.4Le\n", 
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
   printf("lambda(t0): %12.4Le %12.4Le %12.4Le\n", 
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("tB0:        %12.4le\n",TB1);
+  printf("tB0:        %12.4le\n",tfinal);
   printf("dG/dp:      %12.4le %12.4le %12.4le\n", 
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
   printf("lambda(t0): %12.4le %12.4le %12.4le\n", 
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
 #else
-  printf("tB0:        %12.4e\n",TB1);
+  printf("tB0:        %12.4e\n",tfinal);
   printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
   printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
