@@ -355,22 +355,26 @@ the {\sundialsTB} Matlab toolbox:
 
 \item \id{--with-matlab=MATLAB}
 
-  This option can be used to specify the locatin of the Matlab installation. 
-  If it is defined, the environment variable \id{MATLAB} will be used. Otherwise,
-  the configure system will attempt to infer \id{MATLAB} from the location of
-  the \id{matlab} executable.
-
-\item \id{--with-mex=ARG}
-
-  Specify the \id{mex} compiler to be used.
-
-  Default: \id{ARG=MATLAB/bin/mex}
+  This option can be used to specify the location of the Matlab executable. 
+  The default is to search the path.
 
 \item \id{--with-mexopts=ARG}
 
   Specify the \id{mex} options file to be used.
 
   Default: Standard Matlab \id{mex} options file.
+
+\item \id{--with-mexflags=ARG}
+
+  Specify the \id{mex} compiler flags to be used.
+
+  Default: \id{ARG=-O}
+
+\item \id{--with-mexldadd=ARG}
+
+  Specify additional \id{mex} linker flags.
+
+  Default: none
 
 \end{config}
 
