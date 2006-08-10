@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-07-26 00:09:00 $
+ * $Revision: 1.6 $
+ * $Date: 2006-08-10 18:01:04 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -95,6 +95,7 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
                      int *maxord, long int *mxsteps,
                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                      double *hin, double *hmax, double *tstop, booleantype *tstopSet,
+                     booleantype *suppress,
                      double **id, double **cnstr)
 {
   mxArray *opt;
@@ -117,6 +118,8 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
   *hin = 0.0;
   *hmax = 0.0;
   *tstopSet = FALSE;
+
+  *suppress = FALSE;
 
   *id = NULL;
   *cnstr = NULL;
@@ -246,6 +249,23 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
         (*cnstr)[i] = tmp[i];
     } else {
       mexErrMsgTxt("ConstraintTypes has wrong dimension.");
+    }
+  }
+
+  /* Suppress algebraic variables? */
+  opt = mxGetField(options,0,"SuppressAlgVars");
+  if ( !mxIsEmpty(opt) ) {
+    buflen = mxGetM(opt) * mxGetN(opt) + 1;
+    bufval = mxCalloc(buflen, sizeof(char));
+    status = mxGetString(opt, bufval, buflen);
+    if(status != 0)
+      mexErrMsgTxt("Canot parse SuppressAlgVars.");
+    if(!strcmp(bufval,"on")) {
+      *suppress = TRUE;
+    } else if(!strcmp(bufval,"off")) {
+      *suppress = FALSE;
+    } else {
+      mexErrMsgTxt("SuppressAlgVars has an illegal value.");
     }
   }
 

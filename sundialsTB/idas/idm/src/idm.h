@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-07-20 16:59:44 $
+ * $Revision: 1.4 $
+ * $Date: 2006-08-10 18:01:04 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -270,6 +270,7 @@ extern "C" {
                        int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                        double *hin, double *hmax,
                        double *tstop, booleantype *tstopSet,
+                       booleantype *suppress,
                        double **id, double **cnstr);
 
   int get_LinSolvOptions(const mxArray *options, booleantype fwd,

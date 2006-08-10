@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-07-26 00:09:00 $
+ * $Revision: 1.8 $
+ * $Date: 2006-08-10 18:01:04 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -241,7 +241,6 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   int status;
 
   int maxord;
-
   long int mxsteps;
 
   int itol;
@@ -260,9 +259,10 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   */
 
   double hin, hmax;
-
   double tstop;
   booleantype tstopSet;
+
+  booleantype suppress;
 
   int mupper, mlower;
   int gstype, maxl;
@@ -313,6 +313,7 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
                             &maxord, &mxsteps,
                             &itol, &reltol, &Sabstol, &Vabstol,
                             &hin, &hmax, &tstop, &tstopSet,
+                            &suppress,
                             &id, &cnstr);
 
   /* User data -- optional argument */
@@ -375,6 +376,9 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* set number of max steps */
   status = IDASetMaxNumSteps(ida_mem, mxsteps);
+
+  /* set suppressAlg */
+  status = IDASetSuppressAlg(ida_mem, suppress);
 
   /* set tstop? */
   if (tstopSet)
@@ -719,6 +723,8 @@ static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   double tstopB;
   booleantype tstopSetB;
 
+  booleantype suppressB;
+
   int mupperB, mlowerB;
   int gstypeB, maxlB;
   int mudqB, mldqB;
@@ -746,6 +752,7 @@ static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
                             &maxordB, &mxstepsB,
                             &itolB, &reltolB, &SabstolB, &VabstolB,
                             &hinB, &hmaxB, &tstopB, &tstopSetB,
+                            &suppressB,
                             &idB, &cnstrB);
 
   yyB = NewVector(NB);

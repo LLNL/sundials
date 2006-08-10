@@ -58,6 +58,7 @@ function options = IDASetOptions(varargin)
 %   Set NumRoots to the number of functions for which roots are monitored.
 %   If NumRoots is 0, rootfinding is disabled.
 %
+%SuppressAlgVars - Suppres algebraic vars. from error test [ on | {off} ]
 %VariableTypes - Alg./diff. variables [ vector ]
 %ConstraintTypes - Simple bound constraints [ vector ]
 %
@@ -179,7 +180,7 @@ function options = IDASetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/07/17 16:49:50 $
+% $Revision: 1.3 $Date: 2006/07/19 20:52:28 $
 
 % Based on Matlab's ODESET function
 
@@ -195,6 +196,7 @@ if (nargin == 0) & (nargout == 0)
   fprintf('         RootsFn: [ function ]\n');
   fprintf('        NumRoots: [ integer | {0} ]\n');
   fprintf('\n');
+  fprintf(' SuppressAlgVars: [ on | {off} ]\n');
   fprintf('   VariableTypes: [ vector ]\n');
   fprintf(' ConstraintTypes: [ vector ]\n');
   fprintf('\n');
@@ -240,6 +242,7 @@ Names = [
     'NumRoots        '
     'VariableTypes   '
     'ConstraintTypes '
+    'SuppressAlgVars '
     'LinearSolver    '
     'JacobianFn      '
     'PrecModule      '
