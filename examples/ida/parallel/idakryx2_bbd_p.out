@@ -10,7 +10,7 @@ Tolerance parameters:
  relative tolerance = 1e-05
  absolute tolerance = 1e-05
 Linear solver: scaled preconditioned GMRES (IDASPGMR)
- max. Krylov dimension: maxl = 20
+ max. Krylov dimension: maxl = 16
 Preconditioner: band-block-diagonal (IDABBDPRE)
  mudq = 20,  mldq = 20,  mukeep = 2,  mlkeep = 2
 CalcIC called to correct initial predator concentrations 
