@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-27 22:21:04 $
+# $Revision: 1.4 $
+# $Date: 2006-08-10 18:06:24 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -101,6 +101,8 @@ install: idm
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx_g.m    $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx_J.m    $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/idadenx.m      $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/pend.m         $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_ser/pendGGL.m      $(STB_INSTDIR)/sundialsTB/idas/examples_ser/
 #	Install parallel example files
 #	if test "X${STB_PARALLEL}" = "Xyes"; then                                                                                 \
 #	  $(INSTALL_FILE) $(top_srcdir)/sundialsTB/idas/examples_par/pexample.m    $(STB_INSTDIR)/sundialsTB/idas/examples_par/ ; \
