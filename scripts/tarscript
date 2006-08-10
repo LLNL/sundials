@@ -81,6 +81,24 @@ cd ..
 
 distrobase="tmp_dir"
 
+# SUNDIALS
+
+echo -e "\n--- Generate SUNDIALS tarball ---"
+
+mv $distrobase sundials-$SUN_VER
+distrobase="sundials-"$SUN_VER
+filename="sundials-"$SUN_VER
+
+tarfile=$filename".tar"
+$scriptdir/shared $tarfile $distrobase
+$scriptdir/cvode $tarfile $distrobase
+$scriptdir/cvodes $tarfile $distrobase
+$scriptdir/ida $tarfile $distrobase
+$scriptdir/kinsol $tarfile $distrobase
+$scriptdir/stb $tarfile $distrobase
+gzip $tarfile
+mv $filename".tar.gz" $filename".tgz"
+
 # CVODE
 
 echo -e "\n--- Generate CVODE tarball ---"
@@ -134,24 +152,6 @@ filename="kinsol-"$KIN_VER
 tarfile=$filename".tar"
 $scriptdir/shared $tarfile $distrobase
 $scriptdir/kinsol $tarfile $distrobase
-gzip $tarfile
-mv $filename".tar.gz" $filename".tgz"
-
-# SUNDIALS
-
-echo -e "\n--- Generate SUNDIALS tarball ---"
-
-mv $distrobase sundials-$SUN_VER
-distrobase="sundials-"$SUN_VER
-filename="sundials-"$SUN_VER
-
-tarfile=$filename".tar"
-$scriptdir/shared $tarfile $distrobase
-$scriptdir/cvode $tarfile $distrobase
-$scriptdir/cvodes $tarfile $distrobase
-$scriptdir/ida $tarfile $distrobase
-$scriptdir/kinsol $tarfile $distrobase
-$scriptdir/stb $tarfile $distrobase
 gzip $tarfile
 mv $filename".tar.gz" $filename".tgz"
 

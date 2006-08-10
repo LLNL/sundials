@@ -16,6 +16,9 @@ tar ufv $tarfile $distrobase/acinclude.m4
 tar ufv $tarfile $distrobase/config.hin
 tar ufv $tarfile $distrobase/configure
 
+tar ufv $tarfile $distrobase/sundials.spec
+
+tar ufv $tarfile $distrobase/config/sundials-config.in
 tar ufv $tarfile $distrobase/config/config.guess
 tar ufv $tarfile $distrobase/config/config.sub
 tar ufv $tarfile $distrobase/config/install-sh

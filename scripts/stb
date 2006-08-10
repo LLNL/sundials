@@ -9,6 +9,7 @@ tar ufv $tarfile $distrobase/sundialsTB/README
 tar ufv $tarfile $distrobase/sundialsTB/LICENSE
 tar ufv $tarfile $distrobase/sundialsTB/install_STB.m
 tar ufv $tarfile $distrobase/sundialsTB/startup_STB.in
+tar ufv $tarfile $distrobase/sundialsTB/Makefile.in
 
 tar ufv $tarfile $distrobase/sundialsTB/doc/sundialsTB.pdf
 #tar ufv $tarfile $distrobase/sundialsTB/doc/sundialsTB.ps
@@ -77,8 +78,8 @@ tar ufv $tarfile $distrobase/sundialsTB/cvodes/cvm/src/cvm.c
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/cvm/src/cvm.h
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/cvm/src/cvmOpts.c
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/cvm/src/cvmWrap.c
-tar ufv $tarfile $distrobase/sundialsTB/cvodes/cvm/src/Makefile_ser.in
-tar ufv $tarfile $distrobase/sundialsTB/cvodes/cvm/src/Makefile_par.in
+tar ufv $tarfile $distrobase/sundialsTB/cvodes/cvm/src/Makefile.in
+tar ufv $tarfile $distrobase/sundialsTB/cvodes/cvm/src/setup.m.in
 
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvadx.m
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/examples_ser/cvbx_f.m
@@ -162,8 +163,8 @@ tar ufv $tarfile $distrobase/sundialsTB/idas/idm/src/idm.c
 tar ufv $tarfile $distrobase/sundialsTB/idas/idm/src/idm.h
 tar ufv $tarfile $distrobase/sundialsTB/idas/idm/src/idmOpts.c
 tar ufv $tarfile $distrobase/sundialsTB/idas/idm/src/idmWrap.c
-tar ufv $tarfile $distrobase/sundialsTB/idas/idm/src/Makefile_ser.in
-tar ufv $tarfile $distrobase/sundialsTB/idas/idm/src/Makefile_par.in
+tar ufv $tarfile $distrobase/sundialsTB/idas/idm/src/Makefile.in
+tar ufv $tarfile $distrobase/sundialsTB/idas/idm/src/setup.m.in
 
 tar ufv $tarfile $distrobase/sundialsTB/idas/examples_ser/idabanx_f.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/examples_ser/idabanx_ic.m
@@ -172,6 +173,8 @@ tar ufv $tarfile $distrobase/sundialsTB/idas/examples_ser/idadenx_f.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/examples_ser/idadenx_g.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/examples_ser/idadenx_J.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/examples_ser/idadenx.m
+tar ufv $tarfile $distrobase/sundialsTB/idas/examples_ser/pend.m
+tar ufv $tarfile $distrobase/sundialsTB/idas/examples_ser/pendGGL.m
 
 tar ufv $tarfile $distrobase/sundialsTB/kinsol/Contents.m
 tar ufv $tarfile $distrobase/sundialsTB/kinsol/KINBandJacFn.m
@@ -203,8 +206,8 @@ tar ufv $tarfile $distrobase/sundialsTB/kinsol/kim/src/kim.c
 tar ufv $tarfile $distrobase/sundialsTB/kinsol/kim/src/kim.h
 tar ufv $tarfile $distrobase/sundialsTB/kinsol/kim/src/kimOpts.c
 tar ufv $tarfile $distrobase/sundialsTB/kinsol/kim/src/kimWrap.c
-tar ufv $tarfile $distrobase/sundialsTB/kinsol/kim/src/Makefile_ser.in
-tar ufv $tarfile $distrobase/sundialsTB/kinsol/kim/src/Makefile_par.in
+tar ufv $tarfile $distrobase/sundialsTB/kinsol/kim/src/Makefile.in
+tar ufv $tarfile $distrobase/sundialsTB/kinsol/kim/src/setup.m.in
 
 tar ufv $tarfile $distrobase/sundialsTB/kinsol/examples_ser/kindiag.m
 tar ufv $tarfile $distrobase/sundialsTB/kinsol/examples_ser/kindiag_pset.m
