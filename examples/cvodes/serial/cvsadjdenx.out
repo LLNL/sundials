@@ -1,35 +1,37 @@
+
 Adjoint Sensitivity Example for Chemical Kinetics
 -------------------------------------------------
- 
+
 ODE: dy1/dt = -p1*y1 + p2*y2*y3
      dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2
      dy3/dt =  p3*(y2)^2
- 
+
 Find dG/dp for
      G = int_t0^tB0 g(t,p,y) dt
      g(t,p,y) = y3
- 
- 
+
+
 Create and allocate CVODES memory for forward runs
-Forward integration ... done ( nst = 824 )
+Forward integration ... done ( nst = 810 )
 --------------------------------------------------------
-G:            3.9983e+07
+G:            3.9983e+07 
 --------------------------------------------------------
- 
+
 Create and allocate CVODES memory for backward run
-Backward integration ... done ( nst = 269 )
+Backward integration ... done ( nst = 230 )
 --------------------------------------------------------
 tB0:          4.0000e+07
-dG/dp:        7.6840e+05  -3.0690e+00   5.1146e-04
+dG/dp:        7.6842e+05  -3.0691e+00   5.1145e-04
 lambda(t0):   3.9967e+07   3.9967e+07   3.9967e+07
 --------------------------------------------------------
- 
+
 Re-initialize CVODES memory for backward run
-Backward integration ... done ( nst = 167 )
+Backward integration ... done ( nst = 197 )
 --------------------------------------------------------
 tB0:          5.0000e+01
-dG/dp:        1.7341e+02  -5.0592e-04   8.4323e-08
+dG/dp:        1.7341e+02  -5.0591e-04   8.4323e-08
 lambda(t0):   8.4191e+00   1.6097e+01   1.6097e+01
 --------------------------------------------------------
- 
+
 Free memory
+

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-08-10 17:51:09 $
+ * $Revision: 1.3 $
+ * $Date: 2006-08-10 23:17:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -152,6 +152,7 @@ int main(int argc, char *argv[])
 
   data = NULL;
   cvadj_mem = cvode_mem = NULL;
+  ckpnt = NULL;
   y = yB = qB = NULL;
 
   /* Print problem description */
@@ -370,7 +371,7 @@ printf("--------------------------------------------------------\n\n");
   N_VDestroy_Serial(qB);
   CVadjFree(&cvadj_mem);
 
-  free(ckpnt);
+  if (ckpnt != NULL) free(ckpnt);
   free(data);
 
   return(0);
