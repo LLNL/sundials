@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-07-25 22:17:18 $
+ * $Revision: 1.6 $
+ * $Date: 2006-08-10 17:59:59 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -175,6 +175,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 #define NqB         (cvm_Cdata->NqB) 
 #define lsB         (cvm_Cdata->lsB) 
 #define pmB         (cvm_Cdata->pmB) 
+#define errmsg      (cvm_Cdata->errmsg)
 
 #define mx_data     (cvm_Mdata->mx_data)
 
@@ -1848,6 +1849,8 @@ static void CVM_init()
   lsB = LS_DENSE;
   pm  = PM_NONE;
   pmB = PM_NONE;
+
+  errmsg = TRUE;
 
   /* Initialize global control variables */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-07-26 00:09:00 $
+ * $Revision: 1.5 $
+ * $Date: 2006-08-10 17:59:59 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,6 +47,7 @@ extern cvm_MATLABdata cvm_Mdata;  /* MATLAB data */
 #define pm          (cvm_Cdata->pm) 
 #define lsB         (cvm_Cdata->lsB) 
 #define pmB         (cvm_Cdata->pmB) 
+#define errmsg      (cvm_Cdata->errmsg)
 
 #define mx_QUADfct  (cvm_Mdata->mx_QUADfct)
 #define mx_JACfct   (cvm_Mdata->mx_JACfct)
@@ -312,6 +313,23 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
         mxDestroyArray(mx_MONdataB);
         mx_MONdataB = mxDuplicateArray(opt);
       }
+    }
+  }
+
+  /* Post error messages? */
+  opt = mxGetField(options,0,"ErrMessages");
+  if ( !mxIsEmpty(opt) ) {
+    buflen = mxGetM(opt) * mxGetN(opt) + 1;
+    bufval = mxCalloc(buflen, sizeof(char));
+    status = mxGetString(opt, bufval, buflen);
+    if(status != 0)
+      mexErrMsgTxt("Canot parse ErrMessages.");
+    if(!strcmp(bufval,"on")) {
+      errmsg = TRUE;
+    } else if(!strcmp(bufval,"off")) {
+      errmsg = FALSE;
+    } else {
+      mexErrMsgTxt("ErrMessages has an illegal value.");
     }
   }
 
@@ -664,7 +682,7 @@ int get_FSAOptions(const mxArray *options,
 {
   mxArray *opt;
   char *bufval;
-  int i, is, m, n, buflen, status;
+  int i, is, m, n, buflen, status, this_plist;
   double *tmp;
 
   /* Set default values */
@@ -713,8 +731,12 @@ int get_FSAOptions(const mxArray *options,
     if ( n != Ns)
       mexErrMsgTxt("ParamList does not contain Ns elements.");
     *plist = (int *) malloc(Ns*sizeof(int));
-    for (is=0;is<Ns;is++)
-      (*plist)[is] = (int) tmp[is];
+    for (is=0;is<Ns;is++) {
+      this_plist = (int) tmp[is];
+      if (this_plist <= 0)
+        mexErrMsgTxt("ParamList must contain only positive integers.");
+      (*plist)[is] = this_plist - 1;
+    }
   }
 
   /* PBAR */

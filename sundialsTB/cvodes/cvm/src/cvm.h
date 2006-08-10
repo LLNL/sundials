@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-20 16:59:39 $
+ * $Revision: 1.3 $
+ * $Date: 2006-08-10 17:59:59 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -79,6 +79,8 @@ extern "C" {
     int NqB;
     int lsB;
     int pmB;
+
+    booleantype errmsg;
 
   } *cvm_CVODESdata;
 
@@ -236,7 +238,8 @@ extern "C" {
                        int *lmm, int *iter, int *maxord, booleantype *sld,
                        long int *mxsteps,
                        int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
-                       double *hin, double *hmax, double *hmin, double *tstop, booleantype *tstopSet);
+                       double *hin, double *hmax, double *hmin, 
+                       double *tstop, booleantype *tstopSet);
 
   int get_LinSolvOptions(const mxArray *options, booleantype fwd,
                          int *mupper, int *mlower,

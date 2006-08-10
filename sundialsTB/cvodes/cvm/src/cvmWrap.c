@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-07-26 00:09:00 $
+ * $Revision: 1.4 $
+ * $Date: 2006-08-10 17:59:59 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,6 +45,7 @@ booleantype cvm_fsa;       /* Forward sensitivity? */
 #define NqB         (cvm_Cdata->NqB) 
 #define lsB         (cvm_Cdata->lsB) 
 #define pmB         (cvm_Cdata->pmB) 
+#define errmsg      (cvm_Cdata->errmsg)
 
 #define mx_data     (cvm_Mdata->mx_data)
 
@@ -85,6 +86,8 @@ void mtlb_CVodeErrHandler(int error_code,
 {
   char err_type[10];
 
+  if (!errmsg) return;
+
   if (error_code == CV_WARNING)
     sprintf(err_type,"WARNING");
   else
@@ -93,6 +96,7 @@ void mtlb_CVodeErrHandler(int error_code,
   mexPrintf("\n[%s %s]  %s\n",module,err_type,function);
   mexPrintf("  %s\n\n",msg);
 
+  return;
 }
 
 /*

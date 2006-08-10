@@ -199,6 +199,8 @@ function options = CVodeSetOptions(varargin)
 %   Specifies a data structure that is passed to the Monitor function every time
 %   it is called. 
 %
+%ErrMessages - Turn on/off display of error/warning messages [ {on} | off ]
+%
 %   See also
 %        CVRootFn, CVQuadRhsFn
 %        CVDenseJacFn, CVBandJacFn, CVJacTimesVecFn
@@ -208,7 +210,7 @@ function options = CVodeSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/03/15 19:31:25 $
+% $Revision: 1.5 $Date: 2006/07/07 19:08:40 $
 
 % Based on Matlab's ODESET function
 
@@ -256,6 +258,8 @@ if (nargin == 0) & (nargout == 0)
   fprintf('       MonitorFn: [ function ]\n');
   fprintf('     MonitorData: [ struct ]\n');
   fprintf('\n');
+  fprintf('     ErrMessages: [ {on} | off ]\n');
+  fprintf('\n');
   return;
 end
 
@@ -297,6 +301,7 @@ Names = [
     'ASAInterpType   '
     'MonitorFn       '
     'MonitorData     '
+    'ErrMessages     '
     ];
 [m,n] = size(Names);
 names = lower(Names);
