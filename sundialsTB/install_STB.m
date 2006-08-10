@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.9 $Date: 2006/07/17 16:49:49 $
+% $Revision: 1.10 $Date: 2006/07/25 21:29:30 $
 
 % MEX compiler command
 
@@ -51,7 +51,7 @@ rmdir('sundials','s');
 
 % Install sundialsTB
 
-ans = input('Install toolbox? (y/n) ','s');
+ans = input('    Install toolbox? (y/n) ','s');
 if ans ~= 'y'
   fprintf('\nOK. All done.\n');
   return
@@ -61,7 +61,7 @@ while true
   fprintf('\nSpecify the location where you wish to install the toolbox.\n');
   fprintf('The toolbox will be installed in a subdirectory "sundialsTB".\n');
   fprintf('Enter return to cancel the installation.\n');
-  where = input('    installation directory: ','s');
+  where = input('    Installation directory: ','s');
   if isempty(where)
     go = 0;
     break;
@@ -82,8 +82,8 @@ stbi = fullfile(where,'sundialsTB');
 
 go = 1;
 if exist(stbi,'dir')
-  msg = sprintf('Directory %s exists! Replace? (y/n) ',stbi);
-  ans = input(msg,'s');
+  fprintf('\nDirectory %s exists!\n',stbi);
+  ans = input('    Replace? (y/n) ','s');
   if ans == 'y'
     rmdir(stbi,'s');
     go = 1;
@@ -115,7 +115,7 @@ if par
   mkdir(fullfile(where,'sundialsTB','kinsol'),'examples_par');
 end
 
-instSTB(stb, stbi, par);
+instSTB(stb, where, par);
 
 fprintf('\nThe sundialsTB toolbox was installed in %s\n',stbi);
 fprintf('\nA startup file, "startup_STB.m" was created in %s.\n',stbi);
@@ -451,7 +451,9 @@ cd(stb)
 % install sundialsTB
 %---------------------------------------------------------------------------------
 
-function [] = instSTB(stb, stbi, par)
+function [] = instSTB(stb, where, par)
+
+stbi = fullfile(where,'sundialsTB');
 
 % Create startup.m (use the template startup.m.in)
 
@@ -461,9 +463,9 @@ out_file = fullfile(stbi,'startup_STB.m');
 fo = fopen(out_file,'w');
 while(~feof(fi))
   l = fgets(fi);
-  i = strfind(l,'@STB_INSTDIR@');
+  i = strfind(l,'@STB_PATH@');
   if ~isempty(i)
-    l = sprintf('stb = ''%s''\n',stbi);
+    l = sprintf('stb_path = ''%s'';\n',where);
   end
   fprintf(fo,'%s',l);
 end
@@ -562,6 +564,7 @@ cvm_exp = {
 idm_files = {
     fullfile('idas','Contents.m')
     fullfile('idas','IDABandJacFn.m')
+    fullfile('idas','IDACalcIC.m')
     fullfile('idas','IDADenseJacFn.m')
     fullfile('idas','IDAGcommFn.m')
     fullfile('idas','IDAGlocalFn.m')
@@ -593,10 +596,14 @@ idm_files = {
             };
 
 idm_exs = {
+    fullfile('idas','examples_ser','idabanx.m')
+    fullfile('idas','examples_ser','idabanx_ic.m')
+    fullfile('idas','examples_ser','idabanx_f.m')
     fullfile('idas','examples_ser','idadenx.m')
     fullfile('idas','examples_ser','idadenx_f.m')
     fullfile('idas','examples_ser','idadenx_g.m')
-    fullfile('idas','examples_ser','idadenx_J.m')
+    fullfile('idas','examples_ser','pend.m')
+    fullfile('idas','examples_ser','pendGGL.m')
           };
 
 kim_files = {
@@ -666,10 +673,11 @@ if par
   stb_files = [stb_files ; put_files ; cvm_exp ; kim_exp];
 end
 
+fprintf('\n\n');
 for i=1:length(stb_files)
   src = fullfile(stb,stb_files{i});
   dest = fullfile(stbi,stb_files{i});
-  fprintf('        Copy  %s  ->  %s\n',src,dest);
+  fprintf('Install %s\n',dest);
   [success,msg,msgid] = copyfile(src,dest);
   if ~success
     disp(msg);
