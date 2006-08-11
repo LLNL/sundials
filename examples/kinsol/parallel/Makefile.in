@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-25 18:31:28 $
+# $Revision: 1.4 $
+# $Date: 2006-08-11 23:03:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -44,7 +44,7 @@ MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 
-OBJ_EXT = @OBJ_EXT@
+OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
 
 EXS_INSTDIR = @EXS_INSTDIR@
@@ -67,10 +67,10 @@ all: $(EXEC_FILES)
 
 kinkryx_p$(EXE_EXT): $(srcdir)/kinkryx_p.c
 	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/kinkryx_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/kinkryx_p$(EXE_EXT) $(builddir)/kinkryx_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/kinkryx_p$(EXE_EXT) $(builddir)/kinkryx_p$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 kinkryx_bbd_p$(EXE_EXT): $(srcdir)/kinkryx_bbd_p.c
 	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/kinkryx_bbd_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/kinkryx_bbd_p$(EXE_EXT) $(builddir)/kinkryx_bbd_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/kinkryx_bbd_p$(EXE_EXT) $(builddir)/kinkryx_bbd_p$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs

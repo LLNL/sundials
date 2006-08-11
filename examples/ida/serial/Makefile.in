@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-25 18:31:18 $
+# $Revision: 1.4 $
+# $Date: 2006-08-11 23:02:48 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,7 +39,7 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-OBJ_EXT = @OBJ_EXT@
+OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
 
 EXS_INSTDIR = @EXS_INSTDIR@
@@ -65,19 +65,19 @@ all: $(EXEC_FILES)
 
 idadenx$(EXE_EXT): $(srcdir)/idadenx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idadenx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idadenx$(EXE_EXT) $(builddir)/idadenx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idadenx$(EXE_EXT) $(builddir)/idadenx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idabanx1$(EXE_EXT): $(srcdir)/idabanx1.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idabanx1.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idabanx1$(EXE_EXT) $(builddir)/idabanx1.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idabanx1$(EXE_EXT) $(builddir)/idabanx1$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idakryx$(EXE_EXT): $(srcdir)/idakryx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idakryx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idakryx$(EXE_EXT) $(builddir)/idakryx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idakryx$(EXE_EXT) $(builddir)/idakryx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idabanx2$(EXE_EXT): $(srcdir)/idabanx2.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idabanx2.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idabanx2$(EXE_EXT) $(builddir)/idabanx2.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idabanx2$(EXE_EXT) $(builddir)/idabanx2$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idakrydem_lin$(EXE_EXT): $(srcdir)/idakrydem_lin.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idakrydem_lin.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idakrydem_lin$(EXE_EXT) $(builddir)/idakrydem_lin.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idakrydem_lin$(EXE_EXT) $(builddir)/idakrydem_lin$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs

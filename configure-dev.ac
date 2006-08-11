@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2006-08-01 23:41:55 $
+# $Revision: 1.12 $
+# $Date: 2006-08-11 23:02:26 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -103,9 +103,6 @@ AC_PROG_LIBTOOL
 SUNDIALS_MORE_HELP
 
 # Substitute variables
-AC_SUBST(COMPILER_PREFIX)
-AC_SUBST(LINKER_PREFIX)
-AC_SUBST(OBJ_EXT)
 AC_SUBST(MPICC)
 AC_SUBST(MPIF77)
 AC_SUBST(MPI_INC_DIR)
@@ -114,7 +111,6 @@ AC_SUBST(MPI_LIBS)
 AC_SUBST(MPI_FLAGS)
 AC_SUBST(FCMIX_ENABLED)
 AC_SUBST(FLOAT_TYPE)
-AC_SUBST(LIBTOOL_CMD)
 AC_SUBST(LIBTOOL_DEPS)
 AC_SUBST(F77_MANGLE_MACRO1)
 AC_SUBST(F77_MANGLE_MACRO2)
@@ -125,6 +121,7 @@ AC_SUBST(GENERIC_MATH_LIB)
 AC_SUBST(F77_MPI_COMM_F2C)
 AC_SUBST(F77_LNKR)
 AC_SUBST(MPIF77_LNKR)
+AC_SUBST(OBJEXT)
 AC_SUBST(EXEEXT)
 AC_SUBST(STB_PARALLEL_OK)
 AC_SUBST(STB_OS)

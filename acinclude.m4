@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.44 $
-# $Date: 2006-08-01 23:41:53 $
+# $Revision: 1.45 $
+# $Date: 2006-08-11 23:02:24 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -2417,26 +2417,9 @@ AC_ARG_WITH([],[  installation (--with-examples-instdir=no) can be used to test 
 AC_DEFUN([SUNDIALS_SET_EXAMPLES],
 [
 
-# Check libtool settings to determine which compiler and linker commands
-# should be used
-# Must export LIBTOOL_CMD, COMPILER_PREFIX and LINKER_PREFIX via AC_SUBST
-# If building shared libraries, then use libtool
-if test "X${enable_shared}" = "Xyes"; then
-
-  LIBTOOL_CMD="LIBTOOL = ${LIBTOOL}"
-  COMPILER_PREFIX="\$(LIBTOOL) --mode=compile"
-  LINKER_PREFIX="\$(LIBTOOL) --mode=link"
-  OBJ_EXT="lo"
-
-# If building static libraries, then use regular C compiler
-else
-
-  LIBTOOL_CMD=""
-  COMPILER_PREFIX=""
-  LINKER_PREFIX=""
-  OBJ_EXT="o"
-
-fi
+# Set proper object file extension
+# Must export OBJ_EXT via AC_SUBST
+OBJEXT=".lo"
 
 # Check if serial C examples can actually be built
 SERIAL_C_EXAMPLES="yes"

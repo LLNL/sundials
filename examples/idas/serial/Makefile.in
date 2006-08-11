@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-25 18:31:22 $
+# $Revision: 1.4 $
+# $Date: 2006-08-11 23:02:53 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -39,7 +39,7 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-OBJ_EXT = @OBJ_EXT@
+OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
 
 EXS_INSTDIR = @EXS_INSTDIR@
@@ -65,19 +65,19 @@ all: $(EXEC_FILES)
 
 idasdenx$(EXE_EXT): $(srcdir)/idasdenx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasdenx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasdenx$(EXE_EXT) $(builddir)/idasdenx.$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasdenx$(EXE_EXT) $(builddir)/idasdenx$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idasbanx1$(EXE_EXT): $(srcdir)/idasbanx1.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasbanx1.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasbanx1$(EXE_EXT) $(builddir)/idasbanx1.$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasbanx1$(EXE_EXT) $(builddir)/idasbanx1$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idaskryx$(EXE_EXT): $(srcdir)/idaskryx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idaskryx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idaskryx$(EXE_EXT) $(builddir)/idaskryx.$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idaskryx$(EXE_EXT) $(builddir)/idaskryx$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idasbanx2$(EXE_EXT): $(srcdir)/idasbanx2.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasbanx2.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasbanx2$(EXE_EXT) $(builddir)/idasbanx2.$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasbanx2$(EXE_EXT) $(builddir)/idasbanx2$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idaskrydem_lin$(EXE_EXT): $(srcdir)/idaskrydem_lin.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idaskrydem_lin.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idaskrydem_lin$(EXE_EXT) $(builddir)/idaskrydem_lin.$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idaskrydem_lin$(EXE_EXT) $(builddir)/idaskrydem_lin$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs

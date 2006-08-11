@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-25 18:31:30 $
+# $Revision: 1.4 $
+# $Date: 2006-08-11 23:03:02 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,7 +39,7 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-OBJ_EXT = @OBJ_EXT@
+OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
 
 EXS_INSTDIR = @EXS_INSTDIR@
@@ -69,19 +69,19 @@ all: $(EXEC_FILES)
 
 kinkryx$(EXE_EXT): $(srcdir)/kinkryx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kinkryx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kinkryx$(EXE_EXT) $(builddir)/kinkryx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kinkryx$(EXE_EXT) $(builddir)/kinkryx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 kindenx1$(EXE_EXT): $(srcdir)/kindenx1.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kindenx1.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kindenx1$(EXE_EXT) $(builddir)/kindenx1.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kindenx1$(EXE_EXT) $(builddir)/kindenx1$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 kindenx2$(EXE_EXT): $(srcdir)/kindenx2.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kindenx2.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kindenx2$(EXE_EXT) $(builddir)/kindenx2.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kindenx2$(EXE_EXT) $(builddir)/kindenx2$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 kinbanx$(EXE_EXT): $(srcdir)/kinbanx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kinbanx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kinbanx$(EXE_EXT) $(builddir)/kinbanx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kinbanx$(EXE_EXT) $(builddir)/kinbanx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 kinkrydem_lin$(EXE_EXT): $(srcdir)/kinkrydem_lin.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kinkrydem_lin.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kinkrydem_lin$(EXE_EXT) $(builddir)/kinkrydem_lin.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kinkrydem_lin$(EXE_EXT) $(builddir)/kinkrydem_lin$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs

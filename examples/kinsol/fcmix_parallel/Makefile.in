@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-25 18:31:24 $
+# $Revision: 1.4 $
+# $Date: 2006-08-11 23:02:55 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -44,19 +44,19 @@ MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 MPIF77_LNKR = @MPIF77_LNKR@
 
-OBJ_EXT = @OBJ_EXT@
+OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
 
 EXS_INSTDIR = @EXS_INSTDIR@
 
 top_srcdir = $(srcdir)/../../..
 
-SOLVER_SRCDIR   = $(top_builddir)/src/kinsol
-NVEC_SRCDIR     = $(top_builddir)/src/nvec_par
+SOLVER_SRCDIR = $(top_builddir)/src/kinsol
+NVEC_SRCDIR   = $(top_builddir)/src/nvec_par
 
 SUNDIALS_LIBS = $(SOLVER_SRCDIR)/fcmix/libsundials_fkinsol.la $(SOLVER_SRCDIR)/libsundials_kinsol.la $(NVEC_SRCDIR)/libsundials_fnvecparallel.la $(NVEC_SRCDIR)/libsundials_nvecparallel.la
 
-fortran_update = @${SHELL} ${top_builddir}/examples/fortran_update.sh
+fortran_update = ${SHELL} ${top_builddir}/examples/fortran_update.sh
 
 EXEC_FILES = fkinkryx_p$(EXE_EXT)
 
@@ -67,12 +67,12 @@ all: $(EXEC_FILES)
 fkinkryx_p$(EXE_EXT): $(srcdir)/fkinkryx_p.f
 	@${fortran_update} ${srcdir} fkinkryx_p.f
 	 ${LIBTOOL} --mode=compile $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fkinkryx_p-updated.f
-	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                  \
-	   echo "${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p${EXE_EXT} ${builddir}/fkinkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p${EXE_EXT} ${builddir}/fkinkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                                                                                            \
-	   echo "${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p${EXE_EXT} ${builddir}/fkinkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p${EXE_EXT} ${builddir}/fkinkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                 \
+	   echo "${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p${EXE_EXT} ${builddir}/fkinkryx_p-updated${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p${EXE_EXT} ${builddir}/fkinkryx_p-updated${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                                                                           \
+	   echo "${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p${EXE_EXT} ${builddir}/fkinkryx_p-updated${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p${EXE_EXT} ${builddir}/fkinkryx_p-updated${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
 	 fi
 
 clean:

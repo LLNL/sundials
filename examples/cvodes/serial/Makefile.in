@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-25 18:31:10 $
+# $Revision: 1.4 $
+# $Date: 2006-08-11 23:02:40 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,7 +39,7 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-OBJ_EXT = @OBJ_EXT@
+OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
 
 EXS_INSTDIR = @EXS_INSTDIR@
@@ -75,49 +75,49 @@ all: $(EXEC_FILES)
 
 cvsdenx$(EXE_EXT): $(srcdir)/cvsdenx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdenx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdenx$(EXE_EXT) $(builddir)/cvsdenx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdenx$(EXE_EXT) $(builddir)/cvsdenx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsdenx_uw$(EXE_EXT): $(srcdir)/cvsdenx_uw.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdenx_uw.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdenx_uw$(EXE_EXT) $(builddir)/cvsdenx_uw.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdenx_uw$(EXE_EXT) $(builddir)/cvsdenx_uw$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsbanx$(EXE_EXT): $(srcdir)/cvsbanx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsbanx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsbanx$(EXE_EXT) $(builddir)/cvsbanx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsbanx$(EXE_EXT) $(builddir)/cvsbanx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvskryx$(EXE_EXT): $(srcdir)/cvskryx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvskryx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskryx$(EXE_EXT) $(builddir)/cvskryx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskryx$(EXE_EXT) $(builddir)/cvskryx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvskryx_bp$(EXE_EXT): $(srcdir)/cvskryx_bp.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvskryx_bp.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskryx_bp$(EXE_EXT) $(builddir)/cvskryx_bp.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskryx_bp$(EXE_EXT) $(builddir)/cvskryx_bp$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsdirectdem$(EXE_EXT): $(srcdir)/cvsdirectdem.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdirectdem.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdirectdem$(EXE_EXT) $(builddir)/cvsdirectdem.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdirectdem$(EXE_EXT) $(builddir)/cvsdirectdem$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvskrydem_pre$(EXE_EXT): $(srcdir)/cvskrydem_pre.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvskrydem_pre.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskrydem_pre$(EXE_EXT) $(builddir)/cvskrydem_pre.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskrydem_pre$(EXE_EXT) $(builddir)/cvskrydem_pre$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsfwdnonx$(EXE_EXT): $(srcdir)/cvsfwdnonx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsfwdnonx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwdnonx$(EXE_EXT) $(builddir)/cvsfwdnonx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwdnonx$(EXE_EXT) $(builddir)/cvsfwdnonx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsfwddenx$(EXE_EXT): $(srcdir)/cvsfwddenx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsfwddenx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwddenx$(EXE_EXT) $(builddir)/cvsfwddenx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwddenx$(EXE_EXT) $(builddir)/cvsfwddenx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsfwdkryx$(EXE_EXT): $(srcdir)/cvsfwdkryx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsfwdkryx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwdkryx$(EXE_EXT) $(builddir)/cvsfwdkryx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsfwdkryx$(EXE_EXT) $(builddir)/cvsfwdkryx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsadjdenx$(EXE_EXT): $(srcdir)/cvsadjdenx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjdenx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjdenx$(EXE_EXT) $(builddir)/cvsadjdenx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjdenx$(EXE_EXT) $(builddir)/cvsadjdenx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsadjbanx$(EXE_EXT): $(srcdir)/cvsadjbanx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjbanx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjbanx$(EXE_EXT) $(builddir)/cvsadjbanx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjbanx$(EXE_EXT) $(builddir)/cvsadjbanx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsadjkryx_int$(EXE_EXT): $(srcdir)/cvsadjkryx_int.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjkryx_int.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjkryx_int$(EXE_EXT) $(builddir)/cvsadjkryx_int.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjkryx_int$(EXE_EXT) $(builddir)/cvsadjkryx_int$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsadjkryx_pnt$(EXE_EXT): $(srcdir)/cvsadjkryx_pnt.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjkryx_pnt.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjkryx_pnt$(EXE_EXT) $(builddir)/cvsadjkryx_pnt.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjkryx_pnt$(EXE_EXT) $(builddir)/cvsadjkryx_pnt$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvskrydem_lin$(EXE_EXT): $(srcdir)/cvskrydem_lin.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvskrydem_lin.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskrydem_lin$(EXE_EXT) $(builddir)/cvskrydem_lin.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskrydem_lin$(EXE_EXT) $(builddir)/cvskrydem_lin$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
