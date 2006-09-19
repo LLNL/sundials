@@ -1,16 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] Re: problem in running the parallel fortran example -->
-<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Wed, 28 Jun 2006 08:58:15 &#45;0700 -->
-<!--X-Message-Id: 44A2A676.2010000@llnl.gov -->
-<!--X-Content-Type: text/plain -->
-<!--X-Reference: 449FF72D.1050304@eas.iis.fraunhofer.de -->
-<!--X-Reference: 44A0044E.7030404@llnl.gov -->
-<!--X-Reference: Pine.GSO.4.61.0606271654400.15344@techunix.technion.ac.il -->
+<!--X-Subject: RE: [sundials&#45;users] Dll project Sundials BCB6 -->
+<!--X-From-R13: =?to2312?P?1pIjbeJB?= <nraqrlNubgznvy.pbz> -->
+<!--X-Date: Mon, 21 Aug 2006 17:52:20 &#45;0700 -->
+<!--X-Message-Id: BAY110&#45;W26C4F43796F6A41C8EE7DDD460@phx.gbl -->
+<!--X-Content-Type: multipart/alternative -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] Re: problem in running the parallel fortran example</title>
+<title>RE: [sundials-users] Dll project Sundials BCB6</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00554.html">Date Prev</a>] [<a href="msg00556.html">Date Next</a>] [<a href="msg00585.html">Thread Prev</a>] [<a href="msg00556.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00555">Date Index</a></b>]
-[<b><a href="threads.html#00555">Thread Index</a></b>]
+[<a href="msg00623.html">Date Prev</a>] [<a href="msg00625.html">Date Next</a>] [<a href="msg00621.html">Thread Prev</a>] [<a href="msg00627.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00624">Date Index</a></b>]
+[<b><a href="threads.html#00624">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] Re: problem in running the parallel fortran example</h1>
+<h1>RE: [sundials-users] Dll project Sundials BCB6</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -86,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
+&#x5F20;&#x963F;&#x8FEA; &lt;<a href="mailto:aendey%40hotmail.com">aendey@hotmail.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 28 Jun 2006 08:55:34 -0700</td>
+Tue, 22 Aug 2006 00:46:18 +0000</td>
 </tr>
 
 </table>
@@ -103,63 +100,20 @@ Wed, 28 Jun 2006 08:55:34 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Rachel,</pre><br>
-<tt>I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
-6)). You should not have to make any modifications to the sources as Fortran is case insensitive. I am quite baffled by this, especially 
-since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).</tt><br>
-<br>
-<pre style="margin: 0em;">Do you have similar problems with all the other parallel Fortran examples 
-(cvode, ida)?
-What are the compilation commands executed for 'make examples'. In my case they 
-are:</pre><br>
-<tt>Making examples in kinsol/fcmix/examples_par...<br>
-make[1]: Entering directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
-Updating fkinkryx_p.f...<br>
-/usr/apps/mpich/1.2.4/bin/mpif77  -I/usr/apps/mpich/1.2.4/bin/../include -g -O2 -ffloat-store -c ./fkinkryx_p-updated.f<br>
- /usr/apps/mpich/1.2.4/bin/mpif77 -o ./fkinkryx_p ./fkinkryx_p-updated.o  -g -O2 -ffloat-store  -L/home/radu/CODES/TEST/sundials/lib 
--lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -L/usr/apps/mpich/1.2.4/bin/../lib  -lm 
--L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s<br>
-make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'</tt><br>
-<br>
-<pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt><br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
-other users.</tt><br>
-<br>
-<tt><br>Rachel Gordon wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I installed Kinsol on my Linux cluster (running under Red Hat Linux 
-release 7.3 (Valhalla) ). I tried the c examples (serial and parallel) 
-and the serial fortran example and they all run fine. However when I try 
-the parallel fortran example fkinkryx_p, I get an error message:</tt><br>
-<br>
-<tt>/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
-dumped) /home/people/...</tt><br>
-<br>
-<pre style="margin: 0em;">I already changed  in the original file:
-   mpi_comm_world   to:  MPI_COMM_WORLD</pre><br>
-<pre style="margin: 0em;">and the names of the mpi routines:
-   mpi_init(ier)     to: MPI_Init(ier),
-   mpi_finalize(ier) to: MPI_Finalize(ier),
-   mpi_abort(..  )   to: MPI_Abort(.. ), and so on.</pre><br>
-<tt>This enabled creation  of the executable file fkinkryx_p*, but on 
-running it with: mpirun -np 4 fkinkryx_p    I get the above error message.</tt><br>
-<br>
-<pre style="margin: 0em;">What did I do wrong?</pre><br>
-<pre style="margin: 0em;">Thanks for your cooperation,</pre><br>
-<pre style="margin: 0em;">Sincerely,
-Rachel</pre><br>
-<pre style="margin: 0em;"><br>  Dr.  Rachel Gordon
-  Senior Research Associate        Phone: +972-4-8293811
-  Dept. of Aerospace Eng.        Fax:   +972 - 4 - 8292030
-  The Technion, Haifa 32000, Israel     email: rgordon@tx.technion.ac.il</pre><br>
-<pre style="margin: 0em;"><br></pre><br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
-<pre style="margin: 0em;">--
-   Radu Serban
-   Center for Applied Scientific Computing   [email] radu@llnl.gov
-   Lawrence Livermore National Laboratory    [phone] 925-424-4852
-   P.O. Box 808, L-560                       [fax]   925-422-6287
-   Livermore, CA 94551</pre><br>
+
+
+Hi!<BR>
+&nbsp;<BR>
+For some reasons I can not receive your accessories to me. it said that:<BR>
+<BR>WARNING:&nbsp;This&nbsp;email&nbsp;violated&nbsp;LLNL's&nbsp;email&nbsp;security&nbsp;policy&nbsp;and<BR>&gt; has&nbsp;been&nbsp;modified.&nbsp;If&nbsp;you&nbsp;would&nbsp;like&nbsp;a&nbsp;list&nbsp;of&nbsp;blocked&nbsp;file&nbsp;types<BR>&gt; or&nbsp;for&nbsp;more&nbsp;information&nbsp;please&nbsp;see:<BR>&gt; <BR>&gt; http://www-r.llnl.gov/cso/Whatnew/emailextblockv2.htm<BR>&gt; <BR>&gt; An&nbsp;attachment&nbsp;named&nbsp;projects_BCB6_dll.zip&nbsp;was&nbsp;removed&nbsp;from&nbsp;this&nbsp;document&nbsp;as&nbsp;it<BR>&gt; constituted&nbsp;a&nbsp;security&nbsp;hazard.&nbsp;&nbsp;If&nbsp;you&nbsp;require&nbsp;this&nbsp;document,&nbsp;please&nbsp;contact<BR>&gt; the&nbsp;sender&nbsp;and&nbsp;arrange&nbsp;an&nbsp;alternate&nbsp;means&nbsp;of&nbsp;receiving&nbsp;it.<BR><BR>Could you send me it again? Thank you very much!!:-)<BR><BR><BR><BR>
+
+<HR id=stopSpelling>
+<BR>
+&gt; Date: Sat, 19 Aug 2006 09:34:13 -0400<BR>&gt; To: sundials-users@llnl.gov<BR>&gt; Subject: [sundials-users] Dll project Sundials BCB6 <BR>&gt; From: Andreas.Nicolai@gmx.net<BR>&gt; <BR>&gt; Hi&nbsp;again,<BR>&gt; <BR>&gt; I&nbsp;attached&nbsp;a&nbsp;small&nbsp;archive&nbsp;with&nbsp;the&nbsp;project&nbsp;file&nbsp;for&nbsp;creating&nbsp;a&nbsp;Sundials&nbsp;DLL&nbsp;(version&nbsp;2.2.0)&nbsp;with&nbsp;BCB6.&nbsp;Simply&nbsp;extract&nbsp;the&nbsp;directory&nbsp;"projects"&nbsp;into&nbsp;the&nbsp;sundials&nbsp;dir&nbsp;and&nbsp;open&nbsp;+&nbsp;compile&nbsp;the&nbsp;dllSundials.prj.<BR>&gt; <BR>&gt; In&nbsp;the&nbsp;file&nbsp;'sundials_dll.cpp'&nbsp;simply&nbsp;add&nbsp;dll-exported&nbsp;wrapper&nbsp;functions&nbsp;for&nbsp;all&nbsp;the&nbsp;functions&nbsp;you&nbsp;need&nbsp;to&nbsp;use&nbsp;from&nbsp;&nbsp;Sundials.<BR>&gt; <BR>&gt; To&nbsp;use&nbsp;the&nbsp;DLL,&nbsp;either&nbsp;dynamically&nbsp;load&nbsp;it&nbsp;via&nbsp;LoadLibrary()&nbsp;or&nbsp;link&nbsp;the&nbsp;dl!
+ lSundials.lib&nbsp;file&nbsp;into&nbsp;your&nbsp;BCB6&nbsp;project.<BR>&gt; <BR>&gt; Bye,<BR>&gt; Andreas<BR>&gt; <BR>&gt; --&nbsp;<BR>&gt; Andreas&nbsp;Nicolai&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anicolai@syr.edu<BR>&gt; PhD&nbsp;Candidate,&nbsp;M.A.M.E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(315)&nbsp;443-2641<BR>&gt; Syracuse&nbsp;University<BR>&gt; 151&nbsp;Link&nbsp;Hall<BR>&gt; Syracuse,&nbsp;NY,&nbsp;13244<BR>&gt; ===========================================================================<BR>&gt; <BR>&gt; WARNING:&nbsp;This&nbsp;email&nbsp;violated&nbsp;LLNL's&nbsp;email&nbsp;security&nbsp;policy&nbsp;and<BR>&gt; has&nbsp;been&nbsp;modified.&nbsp;If&nbsp;you&nbsp;would&nbsp;like&nbsp;a&nbsp;list&nbsp;of&nbsp;blocked&nbsp;file&nbsp;types<BR>&gt; or&nbsp;for&nbsp;more&nbsp;information&nbsp;p!
+ lease&nbsp;see:<BR>&gt; <BR>&gt; http://www-r.llnl.gov/cso/Wha!
+ tnew/ema
+ilextblockv2.htm<BR>&gt; <BR>&gt; An&nbsp;attachment&nbsp;named&nbsp;projects_BCB6_dll.zip&nbsp;was&nbsp;removed&nbsp;from&nbsp;this&nbsp;document&nbsp;as&nbsp;it<BR>&gt; constituted&nbsp;a&nbsp;security&nbsp;hazard.&nbsp;&nbsp;If&nbsp;you&nbsp;require&nbsp;this&nbsp;document,&nbsp;please&nbsp;contact<BR>&gt; the&nbsp;sender&nbsp;and&nbsp;arrange&nbsp;an&nbsp;alternate&nbsp;means&nbsp;of&nbsp;receiving&nbsp;it.<BR>&gt; <BR>&gt; <BR><BR><br /><hr />Windows Live Safety Center &#x4E3A;&#x60A8;&#x7684;&#x8BA1;&#x7B97;&#x673A;&#x63D0;&#x4F9B;&#x514D;&#x8D39;&#x7684;&#x5B89;&#x5168;&#x626B;&#x63CF;&#x670D;&#x52A1;&#x3002; <a href='http://safety.live.com/site/ZH-CN/default.htm' target='_new'>&#x5B83;&#x662F;&#x514D;&#x8D39;&#x7684;&#xFF01;</a>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -167,42 +121,30 @@ Rachel</pre><br>
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00556" href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00545" href="msg00545.html">[sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
-<li><strong><a name="00548" href="msg00548.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00554.html">[sundials-users] Bizarre crashes in Sundials DLL</a></strong>
+<strong><a href="msg00623.html">[sundials-users] Dll project Sundials BCB6</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00625.html">The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00585.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<strong><a href="msg00621.html">[sundials-users] linking problem about .DLL of Cvodes</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00627.html">[sundials-users] CVODE: Iteration limit and error control...</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00555">
+<li><a href="maillist.html#00624">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00555">
+<li><a href="threads.html#00624">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

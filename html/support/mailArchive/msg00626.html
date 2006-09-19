@@ -1,0 +1,284 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: The reason for stepsize reduction (was: [sundials&#45;users] Setting boundaries on variables and/or velocities) -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Wed, 23 Aug 2006 14:13:56 &#45;0700 -->
+<!--X-Message-Id: Pine.LNX.4.58.0608231404070.11448@tux64.llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 44E30F0D.4010700@Uni&#45;Koeln.De -->
+<!--X-Reference: Pine.LNX.4.58.0608161159090.23461@tux64.llnl.gov -->
+<!--X-Reference: 44EC12E2.5030201@Uni&#45;Koeln.De -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00625.html">Date Prev</a>] [<a href="msg00627.html">Date Next</a>] [<a href="msg00625.html">Thread Prev</a>] [<a href="msg00617.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00626">Date Index</a></b>]
+[<b><a href="threads.html#00626">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 23 Aug 2006 14:08:07 -0700 (PDT)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>
+Hello Kai,
+
+Yes you can use those CVodeGet's to see which components are causing
+the most trouble.  As it says in the User Guide under
+CVodeGetEstLocalErrors, look at the products eweight[i]*ele[i]; the
+largest of these (in magnitude) indicate the component(s) causing
+the trouble.
+
+-Alan H
+
+
+
+On Wed, 23 Aug 2006, Kai Hartmann wrote:
+
+&gt;<i> Hi Alan, hi all,</i>
+&gt;<i></i>
+&gt;<i> after your comment I made a few experiments and I think I have to reduce</i>
+&gt;<i> the model size and look for errors in the model. Maybe I can explain the</i>
+&gt;<i> problems I observe with a concise model in a few days.</i>
+&gt;<i></i>
+&gt;<i> One other problem: is it possible to identify the process that is</i>
+&gt;<i> responsible for the stepsize reduction to quasi-zero (the limiting</i>
+&gt;<i> variable)?</i>
+&gt;<i></i>
+&gt;<i> CVodeGetErrWeights or CVodeGetEstLocalErrors look like they could serve</i>
+&gt;<i> for this purpose. Can you give me a short explanation on how you would</i>
+&gt;<i> approach this problem?</i>
+&gt;<i></i>
+&gt;<i> Kai</i>
+&gt;<i></i>
+&gt;<i> Alan Hindmarsh schrieb:</i>
+&gt;<i> &gt; Hello Kai,</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; No, it is generally NOT a good idea to impose these limits in the RHS</i>
+&gt;<i> &gt; function. The reasons include (a) it is usually not necessary, and</i>
+&gt;<i> &gt; (b) it can cause unstable behavior.  Although it is possible to get the</i>
+&gt;<i> &gt; current stepsize h within the RHS function, it is a severe violation</i>
+&gt;<i> &gt; of the assumptions on which the entire solver is based to have the RHS</i>
+&gt;<i> &gt; depend on h, and will likely cause it to crash.</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; See numerous other messages about this issue in the Sundials user</i>
+&gt;<i> &gt; reports collection.  Here is a summary:</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; First, be sure that the limits you want to impose are really true for</i>
+&gt;<i> &gt; the true solution of the system, and therefore it is only numerical</i>
+&gt;<i> &gt; error that takes y or v outside them.</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; A small violation of the limits is generally harmless.  E.g., if a</i>
+&gt;<i> &gt; small negative (unphysical) y_i occurs, replace y_i in the RHS</i>
+&gt;<i> &gt; evaluation by max(0,y_i) if you must, but do not change y_i itself.</i>
+&gt;<i> &gt; A small negative (unphysical) y_i on output can simply be changed to 0</i>
+&gt;<i> &gt; to avoid strange-looking output tables or plots.</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; Any violation of the limits that is large needs to be examined, since</i>
+&gt;<i> &gt; it may mean there is an error in the model.</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; -Alan Hindmarsh</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; On Wed, 16 Aug 2006, Kai Hartmann wrote:</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt;&gt; Hi all,</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; I would appreciate your comments on the following issue.</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; The range of physically meaningful values of all variables y is</i>
+&gt;<i> &gt;&gt; constrained to ymin &lt;= y &lt;= ymax. The range of physically meaningful</i>
+&gt;<i> &gt;&gt; velocities v (that are changing the values y) is constrained in a</i>
+&gt;<i> &gt;&gt; similar way: 0 &lt;= v &lt;= vmax.</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; An example:</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; A -&gt; B with v1 = k1*a - k2*b</i>
+&gt;<i> &gt;&gt; B -&gt; C with v2 = k3*b - k4*c</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; da/dt = -v1</i>
+&gt;<i> &gt;&gt; db/dt = v1-v2</i>
+&gt;<i> &gt;&gt; dc/dt = v2</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Is it reasonable to implement these boundaries in the rhs function? One</i>
+&gt;<i> &gt;&gt; way to do it would be this:</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; (1) If v leaves the range, set it to 0/vmax.</i>
+&gt;<i> &gt;&gt; (2) If v would cause y to leave the range, reduce v such that y will be</i>
+&gt;<i> &gt;&gt; ymin/ymax after the step.</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; However, for (2) to work, the rhs function has to know the current</i>
+&gt;<i> &gt;&gt; stepsize h. Does it have access to the stepsize somehow?</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Does this make sense at all?</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Kai</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Kai Hartmann</i>
+&gt;<i> &gt;&gt; CUBIC - Cologne University BioInformatics Center</i>
+&gt;<i> &gt;&gt; Institute for Biochemistry</i>
+&gt;<i> &gt;&gt; Z&#xFC;lpicher Strasse 47</i>
+&gt;<i> &gt;&gt; 50674 Koeln</i>
+&gt;<i> &gt;&gt; Phone: +49-221-470-7719</i>
+&gt;<i> &gt;&gt; Fax: +49-221-470-7786</i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> --</i>
+&gt;<i> Kai Hartmann</i>
+&gt;<i> CUBIC - Cologne University BioInformatics Center</i>
+&gt;<i> Institute for Biochemistry</i>
+&gt;<i> Z&#xFC;lpicher Strasse 47</i>
+&gt;<i> 50674 Koeln</i>
+&gt;<i> Phone: +49-221-470-7719</i>
+&gt;<i> Fax: +49-221-470-7786</i>
+&gt;<i></i>
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00615" href="msg00615.html">[sundials-users] Setting boundaries on variables and/or velocities</a></strong>
+<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00616" href="msg00616.html">Re: [sundials-users] Setting boundaries on variables and/or velocities</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00625" href="msg00625.html">The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</a></strong>
+<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00625.html">The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00627.html">[sundials-users] CVODE: Iteration limit and error control...</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00625.html">The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00617.html">[sundials-users] sensitivity equations</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00626">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00626">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

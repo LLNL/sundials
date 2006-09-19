@@ -1,0 +1,297 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: RE: [sundials&#45;users] IDA under mex interface between SUNDIALS and MATLAB -->
+<!--X-From-R13: "Dbl Ibyyzna" <ejbyyznaNhpqnivf.rqh> -->
+<!--X-Date: Thu, 06 Jul 2006 14:21:35 &#45;0700 -->
+<!--X-Message-Id: 6638778774B9F14997D316BCC99504CE8735A3@hermes.mcb.ucdavis.edu -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 44AD4177.30805@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>RE: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00570.html">Date Prev</a>] [<a href="msg00572.html">Date Next</a>] [<a href="msg00570.html">Thread Prev</a>] [<a href="msg00569.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00571">Date Index</a></b>]
+[<b><a href="threads.html#00571">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>RE: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;Roy Wollman&quot; &lt;<a href="mailto:rwollman%40ucdavis.edu">rwollman@ucdavis.edu</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Thu, 6 Jul 2006 14:18:17 -0700</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Dear Radu, 
+
+I agree that my approach was different, it was aimed at a quick solution
+for a specific problem rather then a general one. I already had a
+prototype running in Matlab
+and I was looking for a way to make it faster. I found, at least in my
+case,
+that translating my matlab code into C code for a specific set of
+equations
+was relatively easy. What I wanted to avoid is translating the rest of
+my Matlab code
+that uses genetic algorithm optimization show nice plots etc. into C as
+well. And that why I'm interfacing them. 
+
+Regarding the 50x increase in speed. It is probably due to compiler /
+interpreter difference
+however, as far as I understand, since Matlab compiler version 4, they
+do not really compile anymore
+rather just pack you m-code into an archive file and extract it and run
+it using a interperter that you need
+to deploy as well (called MCR). 
+
+My comparison was done between &quot;compiled&quot; ode15s (which isn't really
+compiled...) and compiled IDAsolve. 
+
+I'm very new to Sundials, just installed it last week... still have a
+lot to explore but
+so far it has been really helpful to me. Was well worth the effort of
+figuring it out. 
+
+Best, 
+
+Roy 
+
+
+
+-----Original Message-----
+From: owner-sundials-users@lists.llnl.gov
+[<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of Radu Serban
+Sent: Thursday, July 06, 2006 1:00 PM
+To: sundials-users@llnl.gov
+Subject: Re: [sundials-users] IDA under mex interface between SUNDIALS
+and MATLAB
+
+Roy Wollman wrote:
+&gt;<i> Dear Hannes, </i>
+&gt;<i>  </i>
+&gt;<i> I just finished setting up an Matlab / IDA solution. Its not a general</i>
+&gt;<i> wrapper but a specific </i>
+&gt;<i> solution to my problem and it was pretty easy to do. I'm not using mex</i>
+&gt;<i> but rather the matlab compiler</i>
+&gt;<i> which is a bit different but if you want to use mex it shouldn't be</i>
+hard
+&gt;<i> as well. </i>
+&gt;<i> Here is what I did:</i>
+&gt;<i> </i>
+&gt;<i> 1. wrote the C part and made sure it works as C &quot;main&quot; function. </i>
+&gt;<i> </i>
+&gt;<i> 2. wrote a mex gateway function, there are several example in the</i>
+matlab
+&gt;<i> doc as to how to do it. </i>
+&gt;<i> It basically  parse the input and output and call your 'real' other</i>
+&gt;<i> function. look for matlab example timestwo.c</i>
+&gt;<i> and others like that for reference. </i>
+&gt;<i> </i>
+&gt;<i> 3. translated the main from step 1 to be the 'real' function the</i>
+&gt;<i> mexFunction gateways calls. </i>
+&gt;<i> </i>
+&gt;<i> 4. compile. This was a bit tricky. I couldn't figure out a way to link</i>
+&gt;<i> the IDA libraries using mcc</i>
+&gt;<i> so I first only generated the c code using mcc -c... then build it</i>
+using
+&gt;<i> mbuild. I think if you use </i>
+&gt;<i> mex and not mcc it should be straight forward regular</i>
+&gt;<i> -I/usr/.../sundials  and -lsundials_ida etc. </i>
+&gt;<i> </i>
+&gt;<i> I guess you could use these steps to build a general interface but</i>
+&gt;<i> writing the function that calls </i>
+&gt;<i> the solver in C and calling that function through the gateway</i>
+&gt;<i> mexFunction was pretty simple as well. </i>
+&gt;<i> </i>
+&gt;<i> Its really worth while doing, using IDA was 50(!) times then matlab's</i>
+&gt;<i> ode15s, at least in my case. </i>
+&gt;<i> </i>
+&gt;<i> Hope this helps, </i>
+&gt;<i> </i>
+&gt;<i> Roy </i>
+&gt;<i> </i>
+
+
+Roy,
+
+If I understand it correctly (I haven't used mcc myself), your approach
+to interfacing IDA with Matlab is different than what sundialsTB 
+does. While sundialsTB provides a way to use the SUNDIALS solvers in a
+manner similar to that in which you'd use any of the Matlab existing 
+ones (e.g. ode15s), that is from within the Matlab environment, in your
+approach, you end up with a stand alone executable which you run 
+from outside Matlab.
+
+I'm not convinced that this is what Hannes is looking for...
+
+The main reason for writing the sundialsTB interfaces was to provide a
+fast prototyping tool (I needed a cvodes interface myself for some 
+other project and someone else here at LLNL is using the kinsol
+interface for testing out algorithms - this is why only these two are 
+available at this time). I never intended sundialsTB to be an end in
+itself (but apparently some of you are using it that way). Once done 
+with the prototyping, I converted everything to C, to get the efficiency
+of a compiled language (versus an interpreted one such as Matlab).
+
+This brings me to your comments regarding the efficiency of IDA compared
+to that of ode15s. I suspect that only a relatively small fraction 
+of the factor of 50 that you report is due to the integrator itself.
+Most of it comes probably from the fact that you do not use any 
+interpreted code anymore. A fair test would require also compiling
+ode15s so that you compare apples to apples. When an ida mex interface 
+will be available within sundialsTB, I doubt you'll see such speed-ups
+over ode15s. The reason for this is that most of the time will end up 
+being spent not in the solver itself (which is a compiled library, hence
+fast), but rather in the user supplied functions (mostly the 
+residual function) which will still be Matlab functions (interpreted
+code, hence slow). Again, sundialsTB is (was) meant as a prototyping 
+tool and its main goal is not speed of execution, but rather speed and
+convenience in writing the code.
+
+--Radu
+
+
+
+
+
+
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00570" href="msg00570.html">Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00570.html">Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00572.html">[sundials-users] SUNDIAL installation using mingw/msys: C compiler cannot create executables</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00570.html">Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00569.html">Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00571">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00571">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

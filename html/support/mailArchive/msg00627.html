@@ -1,16 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] Re: problem in running the parallel fortran example -->
-<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Wed, 28 Jun 2006 08:58:15 &#45;0700 -->
-<!--X-Message-Id: 44A2A676.2010000@llnl.gov -->
+<!--X-Subject: [sundials&#45;users] CVODE: Iteration limit and error control... -->
+<!--X-From-R13: "Oaqernf @vpbynv" <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Thu, 24 Aug 2006 07:15:23 &#45;0700 -->
+<!--X-Message-Id: op.tesj7foft8lo91@smtp.kuleuven.ac.be -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 449FF72D.1050304@eas.iis.fraunhofer.de -->
-<!--X-Reference: 44A0044E.7030404@llnl.gov -->
-<!--X-Reference: Pine.GSO.4.61.0606271654400.15344@techunix.technion.ac.il -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] Re: problem in running the parallel fortran example</title>
+<title>[sundials-users] CVODE: Iteration limit and error control...</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00554.html">Date Prev</a>] [<a href="msg00556.html">Date Next</a>] [<a href="msg00585.html">Thread Prev</a>] [<a href="msg00556.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00555">Date Index</a></b>]
-[<b><a href="threads.html#00555">Thread Index</a></b>]
+[<a href="msg00626.html">Date Prev</a>] [<a href="msg00628.html">Date Next</a>] [<a href="msg00624.html">Thread Prev</a>] [<a href="msg00629.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00627">Date Index</a></b>]
+[<b><a href="threads.html#00627">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] Re: problem in running the parallel fortran example</h1>
+<h1>[sundials-users] CVODE: Iteration limit and error control...</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -86,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
+&quot;Andreas Nicolai&quot; &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 28 Jun 2006 08:55:34 -0700</td>
+Thu, 24 Aug 2006 10:07:53 -0400</td>
 </tr>
 
 </table>
@@ -103,63 +100,36 @@ Wed, 28 Jun 2006 08:55:34 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Rachel,</pre><br>
-<tt>I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
-6)). You should not have to make any modifications to the sources as Fortran is case insensitive. I am quite baffled by this, especially 
-since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).</tt><br>
-<br>
-<pre style="margin: 0em;">Do you have similar problems with all the other parallel Fortran examples 
-(cvode, ida)?
-What are the compilation commands executed for 'make examples'. In my case they 
-are:</pre><br>
-<tt>Making examples in kinsol/fcmix/examples_par...<br>
-make[1]: Entering directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
-Updating fkinkryx_p.f...<br>
-/usr/apps/mpich/1.2.4/bin/mpif77  -I/usr/apps/mpich/1.2.4/bin/../include -g -O2 -ffloat-store -c ./fkinkryx_p-updated.f<br>
- /usr/apps/mpich/1.2.4/bin/mpif77 -o ./fkinkryx_p ./fkinkryx_p-updated.o  -g -O2 -ffloat-store  -L/home/radu/CODES/TEST/sundials/lib 
--lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -L/usr/apps/mpich/1.2.4/bin/../lib  -lm 
--L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s<br>
-make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'</tt><br>
-<br>
-<pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt><br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
-other users.</tt><br>
-<br>
-<tt><br>Rachel Gordon wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I installed Kinsol on my Linux cluster (running under Red Hat Linux 
-release 7.3 (Valhalla) ). I tried the c examples (serial and parallel) 
-and the serial fortran example and they all run fine. However when I try 
-the parallel fortran example fkinkryx_p, I get an error message:</tt><br>
-<br>
-<tt>/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
-dumped) /home/people/...</tt><br>
-<br>
-<pre style="margin: 0em;">I already changed  in the original file:
-   mpi_comm_world   to:  MPI_COMM_WORLD</pre><br>
-<pre style="margin: 0em;">and the names of the mpi routines:
-   mpi_init(ier)     to: MPI_Init(ier),
-   mpi_finalize(ier) to: MPI_Finalize(ier),
-   mpi_abort(..  )   to: MPI_Abort(.. ), and so on.</pre><br>
-<tt>This enabled creation  of the executable file fkinkryx_p*, but on 
-running it with: mpirun -np 4 fkinkryx_p    I get the above error message.</tt><br>
-<br>
-<pre style="margin: 0em;">What did I do wrong?</pre><br>
-<pre style="margin: 0em;">Thanks for your cooperation,</pre><br>
-<pre style="margin: 0em;">Sincerely,
-Rachel</pre><br>
-<pre style="margin: 0em;"><br>  Dr.  Rachel Gordon
-  Senior Research Associate        Phone: +972-4-8293811
-  Dept. of Aerospace Eng.        Fax:   +972 - 4 - 8292030
-  The Technion, Haifa 32000, Israel     email: rgordon@tx.technion.ac.il</pre><br>
-<pre style="margin: 0em;"><br></pre><br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">Hi there,</pre><br>
+<pre style="margin: 0em;">while trying to understand the process of error control for the time integration, I found 
+a line in the documentation of CVODE saying that &quot;We allow at most 3 iterations (but 
+this limit can be changed by the user).&quot; right after introducing the convergence 
+criterion.</pre><br>
+<pre style="margin: 0em;">Now, before discussing this further, I have a general question about how CVODE controls 
+the error in time. For my previous hand-written 1st order implicit Euler scheme, I found 
+the following behaviour: As long as the solution did not diverge, at some point (even 
+after many iterations) and sometimes for a time step that was much too large at this 
+step, the solution converged and I could continue with integration in time (thanks to the 
+unconditionally stable implicit scheme). However, when choosing too large time steps, the 
+errors in the solution were also pretty big (sometimes even &quot;jumping&quot; and 
+ignoring important effects in the solution).</pre><br>
+<pre style="margin: 0em;">My solution was to limit the number of allowed iterations, and with a Newton 
+scheme I had typically a limit of 10 iterations until convergence - if more 
+were needed, I had to reduce my time step and try again.</pre><br>
+<pre style="margin: 0em;">Is that in principle the same procedure as used in CVODE? If the number of 
+iterations is bigger than a certain limit, the time step must be too large and 
+is reduced? Or is there a different reason for the iteration limit?</pre><br>
+<pre style="margin: 0em;">Also, does this &quot;arbitrary&quot; iteration limit actually guarantee that the error 
+term for the time discretization stays below a certain value or is this also controled 
+elsewhere?</pre><br>
+<pre style="margin: 0em;">Bye,
+Andreas</pre><br>
 <pre style="margin: 0em;">--
-   Radu Serban
-   Center for Applied Scientific Computing   [email] radu@llnl.gov
-   Lawrence Livermore National Laboratory    [phone] 925-424-4852
-   P.O. Box 808, L-560                       [fax]   925-422-6287
-   Livermore, CA 94551</pre><br>
+Andreas Nicolai                         anicolai@syr.edu
+PhD Candidate, M.A.M.E                  (315) 443-2641
+Syracuse University
+151 Link Hall
+Syracuse, NY, 13244</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -169,40 +139,33 @@ Rachel</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00556" href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<li><strong><a name="00629" href="msg00629.html">Re: [sundials-users] CVODE: Iteration limit and error control...</a></strong>
 <ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00545" href="msg00545.html">[sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
-<li><strong><a name="00548" href="msg00548.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00554.html">[sundials-users] Bizarre crashes in Sundials DLL</a></strong>
+<strong><a href="msg00626.html">Re: The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00628.html">[sundials-users] IDA dense/banded solver</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00585.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<strong><a href="msg00624.html">RE: [sundials-users] Dll project Sundials BCB6</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00629.html">Re: [sundials-users] CVODE: Iteration limit and error control...</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00555">
+<li><a href="maillist.html#00627">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00555">
+<li><a href="threads.html#00627">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

@@ -1,16 +1,18 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] Re: problem in running the parallel fortran example -->
+<!--X-Subject: Re: [sundials&#45;users] Question about uinsg sundials for problem will ill&#45;conditinoed Jacobian Matrix -->
 <!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Wed, 28 Jun 2006 08:58:15 &#45;0700 -->
-<!--X-Message-Id: 44A2A676.2010000@llnl.gov -->
+<!--X-Date: Mon, 24 Jul 2006 09:06:04 &#45;0700 -->
+<!--X-Message-Id: 44C4EF32.2090209@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 449FF72D.1050304@eas.iis.fraunhofer.de -->
-<!--X-Reference: 44A0044E.7030404@llnl.gov -->
-<!--X-Reference: Pine.GSO.4.61.0606271654400.15344@techunix.technion.ac.il -->
+<!--X-Reference: 44B6786F.5050906@mit.edu -->
+<!--X-Reference: 44BC0C4E.6040603@llnl.gov -->
+<!--X-Reference: 20060718170219.230zrhhoys8g0w8o@www.bu.edu -->
+<!--X-Reference: 44BD7D9F.3010001@llnl.gov -->
+<!--X-Reference: Pine.A41.4.63.0607211034280.116112@acsrs3.bu.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] Re: problem in running the parallel fortran example</title>
+<title>Re: [sundials-users] Question about uinsg sundials for problem will ill-conditinoed Jacobian Matrix</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +71,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00554.html">Date Prev</a>] [<a href="msg00556.html">Date Next</a>] [<a href="msg00585.html">Thread Prev</a>] [<a href="msg00556.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00555">Date Index</a></b>]
-[<b><a href="threads.html#00555">Thread Index</a></b>]
+[<a href="msg00591.html">Date Prev</a>] [<a href="msg00593.html">Date Next</a>] [<a href="msg00587.html">Thread Prev</a>] [<a href="msg00593.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00592">Date Index</a></b>]
+[<b><a href="threads.html#00592">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] Re: problem in running the parallel fortran example</h1>
+<h1>Re: [sundials-users] Question about uinsg sundials for problem will ill-conditinoed Jacobian Matrix</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -93,7 +95,7 @@ Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 28 Jun 2006 08:55:34 -0700</td>
+Mon, 24 Jul 2006 09:02:58 -0700</td>
 </tr>
 
 </table>
@@ -103,56 +105,56 @@ Wed, 28 Jun 2006 08:55:34 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Rachel,</pre><br>
-<tt>I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
-6)). You should not have to make any modifications to the sources as Fortran is case insensitive. I am quite baffled by this, especially 
-since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).</tt><br>
+<pre style="margin: 0em;">Hi Xuedong,</pre><br>
+<tt>This tends to be a problem-specific issue, so we'll probably need a bit more information on yours. However, there are several general 
+techniques that may work, such as rescaling your states and/or equations or reformulating your mathematical model (e.g. switch from an ODE 
+to a DAE description). Hopefully, I'll be able to be more specific once you give a more detailed description of your problem: what is the 
+physical phenomena you try to model, how large is the resulting DE, what causes the ill-conditioned Jacobian, etc.</tt><br>
 <br>
-<pre style="margin: 0em;">Do you have similar problems with all the other parallel Fortran examples 
-(cvode, ida)?
-What are the compilation commands executed for 'make examples'. In my case they 
-are:</pre><br>
-<tt>Making examples in kinsol/fcmix/examples_par...<br>
-make[1]: Entering directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
-Updating fkinkryx_p.f...<br>
-/usr/apps/mpich/1.2.4/bin/mpif77  -I/usr/apps/mpich/1.2.4/bin/../include -g -O2 -ffloat-store -c ./fkinkryx_p-updated.f<br>
- /usr/apps/mpich/1.2.4/bin/mpif77 -o ./fkinkryx_p ./fkinkryx_p-updated.o  -g -O2 -ffloat-store  -L/home/radu/CODES/TEST/sundials/lib 
--lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -L/usr/apps/mpich/1.2.4/bin/../lib  -lm 
--L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s<br>
-make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'</tt><br>
+<tt>In the meantime, since you mention having tried one of the SPILS (scaled preconditioned iterative linear solvers), I'd like to make sure 
+that you are building a preconditioner for the right matrix (I realize that the documentation is not very clear on this point - we'll have 
+to add some clarifications to it). Consider F(y,y',t) = A y' - By + x(t) = 0. You have the following two options:<br>
+1) Transform it to an explicit first-order ODE (and use CVODE)<br>
+   y' = A^{-1} B y - A^{-1} x(t)<br>
+As Alan mentioned, this assumes that you can efficiently compute A^{-1} every time the RHS is evaluated. However, if A is ill-conditioned, 
+this may be out of the question.<br>
+2) Treat it as an implicit first-order ODE (and use IDA)</tt><br>
 <br>
-<pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt><br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
-other users.</tt><br>
+<tt>If using CVODE with Newton or IDA and if you use a SPILS, the preconditioner matrix P must be an approximation to the resulting Newton 
+iteration matrix which, for the above two cases, is<br>
+1) M = I - gamma * J = I - gamma * df/dy, where f(t) = A^{-1} ( By-x(t) ) and gamma is a scalar proportional to the integration step size h.<br>
+Therefore (ignoring the constant in gamma), in your situation, P must approximate<br>
+P ~ I - h A^{-1} B = A^{-1} ( A - h B )<br>
+2) M = dF/dy + cj dF/dy', where F(t) = Ay'-By+x and cj is a scalar proportional to 1/h. In your situation:<br>
+P ~ -B + 1/h A = 1/h ( A - h B )</tt><br>
 <br>
-<tt><br>Rachel Gordon wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I installed Kinsol on my Linux cluster (running under Red Hat Linux 
-release 7.3 (Valhalla) ). I tried the c examples (serial and parallel) 
-and the serial fortran example and they all run fine. However when I try 
-the parallel fortran example fkinkryx_p, I get an error message:</tt><br>
+<pre style="margin: 0em;">Are you preconditioning the right matrix? Is P also ill-conditioned?</pre><br>
+<tt>A couple other questions:<br>
+- are both A and B ill-conditioned?<br>
+- is your problem small enough to simply try the banded linear solver?<br>
+- you mentioned using an LU preconditioner. Do you mean an incomplete LU? Otherwise, this would effectively be the same as using the dense 
+linear solver.</tt><br>
 <br>
-<tt>/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
-dumped) /home/people/...</tt><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<tt><br>Xuedong Zhang wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+<pre style="margin: 0em;">  So I am trying to solve a nonlinear equation A(y,y')y'' = f,
+or more general form  F(y,y',t) = A y' - By + x(t).</pre><br>
+<pre style="margin: 0em;">  A,B is banded matrix, and highly ill-conditioned
+(condition number ~ 1e19).</pre><br>
+<tt>  I tried IDA, SPGMR, with simple scaling along diag as preconditioner, 
+but it IDAsolve returns errors (fail to converge or maxsteps reached).</tt><br>
 <br>
-<pre style="margin: 0em;">I already changed  in the original file:
-   mpi_comm_world   to:  MPI_COMM_WORLD</pre><br>
-<pre style="margin: 0em;">and the names of the mpi routines:
-   mpi_init(ier)     to: MPI_Init(ier),
-   mpi_finalize(ier) to: MPI_Finalize(ier),
-   mpi_abort(..  )   to: MPI_Abort(.. ), and so on.</pre><br>
-<tt>This enabled creation  of the executable file fkinkryx_p*, but on 
-running it with: mpirun -np 4 fkinkryx_p    I get the above error message.</tt><br>
+<tt>  When I use LU factorization as preconditioner, It seems that LAPACK 
+linear solver doesn't give me the right answer (dgbtrf, dgbtrs). So IDA<br>
+fails to.</tt><br>
 <br>
-<pre style="margin: 0em;">What did I do wrong?</pre><br>
-<pre style="margin: 0em;">Thanks for your cooperation,</pre><br>
-<pre style="margin: 0em;">Sincerely,
-Rachel</pre><br>
-<pre style="margin: 0em;"><br>  Dr.  Rachel Gordon
-  Senior Research Associate        Phone: +972-4-8293811
-  Dept. of Aerospace Eng.        Fax:   +972 - 4 - 8292030
-  The Technion, Haifa 32000, Israel     email: rgordon@tx.technion.ac.il</pre><br>
-<pre style="margin: 0em;"><br></pre><br>
+<tt>  Since I am new to this field, could anyone provide suggestions about<br>
+how to solve the this problem (ode with highly ill-conditioned Jacobian 
+Matrix)?</tt><br>
+<br>
+<pre style="margin: 0em;">Thanks
+Xuedong</pre><br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">--
    Radu Serban
@@ -169,40 +171,46 @@ Rachel</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00556" href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00593" href="msg00593.html">Re: [sundials-users] Question about uinsg sundials for problem	will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> zxd@bu.edu</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00545" href="msg00545.html">[sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
-<li><strong><a name="00548" href="msg00548.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<li><strong><a name="00575" href="msg00575.html">[sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> Xuedong Zhang &lt;zxd@MIT.EDU&gt;</li></ul></li>
+<li><strong><a name="00578" href="msg00578.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
 <ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00582" href="msg00582.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> zxd@bu.edu</li></ul></li>
+<li><strong><a name="00584" href="msg00584.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00587" href="msg00587.html">[sundials-users] Question about uinsg sundials for problem will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> Xuedong Zhang &lt;zxd@bu.edu&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00554.html">[sundials-users] Bizarre crashes in Sundials DLL</a></strong>
+<strong><a href="msg00591.html">Re: [sundials-users] passing pointer to an array to f routine</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00593.html">Re: [sundials-users] Question about uinsg sundials for problem	will ill-conditinoed Jacobian Matrix</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00585.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<strong><a href="msg00587.html">[sundials-users] Question about uinsg sundials for problem will ill-conditinoed Jacobian Matrix</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00593.html">Re: [sundials-users] Question about uinsg sundials for problem	will ill-conditinoed Jacobian Matrix</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00555">
+<li><a href="maillist.html#00592">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00555">
+<li><a href="threads.html#00592">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

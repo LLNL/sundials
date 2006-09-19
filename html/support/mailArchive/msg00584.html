@@ -1,16 +1,16 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] Re: problem in running the parallel fortran example -->
+<!--X-Subject: Re: [sundials&#45;users] custom linear solvers for cvodes, and ida -->
 <!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Wed, 28 Jun 2006 08:58:15 &#45;0700 -->
-<!--X-Message-Id: 44A2A676.2010000@llnl.gov -->
+<!--X-Date: Tue, 18 Jul 2006 17:41:00 &#45;0700 -->
+<!--X-Message-Id: 44BD7D9F.3010001@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 449FF72D.1050304@eas.iis.fraunhofer.de -->
-<!--X-Reference: 44A0044E.7030404@llnl.gov -->
-<!--X-Reference: Pine.GSO.4.61.0606271654400.15344@techunix.technion.ac.il -->
+<!--X-Reference: 44B6786F.5050906@mit.edu -->
+<!--X-Reference: 44BC0C4E.6040603@llnl.gov -->
+<!--X-Reference: 20060718170219.230zrhhoys8g0w8o@www.bu.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] Re: problem in running the parallel fortran example</title>
+<title>Re: [sundials-users] custom linear solvers for cvodes, and ida</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +69,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00554.html">Date Prev</a>] [<a href="msg00556.html">Date Next</a>] [<a href="msg00585.html">Thread Prev</a>] [<a href="msg00556.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00555">Date Index</a></b>]
-[<b><a href="threads.html#00555">Thread Index</a></b>]
+[<a href="msg00583.html">Date Prev</a>] [<a href="msg00585.html">Date Next</a>] [<a href="msg00586.html">Thread Prev</a>] [<a href="msg00587.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00584">Date Index</a></b>]
+[<b><a href="threads.html#00584">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] Re: problem in running the parallel fortran example</h1>
+<h1>Re: [sundials-users] custom linear solvers for cvodes, and ida</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -93,7 +93,7 @@ Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 28 Jun 2006 08:55:34 -0700</td>
+Tue, 18 Jul 2006 17:32:31 -0700</td>
 </tr>
 
 </table>
@@ -103,56 +103,61 @@ Wed, 28 Jun 2006 08:55:34 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Rachel,</pre><br>
-<tt>I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
-6)). You should not have to make any modifications to the sources as Fortran is case insensitive. I am quite baffled by this, especially 
-since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).</tt><br>
+<pre style="margin: 0em;">ZXD (?),</pre><br>
+<pre style="margin: 0em;">I know where such systems appear (hence the use of 'position' and 'velocity' in 
+my previous reply).</pre><br>
+<tt>Anyway, I think you rush a bit in stating that the advantages are &quot;obvious&quot; (even putting aside the generality issue I raised before). 
+Indeed, you need to remember that, when solving such problems with one of the SUNDIALS solvers (which work on first order DEs), the problem 
+size will still be 2n (in your notation). In other words, the linear solver still needs to return a 2n-dimensional vector as the solution.</tt><br>
 <br>
-<pre style="margin: 0em;">Do you have similar problems with all the other parallel Fortran examples 
-(cvode, ida)?
-What are the compilation commands executed for 'make examples'. In my case they 
-are:</pre><br>
-<tt>Making examples in kinsol/fcmix/examples_par...<br>
-make[1]: Entering directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
-Updating fkinkryx_p.f...<br>
-/usr/apps/mpich/1.2.4/bin/mpif77  -I/usr/apps/mpich/1.2.4/bin/../include -g -O2 -ffloat-store -c ./fkinkryx_p-updated.f<br>
- /usr/apps/mpich/1.2.4/bin/mpif77 -o ./fkinkryx_p ./fkinkryx_p-updated.o  -g -O2 -ffloat-store  -L/home/radu/CODES/TEST/sundials/lib 
--lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -L/usr/apps/mpich/1.2.4/bin/../lib  -lm 
--L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s<br>
-make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'</tt><br>
+<tt>Granted, when using a dense linear solver, this can be done in 2 stages, first trivially obtaining the velocity components solving and then 
+solving an n x n system for the position components. This will certainly save memory and efficiency. One could easily modify SUNDIALS's 
+dense linear solver to do this, but this will imply an implicit assumption on which variables are 'positions' and which are 'velocities' 
+(which is the reason why we will probably not provide such a solver within SUNDIALS).</tt><br>
 <br>
-<pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt><br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
-other users.</tt><br>
+<tt>However, for the iterative linear solvers all the Jacobian-related information that the linear solver requires is in the form of 
+matrix-vector products (with a 2n x 2n matrix and 2n-dimensional vector!) which the user can very easily implement such that it takes into 
+account the identity blocks in the Jacobian. Yes, of course, one could make it a little bit more efficient by the same staggered approach as 
+for the dense case, but we're only talking now about vector operations (scaling, sum, etc). Moreover, one would have to think twice before 
+doing this with an iterative linear solver, as one would need to rethink the stopping criteria for the linear solver (which is related to 
+that of the Newton solver for a 2n dimensional nonlinear system). This would now require variable type information outside the linear solver 
+itself!</tt><br>
 <br>
-<tt><br>Rachel Gordon wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I installed Kinsol on my Linux cluster (running under Red Hat Linux 
-release 7.3 (Valhalla) ). I tried the c examples (serial and parallel) 
-and the serial fortran example and they all run fine. However when I try 
-the parallel fortran example fkinkryx_p, I get an error message:</tt><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<tt>zxd@bu.edu wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">This is may be specific but it is also very general for a
+variety of problems. e.g. for many mechanical system
+(each component may be specified by p,v).</pre><br>
+<tt>In this case, in stead of problem of 2n x 2n, it only need solve the 
+problem with n x n size, both for direct linear solver and iterative 
+linear solver, so the advantage is obvious.</tt><br>
 <br>
-<tt>/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
-dumped) /home/people/...</tt><br>
+<tt>This is because the Jac Matrix is very structured:<br>
+If this system can be described as Ay'' + By' +Cy = 0.<br>
+The Jac matrix for u' and u (u = [p, v] is [I, O; O A], [O I; C B] 
+separately. And it is easily to cut the problem size in half.</tt><br>
 <br>
-<pre style="margin: 0em;">I already changed  in the original file:
-   mpi_comm_world   to:  MPI_COMM_WORLD</pre><br>
-<pre style="margin: 0em;">and the names of the mpi routines:
-   mpi_init(ier)     to: MPI_Init(ier),
-   mpi_finalize(ier) to: MPI_Finalize(ier),
-   mpi_abort(..  )   to: MPI_Abort(.. ), and so on.</pre><br>
-<tt>This enabled creation  of the executable file fkinkryx_p*, but on 
-running it with: mpirun -np 4 fkinkryx_p    I get the above error message.</tt><br>
 <br>
-<pre style="margin: 0em;">What did I do wrong?</pre><br>
-<pre style="margin: 0em;">Thanks for your cooperation,</pre><br>
-<pre style="margin: 0em;">Sincerely,
-Rachel</pre><br>
-<pre style="margin: 0em;"><br>  Dr.  Rachel Gordon
-  Senior Research Associate        Phone: +972-4-8293811
-  Dept. of Aerospace Eng.        Fax:   +972 - 4 - 8292030
-  The Technion, Haifa 32000, Israel     email: rgordon@tx.technion.ac.il</pre><br>
-<pre style="margin: 0em;"><br></pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Xuedong,<br>
+Such a linear solver would require knowledge of the 'type' of variable 
+('position' or 'velocity') which is not required otherwise and would<br>
+conflict with one of the design principles for the SUNDIALS solvers 
+(namely that the solvers are data-independent). Of course, you can write<br>
+your own linear solver and interface it to any of the SUNDIALS 
+solvers. When using a dense Jacobian, a linear solver like the one you<br>
+suggest, would certainly save memory but probably not a whole lot in 
+terms of efficiency. For an iterative linear solver I do not see any<br>
+advantages.<br>
+--Radu</tt><br>
+<br>
+<pre style="margin: 0em;">--
+    Radu Serban
+    Center for Applied Scientific Computing   [email] radu@llnl.gov
+    Lawrence Livermore National Laboratory    [phone] 925-424-4852
+    P.O. Box 808, L-560                       [fax]   925-422-6287
+    Livermore, CA 94551</pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">--
    Radu Serban
@@ -169,40 +174,42 @@ Rachel</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00556" href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00587" href="msg00587.html">[sundials-users] Question about uinsg sundials for problem will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> Xuedong Zhang &lt;zxd@bu.edu&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00545" href="msg00545.html">[sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
-<li><strong><a name="00548" href="msg00548.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<li><strong><a name="00575" href="msg00575.html">[sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> Xuedong Zhang &lt;zxd@MIT.EDU&gt;</li></ul></li>
+<li><strong><a name="00578" href="msg00578.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
 <ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00582" href="msg00582.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> zxd@bu.edu</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00554.html">[sundials-users] Bizarre crashes in Sundials DLL</a></strong>
+<strong><a href="msg00583.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00585.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00585.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<strong><a href="msg00586.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00587.html">[sundials-users] Question about uinsg sundials for problem will ill-conditinoed Jacobian Matrix</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00555">
+<li><a href="maillist.html#00584">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00555">
+<li><a href="threads.html#00584">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

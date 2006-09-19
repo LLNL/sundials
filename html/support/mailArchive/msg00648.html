@@ -1,0 +1,247 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] sensitivity in iterative runs -->
+<!--X-From-R13: Dnvare [npuar <envzNgov.havivr.np.ng> -->
+<!--X-Date: Wed, 30 Aug 2006 10:18:27 &#45;0700 -->
+<!--X-Message-Id: Pine.LNX.4.62.0608301912330.15434@mescalin.tbi.univie.ac.at -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: Pine.LNX.4.62.0608291643450.8910@mescalin.tbi.univie.ac.at -->
+<!--X-Reference: 44F4669A.7040002@llnl.gov -->
+<!--X-Reference: Pine.LNX.4.62.0608301517550.18966@mescalin.tbi.univie.ac.at -->
+<!--X-Reference: 44F5A28C.5010105@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] sensitivity in iterative runs</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00647.html">Date Prev</a>] [Date Next] [<a href="msg00646.html">Thread Prev</a>] [Thread Next]<br>
+[<b><a href="maillist.html#00648">Date Index</a></b>]
+[<b><a href="threads.html#00648">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] sensitivity in iterative runs</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Rainer Machne &lt;<a href="mailto:raim%40tbi.univie.ac.at">raim@tbi.univie.ac.at</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 30 Aug 2006 19:18:22 +0200 (CEST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Hi Radu</pre><br>
+<tt>Yes, we plan to switch to the latest release with our next official 
+release which is planned just before new year.</tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Initializing yS after CVodeSensMalloc is NOT ok!
+</tt></blockquote><tt><br>Yes, I have realized that and it seems the compiler did the job. I really 
+wonder why I had implemented it this way, in the first place, as I knew it 
+from the main solver, that the values passed are copied and not used from 
+the accesible y, yS etc. arrays. My colleague James also did it right for 
+the adjoint solver. So this was really a stupid bug on my side.</tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>All the 'errors' below boil down to valgrind not realizing that these<br>
+'uninitialized' values are actually initialized in some NVECTOR 
+</tt></blockquote><tt>function. I
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>suspect valgrind gets confused by the layer of generic NVECTOR 
+</tt></blockquote><pre style="margin: 0em;">operations..</pre><br>
+<pre style="margin: 0em;">Ok, I see. Many previous errors disappeared with new valgrind releases :)</pre><br>
+<pre style="margin: 0em;">Thanks again,
+Rainer</pre><br>
+<pre style="margin: 0em;">On Wed, 30 Aug 2006, Radu Serban wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Rainer,</pre><br>
+<tt>I see you're not using the latest SUNDIALS release (2.2.0) but rather 2.1.1. 
+You may want to update (although at this point it may be better for you to 
+wait for the next release - hopefully soon - which will have a completely 
+different file structure).</tt><br>
+<br>
+<tt>Rainer Machne wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
+<tt>Thanks for your always quick and good replies and sorry for bothering you 
+in this case :-) It was of course our own two bugs.</tt><br>
+<br>
+<tt>a) destroy and re-create CVodeSens:<br>
+I seem to have overlooked the requirement for a CVodeSensFree and thought 
+that this was done with CVodeFree;
+</tt></blockquote><tt><br>CVodeFree() indeed calls CVodeSensFree(). However, in v2.1.1, all *Free() 
+functions were passed the memory block instead of a pointer to them. This bug 
+(fixed in v2.2.0) would explain the behavior you see.</tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>b) CVodeSensReInit:<br>
+I initialized the yS vector AFTER calling ReInit; initializing yS after the 
+first CVodeSensMalloc didn't cause problems, so I had overlooked this 
+problem;
+</tt></blockquote><tt><br>Initializing yS after CVodeSensMalloc is NOT ok! The sensitivity IC are 
+copied from the yS passed to CVodeSensMalloc into the solver memory (same is 
+true for CVodeReInit). I suspect all sensitivity IC in your case are 0 and 
+your compiler probably initializes variables to 0, so you get the 'right' IC 
+when calling CVodeSensMalloc. By the time you call CVodeReInit, yS was 
+probably overwritten (by CVodeGetSens probably).</tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Anyways, thanks again very much for your help!</pre><br>
+<tt>By the way :-), valgrind reports some errors which however do not cause any 
+problems so far. So please, don't bother if you're busy.
+</tt></blockquote><tt><br>All the 'errors' below boil down to valgrind not realizing that these 
+'uninitialized' values are actually initialized in some NVECTOR function. I 
+suspect valgrind gets confused by the layer of generic NVECTOR operations...</tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>I have to get a better understanding of the error handling in the 
+sensitivity module, it's probably some wrong usage again.</tt><br>
+<br>
+<tt>Only when using a R.H.S. function for fS, i.e. a symbolic &quot;sensitivity 
+matrix&quot;, but not when using an internal CVODES approximation of it, 
+valgrind reports the following errors several times:</tt><br>
+<br>
+<tt>==25979== Conditional jump or move depends on uninitialised value(s)<br>
+==25979==    at 0x4242E8: CVEwtSet (cvodes.c:6255)<br>
+==25979==    by 0x41BC25: CVSensEwtSet (cvodes.c:2782)<br>
+==25979==    by 0x42315D: CVode (cvodes.c:1673)<br>
+==25979==    by 0x41490D: IntegratorInstance_cvodeOneStep 
+(cvodeSolver.c:109)<br>
+==25979==    by 0x406F83: main (senstest.c:88)<br>
+==25979==<br>
+==25979== Conditional jump or move depends on uninitialised value(s)<br>
+==25979==    at 0x42EE0E: RSqrt (sundialsmath.c:57)<br>
+==25979==    by 0x422E7F: CVode (cvodes.c:1717)<br>
+==25979==    by 0x41490D: IntegratorInstance_cvodeOneStep 
+(cvodeSolver.c:109)<br>
+==25979==    by 0x406F83: main (senstest.c:88)</tt><br>
+<br>
+<pre style="margin: 0em;"><br>cheers,
+Rainer</pre><br>
+</blockquote><pre style="margin: 0em;"><br>--Radu</pre><br>
+</blockquote><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00642" href="msg00642.html">[sundials-users] sensitivity in iterative runs</a></strong>
+<ul><li><em>From:</em> Rainer Machne &lt;raim@tbi.univie.ac.at&gt;</li></ul></li>
+<li><strong><a name="00643" href="msg00643.html">Re: [sundials-users] sensitivity in iterative runs</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00644" href="msg00644.html">Re: [sundials-users] sensitivity in iterative runs</a></strong>
+<ul><li><em>From:</em> Rainer Machne &lt;raim@tbi.univie.ac.at&gt;</li></ul></li>
+<li><strong><a name="00646" href="msg00646.html">Re: [sundials-users] sensitivity in iterative runs</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00647.html">Re: [sundials-users] IDA/CVODE: Jacobian manipulation</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00646.html">Re: [sundials-users] sensitivity in iterative runs</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00648">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00648">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

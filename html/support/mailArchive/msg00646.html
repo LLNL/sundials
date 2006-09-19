@@ -1,16 +1,16 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] Re: problem in running the parallel fortran example -->
+<!--X-Subject: Re: [sundials&#45;users] sensitivity in iterative runs -->
 <!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Wed, 28 Jun 2006 08:58:15 &#45;0700 -->
-<!--X-Message-Id: 44A2A676.2010000@llnl.gov -->
+<!--X-Date: Wed, 30 Aug 2006 07:39:28 &#45;0700 -->
+<!--X-Message-Id: 44F5A28C.5010105@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 449FF72D.1050304@eas.iis.fraunhofer.de -->
-<!--X-Reference: 44A0044E.7030404@llnl.gov -->
-<!--X-Reference: Pine.GSO.4.61.0606271654400.15344@techunix.technion.ac.il -->
+<!--X-Reference: Pine.LNX.4.62.0608291643450.8910@mescalin.tbi.univie.ac.at -->
+<!--X-Reference: 44F4669A.7040002@llnl.gov -->
+<!--X-Reference: Pine.LNX.4.62.0608301517550.18966@mescalin.tbi.univie.ac.at -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] Re: problem in running the parallel fortran example</title>
+<title>Re: [sundials-users] sensitivity in iterative runs</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +69,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00554.html">Date Prev</a>] [<a href="msg00556.html">Date Next</a>] [<a href="msg00585.html">Thread Prev</a>] [<a href="msg00556.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00555">Date Index</a></b>]
-[<b><a href="threads.html#00555">Thread Index</a></b>]
+[<a href="msg00645.html">Date Prev</a>] [<a href="msg00647.html">Date Next</a>] [<a href="msg00644.html">Thread Prev</a>] [<a href="msg00648.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00646">Date Index</a></b>]
+[<b><a href="threads.html#00646">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] Re: problem in running the parallel fortran example</h1>
+<h1>Re: [sundials-users] sensitivity in iterative runs</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -93,7 +93,7 @@ Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 28 Jun 2006 08:55:34 -0700</td>
+Wed, 30 Aug 2006 07:37:00 -0700</td>
 </tr>
 
 </table>
@@ -103,63 +103,67 @@ Wed, 28 Jun 2006 08:55:34 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Rachel,</pre><br>
-<tt>I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
-6)). You should not have to make any modifications to the sources as Fortran is case insensitive. I am quite baffled by this, especially 
-since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).</tt><br>
+<pre style="margin: 0em;">Hi Rainer,</pre><br>
+<tt>I see you're not using the latest SUNDIALS release (2.2.0) but rather 2.1.1. You 
+may want to update (although at this point it may be better for you to wait for 
+the next release - hopefully soon - which will have a completely different file 
+structure).</tt><br>
 <br>
-<pre style="margin: 0em;">Do you have similar problems with all the other parallel Fortran examples 
-(cvode, ida)?
-What are the compilation commands executed for 'make examples'. In my case they 
-are:</pre><br>
-<tt>Making examples in kinsol/fcmix/examples_par...<br>
-make[1]: Entering directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
-Updating fkinkryx_p.f...<br>
-/usr/apps/mpich/1.2.4/bin/mpif77  -I/usr/apps/mpich/1.2.4/bin/../include -g -O2 -ffloat-store -c ./fkinkryx_p-updated.f<br>
- /usr/apps/mpich/1.2.4/bin/mpif77 -o ./fkinkryx_p ./fkinkryx_p-updated.o  -g -O2 -ffloat-store  -L/home/radu/CODES/TEST/sundials/lib 
--lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -L/usr/apps/mpich/1.2.4/bin/../lib  -lm 
--L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s<br>
-make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'</tt><br>
+<tt>Rainer Machne wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
+<tt>Thanks for your always quick and good replies and sorry for bothering 
+you in this case :-) It was of course our own two bugs.</tt><br>
 <br>
-<pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt><br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
-other users.</tt><br>
+<tt>a) destroy and re-create CVodeSens:<br>
+I seem to have overlooked the requirement for a CVodeSensFree and 
+thought that this was done with CVodeFree;
+</tt></blockquote><tt><br>CVodeFree() indeed calls CVodeSensFree(). However, in v2.1.1, all *Free() 
+functions were passed the memory block instead of a pointer to them. This bug 
+(fixed in v2.2.0) would explain the behavior you see.</tt><br>
 <br>
-<tt><br>Rachel Gordon wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I installed Kinsol on my Linux cluster (running under Red Hat Linux 
-release 7.3 (Valhalla) ). I tried the c examples (serial and parallel) 
-and the serial fortran example and they all run fine. However when I try 
-the parallel fortran example fkinkryx_p, I get an error message:</tt><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>b) CVodeSensReInit:<br>
+I initialized the yS vector AFTER calling ReInit; initializing yS after 
+the first CVodeSensMalloc didn't cause problems, so I had overlooked 
+this problem;
+</tt></blockquote><tt><br>Initializing yS after CVodeSensMalloc is NOT ok! The sensitivity IC are copied 
+from the yS passed to CVodeSensMalloc into the solver memory (same is true for 
+CVodeReInit). I suspect all sensitivity IC in your case are 0 and your compiler 
+probably initializes variables to 0, so you get the 'right' IC when calling 
+CVodeSensMalloc. By the time you call CVodeReInit, yS was probably overwritten 
+(by CVodeGetSens probably).</tt><br>
 <br>
-<tt>/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
-dumped) /home/people/...</tt><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Anyways, thanks again very much for your help!</pre><br>
+<tt>By the way :-), valgrind reports some errors which however do not cause 
+any problems so far. So please, don't bother if you're busy.
+</tt></blockquote><tt><br>All the 'errors' below boil down to valgrind not realizing that these 
+'uninitialized' values are actually initialized in some NVECTOR function. I 
+suspect valgrind gets confused by the layer of generic NVECTOR operations...</tt><br>
 <br>
-<pre style="margin: 0em;">I already changed  in the original file:
-   mpi_comm_world   to:  MPI_COMM_WORLD</pre><br>
-<pre style="margin: 0em;">and the names of the mpi routines:
-   mpi_init(ier)     to: MPI_Init(ier),
-   mpi_finalize(ier) to: MPI_Finalize(ier),
-   mpi_abort(..  )   to: MPI_Abort(.. ), and so on.</pre><br>
-<tt>This enabled creation  of the executable file fkinkryx_p*, but on 
-running it with: mpirun -np 4 fkinkryx_p    I get the above error message.</tt><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>I have to get a better understanding of the error handling in the 
+sensitivity module, it's probably some wrong usage again.</tt><br>
 <br>
-<pre style="margin: 0em;">What did I do wrong?</pre><br>
-<pre style="margin: 0em;">Thanks for your cooperation,</pre><br>
-<pre style="margin: 0em;">Sincerely,
-Rachel</pre><br>
-<pre style="margin: 0em;"><br>  Dr.  Rachel Gordon
-  Senior Research Associate        Phone: +972-4-8293811
-  Dept. of Aerospace Eng.        Fax:   +972 - 4 - 8292030
-  The Technion, Haifa 32000, Israel     email: rgordon@tx.technion.ac.il</pre><br>
-<pre style="margin: 0em;"><br></pre><br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
-<pre style="margin: 0em;">--
-   Radu Serban
-   Center for Applied Scientific Computing   [email] radu@llnl.gov
-   Lawrence Livermore National Laboratory    [phone] 925-424-4852
-   P.O. Box 808, L-560                       [fax]   925-422-6287
-   Livermore, CA 94551</pre><br>
+<tt>Only when using a R.H.S. function for fS, i.e. a symbolic &quot;sensitivity 
+matrix&quot;, but not when using an internal CVODES approximation of it, 
+valgrind reports the following errors several times:</tt><br>
+<br>
+<tt>==25979== Conditional jump or move depends on uninitialised value(s)<br>
+==25979==    at 0x4242E8: CVEwtSet (cvodes.c:6255)<br>
+==25979==    by 0x41BC25: CVSensEwtSet (cvodes.c:2782)<br>
+==25979==    by 0x42315D: CVode (cvodes.c:1673)<br>
+==25979==    by 0x41490D: IntegratorInstance_cvodeOneStep 
+(cvodeSolver.c:109)<br>
+==25979==    by 0x406F83: main (senstest.c:88)<br>
+==25979==<br>
+==25979== Conditional jump or move depends on uninitialised value(s)<br>
+==25979==    at 0x42EE0E: RSqrt (sundialsmath.c:57)<br>
+==25979==    by 0x422E7F: CVode (cvodes.c:1717)<br>
+==25979==    by 0x41490D: IntegratorInstance_cvodeOneStep 
+(cvodeSolver.c:109)<br>
+==25979==    by 0x406F83: main (senstest.c:88)</tt><br>
+<br>
+<pre style="margin: 0em;"><br>cheers,
+Rainer</pre><br>
+</blockquote><pre style="margin: 0em;"><br>--Radu</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -169,40 +173,42 @@ Rachel</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00556" href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00648" href="msg00648.html">Re: [sundials-users] sensitivity in iterative runs</a></strong>
+<ul><li><em>From:</em> Rainer Machne &lt;raim@tbi.univie.ac.at&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00545" href="msg00545.html">[sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
-<li><strong><a name="00548" href="msg00548.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<li><strong><a name="00642" href="msg00642.html">[sundials-users] sensitivity in iterative runs</a></strong>
+<ul><li><em>From:</em> Rainer Machne &lt;raim@tbi.univie.ac.at&gt;</li></ul></li>
+<li><strong><a name="00643" href="msg00643.html">Re: [sundials-users] sensitivity in iterative runs</a></strong>
 <ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00644" href="msg00644.html">Re: [sundials-users] sensitivity in iterative runs</a></strong>
+<ul><li><em>From:</em> Rainer Machne &lt;raim@tbi.univie.ac.at&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00554.html">[sundials-users] Bizarre crashes in Sundials DLL</a></strong>
+<strong><a href="msg00645.html">[sundials-users] IDA/CVODE: Jacobian manipulation</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00647.html">Re: [sundials-users] IDA/CVODE: Jacobian manipulation</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00585.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<strong><a href="msg00644.html">Re: [sundials-users] sensitivity in iterative runs</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00648.html">Re: [sundials-users] sensitivity in iterative runs</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00555">
+<li><a href="maillist.html#00646">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00555">
+<li><a href="threads.html#00646">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

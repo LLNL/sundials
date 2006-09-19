@@ -1,16 +1,15 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Dependency of solver success from log interval? -->
-<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Thu, 06 Jul 2006 08:37:15 &#45;0700 -->
-<!--X-Message-Id: 44AD2D93.1000104@llnl.gov -->
+<!--X-Subject: The reason for stepsize reduction (was: [sundials&#45;users] Setting boundaries on variables and/or velocities) -->
+<!--X-From-R13: Ynv Vnegznaa <Ynv.VnegznaaNhav&#45;xbrya.qr> -->
+<!--X-Date: Wed, 23 Aug 2006 01:39:43 &#45;0700 -->
+<!--X-Message-Id: 44EC12E2.5030201@Uni&#45;Koeln.De -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 44AA32C3.1040900@Uni&#45;Koeln.De -->
-<!--X-Reference: Pine.LNX.4.58.0607051358010.30670@tux64.llnl.gov -->
-<!--X-Reference: 44ACB842.3050602@Uni&#45;Koeln.De -->
+<!--X-Reference: 44E30F0D.4010700@Uni&#45;Koeln.De -->
+<!--X-Reference: Pine.LNX.4.58.0608161159090.23461@tux64.llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Dependency of solver success from log interval?</title>
+<title>The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +68,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00567.html">Date Prev</a>] [<a href="msg00569.html">Date Next</a>] [<a href="msg00567.html">Thread Prev</a>] [<a href="msg00614.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00568">Date Index</a></b>]
-[<b><a href="threads.html#00568">Thread Index</a></b>]
+[<a href="msg00624.html">Date Prev</a>] [<a href="msg00626.html">Date Next</a>] [<a href="msg00616.html">Thread Prev</a>] [<a href="msg00626.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00625">Date Index</a></b>]
+[<b><a href="threads.html#00625">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Dependency of solver success from log interval?</h1>
+<h1>The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -86,14 +85,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
+Kai Hartmann &lt;<a href="mailto:Kai.Hartmann%40uni-koeln.de">Kai.Hartmann@uni-koeln.de</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 06 Jul 2006 08:34:43 -0700</td>
+Wed, 23 Aug 2006 10:33:38 +0200</td>
 </tr>
 
 </table>
@@ -103,46 +102,106 @@ Thu, 06 Jul 2006 08:34:43 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>Kai Hartmann wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Alan, hi all.</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">That would indicate either a
-bug (perhaps a bad Jacobian), or a genuine very short initial time
-scale in your system (which may or may not correspond to a fast
-transient in the solution).  In the latter case, we would urge you to
-use a log interval that is much nearer to that time scale, so that a
-more suitable initial stepsize is chosen (and the reported solution
-values resolve that transient).
-</pre></blockquote><pre style="margin: 0em;"><br>Yes, I think you are right with the second explanation. Maybe it is
-better to change the output mode to CV_ONE_STEP to get a better
-resolution in all relevant parts. The value of tout should be irrelevant
-in this case, but may be taken for initial stepsize calculation as you
-mentioned. Is there any harm in setting it to a very low value, e.g. the
-smallest possible double? How can I find out what the initial time scale
-t_initial in my system is and how should I adjust the initial tout-t0
-w.r.t. the initial timescale? Would tout=t_initial be ok?</pre><br>
-<pre style="margin: 0em;">With thanks for your helpful comments,</pre><br>
-<pre style="margin: 0em;">Kai</pre><br>
-</blockquote><pre style="margin: 0em;"><br>Hi Kai,</pre><br>
-<tt>As you suspected, even in CV_ONE_STEP mode, the first value tout is used in estimating the initial step size. Also, tout=t_initial will not 
-work, as the difference tout-t_initial is used to decide the direction of integration and so, passing tout=t_initial, would result in an error.</tt><br>
-<br>
-<tt>Rather than trying to get the right initial stepsize h0 by finding an appropriate tout value, why don't you just specify it to CVODE through 
-CVodeSetInitStep? The appropriate value for h0 is problem dependent (you may want to look at the Jacobian and its eigenvalues at the initial 
-time), but even if you cannot determine it a-priori, it's safe to pass a very small value to CVodeSetInitStep (although, if you set h0 to a 
-value much smaller than what is actually needed, it'll take some steps until CVODE will increase it to that level). Some experimentation may 
-be needed.</tt><br>
-<br>
-<tt>Have you looked at the actual values h0 that CVODE computes for the two different tout values you mentioned in your previous post (1e-17 and 
-1e-18)? How different are they? To get these values, you can call CVodeGetActualInitStep anytime after CVode returns from its first call.</tt><br>
-<br>
-<pre style="margin: 0em;">--Radu</pre><br>
-<pre style="margin: 0em;">--
-   Radu Serban
-   Center for Applied Scientific Computing   [email] radu@llnl.gov
-   Lawrence Livermore National Laboratory    [phone] 925-424-4852
-   P.O. Box 808, L-560                       [fax]   925-422-6287
-   Livermore, CA 94551</pre><br>
+<pre>Hi Alan, hi all,
 
+after your comment I made a few experiments and I think I have to reduce
+the model size and look for errors in the model. Maybe I can explain the
+problems I observe with a concise model in a few days.
+
+One other problem: is it possible to identify the process that is
+responsible for the stepsize reduction to quasi-zero (the limiting
+variable)?
+
+CVodeGetErrWeights or CVodeGetEstLocalErrors look like they could serve
+for this purpose. Can you give me a short explanation on how you would
+approach this problem?
+
+Kai
+
+Alan Hindmarsh schrieb:
+&gt;<i> Hello Kai,</i>
+&gt;<i> </i>
+&gt;<i> No, it is generally NOT a good idea to impose these limits in the RHS</i>
+&gt;<i> function. The reasons include (a) it is usually not necessary, and</i>
+&gt;<i> (b) it can cause unstable behavior.  Although it is possible to get the</i>
+&gt;<i> current stepsize h within the RHS function, it is a severe violation</i>
+&gt;<i> of the assumptions on which the entire solver is based to have the RHS</i>
+&gt;<i> depend on h, and will likely cause it to crash.</i>
+&gt;<i> </i>
+&gt;<i> See numerous other messages about this issue in the Sundials user</i>
+&gt;<i> reports collection.  Here is a summary:</i>
+&gt;<i> </i>
+&gt;<i> First, be sure that the limits you want to impose are really true for</i>
+&gt;<i> the true solution of the system, and therefore it is only numerical</i>
+&gt;<i> error that takes y or v outside them.</i>
+&gt;<i> </i>
+&gt;<i> A small violation of the limits is generally harmless.  E.g., if a</i>
+&gt;<i> small negative (unphysical) y_i occurs, replace y_i in the RHS</i>
+&gt;<i> evaluation by max(0,y_i) if you must, but do not change y_i itself.</i>
+&gt;<i> A small negative (unphysical) y_i on output can simply be changed to 0</i>
+&gt;<i> to avoid strange-looking output tables or plots.</i>
+&gt;<i> </i>
+&gt;<i> Any violation of the limits that is large needs to be examined, since</i>
+&gt;<i> it may mean there is an error in the model.</i>
+&gt;<i> </i>
+&gt;<i> -Alan Hindmarsh</i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> On Wed, 16 Aug 2006, Kai Hartmann wrote:</i>
+&gt;<i> </i>
+&gt;<i>&gt; Hi all,</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; I would appreciate your comments on the following issue.</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; The range of physically meaningful values of all variables y is</i>
+&gt;<i>&gt; constrained to ymin &lt;= y &lt;= ymax. The range of physically meaningful</i>
+&gt;<i>&gt; velocities v (that are changing the values y) is constrained in a</i>
+&gt;<i>&gt; similar way: 0 &lt;= v &lt;= vmax.</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; An example:</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; A -&gt; B with v1 = k1*a - k2*b</i>
+&gt;<i>&gt; B -&gt; C with v2 = k3*b - k4*c</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; da/dt = -v1</i>
+&gt;<i>&gt; db/dt = v1-v2</i>
+&gt;<i>&gt; dc/dt = v2</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; Is it reasonable to implement these boundaries in the rhs function? One</i>
+&gt;<i>&gt; way to do it would be this:</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; (1) If v leaves the range, set it to 0/vmax.</i>
+&gt;<i>&gt; (2) If v would cause y to leave the range, reduce v such that y will be</i>
+&gt;<i>&gt; ymin/ymax after the step.</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; However, for (2) to work, the rhs function has to know the current</i>
+&gt;<i>&gt; stepsize h. Does it have access to the stepsize somehow?</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; Does this make sense at all?</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; Kai</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; Kai Hartmann</i>
+&gt;<i>&gt; CUBIC - Cologne University BioInformatics Center</i>
+&gt;<i>&gt; Institute for Biochemistry</i>
+&gt;<i>&gt; Z&#xFC;lpicher Strasse 47</i>
+&gt;<i>&gt; 50674 Koeln</i>
+&gt;<i>&gt; Phone: +49-221-470-7719</i>
+&gt;<i>&gt; Fax: +49-221-470-7786</i>
+
+
+-- 
+Kai Hartmann
+CUBIC - Cologne University BioInformatics Center
+Institute for Biochemistry
+Z&#xFC;lpicher Strasse 47
+50674 Koeln
+Phone: +49-221-470-7719
+Fax: +49-221-470-7786
+
+</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -151,42 +210,40 @@ be needed.</tt><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00614" href="msg00614.html">Re: [sundials-users] Dependency of solver success from log interval?</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00626" href="msg00626.html">Re: The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00561" href="msg00561.html">[sundials-users] Dependency of solver success from log interval?</a></strong>
+<li><strong><a name="00615" href="msg00615.html">[sundials-users] Setting boundaries on variables and/or velocities</a></strong>
 <ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
-<li><strong><a name="00564" href="msg00564.html">Re: [sundials-users] Dependency of solver success from log interval?</a></strong>
+<li><strong><a name="00616" href="msg00616.html">Re: [sundials-users] Setting boundaries on variables and/or velocities</a></strong>
 <ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00567" href="msg00567.html">Re: [sundials-users] Dependency of solver success from log interval?</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00567.html">Re: [sundials-users] Dependency of solver success from log interval?</a></strong>
+<strong><a href="msg00624.html">RE: [sundials-users] Dll project Sundials BCB6</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00569.html">Re: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+<strong><a href="msg00626.html">Re: The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00567.html">Re: [sundials-users] Dependency of solver success from log interval?</a></strong>
+<strong><a href="msg00616.html">Re: [sundials-users] Setting boundaries on variables and/or velocities</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00614.html">Re: [sundials-users] Dependency of solver success from log interval?</a></strong>
+<strong><a href="msg00626.html">Re: The reason for stepsize reduction (was: [sundials-users] Setting boundaries on variables and/or velocities)</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00568">
+<li><a href="maillist.html#00625">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00568">
+<li><a href="threads.html#00625">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

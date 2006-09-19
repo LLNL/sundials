@@ -1,16 +1,17 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] Re: problem in running the parallel fortran example -->
+<!--X-Subject: Re: [sundials&#45;users] Problems with IDACalcIC() -->
 <!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Wed, 28 Jun 2006 08:58:15 &#45;0700 -->
-<!--X-Message-Id: 44A2A676.2010000@llnl.gov -->
+<!--X-Date: Wed, 19 Jul 2006 09:01:43 &#45;0700 -->
+<!--X-Message-Id: 44BE552A.3090804@llnl.gov -->
 <!--X-Content-Type: text/plain -->
 <!--X-Reference: 449FF72D.1050304@eas.iis.fraunhofer.de -->
 <!--X-Reference: 44A0044E.7030404@llnl.gov -->
-<!--X-Reference: Pine.GSO.4.61.0606271654400.15344@techunix.technion.ac.il -->
+<!--X-Reference: 44A00F10.3040708@eas.iis.fraunhofer.de -->
+<!--X-Reference: 44A137AA.8000405@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] Re: problem in running the parallel fortran example</title>
+<title>Re: [sundials-users] Problems with IDACalcIC()</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +70,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00554.html">Date Prev</a>] [<a href="msg00556.html">Date Next</a>] [<a href="msg00585.html">Thread Prev</a>] [<a href="msg00556.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00555">Date Index</a></b>]
-[<b><a href="threads.html#00555">Thread Index</a></b>]
+[<a href="msg00584.html">Date Prev</a>] [<a href="msg00586.html">Date Next</a>] [<a href="msg00553.html">Thread Prev</a>] [<a href="msg00555.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00585">Date Index</a></b>]
+[<b><a href="threads.html#00585">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] Re: problem in running the parallel fortran example</h1>
+<h1>Re: [sundials-users] Problems with IDACalcIC()</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -93,7 +94,7 @@ Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 28 Jun 2006 08:55:34 -0700</td>
+Wed, 19 Jul 2006 08:52:10 -0700</td>
 </tr>
 
 </table>
@@ -103,56 +104,85 @@ Wed, 28 Jun 2006 08:55:34 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Rachel,</pre><br>
-<tt>I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
-6)). You should not have to make any modifications to the sources as Fortran is case insensitive. I am quite baffled by this, especially 
-since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).</tt><br>
+<pre style="margin: 0em;">Jens,</pre><br>
+<tt>After further consideration, both Alan H. and I agreed that the current IDACalcIC implementation only invites misuse. We are therefore 
+considering changing it so that it will not take (t0,yy0,yp0) as arguments anymore and, instead, will always compute consistent initial 
+conditions starting from the triplet (t0,yy0,yp0) specified through IDAMalloc or IDAReInit (which these two functions store in the Nordsieck 
+history arrays phi). This implies that IDACalcIC will have to be called right after IDAMalloc (or IDAReInit) and not the way it's done in 
+your simulator.<br>
+Note that this is practically a rollback to the IDACalcIC implementation in IDA v2.2.2 (sundials v2.0.2) with the exception that we will not 
+use the user's yy0 and yp0 as workspace, but rather make temporary copies.</tt><br>
 <br>
-<pre style="margin: 0em;">Do you have similar problems with all the other parallel Fortran examples 
-(cvode, ida)?
-What are the compilation commands executed for 'make examples'. In my case they 
-are:</pre><br>
-<tt>Making examples in kinsol/fcmix/examples_par...<br>
-make[1]: Entering directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
-Updating fkinkryx_p.f...<br>
-/usr/apps/mpich/1.2.4/bin/mpif77  -I/usr/apps/mpich/1.2.4/bin/../include -g -O2 -ffloat-store -c ./fkinkryx_p-updated.f<br>
- /usr/apps/mpich/1.2.4/bin/mpif77 -o ./fkinkryx_p ./fkinkryx_p-updated.o  -g -O2 -ffloat-store  -L/home/radu/CODES/TEST/sundials/lib 
--lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -L/usr/apps/mpich/1.2.4/bin/../lib  -lm 
--L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s<br>
-make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'</tt><br>
+<tt>If you have a compelling argument against this (the inconvenience of changing the order in your simulator doesn't count :-)), please let me 
+know. We cannot think of any...</tt><br>
 <br>
-<pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt><br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
-other users.</tt><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<tt>Radu Serban wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Jens,<br>
+Although your changes will probably work, I still suggest you reorder 
+things in the simulator, as it seems unnatural to specify some initial 
+conditions to IDA only to have them modified before the next call to an 
+IDA function. This is not the intended use of IDACalcIC (with or without 
+modifications).<br>
+--Radu</tt><br>
 <br>
-<tt><br>Rachel Gordon wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I installed Kinsol on my Linux cluster (running under Red Hat Linux 
-release 7.3 (Valhalla) ). I tried the c examples (serial and parallel) 
-and the serial fortran example and they all run fine. However when I try 
-the parallel fortran example fkinkryx_p, I get an error message:</tt><br>
+<tt>Jens Bastian wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
+<pre style="margin: 0em;">if I used IDA stand alone I would call IDAMalloc() with yy0. But IDA is
+built into a simulator and between the initialization and calculating
+consistent initial values another part of the simulator changes yy0.</pre><br>
+<pre style="margin: 0em;">It would be possible to change the order in the simulator but I assumed
+that IDACalcIC() would work like the documentation says. ;) I think (or
+hope) my changes will work as an interim solution. Otherwise an option
+would still be changing the alignment in the simulator.</pre><br>
+<pre style="margin: 0em;">Best regards
+Jens</pre><br>
+<pre style="margin: 0em;">Radu Serban wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Jens,</pre><br>
+<pre style="margin: 0em;">Indeed, although the documentation says that IDACalcIC can be called to
+correct any pair (y,y'), the current implementation assumes it is used
+only to correct the values y0 and yp0 passed to IDAMalloc (or
+IDAReInit). This also implicitly forces the user to pass to IDACalcIC
+the same y0 and yp0 that were specified in the previous call to
+IDAMalloc (or IDAReInit).</pre><br>
+<pre style="margin: 0em;">Thanks for pointing this out. I'll look into modifying IDACalcIC to
+behave as advertised.</pre><br>
+<pre style="margin: 0em;">In the meantime, could you tell me how exactly you wish to use IDACalcIC
+(i.e. why the y0 passed to it is different from the one passed to
+IDAMalloc) to see if there is some other interim solution for you?</pre><br>
+<pre style="margin: 0em;">What confuses me a bit is the fact that the changes you've made are
+basically equivalent to having previously called IDAMalloc with the same
+yy0 as that in the call to IDACalcIC.</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<pre style="margin: 0em;">Jens Bastian wrote:</pre><br>
 <br>
-<tt>/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
-dumped) /home/people/...</tt><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+<pre style="margin: 0em;">when trying to solve a DAE system I ran into trouble with IDA. I could
+track it down to an initialization problem. Here I must mention that I
+call IDACalcIC(..., y0, ...) with a different y0 (that means same
+pointer but some values have changed) than the y I used in
+IDAMalloc(..., y, ...).</pre><br>
+<pre style="margin: 0em;">The first problem is that in IDACalcIC() the function IDAInitialSetup()
+is called where the error weight vector ewt is calculated from phi[0]
+(that is y) and not from y0.</pre><br>
+<pre style="margin: 0em;">The second problem - the one that made me grey hairs ;) - is also
+located in IDACalcIC() in the nwt (1...2) and nh (1...mxnh) loops. If
+the lines
+       N_VScale (ONE, phi[0], yy0);
+       N_VScale (ONE, phi[1], yp0);
+are called, my precious y0 is overwritten with the old y set by
+IDAMalloc().</pre><br>
+<pre style="margin: 0em;">Is solved the problems for me by adding the lines
+ ier = efun(yy0, ewt, edata);
+ N_VScale (ONE, yy0, phi[0]);
+after the checks at the beginning of IDACalcIC() before the line
+ tdist = ABS(tout1 - tn);
+but surely this is not the perfect solution.</pre><br>
+<pre style="margin: 0em;">Best regards
+Jens</pre><br>
+</blockquote></blockquote><pre style="margin: 0em;"><br></pre><br>
 <br>
-<pre style="margin: 0em;">I already changed  in the original file:
-   mpi_comm_world   to:  MPI_COMM_WORLD</pre><br>
-<pre style="margin: 0em;">and the names of the mpi routines:
-   mpi_init(ier)     to: MPI_Init(ier),
-   mpi_finalize(ier) to: MPI_Finalize(ier),
-   mpi_abort(..  )   to: MPI_Abort(.. ), and so on.</pre><br>
-<tt>This enabled creation  of the executable file fkinkryx_p*, but on 
-running it with: mpirun -np 4 fkinkryx_p    I get the above error message.</tt><br>
-<br>
-<pre style="margin: 0em;">What did I do wrong?</pre><br>
-<pre style="margin: 0em;">Thanks for your cooperation,</pre><br>
-<pre style="margin: 0em;">Sincerely,
-Rachel</pre><br>
-<pre style="margin: 0em;"><br>  Dr.  Rachel Gordon
-  Senior Research Associate        Phone: +972-4-8293811
-  Dept. of Aerospace Eng.        Fax:   +972 - 4 - 8292030
-  The Technion, Haifa 32000, Israel     email: rgordon@tx.technion.ac.il</pre><br>
-<pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">--
    Radu Serban
@@ -167,11 +197,6 @@ Rachel</pre><br>
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00556" href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
@@ -180,29 +205,33 @@ Rachel</pre><br>
 <ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
 <li><strong><a name="00548" href="msg00548.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
 <ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00550" href="msg00550.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
+<li><strong><a name="00553" href="msg00553.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00554.html">[sundials-users] Bizarre crashes in Sundials DLL</a></strong>
+<strong><a href="msg00584.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00586.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00585.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<strong><a href="msg00553.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00555.html">[sundials-users] Re: problem in running the parallel fortran example</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00555">
+<li><a href="maillist.html#00585">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00555">
+<li><a href="threads.html#00585">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

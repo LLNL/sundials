@@ -1,16 +1,24 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] Re: problem in running the parallel fortran example -->
-<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Wed, 28 Jun 2006 08:58:15 &#45;0700 -->
-<!--X-Message-Id: 44A2A676.2010000@llnl.gov -->
+<!--X-Subject: Re: [sundials&#45;users] using sundials for ill&#45;conditioned problem -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Wed, 09 Aug 2006 14:56:21 &#45;0700 -->
+<!--X-Message-Id: Pine.LNX.4.58.0608091449530.3748@tux64.llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 449FF72D.1050304@eas.iis.fraunhofer.de -->
-<!--X-Reference: 44A0044E.7030404@llnl.gov -->
-<!--X-Reference: Pine.GSO.4.61.0606271654400.15344@techunix.technion.ac.il -->
+<!--X-Reference: 44B6786F.5050906@mit.edu -->
+<!--X-Reference: 44BC0C4E.6040603@llnl.gov -->
+<!--X-Reference: 20060718170219.230zrhhoys8g0w8o@www.bu.edu -->
+<!--X-Reference: 44BD7D9F.3010001@llnl.gov -->
+<!--X-Reference: Pine.A41.4.63.0607211034280.116112@acsrs3.bu.edu -->
+<!--X-Reference: 44C4EF32.2090209@llnl.gov -->
+<!--X-Reference: 20060726113704.q72vzj0f34ccgwcw@www.bu.edu -->
+<!--X-Reference: 44C7A169.6080402@llnl.gov -->
+<!--X-Reference: 20060726133305.nmu4lwafac4kok4w@www.bu.edu -->
+<!--X-Reference: Pine.LNX.4.58.0608021355350.15600@tux64.llnl.gov -->
+<!--X-Reference: 20060804113353.8lvgowt34w8k8w8c@www.bu.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] Re: problem in running the parallel fortran example</title>
+<title>Re: [sundials-users] using sundials for ill-conditioned problem</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +77,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00554.html">Date Prev</a>] [<a href="msg00556.html">Date Next</a>] [<a href="msg00585.html">Thread Prev</a>] [<a href="msg00556.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00555">Date Index</a></b>]
-[<b><a href="threads.html#00555">Thread Index</a></b>]
+[<a href="msg00612.html">Date Prev</a>] [<a href="msg00614.html">Date Next</a>] [<a href="msg00604.html">Thread Prev</a>] [<a href="msg00605.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00613">Date Index</a></b>]
+[<b><a href="threads.html#00613">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] Re: problem in running the parallel fortran example</h1>
+<h1>Re: [sundials-users] using sundials for ill-conditioned problem</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -86,14 +94,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 28 Jun 2006 08:55:34 -0700</td>
+Wed, 09 Aug 2006 14:53:04 -0700 (PDT)</td>
 </tr>
 
 </table>
@@ -103,106 +111,95 @@ Wed, 28 Jun 2006 08:55:34 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Rachel,</pre><br>
-<tt>I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
-6)). You should not have to make any modifications to the sources as Fortran is case insensitive. I am quite baffled by this, especially 
-since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).</tt><br>
-<br>
-<pre style="margin: 0em;">Do you have similar problems with all the other parallel Fortran examples 
-(cvode, ida)?
-What are the compilation commands executed for 'make examples'. In my case they 
-are:</pre><br>
-<tt>Making examples in kinsol/fcmix/examples_par...<br>
-make[1]: Entering directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
-Updating fkinkryx_p.f...<br>
-/usr/apps/mpich/1.2.4/bin/mpif77  -I/usr/apps/mpich/1.2.4/bin/../include -g -O2 -ffloat-store -c ./fkinkryx_p-updated.f<br>
- /usr/apps/mpich/1.2.4/bin/mpif77 -o ./fkinkryx_p ./fkinkryx_p-updated.o  -g -O2 -ffloat-store  -L/home/radu/CODES/TEST/sundials/lib 
--lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -L/usr/apps/mpich/1.2.4/bin/../lib  -lm 
--L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s<br>
-make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'</tt><br>
-<br>
-<pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt><br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
-other users.</tt><br>
-<br>
-<tt><br>Rachel Gordon wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I installed Kinsol on my Linux cluster (running under Red Hat Linux 
-release 7.3 (Valhalla) ). I tried the c examples (serial and parallel) 
-and the serial fortran example and they all run fine. However when I try 
-the parallel fortran example fkinkryx_p, I get an error message:</tt><br>
-<br>
-<tt>/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
-dumped) /home/people/...</tt><br>
-<br>
-<pre style="margin: 0em;">I already changed  in the original file:
-   mpi_comm_world   to:  MPI_COMM_WORLD</pre><br>
-<pre style="margin: 0em;">and the names of the mpi routines:
-   mpi_init(ier)     to: MPI_Init(ier),
-   mpi_finalize(ier) to: MPI_Finalize(ier),
-   mpi_abort(..  )   to: MPI_Abort(.. ), and so on.</pre><br>
-<tt>This enabled creation  of the executable file fkinkryx_p*, but on 
-running it with: mpirun -np 4 fkinkryx_p    I get the above error message.</tt><br>
-<br>
-<pre style="margin: 0em;">What did I do wrong?</pre><br>
-<pre style="margin: 0em;">Thanks for your cooperation,</pre><br>
-<pre style="margin: 0em;">Sincerely,
-Rachel</pre><br>
-<pre style="margin: 0em;"><br>  Dr.  Rachel Gordon
-  Senior Research Associate        Phone: +972-4-8293811
-  Dept. of Aerospace Eng.        Fax:   +972 - 4 - 8292030
-  The Technion, Haifa 32000, Israel     email: rgordon@tx.technion.ac.il</pre><br>
-<pre style="margin: 0em;"><br></pre><br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
-<pre style="margin: 0em;">--
-   Radu Serban
-   Center for Applied Scientific Computing   [email] radu@llnl.gov
-   Lawrence Livermore National Laboratory    [phone] 925-424-4852
-   P.O. Box 808, L-560                       [fax]   925-422-6287
-   Livermore, CA 94551</pre><br>
+<pre>
+Hello Xuedong,
 
+&gt;<i>    In fact the CVODES explicit methods seems solved my problem now.</i>
+&gt;<i> And it is much faster than implicit methods (IDA, and sundials).</i>
+&gt;<i></i>
+
+By this I assume you mean CVODES with the nonstiff option (Adams/Functional).
+If you are not doing sensitivity calculations, I suggest switching to
+CVODE for this, just because there is less code to keep around.
+
+&gt;<i>    I am just thinking about put it into parallel version to make</i>
+&gt;<i> the problem scalable (now I only have 2000 state variable). And</i>
+&gt;<i> I am exploring whether that is some efficient methods for my problem.</i>
+&gt;<i></i>
+
+Parallelization of your problem in this case is fairly simple.  I assume
+the problem form is either A y' = f(t,y) or A y&quot; = f(t,y,y').  There
+are the following two jobs.  (Since there is no SUNDIALS linear solver
+being used, things are much simpler than they would be otherwise.)
+(1) Generate f in parallel.  This just means that when a given processor
+requires components of y [or y' in the f(t,y,y') case] that reside on a
+different processor, appropriate communication operatins must be done at
+the start of your right-hand side evaluation function.
+(2) Generate A^{-1} f in parallel.  If A is a band matrix with no other
+particular structure to exploit, you probably need to get a parallel
+band matrix solver. The ScaLAPACK collection has one.
+
+
+-Alan H
+
+
+
+</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00556" href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00545" href="msg00545.html">[sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
-<li><strong><a name="00548" href="msg00548.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<li><strong><a name="00575" href="msg00575.html">[sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> Xuedong Zhang &lt;zxd@MIT.EDU&gt;</li></ul></li>
+<li><strong><a name="00578" href="msg00578.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
 <ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00582" href="msg00582.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> zxd@bu.edu</li></ul></li>
+<li><strong><a name="00584" href="msg00584.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00587" href="msg00587.html">[sundials-users] Question about uinsg sundials for problem will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> Xuedong Zhang &lt;zxd@bu.edu&gt;</li></ul></li>
+<li><strong><a name="00592" href="msg00592.html">Re: [sundials-users] Question about uinsg sundials for problem will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00593" href="msg00593.html">Re: [sundials-users] Question about uinsg sundials for problem	will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> zxd@bu.edu</li></ul></li>
+<li><strong><a name="00595" href="msg00595.html">Re: [sundials-users] Question about uinsg sundials for problem	will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00596" href="msg00596.html">Re: [sundials-users] Question about uinsg sundials for problem	will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> zxd@bu.edu</li></ul></li>
+<li><strong><a name="00601" href="msg00601.html">Re: [sundials-users] using sundials for ill-conditioned problem</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00604" href="msg00604.html">Re: [sundials-users] using sundials for ill-conditioned problem</a></strong>
+<ul><li><em>From:</em> zxd@bu.edu</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00554.html">[sundials-users] Bizarre crashes in Sundials DLL</a></strong>
+<strong><a href="msg00612.html">[sundials-users] Re: Question about general paparell ode solver algorithms</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00614.html">Re: [sundials-users] Dependency of solver success from log interval?</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00585.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<strong><a href="msg00604.html">Re: [sundials-users] using sundials for ill-conditioned problem</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00605.html">[sundials-users] Question about general paparell ode solver algorithms</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00555">
+<li><a href="maillist.html#00613">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00555">
+<li><a href="threads.html#00613">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

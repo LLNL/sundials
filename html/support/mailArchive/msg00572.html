@@ -1,0 +1,454 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: [sundials&#45;users] SUNDIAL installation using mingw/msys: C compiler cannot create executables -->
+<!--X-From-R13: Vnaarf Uehfpuvafxv <tehfpuuNebfr&#45;uhyzna.rqh> -->
+<!--X-Date: Fri, 07 Jul 2006 11:19:45 &#45;0700 -->
+<!--X-Message-Id: 44AEB313.4060404@rose&#45;hulman.edu -->
+<!--X-Content-Type: text/plain -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>[sundials-users] SUNDIAL installation using mingw/msys: C compiler cannot create executables</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00571.html">Date Prev</a>] [<a href="msg00573.html">Date Next</a>] [<a href="msg00565.html">Thread Prev</a>] [<a href="msg00573.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00572">Date Index</a></b>]
+[<b><a href="threads.html#00572">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>[sundials-users] SUNDIAL installation using mingw/msys: C compiler cannot create executables</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Hannes Gruschinski &lt;<a href="mailto:gruschh%40rose-hulman.edu">gruschh@rose-hulman.edu</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Fri, 07 Jul 2006 14:16:35 -0500</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Friends,</pre><br>
+<pre style="margin: 0em;">Earlier I have successfully installed SUNDIALS under windows using cygwin.</pre><br>
+<tt>Now I need to install it on another windows machine where mingw and msys 
+are installed. I face some little problems with the installation ans was 
+wondering if anybody could point me in the right direction.</tt><br>
+<br>
+<pre style="margin: 0em;">Certainly, I could just install Cygwin, MAKE it, and uninstall it but ...</pre><br>
+<pre style="margin: 0em;">Thank you!</pre><br>
+<pre style="margin: 0em;">Hannes</pre><br>
+<pre style="margin: 0em;">Trying to configure gives:</pre><br>
+<pre style="margin: 0em;">hg@JOE /c/DAESolvers/SUNDIALS/sundials
+$ ./configure</pre><br>
+<pre style="margin: 0em;">---------------------------------
+Running SUNDIALS Configure Script
+---------------------------------</pre><br>
+<pre style="margin: 0em;">Initialization
+--------------</pre><br>
+<pre style="margin: 0em;">checking build system type... i686-pc-mingw32
+checking host system type... i686-pc-mingw32
+checking whether make sets $(MAKE)... yes
+checking for a BSD-compatible install... /bin/install -c</pre><br>
+<pre style="margin: 0em;">C Compiler Settings
+-------------------</pre><br>
+<tt>checking for C compiler default output file name... configure: error: C 
+compiler cannot create executables<br>
+See `config.log' for more details.</tt><br>
+<br>
+<tt>hg@JOE /c/DAESolvers/SUNDIALS/sundials<br>
+$ ls<br>
+INSTALL_NOTES  README        config      config.log  configure.ac  
+cvodes  kinsol    nvec_ser<br>
+Makefile.in    acinclude.m4  config.hin  configure   cvode         
+ida     nvec_par  shared</tt><br>
+<br>
+<pre style="margin: 0em;">hg@JOE /c/DAESolvers/SUNDIALS/sundials
+$ gcc --version
+gcc.exe (GCC) 3.4.2 (mingw-special)
+Copyright (C) 2004 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</pre><br>
+<pre style="margin: 0em;">Checking what tools are installed under mingw:</pre><br>
+<tt>hg@JOE /c/MinGW/bin<br>
+$ ls<br>
+addr2line.exe  c++.exe      dlltool.exe  g77.exe  gcov.exe   
+mingw32-c++.exe    mingw32-gcc.exe   nm.exe       ranlib.exe   strings.exe<br>
+ar.exe         c++filt.exe  dllwrap.exe  gcc.exe  gprof.exe  
+mingw32-g++.exe    mingw32-make.exe  objcopy.exe  readelf.exe  strip.exe<br>
+as.exe         cpp.exe      g++.exe      gccbug   ld.exe     
+mingw32-gcc-3.4.2  mingwm10.dll      objdump.exe  size.exe     windres.exe</tt><br>
+<br>
+<pre style="margin: 0em;">The CONFIG.LOG reveals that cc apparently is not known to configure</pre><br>
+<pre style="margin: 0em;">configure:2305: cc --version &lt;/dev/null &gt;&amp;5
+./configure: cc: command not found</pre><br>
+<pre style="margin: 0em;">The path c:\MinGW\bin\ is set in the global path variable.</pre><br>
+<pre style="margin: 0em;">I thought I may have to tell configure that</pre><br>
+<pre style="margin: 0em;">cc = gcc</pre><br>
+<pre style="margin: 0em;">or something.</pre><br>
+<pre style="margin: 0em;">Where would I do that?</pre><br>
+<pre style="margin: 0em;">Any other ideas? Thank you!</pre><br>
+<pre style="margin: 0em;">CONFIG.LOG:</pre><br>
+<pre style="margin: 0em;">This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.</pre><br>
+<pre style="margin: 0em;">It was created by SUNDIALS configure 2.2.0, which was
+generated by GNU Autoconf 2.59.  Invocation command line was</pre><br>
+<pre style="margin: 0em;"> $ ./configure</pre><br>
+<pre style="margin: 0em;">## --------- ##
+## Platform. ##
+## --------- ##</pre><br>
+<pre style="margin: 0em;">hostname = joe
+uname -m = i686
+uname -r = 1.0.11(0.46/3/2)
+uname -s = MINGW32_NT-5.1
+uname -v = 2004-04-30 18:55</pre><br>
+<pre style="margin: 0em;">/usr/bin/uname -p = unknown
+/bin/uname -X     = unknown</pre><br>
+<pre style="margin: 0em;">/bin/arch              = unknown
+/usr/bin/arch -k       = unknown
+/usr/convex/getsysinfo = unknown
+hostinfo               = unknown
+/bin/machine           = unknown
+/usr/bin/oslevel       = unknown
+/bin/universe          = unknown</pre><br>
+<pre style="margin: 0em;">PATH: .
+PATH: /usr/local/bin
+PATH: /mingw/bin
+PATH: /bin
+PATH: /c/texmf/miktex/bin
+PATH: /c/WINDOWS/system32
+PATH: /c/WINDOWS
+PATH: /c/WINDOWS/system32/wbem
+PATH: /c/Programme/MATLAB71/bin/win32
+PATH: /c/progra~1/matlab71/bin/win32
+PATH: /mingw/bin/
+PATH: .</pre><br>
+<pre style="margin: 0em;"><br>## ----------- ##
+## Core tests. ##
+## ----------- ##</pre><br>
+<pre style="margin: 0em;">configure:1817: checking build system type
+configure:1835: result: i686-pc-mingw32
+configure:1845: checking host system type
+configure:1859: result: i686-pc-mingw32
+configure:1876: checking whether make sets $(MAKE)
+configure:1896: result: yes
+configure:1921: checking for a BSD-compatible install
+configure:1976: result: /bin/install -c
+configure:2302: checking for C compiler version
+configure:2305: cc --version &lt;/dev/null &gt;&amp;5
+./configure: cc: command not found
+configure:2308: $? = 127
+configure:2310: cc -v &lt;/dev/null &gt;&amp;5
+./configure: cc: command not found
+configure:2313: $? = 127
+configure:2315: cc -V &lt;/dev/null &gt;&amp;5
+./configure: cc: command not found
+configure:2318: $? = 127
+configure:2341: checking for C compiler default output file name
+configure:2344: cc    conftest.c  &gt;&amp;5
+./configure: cc: command not found
+configure:2347: $? = 127
+configure: failed program was:
+| /* confdefs.h.  */
+|
+| #define PACKAGE_NAME &quot;SUNDIALS&quot;
+| #define PACKAGE_TARNAME &quot;sundials&quot;
+| #define PACKAGE_VERSION &quot;2.2.0&quot;
+| #define PACKAGE_STRING &quot;SUNDIALS 2.2.0&quot;
+| #define PACKAGE_BUGREPORT &quot;radu@llnl.gov&quot;
+| /* end confdefs.h.  */
+|
+| int
+| main ()
+| {
+|
+|   ;
+|   return 0;
+| }
+configure:2386: error: C compiler cannot create executables
+See `config.log' for more details.</pre><br>
+<pre style="margin: 0em;">## ---------------- ##
+## Cache variables. ##
+## ---------------- ##</pre><br>
+<pre style="margin: 0em;">ac_cv_build=i686-pc-mingw32
+ac_cv_build_alias=i686-pc-mingw32
+ac_cv_env_CC_set=
+ac_cv_env_CC_value=
+ac_cv_env_CFLAGS_set=
+ac_cv_env_CFLAGS_value=
+ac_cv_env_CPPFLAGS_set=
+ac_cv_env_CPPFLAGS_value=
+ac_cv_env_CPP_set=
+ac_cv_env_CPP_value=
+ac_cv_env_CXXCPP_set=
+ac_cv_env_CXXCPP_value=
+ac_cv_env_CXXFLAGS_set=
+ac_cv_env_CXXFLAGS_value=
+ac_cv_env_CXX_set=
+ac_cv_env_CXX_value=
+ac_cv_env_F77_set=
+ac_cv_env_F77_value=
+ac_cv_env_FFLAGS_set=
+ac_cv_env_FFLAGS_value=
+ac_cv_env_LDFLAGS_set=
+ac_cv_env_LDFLAGS_value=
+ac_cv_env_build_alias_set=
+ac_cv_env_build_alias_value=
+ac_cv_env_host_alias_set=
+ac_cv_env_host_alias_value=
+ac_cv_env_target_alias_set=
+ac_cv_env_target_alias_value=
+ac_cv_host=i686-pc-mingw32
+ac_cv_host_alias=i686-pc-mingw32
+ac_cv_path_install='/bin/install -c'
+ac_cv_prog_make_make_set=yes</pre><br>
+<pre style="margin: 0em;">## ----------------- ##
+## Output variables. ##
+## ----------------- ##</pre><br>
+<pre style="margin: 0em;">AR=''
+AS=''
+CC='cc'
+CC_COMP=''
+CFLAGS=''
+COMPILER_PREFIX=''
+CPP=''
+CPPFLAGS=''
+CXX=''
+CXXCPP=''
+CXXFLAGS=''
+DEFS=''
+DLLTOOL=''
+ECHO='echo'
+ECHO_C=''
+ECHO_N='-n'
+ECHO_T=''
+EGREP=''
+EXAMPLE_MODULES=''
+EXEEXT=''
+F77='f77'
+F77_CASE=''
+F77_COMP=''
+F77_LNKR=''
+F77_MANGLE_MACRO1=''
+F77_MANGLE_MACRO2=''
+F77_MPI_COMM_F2C=''
+F77_UNDERSCORES=''
+FCMIX_ENABLED='yes'
+FFLAGS=''
+FGREP=''
+FLIBS=''
+FLOAT_TYPE=''
+GENERIC_MATH_LIB=''
+INSTALL_DATA='${INSTALL} -m 644'
+INSTALL_PROGRAM='${INSTALL}'
+INSTALL_SCRIPT='${INSTALL}'
+LDFLAGS=''
+LIBOBJS=''
+LIBS=''
+LIBTOOL=''
+LIBTOOL_CMD=''
+LIBTOOL_DEPS=''
+LIB_REVISION='0:0:0'
+LINKER_PREFIX=''
+LN_S=''
+LTLIBOBJS=''
+MODULES=''
+MPICC=''
+MPICC_COMP=''
+MPIF77=''
+MPIF77_COMP=''
+MPIF77_LNKR=''
+MPI_FLAGS=''
+MPI_INC_DIR=''
+MPI_LIBS=''
+MPI_LIB_DIR=''
+NVEC_MODULES=''
+OBJDUMP=''
+OBJEXT=''
+OBJ_EXT=''
+PACKAGE_BUGREPORT='radu@llnl.gov'
+PACKAGE_NAME='SUNDIALS'
+PACKAGE_STRING='SUNDIALS 2.2.0'
+PACKAGE_TARNAME='sundials'
+PACKAGE_VERSION='2.2.0'
+PATH_SEPARATOR=':'
+PRECISION_LEVEL=''
+RANLIB=''
+SET_MAKE=''
+SHELL='/bin/sh'
+STRIP=''
+ac_ct_AR=''
+ac_ct_AS=''
+ac_ct_CC=''
+ac_ct_CXX=''
+ac_ct_DLLTOOL=''
+ac_ct_F77=''
+ac_ct_OBJDUMP=''
+ac_ct_RANLIB=''
+ac_ct_STRIP=''
+bindir='${exec_prefix}/bin'
+build='i686-pc-mingw32'
+build_alias=''
+build_cpu='i686'
+build_os='mingw32'
+build_vendor='pc'
+datadir='${prefix}/share'
+exec_prefix='NONE'
+host='i686-pc-mingw32'
+host_alias=''
+host_cpu='i686'
+host_os='mingw32'
+host_vendor='pc'
+includedir='${prefix}/include'
+infodir='${prefix}/info'
+libdir='${exec_prefix}/lib'
+libexecdir='${exec_prefix}/libexec'
+localstatedir='${prefix}/var'
+mandir='${prefix}/man'
+oldincludedir='/usr/include'
+prefix='NONE'
+program_transform_name='s,x,x,'
+sbindir='${exec_prefix}/sbin'
+sharedstatedir='${prefix}/com'
+sysconfdir='${prefix}/etc'
+target_alias=''</pre><br>
+<pre style="margin: 0em;">## ----------- ##
+## confdefs.h. ##
+## ----------- ##</pre><br>
+<pre style="margin: 0em;">#define PACKAGE_BUGREPORT &quot;radu@llnl.gov&quot;
+#define PACKAGE_NAME &quot;SUNDIALS&quot;
+#define PACKAGE_STRING &quot;SUNDIALS 2.2.0&quot;
+#define PACKAGE_TARNAME &quot;sundials&quot;
+#define PACKAGE_VERSION &quot;2.2.0&quot;</pre><br>
+<pre style="margin: 0em;">configure: exit 77</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00573" href="msg00573.html">Re: [sundials-users] SUNDIAL installation using mingw/msys: C compiler cannot create executables</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00571.html">RE: [sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00573.html">Re: [sundials-users] SUNDIAL installation using mingw/msys: C compiler cannot create executables</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00565.html">[sundials-users] IDA under mex interface between SUNDIALS and MATLAB</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00573.html">Re: [sundials-users] SUNDIAL installation using mingw/msys: C compiler cannot create executables</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00572">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00572">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

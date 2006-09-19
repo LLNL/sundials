@@ -1,16 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] Re: problem in running the parallel fortran example -->
+<!--X-Subject: Re: [sundials&#45;users] IDA problem formulation -->
 <!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Wed, 28 Jun 2006 08:58:15 &#45;0700 -->
-<!--X-Message-Id: 44A2A676.2010000@llnl.gov -->
+<!--X-Date: Mon, 28 Aug 2006 05:51:41 &#45;0700 -->
+<!--X-Message-Id: 44F2E675.10008@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 449FF72D.1050304@eas.iis.fraunhofer.de -->
-<!--X-Reference: 44A0044E.7030404@llnl.gov -->
-<!--X-Reference: Pine.GSO.4.61.0606271654400.15344@techunix.technion.ac.il -->
+<!--X-Reference: F4672BAB&#45;4673&#45;4C7B&#45;AB88&#45;82FD4C367D43@tu&#45;berlin.de -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] Re: problem in running the parallel fortran example</title>
+<title>Re: [sundials-users] IDA problem formulation</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00554.html">Date Prev</a>] [<a href="msg00556.html">Date Next</a>] [<a href="msg00585.html">Thread Prev</a>] [<a href="msg00556.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00555">Date Index</a></b>]
-[<b><a href="threads.html#00555">Thread Index</a></b>]
+[<a href="msg00638.html">Date Prev</a>] [<a href="msg00640.html">Date Next</a>] [<a href="msg00637.html">Thread Prev</a>] [<a href="msg00640.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00639">Date Index</a></b>]
+[<b><a href="threads.html#00639">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] Re: problem in running the parallel fortran example</h1>
+<h1>Re: [sundials-users] IDA problem formulation</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -93,7 +91,7 @@ Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 28 Jun 2006 08:55:34 -0700</td>
+Mon, 28 Aug 2006 05:49:57 -0700</td>
 </tr>
 
 </table>
@@ -103,63 +101,69 @@ Wed, 28 Jun 2006 08:55:34 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Rachel,</pre><br>
-<tt>I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
-6)). You should not have to make any modifications to the sources as Fortran is case insensitive. I am quite baffled by this, especially 
-since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).</tt><br>
+<pre style="margin: 0em;">Michael,
+Could you give the PDEs you wish to solve?
+--Radu</pre><br>
+<tt>Michael Oevermann wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello all,</pre><br>
+<tt>I am having problems to find the correct implementation of my DAE 
+problem. Because I am<br>
+quite new to this field, I'll try to describe my problem here.</tt><br>
 <br>
-<pre style="margin: 0em;">Do you have similar problems with all the other parallel Fortran examples 
-(cvode, ida)?
-What are the compilation commands executed for 'make examples'. In my case they 
-are:</pre><br>
-<tt>Making examples in kinsol/fcmix/examples_par...<br>
-make[1]: Entering directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
-Updating fkinkryx_p.f...<br>
-/usr/apps/mpich/1.2.4/bin/mpif77  -I/usr/apps/mpich/1.2.4/bin/../include -g -O2 -ffloat-store -c ./fkinkryx_p-updated.f<br>
- /usr/apps/mpich/1.2.4/bin/mpif77 -o ./fkinkryx_p ./fkinkryx_p-updated.o  -g -O2 -ffloat-store  -L/home/radu/CODES/TEST/sundials/lib 
--lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -L/usr/apps/mpich/1.2.4/bin/../lib  -lm 
--L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s<br>
-make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'</tt><br>
+<tt>I want to solve a 1-d problem and I have n+1 grid points with indices 
+0,...,n. My dependent variables<br>
+are<br>
+y (mass-fractions),<br>
+u (velocity), and<br>
+p (pressure).</tt><br>
 <br>
-<pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt><br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
-other users.</tt><br>
+<pre style="margin: 0em;">The pressure is spatially homogeneous!</pre><br>
+<pre style="margin: 0em;">For the mass-fractions I have normal ODE's</pre><br>
+<pre style="margin: 0em;">y'_i = f_i(y,u,p),  i=0,...,n</pre><br>
+<pre style="margin: 0em;">For the velocity I have an equation for the spatial derivative:</pre><br>
+<pre style="margin: 0em;">(du/dx)_i = p'  /  p + g_i(y)        (1)</pre><br>
+<pre style="margin: 0em;">with B.C.:</pre><br>
+<pre style="margin: 0em;">u_0 = u_L
+u_n = u_R</pre><br>
+<tt>(Note: du/dx does not depend on u itself and because p is spatially 
+homogeneous I have only one pressure here!)</tt><br>
 <br>
-<tt><br>Rachel Gordon wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I installed Kinsol on my Linux cluster (running under Red Hat Linux 
-release 7.3 (Valhalla) ). I tried the c examples (serial and parallel) 
-and the serial fortran example and they all run fine. However when I try 
-the parallel fortran example fkinkryx_p, I get an error message:</tt><br>
+<pre style="margin: 0em;">Given y_i and p, and p'  I can integrate directly:</pre><br>
+<pre style="margin: 0em;">=&gt; u_i = u_0 + Sum_{k=1}^{i-1} (du/dx)_{k-1}  (2)</pre><br>
+<tt>However, I have two B.C. (u_L and u_R) for this first order equation. 
+Therefore, I am integrating only<br>
+to n-1 and not to n. The last equation (du/dx)_{n-1} I want to use for 
+the pressure update:</tt><br>
 <br>
-<tt>/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
-dumped) /home/people/...</tt><br>
+<pre style="margin: 0em;">u_R = u_{n-1}  + (du/dx)_{n-1} * dx = u_{n-1} + p'/ p * dx + g_{n-1}  dx</pre><br>
+<pre style="margin: 0em;">This can be re-arranged to an ODE for</pre><br>
+<pre style="margin: 0em;">p' = ( (u_R - u_{n-1})/dx  - g_{n-1} ) * p   (3)</pre><br>
+<tt>In order to keep the Jacobian matrix banded, I introduce the artificial 
+equation dp/dx = 0 and have an additioal<br>
+algebraic equation:</tt><br>
 <br>
-<pre style="margin: 0em;">I already changed  in the original file:
-   mpi_comm_world   to:  MPI_COMM_WORLD</pre><br>
-<pre style="margin: 0em;">and the names of the mpi routines:
-   mpi_init(ier)     to: MPI_Init(ier),
-   mpi_finalize(ier) to: MPI_Finalize(ier),
-   mpi_abort(..  )   to: MPI_Abort(.. ), and so on.</pre><br>
-<tt>This enabled creation  of the executable file fkinkryx_p*, but on 
-running it with: mpirun -np 4 fkinkryx_p    I get the above error message.</tt><br>
+<pre style="margin: 0em;">p_{i} = p_{i+1},   i=0,...,n-1    (4)</pre><br>
+<pre style="margin: 0em;">and from (3) I say</pre><br>
+<pre style="margin: 0em;">p' _{n} = ( (u_R - u_{n-1})/dx  - g_{n-1} ) * p_n  (5)</pre><br>
+<pre style="margin: 0em;">Now I have the following questions:</pre><br>
+<tt>i) If I implement an algebraic equation (4) for p_i, i=0,...,n-1, do I 
+have local values of  p'_i as well?<br>
+   (I need them to keep the system banded in (1) and (2))<br>
+ii) Somehow I don't get this system to work with IDA. Does anybody see 
+if I make a conceptual mistake, e.g.<br>
+  the system is not index 1 and cannot solved with IDA or anything else?<br>
+iii) in principle, u_{n-1} in (5) depends on ALL y_i, p_i, p'_i via the 
+spatial integration (2). However, solving<br>
+   for u as well, p'_{n} should depend on u_{n-1} directly and the 
+Jacobian should be banded. Is that right?</tt><br>
 <br>
-<pre style="margin: 0em;">What did I do wrong?</pre><br>
-<pre style="margin: 0em;">Thanks for your cooperation,</pre><br>
-<pre style="margin: 0em;">Sincerely,
-Rachel</pre><br>
-<pre style="margin: 0em;"><br>  Dr.  Rachel Gordon
-  Senior Research Associate        Phone: +972-4-8293811
-  Dept. of Aerospace Eng.        Fax:   +972 - 4 - 8292030
-  The Technion, Haifa 32000, Israel     email: rgordon@tx.technion.ac.il</pre><br>
+<pre style="margin: 0em;">Many thanks for your time to think about my problem!</pre><br>
+<pre style="margin: 0em;">Best regard</pre><br>
+<pre style="margin: 0em;">Michael</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
+<br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
-<pre style="margin: 0em;">--
-   Radu Serban
-   Center for Applied Scientific Computing   [email] radu@llnl.gov
-   Lawrence Livermore National Laboratory    [phone] 925-424-4852
-   P.O. Box 808, L-560                       [fax]   925-422-6287
-   Livermore, CA 94551</pre><br>
+<br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -169,40 +173,38 @@ Rachel</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00556" href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00640" href="msg00640.html">Re: [sundials-users] IDA problem formulation</a></strong>
+<ul><li><em>From:</em> Michael Oevermann &lt;michael.oevermann@tu-berlin.de&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00545" href="msg00545.html">[sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
-<li><strong><a name="00548" href="msg00548.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00637" href="msg00637.html">[sundials-users] IDA problem formulation</a></strong>
+<ul><li><em>From:</em> Michael Oevermann &lt;michael.oevermann@tu-berlin.de&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00554.html">[sundials-users] Bizarre crashes in Sundials DLL</a></strong>
+<strong><a href="msg00638.html">Re: [sundials-users] IDA dense/banded solver</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00640.html">Re: [sundials-users] IDA problem formulation</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00585.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<strong><a href="msg00637.html">[sundials-users] IDA problem formulation</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00640.html">Re: [sundials-users] IDA problem formulation</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00555">
+<li><a href="maillist.html#00639">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00555">
+<li><a href="threads.html#00639">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

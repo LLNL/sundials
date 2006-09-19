@@ -1,0 +1,274 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] using sundials for ill&#45;conditioned problem -->
+<!--X-From-R13: mkqNoh.rqh -->
+<!--X-Date: Fri, 04 Aug 2006 08:36:58 &#45;0700 -->
+<!--X-Message-Id: 20060804113353.8lvgowt34w8k8w8c@www.bu.edu -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 44B6786F.5050906@mit.edu -->
+<!--X-Reference: 44BC0C4E.6040603@llnl.gov -->
+<!--X-Reference: 20060718170219.230zrhhoys8g0w8o@www.bu.edu -->
+<!--X-Reference: 44BD7D9F.3010001@llnl.gov -->
+<!--X-Reference: Pine.A41.4.63.0607211034280.116112@acsrs3.bu.edu -->
+<!--X-Reference: 44C4EF32.2090209@llnl.gov -->
+<!--X-Reference: 20060726113704.q72vzj0f34ccgwcw@www.bu.edu -->
+<!--X-Reference: 44C7A169.6080402@llnl.gov -->
+<!--X-Reference: 20060726133305.nmu4lwafac4kok4w@www.bu.edu -->
+<!--X-Reference: Pine.LNX.4.58.0608021355350.15600@tux64.llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] using sundials for ill-conditioned problem</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00603.html">Date Prev</a>] [<a href="msg00605.html">Date Next</a>] [<a href="msg00601.html">Thread Prev</a>] [<a href="msg00613.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00604">Date Index</a></b>]
+[<b><a href="threads.html#00604">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] using sundials for ill-conditioned problem</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+<a href="mailto:zxd%40bu.edu">zxd@bu.edu</a></td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Fri,  4 Aug 2006 11:33:53 -0400</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Hi, Alan and Radu:</pre><br>
+<pre style="margin: 0em;">  Thanks so much for detailed explanation, and I am really
+appreciate that and happy to use sundials.</pre><br>
+<pre style="margin: 0em;">  In fact the CVODES explicit methods seems solved my problem now.
+And it is much faster than implicit methods (IDA, and sundials).</pre><br>
+<pre style="margin: 0em;">  I am just thinking about put it into parallel version to make
+the problem scalable (now I only have 2000 state variable). And
+I am exploring whether that is some efficient methods for my problem.</pre><br>
+<pre style="margin: 0em;">Thanks
+Xuedong</pre><br>
+<pre style="margin: 0em;">Quoting Alan Hindmarsh &lt;alanh@llnl.gov&gt;:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>Hello  Xuedong,</pre><br>
+<pre style="margin: 0em;">Radu has very nicely summarized the situation regarding explicit vs
+implicit differential systems and explicit vs implicit integration
+methods.  Let me just add a few comments.</pre><br>
+<pre style="margin: 0em;">About methods: It is true that CVODE only uses implicit methods
+(implicit Adams and BDF).  However, CVODE includes the nonstiff method
+option, given by lmm = CV_ADAMS and iter = CV_FUNCTIONAL, which is
+really much like an explicit method.  With this method, there is no
+linear algebra done to solve the implicit Adams equation, only
+repeated function evaluation.  So in practice this is generally
+thought of as an explicit method.  In the case of the second-order
+systems at least, when converted to explicit form y&quot; = F, I recommend
+trying this nonstiff method first (after the transformation described
+below, if necessary). If you find that this is taking too many steps
+compared to the time scale of the solution, then the system is
+probably stiff and you should switch to a stiff method.</pre><br>
+<pre style="margin: 0em;">Second, does your matrix A really does have a condition number ~ 1e19,
+even after you fixed your bug?  If so, it is probably numerically
+singular.  This means that, instead of even attempting to invert A,
+you should identify the singular mode or modes that are represented by
+the equation A y' = f or A y&quot; = f.  That is, an appropriate linear
+transformation on the system will lead to an invertible subsystem
+A1 y1' = f1 (or A1 y1&quot; = f1) together with one or equations of form
+epsilon y2' = f2 (or epsilon y2&quot; = f2) with very small epsilon.
+The latter equations are better treated as simply f2 = 0.  If these
+equations can be solved for the corresponding unknowns, then on
+applying A1^{-1} you still have an explicitly given ODE system (a
+CVODE problem).  If not, you have an IDA problem.</pre><br>
+<pre style="margin: 0em;">Since your matrices are banded, and hopefully remain banded with the
+above transformation, I would strongly recommend using the direct
+banded linear solver option with either CVODE or IDA, at least for a
+while.  If the bandwidths are large, and if you can provide a
+preconditioner that is more efficient than the Jacobian itself, then
+perhaps try the preconditioned Krylov solver.  Pay close attention to
+Radu's comments (and the user guides) about what the preconditioner
+needs to approximate.</pre><br>
+<pre style="margin: 0em;">To answer your questions more directly:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">   So in nutshell, if I use BDF (stiff problem), CVODE and IDA doesn't
+differ in efficiency since both need to solve a linear equation
+(the Jacobian Matrix is different).
+</pre></blockquote><pre style="margin: 0em;"><br>IDA (for the DAE form) and CVODE (for an equivalent explicit form) may
+still differ considerably in efficiency depending on the costs of the
+various matrix operations, even if both use the BDF method.  If you
+can find an inexpensive way to compute A^{-1}f in the CVODE case, that
+is likely to make CVODE more efficient.  Differences in the costs of
+the preconditioners for CVODE and IDA will also effect the overall
+efficiencies, but these are hard to predict, since we don't know what
+you would be using for the preconditioners.</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">   The only way that CVODE can take advantage of the explicit form
+of ODE is Adams forward methods where yn is estimated
+directly based on y'n, y'n-1 ....
+</pre></blockquote><pre style="margin: 0em;"><br>That is the main way, but it is not the only way.  If the system turns
+out to be nonstiff, then using CVODE with the nonstiff option is
+almost certain to be the winner in efficiency, even though it requires
+evaluations of A^{-1}f.  But even in the stiff case, CVODE may be
+the winner, as I said above.</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">   In my case, I don't need to inverse A to form explicit form is an
+advantage of using IDA.
+</pre></blockquote><pre style="margin: 0em;"><br>Yes, not having to invert A is an advantage for using IDA, but it may
+or may not be offset by advantages for using CVODE.</pre><br>
+<pre style="margin: 0em;"><br>-Alan H</pre><br>
+<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br>--
+Xuedong Zhang
+Research Associate
+Hearing Research Center, Department of Biomedical Engineering
+Boston University</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00613" href="msg00613.html">Re: [sundials-users] using sundials for ill-conditioned problem</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00575" href="msg00575.html">[sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> Xuedong Zhang &lt;zxd@MIT.EDU&gt;</li></ul></li>
+<li><strong><a name="00578" href="msg00578.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00582" href="msg00582.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> zxd@bu.edu</li></ul></li>
+<li><strong><a name="00584" href="msg00584.html">Re: [sundials-users] custom linear solvers for cvodes, and ida</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00587" href="msg00587.html">[sundials-users] Question about uinsg sundials for problem will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> Xuedong Zhang &lt;zxd@bu.edu&gt;</li></ul></li>
+<li><strong><a name="00592" href="msg00592.html">Re: [sundials-users] Question about uinsg sundials for problem will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00593" href="msg00593.html">Re: [sundials-users] Question about uinsg sundials for problem	will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> zxd@bu.edu</li></ul></li>
+<li><strong><a name="00595" href="msg00595.html">Re: [sundials-users] Question about uinsg sundials for problem	will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00596" href="msg00596.html">Re: [sundials-users] Question about uinsg sundials for problem	will ill-conditinoed Jacobian Matrix</a></strong>
+<ul><li><em>From:</em> zxd@bu.edu</li></ul></li>
+<li><strong><a name="00601" href="msg00601.html">Re: [sundials-users] using sundials for ill-conditioned problem</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00603.html">Re: [sundials-users] How to compile the libs 'libsundialsXXX.l ib' with '/clr' support?</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00605.html">[sundials-users] Question about general paparell ode solver algorithms</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00601.html">Re: [sundials-users] using sundials for ill-conditioned problem</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00613.html">Re: [sundials-users] using sundials for ill-conditioned problem</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00604">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00604">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

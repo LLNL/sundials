@@ -1,16 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] Re: problem in running the parallel fortran example -->
-<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
-<!--X-Date: Wed, 28 Jun 2006 08:58:15 &#45;0700 -->
-<!--X-Message-Id: 44A2A676.2010000@llnl.gov -->
-<!--X-Content-Type: text/plain -->
-<!--X-Reference: 449FF72D.1050304@eas.iis.fraunhofer.de -->
-<!--X-Reference: 44A0044E.7030404@llnl.gov -->
-<!--X-Reference: Pine.GSO.4.61.0606271654400.15344@techunix.technion.ac.il -->
+<!--X-Subject: [sundials&#45;users] Problem with IDA -->
+<!--X-From-R13: "[npn" <zsf26Nohssnyb.rqh> -->
+<!--X-Date: Mon, 17 Jul 2006 14:11:31 &#45;0700 -->
+<!--X-Message-Id: 000001c6a9e4$a7a2cda0$ae13cd80@eng.buffalo.edu -->
+<!--X-Content-Type: multipart/alternative -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] Re: problem in running the parallel fortran example</title>
+<title>[sundials-users] Problem with IDA</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00554.html">Date Prev</a>] [<a href="msg00556.html">Date Next</a>] [<a href="msg00585.html">Thread Prev</a>] [<a href="msg00556.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00555">Date Index</a></b>]
-[<b><a href="threads.html#00555">Thread Index</a></b>]
+[<a href="msg00575.html">Date Prev</a>] [<a href="msg00577.html">Date Next</a>] [<a href="msg00575.html">Thread Prev</a>] [<a href="msg00577.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00576">Date Index</a></b>]
+[<b><a href="threads.html#00576">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] Re: problem in running the parallel fortran example</h1>
+<h1>[sundials-users] Problem with IDA</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -86,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
+&quot;Maca&quot; &lt;<a href="mailto:mfs26%40buffalo.edu">mfs26@buffalo.edu</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 28 Jun 2006 08:55:34 -0700</td>
+Mon, 17 Jul 2006 17:04:55 -0400</td>
 </tr>
 
 </table>
@@ -103,63 +100,53 @@ Wed, 28 Jun 2006 08:55:34 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Rachel,</pre><br>
-<tt>I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
-6)). You should not have to make any modifications to the sources as Fortran is case insensitive. I am quite baffled by this, especially 
-since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).</tt><br>
-<br>
-<pre style="margin: 0em;">Do you have similar problems with all the other parallel Fortran examples 
-(cvode, ida)?
-What are the compilation commands executed for 'make examples'. In my case they 
-are:</pre><br>
-<tt>Making examples in kinsol/fcmix/examples_par...<br>
-make[1]: Entering directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
-Updating fkinkryx_p.f...<br>
-/usr/apps/mpich/1.2.4/bin/mpif77  -I/usr/apps/mpich/1.2.4/bin/../include -g -O2 -ffloat-store -c ./fkinkryx_p-updated.f<br>
- /usr/apps/mpich/1.2.4/bin/mpif77 -o ./fkinkryx_p ./fkinkryx_p-updated.o  -g -O2 -ffloat-store  -L/home/radu/CODES/TEST/sundials/lib 
--lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -L/usr/apps/mpich/1.2.4/bin/../lib  -lm 
--L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s<br>
-make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'</tt><br>
-<br>
-<pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt><br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
-other users.</tt><br>
-<br>
-<tt><br>Rachel Gordon wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I installed Kinsol on my Linux cluster (running under Red Hat Linux 
-release 7.3 (Valhalla) ). I tried the c examples (serial and parallel) 
-and the serial fortran example and they all run fine. However when I try 
-the parallel fortran example fkinkryx_p, I get an error message:</tt><br>
-<br>
-<tt>/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
-dumped) /home/people/...</tt><br>
-<br>
-<pre style="margin: 0em;">I already changed  in the original file:
-   mpi_comm_world   to:  MPI_COMM_WORLD</pre><br>
-<pre style="margin: 0em;">and the names of the mpi routines:
-   mpi_init(ier)     to: MPI_Init(ier),
-   mpi_finalize(ier) to: MPI_Finalize(ier),
-   mpi_abort(..  )   to: MPI_Abort(.. ), and so on.</pre><br>
-<tt>This enabled creation  of the executable file fkinkryx_p*, but on 
-running it with: mpirun -np 4 fkinkryx_p    I get the above error message.</tt><br>
-<br>
-<pre style="margin: 0em;">What did I do wrong?</pre><br>
-<pre style="margin: 0em;">Thanks for your cooperation,</pre><br>
-<pre style="margin: 0em;">Sincerely,
-Rachel</pre><br>
-<pre style="margin: 0em;"><br>  Dr.  Rachel Gordon
-  Senior Research Associate        Phone: +972-4-8293811
-  Dept. of Aerospace Eng.        Fax:   +972 - 4 - 8292030
-  The Technion, Haifa 32000, Israel     email: rgordon@tx.technion.ac.il</pre><br>
-<pre style="margin: 0em;"><br></pre><br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
-<pre style="margin: 0em;">--
-   Radu Serban
-   Center for Applied Scientific Computing   [email] radu@llnl.gov
-   Lawrence Livermore National Laboratory    [phone] 925-424-4852
-   P.O. Box 808, L-560                       [fax]   925-422-6287
-   Livermore, CA 94551</pre><br>
+
+
+
+<DIV><FONT face=Arial size=2><SPAN class=236425320-17072006>Dear 
+All</SPAN></FONT></DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial size=2>I am 
+attempting to solve a structure in the state space using IDA. Everything went 
+fine until the program suddenly crashed. I found out that at some point in the 
+iterations the function </FONT><FONT face=Arial><FONT size=2>IDAStep<SPAN 
+class=236425320-17072006> is called but the nflag from the function IDANls is 
+not IDA_SUCCESS so the program doesn't call the function IDATestError, therefore 
+the variable err_k is not defined and when trying to call IDAHandleNFlag, it 
+crashes because err_k is not defined. </SPAN></FONT></FONT></SPAN></FONT></DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006>As a "solution" I uncommented the if test before the 
+call to IDATestError so the variable would be defined at all 
+times.</SPAN></FONT></FONT></SPAN></FONT></DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006>I still have to do some more checking on my results but 
+they seem very reasonable.</SPAN></FONT></FONT></SPAN></FONT></DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006></SPAN></FONT></FONT></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006>&nbsp;I am not very familiar with the variables used 
+along the program and not too familiar with all the mathematical procedures 
+either so there probably is a better way to solve this problem so if you can 
+help me with some hints, I will be 
+grateful.</SPAN></FONT></FONT></SPAN></FONT></DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006></SPAN></FONT></FONT></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006>Thanks,</SPAN></FONT></FONT></SPAN></FONT></DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006>Macarena 
+Schachter.</SPAN></FONT></FONT></SPAN></FONT></DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006></SPAN></FONT></FONT></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006>PhD Candidate</SPAN></FONT></FONT></SPAN></FONT></DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006>Department of Civil, Structural and Environmental 
+Engineering.</SPAN></FONT></FONT></SPAN></FONT></DIV>
+<DIV><FONT><SPAN class=236425320-17072006><FONT face=Arial><FONT size=2><SPAN 
+class=236425320-17072006>University at 
+Buffalo.</SPAN></FONT></FONT></SPAN></FONT></DIV>
+<DIV><FONT face=Arial size=2><SPAN 
+class=236425320-17072006></SPAN></FONT>&nbsp;</DIV>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -169,40 +156,35 @@ Rachel</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00556" href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<li><strong><a name="00581" href="msg00581.html">Re: [sundials-users] Problem with IDA</a></strong>
+<ul><li><em>From:</em> Kevin Neff &lt;neffk@ieee.org&gt;</li></ul></li>
+<li><strong><a name="00577" href="msg00577.html">Re: [sundials-users] Problem with IDA</a></strong>
 <ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00545" href="msg00545.html">[sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Jens Bastian &lt;Jens.Bastian@eas.iis.fraunhofer.de&gt;</li></ul></li>
-<li><strong><a name="00548" href="msg00548.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00554.html">[sundials-users] Bizarre crashes in Sundials DLL</a></strong>
+<strong><a href="msg00575.html">[sundials-users] custom linear solvers for cvodes, and ida</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00577.html">Re: [sundials-users] Problem with IDA</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00585.html">Re: [sundials-users] Problems with IDACalcIC()</a></strong>
+<strong><a href="msg00575.html">[sundials-users] custom linear solvers for cvodes, and ida</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00556.html">Re: [sundials-users] Re: problem in running the parallel fortran example</a></strong>
+<strong><a href="msg00577.html">Re: [sundials-users] Problem with IDA</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00555">
+<li><a href="maillist.html#00576">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00555">
+<li><a href="threads.html#00576">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

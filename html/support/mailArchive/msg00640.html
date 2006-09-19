@@ -1,0 +1,281 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] IDA problem formulation -->
+<!--X-From-R13: [vpunry Arireznaa <zvpunry.brireznaaNgh&#45;oreyva.qr> -->
+<!--X-Date: Mon, 28 Aug 2006 07:23:05 &#45;0700 -->
+<!--X-Message-Id: 44F2FBC1.1000304@tu&#45;berlin.de -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: F4672BAB&#45;4673&#45;4C7B&#45;AB88&#45;82FD4C367D43@tu&#45;berlin.de -->
+<!--X-Reference: 44F2E675.10008@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] IDA problem formulation</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00639.html">Date Prev</a>] [<a href="msg00641.html">Date Next</a>] [<a href="msg00639.html">Thread Prev</a>] [<a href="msg00642.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00640">Date Index</a></b>]
+[<b><a href="threads.html#00640">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] IDA problem formulation</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Michael Oevermann &lt;<a href="mailto:michael.oevermann%40tu-berlin.de">michael.oevermann@tu-berlin.de</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 28 Aug 2006 16:20:49 +0200</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Radu Serban wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Michael,
+Could you give the PDEs you wish to solve?
+--Radu</pre><br>
+</blockquote><tt>Radu, I'll try to be a bit more precise (I include density here, but 
+that equation<br>
+does not cause problems):</tt><br>
+<br>
+<pre style="margin: 0em;">Density:</pre><br>
+<pre style="margin: 0em;">d rho/dt = - u drho / dx - rho du /dx   (1)</pre><br>
+<pre style="margin: 0em;">Mass-fractions</pre><br>
+<tt>dYs / dt = - u dYs/dx + 1 / rho sigma(Ys, rho, p)    (2) 
+(sigma is the nonlinear chemical reaction source term)</tt><br>
+<br>
+<pre style="margin: 0em;">Velocity (algebraic)</pre><br>
+<pre style="margin: 0em;">du/dx = - dp/dt  / p + g(Ys,rho,p)     (3)</pre><br>
+<pre style="margin: 0em;">with boundary conditions</pre><br>
+<pre style="margin: 0em;">u_L and u_R at left and right boundary.</pre><br>
+<pre style="margin: 0em;">Since the pressure is constant in space (not in time), I can integrate (3)
+over the complete domain, which gives a condition for dp/dt:</pre><br>
+<pre style="margin: 0em;">dp/dt = - ( (u_R - u_L) - SumOverDomain( g(Ys,rho,p)  ) *  p  (4)</pre><br>
+<pre style="margin: 0em;">That means, given at any time values of rho, p, and Ys I can calculate
+first the velocity field u from (3) and  p' = dp/dt from (4).</pre><br>
+<tt>One problem here is eq. (4) because the integration/summation couples 
+all grid points<br>
+detroying the band structure of the problem.<br>
+As described in my message before, I tried (without success) the 
+following trick:</tt><br>
+<br>
+<tt>I integrate (3) from the left boundary to point next to the right 
+boundary, index n-1:</tt><br>
+<br>
+<pre style="margin: 0em;">u_i = u_0 + Sum_{k=1}^{i-1} (du/dx)_{k-1}   i=1,...,n-1</pre><br>
+<pre style="margin: 0em;">(This is just a backward difference in space).</pre><br>
+<tt>In addition I introduce pressure variable at each grid point and say 
+dp/dx = 0:</tt><br>
+<br>
+<pre style="margin: 0em;">p_i = p_{i+1} , i = 0,...,n-1</pre><br>
+<pre style="margin: 0em;">For the last pressure variable I use (3) to get</pre><br>
+<pre style="margin: 0em;">dp/dt_{n} = - p_n * ( (u_R - u_{n-1}) / dx - g_n)</pre><br>
+<pre style="margin: 0em;">I can send you a short PDF with the detailed equations if you want.</pre><br>
+<pre style="margin: 0em;">Best regards and many thanks for help</pre><br>
+<pre style="margin: 0em;">Michael</pre><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Michael Oevermann wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello all,</pre><br>
+<tt>I am having problems to find the correct implementation of my DAE 
+problem. Because I am<br>
+quite new to this field, I'll try to describe my problem here.</tt><br>
+<br>
+<tt>I want to solve a 1-d problem and I have n+1 grid points with indices 
+0,...,n. My dependent variables<br>
+are<br>
+y (mass-fractions),<br>
+u (velocity), and<br>
+p (pressure).</tt><br>
+<br>
+<pre style="margin: 0em;">The pressure is spatially homogeneous!</pre><br>
+<pre style="margin: 0em;">For the mass-fractions I have normal ODE's</pre><br>
+<pre style="margin: 0em;">y'_i = f_i(y,u,p),  i=0,...,n</pre><br>
+<pre style="margin: 0em;">For the velocity I have an equation for the spatial derivative:</pre><br>
+<pre style="margin: 0em;">(du/dx)_i = p'  /  p + g_i(y)        (1)</pre><br>
+<pre style="margin: 0em;">with B.C.:</pre><br>
+<pre style="margin: 0em;">u_0 = u_L
+u_n = u_R</pre><br>
+<tt>(Note: du/dx does not depend on u itself and because p is spatially 
+homogeneous I have only one pressure here!)</tt><br>
+<br>
+<pre style="margin: 0em;">Given y_i and p, and p'  I can integrate directly:</pre><br>
+<pre style="margin: 0em;">=&gt; u_i = u_0 + Sum_{k=1}^{i-1} (du/dx)_{k-1}  (2)</pre><br>
+<tt>However, I have two B.C. (u_L and u_R) for this first order equation. 
+Therefore, I am integrating only<br>
+to n-1 and not to n. The last equation (du/dx)_{n-1} I want to use 
+for the pressure update:</tt><br>
+<br>
+<pre style="margin: 0em;">u_R = u_{n-1}  + (du/dx)_{n-1} * dx = u_{n-1} + p'/ p * dx + g_{n-1}  dx</pre><br>
+<pre style="margin: 0em;">This can be re-arranged to an ODE for</pre><br>
+<pre style="margin: 0em;">p' = ( (u_R - u_{n-1})/dx  - g_{n-1} ) * p   (3)</pre><br>
+<tt>In order to keep the Jacobian matrix banded, I introduce the 
+artificial equation dp/dx = 0 and have an additioal<br>
+algebraic equation:</tt><br>
+<br>
+<pre style="margin: 0em;">p_{i} = p_{i+1},   i=0,...,n-1    (4)</pre><br>
+<pre style="margin: 0em;">and from (3) I say</pre><br>
+<pre style="margin: 0em;">p' _{n} = ( (u_R - u_{n-1})/dx  - g_{n-1} ) * p_n  (5)</pre><br>
+<pre style="margin: 0em;">Now I have the following questions:</pre><br>
+<tt>i) If I implement an algebraic equation (4) for p_i, i=0,...,n-1, do 
+I have local values of  p'_i as well?<br>
+   (I need them to keep the system banded in (1) and (2))<br>
+ii) Somehow I don't get this system to work with IDA. Does anybody 
+see if I make a conceptual mistake, e.g.<br>
+  the system is not index 1 and cannot solved with IDA or anything else?<br>
+iii) in principle, u_{n-1} in (5) depends on ALL y_i, p_i, p'_i via 
+the spatial integration (2). However, solving<br>
+   for u as well, p'_{n} should depend on u_{n-1} directly and the 
+Jacobian should be banded. Is that right?</tt><br>
+<br>
+<pre style="margin: 0em;">Many thanks for your time to think about my problem!</pre><br>
+<pre style="margin: 0em;">Best regard</pre><br>
+<pre style="margin: 0em;">Michael</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">--
+==========================================
+Dr. Michael Oevermann
+TU Berlin, Fak. III, Prozesswissenschaften
+Institut f&#xFC;r Energietechnik
+Fasanenstr. 89, 10623 Berlin
+Tel.: ++49 (0) 30 3142 2452
+Fax : ++49 (0) 30 3142 2157
+mailto: michael.oevermann@tu-berlin.de
+==========================================</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00637" href="msg00637.html">[sundials-users] IDA problem formulation</a></strong>
+<ul><li><em>From:</em> Michael Oevermann &lt;michael.oevermann@tu-berlin.de&gt;</li></ul></li>
+<li><strong><a name="00639" href="msg00639.html">Re: [sundials-users] IDA problem formulation</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00639.html">Re: [sundials-users] IDA problem formulation</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00641.html">Re: [sundials-users] IDA dense/banded solver</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00639.html">Re: [sundials-users] IDA problem formulation</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00642.html">[sundials-users] sensitivity in iterative runs</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00640">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00640">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>
