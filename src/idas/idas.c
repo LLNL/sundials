@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-07-20 16:59:36 $
+ * $Revision: 1.6 $
+ * $Date: 2006-09-20 18:40:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -140,6 +140,7 @@
 #define ONE       RCONST(1.0)    /* real 1.0    */
 #define ONEPT5    RCONST(1.5)    /* real 1.5    */
 #define TWO       RCONST(2.0)    /* real 2.0    */
+#define FOUR      RCONST(4.0)    /* real 4.0    */
 #define FIVE      RCONST(5.0)    /* real 5.0    */
 #define TEN       RCONST(10.0)   /* real 10.0   */
 #define TWELVE    RCONST(12.0)   /* real 12.0   */
@@ -1527,7 +1528,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
         IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_BAD_TSTOP, tn);
         return(IDA_ILL_INPUT);
       }
-      if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
+      if ( (tn + hh - tstop)*hh > ZERO) 
+        hh = (tstop - tn)*(ONE-FOUR*uround);
     }
 
     h0u = hh;
@@ -2922,7 +2924,8 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
       *tret = tretlast = tstop;
       return(IDA_TSTOP_RETURN);
     }
-    if ((tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
+    if ((tn + hh - tstop)*hh > ZERO) 
+      hh = (tstop - tn)*(ONE-FOUR*uround);
     return(CONTINUE_STEPS);
     
   case IDA_ONE_STEP_TSTOP:
@@ -2946,7 +2949,8 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
       *tret = tretlast = tstop;
       return(IDA_TSTOP_RETURN);
     }
-    if ((tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
+    if ((tn + hh - tstop)*hh > ZERO) 
+      hh = (tstop - tn)*(ONE-FOUR*uround);
     return(CONTINUE_STEPS);
     
   }
@@ -2996,19 +3000,20 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
       return(IDA_SUCCESS);
 
     case IDA_NORMAL_TSTOP:
-      /* Test for tn at tstop, for tn past tout, and for tn near tstop. */
+      /* Test for tn past tout, for tn at tstop, and for tn near tstop. */
+      if ((tn - tout)*hh >= ZERO) {
+        ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
+        *tret = tretlast = tout;
+        return(IDA_SUCCESS);
+      }
       troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
       if (ABS(tn - tstop) <= troundoff) {
         ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
         *tret = tretlast = tstop;
         return(IDA_TSTOP_RETURN);
       }
-      if ((tn - tout)*hh >= ZERO) {
-        ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
-        *tret = tretlast = tout;
-        return(IDA_SUCCESS);
-      }
-      if ((tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
+      if ((tn + hh - tstop)*hh > ZERO) 
+        hh = (tstop - tn)*(ONE-FOUR*uround);
       return(CONTINUE_STEPS);
 
     case IDA_ONE_STEP_TSTOP:
@@ -3019,7 +3024,8 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
         *tret = tretlast = tstop;
         return(IDA_TSTOP_RETURN);
       }
-      if ((tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
+      if ((tn + hh - tstop)*hh > ZERO) 
+        hh = (tstop - tn)*(ONE-FOUR*uround);
       *tret = tretlast = tn;
       return(IDA_SUCCESS);
 
