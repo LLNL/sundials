@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-25 22:07:56 $
+ * $Revision: 1.3 $
+ * $Date: 2006-09-20 18:47:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -506,14 +506,28 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
     break;
   }
 
-  /* On the first step, load dt_mem[0] */
+  /* On the first step, load dt_mem[0].
+     On subsequent steps, test if taking a new step is necessary. */
   if ( nst == 0) {
+
     dt_mem[0]->t = ca_mem->ck_mem->ck_t0;
     storePnt(cv_mem, dt_mem[0]);
+
+  } else if ( (tn - tout)*h >= ZERO ) {
+
+    /* If tout was passed, return interpolated solution. 
+       No changes to ck_mem or dt_mem are needed. */
+    *tret = tout;
+    flag = CVodeGetDky(cv_mem, tout, 0, yout);
+    *ncheckPtr = nckpnts;
+    newData = TRUE;
+    ckpntData = ca_mem->ck_mem;
+    np = nst % nsteps + 1;
+    return(flag);
+
   }
 
   /* Integrate to tout (in CV_ONE_STEP mode) while loading check points */
-
   loop {
 
     /* Perform one step of the integration */
@@ -560,8 +574,7 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
     tfinal = *tret;
 
     /* Return if in CV_ONE_STEP mode */
-    if (iret) 
-      break;
+    if (iret) break;
 
     /* Return if tout reached */
     if ( (*tret - tout)*h >= ZERO ) {
@@ -745,6 +758,11 @@ int CVodeQuadReInitB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0)
  * When necessary, it performs a forward integration between two 
  * consecutive check points to update interpolation data.
  * itask can be CV_NORMAL or CV_ONE_STEP only.
+ *
+ * On a successful return, CVodeB returns either CV_SUCCESS
+ * (in ONE_STEP mode or if tBout was reached in NORMAL mode)
+ * unless the return time happens to be a checkpoint, in which
+ * case it returns CV_TSTOP_RETURN)
  */
 
 int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout, 
@@ -786,8 +804,13 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
     return(CV_BAD_TBOUT);
   }
 
+  /* Move ck_mem pointer to the checkpoint appropriate for
+     tBn (the current time reached by CVODES) */
   tBn = cvb_mem->cv_tn;
-  while ( sign*(tBn - t0_) <= ZERO ) ck_mem = next_;
+  while ( sign*(tBn - t0_) <= ZERO ) {
+    if (next_ == NULL) break;
+    ck_mem = next_;
+  }
   
   loop {
 
@@ -795,10 +818,7 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
        This is the 2nd forward integration pass */
     if (ck_mem != ckpntData) {
       flag = CVAdataStore(ca_mem, ck_mem);
-      if (flag != CV_SUCCESS) {
-        break;
-      /* error message is sent from forward CVODES functions */
-      }
+      if (flag != CV_SUCCESS) break;
     }
 
     /* Backward integration */
@@ -806,23 +826,16 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
     flag = CVode(cvb_mem, tBout, yBout, tBret, cv_itask);
 
     /* If an error occured, return now */
-    if (flag < 0) {
-      break;
-      /* error message is sent from backward CVODES function */
-    }
+    if (flag < 0) break;
 
     /* Set the time at which CVodeGetQuadB will evaluate any quadratures */
     t_for_quad = *tBret;
 
     /* If in CV_ONE_STEP mode, return now (flag=CV_SUCCESS or flag=CV_TSTOP_RETURN) */
-    if (itaskB == CV_ONE_STEP) {
-      break;
-    }
+    if (itaskB == CV_ONE_STEP) break;
 
     /* If succesfully reached tBout, return now */
-    if (*tBret == tBout) {
-      break;
-    }
+    if ( sign*(*tBret - tBout) <= ZERO) break;
 
     /* Move check point in linked list to next one */
     ck_mem = next_;
