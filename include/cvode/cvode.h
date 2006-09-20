@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:50 $
+ * $Revision: 1.2 $
+ * $Date: 2006-09-20 18:35:16 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -168,7 +168,7 @@ extern "C" {
    * an unrecoverable error occured, and a positive value if a 
    * recoverable error (e.g. invalid y values) occured. 
    * If an unrecoverable occured, the integration is halted. 
-   * If a recoverable error occured, then (in most cases) CVODES
+   * If a recoverable error occured, then (in most cases) CVODE
    * will try to correct and retry.
    * -----------------------------------------------------------------
    */
