@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-09-20 18:47:02 $
+ * $Revision: 1.4 $
+ * $Date: 2006-10-05 22:09:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,9 +42,10 @@
  * =================================================================
  */
 
-#define ZERO        RCONST(0.0)        /* real 0.0 */
-#define ONE         RCONST(1.0)        /* real 1.0 */
-#define TWO         RCONST(2.0)        /* real 2.0 */
+#define ZERO        RCONST(0.0)        /* real 0.0   */
+#define ONE         RCONST(1.0)        /* real 1.0   */
+#define TWO         RCONST(2.0)        /* real 2.0   */
+#define HUNDRED     RCONST(100.0)      /* real 100.0 */
 #define FUZZ_FACTOR RCONST(1000000.0)  /* fuzz factor for CVadjGetY */
 
 /* 
@@ -772,7 +773,7 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
   CkpntMem ck_mem;
   CVodeMem cvb_mem;
   int sign, flag, cv_itask;
-  realtype tBn;
+  realtype tBn, hB, troundoff;
   
   if (cvadj_mem == NULL) {
     CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeB", MSGAM_NULL_CAMEM);
@@ -807,11 +808,12 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
   /* Move ck_mem pointer to the checkpoint appropriate for
      tBn (the current time reached by CVODES) */
   tBn = cvb_mem->cv_tn;
-  while ( sign*(tBn - t0_) <= ZERO ) {
+  troundoff = HUNDRED*uround*(ABS(tBn) + ABS(hB));
+  while ( sign*(tBn - t0_) <= troundoff ) {
     if (next_ == NULL) break;
     ck_mem = next_;
   }
-  
+
   loop {
 
     /* Store interpolation data if not available 

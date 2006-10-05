@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-09-20 18:40:27 $
+ * $Revision: 1.5 $
+ * $Date: 2006-10-05 22:09:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1923,6 +1923,11 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   if (nst > 0) {
 
+    /* Estimate an infinitesimal time interval to be used as
+       a roundoff for time quantities (based on current time 
+       and step size) */
+    troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
+
     /* First check for a root in the last step taken, other than the
        last root found, if any.  If task = CV_ONE_STEP and y(tn) was not
        returned because of an intervening root, return y(tn) now.     */
@@ -1943,7 +1948,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         return(CV_ROOT_RETURN);
       }
       
-      if (tn != tretlast) {       /* Check remaining interval for roots */
+      /* If tn is distinct from tretlast (within roundoff),
+         check remaining interval for roots */
+      if ( ABS(tn - tretlast) > troundoff ) {
 
         retval = CVRcheck3(cv_mem);
 
@@ -1985,7 +1992,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     }
     
     /* In CV_ONE_STEP mode, test if tn was returned */
-    if (task == CV_ONE_STEP && tretlast != tn) {
+    if ( task == CV_ONE_STEP && ABS(tn - tretlast) > troundoff ) {
       tretlast = *tret = tn;
       N_VScale(ONE, zn[0], yout);
       return(CV_SUCCESS);
@@ -1994,8 +2001,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* Test for tn at tstop or near tstop */
     if ( istop ) {
       
-      troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
-      if ( ABS(tn - tstop) <= troundoff) {
+      if ( ABS(tn - tstop) <= troundoff ) {
         ier =  CVodeGetDky(cv_mem, tstop, 0, yout);
         if (ier != CV_SUCCESS) {
           CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_BAD_TSTOP, tn);
