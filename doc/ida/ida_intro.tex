@@ -62,6 +62,15 @@ files which must now include the relative path (e.g. \id{\#include <cvode/cvode.
 Additional changes were made to the build system: all exported header files are
 now installed in separate subdirectories of the instaltion {\em include} directory.
 
+A bug was fixed in the internal difference-quotient dense and banded Jacobian approximations,
+related to the estimation of the perturbation (which could have lead to a failure
+of the linear solver when zero components with sufficiently small absolute tolerances
+were present).
+
+The user interface to the consistent initial conditions calculations has been modified. 
+The \id{IDACalcIC} arguments \id{t0}, \id{yy0}, and \id{yp0} were removed and 
+a new function, \id{IDAGetconsistentIC} is provided (see \S\ref{ss:idacalcic} and 
+\S\ref{sss:optout_iccalc} for details).
 
 \subsection*{Changes in v2.4.0}
 
