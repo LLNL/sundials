@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-08-10 17:59:59 $
+ * $Revision: 1.7 $
+ * $Date: 2006-10-05 22:11:35 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1675,8 +1675,6 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   CVadjCheckPointRec *ckpnt;
   const char *fnames_ckpnt[]={
-    "addr",
-    "next",
     "t0",
     "t1",
     "nstep",
@@ -1723,8 +1721,6 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     for (i=0; i<=Nc; i++) {
       this = (double *)(ckpnt[Nc-i].my_addr);
       next = (double *)(ckpnt[Nc-i].next_addr);
-      mxSetField(plhs[0], i, "addr",  mxCreateScalarDouble(*this));
-      mxSetField(plhs[0], i, "next",  mxCreateScalarDouble(*next));
       mxSetField(plhs[0], i, "t0",    mxCreateScalarDouble((double)(ckpnt[Nc-i].t0)));
       mxSetField(plhs[0], i, "t1",    mxCreateScalarDouble((double)(ckpnt[Nc-i].t1)));
       mxSetField(plhs[0], i, "nstep", mxCreateScalarDouble((double)(ckpnt[Nc-i].nstep)));
