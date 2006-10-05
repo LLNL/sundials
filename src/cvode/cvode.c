@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-09-20 18:40:25 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-05 22:08:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1163,10 +1163,14 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   if (nst > 0) {
 
+    /* Estimate an infinitesimal time interval to be used as
+       a roundoff for time quantities (based on current time 
+       and step size) */
+    troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
+
     /* First, check for a root in the last step taken, other than the
        last root found, if any.  If task = CV_ONE_STEP and y(tn) was not
        returned because of an intervening root, return y(tn) now.     */
-
     if (nrtfn > 0) {
 
       irfndp = irfnd;
@@ -1184,7 +1188,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         return(CV_ROOT_RETURN);
       }
 
-      if (tn != tretlast) {       /* Check remaining interval for roots */
+      /* If tn is distinct from tretlast (within roundoff),
+         check remaining interval for roots */
+      if ( ABS(tn - tretlast) > troundoff ) {
 
         retval = CVRcheck3(cv_mem);
 
@@ -1226,7 +1232,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     }
 
     /* In CV_ONE_STEP mode, test if tn was returned */
-    if (task == CV_ONE_STEP && tretlast != tn) {
+    if ( task == CV_ONE_STEP && ABS(tn - tretlast) > troundoff ) {
       tretlast = *tret = tn;
       N_VScale(ONE, zn[0], yout);
       return(CV_SUCCESS);
@@ -1235,7 +1241,6 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* Test for tn at tstop or near tstop */
     if ( istop ) {
 
-      troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
       if ( ABS(tn - tstop) <= troundoff) {
         ier =  CVodeGetDky(cv_mem, tstop, 0, yout);
         if (ier != CV_SUCCESS) {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-09-20 18:40:29 $
+ * $Revision: 1.7 $
+ * $Date: 2006-10-05 22:09:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1593,7 +1593,10 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
         return(IDA_ROOT_RETURN);
       }
 
-      if (tn != tretlast) {       /* Check remaining interval for roots */
+      /* If tn is distinct from tretlast (within roundoff),
+         check remaining interval for roots */
+      troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
+      if ( ABS(tn - tretlast) > troundoff ) {
         ier = IDARcheck3(IDA_mem);
         if (ier == IDA_SUCCESS) {     /* no root found */
           irfnd = 0;
