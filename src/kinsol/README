@@ -1,6 +1,6 @@
                              KINSOL
-                      Release 2.5.0, August 2006
-            Allan G. Taylor, Alan C. Hindmarsh, Radu Serban
+                      Release 2.5.0, October 2006
+           Aaron Collier, Alan C. Hindmarsh, and Radu Serban
              Center for Applied Scientific Computing, LLNL
 
 KINSOL is a solver for nonlinear algebraic systems which can be
@@ -83,7 +83,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.5.0   - Aug. 2006
+v. 2.5.0   - Oct. 2006
 v. 2.4.0   - Mar. 2006
 v. 2.3.0   - Apr. 2005
 v. 2.2.2   - Mar. 2005
@@ -96,7 +96,7 @@ v. 1.0     - Aug. 1998 (date written)
 E. Revision History
 -------------------
 
-v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Aug. 2006)
+v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Oct. 2006)
 ------------------------------------------------
 
 - Changes related to the build system

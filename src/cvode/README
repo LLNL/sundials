@@ -1,6 +1,6 @@
                               CVODE
-                    Release 2.5.0, August 2006
-             Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
+                    Release 2.5.0, October 2006
+                 Alan C. Hindmarsh and Radu Serban
               Center for Applied Scientific Computing, LLNL
 
 CVODE is a solver for stiff and nonstiff ODE systems (initial value problem) 
@@ -75,7 +75,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.5.0       - Aug. 2006
+v. 2.5.0       - Oct. 2006
 v. 2.4.0       - Mar. 2006
 v. 2.3.0       - Apr. 2005
 v. 2.2.2       - Mar. 2005
@@ -90,8 +90,14 @@ v. 1.0 (CVODE) - Sep. 1994 (date written)
 E. Revision History
 -------------------
 
-v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Aug. 2006)
+v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Oct. 2006)
 ---------------------------------------------------------
+
+- Bug fixes
+   - added a roundoff factor when testing whether tn was just returned
+     (in root finding) to prevent an unnecessary return.
+   - fixed wrong logic in final stopping tests: now we check if
+     tout was reached before checking if tstop was reached.
 
 - Changes related to the build system
    - reorganized source tree: header files in ${srcdir}/include/cvode,

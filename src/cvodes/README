@@ -1,5 +1,5 @@
                            CVODES 
-                 Release 2.5.0, August 2006
+                 Release 2.5.0, October 2006
                Alan C. Hindmarsh and Radu Serban
           Center for Applied Scientific Computing, LLNL
 
@@ -73,7 +73,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.5.0   - Aug. 2006
+v. 2.5.0   - Oct. 2006
 v. 2.4.0   - Mar. 2006
 v. 2.3.0   - May. 2005
 v. 2.2.0   - Apr. 2005
@@ -86,10 +86,19 @@ v. 1.0     - Jul. 2002 (first SUNDIALS release)
 E. Revision History
 -------------------
 
-v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Aug. 2006)
+v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Oct. 2006)
 ---------------------------------------------------------
 
 - Bug fixes
+   - fixed wrong logic in final stopping tests: now we check if
+     tout was reached before checking if tstop was reached.
+   - added a roundoff factor when testing whether tn was just returned
+     (in root finding) to prevent an unnecessary return.
+  - fixed bug in CVodeB in searching for the current check point
+     (i.e. the check point for which interpolation data is available)
+   - fixed bug in CVodeF to ensure that in NORMAL mode no extra
+     step is taken (which sometimes resulted in an error from the 
+     interpolated output function).
    - changed address variable type in CVadjCheckPointRec structure from
      'unsigned int' to 'void *' to avoid address truncation/mangling on
      64-bit platforms (see CVS_P1).

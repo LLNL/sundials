@@ -1,7 +1,7 @@
                                IDA
-                    Release 2.5.0, august 2006
-             Alan C. Hindmarsh, Allan G. Taylor, Radu Serban 
-              Center for Applied Scientific Computing, LLNL
+                    Release 2.5.0, October 2006
+                 Alan C. Hindmarsh and Radu Serban 
+            Center for Applied Scientific Computing, LLNL
 
 
 IDA is a package for the solution of differential-algebraic equation
@@ -85,7 +85,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.5.0   - Aug. 2006
+v. 2.5.0   - Oct. 2006
 v. 2.4.0   - Mar. 2006
 v. 2.3.0   - Apr. 2005
 v. 2.2.2   - Mar. 2005
@@ -98,19 +98,23 @@ v. 1.0     - Feb. 1999 (date written)
 E. Revision History
 -------------------
 
-v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Aug. 2006)
+v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Oct. 2006)
 ---------------------------------------------------------
+
+- Bug fixes
+   - fixed wrong logic in final stopping tests: now we check if
+     tout was reached before checking if tstop was reached.
+   - added a roundoff factor when testing whether tn was just returned
+     (in root finding) to prevent an unnecessary return.
+   - fixed perturbation factor "underflow" issue in IDADenseDQJac and
+     IDABandDQJac routines which are used to compute a difference quotient
+     approximation to the system Jacobian (see IDA_P1).
 
 - Changes related to the build system
    - reorganized source tree: header files in ${srcdir}/include/ida,
      source files in ${srcdir}/src/ida, fcmix source files in
      ${srcdir}/src/ida/fcmix, examples in ${srcdir}/examples/ida
    - exported header files are installed unde ${includedir}/ida
-
-- Bug fixes
-   - fixed perturbation factor "underflow" issue in IDADenseDQJac and
-     IDABandDQJac routines which are used to compute a difference quotient
-     approximation to the system Jacobian (see IDA_P1).
 
 - Changes to user interface
    - all included header files use relative paths from ${includedir}
