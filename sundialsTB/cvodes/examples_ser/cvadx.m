@@ -42,7 +42,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
+% $Revision: 1.3 $Date: 2006/03/07 01:19:54 $
 
 
 % ----------------------------------------
@@ -86,20 +86,24 @@ CVadjMalloc(150, 'Hermite');
 % Forward integration
 % ----------------------------------------
 
+fprintf('Forward integration ');
+
 tout = 4.e7;
 [status,t,y,q] = CVode(tout,'Normal');
 s = CVodeGetStats;
-fprintf('G = %12.4e   (%d steps)\n',q, s.nst);
+fprintf('(%d steps)\n',s.nst);
+fprintf('G = %12.4e\n',q);
+
+
+fprintf('\nCheck point info\n');
 
 ck = CVodeGet('CheckPointsInfo');
-fprintf('\n');
-fprintf([' Address     Next'...
-         '      t0         t1'...
+fprintf(['    t0         t1'...
          '     nstep  order'...
          '  step size\n']); 
 for i = 1:length(ck)
-  fprintf('%8x %8x  %8.3e  %8.3e  %4d     %1d   %10.5e\n',...
-          ck(i).addr, ck(i).next, ck(i).t0, ck(i).t1, ck(i).nstep, ...
+  fprintf('%8.3e  %8.3e  %4d     %1d   %10.5e\n',...
+          ck(i).t0, ck(i).t1, ck(i).nstep, ...
           ck(i).order, ck(i).step);
 end
 fprintf('\n');
@@ -123,8 +127,8 @@ optionsB = CVodeSetOptions(optionsB,...
                            'QuadInitcond', qB1,...
                            'QuadErrControl','on',...
                            'QuadRelTol',1.e-6,'QuadAbsTol',1.e-3);
+mondataB = struct;
 mondataB.dir = -1;
-mondataB.sol = true;
 mondataB.mode = 'both';
 optionsB = CVodeSetOptions(optionsB,...
                            'MonitorFn','CVodeMonitor',...
@@ -132,24 +136,21 @@ optionsB = CVodeSetOptions(optionsB,...
 
 CVodeMallocB(@cvdx_fB, tB1, yB1, optionsB);
 
-
-fprintf('Start backward integration\n');
-
 % ----------------------------------------
 % Backward integration
 % ----------------------------------------
 
+fprintf('Backward integration ');
+
 [status,t,yB,qB] = CVodeB(t0,'Normal');
+sB=CVodeGetStatsB;
+fprintf('(%d steps)\n',sB.nst);
 
 fprintf('tB1:        %12.4e\n',tB1);
 fprintf('dG/dp:      %12.4e  %12.4e  %12.4e\n',...
         -qB(1),-qB(2),-qB(3));
 fprintf('lambda(t0): %12.4e  %12.4e  %12.4e\n',...
         yB(1),yB(2),yB(3));
-
-
-
-sB=CVodeGetStatsB;
 
 % ----------------------------------------
 % Free memory

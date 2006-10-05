@@ -21,9 +21,6 @@ function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
 %     o mode [ {'graphical'} | 'text' | 'both' ] 
 %         In graphical mode, plot the evolutions of the above quantities.
 %         In text mode, print a table.
-%     o xaxis [ 'linear' | {'log'} ]
-%         Type of the time axis for the stepsize, order, and counter plots 
-%         (graphical mode only).
 %     o sol  [ true | {false} ]
 %         If true, plot solution components.
 %     o sensi [ true | {false} ]
@@ -50,7 +47,7 @@ function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:50 $
+% $Revision: 1.4 $Date: 2006/03/15 19:31:25 $
 
 
 new_data = [];
@@ -237,7 +234,7 @@ if data.post & (n == data.updt | call==2)
 
     if (data.stats | data.cntr) & data.grph
       graphical_init(n, hfg, npg, data.stats, data.cntr, data.dir, ...
-                     t, h, q, nst, nfe, nni, netf, ncfn, data.xaxis);
+                     t, h, q, nst, nfe, nni, netf, ncfn);
     end
     
     if (data.stats | data.cntr) & data.text
@@ -246,7 +243,7 @@ if data.post & (n == data.updt | call==2)
     end
 
     if data.sol | data.sensi
-      sol_init(n, hfs, nps, data.sol, data.sensi, data.dir, data.xaxis, ...
+      sol_init(n, hfs, nps, data.sol, data.sensi, data.dir, ...
                N, Ns, t, y, ys);
     end
     
@@ -341,9 +338,6 @@ end
 if ~isfield(data,'select')
   data.select = [];
 end
-if ~isfield(data,'xaxis')
-  data.xaxis = 'log';
-end
 if ~isfield(data,'dir')
   data.dir = 1;
 end
@@ -385,7 +379,7 @@ data.ys = 0;
 %-------------------------------------------------------------------------
 
 function [] = graphical_init(n, hfg, npg, stats, cntr, dir, ...
-                             t, h, q, nst, nfe, nni, netf, ncfn, xaxis)
+                             t, h, q, nst, nfe, nni, netf, ncfn)
 
 fig_name = 'CVODES run statistics';
 
@@ -416,9 +410,6 @@ if stats
   pl = pl+1;
   subplot(npg,1,pl)
   semilogy(t(1:n),abs(h(1:n)),'-');
-  if strcmp(xaxis,'log')
-    set(gca,'XScale','log');
-  end
   hold on;
   box on;
   grid on;
@@ -428,9 +419,6 @@ if stats
   pl = pl+1;
   subplot(npg,1,pl)
   plot(t(1:n),q(1:n),'-');
-  if strcmp(xaxis,'log')
-    set(gca,'XScale','log');
-  end
   hold on;
   box on;
   grid on;
@@ -448,9 +436,6 @@ if cntr
   plot(t(1:n),nni(1:n),'r-');
   plot(t(1:n),netf(1:n),'g-');
   plot(t(1:n),ncfn(1:n),'c-');
-  if strcmp(xaxis,'log')
-    set(gca,'XScale','log');
-  end
   box on;
   grid on;
   xlabel(tlab);
@@ -639,7 +624,7 @@ drawnow
 
 %-------------------------------------------------------------------------
 
-function [] = sol_init(n, hfs, nps, sol, sensi, dir, xaxis, N, Ns, t, y, ys)
+function [] = sol_init(n, hfs, nps, sol, sensi, dir, N, Ns, t, y, ys)
 
 fig_name = 'CVODES solution';
 
@@ -683,9 +668,6 @@ if sol
     ic = 1+(i-1)*floor(ncols/N);
     set(hp,'Color',map(ic,:));
   end
-  if strcmp(xaxis,'log')
-    set(gca,'XScale','log');
-  end
   box on;
   grid on;
   xlabel(tlab);
@@ -707,9 +689,6 @@ if sensi
       hp = plot(t(1:n),ys_crt(i,1:n),'-');
       ic = 1+(i-1)*floor(ncols/N);
       set(hp,'Color',map(ic,:));
-    end
-    if strcmp(xaxis,'log')
-      set(gca,'XScale','log');
     end
     box on;
     grid on;
