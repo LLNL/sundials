@@ -88,6 +88,15 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v2.5.0}
+
+The main changes in this release involve a rearrangement of the entire 
+{\sundials} source tree (see \S\ref{ss:sun_org}). At the user interface 
+level, the main impact is in the mechanism of including {\sundials} header
+files which must now include the relative path (e.g. \id{\#include <cvode/cvode.h>}).
+Additional changes were made to the build system: all exported header files are
+now installed in separate subdirectories of the instaltion {\em include} directory.
+
 \subsection*{Changes in v2.4.0}
 
 {\cvspbcg} and {\cvsptfqmr} modules have been added to interface with the
