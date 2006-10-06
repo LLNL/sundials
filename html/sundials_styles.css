@@ -141,6 +141,11 @@ PRE {
 
 TT {
   font-family: monospace;
+  color: #333333;
+}
+
+EM {
+  color: #444444;
 }
 
 div.warn {

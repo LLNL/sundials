@@ -70,78 +70,114 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
 <!-- Start content for this page -->
 
-<h1>FAQ</h1>
+<br><br>
 
+<table align="center" bgcolor="#e5e4d9" width="600" frame="border" cellpadding="2" cellspacing="0">
+<tr><td colspan="2">
+If you encounter problems while building and/or using one of the SUNDIALS solvers, we suggest you try to:<br>
+</td></tr>
+<tr><td><a href="#faq"><b>&nbsp;&nbsp;1.</b></a></td><td>check the FAQ and consult the Usage Notes section.</td></tr>
+<tr><td><a href="#patches"><b>&nbsp;&nbsp;2.</b></a></td><td>verify whether this is a known issue and a patch is provided.</td>
+<tr><td><a href="#mail"><b>&nbsp;&nbsp;3.</b></a></td><td>browse the sundials-users mailing list archive.</td>
+<tr><td><a href="#mail"><b>&nbsp;&nbsp;4.</b></a></td><td>subscribe and post to the mailing list.</td>
+<tr><td><a href="#bugs"><b>&nbsp;&nbsp;5.</b></a></td><td>report a bug through Bugzilla.</td></tr>
+
+</table>
+
+<br><br>
+
+<a name="faq"></a>
+<h1>FAQ and Usage Notes</h1>
 <div class="frame">
 Answers to some of the most common user questions, as well as several tips on installing and using SUNDIALS 
 can be found in the <a href="faq.html"><b>Frequently Asked Questions</b></a> section.
 <br><br>
 Some lenghtier discussions of various issues are available in the <a href="notes.html"><b>Usage Notes</b></a> section.
+Topics currently covered include: integration return and output times,
+controlling unphysical solutions and integrating over discontinuities, and
+switching on/off forward sensitivity computations.
 </div>
 
-
+<a name="patches"></a>
 <h1>Known Issues</h1>
-
 <div class="frame">
-Workarounds and patches for bugs in SUNDIALS can be found in the <a href="bugs.html"><b>Bugs</b></a> section.
+Workarounds and patches for known bugs in SUNDIALS can be found in the <a href="bugs.html"><b>Patches</b></a> section.
 </div>
 
-
-<h1>
-Mailing Lists
-</h1>
+<a name="mail"></a>
+<h1>Mailing Lists</h1>
 
 <div class="frame">
 
 <FORM METHOD=POST ACTION="../cgi/handleform.cgi">
+We maintain two mailing lists, one (sundials-announce) reserved for announcements 
+of new releases, the other (sundals-users) devoted to user-developer and user-user 
+interaction. Previous posts to the sundials-user mailing list are 
+<a HREF="mailArchive/maillist.html"><b>archived</b></a> and available for browsing.
+<br><br>
+To subscribe to one or both mailing lists, use the following form:
+<br><br>
 
-Choose from the following lists:
+<table align="center" width="600" cellpadding="3" frame="border">
 
-<table frame="below" width="600" cellpadding="2">
-<tr><td>
+<tr valign="baseline">
+<td><b>Selection:</b></td>
+<td>
  <INPUT TYPE="checkbox" NAME="sundials-announce" VALUE="sundials-announce"><b>sundials-announce (sundials-announce@llnl.gov)</b>
  <div style="margin-left: 30px">
  Low-volume, moderated list for announcements of new SUNDIALS releases.<br>
  It cannot be posted to by users.
  </div>
-</td></tr>
-<tr><td>
+</td>
+</tr>
+
+<tr>
+<td></td>
+<td>
  <INPUT TYPE="checkbox" NAME="sundials-users" VALUE="sundials-users"><b>sundials-users (sundials-users@llnl.gov)</b>
  <div style="margin-left: 30px">
  Unmoderated discussion group for user-user and user-developer discussions.<br>
  It can be posted to by any member of the list.
  </div>
-</td></tr>
-</table>
+</td>
+</tr>
 
-<table frame="below" width="600" cellpadding="2">
-<tr><td>
+<tbody>
+
+<tr>
+<td><b>Action:</b></td>
+<td>
   <INPUT TYPE="radio" CHECKED NAME="action" VALUE="subscribe"><b>Subscribe</b>
   <INPUT TYPE="radio" NAME="action" VALUE="unsubscribe"><b>Unsubscribe</b>
-</td></tr>
+</td>
+</tr>
+
+<tbody>
+
+<tr>
+<td><b>Email:</b></td>
+<td>
+  <INPUT TYPE="text" NAME="email" MAXLEN="40" CLASS="textfield">
+</td>
+</tr>
+
 </table>
 
-<table width="500" border="0" cellpadding="4">
-<tr><td>
-  <B>Email address:</B> <INPUT TYPE="text" NAME="email" MAXLEN="40" CLASS="textfield">
-  <INPUT TYPE="submit" NAME="subscribe" VALUE="Submit" CLASS="button">
-  <INPUT TYPE="reset" VALUE="Clear Form" CLASS="button">
-</td></tr>
-</table>
+<br>
+<center>
+<INPUT TYPE="submit" NAME="subscribe" VALUE="Submit" CLASS="button">
+<INPUT TYPE="reset" VALUE="Clear Form" CLASS="button">
+</center>
 
 <INPUT TYPE="hidden" NAME="required" VALUE="email,action">
 <INPUT TYPE="hidden" NAME="field_names" VALUE="email=Your Email Address">
 
 </FORM>
 
-<p class="emph">
-<b>Archived messages: <a HREF="mailArchive/maillist.html">sundials-users</a></b>
-</p>
 </div>
 
-<h1>
-Bugzilla Bug Tracking
-</h1>
+<a name="bugs"></a>
+<h1>Bugzilla Bug Tracking</h1>
 
 <div class="frame">
 SUNDIALS uses a system called Bugzilla to keep track of bugs. 
@@ -149,7 +185,7 @@ Bugzilla is easy to use and makes it easy to see how your bug has progressed,
 and when it is resolved.
 <br><br>
 To report a bug, you first must 
-<a href="http://www-casc.llnl.gov/bugs/createaccount.cgi" target="_blank">create a Bugzilla account</a> 
+<a href="http://www-casc.llnl.gov/bugs/createaccount.cgi" target="_blank"><b>create a Bugzilla account</b></a> 
 (link will open in new window). 
 This is easy and only requires a valid email address. Once you create your account, a password 
 will be mailed to the email address you specified. You only need to create an account once, 
@@ -157,7 +193,7 @@ and you can use it from then on out to report as many bugs as you can find.
 <br><br>
 Once you receive the password, you can 
 <a href="http://www-casc.llnl.gov/bugs/enter_bug.cgi?product=SUNDIALS" target="_blank">
-enter a new bug report</a> (new window).
+<b>enter a new bug report</b></a> (new window).
 </div>
 
 <!-- ******************************************************************************** -->

@@ -87,6 +87,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <li><a href="#inst_win">How do I install SUNDIALS under Windows?</a></li>
   <li><a href="#inst_cygwin">How can I generate shared libraries under cygwin?</a></li>
   <li><a href="#inst_32vs64bit">Should I build 32-bit or 64-bit SUNDIALS libraries?</a></li>
+  <li><a href="#inst_linking">Everything installed fine! How do I link the SUNDIALS libraries to my own application?</a></li>
   </ul>
 <li><a href="#cvode">CVODE / CVODES</a>
   <ul>
@@ -137,27 +138,47 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <a name="inst_path"></a>
 <div class="faq_q">I got the tarball. What do I do next?</div>
 <div class="faq_a">
-Let's assume you downloaded <tt>sundials.tar.gz</tt>.
+Let's assume you downloaded <tt>sundials-x.y.z.tar.gz</tt>.
 First, you'll have to uncompress and unpack it:
 <pre>
-% <b>tar -xzf sundials.tar</b>
+% <b>tar -xzf sundials-x.y.z.tar</b>
 </pre>
-This will create a directory <tt>sundials</tt>, which we will call the <em>source tree</em>.
+This will create a directory <tt>sundials-x.y.z</tt>, which we will call <em>srcdir</em>.
+(Note that if you only downloaded an individual solver tarball, call it <tt>solver-x.y.z.tar.gz</tt>,
+uncompressing and unpacking it will result in the directory <tt>solver-x.y.z</tt>.) 
 <br><br>
 Next, you need to configure and build the SUNDIALS libraries. You can get some information 
 on how to do this here, but more details are available in the user guides 
 (e.g. <tt>sundials/cvode/doc/cv_guide.pdf</tt>).
 <br><br>
-Note that, since we expect most of our users to do local installs of the SUNDIALS packages,
-our build system does not respect the usual *NIX convention of installing by
-default in <tt>/usr/local</tt>. Instead, the default is to install the libraries and
-header files in two directories, <tt>lib</tt> and <tt>include</tt>, respectively,
-which are automatically created in the directory from where <tt>configure</tt> was invoked.
+If your system does not support <tt>configure</tt> scripts, see 
+<a href="#inst_noconfig">How do I build SUNDIALS without using the configure script?</a>
 <br><br>
-It is not recommended to build SUNDIALS in its source directory. Instead, create a separate <tt>build</tt>
-directory (for example as a subdirectory of <tt>sundials</tt>) and invoke <tt>configure</tt> from there.
-This way, you could maintain several different installations, using different compilers, 
-options (e.g. debug and optimized), etc. 
+Otherwise, the first thing to decide now is where you'd like to install the SUNDIALS libraries and header files. 
+We will call this directory <em>instdir</em>.
+You will specify this through the <tt>--prefix</tt> option to <tt>configure</tt> (if <tt>--prefix</tt> is not specified, 
+<em>instdir</em> defaults to <tt>usr/local</tt>.). 
+<font color="#ff0000">WARNING</font>: In no circumstances, should you use the same <em>instdir</em> as
+the source directory <em>srcdir</em>, as this would result in errors when attempting to 
+install the exported header files. 
+<br><br>
+Next, from within <em>srcdir</em>, you configure, build, and install SUNDIALS:
+<pre>
+% <b>cd</b> srcdir
+% <b>./configure</b> --prefix=instdir &lt;configure-options&gt;
+% <b>make</b>
+% <b>make install</b>
+</pre>
+If everything went fine, the SUNDIALS libraries were installed in <em>instdir</em><tt>/lib</tt>,
+the exported header files were installed in various subdirectories of <em>instdir</em><tt>/include</tt>,
+and the <tt>sundials-config</tt> executable script was installed in <em>instdir</em><tt>/bin</tt>.
+If compilation of the SUNDIALS examples was enabled through the <tt>--enable-examples</tt> option
+to <tt>configure</tt> then these were installed in various subdirectores of <em>exinstdir</em>, where
+<em>exinstsdir</em> was specified through the <tt>--with-examples-instdir</tt> option 
+(default <em>instdir</em><tt>/examples</tt>). Similarly, if compilation of the Matlab toolbox <tt>sundialsTB</tt>
+was enabled at configuration time (<tt>--enable-sundialsTB</tt>), then it was installed in 
+<em>stbinstdir</em><tt>/sundialsTB</tt>, where <em>stbinstdir</em> was specified with
+<tt>--with-sundialsTB-instdir</tt> (default <tt>$MATLAB/toolbox</tt>).
 </div>
 
 <a name="inst_linux"></a>
@@ -166,13 +187,13 @@ options (e.g. debug and optimized), etc.
 That depends a lot on how your system is configured. If all compilers, libraries, and system 
 header files are in the usual places, configuring SUNDIALS can be as simple as:
 <pre>
-% &lt;sundials_source_dir&gt;<b>/configure</b>
+% <b>./configure</b>
 % <b>make</b>
 % <b>make install</b>
 </pre>
 In certain circumstances, more sophisticated configure lines may be needed, especially
 when building SUNDIALS with MPI support and/or the Fortran-C interfaces. For example, 
-to build SUNDILAS using <tt>gcc</tt> as the serial C compiler, <tt>g77</tt> as the 
+to build SUNDIALS using <tt>gcc</tt> as the serial C compiler, <tt>g77</tt> as the 
 serial Fortran compiler, using the MPI compiler scripts <tt>mpicc</tt> and
 <tt>mpif77</tt> from a particular MPICH distribution, and using the additional 
 compiler flag <tt>-g3</tt>, you would use:
@@ -266,7 +287,7 @@ Regenerate the <tt>configure</tt> script:
 Configure SUNDIALS, enabling creation of shared libraries and using the required
 flag:
 <pre>
-% &lt;sundials_source_dir&gt;<b>/configure --enable-shared --with-ldflags=-no-undefined</b>
+% <b>./configure --enable-shared --with-ldflags=-no-undefined</b>
 </pre>
 </li>
 </ol>
@@ -286,6 +307,62 @@ to do with the accuracy of floating-point computations or the size of floating-p
 data types.  Regardless of the "bitness" of the processor, real numbers are stored in the
 IEEE Standard 754 floating-point format.  Therefore, building a 64-bit library will not
 increase the accuracy of your numerical results.
+</div>
+
+<a name="inst_linking"></a>
+<div class="faq_q">Everything installed fine! How do I link the SUNDIALS libraries to my own application?</div>
+The easiest way to determine the preprocessor and linker flags required to link the SUNDIALS libraries to 
+a user application is to invoke, from within the Makefile, the executable script <tt>sundials-config</tt>
+available in <em>instdir</em><tt>/bin</tt>. Its usage is as follows:
+<pre><tt>
+Usage: sundials-config -m cvode|cvodes|ida|kinsol -t s|p -l c|f [-s libs|cppflags -hv]
+Requires: standard GNU commands
+Options:
+    -m cvode|cvodes|ida|kinsol   SUNDIALS module
+    -t s|p                       use serial or parallel vectors
+    -l c|f                       use C or Fortran
+    -s libs|cppflags             show linking flags or C preprocessor flags.
+                                 (show both if option not given.)
+    -h                           usage and options (this help)
+    -v                           view this script
+Notes:
+    '-l f' is not valid for '-m cvodes'
+    '-s cppflags' returns an empty string for '-l f'
+</tt></pre>
+
+With this, a sample Makefile to compile a CVODE application witten in C and using the serial NVECTOR module
+could look as follows:
+<pre><tt>
+SHELL = /bin/sh
+ 
+CC       = gcc
+CFLAGS   = -g -O
+CPPFLAGS =
+LDFLAGS  =
+ 
+SUN_DISTRO = /home/radu/CODES/sundials-2.3.0-mpich1_gcc
+ 
+MY_APPS = app1 app2
+
+all:
+        @sun_cppflags=`eval "${SUN_DISTRO}/bin/sundials-config -m cvode -t s -l c -s cppflags"`; \
+         sun_ldflags=`eval "${SUN_DISTRO}/bin/sundials-config -m cvode -t s -l c -s libs"`;      \
+         for i in ${MY_APPS} ; do                                                                \
+           echo "--- Making $${i} ---" ;                                                         \
+           eval "make SUN_CPPFLAGS='$${sun_cppflags}' SUN_LDFLAGS='$${sun_ldflags}' $${i}";      \
+         done
+
+app1: app1.c
+        ${CC} ${CPPFLAGS} ${SUN_CPPFLAGS} ${CFLAGS} -c app1.c
+        ${CC} -o app1 app1.o ${CFLAGS} ${LDFLAGS} ${SUN_LDFLAGS}
+app2: app2.c
+        ${CC} ${CPPFLAGS} ${SUN_CPPFLAGS} ${CFLAGS} -DMY_PREPROC_DIR -c app2.c
+        ${CC} -o app2 app2.o ${CFLAGS} ${LDFLAGS} ${SUN_LDFLAGS}
+
+clean:
+        rm -f *.o
+        rm -f ${MY_APPS}
+</tt></pre>
 </div>
 
 </div>
@@ -462,7 +539,7 @@ sensitivities are to be computed. For non-zero problem parameters, a good choice
 pbar[i] = p[plist[i]]
 </pre>
 <br>
-If <tt>pbar</tt> is not provided, CVODES will use <tt>pbar[i]=1.0, i=0,1,...Ns</tt>. 
+If <tt>pbar</tt> is not provided, CVODES will use <tt>pbar[i]=1.0, i=0,1,...Ns-1</tt>. 
 <br><br>
 If the user provides a function to evaluate the righ-hand sides of the sensitivity equations and also
 specifies tolerances for the sensitivity variables (through <tt>CVodeSetSensTolerances</tt>) or if 
@@ -631,6 +708,9 @@ the following table:
 <tr align=center>
      <td>2.2.0</td> <td>2.4.0</td> <td>2.4.0</td> <td>2.4.0</td> <td>2.4.0</td>
 </tr>
+<tr align=center>
+     <td>2.3.0</td> <td>2.5.0</td> <td>2.5.0</td> <td>2.5.0</td> <td>2.5.0</td>
+</tr>
 </table>
 </center>
 </div>
@@ -643,7 +723,7 @@ To apply patch <tt>foobar.patch</tt> and rebuild SUNDIALS complete the following
 % <b>cp foobar.patch</b> &lt;sundials_source_dir&gt;
 % <b>cd</b> &lt;sundials_source_dir&gt;
 % <b>patch -p1 < foobar.patch</b>
-% <b>cd</b> &lt;sundials_build_dir&gt;
+% <b>cd</b> &lt;sundials_source_dir&gt;
 % <b>make</b>
 % <b>make install</b>
 </pre>

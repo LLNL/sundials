@@ -93,6 +93,21 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <div class="frame">
 <UL>
 
+<LI class="title">What's new in v2.5.0?
+<LI> Bug fixes
+   <UL class="second">
+   <LI> fixed bug in final stopping times to resolve potential conflicts 
+   when tout is close to tstop.
+   </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> rearranged the entire SUNDIALS source tree
+   <LI> all exported header files are now installed in separate subdirectories
+     of the installtion include directory
+   <LI> header files are included now by specifying the relative path 
+     (e.g. <tt>#include &lt;cvode/cvode.h&gt;</tt>)
+   </UL>
+
 <LI class="title">What's new in v2.4.0?
 <LI> New features
    <UL class="second">
@@ -315,6 +330,26 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <H1>CVODES</H1>
 <div class="frame">
 <UL>
+<LI class="title">What's new in v2.5.0?
+<LI> Bug fixes
+   <UL class="second">
+   <LI> fixed bug in final stopping times to resolve potential conflicts 
+   when tout is close to tstop.
+   <LI> fixed bug in adjoint module (function CVodeF): the solver was sometimes 
+   incorrectly taking an additional step before returning control to the user 
+   (in CV_NORMAL mode) thus leading to a failure in the interpolated output function .
+   <LI> fixed bug in adjoint module (function CVodeB): while searching for the 
+   current check point, the solver was sometimes reaching outside the integration 
+   interval resulting in a segmentation fault.
+   </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> rearranged the entire SUNDIALS source tree
+   <LI> all exported header files are now installed in separate subdirectories
+     of the installtion include directory
+   <LI> header files are included now by specifying the relative path 
+     (e.g. <tt>#include &lt;cvodes/cvodes.h&gt;</tt>)
+   </UL>
 
 <LI class="title">What's new in v2.4.0?
 <LI> New features
@@ -574,6 +609,30 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <H1>IDA</H1>
 <div class="frame">
 <UL>
+<LI class="title">What's new in v2.5.0?
+<LI> Bug fixes
+   <UL class="second">
+   <LI> fixed bug in final stopping times to resolve potential conflicts 
+   when tout is close to tstop.
+   <LI> fixed bug in he internal difference-quotient dense and banded 
+   Jacobian approximations, related to the estimation of the perturbation 
+   (which could have lead to a failure of the linear solver when zero 
+   components with sufficiently small absolute tolerances were present).
+   </UL>
+<LI> Changes to user interface
+  <UL class="second">
+  <LI> the user interface to the consistent initial conditions calculations 
+  has been modified. The IDACalcIC arguments t0, yy0, and yp0 were removed 
+  and a new function, IDAGetconsistentIC is now provided.
+  </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> rearranged the entire SUNDIALS source tree
+   <LI> all exported header files are now installed in separate subdirectories
+     of the installtion include directory
+   <LI> header files are included now by specifying the relative path 
+     (e.g. <tt>#include &lt;cvode/cvode.h&gt;</tt>)
+   </UL>
 
 <LI class="title">What's new in v2.4.0?
 <LI> New features
@@ -761,6 +820,16 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <H1>KINSOL</H1>
 <div class="frame">
 <UL>
+
+<LI class="title">What's new in v2.5.0?
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> rearranged the entire SUNDIALS source tree
+   <LI> all exported header files are now installed in separate subdirectories
+     of the installtion include directory
+   <LI> header files are included now by specifying the relative path 
+     (e.g. <tt>#include &lt;kinsol/kinsol.h&gt;</tt>)
+   </UL>
 
 <LI class="title">What's new in v2.4.0?
 <LI> New features
@@ -985,29 +1054,52 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <div class="frame">
 <UL>
 
+<LI class="title">What's new in v2.3.0?
+
+<LI> New features
+  <UL class="second">
+  <LI> added Matlab interface to IDA (named idas)
+  <LI> on platforms which support configure scripts, installtion of
+  sundialsTB can now be enabled while configuring SUNDIALS and 
+  installed through make and make install (provided a working MEX
+  compiler is found).
+  </UL>
+<LI> Bug fixes
+  <UL class="second">
+  <LI> the installtion script install_STB.m was modified to increase
+  robustness on various platforms (related to path and file names).
+  </UL>
+<LI> Changes to user interface
+  <UL class="second">
+  <LI> (cvodes) for improved legibility, some of the keys for forward sensitivity
+  optional inputs were renamed.
+  <LI> (cvodes) removed xaxis type option for the internal monitoring function
+  CVodeMonitor.
+  </UL>
+
 <LI class="title">What's new in v2.2.0?
 
 <LI> New features
   <UL class="second">
   <LI> modified installation procedure to use a Matlab script
   <LI> added sample Matlab startup file
-  <LI> expanded CVodeMonitor
-  <LI> added interface to KINSOL's performance monitoring function
+  <LI> (cvodes) expanded CVodeMonitor
+  <LI> (kinsol) added interface to KINSOL's performance monitoring function
     ('Verbose' option to KINSetOptions)
   </UL>
 
 <LI> Bug fixes
   <UL class="second">
-  <LI> fixed bug in interface to quadrature integration which was causing
+  <LI> (cvodes) fixed bug in interface to quadrature integration which was causing
     a segmentatin violation when monitoring was turned on.
   </UL>
 
 <LI> Changes to user interface
   <UL class="second">
   <LI> updated to reflect changes to the SUNDIALS libraries in v.2.2.0
-  <LI> changed the interface for sensitivity analysis (both forward and
+  <LI> (cvodes) changed the interface for sensitivity analysis (both forward and
     adjoint) to follow more closely the CVODES calling sequence
-  <LI> optional inputs for forward sensitivity analysis are now provided
+  <LI> (cvodes) optional inputs for forward sensitivity analysis are now provided
     through a separate function, CVodeSensSetOptions
   <LI> removed NVM mex interface
   </UL>
@@ -1035,6 +1127,17 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <H1>SHARED</H1>
 <div class="frame">
 <UL>
+
+<LI class="title">What's new in v2.3.0?
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> rearranged the entire SUNDIALS source tree
+   <LI> all exported header files are now installed in separate subdirectories
+     of the installtion include directory
+   <LI> header files are included now by specifying the relative path 
+     (e.g. <tt>#include &lt;sundials/sundials_types.h&gt;</tt>)
+   </UL>
+</LI>
 
 <LI class="title">What's new in v2.2.0?
 <LI> New features
@@ -1150,6 +1253,17 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <div class="frame">
 <UL>
 
+<LI class="title">What's new in v2.3.0?
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> rearranged the entire SUNDIALS source tree
+   <LI> all exported header files are now installed in separate subdirectories
+     of the installtion include directory
+   <LI> header files are included now by specifying the relative path 
+     (e.g. <tt>#include &lt;nvector/nvector_serial.h&gt;</tt>)
+   </UL>
+</LI>
+
 <LI class="title">What's new in v2.2.0?
 <LI> No changes
 
@@ -1201,6 +1315,17 @@ routine is problematic on some platforms)
 <H1>NVECTOR_PARALLEL</H1>
 <div class="frame">
 <UL>
+
+<LI class="title">What's new in v2.3.0?
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> rearranged the entire SUNDIALS source tree
+   <LI> all exported header files are now installed in separate subdirectories
+     of the installtion include directory
+   <LI> header files are included now by specifying the relative path 
+     (e.g. <tt>#include &lt;nvector/nvector_parallel.h&gt;</tt>)
+   </UL>
+</LI>
 
 <LI class="title">What's new in v2.2.0?
 <LI> No changes
