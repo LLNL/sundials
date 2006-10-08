@@ -1,11 +1,8 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-03-23 20:59:32 $
- * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Simple 1D example to illustarte integrating over discontinuities:
+ * Simple 1D example to illustrate integrating over discontinuities:
  * 
  * A) Discontinuity in solution
  *       y' = -y   ; y(0) = 1    ; t = [0,1]
@@ -24,9 +21,9 @@
  */
 
 #include <stdio.h>
-#include "cvodes.h"
-#include "nvector_serial.h"
-#include "cvodes_dense.h"
+#include <cvodes/cvodes.h>
+#include <cvodes/cvodes_dense.h>
+#include <nvector/nvector_serial.h>
 
 #define Ith(v,i) NV_Ith_S(v,i-1)
 

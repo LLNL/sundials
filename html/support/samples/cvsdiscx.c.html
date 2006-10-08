@@ -24,9 +24,6 @@
 <pre>
 <span class="comment">/*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-03-23 20:59:32 $
- * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Simple 1D example to illustrate integrating over discontinuities:
@@ -48,9 +45,9 @@
  */</span>
 
 #<span class="builtin">include</span> <span class="string">&lt;stdio.h&gt;</span>
-#<span class="builtin">include</span> <span class="string">"cvodes.h"</span>
-#<span class="builtin">include</span> <span class="string">"nvector_serial.h"</span>
-#<span class="builtin">include</span> <span class="string">"cvodes_dense.h"</span>
+#<span class="builtin">include</span> <span class="string"><cvodes/cvodes.h></span>
+#<span class="builtin">include</span> <span class="string"><cvodes/cvodes_dense.h></span>
+#<span class="builtin">include</span> <span class="string"><nvector/nvector_serial.h></span>
 
 #<span class="builtin">define</span> <span class="function-name">Ith</span>(v,i) NV_Ith_S(v,i-1)
 

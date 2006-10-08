@@ -24,9 +24,6 @@
 <pre>
 <span class="comment">/*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-03-22 01:00:17 $
- * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Modification of the CVODES example cvsdenx to illustrate treatment
@@ -53,11 +50,9 @@
  */</span>
 
 #<span class="builtin">include</span> <span class="string">&lt;stdio.h&gt;</span>
-#<span class="builtin">include</span> <span class="string">"cvodes.h"</span>
-#<span class="builtin">include</span> <span class="string">"nvector_serial.h"</span>
-#<span class="builtin">include</span> <span class="string">"cvodes_dense.h"</span>
-#<span class="builtin">include</span> <span class="string">"sundials_dense.h"</span>
-#<span class="builtin">include</span> <span class="string">"sundials_types.h"</span>
+#<span class="builtin">include</span> <span class="string">&lt;cvodes/cvodes.h&gt;</span>
+#<span class="builtin">include</span> <span class="string">&lt;cvodes/cvodes_dense.h&gt;</span>
+#<span class="builtin">include</span> <span class="string">&lt;nvector/nvector_serial.h&gt;</span>
 
 #<span class="builtin">define</span> <span class="function-name">Ith</span>(v,i)    NV_Ith_S(v,i-1)
 

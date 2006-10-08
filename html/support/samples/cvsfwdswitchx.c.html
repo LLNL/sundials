@@ -25,9 +25,6 @@
 <pre>
 <span class="comment">/*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-03-20 16:17:29 $
- * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Modification of the cvsfwddendx to illustrate switching on and off
@@ -42,10 +39,9 @@
 #<span class="builtin">include</span> <span class="string">&lt;stdlib.h&gt;</span>
 #<span class="builtin">include</span> <span class="string">&lt;string.h&gt;</span>
 
-#<span class="builtin">include</span> <span class="string">"cvodes.h"</span>
-#<span class="builtin">include</span> <span class="string">"nvector_serial.h"</span>
-#<span class="builtin">include</span> <span class="string">"cvodes_dense.h"</span>
-#<span class="builtin">include</span> <span class="string">"sundials_types.h"</span>
+#<span class="builtin">include</span> <span class="string"><cvodes/cvodes.h></span>
+#<span class="builtin">include</span> <span class="string"><cvodes/cvodes_dense.h></span>
+#<span class="builtin">include</span> <span class="string"><nvector/nvector_serial.h></span>
 
 <span class="comment">/* Accessor macros */</span>
 #<span class="builtin">define</span> <span class="function-name">Ith</span>(v,i)    NV_Ith_S(v,i-1)

@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-03-20 06:32:57 $
- * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Modification of the cvsfwddendx to illustrate switching on and off
@@ -17,10 +14,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cvodes.h"
-#include "nvector_serial.h"
-#include "cvodes_dense.h"
-#include "sundials_types.h"
+#include <cvodes/cvodes.h>
+#include <cvodes/cvodes_dense.h>
+#include <nvector/nvector_serial.h>
 
 /* Accessor macros */
 #define Ith(v,i)    NV_Ith_S(v,i-1)

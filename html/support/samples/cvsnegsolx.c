@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-03-22 01:00:17 $
- * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Modification of the CVODES example cvsdenx to illustrate treatment
@@ -29,11 +26,9 @@
  */
 
 #include <stdio.h>
-#include "cvodes.h"
-#include "nvector_serial.h"
-#include "cvodes_dense.h"
-#include "sundials_dense.h"
-#include "sundials_types.h"
+#include <cvodes/cvodes.h>
+#include <cvodes/cvodes_dense.h>
+#include <nvector/nvector_serial.h>
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)
 
