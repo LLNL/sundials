@@ -1,16 +1,16 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-08-10 18:01:04 $
+ * $Revision: 1.7 $
+ * $Date: 2006-10-09 23:56:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/idas/LICENSE.
+ * For details, see sundials-x.y.z/src/ida/LICENSE.
  * -----------------------------------------------------------------
- * Option parsing functions for the IDAS Matlab interface.
+ * Option parsing functions for the IDA Matlab interface.
  * -----------------------------------------------------------------
  */
 

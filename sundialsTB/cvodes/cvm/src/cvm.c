@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-10-05 22:11:35 $
+ * $Revision: 1.8 $
+ * $Date: 2006-10-09 23:56:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/cvodes/LICENSE.
+ * For details, see sundials-x.y.z/src/cvodes/LICENSE.
  * -----------------------------------------------------------------
  * MEX implementation for CVODES Matlab interface.
  * -----------------------------------------------------------------

@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-26 00:09:00 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-09 23:56:25 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/kinsol/LICENSE.
+ * For details, see sundials-x.y.z/src/kinsol/LICENSE.
  * -----------------------------------------------------------------
  * KINSOL wrapper functions.
  * -----------------------------------------------------------------

@@ -1,16 +1,16 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-08-10 18:01:04 $
+ * $Revision: 1.9 $
+ * $Date: 2006-10-09 23:56:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/idas/LICENSE.
+ * For details, see sundials-x.y.z/src/ida/LICENSE.
  * -----------------------------------------------------------------
- * MEX implementation for IDAS Matlab interface.
+ * MEX implementation for IDA Matlab interface.
  * -----------------------------------------------------------------
  */
 
