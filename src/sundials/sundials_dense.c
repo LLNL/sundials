@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:38 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -11,8 +11,8 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the implementation file for a generic DENSE linear
- * solver package.
+ * This is the implementation file for a generic package of dense
+ * matrix operations.
  * -----------------------------------------------------------------
  */ 
 
@@ -27,61 +27,62 @@
 
 /* Implementation */
 
-DenseMat DenseAllocMat(long int N)
+DenseMat DenseAllocMat(long int M, long int N)
 {
   DenseMat A;
 
-  if (N <= 0) return(NULL);
+  if ( (M <=0) || (N<=0) ) return(NULL);
 
   A = NULL;
   A = (DenseMat) malloc(sizeof *A);
   if (A==NULL) return (NULL);
   
   A->data = NULL;
-  A->data = denalloc(N);
+  A->data = denalloc(M, N);
   if (A->data == NULL) {
     free(A); A = NULL;
     return(NULL);
   }
 
-  A->size = N;
+  A->rows = M;
+  A->cols = N;
 
   return(A);
 }
 
-long int *DenseAllocPiv(long int N)
+long int *DenseAllocPiv(long int M)
 {
-  return(denallocpiv(N));
+  return(denallocpiv(M));
 }
 
-long int DenseFactor(DenseMat A, long int *p)
+long int DenseGETRF(DenseMat A, long int *p)
 {
-  return(gefa(A->data, A->size, p));
+  return(denGETRF(A->data, A->rows, A->cols, p));
 }
 
-void DenseBacksolve(DenseMat A, long int *p, realtype *b)
+void DenseGETRS(DenseMat A, long int *p, realtype *b)
 {
-  gesl(A->data, A->size, p, b);
+  denGETRS(A->data, A->rows, p, b);
 }
 
 void DenseZero(DenseMat A)
 {
-  denzero(A->data, A->size);
+  denzero(A->data, A->rows, A->cols);
 }
 
 void DenseCopy(DenseMat A, DenseMat B)
 {
-  dencopy(A->data, B->data, A->size);
+  dencopy(A->data, B->data, A->rows, A->cols);
 }
 
 void DenseScale(realtype c, DenseMat A)
 {
-  denscale(c, A->data, A->size);
+  denscale(c, A->data, A->rows, A->cols);
 }
 
 void DenseAddI(DenseMat A)
 {
-  denaddI(A->data, A->size);
+  denaddI(A->data, A->rows);
 }
 
 void DenseFreeMat(DenseMat A)
@@ -97,5 +98,5 @@ void DenseFreePiv(long int *p)
 
 void DensePrint(DenseMat A)
 {
-  denprint(A->data, A->size);
+  denprint(A->data, A->rows, A->cols);
 }

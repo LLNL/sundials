@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:34 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -459,7 +459,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   BandAddI(savedP);
  
   /* Do LU factorization of P in place */
-  ier = BandFactor(savedP, pivots);
+  ier = BandGBTRF(savedP, pivots);
  
   /* Return 0 if the LU was complete; otherwise return 1 */
   if (ier > 0) return(1);
@@ -503,7 +503,7 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   
   zd = N_VGetArrayPointer(z);
 
-  BandBacksolve(savedP, pivots, zd);
+  BandGBTRS(savedP, pivots, zd);
 
   return(0);
 }

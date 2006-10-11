@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -448,7 +448,7 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   }
 
   /* Do LU factorization of JJ; return success or fail flag. */
-  retfac = BandFactor(JJ, pivots);
+  retfac = BandGBTRF(JJ, pivots);
   
   if (retfac != 0) {
     last_flag = retfac;
@@ -472,7 +472,7 @@ static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   idaband_mem = (IDABandMem) lmem;
   
   bd = N_VGetArrayPointer(b);
-  BandBacksolve(JJ, pivots, bd);
+  BandGBTRS(JJ, pivots, bd);
 
   /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);

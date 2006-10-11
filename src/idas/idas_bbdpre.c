@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -430,7 +430,7 @@ int IDABBDPrecSetup(realtype tt,
   } 
  
   /* Do LU factorization of preconditioner block in place (in PP). */
-  retfac = BandFactor(PP, pivots);
+  retfac = BandGBTRF(PP, pivots);
 
   /* Return 0 if the LU was complete, or +1 otherwise. */
   if (retfac > 0) return(+1);
@@ -476,7 +476,7 @@ int IDABBDPrecSolve(realtype tt,
 
   zd = N_VGetArrayPointer(zvec);
 
-  BandBacksolve(PP, pivots, zd);
+  BandGBTRS(PP, pivots, zd);
 
   return(0);
 }

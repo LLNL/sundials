@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-08-10 23:42:12 $
+ * $Revision: 1.5 $
+ * $Date: 2006-10-11 16:34:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
 
   webdata = (UserData) malloc(sizeof *webdata);
   webdata->rates = N_VNew_Parallel(comm, local_N, SystemSize);
-  webdata->acoef = denalloc(NUM_SPECIES);
+  webdata->acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
 
   InitUserData(webdata, thispe, npes, comm);
   

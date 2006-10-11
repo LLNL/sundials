@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:32 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -483,7 +483,7 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   BandAddI(M);
 
   /* Do LU factorization of M */
-  ier = BandFactor(M, pivots);
+  ier = BandGBTRF(M, pivots);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   if (ier > 0) {
@@ -513,7 +513,7 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   bd = N_VGetArrayPointer(b);
 
-  BandBacksolve(M, pivots, bd);
+  BandGBTRS(M, pivots, bd);
 
   /* If CV_BDF, scale the correction to account for change in gamma */
   if ((lmm == CV_BDF) && (gamrat != ONE)) {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -159,7 +159,7 @@ int KINDense(void *kinmem, long int N)
   /* Allocate memory for J and pivot array */
   
   J = NULL;
-  J = DenseAllocMat(N);
+  J = DenseAllocMat(N, N);
   if (J == NULL) {
     KINProcessError(kin_mem, KINDENSE_MEM_FAIL, "KINDENSE", "KINDense", MSGDS_MEM_FAIL);
     free(kindense_mem); kindense_mem = NULL;
@@ -419,7 +419,7 @@ static int KINDenseSetup(KINMem kin_mem)
   }
 
   /* Do LU factorization of J */
-  ier = DenseFactor(J, pivots); 
+  ier = DenseGETRF(J, pivots); 
 
   /* Return 0 if the LU was complete; otherwise return -1 */
   last_flag = ier;
@@ -452,7 +452,7 @@ static int KINDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *res_n
 
   /* Back-solve and get solution in x */
   
-  DenseBacksolve(J, pivots, xd);
+  DenseGETRS(J, pivots, xd);
 
   /* Compute the terms Jpnorm and sfdotJp for use in the global strategy
      routines and in KINForcingTerm. Both of these terms are subsequently

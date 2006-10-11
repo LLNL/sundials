@@ -1,10 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:38 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:20 $
  * -----------------------------------------------------------------
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -59,14 +58,14 @@ long int *BandAllocPiv(long int N)
   return(bandallocpiv(N));
 }
 
-long int BandFactor(BandMat A, long int *p)
+long int BandGBTRF(BandMat A, long int *p)
 {
-  return(gbfa(A->data, A->size, A->mu, A->ml, A->smu, p));
+  return(bandGBTRF(A->data, A->size, A->mu, A->ml, A->smu, p));
 }
 
-void BandBacksolve(BandMat A, long int *p, realtype *b)
+void BandGBTRS(BandMat A, long int *p, realtype *b)
 {
-  gbsl(A->data, A->size, A->smu, A->ml, p, b);
+  bandGBTRS(A->data, A->size, A->smu, A->ml, p, b);
 }
 
 void BandZero(BandMat A)
@@ -143,8 +142,8 @@ long int *bandallocpiv(long int n)
   return(piv);
 }
 
-long int gbfa(realtype **a, long int n, long int mu, long int ml, 
-              long int smu, long int *p)
+long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, 
+                   long int smu, long int *p)
 {
   long int c, r, num_rows;
   long int i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
@@ -250,8 +249,8 @@ long int gbfa(realtype **a, long int n, long int mu, long int ml,
   return(0);
 }
 
-void gbsl(realtype **a, long int n, long int smu, long int ml, 
-          long int *p, realtype *b)
+void bandGBTRS(realtype **a, long int n, long int smu, long int ml, 
+               long int *p, realtype *b)
 {
   long int k, l, i, first_row_k, last_row_k;
   realtype mult, *diag_k;

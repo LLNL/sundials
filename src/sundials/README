@@ -67,6 +67,10 @@ E. Revision History
 v. 2.2.0 (Mar. 2006) ---> v. 2.3.0 (Oct. 2006)
 ----------------------------------------------
 
+- Changes to the user interface
+   - modified sundials_dense and sundials_smalldense to work with 
+     rectangular m by n matrices (m <= n). 
+
 - Changes related to the build system
    - reorganized source tree
    - exported header files are installed in solver-specific subdirectories

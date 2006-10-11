@@ -96,6 +96,14 @@ files which must now include the relative path (e.g. \id{\#include <cvode/cvode.
 Additional changes were made to the build system: all exported header files are
 now installed in separate subdirectories of the instaltion {\em include} directory.
 
+The functions in the generic dense linear solver (\id{sundials\_dense} and
+\id{sundials\_smalldense}) were modified to work for rectangular $m \times n$
+matrices ($m \le n$), while the factorization and solution functions were
+renamed to \id{DenseGETRF}/\id{denGETRF} and \id{DenseGETRS}/\id{denGETRS}, 
+respectively.
+The factorization and solution functions in the generic band linear solver were 
+renamed \id{BandGBTRF} and \id{BandGBTRS}, respectively.
+
 \subsection*{Changes in v2.4.0}
 
 {\kinspbcg}, {\kinsptfqmr}, {\kindense}, and {\kinband} modules have been

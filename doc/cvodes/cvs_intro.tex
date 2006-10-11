@@ -125,6 +125,14 @@ a failure in the interpolated output function; in \id{CVodeB}, while searching
 for the current check point, the solver was sometimes reaching outside the
 integration interval resulting in a segmentation fault.
 
+The functions in the generic dense linear solver (\id{sundials\_dense} and
+\id{sundials\_smalldense}) were modified to work for rectangular $m \times n$
+matrices ($m \le n$), while the factorization and solution functions were
+renamed to \id{DenseGETRF}/\id{denGETRF} and \id{DenseGETRS}/\id{denGETRS}, 
+respectively.
+The factorization and solution functions in the generic band linear solver were 
+renamed \id{BandGBTRF} and \id{BandGBTRS}, respectively.
+
 \subsection*{Changes in v2.4.0}
 
 {\cvspbcg} and {\cvsptfqmr} modules have been added to interface with the

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-08-10 23:42:13 $
+ * $Revision: 1.5 $
+ * $Date: 2006-10-11 16:34:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -402,12 +402,12 @@ static UserData AllocUserData(MPI_Comm comm, long int local_N,
   
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      (webdata->PP)[ix][jy] = denalloc(NUM_SPECIES);
+      (webdata->PP)[ix][jy] = denalloc(NUM_SPECIES, NUM_SPECIES);
       (webdata->pivot)[ix][jy] = denallocpiv(NUM_SPECIES);
     }
   }
   
-  webdata->acoef = denalloc(NUM_SPECIES);
+  webdata->acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
   webdata->ewt = N_VNew_Parallel(comm, local_N, SystemSize);
   return(webdata);
   
@@ -1177,7 +1177,7 @@ static int Precondbd(realtype tt, N_Vector cc,
       } /* End of js loop. */
       
       /* Do LU decomposition of matrix block for grid point (ix,jy). */
-      ret = gefa(Pxy, ns, (webdata->pivot)[ix][jy]);
+      ret = denGETRF(Pxy, ns, ns, (webdata->pivot)[ix][jy]);
       
       if (ret != 0) return(1);
       
@@ -1218,7 +1218,7 @@ static int PSolvebd(realtype tt, N_Vector cc,
       zxy = IJ_Vptr(zvec,ix,jy);
       Pxy = (webdata->PP)[ix][jy];
       pivot = (webdata->pivot)[ix][jy];
-      gesl(Pxy, ns, pivot, zxy);
+      denGETRS(Pxy, ns, pivot, zxy);
       
     } /* End of jy loop. */
   } /* End of ix loop. */

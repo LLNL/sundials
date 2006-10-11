@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-20 16:59:46 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-11 16:34:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -513,8 +513,8 @@ static UserData AllocUserData(void)
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      (data->P)[lx][ly] = denalloc(NVARS);
-      (data->Jbd)[lx][ly] = denalloc(NVARS);
+      (data->P)[lx][ly] = denalloc(NVARS, NVARS);
+      (data->Jbd)[lx][ly] = denalloc(NVARS, NVARS);
       (data->pivot)[lx][ly] = denallocpiv(NVARS);
     }
   }
@@ -1286,7 +1286,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
-        dencopy(Jbd[lx][ly], P[lx][ly], NVARS);
+        dencopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
 
   *jcurPtr = FALSE;
 
@@ -1324,7 +1324,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        dencopy(j, a, NVARS);
+        dencopy(j, a, NVARS, NVARS);
       }
     }
     
@@ -1336,14 +1336,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   
   for (ly = 0; ly < MYSUB; ly++)
     for (lx = 0; lx < MXSUB; lx++)
-      denscale(-gamma, P[lx][ly], NVARS);
+      denscale(-gamma, P[lx][ly], NVARS, NVARS);
   
   /* Add identity matrix and do LU decompositions on blocks in place */
   
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       denaddI(P[lx][ly], NVARS);
-      ier = gefa(P[lx][ly], NVARS, pivot[lx][ly]);
+      ier = denGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
       if (ier != 0) return(1);
     }
   }
@@ -1381,7 +1381,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       v = &(zdata[lx*NVARS + ly*nvmxsub]);
-      gesl(P[lx][ly], NVARS, pivot[lx][ly], v);
+      denGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
     }
   }
   

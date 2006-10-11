@@ -1,10 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:52 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:12 $
  * -----------------------------------------------------------------
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -38,12 +37,12 @@
  * The BandAllocPiv function allocates memory for pivot
  * information. The storage allocated by BandAllocMat and
  * BandAllocPiv is deallocated by the routines BandFreeMat and
- * BandFreePiv, respectively. The BandFactor and BandBacksolve
+ * BandFreePiv, respectively. The BandGBTRF and BandGBTRS
  * routines perform the actual solution of a band linear system.
  *
  * Routines that work with realtype ** begin with "band" (except
- * for the factor and solve routines which are called gbfa and
- * gbsl, respectively). The underlying matrix storage is
+ * for the factor and solve routines which are called bandGBTRF and
+ * bandGBTRS, respectively). The underlying matrix storage is
  * described in the documentation for bandalloc.
  * -----------------------------------------------------------------
  */
@@ -72,7 +71,7 @@ extern "C" {
  * ml   is the lower bandwidth, 0 <= ml <= size-1
  *
  * smu  is the storage upper bandwidth, mu <= smu <= size-1.
- *      The BandFactor routine writes the LU factors
+ *      The BandGBTRF routine writes the LU factors
  *      into the storage for A. The upper triangular factor U,
  *      however, may have an upper bandwidth as big as
  *      MIN(size-1,mu+ml) because of partial pivoting. The smu
@@ -97,7 +96,7 @@ extern "C" {
  *         column) to smu+ml (to access the lowest element
  *         within the band in the jth column). (Indices from 0
  *         to smu-mu-1 give access to extra storage elements
- *         required by BandFactor.)
+ *         required by BandGBTRF.)
  *
  * data[j][i-j+smu] is the (i,j)th element, j-mu <= i <= j+ml.
  *
@@ -184,7 +183,7 @@ typedef struct _BandMat {
  * BandAllocMat allocates memory for an N by N band matrix with
  * upper bandwidth mu, lower bandwidth ml, and storage upper
  * bandwidth smu. Pass smu as follows depending on whether A will
- * be factored by BandFactor:
+ * be factored by BandGBTRF:
  *
  * (1) Pass smu = mu if A will not be factored.
  *
@@ -208,7 +207,7 @@ BandMat BandAllocMat(long int N, long int mu, long int ml,
  *         if (p == NULL) ... memory request failed
  * -----------------------------------------------------------------
  * BandAllocPiv allocates memory for pivot information to be
- * filled in by the BandFactor routine during the factorization
+ * filled in by the BandGBTRF routine during the factorization
  * of an N by N band matrix. The underlying type for pivot
  * information is an array of N integers and this routine returns
  * the pointer to the memory it allocates. If the request for
@@ -220,12 +219,12 @@ long int *BandAllocPiv(long int N);
 
 /*
  * -----------------------------------------------------------------
- * Function : BandFactor
+ * Function : BandGBTRF
  * -----------------------------------------------------------------
- * Usage : ier = BandFactor(A, p);
+ * Usage : ier = BandGBTRF(A, p);
  *         if (ier != 0) ... A is singular
  * -----------------------------------------------------------------
- * BandFactor performs the LU factorization of the N by N band
+ * BandGBTRF performs the LU factorization of the N by N band
  * matrix A. This is done using standard Gaussian elimination
  * with partial pivoting.
  *
@@ -242,7 +241,7 @@ long int *BandAllocPiv(long int N);
  *     (including its diagonal) contains U and the strictly lower
  *     triangular part of A contains the multipliers, I-L.
  *
- * BandFactor returns 0 if successful. Otherwise it encountered
+ * BandGBTRF returns 0 if successful. Otherwise it encountered
  * a zero diagonal element during the factorization. In this case
  * it returns the column index (numbered from one) at which
  * it encountered the zero.
@@ -256,27 +255,27 @@ long int *BandAllocPiv(long int N);
  * call A = BandAllocMat(N,mu,ml,smu), where mu, ml, and smu are
  * as defined above. The user does not have to zero the "extra"
  * storage allocated for the purpose of factorization. This will
- * handled by the BandFactor routine.
+ * handled by the BandGBTRF routine.
  * -----------------------------------------------------------------
  */
 
-long int BandFactor(BandMat A, long int *p);
+long int BandGBTRF(BandMat A, long int *p);
 
 /*
  * -----------------------------------------------------------------
- * Function : BandBacksolve
+ * Function : BandGBTRS
  * -----------------------------------------------------------------
- * Usage : BandBacksolve(A, p, b);
+ * Usage : BandGBTRS(A, p, b);
  * -----------------------------------------------------------------
- * BandBacksolve solves the N-dimensional system A x = b using
+ * BandGBTRS solves the N-dimensional system A x = b using
  * the LU factorization in A and the pivot information in p
- * computed in BandFactor. The solution x is returned in b. This
- * routine cannot fail if the corresponding call to BandFactor
+ * computed in BandGBTRF. The solution x is returned in b. This
+ * routine cannot fail if the corresponding call to BandGBTRF
  * did not fail.
  * -----------------------------------------------------------------
  */
 
-void BandBacksolve(BandMat A, long int *p, realtype *b);
+void BandGBTRS(BandMat A, long int *p, realtype *b);
 
 /*
  * -----------------------------------------------------------------
@@ -388,12 +387,12 @@ void BandPrint(BandMat A);
  * bandalloc returns NULL. If, mathematically, A has upper and
  * lower bandwidths mu and ml, respectively, then the value
  * passed to bandalloc for smu may need to be greater than mu.
- * The gbfa routine writes the LU factors into the storage (named
- * "a" in the above usage documentation) for A (thus destroying
+ * The bandGBTRF routine writes the LU factors into the storage
+ * (named "a" in the above usage documentation) for A (thus destroying
  * the original elements of A). The upper triangular factor U,
  * however, may have a larger upper bandwidth than the upper
  * bandwidth mu of A. Thus some "extra" storage for A must be
- * allocated if A is to be factored by gbfa. Pass smu as follows:
+ * allocated if A is to be factored by bandGBTRF. Pass smu as follows:
  *
  * (1) Pass smu = mu if A will not be factored.
  *
@@ -407,7 +406,7 @@ void BandPrint(BandMat A);
  * column. The expression a[j][i-j+smu] references the (i,j)th
  * element of A, where 0 <= i,j <= n-1 and j-mu <= i <= j+ml.
  * (The elements a[j][0], a[j][1], ..., a[j][smu-mu-1] are used
- * by gbfa and gbsl.)
+ * by bandGBTRF and bandGBTRS.)
  * -----------------------------------------------------------------
  */
 
@@ -431,15 +430,15 @@ long int *bandallocpiv(long int n);
 
 /*
  * -----------------------------------------------------------------
- * Function : gbfa
+ * Function : bandGBTRF
  * -----------------------------------------------------------------
  * Usage : long int ier;
- *         ier = gbfa(a,n,mu,ml,smu,p);
+ *         ier = bandGBTRF(a,n,mu,ml,smu,p);
  *         if (ier > 0) ... zero element encountered during
  *                          the factorization
  * -----------------------------------------------------------------
- * gbfa(a,n,mu,ml,smu,p) factors the n by n band matrix A (upper
- * and lower bandwidths mu and ml, storage upper bandwidth smu)
+ * bandGBTRF(a,n,mu,ml,smu,p) factors the n by n band matrix A 
+ * (upper and lower bandwidths mu and ml, storage upper bandwidth smu)
  * stored in "a". It overwrites the elements of A with the LU
  * factors and it keeps track of the pivot rows chosen in the
  * pivot array p.
@@ -457,7 +456,7 @@ long int *bandallocpiv(long int n);
  *     (including its diagonal) contains U and the strictly lower
  *     triangular part of A contains the multipliers, I-L.
  *
- * gbfa returns 0 if successful. Otherwise it encountered a zero
+ * bandGBTRF returns 0 if successful. Otherwise it encountered a zero
  * diagonal element during the factorization. In this case it
  * returns the column index (numbered from one) at which it
  * encountered the zero.
@@ -467,13 +466,13 @@ long int *bandallocpiv(long int n);
  * factor U can have upper bandwidth as big as MIN(n-1,mu+ml)
  * because of partial pivoting. The lower triangular factor L has
  * lower bandwidth ml. Thus, if A is to be factored and
- * backsolved using gbfa and gbsl, then it should be allocated
+ * backsolved using bandGBTRF and bandGBTRS, then it should be allocated
  * as a = bandalloc(n,smu,ml), where smu = MIN(n-1,mu+ml). The
- * call to gbfa is ier = gbfa(a,n,mu,ml,smu,p). The corresponding
- * call to gbsl is gbsl(a,n,smu,ml,p,b). The user does not need
- * to zero the "extra" storage allocated for the purpose of
- * factorization. This is handled by the gbfa routine. If A is
- * not going to be factored and backsolved, then it can be
+ * call to bandGBTRF is ier = bandGBTRF(a,n,mu,ml,smu,p). The
+ * corresponding call to bandGBTRS is bandGBTRS(a,n,smu,ml,p,b). The user 
+ * does not need to zero the "extra" storage allocated for the 
+ * purpose of factorization. This is handled by the bandGBTRF routine. 
+ * If A is not going to be factored and backsolved, then it can be
  * allocated as a = bandalloc(n,smu,ml). In either case, all
  * routines in this section use the parameter name smu for a
  * parameter which must be the "storage upper bandwidth" which
@@ -481,28 +480,28 @@ long int *bandallocpiv(long int n);
  * -----------------------------------------------------------------
  */
 
-long int gbfa(realtype **a, long int n, long int mu, long int ml, 
-              long int smu, long int *p);
+long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, 
+                   long int smu, long int *p);
 
 /*
  * -----------------------------------------------------------------
- * Function : gbsl
+ * Function : bandGBTRS
  * -----------------------------------------------------------------
  * Usage : realtype *b;
- *         ier = gbfa(a,n,mu,ml,smu,p);
- *         if (ier == 0) gbsl(a,n,smu,ml,p,b);
+ *         ier = bandGBTRF(a,n,mu,ml,smu,p);
+ *         if (ier == 0) bandGBTRS(a,n,smu,ml,p,b);
  * -----------------------------------------------------------------
- * gbsl(a,n,smu,ml,p,b) solves the n by n linear system
+ * bandGBTRS(a,n,smu,ml,p,b) solves the n by n linear system
  * Ax = b, where A is band matrix stored in "a" with storage
  * upper bandwidth smu and lower bandwidth ml. It assumes that A
  * has been LU factored and the pivot array p has been set by a
- * successful call gbfa(a,n,mu,ml,smu,p). The solution x is
+ * successful call bandGBTRF(a,n,mu,ml,smu,p). The solution x is
  * written into the b array.
  * -----------------------------------------------------------------
  */
 
-void gbsl(realtype **a, long int n, long int smu, 
-          long int ml, long int *p, realtype *b);
+void bandGBTRS(realtype **a, long int n, long int smu, 
+               long int ml, long int *p, realtype *b);
 
 /*
  * -----------------------------------------------------------------

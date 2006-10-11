@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-20 16:59:31 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-11 16:33:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -457,7 +457,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
     for (jz=0; jz < MZ; jz++)
       for (jx=0; jx < MX; jx++)
-        dencopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES);
+        dencopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES, NUM_SPECIES);
 
   *jcurPtr = FALSE;
 
@@ -491,7 +491,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        dencopy(j, a, NUM_SPECIES);
+        dencopy(j, a, NUM_SPECIES, NUM_SPECIES);
       }
     }
 
@@ -503,14 +503,14 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
     for (jz=0; jz < MZ; jz++)
       for (jx=0; jx < MX; jx++)
-        denscale(-gamma, P[jx][jz], NUM_SPECIES);
+        denscale(-gamma, P[jx][jz], NUM_SPECIES, NUM_SPECIES);
 
   /* Add identity matrix and do LU decompositions on blocks in place. */
 
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
       denaddI(P[jx][jz], NUM_SPECIES);
-      ier = gefa(P[jx][jz], NUM_SPECIES, pivot[jx][jz]);
+      ier = denGETRF(P[jx][jz], NUM_SPECIES, NUM_SPECIES, pivot[jx][jz]);
       if (ier != 0) return(1);
     }
   }
@@ -548,7 +548,7 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
       v = &(IJKth(zdata, 1, jx, jz));
-      gesl(P[jx][jz], NUM_SPECIES, pivot[jx][jz], v);
+      denGETRS(P[jx][jz], NUM_SPECIES, pivot[jx][jz], v);
     }
   }
 
@@ -627,8 +627,8 @@ static UserData AllocUserData(void)
 
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
-      (data->P)[jx][jz] = denalloc(NUM_SPECIES);
-      (data->Jbd)[jx][jz] = denalloc(NUM_SPECIES);
+      (data->P)[jx][jz] = denalloc(NUM_SPECIES, NUM_SPECIES);
+      (data->Jbd)[jx][jz] = denalloc(NUM_SPECIES, NUM_SPECIES);
       (data->pivot)[jx][jz] = denallocpiv(NUM_SPECIES);
     }
   }

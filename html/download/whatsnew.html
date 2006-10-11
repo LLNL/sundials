@@ -1129,6 +1129,20 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <UL>
 
 <LI class="title">What's new in v2.3.0?
+
+<LI> Changes to the user interface
+   <UL class="second">
+   <LI> modified the functions in the generic dense linear solver (<tt>sundials_dense</tt> and
+     <tt>sundials_smalldense</tt>) to work for rectangular <tt>m</tt> by <tt>n</tt>
+     matrices (<tt>m</tt> &le; <tt>n</tt>).
+   <LI> renamed the factorization and solution functions in the generic dense linear
+     solver to <tt>DenseGETRF</tt>/<tt>denGETRF</tt> and <tt>DenseGETRS</tt>/<tt>denGETRS</tt>,
+     respectively.
+   <LI> renamed the factorization and solution functions in the generic band linear
+     solver to <tt>BandGBTRF</tt> and <tt>BandGBTRS</tt>, respectively.
+   </UL>
+</LI>
+
 <LI> Changes related to the build system
    <UL class="second">
    <LI> rearranged the entire SUNDIALS source tree

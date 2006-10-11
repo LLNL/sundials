@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:11 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -405,7 +405,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
       } /* end of j loop */
       
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
-      ret = gefa(Pxy, NUM_SPECIES, (data->pivot)[jx][jy]);
+      ret = denGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
       if (ret != 0) return(1);
       
     } /* end of jx loop */
@@ -441,7 +441,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
       vxy = IJ_Vptr(vv,jx,jy);
       Pxy = (data->P)[jx][jy];
       piv = (data->pivot)[jx][jy];
-      gesl (Pxy, NUM_SPECIES, piv, vxy);
+      denGETRS(Pxy, NUM_SPECIES, piv, vxy);
       
     } /* end of jy loop */
     
@@ -506,11 +506,11 @@ static UserData AllocUserData(void)
   
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = denalloc(NUM_SPECIES);
+      (data->P)[jx][jy] = denalloc(NUM_SPECIES, NUM_SPECIES);
       (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
     }
   }
-  acoef = denalloc(NUM_SPECIES);
+  acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-19 20:52:19 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-11 16:34:05 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -184,7 +184,7 @@ int main()
 
   webdata = (UserData) malloc(sizeof *webdata);
   webdata->rates = N_VNew_Serial(NEQ);
-  webdata->acoef = denalloc(NUM_SPECIES);
+  webdata->acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
 
   InitUserData(webdata);
 

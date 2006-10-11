@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:33:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -331,8 +331,8 @@ static UserData AllocUserData(void)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = denalloc(NUM_SPECIES);
-      (data->Jbd)[jx][jy] = denalloc(NUM_SPECIES);
+      (data->P)[jx][jy] = denalloc(NUM_SPECIES, NUM_SPECIES);
+      (data->Jbd)[jx][jy] = denalloc(NUM_SPECIES, NUM_SPECIES);
       (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
     }
   }
@@ -653,7 +653,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
     
     for (jy=0; jy < MY; jy++)
       for (jx=0; jx < MX; jx++)
-        dencopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES);
+        dencopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
     
     *jcurPtr = FALSE;
     
@@ -687,7 +687,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        dencopy(j, a, NUM_SPECIES);
+        dencopy(j, a, NUM_SPECIES, NUM_SPECIES);
       }
     }
     
@@ -699,14 +699,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   
   for (jy=0; jy < MY; jy++)
     for (jx=0; jx < MX; jx++)
-      denscale(-gamma, P[jx][jy], NUM_SPECIES);
+      denscale(-gamma, P[jx][jy], NUM_SPECIES, NUM_SPECIES);
   
   /* Add identity matrix and do LU decompositions on blocks in place. */
   
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       denaddI(P[jx][jy], NUM_SPECIES);
-      ier = gefa(P[jx][jy], NUM_SPECIES, pivot[jx][jy]);
+      ier = denGETRF(P[jx][jy], NUM_SPECIES, NUM_SPECIES, pivot[jx][jy]);
       if (ier != 0) return(1);
     }
   }
@@ -742,7 +742,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       v = &(IJKth(zdata, 1, jx, jy));
-      gesl(P[jx][jy], NUM_SPECIES, pivot[jx][jy], v);
+      denGETRS(P[jx][jy], NUM_SPECIES, pivot[jx][jy], v);
     }
   }
 

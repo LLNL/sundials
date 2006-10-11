@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:10 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -565,7 +565,7 @@ static UserData AllocUserData(void)
   
   data = (UserData) malloc(sizeof *data);
   
-  acoef = denalloc(NUM_SPECIES);
+  acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));

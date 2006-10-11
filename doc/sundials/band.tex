@@ -54,7 +54,7 @@ The fields in the above structure are:
 
 \item {\em smu} is the storage upper half-bandwidth, 
   {\em mu} $\le$ {\em smu} $\le$ {\em size}$-1$.      
-  The \id{BandFactor} routine writes the LU factors           
+  The \id{BandGBTRF} routine writes the LU factors           
   into the storage for A. The upper triangular factor U, 
   however, may have an upper half-bandwidth as big as         
   $\min(${\em size}$-1$,{\em mu}$+${\em ml}$)$
@@ -81,7 +81,7 @@ The fields in the above structure are:
     column) to {\em smu}$+${\em ml} (to access the lowest element     
     within the band in the j-th column). Indices from $0$ 
     to {\em smu}$-${\em mu}$-1$ give access to extra storage elements   
-    required by \id{BandFactor}.                          
+    required by \id{BandGBTRF}.                          
     
   \item {\em data[j][i-j+smu]} is the $(i,j)$-th element, 
     $j-${\em mu} $\le i \le j+${\em ml}.    
@@ -106,8 +106,8 @@ See Figure \ref{f:bandmat} for a diagram of the \id{BandMat} type.
   $N \times N$ band matrix of type \id{BandMat} with upper and lower half-bandwidths \id{mu}
   and \id{ml}, respectively. The rows and columns of \id{A} are numbered from $0$ to $N-1$
   and the ($i,j$)-th element of \id{A} is denoted \id{A(i,j)}. The greyed out areas of
-  the underlying component storage are used by the \id{BandFactor} and
-  \id{BandBacksolve} routines.}\label{f:bandmat}
+  the underlying component storage are used by the \id{BandGBTRF} and
+  \id{BandGBTRS} routines.}\label{f:bandmat}
 \end{figure}
 
  
@@ -148,9 +148,9 @@ in the {\band} package.  For full details, see the header file \id{sundials\_ban
 \begin{itemize}
 \item \id{BandAllocMat}: allocation of a \id{BandMat} matrix;
 \item \id{BandAllocPiv}: allocation of a pivot array for use
-      with \id{BandFactor}/\id{BandBacksolve};
-\item \id{BandFactor}: LU factorization with partial pivoting;
-\item \id{BandBacksolve}: solution of $Ax = b$ using LU factorization;
+      with \id{BandGBTRF}/\id{BandGBTRS};
+\item \id{BandGBTRF}: LU factorization with partial pivoting;
+\item \id{BandGBTRS}: solution of $Ax = b$ using LU factorization;
 \item \id{BandZero}: load a matrix with zeros;
 \item \id{BandCopy}: copy one matrix to another;
 \item \id{BandScale}: scale a matrix by a scalar;

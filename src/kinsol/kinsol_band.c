@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -438,7 +438,7 @@ static int KINBandSetup(KINMem kin_mem)
   }
   
   /* Do LU factorization of J */
-  ier = BandFactor(J, pivots);
+  ier = BandGBTRF(J, pivots);
 
   /* Return 0 if the LU was complete; otherwise return -1 */
   last_flag = ier;
@@ -471,7 +471,7 @@ static int KINBandSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *res_no
 
   /* Back-solve and get solution in x */
 
-  BandBacksolve(J, pivots, xd);
+  BandGBTRS(J, pivots, xd);
 
   /* Compute the terms Jpnorm and sfdotJp for use in the global strategy
      routines and in KINForcingTerm. Both of these terms are subsequently

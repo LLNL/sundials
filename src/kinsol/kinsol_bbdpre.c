@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:19 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -450,7 +450,7 @@ int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
 
   /* do LU factorization of P in place (in PP) */
 
-  ier = BandFactor(PP, pivots);
+  ier = BandGBTRF(PP, pivots);
 
   /* return 0 if the LU was complete, else return 1 */
 
@@ -506,7 +506,7 @@ int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
   /* do the backsolve and return */
 
   vd = N_VGetArrayPointer(vv);
-  BandBacksolve(PP, pivots, vd);
+  BandGBTRS(PP, pivots, vd);
 
   return(0);
 }

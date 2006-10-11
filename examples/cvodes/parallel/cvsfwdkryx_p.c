@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-20 16:59:30 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-11 16:33:58 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -447,7 +447,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
-        dencopy(Jbd[lx][ly], P[lx][ly], NVARS);
+        dencopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
     *jcurPtr = FALSE;
 
   } else {    /* jok = FALSE: Generate Jbd from scratch and copy to P */
@@ -478,7 +478,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        dencopy(j, a, NVARS);
+        dencopy(j, a, NVARS, NVARS);
       }
     }
     
@@ -489,13 +489,13 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* Scale by -gamma */
   for (ly = 0; ly < MYSUB; ly++)
     for (lx = 0; lx < MXSUB; lx++)
-      denscale(-gamma, P[lx][ly], NVARS);
+      denscale(-gamma, P[lx][ly], NVARS, NVARS);
   
   /* Add identity matrix and do LU decompositions on blocks in place */
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       denaddI(P[lx][ly], NVARS);
-      ier = gefa(P[lx][ly], NVARS, pivot[lx][ly]);
+      ier = denGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
       if (ier != 0) return(1);
     }
   }
@@ -536,7 +536,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       v = &(zdata[lx*NVARS + ly*nvmxsub]);
-      gesl(P[lx][ly], NVARS, pivot[lx][ly], v);
+      denGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
     }
   }
 
@@ -619,8 +619,8 @@ static PreconData AllocPreconData(UserData fdata)
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      (pdata->P)[lx][ly] = denalloc(NVARS);
-      (pdata->Jbd)[lx][ly] = denalloc(NVARS);
+      (pdata->P)[lx][ly] = denalloc(NVARS, NVARS);
+      (pdata->Jbd)[lx][ly] = denalloc(NVARS, NVARS);
       (pdata->pivot)[lx][ly] = denallocpiv(NVARS);
     }
   }

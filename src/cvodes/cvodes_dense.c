@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:34 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -173,14 +173,14 @@ int CVDense(void *cvode_mem, long int N)
   /* Allocate memory for M, savedJ, and pivot array */
 
   M = NULL;
-  M = DenseAllocMat(N);
+  M = DenseAllocMat(N, N);
   if (M == NULL) {
     CVProcessError(cv_mem, CVDENSE_MEM_FAIL, "CVDENSE", "CVDense", MSGDS_MEM_FAIL);
     free(cvdense_mem); cvdense_mem = NULL;
     return(CVDENSE_MEM_FAIL);
   }
   savedJ = NULL;
-  savedJ = DenseAllocMat(N);
+  savedJ = DenseAllocMat(N, N);
   if (savedJ == NULL) {
     CVProcessError(cv_mem, CVDENSE_MEM_FAIL, "CVDENSE", "CVDense", MSGDS_MEM_FAIL);
     DenseFreeMat(M);
@@ -492,7 +492,7 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   DenseAddI(M);
 
   /* Do LU factorization of M */
-  ier = DenseFactor(M, pivots); 
+  ier = DenseGETRF(M, pivots); 
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   last_flag = ier;
@@ -519,7 +519,7 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   
   bd = N_VGetArrayPointer(b);
 
-  DenseBacksolve(M, pivots, bd);
+  DenseGETRS(M, pivots, bd);
 
   /* If CV_BDF, scale the correction to account for change in gamma */
   if ((lmm == CV_BDF) && (gamrat != ONE)) {

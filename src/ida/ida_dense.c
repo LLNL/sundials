@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:16 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -156,7 +156,7 @@ int IDADense(void *ida_mem, long int Neq)
 
   /* Allocate memory for JJ and pivot array. */
   JJ = NULL;
-  JJ = DenseAllocMat(Neq);
+  JJ = DenseAllocMat(Neq, Neq);
   if (JJ == NULL) {
     IDAProcessError(IDA_mem, IDADENSE_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
     free(idadense_mem); idadense_mem = NULL;
@@ -405,7 +405,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   }
 
   /* Do LU factorization of JJ; return success or fail flag. */
-  retfac = DenseFactor(JJ, pivots);
+  retfac = DenseGETRF(JJ, pivots);
 
   if (retfac != 0) {
     last_flag = retfac;
@@ -431,7 +431,7 @@ static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   
   bd = N_VGetArrayPointer(b);
 
-  DenseBacksolve(JJ, pivots, bd);
+  DenseGETRS(JJ, pivots, bd);
 
   /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);

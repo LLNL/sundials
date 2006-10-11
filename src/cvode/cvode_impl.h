@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:32 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-11 16:34:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -315,7 +315,7 @@ extern "C" {
    * An LInitFn should return 0 if it has successfully initialized the
    * CVODE linear solver and a negative value otherwise.
    * If an error does occur, an appropriate message should be sent to
-   * (cv_mem->errfp)
+   * the error handler function.
    * -----------------------------------------------------------------
    */
   
@@ -331,7 +331,7 @@ extern "C" {
    * related data is it deems necessary. Its parameters are as
    * follows:
    *
-   * cv_mem - problem memory pointer of type CVodeMem. See the big
+   * cv_mem - problem memory pointer of type CVodeMem. See the
    *          typedef earlier in this file.
    *
    * convfail - a flag to indicate any problem that occurred during
