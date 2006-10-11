@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-10-09 23:56:24 $
+ * $Revision: 1.9 $
+ * $Date: 2006-10-11 18:12:37 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,12 +45,11 @@ static void CVM_init();
 static void CVM_makePersistent();
 static void CVM_final();
 
-static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int CVM_AdjMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int CVM_ReInit(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int CVM_ReInitB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int CVM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int CVM_AdjInitialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
@@ -76,15 +75,21 @@ void mexFunction(int nlhs, mxArray *plhs[],
      2 - initialize forward sensitivity calculations
      3 - initialize adjoint sensitivity calculations
      4 - initialize backward solver
-     5 - reinitialize CVODES solver (NYI)
-     6 - reinitialize backward solver (NYI)
-     7 - solve problem
-     8 - solve backward problem
-     9 - get integrator stats
-    10 - get backward integrator stats
-    11 - extract data from cvode_mem
-    12 - set one optional input at a time (NYI)
-    13 - finalize
+
+    11 - reinitialize CVODES solver
+    12 - reinitialize forward sensitivity calculations
+    13 - toggle FSA off
+    14 - reinitialize backward solver
+
+    20 - solve problem
+    21 - solve backward problem
+
+    30 - get integrator stats
+    31 - get backward integrator stats
+    32 - extract data from cvode_mem
+    33 - set one optional input at a time (NYI)
+
+    40 - finalize
   */
 
   mode = (int)mxGetScalar(prhs[0]);
@@ -99,49 +104,55 @@ void mexFunction(int nlhs, mxArray *plhs[],
       CVM_final();
     }
     CVM_init();
-    CVM_Malloc(nlhs, plhs, nrhs-1, &prhs[1]);
+    CVM_Initialization(0, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 2:
-    CVM_SensMalloc(nlhs, plhs, nrhs-1, &prhs[1]);
+    CVM_SensInitialization(0, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 3:
-    CVM_AdjMalloc(nlhs, plhs, nrhs-1, &prhs[1]);
+    CVM_AdjInitialization(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 4:
-    CVM_MallocB(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 5:
-    CVM_ReInit(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 6:
-    CVM_ReInitB(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 7:
-    CVM_Solve(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 8:
-    CVM_SolveB(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 9:
-    CVM_Stats(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 10:
-    CVM_StatsB(nlhs, plhs, nrhs-1, &prhs[1]);
+    CVM_InitializationB(0, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 11:
-    CVM_Get(nlhs, plhs, nrhs-1, &prhs[1]);
+    CVM_Initialization(1, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 12:
-    CVM_Set(nlhs, plhs, nrhs-1, &prhs[1]);
+    CVM_SensInitialization(1, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 13:
+    CVM_SensToggleOff(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 14:
+    CVM_InitializationB(1, nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 20:
+    CVM_Solve(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 21:
+    CVM_SolveB(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 30:
+    CVM_Stats(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 31:
+    CVM_StatsB(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 32:
+    CVM_Get(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 33:
+    CVM_Set(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 40:
     CVM_Free(nlhs, plhs, nrhs-1, &prhs[1]);
     CVM_final();
     return;
   }
 
   /* do not call CVM_makePersistent after free */
-  if (mode != 13) CVM_makePersistent();
+  if (mode != 40) CVM_makePersistent();
   mexLock();
 
   return;
@@ -209,7 +220,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
  * ---------------------------------------------------------------------------------
  */
 
-/* CVM_Malloc
+/* CVM_Initialization
+ *
+ * action = 0   -> CVodeCreate + CVodeMalloc
+ * action = 1   -> CVodeReInit
  *
  * prhs contains:
  *   fct
@@ -223,7 +237,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
  *
  */
 
-static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double t0, *y0;
   int status;
@@ -261,8 +275,8 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
    * Initialize appropriate vector module
    * ------------------------------------
    */
-  
-  InitVectors();
+
+  if (action == 0) InitVectors();
 
   /* 
    * -----------------------------
@@ -306,8 +320,9 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
    * Set initial conditions and tolerances
    * ---------------------------------------
    */
+  
+  if (action == 0)  y = NewVector(N);
 
-  y = NewVector(N);
   PutData(y, y0, N);
 
   switch (itol) {
@@ -323,25 +338,47 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* 
    * ----------------------------------------
-   * Create CVODES object and allocate memory
+   * If action = 0
+   *    Create CVODES object and allocate memory
+   *    Attach error handler function
+   *    Redirect output
+   * If action = 1
+   *    Reinitialize solver
    * ----------------------------------------
    */
 
-  cvode_mem = CVodeCreate(lmm, iter);
+  switch (action) {
 
-  /* attach error handler function */
-  status = CVodeSetErrHandlerFn(cvode_mem, mtlb_CVodeErrHandler, NULL);
+  case 0:
 
-  /* Call CVodeMalloc */
+    /* Create CVODES object */
+    cvode_mem = CVodeCreate(lmm, iter);
+    /* attach error handler function */
+    status = CVodeSetErrHandlerFn(cvode_mem, mtlb_CVodeErrHandler, NULL);
+    /* Call CVodeMalloc */
+    status = CVodeMalloc(cvode_mem, mtlb_CVodeRhs, t0, y, itol, reltol, abstol);
+    /* Redirect output */
+    status = CVodeSetErrFile(cvode_mem, stdout);
 
-  status = CVodeMalloc(cvode_mem, mtlb_CVodeRhs, t0, y, itol, reltol, abstol);
+    break;
 
-  if (itol == CV_SV) {
-    N_VDestroy(NV_abstol);
+  case 1:
+
+    /* Reinitialize solver */
+    status = CVodeReInit(cvode_mem, mtlb_CVodeRhs, t0, y, itol, reltol, abstol);
+
+    break;
+
   }
 
-  /* Redirect output */
-  status = CVodeSetErrFile(cvode_mem, stdout);
+  /* free NV_abstol if allocated */
+  if (itol == CV_SV)  N_VDestroy(NV_abstol);
+
+  /*
+   * --------------------------------
+   * Set various optional inputs
+   * --------------------------------
+   */
 
   /* set maxorder (default is consistent with LMM) */
   status = CVodeSetMaxOrd(cvode_mem, maxord);
@@ -363,7 +400,6 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     status = CVodeSetStopTime(cvode_mem, tstop);
   
   /* set stability limit detection (default is FALSE) */
-
   status = CVodeSetStabLimDet(cvode_mem, sld);
  
   /* Rootfinding? */
@@ -375,15 +411,23 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   if ( cvm_quad ) {
 
     status = get_QuadOptions(prhs[3], TRUE,
-                             &yQ0, &errconQ, 
-                             &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
+                               &yQ0, &errconQ, 
+                               &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
 
-    if(status) mexErrMsgTxt("CVodeMalloc:: illegal quadrature input.");      
+    if(status) mexErrMsgTxt("CVode Initialization:: illegal quadrature input.");      
 
-    yQ = NewVector(Nq);
+    if (action == 0) yQ = NewVector(Nq);
+
     PutData(yQ, yQ0, Nq);
 
-    status = CVodeQuadMalloc(cvode_mem, mtlb_CVodeQUADfct, yQ);
+    switch (action) {
+    case 0:
+      status = CVodeQuadMalloc(cvode_mem, mtlb_CVodeQUADfct, yQ);
+      break;
+    case 1:
+      status = CVodeQuadReInit(cvode_mem, mtlb_CVodeQUADfct, yQ);
+      break;
+    }
 
     if (errconQ) {
     
@@ -525,10 +569,13 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
 }
 
-/* CVM_SensMalloc
+/* CVM_SensInitialization
+ *
+ * action = 0 -> CVodeSensMalloc
+ * action = 1 -> CVodeSensReInit
  *
  * prhs contains:
- *   Ns
+ *   Ns (should be 0, if action=1)
  *   sensi_meth
  *   yS0
  *   options
@@ -538,7 +585,7 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
  *
  */
 
-static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double *yS0;
   int buflen, status;
@@ -565,7 +612,7 @@ static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
 
   /* Number of sensitivities */
 
-  Ns = (int)mxGetScalar(prhs[0]);
+  if (action==0) Ns = (int)mxGetScalar(prhs[0]);
 
   /* Sensitivity method */
 
@@ -586,26 +633,34 @@ static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
                           &userSRHS, &dqtype, &rho,
                           &errconS, &itolS, &reltolS, &SabstolS, &VabstolS);
 
-  if(status) mexErrMsgTxt("CVodeMalloc:: illegal forward sensitivity input.");   
+  if(status) mexErrMsgTxt("CVode FSA Initialization:: illegal forward sensitivity input.");   
 
   /* Prepare arguments for CVODES functions */
 
   if (mxIsEmpty(mx_SRHSfct)) {
     if (pfield_name == NULL)
-      mexErrMsgTxt("CVodeMalloc:: pfield required but was not provided.");
+      mexErrMsgTxt("CVode FSA Initialization:: pfield required but was not provided.");
     pfield = mxGetField(mx_data,0,pfield_name);
     if (pfield == NULL)
-      mexErrMsgTxt("CVodeMalloc:: illegal pfield input.");
+      mexErrMsgTxt("CVode FSA Initialization:: illegal pfield input.");
     p = mxGetPr(pfield);
     mxFree(pfield_name);
   }
 
-  yS = N_VCloneVectorArray(Ns, y);
+  if (action == 0) yS = N_VCloneVectorArray(Ns, y);
+
   for (is=0;is<Ns;is++) {
     PutData(yS[is], &yS0[is*N], N);
   }
 
-  status = CVodeSensMalloc(cvode_mem, Ns, ism, yS);
+  switch (action) {
+  case 0:
+    status = CVodeSensMalloc(cvode_mem, Ns, ism, yS);
+    break;
+  case 1:
+    status = CVodeSensReInit(cvode_mem, ism, yS);
+    break;
+  }
 
   switch (itolS) {
   case CV_SS:
@@ -645,7 +700,26 @@ static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
   return(0);
 }
 
-/* CVM_AdjMalloc
+/*
+ * CVM_SenstoggleOff
+ *
+ * deactivates FSA
+ */
+
+static int CVM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+  int status;
+
+  status = CVodeSensToggleOff(cvode_mem);
+  
+  cvm_fsa = FALSE;
+
+  return(0);
+}
+
+
+
+/* CVM_AdjInitialization
  *
  * prhs contains:
  *
@@ -653,7 +727,7 @@ static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
  *   status
  */
 
-static int CVM_AdjMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int CVM_AdjInitialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   int buflen, status;
   char *bufval;
@@ -677,8 +751,24 @@ static int CVM_AdjMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prh
   return(0);
 }
 
+/* CVM_InitializationB
+ *
+ * action = 0   -> CVodeCreateB + CVodeMallocB
+ * action = 1   -> CVodeReInitB
+ *
+ * prhs contains:
+ *   fctB
+ *   tF
+ *   yB0
+ *   options
+ *   data
+ *
+ * plhs contains:
+ *   status
+ *
+ */
 
-static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double tB0, *yB0;
   int status;
@@ -761,7 +851,8 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
    * ---------------------------------------
    */
 
-  yB = NewVector(NB);
+  if (action == 0) yB = NewVector(NB);
+
   PutData(yB, yB0, NB);
 
   switch (itolB) {
@@ -777,21 +868,40 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
   /* 
    * -----------------------------------------------------------
-   * Create CVODES object for backward phase and allocate memory
+   * If action = 0
+   *    Create CVODES object for backward phase
+   *    Allocate memory
+   *    Redirect output
+   * If action = 1
+   *    Reinitialize solver
    * -----------------------------------------------------------
    */
 
-  status = CVodeCreateB(cvadj_mem, lmmB, iterB);
+  switch (action) {
 
-  /* Call CVodeMallocB */
-  status = CVodeMallocB(cvadj_mem, mtlb_CVodeRhsB, tB0, yB, itolB, reltolB, abstolB);
+  case 0:
+
+    /* Create CVODES object */
+    status = CVodeCreateB(cvadj_mem, lmmB, iterB);
+    /* Call CVodeMallocB */
+    status = CVodeMallocB(cvadj_mem, mtlb_CVodeRhsB, tB0, yB, itolB, reltolB, abstolB);
+    /* Redirect output */
+    status = CVodeSetErrFileB(cvadj_mem, stdout);
+
+    break;
+
+  case 1:
+
+    /* Reinitialize solver */
+    status = CVodeReInitB(cvadj_mem, mtlb_CVodeRhsB, tB0, yB, itolB, reltolB, abstolB);
+
+    break;
+
+  }
 
   if (itolB == CV_SV) {
     N_VDestroy(NV_abstolB);
   }
-
-  /* Redirect output */
-  status = CVodeSetErrFileB(cvadj_mem, stdout);
 
   /* set maxorder (default is consistent with LMM) */
   status = CVodeSetMaxOrdB(cvadj_mem, maxordB);
@@ -816,13 +926,21 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
                              &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
 
     if(status)
-      mexErrMsgTxt("CVodeMallocB:: illegal quadrature input.");      
+      mexErrMsgTxt("CVode Backward Initialization:: illegal quadrature input.");      
 
-    yQB = NewVector(NqB);
+    if (action == 0) yQB = NewVector(NqB);
+
     PutData(yQB, yQB0, NqB);
 
-    status = CVodeQuadMallocB(cvadj_mem, mtlb_CVodeQUADfctB, yQB);
-    
+    switch (action) {
+    case 0:
+      status = CVodeQuadMallocB(cvadj_mem, mtlb_CVodeQUADfctB, yQB);
+      break;
+    case 1:
+      status = CVodeQuadReInitB(cvadj_mem, mtlb_CVodeQUADfctB, yQB);
+      break;
+    }
+
     switch (itolQB) {
     case CV_SS:
       abstolQB = (void *) &SabstolQB;
@@ -964,15 +1082,11 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   return(0);
 }
 
-static int CVM_ReInit(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
-  return(0);
-}
 
-static int CVM_ReInitB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
-  return(0);
-}
+/*
+ * CVM_Solve  - Main solution function
+ *
+ */
 
 static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {

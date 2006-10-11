@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.10 $Date: 2006/07/25 21:29:30 $
+% $Revision: 1.11 $Date: 2006/08/10 18:02:50 $
 
 % MEX compiler command
 
@@ -497,7 +497,11 @@ cvm_files = {
     fullfile('cvodes','CVodeMallocB.m')
     fullfile('cvodes','CVodeMalloc.m')
     fullfile('cvodes','CVodeMonitor.m')
+    fullfile('cvodes','CVodeReInit.m')
+    fullfile('cvodes','CVodeReInitB.m')
     fullfile('cvodes','CVodeSensMalloc.m')
+    fullfile('cvodes','CVodeSensToggleOff.m')
+    fullfile('cvodes','CVodeSensReInit.m')
     fullfile('cvodes','CVodeSetFSAOptions.m')
     fullfile('cvodes','CVodeSetOptions.m')
     fullfile('cvodes','CVPrecSetupFn.m')

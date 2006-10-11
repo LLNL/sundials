@@ -47,9 +47,9 @@ function [status,t,y,varargout] = CVode(tout,itask)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:50 $
+% $Revision: 1.4 $Date: 2006/07/07 19:08:40 $
 
-mode = 7;
+mode = 20;
 if nargout < 3 | nargout > 5
   disp('CVode:: wrong number of output arguments');
   return

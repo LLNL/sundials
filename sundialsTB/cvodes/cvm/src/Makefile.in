@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-27 22:21:03 $
+# $Revision: 1.4 $
+# $Date: 2006-10-11 18:12:37 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -66,7 +66,11 @@ install: cvm
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeMallocB.m            $(STB_INSTDIR)/sundialsTB/cvodes/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeMalloc.m             $(STB_INSTDIR)/sundialsTB/cvodes/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeMonitor.m            $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeReInit.m             $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeReInitB.m            $(STB_INSTDIR)/sundialsTB/cvodes/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSensMalloc.m         $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSensReInit.m         $(STB_INSTDIR)/sundialsTB/cvodes/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSensToggleOff.m      $(STB_INSTDIR)/sundialsTB/cvodes/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSetFSAOptions.m      $(STB_INSTDIR)/sundialsTB/cvodes/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVodeSetOptions.m         $(STB_INSTDIR)/sundialsTB/cvodes/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/CVPrecSetupFn.m           $(STB_INSTDIR)/sundialsTB/cvodes/

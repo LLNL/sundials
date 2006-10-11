@@ -27,9 +27,9 @@ function varargout = CVodeGet(key, varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
+% $Revision: 1.3 $Date: 2006/03/07 01:19:50 $
 
-mode = 11;
+mode = 32;
 
 if strcmp(key, 'DerivSolution')
   t = varargin{1};
