@@ -255,7 +255,7 @@ The program \id{kinkryx.c} uses the ``small'' dense functions for all operations
 on the $6 \times 6$ preconditioner blocks.  
 Thus it includes \id{sundials\_smalldense.h}, and calls the small dense matrix
 functions \id{denalloc}, \id{denallocpiv}, 
-\id{denfree}, \id{denfreepiv}, \id{gefa}, and \id{gesl}.
+\id{denfree}, \id{denfreepiv}, \id{denGETRF}, and \id{denGETRS}.
 The small dense functions are generally available for {\kinsol} user programs
 (for more information, see \ugref{ss:dense} or the comments in the header file
 \id{sundials\_smalldense.h}).

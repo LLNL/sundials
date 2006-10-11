@@ -459,7 +459,7 @@ extra layer of function calls, \id{cvkryx.c} uses the small dense
 functions for all operations on the $2 \times 2$ preconditioner blocks.  
 Thus it includes \id{sundials\_smalldense.h}, and calls the small dense matrix
 functions \id{denalloc}, \id{dencopy}, \id{denscale}, \id{denaddI}, 
-\id{denfree}, \id{denfreepiv}, \id{gefa}, and \id{gesl}.  The macro
+\id{denfree}, \id{denfreepiv}, \id{denGETRF}, and \id{denGETRS}.  The macro
 \id{IJth} defined near the top of the file is used to access
 individual elements in each preconditioner block, numbered from $1$.
 The small dense functions are available for {\cvode} user programs
