@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-05 22:08:28 $
+ * $Revision: 1.4 $
+ * $Date: 2006-10-17 21:00:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -64,7 +64,7 @@
  * CVHin return values:
  *    CV_SUCCESS
  *    CV_RHSFUNC_FAIL
- *    TOUT_TOO_CLOSE
+ *    CV_TOO_CLOSE
  *
  * CVStep control constants:
  *    DO_ERROR_TEST
@@ -94,8 +94,6 @@
  *    TRY_AGAIN
  * 
  */
-
-#define TOUT_TOO_CLOSE   +1
 
 #define DO_ERROR_TEST    +2
 #define PREDICT_AGAIN    +3
@@ -1725,7 +1723,7 @@ static int CVInitialSetup(CVodeMem cv_mem)
  * CVHin
  *
  * This routine computes a tentative initial step size h0. 
- * If tout is too close to tn (= t0), then CVHin returns TOUT_TOO_CLOSE
+ * If tout is too close to tn (= t0), then CVHin returns CV_TOO_CLOSE
  * and h remains uninitialized. 
  * If the RHS function fails unrecoverably, CVHin returns CV_RHSFUNC_FAIL.
  * If the RHS function fails recoverably too many times and recovery is
@@ -1762,13 +1760,13 @@ static int CVHin(CVodeMem cv_mem, realtype tout)
 
   /* If tout is too close to tn, give up */
   
-  if ((tdiff = tout-tn) == ZERO) return(TOUT_TOO_CLOSE);
+  if ((tdiff = tout-tn) == ZERO) return(CV_TOO_CLOSE);
   
   sign = (tdiff > ZERO) ? 1 : -1;
   tdist = ABS(tdiff);
   tround = uround * MAX(ABS(tn), ABS(tout));
 
-  if (tdist < TWO*tround) return(TOUT_TOO_CLOSE);
+  if (tdist < TWO*tround) return(CV_TOO_CLOSE);
   
   /* 
      Set lower and upper bounds on h0, and take geometric mean 
@@ -3153,9 +3151,8 @@ static int CVHandleFailure(CVodeMem cv_mem, int flag)
   case CV_RTFUNC_FAIL:    
     CVProcessError(cv_mem, CV_RTFUNC_FAIL, "CVODE", "CVode", MSGCV_RTFUNC_FAILED, tn);
     break;
-  case TOUT_TOO_CLOSE:
-    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVode", MSGCV_TOO_CLOSE);
-    return(CV_ILL_INPUT);
+  case CV_TOO_CLOSE:
+    CVProcessError(cv_mem, CV_TOO_CLOSE, "CVODE", "CVode", MSGCV_TOO_CLOSE);
   default:
     return(CV_SUCCESS);   
   }

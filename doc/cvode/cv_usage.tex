@@ -894,10 +894,11 @@ perform the integration of the IVP.
     time-stepping. The \id{CV\_ILL\_INPUT} flag will also be returned if the linear 
     solver function initialization (called by the user after calling 
     \id{CVodeCreate}) failed to set the linear solver-specific \id{lsolve} field
-    in \id{cvode\_mem}. Finally, if the initial time $t_0$ and the final time
-    $t_{out}$ are too close to each other and the user did not specify an initial
-    step size, \id{CVode} will also return \id{CV\_ILL\_INPUT}.
+    in \id{cvode\_mem}.
     In any case, the user should see the error message for details.
+  \item[\Id{CV\_TOO\_CLOSE}]
+    The initial time $t_0$ and the final time $t_{out}$ are too close to each 
+    other and the user did not specify an initial step size.
   \item[\Id{CV\_TOO\_MUCH\_WORK}] 
     The solver took \id{mxstep} internal steps but could not reach tout. 
     The default value for \id{mxstep} is \id{MXSTEP\_DEFAULT = 500}.

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-20 16:59:35 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-17 21:00:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2039,6 +2039,9 @@ char *CVodeGetReturnFlagName(int flag)
   case CV_UNREC_SRHSFUNC_ERR:
     sprintf(name,"CV_UNREC_SRHSFUNC_ERR");
     break;
+  case CV_TOO_CLOSE:
+    sprintf(name,"CV_TOO_CLOSE");
+    break;    
   default:
     sprintf(name,"NONE");
   }

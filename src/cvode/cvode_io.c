@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:32 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-17 21:00:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1172,6 +1172,9 @@ char *CVodeGetReturnFlagName(int flag)
   case CV_BAD_DKY:
     sprintf(name,"CV_BAD_DKY");
     break;
+  case CV_TOO_CLOSE:
+    sprintf(name,"CV_TOO_CLOSE");
+    break;    
   default:
     sprintf(name,"NONE");
   }
