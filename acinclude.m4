@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.45 $
-# $Date: 2006-08-11 23:02:24 $
+# $Revision: 1.46 $
+# $Date: 2006-10-19 21:21:11 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -20,11 +20,19 @@ AC_DEFUN([SUNDIALS_GREETING],
 [
 
 # Say Hi!
+if test "X${SUNDIALS_DEV}" = "Xyes"; then
+echo "
+---------------------------------------------
+Running SUNDIALS Development Configure Script
+---------------------------------------------
+"
+else
 echo "
 ---------------------------------
 Running SUNDIALS Configure Script
 ---------------------------------
 "
+fi
 
 ]) dnl END SUNDIALS_GREETING
 
@@ -117,6 +125,8 @@ IDA_ENABLED="yes"
 #IDAS_ENABLED="yes"
 IDAS_ENABLED="no"
 KINSOL_ENABLED="yes"
+#CPODES_ENABLED="yes"
+CPODES_ENABLED="no"
 FCMIX_ENABLED="yes"
 MPI_ENABLED="yes"
 STB_ENABLED="no"
@@ -184,7 +194,6 @@ fi
 #   CVODE_ENABLED    - enable CVODE module [yes]
 #   CVODES_ENABLED   - enable CVODES module [yes]
 #   IDA_ENABLED      - enable IDA module [yes]
-#   IDAS_ENABLED     - enable IDAS module [yes]
 #   KINSOL_ENABLED   - enable KINSOL module [yes]
 #   FCMIX_ENABLED    - enable Fortran-C inerfaces [yes]
 #   MPI_ENABLED      - enable parallel support [yes]
@@ -281,6 +290,23 @@ else
 fi
 ])
 
+# Check if user wants to disable CPODES module
+# If not, then make certain source directory actually exists
+#AC_ARG_ENABLE(cpodes,
+#[AC_HELP_STRING([--disable-cpodes],[disable configuration of CPODES])],
+#[
+#if test "X${enableval}" = "Xno"; then
+#  CPODES_ENABLED="no"
+#fi
+#],
+#[
+#if test -d ${srcdir}/src/cpodes ; then
+#  CPODES_ENABLED="yes"
+#else
+#  CPODES_ENABLED="no"
+#fi
+#])
+
 # Check if user wants to disable Fortran support (FCMIX components).
 AC_ARG_ENABLE([fcmix],
 [AC_HELP_STRING([--disable-fcmix], [disable Fortran-C support])],
@@ -372,7 +398,26 @@ else
   IDAS_ENABLED="no"
 fi
 ])
-        
+
+CPODES_ENABLED="yes"
+# Check if user wants to disable CPODES module
+# If not, then make certain source directory actually exists
+AC_ARG_ENABLE(cpodes,
+[AC_HELP_STRING([--disable-cpodes],[disable configuration of CPODES])],
+[
+if test "X${enableval}" = "Xno"; then
+  CPODES_ENABLED="no"
+fi
+],
+[
+if test -d ${srcdir}/src/cpodes ; then
+  CPODES_ENABLED="yes"
+else
+  CPODES_ENABLED="no"
+fi
+])
+
+
 ]) dnl END SUNDIALS_DEV_ENABLES
 
 #------------------------------------------------------------------
@@ -2532,55 +2577,72 @@ SUNDIALS_MAKEFILES="Makefile"
 SUNDIALS_CONFIGFILES="src/sundials/sundials_config.h:src/sundials/sundials_config.in"
 SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundials-config:config/sundials-config.in"
 
-# Initialize lists of solver modules, exampel modules, and sundialsTB modules
+# Initialize lists of solver modules, example modules, and sundialsTB modules
 SLV_MODULES="src/sundials"
+if test "X${SUNDIALS_DEV}" = "Xyes" && test -f ${srcdir}/src/sundials/Makefile.dev.in ; then
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/sundials/Makefile:src/sundials/Makefile.dev.in"
+else
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/sundials/Makefile"
+fi
+
 EXS_MODULES=""
 STB_MODULES=""
 
 # NVECTOR modules
 if test -d ${srcdir}/src/nvec_ser ; then
   SLV_MODULES="${SLV_MODULES} src/nvec_ser"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/nvec_ser/Makefile"
 fi
 
 if test -d ${srcdir}/src/nvec_par && test "X${MPI_C_COMP_OK}" = "Xyes"; then
   SLV_MODULES="${SLV_MODULES} src/nvec_par"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/nvec_par/Makefile"
 fi
 
 if test -d ${srcdir}/src/nvec_spcpar && test "X${MPI_C_COMP_OK}" = "Xyes"; then
   SLV_MODULES="${SLV_MODULES} src/nvec_spcpar"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/nvec_spcpar/Makefile"
 fi
 
 # CVODE module
 if test "X${CVODE_ENABLED}" = "Xyes"; then
 
   SLV_MODULES="${SLV_MODULES} src/cvode"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/cvode/Makefile"
 
   if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/src/cvode/fcmix ; then
     SLV_MODULES="${SLV_MODULES} src/cvode/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/cvode/fcmix/Makefile"
   fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/serial ; then
     EXS_MODULES="${EXS_MODULES} examples/cvode/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cvode/serial/Makefile"
   fi
 
   if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/fcmix_serial ; then
     EXS_MODULES="${EXS_MODULES} examples/cvode/fcmix_serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cvode/fcmix_serial/Makefile"
   fi
 
   if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cvode/serial ; then
     EXS_MODULES="${EXS_MODULES} test_examples/cvode/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/cvode/serial/Makefile"
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/parallel ; then
     EXS_MODULES="${EXS_MODULES} examples/cvode/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cvode/parallel/Makefile"
   fi
 
   if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/fcmix_parallel ; then
     EXS_MODULES="${EXS_MODULES} examples/cvode/fcmix_parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cvode/fcmix_parallel/Makefile"
   fi
 
   if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cvode/parallel ; then
     EXS_MODULES="${EXS_MODULES} test_examples/cvode/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/cvode/parallel/Makefile"
   fi
 
 fi
@@ -2589,21 +2651,26 @@ fi
 if test "X${CVODES_ENABLED}" = "Xyes"; then
 
   SLV_MODULES="${SLV_MODULES} src/cvodes"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/cvodes/Makefile"
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvodes/serial ; then
     EXS_MODULES="${EXS_MODULES} examples/cvodes/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cvodes/serial/Makefile"
   fi
 
   if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cvodes/serial ; then
     EXS_MODULES="${EXS_MODULES} test_examples/cvodes/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/cvodes/serial/Makefile"
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvodes/parallel ; then
     EXS_MODULES="${EXS_MODULES} examples/cvodes/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cvodes/parallel/Makefile"
   fi
 
   if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cvodes/parallel ; then
     EXS_MODULES="${EXS_MODULES} test_examples/cvodes/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/cvodes/parallel/Makefile"
   fi
 
 fi
@@ -2612,33 +2679,41 @@ fi
 if test "X${IDA_ENABLED}" = "Xyes"; then
 
   SLV_MODULES="${SLV_MODULES} src/ida"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/ida/Makefile"
 
   if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/src/ida/fcmix ; then
     SLV_MODULES="${SLV_MODULES} src/ida/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/ida/fcmix/Makefile"
   fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/serial ; then
     EXS_MODULES="${EXS_MODULES} examples/ida/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/ida/serial/Makefile"
   fi
 
   if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/fcmix_serial ; then
     EXS_MODULES="${EXS_MODULES} examples/ida/fcmix_serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/ida/fcmix_serial/Makefile"
   fi
 
   if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/ida/serial ; then
     EXS_MODULES="${EXS_MODULES} test_examples/ida/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/ida/serial/Makefile"
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/parallel ; then
     EXS_MODULES="${EXS_MODULES} examples/ida/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/ida/parallel/Makefile"
   fi
 
   if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/fcmix_parallel ; then
     EXS_MODULES="${EXS_MODULES} examples/ida/fcmix_parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/ida/fcmix_parallel/Makefile"
   fi
 
   if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/ida/parallel ; then
     EXS_MODULES="${EXS_MODULES} test_examples/ida/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/ida/parallel/Makefile"
   fi
 
 fi
@@ -2647,21 +2722,26 @@ fi
 if test "X${IDAS_ENABLED}" = "Xyes"; then
 
   SLV_MODULES="${SLV_MODULES} src/idas"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/idas/Makefile"
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/idas/serial ; then
     EXS_MODULES="${EXS_MODULES} examples/idas/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/idas/serial/Makefile"
   fi
 
   if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/idas/serial ; then
     EXS_MODULES="${EXS_MODULES} test_examples/idas/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/idas/serial/Makefile"
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/idas/parallel ; then
     EXS_MODULES="${EXS_MODULES} examples/idas/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/idas/parallel/Makefile"
   fi
 
   if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/idas/parallel ; then
     EXS_MODULES="${EXS_MODULES} test_examples/idas/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/idas/parallel/Makefile"
   fi
 
 fi
@@ -2670,46 +2750,72 @@ fi
 if test "X${KINSOL_ENABLED}" = "Xyes"; then
 
   SLV_MODULES="${SLV_MODULES} src/kinsol"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/kinsol/Makefile"
 
   if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/src/kinsol/fcmix ; then
     SLV_MODULES="${SLV_MODULES} src/kinsol/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/kinsol/fcmix/Makefile"
   fi
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/serial ; then
     EXS_MODULES="${EXS_MODULES} examples/kinsol/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/kinsol/serial/Makefile"
   fi
 
   if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/fcmix_serial ; then
     EXS_MODULES="${EXS_MODULES} examples/kinsol/fcmix_serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/kinsol/fcmix_serial/Makefile"
   fi
 
   if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/kinsol/serial ; then
     EXS_MODULES="${EXS_MODULES} test_examples/kinsol/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/kinsol/serial/Makefile"
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/parallel ; then
     EXS_MODULES="${EXS_MODULES} examples/kinsol/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/kinsol/parallel/Makefile"
   fi
 
   if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/fcmix_parallel ; then
     EXS_MODULES="${EXS_MODULES} examples/kinsol/fcmix_parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/kinsol/fcmix_parallel/Makefile"
   fi
 
   if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/kinsol/parallel ; then
     EXS_MODULES="${EXS_MODULES} test_examples/kinsol/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} "
   fi
 
 fi
 
-# Update the list of Makefiles to be created for all solver and example moduls
-for i in ${SLV_MODULES}
-do
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ${i}/Makefile"
-done
-for i in ${EXS_MODULES}
-do
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ${i}/Makefile"
-done
+# CPODES module
+if test "X${CPODES_ENABLED}" = "Xyes"; then
+
+  SLV_MODULES="${SLV_MODULES} src/cpodes"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/cpodes/Makefile"
+
+  if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cpodes/serial ; then
+    EXS_MODULES="${EXS_MODULES} examples/cpodes/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cpodes/serial/Makefile"
+  fi
+
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cpodes/serial ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/cpodes/serial"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/cpodes/serial/Makefile"
+  fi
+
+  if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cpodes/parallel ; then
+    EXS_MODULES="${EXS_MODULES} examples/cpodes/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cpodes/parallel/Makefile"
+  fi
+
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cpodes/parallel ; then
+    EXS_MODULES="${EXS_MODULES} test_examples/cpodes/parallel"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} test_examples/cpodes/parallel/Makefile"
+  fi
+
+fi
 
 # Add Fortran update script to the list of additional files to be generated
 if test "X${BUILD_F77_UPDATE_SCRIPT}" = "Xyes"; then
@@ -2871,7 +2977,6 @@ if test "X${IDA_ENABLED}" = "Xyes"; then
     THIS_LINE="${THIS_LINE}    FIDA"
   fi
   echo "  ${THIS_LINE}"
-
 fi
 
 if test "X${IDAS_ENABLED}" = "Xyes"; then
@@ -2885,7 +2990,11 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
     THIS_LINE="${THIS_LINE} FKINSOL"
   fi
   echo "  ${THIS_LINE}"
+fi
 
+if test "X${CPODES_ENABLED}" = "Xyes"; then
+  THIS_LINE="CPODES"
+  echo "  ${THIS_LINE}"
 fi
 
 if test "X${STB_ENABLED}" = "Xyes"; then

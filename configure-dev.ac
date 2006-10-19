@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2006-08-11 23:02:26 $
+# $Revision: 1.13 $
+# $Date: 2006-10-19 21:21:12 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -16,6 +16,7 @@
 AC_INIT(SUNDIALS, 2.3.0, radu@llnl.gov)
 
 # Display greeting
+SUNDIALS_DEV="yes"
 SUNDIALS_GREETING
 
 # Miscellaneous SUNDIALS initializations
