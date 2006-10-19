@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:20 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-19 21:19:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -31,7 +31,7 @@ DenseMat DenseAllocMat(long int M, long int N)
 {
   DenseMat A;
 
-  if ( (M <=0) || (N<=0) ) return(NULL);
+  /* Note that M and N are tested in denalloc */
 
   A = NULL;
   A = (DenseMat) malloc(sizeof *A);
@@ -44,45 +44,45 @@ DenseMat DenseAllocMat(long int M, long int N)
     return(NULL);
   }
 
-  A->rows = M;
-  A->cols = N;
+  A->M = M;
+  A->N = N;
 
   return(A);
 }
 
-long int *DenseAllocPiv(long int M)
+long int *DenseAllocPiv(long int N)
 {
-  return(denallocpiv(M));
+  return(denallocpiv(N));
 }
 
 long int DenseGETRF(DenseMat A, long int *p)
 {
-  return(denGETRF(A->data, A->rows, A->cols, p));
+  return(denGETRF(A->data, A->M, A->N, p));
 }
 
 void DenseGETRS(DenseMat A, long int *p, realtype *b)
 {
-  denGETRS(A->data, A->rows, p, b);
+  denGETRS(A->data, A->N, p, b);
 }
 
 void DenseZero(DenseMat A)
 {
-  denzero(A->data, A->rows, A->cols);
+  denzero(A->data, A->M, A->N);
 }
 
 void DenseCopy(DenseMat A, DenseMat B)
 {
-  dencopy(A->data, B->data, A->rows, A->cols);
+  dencopy(A->data, B->data, A->M, A->N);
 }
 
 void DenseScale(realtype c, DenseMat A)
 {
-  denscale(c, A->data, A->rows, A->cols);
+  denscale(c, A->data, A->M, A->N);
 }
 
 void DenseAddI(DenseMat A)
 {
-  denaddI(A->data, A->rows);
+  denaddI(A->data, A->N);
 }
 
 void DenseFreeMat(DenseMat A)
@@ -98,5 +98,5 @@ void DenseFreePiv(long int *p)
 
 void DensePrint(DenseMat A)
 {
-  denprint(A->data, A->rows, A->cols);
+  denprint(A->data, A->M, A->N);
 }

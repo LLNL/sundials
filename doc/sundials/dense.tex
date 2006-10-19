@@ -34,23 +34,23 @@ compiled by themselves into a {\dense} library or into a larger user code.
 \subsection{Type DenseMat}
 \index{DENSE@{\dense} generic linear solver!type \id{DenseMat}|(}
 The type \ID{DenseMat} is defined to be a pointer to a structure    
-with a size and a data field:
+with the number of rows, number of columns, and a data field:
 \begin{verbatim}
 typedef struct {
-  long int rows;
-  long int cols;
+  long int M;
+  long int N;
   realtype  **data;
 } *DenseMat;
 \end{verbatim}
-The {\em rows} and {\em cols} fields indicates the number of columns and rows,
+The {\em M} and {\em N} fields indicates the number of columns and rows,
 respectively, of a dense matrix, while the {\em data} field is a two 
-dimensional array used for component storage. 
+dimensional array used for component storage.
 The elements of a dense matrix are stored columnwise (i.e columns are stored 
 one on top of the other in memory). If \id{A} is of type \id{DenseMat}, 
 then the (\id{i},\id{j})-th element of \id{A} 
-(with $0 \le$ \id{i} $<$ \id{rows} and $ 0 \le$ \id{j} $<$ \id{cols}) 
+(with $0 \le$ \id{i} $<$ \id{M} and $ 0 \le$ \id{j} $<$ \id{N}) 
 is given by the expression \id{(A->data)[j][i]} 
-or by the expression \id{(A->data)[0][j*size+i]}. The macros below     
+or by the expression \id{(A->data)[0][j*M+i]}. The macros below     
 allow a user to efficiently access individual matrix           
 elements without writing out explicit data structure           
 references and without knowing too much about the underlying   
@@ -109,8 +109,8 @@ The following functions for small dense matrices are available in the
 \begin{itemize}
 
 \item \ID{denalloc}
-  \par \id{denalloc(m,n)} allocates storage for an \id{m} by \id{n} dense matrix. 
-  It returns a pointer to the newly allocated storage if            
+  \par \id{denalloc(m,n)} allocates storage for an \id{m} by \id{n}
+  dense matrix. It returns a pointer to the newly allocated storage if            
   successful. If the memory request cannot be satisfied, then    
   \id{denalloc} returns \id{NULL}. The underlying type of the dense matrix 
   returned is \id{realtype**}. If we allocate a dense matrix \id{realtype** a} by 
@@ -121,12 +121,13 @@ The following functions for small dense matrices are available in the
   locations which contain the elements of \id{a}.
 
 \item \ID{denallocpiv}
-  \par \id{denallocpiv(m)} allocates an array of \id{m} integers. 
+  \par \id{denallocpiv(n)} allocates an array of \id{n} integers. 
   It returns a pointer to the first element in the array if successful. 
   It returns \id{NULL} if the memory request could not be satisfied.
 
 \item \ID{denGETRF}
-  \par \id{denGETRF(a,m,n,p)} factors the \id{m} by \id{n} dense matrix \id{a}. 
+  \par \id{denGETRF(a,m,n,p)} factors the \id{m} by \id{n} dense matrix \id{a},
+  using Gaussian elimination with row pivoting. 
   It overwrites the elements of \id{a} with its LU factors and keeps track of the
   pivot rows chosen in the pivot array \id{p}.
 
@@ -135,32 +136,35 @@ The following functions for small dense matrices are available in the
   \begin{enumerate}
   \item 
     \id{p[k]} contains the row number of the pivot element chosen   
-    at the beginning of elimination step \id{k}, \id{k} $ = 0, 1, ..., $\id{m}$-1$.  
-                                                                 
+    at the beginning of elimination step \id{k}, 
+    \id{k} $ = 0, 1, ..., $\id{n}$-1$.  
+
   \item 
     If the unique LU factorization of \id{a} is given by $Pa = LU$,   
-    where $P$ is a permutation matrix, $L$ is a lower triangular   
-    matrix with all $1$'s on the diagonal, and $U$ is an upper     
-    trapezoidal matrix, then the upper trapezoidal part of \id{a}     
-    (including its diagonal) contains $U$ and the strictly lower 
-    triangular part of \id{a} contains the multipliers, $I-L$. 
-    If \id{a} is square, $U$ is an upper triangular matrix.
+    where $P$ is a permutation matrix, $L$ is an \id{m} by \id{n}
+    lower trapezoidal matrix with all diagonal elements equal to $1$, 
+    and $U$ is an \id{n} by \id{n} upper triangular matrix, 
+    then the upper triangular part of \id{a} (including its diagonal) 
+    contains $U$ and the strictly lower trapezoidal part of \id{a} 
+    contains the multipliers, $I-L$. 
+    If \id{a} is square, $L$ is a unit lower triangular matrix.
                       
     \id{denGETRF} returns 0 if successful. Otherwise it encountered a zero  
-    diagonal element during the factorization. In this case it     
-    returns the column index (numbered from one) at which it       
+    diagonal element during the factorization, indicating that the matrix \id{a}
+    does not have full column rank.
+    In this case it returns the column index (numbered from one) at which it       
     encountered the zero.
     \end{enumerate}
 
 \item \ID{denGETRS}
-  \par \id{denGETRS(a,m,p,b)} solves the \id{m} by \id{m} linear system $ax = b$. 
-  It assumes that \id{a} (of size \id{m} $\times$ \id{m}) has been LU-factored 
+  \par \id{denGETRS(a,n,p,b)} solves the \id{n} by \id{n} linear system $ax = b$. 
+  It assumes that \id{a} (of size \id{n} $\times$ \id{n}) has been LU-factored 
   and the pivot array \id{p} has been set by a successful call to 
-  \id{denGETRF(a,m,m,p)}. The solution $x$ is written into the \id{b} array.
-  If \id{a} is a rectangular matrix of size \id{m} $\times$ \id{n} (\id{m} $\le$ \id{n}), 
-  then calling \id{denGETRS(a,m,p,b)} after \id{denGETRF(a,m,n,p)} will return 
-  the solution of the linear system $\tilde a x = b$, where $\tilde a$ is the leftmost 
-  \id{m} $\times$ \id{n} block of \id{a}.
+  \id{denGETRF(a,n,n,p)}. The solution $x$ is written into the \id{b} array.
+%%   If \id{a} is a rectangular matrix of size \id{m} $\times$ \id{n} (\id{m} $\le$ \id{n}), 
+%%   then calling \id{denGETRS(a,m,p,b)} after \id{denGETRF(a,m,n,p)} will return 
+%%   the solution of the linear system $\tilde a x = b$, where $\tilde a$ is the leftmost 
+%%   \id{m} $\times$ \id{n} block of \id{a}.
 
 \item \ID{denzero}
   \par \id{denzero(a,m,n)} sets all the elements of the \id{m} by \id{n} dense matrix
@@ -175,7 +179,7 @@ The following functions for small dense matrices are available in the
   matrix \id{a} by \id{c};
 
 \item \ID{denaddI}
-  \par \id{denaddI(a,m)} increments the \id{m} by \id{m} dense matrix \id{a} by the
+  \par \id{denaddI(a,n)} increments the \id{n} by \id{n} dense matrix \id{a} by the
   identity matrix;
 
 \item \ID{denfreepiv}

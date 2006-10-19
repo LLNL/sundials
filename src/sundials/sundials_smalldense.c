@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-11 16:34:20 $
+ * $Revision: 1.4 $
+ * $Date: 2006-10-19 21:19:39 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,14 +50,14 @@ realtype **denalloc(long int m, long int n)
   return(a);
 }
 
-long int *denallocpiv(long int m)
+long int *denallocpiv(long int n)
 {
   long int *piv;
 
-  if (m <= 0) return(NULL);
+  if (n <= 0) return(NULL);
 
   piv = NULL;
-  piv = (long int *) malloc(m * sizeof(long int));
+  piv = (long int *) malloc(n * sizeof(long int));
 
   return(piv);
 }
@@ -65,45 +65,40 @@ long int *denallocpiv(long int m)
 long int denGETRF(realtype **a, long int m, long int n, long int *p)
 {
   long int i, j, k, l;
-  realtype *col_j, *col_k, *diag_k;
+  realtype *col_j, *col_k;
   realtype temp, mult, a_kj;
-  booleantype swap;
 
-  /* k = elimination step number */
+  /* k-th elimination step number */
+  for (k=0; k < n; k++) {
 
-  for (k=0; k < m-1; k++, p++) {
-
-    col_k     = a[k];
-    diag_k    = col_k + k;
+    col_k  = a[k];
 
     /* find l = pivot row number */
-
     l=k;
     for (i=k+1; i < m; i++)
       if (ABS(col_k[i]) > ABS(col_k[l])) l=i;
-    *p = l;
+    p[k] = l;
 
     /* check for zero pivot element */
-
     if (col_k[l] == ZERO) return(k+1);
     
-    /* swap a(l,k) and a(k,k) if necessary */
-    
-    if ( (swap = (l != k) )) {
-      temp = col_k[l];
-      col_k[l] = *diag_k;
-      *diag_k = temp;
+    /* swap a(k,1:n) and a(l,1:n) if necessary */    
+    if ( l!= k ) {
+      for (i=0; i<n; i++) {
+        temp = a[i][l];
+        a[i][l] = a[i][k];
+        a[i][k] = temp;
+      }
     }
 
-    /* Scale the elements below the diagonal in         */
-    /* column k by -1.0 / a(k,k). After the above swap, */
-    /* a(k,k) holds the pivot element. This scaling     */
-    /* stores the pivot row multipliers -a(i,k)/a(k,k)  */
-    /* in a(i,k), i=k+1, ..., m-1.                      */
-
-    mult = -ONE / (*diag_k);
-    for(i=k+1; i < m; i++)
-      col_k[i] *= mult;
+    /* Scale the elements below the diagonal in
+     * column k by 1.0/a(k,k). After the above swap
+     * a(k,k) holds the pivot element. This scaling
+     * stores the pivot row multipliers a(i,k)/a(k,k)
+     * in a(i,k), i=k+1, ..., m-1.                      
+     */
+    mult = ONE/col_k[k];
+    for(i=k+1; i < m; i++) col_k[i] *= mult;
 
     /* row_i = row_i - [a(i,k)/a(k,k)] row_k, i=k+1, ..., m-1 */
     /* row k is the pivot row after swapping with row l.      */
@@ -113,63 +108,52 @@ long int denGETRF(realtype **a, long int m, long int n, long int *p)
     for (j=k+1; j < n; j++) {
 
       col_j = a[j];
-      a_kj = col_j[l];
-
-      /* Swap the elements a(k,j) and a(k,l) if l!=k. */
-
-      if (swap) {
-	col_j[l] = col_j[k];
-	col_j[k] = a_kj;
-      }
+      a_kj = col_j[k];
 
       /* a(i,j) = a(i,j) - [a(i,k)/a(k,k)]*a(k,j)  */
       /* a_kj = a(k,j), col_k[i] = - a(i,k)/a(k,k) */
 
       if (a_kj != ZERO) {
 	for (i=k+1; i < m; i++)
-	  col_j[i] += a_kj * col_k[i];
+	  col_j[i] -= a_kj * col_k[i];
       }
     }
   }
-
-  /* set the last pivot row to be m-1 and check for a zero pivot */
-
-  *p = m-1;
-  if (a[m-1][m-1] == ZERO) return(m);
 
   /* return 0 to indicate success */
 
   return(0);
 }
 
-void denGETRS(realtype **a, long int m, long int *p, realtype *b)
+void denGETRS(realtype **a, long int n, long int *p, realtype *b)
 {
-  long int k, l, i;
-  realtype mult, *col_k;
+  long int i, k, pk;
+  realtype *col_k, tmp;
 
-  /* Solve Ly = Pb, store solution y in b */
-
-  for (k=0; k < m-1; k++) {
-    l = p[k];
-    mult = b[l];
-    if (l != k) {
-      b[l] = b[k];
-      b[k] = mult;
+  /* Permute b, based on pivot information in p */
+  for (k=0; k<n; k++) {
+    pk = p[k];
+    if(pk != k) {
+      tmp = b[k];
+      b[k] = b[pk];
+      b[pk] = tmp;
     }
-    col_k = a[k];
-    for (i=k+1; i < m; i++)
-      b[i] += mult*col_k[i];
   }
-  
+
+  /* Solve Ly = b, store solution y in b */
+  for (k=0; k<n-1; k++) {
+    col_k = a[k];
+    for (i=k+1; i<n; i++) b[i] -= col_k[i]*b[k];
+  }
+
   /* Solve Ux = y, store solution x in b */
-  
-  for (k=m-1; k >= 0; k--) {
+  for (k = n-1; k > 0; k--) {
     col_k = a[k];
     b[k] /= col_k[k];
-    mult = -b[k];
-    for (i=0; i < k; i++)
-      b[i] += mult*col_k[i];
+    for (i=0; i<k; i++) b[i] -= col_k[i]*b[k];
   }
+  b[0] /= a[0][0];
+
 }
 
 void denzero(realtype **a, long int m, long int n)
@@ -210,11 +194,11 @@ void denscale(realtype c, realtype **a, long int m, long int n)
   }
 }
 
-void denaddI(realtype **a, long int m)
+void denaddI(realtype **a, long int n)
 {
   long int i;
   
-  for (i=0; i < m; i++) a[i][i] += ONE;
+  for (i=0; i < n; i++) a[i][i] += ONE;
 }
 
 void denfreepiv(long int *p)

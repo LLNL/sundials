@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:12 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-19 21:19:38 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -12,9 +12,9 @@
  * -----------------------------------------------------------------
  * This is the header file for a generic package of DENSE matrix
  * operations.  The routines listed in this file all use type
- * DenseMat, defined below, for matrices.  These routines in turn
- * call routines in the smalldense.h/smalldense.c module, which
- * use the type realtype** for matrices.  This separation allows
+ * DenseMat, defined below, for M by N matrices.
+ * These routines in turn call routines in the smalldense module,
+ * which use the type realtype** for matrices. This separation allows
  * for possible modifications in which matrices of type DenseMat
  * may not be stored contiguously, while small matrices can still
  * be treated with the routines in smalldense.
@@ -56,16 +56,16 @@ extern "C" {
    * Type : DenseMat
    * -----------------------------------------------------------------
    * The type DenseMat is defined to be a pointer to a structure
-   * with sizes (rows and cols) and a data field. The rows and cols 
-   * fields indicates the number of rows and columns, respectively 
-   * of a dense matrix, while the data field is a two dimensional 
-   * array used for component storage. The elements of a dense matrix 
-   * are stored columnwise (i.e columns are stored one on top of the 
-   * other in memory). If A is of type DenseMat, then the (i,j)th element 
-   * of A (with 0 <= i < rows and 0 <= j < cols) is given by the 
-   * expression (A->data)[j][i] or by the expression (A->data)[0][j*n+i]. 
-   * The macros below allow a user to access efficiently individual matrix
-   * elements without writing out explicit data structure
+   * with sizes (M and N) and a data field. The M and N fields 
+   * indicates the number of rows and columns, respectively of a dense 
+   * matrix, while the data field is a two dimensional array used for 
+   * component storage. The elements of a dense matrix are stored 
+   * columnwise (i.e columns are stored one on top of the other in 
+   * memory). If A is of type DenseMat, then the (i,j)th element 
+   * of A (with 0 <= i < M and 0 <= j < N) is given by the expression 
+   * (A->data)[j][i] or by the expression (A->data)[0][j*n+i]. 
+   * The macros below allow a user to access efficiently individual
+   * matrix elements without writing out explicit data structure
    * references and without knowing too much about the underlying
    * element storage. The only storage assumption needed is that
    * elements are stored columnwise and that a pointer to the jth
@@ -75,8 +75,8 @@ extern "C" {
    */
 
   typedef struct _DenseMat {
-    long int rows;
-    long int cols;
+    long int M;
+    long int N;
     realtype **data;
   } *DenseMat;
 
@@ -93,8 +93,8 @@ extern "C" {
    * Usage : DENSE_ELEM(A,i,j) = a_ij;  OR
    *         a_ij = DENSE_ELEM(A,i,j);
    * -----------------------------------------------------------------
-   * DENSE_ELEM(A,i,j) references the (i,j)th element of the N by N
-   * DenseMat A, 0 <= i,j <= N-1.
+   * DENSE_ELEM(A,i,j) references the (i,j)th element of the M by N
+   * DenseMat A, 0 <= i < M ; 0 <= j < N.
    * -----------------------------------------------------------------
    */
 
@@ -106,11 +106,11 @@ extern "C" {
    * -----------------------------------------------------------------
    * Usage : col_j = DENSE_COL(A,j);
    * -----------------------------------------------------------------
-   * DENSE_COL(A,j) references the jth column of the N by N
-   * DenseMat A, 0 <= j <= N-1. The type of the expression
-   * DENSE_COL(A,j) is realtype *. After the assignment in the usage
-   * above, col_j may be treated as an array indexed from 0 to N-1.
-   * The (i,j)th element of A is referenced by col_j[i].
+   * DENSE_COL(A,j) references the jth column of the M by N
+   * DenseMat A, 0 <= j < N. The type of the expression DENSE_COL(A,j) 
+   * is (realtype *). After the assignment in the usage above, col_j 
+   * may be treated as an array indexed from 0 to M-1. 
+   * The (i,j)-th element of A is thus referenced by col_j[i].
    * -----------------------------------------------------------------
    */
 
@@ -126,10 +126,10 @@ extern "C" {
    * -----------------------------------------------------------------
    * Function : DenseAllocMat
    * -----------------------------------------------------------------
-   * Usage : A = DenseAllocMat(N);
+   * Usage : A = DenseAllocMat(M, N);
    *         if (A == NULL) ... memory request failed
    * -----------------------------------------------------------------
-   * DenseAllocMat allocates memory for an N by N dense matrix and
+   * DenseAllocMat allocates memory for an M by N dense matrix and
    * returns the storage allocated (type DenseMat). DenseAllocMat
    * returns NULL if the request for matrix storage cannot be
    * satisfied. See the above documentation for the type DenseMat
@@ -155,7 +155,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  long int *DenseAllocPiv(long int M);
+  long int *DenseAllocPiv(long int N);
 
   /*
    * -----------------------------------------------------------------
@@ -164,9 +164,10 @@ extern "C" {
    * Usage : ier = DenseGETRF(A, p);
    *         if (ier != 0) ... A is singular
    * -----------------------------------------------------------------
-   * DenseGETRF performs the LU factorization of the N by N dense
+   * DenseGETRF performs the LU factorization of the M by N dense
    * matrix A. This is done using standard Gaussian elimination
-   * with partial pivoting.
+   * with partial (row) pivoting. Note that this applies only
+   * to matrices with M >= N and full column rank.
    *
    * A successful LU factorization leaves the matrix A and the
    * pivot array p with the following information:
@@ -175,11 +176,13 @@ extern "C" {
    *     at the beginning of elimination step k, k=0, 1, ..., N-1.
    *
    * (2) If the unique LU factorization of A is given by PA = LU,
-   *     where P is a permutation matrix, L is a lower triangular
+   *     where P is a permutation matrix, L is a lower trapezoidal
    *     matrix with all 1's on the diagonal, and U is an upper
    *     triangular matrix, then the upper triangular part of A
    *     (including its diagonal) contains U and the strictly lower
-   *     triangular part of A contains the multipliers, I-L.
+   *     trapezoidal part of A contains the multipliers, I-L.
+   *
+   * For square matrices (M=N), L is unit lower triangular.
    *
    * DenseGETRF returns 0 if successful. Otherwise it encountered
    * a zero diagonal element during the factorization. In this case
@@ -201,6 +204,7 @@ extern "C" {
    * computed in DenseGETRF. The solution x is returned in b. This
    * routine cannot fail if the corresponding call to DenseGETRF
    * did not fail.
+   * DenseGETRS does NOT check for a square matrix!
    * -----------------------------------------------------------------
    */
 
@@ -212,7 +216,7 @@ extern "C" {
    * -----------------------------------------------------------------
    * Usage : DenseZero(A);
    * -----------------------------------------------------------------
-   * DenseZero sets all the elements of the N by N matrix A to 0.0.
+   * DenseZero sets all the elements of the M by N matrix A to 0.0.
    * -----------------------------------------------------------------
    */
 
@@ -224,8 +228,8 @@ extern "C" {
    * -----------------------------------------------------------------
    * Usage : DenseCopy(A, B);
    * -----------------------------------------------------------------
-   * DenseCopy copies the contents of the N by N matrix A into the
-   * N by N matrix B.
+   * DenseCopy copies the contents of the M by N matrix A into the
+   * M by N matrix B.
    * -----------------------------------------------------------------
    */
 
@@ -237,7 +241,7 @@ extern "C" {
    * -----------------------------------------------------------------
    * Usage : DenseScale(c, A);
    * -----------------------------------------------------------------
-   * DenseScale scales the elements of the N by N matrix A by the
+   * DenseScale scales the elements of the M by N matrix A by the
    * constant c and stores the result back in A.
    * -----------------------------------------------------------------
    */
@@ -250,8 +254,11 @@ extern "C" {
    * -----------------------------------------------------------------
    * Usage : DenseAddI(A);
    * -----------------------------------------------------------------
-   * DenseAddI adds the identity matrix to A and stores the result
-   * back in A.
+   * DenseAddI adds 1.0 to the main diagonal (A_ii, i=1,2,...,N-1) of
+   * the M by N matrix A (M >= N) and stores the result back in A.
+   * DenseAddI is typically used with square matrices.
+   * DenseAddI does not check for M >= N and therefore a segmentation
+   * fault will occur if M < N!
    * -----------------------------------------------------------------
    */
 
@@ -264,7 +271,7 @@ extern "C" {
    * Usage : DenseFreeMat(A);
    * -----------------------------------------------------------------
    * DenseFreeMat frees the memory allocated by DenseAllocMat for
-   * the N by N matrix A.
+   * the M by N matrix A.
    * -----------------------------------------------------------------
    */
 
@@ -289,9 +296,9 @@ extern "C" {
    * -----------------------------------------------------------------
    * Usage : DensePrint(A);
    * -----------------------------------------------------------------
-   * This routine prints the N by N dense matrix A to standard
-   * output as it would normally appear on paper. It is intended
-   * as a debugging tool with small values of N. The elements are
+   * This routine prints the M by N dense matrix A to standard output
+   * as it would normally appear on paper. It is intended as a 
+   * debugging tool with small values of M and N. The elements are
    * printed using the %g/%lg/%Lg option. A blank line is printed
    * before and after the matrix.
    * -----------------------------------------------------------------

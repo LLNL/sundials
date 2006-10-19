@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:12 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-19 21:19:38 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -34,15 +34,15 @@ extern "C" {
    *         if (a == NULL) ... memory request failed
    * -----------------------------------------------------------------
    * denalloc(m, n) allocates storage for an m by n dense matrix.
-   * It returns a pointer to the newly allocated storage if
-   * successful. If the memory request cannot be satisfied, then
-   * denalloc returns NULL. The underlying type of the dense matrix
-   * returned is realtype **. If we allocate a dense matrix
-   * realtype **a by a = denalloc(m, n), then a[j][i] references the
-   * (i,j)th element of the matrix a, 0 <= i <= m-1, 0 <= j <= n, 
-   * and a[j] is a pointer to the first element in the jth column of a.
-   * The location a[0] contains a pointer to m*n contiguous
-   * locations which contain the elements of a.
+   * It returns a pointer to the newly allocated storage if successful. 
+   * If the memory request cannot be satisfied, then denalloc returns 
+   * NULL. The underlying type of the dense matrix returned is a double
+   * pointer to realtype. If we allocate a dense matrix a by 
+   * a = denalloc(m, n), then a[j][i] references the (i,j)-th element 
+   * of the matrix a, 0 <= i < m, 0 <= j < n,  and a[j] is a pointer 
+   * to the first element in the jth column of a. The location a[0] 
+   * contains a pointer to m*n contiguous locations which contain the 
+   * elements of a.
    * -----------------------------------------------------------------
    */
 
@@ -53,16 +53,16 @@ extern "C" {
    * Function : denallocpiv
    * -----------------------------------------------------------------
    * Usage : long int *pivot;
-   *         pivot = denallocpiv(m);
+   *         pivot = denallocpiv(n);
    *         if (pivot == NULL) ... memory request failed
    * -----------------------------------------------------------------
-   * denallocpiv(m) allocates an array of m long int. It returns
+   * denallocpiv(n) allocates an array of n long int. It returns
    * a pointer to the first element in the array if successful.
    * It returns NULL if the memory request could not be satisfied.
    * -----------------------------------------------------------------
    */
 
-  long int *denallocpiv(long int m);
+  long int *denallocpiv(long int n);
 
   /*
    * -----------------------------------------------------------------
@@ -73,7 +73,7 @@ extern "C" {
    *         if (ier > 0) ... zero element encountered during
    *                          the factorization
    * -----------------------------------------------------------------
-   * denGETRF(a,m,n,p) factors the m by n dense matrix a, m<=n.
+   * denGETRF(a,m,n,p) factors the m by n dense matrix a, m>=n.
    * It overwrites the elements of a with its LU factors and keeps 
    * track of the pivot rows chosen in the pivot array p.
    *
@@ -81,18 +81,20 @@ extern "C" {
    * pivot array p with the following information:
    *
    * (1) p[k] contains the row number of the pivot element chosen
-   *     at the beginning of elimination step k, k=0, 1, ..., m-1.
+   *     at the beginning of elimination step k, k=0, 1, ..., n-1.
    *
    * (2) If the unique LU factorization of a is given by Pa = LU,
-   *     where P is a permutation matrix, L is a lower triangular
-   *     matrix with all 1's on the diagonal, and U is an upper
-   *     triangular matrix, then the upper trapezoidal part of a
+   *     where P is a permutation matrix, L is a lower trapezoidal
+   *     matrix with all 1.0 on the diagonal, and U is an upper
+   *     triangular matrix, then the upper triangular part of a
    *     (including its diagonal) contains U and the strictly lower
-   *     triangular part of a contains the multipliers, I-L.
+   *     trapezoidal part of a contains the multipliers, I-L.
    *
-   * denGETRF returns 0 if successful. Otherwise it encountered a zero
-   * diagonal element during the factorization. In this case it
-   * returns the column index (numbered from one) at which it
+   * Note that for square matrices (m=n), L is unit lower triangular.
+   *
+   * denGETRF returns 0 if successful. Otherwise it encountered a
+   * zero diagonal element during the factorization. In this case
+   * it returns the column index (numbered from one) at which it
    * encountered the zero.
    * -----------------------------------------------------------------
    */
@@ -104,17 +106,18 @@ extern "C" {
    * Function : denGETRS
    * -----------------------------------------------------------------
    * Usage : realtype *b;
-   *         ier = denGETRF(a,m,n,p);
-   *         if (ier == 0) denGETRS(a,m,p,b);
+   *         ier = denGETRF(a,n,n,p);
+   *         if (ier == 0) denGETRS(a,n,p,b);
    * -----------------------------------------------------------------
-   * denGETRS(a,n,p,b) solves the m by m linear system a(1:m,1:m)x = b.
+   * denGETRS(a,n,p,b) solves the n by n linear system a*x = b.
    * It assumes that a has been LU factored and the pivot array p has
-   * been set by a successful call to denGETRF(a,m,n,p). The solution x
-   * is written into the b array.
+   * been set by a successful call to denGETRF(a,n,n,p). 
+   * denGETRS does not check whether a is square!
+   * The solution x is written into the b array.
    * -----------------------------------------------------------------
    */
 
-  void denGETRS(realtype **a, long int m, long int *p, realtype *b);
+  void denGETRS(realtype **a, long int n, long int *p, realtype *b);
 
   /*
    * -----------------------------------------------------------------
@@ -159,14 +162,17 @@ extern "C" {
    * -----------------------------------------------------------------
    * Function : denaddI
    * -----------------------------------------------------------------
-   * Usage : denaddI(a,m);
+   * Usage : denaddI(a,n);
    * -----------------------------------------------------------------
-   * denaddI(a,m) increments the m by m dense matrix a by the
-   * identity matrix.
+   * denaddI(a,n) increments the diagonal elements of the dense 
+   * m by n matrix a by 1.0. (a_ii <= a_ii + 1, i=1,2,..n-1.)
+   * denaddI is typically used with square matrices.
+   * denaddI does NOT check for m >= n! Therefore, a segmentation 
+   * fault will occur if m<n!
    * -----------------------------------------------------------------
    */
 
-  void denaddI(realtype **a, long int m);
+  void denaddI(realtype **a, long int n);
 
   /*
    * -----------------------------------------------------------------
