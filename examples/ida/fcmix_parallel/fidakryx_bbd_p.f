@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.1 $
-c     $Date: 2006-07-05 15:50:08 $
+c     $Revision: 1.2 $
+c     $Date: 2006-10-19 22:13:15 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -516,7 +516,7 @@ c
       integer*4 dsizex, dsizey
       double precision uarray(*)
 c
-      integer ier
+      integer ier, offsetu
       double precision bufleft(mysub), bufright(mysub)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
