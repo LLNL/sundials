@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:50 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-20 16:50:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -91,7 +91,7 @@ extern "C" {
  *       and ewt (the error weight vector) are accessible through
  *       CVodeGetCurrentStep and CVodeGetErrWeights, respectively
  *       (see cvode.h). The unit roundoff is available as
- *       UNIT_ROUNDOFF defined in sundialstypes.h.
+ *       UNIT_ROUNDOFF defined in sundials_types.h.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated for
  * vectors of length N which can be used by a CVDenseJacFn

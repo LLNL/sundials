@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-20 16:50:31 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -93,7 +93,7 @@ extern "C" {
    *     and ewt (the error weight vector) are accessible through
    *     IDAGetCurrentStep and IDAGetErrWeights, respectively (see
    *     ida.h). The unit roundoff is available as
-   *     UNIT_ROUNDOFF defined in sundialstypes.h
+   *     UNIT_ROUNDOFF defined in sundials_types.h
    *
    * The IDASpilsPrecSetupFn should return
    *     0 if successful,

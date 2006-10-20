@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-10-20 16:50:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -158,7 +158,7 @@ extern "C" {
    *       and ewt (the error weight vector) are accessible through
    *       CVodeGetCurrentStep and CVodeGetErrWeights, respectively).
    *       The unit roundoff is available as UNIT_ROUNDOFF defined in
-   *       sundialstypes.h.
+   *       sundials_types.h.
    *
    * Returned value:
    * The value to be returned by the PrecSetup function is a flag
