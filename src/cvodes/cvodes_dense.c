@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:15 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-23 19:43:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -573,7 +573,7 @@ static int CVDenseDQJac(long int N, DenseMat J, realtype t,
   realtype *tmp2_data, *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
   long int j;
-  int retval;
+  int retval = 0;
 
   CVodeMem cv_mem;
   CVDenseMem  cvdense_mem;
@@ -613,10 +613,7 @@ static int CVDenseDQJac(long int N, DenseMat J, realtype t,
 
     retval = f(tn, y, ftemp, f_data);
     nfeD++;
-    if (retval != 0) {
-      N_VSetArrayPointer(tmp2_data, tmp2);
-      return(retval);
-    }
+    if (retval != 0) break;
 
     y_data[j] = yjsaved;
 
@@ -629,7 +626,7 @@ static int CVDenseDQJac(long int N, DenseMat J, realtype t,
   /* Restore original array pointer in tmp2 */
   N_VSetArrayPointer(tmp2_data, tmp2);
 
-  return(0);
+  return(retval);
 }
 
 

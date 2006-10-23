@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:16 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-23 19:43:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -484,7 +484,7 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
   realtype *tmp2_data, *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
   long int j;
-  int retval=0;
+  int retval = 0;
 
   IDAMem IDA_mem;
   IDADenseMem idadense_mem;
@@ -539,7 +539,7 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
 
     retval = res(tt, yy, yp, rtemp, rdata);
     nreD++;
-    if (retval != IDADENSE_SUCCESS) break;
+    if (retval != 0) break;
 
     /* Construct difference quotient in jthCol */
     inc_inv = ONE/inc;

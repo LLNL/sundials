@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:16 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-23 19:43:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -506,7 +506,7 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
   
   N_Vector rtemp, ytemp, yptemp;
   long int i, j, i1, i2, width, ngroups;
-  int retval = IDABAND_SUCCESS;
+  int retval = 0;
 
   IDAMem IDA_mem;
   IDABandMem idaband_mem;
@@ -583,7 +583,7 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
 
     retval = res(tt, ytemp, yptemp, rtemp, rdata);
     nreB++;
-    if (retval != IDABAND_SUCCESS) break;
+    if (retval != 0) break;
 
     /* Loop over the indices j in this group again. */
 

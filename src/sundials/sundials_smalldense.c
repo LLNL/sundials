@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-10-19 21:19:39 $
+ * $Revision: 1.5 $
+ * $Date: 2006-10-23 19:43:55 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -220,11 +220,11 @@ void denprint(realtype **a, long int m, long int n)
   for (i=0; i < m; i++) {
     for (j=0; j < n; j++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-      printf("%10Lg  ", a[j][i]);
+      printf("%12.Lg  ", a[j][i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%10lg  ", a[j][i]);
+      printf("%12.lg  ", a[j][i]);
 #else
-      printf("%10g  ", a[j][i]);
+      printf("%12.g  ", a[j][i]);
 #endif
     }
     printf("\n");

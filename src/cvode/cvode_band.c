@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:13 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-23 19:43:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -566,7 +566,7 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
   N_Vector ftemp, ytemp;
   long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
-  int retval;
+  int retval = 0;
 
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -611,7 +611,7 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
 
     retval = f(tn, ytemp, ftemp, f_data);
     nfeB++;
-    if (retval != 0) return(retval);
+    if (retval != 0) break;
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < N; j+=width) {
@@ -627,6 +627,6 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
     }
   }
   
-  return(0);
+  return(retval);
 
 }

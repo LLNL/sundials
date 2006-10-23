@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:20 $
+ * $Revision: 1.3 $
+ * $Date: 2006-10-23 19:43:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -355,14 +355,14 @@ void bandprint(realtype **a, long int n, long int mu, long int ml,
   for (i=0; i < n; i++) {
     start = MAX(0,i-ml);
     finish = MIN(n-1,i+mu);
-    for (j=0; j < start; j++) printf("%10s","");
+    for (j=0; j < start; j++) printf("%12s  ","");
     for (j=start; j <= finish; j++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-      printf("%10Lg", a[j][i-j+smu]);
+      printf("%12.Lg  ", a[j][i-j+smu]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%10lg", a[j][i-j+smu]);
+      printf("%12.lg  ", a[j][i-j+smu]);
 #else
-      printf("%10g", a[j][i-j+smu]);
+      printf("%12.g  ", a[j][i-j+smu]);
 #endif
     }
     printf("\n");
