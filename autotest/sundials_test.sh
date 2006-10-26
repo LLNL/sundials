@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.7 $
-# $Date: 2006-08-07 18:48:23 $
+# $Revision: 1.8 $
+# $Date: 2006-10-26 21:47:12 $
 ############################################################################
 #
 # Filename: sundials_test.sh
@@ -47,9 +47,10 @@ run_examples()
 
   # generate list of all compiled examples by searching for object files
   EXAMPLE_FILES=`ls -1 ${EXAMPLES_DIR}/*.o 2>&1`
-  STATUS=`echo "${EXAMPLE_FILES}" | fgrep -i "no such file"`
+  STATUS1=`echo "${EXAMPLE_FILES}" | fgrep -i "no such file"`
+  STATUS2=`echo "${EXAMPLE_FILES}" | fgrep -i "not found"`
   # continue if current directory contains compiled examples
-  if [ "${EXAMPLE_FILES}" != "" -a "${STATUS}" = "" ]; then
+  if [ "${EXAMPLE_FILES}" != "" -a "${STATUS1}" = "" -a "${STATUS2}" = "" ]; then
     # remove object file extension (*.o) to derive executable name
     echo "${EXAMPLE_FILES}" | get_example_list
     EXAMPLE_FILES=`cat temp.txt`
@@ -366,7 +367,10 @@ PROJECT_TITLE="$4"
 WAIT_TIME="$5"
 IN_REMOTE_CMD="$6"
 IN_REMOTE_ARGS="$7"
-IN_FIX_BASH="$8"
+
+# Tru64 OS appears to have trouble with 8 parameters
+#IN_FIX_BASH="$8"
+IN_FIX_BASH="${PROJECT_TITLE}_check_bash.sh"
 
 # get local system name
 MACHINE_TYPE=`uname -s`
@@ -544,7 +548,7 @@ fi
 if [ "${MACHINE_TYPE}" = "Linux" ]; then
   :
 else
-  ./${IN_FIX_BASH} "${SCRIPT_NAME}" yes
+  ./"${IN_FIX_BASH}" "${SCRIPT_NAME}" yes
 fi
 
 # search all relevant directories for examples and generate script

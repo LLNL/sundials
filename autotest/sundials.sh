@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.9 $
-# $Date: 2006-08-08 00:59:18 $
+# $Revision: 1.10 $
+# $Date: 2006-10-26 21:47:12 $
 ############################################################################
 #
 # Filename: sundials.sh
@@ -970,9 +970,7 @@ while [ $((${NUM_MACHINES})) -gt 0 ]; do
     cd ${REMOTE_DIR}/${TEMP_REMOTE} && \
     gunzip -f ${PROJECT_NAME}-test.tar.gz && \
     ${TAR_EXEC} -xf ${PROJECT_NAME}-test.tar && \
-    echo "AAA AAA AAA" && \
     ./${FIX_BASH} ${BUILD_SCRIPT} yes && \
-    echo "BBB BBB BBB" && \
     ./${BUILD_SCRIPT} ${EXEC_NAME} " &> "${LOG_DIR}/${TEMP_REMOTE}"-build.log
     echo -e "[DONE]\n"
   # if local system then just change to appropriate directory and build software
@@ -1159,14 +1157,14 @@ while [ $((${NUM_MACHINES})) -gt 0 ]; do
     " cd ${REMOTE_DIR}/${TEMP_REMOTE} && \
     ./${FIX_BASH} ${TIMEOUT_SCRIPT} no && \
     ./${FIX_BASH} ${TEST_SCRIPT} no && \
-    ./${TEST_SCRIPT} ${REMOTE_DIR}/${TEMP_REMOTE}/${PROJECT_NAME} ${TIMEOUT_SCRIPT} ${REMOTE_USERNAME} ${PROJECT_NAME} ${MAX_TIME} ${REMOTE_LOGIN_CMD} ${REMOTE_LOGIN_ARGS} ${FIX_BASH}" &> "${LOG_DIR}/${TEMP_REMOTE}"-test.log
+    ./${TEST_SCRIPT} ${REMOTE_DIR}/${TEMP_REMOTE}/${PROJECT_NAME} ${TIMEOUT_SCRIPT} ${REMOTE_USERNAME} ${PROJECT_NAME} ${MAX_TIME} ${REMOTE_LOGIN_CMD} ${REMOTE_LOGIN_ARGS}" &> "${LOG_DIR}/${TEMP_REMOTE}"-test.log
     echo -e "[DONE]\n"
   # commands necessary to test software on local system (remote command execution not required)
   else
     cd "${LOCAL_DIR}/${LOCAL_MACHINE}" && \
     ./"${FIX_BASH}" "${TIMEOUT_SCRIPT}" no && \
     ./"${FIX_BASH}" "${TEST_SCRIPT}" no && \
-    ./"${TEST_SCRIPT}" "${LOCAL_DIR}/${LOCAL_MACHINE}/${PROJECT_NAME}" "${TIMEOUT_SCRIPT}" "${LOCAL_USERNAME}" "${PROJECT_NAME}" "${MAX_TIME}" "${REMOTE_LOGIN_CMD}" "${REMOTE_LOGIN_ARGS}" "${FIX_BASH}" &> "${LOG_DIR}/${LOCAL_MACHINE}"-test.log
+    ./"${TEST_SCRIPT}" "${LOCAL_DIR}/${LOCAL_MACHINE}/${PROJECT_NAME}" "${TIMEOUT_SCRIPT}" "${LOCAL_USERNAME}" "${PROJECT_NAME}" "${MAX_TIME}" "${REMOTE_LOGIN_CMD}" "${REMOTE_LOGIN_ARGS}" &> "${LOG_DIR}/${LOCAL_MACHINE}"-test.log
     echo -e "[DONE]\n"
   fi
 
@@ -1174,28 +1172,55 @@ while [ $((${NUM_MACHINES})) -gt 0 ]; do
     # retieve test log files from remote system
     # actual output from the example programs is checked later
     echo -ne "\tRetrieving test log file(s) from ${TEMP_REMOTE}..."
-    STATUS=`"${REMOTE_COPY_CMD}" "${REMOTE_COPY_ARGS}" "${REMOTE_USER}"@"${TEMP_REMOTE}":"${REMOTE_DIR}/${TEMP_REMOTE}/${PROJECT_NAME}/${TEMP_REMOTE}"-examples-logs.tar.gz ${LOG_DIR}/examples 2>&1`
-    CHECK_STATUS_0=`echo "${STATUS}" | fgrep "not"`
+    STATUS=`"${REMOTE_COPY_CMD}" "${REMOTE_COPY_ARGS}" "${REMOTE_USERNAME}"@"${TEMP_REMOTE}":"${REMOTE_DIR}/${TEMP_REMOTE}/${PROJECT_NAME}/${TEMP_REMOTE}"-examples-logs.tar.gz ${LOG_DIR}/examples/ 2>&1`
+    CHECK_STATUS_0=`echo "${STATUS}" | fgrep " not"`
     CHECK_STATUS_1=`echo "${STATUS}" | fgrep "No such file or directory"`
-    # if test log file cannot be retrieved then flag system name
-    if [ "${CHECK_STATUS_0}" != "" -o "${CHECK_STATUS_1}" != "" ]; then
-      if [ "${LIST_BAD_TESTS}" = "" ]; then
-        LIST_BAD_TESTS="${TEMP_REMOTE}"
-      else
-        LIST_BAD_TESTS="${LIST_BAD_TESTS} ${TEMP_REMOTE}"
+    CHECK_STATUS_2=`echo "${STATUS}" | fgrep -i "warning: Executing scp1"`
+    # Check if we did get the log file
+    if test -f ${LOG_DIR}/examples/${TEMP_REMOTE}-examples-logs.tar.gz ; then
+      IGNORE_RET_ERR="yes"
+    else
+      IGNORE_RET_ERR="no"
+    fi
+    if [ "${IGNORE_RET_ERR}" = "no" ]; then
+      # Retry once if test log retrieval fails
+      if [ "${CHECK_STATUS_0}" != "" -o "${CHECK_STATUS_1}" != "" -a "${CHECK_STATUS_2}" = "" ]; then
+        sleep 30
+        echo -e "[FAILED - retrying]"
+        STATUS=""
+        CHECK_STATUS_0=""
+        CHECK_STATUS_1=""
+        CHECK_STATUS_2=""
+        echo -ne "\tRetrieving test log file(s) from ${TEMP_REMOTE}..."
+        STATUS=`"${REMOTE_COPY_CMD}" "${REMOTE_COPY_ARGS}" "${REMOTE_USERNAME}"@"${TEMP_REMOTE}":"${REMOTE_DIR}/${TEMP_REMOTE}/${PROJECT_NAME}/${TEMP_REMOTE}"-examples-logs.tar.gz ${LOG_DIR}/examples/ 2>&1`
+        CHECK_STATUS_0=`echo "${STATUS}" | fgrep " not"`
+        CHECK_STATUS_1=`echo "${STATUS}" | fgrep "No such file or directory"`
+        CHECK_STATUS_2=`echo "${STATUS}" | fgrep -i "warning: Executing scp1"`
       fi
-      # indicate if file retieval failed because system name could not be resolved
-      if [ "${CHECK_STATUS_0}" != "" ]; then
-        echo -e "[FAILED - unknown host]\n"
-        echo -e "\tRetrieving test log file(s) from ${TEMP_REMOTE}...[FAILED - unknown host]" >> "${LOG_DIR}/${TEMP_REMOTE}"-test.log
-      # indicate if file retrieval failed because test log file simply does not exist
+      # if test log file cannot be retrieved then flag system name
+      if [ "${CHECK_STATUS_0}" != "" -o "${CHECK_STATUS_1}" != "" -a "${CHECK_STATUS_2}" = "" ]; then
+        if [ "${LIST_BAD_TESTS}" = "" ]; then
+          LIST_BAD_TESTS="${TEMP_REMOTE}"
+        else
+          LIST_BAD_TESTS="${LIST_BAD_TESTS} ${TEMP_REMOTE}"
+        fi
+        # indicate if file retieval failed because system name could not be resolved
+        if [ "${CHECK_STATUS_0}" != "" ]; then
+          echo -e "[FAILED - unknown host]\n"
+          echo -e "\tRetrieving test log file(s) from ${TEMP_REMOTE}...[FAILED - unknown host]" >> "${LOG_DIR}/${TEMP_REMOTE}"-test.log
+        # indicate if file retrieval failed because test log file simply does not exist
+        else
+          echo -e "[FAILED - no log files found]\n"
+          echo -e "\tRetrieving test log file(s) from ${TEMP_REMOTE}...[FAILED - no log files found]" >> "${LOG_DIR}/${TEMP_REMOTE}"-test.log
+        fi
+      # get test log files (remote copy)
       else
-        echo -e "[FAILED - no log files found]\n"
-        echo -e "\tRetrieving test log file(s) from ${TEMP_REMOTE}...[FAILED - no log files found]" >> "${LOG_DIR}/${TEMP_REMOTE}"-test.log
+        "${REMOTE_COPY_CMD}" "${REMOTE_COPY_ARGS}" "${REMOTE_USERNAME}"@"${TEMP_REMOTE}":"${REMOTE_DIR}/${TEMP_REMOTE}/${PROJECT_NAME}/${TEMP_REMOTE}"-examples-logs.tar.gz "${LOG_DIR}"/examples 1> /dev/null 2> /dev/null
+        echo -e "[DONE]\n"
       fi
     # get test log files (remote copy)
     else
-      "${REMOTE_COPY_CMD}" "${REMOTE_COPY_ARGS}" "${REMOTE_USER}"@"${TEMP_REMOTE}":"${REMOTE_DIR}/${TEMP_REMOTE}/${PROJECT_NAME}/${TEMP_REMOTE}"-examples-logs.tar.gz "${LOG_DIR}"/examples 1> /dev/null 2> /dev/null
+      "${REMOTE_COPY_CMD}" "${REMOTE_COPY_ARGS}" "${REMOTE_USERNAME}"@"${TEMP_REMOTE}":"${REMOTE_DIR}/${TEMP_REMOTE}/${PROJECT_NAME}/${TEMP_REMOTE}"-examples-logs.tar.gz "${LOG_DIR}"/examples 1> /dev/null 2> /dev/null
       echo -e "[DONE]\n"
     fi
   # if local system just move the test log file to the appropriate directory
