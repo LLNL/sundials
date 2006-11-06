@@ -1,6 +1,6 @@
                          sundialsTB
                 A MATLAB interface to SUNDIALS
-                   Release 2.3.0, August 2006
+                   Release 2.3.0, November 2006
 
                         Radu Serban
          Center for Applied Scientific Computing, LLNL
@@ -21,8 +21,8 @@ The distribution file also contains a user guide, as well as several examples.
 An HTML version of the documentation is available on the SUNDIALS website 
 (www.llnl.gov/CASC/sundials)
 
-sundialsTB v. 2.3.0 requires SUNDIALS v 2.3.0 and, optionally (for parallel support), 
-MPITB with LAM 7.1.1 for MPI-2 features.
+sundialsTB v. 2.3.0 requires SUNDIALS v 2.3.0 and, optionally (for parallel 
+support), MPITB with LAM 7.1.1 for MPI-2 features.
 
 SUNDIALS: http://www.llnl.gov/CASC/sundials
 MPITB:    http://atc.ugr.es/javier-bin/mpitb_eng
@@ -41,16 +41,16 @@ B. Installation
 
 B.1. Compilation and installation of sundialsTB
 
-As of version 2.3.0, sundialsTB is distributed only with the complete SUNDIALS package
-and, on *nix systems (or under cygwin in Windows), the Matlab toolbox can be configured,
-built, and installed using the main SUNDIALS configure script. For details see the
-SUNDIALS file INSTALL_NOTES. 
+As of version 2.3.0, sundialsTB is distributed only with the complete SUNDIALS 
+package and, on *nix systems (or under cygwin in Windows), the Matlab toolbox 
+can be configured, built, and installed using the main SUNDIALS configure script. 
+For details see the SUNDIALS file INSTALL_NOTES. 
 
-For systems that do not support configure scripts (or if the configure script fails to
-configure sundialsTB), we provide a Matlab script (install_STB.m) which can be used
-to build and install sundialsTB from within Matlab. In the sequel, we assume that the 
-SUNDIALS package was unpacked under the directory 'srcdir'. The sundialsTB files are 
-therefore in 'srcdir'/sundialsTB. 
+For systems that do not support configure scripts (or if the configure script 
+fails to configure sundialsTB), we provide a Matlab script (install_STB.m) which 
+can be used to build and install sundialsTB from within Matlab. In the sequel, 
+we assume that the SUNDIALS package was unpacked under the directory 'srcdir'. 
+The sundialsTB files are therefore in 'srcdir'/sundialsTB. 
 
 To facilitate the compilation of sundialsTB on platforms that do not have
 a make system, we rely on Matlab's mex command. Compilation of sundialsTB
@@ -135,14 +135,14 @@ C. References
 D. Releases
 -----------
 
-v. 2.3.0 - Aug. 2006
+v. 2.3.0 - Nov. 2006
 v. 2.2.0 - Mar. 2006
 v. 2.1.1 - May. 2005 (first sundialsTB release)
 
 E. Revision History
 -------------------
 
-v. 2.2.0 (Mar. 2006) ---> v. 2.3.0 (Aug. 2006)
+v. 2.2.0 (Mar. 2006) ---> v. 2.3.0 (Nov. 2006)
 ---------------------------------------------------------
 
 - New features
