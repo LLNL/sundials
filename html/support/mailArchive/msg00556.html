@@ -106,11 +106,11 @@ Thu, 29 Jun 2006 13:40:32 -0700</td>
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Dear Rachel,</pre><br>
 <pre style="margin: 0em;">First of all, please post to the sundials-users mailing list.</pre><br>
-<tt>The mpich libraries that you use were built with the Absoft compilers but you use gcc/g77 to build SUNDIALS. The reason for which you had to 
+The mpich libraries that you use were built with the Absoft compilers but you use gcc/g77 to build SUNDIALS. The reason for which you had to 
 modify the example source is that the Fortran name mangling scheme is different for the two Fortran compilers. I suggest you either use an 
 mpipch installation built with gcc (if you already have one available), or else specify the Absoft compilers when you configure SUNDIALS. 
 That should take care of all build errors and may also resolve the run-time error (I am pretty confident that using GNU compilers throughout 
-will work. If I have some time later today, I'll try to build mpich with Absoft myself and try the second option.)</tt><br>
+will work. If I have some time later today, I'll try to build mpich with Absoft myself and try the second option.)<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;">Rachel Gordon wrote:</pre><br>

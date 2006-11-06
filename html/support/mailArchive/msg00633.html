@@ -104,45 +104,45 @@ Fri, 25 Aug 2006 11:48:14 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Michael,</pre><br>
-<tt>Only now did I realize that you're using IDA and not CVODE. There is a bug in 
+Only now did I realize that you're using IDA and not CVODE. There is a bug in 
 the internal DQ approximations for the dense and banded IDA linear solvers which 
 was reported by Jens Bastian a while ago (see 
 <a  href="http://www.llnl.gov/casc/sundials/support/mailArchive/msg00461.html">http://www.llnl.gov/casc/sundials/support/mailArchive/msg00461.html</a>). This has 
-been fixed for the next release.</tt><br>
+been fixed for the next release.<br>
 <br>
-<tt>You could try to make the fixes yourself. For that, you'll have to make the 
-following changes to ida_dense.c and ida_band.c (both in sundials/ida/source):</tt><br>
+You could try to make the fixes yourself. For that, you'll have to make the 
+following changes to ida_dense.c and ida_band.c (both in sundials/ida/source):<br>
 <br>
 <pre style="margin: 0em;">In ida_dense.c, replace line 524 with:
 inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewt_data[j] );</pre><br>
 <pre style="margin: 0em;">In ida_band.c, replace  lines 563 and 600 with:
 inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );</pre><br>
-<tt>Try this first. It may solve your problem (the error you get seems to indicate a 
+Try this first. It may solve your problem (the error you get seems to indicate a 
 bad Jacobian at the initial time and,  for some &quot;unfortunate&quot; combinations of y 
-and y' values, the wrong increments in the current release will lead to this).</tt><br>
+and y' values, the wrong increments in the current release will lead to this).<br>
 <br>
-<tt>One final note: although the dense and band solvers are theoretically identical 
+One final note: although the dense and band solvers are theoretically identical 
 if using half bandwidths of n-1 in the latter, accumulation of roundoff errors 
 may eventually drive the IDA solver into taking different decisions in the two 
 cases (e.g. when to compute an up-to-date Jacobian). You will very likely see 
 (slightly) different solver statistics (number of steps, Jacobian evaluations, 
-etc) in the two cases.</tt><br>
+etc) in the two cases.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>Michael Oevermann wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I do not provide the Jacobian - I use the internal finite difference 
-approximations.</tt><br>
+Michael Oevermann wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
+I do not provide the Jacobian - I use the internal finite difference 
+approximations.<br>
 <br>
 <pre style="margin: 0em;">Michael</pre><br>
 <pre style="margin: 0em;">Am 25.08.2006 um 00:12 schrieb Radu Serban:</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Hi Michael,<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Hi Michael,<br>
 Are you providing Jacobian functions to the two linear solvers, or do 
 you let them use their own internal difference-quotient approximations?<br>
---Radu</tt><br>
+--Radu<br>
 <br>
-<tt>Michael Oevermann wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Dear Sundials/IDA users,<br>
+Michael Oevermann wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Dear Sundials/IDA users,<br>
 I am having problems getting IDA to work with the banded solver. If I 
 use the dense sover with<br>
 IDADense(mem, n)<br>
@@ -160,7 +160,7 @@ problem somewhere,<br>
 but maybe some of you has a hint where to look first.<br>
 Thanks for any help and comments<br>
 Michael
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 <br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 <br>

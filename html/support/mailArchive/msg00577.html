@@ -102,16 +102,16 @@ Mon, 17 Jul 2006 14:56:32 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Macarena:</pre><br>
-<tt>If the nonlinear solver fails, there is no sense to perform the error test. If nflag is not IDA_SUCCESS after IDAnls, then this fact is 
+If the nonlinear solver fails, there is no sense to perform the error test. If nflag is not IDA_SUCCESS after IDAnls, then this fact is 
 recognized in IDAHandleNFLag which, in this case, does not require err_k or err_km1. In any case, both err_k and err_km1 are set to default 
 values 0.0 when entering IDAStep (only to prevent compiler warnings!), so I doubt that the reason for which your code crashes is the one you 
-stated.</tt><br>
+stated.<br>
 <br>
 <pre style="margin: 0em;">The modification you've made to the code is incorrect. Undo it and look for 
 other problems in your code.</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>Maca wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Dear All<br>
+Maca wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Dear All<br>
 I am attempting to solve a structure in the state space using IDA.<br>
 Everything went fine until the program suddenly crashed. I found out that at<br>
 some point in the iterations the function IDAStep is called but the nflag<br>
@@ -134,7 +134,7 @@ Macarena Schachter.<br>
 PhD Candidate<br>
 Department of Civil, Structural and Environmental Engineering.<br>
 University at Buffalo.<br>
- </tt><br>
+ <br>
 <br>
 </blockquote><br>
 

@@ -1,0 +1,209 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Maximum order of 12 in the non&#45;stiff IVP is not reached! -->
+<!--X-From-R13: nangbyvl <nangbylNznb.avxbynri.hn> -->
+<!--X-Date: Thu, 14 Sep 2006 10:34:25 &#45;0700 -->
+<!--X-Message-Id: 200609142036.16852.anatoly@mao.nikolaev.ua -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 200609132101.27659.anatoly@mao.nikolaev.ua -->
+<!--X-Reference: Pine.LNX.4.58.0609131348300.7347@tux64.llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00680.html">Date Prev</a>] [<a href="msg00682.html">Date Next</a>] [<a href="msg00673.html">Thread Prev</a>] [<a href="msg00685.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00681">Date Index</a></b>]
+[<b><a href="threads.html#00681">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+anatoliy &lt;<a href="mailto:anatoly%40mao.nikolaev.ua">anatoly@mao.nikolaev.ua</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Thu, 14 Sep 2006 20:36:16 +0300</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hello Alan and all,
+
+Thanks for the reply. You are right. It seems like the order was limited by 8! 
+You see, I have not changed the default value of 12 and found the observed 
+limit in 8 while integrating for long enough time (100 years). The greater 
+step looks 3 days with the 8 order, but I expected for about 40 days with 12 
+order. It looks terrible for me with too much steps.
+The first idea was in the wrong default parameters.
+What is a usual idea to do in such a situation?
+
+Regards,
+Anatoliy
+
+
+&#x412; &#x441;&#x43E;&#x43E;&#x431;&#x449;&#x435;&#x43D;&#x438;&#x438; &#x43E;&#x442; &#x421;&#x440;&#x435;&#x434;&#x430; 13 &#x441;&#x435;&#x43D;&#x442;&#x44F;&#x431;&#x440;&#x44F; 2006 23:50 Alan Hindmarsh &#x43D;&#x430;&#x43F;&#x438;&#x441;&#x430;&#x43B;(a):
+&gt;<i> Hello Anatoliy,</i>
+&gt;<i></i>
+&gt;<i> When you say &quot;found that it was only 8&quot;, do you mean that you observed</i>
+&gt;<i> only values 1 to 8?  If so, that just means that orders &gt; 8 were never</i>
+&gt;<i> chosen, even though up to order 12 is available.  Because you are using</i>
+&gt;<i> very tight tolerances, I would keep the maximum order at 12.</i>
+&gt;<i></i>
+&gt;<i> -Alan H.</i>
+&gt;<i></i>
+&gt;<i> On Wed, 13 Sep 2006, anatoliy wrote:</i>
+&gt;<i> &gt; Hello all,</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; I am trying the CVODES in celestial mechanics, where I wish to keep good</i>
+&gt;<i> &gt; accuracy (1e-15) at long integration. Yes, I specified Adams method and</i>
+&gt;<i> &gt; functional iteration, as is usual.</i>
+&gt;<i> &gt; At first I have not put attention to the maximum order of the multistep</i>
+&gt;<i> &gt; method, but found that it was only 8, but not 12! I varied the optional</i>
+&gt;<i> &gt; inputs for the CVODES, but did not notice the order increase.</i>
+&gt;<i> &gt; Couldn't you advice with this problem?</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; Regards,</i>
+&gt;<i> &gt; Anatoliy</i>
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00685" href="msg00685.html">Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</a></strong>
+<ul><li><em>From:</em> anatoliy &lt;anatoly@mao.nikolaev.ua&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00667" href="msg00667.html">[sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</a></strong>
+<ul><li><em>From:</em> anatoliy &lt;anatoly@mao.nikolaev.ua&gt;</li></ul></li>
+<li><strong><a name="00673" href="msg00673.html">Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00680.html">Re: [sundials-users] Steady state solution with CVODE...</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00682.html">Re-4: [sundials-users] performance for chemical kinetic problems</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00673.html">Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00685.html">Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00681">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00681">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

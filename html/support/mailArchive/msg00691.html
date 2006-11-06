@@ -1,0 +1,197 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] gamma and preconditioning -->
+<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
+<!--X-Date: Mon, 18 Sep 2006 07:05:27 &#45;0700 -->
+<!--X-Message-Id: 450EA6C4.1080603@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 45056916.9050408@uni&#45;bielefeld.de -->
+<!--X-Reference: Pine.LNX.4.58.0609131402560.7347@tux64.llnl.gov -->
+<!--X-Reference: 1158567625.450e56c9b537b@www.debitel.net -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] gamma and preconditioning</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00690.html">Date Prev</a>] [<a href="msg00692.html">Date Next</a>] [<a href="msg00690.html">Thread Prev</a>] [<a href="msg00695.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00691">Date Index</a></b>]
+[<b><a href="threads.html#00691">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] gamma and preconditioning</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 18 Sep 2006 07:01:40 -0700</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+Hi Lutz,<br>
+Yes, each SUNDIALS solver comes with two companion documents, a user guide and a 
+document describing some representative examples. They are all bundled with the 
+distribution tarballs and are also availale on the SUNDIALS documentation 
+webpage, at<br>
+ <a  href="http://www.llnl.gov/casc/sundials/documentation/documentation.html">http://www.llnl.gov/casc/sundials/documentation/documentation.html</a><br>
+--Radu<br>
+<br>
+<br>lgoehler@debitel.net wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello SUNDIALS team,</pre><br>
+<pre style="margin: 0em;">I have a question. For LSODE there is a very nice and detailed implementation
+documentation available on the internet (&quot;Documentation and Use of LSODE, the
+Livermore Solver for Ordinary Differential Equations&quot; by K. Radhakrishnan and
+A.D. Hindmarsh). Is there a comparable document for IDA, too? I just deal a
+little bit with numerics in my spare time and want to know some more about
+numerical solution of differential equations.</pre><br>
+<pre style="margin: 0em;">Thank you very much in advance.</pre><br>
+<pre style="margin: 0em;">Best regards,</pre><br>
+Lutz D. Goehler.  <br>
+<br>
+<pre style="margin: 0em;"><br>-------------------------------------------------
+debitel.net Webmail</pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00695" href="msg00695.html">Re: [sundials-users] gamma and preconditioning</a></strong>
+<ul><li><em>From:</em> lgoehler@debitel.net</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00666" href="msg00666.html">[sundials-users] gamma and preconditioning</a></strong>
+<ul><li><em>From:</em> Michael Letzgus &lt;michael.letzgus@uni-bielefeld.de&gt;</li></ul></li>
+<li><strong><a name="00674" href="msg00674.html">Re: [sundials-users] gamma and preconditioning</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00690" href="msg00690.html">Re: [sundials-users] gamma and preconditioning</a></strong>
+<ul><li><em>From:</em> lgoehler@debitel.net</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00690.html">Re: [sundials-users] gamma and preconditioning</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00692.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00690.html">Re: [sundials-users] gamma and preconditioning</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00695.html">Re: [sundials-users] gamma and preconditioning</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00691">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00691">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

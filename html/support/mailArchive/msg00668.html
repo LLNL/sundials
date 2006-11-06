@@ -1,0 +1,219 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Problem with IDACalcIC in IDA solver -->
+<!--X-From-R13: "Xraf Pnfgvna" <Xraf.PnfgvnaNrnf.vvf.senhaubsre.qr> -->
+<!--X-Date: Wed, 13 Sep 2006 11:14:25 &#45;0700 -->
+<!--X-Message-Id: 48445.86.56.0.53.1158171127.squirrel@86.56.0.53 -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: c600b5b40609082151q7d634b08jf8a6318cbbdb6126@mail.gmail.com -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Problem with IDACalcIC in IDA solver</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00667.html">Date Prev</a>] [<a href="msg00669.html">Date Next</a>] [<a href="msg00658.html">Thread Prev</a>] [<a href="msg00677.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00668">Date Index</a></b>]
+[<b><a href="threads.html#00668">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Problem with IDACalcIC in IDA solver</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;Jens Bastian&quot; &lt;<a href="mailto:Jens.Bastian%40eas.iis.fraunhofer.de">Jens.Bastian@eas.iis.fraunhofer.de</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 13 Sep 2006 20:12:07 +0200 (CEST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hi Vinayak,
+
+this sounds to me like the problems I encountered a few months ago.
+
+Have you applied the patch described in
+<a  href="http://www.llnl.gov/casc/sundials/support/mailArchive/msg00461.html">http://www.llnl.gov/casc/sundials/support/mailArchive/msg00461.html</a>
+?
+
+Change the line
+    inc = srur*MAX(ABS(yj),MAX( ABS(hh*ypj), ONE/ewt_data[j]));
+in ida_dense.c into
+    inc = MAX(srur*(ABS(yj), ABS(hh*ypj)), ONE/ewt_data[j]);
+
+Perhaps this solves your problems.
+
+Best regards + HTH
+Jens
+
+Vinayak Kumar sagte:
+&gt;<i> Hi All,</i>
+&gt;<i></i>
+&gt;<i> I am trying to solve an electrical circuit having 33 DAEs. But I am not</i>
+&gt;<i> able</i>
+&gt;<i> to initialize the variables and their derivatives becuase IDACalcIC() is</i>
+&gt;<i> not</i>
+&gt;<i> working. I am using IDACreate(), IDAMalloc(), IDADense() and</i>
+&gt;<i> IDADenseSetJacFn() before using IDACalcIC(). After that I am using</i>
+&gt;<i> IDASolve() to solve the DAEs.</i>
+&gt;<i></i>
+&gt;<i> I am getting the following error.</i>
+&gt;<i></i>
+&gt;<i> IDACalcIC-- The residual routine or the linear setup or solve routine had</i>
+&gt;<i> a</i>
+&gt;<i> recoverable error, but IDACalcIC was unable to recover.</i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> SUNDIALS_ERROR: IDACalcIC() failed with flag = -19</i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> Please advise me something on it. It's very important</i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> Thanks,</i>
+&gt;<i></i>
+&gt;<i> Vinayak</i>
+&gt;<i></i>
+
+
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00689" href="msg00689.html">Re: [sundials-users] Problem with IDACalcIC in IDA solver</a></strong>
+<ul><li><em>From:</em> &quot;Vinayak Kumar&quot; &lt;vinayak.kumar@gmail.com&gt;</li></ul></li>
+<li><strong><a name="00677" href="msg00677.html">Re: [sundials-users] Problem with IDACalcIC in IDA solver</a></strong>
+<ul><li><em>From:</em> &quot;Vinayak Kumar&quot; &lt;vinayak.kumar@gmail.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00658" href="msg00658.html">[sundials-users] Problem with IDACalcIC in IDA solver</a></strong>
+<ul><li><em>From:</em> &quot;Vinayak Kumar&quot; &lt;vinayak.kumar@gmail.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00667.html">[sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00669.html">Re: [sundials-users] Steady state solution with CVODE...</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00658.html">[sundials-users] Problem with IDACalcIC in IDA solver</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00677.html">Re: [sundials-users] Problem with IDACalcIC in IDA solver</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00668">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00668">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

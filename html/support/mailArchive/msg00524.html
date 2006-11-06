@@ -106,11 +106,11 @@ Mon, 19 Jun 2006 13:24:49 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>While I agree with almost everything that has been posted in this thread, I'd like to point out that many (probably most) of our users do 
+While I agree with almost everything that has been posted in this thread, I'd like to point out that many (probably most) of our users do 
 not perform system-wide installations of SUNDIALS, as they do not have write permissions to /usr, /usr/local, /opt, etc. As such, I do not 
 favor exporting all SUNDIALS header files under a 'sundials' subdirectory of $includedir. A user installing SUNDIALS with 
 --prefix=/home/user/my_sundials for example would end up with a directory /home/user/my_sundials/include which would only contain a 
-subdirectory 'sundials' (and further /home/user/my_sundials/include/sundials/sundials).</tt><br>
+subdirectory 'sundials' (and further /home/user/my_sundials/include/sundials/sundials).<br>
 <br>
 <pre style="margin: 0em;">Moreover, any of the installation layouts described by Andre can be obtained by 
 specifying --includedir and --libdir instead of --prefix.
@@ -118,8 +118,8 @@ For example: ./configure --includedir=/usr/local/include/sundials
 --libdir=/usr/local/lib</pre><br>
 <pre style="margin: 0em;">Is this too much to ask from those that want system-wide installs?</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>Andr&#xE9; Schneider wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+Andr&#xE9; Schneider wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
 <pre style="margin: 0em;"><br>Andreas Nicolai wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
 <pre style="margin: 0em;">ok, seems we have a conflict of interests here :-) Essentially there are

@@ -104,36 +104,36 @@ Wed, 28 Jun 2006 08:55:34 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Rachel,</pre><br>
-<tt>I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
+I have no problem running any of the fcmix parallel examples using mpich-1.2.4 (under Red Hat Enterprise Linux WS release 3 (Taroon Update 
 6)). You should not have to make any modifications to the sources as Fortran is case insensitive. I am quite baffled by this, especially 
-since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).</tt><br>
+since you say the serial Fortran examples work (otherwise, I would have guessed a problem with the name mangling scheme).<br>
 <br>
 <pre style="margin: 0em;">Do you have similar problems with all the other parallel Fortran examples 
 (cvode, ida)?
 What are the compilation commands executed for 'make examples'. In my case they 
 are:</pre><br>
-<tt>Making examples in kinsol/fcmix/examples_par...<br>
+Making examples in kinsol/fcmix/examples_par...<br>
 make[1]: Entering directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
 Updating fkinkryx_p.f...<br>
 /usr/apps/mpich/1.2.4/bin/mpif77  -I/usr/apps/mpich/1.2.4/bin/../include -g -O2 -ffloat-store -c ./fkinkryx_p-updated.f<br>
  /usr/apps/mpich/1.2.4/bin/mpif77 -o ./fkinkryx_p ./fkinkryx_p-updated.o  -g -O2 -ffloat-store  -L/home/radu/CODES/TEST/sundials/lib 
 -lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -L/usr/apps/mpich/1.2.4/bin/../lib  -lm 
 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s<br>
-make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'</tt><br>
+make[1]: Leaving directory `/home/radu/CODES/TEST/sundials/kinsol/fcmix/examples_par'<br>
 <br>
 <pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt><br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
-other users.</tt><br>
+<br>P.S. I cc-ed the sundials-users mailing list on this message. Please post sundials-related questions there as you may get more help from 
+other users.<br>
 <br>
-<tt><br>Rachel Gordon wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I installed Kinsol on my Linux cluster (running under Red Hat Linux 
+<br>Rachel Gordon wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
+I installed Kinsol on my Linux cluster (running under Red Hat Linux 
 release 7.3 (Valhalla) ). I tried the c examples (serial and parallel) 
 and the serial fortran example and they all run fine. However when I try 
-the parallel fortran example fkinkryx_p, I get an error message:</tt><br>
+the parallel fortran example fkinkryx_p, I get an error message:<br>
 <br>
-<tt>/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
-dumped) /home/people/...</tt><br>
+/opt/mpich-1.2.4/bin/mpirun: line 1: 24308 Segmentation fault      (core 
+dumped) /home/people/...<br>
 <br>
 <pre style="margin: 0em;">I already changed  in the original file:
    mpi_comm_world   to:  MPI_COMM_WORLD</pre><br>
@@ -141,8 +141,8 @@ dumped) /home/people/...</tt><br>
    mpi_init(ier)     to: MPI_Init(ier),
    mpi_finalize(ier) to: MPI_Finalize(ier),
    mpi_abort(..  )   to: MPI_Abort(.. ), and so on.</pre><br>
-<tt>This enabled creation  of the executable file fkinkryx_p*, but on 
-running it with: mpirun -np 4 fkinkryx_p    I get the above error message.</tt><br>
+This enabled creation  of the executable file fkinkryx_p*, but on 
+running it with: mpirun -np 4 fkinkryx_p    I get the above error message.<br>
 <br>
 <pre style="margin: 0em;">What did I do wrong?</pre><br>
 <pre style="margin: 0em;">Thanks for your cooperation,</pre><br>

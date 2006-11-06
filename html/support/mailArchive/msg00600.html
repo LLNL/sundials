@@ -103,30 +103,30 @@ Tue, 01 Aug 2006 21:17:39 +0200</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Radu,</pre><br>
-<tt>thanks for your message. And yes, there was a bug in my Jacobian 
+thanks for your message. And yes, there was a bug in my Jacobian 
 function. Just an<br>
 index bug messing up the bandwidth.<br>
-Thanks again and I apologize for  any inconvenience I caused!</tt><br>
+Thanks again and I apologize for  any inconvenience I caused!<br>
 <br>
 <pre style="margin: 0em;">Best regards from Berlin</pre><br>
 <pre style="margin: 0em;">Michael</pre><br>
 <pre style="margin: 0em;">Radu Serban wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Michael,</pre><br>
-<tt>You must have some bug in your code.<br>
+You must have some bug in your code.<br>
 1) Are you solving the two cases in the same program? If yes, do you 
 properly reinitialize the solver before the second run?<br>
 2) Are you providing the Jacobian functions? If so, have you checked 
-they are correctly implemented?</tt><br>
+they are correctly implemented?<br>
 <br>
-<tt>I have quickly coded something similar and everything works fine for 
+I have quickly coded something similar and everything works fine for 
 me. I modified the CVODES cvsdenx code (Richardson's problem) to solve 
 multiple copies of the same system, both with the dense solver and 
 with the band solver (with bandwidths equal to NEQ-1, where NEQ=3 is 
-the original problem size). The results are shown below.</tt><br>
+the original problem size). The results are shown below.<br>
 <br>
-<tt>I attached the cvsrichardsonx.c code. Note that it uses the CVODES 
+I attached the cvsrichardsonx.c code. Note that it uses the CVODES 
 libraries. To use it with CVODE, just replace the appropriate header 
-files at the top of the file.</tt><br>
+files at the top of the file.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;">3-species kinetics problem (4 copies) - DENSE linear solver</pre><br>
@@ -163,7 +163,7 @@ nst = 616    nfe  = 934    nsetups = 142    nfeLS = 60     nje = 12
 nni = 930    ncfn = 0      netf = 47</pre><br>
 <pre style="margin: 0em;"><br>Michael Oevermann wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear sundials users,</pre><br>
-<tt>I am having some performance problems/questions with the IDABand 
+I am having some performance problems/questions with the IDABand 
 linear solver.<br>
 I'm trying to solve some chemical reaction equations which works just 
 fine<br>
@@ -174,29 +174,29 @@ have now n*ns equations.<br>
 By just copying the equations the bandwidth should be  exactly ns-1.<br>
 The Dense solver still works very fine, but with the IDABand solver I 
 observe the following<br>
-performance:</tt><br>
+performance:<br>
 <br>
-<tt>IDABand(mem,  n*ns, n*ns-1, n*ns-1) -&gt; more or less identical 
+IDABand(mem,  n*ns, n*ns-1, n*ns-1) -&gt; more or less identical 
 behaviour to the dense solver as<br>
                                                                   
-expected</tt><br>
+expected<br>
 <br>
-<tt>IDABand(mem, n*ns, ns-1, ns-1) -&gt; much slower convergence with lots 
-of messages like:</tt><br>
+IDABand(mem, n*ns, ns-1, ns-1) -&gt; much slower convergence with lots 
+of messages like:<br>
 <br>
 <pre style="margin: 0em;"> At t = 0.000194651, , mxstep steps taken before reaching tout.</pre><br>
-<tt>Changing the bandwidth slightly (e.g. 2*ns) doesn't make a difference.<br>
+Changing the bandwidth slightly (e.g. 2*ns) doesn't make a difference.<br>
 What is going on here? Why does the banded solver behave differently 
 than the dense<br>
-solver, although the problem as I set it up is strictly banded?</tt><br>
+solver, although the problem as I set it up is strictly banded?<br>
 <br>
 <pre style="margin: 0em;">Thanks for any hints and help!</pre><br>
 <pre style="margin: 0em;">Michael</pre><br>
 </blockquote><pre style="margin: 0em;">------------------------------------------------------------------------</pre><br>
-<tt>/*<br>
+/*<br>
 * -----------------------------------------------------------------<br>
-* $Revision: 1.1 $<br>
-* $Date: 2006-09-19 16:46:09 $<br>
+* $Revision: 1.2 $<br>
+* $Date: 2006-11-06 21:28:04 $<br>
 * -----------------------------------------------------------------<br>
 * Programmer(s): Radu Serban @ LLNL<br>
 * -----------------------------------------------------------------<br>
@@ -205,7 +205,7 @@ solver, although the problem as I set it up is strictly banded?</tt><br>
 * Solve NC copies of Richardson's ODEs, first using the dense<br>
 * linear solver, then using the band linear solver.<br>
 * -----------------------------------------------------------------<br>
-*/</tt><br>
+*/<br>
 <br>
 <pre style="margin: 0em;">#include &lt;stdio.h&gt;
 #include &lt;cvodes/cvodes.h&gt;
@@ -241,10 +241,10 @@ static void PrintFinalStats(void *cvode_mem, int ls);</pre><br>
  N_Vector y0, y, abstol;
  void *cvode_mem;
  int i, flag, iout;</pre><br>
-<tt> /* Create serial vectors of length NC*NEQ for I.C., solution, and abstol */<br>
+ /* Create serial vectors of length NC*NEQ for I.C., solution, and abstol */<br>
  y0 = N_VNew_Serial(NC*NEQ);<br>
  y = N_VNew_Serial(NC*NEQ);<br>
- abstol = N_VNew_Serial(NC*NEQ); </tt><br>
+ abstol = N_VNew_Serial(NC*NEQ); <br>
 <br>
 <pre style="margin: 0em;"> /* Initialize y0 */
  for(i=0; i&lt;NC; i++) {
@@ -273,11 +273,11 @@ solver\n\n&quot;,NC);
    PrintOutput(t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
  }
  PrintFinalStats(cvode_mem, 0);</pre><br>
-<tt> /* Reinitialize problem */<br>
+ /* Reinitialize problem */<br>
  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);<br>
  
  /* Attach band linear solver (use DQ Jacobian) */<br>
- flag = CVBand(cvode_mem, NC*NEQ, NEQ-1, NEQ-1);</tt><br>
+ flag = CVBand(cvode_mem, NC*NEQ, NEQ-1, NEQ-1);<br>
 <br>
 <pre style="margin: 0em;"> /* In loop, call CVode, print results, and test for error.*/
  printf(&quot; \n3-species kinetics problem (%d copies) - BAND linear 
@@ -331,7 +331,7 @@ solver\n\n&quot;,NC);
    flag = CVDenseGetNumJacEvals(cvode_mem, &amp;nje);
    flag = CVDenseGetNumRhsEvals(cvode_mem, &amp;nfeLS);
  }</pre><br>
-<tt> if(ls==1) {<br>
+ if(ls==1) {<br>
    flag = CVBandGetNumJacEvals(cvode_mem, &amp;nje);<br>
    flag = CVBandGetNumRhsEvals(cvode_mem, &amp;nfeLS);<br>
  }<br>
@@ -340,10 +340,10 @@ solver\n\n&quot;,NC);
  printf(&quot;nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n&quot;,<br>
 	 nst, nfe, nsetups, nfeLS, nje);<br>
  printf(&quot;nni = %-6ld ncfn = %-6ld netf = %-6ld\n \n&quot;,<br>
-	 nni, ncfn, netf);</tt><br>
+	 nni, ncfn, netf);<br>
 <br>
 <pre style="margin: 0em;">}</pre><br>
-<tt> </tt><br>
+ <br>
 <br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 <br>

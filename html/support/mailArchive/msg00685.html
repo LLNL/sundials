@@ -1,0 +1,1225 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Maximum order of 12 in the non&#45;stiff IVP is not reached! -->
+<!--X-From-R13: nangbyvl <nangbylNznb.avxbynri.hn> -->
+<!--X-Date: Fri, 15 Sep 2006 11:37:20 &#45;0700 -->
+<!--X-Message-Id: 200609152137.11012.anatoly@mao.nikolaev.ua -->
+<!--X-Content-Type: multipart/mixed -->
+<!--X-Reference: 200609132101.27659.anatoly@mao.nikolaev.ua -->
+<!--X-Reference: Pine.LNX.4.58.0609131348300.7347@tux64.llnl.gov -->
+<!--X-Reference: 200609142036.16852.anatoly@mao.nikolaev.ua -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00684.html">Date Prev</a>] [<a href="msg00686.html">Date Next</a>] [<a href="msg00681.html">Thread Prev</a>] [<a href="msg00670.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00685">Date Index</a></b>]
+[<b><a href="threads.html#00685">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+anatoliy &lt;<a href="mailto:anatoly%40mao.nikolaev.ua">anatoly@mao.nikolaev.ua</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Fri, 15 Sep 2006 21:37:10 +0300</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hello Alan and all,
+
+The only example is better than any words:)
+I made some dummy function of n-body dynamics, where the number of bodies is 
+significantly reduced. The model is integrated forward and backward for 
+comparison of the results (newbest.txt).
+Forward statistics looks like the output below.
+1) Why the order of method is reduced after 8? The steps there, are 
+simultaneously reduced also. Is it a good strategy? Why the higher orders 
+were not used?
+2) The backward results are different with the forward ones in the orders 
+used. Why they differ?
+
+Regards,
+Anatoliy
+
+
+&gt;<i> Hello Alan and all,</i>
+&gt;<i></i>
+&gt;<i> Thanks for the reply. You are right. It seems like the order was limited by</i>
+&gt;<i> 8! You see, I have not changed the default value of 12 and found the</i>
+&gt;<i> observed limit in 8 while integrating for long enough time (100 years). The</i>
+&gt;<i> greater step looks 3 days with the 8 order, but I expected for about 40</i>
+&gt;<i> days with 12 order. It looks terrible for me with too much steps.</i>
+&gt;<i> The first idea was in the wrong default parameters.</i>
+&gt;<i> What is a usual idea to do in such a situation?</i>
+&gt;<i></i>
+&gt;<i> Regards,</i>
+&gt;<i> Anatoliy</i>
+&gt;<i></i>
+&gt;<i> &#x412; &#x441;&#x43E;&#x43E;&#x431;&#x449;&#x435;&#x43D;&#x438;&#x438; &#x43E;&#x442; &#x421;&#x440;&#x435;&#x434;&#x430; 13 &#x441;&#x435;&#x43D;&#x442;&#x44F;&#x431;&#x440;&#x44F; 2006 23:50 Alan Hindmarsh &#x43D;&#x430;&#x43F;&#x438;&#x441;&#x430;&#x43B;(a):</i>
+&gt;<i> &gt; Hello Anatoliy,</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; When you say &quot;found that it was only 8&quot;, do you mean that you observed</i>
+&gt;<i> &gt; only values 1 to 8?  If so, that just means that orders &gt; 8 were never</i>
+&gt;<i> &gt; chosen, even though up to order 12 is available.  Because you are using</i>
+&gt;<i> &gt; very tight tolerances, I would keep the maximum order at 12.</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; -Alan H.</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; On Wed, 13 Sep 2006, anatoliy wrote:</i>
+&gt;<i> &gt; &gt; Hello all,</i>
+&gt;<i> &gt; &gt;</i>
+&gt;<i> &gt; &gt; I am trying the CVODES in celestial mechanics, where I wish to keep</i>
+&gt;<i> &gt; &gt; good accuracy (1e-15) at long integration. Yes, I specified Adams</i>
+&gt;<i> &gt; &gt; method and functional iteration, as is usual.</i>
+&gt;<i> &gt; &gt; At first I have not put attention to the maximum order of the multistep</i>
+&gt;<i> &gt; &gt; method, but found that it was only 8, but not 12! I varied the optional</i>
+&gt;<i> &gt; &gt; inputs for the CVODES, but did not notice the order increase.</i>
+&gt;<i> &gt; &gt; Couldn't you advice with this problem?</i>
+&gt;<i> &gt; &gt;</i>
+&gt;<i> &gt; &gt; Regards,</i>
+&gt;<i> &gt; &gt; Anatoliy</i>
+</pre><pre>Time -3.033383e-06, Step -3.033383e-06 Order 1
+Time -3.774533e-04, Step -3.744200e-04 Order 1
+Time -1.578538e-03, Step -1.201085e-03 Order 2
+Time -2.779623e-03, Step -1.201085e-03 Order 2
+Time -1.479047e-02, Step -1.201085e-02 Order 2
+Time -3.890915e-02, Step -2.411868e-02 Order 3
+Time -6.302784e-02, Step -2.411868e-02 Order 3
+Time -1.320477e-01, Step -6.901986e-02 Order 3
+Time -2.010675e-01, Step -6.901986e-02 Order 3
+Time -2.922453e-01, Step -9.117777e-02 Order 4
+Time -3.834231e-01, Step -9.117777e-02 Order 4
+Time -5.265152e-01, Step -1.430921e-01 Order 4
+Time -6.696073e-01, Step -1.430921e-01 Order 4
+Time -8.126994e-01, Step -1.430921e-01 Order 4
+Time -9.557915e-01, Step -1.430921e-01 Order 4
+Time -1.098884e+00, Step -1.430921e-01 Order 4
+Time -1.241976e+00, Step -1.430921e-01 Order 4
+Time -1.385068e+00, Step -1.430921e-01 Order 4
+Time -1.528160e+00, Step -1.430921e-01 Order 4
+Time -1.671252e+00, Step -1.430921e-01 Order 4
+Time -1.814344e+00, Step -1.430921e-01 Order 4
+Time -1.957436e+00, Step -1.430921e-01 Order 4
+Time -2.100528e+00, Step -1.430921e-01 Order 4
+Time -2.243620e+00, Step -1.430921e-01 Order 4
+Time -2.386712e+00, Step -1.430921e-01 Order 4
+Time -2.529805e+00, Step -1.430921e-01 Order 4
+Time -2.672897e+00, Step -1.430921e-01 Order 4
+Time -2.815989e+00, Step -1.430921e-01 Order 4
+Time -2.959081e+00, Step -1.430921e-01 Order 4
+Time -3.102173e+00, Step -1.430921e-01 Order 4
+Time -3.318907e+00, Step -2.167338e-01 Order 5
+Time -3.535641e+00, Step -2.167338e-01 Order 5
+Time -3.752374e+00, Step -2.167338e-01 Order 5
+Time -3.969108e+00, Step -2.167338e-01 Order 5
+Time -4.185842e+00, Step -2.167338e-01 Order 5
+Time -4.402576e+00, Step -2.167338e-01 Order 5
+Time -4.619310e+00, Step -2.167338e-01 Order 5
+Time -4.836044e+00, Step -2.167338e-01 Order 5
+Time -5.052777e+00, Step -2.167338e-01 Order 5
+Time -5.269511e+00, Step -2.167338e-01 Order 5
+Time -5.486245e+00, Step -2.167338e-01 Order 5
+Time -5.702979e+00, Step -2.167338e-01 Order 5
+Time -6.032163e+00, Step -3.291844e-01 Order 6
+Time -6.361348e+00, Step -3.291844e-01 Order 6
+Time -6.690532e+00, Step -3.291844e-01 Order 6
+Time -7.019717e+00, Step -3.291844e-01 Order 6
+Time -7.348901e+00, Step -3.291844e-01 Order 6
+Time -7.678085e+00, Step -3.291844e-01 Order 6
+Time -8.007270e+00, Step -3.291844e-01 Order 6
+Time -8.336454e+00, Step -3.291844e-01 Order 6
+Time -8.665639e+00, Step -3.291844e-01 Order 6
+Time -8.994823e+00, Step -3.291844e-01 Order 6
+Time -9.324008e+00, Step -3.291844e-01 Order 6
+Time -9.653192e+00, Step -3.291844e-01 Order 6
+Time -9.982376e+00, Step -3.291844e-01 Order 6
+Time -1.049820e+01, Step -5.158209e-01 Order 7
+Time -1.101402e+01, Step -5.158209e-01 Order 7
+Time -1.152984e+01, Step -5.158209e-01 Order 7
+Time -1.204566e+01, Step -5.158209e-01 Order 7
+Time -1.256148e+01, Step -5.158209e-01 Order 7
+Time -1.307730e+01, Step -5.158209e-01 Order 7
+Time -1.359312e+01, Step -5.158209e-01 Order 7
+Time -1.410894e+01, Step -5.158209e-01 Order 7
+Time -1.462476e+01, Step -5.158209e-01 Order 7
+Time -1.514059e+01, Step -5.158209e-01 Order 7
+Time -1.565641e+01, Step -5.158209e-01 Order 7
+Time -1.617223e+01, Step -5.158209e-01 Order 7
+Time -1.696666e+01, Step -7.944328e-01 Order 7
+Time -1.776109e+01, Step -7.944328e-01 Order 7
+Time -1.855553e+01, Step -7.944328e-01 Order 7
+Time -1.934996e+01, Step -7.944328e-01 Order 7
+Time -2.014439e+01, Step -7.944328e-01 Order 7
+Time -2.093882e+01, Step -7.944328e-01 Order 7
+Time -2.173326e+01, Step -7.944328e-01 Order 7
+Time -2.252769e+01, Step -7.944328e-01 Order 7
+Time -2.332212e+01, Step -7.944328e-01 Order 7
+Time -2.411656e+01, Step -7.944328e-01 Order 7
+Time -2.491099e+01, Step -7.944328e-01 Order 7
+Time -2.570542e+01, Step -7.944328e-01 Order 7
+Time -2.692256e+01, Step -1.217141e+00 Order 8
+Time -2.813970e+01, Step -1.217141e+00 Order 8
+Time -2.935684e+01, Step -1.217141e+00 Order 8
+Time -3.057398e+01, Step -1.217141e+00 Order 8
+Time -3.179113e+01, Step -1.217141e+00 Order 8
+Time -3.300827e+01, Step -1.217141e+00 Order 8
+Time -3.422541e+01, Step -1.217141e+00 Order 8
+Time -3.544255e+01, Step -1.217141e+00 Order 8
+Time -3.665969e+01, Step -1.217141e+00 Order 8
+Time -3.787683e+01, Step -1.217141e+00 Order 8
+Time -3.909397e+01, Step -1.217141e+00 Order 8
+Time -4.031111e+01, Step -1.217141e+00 Order 8
+Time -4.152825e+01, Step -1.217141e+00 Order 8
+Time -4.300136e+01, Step -1.473110e+00 Order 7
+Time -4.318033e+01, Step -1.789716e-01 Order 7
+Time -4.335930e+01, Step -1.789716e-01 Order 7
+Time -4.370723e+01, Step -3.479275e-01 Order 7
+Time -4.425495e+01, Step -5.477135e-01 Order 7
+Time -4.480266e+01, Step -5.477135e-01 Order 7
+Time -4.535037e+01, Step -5.477135e-01 Order 7
+Time -4.589809e+01, Step -5.477135e-01 Order 7
+Time -4.644580e+01, Step -5.477135e-01 Order 7
+Time -4.699351e+01, Step -5.477135e-01 Order 7
+Time -4.815485e+01, Step -1.161341e+00 Order 6
+Time -4.881600e+01, Step -6.611418e-01 Order 6
+Time -4.947714e+01, Step -6.611418e-01 Order 6
+Time -5.013828e+01, Step -6.611418e-01 Order 6
+Time -5.079942e+01, Step -6.611418e-01 Order 6
+Time -5.219261e+01, Step -1.393190e+00 Order 6
+Time -5.358580e+01, Step -1.393190e+00 Order 6
+Time -5.497899e+01, Step -1.393190e+00 Order 6
+Time -5.637218e+01, Step -1.393190e+00 Order 6
+Time -5.860754e+01, Step -2.235363e+00 Order 6
+Time -6.084291e+01, Step -2.235363e+00 Order 6
+Time -6.307827e+01, Step -2.235363e+00 Order 6
+Time -6.531363e+01, Step -2.235363e+00 Order 6
+Time -6.754899e+01, Step -2.235363e+00 Order 6
+Time -6.978436e+01, Step -2.235363e+00 Order 6
+Time -7.201972e+01, Step -2.235363e+00 Order 6
+Time -7.425508e+01, Step -2.235363e+00 Order 6
+Time -7.649044e+01, Step -2.235363e+00 Order 6
+Time -7.872581e+01, Step -2.235363e+00 Order 6
+Time -8.096117e+01, Step -2.235363e+00 Order 6
+Time -8.319653e+01, Step -2.235363e+00 Order 6
+Time -8.672817e+01, Step -3.531633e+00 Order 7
+Time -9.025980e+01, Step -3.531633e+00 Order 7
+Time -9.379143e+01, Step -3.531633e+00 Order 7
+Time -9.732306e+01, Step -3.531633e+00 Order 7
+Time -1.008547e+02, Step -3.531633e+00 Order 7
+Time -1.043863e+02, Step -3.531633e+00 Order 7
+Time -1.079180e+02, Step -3.531633e+00 Order 7
+Time -1.114496e+02, Step -3.531633e+00 Order 7
+Time -1.149812e+02, Step -3.531633e+00 Order 7
+Time -1.185129e+02, Step -3.531633e+00 Order 7
+Time -1.220445e+02, Step -3.531633e+00 Order 7
+Time -1.255761e+02, Step -3.531633e+00 Order 7
+Time -1.291078e+02, Step -3.531633e+00 Order 7
+Time -1.345705e+02, Step -5.462768e+00 Order 7
+Time -1.400333e+02, Step -5.462768e+00 Order 7
+Time -1.454961e+02, Step -5.462768e+00 Order 7
+Time -1.509588e+02, Step -5.462768e+00 Order 7
+Time -1.593394e+02, Step -8.380605e+00 Order 7
+Time -1.677200e+02, Step -8.380605e+00 Order 7
+Time -1.761006e+02, Step -8.380605e+00 Order 7
+Time -1.844813e+02, Step -8.380605e+00 Order 7
+Time -1.928619e+02, Step -8.380605e+00 Order 7
+Time -2.012425e+02, Step -8.380605e+00 Order 7
+Time -2.096231e+02, Step -8.380605e+00 Order 7
+Time -2.180037e+02, Step -8.380605e+00 Order 7
+Time -2.263843e+02, Step -8.380605e+00 Order 7
+Time -2.347649e+02, Step -8.380605e+00 Order 7
+Time -2.431455e+02, Step -8.380605e+00 Order 7
+Time -2.515261e+02, Step -8.380605e+00 Order 7
+Time -2.599067e+02, Step -8.380605e+00 Order 7
+Time -2.682873e+02, Step -8.380605e+00 Order 7
+Time -2.766679e+02, Step -8.380605e+00 Order 7
+Time -2.850485e+02, Step -8.380605e+00 Order 7
+Time -2.934291e+02, Step -8.380605e+00 Order 7
+Time -3.018097e+02, Step -8.380605e+00 Order 7
+Time -3.149608e+02, Step -1.315105e+01 Order 7
+Time -3.281118e+02, Step -1.315105e+01 Order 7
+Time -3.412629e+02, Step -1.315105e+01 Order 7
+Time -3.544139e+02, Step -1.315105e+01 Order 7
+Time -3.753967e+02, Step -2.098278e+01 Order 7
+Time -3.963795e+02, Step -2.098278e+01 Order 7
+Time -4.173623e+02, Step -2.098278e+01 Order 7
+Time -4.383451e+02, Step -2.098278e+01 Order 7
+Time -4.593278e+02, Step -2.098278e+01 Order 7
+Time -4.803106e+02, Step -2.098278e+01 Order 7
+Time -5.012934e+02, Step -2.098278e+01 Order 7
+Time -5.222762e+02, Step -2.098278e+01 Order 7
+Time -5.432590e+02, Step -2.098278e+01 Order 7
+Time -5.755248e+02, Step -3.226579e+01 Order 7
+Time -6.004936e+02, Step -2.496884e+01 Order 7
+Time -6.254624e+02, Step -2.496884e+01 Order 7
+Time -6.504313e+02, Step -2.496884e+01 Order 7
+Time -6.754001e+02, Step -2.496884e+01 Order 7
+Time -7.003690e+02, Step -2.496884e+01 Order 7
+Time -7.253378e+02, Step -2.496884e+01 Order 7
+Time -7.503067e+02, Step -2.496884e+01 Order 7
+Time -7.752755e+02, Step -2.496884e+01 Order 7
+Time -8.002444e+02, Step -2.496884e+01 Order 7
+Time -8.252132e+02, Step -2.496884e+01 Order 7
+Time -8.726563e+02, Step -4.744311e+01 Order 7
+Time -9.200994e+02, Step -4.744311e+01 Order 7
+Time -9.675425e+02, Step -4.744311e+01 Order 7
+Time -1.014986e+03, Step -4.744311e+01 Order 7
+Time -1.062429e+03, Step -4.744311e+01 Order 7
+Time -1.109872e+03, Step -4.744311e+01 Order 7
+Time -1.157315e+03, Step -4.744311e+01 Order 7
+Time -1.204758e+03, Step -4.744311e+01 Order 7
+Time -1.252201e+03, Step -4.744311e+01 Order 7
+Time -1.299644e+03, Step -4.744311e+01 Order 7
+Time -1.347087e+03, Step -4.744311e+01 Order 7
+Time -1.394531e+03, Step -4.744311e+01 Order 7
+Time -1.441974e+03, Step -4.744311e+01 Order 7
+Time -1.516429e+03, Step -7.445523e+01 Order 6
+Time -1.524614e+03, Step -8.185463e+00 Order 6
+Time -1.532800e+03, Step -8.185463e+00 Order 6
+Time -1.554922e+03, Step -2.212205e+01 Order 6
+Time -1.577044e+03, Step -2.212205e+01 Order 6
+Time -1.599166e+03, Step -2.212205e+01 Order 6
+Time -1.621288e+03, Step -2.212205e+01 Order 6
+Time -1.643410e+03, Step -2.212205e+01 Order 6
+Time -1.665532e+03, Step -2.212205e+01 Order 6
+Time -1.722777e+03, Step -5.724496e+01 Order 5
+Time -1.763718e+03, Step -4.094104e+01 Order 5
+Time -1.804659e+03, Step -4.094104e+01 Order 5
+Time -1.845600e+03, Step -4.094104e+01 Order 5
+Time -1.910972e+03, Step -6.537168e+01 Order 5
+Time -1.976344e+03, Step -6.537168e+01 Order 5
+Time -2.091320e+03, Step -1.149761e+02 Order 6
+Time -2.206296e+03, Step -1.149761e+02 Order 6
+Time -2.321272e+03, Step -1.149761e+02 Order 6
+Time -2.436248e+03, Step -1.149761e+02 Order 6
+Time -2.551224e+03, Step -1.149761e+02 Order 6
+Time -2.666200e+03, Step -1.149761e+02 Order 6
+Time -2.781176e+03, Step -1.149761e+02 Order 6
+Time -2.957624e+03, Step -1.764481e+02 Order 6
+Time -3.134072e+03, Step -1.764481e+02 Order 6
+Time -3.310520e+03, Step -1.764481e+02 Order 6
+Time -3.486968e+03, Step -1.764481e+02 Order 6
+Time -3.663417e+03, Step -1.764481e+02 Order 6
+Time -3.839865e+03, Step -1.764481e+02 Order 6
+Time -4.124249e+03, Step -2.843847e+02 Order 7
+Time -4.408634e+03, Step -2.843847e+02 Order 7
+Time -4.693019e+03, Step -2.843847e+02 Order 7
+Time -4.977404e+03, Step -2.843847e+02 Order 7
+Time -5.261788e+03, Step -2.843847e+02 Order 7
+Time -5.546173e+03, Step -2.843847e+02 Order 7
+Time -5.830558e+03, Step -2.843847e+02 Order 7
+Time -6.114942e+03, Step -2.843847e+02 Order 7
+Time -6.399327e+03, Step -2.843847e+02 Order 7
+Time -6.683712e+03, Step -2.843847e+02 Order 7
+Time -7.209974e+03, Step -5.262618e+02 Order 6
+Time -7.267599e+03, Step -5.762572e+01 Order 6
+Time -7.325225e+03, Step -5.762572e+01 Order 6
+Time -7.421757e+03, Step -9.653224e+01 Order 6
+Time -7.518290e+03, Step -9.653224e+01 Order 6
+Time -7.614822e+03, Step -9.653224e+01 Order 6
+Time -7.711354e+03, Step -9.653224e+01 Order 6
+Time -7.807886e+03, Step -9.653224e+01 Order 6
+Time -7.904419e+03, Step -9.653224e+01 Order 6
+Time -8.177828e+03, Step -2.734096e+02 Order 5
+Time -8.377541e+03, Step -1.997124e+02 Order 5
+Time -8.577253e+03, Step -1.997124e+02 Order 5
+Time -8.776965e+03, Step -1.997124e+02 Order 5
+Time -9.238748e+03, Step -4.617823e+02 Order 5
+Time -9.700530e+03, Step -4.617823e+02 Order 5
+Time -1.016231e+04, Step -4.617823e+02 Order 5
+Time -1.062409e+04, Step -4.617823e+02 Order 5
+Time -1.108588e+04, Step -4.617823e+02 Order 5
+Time -1.154766e+04, Step -4.617823e+02 Order 5
+Time -1.200944e+04, Step -4.617823e+02 Order 5
+Time -1.247122e+04, Step -4.617823e+02 Order 5
+Time -1.323680e+04, Step -7.655763e+02 Order 5
+Time -1.400238e+04, Step -7.655763e+02 Order 5
+Time -1.476795e+04, Step -7.655763e+02 Order 5
+Time -1.553353e+04, Step -7.655763e+02 Order 5
+Time -1.629911e+04, Step -7.655763e+02 Order 5
+Time -1.706468e+04, Step -7.655763e+02 Order 5
+Time -1.783026e+04, Step -7.655763e+02 Order 5
+Time -1.859583e+04, Step -7.655763e+02 Order 5
+Time -1.936141e+04, Step -7.655763e+02 Order 5
+Time -2.066747e+04, Step -1.306055e+03 Order 5
+Time -2.197352e+04, Step -1.306055e+03 Order 5
+Time -2.327957e+04, Step -1.306055e+03 Order 5
+Time -2.458563e+04, Step -1.306055e+03 Order 5
+Time -2.589168e+04, Step -1.306055e+03 Order 5
+Time -2.719774e+04, Step -1.306055e+03 Order 5
+Time -2.850379e+04, Step -1.306055e+03 Order 5
+Time -3.047237e+04, Step -1.968575e+03 Order 5
+Time -3.244094e+04, Step -1.968575e+03 Order 5
+Time -3.440952e+04, Step -1.968575e+03 Order 5
+Time -3.637809e+04, Step -1.968575e+03 Order 5
+Time -3.834667e+04, Step -1.968575e+03 Order 5
+Time -4.031524e+04, Step -1.968575e+03 Order 5
+Time -4.228382e+04, Step -1.968575e+03 Order 5
+Time -4.425239e+04, Step -1.968575e+03 Order 5
+Time -4.723239e+04, Step -2.979994e+03 Order 5
+Time -5.073111e+04, Step -3.498718e+03 Order 5
+Time -5.422982e+04, Step -3.498718e+03 Order 5
+Time -5.772854e+04, Step -3.498718e+03 Order 5
+Time -6.122726e+04, Step -3.498718e+03 Order 5
+Time -6.472598e+04, Step -3.498718e+03 Order 5
+Time -6.822469e+04, Step -3.498718e+03 Order 5
+Time -7.437609e+04, Step -6.151397e+03 Order 5
+Time -8.052749e+04, Step -6.151397e+03 Order 5
+Time -8.667888e+04, Step -6.151397e+03 Order 5
+Time -9.283028e+04, Step -6.151397e+03 Order 5
+Time -9.898168e+04, Step -6.151397e+03 Order 5
+Time -1.051331e+05, Step -6.151397e+03 Order 5
+Time -1.112845e+05, Step -6.151397e+03 Order 5
+Time -1.174359e+05, Step -6.151397e+03 Order 5
+Time -1.235873e+05, Step -6.151397e+03 Order 5
+Time -1.386850e+05, Step -1.509771e+04 Order 5
+Time -1.496829e+05, Step -1.099796e+04 Order 5
+Time -1.606809e+05, Step -1.099796e+04 Order 5
+Time -1.716788e+05, Step -1.099796e+04 Order 5
+Time -1.826768e+05, Step -1.099796e+04 Order 5
+Time -1.936748e+05, Step -1.099796e+04 Order 5
+Time -2.139641e+05, Step -2.028931e+04 Order 5
+Time -2.342534e+05, Step -2.028931e+04 Order 5
+Time -2.545427e+05, Step -2.028931e+04 Order 5
+Time -2.748320e+05, Step -2.028931e+04 Order 5
+Time -2.951213e+05, Step -2.028931e+04 Order 5
+Time -3.154106e+05, Step -2.028931e+04 Order 5
+Time -3.466081e+05, Step -3.119744e+04 Order 5
+Time -3.778055e+05, Step -3.119744e+04 Order 5
+Time -4.090029e+05, Step -3.119744e+04 Order 5
+Time -4.402004e+05, Step -3.119744e+04 Order 5
+Time -4.713978e+05, Step -3.119744e+04 Order 5
+Time -5.025953e+05, Step -3.119744e+04 Order 5
+Time -5.603394e+05, Step -5.774417e+04 Order 5
+Time -6.180836e+05, Step -5.774417e+04 Order 5
+Time -6.758278e+05, Step -5.774417e+04 Order 5
+Time -7.335719e+05, Step -5.774417e+04 Order 5
+Time -7.913161e+05, Step -5.774417e+04 Order 5
+Time -8.490603e+05, Step -5.774417e+04 Order 5
+Time -9.400511e+05, Step -9.099083e+04 Order 5
+Time -1.031042e+06, Step -9.099083e+04 Order 5
+Time -1.122033e+06, Step -9.099083e+04 Order 5
+Time -1.213024e+06, Step -9.099083e+04 Order 5
+Time -1.304014e+06, Step -9.099083e+04 Order 5
+Time -1.447965e+06, Step -1.439506e+05 Order 5
+Time -1.591916e+06, Step -1.439506e+05 Order 5
+Time -1.735866e+06, Step -1.439506e+05 Order 5
+Time -1.957594e+06, Step -2.217277e+05 Order 5
+Time -2.179322e+06, Step -2.217277e+05 Order 5
+Time -2.401049e+06, Step -2.217277e+05 Order 5
+Time -2.622777e+06, Step -2.217277e+05 Order 5
+0.000000e+00  -8.831669e+03  -6.529281e+04  -3.395551e+04  +3.367435e-03  
++2.489450e-02  +1.294637e-02
+0.000000e+00  +2.178165e+06  +5.896755e+05  -2.869482e+03  -8.304806e-01  
+-2.248287e-01  +1.092012e-03
+0.000000e+00  +9.384271e+03  +2.584009e+04  +1.024935e+04  -3.578901e-03  
+-9.851982e-03  -3.907541e-03
+0.000000e+00  +3.077016e+04  +1.392125e+04  -4.878279e+03  -1.173222e-02  
+-5.307086e-03  +1.859842e-03
+0.000000e+00  -2.525903e+04  +1.684311e+04  +1.000620e+04  +9.630126e-03  
+-6.422481e-03  -3.815295e-03
+0.000000e+00  +1.842540e+04  -1.894898e+04  -7.944138e+03  -7.024462e-03  
++7.225575e-03  +3.029211e-03
+Time -2.622687e+06, Step 9.000333e+01 Order 1
+Time -2.607985e+06, Step 1.470188e+04 Order 1
+Time -2.562620e+06, Step 4.536495e+04 Order 2
+Time -2.517255e+06, Step 4.536495e+04 Order 2
+Time -2.399948e+06, Step 1.173068e+05 Order 2
+Time -2.177899e+06, Step 2.220494e+05 Order 3
+Time -1.955850e+06, Step 2.220494e+05 Order 3
+Time -1.733800e+06, Step 2.220494e+05 Order 3
+Time -1.511751e+06, Step 2.220494e+05 Order 3
+Time -1.387221e+06, Step 1.245294e+05 Order 3
+Time -1.262692e+06, Step 1.245294e+05 Order 3
+Time -1.138163e+06, Step 1.245294e+05 Order 3
+Time -1.013633e+06, Step 1.245294e+05 Order 3
+Time -9.385966e+05, Step 7.503663e+04 Order 3
+Time -8.635599e+05, Step 7.503663e+04 Order 3
+Time -7.885233e+05, Step 7.503663e+04 Order 3
+Time -7.134867e+05, Step 7.503663e+04 Order 3
+Time -6.384500e+05, Step 7.503663e+04 Order 3
+Time -5.964149e+05, Step 4.203510e+04 Order 3
+Time -5.543798e+05, Step 4.203510e+04 Order 3
+Time -5.123447e+05, Step 4.203510e+04 Order 3
+Time -4.703096e+05, Step 4.203510e+04 Order 3
+Time -4.282745e+05, Step 4.203510e+04 Order 3
+Time -4.029197e+05, Step 2.535478e+04 Order 3
+Time -3.775650e+05, Step 2.535478e+04 Order 3
+Time -3.522102e+05, Step 2.535478e+04 Order 3
+Time -3.268554e+05, Step 2.535478e+04 Order 3
+Time -3.015006e+05, Step 2.535478e+04 Order 3
+Time -2.761458e+05, Step 2.535478e+04 Order 3
+Time -2.615286e+05, Step 1.461721e+04 Order 3
+Time -2.469114e+05, Step 1.461721e+04 Order 3
+Time -2.322942e+05, Step 1.461721e+04 Order 3
+Time -2.176770e+05, Step 1.461721e+04 Order 3
+Time -2.030598e+05, Step 1.461721e+04 Order 3
+Time -1.884426e+05, Step 1.461721e+04 Order 3
+Time -1.794238e+05, Step 9.018725e+03 Order 3
+Time -1.704051e+05, Step 9.018725e+03 Order 3
+Time -1.613864e+05, Step 9.018725e+03 Order 3
+Time -1.523677e+05, Step 9.018725e+03 Order 3
+Time -1.433489e+05, Step 9.018725e+03 Order 3
+Time -1.343302e+05, Step 9.018725e+03 Order 3
+Time -1.253115e+05, Step 9.018725e+03 Order 3
+Time -1.199075e+05, Step 5.404031e+03 Order 3
+Time -1.145034e+05, Step 5.404031e+03 Order 3
+Time -1.090994e+05, Step 5.404031e+03 Order 3
+Time -1.036954e+05, Step 5.404031e+03 Order 3
+Time -9.829133e+04, Step 5.404031e+03 Order 3
+Time -9.288730e+04, Step 5.404031e+03 Order 3
+Time -8.748327e+04, Step 5.404031e+03 Order 3
+Time -8.404866e+04, Step 3.434606e+03 Order 3
+Time -8.061406e+04, Step 3.434606e+03 Order 3
+Time -7.717945e+04, Step 3.434606e+03 Order 3
+Time -7.374485e+04, Step 3.434606e+03 Order 3
+Time -7.031024e+04, Step 3.434606e+03 Order 3
+Time -6.687564e+04, Step 3.434606e+03 Order 3
+Time -6.344103e+04, Step 3.434606e+03 Order 3
+Time -6.000643e+04, Step 3.434606e+03 Order 3
+Time -5.786645e+04, Step 2.139974e+03 Order 3
+Time -5.572648e+04, Step 2.139974e+03 Order 3
+Time -5.358650e+04, Step 2.139974e+03 Order 3
+Time -5.144653e+04, Step 2.139974e+03 Order 3
+Time -4.930655e+04, Step 2.139974e+03 Order 3
+Time -4.716658e+04, Step 2.139974e+03 Order 3
+Time -4.502661e+04, Step 2.139974e+03 Order 3
+Time -4.288663e+04, Step 2.139974e+03 Order 3
+Time -4.074666e+04, Step 2.139974e+03 Order 3
+Time -3.943021e+04, Step 1.316446e+03 Order 3
+Time -3.811377e+04, Step 1.316446e+03 Order 3
+Time -3.679732e+04, Step 1.316446e+03 Order 3
+Time -3.548088e+04, Step 1.316446e+03 Order 3
+Time -3.416443e+04, Step 1.316446e+03 Order 3
+Time -3.284798e+04, Step 1.316446e+03 Order 3
+Time -3.153154e+04, Step 1.316446e+03 Order 3
+Time -3.021509e+04, Step 1.316446e+03 Order 3
+Time -2.889865e+04, Step 1.316446e+03 Order 3
+Time -2.758220e+04, Step 1.316446e+03 Order 3
+Time -2.677565e+04, Step 8.065521e+02 Order 3
+Time -2.596910e+04, Step 8.065521e+02 Order 3
+Time -2.516255e+04, Step 8.065521e+02 Order 3
+Time -2.435599e+04, Step 8.065521e+02 Order 3
+Time -2.354944e+04, Step 8.065521e+02 Order 3
+Time -2.274289e+04, Step 8.065521e+02 Order 3
+Time -2.193634e+04, Step 8.065521e+02 Order 3
+Time -2.112979e+04, Step 8.065521e+02 Order 3
+Time -2.032323e+04, Step 8.065521e+02 Order 3
+Time -1.951668e+04, Step 8.065521e+02 Order 3
+Time -1.871013e+04, Step 8.065521e+02 Order 3
+Time -1.821469e+04, Step 4.954428e+02 Order 3
+Time -1.771924e+04, Step 4.954428e+02 Order 3
+Time -1.722380e+04, Step 4.954428e+02 Order 3
+Time -1.672836e+04, Step 4.954428e+02 Order 3
+Time -1.623291e+04, Step 4.954428e+02 Order 3
+Time -1.573747e+04, Step 4.954428e+02 Order 3
+Time -1.524203e+04, Step 4.954428e+02 Order 3
+Time -1.474659e+04, Step 4.954428e+02 Order 3
+Time -1.425114e+04, Step 4.954428e+02 Order 3
+Time -1.375570e+04, Step 4.954428e+02 Order 3
+Time -1.326026e+04, Step 4.954428e+02 Order 3
+Time -1.276481e+04, Step 4.954428e+02 Order 3
+Time -1.245828e+04, Step 3.065390e+02 Order 3
+Time -1.215174e+04, Step 3.065390e+02 Order 3
+Time -1.184520e+04, Step 3.065390e+02 Order 3
+Time -1.153866e+04, Step 3.065390e+02 Order 3
+Time -1.123212e+04, Step 3.065390e+02 Order 3
+Time -1.092558e+04, Step 3.065390e+02 Order 3
+Time -1.061904e+04, Step 3.065390e+02 Order 3
+Time -1.031250e+04, Step 3.065390e+02 Order 3
+Time -1.000596e+04, Step 3.065390e+02 Order 3
+Time -9.699425e+03, Step 3.065390e+02 Order 3
+Time -9.392886e+03, Step 3.065390e+02 Order 3
+Time -9.086347e+03, Step 3.065390e+02 Order 3
+Time -8.779808e+03, Step 3.065390e+02 Order 3
+Time -8.588221e+03, Step 1.915869e+02 Order 3
+Time -8.396634e+03, Step 1.915869e+02 Order 3
+Time -8.205047e+03, Step 1.915869e+02 Order 3
+Time -7.915781e+03, Step 2.892664e+02 Order 4
+Time -7.626514e+03, Step 2.892664e+02 Order 4
+Time -7.337248e+03, Step 2.892664e+02 Order 4
+Time -7.047982e+03, Step 2.892664e+02 Order 4
+Time -6.758715e+03, Step 2.892664e+02 Order 4
+Time -6.469449e+03, Step 2.892664e+02 Order 4
+Time -6.180182e+03, Step 2.892664e+02 Order 4
+Time -5.890916e+03, Step 2.892664e+02 Order 4
+Time -5.601650e+03, Step 2.892664e+02 Order 4
+Time -5.312383e+03, Step 2.892664e+02 Order 4
+Time -5.118466e+03, Step 1.939171e+02 Order 4
+Time -4.924549e+03, Step 1.939171e+02 Order 4
+Time -4.730632e+03, Step 1.939171e+02 Order 4
+Time -4.536715e+03, Step 1.939171e+02 Order 4
+Time -4.342798e+03, Step 1.939171e+02 Order 4
+Time -4.148880e+03, Step 1.939171e+02 Order 4
+Time -3.954963e+03, Step 1.939171e+02 Order 4
+Time -3.819666e+03, Step 1.352978e+02 Order 4
+Time -3.684368e+03, Step 1.352978e+02 Order 4
+Time -3.549070e+03, Step 1.352978e+02 Order 4
+Time -3.413772e+03, Step 1.352978e+02 Order 4
+Time -3.278474e+03, Step 1.352978e+02 Order 4
+Time -3.143177e+03, Step 1.352978e+02 Order 4
+Time -3.007879e+03, Step 1.352978e+02 Order 4
+Time -2.872581e+03, Step 1.352978e+02 Order 4
+Time -2.780758e+03, Step 9.182318e+01 Order 4
+Time -2.688935e+03, Step 9.182318e+01 Order 4
+Time -2.597112e+03, Step 9.182318e+01 Order 4
+Time -2.505288e+03, Step 9.182318e+01 Order 4
+Time -2.413465e+03, Step 9.182318e+01 Order 4
+Time -2.321642e+03, Step 9.182318e+01 Order 4
+Time -2.229819e+03, Step 9.182318e+01 Order 4
+Time -2.137996e+03, Step 9.182318e+01 Order 4
+Time -2.074043e+03, Step 6.395285e+01 Order 4
+Time -2.010090e+03, Step 6.395285e+01 Order 4
+Time -1.946137e+03, Step 6.395285e+01 Order 4
+Time -1.882184e+03, Step 6.395285e+01 Order 4
+Time -1.818231e+03, Step 6.395285e+01 Order 4
+Time -1.754279e+03, Step 6.395285e+01 Order 4
+Time -1.690326e+03, Step 6.395285e+01 Order 4
+Time -1.626373e+03, Step 6.395285e+01 Order 4
+Time -1.562420e+03, Step 6.395285e+01 Order 4
+Time -1.518914e+03, Step 4.350578e+01 Order 4
+Time -1.475408e+03, Step 4.350578e+01 Order 4
+Time -1.431903e+03, Step 4.350578e+01 Order 4
+Time -1.388397e+03, Step 4.350578e+01 Order 4
+Time -1.344891e+03, Step 4.350578e+01 Order 4
+Time -1.301385e+03, Step 4.350578e+01 Order 4
+Time -1.257880e+03, Step 4.350578e+01 Order 4
+Time -1.214374e+03, Step 4.350578e+01 Order 4
+Time -1.170868e+03, Step 4.350578e+01 Order 4
+Time -1.140567e+03, Step 3.030139e+01 Order 4
+Time -1.110265e+03, Step 3.030139e+01 Order 4
+Time -1.079964e+03, Step 3.030139e+01 Order 4
+Time -1.049662e+03, Step 3.030139e+01 Order 4
+Time -1.019361e+03, Step 3.030139e+01 Order 4
+Time -9.890596e+02, Step 3.030139e+01 Order 4
+Time -9.587582e+02, Step 3.030139e+01 Order 4
+Time -9.284568e+02, Step 3.030139e+01 Order 4
+Time -8.981554e+02, Step 3.030139e+01 Order 4
+Time -8.678540e+02, Step 3.030139e+01 Order 4
+Time -8.472528e+02, Step 2.060118e+01 Order 4
+Time -8.266517e+02, Step 2.060118e+01 Order 4
+Time -8.060505e+02, Step 2.060118e+01 Order 4
+Time -7.854493e+02, Step 2.060118e+01 Order 4
+Time -7.648481e+02, Step 2.060118e+01 Order 4
+Time -7.442469e+02, Step 2.060118e+01 Order 4
+Time -7.236458e+02, Step 2.060118e+01 Order 4
+Time -7.030446e+02, Step 2.060118e+01 Order 4
+Time -6.824434e+02, Step 2.060118e+01 Order 4
+Time -6.618422e+02, Step 2.060118e+01 Order 4
+Time -6.475794e+02, Step 1.426282e+01 Order 4
+Time -6.333166e+02, Step 1.426282e+01 Order 4
+Time -6.190537e+02, Step 1.426282e+01 Order 4
+Time -6.047909e+02, Step 1.426282e+01 Order 4
+Time -5.905281e+02, Step 1.426282e+01 Order 4
+Time -5.762653e+02, Step 1.426282e+01 Order 4
+Time -5.620025e+02, Step 1.426282e+01 Order 4
+Time -5.477396e+02, Step 1.426282e+01 Order 4
+Time -5.334768e+02, Step 1.426282e+01 Order 4
+Time -5.192140e+02, Step 1.426282e+01 Order 4
+Time -5.049512e+02, Step 1.426282e+01 Order 4
+Time -4.906883e+02, Step 1.426282e+01 Order 4
+Time -4.764255e+02, Step 1.426282e+01 Order 4
+Time -4.621627e+02, Step 1.426282e+01 Order 4
+Time -4.478999e+02, Step 1.426282e+01 Order 4
+Time -4.336370e+02, Step 1.426282e+01 Order 4
+Time -4.237034e+02, Step 9.933643e+00 Order 4
+Time -4.137698e+02, Step 9.933643e+00 Order 4
+Time -4.038361e+02, Step 9.933643e+00 Order 4
+Time -3.939025e+02, Step 9.933643e+00 Order 4
+Time -3.839688e+02, Step 9.933643e+00 Order 4
+Time -3.740352e+02, Step 9.933643e+00 Order 4
+Time -3.641015e+02, Step 9.933643e+00 Order 4
+Time -3.541679e+02, Step 9.933643e+00 Order 4
+Time -3.442343e+02, Step 9.933643e+00 Order 4
+Time -3.343006e+02, Step 9.933643e+00 Order 4
+Time -3.243670e+02, Step 9.933643e+00 Order 4
+Time -3.144333e+02, Step 9.933643e+00 Order 4
+Time -3.044997e+02, Step 9.933643e+00 Order 4
+Time -2.976611e+02, Step 6.838595e+00 Order 4
+Time -2.908225e+02, Step 6.838595e+00 Order 4
+Time -2.839839e+02, Step 6.838595e+00 Order 4
+Time -2.771453e+02, Step 6.838595e+00 Order 4
+Time -2.703067e+02, Step 6.838595e+00 Order 4
+Time -2.634681e+02, Step 6.838595e+00 Order 4
+Time -2.566295e+02, Step 6.838595e+00 Order 4
+Time -2.497909e+02, Step 6.838595e+00 Order 4
+Time -2.429523e+02, Step 6.838595e+00 Order 4
+Time -2.361137e+02, Step 6.838595e+00 Order 4
+Time -2.292751e+02, Step 6.838595e+00 Order 4
+Time -2.224366e+02, Step 6.838595e+00 Order 4
+Time -2.155980e+02, Step 6.838595e+00 Order 4
+Time -2.108831e+02, Step 4.714840e+00 Order 4
+Time -2.061683e+02, Step 4.714840e+00 Order 4
+Time -2.014534e+02, Step 4.714840e+00 Order 4
+Time -1.967386e+02, Step 4.714840e+00 Order 4
+Time -1.920238e+02, Step 4.714840e+00 Order 4
+Time -1.873089e+02, Step 4.714840e+00 Order 4
+Time -1.825941e+02, Step 4.714840e+00 Order 4
+Time -1.778792e+02, Step 4.714840e+00 Order 4
+Time -1.731644e+02, Step 4.714840e+00 Order 4
+Time -1.684496e+02, Step 4.714840e+00 Order 4
+Time -1.637347e+02, Step 4.714840e+00 Order 4
+Time -1.590199e+02, Step 4.714840e+00 Order 4
+Time -1.543050e+02, Step 4.714840e+00 Order 4
+Time -1.510310e+02, Step 3.274077e+00 Order 4
+Time -1.477569e+02, Step 3.274077e+00 Order 4
+Time -1.444828e+02, Step 3.274077e+00 Order 4
+Time -1.412087e+02, Step 3.274077e+00 Order 4
+Time -1.379347e+02, Step 3.274077e+00 Order 4
+Time -1.346606e+02, Step 3.274077e+00 Order 4
+Time -1.313865e+02, Step 3.274077e+00 Order 4
+Time -1.281124e+02, Step 3.274077e+00 Order 4
+Time -1.248383e+02, Step 3.274077e+00 Order 4
+Time -1.215643e+02, Step 3.274077e+00 Order 4
+Time -1.182902e+02, Step 3.274077e+00 Order 4
+Time -1.150161e+02, Step 3.274077e+00 Order 4
+Time -1.117420e+02, Step 3.274077e+00 Order 4
+Time -1.084680e+02, Step 3.274077e+00 Order 4
+Time -1.062371e+02, Step 2.230824e+00 Order 4
+Time -1.040063e+02, Step 2.230824e+00 Order 4
+Time -1.017755e+02, Step 2.230824e+00 Order 4
+Time -9.954466e+01, Step 2.230824e+00 Order 4
+Time -9.731384e+01, Step 2.230824e+00 Order 4
+Time -9.508301e+01, Step 2.230824e+00 Order 4
+Time -9.285219e+01, Step 2.230824e+00 Order 4
+Time -9.062137e+01, Step 2.230824e+00 Order 4
+Time -8.839054e+01, Step 2.230824e+00 Order 4
+Time -8.615972e+01, Step 2.230824e+00 Order 4
+Time -8.392889e+01, Step 2.230824e+00 Order 4
+Time -8.169807e+01, Step 2.230824e+00 Order 4
+Time -7.946725e+01, Step 2.230824e+00 Order 4
+Time -7.723642e+01, Step 2.230824e+00 Order 4
+Time -7.500560e+01, Step 2.230824e+00 Order 4
+Time -7.348204e+01, Step 1.523562e+00 Order 4
+Time -7.195848e+01, Step 1.523562e+00 Order 4
+Time -7.043491e+01, Step 1.523562e+00 Order 4
+Time -6.891135e+01, Step 1.523562e+00 Order 4
+Time -6.738779e+01, Step 1.523562e+00 Order 4
+Time -6.586423e+01, Step 1.523562e+00 Order 4
+Time -6.434067e+01, Step 1.523562e+00 Order 4
+Time -6.281710e+01, Step 1.523562e+00 Order 4
+Time -6.129354e+01, Step 1.523562e+00 Order 4
+Time -5.976998e+01, Step 1.523562e+00 Order 4
+Time -5.824642e+01, Step 1.523562e+00 Order 4
+Time -5.672286e+01, Step 1.523562e+00 Order 4
+Time -5.519929e+01, Step 1.523562e+00 Order 4
+Time -5.367573e+01, Step 1.523562e+00 Order 4
+Time -5.215217e+01, Step 1.523562e+00 Order 4
+Time -5.062861e+01, Step 1.523562e+00 Order 4
+Time -4.957574e+01, Step 1.052866e+00 Order 4
+Time -4.852288e+01, Step 1.052866e+00 Order 4
+Time -4.747001e+01, Step 1.052866e+00 Order 4
+Time -4.641714e+01, Step 1.052866e+00 Order 4
+Time -4.536428e+01, Step 1.052866e+00 Order 4
+Time -4.431141e+01, Step 1.052866e+00 Order 4
+Time -4.325855e+01, Step 1.052866e+00 Order 4
+Time -4.220568e+01, Step 1.052866e+00 Order 4
+Time -4.115281e+01, Step 1.052866e+00 Order 4
+Time -4.009995e+01, Step 1.052866e+00 Order 4
+Time -3.904708e+01, Step 1.052866e+00 Order 4
+Time -3.799422e+01, Step 1.052866e+00 Order 4
+Time -3.694135e+01, Step 1.052866e+00 Order 4
+Time -3.588848e+01, Step 1.052866e+00 Order 4
+Time -3.483562e+01, Step 1.052866e+00 Order 4
+Time -3.410040e+01, Step 7.352149e-01 Order 4
+Time -3.336519e+01, Step 7.352149e-01 Order 4
+Time -3.262997e+01, Step 7.352149e-01 Order 4
+Time -3.189476e+01, Step 7.352149e-01 Order 4
+Time -3.115954e+01, Step 7.352149e-01 Order 4
+Time -3.042433e+01, Step 7.352149e-01 Order 4
+Time -2.968911e+01, Step 7.352149e-01 Order 4
+Time -2.895390e+01, Step 7.352149e-01 Order 4
+Time -2.821868e+01, Step 7.352149e-01 Order 4
+Time -2.748347e+01, Step 7.352149e-01 Order 4
+Time -2.674825e+01, Step 7.352149e-01 Order 4
+Time -2.601304e+01, Step 7.352149e-01 Order 4
+Time -2.527782e+01, Step 7.352149e-01 Order 4
+Time -2.454261e+01, Step 7.352149e-01 Order 4
+Time -2.380740e+01, Step 7.352149e-01 Order 4
+Time -2.329655e+01, Step 5.108464e-01 Order 4
+Time -2.278570e+01, Step 5.108464e-01 Order 4
+Time -2.227486e+01, Step 5.108464e-01 Order 4
+Time -2.176401e+01, Step 5.108464e-01 Order 4
+Time -2.125316e+01, Step 5.108464e-01 Order 4
+Time -2.074232e+01, Step 5.108464e-01 Order 4
+Time -2.023147e+01, Step 5.108464e-01 Order 4
+Time -1.972062e+01, Step 5.108464e-01 Order 4
+Time -1.920978e+01, Step 5.108464e-01 Order 4
+Time -1.869893e+01, Step 5.108464e-01 Order 4
+Time -1.818808e+01, Step 5.108464e-01 Order 4
+Time -1.767724e+01, Step 5.108464e-01 Order 4
+Time -1.716639e+01, Step 5.108464e-01 Order 4
+Time -1.665555e+01, Step 5.108464e-01 Order 4
+Time -1.614470e+01, Step 5.108464e-01 Order 4
+Time -1.563385e+01, Step 5.108464e-01 Order 4
+Time -1.528160e+01, Step 3.522560e-01 Order 4
+Time -1.492934e+01, Step 3.522560e-01 Order 4
+Time -1.457708e+01, Step 3.522560e-01 Order 4
+Time -1.422483e+01, Step 3.522560e-01 Order 4
+Time -1.387257e+01, Step 3.522560e-01 Order 4
+Time -1.352032e+01, Step 3.522560e-01 Order 4
+Time -1.316806e+01, Step 3.522560e-01 Order 4
+Time -1.281580e+01, Step 3.522560e-01 Order 4
+Time -1.246355e+01, Step 3.522560e-01 Order 4
+Time -1.211129e+01, Step 3.522560e-01 Order 4
+Time -1.175904e+01, Step 3.522560e-01 Order 4
+Time -1.140678e+01, Step 3.522560e-01 Order 4
+Time -1.105452e+01, Step 3.522560e-01 Order 4
+Time -1.070227e+01, Step 3.522560e-01 Order 4
+Time -1.035001e+01, Step 3.522560e-01 Order 4
+Time -9.997757e+00, Step 3.522560e-01 Order 4
+Time -9.645501e+00, Step 3.522560e-01 Order 4
+Time -9.293245e+00, Step 3.522560e-01 Order 4
+Time -8.940989e+00, Step 3.522560e-01 Order 4
+Time -8.699487e+00, Step 2.415017e-01 Order 4
+Time -8.457985e+00, Step 2.415017e-01 Order 4
+Time -8.216484e+00, Step 2.415017e-01 Order 4
+Time -7.974982e+00, Step 2.415017e-01 Order 4
+Time -7.733480e+00, Step 2.415017e-01 Order 4
+Time -7.491978e+00, Step 2.415017e-01 Order 4
+Time -7.250477e+00, Step 2.415017e-01 Order 4
+Time -7.008975e+00, Step 2.415017e-01 Order 4
+Time -6.767473e+00, Step 2.415017e-01 Order 4
+Time -6.525971e+00, Step 2.415017e-01 Order 4
+Time -6.284470e+00, Step 2.415017e-01 Order 4
+Time -6.042968e+00, Step 2.415017e-01 Order 4
+Time -5.801466e+00, Step 2.415017e-01 Order 4
+Time -5.559965e+00, Step 2.415017e-01 Order 4
+Time -5.318463e+00, Step 2.415017e-01 Order 4
+Time -5.076961e+00, Step 2.415017e-01 Order 4
+Time -4.835459e+00, Step 2.415017e-01 Order 4
+Time -4.593958e+00, Step 2.415017e-01 Order 4
+Time -4.352456e+00, Step 2.415017e-01 Order 4
+Time -4.110954e+00, Step 2.415017e-01 Order 4
+Time -3.869453e+00, Step 2.415017e-01 Order 4
+Time -3.702081e+00, Step 1.673714e-01 Order 4
+Time -3.534710e+00, Step 1.673714e-01 Order 4
+Time -3.367338e+00, Step 1.673714e-01 Order 4
+Time -3.199967e+00, Step 1.673714e-01 Order 4
+Time -3.032596e+00, Step 1.673714e-01 Order 4
+Time -2.865224e+00, Step 1.673714e-01 Order 4
+Time -2.697853e+00, Step 1.673714e-01 Order 4
+Time -2.530482e+00, Step 1.673714e-01 Order 4
+Time -2.363110e+00, Step 1.673714e-01 Order 4
+Time -2.195739e+00, Step 1.673714e-01 Order 4
+Time -2.028368e+00, Step 1.673714e-01 Order 4
+Time -1.860996e+00, Step 1.673714e-01 Order 4
+Time -1.693625e+00, Step 1.673714e-01 Order 4
+Time -1.526253e+00, Step 1.673714e-01 Order 4
+Time -1.358882e+00, Step 1.673714e-01 Order 4
+Time -1.191511e+00, Step 1.673714e-01 Order 4
+Time -1.024139e+00, Step 1.673714e-01 Order 4
+Time -8.567681e-01, Step 1.673714e-01 Order 4
+Time -6.893967e-01, Step 1.673714e-01 Order 4
+Time -5.220253e-01, Step 1.673714e-01 Order 4
+Time -3.546540e-01, Step 1.673714e-01 Order 4
+Time -1.872826e-01, Step 1.673714e-01 Order 4
+Time -1.991126e-02, Step 1.673714e-01 Order 4
+Time 1.474601e-01, Step 1.673714e-01 Order 4
+2.451545e+06  3.622593e-01  -8.711102e-02  -8.380592e-02  3.367494e-03  
+2.489452e-02  1.294630e-02
+2.451545e+06  -1.222203e-01  -3.343478e-02  -5.379546e+00  -8.304806e-01  
+-2.248287e-01  1.092012e-03
+2.451545e+06  -2.386992e+00  5.415713e-01  7.397262e-01  -3.578850e-03  
+-9.851976e-03  -3.907578e-03
+2.451545e+06  -8.500040e-01  1.941016e+00  -3.281028e-01  -1.173216e-02  
+-5.307093e-03  1.859788e-03
+2.451545e+06  -1.359297e+00  -1.624150e+00  -4.698525e-01  9.630184e-03  
+-6.422455e-03  -3.815339e-03
+2.451545e+06  1.797667e+00  2.091467e+00  8.064562e-01  -7.024411e-03  
+7.225572e-03  3.029142e-03
+</pre><pre>#include&lt;stdio.h&gt;
+#include&quot;cvodes.h&quot;
+#include&quot;nvector_serial.h&quot;
+#include&quot;cvodes_dense.h&quot;
+#include&quot;sundials_dense.h&quot;
+
+#define J_EPOCH_INI RCONST(2451545.0)
+#define NUM_ASTER 6
+
+#define RTOL RCONST(1.0e-15)
+#define ATOL RCONST(1.0e-15)
+
+#define MAXNUMSTEPS 20000
+/* This is modified from the usual CVODES!!!!!!!!!!!!!!!!!!*/
+#define Ith(v,i) NV_Ith_S(v,i) /* Ith numbers components 0..NEQ-1 */
+
+#define ZERO RCONST(0.0)
+#define ONE RCONST(1.0)
+
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+
+typedef struct{
+  long int *aster_num;
+  realtype *p;
+  realtype abstol;
+  realtype reltol;
+} *Userdata;
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
+static void PrintFinalStats(void *cvode_mem);
+static int runCVode(void *cvode_mem, N_Vector y, realtype *t, realtype tout, Userdata data, FILE *fl);
+
+int main(void)
+{
+  FILE *in, *out;
+  Userdata data;
+  void *cvode_mem;
+  N_Vector y;
+  long int i;
+  int flag, j, NEQ, NP=7*NUM_ASTER;
+  realtype t0=0.0, tout;
+  y=NULL;
+  cvode_mem=NULL;
+  /*
+    Allocate and initialize user data structure
+    */
+  data=(Userdata)malloc(sizeof *data);
+  if(check_flag((void *)data, &quot;malloc&quot;, 2)) return(1);
+  data-&gt;p=(realtype *)malloc(NP*sizeof(realtype));
+  data-&gt;reltol=RTOL;
+  data-&gt;abstol=ATOL;
+  data-&gt;aster_num=(long int *)malloc(NUM_ASTER*sizeof(long int));
+  in=fopen(&quot;test.new&quot;, &quot;r&quot;);
+  i=0;
+  while(fscanf(in, &quot;%ld %lf %lf %lf %lf %lf %lf %lf&quot;,
+    data-&gt;aster_num+i, data-&gt;p+7*i, data-&gt;p+7*i+1, data-&gt;p+7*i+2,
+    data-&gt;p+7*i+3, data-&gt;p+7*i+4, data-&gt;p+7*i+5, data-&gt;p+7*i+6)!=EOF) i++;
+  fclose(in);
+  if(i!=NUM_ASTER){
+    printf(&quot;Check number of bodies in file and in the program text!&quot;);
+    return(1);}
+  /*
+    Integration settings
+    */
+  /* Problem size */
+  NEQ=6*NUM_ASTER;
+  /* Allocate and set vector of initial conditions */
+  y=N_VNew_Serial(NEQ);
+  if(check_flag((void *)y, &quot;N_VNew_Serial&quot;, 0)) return(1);
+  for(i=0;i&lt;NUM_ASTER;i++)
+    for(j=0;j&lt;6;j++)
+      Ith(y,6*i+j)=data-&gt;p[7*i+j];
+  /* Create, set, and allocate CVODES object */
+  cvode_mem=CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
+  if(check_flag((void *)cvode_mem, &quot;CVodeCreate&quot;, 0)) return(1);
+  flag=CVodeMalloc(cvode_mem, f, t0, y, CV_SS, data-&gt;reltol, &amp;data-&gt;abstol);
+  if(check_flag(&amp;flag, &quot;CVodeMalloc&quot;, 1)) return(1);
+  flag=CVodeSetFdata(cvode_mem, data);
+  if(check_flag(&amp;flag, &quot;CVodeSetFdata&quot;, 1)) return(1);
+  /* Set optional inputs */
+  flag=CVodeSetMaxNumSteps(cvode_mem, MAXNUMSTEPS);
+  if(check_flag(&amp;flag, &quot;CVodeSetMaxNumSteps&quot;, 1)) return(1);
+  /*flag=CVodeSetMaxOrd(cvode_mem, MAXORD);
+  if(check_flag(&amp;flag, &quot;CVodeSetMaxOrd&quot;, 1)) return(1);*/
+  /* Attach linear solver */
+  flag=CVDense(cvode_mem, NEQ);
+  if(check_flag(&amp;flag, &quot;CVDense&quot;, 1)) return(1);
+  /* Initialization */
+    /* Run CVODES */
+  printf(&quot;Begin calculation...\n&quot;);
+  out=fopen(&quot;newbest.txt&quot;, &quot;w&quot;);
+  tout=0.0;
+  runCVode(cvode_mem, y, &amp;t0, tout-J_EPOCH_INI, data, out);
+  PrintFinalStats(cvode_mem);
+  for(i=0;i&lt;NUM_ASTER;i++){
+    fprintf(out, &quot;%le&quot;, tout);
+    for(j=0;j&lt;6;j++)
+      fprintf(out, &quot;  %+le&quot;, Ith(y,6*i+j));
+    fprintf(out, &quot;\n&quot;);}
+  tout=2451545.0;
+  runCVode(cvode_mem, y, &amp;t0, tout-J_EPOCH_INI, data, out);
+  PrintFinalStats(cvode_mem);
+  for(i=0;i&lt;NUM_ASTER;i++){
+      fprintf(out, &quot;%le&quot;, tout);
+      for(j=0;j&lt;6;j++)
+        fprintf(out, &quot;  %le&quot;, Ith(y,6*i+j));
+      fprintf(out, &quot;\n&quot;);}
+  fclose(out);
+  /* Free memory */
+  free(data);
+  N_VDestroy_Serial(y);
+  CVodeFree(&amp;cvode_mem);
+  return(0);
+}
+
+static int runCVode(void *cvode_mem, N_Vector y, realtype *t, realtype tout, Userdata data, FILE *fl)
+{
+  int flag, ql;
+  realtype hl, tn;
+  flag=CVodeGetCurrentTime(cvode_mem, &amp;tn);
+  if(check_flag(&amp;flag, &quot;CVodeGetCurrentTime&quot;, 1)) return(1);
+  flag=CVodeGetLastStep(cvode_mem, &amp;hl);
+  if(check_flag(&amp;flag, &quot;CVodeGetLastStep&quot;, 1)) return(1);
+  if((tout-*t)*hl&lt;0.0){
+    flag=CVodeReInit(cvode_mem, f, *t, y, CV_SS, data-&gt;reltol, &amp;data-&gt;abstol);
+    if(check_flag(&amp;flag, &quot;CVodeReInit&quot;, 1)) return(1);}
+  if(*t&lt;tout)
+    while(*t&lt;tout){
+      flag=CVode(cvode_mem, tout, y, t, CV_ONE_STEP);
+      if(check_flag(&amp;flag, &quot;CVode&quot;, 1)) return(1);
+      flag=CVodeGetCurrentTime(cvode_mem, &amp;tn);
+      if(check_flag(&amp;flag, &quot;CVodeGetCurrentTime&quot;, 1)) return(1);
+      flag=CVodeGetLastStep(cvode_mem, &amp;hl);
+      if(check_flag(&amp;flag, &quot;CVodeGetLastStep&quot;, 1)) return(1);
+      flag=CVodeGetLastOrder(cvode_mem, &amp;ql);
+      if(check_flag(&amp;flag, &quot;CVodeGetLastOrder&quot;, 1)) return(1);
+      fprintf(fl, &quot;Time %le, Step %le Order %d\n&quot;, tn, hl, ql);}
+    else
+      while(*t&gt;tout){
+      flag=CVode(cvode_mem, tout, y, t, CV_ONE_STEP);
+      if(check_flag(&amp;flag, &quot;CVode&quot;, 1)) return(1);
+      flag=CVodeGetCurrentTime(cvode_mem, &amp;tn);
+      if(check_flag(&amp;flag, &quot;CVodeGetCurrentTime&quot;, 1)) return(1);
+      flag=CVodeGetLastStep(cvode_mem, &amp;hl);
+      if(check_flag(&amp;flag, &quot;CVodeGetLastStep&quot;, 1)) return(1);
+      flag=CVodeGetLastOrder(cvode_mem, &amp;ql);
+      if(check_flag(&amp;flag, &quot;CVodeGetLastOrder&quot;, 1)) return(1);
+      fprintf(fl, &quot;Time %le, Step %le Order %d\n&quot;, tn, hl, ql);}
+  return(flag);
+}
+
+int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+{
+  Userdata data;
+  data=(Userdata)f_data;
+  int i, j, k;
+  realtype r, r2;
+  realtype *y_data, *ydot_data;
+  y_data=NV_DATA_S(y);
+  ydot_data=NV_DATA_S(ydot);
+  for(i=0;i&lt;NUM_ASTER;i++){
+    for(j=0;j&lt;3;j++)
+      ydot_data[6*i+j]=y_data[6*i+3+j];
+    for(j=0;j&lt;3;j++)
+      ydot_data[6*i+3+j]=0.0;
+    for(j=0;j&lt;NUM_ASTER;j++){
+      if(j==i) continue;
+      r2=0.0;
+      for(k=0;k&lt;3;k++)
+        r2+=(y_data[6*i+k]-y_data[6*j+k])*(y_data[6*i+k]-y_data[6*j+k]);
+      r=sqrt(r2);
+      for(k=0;k&lt;3;k++)
+        ydot_data[6*i+3+k]+=data-&gt;p[7*j+6]*(y_data[6*j+k]-y_data[6*i+k])/(r2*r);}}
+  return(0);
+}
+
+static void PrintFinalStats(void *cvode_mem)
+{
+  long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
+  int flag;
+  flag=CVodeGetNumSteps(cvode_mem, &amp;nst);
+  check_flag(&amp;flag, &quot;CVodeGetNumSteps&quot;, 1);
+  flag=CVodeGetNumRhsEvals(cvode_mem, &amp;nfe);
+  check_flag(&amp;flag, &quot;CVodeGetNumRhsEvals&quot;, 1);
+  flag=CVodeGetNumLinSolvSetups(cvode_mem, &amp;nsetups);
+  check_flag(&amp;flag, &quot;CVodeGetNumLinSolvSetups&quot;, 1);
+  flag=CVodeGetNumErrTestFails(cvode_mem, &amp;netf);
+  check_flag(&amp;flag, &quot;CVodeGetNumErrTestFails&quot;, 1);
+  flag=CVodeGetNumNonlinSolvIters(cvode_mem, &amp;nni);
+  check_flag(&amp;flag, &quot;CVodeGetNumNonlinSolvIters&quot;, 1);
+  flag=CVodeGetNumNonlinSolvConvFails(cvode_mem, &amp;ncfn);
+  check_flag(&amp;flag, &quot;CVodeGetNumNonlinSolvConvFails&quot;, 1);
+  flag=CVDenseGetNumJacEvals(cvode_mem, &amp;nje);
+  check_flag(&amp;flag, &quot;CVDenseGetNumJacEvals&quot;, 1);
+  flag=CVDenseGetNumRhsEvals(cvode_mem, &amp;nfeLS);
+  check_flag(&amp;flag, &quot;CVDenseGetNumRhsEvals&quot;, 1);
+  flag=CVodeGetNumGEvals(cvode_mem, &amp;nge);
+  check_flag(&amp;flag, &quot;CVodeGetNumGEvals&quot;, 1);
+  printf(&quot;\nFinal Statistics:\n&quot;);
+  printf(&quot;nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n&quot;,
+	 nst, nfe, nsetups, nfeLS, nje);
+  printf(&quot;nni = %-6ld ncfn = %-6ld netf = %-6ld nge = %ld\n \n&quot;,
+	 nni, ncfn, netf, nge);
+}
+
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag &gt;= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if(opt==0&amp;&amp;flagvalue==NULL){
+    fprintf(stderr, &quot;\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n&quot;,
+	    funcname);
+    return(1);}
+  /* Check if flag &lt; 0 */
+  else if(opt==1){
+    errflag=(int *)flagvalue;
+    if(*errflag&lt;0){
+      fprintf(stderr, &quot;\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n&quot;,
+	      funcname, *errflag);
+      return(1);}}
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if(opt==2&amp;&amp;flagvalue==NULL){
+    fprintf(stderr, &quot;\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n&quot;,
+	    funcname);
+    return(1);}
+  return(0);
+}
+</pre><pre>     0   3.617627146035093E-01 -9.078196772958605E-02 -8.571498318176335E-02   
+3.367493913984140E-03  2.489452046764887E-02  1.294630068865036E-02  
+0.491254745145081187e-10
+     1   2.424631177602962E-04 -2.815207342480053E-04 -5.379706898835912E+00  
+-8.304805814601515E-01 -2.248287002283728E-01  1.092011543008852E-03  
+0.282534590952422643e-06
+     2  -2.386464128801316E+00  5.430240877408412E-01  7.403023927456509E-01  
+-3.578850339583382E-03 -9.851975686180063E-03 -3.907576629871160E-03  
+0.140918602363988336e-12
+     3  -8.482739468558913E-01  1.941798277543842E+00 -3.283770736328007E-01  
+-1.173215860990688E-02 -5.307092429040059E-03  1.859788912541076E-03  
+0.318850635095733103e-13
+     4  -1.360716675142267E+00 -1.623203132354720E+00 -4.692898871698091E-01   
+9.630183485336466E-03 -6.422455646681732E-03 -3.815337822800731E-03  
+0.396891000328954492e-13
+  1082   1.798702367880005E+00  2.090401535386863E+00  8.060094946183355E-01  
+-7.024411035649231E-03  7.225571884593340E-03  3.029142815595657E-03  0.0
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00667" href="msg00667.html">[sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</a></strong>
+<ul><li><em>From:</em> anatoliy &lt;anatoly@mao.nikolaev.ua&gt;</li></ul></li>
+<li><strong><a name="00673" href="msg00673.html">Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00681" href="msg00681.html">Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</a></strong>
+<ul><li><em>From:</em> anatoliy &lt;anatoly@mao.nikolaev.ua&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00684.html">Re: [sundials-users] Problem with IDACalcIC in IDA solver</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00686.html">Re: [sundials-users] intermediate output with CVodeF</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00681.html">Re: [sundials-users] Maximum order of 12 in the non-stiff IVP is not reached!</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00670.html">[sundials-users] intermediate output with CVodeF</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00685">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00685">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

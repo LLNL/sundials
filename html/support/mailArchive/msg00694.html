@@ -1,0 +1,412 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] ReInit functions in sundialsTB -->
+<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
+<!--X-Date: Mon, 18 Sep 2006 17:04:37 &#45;0700 -->
+<!--X-Message-Id: 450F33C0.2090509@llnl.gov -->
+<!--X-Content-Type: multipart/mixed -->
+<!--X-Reference: 17664.30697.219776.747040@segfault.lan -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] ReInit functions in sundialsTB</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00693.html">Date Prev</a>] [<a href="msg00695.html">Date Next</a>] [<a href="msg00653.html">Thread Prev</a>] [<a href="msg00708.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00694">Date Index</a></b>]
+[<b><a href="threads.html#00694">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] ReInit functions in sundialsTB</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 18 Sep 2006 17:03:12 -0700</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Hi John,</pre><br>
+In general, propagating sensitivities over discontinuities is tricky and I'm not 
+aware of a complete analysis done for the case when using adjoint methods (this 
+is something I've been thinking of looking at - in a more general setting - for 
+a while). The problem comes from the fact that, in the most general case, the 
+time at which a discontinuity occurs can itself be a function of the parameters 
+with respect to which SA is performed and this must be taken into consideration. 
+For the case of forward SA, look up papers on this topic by Paul Barton and 
+coworkers (e.g. Appl.Numer.Math. 25, 1997, pp.17-47 and SISC 23(6), 2002, pp. 
+1861-1874).<br>
+<br>
+Your case however is easier to deal with, since the discontinuities occur at 
+fixed times and there are no jumps in the solution (but rather only in the 
+control function u). To integrate such a system, one can certainly set stop 
+times and reinitialize the solver at the points of discontinuity in the control. 
+However,  CVODES will be able to integrate forward such a system without having 
+to explicitly specify the points where the control is discontinuous (you will 
+see a reduction in step size and order at those points and, quite likely, some 
+error test failures there).<br>
+<br>
+To solve the adjoint sensitivity problem with CVODES, you will have to use the 
+latter approach since, with the current implementation, one cannot set stop 
+times neither for CVodeF nor for CVodeB. For those interested, here are the 
+reasons why this is not possible:<br>
+- forward pass: with the current implementation of the two-pass checkpointing 
+scheme, setting a value for tstop on the forward phase is allowed only if the 
+backward integration will be started from the left of this tstop (the reason is 
+that it is impossible to reliably reproduce exactly the first forward pass 
+during the second one given all the freedom that the user would have in 
+specifying and enabling/disabling different tstop values). An alternative scheme 
+(based on storing the history of solver decisions on the first pass) that I hope 
+to implement at some point would relax this constraint.<br>
+- backward pass: CVodeB already sets tstop values before wrapping around CVode 
+(to the time corresponding to the current left check point) and for the current 
+implementation I opted not to deal with the complications raised by mixing these 
+internal tstop values with user defined ones (I probably will implement this in 
+some future version).<br>
+<br>
+Returning to your problem, the solution is then to let CVODES integrate over 
+this type of discontinuities without any re-initializations, both on the forward 
+and backward phases. As an example, I have attached a file with the Matlab code 
+needed to find the gradient with respect to the control parameterization of the 
+solution at the final time tf=1 of the following ODE:<br>
+y' = - y + u(t)<br>
+y(t0) = 1<br>
+where u is a piecewise constant control, u(t) = p_i;  t_i &lt; t &lt;= t_{i+1}, i = 
+1,2,3,4.<br>
+<br>
+<pre style="margin: 0em;">Hope that this helps,
+--Radu</pre><br>
+P.S. The re-initialization functions in sundialsTB will be available in the next 
+release, but - for the reasons mentioned above - they'll be intended for 
+different uses: CVodeReInit is needed to perform simulation over discontinuities 
+(but not during the forward pass in adjoint sensitivity analysis). CVodeReInitB 
+is needed to reuse the checkpoints stored during a first forward pass in case 
+one wants to integrate backwards an adjoint system starting at a different final 
+time (as in the CVODES example cvadjdenx.c)<br>
+<br>
+<pre style="margin: 0em;"><br></pre><br>
+<br>John W. Eaton wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I'd like to to use the sundialsTB to solve an adjoint sensitivity
+problem with an ODE that has a parameter that changes
+discontinuously.  A simple example is something like</pre><br>
+<pre style="margin: 0em;">  x_dot = f(x,u);   x(t_0) = x_0</pre><br>
+<pre style="margin: 0em;">in which the value of u is constant within each of N intervals from
+t_0 to t_final, but there may be jumps in the value of u at the
+interval boundaries.</pre><br>
+<pre style="margin: 0em;">Based on what I see here:</pre><br>
+<pre style="margin: 0em;">  <a  href="http://www.llnl.gov/CASC/sundials/support/mailArchive/msg00359.html">http://www.llnl.gov/CASC/sundials/support/mailArchive/msg00359.html</a></pre><br>
+<pre style="margin: 0em;">I think I need to do something like</pre><br>
+<pre style="margin: 0em;">  Initialize forward problem with stop time set to end of first interval
+  Allocate memory for adjoint problem</pre><br>
+<pre style="margin: 0em;">  for i = 1:N
+    * Integrate forward with stop time set to end of current interval
+    * Update stop time
+    * Reinit forward problem
+  end</pre><br>
+<pre style="margin: 0em;">  Initialize backward problem with stop time set to beginning of last interval</pre><br>
+<pre style="margin: 0em;">  for i = N:-1:1
+    * Integrate backward with stop time set to beginning of current interval
+    * Update stop time
+    * Reinit backward problem
+  end</pre><br>
+<pre style="margin: 0em;">Is this the right approach to use?</pre><br>
+<pre style="margin: 0em;">If so, then it doesn't seem possible with the current sundialsTB since
+the functions CVM_ReInit and CVM_ReInitB are marked as NYI (not yet
+implmented, I assume) and their definitions simply return 0.  Is there
+a reason that these have been left out?  Would they be difficult to
+implement?  Is it just a matter of unpacking arguments and calling the
+CVodeReInit and CVodeReInitB functions, or is something more required?</pre><br>
+<pre style="margin: 0em;">To make these functions useful, it seems it would also be necessary to
+expose some additional functions to Matlab (for example,
+CVodeSetStopTime).</pre><br>
+<pre style="margin: 0em;">I'd be willing to work on implementing these functions if the approach
+outlined above is (mostly) correct.</pre><br>
+<pre style="margin: 0em;">Thanks,</pre><br>
+<pre style="margin: 0em;">jwe</pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>
+<pre>function [] = cadjcntrl()
+%
+% Given the ODE
+%   y' = f(y,u)
+%   y(t0) = y_0
+% on the interval t=[t0,tf], with a piecewise constant control 
+% u(t) = p_i;  t_i &lt; t &lt;= t_{i+1}, i = 1,2,...,M,
+% compute the gradient of g(y(tf)) with respect to the control
+% parameterization p_i.
+%
+% A perturbation del_u(t) in the control u(t) induces a
+% change del_g in the functional g
+%   del_g = int_0^1 {mu^T * f_u * del_u(t) * dt}
+% where mu is solution of the adjoint system
+%   mu' = -f_y^T * mu
+%   mu(tf) = g_y(tf)
+%
+% Therefore, the gradient dg/dp is given by
+%   dg/dp_i = int_{t_i}^{t^{i+1}} { mu^T * f_u * dt }
+% since del_u(t) = dp_i;  t_i &lt; t &lt;= t_{i+1}
+%
+% In this case,
+%  t0 = 0, tf = 1, y_0 = 1
+%  f(y,u) = - y + u(t) =&gt; f_y = -1, f_u = 1
+%  t_i = [0, 0.25, 0.5, 0.75, 1]
+%  p_i = [0.1, 0.5, 0.3, 0.1]
+%  g(y) = y =&gt; g_y(1) = 1
+%
+% The quadratures that provide the components of the gradient 
+% are computed simultaneously with the adjoint variable mu 
+% on the backward pass (they could be computed using dedicted
+% quadrature integration, enabling 'Quadratures' in optionsB
+% and providing a 'QuadRhsFn'). The quadrature variables are 
+% initialized with 0 at the final time and the values of the 
+% integrals are negated (due to the fact that we are actually 
+% computing int_tf^t0 {...} = -int_t0^tf{...})
+%
+% Therefore, the variables integrated backwards in time are
+% mu, q_1, q_2, ..., q_M, with
+%   mu' = mu
+%   q_i' = mu  if t_i &lt; t &lt; t_{i+1} and q_i' = 0 otherwise.
+%   (i=1,2,...,M)
+% and
+%   mu(1) = 1;
+%   q_i(1) = 0, i=1,2,...,M
+%
+% The components of the desired gradient are then:
+%   dg/dp_i = -q_i(0)
+%
+% NOTE: it is important to include the quadrature variables
+% in the error control (this is automatic if they are part of
+% the system integrated backwards in time - like in this example, 
+% but must be ensured if using the 'Quadratures' option). This is
+% necessary to ensure that the solver takes time steps that sample
+% well enough the intervals over which the integrals are evaluated.
+% Indeed, in cases such as this example (additive control), the 
+% adjoint ODE itself has no discontinuities (the quadrature ODEs 
+% contain the discontinuities) and if CVODES would base its steps
+% based on mu alone it'd most likely take large steps towards t0
+% resulting in poor accuracy for the quadratures.
+%
+
+t0 = 0.0;
+tf = 1.0;
+
+data.np = 4;
+data.tp = linspace(t0,tf,data.np+1);
+data.pp = [0.1; 0.5; 0.3; 0.1];
+
+y0 = [1.0];
+options = CVodeSetOptions('RelTol',1.e-6,...
+                          'AbsTol',1.0e-6,...
+                          'LinearSolver','Dense');
+CVodeMalloc(@rhs,t0,y0,options,data);
+CVadjMalloc(50,'Hermite');
+[status,t,y] = CVode(tf,'Normal');
+
+yBf = [1.0 ; zeros(data.np,1)];
+optionsB = CVodeSetOptions('RelTol',1.e-6,...
+                           'AbsTol',1.e-6,...
+                           'LinearSolver','Dense');
+CVodeMallocB(@rhsB, tf, yBf, optionsB);
+[status,t,yB] = CVodeB(t0,'Normal');
+
+fprintf('Gradient computed with adjoint:\n');
+disp(-yB(2:end));
+
+CVodeFree;
+
+% Find derivative of y at final time w.r.t. 2nd parameter
+% using finite differences...
+% (Note: CVodeReInit not yet implemented, so use CVodeMalloc again)
+del_p = 5.e-3;
+data.pp(2) = data.pp(2)+del_p;
+CVodeMalloc(@rhs,t0,y0,options,data);
+[status,t,yy] = CVode(tf,'Normal');
+fprintf('Derivative w.r.t. 2nd parameter computed with F.D.\n');
+disp((yy-y)/del_p);
+
+CVodeFree;
+
+return
+
+% --------------------------------------------------------------------------
+
+function [yd, flag, new_data] = rhs(t, y, data)
+
+np = data.np;
+tp = data.tp;
+pp = data.pp;
+
+ii = max(find(t&gt;=tp));
+if ii &gt; np, ii=np; end
+u = pp(ii);
+
+yd = -y+u;
+
+flag = 0;
+new_data = [];
+
+return
+
+% --------------------------------------------------------------------------
+
+function [yBd, flag, new_data] = rhsB(t, y, yB, data)
+
+np = data.np;
+tp = data.tp;
+pp = data.pp;
+
+ii = max(find(t&gt;=tp));
+if ii &gt; np, ii=np; end
+
+% adjoint variable
+mu = yB(1);
+mud = mu;
+
+% Quadratures
+qd = zeros(np,1);
+qd(ii) = mu;
+
+yBd = [mud ; qd];
+
+flag = 0;
+new_data = [];
+
+return</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00708" href="msg00708.html">Re: [sundials-users] ReInit functions in sundialsTB</a></strong>
+<ul><li><em>From:</em> &quot;John W. Eaton&quot; &lt;jwe@bevo.che.wisc.edu&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00653" href="msg00653.html">[sundials-users] ReInit functions in sundialsTB</a></strong>
+<ul><li><em>From:</em> &quot;John W. Eaton&quot; &lt;jwe@bevo.che.wisc.edu&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00693.html">Re: [sundials-users] Question on hangup of Cvodes backward integration</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00695.html">Re: [sundials-users] gamma and preconditioning</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00653.html">[sundials-users] ReInit functions in sundialsTB</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00708.html">Re: [sundials-users] ReInit functions in sundialsTB</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00694">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00694">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

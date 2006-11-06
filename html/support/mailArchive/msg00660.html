@@ -1,0 +1,225 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: [sundials&#45;users] Handling of time&#45;dependent jacobian and preconditioning -->
+<!--X-From-R13: [vpunry Zrgmthf <zvpunry.yrgmthfNhav&#45;ovryrsryq.qr> -->
+<!--X-Date: Sat, 09 Sep 2006 09:37:45 &#45;0700 -->
+<!--X-Message-Id: 4502ECE7.1030409@uni&#45;bielefeld.de -->
+<!--X-Content-Type: multipart/signed -->
+<!--X-Derived: pgpkIAWhEUVVK.pgp -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>[sundials-users] Handling of time-dependent jacobian and preconditioning</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00659.html">Date Prev</a>] [<a href="msg00661.html">Date Next</a>] [<a href="msg00659.html">Thread Prev</a>] [<a href="msg00661.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00660">Date Index</a></b>]
+[<b><a href="threads.html#00660">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>[sundials-users] Handling of time-dependent jacobian and preconditioning</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Michael Letzgus &lt;<a href="mailto:michael.letzgus%40uni-bielefeld.de">michael.letzgus@uni-bielefeld.de</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Sat, 09 Sep 2006 18:33:43 +0200</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hi all,
+
+I've a few questions concerning CVode and/or CVSpils.
+
+As a start, a short description of my problem:
+
+1)
+I have a set of states S_n (~500), for almost all pairs of states (S_n
+&lt;=&gt; S_m) I'v two rate coefficients (K_nm and K_mn), so every state is
+linked to all other states with a rate coefficient.
+All K are between 1.0E5 and 1.0E12.
+
+2)
+From my coefficients K I can easily calculate my Jacobian J.
+
+
+Starting the solver with an arbitrary Y0 gives me the relaxation of my
+system back to equilibrium.
+
+This works fine with CVdense, CVspgmr with CVBPSpgmr needs morr time and
+CVspgmr with preconditioning needs MUCH more time.
+
+My first question: Is this kind of preconditioning correct?
+
+Preconditioner setup:
+1. Scale copy of my jacobian by -gamma
+2. Add identity matrix
+3. perform LU decomposition
+4. store results for use in solver
+
+
+Preconditioner solver:
+Just call gesl().
+
+
+
+
+My second question deals with a time-depentent jacobian.
+
+I want to apply a kind of external, time-depenent force to the system
+described above. That means a few (~50) of the K-coefficents are
+time-dependent: K_nm(t)
+The &quot;force pulse&quot; has a gaussian shape and a FWHM of round about 1.E-10
+seondes.
+
+How can I do this?
+
+Is it possible to use CVodeSetStopTime() for this? After each stop the
+jacobian is manipulated, then the solver run to the next point set bei
+CVodeSetStopTime().
+
+How would this method interact with my preconditioning?
+
+
+
+
+Thanks,
+ Michael
+
+
+</pre><p><strong>Attachment:
+<a href="pgpkIAWhEUVVK.pgp" >signature.asc</a></strong><br>
+<em>Description:</em> OpenPGP digital signature</p>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00661" href="msg00661.html">Re: [sundials-users] Handling of time-dependent jacobian and preconditioning</a></strong>
+<ul><li><em>From:</em> Michael Letzgus &lt;michael.letzgus@uni-bielefeld.de&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00659.html">Re-2: [sundials-users] performance for chemical kinetic problems</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00661.html">Re: [sundials-users] Handling of time-dependent jacobian and preconditioning</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00659.html">Re-2: [sundials-users] performance for chemical kinetic problems</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00661.html">Re: [sundials-users] Handling of time-dependent jacobian and preconditioning</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00660">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00660">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

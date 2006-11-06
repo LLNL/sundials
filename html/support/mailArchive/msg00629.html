@@ -102,7 +102,7 @@ Thu, 24 Aug 2006 15:10:48 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Andreas,</pre><br>
-<tt>The limit on the number of iterations (as well as the test on the ratio of two 
+The limit on the number of iterations (as well as the test on the ratio of two 
 consecutive corrections) are there because we do not do any globalization for 
 the Newton method. Too many iterations are a sign that the predictor value may 
 be outside the basin of attraction. Reducing the step size will provide a better 
@@ -110,9 +110,9 @@ initial iterate (a new predicted value). Limiting the number of iterations and
 maybe forcing a step-size reduction (before reducing the step size, the solver 
 looks if the Jacobian is out-of-date and first attempts to resolve the problem 
 by updating it) is done for efficiency since each iteration implies an 
-additional function evaluation.</tt><br>
+additional function evaluation.<br>
 <br>
-<tt>The desired accuracy of the solution is ensured by the tolerance with which the 
+The desired accuracy of the solution is ensured by the tolerance with which the 
 nonlinear system is solved. The stopping test - done on the correction and not 
 on the residual - is related to the ensuing error test (on the local truncation 
 error, LTE). Using asymptotic relations for the LTE of both the predictor and 
@@ -121,17 +121,17 @@ predictor-corrector difference (that is the accumulated correction over all
 nonlinear iterations, since the initial starting point for the Newton iterations 
 is the predicted value). This gives the tolerance with which the nonlinear 
 system must be solved. The extra safety coefficients take into account the fact 
-that the actual errors do not necessarily have the assumed asymptotic behavior.</tt><br>
+that the actual errors do not necessarily have the assumed asymptotic behavior.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>Andreas Nicolai wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
-<tt>while trying to understand the process of error control for the time 
+Andreas Nicolai wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
+while trying to understand the process of error control for the time 
 integration, I found a line in the documentation of CVODE saying that 
 &quot;We allow at most 3 iterations (but this limit can be changed by the 
-user).&quot; right after introducing the convergence criterion.</tt><br>
+user).&quot; right after introducing the convergence criterion.<br>
 <br>
-<tt>Now, before discussing this further, I have a general question about how 
+Now, before discussing this further, I have a general question about how 
 CVODE controls the error in time. For my previous hand-written 1st order 
 implicit Euler scheme, I found the following behaviour: As long as the 
 solution did not diverge, at some point (even after many iterations) and 
@@ -139,20 +139,20 @@ sometimes for a time step that was much too large at this step, the
 solution converged and I could continue with integration in time (thanks 
 to the unconditionally stable implicit scheme). However, when choosing 
 too large time steps, the errors in the solution were also pretty big 
-(sometimes even &quot;jumping&quot; and ignoring important effects in the solution).</tt><br>
+(sometimes even &quot;jumping&quot; and ignoring important effects in the solution).<br>
 <br>
-<tt>My solution was to limit the number of allowed iterations, and with a 
+My solution was to limit the number of allowed iterations, and with a 
 Newton scheme I had typically a limit of 10 iterations until convergence 
-- if more were needed, I had to reduce my time step and try again.</tt><br>
+- if more were needed, I had to reduce my time step and try again.<br>
 <br>
-<tt>Is that in principle the same procedure as used in CVODE? If the number 
+Is that in principle the same procedure as used in CVODE? If the number 
 of iterations is bigger than a certain limit, the time step must be too 
 large and is reduced? Or is there a different reason for the iteration 
-limit?</tt><br>
+limit?<br>
 <br>
-<tt>Also, does this &quot;arbitrary&quot; iteration limit actually guarantee that the 
+Also, does this &quot;arbitrary&quot; iteration limit actually guarantee that the 
 error term for the time discretization stays below a certain value or is 
-this also controled elsewhere?</tt><br>
+this also controled elsewhere?<br>
 <br>
 <pre style="margin: 0em;">Bye,
 Andreas</pre><br>

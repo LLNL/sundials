@@ -1,0 +1,291 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] CVodeB and intermediate output -->
+<!--X-From-R13: Dnqh Ereona <enqhNyyay.tbi> -->
+<!--X-Date: Tue, 17 Oct 2006 07:40:41 &#45;0700 -->
+<!--X-Message-Id: 4534EA62.3000202@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 17672.28318.156086.461500@segfault.lan -->
+<!--X-Reference: 450ED3BB.5040004@llnl.gov -->
+<!--X-Reference: 17715.58273.164908.760747@segfault.lan -->
+<!--X-Reference: 4533EFE3.3080208@llnl.gov -->
+<!--X-Reference: 1161075882.45349cab02914@www.debitel.net -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] CVodeB and intermediate output</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00736.html">Date Prev</a>] [<a href="msg00738.html">Date Next</a>] [<a href="msg00736.html">Thread Prev</a>] [<a href="msg00741.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00737">Date Index</a></b>]
+[<b><a href="threads.html#00737">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] CVodeB and intermediate output</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:radu%40llnl.gov">radu@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Tue, 17 Oct 2006 07:36:18 -0700</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Hi Lutz,</pre><br>
+Here's the derivation for FLC BDF of order q in 10 easy steps. Suppose we have 
+computed y_j \approx y(t_j), j = 1,2,....,n-1. Let the past step sizes be h_j = 
+t_j - t_{j-1}, j=1,2,...,n-1 nad h_n = t_n - t_{n-1} be the current step size. 
+We wish to compute y_n \approx y(t_n).<br>
+<br>
+1) Build a predictor polynomial \omega_p of order q that satisfies the following 
+(q+1) conditions:<br>
+\omega_p(t_{n-i}) = y_{n-i}, i=1,...,q<br>
+\dot \omega_p(t_{n-i}) = \dot y_{n-1}<br>
+In other words, \omega_p interpolates the past q computed values plus the 
+derivative at the last computed step. (This answers your second question: 
+\omega_p is build such that it satisfies the condition that its derivative is 
+the computed \dot y at t_{n-1}).<br>
+<br>
+2) Build a corrector polynomial \omega_c of order q that satisfies the following 
+(q+1) conditions:<br>
+\omega_c(t_n) = y_n<br>
+\omega_c(t_n - i*h_n) = \omega_p(t_n - i*h_n), i=1,...,q<br>
+In other words, \omega_c passes through the (unknown at this point) solution at 
+t_n and coincides with the predictor polynomial at q past equidistant points 
+(separated by the current step size h_n).<br>
+<br>
+3) It is easy to see that the q-th order FLC BDF formula can be written simply as<br>
+\dot y_n = \omega_c(t_n)<br>
+(This answers your first question: this is why we have to evaluate everything at 
+t_n. See the rest of the derivation)<br>
+<br>
+4) Since both \omega_p and \omega_c are q-th order polynomial, let's related 
+them through a new polynomial c(t) (which we will define later) as<br>
+\omega_c(t) = \omega_p(t) + c(t) * [ \omega_c(t_n) - \omega_p(t_n) ]<br>
+<br>
+It's obvious that, once plugged into the ODE, the above BDF formula will lead to 
+a nonlinear equation in the desired solution y_n. We will use some form of 
+iteration to solve this nonlinear equation for y at t_n (recall that this is, by 
+construction, \omega_c(t_n) ) and we will use the predicted value at t_n as our 
+initial guess.<br>
+<br>
+5) Denote then<br>
+y_{n(0)} = \omega_p(t_n)<br>
+\dot y_{n(0)} = \dot \omega_p(t_n)<br>
+Note that y_{n(m)}, m=1.2,... will be successive iterates of the nonlinear 
+solver (and y_n will be y_{n(M)} where M is the iteration at which we declare 
+convergence).<br>
+<br>
+<pre style="margin: 0em;">6) With the above definitions we have
+\omega_c(t) = \omega_p(t) + c(t) * [ y_n - y_{n(0)} ]</pre><br>
+7) Now use the relations (1) and (2) to derive conditions on c(t). in other 
+words, evaluate (6) at t_n - i * h_n, i=0,1,...,q and use (1) and (2) to get:<br>
+c(t_n) = 1<br>
+c(t_n - h_n) = c(t_n - 2*h_n) = ... = c(t_n - q*h_n) = 0<br>
+which are (q+1) conditions uniquely defining the q-th order polynomial c(t).<br>
+<br>
+<pre style="margin: 0em;">8) Using the relation (6), the BDF formula in (3) can now be written as:
+\dot y_n = \dot \omega_p(t_n) + \dot c(t_n) * [ y_n - y_{n(0)} ]
+or, using (5)
+\dot y_n = \dot y_{n(0)} + \dot c(t_n) * [ y_n - y_{n(0)} ]</pre><br>
+All we need to do now to complete the derivation of the BDF formula is find the 
+derivative of c(t) at t_n.<br>
+<br>
+9) Given the conditions (7), i.e. the q roots of the q-th order polynomial c(t), 
+we have:<br>
+c(t) = K \Pi_{i=1}^q {  [ t - ( t_n - i*h_n ) ] }<br>
+And at t=t_n, we get<br>
+1 = c(t_n) = K * h_n * (2*h_n) * ... * (q*h_n)<br>
+Therefore K = \frac{1}{q!h_n^q} and c(t) is completely determined.<br>
+<br>
+10) Differentiate (9) and evaluate at t=t_n to get<br>
+\dot c(t_n) = \frac{1}{h_n} [ 1/1 + 1/2 + ... + 1/q ]<br>
+or<br>
+h_n \dot c(t_n) = \frac{1}{\beta_0}, where we define \beta_0 = 
+\frac{1}{1+1/2+...+1/q}<br>
+<br>
+<pre style="margin: 0em;"><br>All done. Multiply (8) by h_n and use (10) to get the BDF formula as:
+h_n \dot y_n = h_n \dot y_{n(0)} + \frac{1}{\beta_0} * [ y_n - y_{n(0)} ]
+or
+y_n = h_n * \beta_0 * \dot y_n + [ y_{n(0)}  - h_n * \beta_0 * \dot y_{n(0)} ]
+or
+y_n - y_{n(0)} = h_n * \beta_0 * [\dot y_n - \dot y_{n(0)} ]</pre><br>
+<pre style="margin: 0em;"><br>Hope that this clarifies it :-)</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<br>lgoehler@debitel.net wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello Radu,</pre><br>
+I have a question concerning the corrector equation. In the following I use the<br>
+same symbols as in your paper &quot;The PVODE and IDA Algorithms&quot; by Alan Hindmarsh.<br>
+ 
+For a fixed-leading coefficient implementation of BDF equation the predictor<br>
+polynomial interpolates (Newton) the calculated y values (past grid values)<br>
+taking into account, that the step width varies. That means, the y values used<br>
+to determine the predictor polynomial coeficients can be non-equidistant.<br>
+In contrast, the corrector polynomial is based on equidistant y values, which<br>
+are calculated from the past grid values. The corrector equation is said to be:<br>
+<br>
+<pre style="margin: 0em;">alpha_s(y_n-y_n(0))+h_n(y_n_dot-y_n(0)_dot).</pre><br>
+<pre style="margin: 0em;">The derivation of the above equation is what I am interested in. What is
+normally done to explain the derivation is, that for the corrector polynomial
+omega_c and the predictor poynomial omega_p the following approach is made:</pre><br>
+<pre style="margin: 0em;">omega_c(t)=omega_p(t)+c(t)(y_n-y_n(0)).</pre><br>
+<pre style="margin: 0em;">Next this equation is derived and &quot;evaluated for tn&quot;. Can you please explain me
+this &quot;evaluation for tn&quot;. How do I come from c_dot(tn) to 1/(h_n*Beta_0)?</pre><br>
+<pre style="margin: 0em;">Closely linked with this problem is another (very small) question. For the
+predictor polynomial it is assumed that omega_p_dot(t_(n-1))=y_dot_(n-1). I
+wonder how this is fulfilled by the Newton interploation done in the above
+mentioned paper.</pre><br>
+<pre style="margin: 0em;">Could you please help me?</pre><br>
+<pre style="margin: 0em;">Thank you very much in advance.</pre><br>
+<pre style="margin: 0em;"><br>Best regards,</pre><br>
+Lutz Goehler. <br>
+<br>
+<pre style="margin: 0em;">-------------------------------------------------
+debitel.net Webmail</pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00741" href="msg00741.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> lgoehler@debitel.net</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00672" href="msg00672.html">[sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> &quot;John W. Eaton&quot; &lt;jwe@bevo.che.wisc.edu&gt;</li></ul></li>
+<li><strong><a name="00692" href="msg00692.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00733" href="msg00733.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> &quot;John W. Eaton&quot; &lt;jwe@bevo.che.wisc.edu&gt;</li></ul></li>
+<li><strong><a name="00734" href="msg00734.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00736" href="msg00736.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> lgoehler@debitel.net</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00736.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00738.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00736.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00741.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00737">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00737">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

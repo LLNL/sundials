@@ -107,9 +107,9 @@ Thu, 15 Jun 2006 10:41:03 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>John W. Eaton wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">On 15-Jun-2006, Radu Serban wrote:</pre><br>
-<tt>| I left out a bit of the story. Rearranging the source tree is actually needed in order to compile the SUNDIALS libraries given the changes 
+John W. Eaton wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">On 15-Jun-2006, Radu Serban wrote:</pre><br>
+| I left out a bit of the story. Rearranging the source tree is actually needed in order to compile the SUNDIALS libraries given the changes 
 | to the include directives (since at that time the header files are not exported yet). The only two other alternatives I can think of are:<br>
 | (a) condition the include directives on whether we compile the solver libraries or an example, e.g.<br>
 | #ifdef SUNDIALS_COMPILE<br>
@@ -118,16 +118,16 @@ Thu, 15 Jun 2006 10:41:03 -0700</td>
 | #include &lt;sundials/sundials_nvector.h&gt;<br>
 | #endif<br>
 | (b) rearrange only the header files within their include directories in the current layout of the source tree. But that would imply creating 
-| some awkward-looking subdirectories, such as &lt;sundials_source&gt;/shared/include/sundials and &lt;sundials_source&gt;/cvode/include/cvode.</tt><br>
+| some awkward-looking subdirectories, such as &lt;sundials_source&gt;/shared/include/sundials and &lt;sundials_source&gt;/cvode/include/cvode.<br>
 <br>
 <pre style="margin: 0em;">Or, if you use a single directory for installed header files
 ($includedir/sundials), then</pre><br>
 <pre style="margin: 0em;">  * Your sources don't need to change.  They can continue to use</pre><br>
-<tt>      #include &quot;ida.h&quot;<br>
+      #include &quot;ida.h&quot;<br>
  
     For the build, you can add whatever -I flags are necessary to<br>
     find these files.  It doesn't matter if that requires several -I<br>
-    options, it is just the build step.</tt><br>
+    options, it is just the build step.<br>
 <br>
 <pre style="margin: 0em;">  * Users can have</pre><br>
 <pre style="margin: 0em;">      #include &lt;sundials/ida.h&gt;</pre><br>
@@ -137,9 +137,9 @@ Thu, 15 Jun 2006 10:41:03 -0700</td>
 directory seems like the simplest solution that causes the least
 amount of pain.  Is there any reason not to do this?</pre><br>
 <pre style="margin: 0em;">jwe</pre><br>
-</blockquote><tt><br>Yes, I know this is a possible solution, but I prefer the other one as it is more structured and the solvers are better separated. Also, 
+</blockquote><br>Yes, I know this is a possible solution, but I prefer the other one as it is more structured and the solvers are better separated. Also, 
 changing the layout of the source tree as I proposed would make it more standard. It's not all that much work (with good scripts :-))<br>
---Radu</tt><br>
+--Radu<br>
 <br>
 <pre style="margin: 0em;">--
    Radu Serban

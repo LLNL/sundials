@@ -1,0 +1,380 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: [sundials&#45;users] Performance of CVODE similar to Matlab ode. How to improve? -->
+<!--X-From-R13: "@vat Xvnat" <f011cNhao.pn> -->
+<!--X-Date: Thu, 07 Sep 2006 07:19:26 &#45;0700 -->
+<!--X-Message-Id: 200609071411.k87EBcUq004048@mailserv.unb.ca -->
+<!--X-Content-Type: multipart/alternative -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>[sundials-users] Performance of CVODE similar to Matlab ode. How to improve?</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00650.html">Date Prev</a>] [<a href="msg00652.html">Date Next</a>] [<a href="msg00649.html">Thread Prev</a>] [<a href="msg00652.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00651">Date Index</a></b>]
+[<b><a href="threads.html#00651">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>[sundials-users] Performance of CVODE similar to Matlab ode. How to improve?</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;Ning Jiang&quot; &lt;<a href="mailto:s011p%40unb.ca">s011p@unb.ca</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Thu, 7 Sep 2006 11:11:39 -0300</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<table width="100%"><tr><td style="a:link { color: blue } a:visited { color: purple } ">
+
+
+
+
+
+<div class=Section1>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>Hi, guys,<o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>I am very new to SUNDIALS, so my questions may seem na&#xEF;ve.
+I am an engineering guy, and do not have much experiences on the performances
+of numerical calculations. Basically, I am now working on neuron model
+(modified Hodgkin-Huxley model), which involves ODE system with anywhere from 2
+to over 1000 equations. I am mainly using Matlab 7, which works fine except for
+its speed. Some guy told me that SUNDIALS could dramatically improve the calculation
+performance. <o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>After installing sundialTB, I did the following:<o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>1, I wrote my RHS function:<o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='text-indent:36.0pt;text-autospace:none'><font size=2
+color=blue face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:blue'>function</span></font><font size=2 color=black face="Courier New"><span
+style='font-size:10.0pt;font-family:"Courier New";color:black'>
+[yd,flag,new_data]=cvode_hh(t,y,data)</span></font><font face="Courier New"><span
+style='font-family:"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='text-autospace:none'><font size=2 color=black
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>&#xA0;</span></font><font face="Courier New"><span style='font-family:
+"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-autospace:none'><font size=2
+color=black face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>yd(1) =
+-(data.gl*(y(1)-data.vl)+data.gna/(1+exp(-(y(1)+data.thetam)/data.sm))^3*(1-y(2))*(y(1)-data.vna)+data.gk*y(2)^4*(y(1)-data.vk))+data.inp;</span></font><font
+face="Courier New"><span style='font-family:"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='text-autospace:none'><font size=2 color=black
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>&#xA0;</span></font><font face="Courier New"><span style='font-family:
+"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:72.0pt;text-autospace:none'><font size=2
+color=black face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>yd(2) =data.phi*(1/(1+exp((y(1)-data.thetan)/data.sn))-y(2))/(data.taun0+data.taun1/(1+exp((y(1)-data.thn)/data.sigman)));</span></font><font
+face="Courier New"><span style='font-family:"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='text-autospace:none'><font size=2 color=black
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>&#xA0;</span></font><font face="Courier New"><span style='font-family:
+"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:36.0pt;text-indent:36.0pt;text-autospace:
+none'><font size=2 color=black face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New";color:black'>flag = 0;</span></font><font
+face="Courier New"><span style='font-family:"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:36.0pt;text-indent:36.0pt;text-autospace:
+none'><font size=2 color=black face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New";color:black'>new_data = [];</span></font><font
+face="Courier New"><span style='font-family:"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal style='text-autospace:none'><font size=2 face="Courier New"><span
+style='font-size:10.0pt;font-family:"Courier New"'>2, the options that I used
+is:<o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='text-indent:36.0pt;text-autospace:none'><font size=2
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal style='text-indent:36.0pt;text-autospace:none'><font size=2
+color=black face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>options = CVodeSetOptions(</span></font><font size=2
+color="#a020f0" face="Courier New"><span style='font-size:10.0pt;font-family:
+"Courier New";color:#A020F0'>'RelTol'</span></font><font size=2 color=black
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>,1.e-8,</span></font><font size=2 color=blue face="Courier New"><span
+style='font-size:10.0pt;font-family:"Courier New";color:blue'>...</span></font><font
+face="Courier New"><span style='font-family:"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='text-autospace:none'><font size=2 color=black
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; </span></font><font size=2
+color="#a020f0" face="Courier New"><span style='font-size:10.0pt;font-family:
+"Courier New";color:#A020F0'>'AbsTol'</span></font><font size=2 color=black
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>,[1.e-8; 1.e-14],</span></font><font size=2 color=blue
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:blue'>...</span></font><font face="Courier New"><span style='font-family:
+"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='text-autospace:none'><font size=2 color=black
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; </span></font><font size=2
+color="#a020f0" face="Courier New"><span style='font-size:10.0pt;font-family:
+"Courier New";color:#A020F0'>'LinearSolver'</span></font><font size=2
+color=black face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>,</span></font><font size=2 color="#a020f0" face="Courier New"><span
+style='font-size:10.0pt;font-family:"Courier New";color:#A020F0'>'Dense'</span></font><font
+size=2 color=black face="Courier New"><span style='font-size:10.0pt;font-family:
+"Courier New";color:black'>);<o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='text-autospace:none'><font size=2 color=black
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal style='text-autospace:none'><font size=3 face="Courier New"><span
+style='font-size:12.0pt;font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>3, memory allocation:<o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='text-autospace:none'><font size=2 face="Courier New"><span
+style='font-size:10.0pt;font-family:"Courier New"'>&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; </span></font><font
+size=2 color=black face="Courier New"><span style='font-size:10.0pt;font-family:
+"Courier New";color:black'>CVodeMalloc(@cvode_hh,t0,y0,options,neurons);</span></font><font
+face="Courier New"><span style='font-family:"Courier New"'><o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>Where &#8220;neurons&#8221; is the structure of
+parameters.<o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>I used fixed time steps.<o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>It turned out that there is merely no speed improvement
+(on a 2-equation system) compared with Matlab. I am wondering if there is
+anything that I can do to make the most out of SUNDAILS&#8217; capabilities.<o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>Thank you very much for any suggestions and
+recommendations!<o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>******************************************************</span></font><o:p></o:p></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>Ning Jiang</span></font><o:p></o:p></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>PhD Candidate</span></font><o:p></o:p></p>
+
+<p class=MsoNormal><st1:place w:st="on"><st1:PlaceType w:st="on"><font size=2
+  face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New"'>Institute</span></font></st1:PlaceType><font
+ size=2 face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New"'>
+ of <st1:PlaceName w:st="on">Biomedical Engineering</st1:PlaceName></span></font></st1:place><o:p></o:p></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>Depart. of Electrical and Computer Engineering</span></font><o:p></o:p></p>
+
+<p class=MsoNormal><st1:place w:st="on"><st1:PlaceType w:st="on"><font size=2
+  face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New"'>University</span></font></st1:PlaceType><font
+ size=2 face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New"'>
+ of <st1:PlaceName w:st="on">New Brunswick</st1:PlaceName></span></font></st1:place><o:p></o:p></p>
+
+<p class=MsoNormal><st1:place w:st="on"><st1:City w:st="on"><font size=2
+  face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New"'>New
+  Brunswick</span></font></st1:City><font size=2 face="Courier New"><span
+ style='font-size:10.0pt;font-family:"Courier New"'>, <st1:country-region
+ w:st="on">Canada</st1:country-region></span></font></st1:place><font size=2
+face="Courier New"><span style='font-size:10.0pt;font-family:"Courier New"'>,
+E3B 5A3</span></font><o:p></o:p></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>Email: <a href="mailto:ning.jiang@unb.ca">ning.jiang@unb.ca</a></span></font><o:p></o:p></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>Home page: <a href="http://people.unb.ca/~s011p">http://people.unb.ca/~s011p</a></span></font><o:p></o:p></p>
+
+<p class=MsoNormal><font size=2 face="Courier New"><span style='font-size:10.0pt;
+font-family:"Courier New"'>*******************************************************</span></font><o:p></o:p></p>
+
+<p class=MsoNormal><font size=3 face="Times New Roman"><span style='font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+</div>
+
+
+
+
+</td></tr></table>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00683" href="msg00683.html">Re: [sundials-users] Performance of CVODE similar to Matlab ode. How to improve?</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00652" href="msg00652.html">Re: [sundials-users] Performance of CVODE similar to Matlab ode. How to improve?</a></strong>
+<ul><li><em>From:</em> Henning Schmidt &lt;henning@hschmidt.de&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00650.html">Re: [sundials-users] performance for chemical kinetic problems</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00652.html">Re: [sundials-users] Performance of CVODE similar to Matlab ode. How to improve?</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00649.html">[sundials-users] performance for chemical kinetic problems</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00652.html">Re: [sundials-users] Performance of CVODE similar to Matlab ode. How to improve?</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00651">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00651">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

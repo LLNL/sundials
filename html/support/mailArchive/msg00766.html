@@ -1,0 +1,204 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
+<!--X-From-R13: "Oaqernf @vpbynv" <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Wed, 01 Nov 2006 09:03:21 &#45;0800 -->
+<!--X-Message-Id: op.ticj4fsrt8lo91@smtp.kuleuven.ac.be -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00765.html">Date Prev</a>] [<a href="msg00767.html">Date Next</a>] [<a href="msg00765.html">Thread Prev</a>] [<a href="msg00767.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00766">Date Index</a></b>]
+[<b><a href="threads.html#00766">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;Andreas Nicolai&quot; &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 01 Nov 2006 11:58:53 -0500</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hi James,
+
+try sizeof(realtype), it will give you the size in bytes.
+
+Andreas
+
+
+Am Wed, 01 Nov 2006 10:56:42 -0500 hat James Dominy &lt;james@nbn.ac.za&gt; 
+geschrieben:
+
+&gt;<i> -----BEGIN PGP SIGNED MESSAGE-----</i>
+&gt;<i> Hash: SHA1</i>
+&gt;<i></i>
+&gt;<i> Hi,</i>
+&gt;<i></i>
+&gt;<i> Can anyone suggest a way to determine the actual type of realtype with</i>
+&gt;<i> which sundials was configured and compiled, at runtime from within a</i>
+&gt;<i> program using the shared libraries of sundials?</i>
+&gt;<i></i>
+&gt;<i> Thanks,</i>
+&gt;<i> James</i>
+&gt;<i> -----BEGIN PGP SIGNATURE-----</i>
+&gt;<i> Version: GnuPG v1.4.5 (GNU/Linux)</i>
+&gt;<i> Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a></i>
+&gt;<i></i>
+&gt;<i> iD8DBQFFSMO6t/WEwSnpaFYRAuDVAKCz6+25TOVOG/OOER+LziARjOgIogCgtnV4</i>
+&gt;<i> fV6NxtmeugZK1NHJ1UpqAOI=</i>
+&gt;<i> =UyXw</i>
+&gt;<i> -----END PGP SIGNATURE-----</i>
+&gt;<i></i>
+&gt;<i></i>
+
+
+
+-- 
+Andreas Nicolai                         anicolai@syr.edu
+PhD Candidate, M.A.M.E                  (315) 443-2641
+Syracuse University
+151 Link Hall
+Syracuse, NY, 13244
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00767.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00767.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00766">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00766">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

@@ -107,12 +107,12 @@ Tue, 01 Aug 2006 07:36:13 -0700</td>
 reinitialize the solver before the second run?
 2) Are you providing the Jacobian functions? If so, have you checked they are 
 correctly implemented?</pre><br>
-<tt>I have quickly coded something similar and everything works fine for me. I modified the CVODES cvsdenx code (Richardson's problem) to solve 
+I have quickly coded something similar and everything works fine for me. I modified the CVODES cvsdenx code (Richardson's problem) to solve 
 multiple copies of the same system, both with the dense solver and with the band solver (with bandwidths equal to NEQ-1, where NEQ=3 is the 
-original problem size). The results are shown below.</tt><br>
+original problem size). The results are shown below.<br>
 <br>
-<tt>I attached the cvsrichardsonx.c code. Note that it uses the CVODES libraries. To use it with CVODE, just replace the appropriate header 
-files at the top of the file.</tt><br>
+I attached the cvsrichardsonx.c code. Note that it uses the CVODES libraries. To use it with CVODE, just replace the appropriate header 
+files at the top of the file.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;">3-species kinetics problem (4 copies) - DENSE linear solver</pre><br>
@@ -147,9 +147,9 @@ At t = 4.0000e+10      y =  7.616506e-08    3.046603e-13    9.999999e-01</pre><b
 <pre style="margin: 0em;">Final Statistics:
 nst = 616    nfe  = 934    nsetups = 142    nfeLS = 60     nje = 12
 nni = 930    ncfn = 0      netf = 47</pre><br>
-<tt><br>Michael Oevermann wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear sundials users,</pre><br>
-<tt>I am having some performance problems/questions with the IDABand linear 
+<br>Michael Oevermann wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear sundials users,</pre><br>
+I am having some performance problems/questions with the IDABand linear 
 solver.<br>
 I'm trying to solve some chemical reaction equations which works just fine<br>
 with the dense solver. Just for testing, I have simply multiplied the 
@@ -159,27 +159,27 @@ now n*ns equations.<br>
 By just copying the equations the bandwidth should be  exactly ns-1.<br>
 The Dense solver still works very fine, but with the IDABand solver I 
 observe the following<br>
-performance:</tt><br>
+performance:<br>
 <br>
-<tt>IDABand(mem,  n*ns, n*ns-1, n*ns-1) -&gt; more or less identical behaviour 
+IDABand(mem,  n*ns, n*ns-1, n*ns-1) -&gt; more or less identical behaviour 
 to the dense solver as<br>
-                                                                  expected</tt><br>
+                                                                  expected<br>
 <br>
-<tt>IDABand(mem, n*ns, ns-1, ns-1) -&gt; much slower convergence with lots of 
-messages like:</tt><br>
+IDABand(mem, n*ns, ns-1, ns-1) -&gt; much slower convergence with lots of 
+messages like:<br>
 <br>
 <pre style="margin: 0em;"> At t = 0.000194651, , mxstep steps taken before reaching tout.</pre><br>
-<tt>Changing the bandwidth slightly (e.g. 2*ns) doesn't make a difference.<br>
+Changing the bandwidth slightly (e.g. 2*ns) doesn't make a difference.<br>
 What is going on here? Why does the banded solver behave differently 
 than the dense<br>
-solver, although the problem as I set it up is strictly banded?</tt><br>
+solver, although the problem as I set it up is strictly banded?<br>
 <br>
 <pre style="margin: 0em;">Thanks for any hints and help!</pre><br>
 <pre style="margin: 0em;">Michael</pre><br>
 </blockquote><pre>/*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-09-19 16:46:09 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-06 21:28:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------

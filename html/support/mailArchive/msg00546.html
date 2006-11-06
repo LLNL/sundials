@@ -102,24 +102,24 @@ Mon, 26 Jun 2006 08:18:20 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Dan,</pre><br>
-<tt>After a successful completion of install_STB you should get a mex file, kim.mexw32 (on my Windows laptop the extension is dll), in the 
+After a successful completion of install_STB you should get a mex file, kim.mexw32 (on my Windows laptop the extension is dll), in the 
 directory .../sundialsTB/kinsol/kim.<br>
 Does this file exist?<br>
 What do you get if, in Matlab, you type<br>
-&gt;&gt; which kim</tt><br>
+&gt;&gt; which kim<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;">P.S. 'help kim' just prints the comment in the file Content.m in the above 
 directory.</pre><br>
-<tt>Lopez, Daniel wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Radu, 
+Lopez, Daniel wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Radu, 
 I totally agree with you about Windows.  It sucks.  But, with this new<br>
 file, the toolbox finally went through the entire installation process.<br>
 So, onto the next issue.  When I try to run the KINSol function, I get<br>
 the following error:<br>
-Undefined command/function 'kim'.</tt><br>
+Undefined command/function 'kim'.<br>
 <br>
-<tt>Error in ==&gt; KINSol at 60<br>
+Error in ==&gt; KINSol at 60<br>
 [status, y] = kim(mode, y0, strategy, yscale, fscale);<br>
 I don't know if this means the kim.mexw32 didn't compile properly or<br>
 what, but I do know that if I do help kim I get this:<br>
@@ -129,7 +129,7 @@ MEX binding of KINSOL functions<br>
 Once again, thanks for your time, and I hope I'm at least being a little<br>
 helpful with debugging all of this windows stuff. 
 Thanks,<br>
-Dan Lopez</tt><br>
+Dan Lopez<br>
 <br>
 <pre style="margin: 0em;">-----Original Message-----
 From: owner-sundials-users@lists.llnl.gov
@@ -137,11 +137,11 @@ From: owner-sundials-users@lists.llnl.gov
 Sent: Friday, June 23, 2006 4:35 PM
 To: sundials-users@llnl.gov
 Subject: Re: [sundials-users] Sundials Toolbox on windows</pre><br>
-<tt>Aargh, and people still ask me why I hate Windows :-)<br>
+Aargh, and people still ask me why I hate Windows :-)<br>
 Here's a modified install_STB.m which encloses all filenames in quotes<br>
 so that the mex script for Windows understands Windows-style paths 
 with spaces!<br>
---Radu</tt><br>
+--Radu<br>
 <br>
 <pre style="margin: 0em;"><br>Lopez, Daniel wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Radu,
@@ -152,7 +152,7 @@ the problem.  Also, here it the mex command itself:</pre><br>
 <pre style="margin: 0em;">mex -g -v -IC:\Program Files\MATLAB\R2006a\toolbox\sundialsTB\src
 -IC:\Program Files\MATLAB\R2006a\toolbox\sundialsTB\src\cvm
 </pre></blockquote><pre style="margin: 0em;"><br>-IC:\Program</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Files\MATLAB\R2006a\toolbox\sundialsTB\src\nvm<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Files\MATLAB\R2006a\toolbox\sundialsTB\src\nvm<br>
 -IC:\sundials\cvodes\include -IC:\sundials\cvodes\source<br>
 -IC:\sundials\shared\include -IC:\sundials\nvec_ser  C:\Program<br>
 Files\MATLAB\R2006a\toolbox\sundialsTB\src\cvm\cvm.c C:\Program<br>
@@ -184,7 +184,7 @@ C:\sundials\shared\source\sundials_math.c<br>
 C:\sundials\nvec_ser\nvector_serial.c 
 This is mex, Copyright 1984-2005 The MathWorks, Inc.<br>
 Thanks,<br>
-Dan Lopez</tt><br>
+Dan Lopez<br>
 <br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;"><br></pre><br>

@@ -105,17 +105,17 @@ Tue, 18 Jul 2006 17:02:19 -0400</td>
 <pre style="margin: 0em;">This is may be specific but it is also very general for a
 variety of problems. e.g. for many mechanical system
 (each component may be specified by p,v).</pre><br>
-<tt>In this case, in stead of problem of 2n x 2n, it only need solve the 
+In this case, in stead of problem of 2n x 2n, it only need solve the 
 problem with n x n size, both for direct linear solver and iterative 
-linear solver, so the advantage is obvious.</tt><br>
+linear solver, so the advantage is obvious.<br>
 <br>
-<tt>This is because the Jac Matrix is very structured:<br>
+This is because the Jac Matrix is very structured:<br>
 If this system can be described as Ay'' + By' +Cy = 0.<br>
 The Jac matrix for u' and u (u = [p, v] is [I, O; O A], [O I; C B] 
-separately. And it is easily to cut the problem size in half.</tt><br>
+separately. And it is easily to cut the problem size in half.<br>
 <br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Xuedong,<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Xuedong,<br>
 Such a linear solver would require knowledge of the 'type' of 
 variable ('position' or 'velocity') which is not required otherwise 
 and would<br>
@@ -127,7 +127,7 @@ solvers. When using a dense Jacobian, a linear solver like the one you<br>
 suggest, would certainly save memory but probably not a whole lot in 
 terms of efficiency. For an iterative linear solver I do not see any<br>
 advantages.<br>
---Radu</tt><br>
+--Radu<br>
 <br>
 <pre style="margin: 0em;">--
     Radu Serban

@@ -105,28 +105,28 @@ Mon, 07 Aug 2006 07:50:02 -0700</td>
 <pre style="margin: 0em;">I hope some of the windows experts on this list will be able to give better 
 advice...
 I have two suggestions that may be pertinent to your situation:</pre><br>
-<tt>1) When building the SUNDIALS libraries under Cygwin, you may want to use the -mno-cygwin flag so that the libraries do not rely on the 
+1) When building the SUNDIALS libraries under Cygwin, you may want to use the -mno-cygwin flag so that the libraries do not rely on the 
 cygwin DLL:<br>
    configure ..... --with-cflags=-mno-cygwin ...<br>
-For more details, see for example <a  href="http://www.delorie.com/howto/cygwin/mno-cygwin-howto.html">http://www.delorie.com/howto/cygwin/mno-cygwin-howto.html</a></tt><br>
+For more details, see for example <a  href="http://www.delorie.com/howto/cygwin/mno-cygwin-howto.html">http://www.delorie.com/howto/cygwin/mno-cygwin-howto.html</a><br>
 <br>
-<tt>2) If needed, to disable any references to &quot;fprintf&quot; without modifying the SUNDIALS sources, also use the compiler directive NO_FPRINTF_OUTPUT:<br>
+2) If needed, to disable any references to &quot;fprintf&quot; without modifying the SUNDIALS sources, also use the compiler directive NO_FPRINTF_OUTPUT:<br>
    configure .... --with-cflags=&quot;-mno-cygwin -DNO_FPRINTF_OUTPUT&quot; ...<br>
 For more details, see the thread starting at <a  href="http://www.llnl.gov/CASC/sundials/support/mailArchive/msg00260.html">http://www.llnl.gov/CASC/sundials/support/mailArchive/msg00260.html</a><br>
 In this case you SHOULD implement your own error message handler function (see IDASetErrHandlerFn and the type IDAErrHandlerFn). Note that 
-this will affect only the SUNDIALS libraries, not the examples (so, you'd still have to manually replace the calls to fprintf in the examples).</tt><br>
+this will affect only the SUNDIALS libraries, not the examples (so, you'd still have to manually replace the calls to fprintf in the examples).<br>
 <br>
 <pre style="margin: 0em;">Hope that this helps,
 --Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
-<tt>Jon Pearce wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Sundials Users,</pre><br>
-<tt>I am trying to get Sundials to work in Visual Studio 2005. The Sundials 
+Jon Pearce wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Sundials Users,</pre><br>
+I am trying to get Sundials to work in Visual Studio 2005. The Sundials 
 libraries compile without any problems after running configure in 
 Cygwin. When building one of the example programs shipped with IDA, I 
-get the following missing symbol, __iob_func:</tt><br>
+get the following missing symbol, __iob_func:<br>
 <br>
-<tt>[ BEGIN VC++ BUILD OUTPUT ]<br>
+[ BEGIN VC++ BUILD OUTPUT ]<br>
 ------ Build started: Project: ida_irobx_example, Configuration: Debug 
 Win32 ------<br>
 Compiling...<br>
@@ -144,14 +144,14 @@ Documents\Jon\jpea047\new\coding\contributed\lib\sundials\vc8ide\Debug\ida_irobx
 Build log was saved at &quot; file://c:\Documents and Settings\Jon\My 
 Documents\Jon\jpea047\new\coding\contributed\lib\sundials\vc8ide\Debug\BuildLog.htm&quot;<br>
 ida_irobx_example - 5 error(s), 0 warning(s)<br>
-[ END VC++ BUILD OUTPUT ]</tt><br>
+[ END VC++ BUILD OUTPUT ]<br>
 <br>
-<tt>It is possible to solve the immediate problem by replacing 
+It is possible to solve the immediate problem by replacing 
 fprintf(stderr, ..., ...) with printf(..., ...) in the check_flag() 
 static function that is used in many Sundials example programs. However, 
-the subsequent build output shows that this fix is not sufficient:</tt><br>
+the subsequent build output shows that this fix is not sufficient:<br>
 <br>
-<tt>[ BEGIN VC++ BUILD OUTPUT ]<br>
+[ BEGIN VC++ BUILD OUTPUT ]<br>
 ------ Build started: Project: ida_irobx_example, Configuration: Debug 
 Win32 ------<br>
 Compiling...<br>
@@ -168,17 +168,17 @@ Documents\Jon\jpea047\new\coding\contributed\lib\sundials\vc8ide\Debug\ida_irobx
 Build log was saved at &quot;file://c:\Documents and Settings\Jon\My 
 Documents\Jon\jpea047\new\coding\contributed\lib\sundials\vc8ide\Debug\BuildLog.htm&quot;<br>
 ida_irobx_example - 4 error(s), 0 warning(s)<br>
-[ END VC++ BUILD OUTPUT ]</tt><br>
+[ END VC++ BUILD OUTPUT ]<br>
 <br>
-<tt>Looking around on the web, it appears that problems with __iob_func are 
-Windows-specific.</tt><br>
+Looking around on the web, it appears that problems with __iob_func are 
+Windows-specific.<br>
 <br>
-<tt>I would be grateful to hear if any other users have encountered this 
-problem. Has anyone found an effective solution?</tt><br>
+I would be grateful to hear if any other users have encountered this 
+problem. Has anyone found an effective solution?<br>
 <br>
 <pre style="margin: 0em;">Many thanks for your time,</pre><br>
-<tt>Jon Pearce
-</tt></blockquote><br>
+Jon Pearce
+</blockquote><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->

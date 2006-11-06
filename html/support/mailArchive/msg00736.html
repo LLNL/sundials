@@ -1,0 +1,223 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] CVodeB and intermediate output -->
+<!--X-From-R13: ytbruyreNqrovgry.arg -->
+<!--X-Date: Tue, 17 Oct 2006 02:08:42 &#45;0700 -->
+<!--X-Message-Id: 1161075882.45349cab02914@www.debitel.net -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 17672.28318.156086.461500@segfault.lan -->
+<!--X-Reference: 450ED3BB.5040004@llnl.gov -->
+<!--X-Reference: 17715.58273.164908.760747@segfault.lan -->
+<!--X-Reference: 4533EFE3.3080208@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] CVodeB and intermediate output</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00735.html">Date Prev</a>] [<a href="msg00737.html">Date Next</a>] [<a href="msg00734.html">Thread Prev</a>] [<a href="msg00737.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00736">Date Index</a></b>]
+[<b><a href="threads.html#00736">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] CVodeB and intermediate output</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+<a href="mailto:lgoehler%40debitel.net">lgoehler@debitel.net</a></td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+17 Oct 2006 11:04:43 +0200</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Tue, 17 Oct 2006 11:04:43 +0200</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hello Radu,
+
+I have a question concerning the corrector equation. In the following I use the
+same symbols as in your paper &quot;The PVODE and IDA Algorithms&quot; by Alan Hindmarsh.
+ 
+For a fixed-leading coefficient implementation of BDF equation the predictor
+polynomial interpolates (Newton) the calculated y values (past grid values)
+taking into account, that the step width varies. That means, the y values used
+to determine the predictor polynomial coeficients can be non-equidistant.
+In contrast, the corrector polynomial is based on equidistant y values, which
+are calculated from the past grid values. The corrector equation is said to be:
+
+alpha_s(y_n-y_n(0))+h_n(y_n_dot-y_n(0)_dot).
+
+The derivation of the above equation is what I am interested in. What is
+normally done to explain the derivation is, that for the corrector polynomial
+omega_c and the predictor poynomial omega_p the following approach is made:
+
+omega_c(t)=omega_p(t)+c(t)(y_n-y_n(0)).
+
+Next this equation is derived and &quot;evaluated for tn&quot;. Can you please explain me
+this &quot;evaluation for tn&quot;. How do I come from c_dot(tn) to 1/(h_n*Beta_0)?
+
+Closely linked with this problem is another (very small) question. For the
+predictor polynomial it is assumed that omega_p_dot(t_(n-1))=y_dot_(n-1). I
+wonder how this is fulfilled by the Newton interploation done in the above
+mentioned paper.
+
+Could you please help me?
+
+Thank you very much in advance.
+
+
+Best regards,
+
+Lutz Goehler. 
+
+-------------------------------------------------
+debitel.net Webmail
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00737" href="msg00737.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00672" href="msg00672.html">[sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> &quot;John W. Eaton&quot; &lt;jwe@bevo.che.wisc.edu&gt;</li></ul></li>
+<li><strong><a name="00692" href="msg00692.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00733" href="msg00733.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> &quot;John W. Eaton&quot; &lt;jwe@bevo.che.wisc.edu&gt;</li></ul></li>
+<li><strong><a name="00734" href="msg00734.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00735.html">Re: [sundials-users] calling CVODE from Matlab</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00737.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00734.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00737.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00736">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00736">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

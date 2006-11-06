@@ -107,21 +107,21 @@ Tue, 20 Jun 2006 12:22:59 +1000</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>'includedir' should *always* default to $prefix/include. That is what 
-people expect, I think. It makes a quick install so much less painful.</tt><br>
+'includedir' should *always* default to $prefix/include. That is what 
+people expect, I think. It makes a quick install so much less painful.<br>
 <br>
-<tt>Since developers usually don't do the packaging of their code for every 
+Since developers usually don't do the packaging of their code for every 
 conceivable target system, it's important for a developer to facilitate 
 packaging by making the install process conform with convention. Having 
 RPM, DEB, autopackage, 0install (etc etc) SUNDIALS packages means that 
 people who want to work on dependent projects don't have to become 
 experts in how to install SUNDIALS before they can work on (or even just 
-run) the dependent projects.</tt><br>
+run) the dependent projects.<br>
 <br>
 <pre style="margin: 0em;">Cheers
 JP</pre><br>
-<tt>Radu Serban wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>While I agree with almost everything that has been posted in this 
+Radu Serban wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">While I agree with almost everything that has been posted in this 
 thread, I'd like to point out that many (probably most) of our users 
 do not perform system-wide installations of SUNDIALS, as they do not 
 have write permissions to /usr, /usr/local, /opt, etc. As such, I do 
@@ -130,30 +130,30 @@ subdirectory of $includedir. A user installing SUNDIALS with
 --prefix=/home/user/my_sundials for example would end up with a 
 directory /home/user/my_sundials/include which would only contain a 
 subdirectory 'sundials' (and further 
-/home/user/my_sundials/include/sundials/sundials).</tt><br>
+/home/user/my_sundials/include/sundials/sundials).<br>
 <br>
-<tt>Moreover, any of the installation layouts described by Andre can be 
+Moreover, any of the installation layouts described by Andre can be 
 obtained by specifying --includedir and --libdir instead of --prefix.<br>
 For example: ./configure --includedir=/usr/local/include/sundials 
---libdir=/usr/local/lib</tt><br>
+--libdir=/usr/local/lib<br>
 <br>
 <pre style="margin: 0em;">Is this too much to ask from those that want system-wide installs?</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>Andr&#xE9; Schneider wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+Andr&#xE9; Schneider wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
 <pre style="margin: 0em;"><br>Andreas Nicolai wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
-<tt>ok, seems we have a conflict of interests here :-) Essentially there 
+ok, seems we have a conflict of interests here :-) Essentially there 
 are<br>
-two requirements to be met:</tt><br>
+two requirements to be met:<br>
 <br>
 <pre style="margin: 0em;">Windows - Header and Lib files under the same base/install directory</pre><br>
 <pre style="margin: 0em;">...</pre><br>
-<tt>Considering that under Windows a &quot;make install&quot; is typically not 
+Considering that under Windows a &quot;make install&quot; is typically not 
 done or<br>
 even necessary,<br>
 ...
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">As developer and administrator you have to to differentiate between
 build location (with all source files and a lot of temporary files
 created while compilation) and the clean install directory (specified
@@ -161,10 +161,10 @@ by prefix) in the file system.</pre><br>
 <pre style="margin: 0em;">It is a very bad practice NOT to use &quot;make install&quot; and IMHO
 it has nothing to do with Windows or UNIX/Linux.</pre><br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Under Windows an installation of the library is typically just 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Under Windows an installation of the library is typically just 
 &quot;unzip in<br>
 some user defined dir, open the project for your IDE, compile and link<br>
-your projects to whatever dir you have everything in&quot;.</tt><br>
+your projects to whatever dir you have everything in&quot;.<br>
 <br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">I have never seen a typically layout under Windows.

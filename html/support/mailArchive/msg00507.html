@@ -104,15 +104,15 @@ Wed, 14 Jun 2006 14:06:15 -0700</td>
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">I was just composing a reply to Alan G when Alan H's message came through :-)
 I only have a couple of things to add:</pre><br>
-<tt>1. If you really want to disable CV_TOO_MUCH_WORK returns (assuming you have good answers to Alan H's questions), rather than hacking the 
-CVODE source code, use LONG_MAX from limits.h for maxsteps.</tt><br>
+1. If you really want to disable CV_TOO_MUCH_WORK returns (assuming you have good answers to Alan H's questions), rather than hacking the 
+CVODE source code, use LONG_MAX from limits.h for maxsteps.<br>
 <br>
-<tt>2. Could you please post the equations you want to solve (the big picture, both the ODEs and PDEs)? It's not all that clear to me from your 
-description how you use CVODE. What's the independent variable in the ODEs?</tt><br>
+2. Could you please post the equations you want to solve (the big picture, both the ODEs and PDEs)? It's not all that clear to me from your 
+description how you use CVODE. What's the independent variable in the ODEs?<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>Alan Hindmarsh wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Alan G-</pre><br>
+Alan Hindmarsh wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Alan G-</pre><br>
 <pre style="margin: 0em;">1. Re CV_TOO_MUCH_WORK: I agree with Andreas's response.  You do not
 want to remove the max-steps check.  It is there for good reason -- to
 stop the integration when there is a real error somewhere.  In your

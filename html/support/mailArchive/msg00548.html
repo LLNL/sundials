@@ -102,21 +102,21 @@ Mon, 26 Jun 2006 08:59:10 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Jens,</pre><br>
-<tt>Indeed, although the documentation says that IDACalcIC can be called to correct any pair (y,y'), the current implementation assumes it is 
+Indeed, although the documentation says that IDACalcIC can be called to correct any pair (y,y'), the current implementation assumes it is 
 used only to correct the values y0 and yp0 passed to IDAMalloc (or IDAReInit). This also implicitly forces the user to pass to IDACalcIC the 
-same y0 and yp0 that were specified in the previous call to IDAMalloc (or IDAReInit).</tt><br>
+same y0 and yp0 that were specified in the previous call to IDAMalloc (or IDAReInit).<br>
 <br>
 <pre style="margin: 0em;">Thanks for pointing this out. I'll look into modifying IDACalcIC to behave as 
 advertised.</pre><br>
-<tt>In the meantime, could you tell me how exactly you wish to use IDACalcIC (i.e. why the y0 passed to it is different from the one passed to 
-IDAMalloc) to see if there is some other interim solution for you?</tt><br>
+In the meantime, could you tell me how exactly you wish to use IDACalcIC (i.e. why the y0 passed to it is different from the one passed to 
+IDAMalloc) to see if there is some other interim solution for you?<br>
 <br>
-<tt>What confuses me a bit is the fact that the changes you've made are basically equivalent to having previously called IDAMalloc with the same 
-yy0 as that in the call to IDACalcIC.</tt><br>
+What confuses me a bit is the fact that the changes you've made are basically equivalent to having previously called IDAMalloc with the same 
+yy0 as that in the call to IDACalcIC.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>Jens Bastian wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+Jens Bastian wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
 <pre style="margin: 0em;">when trying to solve a DAE system I ran into trouble with IDA. I could
 track it down to an initialization problem. Here I must mention that I
 call IDACalcIC(..., y0, ...) with a different y0 (that means same

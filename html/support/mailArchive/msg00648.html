@@ -70,7 +70,7 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00647.html">Date Prev</a>] [Date Next] [<a href="msg00646.html">Thread Prev</a>] [Thread Next]<br>
+[<a href="msg00647.html">Date Prev</a>] [<a href="msg00649.html">Date Next</a>] [<a href="msg00646.html">Thread Prev</a>] [<a href="msg00649.html">Thread Next</a>]<br>
 [<b><a href="maillist.html#00648">Date Index</a></b>]
 [<b><a href="threads.html#00648">Thread Index</a></b>]
 </p>
@@ -105,69 +105,69 @@ Wed, 30 Aug 2006 19:18:22 +0200 (CEST)</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Radu</pre><br>
-<tt>Yes, we plan to switch to the latest release with our next official 
-release which is planned just before new year.</tt><br>
+Yes, we plan to switch to the latest release with our next official 
+release which is planned just before new year.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Initializing yS after CVodeSensMalloc is NOT ok!
-</tt></blockquote><tt><br>Yes, I have realized that and it seems the compiler did the job. I really 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Initializing yS after CVodeSensMalloc is NOT ok!
+</blockquote><br>Yes, I have realized that and it seems the compiler did the job. I really 
 wonder why I had implemented it this way, in the first place, as I knew it 
 from the main solver, that the values passed are copied and not used from 
 the accesible y, yS etc. arrays. My colleague James also did it right for 
-the adjoint solver. So this was really a stupid bug on my side.</tt><br>
+the adjoint solver. So this was really a stupid bug on my side.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>All the 'errors' below boil down to valgrind not realizing that these<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">All the 'errors' below boil down to valgrind not realizing that these<br>
 'uninitialized' values are actually initialized in some NVECTOR 
-</tt></blockquote><tt>function. I
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>suspect valgrind gets confused by the layer of generic NVECTOR 
-</tt></blockquote><pre style="margin: 0em;">operations..</pre><br>
+</blockquote>function. I
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">suspect valgrind gets confused by the layer of generic NVECTOR 
+</blockquote><pre style="margin: 0em;">operations..</pre><br>
 <pre style="margin: 0em;">Ok, I see. Many previous errors disappeared with new valgrind releases :)</pre><br>
 <pre style="margin: 0em;">Thanks again,
 Rainer</pre><br>
 <pre style="margin: 0em;">On Wed, 30 Aug 2006, Radu Serban wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Rainer,</pre><br>
-<tt>I see you're not using the latest SUNDIALS release (2.2.0) but rather 2.1.1. 
+I see you're not using the latest SUNDIALS release (2.2.0) but rather 2.1.1. 
 You may want to update (although at this point it may be better for you to 
 wait for the next release - hopefully soon - which will have a completely 
-different file structure).</tt><br>
+different file structure).<br>
 <br>
-<tt>Rainer Machne wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
-<tt>Thanks for your always quick and good replies and sorry for bothering you 
-in this case :-) It was of course our own two bugs.</tt><br>
+Rainer Machne wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
+Thanks for your always quick and good replies and sorry for bothering you 
+in this case :-) It was of course our own two bugs.<br>
 <br>
-<tt>a) destroy and re-create CVodeSens:<br>
+a) destroy and re-create CVodeSens:<br>
 I seem to have overlooked the requirement for a CVodeSensFree and thought 
 that this was done with CVodeFree;
-</tt></blockquote><tt><br>CVodeFree() indeed calls CVodeSensFree(). However, in v2.1.1, all *Free() 
+</blockquote><br>CVodeFree() indeed calls CVodeSensFree(). However, in v2.1.1, all *Free() 
 functions were passed the memory block instead of a pointer to them. This bug 
-(fixed in v2.2.0) would explain the behavior you see.</tt><br>
+(fixed in v2.2.0) would explain the behavior you see.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>b) CVodeSensReInit:<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">b) CVodeSensReInit:<br>
 I initialized the yS vector AFTER calling ReInit; initializing yS after the 
 first CVodeSensMalloc didn't cause problems, so I had overlooked this 
 problem;
-</tt></blockquote><tt><br>Initializing yS after CVodeSensMalloc is NOT ok! The sensitivity IC are 
+</blockquote><br>Initializing yS after CVodeSensMalloc is NOT ok! The sensitivity IC are 
 copied from the yS passed to CVodeSensMalloc into the solver memory (same is 
 true for CVodeReInit). I suspect all sensitivity IC in your case are 0 and 
 your compiler probably initializes variables to 0, so you get the 'right' IC 
 when calling CVodeSensMalloc. By the time you call CVodeReInit, yS was 
-probably overwritten (by CVodeGetSens probably).</tt><br>
+probably overwritten (by CVodeGetSens probably).<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Anyways, thanks again very much for your help!</pre><br>
-<tt>By the way :-), valgrind reports some errors which however do not cause any 
+By the way :-), valgrind reports some errors which however do not cause any 
 problems so far. So please, don't bother if you're busy.
-</tt></blockquote><tt><br>All the 'errors' below boil down to valgrind not realizing that these 
+</blockquote><br>All the 'errors' below boil down to valgrind not realizing that these 
 'uninitialized' values are actually initialized in some NVECTOR function. I 
-suspect valgrind gets confused by the layer of generic NVECTOR operations...</tt><br>
+suspect valgrind gets confused by the layer of generic NVECTOR operations...<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>I have to get a better understanding of the error handling in the 
-sensitivity module, it's probably some wrong usage again.</tt><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">I have to get a better understanding of the error handling in the 
+sensitivity module, it's probably some wrong usage again.<br>
 <br>
-<tt>Only when using a R.H.S. function for fS, i.e. a symbolic &quot;sensitivity 
+Only when using a R.H.S. function for fS, i.e. a symbolic &quot;sensitivity 
 matrix&quot;, but not when using an internal CVODES approximation of it, 
-valgrind reports the following errors several times:</tt><br>
+valgrind reports the following errors several times:<br>
 <br>
-<tt>==25979== Conditional jump or move depends on uninitialised value(s)<br>
+==25979== Conditional jump or move depends on uninitialised value(s)<br>
 ==25979==    at 0x4242E8: CVEwtSet (cvodes.c:6255)<br>
 ==25979==    by 0x41BC25: CVSensEwtSet (cvodes.c:2782)<br>
 ==25979==    by 0x42315D: CVode (cvodes.c:1673)<br>
@@ -180,7 +180,7 @@ valgrind reports the following errors several times:</tt><br>
 ==25979==    by 0x422E7F: CVode (cvodes.c:1717)<br>
 ==25979==    by 0x41490D: IntegratorInstance_cvodeOneStep 
 (cvodeSolver.c:109)<br>
-==25979==    by 0x406F83: main (senstest.c:88)</tt><br>
+==25979==    by 0x406F83: main (senstest.c:88)<br>
 <br>
 <pre style="margin: 0em;"><br>cheers,
 Rainer</pre><br>
@@ -212,9 +212,15 @@ Rainer</pre><br>
 <li>Prev by Date:
 <strong><a href="msg00647.html">Re: [sundials-users] IDA/CVODE: Jacobian manipulation</a></strong>
 </li>
+<li>Next by Date:
+<strong><a href="msg00649.html">[sundials-users] performance for chemical kinetic problems</a></strong>
+</li>
 
 <li>Previous by thread:
 <strong><a href="msg00646.html">Re: [sundials-users] sensitivity in iterative runs</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00649.html">[sundials-users] performance for chemical kinetic problems</a></strong>
 </li>
 
 <li>Index(es):

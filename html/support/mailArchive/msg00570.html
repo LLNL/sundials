@@ -101,8 +101,8 @@ Thu, 06 Jul 2006 09:59:35 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>Roy Wollman wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Dear Hannes, 
+Roy Wollman wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Dear Hannes, 
  
 I just finished setting up an Matlab / IDA solution. Its not a general<br>
 wrapper but a specific 
@@ -110,58 +110,58 @@ solution to my problem and it was pretty easy to do. I'm not using mex<br>
 but rather the matlab compiler<br>
 which is a bit different but if you want to use mex it shouldn't be hard<br>
 as well. 
-Here is what I did:</tt><br>
+Here is what I did:<br>
 <br>
-<tt>1. wrote the C part and made sure it works as C &quot;main&quot; function. </tt><br>
+1. wrote the C part and made sure it works as C &quot;main&quot; function. <br>
 <br>
-<tt>2. wrote a mex gateway function, there are several example in the matlab<br>
+2. wrote a mex gateway function, there are several example in the matlab<br>
 doc as to how to do it. 
 It basically  parse the input and output and call your 'real' other<br>
 function. look for matlab example timestwo.c<br>
-and others like that for reference. </tt><br>
+and others like that for reference. <br>
 <br>
-<tt>3. translated the main from step 1 to be the 'real' function the<br>
-mexFunction gateways calls. </tt><br>
+3. translated the main from step 1 to be the 'real' function the<br>
+mexFunction gateways calls. <br>
 <br>
-<tt>4. compile. This was a bit tricky. I couldn't figure out a way to link<br>
+4. compile. This was a bit tricky. I couldn't figure out a way to link<br>
 the IDA libraries using mcc<br>
 so I first only generated the c code using mcc -c... then build it using<br>
 mbuild. I think if you use 
 mex and not mcc it should be straight forward regular<br>
--I/usr/.../sundials  and -lsundials_ida etc. </tt><br>
+-I/usr/.../sundials  and -lsundials_ida etc. <br>
 <br>
-<tt>I guess you could use these steps to build a general interface but<br>
+I guess you could use these steps to build a general interface but<br>
 writing the function that calls 
 the solver in C and calling that function through the gateway<br>
-mexFunction was pretty simple as well. </tt><br>
+mexFunction was pretty simple as well. <br>
 <br>
-<tt>Its really worth while doing, using IDA was 50(!) times then matlab's<br>
-ode15s, at least in my case. </tt><br>
+Its really worth while doing, using IDA was 50(!) times then matlab's<br>
+ode15s, at least in my case. <br>
 <br>
-<tt>Hope this helps, </tt><br>
+Hope this helps, <br>
 <br>
-<tt>Roy </tt><br>
+Roy <br>
 <br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">Roy,</pre><br>
-<tt>If I understand it correctly (I haven't used mcc myself), your approach to interfacing IDA with Matlab is different than what sundialsTB 
+If I understand it correctly (I haven't used mcc myself), your approach to interfacing IDA with Matlab is different than what sundialsTB 
 does. While sundialsTB provides a way to use the SUNDIALS solvers in a manner similar to that in which you'd use any of the Matlab existing 
 ones (e.g. ode15s), that is from within the Matlab environment, in your approach, you end up with a stand alone executable which you run 
-from outside Matlab.</tt><br>
+from outside Matlab.<br>
 <br>
 <pre style="margin: 0em;">I'm not convinced that this is what Hannes is looking for...</pre><br>
-<tt>The main reason for writing the sundialsTB interfaces was to provide a fast prototyping tool (I needed a cvodes interface myself for some 
+The main reason for writing the sundialsTB interfaces was to provide a fast prototyping tool (I needed a cvodes interface myself for some 
 other project and someone else here at LLNL is using the kinsol interface for testing out algorithms - this is why only these two are 
 available at this time). I never intended sundialsTB to be an end in itself (but apparently some of you are using it that way). Once done 
-with the prototyping, I converted everything to C, to get the efficiency of a compiled language (versus an interpreted one such as Matlab).</tt><br>
+with the prototyping, I converted everything to C, to get the efficiency of a compiled language (versus an interpreted one such as Matlab).<br>
 <br>
-<tt>This brings me to your comments regarding the efficiency of IDA compared to that of ode15s. I suspect that only a relatively small fraction 
+This brings me to your comments regarding the efficiency of IDA compared to that of ode15s. I suspect that only a relatively small fraction 
 of the factor of 50 that you report is due to the integrator itself. Most of it comes probably from the fact that you do not use any 
 interpreted code anymore. A fair test would require also compiling ode15s so that you compare apples to apples. When an ida mex interface 
 will be available within sundialsTB, I doubt you'll see such speed-ups over ode15s. The reason for this is that most of the time will end up 
 being spent not in the solver itself (which is a compiled library, hence fast), but rather in the user supplied functions (mostly the 
 residual function) which will still be Matlab functions (interpreted code, hence slow). Again, sundialsTB is (was) meant as a prototyping 
-tool and its main goal is not speed of execution, but rather speed and convenience in writing the code.</tt><br>
+tool and its main goal is not speed of execution, but rather speed and convenience in writing the code.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>

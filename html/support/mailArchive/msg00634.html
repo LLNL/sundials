@@ -103,37 +103,37 @@ Fri, 25 Aug 2006 12:48:39 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>Andreas Nicolai wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Hi again,
-</tt></blockquote><pre style="margin: 0em;"><br>Hi Andreas,</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Ok, this makes sense to me, even though the term &quot;Globalization&quot; is new 
+Andreas Nicolai wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Hi again,
+</blockquote><pre style="margin: 0em;"><br>Hi Andreas,</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Ok, this makes sense to me, even though the term &quot;Globalization&quot; is new 
 to me in this respect.
-</tt></blockquote><tt><br>We do not make any attempt to globalize the Newton method with, as an example, 
-line search.</tt><br>
+</blockquote><br>We do not make any attempt to globalize the Newton method with, as an example, 
+line search.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>However, about the efficiency: When considering the total number of 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">However, about the efficiency: When considering the total number of 
 iterations in a certain integration time interval, wouldn't fewer steps 
 with more iterations actually lead a globally smaller number of 
 iterations? At least, that was the behavior in my simple Euler solvers. 
 I gain performance, but sacrifice accuracy. How does this relate to CVODE?
-</tt></blockquote><tt><br>Yes, more iterations would allow larger step sizes and the global number of 
+</blockquote><br>Yes, more iterations would allow larger step sizes and the global number of 
 iterations may or may not be smaller. This is why the user has the option of 
-changing the default value of 3.</tt><br>
+changing the default value of 3.<br>
 <br>
-<tt>There is a bit more to this, but I don't want to get into too many details... If 
+There is a bit more to this, but I don't want to get into too many details... If 
 you look in the user guide at the Newton stopping test 
 (R*||\delta_m||_WRMS&lt;0.1\epsilon), you'll see that it is derived from the local 
 error test (||\Delta_n||_WRMS&lt;\epsilon) through some more approximations and 
 therefore, even if the Newton iterations converge, there still is a chance that 
 the error test will fail (this is why \Delta_n is checked in CVDoErrorTest) and 
 this chance would only increase if allowing many more iterations in the 
-nonlinear solution.</tt><br>
+nonlinear solution.<br>
 <br>
-<tt>Bottom line is, the global number of iterations may or may not decrease if you 
+Bottom line is, the global number of iterations may or may not decrease if you 
 increase the maximum number of iterations allowed at any given step. You'll have 
-to experiment with that.</tt><br>
+to experiment with that.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Not sure if I understand this completely. The predictor step is 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Not sure if I understand this completely. The predictor step is 
 essentially some explicit prediction of the solution variables using the 
 history of the past steps. Now, during the iteration variables approach 
 the converged solution and may be &quot;swinging&quot; around the target values. 
@@ -141,18 +141,18 @@ How do I have to understand the term &quot;accumulated correction&quot;? Is that
 the absolute difference between a state variable at different iteration 
 levels which is then added up to get the total correction? Or is it 
 simply the difference between predicted and corrected/final value?
-</tt></blockquote><tt><br>It's the latter. See the CVODE documentation. In computing the solution y^n at 
+</blockquote><br>It's the latter. See the CVODE documentation. In computing the solution y^n at 
 t_n, the accumulated correction is \Delta_n = y^{n(m)}-y^{n(0)}, with y^{n(m)} 
 being the final iterate computed and y^{n(0)} the predictor. The correction at 
-the k-th iterate is \delta_k = y^{n(k)} - y^{n(k-1)}.</tt><br>
+the k-th iterate is \delta_k = y^{n(k)} - y^{n(k-1)}.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Also, this asymptotic relation for the LTE (is that the residual which 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Also, this asymptotic relation for the LTE (is that the residual which 
 asymptotically approaches zero on convergence?) is new to me, I could 
 only imagine plotting the residuals over the iteration levels and find 
 such an asymptotic behavior for the corrector step. But how do you find 
 such an asymptotic behavior for the predictor? Could you recommand a 
 paper/book where I can read up something on this?
-</tt></blockquote><tt><br>Asymptotic in this case means h-&gt;0. When you write your integration method in 
+</blockquote><br>Asymptotic in this case means h-&gt;0. When you write your integration method in 
 terms of a difference operator, the local truncation error is the residual of 
 that difference operator applied to the exact solution. For linear multistep 
 methods, the LTE always has the form<br>
@@ -163,14 +163,14 @@ predictor-corrector difference (so-called Milne's estimate). The C' in the CVODE
 user guide is C' = Cc/(Cc-Cp) where Cc is the constant in the LTE for the 
 corrector formula and Cp the one for the predictor formula and so we use: LTE = 
 C' * \Delta_n + O(h^{q+2}) and the error test is then ||LTE||_WRMS&lt;1 or 
-||\Delta_n||_WRMS&lt;\epsilon, where \epsilon = 1/C'</tt><br>
+||\Delta_n||_WRMS&lt;\epsilon, where \epsilon = 1/C'<br>
 <br>
-<tt>You can find all of this detailed in the papers that are at the base of the 
+You can find all of this detailed in the papers that are at the base of the 
 CVODE implementation. I've already mentioned them to you a while ago (see 
-<a  href="http://www.llnl.gov/casc/sundials/support/mailArchive/msg00056.html">http://www.llnl.gov/casc/sundials/support/mailArchive/msg00056.html</a>)</tt><br>
+<a  href="http://www.llnl.gov/casc/sundials/support/mailArchive/msg00056.html">http://www.llnl.gov/casc/sundials/support/mailArchive/msg00056.html</a>)<br>
 <br>
-<tt>Also, look-up the book by Ascher and Petzold (ISBN 0-89871-412-5) as a good 
-introduction.</tt><br>
+Also, look-up the book by Ascher and Petzold (ISBN 0-89871-412-5) as a good 
+introduction.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>

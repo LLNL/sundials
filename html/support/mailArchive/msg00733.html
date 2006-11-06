@@ -1,0 +1,347 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] CVodeB and intermediate output -->
+<!--X-From-R13: "Xbua I. Sngba" <wjrNorib.pur.jvfp.rqh> -->
+<!--X-Date: Mon, 16 Oct 2006 13:01:14 &#45;0700 -->
+<!--X-Message-Id: 17715.58273.164908.760747@segfault.lan -->
+<!--X-Content-Type: multipart/mixed -->
+<!--X-Reference: 17672.28318.156086.461500@segfault.lan -->
+<!--X-Reference: 450ED3BB.5040004@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] CVodeB and intermediate output</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00732.html">Date Prev</a>] [<a href="msg00734.html">Date Next</a>] [<a href="msg00707.html">Thread Prev</a>] [<a href="msg00734.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00733">Date Index</a></b>]
+[<b><a href="threads.html#00733">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] CVodeB and intermediate output</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;John W. Eaton&quot; &lt;<a href="mailto:jwe%40bevo.che.wisc.edu">jwe@bevo.che.wisc.edu</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 16 Oct 2006 15:55:13 -0400</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>On 18-Sep-2006, Radu Serban wrote:
+
+| Hi John,
+| 
+| You managed to find a couple more bugs! Indeed, the behavior you observed is
+| actually due to two bugs:
+| 
+| First, in both CVODE and CVODES, in the function CVode, after taking a
+| successful step, we perform several stopping tests. The order in which these
+| tests are implemented in the release version is as follows:
+|    1) check for root in last step (if yes, return at root)
+|    2) check if close to tstop (if yes, return at tstop)
+|    3) check if in ONE_STEP mode (if yes, return at current time)
+|    4) check if tout was passed (if yes, return at tout)
+| The correct order should be: 1-4-2-3.
+| 
+| The blocks corresponding to these 4 tests are at the very end of the function
+| CVode and they are each identified by a preceding comment line:
+| - For CVODE, in the file cvode.c (revision 1.66) these 4 blocks start at line 
+1305.
+| - For CVODES, in the file cvodes.c (revision 1.81) these 4 blocks start at 
+line
+| 2094.
+| To fix this bug, simply rearrange the blocks in the correct order.
+| 
+| Secondly, in the adjoint module for CVODES (function CVodeB, file cvodea.c), 
+the
+| current implementation attempts to move to the next checkpoint earlier than it
+| should (the segfault you are getting is due to the fact that there is no other
+| checkpoint to move to). To fix this bug, in the test for the while loop at 
+line
+| 790 of cvodea.c (revision 1.68), replace &lt;= (less than or equal) with &lt; (less 
+than).
+| 
+| --Radu
+| 
+| P.S. I have attached two diff files (patch.cvode and patch.cvodes) which can 
+be 
+| used with the 'patch'  program to apply the patches. Note that the patch for 
+| CVODES also includes the bug fix for the CVodeF function (from a previous 
+| message from John).
+
+Hi,
+
+I've applied your patches and they seem to fix the problem that I
+reported earlier, but now I'm seeing the following behavior when
+requesting intermediate output (see the attached program for an
+example that should allow you to demonstrate the problem):
+
+  i =  0, tout = 0.1, flag = 0, x = 0.0487729
+  i =  1, tout = 0.1, flag = 0, x = 0.0951692
+  i =  2, tout = 0.2, flag = 0, x = 0.1393
+  i =  3, tout = 0.2, flag = 0, x = 0.181275
+  i =  4, tout = 0.2, flag = 0, x = 0.221196
+  i =  5, tout = 0.3, flag = 0, x = 0.259172
+  i =  6, tout = 0.4, flag = 0, x = 0.295285
+  i =  7, tout = 0.4, flag = 0, x = 0.329644
+  i =  8, tout = 0.5, flag = 0, x = 0.362325
+  i =  9, tout = 0.5, flag = 0, x = 0.393418
+  tout = 0.5
+
+  [CVODEA ERROR]  CVodeMallocB
+    The initial time tB0 is outside the interval over which the forward problem 
+was solved.
+
+Running under gdb, I see
+
+  Breakpoint 1, CVodeMallocB (cvadj_mem=0x527720, fB=0x4007fe &lt;fb&gt;, tB0=0.5,
+      yB0=0x5268d0, itolB=1, reltolB=0.0001, abstolB=0x7fffcdb94410)
+      at ./cvodea.c:639
+  639       if (cvadj_mem == NULL) {
+  (gdb) n
+  643       ca_mem = (CVadjMem) cvadj_mem;
+  (gdb)
+  645       cv_mem = ca_mem-&gt;cvb_mem;
+  (gdb)
+  647       flag = CVodeMalloc(cv_mem, CVArhs, tB0, yB0,
+  (gdb)
+  649       if (flag != CV_SUCCESS) return(flag);
+  (gdb)
+  651       sign = (tfinal - tinitial &gt; ZERO) ? 1 : -1;
+  (gdb)
+  652       if ( (sign*(tB0-tinitial) &lt; ZERO) || (sign*(tfinal-tB0) &lt; ZERO) ) {
+  (gdb) p tfinal
+  $1 = 0.45000000000000001
+  (gdb) p tinitial
+  $2 = 0
+  (gdb) p tB0
+  $3 = 0.5
+  (gdb) p sign
+  $4 = 1
+  (gdb) c
+  Continuing.
+
+  [CVODEA ERROR]  CVodeMallocB
+    The initial time tB0 is outside the interval over which the forward problem 
+was solved.
+
+It seems as though the final time is not stored in tfinal.  Do you see
+a simple fix for this problem?
+
+Thanks,
+
+jwe
+
+
+</pre><pre>#include &lt;stdio.h&gt;
+
+#include &quot;cvodea.h&quot;
+#include &quot;nvector_serial.h&quot;
+#include &quot;cvodes_dense.h&quot;
+
+static int
+f (realtype t, N_Vector x, N_Vector xdot, void *f_data)
+{
+  NV_Ith_S(xdot,0) = -NV_Ith_S(x,0) + 1.0;
+
+  return 0;
+}
+
+static int
+fb (realtype t, N_Vector x, N_Vector xb, N_Vector xb_dot, void *f_data)
+{
+  /* Dummy function for now. */
+  return 0;
+}
+
+int
+main (int argc, char *argv[])
+{
+  void *cvadj_mem;
+
+  realtype reltol = 1e-4, abstol = 1e-6;
+
+  realtype time = 0.0, tout = 0.0;
+
+  int i, status;
+
+  void *cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
+
+  N_Vector x = N_VNew_Serial (1);
+  NV_Ith_S(x,0) = 0.0;
+
+  N_Vector xb = N_VNew_Serial (1);
+  NV_Ith_S(xb,0) = 0.0;
+
+  CVodeMalloc (cvode_mem, f, 0.0, x, CV_SS, reltol, &amp;abstol);
+
+  CVDense (cvode_mem, 1);
+
+  cvadj_mem = CVadjMalloc (cvode_mem, 150, CV_POLYNOMIAL);
+
+  for (i = 0; i &lt; 10; i++)
+    {
+      tout = (i+1)*0.05;
+      int ncheck;
+      int flag = CVodeF(cvadj_mem, tout, x, &amp;time, CV_NORMAL, &amp;ncheck);
+      fprintf (stderr, &quot;i = %2d, tout = %2.1f, flag = %d, x = %g\n&quot;,
+               i, tout, flag, NV_Ith_S(x,0));
+    }
+
+  CVodeCreateB (cvadj_mem, CV_ADAMS, CV_NEWTON);
+
+  if (time != tout)
+    fprintf (stderr, &quot;time - tout = %g\n&quot;, time - tout);
+  fprintf (stderr, &quot;tout = %2.1f\n&quot;, tout);
+
+  CVodeMallocB (cvadj_mem, fb, tout, xb, CV_SS, reltol, &amp;abstol);
+
+  CVodeFree (&amp;cvode_mem);
+
+  N_VDestroy_Serial (x); 
+
+  CVadjFree (&amp;cvadj_mem);
+
+  return 0;
+}
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00734" href="msg00734.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00672" href="msg00672.html">[sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> &quot;John W. Eaton&quot; &lt;jwe@bevo.che.wisc.edu&gt;</li></ul></li>
+<li><strong><a name="00692" href="msg00692.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00732.html">[sundials-users] calling CVODE from Matlab</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00734.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00707.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00734.html">Re: [sundials-users] CVodeB and intermediate output</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00733">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00733">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

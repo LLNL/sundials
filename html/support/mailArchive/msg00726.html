@@ -1,0 +1,184 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: [sundials&#45;users] Using CVODE to solve Difrancesco Noble Cell model -->
+<!--X-From-R13: "xnanxncevln Ynylnanfhaqnenz" <xnanxncevlnNU[OWZ.QA[> -->
+<!--X-Date: Mon, 09 Oct 2006 12:03:16 &#45;0700 -->
+<!--X-Message-Id: 9157e4a10610091201r6aac07a9y39fe332e2e5eee76@mail.gmail.com -->
+<!--X-Content-Type: multipart/alternative -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>[sundials-users] Using CVODE to solve Difrancesco Noble Cell model</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00725.html">Date Prev</a>] [<a href="msg00727.html">Date Next</a>] [<a href="msg00724.html">Thread Prev</a>] [<a href="msg00727.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00726">Date Index</a></b>]
+[<b><a href="threads.html#00726">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>[sundials-users] Using CVODE to solve Difrancesco Noble Cell model</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;kanakapriya Kalyanasundaram&quot; &lt;<a href="mailto:kanakapriya%40GMAIL.COM">kanakapriya@GMAIL.COM</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Tue, 10 Oct 2006 00:31:32 +0530</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+Hi,<br>I am trying to set up CVODE to solve DFN states.&nbsp; I know the
+model is fairly accurate because with a timestep of about 0.01 ms I can
+run the model with just basic Y = Y +ydot*dtand get decent results.<br><br>The model consists of about 16 states and corresponding first degree equations;&nbsp; The states ARE dependent on one another.
+<br><br>The chief parameter of interest is Vm (state [0]), the membrane
+voltage.&nbsp; I get continuous &quot;mxsteps steps taken before reaching tout&quot;
+error and the output sort of oscillates between -200 and +20 instead of
+going from -80 to about +20, falling sharply and then combing back to
+around -80.&nbsp; These cells are autorhythmic and the curves repeat
+automatically.
+<br><br>If someone can see where I am erring please please help!<br><br>I will be utterly greatful.<br><br>Regards,<br>KPKS<br><br>These are my steps in using CVODE:<br>//declare y, errorvector and memory space for CVODE
+<br>
+<br>&nbsp;N_Vector u,vAbsTol;<br>&nbsp; void *cvode_mem;<br><br>//define and initialize CVODE vars<br>&nbsp;&nbsp;&nbsp; u = N_VMake_Serial(N,uinit); //uinit is initialized by the getState function<br><br>//some day I will figure out the rt tol for each of the states , hence CV instead of SS
+<br><br>&nbsp;&nbsp;&nbsp; vAbsTol = N_VNew_Serial(N);<br>&nbsp;&nbsp;&nbsp; if (check_flag((void *)vAbsTol, &quot;N_VNew_Serial&quot;, 0)) return(1);<br>&nbsp;&nbsp;&nbsp; //intialize with vAbsTol<br>&nbsp;&nbsp;&nbsp; for (int z = 0; z &lt; N; z++)<br>&nbsp;&nbsp;&nbsp; NV_Ith_S(vAbsTol,z) = abstol;
+<br><br><br>&nbsp;&nbsp;&nbsp; cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);<br>&nbsp;&nbsp;&nbsp; if (check_flag((void *)cvode_mem, &quot;CVodeCreate&quot;, 0)) return(1);<br><br>// Allocate internal memory.<br><br>&nbsp;&nbsp;&nbsp; flag = CVodeMalloc(cvode_mem, f, t, u, CV_SV, reltol, vAbsTol);
+<br><br>//. Attach linear solver module<br>&nbsp;&nbsp;&nbsp; CVDense(cvode_mem, N);<br>&nbsp;&nbsp;&nbsp; if (check_flag(&amp;flag, &quot;CVDense&quot;, 1)) return(1);<br><br>&nbsp;&nbsp;&nbsp; //user default jacobean<br>&nbsp;&nbsp;&nbsp; CVDenseSetJacFn(cvode_mem, NULL, NULL);
+<br>
+&nbsp;&nbsp;&nbsp; if (check_flag(&amp;flag, &quot;CVDenseSetJacFn&quot;, 1)) return(1);<br><br>//set up loop to calculate states over desired time i.e. 4s<br>&nbsp;&nbsp; int counter = int (Simtime*1000.0);<br>&nbsp;&nbsp;&nbsp; tout = Simtime/counter;<br><br>
+
+&nbsp;&nbsp;&nbsp; for (int i = 0; i &lt; counter; i++)<br>&nbsp;&nbsp;&nbsp; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int z;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; flag = CVode(cvode_mem, tout, u, &amp;t, CV_NORMAL);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (check_flag((void *)cvode_mem, &quot;CVode&quot;, 0)) return(1);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //update cell state with u vector from cvode
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for ( z = 0; z &lt; N; z++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uinit[z]=NV_Ith_S(u,z);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cellptr-&gt;updateState(uinit);<br><br>//increment time step<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tout+=tout;<br>&nbsp;&nbsp;&nbsp; }<br><br>This is the function f called by cvode to calculate the RHS::
+<br><br>static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)<br>{<br>&nbsp;&nbsp;&nbsp; double ydiff[16],uinit[16];<br>&nbsp;&nbsp;&nbsp; int z;<br><br>//put y vector into a temperory state vector<br>&nbsp;&nbsp;&nbsp; for ( z = 0; z &lt; DFN_STATES; z++)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uinit[z]=NV_Ith_S(y,z);<br>&nbsp;&nbsp;&nbsp; //cellptr-&gt;updateState(uinit);<br><br>//call cell to compute ydot.<br>&nbsp;&nbsp;&nbsp; cellptr-&gt;cvodeCompute(uinit);<br>&nbsp;&nbsp;&nbsp; cellptr-&gt;getDiff(ydiff);<br><br>//compute ydot vector used by cvode
+<br>&nbsp;&nbsp;&nbsp; for ( z = 0; z &lt; DFN_STATES; z++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NV_Ith_S(ydot,z) = ydiff[z];<br><br>&nbsp;&nbsp;&nbsp; return(0);<br>}
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00727" href="msg00727.html">Re: [sundials-users] Using CVODE to solve Difrancesco Noble Cell model</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00725.html">Re: [sundials-users] Installation bug report(s)</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00727.html">Re: [sundials-users] Using CVODE to solve Difrancesco Noble Cell model</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00724.html">[sundials-users] Installation bug report(s)</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00727.html">Re: [sundials-users] Using CVODE to solve Difrancesco Noble Cell model</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00726">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00726">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

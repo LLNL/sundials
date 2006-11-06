@@ -102,37 +102,37 @@ Tue, 29 Aug 2006 09:08:58 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Rainer,</pre><br>
-<tt>I cannot duplicate such problems. I suspect you miss something in the 
+I cannot duplicate such problems. I suspect you miss something in the 
 reinitialization. For example, are you certain that you correctly set the 
 initial conditions for the sensitivity variables before calling CvodeSensReInit? 
 Make sure you do not reuse the same variable to also extract the sensitivities 
-after a previous return from CVode (by calling CVodeGetSens).</tt><br>
+after a previous return from CVode (by calling CVodeGetSens).<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;">P.S. Maybe you could post the relevant portion of your main function.</pre><br>
-<tt>Rainer Machne wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Sundials users/developers,</pre><br>
+Rainer Machne wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Sundials users/developers,</pre><br>
 <pre style="margin: 0em;"><br>In our software we use the ReInit functions of both CVode and CVodeSens
 (version 2.1.1) to run arbitrary numbers of integration runs.</pre><br>
-<tt>We get however different sensitivities s(x(t)) with each run, even if we 
+We get however different sensitivities s(x(t)) with each run, even if we 
 don't change any parameters or initial conditions, i.e. with exactly the 
-same model, for which CVode also returns the same results x(t).</tt><br>
+same model, for which CVode also returns the same results x(t).<br>
 <br>
-<tt>I have tried different combinations of using either ReInit or a 
-completely new creation of cvode solver structures.</tt><br>
+I have tried different combinations of using either ReInit or a 
+completely new creation of cvode solver structures.<br>
 <br>
-<tt> Both,<br>
+ Both,<br>
 a) freeing and recreating the sensitivity structures with 
 N_VNewVectorArray_Serial and CVodeSensMalloc or<br>
 b) reinitializing these structures with CVodeSensReInit<br>
-produce wrong results. The results are different from each other, though.</tt><br>
+produce wrong results. The results are different from each other, though.<br>
 <br>
-<tt>In the CVodeSensReInit case, the results look somehow `more correct':<br>
+In the CVodeSensReInit case, the results look somehow `more correct':<br>
 e.g. two variables with exactly opposite sensitivities (x/-) to one 
-parameter stay this way for iterative runs, although with different values.</tt><br>
+parameter stay this way for iterative runs, although with different values.<br>
 <br>
-<tt>Here some results for the same output time (3.0) and different 
-iterations, sensitivities of two variables to the same parameter:</tt><br>
+Here some results for the same output time (3.0) and different 
+iterations, sensitivities of two variables to the same parameter:<br>
 <br>
 <pre style="margin: 0em;">both cases:
  1st run:   0.0323545 -0.0323545</pre><br>
@@ -144,20 +144,20 @@ iterations, sensitivities of two variables to the same parameter:</tt><br>
 10th run:   0.294778 -0.294778</pre><br>
 <pre style="margin: 0em;">The results x(t) are the same for all cases, i.e. 87.2221 and 12.7779.
 The parameter towards which sensitivity is tested has the value 10.</pre><br>
-<tt>Note, that the symmetry is kept when using ReInit, while one sensitivity 
-is growing much bigger for the destroy/create case.</tt><br>
+Note, that the symmetry is kept when using ReInit, while one sensitivity 
+is growing much bigger for the destroy/create case.<br>
 <br>
-<tt><br>The only way to get consistent results is to destroy and recreate the 
-whole CVode solver structures with CVodeCreate.</tt><br>
+<br>The only way to get consistent results is to destroy and recreate the 
+whole CVode solver structures with CVodeCreate.<br>
 <br>
-<tt>Could this be a bug in SUNDIALS or do you see any hints what we might do 
+Could this be a bug in SUNDIALS or do you see any hints what we might do 
 wrong in our software from above results??<br>
 If it's a bug in Sundials, I guess it must be some structure in the 
 CVode forward solver that is important for CVodeSens but created 
-independently of the latter. ??</tt><br>
+independently of the latter. ??<br>
 <br>
-<tt>Sorry, if this has been brought up and discussed before, I didn't find 
-the email archives online.</tt><br>
+Sorry, if this has been brought up and discussed before, I didn't find 
+the email archives online.<br>
 <br>
 <pre style="margin: 0em;">Thanks,
 Rainer Machne</pre><br>

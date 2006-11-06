@@ -106,39 +106,39 @@ Tue, 18 Jul 2006 17:32:31 -0700</td>
 <pre style="margin: 0em;">ZXD (?),</pre><br>
 <pre style="margin: 0em;">I know where such systems appear (hence the use of 'position' and 'velocity' in 
 my previous reply).</pre><br>
-<tt>Anyway, I think you rush a bit in stating that the advantages are &quot;obvious&quot; (even putting aside the generality issue I raised before). 
+Anyway, I think you rush a bit in stating that the advantages are &quot;obvious&quot; (even putting aside the generality issue I raised before). 
 Indeed, you need to remember that, when solving such problems with one of the SUNDIALS solvers (which work on first order DEs), the problem 
-size will still be 2n (in your notation). In other words, the linear solver still needs to return a 2n-dimensional vector as the solution.</tt><br>
+size will still be 2n (in your notation). In other words, the linear solver still needs to return a 2n-dimensional vector as the solution.<br>
 <br>
-<tt>Granted, when using a dense linear solver, this can be done in 2 stages, first trivially obtaining the velocity components solving and then 
+Granted, when using a dense linear solver, this can be done in 2 stages, first trivially obtaining the velocity components solving and then 
 solving an n x n system for the position components. This will certainly save memory and efficiency. One could easily modify SUNDIALS's 
 dense linear solver to do this, but this will imply an implicit assumption on which variables are 'positions' and which are 'velocities' 
-(which is the reason why we will probably not provide such a solver within SUNDIALS).</tt><br>
+(which is the reason why we will probably not provide such a solver within SUNDIALS).<br>
 <br>
-<tt>However, for the iterative linear solvers all the Jacobian-related information that the linear solver requires is in the form of 
+However, for the iterative linear solvers all the Jacobian-related information that the linear solver requires is in the form of 
 matrix-vector products (with a 2n x 2n matrix and 2n-dimensional vector!) which the user can very easily implement such that it takes into 
 account the identity blocks in the Jacobian. Yes, of course, one could make it a little bit more efficient by the same staggered approach as 
 for the dense case, but we're only talking now about vector operations (scaling, sum, etc). Moreover, one would have to think twice before 
 doing this with an iterative linear solver, as one would need to rethink the stopping criteria for the linear solver (which is related to 
 that of the Newton solver for a 2n dimensional nonlinear system). This would now require variable type information outside the linear solver 
-itself!</tt><br>
+itself!<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>zxd@bu.edu wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">This is may be specific but it is also very general for a
+zxd@bu.edu wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">This is may be specific but it is also very general for a
 variety of problems. e.g. for many mechanical system
 (each component may be specified by p,v).</pre><br>
-<tt>In this case, in stead of problem of 2n x 2n, it only need solve the 
+In this case, in stead of problem of 2n x 2n, it only need solve the 
 problem with n x n size, both for direct linear solver and iterative 
-linear solver, so the advantage is obvious.</tt><br>
+linear solver, so the advantage is obvious.<br>
 <br>
-<tt>This is because the Jac Matrix is very structured:<br>
+This is because the Jac Matrix is very structured:<br>
 If this system can be described as Ay'' + By' +Cy = 0.<br>
 The Jac matrix for u' and u (u = [p, v] is [I, O; O A], [O I; C B] 
-separately. And it is easily to cut the problem size in half.</tt><br>
+separately. And it is easily to cut the problem size in half.<br>
 <br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Xuedong,<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Xuedong,<br>
 Such a linear solver would require knowledge of the 'type' of variable 
 ('position' or 'velocity') which is not required otherwise and would<br>
 conflict with one of the design principles for the SUNDIALS solvers 
@@ -148,7 +148,7 @@ solvers. When using a dense Jacobian, a linear solver like the one you<br>
 suggest, would certainly save memory but probably not a whole lot in 
 terms of efficiency. For an iterative linear solver I do not see any<br>
 advantages.<br>
---Radu</tt><br>
+--Radu<br>
 <br>
 <pre style="margin: 0em;">--
     Radu Serban

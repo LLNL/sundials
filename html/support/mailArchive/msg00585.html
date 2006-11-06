@@ -105,29 +105,29 @@ Wed, 19 Jul 2006 08:52:10 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Jens,</pre><br>
-<tt>After further consideration, both Alan H. and I agreed that the current IDACalcIC implementation only invites misuse. We are therefore 
+After further consideration, both Alan H. and I agreed that the current IDACalcIC implementation only invites misuse. We are therefore 
 considering changing it so that it will not take (t0,yy0,yp0) as arguments anymore and, instead, will always compute consistent initial 
 conditions starting from the triplet (t0,yy0,yp0) specified through IDAMalloc or IDAReInit (which these two functions store in the Nordsieck 
 history arrays phi). This implies that IDACalcIC will have to be called right after IDAMalloc (or IDAReInit) and not the way it's done in 
 your simulator.<br>
 Note that this is practically a rollback to the IDACalcIC implementation in IDA v2.2.2 (sundials v2.0.2) with the exception that we will not 
-use the user's yy0 and yp0 as workspace, but rather make temporary copies.</tt><br>
+use the user's yy0 and yp0 as workspace, but rather make temporary copies.<br>
 <br>
-<tt>If you have a compelling argument against this (the inconvenience of changing the order in your simulator doesn't count :-)), please let me 
-know. We cannot think of any...</tt><br>
+If you have a compelling argument against this (the inconvenience of changing the order in your simulator doesn't count :-)), please let me 
+know. We cannot think of any...<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>Radu Serban wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Jens,<br>
+Radu Serban wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Jens,<br>
 Although your changes will probably work, I still suggest you reorder 
 things in the simulator, as it seems unnatural to specify some initial 
 conditions to IDA only to have them modified before the next call to an 
 IDA function. This is not the intended use of IDACalcIC (with or without 
 modifications).<br>
---Radu</tt><br>
+--Radu<br>
 <br>
-<tt>Jens Bastian wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
+Jens Bastian wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
 <pre style="margin: 0em;">if I used IDA stand alone I would call IDAMalloc() with yy0. But IDA is
 built into a simulator and between the initialization and calculating
 consistent initial values another part of the simulator changes yy0.</pre><br>

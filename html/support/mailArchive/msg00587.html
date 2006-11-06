@@ -109,16 +109,16 @@ Fri, 21 Jul 2006 10:48:24 -0400 (EDT)</td>
 or more general form  F(y,y',t) = A y' - By + x(t).</pre><br>
 <pre style="margin: 0em;">  A,B is banded matrix, and highly ill-conditioned
 (condition number ~ 1e19).</pre><br>
-<tt>  I tried IDA, SPGMR, with simple scaling along diag as preconditioner, 
-but it IDAsolve returns errors (fail to converge or maxsteps reached).</tt><br>
+  I tried IDA, SPGMR, with simple scaling along diag as preconditioner, 
+but it IDAsolve returns errors (fail to converge or maxsteps reached).<br>
 <br>
-<tt>  When I use LU factorization as preconditioner, It seems that LAPACK 
+  When I use LU factorization as preconditioner, It seems that LAPACK 
 linear solver doesn't give me the right answer (dgbtrf, dgbtrs). So IDA<br>
-fails to.</tt><br>
+fails to.<br>
 <br>
-<tt>  Since I am new to this field, could anyone provide suggestions about<br>
+  Since I am new to this field, could anyone provide suggestions about<br>
 how to solve the this problem (ode with highly ill-conditioned Jacobian 
-Matrix)?</tt><br>
+Matrix)?<br>
 <br>
 <pre style="margin: 0em;">Thanks
 Xuedong</pre><br>

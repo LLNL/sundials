@@ -1,0 +1,236 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: RE: Re&#45;2: [sundials&#45;users] performance for chemical kinetic problems -->
+<!--X-From-R13: "@nhgn, Y.[." <Y.[.@nhgnNghr.ay> -->
+<!--X-Date: Mon, 11 Sep 2006 04:36:23 &#45;0700 -->
+<!--X-Message-Id: B636D6447F138C478AA16E69B43CF26C03C3F684@elex3.campus.tue.nl -->
+<!--X-Content-Type: text/plain -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>RE: Re-2: [sundials-users] performance for chemical kinetic problems</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00664.html">Date Prev</a>] [<a href="msg00666.html">Date Next</a>] [<a href="msg00664.html">Thread Prev</a>] [<a href="msg00660.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00665">Date Index</a></b>]
+[<b><a href="threads.html#00665">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>RE: Re-2: [sundials-users] performance for chemical kinetic problems</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;Nauta, K.M.&quot; &lt;<a href="mailto:K.M.Nauta%40tue.nl">K.M.Nauta@tue.nl</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 11 Sep 2006 13:34:02 +0200</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>This probably less easily obtainable reference has also some a treatment
+on preconditioners:
+
+G.Meurant
+Computer Solution of Large Linear Systems
+Studies in mathematics and its applications, Vol 28.
+Elsevier 1999
+
+However, I am also interested in a 'preconditioning for chemists'
+reference, as it seems to me to be a practical and experience based
+task. I briefly tried to look for Alan's comments on publications
+directly associated with the solvers on this but I cannot find anything
+which tells how to do preconditioning for reactive flow problems.
+Probably you take the block-by-block inverse of the decoupled kinetic
+models, as the kinetics dominate the transport equations.
+
+Maarten Nauta
+
+
+-----Original Message-----
+From: owner-sundials-users@lists.llnl.gov
+[<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of M A Walkley
+Sent: Monday, September 11, 2006 12:06 PM
+To: sundials-users@llnl.gov
+Subject: RE: Re-2: [sundials-users] performance for chemical kinetic
+problems
+
+
+Hi all,
+
+Yousef Saad's book is a good reference for preconditoners
+and iterative methods in general, he is one of the experts 
+in the field.  You can download the 1st edition from
+
+<a  href="http://www-users.cs.umn.edu/~saad/books.html">http://www-users.cs.umn.edu/~saad/books.html</a>
+
+or buy the (updated) 2nd edition from SIAM.
+
+Mark.
+
+
+On Mon, 11 Sep 2006, Dudley, Jeremy wrote:
+
+&gt;<i> I would add my voice for a reference to a good primer on</i>
+preconditioners.
+&gt;<i></i>
+&gt;<i> -----Original Message-----</i>
+&gt;<i> From: owner-sundials-users@lists.llnl.gov</i>
+&gt;<i> [<a  href="mailto:owner-sundials-users@lists.llnl.gov]On">mailto:owner-sundials-users@lists.llnl.gov]On</a> Behalf Of Kai Hartmann</i>
+&gt;<i> Sent: Monday, September 11, 2006 10:41 AM</i>
+&gt;<i> To: sundials-users@llnl.gov</i>
+&gt;<i> Subject: Re: Re-2: [sundials-users] performance for chemical kinetic</i>
+&gt;<i> problems</i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> Stefan Kerkemeier schrieb:</i>
+&gt;<i>&gt; Thank you Alan for your detailed comments. Sorry for my ignorance</i>
+what do you mean exactly with 'Very often it is sufficient to use a
+preconditioner based only on the reaction kinetics Jacobian
+contributions (ignoring spatial coupling)'?
+&gt;<i></i>
+&gt;<i> Until now, I used the spgmr solver without a specific preconditioner.</i>
+&gt;<i> The performance for my (sparse) problem was much better in contrast to</i>
+&gt;<i> using the dense solver - even when providing Jacobian data.</i>
+&gt;<i></i>
+&gt;<i> I am very interested in a reference to a good book/article covering</i>
+the
+&gt;<i> basics of preconditioning, as well as examples of preconditioners when</i>
+&gt;<i> using reaction kinetics (understandable for a chemist :) ).</i>
+&gt;<i></i>
+&gt;<i> Greetings,</i>
+&gt;<i></i>
+&gt;<i> Kai</i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i></i>
+
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00664.html">RE: Re-2: [sundials-users] performance for chemical kinetic problems</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00666.html">[sundials-users] gamma and preconditioning</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00664.html">RE: Re-2: [sundials-users] performance for chemical kinetic problems</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00660.html">[sundials-users] Handling of time-dependent jacobian and preconditioning</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00665">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00665">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

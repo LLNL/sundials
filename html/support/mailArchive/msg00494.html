@@ -105,16 +105,16 @@ Tue, 13 Jun 2006 17:28:07 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi John,</pre><br>
-<tt>John Pye wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
+John Pye wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
 <pre style="margin: 0em;">I'm not yet sure what the highest index of DAEs we'll be dealing with
 will be. They could be order 2 or possibly higher: we have some stiff
 fixed-mass fixed-volume two-phase recycle systems that I would like to
 simulate, and I had trouble with some other (free) tools that I tried.
 We don't have Pantelides' algorithm implemented in ASCEND so I'm not
 sure how much success I can expect to have with this.
-</pre></blockquote><tt><br>IDA will not work for indices higher than 2. In the near future I may start working on a coordinate projection-based DAE solver which would 
-work for higher index.</tt><br>
+</pre></blockquote><br>IDA will not work for indices higher than 2. In the near future I may start working on a coordinate projection-based DAE solver which would 
+work for higher index.<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">One thing that will be interesting is whether or not we can re-use the
 'blocking' solver in ASCEND when using IDA. I have a lot to learn about
@@ -122,13 +122,13 @@ its internal details but it seems that I may be able to use the 'lsolve'
 interface inside IDA for this purpose. It's also going to be
 challlenging when it comes to tying in with the evaluation of the
 Jacobian and root-finding capabilities.
-</pre></blockquote><tt><br>Attaching a new linear solver module to IDA is not all that difficult. You'll have to learn a bit about the internal memory structure IDAMem 
-(defined in ida_impl.h which is now exported under include/ida/ exactly for this reason).</tt><br>
+</pre></blockquote><br>Attaching a new linear solver module to IDA is not all that difficult. You'll have to learn a bit about the internal memory structure IDAMem 
+(defined in ida_impl.h which is now exported under include/ida/ exactly for this reason).<br>
 <br>
-<tt>Before jumping ahead and implement this interface, you could test the ASCEND linear solver by using the preconditioner interface for the 
+Before jumping ahead and implement this interface, you could test the ASCEND linear solver by using the preconditioner interface for the 
 iterative linear solvers in IDA. Indeed, you could define a 'perfect' preconditioner by using an exact linear solver in the 'psolve' 
 function and use one of the iterative linear solvers already present in IDA (GMRES, BiCG-Stab, or TF-QMR) which, with such a preconditioner 
-will take exactly one iteration.</tt><br>
+will take exactly one iteration.<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">On an aside: is there a reason why, when installing IDA, several of the
 header files are installed in subdirectories, but the top-level header
@@ -139,13 +139,13 @@ header files using &lt;sundials/whatever.h&gt; and &lt;ida/whatever.h&gt; rather
 than the current system. This also makes detection of SUNDIALS with
 autotools/SCons a bit harder to do. But perhaps you have a reason for
 this approach?
-</pre></blockquote><tt><br>We decided to export header files in subdirectories in order to not pollute the include/ directory (especially for a system-wide SUNDIALS 
+</pre></blockquote><br>We decided to export header files in subdirectories in order to not pollute the include/ directory (especially for a system-wide SUNDIALS 
 install). I would have gladly use &quot;#include &lt;ida/whatever.h&gt; where necessary (I like *NIX too :-)) but we had to make it relatively easy for 
 those using other OS (read Windows) who cannot use the configure script and thus need to collect all source and header files into a 
-directory where their IDEs (e.g. Visual C++) can find them. With the current implementation they do not have to create these subdirectories.</tt><br>
+directory where their IDEs (e.g. Visual C++) can find them. With the current implementation they do not have to create these subdirectories.<br>
 <br>
-<tt>I know this is a bit more inconvenient, but there are not that many -I flags that you need to add to CPPFLAGS (typically 3: -I***/include 
--I***/include/ida -I***/include/sundials).</tt><br>
+I know this is a bit more inconvenient, but there are not that many -I flags that you need to add to CPPFLAGS (typically 3: -I***/include 
+-I***/include/ida -I***/include/sundials).<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Cheers
 JP</pre><br>
@@ -162,8 +162,8 @@ values for lat and long... There's probably a bug in my coding.</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I've been working on integrating IDA with the ASCEND simulation package
 recently. Work in progress, but it's been going well so far, thanks to
 the excellent documentation.</pre><br>
-<tt><a  href="https://pse.cheme.cmu.edu/wiki/view/Ascend/WebHome">https://pse.cheme.cmu.edu/wiki/view/Ascend/WebHome</a>
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+<a  href="https://pse.cheme.cmu.edu/wiki/view/Ascend/WebHome">https://pse.cheme.cmu.edu/wiki/view/Ascend/WebHome</a>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">Thanks for pointing this out. Over the past couple of weeks I learned
 or was reminded of several packages that use SUNDIALS solvers. I'd
 appreciate if user would let us know of others.</pre><br>

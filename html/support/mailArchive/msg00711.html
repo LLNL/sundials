@@ -1,0 +1,232 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: [sundials&#45;users] Re: large stiff ODE system -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Wed, 27 Sep 2006 14:59:37 &#45;0700 -->
+<!--X-Message-Id: Pine.LNX.4.58.0609271455270.16395@tux64.llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 1158794197.4511cbd57a61a@webmail.nd.edu -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>[sundials-users] Re: large stiff ODE system</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00710.html">Date Prev</a>] [<a href="msg00712.html">Date Next</a>] [<a href="msg00705.html">Thread Prev</a>] [<a href="msg00715.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00711">Date Index</a></b>]
+[<b><a href="threads.html#00711">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>[sundials-users] Re: large stiff ODE system</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 27 Sep 2006 14:58:54 -0700 (PDT)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>
+Hello John,
+
+First, let me say that I strongly discourage a Strang-splitting
+approach (or any other operator splitting), and cannot recommend any
+good way to use CVODE within such an approach.  The reason is that any
+traditional splitting approach temporarily ignores couplings in the
+problem but does not include a way to include them reliably.
+
+Instead, consider having CVODE (or DVODE or DVODPK if you really
+prefer Fortran) solve your full problem, but with careful attention to
+the solution of the linear systems that arise at each step.  Your
+problem evidently comes from a 2- or 3-dimensional reaction-transport
+PDE system.  So you can take advantage of the local coupling in the
+transport.  This means either using a banded direct method or using a
+preconditioned iterative method with a preconditioner that makes use
+of the local coupling.  With either CVODE or DVODPK, you can use a
+preconditioner that is based on a Strang (directional) splitting, for
+example.  See other recent SUNDIALS postings about preconditioners for
+PDE systems, and especially see the reference
+      P. N. Brown and A. C. Hindmarsh, &quot;Reduced Storage Matrix Methods
+     in Stiff ODE Systems,&quot; J. Appl. Math. &amp; Comp., 31 (1989), pp.40-91.
+This paper has examples of splitting-based preconditioners for
+PDE systems.
+
+I would avoid going to a parallel solution as long as possible.  Going
+parallel only adds to the complexity of forming an effective
+preconditioner (or of using another linear system solution method).
+For an example, see the Example Programs for CVODE and compare the
+serial and parallel examples denoted cvkryx and cvkryx_p.
+
+If you really want to go parallel and write your application in Fortran,
+use the CVODE Fortran interface package, FCVODE.
+
+-Alan H.
+
+P.S. I am CC-ing this message to the SUNDIALS user group address,
+sundials-users@llnl.gov, so that this discussion is available to others.
+Please address future messages to that address, for this reason.
+
+
+
+On Wed, 20 Sep 2006 jkamel@nd.edu wrote:
+
+&gt;<i> Hi Prof. Hindmarsh,</i>
+&gt;<i> I have 2 questions:</i>
+&gt;<i></i>
+&gt;<i> I used to use dlsode to solve odes then I have transfere to dvode when I</i>
+&gt;<i> fingured out that it is twice faster than dlsode (as in your paper and as I</i>
+&gt;<i> have tested).</i>
+&gt;<i> Now I have just installed CVODE.</i>
+&gt;<i></i>
+&gt;<i> The reson that I though about using CVODE is that I have a faily large system </i>
+&gt;<i> of</i>
+&gt;<i> stif ODEs that is due to Strang-splitting.  thay are about 17 species*11375 </i>
+&gt;<i> grid</i>
+&gt;<i> point=193375 equations.  I can solve that system at each node point, in that</i>
+&gt;<i> case I will not have only 17 equation.  I found out that this takes so long</i>
+&gt;<i> since I have to call vode 11375 times to solve 17 equation at each node.</i>
+&gt;<i></i>
+&gt;<i> 1-My question is do you think that parallel computation will be the right way </i>
+&gt;<i> to</i>
+&gt;<i> solve that system faster since I may face a problem with the memory in rwork</i>
+&gt;<i> which is roughly ~ number_of_eqns^2?</i>
+&gt;<i></i>
+&gt;<i> 2- Are there any parallel FORTRAN version of CVODE?</i>
+&gt;<i></i>
+&gt;<i> Thanks for your help,</i>
+&gt;<i> John</i>
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00715" href="msg00715.html">[sundials-users] Re: large stiff ODE system</a></strong>
+<ul><li><em>From:</em> jkamel@nd.edu</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00710.html">Re: Re-4: [sundials-users] performance for chemical kinetic problems</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00712.html">Re: Re-4: [sundials-users] performance for chemical kinetic problems</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00705.html">[sundials-users] Integration with CVode : how to modify the intial condition during the integration ?</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00715.html">[sundials-users] Re: large stiff ODE system</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00711">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00711">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

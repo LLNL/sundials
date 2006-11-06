@@ -113,10 +113,10 @@ Tue, 20 Jun 2006 08:28:44 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Andr&#xE9;,</pre><br>
-<tt>Assuming you asked &quot;what do you think?&quot; and not &quot;what do you mean?&quot; :-), I completely agree with you. What you outlined is basically my 
+Assuming you asked &quot;what do you think?&quot; and not &quot;what do you mean?&quot; :-), I completely agree with you. What you outlined is basically my 
 suggestion (#3 in my previous post) with headers such as ida.h moved to their corresponding directory. I'm fine with this later modification 
 and, moreover, I would probably export all nvector header files (currently only 2 of them - nvector_serial.h and nvector_parallel.h) under 
-${prefix}/include/nvector/.</tt><br>
+${prefix}/include/nvector/.<br>
 <br>
 <pre style="margin: 0em;">The users would then use in their makefiles:</pre><br>
 <pre style="margin: 0em;">     SUNDIALS_HOME   = &lt;prefix&gt;
@@ -130,23 +130,23 @@ ${prefix}/include/nvector/.</tt><br>
 <pre style="margin: 0em;">The only inconvenience of this approach (as John pointed out) is that it uses 
 several directories under ${prefix}/include.</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>P.S. This whole discussion picked my interest and I did quite a bit of searching on best/common/standard practices on this issue. What I 
+P.S. This whole discussion picked my interest and I did quite a bit of searching on best/common/standard practices on this issue. What I 
 found (correct me if I'm wrong) is that there really is no standard way of doing things - nothing relevant in the &quot;GNU Coding Standards&quot; for 
-example.</tt><br>
+example.<br>
 <br>
-<tt>The conditional include that John suggested is something I considered even before the latest SUNDIALS release (the first package where I've 
+The conditional include that John suggested is something I considered even before the latest SUNDIALS release (the first package where I've 
 seen this done was 'xine' I think) and dismissed it as not very elegant (particularly for a package such as SUNDIALS for which I expect the 
 users to look into the header files - more than a user of xine would do). This is why, in my first message, I asked for solutions that did 
-*not* use this (or some convoluted structure of the source tree, or the use of symbolic links, etc).</tt><br>
+*not* use this (or some convoluted structure of the source tree, or the use of symbolic links, etc).<br>
 <br>
 <pre style="margin: 0em;">Qt, which is often used as an example of good practice, also exports headers 
 into several directories under ${prefix}/include.</pre><br>
-<tt>I also looked at my installation of octave (I have an older version, 2.1.65) and its header files are installed under a directory 
+I also looked at my installation of octave (I have an older version, 2.1.65) and its header files are installed under a directory 
 ${prefix}/include/octave-2.1.65/octave. This means that even if ${prefix}/include is in the compiler's default search path, an example using 
-#include &lt;octave/whatever.h&gt; still needs a -I flag. John, correct me if this is not true.</tt><br>
+#include &lt;octave/whatever.h&gt; still needs a -I flag. John, correct me if this is not true.<br>
 <br>
-<tt><br>Andr&#xE9; Schneider wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+<br>Andr&#xE9; Schneider wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
 <pre style="margin: 0em;">John W. Eaton wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">... In your sources, you can keep the directory structure
 however you like and use</pre><br>

@@ -102,9 +102,9 @@ Fri, 07 Jul 2006 14:16:35 -0500</td>
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Friends,</pre><br>
 <pre style="margin: 0em;">Earlier I have successfully installed SUNDIALS under windows using cygwin.</pre><br>
-<tt>Now I need to install it on another windows machine where mingw and msys 
+Now I need to install it on another windows machine where mingw and msys 
 are installed. I face some little problems with the installation ans was 
-wondering if anybody could point me in the right direction.</tt><br>
+wondering if anybody could point me in the right direction.<br>
 <br>
 <pre style="margin: 0em;">Certainly, I could just install Cygwin, MAKE it, and uninstall it but ...</pre><br>
 <pre style="margin: 0em;">Thank you!</pre><br>
@@ -123,16 +123,16 @@ checking whether make sets $(MAKE)... yes
 checking for a BSD-compatible install... /bin/install -c</pre><br>
 <pre style="margin: 0em;">C Compiler Settings
 -------------------</pre><br>
-<tt>checking for C compiler default output file name... configure: error: C 
+checking for C compiler default output file name... configure: error: C 
 compiler cannot create executables<br>
-See `config.log' for more details.</tt><br>
+See `config.log' for more details.<br>
 <br>
-<tt>hg@JOE /c/DAESolvers/SUNDIALS/sundials<br>
+hg@JOE /c/DAESolvers/SUNDIALS/sundials<br>
 $ ls<br>
 INSTALL_NOTES  README        config      config.log  configure.ac  
 cvodes  kinsol    nvec_ser<br>
 Makefile.in    acinclude.m4  config.hin  configure   cvode         
-ida     nvec_par  shared</tt><br>
+ida     nvec_par  shared<br>
 <br>
 <pre style="margin: 0em;">hg@JOE /c/DAESolvers/SUNDIALS/sundials
 $ gcc --version
@@ -141,14 +141,14 @@ Copyright (C) 2004 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</pre><br>
 <pre style="margin: 0em;">Checking what tools are installed under mingw:</pre><br>
-<tt>hg@JOE /c/MinGW/bin<br>
+hg@JOE /c/MinGW/bin<br>
 $ ls<br>
 addr2line.exe  c++.exe      dlltool.exe  g77.exe  gcov.exe   
 mingw32-c++.exe    mingw32-gcc.exe   nm.exe       ranlib.exe   strings.exe<br>
 ar.exe         c++filt.exe  dllwrap.exe  gcc.exe  gprof.exe  
 mingw32-g++.exe    mingw32-make.exe  objcopy.exe  readelf.exe  strip.exe<br>
 as.exe         cpp.exe      g++.exe      gccbug   ld.exe     
-mingw32-gcc-3.4.2  mingwm10.dll      objdump.exe  size.exe     windres.exe</tt><br>
+mingw32-gcc-3.4.2  mingwm10.dll      objdump.exe  size.exe     windres.exe<br>
 <br>
 <pre style="margin: 0em;">The CONFIG.LOG reveals that cc apparently is not known to configure</pre><br>
 <pre style="margin: 0em;">configure:2305: cc --version &lt;/dev/null &gt;&amp;5

@@ -101,7 +101,7 @@ Tue, 01 Aug 2006 12:32:10 +0200</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Dear sundials users,</pre><br>
-<tt>I am having some performance problems/questions with the IDABand linear 
+I am having some performance problems/questions with the IDABand linear 
 solver.<br>
 I'm trying to solve some chemical reaction equations which works just fine<br>
 with the dense solver. Just for testing, I have simply multiplied the 
@@ -111,20 +111,20 @@ now n*ns equations.<br>
 By just copying the equations the bandwidth should be  exactly ns-1.<br>
 The Dense solver still works very fine, but with the IDABand solver I 
 observe the following<br>
-performance:</tt><br>
+performance:<br>
 <br>
-<tt>IDABand(mem,  n*ns, n*ns-1, n*ns-1) -&gt; more or less identical behaviour 
+IDABand(mem,  n*ns, n*ns-1, n*ns-1) -&gt; more or less identical behaviour 
 to the dense solver as<br>
-                                                                  expected</tt><br>
+                                                                  expected<br>
 <br>
-<tt>IDABand(mem, n*ns, ns-1, ns-1) -&gt; much slower convergence with lots of 
-messages like:</tt><br>
+IDABand(mem, n*ns, ns-1, ns-1) -&gt; much slower convergence with lots of 
+messages like:<br>
 <br>
 <pre style="margin: 0em;"> At t = 0.000194651, , mxstep steps taken before reaching tout.</pre><br>
-<tt>Changing the bandwidth slightly (e.g. 2*ns) doesn't make a difference.<br>
+Changing the bandwidth slightly (e.g. 2*ns) doesn't make a difference.<br>
 What is going on here? Why does the banded solver behave differently 
 than the dense<br>
-solver, although the problem as I set it up is strictly banded?</tt><br>
+solver, although the problem as I set it up is strictly banded?<br>
 <br>
 <pre style="margin: 0em;">Thanks for any hints and help!</pre><br>
 <pre style="margin: 0em;">Michael</pre><br>

@@ -107,24 +107,24 @@ Wed, 26 Jul 2006 10:07:53 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>zxd@bu.edu wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>  I have another question, what is the difference between using implicit 
+zxd@bu.edu wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">  I have another question, what is the difference between using implicit 
 or direct ODE solver (IDA, CVODE). I mean mathematically<br>
 and numerically? I don't need to inverse the matrix A for IDA,<br>
 but is IDA (implicit method) will cause more trouble in stability<br>
-and errors?</tt><br>
+and errors?<br>
 <br>
 <pre style="margin: 0em;">  This is not mentioned in IDA user guide, and I guess it is a
 basic knowledge for applied math people :(</pre><br>
-<tt>Xuedong
-</tt></blockquote><pre style="margin: 0em;"><br>Xuedong,</pre><br>
-<tt>You must make the distinction between the form (explicit or implicit) of the ODE and the numerical method (explicit or implicit) used to 
+Xuedong
+</blockquote><pre style="margin: 0em;"><br>Xuedong,</pre><br>
+You must make the distinction between the form (explicit or implicit) of the ODE and the numerical method (explicit or implicit) used to 
 solve it. In short, CVODE works for ODE systems in explicit form, while IDA works for ODE systems in implicit form (and DAE systems). 
-However, both CVODE and IDA use an implicit integration methods (Adams or BDF for CVODE, BDF only for IDA).</tt><br>
+However, both CVODE and IDA use an implicit integration methods (Adams or BDF for CVODE, BDF only for IDA).<br>
 <br>
-<tt><br>A first order ODE is in explicit form if the derivative of the dependent variable can be &quot;explicitly&quot; written as a function of the 
+<br>A first order ODE is in explicit form if the derivative of the dependent variable can be &quot;explicitly&quot; written as a function of the 
 independent variable (time) and the dependent variable itself:<br>
-   y' = f(t,y)</tt><br>
+   y' = f(t,y)<br>
 <br>
 <pre style="margin: 0em;">A first order ODE is in implicit form if the above relationship is given in an 
 implicit manner:
@@ -134,13 +134,13 @@ implicit manner:
 but can be easily converted to an explicit form by multiplying to the left by 
 A^{-1} and rearranging terms:
    y' = f(t,y) == A^{-1} ( By+x(t) )</pre><br>
-<tt>Note that any ODE in explicit form can be viewed as an ODE in implicit form:<br>
+Note that any ODE in explicit form can be viewed as an ODE in implicit form:<br>
    F(t,y,y') == y' - f(t,y) = 0<br>
 and therefore any problem that could be solved with CVODE could also be solved with IDA (but less efficiently since CVODE takes advantage of 
-the explicit form of the ODE).</tt><br>
+the explicit form of the ODE).<br>
 <br>
-<tt><br>Any integration method for an ODE initial value problem (IVP) starts from given values of y_0 at time t=t_0 and computes an approximation 
-y_n for y(t_n) based on previous value(s) y_{n-1}, y_{n-2}, ... for n=1,2,...</tt><br>
+<br>Any integration method for an ODE initial value problem (IVP) starts from given values of y_0 at time t=t_0 and computes an approximation 
+y_n for y(t_n) based on previous value(s) y_{n-1}, y_{n-2}, ... for n=1,2,...<br>
 <br>
 <pre style="margin: 0em;">An explicit numerical method could in principle be written as
   y_n = g(t_n, t_{n-1}, t_{n-2}, ... , y_{n-1}, y_{n-2}, ...)</pre><br>
@@ -148,34 +148,34 @@ y_n for y(t_n) based on previous value(s) y_{n-1}, y_{n-2}, ... for n=1,2,...</t
 implicit manner:
   G(t_n, t_{n-1}, t_{n-2}, ... , y_n, y_{n-1}, y_{n-2}, ...) = 0
 Therefore, y_n is obtain by solving the (generally nonlinear) system G=0.</pre><br>
-<tt>The simplest example of explicit (implicit) integration scheme is the forward (backward) Euler method. For an ODE in explicit form (you can 
-derive them for one in implicit form yourself), y'=f(t,y), these two methods are:</tt><br>
+The simplest example of explicit (implicit) integration scheme is the forward (backward) Euler method. For an ODE in explicit form (you can 
+derive them for one in implicit form yourself), y'=f(t,y), these two methods are:<br>
 <br>
-<tt>Forward Euler is based on a truncated Taylor series expansion of y(t_n) around t_{n-1}. In other words, it uses a first order forward finite 
+Forward Euler is based on a truncated Taylor series expansion of y(t_n) around t_{n-1}. In other words, it uses a first order forward finite 
 difference approximation for the derivative at t_{n-1}:<br>
   y'_{n-1} = [ y_n - y_{n-1} ] / [ t_n - t_{n-1} ]<br>
 and therefore<br>
   y_n = y_{n-1} + ( t_n - t_{n-1} ) * f(t_{n-1},y_{n-1})<br>
-which is an explicit integration scheme.</tt><br>
+which is an explicit integration scheme.<br>
 <br>
-<tt>Backward Euler is based on a truncated Taylor series expansion of y(t_{n-1}) around t_n. In other words, it uses a first order backward 
+Backward Euler is based on a truncated Taylor series expansion of y(t_{n-1}) around t_n. In other words, it uses a first order backward 
 finite difference approximation for the derivative at t_n:<br>
   y'_n = [ y_n - y_{n-1} ] / [ t_n - t_{n-1} ]<br>
 and therefore<br>
   y_n = y_{n-1} + ( t_n - t_{n-1} ) * f(t_n, y_n)<br>
 which gives y_n in an implicit manner.<br>
-One must solve a nonlinear system (linear only if f(t,y) is linear in its second argument) to obtain y_n.</tt><br>
+One must solve a nonlinear system (linear only if f(t,y) is linear in its second argument) to obtain y_n.<br>
 <br>
 <pre style="margin: 0em;"><br></pre><br>
-<tt>Implicit integration schemes have much better stability properties than explicit ones (in a nutshell they'll allow you to take much larger 
+Implicit integration schemes have much better stability properties than explicit ones (in a nutshell they'll allow you to take much larger 
 step sizes), but they are more expensive due to the nonlinear systems that must be solved at each step. These systems can be solved with 
 various methods, for example function iteration or Newton methods. The latter further require solutions of linear systems which, in turn, 
-can be done with direct or iterative linear solvers.</tt><br>
+can be done with direct or iterative linear solvers.<br>
 <br>
-<tt>As mentioned before, all integrators in SUNDIALS implement ONLY implicit methods (Adams and BDF for CVODE and CVODES and BDF for IDA). These 
+As mentioned before, all integrators in SUNDIALS implement ONLY implicit methods (Adams and BDF for CVODE and CVODES and BDF for IDA). These 
 are implemented as adaptive methods (i.e., variable-order, variable-step). As such, when deciding whether to use CVODE or IDA on a given 
 problem (assuming it can be formulated both as an explicit form ODE and an implicit form ODE) the only considerations (at least from the 
-integrator's point of view) are of efficiency and not accuracy and/or stability.</tt><br>
+integrator's point of view) are of efficiency and not accuracy and/or stability.<br>
 <br>
 <pre style="margin: 0em;"><br>I hope this helps.
 --Radu</pre><br>

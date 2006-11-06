@@ -102,16 +102,16 @@ Mon, 17 Jul 2006 16:41:35 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Maca,</pre><br>
-<tt>Hmmm, you're right. I was looking at he development version. In the current distribution, those two variables are not initialized (I must 
+Hmmm, you're right. I was looking at he development version. In the current distribution, those two variables are not initialized (I must 
 have added this sometime since the last release). The solution is, indeed, to add<br>
   err_k = ZERO;<br>
   err_km1 = ZERO;<br>
 right before the loop in IDAStep (but NOT before IDAHandleNFlag as this would lead to wrong results in the case in which the nonlinear 
-solver is successful but the error test fails!)</tt><br>
+solver is successful but the error test fails!)<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt><br>Maca wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Radu,</pre><br>
+<br>Maca wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Radu,</pre><br>
 <pre style="margin: 0em;">I know it is a problem with the variable not being initialized since I get
 the following exception when running my program with a debugger:</pre><br>
 <pre style="margin: 0em;">&quot;Run-Time Check Failure #3 - The variable 'err_k' is being used without
@@ -138,16 +138,16 @@ which your code crashes is the one you stated.</pre><br>
 <pre style="margin: 0em;">The modification you've made to the code is incorrect. Undo it and look for
 other problems in your code.</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>Maca wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Dear All<br>
+Maca wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Dear All<br>
 I am attempting to solve a structure in the state space using IDA.<br>
 Everything went fine until the program suddenly crashed. I found out 
 that at some point in the iterations the function IDAStep is called 
 but the nflag from the function IDANls is not IDA_SUCCESS so the 
 program doesn't call the function IDATestError, therefore the variable 
 err_k is not defined and when trying to call IDAHandleNFlag, it crashes
-</tt></blockquote><tt>because err_k is not defined.
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>As a &quot;solution&quot; I uncommented the if test before the call to 
+</blockquote>because err_k is not defined.
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">As a &quot;solution&quot; I uncommented the if test before the call to 
 IDATestError so the variable would be defined at all times.<br>
 I still have to do some more checking on my results but they seem very 
 reasonable.<br>
@@ -163,7 +163,7 @@ Macarena Schachter.<br>
 PhD Candidate<br>
 Department of Civil, Structural and Environmental Engineering.<br>
 University at Buffalo.<br>
- </tt><br>
+ <br>
 <br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>

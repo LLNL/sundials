@@ -109,68 +109,68 @@ Thu, 08 Jun 2006 15:31:27 -0600</td>
 <pre style="margin: 0em;">Aaron,</pre><br>
 <pre style="margin: 0em;">Here you go.</pre><br>
 <pre style="margin: 0em;">Dan</pre><br>
-<tt>Aaron Collier wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Dan Smyth,</pre><br>
-<tt>No, you should not need to create the installation directories 
+Aaron Collier wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Dan Smyth,</pre><br>
+No, you should not need to create the installation directories 
 yourself because the configure script will automatically create the 
 'include' and 'lib' directories, including intervening directories as 
-necessary.</tt><br>
+necessary.<br>
 <br>
 <pre style="margin: 0em;">Could you please send me a copy of nvec_ser/Makefile.</pre><br>
 <pre style="margin: 0em;">Respectfully,
 Aaron Collier</pre><br>
-<tt>Dan Smyth wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Do I need to?  I thought that they would be automatically made as 
+Dan Smyth wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Do I need to?  I thought that they would be automatically made as 
 part of the `make install` script.  Is that not correct?  The new 
 version of Sundials seemed to do things automatically.  Is this 
-something that has changed with the most recent version?  Thanks.</tt><br>
+something that has changed with the most recent version?  Thanks.<br>
 <br>
 <pre style="margin: 0em;">Dan</pre><br>
-<tt>Radu Serban wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Dan Smyth wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Yes.  I've already installed a number of other packages in this 
-same directory.  That's why I'm a little confused at the error.</tt><br>
+Radu Serban wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Dan Smyth wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Yes.  I've already installed a number of other packages in this 
+same directory.  That's why I'm a little confused at the error.<br>
 <br>
-</blockquote><tt><br>But did you create the directory sundials-install/ and the 
+</blockquote><br>But did you create the directory sundials-install/ and the 
 subdirectories sundials-install/lib/ and sundials-install/include/ 
 before running 'make install'?<br>
---Radu</tt><br>
+--Radu<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dan</pre><br>
 <pre style="margin: 0em;">Andrey Romanenko wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi!</pre><br>
-<tt>On Thursday 08 June 2006 19:35, Dan Smyth wrote:<br>
- </tt><br>
+On Thursday 08 June 2006 19:35, Dan Smyth wrote:<br>
+ <br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>/bin/sh ..//libtool --mode=install /usr/bin/install -c<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">/bin/sh ..//libtool --mode=install /usr/bin/install -c<br>
 libsundials_nvecserial.la 
 //auto/grp4/HMX_propellants/sundials-install/lib<br>
 /usr/bin/install -c .libs/libsundials_nvecserial.lai<br>
-//auto/grp4/HMX_propellants/sundials-install/libsundials_nvecserial.la </tt><br>
+//auto/grp4/HMX_propellants/sundials-install/libsundials_nvecserial.la <br>
 <br>
-<tt>/usr/bin/install: cannot create regular file<br>
-`//auto/grp4/HMX_propellants/sundials-install/libsundials_nvecserial.la': </tt><br>
+/usr/bin/install: cannot create regular file<br>
+`//auto/grp4/HMX_propellants/sundials-install/libsundials_nvecserial.la': <br>
 <br>
-<tt>No such file or directory<br>
+No such file or directory<br>
 make[1]: *** [install] Error 1<br>
 make[1]: Leaving directory<br>
     
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
-<tt>Do  you have writing permissions  to your target directories 
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+Do  you have writing permissions  to your target directories 
 (/auto/grp/...)?<br>
-Andrey</tt><br>
+Andrey<br>
 <br>
 <pre style="margin: 0em;"><br></pre><br>
-<tt><br>  
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>  
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 <br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;"><br></pre><br>
 </blockquote><pre># -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-06-15 13:45:18 $
+# $Revision: 1.2 $
+# $Date: 2006-11-06 21:28:03 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------

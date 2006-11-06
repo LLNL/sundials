@@ -111,27 +111,27 @@ Fri,  4 Aug 2006 11:50:40 -0400</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi,</pre><br>
-<tt>  This is not sundials question but related to the parallel 
+  This is not sundials question but related to the parallel 
 implementation of ODE solver algorithms. I think there are lots of 
-expert here so I just throw out my question here and hope to get help.</tt><br>
+expert here so I just throw out my question here and hope to get help.<br>
 <br>
-<tt>  To solve IVP problem A y' = f(t,y) where A is constant band-matrix. 
+  To solve IVP problem A y' = f(t,y) where A is constant band-matrix. 
 In rugge-kutta explicit method, y' is evaluated at every time step, and 
  is very quick to solve the problem using LU factorization in serial 
 mode. Most parallel implementation use newton iteration and<br>
 krylov space (GMRES) which in fact is much slower than the LU 
-factorization method.</tt><br>
+factorization method.<br>
 <br>
-<tt> My question is: if y' is continuous, can we utilize some information<br>
+ My question is: if y' is continuous, can we utilize some information<br>
 of y' at previous time (t-dt), to approximate y' at time t accurate 
 enough, (that is, we approximate the problem with a delayed 
-differential equation essentially).</tt><br>
+differential equation essentially).<br>
 <br>
-<tt>  If it can, I can solve A y' = f(t,y) in parallel using LU method 
-(just use some boundary condition value at t-dt).</tt><br>
+  If it can, I can solve A y' = f(t,y) in parallel using LU method 
+(just use some boundary condition value at t-dt).<br>
 <br>
-<tt>  I wonder if there is some research on this problem, and any 
-conclusion about that???</tt><br>
+  I wonder if there is some research on this problem, and any 
+conclusion about that???<br>
 <br>
 <pre style="margin: 0em;">Many thanks</pre><br>
 <pre style="margin: 0em;">--

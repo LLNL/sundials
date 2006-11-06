@@ -106,15 +106,15 @@ Mon, 28 Aug 2006 16:20:49 +0200</td>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Michael,
 Could you give the PDEs you wish to solve?
 --Radu</pre><br>
-</blockquote><tt>Radu, I'll try to be a bit more precise (I include density here, but 
+</blockquote>Radu, I'll try to be a bit more precise (I include density here, but 
 that equation<br>
-does not cause problems):</tt><br>
+does not cause problems):<br>
 <br>
 <pre style="margin: 0em;">Density:</pre><br>
 <pre style="margin: 0em;">d rho/dt = - u drho / dx - rho du /dx   (1)</pre><br>
 <pre style="margin: 0em;">Mass-fractions</pre><br>
-<tt>dYs / dt = - u dYs/dx + 1 / rho sigma(Ys, rho, p)    (2) 
-(sigma is the nonlinear chemical reaction source term)</tt><br>
+dYs / dt = - u dYs/dx + 1 / rho sigma(Ys, rho, p)    (2) 
+(sigma is the nonlinear chemical reaction source term)<br>
 <br>
 <pre style="margin: 0em;">Velocity (algebraic)</pre><br>
 <pre style="margin: 0em;">du/dx = - dp/dt  / p + g(Ys,rho,p)     (3)</pre><br>
@@ -125,19 +125,19 @@ over the complete domain, which gives a condition for dp/dt:</pre><br>
 <pre style="margin: 0em;">dp/dt = - ( (u_R - u_L) - SumOverDomain( g(Ys,rho,p)  ) *  p  (4)</pre><br>
 <pre style="margin: 0em;">That means, given at any time values of rho, p, and Ys I can calculate
 first the velocity field u from (3) and  p' = dp/dt from (4).</pre><br>
-<tt>One problem here is eq. (4) because the integration/summation couples 
+One problem here is eq. (4) because the integration/summation couples 
 all grid points<br>
 detroying the band structure of the problem.<br>
 As described in my message before, I tried (without success) the 
-following trick:</tt><br>
+following trick:<br>
 <br>
-<tt>I integrate (3) from the left boundary to point next to the right 
-boundary, index n-1:</tt><br>
+I integrate (3) from the left boundary to point next to the right 
+boundary, index n-1:<br>
 <br>
 <pre style="margin: 0em;">u_i = u_0 + Sum_{k=1}^{i-1} (du/dx)_{k-1}   i=1,...,n-1</pre><br>
 <pre style="margin: 0em;">(This is just a backward difference in space).</pre><br>
-<tt>In addition I introduce pressure variable at each grid point and say 
-dp/dx = 0:</tt><br>
+In addition I introduce pressure variable at each grid point and say 
+dp/dx = 0:<br>
 <br>
 <pre style="margin: 0em;">p_i = p_{i+1} , i = 0,...,n-1</pre><br>
 <pre style="margin: 0em;">For the last pressure variable I use (3) to get</pre><br>
@@ -148,16 +148,16 @@ dp/dx = 0:</tt><br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Michael Oevermann wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello all,</pre><br>
-<tt>I am having problems to find the correct implementation of my DAE 
+I am having problems to find the correct implementation of my DAE 
 problem. Because I am<br>
-quite new to this field, I'll try to describe my problem here.</tt><br>
+quite new to this field, I'll try to describe my problem here.<br>
 <br>
-<tt>I want to solve a 1-d problem and I have n+1 grid points with indices 
+I want to solve a 1-d problem and I have n+1 grid points with indices 
 0,...,n. My dependent variables<br>
 are<br>
 y (mass-fractions),<br>
 u (velocity), and<br>
-p (pressure).</tt><br>
+p (pressure).<br>
 <br>
 <pre style="margin: 0em;">The pressure is spatially homogeneous!</pre><br>
 <pre style="margin: 0em;">For the mass-fractions I have normal ODE's</pre><br>
@@ -167,28 +167,28 @@ p (pressure).</tt><br>
 <pre style="margin: 0em;">with B.C.:</pre><br>
 <pre style="margin: 0em;">u_0 = u_L
 u_n = u_R</pre><br>
-<tt>(Note: du/dx does not depend on u itself and because p is spatially 
-homogeneous I have only one pressure here!)</tt><br>
+(Note: du/dx does not depend on u itself and because p is spatially 
+homogeneous I have only one pressure here!)<br>
 <br>
 <pre style="margin: 0em;">Given y_i and p, and p'  I can integrate directly:</pre><br>
 <pre style="margin: 0em;">=&gt; u_i = u_0 + Sum_{k=1}^{i-1} (du/dx)_{k-1}  (2)</pre><br>
-<tt>However, I have two B.C. (u_L and u_R) for this first order equation. 
+However, I have two B.C. (u_L and u_R) for this first order equation. 
 Therefore, I am integrating only<br>
 to n-1 and not to n. The last equation (du/dx)_{n-1} I want to use 
-for the pressure update:</tt><br>
+for the pressure update:<br>
 <br>
 <pre style="margin: 0em;">u_R = u_{n-1}  + (du/dx)_{n-1} * dx = u_{n-1} + p'/ p * dx + g_{n-1}  dx</pre><br>
 <pre style="margin: 0em;">This can be re-arranged to an ODE for</pre><br>
 <pre style="margin: 0em;">p' = ( (u_R - u_{n-1})/dx  - g_{n-1} ) * p   (3)</pre><br>
-<tt>In order to keep the Jacobian matrix banded, I introduce the 
+In order to keep the Jacobian matrix banded, I introduce the 
 artificial equation dp/dx = 0 and have an additioal<br>
-algebraic equation:</tt><br>
+algebraic equation:<br>
 <br>
 <pre style="margin: 0em;">p_{i} = p_{i+1},   i=0,...,n-1    (4)</pre><br>
 <pre style="margin: 0em;">and from (3) I say</pre><br>
 <pre style="margin: 0em;">p' _{n} = ( (u_R - u_{n-1})/dx  - g_{n-1} ) * p_n  (5)</pre><br>
 <pre style="margin: 0em;">Now I have the following questions:</pre><br>
-<tt>i) If I implement an algebraic equation (4) for p_i, i=0,...,n-1, do 
+i) If I implement an algebraic equation (4) for p_i, i=0,...,n-1, do 
 I have local values of  p'_i as well?<br>
    (I need them to keep the system banded in (1) and (2))<br>
 ii) Somehow I don't get this system to work with IDA. Does anybody 
@@ -197,7 +197,7 @@ see if I make a conceptual mistake, e.g.<br>
 iii) in principle, u_{n-1} in (5) depends on ALL y_i, p_i, p'_i via 
 the spatial integration (2). However, solving<br>
    for u as well, p'_{n} should depend on u_{n-1} directly and the 
-Jacobian should be banded. Is that right?</tt><br>
+Jacobian should be banded. Is that right?<br>
 <br>
 <pre style="margin: 0em;">Many thanks for your time to think about my problem!</pre><br>
 <pre style="margin: 0em;">Best regard</pre><br>

@@ -103,8 +103,8 @@ Thu, 06 Jul 2006 08:34:43 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>Kai Hartmann wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Alan, hi all.</pre><br>
+Kai Hartmann wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Alan, hi all.</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">That would indicate either a
 bug (perhaps a bad Jacobian), or a genuine very short initial time
 scale in your system (which may or may not correspond to a fast
@@ -123,17 +123,17 @@ w.r.t. the initial timescale? Would tout=t_initial be ok?</pre><br>
 <pre style="margin: 0em;">With thanks for your helpful comments,</pre><br>
 <pre style="margin: 0em;">Kai</pre><br>
 </blockquote><pre style="margin: 0em;"><br>Hi Kai,</pre><br>
-<tt>As you suspected, even in CV_ONE_STEP mode, the first value tout is used in estimating the initial step size. Also, tout=t_initial will not 
-work, as the difference tout-t_initial is used to decide the direction of integration and so, passing tout=t_initial, would result in an error.</tt><br>
+As you suspected, even in CV_ONE_STEP mode, the first value tout is used in estimating the initial step size. Also, tout=t_initial will not 
+work, as the difference tout-t_initial is used to decide the direction of integration and so, passing tout=t_initial, would result in an error.<br>
 <br>
-<tt>Rather than trying to get the right initial stepsize h0 by finding an appropriate tout value, why don't you just specify it to CVODE through 
+Rather than trying to get the right initial stepsize h0 by finding an appropriate tout value, why don't you just specify it to CVODE through 
 CVodeSetInitStep? The appropriate value for h0 is problem dependent (you may want to look at the Jacobian and its eigenvalues at the initial 
 time), but even if you cannot determine it a-priori, it's safe to pass a very small value to CVodeSetInitStep (although, if you set h0 to a 
 value much smaller than what is actually needed, it'll take some steps until CVODE will increase it to that level). Some experimentation may 
-be needed.</tt><br>
+be needed.<br>
 <br>
-<tt>Have you looked at the actual values h0 that CVODE computes for the two different tout values you mentioned in your previous post (1e-17 and 
-1e-18)? How different are they? To get these values, you can call CVodeGetActualInitStep anytime after CVode returns from its first call.</tt><br>
+Have you looked at the actual values h0 that CVODE computes for the two different tout values you mentioned in your previous post (1e-17 and 
+1e-18)? How different are they? To get these values, you can call CVodeGetActualInitStep anytime after CVode returns from its first call.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;">--

@@ -1,0 +1,555 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Chemical equilibrium with limitation on the solution... -->
+<!--X-From-R13: "Oaqernf @vpbynv" <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Mon, 30 Oct 2006 15:23:17 &#45;0800 -->
+<!--X-Message-Id: op.th9b9knjt8lo91@helium -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: op.thwhhguwt8lo91@helium -->
+<!--X-Reference: 453EC348.2080300@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Chemical equilibrium with limitation on the solution...</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00762.html">Date Prev</a>] [<a href="msg00764.html">Date Next</a>] [<a href="msg00752.html">Thread Prev</a>] [<a href="msg00764.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00763">Date Index</a></b>]
+[<b><a href="threads.html#00763">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Chemical equilibrium with limitation on the solution...</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;Andreas Nicolai&quot; &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 30 Oct 2006 18:16:30 -0500</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Hi again,</pre><br>
+<pre style="margin: 0em;">On Tue, 24 Oct 2006 21:52:08 -0400, Keith Eric Grant &lt;keg@llnl.gov&gt; wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Andreas,</pre><br>
+<pre style="margin: 0em;">Consider your 3rd equation, derived from</pre><br>
+</blockquote>...
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>(ln C - ln a_x - ln a_y - ln b) - alpha*b(b-1) = 0</pre><br>
+Now, if your 3rd equation is solvable to begin with, what I've written  
+should solve with b=1. If that isn't the case, it tries to find a  
+solution with (b-1)^2 a minimum.
+</blockquote><br>At first, Keith, thanks a lot for this suggestion. It took me a while to  
+figure out how it really works and how to derive it formally, but I got it  
+running and and could test it for my case. Convergence seems to depend a  
+lot on the initial values and the solution for b (which one of the two)  
+depends on its starting value.<br>
+<br>
+Btw, Radu, KINSOL works fine. The counters add up nicely and the repeated  
+y values were part of the iteration scheme.<br>
+<br>
+To summarize, the equation system works (I introduced a new variable beta  
+= b-1, so I could impose the &gt; 0 constraint), but is very sensitive to the  
+range of mol numbers - wether the system is strongly oversaturated or  
+undersaturated. I only tried to solve this system with SPGMR yet (Kinsol  
+has just too many options, it seems), but maybe someone in the readers  
+list can give me a hint on how to improve convergence.<br>
+<br>
+Some more information about the nonlinear function a_x(x,y) and a_y(x,y)  
+seem in order: a_x and a_y are in the range [0,1], I typically limit them  
+to [1e-10, 1].<br>
+<br>
+I have run a parameter study on the value of ALPHA and the initial values  
+of beta, a discussion and my questions follow after the data part:<br>
+<br>
+---------<br>
+Weight factors for mass balance equations f_scale = 2, other equations  
+f_scale = 1<br>
+Initial mol numbers must be != 0<br>
+<br>
+<pre style="margin: 0em;">SPGMR and KIN_NONE, varied different starting values for Beta.</pre><br>
+<pre style="margin: 0em;">--------------------------------------------------------------------------------
+Initial system: H2O,Na,Cl,NaCl = 55.508,3,3,4 mol   (oversaturated)</pre><br>
+Result:  H2O,Na,Cl,NaCl,Beta<br>
+         5.5508e+01    6.103353e+00    6.103353e+00    8.9664697e-01     
+5.215965e-05<br>
+<br>
+<pre style="margin: 0em;">Beta = 0, varying ALPHA:</pre><br>
+<pre style="margin: 0em;">  1e-1    -   79 RHS evals
+  5e-2    -  107 RHS evals
+  1e-2    -  359 RHS evals
+  1e-3    -  not converged</pre><br>
+<pre style="margin: 0em;">Beta = 1, varying ALPHA:</pre><br>
+<pre style="margin: 0em;">  1e-1    -   26 RHS evals
+  5e-2    -  151 RHS evals
+  1e-2    -  375 RHS evals
+  1e-3    -  not converged</pre><br>
+<pre style="margin: 0em;">Beta = 3, varying ALPHA:</pre><br>
+<pre style="margin: 0em;">  1e-1    -   42 RHS evals
+  5e-2    -   76 RHS evals
+  1e-2    -  103 RHS evals
+  1e-3    -  184 RHS evals
+  1e-4    -  not converged</pre><br>
+<pre style="margin: 0em;">Beta = 5, varying ALPHA:</pre><br>
+<pre style="margin: 0em;">  1e-1    -   49 RHS evals
+  5e-2    -   68 RHS evals
+  1e-2    -  104 RHS evals
+  1e-3    -  155 RHS evals
+  1e-4    -  not converged</pre><br>
+<pre style="margin: 0em;"><br>--------------------------------------------------------------------------------
+H2O,Na,Cl,NaCl = 55.508,1,1,1 mol (undersaturated)</pre><br>
+<pre style="margin: 0em;"><br>Beta = 0, varying ALPHA:</pre><br>
+<pre style="margin: 0em;">  1e-1    -  not converged
+  5e-2    -  not converged
+  1e-2    -  not converged
+  1e-3    -  not converged</pre><br>
+<pre style="margin: 0em;">Beta = 1, varying ALPHA:</pre><br>
+Result:  H2O,Na,Cl,NaCl,Beta (alpha 1e-3)<br>
+         5.5508e+01    2.00000058e+00    2.00000058e+00    3.564024e-12     
+9.987685e-04<br>
+<br>
+<pre style="margin: 0em;">  1e-1    -  60 RHS evals (KIN_STEP_LT_STPTOL)
+  5e-2    -  63 RHS evals (KIN_STEP_LT_STPTOL)
+  1e-2    -  63 RHS evals (KIN_STEP_LT_STPTOL)
+  1e-3    -  58 RHS evals (KIN_STEP_LT_STPTOL)</pre><br>
+<pre style="margin: 0em;">Beta = 3, varying ALPHA:</pre><br>
+Result:  H2O,Na,Cl,NaCl,Beta (alpha 1e-4)<br>
+         5.5508e+01    2.00000035e+00    2.00000035e+00    
+-1.60082285e-08    1.996597e+00<br>
+<br>
+<pre style="margin: 0em;">  1e-1    -  57 RHS evals (KIN_STEP_LT_STPTOL) ****
+  5e-2    -  57 RHS evals (KIN_STEP_LT_STPTOL) ***
+  1e-2    -  57 RHS evals (KIN_STEP_LT_STPTOL) *
+  1e-3    -  57 RHS evals (KIN_STEP_LT_STPTOL)
+  1e-4    -  57 RHS evals (KIN_STEP_LT_STPTOL)</pre><br>
+<pre style="margin: 0em;">--------------------------------------------------------------------------------
+H2O,Na,Cl,NaCl = 55.508,0.2,0.2,0.4 mol (very much undersaturated)</pre><br>
+<pre style="margin: 0em;">Beta = 1</pre><br>
+Result:  H2O,Na,Cl,NaCl,Beta (alpha 1e-4)<br>
+         5.5508e+01    6.0000000235e-01    6.0000000235e-01    4e-12     
+5.998887e-01<br>
+<br>
+<pre style="margin: 0em;">  1e-1    -  53 RHS evals (KIN_STEP_LT_STPTOL) ****
+  5e-2    -  53 RHS evals (KIN_STEP_LT_STPTOL) ***
+  1e-2    -  53 RHS evals (KIN_STEP_LT_STPTOL) *
+  1e-3    -  53 RHS evals (KIN_STEP_LT_STPTOL)
+  1e-4    -  45 RHS evals (KIN_STEP_LT_STPTOL)</pre><br>
+<pre style="margin: 0em;">Beta = 3</pre><br>
+Result:  H2O,Na,Cl,NaCl,Beta (alpha 1e-4)<br>
+5.5508e+01    5.9999998e-01    5.9999998e-01    4.000000000000e-12     
+2.599784e+00<br>
+<br>
+<pre style="margin: 0em;">  1e-1    -  53 RHS evals (KIN_STEP_LT_STPTOL) ****
+  5e-2    -  53 RHS evals (KIN_STEP_LT_STPTOL) ***
+  1e-2    -  53 RHS evals (KIN_STEP_LT_STPTOL) *
+  1e-3    -  45 RHS evals (KIN_STEP_LT_STPTOL)
+  1e-4    -  45 RHS evals (KIN_STEP_LT_STPTOL)</pre><br>
+<pre style="margin: 0em;">--------------------------------------------------------------------------------</pre><br>
+For the undersaturated cases I got two solutions for beta, depending on  
+the starting value. Also, for the undersaturated cases Kinsol could not  
+get closer to zero and stopped with KIN_STEP_LT_STPTOL.<br>
+<br>
+<pre style="margin: 0em;">The lines with *** indicate increasingly wrong results.</pre><br>
+Dependency on ALPHA:<br>
+One problem I have is that ALPHA needs to be &lt;= 1e-4 for the  
+undersaturated range (to get sufficiantly exact results), but as soon as  
+the system gets oversaturated, ALPHA needs to be much larger for (quicker)  
+convergence. If I make ALPHA a function of the saturation level, would  
+that cause major problems for convergence?<br>
+<br>
+Not converged solution:<br>
+Whenever the solver stops with KIN_STEP_LT_STPTOL the resulting values in  
+the y vector are undefined. Sometimes they correspond to the values last  
+used in the RHS, sometimes they have completely different values (see  
+below)<br>
+<br>
+-----<br>
+Example where the final results in the y vector do not match the y vector  
+of the last system function call...<br>
+<br>
+  5.550800000000e+01    1.000000000000e+00    1.000000000000e+00     
+2.000000000000e+00    2.000000000000e-01<br>
+  5.550800000000e+01    1.000000000000e+00    1.000000000000e+00     
+2.000000016391e+00    2.000000163913e-01<br>
+  5.550800000000e+01    1.000000014902e+00    1.000000014902e+00     
+2.000000000001e+00    1.999999999989e-01<br>
+  5.550800000000e+01    9.999999850994e-01    9.999999850994e-01     
+2.000000014901e+00    2.000000149027e-01<br>
+  5.550800000000e+01    1.179974972583e+00    1.179974972583e+00     
+1.820025027663e+00    2.000000000000e-02<br>
+  5.550800000000e+01    1.179974972583e+00    1.179974972583e+00     
+1.820025042565e+00    2.000001490116e-02<br>
+  5.550800000000e+01    1.179974990167e+00    1.179974990167e+00     
+1.820025027664e+00    1.999999999908e-02<br>
+  5.550800000000e+01    1.179974987484e+00    1.179974987484e+00     
+1.820025012763e+00    1.999998509768e-02<br>
+  5.550800000000e+01    1.197973100534e+00    1.197973100534e+00     
+1.802026899472e+00    2.000000000000e-03<br>
+  5.550800000000e+01    1.197973100534e+00    1.197973100534e+00     
+1.802026914373e+00    2.000014901161e-03<br>
+  5.550800000000e+01    1.197973118386e+00    1.197973118386e+00     
+1.802026899473e+00    1.999999999103e-03<br>
+  5.550800000000e+01    1.197973115435e+00    1.197973115435e+00     
+1.802026884571e+00    1.999985097717e-03<br>
+  5.550800000000e+01    1.199772919826e+00    1.199772919826e+00     
+1.800227080234e+00    2.000000000000e-04<br>
+  5.550800000000e+01    1.199772919826e+00    1.199772919826e+00     
+1.800227095136e+00    2.000149011612e-04<br>
+  5.550800000000e+01    1.199772937705e+00    1.199772937705e+00     
+1.800227080235e+00    1.999999991059e-04<br>
+  5.550800000000e+01    1.199772934727e+00    1.199772934727e+00     
+1.800227065334e+00    1.999850977210e-04<br>
+  5.550800000000e+01    1.199952901823e+00    1.199952901823e+00     
+1.800047098236e+00    2.000000000000e-05<br>
+  5.550800000000e+01    1.199952901823e+00    1.199952901823e+00     
+1.800047113137e+00    2.001490116119e-05<br>
+  5.550800000000e+01    1.199952919704e+00    1.199952919704e+00     
+1.800047098237e+00    1.999999910578e-05<br>
+  5.550800000000e+01    1.199952916723e+00    1.199952916723e+00     
+1.800047083335e+00    1.998509772106e-05<br>
+  5.550800000000e+01    1.199970900022e+00    1.199970900022e+00     
+1.800029100036e+00    2.000000000000e-06<br>
+  5.550800000000e+01    1.199970900022e+00    1.199970900022e+00     
+1.800029114937e+00    2.014901161194e-06<br>
+  5.550800000000e+01    1.199970917904e+00    1.199970917904e+00     
+1.800029100037e+00    1.999999105769e-06<br>
+  5.550800000000e+01    1.199970914923e+00    1.199970914923e+00     
+1.800029085135e+00    1.985097721048e-06<br>
+  5.550800000000e+01    1.199972699842e+00    1.199972699842e+00     
+1.800027300216e+00    2.000000000000e-07<br>
+  5.550800000000e+01    1.199972699842e+00    1.199972699842e+00     
+1.800027315117e+00    2.149011611940e-07<br>
+  5.550800000000e+01    1.199972717724e+00    1.199972717724e+00     
+1.800027300217e+00    1.999991057677e-07<br>
+  5.550800000000e+01    1.199972714743e+00    1.199972714743e+00     
+1.800027285315e+00    1.850977211214e-07<br>
+  5.550800000000e+01    1.199972879824e+00    1.199972879824e+00     
+1.800027120234e+00    2.000000000000e-08<br>
+  5.550800000000e+01    1.199972879824e+00    1.199972879824e+00     
+1.800027135135e+00    3.490116119406e-08<br>
+  5.550800000000e+01    1.199972897706e+00    1.199972897706e+00     
+1.800027120235e+00    1.999910576760e-08<br>
+  5.550800000000e+01    1.199972894725e+00    1.199972894725e+00     
+1.800027105333e+00    5.097721128705e-09<br>
+  5.550800000000e+01    1.199972897823e+00    1.199972897823e+00     
+1.800027102236e+00    2.000000000000e-09<br>
+  5.550800000000e+01    1.199972897823e+00    1.199972897823e+00     
+1.800027117137e+00    1.690116119406e-08<br>
+  5.550800000000e+01    1.199972915704e+00    1.199972915704e+00     
+1.800027102236e+00    1.999105767595e-09<br>
+  5.550800000000e+01    1.199972912723e+00    1.199972912723e+00     
+1.800027087335e+00   -1.290227875956e-08<br>
+  5.550800000000e+01    1.199972899622e+00    1.199972899622e+00     
+1.800027100436e+00    2.000000000000e-10<br>
+  5.550800000000e+01    1.199972899622e+00    1.199972899622e+00     
+1.800027115337e+00    1.510116119406e-08<br>
+  5.550800000000e+01    1.199972917504e+00    1.199972917504e+00     
+1.800027100437e+00    1.991063005286e-10<br>
+  5.550800000000e+01    1.199972914523e+00    1.199972914523e+00     
+1.800027085535e+00   -1.470227828582e-08<br>
+  5.550800000000e+01    1.199972899802e+00    1.199972899802e+00     
+1.800027100256e+00    2.000000000000e-11<br>
+  5.550800000000e+01    1.199972899802e+00    1.199972899802e+00     
+1.800027115157e+00    1.492116119406e-08<br>
+  5.550800000000e+01    1.199972917684e+00    1.199972917684e+00     
+1.800027100257e+00    1.910576759352e-11<br>
+  5.550800000000e+01    1.199972914703e+00    1.199972914703e+00     
+1.800027085355e+00   -1.488227874727e-08<br>
+<br>
+<pre style="margin: 0em;">Result = KIN_STEP_LT_STPTOL
+KINGetNumFuncEvals      = 11
+KINSpilsGetNumFuncEvals = 33
+Total RHS evals         = 44</pre><br>
+Final results:<br>
+  0.000000000000e+00    8.068614230810e-07    8.068614230810e-07    
+-4.029748348364e+00   -4.029071391630e+00<br>
+<br>
+The lines in the data block show values of y supplied to the system  
+function. In this example (ALPHA = 1e-4), the correct solution would have  
+been 55.508, 4, 4, 0, 2.086 and it seems the solver tries to find the  
+second solution for Beta, which is very close to zero or even beyond zero.<br>
+<br>
+<pre style="margin: 0em;">Running the same test with a starting value for beta of 4, the output is:</pre><br>
+  5.550800000000e+01    1.000000000000e+00    1.000000000000e+00     
+2.000000000000e+00    4.000000000000e+00<br>
+  5.550800000000e+01    1.000000000000e+00    1.000000000000e+00     
+2.000000044714e+00    4.000000044682e+00<br>
+  5.550800000000e+01    1.000000014909e+00    1.000000014909e+00     
+2.000000000008e+00    3.999999999992e+00<br>
+  5.550800000000e+01    9.999999850965e-01    9.999999850965e-01     
+2.000000014904e+00    4.000000014908e+00<br>
+  5.550800000000e+01    2.647775370923e+00    2.647775370923e+00     
+3.522245754641e-01    2.351696152469e+00<br>
+  5.550800000000e+01    2.647775370923e+00    2.647775370923e+00     
+3.522245956117e-01    2.351696172603e+00<br>
+  5.550800000000e+01    2.647775410372e+00    2.647775410372e+00     
+3.522245754793e-01    2.351696152454e+00<br>
+  5.550800000000e+01    2.647775385823e+00    2.647775385823e+00     
+3.522245605634e-01    2.351696137567e+00<br>
+  5.550800000000e+01    2.964777500098e+00    2.964777500098e+00     
+3.522245754641e-02    2.034662528504e+00<br>
+  5.550800000000e+01    2.964777500098e+00    2.964777500098e+00     
+3.522247296842e-02    2.034662543916e+00<br>
+  5.550800000000e+01    2.964777544271e+00    2.964777544271e+00     
+3.522245756208e-02    2.034662528488e+00<br>
+  5.550800000000e+01    2.964777514998e+00    2.964777514998e+00     
+3.522244264561e-02    2.034662513602e+00<br>
+  5.550800000000e+01    2.996477713678e+00    2.996477713678e+00     
+3.522245754641e-03    2.002959314223e+00<br>
+  5.550800000000e+01    2.996477713678e+00    2.996477713678e+00     
+3.522260704105e-03    2.002959329164e+00<br>
+  5.550800000000e+01    2.996477758324e+00    2.996477758324e+00     
+3.522245770331e-03    2.002959314208e+00<br>
+  5.550800000000e+01    2.996477728579e+00    2.996477728579e+00     
+3.522230853834e-03    2.002959299321e+00<br>
+  5.550800000000e+01    2.999647734958e+00    2.999647734958e+00     
+3.522245754641e-04    1.999788992347e+00<br>
+  5.550800000000e+01    2.999647734958e+00    2.999647734958e+00     
+3.522394811485e-04    1.999789007244e+00<br>
+  5.550800000000e+01    2.999647779651e+00    2.999647779651e+00     
+3.522245911561e-04    1.999788992331e+00<br>
+  5.550800000000e+01    2.999647734960e+00    2.999647734960e+00     
+3.522096745790e-04    1.999789007257e+00<br>
+  5.550800000000e+01    2.999647754478e+00    2.999647754478e+00     
+3.522050558881e-04    1.999788978544e+00<br>
+  5.550800000000e+01    2.999964737085e+00    2.999964737085e+00     
+3.522245754641e-05    1.999564829698e+00<br>
+  5.550800000000e+01    2.999964737085e+00    2.999964737085e+00     
+3.523736323074e-05    1.999564844594e+00<br>
+  5.550800000000e+01    2.999964781782e+00    2.999964781782e+00     
+3.522247323932e-05    1.999564829682e+00<br>
+  5.550800000000e+01    2.999964737086e+00    2.999964737086e+00     
+3.520755597077e-05    1.999564844608e+00<br>
+  5.550800000000e+01    2.999964756609e+00    2.999964756609e+00     
+3.520293310270e-05    1.999564815891e+00<br>
+  5.550800000000e+01    2.999996437297e+00    2.999996437297e+00     
+3.522245754641e-06    1.999542413711e+00<br>
+  5.550800000000e+01    2.999996437297e+00    2.999996437297e+00     
+3.537151438964e-06    1.999542428607e+00<br>
+  5.550800000000e+01    2.999996481996e+00    2.999996481996e+00     
+3.522261447580e-06    1.999542413695e+00<br>
+  5.550800000000e+01    2.999996437299e+00    2.999996437299e+00     
+3.507344109956e-06    1.999542428622e+00<br>
+  5.550800000000e+01    2.999996456822e+00    2.999996456822e+00     
+3.502720801517e-06    1.999542399904e+00<br>
+  5.550800000000e+01    2.999999607319e+00    2.999999607319e+00     
+3.522245754641e-07    1.999540172119e+00<br>
+  5.550800000000e+01    2.999999607319e+00    2.999999607319e+00     
+3.671302597871e-07    1.999540187016e+00<br>
+  5.550800000000e+01    2.999999652017e+00    2.999999652017e+00     
+3.522402684223e-07    1.999540172104e+00<br>
+  5.550800000000e+01    2.999999607320e+00    2.999999607320e+00     
+3.373229238714e-07    1.999540187030e+00<br>
+  5.550800000000e+01    2.999999626844e+00    2.999999626844e+00     
+3.326996488582e-07    1.999540158313e+00<br>
+  5.550800000000e+01    2.999999924321e+00    2.999999924321e+00     
+3.522245754641e-08    1.999539947959e+00<br>
+  5.550800000000e+01    2.999999924321e+00    2.999999924321e+00     
+5.012814186933e-08    1.999539962855e+00<br>
+  5.550800000000e+01    2.999999969019e+00    2.999999969019e+00     
+3.523815067368e-08    1.999539947943e+00<br>
+  5.550800000000e+01    2.999999924322e+00    2.999999924322e+00     
+2.032080522093e-08    1.999539962869e+00<br>
+  5.550800000000e+01    2.999999943846e+00    2.999999943846e+00     
+1.569737603439e-08    1.999539934152e+00<br>
+  5.550800000000e+01    2.999999956021e+00    2.999999956021e+00     
+3.522245754641e-09    1.999539925543e+00<br>
+  5.550800000000e+01    2.999999956021e+00    2.999999956021e+00     
+1.842793007756e-08    1.999539940440e+00<br>
+  5.550800000000e+01    3.000000000719e+00    3.000000000719e+00     
+3.537938882472e-09    1.999539925527e+00<br>
+  5.550800000000e+01    2.999999956022e+00    2.999999956022e+00    
+-1.137940664013e-08    1.999539940454e+00<br>
+  5.550800000000e+01    2.999999975546e+00    2.999999975546e+00    
+-1.600283634116e-08    1.999539911736e+00<br>
+  5.550800000000e+01    2.999999959191e+00    2.999999959191e+00     
+3.522245754641e-10    1.999539923301e+00<br>
+  5.550800000000e+01    2.999999959191e+00    2.999999959191e+00     
+1.525790889838e-08    1.999539938198e+00<br>
+  5.550800000000e+01    3.000000003889e+00    3.000000003889e+00     
+3.679175369308e-10    1.999539923286e+00<br>
+  5.550800000000e+01    2.999999959192e+00    2.999999959192e+00    
+-1.454942778458e-08    1.999539938212e+00<br>
+  5.550800000000e+01    2.999999978716e+00    2.999999978716e+00    
+-1.917276718401e-08    1.999539909495e+00<br>
+  5.550800000000e+01    2.999999959508e+00    2.999999959508e+00     
+3.522245754641e-11    1.999539923077e+00<br>
+  5.550800000000e+01    2.999999959508e+00    2.999999959508e+00     
+1.494090678047e-08    1.999539937974e+00<br>
+  5.550800000000e+01    3.000000004206e+00    3.000000004206e+00     
+5.091541840853e-11    1.999539923062e+00<br>
+  5.550800000000e+01    2.999999959509e+00    2.999999959509e+00    
+-1.486642990306e-08    1.999539937988e+00<br>
+  5.550800000000e+01    2.999999979033e+00    2.999999979033e+00    
+-1.948979400176e-08    1.999539909271e+00<br>
+  5.550800000000e+01    2.999999959540e+00    2.999999959540e+00     
+3.522245754641e-12    1.999539923055e+00<br>
+<br>
+<pre style="margin: 0em;">Result = KIN_STEP_LT_STPTOL
+KINGetNumFuncEvals      = 13
+KINSpilsGetNumFuncEvals = 44
+Total RHS evals         = 57</pre><br>
+Final results:<br>
+  5.550800000000e+01    2.999999959540e+00    2.999999959540e+00     
+3.522245754641e-12    1.999539923055e+00<br>
+<br>
+And here the final y vector contains the correct data which is  
+sufficiently close to the correct solution.<br>
+<br>
+Question: Is there an easier way to check if Kinsol returns the correct  
+values in the y vector (in the case it stopped with KIN_STEP_LT_STPTOL)  
+than manually testing the mass conservation equations?<br>
+<br>
+Question: I want to improve convergence (less RHS evaluations) and get a  
+more robust solution regardless of the initial mol numbers. Would any of  
+the other KINSOL solvers be more suitable than the SPGMR solver? Which  
+ones should I try first. Which of the other options should I vary?<br>
+<br>
+<pre style="margin: 0em;">Thanks already for any suggestions.</pre><br>
+<pre style="margin: 0em;">Bye,
+Andreas</pre><br>
+<pre style="margin: 0em;"><br>--
+Andreas Nicolai                         anicolai@syr.edu
+PhD Candidate, M.A.M.E                  (315) 443-2641
+Syracuse University
+151 Link Hall
+Syracuse, NY, 13244</pre><br>
+<br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00764" href="msg00764.html">Re: [sundials-users] Chemical equilibrium with limitation on the solution...</a></strong>
+<ul><li><em>From:</em> Keith Eric Grant &lt;keg@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00744" href="msg00744.html">[sundials-users] Chemical equilibrium with limitation on the solution...</a></strong>
+<ul><li><em>From:</em> &quot;Andreas Nicolai&quot; &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00748" href="msg00748.html">Re: [sundials-users] Chemical equilibrium with limitation on the solution...</a></strong>
+<ul><li><em>From:</em> Keith Eric Grant &lt;keg@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00762.html">Re: [sundials-users] A Question</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00764.html">Re: [sundials-users] Chemical equilibrium with limitation on the solution...</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00752.html">Re: R: [sundials-users] Chemical equilibrium with limitation on the solution...</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00764.html">Re: [sundials-users] Chemical equilibrium with limitation on the solution...</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00763">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00763">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

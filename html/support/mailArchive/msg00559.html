@@ -106,16 +106,16 @@ Sat, 1 Jul 2006 11:39:29 +0300 (IDT)</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Dear Radu,</pre><br>
-<tt>I followed your instructions and installed MPI (mpich-1.2.7p1) with the 
+I followed your instructions and installed MPI (mpich-1.2.7p1) with the 
 gcc/g77 compilers. This resolved the problem. Now all examples run well.<br>
-Thank you again for your help,</tt><br>
+Thank you again for your help,<br>
 <br>
 <pre style="margin: 0em;">Sincerely
 Rachel</pre><br>
 <pre style="margin: 0em;">On Thu, 29 Jun 2006, Radu Serban wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Rachel,</pre><br>
 <pre style="margin: 0em;">First of all, please post to the sundials-users mailing list.</pre><br>
-<tt>The mpich libraries that you use were built with the Absoft compilers but you 
+The mpich libraries that you use were built with the Absoft compilers but you 
 use gcc/g77 to build SUNDIALS. The reason for which you had to modify the 
 example source is that the Fortran name mangling scheme is different for the 
 two Fortran compilers. I suggest you either use an mpipch installation built 
@@ -123,7 +123,7 @@ with gcc (if you already have one available), or else specify the Absoft
 compilers when you configure SUNDIALS. That should take care of all build 
 errors and may also resolve the run-time error (I am pretty confident that 
 using GNU compilers throughout will work. If I have some time later today, 
-I'll try to build mpich with Absoft myself and try the second option.)</tt><br>
+I'll try to build mpich with Absoft myself and try the second option.)<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 </blockquote><pre style="margin: 0em;"><br>  Dr.  Rachel Gordon

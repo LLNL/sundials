@@ -104,36 +104,36 @@ Wed, 14 Jun 2006 15:49:00 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Radu Serban wrote:</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>In any case, I've initiated some internal discussions on this issue and 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">In any case, I've initiated some internal discussions on this issue and 
 I'll post soon what we'll come up with. At that point, I'd like to get 
 your input (both from *NIX and Windows users) so that we can end up with 
-the best solution.</tt><br>
+the best solution.<br>
 <br>
 <pre style="margin: 0em;">Stay tuned,</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
-</blockquote><tt><br>OK. Below is what I'm thinking of doing. Please let me know if you have any comments and/or suggestions. Would this make things easier or 
-more difficult for Windows users? I suspect it wouldn't make a difference.</tt><br>
+</blockquote><br>OK. Below is what I'm thinking of doing. Please let me know if you have any comments and/or suggestions. Would this make things easier or 
+more difficult for Windows users? I suspect it wouldn't make a difference.<br>
 <br>
-<tt>Once the changes are made and released, I hope some of you could provide project files for VC7, VC8, BCB6, etc. so that I can make them 
-available on the SUNDIALS website. Andreas, did I hear you volunteer? :-)</tt><br>
+Once the changes are made and released, I hope some of you could provide project files for VC7, VC8, BCB6, etc. so that I can make them 
+available on the SUNDIALS website. Andreas, did I hear you volunteer? :-)<br>
 <br>
 <pre style="margin: 0em;">Anything I missed?</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">1. Keep the directory layout for the exported header files as it is right now.</pre><br>
-<tt>That is, the main solver and nvector header files in the top directory &lt;sundials_install_path&gt;/include, all other solver specific header 
-files in &lt;sundials_install_path&gt;/include/&lt;solver&gt;, and all shared header files in &lt;sundials_install_path&gt;/include/sundials</tt><br>
+That is, the main solver and nvector header files in the top directory &lt;sundials_install_path&gt;/include, all other solver specific header 
+files in &lt;sundials_install_path&gt;/include/&lt;solver&gt;, and all shared header files in &lt;sundials_install_path&gt;/include/sundials<br>
 <br>
 <pre style="margin: 0em;">2. For CVODES, combine cvodes.h and cvodea.h into a single cvodes.h.</pre><br>
-<tt>3. Change all #include directives throughout to use the path relative to &lt;sundials_install_path&gt;/include and hence require (at most) one 
-preprocessor -I flag.</tt><br>
+3. Change all #include directives throughout to use the path relative to &lt;sundials_install_path&gt;/include and hence require (at most) one 
+preprocessor -I flag.<br>
 <br>
 <pre style="margin: 0em;">That is #include &quot;cvode/cvode_dense.h&quot; and so on.</pre><br>
 <pre style="margin: 0em;">4. Rearrange the SUNDIALS source tree into a more standard layout.</pre><br>
-<tt>The new structure of the SUNDIALS source tree &lt;sundials_source_path&gt; is given below ([*] are directories). With this structure, the only 
+The new structure of the SUNDIALS source tree &lt;sundials_source_path&gt; is given below ([*] are directories). With this structure, the only 
 problem I can foresee is getting errors at &quot;make install&quot; if using the same build and source tree (which is the current default if prefix is 
 not specified at configure time). I'm actually thinking of also modifying the configure script so that it defaults to the standard 
-/usr/local prefix and implicitly encourage users to install to a location different than the source tree.</tt><br>
+/usr/local prefix and implicitly encourage users to install to a location different than the source tree.<br>
 <br>
 <pre style="margin: 0em;">&lt;sun_source_path&gt;</pre><br>
 <pre style="margin: 0em;">  [include]

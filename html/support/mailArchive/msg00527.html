@@ -109,17 +109,17 @@ Mon, 19 Jun 2006 16:36:46 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>I do not disagree with either one. I also keep a local 'apps' directory with a filesystem structure that duplicates the one under 
-/usr/local, but I cannot assume that every one of our typical users will have/do that.</tt><br>
+I do not disagree with either one. I also keep a local 'apps' directory with a filesystem structure that duplicates the one under 
+/usr/local, but I cannot assume that every one of our typical users will have/do that.<br>
 <br>
-<tt>Anyway, whatever will be done, there certainly will be only one -I flag required. The question is only where that flag points to and what 
+Anyway, whatever will be done, there certainly will be only one -I flag required. The question is only where that flag points to and what 
 the corresponding include directives in a user code look like. I'm willing to ignore the above concern about &quot;typical&quot; users. So I see the 
-three options listed below (I was suggesting #3).</tt><br>
+three options listed below (I was suggesting #3).<br>
 <br>
-<tt>My problem with #1 and #2 is now how to organize the source (distribution) tree, given that, while building the SUNDIALS libraries, we have 
+My problem with #1 and #2 is now how to organize the source (distribution) tree, given that, while building the SUNDIALS libraries, we have 
 to compile sources/headers that have include directives like those listed below for user codes. I'd like a clean file structure and I do not 
 want to keep, for the compilation only, different headers than those exported, nor do I want to have conditional includes in the header 
-files (#ifdef SUNDIALS_COMPILE or something similar).</tt><br>
+files (#ifdef SUNDIALS_COMPILE or something similar).<br>
 <br>
 <pre style="margin: 0em;">With option #3, the SUNDIALS distribution would unpack into the following 
 structure:</pre><br>
