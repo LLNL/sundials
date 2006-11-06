@@ -1,5 +1,5 @@
                      NVECTOR_SPCPARALLEL
-                  Release 2.3.0, august 2006
+                  Release 2.3.0, November 2006
 
 MPI spc_parallel implementation of the NVECTOR module for SUNDIALS for
 semi-discretized 2D or 3D PDEs. The local data is organized in several

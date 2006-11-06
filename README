@@ -1,6 +1,6 @@
                             SUNDIALS 
     SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
-                   Release 2.3.0, October 2006
+                   Release 2.3.0, November 2006
           Aaron Collier, Alan Hindmarsh, and Radu Serban
            Center for Applied Scientific Computing, LLNL
 
@@ -32,8 +32,8 @@ To avoid such failures, obtain all desired solvers at the same time.
 
 For installation directions see the file INSTALL_NOTES.
 
-For additional information on a particular solver, see the README file in
-the solver directory.
+For additional information on a particular solver, see the README file
+in the solver directory (e.g. src/cvode/README).
 
                         Release history
 
@@ -49,5 +49,5 @@ the solver directory.
 | Apr 2005 |   2.1.0  |  2.3.0   |  2.2.0   |  2.3.0   |  2.3.0   |
 | May 2005 |   2.1.1  |  2.3.0   |  2.3.0   |  2.3.0   |  2.3.0   |
 | Mar 2006 |   2.2.0  |  2.4.0   |  2.4.0   |  2.4.0   |  2.4.0   |
-| Oct 2006 |   2.3.0  |  2.5.0   |  2.5.0   |  2.5.0   |  2.5.0   |
+| Nov 2006 |   2.3.0  |  2.5.0   |  2.5.0   |  2.5.0   |  2.5.0   |
 +----------+----------+----------+----------+----------+----------+
