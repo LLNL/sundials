@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.43 $
-# $Date: 2006-08-11 23:02:26 $
+# $Revision: 1.44 $
+# $Date: 2006-11-06 23:50:18 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -36,7 +36,7 @@ AC_PROG_CC(cc gcc)
 SUNDIALS_SET_CC
 
 # Set Fortran compilation (Optional)
-if test "X${F77_EXAMPLES_ENABLED}" = "Xyes"; then
+if test "X${FCMIX_ENABLED}" = "Xyes"; then
   echo ""
   echo "Fortran Compiler Settings"
   echo "-------------------------"

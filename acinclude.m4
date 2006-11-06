@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.46 $
-# $Date: 2006-10-19 21:21:11 $
+# $Revision: 1.47 $
+# $Date: 2006-11-06 23:50:15 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -1119,6 +1119,7 @@ else
   echo "   Disabling Fortran support..."
   echo ""
   F77_OK="no"
+  FCMIX_ENABLED="no"
   F77_EXAMPLES_ENABLED="no"
   SUNDIALS_WARN_FLAG="yes"
 fi
@@ -1137,6 +1138,7 @@ echo ""
 echo "   Disabling Fortran support..."
 echo ""
 F77_OK="no"
+FCMIX_ENABLED="no"
 F77_EXAMPLES_ENABLED="no"
 
 ])
