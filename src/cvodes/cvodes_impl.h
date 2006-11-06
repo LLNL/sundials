@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-11 16:34:15 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-06 18:14:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -161,7 +161,7 @@ extern "C" {
       Quadrature Related Vectors 
       --------------------------*/
 
-    N_Vector cv_znQ[L_MAX];  /* Nordsieck arrays for sensitivities           */
+    N_Vector cv_znQ[L_MAX];  /* Nordsieck arrays for quadratures             */
     N_Vector cv_ewtQ;        /* error weight vector for quadratures          */
     N_Vector cv_yQ;          /* Unlike y, yQ is not allocated by the user    */
     N_Vector cv_acorQ;       /* acorQ = yQ_n(m) - yQ_n(0)                    */

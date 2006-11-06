@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-17 21:00:01 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-06 18:14:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -763,7 +763,7 @@ extern "C" {
    * -----------------------------------------------------------------
    * CVodeQuadReInit re-initializes CVODES's quadrature related
    * memory for a problem, assuming it has already been allocated
-   * in prior calls to CVodeMalloc and CvodeQuadMalloc.
+   * in prior calls to CVodeMalloc and CVodeQuadMalloc.
    *
    * All problem specification inputs are checked for errors.
    * The number of quadratures Nq is assumed to be unchanged
