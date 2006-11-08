@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-23 19:43:53 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-08 01:01:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -58,8 +58,6 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
 #define cjratio      (IDA_mem->ida_cjratio)
 #define ewt          (IDA_mem->ida_ewt)
 #define constraints  (IDA_mem->ida_constraints)
-#define nre          (IDA_mem->ida_nre)
-#define iopt         (IDA_mem->ida_iopt)
 #define linit        (IDA_mem->ida_linit)
 #define lsetup       (IDA_mem->ida_lsetup)
 #define lsolve       (IDA_mem->ida_lsolve)

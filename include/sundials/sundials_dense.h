@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-19 21:19:38 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-08 01:01:17 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -124,10 +124,7 @@ extern "C" {
 
   /*
    * -----------------------------------------------------------------
-   * Function : DenseAllocMat
-   * -----------------------------------------------------------------
-   * Usage : A = DenseAllocMat(M, N);
-   *         if (A == NULL) ... memory request failed
+   * Functions: DenseAllocMat and DenseFreeMat
    * -----------------------------------------------------------------
    * DenseAllocMat allocates memory for an M by N dense matrix and
    * returns the storage allocated (type DenseMat). DenseAllocMat
@@ -135,16 +132,17 @@ extern "C" {
    * satisfied. See the above documentation for the type DenseMat
    * for matrix storage details.
    * -----------------------------------------------------------------
+   * DenseFreeMat frees the memory allocated by DenseAllocMat for
+   * the M by N matrix A.
+   * -----------------------------------------------------------------
    */
 
   DenseMat DenseAllocMat(long int M, long int N);
+  void DenseFreeMat(DenseMat A);
 
   /*
    * -----------------------------------------------------------------
-   * Function : DenseAllocPiv
-   * -----------------------------------------------------------------
-   * Usage : p = DenseAllocPiv(N);
-   *         if (p == NULL) ... memory request failed
+   * Functions: DenseAllocPiv and DenseFreePiv
    * -----------------------------------------------------------------
    * DenseAllocPiv allocates memory for pivot information to be
    * filled in by the DenseGETRF routine during the factorization
@@ -153,16 +151,36 @@ extern "C" {
    * the pointer to the memory it allocates. If the request for
    * pivot storage cannot be satisfied, DenseAllocPiv returns NULL.
    * -----------------------------------------------------------------
+   * DenseFreePiv frees the memory allocated by DenseAllocPiv for
+   * the pivot information array p.
+   * -----------------------------------------------------------------
    */
 
   long int *DenseAllocPiv(long int N);
+  void DenseFreePiv(long int *p);
 
   /*
    * -----------------------------------------------------------------
-   * Function : DenseGETRF
+   * Functions: DenseAllocBeta and DenseFreeBeta
    * -----------------------------------------------------------------
-   * Usage : ier = DenseGETRF(A, p);
-   *         if (ier != 0) ... A is singular
+   * DenseAllocBeta allocates memory for the beta array to be
+   * filled in by the DenseGEQRF routine during the factorization
+   * of an M by N dense matrix. The underlying type for beta
+   * information is an array of N realtype and this routine returns
+   * the pointer to the memory it allocates. If the request for
+   * beta storage cannot be satisfied, DenseAllocBeta returns NULL.
+   * -----------------------------------------------------------------
+   * DenseFreeBeta frees the memory allocated by DenseAllocBeta for
+   * the array beta.
+   * -----------------------------------------------------------------
+   */
+
+  realtype *DenseAllocBeta(long int M);
+  void DenseFreeBeta(realtype *beta);
+
+  /*
+   * -----------------------------------------------------------------
+   * Functions: DenseGETRF and DenseGETRS
    * -----------------------------------------------------------------
    * DenseGETRF performs the LU factorization of the M by N dense
    * matrix A. This is done using standard Gaussian elimination
@@ -189,16 +207,6 @@ extern "C" {
    * it returns the column index (numbered from one) at which
    * it encountered the zero.
    * -----------------------------------------------------------------
-   */
-
-  long int DenseGETRF(DenseMat A, long int *p);
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : DenseGETRS
-   * -----------------------------------------------------------------
-   * Usage : DenseGETRS(A, p, b);
-   * -----------------------------------------------------------------
    * DenseGETRS solves the N-dimensional system A x = b using
    * the LU factorization in A and the pivot information in p
    * computed in DenseGETRF. The solution x is returned in b. This
@@ -208,13 +216,53 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
+  long int DenseGETRF(DenseMat A, long int *p);
   void DenseGETRS(DenseMat A, long int *p, realtype *b);
 
   /*
    * -----------------------------------------------------------------
-   * Function : DenseZero
+   * Functions : DensePOTRF and DensePOTRS
    * -----------------------------------------------------------------
-   * Usage : DenseZero(A);
+   * DensePOTRF computes the Cholesky factorization of a real symmetric
+   * positive definite matrix A.
+   * -----------------------------------------------------------------
+   * DensePOTRS solves a system of linear equations A*X = B with a 
+   * symmetric positive definite matrix A using the Cholesky factorization
+   * A = L*L**T computed by DensePOTRF.
+   * -----------------------------------------------------------------
+   */
+
+  int DensePOTRF(DenseMat A);
+  void DensePOTRS(DenseMat A, realtype *b);
+
+  /*
+   * -----------------------------------------------------------------
+   * Functions : DenseGEQRF and DenseORMQR
+   * -----------------------------------------------------------------
+   * DenseGEQRF computes a QR factorization of a real M-by-N matrix A:
+   * A = Q * R (with M>= N).
+   * 
+   * DenseGEQRF requires a temporary work vector wrk of length M.
+   * -----------------------------------------------------------------
+   * DenseORMQR computes the product w = Q * v where Q is a real 
+   * orthogonal matrix defined as the product of k elementary reflectors
+   *
+   *        Q = H(1) H(2) . . . H(k)
+   *
+   * as returned by DenseGEQRF. Q is an M-by-N matrix, v is a vector
+   * of length N and w is a vector of length M (with M>=N).
+   *
+   * DenseORMQR requires a temporary work vector wrk of length M.
+   * -----------------------------------------------------------------
+   */
+
+  int DenseGEQRF(DenseMat A, realtype *beta, realtype *wrk);
+  int DenseORMQR(DenseMat A, realtype *beta, realtype *vn, realtype *vm, 
+                 realtype *wrk);
+
+  /*
+   * -----------------------------------------------------------------
+   * Function : DenseZero
    * -----------------------------------------------------------------
    * DenseZero sets all the elements of the M by N matrix A to 0.0.
    * -----------------------------------------------------------------
@@ -226,10 +274,8 @@ extern "C" {
    * -----------------------------------------------------------------
    * Function : DenseCopy
    * -----------------------------------------------------------------
-   * Usage : DenseCopy(A, B);
-   * -----------------------------------------------------------------
-   * DenseCopy copies the contents of the M by N matrix A into the
-   * M by N matrix B.
+   * DenseCopy copies the contents of the M-by-N matrix A into the
+   * M-by-N matrix B.
    * -----------------------------------------------------------------
    */
 
@@ -239,9 +285,7 @@ extern "C" {
    * -----------------------------------------------------------------
    * Function: DenseScale
    * -----------------------------------------------------------------
-   * Usage : DenseScale(c, A);
-   * -----------------------------------------------------------------
-   * DenseScale scales the elements of the M by N matrix A by the
+   * DenseScale scales the elements of the M-by-N matrix A by the
    * constant c and stores the result back in A.
    * -----------------------------------------------------------------
    */
@@ -252,10 +296,8 @@ extern "C" {
    * -----------------------------------------------------------------
    * Function : DenseAddI
    * -----------------------------------------------------------------
-   * Usage : DenseAddI(A);
-   * -----------------------------------------------------------------
    * DenseAddI adds 1.0 to the main diagonal (A_ii, i=1,2,...,N-1) of
-   * the M by N matrix A (M >= N) and stores the result back in A.
+   * the M-by-N matrix A (M>= N) and stores the result back in A.
    * DenseAddI is typically used with square matrices.
    * DenseAddI does not check for M >= N and therefore a segmentation
    * fault will occur if M < N!
@@ -263,40 +305,11 @@ extern "C" {
    */
 
   void DenseAddI(DenseMat A);
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : DenseFreeMat
-   * -----------------------------------------------------------------
-   * Usage : DenseFreeMat(A);
-   * -----------------------------------------------------------------
-   * DenseFreeMat frees the memory allocated by DenseAllocMat for
-   * the M by N matrix A.
-   * -----------------------------------------------------------------
-   */
-
-  void DenseFreeMat(DenseMat A);
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : DenseFreePiv
-   * -----------------------------------------------------------------
-   * Usage : DenseFreePiv(p);
-   * -----------------------------------------------------------------
-   * DenseFreePiv frees the memory allocated by DenseAllocPiv for
-   * the pivot information array p.
-   * -----------------------------------------------------------------
-   */
-
-  void DenseFreePiv(long int *p);
-
   /*
    * -----------------------------------------------------------------
    * Function : DensePrint
    * -----------------------------------------------------------------
-   * Usage : DensePrint(A);
-   * -----------------------------------------------------------------
-   * This routine prints the M by N dense matrix A to standard output
+   * This routine prints the M-by-N dense matrix A to standard output
    * as it would normally appear on paper. It is intended as a 
    * debugging tool with small values of M and N. The elements are
    * printed using the %g/%lg/%Lg option. A blank line is printed

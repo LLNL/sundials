@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-19 21:19:39 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-08 01:01:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -50,9 +50,30 @@ DenseMat DenseAllocMat(long int M, long int N)
   return(A);
 }
 
+void DenseFreeMat(DenseMat A)
+{
+  denfree(A->data);
+  free(A); A = NULL;
+}
+
 long int *DenseAllocPiv(long int N)
 {
   return(denallocpiv(N));
+}
+
+void DenseFreePiv(long int *p)
+{  
+  denfreepiv(p);
+}
+
+realtype *DenseAllocBeta(long int M)
+{
+  return(denallocbeta(M));
+}
+
+void DenseFreeBeta(realtype *beta)
+{
+  denfreebeta(beta);
 }
 
 long int DenseGETRF(DenseMat A, long int *p)
@@ -63,6 +84,26 @@ long int DenseGETRF(DenseMat A, long int *p)
 void DenseGETRS(DenseMat A, long int *p, realtype *b)
 {
   denGETRS(A->data, A->N, p, b);
+}
+
+int DensePOTRF(DenseMat A)
+{
+  return(denPOTRF(A->data, A->M));
+}
+
+void DensePOTRS(DenseMat A, realtype *b)
+{
+  denPOTRS(A->data, A->M, b);
+}
+
+int DenseGEQRF(DenseMat A, realtype *beta, realtype *wrk)
+{
+  return(denGEQRF(A->data, A->M, A->N, beta, wrk));
+}
+
+int DenseORMQR(DenseMat A, realtype *beta, realtype *vn, realtype *vm, realtype *wrk)
+{
+  return(denORMQR(A->data, A->M, A->N, beta, vn, vm, wrk));
 }
 
 void DenseZero(DenseMat A)
@@ -83,17 +124,6 @@ void DenseScale(realtype c, DenseMat A)
 void DenseAddI(DenseMat A)
 {
   denaddI(A->data, A->N);
-}
-
-void DenseFreeMat(DenseMat A)
-{
-  denfree(A->data);
-  free(A); A = NULL;
-}
-
-void DenseFreePiv(long int *p)
-{  
-  denfreepiv(p);
 }
 
 void DensePrint(DenseMat A)

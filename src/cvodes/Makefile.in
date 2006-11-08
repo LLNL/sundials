@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-08-11 23:03:09 $
+# $Revision: 1.5 $
+# $Date: 2006-11-08 01:01:19 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,12 +48,13 @@ INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
 LIB_REVISION = 1:0:0
 
 CVODES_LIB       = libsundials_cvodes.la
-CVODES_LIB_FILES = cvodes.lo cvodes_io.lo cvodea.lo cvodea_io.lo cvodes_band.lo cvodes_dense.lo cvodes_diag.lo cvodes_spils.lo cvodes_spbcgs.lo cvodes_spgmr.lo cvodes_sptfqmr.lo cvodes_bandpre.lo cvodes_bbdpre.lo
-CVODES_OBJ_FILES = cvodes.o cvodes_io.o cvodea.o cvodea_io.o cvodes_band.o cvodes_dense.o cvodes_diag.o cvodes_spils.o cvodes_spbcgs.o cvodes_spgmr.o cvodes_sptfqmr.o cvodes_bandpre.o cvodes_bbdpre.o
+CVODES_LIB_FILES = cvodes.lo cvodes_io.lo cvodea.lo cvodea_io.lo cvodes_band.lo cvodes_dense.lo cvodes_diag.lo cvodes_lapack.lo cvodes_spils.lo cvodes_spbcgs.lo cvodes_spgmr.lo cvodes_sptfqmr.lo cvodes_bandpre.lo cvodes_bbdpre.lo
+CVODES_OBJ_FILES = cvodes.o cvodes_io.o cvodea.o cvodea_io.o cvodes_band.o cvodes_dense.o cvodes_diag.o cvodes_lapack.o cvodes_spils.o cvodes_spbcgs.o cvodes_spgmr.o cvodes_sptfqmr.o cvodes_bandpre.o cvodes_bbdpre.o
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
                    $(top_builddir)/src/sundials/sundials_iterative.lo \
+                   $(top_builddir)/src/sundials/sundials_lapack.lo \
                    $(top_builddir)/src/sundials/sundials_math.lo \
                    $(top_builddir)/src/sundials/sundials_nvector.lo \
                    $(top_builddir)/src/sundials/sundials_smalldense.lo \
@@ -76,6 +77,7 @@ install: $(CVODES_LIB)
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvodes/cvodes_dense.h   $(includedir)/cvodes/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvodes/cvodes_band.h    $(includedir)/cvodes/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvodes/cvodes_diag.h    $(includedir)/cvodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cvodes/cvodes_lapack.h  $(includedir)/cvodes/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvodes/cvodes_spils.h   $(includedir)/cvodes/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvodes/cvodes_spbcgs.h  $(includedir)/cvodes/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvodes/cvodes_spgmr.h   $(includedir)/cvodes/
@@ -90,6 +92,7 @@ uninstall:
 	rm -f $(includedir)/cvodes/cvodes_dense.h
 	rm -f $(includedir)/cvodes/cvodes_band.h
 	rm -f $(includedir)/cvodes/cvodes_diag.h
+	rm -f $(includedir)/cvodes/cvodes_lapack.h
 	rm -f $(includedir)/cvodes/cvodes_spils.h
 	rm -f $(includedir)/cvodes/cvodes_spbcgs.h
 	rm -f $(includedir)/cvodes/cvodes_spgmr.h
@@ -128,6 +131,8 @@ cvodes_band.lo: $(srcdir)/cvodes_band.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvodes_band.c
 cvodes_diag.lo: $(srcdir)/cvodes_diag.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvodes_diag.c
+cvodes_lapack.lo: $(srcdir)/cvodes_lapack.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvodes_lapack.c
 cvodes_spils.lo: $(srcdir)/cvodes_spils.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvodes_spils.c
 cvodes_spbcgs.lo: $(srcdir)/cvodes_spils.c

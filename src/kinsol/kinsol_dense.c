@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:19 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-08 01:01:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,6 +25,7 @@
 /* Other Constants */
 
 #define MIN_INC_MULT RCONST(1000.0)
+
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
@@ -52,9 +53,6 @@ static int KINDenseDQJac(long int n, DenseMat J,
 #define lrw1           (kin_mem->kin_lrw1)
 #define liw1           (kin_mem->kin_liw1)
 #define uround         (kin_mem->kin_uround)
-#define nfe            (kin_mem->kin_nfe)
-#define nni            (kin_mem->kin_nni)
-#define nnilset        (kin_mem->kin_nnilset)
 #define func           (kin_mem->kin_func)
 #define f_data         (kin_mem->kin_f_data)
 #define printfl        (kin_mem->kin_printfl)
@@ -238,7 +236,7 @@ int KINDenseGetWorkSpace(void *kinmem, long int *lenrwD, long int *leniwD)
   }
   kindense_mem = (KINDenseMem) lmem;
 
-  *lenrwD = 2*n*n;
+  *lenrwD = n*n;
   *leniwD = n;
 
   return(KINDENSE_SUCCESS);
