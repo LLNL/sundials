@@ -1,0 +1,148 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-11-08 01:07:05 $
+# -----------------------------------------------------------------
+# Programmer: Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2006, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for CPODES module
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+@SET_MAKE@
+
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+top_srcdir = $(srcdir)/../..
+
+INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+
+LIB_REVISION = 0:0:0
+
+CPODES_LIB       = libsundials_cpodes.la
+CPODES_LIB_FILES = cpodes.lo cpodes_io.lo cpodes_nls.lo cpodes_proj.lo cpodes_dense.lo cpodes_lapack.lo cpodes_band.lo cpodes_spils.lo cpodes_spgmr.lo cpodes_spbcgs.lo cpodes_sptfqmr.lo
+CPODES_OBJ_FILES = cpodes.o cpodes_io.o cpodes_nls.o cpodes_proj.o cpodes_dense.o cpodes_lapack.o cpodes_band.o cpodes_spils.o cpodes_spgmr.o cpodes_spbcgs.o cpodes_sptfqmr.o
+
+SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
+                   $(top_builddir)/src/sundials/sundials_dense.lo \
+                   $(top_builddir)/src/sundials/sundials_lapack.lo \
+                   $(top_builddir)/src/sundials/sundials_iterative.lo \
+                   $(top_builddir)/src/sundials/sundials_math.lo \
+                   $(top_builddir)/src/sundials/sundials_nvector.lo \
+                   $(top_builddir)/src/sundials/sundials_smalldense.lo \
+                   $(top_builddir)/src/sundials/sundials_spgmr.lo \
+                   $(top_builddir)/src/sundials/sundials_spbcgs.lo \
+                   $(top_builddir)/src/sundials/sundials_sptfqmr.lo
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+
+all: $(CPODES_LIB)
+
+$(CPODES_LIB): shared $(CPODES_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CPODES_LIB) $(CPODES_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+
+install: $(CPODES_LIB)
+	$(mkinstalldirs) $(includedir)/cpodes
+	$(mkinstalldirs) $(libdir)
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CPODES_LIB) $(libdir)
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes.h         $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_dense.h   $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_lapack.h  $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_band.h    $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_spils.h   $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_spbcgs.h  $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_spgmr.h   $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_sptfqmr.h $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_bandpre.h $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_bbdpre.h  $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/src/cpodes/cpodes_impl.h        $(includedir)/cpodes/
+
+uninstall:
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CPODES_LIB)
+	rm -f $(includedir)/cpodes/cpodes.h
+	rm -f $(includedir)/cpodes/cpodes_dense.h
+	rm -f $(includedir)/cpodes/cpodes_lapack.h
+	rm -f $(includedir)/cpodes/cpodes_band.h
+	rm -f $(includedir)/cpodes/cpodes_spils.h
+	rm -f $(includedir)/cpodes/cpodes_spbcgs.h
+	rm -f $(includedir)/cpodes/cpodes_spgmr.h
+	rm -f $(includedir)/cpodes/cpodes_sptfqmr.h
+	rm -f $(includedir)/cpodes/cpodes_bandpre.h
+	rm -f $(includedir)/cpodes/cpodes_bbdpre.h
+	rm -f $(includedir)/cpodes/cpodes_impl.h
+	@if test -d ${includedir}/cpodes ; then \
+	   rmdir ${includedir}/cpodes ;         \
+	 fi
+
+shared:
+	@cd ${top_builddir}/src/sundials ; \
+	 ${MAKE} ;                         \
+	 cd ${abs_builddir}
+
+clean:
+	$(LIBTOOL) --mode=clean rm -f $(CPODES_LIB)
+	rm -f $(CPODES_LIB_FILES)
+	rm -f $(CPODES_OBJ_FILES)
+
+distclean: clean
+	rm -f Makefile
+
+cpodes.lo: $(srcdir)/cpodes.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes.c
+cpodes_nls.lo: $(srcdir)/cpodes_nls.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_nls.c
+cpodes_proj.lo: $(srcdir)/cpodes_proj.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_proj.c
+cpodes_io.lo: $(srcdir)/cpodes_io.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_io.c
+cpodes_dense.lo: $(srcdir)/cpodes_dense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_dense.c
+cpodes_lapack.lo: $(srcdir)/cpodes_lapack.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_lapack.c
+cpodes_band.lo: $(srcdir)/cpodes_band.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_band.c
+cpodes_spils.lo: $(srcdir)/cpodes_spils.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_spils.c
+cpodes_spbcgs.lo: $(srcdir)/cpodes_spbcgs.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_spbcgs.c
+cpodes_spgmr.lo: $(srcdir)/cpodes_spgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_spgmr.c
+cpodes_sptfqmr.lo: $(srcdir)/cpodes_sptfqmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_sptfqmr.c
+cpodes_bandpre.lo: $(srcdir)/cpodes_bandpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_bandpre.c
+cpodes_bbdpre.lo: $(srcdir)/cpodes_bbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_bbdpre.c
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}
