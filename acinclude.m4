@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.47 $
-# $Date: 2006-11-06 23:50:15 $
+# $Revision: 1.48 $
+# $Date: 2006-11-08 00:48:19 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -367,7 +367,7 @@ else
 fi
 ])
 
-# Fortran examples are enabled only if bot FCMIX and EXAMPLES are enabled
+# Fortran examples are enabled only if both FCMIX and EXAMPLES are enabled
 if test "X${FCMIX_ENABLED}" = "Xyes" && test "X${EXAMPLES_ENABLED}" = "Xyes"; then
   F77_EXAMPLES_ENABLED="yes"
 fi
@@ -803,7 +803,7 @@ esac
 # CHECK FORTRAN COMPILER
 #
 # If a working compiler cannot be found, set F77_OK="no" and issue
-# a warning that Fortran examples will be disabled
+# a warning that Fortran support will be disabled.
 #
 #------------------------------------------------------------------
 
@@ -818,7 +818,7 @@ if test "X${F77}" = "X"; then
   echo ""
   echo "   Try using F77 to explicitly specify a C compiler"
   echo ""
-  echo "   Disabling F77 examples..."
+  echo "   Disabling F77 support..."
   echo ""
 
   F77_OK="no"
@@ -861,44 +861,23 @@ AC_MSG_RESULT([none])
 # Note: if FLIBS is defined, it is left unchanged
 AC_F77_LIBRARY_LDFLAGS
 
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-AH_TEMPLATE([SUNDIALS_UNDERSCORE_NONE],
-            [FCMIX: Do NOT append any underscores to functions names])
-AH_TEMPLATE([SUNDIALS_UNDERSCORE_ONE],
-            [FCMIX: Append ONE underscore to function names])
-AH_TEMPLATE([SUNDIALS_UNDERSCORE_TWO],
-            [FCMIX: Append TWO underscores to function names])
-
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-AH_TEMPLATE([SUNDIALS_CASE_UPPER],
-            [FCMIX: Make function names uppercase])
-AH_TEMPLATE([SUNDIALS_CASE_LOWER],
-            [FCMIX: Make function names lowercase])
-
-# Set default name-mangling scheme
+# Determine Fortran name mangling scheme
+# Default is lower case with one underscore
+AC_MSG_CHECKING([Fortran name-mangling scheme])
 RUN_F77_WRAPPERS="yes"
-AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
-F77_CASE="#define SUNDIALS_CASE_LOWER 1"
-AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
-F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_ONE 1"
+F77_WRAPPER_CHECK_OK="yes"
+F77_FUNC_CASE="lower"
+F77_FUNC_UNDERSCORES="one"
 
 # If user provides the number of underscores, overwrite default value
 AC_ARG_WITH(f77underscore, 
 [AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
 [
-if test "X${withval}" = "Xnone"; then
-  AC_DEFINE([SUNDIALS_UNDERSCORE_NONE],[1],[])
-  F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_NONE 1"
-elif test "X${withval}" = "Xone"; then
-  AC_DEFINE([SUNDIALS_UNDERSCORE_ONE],[1],[])
-  F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_ONE 1"
-elif test "X${withval}" = "Xtwo"; then
-  AC_DEFINE([SUNDIALS_UNDERSCORE_TWO],[1],[])
-  F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_TWO 1"
+if test "X${withval}" = "Xnone" || test "X${withval}" = "Xone" || test "X${withval}" = "Xtwo"; then
+  F77_FUNC_UNDERSCORES="${withval}"
 else
-  AC_MSG_ERROR([invalid input])
+  AC_MSG_RESULT([failed])
+  AC_MSG_ERROR([invalid input for --with-f77underscore])
 fi
 RUN_F77_WRAPPERS="no"
 ])
@@ -907,23 +886,54 @@ RUN_F77_WRAPPERS="no"
 AC_ARG_WITH(f77case, 
 [AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
 [
-if test "X${withval}" = "Xupper"; then
-  AC_DEFINE([SUNDIALS_CASE_UPPER],[1],[])
-  F77_CASE="#define SUNDIALS_CASE_UPPER 1"
-elif test "X${withval}" = "Xlower"; then
-  AC_DEFINE([SUNDIALS_CASE_LOWER],[1],[])
-  F77_CASE="#define SUNDIALS_CASE_LOWER 1"
+if test "X${withval}" = "Xupper" || test "X${withval}" = "Xlower"; then
+  F77_FUNC_CASE="${withval}"
 else
-  AC_MSG_ERROR([invalid input])
+  AC_MSG_RESULT([failed])
+  AC_MSG_ERROR([invalid input for --with-f77case])
 fi
 RUN_F77_WRAPPERS="no"
 ])
 
 # Determine how to properly mangle function names so Fortran subroutines can
 # call C functions included in SUNDIALS libraries
-# Defines C preprocessor macros F77_FUNC and F77_FUNC_
 if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
   SUNDIALS_F77_WRAPPERS
+fi
+
+# Based on F77_FUNC_CASE and F77_FUNC_UNDERSCORES, define C preprocessor macros
+# F77_FUNC and F77_FUNC_
+if test "X${F77_WRAPPER_CHECK_OK}" = "Xyes"; then
+  AC_MSG_RESULT([case: ${F77_FUNC_CASE}, underscores: ${F77_FUNC_UNDERSCORES}])
+  if test "X${F77_FUNC_CASE}" = "Xlower"; then
+    if test "X${F77_FUNC_UNDERSCORES}" = "Xnone"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[name],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## _],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## _"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## _"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## __],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## __"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## __"
+    fi
+  elif test "X${F77_FUNC_CASE}" = "Xupper"; then
+    if test "X${F77_FUNC_UNDERSCORES}" = "Xnone"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## _],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## _"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## _"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## __],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## __"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## __"
+    fi
+  fi
 fi
 
 # Check if we must use a Fortran compiler to link the Fortran examples
@@ -1025,8 +1035,6 @@ AH_TEMPLATE(F77[_FUNC],
 # Remaining test pertains to Fortran programming language
 AC_LANG_PUSH([Fortran 77])
 
-AC_MSG_CHECKING([Fortran name-mangling scheme])
-
 # Compile a dummy Fortran subroutine
 AC_COMPILE_IFELSE(
 [AC_LANG_SOURCE(
@@ -1061,48 +1069,17 @@ AC_LANG_POP([C])
 if test "X${F77_WRAPPER_CHECK_OK}" = "Xyes"; then
   # Determine case (lower, upper)
   if test "X${i}" = "Xsundials"; then
-    F77_FUNC_CASE="lowercase"
+    F77_FUNC_CASE="lower"
   else
-    F77_FUNC_CASE="uppercase"
+    F77_FUNC_CASE="upper"
   fi
   # Determine number of underscores to append (none, one, two)
   if test "X${j}" = "X"; then
-    F77_FUNC_UNDERSCORES="no underscores"
+    F77_FUNC_UNDERSCORES="none"
   elif test "X${j}" = "X_"; then
-    F77_FUNC_UNDERSCORES="one underscore"
+    F77_FUNC_UNDERSCORES="one"
   else
-    F77_FUNC_UNDERSCORES="two underscores"
-  fi
-  AC_MSG_RESULT([${F77_FUNC_CASE} with ${F77_FUNC_UNDERSCORES}])
-  # Set exported macro definition (F77_FUNC)
-  if test "X${F77_FUNC_CASE}" = "Xlowercase"; then
-    if test "X${F77_FUNC_UNDERSCORES}" = "Xno underscores"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[name],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone underscore"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## _],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## _"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## _"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo underscores"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## __],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## __"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## __"
-    fi
-  elif test "X${F77_FUNC_CASE}" = "Xuppercase"; then
-    if test "X${F77_FUNC_UNDERSCORES}" = "Xno underscores"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone underscore"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## _],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## _"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## _"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo underscores"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## __],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## __"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## __"
-    fi
+    F77_FUNC_UNDERSCORES="two"
   fi
 # If test failed, then tell user to use '--with-f77case' and '--with-f77underscore'
 # and disable Fortran support
@@ -1119,7 +1096,6 @@ else
   echo "   Disabling Fortran support..."
   echo ""
   F77_OK="no"
-  FCMIX_ENABLED="no"
   F77_EXAMPLES_ENABLED="no"
   SUNDIALS_WARN_FLAG="yes"
 fi
@@ -1138,8 +1114,8 @@ echo ""
 echo "   Disabling Fortran support..."
 echo ""
 F77_OK="no"
-FCMIX_ENABLED="no"
 F77_EXAMPLES_ENABLED="no"
+SUNDIALS_WARN_FLAG="yes"
 
 ])
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:48:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -331,31 +331,7 @@ extern "C" {
 #define FCV_GLOCFN     F77_FUNC(fcvglocfn, FCVGLOCFN)
 #define FCV_COMMFN     F77_FUNC(fcvcommfn, FCVCOMMFN)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_BBDINIT    fcvbbdinit
-#define FCV_BBDSPTFQMR fcvbbdsptfqmr
-#define FCV_BBDSPBCG   fcvbbdspbcg
-#define FCV_BBDSPGMR   fcvbbdspgmr
-#define FCV_BBDREINIT  fcvbbdreinit
-#define FCV_BBDOPT     fcvbbdopt
-#define FCV_BBDFREE    fcvbbdfree
-#define FCV_GLOCFN     fcvglocfn
-#define FCV_COMMFN     fcvcommfn
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_BBDINIT    FCVBBDINIT
-#define FCV_BBDSPTFQMR FCVBBDSPTFQMR
-#define FCV_BBDSPBCG   FCVBBDSPBCG
-#define FCV_BBDSPGMR   FCVBBDSPGMR
-#define FCV_BBDREINIT  FCVBBDREINIT
-#define FCV_BBDOPT     FCVBBDOPT
-#define FCV_BBDFREE    FCVBBDFREE
-#define FCV_GLOCFN     FCVGLOCFN
-#define FCV_COMMFN     FCVCOMMFN
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FCV_BBDINIT    fcvbbdinit_
 #define FCV_BBDSPTFQMR fcvbbdsptfqmr_
@@ -366,42 +342,6 @@ extern "C" {
 #define FCV_BBDFREE    fcvbbdfree_
 #define FCV_GLOCFN     fcvglocfn_
 #define FCV_COMMFN     fcvcommfn_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_BBDINIT    FCVBBDINIT_
-#define FCV_BBDSPTFQMR FCVBBDSPTFQMR_
-#define FCV_BBDSPBCG   FCVBBDSPBCG_
-#define FCV_BBDSPGMR   FCVBBDSPGMR_
-#define FCV_BBDREINIT  FCVBBDREINIT_
-#define FCV_BBDOPT     FCVBBDOPT_
-#define FCV_BBDFREE    FCVBBDFREE_
-#define FCV_GLOCFN     FCVGLOCFN_
-#define FCV_COMMFN     FCVCOMMFN_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_BBDINIT    fcvbbdinit__
-#define FCV_BBDSPTFQMR fcvbbdsptfqmr__
-#define FCV_BBDSPBCG   fcvbbdspbcg__
-#define FCV_BBDSPGMR   fcvbbdspgmr__
-#define FCV_BBDREINIT  fcvbbdreinit__
-#define FCV_BBDOPT     fcvbbdopt__
-#define FCV_BBDFREE    fcvbbdfree__
-#define FCV_GLOCFN     fcvglocfn__
-#define FCV_COMMFN     fcvcommfn__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_BBDINIT    FCVBBDINIT__
-#define FCV_BBDSPTFQMR FCVBBDSPTFQMR__
-#define FCV_BBDSPBCG   FCVBBDSPBCG__
-#define FCV_BBDSPGMR   FCVBBDSPGMR__
-#define FCV_BBDREINIT  FCVBBDREINIT__
-#define FCV_BBDOPT     FCVBBDOPT__
-#define FCV_BBDFREE    FCVBBDFREE__
-#define FCV_GLOCFN     FCVGLOCFN__
-#define FCV_COMMFN     FCVCOMMFN__
 
 #endif
 

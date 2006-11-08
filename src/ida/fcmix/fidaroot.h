@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:48:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -114,47 +114,12 @@ extern "C" {
 #define FIDA_ROOTFREE F77_FUNC(fidarootfree, FIDAROOTFREE)
 #define FIDA_ROOTFN   F77_FUNC(fidarootfn, FIDAROOTFN)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FIDA_ROOTINIT fidarootinit
-#define FIDA_ROOTINFO fidarootinfo
-#define FIDA_ROOTFREE fidarootfree
-#define FIDA_ROOTFN   fidarootfn
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FIDA_ROOTINIT FIDAROOTINIT
-#define FIDA_ROOTINFO FIDAROOTINFO
-#define FIDA_ROOTFREE FIDAROOTFREE
-#define FIDA_ROOTFN   FIDAROOTFN
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FIDA_ROOTINIT fidarootinit_
 #define FIDA_ROOTINFO fidarootinfo_
 #define FIDA_ROOTFREE fidarootfree_
 #define FIDA_ROOTFN   fidarootfn_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FIDA_ROOTINIT FIDAROOTINIT_
-#define FIDA_ROOTINFO FIDAROOTINFO_
-#define FIDA_ROOTFREE FIDAROOTFREE_
-#define FIDA_ROOTFN   FIDAROOTFN_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FIDA_ROOTINIT fidarootinit__
-#define FIDA_ROOTINFO fidarootinfo__
-#define FIDA_ROOTFREE fidarootfree__
-#define FIDA_ROOTFN   fidarootfn__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FIDA_ROOTINIT FIDAROOTINIT__
-#define FIDA_ROOTINFO FIDAROOTINFO__
-#define FIDA_ROOTFREE FIDAROOTFREE__
-#define FIDA_ROOTFN   FIDAROOTFN__
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:48:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -304,29 +304,7 @@ extern "C" {
 #define FK_COMMFN       F77_FUNC(fkcommfn, FKCOMMFN)
 #define FK_LOCFN        F77_FUNC(fklocfn, FKLOCFN)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FKIN_BBDINIT    fkinbbdinit
-#define FKIN_BBDSPTFQMR fkinbbdsptfqmr
-#define FKIN_BBDSPBCG   fkinbbdspbcg
-#define FKIN_BBDSPGMR   fkinbbdspgmr
-#define FKIN_BBDOPT     fkinbbdopt
-#define FKIN_BBDFREE    fkinbbdfree
-#define FK_COMMFN       fkcommfn
-#define FK_LOCFN        fklocfn
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FKIN_BBDINIT    FKINBBDINIT
-#define FKIN_BBDSPTFQMR FKINBBDSPTFQMR
-#define FKIN_BBDSPBCG   FKINBBDSPBCG
-#define FKIN_BBDSPGMR   FKINBBDSPGMR
-#define FKIN_BBDOPT     FKINBBDOPT
-#define FKIN_BBDFREE    FKINBBDFREE
-#define FK_COMMFN       FKCOMMFN
-#define FK_LOCFN        FKLOCFN
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FKIN_BBDINIT    fkinbbdinit_
 #define FKIN_BBDSPTFQMR fkinbbdsptfqmr_
@@ -336,39 +314,6 @@ extern "C" {
 #define FKIN_BBDFREE    fkinbbdfree_
 #define FK_COMMFN       fkcommfn_
 #define FK_LOCFN        fklocfn_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FKIN_BBDINIT    FKINBBDINIT_
-#define FKIN_BBDSPTFQMR FKINBBDSPTFQMR_
-#define FKIN_BBDSPBCG   FKINBBDSPBCG_
-#define FKIN_BBDSPGMR   FKINBBDSPGMR_
-#define FKIN_BBDOPT     FKINBBDOPT_
-#define FKIN_BBDFREE    FKINBBDFREE_
-#define FK_COMMFN       FKCOMMFN_
-#define FK_LOCFN        FKLOCFN_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FKIN_BBDINIT    fkinbbdinit__
-#define FKIN_BBDSPTFQMR fkinbbdsptfqmr__
-#define FKIN_BBDSPBCG   fkinbbdspbcg__
-#define FKIN_BBDSPGMR   fkinbbdspgmr__
-#define FKIN_BBDOPT     fkinbbdopt__
-#define FKIN_BBDFREE    fkinbbdfree__
-#define FK_COMMFN       fkcommfn__
-#define FK_LOCFN        fklocfn__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FKIN_BBDINIT    FKINBBDINIT__
-#define FKIN_BBDSPTFQMR FKINBBDSPTFQMR__
-#define FKIN_BBDSPBCG   FKINBBDSPBCG__
-#define FKIN_BBDSPGMR   FKINBBDSPGMR__
-#define FKIN_BBDOPT     FKINBBDOPT__
-#define FKIN_BBDFREE    FKINBBDFREE__
-#define FK_COMMFN       FKCOMMFN__
-#define FK_LOCFN        FKLOCFN__
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:48:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -450,55 +450,7 @@ extern "C" {
 #define FK_DJAC             F77_FUNC(fkdjac, FKDJAC)
 #define FK_BJAC             F77_FUNC(fkbjac, FKBJAC)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FKIN_MALLOC         fkinmalloc
-#define FKIN_SETIIN         fkinsetiin
-#define FKIN_SETRIN         fkinsetrin
-#define FKIN_SETVIN         fkinsetvin
-#define FKIN_DENSE          fkindense
-#define FKIN_DENSESETJAC    fkindensesetjac
-#define FKIN_BAND           fkinband
-#define FKIN_BANDSETJAC     fkinbandsetjac
-#define FKIN_SPTFQMR        fkinsptfqmr
-#define FKIN_SPBCG          fkinspbcg
-#define FKIN_SPGMR          fkinspgmr
-#define FKIN_SPILSSETJAC    fkinspilssetjac
-#define FKIN_SPILSSETPREC   fkinspilssetprec
-#define FKIN_SOL            fkinsol
-#define FKIN_FREE           fkinfree
-#define FK_FUN              fkfun
-#define FK_PSET             fkpset
-#define FK_PSOL             fkpsol
-#define FK_JTIMES           fkjtimes
-#define FK_DJAC             fkdjac
-#define FK_BJAC             fkbjac
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FKIN_MALLOC         FKINMALLOC
-#define FKIN_SETIIN         FKINSETIIN
-#define FKIN_SETRIN         FKINSETRIN
-#define FKIN_SETVIN         FKINSETVIN
-#define FKIN_DENSE          FKINDENSE
-#define FKIN_DENSESETJAC    FKINDENSESETJAC
-#define FKIN_BAND           FKINBAND
-#define FKIN_BANDSETJAC     FKINBANDSETJAC
-#define FKIN_SPTFQMR        FKINSPTFQMR
-#define FKIN_SPBCG          FKINSPBCG
-#define FKIN_SPGMR          FKINSPGMR
-#define FKIN_SPILSSETJAC    FKINSPILSSETJAC
-#define FKIN_SPILSSETPREC   FKINSPILSSETPREC
-#define FKIN_SOL            FKINSOL
-#define FKIN_FREE           FKINFREE
-#define FK_FUN              FKFUN
-#define FK_PSET             FKPSET
-#define FK_PSOL             FKPSOL
-#define FK_JTIMES           FKJTIMES
-#define FK_DJAC             FKDJAC
-#define FK_BJAC             FKBJAC
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FKIN_MALLOC         fkinmalloc_
 #define FKIN_SETIIN         fkinsetiin_
@@ -521,78 +473,6 @@ extern "C" {
 #define FK_JTIMES           fkjtimes_
 #define FK_DJAC             fkdjac_
 #define FK_BJAC             fkbjac_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FKIN_MALLOC         FKINMALLOC_
-#define FKIN_SETIIN         FKINSETIIN_
-#define FKIN_SETRIN         FKINSETRIN_
-#define FKIN_SETVIN         FKINSETVIN_
-#define FKIN_DENSE          FKINDENSE_
-#define FKIN_DENSESETJAC    FKINDENSESETJAC_
-#define FKIN_BAND           FKINBAND_
-#define FKIN_BANDSETJAC     FKINBANDSETJAC_
-#define FKIN_SPTFQMR        FKINSPTFQMR_
-#define FKIN_SPBCG          FKINSPBCG_
-#define FKIN_SPGMR          FKINSPGMR_
-#define FKIN_SPILSSETJAC    FKINSPILSSETJAC_
-#define FKIN_SPILSSETPREC   FKINSPILSSETPREC_
-#define FKIN_SOL            FKINSOL_
-#define FKIN_FREE           FKINFREE_
-#define FK_FUN              FKFUN_
-#define FK_PSET             FKPSET_
-#define FK_PSOL             FKPSOL_
-#define FK_JTIMES           FKJTIMES_
-#define FK_DJAC             FKDJAC_
-#define FK_BJAC             FKBJAC_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FKIN_MALLOC         fkinmalloc__
-#define FKIN_SETIIN         fkinsetiin__
-#define FKIN_SETRIN         fkinsetrin__
-#define FKIN_SETVIN         fkinsetvin__
-#define FKIN_DENSE          fkindense__
-#define FKIN_DENSESETJAC    fkindensesetjac__
-#define FKIN_BAND           fkinband__
-#define FKIN_BANDSETJAC     fkinbandsetjac__
-#define FKIN_SPTFQMR        fkinsptfqmr__
-#define FKIN_SPBCG          fkinspbcg__
-#define FKIN_SPGMR          fkinspgmr__
-#define FKIN_SPILSSETJAC    fkinspilssetjac__
-#define FKIN_SPILSSETPREC   fkinspilssetprec__
-#define FKIN_SOL            fkinsol__
-#define FKIN_FREE           fkinfree__
-#define FK_FUN              fkfun__
-#define FK_PSET             fkpset__
-#define FK_PSOL             fkpsol__
-#define FK_JTIMES           fkjtimes__
-#define FK_DJAC             fkdjac__
-#define FK_BJAC             fkbjac__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FKIN_MALLOC         FKINMALLOC__
-#define FKIN_SETIIN         FKINSETIIN__
-#define FKIN_SETRIN         FKINSETRIN__
-#define FKIN_SETVIN         FKINSETVIN__
-#define FKIN_DENSE          FKINDENSE__
-#define FKIN_DENSESETJAC    FKINDENSESETJAC__
-#define FKIN_BAND           FKINBAND__
-#define FKIN_BANDSETJAC     FKINBANDSETJAC__
-#define FKIN_SPTFQMR        FKINSPTFQMR__
-#define FKIN_SPBCG          FKINSPBCG__
-#define FKIN_SPGMR          FKINSPGMR__
-#define FKIN_SPILSSETJAC    FKINSPILSSETJAC__
-#define FKIN_SPILSSETPREC   FKINSPILSSETPREC__
-#define FKIN_SOL            FKINSOL__
-#define FKIN_FREE           FKINFREE__
-#define FK_FUN              FKFUN__
-#define FK_PSET             FKPSET__
-#define FK_PSOL             FKPSOL__
-#define FK_JTIMES           FKJTIMES__
-#define FK_DJAC             FKDJAC__
-#define FK_BJAC             FKBJAC__
 
 #endif
 

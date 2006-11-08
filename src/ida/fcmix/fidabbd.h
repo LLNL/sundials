@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:48:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -338,31 +338,7 @@ extern "C" {
 #define FIDA_GLOCFN     F77_FUNC(fidaglocfn, FIDAGLOCFN)
 #define FIDA_COMMFN     F77_FUNC(fidacommfn, FIDACOMMFN)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FIDA_BBDINIT    fidabbdinit
-#define FIDA_BBDSPTFQMR fidabbdsptfqmr
-#define FIDA_BBDSPBCG   fidabbdspbcg
-#define FIDA_BBDSPGMR   fidabbdspgmr
-#define FIDA_BBDREINIT  fidabbdreinit
-#define FIDA_BBDOPT     fidabbdopt
-#define FIDA_BBDFREE    fidabbdfree
-#define FIDA_GLOCFN     fidaglocfn
-#define FIDA_COMMFN     fidacommfn
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FIDA_BBDINIT    FIDABBDINIT
-#define FIDA_BBDSPTFQMR FIDABBDSPTFQMR
-#define FIDA_BBDSPBCG   FIDABBDSPBCG
-#define FIDA_BBDSPGMR   FIDABBDSPGMR
-#define FIDA_BBDREINIT  FIDABBDREINIT
-#define FIDA_BBDOPT     FIDABBDOPT
-#define FIDA_BBDFREE    FIDABBDFREE
-#define FIDA_GLOCFN     FIDAGLOCFN
-#define FIDA_COMMFN     FIDACOMMFN
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FIDA_BBDINIT    fidabbdinit_
 #define FIDA_BBDSPTFQMR fidabbdsptfqmr_
@@ -373,42 +349,6 @@ extern "C" {
 #define FIDA_BBDFREE    fidabbdfree_
 #define FIDA_GLOCFN     fidaglocfn_
 #define FIDA_COMMFN     fidacommfn_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FIDA_BBDINIT    FIDABBDINIT_
-#define FIDA_BBDSPTFQMR FIDABBDSPTFQMR_
-#define FIDA_BBDSPBCG   FIDABBDSPBCG_
-#define FIDA_BBDSPGMR   FIDABBDSPGMR_
-#define FIDA_BBDREINIT  FIDABBDREINIT_
-#define FIDA_BBDOPT     FIDABBDOPT_
-#define FIDA_BBDFREE    FIDABBDFREE_
-#define FIDA_GLOCFN     FIDAGLOCFN_
-#define FIDA_COMMFN     FIDACOMMFN_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FIDA_BBDINIT    fidabbdinit__
-#define FIDA_BBDSPTFQMR fidabbdsptfqmr__
-#define FIDA_BBDSPBCG   fidabbdspbcg__
-#define FIDA_BBDSPGMR   fidabbdspgmr__
-#define FIDA_BBDREINIT  fidabbdreinit__
-#define FIDA_BBDOPT     fidabbdopt__
-#define FIDA_BBDFREE    fidabbdfree__
-#define FIDA_GLOCFN     fidaglocfn__
-#define FIDA_COMMFN     fidacommfn__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FIDA_BBDINIT    FIDABBDINIT__
-#define FIDA_BBDSPTFQMR FIDABBDSPTFQMR__
-#define FIDA_BBDSPBCG   FIDABBDSPBCG__
-#define FIDA_BBDSPGMR   FIDABBDSPGMR__
-#define FIDA_BBDREINIT  FIDABBDREINIT__
-#define FIDA_BBDOPT     FIDABBDOPT__
-#define FIDA_BBDFREE    FIDABBDFREE__
-#define FIDA_GLOCFN     FIDAGLOCFN__
-#define FIDA_COMMFN     FIDACOMMFN__
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:48:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -113,47 +113,12 @@ extern "C" {
 #define FCV_ROOTFREE F77_FUNC(fcvrootfree, FCVROOTFREE)
 #define FCV_ROOTFN   F77_FUNC(fcvrootfn, FCVROOTFN)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_ROOTINIT fcvrootinit
-#define FCV_ROOTINFO fcvrootinfo
-#define FCV_ROOTFREE fcvrootfree
-#define FCV_ROOTFN   fcvrootfn
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_ROOTINIT FCVROOTINIT
-#define FCV_ROOTINFO FCVROOTINFO
-#define FCV_ROOTFREE FCVROOTFREE
-#define FCV_ROOTFN   FCVROOTFN
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FCV_ROOTINIT fcvrootinit_
 #define FCV_ROOTINFO fcvrootinfo_
 #define FCV_ROOTFREE fcvrootfree_
 #define FCV_ROOTFN   fcvrootfn_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_ROOTINIT FCVROOTINIT_
-#define FCV_ROOTINFO FCVROOTINFO_
-#define FCV_ROOTFREE FCVROOTFREE_
-#define FCV_ROOTFN   FCVROOTFN_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_ROOTINIT fcvrootinit__
-#define FCV_ROOTINFO fcvrootinfo__
-#define FCV_ROOTFREE fcvrootfree__
-#define FCV_ROOTFN   fcvrootfn__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_ROOTINIT FCVROOTINIT__
-#define FCV_ROOTINFO FCVROOTINFO__
-#define FCV_ROOTFREE FCVROOTFREE__
-#define FCV_ROOTFN   FCVROOTFN__
 
 #endif
 

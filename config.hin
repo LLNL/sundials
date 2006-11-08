@@ -75,12 +75,6 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
-/* FCMIX: Make function names lowercase */
-#undef SUNDIALS_CASE_LOWER
-
-/* FCMIX: Make function names uppercase */
-#undef SUNDIALS_CASE_UPPER
-
 /* Define SUNDIALS data type 'realtype' as 'double' */
 #undef SUNDIALS_DOUBLE_PRECISION
 
@@ -92,15 +86,6 @@
 
 /* Define SUNDIALS data type 'realtype' as 'float' */
 #undef SUNDIALS_SINGLE_PRECISION
-
-/* FCMIX: Do NOT append any underscores to functions names */
-#undef SUNDIALS_UNDERSCORE_NONE
-
-/* FCMIX: Append ONE underscore to function names */
-#undef SUNDIALS_UNDERSCORE_ONE
-
-/* FCMIX: Append TWO underscores to function names */
-#undef SUNDIALS_UNDERSCORE_TWO
 
 /* Use generic math functions */
 #undef SUNDIALS_USE_GENERIC_MATH

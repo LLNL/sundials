@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:48:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -235,25 +235,7 @@ extern "C" {
 #define FCV_BPOPT     F77_FUNC(fcvbpopt, FCVBPOPT)
 #define FCV_BPFREE    F77_FUNC(fcvbpfree, FCVBPFREE)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_BPINIT    fcvbpinit
-#define FCV_BPSPTFQMR fcvbpsptfqmr
-#define FCV_BPSPBCG   fcvbpspbcg
-#define FCV_BPSPGMR   fcvbpspgmr
-#define FCV_BPOPT     fcvbpopt
-#define FCV_BPFREE    fcvbpfree
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_BPINIT    FCVBPINIT
-#define FCV_BPSPTFQMR FCVBPSPTFQMR
-#define FCV_BPSPBCG   FCVBPSPBCG
-#define FCV_BPSPGMR   FCVBPSPGMR
-#define FCV_BPOPT     FCVBPOPT
-#define FCV_BPFREE    FCVBPFREE
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FCV_BPINIT    fcvbpinit_
 #define FCV_BPSPTFQMR fcvbpsptfqmr_
@@ -261,33 +243,6 @@ extern "C" {
 #define FCV_BPSPGMR   fcvbpspgmr_
 #define FCV_BPOPT     fcvbpopt_
 #define FCV_BPFREE    fcvbpfree_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_BPINIT    FCVBPINIT_
-#define FCV_BPSPTFQMR FCVBPSPTFQMR_
-#define FCV_BPSPBCG   FCVBPSPBCG_
-#define FCV_BPSPGMR   FCVBPSPGMR_
-#define FCV_BPOPT     FCVBPOPT_
-#define FCV_BPFREE    FCVBPFREE_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_BPINIT    fcvbpinit__
-#define FCV_BPSPTFQMR fcvbpsptfqmr__
-#define FCV_BPSPBCG   fcvbpspbcg__
-#define FCV_BPSPGMR   fcvbpspgmr__
-#define FCV_BPOPT     fcvbpopt__
-#define FCV_BPFREE    fcvbpfree__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_BPINIT    FCVBPINIT__
-#define FCV_BPSPTFQMR FCVBPSPTFQMR__
-#define FCV_BPSPBCG   FCVBPSPBCG__
-#define FCV_BPSPGMR   FCVBPSPGMR__
-#define FCV_BPOPT     FCVBPOPT__
-#define FCV_BPFREE    FCVBPFREE__
 
 #endif
 

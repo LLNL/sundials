@@ -2709,7 +2709,7 @@ fi
 fi
 
 
-# Fortran examples are enabled only if bot FCMIX and EXAMPLES are enabled
+# Fortran examples are enabled only if both FCMIX and EXAMPLES are enabled
 if test "X${FCMIX_ENABLED}" = "Xyes" && test "X${EXAMPLES_ENABLED}" = "Xyes"; then
   F77_EXAMPLES_ENABLED="yes"
 fi
@@ -9057,10 +9057,11 @@ echo "$as_me: WARNING: cannot find a Fortran compiler" >&2;}
   echo ""
   echo "   Try using F77 to explicitly specify a C compiler"
   echo ""
-  echo "   Disabling F77 examples..."
+  echo "   Disabling F77 support..."
   echo ""
 
   F77_OK="no"
+  FCMIX_ENABLED="no"
   F77_EXAMPLES_ENABLED="no"
   SUNDIALS_WARN_FLAG="yes"
 
@@ -9198,7 +9199,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:9201: \"$ac_link\") >&5
+(eval echo $as_me:9202: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -9281,7 +9282,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:9284: \"$ac_link\") >&5
+(eval echo $as_me:9285: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -9460,61 +9461,27 @@ ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
 
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-
-
-
-
-
-
-
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-
-
-
-
-
-# Set default name-mangling scheme
+# Determine Fortran name mangling scheme
+# Default is lower case with one underscore
+{ echo "$as_me:$LINENO: checking Fortran name-mangling scheme" >&5
+echo $ECHO_N "checking Fortran name-mangling scheme... $ECHO_C" >&6; }
 RUN_F77_WRAPPERS="yes"
-cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_CASE_LOWER 1
-_ACEOF
-
-F77_CASE="#define SUNDIALS_CASE_LOWER 1"
-cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_UNDERSCORE_ONE 1
-_ACEOF
-
-F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_ONE 1"
+F77_WRAPPER_CHECK_OK="yes"
+F77_FUNC_CASE="lower"
+F77_FUNC_UNDERSCORES="one"
 
 # If user provides the number of underscores, overwrite default value
 
 # Check whether --with-f77underscore was given.
 if test "${with_f77underscore+set}" = set; then
   withval=$with_f77underscore;
-if test "X${withval}" = "Xnone"; then
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_UNDERSCORE_NONE 1
-_ACEOF
-
-  F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_NONE 1"
-elif test "X${withval}" = "Xone"; then
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_UNDERSCORE_ONE 1
-_ACEOF
-
-  F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_ONE 1"
-elif test "X${withval}" = "Xtwo"; then
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_UNDERSCORE_TWO 1
-_ACEOF
-
-  F77_UNDERSCORES="#define SUNDIALS_UNDERSCORE_TWO 1"
+if test "X${withval}" = "Xnone" || test "X${withval}" = "Xone" || test "X${withval}" = "Xtwo"; then
+  F77_FUNC_UNDERSCORES="${withval}"
 else
-  { { echo "$as_me:$LINENO: error: invalid input" >&5
-echo "$as_me: error: invalid input" >&2;}
+  { echo "$as_me:$LINENO: result: failed" >&5
+echo "${ECHO_T}failed" >&6; }
+  { { echo "$as_me:$LINENO: error: invalid input for --with-f77underscore" >&5
+echo "$as_me: error: invalid input for --with-f77underscore" >&2;}
    { (exit 1); exit 1; }; }
 fi
 RUN_F77_WRAPPERS="no"
@@ -9527,21 +9494,13 @@ fi
 # Check whether --with-f77case was given.
 if test "${with_f77case+set}" = set; then
   withval=$with_f77case;
-if test "X${withval}" = "Xupper"; then
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_CASE_UPPER 1
-_ACEOF
-
-  F77_CASE="#define SUNDIALS_CASE_UPPER 1"
-elif test "X${withval}" = "Xlower"; then
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_CASE_LOWER 1
-_ACEOF
-
-  F77_CASE="#define SUNDIALS_CASE_LOWER 1"
+if test "X${withval}" = "Xupper" || test "X${withval}" = "Xlower"; then
+  F77_FUNC_CASE="${withval}"
 else
-  { { echo "$as_me:$LINENO: error: invalid input" >&5
-echo "$as_me: error: invalid input" >&2;}
+  { echo "$as_me:$LINENO: result: failed" >&5
+echo "${ECHO_T}failed" >&6; }
+  { { echo "$as_me:$LINENO: error: invalid input for --with-f77case" >&5
+echo "$as_me: error: invalid input for --with-f77case" >&2;}
    { (exit 1); exit 1; }; }
 fi
 RUN_F77_WRAPPERS="no"
@@ -9551,7 +9510,6 @@ fi
 
 # Determine how to properly mangle function names so Fortran subroutines can
 # call C functions included in SUNDIALS libraries
-# Defines C preprocessor macros F77_FUNC and F77_FUNC_
 if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
 
 
@@ -9569,9 +9527,6 @@ ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
-
-{ echo "$as_me:$LINENO: checking Fortran name-mangling scheme" >&5
-echo $ECHO_N "checking Fortran name-mangling scheme... $ECHO_C" >&6; }
 
 # Compile a dummy Fortran subroutine
 cat >conftest.$ac_ext <<_ACEOF
@@ -9716,67 +9671,17 @@ ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 if test "X${F77_WRAPPER_CHECK_OK}" = "Xyes"; then
   # Determine case (lower, upper)
   if test "X${i}" = "Xsundials"; then
-    F77_FUNC_CASE="lowercase"
+    F77_FUNC_CASE="lower"
   else
-    F77_FUNC_CASE="uppercase"
+    F77_FUNC_CASE="upper"
   fi
   # Determine number of underscores to append (none, one, two)
   if test "X${j}" = "X"; then
-    F77_FUNC_UNDERSCORES="no underscores"
+    F77_FUNC_UNDERSCORES="none"
   elif test "X${j}" = "X_"; then
-    F77_FUNC_UNDERSCORES="one underscore"
+    F77_FUNC_UNDERSCORES="one"
   else
-    F77_FUNC_UNDERSCORES="two underscores"
-  fi
-  { echo "$as_me:$LINENO: result: ${F77_FUNC_CASE} with ${F77_FUNC_UNDERSCORES}" >&5
-echo "${ECHO_T}${F77_FUNC_CASE} with ${F77_FUNC_UNDERSCORES}" >&6; }
-  # Set exported macro definition (F77_FUNC)
-  if test "X${F77_FUNC_CASE}" = "Xlowercase"; then
-    if test "X${F77_FUNC_UNDERSCORES}" = "Xno underscores"; then
-      cat >>confdefs.h <<\_ACEOF
-#define F77_FUNC(name,NAME) name
-_ACEOF
-
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone underscore"; then
-      cat >>confdefs.h <<\_ACEOF
-#define F77_FUNC(name,NAME) name ## _
-_ACEOF
-
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## _"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## _"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo underscores"; then
-      cat >>confdefs.h <<\_ACEOF
-#define F77_FUNC(name,NAME) name ## __
-_ACEOF
-
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## __"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## __"
-    fi
-  elif test "X${F77_FUNC_CASE}" = "Xuppercase"; then
-    if test "X${F77_FUNC_UNDERSCORES}" = "Xno underscores"; then
-      cat >>confdefs.h <<\_ACEOF
-#define F77_FUNC(name,NAME) NAME
-_ACEOF
-
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone underscore"; then
-      cat >>confdefs.h <<\_ACEOF
-#define F77_FUNC(name,NAME) NAME ## _
-_ACEOF
-
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## _"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## _"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo underscores"; then
-      cat >>confdefs.h <<\_ACEOF
-#define F77_FUNC(name,NAME) NAME ## __
-_ACEOF
-
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## __"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## __"
-    fi
+    F77_FUNC_UNDERSCORES="two"
   fi
 # If test failed, then tell user to use '--with-f77case' and '--with-f77underscore'
 # and disable Fortran support
@@ -9821,6 +9726,7 @@ echo ""
 F77_OK="no"
 FCMIX_ENABLED="no"
 F77_EXAMPLES_ENABLED="no"
+SUNDIALS_WARN_FLAG="yes"
 
 
 fi
@@ -9838,6 +9744,60 @@ ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 rm -f f77_wrapper_check.${ac_objext}
 
 
+fi
+
+# Based on F77_FUNC_CASE and F77_FUNC_UNDERSCORES, define C preprocessor macros
+# F77_FUNC and F77_FUNC_
+if test "X${F77_WRAPPER_CHECK_OK}" = "Xyes"; then
+  { echo "$as_me:$LINENO: result: case: ${F77_FUNC_CASE}, underscores: ${F77_FUNC_UNDERSCORES}" >&5
+echo "${ECHO_T}case: ${F77_FUNC_CASE}, underscores: ${F77_FUNC_UNDERSCORES}" >&6; }
+  if test "X${F77_FUNC_CASE}" = "Xlower"; then
+    if test "X${F77_FUNC_UNDERSCORES}" = "Xnone"; then
+      cat >>confdefs.h <<\_ACEOF
+#define F77_FUNC(name,NAME) name
+_ACEOF
+
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone"; then
+      cat >>confdefs.h <<\_ACEOF
+#define F77_FUNC(name,NAME) name ## _
+_ACEOF
+
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## _"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## _"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo"; then
+      cat >>confdefs.h <<\_ACEOF
+#define F77_FUNC(name,NAME) name ## __
+_ACEOF
+
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## __"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## __"
+    fi
+  elif test "X${F77_FUNC_CASE}" = "Xupper"; then
+    if test "X${F77_FUNC_UNDERSCORES}" = "Xnone"; then
+      cat >>confdefs.h <<\_ACEOF
+#define F77_FUNC(name,NAME) NAME
+_ACEOF
+
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone"; then
+      cat >>confdefs.h <<\_ACEOF
+#define F77_FUNC(name,NAME) NAME ## _
+_ACEOF
+
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## _"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## _"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo"; then
+      cat >>confdefs.h <<\_ACEOF
+#define F77_FUNC(name,NAME) NAME ## __
+_ACEOF
+
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## __"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## __"
+    fi
+  fi
 fi
 
 # Check if we must use a Fortran compiler to link the Fortran examples
@@ -12713,7 +12673,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 12716 "configure"' > conftest.$ac_ext
+  echo '#line 12676 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -15030,11 +14990,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15033: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14993: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15037: \$? = $ac_status" >&5
+   echo "$as_me:14997: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15298,11 +15258,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15301: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15261: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15305: \$? = $ac_status" >&5
+   echo "$as_me:15265: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15402,11 +15362,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15405: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15365: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15409: \$? = $ac_status" >&5
+   echo "$as_me:15369: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17854,7 +17814,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 17857 "configure"
+#line 17817 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -17954,7 +17914,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 17957 "configure"
+#line 17917 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -20323,11 +20283,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:20326: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:20286: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:20330: \$? = $ac_status" >&5
+   echo "$as_me:20290: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -20427,11 +20387,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:20430: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:20390: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:20434: \$? = $ac_status" >&5
+   echo "$as_me:20394: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -21998,11 +21958,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:22001: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:21961: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:22005: \$? = $ac_status" >&5
+   echo "$as_me:21965: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -22102,11 +22062,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:22105: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:22065: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:22109: \$? = $ac_status" >&5
+   echo "$as_me:22069: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -24333,11 +24293,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:24336: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:24296: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:24340: \$? = $ac_status" >&5
+   echo "$as_me:24300: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -24601,11 +24561,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:24604: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:24564: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:24608: \$? = $ac_status" >&5
+   echo "$as_me:24568: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -24705,11 +24665,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:24708: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:24668: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:24712: \$? = $ac_status" >&5
+   echo "$as_me:24672: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized

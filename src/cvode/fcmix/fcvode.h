@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:48:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -563,73 +563,7 @@ extern "C" {
 #define FCV_GETERRWEIGHTS  F77_FUNC(fcvgeterrweights, FCVGETERRWEIGHTS)
 #define FCV_GETESTLOCALERR F77_FUNC(fcvgetestlocalerr, FCVGETESTLOCALERR)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_MALLOC         fcvmalloc
-#define FCV_REINIT         fcvreinit
-#define FCV_SETIIN         fcvsetiin
-#define FCV_SETRIN         fcvsetrin
-#define FCV_EWTSET         fcvewtset
-#define FCV_DIAG           fcvdiag
-#define FCV_DENSE          fcvdense
-#define FCV_DENSESETJAC    fcvdensesetjac
-#define FCV_BAND           fcvband
-#define FCV_BANDSETJAC     fcvbandsetjac
-#define FCV_SPTFQMR        fcvsptfqmr
-#define FCV_SPTFQMRREINIT  fcvsptfqmrreinit
-#define FCV_SPBCG          fcvspbcg
-#define FCV_SPBCGREINIT    fcvspbcgreinit
-#define FCV_SPGMR          fcvspgmr
-#define FCV_SPGMRREINIT    fcvspgmrreinit
-#define FCV_SPILSSETJAC    fcvspilssetjac
-#define FCV_SPILSSETPREC   fcvspilssetprec
-#define FCV_CVODE          fcvode
-#define FCV_DKY            fcvdky
-#define FCV_FREE           fcvfree
-#define FCV_FUN            fcvfun
-#define FCV_DJAC           fcvdjac
-#define FCV_BJAC           fcvbjac
-#define FCV_PSOL           fcvpsol
-#define FCV_PSET           fcvpset
-#define FCV_JTIMES         fcvjtimes
-#define FCV_EWT            fcvewt
-#define FCV_GETERRWEIGHTS  fcvgeterrweights
-#define FCV_GETESTLOCALERR fcvgetestlocalerr
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_MALLOC         FCVMALLOC
-#define FCV_REINIT         FCVREINIT
-#define FCV_SETIIN         FCVSETIIN
-#define FCV_SETRIN         FCVSETRIN
-#define FCV_EWTSET         FCVEWTSET
-#define FCV_DIAG           FCVDIAG
-#define FCV_DENSE          FCVDENSE
-#define FCV_DENSESETJAC    FCVDENSESETJAC
-#define FCV_BAND           FCVBAND
-#define FCV_BANDSETJAC     FCVBANDSETJAC
-#define FCV_SPTFQMR        FCVSPTFQMR
-#define FCV_SPTFQMRREINIT  FCVSPTFQMRREINIT
-#define FCV_SPBCG          FCVSPBCG
-#define FCV_SPBCGREINIT    FCVSPBCGREINIT
-#define FCV_SPGMR          FCVSPGMR
-#define FCV_SPGMRREINIT    FCVSPGMRREINIT
-#define FCV_SPILSSETJAC    FCVSPILSSETJAC
-#define FCV_SPILSSETPREC   FCVSPILSSETPREC
-#define FCV_CVODE          FCVODE
-#define FCV_DKY            FCVDKY
-#define FCV_FREE           FCVFREE
-#define FCV_FUN            FCVFUN
-#define FCV_DJAC           FCVDJAC
-#define FCV_BJAC           FCVBJAC
-#define FCV_PSOL           FCVPSOL
-#define FCV_PSET           FCVPSET
-#define FCV_JTIMES         FCVJTIMES
-#define FCV_EWT            FCVEWT
-#define FCV_GETERRWEIGHTS  FCVGETERRWEIGHTS
-#define FCV_GETESTLOCALERR FCVGETESTLOCALERR
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FCV_MALLOC         fcvmalloc_
 #define FCV_REINIT         fcvreinit_
@@ -661,105 +595,6 @@ extern "C" {
 #define FCV_EWT            fcvewt_
 #define FCV_GETERRWEIGHTS  fcvgeterrweights_
 #define FCV_GETESTLOCALERR fcvgetestlocalerr_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_MALLOC         FCVMALLOC_
-#define FCV_REINIT         FCVREINIT_
-#define FCV_SETIIN         FCVSETIIN_
-#define FCV_SETRIN         FCVSETRIN_
-#define FCV_EWTSET         FCVEWTSET_
-#define FCV_DIAG           FCVDIAG_
-#define FCV_DENSE          FCVDENSE_
-#define FCV_DENSESETJAC    FCVDENSESETJAC_
-#define FCV_BAND           FCVBAND_
-#define FCV_BANDSETJAC     FCVBANDSETJAC_
-#define FCV_SPTFQMR        FCVSPTFQMR_
-#define FCV_SPTFQMRREINIT  FCVSPTFQMRREINIT_
-#define FCV_SPBCG          FCVSPBCG_
-#define FCV_SPBCGREINIT    FCVSPBCGREINIT_
-#define FCV_SPGMR          FCVSPGMR_
-#define FCV_SPGMRREINIT    FCVSPGMRREINIT_
-#define FCV_SPILSSETJAC    FCVSPILSSETJAC_
-#define FCV_SPILSSETPREC   FCVSPILSSETPREC_
-#define FCV_CVODE          FCVODE_
-#define FCV_DKY            FCVDKY_
-#define FCV_FREE           FCVFREE_
-#define FCV_FUN            FCVFUN_
-#define FCV_DJAC           FCVDJAC_
-#define FCV_BJAC           FCVBJAC_
-#define FCV_PSOL           FCVPSOL_
-#define FCV_PSET           FCVPSET_
-#define FCV_JTIMES         FCVJTIMES_
-#define FCV_EWT            FCVEWT_
-#define FCV_GETERRWEIGHTS  FCVGETERRWEIGHTS_
-#define FCV_GETESTLOCALERR FCVGETESTLOCALERR_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FCV_MALLOC         fcvmalloc__
-#define FCV_REINIT         fcvreinit__
-#define FCV_SETIIN         fcvsetiin__
-#define FCV_SETRIN         fcvsetrin__
-#define FCV_EWTSET         fcvewtset__
-#define FCV_DIAG           fcvdiag__
-#define FCV_DENSE          fcvdense__
-#define FCV_DENSESETJAC    fcvdensesetjac__
-#define FCV_BAND           fcvband__
-#define FCV_BANDSETJAC     fcvbandsetjac__
-#define FCV_SPTFQMR        fcvsptfqmr__
-#define FCV_SPTFQMRREINIT  fcvsptfqmrreinit__
-#define FCV_SPBCG          fcvspbcg__
-#define FCV_SPBCGREINIT    fcvspbcgreinit__
-#define FCV_SPGMR          fcvspgmr__
-#define FCV_SPGMRREINIT    fcvspgmrreinit__
-#define FCV_SPILSSETJAC    fcvspilssetjac__
-#define FCV_SPILSSETPREC   fcvspilssetprec__
-#define FCV_CVODE          fcvode__
-#define FCV_DKY            fcvdky__
-#define FCV_FREE           fcvfree__
-#define FCV_FUN            fcvfun__
-#define FCV_DJAC           fcvdjac__
-#define FCV_BJAC           fcvbjac__
-#define FCV_PSOL           fcvpsol__
-#define FCV_PSET           fcvpset__
-#define FCV_JTIMES         fcvjtimes__
-#define FCV_EWT            fcvewt__
-#define FCV_GETERRWEIGHTS  fcvgeterrweights__
-#define FCV_GETESTLOCALERR fcvgetestlocalerr__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FCV_MALLOC         FCVMALLOC__
-#define FCV_REINIT         FCVREINIT__
-#define FCV_SETIIN         FCVSETIIN__
-#define FCV_SETRIN         FCVSETRIN__
-#define FCV_EWTSET         FCVEWTSET__
-#define FCV_DIAG           FCVDIAG__
-#define FCV_DENSE          FCVDENSE__
-#define FCV_DENSESETJAC    FCVDENSESETJAC__
-#define FCV_BAND           FCVBAND__
-#define FCV_BANDSETJAC     FCVBANDSETJAC__
-#define FCV_SPTFQMR        FCVSPTFQMR__
-#define FCV_SPTFQMRREINIT  FCVSPTFQMRREINIT__
-#define FCV_SPBCG          FCVSPBCG__
-#define FCV_SPBCGREINIT    FCVSPBCGREINIT__
-#define FCV_SPGMR          FCVSPGMR__
-#define FCV_SPGMRREINIT    FCVSPGMRREINIT__
-#define FCV_SPILSSETJAC    FCVSPILSSETJAC__
-#define FCV_SPILSSETPREC   FCVSPILSSETPREC__
-#define FCV_CVODE          FCVODE__
-#define FCV_DKY            FCVDKY__
-#define FCV_FREE           FCVFREE__
-#define FCV_FUN            FCVFUN__
-#define FCV_DJAC           FCVDJAC__
-#define FCV_BJAC           FCVBJAC__
-#define FCV_PSOL           FCVPSOL__
-#define FCV_PSET           FCVPSET__
-#define FCV_JTIMES         FCVJTIMES__
-#define FCV_EWT            FCVEWT__
-#define FCV_GETERRWEIGHTS  FCVGETERRWEIGHTS__
-#define FCV_GETESTLOCALERR FCVGETESTLOCALERR__
 
 #endif
 
