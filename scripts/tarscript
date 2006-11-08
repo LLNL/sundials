@@ -97,7 +97,7 @@ $scriptdir/ida $tarfile $distrobase
 $scriptdir/kinsol $tarfile $distrobase
 $scriptdir/stb $tarfile $distrobase
 gzip $tarfile
-mv $filename".tar.gz" $filename".tgz"
+mv $filename".tar.gz" $filename".tar.gz"
 
 # CVODE
 
@@ -111,7 +111,7 @@ tarfile=$filename".tar"
 $scriptdir/shared $tarfile $distrobase
 $scriptdir/cvode $tarfile $distrobase
 gzip $tarfile
-mv $filename".tar.gz" $filename".tgz"
+mv $filename".tar.gz" $filename".tar.gz"
 
 # CVODES
 
@@ -125,7 +125,7 @@ tarfile=$filename".tar"
 $scriptdir/shared $tarfile $distrobase
 $scriptdir/cvodes $tarfile $distrobase
 gzip $tarfile
-mv $filename".tar.gz" $filename".tgz"
+mv $filename".tar.gz" $filename".tar.gz"
 
 # IDA
 
@@ -139,7 +139,7 @@ tarfile=$filename".tar"
 $scriptdir/shared $tarfile $distrobase
 $scriptdir/ida $tarfile $distrobase
 gzip $tarfile
-mv $filename".tar.gz" $filename".tgz"
+mv $filename".tar.gz" $filename".tar.gz"
 
 # KINSOL
 
@@ -153,7 +153,7 @@ tarfile=$filename".tar"
 $scriptdir/shared $tarfile $distrobase
 $scriptdir/kinsol $tarfile $distrobase
 gzip $tarfile
-mv $filename".tar.gz" $filename".tgz"
+mv $filename".tar.gz" $filename".tar.gz"
 
 
 #---------------------------
@@ -162,7 +162,7 @@ mv $filename".tar.gz" $filename".tgz"
 
 rm -rf $distrobase
 
-du -h *.tgz
+du -h *.tar.gz
 
 exit 1
 
