@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:53:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -34,53 +34,13 @@ extern "C" {
 #define FNV_INITP_B  F77_FUNC_(fnvinitp_b, FNVINITP_B)
 #define FNV_INITP_QB F77_FUNC_(fnvinitp_qb, FNVINITP_QB)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FNV_INITP    fnvinitp
-#define FNV_INITP_Q  fnvinitp_q
-#define FNV_INITP_S  fnvinitp_s
-#define FNV_INITP_B  fnvinitp_b
-#define FNV_INITP_QB fnvinitp_qb
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FNV_INITP    FNVINITP
-#define FNV_INITP_Q  FNVINITP_Q
-#define FNV_INITP_S  FNVINITP_S
-#define FNV_INITP_B  FNVINITP_B
-#define FNV_INITP_QB FNVINITP_QB
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FNV_INITP    fnvinitp_
 #define FNV_INITP_Q  fnvinitp_q_
 #define FNV_INITP_S  fnvinitp_s_
 #define FNV_INITP_B  fnvinitp_b_
 #define FNV_INITP_QB fnvinitp_qb_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FNV_INITP    FNVINITP_
-#define FNV_INITP_Q  FNVINITP_Q_
-#define FNV_INITP_S  FNVINITP_S_
-#define FNV_INITP_B  FNVINITP_B_
-#define FNV_INITP_QB FNVINITP_QB_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FNV_INITP    fnvinitp__
-#define FNV_INITP_Q  fnvinitp_q__
-#define FNV_INITP_S  fnvinitp_s__
-#define FNV_INITP_B  fnvinitp_b__
-#define FNV_INITP_QB fnvinitp_qb__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FNV_INITP    FNVINITP__
-#define FNV_INITP_Q  FNVINITP_Q__
-#define FNV_INITP_S  FNVINITP_S__
-#define FNV_INITP_B  FNVINITP_B__
-#define FNV_INITP_QB FNVINITP_QB__
 
 #endif
 

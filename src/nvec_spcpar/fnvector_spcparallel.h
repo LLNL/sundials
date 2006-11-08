@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:38 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:53:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -34,53 +34,13 @@ extern "C" {
 #define FNV_INITSPCP_B  F77_FUNC_(fnvinitspcp_b, FNVINITSPCP_B)
 #define FNV_INITSPCP_QB F77_FUNC_(fnvinitspcp_qb, FNVINITSPCP_QB)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FNV_INITSPCP    fnvinitspcp
-#define FNV_INITSPCP_Q  fnvinitspcp_q
-#define FNV_INITSPCP_S  fnvinitspcp_s
-#define FNV_INITSPCP_B  fnvinitspcp_b
-#define FNV_INITSPCP_QB fnvinitspcp_qb
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FNV_INITSPCP    FNVINITSPCP
-#define FNV_INITSPCP_Q  FNVINITSPCP_Q
-#define FNV_INITSPCP_S  FNVINITSPCP_S
-#define FNV_INITSPCP_B  FNVINITSPCP_B
-#define FNV_INITSPCP_QB FNVINITSPCP_QB
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FNV_INITSPCP    fnvinitspcp_
 #define FNV_INITSPCP_Q  fnvinitspcp_q_
 #define FNV_INITSPCP_S  fnvinitspcp_s_
 #define FNV_INITSPCP_B  fnvinitspcp_b_
 #define FNV_INITSPCP_QB fnvinitspcp_qb_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FNV_INITSPCP    FNVINITSPCP_
-#define FNV_INITSPCP_Q  FNVINITSPCP_Q_
-#define FNV_INITSPCP_S  FNVINITSPCP_S_
-#define FNV_INITSPCP_B  FNVINITSPCP_B_
-#define FNV_INITSPCP_QB FNVINITSPCP_QB_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FNV_INITSPCP    fnvinitspcp__
-#define FNV_INITSPCP_Q  fnvinitspcp_q__
-#define FNV_INITSPCP_S  fnvinitspcp_s__
-#define FNV_INITSPCP_B  fnvinitspcp_b__
-#define FNV_INITSPCP_QB fnvinitspcp_qb__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FNV_INITSPCP    FNVINITSPCP__
-#define FNV_INITSPCP_Q  FNVINITSPCP_Q__
-#define FNV_INITSPCP_S  FNVINITSPCP_S__
-#define FNV_INITSPCP_B  FNVINITSPCP_B__
-#define FNV_INITSPCP_QB FNVINITSPCP_QB__
 
 #endif
 

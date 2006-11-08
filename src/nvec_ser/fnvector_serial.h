@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-08 00:53:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -34,53 +34,13 @@ extern "C" {
 #define FNV_INITS_B  F77_FUNC_(fnvinits_b, FNVINITS_B)
 #define FNV_INITS_QB F77_FUNC_(fnvinits_qb, FNVINITS_QB)
 
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
-
-#define FNV_INITS    fnvinits
-#define FNV_INITS_Q  fnvinits_q
-#define FNV_INITS_S  fnvinits_s
-#define FNV_INITS_B  fnvinits_b
-#define FNV_INITS_QB fnvinits_qb
-
-#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FNV_INITS    FNVINITS
-#define FNV_INITS_Q  FNVINITS_Q
-#define FNV_INITS_S  FNVINITS_S
-#define FNV_INITS_B  FNVINITS_B
-#define FNV_INITS_QB FNVINITS_QB
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
+#else
 
 #define FNV_INITS    fnvinits_
 #define FNV_INITS_Q  fnvinits_q_
 #define FNV_INITS_S  fnvinits_s_
 #define FNV_INITS_B  fnvinits_b_
 #define FNV_INITS_QB fnvinits_qb_
-
-#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
-
-#define FNV_INITS    FNVINITS_
-#define FNV_INITS_Q  FNVINITS_Q_
-#define FNV_INITS_S  FNVINITS_S_
-#define FNV_INITS_B  FNVINITS_B_
-#define FNV_INITS_QB FNVINITS_QB_
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
-
-#define FNV_INITS    fnvinits__
-#define FNV_INITS_Q  fnvinits_q__
-#define FNV_INITS_S  fnvinits_s__
-#define FNV_INITS_B  fnvinits_b__
-#define FNV_INITS_QB fnvinits_qb__
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
-
-#define FNV_INITS    FNVINITS__
-#define FNV_INITS_Q  FNVINITS_Q__
-#define FNV_INITS_S  FNVINITS_S__
-#define FNV_INITS_B  FNVINITS_B__
-#define FNV_INITS_QB FNVINITS_QB__
 
 #endif
 
