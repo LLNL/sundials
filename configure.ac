@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.44 $
-# $Date: 2006-11-06 23:50:18 $
+# $Revision: 1.45 $
+# $Date: 2006-11-09 20:36:53 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -35,15 +35,12 @@ echo ""
 AC_PROG_CC(cc gcc)
 SUNDIALS_SET_CC
 
-# Set Fortran compilation (Optional)
-if test "X${FCMIX_ENABLED}" = "Xyes"; then
-  echo ""
-  echo "Fortran Compiler Settings"
-  echo "-------------------------"
-  echo ""
-  AC_PROG_F77(f77 g77)
-  SUNDIALS_SET_F77
-fi
+# Set Fortran support
+echo ""
+echo "Fortran Settings"
+echo "----------------"
+echo ""
+SUNDIALS_F77_SUPPORT
 
 # Set MPI support (Optional)
 if test "X${MPI_ENABLED}" = "Xyes"; then
@@ -118,6 +115,8 @@ AC_SUBST(PRECISION_LEVEL)
 AC_SUBST(GENERIC_MATH_LIB)
 AC_SUBST(F77_MPI_COMM_F2C)
 AC_SUBST(F77_LNKR)
+AC_SUBST(LAPACK_ENABLED)
+AC_SUBST(BLAS_LAPACK_LIBS)
 AC_SUBST(MPIF77_LNKR)
 AC_SUBST(OBJEXT)
 AC_SUBST(EXEEXT)

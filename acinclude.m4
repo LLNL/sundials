@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.48 $
-# $Date: 2006-11-08 00:48:19 $
+# $Revision: 1.49 $
+# $Date: 2006-11-09 20:36:51 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -118,17 +118,20 @@ F77_MPI_COMM_F2C=""
 
 # Initialize enable status of various modules, options, and features
 # to their default values
-
+#
+# NOTE: when IDAS and/or CPODES are released, change their default to
+# enabled.
+#
 CVODE_ENABLED="yes"
 CVODES_ENABLED="yes"
 IDA_ENABLED="yes"
-#IDAS_ENABLED="yes"
-IDAS_ENABLED="no"
 KINSOL_ENABLED="yes"
-#CPODES_ENABLED="yes"
-CPODES_ENABLED="no"
 FCMIX_ENABLED="yes"
 MPI_ENABLED="yes"
+#
+IDAS_ENABLED="no"
+CPODES_ENABLED="no"
+#
 STB_ENABLED="no"
 EXAMPLES_ENABLED="no"
 F77_EXAMPLES_ENABLED="no"
@@ -367,7 +370,7 @@ else
 fi
 ])
 
-# Fortran examples are enabled only if both FCMIX and EXAMPLES are enabled
+# Fortran examples are enabled only if bot FCMIX and EXAMPLES are enabled
 if test "X${FCMIX_ENABLED}" = "Xyes" && test "X${EXAMPLES_ENABLED}" = "Xyes"; then
   F77_EXAMPLES_ENABLED="yes"
 fi
@@ -426,6 +429,7 @@ fi
 
 AC_DEFUN([SUNDIALS_SET_CC],
 [
+
 
 if test "X${CC}" = "X"; then
 
@@ -799,43 +803,359 @@ esac
 
 ]) dnl END SUNDIALS_DEFAULT_CFLAGS
 
+
 #------------------------------------------------------------------
-# CHECK FORTRAN COMPILER
+# FORTRAN SUPPORT
 #
-# If a working compiler cannot be found, set F77_OK="no" and issue
-# a warning that Fortran support will be disabled.
-#
+# Conditionally find the Fortran name-mangling scheme, find the
+# libraries required to link C and Fortran, find and test the Fortran
+# compiler, etc...
 #------------------------------------------------------------------
 
-AC_DEFUN([SUNDIALS_SET_F77],
+AC_DEFUN([SUNDIALS_F77_SUPPORT],
 [
 
-if test "X${F77}" = "X"; then
+# Initialize control variables
+# possible values: "disabled", "needed", "user", "set" 
+FNAME_STATUS="disabled"
+BLLIBS_STATUS="disabled"
+F77_STATUS="disabled"
 
-  AC_MSG_WARN([cannot find a Fortran compiler])
-  echo ""
-  echo "   Unable to find a working Fortran compiler"
-  echo ""
-  echo "   Try using F77 to explicitly specify a C compiler"
-  echo ""
-  echo "   Disabling F77 support..."
-  echo ""
+# Check if Blas/Lapack support will be enabled
+# --------------------------------------------
 
-  F77_OK="no"
-  F77_EXAMPLES_ENABLED="no"
-  SUNDIALS_WARN_FLAG="yes"
+LAPACK_ENABLED="yes"
+BLAS_LAPACK_LIBS=""
 
+AC_MSG_CHECKING([whether to provide Blas/Lapack support])
+
+# If the user specifies the complete library linkage for Blas/Lapack,
+# enable Lapack support and disable any subsequent related checks.
+
+AC_ARG_WITH(blas-lapack-libs,
+[AC_HELP_STRING([--with-blas-lapack-libs=ARG],[specify complete library linkages for Blas/Lapack support])],
+[
+BLAS_LAPACK_LIBS="${withval}"
+BLLIBS_STATUS="user"
+])
+
+# Check if the users disables Blas and/or Lapack. 
+# If we have already set BLLIBS, do nothing
+
+AC_ARG_WITH(blas,
+[AC_HELP_STRING([--with-blas=<lib>],[use Blas library <lib>])],
+[
+if test "X${BLLIBS_STATUS}" != "Xuser"; then
+  case $withval in
+    yes | "") 
+        ;;
+    no) 
+        LAPACK_ENABLED="no" 
+        ;;
+    -* | */* | *.a | *.so | *.so.* | *.o) 
+        BLAS_LIBS="$withval" 
+        ;;
+    *) 
+        BLAS_LIBS="-l$withval" 
+        ;;
+  esac
+fi
+])
+
+AC_ARG_WITH(lapack,
+[AC_HELP_STRING([--with-lapack=<lib>],[use Lapack library <lib>])],
+[
+if test "X${BLLIBS_STATUS}" != "Xuser"; then
+  case $withval in
+    yes | "") 
+        ;;
+    no) 
+        LAPACK_ENABLED="no" 
+        ;;
+    -* | */* | *.a | *.so | *.so.* | *.o) 
+        LAPACK_LIBS="$withval" 
+        ;;
+    *) 
+        LAPACK_LIBS="-l$withval" 
+        ;;
+  esac
+fi
+])
+
+if test "X${LAPACK_ENABLED}" = "Xyes"; then
+  AC_MSG_RESULT([yes])
 else
+  AC_MSG_RESULT([no])
+fi
 
-  F77_OK="yes"
-  SUNDIALS_CHECK_F77
+if test "X${BLLIBS_STATUS}" = "Xuser"; then
+  AC_MSG_CHECKING([for Blas/Lapack library linkage])
+  AC_MSG_RESULT([user provided: ${BLAS_LAPACK_LIBS}])
+fi
+
+echo ""
+
+# Decide on what is needed 
+# ------------------------
+
+if test "X${FCMIX_ENABLED}" = "Xyes"; then
+  FNAME_STATUS="needed"
+fi
+
+if test "X${LAPACK_ENABLED}" = "Xyes"; then
+  FNAME_STATUS="needed"
+  if test "X${BLLIBS_STATUS}" != "Xuser"; then
+    BLLIBS_STATUS="needed"
+    F77_STATUS="needed"
+  fi
+fi
+
+if test "X${F77_EXAMPLES_ENABLED}" = "Xyes"; then
+  FNAME_STATUS="needed"
+  F77_STATUS="needed"
+fi
+
+# Check if user specifies the Fortran name-mangling scheme
+# If either the case or the number of underscores is specified, we consider
+# that we have the scheme (use a default value for what was not specified)
+# -------------------------------------------------------------------------
+
+F77_FUNC_CASE="lower"
+F77_FUNC_UNDERSCORES="one"
+TMP_FNAME_STATUS=""
+
+AC_ARG_WITH(f77underscore, 
+[AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
+[
+if test "X${FNAME_STATUS}" = "Xneeded"; then
+  if test "X${withval}" = "Xnone" || test "X${withval}" = "Xone" || test "X${withval}" = "Xtwo"; then
+    F77_FUNC_UNDERSCORES="${withval}"
+  else
+    AC_MSG_ERROR([invalid input for --with-f77underscore])
+  fi
+  TMP_FNAME_STATUS="user"
+fi
+])
+
+AC_ARG_WITH(f77case, 
+[AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
+[
+if test "X${FNAME_STATUS}" = "Xneeded"; then
+  if test "X${withval}" = "Xupper" || test "X${withval}" = "Xlower"; then
+    F77_FUNC_CASE="${withval}"
+  else
+    AC_MSG_ERROR([invalid input for --with-f77case])
+  fi
+  TMP_FNAME_STATUS="user"
+fi
+])
+
+# If the Fortran name-mangling scheme has been set, issue a message.
+# If the Fortran name-mangling scheme is needed, request a Fortran compiler to determine it
+
+if test "X${TMP_FNAME_STATUS}" = "Xuser"; then
+  FNAME_STATUS="user"
+  AC_MSG_CHECKING([for Fortran name-mangling scheme])
+  AC_MSG_RESULT([user defined: ${F77_FUNC_CASE} case, ${F77_FUNC_UNDERSCORES} underscores])
+fi
+
+if test "X${FNAME_STATUS}" = "Xneeded"; then
+  F77_STATUS="needed" 
+fi
+
+# If we need a Fortran compiler, try to set it now. 
+# -------------------------------------------------
+
+if test "X${F77_STATUS}" = "Xneeded"; then
+
+  # Set F77
+  AC_PROG_F77(f77 g77)
+
+  if test "X${F77}" = "X"; then
+    # Cannot find F77: issue warning
+    SUNDIALS_WARN_FLAG="yes"
+    AC_MSG_WARN([cannot find a Fortran compiler])
+    echo ""
+    echo "   Unable to find a working Fortran compiler"
+    echo ""
+    echo "   Try using F77 to explicitly specify a C compiler"
+    echo ""
+    F77_OK="no"
+  else
+    # Have F77: check it and, if needed, also try to determine the 
+    # Fortran name-mangling scheme and/or the Lapack library linkage.
+    F77_OK="yes"
+    SUNDIALS_F77_CHECK
+    if test "X${F77_OK}" = "Xno"; then
+      SUNDIALS_WARN_FLAG="yes"
+      echo ""
+      echo "   Unable to compile test program using given Fortran compiler."
+      echo ""
+    fi
+  fi
+
+  # If we do not have a working F77 compiler issue warnings
+  if test "X${F77_OK}" = "Xno"; then
+
+    # If we were counting on the Fortran compiler to determine
+    # the name-mangling scheme, disable all Fortran support
+    if test "X${FNAME_STATUS}" = "Xneeded"; then
+      echo "   Disabling all Fortran support..."
+      F77_EXAMPLES_ENABLED="no"
+      FCMIX_ENABLED="no"
+      LAPACK_ENABLED="no"
+      FNAME_STATUS="disabled"
+      BLLIBS_STATUS="disabled"
+    fi
+
+    # If we were counting on the Fortran compiler to determine
+    # the Blas/lapack linkage, disable Blas/Lapack support
+    if test "X${BLLIBS_STATUS}" = "Xneeded"; then
+      echo "   Disabling Blas/Lapack support..."
+      LAPACK_ENABLED="no"
+      BLLIBS_STATUS="disabled"
+    fi
+
+    # We will not be able to compile any Fortran examples
+    if test "X${F77_EXAMPLES_ENABLED}" = "Xyes"; then
+      echo "   Disabling compilation of Fortran support..."
+      F77_EXAMPLES_ENABLED="no"
+    fi
+
+    echo ""
+
+  fi
 
 fi
 
-]) dnl END SUNDIALS_SET_F77
+# If the Fortran name-mangling scheme is still needed, try to
+# determine it now (we do have a working F77 compiler)
+# -----------------------------------------------------------
 
+if test "X${FNAME_STATUS}" = "Xneeded"; then
 
-AC_DEFUN([SUNDIALS_CHECK_F77],
+  SUNDIALS_F77_NAME_MANGLING
+
+  if test "X${FNAME_STATUS}" = "Xset"; then 
+    AC_MSG_CHECKING([for Fortran name-mangling scheme])
+    AC_MSG_RESULT([${F77_FUNC_CASE} case, ${F77_FUNC_UNDERSCORES} underscores])
+  else
+    SUNDIALS_WARN_FLAG="yes"
+    AC_MSG_WARN([cannot determine Fortran name-mangling scheme])
+    echo ""
+    echo "   Unable to determine Fortran name-mangling scheme."
+    echo ""
+    echo "   Try using --with-f77case and --with-f77underscore to explicitly"
+    echo "   specify the appropriate name-mangling scheme."
+    echo ""
+    echo "   Disabling all Fortran support..."
+    echo ""
+    F77_EXAMPLES_ENABLED="no"
+    FCMIX_ENABLED="no"
+    LAPACK_ENABLED="no"
+    FNAME_STATUS="disabled"
+    BLLIBS_STATUS="disabled"
+  fi
+
+fi
+
+# If we have the Fortran name-mangling scheme, set the C preprocessor macro
+# F77_FUNC, using F77_FUNC_CASE and F77_FUNC_UNDERSCORES
+# In case they'll be needed later, also define dgemm and dgetrf (for Blas/Lapack tests)
+
+if test "X${FNAME_STATUS}" = "Xuser" || test "X${FNAME_STATUS}" = "Xset"; then 
+
+  if test "X${F77_FUNC_CASE}" = "Xlower"; then
+    if test "X${F77_FUNC_UNDERSCORES}" = "Xnone"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[name],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name"
+      dgemm="dgemm"
+      dgetrf="dgetrf"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## _],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## _"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## _"
+      dgemm="dgemm_"
+      dgetrf="dgetrf_"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## __],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## __"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## __"
+      dgemm="dgemm__"
+      dgetrf="dgetrf__"
+    fi
+  elif test "X${F77_FUNC_CASE}" = "Xupper"; then
+    if test "X${F77_FUNC_UNDERSCORES}" = "Xnone"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME"
+      dgemm="DGEMM"
+      dgetrf="DGETRF"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## _],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## _"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## _"
+      dgemm="DGEMM_"
+      dgetrf="DGETRF_"
+    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo"; then
+      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## __],[])
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## __"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## __"
+      dgemm="DGEMM__"
+      dgetrf="DGETRF__"
+    fi
+  fi
+
+  # Provide variable description templates for config.hin and config.h files
+  # Required by autoheader utility
+  AH_TEMPLATE(F77[_FUNC], [FCMIX: Define name-mangling macro])
+
+fi
+
+# If the Blas/Lapack library linkage scheme is still needed,
+# try to determine it now (we do have a working F77 compiler)
+# -----------------------------------------------------------
+
+if test "X${BLLIBS_STATUS}" = "Xneeded"; then
+
+  SUNDIALS_F77_LAPACK_SET
+
+  if test "X${BLLIBS_STATUS}" = "Xset"; then
+    AC_MSG_CHECKING([for Lapack library linkage])
+    BLAS_LAPACK_LIBS="${LAPACK_LIBS} ${BLAS_LIBS} ${LIBS} ${FLIBS}"
+    AC_MSG_RESULT([${BLAS_LAPACK_LIBS}])
+  elif test "X${BLLIBS_STATUS}" = "Xneeded"; then
+    SUNDIALS_WARN_FLAG="yes"
+    AC_MSG_WARN([cannot determine Lapack library linkage])
+    echo ""
+    echo "   Unable to determine Blas/Lapack library linkage."
+    echo ""
+    echo "   Try using --with-lapack-libs to explicitly specify the"
+    echo "   required library linkage flags."
+    echo ""
+    echo "   Disabling Blas/Lapack support..."
+    echo ""
+    LAPACK_ENABLED="no"
+    BLLIBS_STATUS="disabled"
+  fi
+
+fi
+
+]) dnl SUNDIALS_F77_SUPPORT
+
+#------------------------------------------------------------------
+# CHECK FORTRAN COMPILER
+#
+# Test the Fortran compiler by attempting to compile and link a 
+# simple Fortran program. If the test succeeds, set F77_OK=yes.
+# If the test fails, set F77_OK="no"
+#
+# Finally, check if we must use a Fortran compiler to link the
+# Fortran codes (default is to use CC).
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_F77_CHECK],
 [
 
 AC_LANG_PUSH([Fortran 77])
@@ -861,87 +1181,28 @@ AC_MSG_RESULT([none])
 # Note: if FLIBS is defined, it is left unchanged
 AC_F77_LIBRARY_LDFLAGS
 
-# Determine Fortran name mangling scheme
-# Default is lower case with one underscore
-AC_MSG_CHECKING([Fortran name-mangling scheme])
-RUN_F77_WRAPPERS="yes"
-F77_WRAPPER_CHECK_OK="yes"
-F77_FUNC_CASE="lower"
-F77_FUNC_UNDERSCORES="one"
-
-# If user provides the number of underscores, overwrite default value
-AC_ARG_WITH(f77underscore, 
-[AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
-[
-if test "X${withval}" = "Xnone" || test "X${withval}" = "Xone" || test "X${withval}" = "Xtwo"; then
-  F77_FUNC_UNDERSCORES="${withval}"
-else
-  AC_MSG_RESULT([failed])
-  AC_MSG_ERROR([invalid input for --with-f77underscore])
-fi
-RUN_F77_WRAPPERS="no"
-])
-
-# If user provides the case, overwrite default value
-AC_ARG_WITH(f77case, 
-[AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
-[
-if test "X${withval}" = "Xupper" || test "X${withval}" = "Xlower"; then
-  F77_FUNC_CASE="${withval}"
-else
-  AC_MSG_RESULT([failed])
-  AC_MSG_ERROR([invalid input for --with-f77case])
-fi
-RUN_F77_WRAPPERS="no"
-])
-
-# Determine how to properly mangle function names so Fortran subroutines can
-# call C functions included in SUNDIALS libraries
-if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
-  SUNDIALS_F77_WRAPPERS
-fi
-
-# Based on F77_FUNC_CASE and F77_FUNC_UNDERSCORES, define C preprocessor macros
-# F77_FUNC and F77_FUNC_
-if test "X${F77_WRAPPER_CHECK_OK}" = "Xyes"; then
-  AC_MSG_RESULT([case: ${F77_FUNC_CASE}, underscores: ${F77_FUNC_UNDERSCORES}])
-  if test "X${F77_FUNC_CASE}" = "Xlower"; then
-    if test "X${F77_FUNC_UNDERSCORES}" = "Xnone"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[name],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## _],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## _"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## _"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## __],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## __"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## __"
-    fi
-  elif test "X${F77_FUNC_CASE}" = "Xupper"; then
-    if test "X${F77_FUNC_UNDERSCORES}" = "Xnone"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## _],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## _"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## _"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## __],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## __"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## __"
-    fi
-  fi
-fi
+# Try to compile a simple Fortran program (no linking)
+AC_COMPILE_IFELSE(
+[AC_LANG_SOURCE(
+[[
+	SUBROUTINE SUNDIALS()
+	RETURN
+	END
+]])],
+[F77_OK="yes"],
+[F77_OK="no"])
 
 # Check if we must use a Fortran compiler to link the Fortran examples
-# (default is to use CC)
-AC_MSG_CHECKING([which linker to use])
-SUNDIALS_F77_LNKR_CHECK
-AC_MSG_RESULT([${F77_LNKR_OUT}])
+# (default is to use CC).
+if test "X${F77_OK}" = "Xyes"; then
 
+  AC_MSG_CHECKING([which linker to use])
+  SUNDIALS_F77_LNKR_CHECK
+  AC_MSG_RESULT([${F77_LNKR_OUT}])
+
+fi
+
+# Reset language (remove 'Fortran 77' from stack)
 AC_LANG_POP([Fortran 77])
 
 ]) dnl END SUNDIALS_SET_F77
@@ -1018,116 +1279,6 @@ fi
 ]) dnl SUNDIALS_F77_LNKR_CHECK
 
 #------------------------------------------------------------------
-# DETERMINE F77 NAME-MANGLING SCHEME
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_F77_WRAPPERS],
-[
-
-# Replacement macro for AC_F77_WRAPPERS which has too many problems
-# (based on implementation of AC_F77_WRAPPERS minus the "fluff")
-
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-AH_TEMPLATE(F77[_FUNC],
-            [FCMIX: Define name-mangling macro])
-
-# Remaining test pertains to Fortran programming language
-AC_LANG_PUSH([Fortran 77])
-
-# Compile a dummy Fortran subroutine
-AC_COMPILE_IFELSE(
-[AC_LANG_SOURCE(
-[[
-	SUBROUTINE SUNDIALS()
-	RETURN
-	END
-]])],
-[
-
-mv conftest.${ac_objext} f77_wrapper_check.${ac_objext}
-
-# Temporarily reset LIBS environment variable to perform test
-SAVED_LIBS="${LIBS}"
-LIBS="f77_wrapper_check.${ac_objext} ${LIBS} ${FLIBS}"
-
-AC_LANG_PUSH([C])
-
-F77_WRAPPER_CHECK_OK="no"
-for i in "sundials" "SUNDIALS"
-do
-  for j in "" "_" "__"
-  do
-    F77_MANGLED_NAME="${i}${j}"
-    AC_LINK_IFELSE([AC_LANG_CALL([],[${F77_MANGLED_NAME}])],[F77_WRAPPER_CHECK_OK="yes" ; break 2])
-  done
-done
-
-AC_LANG_POP([C])
-
-# If test succeeded, then set F77_FUNC_CASE and F77_FUNC_UNDERSCORES variables
-if test "X${F77_WRAPPER_CHECK_OK}" = "Xyes"; then
-  # Determine case (lower, upper)
-  if test "X${i}" = "Xsundials"; then
-    F77_FUNC_CASE="lower"
-  else
-    F77_FUNC_CASE="upper"
-  fi
-  # Determine number of underscores to append (none, one, two)
-  if test "X${j}" = "X"; then
-    F77_FUNC_UNDERSCORES="none"
-  elif test "X${j}" = "X_"; then
-    F77_FUNC_UNDERSCORES="one"
-  else
-    F77_FUNC_UNDERSCORES="two"
-  fi
-# If test failed, then tell user to use '--with-f77case' and '--with-f77underscore'
-# and disable Fortran support
-else
-  AC_MSG_RESULT([UNKNOWN])
-  AC_MSG_WARN([cannot determine Fortran name-mangling scheme])
-  echo ""
-  echo "   Unable to determine name-mangling scheme required by Fortran"
-  echo "   compiler."
-  echo ""
-  echo "   Try using --with-f77case and --with-f77underscore to explicitly"
-  echo "   specify the appropriate name-mangling scheme."
-  echo ""
-  echo "   Disabling Fortran support..."
-  echo ""
-  F77_OK="no"
-  F77_EXAMPLES_ENABLED="no"
-  SUNDIALS_WARN_FLAG="yes"
-fi
-
-# Set LIBS environment variable back to original value
-LIBS="${SAVED_LIBS}"
-
-],
-[
-
-# If a compilation error occurred, then disable Fortran support
-AC_MSG_RESULT([ERROR])
-echo ""
-echo "   Unable to compile test program using given Fortran compiler."
-echo ""
-echo "   Disabling Fortran support..."
-echo ""
-F77_OK="no"
-F77_EXAMPLES_ENABLED="no"
-SUNDIALS_WARN_FLAG="yes"
-
-])
-
-# Reset language (remove 'Fortran 77' from stack)
-AC_LANG_POP([Fortran 77])
-
-# Remove temporary file
-rm -f f77_wrapper_check.${ac_objext}
-
-]) dnl END SUNDIALS_SET_F77
-
-#------------------------------------------------------------------
 # DEFAULT FFLAGS
 #
 # Set default FFLAGS (called only if FFLAGS is not provided)
@@ -1169,6 +1320,211 @@ case $host in
 esac
 
 ]) dnl END SUNDIALS_DEFAULT_FFLAGS
+
+#------------------------------------------------------------------
+# DETERMINE FORTRAN NAME-MANGLING SCHEME
+#
+# Compiling a simple Fortran example and link it using a C compiler.
+# Interpret results to infer name-mangling scheme.
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_F77_NAME_MANGLING],
+[
+
+AC_LANG_PUSH([Fortran 77])
+
+# Compile a dummy Fortran subroutine
+AC_COMPILE_IFELSE(
+[AC_LANG_SOURCE(
+[[
+	SUBROUTINE SUNDIALS()
+	RETURN
+	END
+]])],
+[
+
+mv conftest.${ac_objext} f77_wrapper_check.${ac_objext}
+
+# Temporarily reset LIBS environment variable to perform test
+SAVED_LIBS="${LIBS}"
+LIBS="f77_wrapper_check.${ac_objext} ${LIBS} ${FLIBS}"
+
+AC_LANG_PUSH([C])
+
+for i in "sundials" "SUNDIALS"
+do
+  for j in "" "_" "__"
+  do
+    F77_MANGLED_NAME="${i}${j}"
+    AC_LINK_IFELSE([AC_LANG_CALL([],[${F77_MANGLED_NAME}])],[FNAME_STATUS="set" ; break 2])
+  done
+done
+
+AC_LANG_POP([C])
+
+# If test succeeded, then set F77_FUNC_CASE and F77_FUNC_UNDERSCORES variables
+if test "X${FNAME_STATUS}" = "Xset"; then
+  # Determine case (lower, upper)
+  if test "X${i}" = "Xsundials"; then
+    F77_FUNC_CASE="lower"
+  else
+    F77_FUNC_CASE="upper"
+  fi
+  # Determine number of underscores to append (none, one, two)
+  if test "X${j}" = "X"; then
+    F77_FUNC_UNDERSCORES="none"
+  elif test "X${j}" = "X_"; then
+    F77_FUNC_UNDERSCORES="one"
+  else
+    F77_FUNC_UNDERSCORES="two"
+  fi
+fi
+
+# Set LIBS environment variable back to original value
+LIBS="${SAVED_LIBS}"
+
+])
+
+# Remove temporary file
+rm -f f77_wrapper_check.${ac_objext}
+
+AC_LANG_POP([Fortran 77])
+
+]) dnl END SUNDIALS_SET_FNAME
+
+
+#------------------------------------------------------------------
+# DETERMINE BLAS/LAPACK LIBRARY LINKAGE SCHEME
+#
+# 
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_F77_LAPACK_SET],
+[
+
+acx_blas_ok=no
+acx_lapack_ok=no
+
+# BLAS_LIBS
+# ---------
+
+acx_blas_save_LIBS="$LIBS"
+LIBS="$LIBS $FLIBS"
+
+# First, check BLAS_LIBS environment variable
+if test "x$BLAS_LIBS" != x; then
+  save_LIBS="$LIBS"
+  LIBS="$BLAS_LIBS $LIBS"
+  AC_MSG_CHECKING([aha for $dgemm in $BLAS_LIBS])
+  AC_TRY_LINK_FUNC($dgemm, [acx_blas_ok=yes], [BLAS_LIBS=""])
+  AC_MSG_RESULT($acx_blas_ok)
+  LIBS="$save_LIBS"
+fi
+
+# BLAS linked to by default?  (happens on some supercomputers)
+if test $acx_blas_ok = no; then
+  save_LIBS="$LIBS"; LIBS="$LIBS"
+  AC_CHECK_FUNC($dgemm, [acx_blas_ok=yes])
+  LIBS="$save_LIBS"
+fi
+
+# BLAS in Alpha CXML library?
+if test $acx_blas_ok = no; then
+  AC_CHECK_LIB(cxml, $dgemm, [acx_blas_ok=yes;BLAS_LIBS="-lcxml"])
+fi
+
+# BLAS in Alpha DXML library? (now called CXML, see above)
+if test $acx_blas_ok = no; then
+  AC_CHECK_LIB(dxml, $dgemm, [acx_blas_ok=yes;BLAS_LIBS="-ldxml"])
+fi
+
+# BLAS in Sun Performance library?
+if test $acx_blas_ok = no; then
+  if test "x$GCC" != xyes; then # only works with Sun CC
+    AC_CHECK_LIB(sunmath, acosp,
+                 [AC_CHECK_LIB(sunperf, $dgemm,
+                               [BLAS_LIBS="-xlic_lib=sunperf -lsunmath"
+                                acx_blas_ok=yes],[],[-lsunmath])])
+  fi
+fi
+
+# BLAS in SCSL library?  (SGI/Cray Scientific Library)
+if test $acx_blas_ok = no; then
+  AC_CHECK_LIB(scs, $dgemm, [acx_blas_ok=yes; BLAS_LIBS="-lscs"])
+fi
+
+# BLAS in SGIMATH library?
+if test $acx_blas_ok = no; then
+  AC_CHECK_LIB(complib.sgimath, $dgemm,
+               [acx_blas_ok=yes; BLAS_LIBS="-lcomplib.sgimath"])
+fi
+
+# BLAS in IBM ESSL library? (requires generic BLAS lib, too)
+if test $acx_blas_ok = no; then
+ AC_CHECK_LIB(blas, $dgemm,
+              [AC_CHECK_LIB(essl, $dgemm,
+                        [acx_blas_ok=yes; BLAS_LIBS="-lessl -lblas"],
+                        [], [-lblas $FLIBS])])
+fi
+
+# Generic BLAS library?
+if test $acx_blas_ok = no; then
+  AC_CHECK_LIB(blas, $dgemm, [acx_blas_ok=yes; BLAS_LIBS="-lblas"])
+fi
+
+LIBS="$acx_blas_save_LIBS"
+
+# LAPACK
+# ------
+
+# If we didn't find a Blas implementation, disable tests for Lapack
+if test $acx_blas_ok = no; then
+  acx_lapack_ok=disabled
+fi
+
+# Check LAPACK_LIBS environment variable
+if test $acx_lapack_ok = no; then
+if test "x$LAPACK_LIBS" != x; then
+  save_LIBS="$LIBS"; 
+  LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS $FLIBS"
+  AC_MSG_CHECKING([for $dgetrf in $LAPACK_LIBS])
+  AC_TRY_LINK_FUNC($dgetrf, [acx_lapack_ok=yes], [LAPACK_LIBS=""])
+  AC_MSG_RESULT($acx_lapack_ok)
+  LIBS="$save_LIBS"
+  if test acx_lapack_ok = no; then
+     LAPACK_LIBS=""
+  fi
+fi
+fi
+
+# LAPACK linked to by default?  (is sometimes included in BLAS lib)
+if test $acx_lapack_ok = no; then
+  save_LIBS="$LIBS"
+  LIBS="$LIBS $BLAS_LIBS $FLIBS"
+  AC_CHECK_FUNC($dgetrf, [acx_lapack_ok=yes])
+  LIBS="$save_LIBS"
+fi
+
+# Generic LAPACK library?
+for lapack in lapack lapack_rs6k; do
+  if test $acx_lapack_ok = no; then
+    save_LIBS="$LIBS"
+      LIBS="$BLAS_LIBS $LIBS"
+      AC_CHECK_LIB($lapack, $dgetrf,
+                   [acx_lapack_ok=yes; LAPACK_LIBS="-l$lapack"], [], [$FLIBS])
+      LIBS="$save_LIBS"
+  fi
+done
+
+# If we have both libraries, set BLLIBS_STATUS to "set"
+# -----------------------------------------------------
+
+if test $acx_blas_ok = yes && test $acx_lapack_ok = yes; then
+  BLLIBS_STATUS="set"
+fi
+
+]) dnl SUNDIALS_F77_LAPACK_SET
+
 
 #------------------------------------------------------------------
 # CHECK MPI-C COMPILER
@@ -1235,8 +1591,7 @@ MPI_FLAGS_OK="no"
 MPICC_COMP_GIVEN="yes"
 AC_MSG_CHECKING([if using MPI-C script])
 AC_ARG_WITH(mpicc,
-[AC_HELP_STRING([--with-mpicc[[[[=ARG]]]]],[specify MPI-C compiler to use @<:@mpicc@:>@],
-                [                                ])],
+[AC_HELP_STRING([--with-mpicc[[[[=ARG]]]]],[specify MPI-C compiler to use @<:@mpicc@:>@])],
 [
 if test "X${withval}" = "Xno"; then
   USE_MPICC_SCRIPT="no"
@@ -1559,8 +1914,7 @@ AC_DEFUN([SUNDIALS_SET_MPIF77],
 
 AC_MSG_CHECKING([if using MPI-Fortran script])
 AC_ARG_WITH(mpif77,
-[AC_HELP_STRING([--with-mpif77[[[[=ARG]]]]],[specify MPI-Fortran compiler to use @<:@mpif77@:>@],
-                [                                ])],
+[AC_HELP_STRING([--with-mpif77[[[[=ARG]]]]],[specify MPI-Fortran compiler to use @<:@mpif77@:>@])],
 [
 if test "X${withval}" = "Xno"; then
   USE_MPIF77_SCRIPT="no"
@@ -2864,12 +3218,17 @@ Configuration
   Build System:              ${build}
 
   C Preprocessor:            ${CPP} 
-  C Preporcessor Flags:      ${CPPFLAGS}
+  C Preprocessor Flags:      ${CPPFLAGS}
   C Compiler:	             ${CC}
   C Compiler Flags           ${CFLAGS}
   C Linker:                  ${CC}
   Linker Flags:              ${LDFLAGS}
   Libraries:                 ${LIBS}"
+
+if test "X${FCMIX_ENABLED}" = "Xyes"; then
+echo "
+  F77 name-mangling scheme:  ${F77_FUNC_CASE} case, ${F77_FUNC_UNDERSCORES} underscores"
+fi
 
 if test "X${F77_EXAMPLES_ENABLED}" = "Xyes"; then
 echo "
