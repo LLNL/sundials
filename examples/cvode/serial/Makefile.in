@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-08-11 23:02:35 $
+# $Revision: 1.5 $
+# $Date: 2006-11-09 20:37:51 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,6 +39,9 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LAPACK_ENABLED = @LAPACK_ENABLED@
+BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
 
@@ -61,10 +64,16 @@ EXEC_FILES = cvdenx$(EXE_EXT) \
 	     cvdirectdem$(EXE_EXT) \
 	     cvkrydem_pre$(EXE_EXT) \
 	     cvkrydem_lin$(EXE_EXT)
+LAP_EXEC_FILES = cvdenx_lap$(EXE_EXT) \
+	         cvbanx_lap$(EXE_EXT)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
 all: $(EXEC_FILES)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make all_lap;                              \
+	fi
+all_lap: $(LAP_EXEC_FILES)
 
 cvdenx$(EXE_EXT): $(srcdir)/cvdenx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvdenx.c
@@ -90,12 +99,19 @@ cvkrydem_pre$(EXE_EXT): $(srcdir)/cvkrydem_pre.c
 cvkrydem_lin$(EXE_EXT): $(srcdir)/cvkrydem_lin.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvkrydem_lin.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvkrydem_lin$(EXE_EXT) $(builddir)/cvkrydem_lin$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvdenx_lap$(EXE_EXT): $(srcdir)/cvdenx_lap.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvdenx_lap.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdenx_lap$(EXE_EXT) $(builddir)/cvdenx_lap$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+cvbanx_lap$(EXE_EXT): $(srcdir)/cvbanx_lap.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvbanx_lap.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvbanx_lap$(EXE_EXT) $(builddir)/cvbanx_lap$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
 
 clean:
 	rm -rf .libs
 	rm -f *.lo
 	rm -f *.o
 	rm -f $(EXEC_FILES)
+	rm -f $(LAP_EXEC_FILES)
 
 distclean: clean
 	rm -f Makefile
@@ -118,6 +134,13 @@ install: $(EXEC_FILES)
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkrydem_pre.out         $(EXS_INSTDIR)/cvode/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkryx_bp.out            $(EXS_INSTDIR)/cvode/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkryx.out               $(EXS_INSTDIR)/cvode/serial/
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make install_lap;                          \
+	fi
+
+install_lap: $(LAP_EXEC_FILES)
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/serial/cvdenx_lap$(EXE_EXT)   $(EXS_INSTDIR)/cvode/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvode/serial/cvbanx_lap$(EXE_EXT)   $(EXS_INSTDIR)/cvode/serial/
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \
