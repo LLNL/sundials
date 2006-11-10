@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:01:34 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-10 19:23:08 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -133,6 +133,13 @@ void LapackFreeArray(void *vec)
 { 
   free(vec); 
   vec = NULL;
+}
+
+void LapackSetZeroMat(LapackMat A)
+{
+  int i;
+
+  for (i=0; i<A->ldata; i++) A->data[i] = RCONST(0.0);
 }
 
 void LapackPrintMat(LapackMat A)
