@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:01:17 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-10 19:23:40 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -280,6 +280,20 @@ extern "C" {
    */
 
   void LapackFreeArray(void *p);
+
+  /*
+   * -----------------------------------------------------------------
+   * Function : LapackSetZeroMat
+   * -----------------------------------------------------------------
+   * This routine sets all the data in the M-by-N dense or band matrix
+   * A to 0.0. Since Jacobians of type LapackMat are not preset to 0.0,
+   * this function is provided for users that are willing to trade 
+   * efficiency for convenience. It can be called at the beginning of
+   * a user-supplied Jacobian function.
+   * -----------------------------------------------------------------
+   */
+
+  void LapackSetZeroMat(LapackMat A);
 
   /*
    * -----------------------------------------------------------------
