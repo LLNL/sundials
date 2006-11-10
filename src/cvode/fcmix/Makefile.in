@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-08-11 23:03:07 $
+# $Revision: 1.5 $
+# $Date: 2006-11-10 21:04:11 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -46,8 +46,8 @@ INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(top_srcdir)/src/cvo
 LIB_REVISION = 0:1:0
 
 FCVODE_LIB       = libsundials_fcvode.la
-FCVODE_LIB_FILES = fcvode.lo fcvband.lo fcvdense.lo fcvjtimes.lo fcvpreco.lo fcvbbd.lo fcvbp.lo fcvroot.lo fcvewt.lo
-FCVODE_OBJ_FILES = fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvbbd.o fcvbp.o fcvroot.o fcvewt.o
+FCVODE_LIB_FILES = fcvode.lo fcvband.lo fcvdense.lo fcvlapack.lo fcvlapband.lo fcvlapdense.lo fcvjtimes.lo fcvpreco.lo fcvbbd.lo fcvbp.lo fcvroot.lo fcvewt.lo
+FCVODE_OBJ_FILES = fcvode.o fcvband.o fcvdense.o fcvlapack.o fcvlapband.o fcvlapdense.o fcvjtimes.o fcvpreco.o fcvbbd.o fcvbp.o fcvroot.o fcvewt.o
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -79,6 +79,12 @@ fcvband.lo: $(srcdir)/fcvband.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvband.c
 fcvdense.lo: $(srcdir)/fcvdense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvdense.c
+fcvlapack.lo: $(srcdir)/fcvlapack.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvlapack.c
+fcvlapband.lo: $(srcdir)/fcvlapband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvlapband.c
+fcvlapdense.lo: $(srcdir)/fcvlapdense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvlapdense.c
 fcvjtimes.lo: $(srcdir)/fcvjtimes.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvjtimes.c
 fcvpreco.lo: $(srcdir)/fcvpreco.c

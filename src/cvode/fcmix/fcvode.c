@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-10 21:04:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -503,6 +503,13 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     CVDiagGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);          /* LSTF */
     CVDiagGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFELS */
     break;
+  case CV_LS_LAPACKBAND:
+    /*
+    CVLapackGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);
+    CVLapackGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);
+    CVLapackGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);
+    CVLapackGetNumJacEvals(CV_cvodemem, &CV_iout[16]);
+    */
   case CV_LS_SPGMR:
   case CV_LS_SPBCG:
   case CV_LS_SPTFQMR:
