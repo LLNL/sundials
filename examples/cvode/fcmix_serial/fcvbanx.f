@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2006-07-05 15:50:04 $
+C     $Revision: 1.2 $
+C     $Date: 2006-11-22 02:23:36 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -237,7 +237,8 @@ C     ----------------------------------------------------------------
 C Load banded Jacobian
       IMPLICIT NONE
 C
-      INTEGER*4 N, MU, ML, MDIM, IPAR(*), IER
+      INTEGER N, MU, ML, MDIM
+      INTEGER*4 IPAR(*), IER
       DOUBLE PRECISION T, U(*), FU(*), BJAC(MDIM,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)
 C
