@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:09 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -33,7 +33,6 @@
 #include <ida/ida.h>
 #include <ida/ida_dense.h>
 #include <nvector/nvector_serial.h>
-#include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
 /* Problem Constants */
@@ -56,8 +55,9 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp,
 static int grob(realtype t, N_Vector yy, N_Vector yp,
                 realtype *gout, void *g_data);
 
-int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
-           N_Vector resvec, realtype cj, void *jdata, DenseMat JJ,
+int jacrob(long int Neq, realtype tt,  realtype cj, 
+           N_Vector yy, N_Vector yp, N_Vector resvec,
+           DlsMat JJ, void *jdata,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
@@ -134,8 +134,8 @@ int main(void)
   /* Call IDADense and set up the linear solver. */
   retval = IDADense(mem, NEQ);
   if(check_flag(&retval, "IDADense", 1)) return(1);
-  retval = IDADenseSetJacFn(mem, jacrob, NULL);
-  if(check_flag(&retval, "IDADenseSetJacFn", 1)) return(1);
+  retval = IDADlsSetJacFn(mem, jacrob, NULL);
+  if(check_flag(&retval, "IDADlsSetJacFn", 1)) return(1);
 
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
@@ -222,8 +222,9 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
  * Define the Jacobian function. 
  */
 
-int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
-           N_Vector resvec, realtype cj, void *jdata, DenseMat JJ,
+int jacrob(long int Neq, realtype tt,  realtype cj, 
+           N_Vector yy, N_Vector yp, N_Vector resvec,
+           DlsMat JJ, void *jdata,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
@@ -336,16 +337,16 @@ static void PrintFinalStats(void *mem)
   check_flag(&retval, "IDAGetNumSteps", 1);
   retval = IDAGetNumResEvals(mem, &nre);
   check_flag(&retval, "IDAGetNumResEvals", 1);
-  retval = IDADenseGetNumJacEvals(mem, &nje);
-  check_flag(&retval, "IDADenseGetNumJacEvals", 1);
+  retval = IDADlsGetNumJacEvals(mem, &nje);
+  check_flag(&retval, "IDADlsGetNumJacEvals", 1);
   retval = IDAGetNumNonlinSolvIters(mem, &nni);
   check_flag(&retval, "IDAGetNumNonlinSolvIters", 1);
   retval = IDAGetNumErrTestFails(mem, &netf);
   check_flag(&retval, "IDAGetNumErrTestFails", 1);
   retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_flag(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  retval = IDADenseGetNumResEvals(mem, &nreLS);
-  check_flag(&retval, "IDADenseGetNumResEvals", 1);
+  retval = IDADlsGetNumResEvals(mem, &nreLS);
+  check_flag(&retval, "IDADlsGetNumResEvals", 1);
   retval = IDAGetNumGEvals(mem, &nge);
   check_flag(&retval, "IDAGetNumGEvals", 1);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -138,14 +138,14 @@ extern "C" {
    * space defined by the user, and made available to the
    * preconditioner function for the problem. The res_data
    * parameter is the same as that passed by the user to the
-   * IDAMalloc routine.
+   * IDASetRdata routine.
    *
    * An IDABBDLocalFn Gres is to return an int, defined in the same
    * way as for the residual function: 0 (success), +1 or -1 (fail).
    * -----------------------------------------------------------------
    */
 
-  typedef int (*IDABBDLocalFn)(long int Nlocal, realtype tt,
+  typedef int (*IDABBDLocalFn)(int Nlocal, realtype tt,
                                N_Vector yy, N_Vector yp, N_Vector gval,
                                void *res_data);
 
@@ -177,7 +177,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  typedef int (*IDABBDCommFn)(long int Nlocal, realtype tt,
+  typedef int (*IDABBDCommFn)(int Nlocal, realtype tt,
                               N_Vector yy, N_Vector yp,
                               void *res_data);
 
@@ -222,9 +222,9 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
-                        long int mudq, long int mldq,
-                        long int mukeep, long int mlkeep,
+  void *IDABBDPrecAlloc(void *ida_mem, int Nlocal,
+                        int mudq, int mldq,
+                        int mukeep, int mlkeep,
                         realtype dq_rel_yy,
                         IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
 
@@ -334,7 +334,7 @@ extern "C" {
    */
 
   int IDABBDPrecReInit(void *bbd_data,
-                       long int mudq, long int mldq,
+                       int mudq, int mldq,
                        realtype dq_rel_yy,
                        IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:46 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -313,20 +313,24 @@ extern "C" {
    * current (corrected) variable vector ycur.
    * It must compute a correction vector corr such that 
    * y = ycurr + corr lies on the manifold (i.e. c(t,y)=0).
-   * If needed, the value epsProj should be used in the stopping 
-   * a nonlinear solver iteration by testing the WRMS norm of the
-   * iterate update against epsProj.
+   * The value epsProj is provided to be used in the stopping test
+   * of a nonlinear solver iteration (the iterations should be 
+   * terminated when the WRMS norm of the current iterate update 
+   * is below epsProj).
    *
-   * The vector err contains a (scaled) version of the current error
-   * estimate. If the projection is orthogonal, CPProjFn may also
-   * compute the projected error estimate (see below) and overwrite
-   * the vector err. Otherwise, it should leave err unchanged.
-   *
-   * If the orthogonal projection is written as 
+   * Note that, if the projection is orthogonal then it can be written as 
    *    y = P * ycur + alpha(t), with P^2 = P,
    * then the projected error estimate is
    *    errP = P * err
    * and ||errP|| <= ||err||.
+   * The vector err contains a (scaled) version of the current error
+   * estimate. CPProjFn may also compute the projected error estimate 
+   * and overwrite the vector err with errP. Otherwise, it should leave
+   * err unchanged.
+   * 
+   * If err is NULL, a CPProjFn function should attempt NO projection
+   * of the error estimate (in this case, it was called from within
+   * the computation of consistent initial conditions).
    *
    * A CPProjFn should return 0 if successful, a negative value if
    * an unrecoverable error occured, and a positive value if a 
@@ -335,12 +339,16 @@ extern "C" {
    * If a recoverable error occured, then (in most cases) CPODES
    * will try to correct and retry.
    * -----------------------------------------------------------------
+   * NOTE: If the user's projection routine needs other quantities,   
+   *       they are accessible as follows: the error weight vector
+   *       can be obtained by calling CPodeGetErrWeights. The unit
+   *       roundoff is available as UNIT_ROUNDOFF defined in 
+   *       sundials_types.h.
+   * -----------------------------------------------------------------
    */
 
-  typedef int (*CPProjFn)(realtype t, N_Vector ycur,
-                          N_Vector corr,
-                          realtype epsProj, N_Vector weight,
-                          N_Vector err, void *pdata);
+  typedef int (*CPProjFn)(realtype t, N_Vector ycur, N_Vector corr,
+                          realtype epsProj, N_Vector err, void *pdata);
 
   /*
    * -----------------------------------------------------------------
@@ -822,11 +830,11 @@ extern "C" {
    * CPodeSetProjLsetupFreq  | frequency with which the linear
    *                         | solver setup function is called
    *                         | (i.e. frequency of constraint 
-   *                         | Jacobian evaluations). A value of
-   *                         | 1 forces a Jacobian evaluation before
-   *                         | every single projection step, therefore
-   *                         | resulting in an exact Newton iteration.
-   *                         | [20]
+   *                         | Jacobian evaluations). The default
+   *                         | value of 1 forces a Jacobian
+   *                         | evaluation before every single 
+   *                         | projection step.
+   *                         | [1]
    *                         |
    * CPodeSetProjNonlinConvCoef | Coefficient in the nonlinear
    *                         | convergence test (for projection).

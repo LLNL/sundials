@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-08 01:01:29 $
+# $Revision: 1.6 $
+# $Date: 2006-11-22 00:12:50 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,19 +48,19 @@ INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
 LIB_REVISION = 0:1:0
 
 KINSOL_LIB       = libsundials_kinsol.la
-KINSOL_LIB_FILES = kinsol.lo kinsol_io.lo kinsol_dense.lo kinsol_band.lo kinsol_lapack.lo kinsol_spils.lo kinsol_spgmr.lo kinsol_spbcgs.lo kinsol_sptfqmr.lo kinsol_bbdpre.lo
-KINSOL_OBJ_FILES = kinsol.o kinsol_io.o kinsol_dense.o kinsol_band.o kinsol_lapack.o kinsol_spils.o kinsol_spgmr.o kinsol_spbcgs.o kinsol_sptfqmr.o kinsol_bbdpre.o
+KINSOL_LIB_FILES = kinsol.lo kinsol_io.lo kinsol_direct.lo kinsol_dense.lo kinsol_band.lo kinsol_lapack.lo kinsol_spils.lo kinsol_spgmr.lo kinsol_spbcgs.lo kinsol_sptfqmr.lo kinsol_bbdpre.lo
+KINSOL_OBJ_FILES = kinsol.o kinsol_io.o kinsol_dense.o kinsol_direct.o kinsol_band.o kinsol_lapack.o kinsol_spils.o kinsol_spgmr.o kinsol_spbcgs.o kinsol_sptfqmr.o kinsol_bbdpre.o
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
-                   $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_lapack.lo \
-                   $(top_builddir)/src/sundials/sundials_math.lo \
-                   $(top_builddir)/src/sundials/sundials_nvector.lo \
-                   $(top_builddir)/src/sundials/sundials_smalldense.lo \
+                   $(top_builddir)/src/sundials/sundials_direct.lo \
+                   $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_spgmr.lo \
                    $(top_builddir)/src/sundials/sundials_spbcgs.lo \
-                   $(top_builddir)/src/sundials/sundials_sptfqmr.lo
+                   $(top_builddir)/src/sundials/sundials_sptfqmr.lo \
+                   $(top_builddir)/src/sundials/sundials_math.lo \
+                   $(top_builddir)/src/sundials/sundials_nvector.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -74,6 +74,7 @@ install: $(KINSOL_LIB)
 	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(KINSOL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol.h         $(includedir)/kinsol/
+	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_direct.h  $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_dense.h   $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_band.h    $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_lapack.h  $(includedir)/kinsol/
@@ -87,6 +88,7 @@ install: $(KINSOL_LIB)
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(KINSOL_LIB)
 	rm -f $(includedir)/kinsol/kinsol.h
+	rm -f $(includedir)/kinsol/kinsol_direct.h
 	rm -f $(includedir)/kinsol/kinsol_dense.h
 	rm -f $(includedir)/kinsol/kinsol_band.h
 	rm -f $(includedir)/kinsol/kinsol_lapack.h
@@ -117,6 +119,8 @@ kinsol.lo: $(srcdir)/kinsol.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/kinsol.c
 kinsol_io.lo: $(srcdir)/kinsol_io.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/kinsol_io.c
+kinsol_direct.lo: $(srcdir)/kinsol_direct.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/kinsol_direct.c
 kinsol_dense.lo: $(srcdir)/kinsol_dense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/kinsol_dense.c
 kinsol_band.lo: $(srcdir)/kinsol_band.c

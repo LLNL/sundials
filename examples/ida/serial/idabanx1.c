@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-19 20:52:17 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -20,7 +20,7 @@
  * equations u = 0 at the boundaries are appended, to form a DAE
  * system of size N = M^2. Here M = 10.
  *
- * The system is solved with IDA/IDAS using the banded linear system
+ * The system is solved with IDA using the banded linear system
  * solver, half-bandwidths equal to M, and default
  * difference-quotient Jacobian. For purposes of illustration,
  * IDACalcIC is called to compute correct values at the boundary,
@@ -35,10 +35,10 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                 /* Main header file */
-#include <ida/ida_band.h>            /* Use IDABAND linear solver */
-#include <nvector/nvector_serial.h>  /* Definitions of N_Vector and NV_DATA_S */
-#include <sundials/sundials_types.h> /* Definitions of realtype and booleantype */
+#include <ida/ida.h>
+#include <ida/ida_band.h>
+#include <nvector/nvector_serial.h>
+#include <sundials/sundials_types.h>
 
 /* Problem Constants */
 
@@ -345,10 +345,10 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_flag(&ier, "IDAGetNumResEvals", 1);
   ier = IDAGetLastStep(mem, &hused);
   check_flag(&ier, "IDAGetLastStep", 1);
-  ier = IDABandGetNumJacEvals(mem, &nje);
-  check_flag(&ier, "IDABandGetNumJacEvals", 1);
-  ier = IDABandGetNumResEvals(mem, &nreLS);
-  check_flag(&ier, "IDABandGetNumResEvals", 1);
+  ier = IDADlsGetNumJacEvals(mem, &nje);
+  check_flag(&ier, "IDADlsGetNumJacEvals", 1);
+  ier = IDADlsGetNumResEvals(mem, &nreLS);
+  check_flag(&ier, "IDADlsGetNumResEvals", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le \n",

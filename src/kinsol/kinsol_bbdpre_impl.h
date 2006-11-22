@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -15,8 +15,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _KBBDPRE_IMPL_H
-#define _KBBDPRE_IMPL_H
+#ifndef _KINBBDPRE_IMPL_H
+#define _KINBBDPRE_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -36,7 +36,7 @@ typedef struct {
 
   /* passed by user to KINBBDPrecAlloc, used by pset/psolve functions */
 
-  long int mudq, mldq, mukeep, mlkeep;
+  int mudq, mldq, mukeep, mlkeep;
   KINLocalFn gloc;
   KINCommFn gcomm;
 
@@ -50,12 +50,12 @@ typedef struct {
 
   /* set by KINBBDPrecSetup and used by KINBBDPrecSolve */
 
-  BandMat PP;
-  long int *pivots;
+  DlsMat PP;
+  int *pivots;
 
   /* set by KINBBDPrecAlloc and used by KINBBDPrecSetup */
 
-  long int n_local;
+  int n_local;
 
   /* available for optional output */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-09 23:56:25 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-22 00:12:52 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -124,14 +124,14 @@ int mtlb_KINSys(N_Vector y, N_Vector fy, void *f_data )
   return(ret);
 }
 
-int mtlb_KINDenseJac(long int Neq, DenseMat J, 
-                     N_Vector y, N_Vector fy, void *jac_data,
+int mtlb_KINDenseJac(int Neq,
+                     N_Vector y, N_Vector fy, 
+                     DlsMat J, void *jac_data,
                      N_Vector tmp1, N_Vector tmp2)
 {
   double *J_data;
-  long int i;
   mxArray *mx_in[4], *mx_out[3];
-  int ret;
+  int i, ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
@@ -167,14 +167,14 @@ int mtlb_KINDenseJac(long int Neq, DenseMat J,
 }
 
 
-int mtlb_KINBandJac(long int Neq, long int mupper, long int mlower,
-                    BandMat J, N_Vector y, N_Vector fy, void *jac_data,
+int mtlb_KINBandJac(int Neq, int mupper, int mlower,
+                    N_Vector y, N_Vector fy, 
+                    DlsMat J, void *jac_data,
                     N_Vector tmp1, N_Vector tmp2)
 {
   double *J_data;
-  long int eband, i;
   mxArray *mx_in[4], *mx_out[3];
-  int ret;
+  int eband, i, ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
@@ -340,7 +340,7 @@ int mtlb_KINSpilsPsol(N_Vector y, N_Vector yscale,
 
 }
 
-int mtlb_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *f_data)
+int mtlb_KINGloc(int Nlocal, N_Vector y, N_Vector gval, void *f_data)
 {
   mxArray *mx_in[3], *mx_out[3];
   int ret;
@@ -371,7 +371,7 @@ int mtlb_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *f_data)
   return(ret);
 }
 
-int mtlb_KINGcom(long int Nlocal, N_Vector y, void *f_data)
+int mtlb_KINGcom(int Nlocal, N_Vector y, void *f_data)
 {
   mxArray *mx_in[5], *mx_out[2];
   int ret;

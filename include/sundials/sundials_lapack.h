@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-10 19:23:40 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:48 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,13 +10,8 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the header file for a generic package of dense matrix
- * operations for use with BLAS/LAPACK.  The routines listed in this 
- * file all use type LapackMat, defined below, for M-by-N matrices.
- *
- * The LapackAllocDenseMat function allocates a dense matrix for use
- * in the other LapackMat routines listed in this file. Matrix storage 
- * details are given in the documentation for the type LapackMat.
+ * This is the header file for a generic package of direct matrix
+ * operations for use with BLAS/LAPACK.
  * -----------------------------------------------------------------
  */
 
@@ -27,287 +22,37 @@
 extern "C" {
 #endif
 
-#include <sundials/sundials_types.h>
-
-  /*
-   * =================================================================
-   *              L A P A C K     C O N S T A N T S
-   * =================================================================
-   */
-
-  /*
-   *  LAPACK_DENSE: use dense matrices
-   *  LAPACK_BAND:  use banded matrices
-   */
-
-#define LAPACK_DENSE 1
-#define LAPACK_BAND  2
+#include <sundials/sundials_direct.h>
 
   /*
    * ==================================================================
-   * Type definitions
+   * Exported functions
    * ==================================================================
    */
 
   /*
    * -----------------------------------------------------------------
-   * Type : LapackMat
+   * Functions: LapackDenseZero and LapackBandZero
    * -----------------------------------------------------------------
-   * The type LapackMat is defined to be a pointer to a structure
-   * with various sizes, a data field, and an array of pointers to
-   * the columns. The M and N fields indicates the number of rows and 
-   * columns, respectively. The data field is a one dimensional array 
-   * used for component storage. The cols field stores the pointers in 
-   * data for the beginning of each column.
-   * 
-   * The LapackMat type can be used to store either a dense or a 
-   * banded matrix.
-   *
-   * Dense Matrices
-   * --------------
-   *
-   * The fields in LapackMat relevant for a dense matrix are:
-   *    type  = LAPACK_DENSE
-   *    M     - number of rows
-   *    N     - number of columns
-   *    ldim  - leading dimension (ldim >= M)
-   *    data  - pointer to a contiguous block of realtype variables
-   *    ldata - length of the data array =ldim*N
-   *    cols  - array of pointers. cols[j] points to the first element 
-   *            of the j-th column of the matrix in the array data.
-   *
-   * The elements of a dense matrix are stored columnwise (i.e columns 
-   * are stored one on top of the other in memory). 
-   * If A is of type LapackMat, then the (i,j)th element of A (with 
-   * 0 <= i < M and 0 <= j < N) is given by (A->data)[j*n+i]. 
-   *
-   * The LAPACK_DENSE_COL and LAPACK_DENSE_ELEM macros below allow a 
-   * user to access efficiently individual matrix elements without 
-   * writing out explicit data structure references and without knowing 
-   * too much about the underlying element storage. The only storage 
-   * assumption needed is that elements are stored columnwise and that 
-   * a pointer to the jth column of elements can be obtained via the 
-   * LAPACK_DENSE_COL macro.
-   *
-   * Banded Matrices
-   * ---------------
-   *
-   * The fields in LapackMat relevant for a banded matrix are:
-   *    type  = LAPACK_BAND
-   *    M     - number of rows
-   *    N     - number of columns
-   *    mu    - upper bandwidth, 0 <= mu <= min(M,N)
-   *    ml    - lower bandwidth, 0 <= ml <= min(M,N)
-   *    storage_mu - storage upper bandwidth, mu <= storage_mu <= N-1.
-   *            The dgbtrf routine writes the LU factors into the storage 
-   *            for A. The upper triangular factor U, however, may have 
-   *            an upper bandwidth as big as MIN(N-1,mu+ml) because of 
-   *            partial pivoting. The storage_mu field holds the upper 
-   *            bandwidth allocated for A.
-   *    ldim  - leading dimension (ldim >= storage_mu)
-   *    data  - pointer to a contiguous block of realtype variables
-   *    ldata - length of the data array =ldim*(storage_mu+ml+1)
-   *    cols  - array of pointers. cols[j] points to the first element 
-   *            of the j-th column of the matrix in the array data.
-   *
-   * The LAPACK_BAND_COL, LAPACK_BAND_COL_ELEM, and LAPACK_BAND_ELEM
-   * macros below allow a user to access individual matrix
-   * elements without writing out explicit data structure
-   * references and without knowing too much about the underlying
-   * element storage. The only storage assumption needed is that
-   * elements are stored columnwise and that a pointer into the jth
-   * column of elements can be obtained via the LAPACK_BAND_COL macro.
-   * The LAPACK_BAND_COL_ELEM macro selects an element from a column
-   * which has already been isolated via LAPACK_BAND_COL. The macro
-   * LAPACK_BAND_COL_ELEM allows the user to avoid the translation 
-   * from the matrix location (i,j) to the index in the array returned 
-   * by LAPACK_BAND_COL at which the (i,j)th element is stored. 
+   * These functions set all the elements of the M-by-N matrix A to 0.0.
    * -----------------------------------------------------------------
    */
 
-  typedef struct _LapackMat {
-    int type;
-    int M;
-    int N;
-    int ldim;
-    int mu;
-    int ml;
-    int storage_mu;
-    realtype *data;
-    int ldata;
-    realtype **cols;
-  } *LapackMat;
-
-  /*
-   * ==================================================================
-   * Data accessor macros
-   * ==================================================================
-   */
-
+  void LapackDenseZero(DlsMat A);
+  void LapackBandZero(DlsMat A);
+  
   /*
    * -----------------------------------------------------------------
-   * LAPACK_DENSE_COL and LAPACK_DENSE_ELEM
+   * Functions: LapackDenseAddI and LapackBandAddI
    * -----------------------------------------------------------------
-   *
-   * LAPACK_DENSE_COL(A,j) references the jth column of the M-by-N
-   * dense LapackMat A, 0 <= j < N. The type of the expression 
-   * LAPACK_DENSE_COL(A,j) is (realtype *). After the assignment in the
-   * usage above, col_j may be treated as an array indexed from 0 to M-1. 
-   * The (i,j)-th element of A is thus referenced by col_j[i].
-   *
-   * LAPACK_DENSE_ELEM(A,i,j) references the (i,j)th element of the 
-   * dense M-by-N LapackMat A, 0 <= i < M ; 0 <= j < N.
-   *
+   * These functions add 1.0 to the main diagonal (A_ii, i=1,2,...,N-1)
+   * of the M-by-N matrix A (M>= N) and stores the result back in A.
+   * They are typically used with square matrices.
    * -----------------------------------------------------------------
    */
-
-#define LAPACK_DENSE_COL(A,j) ((A->cols)[j])
-#define LAPACK_DENSE_ELEM(A,i,j) ((A->cols)[j][i])
-
-   /*
-   * -----------------------------------------------------------------
-   * LAPACK_BAND_COL, LAPACK_BAND_COL_ELEM, and LAPACK_BAND_ELEM
-   * -----------------------------------------------------------------
-   *  
-   * LAPACK_BAND_COL(A,j) references the diagonal element of the jth
-   * column of the N by N band matrix A, 0 <= j <= N-1. The type of
-   * the expression LAPACK_BAND_COL(A,j) is realtype *. The pointer
-   * returned by the call LAPACK_BAND_COL(A,j) can be treated as an
-   * array which is indexed from -(A->mu) to (A->ml).
-   * 
-   * LAPACK_BAND_COL_ELEM references the (i,j)th entry of the band
-   * matrix A when used in conjunction with LAPACK_BAND_COL. The 
-   * index (i,j) should satisfy j-(A->mu) <= i <= j+(A->ml).
-   *
-   * LAPACK_BAND_ELEM(A,i,j) references the (i,j)th element of the
-   * N by N band matrix A, where 0 <= i,j <= N-1. The location
-   * (i,j) should further satisfy j-(A->mu) <= i <= j+(A->ml). 
-   *
-   * -----------------------------------------------------------------
-   */
- 
-#define LAPACK_BAND_COL(A,j) (((A->cols)[j])+(A->storage_mu))
-#define LAPACK_BAND_COL_ELEM(col_j,i,j) (col_j[(i)-(j)])
-#define LAPACK_BAND_ELEM(A,i,j) ((A->cols)[j][(i)-(j)+(A->storage_mu)])
-
-  /*
-   * ==================================================================
-   * Exported function prototypes
-   * ==================================================================
-   */
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : LapackAllocDenseMat
-   * -----------------------------------------------------------------
-   * LapackAllocDenseMat allocates memory for an M-by-N dense matrix and
-   * returns the storage allocated (type LapackMat). LapackAllocDenseMat
-   * returns NULL if the request for matrix storage cannot be
-   * satisfied. See the above documentation for the type LapackMat
-   * for matrix storage details.
-   * -----------------------------------------------------------------
-   */
-
-  LapackMat LapackAllocDenseMat(int M, int N);
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : LapackAllocBandMat
-   * -----------------------------------------------------------------
-   * LapackAllocBandMat allocates memory for an N by N band matrix 
-   * with upper bandwidth mu, lower bandwidth ml, and storage upper
-   * bandwidth storage_mu. Pass storage_mu as follows depending on 
-   * whether A will be factored by BandGBTRF:
-   *
-   * (1) Pass storage_mu = mu if A will not be factored.
-   *
-   * (2) Pass storage_mu = MIN(N-1,mu+ml) if A will be factored.
-   *
-   * LapackAllocBandMat returns the storage allocated (type BandMat) or
-   * NULL if the request for matrix storage cannot be satisfied.
-   * See the documentation for the type BandMat for matrix storage
-   * details.
-   * -----------------------------------------------------------------
-   */
-
-  LapackMat LapackAllocBandMat(int N, int mu, int ml, int storage_mu);
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : LapackDenseMat
-   * -----------------------------------------------------------------
-   * LapackFreeMat frees the memory allocated by LapackAllocDenseMat
-   * or LapackAllocBandMat.
-   * -----------------------------------------------------------------
-   */
-
-  void LapackFreeMat(LapackMat A);
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : LapackAllocIntArray
-   * -----------------------------------------------------------------
-   * Usage : p = LapackAllocIntArray(N);
-   *         if (p == NULL) ... memory request failed
-   * -----------------------------------------------------------------
-   * LapackAllocIntArray allocates memory an array of N integers and
-   * returns the pointer to the memory it allocates. If the request for
-   * memory storage cannot be satisfied, it returns NULL.
-   * -----------------------------------------------------------------
-   */
-
-  int *LapackAllocIntArray(int N);
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : LapackAllocRealArray
-   * -----------------------------------------------------------------
-   * LapackAllocRealArray allocates memory an array of N realtype and
-   * returns the pointer to the memory it allocates. If the request for
-   * memory storage cannot be satisfied, it returns NULL.
-   * -----------------------------------------------------------------
-   */
-
-  realtype *LapackAllocRealArray(int N);
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : LapackFreeArray
-   * -----------------------------------------------------------------
-   * LapackFreeArray frees memory allocated by LapackAllocRealArray or
-   * LapackAllocIntArray.
-   * -----------------------------------------------------------------
-   */
-
-  void LapackFreeArray(void *p);
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : LapackSetZeroMat
-   * -----------------------------------------------------------------
-   * This routine sets all the data in the M-by-N dense or band matrix
-   * A to 0.0. Since Jacobians of type LapackMat are not preset to 0.0,
-   * this function is provided for users that are willing to trade 
-   * efficiency for convenience. It can be called at the beginning of
-   * a user-supplied Jacobian function.
-   * -----------------------------------------------------------------
-   */
-
-  void LapackSetZeroMat(LapackMat A);
-
-  /*
-   * -----------------------------------------------------------------
-   * Function : LapackPrintMat
-   * -----------------------------------------------------------------
-   * This routine prints the M-by-N dense matrix A to standard output
-   * as it would normally appear on paper. It is intended as a 
-   * debugging tool with small values of M and N. The elements are
-   * printed using the %g/%lg/%Lg option. A blank line is printed
-   * before and after the matrix.
-   * -----------------------------------------------------------------
-   */
-
-  void LapackPrintMat(LapackMat A);
+  
+  void LapackDenseAddI(DlsMat A);
+  void LapackBandAddI(DlsMat A);
 
   /*
    * ==================================================================

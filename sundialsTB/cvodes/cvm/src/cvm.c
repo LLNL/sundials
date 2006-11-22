@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-10-11 18:12:37 $
+ * $Revision: 1.10 $
+ * $Date: 2006-11-22 00:12:51 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -462,7 +462,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     case LS_DENSE:
       status = CVDense(cvode_mem, N);
       if (!mxIsEmpty(mx_JACfct))
-        status = CVDenseSetJacFn(cvode_mem, mtlb_CVodeDenseJac, NULL);
+        status = CVDlsSetJacFn(cvode_mem, mtlb_CVodeDenseJac, NULL);
       break;
     case LS_DIAG:
       status = CVDiag(cvode_mem);
@@ -470,7 +470,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     case LS_BAND:
       status = CVBand(cvode_mem, N, mupper, mlower);
       if (!mxIsEmpty(mx_JACfct))
-        status = CVBandSetJacFn(cvode_mem, mtlb_CVodeBandJac, NULL);
+        status = CVDlsSetJacFn(cvode_mem, mtlb_CVodeBandJac, NULL);
       break;
     case LS_SPGMR:
       switch (pm) {
@@ -973,7 +973,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     case LS_DENSE:
       status = CVDenseB(cvadj_mem, NB);
       if (!mxIsEmpty(mx_JACfctB))
-        status = CVDenseSetJacFnB(cvadj_mem, mtlb_CVodeDenseJacB, NULL);
+        status = CVDlsSetJacFnB(cvadj_mem, mtlb_CVodeDenseJacB, NULL);
       break;
     case LS_DIAG:
       status = CVDiagB(cvadj_mem);
@@ -981,7 +981,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     case LS_BAND:
       status = CVBandB(cvadj_mem, NB, mupperB, mlowerB);
       if (!mxIsEmpty(mx_JACfctB))
-        status = CVBandSetJacFnB(cvadj_mem, mtlb_CVodeBandJacB, NULL);
+        status = CVDlsSetJacFnB(cvadj_mem, mtlb_CVodeBandJacB, NULL);
       break;
     case LS_SPGMR:
       switch (pmB) {
@@ -1479,8 +1479,8 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   case LS_DENSE:
     
-    flag = CVDenseGetNumJacEvals(cvode_mem, &njeD);
-    flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeD);
+    flag = CVDlsGetNumJacEvals(cvode_mem, &njeD);
+    flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeD);
     
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
@@ -1505,8 +1505,8 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   case LS_BAND:
       
-    flag = CVBandGetNumJacEvals(cvode_mem, &njeB);
-    flag = CVBandGetNumRhsEvals(cvode_mem, &nfeB);
+    flag = CVDlsGetNumJacEvals(cvode_mem, &njeB);
+    flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeB);
       
     nfields = sizeof(fnames_band)/sizeof(*fnames_band);
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
@@ -1699,8 +1699,8 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   case LS_DENSE:
     
-    flag = CVDenseGetNumJacEvals(cvode_memB, &njeD);
-    flag = CVDenseGetNumRhsEvals(cvode_memB, &nfeD);
+    flag = CVDlsGetNumJacEvals(cvode_memB, &njeD);
+    flag = CVDlsGetNumRhsEvals(cvode_memB, &nfeD);
     
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
@@ -1725,8 +1725,8 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   case LS_BAND:
       
-    flag = CVBandGetNumJacEvals(cvode_memB, &njeB);
-    flag = CVBandGetNumRhsEvals(cvode_memB, &nfeB);
+    flag = CVDlsGetNumJacEvals(cvode_memB, &njeB);
+    flag = CVDlsGetNumRhsEvals(cvode_memB, &nfeB);
       
     nfields = sizeof(fnames_band)/sizeof(*fnames_band);
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);

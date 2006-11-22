@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-08 00:48:27 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -354,23 +354,20 @@ extern "C" {
 
 /* Prototypes of exported functions */
 
-void FIDA_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
-		  long int *mu, long int *ml, realtype *dqrely, int *ier);
+void FIDA_BBDINIT(int *Nloc, int *mudq, int *mldq, int *mu, int *ml, realtype *dqrely, int *ier);
 void FIDA_BBDSPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_BBDSPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_BBDSPGMR(int *maxl, int *gstype, int *maxrs,
 		   realtype *eplifac, realtype *dqincfac, int *ier);
-void FIDA_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq,
+void FIDA_BBDREINIT(int *Nloc, int *mudq, int *mldq,
 		    realtype *dqrely, int *ier);
 void FIDA_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
 void FIDA_BBDFREE(void);
 
 /* Prototypes: Functions Called by the IDABBD Module */
 
-int FIDAgloc(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
-	     N_Vector gval, void *res_data);
-int FIDAcfn(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
-	    void *res_data);
+int FIDAgloc(int Nloc, realtype t, N_Vector yy, N_Vector yp, N_Vector gval, void *res_data);
+int FIDAcfn(int Nloc, realtype t, N_Vector yy, N_Vector yp, void *res_data);
 
 void *IDABBD_Data;
 

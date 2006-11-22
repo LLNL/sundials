@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:01:20 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:50 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,8 +24,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ida_lapack_impl.h"
+#include <ida/ida_lapack.h>
+#include "ida_direct_impl.h"
 #include "ida_impl.h"
+
 #include <sundials/sundials_math.h>
 
 /* 
@@ -62,18 +64,6 @@ static int idaLapackBandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                               N_Vector yC, N_Vector ypC, N_Vector fctC);
 static int idaLapackBandFree(IDAMem IDA_mem);
 
-/* IDALAPACK DENSE and BAND DQ integration Jacobian functions */
-static int idaLapackDenseDQJac(int N, realtype tt, realtype c_j,
-                               N_Vector yy, N_Vector yp, N_Vector rr, 
-                               LapackMat Jac, void *jac_data,
-                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
-static int idaLapackBandDQJac(int N, int mupper, int mlower,
-                              realtype tt, realtype c_j, 
-                              N_Vector yy, N_Vector yp, N_Vector rr,
-                              LapackMat Jac, void *jac_data,
-                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
 /*
  * =================================================================
  * READIBILITY REPLACEMENTS
@@ -100,19 +90,19 @@ static int idaLapackBandDQJac(int N, int mupper, int mlower,
 #define tempv          (IDA_mem->ida_tempv1)
 #define setupNonNull   (IDA_mem->ida_setupNonNull)
 
-#define mtype          (idalapack_mem->l_mtype)
-#define n              (idalapack_mem->l_n)
-#define ml             (idalapack_mem->b_ml)
-#define mu             (idalapack_mem->b_mu)
-#define smu            (idalapack_mem->b_smu)
-#define djac           (idalapack_mem->d_jac)
-#define bjac           (idalapack_mem->b_jac)
-#define M              (idalapack_mem->l_M)
-#define pivots         (idalapack_mem->l_pivots)
-#define nje            (idalapack_mem->l_nje)
-#define nreDQ          (idalapack_mem->l_nreDQ)
-#define J_data         (idalapack_mem->l_J_data)
-#define last_flag      (idalapack_mem->l_last_flag)
+#define mtype          (idadls_mem->d_type)
+#define n              (idadls_mem->d_n)
+#define ml             (idadls_mem->d_ml)
+#define mu             (idadls_mem->d_mu)
+#define smu            (idadls_mem->d_smu)
+#define djac           (idadls_mem->d_djac)
+#define bjac           (idadls_mem->d_bjac)
+#define JJ             (idadls_mem->d_J)
+#define pivots         (idadls_mem->d_pivots)
+#define nje            (idadls_mem->d_nje)
+#define nreDQ          (idadls_mem->d_nreDQ)
+#define J_data         (idadls_mem->d_J_data)
+#define last_flag      (idadls_mem->d_last_flag)
 
 /* 
  * =================================================================
@@ -130,7 +120,7 @@ static int idaLapackBandDQJac(int N, int mupper, int mlower,
  * the ida_linit, ida_lsetup, ida_lsolve, ida_lfree fields in (*ida_mem)
  * to be idaLapackDenseInit, idaLapackDenseSetup, idaLapackDenseSolve, 
  * and idaLapackDenseFree, respectively.  It allocates memory for a 
- * structure of type IDALapackMemRec and sets the ida_lmem field in 
+ * structure of type IDADlsMemRec and sets the ida_lmem field in 
  * (*ida_mem) to the address of this structure.  It sets setupNonNull 
  * in (*ida_mem) to TRUE, and the d_jac field to the default 
  * idaLapackDenseDQJac. Finally, it allocates memory for M, pivots.
@@ -147,20 +137,20 @@ static int idaLapackBandDQJac(int N, int mupper, int mlower,
 int IDALapackDense(void *ida_mem, int N)
 {
   IDAMem IDA_mem;
-  IDALapackMem idalapack_mem;
+  IDADlsMem idadls_mem;
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDALAPACK_MEM_NULL, "IDALAPACK", "IDALapackDense", MSGLS_IDAMEM_NULL);
-    return(IDALAPACK_MEM_NULL);
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDALAPACK", "IDALapackDense", MSGD_IDAMEM_NULL);
+    return(IDADIRECT_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the LAPACK solver */
   if (tempv->ops->nvgetarraypointer == NULL ||
       tempv->ops->nvsetarraypointer == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_ILL_INPUT, "IDALAPACK", "IDALapackDense", MSGLS_BAD_NVECTOR);
-    return(IDALAPACK_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDALAPACK", "IDALapackDense", MSGD_BAD_NVECTOR);
+    return(IDADIRECT_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(IDA_mem);
@@ -172,49 +162,49 @@ int IDALapackDense(void *ida_mem, int N)
   lperf  = NULL;
   lfree  = idaLapackDenseFree;
 
-  /* Get memory for IDALapackMemRec */
-  idalapack_mem = NULL;
-  idalapack_mem = (IDALapackMem) malloc(sizeof(IDALapackMemRec));
-  if (idalapack_mem == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGLS_MEM_FAIL);
-    return(IDALAPACK_MEM_FAIL);
+  /* Get memory for IDADlsMemRec */
+  idadls_mem = NULL;
+  idadls_mem = (IDADlsMem) malloc(sizeof(IDADlsMemRec));
+  if (idadls_mem == NULL) {
+    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGD_MEM_FAIL);
+    return(IDADIRECT_MEM_FAIL);
   }
 
   /* Set matrix type */
-  mtype = LAPACK_DENSE;
+  mtype = SUNDIALS_DENSE;
 
   /* Set default Jacobian routine and Jacobian data */
-  djac = NULL;
-  J_data = NULL;
+  djac = idaDlsDenseDQJac;
+  J_data = IDA_mem;
 
-  last_flag = IDALAPACK_SUCCESS;
+  last_flag = IDADIRECT_SUCCESS;
   setupNonNull = TRUE;
 
   /* Set problem dimension */
   n = N;
 
-  /* Allocate memory for M, pivot array */
-  M = NULL;
+  /* Allocate memory for JJ and pivot array */
+  JJ = NULL;
   pivots = NULL;
 
-  M = LapackAllocDenseMat(N, N);
-  if (M == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGLS_MEM_FAIL);
-    free(idalapack_mem);
-    return(IDALAPACK_MEM_FAIL);
+  JJ = NewDenseMat(N, N);
+  if (JJ == NULL) {
+    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGD_MEM_FAIL);
+    free(idadls_mem);
+    return(IDADIRECT_MEM_FAIL);
   }
-  pivots = LapackAllocIntArray(N);
+  pivots = NewIntArray(N);
   if (pivots == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGLS_MEM_FAIL);
-    LapackFreeMat(M);
-    free(idalapack_mem);
-    return(IDALAPACK_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGD_MEM_FAIL);
+    DestroyMat(JJ);
+    free(idadls_mem);
+    return(IDADIRECT_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
-  lmem = idalapack_mem;
+  lmem = idadls_mem;
 
-  return(IDALAPACK_SUCCESS);
+  return(IDADIRECT_SUCCESS);
 }
 
 /*
@@ -232,8 +222,8 @@ int IDALapackDense(void *ida_mem, int N)
  * in (*ida_mem) to be TRUE, mu to be mupper, ml to be mlower, and 
  * the jacE and jacI field to NULL.
  * Finally, it allocates memory for M and pivots.
- * The IDALapackBand return value is IDALAPACK_SUCCESS = 0, 
- * IDALAPACK_MEM_FAIL = -1, or IDALAPACK_ILL_INPUT = -2.
+ * The IDALapackBand return value is IDADIRECT_SUCCESS = 0, 
+ * IDADIRECT_MEM_FAIL = -1, or IDADIRECT_ILL_INPUT = -2.
  *
  * NOTE: The IDALAPACK linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, IDALapackBand will first 
@@ -245,19 +235,19 @@ int IDALapackDense(void *ida_mem, int N)
 int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
 {
   IDAMem IDA_mem;
-  IDALapackMem idalapack_mem;
+  IDADlsMem idadls_mem;
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDALAPACK_MEM_NULL, "IDALAPACK", "IDALapackBand", MSGLS_IDAMEM_NULL);
-    return(IDALAPACK_MEM_NULL);
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDALAPACK", "IDALapackBand", MSGD_IDAMEM_NULL);
+    return(IDADIRECT_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (tempv->ops->nvgetarraypointer == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_ILL_INPUT, "IDALAPACK", "IDALapackBand", MSGLS_BAD_NVECTOR);
-    return(IDALAPACK_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDALAPACK", "IDALapackBand", MSGD_BAD_NVECTOR);
+    return(IDADIRECT_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(IDA_mem);
@@ -269,252 +259,62 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
   lperf  = NULL;
   lfree  = idaLapackBandFree;
   
-  /* Get memory for IDALapackMemRec */
-  idalapack_mem = NULL;
-  idalapack_mem = (IDALapackMem) malloc(sizeof(IDALapackMemRec));
-  if (idalapack_mem == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGLS_MEM_FAIL);
-    return(IDALAPACK_MEM_FAIL);
+  /* Get memory for IDADlsMemRec */
+  idadls_mem = NULL;
+  idadls_mem = (IDADlsMem) malloc(sizeof(IDADlsMemRec));
+  if (idadls_mem == NULL) {
+    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGD_MEM_FAIL);
+    return(IDADIRECT_MEM_FAIL);
   }
 
   /* Set matrix type */
-  mtype = LAPACK_BAND;
+  mtype = SUNDIALS_BAND;
 
   /* Set default Jacobian routine and Jacobian data */
-  bjac = NULL;
-  J_data = NULL;
+  bjac = idaDlsBandDQJac;
+  J_data = IDA_mem;
 
-  last_flag = IDALAPACK_SUCCESS;
+  last_flag = IDADIRECT_SUCCESS;
   setupNonNull = TRUE;
   
   /* Load problem dimension */
   n = N;
 
-  /* Load half-bandwiths in idalapack_mem */
+  /* Load half-bandwiths in idadls_mem */
   ml = mlower;
   mu = mupper;
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    IDAProcessError(IDA_mem, IDALAPACK_ILL_INPUT, "IDALAPACK", "IDALapackBand", MSGLS_BAD_SIZES);
-    return(IDALAPACK_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDALAPACK", "IDALapackBand", MSGD_BAD_SIZES);
+    return(IDADIRECT_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
   smu = MIN(N-1, mu + ml);
 
-  /* Allocate memory for M and pivot arrays */
-  M = NULL;
+  /* Allocate memory for JJ and pivot arrays */
+  JJ = NULL;
   pivots = NULL;
 
-  M = LapackAllocBandMat(N, mu, ml, smu);
-  if (M == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGLS_MEM_FAIL);
-    free(idalapack_mem);
-    return(IDALAPACK_MEM_FAIL);
+  JJ = NewBandMat(N, mu, ml, smu);
+  if (JJ == NULL) {
+    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGD_MEM_FAIL);
+    free(idadls_mem);
+    return(IDADIRECT_MEM_FAIL);
   }  
-  pivots = LapackAllocIntArray(N);
+  pivots = NewIntArray(N);
   if (pivots == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGLS_MEM_FAIL);
-    LapackFreeMat(M);
-    free(idalapack_mem);
-    return(IDALAPACK_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGD_MEM_FAIL);
+    DestroyMat(JJ);
+    free(idadls_mem);
+    return(IDADIRECT_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
-  lmem = idalapack_mem;
+  lmem = idadls_mem;
 
-  return(IDALAPACK_SUCCESS);
-}
-
-
-
-
-/*
- * -----------------------------------------------------------------
- * Optional I/O functions for 
- * -----------------------------------------------------------------
- */
-
-/*
- * IDALapackSetJacFn specifies the (dense or band) Jacobian function.
- */
-int IDALapackSetJacFn(void *ida_mem, void *jac, void *jac_data)
-{
-  IDAMem IDA_mem;
-  IDALapackMem idalapack_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDALAPACK_MEM_NULL, "IDALAPACK", "IDALapackSetJacFn", MSGLS_IDAMEM_NULL);
-    return(IDALAPACK_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_LMEM_NULL, "IDALAPACK", "IDALapackSetJacFn", MSGLS_LMEM_NULL);
-    return(IDALAPACK_LMEM_NULL);
-  }
-  idalapack_mem = (IDALapackMem) lmem;
-
-  if (mtype == LAPACK_DENSE) 
-    djac = (IDALapackDenseJacFn) jac;
-  else if (mtype == LAPACK_BAND)
-    bjac = (IDALapackBandJacFn) jac;
-
-  J_data = jac_data;
-
-  return(IDALAPACK_SUCCESS);
-}
-
-/*
- * IDALapackGetWorkSpace returns the length of workspace allocated for the
- * IDALAPACK linear solver.
- */
-int IDALapackGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
-{
-  IDAMem IDA_mem;
-  IDALapackMem idalapack_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDALAPACK_MEM_NULL, "IDALAPACK", "IDALapackGetWorkSpace", MSGLS_IDAMEM_NULL);
-    return(IDALAPACK_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_LMEM_NULL, "IDALAPACK", "IDALapackGetWorkSpace", MSGLS_LMEM_NULL);
-    return(IDALAPACK_LMEM_NULL);
-  }
-  idalapack_mem = (IDALapackMem) lmem;
-
-  if (mtype == LAPACK_DENSE) {
-    *lenrwLS = n*n;
-    *leniwLS = n;
-  } else if (mtype == LAPACK_BAND) {
-
-  }
-    
-  return(IDALAPACK_SUCCESS);
-}
-
-/*
- * IDALapackGetNumJacEvals returns the number of Jacobian evaluations.
- */
-int IDALapackGetNumJacEvals(void *ida_mem, long int *njevals)
-{
-  IDAMem IDA_mem;
-  IDALapackMem idalapack_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDALAPACK_MEM_NULL, "IDALAPACK", "IDALapackGetNumJacEvals", MSGLS_IDAMEM_NULL);
-    return(IDALAPACK_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_LMEM_NULL, "IDALAPACK", "IDALapackGetNumJacEvals", MSGLS_LMEM_NULL);
-    return(IDALAPACK_LMEM_NULL);
-  }
-  idalapack_mem = (IDALapackMem) lmem;
-
-  *njevals = nje;
-
-  return(IDALAPACK_SUCCESS);
-}
-
-/*
- * IDALapackGetNumResEvals returns the number of calls to the DAE function
- * needed for the DQ Jacobian approximation.
- */
-int IDALapackGetNumResEvals(void *ida_mem, long int *nrevalsLS)
-{
-  IDAMem IDA_mem;
-  IDALapackMem idalapack_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDALAPACK_MEM_NULL, "IDALAPACK", "IDALapackGetNumFctEvals", MSGLS_IDAMEM_NULL);
-    return(IDALAPACK_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_LMEM_NULL, "IDALAPACK", "IDALapackGetNumFctEvals", MSGLS_LMEM_NULL);
-    return(IDALAPACK_LMEM_NULL);
-  }
-  idalapack_mem = (IDALapackMem) lmem;
-
-  *nrevalsLS = nreDQ;
-
-  return(IDALAPACK_SUCCESS);
-}
-
-/*
- * IDALapackGetReturnFlagName returns the name associated with a IDALAPACK
- * return value.
- */
-char *IDALapackGetReturnFlagName(int flag)
-{
-  char *name;
-
-  name = (char *)malloc(30*sizeof(char));
-
-  switch(flag) {
-  case IDALAPACK_SUCCESS:
-    sprintf(name,"IDALAPACK_SUCCESS");
-    break;   
-  case IDALAPACK_MEM_NULL:
-    sprintf(name,"IDALAPACK_MEM_NULL");
-    break;
-  case IDALAPACK_LMEM_NULL:
-    sprintf(name,"IDALAPACK_LMEM_NULL");
-    break;
-  case IDALAPACK_ILL_INPUT:
-    sprintf(name,"IDALAPACK_ILL_INPUT");
-    break;
-  case IDALAPACK_MEM_FAIL:
-    sprintf(name,"IDALAPACK_MEM_FAIL");
-    break;
-  case IDALAPACK_JACFUNC_UNRECVR:
-    sprintf(name,"IDALAPACK_JACFUNC_UNRECVR");
-    break;
-  case IDALAPACK_JACFUNC_RECVR:
-    sprintf(name,"IDALAPACK_JACFUNC_RECVR");
-    break;
-  default:
-    sprintf(name,"NONE");
-  }
-
-  return(name);
-}
-
-/*
- * IDALapackGetLastFlag returns the last flag set in a IDALAPACK function.
- */
-int IDALapackGetLastFlag(void *ida_mem, int *flag)
-{
-  IDAMem IDA_mem;
-  IDALapackMem idalapack_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDALAPACK_MEM_NULL, "IDALAPACK", "IDALapackGetLastFlag", MSGLS_IDAMEM_NULL);
-    return(IDALAPACK_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDALAPACK_LMEM_NULL, "IDALAPACK", "IDALapackGetLastFlag", MSGLS_LMEM_NULL);
-    return(IDALAPACK_LMEM_NULL);
-  }
-  idalapack_mem = (IDALapackMem) lmem;
-
-  *flag = last_flag;
-
-  return(IDALAPACK_SUCCESS);
+  return(IDADIRECT_SUCCESS);
 }
 
 /* 
@@ -529,19 +329,19 @@ int IDALapackGetLastFlag(void *ida_mem, int *flag)
  */
 static int idaLapackDenseInit(IDAMem IDA_mem)
 {
-  IDALapackMem idalapack_mem;
+  IDADlsMem idadls_mem;
 
-  idalapack_mem = (IDALapackMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
   
   nje   = 0;
   nreDQ = 0;
   
   if (djac == NULL) {
-    djac = idaLapackDenseDQJac;
+    djac = idaDlsDenseDQJac;
     J_data = IDA_mem;
   }
 
-  last_flag = IDALAPACK_SUCCESS;
+  last_flag = IDADIRECT_SUCCESS;
   return(0);
 }
 
@@ -551,29 +351,29 @@ static int idaLapackDenseInit(IDAMem IDA_mem)
  * updates counters, and calls the dense LU factorization routine.
  */
 static int idaLapackDenseSetup(IDAMem IDA_mem,
-                              N_Vector yP, N_Vector ypP, N_Vector fctP,
-                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+                               N_Vector yP, N_Vector ypP, N_Vector fctP,
+                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  IDALapackMem idalapack_mem;
+  IDADlsMem idadls_mem;
   realtype fact;
   int ier, retval, one = 1;
 
-  idalapack_mem = (IDALapackMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
 
   /* Call Jacobian function */
   nje++;
-  retval = djac(n, tn, cj, yP, ypP, fctP, M, J_data, tmp1, tmp2, tmp3);
+  retval = djac(n, tn, cj, yP, ypP, fctP, JJ, J_data, tmp1, tmp2, tmp3);
   if (retval < 0) {
-    IDAProcessError(IDA_mem, IDALAPACK_JACFUNC_UNRECVR, "IDALAPACK", "idaLapackDenseSetup", MSGLS_JACFUNC_FAILED);
-    last_flag = IDALAPACK_JACFUNC_UNRECVR;
+    IDAProcessError(IDA_mem, IDADIRECT_JACFUNC_UNRECVR, "IDALAPACK", "idaLapackDenseSetup", MSGD_JACFUNC_FAILED);
+    last_flag = IDADIRECT_JACFUNC_UNRECVR;
     return(-1);
   } else if (retval > 0) {
-    last_flag = IDALAPACK_JACFUNC_RECVR;
+    last_flag = IDADIRECT_JACFUNC_RECVR;
     return(1);
   }
   
   /* Do LU factorization of M */
-  dgetrf_f77(&n, &n, M->data, &(M->ldim), pivots, &ier);
+  dgetrf_f77(&n, &n, JJ->data, &(JJ->ldim), pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   last_flag = ier;
@@ -586,17 +386,17 @@ static int idaLapackDenseSetup(IDAMem IDA_mem,
  * by calling the dense backsolve routine.
  */
 static int idaLapackDenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
-                              N_Vector yC, N_Vector ypC, N_Vector fctC)
+                               N_Vector yC, N_Vector ypC, N_Vector fctC)
 {
-  IDALapackMem idalapack_mem;
+  IDADlsMem idadls_mem;
   realtype *bd, fact;
   int ier, one = 1;
 
-  idalapack_mem = (IDALapackMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
   
   bd = N_VGetArrayPointer(b);
 
-  dgetrs_f77("N", &n, &one, M->data, &(M->ldim), pivots, bd, &n, &ier, 1); 
+  dgetrs_f77("N", &n, &one, JJ->data, &(JJ->ldim), pivots, bd, &n, &ier, 1); 
   if (ier > 0) return(1);
 
   /* Scale the correction to account for change in cj. */
@@ -605,7 +405,7 @@ static int idaLapackDenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
     dscal_f77(&n, &fact, bd, &one); 
   }
 
-  last_flag = IDALAPACK_SUCCESS;
+  last_flag = IDADIRECT_SUCCESS;
   return(0);
 }
 
@@ -614,14 +414,14 @@ static int idaLapackDenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
  */
 static int idaLapackDenseFree(IDAMem IDA_mem)
 {
-  IDALapackMem  idalapack_mem;
+  IDADlsMem  idadls_mem;
 
-  idalapack_mem = (IDALapackMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
   
-  LapackFreeMat(M);
-  LapackFreeArray(pivots);
-  free(idalapack_mem); 
-  idalapack_mem = NULL;
+  DestroyMat(JJ);
+  DestroyArray(pivots);
+  free(idadls_mem); 
+  idadls_mem = NULL;
 
   return(0);
 }
@@ -638,19 +438,19 @@ static int idaLapackDenseFree(IDAMem IDA_mem)
  */
 static int idaLapackBandInit(IDAMem IDA_mem)
 {
-  IDALapackMem idalapack_mem;
+  IDADlsMem idadls_mem;
 
-  idalapack_mem = (IDALapackMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
 
   nje   = 0;
   nreDQ = 0;
 
   if (bjac == NULL) {
-    bjac = idaLapackBandDQJac;
+    bjac = idaDlsBandDQJac;
     J_data = IDA_mem;
   }
 
-  last_flag = IDALAPACK_SUCCESS;
+  last_flag = IDADIRECT_SUCCESS;
   return(0);
 }
 
@@ -660,29 +460,29 @@ static int idaLapackBandInit(IDAMem IDA_mem)
  * updates counters, and calls the band LU factorization routine.
  */
 static int idaLapackBandSetup(IDAMem IDA_mem,
-                             N_Vector yP, N_Vector ypP, N_Vector fctP, 
-                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+                              N_Vector yP, N_Vector ypP, N_Vector fctP, 
+                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  IDALapackMem idalapack_mem;
+  IDADlsMem idadls_mem;
   realtype fact;
   int ier, retval, one = 1;
 
-  idalapack_mem = (IDALapackMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
 
   /* Call Jacobian function */
   nje++;
-  retval = bjac(n, mu, ml, tn, cj, yP, ypP, fctP, M, J_data, tmp1, tmp2, tmp3);
+  retval = bjac(n, mu, ml, tn, cj, yP, ypP, fctP, JJ, J_data, tmp1, tmp2, tmp3);
   if (retval < 0) {
-    IDAProcessError(IDA_mem, IDALAPACK_JACFUNC_UNRECVR, "IDALAPACK", "idaLapackBandSetup", MSGLS_JACFUNC_FAILED);
-    last_flag = IDALAPACK_JACFUNC_UNRECVR;
+    IDAProcessError(IDA_mem, IDADIRECT_JACFUNC_UNRECVR, "IDALAPACK", "idaLapackBandSetup", MSGD_JACFUNC_FAILED);
+    last_flag = IDADIRECT_JACFUNC_UNRECVR;
     return(-1);
   } else if (retval > 0) {
-    last_flag = IDALAPACK_JACFUNC_RECVR;
+    last_flag = IDADIRECT_JACFUNC_RECVR;
     return(+1);
   }
   
   /* Do LU factorization of M */
-  dgbtrf_f77(&n, &n, &ml, &mu, M->data, &(M->ldim), pivots, &ier);
+  dgbtrf_f77(&n, &n, &ml, &mu, JJ->data, &(JJ->ldim), pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   last_flag = ier;
@@ -696,17 +496,17 @@ static int idaLapackBandSetup(IDAMem IDA_mem,
  * by calling the band backsolve routine.
  */
 static int idaLapackBandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
-                             N_Vector yC, N_Vector ypC, N_Vector fctC)
+                              N_Vector yC, N_Vector ypC, N_Vector fctC)
 {
-  IDALapackMem idalapack_mem;
+  IDADlsMem idadls_mem;
   realtype *bd, fact;
   int ier, one = 1;
 
-  idalapack_mem = (IDALapackMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
 
   bd = N_VGetArrayPointer(b);
 
-  dgbtrs_f77("N", &n, &ml, &mu, &one, M->data, &(M->ldim), pivots, bd, &n, &ier, 1);
+  dgbtrs_f77("N", &n, &ml, &mu, &one, JJ->data, &(JJ->ldim), pivots, bd, &n, &ier, 1);
   if (ier > 0) return(1);
 
   /* For BDF, scale the correction to account for change in cj */
@@ -715,7 +515,7 @@ static int idaLapackBandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
     dscal_f77(&n, &fact, bd, &one); 
   }
 
-  last_flag = IDALAPACK_SUCCESS;
+  last_flag = IDADIRECT_SUCCESS;
   return(0);
 }
 
@@ -724,254 +524,15 @@ static int idaLapackBandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
  */
 static int idaLapackBandFree(IDAMem IDA_mem)
 {
-  IDALapackMem  idalapack_mem;
+  IDADlsMem  idadls_mem;
 
-  idalapack_mem = (IDALapackMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
   
-  LapackFreeMat(M);
-  LapackFreeArray(pivots);
-  free(idalapack_mem); 
-  idalapack_mem = NULL;
+  DestroyMat(JJ);
+  DestroyArray(pivots);
+  free(idadls_mem); 
+  idadls_mem = NULL;
 
   return(0);
 }
 
-/* 
- * =================================================================
- *  DENSE DQ JACOBIAN APPROXIMATIONS FOR IMPLICIT INTEGRATION
- * =================================================================
- */
-
-/*
- * -----------------------------------------------------------------
- * idaLapackDenseDQJac 
- * -----------------------------------------------------------------
- * This routine generates a dense difference quotient approximation to
- * the Jacobian F_y + c_j*F_y'. It assumes that a dense matrix of type
- * LapackMat is stored column-wise, and that elements within each column
- * are contiguous. The address of the jth column of J is obtained via
- * the macro LAPACK_DENSE_COL and this pointer is associated with an N_Vector
- * using the N_VGetArrayPointer/N_VSetArrayPointer functions. 
- * Finally, the actual computation of the jth column of the Jacobian is 
- * done with a call to N_VLinearSum.
- * -----------------------------------------------------------------
- */ 
-static int idaLapackDenseDQJac(int N, realtype tt, realtype c_j,
-                               N_Vector yy, N_Vector yp, N_Vector rr, 
-                               LapackMat Jac, void *jac_data,
-                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype inc, inc_inv, yj, ypj, srur, conj;
-  realtype *tmp2_data, *y_data, *yp_data, *ewt_data, *cns_data = NULL;
-  N_Vector rtemp, jthCol;
-  int j;
-  int retval = 0;
-
-  IDAMem IDA_mem;
-  IDALapackMem idalapack_mem;
-
-  /* jac_data points to IDA_mem */
-  IDA_mem = (IDAMem) jac_data;
-  idalapack_mem = (IDALapackMem) lmem;
-
-  /* Save pointer to the array in tmp2 */
-  tmp2_data = N_VGetArrayPointer(tmp2);
-
-  /* Rename work vectors for readibility */
-  rtemp  = tmp1;
-  jthCol = tmp2;
-
-  /* Obtain pointers to the data for ewt, yy, yp. */
-  ewt_data = N_VGetArrayPointer(ewt);
-  y_data   = N_VGetArrayPointer(yy);
-  yp_data  = N_VGetArrayPointer(yp);
-  if(constraints!=NULL) cns_data = N_VGetArrayPointer(constraints);
-
-  srur = RSqrt(uround);
-
-  for (j=0; j < N; j++) {
-
-    /* Generate the jth col of J(tt,yy,yp) as delta(F)/delta(y_j). */
-
-    /* Set data address of jthCol, and save y_j and yp_j values. */
-    N_VSetArrayPointer(LAPACK_DENSE_COL(Jac,j), jthCol);
-    yj = y_data[j];
-    ypj = yp_data[j];
-
-    /* Set increment inc to y_j based on sqrt(uround)*abs(y_j), with
-    adjustments using yp_j and ewt_j if this is small, and a further
-    adjustment to give it the same sign as hh*yp_j. */
-
-    inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewt_data[j] );
-
-    if (hh*ypj < ZERO) inc = -inc;
-    inc = (yj + inc) - yj;
-
-    /* Adjust sign(inc) again if y_j has an inequality constraint. */
-    if (constraints != NULL) {
-      conj = cns_data[j];
-      if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-      else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
-    }
-
-    /* Increment y_j and yp_j, call res, and break on error return. */
-    y_data[j] += inc;
-    yp_data[j] += c_j*inc;
-
-    retval = res(tt, yy, yp, rtemp, rdata);
-    nreDQ++;
-    if (retval != 0) break;
-
-    /* Construct difference quotient in jthCol */
-    inc_inv = ONE/inc;
-    N_VLinearSum(inc_inv, rtemp, -inc_inv, rr, jthCol);
-
-    LAPACK_DENSE_COL(Jac,j) = N_VGetArrayPointer(jthCol);
-
-    /*  reset y_j, yp_j */     
-    y_data[j] = yj;
-    yp_data[j] = ypj;
-  }
-
-  /* Restore original array pointer in tmp2 */
-  N_VSetArrayPointer(tmp2_data, tmp2);
-
-  return(retval);
-
-}
-
-/* 
- * =================================================================
- *  BAND DQ JACOBIAN APPROXIMATIONS FOR IMPLICIT INTEGRATION
- * =================================================================
- */
-
-static int idaLapackBandDQJac(int N, int mupper, int mlower,
-                              realtype tt, realtype c_j, 
-                              N_Vector yy, N_Vector yp, N_Vector rr,
-                              LapackMat Jac, void *jac_data,
-                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
-  realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
-  realtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
-  int group;
-  
-  N_Vector rtemp, ytemp, yptemp;
-  int i, j, i1, i2, width, ngroups;
-  int retval = 0;
-
-  IDAMem IDA_mem;
-  IDALapackMem idalapack_mem;
-
-  /* jac_data points to IDA_mem */
-  IDA_mem = (IDAMem) jac_data;
-  idalapack_mem = (IDALapackMem) lmem;
-
-  rtemp = tmp1; /* Rename work vector for use as the perturbed residual. */
-
-  ytemp = tmp2; /* Rename work vector for use as a temporary for yy. */
-
-
-  yptemp= tmp3; /* Rename work vector for use as a temporary for yp. */
-
-  /* Obtain pointers to the data for all eight vectors used.  */
-
-  ewt_data = N_VGetArrayPointer(ewt);
-  r_data   = N_VGetArrayPointer(rr);
-  y_data   = N_VGetArrayPointer(yy);
-  yp_data  = N_VGetArrayPointer(yp);
-
-  rtemp_data  = N_VGetArrayPointer(rtemp);
-  ytemp_data  = N_VGetArrayPointer(ytemp);
-  yptemp_data = N_VGetArrayPointer(yptemp);
-
-  if (constraints != NULL) cns_data = N_VGetArrayPointer(constraints);
-
-  /* Initialize ytemp and yptemp. */
-
-  N_VScale(ONE, yy, ytemp);
-  N_VScale(ONE, yp, yptemp);
-
-  /* Compute miscellaneous values for the Jacobian computation. */
-
-  srur = RSqrt(uround);
-  width = mlower + mupper + 1;
-  ngroups = MIN(width, N);
-
-  /* Loop over column groups. */
-  for (group=1; group <= ngroups; group++) {
-
-    /* Increment all yy[j] and yp[j] for j in this group. */
-
-    for (j=group-1; j<N; j+=width) {
-        yj = y_data[j];
-        ypj = yp_data[j];
-        ewtj = ewt_data[j];
-
-        /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
-        adjustments using ypj and ewtj if this is small, and a further
-        adjustment to give it the same sign as hh*ypj. */
-
-        inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
-
-        if (hh*ypj < ZERO) inc = -inc;
-        inc = (yj + inc) - yj;
-
-        /* Adjust sign(inc) again if yj has an inequality constraint. */
-
-        if (constraints != NULL) {
-          conj = cns_data[j];
-          if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-          else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
-        }
-
-        /* Increment yj and ypj. */
-
-        ytemp_data[j] += inc;
-        yptemp_data[j] += cj*inc;
-    }
-
-    /* Call res routine with incremented arguments. */
-
-    retval = res(tt, ytemp, yptemp, rtemp, rdata);
-    nreDQ++;
-    if (retval != 0) break;
-
-    /* Loop over the indices j in this group again. */
-
-    for (j=group-1; j<N; j+=width) {
-
-      /* Reset ytemp and yptemp components that were perturbed. */
-
-      yj = ytemp_data[j]  = y_data[j];
-      ypj = yptemp_data[j] = yp_data[j];
-      col_j = LAPACK_BAND_COL(Jac, j);
-      ewtj = ewt_data[j];
-      
-      /* Set increment inc exactly as above. */
-
-      inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
-      if (hh*ypj < ZERO) inc = -inc;
-      inc = (yj + inc) - yj;
-      if (constraints != NULL) {
-        conj = cns_data[j];
-        if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
-      }
-      
-      /* Load the difference quotient Jacobian elements for column j. */
-
-      inc_inv = ONE/inc;
-      i1 = MAX(0, j-mupper);
-      i2 = MIN(j+mlower,N-1);
-      
-      for (i=i1; i<=i2; i++) 
-            LAPACK_BAND_COL_ELEM(col_j,i,j) = inc_inv*(rtemp_data[i]-r_data[i]);
-    }
-    
-  }
-  
-  return(retval);
-  
-}

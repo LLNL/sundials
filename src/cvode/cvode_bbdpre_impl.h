@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:13 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -35,20 +35,20 @@ typedef struct {
 
   /* passed by user to CVBBDPrecAlloc and used by PrecSetup/PrecSolve */
 
-  long int mudq, mldq, mukeep, mlkeep;
+  int mudq, mldq, mukeep, mlkeep;
   realtype dqrely;
   CVLocalFn gloc;
   CVCommFn cfn;
 
   /* set by CVBBDPrecSetup and used by CVBBDPrecSolve */
 
-  BandMat savedJ;
-  BandMat savedP;
-  long int *pivots;
+  DlsMat savedJ;
+  DlsMat savedP;
+  int *pivots;
 
   /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
 
-  long int n_local;
+  int n_local;
 
   /* available for optional output */
 

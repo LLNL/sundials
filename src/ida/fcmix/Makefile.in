@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-07-25 18:31:40 $
+# $Revision: 1.4 $
+# $Date: 2006-11-22 00:12:50 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -46,8 +46,8 @@ INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(top_srcdir)/src/ida
 LIB_REVISION = 1:0:0
 
 FIDA_LIB       = libsundials_fida.la
-FIDA_LIB_FILES = fida.lo fidaband.lo fidabbd.lo fidadense.lo fidajtimes.lo fidapreco.lo fidaewt.lo fidaroot.lo
-FIDA_OBJ_FILES = fida.o fidaband.o fidabbd.o fidadense.o fidajtimes.o fidapreco.o fidaewt.o fidaroot.o
+FIDA_LIB_FILES = fida.lo fidaband.lo fidadense.lo fidalapack.lo fidalapdense.lo fidalapband.lo fidajtimes.lo fidapreco.lo fidaewt.lo fidaroot.lo fidabbd.lo 
+FIDA_OBJ_FILES = fida.o fidaband.o fidadense.o fidalapack.o fidalapdense.o fidalapband.o fidajtimes.o fidapreco.o fidaewt.o fidaroot.o fidabbd.o
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -79,6 +79,12 @@ fidaband.lo: $(srcdir)/fidaband.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidaband.c
 fidadense.lo: $(srcdir)/fidadense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidadense.c
+fidalapack.lo: $(srcdir)/fidalapack.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidalapack.c
+fidalapband.lo: $(srcdir)/fidalapband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidalapband.c
+fidalapdense.lo: $(srcdir)/fidalapdense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidalapdense.c
 fidajtimes.lo: $(srcdir)/fidajtimes.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidajtimes.c
 fidapreco.lo: $(srcdir)/fidapreco.c

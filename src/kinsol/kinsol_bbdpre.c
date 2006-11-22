@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:19 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:50 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -75,16 +75,16 @@ static int KBBDDQJac(KBBDPrecData pdata,
  *-----------------------------------------------------------------
  */
 
-void *KINBBDPrecAlloc(void *kinmem, long int Nlocal, 
-		      long int mudq, long int mldq,
-		      long int mukeep, long int mlkeep,
+void *KINBBDPrecAlloc(void *kinmem, int Nlocal, 
+		      int mudq, int mldq,
+		      int mukeep, int mlkeep,
 		      realtype dq_rel_uu, 
 		      KINLocalFn gloc, KINCommFn gcomm)
 {
   KBBDPrecData pdata;
   KINMem kin_mem;
   N_Vector vtemp3;
-  long int muk, mlk, storage_mu;
+  int muk, mlk, storage_mu;
 
   pdata = NULL;
 
@@ -127,7 +127,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
 
   storage_mu = MIN(Nlocal-1, muk+mlk);
   pdata->PP = NULL;
-  pdata->PP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
+  pdata->PP = NewBandMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) {
     free(pdata); pdata = NULL;
     return(NULL);
@@ -136,9 +136,9 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
   /* allocate memory for pivots */
 
   pdata->pivots = NULL;
-  pdata->pivots = BandAllocPiv(Nlocal);
+  pdata->pivots = NewIntArray(Nlocal);
   if (pdata->pivots == NULL) {
-    BandFreeMat(pdata->PP);
+    DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
     return(NULL);
   }
@@ -148,8 +148,8 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
   vtemp3 = NULL;
   vtemp3 = N_VClone(kin_mem->kin_vtemp1);
   if (vtemp3 == NULL) {
-    BandFreePiv(pdata->pivots);
-    BandFreeMat(pdata->PP);
+    DestroyArray(pdata->pivots);
+    DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
     return(NULL);
   }
@@ -277,8 +277,8 @@ void KINBBDPrecFree(void **p_data)
 
   pdata = (KBBDPrecData) (*p_data);
   N_VDestroy(pdata->vtemp3);
-  BandFreeMat(pdata->PP);
-  BandFreePiv(pdata->pivots);
+  DestroyMat(pdata->PP);
+  DestroyArray(pdata->pivots);
 
   free(*p_data);
   *p_data = NULL;
@@ -425,11 +425,10 @@ int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
 		    void *p_data,
 		    N_Vector vtemp1, N_Vector vtemp2)
 {
-  long int ier;
   KBBDPrecData pdata;
   KINMem kin_mem;
   N_Vector vtemp3;
-  int retval;
+  int ier, retval;
 
   pdata = (KBBDPrecData) p_data;
 
@@ -534,7 +533,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
                      N_Vector gu, N_Vector gtemp, N_Vector utemp)
 {
   realtype inc, inc_inv;
-  long int group, i, j, width, ngroups, i1, i2;
+  int group, i, j, width, ngroups, i1, i2;
   KINMem kin_mem;
   realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
   int retval;

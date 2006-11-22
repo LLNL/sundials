@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:05 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -36,7 +36,7 @@
 #include <cvode/cvode.h>             /* prototypes for CVODE fcts. and consts. */
 #include <cvode/cvode_dense.h>       /* prototype for CVDense */
 #include <nvector/nvector_serial.h>  /* serial N_Vector types, functions, and macros */
-#include <sundials/sundials_dense.h> /* definitions DenseMat and DENSE_ELEM */
+#include <sundials/sundials_dense.h> /* definitions DlsMat and DENSE_ELEM */
 #include <sundials/sundials_types.h> /* definition of type realtype */
 #include <sundials/sundials_math.h>  /* definition of ABS */
 
@@ -81,8 +81,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 static int g(realtype t, N_Vector y, realtype *gout, void *g_data);
 
-static int Jac(long int N, DenseMat J, realtype t,
-               N_Vector y, N_Vector fy, void *jac_data,
+static int Jac(int N, realtype t,
+               N_Vector y, N_Vector fy, DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int ewt(N_Vector y, N_Vector w, void *e_data);
@@ -167,8 +167,8 @@ int main()
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
   /* Set the Jacobian routine to Jac (user-supplied) */
-  flag = CVDenseSetJacFn(cvode_mem, Jac, NULL);
-  if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
+  flag = CVDlsSetJacFn(cvode_mem, Jac, NULL);
+  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -249,8 +249,8 @@ static int g(realtype t, N_Vector y, realtype *gout, void *g_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(long int N, DenseMat J, realtype t,
-               N_Vector y, N_Vector fy, void *jac_data,
+static int Jac(int N, realtype t,
+               N_Vector y, N_Vector fy, DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
@@ -340,10 +340,10 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVDenseGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVDenseGetNumJacEvals", 1);
-  flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVDenseGetNumRhsEvals", 1);
+  flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
+  check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+  flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
 
   flag = CVodeGetNumGEvals(cvode_mem, &nge);
   check_flag(&flag, "CVodeGetNumGEvals", 1);

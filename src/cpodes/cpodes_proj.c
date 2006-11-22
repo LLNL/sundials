@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:06 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:48 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -188,7 +188,7 @@ int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
     N_VScale(ONE, acor, errP);
 
     /* Call the user projection function */
-    retval = pfun(tn, y, acorP, prjcoef, ewt, errP, p_data);
+    retval = pfun(tn, y, acorP, prjcoef, errP, p_data);
     nproj++;
     if (retval < 0) {flag = CP_PROJFUNC_FAIL; break;}
     if (retval > 0) {flag = PROJFUNC_RECVR; break;}

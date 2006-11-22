@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:05 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -43,13 +43,13 @@
  * access the components of an N_Vector and should be used when the
  * problem size is large. The Problem 2 right hand side function f2
  * uses the NV_DATA_S macro. The DENSE_ELEM macro used in Jac1
- * gives access to an element of a dense matrix of type DenseMat.
+ * gives access to an element of a dense matrix of type DlsMat.
  * It should be used only when the problem size is small (the size
- * of a DenseMat is NEQ x NEQ) due to efficiency concerns. For
+ * of a DlsMat is NEQ x NEQ) due to efficiency concerns. For
  * larger problem sizes, the macro DENSE_COL can be used in order
- * to work directly with a column of a DenseMat. The BAND_COL and
+ * to work directly with a column of a DlsMat. The BAND_COL and
  * BAND_COL_ELEM allow efficient columnwise access to the elements
- * of a band matrix of type BandMat. These macros are used in the
+ * of a band matrix of type DlsMat. These macros are used in the
  * Jac2 function.
  * -----------------------------------------------------------------
  */
@@ -125,12 +125,14 @@ static void PrintErrInfo(int nerr);
 /* Functions Called by the Solver */
 
 static int f1(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static int Jac1(long int N, DenseMat J, realtype tn,
-                N_Vector y, N_Vector fy, void *jac_data,
+static int Jac1(int N, realtype tn,
+                N_Vector y, N_Vector fy, 
+                DlsMat J, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int f2(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static int Jac2(long int N, long int mu, long int ml, BandMat J,
-                realtype tn, N_Vector y, N_Vector fy, void *jac_data,
+static int Jac2(int N, int mu, int ml, 
+                realtype tn, N_Vector y, N_Vector fy, 
+                DlsMat J, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
@@ -324,8 +326,9 @@ static int f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   return(0);
 } 
 
-static int Jac1(long int N, DenseMat J, realtype tn,
-                N_Vector y, N_Vector fy, void *jac_data,
+static int Jac1(int N, realtype tn,
+                N_Vector y, N_Vector fy, 
+                DlsMat J, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y0, y1;
@@ -529,11 +532,12 @@ static int f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   return(0);
 }
 
-static int Jac2(long int N, long int mu, long int ml, BandMat J,
-                realtype tn, N_Vector y, N_Vector fy, void *jac_data,
+static int Jac2(int N, int mu, int ml, 
+                realtype tn, N_Vector y, N_Vector fy, 
+                DlsMat J, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int i, j, k;
+  int i, j, k;
   realtype *kthCol;
 
   /*
@@ -615,13 +619,13 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
       flag = CVDense(cvode_mem, P1_NEQ);
       check_flag(&flag, "CVDense", 1);
       if(flag != CV_SUCCESS) break;
-      flag = CVDenseSetJacFn(cvode_mem, Jac1, NULL);
-      check_flag(&flag, "CVDenseSetJacFn", 1);
+      flag = CVDlsSetJacFn(cvode_mem, Jac1, NULL);
+      check_flag(&flag, "CVDlsSetJacFn", 1);
       break;
     case DENSE_DQ   : 
       printf("Dense, Difference Quotient Jacobian\n");
-      flag = CVDenseSetJacFn(cvode_mem, NULL, NULL);
-      check_flag(&flag, "CVDenseSetJacFn", 1);
+      flag = CVDlsSetJacFn(cvode_mem, NULL, NULL);
+      check_flag(&flag, "CVDlsSetJacFn", 1);
       break;
     case DIAG       : 
       printf("Diagonal Jacobian\n");
@@ -633,13 +637,13 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
       flag = CVBand(cvode_mem, P2_NEQ, mu, ml);
       check_flag(&flag, "CVBand", 1);
       if(flag != CV_SUCCESS) break;
-      flag = CVBandSetJacFn(cvode_mem, Jac2, NULL);
-      check_flag(&flag, "CVBandSetJacFn", 1);
+      flag = CVDlsSetJacFn(cvode_mem, Jac2, NULL);
+      check_flag(&flag, "CVDlsSetJacFn", 1);
       break;
     case BAND_DQ  :   
       printf("Band, Difference Quotient Jacobian\n");
-      flag = CVBandSetJacFn(cvode_mem, NULL, NULL);
-      check_flag(&flag, "CVBandSetJacFn", 1);
+      flag = CVDlsSetJacFn(cvode_mem, NULL, NULL);
+      check_flag(&flag, "CVDlsSetJacFn", 1);
       break;    
     }
   }
@@ -695,21 +699,21 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
     switch(miter) {
     case DENSE_USER :
     case DENSE_DQ   :
-      flag = CVDenseGetNumJacEvals(cvode_mem, &nje);
-      check_flag(&flag, "CVDenseGetNumJacEvals", 1);
-      flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeLS);
-      check_flag(&flag, "CVDenseGetNumRhsEvals", 1);
-      flag = CVDenseGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-      check_flag(&flag, "CVDenseGetWorkSpace", 1);
+      flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
+      check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+      flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
+      check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
+      flag = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+      check_flag(&flag, "CVDlsGetWorkSpace", 1);
       break;
     case BAND_USER  :
     case BAND_DQ    :
-      flag = CVBandGetNumJacEvals(cvode_mem, &nje);
-      check_flag(&flag, "CVBandGetNumJacEvals", 1);
-      flag = CVBandGetNumRhsEvals(cvode_mem, &nfeLS);
-      check_flag(&flag, "CVBandGetNumRhsEvals", 1);
-      flag = CVBandGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-      check_flag(&flag, "CVBandGetWorkSpace", 1);
+      flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
+      check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+      flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
+      check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
+      flag = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+      check_flag(&flag, "CVDlsGetWorkSpace", 1);
       break;  
     case DIAG       :
       nje = nsetups;

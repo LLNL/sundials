@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:50 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -11,8 +11,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the header file for the CVODE/CVODES diagonal linear
- * solver, CVDIAG.
+ * This is the header file for the CVODE diagonal linear solver, CVDIAG.
  * -----------------------------------------------------------------
  */
 

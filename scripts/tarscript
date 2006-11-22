@@ -14,6 +14,7 @@ CV_VER="2.5.0"
 CVS_VER="2.5.0"
 IDA_VER="2.5.0"
 KIN_VER="2.5.0"
+CPS_VER="0.0.1"
 
 #------------------
 # Path to scripts
@@ -155,6 +156,19 @@ $scriptdir/kinsol $tarfile $distrobase
 gzip $tarfile
 mv $filename".tar.gz" $filename".tar.gz"
 
+# CPODES
+
+echo -e "\n--- Generate CPODES tarball ---"
+
+mv $distrobase cpodes-$CPS_VER
+distrobase="cpodes-"$CPS_VER
+filename="cpodes-"$CPS_VER
+
+tarfile=$filename".tar"
+$scriptdir/shared $tarfile $distrobase
+$scriptdir/cpodes $tarfile $distrobase
+gzip $tarfile
+mv $filename".tar.gz" $filename".tar.gz"
 
 #---------------------------
 # Remove temporary directory

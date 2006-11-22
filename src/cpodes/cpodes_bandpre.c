@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:05 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:48 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -12,15 +12,18 @@
  * -----------------------------------------------------------------
  * This file contains implementations of the banded difference
  * quotient Jacobian-based preconditioner and solver routines for
- * use with the CPSPILS linear solvers..
+ * use with the CPSPILS linear solvers.
  * -----------------------------------------------------------------
+ */
+
+/* 
+ * =================================================================
+ * IMPORTED HEADER FILES
+ * =================================================================
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "cpodes_impl.h"
-#include "cpodes_bandpre_impl.h"
 
 #include <cpodes/cpodes_sptfqmr.h>
 #include <cpodes/cpodes_spbcgs.h>
@@ -28,48 +31,73 @@
 
 #include <sundials/sundials_math.h>
 
+#include "cpodes_bandpre_impl.h"
+#include "cpodes_private.h"
+
+/* 
+ * =================================================================
+ * FUNCTION SPECIFIC CONSTANTS
+ * =================================================================
+ */
+
 #define MIN_INC_MULT RCONST(1000.0)
-#define ZERO         RCONST(0.0)
-#define ONE          RCONST(1.0)
 
-/* Prototypes of CPBandPrecSetup and CPBandPrecSolve */
+/* 
+ * =================================================================
+ * PROTOTYPES FOR PRIVATE FUNCTIONS
+ * =================================================================
+ */
+
+/* cpBandPrecSetupExpl and cpBandPrecSetupImpl */
   
-static int CPBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-                           booleantype jok, booleantype *jcurPtr, 
-                           realtype gamma, void *bp_data,
-                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int cpBandPrecSetupExpl(realtype t, N_Vector y, N_Vector fy, 
+                               booleantype jok, booleantype *jcurPtr, 
+                               realtype gamma, void *bp_data,
+                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int CPBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                           N_Vector r, N_Vector z, 
-                           realtype gamma, realtype delta,
-                           int lr, void *bp_data, N_Vector tmp);
+static int cpBandPrecSetupImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
+                               realtype gamma, void *bp_data,
+                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-/* Prototype for difference quotient Jacobian calculation routine */
+/* cpBandPrecSolveExpl and cpBandPrecSolveImpl */
 
-static int CPBandPDQJac(CPBandPrecData pdata, 
-                        realtype t, N_Vector y, N_Vector fy, 
-                        N_Vector ftemp, N_Vector ytemp);
+static int cpBandPrecSolveExpl(realtype t, N_Vector y, N_Vector fy, 
+                               N_Vector b, N_Vector x, 
+                               realtype gamma, realtype delta,
+                               int lr, void *bp_data, N_Vector tmp);
+
+static int cpBandPrecSolveImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
+                               N_Vector b, N_Vector x,
+                               realtype gamma, realtype delta, 
+                               void *bp_data, N_Vector tmp);
+
+/* Difference quotient Jacobian calculation routines */
+
+static int cpBandPDQJacExpl(CPBandPrecData pdata, 
+                            realtype t, N_Vector y, N_Vector fy, 
+                            N_Vector ftemp, N_Vector ytemp);
+
+static int cpBandPDQJacImpl(CPBandPrecData pdata, 
+                            realtype t, realtype gamma,
+                            N_Vector y, N_Vector yp, N_Vector r, 
+                            N_Vector ftemp, N_Vector ytemp, N_Vector yptemp);
 
 /* Redability replacements */
 
+#define ode_type (cp_mem->cp_ode_type)
 #define vec_tmpl (cp_mem->cp_tempv)
 
-/*
- * -----------------------------------------------------------------
- * Malloc, Free, and Get Functions
- * NOTE: The band linear solver assumes a serial implementation
- *       of the NVECTOR package. Therefore, CPBandPrecAlloc will
- *       first test for a compatible N_Vector internal representation
- *       by checking that the function N_VGetArrayPointer exists.
- * -----------------------------------------------------------------
+/* 
+ * =================================================================
+ * EXPORTED FUNCTIONS
+ * =================================================================
  */
 
-void *CPBandPrecAlloc(void *cpode_mem, long int N, 
-                      long int mu, long int ml)
+void *CPBandPrecAlloc(void *cpode_mem, int N, int mu, int ml)
 {
   CPodeMem cp_mem;
   CPBandPrecData pdata;
-  long int mup, mlp, storagemu;
+  int mup, mlp, storagemu;
 
   if (cpode_mem == NULL) {
     cpProcessError(NULL, 0, "CPBANDPRE", "CPBandPrecAlloc", MSGBP_CPMEM_NULL);
@@ -101,7 +129,7 @@ void *CPBandPrecAlloc(void *cpode_mem, long int N,
 
   /* Allocate memory for saved banded Jacobian approximation. */
   pdata->savedJ = NULL;
-  pdata->savedJ = BandAllocMat(N, mup, mlp, mup);
+  pdata->savedJ = NewBandMat(N, mup, mlp, mup);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     cpProcessError(cp_mem, 0, "CPBANDPRE", "CPBandPrecAlloc", MSGBP_MEM_FAIL);
@@ -111,9 +139,9 @@ void *CPBandPrecAlloc(void *cpode_mem, long int N,
   /* Allocate memory for banded preconditioner. */
   storagemu = MIN(N-1, mup+mlp);
   pdata->savedP = NULL;
-  pdata->savedP = BandAllocMat(N, mup, mlp, storagemu);
+  pdata->savedP = NewBandMat(N, mup, mlp, storagemu);
   if (pdata->savedP == NULL) {
-    BandFreeMat(pdata->savedJ);
+    DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
     cpProcessError(cp_mem, 0, "CPBANDPRE", "CPBandPrecAlloc", MSGBP_MEM_FAIL);
     return(NULL);
@@ -121,10 +149,10 @@ void *CPBandPrecAlloc(void *cpode_mem, long int N,
 
   /* Allocate memory for pivot array. */
   pdata->pivots = NULL;
-  pdata->pivots = BandAllocPiv(N);
+  pdata->pivots = NewIntArray(N);
   if (pdata->savedJ == NULL) {
-    BandFreeMat(pdata->savedP);
-    BandFreeMat(pdata->savedJ);
+    DestroyMat(pdata->savedP);
+    DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
     cpProcessError(cp_mem, 0, "CPBANDPRE", "CPBandPrecAlloc", MSGBP_MEM_FAIL);
     return(NULL);
@@ -148,7 +176,14 @@ int CPBPSptfqmr(void *cpode_mem, int pretype, int maxl, void *p_data)
     return(CPBANDPRE_PDATA_NULL);
   } 
 
-  flag = CPSpilsSetPreconditioner(cpode_mem, CPBandPrecSetup, CPBandPrecSolve, p_data);
+  switch (ode_type) {
+  case CP_EXPL:
+    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupExpl, cpBandPrecSolveExpl, p_data);
+    break;
+  case CP_IMPL:
+    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupImpl, cpBandPrecSolveImpl, p_data);
+    break;
+  }
   if(flag != CPSPILS_SUCCESS) return(flag);
 
   return(CPSPILS_SUCCESS);
@@ -169,7 +204,14 @@ int CPBPSpbcg(void *cpode_mem, int pretype, int maxl, void *p_data)
     return(CPBANDPRE_PDATA_NULL);
   } 
 
-  flag = CPSpilsSetPreconditioner(cpode_mem, CPBandPrecSetup, CPBandPrecSolve, p_data);
+  switch (ode_type) {
+  case CP_EXPL:
+    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupExpl, cpBandPrecSolveExpl, p_data);
+    break;
+  case CP_IMPL:
+    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupImpl, cpBandPrecSolveImpl, p_data);
+    break;
+  }
   if(flag != CPSPILS_SUCCESS) return(flag);
 
   return(CPSPILS_SUCCESS);
@@ -190,7 +232,14 @@ int CPBPSpgmr(void *cpode_mem, int pretype, int maxl, void *p_data)
     return(CPBANDPRE_PDATA_NULL);
   }
 
-  flag = CPSpilsSetPreconditioner(cpode_mem, CPBandPrecSetup, CPBandPrecSolve, p_data);
+  switch (ode_type) {
+  case CP_EXPL:
+    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupExpl, cpBandPrecSolveExpl, p_data);
+    break;
+  case CP_IMPL:
+    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupImpl, cpBandPrecSolveImpl, p_data);
+    break;
+  }
   if(flag != CPSPILS_SUCCESS) return(flag);
 
   return(CPSPILS_SUCCESS);
@@ -203,9 +252,9 @@ void CPBandPrecFree(void **bp_data)
   if (*bp_data == NULL) return;
 
   pdata = (CPBandPrecData) (*bp_data);
-  BandFreeMat(pdata->savedJ);
-  BandFreeMat(pdata->savedP);
-  BandFreePiv(pdata->pivots);
+  DestroyMat(pdata->savedJ);
+  DestroyMat(pdata->savedP);
+  DestroyArray(pdata->pivots);
 
   free(*bp_data);
   *bp_data = NULL;
@@ -215,7 +264,7 @@ void CPBandPrecFree(void **bp_data)
 int CPBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
 {
   CPBandPrecData pdata;
-  long int N, ml, mu, smu;
+  int N, ml, mu, smu;
 
   if ( bp_data == NULL ) {
     cpProcessError(NULL, CPBANDPRE_PDATA_NULL, "CPBANDPRE", "CPBandPrecGetWorkSpace", MSGBP_PDATA_NULL);
@@ -235,12 +284,12 @@ int CPBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
   return(CPBANDPRE_SUCCESS);
 }
 
-int CPBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
+int CPBandPrecGetNumFctEvals(void *bp_data, long int *nfevalsBP)
 {
   CPBandPrecData pdata;
 
   if (bp_data == NULL) {
-    cpProcessError(NULL, CPBANDPRE_PDATA_NULL, "CPBANDPRE", "CPBandPrecGetNumRhsEvals", MSGBP_PDATA_NULL);
+    cpProcessError(NULL, CPBANDPRE_PDATA_NULL, "CPBANDPRE", "CPBandPrecGetNumFctEvals", MSGBP_PDATA_NULL);
     return(CPBANDPRE_PDATA_NULL);
   } 
 
@@ -270,8 +319,8 @@ char *CPBandPrecGetReturnFlagName(int flag)
   case CPBANDPRE_PDATA_NULL:
     sprintf(name,"CPBANDPRE_PDATA_NULL");
     break;
-  case CPBANDPRE_RHSFUNC_UNRECVR:
-    sprintf(name,"CPBANDPRE_RHSFUNC_UNRECVR");
+  case CPBANDPRE_FUNC_UNRECVR:
+    sprintf(name,"CPBANDPRE_FUNC_UNRECVR");
     break;
   default:
     sprintf(name,"NONE");
@@ -279,6 +328,12 @@ char *CPBandPrecGetReturnFlagName(int flag)
 
   return(name);
 }
+
+/* 
+ * =================================================================
+ *  PRIVATE FUNCTIONS
+ * =================================================================
+ */
 
 /* Readability Replacements */
 
@@ -292,14 +347,14 @@ char *CPBandPrecGetReturnFlagName(int flag)
 
 /*
  * -----------------------------------------------------------------
- * CPBandPrecSetup
+ * cpBandPrecSetupExpl
  * -----------------------------------------------------------------
- * Together CPBandPrecSetup and CPBandPrecSolve use a banded
+ * Together cpBandPrecSetupExpl and cpBandPrecSolveExpl use a banded
  * difference quotient Jacobian to create a preconditioner.
- * CPBandPrecSetup calculates a new J, if necessary, then
+ * cpBandPrecSetupExpl calculates a new J, if necessary, then
  * calculates P = I - gamma*J, and does an LU factorization of P.
  *
- * The parameters of CPBandPrecSetup are as follows:
+ * The parameters of cpBandPrecSetupExpl are as follows:
  *
  * t       is the current value of the independent variable.
  *
@@ -313,13 +368,13 @@ char *CPBandPrecGetReturnFlagName(int flag)
  *           jok == FALSE means recompute Jacobian-related data
  *                  from scratch.
  *           jok == TRUE means that Jacobian data from the
- *                  previous PrecSetup call will be reused
+ *                  previous cpBandPrecSetupExpl call will be reused
  *                  (with the current value of gamma).
- *         A CPBandPrecSetup call with jok == TRUE should only
+ *         A cpBandPrecSetupExpl call with jok == TRUE should only
  *         occur after a call with jok == FALSE.
  *
  * *jcurPtr is a pointer to an output integer flag which is
- *          set by CPBandPrecond as follows:
+ *          set by cpBandPrecsetupExpl as follows:
  *            *jcurPtr = TRUE if Jacobian data was recomputed.
  *            *jcurPtr = FALSE if Jacobian data was not recomputed,
  *                       but saved data was reused.
@@ -333,21 +388,20 @@ char *CPBandPrecGetReturnFlagName(int flag)
  *           for vectors of length N for work space. This
  *           routine uses only tmp1 and tmp2.
  *
- * The value to be returned by the CPBandPrecSetup function is
+ * The value to be returned by the cpBandPrecSetupExpl function is
  *   0  if successful, or
  *   1  if the band factorization failed.
  * -----------------------------------------------------------------
  */
 
-static int CPBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-                           booleantype jok, booleantype *jcurPtr, 
-                           realtype gamma, void *bp_data,
-                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int cpBandPrecSetupExpl(realtype t, N_Vector y, N_Vector fy, 
+                               booleantype jok, booleantype *jcurPtr, 
+                               realtype gamma, void *bp_data,
+                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int ier;
   CPBandPrecData pdata;
   CPodeMem cp_mem;
-  int retval;
+  int ier, retval;
 
   /* Assume matrix and pivots have already been allocated. */
   pdata = (CPBandPrecData) bp_data;
@@ -366,9 +420,9 @@ static int CPBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     *jcurPtr = TRUE;
     BandZero(savedJ);
 
-    retval = CPBandPDQJac(pdata, t, y, fy, tmp1, tmp2);
+    retval = CPBandPDQJacExpl(pdata, t, y, fy, tmp1, tmp2);
     if (retval < 0) {
-      cpProcessError(cp_mem, CPBANDPRE_RHSFUNC_UNRECVR, "CPBANDPRE", "CPBandPrecSetup", MSGBP_RHSFUNC_FAILED);
+      cpProcessError(cp_mem, CPBANDPRE_FUNC_UNRECVR, "CPBANDPRE", "cpBandPrecSetupExpl", MSGBP_FUNC_FAILED);
       return(-1);
     }
     if (retval > 0) {
@@ -393,56 +447,148 @@ static int CPBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
 /*
  * -----------------------------------------------------------------
- * CPBandPrecSolve
+ * cpBandPrecSolveExpl
  * -----------------------------------------------------------------
- * CPBandPrecSolve solves a linear system P z = r, where P is the
- * matrix computed by CPBandPrecond.
+ * cpBandPrecSolveExpl solves a linear system P x = b, where P is the
+ * matrix computed by cpBandPrecSetupExpl.
  *
- * The parameters of CPBandPrecSolve used here are as follows:
+ * The parameters of cpBandPrecSolveExpl used here are as follows:
  *
- * r       is the right-hand side vector of the linear system.
+ * b       is the right-hand side vector of the linear system.
  *
  * bp_data is a pointer to preconditioner data - the same as the
  *         bp_data parameter passed to CPSp*.
  *
- * z       is the output vector computed by CPBandPrecSolve.
+ * x       is the output vector computed by cpBandPrecSolveExpl.
  *
- * The value returned by the CPBandPrecSolve function is always 0,
+ * The value returned by the cpBandPrecSolveExpl function is always 0,
  * indicating success.
  * -----------------------------------------------------------------
  */ 
 
-static int CPBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                           N_Vector r, N_Vector z, 
-                           realtype gamma, realtype delta,
-                           int lr, void *bp_data, N_Vector tmp)
+static int cpBandPrecSolveExpl(realtype t, N_Vector y, N_Vector fy, 
+                               N_Vector b, N_Vector x, 
+                               realtype gamma, realtype delta,
+                               int lr, void *bp_data, N_Vector tmp)
 {
   CPBandPrecData pdata;
-  realtype *zd;
+  realtype *xd;
 
   /* Assume matrix and pivots have already been allocated. */
   pdata = (CPBandPrecData) bp_data;
 
-  /* Copy r to z. */
-  N_VScale(ONE, r, z);
+  /* Copy b to x. */
+  N_VScale(ONE, b, x);
 
   /* Do band backsolve on the vector z. */
-  zd = N_VGetArrayPointer(z);
+  xd = N_VGetArrayPointer(x);
 
-  BandGBTRS(savedP, pivots, zd);
+  BandGBTRS(savedP, pivots, xd);
 
   return(0);
 }
 
+/*
+ * -----------------------------------------------------------------
+ * cpBandPrecSetupImpl
+ * -----------------------------------------------------------------
+ * Together cpBandPrecSetupImpl and cpBandPrecSolveImpl use a banded
+ * difference quotient Jacobian to create a preconditioner.
+ * cpBandPrecSetupImpl calculates a new J = dF/dy + gamma*dF/dy'
+ * and does an LU factorization of P.
+ * -----------------------------------------------------------------
+ */
+
+static int cpBandPrecSetupImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
+                               realtype gamma, void *bp_data,
+                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  CPBandPrecData pdata;
+  CPodeMem cp_mem;
+  int ier, retval;
+
+  /* Assume matrix and pivots have already been allocated. */
+  pdata = (CPBandPrecData) bp_data;
+
+  cp_mem = (CPodeMem) pdata->cpode_mem;
+
+  BandZero(savedJ);
+  retval = CPBandPDQJacImpl(pdata, t, gamma, y, yp, r, tmp1, tmp2, tmp3);
+  if (retval < 0) {
+    cpProcessError(cp_mem, CPBANDPRE_FUNC_UNRECVR, "CPBANDPRE", "cpBandPrecSetupImpl", MSGBP_FUNC_FAILED);
+    return(-1);
+  }
+  if (retval > 0) {
+    return(1);
+  }
+
+  /* Do LU factorization of matrix. */
+  ier = BandGBTRF(savedP, pivots);
+ 
+  /* Return 0 if the LU was complete; otherwise return 1. */
+  if (ier > 0) return(1);
+  return(0);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * cpBandPrecSolveImpl
+ * -----------------------------------------------------------------
+ * cpBandPrecSolveImpl solves a linear system P x = b, where P is the
+ * matrix computed by cpBandPrecSetupImpl.
+ *
+ * The parameters of cpBandPrecSolveImpl used here are as follows:
+ *
+ * b       is the right-hand side vector of the linear system.
+ *
+ * bp_data is a pointer to preconditioner data - the same as the
+ *         bp_data parameter passed to CPSp*.
+ *
+ * x       is the output vector computed by cpBandPrecSolveImpl.
+ *
+ * The value returned by the cpBandPrecSolveImpl function is always 0,
+ * indicating success.
+ * -----------------------------------------------------------------
+ */ 
+
+static int cpBandPrecSolveImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
+                               N_Vector b, N_Vector x,
+                               realtype gamma, realtype delta, 
+                               void *bp_data, N_Vector tmp)
+{
+  CPBandPrecData pdata;
+  realtype *xd;
+
+  /* Assume matrix and pivots have already been allocated. */
+  pdata = (CPBandPrecData) bp_data;
+
+  /* Copy b to x. */
+  N_VScale(ONE, b, x);
+
+  /* Do band backsolve on the vector z. */
+  xd = N_VGetArrayPointer(x);
+
+  BandGBTRS(savedP, pivots, xd);
+
+  return(0);
+}
+
+/* 
+ * =================================================================
+ * DQ LOCAL JACOBIAN APROXIMATIONS
+ * =================================================================
+ */
+
 #define ewt    (cp_mem->cp_ewt)
 #define uround (cp_mem->cp_uround)
 #define h      (cp_mem->cp_h)
-#define f      (cp_mem->cp_f)
+#define fe     (cp_mem->cp_fe)
+#define fi     (cp_mem->cp_fi)
 #define f_data (cp_mem->cp_f_data)
 
 /*
  * -----------------------------------------------------------------
- * CPBandPDQJac
+ * cpBandPDQJacExpl
  * -----------------------------------------------------------------
  * This routine generates a banded difference quotient approximation to
  * the Jacobian of f(t,y). It assumes that a band matrix of type
@@ -453,13 +599,13 @@ static int CPBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  */
 
-static int CPBandPDQJac(CPBandPrecData pdata, 
-                        realtype t, N_Vector y, N_Vector fy, 
-                        N_Vector ftemp, N_Vector ytemp)
+static int cpBandPDQJacExpl(CPBandPrecData pdata, 
+                            realtype t, N_Vector y, N_Vector fy, 
+                            N_Vector ftemp, N_Vector ytemp)
 {
   CPodeMem cp_mem;
   realtype fnorm, minInc, inc, inc_inv, srur;
-  long int group, i, j, width, ngroups, i1, i2;
+  int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
   int retval;
 
@@ -484,7 +630,8 @@ static int CPBandPDQJac(CPBandPrecData pdata,
   /* Set bandwidth and number of column groups for band differencing. */
   width = ml + mu + 1;
   ngroups = MIN(width, N);
-  
+
+  /* Loop over column groups. */
   for (group = 1; group <= ngroups; group++) {
     
     /* Increment all y_j in group. */
@@ -508,10 +655,110 @@ static int CPBandPDQJac(CPBandPrecData pdata,
       i1 = MAX(0, j-mu);
       i2 = MIN(j+ml, N-1);
       for (i=i1; i <= i2; i++)
-        BAND_COL_ELEM(col_j,i,j) =
-          inc_inv * (ftemp_data[i] - fy_data[i]);
+        BAND_COL_ELEM(col_j,i,j) = inc_inv * (ftemp_data[i] - fy_data[i]);
     }
   }
 
   return(0);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * cpBandPDQJacImpl
+ * -----------------------------------------------------------------
+ * This routine generates a banded difference quotient approximation
+ * to the Jacobian dF/dy + gamma*dF/dy' and loads it directly into
+ * savedP. It assumes that a band matrix of type BandMat is stored
+ * column-wise, and that elements within each column are contiguous.
+ * This makes it possible to get the address of a column of J via 
+ * the macro BAND_COL and to write a simple for loop to set each of
+ * the elements of a column in succession.
+ * -----------------------------------------------------------------
+ */
+
+static int cpBandPDQJacImpl(CPBandPrecData pdata, 
+                            realtype t, realtype gamma,
+                            N_Vector y, N_Vector yp, N_Vector r, 
+                            N_Vector ftemp, N_Vector ytemp, N_Vector yptemp)
+
+{
+  CPodeMem cp_mem;
+  realtype inc, inc_inv, yj, ypj, srur, ewtj;
+  realtype *y_data, *yp_data, *ewt_data;
+  realtype *ytemp_data, *yptemp_data, *ftemp_data, *r_data, *col_j;
+  int i, j, i1, i2, width, group, ngroups;
+  int retval = 0;
+
+  cp_mem = (CPodeMem) pdata->cpode_mem;
+
+  /* Obtain pointers to the data for all vectors used.  */
+  ewt_data    = N_VGetArrayPointer(ewt);
+  r_data      = N_VGetArrayPointer(r);
+  y_data      = N_VGetArrayPointer(y);
+  yp_data     = N_VGetArrayPointer(yp);
+  ftemp_data  = N_VGetArrayPointer(ftemp);
+  ytemp_data  = N_VGetArrayPointer(ytemp);
+  yptemp_data = N_VGetArrayPointer(yptemp);
+
+  /* Initialize ytemp and yptemp. */
+  N_VScale(ONE, y, ytemp);
+  N_VScale(ONE, yp, yptemp);
+
+  /* Compute miscellaneous values for the Jacobian computation. */
+  srur = RSqrt(uround);
+  width = ml + mu + 1;
+  ngroups = MIN(width, N);
+
+  /* Loop over column groups. */
+  for (group=1; group <= ngroups; group++) {
+
+    /* Increment all y[j] and yp[j] for j in this group. */
+    for (j=group-1; j<N; j+=width) {
+        yj = y_data[j];
+        ypj = yp_data[j];
+        ewtj = ewt_data[j];
+
+        /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
+           adjustments using ypj and ewtj if this is small, and a further
+           adjustment to give it the same sign as h*ypj. */
+        inc = MAX( srur * MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
+
+        if (h*ypj < ZERO) inc = -inc;
+        inc = (yj + inc) - yj;
+
+        /* Increment yj and ypj. */
+        ytemp_data[j]  += gamma*inc;
+        yptemp_data[j] += inc;
+    }
+
+    /* Call ODE fct. with incremented arguments. */
+    retval = fi(t, ytemp, yptemp, ftemp, f_data);
+    nfeBP++;
+    if (retval != 0) break;
+
+    /* Loop over the indices j in this group again. */
+    for (j=group-1; j<N; j+=width) {
+
+      /* Reset ytemp and yptemp components that were perturbed. */
+      yj = ytemp_data[j]  = y_data[j];
+      ypj = yptemp_data[j] = yp_data[j];
+      col_j = BAND_COL(savedP, j);
+      ewtj = ewt_data[j];
+      
+      /* Set increment inc exactly as above. */
+      inc = MAX( srur * MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
+      if (h*ypj < ZERO) inc = -inc;
+      inc = (yj + inc) - yj;
+      
+      /* Load the difference quotient Jacobian elements for column j. */
+      inc_inv = ONE/inc;
+      i1 = MAX(0, j-mu);
+      i2 = MIN(j+ml,N-1);
+      for (i=i1; i<=i2; i++) 
+        BAND_COL_ELEM(col_j,i,j) = inc_inv*(ftemp_data[i]-r_data[i]);
+    }
+    
+  }
+  
+  return(retval);
 }

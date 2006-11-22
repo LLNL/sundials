@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:06 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:48 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,18 +33,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cpodes_dense_impl.h"
+#include <cpodes/cpodes_dense.h>
+#include "cpodes_direct_impl.h"
 #include "cpodes_private.h"
+
 #include <sundials/sundials_math.h>
-
-/* 
- * =================================================================
- * FUNCTION SPECIFIC CONSTANTS
- * =================================================================
- */
-
-/* Constant for DQ Jacobian approximation */
-#define MIN_INC_MULT RCONST(1000.0)
 
 /* 
  * =================================================================
@@ -81,22 +74,6 @@ static void cpdSCcomputeKI(CPodeMem cp_mem);
 static void cpdSCcomputeKD(CPodeMem cp_mem, N_Vector d);
 static void cpdScaleXbyD(CPodeMem cp_mem, realtype *alpha, realtype *d);
 
-/* CPDENSE DQ integration Jacobian functions */
-static int cpDenseDQJacExpl(long int N, realtype t,
-                            N_Vector y, N_Vector fy, 
-                            DenseMat Jac, void *jac_data,
-                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int cpDenseDQJacImpl(long int N, realtype t, realtype gm,
-                            N_Vector y, N_Vector yp, N_Vector r, 
-                            DenseMat Jac, void *jac_data,
-                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
-/* CPDENSE DQ projection Jacobian functions */
-static int cpDenseProjDQJac(long int Nc, long int Ny, realtype t,
-                            N_Vector y, N_Vector cy, 
-                            DenseMat Jac, void *jac_data,
-                            N_Vector c_tmp1, N_Vector c_tmp2);
-
 /*
  * =================================================================
  * READIBILITY REPLACEMENTS
@@ -125,8 +102,6 @@ static int cpDenseProjDQJac(long int Nc, long int Ny, realtype t,
 #define lmem           (cp_mem->cp_lmem)
 #define lsetup_exists  (cp_mem->cp_lsetup_exists)
 
-#define cfun           (cp_mem->cp_cfun)
-#define c_data         (cp_mem->cp_c_data)
 #define pnorm          (cp_mem->cp_proj_norm)
 
 #define linitP         (cp_mem->cp_linitP)
@@ -137,35 +112,36 @@ static int cpDenseProjDQJac(long int Nc, long int Ny, realtype t,
 #define lmemP          (cp_mem->cp_lmemP)
 #define lsetupP_exists (cp_mem->cp_lsetupP_exists)
 
-#define n              (cpdense_mem->d_n)
-#define jacE           (cpdense_mem->d_jacE)
-#define jacI           (cpdense_mem->d_jacI)
-#define M              (cpdense_mem->d_M)
-#define savedJ         (cpdense_mem->d_savedJ)
-#define pivots         (cpdense_mem->d_pivots)
-#define nstlj          (cpdense_mem->d_nstlj)
-#define nje            (cpdense_mem->d_nje)
-#define nfeD           (cpdense_mem->d_nfeD)
-#define J_data         (cpdense_mem->d_J_data)
-#define last_flag      (cpdense_mem->d_last_flag)
+#define mtype          (cpdls_mem->d_type)
+#define n              (cpdls_mem->d_n)
+#define jacE           (cpdls_mem->d_djacE)
+#define jacI           (cpdls_mem->d_djacI)
+#define M              (cpdls_mem->d_M)
+#define savedJ         (cpdls_mem->d_savedJ)
+#define pivots         (cpdls_mem->d_pivots)
+#define nstlj          (cpdls_mem->d_nstlj)
+#define nje            (cpdls_mem->d_nje)
+#define nfeDQ          (cpdls_mem->d_nfeDQ)
+#define J_data         (cpdls_mem->d_J_data)
+#define last_flag      (cpdls_mem->d_last_flag)
 
-#define nc             (cpdenseP_mem->d_nc)
-#define ny             (cpdenseP_mem->d_ny)
-#define jacP           (cpdenseP_mem->d_jacP)
-#define JP_data        (cpdenseP_mem->d_JP_data)
-#define ftype          (cpdenseP_mem->d_ftype)
-#define G              (cpdenseP_mem->d_G)
-#define savedG         (cpdenseP_mem->d_savedG)
-#define K              (cpdenseP_mem->d_K)
-#define pivotsP        (cpdenseP_mem->d_pivotsP)
-#define beta           (cpdenseP_mem->d_beta)
-#define nstljP         (cpdenseP_mem->d_nstljP)
-#define njeP           (cpdenseP_mem->d_njeP)
-#define nceD           (cpdenseP_mem->d_nceD)
+#define nc             (cpdlsP_mem->d_nc)
+#define ny             (cpdlsP_mem->d_ny)
+#define jacP           (cpdlsP_mem->d_jacP)
+#define JP_data        (cpdlsP_mem->d_JP_data)
+#define ftype          (cpdlsP_mem->d_ftype)
+#define G              (cpdlsP_mem->d_G)
+#define savedG         (cpdlsP_mem->d_savedG)
+#define K              (cpdlsP_mem->d_K)
+#define pivotsP        (cpdlsP_mem->d_pivotsP)
+#define beta           (cpdlsP_mem->d_beta)
+#define nstljP         (cpdlsP_mem->d_nstljP)
+#define njeP           (cpdlsP_mem->d_njeP)
+#define nceDQ          (cpdlsP_mem->d_nceDQ)
 
 /* 
  * =================================================================
- * EXPORTED FUNCTIONS FOR IMPLICIT INTEGRATION
+ * EXPORTED FUNCTIONS
  * =================================================================
  */
               
@@ -179,9 +155,9 @@ static int cpDenseProjDQJac(long int Nc, long int Ny, realtype t,
  * the cp_linit, cp_lsetup, cp_lsolve, cp_lfree fields in (*cpode_mem)
  * to be cpDenseInit, cpDenseSetup, cpDenseSolve, and cpDenseFree,
  * respectively.  It allocates memory for a structure of type
- * CPDenseMemRec and sets the cp_lmem field in (*cpode_mem) to the
+ * CPDlsMemRec and sets the cp_lmem field in (*cpode_mem) to the
  * address of this structure.  It sets lsetup_exists in (*cpode_mem) to
- * TRUE, and the d_jac field to the default cpDenseDQJac.
+ * TRUE, and the d_jac field to the default cpDlsDenseDQJac.
  * Finally, it allocates memory for M, pivots, and (if needed) savedJ.
  * The return value is SUCCESS = 0, or LMEM_FAIL = -1.
  *
@@ -193,23 +169,23 @@ static int cpDenseProjDQJac(long int Nc, long int Ny, realtype t,
  * -----------------------------------------------------------------
  */
 
-int CPDense(void *cpode_mem, long int N)
+int CPDense(void *cpode_mem, int N)
 {
   CPodeMem cp_mem;
-  CPDenseMem cpdense_mem;
+  CPDlsMem cpdls_mem;
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDENSE_MEM_NULL, "CPDENSE", "CPDense", MSGDS_CPMEM_NULL);
-    return(CPDENSE_MEM_NULL);
+    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDENSE", "CPDense", MSGD_CPMEM_NULL);
+    return(CPDIRECT_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if (tempv->ops->nvgetarraypointer == NULL ||
       tempv->ops->nvsetarraypointer == NULL) {
-    cpProcessError(cp_mem, CPDENSE_ILL_INPUT, "CPDENSE", "CPDense", MSGDS_BAD_NVECTOR);
-    return(CPDENSE_ILL_INPUT);
+    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPDENSE", "CPDense", MSGD_BAD_NVECTOR);
+    return(CPDIRECT_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(cp_mem);
@@ -220,20 +196,23 @@ int CPDense(void *cpode_mem, long int N)
   lsolve = cpDenseSolve;
   lfree  = cpDenseFree;
 
-  /* Get memory for CPDenseMemRec */
-  cpdense_mem = NULL;
-  cpdense_mem = (CPDenseMem) malloc(sizeof(CPDenseMemRec));
-  if (cpdense_mem == NULL) {
-    cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDense", MSGDS_MEM_FAIL);
-    return(CPDENSE_MEM_FAIL);
+  /* Get memory for CPDlsMemRec */
+  cpdls_mem = NULL;
+  cpdls_mem = (CPDlsMem) malloc(sizeof(CPDlsMemRec));
+  if (cpdls_mem == NULL) {
+    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
+    return(CPDIRECT_MEM_FAIL);
   }
+
+  /* Set matrix type */
+  mtype = SUNDIALS_DENSE;
 
   /* Set default Jacobian routine and Jacobian data */
   jacE = NULL;
   jacI = NULL;
   J_data = NULL;
 
-  last_flag = CPDENSE_SUCCESS;
+  last_flag = CPDIRECT_SUCCESS;
   lsetup_exists = TRUE;
 
   /* Set problem dimension */
@@ -244,232 +223,36 @@ int CPDense(void *cpode_mem, long int N)
   pivots = NULL;
   savedJ = NULL;
 
-  M = DenseAllocMat(N, N);
+  M = NewDenseMat(N, N);
   if (M == NULL) {
-    cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDense", MSGDS_MEM_FAIL);
-    free(cpdense_mem);
-    return(CPDENSE_MEM_FAIL);
+    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
+    free(cpdls_mem);
+    return(CPDIRECT_MEM_FAIL);
   }
-  pivots = DenseAllocPiv(N);
+  pivots = NewIntArray(N);
   if (pivots == NULL) {
-    cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDense", MSGDS_MEM_FAIL);
-    DenseFreeMat(M);
-    free(cpdense_mem);
-    return(CPDENSE_MEM_FAIL);
+    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
+    DestroyMat(M);
+    free(cpdls_mem);
+    return(CPDIRECT_MEM_FAIL);
   }
   if (ode_type == CP_EXPL) {
-    savedJ = DenseAllocMat(N, N);
+    savedJ = NewDenseMat(N, N);
     if (savedJ == NULL) {
-      cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDense", MSGDS_MEM_FAIL);
-      DenseFreeMat(M);
-      DenseFreePiv(pivots);
-      free(cpdense_mem);
-      return(CPDENSE_MEM_FAIL);
+      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
+      DestroyMat(M);
+      DestroyArray(pivots);
+      free(cpdls_mem);
+      return(CPDIRECT_MEM_FAIL);
     }
   }
 
   /* Attach linear solver memory to integrator memory */
-  lmem = cpdense_mem;
+  lmem = cpdls_mem;
 
-  return(CPDENSE_SUCCESS);
+  return(CPDIRECT_SUCCESS);
 }
 
-/*
- * -----------------------------------------------------------------
- * CPDenseSetJacFn
- * -----------------------------------------------------------------
- */
-
-int CPDenseSetJacFn(void *cpode_mem, void *djac, void *jac_data)
-{
-  CPodeMem cp_mem;
-  CPDenseMem cpdense_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDENSE_MEM_NULL, "CPDENSE", "CPDenseSetJacFn", MSGDS_CPMEM_NULL);
-    return(CPDENSE_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDENSE_LMEM_NULL, "CPDENSE", "CPDenseSetJacFn", MSGDS_LMEM_NULL);
-    return(CPDENSE_LMEM_NULL);
-  }
-  cpdense_mem = (CPDenseMem) lmem;
-
-  if (ode_type == CP_EXPL) jacE = (CPDenseJacExplFn) djac;
-  else                     jacI = (CPDenseJacImplFn) djac;
-  J_data = jac_data;
-
-  return(CPDENSE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPDenseGetWorkSpace
- * -----------------------------------------------------------------
- */
-
-int CPDenseGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS)
-{
-  CPodeMem cp_mem;
-  CPDenseMem cpdense_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDENSE_MEM_NULL, "CPDENSE", "CPDenseGetWorkSpace", MSGDS_CPMEM_NULL);
-    return(CPDENSE_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDENSE_LMEM_NULL, "CPDENSE", "CPDenseGetWorkSpace", MSGDS_LMEM_NULL);
-    return(CPDENSE_LMEM_NULL);
-  }
-  cpdense_mem = (CPDenseMem) lmem;
-
-  if (ode_type == CP_EXPL) *lenrwLS = 2*n*n;
-  else                     *lenrwLS = n*n;
-  *leniwLS = n;
-
-  return(CPDENSE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPDenseGetNumJacEvals
- * -----------------------------------------------------------------
- */
-
-int CPDenseGetNumJacEvals(void *cpode_mem, long int *njevals)
-{
-  CPodeMem cp_mem;
-  CPDenseMem cpdense_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDENSE_MEM_NULL, "CPDENSE", "CPDenseGetNumJacEvals", MSGDS_CPMEM_NULL);
-    return(CPDENSE_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDENSE_LMEM_NULL, "CPDENSE", "CPDenseGetNumJacEvals", MSGDS_LMEM_NULL);
-    return(CPDENSE_LMEM_NULL);
-  }
-  cpdense_mem = (CPDenseMem) lmem;
-
-  *njevals = nje;
-
-  return(CPDENSE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPDenseGetNumFctEvals
- * -----------------------------------------------------------------
- */
-
-int CPDenseGetNumFctEvals(void *cpode_mem, long int *nfevalsLS)
-{
-  CPodeMem cp_mem;
-  CPDenseMem cpdense_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDENSE_MEM_NULL, "CPDENSE", "CPDenseGetNumFctEvals", MSGDS_CPMEM_NULL);
-    return(CPDENSE_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDENSE_LMEM_NULL, "CPDENSE", "CPDenseGetNumFctEvals", MSGDS_LMEM_NULL);
-    return(CPDENSE_LMEM_NULL);
-  }
-  cpdense_mem = (CPDenseMem) lmem;
-
-  *nfevalsLS = nfeD;
-
-  return(CPDENSE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPDenseGetReturnFlagName
- * -----------------------------------------------------------------
- */
-
-char *CPDenseGetReturnFlagName(int flag)
-{
-  char *name;
-
-  name = (char *)malloc(30*sizeof(char));
-
-  switch(flag) {
-  case CPDENSE_SUCCESS:
-    sprintf(name,"CPDENSE_SUCCESS");
-    break;   
-  case CPDENSE_MEM_NULL:
-    sprintf(name,"CPDENSE_MEM_NULL");
-    break;
-  case CPDENSE_LMEM_NULL:
-    sprintf(name,"CPDENSE_LMEM_NULL");
-    break;
-  case CPDENSE_ILL_INPUT:
-    sprintf(name,"CPDENSE_ILL_INPUT");
-    break;
-  case CPDENSE_MEM_FAIL:
-    sprintf(name,"CPDENSE_MEM_FAIL");
-    break;
-  case CPDENSE_JACFUNC_UNRECVR:
-    sprintf(name,"CPDENSE_JACFUNC_UNRECVR");
-    break;
-  case CPDENSE_JACFUNC_RECVR:
-    sprintf(name,"CPDENSE_JACFUNC_RECVR");
-    break;
-  default:
-    sprintf(name,"NONE");
-  }
-
-  return(name);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPDenseGetLastFlag
- * -----------------------------------------------------------------
- */
-
-int CPDenseGetLastFlag(void *cpode_mem, int *flag)
-{
-  CPodeMem cp_mem;
-  CPDenseMem cpdense_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDENSE_MEM_NULL, "CPDENSE", "CPDenseGetLastFlag", MSGDS_CPMEM_NULL);
-    return(CPDENSE_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDENSE_LMEM_NULL, "CPDENSE", "CPDenseGetLastFlag", MSGDS_LMEM_NULL);
-    return(CPDENSE_LMEM_NULL);
-  }
-  cpdense_mem = (CPDenseMem) lmem;
-
-  *flag = last_flag;
-
-  return(CPDENSE_SUCCESS);
-}
-
-/* 
- * =================================================================
- * EXPORTED FUNCTIONS FOR PROJECTION
- * =================================================================
- */
-              
 /*
  * -----------------------------------------------------------------
  * CPDenseProj
@@ -485,29 +268,29 @@ int CPDenseGetLastFlag(void *cpode_mem, int *flag)
  * -----------------------------------------------------------------
  */
 
-int CPDenseProj(void *cpode_mem, long int Nc, long int Ny, int fact_type)
+int CPDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
 {
   CPodeMem cp_mem;
-  CPDenseProjMem cpdenseP_mem;
+  CPDlsProjMem cpdlsP_mem;
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDENSE_MEM_NULL, "CPDENSE", "CPDenseProj", MSGDS_CPMEM_NULL);
-    return(CPDENSE_MEM_NULL);
+    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDENSE", "CPDenseProj", MSGD_CPMEM_NULL);
+    return(CPDIRECT_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if (tempv->ops->nvgetarraypointer == NULL ||
       tempv->ops->nvsetarraypointer == NULL) {
-    cpProcessError(cp_mem, CPDENSE_ILL_INPUT, "CPDENSE", "CPDenseProj", MSGDS_BAD_NVECTOR);
-    return(CPDENSE_ILL_INPUT);
+    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPDENSE", "CPDenseProj", MSGD_BAD_NVECTOR);
+    return(CPDIRECT_ILL_INPUT);
   }
 
   /* Check if fact_type has a legal value */
-  if ( (fact_type != CPDENSE_LU) && (fact_type != CPDENSE_QR) && (fact_type != CPDENSE_SC) ) {
-    cpProcessError(cp_mem, CPDENSE_ILL_INPUT, "CPDENSE", "CPDenseProj", MSGDS_BAD_FACT);
-    return(CPDENSE_ILL_INPUT);
+  if ( (fact_type != CPDIRECT_LU) && (fact_type != CPDIRECT_QR) && (fact_type != CPDIRECT_SC) ) {
+    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPDENSE", "CPDenseProj", MSGD_BAD_FACT);
+    return(CPDIRECT_ILL_INPUT);
   }
 
   if (lfreeP !=NULL) lfreeP(cp_mem);
@@ -519,12 +302,12 @@ int CPDenseProj(void *cpode_mem, long int Nc, long int Ny, int fact_type)
   lmultP  = cpDenseProjMult;
   lfreeP  = cpDenseProjFree;
 
-  /* Get memory for CPDenseProjMemRec */
-  cpdenseP_mem = NULL;
-  cpdenseP_mem = (CPDenseProjMem) malloc(sizeof(CPDenseProjMemRec));
-  if (cpdenseP_mem == NULL) {
-    cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGDS_MEM_FAIL);
-    return(CPDENSE_MEM_FAIL);
+  /* Get memory for CPDlsProjMemRec */
+  cpdlsP_mem = NULL;
+  cpdlsP_mem = (CPDlsProjMem) malloc(sizeof(CPDlsProjMemRec));
+  if (cpdlsP_mem == NULL) {
+    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+    return(CPDIRECT_MEM_FAIL);
   }
 
   lsetupP_exists = TRUE;
@@ -536,77 +319,77 @@ int CPDenseProj(void *cpode_mem, long int Nc, long int Ny, int fact_type)
   beta = NULL;
 
   /* Allocate memory for G and other work space */
-  G = DenseAllocMat(Ny, Nc);
+  G = NewDenseMat(Ny, Nc);
   if (G == NULL) {
-    cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGDS_MEM_FAIL);
-    free(cpdenseP_mem);
-    return(CPDENSE_MEM_FAIL);
+    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+    free(cpdlsP_mem);
+    return(CPDIRECT_MEM_FAIL);
   }
-  savedG = DenseAllocMat(Ny, Nc);
+  savedG = NewDenseMat(Ny, Nc);
   if (savedG == NULL) {
-    cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGDS_MEM_FAIL);
-    DenseFreeMat(G);
-    free(cpdenseP_mem);
-    return(CPDENSE_MEM_FAIL);
+    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+    DestroyMat(G);
+    free(cpdlsP_mem);
+    return(CPDIRECT_MEM_FAIL);
   }
 
   /* Allocate additional work space, depending on factorization */
   switch(fact_type) {
 
-  case CPDENSE_LU:
+  case CPDIRECT_LU:
     /* Allocate space for pivotsP and K */
-    pivotsP = DenseAllocPiv(Nc);
+    pivotsP = NewIntArray(Nc);
     if (pivotsP == NULL) {
-      cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGDS_MEM_FAIL);
-      DenseFreeMat(savedG);
-      DenseFreeMat(G);
-      free(cpdenseP_mem);
-      return(CPDENSE_MEM_FAIL);
+      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+      DestroyMat(savedG);
+      DestroyMat(G);
+      free(cpdlsP_mem);
+      return(CPDIRECT_MEM_FAIL);
     }
-    K = DenseAllocMat(Ny-Nc, Ny-Nc);
+    K = NewDenseMat(Ny-Nc, Ny-Nc);
     if (K == NULL) {
-      cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGDS_MEM_FAIL);
-      DenseFreePiv(pivotsP);
-      DenseFreeMat(savedG);
-      DenseFreeMat(G);
-      free(cpdenseP_mem);
-      return(CPDENSE_MEM_FAIL);
+      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+      DestroyArray(pivotsP);
+      DestroyMat(savedG);
+      DestroyMat(G);
+      free(cpdlsP_mem);
+      return(CPDIRECT_MEM_FAIL);
     }
     break;
 
-  case CPDENSE_QR:
+  case CPDIRECT_QR:
     /* Allocate space for beta */
-    beta = DenseAllocBeta(Nc);
+    beta = NewRealArray(Nc);
     if (beta == NULL) {
-      cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGDS_MEM_FAIL);
-      DenseFreeMat(savedG);
-      DenseFreeMat(G);
-      free(cpdenseP_mem);
-      return(CPDENSE_MEM_FAIL);      
+      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+      DestroyMat(savedG);
+      DestroyMat(G);
+      free(cpdlsP_mem);
+      return(CPDIRECT_MEM_FAIL);      
     }
     /* If projecting in WRMS norm, allocate space for K=Q^T*D^(-1)*Q */
     if (pnorm == CP_PROJ_ERRNORM) {
-      K = DenseAllocMat(Nc, Nc);
+      K = NewDenseMat(Nc, Nc);
       if (K == NULL) {
-        cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGDS_MEM_FAIL);
-        DenseFreeBeta(beta);
-      DenseFreeMat(savedG);
-        DenseFreeMat(G);
-        free(cpdenseP_mem);
-        return(CPDENSE_MEM_FAIL);
+        cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+        DestroyArray(beta);
+      DestroyMat(savedG);
+        DestroyMat(G);
+        free(cpdlsP_mem);
+        return(CPDIRECT_MEM_FAIL);
       }
     }
     break;
 
-  case CPDENSE_SC:
+  case CPDIRECT_SC:
     /* Allocate space for K = G * D^(-1) * G^T */
-    K = DenseAllocMat(Nc, Nc);
+    K = NewDenseMat(Nc, Nc);
     if (K == NULL) {
-      cpProcessError(cp_mem, CPDENSE_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGDS_MEM_FAIL);
-      DenseFreeMat(savedG);
-      DenseFreeMat(G);
-      free(cpdenseP_mem);
-      return(CPDENSE_MEM_FAIL);
+      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+      DestroyMat(savedG);
+      DestroyMat(G);
+      free(cpdlsP_mem);
+      return(CPDIRECT_MEM_FAIL);
     }
 
     break;
@@ -625,99 +408,9 @@ int CPDenseProj(void *cpode_mem, long int Nc, long int Ny, int fact_type)
   ftype = fact_type; /* factorization type    */
 
   /* Attach linear solver memory to integrator memory */
-  lmemP = cpdenseP_mem;
+  lmemP = cpdlsP_mem;
 
-  return(CPDENSE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPDenseProjSetJacFn
- * -----------------------------------------------------------------
- */
-
-int CPDenseProjSetJacFn(void *cpode_mem, void *djacP, void *jacP_data)
-{
-  CPodeMem cp_mem;
-  CPDenseProjMem cpdenseP_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDENSE_MEM_NULL, "CPDENSE", "CPDenseProjSetJacFn", MSGDS_CPMEM_NULL);
-    return(CPDENSE_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmemP == NULL) {
-    cpProcessError(cp_mem, CPDENSE_LMEM_NULL, "CPDENSE", "CPDenseProjSetJacFn", MSGDS_LMEM_NULL);
-    return(CPDENSE_LMEM_NULL);
-  }
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
-
-  if (djacP != NULL) {
-    jacP = (CPDenseProjJacFn) djacP;
-    JP_data = jacP_data;
-  }
-
-  return(CPDENSE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPDenseProjGetNumJacEvals
- * -----------------------------------------------------------------
- */
-
-int CPDenseProjGetNumJacEvals(void *cpode_mem, long int *njPevals)
-{
-  CPodeMem cp_mem;
-  CPDenseProjMem cpdenseP_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDENSE_MEM_NULL, "CPDENSE", "CPDenseProjGetNumJacEvals", MSGDS_CPMEM_NULL);
-    return(CPDENSE_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmemP == NULL) {
-    cpProcessError(cp_mem, CPDENSE_LMEM_NULL, "CPDENSE", "CPDenseProjGetNumJacEvals", MSGDS_LMEM_NULL);
-    return(CPDENSE_LMEM_NULL);
-  }
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
-
-  *njPevals = njeP;
-
-  return(CPDENSE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPDenseGetNumRhsEvals
- * -----------------------------------------------------------------
- */
-
-int CPDenseProjGetNumFctEvals(void *cpode_mem, long int *ncevalsLS)
-{
-  CPodeMem cp_mem;
-  CPDenseProjMem cpdenseP_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDENSE_MEM_NULL, "CPDENSE", "CPDenseProjGetNumFctEvals", MSGDS_CPMEM_NULL);
-    return(CPDENSE_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmemP == NULL) {
-    cpProcessError(cp_mem, CPDENSE_LMEM_NULL, "CPDENSE", "CPDenseProjGetNumFctEvals", MSGDS_LMEM_NULL);
-    return(CPDENSE_LMEM_NULL);
-  }
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
-
-  *ncevalsLS = nceD;
-
-  return(CPDENSE_SUCCESS);
+  return(CPDIRECT_SUCCESS);
 }
 
 /* 
@@ -737,25 +430,25 @@ int CPDenseProjGetNumFctEvals(void *cpode_mem, long int *ncevalsLS)
 
 static int cpDenseInit(CPodeMem cp_mem)
 {
-  CPDenseMem cpdense_mem;
+  CPDlsMem cpdls_mem;
 
-  cpdense_mem = (CPDenseMem) lmem;
+  cpdls_mem = (CPDlsMem) lmem;
   
   nje   = 0;
-  nfeD  = 0;
+  nfeDQ = 0;
   nstlj = 0;
   
   if (ode_type == CP_EXPL && jacE == NULL) {
-    jacE = cpDenseDQJacExpl;
+    jacE = cpDlsDenseDQJacExpl;
     J_data = cp_mem;
   } 
   
   if (ode_type == CP_IMPL && jacI == NULL) {
-    jacI = cpDenseDQJacImpl;
+    jacI = cpDlsDenseDQJacImpl;
     J_data = cp_mem;
   }
 
-  last_flag = CPDENSE_SUCCESS;
+  last_flag = CPDIRECT_SUCCESS;
   return(0);
 }
 
@@ -780,10 +473,10 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
   booleantype jbad, jok;
   realtype dgamma;
   long int ier;
-  CPDenseMem cpdense_mem;
+  CPDlsMem cpdls_mem;
   int retval;
 
-  cpdense_mem = (CPDenseMem) lmem;
+  cpdls_mem = (CPDlsMem) lmem;
 
   switch (ode_type) {
 
@@ -807,12 +500,12 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
       retval = jacE(n, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
       nje++;
       if (retval < 0) {
-        cpProcessError(cp_mem, CPDENSE_JACFUNC_UNRECVR, "CPDENSE", "cpDenseSetup", MSGDS_JACFUNC_FAILED);
-        last_flag = CPDENSE_JACFUNC_UNRECVR;
+        cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPDENSE", "cpDenseSetup", MSGD_JACFUNC_FAILED);
+        last_flag = CPDIRECT_JACFUNC_UNRECVR;
         return(-1);
       }
       if (retval > 0) {
-        last_flag = CPDENSE_JACFUNC_RECVR;
+        last_flag = CPDIRECT_JACFUNC_RECVR;
         return(1);
       }
       DenseCopy(M, savedJ);
@@ -831,12 +524,12 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
     retval = jacI(n, tn, gamma, yP, ypP, fctP, M, J_data, tmp1, tmp2, tmp3);
     nje++;
     if (retval < 0) {
-      cpProcessError(cp_mem, CPDENSE_JACFUNC_UNRECVR, "CPDENSE", "cpDenseSetup", MSGDS_JACFUNC_FAILED);
-      last_flag = CPDENSE_JACFUNC_UNRECVR;
+      cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPDENSE", "cpDenseSetup", MSGD_JACFUNC_FAILED);
+      last_flag = CPDIRECT_JACFUNC_UNRECVR;
       return(-1);
     }
     if (retval > 0) {
-      last_flag = CPDENSE_JACFUNC_RECVR;
+      last_flag = CPDIRECT_JACFUNC_RECVR;
       return(1);
     }
   
@@ -865,10 +558,10 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
 static int cpDenseSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
                         N_Vector yC, N_Vector ypC, N_Vector fctC)
 {
-  CPDenseMem cpdense_mem;
+  CPDlsMem cpdls_mem;
   realtype *bd;
 
-  cpdense_mem = (CPDenseMem) lmem;
+  cpdls_mem = (CPDlsMem) lmem;
   
   bd = N_VGetArrayPointer(b);
 
@@ -879,7 +572,7 @@ static int cpDenseSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
     N_VScale(TWO/(ONE + gamrat), b, b);
   }
   
-  last_flag = CPDENSE_SUCCESS;
+  last_flag = CPDIRECT_SUCCESS;
   return(0);
 }
 
@@ -893,15 +586,15 @@ static int cpDenseSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
 
 static void cpDenseFree(CPodeMem cp_mem)
 {
-  CPDenseMem  cpdense_mem;
+  CPDlsMem  cpdls_mem;
 
-  cpdense_mem = (CPDenseMem) lmem;
+  cpdls_mem = (CPDlsMem) lmem;
   
-  DenseFreeMat(M);
-  DenseFreePiv(pivots);
-  if (ode_type == CP_EXPL) DenseFreeMat(savedJ);
-  free(cpdense_mem); 
-  cpdense_mem = NULL;
+  DestroyMat(M);
+  DestroyArray(pivots);
+  if (ode_type == CP_EXPL) DestroyMat(savedJ);
+  free(cpdls_mem); 
+  cpdls_mem = NULL;
 }
 
 /* 
@@ -921,16 +614,16 @@ static void cpDenseFree(CPodeMem cp_mem)
 
 static int cpDenseProjInit(CPodeMem cp_mem)
 {
-  CPDenseProjMem cpdenseP_mem;
+  CPDlsProjMem cpdlsP_mem;
 
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
+  cpdlsP_mem = (CPDlsProjMem) lmemP;
   
   njeP   = 0;
-  nceD   = 0;
+  nceDQ  = 0;
   nstljP = 0;
   
   if (jacP == NULL) {
-    jacP = cpDenseProjDQJac;
+    jacP = cpDlsDenseProjDQJac;
     JP_data = cp_mem;
   }  
 
@@ -951,14 +644,14 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
                             N_Vector c_tmp1, N_Vector c_tmp2, N_Vector s_tmp1)
 {
   long int ier;
-  CPDenseProjMem cpdenseP_mem;
+  CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, *col_i, *s_tmpd;
   long int i, j, k, one = 1;
   int retval;
 
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
+  cpdlsP_mem = (CPDlsProjMem) lmemP;
 
-  g_mat = G->data;
+  g_mat = G->cols;
 
   /* 
    * Initialize Jacobian matrix to 0 and call Jacobian function 
@@ -968,7 +661,7 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
   retval = jacP(nc, ny, tn, y, cy, G, JP_data, c_tmp1, c_tmp2);
   njeP++;
   if (retval < 0) {
-    cpProcessError(cp_mem, CPDENSE_JACFUNC_UNRECVR, "CPDENSE", "cpDenseProjSetup", MSGDS_JACFUNC_FAILED);
+    cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPDENSE", "cpDenseProjSetup", MSGD_JACFUNC_FAILED);
     return(-1);
   } else if (retval > 0) {
     return(1);
@@ -980,7 +673,7 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
   /* Factorize G, depending on ftype */
   switch (ftype) {
 
-  case CPDENSE_LU:
+  case CPDIRECT_LU:
 
     /* 
      * LU factorization of G^T
@@ -1032,7 +725,7 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
 
     break;
 
-  case CPDENSE_QR:
+  case CPDIRECT_QR:
 
     /* 
      * Thin QR factorization of G^T
@@ -1060,7 +753,7 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
 
     break;
 
-  case CPDENSE_SC:
+  case CPDIRECT_SC:
 
     /* 
      * Build K = G*D^(-1)*G^T
@@ -1101,14 +794,14 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
                             N_Vector y, N_Vector cy,
                             N_Vector c_tmp1, N_Vector s_tmp1)
 {
-  CPDenseProjMem cpdenseP_mem;
+  CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, *bd, *xd, *col_i, *s_tmpd;
   realtype  *ewt_data, *d_data, *da_data, tmp;
   long int nd, i, k, pk;
 
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
+  cpdlsP_mem = (CPDlsProjMem) lmemP;
 
-  g_mat = G->data;
+  g_mat = G->cols;
   bd = N_VGetArrayPointer(b);
   xd = N_VGetArrayPointer(x);
   d_data = N_VGetArrayPointer(s_tmp1);
@@ -1118,7 +811,7 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
   /* Solve the linear system, depending on ftype */
   switch (ftype) {
 
-  case CPDENSE_LU:
+  case CPDIRECT_LU:
 
     /* 
      * Solve L*U1*alpha = bd
@@ -1212,7 +905,7 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
 
     break;
 
-  case CPDENSE_QR:
+  case CPDIRECT_QR:
 
     /* 
      * Solve R^T*alpha = bd using fwd. subst. (row version)
@@ -1237,7 +930,7 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
 
     break;
 
-  case CPDENSE_SC:
+  case CPDIRECT_SC:
 
     /* 
      * Solve K*xi = bd, using the Cholesky decomposition available in K.
@@ -1274,13 +967,13 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
 
 static void cpDenseProjMult(CPodeMem cp_mem, N_Vector x, N_Vector Gx)
 {
-  CPDenseProjMem cpdenseP_mem;
+  CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, *col_j, *x_d, *Gx_d;
   long int j, k;
 
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
+  cpdlsP_mem = (CPDlsProjMem) lmemP;
 
-  g_mat = savedG->data;
+  g_mat = savedG->cols;
   x_d   = N_VGetArrayPointer(x);
   Gx_d  = N_VGetArrayPointer(Gx);
 
@@ -1301,28 +994,28 @@ static void cpDenseProjMult(CPodeMem cp_mem, N_Vector x, N_Vector Gx)
 
 static void cpDenseProjFree(CPodeMem cp_mem)
 {
-  CPDenseProjMem  cpdenseP_mem;
+  CPDlsProjMem  cpdlsP_mem;
 
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
+  cpdlsP_mem = (CPDlsProjMem) lmemP;
   
-  DenseFreeMat(G);
-  DenseFreeMat(savedG);
+  DestroyMat(G);
+  DestroyMat(savedG);
   switch (ftype) {
-  case CPDENSE_LU:
-    DenseFreePiv(pivotsP);
-    DenseFreeMat(K);
+  case CPDIRECT_LU:
+    DestroyArray(pivotsP);
+    DestroyMat(K);
     break;
-  case CPDENSE_QR:
-    DenseFreeBeta(beta);
-    if (pnorm == CP_PROJ_ERRNORM) DenseFreeMat(K);
+  case CPDIRECT_QR:
+    DestroyArray(beta);
+    if (pnorm == CP_PROJ_ERRNORM) DestroyMat(K);
     break;
-  case CPDENSE_SC:
-    DenseFreeMat(K);
+  case CPDIRECT_SC:
+    DestroyMat(K);
     break;
   }
 
-  free(cpdenseP_mem); 
-  cpdenseP_mem = NULL;
+  free(cpdlsP_mem); 
+  cpdlsP_mem = NULL;
 }
 
 /*
@@ -1336,14 +1029,14 @@ static void cpDenseProjFree(CPodeMem cp_mem)
  */
 static void cpdLUcomputeKI(CPodeMem cp_mem)
 {
-  CPDenseProjMem cpdenseP_mem;
+  CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, **k_mat, *k_col_j;
   long int nd, i, j, k;
 
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
+  cpdlsP_mem = (CPDlsProjMem) lmemP;
 
-  g_mat = G->data;
-  k_mat = K->data;
+  g_mat = G->cols;
+  k_mat = K->cols;
 
   nd = ny-nc;
 
@@ -1372,18 +1065,18 @@ static void cpdLUcomputeKI(CPodeMem cp_mem)
  */
 static void cpdLUcomputeKD(CPodeMem cp_mem, N_Vector d)
 {
-  CPDenseProjMem cpdenseP_mem;
+  CPDlsProjMem cpdlsP_mem;
   realtype *d_data, *ewt_data, tmp;
   realtype **g_mat, **k_mat, *k_col_j;
   long int nd, i, j, k, pk;
 
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
+  cpdlsP_mem = (CPDlsProjMem) lmemP;
 
   ewt_data = N_VGetArrayPointer(ewt);
   d_data   = N_VGetArrayPointer(d);
 
-  g_mat = G->data;
-  k_mat = K->data;
+  g_mat = G->cols;
+  k_mat = K->cols;
 
   nd = ny-nc;
 
@@ -1429,14 +1122,14 @@ static void cpdQRcomputeKD(CPodeMem cp_mem, N_Vector d)
  */
 static void cpdSCcomputeKI(CPodeMem cp_mem)
 {
-  CPDenseProjMem cpdenseP_mem;
+  CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, **k_mat, *k_col_j;
   long int nd, i, j, k;
 
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
+  cpdlsP_mem = (CPDlsProjMem) lmemP;
 
-  g_mat = G->data;
-  k_mat = K->data;
+  g_mat = G->cols;
+  k_mat = K->cols;
 
   /* Load K column by column */
   for (j=0; j<nc; j++) {
@@ -1457,268 +1150,5 @@ static void cpdSCcomputeKD(CPodeMem cp_mem, N_Vector d)
 static void cpdScaleXbyD(CPodeMem cp_mem, realtype *alpha, realtype *d)
 {
   /* RADU:: implement this ... */
-}
-
-
-
-/* 
- * =================================================================
- *  DQ JACOBIAN APPROXIMATIONS FOR IMPLICIT INTEGRATION
- * =================================================================
- */
-
-/*
- * -----------------------------------------------------------------
- * cpDenseDQJacExpl 
- * -----------------------------------------------------------------
- * This routine generates a dense difference quotient approximation to
- * the Jacobian of f(t,y). It assumes that a dense matrix of type
- * DenseMat is stored column-wise, and that elements within each column
- * are contiguous. The address of the jth column of J is obtained via
- * the macro DENSE_COL and this pointer is associated with an N_Vector
- * using the N_VGetArrayPointer/N_VSetArrayPointer functions. 
- * Finally, the actual computation of the jth column of the Jacobian is 
- * done with a call to N_VLinearSum.
- * -----------------------------------------------------------------
- */
- 
-static int cpDenseDQJacExpl(long int N, realtype t,
-                            N_Vector y, N_Vector fy, 
-                            DenseMat Jac, void *jac_data,
-                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
-  realtype *tmp2_data, *y_data, *ewt_data;
-  N_Vector ftemp, jthCol;
-  long int j;
-  int retval = 0;
-
-  CPodeMem cp_mem;
-  CPDenseMem  cpdense_mem;
-
-  /* jac_data points to cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
-  cpdense_mem = (CPDenseMem) lmem;
-
-  /* Save pointer to the array in tmp2 */
-  tmp2_data = N_VGetArrayPointer(tmp2);
-
-  /* Rename work vectors for readibility */
-  ftemp = tmp1; 
-  jthCol = tmp2;
-
-  /* Obtain pointers to the data for ewt, y */
-  ewt_data = N_VGetArrayPointer(ewt);
-  y_data   = N_VGetArrayPointer(y);
-
-  /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
-  fnorm = N_VWrmsNorm(fy, ewt);
-  minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
-
-  for (j = 0; j < N; j++) {
-
-    /* Generate the jth col of J(tn,y) */
-
-    N_VSetArrayPointer(DENSE_COL(Jac,j), jthCol);
-
-    yjsaved = y_data[j];
-    inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
-    y_data[j] += inc;
-
-    retval = fe(t, y, ftemp, f_data);
-    nfeD++;
-    if (retval != 0) break;
-    
-    y_data[j] = yjsaved;
-
-    inc_inv = ONE/inc;
-    N_VLinearSum(inc_inv, ftemp, -inc_inv, fy, jthCol);
-
-    DENSE_COL(Jac,j) = N_VGetArrayPointer(jthCol);
-  }
-
-  /* Restore original array pointer in tmp2 */
-  N_VSetArrayPointer(tmp2_data, tmp2);
-
-  return(retval);
-}
-
-
-/*
- * -----------------------------------------------------------------
- * cpDenseDQJacImpl 
- * -----------------------------------------------------------------
- * This routine generates a dense difference quotient approximation to
- * the Jacobian F_y' + gamma*F_y. It assumes that a dense matrix of type
- * DenseMat is stored column-wise, and that elements within each column
- * are contiguous. The address of the jth column of J is obtained via
- * the macro DENSE_COL and this pointer is associated with an N_Vector
- * using the N_VGetArrayPointer/N_VSetArrayPointer functions. 
- * Finally, the actual computation of the jth column of the Jacobian is 
- * done with a call to N_VLinearSum.
- * -----------------------------------------------------------------
- */
- 
-static int cpDenseDQJacImpl(long int N, realtype t, realtype gm,
-                            N_Vector y, N_Vector yp, N_Vector r, 
-                            DenseMat Jac, void *jac_data,
-                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype inc, inc_inv, yj, ypj, srur;
-  realtype *tmp2_data, *y_data, *yp_data, *ewt_data;
-  N_Vector ftemp, jthCol;
-  long int j;
-  int retval = 0;
-
-  CPodeMem cp_mem;
-  CPDenseMem  cpdense_mem;
-
-  /* jac_data points to cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
-  cpdense_mem = (CPDenseMem) lmem;
-
-  /* Save pointer to the array in tmp2 */
-  tmp2_data = N_VGetArrayPointer(tmp2);
-
-  /* Rename work vectors for readibility */
-  ftemp = tmp1; 
-  jthCol = tmp2;
-
-  /* Obtain pointers to the data for ewt, y, and yp */
-  ewt_data = N_VGetArrayPointer(ewt);
-  y_data   = N_VGetArrayPointer(y);
-  yp_data  = N_VGetArrayPointer(yp);
-
-  /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
-
-  /* Generate each column of the Jacobian M = F_y' + gamma * F_y
-     as delta(F)/delta(y_j). */
-  for (j = 0; j < N; j++) {
-
-    /* Set data address of jthCol, and save y_j and yp_j values. */
-    N_VSetArrayPointer(DENSE_COL(Jac,j), jthCol);
-    yj = y_data[j];
-    ypj = yp_data[j];
-
-    /* Set increment inc to y_j based on sqrt(uround)*abs(y_j), with
-    adjustments using yp_j and ewt_j if this is small, and a further
-    adjustment to give it the same sign as h*yp_j. */
-    inc = MAX( srur * MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewt_data[j] );
-    if (h*ypj < ZERO) inc = -inc;
-    inc = (yj + inc) - yj;
-
-    /* Increment y_j and yp_j, call res, and break on error return. */
-    y_data[j]  += gamma*inc;
-    yp_data[j] += inc;
-    retval = fi(t, y, yp, ftemp, f_data);
-    nfeD++;
-    if (retval != 0) break;
-
-    /* Generate the jth col of J(tn,y) */
-    inc_inv = ONE/inc;
-    N_VLinearSum(inc_inv, ftemp, -inc_inv, r, jthCol);
-
-    DENSE_COL(Jac,j) = N_VGetArrayPointer(jthCol);
-
-    /* Reset y_j, yp_j */     
-    y_data[j] = yj;
-    yp_data[j] = ypj;
-  }
-
-  /* Restore original array pointer in tmp2 */
-  N_VSetArrayPointer(tmp2_data, tmp2);
-
-  return(retval);
-}
-
-/* 
- * =================================================================
- *  DQ JACOBIAN APPROXIMATIONS FOR PROJECTION
- * =================================================================
- */
-
-/*
- * -----------------------------------------------------------------
- * cpDenseProjDQJac 
- * -----------------------------------------------------------------
- * This routine generates a dense difference quotient approximation 
- * to the transpose of the Jacobian of c(t,y). It loads it into a 
- * dense matrix of type DenseMat stored column-wise with elements 
- * within each column contiguous. The address of the jth column of 
- * J is obtained via the macro DENSE_COL and this pointer is 
- * associated with an N_Vector using the N_VGetArrayPointer and 
- * N_VSetArrayPointer functions. 
- * Finally, the actual computation of the jth column of the Jacobian
- * transposed is done with a call to N_VLinearSum.
- * -----------------------------------------------------------------
- */
- 
-static int cpDenseProjDQJac(long int Nc, long int Ny, realtype t,
-                            N_Vector y, N_Vector cy, 
-                            DenseMat Jac, void *jac_data,
-                            N_Vector c_tmp1, N_Vector c_tmp2)
-{
-  realtype inc, inc_inv, yj, srur;
-  realtype *y_data, *ewt_data, *jthCol_data;
-  N_Vector ctemp, jthCol;
-  long int i, j;
-  int retval = 0;
-
-  CPodeMem cp_mem;
-  CPDenseProjMem cpdenseP_mem;
-
-  /* jac_data points to cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
-  cpdenseP_mem = (CPDenseProjMem) lmemP;
-
-  /* Rename work vectors for readibility */
-  ctemp  = c_tmp1; 
-  jthCol = c_tmp2;
-
-  /* Obtain pointers to the data for ewt and y */
-  ewt_data = N_VGetArrayPointer(ewt);
-  y_data   = N_VGetArrayPointer(y);
-
-  /* Obtain pointer to the data for jthCol */
-  jthCol_data = N_VGetArrayPointer(jthCol);
-
-  /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
-
-  /* Generate each column of the Jacobian G = dc/dy as delta(c)/delta(y_j). */
-  for (j = 0; j < Ny; j++) {
-
-    /* Save the y_j values. */
-    yj = y_data[j];
-
-    /* Set increment inc to y_j based on sqrt(uround)*abs(y_j), 
-       with an adjustment using ewt_j if this is small */
-    inc = MAX( srur * ABS(yj) , ONE/ewt_data[j] );
-    inc = (yj + inc) - yj;
-
-    /* Increment y_j, call cfun, and break on error return. */
-    y_data[j]  += inc;
-    retval = cfun(t, y, ctemp, c_data);
-    nceD++;
-    if (retval != 0) break;
-
-    /* Generate the jth col of G(tn,y) */
-    inc_inv = ONE/inc;
-    N_VLinearSum(inc_inv, ctemp, -inc_inv, cy, jthCol);
-
-    /* Copy the j-th column of G into the j-th row of Jac */
-    for (i = 0; i < Nc ; i++) {
-      DENSE_ELEM(Jac,j,i) = jthCol_data[i];
-    }
-
-    /* Reset y_j */     
-    y_data[j] = yj;
-  }
-
-  return(retval);
-
 }
 

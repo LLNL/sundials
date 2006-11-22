@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-10-11 16:34:01 $
+ * $Revision: 1.6 $
+ * $Date: 2006-11-22 00:12:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -100,15 +100,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                      /* Main header file */
-#include <ida/ida_spgmr.h>                /* Use IDASPGMR linear solver */
-#include <ida/ida_bbdpre.h>               /* Definitions for the IDABBDPRE prec. */
-#include <nvector/nvector_parallel.h>     /* Definitions of N_Vector and NV_DATA_P */
-#include <sundials/sundials_smalldense.h> /* definition of denalloc */
-#include <sundials/sundials_types.h>      /* Definitions of realtype and booleantype */
-#include <sundials/sundials_math.h>       /* Contains RSqrt routine */
+#include <ida/ida.h>
+#include <ida/ida_spgmr.h>
+#include <ida/ida_bbdpre.h>
+#include <nvector/nvector_parallel.h>
+#include <sundials/sundials_dense.h>
+#include <sundials/sundials_types.h>
+#include <sundials/sundials_math.h>
 
-#include <mpi.h>                          /* MPI library routines */
+#include <mpi.h>
 
 /* Problem Constants */
 
@@ -158,14 +158,14 @@
 /* Type: UserData.  Contains problem constants, preconditioner data, etc. */
 
 typedef struct {
-  long int ns, np, thispe, npes, ixsub, jysub, npex, npey;
-  long int mxsub, mysub, nsmxsub, nsmxsub2;
+  int ns, np, thispe, npes, ixsub, jysub, npex, npey;
+  int mxsub, mysub, nsmxsub, nsmxsub2;
   realtype dx, dy, **acoef;
   realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES],
     rhs[NUM_SPECIES], cext[(MXSUB+2)*(MYSUB+2)*NUM_SPECIES];
   MPI_Comm comm;
   N_Vector rates;
-  long int n_local;
+  int n_local;
 } *UserData;
 
 /* Prototypes for functions called by the IDA Solver. */
@@ -174,31 +174,31 @@ static int resweb(realtype tt,
                   N_Vector cc, N_Vector cp, N_Vector rr, 
                   void *res_data);
 
-static int reslocal(long int Nlocal, realtype tt, 
+static int reslocal(int Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector res, 
                     void *res_data);
 
-static int rescomm(long int Nlocal, realtype tt,
+static int rescomm(int Nlocal, realtype tt,
                    N_Vector cc, N_Vector cp, 
                    void *res_data);
 
 /* Prototypes for supporting functions */
 
-static void BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
-                  long int dsizex, long int dsizey, realtype carray[]);
+static void BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
+                  int dsizex, int dsizey, realtype carray[]);
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
-                      long int ixsub, long int jysub,
-                      long int dsizex, long int dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
+                      int ixsub, int jysub,
+                      int dsizex, int dsizey,
                       realtype cext[], realtype buffer[]);
 
-static void BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
-                      long int dsizex, realtype cext[], realtype buffer[]);
+static void BRecvWait(MPI_Request request[], int ixsub, int jysub,
+                      int dsizex, realtype cext[], realtype buffer[]);
 
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
 
-static realtype dotprod(long int size, realtype *x1, realtype *x2);
+static realtype dotprod(int size, realtype *x1, realtype *x2);
 
 /* Prototypes for private functions */
 
@@ -208,9 +208,9 @@ static void InitUserData(UserData webdata, int thispe, int npes,
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector scrtch, UserData webdata);
 
-static void PrintHeader(long int SystemSize, int maxl, 
-                        long int mudq, long int mldq, 
-                        long int mukeep, long int mlkeep,
+static void PrintHeader(int SystemSize, int maxl, 
+                        int mudq, int mldq, 
+                        int mukeep, int mlkeep,
                         realtype rtol, realtype atol);
 
 static void PrintOutput(void *mem, N_Vector cc, realtype time,
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem, *P_data;
   UserData webdata;
-  long int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
+  int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   int thispe, npes, maxl, iout, retval;
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
 
   webdata = (UserData) malloc(sizeof *webdata);
   webdata->rates = N_VNew_Parallel(comm, local_N, SystemSize);
-  webdata->acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
+  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
 
   InitUserData(webdata, thispe, npes, comm);
   
@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
   /* Call IDABBDSpgmr to specify the IDA linear solver IDASPGMR and specify
      the preconditioner routines supplied
      maxl (max. Krylov subspace dim.) is set to 16.   */
-  
+
   maxl = 16;
   retval = IDABBDSpgmr(mem, maxl, P_data);
   if(check_flag(&retval, "IDABBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
 
   IDAFree(&mem);
 
-  denfree(webdata->acoef);
+  destroyMat(webdata->acoef);
   N_VDestroy_Parallel(webdata->rates);
   free(webdata);
 
@@ -456,7 +456,7 @@ static void InitUserData(UserData webdata, int thispe, int npes,
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector res, UserData webdata)
 {
-  long int ixsub, jysub, mxsub, mysub, nsmxsub, np, ix, jy, is;
+  int ixsub, jysub, mxsub, mysub, nsmxsub, np, ix, jy, is;
   realtype *cxy, *idxy, *cpxy, dx, dy, xx, yy, xyfactor;
 
   ixsub = webdata->ixsub;
@@ -506,32 +506,27 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * and table headerr
  */
 
-static void PrintHeader(long int SystemSize, int maxl, 
-                        long int mudq, long int mldq, 
-                        long int mukeep, long int mlkeep,
+static void PrintHeader(int SystemSize, int maxl, 
+                        int mudq, int mldq, 
+                        int mukeep, int mlkeep,
                         realtype rtol, realtype atol)
 {
-  printf("\nidakryx2_bbd_p: Predator-prey DAE parallel example problem\n\n");
-  printf("Number of species ns: %d\n", NUM_SPECIES);
-  printf("Mesh dimensions:      %d x %d\n", MX, MY);
-  printf("Total system size:    %ld\n",SystemSize);
-  printf("Subgrid dimensions:   %d x %d\n", MXSUB, MYSUB);
-  printf("Processor array:      %d x %d\n", NPEX, NPEY);
-  printf("Tolerance parameters:\n");
+  printf("\nidakryx2_bbd_p: Predator-prey DAE parallel example problem for IDA \n\n");
+  printf("Number of species ns: %d", NUM_SPECIES);
+  printf("     Mesh dimensions: %d x %d", MX, MY);
+  printf("     Total system size: %ld\n",SystemSize);
+  printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
+  printf("     Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf(" relative tolerance = %Lg\n", rtol);
-  printf(" absolute tolerance = %Lg\n", atol);
+  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf(" relative tolerance = %lg\n", rtol);
-  printf(" absolute tolerance = %lg\n", atol);
+  printf("Tolerance parameters:  rtol = %lg   atol = %lg\n", rtol, atol);
 #else
-  printf(" relative tolerance = %g\n", rtol);
-  printf(" absolute tolerance = %g\n", atol);
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: scaled preconditioned GMRES (IDASPGMR)\n");
-  printf(" max. Krylov dimension: maxl = %d\n", maxl);
-  printf("Preconditioner: band-block-diagonal (IDABBDPRE)\n");
-  printf(" mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
+  printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
+  printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
+  printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
          mudq, mldq, mukeep, mlkeep);
   printf("CalcIC called to correct initial predator concentrations \n\n");
   printf("-----------------------------------------------------------\n");
@@ -715,7 +710,7 @@ static int resweb(realtype tt,
 {
   int retval;
   UserData webdata;
-  long int Nlocal;
+  int Nlocal;
   
   webdata = (UserData) res_data;
   
@@ -740,14 +735,14 @@ static int resweb(realtype tt,
  * and receive-waiting, in routines BRecvPost, BSend, BRecvWait.         
  */
 
-static int rescomm(long int Nlocal, realtype tt, 
+static int rescomm(int Nlocal, realtype tt, 
                    N_Vector cc, N_Vector cp,
                    void *res_data)
 {
 
   UserData webdata;
   realtype *cdata, *cext, buffer[2*NUM_SPECIES*MYSUB];
-  long int thispe, ixsub, jysub, nsmxsub, nsmysub;
+  int thispe, ixsub, jysub, nsmxsub, nsmysub;
   MPI_Comm comm;
   MPI_Request request[4];
   
@@ -789,12 +784,12 @@ static int rescomm(long int Nlocal, realtype tt,
  * (2) request should have 4 entries, and is also passed in both calls. 
  */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
-                      long int ixsub, long int jysub,
-                      long int dsizex, long int dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
+                      int ixsub, int jysub,
+                      int dsizex, int dsizey,
                       realtype cext[], realtype buffer[])
 {
-  long int offsetce;
+  int offsetce;
   /* Have bufleft and bufright use the same buffer. */
   realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
 
@@ -832,11 +827,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
  * (2) request should have 4 entries, and is also passed in both calls.  
  */
 
-static void BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
-                      long int dsizex, realtype cext[], realtype buffer[])
+static void BRecvWait(MPI_Request request[], int ixsub, int jysub,
+                      int dsizex, realtype cext[], realtype buffer[])
 {
   int i;
-  long int ly, dsizex2, offsetce, offsetbuf;
+  int ly, dsizex2, offsetce, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
   MPI_Status status;
   
@@ -883,11 +878,11 @@ static void BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
  * to the appropriate neighbor PEs.                                      
  */
  
-static void BSend(MPI_Comm comm, long int my_pe, long int ixsub, long int jysub,
-                  long int dsizex, long int dsizey, realtype cdata[])
+static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
+                  int dsizex, int dsizey, realtype cdata[])
 {
   int i;
-  long int ly, offsetc, offsetbuf;
+  int ly, offsetc, offsetbuf;
   realtype bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
 
   /* If jysub > 0, send data from bottom x-line of cc. */
@@ -963,13 +958,13 @@ static void BSend(MPI_Comm comm, long int my_pe, long int ixsub, long int jysub,
  * for use by the preconditioner setup routine.                          
  */
 
-static int reslocal(long int Nlocal, realtype tt, 
+static int reslocal(int Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector rr,
                     void *res_data)
 {
   realtype *cdata, *ratesxy, *cpxy, *resxy,
     xx, yy, dcyli, dcyui, dcxli, dcxui;
-  long int ix, jy, is, i, locc, ylocce, locce;
+  int ix, jy, is, i, locc, ylocce, locce;
   UserData webdata;
   
   webdata = (UserData) res_data;
@@ -1081,9 +1076,9 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * dotprod: dot product routine for realtype arrays, for use by WebRates.    
  */
 
-static realtype dotprod(long int size, realtype *x1, realtype *x2)
+static realtype dotprod(int size, realtype *x1, realtype *x2)
 {
-  long int i;
+  int i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; 

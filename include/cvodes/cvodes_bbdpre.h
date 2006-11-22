@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,6 +33,12 @@ extern "C" {
 
 #include <sundials/sundials_nvector.h>
 
+  /*
+   * =================================================================
+   *             C V S B B D P R E     C O N S T A N T S
+   * =================================================================
+   */
+
   /* CVBBDPRE return values */
 
 #define CVBBDPRE_SUCCESS            0
@@ -43,13 +49,16 @@ extern "C" {
 #define CVBBDPRE_PDATAB_NULL      -112
 #define CVBBDPRE_MEM_FAIL         -113
 
-
   /* 
-   * -----------------------------------------------------------------
+   * =================================================================
    * PART I - forward problems
+   * =================================================================
+   */
+
+  /*
    * -----------------------------------------------------------------
    *
-   * Summary:
+   * SUMMARY
    *
    * These routines provide a preconditioner matrix that is
    * block-diagonal with banded blocks. The blocking corresponds
@@ -163,8 +172,8 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  typedef int (*CVLocalFn)(long int Nlocal, realtype t, N_Vector y,
-                           N_Vector g, void *f_data);
+  typedef int (*CVLocalFn)(int Nlocal, realtype t, 
+                           N_Vector y, N_Vector g, void *f_data);
 
   /*
    * -----------------------------------------------------------------
@@ -194,7 +203,8 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  typedef int (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
+  typedef int (*CVCommFn)(int Nlocal, realtype t, 
+                          N_Vector y,
                           void *f_data);
 
   /*
@@ -238,9 +248,9 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal, 
-                       long int mudq, long int mldq, 
-                       long int mukeep, long int mlkeep, 
+  void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal, 
+                       int mudq, int mldq, 
+                       int mukeep, int mlkeep, 
                        realtype dqrely,
                        CVLocalFn gloc, CVCommFn cfn);
 
@@ -353,7 +363,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  int CVBBDPrecReInit(void *bbd_data, long int mudq, long int mldq,
+  int CVBBDPrecReInit(void *bbd_data, int mudq, int mldq,
                       realtype dqrely, CVLocalFn gloc, CVCommFn cfn);
 
   /*
@@ -369,7 +379,7 @@ extern "C" {
 
   /*
    * -----------------------------------------------------------------
-   * BBDPRE optional output extraction routines
+   * CVBBDPRE optional output extraction routines
    * -----------------------------------------------------------------
    * CVBBDPrecGetWorkSpace returns the BBDPRE real and integer work space
    *                       sizes.
@@ -381,8 +391,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, 
-                            long int *leniwBBDP);
+  int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP);
   int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 
   /*
@@ -395,9 +404,9 @@ extern "C" {
   char *CVBBDPrecGetReturnFlagName(int flag);
 
   /* 
-   * -----------------------------------------------------------------
+   * =================================================================
    * PART II - backward problems
-   * -----------------------------------------------------------------
+   * =================================================================
    */
 
   /*
@@ -409,12 +418,14 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  typedef int (*CVLocalFnB)(long int NlocalB, realtype t,
-                            N_Vector y, N_Vector yB, N_Vector gB,
+  typedef int (*CVLocalFnB)(int NlocalB, realtype t, 
+                            N_Vector y, 
+                            N_Vector yB, N_Vector gB,
                             void *f_dataB);
   
-  typedef int (*CVCommFnB)(long int NlocalB, realtype t,
-                           N_Vector y, N_Vector yB,
+  typedef int (*CVCommFnB)(int NlocalB, realtype t,
+                           N_Vector y, 
+                           N_Vector yB,
                            void *f_dataB);
 
   /*
@@ -426,9 +437,9 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
-                      long int mudqB, long int mldqB,
-                      long int mukeepB, long int mlkeepB,
+  int CVBBDPrecAllocB(void *cvadj_mem, int NlocalB,
+                      int mudqB, int mldqB,
+                      int mukeepB, int mlkeepB,
                       realtype dqrelyB,
                       CVLocalFnB glocB, CVCommFnB cfnB);
 
@@ -436,7 +447,7 @@ extern "C" {
   int CVBBDSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
   int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
   
-  int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
+  int CVBBDPrecReInitB(void *cvadj_mem, int mudqB, int mldqB,
                        realtype dqrelyB, CVLocalFnB glocB, CVCommFnB cfnB);
 
   void CVBBDPrecFreeB(void *cvadj_mem);

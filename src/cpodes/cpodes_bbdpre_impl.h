@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:05 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:48 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,30 +33,29 @@ extern "C" {
 typedef struct {
 
   /* passed by user to CPBBDPrecAlloc and used by PrecSetup/PrecSolve */
-
-  long int mudq, mldq, mukeep, mlkeep;
+  int mudq, mldq, mukeep, mlkeep;
   realtype dqrely;
-  CPLocalFn gloc;
-  CPCommFn cfn;
+  CPBBDLocalRhsFn glocE;
+  CPBBDLocalResFn glocI;
+  CPBBDCommFn cfn;
+
+  /* additional N_Vector needed by cpBBDPrecSetupImpl */
+  N_Vector tmp4;
 
   /* set by CPBBDPrecSetup and used by CPBBDPrecSolve */
-
-  BandMat savedJ;
-  BandMat savedP;
-  long int *pivots;
+  DlsMat savedJ;
+  DlsMat savedP;
+  int *pivots;
 
   /* set by CPBBDPrecAlloc and used by CPBBDPrecSetup */
-
-  long int n_local;
+  int n_local;
 
   /* available for optional output */
-
   long int rpwsize;
   long int ipwsize;
   long int nge;
 
   /* pointer to cpode_mem */
-
   void *cpode_mem;
 
 } *CPBBDPrecData;

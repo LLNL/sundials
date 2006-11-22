@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-10-09 23:56:24 $
+ * $Revision: 1.5 $
+ * $Date: 2006-11-22 00:12:51 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -163,12 +163,13 @@ extern "C" {
                         N_Vector tmp1, N_Vector tmp2);
 
 
-  int mtlb_CVodeDenseJac(long int N, DenseMat J, realtype t,
-                         N_Vector y, N_Vector fy, void *jac_data,
+  int mtlb_CVodeDenseJac(int N, realtype t,
+                         N_Vector y, N_Vector fy, 
+                         DlsMat J, void *jac_data,
                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-  int mtlb_CVodeBandJac(long int N, long int mupper, long int mlower,
-                        BandMat J, realtype t,
-                        N_Vector y, N_Vector fy, void *jac_data,
+  int mtlb_CVodeBandJac(int N, int mupper, int mlower, realtype t,
+                        N_Vector y, N_Vector fy, 
+                        DlsMat J, void *jac_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   int mtlb_CVodeSpilsJac(N_Vector v, N_Vector Jv, realtype t,
                          N_Vector y, N_Vector fy,
@@ -184,25 +185,21 @@ extern "C" {
                           int lr, void *P_data, N_Vector tmp);
 
   
-  int mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
-                        N_Vector g, void *f_data);
-  int mtlb_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y,
-                        void *f_data);
+  int mtlb_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y, N_Vector g, void *f_data);
+  int mtlb_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data);
 
 
 
   int mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB);
   int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_dataB);
-  int mtlb_CVodeDenseJacB(long int nB, DenseMat JB, realtype t,
+  int mtlb_CVodeDenseJacB(int nB, realtype t,
                           N_Vector y, N_Vector yB, N_Vector fyB,
-                          void *jac_dataB, N_Vector tmp1B,
-                          N_Vector tmp2B, N_Vector tmp3B);
-  int mtlb_CVodeBandJacB(long int nB, long int mupperB,
-                         long int mlowerB, BandMat JB,
-                         realtype t, N_Vector y,
-                         N_Vector yB, N_Vector fyB,
-                         void *jac_dataB, N_Vector tmp1B,
-                         N_Vector tmp2B, N_Vector tmp3B);
+                          DlsMat JB, void *jac_dataB, 
+                          N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+  int mtlb_CVodeBandJacB(int nB, int mupperB, int mlowerB, realtype t,
+                         N_Vector y, N_Vector yB, N_Vector fyB,
+                         DlsMat JB, void *jac_dataB, 
+                         N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
   int mtlb_CVodeSpilsJacB(N_Vector vB, N_Vector JvB, realtype t,
                           N_Vector y, N_Vector yB, N_Vector fyB,
                           void *jac_dataB, N_Vector tmpB);
@@ -219,11 +216,11 @@ extern "C" {
                            realtype gammaB, realtype deltaB,
                            int lrB, void *P_dataB, N_Vector tmpB);
   
-  int mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y, 
-                          N_Vector yB, N_Vector gB, void *f_dataB);
+  int mtlb_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y, 
+                         N_Vector yB, N_Vector gB, void *f_dataB);
 
-  int mtlb_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y, 
-                          N_Vector yB, void *f_dataB);
+  int mtlb_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y, 
+                         N_Vector yB, void *f_dataB);
 
   void mtlb_CVodeMonitor(int call, double t, N_Vector y, N_Vector yQ, N_Vector *yS);
   void mtlb_CVodeMonitorB(int call, double tB, N_Vector yB, N_Vector yQB);

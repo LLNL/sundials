@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-11 16:34:05 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -90,7 +90,7 @@
 #include <idas/idas.h>
 #include <idas/idas_band.h>
 #include <nvector/nvector_serial.h>
-#include <sundials/sundials_smalldense.h>
+#include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
 
 /* Problem Constants. */
@@ -184,7 +184,7 @@ int main()
 
   webdata = (UserData) malloc(sizeof *webdata);
   webdata->rates = N_VNew_Serial(NEQ);
-  webdata->acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
+  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
 
   InitUserData(webdata);
 
@@ -264,7 +264,7 @@ int main()
   N_VDestroy_Serial(id);
 
 
-  denfree(webdata->acoef);
+  destroyMat(webdata->acoef);
   N_VDestroy_Serial(webdata->rates);
   free(webdata);
 
@@ -525,10 +525,10 @@ static void PrintFinalStats(void *mem)
   check_flag(&flag, "IDAGetNumErrTestFails", 1);
   flag = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1);
-  flag = IDABandGetNumJacEvals(mem, &nje);
-  check_flag(&flag, "IDABandGetNumJacEvals", 1);
-  flag = IDABandGetNumResEvals(mem, &nreLS);
-  check_flag(&flag, "IDABandGetNumResEvals", 1);
+  flag = IDADlsGetNumJacEvals(mem, &nje);
+  check_flag(&flag, "IDADlsGetNumJacEvals", 1);
+  flag = IDADlsGetNumResEvals(mem, &nreLS);
+  check_flag(&flag, "IDADlsGetNumResEvals", 1);
 
   printf("-----------------------------------------------------------\n");
   printf("Final run statistics: \n\n");

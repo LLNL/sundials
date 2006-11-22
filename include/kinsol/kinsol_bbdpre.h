@@ -1,10 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:52 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:47 $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
- *                Aaron Collier @ LLNL
+ * Programmer(s): Alan Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -100,8 +99,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _KBBDPRE_H
-#define _KBBDPRE_H
+#ifndef _KINBBDPRE_H
+#define _KINBBDPRE_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -141,7 +140,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINCommFn)(long int Nlocal, N_Vector u, void *f_data);
+typedef int (*KINCommFn)(int Nlocal, N_Vector u, void *f_data);
 
 /*
  * -----------------------------------------------------------------
@@ -167,7 +166,7 @@ typedef int (*KINCommFn)(long int Nlocal, N_Vector u, void *f_data);
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINLocalFn)(long int Nlocal, N_Vector uu,
+typedef int (*KINLocalFn)(int Nlocal, N_Vector uu,
                           N_Vector gval, void *f_data);
 
 /*
@@ -210,9 +209,9 @@ typedef int (*KINLocalFn)(long int Nlocal, N_Vector uu,
  * -----------------------------------------------------------------
  */
 
-void *KINBBDPrecAlloc(void *kinmem, long int Nlocal, 
-		      long int mudq, long int mldq,
-		      long int mukeep, long int mlkeep,
+void *KINBBDPrecAlloc(void *kinmem, int Nlocal, 
+		      int mudq, int mldq,
+		      int mukeep, int mlkeep,
 		      realtype dq_rel_uu, 
 		      KINLocalFn gloc, KINCommFn gcomm);
 

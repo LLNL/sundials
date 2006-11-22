@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-09 20:37:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,7 +51,7 @@
    dense matrix starting from 0. */
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)              /* Ith numbers components 1..NEQ */
-#define IJth(A,i,j) LAPACK_DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
+#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
 
 
 /* Problem Constants */
@@ -79,7 +79,7 @@ static int g(realtype t, N_Vector y, realtype *gout, void *g_data);
 
 static int Jac(int N, realtype t,
                N_Vector y, N_Vector fy, 
-               LapackMat J, void *jac_data,
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions to output results */
@@ -167,8 +167,8 @@ int main()
   if (check_flag(&flag, "CVLapackDense", 1)) return(1);
 
   /* Set the Jacobian routine to Jac (user-supplied) */
-  flag = CVLapackSetJacFn(cvode_mem, Jac, NULL);
-  if (check_flag(&flag, "CVLapackSetJacFn", 1)) return(1);
+  flag = CVDlsSetJacFn(cvode_mem, Jac, NULL);
+  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -251,7 +251,7 @@ static int g(realtype t, N_Vector y, realtype *gout, void *g_data)
 
 static int Jac(int N, realtype t,
                N_Vector y, N_Vector fy, 
-               LapackMat J, void *jac_data,
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
@@ -321,10 +321,10 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVLapackGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVLapackGetNumJacEvals", 1);
-  flag = CVLapackGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVLapackGetNumRhsEvals", 1);
+  flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
+  check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+  flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
 
   flag = CVodeGetNumGEvals(cvode_mem, &nge);
   check_flag(&flag, "CVodeGetNumGEvals", 1);

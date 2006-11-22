@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-10-09 23:56:24 $
+ * $Revision: 1.10 $
+ * $Date: 2006-11-22 00:12:51 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -453,12 +453,12 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   case LS_DENSE:
     status = IDADense(ida_mem, N);
     if (!mxIsEmpty(mx_JACfct))
-      status = IDADenseSetJacFn(ida_mem, mtlb_IdaDenseJac, NULL);
+      status = IDADlsSetJacFn(ida_mem, mtlb_IdaDenseJac, NULL);
     break;
   case LS_BAND:
     status = IDABand(ida_mem, N, mupper, mlower);
     if (!mxIsEmpty(mx_JACfct))
-      status = IDABandSetJacFn(ida_mem, mtlb_IdaBandJac, NULL);
+      status = IDADlsSetJacFn(ida_mem, mtlb_IdaBandJac, NULL);
     break;
   case LS_SPGMR:
     switch (pm) {
@@ -832,12 +832,12 @@ static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   case LS_DENSE:
     status = IDADenseB(idaadj_mem, NB);
     if (!mxIsEmpty(mx_JACfctB))
-      status = IDADenseSetJacFnB(idaadj_mem, mtlb_IdaDenseJacB, NULL);
+      status = IDADlsSetJacFnB(idaadj_mem, mtlb_IdaDenseJacB, NULL);
     break;
   case LS_BAND:
     status = IDABandB(idaadj_mem, NB, mupperB, mlowerB);
     if (!mxIsEmpty(mx_JACfctB))
-      status = IDABandSetJacFnB(idaadj_mem, mtlb_IdaBandJacB, NULL);
+      status = IDADlsSetJacFnB(idaadj_mem, mtlb_IdaBandJacB, NULL);
     break;
   case LS_SPGMR:
     switch (pmB) {
@@ -1395,8 +1395,8 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   case LS_DENSE:
     
-    flag = IDADenseGetNumJacEvals(ida_mem, &njeD);
-    flag = IDADenseGetNumResEvals(ida_mem, &nreD);
+    flag = IDADlsGetNumJacEvals(ida_mem, &njeD);
+    flag = IDADlsGetNumResEvals(ida_mem, &nreD);
     
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
@@ -1409,8 +1409,8 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   case LS_BAND:
       
-    flag = IDABandGetNumJacEvals(ida_mem, &njeB);
-    flag = IDABandGetNumResEvals(ida_mem, &nreB);
+    flag = IDADlsGetNumJacEvals(ida_mem, &njeB);
+    flag = IDADlsGetNumResEvals(ida_mem, &nreB);
       
     nfields = sizeof(fnames_band)/sizeof(*fnames_band);
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
@@ -1596,8 +1596,8 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   case LS_DENSE:
     
-    flag = IDADenseGetNumJacEvals(ida_memB, &njeD);
-    flag = IDADenseGetNumResEvals(ida_memB, &nreD);
+    flag = IDADlsGetNumJacEvals(ida_memB, &njeD);
+    flag = IDADlsGetNumResEvals(ida_memB, &nreD);
     
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
@@ -1610,8 +1610,8 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   case LS_BAND:
       
-    flag = IDABandGetNumJacEvals(ida_memB, &njeB);
-    flag = IDABandGetNumResEvals(ida_memB, &nreB);
+    flag = IDADlsGetNumJacEvals(ida_memB, &njeB);
+    flag = IDADlsGetNumResEvals(ida_memB, &nreB);
       
     nfields = sizeof(fnames_band)/sizeof(*fnames_band);
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);

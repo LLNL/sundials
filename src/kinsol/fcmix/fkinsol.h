@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-08 00:48:28 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -415,8 +415,7 @@ extern "C" {
  */
 
 #include <kinsol/kinsol.h>
-#include <sundials/sundials_dense.h>   /* definition of DenseMat      */
-#include <sundials/sundials_band.h>    /* definition of BandMat      */
+#include <sundials/sundials_direct.h>  /* definition of type DlsMat   */
 #include <sundials/sundials_nvector.h> /* definition of type N_Vector */
 #include <sundials/sundials_types.h>   /* definition of type realtype */
 
@@ -436,6 +435,10 @@ extern "C" {
 #define FKIN_DENSESETJAC    F77_FUNC(fkindensesetjac, FKINDENSESETJAC)
 #define FKIN_BAND           F77_FUNC(fkinband, FKINBAND)
 #define FKIN_BANDSETJAC     F77_FUNC(fkinbandsetjac, FKINBANDSETJAC)
+#define FKIN_LAPACKDENSE       F77_FUNC(fkinlapackdense, FKINLAPACKDENSE)
+#define FKIN_LAPACKDENSESETJAC F77_FUNC(fkinlapackdensesetjac, FKINLAPACKDENSESETJAC)
+#define FKIN_LAPACKBAND        F77_FUNC(fkinlapackband, FKINLAPACKBAND)
+#define FKIN_LAPACKBANDSETJAC  F77_FUNC(fkinlapackbandsetjac, FKINLAPACKBANDSETJAC)
 #define FKIN_SPTFQMR        F77_FUNC(fkinsptfqmr, FKINSPTFQMR)
 #define FKIN_SPBCG          F77_FUNC(fkinspbcg, FKINSPBCG)
 #define FKIN_SPGMR          F77_FUNC(fkinspgmr, FKINSPGMR)
@@ -460,6 +463,10 @@ extern "C" {
 #define FKIN_DENSESETJAC    fkindensesetjac_
 #define FKIN_BAND           fkinband_
 #define FKIN_BANDSETJAC     fkinbandsetjac_
+#define FKIN_LAPACKDENSE       fkinlapackdense_
+#define FKIN_LAPACKDENSESETJAC fkinlapackdensesetjac_
+#define FKIN_LAPACKBAND        fkinlapackband_
+#define FKIN_LAPACKBANDSETJAC  fkinlapackbandsetjac_
 #define FKIN_SPTFQMR        fkinsptfqmr_
 #define FKIN_SPBCG          fkinspbcg_
 #define FKIN_SPGMR          fkinspgmr_
@@ -488,14 +495,21 @@ void FKIN_SETIIN(char key_name[], long int *ival, int *ier, int key_len);
 void FKIN_SETRIN(char key_name[], realtype *rval, int *ier, int key_len);
 void FKIN_SETVIN(char key_name[], realtype *vval, int *ier, int key_len);
 
-void FKIN_DENSE(long int *neq, int *ier);
-void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
+void FKIN_DENSE(int *neq, int *ier);
+void FKIN_DENSESETJAC(int *flag, int *ier);
+
+void FKIN_BAND(int *neq, int *mupper, int *mlower, int *ier);
+void FKIN_BANDSETJAC(int *flag, int *ier);
+
+void FKIN_LAPACKDENSE(int *neq, int *ier);
+void FKIN_LAPACKDENSESETJAC(int *flag, int *ier);
+void FKIN_LAPACKBAND(int *neq, int *mupper, int *mlower, int *ier);
+void FKIN_LAPACKBANDSETJAC(int *flag, int *ier);
+
 void FKIN_SPTFQMR(int *maxl, int *ier);
 void FKIN_SPBCG(int *maxl, int *ier);
 void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier);
 
-void FKIN_DENSESETJAC(int *flag, int *ier);
-void FKIN_BANDSETJAC(int *flag, int *ier);
 void FKIN_SPILSSETJAC(int *flag, int *ier);
 void FKIN_SPILSSETPREC(int *flag, int *ier);
 
@@ -512,12 +526,25 @@ void FKIN_FREE(void);
 
 int FKINfunc(N_Vector uu, N_Vector fval, void *f_data);
 
-int FKINDenseJac(long int N, DenseMat J, N_Vector uu, N_Vector fval,
-                 void *jac_data, N_Vector vtemp1, N_Vector vtemp2);
+int FKINDenseJac(int N, 
+                 N_Vector uu, N_Vector fval,
+                 DlsMat J, void *jac_data, 
+                 N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINBandJac(long int N, long int mupper, long int mlower,
-                BandMat J, N_Vector uu, N_Vector fval, void *jac_data,
+int FKINBandJac(int N, int mupper, int mlower,
+                N_Vector uu, N_Vector fval, 
+                DlsMat J, void *jac_data,
                 N_Vector vtemp1, N_Vector vtemp2);
+
+int FKINLapackDenseJac(int N, 
+                       N_Vector uu, N_Vector fval,
+                       DlsMat J, void *jac_data, 
+                       N_Vector vtemp1, N_Vector vtemp2);
+
+int FKINLapackBandJac(int N, int mupper, int mlower,
+                      N_Vector uu, N_Vector fval, 
+                      DlsMat J, void *jac_data,
+                      N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINPSet(N_Vector uu, N_Vector uscale,
              N_Vector fval, N_Vector fscale,
@@ -549,7 +576,8 @@ extern int KIN_ls;
 /* Linear solver IDs */
 
 enum { KIN_LS_SPGMR = 1, KIN_LS_SPBCG = 2, KIN_LS_SPTFQMR = 3, 
-       KIN_LS_DENSE = 4, KIN_LS_BAND  = 5 };
+       KIN_LS_DENSE = 4, KIN_LS_BAND  = 5,
+       KIN_LS_LAPACKDENSE = 6, KIN_LS_LAPACKBAND = 7 };
 
 #ifdef __cplusplus
 }

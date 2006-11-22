@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -40,11 +40,11 @@
 extern "C" {
 #endif
 
-  extern void FIDA_GLOCFN(long int*, 
+  extern void FIDA_GLOCFN(int*, 
                           realtype*, realtype*, realtype*, realtype*, 
                           long int*, realtype*,
                           int*);
-  extern void FIDA_COMMFN(long int*, 
+  extern void FIDA_COMMFN(int*, 
                           realtype*, realtype*, realtype*, 
                           long int*, realtype*,
                           int*);
@@ -55,8 +55,8 @@ extern "C" {
 
 /*************************************************/
 
-void FIDA_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
-		  long int *mu, long int *ml, realtype *dqrely, int *ier)
+void FIDA_BBDINIT(int *Nloc, int *mudq, int *mldq,
+		  int *mu, int *ml, realtype *dqrely, int *ier)
 {
   IDABBD_Data = IDABBDPrecAlloc(IDA_idamem, *Nloc, *mudq, *mldq, *mu, *ml,
 				*dqrely, (IDABBDLocalFn) FIDAgloc, (IDABBDCommFn) FIDAcfn);
@@ -145,7 +145,7 @@ void FIDA_BBDSPGMR(int *maxl, int *gstype, int *maxrs,
 
 /*************************************************/
 
-void FIDA_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq,
+void FIDA_BBDREINIT(int *Nloc, int *mudq, int *mldq,
 		    realtype *dqrely, int *ier)
 {
   *ier = 0;
@@ -158,7 +158,7 @@ void FIDA_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq,
 
 /*************************************************/
 
-int FIDAgloc(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
+int FIDAgloc(int Nloc, realtype t, N_Vector yy, N_Vector yp,
 	     N_Vector gval, void *res_data)
 {
   realtype *yy_data, *yp_data, *gval_data;
@@ -190,7 +190,7 @@ int FIDAgloc(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
 
 /*************************************************/
 
-int FIDAcfn(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
+int FIDAcfn(int Nloc, realtype t, N_Vector yy, N_Vector yp,
 	    void *res_data)
 {
   realtype *yy_data, *yp_data;

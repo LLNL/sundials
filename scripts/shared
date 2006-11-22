@@ -16,7 +16,7 @@ tar ufv $tarfile $distrobase/acinclude.m4
 tar ufv $tarfile $distrobase/config.hin
 tar ufv $tarfile $distrobase/configure
 
-tar ufv $tarfile $distrobase/sundials.spec
+tar ufv $tarfile $distrobase/config/sundials.spec
 
 tar ufv $tarfile $distrobase/config/sundials-config.in
 tar ufv $tarfile $distrobase/config/config.guess
@@ -36,8 +36,9 @@ tar ufv $tarfile $distrobase/include/sundials/sundials_math.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_nvector.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_fnvector.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_dense.h
-tar ufv $tarfile $distrobase/include/sundials/sundials_smalldense.h
+tar ufv $tarfile $distrobase/include/sundials/sundials_direct.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_band.h
+tar ufv $tarfile $distrobase/include/sundials/sundials_lapack.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_spgmr.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_spbcgs.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_sptfqmr.h
@@ -52,8 +53,9 @@ tar ufv $tarfile $distrobase/src/sundials/sundials_config.in
 tar ufv $tarfile $distrobase/src/sundials/sundials_math.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_nvector.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_dense.c
-tar ufv $tarfile $distrobase/src/sundials/sundials_smalldense.c
+tar ufv $tarfile $distrobase/src/sundials/sundials_direct.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_band.c
+tar ufv $tarfile $distrobase/src/sundials/sundials_lapack.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_spgmr.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_spbcgs.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_sptfqmr.c

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-22 01:58:06 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-extern void FK_BJAC(long int*, long int*, long int*, long int*,
+extern void FK_BJAC(int*, int*, int*, int*,
                     realtype*, realtype*,
                     realtype*,
                     realtype*, realtype*, int*);
@@ -51,10 +51,10 @@ extern void FK_BJAC(long int*, long int*, long int*, long int*,
 void FKIN_BANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = KINBandSetJacFn(KIN_kinmem, NULL, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, NULL, NULL);
   }
   else {
-    *ier = KINBandSetJacFn(KIN_kinmem, (KINBandJacFn) FKINBandJac, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, (KINDlsBandJacFn) FKINBandJac, NULL);
   }
 
   return;
@@ -72,12 +72,13 @@ void FKIN_BANDSETJAC(int *flag, int *ier)
  * ----------------------------------------------------------------
  */
 
-int FKINBandJac(long int N, long int mupper, long int mlower,
-                BandMat J, N_Vector uu, N_Vector fval, void *jac_data,
+int FKINBandJac(int N, int mupper, int mlower,
+                N_Vector uu, N_Vector fval, 
+                DlsMat J, void *jac_data,
                 N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;
-  long int eband;
+  int eband;
   int ier;
 
   /* Initialize all pointers to NULL */
@@ -95,7 +96,7 @@ int FKINBandJac(long int N, long int mupper, long int mlower,
   v1_data   = N_VGetArrayPointer(vtemp1);
   v2_data   = N_VGetArrayPointer(vtemp2);
 
-  eband = (J->smu) + mlower + 1;
+  eband = (J->s_mu) + mlower + 1;
   jacdata = BAND_COL(J,0) - mupper;
 
   /* Call user-supplied routine */

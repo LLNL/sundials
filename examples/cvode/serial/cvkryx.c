@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:33:56 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -36,12 +36,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvode/cvode.h>                  /* main integrator header file */
-#include <cvode/cvode_spgmr.h>            /* prototypes & constants for CVSPGMR solver */
-#include <nvector/nvector_serial.h>       /* serial N_Vector types, fct. and macros */
-#include <sundials/sundials_smalldense.h> /* use generic DENSE solver in preconditioning */
-#include <sundials/sundials_types.h>      /* definition of realtype */
-#include <sundials/sundials_math.h>       /* contains the macros ABS, SQR, and EXP */
+#include <cvode/cvode.h>              /* main integrator header file */
+#include <cvode/cvode_spgmr.h>        /* prototypes & constants for CVSPGMR solver */
+#include <nvector/nvector_serial.h>   /* serial N_Vector types, fct. and macros */
+#include <sundials/sundials_dense.h>  /* use generic DENSE solver in preconditioning */
+#include <sundials/sundials_types.h>  /* definition of realtype */
+#include <sundials/sundials_math.h>   /* contains the macros ABS, SQR, and EXP */
 
 /* Problem Constants */
 
@@ -103,7 +103,7 @@
    contiguous within vdata.
 
    IJth(a,i,j) references the (i,j)th entry of the small matrix realtype **a,
-   where 1 <= i,j <= NUM_SPECIES. The small matrix routines in dense.h
+   where 1 <= i,j <= NUM_SPECIES. The small matrix routines in sundials_dense.h
    work with matrices stored by column in a 2-dimensional array. In C,
    arrays are indexed starting at 0, not 1. */
 
@@ -115,7 +115,7 @@
 
 typedef struct {
   realtype **P[MX][MY], **Jbd[MX][MY];
-  long int *pivot[MX][MY];
+  int *pivot[MX][MY];
   realtype q4, om, dx, dy, hdco, haco, vdco;
 } *UserData;
 
@@ -245,9 +245,9 @@ static UserData AllocUserData(void)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = denalloc(NUM_SPECIES, NUM_SPECIES);
-      (data->Jbd)[jx][jy] = denalloc(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
+      (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->Jbd)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jy] = newIntArray(NUM_SPECIES);
     }
   }
 
@@ -274,9 +274,9 @@ static void FreeUserData(UserData data)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      denfree((data->P)[jx][jy]);
-      denfree((data->Jbd)[jx][jy]);
-      denfreepiv((data->pivot)[jx][jy]);
+      destroyMat((data->P)[jx][jy]);
+      destroyMat((data->Jbd)[jx][jy]);
+      destroyArray((data->pivot)[jx][jy]);
     }
   }
 
@@ -544,7 +544,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MY], **(*Jbd)[MY];
-  long int *(*pivot)[MY], ier;
+  int *(*pivot)[MY], ier;
   int jx, jy;
   realtype *udata, **a, **j;
   UserData data;
@@ -563,7 +563,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
     
     for (jy=0; jy < MY; jy++)
       for (jx=0; jx < MX; jx++)
-        dencopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
+        denseCopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
     
     *jcurPtr = FALSE;
     
@@ -597,7 +597,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        dencopy(j, a, NUM_SPECIES, NUM_SPECIES);
+        denseCopy(j, a, NUM_SPECIES, NUM_SPECIES);
       }
     }
     
@@ -609,14 +609,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   
   for (jy=0; jy < MY; jy++)
     for (jx=0; jx < MX; jx++)
-      denscale(-gamma, P[jx][jy], NUM_SPECIES, NUM_SPECIES);
+      denseScale(-gamma, P[jx][jy], NUM_SPECIES, NUM_SPECIES);
   
   /* Add identity matrix and do LU decompositions on blocks in place. */
   
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      denaddI(P[jx][jy], NUM_SPECIES);
-      ier = denGETRF(P[jx][jy], NUM_SPECIES, NUM_SPECIES, pivot[jx][jy]);
+      denseAddI(P[jx][jy], NUM_SPECIES);
+      ier = denseGETRF(P[jx][jy], NUM_SPECIES, NUM_SPECIES, pivot[jx][jy]);
       if (ier != 0) return(1);
     }
   }
@@ -632,7 +632,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   int lr, void *P_data, N_Vector vtemp)
 {
   realtype **(*P)[MY];
-  long int *(*pivot)[MY];
+  int *(*pivot)[MY];
   int jx, jy;
   realtype *zdata, *v;
   UserData data;
@@ -652,7 +652,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       v = &(IJKth(zdata, 1, jx, jy));
-      denGETRS(P[jx][jy], NUM_SPECIES, pivot[jx][jy], v);
+      denseGETRS(P[jx][jy], NUM_SPECIES, pivot[jx][jy], v);
     }
   }
 

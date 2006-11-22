@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:05 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -38,7 +38,7 @@
 #include <cvode/cvode.h>             /* prototypes for CVODE fcts. and consts. */
 #include <cvode/cvode_band.h>        /* prototype for CVBand */
 #include <nvector/nvector_serial.h>  /* serial N_Vector types, fcts., and macros */
-#include <sundials/sundials_band.h>  /* definitions of type BandMat and macros */
+#include <sundials/sundials_band.h>  /* definitions of type DlsMat and macros */
 #include <sundials/sundials_types.h> /* definition of type realtype */
 #include <sundials/sundials_math.h>  /* definition of ABS and EXP */
 
@@ -94,8 +94,9 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
-static int Jac(long int N, long int mu, long int ml, BandMat J,
-               realtype t, N_Vector u, N_Vector fu, void *jac_data,
+static int Jac(int N, int mu, int ml,
+               realtype t, N_Vector u, N_Vector fu, 
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -176,8 +177,8 @@ int main(void)
   /* Set the user-supplied Jacobian routine Jac and
      the pointer to the user-defined block data. */
 
-  flag = CVBandSetJacFn(cvode_mem, Jac, data);
-  if(check_flag(&flag, "CVBandSetJacFn", 1)) return(1);
+  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
+  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
 
@@ -254,8 +255,9 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *f_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(long int N, long int mu, long int ml, BandMat J,
-               realtype t, N_Vector u, N_Vector fu, void *jac_data,
+static int Jac(int N, int mu, int ml,
+               realtype t, N_Vector u, N_Vector fu, 
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   long int i, j, k;
@@ -385,10 +387,10 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVBandGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVBandGetNumJacEvals", 1);
-  flag = CVBandGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVBandGetNumRhsEvals", 1);
+  flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
+  check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+  flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:08 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -84,7 +84,7 @@
 #include <kinsol/kinsol.h>
 #include <kinsol/kinsol_spgmr.h>
 #include <nvector/nvector_serial.h>
-#include <sundials/sundials_smalldense.h>
+#include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
@@ -131,7 +131,7 @@
 
 typedef struct {
   realtype **P[MX][MY];
-  long int *pivot[MX][MY];
+  int *pivot[MX][MY];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
@@ -405,7 +405,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
       } /* end of j loop */
       
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
-      ret = denGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
+      ret = denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
       if (ret != 0) return(1);
       
     } /* end of jx loop */
@@ -425,7 +425,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
                        N_Vector ftem)
 {
   realtype **Pxy, *vxy;
-  long int *piv, jx, jy;
+  int *piv, jx, jy;
   UserData data;
   
   data = (UserData)P_data;
@@ -441,7 +441,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
       vxy = IJ_Vptr(vv,jx,jy);
       Pxy = (data->P)[jx][jy];
       piv = (data->pivot)[jx][jy];
-      denGETRS(Pxy, NUM_SPECIES, piv, vxy);
+      denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
       
     } /* end of jy loop */
     
@@ -506,11 +506,11 @@ static UserData AllocUserData(void)
   
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = denalloc(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
+      (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jy] = newIntArray(NUM_SPECIES);
     }
   }
-  acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
+  acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
@@ -582,12 +582,12 @@ static void FreeUserData(UserData data)
   
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      denfree((data->P)[jx][jy]);
-      denfreepiv((data->pivot)[jx][jy]);
+      destroyMat((data->P)[jx][jy]);
+      destroyArray((data->pivot)[jx][jy]);
     }
   }
   
-  denfree(acoef);
+  destroyMat(acoef);
   free(bcoef);
   free(cox);
   free(coy);

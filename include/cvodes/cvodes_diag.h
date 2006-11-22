@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,8 +10,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the header file for the CVODES diagonal linear solver, 
- * CVDIAG.
+ * This is the header file for the diagonal linear solver CVSDIAG.
  *
  *
  * Part I contains type definitions and function prototypes for using

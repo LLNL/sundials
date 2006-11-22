@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:22 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -50,12 +50,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>                /* main CVODES header file                       */
-#include <cvodes/cvodes_spgmr.h>          /* use CVSPGMR linear solver each internal step  */
-#include <nvector/nvector_parallel.h>     /* definitions of type N_Vector, macro NV_DATA_P */
-#include <sundials/sundials_smalldense.h> /* use generic DENSE solver in preconditioning   */
-#include <sundials/sundials_math.h>       /* contains SQR macro                            */
-#include <sundials/sundials_types.h>      /* definitions of realtype and booleantype       */
+#include <cvodes/cvodes.h>            /* main CVODES header file                       */
+#include <cvodes/cvodes_spgmr.h>      /* use CVSPGMR linear solver each internal step  */
+#include <nvector/nvector_parallel.h> /* definitions of type N_Vector, macro NV_DATA_P */
+#include <sundials/sundials_dense.h>  /* use generic DENSE solver in preconditioning   */
+#include <sundials/sundials_math.h>   /* contains SQR macro                            */
+#include <sundials/sundials_types.h>  /* definitions of realtype and booleantype       */
 
 #include <mpi.h>
 
@@ -142,33 +142,33 @@
 typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  long int *pivot[MXSUB][MYSUB];
-  long int my_pe, isubx, isuby, nvmxsub, nvmxsub2;
+  int *pivot[MXSUB][MYSUB];
+  int my_pe, isubx, isuby, nvmxsub, nvmxsub2;
   MPI_Comm comm;
 } *UserData;
 
 /* Private Helper Functions */
 
 static UserData AllocUserData(void);
-static void InitUserData(long int my_pe, MPI_Comm comm, UserData data);
+static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
+static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 #if PRINT_GRIDINFO == 1
-static void PrintGrids(long int *xpes, long int *ypes, long int my_pe, 
+static void PrintGrids(int *xpes, int *ypes, int my_pe, 
                        MPI_Comm comm, N_Vector u);
 static void PrintRow(realtype *row, FILE* f1, FILE* f2);
 #endif
 static void PrintFinalStats(void *cvode_mem);
-static void BSend(MPI_Comm comm, long int my_pe, long int isubx, long int isuby,
-                  long int dsizex, long int dsizey, realtype udata[]);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
-                      long int isubx, long int isuby,
-                      long int dsizex, long int dsizey,
+static void BSend(MPI_Comm comm, int my_pe, int isubx, int isuby,
+                  int dsizex, int dsizey, realtype udata[]);
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
+                      int isubx, int isuby,
+                      int dsizex, int dsizey,
                       realtype uext[], realtype buffer[]);
-static void BRecvWait(MPI_Request request[], long int isubx, long int isuby,
-                      long int dsizex, realtype uext[], realtype buffer[]);
+static void BRecvWait(MPI_Request request[], int isubx, int isuby,
+                      int dsizex, realtype uext[], realtype buffer[]);
 
 /* Functions Called by the CVODE Solver */
 
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
   int iout, flag;
-  long int neq, local_N;
+  int neq, local_N;
   int  my_pe, npes;
   MPI_Comm comm;
   
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
 
 #if PRINT_GRIDINFO == 1
     {
-      long int xpes[] = {0, 3}, ypes[] = {4, 4};
+      int xpes[] = {0, 3}, ypes[] = {4, 4};
       
       /* Print both grids to files -
          Use xpes and ypes to specify PE ranges in x and y to print, or
@@ -411,9 +411,9 @@ static UserData AllocUserData(void)
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      (data->P)[lx][ly] = denalloc(NVARS, NVARS);
-      (data->Jbd)[lx][ly] = denalloc(NVARS, NVARS);
-      (data->pivot)[lx][ly] = denallocpiv(NVARS);
+      (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
+      (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
+      (data->pivot)[lx][ly] = newIntArray(NVARS);
     }
   }
 
@@ -422,9 +422,9 @@ static UserData AllocUserData(void)
 
 /* Load constants in data */
 
-static void InitUserData(long int my_pe, MPI_Comm comm, UserData data)
+static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 {
-  long int isubx, isuby;
+  int isubx, isuby;
 
   /* Set problem constants */
   data->om = PI/HALFDAY;
@@ -455,9 +455,9 @@ static void FreeUserData(UserData data)
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      denfree((data->P)[lx][ly]);
-      denfree((data->Jbd)[lx][ly]);
-      denfreepiv((data->pivot)[lx][ly]);
+      destroyMat((data->P)[lx][ly]);
+      destroyMat((data->Jbd)[lx][ly]);
+      destroyArray((data->pivot)[lx][ly]);
     }
   }
 
@@ -468,7 +468,7 @@ static void FreeUserData(UserData data)
 
 static void SetInitialProfiles(N_Vector u, UserData data)
 {
-  long int isubx, isuby, lx, ly, jx, jy, offset;
+  int isubx, isuby, lx, ly, jx, jy, offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *udata;
 
@@ -507,13 +507,13 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
+static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
   long int nst;
   int qu, flag;
   realtype hu, *udata, tempu[2];
-  long int npelast, i0, i1;
+  int npelast, i0, i1;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
@@ -568,12 +568,12 @@ static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
 /* If xpes == NULL, print all pe's in the x direction.  Similarly for y.
    If xpes != NULL, print pe's with xpes[0] <= xpe number <= xpes[1].
    Similarly for y. */
-static void PrintGrids(long int *xpes, long int *ypes, long int my_pe,
+static void PrintGrids(int *xpes, int *ypes, int my_pe,
 		       MPI_Comm comm, N_Vector u)
 {
   realtype *udata;
   MPI_Status status;
-  long int isubx, isuby;
+  int isubx, isuby;
   FILE *f1, *f2;
   char file1[30], file2[30];
   int rownum;
@@ -705,11 +705,11 @@ static void PrintFinalStats(void *cvode_mem)
 
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(MPI_Comm comm, long int my_pe, long int isubx, long int isuby,
-                  long int dsizex, long int dsizey, realtype udata[])
+static void BSend(MPI_Comm comm, int my_pe, int isubx, int isuby,
+                  int dsizex, int dsizey, realtype udata[])
 {
   int i, ly;
-  long int offsetu, offsetbuf;
+  int offsetu, offsetbuf;
   realtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
@@ -757,12 +757,12 @@ static void BSend(MPI_Comm comm, long int my_pe, long int isubx, long int isuby,
    be manipulated between the two calls.
    request should have 4 entries, and should be passed both calls also. */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
-                      long int isubx, long int isuby,
-                      long int dsizex, long int dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
+                      int isubx, int isuby,
+                      int dsizex, int dsizey,
                       realtype uext[], realtype buffer[])
 {
-  long int offsetue;
+  int offsetue;
   /* have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   
@@ -799,11 +799,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
    be manipulated between the two calls.
    request should have 4 entries, and should be passed both calls also. */
 
-static void BRecvWait(MPI_Request request[], long int isubx, long int isuby,
-                      long int dsizex, realtype uext[], realtype buffer[])
+static void BRecvWait(MPI_Request request[], int isubx, int isuby,
+                      int dsizex, realtype uext[], realtype buffer[])
 {
   int i, ly;
-  long int dsizex2, offsetue, offsetbuf;
+  int dsizex2, offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
   MPI_Status status;
 
@@ -859,7 +859,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   int i, lx, ly, jx, jy;
   UserData data;
   MPI_Comm comm;
-  long int my_pe, isubx, isuby, nvmxsub, nvmxsub2, nvmysub,
+  int my_pe, isubx, isuby, nvmxsub, nvmxsub2, nvmysub,
            offsetu, offsetue;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
   MPI_Request request[4];
@@ -1021,7 +1021,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   realtype c1, c2, cydn, cyup, diagd, diag, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
-  long int nvmxsub, *(*pivot)[MYSUB], ier, offset;
+  int nvmxsub, *(*pivot)[MYSUB], ier, offset;
   int lx, ly, jx, jy, isubx, isuby;
   realtype *udata, **a, **j;
   UserData data;
@@ -1043,7 +1043,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
-        dencopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
+        denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
 
   *jcurPtr = FALSE;
 
@@ -1083,7 +1083,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        dencopy(j, a, NVARS, NVARS);
+        denseCopy(j, a, NVARS, NVARS);
       }
     }
     
@@ -1095,14 +1095,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   
   for (ly = 0; ly < MYSUB; ly++)
     for (lx = 0; lx < MXSUB; lx++)
-      denscale(-gamma, P[lx][ly], NVARS, NVARS);
+      denseScale(-gamma, P[lx][ly], NVARS, NVARS);
   
   /* Add identity matrix and do LU decompositions on blocks in place */
   
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      denaddI(P[lx][ly], NVARS);
-      ier = denGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
+      denseAddI(P[lx][ly], NVARS);
+      ier = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
       if (ier != 0) return(1);
     }
   }
@@ -1118,7 +1118,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   int lr, void *P_data, N_Vector vtemp)
 {
   realtype **(*P)[MYSUB];
-  long int nvmxsub, *(*pivot)[MYSUB];
+  int nvmxsub, *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
   UserData data;
@@ -1140,7 +1140,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       v = &(zdata[lx*NVARS + ly*nvmxsub]);
-      denGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
+      denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
     }
   }
   

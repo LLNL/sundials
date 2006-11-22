@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-10 21:04:11 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,13 +31,13 @@
 extern "C" {
 #endif
 
-  extern void FCV_LBJAC(int*, int*, int*, int*,           /* N, MU, ML, EBAND */
-                        realtype*, realtype*, realtype*,  /* T, Y, FY         */
-                        realtype*,                        /* LBJAC            */
-                        realtype*,                        /* H                */
-                        long int*, realtype*,             /* IPAR, RPAR       */
-                        realtype*, realtype*, realtype*,  /* V1, V2, V3       */
-                        int*);                            /* IER              */
+  extern void FCV_BJAC(int*, int*, int*, int*,           /* N, MU, ML, EBAND */
+                       realtype*, realtype*, realtype*,  /* T, Y, FY         */
+                       realtype*,                        /* LBJAC            */
+                       realtype*,                        /* H                */
+                       long int*, realtype*,             /* IPAR, RPAR       */
+                       realtype*, realtype*, realtype*,  /* V1, V2, V3       */
+                       int*);                            /* IER              */
 
 #ifdef __cplusplus
 }
@@ -51,12 +51,12 @@ void FCV_LAPACKBANDSETJAC(int *flag, int *ier)
 
   if (*flag == 0) {
 
-    *ier = CVLapackSetJacFn(CV_cvodemem, NULL, NULL);
+    *ier = CVDlsSetJacFn(CV_cvodemem, NULL, NULL);
 
   } else {
 
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVLapackSetJacFn(CV_cvodemem, FCVLapackBandJac, cv_mem->cv_f_data);
+    *ier = CVDlsSetJacFn(CV_cvodemem, FCVLapackBandJac, cv_mem->cv_f_data);
 
   }
 
@@ -77,7 +77,7 @@ void FCV_LAPACKBANDSETJAC(int *flag, int *ier)
 
 int FCVLapackBandJac(int N, int mupper, int mlower,
                      realtype t, N_Vector y, N_Vector fy, 
-                     LapackMat J, void *jac_data,
+                     DlsMat J, void *jac_data,
                      N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
@@ -94,13 +94,13 @@ int FCVLapackBandJac(int N, int mupper, int mlower,
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
 
-  eband = (J->storage_mu) + mlower + 1;
-  jacdata = LAPACK_BAND_COL(J,0) - mupper;
+  eband = (J->s_mu) + mlower + 1;
+  jacdata = BAND_COL(J,0) - mupper;
 
   CV_userdata = (FCVUserData) jac_data;
 
-  FCV_LBJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, jacdata, &h,
-            CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data, &ier);
+  FCV_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, jacdata, &h,
+           CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data, &ier);
 
   return(ier);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:05 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:48 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -226,7 +226,7 @@ static void cpErrHandler(int error_code, const char *module,
 
 /* 
  * =================================================================
- * EXPORTED FUNCTIONS IMPLEMENTATION
+ * EXPORTED FUNCTIONS
  * =================================================================
  */
 
@@ -1784,7 +1784,7 @@ void CPodeQuadFree(void *cpode_mem)
 
 /* 
  * =================================================================
- *  PRIVATE FUNCTIONS IMPLEMENTATION
+ *  PRIVATE FUNCTIONS
  * =================================================================
  */
 
@@ -2268,12 +2268,12 @@ static int cpInitialSetup(CPodeMem cp_mem)
         cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "cpInitialSetup", MSGCP_NO_CFUN);
         return(CP_ILL_INPUT);
       }
-      /* Check lsolve exists */ 
+      /* Check lsolveP exists */ 
       if ( cp_mem->cp_lsolveP == NULL) {
         cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "cpInitialSetup", MSGCP_PLSOLVE_NULL);
         return(CP_ILL_INPUT);
       }
-      /* Call linit if it exists */
+      /* Call linitP if it exists */
       if ( cp_mem->cp_linitP != NULL ) {
         ier = cp_mem->cp_linitP(cp_mem);
         if (ier != 0) {

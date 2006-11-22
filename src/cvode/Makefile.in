@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-08 01:01:18 $
+# $Revision: 1.6 $
+# $Date: 2006-11-22 00:12:48 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,19 +48,19 @@ INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
 LIB_REVISION = 0:1:0
 
 CVODE_LIB       = libsundials_cvode.la
-CVODE_LIB_FILES = cvode.lo cvode_io.lo cvode_band.lo cvode_dense.lo cvode_diag.lo cvode_lapack.lo cvode_spils.lo cvode_spbcgs.lo cvode_spgmr.lo cvode_sptfqmr.lo cvode_bandpre.lo cvode_bbdpre.lo
-CVODE_OBJ_FILES = cvode.o cvode_io.o cvode_band.o cvode_dense.o cvode_diag.o cvode_lapack.o cvode_spils.o cvode_spbcgs.o cvode_spgmr.o cvode_sptfqmr.o cvode_bandpre.o cvode_bbdpre.o
+CVODE_LIB_FILES = cvode.lo cvode_io.lo cvode_direct.lo cvode_band.lo cvode_dense.lo cvode_diag.lo cvode_lapack.lo cvode_spils.lo cvode_spbcgs.lo cvode_spgmr.lo cvode_sptfqmr.lo cvode_bandpre.lo cvode_bbdpre.lo
+CVODE_OBJ_FILES = cvode.o cvode_io.o cvode_direct.o cvode_band.o cvode_dense.o cvode_diag.o cvode_lapack.o cvode_spils.o cvode_spbcgs.o cvode_spgmr.o cvode_sptfqmr.o cvode_bandpre.o cvode_bbdpre.o
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
-                   $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_lapack.lo \
-                   $(top_builddir)/src/sundials/sundials_math.lo \
-                   $(top_builddir)/src/sundials/sundials_nvector.lo \
-                   $(top_builddir)/src/sundials/sundials_smalldense.lo \
+                   $(top_builddir)/src/sundials/sundials_direct.lo \
+                   $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_spgmr.lo \
                    $(top_builddir)/src/sundials/sundials_spbcgs.lo \
-                   $(top_builddir)/src/sundials/sundials_sptfqmr.lo
+                   $(top_builddir)/src/sundials/sundials_sptfqmr.lo \
+                   $(top_builddir)/src/sundials/sundials_math.lo \
+                   $(top_builddir)/src/sundials/sundials_nvector.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -74,6 +74,7 @@ install: $(CVODE_LIB)
 	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CVODE_LIB) $(libdir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode.h         $(includedir)/cvode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_direct.h  $(includedir)/cvode/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_dense.h   $(includedir)/cvode/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_band.h    $(includedir)/cvode/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_diag.h    $(includedir)/cvode/
@@ -89,6 +90,7 @@ install: $(CVODE_LIB)
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CVODE_LIB)
 	rm -f $(includedir)/cvode/cvode.h
+	rm -f $(includedir)/cvode/cvode_direct.h
 	rm -f $(includedir)/cvode/cvode_dense.h
 	rm -f $(includedir)/cvode/cvode_band.h
 	rm -f $(includedir)/cvode/cvode_diag.h
@@ -121,6 +123,8 @@ cvode.lo: $(srcdir)/cvode.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode.c
 cvode_io.lo: $(srcdir)/cvode_io.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_io.c
+cvode_direct.lo: $(srcdir)/cvode_direct.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_direct.c
 cvode_dense.lo: $(srcdir)/cvode_dense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cvode_dense.c
 cvode_band.lo: $(srcdir)/cvode_band.c

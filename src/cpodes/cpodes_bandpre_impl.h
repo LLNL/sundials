@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:05 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:48 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,22 +33,18 @@ extern "C" {
 typedef struct {
 
   /* Data set by user in CPBandPrecAlloc */
-
-  long int N;
-  long int ml, mu;
+  int N;
+  int ml, mu;
 
   /* Data set by CPBandPrecSetup */
+  DlsMat savedJ;
+  DlsMat savedP;
+  int *pivots;
 
-  BandMat savedJ;
-  BandMat savedP;
-  long int *pivots;
-
-  /* Rhs calls */
-
+  /* Function evaluations for DQ Jacobian approximation */
   long int nfeBP;
 
   /* Pointer to cpode_mem */
-
   void *cpode_mem;
 
 } *CPBandPrecData;
@@ -63,7 +59,7 @@ typedef struct {
 #define MSGBP_MEM_FAIL "A memory request failed."
 #define MSGBP_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGBP_PDATA_NULL "BandPrecData is NULL."
-#define MSGBP_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
+#define MSGBP_FUNC_FAILED "The ODE function failed in an unrecoverable manner."
 
 
 #ifdef __cplusplus

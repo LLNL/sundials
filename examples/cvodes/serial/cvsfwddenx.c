@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -90,8 +90,9 @@ typedef struct {
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static int Jac(long int N, DenseMat J, realtype t,
-               N_Vector y, N_Vector fy, void *jac_data, 
+static int Jac(int N, realtype t,
+               N_Vector y, N_Vector fy, 
+               DlsMat J, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
@@ -174,8 +175,8 @@ int main(int argc, char *argv[])
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
-  flag = CVDenseSetJacFn(cvode_mem, Jac, data);
-  if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
+  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
+  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   printf("\n3-species chemical kinetics problem\n");
 
@@ -289,8 +290,9 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
  * Jacobian routine. Compute J(t,y). 
  */
 
-static int Jac(long int N, DenseMat J, realtype t,
-               N_Vector y, N_Vector fy, void *jac_data, 
+static int Jac(int N, realtype t,
+               N_Vector y, N_Vector fy, 
+               DlsMat J, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
@@ -558,10 +560,10 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
     check_flag(&flag, "CVodeGetNumSensNonlinSolvConvFails", 1);
   }
 
-  flag = CVDenseGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVDenseGetNumJacEvals", 1);
-  flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVDenseGetNumRhsEvals", 1);
+  flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
+  check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+  flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics\n\n");
   printf("nst     = %5ld\n\n", nst);

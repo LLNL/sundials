@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-08-11 23:02:40 $
+# $Revision: 1.5 $
+# $Date: 2006-11-22 00:12:45 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,6 +39,9 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LAPACK_ENABLED = @LAPACK_ENABLED@
+BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
 
@@ -69,9 +72,16 @@ EXEC_FILES = cvsdenx$(EXE_EXT) \
 	     cvsadjkryx_pnt$(EXE_EXT) \
 	     cvskrydem_lin$(EXE_EXT)
 
+LAP_EXEC_FILES = cvsbanx_lap$(EXE_EXT) \
+		 cvsdenx_lap$(EXE_EXT)
+
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
 all: $(EXEC_FILES)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make all_lap;                              \
+	fi
+all_lap: $(LAP_EXEC_FILES)
 
 cvsdenx$(EXE_EXT): $(srcdir)/cvsdenx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdenx.c
@@ -119,11 +129,20 @@ cvskrydem_lin$(EXE_EXT): $(srcdir)/cvskrydem_lin.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvskrydem_lin.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvskrydem_lin$(EXE_EXT) $(builddir)/cvskrydem_lin$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 
+cvsdenx_lap$(EXE_EXT): $(srcdir)/cvsdenx_lap.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsdenx_lap.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsdenx_lap$(EXE_EXT) $(builddir)/cvsdenx_lap$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+cvsbanx_lap$(EXE_EXT): $(srcdir)/cvsbanx_lap.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsbanx_lap.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsbanx_lap$(EXE_EXT) $(builddir)/cvsbanx_lap$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+
+
 clean:
 	rm -rf .libs
 	rm -f *.lo
 	rm -f *.o
 	rm -f $(EXEC_FILES)
+	rm -f $(LAP_EXEC_FILES)
 
 distclean: clean
 	rm -f Makefile
@@ -166,6 +185,15 @@ install: $(EXEC_FILES)
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvskrydem_pre.out          $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvskryx_bp.out             $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvskryx.out                $(EXS_INSTDIR)/cvodes/serial/
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make install_lap;                          \
+	fi
+
+install_lap: $(LAP_EXEC_FILES)
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsdenx_lap$(EXE_EXT)    $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_PROG) $(top_builddir)/examples/cvodes/serial/cvsbanx_lap$(EXE_EXT)    $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsdenx_lap.out            $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsbanx_lap.out            $(EXS_INSTDIR)/cvodes/serial/
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

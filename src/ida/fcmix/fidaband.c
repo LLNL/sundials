@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-  extern void FIDA_BJAC(long int*, long int*, long int*, long int*,
+  extern void FIDA_BJAC(int*, int*, int*, int*,
                         realtype*, realtype*, realtype*, realtype*,
                         realtype*, realtype*, realtype*, realtype*,
                         long int*, realtype*,
@@ -47,7 +47,7 @@ void FIDA_BANDSETJAC(int *flag, int *ier)
 
   if (*flag == 0) {
 
-    *ier = IDABandSetJacFn(IDA_idamem, NULL, NULL);
+    *ier = IDADlsSetJacFn(IDA_idamem, NULL, NULL);
 
   } else {
 
@@ -59,7 +59,7 @@ void FIDA_BANDSETJAC(int *flag, int *ier)
       }
     }
 
-    *ier = IDABandSetJacFn(IDA_idamem, (IDABandJacFn) FIDABandJac, NULL);
+    *ier = IDADlsSetJacFn(IDA_idamem, (IDADlsBandJacFn) FIDABandJac, NULL);
 
   }
 
@@ -68,15 +68,15 @@ void FIDA_BANDSETJAC(int *flag, int *ier)
 
 /*************************************************/
 
-int FIDABandJac(long int N, long int mupper, long int mlower,
-		BandMat J, realtype t,
+int FIDABandJac(int N, int mupper, int mlower,
+		realtype t, realtype c_j, 
 		N_Vector yy, N_Vector yp, N_Vector rr,
-		realtype c_j, void *jac_data, BandMat Jac,
+		DlsMat J, void *jac_data,
 		N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype *yy_data, *yp_data, *rr_data, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
   realtype h;
-  long int eband;
+  int eband;
   int ier;
   FIDAUserData IDA_userdata;
 
@@ -102,7 +102,7 @@ int FIDABandJac(long int N, long int mupper, long int mlower,
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
 
-  eband = (J->smu) + mlower + 1;
+  eband = (J->s_mu) + mlower + 1;
   jacdata = BAND_COL(J,0) - mupper;
 
   IDA_userdata = (FIDAUserData) jac_data;

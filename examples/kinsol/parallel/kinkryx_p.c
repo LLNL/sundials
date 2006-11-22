@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:06 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -84,7 +84,7 @@
 #include <kinsol/kinsol.h>
 #include <kinsol/kinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
-#include <sundials/sundials_smalldense.h>
+#include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
@@ -138,15 +138,15 @@
 
 typedef struct {
   realtype **P[MXSUB][MYSUB];
-  long int *pivot[MXSUB][MYSUB];
+  int *pivot[MXSUB][MYSUB];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
   realtype uround, sqruround;
-  long int mx, my, ns, np;
+  int mx, my, ns, np;
   realtype cext[NUM_SPECIES * (MXSUB+2)*(MYSUB+2)];
-  long int my_pe, isubx, isuby, nsmxsub, nsmxsub2;
+  int my_pe, isubx, isuby, nsmxsub, nsmxsub2;
   MPI_Comm comm;
 } *UserData;
 
@@ -167,25 +167,25 @@ static int PSolvebd(N_Vector cc, N_Vector cscale,
 /* Private Helper Functions */
 
 static UserData AllocUserData(void);
-static void InitUserData(long int my_pe, MPI_Comm comm, UserData data);
+static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst, 
                         realtype fnormtol, realtype scsteptol);
-static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc);
+static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc);
 static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *f_data);
-static realtype DotProd(long int size, realtype *x1, realtype *x2);
-static void BSend(MPI_Comm comm, long int my_pe, long int isubx, 
-                  long int isuby, long int dsizex, 
-                  long int dsizey, realtype *cdata);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
-                      long int isubx, long int isuby,
-                      long int dsizex, long int dsizey,
+static realtype DotProd(int size, realtype *x1, realtype *x2);
+static void BSend(MPI_Comm comm, int my_pe, int isubx, 
+                  int isuby, int dsizex, 
+                  int dsizey, realtype *cdata);
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
+                      int isubx, int isuby,
+                      int dsizex, int dsizey,
                       realtype *cext, realtype *buffer);
-static void BRecvWait(MPI_Request request[], long int isubx,
-                      long int isuby, long int dsizex, realtype *cext,
+static void BRecvWait(MPI_Request request[], int isubx,
+                      int isuby, int dsizex, realtype *cext,
                       realtype *buffer);
 static void ccomm(realtype *cdata, UserData data);
 static void fcalcprpr(N_Vector cc, N_Vector fval,void *f_data);
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 
 {
   int globalstrategy;
-  long int local_N;
+  int local_N;
   realtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
   UserData data;
@@ -373,7 +373,7 @@ static int Precondbd(N_Vector cc, N_Vector cscale,
 {
   realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
   realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
-  long int i, j, jx, jy, ret;
+  int i, j, jx, jy, ret;
   UserData data;
   
   data = (UserData)P_data;
@@ -418,7 +418,7 @@ static int Precondbd(N_Vector cc, N_Vector cscale,
       } /* end of j loop */
       
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
-      ret = denGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
+      ret = denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
       if (ret != 0) return(1);
       
     } /* end of jx loop */
@@ -437,7 +437,7 @@ static int PSolvebd(N_Vector cc, N_Vector cscale,
                     N_Vector vtemp)
 {
   realtype **Pxy, *vxy;
-  long int *piv, jx, jy;
+  int *piv, jx, jy;
   UserData data;
   
   data = (UserData)P_data;
@@ -453,7 +453,7 @@ static int PSolvebd(N_Vector cc, N_Vector cscale,
       vxy = IJ_Vptr(vv,jx,jy);
       Pxy = (data->P)[jx][jy];
       piv = (data->pivot)[jx][jy];
-      denGETRS(Pxy, NUM_SPECIES, piv, vxy);
+      denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
       
     } /* end of jy loop */
     
@@ -469,7 +469,7 @@ static int PSolvebd(N_Vector cc, N_Vector cscale,
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *f_data)
 {
-  long int i;
+  int i;
   realtype fac;
   UserData data;
   
@@ -489,9 +489,9 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * Dot product routine for realtype arrays 
  */
 
-static realtype DotProd(long int size, realtype *x1, realtype *x2)
+static realtype DotProd(int size, realtype *x1, realtype *x2)
 {
-  long int i;
+  int i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;
@@ -519,12 +519,12 @@ static UserData AllocUserData(void)
 
   for (jx = 0; jx < MXSUB; jx++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      (data->P)[jx][jy] = denalloc(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
+      (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jy] = newIntArray(NUM_SPECIES);
     }
   }
 
-  acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
+  acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
@@ -537,9 +537,9 @@ static UserData AllocUserData(void)
  * Load problem constants in data 
  */
 
-static void InitUserData(long int my_pe, MPI_Comm comm, UserData data)
+static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 {
-  long int i, j, np;
+  int i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
   
   data->mx = MX;
@@ -604,12 +604,12 @@ static void FreeUserData(UserData data)
 
   for (jx = 0; jx < MXSUB; jx++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      denfree((data->P)[jx][jy]);
-      denfreepiv((data->pivot)[jx][jy]);
+      destroyMat((data->P)[jx][jy]);
+      destroyArray((data->pivot)[jx][jy]);
     }
   }
 
-  denfree(acoef);
+  destroyMat(acoef);
   free(bcoef);
   free(cox); 
   free(coy);
@@ -701,7 +701,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
  * Print sample of current cc values 
  */
 
-static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc)
+static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
 {
   int is, i0, npelast;
   realtype  *ct, tempc[NUM_SPECIES];
@@ -790,12 +790,12 @@ static void PrintFinalStats(void *kmem)
  * Routine to send boundary data to neighboring PEs 
  */
 
-static void BSend(MPI_Comm comm, long int my_pe, 
-                  long int isubx, long int isuby,
-                  long int dsizex, long int dsizey, realtype *cdata)
+static void BSend(MPI_Comm comm, int my_pe, 
+                  int isubx, int isuby,
+                  int dsizex, int dsizey, realtype *cdata)
 {
   int i, ly;
-  long int offsetc, offsetbuf;
+  int offsetc, offsetbuf;
   realtype bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
   
   /* If isuby > 0, send data from bottom x-line of u */
@@ -840,12 +840,12 @@ static void BSend(MPI_Comm comm, long int my_pe,
  *  2) request should have 4 entries, and should be passed in both calls also. 
  */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
-                      long int isubx, long int isuby,
-                      long int dsizex, long int dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
+                      int isubx, int isuby,
+                      int dsizex, int dsizey,
                       realtype *cext, realtype *buffer)
 {
-  long int offsetce;
+  int offsetce;
 
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
@@ -884,12 +884,12 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
  *  2) request should have 4 entries, and should be passed in both calls also. 
  */
 
-static void BRecvWait(MPI_Request request[], long int isubx,
-                      long int isuby, long int dsizex, realtype *cext,
+static void BRecvWait(MPI_Request request[], int isubx,
+                      int isuby, int dsizex, realtype *cext,
                       realtype *buffer)
 {
   int i, ly;
-  long int dsizex2, offsetce, offsetbuf;
+  int dsizex2, offsetce, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
   MPI_Status status;
   
@@ -939,7 +939,7 @@ static void ccomm(realtype *cdata, UserData data)
 {
   realtype *cext, buffer[2*NUM_SPECIES*MYSUB];
   MPI_Comm comm;
-  long int my_pe, isubx, isuby, nsmxsub, nsmysub;
+  int my_pe, isubx, isuby, nsmxsub, nsmysub;
   MPI_Request request[4];
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array cext */
@@ -968,9 +968,9 @@ static void fcalcprpr(N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
   realtype *cext, dely, delx, *cdata;
-  long int i, jx, jy, is, ly;
-  long int isubx, isuby, nsmxsub, nsmxsub2;
-  long int shifty, offsetc, offsetce, offsetcl, offsetcr, offsetcd, offsetcu;
+  int i, jx, jy, is, ly;
+  int isubx, isuby, nsmxsub, nsmxsub2;
+  int shifty, offsetc, offsetce, offsetcl, offsetcr, offsetcd, offsetcu;
   UserData data;
   
   data = (UserData)f_data;

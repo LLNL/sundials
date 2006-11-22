@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-20 16:50:29 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -12,7 +12,7 @@
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the common header file for the Scaled, Preconditioned
- * Iterative Linear Solvers in CVODE/CVODES.
+ * Iterative Linear Solvers in CVODE.
  * -----------------------------------------------------------------
  */
 
@@ -283,7 +283,7 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  * The return value of CVSpilsSet* is one of:
  *    CVSPILS_SUCCESS   if successful
  *    CVSPILS_MEM_NULL  if the cvode memory was NULL
- *    CVSPILS_LMEM_NULL if the cvspgmr memory was NULL
+ *    CVSPILS_LMEM_NULL if the linear solver memory was NULL
  *    CVSPILS_ILL_INPUT if an input has an illegal value
  * -----------------------------------------------------------------
  */
@@ -328,7 +328,7 @@ int CVSpilsSetJacTimesVecFn(void *cvode_mem,
  * The return value of CVSpilsGet* is one of:
  *    CVSPILS_SUCCESS   if successful
  *    CVSPILS_MEM_NULL  if the cvode memory was NULL
- *    CVSPILS_LMEM_NULL if the cvspgmr memory was NULL
+ *    CVSPILS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 

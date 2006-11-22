@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-09 23:56:25 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:52 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -108,14 +108,16 @@ extern "C" {
 
   /* Dense direct linear solver */
 
-  int mtlb_KINDenseJac(long int N, DenseMat J, 
-                       N_Vector y, N_Vector fy, void *jac_data,
+  int mtlb_KINDenseJac(int N,
+                       N_Vector y, N_Vector fy, 
+                       DlsMat J, void *jac_data,
                        N_Vector tmp1, N_Vector tmp2);
 
   /* Band direct linear solver */
 
-  int mtlb_KINBandJac(long int N, long int mupper, long int mlower,
-                      BandMat J, N_Vector u, N_Vector fu, void *jac_data,
+  int mtlb_KINBandJac(int N, int mupper, int mlower,
+                      N_Vector u, N_Vector fu, 
+                      DlsMat J, void *jac_data,
                       N_Vector tmp1, N_Vector tmp2);
 
   /* Scaled Preconditioned Iterative Linear Solver (SPGMR or SPBCG) */
@@ -134,8 +136,8 @@ extern "C" {
 
   /* BBD Preconditioner */
   
-  int mtlb_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *f_data);
-  int mtlb_KINGcom(long int Nlocal, N_Vector y, void *f_data);
+  int mtlb_KINGloc(int Nlocal, N_Vector y, N_Vector gval, void *f_data);
+  int mtlb_KINGcom(int Nlocal, N_Vector y, void *f_data);
 
   /*
    * ---------------------------------------------------------------------------------

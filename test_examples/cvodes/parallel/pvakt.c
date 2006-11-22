@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-26 23:00:00 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -153,7 +153,7 @@ typedef struct {
  */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static int f_local(long int Nlocal, realtype t, N_Vector y, 
+static int f_local(int Nlocal, realtype t, N_Vector y, 
                    N_Vector ydot, void *f_data);
 
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
@@ -161,7 +161,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
 
 static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
               void *f_dataB);
-static int fB_local(long int NlocalB, realtype t, 
+static int fB_local(int NlocalB, realtype t, 
                     N_Vector y, N_Vector yB, N_Vector yBdot, 
                     void *f_dataB);
 
@@ -175,9 +175,9 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
  */
 
 static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
-                    long int *neq, long int *l_neq);
+                    int *neq, int *l_neq);
 static void SetSource(ProblemData d);
-static void f_comm( long int Nlocal, realtype t, N_Vector y, void *f_data);
+static void f_comm( int Nlocal, realtype t, N_Vector y, void *f_data);
 static void Load_yext(realtype *src, ProblemData d);
 static void PrintHeader();
 static void PrintFinalStats(void *cvode_mem);
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
   int npes, npes_needed;
   int myId;
  
-  long int neq, l_neq;
+  int neq, l_neq;
 
   void *cvode_mem;
   N_Vector y, q;
@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
  */
 
 static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
-                    long int *neq, long int *l_neq)
+                    int *neq, int *l_neq)
 {
   int n[DIM], nd[DIM];
   int dim, size;
@@ -524,7 +524,7 @@ static void SetSource(ProblemData d)
  *------------------------------------------------------------------
  */
 
-static void f_comm(long int N_local, realtype t, N_Vector y, void *f_data)
+static void f_comm(int N_local, realtype t, N_Vector y, void *f_data)
 {
   int id, n[DIM], proc_cond[DIM], nbr[DIM][2];
   ProblemData d;
@@ -646,7 +646,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   return(0);
 }
 
-static int f_local(long int Nlocal, realtype t, N_Vector y, 
+static int f_local(int Nlocal, realtype t, N_Vector y, 
                    N_Vector ydot, void *f_data)
 {
   realtype *Ydata, *dydata, *pdata;
@@ -781,7 +781,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
   return(0);
 }
 
-static int fB_local(long int NlocalB, realtype t, 
+static int fB_local(int NlocalB, realtype t, 
                     N_Vector y, N_Vector yB, N_Vector dyB, 
                     void *f_dataB)
 {

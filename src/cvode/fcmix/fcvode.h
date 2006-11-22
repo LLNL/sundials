@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-10 21:04:11 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-22 00:12:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -553,10 +553,8 @@ extern "C" {
 
 /* header files  */
 
-#include <cvode/cvode.h>               /* definition of type CVRhsFn  */
-#include <sundials/sundials_band.h>    /* definition of BandMat       */
-#include <sundials/sundials_dense.h>   /* definition of DenseMat      */
-#include <sundials/sundials_lapack.h>  /* definition of LapackMat     */
+#include <cvode/cvode.h>
+#include <sundials/sundials_direct.h>  /* definition of type DlsMat   */
 #include <sundials/sundials_nvector.h> /* definition of type N_Vector */
 #include <sundials/sundials_types.h>   /* definition of type realtype */
 
@@ -592,8 +590,6 @@ extern "C" {
 #define FCV_FUN            F77_FUNC(fcvfun, FCVFUN)
 #define FCV_DJAC           F77_FUNC(fcvdjac, FCVDJAC)
 #define FCV_BJAC           F77_FUNC(fcvbjac, FCVBJAC)
-#define FCV_LDJAC          F77_FUNC(fcvldjac, FCVLDJAC)
-#define FCV_LBJAC          F77_FUNC(fcvlbjac, FCVLBJAC)
 #define FCV_PSOL           F77_FUNC(fcvpsol, FCVPSOL)
 #define FCV_PSET           F77_FUNC(fcvpset, FCVPSET)
 #define FCV_JTIMES         F77_FUNC(fcvjtimes, FCVJTIMES)
@@ -631,8 +627,6 @@ extern "C" {
 #define FCV_FUN            fcvfun_
 #define FCV_DJAC           fcvdjac_
 #define FCV_BJAC           fcvbjac_
-#define FCV_LDJAC          fcvldjac_
-#define FCV_LBJAC          fcvlbjac_
 #define FCV_PSOL           fcvpsol_
 #define FCV_PSET           fcvpset_
 #define FCV_JTIMES         fcvjtimes_
@@ -670,10 +664,10 @@ extern "C" {
 
   void FCV_DIAG(int *ier);
 
-  void FCV_DENSE(long int *neq, int *ier);
+  void FCV_DENSE(int *neq, int *ier);
   void FCV_DENSESETJAC(int *flag, int *ier);
 
-  void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
+  void FCV_BAND(int *neq, int *mupper, int *mlower, int *ier);
   void FCV_BANDSETJAC(int *flag, int *ier);
 
   void FCV_LAPACKDENSE(int *neq, int *ier);
@@ -707,22 +701,23 @@ extern "C" {
   
   int FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
   
-  int FCVDenseJac(long int N, DenseMat J, realtype t, 
-                  N_Vector y, N_Vector fy, void *jac_data,
+  int FCVDenseJac(int N, realtype t, 
+                  N_Vector y, N_Vector fy, 
+                  DlsMat J, void *jac_data,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FCVBandJac(long int N, long int mupper, long int mlower,
-                 BandMat J, realtype t, N_Vector y, N_Vector fy,
-                 void *jac_data,
+  int FCVBandJac(int N, int mupper, int mlower,
+                 realtype t, N_Vector y, N_Vector fy,
+                 DlsMat J, void *jac_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
   int FCVLapackDenseJac(int N, realtype t,
                         N_Vector y, N_Vector fy, 
-                        LapackMat Jac, void *jac_data,
+                        DlsMat Jac, void *jac_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   int FCVLapackBandJac(int N, int mupper, int mlower,
                        realtype t, N_Vector y, N_Vector fy, 
-                       LapackMat Jac, void *jac_data,
+                       DlsMat Jac, void *jac_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
   int FCVPSet(realtype tn, N_Vector y,N_Vector fy, booleantype jok,

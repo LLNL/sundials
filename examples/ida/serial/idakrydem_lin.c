@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:09 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -27,7 +27,7 @@
  * equations u = 0 at the boundaries are appended, to form a DAE
  * system of size N = M^2. Here M = 10.
  *
- * The system is solved with IDA/IDAS using the following Krylov
+ * The system is solved with IDA using the following Krylov
  * linear solvers: IDASPGMR, IDASPBCG and IDASPTFQMR. The
  * preconditioner uses the diagonal elements of the Jacobian only.
  * Routines for preconditioning, required by IDASP*, are supplied

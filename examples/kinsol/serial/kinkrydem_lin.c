@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:08 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -92,7 +92,7 @@
 #include <kinsol/kinsol_spbcgs.h>
 #include <kinsol/kinsol_sptfqmr.h>
 #include <nvector/nvector_serial.h>
-#include <sundials/sundials_smalldense.h>
+#include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
@@ -145,13 +145,13 @@
 
 typedef struct {
   realtype **P[MX][MY];
-  long int *pivot[MX][MY];
+  int *pivot[MX][MY];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
   realtype uround, sqruround;
-  long int mx, my, ns, np;
+  int mx, my, ns, np;
 } *UserData;
 
 /* Functions Called by the KINSOL Solver */
@@ -181,7 +181,7 @@ static void PrintOutput(N_Vector cc);
 static void PrintFinalStats(void *kmem, int linsolver);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *f_data);
-static realtype DotProd(long int size, realtype *x1, realtype *x2);
+static realtype DotProd(int size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
@@ -375,7 +375,7 @@ int main(void)
 static int func(N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
-  long int jx, jy, is, idyu, idyl, idxr, idxl;
+  int jx, jy, is, idyu, idyl, idxr, idxl;
   UserData data;
   
   data = (UserData)f_data;
@@ -440,7 +440,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
 {
   realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
   realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
-  long int i, j, jx, jy, ret;
+  int i, j, jx, jy, ret;
   UserData data;
   
   data = (UserData) P_data;
@@ -486,7 +486,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
       } /* end of j loop */
       
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
-      ret = denGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
+      ret = denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
       if (ret != 0) return(1);
       
     } /* end of jx loop */
@@ -506,7 +506,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
                        N_Vector ftem)
 {
   realtype **Pxy, *vxy;
-  long int *piv, jx, jy;
+  int *piv, jx, jy;
   UserData data;
   
   data = (UserData)P_data;
@@ -522,7 +522,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
       vxy = IJ_Vptr(vv,jx,jy);
       Pxy = (data->P)[jx][jy];
       piv = (data->pivot)[jx][jy];
-      denGETRS(Pxy, NUM_SPECIES, piv, vxy);
+      denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
       
     } /* end of jy loop */
     
@@ -538,7 +538,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *f_data)
 {
-  long int i;
+  int i;
   realtype fac;
   UserData data;
   
@@ -557,9 +557,9 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * Dot product routine for realtype arrays 
  */
 
-static realtype DotProd(long int size, realtype *x1, realtype *x2)
+static realtype DotProd(int size, realtype *x1, realtype *x2)
 {
-  long int i;
+  int i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;
@@ -587,11 +587,11 @@ static UserData AllocUserData(void)
   
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = denalloc(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
+      (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jy] = newIntArray(NUM_SPECIES);
     }
   }
-  acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
+  acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
@@ -605,7 +605,7 @@ static UserData AllocUserData(void)
 
 static void InitUserData(UserData data)
 {
-  long int i, j, np;
+  int i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   data->mx = MX;
@@ -663,12 +663,12 @@ static void FreeUserData(UserData data)
   
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      denfree((data->P)[jx][jy]);
-      denfreepiv((data->pivot)[jx][jy]);
+      destroyMat((data->P)[jx][jy]);
+      destroyArray((data->pivot)[jx][jy]);
     }
   }
   
-  denfree(acoef);
+  destroyMat(acoef);
   free(bcoef);
   free(cox);
   free(coy);

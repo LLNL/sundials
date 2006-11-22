@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-08 01:01:17 $
+ * $Revision: 1.5 $
+ * $Date: 2006-11-22 00:12:47 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -11,172 +11,24 @@
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the header file for a generic package of DENSE matrix
- * operations.  The routines listed in this file all use type
- * DenseMat, defined below, for M by N matrices.
- * These routines in turn call routines in the smalldense module,
- * which use the type realtype** for matrices. This separation allows
- * for possible modifications in which matrices of type DenseMat
- * may not be stored contiguously, while small matrices can still
- * be treated with the routines in smalldense.
+ * operations, based on the DlsMat type defined in sundials_direct.h.
  *
- * Routines that work with the type DenseMat begin with "Dense".
- * The DenseAllocMat function allocates a dense matrix for use in
- * the other DenseMat routines listed in this file. Matrix
- * storage details are given in the documentation for the type
- * DenseMat. The DenseAllocPiv function allocates memory for
- * pivot information. The storage allocated by DenseAllocMat and
- * DenseAllocPiv is deallocated by the routines DenseFreeMat and
- * DenseFreePiv, respectively. The DenseGETRF and DenseGETRS
- * routines perform the actual solution of a dense linear system.
- *
- * Routines that work with realtype** begin with "den". 
- * The underlying matrix storage is described in the documentation 
- * for denalloc in smalldense.h
+ * There are two sets of dense solver routines listed in
+ * this file: one set uses type DlsMat defined below and the
+ * other set uses the type realtype ** for dense matrix arguments.
+ * Routines that work with the type DlsMat begin with "Dense".
+ * Routines that work with realtype** begin with "dense". 
  * -----------------------------------------------------------------
  */
 
-#ifndef _DENSE_H
-#define _DENSE_H
+#ifndef _SUNDIALS_DENSE_H
+#define _SUNDIALS_DENSE_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_smalldense.h>
-
-  /*
-   * ==================================================================
-   * Type definitions
-   * ==================================================================
-   */
-
-  /*
-   * -----------------------------------------------------------------
-   * Type : DenseMat
-   * -----------------------------------------------------------------
-   * The type DenseMat is defined to be a pointer to a structure
-   * with sizes (M and N) and a data field. The M and N fields 
-   * indicates the number of rows and columns, respectively of a dense 
-   * matrix, while the data field is a two dimensional array used for 
-   * component storage. The elements of a dense matrix are stored 
-   * columnwise (i.e columns are stored one on top of the other in 
-   * memory). If A is of type DenseMat, then the (i,j)th element 
-   * of A (with 0 <= i < M and 0 <= j < N) is given by the expression 
-   * (A->data)[j][i] or by the expression (A->data)[0][j*n+i]. 
-   * The macros below allow a user to access efficiently individual
-   * matrix elements without writing out explicit data structure
-   * references and without knowing too much about the underlying
-   * element storage. The only storage assumption needed is that
-   * elements are stored columnwise and that a pointer to the jth
-   * column of elements can be obtained via the DENSE_COL macro.
-   * Users should use these macros whenever possible.
-   * -----------------------------------------------------------------
-   */
-
-  typedef struct _DenseMat {
-    long int M;
-    long int N;
-    realtype **data;
-  } *DenseMat;
-
-  /*
-   * ==================================================================
-   * Data accessor macros
-   * ==================================================================
-   */
-
-  /*
-   * -----------------------------------------------------------------
-   * Macro : DENSE_ELEM
-   * -----------------------------------------------------------------
-   * Usage : DENSE_ELEM(A,i,j) = a_ij;  OR
-   *         a_ij = DENSE_ELEM(A,i,j);
-   * -----------------------------------------------------------------
-   * DENSE_ELEM(A,i,j) references the (i,j)th element of the M by N
-   * DenseMat A, 0 <= i < M ; 0 <= j < N.
-   * -----------------------------------------------------------------
-   */
-
-#define DENSE_ELEM(A,i,j) ((A->data)[j][i])
-
-  /*
-   * -----------------------------------------------------------------
-   * Macro : DENSE_COL
-   * -----------------------------------------------------------------
-   * Usage : col_j = DENSE_COL(A,j);
-   * -----------------------------------------------------------------
-   * DENSE_COL(A,j) references the jth column of the M by N
-   * DenseMat A, 0 <= j < N. The type of the expression DENSE_COL(A,j) 
-   * is (realtype *). After the assignment in the usage above, col_j 
-   * may be treated as an array indexed from 0 to M-1. 
-   * The (i,j)-th element of A is thus referenced by col_j[i].
-   * -----------------------------------------------------------------
-   */
-
-#define DENSE_COL(A,j) ((A->data)[j])
-
-  /*
-   * ==================================================================
-   * Function prototypes
-   * ==================================================================
-   */
-
-  /*
-   * -----------------------------------------------------------------
-   * Functions: DenseAllocMat and DenseFreeMat
-   * -----------------------------------------------------------------
-   * DenseAllocMat allocates memory for an M by N dense matrix and
-   * returns the storage allocated (type DenseMat). DenseAllocMat
-   * returns NULL if the request for matrix storage cannot be
-   * satisfied. See the above documentation for the type DenseMat
-   * for matrix storage details.
-   * -----------------------------------------------------------------
-   * DenseFreeMat frees the memory allocated by DenseAllocMat for
-   * the M by N matrix A.
-   * -----------------------------------------------------------------
-   */
-
-  DenseMat DenseAllocMat(long int M, long int N);
-  void DenseFreeMat(DenseMat A);
-
-  /*
-   * -----------------------------------------------------------------
-   * Functions: DenseAllocPiv and DenseFreePiv
-   * -----------------------------------------------------------------
-   * DenseAllocPiv allocates memory for pivot information to be
-   * filled in by the DenseGETRF routine during the factorization
-   * of an N by N dense matrix. The underlying type for pivot
-   * information is an array of N integers and this routine returns
-   * the pointer to the memory it allocates. If the request for
-   * pivot storage cannot be satisfied, DenseAllocPiv returns NULL.
-   * -----------------------------------------------------------------
-   * DenseFreePiv frees the memory allocated by DenseAllocPiv for
-   * the pivot information array p.
-   * -----------------------------------------------------------------
-   */
-
-  long int *DenseAllocPiv(long int N);
-  void DenseFreePiv(long int *p);
-
-  /*
-   * -----------------------------------------------------------------
-   * Functions: DenseAllocBeta and DenseFreeBeta
-   * -----------------------------------------------------------------
-   * DenseAllocBeta allocates memory for the beta array to be
-   * filled in by the DenseGEQRF routine during the factorization
-   * of an M by N dense matrix. The underlying type for beta
-   * information is an array of N realtype and this routine returns
-   * the pointer to the memory it allocates. If the request for
-   * beta storage cannot be satisfied, DenseAllocBeta returns NULL.
-   * -----------------------------------------------------------------
-   * DenseFreeBeta frees the memory allocated by DenseAllocBeta for
-   * the array beta.
-   * -----------------------------------------------------------------
-   */
-
-  realtype *DenseAllocBeta(long int M);
-  void DenseFreeBeta(realtype *beta);
+#include <sundials/sundials_direct.h>
 
   /*
    * -----------------------------------------------------------------
@@ -206,18 +58,26 @@ extern "C" {
    * a zero diagonal element during the factorization. In this case
    * it returns the column index (numbered from one) at which
    * it encountered the zero.
-   * -----------------------------------------------------------------
+   *
    * DenseGETRS solves the N-dimensional system A x = b using
    * the LU factorization in A and the pivot information in p
    * computed in DenseGETRF. The solution x is returned in b. This
    * routine cannot fail if the corresponding call to DenseGETRF
    * did not fail.
    * DenseGETRS does NOT check for a square matrix!
+   *
+   * -----------------------------------------------------------------
+   * DenseGETRF and DenseGETRS are simply wrappers around denseGETRF
+   * and denseGETRS, respectively, which perform all the work by
+   * directly accessing the data in the DlsMat A (i.e. the field cols)
    * -----------------------------------------------------------------
    */
 
-  long int DenseGETRF(DenseMat A, long int *p);
-  void DenseGETRS(DenseMat A, long int *p, realtype *b);
+  int DenseGETRF(DlsMat A, int *p);
+  void DenseGETRS(DlsMat A, int *p, realtype *b);
+
+  int denseGETRF(realtype **a, int m, int n, int *p);
+  void denseGETRS(realtype **a, int n, int *p, realtype *b);
 
   /*
    * -----------------------------------------------------------------
@@ -229,11 +89,19 @@ extern "C" {
    * DensePOTRS solves a system of linear equations A*X = B with a 
    * symmetric positive definite matrix A using the Cholesky factorization
    * A = L*L**T computed by DensePOTRF.
+   *
+   * -----------------------------------------------------------------
+   * DensePOTRF and DensePOTRS are simply wrappers around densePOTRF
+   * and densePOTRS, respectively, which perform all the work by
+   * directly accessing the data in the DlsMat A (i.e. the field cols)
    * -----------------------------------------------------------------
    */
 
-  int DensePOTRF(DenseMat A);
-  void DensePOTRS(DenseMat A, realtype *b);
+  int DensePOTRF(DlsMat A);
+  void DensePOTRS(DlsMat A, realtype *b);
+
+  int densePOTRF(realtype **a, int m);
+  void densePOTRS(realtype **a, int m, realtype *b);
 
   /*
    * -----------------------------------------------------------------
@@ -253,22 +121,35 @@ extern "C" {
    * of length N and w is a vector of length M (with M>=N).
    *
    * DenseORMQR requires a temporary work vector wrk of length M.
+   *
+   * -----------------------------------------------------------------
+   * DenseGEQRF and DenseORMQR are simply wrappers around denseGEQRF
+   * and denseORMQR, respectively, which perform all the work by
+   * directly accessing the data in the DlsMat A (i.e. the field cols)
    * -----------------------------------------------------------------
    */
 
-  int DenseGEQRF(DenseMat A, realtype *beta, realtype *wrk);
-  int DenseORMQR(DenseMat A, realtype *beta, realtype *vn, realtype *vm, 
+  int DenseGEQRF(DlsMat A, realtype *beta, realtype *wrk);
+  int DenseORMQR(DlsMat A, realtype *beta, realtype *vn, realtype *vm, 
                  realtype *wrk);
+
+  int denseGEQRF(realtype **a, int m, int n, realtype *beta, realtype *v);
+  int denseORMQR(realtype **a, int m, int n, realtype *beta,
+                 realtype *v, realtype *w, realtype *wrk);
 
   /*
    * -----------------------------------------------------------------
    * Function : DenseZero
    * -----------------------------------------------------------------
-   * DenseZero sets all the elements of the M by N matrix A to 0.0.
+   * DenseZero sets all the elements of the M-by-N matrix A to 0.0.
+   *
+   * DenseZero is a wrapper around denseZero which accesses the data of
+   * the DlsMat A (i.e. the field cols)
    * -----------------------------------------------------------------
    */
 
-  void DenseZero(DenseMat A);
+  void DenseZero(DlsMat A);
+  void denseZero(realtype **a, int m, int n);
 
   /*
    * -----------------------------------------------------------------
@@ -276,10 +157,14 @@ extern "C" {
    * -----------------------------------------------------------------
    * DenseCopy copies the contents of the M-by-N matrix A into the
    * M-by-N matrix B.
+   * 
+   * DenseCopy is a wrapper around denseCopy which accesses the data
+   * in the DlsMat A and B (i.e. the fields cols)
    * -----------------------------------------------------------------
    */
 
-  void DenseCopy(DenseMat A, DenseMat B);
+  void DenseCopy(DlsMat A, DlsMat B);
+  void denseCopy(realtype **a, realtype **b, int m, int n);
 
   /*
    * -----------------------------------------------------------------
@@ -287,10 +172,15 @@ extern "C" {
    * -----------------------------------------------------------------
    * DenseScale scales the elements of the M-by-N matrix A by the
    * constant c and stores the result back in A.
+   *
+   * DenseScale is a wrapper around denseScale which performs the actual
+   * scaling by accessing the data in the DlsMat A (i.e. the field
+   * cols).
    * -----------------------------------------------------------------
    */
 
-  void DenseScale(realtype c, DenseMat A);
+  void DenseScale(realtype c, DlsMat A);
+  void denseScale(realtype c, realtype **a, int m, int n);
 
   /*
    * -----------------------------------------------------------------
@@ -301,23 +191,14 @@ extern "C" {
    * DenseAddI is typically used with square matrices.
    * DenseAddI does not check for M >= N and therefore a segmentation
    * fault will occur if M < N!
+   *
+   * DenseAddI is a wrapper around denseAddI which performs the actual
+   * work by accessing the data in the DlsMat A (i.e. the field cols)
    * -----------------------------------------------------------------
    */
 
-  void DenseAddI(DenseMat A);
-  /*
-   * -----------------------------------------------------------------
-   * Function : DensePrint
-   * -----------------------------------------------------------------
-   * This routine prints the M-by-N dense matrix A to standard output
-   * as it would normally appear on paper. It is intended as a 
-   * debugging tool with small values of M and N. The elements are
-   * printed using the %g/%lg/%Lg option. A blank line is printed
-   * before and after the matrix.
-   * -----------------------------------------------------------------
-   */
-
-  void DensePrint(DenseMat A);
+  void DenseAddI(DlsMat A);
+  void denseAddI(realtype **a, int n);
 
 #ifdef __cplusplus
 }

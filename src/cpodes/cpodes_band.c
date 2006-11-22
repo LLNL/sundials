@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:05 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:48 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,39 +23,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cpodes_band_impl.h"
+#include <cpodes/cpodes_band.h>
+#include "cpodes_direct_impl.h"
 #include "cpodes_private.h"
+
 #include <sundials/sundials_math.h>
 
 /* 
  * =================================================================
- * FUNCTION SPECIFIC CONSTANTS
+ * PROTOTYPES FOR PRIVATE FUNCTIONS
  * =================================================================
  */
-
-/* Constant for DQ Jacobian approximation */
-#define MIN_INC_MULT RCONST(1000.0)
 
 /* CPBAND linit, lsetup, lsolve, and lfree routines */
 static int cpBandInit(CPodeMem cp_mem);
 static int cpBandSetup(CPodeMem cp_mem, int convfail, 
                        N_Vector yP, N_Vector ypP, N_Vector fctP,
-                        booleantype *jcurPtr,
+                       booleantype *jcurPtr,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int cpBandSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
                        N_Vector yC, N_Vector ypC, N_Vector fctC);
 static void cpBandFree(CPodeMem cp_mem);
-
-/* CPBAND DQ integration Jacobian functions */
-static int cpBandDQJacExpl(long int N, long int mupper, long int mlower,
-                           realtype t, N_Vector y, N_Vector fy, 
-                           BandMat J, void *jac_data,
-                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int cpBandDQJacImpl(long int N, long int mupper, long int mlower,
-                           realtype t, realtype gm,
-                           N_Vector y, N_Vector yp, N_Vector r,
-                           BandMat J, void *jac_data,
-                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
  * =================================================================
@@ -85,20 +73,27 @@ static int cpBandDQJacImpl(long int N, long int mupper, long int mlower,
 #define lmem           (cp_mem->cp_lmem)
 #define lsetup_exists  (cp_mem->cp_lsetup_exists)
 
-#define n              (cpband_mem->b_n)
-#define jacE           (cpband_mem->b_jacE)
-#define jacI           (cpband_mem->b_jacI)
-#define M              (cpband_mem->b_M)
-#define mu             (cpband_mem->b_mu)
-#define ml             (cpband_mem->b_ml)
-#define storage_mu     (cpband_mem->b_storage_mu)
-#define pivots         (cpband_mem->b_pivots)
-#define savedJ         (cpband_mem->b_savedJ)
-#define nstlj          (cpband_mem->b_nstlj)
-#define nje            (cpband_mem->b_nje)
-#define nfeB           (cpband_mem->b_nfeB)
-#define J_data         (cpband_mem->b_J_data)
-#define last_flag      (cpband_mem->b_last_flag)
+#define mtype          (cpdls_mem->d_type)
+#define n              (cpdls_mem->d_n)
+#define jacE           (cpdls_mem->d_bjacE)
+#define jacI           (cpdls_mem->d_bjacI)
+#define M              (cpdls_mem->d_M)
+#define mu             (cpdls_mem->d_mu)
+#define ml             (cpdls_mem->d_ml)
+#define smu            (cpdls_mem->d_smu)
+#define pivots         (cpdls_mem->d_pivots)
+#define savedJ         (cpdls_mem->d_savedJ)
+#define nstlj          (cpdls_mem->d_nstlj)
+#define nje            (cpdls_mem->d_nje)
+#define nfeDQ          (cpdls_mem->d_nfeDQ)
+#define J_data         (cpdls_mem->d_J_data)
+#define last_flag      (cpdls_mem->d_last_flag)
+
+/* 
+ * =================================================================
+ * EXPORTED FUNCTIONS
+ * =================================================================
+ */
 
 /*
  * -----------------------------------------------------------------
@@ -110,10 +105,10 @@ static int cpBandDQJacImpl(long int N, long int mupper, long int mlower,
  * cp_linit, cp_lsetup, cp_lsolve, and cp_lfree fields in (*cpode_mem)
  * to be CPBandInit, CPBandSetup, CPBandSolve, and CPBandFree,
  * respectively.  It allocates memory for a structure of type
- * CPBandMemRec and sets the cp_lmem field in (*cpode_mem) to the
+ * CPDlsMemRec and sets the cp_lmem field in (*cpode_mem) to the
  * address of this structure.  It sets lsetup_exists in (*cpode_mem) to be
- * TRUE, b_mu to be mupper, b_ml to be mlower, and the b_jac field to be 
- * CPBandDQJac.
+ * TRUE, d_mu to be mupper, d_ml to be mlower, and initializes the d_bjacE
+ * and d_bjacI to NULL.
  * Finally, it allocates memory for M, savedJ, and pivot.  The CPBand
  * return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
  *
@@ -125,23 +120,22 @@ static int cpBandDQJacImpl(long int N, long int mupper, long int mlower,
  * -----------------------------------------------------------------
  */
                   
-int CPBand(void *cpode_mem, long int N,
-           long int mupper, long int mlower)
+int CPBand(void *cpode_mem, int N, int mupper, int mlower)
 {
   CPodeMem cp_mem;
-  CPBandMem cpband_mem;
+  CPDlsMem cpdls_mem;
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPBAND_MEM_NULL, "CPBAND", "CPBand", MSGB_CPMEM_NULL);
-    return(CPBAND_MEM_NULL);
+    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPBAND", "CPBand", MSGD_CPMEM_NULL);
+    return(CPDIRECT_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (tempv->ops->nvgetarraypointer == NULL) {
-    cpProcessError(cp_mem, CPBAND_ILL_INPUT, "CPBAND", "CPBand", MSGB_BAD_NVECTOR);
-    return(CPBAND_ILL_INPUT);
+    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPBAND", "CPBand", MSGD_BAD_NVECTOR);
+    return(CPDIRECT_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(cp_mem);
@@ -152,262 +146,81 @@ int CPBand(void *cpode_mem, long int N,
   lsolve = cpBandSolve;
   lfree  = cpBandFree;
   
-  /* Get memory for CPBandMemRec */
-  cpband_mem = NULL;
-  cpband_mem = (CPBandMem) malloc(sizeof(CPBandMemRec));
-  if (cpband_mem == NULL) {
-    cpProcessError(cp_mem, CPBAND_MEM_FAIL, "CPBAND", "CPBand", MSGB_MEM_FAIL);
-    return(CPBAND_MEM_FAIL);
+  /* Get memory for CPDlsMemRec */
+  cpdls_mem = NULL;
+  cpdls_mem = (CPDlsMem) malloc(sizeof(CPDlsMemRec));
+  if (cpdls_mem == NULL) {
+    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
+    return(CPDIRECT_MEM_FAIL);
   }
-  
+
+  /* Set matrix type */
+  mtype = SUNDIALS_BAND;
+
   /* Set default Jacobian routine and Jacobian data */
   jacE = NULL;
   jacI = NULL;
   J_data = NULL;
 
-  last_flag = CPBAND_SUCCESS;
+  last_flag = CPDIRECT_SUCCESS;
   lsetup_exists = TRUE;
   
   /* Load problem dimension */
   n = N;
 
-  /* Load half-bandwiths in cpband_mem */
+  /* Load half-bandwiths in cpdls_mem */
   ml = mlower;
   mu = mupper;
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    cpProcessError(cp_mem, CPBAND_ILL_INPUT, "CPBAND", "CPBand", MSGB_BAD_SIZES);
-    return(CPBAND_ILL_INPUT);
+    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPBAND", "CPBand", MSGD_BAD_SIZES);
+    return(CPDIRECT_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  storage_mu = MIN(N-1, mu + ml);
+  smu = MIN(N-1, mu + ml);
 
   /* Allocate memory for M, savedJ, and pivot arrays */
   M = NULL;
   pivots = NULL;
   savedJ = NULL;
 
-  M = BandAllocMat(N, mu, ml, storage_mu);
+  M = NewBandMat(N, mu, ml, smu);
   if (M == NULL) {
-    cpProcessError(cp_mem, CPBAND_MEM_FAIL, "CPBAND", "CPBand", MSGB_MEM_FAIL);
-    free(cpband_mem);
-    return(CPBAND_MEM_FAIL);
+    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
+    free(cpdls_mem);
+    return(CPDIRECT_MEM_FAIL);
   }  
-  pivots = BandAllocPiv(N);
+  pivots = NewIntArray(N);
   if (pivots == NULL) {
-    cpProcessError(cp_mem, CPBAND_MEM_FAIL, "CPBAND", "CPBand", MSGB_MEM_FAIL);
-    BandFreeMat(M);
-    free(cpband_mem);
-    return(CPBAND_MEM_FAIL);
+    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
+    DestroyMat(M);
+    free(cpdls_mem);
+    return(CPDIRECT_MEM_FAIL);
   }
   if (ode_type == CP_EXPL) {
-    savedJ = BandAllocMat(N, mu, ml, mu);
+    savedJ = NewBandMat(N, mu, ml, mu);
     if (savedJ == NULL) {
-      cpProcessError(cp_mem, CPBAND_MEM_FAIL, "CPBAND", "CPBand", MSGB_MEM_FAIL);
-      BandFreeMat(M);
-      BandFreePiv(pivots);
-      free(cpband_mem);
-      return(CPBAND_MEM_FAIL);
+      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
+      DestroyMat(M);
+      DestroyArray(pivots);
+      free(cpdls_mem);
+      return(CPDIRECT_MEM_FAIL);
     }
   }
 
   /* Attach linear solver memory to integrator memory */
-  lmem = cpband_mem;
+  lmem = cpdls_mem;
 
-  return(CPBAND_SUCCESS);
+  return(CPDIRECT_SUCCESS);
 }
 
-/*
- * -----------------------------------------------------------------
- * CPBandSetJacFn
- * -----------------------------------------------------------------
+/* 
+ * =================================================================
+ *  PRIVATE FUNCTIONS FOR IMPLICIT INTEGRATION
+ * =================================================================
  */
-
-int CPBandSetJacFn(void *cpode_mem, void *bjac, void *jac_data)
-{
-  CPodeMem cp_mem;
-  CPBandMem cpband_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPBAND_MEM_NULL, "CPBAND", "CPBandSetJacFn", MSGB_CPMEM_NULL);
-    return(CPBAND_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmem == NULL) {
-    cpProcessError(cp_mem, CPBAND_LMEM_NULL, "CPBAND", "CPBandSetJacFn", MSGB_LMEM_NULL);
-    return(CPBAND_LMEM_NULL);
-  }
-  cpband_mem = (CPBandMem) lmem;
-
-  if (ode_type == CP_EXPL) jacE = (CPBandJacExplFn) bjac;
-  else                     jacI = (CPBandJacImplFn) bjac;
-  J_data = jac_data;
-
-  return(CPBAND_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPBandGetWorkSpace
- * -----------------------------------------------------------------
- */
-
-int CPBandGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS)
-{
-  CPodeMem cp_mem;
-  CPBandMem cpband_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPBAND_MEM_NULL, "CPBAND", "CPBandGetWorkSpace", MSGB_CPMEM_NULL);
-    return(CPBAND_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmem == NULL) {
-    cpProcessError(cp_mem, CPBAND_LMEM_NULL, "CPBAND", "CPBandGetWorkSpace", MSGB_LMEM_NULL);
-    return(CPBAND_LMEM_NULL);
-  }
-  cpband_mem = (CPBandMem) lmem;
-
-  if (ode_type == CP_EXPL) *lenrwLS = n*(storage_mu + mu + 2*ml + 2);
-  else                     *lenrwLS = n*(storage_mu + ml + 1);                     
-  *leniwLS = n;
-
-  return(CPBAND_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPBandGetNumJacEvals
- * -----------------------------------------------------------------
- */
-
-int CPBandGetNumJacEvals(void *cpode_mem, long int *njevals)
-{
-  CPodeMem cp_mem;
-  CPBandMem cpband_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPBAND_MEM_NULL, "CPBAND", "CPBandGetNumJacEvals", MSGB_CPMEM_NULL);
-    return(CPBAND_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmem == NULL) {
-    cpProcessError(cp_mem, CPBAND_LMEM_NULL, "CPBAND", "CPBandGetNumJacEvals", MSGB_LMEM_NULL);
-    return(CPBAND_LMEM_NULL);
-  }
-  cpband_mem = (CPBandMem) lmem;
-
-  *njevals = nje;
-
-  return(CPBAND_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPBandGetNumFctEvals
- * -----------------------------------------------------------------
- */
-
-int CPBandGetNumFctEvals(void *cpode_mem, long int *nfevalsLS)
-{
-  CPodeMem cp_mem;
-  CPBandMem cpband_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPBAND_MEM_NULL, "CPBAND", "CPBandGetNumRhsEvals", MSGB_CPMEM_NULL);
-    return(CPBAND_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmem == NULL) {
-    cpProcessError(cp_mem, CPBAND_LMEM_NULL, "CPBAND", "CPBandGetNumRhsEvals", MSGB_LMEM_NULL);
-    return(CPBAND_LMEM_NULL);
-  }
-  cpband_mem = (CPBandMem) lmem;
-
-  *nfevalsLS = nfeB;
-
-  return(CPBAND_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPBandGetLastFlag
- * -----------------------------------------------------------------
- */
-
-int CPBandGetLastFlag(void *cpode_mem, int *flag)
-{
-  CPodeMem cp_mem;
-  CPBandMem cpband_mem;
-
-  /* Return immediately if cpode_mem is NULL */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPBAND_MEM_NULL, "CPBAND", "CPBandGetLastFlag", MSGB_CPMEM_NULL);
-    return(CPBAND_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (lmem == NULL) {
-    cpProcessError(cp_mem, CPBAND_LMEM_NULL, "CPBAND", "CPBandGetLastFlag", MSGB_LMEM_NULL);
-    return(CPBAND_LMEM_NULL);
-  }
-  cpband_mem = (CPBandMem) lmem;
-
-  *flag = last_flag;
-
-  return(CPBAND_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPBandGetReturnFlagName
- * -----------------------------------------------------------------
- */
-
-char *CPBandGetReturnFlagName(int flag)
-{
-  char *name;
-
-  name = (char *)malloc(30*sizeof(char));
-
-  switch(flag) {
-  case CPBAND_SUCCESS:
-    sprintf(name,"CPBAND_SUCCESS");
-    break;   
-  case CPBAND_MEM_NULL:
-    sprintf(name,"CPBAND_MEM_NULL");
-    break;
-  case CPBAND_LMEM_NULL:
-    sprintf(name,"CPBAND_LMEM_NULL");
-    break;
-  case CPBAND_ILL_INPUT:
-    sprintf(name,"CPBAND_ILL_INPUT");
-    break;
-  case CPBAND_MEM_FAIL:
-    sprintf(name,"CPBAND_MEM_FAIL");
-    break;
-  case CPBAND_JACFUNC_UNRECVR:
-    sprintf(name,"CPBAND_JACFUNC_UNRECVR");
-    break;
-  case CPBAND_JACFUNC_RECVR:
-    sprintf(name,"CPBAND_JACFUNC_RECVR");
-    break;
-  default:
-    sprintf(name,"NONE");
-  }
-
-  return(name);
-}
 
 /*
  * -----------------------------------------------------------------
@@ -420,25 +233,25 @@ char *CPBandGetReturnFlagName(int flag)
 
 static int cpBandInit(CPodeMem cp_mem)
 {
-  CPBandMem cpband_mem;
+  CPDlsMem cpdls_mem;
 
-  cpband_mem = (CPBandMem) lmem;
+  cpdls_mem = (CPDlsMem) lmem;
 
   nje   = 0;
-  nfeB  = 0;
+  nfeDQ = 0;
   nstlj = 0;
 
   if (ode_type == CP_EXPL && jacE == NULL) {
-    jacE = cpBandDQJacExpl;
+    jacE = cpDlsBandDQJacExpl;
     J_data = cp_mem;
   } 
   
   if (ode_type == CP_IMPL && jacI == NULL) {
-    jacI = cpBandDQJacImpl;
+    jacI = cpDlsBandDQJacImpl;
     J_data = cp_mem;
   }
 
-  last_flag = CPBAND_SUCCESS;
+  last_flag = CPDIRECT_SUCCESS;
   return(0);
 }
 
@@ -460,13 +273,12 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
                         booleantype *jcurPtr,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
+  CPDlsMem cpdls_mem;
   booleantype jbad, jok;
   realtype dgamma;
-  long int ier;
-  CPBandMem cpband_mem;
-  int retval;
+  int ier, retval;
 
-  cpband_mem = (CPBandMem) lmem;
+  cpdls_mem = (CPDlsMem) lmem;
 
   switch (ode_type) {
 
@@ -474,8 +286,8 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
 
     /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
     dgamma = ABS((gamma/gammap) - ONE);
-    jbad = (nst == 0) || (nst > nstlj + CPB_MSBJ) ||
-      ((convfail == CP_FAIL_BAD_J) && (dgamma < CPB_DGMAX)) ||
+    jbad = (nst == 0) || (nst > nstlj + CPD_MSBJ) ||
+      ((convfail == CP_FAIL_BAD_J) && (dgamma < CPD_DGMAX)) ||
       (convfail == CP_FAIL_OTHER);
     jok = !jbad;
     
@@ -497,11 +309,11 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
       if (retval == 0) {
         BandCopy(M, savedJ, mu, ml);
       }else if (retval < 0) {
-        cpProcessError(cp_mem, CPBAND_JACFUNC_UNRECVR, "CPBAND", "CPBandSetup", MSGB_JACFUNC_FAILED);
-        last_flag = CPBAND_JACFUNC_UNRECVR;
+        cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPBAND", "CPBandSetup", MSGD_JACFUNC_FAILED);
+        last_flag = CPDIRECT_JACFUNC_UNRECVR;
         return(-1);
       }else if (retval > 0) {
-        last_flag = CPBAND_JACFUNC_RECVR;
+        last_flag = CPDIRECT_JACFUNC_RECVR;
         return(1);
       }
 
@@ -518,11 +330,11 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
     BandZero(M);
     retval = jacI(n, mu, ml, tn, gamma, yP, ypP, fctP, M, J_data, tmp1, tmp2, tmp3);
     if (retval < 0) {
-      cpProcessError(cp_mem, CPBAND_JACFUNC_UNRECVR, "CPBAND", "CPBandSetup", MSGB_JACFUNC_FAILED);
-      last_flag = CPBAND_JACFUNC_UNRECVR;
+      cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPBAND", "CPBandSetup", MSGD_JACFUNC_FAILED);
+      last_flag = CPDIRECT_JACFUNC_UNRECVR;
       return(-1);
     } else if (retval > 0) {
-      last_flag = CPBAND_JACFUNC_RECVR;
+      last_flag = CPDIRECT_JACFUNC_RECVR;
       return(+1);
     }
 
@@ -551,10 +363,10 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
 static int cpBandSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
                        N_Vector yC, N_Vector ypC, N_Vector fctC)
 {
-  CPBandMem cpband_mem;
+  CPDlsMem cpdls_mem;
   realtype *bd;
 
-  cpband_mem = (CPBandMem) lmem;
+  cpdls_mem = (CPDlsMem) lmem;
 
   bd = N_VGetArrayPointer(b);
 
@@ -565,7 +377,7 @@ static int cpBandSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
     N_VScale(TWO/(ONE + gamrat), b, b);
   }
 
-  last_flag = CPBAND_SUCCESS;
+  last_flag = CPDIRECT_SUCCESS;
   return(0);
 }
 
@@ -579,208 +391,14 @@ static int cpBandSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
 
 static void cpBandFree(CPodeMem cp_mem)
 {
-  CPBandMem cpband_mem;
+  CPDlsMem cpdls_mem;
 
-  cpband_mem = (CPBandMem) lmem;
+  cpdls_mem = (CPDlsMem) lmem;
 
-  BandFreeMat(M);
-  BandFreePiv(pivots);
-  if (ode_type == CP_EXPL) BandFreeMat(savedJ);
-  free(cpband_mem); 
-  cpband_mem = NULL;
+  DestroyMat(M);
+  DestroyArray(pivots);
+  if (ode_type == CP_EXPL) DestroyMat(savedJ);
+  free(cpdls_mem); 
+  cpdls_mem = NULL;
 }
 
-/* 
- * =================================================================
- *  DQ JACOBIAN APPROXIMATIONS FOR IMPLICIT INTEGRATION
- * =================================================================
- */
-
-/*
- * -----------------------------------------------------------------
- * cpBandDQJacExpl
- * -----------------------------------------------------------------
- * This routine generates a banded difference quotient approximation to
- * the Jacobian of f(t,y).  It assumes that a band matrix of type
- * BandMat is stored column-wise, and that elements within each column
- * are contiguous. This makes it possible to get the address of a column
- * of J via the macro BAND_COL and to write a simple for loop to set
- * each of the elements of a column in succession.
- * -----------------------------------------------------------------
- */
-
-static int cpBandDQJacExpl(long int N, long int mupper, long int mlower,
-                           realtype t, N_Vector y, N_Vector fy, 
-                           BandMat J, void *jac_data,
-                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype fnorm, minInc, inc, inc_inv, srur;
-  N_Vector ftemp, ytemp;
-  long int group, i, j, width, ngroups, i1, i2;
-  realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
-  int retval = 0;
-
-  CPodeMem cp_mem;
-  CPBandMem cpband_mem;
-
-  /* jac_dat points to cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
-  cpband_mem = (CPBandMem) lmem;
-
-  /* Rename work vectors for use as temporary values of y and f */
-  ftemp = tmp1;
-  ytemp = tmp2;
-
-  /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp */
-  ewt_data   = N_VGetArrayPointer(ewt);
-  fy_data    = N_VGetArrayPointer(fy);
-  ftemp_data = N_VGetArrayPointer(ftemp);
-  y_data     = N_VGetArrayPointer(y);
-  ytemp_data = N_VGetArrayPointer(ytemp);
-
-  /* Load ytemp with y = predicted y vector */
-  N_VScale(ONE, y, ytemp);
-
-  /* Set minimum increment based on uround and norm of f */
-  srur = RSqrt(uround);
-  fnorm = N_VWrmsNorm(fy, ewt);
-  minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
-
-  /* Set bandwidth and number of column groups for band differencing */
-  width = mlower + mupper + 1;
-  ngroups = MIN(width, N);
-
-  /* Loop over column groups. */
-  for (group=1; group <= ngroups; group++) {
-    
-    /* Increment all y_j in group */
-    for(j=group-1; j < N; j+=width) {
-      inc = MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
-      ytemp_data[j] += inc;
-    }
-
-    /* Evaluate f with incremented y */
-
-    retval = fe(tn, ytemp, ftemp, f_data);
-    nfeB++;
-    if (retval != 0) break;
-
-    /* Restore ytemp, then form and load difference quotients */
-    for (j=group-1; j < N; j+=width) {
-      ytemp_data[j] = y_data[j];
-      col_j = BAND_COL(J,j);
-      inc = MAX(srur*ABS(y_data[j]), minInc/ewt_data[j]);
-      inc_inv = ONE/inc;
-      i1 = MAX(0, j-mupper);
-      i2 = MIN(j+mlower, N-1);
-      for (i=i1; i <= i2; i++)
-        BAND_COL_ELEM(col_j,i,j) = inc_inv * (ftemp_data[i] - fy_data[i]);
-    }
-  }
-  
-  return(retval);
-
-}
-
-
-/*
- */
-static int cpBandDQJacImpl(long int N, long int mupper, long int mlower,
-                           realtype t, realtype gm,
-                           N_Vector y, N_Vector yp, N_Vector r,
-                           BandMat J, void *jac_data,
-                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype inc, inc_inv, yj, ypj, srur, ewtj;
-  realtype *y_data, *yp_data, *ewt_data;
-  realtype *ytemp_data, *yptemp_data, *ftemp_data, *r_data, *col_j;
-  int group;
-  
-  N_Vector ftemp, ytemp, yptemp;
-  long int i, j, i1, i2, width, ngroups;
-  int retval = 0;
-
-  CPodeMem cp_mem;
-  CPBandMem cpband_mem;
-
-  /* jac_data points to cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
-  cpband_mem = (CPBandMem) lmem;
-
-  ftemp = tmp1; /* Rename work vector for use as the perturbed residual. */
-  ytemp = tmp2; /* Rename work vector for use as a temporary for yy. */
-  yptemp= tmp3; /* Rename work vector for use as a temporary for yp. */
-
-  /* Obtain pointers to the data for all vectors used.  */
-  ewt_data    = N_VGetArrayPointer(ewt);
-  r_data      = N_VGetArrayPointer(r);
-  y_data      = N_VGetArrayPointer(y);
-  yp_data     = N_VGetArrayPointer(yp);
-  ftemp_data  = N_VGetArrayPointer(ftemp);
-  ytemp_data  = N_VGetArrayPointer(ytemp);
-  yptemp_data = N_VGetArrayPointer(yptemp);
-
-  /* Initialize ytemp and yptemp. */
-  N_VScale(ONE, y, ytemp);
-  N_VScale(ONE, yp, yptemp);
-
-  /* Compute miscellaneous values for the Jacobian computation. */
-  srur = RSqrt(uround);
-  width = mlower + mupper + 1;
-  ngroups = MIN(width, N);
-
-  /* Loop over column groups. */
-  for (group=1; group <= ngroups; group++) {
-
-    /* Increment all y[j] and yp[j] for j in this group. */
-    for (j=group-1; j<N; j+=width) {
-        yj = y_data[j];
-        ypj = yp_data[j];
-        ewtj = ewt_data[j];
-
-        /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
-           adjustments using ypj and ewtj if this is small, and a further
-           adjustment to give it the same sign as h*ypj. */
-        inc = MAX( srur * MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
-
-        if (h*ypj < ZERO) inc = -inc;
-        inc = (yj + inc) - yj;
-
-        /* Increment yj and ypj. */
-        ytemp_data[j]  += gamma*inc;
-        yptemp_data[j] += inc;
-    }
-
-    /* Call ODE fct. with incremented arguments. */
-    retval = fi(tn, ytemp, yptemp, ftemp, f_data);
-    nfeB++;
-    if (retval != 0) break;
-
-    /* Loop over the indices j in this group again. */
-    for (j=group-1; j<N; j+=width) {
-
-      /* Reset ytemp and yptemp components that were perturbed. */
-      yj = ytemp_data[j]  = y_data[j];
-      ypj = yptemp_data[j] = yp_data[j];
-      col_j = BAND_COL(J, j);
-      ewtj = ewt_data[j];
-      
-      /* Set increment inc exactly as above. */
-      inc = MAX( srur * MAX( ABS(yj), ABS(h*ypj) ) , ONE/ewtj );
-      if (h*ypj < ZERO) inc = -inc;
-      inc = (yj + inc) - yj;
-      
-      /* Load the difference quotient Jacobian elements for column j. */
-      inc_inv = ONE/inc;
-      i1 = MAX(0, j-mupper);
-      i2 = MIN(j+mlower,N-1);
-      for (i=i1; i<=i2; i++) 
-        BAND_COL_ELEM(col_j,i,j) = inc_inv*(ftemp_data[i]-r_data[i]);
-    }
-    
-  }
-  
-  return(retval);
-
-}

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-19 20:52:19 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -345,10 +345,10 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_flag(&ier, "IDAGetNumResEvals", 1);
   ier = IDAGetLastStep(mem, &hused);
   check_flag(&ier, "IDAGetLastStep", 1);
-  ier = IDABandGetNumJacEvals(mem, &nje);
-  check_flag(&ier, "IDABandGetNumJacEvals", 1);
-  ier = IDABandGetNumResEvals(mem, &nreLS);
-  check_flag(&ier, "IDABandGetNumResEvals", 1);
+  ier = IDADlsGetNumJacEvals(mem, &nje);
+  check_flag(&ier, "IDADlsGetNumJacEvals", 1);
+  ier = IDADlsGetNumResEvals(mem, &nreLS);
+  check_flag(&ier, "IDADlsGetNumResEvals", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le \n",

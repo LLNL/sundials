@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-10-09 23:56:24 $
+ * $Revision: 1.6 $
+ * $Date: 2006-11-22 00:12:52 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -157,19 +157,17 @@ extern "C" {
                       void *rdataS,
                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-  int mtlb_IdaDenseJac(long int Neq, realtype tt, 
+  int mtlb_IdaDenseJac(int Neq, 
+                       realtype tt, realtype c_j, 
                        N_Vector yy, N_Vector yp, N_Vector rr,
-                       realtype c_j, void *jac_data, 
-                       DenseMat Jac, 
-                       N_Vector tmp1, N_Vector tmp2, 
-                       N_Vector tmp3);
+                       DlsMat Jac, void *jac_data, 
+                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-  int mtlb_IdaBandJac(long int Neq, long int mupper, 
-                      long int mlower, realtype tt, 
+  int mtlb_IdaBandJac(int Neq, int mupper, int mlower, 
+                      realtype tt, realtype c_j, 
                       N_Vector yy, N_Vector yp, N_Vector rr, 
-                      realtype c_j, void *jac_data, BandMat Jac, 
-                      N_Vector tmp1, N_Vector tmp2, 
-                      N_Vector tmp3);
+                      DlsMat Jac, void *jac_data,
+                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
   int mtlb_IdaSpilsJac(realtype tt,
                        N_Vector yy, N_Vector yp, N_Vector rr,
@@ -187,10 +185,10 @@ extern "C" {
                         realtype c_j, realtype delta, void *prec_data,
                         N_Vector tmp);
 
-  int mtlb_IdaBBDgloc(long int Nlocal, realtype tt,
+  int mtlb_IdaBBDgloc(int Nlocal, realtype tt,
                       N_Vector yy, N_Vector yp, N_Vector gval,
                       void *res_data);
-  int mtlb_IdaBBDgcom(long int Nlocal, realtype tt,
+  int mtlb_IdaBBDgcom(int Nlocal, realtype tt,
                       N_Vector yy, N_Vector yp,
                       void *res_data);
 
@@ -204,23 +202,19 @@ extern "C" {
                        N_Vector yyB, N_Vector ypB,
                        N_Vector ypQB, void *rdataQB);
 
-  int mtlb_IdaDenseJacB(long int NeqB, realtype tt, 
+  int mtlb_IdaDenseJacB(int NeqB, 
+                        realtype tt, realtype c_jB,
                         N_Vector yy, N_Vector yp,
                         N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                        realtype c_jB, void *jac_dataB, 
-                        DenseMat JacB, 
-                        N_Vector tmp1B, N_Vector tmp2B, 
-                        N_Vector tmp3B);
+                        DlsMat JacB, void *jac_dataB, 
+                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-  int mtlb_IdaBandJacB(long int NeqB, 
-                       long int mupperB, long int mlowerB, 
-                       realtype tt, 
+  int mtlb_IdaBandJacB(int NeqB, int mupperB, int mlowerB, 
+                       realtype tt, realtype c_jB, 
                        N_Vector yy, N_Vector yp,
                        N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                       realtype c_jB, void *jac_dataB,
-                       BandMat JacB, 
-                       N_Vector tmp1B, N_Vector tmp2B, 
-                       N_Vector tmp3B);
+                       DlsMat JacB, void *jac_dataB,
+                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
   int mtlb_IdaSpilsJacB(realtype t,
                         N_Vector yy, N_Vector yp,
@@ -241,11 +235,11 @@ extern "C" {
                          realtype c_jB, realtype deltaB,
                          void *prec_dataB, N_Vector tmpB);
   
-  int mtlb_IdaBBDglocB(long int NlocalB, realtype tt,
+  int mtlb_IdaBBDglocB(int NlocalB, realtype tt,
                        N_Vector yy, N_Vector yp, 
                        N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                        void *res_dataB);
-  int mtlb_IdaBBDgcomB(long int NlocalB, realtype tt,
+  int mtlb_IdaBBDgcomB(int NlocalB, realtype tt,
                        N_Vector yy, N_Vector yp,
                        N_Vector yyB, N_Vector ypB,
                        void *res_dataB);

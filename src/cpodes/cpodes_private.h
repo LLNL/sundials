@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:06 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:48 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -97,7 +97,7 @@ extern "C" {
 #define PRJ_TEST_COEF RCONST(0.1)
 #define PRJ_CRDOWN    RCONST(0.3)
 #define PRJ_RDIV      RCONST(2.0)
-#define PRJ_MSBLS     20
+#define PRJ_MSBLS     1
 
   /* 
    * Control constants for communication between main integrator and

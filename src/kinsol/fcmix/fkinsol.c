@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -208,10 +208,9 @@ void FKIN_SETVIN(char key_name[], realtype *vval, int *ier, int key_len)
  * ----------------------------------------------------------------
  */
 
-void FKIN_DENSE(long int *neq, int *ier)
+void FKIN_DENSE(int *neq, int *ier)
 {
   *ier = KINDense(KIN_kinmem, *neq);
-
   KIN_ls = KIN_LS_DENSE;
 }
 
@@ -221,10 +220,9 @@ void FKIN_DENSE(long int *neq, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
+void FKIN_BAND(int *neq, int *mupper, int *mlower, int *ier)
 {
   *ier = KINBand(KIN_kinmem, *neq, *mupper, *mlower);
-
   KIN_ls = KIN_LS_BAND;
 }
 
@@ -237,7 +235,6 @@ void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 void FKIN_SPTFQMR(int *maxl, int *ier)
 {
   *ier = KINSptfqmr(KIN_kinmem, *maxl);
-
   KIN_ls = KIN_LS_SPTFQMR;
 }
 
@@ -250,7 +247,6 @@ void FKIN_SPTFQMR(int *maxl, int *ier)
 void FKIN_SPBCG(int *maxl, int *ier)
 {
   *ier = KINSpbcg(KIN_kinmem, *maxl);
-
   KIN_ls = KIN_LS_SPBCG;
 }
 
@@ -264,10 +260,7 @@ void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
 {
   *ier = KINSpgmr(KIN_kinmem, *maxl);
   KINSpilsSetMaxRestarts(KIN_kinmem, *maxlrst);
-
   KIN_ls = KIN_LS_SPGMR;
-
-  return;
 }
 
 /*
@@ -329,17 +322,13 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   switch(KIN_ls) {
 
   case KIN_LS_DENSE:
-    KINDenseGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
-    KINDenseGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);        /* LSTF */
-    KINDenseGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
-    KINDenseGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);            /* NJE */
-    
   case KIN_LS_BAND:
-    KINBandGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]);  /* LRW & LIW */
-    KINBandGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);         /* LSTF */
-    KINBandGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);             /* NFE */
-    KINBandGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);             /* NJE */
-    
+  case KIN_LS_LAPACKDENSE:
+  case KIN_LS_LAPACKBAND:
+    KINDlsGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
+    KINDlsGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);        /* LSTF */
+    KINDlsGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
+    KINDlsGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);            /* NJE */    
   case KIN_LS_SPTFQMR:
   case KIN_LS_SPBCG:
   case KIN_LS_SPGMR:

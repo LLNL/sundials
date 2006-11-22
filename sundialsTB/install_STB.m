@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.11 $Date: 2006/08/10 18:02:50 $
+% $Revision: 1.12 $Date: 2006/10/11 18:12:35 $
 
 % MEX compiler command
 
@@ -165,6 +165,7 @@ cvs_sources = {
     fullfile(sun,'src','cvodes','cvodes_band.c')
     fullfile(sun,'src','cvodes','cvodes_bandpre.c')
     fullfile(sun,'src','cvodes','cvodes_bbdpre.c')
+    fullfile(sun,'src','cvodes','cvodes_direct.c')
     fullfile(sun,'src','cvodes','cvodes_dense.c')
     fullfile(sun,'src','cvodes','cvodes_diag.c')
     fullfile(sun,'src','cvodes','cvodea.c')
@@ -181,7 +182,7 @@ shr_sources = {
     fullfile(sun,'src','sundials','sundials_dense.c')
     fullfile(sun,'src','sundials','sundials_iterative.c')
     fullfile(sun,'src','sundials','sundials_nvector.c')
-    fullfile(sun,'src','sundials','sundials_smalldense.c')
+    fullfile(sun,'src','sundials','sundials_direct.c')
     fullfile(sun,'src','sundials','sundials_spbcgs.c')
     fullfile(sun,'src','sundials','sundials_spgmr.c')
     fullfile(sun,'src','sundials','sundials_sptfqmr.c')
@@ -274,6 +275,7 @@ ids_sources = {
     fullfile(sun,'src','ida','ida_band.c')
     fullfile(sun,'src','ida','ida_bbdpre.c')
     fullfile(sun,'src','ida','ida_dense.c')
+    fullfile(sun,'src','ida','ida_direct.c')
 %    fullfile(sun,'src','idas','idaa.c')
     fullfile(sun,'src','ida','ida.c')
     fullfile(sun,'src','ida','ida_ic.c')
@@ -289,7 +291,7 @@ shr_sources = {
     fullfile(sun,'src','sundials','sundials_dense.c')
     fullfile(sun,'src','sundials','sundials_iterative.c')
     fullfile(sun,'src','sundials','sundials_nvector.c')
-    fullfile(sun,'src','sundials','sundials_smalldense.c')
+    fullfile(sun,'src','sundials','sundials_direct.c')
     fullfile(sun,'src','sundials','sundials_spbcgs.c')
     fullfile(sun,'src','sundials','sundials_spgmr.c')
     fullfile(sun,'src','sundials','sundials_sptfqmr.c')
@@ -383,6 +385,7 @@ kin_sources = {
     fullfile(sun,'src','kinsol','kinsol_band.c')
     fullfile(sun,'src','kinsol','kinsol_bbdpre.c')
     fullfile(sun,'src','kinsol','kinsol_dense.c')
+    fullfile(sun,'src','kinsol','kinsol_direct.c')
     fullfile(sun,'src','kinsol','kinsol.c')
     fullfile(sun,'src','kinsol','kinsol_io.c')
     fullfile(sun,'src','kinsol','kinsol_spils.c')
@@ -395,7 +398,7 @@ shr_sources = {
     fullfile(sun,'src','sundials','sundials_dense.c')
     fullfile(sun,'src','sundials','sundials_iterative.c')
     fullfile(sun,'src','sundials','sundials_nvector.c')
-    fullfile(sun,'src','sundials','sundials_smalldense.c')
+    fullfile(sun,'src','sundials','sundials_direct.c')
     fullfile(sun,'src','sundials','sundials_spbcgs.c')
     fullfile(sun,'src','sundials','sundials_spgmr.c')
     fullfile(sun,'src','sundials','sundials_sptfqmr.c')
@@ -605,6 +608,7 @@ idm_exs = {
     fullfile('idas','examples_ser','idabanx_f.m')
     fullfile('idas','examples_ser','idadenx.m')
     fullfile('idas','examples_ser','idadenx_f.m')
+    fullfile('idas','examples_ser','idadenx_J.m')
     fullfile('idas','examples_ser','idadenx_g.m')
     fullfile('idas','examples_ser','pend.m')
     fullfile('idas','examples_ser','pendGGL.m')

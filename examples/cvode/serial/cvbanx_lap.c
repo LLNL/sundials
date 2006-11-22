@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-09 20:37:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -93,7 +93,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 static int Jac(int N, int mu, int ml,
                realtype t, N_Vector u, N_Vector fu, 
-               LapackMat J, void *jac_data,
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -174,8 +174,8 @@ int main(void)
   /* Set the user-supplied Jacobian routine Jac and
      the pointer to the user-defined block data. */
 
-  flag = CVLapackSetJacFn(cvode_mem, Jac, data);
-  if(check_flag(&flag, "CVLapackSetJacFn", 1)) return(1);
+  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
+  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
 
@@ -254,7 +254,7 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *f_data)
 
 static int Jac(int N, int mu, int ml,
                realtype t, N_Vector u, N_Vector fu, 
-               LapackMat J, void *jac_data,
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int i, j, k;
@@ -277,21 +277,21 @@ static int Jac(int N, int mu, int ml,
   verdc = data->vdcoef;
 
   /* Initialize Jacobian to 0 */
-  LapackSetZeroMat(J);
+  LapackBandZero(J);
   
   /* set non-zero Jacobian entries */
   for (j=1; j <= MY; j++) {
     for (i=1; i <= MX; i++) {
       k = j-1 + (i-1)*MY;
-      kthCol = LAPACK_BAND_COL(J,k);
+      kthCol = BAND_COL(J,k);
 
       /* set the kth column of J */
 
-      LAPACK_BAND_COL_ELEM(kthCol,k,k) = -TWO*(verdc+hordc);
-      if (i != 1)  LAPACK_BAND_COL_ELEM(kthCol,k-MY,k) = hordc + horac;
-      if (i != MX) LAPACK_BAND_COL_ELEM(kthCol,k+MY,k) = hordc - horac;
-      if (j != 1)  LAPACK_BAND_COL_ELEM(kthCol,k-1,k)  = verdc;
-      if (j != MY) LAPACK_BAND_COL_ELEM(kthCol,k+1,k)  = verdc;
+      BAND_COL_ELEM(kthCol,k,k) = -TWO*(verdc+hordc);
+      if (i != 1)  BAND_COL_ELEM(kthCol,k-MY,k) = hordc + horac;
+      if (i != MX) BAND_COL_ELEM(kthCol,k+MY,k) = hordc - horac;
+      if (j != 1)  BAND_COL_ELEM(kthCol,k-1,k)  = verdc;
+      if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = verdc;
     }
   }
 
@@ -388,10 +388,10 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVLapackGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVLapackGetNumJacEvals", 1);
-  flag = CVLapackGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVLapackGetNumRhsEvals", 1);
+  flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
+  check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+  flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",

@@ -1,10 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:50 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -66,8 +65,8 @@
  *
  * Notes:
  * (1) Include this file for the CVBandPrecData type definition.
- * (2) In the CVBandPrecAlloc call, the arguments N is the same
- *     as in the call to CVodeMalloc.
+ * (2) In the CVBandPrecAlloc call, the arguments N is the
+ *     problem dimension.
  * (3) In the CVBPSp* call, the user is free to specify
  *     the input pretype and the optional input maxl. The last
  *     argument must be the pointer returned by CVBandPrecAlloc.
@@ -118,8 +117,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-void *CVBandPrecAlloc(void *cvode_mem, long int N,
-                      long int mu, long int ml);
+void *CVBandPrecAlloc(void *cvode_mem, int N, int mu, int ml);
 
 /*
  * -----------------------------------------------------------------

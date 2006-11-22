@@ -1,26 +1,26 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the header file for the CVBANDPRE module, which
+ * This is the header file for the CVSBANDPRE module, which
  * provides a banded difference quotient Jacobian-based
  * preconditioner and solver routines for use with CVSPGMR,
  * CVSPBCG, or CVSPTFQMR.
  *
  *
  * Part I contains type definitions and function prototypes for using
- * CVBANDPRE on forward problems (IVP integration and/or FSA)
+ * CVSBANDPRE on forward problems (IVP integration and/or FSA)
  *
  * Part II contains type definitions and function prototypes for using
- * CVBANDPRE on adjopint (backward) problems
+ * CVSBANDPRE on adjopint (backward) problems
  * -----------------------------------------------------------------
  */
 
@@ -31,6 +31,14 @@
 extern "C" {
 #endif
 
+#include <sundials/sundials_nvector.h>
+
+  /*
+   * =================================================================
+   *             C V S B A N D P R E     C O N S T A N T S
+   * =================================================================
+   */
+
   /* CVBANDPRE return values */
 
 #define CVBANDPRE_SUCCESS           0
@@ -40,14 +48,17 @@ extern "C" {
 #define CVBANDPRE_ADJMEM_NULL     -111
 #define CVBANDPRE_MEM_FAIL        -112
 
-#include <sundials/sundials_nvector.h>
-
   /* 
-   * -----------------------------------------------------------------
+   * =================================================================
    * PART I - forward problems
+   * =================================================================
+   */
+
+  /*
    * -----------------------------------------------------------------
    *
-   * Summary:
+   * SUMMARY
+   * 
    * These routines provide a band matrix preconditioner based on
    * difference quotients of the ODE right-hand side function f.
    * The user supplies parameters
@@ -97,8 +108,8 @@ extern "C" {
    *
    * Notes:
    * (1) Include this file for the CVBandPrecData type definition.
-   * (2) In the CVBandPrecAlloc call, the arguments N is the same
-   *     as in the call to CVodeMalloc.
+   * (2) In the CVBandPrecAlloc call, the arguments N is the
+   *     problem dimension.
    * (3) In the CVBPSp* call, the user is free to specify
    *     the input pretype and the optional input maxl. The last
    *     argument must be the pointer returned by CVBandPrecAlloc.
@@ -135,8 +146,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  void *CVBandPrecAlloc(void *cvode_mem, long int N,
-                        long int mu, long int ml);
+  void *CVBandPrecAlloc(void *cvode_mem, int N, int mu, int ml);
 
   /*
    * -----------------------------------------------------------------
@@ -265,9 +275,9 @@ extern "C" {
   char *CVBandPrecGetReturnFlagName(int flag);
 
   /* 
-   * -----------------------------------------------------------------
+   * =================================================================
    * PART II - backward problems
-   * -----------------------------------------------------------------
+   * =================================================================
    */
 
   /*
@@ -284,8 +294,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  int CVBandPrecAllocB(void *cvadj_mem, long int nB,
-                       long int muB, long int mlB);
+  int CVBandPrecAllocB(void *cvadj_mem, int nB, int muB, int mlB);
 
   int CVBPSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB);
   int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);

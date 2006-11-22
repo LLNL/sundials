@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:13 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -63,15 +63,15 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
  * -----------------------------------------------------------------
  */
 
-void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal, 
-                     long int mudq, long int mldq,
-                     long int mukeep, long int mlkeep, 
+void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal, 
+                     int mudq, int mldq,
+                     int mukeep, int mlkeep, 
                      realtype dqrely, 
                      CVLocalFn gloc, CVCommFn cfn)
 {
   CVodeMem cv_mem;
   CVBBDPrecData pdata;
-  long int muk, mlk, storage_mu;
+  int muk, mlk, storage_mu;
 
   if (cvode_mem == NULL) {
     CVProcessError(NULL, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_CVMEM_NULL);
@@ -105,7 +105,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   pdata->mlkeep = mlk;
 
   /* Allocate memory for saved Jacobian */
-  pdata->savedJ = BandAllocMat(Nlocal, muk, mlk, muk);
+  pdata->savedJ = NewBandMat(Nlocal, muk, mlk, muk);
   if (pdata->savedJ == NULL) { 
     free(pdata); pdata = NULL; 
     CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
@@ -115,19 +115,19 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   /* Allocate memory for preconditioner matrix */
   storage_mu = MIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
-  pdata->savedP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
+  pdata->savedP = NewBandMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->savedP == NULL) {
-    BandFreeMat(pdata->savedJ);
+    DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
     CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
     return(NULL);
   }
   /* Allocate memory for pivots */
   pdata->pivots = NULL;
-  pdata->pivots = BandAllocPiv(Nlocal);
+  pdata->pivots = NewIntArray(Nlocal);
   if (pdata->savedJ == NULL) {
-    BandFreeMat(pdata->savedP);
-    BandFreeMat(pdata->savedJ);
+    DestroyMat(pdata->savedP);
+    DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
     CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
     return(NULL);
@@ -211,13 +211,13 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 }
 
 int CVBBDPrecReInit(void *bbd_data, 
-                    long int mudq, long int mldq, 
+                    int mudq, int mldq, 
                     realtype dqrely, 
                     CVLocalFn gloc, CVCommFn cfn)
 {
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
-  long int Nlocal;
+  int Nlocal;
 
   if (bbd_data == NULL) {
     CVProcessError(NULL, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBDP_PDATA_NULL);
@@ -250,9 +250,9 @@ void CVBBDPrecFree(void **bbd_data)
   if (*bbd_data == NULL) return;
 
   pdata = (CVBBDPrecData) (*bbd_data);
-  BandFreeMat(pdata->savedJ);
-  BandFreeMat(pdata->savedP);
-  BandFreePiv(pdata->pivots);
+  DestroyMat(pdata->savedJ);
+  DestroyMat(pdata->savedP);
+  DestroyArray(pdata->pivots);
 
   free(*bbd_data);
   *bbd_data = NULL;
@@ -395,7 +395,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
                           realtype gamma, void *bbd_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int ier;
+  int ier;
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
   int retval;
@@ -493,7 +493,7 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  * This routine generates a banded difference quotient approximation
  * to the local block of the Jacobian of g(t,y). It assumes that a
- * band matrix of type BandMat is stored columnwise, and that elements
+ * band matrix of type DlsMat is stored columnwise, and that elements
  * within each column are contiguous. All matrix elements are generated
  * as difference quotients, by way of calls to the user routine gloc.
  * By virtue of the band structure, the number of these calls is
@@ -510,7 +510,7 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 {
   CVodeMem cv_mem;
   realtype gnorm, minInc, inc, inc_inv;
-  long int group, i, j, width, ngroups, i1, i2;
+  int group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
   int retval;
 

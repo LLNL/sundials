@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-09 20:37:51 $
+# $Revision: 1.6 $
+# $Date: 2006-11-22 00:12:44 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -141,6 +141,8 @@ install: $(EXEC_FILES)
 install_lap: $(LAP_EXEC_FILES)
 	$(INSTALL_PROG) $(top_builddir)/examples/cvode/serial/cvdenx_lap$(EXE_EXT)   $(EXS_INSTDIR)/cvode/serial/
 	$(INSTALL_PROG) $(top_builddir)/examples/cvode/serial/cvbanx_lap$(EXE_EXT)   $(EXS_INSTDIR)/cvode/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvdenx_lap.out           $(EXS_INSTDIR)/cvode/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvbanx_lap.out           $(EXS_INSTDIR)/cvode/serial/
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

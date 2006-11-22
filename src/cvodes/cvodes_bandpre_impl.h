@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:34 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -22,7 +22,7 @@ extern "C" {
 #endif
 
 #include <cvodes/cvodes_bandpre.h>
-#include <sundials/sundials_band.h>
+#include <sundials/sundials_direct.h>
 
   /*
    * -----------------------------------------------------------------
@@ -34,14 +34,14 @@ extern "C" {
 
     /* Data set by user in CVBandPrecAlloc */
 
-    long int N;
-    long int ml, mu;
+    int N;
+    int ml, mu;
 
     /* Data set by CVBandPrecSetup */
 
-    BandMat savedJ;
-    BandMat savedP;
-    long int *pivots;
+    DlsMat savedJ;
+    DlsMat savedP;
+    int *pivots;
 
     /* Rhs calls */
 

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2006-11-10 21:04:12 $
+C     $Revision: 1.2 $
+C     $Date: 2006-11-22 00:12:44 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, Lapack linear solver
 C                             with dense user Jacobian.
@@ -200,7 +200,7 @@ C
 
 C     ----------------------------------------------------------------
 
-      SUBROUTINE FCVLDJAC(N, T, Y, FY, JAC, H, IPAR, RPAR, 
+      SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, H, IPAR, RPAR, 
      1                   V1, V2, V3, IER)
 C Fortran routine for dense user-supplied Jacobian.
       IMPLICIT NONE

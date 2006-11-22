@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-08-11 23:03:21 $
+# $Revision: 1.5 $
+# $Date: 2006-11-22 00:12:51 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -46,8 +46,8 @@ INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(top_srcdir)/src/kin
 LIB_REVISION = 0:1:0
 
 FKINSOL_LIB       = libsundials_fkinsol.la
-FKINSOL_LIB_FILES = fkinsol.lo fkinpreco.lo fkinjtimes.lo fkinbbd.lo fkindense.lo
-FKINSOL_OBJ_FILES = fkinsol.o fkinpreco.o fkinjtimes.o fkinbbd.o fkindense.o
+FKINSOL_LIB_FILES = fkinsol.lo fkindense.lo fkinband.lo fkinlapack.lo fkinlapdense.lo fkinlapband.lo fkinpreco.lo fkinjtimes.lo fkinbbd.lo
+FKINSOL_OBJ_FILES = fkinsol.o fkindense.o fkinband.o fkinlapack.o fkinlapdense.o fkinlapband.o fkinpreco.o fkinjtimes.o fkinbbd.o
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -81,6 +81,14 @@ fkinbbd.lo: $(srcdir)/fkinbbd.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkinbbd.c
 fkindense.lo: $(srcdir)/fkindense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkindense.c
+fkinband.lo: $(srcdir)/fkinband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkinband.c
+fkinlapack.lo: $(srcdir)/fkinlapack.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkinlapack.c
+fkinlapdense.lo: $(srcdir)/fkinlapdense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkinlapdense.c
+fkinlapband.lo: $(srcdir)/fkinlapband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkinlapband.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

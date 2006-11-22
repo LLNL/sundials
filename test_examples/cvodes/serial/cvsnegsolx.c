@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:55:54 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:52 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -170,8 +170,8 @@ static void PrintFinalStats(void *cvode_mem)
   CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
   CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
 
-  CVDenseGetNumJacEvals(cvode_mem, &nje);
-  CVDenseGetNumRhsEvals(cvode_mem, &nfeLS);
+  CVDlsGetNumJacEvals(cvode_mem, &nje);
+  CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",

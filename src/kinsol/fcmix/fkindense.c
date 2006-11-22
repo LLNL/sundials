@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-extern void FK_DJAC(long int*, realtype*, realtype*, realtype*,
+extern void FK_DJAC(int*, realtype*, realtype*, realtype*,
 		    realtype*, realtype*, int*);
 
 #ifdef __cplusplus
@@ -49,12 +49,11 @@ extern void FK_DJAC(long int*, realtype*, realtype*, realtype*,
 void FKIN_DENSESETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = KINDenseSetJacFn(KIN_kinmem, NULL, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, NULL, NULL);
   }
   else {
-    *ier = KINDenseSetJacFn(KIN_kinmem, (KINDenseJacFn) FKINDenseJac, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, (KINDlsDenseJacFn) FKINDenseJac, NULL);
   }
-
   return;
 }
 
@@ -71,8 +70,8 @@ void FKIN_DENSESETJAC(int *flag, int *ier)
  * ----------------------------------------------------------------
  */
 
-int FKINDenseJac(long int N, DenseMat J, N_Vector uu, N_Vector fval,
-		 void *jac_data, N_Vector vtemp1, N_Vector vtemp2)
+int FKINDenseJac(int N, N_Vector uu, N_Vector fval,
+		 DlsMat J, void *jac_data, N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;
   int ier;

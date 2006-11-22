@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:17 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -53,11 +53,11 @@ int IDABBDPrecSolve(realtype tt,
 
 /* Wrapper functions for adjoint code */
 
-static int IDAAglocal(long int NlocalB, realtype tt,
+static int IDAAglocal(int NlocalB, realtype tt,
                       N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                       void *res_dataB);
 
-static int IDAAgcomm(long int NlocalB, realtype tt,
+static int IDAAgcomm(int NlocalB, realtype tt,
                      N_Vector yyB, N_Vector ypB,
                      void *res_dataB);
 
@@ -86,16 +86,16 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
  * -----------------------------------------------------------------
  */
 
-void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal, 
-		      long int mudq, long int mldq, 
-		      long int mukeep, long int mlkeep, 
+void *IDABBDPrecAlloc(void *ida_mem, int Nlocal, 
+		      int mudq, int mldq, 
+		      int mukeep, int mlkeep, 
 		      realtype dq_rel_yy, 
 		      IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
   IDAMem IDA_mem;
   IBBDPrecData pdata;
   N_Vector tempv4;
-  long int muk, mlk, storage_mu;
+  int muk, mlk, storage_mu;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_IDAMEM_NULL);
@@ -134,7 +134,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 
   /* Allocate memory for preconditioner matrix. */
   pdata->PP = NULL;
-  pdata->PP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
+  pdata->PP = NewBandMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) { 
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_MEM_FAIL);
@@ -143,9 +143,9 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 
   /* Allocate memory for pivots. */
   pdata->pivots = NULL;
-  pdata->pivots = BandAllocPiv(Nlocal);
+  pdata->pivots = NewIntArray(Nlocal);
   if (pdata->PP == NULL) {
-    BandFreeMat(pdata->PP);
+    DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_MEM_FAIL);
     return(NULL);
@@ -155,8 +155,8 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   tempv4 = NULL;
   tempv4 = N_VClone(vec_tmpl); 
   if (tempv4 == NULL){
-    BandFreeMat(pdata->PP);
-    BandFreePiv(pdata->pivots);
+    DestroyMat(pdata->PP);
+    DestroyArray(pdata->pivots);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_MEM_FAIL);
     return(NULL);
@@ -243,13 +243,13 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
 }
 
 int IDABBDPrecReInit(void *bbd_data,
-		     long int mudq, long int mldq, 
+		     int mudq, int mldq, 
 		     realtype dq_rel_yy,  
 		     IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
   IBBDPrecData pdata;
   IDAMem IDA_mem;
-  long int Nlocal;
+  int Nlocal;
 
   if (bbd_data == NULL) {
     IDAProcessError(NULL, IDABBDPRE_PDATA_NULL, "IDABBDPRE", "IDABBDPrecReInit", MSGBBD_PDATA_NULL);
@@ -283,8 +283,8 @@ void IDABBDPrecFree(void **bbd_data)
   if (*bbd_data == NULL) return;
 
   pdata = (IBBDPrecData) (*bbd_data);
-  BandFreeMat(pdata->PP);
-  BandFreePiv(pdata->pivots);
+  DestroyMat(pdata->PP);
+  DestroyArray(pdata->pivots);
   N_VDestroy(pdata->tempv4);
 
   free(*bbd_data);
@@ -408,8 +408,7 @@ int IDABBDPrecSetup(realtype tt,
 		    realtype c_j, void *prec_data,
 		    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  long int retfac;
-  int retval;
+  int ier, retval;
   IBBDPrecData pdata;
   IDAMem IDA_mem;
 
@@ -430,10 +429,10 @@ int IDABBDPrecSetup(realtype tt,
   } 
  
   /* Do LU factorization of preconditioner block in place (in PP). */
-  retfac = BandGBTRF(PP, pivots);
+  ier = BandGBTRF(PP, pivots);
 
   /* Return 0 if the LU was complete, or +1 otherwise. */
-  if (retfac > 0) return(+1);
+  if (ier > 0) return(+1);
   return(0);
 }
 
@@ -514,7 +513,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   IDAMem IDA_mem;
   realtype inc, inc_inv;
   int  retval;
-  long int group, i, j, width, ngroups, i1, i2;
+  int group, i, j, width, ngroups, i1, i2;
   realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
   realtype *cnsdata = NULL, *ewtdata;
   realtype *col_j, conj, yj, ypj, ewtj;
@@ -646,9 +645,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
  * ----------------------------------------------------------------
  */
 
-int IDABBDPrecAllocB(void *idaadj_mem, long int NlocalB,
-                     long int mudqB, long int mldqB,
-                     long int mukeepB, long int mlkeepB,
+int IDABBDPrecAllocB(void *idaadj_mem, int NlocalB,
+                     int mudqB, int mldqB,
+                     int mukeepB, int mlkeepB,
                      realtype dq_rel_yyB,
                      IDABBDLocalFnB glocalB, IDABBDCommFnB gcommB)
 {
@@ -775,7 +774,7 @@ int IDABBDSpgmrB(void *idaadj_mem, int maxlB)
 
 }
 
-int IDABBDPrecReInitB(void *idaadj_mem, long int mudqB, long int mldqB,
+int IDABBDPrecReInitB(void *idaadj_mem, int mudqB, int mldqB,
                       realtype dq_rel_yyB, IDABBDLocalFnB glocalB, IDABBDCommFnB gcommB)
 {
   IDAadjMem IDAADJ_mem;
@@ -830,7 +829,7 @@ void IDABBDPrecFreeB(void *idaadj_mem)
  * ----------------------------------------------------------------
  */
 
-static int IDAAglocal(long int NlocalB, realtype tt,
+static int IDAAglocal(int NlocalB, realtype tt,
                       N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                       void *idaadj_mem)
 {
@@ -857,7 +856,7 @@ static int IDAAglocal(long int NlocalB, realtype tt,
 
 }
 
-static int IDAAgcomm(long int NlocalB, realtype tt,
+static int IDAAgcomm(int NlocalB, realtype tt,
                      N_Vector yyB, N_Vector ypB,
                      void *idaadj_mem)
 {

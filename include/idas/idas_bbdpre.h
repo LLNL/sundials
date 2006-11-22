@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -26,6 +26,12 @@ extern "C" {
 
 #include <sundials/sundials_nvector.h>
 
+  /*
+   * =================================================================
+   *             I D A S B B D P R E     C O N S T A N T S
+   * =================================================================
+   */
+
   /* IDABBDPRE return values */
 
 #define IDABBDPRE_SUCCESS           0
@@ -36,12 +42,16 @@ extern "C" {
 #define IDABBDPRE_PDATAB_NULL      -112
 #define IDABBDPRE_MEM_FAIL         -113
 
+  /* 
+   * =================================================================
+   * PART I - forward problems
+   * =================================================================
+   */
+
   /*
    * -----------------------------------------------------------------
-   * PART I - forward problems
-   * -----------------------------------------------------------------
    *
-   * Summary:
+   * SUMMARY
    *
    * These routines provide a preconditioner matrix that is
    * block-diagonal with banded blocks. The blocking corresponds
@@ -155,7 +165,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  typedef int (*IDABBDLocalFn)(long int Nlocal, realtype tt,
+  typedef int (*IDABBDLocalFn)(int Nlocal, realtype tt,
                                N_Vector yy, N_Vector yp, N_Vector gval,
                                void *res_data);
 
@@ -187,7 +197,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  typedef int (*IDABBDCommFn)(long int Nlocal, realtype tt,
+  typedef int (*IDABBDCommFn)(int Nlocal, realtype tt,
                               N_Vector yy, N_Vector yp,
                               void *res_data);
 
@@ -232,9 +242,9 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
-                        long int mudq, long int mldq,
-                        long int mukeep, long int mlkeep,
+  void *IDABBDPrecAlloc(void *ida_mem, int Nlocal,
+                        int mudq, int mldq,
+                        int mukeep, int mlkeep,
                         realtype dq_rel_yy,
                         IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
 
@@ -344,7 +354,7 @@ extern "C" {
    */
 
   int IDABBDPrecReInit(void *bbd_data,
-                       long int mudq, long int mldq,
+                       int mudq, int mldq,
                        realtype dq_rel_yy,
                        IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
 
@@ -387,9 +397,9 @@ extern "C" {
   char *IDABBDPrecGetReturnFlagName(int flag);
 
   /* 
-   * -----------------------------------------------------------------
+   * =================================================================
    * PART II - backward problems
-   * -----------------------------------------------------------------
+   * =================================================================
    */
 
   /*
@@ -400,12 +410,12 @@ extern "C" {
    * function for the BBD preconditioner on the backward phase.
    * -----------------------------------------------------------------
    */
-  typedef int (*IDABBDLocalFnB)(long int NlocalB, realtype tt,
+  typedef int (*IDABBDLocalFnB)(int NlocalB, realtype tt,
                                 N_Vector yy, N_Vector yp, 
                                 N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                                 void *res_dataB);
 
-  typedef int (*IDABBDCommFnB)(long int NlocalB, realtype tt,
+  typedef int (*IDABBDCommFnB)(int NlocalB, realtype tt,
                                N_Vector yy, N_Vector yp,
                                N_Vector yyB, N_Vector ypB,
                                void *res_dataB);
@@ -419,9 +429,9 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  int IDABBDPrecAllocB(void *idaadj_mem, long int NlocalB,
-                       long int mudqB, long int mldqB,
-                       long int mukeepB, long int mlkeepB,
+  int IDABBDPrecAllocB(void *idaadj_mem, int NlocalB,
+                       int mudqB, int mldqB,
+                       int mukeepB, int mlkeepB,
                        realtype dq_rel_yyB,
                        IDABBDLocalFnB GresB, IDABBDCommFnB GcommB);
 
@@ -429,7 +439,7 @@ extern "C" {
   int IDABBDSpbcgB(void *idaadj_mem, int maxlB);
   int IDABBDSpgmrB(void *idaadj_mem, int maxlB);
   
-  int IDABBDPrecReInitB(void *idaadj_mem, long int mudqB, long int mldqB,
+  int IDABBDPrecReInitB(void *idaadj_mem, int mudqB, int mldqB,
                         realtype dq_rel_yyB, IDABBDLocalFnB GresB, IDABBDCommFnB GcommB);
 
   void IDABBDPrecFreeB(void *idaadj_mem);

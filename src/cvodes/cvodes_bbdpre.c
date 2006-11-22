@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:15 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -33,29 +33,23 @@
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 
-/* Prototypes of functions CVBBDPrecSetup and CVBBDPrecSolve */
-
-static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
+/* Prototypes of functions cvBBDPrecSetup and cvBBDPrecSolve */
+static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
                           booleantype jok, booleantype *jcurPtr, 
                           realtype gamma, void *bbd_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
-static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
+static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
                           N_Vector r, N_Vector z, 
                           realtype gamma, realtype delta,
                           int lr, void *bbd_data, N_Vector tmp);
 
 /* Wrapper functions for adjoint code */
-
-static int CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
-                   void *cvadj_mem);
-
-static int CVAcfn(long int NlocalB, realtype t, N_Vector yB,
-                  void *cvadj_mem);
+static int cvGlocWrapper(int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
+                         void *cvadj_mem);
+static int cvCfnWrapper(int NlocalB, realtype t, N_Vector yB, void *cvadj_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
-
-static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
+static int cvBBDDQJac(CVBBDPrecData pdata, realtype t, 
                       N_Vector y, N_Vector gy, 
                       N_Vector ytemp, N_Vector gtemp);
 
@@ -79,15 +73,15 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
  * -----------------------------------------------------------------
  */
 
-void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal, 
-                     long int mudq, long int mldq,
-                     long int mukeep, long int mlkeep, 
+void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal, 
+                     int mudq, int mldq,
+                     int mukeep, int mlkeep, 
                      realtype dqrely, 
                      CVLocalFn gloc, CVCommFn cfn)
 {
   CVodeMem cv_mem;
   CVBBDPrecData pdata;
-  long int muk, mlk, storage_mu;
+  int muk, mlk, storage_mu;
 
   if (cvode_mem == NULL) {
     CVProcessError(NULL, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_CVMEM_NULL);
@@ -121,7 +115,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   pdata->mlkeep = mlk;
 
   /* Allocate memory for saved Jacobian */
-  pdata->savedJ = BandAllocMat(Nlocal, muk, mlk, muk);
+  pdata->savedJ = NewBandMat(Nlocal, muk, mlk, muk);
   if (pdata->savedJ == NULL) { 
     free(pdata); pdata = NULL; 
     CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
@@ -131,19 +125,19 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   /* Allocate memory for preconditioner matrix */
   storage_mu = MIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
-  pdata->savedP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
+  pdata->savedP = NewBandMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->savedP == NULL) {
-    BandFreeMat(pdata->savedJ);
+    DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
     CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
     return(NULL);
   }
   /* Allocate memory for pivots */
   pdata->pivots = NULL;
-  pdata->pivots = BandAllocPiv(Nlocal);
+  pdata->pivots = NewIntArray(Nlocal);
   if (pdata->savedJ == NULL) {
-    BandFreeMat(pdata->savedP);
-    BandFreeMat(pdata->savedJ);
+    DestroyMat(pdata->savedP);
+    DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
     CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
     return(NULL);
@@ -152,7 +146,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
   pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(uround);
 
-  /* Store Nlocal to be used in CVBBDPrecSetup */
+  /* Store Nlocal to be used in cvBBDPrecSetup */
   pdata->n_local = Nlocal;
 
   /* Set work space sizes and initialize nge */
@@ -178,7 +172,7 @@ int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
     return(CVBBDPRE_PDATA_NULL);
   } 
 
-  flag = CVSpilsSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
+  flag = CVSpilsSetPreconditioner(cvode_mem, cvBBDPrecSetup, cvBBDPrecSolve, bbd_data);
   if(flag != CVSPILS_SUCCESS) return(flag);
 
   return(CVSPILS_SUCCESS);
@@ -199,7 +193,7 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
     return(CVBBDPRE_PDATA_NULL);
   } 
 
-  flag = CVSpilsSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
+  flag = CVSpilsSetPreconditioner(cvode_mem, cvBBDPrecSetup, cvBBDPrecSolve, bbd_data);
   if(flag != CVSPILS_SUCCESS) return(flag);
 
   return(CVSPILS_SUCCESS);
@@ -220,20 +214,20 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
     return(CVBBDPRE_PDATA_NULL);
   } 
 
-  flag = CVSpilsSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
+  flag = CVSpilsSetPreconditioner(cvode_mem, cvBBDPrecSetup, cvBBDPrecSolve, bbd_data);
   if(flag != CVSPILS_SUCCESS) return(flag);
 
   return(CVSPILS_SUCCESS);
 }
 
 int CVBBDPrecReInit(void *bbd_data, 
-                    long int mudq, long int mldq, 
+                    int mudq, int mldq, 
                     realtype dqrely, 
                     CVLocalFn gloc, CVCommFn cfn)
 {
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
-  long int Nlocal;
+  int Nlocal;
 
   if (bbd_data == NULL) {
     CVProcessError(NULL, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBDP_PDATA_NULL);
@@ -266,9 +260,9 @@ void CVBBDPrecFree(void **bbd_data)
   if (*bbd_data == NULL) return;
 
   pdata = (CVBBDPrecData) (*bbd_data);
-  BandFreeMat(pdata->savedJ);
-  BandFreeMat(pdata->savedP);
-  BandFreePiv(pdata->pivots);
+  DestroyMat(pdata->savedJ);
+  DestroyMat(pdata->savedP);
+  DestroyArray(pdata->pivots);
 
   free(*bbd_data);
   *bbd_data = NULL;
@@ -363,17 +357,17 @@ char *CVBBDPrecGetReturnFlagName(int flag)
 
 /*
  * -----------------------------------------------------------------
- * Function : CVBBDPrecSetup                                      
+ * Function : cvBBDPrecSetup                                      
  * -----------------------------------------------------------------
- * CVBBDPrecSetup generates and factors a banded block of the
+ * cvBBDPrecSetup generates and factors a banded block of the
  * preconditioner matrix on each processor, via calls to the
  * user-supplied gloc and cfn functions. It uses difference
  * quotient approximations to the Jacobian elements.
  *
- * CVBBDPrecSetup calculates a new J,if necessary, then calculates
+ * cvBBDPrecSetup calculates a new J,if necessary, then calculates
  * P = I - gamma*J, and does an LU factorization of P.
  *
- * The parameters of CVBBDPrecSetup used here are as follows:
+ * The parameters of cvBBDPrecSetup used here are as follows:
  *
  * t       is the current value of the independent variable.
  *
@@ -405,25 +399,24 @@ char *CVBBDPrecGetReturnFlagName(int flag)
  *           this should be of type CVBBDData.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated
- *           for NVectors which are be used by CVBBDPrecSetup
+ *           for NVectors which are be used by cvBBDPrecSetup
  *           as temporary storage or work space.
  *
  * Return value:
- * The value returned by this CVBBDPrecSetup function is the int
+ * The value returned by this cvBBDPrecSetup function is the int
  *   0  if successful,
  *   1  for a recoverable error (step will be retried).
  * -----------------------------------------------------------------
  */
 
-static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
+static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
                           booleantype jok, booleantype *jcurPtr, 
                           realtype gamma, void *bbd_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int ier;
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
-  int retval;
+  int ier, retval;
 
   pdata = (CVBBDPrecData) bbd_data;
 
@@ -437,13 +430,13 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   } else {
 
-    /* Otherwise call CVBBDDQJac for new J value */
+    /* Otherwise call cvBBDDQJac for new J value */
     *jcurPtr = TRUE;
     BandZero(savedJ);
 
-    retval = CVBBDDQJac(pdata, t, y, tmp1, tmp2, tmp3);
+    retval = cvBBDDQJac(pdata, t, y, tmp1, tmp2, tmp3);
     if (retval < 0) {
-      CVProcessError(cv_mem, CVBBDPRE_FUNC_UNRECVR, "CVBBDPRE", "CVBBDPrecSetup", MSGBBDP_FUNC_FAILED);
+      CVProcessError(cv_mem, CVBBDPRE_FUNC_UNRECVR, "CVBBDPRE", "cvBBDPrecSetup", MSGBBDP_FUNC_FAILED);
       return(-1);
     }
     if (retval > 0) {
@@ -468,27 +461,27 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
 /*
  * -----------------------------------------------------------------
- * Function : CVBBDPrecSolve
+ * Function : cvBBDPrecSolve
  * -----------------------------------------------------------------
- * CVBBDPrecSolve solves a linear system P z = r, with the
+ * cvBBDPrecSolve solves a linear system P z = r, with the
  * band-block-diagonal preconditioner matrix P generated and
- * factored by CVBBDPrecSetup.
+ * factored by cvBBDPrecSetup.
  *
- * The parameters of CVBBDPrecSolve used here are as follows:
+ * The parameters of cvBBDPrecSolve used here are as follows:
  *
  * r      is the right-hand side vector of the linear system.
  *
  * bbd_data is a pointer to the preconditioner data returned by
  *          CVBBDPrecAlloc.
  *
- * z      is the output vector computed by CVBBDPrecSolve.
+ * z      is the output vector computed by cvBBDPrecSolve.
  *
- * The value returned by the CVBBDPrecSolve function is always 0,
+ * The value returned by the cvBBDPrecSolve function is always 0,
  * indicating success.
  * -----------------------------------------------------------------
  */
 
-static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
+static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
                           N_Vector r, N_Vector z, 
                           realtype gamma, realtype delta,
                           int lr, void *bbd_data, N_Vector tmp)
@@ -514,7 +507,7 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 /*
  * -----------------------------------------------------------------
- * Function : CVBBDDQJac
+ * Function : cvBBDDQJac
  * -----------------------------------------------------------------
  * This routine generates a banded difference quotient approximation
  * to the local block of the Jacobian of g(t,y). It assumes that a
@@ -529,13 +522,13 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  */
 
-static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
+static int cvBBDDQJac(CVBBDPrecData pdata, realtype t, 
                       N_Vector y, N_Vector gy, 
                       N_Vector ytemp, N_Vector gtemp)
 {
   CVodeMem cv_mem;
   realtype gnorm, minInc, inc, inc_inv;
-  long int group, i, j, width, ngroups, i1, i2;
+  int group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
   int retval;
 
@@ -622,17 +615,15 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 #define gloc_B      (cvbbdB_mem->glocB)
 #define cfn_B       (cvbbdB_mem->cfnB)
 
-
 /*
  * CVBBDPrecAllocB, CVBPSp*B
  *
- * Wrappers for the backward phase around the corresponding 
- * CVODES functions
+ * Wrappers for the backward phase around the corresponding CVODES functions
  */
 
-int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB, 
-                    long int mudqB, long int mldqB, 
-                    long int mukeepB, long int mlkeepB, 
+int CVBBDPrecAllocB(void *cvadj_mem, int NlocalB, 
+                    int mudqB, int mldqB, 
+                    int mukeepB, int mlkeepB, 
                     realtype dqrelyB,
                     CVLocalFnB glocB, CVCommFnB cfnB)
 {
@@ -664,7 +655,7 @@ int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
                              mudqB, mldqB,
                              mukeepB, mlkeepB, 
                              dqrelyB, 
-                             CVAgloc, CVAcfn);
+                             cvGlocWrapper, cvCfnWrapper);
   if (bbd_dataB == NULL) {
     free(cvbbdB_mem); cvbbdB_mem = NULL;
 
@@ -764,7 +755,7 @@ int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
 
 }
 
-int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
+int CVBBDPrecReInitB(void *cvadj_mem, int mudqB, int mldqB,
                      realtype dqrelyB, CVLocalFnB glocB, CVCommFnB cfnB)
 {
   CVadjMem ca_mem;
@@ -790,7 +781,7 @@ int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
   cfn_B  = cfnB;
 
   flag = CVBBDPrecReInit(bbd_data_B, mudqB, mldqB,
-                         dqrelyB, CVAgloc, CVAcfn);
+                         dqrelyB, cvGlocWrapper, cvCfnWrapper);
 
   return(flag);
 }
@@ -814,15 +805,14 @@ void CVBBDPrecFreeB(void *cvadj_mem)
 
 
 /*
- * CVAgloc
+ * cvGlocWrapper
  *
  * This routine interfaces to the CVLocalFnB routine 
  * provided by the user.
  * NOTE: f_data actually contains cvadj_mem
  */
 
-static int CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
-                   void *cvadj_mem)
+static int cvGlocWrapper(int NlocalB, realtype t, N_Vector yB, N_Vector gB, void *cvadj_mem)
 {
   CVadjMem ca_mem;
   CVodeMem cvB_mem;
@@ -836,7 +826,7 @@ static int CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB,
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(cvB_mem, -1, "CVBBDPRE", "CVAgloc", MSGBBDP_BAD_T);
+    CVProcessError(cvB_mem, -1, "CVBBDPRE", "cvGlocWrapper", MSGBBDP_BAD_T);
     return(-1);
   } 
 
@@ -847,15 +837,14 @@ static int CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB,
 }
 
 /*
- * CVAcfn
+ * cvCfnWrapper
  *
  * This routine interfaces to the CVCommFnB routine 
  * provided by the user.
  * NOTE: f_data actually contains cvadj_mem
  */
 
-static int CVAcfn(long int NlocalB, realtype t, N_Vector yB,
-                  void *cvadj_mem)
+static int cvCfnWrapper(int NlocalB, realtype t, N_Vector yB, void *cvadj_mem)
 {
   CVadjMem ca_mem;
   CVodeMem cvB_mem;
@@ -871,7 +860,7 @@ static int CVAcfn(long int NlocalB, realtype t, N_Vector yB,
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(cvB_mem, -1, "CVBBDPRE", "CVAcfn", MSGBBDP_BAD_T);
+    CVProcessError(cvB_mem, -1, "CVBBDPRE", "cvCfnWrapper", MSGBBDP_BAD_T);
     return(-1);
   } 
 

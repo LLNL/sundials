@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-20 16:50:30 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -11,7 +11,7 @@
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
  * This is the common header file for the Scaled, Preconditioned
- * Iterative Linear Solvers in CVODE/CVODES.
+ * Iterative Linear Solvers in CVODES.
  *
  * Part I contains type definitions and functions for using the 
  * iterative linear solvers on forward problems 
@@ -311,7 +311,7 @@ extern "C" {
    * The return value of CVSpilsSet* is one of:
    *    CVSPILS_SUCCESS   if successful
    *    CVSPILS_MEM_NULL  if the cvode memory was NULL
-   *    CVSPILS_LMEM_NULL if the cvspgmr memory was NULL
+   *    CVSPILS_LMEM_NULL if the linear solver memory was NULL
    *    CVSPILS_ILL_INPUT if an input has an illegal value
    * -----------------------------------------------------------------
    */
@@ -356,7 +356,7 @@ extern "C" {
    * The return value of CVSpilsGet* is one of:
    *    CVSPILS_SUCCESS   if successful
    *    CVSPILS_MEM_NULL  if the cvode memory was NULL
-   *    CVSPILS_LMEM_NULL if the cvspgmr memory was NULL
+   *    CVSPILS_LMEM_NULL if the linear solver memory was NULL
    * -----------------------------------------------------------------
    */
 

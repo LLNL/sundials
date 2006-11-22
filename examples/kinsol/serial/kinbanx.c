@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:10 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -329,15 +329,15 @@ static void PrintFinalStats(void *kmem)
 
   /* Band linear solver statistics */
 
-  flag = KINBandGetNumJacEvals(kmem, &nje);
-  check_flag(&flag, "KINBandGetNumJacEvals", 1);
-  flag = KINBandGetNumFuncEvals(kmem, &nfeD);
-  check_flag(&flag, "KINBandGetNumFuncEvals", 1);
+  flag = KINDlsGetNumJacEvals(kmem, &nje);
+  check_flag(&flag, "KINDlsGetNumJacEvals", 1);
+  flag = KINDlsGetNumFuncEvals(kmem, &nfeD);
+  check_flag(&flag, "KINDlsGetNumFuncEvals", 1);
 
   /* Band linear solver workspace size */
 
-  flag = KINBandGetWorkSpace(kmem, &lenrwB, &leniwB);
-  check_flag(&flag, "KINBandGetWorkSpace", 1);
+  flag = KINDlsGetWorkSpace(kmem, &lenrwB, &leniwB);
+  check_flag(&flag, "KINDlsGetWorkSpace", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("nni      = %6ld    nfe     = %6ld \n", nni, nfe);

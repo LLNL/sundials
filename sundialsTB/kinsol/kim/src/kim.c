@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-10-09 23:56:24 $
+ * $Revision: 1.5 $
+ * $Date: 2006-11-22 00:12:52 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -278,7 +278,7 @@ static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
     status = KINDense(kin_mem, N);
     if (!mxIsEmpty(mx_JACfct))
-      status = KINDenseSetJacFn(kin_mem, mtlb_KINDenseJac, NULL);
+      status = KINDlsSetJacFn(kin_mem, mtlb_KINDenseJac, NULL);
 
     break;
 
@@ -286,7 +286,7 @@ static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
     status = KINBand(kin_mem, N, mupper, mlower);
     if (!mxIsEmpty(mx_JACfct))
-        status = KINBandSetJacFn(kin_mem, mtlb_KINBandJac, NULL);
+        status = KINDlsSetJacFn(kin_mem, mtlb_KINBandJac, NULL);
 
     break;
 
@@ -437,6 +437,11 @@ static void KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     "njeD",
     "nfeD"
   };
+  const char *fnames_band[]={
+    "name",
+    "njeD",
+    "nfeD"
+  };
   const char *fnames_spils[]={
     "name",
     "nli",
@@ -481,13 +486,27 @@ static void KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   case LS_DENSE:
     
-    flag = KINDenseGetNumJacEvals(kin_mem, &njeD);
-    flag = KINDenseGetNumFuncEvals(kin_mem, &nfeD);
+    flag = KINDlsGetNumJacEvals(kin_mem, &njeD);
+    flag = KINDlsGetNumFuncEvals(kin_mem, &nfeD);
     
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
 
     mxSetField(mx_ls, 0, "name", mxCreateString("Dense"));
+    mxSetField(mx_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
+    mxSetField(mx_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
+    
+    break;
+
+  case LS_BAND:
+    
+    flag = KINDlsGetNumJacEvals(kin_mem, &njeD);
+    flag = KINDlsGetNumFuncEvals(kin_mem, &nfeD);
+    
+    nfields = sizeof(fnames_band)/sizeof(*fnames_band);
+    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
+
+    mxSetField(mx_ls, 0, "name", mxCreateString("Band"));
     mxSetField(mx_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
     mxSetField(mx_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
     

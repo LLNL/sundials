@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:06 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -90,7 +90,7 @@
 #include <kinsol/kinsol_spgmr.h>
 #include <kinsol/kinsol_bbdpre.h>
 #include <nvector/nvector_parallel.h>
-#include <sundials/sundials_smalldense.h>
+#include <sundials/sundials_dense.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
@@ -147,9 +147,9 @@ typedef struct {
   N_Vector rates;
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
-  long int Nlocal, mx, my, ns, np;
+  int Nlocal, mx, my, ns, np;
   realtype cext[NUM_SPECIES * (MXSUB+2)*(MYSUB+2)];
-  long int my_pe, isubx, isuby, nsmxsub, nsmxsub2;
+  int my_pe, isubx, isuby, nsmxsub, nsmxsub2;
   MPI_Comm comm;
 } *UserData;
 
@@ -157,34 +157,34 @@ typedef struct {
 
 static int func(N_Vector cc, N_Vector fval, void *f_data);
 
-static int ccomm(long int Nlocal, N_Vector cc, void *data);
+static int ccomm(int Nlocal, N_Vector cc, void *data);
 
-static int func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data);
+static int func_local(int Nlocal, N_Vector cc, N_Vector fval, void *f_data);
 
 /* Private Helper Functions */
 
 static UserData AllocUserData(void);
-static void InitUserData(long int my_pe, long int Nlocal, MPI_Comm comm, UserData data);
+static void InitUserData(int my_pe, int Nlocal, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        long int mudq, long int mldq,
-			long int mukeep, long int mlkeep,
+                        int mudq, int mldq,
+			int mukeep, int mlkeep,
                         realtype fnormtol, realtype scsteptol);
-static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc);
+static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc);
 static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
                     void *f_data);
-static realtype DotProd(long int size, realtype *x1, realtype *x2);
-static void BSend(MPI_Comm comm, long int my_pe, long int isubx,
-                  long int isuby, long int dsizex, long int dsizey,
+static realtype DotProd(int size, realtype *x1, realtype *x2);
+static void BSend(MPI_Comm comm, int my_pe, int isubx,
+                  int isuby, int dsizex, int dsizey,
                   realtype *cdata);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
-                      long int isubx, long int isuby,
-                      long int dsizex, long int dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
+                      int isubx, int isuby,
+                      int dsizex, int dsizey,
                       realtype *cext, realtype *buffer);
-static void BRecvWait(MPI_Request request[], long int isubx,
-                      long int isuby, long int dsizex, realtype *cext,
+static void BRecvWait(MPI_Request request[], int isubx,
+                      int isuby, int dsizex, realtype *cext,
                       realtype *buffer);
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
@@ -201,10 +201,10 @@ int main(int argc, char *argv[])
   UserData data;
   N_Vector cc, sc, constraints;
   int globalstrategy;
-  long int Nlocal;
+  int Nlocal;
   realtype fnormtol, scsteptol, dq_rel_uu;
   int flag, maxl, maxlrst;
-  long int mudq, mldq, mukeep, mlkeep;
+  int mudq, mldq, mukeep, mlkeep;
   int my_pe, npes, npelast = NPEX*NPEY-1;
 
   data = NULL;
@@ -350,13 +350,13 @@ int main(int argc, char *argv[])
  * between processors of data needed to calculate f. 
  */
 
-static int ccomm(long int Nlocal, N_Vector cc, void *userdata)
+static int ccomm(int Nlocal, N_Vector cc, void *userdata)
 {
 
   realtype *cdata, *cext, buffer[2*NUM_SPECIES*MYSUB];
   UserData data;
   MPI_Comm comm;
-  long int my_pe, isubx, isuby, nsmxsub, nsmysub;
+  int my_pe, isubx, isuby, nsmxsub, nsmysub;
   MPI_Request request[4];
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array cext */
@@ -385,13 +385,13 @@ static int ccomm(long int Nlocal, N_Vector cc, void *userdata)
  * System function for predator-prey system - calculation part 
  */
 
-static int func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data)
+static int func_local(int Nlocal, N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
   realtype *cext, dely, delx, *cdata;
-  long int i, jx, jy, is, ly;
-  long int isubx, isuby, nsmxsub, nsmxsub2;
-  long int shifty, offsetc, offsetce, offsetcl, offsetcr, offsetcd, offsetcu;
+  int i, jx, jy, is, ly;
+  int isubx, isuby, nsmxsub, nsmxsub2;
+  int shifty, offsetc, offsetce, offsetcl, offsetcr, offsetcd, offsetcu;
   UserData data;
   
   data = (UserData)f_data;
@@ -519,7 +519,7 @@ static int func(N_Vector cc, N_Vector fval, void *f_data)
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *f_data)
 {
-  long int i;
+  int i;
   realtype fac;
   UserData data;
   
@@ -538,9 +538,9 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * Dot product routine for realtype arrays 
  */
 
-static realtype DotProd(long int size, realtype *x1, realtype *x2)
+static realtype DotProd(int size, realtype *x1, realtype *x2)
 {
-  long int i;
+  int i;
   realtype *xx1, *xx2, temp = ZERO;
   
   xx1 = x1; xx2 = x2;
@@ -565,7 +565,7 @@ static UserData AllocUserData(void)
   
   data = (UserData) malloc(sizeof *data);
   
-  acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
+  acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
@@ -577,9 +577,9 @@ static UserData AllocUserData(void)
  * Load problem constants in data 
  */
 
-static void InitUserData(long int my_pe, long int Nlocal, MPI_Comm comm, UserData data)
+static void InitUserData(int my_pe, int Nlocal, MPI_Comm comm, UserData data)
 {
-  long int i, j, np;
+  int i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   data->mx = MX;
@@ -639,7 +639,7 @@ static void InitUserData(long int my_pe, long int Nlocal, MPI_Comm comm, UserDat
 static void FreeUserData(UserData data)
 {
 
-  denfree(acoef);
+  destroyMat(acoef);
   free(bcoef);
   free(cox); free(coy);
   N_VDestroy_Parallel(data->rates);
@@ -687,8 +687,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
  */
 
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        long int mudq, long int mldq,
-			long int mukeep, long int mlkeep,
+                        int mudq, int mldq,
+			int mukeep, int mlkeep,
                         realtype fnormtol, realtype scsteptol)
 {
     printf("\nPredator-prey test problem--  KINSol (parallel-BBD version)\n\n");
@@ -735,7 +735,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
  * Print sample of current cc values 
  */
 
-static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc)
+static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
 {
   int is, i0, npelast;
   realtype  *ct, tempc[NUM_SPECIES];
@@ -823,12 +823,12 @@ static void PrintFinalStats(void *kmem)
  * Routine to send boundary data to neighboring PEs 
  */
 
-static void BSend(MPI_Comm comm, long int my_pe, 
-                  long int isubx, long int isuby, 
-                  long int dsizex, long int dsizey, realtype *cdata)
+static void BSend(MPI_Comm comm, int my_pe, 
+                  int isubx, int isuby, 
+                  int dsizex, int dsizey, realtype *cdata)
 {
   int i, ly;
-  long int offsetc, offsetbuf;
+  int offsetc, offsetbuf;
   realtype bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
@@ -873,12 +873,12 @@ static void BSend(MPI_Comm comm, long int my_pe,
  *  2) request should have 4 entries, and should be passed in both calls also. 
  */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
-                      long int isubx, long int isuby,
-                      long int dsizex, long int dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
+                      int isubx, int isuby,
+                      int dsizex, int dsizey,
                       realtype *cext, realtype *buffer)
 {
-  long int offsetce;
+  int offsetce;
 
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
@@ -917,12 +917,12 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
  *  2) request should have 4 entries, and should be passed in both calls also. 
  */
 
-static void BRecvWait(MPI_Request request[], long int isubx,
-                      long int isuby, long int dsizex, realtype *cext,
+static void BRecvWait(MPI_Request request[], int isubx,
+                      int isuby, int dsizex, realtype *cext,
                       realtype *buffer)
 {
   int i, ly;
-  long int dsizex2, offsetce, offsetbuf;
+  int dsizex2, offsetce, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
   MPI_Status status;
   

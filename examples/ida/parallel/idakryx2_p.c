@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-10-11 16:34:01 $
+ * $Revision: 1.6 $
+ * $Date: 2006-11-22 00:12:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -101,14 +101,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                      /* Main header file */
-#include <ida/ida_spgmr.h>                /* Use IDASPGMR linear solver */
-#include <nvector/nvector_parallel.h>     /* Definitions of N_Vector and NV_DATA_P */
-#include <sundials/sundials_smalldense.h> /* Contains definitions for denalloc routine */
-#include <sundials/sundials_types.h>      /* Definitions of realtype and booleantype */
-#include <sundials/sundials_math.h>       /* Contains RSqrt routine */
+#include <ida/ida.h>
+#include <ida/ida_spgmr.h>
+#include <nvector/nvector_parallel.h>
+#include <sundials/sundials_dense.h>
+#include <sundials/sundials_types.h>
+#include <sundials/sundials_math.h>
 
-#include <mpi.h>                          /* MPI library routines */
+#include <mpi.h>
 
 /* Problem Constants. */
 
@@ -157,15 +157,15 @@
 /* Type: UserData.  Contains problem constants, preconditioner data, etc. */
 
 typedef struct {
-  long int ns, np, thispe, npes, ixsub, jysub, npex, npey;
-  long int mxsub, mysub, nsmxsub, nsmxsub2;
+  int ns, np, thispe, npes, ixsub, jysub, npex, npey;
+  int mxsub, mysub, nsmxsub, nsmxsub2;
   realtype dx, dy, **acoef;
   realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES],
     rhs[NUM_SPECIES], cext[(MXSUB+2)*(MYSUB+2)*NUM_SPECIES];
   MPI_Comm comm;
   N_Vector rates;
   realtype **PP[MXSUB][MYSUB];
-  long int *pivot[MXSUB][MYSUB];
+  int *pivot[MXSUB][MYSUB];
   N_Vector ewt;
   void *ida_mem;
 } *UserData;
@@ -190,16 +190,16 @@ static int PSolvebd(realtype tt,
 
 static int rescomm(N_Vector cc, N_Vector cp, void *rdata);
 
-static void BSend(MPI_Comm comm, long int thispe, long int ixsub, long int jysub,
-                  long int dsizex, long int dsizey, realtype carray[]);
+static void BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
+                  int dsizex, int dsizey, realtype carray[]);
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
-                      long int ixsub, long int jysub,
-                      long int dsizex, long int dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
+                      int ixsub, int jysub,
+                      int dsizex, int dsizey,
                       realtype cext[], realtype buffer[]);
 
-static void BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
-                      long int dsizex, realtype cext[], realtype buffer[]);
+static void BRecvWait(MPI_Request request[], int ixsub, int jysub,
+                      int dsizex, realtype cext[], realtype buffer[]);
 
 static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res, 
                     void *rdata);
@@ -207,12 +207,12 @@ static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res,
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
 
-static realtype dotprod(long int size, realtype *x1, realtype *x2);
+static realtype dotprod(int size, realtype *x1, realtype *x2);
 
 /* Prototypes for private Helper Functions. */
 
-static UserData AllocUserData(MPI_Comm comm, long int local_N, 
-                              long int SystemSize);
+static UserData AllocUserData(MPI_Comm comm, int local_N, 
+                              int SystemSize);
 
 static void InitUserData(UserData webdata, int thispe, int npes, 
                          MPI_Comm comm);
@@ -222,7 +222,7 @@ static void FreeUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector scrtch, UserData webdata);
 
-static void PrintHeader(long int SystemSize, int maxl, 
+static void PrintHeader(int SystemSize, int maxl, 
                         realtype rtol, realtype atol);
 
 static void PrintOutput(void *mem, N_Vector cc, realtype time,
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem;
   UserData webdata;
-  long int SystemSize, local_N;
+  int SystemSize, local_N;
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   int thispe, npes, maxl, iout, flag;
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "IDASpilsSetPreconditioner", 1, thispe)) 
     MPI_Abort(comm, 1);
   
-  /* Call IDACalcIC to correct the initial values. */
+  /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
   flag = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
@@ -390,10 +390,10 @@ int main(int argc, char *argv[])
  * AllocUserData: Allocate memory for data structure of type UserData.   
  */
 
-static UserData AllocUserData(MPI_Comm comm, long int local_N, 
-                              long int SystemSize)
+static UserData AllocUserData(MPI_Comm comm, int local_N, 
+                              int SystemSize)
 {
-  long int ix, jy;
+  int ix, jy;
   UserData webdata;
   
   webdata = (UserData) malloc(sizeof *webdata);
@@ -402,12 +402,12 @@ static UserData AllocUserData(MPI_Comm comm, long int local_N,
   
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      (webdata->PP)[ix][jy] = denalloc(NUM_SPECIES, NUM_SPECIES);
-      (webdata->pivot)[ix][jy] = denallocpiv(NUM_SPECIES);
+      (webdata->PP)[ix][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (webdata->pivot)[ix][jy] = newIntArray(NUM_SPECIES);
     }
   }
   
-  webdata->acoef = denalloc(NUM_SPECIES, NUM_SPECIES);
+  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
   webdata->ewt = N_VNew_Parallel(comm, local_N, SystemSize);
   return(webdata);
   
@@ -479,16 +479,16 @@ static void InitUserData(UserData webdata, int thispe, int npes,
 
 static void FreeUserData(UserData webdata)
 {
-  long int ix, jy;
+  int ix, jy;
 
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      denfree((webdata->PP)[ix][jy]);
-      denfreepiv((webdata->pivot)[ix][jy]);
+      destroyMat((webdata->PP)[ix][jy]);
+      destroyArray((webdata->pivot)[ix][jy]);
     }
   }
 
-  denfree(webdata->acoef);
+  destroyMat(webdata->acoef);
   N_VDestroy_Parallel(webdata->rates);
   N_VDestroy_Parallel(webdata->ewt);
   free(webdata);
@@ -507,7 +507,7 @@ static void FreeUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector res, UserData webdata)
 {
-  long int ixsub, jysub, mxsub, mysub, nsmxsub, np, ix, jy, is;
+  int ixsub, jysub, mxsub, mysub, nsmxsub, np, ix, jy, is;
   realtype *cxy, *idxy, *cpxy, dx, dy, xx, yy, xyfactor;
   
   ixsub = webdata->ixsub;
@@ -554,7 +554,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(long int SystemSize, int maxl, 
+static void PrintHeader(int SystemSize, int maxl, 
                         realtype rtol, realtype atol)
 {
   printf("\nidakryx2_p: Predator-prey DAE parallel example problem for IDA \n\n");
@@ -778,7 +778,7 @@ static int rescomm(N_Vector cc, N_Vector cp, void *rdata)
 
   UserData webdata;
   realtype *cdata, *cext, buffer[2*NUM_SPECIES*MYSUB];
-  long int thispe, ixsub, jysub, nsmxsub, nsmysub;
+  int thispe, ixsub, jysub, nsmxsub, nsmysub;
   MPI_Comm comm;
   MPI_Request request[4];
   
@@ -811,11 +811,11 @@ static int rescomm(N_Vector cc, N_Vector cp, void *rdata)
  * to the appropriate neighbor PEs.                                      
  */
  
-static void BSend(MPI_Comm comm, long int my_pe, long int ixsub, long int jysub,
-                  long int dsizex, long int dsizey, realtype cdata[])
+static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
+                  int dsizex, int dsizey, realtype cdata[])
 {
   int i;
-  long int ly, offsetc, offsetbuf;
+  int ly, offsetc, offsetbuf;
   realtype bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
   
   /* If jysub > 0, send data from bottom x-line of cc. */
@@ -860,12 +860,12 @@ static void BSend(MPI_Comm comm, long int my_pe, long int ixsub, long int jysub,
  * (2) request should have 4 entries, and is also passed in both calls.  
  */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
-                      long int ixsub, long int jysub,
-                      long int dsizex, long int dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
+                      int ixsub, int jysub,
+                      int dsizex, int dsizey,
                       realtype cext[], realtype buffer[])
 {
-  long int offsetce;
+  int offsetce;
   /* Have bufleft and bufright use the same buffer. */
   realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
 
@@ -903,11 +903,11 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
  * (2) request should have 4 entries, and is also passed in both calls.  
  */
 
-static void BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
-                      long int dsizex, realtype cext[], realtype buffer[])
+static void BRecvWait(MPI_Request request[], int ixsub, int jysub,
+                      int dsizex, realtype cext[], realtype buffer[])
 {
   int i;
-  long int ly, dsizex2, offsetce, offsetbuf;
+  int ly, dsizex2, offsetce, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
   MPI_Status status;
 
@@ -989,7 +989,7 @@ static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res,
 {
   realtype *cdata, *ratesxy, *cpxy, *resxy,
     xx, yy, dcyli, dcyui, dcxli, dcxui;
-  long int ix, jy, is, i, locc, ylocce, locce;
+  int ix, jy, is, i, locc, ylocce, locce;
   UserData webdata;
   
   webdata = (UserData) rdata;
@@ -1099,9 +1099,9 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
  * dotprod: dot product routine for realtype arrays, for use by WebRates.    
  */
 
-static realtype dotprod(long int size, realtype *x1, realtype *x2)
+static realtype dotprod(int size, realtype *x1, realtype *x2)
 {
-  long int i;
+  int i;
   realtype *xx1, *xx2, temp = ZERO;
 
   xx1 = x1; xx2 = x2;
@@ -1128,7 +1128,7 @@ static int Precondbd(realtype tt, N_Vector cc,
   realtype uround;
   realtype xx, yy, *cxy, *ewtxy, cctemp, **Pxy, *ratesxy, *Pxycol, *cpxy;
   realtype inc, sqru, fac, perturb_rates[NUM_SPECIES];
-  long int is, js, ix, jy, ret;
+  int is, js, ix, jy, ret;
   UserData webdata;
   void *mem;
   N_Vector ewt;
@@ -1177,7 +1177,7 @@ static int Precondbd(realtype tt, N_Vector cc,
       } /* End of js loop. */
       
       /* Do LU decomposition of matrix block for grid point (ix,jy). */
-      ret = denGETRF(Pxy, ns, ns, (webdata->pivot)[ix][jy]);
+      ret = denseGETRF(Pxy, ns, ns, (webdata->pivot)[ix][jy]);
       
       if (ret != 0) return(1);
       
@@ -1201,7 +1201,7 @@ static int PSolvebd(realtype tt, N_Vector cc,
                  void *Pdata, N_Vector tempv)
 {
   realtype **Pxy, *zxy;
-  long int *pivot, ix, jy;
+  int *pivot, ix, jy;
   UserData webdata;
 
   webdata = (UserData)Pdata;
@@ -1218,7 +1218,7 @@ static int PSolvebd(realtype tt, N_Vector cc,
       zxy = IJ_Vptr(zvec,ix,jy);
       Pxy = (webdata->PP)[ix][jy];
       pivot = (webdata->pivot)[ix][jy];
-      denGETRS(Pxy, ns, pivot, zxy);
+      denseGETRS(Pxy, ns, pivot, zxy);
       
     } /* End of jy loop. */
   } /* End of ix loop. */

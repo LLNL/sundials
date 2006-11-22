@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:55:54 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:52 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -66,8 +66,9 @@ typedef struct {
 
 /* Functions called by the solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static int Jac(long int N, DenseMat J, realtype t,
-               N_Vector y, N_Vector fy, void *jac_data,
+static int Jac(int N, realtype t,
+               N_Vector y, N_Vector fy, 
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions */
@@ -118,7 +119,7 @@ int main()
 
   /* Use the CVDENSE dense linear solver with user-supplied Jacobian */
   flag = CVDense(cvode_mem, NEQ);
-  flag = CVDenseSetJacFn(cvode_mem, Jac, data);
+  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
 
   /* Integrate to TOUT1 in NORMAL_MODE */
   flag = CVode(cvode_mem, TOUT1, y, &t, CV_NORMAL);
@@ -338,8 +339,9 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
  * Compute Jacobian J(t,y) = df/dy. *
  */
 
-static int Jac(long int N, DenseMat J, realtype t,
-               N_Vector y, N_Vector fy, void *jac_data,
+static int Jac(int N, realtype t,
+               N_Vector y, N_Vector fy, 
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData data;

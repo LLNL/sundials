@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-08 00:48:25 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -347,22 +347,19 @@ extern "C" {
 
 /* Prototypes of exported functions */
 
-void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq, 
-                 long int *mu, long int *ml, realtype* dqrely, int *ier);
+void FCV_BBDINIT(int *Nloc, int *mudq, int *mldq, int *mu, int *ml, realtype* dqrely, int *ier);
 void FCV_BBDSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
-void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq, 
-                   realtype* dqrely, int *ier);
+void FCV_BBDREINIT(int *Nloc, int *mudq, int *mldq, realtype* dqrely, int *ier);
 void FCV_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
 void FCV_BBDFREE(void);
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
-int FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
-            void *f_data);
+int FCVgloc(int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *f_data);
 
-int FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data);
+int FCVcfn(int Nloc, realtype t, N_Vector y, void *f_data);
 
 
 /* Declarations for global variables, shared among various routines */

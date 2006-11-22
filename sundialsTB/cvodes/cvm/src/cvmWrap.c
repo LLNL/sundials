@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-10-09 23:56:24 $
+ * $Revision: 1.6 $
+ * $Date: 2006-11-22 00:12:51 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -212,8 +212,9 @@ int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data)
 }
 
 
-int mtlb_CVodeDenseJac(long int Neq, DenseMat J, realtype t,
-                       N_Vector y, N_Vector fy, void *jac_data,
+int mtlb_CVodeDenseJac(int Neq, realtype t,
+                       N_Vector y, N_Vector fy, 
+                       DlsMat J, void *jac_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   double *J_data;
@@ -258,14 +259,13 @@ int mtlb_CVodeDenseJac(long int Neq, DenseMat J, realtype t,
   return(ret);
 }
 
-int mtlb_CVodeBandJac(long int Neq, long int mupper, long int mlower,
-                      BandMat J, realtype t,
-                      N_Vector y, N_Vector fy, void *jac_data,
+int mtlb_CVodeBandJac(int Neq, int mupper, int mlower, realtype t,
+                      N_Vector y, N_Vector fy, 
+                      DlsMat J, void *jac_data,
                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   double *J_data;
-  long int eband, i;
-  int ret;
+  int eband, i, ret;
   mxArray *mx_in[6], *mx_out[3];
 
   /* Inputs to the Matlab function */
@@ -448,7 +448,7 @@ int mtlb_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
  * ----------------------------
  */
 
-int mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
+int mtlb_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y,
                       N_Vector g, void *f_data)
 {
   mxArray *mx_in[5], *mx_out[3];
@@ -484,7 +484,7 @@ int mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
   return(ret);
 }
 
-int mtlb_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y, void *f_data)
+int mtlb_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data)
 {
   mxArray *mx_in[5], *mx_out[2];
   int ret;
@@ -664,15 +664,14 @@ int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void 
 }
 
 
-int mtlb_CVodeDenseJacB(long int NeqB, DenseMat JB, realtype t,
+int mtlb_CVodeDenseJacB(int NeqB, realtype t,
                         N_Vector y, N_Vector yB, N_Vector fyB,
-                        void *jac_dataB, N_Vector tmp1B,
-                        N_Vector tmp2B, N_Vector tmp3B)
+                        DlsMat JB, void *jac_dataB, 
+                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   double *JB_data;
-  long int i;
   mxArray *mx_in[7], *mx_out[3];
-  int ret;
+  int i, ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -714,17 +713,14 @@ int mtlb_CVodeDenseJacB(long int NeqB, DenseMat JB, realtype t,
 }
 
 
-int mtlb_CVodeBandJacB(long int NeqB, long int mupperB,
-                       long int mlowerB, BandMat JB,
-                       realtype t, N_Vector y,
-                       N_Vector yB, N_Vector fyB,
-                       void *jac_dataB, N_Vector tmp1B,
-                       N_Vector tmp2B, N_Vector tmp3B)
+int mtlb_CVodeBandJacB(int NeqB, int mupperB, int mlowerB, realtype t, 
+                       N_Vector y, N_Vector yB, N_Vector fyB,
+                       DlsMat JB, void *jac_dataB, 
+                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   double *JB_data;
-  long int ebandB, i;
   mxArray *mx_in[7], *mx_out[3];
-  int ret;
+  int ebandB, i, ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -917,7 +913,7 @@ int mtlb_CVodeSpilsPsolB(realtype t, N_Vector y,
 
 }
 
-int mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y,
+int mtlb_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y,
                        N_Vector yB, N_Vector gB, void *f_dataB)
 {
   mxArray *mx_in[6], *mx_out[3];
@@ -957,7 +953,7 @@ int mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y,
   return(ret);
 }
 
-int mtlb_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y, 
+int mtlb_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y, 
                        N_Vector yB, void *f_dataB)
 {
   mxArray *mx_in[6], *mx_out[2];

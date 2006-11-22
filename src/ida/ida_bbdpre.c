@@ -1,10 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:16 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:49 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Alan C. Hindmarsh, Radu Serban and
- *                Aaron Collier @ LLNL
+ * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -26,12 +25,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ida_bbdpre_impl.h"
+#include "ida_impl.h"
+
 #include <ida/ida_spgmr.h>
 #include <ida/ida_spbcgs.h>
 #include <ida/ida_sptfqmr.h>
-
-#include "ida_impl.h"
-#include "ida_bbdpre_impl.h"
 
 #include <sundials/sundials_math.h>
 
@@ -58,6 +57,14 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
                      N_Vector yy, N_Vector yp, N_Vector gref, 
                      N_Vector ytemp, N_Vector yptemp, N_Vector gtemp);
 
+/* 
+ * ================================================================
+ *
+ *                   PART I - forward problems
+ *
+ * ================================================================
+ */
+
 /* Readability Replacements */
 
 #define uround   (IDA_mem->ida_uround)
@@ -69,16 +76,16 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
  * -----------------------------------------------------------------
  */
 
-void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal, 
-		      long int mudq, long int mldq, 
-		      long int mukeep, long int mlkeep, 
+void *IDABBDPrecAlloc(void *ida_mem, int Nlocal, 
+		      int mudq, int mldq, 
+		      int mukeep, int mlkeep, 
 		      realtype dq_rel_yy, 
 		      IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
   IDAMem IDA_mem;
   IBBDPrecData pdata;
   N_Vector tempv4;
-  long int muk, mlk, storage_mu;
+  int muk, mlk, storage_mu;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_IDAMEM_NULL);
@@ -117,7 +124,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 
   /* Allocate memory for preconditioner matrix. */
   pdata->PP = NULL;
-  pdata->PP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
+  pdata->PP = NewBandMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) { 
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_MEM_FAIL);
@@ -126,9 +133,9 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 
   /* Allocate memory for pivots. */
   pdata->pivots = NULL;
-  pdata->pivots = BandAllocPiv(Nlocal);
+  pdata->pivots = NewIntArray(Nlocal);
   if (pdata->PP == NULL) {
-    BandFreeMat(pdata->PP);
+    DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_MEM_FAIL);
     return(NULL);
@@ -138,8 +145,8 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   tempv4 = NULL;
   tempv4 = N_VClone(vec_tmpl); 
   if (tempv4 == NULL){
-    BandFreeMat(pdata->PP);
-    BandFreePiv(pdata->pivots);
+    DestroyMat(pdata->PP);
+    DestroyArray(pdata->pivots);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_MEM_FAIL);
     return(NULL);
@@ -226,13 +233,13 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
 }
 
 int IDABBDPrecReInit(void *bbd_data,
-		     long int mudq, long int mldq, 
+		     int mudq, int mldq, 
 		     realtype dq_rel_yy,  
 		     IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
   IBBDPrecData pdata;
   IDAMem IDA_mem;
-  long int Nlocal;
+  int Nlocal;
 
   if (bbd_data == NULL) {
     IDAProcessError(NULL, IDABBDPRE_PDATA_NULL, "IDABBDPRE", "IDABBDPrecReInit", MSGBBD_PDATA_NULL);
@@ -266,8 +273,8 @@ void IDABBDPrecFree(void **bbd_data)
   if (*bbd_data == NULL) return;
 
   pdata = (IBBDPrecData) (*bbd_data);
-  BandFreeMat(pdata->PP);
-  BandFreePiv(pdata->pivots);
+  DestroyMat(pdata->PP);
+  DestroyArray(pdata->pivots);
   N_VDestroy(pdata->tempv4);
 
   free(*bbd_data);
@@ -391,8 +398,7 @@ int IDABBDPrecSetup(realtype tt,
 		    realtype c_j, void *prec_data,
 		    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  long int retfac;
-  int retval;
+  int ier, retval;
   IBBDPrecData pdata;
   IDAMem IDA_mem;
 
@@ -411,12 +417,12 @@ int IDABBDPrecSetup(realtype tt,
   if (retval > 0) {
     return(+1);
   } 
-
+ 
   /* Do LU factorization of preconditioner block in place (in PP). */
-  retfac = BandGBTRF(PP, pivots);
+  ier = BandGBTRF(PP, pivots);
 
   /* Return 0 if the LU was complete, or +1 otherwise. */
-  if (retfac > 0) return(+1);
+  if (ier > 0) return(+1);
   return(0);
 }
 
@@ -497,7 +503,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   IDAMem IDA_mem;
   realtype inc, inc_inv;
   int  retval;
-  long int group, i, j, width, ngroups, i1, i2;
+  int group, i, j, width, ngroups, i1, i2;
   realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
   realtype *cnsdata = NULL, *ewtdata;
   realtype *col_j, conj, yj, ypj, ewtj;
@@ -601,3 +607,4 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   
   return(0);
 }
+

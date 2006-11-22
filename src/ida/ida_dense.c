@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-08 01:01:20 $
+ * $Revision: 1.5 $
+ * $Date: 2006-11-22 00:12:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,8 +10,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the implementation file for the IDA dense linear
- * solver module, IDADENSE.
+ * This is the implementation file for the IDADENSE linear solver.
  * -----------------------------------------------------------------
  */
 
@@ -19,8 +18,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <ida/ida_dense.h>
+#include "ida_direct_impl.h"
 #include "ida_impl.h"
-#include "ida_dense_impl.h"
 
 #include <sundials/sundials_math.h>
 
@@ -43,10 +43,6 @@ static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
 static int IDADenseFree(IDAMem IDA_mem);
 
-static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
-                         N_Vector rr, realtype c_j, void *jac_data, DenseMat Jac,
-                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
 /* Readability Replacements */
 
 #define res          (IDA_mem->ida_res)
@@ -67,14 +63,15 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
 #define setupNonNull (IDA_mem->ida_setupNonNull)
 #define vec_tmpl     (IDA_mem->ida_tempv1)
 
-#define neq          (idadense_mem->d_neq)
-#define jac          (idadense_mem->d_jac)
-#define JJ           (idadense_mem->d_J)
-#define pivots       (idadense_mem->d_pivots)
-#define nje          (idadense_mem->d_nje)
-#define nreD         (idadense_mem->d_nreD)
-#define jacdata      (idadense_mem->d_jdata)
-#define last_flag    (idadense_mem->d_last_flag)
+#define mtype        (idadls_mem->d_type)
+#define neq          (idadls_mem->d_n)
+#define djac         (idadls_mem->d_djac)
+#define JJ           (idadls_mem->d_J)
+#define pivots       (idadls_mem->d_pivots)
+#define nje          (idadls_mem->d_nje)
+#define nreDQ        (idadls_mem->d_nreDQ)
+#define jacdata      (idadls_mem->d_J_data)
+#define last_flag    (idadls_mem->d_last_flag)
                   
 /*
  * -----------------------------------------------------------------
@@ -86,16 +83,16 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
  * Then it sets the ida_linit, ida_lsetup, ida_lsolve, ida_lperf, and
  * ida_lfree fields in (*IDA_mem) to be IDADenseInit, IDADenseSetup,
  * IDADenseSolve, NULL, and IDADenseFree, respectively.
- * It allocates memory for a structure of type IDADenseMemRec and sets
+ * It allocates memory for a structure of type IDADlsMemRec and sets
  * the ida_lmem field in (*IDA_mem) to the address of this structure.
  * It sets setupNonNull in (*IDA_mem) to TRUE, sets the d_jdata field
- * in the IDADenseMemRec structure to be the input parameter jdata,
+ * in the IDADlsMemRec structure to be the input parameter jdata,
  * and sets the d_jac field to be:
  *   (1) the input parameter djac, if djac != NULL, or                
  *   (2) IDADenseDQJac, if djac == NULL.                             
  * Finally, it allocates memory for JJ and pivots.
- * The return value is IDADENSE_SUCCESS = 0, IDADENSE_LMEM_FAIL = -1,
- * or IDADENSE_ILL_INPUT = -2.
+ * The return value is IDADIRECT_SUCCESS = 0, IDADIRECT_LMEM_FAIL = -1,
+ * or IDADIRECT_ILL_INPUT = -2.
  *
  * NOTE: The dense linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, IDADense will first 
@@ -105,24 +102,24 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
  * -----------------------------------------------------------------
  */
 
-int IDADense(void *ida_mem, long int Neq)
+int IDADense(void *ida_mem, int Neq)
 {
   IDAMem IDA_mem;
-  IDADenseMem idadense_mem;
+  IDADlsMem idadls_mem;
   int flag;
 
   /* Return immediately if ida_mem is NULL. */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADense", MSGD_IDAMEM_NULL);
-    return(IDADENSE_MEM_NULL);
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADENSE", "IDADense", MSGD_IDAMEM_NULL);
+    return(IDADIRECT_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if(vec_tmpl->ops->nvgetarraypointer == NULL ||
      vec_tmpl->ops->nvsetarraypointer == NULL) {
-    IDAProcessError(IDA_mem, IDADENSE_ILL_INPUT, "IDADENSE", "IDADense", MSGD_BAD_NVECTOR);
-    return(IDADENSE_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDADENSE", "IDADense", MSGD_BAD_NVECTOR);
+    return(IDADIRECT_ILL_INPUT);
   }
 
   if (lfree != NULL) flag = lfree(IDA_mem);
@@ -134,18 +131,21 @@ int IDADense(void *ida_mem, long int Neq)
   lperf  = NULL;
   lfree  = IDADenseFree;
 
-  /* Get memory for IDADenseMemRec. */
-  idadense_mem = NULL;
-  idadense_mem = (IDADenseMem) malloc(sizeof(IDADenseMemRec));
-  if (idadense_mem == NULL) {
-    IDAProcessError(IDA_mem, IDADENSE_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
-    return(IDADENSE_MEM_FAIL);
+  /* Get memory for IDADlsMemRec. */
+  idadls_mem = NULL;
+  idadls_mem = (IDADlsMem) malloc(sizeof(IDADlsMemRec));
+  if (idadls_mem == NULL) {
+    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
+    return(IDADIRECT_MEM_FAIL);
   }
 
+  /* Set matrix type */
+  mtype = SUNDIALS_DENSE;
+
   /* Set default Jacobian routine and Jacobian data */
-  jac = IDADenseDQJac;
+  djac = idaDlsDenseDQJac;
   jacdata = IDA_mem;
-  last_flag = IDADENSE_SUCCESS;
+  last_flag = IDADIRECT_SUCCESS;
 
   setupNonNull = TRUE;
 
@@ -154,184 +154,26 @@ int IDADense(void *ida_mem, long int Neq)
 
   /* Allocate memory for JJ and pivot array. */
   JJ = NULL;
-  JJ = DenseAllocMat(Neq, Neq);
+  JJ = NewDenseMat(Neq, Neq);
   if (JJ == NULL) {
-    IDAProcessError(IDA_mem, IDADENSE_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
-    free(idadense_mem); idadense_mem = NULL;
-    return(IDADENSE_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
+    free(idadls_mem); idadls_mem = NULL;
+    return(IDADIRECT_MEM_FAIL);
   }
 
   pivots = NULL;
-  pivots = DenseAllocPiv(Neq);
+  pivots = NewIntArray(Neq);
   if (pivots == NULL) {
-    IDAProcessError(IDA_mem, IDADENSE_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
-    DenseFreeMat(JJ);
-    free(idadense_mem); idadense_mem = NULL;
-    return(IDADENSE_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
+    DestroyMat(JJ);
+    free(idadls_mem); idadls_mem = NULL;
+    return(IDADIRECT_MEM_FAIL);
   }
 
   /* Attach linear solver memory to the integrator memory */
-  lmem = idadense_mem;
+  lmem = idadls_mem;
 
-  return(IDADENSE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * IDADenseSet* and IDADenseGet*
- * -----------------------------------------------------------------
- */
-
-int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac, void *jac_data)
-{
-  IDAMem IDA_mem;
-  IDADenseMem idadense_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADenseSetJacFn", MSGD_IDAMEM_NULL);
-    return(IDADENSE_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADENSE_LMEM_NULL, "IDADENSE", "IDADenseSetJacFn", MSGD_LMEM_NULL);
-    return(IDADENSE_LMEM_NULL);
-  }
-  idadense_mem = (IDADenseMem) lmem;
-
-  jac = djac;
-  if (djac != NULL) jacdata = jac_data;
-
-  return(IDADENSE_SUCCESS);
-}
-
-int IDADenseGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
-{
-  IDAMem IDA_mem;
-  IDADenseMem idadense_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADenseGetWorkSpace", MSGD_IDAMEM_NULL);
-    return(IDADENSE_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADENSE_LMEM_NULL, "IDADENSE", "IDADenseGetWorkSpace", MSGD_LMEM_NULL);
-    return(IDADENSE_LMEM_NULL);
-  }
-  idadense_mem = (IDADenseMem) lmem;
-
-  *lenrwLS = neq*neq;
-  *leniwLS = neq;
- 
-  return(IDADENSE_SUCCESS);
-}
-
-int IDADenseGetNumJacEvals(void *ida_mem, long int *njevals)
-{
-  IDAMem IDA_mem;
-  IDADenseMem idadense_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADenseGetNumJacEvals", MSGD_IDAMEM_NULL);
-    return(IDADENSE_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADENSE_LMEM_NULL, "IDADENSE", "IDADenseGetNumJacEvals", MSGD_LMEM_NULL);
-    return(IDADENSE_LMEM_NULL);
-  }
-  idadense_mem = (IDADenseMem) lmem;
-
-  *njevals = nje;
-
-  return(IDADENSE_SUCCESS);
-}
-
-int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsLS)
-{
-  IDAMem IDA_mem;
-  IDADenseMem idadense_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADenseGetNumResEvals", MSGD_IDAMEM_NULL);
-    return(IDADENSE_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADENSE_LMEM_NULL, "IDADENSE", "IDADenseGetNumResEvals", MSGD_LMEM_NULL);
-    return(IDADENSE_LMEM_NULL);
-  }
-  idadense_mem = (IDADenseMem) lmem;
-
-  *nrevalsLS = nreD;
-
-  return(IDADENSE_SUCCESS);
-}
-
-int IDADenseGetLastFlag(void *ida_mem, int *flag)
-{
-  IDAMem IDA_mem;
-  IDADenseMem idadense_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADenseGetLastFlag", MSGD_IDAMEM_NULL);
-    return(IDADENSE_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADENSE_LMEM_NULL, "IDADENSE", "IDADenseGetLastFlag", MSGD_LMEM_NULL);
-    return(IDADENSE_LMEM_NULL);
-  }
-  idadense_mem = (IDADenseMem) lmem;
-
-  *flag = last_flag;
-
-  return(IDADENSE_SUCCESS);
-}
-
-char *IDADenseGetReturnFlagName(int flag)
-{
-  char *name;
-
-  name = (char *)malloc(30*sizeof(char));
-
-  switch(flag) {
-  case IDADENSE_SUCCESS:
-    sprintf(name,"IDADENSE_SUCCESS");
-    break;   
-  case IDADENSE_MEM_NULL:
-    sprintf(name,"IDADENSE_MEM_NULL");
-    break;
-  case IDADENSE_LMEM_NULL:
-    sprintf(name,"IDADENSE_LMEM_NULL");
-    break;
-  case IDADENSE_ILL_INPUT:
-    sprintf(name,"IDADENSE_ILL_INPUT");
-    break;
-  case IDADENSE_MEM_FAIL:
-    sprintf(name,"IDADENSE_MEM_FAIL");
-    break;
-  case IDADENSE_JACFUNC_UNRECVR:
-    sprintf(name,"IDADENSE_JACFUNC_UNRECVR");
-    break;
-  case IDADENSE_JACFUNC_RECVR:
-    sprintf(name,"IDADENSE_JACFUNC_RECVR");
-    break;
-  default:
-    sprintf(name,"NONE");
-  }
-
-  return(name);
+  return(IDADIRECT_SUCCESS);
 }
 
 /*
@@ -347,16 +189,16 @@ char *IDADenseGetReturnFlagName(int flag)
 
 static int IDADenseInit(IDAMem IDA_mem)
 {
-  IDADenseMem idadense_mem;
+  IDADlsMem idadls_mem;
   
-  idadense_mem = (IDADenseMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
 
    
-  nje  = 0;
-  nreD = 0;
+  nje   = 0;
+  nreDQ = 0;
 
-  if (jac == NULL) {
-    jac = IDADenseDQJac;
+  if (djac == NULL) {
+    djac = idaDlsDenseDQJac;
     jacdata = IDA_mem;
   }
   
@@ -369,7 +211,7 @@ static int IDADenseInit(IDAMem IDA_mem)
   solver module.  It calls the Jacobian evaluation routine,
   updates counters, and calls the dense LU factorization routine.
   The return value is either
-     IDADENSE_SUCCESS = 0  if successful,
+     IDADIRECT_SUCCESS = 0  if successful,
      +1  if the jac routine failed recoverably or the
          LU factorization failed, or
      -1  if the jac routine failed unrecoverably.
@@ -381,24 +223,24 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 {
   int retval;
   long int retfac;
-  IDADenseMem idadense_mem;
+  IDADlsMem idadls_mem;
   
-  idadense_mem = (IDADenseMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
 
   /* Increment nje counter. */
   nje++;
 
   /* Zero out JJ; call Jacobian routine jac; return if it failed. */
   DenseZero(JJ);
-  retval = jac(neq, tn, yyp, ypp, rrp, cj, jacdata, JJ, 
-               tmp1, tmp2, tmp3);
+  retval = djac(neq, tn, cj, yyp, ypp, rrp, JJ, jacdata, 
+                tmp1, tmp2, tmp3);
   if (retval < 0) {
-    IDAProcessError(IDA_mem, IDADENSE_JACFUNC_UNRECVR, "IDADENSE", "IDADenseSetup", MSGD_JACFUNC_FAILED);
-    last_flag = IDADENSE_JACFUNC_UNRECVR;
+    IDAProcessError(IDA_mem, IDADIRECT_JACFUNC_UNRECVR, "IDADENSE", "IDADenseSetup", MSGD_JACFUNC_FAILED);
+    last_flag = IDADIRECT_JACFUNC_UNRECVR;
     return(-1);
   }
   if (retval > 0) {
-    last_flag = IDADENSE_JACFUNC_RECVR;
+    last_flag = IDADIRECT_JACFUNC_RECVR;
     return(+1);
   }
 
@@ -409,23 +251,23 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
     last_flag = retfac;
     return(+1);
   }
-  last_flag = IDADENSE_SUCCESS;
+  last_flag = IDADIRECT_SUCCESS;
   return(0);
 }
 
 /*
   This routine handles the solve operation for the IDADENSE linear
   solver module.  It calls the dense backsolve routine, scales the
-  solution vector according to cjratio, then returns IDADENSE_SUCCESS = 0.
+  solution vector according to cjratio, then returns IDADIRECT_SUCCESS = 0.
 */
 
 static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                          N_Vector ycur, N_Vector ypcur, N_Vector rrcur)
 {
-  IDADenseMem idadense_mem;
+  IDADlsMem idadls_mem;
   realtype *bd;
   
-  idadense_mem = (IDADenseMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
   
   bd = N_VGetArrayPointer(b);
 
@@ -444,115 +286,13 @@ static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
 static int IDADenseFree(IDAMem IDA_mem)
 {
-  IDADenseMem idadense_mem;
+  IDADlsMem idadls_mem;
 
-  idadense_mem = (IDADenseMem) lmem;
+  idadls_mem = (IDADlsMem) lmem;
   
-  DenseFreeMat(JJ);
-  DenseFreePiv(pivots);
+  DestroyMat(JJ);
+  DestroyArray(pivots);
   free(lmem); lmem = NULL;
 
   return(0);
-}
-
-/*
- * -----------------------------------------------------------------
- * IDADENSE private routines
- * -----------------------------------------------------------------
- */
-
-/*
-  This routine generates a dense difference quotient approximation Jac to
-  the DAE system Jacobian J.  It assumes that a dense matrix of type
-  DenseMat is stored column-wise, and that elements within each column
-  are contiguous.  The address of the jth column of Jac is obtained via
-  the macro DENSE_COL and this pointer is associated with an N_Vector
-  using the N_VGetArrayPointer/N_VSetArrayPointer functions. 
-  The jth column of the Jacobian is constructed using a call to the res 
-  routine, and a call to N_VLinearSum.
-  The return value is either IDADENSE_SUCCESS = 0, or the nonzero value returned
-  by the res routine, if any.
-*/
-
-static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
-                         N_Vector rr, realtype c_j, void *jac_data, DenseMat Jac,
-                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype inc, inc_inv, yj, ypj, srur, conj;
-  realtype *tmp2_data, *y_data, *yp_data, *ewt_data, *cns_data = NULL;
-  N_Vector rtemp, jthCol;
-  long int j;
-  int retval = 0;
-
-  IDAMem IDA_mem;
-  IDADenseMem idadense_mem;
-
-  /* jac_data points to IDA_mem */
-  IDA_mem = (IDAMem) jac_data;
-  idadense_mem = (IDADenseMem) lmem;
-
-  /* Save pointer to the array in tmp2 */
-  tmp2_data = N_VGetArrayPointer(tmp2);
-
-  /* Rename work vectors for readibility */
-  rtemp  = tmp1;
-  jthCol = tmp2;
-
-  /* Obtain pointers to the data for ewt, yy, yp. */
-  ewt_data = N_VGetArrayPointer(ewt);
-  y_data   = N_VGetArrayPointer(yy);
-  yp_data  = N_VGetArrayPointer(yp);
-  if(constraints!=NULL) cns_data = N_VGetArrayPointer(constraints);
-
-  srur = RSqrt(uround);
-
-  for (j=0; j < Neq; j++) {
-
-    /* Generate the jth col of J(tt,yy,yp) as delta(F)/delta(y_j). */
-
-    /* Set data address of jthCol, and save y_j and yp_j values. */
-    N_VSetArrayPointer(DENSE_COL(Jac,j), jthCol);
-    yj = y_data[j];
-    ypj = yp_data[j];
-
-    /* Set increment inc to y_j based on sqrt(uround)*abs(y_j), with
-    adjustments using yp_j and ewt_j if this is small, and a further
-    adjustment to give it the same sign as hh*yp_j. */
-
-    inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewt_data[j] );
-
-    if (hh*ypj < ZERO) inc = -inc;
-    inc = (yj + inc) - yj;
-
-    /* Adjust sign(inc) again if y_j has an inequality constraint. */
-    if (constraints != NULL) {
-      conj = cns_data[j];
-      if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-      else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
-    }
-
-    /* Increment y_j and yp_j, call res, and break on error return. */
-    y_data[j] += inc;
-    yp_data[j] += c_j*inc;
-
-    retval = res(tt, yy, yp, rtemp, rdata);
-    nreD++;
-    if (retval != 0) break;
-
-    /* Construct difference quotient in jthCol */
-    inc_inv = ONE/inc;
-    N_VLinearSum(inc_inv, rtemp, -inc_inv, rr, jthCol);
-
-    DENSE_COL(Jac,j) = N_VGetArrayPointer(jthCol);
-
-    /*  reset y_j, yp_j */     
-    y_data[j] = yj;
-    yp_data[j] = ypj;
-  }
-
-  /* Restore original array pointer in tmp2 */
-  N_VSetArrayPointer(tmp2_data, tmp2);
-
-  return(retval);
-
 }

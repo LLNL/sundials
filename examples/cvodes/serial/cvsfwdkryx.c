@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-11 16:33:59 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-22 00:12:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -52,12 +52,12 @@
 #include <string.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>                /* main CVODES header file */
-#include <cvodes/cvodes_spgmr.h>          /* use CVSPGMR linear */
-#include <nvector/nvector_serial.h>       /* definitions N_Vector, macro NV_DATA_S */
-#include <sundials/sundials_smalldense.h> /* use generic DENSE solver for prec. */
-#include <sundials/sundials_types.h>      /* definition of realtype */
-#include <sundials/sundials_math.h>       /* contains macros SQR and EXP */
+#include <cvodes/cvodes.h>            /* main CVODES header file */
+#include <cvodes/cvodes_spgmr.h>      /* use CVSPGMR linear */
+#include <nvector/nvector_serial.h>   /* definitions N_Vector, macro NV_DATA_S */
+#include <sundials/sundials_dense.h>  /* use generic DENSE solver for prec. */
+#include <sundials/sundials_types.h>  /* definition of realtype */
+#include <sundials/sundials_math.h>   /* contains macros SQR and EXP */
 
 /* Problem Constants */
 
@@ -127,7 +127,7 @@
 typedef struct {
   realtype *p;
   realtype **P[MX][MZ], **Jbd[MX][MZ];
-  long int *pivot[MX][MZ];
+  int *pivot[MX][MZ];
   realtype q4, om, dx, dz, hdco, haco, vdco;
 } *UserData;
 
@@ -428,7 +428,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 {
   realtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
   realtype **(*P)[MZ], **(*Jbd)[MZ];
-  long int *(*pivot)[MZ];
+  int *(*pivot)[MZ];
   int ier, jx, jz;
   realtype *ydata, **a, **j;
   UserData data;
@@ -457,7 +457,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
     for (jz=0; jz < MZ; jz++)
       for (jx=0; jx < MX; jx++)
-        dencopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES, NUM_SPECIES);
+        denseCopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES, NUM_SPECIES);
 
   *jcurPtr = FALSE;
 
@@ -491,7 +491,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        dencopy(j, a, NUM_SPECIES, NUM_SPECIES);
+        denseCopy(j, a, NUM_SPECIES, NUM_SPECIES);
       }
     }
 
@@ -503,14 +503,14 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
     for (jz=0; jz < MZ; jz++)
       for (jx=0; jx < MX; jx++)
-        denscale(-gamma, P[jx][jz], NUM_SPECIES, NUM_SPECIES);
+        denseScale(-gamma, P[jx][jz], NUM_SPECIES, NUM_SPECIES);
 
   /* Add identity matrix and do LU decompositions on blocks in place. */
 
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
-      denaddI(P[jx][jz], NUM_SPECIES);
-      ier = denGETRF(P[jx][jz], NUM_SPECIES, NUM_SPECIES, pivot[jx][jz]);
+      denseAddI(P[jx][jz], NUM_SPECIES);
+      ier = denseGETRF(P[jx][jz], NUM_SPECIES, NUM_SPECIES, pivot[jx][jz]);
       if (ier != 0) return(1);
     }
   }
@@ -528,7 +528,7 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   int lr, void *P_data, N_Vector vtemp)
 {
   realtype **(*P)[MZ];
-  long int *(*pivot)[MZ];
+  int *(*pivot)[MZ];
   int jx, jz;
   realtype *zdata, *v;
   UserData data;
@@ -548,7 +548,7 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
       v = &(IJKth(zdata, 1, jx, jz));
-      denGETRS(P[jx][jz], NUM_SPECIES, pivot[jx][jz], v);
+      denseGETRS(P[jx][jz], NUM_SPECIES, pivot[jx][jz], v);
     }
   }
 
@@ -627,9 +627,9 @@ static UserData AllocUserData(void)
 
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
-      (data->P)[jx][jz] = denalloc(NUM_SPECIES, NUM_SPECIES);
-      (data->Jbd)[jx][jz] = denalloc(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jz] = denallocpiv(NUM_SPECIES);
+      (data->P)[jx][jz] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->Jbd)[jx][jz] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jz] = newIntArray(NUM_SPECIES);
     }
   }
 
@@ -683,9 +683,9 @@ static void FreeUserData(UserData data)
 
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
-      denfree((data->P)[jx][jz]);
-      denfree((data->Jbd)[jx][jz]);
-      denfreepiv((data->pivot)[jx][jz]);
+      destroyMat((data->P)[jx][jz]);
+      destroyMat((data->Jbd)[jx][jz]);
+      destroyArray((data->pivot)[jx][jz]);
     }
   }
 

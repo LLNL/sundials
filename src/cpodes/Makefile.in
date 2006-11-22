@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-11-08 01:07:05 $
+# $Revision: 1.2 $
+# $Date: 2006-11-22 00:12:48 $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -48,16 +48,16 @@ INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
 LIB_REVISION = 0:0:0
 
 CPODES_LIB       = libsundials_cpodes.la
-CPODES_LIB_FILES = cpodes.lo cpodes_io.lo cpodes_nls.lo cpodes_proj.lo cpodes_dense.lo cpodes_lapack.lo cpodes_band.lo cpodes_spils.lo cpodes_spgmr.lo cpodes_spbcgs.lo cpodes_sptfqmr.lo
-CPODES_OBJ_FILES = cpodes.o cpodes_io.o cpodes_nls.o cpodes_proj.o cpodes_dense.o cpodes_lapack.o cpodes_band.o cpodes_spils.o cpodes_spgmr.o cpodes_spbcgs.o cpodes_sptfqmr.o
+CPODES_LIB_FILES = cpodes.lo cpodes_io.lo cpodes_nls.lo cpodes_proj.lo cpodes_direct.lo cpodes_dense.lo cpodes_lapack.lo cpodes_band.lo cpodes_spils.lo cpodes_spgmr.lo cpodes_spbcgs.lo cpodes_sptfqmr.lo cpodes_bbdpre.lo
+CPODES_OBJ_FILES = cpodes.o cpodes_io.o cpodes_nls.o cpodes_proj.o cpodes_direct.o cpodes_dense.o cpodes_lapack.o cpodes_band.o cpodes_spils.o cpodes_spgmr.o cpodes_spbcgs.o cpodes_sptfqmr.o cpodes_bbdpre.o
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
                    $(top_builddir)/src/sundials/sundials_lapack.lo \
+                   $(top_builddir)/src/sundials/sundials_direct.lo \
                    $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_math.lo \
                    $(top_builddir)/src/sundials/sundials_nvector.lo \
-                   $(top_builddir)/src/sundials/sundials_smalldense.lo \
                    $(top_builddir)/src/sundials/sundials_spgmr.lo \
                    $(top_builddir)/src/sundials/sundials_spbcgs.lo \
                    $(top_builddir)/src/sundials/sundials_sptfqmr.lo
@@ -74,6 +74,7 @@ install: $(CPODES_LIB)
 	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CPODES_LIB) $(libdir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes.h         $(includedir)/cpodes/
+	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_direct.h  $(includedir)/cpodes/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_dense.h   $(includedir)/cpodes/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_lapack.h  $(includedir)/cpodes/
 	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_band.h    $(includedir)/cpodes/
@@ -88,6 +89,7 @@ install: $(CPODES_LIB)
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CPODES_LIB)
 	rm -f $(includedir)/cpodes/cpodes.h
+	rm -f $(includedir)/cpodes/cpodes_direct.h
 	rm -f $(includedir)/cpodes/cpodes_dense.h
 	rm -f $(includedir)/cpodes/cpodes_lapack.h
 	rm -f $(includedir)/cpodes/cpodes_band.h
@@ -123,6 +125,8 @@ cpodes_proj.lo: $(srcdir)/cpodes_proj.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_proj.c
 cpodes_io.lo: $(srcdir)/cpodes_io.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_io.c
+cpodes_direct.lo: $(srcdir)/cpodes_direct.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_direct.c
 cpodes_dense.lo: $(srcdir)/cpodes_dense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_dense.c
 cpodes_lapack.lo: $(srcdir)/cpodes_lapack.c

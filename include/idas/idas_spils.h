@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-20 16:50:32 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -264,7 +264,7 @@ extern "C" {
    * The return value of IDASpilsSet* is one of:
    *    IDASPILS_SUCCESS   if successful
    *    IDASPILS_MEM_NULL  if the IDAS memory was NULL
-   *    IDASPILS_LMEM_NULL if the idaspgmr memory was NULL
+   *    IDASPILS_LMEM_NULL if the linear solver memory was NULL
    * -----------------------------------------------------------------
    */
 
@@ -303,7 +303,7 @@ extern "C" {
    * The return value of IDASpilsGet* is one of:
    *    IDASPILS_SUCCESS   if successful
    *    IDASPILS_MEM_NULL  if the IDAS memory was NULL
-   *    IDASPILS_LMEM_NULL if the IDASPGMR memory was NULL
+   *    IDASPILS_LMEM_NULL if the linear solver memory was NULL
    * -----------------------------------------------------------------
    */                                                                
 

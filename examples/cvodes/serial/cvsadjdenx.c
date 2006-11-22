@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-08-10 23:17:22 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-22 00:12:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -101,16 +101,18 @@ typedef struct {
 /* Prototypes of user-supplied functions */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static int Jac(long int N, DenseMat J, realtype t,
-               N_Vector y, N_Vector fy, void *jac_data, 
+static int Jac(int N, realtype t,
+               N_Vector y, N_Vector fy, 
+               DlsMat J, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
 static int ewt(N_Vector y, N_Vector w, void *e_data);
 
 static int fB(realtype t, N_Vector y, 
               N_Vector yB, N_Vector yBdot, void *f_dataB);
-static int JacB(long int NB, DenseMat JB, realtype t,
-                N_Vector y, N_Vector yB, N_Vector fyB, void *jac_dataB,
+static int JacB(int NB, realtype t,
+                N_Vector y, N_Vector yB, N_Vector fyB,
+                DlsMat JB, void *jac_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
                N_Vector qBdot, void *fQ_dataB);
@@ -206,8 +208,8 @@ int main(int argc, char *argv[])
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
-  flag = CVDenseSetJacFn(cvode_mem, Jac, data);
-  if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
+  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
+  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   flag = CVodeQuadMalloc(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadMalloc", 1)) return(1);
@@ -306,8 +308,8 @@ printf("--------------------------------------------------------\n\n");
   flag = CVDenseB(cvadj_mem, NEQ);
   if (check_flag(&flag, "CVDenseB", 1)) return(1);
 
-  flag = CVDenseSetJacFnB(cvadj_mem, JacB, data);
-  if (check_flag(&flag, "CVDenseSetJacFnB", 1)) return(1);
+  flag = CVDlsSetJacFnB(cvadj_mem, JacB, data);
+  if (check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
   flag = CVodeQuadMallocB(cvadj_mem, fQB, qB);
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
@@ -409,8 +411,9 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
  * Jacobian routine. Compute J(t,y). 
 */
 
-static int Jac(long int N, DenseMat J, realtype t,
-               N_Vector y, N_Vector fy, void *jac_data, 
+static int Jac(int N, realtype t,
+               N_Vector y, N_Vector fy, 
+               DlsMat J, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
@@ -503,8 +506,9 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB
  * JacB routine. Compute JB(t,y,yB). 
 */
 
-static int JacB(long int NB, DenseMat JB, realtype t,
-                N_Vector y, N_Vector yB, N_Vector fyB, void *jac_dataB,
+static int JacB(int NB, realtype t,
+                N_Vector y, N_Vector yB, N_Vector fyB,
+                DlsMat JB, void *jac_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   UserData data;

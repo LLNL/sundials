@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:50 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -145,7 +145,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVLocalFn)(long int Nlocal, realtype t, N_Vector y,
+typedef int (*CVLocalFn)(int Nlocal, realtype t, N_Vector y,
                          N_Vector g, void *f_data);
 
 /*
@@ -176,7 +176,7 @@ typedef int (*CVLocalFn)(long int Nlocal, realtype t, N_Vector y,
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
+typedef int (*CVCommFn)(int Nlocal, realtype t, N_Vector y,
                         void *f_data);
 
 /*
@@ -220,9 +220,9 @@ typedef int (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
  * -----------------------------------------------------------------
  */
 
-void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal, 
-                     long int mudq, long int mldq, 
-                     long int mukeep, long int mlkeep, 
+void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal, 
+                     int mudq, int mldq, 
+                     int mukeep, int mlkeep, 
                      realtype dqrely,
                      CVLocalFn gloc, CVCommFn cfn);
 
@@ -335,7 +335,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * -----------------------------------------------------------------
  */
 
-int CVBBDPrecReInit(void *bbd_data, long int mudq, long int mldq,
+int CVBBDPrecReInit(void *bbd_data, int mudq, int mldq,
                     realtype dqrely, CVLocalFn gloc, CVCommFn cfn);
 
 /*

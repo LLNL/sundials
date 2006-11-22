@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:13 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -30,6 +30,7 @@
 #include <sundials/sundials_math.h>
 
 #define MIN_INC_MULT RCONST(1000.0)
+
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 
@@ -65,12 +66,11 @@ static int CVBandPDQJac(CVBandPrecData pdata,
  * -----------------------------------------------------------------
  */
 
-void *CVBandPrecAlloc(void *cvode_mem, long int N, 
-                      long int mu, long int ml)
+void *CVBandPrecAlloc(void *cvode_mem, int N, int mu, int ml)
 {
   CVodeMem cv_mem;
   CVBandPrecData pdata;
-  long int mup, mlp, storagemu;
+  int mup, mlp, storagemu;
 
   if (cvode_mem == NULL) {
     CVProcessError(NULL, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_CVMEM_NULL);
@@ -102,7 +102,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
 
   /* Allocate memory for saved banded Jacobian approximation. */
   pdata->savedJ = NULL;
-  pdata->savedJ = BandAllocMat(N, mup, mlp, mup);
+  pdata->savedJ = NewBandMat(N, mup, mlp, mup);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     CVProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
@@ -112,9 +112,9 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   /* Allocate memory for banded preconditioner. */
   storagemu = MIN(N-1, mup+mlp);
   pdata->savedP = NULL;
-  pdata->savedP = BandAllocMat(N, mup, mlp, storagemu);
+  pdata->savedP = NewBandMat(N, mup, mlp, storagemu);
   if (pdata->savedP == NULL) {
-    BandFreeMat(pdata->savedJ);
+    DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
     CVProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
     return(NULL);
@@ -122,10 +122,10 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
 
   /* Allocate memory for pivot array. */
   pdata->pivots = NULL;
-  pdata->pivots = BandAllocPiv(N);
+  pdata->pivots = NewIntArray(N);
   if (pdata->savedJ == NULL) {
-    BandFreeMat(pdata->savedP);
-    BandFreeMat(pdata->savedJ);
+    DestroyMat(pdata->savedP);
+    DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
     CVProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
     return(NULL);
@@ -204,9 +204,9 @@ void CVBandPrecFree(void **bp_data)
   if (*bp_data == NULL) return;
 
   pdata = (CVBandPrecData) (*bp_data);
-  BandFreeMat(pdata->savedJ);
-  BandFreeMat(pdata->savedP);
-  BandFreePiv(pdata->pivots);
+  DestroyMat(pdata->savedJ);
+  DestroyMat(pdata->savedP);
+  DestroyArray(pdata->pivots);
 
   free(*bp_data);
   *bp_data = NULL;
@@ -216,7 +216,7 @@ void CVBandPrecFree(void **bp_data)
 int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
 {
   CVBandPrecData pdata;
-  long int N, ml, mu, smu;
+  int N, ml, mu, smu;
 
   if ( bp_data == NULL ) {
     CVProcessError(NULL, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBandPrecGetWorkSpace", MSGBP_PDATA_NULL);
@@ -345,7 +345,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
                            realtype gamma, void *bp_data,
                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int ier;
+  int ier;
   CVBandPrecData pdata;
   CVodeMem cv_mem;
   int retval;
@@ -447,7 +447,7 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  * This routine generates a banded difference quotient approximation to
  * the Jacobian of f(t,y). It assumes that a band matrix of type
- * BandMat is stored column-wise, and that elements within each column
+ * DlsMat is stored column-wise, and that elements within each column
  * are contiguous. This makes it possible to get the address of a column
  * of J via the macro BAND_COL and to write a simple for loop to set
  * each of the elements of a column in succession.
@@ -460,7 +460,7 @@ static int CVBandPDQJac(CVBandPrecData pdata,
 {
   CVodeMem cv_mem;
   realtype fnorm, minInc, inc, inc_inv, srur;
-  long int group, i, j, width, ngroups, i1, i2;
+  int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
   int retval;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:33:58 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-22 00:12:45 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -43,7 +43,7 @@
  *
  * This version uses MPI for user routines.
  * 
- * Execution: mpirun -np N cvskryx_p   with N = NPEX*NPEY (see
+ * Execution: mpirun -np N cvkryx_p   with N = NPEX*NPEY (see
  * constants below).
  * -----------------------------------------------------------------
  */
@@ -52,14 +52,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>                /* prototypes for CVODE */
-#include <cvodes/cvodes_spgmr.h>          /* prototypes and constants for CVSPGMR solver */
-#include <nvector/nvector_parallel.h>     /* definition of N_Vector and NV_DATA_P */
-#include <sundials/sundials_smalldense.h> /* prototypes for small dense matrix functions */
-#include <sundials/sundials_types.h>      /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>       /* definition of macros SQR and EXP */
+#include <cvodes/cvodes.h>             /* prototypes for CVODES fcts. */
+#include <cvodes/cvodes_spgmr.h>       /* prototypes and constants for CVSPGMR solver */
+#include <nvector/nvector_parallel.h>  /* definition N_Vector and macro NV_DATA_P  */
+#include <sundials/sundials_dense.h>   /* prototypes for small dense matrix fcts. */
+#include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
+#include <sundials/sundials_math.h>    /* definition of macros SQR and EXP */
 
-#include <mpi.h>                          /* MPI constants and types */
+#include <mpi.h>                       /* MPI constants and types */
 
 /* Problem Constants */
 
@@ -105,11 +105,11 @@
 
 /* User-defined matrix accessor macro: IJth */
 
-/* IJth is defined in order to write code which indexes into small dense
+/* IJth is defined in order to write code which indexes into dense
    matrices with a (row,column) pair, where 1 <= row,column <= NVARS.   
 
    IJth(a,i,j) references the (i,j)th entry of the small matrix realtype **a,
-   where 1 <= i,j <= NVARS. The small matrix routines in dense.h
+   where 1 <= i,j <= NVARS. The small matrix routines in sundials_dense.h
    work with matrices stored by column in a 2-dimensional array. In C,
    arrays are indexed starting at 0, not 1. */
 
@@ -123,14 +123,14 @@ typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
   int my_pe, isubx, isuby;
-  long int nvmxsub, nvmxsub2;
+  int nvmxsub, nvmxsub2;
   MPI_Comm comm;
 } *UserData;
 
 typedef struct {
   void *f_data;
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  long int *pivot[MXSUB][MYSUB];
+  int *pivot[MXSUB][MYSUB];
 } *PreconData;
 
 
@@ -309,9 +309,9 @@ static PreconData AllocPreconData(UserData fdata)
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      (pdata->P)[lx][ly] = denalloc(NVARS, NVARS);
-      (pdata->Jbd)[lx][ly] = denalloc(NVARS, NVARS);
-      (pdata->pivot)[lx][ly] = denallocpiv(NVARS);
+      (pdata->P)[lx][ly] = newDenseMat(NVARS, NVARS);
+      (pdata->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
+      (pdata->pivot)[lx][ly] = newIntArray(NVARS);
     }
   }
 
@@ -355,9 +355,9 @@ static void FreePreconData(PreconData pdata)
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      denfree((pdata->P)[lx][ly]);
-      denfree((pdata->Jbd)[lx][ly]);
-      denfreepiv((pdata->pivot)[lx][ly]);
+      destroyMat((pdata->P)[lx][ly]);
+      destroyMat((pdata->Jbd)[lx][ly]);
+      destroyArray((pdata->pivot)[lx][ly]);
     }
   }
 
@@ -827,10 +827,10 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   data = (UserData) f_data;
 
   /* Call ucomm to do inter-processor communication */
-  ucomm (t, u, data);
+  ucomm(t, u, data);
 
   /* Call fcalc to calculate all right-hand sides */
-  fcalc (t, udata, dudata, data);
+  fcalc(t, udata, dudata, data);
 
   return(0);
 }
@@ -843,7 +843,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
-  long int nvmxsub, *(*pivot)[MYSUB], ier, offset;
+  int nvmxsub, *(*pivot)[MYSUB], ier, offset;
   int lx, ly, jx, jy, isubx, isuby;
   realtype *udata, **a, **j;
   PreconData predata;
@@ -865,7 +865,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* jok = TRUE: Copy Jbd to P */
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
-        dencopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
+        denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
 
   *jcurPtr = FALSE;
 
@@ -901,7 +901,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        dencopy(j, a, NVARS, NVARS);
+        denseCopy(j, a, NVARS, NVARS);
       }
     }
 
@@ -912,13 +912,13 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* Scale by -gamma */
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
-        denscale(-gamma, P[lx][ly], NVARS, NVARS);
+        denseScale(-gamma, P[lx][ly], NVARS, NVARS);
 
   /* Add identity matrix and do LU decompositions on blocks in place */
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      denaddI(P[lx][ly], NVARS);
-      ier = denGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
+      denseAddI(P[lx][ly], NVARS);
+      ier = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
       if (ier != 0) return(1);
     }
   }
@@ -933,7 +933,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   int lr, void *P_data, N_Vector vtemp)
 {
   realtype **(*P)[MYSUB];
-  long int nvmxsub, *(*pivot)[MYSUB];
+  int nvmxsub, *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
   PreconData predata;
@@ -956,7 +956,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       v = &(zdata[lx*NVARS + ly*nvmxsub]);
-      denGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
+      denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
     }
   }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:06 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -93,15 +93,17 @@ typedef struct {
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static int Jac(long int N, long int mu, long int ml, BandMat J,
-               realtype t, N_Vector u, N_Vector fu, void *jac_data,
+static int Jac(int N, int mu, int ml,
+               realtype t, N_Vector u, N_Vector fu, 
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
 
 static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *f_dataB);
 
-static int JacB(long int NB, long int muB, long int mlB, BandMat JB,
+static int JacB(int NB, int muB, int mlB,
                 realtype tB, N_Vector u, 
-                N_Vector uB, N_Vector fuB, void *jac_dataB,
+                N_Vector uB, N_Vector fuB,
+                DlsMat JB, void *jac_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B); 
 
 /* Prototypes of private functions */
@@ -175,8 +177,8 @@ int main(int argc, char *argv[])
   flag = CVBand(cvode_mem, NEQ, MY, MY);
   if(check_flag(&flag, "CVBand", 1)) return(1);
 
-  flag = CVBandSetJacFn(cvode_mem, Jac, data);
-  if(check_flag(&flag, "CVBandSetJacFn", 1)) return(1);
+  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
+  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* Allocate global memory */
 
@@ -216,8 +218,8 @@ int main(int argc, char *argv[])
   flag = CVBandB(cvadj_mem, NEQ, MY, MY);
   if(check_flag(&flag, "CVBandB", 1)) return(1);
   
-  flag = CVBandSetJacFnB(cvadj_mem, JacB, data);
-  if(check_flag(&flag, "CVBandSetJacFnB", 1)) return(1);
+  flag = CVDlsSetJacFnB(cvadj_mem, JacB, data);
+  if(check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
   /* Perform backward integration */
   printf("\nBackward integration\n");
@@ -292,11 +294,12 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
  * Jac function. Jacobian of forward ODE.
  */
 
-static int Jac(long int N, long int mu, long int ml, BandMat J,
-               realtype t, N_Vector u, N_Vector fu, void *jac_data,
+static int Jac(int N, int mu, int ml,
+               realtype t, N_Vector u, N_Vector fu, 
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  long int i, j, k;
+  int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
 
@@ -387,12 +390,13 @@ static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
  * JacB function. Jacobian of backward ODE
  */
 
-static int JacB(long int NB, long int muB, long int mlB, BandMat JB,
+static int JacB(int NB, int muB, int mlB,
                 realtype tB, N_Vector u, 
-                N_Vector uB, N_Vector fuB, void *jac_dataB,
+                N_Vector uB, N_Vector fuB,
+                DlsMat JB, void *jac_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
-  long int i, j, k;
+  int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
 

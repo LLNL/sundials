@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-07-19 22:10:43 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-22 00:12:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -475,7 +475,7 @@ void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs,
 
 /*************************************************/
 
-void FIDA_DENSE(long int *neq, int *ier)
+void FIDA_DENSE(int *neq, int *ier)
 {
 
   *ier = 0;
@@ -489,7 +489,7 @@ void FIDA_DENSE(long int *neq, int *ier)
 
 /*************************************************/
 
-void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
+void FIDA_BAND(int *neq, int *mupper, int *mlower, int *ier)
 {
 
   *ier = 0;
@@ -637,16 +637,13 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
   
   switch(IDA_ls) {
   case IDA_LS_DENSE:
-    IDADenseGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
-    IDADenseGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);           /* LSTF */
-    IDADenseGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
-    IDADenseGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                /* NJE */
-    break;
   case IDA_LS_BAND:
-    IDABandGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);    /* LENRWLS, LENIWLS */
-    IDABandGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);            /* LSTF */
-    IDABandGetNumResEvals(IDA_idamem, &IDA_iout[15]);                 /* NRE */
-    IDABandGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                 /* NJE */
+  case IDA_LS_LAPACKDENSE:
+  case IDA_LS_LAPACKBAND:
+    IDADlsGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
+    IDADlsGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);           /* LSTF */
+    IDADlsGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
+    IDADlsGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                /* NJE */
     break;
   case IDA_LS_SPGMR:
   case IDA_LS_SPBCG:

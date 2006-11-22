@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:11 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -437,10 +437,10 @@ static void PrintFinalStats(void *kmem)
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
 
-  flag = KINDenseGetNumJacEvals(kmem, &nje);
-  check_flag(&flag, "KINDenseGetNumJacEvals", 1);
-  flag = KINDenseGetNumFuncEvals(kmem, &nfeD);
-  check_flag(&flag, "KINDenseGetNumFuncEvals", 1);
+  flag = KINDlsGetNumJacEvals(kmem, &nje);
+  check_flag(&flag, "KINDlsGetNumJacEvals", 1);
+  flag = KINDlsGetNumFuncEvals(kmem, &nfeD);
+  check_flag(&flag, "KINDlsGetNumFuncEvals", 1);
 
   printf("Final Statistics:\n");
   printf("  nni = %5ld    nfe  = %5ld \n", nni, nfe);

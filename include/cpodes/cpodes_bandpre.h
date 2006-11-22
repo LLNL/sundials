@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:46 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,18 +17,20 @@
  *
  * Summary:
  * These routines provide a band matrix preconditioner based on
- * difference quotients of the ODE right-hand side function f.
+ * difference quotients of the ODE right-hand side function f
+ * (for explicit-form ODEs) or on the residual function F (for
+ * implicit-form ODEs).
  * The user supplies parameters
  *   mu = upper half-bandwidth (number of super-diagonals)
  *   ml = lower half-bandwidth (number of sub-diagonals)
  * The routines generate a band matrix of bandwidth ml + mu + 1
- * and use this to form a preconditioner for use with the Krylov
- * linear solver in CPSP*. Although this matrix is intended to
- * approximate the Jacobian df/dy, it may be a very crude
- * approximation. The true Jacobian need not be banded, or its
- * true bandwith may be larger than ml + mu + 1, as long as the
- * banded approximation generated here is sufficiently accurate
- * to speed convergence as a preconditioner.
+ * and use this to form a preconditioner for use with one of the
+ * CSPILS iterative linear solvers. Although this matrix is intended
+ * to approximate the Jacobian df/dy (respectively dF/dy + gamma*dF/dy,
+ * it may be a very crude approximation. The true Jacobian need not 
+ * be banded, or its true bandwith may be larger than ml + mu + 1, 
+ * as long as the banded approximation generated here is sufficiently 
+ * accurate to speed convergence as a preconditioner.
  *
  * Usage:
  *   The following is a summary of the usage of this module.
@@ -65,8 +67,8 @@
  *
  * Notes:
  * (1) Include this file for the CPBandPrecData type definition.
- * (2) In the CPBandPrecAlloc call, the arguments N is the same
- *     as in the call to CPodeMalloc.
+ * (2) In the CPBandPrecAlloc call, the arguments N is the 
+ *     problem dimension.
  * (3) In the CPBPSp* call, the user is free to specify
  *     the input pretype and the optional input maxl. The last
  *     argument must be the pointer returned by CPBandPrecAlloc.
@@ -84,9 +86,9 @@ extern "C" {
 
 /* CPBANDPRE return values */
 
-#define CPBANDPRE_SUCCESS           0
-#define CPBANDPRE_PDATA_NULL      -11
-#define CPBANDPRE_RHSFUNC_UNRECVR -12
+#define CPBANDPRE_SUCCESS        0
+#define CPBANDPRE_PDATA_NULL   -11
+#define CPBANDPRE_FUNC_UNRECVR -12
 
 /*
  * -----------------------------------------------------------------
@@ -117,8 +119,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-void *CPBandPrecAlloc(void *cpode_mem, long int N,
-                      long int mu, long int ml);
+void *CPBandPrecAlloc(void *cpode_mem, int N, int mu, int ml);
 
 /*
  * -----------------------------------------------------------------
@@ -224,9 +225,8 @@ void CPBandPrecFree(void **bp_data);
  * -----------------------------------------------------------------
  * CPBandPrecGetWorkSpace returns the real and integer work space used
  *                        by CPBANDPRE.
- * CPBandPrecGetNumRhsEvals returns the number of calls made from
- *                          CPBANDPRE to the user's right-hand side
- *                          routine f.
+ * CPBandPrecGetNumFctEvals returns the number of calls made from
+ *                          CPBANDPRE to the user's ODE function.
  *
  * The return value of CPBandPrecGet* is one of:
  *    CPBANDPRE_SUCCESS    if successful
@@ -235,7 +235,7 @@ void CPBandPrecFree(void **bp_data);
  */
 
 int CPBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS);
-int CPBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
+int CPBandPrecGetNumFctEvals(void *bp_data, long int *nfevalsBP);
 
 /*
  * -----------------------------------------------------------------

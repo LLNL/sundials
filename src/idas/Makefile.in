@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-08 01:01:28 $
+# $Revision: 1.6 $
+# $Date: 2006-11-22 00:12:50 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,19 +48,19 @@ INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
 LIB_REVISION = 0:0:0
 
 IDAS_LIB       = libsundials_idas.la
-IDAS_LIB_FILES = idas.lo idas_ic.lo idas_io.lo idas_dense.lo idas_band.lo idas_lapack.lo idas_spils.lo idas_spbcgs.lo idas_spgmr.lo idas_sptfqmr.lo idas_bbdpre.lo
-IDAS_OBJ_FILES = idas.o idas_ic.o idas_io.o idas_dense.o idas_band.o idas_lapack.o idas_spils.o idas_spbcgs.o idas_spgmr.o idas_sptfqmr.o idas_bbdpre.o
+IDAS_LIB_FILES = idas.lo idas_ic.lo idas_io.lo idas_direct.lo idas_dense.lo idas_band.lo idas_lapack.lo idas_spils.lo idas_spbcgs.lo idas_spgmr.lo idas_sptfqmr.lo idas_bbdpre.lo
+IDAS_OBJ_FILES = idas.o idas_ic.o idas_io.o idas_direct.o idas_dense.o idas_band.o idas_lapack.o idas_spils.o idas_spbcgs.o idas_spgmr.o idas_sptfqmr.o idas_bbdpre.o
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
-                   $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_lapack.lo \
-                   $(top_builddir)/src/sundials/sundials_math.lo \
-                   $(top_builddir)/src/sundials/sundials_nvector.lo \
-                   $(top_builddir)/src/sundials/sundials_smalldense.lo \
+                   $(top_builddir)/src/sundials/sundials_direct.lo \
+                   $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_spgmr.lo \
                    $(top_builddir)/src/sundials/sundials_spbcgs.lo \
-                   $(top_builddir)/src/sundials/sundials_sptfqmr.lo
+                   $(top_builddir)/src/sundials/sundials_sptfqmr.lo \
+                   $(top_builddir)/src/sundials/sundials_math.lo \
+                   $(top_builddir)/src/sundials/sundials_nvector.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
@@ -74,6 +74,7 @@ install: $(IDAS_LIB)
 	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(IDAS_LIB) $(libdir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas.h         $(includedir)/idas/
+	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_direct.h  $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_dense.h   $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_band.h    $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_lapack.h  $(includedir)/idas/
@@ -87,6 +88,7 @@ install: $(IDAS_LIB)
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDAS_LIB)
 	rm -f $(includedir)/idas/idas.h
+	rm -f $(includedir)/idas/idas_direct.h
 	rm -f $(includedir)/idas/idas_dense.h
 	rm -f $(includedir)/idas/idas_band.h
 	rm -f $(includedir)/idas/idas_lapack.h
@@ -119,6 +121,8 @@ idas_ic.lo: $(srcdir)/idas_ic.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/idas_ic.c
 idas_io.lo: $(srcdir)/idas_io.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/idas_io.c
+idas_direct.lo: $(srcdir)/idas_direct.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/idas_direct.c
 idas_dense.lo: $(srcdir)/idas_dense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/idas_dense.c
 idas_band.lo: $(srcdir)/idas_band.c

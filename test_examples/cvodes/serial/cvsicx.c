@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-07-24 21:39:31 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-22 00:12:52 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -67,8 +67,9 @@ typedef struct {
 
 /* Prototypes of functions by CVODES */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static int Jac(long int N, DenseMat J, realtype t,
-               N_Vector y, N_Vector fy, void *jac_data, 
+static int Jac(int N, realtype t,
+               N_Vector y, N_Vector fy, 
+               DlsMat J, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
               int iS, N_Vector yS, N_Vector ySdot, 
@@ -142,7 +143,7 @@ int main(int argc, char *argv[])
 
   /* Attach linear solver */
   flag = CVDense(cvode_mem, Neq);
-  flag = CVDenseSetJacFn(cvode_mem, Jac, data);
+  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
 
   /*
    * Sensitivity-related settings
@@ -275,8 +276,8 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
   flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
 
-  flag = CVDenseGetNumJacEvals(cvode_mem, &njeD);
-  flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeD);
+  flag = CVDlsGetNumJacEvals(cvode_mem, &njeD);
+  flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeD);
 
   printf("Run statistics:\n");
 
@@ -346,8 +347,9 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
  * Jacobian routine. Compute J(t,y). 
  */
 
-static int Jac(long int N, DenseMat J, realtype t,
-               N_Vector y, N_Vector fy, void *jac_data, 
+static int Jac(int N, realtype t,
+               N_Vector y, N_Vector fy, 
+               DlsMat J, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData data;

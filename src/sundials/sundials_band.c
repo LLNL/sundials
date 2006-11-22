@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-06 18:14:58 $
+ * $Revision: 1.5 $
+ * $Date: 2006-11-22 00:12:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,127 +26,52 @@
 
 #define ROW(i,j,smu) (i-j+smu)
 
-/* Implementation */
+/*
+ * -----------------------------------------------------
+ * Functions working on DlsMat
+ * -----------------------------------------------------
+ */
 
-BandMat BandAllocMat(long int N, long int mu, long int ml, long int smu)
+int BandGBTRF(DlsMat A, int *p)
 {
-  BandMat A;
-
-  if (N <= 0) return(NULL);
-  
-  A = NULL;
-  A = (BandMat) malloc(sizeof *A);
-  if (A == NULL) return (NULL);
-
-  A->data = NULL;
-  A->data = bandalloc(N, smu, ml);
-  if (A->data == NULL) {
-    free(A); A = NULL;
-    return(NULL);
-  }
-  
-  A->size = N;
-  A->mu = mu;
-  A->ml = ml;
-  A->smu = smu;
-
-  return(A);
+  return(bandGBTRF(A->cols, A->M, A->mu, A->ml, A->s_mu, p));
 }
 
-long int *BandAllocPiv(long int N)
+void BandGBTRS(DlsMat A, int *p, realtype *b)
 {
-  return(bandallocpiv(N));
+  bandGBTRS(A->cols, A->M, A->s_mu, A->ml, p, b);
 }
 
-long int BandGBTRF(BandMat A, long int *p)
+void BandZero(DlsMat A)
 {
-  return(bandGBTRF(A->data, A->size, A->mu, A->ml, A->smu, p));
+  bandZero(A->cols, A->M, A->mu, A->ml, A->s_mu);
 }
 
-void BandGBTRS(BandMat A, long int *p, realtype *b)
+void BandCopy(DlsMat A, DlsMat B, int copymu, int copyml)
 {
-  bandGBTRS(A->data, A->size, A->smu, A->ml, p, b);
+  bandCopy(A->cols, B->cols, A->M, A->s_mu, B->s_mu, copymu, copyml);
 }
 
-void BandZero(BandMat A)
+void BandScale(realtype c, DlsMat A)
 {
-  bandzero(A->data, A->size, A->mu, A->ml, A->smu);
+  bandScale(c, A->cols, A->M, A->mu, A->ml, A->s_mu);
 }
 
-void BandCopy(BandMat A, BandMat B, long int copymu, 
-              long int copyml)
+void BandAddI(DlsMat A)
 {
-  bandcopy(A->data, B->data, A->size, A->smu, B->smu, copymu, copyml);
+  bandAddI(A->cols, A->M, A->s_mu);
 }
 
-void BandScale(realtype c, BandMat A)
+/*
+ * -----------------------------------------------------
+ * Functions working on realtype**
+ * -----------------------------------------------------
+ */
+
+int bandGBTRF(realtype **a, int n, int mu, int ml, int smu, int *p)
 {
-  bandscale(c, A->data, A->size, A->mu, A->ml, A->smu);
-}
-
-void BandAddI(BandMat A)
-{
-  bandaddI(A->data, A->size, A->smu);
-}
-
-void BandFreeMat(BandMat A)
-{
-  bandfree(A->data);
-  free(A); A = NULL;
-}
-
-void BandFreePiv(long int *p)
-{ 
-  bandfreepiv(p);
-}
-
-void BandPrint(BandMat A)
-{
-  bandprint(A->data, A->size, A->mu, A->ml, A->smu);
-}
-
-realtype **bandalloc(long int n, long int smu, long int ml)
-{
-  realtype **a;
-  long int j, colSize;
-
-  if (n <= 0) return(NULL);
-
-  a = NULL;
-  a = (realtype **) malloc(n * sizeof(realtype *));
-  if (a == NULL) return(NULL);
-
-  colSize = smu + ml + 1;
-  a[0] = NULL;
-  a[0] = (realtype *) malloc(n * colSize * sizeof(realtype));
-  if (a[0] == NULL) {
-    free(a); a = NULL;
-    return(NULL);
-  }
-
-  for (j=1; j < n; j++) a[j] = a[0] + j * colSize;
-
-  return(a);
-}
-
-long int *bandallocpiv(long int n)
-{
-  long int *piv;
-
-  if (n <= 0) return(NULL);
-
-  piv = NULL;
-  piv = (long int *) malloc(n * sizeof(long int));
-  if (piv == NULL) return(NULL);
-
-  return(piv);
-}
-
-long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, 
-                   long int smu, long int *p)
-{
-  long int c, r, num_rows;
-  long int i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
+  int c, r, num_rows;
+  int i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
   realtype *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
   realtype max, temp, mult, a_kj;
   booleantype swap;
@@ -249,10 +174,9 @@ long int bandGBTRF(realtype **a, long int n, long int mu, long int ml,
   return(0);
 }
 
-void bandGBTRS(realtype **a, long int n, long int smu, long int ml, 
-               long int *p, realtype *b)
+void bandGBTRS(realtype **a, int n, int smu, int ml, int *p, realtype *b)
 {
-  long int k, l, i, first_row_k, last_row_k;
+  int k, l, i, first_row_k, last_row_k;
   realtype mult, *diag_k;
   
   /* Solve Ly = Pb, store solution y in b */
@@ -282,10 +206,9 @@ void bandGBTRS(realtype **a, long int n, long int smu, long int ml,
   }
 }
 
-void bandzero(realtype **a, long int n, long int mu, long int ml, 
-              long int smu)
+void bandZero(realtype **a, int n, int mu, int ml, int smu)
 {
-  long int i, j, colSize;
+  int i, j, colSize;
   realtype *col_j;
 
   colSize = mu + ml + 1;
@@ -296,10 +219,10 @@ void bandzero(realtype **a, long int n, long int mu, long int ml,
   }
 }
 
-void bandcopy(realtype **a, realtype **b, long int n, long int a_smu, 
-              long int b_smu, long int copymu, long int copyml)
+void bandCopy(realtype **a, realtype **b, int n, int a_smu, int b_smu, 
+              int copymu, int copyml)
 {
-  long int i, j, copySize;
+  int i, j, copySize;
   realtype *a_col_j, *b_col_j;
 
   copySize = copymu + copyml + 1;
@@ -312,10 +235,9 @@ void bandcopy(realtype **a, realtype **b, long int n, long int a_smu,
   }
 }
 
-void bandscale(realtype c, realtype **a, long int n, long int mu, 
-               long int ml, long int smu)
+void bandScale(realtype c, realtype **a, int n, int mu, int ml, int smu)
 {
-  long int i, j, colSize;
+  int i, j, colSize;
   realtype *col_j;
 
   colSize = mu + ml + 1;
@@ -327,45 +249,11 @@ void bandscale(realtype c, realtype **a, long int n, long int mu,
   }
 }
 
-void bandaddI(realtype **a, long int n, long int smu)
+void bandAddI(realtype **a, int n, int smu)
 {
-  long int j;
+  int j;
  
   for(j=0; j < n; j++)
     a[j][smu] += ONE;
 }
 
-void bandfreepiv(long int *p)
-{
-  free(p); p = NULL;
-}
-
-void bandfree(realtype **a)
-{
-  free(a[0]); a[0] = NULL;
-  free(a); a = NULL;
-}
-
-void bandprint(realtype **a, long int n, long int mu, long int ml, 
-               long int smu)
-{
-  long int i, j, start, finish;
- 
-  printf("\n");
-  for (i=0; i < n; i++) {
-    start = MAX(0,i-ml);
-    finish = MIN(n-1,i+mu);
-    for (j=0; j < start; j++) printf("%12s  ","");
-    for (j=start; j <= finish; j++) {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-      printf("%12Lg  ", a[j][i-j+smu]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%12lg  ", a[j][i-j+smu]);
-#else
-      printf("%12g  ", a[j][i-j+smu]);
-#endif
-    }
-    printf("\n");
-  }
-  printf("\n");
-}

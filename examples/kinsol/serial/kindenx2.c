@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:11 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -46,8 +46,9 @@
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
 
 static int func(N_Vector y, N_Vector f, void *f_data);
-static int jac(long int N, DenseMat J, 
-               N_Vector y, N_Vector f, void *jac_data,
+static int jac(int N,
+               N_Vector y, N_Vector f,
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2);
 static void PrintOutput(N_Vector y);
 static void PrintFinalStats(void *kmem);
@@ -113,7 +114,7 @@ int main()
   flag = KINDense(kmem, NEQ);
   if (check_flag(&flag, "KINDense", 1)) return(1);
 
-  flag = KINDenseSetJacFn(kmem, jac, NULL);
+  flag = KINDlsSetJacFn(kmem, jac, NULL);
 
   /* Indicate exact Newton */
 
@@ -233,8 +234,9 @@ static int func(N_Vector y, N_Vector f, void *f_data)
  * System Jacobian
  */
 
-static int jac(long int N, DenseMat J, 
-               N_Vector y, N_Vector f, void *jac_data,
+static int jac(int N,
+               N_Vector y, N_Vector f,
+               DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2)
 {
   int i;
@@ -379,10 +381,10 @@ static void PrintFinalStats(void *kmem)
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
 
-  flag = KINDenseGetNumJacEvals(kmem, &nje);
-  check_flag(&flag, "KINDenseGetNumJacEvals", 1);
-  flag = KINDenseGetNumFuncEvals(kmem, &nfeD);
-  check_flag(&flag, "KINDenseGetNumFuncEvals", 1);
+  flag = KINDlsGetNumJacEvals(kmem, &nje);
+  check_flag(&flag, "KINDlsGetNumJacEvals", 1);
+  flag = KINDlsGetNumFuncEvals(kmem, &nfeD);
+  check_flag(&flag, "KINDlsGetNumFuncEvals", 1);
 
   printf("\nFinal Statistics.. \n");
   printf("nni    = %5ld    nfe   = %5ld \n", nni, nfe);

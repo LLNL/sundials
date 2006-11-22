@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:06 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:45 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -55,14 +55,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>            /* prototypes for CVODE */
-#include <cvodes/cvodes_spgmr.h>      /* prototypes and consts. for CVSPGMR solver */
+#include <cvodes/cvodes.h>            /* prototypes for CVODES fcts. */
+#include <cvodes/cvodes_spgmr.h>      /* prototypes and constants for CVSPGMR solver */
 #include <cvodes/cvodes_bbdpre.h>     /* prototypes for CVBBDPRE module */
-#include <nvector/nvector_parallel.h> /* definition of N_Vector and NV_DATA_P */
+#include <nvector/nvector_parallel.h> /* definition N_Vector and macro NV_DATA_P */
 #include <sundials/sundials_types.h>  /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>   /* definition of macros SQR and EXP */
 
 #include <mpi.h>                      /* MPI constants and types */
+
 
 /* Problem Constants */
 
@@ -150,7 +151,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 /* Prototype of functions called by the CVBBDPRE module */
 
-static int flocal(long int Nlocal, realtype t, N_Vector u,
+static int flocal(int Nlocal, realtype t, N_Vector u,
                   N_Vector udot, void *f_data);
 
 /* Private function to check function return values */
@@ -167,7 +168,7 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   int iout, my_pe, npes, flag, jpre;
-  long int neq, local_N, mudq, mldq, mukeep, mlkeep;
+  int neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
 
   data = NULL;
@@ -721,7 +722,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
    inter-processor communication of data needed to calculate f has already
    been done, and this data is in the work array uext.                    */
 
-static int flocal(long int Nlocal, realtype t, N_Vector u,
+static int flocal(int Nlocal, realtype t, N_Vector u,
                   N_Vector udot, void *f_data)
 {
   realtype *uext;

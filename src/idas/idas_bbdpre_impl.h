@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-22 00:12:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -38,7 +38,7 @@ typedef struct {
   /* passed by user to IDABBDPrecAlloc and used by
      IDABBDPrecSetup/IDABBDPrecSolve functions */
 
-  long int mudq, mldq, mukeep, mlkeep;
+  int mudq, mldq, mukeep, mlkeep;
   realtype rel_yy;
   IDABBDLocalFn glocal;
   IDABBDCommFn gcomm;
@@ -49,12 +49,12 @@ typedef struct {
 
   /* set by IDABBDPrecon and used by IDABBDPrecSolve */
 
-  BandMat PP;
-  long int *pivots;
+  DlsMat PP;
+  int *pivots;
 
   /* set by IDABBDPrecAlloc and used by IDABBDPrecSetup */
 
-  long int n_local;
+  int n_local;
 
   /* available for optional output */
 
