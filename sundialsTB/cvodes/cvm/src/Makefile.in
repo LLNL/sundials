@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-10-11 18:12:37 $
+# $Revision: 1.5 $
+# $Date: 2006-11-22 19:48:12 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -101,6 +101,7 @@ install: cvm
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvbx_J.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvbx.m       $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvbx_q.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
+	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvdiscx.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvdx_fB.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvdx_f.m     $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/
 	$(INSTALL_FILE) $(top_srcdir)/sundialsTB/cvodes/examples_ser/cvdx_fS.m    $(STB_INSTDIR)/sundialsTB/cvodes/examples_ser/

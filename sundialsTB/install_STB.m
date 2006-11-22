@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.12 $Date: 2006/10/11 18:12:35 $
+% $Revision: 1.13 $Date: 2006/11/22 00:12:51 $
 
 % MEX compiler command
 
@@ -535,6 +535,7 @@ cvm_exs = {
     fullfile('cvodes','examples_ser','cvbx_J.m')
     fullfile('cvodes','examples_ser','cvbx.m')
     fullfile('cvodes','examples_ser','cvbx_q.m')
+    fullfile('cvodes','examples_ser','cvdiscx.m')
     fullfile('cvodes','examples_ser','cvdx_fB.m')
     fullfile('cvodes','examples_ser','cvdx_f.m')
     fullfile('cvodes','examples_ser','cvdx_fS.m')
