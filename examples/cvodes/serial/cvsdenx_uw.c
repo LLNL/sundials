@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -168,7 +168,7 @@ int main()
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
   /* Set the Jacobian routine to Jac (user-supplied) */
-  flag = CVDlsSetJacFn(cvode_mem, Jac, NULL);
+  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, NULL);
   if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.

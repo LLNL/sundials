@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include <cvode/cvode_bandpre.h>
+#include <sundials/sundials_band.h>
 #include <sundials/sundials_direct.h>
 
 /*

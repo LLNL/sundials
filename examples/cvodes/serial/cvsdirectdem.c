@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -619,7 +619,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
       flag = CVDense(cvode_mem, P1_NEQ);
       check_flag(&flag, "CVDense", 1);
       if(flag != CV_SUCCESS) break;
-      flag = CVDlsSetJacFn(cvode_mem, Jac1, NULL);
+      flag = CVDlsSetJacFn(cvode_mem, (void *)Jac1, NULL);
       check_flag(&flag, "CVDlsSetJacFn", 1);
       break;
     case DENSE_DQ   : 
@@ -637,7 +637,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
       flag = CVBand(cvode_mem, P2_NEQ, mu, ml);
       check_flag(&flag, "CVBand", 1);
       if(flag != CV_SUCCESS) break;
-      flag = CVDlsSetJacFn(cvode_mem, Jac2, NULL);
+      flag = CVDlsSetJacFn(cvode_mem, (void *)Jac2, NULL);
       check_flag(&flag, "CVDlsSetJacFn", 1);
       break;
     case BAND_DQ  :   

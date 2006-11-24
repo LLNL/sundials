@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-24 19:09:15 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -280,7 +280,7 @@ extern "C" {
 
   int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
   int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
-  int IDADlsGetNumRhsEvals(void *ida_mem, long int *nfevalsLS);
+  int IDADlsGetNumResEvals(void *ida_mem, long int *nfevalsLS);
   int IDADlsGetLastFlag(void *ida_mem, int *flag);
 
   /*

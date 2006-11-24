@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
   flag = CVBand(cvode_mem, NEQ, MY, MY);
   if(check_flag(&flag, "CVBand", 1)) return(1);
 
-  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
+  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
   if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* Allocate global memory */
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
   flag = CVBandB(cvadj_mem, NEQ, MY, MY);
   if(check_flag(&flag, "CVBandB", 1)) return(1);
   
-  flag = CVDlsSetJacFnB(cvadj_mem, JacB, data);
+  flag = CVDlsSetJacFnB(cvadj_mem, (void *)JacB, data);
   if(check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
   /* Perform backward integration */

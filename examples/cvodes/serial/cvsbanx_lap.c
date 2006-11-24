@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-24 19:09:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -174,7 +174,7 @@ int main(void)
   /* Set the user-supplied Jacobian routine Jac and
      the pointer to the user-defined block data. */
 
-  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
+  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
   if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */

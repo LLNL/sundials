@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -22,6 +22,7 @@ extern "C" {
 #endif
 
 #include <cvodes/cvodes_bandpre.h>
+#include <sundials/sundials_band.h>
 #include <sundials/sundials_direct.h>
 
   /*

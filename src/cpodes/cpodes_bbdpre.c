@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:18 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -221,10 +221,10 @@ int CPBBDSptfqmr(void *cpode_mem, int pretype, int maxl, void *bbd_data)
 
   switch (ode_type) {
   case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBBDPrecSetupExpl, cpBBDPrecSolveExpl, bbd_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupExpl, (void *)cpBBDPrecSolveExpl, bbd_data);
     break;
   case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBBDPrecSetupImpl, cpBBDPrecSolveImpl, bbd_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupImpl, (void *)cpBBDPrecSolveImpl, bbd_data);
     break;
   }
   if(flag != CPSPILS_SUCCESS) return(flag);
@@ -249,10 +249,10 @@ int CPBBDSpbcg(void *cpode_mem, int pretype, int maxl, void *bbd_data)
 
   switch (ode_type) {
   case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBBDPrecSetupExpl, cpBBDPrecSolveExpl, bbd_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupExpl, (void *)cpBBDPrecSolveExpl, bbd_data);
     break;
   case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBBDPrecSetupImpl, cpBBDPrecSolveImpl, bbd_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupImpl, (void *)cpBBDPrecSolveImpl, bbd_data);
     break;
   }
   if(flag != CPSPILS_SUCCESS) return(flag);
@@ -277,10 +277,10 @@ int CPBBDSpgmr(void *cpode_mem, int pretype, int maxl, void *bbd_data)
 
   switch (ode_type) {
   case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBBDPrecSetupExpl, cpBBDPrecSolveExpl, bbd_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupExpl, (void *)cpBBDPrecSolveExpl, bbd_data);
     break;
   case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBBDPrecSetupImpl, cpBBDPrecSolveImpl, bbd_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupImpl, (void *)cpBBDPrecSolveImpl, bbd_data);
     break;
   }
   if(flag != CPSPILS_SUCCESS) return(flag);

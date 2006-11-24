@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.5 $
+ * $Date: 2006-11-24 19:09:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
-  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
+  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
   if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
 
   flag = CVodeQuadMalloc(cvode_mem, fQ, q);
@@ -308,7 +308,7 @@ printf("--------------------------------------------------------\n\n");
   flag = CVDenseB(cvadj_mem, NEQ);
   if (check_flag(&flag, "CVDenseB", 1)) return(1);
 
-  flag = CVDlsSetJacFnB(cvadj_mem, JacB, data);
+  flag = CVDlsSetJacFnB(cvadj_mem, (void *)JacB, data);
   if (check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
   flag = CVodeQuadMallocB(cvadj_mem, fQB, qB);

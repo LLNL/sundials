@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-24 19:09:25 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,10 +33,10 @@
 extern "C" {
 #endif
 
-extern void FK_LBJAC(int*, int*, int*, int*,
-                     realtype*, realtype*,
-                     realtype*,
-                     realtype*, realtype*, int*);
+extern void FK_BJAC(int*, int*, int*, int*,
+                    realtype*, realtype*,
+                    realtype*,
+                    realtype*, realtype*, int*);
 
 #ifdef __cplusplus
 }
@@ -54,7 +54,7 @@ void FKIN_LAPACKBANDSETJAC(int *flag, int *ier)
     *ier = KINDlsSetJacFn(KIN_kinmem, NULL, NULL);
   }
   else {
-    *ier = KINDlsSetJacFn(KIN_kinmem, (KINDlsBandJacFn) FKINLapackBandJac, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, (void *)FKINLapackBandJac, NULL);
   }
 
   return;

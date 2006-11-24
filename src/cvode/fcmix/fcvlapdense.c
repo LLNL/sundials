@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,7 +51,7 @@ void FCV_LAPACKDENSESETJAC(int *flag, int *ier)
     *ier = CVDlsSetJacFn(CV_cvodemem, NULL, NULL);
   } else {
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVDlsSetJacFn(CV_cvodemem, FCVLapackDenseJac, cv_mem->cv_f_data);
+    *ier = CVDlsSetJacFn(CV_cvodemem, (void *)FCVLapackDenseJac, cv_mem->cv_f_data);
   }
 }
 

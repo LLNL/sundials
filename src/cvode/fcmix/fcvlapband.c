@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -56,7 +56,7 @@ void FCV_LAPACKBANDSETJAC(int *flag, int *ier)
   } else {
 
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVDlsSetJacFn(CV_cvodemem, FCVLapackBandJac, cv_mem->cv_f_data);
+    *ier = CVDlsSetJacFn(CV_cvodemem, (void *)FCVLapackBandJac, cv_mem->cv_f_data);
 
   }
 

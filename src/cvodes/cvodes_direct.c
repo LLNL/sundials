@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-24 19:09:22 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -501,11 +501,11 @@ int CVDlsSetJacFnB(void *cvadj_mem, void *jacB, void *jac_dataB)
   switch (mtypeB) {
   case SUNDIALS_DENSE:
     djacB = (CVDlsDenseJacFnB) jacB;
-    flag = CVDlsSetJacFn(cvB_mem, cvDlsDenseJacBWrapper, cvadj_mem);
+    flag = CVDlsSetJacFn(cvB_mem, (void *)cvDlsDenseJacBWrapper, cvadj_mem);
     break;
   case SUNDIALS_BAND:
     bjacB = (CVDlsBandJacFnB) jacB;
-    flag = CVDlsSetJacFn(cvB_mem, cvDlsBandJacBWrapper, cvadj_mem);
+    flag = CVDlsSetJacFn(cvB_mem, (void *)cvDlsBandJacBWrapper, cvadj_mem);
     break;
   }
 

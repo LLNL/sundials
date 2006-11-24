@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -52,7 +52,7 @@ void FKIN_DENSESETJAC(int *flag, int *ier)
     *ier = KINDlsSetJacFn(KIN_kinmem, NULL, NULL);
   }
   else {
-    *ier = KINDlsSetJacFn(KIN_kinmem, (KINDlsDenseJacFn) FKINDenseJac, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, (void *)FKINDenseJac, NULL);
   }
   return;
 }

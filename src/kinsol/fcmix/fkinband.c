@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-24 19:09:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -54,7 +54,7 @@ void FKIN_BANDSETJAC(int *flag, int *ier)
     *ier = KINDlsSetJacFn(KIN_kinmem, NULL, NULL);
   }
   else {
-    *ier = KINDlsSetJacFn(KIN_kinmem, (KINDlsBandJacFn) FKINBandJac, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, (void *)FKINBandJac, NULL);
   }
 
   return;

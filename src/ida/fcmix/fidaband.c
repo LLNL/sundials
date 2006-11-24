@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -59,7 +59,7 @@ void FIDA_BANDSETJAC(int *flag, int *ier)
       }
     }
 
-    *ier = IDADlsSetJacFn(IDA_idamem, (IDADlsBandJacFn) FIDABandJac, NULL);
+    *ier = IDADlsSetJacFn(IDA_idamem, (void *)FIDABandJac, NULL);
 
   }
 

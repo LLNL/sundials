@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:46 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -114,7 +114,7 @@ int main()
   flag = KINDense(kmem, NEQ);
   if (check_flag(&flag, "KINDense", 1)) return(1);
 
-  flag = KINDlsSetJacFn(kmem, jac, NULL);
+  flag = KINDlsSetJacFn(kmem, (void *)jac, NULL);
 
   /* Indicate exact Newton */
 

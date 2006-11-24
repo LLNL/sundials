@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-24 19:09:24 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -582,11 +582,11 @@ int IDADlsSetJacFnB(void *idaadj_mem, void *jacB, void *jdataB)
   switch (mtypeB) {
   case SUNDIALS_DENSE:
     djacB = (IDADlsDenseJacFnB) jacB;
-    flag = IDADlsSetJacFn(IDAB_mem, idaDlsDenseJacBWrapper, idaadj_mem);
+    flag = IDADlsSetJacFn(IDAB_mem, (void *)idaDlsDenseJacBWrapper, idaadj_mem);
     break;
   case SUNDIALS_BAND:
     bjacB = (IDADlsBandJacFnB) jacB;
-    flag = IDADlsSetJacFn(IDAB_mem, idaDlsBandJacBWrapper, idaadj_mem);
+    flag = IDADlsSetJacFn(IDAB_mem, (void *)idaDlsBandJacBWrapper, idaadj_mem);
     break;
   }
 

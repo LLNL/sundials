@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:46 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-24 19:09:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -134,7 +134,7 @@ int main(void)
   /* Call IDADense and set up the linear solver. */
   retval = IDADense(mem, NEQ);
   if(check_flag(&retval, "IDADense", 1)) return(1);
-  retval = IDADlsSetJacFn(mem, jacrob, NULL);
+  retval = IDADlsSetJacFn(mem, (void *)jacrob, NULL);
   if(check_flag(&retval, "IDADlsSetJacFn", 1)) return(1);
 
   /* In loop, call IDASolve, print results, and test for error.

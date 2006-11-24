@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:06 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-24 19:09:18 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cpodes_impl.h"
+#include "cpodes_private.h"
 #include "cpodes_spils_impl.h"
 
 /* Private constants */
