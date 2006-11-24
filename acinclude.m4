@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.49 $
-# $Date: 2006-11-09 20:36:51 $
+# $Revision: 1.50 $
+# $Date: 2006-11-24 18:54:29 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -42,9 +42,6 @@ fi
 
 AC_DEFUN([SUNDIALS_INITIALIZE],
 [
-
-# Specify directory containing auxillary build tools and M4 files
-AC_CONFIG_AUX_DIR([config])
 
 # Reference custom macros
 m4_include([config/mod_fortran.m4])

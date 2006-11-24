@@ -2008,12 +2008,6 @@ fi
 
 
 
-# Miscellaneous SUNDIALS initializations
-echo "Initialization"
-echo "--------------"
-echo ""
-
-
 # Specify directory containing auxillary build tools and M4 files
 ac_aux_dir=
 for ac_dir in config "$srcdir"/config; do
@@ -2045,6 +2039,12 @@ ac_config_guess="$SHELL $ac_aux_dir/config.guess"  # Please don't use this var.
 ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
 ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 
+
+
+# Miscellaneous SUNDIALS initializations
+echo "Initialization"
+echo "--------------"
+echo ""
 
 
 # Reference custom macros

@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.45 $
-# $Date: 2006-11-09 20:36:53 $
+# $Revision: 1.46 $
+# $Date: 2006-11-24 18:54:32 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -17,6 +17,9 @@ AC_INIT(SUNDIALS, 2.3.0, radu@llnl.gov)
 
 # Display greeting
 SUNDIALS_GREETING
+
+# Specify directory containing auxillary build tools and M4 files
+AC_CONFIG_AUX_DIR([config])
 
 # Miscellaneous SUNDIALS initializations
 echo "Initialization"
