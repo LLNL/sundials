@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:52 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-25 21:39:48 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -119,7 +119,7 @@ int main()
 
   /* Use the CVDENSE dense linear solver with user-supplied Jacobian */
   flag = CVDense(cvode_mem, NEQ);
-  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
+  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
 
   /* Integrate to TOUT1 in NORMAL_MODE */
   flag = CVode(cvode_mem, TOUT1, y, &t, CV_NORMAL);

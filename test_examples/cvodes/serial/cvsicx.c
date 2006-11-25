@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:52 $
+ * $Revision: 1.5 $
+ * $Date: 2006-11-25 21:39:48 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 
   /* Attach linear solver */
   flag = CVDense(cvode_mem, Neq);
-  flag = CVDlsSetJacFn(cvode_mem, Jac, data);
+  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
 
   /*
    * Sensitivity-related settings
