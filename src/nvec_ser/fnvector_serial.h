@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-08 00:53:26 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -44,38 +44,38 @@ extern "C" {
 
 #endif
 
-  /* Declarations of global variables */
+/* Declarations of global variables */
 
-  extern N_Vector F2C_CVODE_vec;
-  extern N_Vector F2C_CVODE_vecQ;
-  extern N_Vector *F2C_CVODE_vecS;
-  extern N_Vector F2C_CVODE_vecB;
-  extern N_Vector F2C_CVODE_vecQB;
+extern N_Vector F2C_CVODE_vec;
+extern N_Vector F2C_CVODE_vecQ;
+extern N_Vector *F2C_CVODE_vecS;
+extern N_Vector F2C_CVODE_vecB;
+extern N_Vector F2C_CVODE_vecQB;
 
-  extern N_Vector F2C_IDA_vec;
-  extern N_Vector F2C_IDA_vecQ;
-  extern N_Vector *F2C_IDA_vecS;
-  extern N_Vector F2C_IDA_vecB;
-  extern N_Vector F2C_IDA_vecQB;
+extern N_Vector F2C_IDA_vec;
+extern N_Vector F2C_IDA_vecQ;
+extern N_Vector *F2C_IDA_vecS;
+extern N_Vector F2C_IDA_vecB;
+extern N_Vector F2C_IDA_vecQB;
 
-  extern N_Vector F2C_KINSOL_vec;
+extern N_Vector F2C_KINSOL_vec;
 
-  /* 
-   * Prototypes of exported functions 
-   *
-   * FNV_INITS    - initializes serial vector operations for main problem
-   * FNV_INITS_Q  - initializes serial vector operations for quadratures
-   * FNV_INITS_S  - initializes serial vector operations for sensitivities
-   * FNV_INITS_B  - initializes serial vector operations for adjoint problem
-   * FNV_INITS_QB - initializes serial vector operations for adjoint quadratures
-   *
-   */
+/* 
+ * Prototypes of exported functions 
+ *
+ * FNV_INITS    - initializes serial vector operations for main problem
+ * FNV_INITS_Q  - initializes serial vector operations for quadratures
+ * FNV_INITS_S  - initializes serial vector operations for sensitivities
+ * FNV_INITS_B  - initializes serial vector operations for adjoint problem
+ * FNV_INITS_QB - initializes serial vector operations for adjoint quadratures
+ *
+ */
 
-  void FNV_INITS(int *code, long int *neq, int *ier);
-  void FNV_INITS_Q(int *code, long int *Nq, int *ier);
-  void FNV_INITS_S(int *code, int *Ns, int *ier);
-  void FNV_INITS_B(int *code, long int *NB, int *ier);
-  void FNV_INITS_QB(int *code, long int *NqB, int *ier);
+void FNV_INITS(int *code, long int *neq, int *ier);
+void FNV_INITS_Q(int *code, long int *Nq, int *ier);
+void FNV_INITS_S(int *code, int *Ns, int *ier);
+void FNV_INITS_B(int *code, long int *NB, int *ier);
+void FNV_INITS_QB(int *code, long int *NqB, int *ier);
 
 #ifdef __cplusplus
 }

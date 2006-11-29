@@ -1,0 +1,86 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-11-29 00:05:03 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for FCVODE serial examples
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+F77      = @F77@
+FFLAGS   = @FFLAGS@
+FLIBS    = @FLIBS@
+CC       = @CC@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+F77_LNKR = @F77_LNKR@
+
+SUNDIALS_INCS = -I$(includedir)
+SUNDIALS_LIBS = -L$(libdir) -lsundials_fcvode -lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial
+
+EXAMPLES = fcvdenx \
+	   fcvbanx \
+	   fcvkryx \
+	   fcvkryx_bp
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+all: $(EXAMPLES)
+
+clean:
+	rm -f *.o
+	rm -f $(EXAMPLES)
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+fcvdenx: fcvdenx.f
+	${F77} ${FFLAGS} -c fcvdenx.f
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                           \
+	   echo "${F77_LNKR} -o fcvdenx fcvdenx.o ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	    ${F77_LNKR} -o fcvdenx fcvdenx.o ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;       \
+	 else                                                                                               \
+	   echo "${F77_LNKR} -o fcvdenx fcvdenx.o ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	    ${F77_LNKR} -o fcvdenx fcvdenx.o ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;       \
+	 fi
+
+fcvbanx: fcvbanx.f
+	${F77} ${FFLAGS} -c fcvbanx.f
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                           \
+	   echo "${F77_LNKR} -o fcvbanx fcvbanx.o ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	    ${F77_LNKR} -o fcvbanx fcvbanx.o ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;       \
+	 else                                                                                               \
+	   echo "${F77_LNKR} -o fcvbanx fcvbanx.o ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	    ${F77_LNKR} -o fcvbanx fcvbanx.o ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;       \
+	 fi
+
+fcvkryx: fcvkryx.f
+	${F77} ${FFLAGS} -c fcvkryx.f
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                           \
+	   echo "${F77_LNKR} -o fcvkryx fcvkryx.o ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	    ${F77_LNKR} -o fcvkryx fcvkryx.o ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;       \
+	 else                                                                                               \
+	   echo "${F77_LNKR} -o fcvkryx fcvkryx.o ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	    ${F77_LNKR} -o fcvkryx fcvkryx.o ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;       \
+	 fi
+
+fcvkryx_bp: fcvkryx_bp.f
+	${F77} ${FFLAGS} -c fcvkryx_bp.f
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                 \
+	   echo "${F77_LNKR} -o fcvkryx_bp fcvkryx_bp.o ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	    ${F77_LNKR} -o fcvkryx_bp fcvkryx_bp.o ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;       \
+	 else                                                                                                     \
+	   echo "${F77_LNKR} -o fcvkryx_bp fcvkryx_bp.o ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	    ${F77_LNKR} -o fcvkryx_bp fcvkryx_bp.o ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;       \
+	 fi

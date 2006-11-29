@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:52 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Aaron Collier @ LLNL
@@ -75,7 +75,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-realtype RPowerI(realtype base, int exponent);
+SUNDIALS_EXPORT realtype RPowerI(realtype base, int exponent);
 
 /*
  * -----------------------------------------------------------------
@@ -90,7 +90,7 @@ realtype RPowerI(realtype base, int exponent);
  * -----------------------------------------------------------------
  */
 
-realtype RPowerR(realtype base, realtype exponent);
+SUNDIALS_EXPORT realtype RPowerR(realtype base, realtype exponent);
 
 /*
  * -----------------------------------------------------------------
@@ -104,7 +104,7 @@ realtype RPowerR(realtype base, realtype exponent);
  * -----------------------------------------------------------------
  */
 
-realtype RSqrt(realtype x);
+SUNDIALS_EXPORT realtype RSqrt(realtype x);
 
 /*
  * -----------------------------------------------------------------
@@ -117,7 +117,7 @@ realtype RSqrt(realtype x);
  * -----------------------------------------------------------------
  */
 
-realtype RAbs(realtype x);
+SUNDIALS_EXPORT realtype RAbs(realtype x);
 
 /*
  * -----------------------------------------------------------------
@@ -130,7 +130,7 @@ realtype RAbs(realtype x);
  * -----------------------------------------------------------------
  */
 
-realtype RExp(realtype x);
+SUNDIALS_EXPORT realtype RExp(realtype x);
 
 #ifdef __cplusplus
 }

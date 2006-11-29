@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-08 00:48:24 $
+ * $Revision: 1.1 $
+ * $Date: 2006-11-29 00:05:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -54,3 +54,13 @@
  *      #define SUNDIALS_MPI_COMM_F2C 0
  */
 @F77_MPI_COMM_F2C@
+
+/* Mark SUNDIALS API functions for export/import
+ * When building shared SUNDIALS libraries under Windows, use
+ *      #define SUNDIALS_EXPORT __declspec(dllexport)
+ * When linking to shared SUNDIALS libraries under Windows, use
+ *      #define SUNDIALS_EXPORT __declspec(dllimport)
+ * In all other cases (other platforms or static libraries under
+ * Windows), the SUNDIALS_EXPORT macro is empty
+ */
+#define SUNDIALS_EXPORT

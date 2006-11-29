@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:10 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -221,7 +221,7 @@ void destroyArray(void *v)
 
 void PrintMat(DlsMat A)
 {
-  int i, j, start, finish;;
+  int i, j, start, finish;
   realtype **a;
 
   switch (A->type) {

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-10 21:04:11 $
+# $Revision: 1.6 $
+# $Date: 2006-11-29 00:05:08 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,34 +39,64 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LAPACK_ENABLED = @LAPACK_ENABLED@
+
 top_srcdir = $(srcdir)/../../..
 
-INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(top_srcdir)/src/cvode
+INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/src/cvode
 
 LIB_REVISION = 0:1:0
 
-FCVODE_LIB       = libsundials_fcvode.la
-FCVODE_LIB_FILES = fcvode.lo fcvband.lo fcvdense.lo fcvlapack.lo fcvlapband.lo fcvlapdense.lo fcvjtimes.lo fcvpreco.lo fcvbbd.lo fcvbp.lo fcvroot.lo fcvewt.lo
-FCVODE_OBJ_FILES = fcvode.o fcvband.o fcvdense.o fcvlapack.o fcvlapband.o fcvlapdense.o fcvjtimes.o fcvpreco.o fcvbbd.o fcvbp.o fcvroot.o fcvewt.o
+FCVODE_LIB    = libsundials_fcvode.la
+FCVODE_BL_LIB = libsundials_fcvode_bl.la
+
+FCVODE_SRC_FILES = fcvode.c fcvband.c fcvdense.c fcvjtimes.c fcvpreco.c fcvbbd.c fcvbp.c fcvroot.c fcvewt.c
+FCVODE_BL_SRC_FILES = fcvlapack.c fcvlapband.c fcvlapdense.c 
+
+FCVODE_OBJ_FILES = $(FCVODE_SRC_FILES:.c=.o)
+FCVODE_BL_OBJ_FILES = $(FCVODE_BL_SRC_FILES:.c=.o)
+
+FCVODE_LIB_FILES = $(FCVODE_SRC_FILES:.c=.lo)
+FCVODE_BL_LIB_FILES = $(FCVODE_BL_SRC_FILES:.c=.lo)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
+# ----------------------------------------------------------------------------------------------------------------------
+
 all: $(FCVODE_LIB)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make all_bl;                               \
+	fi
+
+all_bl: $(FCVODE_BL_LIB)
 
 $(FCVODE_LIB): $(FCVODE_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FCVODE_LIB) $(FCVODE_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
 
+$(FCVODE_BL_LIB): $(FCVODE_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FCVODE_BL_LIB) $(FCVODE_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
+
 install: $(FCVODE_LIB)
 	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FCVODE_LIB) $(libdir)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make install_bl;                           \
+	fi
+
+install_bl: $(FCVODE_BL_LIB)
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FCVODE_BL_LIB) $(libdir)
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FCVODE_LIB)
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FCVODE_BL_LIB)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(FCVODE_LIB)
+	$(LIBTOOL) --mode=clean rm -f $(FCVODE_BL_LIB)
 	rm -f $(FCVODE_LIB_FILES)
+	rm -f $(FCVODE_BL_LIB_FILES)
 	rm -f $(FCVODE_OBJ_FILES)
+	rm -f $(FCVODE_BL_OBJ_FILES)
 
 distclean: clean
 	rm -f Makefile

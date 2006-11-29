@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-11 16:34:10 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -59,7 +59,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-int CVSpgmr(void *cvode_mem, int pretype, int maxl);
+SUNDIALS_EXPORT int CVSpgmr(void *cvode_mem, int pretype, int maxl);
 
 
 #ifdef __cplusplus

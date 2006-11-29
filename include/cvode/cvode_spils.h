@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-29 00:05:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -288,14 +288,14 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  * -----------------------------------------------------------------
  */
 
-int CVSpilsSetPrecType(void *cvode_mem, int pretype);
-int CVSpilsSetGSType(void *cvode_mem, int gstype);
-int CVSpilsSetMaxl(void *cvode_mem, int maxl);
-int CVSpilsSetDelt(void *cvode_mem, realtype delt);
-int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset, 
-			     CVSpilsPrecSolveFn psolve, void *P_data);
-int CVSpilsSetJacTimesVecFn(void *cvode_mem, 
-                            CVSpilsJacTimesVecFn jtimes, void *jac_data);
+SUNDIALS_EXPORT int CVSpilsSetPrecType(void *cvode_mem, int pretype);
+SUNDIALS_EXPORT int CVSpilsSetGSType(void *cvode_mem, int gstype);
+SUNDIALS_EXPORT int CVSpilsSetMaxl(void *cvode_mem, int maxl);
+SUNDIALS_EXPORT int CVSpilsSetDelt(void *cvode_mem, realtype delt);
+SUNDIALS_EXPORT int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset, 
+					     CVSpilsPrecSolveFn psolve, void *P_data);
+SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFn(void *cvode_mem, 
+					    CVSpilsJacTimesVecFn jtimes, void *jac_data);
 
 /*
  * -----------------------------------------------------------------
@@ -332,14 +332,14 @@ int CVSpilsSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
-int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals);
-int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves);
-int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);
-int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
-int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
-int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
-int CVSpilsGetLastFlag(void *cvode_mem, int *flag);
+SUNDIALS_EXPORT int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals);
+SUNDIALS_EXPORT int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves);
+SUNDIALS_EXPORT int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);
+SUNDIALS_EXPORT int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
+SUNDIALS_EXPORT int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
+SUNDIALS_EXPORT int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
+SUNDIALS_EXPORT int CVSpilsGetLastFlag(void *cvode_mem, int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -348,7 +348,7 @@ int CVSpilsGetLastFlag(void *cvode_mem, int *flag);
  * -----------------------------------------------------------------
  */
 
-char *CVSpilsGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *CVSpilsGetReturnFlagName(int flag);
 
 /* CVSPILS return values */
 

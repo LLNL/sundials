@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -30,11 +30,11 @@ extern "C" {
 
 #include <sundials/sundials_nvector.h>
 
-  /*
-   * -----------------------------------------------------------------
-   * CVDIAG return values
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * CVDIAG return values
+ * -----------------------------------------------------------------
+ */
 
 #define CVDIAG_SUCCESS          0
 #define CVDIAG_MEM_NULL        -1
@@ -42,95 +42,95 @@ extern "C" {
 #define CVDIAG_ILL_INPUT       -3
 #define CVDIAG_MEM_FAIL        -4
 
-  /* Additional last_flag values */
+/* Additional last_flag values */
 
 #define CVDIAG_INV_FAIL        -5
 #define CVDIAG_RHSFUNC_UNRECVR -6
 #define CVDIAG_RHSFUNC_RECVR   -7
 
-  /* Return values for adjoint module */
+/* Return values for adjoint module */
 
 #define CVDIAG_ADJMEM_NULL     -101
 
-  /* 
-   * -----------------------------------------------------------------
-   * PART I - forward problems
-   * -----------------------------------------------------------------
-   */
+/* 
+ * -----------------------------------------------------------------
+ * PART I - forward problems
+ * -----------------------------------------------------------------
+ */
 
-  /*
-   * -----------------------------------------------------------------
-   * Function : CVDiag
-   * -----------------------------------------------------------------
-   * A call to the CVDiag function links the main integrator with
-   * the CVDIAG linear solver.
-   *
-   * cvode_mem is the pointer to the integrator memory returned by
-   *           CVodeCreate.
-   *
-   * The return value of CVDiag is one of:
-   *    CVDIAG_SUCCESS   if successful
-   *    CVDIAG_MEM_NULL  if the cvode memory was NULL
-   *    CVDIAG_MEM_FAIL  if there was a memory allocation failure
-   *    CVDIAG_ILL_INPUT if a required vector operation is missing
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function : CVDiag
+ * -----------------------------------------------------------------
+ * A call to the CVDiag function links the main integrator with
+ * the CVDIAG linear solver.
+ *
+ * cvode_mem is the pointer to the integrator memory returned by
+ *           CVodeCreate.
+ *
+ * The return value of CVDiag is one of:
+ *    CVDIAG_SUCCESS   if successful
+ *    CVDIAG_MEM_NULL  if the cvode memory was NULL
+ *    CVDIAG_MEM_FAIL  if there was a memory allocation failure
+ *    CVDIAG_ILL_INPUT if a required vector operation is missing
+ * -----------------------------------------------------------------
+ */
 
-  int CVDiag(void *cvode_mem);
+SUNDIALS_EXPORT int CVDiag(void *cvode_mem);
   
-  /*
-   * -----------------------------------------------------------------
-   * Optional outputs from the CVDIAG linear solver
-   * -----------------------------------------------------------------
-   *
-   * CVDiagGetWorkSpace returns the real and integer workspace used
-   *                    by CVDIAG.
-   * CVDiagGetNumRhsEvals returns the number of calls to the user
-   *                      f routine due to finite difference Jacobian
-   *                      evaluation.
-   *                      Note: The number of diagonal approximate
-   *                      Jacobians formed is equal to the number of
-   *                      CVDiagSetup calls. This number is available
-   *                      through CVodeGetNumLinSolvSetups.
-   * CVDiagGetLastFlag returns the last error flag set by any of
-   *                   the CVDIAG interface functions.
-   *
-   * The return value of CVDiagGet* is one of:
-   *    CVDIAG_SUCCESS   if successful
-   *    CVDIAG_MEM_NULL  if the cvode memory was NULL
-   *    CVDIAG_LMEM_NULL if the cvdiag memory was NULL
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Optional outputs from the CVDIAG linear solver
+ * -----------------------------------------------------------------
+ *
+ * CVDiagGetWorkSpace returns the real and integer workspace used
+ *                    by CVDIAG.
+ * CVDiagGetNumRhsEvals returns the number of calls to the user
+ *                      f routine due to finite difference Jacobian
+ *                      evaluation.
+ *                      Note: The number of diagonal approximate
+ *                      Jacobians formed is equal to the number of
+ *                      CVDiagSetup calls. This number is available
+ *                      through CVodeGetNumLinSolvSetups.
+ * CVDiagGetLastFlag returns the last error flag set by any of
+ *                   the CVDIAG interface functions.
+ *
+ * The return value of CVDiagGet* is one of:
+ *    CVDIAG_SUCCESS   if successful
+ *    CVDIAG_MEM_NULL  if the cvode memory was NULL
+ *    CVDIAG_LMEM_NULL if the cvdiag memory was NULL
+ * -----------------------------------------------------------------
+ */
 
-  int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
-  int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
-  int CVDiagGetLastFlag(void *cvode_mem, int *flag);
+SUNDIALS_EXPORT int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
+SUNDIALS_EXPORT int CVDiagGetLastFlag(void *cvode_mem, int *flag);
 
-  /*
-   * -----------------------------------------------------------------
-   * The following function returns the name of the constant 
-   * associated with a CVDIAG return flag
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * The following function returns the name of the constant 
+ * associated with a CVDIAG return flag
+ * -----------------------------------------------------------------
+ */
   
-  char *CVDiagGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *CVDiagGetReturnFlagName(int flag);
 
-  /* 
-   * -----------------------------------------------------------------
-   * PART II - backward problems
-   * -----------------------------------------------------------------
-   */
+/* 
+ * -----------------------------------------------------------------
+ * PART II - backward problems
+ * -----------------------------------------------------------------
+ */
 
-  /*
-   * -----------------------------------------------------------------
-   * Function: CVDiagB
-   * -----------------------------------------------------------------
-   * CVDiagB links the main CVODE integrator with the CVDIAG
-   * linear solver for the backward integration.
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function: CVDiagB
+ * -----------------------------------------------------------------
+ * CVDiagB links the main CVODE integrator with the CVDIAG
+ * linear solver for the backward integration.
+ * -----------------------------------------------------------------
+ */
   
-  int CVDiagB(void *cvadj_mem);
+SUNDIALS_EXPORT int CVDiagB(void *cvadj_mem);
   
 
 #ifdef __cplusplus

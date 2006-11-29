@@ -1,0 +1,80 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-11-29 00:05:04 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for CVODES parallel examples
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP         = @CPP@
+CPPFLAGS    = @CPPFLAGS@
+CC          = @CC@
+CFLAGS      = @CFLAGS@
+LDFLAGS     = @LDFLAGS@
+LIBS        = @LIBS@
+MPICC       = @MPICC@
+MPI_INC_DIR = @MPI_INC_DIR@
+MPI_LIB_DIR = @MPI_LIB_DIR@
+MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
+
+SUNDIALS_INCS = -I$(includedir)
+SUNDIALS_LIBS = -L$(libdir) -lsundials_cvodes -lsundials_nvecparallel
+
+EXAMPLES = cvsnonx_p \
+	   cvskryx_p \
+	   cvskryx_bbd_p \
+	   cvsfwdnonx_p \
+	   cvsfwdkryx_p \
+	   cvsadjnonx_p \
+	   cvsadjkryx_p \
+	   cvsadjkryx_p3D
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+all: $(EXAMPLES)
+
+clean:
+	rm -f *.o
+	rm -f $(EXAMPLES)
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+cvsnonx_p: cvsnonx_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c cvsnonx_p.c
+	$(MPICC) -o cvsnonx_p cvsnonx_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvskryx_p: cvskryx_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c cvskryx_p.c
+	$(MPICC) -o cvskryx_p cvskryx_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvskryx_bbd_p: cvskryx_bbd_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c cvskryx_bbd_p.c
+	$(MPICC) -o cvskryx_bbd_p cvskryx_bbd_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvsfwdnonx_p: cvsfwdnonx_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c cvsfwdnonx_p.c
+	$(MPICC) -o cvsfwdnonx_p cvsfwdnonx_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvsfwdkryx_p: cvsfwdkryx_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c cvsfwdkryx_p.c
+	$(MPICC) -o cvsfwdkryx_p cvsfwdkryx_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvsadjnonx_p: cvsadjnonx_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c cvsadjnonx_p.c
+	$(MPICC) -o cvsadjnonx_p cvsadjnonx_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvsadjkryx_p: cvsadjkryx_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c cvsadjkryx_p.c
+	$(MPICC) -o cvsadjkryx_p cvsadjkryx_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvsadjkryx_p3D: cvsadjkryx_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -DUSE3D -c cvsadjkryx_p.c
+	$(MPICC) -o cvsadjkryx_p3D cvsadjkryx_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+

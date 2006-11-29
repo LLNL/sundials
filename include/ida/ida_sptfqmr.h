@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -25,31 +25,31 @@ extern "C" {
 #include <ida/ida_spils.h>
 #include <sundials/sundials_sptfqmr.h>
 
-  /*
-   * -----------------------------------------------------------------
-   * Function : IDASptfqmr
-   * -----------------------------------------------------------------
-   * A call to the IDASptfqmr function links the main integrator with
-   * the IDASPTFQMR linear solver module. Its parameters are as
-   * follows:
-   *
-   * IDA_mem  is the pointer to memory block returned by IDACreate.
-   *
-   * maxl     is the maximum Krylov subspace dimension, an
-   *          optional input. Pass 0 to use the default value.
-   *          Otherwise pass a positive integer.
-   *
-   * The return values of IDASptfqmr are:
-   *    IDASPILS_SUCCESS    if successful
-   *    IDASPILS_MEM_NULL   if the ida memory was NULL
-   *    IDASPILS_MEM_FAIL   if there was a memory allocation failure
-   *    IDASPILS_ILL_INPUT  if there was illegal input.
-   * The above constants are defined in ida_spils.h
-   *
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function : IDASptfqmr
+ * -----------------------------------------------------------------
+ * A call to the IDASptfqmr function links the main integrator with
+ * the IDASPTFQMR linear solver module. Its parameters are as
+ * follows:
+ *
+ * IDA_mem  is the pointer to memory block returned by IDACreate.
+ *
+ * maxl     is the maximum Krylov subspace dimension, an
+ *          optional input. Pass 0 to use the default value.
+ *          Otherwise pass a positive integer.
+ *
+ * The return values of IDASptfqmr are:
+ *    IDASPILS_SUCCESS    if successful
+ *    IDASPILS_MEM_NULL   if the ida memory was NULL
+ *    IDASPILS_MEM_FAIL   if there was a memory allocation failure
+ *    IDASPILS_ILL_INPUT  if there was illegal input.
+ * The above constants are defined in ida_spils.h
+ *
+ * -----------------------------------------------------------------
+ */
 
-  int IDASptfqmr(void *ida_mem, int maxl);
+SUNDIALS_EXPORT int IDASptfqmr(void *ida_mem, int maxl);
 
 
 #ifdef __cplusplus

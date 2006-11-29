@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:09 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -163,59 +163,59 @@ int IDASpilsDQJtimes(realtype tt,
 #define MSGS_CFN_WARN  MSGS_WARN "Nonlinear convergence failure rate is " MSGS_FRMT
 #define MSGS_CFL_WARN  MSGS_WARN "Linear convergence failure rate is " MSGS_FRMT
 
-  /* 
-   * -----------------------------------------------------------------
-   * PART II - backward problems
-   * -----------------------------------------------------------------
-   */
+/* 
+ * -----------------------------------------------------------------
+ * PART II - backward problems
+ * -----------------------------------------------------------------
+ */
 
-  /*
-   * -----------------------------------------------------------------
-   * Types : IDASpilsMemRecB, IDASpilsMemB       
-   * -----------------------------------------------------------------
-   * IDASpgmrB, IDASpbcgB, and IDASptfqmr attach such a structure to the 
-   * lmemB filed of IDAadjMem
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Types : IDASpilsMemRecB, IDASpilsMemB       
+ * -----------------------------------------------------------------
+ * IDASpgmrB, IDASpbcgB, and IDASptfqmr attach such a structure to the 
+ * lmemB filed of IDAadjMem
+ * -----------------------------------------------------------------
+ */
 
-  typedef struct {
+typedef struct {
 
-    IDASpilsJacTimesVecFnB s_jtimesB;
-    IDASpilsPrecSetupFnB s_psetB;
-    IDASpilsPrecSolveFnB s_psolveB;
-    void *s_P_dataB;
-    void *s_jac_dataB;
+  IDASpilsJacTimesVecFnB s_jtimesB;
+  IDASpilsPrecSetupFnB s_psetB;
+  IDASpilsPrecSolveFnB s_psolveB;
+  void *s_P_dataB;
+  void *s_jac_dataB;
 
-  } IDASpilsMemRecB, *IDASpilsMemB;
+} IDASpilsMemRecB, *IDASpilsMemB;
 
-  /*
-   * ------------------------------------------------
-   * Wrapper functions for using the iterative linear 
-   * solvers on adjoint (backward) problems
-   * ------------------------------------------------
-   */
+/*
+ * ------------------------------------------------
+ * Wrapper functions for using the iterative linear 
+ * solvers on adjoint (backward) problems
+ * ------------------------------------------------
+ */
 
-  int IDAAspilsPrecSetup(realtype tt, 
-                         N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                         realtype c_jB, void *idaadj_mem,
-                         N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+int IDAAspilsPrecSetup(realtype tt, 
+		       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+		       realtype c_jB, void *idaadj_mem,
+		       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-  int IDAAspilsPrecSolve(realtype tt, 
-                         N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                         N_Vector rvecB, N_Vector zvecB,
-                         realtype c_jB, realtype deltaB,
-                         void *idaadj_mem, N_Vector tmpB);
+int IDAAspilsPrecSolve(realtype tt, 
+		       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+		       N_Vector rvecB, N_Vector zvecB,
+		       realtype c_jB, realtype deltaB,
+		       void *idaadj_mem, N_Vector tmpB);
 
-  int IDAAspilsJacTimesVec(realtype tt,
-                           N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                           N_Vector vB, N_Vector JvB, 
-                           realtype c_jB, void *idaadj_mem, 
-                           N_Vector tmp1B, N_Vector tmp2B);
-  /*
-   * -----------------------------------------------------------------
-   * Error Messages 
-   * -----------------------------------------------------------------
-   */
+int IDAAspilsJacTimesVec(realtype tt,
+			 N_Vector yyB, N_Vector ypB, N_Vector rrB,
+			 N_Vector vB, N_Vector JvB, 
+			 realtype c_jB, void *idaadj_mem, 
+			 N_Vector tmp1B, N_Vector tmp2B);
+/*
+ * -----------------------------------------------------------------
+ * Error Messages 
+ * -----------------------------------------------------------------
+ */
 
 #define MSGS_CAMEM_NULL "idaadj_mem = NULL illegal."
 #define MSGS_LMEMB_NULL "Linear solver memory is NULL for the backward integration."

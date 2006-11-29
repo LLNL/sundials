@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:53 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -150,7 +150,7 @@ typedef struct _SpgmrMemRec {
  * -----------------------------------------------------------------
  */
 
-SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl);
+SUNDIALS_EXPORT SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl);
 
 /*
  * -----------------------------------------------------------------
@@ -237,11 +237,11 @@ SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl);
  * -----------------------------------------------------------------
  */                                                                
      
-int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
-               int pretype, int gstype, realtype delta, 
-               int max_restarts, void *P_data, N_Vector s1, 
-               N_Vector s2, ATimesFn atimes, PSolveFn psolve, 
-               realtype *res_norm, int *nli, int *nps);
+SUNDIALS_EXPORT int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
+			       int pretype, int gstype, realtype delta, 
+			       int max_restarts, void *P_data, N_Vector s1, 
+			       N_Vector s2, ATimesFn atimes, PSolveFn psolve, 
+			       realtype *res_norm, int *nli, int *nps);
 
 
 /* Return values for SpgmrSolve */
@@ -271,7 +271,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
  * -----------------------------------------------------------------
  */                                                                
 
-void SpgmrFree(SpgmrMem mem);
+SUNDIALS_EXPORT void SpgmrFree(SpgmrMem mem);
 
 /*
  * -----------------------------------------------------------------

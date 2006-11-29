@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:08 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,114 +23,114 @@ extern "C" {
 
 #include <cvodes/cvodes_direct.h>
 
-  /*
-   * =================================================================
-   * C V S D I R E C T    I N T E R N A L    C O N S T A N T S
-   * =================================================================
-   */
+/*
+ * =================================================================
+ * C V S D I R E C T    I N T E R N A L    C O N S T A N T S
+ * =================================================================
+ */
 
-  /*
-   * -----------------------------------------------------------------
-   * CVSDIRECT solver constants
-   * -----------------------------------------------------------------
-   * CVD_MSBJ   maximum number of steps between Jacobian evaluations
-   * CVD_DGMAX  maximum change in gamma between Jacobian evaluations
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * CVSDIRECT solver constants
+ * -----------------------------------------------------------------
+ * CVD_MSBJ   maximum number of steps between Jacobian evaluations
+ * CVD_DGMAX  maximum change in gamma between Jacobian evaluations
+ * -----------------------------------------------------------------
+ */
 
 #define CVD_MSBJ  50
 #define CVD_DGMAX RCONST(0.2)
 
-  /*
-   * =================================================================
-   * PART I:  F O R W A R D    P R O B L E M S
-   * =================================================================
-   */
+/*
+ * =================================================================
+ * PART I:  F O R W A R D    P R O B L E M S
+ * =================================================================
+ */
 
-  /*
-   * -----------------------------------------------------------------
-   * Types: CVDlsMemRec, CVDlsMem                             
-   * -----------------------------------------------------------------
-   * CVDlsMem is pointer to a CVDlsMemRec structure.
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Types: CVDlsMemRec, CVDlsMem                             
+ * -----------------------------------------------------------------
+ * CVDlsMem is pointer to a CVDlsMemRec structure.
+ * -----------------------------------------------------------------
+ */
 
-  typedef struct {
+typedef struct {
 
-    int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND              */
+  int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND              */
 
-    int d_n;                /* problem dimension                            */
+  int d_n;                /* problem dimension                            */
 
-    int d_ml;               /* lower bandwidth of Jacobian                  */
-    int d_mu;               /* upper bandwidth of Jacobian                  */ 
-    int d_smu;              /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
+  int d_ml;               /* lower bandwidth of Jacobian                  */
+  int d_mu;               /* upper bandwidth of Jacobian                  */ 
+  int d_smu;              /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
 
-    CVDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
-    CVDlsBandJacFn d_bjac;  /* band Jacobian routine to be called           */
-    void *d_J_data;         /* user data is passed to d_jac or d_jac        */
+  CVDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
+  CVDlsBandJacFn d_bjac;  /* band Jacobian routine to be called           */
+  void *d_J_data;         /* user data is passed to d_jac or d_jac        */
 
-    DlsMat d_M;             /* M = I - gamma * df/dy                        */
-    DlsMat d_savedJ;        /* savedJ = old Jacobian                        */
+  DlsMat d_M;             /* M = I - gamma * df/dy                        */
+  DlsMat d_savedJ;        /* savedJ = old Jacobian                        */
 
-    int *d_pivots;          /* pivots = pivot array for PM = LU             */
+  int *d_pivots;          /* pivots = pivot array for PM = LU             */
   
-    long int  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
+  long int  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
 
-    long int d_nje;         /* nje = no. of calls to jac                    */
+  long int d_nje;         /* nje = no. of calls to jac                    */
 
-    long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
+  long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
 
-    int d_last_flag;        /* last error return flag                       */
+  int d_last_flag;        /* last error return flag                       */
   
-  } CVDlsMemRec, *CVDlsMem;
+} CVDlsMemRec, *CVDlsMem;
 
-  /*
-   * -----------------------------------------------------------------
-   * Prototypes of internal functions
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Prototypes of internal functions
+ * -----------------------------------------------------------------
+ */
 
-  int cvDlsDenseDQJac(int N, realtype t,
-                      N_Vector y, N_Vector fy, 
-                      DlsMat Jac, void *jac_data,
-                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+int cvDlsDenseDQJac(int N, realtype t,
+		    N_Vector y, N_Vector fy, 
+		    DlsMat Jac, void *jac_data,
+		    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
-  int cvDlsBandDQJac(int N, int mupper, int mlower,
-                     realtype t, N_Vector y, N_Vector fy, 
-                     DlsMat Jac, void *jac_data,
-                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+int cvDlsBandDQJac(int N, int mupper, int mlower,
+		   realtype t, N_Vector y, N_Vector fy, 
+		   DlsMat Jac, void *jac_data,
+		   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 
-  /*
-   * =================================================================
-   * PART II:  B A C K W A R D    P R O B L E M S
-   * =================================================================
-   */
+/*
+ * =================================================================
+ * PART II:  B A C K W A R D    P R O B L E M S
+ * =================================================================
+ */
 
-  /*
-   * -----------------------------------------------------------------
-   * Types : CVDlsMemRecB, CVDlsMemB       
-   * -----------------------------------------------------------------
-   * A CVSDIRECT linear solver's specification function attaches such
-   * a structure to the lmemB filed of CVadjMem
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Types : CVDlsMemRecB, CVDlsMemB       
+ * -----------------------------------------------------------------
+ * A CVSDIRECT linear solver's specification function attaches such
+ * a structure to the lmemB filed of CVadjMem
+ * -----------------------------------------------------------------
+ */
 
-  typedef struct {
+typedef struct {
 
-    int d_typeB;
+  int d_typeB;
 
-    CVDlsDenseJacFnB d_djacB;
-    CVDlsBandJacFnB d_bjacB;
-    void *d_jac_dataB;
+  CVDlsDenseJacFnB d_djacB;
+  CVDlsBandJacFnB d_bjacB;
+  void *d_jac_dataB;
 
-  } CVDlsMemRecB, *CVDlsMemB;
+} CVDlsMemRecB, *CVDlsMemB;
 
-  /*
-   * =================================================================
-   * E R R O R   M E S S A G E S
-   * =================================================================
-   */
+/*
+ * =================================================================
+ * E R R O R   M E S S A G E S
+ * =================================================================
+ */
 
 #define MSGD_CVMEM_NULL "Integrator memory is NULL."
 #define MSGD_BAD_NVECTOR "A required vector operation is not implemented."

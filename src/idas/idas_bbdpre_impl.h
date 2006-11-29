@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,7 +43,7 @@ typedef struct {
   IDABBDLocalFn glocal;
   IDABBDCommFn gcomm;
 
- /* allocated for use by IDABBDPrecSetup */
+  /* allocated for use by IDABBDPrecSetup */
 
   N_Vector tempv4;
 
@@ -68,22 +68,22 @@ typedef struct {
 
 } *IBBDPrecData;
 
-  /*
-   * -----------------------------------------------------------------
-   * Type: IDABBDPrecDataB
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Type: IDABBDPrecDataB
+ * -----------------------------------------------------------------
+ */
 
-  typedef struct {
+typedef struct {
 
-    /* BBD user functions (glocB and cfnB) for backward run */
-    IDABBDLocalFnB glocalB;
-    IDABBDCommFnB  gcommB;
+  /* BBD user functions (glocB and cfnB) for backward run */
+  IDABBDLocalFnB glocalB;
+  IDABBDCommFnB  gcommB;
     
-    /* BBD prec data */
-    void *bbd_dataB;
+  /* BBD prec data */
+  void *bbd_dataB;
 
-  } *IDABBDPrecDataB;
+} *IDABBDPrecDataB;
 
 
 /*

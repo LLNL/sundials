@@ -1,0 +1,64 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-11-29 00:05:04 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for IDA parallel examples
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP         = @CPP@
+CPPFLAGS    = @CPPFLAGS@
+CC          = @CC@
+CFLAGS      = @CFLAGS@
+LDFLAGS     = @LDFLAGS@
+LIBS        = @LIBS@
+MPICC       = @MPICC@
+MPI_INC_DIR = @MPI_INC_DIR@
+MPI_LIB_DIR = @MPI_LIB_DIR@
+MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
+
+SUNDIALS_INCS = -I$(includedir)
+SUNDIALS_LIBS = -L$(libdir) -lsundials_ida -lsundials_nvecparallel
+
+EXAMPLES = idakryx1_p \
+	   idakryx1_bbd_p \
+	   idakryx2_p \
+	   idakryx2_bbd_p
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+all: $(EXAMPLES)
+
+clean:
+	rm -f *.o
+	rm -f $(EXAMPLES)
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+idakryx1_p: idakryx1_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idakryx1_p.c
+	$(MPICC) -o idakryx1_p idakryx1_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idakryx1_bbd_p: idakryx1_bbd_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idakryx1_bbd_p.c
+	$(MPICC) -o idakryx1_bbd_p idakryx1_bbd_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idakryx2_p: idakryx2_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idakryx2_p.c
+	$(MPICC) -o idakryx2_p idakryx2_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idakryx2_bbd_p: idakryx2_bbd_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idakryx2_bbd_p.c
+	$(MPICC) -o idakryx2_bbd_p idakryx2_bbd_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+

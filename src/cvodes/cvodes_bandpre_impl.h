@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-24 19:09:22 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-29 00:05:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,40 +25,40 @@ extern "C" {
 #include <sundials/sundials_band.h>
 #include <sundials/sundials_direct.h>
 
-  /*
-   * -----------------------------------------------------------------
-   * Type: CVBandPrecData
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Type: CVBandPrecData
+ * -----------------------------------------------------------------
+ */
 
-  typedef struct {
+typedef struct {
 
-    /* Data set by user in CVBandPrecAlloc */
+  /* Data set by user in CVBandPrecAlloc */
 
-    int N;
-    int ml, mu;
+  int N;
+  int ml, mu;
 
-    /* Data set by CVBandPrecSetup */
+  /* Data set by CVBandPrecSetup */
 
-    DlsMat savedJ;
-    DlsMat savedP;
-    int *pivots;
+  DlsMat savedJ;
+  DlsMat savedP;
+  int *pivots;
 
-    /* Rhs calls */
+  /* Rhs calls */
 
-    long int nfeBP;
+  long int nfeBP;
 
-    /* Pointer to cvode_mem */
+  /* Pointer to cvode_mem */
 
-    void *cvode_mem;
+  void *cvode_mem;
 
-  } *CVBandPrecData;
+} *CVBandPrecData;
 
-  /*
-   * -----------------------------------------------------------------
-   * CVBANDPRE error messages
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * CVBANDPRE error messages
+ * -----------------------------------------------------------------
+ */
 
 #define MSGBP_CVMEM_NULL "Integrator memory is NULL."
 #define MSGBP_MEM_FAIL "A memory request failed."

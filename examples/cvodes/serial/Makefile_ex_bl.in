@@ -1,0 +1,114 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-11-29 00:05:04 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for CVODE serial examples
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+
+SUNDIALS_INCS = -I$(includedir)
+SUNDIALS_LIBS = -L$(libdir) -lsundials_cvodes -lsundials_nvecserial
+SUNDIALS_BL_LIBS = -L$(libdir) -lsundials_cvodes_bl -lsundials_cvodes -lsundials_nvecserial
+
+EXAMPLES = cvsdenx \
+	   cvsdenx_uw \
+	   cvsbanx \
+	   cvskryx \
+	   cvskryx_bp \
+	   cvsdirectdem \
+	   cvskrydem_pre \
+	   cvsfwdnonx \
+	   cvsfwddenx \
+	   cvsfwdkryx \
+	   cvsadjdenx \
+	   cvsadjbanx \
+	   cvsadjkryx_int \
+	   cvsadjkryx_pnt \
+	   cvskrydem_lin \
+	   cvsbanx_lap \
+	   cvsdenx_lap
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+all: $(EXAMPLES)
+
+clean:
+	rm -f *.o
+	rm -f $(EXAMPLES)
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+cvsdenx: cvsdenx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsdenx.c
+	 $(CC) -o cvsdenx cvsdenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsdenx_uw: cvsdenx_uw.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsdenx_uw.c
+	 $(CC) -o cvsdenx_uw cvsdenx_uw.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsbanx: cvsbanx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsbanx.c
+	 $(CC) -o cvsbanx cvsbanx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvskryx: cvskryx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvskryx.c
+	 $(CC) -o cvskryx cvskryx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvskryx_bp: cvskryx_bp.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvskryx_bp.c
+	 $(CC) -o cvskryx_bp cvskryx_bp.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsdirectdem: cvsdirectdem.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsdirectdem.c
+	 $(CC) -o cvsdirectdem cvsdirectdem.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvskrydem_pre: cvskrydem_pre.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvskrydem_pre.c
+	 $(CC) -o cvskrydem_pre cvskrydem_pre.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsfwdnonx: cvsfwdnonx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsfwdnonx.c
+	 $(CC) -o cvsfwdnonx cvsfwdnonx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsfwddenx: cvsfwddenx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsfwddenx.c
+	 $(CC) -o cvsfwddenx cvsfwddenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsfwdkryx: cvsfwdkryx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsfwdkryx.c
+	 $(CC) -o cvsfwdkryx cvsfwdkryx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjdenx: cvsadjdenx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsadjdenx.c
+	 $(CC) -o cvsadjdenx cvsadjdenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjbanx: cvsadjbanx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsadjbanx.c
+	 $(CC) -o cvsadjbanx cvsadjbanx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjkryx_int: cvsadjkryx_int.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsadjkryx_int.c
+	 $(CC) -o cvsadjkryx_int cvsadjkryx_int.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjkryx_pnt: cvsadjkryx_pnt.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsadjkryx_pnt.c
+	 $(CC) -o cvsadjkryx_pnt cvsadjkryx_pnt.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvskrydem_lin: cvskrydem_lin.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvskrydem_lin.c
+	 $(CC) -o cvskrydem_lin cvskrydem_lin.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+
+cvsdenx_lap: cvsdenx_lap.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsdenx_lap.c
+	 $(CC) -o cvsdenx_lap cvsdenx_lap.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+cvsbanx_lap: cvsbanx_lap.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsbanx_lap.c
+	 $(CC) -o cvsbanx_lap cvsbanx_lap.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)

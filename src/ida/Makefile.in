@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2006-11-22 00:12:49 $
+# $Revision: 1.7 $
+# $Date: 2006-11-29 00:05:08 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,15 +41,25 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LAPACK_ENABLED = @LAPACK_ENABLED@
+
 top_srcdir = $(srcdir)/../..
 
-INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include
 
 LIB_REVISION = 1:0:0
 
-IDA_LIB       = libsundials_ida.la
-IDA_LIB_FILES = ida.lo ida_ic.lo ida_io.lo ida_direct.lo ida_dense.lo ida_band.lo ida_lapack.lo ida_spils.lo ida_spbcgs.lo ida_spgmr.lo ida_sptfqmr.lo ida_bbdpre.lo
-IDA_OBJ_FILES = ida.o ida_ic.o ida_io.o ida_direct.o ida_dense.o ida_band.o ida_lapack.o ida_spils.o ida_spbcgs.o ida_spgmr.o ida_sptfqmr.o ida_bbdpre.o
+IDA_LIB    = libsundials_ida.la
+IDA_BL_LIB = libsundials_ida_bl.la
+
+IDA_SRC_FILES = ida.c ida_ic.c ida_io.c ida_direct.c ida_dense.c ida_band.c ida_spils.c ida_spbcgs.c ida_spgmr.c ida_sptfqmr.c ida_bbdpre.c
+IDA_BL_SRC_FILES = ida_lapack.c
+
+IDA_OBJ_FILES = $(IDA_SRC_FILES:.c=.o)
+IDA_BL_OBJ_FILES = $(IDA_BL_SRC_FILES:.c=.o)
+
+IDA_LIB_FILES = $(IDA_SRC_FILES:.c=.lo)
+IDA_BL_LIB_FILES = $(IDA_BL_SRC_FILES:.c=.lo)
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
@@ -63,11 +73,22 @@ SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_nvector.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 all: $(IDA_LIB)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make all_bl;                               \
+	fi
+
+all_bl: $(IDA_BL_LIB)
 
 $(IDA_LIB): shared $(IDA_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDA_LIB) $(IDA_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+
+$(IDA_BL_LIB): shared $(IDA_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDA_BL_LIB) $(IDA_BL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 install: $(IDA_LIB)
 	$(mkinstalldirs) $(includedir)/ida
@@ -77,16 +98,23 @@ install: $(IDA_LIB)
 	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_direct.h  $(includedir)/ida/
 	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_dense.h   $(includedir)/ida/
 	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_band.h    $(includedir)/ida/
-	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_lapack.h  $(includedir)/ida/
 	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_spbcgs.h  $(includedir)/ida/
 	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_spgmr.h   $(includedir)/ida/
 	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_sptfqmr.h $(includedir)/ida/
 	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_bbdpre.h  $(includedir)/ida/
 	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_spils.h   $(includedir)/ida/
 	$(INSTALL_HEADER) $(top_srcdir)/src/ida/ida_impl.h        $(includedir)/ida/
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make install_bl;                           \
+	fi
+
+install_bl: $(IDA_BL_LIB)
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(IDA_BL_LIB) $(libdir)
+	$(INSTALL_HEADER) $(top_srcdir)/include/ida/ida_lapack.h  $(includedir)/ida/
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDA_LIB)
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDA_BL_LIB)
 	rm -f $(includedir)/ida/ida.h
 	rm -f $(includedir)/ida/ida_direct.h
 	rm -f $(includedir)/ida/ida_dense.h
@@ -98,9 +126,7 @@ uninstall:
 	rm -f $(includedir)/ida/ida_bbdpre.h
 	rm -f $(includedir)/ida/ida_spils.h
 	rm -f $(includedir)/ida/ida_impl.h
-	@if test -d ${includedir}/ida ; then \
-	   rmdir ${includedir}/ida ;         \
-	 fi
+	$(rminstalldirs) ${includedir}/ida
 
 shared:
 	@cd ${top_builddir}/src/sundials ; \
@@ -109,8 +135,11 @@ shared:
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(IDA_LIB)
+	$(LIBTOOL) --mode=clean rm -f $(IDA_BL_LIB)
 	rm -f $(IDA_LIB_FILES)
+	rm -f $(IDA_BL_LIB_FILES)
 	rm -f $(IDA_OBJ_FILES)
+	rm -f $(IDA_BL_OBJ_FILES)
 
 distclean: clean
 	rm -f Makefile

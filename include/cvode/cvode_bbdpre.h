@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -220,11 +220,11 @@ typedef int (*CVCommFn)(int Nlocal, realtype t, N_Vector y,
  * -----------------------------------------------------------------
  */
 
-void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal, 
-                     int mudq, int mldq, 
-                     int mukeep, int mlkeep, 
-                     realtype dqrely,
-                     CVLocalFn gloc, CVCommFn cfn);
+SUNDIALS_EXPORT void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal, 
+				     int mudq, int mldq, 
+				     int mukeep, int mlkeep, 
+				     realtype dqrely,
+				     CVLocalFn gloc, CVCommFn cfn);
 
 /*
  * -----------------------------------------------------------------
@@ -253,7 +253,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal,
  * -----------------------------------------------------------------
  */
 
-int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
+SUNDIALS_EXPORT int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
 
 /*
  * -----------------------------------------------------------------
@@ -282,7 +282,7 @@ int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * -----------------------------------------------------------------
  */
 
-int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data);
+SUNDIALS_EXPORT int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data);
 
 /*
  * -----------------------------------------------------------------
@@ -311,7 +311,7 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * -----------------------------------------------------------------
  */
 
-int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
+SUNDIALS_EXPORT int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
 
 /*
  * -----------------------------------------------------------------
@@ -335,8 +335,8 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * -----------------------------------------------------------------
  */
 
-int CVBBDPrecReInit(void *bbd_data, int mudq, int mldq,
-                    realtype dqrely, CVLocalFn gloc, CVCommFn cfn);
+SUNDIALS_EXPORT int CVBBDPrecReInit(void *bbd_data, int mudq, int mldq,
+				    realtype dqrely, CVLocalFn gloc, CVCommFn cfn);
 
 /*
  * -----------------------------------------------------------------
@@ -347,7 +347,7 @@ int CVBBDPrecReInit(void *bbd_data, int mudq, int mldq,
  * -----------------------------------------------------------------
  */
 
-void CVBBDPrecFree(void **bbd_data);
+SUNDIALS_EXPORT void CVBBDPrecFree(void **bbd_data);
 
 /*
  * -----------------------------------------------------------------
@@ -363,8 +363,8 @@ void CVBBDPrecFree(void **bbd_data);
  * -----------------------------------------------------------------
  */
 
-int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwLS, long int *leniwLS);
-int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
+SUNDIALS_EXPORT int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 
 /*
  * -----------------------------------------------------------------
@@ -373,7 +373,7 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
  * -----------------------------------------------------------------
  */
   
-char *CVBBDPrecGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *CVBBDPrecGetReturnFlagName(int flag);
 
 #ifdef __cplusplus
 }

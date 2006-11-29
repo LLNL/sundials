@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:52 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -313,31 +313,31 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  */
   
-N_Vector N_VClone(N_Vector w);
-N_Vector N_VCloneEmpty(N_Vector w);
-void N_VDestroy(N_Vector v);
-void N_VSpace(N_Vector v, long int *lrw, long int *liw);
-realtype *N_VGetArrayPointer(N_Vector v);
-void N_VSetArrayPointer(realtype *v_data, N_Vector v);
-void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
-void N_VConst(realtype c, N_Vector z);
-void N_VProd(N_Vector x, N_Vector y, N_Vector z);
-void N_VDiv(N_Vector x, N_Vector y, N_Vector z);
-void N_VScale(realtype c, N_Vector x, N_Vector z);
-void N_VAbs(N_Vector x, N_Vector z);
-void N_VInv(N_Vector x, N_Vector z);
-void N_VAddConst(N_Vector x, realtype b, N_Vector z);
-realtype N_VDotProd(N_Vector x, N_Vector y);
-realtype N_VMaxNorm(N_Vector x);
-realtype N_VWrmsNorm(N_Vector x, N_Vector w);
-realtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id);
-realtype N_VMin(N_Vector x);
-realtype N_VWL2Norm(N_Vector x, N_Vector w);
-realtype N_VL1Norm(N_Vector x);
-void N_VCompare(realtype c, N_Vector x, N_Vector z);
-booleantype N_VInvTest(N_Vector x, N_Vector z);
-booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m);
-realtype N_VMinQuotient(N_Vector num, N_Vector denom);
+SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w);
+SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
+SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
+SUNDIALS_EXPORT void N_VSpace(N_Vector v, long int *lrw, long int *liw);
+SUNDIALS_EXPORT realtype *N_VGetArrayPointer(N_Vector v);
+SUNDIALS_EXPORT void N_VSetArrayPointer(realtype *v_data, N_Vector v);
+SUNDIALS_EXPORT void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
+SUNDIALS_EXPORT void N_VConst(realtype c, N_Vector z);
+SUNDIALS_EXPORT void N_VProd(N_Vector x, N_Vector y, N_Vector z);
+SUNDIALS_EXPORT void N_VDiv(N_Vector x, N_Vector y, N_Vector z);
+SUNDIALS_EXPORT void N_VScale(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT void N_VAbs(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT void N_VInv(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT void N_VAddConst(N_Vector x, realtype b, N_Vector z);
+SUNDIALS_EXPORT realtype N_VDotProd(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT realtype N_VMaxNorm(N_Vector x);
+SUNDIALS_EXPORT realtype N_VWrmsNorm(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id);
+SUNDIALS_EXPORT realtype N_VMin(N_Vector x);
+SUNDIALS_EXPORT realtype N_VWL2Norm(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VL1Norm(N_Vector x);
+SUNDIALS_EXPORT void N_VCompare(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT booleantype N_VInvTest(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT realtype N_VMinQuotient(N_Vector num, N_Vector denom);
 
 /*
  * -----------------------------------------------------------------
@@ -362,9 +362,9 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom);
  * -----------------------------------------------------------------
  */
 
-N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w);
-N_Vector *N_VCloneVectorArray(int count, N_Vector w);
-void N_VDestroyVectorArray(N_Vector *vs, int count);
+SUNDIALS_EXPORT N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w);
+SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray(int count, N_Vector w);
+SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector *vs, int count);
 
 #ifdef __cplusplus
 }

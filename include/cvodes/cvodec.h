@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:50 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:06 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL                              
  * -----------------------------------------------------------------
@@ -42,15 +42,15 @@ extern "C" {
  *                                                                *
  *----------------------------------------------------------------*/
 
-  typedef void (*RhsCSFn1)(realtype t_re, realtype t_im,
-                           N_Vector y_re, N_Vector y_im, 
-                           N_Vector ydot_re, N_Vector ydot_im,
-                           void *f_data);
+typedef void (*RhsCSFn1)(realtype t_re, realtype t_im,
+			 N_Vector y_re, N_Vector y_im, 
+			 N_Vector ydot_re, N_Vector ydot_im,
+			 void *f_data);
 
-  typedef void (*RhsCSFn2)(realtype t_re, realtype t_im,
-                           N_Vector y_re, N_Vector y_im, 
-                           N_Vector ydot_re, N_Vector ydot_im,
-                           void *f_data_re, void *f_data_im);
+typedef void (*RhsCSFn2)(realtype t_re, realtype t_im,
+			 N_Vector y_re, N_Vector y_im, 
+			 N_Vector ydot_re, N_Vector ydot_im,
+			 void *f_data_re, void *f_data_im);
 
 
 /*----------------------------------------------------------------*
@@ -102,17 +102,17 @@ extern "C" {
  *                                                                *
  *----------------------------------------------------------------*/
 
-  int CVodeSetCSDerivs(void *cvode_mem, void *f_cs, void *f_data_im);
-  int CVodeSetCSStep(void *cvode_mem, realtype del_cs);
-  int CVodeSetSensCSRhs(void *cvode_mem, realtype *p_im);
-  int CVDenseSetCSJac(void *cvode_mem);
-  int CVBandSetCSJac(void *cvode_mem);
-  int CVSpgmrSetCSJacTimesVec(void *cvode_mem);
+SUNDIALS_EXPORT int CVodeSetCSDerivs(void *cvode_mem, void *f_cs, void *f_data_im);
+SUNDIALS_EXPORT int CVodeSetCSStep(void *cvode_mem, realtype del_cs);
+SUNDIALS_EXPORT int CVodeSetSensCSRhs(void *cvode_mem, realtype *p_im);
+SUNDIALS_EXPORT int CVDenseSetCSJac(void *cvode_mem);
+SUNDIALS_EXPORT int CVBandSetCSJac(void *cvode_mem);
+SUNDIALS_EXPORT int CVSpgmrSetCSJacTimesVec(void *cvode_mem);
 
-  /* Return values */
-  /* SUCCESS */
-  enum {CVCS_NO_MEM=-1,   CVCS_MEM_FAIL=-2, CVCS_ILL_INPUT=-3,
-        CVCS_NO_CSMEM=-4, CVCS_NO_LMEM=-5                     };
+/* Return values */
+/* SUCCESS */
+enum {CVCS_NO_MEM=-1,   CVCS_MEM_FAIL=-2, CVCS_ILL_INPUT=-3,
+      CVCS_NO_CSMEM=-4, CVCS_NO_LMEM=-5                     };
   
 /*----------------------------------------------------------------*
  *                                                                *
@@ -126,24 +126,24 @@ extern "C" {
  *                                                                *
  *----------------------------------------------------------------*/
 
-  void CVSensRhsCS(int Ns, realtype t, 
-                   N_Vector y, N_Vector ydot, 
-                   int iS, N_Vector yS, N_Vector ySdot, 
-                   void *fS_data,
-                   N_Vector tmp1, N_Vector tmp2);
+SUNDIALS_EXPORT void CVSensRhsCS(int Ns, realtype t, 
+				 N_Vector y, N_Vector ydot, 
+				 int iS, N_Vector yS, N_Vector ySdot, 
+				 void *fS_data,
+				 N_Vector tmp1, N_Vector tmp2);
 
-  void CVDenseCSJac(long int N, DenseMat J, realtype t, 
-                    N_Vector y, N_Vector fy, void *jac_data,
-                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+SUNDIALS_EXPORT void CVDenseCSJac(long int N, DenseMat J, realtype t, 
+				  N_Vector y, N_Vector fy, void *jac_data,
+				  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
-  void CVBandCSJac(long int N, long int mupper, 
-                   long int mlower, BandMat J, realtype t, 
-                   N_Vector y, N_Vector fy, void *jac_data,
-                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+SUNDIALS_EXPORT void CVBandCSJac(long int N, long int mupper, 
+				 long int mlower, BandMat J, realtype t, 
+				 N_Vector y, N_Vector fy, void *jac_data,
+				 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-  int CVSpgmrCSJtimes(N_Vector v, N_Vector Jv, realtype t, 
-                      N_Vector y, N_Vector fy,
-                      void *jac_data, N_Vector work);
+SUNDIALS_EXPORT int CVSpgmrCSJtimes(N_Vector v, N_Vector Jv, realtype t, 
+				    N_Vector y, N_Vector fy,
+				    void *jac_data, N_Vector work);
 
 /*----------------------------------------------------------------*
  *                                                                *
@@ -153,20 +153,20 @@ extern "C" {
  *                                                                *
  *----------------------------------------------------------------*/
   
-  typedef struct {
+typedef struct {
     
-    booleantype cvcs_type1;
+  booleantype cvcs_type1;
 
-    RhsCSFn1 cvcs_f_cs1;
-    RhsCSFn2 cvcs_f_cs2;
+  RhsCSFn1 cvcs_f_cs1;
+  RhsCSFn2 cvcs_f_cs2;
 
-    void *cvcs_f_data_im;
+  void *cvcs_f_data_im;
     
-    realtype cvcs_del_cs;
+  realtype cvcs_del_cs;
 
-    realtype *cvcs_p_im;
+  realtype *cvcs_p_im;
     
-  } CVCSMemRec, *CVCSMem;
+} CVCSMemRec, *CVCSMem;
   
 #endif
   

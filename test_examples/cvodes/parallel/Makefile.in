@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-08-11 23:03:30 $
+# $Revision: 1.6 $
+# $Date: 2006-11-29 00:05:10 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -60,17 +60,10 @@ EXEC_FILES = pvkt$(EXE_EXT) \
 	     pvfkt$(EXE_EXT) \
 	     pvakt$(EXE_EXT)
 
+# ----------------------------------------------------------------------------------------------------------------------
+
 all: $(EXEC_FILES)
 
-pvkt$(EXE_EXT): $(srcdir)/pvkt.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkt.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvkt$(EXE_EXT) $(builddir)/pvkt$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-pvfkt$(EXE_EXT): $(srcdir)/pvfkt.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkt.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvfkt$(EXE_EXT) $(builddir)/pvfkt$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-pvakt: $(srcdir)/pvakt.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvakt.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvakt$(EXE_EXT) $(builddir)/pvakt$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
@@ -82,6 +75,20 @@ distclean: clean
 	rm -f Makefile
 
 install: $(EXEC_FILES)
+
+uninstall:
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+pvkt$(EXE_EXT): $(srcdir)/pvkt.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkt.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvkt$(EXE_EXT) $(builddir)/pvkt$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+pvfkt$(EXE_EXT): $(srcdir)/pvfkt.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkt.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvfkt$(EXE_EXT) $(builddir)/pvfkt$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+pvakt: $(srcdir)/pvakt.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvakt.c
+	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvakt$(EXE_EXT) $(builddir)/pvakt$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                \

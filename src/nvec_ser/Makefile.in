@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-08-11 23:03:25 $
+# $Revision: 1.5 $
+# $Date: 2006-11-29 00:05:09 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -45,7 +45,7 @@ FCMIX_ENABLED = @FCMIX_ENABLED@
 
 top_srcdir = $(srcdir)/../..
 
-INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include
 
 LIB_REVISION = 0:1:0
 
@@ -58,6 +58,7 @@ FNVECSER_LIB_FILES = fnvector_serial.lo
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_math.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
 all: $(NVECSER_LIB) $(FNVECSER_LIB)
 
@@ -82,14 +83,12 @@ install: $(NVECSER_LIB) $(FNVECSER_LIB)
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECSER_LIB)
-	rm -f $(includedir)/nvector/nvector_serial.h
-	@if test -d ${includedir}/nvector ; then \
-	   rm -rf ${includedir}/nvector ;        \
-	 fi
 	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                             \
 	   echo "${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECSER_LIB}" ; \
 	   ${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECSER_LIB} ;        \
 	 fi
+	rm -f $(includedir)/nvector/nvector_serial.h
+	$(rminstalldirs) ${includedir}/nvector
 
 shared:
 	@cd ${top_builddir}/src/sundials ; \

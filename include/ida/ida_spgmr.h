@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:06 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,32 +25,32 @@ extern "C" {
 #include <ida/ida_spils.h>
 #include <sundials/sundials_spgmr.h>
 
-  /*
-   * -----------------------------------------------------------------
-   *                                                                
-   * Function : IDASpgmr                                            
-   * -----------------------------------------------------------------
-   * A call to the IDASpgmr function links the main integrator with 
-   * the IDASPGMR linear solver module.  Its parameters are as      
-   * follows:                                                       
-   *                                                                
-   * IDA_mem   is the pointer to memory block returned by IDACreate.
-   *                                                                
-   * maxl      is the maximum Krylov subspace dimension, an         
-   *           optional input.  Pass 0 to use the default value,    
-   *           MIN(Neq, 5).  Otherwise pass a positive integer.     
-   *                                                                
-   * The return values of IDASpgmr are:                             
-   *    IDASPILS_SUCCESS    if successful                            
-   *    IDASPILS_MEM_NULL   if the ida memory was NULL
-   *    IDASPILS_MEM_FAIL   if there was a memory allocation failure 
-   *    IDASPILS_ILL_INPUT  if there was illegal input.              
-   * The above constants are defined in ida_spils.h
-   *                                                                
-   * -----------------------------------------------------------------
-   */                                                                
+/*
+ * -----------------------------------------------------------------
+ *                                                                
+ * Function : IDASpgmr                                            
+ * -----------------------------------------------------------------
+ * A call to the IDASpgmr function links the main integrator with 
+ * the IDASPGMR linear solver module.  Its parameters are as      
+ * follows:                                                       
+ *                                                                
+ * IDA_mem   is the pointer to memory block returned by IDACreate.
+ *                                                                
+ * maxl      is the maximum Krylov subspace dimension, an         
+ *           optional input.  Pass 0 to use the default value,    
+ *           MIN(Neq, 5).  Otherwise pass a positive integer.     
+ *                                                                
+ * The return values of IDASpgmr are:                             
+ *    IDASPILS_SUCCESS    if successful                            
+ *    IDASPILS_MEM_NULL   if the ida memory was NULL
+ *    IDASPILS_MEM_FAIL   if there was a memory allocation failure 
+ *    IDASPILS_ILL_INPUT  if there was illegal input.              
+ * The above constants are defined in ida_spils.h
+ *                                                                
+ * -----------------------------------------------------------------
+ */                                                                
 
-  int IDASpgmr(void *ida_mem, int maxl);
+SUNDIALS_EXPORT int IDASpgmr(void *ida_mem, int maxl);
 
 
 #ifdef __cplusplus

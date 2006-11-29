@@ -1,8 +1,8 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-08-11 23:02:42 $
+# $Revision: 1.5 $
+# $Date: 2006-11-29 00:05:04 $
 # -----------------------------------------------------------------
-# Programmer(s): Aaron Collier @ LLNL
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
 # Copyright (c) 2005, The Regents of the University of California.
 # Produced at the Lawrence Livermore National Laboratory.
@@ -51,21 +51,52 @@ EXS_INSTDIR = @EXS_INSTDIR@
 
 top_srcdir = $(srcdir)/../../..
 
-SOLVER_SRCDIR = $(top_builddir)/src/ida
-NVEC_SRCDIR   = $(top_builddir)/src/nvec_par
+SUNDIALS_LIBS = $(top_builddir)/src/ida/fcmix/libsundials_fida.la         \
+                $(top_builddir)/src/ida/libsundials_ida.la                \
+                $(top_builddir)/src/nvec_par/libsundials_fnvecparallel.la \
+                $(top_builddir)/src/nvec_par/libsundials_nvecparallel.la
 
-SUNDIALS_LIBS = $(SOLVER_SRCDIR)/fcmix/libsundials_fida.la $(SOLVER_SRCDIR)/libsundials_ida.la $(NVEC_SRCDIR)/libsundials_fnvecparallel.la $(NVEC_SRCDIR)/libsundials_nvecparallel.la
-
-fortran_update = ${SHELL} ${top_builddir}/examples/fortran_update.sh
+fortran-update = ${SHELL} ${top_builddir}/bin/fortran-update.sh
 
 EXEC_FILES = fidakryx_bbd_p$(EXE_EXT)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 all: $(EXEC_FILES)
 
+install:
+	$(mkinstalldirs) $(EXS_INSTDIR)/ida/fcmix_parallel
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_parallel/Makefile_ex        $(EXS_INSTDIR)/ida/fcmix_parallel/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_parallel/README             $(EXS_INSTDIR)/ida/fcmix_parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_parallel/fidakryx_bbd_p.f   $(EXS_INSTDIR)/ida/fcmix_parallel/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_parallel/fidakryx_bbd_p.out $(EXS_INSTDIR)/ida/fcmix_parallel/
+
+uninstall:
+	rm -f $(EXS_INSTDIR)/ida/fcmix_parallel/Makefile
+	rm -f $(EXS_INSTDIR)/ida/fcmix_parallel/README
+	rm -f $(EXS_INSTDIR)/ida/fcmix_parallel/fidakryx_bbd_p.f
+	rm -f $(EXS_INSTDIR)/ida/fcmix_parallel/fidakryx_bbd_p.out
+	$(rminstalldirs) $(EXS_INSTDIR)/ida/fcmix_parallel
+	$(rminstalldirs) $(EXS_INSTDIR)/ida
+
+clean:
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+	rm -f *-updated.f
+	rm -f $(EXEC_FILES)
+
+distclean: clean
+	rm -f Makefile
+	rm -f Makefile_ex
+
+# ----------------------------------------------------------------------------------------------------------------------
+
 fidakryx_bbd_p$(EXE_EXT): $(srcdir)/fidakryx_bbd_p.f
-	@${fortran_update} ${srcdir} fidakryx_bbd_p.f
+	@${fortran-update} ${srcdir} fidakryx_bbd_p.f
 	 ${LIBTOOL} --mode=compile ${MPIF77} ${MPI_FLAGS} -I${MPI_INC_DIR} ${FFLAGS} -c ${builddir}/fidakryx_bbd_p-updated.f
 	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                         \
 	   echo "${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fidakryx_bbd_p${EXE_EXT} ${builddir}/fidakryx_bbd_p-updated${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
@@ -74,22 +105,6 @@ fidakryx_bbd_p$(EXE_EXT): $(srcdir)/fidakryx_bbd_p.f
 	   echo "${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fidakryx_bbd_p${EXE_EXT} ${builddir}/fidakryx_bbd_p-updated${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
 	   ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fidakryx_bbd_p${EXE_EXT} ${builddir}/fidakryx_bbd_p-updated${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
 	 fi
-
-clean:
-	rm -rf .libs
-	rm -f *.lo
-	rm -f *.o
-	rm -f *-updated.f
-	rm -f fortran_update.sh
-	rm -f $(EXEC_FILES)
-
-distclean: clean
-	rm -f Makefile
-
-install: $(EXEC_FILES)
-	$(mkinstalldirs) $(EXS_INSTDIR)/ida/fcmix_parallel
-	$(INSTALL_PROG) $(top_builddir)/examples/ida/fcmix_parallel/fidakryx_bbd_p$(EXE_EXT) $(EXS_INSTDIR)/ida/fcmix_parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_parallel/fidakryx_bbd_p.out         $(EXS_INSTDIR)/ida/fcmix_parallel/
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:08 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,67 +23,67 @@ extern "C" {
 
 #include <idas/idas_direct.h>
 
-  /*
-   * =================================================================
-   * I D A D I R E C T    I N T E R N A L    C O N S T A N T S
-   * =================================================================
-   */
+/*
+ * =================================================================
+ * I D A D I R E C T    I N T E R N A L    C O N S T A N T S
+ * =================================================================
+ */
 
-  /*
-   * -----------------------------------------------------------------
-   * Types : IDADlsMemRec, IDADlsMem                             
-   * -----------------------------------------------------------------
-   * IDADlsMem is pointer to a IDADlsMemRec structure.
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Types : IDADlsMemRec, IDADlsMem                             
+ * -----------------------------------------------------------------
+ * IDADlsMem is pointer to a IDADlsMemRec structure.
+ * -----------------------------------------------------------------
+ */
 
-  typedef struct {
+typedef struct {
 
-    int d_type;               /* Type of Jacobians (DENSE or BAND)             */
+  int d_type;               /* Type of Jacobians (DENSE or BAND)             */
 
-    int d_n;                  /* problem dimension                             */
+  int d_n;                  /* problem dimension                             */
 
-    int d_ml;                 /* b_ml = lower bandwidth of savedJ              */
-    int d_mu;                 /* b_mu = upper bandwidth of savedJ              */ 
-    int d_smu;                /* upper bandwith of M = MIN(N-1,b_mu+b_ml)      */
+  int d_ml;                 /* b_ml = lower bandwidth of savedJ              */
+  int d_mu;                 /* b_mu = upper bandwidth of savedJ              */ 
+  int d_smu;                /* upper bandwith of M = MIN(N-1,b_mu+b_ml)      */
 
-    IDADlsDenseJacFn d_djac;  /* dense Jacobian routine to be called           */
-    IDADlsBandJacFn d_bjac;   /* band Jacobian routine to be called            */
-    void *d_J_data;           /* J_data is passed to d_jac or b_jac            */
+  IDADlsDenseJacFn d_djac;  /* dense Jacobian routine to be called           */
+  IDADlsBandJacFn d_bjac;   /* band Jacobian routine to be called            */
+  void *d_J_data;           /* J_data is passed to d_jac or b_jac            */
 
-    DlsMat d_J;               /* J = dF/dy + cj*dF/dy'                         */
-    int *d_pivots;            /* pivots = pivot array for PM = LU              */
+  DlsMat d_J;               /* J = dF/dy + cj*dF/dy'                         */
+  int *d_pivots;            /* pivots = pivot array for PM = LU              */
   
-    long int d_nje;           /* nje = no. of calls to jac                     */
+  long int d_nje;           /* nje = no. of calls to jac                     */
 
-    long int d_nreDQ;         /* no. of calls to res due to DQ Jacobian approx.*/
+  long int d_nreDQ;         /* no. of calls to res due to DQ Jacobian approx.*/
 
-    int d_last_flag;          /* last error return flag                        */
+  int d_last_flag;          /* last error return flag                        */
   
-  } IDADlsMemRec, *IDADlsMem;
+} IDADlsMemRec, *IDADlsMem;
 
-  /*
-   * -----------------------------------------------------------------
-   * Prototypes of internal functions
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Prototypes of internal functions
+ * -----------------------------------------------------------------
+ */
   
-  int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
-                       N_Vector yy, N_Vector yp, N_Vector rr, 
-                       DlsMat Jac, void *jac_data,
-                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
+		     N_Vector yy, N_Vector yp, N_Vector rr, 
+		     DlsMat Jac, void *jac_data,
+		     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
-  int idaDlsBandDQJac(int N, int mupper, int mlower,
-                      realtype tt, realtype c_j, 
-                      N_Vector yy, N_Vector yp, N_Vector rr,
-                      DlsMat Jac, void *jac_data,
-                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+int idaDlsBandDQJac(int N, int mupper, int mlower,
+		    realtype tt, realtype c_j, 
+		    N_Vector yy, N_Vector yp, N_Vector rr,
+		    DlsMat Jac, void *jac_data,
+		    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-  /*
-   * =================================================================
-   * E R R O R   M E S S A G E S
-   * =================================================================
-   */
+/*
+ * =================================================================
+ * E R R O R   M E S S A G E S
+ * =================================================================
+ */
 
 #define MSGD_IDAMEM_NULL "Integrator memory is NULL."
 #define MSGD_BAD_NVECTOR "A required vector operation is not implemented."

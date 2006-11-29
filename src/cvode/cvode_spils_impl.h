@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -65,19 +65,19 @@ typedef struct {
   N_Vector s_fcur;      /* fcur = f(tn, ycur)                           */
 
   CVSpilsPrecSetupFn s_pset; 
-                        /* pset = user-supplied routine to compute      */
-                        /* a preconditioner                             */
+  /* pset = user-supplied routine to compute      */
+  /* a preconditioner                             */
 
   CVSpilsPrecSolveFn s_psolve;   
-                        /* psolve = user-supplied routine to solve      */
-                        /* preconditioner linear system                 */
+  /* psolve = user-supplied routine to solve      */
+  /* preconditioner linear system                 */
 
   void *s_P_data;       /* P_data passed to psolve and pset             */
 
   void* s_spils_mem;    /* memory used by the generic solver            */
 
   CVSpilsJacTimesVecFn s_jtimes;  
-                        /* jtimes = Jacobian * vector routine           */
+  /* jtimes = Jacobian * vector routine           */
   void *s_j_data;       /* j_data is passed to jtimes                   */
 
   int s_last_flag;      /* last error flag returned by any function     */

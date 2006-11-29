@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2006-07-27 22:20:57 $
+# $Revision: 1.16 $
+# $Date: 2006-11-29 00:05:01 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -19,11 +19,17 @@ SHELL = @SHELL@
 @SET_MAKE@
 
 srcdir       = @srcdir@
+builddir     = @builddir@
 abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
 prefix       = @prefix@
 exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
+bindir       = @bindir@
+
+INSTALL      = @INSTALL@
+INSTALL_PROG = @INSTALL_PROGRAM@
 
 SLV_MODULES  = @SLV_MODULES@
 EXS_MODULES  = @EXS_MODULES@
@@ -31,6 +37,10 @@ EXS_MODULES  = @EXS_MODULES@
 ALL_MODULES  = @SLV_MODULES@ @EXS_MODULES@
 
 EXS_INSTDIR  = @EXS_INSTDIR@
+
+top_srcdir = $(srcdir)
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
 # -----------------------------------------------------------------
 
@@ -48,6 +58,11 @@ all:
 	 done
 
 install:
+	$(mkinstalldirs) $(bindir)
+	$(INSTALL_PROG)  $(top_builddir)/bin/sundials-config    $(bindir)/
+	@if test -f $(top_builddir)/bin/fortran-update.sh ; then              \
+	  $(INSTALL_PROG)  $(top_builddir)/bin/fortran-update.sh  $(bindir)/ ;\
+	fi
 	@for i in ${SLV_MODULES} ; do                                         \
 	   if test -d $${i} ; then                                            \
 	     echo "----------------------";                                   \
@@ -91,12 +106,17 @@ clean:
 	 done
 
 uninstall:
-	@for i in ${ALL_MODULES} ; do \
-	   if test -d $${i} ; then    \
-	     cd $${i} ;               \
-	     ${MAKE} uninstall ;      \
-	     cd ${abs_builddir} ;     \
-	   fi ;                       \
+	rm -f $(bindir)/sundials-config
+	rm -f $(bindir)/fortran-update.sh
+	@for i in ${ALL_MODULES} ; do       \
+	   if test -d $${i} ; then          \
+	     echo "----------------------"; \
+	     echo "Uninstall $${i}..." ;    \
+	     echo "----------------------"; \
+	     cd $${i} ;                     \
+	     ${MAKE} uninstall ;            \
+	     cd ${abs_builddir} ;           \
+	   fi ;                             \
 	 done
 
 # ---------------------------------------------------------------------
@@ -109,12 +129,11 @@ distclean:
 	     cd ${abs_builddir} ;      \
 	   fi ;                        \
 	 done
-	rm -f config.log
-	rm -f config.status
-	rm -f config.cache
-	rm -f config.h
-	rm -f libtool
-	rm -f sundials-config
-	rm -f src/sundials/sundials_config.h
-	rm -f examples/fortran_update.sh
+	rm -f $(top_builddir)/config.log
+	rm -f $(top_builddir)/config.status
+	rm -f $(top_builddir)/config.cache
+	rm -f $(top_builddir)/config.h
+	rm -f $(top_builddir)/libtool
+	rm -f $(top_builddir)/bin/sundials-config
+	rm -f $(top_builddir)/bin/fortran-update.sh
 	rm -f Makefile

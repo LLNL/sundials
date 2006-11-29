@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,66 +24,66 @@ extern "C" {
 #include <cvodes/cvodes_bbdpre.h>
 #include <sundials/sundials_band.h>
 
-  /*
-   * -----------------------------------------------------------------
-   * Type: CVBBDPrecData
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Type: CVBBDPrecData
+ * -----------------------------------------------------------------
+ */
 
-  typedef struct {
+typedef struct {
 
-    /* passed by user to CVBBDPrecAlloc and used by PrecSetup/PrecSolve */
+  /* passed by user to CVBBDPrecAlloc and used by PrecSetup/PrecSolve */
 
-    int mudq, mldq, mukeep, mlkeep;
-    realtype dqrely;
-    CVLocalFn gloc;
-    CVCommFn cfn;
+  int mudq, mldq, mukeep, mlkeep;
+  realtype dqrely;
+  CVLocalFn gloc;
+  CVCommFn cfn;
 
-    /* set by CVBBDPrecSetup and used by CVBBDPrecSolve */
+  /* set by CVBBDPrecSetup and used by CVBBDPrecSolve */
 
-    DlsMat savedJ;
-    DlsMat savedP;
-    int *pivots;
+  DlsMat savedJ;
+  DlsMat savedP;
+  int *pivots;
 
-    /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
+  /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
 
-    int n_local;
+  int n_local;
 
-    /* available for optional output */
+  /* available for optional output */
 
-    long int rpwsize;
-    long int ipwsize;
-    long int nge;
+  long int rpwsize;
+  long int ipwsize;
+  long int nge;
 
-    /* pointer to cvode_mem */
+  /* pointer to cvode_mem */
 
-    void *cvode_mem;
+  void *cvode_mem;
 
-  } *CVBBDPrecData;
+} *CVBBDPrecData;
 
 
-  /*
-   * -----------------------------------------------------------------
-   * Type: CVBBDPrecDataB
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Type: CVBBDPrecDataB
+ * -----------------------------------------------------------------
+ */
 
-  typedef struct {
+typedef struct {
 
-    /* BBD user functions (glocB and cfnB) for backward run */
-    CVLocalFnB glocB;
-    CVCommFnB  cfnB;
+  /* BBD user functions (glocB and cfnB) for backward run */
+  CVLocalFnB glocB;
+  CVCommFnB  cfnB;
     
-    /* BBD prec data */
-    void *bbd_dataB;
+  /* BBD prec data */
+  void *bbd_dataB;
 
-  } *CVBBDPrecDataB;
+} *CVBBDPrecDataB;
 
-  /*
-   * -----------------------------------------------------------------
-   * CVBBDPRE error messages
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * CVBBDPRE error messages
+ * -----------------------------------------------------------------
+ */
 
 #define MSGBBDP_CVMEM_NULL  "Integrator memory is NULL."
 #define MSGBBDP_MEM_FAIL    "A memory request failed."

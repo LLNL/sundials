@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-08-11 23:02:48 $
+# $Revision: 1.5 $
+# $Date: 2006-11-29 00:05:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,6 +39,9 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LAPACK_ENABLED = @LAPACK_ENABLED@
+BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
 
@@ -46,12 +49,14 @@ EXS_INSTDIR = @EXS_INSTDIR@
 
 top_srcdir = $(srcdir)/../../..
 
-SUNDIALS_INCDIR = $(top_srcdir)/include
-SOLVER_SRCDIR   = $(top_builddir)/src/ida
-NVEC_SRCDIR     = $(top_builddir)/src/nvec_ser
+SUNDIALS_INCS = -I$(top_srcdir)/include
 
-SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
-SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_ida.la $(NVEC_SRCDIR)/libsundials_nvecserial.la
+SUNDIALS_LIBS = $(top_builddir)/src/ida/libsundials_ida.la                \
+	        $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
+
+SUNDIALS_BL_LIBS = $(top_builddir)/src/ida/libsundials_ida_bl.la          \
+	           $(top_builddir)/src/ida/libsundials_ida.la             \
+	           $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
 
 EXEC_FILES = idadenx$(EXE_EXT) \
 	     idabanx1$(EXE_EXT) \
@@ -59,9 +64,62 @@ EXEC_FILES = idadenx$(EXE_EXT) \
 	     idabanx2$(EXE_EXT) \
 	     idakrydem_lin$(EXE_EXT)
 
+EXEC_BL_FILES =
+
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 all: $(EXEC_FILES)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make all_bl;                               \
+	fi
+all_bl: $(EXEC_BL_FILES)
+
+install:
+	$(mkinstalldirs) $(EXS_INSTDIR)/ida/serial
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/Makefile_ex       $(EXS_INSTDIR)/ida/serial/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/README            $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idabanx1.c        $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idabanx2.c        $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idadenx.c         $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idakrydem_lin.c   $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idakryx.c         $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idabanx1.out      $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idabanx2.out      $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idadenx.out       $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idakrydem_lin.out $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idakryx.out       $(EXS_INSTDIR)/ida/serial/
+
+uninstall:
+	rm -f $(EXS_INSTDIR)/ida/serial/Makefile
+	rm -f $(EXS_INSTDIR)/ida/serial/README
+	rm -f $(EXS_INSTDIR)/ida/serial/idabanx1.c
+	rm -f $(EXS_INSTDIR)/ida/serial/idabanx2.c
+	rm -f $(EXS_INSTDIR)/ida/serial/idadenx.c
+	rm -f $(EXS_INSTDIR)/ida/serial/idakrydem_lin.c
+	rm -f $(EXS_INSTDIR)/ida/serial/idakryx.c
+	rm -f $(EXS_INSTDIR)/ida/serial/idabanx1.out
+	rm -f $(EXS_INSTDIR)/ida/serial/idabanx2.out
+	rm -f $(EXS_INSTDIR)/ida/serial/idadenx.out
+	rm -f $(EXS_INSTDIR)/ida/serial/idakrydem_lin.out
+	rm -f $(EXS_INSTDIR)/ida/serial/idakryx.out
+	$(rminstalldirs) $(EXS_INSTDIR)/ida/serial
+	$(rminstalldirs) $(EXS_INSTDIR)/ida
+
+clean:
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+	rm -f $(EXEC_FILES)
+	rm -f $(EXEC_BL_FILES)
+
+distclean: clean
+	rm -f Makefile
+	rm -f Makefile_ex
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 idadenx$(EXE_EXT): $(srcdir)/idadenx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idadenx.c
@@ -78,28 +136,6 @@ idabanx2$(EXE_EXT): $(srcdir)/idabanx2.c
 idakrydem_lin$(EXE_EXT): $(srcdir)/idakrydem_lin.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idakrydem_lin.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idakrydem_lin$(EXE_EXT) $(builddir)/idakrydem_lin$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-
-clean:
-	rm -rf .libs
-	rm -f *.lo
-	rm -f *.o
-	rm -f $(EXEC_FILES)
-
-distclean: clean
-	rm -f Makefile
-
-install: $(EXEC_FILES)
-	$(mkinstalldirs) $(EXS_INSTDIR)/ida/serial
-	$(INSTALL_PROG) $(top_builddir)/examples/ida/serial/idabanx1$(EXE_EXT)      $(EXS_INSTDIR)/ida/serial/
-	$(INSTALL_PROG) $(top_builddir)/examples/ida/serial/idabanx2$(EXE_EXT)      $(EXS_INSTDIR)/ida/serial/
-	$(INSTALL_PROG) $(top_builddir)/examples/ida/serial/idadenx$(EXE_EXT)       $(EXS_INSTDIR)/ida/serial/
-	$(INSTALL_PROG) $(top_builddir)/examples/ida/serial/idakrydem_lin$(EXE_EXT) $(EXS_INSTDIR)/ida/serial/
-	$(INSTALL_PROG) $(top_builddir)/examples/ida/serial/idakryx$(EXE_EXT)       $(EXS_INSTDIR)/ida/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idabanx1.out              $(EXS_INSTDIR)/ida/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idabanx2.out              $(EXS_INSTDIR)/ida/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idadenx.out               $(EXS_INSTDIR)/ida/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idakrydem_lin.out         $(EXS_INSTDIR)/ida/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idakryx.out               $(EXS_INSTDIR)/ida/serial/
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

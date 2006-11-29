@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-29 00:05:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,43 +24,43 @@ extern "C" {
 #include <idas/idas_direct.h>
 #include <sundials/sundials_dense.h>
 
-  /*
-   * -----------------------------------------------------------------
-   * Function : IDADense
-   * -----------------------------------------------------------------
-   * A call to the IDADense function links the main integrator      
-   * with the IDADENSE linear solver module.                        
-   *                                                                
-   * ida_mem is the pointer to integrator memory returned by        
-   *     IDACreate.                                                 
-   *                                                                
-   * Neq  is the problem size                                       
-   *                                                                
-   * IDADense returns:                                              
-   *     IDADIRECT_SUCCESS   = 0  if successful                              
-   *     IDADIRECT_LMEM_FAIL = -1 if there was a memory allocation failure   
-   *     IDADIRECT_ILL_INPUT = -2 if NVECTOR found incompatible           
-   *                                                                
-   * NOTE: The dense linear solver assumes a serial implementation  
-   *       of the NVECTOR package. Therefore, IDADense will first
-   *       test for a compatible N_Vector internal representation
-   *       by checking that the functions N_VGetArrayPointer and
-   *       N_VSetArrayPointer exist.
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function : IDADense
+ * -----------------------------------------------------------------
+ * A call to the IDADense function links the main integrator      
+ * with the IDADENSE linear solver module.                        
+ *                                                                
+ * ida_mem is the pointer to integrator memory returned by        
+ *     IDACreate.                                                 
+ *                                                                
+ * Neq  is the problem size                                       
+ *                                                                
+ * IDADense returns:                                              
+ *     IDADIRECT_SUCCESS   = 0  if successful                              
+ *     IDADIRECT_LMEM_FAIL = -1 if there was a memory allocation failure   
+ *     IDADIRECT_ILL_INPUT = -2 if NVECTOR found incompatible           
+ *                                                                
+ * NOTE: The dense linear solver assumes a serial implementation  
+ *       of the NVECTOR package. Therefore, IDADense will first
+ *       test for a compatible N_Vector internal representation
+ *       by checking that the functions N_VGetArrayPointer and
+ *       N_VSetArrayPointer exist.
+ * -----------------------------------------------------------------
+ */
 
-  int IDADense(void *ida_mem, int Neq); 
+SUNDIALS_EXPORT int IDADense(void *ida_mem, int Neq); 
 
-  /*
-   * -----------------------------------------------------------------
-   * Function: IDADenseB
-   * -----------------------------------------------------------------
-   * IDADenseB links the main IDAS integrator with the IDADENSE
-   * linear solver for the backward integration.
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function: IDADenseB
+ * -----------------------------------------------------------------
+ * IDADenseB links the main IDAS integrator with the IDADENSE
+ * linear solver for the backward integration.
+ * -----------------------------------------------------------------
+ */
 
-  int IDADenseB(void *idaadj_mem, int NeqB);
+SUNDIALS_EXPORT int IDADenseB(void *idaadj_mem, int NeqB);
   
 #ifdef __cplusplus
 }

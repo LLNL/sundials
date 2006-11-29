@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2006-11-22 00:12:50 $
+# $Revision: 1.7 $
+# $Date: 2006-11-29 00:05:09 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,15 +41,25 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LAPACK_ENABLED = @LAPACK_ENABLED@
+
 top_srcdir = $(srcdir)/../..
 
-INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include
 
 LIB_REVISION = 0:0:0
 
-IDAS_LIB       = libsundials_idas.la
-IDAS_LIB_FILES = idas.lo idas_ic.lo idas_io.lo idas_direct.lo idas_dense.lo idas_band.lo idas_lapack.lo idas_spils.lo idas_spbcgs.lo idas_spgmr.lo idas_sptfqmr.lo idas_bbdpre.lo
-IDAS_OBJ_FILES = idas.o idas_ic.o idas_io.o idas_direct.o idas_dense.o idas_band.o idas_lapack.o idas_spils.o idas_spbcgs.o idas_spgmr.o idas_sptfqmr.o idas_bbdpre.o
+IDAS_LIB    = libsundials_idas.la
+IDAS_BL_LIB = libsundials_idas_bl.la
+
+IDAS_SRC_FILES = idas.c idas_ic.c idas_io.c idas_direct.c idas_dense.c idas_band.c idas_spils.c idas_spbcgs.c idas_spgmr.c idas_sptfqmr.c idas_bbdpre.c
+IDAS_BL_SRC_FILES = idas_lapack.c
+
+IDAS_OBJ_FILES = $(IDAS_SRC_FILES:.c=.o)
+IDAS_BL_OBJ_FILES = $(IDAS_BL_SRC_FILES:.c=.o)
+
+IDAS_LIB_FILES = $(IDAS_SRC_FILES:.c=.lo)
+IDAS_BL_LIB_FILES = $(IDAS_BL_SRC_FILES:.c=.lo)
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
@@ -63,11 +73,22 @@ SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_nvector.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 all: $(IDAS_LIB)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make all_bl;                               \
+	fi
+
+all_bl: $(IDAS_BL_LIB)
 
 $(IDAS_LIB): shared $(IDAS_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_LIB) $(IDAS_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+
+$(IDAS_BL_LIB): shared $(IDAS_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_BL_LIB) $(IDAS_BL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 install: $(IDAS_LIB)
 	$(mkinstalldirs) $(includedir)/idas
@@ -77,16 +98,23 @@ install: $(IDAS_LIB)
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_direct.h  $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_dense.h   $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_band.h    $(includedir)/idas/
-	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_lapack.h  $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_spbcgs.h  $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_spgmr.h   $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_sptfqmr.h $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_bbdpre.h  $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_spils.h   $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/src/idas/idas_impl.h        $(includedir)/idas/
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make install_bl;                           \
+	fi
+
+install_bl: $(IDAS_BL_LIB)
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(IDAS_BL_LIB) $(libdir)
+	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_lapack.h  $(includedir)/idas/
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDAS_LIB)
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDAS_BL_LIB)
 	rm -f $(includedir)/idas/idas.h
 	rm -f $(includedir)/idas/idas_direct.h
 	rm -f $(includedir)/idas/idas_dense.h
@@ -98,9 +126,7 @@ uninstall:
 	rm -f $(includedir)/idas/idas_bbdpre.h
 	rm -f $(includedir)/idas/idas_spils.h
 	rm -f $(includedir)/idas/idas_impl.h
-	@if test -d ${includedir}/idas ; then \
-	   rmdir ${includedir}/idas ;         \
-	 fi
+	$(rminstalldirs) ${includedir}/idas
 
 shared:
 	@cd ${top_builddir}/src/sundials ; \
@@ -109,8 +135,11 @@ shared:
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(IDAS_LIB)
+	$(LIBTOOL) --mode=clean rm -f $(IDAS_BL_LIB)
 	rm -f $(IDAS_LIB_FILES)
+	rm -f $(IDAS_BL_LIB_FILES)
 	rm -f $(IDAS_OBJ_FILES)
+	rm -f $(IDAS_BL_OBJ_FILES)
 
 distclean: clean
 	rm -f Makefile

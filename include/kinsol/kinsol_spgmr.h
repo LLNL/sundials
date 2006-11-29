@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:52 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -76,7 +76,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-int KINSpgmr(void *kinmem, int maxl);
+SUNDIALS_EXPORT int KINSpgmr(void *kinmem, int maxl);
 
 
 #ifdef __cplusplus

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-08-11 23:03:23 $
+# $Revision: 1.5 $
+# $Date: 2006-11-29 00:05:09 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,7 +48,7 @@ FCMIX_ENABLED = @FCMIX_ENABLED@
 
 top_srcdir = $(srcdir)/../..
 
-INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(MPI_INC_DIR)
+INCLUDES = -I$(top_srcdir)/include -I$(MPI_INC_DIR)
 
 LIB_REVISION = 0:1:0
 
@@ -61,6 +61,7 @@ FNVECPAR_LIB_FILES = fnvector_parallel.lo
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_math.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
 all: $(NVECPAR_LIB) $(FNVECPAR_LIB)
 
@@ -85,14 +86,12 @@ install: $(NVECPAR_LIB) $(FNVECPAR_LIB)
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECPAR_LIB)
-	rm -f $(includedir)/nvector/nvector_parallel.h
-	@if test -d ${includedir}/nvector ; then \
-	   rm -rf ${includedir}/nvector ;        \
-	 fi
 	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                             \
 	   echo "${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECPAR_LIB}" ; \
 	   ${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECPAR_LIB} ;        \
 	 fi
+	rm -f $(includedir)/nvector/nvector_parallel.h
+	$(rminstalldirs) ${includedir}/nvector
 
 shared:
 	@cd ${top_builddir}/src/sundials ; \

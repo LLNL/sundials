@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:52 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -141,8 +141,8 @@ typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z, int lr);
  * -----------------------------------------------------------------
  */                                                                
 
-int ModifiedGS(N_Vector *v, realtype **h, int k, int p, 
-               realtype *new_vk_norm);
+SUNDIALS_EXPORT int ModifiedGS(N_Vector *v, realtype **h, int k, int p, 
+			       realtype *new_vk_norm);
 
 /*
  * -----------------------------------------------------------------
@@ -164,8 +164,8 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
  * -----------------------------------------------------------------
  */
 
-int ClassicalGS(N_Vector *v, realtype **h, int k, int p, 
-                realtype *new_vk_norm, N_Vector temp, realtype *s);
+SUNDIALS_EXPORT int ClassicalGS(N_Vector *v, realtype **h, int k, int p, 
+				realtype *new_vk_norm, N_Vector temp, realtype *s);
 
 /*
  * -----------------------------------------------------------------
@@ -199,7 +199,7 @@ int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
  * -----------------------------------------------------------------
  */                                                                
 
-int QRfact(int n, realtype **h, realtype *q, int job);
+SUNDIALS_EXPORT int QRfact(int n, realtype **h, realtype *q, int job);
 
 /*                                                                
  * -----------------------------------------------------------------
@@ -233,7 +233,7 @@ int QRfact(int n, realtype **h, realtype *q, int job);
  * -----------------------------------------------------------------
  */                                                                
 
-int QRsol(int n, realtype **h, realtype *q, realtype *b);
+SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
 
 #ifdef __cplusplus
 }

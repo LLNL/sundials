@@ -1,0 +1,65 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2006-11-29 00:05:05 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for CVODE serial examples
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+
+SUNDIALS_INCS = -I$(includedir)
+SUNDIALS_LIBS = -L$(libdir) -lsundials_idas -lsundials_nvecserial
+SUNDIALS_BL_LIBS = -L$(libdir) -lsundials_idas_bl -lsundials_idas -lsundials_nvecserial
+
+EXAMPLES = idasdenx \
+	   idasbanx1 \
+	   idaskryx \
+	   idasbanx2 \
+	   idaskrydem_lin
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+all: $(EXAMPLES)
+
+clean:
+	rm -f *.o
+	rm -f $(EXAMPLES)
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+idasdenx: idasdenx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasdenx.c
+	 $(CC) -o idasdenx idasdenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasbanx1: idasbanx1.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasbanx1.c
+	 $(CC) -o idasbanx1 idasbanx1.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idaskryx: idaskryx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idaskryx.c
+	 $(CC) -o idaskryx idaskryx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasbanx2: idasbanx2.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasbanx2.c
+	 $(CC) -o idasbanx2 idasbanx2.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idaskrydem_lin: idaskrydem_lin.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idaskrydem_lin.c
+	$(LIBTOOL) --mode=link $(CC) -o idaskrydem_lin idaskrydem_lin.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)

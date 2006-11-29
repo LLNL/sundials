@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -48,7 +48,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-int KINBand(void *kinmem, int N, int mupper, int mlower);
+SUNDIALS_EXPORT int KINBand(void *kinmem, int N, int mupper, int mlower);
 
 #ifdef __cplusplus
 }

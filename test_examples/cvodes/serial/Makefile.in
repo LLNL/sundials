@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-08-11 23:03:33 $
+# $Revision: 1.5 $
+# $Date: 2006-11-29 00:05:10 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -58,7 +58,24 @@ EXEC_FILES = cvsminhx$(EXE_EXT) \
 	     cvsfwdswitchx$(EXE_EXT) \
 	     cvsicx$(EXE_EXT)
 
+# ----------------------------------------------------------------------------------------------------------------------
+
 all: $(EXEC_FILES)
+
+install: $(EXEC_FILES)
+
+uninstall:
+
+clean:
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+	rm -f $(EXEC_FILES)
+
+distclean: clean
+	rm -f Makefile
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 cvsminhx$(EXE_EXT): $(srcdir)/cvsminhx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsminhx.c
@@ -78,17 +95,6 @@ cvsfwdswitchx$(EXE_EXT): $(srcdir)/cvsfwdswitchx.c
 cvsicx$(EXE_EXT): $(srcdir)/cvsicx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsicx.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsicx$(EXE_EXT) $(builddir)/cvsicx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-
-clean:
-	rm -rf .libs
-	rm -f *.lo
-	rm -f *.o
-	rm -f $(EXEC_FILES)
-
-distclean: clean
-	rm -f Makefile
-
-install: $(EXEC_FILES)
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                \

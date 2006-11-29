@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:08 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -2651,9 +2651,9 @@ static int cpStep(CPodeMem cp_mem)
 #endif
 
 #ifdef CPODES_DEBUG_SERIAL
-  for(i=0; i<=q; i++) {
-    printf("   zn[%d] = ",i); N_VPrint_Serial(zn[i]);
-  }
+    for(i=0; i<=q; i++) {
+      printf("   zn[%d] = ",i); N_VPrint_Serial(zn[i]);
+    }
 #endif
 
   }
@@ -3713,7 +3713,7 @@ static void cpCompleteStep(CPodeMem cp_mem)
  * related to a change of step size or order. 
  */
 
- static void cpPrepareNextStep(CPodeMem cp_mem, realtype dsm)
+static void cpPrepareNextStep(CPodeMem cp_mem, realtype dsm)
 {
   /* If etamax = 1, defer step size or order changes */
   if (etamax == ONE) {

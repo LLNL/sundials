@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-11-22 00:12:50 $
+# $Revision: 1.5 $
+# $Date: 2006-11-29 00:05:08 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,34 +39,64 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LAPACK_ENABLED = @LAPACK_ENABLED@
+
 top_srcdir = $(srcdir)/../../..
 
-INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(top_srcdir)/src/ida
+INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/src/ida
 
 LIB_REVISION = 1:0:0
 
-FIDA_LIB       = libsundials_fida.la
-FIDA_LIB_FILES = fida.lo fidaband.lo fidadense.lo fidalapack.lo fidalapdense.lo fidalapband.lo fidajtimes.lo fidapreco.lo fidaewt.lo fidaroot.lo fidabbd.lo 
-FIDA_OBJ_FILES = fida.o fidaband.o fidadense.o fidalapack.o fidalapdense.o fidalapband.o fidajtimes.o fidapreco.o fidaewt.o fidaroot.o fidabbd.o
+FIDA_LIB    = libsundials_fida.la
+FIDA_BL_LIB = libsundials_fida_bl.la
+
+FIDA_SRC_FILES = fida.c fidaband.c fidadense.c fidajtimes.c fidapreco.c fidaewt.c fidaroot.c fidabbd.c 
+FIDA_BL_SRC_FILES = fidalapack.c fidalapdense.c fidalapband.c
+
+FIDA_OBJ_FILES = $(FIDA_SRC_FILES:.c=.o)
+FIDA_BL_OBJ_FILES = $(FIDA_BL_SRC_FILES:.c=.o)
+
+FIDA_LIB_FILES = $(FIDA_SRC_FILES:.c=.lo)
+FIDA_BL_LIB_FILES = $(FIDA_BL_SRC_FILES:.c=.lo)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
+# ----------------------------------------------------------------------------------------------------------------------
+
 all: $(FIDA_LIB)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make all_bl;                               \
+	fi
+
+all_bl: $(FIDA_BL_LIB)
 
 $(FIDA_LIB): $(FIDA_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FIDA_LIB) $(FIDA_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
 
+$(FIDA_BL_LIB): $(FIDA_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FIDA_BL_LIB) $(FIDA_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
+
 install: $(FIDA_LIB)
 	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FIDA_LIB) $(libdir)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make install_bl;                           \
+	fi
+
+install_bl: $(FIDA_BL_LIB)
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FIDA_BL_LIB) $(libdir)
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FIDA_LIB)
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FIDA_BL_LIB)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(FIDA_LIB)
+	$(LIBTOOL) --mode=clean rm -f $(FIDA_BL_LIB)
 	rm -f $(FIDA_LIB_FILES)
+	rm -f $(FIDA_BL_LIB_FILES)
 	rm -f $(FIDA_OBJ_FILES)
+	rm -f $(FIDA_BL_OBJ_FILES)
 
 distclean: clean
 	rm -f Makefile

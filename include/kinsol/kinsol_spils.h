@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:52 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -231,14 +231,14 @@ typedef int (*KINSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv,
  * -----------------------------------------------------------------
  */
 
-int KINSpilsSetMaxRestarts(void *kinmem, int maxrs);
-int KINSpilsSetPreconditioner(void *kinmem,
-			      KINSpilsPrecSetupFn pset,
-			      KINSpilsPrecSolveFn psolve,
-			      void *P_data);
-int KINSpilsSetJacTimesVecFn(void *kinmem,
-			     KINSpilsJacTimesVecFn jtimes,
-			     void *J_data);
+SUNDIALS_EXPORT int KINSpilsSetMaxRestarts(void *kinmem, int maxrs);
+SUNDIALS_EXPORT int KINSpilsSetPreconditioner(void *kinmem,
+					      KINSpilsPrecSetupFn pset,
+					      KINSpilsPrecSolveFn psolve,
+					      void *P_data);
+SUNDIALS_EXPORT int KINSpilsSetJacTimesVecFn(void *kinmem,
+					     KINSpilsJacTimesVecFn jtimes,
+					     void *J_data);
 
 /*
  * -----------------------------------------------------------------
@@ -316,15 +316,15 @@ int KINSpilsSetJacTimesVecFn(void *kinmem,
  * -----------------------------------------------------------------
  */
 
-int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG);
-int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals);
-int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves);
-int KINSpilsGetNumLinIters(void *kinmem, long int *nliters);
-int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails);
-int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals);
-int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevalsS); 
-int KINSpilsGetLastFlag(void *kinmem, int *flag);
-char *KINSpilsGetReturnFlagName(int flag);
+SUNDIALS_EXPORT int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG);
+SUNDIALS_EXPORT int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals);
+SUNDIALS_EXPORT int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves);
+SUNDIALS_EXPORT int KINSpilsGetNumLinIters(void *kinmem, long int *nliters);
+SUNDIALS_EXPORT int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails);
+SUNDIALS_EXPORT int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals);
+SUNDIALS_EXPORT int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevalsS); 
+SUNDIALS_EXPORT int KINSpilsGetLastFlag(void *kinmem, int *flag);
+SUNDIALS_EXPORT char *KINSpilsGetReturnFlagName(int flag);
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -117,7 +117,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-void *CVBandPrecAlloc(void *cvode_mem, int N, int mu, int ml);
+SUNDIALS_EXPORT void *CVBandPrecAlloc(void *cvode_mem, int N, int mu, int ml);
 
 /*
  * -----------------------------------------------------------------
@@ -146,7 +146,7 @@ void *CVBandPrecAlloc(void *cvode_mem, int N, int mu, int ml);
  * -----------------------------------------------------------------
  */
 
-int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data);
+SUNDIALS_EXPORT int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------
@@ -175,7 +175,7 @@ int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data);
+SUNDIALS_EXPORT int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------
@@ -204,7 +204,7 @@ int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
+SUNDIALS_EXPORT int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------
@@ -215,7 +215,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-void CVBandPrecFree(void **bp_data);
+SUNDIALS_EXPORT void CVBandPrecFree(void **bp_data);
 
 /*
  * -----------------------------------------------------------------
@@ -233,8 +233,8 @@ void CVBandPrecFree(void **bp_data);
  * -----------------------------------------------------------------
  */
 
-int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS);
-int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
+SUNDIALS_EXPORT int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 
 /*
  * -----------------------------------------------------------------
@@ -243,7 +243,7 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
  * -----------------------------------------------------------------
  */
   
-char *CVBandPrecGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *CVBandPrecGetReturnFlagName(int flag);
 
 #ifdef __cplusplus
 }

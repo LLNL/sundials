@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:52 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Peter Brown and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -82,7 +82,7 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl);
+SUNDIALS_EXPORT SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl);
 
 /*
  * -----------------------------------------------------------------
@@ -146,10 +146,10 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl);
  * -----------------------------------------------------------------
  */
 
-int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
-               int pretype, realtype delta, void *P_data, N_Vector sx,
-               N_Vector sb, ATimesFn atimes, PSolveFn psolve,
-               realtype *res_norm, int *nli, int *nps);
+SUNDIALS_EXPORT int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
+			       int pretype, realtype delta, void *P_data, N_Vector sx,
+			       N_Vector sb, ATimesFn atimes, PSolveFn psolve,
+			       realtype *res_norm, int *nli, int *nps);
 
 /* Return values for SpbcgSolve */
 
@@ -175,7 +175,7 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
  * -----------------------------------------------------------------
  */
 
-void SpbcgFree(SpbcgMem mem);
+SUNDIALS_EXPORT void SpbcgFree(SpbcgMem mem);
 
 /*
  * -----------------------------------------------------------------

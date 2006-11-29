@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-22 00:12:51 $
+# $Revision: 1.6 $
+# $Date: 2006-11-29 00:05:09 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,34 +39,64 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LAPACK_ENABLED = @LAPACK_ENABLED@
+
 top_srcdir = $(srcdir)/../../..
 
-INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include -I$(top_srcdir)/src/kinsol
+INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/src/kinsol
 
 LIB_REVISION = 0:1:0
 
-FKINSOL_LIB       = libsundials_fkinsol.la
-FKINSOL_LIB_FILES = fkinsol.lo fkindense.lo fkinband.lo fkinlapack.lo fkinlapdense.lo fkinlapband.lo fkinpreco.lo fkinjtimes.lo fkinbbd.lo
-FKINSOL_OBJ_FILES = fkinsol.o fkindense.o fkinband.o fkinlapack.o fkinlapdense.o fkinlapband.o fkinpreco.o fkinjtimes.o fkinbbd.o
+FKINSOL_LIB    = libsundials_fkinsol.la
+FKINSOL_BL_LIB = libsundials_fkinsol_bl.la
+
+FKINSOL_SRC_FILES = fkinsol.c fkindense.c fkinband.c fkinpreco.c fkinjtimes.c fkinbbd.c
+FKINSOL_BL_SRC_FILES = fkinlapack.c fkinlapdense.c fkinlapband.c 
+
+FKINSOL_OBJ_FILES = $(FKINSOL_SRC_FILES:.c=.o)
+FKINSOL_BL_OBJ_FILES = $(FKINSOL_BL_SRC_FILES:.c=.o)
+
+FKINSOL_LIB_FILES = $(FKINSOL_SRC_FILES:.c=.lo)
+FKINSOL_BL_LIB_FILES = $(FKINSOL_BL_SRC_FILES:.c=.lo)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
+# ----------------------------------------------------------------------------------------------------------------------
+
 all: $(FKINSOL_LIB)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make all_bl;                               \
+	fi
+
+all_bl: $(FKINSOL_BL_LIB)
 
 $(FKINSOL_LIB): $(FKINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FKINSOL_LIB) $(FKINSOL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
 
+$(FKINSOL_BL_LIB): $(FKINSOL_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FKINSOL_BL_LIB) $(FKINSOL_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
+
 install: $(FKINSOL_LIB)
 	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FKINSOL_LIB) $(libdir)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make install_bl;                           \
+	fi
+
+install_bl: $(FKINSOL_BL_LIB)
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FKINSOL_BL_LIB) $(libdir)
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FKINSOL_LIB)
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FKINSOL_BL_LIB)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(FKINSOL_LIB)
+	$(LIBTOOL) --mode=clean rm -f $(FKINSOL_BL_LIB)
 	rm -f $(FKINSOL_LIB_FILES)
+	rm -f $(FKINSOL_BL_LIB_FILES)
 	rm -f $(FKINSOL_OBJ_FILES)
+	rm -f $(FKINSOL_BL_OBJ_FILES)
 
 distclean: clean
 	rm -f Makefile

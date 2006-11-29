@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:06 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,60 +24,60 @@ extern "C" {
 #include <cvode/cvode_direct.h>
 #include <sundials/sundials_lapack.h>
 
-  /*
-   * =================================================================
-   *            E X P O R T E D    F U N C T I O N S 
-   * =================================================================
-   */
+/*
+ * =================================================================
+ *            E X P O R T E D    F U N C T I O N S 
+ * =================================================================
+ */
 
-  /*
-   * -----------------------------------------------------------------
-   * Function : CVLapackDense
-   * -----------------------------------------------------------------
-   * A call to the CVLapackDense function links the main integrator
-   * with the CVLAPACK linear solver using dense Jacobians.
-   *
-   * cvode_mem is the pointer to the integrator memory returned by
-   *           CVodeCreate.
-   *
-   * N is the size of the ODE system.
-   *
-   * The return value of CVLapackDense is one of:
-   *    CVLAPACK_SUCCESS   if successful
-   *    CVLAPACK_MEM_NULL  if the CVODE memory was NULL
-   *    CVLAPACK_MEM_FAIL  if there was a memory allocation failure
-   *    CVLAPACK_ILL_INPUT if a required vector operation is missing
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function : CVLapackDense
+ * -----------------------------------------------------------------
+ * A call to the CVLapackDense function links the main integrator
+ * with the CVLAPACK linear solver using dense Jacobians.
+ *
+ * cvode_mem is the pointer to the integrator memory returned by
+ *           CVodeCreate.
+ *
+ * N is the size of the ODE system.
+ *
+ * The return value of CVLapackDense is one of:
+ *    CVLAPACK_SUCCESS   if successful
+ *    CVLAPACK_MEM_NULL  if the CVODE memory was NULL
+ *    CVLAPACK_MEM_FAIL  if there was a memory allocation failure
+ *    CVLAPACK_ILL_INPUT if a required vector operation is missing
+ * -----------------------------------------------------------------
+ */
 
-  int CVLapackDense(void *cvode_mem, int N);
+SUNDIALS_EXPORT int CVLapackDense(void *cvode_mem, int N);
 
-  /*
-   * -----------------------------------------------------------------
-   * Function : CVLapackBand
-   * -----------------------------------------------------------------
-   * A call to the CVLapackBand function links the main integrator
-   * with the CVLAPACK linear solver using banded Jacobians. 
-   *
-   * cvode_mem is the pointer to the integrator memory returned by
-   *           CVodeCreate.
-   *
-   * N is the size of the ODE system.
-   *
-   * mupper is the upper bandwidth of the band Jacobian approximation.
-   *
-   * mlower is the lower bandwidth of the band Jacobian approximation.
-   *
-   * The return value of CVLapackBand is one of:
-   *    CVLAPACK_SUCCESS   if successful
-   *    CVLAPACK_MEM_NULL  if the CVODE memory was NULL
-   *    CVLAPACK_MEM_FAIL  if there was a memory allocation failure
-   *    CVLAPACK_ILL_INPUT if a required vector operation is missing or
-   *                       if a bandwidth has an illegal value.
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function : CVLapackBand
+ * -----------------------------------------------------------------
+ * A call to the CVLapackBand function links the main integrator
+ * with the CVLAPACK linear solver using banded Jacobians. 
+ *
+ * cvode_mem is the pointer to the integrator memory returned by
+ *           CVodeCreate.
+ *
+ * N is the size of the ODE system.
+ *
+ * mupper is the upper bandwidth of the band Jacobian approximation.
+ *
+ * mlower is the lower bandwidth of the band Jacobian approximation.
+ *
+ * The return value of CVLapackBand is one of:
+ *    CVLAPACK_SUCCESS   if successful
+ *    CVLAPACK_MEM_NULL  if the CVODE memory was NULL
+ *    CVLAPACK_MEM_FAIL  if there was a memory allocation failure
+ *    CVLAPACK_ILL_INPUT if a required vector operation is missing or
+ *                       if a bandwidth has an illegal value.
+ * -----------------------------------------------------------------
+ */
 
-  int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower);
+SUNDIALS_EXPORT int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower);
 
 #ifdef __cplusplus
 }

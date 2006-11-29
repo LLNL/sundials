@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:08 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,53 +24,53 @@ extern "C" {
 #include <stdarg.h>
 #include "cpodes_impl.h"
 
-  /*
-   * =================================================================
-   *   C P O D E S    I N T E R N A L    C O N S T A N T S
-   * =================================================================
-   */
+/*
+ * =================================================================
+ *   C P O D E S    I N T E R N A L    C O N S T A N T S
+ * =================================================================
+ */
 
-  /*
-   * Default values for algorithmic constants
-   * ---------------------------------------------------------------
-   *
-   * Step size and number of steps
-   *
-   *    HMIN_DEFAULT      default value for minimum step size
-   *    HMAX_INV_DEFAULT  default value for inverse of maximum step size
-   *    MXHNIL_DEFAULT    default value for mxhnil
-   *    MXSTEP_DEFAULT    default value for maximum number of steps
-   *
-   * Nonlinear solver
-   *    
-   *    MXNCF         max no. of convergence failures during one step try
-   *    NLS_MAXCOR    maximum no. of corrector iterations for the nonlinear solver
-   *    NLS_TEST_COEF constant in error test (used in the test quantity tq[4])
-   *    NLS_CRDOWN    constant used in the estimation of the convergence rate (crate)
-   *    NLS_RDIV      declare divergence if ratio del/delp > NLS_RDIV
-   *    NLS_MSBLS     max no. of steps between lsetup calls
-   *    DGMAX         when nls_type=NEWTON, |gamma/gammap-1| > DGMAX => call lsetup
-   *    ETACF         maximum step size decrease on convergence failure
-   *
-   * Error test
-   *
-   *    MXNEF       max no. of error test failures during one step try
-   *    MXNEF1      max no. of error test failures before forcing a reduction of order
-   *    SMALL_NEF   if an error failure occurs and SMALL_NEF <= nef <= MXNEF1, then
-   *                reset eta =  MIN(eta, ETAMXF)
-   *    LONG_WAIT   number of steps to wait before considering an order change when
-   *                q==1 and MXNEF1 error test failures have occurred   
-   *    SMALL_NST   nst > SMALL_NST => use ETAMX3 
-   *
-   * Projection
-   *
-   *    MXNPF         max no. of projection failures during one step try
-   *    PRJ_MAXCOR    maximum no. of iterations for the nonlinear projection
-   *    PRJ_TEST_COEF constant used in projection tolerance
-   *    PRJ_CRDOWN    constant used in the estimation of the convergence rate (crateP)
-   *    PRJ_RDIV      declare divergence if ratio del/delp > PRJ_RDIV
-   *    PRJ_MSBLS     max no. of steps between lsetupP calls
-   */
+/*
+ * Default values for algorithmic constants
+ * ---------------------------------------------------------------
+ *
+ * Step size and number of steps
+ *
+ *    HMIN_DEFAULT      default value for minimum step size
+ *    HMAX_INV_DEFAULT  default value for inverse of maximum step size
+ *    MXHNIL_DEFAULT    default value for mxhnil
+ *    MXSTEP_DEFAULT    default value for maximum number of steps
+ *
+ * Nonlinear solver
+ *    
+ *    MXNCF         max no. of convergence failures during one step try
+ *    NLS_MAXCOR    maximum no. of corrector iterations for the nonlinear solver
+ *    NLS_TEST_COEF constant in error test (used in the test quantity tq[4])
+ *    NLS_CRDOWN    constant used in the estimation of the convergence rate (crate)
+ *    NLS_RDIV      declare divergence if ratio del/delp > NLS_RDIV
+ *    NLS_MSBLS     max no. of steps between lsetup calls
+ *    DGMAX         when nls_type=NEWTON, |gamma/gammap-1| > DGMAX => call lsetup
+ *    ETACF         maximum step size decrease on convergence failure
+ *
+ * Error test
+ *
+ *    MXNEF       max no. of error test failures during one step try
+ *    MXNEF1      max no. of error test failures before forcing a reduction of order
+ *    SMALL_NEF   if an error failure occurs and SMALL_NEF <= nef <= MXNEF1, then
+ *                reset eta =  MIN(eta, ETAMXF)
+ *    LONG_WAIT   number of steps to wait before considering an order change when
+ *                q==1 and MXNEF1 error test failures have occurred   
+ *    SMALL_NST   nst > SMALL_NST => use ETAMX3 
+ *
+ * Projection
+ *
+ *    MXNPF         max no. of projection failures during one step try
+ *    PRJ_MAXCOR    maximum no. of iterations for the nonlinear projection
+ *    PRJ_TEST_COEF constant used in projection tolerance
+ *    PRJ_CRDOWN    constant used in the estimation of the convergence rate (crateP)
+ *    PRJ_RDIV      declare divergence if ratio del/delp > PRJ_RDIV
+ *    PRJ_MSBLS     max no. of steps between lsetupP calls
+ */
 
 #define HMIN_DEFAULT     RCONST(0.0)
 #define HMAX_INV_DEFAULT RCONST(0.0)
@@ -99,35 +99,35 @@ extern "C" {
 #define PRJ_RDIV      RCONST(2.0)
 #define PRJ_MSBLS     1
 
-  /* 
-   * Control constants for communication between main integrator and
-   * lower level functions in cpStep
-   * ---------------------------------------------------------------
-   *
-   * cpNls input nflag values:
-   *    FIRST_CALL
-   *    PREV_CONV_FAIL
-   *    PREV_PROJ_FAIL
-   *    PREV_ERR_FAIL
-   *    
-   * cpNls return values: 
-   *    CP_SUCCESS,
-   *    CP_LSETUP_FAIL, CP_LSOLVE_FAIL, CP_ODEFUNC_FAIL,
-   *    CP_CONV_FAILURE, CP_REPTD_ODEFUNC_ERR,
-   *    PREDICT_AGAIN
-   *
-   * cpDoProjection return values: 
-   *    CP_SUCCESS,
-   *    CP_PLSETUP_FAIL, CP_PLSOLVE_FAIL, CP_CNSTRFUNC_FAIL, CP_PROJFUNC_FAIL
-   *    CP_PROJ_FAILURE, CP_REPTD_CNSTRFUNC_ERR, CP_REPTD_PROJFUNC_ERR,
-   *    PREDICT_AGAIN
-   * 
-   * cpDoErrorTest return values: 
-   *    CP_SUCCESS,
-   *    CP_ERR_FAILURE,
-   *    PREDICT_AGAIN
-   * 
-   */
+/* 
+ * Control constants for communication between main integrator and
+ * lower level functions in cpStep
+ * ---------------------------------------------------------------
+ *
+ * cpNls input nflag values:
+ *    FIRST_CALL
+ *    PREV_CONV_FAIL
+ *    PREV_PROJ_FAIL
+ *    PREV_ERR_FAIL
+ *    
+ * cpNls return values: 
+ *    CP_SUCCESS,
+ *    CP_LSETUP_FAIL, CP_LSOLVE_FAIL, CP_ODEFUNC_FAIL,
+ *    CP_CONV_FAILURE, CP_REPTD_ODEFUNC_ERR,
+ *    PREDICT_AGAIN
+ *
+ * cpDoProjection return values: 
+ *    CP_SUCCESS,
+ *    CP_PLSETUP_FAIL, CP_PLSOLVE_FAIL, CP_CNSTRFUNC_FAIL, CP_PROJFUNC_FAIL
+ *    CP_PROJ_FAILURE, CP_REPTD_CNSTRFUNC_ERR, CP_REPTD_PROJFUNC_ERR,
+ *    PREDICT_AGAIN
+ * 
+ * cpDoErrorTest return values: 
+ *    CP_SUCCESS,
+ *    CP_ERR_FAILURE,
+ *    PREDICT_AGAIN
+ * 
+ */
 
 #define PREDICT_AGAIN    +3
 
@@ -142,10 +142,10 @@ extern "C" {
 #define PROJFUNC_RECVR   +113
 #define QUADFUNC_RECVR   +114
 
-  /*
-   * CPODES Private Constants
-   * ---------------------------------------------------------------
-   */
+/*
+ * CPODES Private Constants
+ * ---------------------------------------------------------------
+ */
   
 #define ZERO    RCONST(0.0)     /* real 0.0     */
 #define TINY    RCONST(1.0e-10) /* small number */
@@ -163,40 +163,40 @@ extern "C" {
 #define TWELVE  RCONST(12.0)    /* real 12.0    */
 #define HUNDRED RCONST(100.0)   /* real 100.0   */
   
-  /*
-   * =================================================================
-   *   C P O D E S   I N T E R N A L   F U N C T I O N S
-   * =================================================================
-   */
+/*
+ * =================================================================
+ *   C P O D E S   I N T E R N A L   F U N C T I O N S
+ * =================================================================
+ */
 
-  /* Nonlinear solver function */
-  int cpNls(CPodeMem cp_mem, int nflag, realtype saved_t, int *ncfPtr);
+/* Nonlinear solver function */
+int cpNls(CPodeMem cp_mem, int nflag, realtype saved_t, int *ncfPtr);
 
-  /* Projection step function */
-  int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr);
+/* Projection step function */
+int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr);
 
-  /* Error return handler */
-  void cpProcessError(CPodeMem cp_mem, 
-                      int error_code, const char *module, const char *fname, 
-                      const char *msgfmt, ...);
+/* Error return handler */
+void cpProcessError(CPodeMem cp_mem, 
+		    int error_code, const char *module, const char *fname, 
+		    const char *msgfmt, ...);
 
-  /* Functions acting on the Nordsieck history array */ 
-  void cpRestore(CPodeMem cp_mem, realtype saved_t);
-  void cpRescale(CPodeMem cp_mem);
+/* Functions acting on the Nordsieck history array */ 
+void cpRestore(CPodeMem cp_mem, realtype saved_t);
+void cpRescale(CPodeMem cp_mem);
 
-  /*
-   * =================================================================
-   *   M A C R O
-   * =================================================================
-   */
+/*
+ * =================================================================
+ *   M A C R O
+ * =================================================================
+ */
 
 #define loop for(;;)
 
-  /*
-   * =================================================================
-   *   C V O D E    E R R O R    M E S S A G E S
-   * =================================================================
-   */
+/*
+ * =================================================================
+ *   C V O D E    E R R O R    M E S S A G E S
+ * =================================================================
+ */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 
@@ -221,7 +221,7 @@ extern "C" {
 
 #endif
 
-  /* Initialization and I/O error messages */
+/* Initialization and I/O error messages */
 
 #define MSGCP_NO_MEM "cpode_mem = NULL illegal."
 #define MSGCP_CPMEM_FAIL "Allocation of cpode_mem failed."
@@ -258,7 +258,7 @@ extern "C" {
 #define MSGCP_BAD_FREQ "proj_freq < 0 illegal."
 #define MSGCP_BAD_LSFREQ "lset_freq <= 0 illegal."
 
-  /* CPode error messages */
+/* CPode error messages */
 
 #define MSGCP_LSOLVE_NULL "The linear solver's solve routine is NULL."
 #define MSGCP_YOUT_NULL "yout = NULL illegal."
@@ -294,14 +294,14 @@ extern "C" {
 #define MSGCP_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCP_BAD_TSTOP "tstop is behind current " MSG_TIME "in the direction of integration."
 
-  /* Projection error messages */
+/* Projection error messages */
 
 #define MSGCP_PLSOLVE_NULL "The projection linear solver's solve function is NULL."
 #define MSGCP_PLINIT_FAIL "The projection linear solver's init function failed."
 #define MSGCP_PLSETUP_FAILED "At " MSG_TIME ", the projection linear solver's setup function failed in an unrecoverable manner."
 #define MSGCP_PLSOLVE_FAILED "At " MSG_TIME ", the projection linear solver's solve function failed in an unrecoverable manner."
 
-  /* Quadrature integration error messages */
+/* Quadrature integration error messages */
 
 #define MSGCP_NO_QUAD  "Illegal attempt to call before calling CPodeQuadInit."
 #define MSGCP_BAD_ITOLQ "Illegal value for tol_typeQ. The legal values are CP_SS and CP_SV."

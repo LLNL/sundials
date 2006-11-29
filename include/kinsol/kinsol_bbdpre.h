@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -209,11 +209,11 @@ typedef int (*KINLocalFn)(int Nlocal, N_Vector uu,
  * -----------------------------------------------------------------
  */
 
-void *KINBBDPrecAlloc(void *kinmem, int Nlocal, 
-		      int mudq, int mldq,
-		      int mukeep, int mlkeep,
-		      realtype dq_rel_uu, 
-		      KINLocalFn gloc, KINCommFn gcomm);
+SUNDIALS_EXPORT void *KINBBDPrecAlloc(void *kinmem, int Nlocal, 
+				      int mudq, int mldq,
+				      int mukeep, int mlkeep,
+				      realtype dq_rel_uu, 
+				      KINLocalFn gloc, KINCommFn gcomm);
 
 /*
  * -----------------------------------------------------------------
@@ -243,7 +243,7 @@ void *KINBBDPrecAlloc(void *kinmem, int Nlocal,
  * -----------------------------------------------------------------
  */
 
-int KINBBDSptfqmr(void *kinmem, int maxl, void *p_data);
+SUNDIALS_EXPORT int KINBBDSptfqmr(void *kinmem, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------
@@ -273,7 +273,7 @@ int KINBBDSptfqmr(void *kinmem, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-int KINBBDSpbcg(void *kinmem, int maxl, void *p_data);
+SUNDIALS_EXPORT int KINBBDSpbcg(void *kinmem, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------
@@ -303,7 +303,7 @@ int KINBBDSpbcg(void *kinmem, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-int KINBBDSpgmr(void *kinmem, int maxl, void *p_data);
+SUNDIALS_EXPORT int KINBBDSpgmr(void *kinmem, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------
@@ -314,7 +314,7 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-void KINBBDPrecFree(void **p_data);
+SUNDIALS_EXPORT void KINBBDPrecFree(void **p_data);
 
 /*
  * -----------------------------------------------------------------
@@ -326,8 +326,8 @@ void KINBBDPrecFree(void **p_data);
  * -----------------------------------------------------------------
  */
 
-int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP);
-int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 
 /*
  * -----------------------------------------------------------------
@@ -336,19 +336,19 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
  * -----------------------------------------------------------------
  */
 
-char *KINBBDPrecGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *KINBBDPrecGetReturnFlagName(int flag);
 
 /* prototypes for functions KINBBDPrecSetup and KINBBDPrecSolve */
 
-int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
-		    N_Vector fval, N_Vector fscale, 
-		    void *p_data,
-		    N_Vector vtemp1, N_Vector vtemp2);
+SUNDIALS_EXPORT int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
+				    N_Vector fval, N_Vector fscale, 
+				    void *p_data,
+				    N_Vector vtemp1, N_Vector vtemp2);
 
-int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
-		    N_Vector fval, N_Vector fscale, 
-		    N_Vector vv, void *p_data,
-		    N_Vector vtemp);
+SUNDIALS_EXPORT int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
+				    N_Vector fval, N_Vector fscale, 
+				    N_Vector vv, void *p_data,
+				    N_Vector vtemp);
 
 #ifdef __cplusplus
 }

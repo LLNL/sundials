@@ -271,10 +271,15 @@ func_infer_tag ()
 	# If $tagname still isn't set, then no tagged configuration
 	# was found and let the user know that the "--tag" command
 	# line option must be used.
+        #
+        #
+        # Modified by R.Serban (Nov. 28, 2006) to use the default
+        # CC tag if unable to infer one
 	if test -z "$tagname"; then
-	  $echo "$modename: unable to infer tagged configuration"
-	  $echo "$modename: specify a tag with \`--tag'" 1>&2
-	  exit $EXIT_FAILURE
+          tagname=CC
+#	  $echo "$modename: unable to infer tagged configuration"
+#	  $echo "$modename: specify a tag with \`--tag'" 1>&2
+#	  exit $EXIT_FAILURE
 #        else
 #          $echo "$modename: using $tagname tagged configuration"
 	fi

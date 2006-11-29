@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:27:53 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -135,7 +135,7 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl);
+SUNDIALS_EXPORT SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl);
 
 /*
  * -----------------------------------------------------------------
@@ -200,10 +200,10 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl);
  * -----------------------------------------------------------------
  */
 
-int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
-		 int pretype, realtype delta, void *P_data, N_Vector sx,
-		 N_Vector sb, ATimesFn atimes, PSolveFn psolve,
-		 realtype *res_norm, int *nli, int *nps);
+SUNDIALS_EXPORT int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
+				 int pretype, realtype delta, void *P_data, N_Vector sx,
+				 N_Vector sb, ATimesFn atimes, PSolveFn psolve,
+				 realtype *res_norm, int *nli, int *nps);
 
 /* Return values for SptfqmrSolve */
 
@@ -229,7 +229,7 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
  * -----------------------------------------------------------------
  */
 
-void SptfqmrFree(SptfqmrMem mem);
+SUNDIALS_EXPORT void SptfqmrFree(SptfqmrMem mem);
 
 /*
  * -----------------------------------------------------------------

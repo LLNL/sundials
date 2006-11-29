@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:07 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,58 +24,58 @@ extern "C" {
 #include <kinsol/kinsol_direct.h>
 #include <sundials/sundials_lapack.h>
 
-  /*
-   * =================================================================
-   *            E X P O R T E D    F U N C T I O N S 
-   * =================================================================
-   */
+/*
+ * =================================================================
+ *            E X P O R T E D    F U N C T I O N S 
+ * =================================================================
+ */
 
-  /*
-   * -----------------------------------------------------------------
-   * Function : KINLapackDense
-   * -----------------------------------------------------------------
-   * A call to the KINLapackDense function links the main solver
-   * with the KINLAPACK linear solver using dense Jacobians.
-   *
-   * kinmem is the pointer to the solver memory returned by KINCreate.
-   *
-   * N is the size of the ODE system.
-   *
-   * The return value of KINLapackDense is one of:
-   *    KINDIRECT_SUCCESS   if successful
-   *    KINDIRECT_MEM_NULL  if the KINSOL memory was NULL
-   *    KINDIRECT_MEM_FAIL  if there was a memory allocation failure
-   *    KINDIRECT_ILL_INPUT if a required vector operation is missing
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function : KINLapackDense
+ * -----------------------------------------------------------------
+ * A call to the KINLapackDense function links the main solver
+ * with the KINLAPACK linear solver using dense Jacobians.
+ *
+ * kinmem is the pointer to the solver memory returned by KINCreate.
+ *
+ * N is the size of the ODE system.
+ *
+ * The return value of KINLapackDense is one of:
+ *    KINDIRECT_SUCCESS   if successful
+ *    KINDIRECT_MEM_NULL  if the KINSOL memory was NULL
+ *    KINDIRECT_MEM_FAIL  if there was a memory allocation failure
+ *    KINDIRECT_ILL_INPUT if a required vector operation is missing
+ * -----------------------------------------------------------------
+ */
 
-  int KINLapackDense(void *kinmem, int N);
+SUNDIALS_EXPORT int KINLapackDense(void *kinmem, int N);
 
-  /*
-   * -----------------------------------------------------------------
-   * Function : KINLapackBand
-   * -----------------------------------------------------------------
-   * A call to the KINLapackBand function links the main solver
-   * with the KINLAPACK linear solver using banded Jacobians. 
-   *
-   * kinmem is the pointer to the solver memory returned by KINCreate.
-   *
-   * N is the size of the ODE system.
-   *
-   * mupper is the upper bandwidth of the band Jacobian approximation.
-   *
-   * mlower is the lower bandwidth of the band Jacobian approximation.
-   *
-   * The return value of KINLapackBand is one of:
-   *    KINDIRECT_SUCCESS   if successful
-   *    KINDIRECT_MEM_NULL  if the KINSOL memory was NULL
-   *    KINDIRECT_MEM_FAIL  if there was a memory allocation failure
-   *    KINDIRECT_ILL_INPUT if a required vector operation is missing
-   *                        or if a bandwidth has an illegal value.
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function : KINLapackBand
+ * -----------------------------------------------------------------
+ * A call to the KINLapackBand function links the main solver
+ * with the KINLAPACK linear solver using banded Jacobians. 
+ *
+ * kinmem is the pointer to the solver memory returned by KINCreate.
+ *
+ * N is the size of the ODE system.
+ *
+ * mupper is the upper bandwidth of the band Jacobian approximation.
+ *
+ * mlower is the lower bandwidth of the band Jacobian approximation.
+ *
+ * The return value of KINLapackBand is one of:
+ *    KINDIRECT_SUCCESS   if successful
+ *    KINDIRECT_MEM_NULL  if the KINSOL memory was NULL
+ *    KINDIRECT_MEM_FAIL  if there was a memory allocation failure
+ *    KINDIRECT_ILL_INPUT if a required vector operation is missing
+ *                        or if a bandwidth has an illegal value.
+ * -----------------------------------------------------------------
+ */
 
-  int KINLapackBand(void *kinmem, int N, int mupper, int mlower);
+SUNDIALS_EXPORT int KINLapackBand(void *kinmem, int N, int mupper, int mlower);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:06 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-29 00:05:08 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,41 +24,41 @@ extern "C" {
 
 #include <cpodes/cpodes_spils.h>
 
-  /*
-   * =================================================================
-   *   C P S P I L S    I N T E R N A L    C O N S T A N T S
-   * =================================================================
-   */
+/*
+ * =================================================================
+ *   C P S P I L S    I N T E R N A L    C O N S T A N T S
+ * =================================================================
+ */
 
-  /* 
-   * -----------------------------------------------------------------
-   * Types of iterative linear solvers 
-   * -----------------------------------------------------------------
-   */
+/* 
+ * -----------------------------------------------------------------
+ * Types of iterative linear solvers 
+ * -----------------------------------------------------------------
+ */
 
 #define SPILS_SPGMR   1
 #define SPILS_SPBCG   2
 #define SPILS_SPTFQMR 3
 
-  /*
-   * -----------------------------------------------------------------
-   * CPSPILS solver constants
-   * -----------------------------------------------------------------
-   * CPSPILS_MAXL   : default value for the maximum Krylov
-   *                  dimension
-   *
-   * CPSPILS_MSBPRE : maximum number of steps between
-   *                  preconditioner evaluations
-   *
-   * CPSPILS_DGMAX  : maximum change in gamma between
-   *                  preconditioner evaluations
-   *
-   * CPSPILS_DELT   : default value for factor by which the
-   *                  tolerance on the nonlinear iteration is
-   *                  multiplied to get a tolerance on the linear
-   *                  iteration
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * CPSPILS solver constants
+ * -----------------------------------------------------------------
+ * CPSPILS_MAXL   : default value for the maximum Krylov
+ *                  dimension
+ *
+ * CPSPILS_MSBPRE : maximum number of steps between
+ *                  preconditioner evaluations
+ *
+ * CPSPILS_DGMAX  : maximum change in gamma between
+ *                  preconditioner evaluations
+ *
+ * CPSPILS_DELT   : default value for factor by which the
+ *                  tolerance on the nonlinear iteration is
+ *                  multiplied to get a tolerance on the linear
+ *                  iteration
+ * -----------------------------------------------------------------
+ */
   
 #define CPSPILS_MAXL   5
 #define CPSPILS_MSBPRE 50

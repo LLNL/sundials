@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:47 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-29 00:05:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,38 +24,38 @@ extern "C" {
 #include <cvodes/cvodes_direct.h>
 #include <sundials/sundials_dense.h>
 
-  /*
-   * -----------------------------------------------------------------
-   * Function: CVDense
-   * -----------------------------------------------------------------
-   * A call to the CVDense function links the main integrator with
-   * the CVSDENSE linear solver.
-   *
-   * cvode_mem is the pointer to the integrator memory returned by
-   *           CVodeCreate.
-   *
-   * N is the size of the ODE system.
-   *
-   * The return value of CVDense is one of:
-   *    CVDIRECT_SUCCESS   if successful
-   *    CVDIRECT_MEM_NULL  if the cvode memory was NULL
-   *    CVDIRECT_MEM_FAIL  if there was a memory allocation failure
-   *    CVDIRECT_ILL_INPUT if a required vector operation is missing
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function: CVDense
+ * -----------------------------------------------------------------
+ * A call to the CVDense function links the main integrator with
+ * the CVSDENSE linear solver.
+ *
+ * cvode_mem is the pointer to the integrator memory returned by
+ *           CVodeCreate.
+ *
+ * N is the size of the ODE system.
+ *
+ * The return value of CVDense is one of:
+ *    CVDIRECT_SUCCESS   if successful
+ *    CVDIRECT_MEM_NULL  if the cvode memory was NULL
+ *    CVDIRECT_MEM_FAIL  if there was a memory allocation failure
+ *    CVDIRECT_ILL_INPUT if a required vector operation is missing
+ * -----------------------------------------------------------------
+ */
 
-  int CVDense(void *cvode_mem, int N);
+SUNDIALS_EXPORT int CVDense(void *cvode_mem, int N);
 
-  /*
-   * -----------------------------------------------------------------
-   * Function: CVDenseB
-   * -----------------------------------------------------------------
-   * CVDenseB links the main CVODE integrator with the CVSDENSE
-   * linear solver for the backward integration.
-   * -----------------------------------------------------------------
-   */
+/*
+ * -----------------------------------------------------------------
+ * Function: CVDenseB
+ * -----------------------------------------------------------------
+ * CVDenseB links the main CVODE integrator with the CVSDENSE
+ * linear solver for the backward integration.
+ * -----------------------------------------------------------------
+ */
 
-  int CVDenseB(void *cvadj_mem, int nB);
+SUNDIALS_EXPORT int CVDenseB(void *cvadj_mem, int nB);
 
 #ifdef __cplusplus
 }

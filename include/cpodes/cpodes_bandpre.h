@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:46 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-29 00:05:05 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -119,7 +119,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-void *CPBandPrecAlloc(void *cpode_mem, int N, int mu, int ml);
+SUNDIALS_EXPORT void *CPBandPrecAlloc(void *cpode_mem, int N, int mu, int ml);
 
 /*
  * -----------------------------------------------------------------
@@ -148,7 +148,7 @@ void *CPBandPrecAlloc(void *cpode_mem, int N, int mu, int ml);
  * -----------------------------------------------------------------
  */
 
-int CPBPSptfqmr(void *cpode_mem, int pretype, int maxl, void *p_data);
+SUNDIALS_EXPORT int CPBPSptfqmr(void *cpode_mem, int pretype, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------
@@ -177,7 +177,7 @@ int CPBPSptfqmr(void *cpode_mem, int pretype, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-int CPBPSpbcg(void *cpode_mem, int pretype, int maxl, void *p_data);
+SUNDIALS_EXPORT int CPBPSpbcg(void *cpode_mem, int pretype, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------
@@ -206,7 +206,7 @@ int CPBPSpbcg(void *cpode_mem, int pretype, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-int CPBPSpgmr(void *cpode_mem, int pretype, int maxl, void *p_data);
+SUNDIALS_EXPORT int CPBPSpgmr(void *cpode_mem, int pretype, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------
@@ -217,7 +217,7 @@ int CPBPSpgmr(void *cpode_mem, int pretype, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-void CPBandPrecFree(void **bp_data);
+SUNDIALS_EXPORT void CPBandPrecFree(void **bp_data);
 
 /*
  * -----------------------------------------------------------------
@@ -234,8 +234,8 @@ void CPBandPrecFree(void **bp_data);
  * -----------------------------------------------------------------
  */
 
-int CPBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS);
-int CPBandPrecGetNumFctEvals(void *bp_data, long int *nfevalsBP);
+SUNDIALS_EXPORT int CPBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CPBandPrecGetNumFctEvals(void *bp_data, long int *nfevalsBP);
 
 /*
  * -----------------------------------------------------------------
@@ -244,7 +244,7 @@ int CPBandPrecGetNumFctEvals(void *bp_data, long int *nfevalsBP);
  * -----------------------------------------------------------------
  */
   
-char *CPBandPrecGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *CPBandPrecGetReturnFlagName(int flag);
 
 #ifdef __cplusplus
 }

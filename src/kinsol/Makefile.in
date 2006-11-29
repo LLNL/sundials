@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2006-11-22 00:12:50 $
+# $Revision: 1.7 $
+# $Date: 2006-11-29 00:05:09 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,15 +41,25 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LAPACK_ENABLED = @LAPACK_ENABLED@
+
 top_srcdir = $(srcdir)/../..
 
-INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include
 
 LIB_REVISION = 0:1:0
 
-KINSOL_LIB       = libsundials_kinsol.la
-KINSOL_LIB_FILES = kinsol.lo kinsol_io.lo kinsol_direct.lo kinsol_dense.lo kinsol_band.lo kinsol_lapack.lo kinsol_spils.lo kinsol_spgmr.lo kinsol_spbcgs.lo kinsol_sptfqmr.lo kinsol_bbdpre.lo
-KINSOL_OBJ_FILES = kinsol.o kinsol_io.o kinsol_dense.o kinsol_direct.o kinsol_band.o kinsol_lapack.o kinsol_spils.o kinsol_spgmr.o kinsol_spbcgs.o kinsol_sptfqmr.o kinsol_bbdpre.o
+KINSOL_LIB    = libsundials_kinsol.la
+KINSOL_BL_LIB = libsundials_kinsol_bl.la
+
+KINSOL_SRC_FILES = kinsol.c kinsol_io.c kinsol_direct.c kinsol_dense.c kinsol_band.c kinsol_spils.c kinsol_spgmr.c kinsol_spbcgs.c kinsol_sptfqmr.c kinsol_bbdpre.c
+KINSOL_BL_SRC_FILES = kinsol_lapack.c
+
+KINSOL_OBJ_FILES = $(KINSOL_SRC_FILES:.c=.o)
+KINSOL_BL_OBJ_FILES = $(KINSOL_BL_SRC_FILES:.c=.o)
+
+KINSOL_LIB_FILES = $(KINSOL_SRC_FILES:.c=.lo)
+KINSOL_BL_LIB_FILES = $(KINSOL_BL_SRC_FILES:.c=.lo)
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
@@ -63,11 +73,22 @@ SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_nvector.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 all: $(KINSOL_LIB)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make all_bl;                               \
+	fi
+
+all_bl: $(KINSOL_BL_LIB)
 
 $(KINSOL_LIB): shared $(KINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+
+$(KINSOL_BL_LIB): shared $(KINSOL_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_BL_LIB) $(KINSOL_BL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 install: $(KINSOL_LIB)
 	$(mkinstalldirs) $(includedir)/kinsol
@@ -77,16 +98,23 @@ install: $(KINSOL_LIB)
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_direct.h  $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_dense.h   $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_band.h    $(includedir)/kinsol/
-	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_lapack.h  $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_spgmr.h   $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_spbcgs.h  $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_sptfqmr.h $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_bbdpre.h  $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_spils.h   $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/src/kinsol/kinsol_impl.h        $(includedir)/kinsol/
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make install_bl;                           \
+	fi
+
+install_bl: $(KINSOL_BL_LIB)
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(KINSOL_BL_LIB) $(libdir)
+	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_lapack.h  $(includedir)/kinsol/
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(KINSOL_LIB)
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(KINSOL_BL_LIB)
 	rm -f $(includedir)/kinsol/kinsol.h
 	rm -f $(includedir)/kinsol/kinsol_direct.h
 	rm -f $(includedir)/kinsol/kinsol_dense.h
@@ -98,9 +126,7 @@ uninstall:
 	rm -f $(includedir)/kinsol/kinsol_bbdpre.h
 	rm -f $(includedir)/kinsol/kinsol_spils.h
 	rm -f $(includedir)/kinsol/kinsol_impl.h
-	@if test -d ${includedir}/kinsol ; then \
-	   rmdir ${includedir}/kinsol ;         \
-	 fi
+	$(rminstalldirs) ${includedir}/kinsol
 
 shared:
 	@cd ${top_builddir}/src/sundials ; \
@@ -109,8 +135,11 @@ shared:
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(KINSOL_LIB)
+	$(LIBTOOL) --mode=clean rm -f $(KINSOL_BL_LIB)
 	rm -f $(KINSOL_LIB_FILES)
+	rm -f $(KINSOL_BL_LIB_FILES)
 	rm -f $(KINSOL_OBJ_FILES)
+	rm -f $(KINSOL_BL_OBJ_FILES)
 
 distclean: clean
 	rm -f Makefile

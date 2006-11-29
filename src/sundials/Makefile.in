@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2006-11-22 00:12:51 $
+# $Revision: 1.8 $
+# $Date: 2006-11-29 00:05:09 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -42,18 +42,18 @@ LIBS     = @LIBS@
 
 top_srcdir = $(srcdir)/../..
 
-INCLUDES = -I$(top_builddir)/src -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include
 
 SHARED_LIB_FILES = sundials_direct.lo sundials_band.lo sundials_dense.lo sundials_lapack.lo sundials_iterative.lo sundials_math.lo sundials_nvector.lo sundials_spgmr.lo sundials_spbcgs.lo sundials_sptfqmr.lo
 SHARED_OBJ_FILES = sundials_direct.o sundials_band.o sundials_dense.o sundials_lapack.o sundials_iterative.o sundials_math.o sundials_nvector.o sundials_spgmr.o sundials_spbcgs.o sundials_sptfqmr.o
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
 all: $(SHARED_LIB_FILES)
 
 install: $(SHARED_LIB_FILES)
 	$(mkinstalldirs)  $(includedir)/sundials
-	$(mkinstalldirs)  $(bindir)
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_direct.h     $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_band.h       $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_dense.h      $(includedir)/sundials/
@@ -65,8 +65,7 @@ install: $(SHARED_LIB_FILES)
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_math.h       $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_types.h      $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_nvector.h    $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_builddir)/src/sundials/sundials_config.h       $(includedir)/sundials/
-	$(INSTALL_PROG)   $(top_builddir)/sundials-config                      $(bindir)/
+	$(INSTALL_HEADER) $(top_builddir)/include/sundials/sundials_config.h   $(includedir)/sundials/
 
 uninstall:
 	rm -f $(includedir)/sundials/sundials_direct.h
@@ -81,10 +80,7 @@ uninstall:
 	rm -f $(includedir)/sundials/sundials_types.h
 	rm -f $(includedir)/sundials/sundials_nvector.h
 	rm -f $(includedir)/sundials/sundials_config.h
-	@if test -d ${includedir}/sundials ; then \
-	   rmdir ${includedir}/sundials ;         \
-	 fi
-	rm -f $(bindir)/sundials-config
+	$(rminstalldirs) $(includedir)/sundials
 
 clean:
 	rm -f $(SHARED_LIB_FILES)
@@ -92,6 +88,7 @@ clean:
 	rm -rf .libs
 
 distclean: clean
+	rm -f $(top_builddir)/include/sundials/sundials_config.h
 	rm -f Makefile
 
 sundials_direct.lo: $(srcdir)/sundials_direct.c
