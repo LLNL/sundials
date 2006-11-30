@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-30 21:11:28 $
+ * $Revision: 1.5 $
+ * $Date: 2006-11-30 21:16:45 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -757,6 +757,7 @@ SUNDIALS_EXPORT int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, voi
  * CP_LINIT_FAIL
  * CP_PLINIT_FAIL
  * CP_FIRST_CNSTRFUNC_ERR
+ * CP_PROJ_FAILURE
  * CP_CNSTRFUNC_FAIL
  * CP_PROJFUNC_FAIL
  * CP_PLSETUP_FAIL
@@ -1102,7 +1103,7 @@ SUNDIALS_EXPORT int CPodeGetQuadDky(void *cpode_mem, realtype t, int k, N_Vector
  * -----------------------------------------------------------------
  */
 
-int CPodeGetConsistentIC(void *cpode_mem, N_Vector yy0, N_Vector yp0);
+SUNDIALS_EXPORT int CPodeGetConsistentIC(void *cpode_mem, N_Vector yy0, N_Vector yp0);
 
 /*
  * -----------------------------------------------------------------
