@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-30 21:11:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -36,7 +36,6 @@
  * =================================================================
  */
 
-static realtype cpCnstrWRMSnorm(CPodeMem cp_mem);
 static int cpProjLinear(CPodeMem);
 static int cpProjNonlinear(CPodeMem);
 static int cpProjNonlinearIteration(CPodeMem cp_mem);
@@ -51,7 +50,6 @@ static int cpProjNonlinearIteration(CPodeMem cp_mem);
 #define zn             (cp_mem->cp_zn) 
 #define y              (cp_mem->cp_y)
 #define nst            (cp_mem->cp_nst)
-#define reltol         (cp_mem->cp_reltol)
 #define ewt            (cp_mem->cp_ewt)
 #define acor           (cp_mem->cp_acor)
 #define acnrm          (cp_mem->cp_acnrm)
@@ -125,7 +123,7 @@ static int cpProjNonlinearIteration(CPodeMem cp_mem);
 int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
 {
   int flag, retval;
-  realtype cnrm;
+  realtype cnorm;
 
   switch (proj_type) {
 
@@ -138,17 +136,18 @@ int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
     if (retval > 0) {flag = CNSTRFUNC_RECVR; break;}
 
     /*
-     * If activated, evaluate WRMS norm of constraint violation.
+     * If activated, evaluate WL2 norm of constraint violation.
      * If the constraint violation is small enough, return. 
      */
     if (test_cnstr) {
-      cnrm = cpCnstrWRMSnorm(cp_mem);
+      cnorm = N_VWL2Norm(ctemp, ctol);
+      cnorm /= prjcoef;
 
 #ifdef CPODES_DEBUG
-      printf("      Constraint violation norm = %lg\n",cnrm);
+      printf("      Constraint violation norm = %lg\n",cnorm);
 #endif
 
-      if (cnrm < ONE) {
+      if (cnorm <= ONE) {
         applyProj = FALSE;
         return(CP_SUCCESS);
       }
@@ -246,25 +245,6 @@ int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
 }
 
 /*
- * cpCnstrWRMSnorm
- * 
- * Computes the WRMS norm of the constraint violation vector.
- */
-
-static realtype cpCnstrWRMSnorm(CPodeMem cp_mem)
-{
-  realtype cnrm;
-
-  N_VAbs(ctemp, tempvP1);
-  N_VLinearSum(reltol, tempvP1, ONE, ctol, tempvP1);
-  N_VInv(tempvP1, tempvP1);
-
-  cnrm = N_VWrmsNorm(ctemp, tempvP1);
-
-  return(cnrm);
-}
-
-/*
  * cpProjLinear
  *
  * This is the internal CPODES implementation of the projection function
@@ -351,7 +331,7 @@ static int cpProjNonlinear(CPodeMem cp_mem)
 {
   booleantype callSetup;
   int retval;
-
+  
 #ifdef CPODES_DEBUG
   printf("      Internal nonlinear projection\n");
 #endif
@@ -509,10 +489,6 @@ static int cpProjNonlinearIteration(CPodeMem cp_mem)
 #endif
 
     if (dcon <= ONE) {
-
-#ifdef CPODES_DEBUG_SERIAL
-      printf("            acorP = "); N_VPrint_Serial(acorP);
-#endif
 
       if (project_err) acnrm = N_VWrmsNorm(errP, ewt);
       

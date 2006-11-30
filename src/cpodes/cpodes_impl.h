@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-30 21:11:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -358,6 +358,17 @@ typedef struct CPodeMemRec {
   int cp_taskc;                /* copy of parameter task                      */
   int cp_irfnd;                /* flag showing whether last step had a root   */
   long int cp_nge;             /* counter for g evaluations                   */
+
+  /*------------------------------
+    Consistent IC calculation data
+    ------------------------------*/
+
+  realtype cp_icprj_convcoef;
+  realtype cp_icprj_normtol;
+  int cp_icprj_maxrcvr;
+  int cp_icprj_maxiter;
+  N_Vector cp_yy0;
+  N_Vector cp_yp0;
 
 } *CPodeMem;
 

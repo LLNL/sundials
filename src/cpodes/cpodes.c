@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-30 21:11:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -207,7 +207,6 @@ static int cpRcheck3(CPodeMem cp_mem);
 static int cpRootfind(CPodeMem cp_mem);
 
 /* Internal error weight evaluation functions */
-static int cpEwtSet(N_Vector ycur, N_Vector weight, void *edata);
 static int cpEwtSetSS(CPodeMem cp_mem, N_Vector ycur, N_Vector weight);
 static int cpEwtSetSV(CPodeMem cp_mem, N_Vector ycur, N_Vector weight);
 static int cpQuadEwtSet(CPodeMem cp_mem, N_Vector qcur, N_Vector weightQ);
@@ -771,8 +770,9 @@ int CPodeProjInit(void *cpode_mem, int proj_norm,
   cp_mem->cp_cfun       = cfun;
   cp_mem->cp_c_data     = c_data;
 
-  /* Copy ctol into memory */
+  /* Copy 1/ctol into memory */
   N_VScale(ONE, ctol, cp_mem->cp_ctol);
+  N_VInv(cp_mem->cp_ctol, cp_mem->cp_ctol);
 
   /* internal projection is now enabled */
   cp_mem->cp_proj_type = CP_PROJ_INTERNAL;
@@ -2471,7 +2471,7 @@ static int cpHinExpl(CPodeMem cp_mem, realtype hlb, realtype hub, int sign, real
       /* If successful, we can use ypp */
       if (retval == CP_SUCCESS) {hgOK = TRUE; break;}
       /* fun() or qfun() failed recoverably; cut step size and test it again */
-      hg *= POINT2;
+      hg *= PT2;
     }
 
     /* If fun() or qfun() failed recoverably H_MAXITERS times */
@@ -2629,13 +2629,6 @@ static int cpStep(CPodeMem cp_mem)
   printf("\nStep # %ld   t = %lg\n",nst,tn);
 #endif
 
-#ifdef CPODES_DEBUG_SERIAL
-  int i;
-  for(i=0; i<=q; i++) {
-    printf("   zn[%d] = ",i); N_VPrint_Serial(zn[i]);
-  }
-#endif
-
   /* If the step size was changed, adjust method parameters */
   if ((nst > 0) && (hprime != h)) {
 
@@ -2648,12 +2641,6 @@ static int cpStep(CPodeMem cp_mem)
 
 #ifdef CPODES_DEBUG
     printf("   Done  adjust parameters\n");
-#endif
-
-#ifdef CPODES_DEBUG_SERIAL
-    for(i=0; i<=q; i++) {
-      printf("   zn[%d] = ",i); N_VPrint_Serial(zn[i]);
-    }
 #endif
 
   }
@@ -2670,9 +2657,6 @@ static int cpStep(CPodeMem cp_mem)
 #ifdef CPODES_DEBUG
     printf("   Predict\n");
 #endif
-#ifdef CPODES_DEBUG_SERIAL
-    printf("      y = "); N_VPrint_Serial(y);
-#endif
 
     /* Solve the nonlinear system to correct the states */
 
@@ -2684,9 +2668,6 @@ static int cpStep(CPodeMem cp_mem)
 
 #ifdef CPODES_DEBUG
     printf("   Nonlinear solver return flag = %d\n",kflag);
-#endif
-#ifdef CPODES_DEBUG_SERIAL
-    printf("      y = "); N_VPrint_Serial(y);
 #endif
 
     if (kflag == PREDICT_AGAIN) {
@@ -2727,9 +2708,6 @@ static int cpStep(CPodeMem cp_mem)
 
 #ifdef CPODES_DEBUG
       printf("   Projection return flag = %d\n",pflag);
-#endif
-#ifdef CPODES_DEBUG_SERIAL
-      printf("      y = "); N_VPrint_Serial(y);
 #endif
 
       if (pflag == PREDICT_AGAIN) {
@@ -3911,6 +3889,28 @@ static int cpHandleFailure(CPodeMem cp_mem, int flag)
     break;
   case CP_TOO_CLOSE:
     cpProcessError(cp_mem, CP_TOO_CLOSE, "CPODES", "CPode", MSGCP_TOO_CLOSE);
+    break;
+  case CP_PROJ_FAILURE:
+    cpProcessError(cp_mem, CP_PROJ_FAILURE, "CPODES", "CPode", MSGCP_PROJ_FAILS, tn, h);
+    break;
+  case CP_CNSTRFUNC_FAIL:
+    cpProcessError(cp_mem, CP_CNSTRFUNC_FAIL, "CPODES", "CPode", MSGCP_CNSTRFUNC_FAILED, tn);
+    break;
+  case CP_REPTD_CNSTRFUNC_ERR:
+    cpProcessError(cp_mem, CP_REPTD_CNSTRFUNC_ERR, "CPODES", "CPode", MSGCP_CNSTRFUNC_REPTD, tn);
+    break;
+  case CP_PROJFUNC_FAIL:
+    cpProcessError(cp_mem, CP_PROJFUNC_FAIL, "CPODES", "CPode", MSGCP_PROJFUNC_FAILED, tn);
+    break;
+  case CP_REPTD_PROJFUNC_ERR:
+    cpProcessError(cp_mem, CP_REPTD_PROJFUNC_ERR, "CPODES", "CPode", MSGCP_PROJFUNC_REPTD, tn);
+    break;
+  case CP_PLSETUP_FAIL:
+    cpProcessError(cp_mem, CP_PLSETUP_FAIL, "CPODES", "CPode", MSGCP_PLSETUP_FAILED, tn);
+    break;
+  case CP_PLSOLVE_FAIL:
+    cpProcessError(cp_mem, CP_PLSOLVE_FAIL, "CPODES", "CPode", MSGCP_PLSOLVE_FAILED, tn);
+    break;
   default:
     return(CP_SUCCESS);   
   }
@@ -4076,8 +4076,8 @@ static int cpSLdet(CPodeMem cp_mem)
       sumrat = sumrat + rat[i][k];
       sumrsq = sumrsq + rat[i][k]*rat[i][k];
     } 
-    rav[k] = FOURTH*sumrat;
-    vrat[k] = ABS(FOURTH*sumrsq - rav[k]*rav[k]);
+    rav[k] = PT25 * sumrat;
+    vrat[k] = ABS(PT25*sumrsq - rav[k]*rav[k]);
     
     qc[5][k] = ssdat[1][k]*ssdat[3][k] - ssdat[2][k]*ssdat[2][k];
     qc[4][k] = ssdat[2][k]*ssdat[3][k] - ssdat[1][k]*ssdat[4][k];
@@ -4265,7 +4265,7 @@ static int cpSLdet(CPodeMem cp_mem)
   
   ratp = sigsq[3]/sigsq[2];
   ratm = sigsq[1]/sigsq[2];
-  qfac1 = FOURTH*(q*q - ONE);
+  qfac1 = PT25 * (q*q - ONE);
   qfac2 = TWO/(q - ONE);
   bb = ratp*ratm - ONE - qfac1*ratp;
   tem = ONE - qfac2*bb;
@@ -4341,7 +4341,7 @@ static int cpRcheck1(CPodeMem cp_mem)
      y(t0+smallh) = zn[0] + (smallh/h) * zn[1]
      y'(t0+smallh) = zn[1]
   */
-  hratio = MAX(ttol/ABS(h), TENTH);
+  hratio = MAX(ttol/ABS(h), PT1);
   smallh = hratio*h;
   tlo += smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
@@ -4604,12 +4604,12 @@ static int cpRootfind(CPodeMem cp_mem)
     tmid = thi - (thi - tlo)*ghi[imax]/(ghi[imax] - alpha*glo[imax]);
     if (ABS(tmid - tlo) < HALF*ttol) {
       fracint = ABS(thi - tlo)/ttol;
-      fracsub = (fracint > FIVE) ? TENTH : HALF/fracint;
+      fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
       tmid = tlo + fracsub*(thi - tlo);
     }
     if (ABS(thi - tmid) < HALF*ttol) {
       fracint = ABS(thi - tlo)/ttol;
-      fracsub = (fracint > FIVE) ? TENTH : HALF/fracint;
+      fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
       tmid = thi - fracsub*(thi - tlo);
     }
 
@@ -4700,7 +4700,7 @@ static int cpRootfind(CPodeMem cp_mem)
  * All the real work is done in the routines cpEwtSetSS, cpEwtSetSV.
  */
 
-static int cpEwtSet(N_Vector ycur, N_Vector weight, void *edata)
+int cpEwtSet(N_Vector ycur, N_Vector weight, void *edata)
 {
   CPodeMem cp_mem;
   int flag = 0;

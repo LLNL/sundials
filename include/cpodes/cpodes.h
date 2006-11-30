@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:05 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-30 21:11:28 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -211,6 +211,9 @@ extern "C" {
 #define CP_REPTD_CNSTRFUNC_ERR  -56
 #define CP_REPTD_PROJFUNC_ERR   -57
 
+#define CP_FIRST_CNSTRFUNC_ERR  -60
+#define CP_NO_RECOVERY          -61
+#define CP_LINESEARCH_FAIL      -62
 
 /*
  * =================================================================
@@ -604,8 +607,8 @@ SUNDIALS_EXPORT int CPodeReInit(void *cpode_mem,
  *              a template for cloning other vectors. However, if 
  *              enabled through CPodeSetProjTestCnstr, these values,
  *              together with reltol, are used to compute the 
- *              constraint WRMS norm and a projection will be 
- *              perfomed only if ||c(t)|_WRMS >= 1.0
+ *              constraint WL2 norm and a projection will be 
+ *              perfomed only if ||c(t)|_WL2 >= 1.0
  *
  * The return value of CPodeProjInit is equal to CP_SUCCESS = 0 if
  * there were no errors; otherwise it is a negative int equal to:
@@ -714,6 +717,56 @@ SUNDIALS_EXPORT int CPodeQuadReInit(void *cpode_mem, CPQuadFn qfun, void *q_data
  */
 
 SUNDIALS_EXPORT int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : CPodeCalcIC
+ * -----------------------------------------------------------------
+ * CPodeCalcIC calculates corrected initial conditions that are 
+ * consistent with the invariant constraints and (for implicit-form
+ * ODEs) with the ODE system itself. It first projects the initial
+ * guess for the state vector (given by the user through CPodeInit
+ * or CPodeReInit) and then, if necessary, computes a state derivative
+ * vector as solution of F(t0, y0, y0') = 0.
+ *
+ * Note: If the initial conditions satisfy both the constraints and
+ * (for implicit-form ODEs) the ODE itself, a call to CPodeCalcIC
+ * is NOT necessary.
+ *
+ * A call to CpodeCalcIC must be preceded by a successful call to   
+ * CPodeInit or CPodeReInit for the given ODE problem, and by a     
+ * successful call to the linear system solver specification      
+ * routine. 
+ *
+ * A call to CPodeCalcIC should precede the call(s) to CPode for
+ * the given problem.
+ *
+ * If successful, CPodeCalcIC stores internally the corrected 
+ * initial conditions which will be used to start the integration
+ * at the first call to CPode.
+ *
+ * The only argument to CPodeCalcIC is the pointer to the CPODE
+ * memory block returned by CPodeCreate.
+ *
+ * The return value of CPodeCalcIC is one of the following:
+ *
+ * CP_SUCCESS
+ * CP_MEM_NULL
+ * CP_NO_MALLOC
+ * CP_ILL_INPUT
+ * CP_LINIT_FAIL
+ * CP_PLINIT_FAIL
+ * CP_FIRST_CNSTRFUNC_ERR
+ * CP_CNSTRFUNC_FAIL
+ * CP_PROJFUNC_FAIL
+ * CP_PLSETUP_FAIL
+ * CP_PLSOLVE_FAIL
+ * CP_NO_RECOVERY
+ *
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -1039,6 +1092,17 @@ SUNDIALS_EXPORT int CPodeGetDky(void *cpode_mem, realtype t, int k, N_Vector dky
 SUNDIALS_EXPORT int CPodeGetQuad(void *cpode_mem, realtype t, N_Vector yQout);
 SUNDIALS_EXPORT int CPodeGetQuadDky(void *cpode_mem, realtype t, int k, N_Vector dky);
 
+
+/*
+ * -----------------------------------------------------------------
+ * IC calculation optional output extraction functions
+ * -----------------------------------------------------------------
+ * CPodeGetConsistentIC returns the consistent initial conditions
+ *       computed by CPodeCalcIC
+ * -----------------------------------------------------------------
+ */
+
+int CPodeGetConsistentIC(void *cpode_mem, N_Vector yy0, N_Vector yp0);
 
 /*
  * -----------------------------------------------------------------

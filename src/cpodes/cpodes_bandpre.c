@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-11-30 21:11:29 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -416,11 +416,11 @@ static int cpBandPrecSetupExpl(realtype t, N_Vector y, N_Vector fy,
 
   } else {
 
-    /* If jok = FALSE, call CPBandPDQJac for new J value. */
+    /* If jok = FALSE, call cpBandPDQJac for new J value. */
     *jcurPtr = TRUE;
     BandZero(savedJ);
 
-    retval = CPBandPDQJacExpl(pdata, t, y, fy, tmp1, tmp2);
+    retval = cpBandPDQJacExpl(pdata, t, y, fy, tmp1, tmp2);
     if (retval < 0) {
       cpProcessError(cp_mem, CPBANDPRE_FUNC_UNRECVR, "CPBANDPRE", "cpBandPrecSetupExpl", MSGBP_FUNC_FAILED);
       return(-1);
@@ -513,7 +513,7 @@ static int cpBandPrecSetupImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
   cp_mem = (CPodeMem) pdata->cpode_mem;
 
   BandZero(savedJ);
-  retval = CPBandPDQJacImpl(pdata, t, gamma, y, yp, r, tmp1, tmp2, tmp3);
+  retval = cpBandPDQJacImpl(pdata, t, gamma, y, yp, r, tmp1, tmp2, tmp3);
   if (retval < 0) {
     cpProcessError(cp_mem, CPBANDPRE_FUNC_UNRECVR, "CPBANDPRE", "cpBandPrecSetupImpl", MSGBP_FUNC_FAILED);
     return(-1);
@@ -642,7 +642,7 @@ static int cpBandPDQJacExpl(CPBandPrecData pdata,
 
     /* Evaluate f with incremented y. */
 
-    retval = f(t, ytemp, ftemp, f_data);
+    retval = fe(t, ytemp, ftemp, f_data);
     nfeBP++;
     if (retval != 0) return(retval);
 

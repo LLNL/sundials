@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:06 $
+ * $Revision: 1.2 $
+ * $Date: 2006-11-30 21:11:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -716,6 +716,40 @@ int CPodeSetQuadErrCon(void *cpode_mem, booleantype errconQ,
  * =================================================================
  * CPODE optional output functions
  * =================================================================
+ */
+
+/* 
+ * -----------------------------------------------------------------
+ * Optional outputs for IC calculation
+ * -----------------------------------------------------------------
+ */
+
+int CPodeGetConsistentIC(void *cpode_mem, N_Vector yy0, N_Vector yp0)
+{
+  CPodeMem cp_mem;
+
+  if (cpode_mem==NULL) {
+    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeGetConsistentIC", MSGCP_NO_MEM);
+    return(CP_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  if (cp_mem->cp_next_q != 0) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeGetConsistentIC", MSGCP_TOO_LATE); 
+    return(CP_ILL_INPUT);
+  }
+
+  if (yy0 != NULL) N_VScale(ONE, cp_mem->cp_zn[0], yy0);
+  if (cp_mem->cp_ode_type == CP_IMPL) 
+    if (yp0 != NULL) N_VScale(ONE, cp_mem->cp_zn[1], yp0);
+
+  return(CP_SUCCESS);
+}
+
+/* 
+ * -----------------------------------------------------------------
+ * Optional outputs for integration
+ * -----------------------------------------------------------------
  */
 
 /*

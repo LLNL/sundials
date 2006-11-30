@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2006-11-29 00:05:08 $
+# $Revision: 1.4 $
+# $Date: 2006-11-30 21:11:29 $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -53,7 +53,10 @@ CPODES_LIB    = libsundials_cpodes.la
 CPODES_BL_LIB = libsundials_cpodes_bl.la
 
 
-CPODES_SRC_FILES = cpodes.c cpodes_io.c cpodes_nls.c cpodes_proj.c cpodes_direct.c cpodes_dense.c cpodes_band.c cpodes_spils.c cpodes_spgmr.c cpodes_spbcgs.c cpodes_sptfqmr.c cpodes_bbdpre.c
+CPODES_SRC_FILES = cpodes.c cpodes_io.c cpodes_ic.c cpodes_nls.c cpodes_proj.c \
+	           cpodes_direct.c cpodes_dense.c cpodes_band.c \
+	           cpodes_spils.c cpodes_spgmr.c cpodes_spbcgs.c cpodes_sptfqmr.c \
+	           cpodes_bandpre.c cpodes_bbdpre.c
 CPODES_BL_SRC_FILES = cpodes_lapack.c
 
 CPODES_OBJ_FILES = $(CPODES_SRC_FILES:.c=.o)
@@ -153,6 +156,8 @@ cpodes_nls.lo: $(srcdir)/cpodes_nls.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_nls.c
 cpodes_proj.lo: $(srcdir)/cpodes_proj.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_proj.c
+cpodes_ic.lo: $(srcdir)/cpodes_ic.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_ic.c
 cpodes_io.lo: $(srcdir)/cpodes_io.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_io.c
 cpodes_direct.lo: $(srcdir)/cpodes_direct.c

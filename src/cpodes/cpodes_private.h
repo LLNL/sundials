@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.4 $
+ * $Date: 2006-11-30 21:11:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -66,7 +66,7 @@ extern "C" {
  *
  *    MXNPF         max no. of projection failures during one step try
  *    PRJ_MAXCOR    maximum no. of iterations for the nonlinear projection
- *    PRJ_TEST_COEF constant used in projection tolerance
+ *    PRJ_TEST_COEF constant used in projection tolerances
  *    PRJ_CRDOWN    constant used in the estimation of the convergence rate (crateP)
  *    PRJ_RDIV      declare divergence if ratio del/delp > PRJ_RDIV
  *    PRJ_MSBLS     max no. of steps between lsetupP calls
@@ -147,25 +147,27 @@ extern "C" {
  * ---------------------------------------------------------------
  */
   
-#define ZERO    RCONST(0.0)     /* real 0.0     */
-#define TINY    RCONST(1.0e-10) /* small number */
-#define PT001   RCONST(0.001)   /* real 0.001   */
-#define TENTH   RCONST(0.1)     /* real 0.1     */
-#define POINT2  RCONST(0.2)     /* real 0.2     */
-#define FOURTH  RCONST(0.25)    /* real 0.25    */
-#define HALF    RCONST(0.5)     /* real 0.5     */
-#define ONE     RCONST(1.0)     /* real 1.0     */
-#define ONEPSM  RCONST(1.000001) /* a bit over 1.0 */
-#define TWO     RCONST(2.0)     /* real 2.0     */
-#define THREE   RCONST(3.0)     /* real 3.0     */
-#define FOUR    RCONST(4.0)     /* real 4.0     */
-#define FIVE    RCONST(5.0)     /* real 5.0     */
-#define TWELVE  RCONST(12.0)    /* real 12.0    */
-#define HUNDRED RCONST(100.0)   /* real 100.0   */
+#define ZERO    RCONST(0.0)
+#define TINY    RCONST(1.0e-10)
+#define PT001   RCONST(0.001)
+#define PT01    RCONST(0.01)
+#define PT1     RCONST(0.1)
+#define PT2     RCONST(0.2)
+#define PT25    RCONST(0.25)
+#define HALF    RCONST(0.5)
+#define ONE     RCONST(1.0)
+#define ONEPSM  RCONST(1.000001)
+#define TWO     RCONST(2.0)
+#define THREE   RCONST(3.0)
+#define FOUR    RCONST(4.0)
+#define FIVE    RCONST(5.0)
+#define TWELVE  RCONST(12.0)
+#define HUNDRED RCONST(100.0)
   
 /*
  * =================================================================
  *   C P O D E S   I N T E R N A L   F U N C T I O N S
+ *         S H A R E D   A M O N G   M O D U L E S
  * =================================================================
  */
 
@@ -174,6 +176,9 @@ int cpNls(CPodeMem cp_mem, int nflag, realtype saved_t, int *ncfPtr);
 
 /* Projection step function */
 int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr);
+
+/* Internal error weight computation */
+int cpEwtSet(N_Vector ycur, N_Vector weight, void *edata);
 
 /* Error return handler */
 void cpProcessError(CPodeMem cp_mem, 
@@ -257,6 +262,8 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_BAD_T "Illegal value for t." MSG_TIME_INT
 #define MSGCP_BAD_FREQ "proj_freq < 0 illegal."
 #define MSGCP_BAD_LSFREQ "lset_freq <= 0 illegal."
+#define MSGCP_TOO_LATE "CPodeGetConsistentIC can only be called before the first call to CPode."
+
 
 /* CPode error messages */
 
@@ -274,8 +281,8 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_NO_PFUN "proj_type = CP_PROJ_USER but no projection function was provided."
 #define MSGCP_NO_CFUN "proj_type = CP_PROJ_INTERNAL but no constraint function was provided."
 #define MSGCP_NO_TSTOP "mode = CP_NORMAL_TSTOP or mode = CP_ONE_STEP_TSTOP but tstop was not set."
-#define MSGCP_EWT_FAIL "The user-provide EwtSet function failed."
-#define MSGCP_EWT_NOW_FAIL "At " MSG_TIME ", the user-provide EwtSet function failed."
+#define MSGCP_EWT_FAIL "The user-provided EwtSet function failed."
+#define MSGCP_EWT_NOW_FAIL "At " MSG_TIME ", the user-provides EwtSet function failed."
 #define MSGCP_LINIT_FAIL "The linear solver's init routine failed."
 #define MSGCP_HNIL_DONE "The above warning has been issued mxhnil times and will not be issued again for this problem."
 #define MSGCP_TOO_CLOSE "tout too close to t0 to start integration."
@@ -300,6 +307,11 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_PLINIT_FAIL "The projection linear solver's init function failed."
 #define MSGCP_PLSETUP_FAILED "At " MSG_TIME ", the projection linear solver's setup function failed in an unrecoverable manner."
 #define MSGCP_PLSOLVE_FAILED "At " MSG_TIME ", the projection linear solver's solve function failed in an unrecoverable manner."
+#define MSGCP_PROJ_FAILS "At " MSG_TIME_H ", the projection failed repeatedly or with |h| = hmin."
+#define MSGCP_CNSTRFUNC_FAILED "At " MSG_TIME ", the constraint function failed in an unrecoverable manner."
+#define MSGCP_CNSTRFUNC_REPTD "At " MSG_TIME "repeated recoverable constraint function errors."
+#define MSGCP_PROJFUNC_FAILED "At " MSG_TIME ", the projection function failed in an unrecoverable manner."
+#define MSGCP_PROJFUNC_REPTD "At " MSG_TIME "repeated recoverable projection function errors."
 
 /* Quadrature integration error messages */
 
@@ -314,6 +326,19 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_QUADFUNC_UNREC "At " MSG_TIME ", the quadrature function failed in a recoverable manner, but no recovery is possible."
 #define MSGCP_QUADFUNC_REPTD "At " MSG_TIME "repeated recoverable quadrature function errors."
 #define MSGCP_QUADFUNC_FIRST "The quadrature function failed at the first call."
+
+/* IC calculation error messages */
+#define MSGCP_IC_NO_WORK "Nothing to do for an explicit-form ODE if no constraints are defined."
+#define MSGCP_IC_CNSTRFUNC_FIRST "The constraint function failed at the first call."
+#define MSGCP_IC_CNSTRFUNC_FAILED "The constraint function failed in an unrecoverable manner."
+#define MSGCP_IC_CNSTRFUNC_REPTD "Repeated recoverable constraint function errors."
+#define MSGCP_IC_PROJFUNC_FAILED "The projection function failed in an unrecoverable manner."
+#define MSGCP_IC_PLSETUP_FAILED "The projection linear solver's setup function failed in an unrecoverable manner."
+#define MSGCP_IC_PLSOLVE_FAILED "The projection linear solver's solve function failed in an unrecoverable manner."
+#define MSGCP_IC_NO_RECOVERY "The linear solver's solve function failed recoverably, but the Jacobian data is already current."
+#define MSGCP_IC_PROJ_FAILS "WTF?"
+#define MSGCP_IC_EWT_BAD "A component of ewt has become <= 0."
+#define MSGCP_IC_EWT_FAIL "The user-provided EwtSet function failed."
 
 #ifdef __cplusplus
 }
