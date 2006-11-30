@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.7 $
+ * $Date: 2006-11-30 21:10:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -913,8 +913,8 @@ SUNDIALS_EXPORT int IDASensToggle(void *ida_mem, booleantype sensi);
  * return value.  If IFACalcIC failed, y0 and yp0 contain         
  * (possibly) altered values, computed during the attempt.        
  *                                                                
- * SUCCESS             IDACalcIC was successful.  The corrected   
- *                     initial value vectors are in y0 and yp0.    
+ * IDA_SUCCESS         IDACalcIC was successful.  The corrected   
+ *                     initial value vectors were stored internally.
  *                                                                
  * IDA_MEM_NULL        The argument ida_mem was NULL.             
  *                                                                

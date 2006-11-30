@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.5 $
+ * $Date: 2006-11-30 21:10:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -610,8 +610,8 @@ SUNDIALS_EXPORT int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *g_d
  * return value.  If IFACalcIC failed, y0 and yp0 contain         
  * (possibly) altered values, computed during the attempt.        
  *                                                                
- * SUCCESS             IDACalcIC was successful.  The corrected   
- *                     initial value vectors are in y0 and yp0.    
+ * IDA_SUCCESS         IDACalcIC was successful.  The corrected   
+ *                     initial value vectors were stored internally.
  *                                                                
  * IDA_MEM_NULL        The argument ida_mem was NULL.             
  *                                                                
