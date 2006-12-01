@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:06 $
+ * $Revision: 1.2 $
+ * $Date: 2006-12-01 22:48:57 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -750,7 +750,6 @@ static int cpNewtonIterationImpl(CPodeMem cp_mem)
 {
   int m, retval;
   realtype del, delp, dcon;
-  N_Vector b;
 
   /* Initialize counters */
   mnewt = m = 0;

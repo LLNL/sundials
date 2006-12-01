@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.5 $
+ * $Date: 2006-12-01 22:48:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -395,7 +395,7 @@ SUNDIALS_EXPORT int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
 SUNDIALS_EXPORT int CVodeSetStabLimDet(void *cvode_mem, booleantype stldet);
 SUNDIALS_EXPORT int CVodeSetInitStep(void *cvode_mem, realtype hin);
 SUNDIALS_EXPORT int CVodeSetMinStep(void *cvode_mem, realtype hmin);
-SUNDIALS_EXPORT int CVodeSetMaaxStep(void *cvode_mem, realtype hmax);
+SUNDIALS_EXPORT int CVodeSetMaxStep(void *cvode_mem, realtype hmax);
 SUNDIALS_EXPORT int CVodeSetStopTime(void *cvode_mem, realtype tstop);
 SUNDIALS_EXPORT int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef);
 SUNDIALS_EXPORT int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.3 $
+ * $Date: 2006-12-01 22:48:59 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -355,8 +355,7 @@ static int idaLapackDenseSetup(IDAMem IDA_mem,
                                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   IDADlsMem idadls_mem;
-  realtype fact;
-  int ier, retval, one = 1;
+  int ier, retval;
 
   idadls_mem = (IDADlsMem) lmem;
 
@@ -464,8 +463,7 @@ static int idaLapackBandSetup(IDAMem IDA_mem,
                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   IDADlsMem idadls_mem;
-  realtype fact;
-  int ier, retval, one = 1;
+  int ier, retval;
 
   idadls_mem = (IDADlsMem) lmem;
 

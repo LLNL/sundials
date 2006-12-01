@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-12-01 22:48:57 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,15 +20,15 @@
  *       functions are:
  *
  *   - matrix plus identity (I-gamma*J)
- *     (in lsetup)
+ *     (in lsetup -> use functions from sundials_lapack)
  *   - diagonal matrix times vector (D^(-1)*x) 
- *     (in lsolveP for QR, QRP, and SC)
+ *     (in lsolveP for QR, QRP, and SC -> hardcoded)
  *   - permutation of a diagonal matrix (P*D*P^T) 
- *     (in lsolveP for LU; P uses pivots from dgetrv)
+ *     (in lsolveP for LU; P uses pivots from dgetrv -> hardcoded)
  *   - permutation matrix times vector (P^T*x)
- *     (in lsolveP for LU; P uses pivots from dgetr)
+ *     (in lsolveP for LU; P uses pivots from dgetr -> hardcoded)
  *   - permutation matrix times vector (P^T*b)
- *     (in lsolveP for QRP; P uses pivots from dgeqp3)
+ *     (in lsolveP for QRP; P uses pivots from dgeqp3 -> hardcoded)
  */
 
 /*
@@ -1020,7 +1020,7 @@ static int cpLapackDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
   int ier;
   CPDlsProjMem cpdlsP_mem;
   realtype *col_i, rim1, ri;
-  int i, j, k, nd, one = 1;
+  int i, j, nd, one = 1;
   int retval;
 
   realtype coef_1 = ONE, coef_0 = ZERO;

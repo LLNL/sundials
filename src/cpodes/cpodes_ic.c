@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-30 21:11:29 $
+ * $Revision: 1.2 $
+ * $Date: 2006-12-01 22:48:57 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -62,7 +62,7 @@ static int cpicProjNonlinear(CPodeMem cp_mem);
 /* Calculation of consistent y' */
 static int cpicImplComputeYp(CPodeMem cp_mem);
 
-static int cpicFailFlag(CPodeMem, int flag);
+static void cpicFailFlag(CPodeMem, int flag);
 
 /* 
  * =================================================================
@@ -77,6 +77,7 @@ static int cpicFailFlag(CPodeMem, int flag);
 #define efun           (cp_mem->cp_efun)
 #define e_data         (cp_mem->cp_e_data)
 #define ewt            (cp_mem->cp_ewt)
+#define gamma          (cp_mem->cp_gamma)
 #define tempv          (cp_mem->cp_tempv)
 #define uround         (cp_mem->cp_uround)
 
@@ -329,7 +330,8 @@ static int cpicDoProjection(CPodeMem cp_mem)
 
     /* Evaluate constraints at initial time and with the provided yy0 */
     retval = cfun(tn, yy0, ctemp, c_data);
-    if (retval != 0) return(CP_FIRST_CNSTRFUNC_ERR);
+    if (retval < 0) return(CP_CNSTRFUNC_FAIL);
+    if (retval > 0) return(CP_FIRST_CNSTRFUNC_ERR);
 
     /* Perform projection step 
      * On a successful return, yy0 was updated. */
@@ -589,6 +591,25 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
  */
 static int cpicImplComputeYp(CPodeMem cp_mem)
 {
+  /*
+  int retval;
+  */
+
+  /* Evaluate residual at initial time, using the (projected) yy0 
+     and the initial guess yp0 */
+
+  /*
+  retval = fi(tn, yy0, yp0, ftemp, f_data);
+  if (retval < 0) return(CP_ODEFUNC_FAIL);
+  if (retval > 0) return(CP_FIRST_ODEFUNC_ERR);
+  */
+
+  /* Set gamma */
+
+  /*
+  gamma = ZERO;
+  */
+  
 
   return(CP_SUCCESS);
 }
@@ -600,7 +621,7 @@ static int cpicImplComputeYp(CPodeMem cp_mem)
  * Depending on the flag value, it calls the error handler and returns
  * the proper flag.
  */
-static int cpicFailFlag(CPodeMem cp_mem, int flag)
+static void cpicFailFlag(CPodeMem cp_mem, int flag)
 {
   switch(flag) {
   case CP_FIRST_CNSTRFUNC_ERR:
@@ -631,6 +652,13 @@ static int cpicFailFlag(CPodeMem cp_mem, int flag)
     if (tol_type == CP_WF) cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeCalcIC", MSGCP_IC_EWT_FAIL);
     else                   cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeCalcIC", MSGCP_IC_EWT_BAD);
     break;
+  case CP_FIRST_ODEFUNC_ERR:
+    cpProcessError(cp_mem, CP_FIRST_ODEFUNC_ERR, "CPODES", "CPodeCalcIC", MSGCP_IC_ODEFUNC_FIRST);
+    break;
+  case CP_ODEFUNC_FAIL:
+    cpProcessError(cp_mem, CP_ODEFUNC_FAIL, "CPODES", "CPodeCalcIC", MSGCP_IC_ODEFUNC_FAILED);
+    break;
+
   }
 }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-12-01 22:48:57 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,7 +20,6 @@
  *
  *   cpdQRcomputeKD
  *   cpdSCcomputeKD
- *   cpdScaleXbyD
  */
 
 
@@ -72,7 +71,6 @@ static void cpdLUcomputeKD(CPodeMem cp_mem, N_Vector d);
 static void cpdQRcomputeKD(CPodeMem cp_mem, N_Vector d);
 static void cpdSCcomputeKI(CPodeMem cp_mem);
 static void cpdSCcomputeKD(CPodeMem cp_mem, N_Vector d);
-static void cpdScaleXbyD(CPodeMem cp_mem, realtype *alpha, realtype *d);
 
 /*
  * =================================================================
@@ -646,7 +644,7 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
   long int ier;
   CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, *col_i, *s_tmpd;
-  long int i, j, k, one = 1;
+  long int i, j, k;
   int retval;
 
   cpdlsP_mem = (CPDlsProjMem) lmemP;
@@ -802,6 +800,8 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
   g_mat = G->cols;
+
+  ewt_data = N_VGetArrayPointer(ewt);
   bd = N_VGetArrayPointer(b);
   xd = N_VGetArrayPointer(x);
   d_data = N_VGetArrayPointer(s_tmp1);
@@ -839,7 +839,6 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
      */
     if (pnorm == CP_PROJ_ERRNORM) {
 
-      ewt_data = N_VGetArrayPointer(ewt);
       /* Load squared error weights into d */
       for (k=0; k<ny; k++) d_data[k] = ewt_data[k] * ewt_data[k];
       /* Permute elements of d, based on pivotsP. Swap d[k] and d[pivotsP[k]]. */
@@ -926,7 +925,10 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
     DenseORMQR(G, beta, bd, xd, s_tmpd); 
 
     /* If projecting in WRMS norm, scale x by D^(-1) */
-    if (pnorm == CP_PROJ_ERRNORM) cpdScaleXbyD(cp_mem, xd, d_data);
+    if (pnorm == CP_PROJ_ERRNORM) {
+      for (i=0; i<ny; i++)
+        xd[i] /= ewt_data[i]*ewt_data[i];
+    }
 
     break;
 
@@ -947,7 +949,10 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
     }
 
     /* If projecting in WRMS norm, scale x by D^(-1) */
-    if (pnorm == CP_PROJ_ERRNORM) cpdScaleXbyD(cp_mem, xd, d_data);
+    if (pnorm == CP_PROJ_ERRNORM) {
+      for (i=0; i<ny; i++)
+        xd[i] /= ewt_data[i]*ewt_data[i];
+    }
 
     break;
 
@@ -1124,7 +1129,7 @@ static void cpdSCcomputeKI(CPodeMem cp_mem)
 {
   CPDlsProjMem cpdlsP_mem;
   realtype **g_mat, **k_mat, *k_col_j;
-  long int nd, i, j, k;
+  long int i, j, k;
 
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
@@ -1147,8 +1152,4 @@ static void cpdSCcomputeKD(CPodeMem cp_mem, N_Vector d)
   /* RADU:: implement this ... */
 }
 
-static void cpdScaleXbyD(CPodeMem cp_mem, realtype *alpha, realtype *d)
-{
-  /* RADU:: implement this ... */
-}
 

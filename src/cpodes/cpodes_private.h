@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-30 21:11:29 $
+ * $Revision: 1.5 $
+ * $Date: 2006-12-01 22:48:57 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -339,6 +339,8 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_IC_PROJ_FAILS "WTF?"
 #define MSGCP_IC_EWT_BAD "A component of ewt has become <= 0."
 #define MSGCP_IC_EWT_FAIL "The user-provided EwtSet function failed."
+#define MSGCP_IC_ODEFUNC_FIRST "The ODE function failed at the first call."
+#define MSGCP_IC_ODEFUNC_FAILED "The ODE funciton failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

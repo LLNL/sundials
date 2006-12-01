@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.2 $
+ * $Date: 2006-12-01 22:48:59 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -36,24 +36,6 @@
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
-
-/* 
- * =================================================================
- * PROTOTYPES FOR PRIVATE FUNCTIONS
- * =================================================================
- */
-
-static int idaDlsDenseJacBWrapper(int NeqB, realtype tt, realtype c_jB,
-                                  N_Vector yyB, N_Vector ypB, N_Vector rBr, 
-                                  DlsMat JacB, void *idaadj_mem,
-                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-
-
-static int idaDlsBandJacBWrapper(int NeqB, int mupperB, int mlowerB,
-                                 realtype tt, realtype c_jB, 
-                                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                                 DlsMat JacB, void *idaadj_mem,
-                                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 /*
  * =================================================================

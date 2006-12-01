@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-30 21:11:29 $
+ * $Revision: 1.5 $
+ * $Date: 2006-12-01 22:48:57 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -3580,7 +3580,6 @@ static int cpDoErrorTest(CPodeMem cp_mem, realtype saved_t, realtype acor_norm,
                          int *nefPtr, realtype *dsmPtr)
 {
   realtype dsm;
-  int retval;
 
   /* If est. local error norm dsm passes test, return CP_SUCCESS */  
   dsm = acor_norm / tq[2];
