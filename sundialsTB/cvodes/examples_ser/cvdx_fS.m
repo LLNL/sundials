@@ -8,7 +8,7 @@ function [ySd, flag, new_data] = cvdx_fS(t,y,yd,yS,data)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/02/13 23:01:27 $
+% $Revision: 1.4 $Date: 2006/03/07 01:19:54 $
 
 
 r1 = data.p(1);
@@ -32,7 +32,7 @@ yS1d(2) = yS1d(2) + y(1);
 yS2 = yS(:,2);
 yS2d = zeros(3,1);
 
-yS2d(1) = -r1*yS1(1) + r2*y(3)*yS2(2) + r2*y(2)*yS2(3);
+yS2d(1) = -r1*yS2(1) + r2*y(3)*yS2(2) + r2*y(2)*yS2(3);
 yS2d(3) = 2*r3*y(2)*yS2(2);
 yS2d(2) = -yS2d(1)-yS2d(3);
 
