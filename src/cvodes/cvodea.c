@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-12-01 22:48:58 $
+ * $Revision: 1.6 $
+ * $Date: 2006-12-03 00:14:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -808,7 +808,7 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
   /* Move ck_mem pointer to the checkpoint appropriate for
      tBn (the current time reached by CVODES) */
   tBn = cvb_mem->cv_tn;
-  hB = cvb_mem->cv_h;
+  hB = cvb_mem->cv_hu;
   troundoff = HUNDRED*uround*(ABS(tBn) + ABS(hB));
   while ( sign*(tBn - t0_) <= troundoff ) {
     if (next_ == NULL) break;
