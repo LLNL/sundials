@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.13 $Date: 2006/11/22 00:12:51 $
+% $Revision: 1.14 $Date: 2006/11/22 19:48:11 $
 
 % MEX compiler command
 
@@ -34,9 +34,10 @@ end
 % Create sundials_config.h
 mkdir('sundials');
 fi = fopen(fullfile('sundials','sundials_config.h'),'w');
-fprintf(fi,'#define SUNDIALS_PACKAGE_VERSION "2.2.1"\n');
+fprintf(fi,'#define SUNDIALS_PACKAGE_VERSION "2.3.0"\n');
 fprintf(fi,'#define SUNDIALS_DOUBLE_PRECISION 1\n');
 fprintf(fi,'#define SUNDIALS_USE_GENERIC_MATH 1\n');
+fprintf(fi,'#define SUNDIALS_EXPORT\n');
 fclose(fi);
 
 % Compile MEX file
@@ -458,7 +459,7 @@ function [] = instSTB(stb, where, par)
 
 stbi = fullfile(where,'sundialsTB');
 
-% Create startup.m (use the template startup.m.in)
+% Create startup_STB.m (use the template startup_STB.in)
 
 in_file = fullfile(stb,'startup_STB.in');
 fi = fopen(in_file,'r');
@@ -483,6 +484,7 @@ kimmex = ['kim.' mexext];
 
 cvm_files = {
     'LICENSE'
+    'Contents.m'
     fullfile('cvodes','Contents.m')
     fullfile('cvodes','CVadjMalloc.m')
     fullfile('cvodes','CVBandJacFn.m')
