@@ -856,8 +856,11 @@ F77_CASE
 F77_UNDERSCORES
 PRECISION_LEVEL
 GENERIC_MATH_LIB
+SUNDIALS_EXPORT
 F77_MPI_COMM_F2C
 F77_LNKR
+F77_LIBS
+F77_LDFLAGS
 LAPACK_ENABLED
 BLAS_LAPACK_LIBS
 MPIF77_LNKR
@@ -2497,6 +2500,7 @@ F77_UNDERSCORES=""
 PRECISION_LEVEL=""
 GENERIC_MATH_LIB=""
 F77_MPI_COMM_F2C=""
+SUNDIALS_EXPORT="#define SUNDIALS_EXPORT"
 
 # Initialize enable status of various modules, options, and features
 # to their default values
@@ -9385,7 +9389,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:9388: \"$ac_link\") >&5
+(eval echo $as_me:9392: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -9468,7 +9472,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:9471: \"$ac_link\") >&5
+(eval echo $as_me:9475: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -9699,22 +9703,21 @@ fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
-# Check if we must use a Fortran compiler to link the Fortran examples
-# (default is to use CC).
-if test "X${F77_OK}" = "Xyes"; then
+# If CC is a C++ compiler (decided in SUNDIALS_CPLUSPLUS_CHECK), we must use
+# it to link the Fortran examples. In this case, test if that is successful.
+# Otherwise, simply use F77 as the linker
 
+if test "X${F77_OK}" = "Xyes"; then
   { echo "$as_me:$LINENO: checking which linker to use" >&5
 echo $ECHO_N "checking which linker to use... $ECHO_C" >&6; }
+  if test "X${USING_CPLUSPLUS_COMP}" = "Xyes"; then
 
 
-# Perform the next test only if using a C++ compiler to build SUNDIALS.
-# Note: SUNDIALS_CPLUSPLUS_CHECK macro was called by SUNDIALS_SET_CC,
-#       so we need only check the value of USING_CPLUSPLUS_COMP.
-if test "X${USING_CPLUSPLUS_COMP}" = "Xyes"; then
+F77_LNKR_CHECK_OK="no"
 
-  # Compile simple Fortran example, but do NOT link
-  # Note: result stored as conftest.${ac_objext}
-  cat >conftest.$ac_ext <<_ACEOF
+# Compile simple Fortran example, but do NOT link
+# Note: result stored as conftest.${ac_objext}
+cat >conftest.$ac_ext <<_ACEOF
 
 	PROGRAM SUNDIALS
 	WRITE(*,*)'TEST'
@@ -9757,12 +9760,12 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
   (exit $ac_status); }; }; then
 
 
-  # Temporarily reset LIBS environment variable to perform test
-  SAVED_LIBS="${LIBS}"
-  LIBS="${LIBS} ${FLIBS}"
+# Temporarily reset LIBS environment variable to perform test
+SAVED_LIBS="${LIBS}"
+LIBS="${LIBS} ${FLIBS}"
 
-  # Switch working language to C for next test
-  ac_ext=c
+# Switch working language to C for next test
+ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
@@ -9770,10 +9773,10 @@ ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_o
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-  # Check if CC can link Fortran example
-  # Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
-  # general.m4 and c.m4) (see config/cust_general.m4 and config/mod_c.m4)
-  if { (eval echo "$as_me:$LINENO: \"$ac_linkonly\"") >&5
+# Check if CC can link Fortran example
+# Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
+# general.m4 and c.m4) (see config/cust_general.m4 and config/mod_c.m4)
+if { (eval echo "$as_me:$LINENO: \"$ac_linkonly\"") >&5
   (eval $ac_linkonly) 2>conftest.er1
   ac_status=$?
   grep -v '^ *+' conftest.er1 >conftest.err
@@ -9812,24 +9815,15 @@ fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext
 
-  # Revert back to previous language (Fortran 77)
-  ac_ext=f
+# Revert back to previous language (Fortran 77)
+ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
 
-  # Set LIBS environment variable back to original value
-  LIBS="${SAVED_LIBS}"
-
-  # Note: F77_LNKR variable is used by serial Fortran example Makefile's
-  if test "X${F77_LNKR_CHECK_OK}" = "Xyes"; then
-    F77_LNKR="\$(CC)"
-    F77_LNKR_OUT="${CC}"
-  else
-    F77_LNKR="\$(F77)"
-    F77_LNKR_OUT="${F77}"
-  fi
+# Set LIBS environment variable back to original value
+LIBS="${SAVED_LIBS}"
 
 
 else
@@ -9837,28 +9831,25 @@ else
 sed 's/^/| /' conftest.$ac_ext >&5
 
 
-
-  # If compilation fails, then just use F77
-  F77_LNKR="\$(F77)"
-  F77_LNKR_OUT="${F77}"
-
-
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
+# If either the compilation or the linking failed, we should
+# disable building the Fortran examples
+# For now, use F77 as the linker...
+if test "X${F77_LNKR_CHECK_OK}" = "Xyes"; then
+  F77_LNKR="${CC}"
 else
-
-  # Using a C compiler so use F77 to link serial Fortran examples
-  F77_LNKR="\$(F77)"
-  F77_LNKR_OUT="${F77}"
-
+  F77_LNKR="${F77}"
 fi
 
 
-  { echo "$as_me:$LINENO: result: ${F77_LNKR_OUT}" >&5
-echo "${ECHO_T}${F77_LNKR_OUT}" >&6; }
-
+  else
+    F77_LNKR="${F77}"
+  fi
+  { echo "$as_me:$LINENO: result: ${F77_LNKR}" >&5
+echo "${ECHO_T}${F77_LNKR}" >&6; }
 fi
 
 # Reset language (remove 'Fortran 77' from stack)
@@ -12716,6 +12707,8 @@ echo $ECHO_N "checking which linker to use... $ECHO_C" >&6; }
 # Perform the next test only if using a C++ compiler to build NVECTOR_PARALLEL
 if test "X${RUN_MPIF77_LNKR_CHECK}" = "Xyes"; then
 
+  MPIF77_LNKR_CHECK_OK="no"
+
   # Switch language to "Fortran 77"
   ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
@@ -12859,40 +12852,34 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
   # Set LIBS environment variable back to original value
   LIBS="${SAVED_LIBS}"
 
-  # Note: MPIF77_LNKR variable is used by parallel Fortran example Makefile's
-  if test "X${MPIF77_LNKR_CHECK_OK}" = "Xyes"; then
-    MPIF77_LNKR="\$(MPICC)"
-    MPIF77_LNKR_OUT="${MPICC}"
-  else
-    MPIF77_LNKR="\$(MPIF77)"
-    MPIF77_LNKR_OUT="${MPIF77}"
-  fi
-
 
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
 
-
-  # If compilation fails, then just use MPIF77
-  MPIF77_LNKR="\$(MPIF77)"
-  MPIF77_LNKR_OUT="${MPIF77}"
-
-
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
+  # If either the compilation or the linking failed, we should
+  # disable building the parallel Fortran examples
+  # For now, use MPIF77 as the linker...
+
+  if test "X${MPIF77_LNKR_CHECK_OK}" = "Xyes"; then
+    MPIF77_LNKR="${MPICC}"
+  else
+    MPIF77_LNKR="${MPIF77}"
+  fi
+
 else
 
   # Using a C compiler so use MPIF77 to link parallel Fortran examples
-  MPIF77_LNKR="\$(MPIF77)"
-  MPIF77_LNKR_OUT="${MPIF77}"
+  MPIF77_LNKR="${MPIF77}"
 
 fi
-{ echo "$as_me:$LINENO: result: ${MPIF77_LNKR_OUT}" >&5
-echo "${ECHO_T}${MPIF77_LNKR_OUT}" >&6; }
+{ echo "$as_me:$LINENO: result: ${MPIF77_LNKR}" >&5
+echo "${ECHO_T}${MPIF77_LNKR}" >&6; }
 
 
 
@@ -13135,15 +13122,13 @@ rm -f core conftest.err conftest.$ac_objext \
     # should be used
     { echo "$as_me:$LINENO: checking which linker to use" >&5
 echo $ECHO_N "checking which linker to use... $ECHO_C" >&6; }
-    if test "X${F77_LNKR}" = "X\$(CC)"; then
-      MPIF77_LNKR="\$(MPICC)"
-      MPIF77_LNKR_OUT="${MPICC}"
-    elif test "X${F77_LNKR}" = "X\$(F77)"; then
-      MPIF77_LNKR="\$(MPIF77)"
-      MPIF77_LNKR_OUT="${MPIF77}"
+    if test "X${F77_LNKR}" = "X${CC}"; then
+      MPIF77_LNKR="${MPICC}"
+    elif test "X${F77_LNKR}" = "X${F77}"; then
+      MPIF77_LNKR="${MPIF77}"
     fi
-    { echo "$as_me:$LINENO: result: ${MPIF77_LNKR_OUT}" >&5
-echo "${ECHO_T}${MPIF77_LNKR_OUT}" >&6; }
+    { echo "$as_me:$LINENO: result: ${MPIF77_LNKR}" >&5
+echo "${ECHO_T}${MPIF77_LNKR}" >&6; }
   fi
 
 else
@@ -13280,6 +13265,15 @@ SERIAL_DEV_C_EXAMPLES="disabled"
 PARALLEL_DEV_C_EXAMPLES="disabled"
 SERIAL_DEV_F77_EXAMPLES="disabled"
 PARALLEL_DEV_F77_EXAMPLES="disabled"
+
+# Prepare substitution variables to create the exported example Makefiles
+
+F77_LIBS="${FLIBS} ${LIBS}"
+if test "X${F77_LNKR}" = "X${F77}"; then
+  F77_LDFLAGS="${FFLAGS} ${LDFLAGS}"
+else
+  F77_LDFLAGS="${CFLAGS} ${LDFLAGS}"
+fi
 
 
 
@@ -14214,7 +14208,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 14217 "configure"' > conftest.$ac_ext
+  echo '#line 14211 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -16531,11 +16525,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16534: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16528: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16538: \$? = $ac_status" >&5
+   echo "$as_me:16532: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16799,11 +16793,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16802: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16796: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16806: \$? = $ac_status" >&5
+   echo "$as_me:16800: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16903,11 +16897,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16906: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16900: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16910: \$? = $ac_status" >&5
+   echo "$as_me:16904: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19355,7 +19349,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 19358 "configure"
+#line 19352 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -19455,7 +19449,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 19458 "configure"
+#line 19452 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -21824,11 +21818,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:21827: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:21821: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:21831: \$? = $ac_status" >&5
+   echo "$as_me:21825: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -21928,11 +21922,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:21931: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:21925: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:21935: \$? = $ac_status" >&5
+   echo "$as_me:21929: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -23499,11 +23493,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:23502: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:23496: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:23506: \$? = $ac_status" >&5
+   echo "$as_me:23500: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -23603,11 +23597,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:23606: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:23600: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:23610: \$? = $ac_status" >&5
+   echo "$as_me:23604: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -25834,11 +25828,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:25837: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:25831: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:25841: \$? = $ac_status" >&5
+   echo "$as_me:25835: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -26102,11 +26096,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:26105: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:26099: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:26109: \$? = $ac_status" >&5
+   echo "$as_me:26103: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -26206,11 +26200,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:26209: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:26203: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:26213: \$? = $ac_status" >&5
+   echo "$as_me:26207: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -28983,6 +28977,9 @@ fi
 
 
 
+
+
+
 # Generate makefiles
 echo ""
 echo "Create Makefiles and configuration files"
@@ -30029,8 +30026,8 @@ F77_CASE!$F77_CASE$ac_delim
 F77_UNDERSCORES!$F77_UNDERSCORES$ac_delim
 PRECISION_LEVEL!$PRECISION_LEVEL$ac_delim
 GENERIC_MATH_LIB!$GENERIC_MATH_LIB$ac_delim
+SUNDIALS_EXPORT!$SUNDIALS_EXPORT$ac_delim
 F77_MPI_COMM_F2C!$F77_MPI_COMM_F2C$ac_delim
-F77_LNKR!$F77_LNKR$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -30072,6 +30069,9 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+F77_LNKR!$F77_LNKR$ac_delim
+F77_LIBS!$F77_LIBS$ac_delim
+F77_LDFLAGS!$F77_LDFLAGS$ac_delim
 LAPACK_ENABLED!$LAPACK_ENABLED$ac_delim
 BLAS_LAPACK_LIBS!$BLAS_LAPACK_LIBS$ac_delim
 MPIF77_LNKR!$MPIF77_LNKR$ac_delim
@@ -30092,7 +30092,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 18; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 21; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -30567,7 +30567,7 @@ if test "X${F77_OK}" = "Xyes"; then
 echo "
   Fortran Compiler:          ${F77}
   Fortran Compiler Flags:    ${FFLAGS}
-  Fortran Linker:            ${F77_LNKR_OUT}
+  Fortran Linker:            ${F77_LNKR}
   Extra Fortran Libraries:   ${FLIBS}"
 fi
 
@@ -30587,7 +30587,7 @@ if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_EXAMPLES_ENABLED}" = "Xyes" &
 echo "
   Using MPI-Fortran script?  ${USE_MPIF77_SCRIPT}
   MPI-Fortran:               ${MPIF77}
-  MPI-Fortran Linker:        ${MPIF77_LNKR_OUT}"
+  MPI-Fortran Linker:        ${MPIF77_LNKR}"
 fi
 
 if test "X${STB_ENABLED}" = "Xyes"; then

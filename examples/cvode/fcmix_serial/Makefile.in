@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2006-11-29 00:05:03 $
+# $Revision: 1.7 $
+# $Date: 2007-01-23 20:05:03 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -32,13 +32,11 @@ INSTALL_FILE = @INSTALL_DATA@
 LIBTOOL      = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-F77      = @F77@
-FFLAGS   = @FFLAGS@
-FLIBS    = @FLIBS@
-CC       = @CC@
-LDFLAGS  = @LDFLAGS@
-LIBS     = @LIBS@
-F77_LNKR = @F77_LNKR@
+F77          = @F77@
+FFLAGS       = @FFLAGS@
+F77_LNKR     = @F77_LNKR@
+F77_LDFLAGS  = @F77_LDFLAGS@
+F77_LIBS     = @F77_LIBS@
 
 LAPACK_ENABLED = @LAPACK_ENABLED@
 BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
@@ -56,11 +54,7 @@ SUNDIALS_LIBS = $(top_builddir)/src/cvode/fcmix/libsundials_fcvode.la       \
                 $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
 
 SUNDIALS_BL_LIBS = $(top_builddir)/src/cvode/fcmix/libsundials_fcvode_bl.la \
-                   $(top_builddir)/src/cvode/libsundials_cvode_bl.la        \
-	           $(top_builddir)/src/cvode/fcmix/libsundials_fcvode.la    \
-                   $(top_builddir)/src/cvode/libsundials_cvode.la           \
-                   $(top_builddir)/src/nvec_ser/libsundials_fnvecserial.la  \
-                   $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
+                   $(top_builddir)/src/cvode/libsundials_cvode_bl.la
 
 fortran-update = ${SHELL} ${top_builddir}/bin/fortran-update.sh
 
@@ -136,58 +130,27 @@ distclean: clean
 fcvdenx$(EXE_EXT): $(srcdir)/fcvdenx.f
 	@${fortran-update} ${srcdir} fcvdenx.f
 	 ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c ${builddir}/fcvdenx-updated.f
-	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                    \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvdenx${EXE_EXT} ${builddir}/fcvdenx-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvdenx${EXE_EXT} ${builddir}/fcvdenx-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                                        \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvdenx${EXE_EXT} ${builddir}/fcvdenx-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvdenx${EXE_EXT} ${builddir}/fcvdenx-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 fi
+	 ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvdenx${EXE_EXT} ${builddir}/fcvdenx-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS}
 
 fcvbanx$(EXE_EXT): $(srcdir)/fcvbanx.f
 	@${fortran-update} ${srcdir} fcvbanx.f
 	 ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c ${builddir}/fcvbanx-updated.f
-	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                    \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvbanx${EXE_EXT} ${builddir}/fcvbanx-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvbanx${EXE_EXT} ${builddir}/fcvbanx-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                                        \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvbanx${EXE_EXT} ${builddir}/fcvbanx-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvbanx${EXE_EXT} ${builddir}/fcvbanx-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 fi
+	 ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvbanx${EXE_EXT} ${builddir}/fcvbanx-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS}
 
 fcvkryx$(EXE_EXT): $(srcdir)/fcvkryx.f
 	@${fortran-update} ${srcdir} fcvkryx.f
 	 ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c $(builddir)/fcvkryx-updated.f
-	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                    \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvkryx${EXE_EXT} ${builddir}/fcvkryx-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvkryx${EXE_EXT} ${builddir}/fcvkryx-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                                        \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvkryx${EXE_EXT} ${builddir}/fcvkryx-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvkryx${EXE_EXT} ${builddir}/fcvkryx-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 fi
+	 ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvkryx${EXE_EXT} ${builddir}/fcvkryx-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS}
 
 fcvkryx_bp$(EXE_EXT): $(srcdir)/fcvkryx_bp.f
 	@${fortran-update} ${srcdir} fcvkryx_bp.f
 	 ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c ${builddir}/fcvkryx_bp-updated.f
-	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                          \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvkryx_bp${EXE_EXT} ${builddir}/fcvkryx_bp-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvkryx_bp${EXE_EXT} ${builddir}/fcvkryx_bp-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                                              \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvkryx_bp${EXE_EXT} ${builddir}/fcvkryx_bp-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvkryx_bp${EXE_EXT} ${builddir}/fcvkryx_bp-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 fi
-
+	 ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvkryx_bp${EXE_EXT} ${builddir}/fcvkryx_bp-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS}
 
 fcvdenx_lap$(EXE_EXT): $(srcdir)/fcvdenx_lap.f
 	@${fortran-update} ${srcdir} fcvdenx_lap.f
 	 ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c ${builddir}/fcvdenx_lap-updated.f
-	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                    \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvdenx_lap${EXE_EXT} ${builddir}/fcvdenx_lap-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_BL_LIBS} ${LIBS} ${FLIBS} ${BLAS_LAPACK_LIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvdenx_lap${EXE_EXT} ${builddir}/fcvdenx_lap-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_BL_LIBS} ${LIBS} ${FLIBS} ${BLAS_LAPACK_LIBS};        \
-	 else                                                                                                                                                                        \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvdenx_lap${EXE_EXT} ${builddir}/fcvdenx_lap-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_BL_LIBS} ${LIBS} ${FLIBS} ${BLAS_LAPACK_LIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvdenx_lap${EXE_EXT} ${builddir}/fcvdenx_lap-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_BL_LIBS} ${LIBS} ${FLIBS} ${BLAS_LAPACK_LIBS};        \
-	 fi
+	 ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fcvdenx_lap${EXE_EXT} ${builddir}/fcvdenx_lap-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_BL_LIBS} ${SUNDIALS_LIBS} ${F77_LIBS} ${BLAS_LAPACK_LIBS}
 
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)

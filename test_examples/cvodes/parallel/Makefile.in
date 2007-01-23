@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2006-11-29 00:05:10 $
+# $Revision: 1.7 $
+# $Date: 2007-01-23 20:05:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,12 +49,9 @@ EXE_EXT = @EXEEXT@
 
 top_srcdir = $(srcdir)/../../..
 
-SUNDIALS_INCDIR = $(top_srcdir)/include
-SOLVER_SRCDIR   = $(top_builddir)/src/cvodes
-NVEC_SRCDIR     = $(top_builddir)/src/nvec_par
+SUNDIALS_INCS = -I$(top_srcdir)/include -I$(top_builddir)/include
 
-SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
-SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_cvodes.la $(NVEC_SRCDIR)/libsundials_nvecparallel.la
+SUNDIALS_LIBS = $(top_builddir)/src/cvodes/libsundials_cvodes.la $(top_builddir)/src/nvec_par/libsundials_nvecparallel.la
 
 EXEC_FILES = pvkt$(EXE_EXT) \
 	     pvfkt$(EXE_EXT) \

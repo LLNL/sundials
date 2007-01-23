@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-29 00:05:05 $
+# $Revision: 1.6 $
+# $Date: 2007-01-23 20:05:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -49,7 +49,7 @@ EXS_INSTDIR = @EXS_INSTDIR@
 
 top_srcdir = $(srcdir)/../../..
 
-SUNDIALS_INCS = -I$(top_srcdir)/include
+SUNDIALS_INCS = -I$(top_srcdir)/include -I$(top_builddir)/include
 
 SUNDIALS_LIBS = $(top_builddir)/src/idas/libsundials_idas.la              \
 	        $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la

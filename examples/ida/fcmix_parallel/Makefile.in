@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-29 00:05:04 $
+# $Revision: 1.6 $
+# $Date: 2007-01-23 20:05:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -32,17 +32,16 @@ INSTALL_FILE = @INSTALL_DATA@
 LIBTOOL      = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-FFLAGS      = @FFLAGS@
-LDFLAGS     = @LDFLAGS@
-LIBS        = @LIBS@
-FLIBS       = @FLIBS@
-MPIF77      = @MPIF77@
-MPICC       = @MPICC@
-MPI_INC_DIR = @MPI_INC_DIR@
-MPI_LIB_DIR = @MPI_LIB_DIR@
-MPI_LIBS    = @MPI_LIBS@
-MPI_FLAGS   = @MPI_FLAGS@
-MPIF77_LNKR = @MPIF77_LNKR@
+FFLAGS       = @FFLAGS@
+F77_LDFLAGS  = @F77_LDFLAGS@
+F77_LIBS     = @F77_LIBS@
+
+MPIF77       = @MPIF77@
+MPI_INC_DIR  = @MPI_INC_DIR@
+MPI_FLAGS    = @MPI_FLAGS@
+MPIF77_LNKR  = @MPIF77_LNKR@
+MPI_LIB_DIR  = @MPI_LIB_DIR@
+MPI_LIBS     = @MPI_LIBS@
 
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
@@ -97,14 +96,8 @@ distclean: clean
 
 fidakryx_bbd_p$(EXE_EXT): $(srcdir)/fidakryx_bbd_p.f
 	@${fortran-update} ${srcdir} fidakryx_bbd_p.f
-	 ${LIBTOOL} --mode=compile ${MPIF77} ${MPI_FLAGS} -I${MPI_INC_DIR} ${FFLAGS} -c ${builddir}/fidakryx_bbd_p-updated.f
-	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                         \
-	   echo "${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fidakryx_bbd_p${EXE_EXT} ${builddir}/fidakryx_bbd_p-updated${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fidakryx_bbd_p${EXE_EXT} ${builddir}/fidakryx_bbd_p-updated${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                                                                                                   \
-	   echo "${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fidakryx_bbd_p${EXE_EXT} ${builddir}/fidakryx_bbd_p-updated${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fidakryx_bbd_p${EXE_EXT} ${builddir}/fidakryx_bbd_p-updated${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
-	 fi
+	@${LIBTOOL} --mode=compile ${MPIF77} ${MPI_FLAGS} -I${MPI_INC_DIR} ${FFLAGS} -c ${builddir}/fidakryx_bbd_p-updated.f
+	@${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fidakryx_bbd_p${EXE_EXT} ${builddir}/fidakryx_bbd_p-updated${OBJ_EXT} ${MPI_FLAGS} ${F77_LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F77_LIBS}
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

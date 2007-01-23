@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2006-11-29 00:05:09 $
+# $Revision: 1.9 $
+# $Date: 2007-01-23 20:05:03 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -42,7 +42,7 @@ LIBS     = @LIBS@
 
 top_srcdir = $(srcdir)/../..
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 
 SHARED_LIB_FILES = sundials_direct.lo sundials_band.lo sundials_dense.lo sundials_lapack.lo sundials_iterative.lo sundials_math.lo sundials_nvector.lo sundials_spgmr.lo sundials_spbcgs.lo sundials_sptfqmr.lo
 SHARED_OBJ_FILES = sundials_direct.o sundials_band.o sundials_dense.o sundials_lapack.o sundials_iterative.o sundials_math.o sundials_nvector.o sundials_spgmr.o sundials_spbcgs.o sundials_sptfqmr.o

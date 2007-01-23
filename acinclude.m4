@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.51 $
-# $Date: 2006-11-29 00:05:01 $
+# $Revision: 1.52 $
+# $Date: 2007-01-23 20:05:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -112,6 +112,7 @@ F77_UNDERSCORES=""
 PRECISION_LEVEL=""
 GENERIC_MATH_LIB=""
 F77_MPI_COMM_F2C=""
+SUNDIALS_EXPORT="#define SUNDIALS_EXPORT"
 
 # Initialize enable status of various modules, options, and features
 # to their default values
@@ -1189,14 +1190,18 @@ AC_COMPILE_IFELSE(
 [F77_OK="yes"],
 [F77_OK="no"])
 
-# Check if we must use a Fortran compiler to link the Fortran examples
-# (default is to use CC).
+# If CC is a C++ compiler (decided in SUNDIALS_CPLUSPLUS_CHECK), we must use 
+# it to link the Fortran examples. In this case, test if that is successful.
+# Otherwise, simply use F77 as the linker
+
 if test "X${F77_OK}" = "Xyes"; then
-
   AC_MSG_CHECKING([which linker to use])
-  SUNDIALS_F77_LNKR_CHECK
-  AC_MSG_RESULT([${F77_LNKR_OUT}])
-
+  if test "X${USING_CPLUSPLUS_COMP}" = "Xyes"; then
+    SUNDIALS_F77_LNKR_CHECK
+  else
+    F77_LNKR="${F77}"
+  fi
+  AC_MSG_RESULT([${F77_LNKR}])
 fi
 
 # Reset language (remove 'Fortran 77' from stack)
@@ -1205,72 +1210,53 @@ AC_LANG_POP([Fortran 77])
 ]) dnl END SUNDIALS_SET_F77
 
 #------------------------------------------------------------------
-# DETERMINE F77 LINKER
-#
-# Set F77_LNKR variable
+# F77 LINKER CHECK
+# Check if the C++ compiler CC can be used to link a Fortran program.
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_F77_LNKR_CHECK],
 [
 
-# Perform the next test only if using a C++ compiler to build SUNDIALS.
-# Note: SUNDIALS_CPLUSPLUS_CHECK macro was called by SUNDIALS_SET_CC,
-#       so we need only check the value of USING_CPLUSPLUS_COMP.
-if test "X${USING_CPLUSPLUS_COMP}" = "Xyes"; then
+F77_LNKR_CHECK_OK="no"
 
-  # Compile simple Fortran example, but do NOT link
-  # Note: result stored as conftest.${ac_objext}
-  AC_COMPILE_IFELSE(
-  [AC_LANG_SOURCE(
-  [[
+# Compile simple Fortran example, but do NOT link
+# Note: result stored as conftest.${ac_objext}
+AC_COMPILE_IFELSE(
+[AC_LANG_SOURCE(
+[[
 	PROGRAM SUNDIALS
 	WRITE(*,*)'TEST'
 	END
-  ]])],
-  [
+]])],
+[
 
-  # Temporarily reset LIBS environment variable to perform test
-  SAVED_LIBS="${LIBS}"
-  LIBS="${LIBS} ${FLIBS}"
+# Temporarily reset LIBS environment variable to perform test
+SAVED_LIBS="${LIBS}"
+LIBS="${LIBS} ${FLIBS}"
 
-  # Switch working language to C for next test
-  AC_LANG_PUSH([C])
+# Switch working language to C for next test
+AC_LANG_PUSH([C])
 
-  # Check if CC can link Fortran example
-  # Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
-  # general.m4 and c.m4) (see config/cust_general.m4 and config/mod_c.m4)
-  AC_LINKONLY_IFELSE([],[F77_LNKR_CHECK_OK="yes"],[F77_LNKR_CHECK_OK="no"])
+# Check if CC can link Fortran example
+# Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
+# general.m4 and c.m4) (see config/cust_general.m4 and config/mod_c.m4)
+AC_LINKONLY_IFELSE([],[F77_LNKR_CHECK_OK="yes"],[F77_LNKR_CHECK_OK="no"])
 
-  # Revert back to previous language (Fortran 77)
-  AC_LANG_POP([C])
+# Revert back to previous language (Fortran 77)
+AC_LANG_POP([C])
 
-  # Set LIBS environment variable back to original value
-  LIBS="${SAVED_LIBS}"
+# Set LIBS environment variable back to original value
+LIBS="${SAVED_LIBS}"
 
-  # Note: F77_LNKR variable is used by serial Fortran example Makefile's
-  if test "X${F77_LNKR_CHECK_OK}" = "Xyes"; then
-    F77_LNKR="\$(CC)"
-    F77_LNKR_OUT="${CC}"
-  else
-    F77_LNKR="\$(F77)"
-    F77_LNKR_OUT="${F77}"
-  fi
+])
 
-  ],
-  [
-
-  # If compilation fails, then just use F77
-  F77_LNKR="\$(F77)"
-  F77_LNKR_OUT="${F77}"
-
-  ])
-
+# If either the compilation or the linking failed, we should
+# disable building the Fortran examples
+# For now, use F77 as the linker...
+if test "X${F77_LNKR_CHECK_OK}" = "Xyes"; then
+  F77_LNKR="${CC}"
 else
-
-  # Using a C compiler so use F77 to link serial Fortran examples
-  F77_LNKR="\$(F77)"
-  F77_LNKR_OUT="${F77}"
-
+  F77_LNKR="${F77}"
 fi
 
 ]) dnl SUNDIALS_F77_LNKR_CHECK
@@ -1898,7 +1884,7 @@ LIBS="${SAVED_LIBS}"
 ]) dnl END SUNDIALS_CHECK_CC_WITH_MPI
 
 #------------------------------------------------------------------
-# CHECK MPI-F77 COMPILER
+# SET MPI-F77 COMPILER
 #
 # These tests are done only if all of the following are still true:
 #  - MPI is enabled
@@ -1938,133 +1924,7 @@ fi
 ]) dnl END SUNDIALS_SET_MPIF77
 
 #------------------------------------------------------------------
-# DETERMINE MPI-FORTRAN LINKER
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_MPIF77_LNKR_CHECK],
-[
-
-# If we are NOT using an MPI script, then MPICC_COMP == CC and we do NOT need
-# to check again if CC is a C++ compiler as we already know the answer
-if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
-
-  # Check if using a C++ compiler (meaning MPI-C++ script)
-  # Save result from CC check
-  SAVED_USING_CPLUSPLUS_COMP="${USING_CPLUSPLUS_COMP}"
-  SUNDIALS_CPLUSPLUS_CHECK([${MPICC_COMP}])
-  # MPICC uses a C++ compiler so run the next test
-  if test "X${USING_CPLUSPLUS_COMP}" = "Xyes" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xyes"; then
-    RUN_MPIF77_LNKR_CHECK="yes"
-  # ERROR
-  elif test "X${USING_CPLUSPLUS_COMP}" = "Xyes" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xno"; then
-    AC_MSG_ERROR([${MPICC_COMP} is a C++ compiler but ${CC} is a C compiler])
-  # MPICC uses a C compiler so skip the next test
-  elif test "X${USING_CPLUSPLUS_COMP}" = "Xno" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xno" ; then
-    RUN_MPIF77_LNKR_CHECK="no"
-  # ERROR
-  elif test "X${USING_CPLUSPLUS_COMP}" = "Xno" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xyes" ; then
-    AC_MSG_ERROR([${MPICC_COMP} is a C compiler but ${CC} is a C++ compiler])
-  fi
-  # Restore result from CC check
-  USING_CPLUSPLUS_COMP="${SAVED_USING_CPLUSPLUS_COMP}"
-
-else
-
-  AC_MSG_CHECKING([if ${MPICC_COMP} is a C++ compiler])
-  if test "X${USING_CPLUSPLUS_COMP}" = "Xyes"; then
-    AC_MSG_RESULT([yes])
-  else
-    AC_MSG_RESULT([no])
-  fi
-
-fi
-
-AC_MSG_CHECKING([which linker to use])
-# Perform the next test only if using a C++ compiler to build NVECTOR_PARALLEL
-if test "X${RUN_MPIF77_LNKR_CHECK}" = "Xyes"; then
-
-  # Switch language to "Fortran 77"
-  AC_LANG_PUSH([Fortran 77])
-
-  # Temporarily reset F77 environment variable to perform test
-  SAVED_F77="${F77}"
-  F77="${MPIF77_COMP}"
-
-  # Compile simple Fortran example, but do NOT link
-  # Note: result stored as conftest.${ac_objext}
-  AC_COMPILE_IFELSE(
-  [AC_LANG_SOURCE(
-  [[
-	PROGRAM SUNDIALS
-	INTEGER IER
-	CALL MPI_INIT(IER)
-	END
-  ]])],
-  [
-
-  # Reset F77 to original value
-  F77="${SAVED_F77}"
-
-  # Revert to previous language
-  AC_LANG_POP([Fortran 77])
-
-  # Temporarily reset LIBS environment variable to perform test
-  SAVED_LIBS="${LIBS}"
-  LIBS="${LIBS} ${FLIBS}"
-
-  # Switch working language to C for next test
-  AC_LANG_PUSH([C])
-
-  # Temporarily reset CC environment variable to perform next test
-  SAVED_CC="${CC}"
-  CC="${MPICC_COMP}"
-
-  # Check if MPICC_COMP can link Fortran example
-  # Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
-  # general.m4 and c.m4)
-  AC_LINKONLY_IFELSE([],[MPIF77_LNKR_CHECK_OK="yes"],[MPIF77_LNKR_CHECK_OK="no"])
-
-  # Reset CC to original value
-  CC="${SAVED_CC}"
-
-  # Revert back to previous language (Fortran 77)
-  AC_LANG_POP([C])
-
-  # Set LIBS environment variable back to original value
-  LIBS="${SAVED_LIBS}"
-
-  # Note: MPIF77_LNKR variable is used by parallel Fortran example Makefile's
-  if test "X${MPIF77_LNKR_CHECK_OK}" = "Xyes"; then
-    MPIF77_LNKR="\$(MPICC)"
-    MPIF77_LNKR_OUT="${MPICC}"
-  else
-    MPIF77_LNKR="\$(MPIF77)"
-    MPIF77_LNKR_OUT="${MPIF77}"
-  fi
-
-  ],
-  [
-
-  # If compilation fails, then just use MPIF77
-  MPIF77_LNKR="\$(MPIF77)"
-  MPIF77_LNKR_OUT="${MPIF77}"
-
-  ])
-
-else
-
-  # Using a C compiler so use MPIF77 to link parallel Fortran examples
-  MPIF77_LNKR="\$(MPIF77)"
-  MPIF77_LNKR_OUT="${MPIF77}"
-
-fi
-AC_MSG_RESULT([${MPIF77_LNKR_OUT}])
-
-
-]) dnl SUNDIALS_MPIF77_LNKR_CHECK
-
-#------------------------------------------------------------------
-# TEST MPI-FORTRAN COMPILER
+# TEST MPIF77 COMPILER SCRIPT
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_CHECK_MPIF77],
@@ -2160,6 +2020,127 @@ else
 fi
 
 ]) dnl END SUNDIALS_CHECK_MPIF77
+
+#------------------------------------------------------------------
+# DETERMINE MPI-FORTRAN LINKER IF USING MPIF77 SCRIPT
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_MPIF77_LNKR_CHECK],
+[
+
+# If we are NOT using an MPI script, then MPICC_COMP == CC and we do NOT need
+# to check again if CC is a C++ compiler as we already know the answer
+if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+
+  # Check if using a C++ compiler (meaning MPI-C++ script)
+  # Save result from CC check
+  SAVED_USING_CPLUSPLUS_COMP="${USING_CPLUSPLUS_COMP}"
+  SUNDIALS_CPLUSPLUS_CHECK([${MPICC_COMP}])
+  # MPICC uses a C++ compiler so run the next test
+  if test "X${USING_CPLUSPLUS_COMP}" = "Xyes" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xyes"; then
+    RUN_MPIF77_LNKR_CHECK="yes"
+  # ERROR
+  elif test "X${USING_CPLUSPLUS_COMP}" = "Xyes" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xno"; then
+    AC_MSG_ERROR([${MPICC_COMP} is a C++ compiler but ${CC} is a C compiler])
+  # MPICC uses a C compiler so skip the next test
+  elif test "X${USING_CPLUSPLUS_COMP}" = "Xno" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xno" ; then
+    RUN_MPIF77_LNKR_CHECK="no"
+  # ERROR
+  elif test "X${USING_CPLUSPLUS_COMP}" = "Xno" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xyes" ; then
+    AC_MSG_ERROR([${MPICC_COMP} is a C compiler but ${CC} is a C++ compiler])
+  fi
+  # Restore result from CC check
+  USING_CPLUSPLUS_COMP="${SAVED_USING_CPLUSPLUS_COMP}"
+
+else
+
+  AC_MSG_CHECKING([if ${MPICC_COMP} is a C++ compiler])
+  if test "X${USING_CPLUSPLUS_COMP}" = "Xyes"; then
+    AC_MSG_RESULT([yes])
+  else
+    AC_MSG_RESULT([no])
+  fi
+
+fi
+
+AC_MSG_CHECKING([which linker to use])
+# Perform the next test only if using a C++ compiler to build NVECTOR_PARALLEL
+if test "X${RUN_MPIF77_LNKR_CHECK}" = "Xyes"; then
+
+  MPIF77_LNKR_CHECK_OK="no"
+
+  # Switch language to "Fortran 77"
+  AC_LANG_PUSH([Fortran 77])
+
+  # Temporarily reset F77 environment variable to perform test
+  SAVED_F77="${F77}"
+  F77="${MPIF77_COMP}"
+
+  # Compile simple Fortran example, but do NOT link
+  # Note: result stored as conftest.${ac_objext}
+  AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE(
+  [[
+	PROGRAM SUNDIALS
+	INTEGER IER
+	CALL MPI_INIT(IER)
+	END
+  ]])],
+  [
+
+  # Reset F77 to original value
+  F77="${SAVED_F77}"
+
+  # Revert to previous language
+  AC_LANG_POP([Fortran 77])
+
+  # Temporarily reset LIBS environment variable to perform test
+  SAVED_LIBS="${LIBS}"
+  LIBS="${LIBS} ${FLIBS}"
+
+  # Switch working language to C for next test
+  AC_LANG_PUSH([C])
+
+  # Temporarily reset CC environment variable to perform next test
+  SAVED_CC="${CC}"
+  CC="${MPICC_COMP}"
+
+  # Check if MPICC_COMP can link Fortran example
+  # Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
+  # general.m4 and c.m4)
+  AC_LINKONLY_IFELSE([],[MPIF77_LNKR_CHECK_OK="yes"],[MPIF77_LNKR_CHECK_OK="no"])
+
+  # Reset CC to original value
+  CC="${SAVED_CC}"
+
+  # Revert back to previous language (Fortran 77)
+  AC_LANG_POP([C])
+
+  # Set LIBS environment variable back to original value
+  LIBS="${SAVED_LIBS}"
+
+  ])
+
+  # If either the compilation or the linking failed, we should
+  # disable building the parallel Fortran examples
+  # For now, use MPIF77 as the linker...
+
+  if test "X${MPIF77_LNKR_CHECK_OK}" = "Xyes"; then
+    MPIF77_LNKR="${MPICC}"
+  else
+    MPIF77_LNKR="${MPIF77}"
+  fi
+
+else
+
+  # Using a C compiler so use MPIF77 to link parallel Fortran examples
+  MPIF77_LNKR="${MPIF77}"
+
+fi
+AC_MSG_RESULT([${MPIF77_LNKR}])
+
+
+]) dnl SUNDIALS_MPIF77_LNKR_CHECK
 
 #------------------------------------------------------------------
 # TEST FORTRAN COMPILER WITH MPI
@@ -2314,14 +2295,12 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
     # since the SUNDIALS_F77_LNKR_CHECK macro already checked if CC or F77
     # should be used
     AC_MSG_CHECKING([which linker to use])
-    if test "X${F77_LNKR}" = "X\$(CC)"; then
-      MPIF77_LNKR="\$(MPICC)"
-      MPIF77_LNKR_OUT="${MPICC}"
-    elif test "X${F77_LNKR}" = "X\$(F77)"; then
-      MPIF77_LNKR="\$(MPIF77)"
-      MPIF77_LNKR_OUT="${MPIF77}"
+    if test "X${F77_LNKR}" = "X${CC}"; then
+      MPIF77_LNKR="${MPICC}"
+    elif test "X${F77_LNKR}" = "X${F77}"; then
+      MPIF77_LNKR="${MPIF77}"
     fi
-    AC_MSG_RESULT([${MPIF77_LNKR_OUT}])
+    AC_MSG_RESULT([${MPIF77_LNKR}])
   fi
 
 else
@@ -2875,6 +2854,15 @@ PARALLEL_DEV_C_EXAMPLES="disabled"
 SERIAL_DEV_F77_EXAMPLES="disabled"
 PARALLEL_DEV_F77_EXAMPLES="disabled"
 
+# Prepare substitution variables to create the exported example Makefiles
+
+F77_LIBS="${FLIBS} ${LIBS}"
+if test "X${F77_LNKR}" = "X${F77}"; then
+  F77_LDFLAGS="${FFLAGS} ${LDFLAGS}"
+else
+  F77_LDFLAGS="${CFLAGS} ${LDFLAGS}"
+fi
+
 ]) dnl END SUNDIALS_SET_EXAMPLES
 
 #------------------------------------------------------------------
@@ -3285,7 +3273,7 @@ if test "X${F77_OK}" = "Xyes"; then
 echo "
   Fortran Compiler:          ${F77}
   Fortran Compiler Flags:    ${FFLAGS}
-  Fortran Linker:            ${F77_LNKR_OUT}
+  Fortran Linker:            ${F77_LNKR}
   Extra Fortran Libraries:   ${FLIBS}"
 fi
 
@@ -3305,7 +3293,7 @@ if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_EXAMPLES_ENABLED}" = "Xyes" &
 echo "
   Using MPI-Fortran script?  ${USE_MPIF77_SCRIPT}
   MPI-Fortran:               ${MPIF77}
-  MPI-Fortran Linker:        ${MPIF77_LNKR_OUT}"
+  MPI-Fortran Linker:        ${MPIF77_LNKR}"
 fi
 
 if test "X${STB_ENABLED}" = "Xyes"; then

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-11-30 21:11:29 $
+# $Revision: 1.5 $
+# $Date: 2007-01-23 20:05:02 $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -45,7 +45,7 @@ LAPACK_ENABLED = @LAPACK_ENABLED@
 
 top_srcdir = $(srcdir)/../..
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 
 LIB_REVISION = 0:0:0
 

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-11-29 00:05:03 $
+# $Revision: 1.2 $
+# $Date: 2007-01-23 20:05:03 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -19,20 +19,18 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-FFLAGS      = @FFLAGS@
-LDFLAGS     = @LDFLAGS@
-LIBS        = @LIBS@
-FLIBS       = @FLIBS@
-MPIF77      = @MPIF77@
-MPICC       = @MPICC@
-MPI_INC_DIR = @MPI_INC_DIR@
-MPI_LIB_DIR = @MPI_LIB_DIR@
-MPI_LIBS    = @MPI_LIBS@
-MPI_FLAGS   = @MPI_FLAGS@
-MPIF77_LNKR = @MPIF77_LNKR@
+FFLAGS       = @FFLAGS@
+F77_LDFLAGS  = @F77_LDFLAGS@
+F77_LIBS     = @F77_LIBS@
 
-SUNDIALS_INCS = -I$(includedir)
-SUNDIALS_LIBS = -L$(libdir) -lsundials_fcvode -lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel
+MPIF77       = @MPIF77@
+MPI_INC_DIR  = @MPI_INC_DIR@
+MPI_FLAGS    = @MPI_FLAGS@
+MPIF77_LNKR  = @MPIF77_LNKR@
+MPI_LIB_DIR  = @MPI_LIB_DIR@
+MPI_LIBS     = @MPI_LIBS@
+
+SUNDIALS_LIBS = -lsundials_fcvode -lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel
 
 EXAMPLES = fcvnonx_p \
 	   fcvkryx_p \
@@ -50,30 +48,12 @@ clean:
 
 fcvnonx_p: fcvnonx_p.f
 	${MPIF77} ${MPI_FLAGS} -I${MPI_INC_DIR} ${FFLAGS} -c fcvnonx_p.f
-	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                      \
-	   echo "${MPIF77_LNKR} -o fcvnonx_p fcvnonx_p.o ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${MPIF77_LNKR} -o fcvnonx_p fcvnonx_p.o ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                \
-	   echo "${MPIF77_LNKR} -o fcvnonx_p fcvnonx_p.o ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${MPIF77_LNKR} -o fcvnonx_p fcvnonx_p.o ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
-	 fi
+	${MPIF77_LNKR} -o fcvnonx_p fcvnonx_p.o ${MPI_FLAGS} ${F77_LDFLAGS} -L${libdir} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F77_LIBS}
 
 fcvkryx_p: fcvkryx_p.f
 	${MPIF77} ${MPI_FLAGS} -I${MPI_INC_DIR} ${FFLAGS} -c fcvkryx_p.f
-	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                      \
-	   echo "${MPIF77_LNKR} -o fcvkryx_p fcvkryx_p.o ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${MPIF77_LNKR} -o fcvkryx_p fcvkryx_p.o ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                \
-	   echo "${MPIF77_LNKR} -o fcvkryx_p fcvkryx_p.o ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${MPIF77_LNKR} -o fcvkryx_p fcvkryx_p.o ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
-	 fi
+	${MPIF77_LNKR} -o fcvkryx_p fcvkryx_p.o ${MPI_FLAGS} ${F77_LDFLAGS} -L${libdir} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F77_LIBS}
 
 fcvkryx_bbd_p: fcvkryx_bbd_p.f
 	${MPIF77} ${MPI_FLAGS} -I${MPI_INC_DIR} ${FFLAGS} -c fcvkryx_bbd_p.f
-	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                              \
-	   echo "${MPIF77_LNKR} -o fcvkryx_bbd_p fcvkryx_bbd_p.o ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${MPIF77_LNKR} -o fcvkryx_bbd_p fcvkryx_bbd_p.o ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                        \
-	   echo "${MPIF77_LNKR} -o fcvkryx_bbd_p fcvkryx_bbd_p.o ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${MPIF77_LNKR} -o fcvkryx_bbd_p fcvkryx_bbd_p.o ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
-	 fi
+	${MPIF77_LNKR} -o fcvkryx_bbd_p fcvkryx_bbd_p.o ${MPI_FLAGS} ${F77_LDFLAGS} -L${libdir} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F77_LIBS}

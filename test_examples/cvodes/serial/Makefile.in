@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-29 00:05:10 $
+# $Revision: 1.6 $
+# $Date: 2007-01-23 20:05:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -44,12 +44,10 @@ EXE_EXT = @EXEEXT@
 
 top_srcdir = $(srcdir)/../../..
 
-SUNDIALS_INCDIR = $(top_srcdir)/include
-SOLVER_SRCDIR   = $(top_builddir)/src/cvodes
-NVEC_SRCDIR     = $(top_builddir)/src/nvec_ser
+SUNDIALS_INCS = -I$(top_srcdir)/include -I$(top_builddir)/include
 
-SUNDIALS_INCS = -I$(SUNDIALS_INCDIR) -I$(top_builddir)/src
-SUNDIALS_LIBS = $(SOLVER_SRCDIR)/libsundials_cvodes.la $(NVEC_SRCDIR)/libsundials_nvecserial.la
+SUNDIALS_LIBS = $(top_builddir)/src/cvodes/libsundials_cvodes.la          \
+	        $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
 
 EXEC_FILES = cvsminhx$(EXE_EXT) \
 	     cvs2odex$(EXE_EXT) \

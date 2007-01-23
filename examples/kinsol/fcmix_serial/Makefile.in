@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-29 00:05:05 $
+# $Revision: 1.6 $
+# $Date: 2007-01-23 20:05:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -32,13 +32,11 @@ INSTALL_FILE = @INSTALL_DATA@
 LIBTOOL      = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
-F77      = @F77@
-FFLAGS   = @FFLAGS@
-FLIBS    = @FLIBS@
-CC       = @CC@
-LDFLAGS  = @LDFLAGS@
-LIBS     = @LIBS@
-F77_LNKR = @F77_LNKR@
+F77          = @F77@
+FFLAGS       = @FFLAGS@
+F77_LNKR     = @F77_LNKR@
+F77_LDFLAGS  = @F77_LDFLAGS@
+F77_LIBS     = @F77_LIBS@
 
 LAPACK_ENABLED = @LAPACK_ENABLED@
 BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
@@ -56,11 +54,7 @@ SUNDIALS_LIBS = $(top_builddir)/src/kinsol/fcmix/libsundials_fkinsol.la \
 	        $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
 
 SUNDIALS_BL_LIBS = $(top_builddir)/src/kinsol/fcmix/libsundials_fkinsol_bl.la \
-	           $(top_builddir)/src/kinsol/libsundials_kinsol_bl.la        \
-	           $(top_builddir)/src/kinsol/fcmix/libsundials_fkinsol.la    \
-	           $(top_builddir)/src/kinsol/libsundials_kinsol.la           \
-	           $(top_builddir)/src/nvec_ser/libsundials_fnvecserial.la    \
-	           $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
+	           $(top_builddir)/src/kinsol/libsundials_kinsol_bl.la
 
 fortran-update = ${SHELL} ${top_builddir}/bin/fortran-update.sh
 
@@ -117,13 +111,7 @@ distclean: clean
 fkinkryx$(EXE_EXT): $(srcdir)/fkinkryx.f
 	@${fortran-update} ${srcdir} fkinkryx.f
 	 ${LIBTOOL} --mode=compile $(F77) $(FFLAGS) -c $(builddir)/fkinkryx-updated.f
-	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                      \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx${EXE_EXT} ${builddir}/fkinkryx-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx${EXE_EXT} ${builddir}/fkinkryx-updated${OBJ_EXT} ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                                                                                          \
-	   echo "${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx${EXE_EXT} ${builddir}/fkinkryx-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx${EXE_EXT} ${builddir}/fkinkryx-updated${OBJ_EXT} ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 fi
+	 ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fkinkryx${EXE_EXT} ${builddir}/fkinkryx-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS}
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-11-29 00:05:05 $
+# $Revision: 1.2 $
+# $Date: 2007-01-23 20:05:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -19,16 +19,13 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-F77      = @F77@
-FFLAGS   = @FFLAGS@
-FLIBS    = @FLIBS@
-CC       = @CC@
-LDFLAGS  = @LDFLAGS@
-LIBS     = @LIBS@
-F77_LNKR = @F77_LNKR@
+F77         = @F77@
+FFLAGS      = @FFLAGS@
+F77_LNKR    = @F77_LNKR@
+F77_LDFLAGS = @F77_LDFLAGS@
+F77_LIBS    = @F77_LIBS@
 
-SUNDIALS_INCS = -I$(includedir)
-SUNDIALS_LIBS = -L$(libdir) -lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecserial -lsundials_nvecserial
+SUNDIALS_LIBS = -lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecserial -lsundials_nvecserial
 
 EXAMPLES = fkinkryx
 
@@ -44,10 +41,4 @@ clean:
 
 fkinkryx: fkinkryx.f
 	$(F77) $(FFLAGS) -c fkinkryx.f
-	@if test "X${F77_LNKR}" = "X${F77}"; then                                                             \
-	   echo "${F77_LNKR} -o fkinkryx fkinkryx.o ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${F77_LNKR} -o fkinkryx fkinkryx.o ${FFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 else                                                                                                 \
-	   echo "${F77_LNKR} -o fkinkryx fkinkryx.o ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
-	   ${F77_LNKR} -o fkinkryx fkinkryx.o ${CFLAGS} ${LDFLAGS} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
-	 fi
+	${F77_LNKR} -o fkinkryx fkinkryx.o ${F77_LDFLAGS}  ${F77_LIBS} -L${libdir} ${SUNDIALS_LIBS}
