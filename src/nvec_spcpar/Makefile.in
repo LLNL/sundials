@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2007-01-23 20:05:03 $
+# $Revision: 1.7 $
+# $Date: 2007-01-24 01:14:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -69,9 +69,9 @@ $(NVECSPCPAR_LIB): shared $(NVECSPCPAR_LIB_FILES)
 	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) $(MPI_FLAGS) -o $(NVECSPCPAR_LIB) $(NVECSPCPAR_LIB_FILES) $(SHARED_LIB_FILES) $(LDFLAGS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(MPI_LIBS) $(LIBS) -rpath $(libdir) -version-info $(LIB_REVISION)
 
 $(FNVECSPCPAR_LIB): $(FNVECSPCPAR_LIB_FILES)
-	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                                                     \
-	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECSPCPAR_LIB} ${FNVECSPCPAR_LIB_FILES} ${SHARED_LIB_FILES} $(LDFLAGS) -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info ${LIB_REVISION}" ; \
-	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECSPCPAR_LIB} ${FNVECSPCPAR_LIB_FILES} ${SHARED_LIB_FILES} $(LDFLAGS) -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info ${LIB_REVISION} ;        \
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                                                                          \
+	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECSPCPAR_LIB} ${FNVECSPCPAR_LIB_FILES} ${SHARED_LIB_FILES} $(LDFLAGS) -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -version-info ${LIB_REVISION}" ; \
+	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECSPCPAR_LIB} ${FNVECSPCPAR_LIB_FILES} ${SHARED_LIB_FILES} $(LDFLAGS) -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -version-info ${LIB_REVISION} ;        \
 	fi
 
 install: $(NVECSPCPAR_LIB) $(FNVECSPCPAR_LIB)

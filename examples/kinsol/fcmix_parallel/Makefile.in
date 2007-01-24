@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2007-01-23 20:05:04 $
+# $Revision: 1.7 $
+# $Date: 2007-01-24 01:14:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -68,7 +68,7 @@ all: $(EXEC_FILES)
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/kinsol/fcmix_parallel
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_parallel/Makefile_ex    $(EXS_INSTDIR)/kinsol/fcmix_parallel/Makefile
+	$(INSTALL_FILE) Makefile_ex                                                 $(EXS_INSTDIR)/kinsol/fcmix_parallel/Makefile
 	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_parallel/README         $(EXS_INSTDIR)/kinsol/fcmix_parallel/
 	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_parallel/fkinkryx_p.f   $(EXS_INSTDIR)/kinsol/fcmix_parallel/
 	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_parallel/fkinkryx_p.out $(EXS_INSTDIR)/kinsol/fcmix_parallel/

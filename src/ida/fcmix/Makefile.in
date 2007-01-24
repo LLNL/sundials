@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-11-29 00:05:08 $
+# $Revision: 1.6 $
+# $Date: 2007-01-24 01:14:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,7 +43,7 @@ LAPACK_ENABLED = @LAPACK_ENABLED@
 
 top_srcdir = $(srcdir)/../../..
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/src/ida
+INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/src/ida -I$(top_builddir)/include
 
 LIB_REVISION = 1:0:0
 

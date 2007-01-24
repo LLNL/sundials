@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-01-23 20:05:03 $
+# $Revision: 1.8 $
+# $Date: 2007-01-24 01:14:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -79,7 +79,7 @@ all_bl: $(EXEC_BL_FILES)
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/cvode/fcmix_serial
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_serial/Makefile_ex    $(EXS_INSTDIR)/cvode/fcmix_serial/Makefile
+	$(INSTALL_FILE) Makefile_ex                                              $(EXS_INSTDIR)/cvode/fcmix_serial/Makefile
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_serial/README         $(EXS_INSTDIR)/cvode/fcmix_serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_serial/fcvbanx.f      $(EXS_INSTDIR)/cvode/fcmix_serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_serial/fcvdenx.f      $(EXS_INSTDIR)/cvode/fcmix_serial/

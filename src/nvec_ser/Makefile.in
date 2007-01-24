@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2007-01-23 20:05:03 $
+# $Revision: 1.7 $
+# $Date: 2007-01-24 01:14:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -66,9 +66,9 @@ $(NVECSER_LIB): shared $(NVECSER_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(NVECSER_LIB) $(NVECSER_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 $(FNVECSER_LIB): $(FNVECSER_LIB_FILES)
-	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                               \
-	   echo "${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECSER_LIB} ${FNVECSER_LIB_FILES} ${SHARED_LIB_FILES} -rpath ${libdir} $(LDFLAGS) ${LIBS} -static -version-info ${LIB_REVISION}" ; \
-	   ${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECSER_LIB} ${FNVECSER_LIB_FILES} ${SHARED_LIB_FILES} -rpath ${libdir} $(LDFLAGS) ${LIBS} -static -version-info ${LIB_REVISION} ;        \
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                       \
+	   echo "${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECSER_LIB} ${FNVECSER_LIB_FILES} ${SHARED_LIB_FILES} -rpath ${libdir} $(LDFLAGS) ${LIBS} -version-info ${LIB_REVISION}" ; \
+	   ${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECSER_LIB} ${FNVECSER_LIB_FILES} ${SHARED_LIB_FILES} -rpath ${libdir} $(LDFLAGS) ${LIBS} -version-info ${LIB_REVISION} ;        \
 	fi
 
 install: $(NVECSER_LIB) $(FNVECSER_LIB)

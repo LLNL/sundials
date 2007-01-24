@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2007-01-23 20:05:04 $
+# $Revision: 1.7 $
+# $Date: 2007-01-24 01:14:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -76,7 +76,7 @@ all_bl: $(EXEC_BL_FILES)
 
 install: $(EXEC_FILES)
 	$(mkinstalldirs) $(EXS_INSTDIR)/kinsol/fcmix_serial
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_serial/Makefile_ex  $(EXS_INSTDIR)/kinsol/fcmix_serial/Makefile
+	$(INSTALL_FILE) Makefile_ex                                             $(EXS_INSTDIR)/kinsol/fcmix_serial/Makefile
 	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_serial/README       $(EXS_INSTDIR)/kinsol/fcmix_serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_serial/fkinkryx.f   $(EXS_INSTDIR)/kinsol/fcmix_serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_serial/fkinkryx.out $(EXS_INSTDIR)/kinsol/fcmix_serial/

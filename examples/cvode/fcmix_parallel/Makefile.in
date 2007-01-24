@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2007-01-23 20:05:03 $
+# $Revision: 1.7 $
+# $Date: 2007-01-24 01:14:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -70,7 +70,7 @@ all: $(EXEC_FILES)
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/cvode/fcmix_parallel
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_parallel/Makefile_ex       $(EXS_INSTDIR)/cvode/fcmix_parallel/Makefile
+	$(INSTALL_FILE) Makefile_ex                                                   $(EXS_INSTDIR)/cvode/fcmix_parallel/Makefile
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_parallel/README            $(EXS_INSTDIR)/cvode/fcmix_parallel/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_parallel/fcvkryx_bbd_p.f   $(EXS_INSTDIR)/cvode/fcmix_parallel/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/fcmix_parallel/fcvkryx_p.f       $(EXS_INSTDIR)/cvode/fcmix_parallel/
