@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.2 $
+ * $Date: 2007-01-24 01:05:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,4 +63,4 @@
  * In all other cases (other platforms or static libraries under
  * Windows), the SUNDIALS_EXPORT macro is empty
  */
-#define SUNDIALS_EXPORT
+@SUNDIALS_EXPORT@
