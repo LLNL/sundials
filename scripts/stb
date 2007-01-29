@@ -2,17 +2,21 @@
 
 tarfile=$1
 distrobase=$2
+doc=$3
 
 echo "   --- Add sundialsTB files to $tarfile"
 
-tar ufv $tarfile $distrobase/sundialsTB/README
-tar ufv $tarfile $distrobase/sundialsTB/LICENSE
-tar ufv $tarfile $distrobase/sundialsTB/install_STB.m
-tar ufv $tarfile $distrobase/sundialsTB/startup_STB.in
-tar ufv $tarfile $distrobase/sundialsTB/Makefile.in
-
+if [ $doc = "T" ]; then
 tar ufv $tarfile $distrobase/sundialsTB/doc/sundialsTB.pdf
 #tar ufv $tarfile $distrobase/sundialsTB/doc/sundialsTB.ps
+fi
+
+tar ufv $tarfile $distrobase/sundialsTB/README
+tar ufv $tarfile $distrobase/sundialsTB/LICENSE
+tar ufv $tarfile $distrobase/sundialsTB/Makefile.in
+
+tar ufv $tarfile $distrobase/sundialsTB/install_STB.m
+tar ufv $tarfile $distrobase/sundialsTB/startup_STB.in
 
 tar ufv $tarfile $distrobase/sundialsTB/nvector/Contents.m
 tar ufv $tarfile $distrobase/sundialsTB/nvector/N_VDotProd.m
@@ -50,7 +54,11 @@ tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVode.m
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVodeMallocB.m
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVodeMalloc.m
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVodeMonitor.m
+tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVodeReInitB.m
+tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVodeReInit.m
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVodeSensMalloc.m
+tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVodeSensReInit.m
+tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVodeSensToggleOff.m
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVodeSetFSAOptions.m
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVodeSetOptions.m
 tar ufv $tarfile $distrobase/sundialsTB/cvodes/CVPrecSetupFn.m

@@ -2,20 +2,22 @@
 
 tarfile=$1
 distrobase=$2
+doc=$3
 
 echo "   --- Add cvodes module to $tarfile"
 
-tar ufv $tarfile $distrobase/src/cvodes/LICENSE
-tar ufv $tarfile $distrobase/src/cvodes/README
-
+if [ $doc = "T" ]; then
 #tar ufv $tarfile $distrobase/doc/cvodes/cvs_guide.ps
 tar ufv $tarfile $distrobase/doc/cvodes/cvs_guide.pdf
 #tar ufv $tarfile $distrobase/doc/cvodes/cvs_examples.ps
 tar ufv $tarfile $distrobase/doc/cvodes/cvs_examples.pdf
+fi
 
 tar ufv $tarfile $distrobase/include/cvodes/cvodes.h
+tar ufv $tarfile $distrobase/include/cvodes/cvodes_direct.h
 tar ufv $tarfile $distrobase/include/cvodes/cvodes_dense.h
 tar ufv $tarfile $distrobase/include/cvodes/cvodes_band.h
+tar ufv $tarfile $distrobase/include/cvodes/cvodes_lapack.h
 tar ufv $tarfile $distrobase/include/cvodes/cvodes_diag.h
 tar ufv $tarfile $distrobase/include/cvodes/cvodes_spgmr.h
 tar ufv $tarfile $distrobase/include/cvodes/cvodes_spbcgs.h
@@ -24,13 +26,19 @@ tar ufv $tarfile $distrobase/include/cvodes/cvodes_spils.h
 tar ufv $tarfile $distrobase/include/cvodes/cvodes_bandpre.h
 tar ufv $tarfile $distrobase/include/cvodes/cvodes_bbdpre.h
 
+tar ufv $tarfile $distrobase/src/cvodes/LICENSE
+tar ufv $tarfile $distrobase/src/cvodes/README
 tar ufv $tarfile $distrobase/src/cvodes/Makefile.in
+tar ufv $tarfile $distrobase/src/cvodes/CMakeLists.txt
+
 tar ufv $tarfile $distrobase/src/cvodes/cvodes.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodea.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_io.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodea_io.c
+tar ufv $tarfile $distrobase/src/cvodes/cvodes_direct.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_dense.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_band.c
+tar ufv $tarfile $distrobase/src/cvodes/cvodes_lapack.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_diag.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_spils.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_spgmr.c
@@ -39,15 +47,19 @@ tar ufv $tarfile $distrobase/src/cvodes/cvodes_sptfqmr.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_bandpre.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_bbdpre.c
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_impl.h
-tar ufv $tarfile $distrobase/src/cvodes/cvodes_dense_impl.h
-tar ufv $tarfile $distrobase/src/cvodes/cvodes_band_impl.h
+tar ufv $tarfile $distrobase/src/cvodes/cvodes_direct_impl.h
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_diag_impl.h
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_spils_impl.h
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_bandpre_impl.h
 tar ufv $tarfile $distrobase/src/cvodes/cvodes_bbdpre_impl.h
 
+echo "   --- Add cvodes examples to $tarfile"
+
 tar ufv $tarfile $distrobase/examples/cvodes/serial/README
 tar ufv $tarfile $distrobase/examples/cvodes/serial/Makefile.in
+tar ufv $tarfile $distrobase/examples/cvodes/serial/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/cvodes/serial/Makefile_ex.in
+tar ufv $tarfile $distrobase/examples/cvodes/serial/Makefile_ex_bl.in
 tar ufv $tarfile $distrobase/examples/cvodes/serial/cvsadjbanx.c
 tar ufv $tarfile $distrobase/examples/cvodes/serial/cvsadjbanx.out
 tar ufv $tarfile $distrobase/examples/cvodes/serial/cvsadjdenx.c
@@ -81,9 +93,16 @@ tar ufv $tarfile $distrobase/examples/cvodes/serial/cvskryx_bp.c
 tar ufv $tarfile $distrobase/examples/cvodes/serial/cvskryx_bp.out
 tar ufv $tarfile $distrobase/examples/cvodes/serial/cvskryx.c
 tar ufv $tarfile $distrobase/examples/cvodes/serial/cvskryx.out
+tar ufv $tarfile $distrobase/examples/cvodes/serial/cvsbanx_lap.c
+tar ufv $tarfile $distrobase/examples/cvodes/serial/cvsbanx_lap.out
+tar ufv $tarfile $distrobase/examples/cvodes/serial/cvsdenx_lap.c
+tar ufv $tarfile $distrobase/examples/cvodes/serial/cvsdenx_lap.out
+
 
 tar ufv $tarfile $distrobase/examples/cvodes/parallel/README
 tar ufv $tarfile $distrobase/examples/cvodes/parallel/Makefile.in
+tar ufv $tarfile $distrobase/examples/cvodes/parallel/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/cvodes/parallel/Makefile_ex.in
 tar ufv $tarfile $distrobase/examples/cvodes/parallel/cvsadjkryx_p.c
 tar ufv $tarfile $distrobase/examples/cvodes/parallel/cvsadjkryx_p.out
 tar ufv $tarfile $distrobase/examples/cvodes/parallel/cvsadjnonx_p.c

@@ -16,21 +16,33 @@ tar ufv $tarfile $distrobase/acinclude.m4
 tar ufv $tarfile $distrobase/config.hin
 tar ufv $tarfile $distrobase/configure
 
-tar ufv $tarfile $distrobase/config/sundials.spec
+tar ufv $tarfile $distrobase/CMakeLists.txt
 
-tar ufv $tarfile $distrobase/config/sundials-config.in
+echo "   --- Add configuration files to $tarfile"
+
 tar ufv $tarfile $distrobase/config/config.guess
 tar ufv $tarfile $distrobase/config/config.sub
 tar ufv $tarfile $distrobase/config/install-sh
 tar ufv $tarfile $distrobase/config/mkinstalldirs
+tar ufv $tarfile $distrobase/config/rminstalldirs
 tar ufv $tarfile $distrobase/config/ltmain.sh
-tar ufv $tarfile $distrobase/config/fortran_update.in
 tar ufv $tarfile $distrobase/config/mod_c.m4
 tar ufv $tarfile $distrobase/config/mod_fortran.m4
 tar ufv $tarfile $distrobase/config/cust_general.m4
 
+tar ufv $tarfile $distrobase/config/CheckFortranFunctionExists.cmake
+tar ufv $tarfile $distrobase/config/FindBLAS.cmake
+tar ufv $tarfile $distrobase/config/FindLAPACK.cmake
+tar ufv $tarfile $distrobase/config/FindMPI.cmake
+
+#tar ufv $tarfile $distrobase/config/sundials.spec
+
+tar ufv $tarfile $distrobase/bin/sundials-config.in
+tar ufv $tarfile $distrobase/bin/fortran-update.in
+
 echo "   --- Add shared module to $tarfile"
 
+tar ufv $tarfile $distrobase/include/sundials/sundials_config.in
 tar ufv $tarfile $distrobase/include/sundials/sundials_types.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_math.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_nvector.h
@@ -49,7 +61,7 @@ tar ufv $tarfile $distrobase/include/nvector/nvector_parallel.h
 
 tar ufv $tarfile $distrobase/src/sundials/README
 tar ufv $tarfile $distrobase/src/sundials/Makefile.in
-tar ufv $tarfile $distrobase/src/sundials/sundials_config.in
+tar ufv $tarfile $distrobase/src/sundials/CMakeLists.txt
 tar ufv $tarfile $distrobase/src/sundials/sundials_math.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_nvector.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_dense.c
@@ -61,15 +73,21 @@ tar ufv $tarfile $distrobase/src/sundials/sundials_spbcgs.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_sptfqmr.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_iterative.c
 
+echo "   --- Add nvecser module to $tarfile"
+
 tar ufv $tarfile $distrobase/src/nvec_ser/README
-tar ufv $tarfile $distrobase/src/nvec_ser/fnvector_serial.h
 tar ufv $tarfile $distrobase/src/nvec_ser/Makefile.in
+tar ufv $tarfile $distrobase/src/nvec_ser/CMakeLists.txt
+tar ufv $tarfile $distrobase/src/nvec_ser/fnvector_serial.h
 tar ufv $tarfile $distrobase/src/nvec_ser/nvector_serial.c
 tar ufv $tarfile $distrobase/src/nvec_ser/fnvector_serial.c
 
+echo "   --- Add nvecpar module to $tarfile"
+
 tar ufv $tarfile $distrobase/src/nvec_par/README
-tar ufv $tarfile $distrobase/src/nvec_par/fnvector_parallel.h
 tar ufv $tarfile $distrobase/src/nvec_par/Makefile.in
+tar ufv $tarfile $distrobase/src/nvec_par/CMakeLists.txt
+tar ufv $tarfile $distrobase/src/nvec_par/fnvector_parallel.h
 tar ufv $tarfile $distrobase/src/nvec_par/nvector_parallel.c
 tar ufv $tarfile $distrobase/src/nvec_par/fnvector_parallel.c
 

@@ -1,0 +1,69 @@
+#!/bin/sh
+
+tarfile=$1
+distrobase=$2
+doc=$3
+
+echo "   --- Add cpodes module to $tarfile"
+
+#if [ $doc = "T" ]; then
+#tar ufv $tarfile $distrobase/doc/cpodes/cps_guide.ps
+#tar ufv $tarfile $distrobase/doc/cpodes/cps_guide.pdf
+#tar ufv $tarfile $distrobase/doc/cpodes/cps_examples.ps
+#tar ufv $tarfile $distrobase/doc/cpodes/cps_examples.pdf
+#fi
+
+tar ufv $tarfile $distrobase/include/cpodes/cpodes.h
+tar ufv $tarfile $distrobase/include/cpodes/cpodes_direct.h
+tar ufv $tarfile $distrobase/include/cpodes/cpodes_dense.h
+tar ufv $tarfile $distrobase/include/cpodes/cpodes_band.h
+tar ufv $tarfile $distrobase/include/cpodes/cpodes_lapack.h
+tar ufv $tarfile $distrobase/include/cpodes/cpodes_spgmr.h
+tar ufv $tarfile $distrobase/include/cpodes/cpodes_spbcgs.h
+tar ufv $tarfile $distrobase/include/cpodes/cpodes_sptfqmr.h
+tar ufv $tarfile $distrobase/include/cpodes/cpodes_spils.h
+tar ufv $tarfile $distrobase/include/cpodes/cpodes_bandpre.h
+tar ufv $tarfile $distrobase/include/cpodes/cpodes_bbdpre.h
+
+tar ufv $tarfile $distrobase/src/cpodes/LICENSE
+tar ufv $tarfile $distrobase/src/cpodes/README
+tar ufv $tarfile $distrobase/src/cpodes/TODO
+tar ufv $tarfile $distrobase/src/cpodes/Makefile.in
+
+tar ufv $tarfile $distrobase/src/cpodes/cpodes.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_nls.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_proj.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_io.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_ic.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_direct.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_dense.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_band.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_lapack.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_spils.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_spgmr.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_spbcgs.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_sptfqmr.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_bandpre.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_bbdpre.c
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_private.h
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_impl.h
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_direct_impl.h
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_spils_impl.h
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_bandpre_impl.h
+tar ufv $tarfile $distrobase/src/cpodes/cpodes_bbdpre_impl.h
+
+tar ufv $tarfile $distrobase/examples/cpodes/serial/README
+tar ufv $tarfile $distrobase/examples/cpodes/serial/Makefile.in
+tar ufv $tarfile $distrobase/examples/cpodes/serial/Makefile_ex.in
+tar ufv $tarfile $distrobase/examples/cpodes/serial/Makefile_ex_bl.in
+tar ufv $tarfile $distrobase/examples/cpodes/serial/cpsbanx.c
+tar ufv $tarfile $distrobase/examples/cpodes/serial/cpsbanx_lap.c
+tar ufv $tarfile $distrobase/examples/cpodes/serial/cpsdenx.c
+tar ufv $tarfile $distrobase/examples/cpodes/serial/cpsdenx_lap.c
+tar ufv $tarfile $distrobase/examples/cpodes/serial/cpsadamsx.c
+tar ufv $tarfile $distrobase/examples/cpodes/serial/pend_test.c
+tar ufv $tarfile $distrobase/examples/cpodes/serial/pendLr.c
+tar ufv $tarfile $distrobase/examples/cpodes/serial/pend.c
+tar ufv $tarfile $distrobase/examples/cpodes/serial/pendEs.c
+
+
