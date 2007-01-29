@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-30 21:11:29 $
+ * $Revision: 1.4 $
+ * $Date: 2007-01-29 17:35:23 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -178,10 +178,10 @@ int CPBPSptfqmr(void *cpode_mem, int pretype, int maxl, void *p_data)
 
   switch (ode_type) {
   case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupExpl, cpBandPrecSolveExpl, p_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupExpl, (void *)cpBandPrecSolveExpl, p_data);
     break;
   case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupImpl, cpBandPrecSolveImpl, p_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupImpl, (void *)cpBandPrecSolveImpl, p_data);
     break;
   }
   if(flag != CPSPILS_SUCCESS) return(flag);
@@ -206,10 +206,10 @@ int CPBPSpbcg(void *cpode_mem, int pretype, int maxl, void *p_data)
 
   switch (ode_type) {
   case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupExpl, cpBandPrecSolveExpl, p_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupExpl, (void *)cpBandPrecSolveExpl, p_data);
     break;
   case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupImpl, cpBandPrecSolveImpl, p_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupImpl, (void *)cpBandPrecSolveImpl, p_data);
     break;
   }
   if(flag != CPSPILS_SUCCESS) return(flag);
@@ -234,10 +234,10 @@ int CPBPSpgmr(void *cpode_mem, int pretype, int maxl, void *p_data)
 
   switch (ode_type) {
   case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupExpl, cpBandPrecSolveExpl, p_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupExpl, (void *)cpBandPrecSolveExpl, p_data);
     break;
   case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, cpBandPrecSetupImpl, cpBandPrecSolveImpl, p_data);
+    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupImpl, (void *)cpBandPrecSolveImpl, p_data);
     break;
   }
   if(flag != CPSPILS_SUCCESS) return(flag);
