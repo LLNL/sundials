@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-01-24 01:14:05 $
+# $Revision: 1.8 $
+# $Date: 2007-01-29 17:36:28 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -50,7 +50,7 @@ top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include -I$(MPI_INC_DIR)
 
-LIB_REVISION = 0:1:0
+LIB_REVISION = 0:2:0
 
 NVECPAR_LIB       = libsundials_nvecparallel.la
 NVECPAR_LIB_FILES = nvector_parallel.lo

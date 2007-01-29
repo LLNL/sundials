@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2007-01-23 20:05:03 $
+# $Revision: 1.9 $
+# $Date: 2007-01-29 17:36:28 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -47,7 +47,7 @@ top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 
-LIB_REVISION = 0:1:0
+LIB_REVISION = 1:0:0
 
 KINSOL_LIB    = libsundials_kinsol.la
 KINSOL_BL_LIB = libsundials_kinsol_bl.la
