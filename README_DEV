@@ -1,0 +1,110 @@
+Conventions on shared library versioning
+----------------------------------------
+
+A complete name is libfoo.so.x.y.z where the VERSION x.y.z represents 
+x = major
+y = minor
+z = revision
+
+The build system is responsible for creating the following symlinks:
+libfoo.so   -> libfoo.so.x.y.z
+libfoo.so.x -> libfoo.so.x.y.z
+
+LIBTOOL versioning system
+-------------------------
+
+Specify the version information to libtool using the `-version-info' flag during link mode.
+This flag accepts an argument of the form `current[:revision[:age]]'.
+So, passing `-version-info 3:12:1' sets current to 3, revision to 12, and age to 1.
+If either revision or age are omitted, they default to 0. 
+Also note that age must be less than or equal to the current interface number.
+
+Therefore, the rules for updating libtool's 'c:r:a' versioning are:
+
+ 1.Start with version information of `0:0:0' for each libtool library.
+ 2.Update the version information only immediately before a public release of your software. 
+   More frequent updates are unnecessary, and only guarantee that the current interface 
+   number gets larger faster.
+ 3.If the library source code has changed at all since the last update, then increment revision
+   (`c:r:a' becomes `c:r+1:a').
+ 4.If any interfaces have been added, removed, or changed since the last update, 
+   increment current, and set revision to 0.
+ 5.If any interfaces have been added since the last public release, then increment age.
+ 6.If any interfaces have been removed since the last public release, then set age to 0. 
+
+The SONAME of the resulting library will satisfy:
+
+x = c-a
+y = a
+z = r
+
+Examples of version updates:
+
+- a bug was fixed:          c:r:a -> c:r+1:a    and therefore x.y.z -> x.y.z+1
+- an interface was added:   c:r:a -> c+1:0:a+1  and therefore x.y.z -> x.y+1.0
+- an interface was removed: c:r:a -> c+1:0:0    and therefore x.y.z -> x+y+1.0.0
+
+Sample version history (on linux):
+
+        Files                           SONAME       POSSIBLE CHANGE
+
+0:0:0   lib.so lib.so.0 lib.so.0.0.0    lib.so.0     initial 
+0:1:0   lib.so lib.so.0 lib.so.0.0.1    lib.so.0     bug fix
+1:0:1   lib.so lib.so.0 lib.so.0.1.0    lib.so.0     add interface
+1:1:1   lib.so lib.so.0 lib.so.0.1.1    lib.so.0     bug fix
+2:0:0   lib.so lib.so.2 lib.so.2.0.0    lib.so.2     remove interface
+
+CMAKE versioning system
+-----------------------
+
+The version information is specified by setting the VERSION and SOVERSION properties
+to the library target:
+
+ADD_LIBRARY(foo file1.c file2.c)
+SET_TARGET_PROPERTIES(foo PROPERTIES VERSION x.y.z SOVERSION x)
+
+Note that we force SOVERSION to be the same as the major number for compatibility with
+the libtool versioning scheme (at least under Linux)
+
+
+SUNDIALS VERSION HISTORY
+------------------------
+
+Note: there was no library versioning before sundials-2.2.0
+
+
+CVODE
+RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
+2.4.0     2.2.0               0:0:0           0.0.0
+2.5.0     2.3.0               0:1:0           0.0.1
+                              1:0:0           1.0.0
+
+CVODES
+RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
+2.4.0     2.2.0               0:0:0           0.0.0
+2.5.0     2.3.0               1:0:0           1.0.0
+                              2:0:0           2.0.0
+
+IDA
+RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
+2.4.0     2.2.0               0:0:0           0.0.0
+2.5.0     2.3.0               1:0:0           1.0.0
+                              2:0:0           2.0.0
+
+KINSOL
+RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
+2.4.0     2.2.0               0:0:0           0.0.0
+2.5.0     2.3.0               0:1:0           0.0.1
+                              1:0:0           1.0.0
+
+NVEC_SER
+RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
+2.2.0     2.2.0               0:0:0           0.0.0
+2.3.0     2.3.0               0:1:0           0.0.1
+                              0:2:0           0.0.2
+
+NVEC_PAR
+RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
+2.2.0     2.2.0               0:0:0           0.0.0
+2.3.0     2.3.0               0:1:0           0.0.1
+                              0:2:0           0.0.2
