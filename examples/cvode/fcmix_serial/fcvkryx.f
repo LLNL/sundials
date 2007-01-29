@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2006-07-05 15:50:04 $
+C     $Revision: 1.2 $
+C     $Date: 2007-01-29 17:40:00 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
@@ -377,7 +377,7 @@ C
 C     If needed, recompute BD
 C
       IF (JOK .EQ. 1) THEN
-C     JOK = 1. Use saved BD
+C     JOK = 1. Reuse saved BD
         JCUR = 0
       ELSE    
 C     JOK = 0. Compute diagonal Jacobian blocks.
@@ -556,7 +556,7 @@ c                = 0  normal value.
 c                = k  if  u(k,k) .eq. 0.0 .  this is not an error
 c                     condition for this subroutine, but it does
 c                     indicate that dgesl or dgedi will divide by zero
-c                     if called.  use  rcond  in dgeco for a reliable
+c                     if called.  employ  rcond  in dgeco for a reliable
 c                     indication of singularity.
 c
 c     linpack. this version dated 08/14/78 .

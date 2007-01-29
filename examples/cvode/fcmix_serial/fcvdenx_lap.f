@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.2 $
-C     $Date: 2006-11-22 00:12:44 $
+C     $Revision: 1.3 $
+C     $Date: 2007-01-29 17:40:00 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, Lapack linear solver
 C                             with dense user Jacobian.
@@ -19,7 +19,7 @@ C
 C     y1 = 1.0, y2 = y3 = 0.
 C
 C     The problem is stiff. While integrating the system, we also
-C     use the root finding feature to find the points at which
+C     employ the root finding feature to find the points at which
 C     y1 = 1.e-4 or at which y3 = 0.01. The following coding solves
 C     this problem with CVODE, using the Fortran/C interface routine
 C     package. This solution uses the BDF method and a user-supplied

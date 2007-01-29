@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.2 $
-c     $Date: 2006-11-22 02:23:40 $
+c     $Revision: 1.3 $
+c     $Date: 2007-01-29 17:40:01 $
 c     ----------------------------------------------------------------
 c     This simple example problem for FIDA, due to Robertson, is from 
 c     chemical kinetics, and consists of the following three equations:
@@ -12,7 +12,7 @@ c
 c     on the interval from t = 0.0 to t = 4.e10, with initial
 c     conditions: y1 = 1, y2 = y3 = 0.
 c
-c     While integrating the system, we also use the rootfinding feature
+c     While integrating the system, we also employ the rootfinding feature
 c     to find the points at which y1 = 1.e-4 or at which y3 = 0.01.
 c
 c     The problem is solved using a dense linear solver, with a

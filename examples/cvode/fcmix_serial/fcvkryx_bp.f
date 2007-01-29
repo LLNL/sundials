@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2006-07-05 15:50:05 $
+C     $Revision: 1.2 $
+C     $Date: 2007-01-29 17:40:00 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -24,7 +24,7 @@ C
 C     The PDE system is treated by central differences on a uniform
 C     10 x 10 mesh, with simple polynomial initial profiles.
 C     The problem is solved with CVODE, with the BDF/GMRES method and
-C     using the FCVBP banded preconditioner module
+C     using the FCVBP banded preconditioner
 C     
 C     The second and third dimensions of U here must match the values of
 C     MX and MY, for consistency with the output statements below.
