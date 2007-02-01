@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-11-24 19:09:11 $
+ * $Revision: 1.6 $
+ * $Date: 2007-02-01 00:03:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -150,7 +150,6 @@ int main(int argc, char *argv[])
   long int nst, nstB;
 
   CVadjCheckPointRec *ckpnt;
-  int i;
 
   data = NULL;
   cvadj_mem = cvode_mem = NULL;
@@ -250,26 +249,31 @@ int main(int argc, char *argv[])
 #else
   printf("G:          %12.4e \n",Ith(q,1));
 #endif
-printf("--------------------------------------------------------\n\n");
+  printf("--------------------------------------------------------\n\n");
 
   /* Test check point linked list 
      (uncomment next block to print check point information) */
   
   /*
-  printf("\nList of Check Points (ncheck = %d)\n\n", ncheck);
-  ckpnt = (CVadjCheckPointRec *) malloc ( (ncheck+1)*sizeof(CVadjCheckPointRec));
-  CVadjGetCheckPointsInfo(cvadj_mem, ckpnt);
-  for (i=0;i<=ncheck;i++) {
-    printf("Address:       %p\n",ckpnt[i].my_addr);
-    printf("Next:          %p\n",ckpnt[i].next_addr);
-    printf("Time interval: %le  %le\n",ckpnt[i].t0, ckpnt[i].t1);
-    printf("Step number:   %ld\n",ckpnt[i].nstep);
-    printf("Order:         %d\n",ckpnt[i].order);
-    printf("Step size:     %le\n",ckpnt[i].step);
-    printf("\n");
+  {
+    int i;
+    
+    printf("\nList of Check Points (ncheck = %d)\n\n", ncheck);
+    ckpnt = (CVadjCheckPointRec *) malloc ( (ncheck+1)*sizeof(CVadjCheckPointRec));
+    CVadjGetCheckPointsInfo(cvadj_mem, ckpnt);
+    for (i=0;i<=ncheck;i++) {
+      printf("Address:       %p\n",ckpnt[i].my_addr);
+      printf("Next:          %p\n",ckpnt[i].next_addr);
+      printf("Time interval: %le  %le\n",ckpnt[i].t0, ckpnt[i].t1);
+      printf("Step number:   %ld\n",ckpnt[i].nstep);
+      printf("Order:         %d\n",ckpnt[i].order);
+      printf("Step size:     %le\n",ckpnt[i].step);
+      printf("\n");
+    }
+    
   }
   */
-
+  
   /* Initialize yB */
   yB = N_VNew_Serial(NEQ);
   if (check_flag((void *)yB, "N_VNew_Serial", 0)) return(1);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:46 $
+ * $Revision: 1.4 $
+ * $Date: 2007-02-01 00:03:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -703,9 +703,9 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
     printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
            maxl, maxlrst);
     printf("Preconditioning uses band-block-diagonal matrix from KINBBDPRE\n");
-    printf("  Difference quotient half-bandwidths are mudq = %ld, mldq = %ld\n",
+    printf("  Difference quotient half-bandwidths are mudq = %d, mldq = %d\n",
 	   mudq, mldq);
-    printf("  Retained band block half-bandwidths are mukeep = %ld, mlkeep = %ld\n",
+    printf("  Retained band block half-bandwidths are mukeep = %d, mlkeep = %d\n",
 	   mukeep, mlkeep);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
     printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",

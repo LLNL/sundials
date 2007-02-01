@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.7 $
+ * $Date: 2007-02-01 00:03:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -514,7 +514,7 @@ static void PrintHeader(int SystemSize, int maxl,
   printf("\nidakryx2_bbd_p: Predator-prey DAE parallel example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     Total system size: %ld\n",SystemSize);
+  printf("     Total system size: %d\n",SystemSize);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("     Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -526,7 +526,7 @@ static void PrintHeader(int SystemSize, int maxl,
 #endif
   printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
-  printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
+  printf("     mudq = %d,  mldq = %d,  mukeep = %d,  mlkeep = %d\n",
          mudq, mldq, mukeep, mlkeep);
   printf("CalcIC called to correct initial predator concentrations \n\n");
   printf("-----------------------------------------------------------\n");

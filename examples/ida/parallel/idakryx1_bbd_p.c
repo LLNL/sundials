@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.3 $
+ * $Date: 2007-02-01 00:03:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -702,7 +702,7 @@ static void PrintHeader(int Neq, realtype rtol, realtype atol)
     printf("                Zero boundary conditions,");
     printf(" polynomial initial conditions.\n");
     printf("                Mesh dimensions: %d x %d", MX, MY);
-    printf("        Total system size: %ld\n\n", Neq);
+    printf("        Total system size: %d\n\n", Neq);
 
     printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
     printf("         Processor array: %d x %d\n", NPEX, NPEY);
@@ -728,8 +728,8 @@ static void PrintHeader(int Neq, realtype rtol, realtype atol)
 static void PrintCase(int case_number, int mudq, int mukeep)
 {
   printf("\n\nCase %1d. \n", case_number);
-  printf("   Difference quotient half-bandwidths = %ld",mudq);
-  printf("   Retained matrix half-bandwidths = %ld \n",mukeep);
+  printf("   Difference quotient half-bandwidths = %d",mudq);
+  printf("   Retained matrix half-bandwidths = %d \n",mukeep);
   
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
