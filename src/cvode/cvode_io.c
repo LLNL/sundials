@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-17 21:00:03 $
+ * $Revision: 1.3 $
+ * $Date: 2007-02-01 21:56:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -573,6 +573,36 @@ int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data)
   cv_mem->cv_itol = CV_WF;
   cv_mem->cv_efun = efun;
   cv_mem->cv_e_data = e_data;
+
+  return(CV_SUCCESS);
+}
+
+/* 
+ * CVodeSetRootDirection
+ *
+ * Specifies the direction of zero-crossings to be monitored.
+ * The default is to monitor both crossings.
+ */
+
+int CVodeSetRootDirection(void *cvode_mem, int *rootdir)
+{
+  CVodeMem cv_mem;
+  int i, nrt;
+
+  if (cvode_mem==NULL) {
+    CVProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetRootDirection", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  nrt = cv_mem->cv_nrtfn;
+  if (nrt==0) {
+    CVProcessError(NULL, CV_ILL_INPUT, "CVODE", "CVodeSetRootDirection", MSGCV_NO_ROOT);
+    return(CV_ILL_INPUT);    
+  }
+
+  for(i=0; i<nrt; i++) cv_mem->cv_rootdir[i] = rootdir[i];
 
   return(CV_SUCCESS);
 }

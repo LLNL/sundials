@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-10-17 21:00:04 $
+ * $Revision: 1.7 $
+ * $Date: 2007-02-01 21:56:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -842,6 +842,8 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nscon   = 0;
   cv_mem->cv_nge     = 0;
 
+  cv_mem->cv_irfnd   = 0;
+
   /* Initialize other integrator optional outputs */
 
   cv_mem->cv_h0u      = ZERO;
@@ -1012,6 +1014,8 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nstlp   = 0;
   cv_mem->cv_nscon   = 0;
   cv_mem->cv_nge     = 0;
+
+  cv_mem->cv_irfnd   = 0;
 
   /* Initialize other integrator optional outputs */
 

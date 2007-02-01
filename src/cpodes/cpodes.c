@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-12-01 22:48:57 $
+ * $Revision: 1.6 $
+ * $Date: 2007-02-01 21:56:10 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -521,6 +521,8 @@ int CPodeInit(void *cpode_mem,
   cp_mem->cp_nscon   = 0;
   cp_mem->cp_nge     = 0;
 
+  cp_mem->cp_irfnd   = 0;
+
   cp_mem->cp_nproj    = 0;
   cp_mem->cp_nprf     = 0;
   cp_mem->cp_nce      = 0;
@@ -685,6 +687,8 @@ int CPodeReInit(void *cpode_mem,
   cp_mem->cp_nstlset = 0;
   cp_mem->cp_nscon   = 0;
   cp_mem->cp_nge     = 0;
+
+  cp_mem->cp_irfnd   = 0;
 
   cp_mem->cp_nproj    = 0;
   cp_mem->cp_nprf     = 0;

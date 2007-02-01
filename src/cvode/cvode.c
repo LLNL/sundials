@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-10-17 21:00:02 $
+ * $Revision: 1.5 $
+ * $Date: 2007-02-01 21:56:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -369,13 +369,14 @@ void *CVodeCreate(int lmm, int iter)
 
   /* Initialize root finding variables */
 
-  cv_mem->cv_glo    = NULL;
-  cv_mem->cv_ghi    = NULL;
-  cv_mem->cv_grout  = NULL;
-  cv_mem->cv_iroots = NULL;
-  cv_mem->cv_gfun   = NULL;
-  cv_mem->cv_g_data = NULL;
-  cv_mem->cv_nrtfn  = 0;
+  cv_mem->cv_glo     = NULL;
+  cv_mem->cv_ghi     = NULL;
+  cv_mem->cv_grout   = NULL;
+  cv_mem->cv_iroots  = NULL;
+  cv_mem->cv_rootdir = NULL;
+  cv_mem->cv_gfun    = NULL;
+  cv_mem->cv_g_data  = NULL;
+  cv_mem->cv_nrtfn   = 0;
 
   /* Set the saved value qmax_alloc */
 
@@ -554,6 +555,8 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nscon   = 0;
   cv_mem->cv_nge     = 0;
 
+  cv_mem->cv_irfnd   = 0;
+
   /* Initialize other integrator optional outputs */
 
   cv_mem->cv_h0u      = ZERO;
@@ -720,6 +723,8 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nscon   = 0;
   cv_mem->cv_nge     = 0;
 
+  cv_mem->cv_irfnd   = 0;
+
   /* Initialize other integrator optional outputs */
 
   cv_mem->cv_h0u      = ZERO;
@@ -740,12 +745,13 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 
 /*-----------------------------------------------------------------*/
 
-#define gfun   (cv_mem->cv_gfun)
-#define g_data (cv_mem->cv_g_data) 
-#define glo    (cv_mem->cv_glo)
-#define ghi    (cv_mem->cv_ghi)
-#define grout  (cv_mem->cv_grout)
-#define iroots (cv_mem->cv_iroots)
+#define gfun    (cv_mem->cv_gfun)
+#define g_data  (cv_mem->cv_g_data) 
+#define glo     (cv_mem->cv_glo)
+#define ghi     (cv_mem->cv_ghi)
+#define grout   (cv_mem->cv_grout)
+#define iroots  (cv_mem->cv_iroots)
+#define rootdir (cv_mem->cv_rootdir)
 
 /*-----------------------------------------------------------------*/
 
@@ -762,7 +768,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
 {
   CVodeMem cv_mem;
-  int nrt;
+  int i, nrt;
 
   /* Check cvode_mem pointer */
   if (cvode_mem == NULL) {
@@ -781,9 +787,10 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
     free(ghi); ghi = NULL;
     free(grout); grout = NULL;
     free(iroots); iroots = NULL;
+    free(rootdir); rootdir = NULL;
 
-    lrw -= 3* (cv_mem->cv_nrtfn);
-    liw -= cv_mem->cv_nrtfn;
+    lrw -= 3 * (cv_mem->cv_nrtfn);
+    liw -= 2 * (cv_mem->cv_nrtfn);
   }
 
   /* If CVodeRootInit() was called with nrtfn == 0, then set cv_nrtfn to
@@ -806,20 +813,21 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   if (nrt == cv_mem->cv_nrtfn) {
     if (g != gfun) {
       if (g == NULL) {
-	free(glo); glo = NULL;
-	free(ghi); ghi = NULL;
-	free(grout); grout = NULL;
-	free(iroots); iroots = NULL;
+        free(glo); glo = NULL;
+        free(ghi); ghi = NULL;
+        free(grout); grout = NULL;
+        free(iroots); iroots = NULL;
+        free(rootdir); rootdir = NULL;
 
         lrw -= 3*nrt;
-        liw -= nrt;
+        liw -= 2*nrt;
 
         CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeRootInit", MSGCV_NULL_G);
-	return(CV_ILL_INPUT);
+        return(CV_ILL_INPUT);
       }
       else {
-	gfun = g;
-	return(CV_SUCCESS);
+        gfun = g;
+        return(CV_SUCCESS);
       }
     }
     else return(CV_SUCCESS);
@@ -868,8 +876,22 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
     return(CV_MEM_FAIL);
   }
 
+  rootdir = NULL;
+  rootdir = (int *) malloc(nrt*sizeof(int));
+  if (rootdir == NULL) {
+    free(glo); glo = NULL; 
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
+    free(iroots); iroots = NULL;
+    CVProcessError(cv_mem, CV_MEM_FAIL, "CVODE", "CVodeRootInit", MSGCV_MEM_FAIL);
+    return(CV_MEM_FAIL);
+  }
+
+  /* Set default values for rootdir (both directions) */
+  for(i=0; i<nrt; i++) rootdir[i] = 0;
+
   lrw += 3*nrt;
-  liw += nrt;
+  liw += 2*nrt;
 
   return(CV_SUCCESS);
 }
@@ -1504,6 +1526,7 @@ void CVodeFree(void **cvode_mem)
     free(ghi); ghi = NULL;
     free(grout); grout = NULL;
     free(iroots); iroots = NULL;
+    free(rootdir); rootdir = NULL;
   }
 
   free(*cvode_mem);
@@ -3741,6 +3764,12 @@ static int CVRcheck3(CVodeMem cv_mem)
  * gfun     = user-defined function for g(t).  Its form is
  *            (void) gfun(t, y, gt, g_data)
  *
+ * rootdir  = in array specifying the direction of zero-crossings.
+ *            If rootdir[i] > 0, search for roots of g_i only if
+ *            g_i is increasing; if rootdir[i] < 0, search for
+ *            roots of g_i only if g_i is decreasing; otherwise
+ *            always search for roots of g_i.
+ *
  * nge      = cumulative counter for gfun calls.
  *
  * ttol     = a convergence tolerance for trout.  Input only.
@@ -3771,7 +3800,10 @@ static int CVRcheck3(CVodeMem cv_mem)
  *            Output only.  If a root was found, iroots indicates
  *            which components g_i have a root at trout.  For
  *            i = 0, ..., nrtfn-1, iroots[i] = 1 if g_i has a root
- *            and iroots[i] = 0 otherwise.
+ *            and g_i is increasing, iroots[i] = -1 if g_i has a
+ *            root and g_i is decreasing, and iroots[i] = 0 if g_i
+ *            has no roots or g_i varies in the direction opposite
+ *            to that indicated by rootdir[i].
  *
  * This routine returns an int equal to:
  *      RTFOUND =  1 if a root of g was found, or
@@ -3792,9 +3824,11 @@ static int CVRootfind(CVodeMem cv_mem)
   sgnchg = FALSE;
   for (i = 0;  i < nrtfn; i++) {
     if (ABS(ghi[i]) == ZERO) {
-      zroot = TRUE;
+      if(rootdir[i]*glo[i] <= ZERO) {
+        zroot = TRUE;
+      }
     } else {
-      if (glo[i]*ghi[i] < ZERO) {
+      if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
         gfrac = ABS(ghi[i]/(ghi[i] - glo[i]));
         if (gfrac > maxfrac) {
           sgnchg = TRUE;
@@ -3813,7 +3847,7 @@ static int CVRootfind(CVodeMem cv_mem)
     if (!zroot) return(CV_SUCCESS);
     for (i = 0; i < nrtfn; i++) {
       iroots[i] = 0;
-      if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
+      if (ABS(ghi[i]) == ZERO) iroots[i] = glo[i] > 0 ? -1:1;
     }
     return(RTFOUND);
   }
@@ -3870,9 +3904,11 @@ static int CVRootfind(CVodeMem cv_mem)
     sideprev = side;
     for (i = 0;  i < nrtfn; i++) {
       if (ABS(grout[i]) == ZERO) {
-        zroot = TRUE;
+        if(rootdir[i]*glo[i] <= ZERO) {
+          zroot = TRUE;
+        }
       } else {
-        if (glo[i]*grout[i] < ZERO) {
+        if ( (glo[i]*grout[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
           gfrac = ABS(grout[i]/(grout[i] - glo[i]));
           if (gfrac > maxfrac) {
             sgnchg = TRUE;
@@ -3914,8 +3950,10 @@ static int CVRootfind(CVodeMem cv_mem)
   for (i = 0; i < nrtfn; i++) {
     grout[i] = ghi[i];
     iroots[i] = 0;
-    if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
-    if (glo[i]*ghi[i] < ZERO) iroots[i] = 1;
+    if ( (ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
+      iroots[i] = glo[i] > 0 ? -1:1;
+    if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
+      iroots[i] = glo[i] > 0 ? -1:1;
   }
   return(RTFOUND);
 }

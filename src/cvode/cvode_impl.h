@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.4 $
+ * $Date: 2007-02-01 21:56:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -248,7 +248,8 @@ typedef struct CVodeMemRec {
   CVRootFn cv_gfun;     /* Function g for roots sought                     */
   int cv_nrtfn;         /* number of components of g                       */
   void *cv_g_data;      /* pointer to user data for g                      */
-  int *cv_iroots;       /* int array for root information                  */
+  int *cv_iroots;       /* array for root information                      */
+  int *cv_rootdir;      /* array specifying direction of zero-crossing     */
   realtype cv_tlo;      /* nearest endpoint of interval in root search     */
   realtype cv_thi;      /* farthest endpoint of interval in root search    */
   realtype cv_trout;    /* t value returned by rootfinding routine         */
@@ -470,6 +471,7 @@ void CVErrHandler(int error_code, const char *module, const char *function,
 #define MSGCV_BAD_K "Illegal value for k."
 #define MSGCV_NULL_DKY "dky = NULL illegal."
 #define MSGCV_BAD_T "Illegal value for t." MSG_TIME_INT
+#define MSGCV_NO_ROOT "Rootfinding was not initialized."
 
 /* CVode Error Messages */
 

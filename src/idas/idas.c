@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-10-05 22:09:19 $
+ * $Revision: 1.8 $
+ * $Date: 2007-02-01 21:56:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -610,6 +610,8 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
 
   IDA_mem->ida_nge = 0;
 
+  IDA_mem->ida_irfnd = 0;
+
   /* Initialize root-finding variables */
 
   IDA_mem->ida_glo    = NULL;
@@ -763,6 +765,8 @@ int IDAReInit(void *ida_mem, IDAResFn res,
   IDA_mem->ida_tolsf = ONE;
 
   IDA_mem->ida_nge = 0;
+
+  IDA_mem->ida_irfnd = 0;
 
   /* Initial setup not done yet */
   IDA_mem->ida_SetupDone = FALSE;
