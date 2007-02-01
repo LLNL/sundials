@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-01-29 17:40:40 $
+# $Revision: 1.2 $
+# $Date: 2007-02-01 16:42:07 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -63,6 +63,9 @@ SET(idalib_SOVERSION "2")
 SET(kinsollib_VERSION "1.0.0")
 SET(kinsollib_SOVERSION "1")
 
+SET(cpodeslib_VERSION "0.0.0")
+SET(cpodeslib_SOVERSION "0")
+
 SET(nveclib_VERSION "0.0.2")
 SET(nveclib_SOVERSION "0")
 
@@ -116,9 +119,19 @@ ENDMACRO(ADD_PREFIX)
 # Macro to print warning that some features will be disabled
 # due to some failure.
 
-MACRO(PRINT_WARNING feature failure)
-  MESSAGE("WARNING: ${failure}.\n   ${feature} disabled.")
+MACRO(PRINT_WARNING message action)
+  MESSAGE("WARNING: ${message}.\n   ${action}.")
 ENDMACRO(PRINT_WARNING)
+
+# Returns an unquoted string.  Note that CMake will readily turn such
+# strings back into lists, due to the duality of lists and
+# semicolon-separated strings.  So be careful how you use it.
+
+MACRO(LIST2STRING alist astring)
+  FOREACH(elem ${${alist}})
+   SET(${astring} "${${astring}} ${elem}")
+  ENDFOREACH(elem)
+ENDMACRO(LIST2STRING)
 
 # -------------------------------------------------------------
 # Which modules to build?
@@ -151,6 +164,12 @@ ELSE(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/kinsol")
   SET(BUILD_KINSOL OFF)
 ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/kinsol")
 
+IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cpodes")
+  OPTION(BUILD_CPODES  "Build the CPODES library"  ON)
+ELSE(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cpodes")
+  SET(BUILD_CPODES OFF)
+ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cpodes")
+
 # -------------------------------------------------------------
 # Other configuration options
 # -------------------------------------------------------------
@@ -168,7 +187,6 @@ IF(BUILD_SHARED_LIBRARY AND WIN32)
   #      #define SUNDIALS_EXPORT __declspec(dllexport)
   # When linking to shared SUNDIALS libraries under Windows, use
   #      #define SUNDIALS_EXPORT __declspec(dllimport)
-
   SET(SUNDIALS_EXPORT
     "#ifdef BUILD_SUNDIALS_LIBRARY
 #define SUNDIALS_EXPORT __declspec(dllexport)
@@ -178,32 +196,27 @@ IF(BUILD_SHARED_LIBRARY AND WIN32)
 
 ELSE(BUILD_SHARED_LIBRARY AND WIN32)
 
-  # In all other cases (other platforms or static libraries under
-  # Windows), the SUNDIALS_EXPORT macro is empty
-
+  # In all other cases (other platforms or static libraries
+  # under Windows), the SUNDIALS_EXPORT macro is empty
   SET(SUNDIALS_EXPORT "#define SUNDIALS_EXPORT")
 
 ENDIF(BUILD_SHARED_LIBRARY AND WIN32)
 
 # Make sure we build at least one type of libraries
 IF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
-
-  MESSAGE("WARNING:\n"
-    "Both static and shared library generation were disabled.\n"
-    "Building static libraries was re-enabled.")
-
+  PRINT_WARNING("Both static and shared library generation were disabled"
+    "Building static libraries was re-enabled")
   SET(BUILD_STATIC_LIBS ON CACHE BOOL "Build static libraries" FORCE)
-
 ENDIF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
 
 # Option to specify precision
 # ---------------------------
 
-SET(PRECISION "double" CACHE STRING "double, single or extended")
+SET(SUNDIALS_PRECISION "double" CACHE STRING "double, single or extended")
 
 # prepare substitution variable PRECISION_LEVEL for sundials_config.h
-STRING(TOUPPER ${PRECISION} PRECISION)
-SET(PRECISION_LEVEL "#define SUNDIALS_${PRECISION}_PRECISION 1")
+STRING(TOUPPER ${SUNDIALS_PRECISION} SUNDIALS_PRECISION)
+SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 
 # Option to use the generic math libraries (UNIX only)
 # ----------------------------------------------------
@@ -259,82 +272,112 @@ SET(SCHEME_STATUS "none")
 # provides such an interface is built.
 
 IF(BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
-  SHOW_VARIABLE(ENABLE_FCMIX BOOL "Enable Fortran-C support" OFF)
-  IF(ENABLE_FCMIX)
+  SHOW_VARIABLE(FCMIX_ENABLE BOOL "Enable Fortran-C support" OFF)
+  IF(FCMIX_ENABLE)
     SET(FCMIX_STATUS "needed")
-  ENDIF(ENABLE_FCMIX)
+  ENDIF(FCMIX_ENABLE)
 ELSE(BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
-  HIDE_VARIABLE(ENABLE_FCMIX)
+  HIDE_VARIABLE(FCMIX_ENABLE)
 ENDIF(BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
 
 # -------------------------------------------------------------
 # Enable BLAS/LAPACK support?
 # -------------------------------------------------------------
 
-OPTION(ENABLE_LAPACK "Enable Lapack support" OFF)
+OPTION(LAPACK_ENABLE "Enable Lapack support" OFF)
 
-IF(ENABLE_LAPACK)
+IF(LAPACK_ENABLE)
   SET(LAPACK_STATUS "needed")
-ENDIF(ENABLE_LAPACK)
+ENDIF(LAPACK_ENABLE)
 
 # -------------------------------------------------------------
 # Enable MPI support?
 # -------------------------------------------------------------
 
-OPTION(ENABLE_MPI "Enable MPI support" OFF)
+OPTION(MPI_ENABLE "Enable MPI support" OFF)
 
-IF(ENABLE_MPI)
+IF(MPI_ENABLE)
   SET(MPIC_STATUS "needed")
-  IF(ENABLE_FCMIX)
+  IF(FCMIX_ENABLE)
     SET(MPIF_STATUS "needed")
-  ENDIF(ENABLE_FCMIX)
-ENDIF(ENABLE_MPI)
+  ENDIF(FCMIX_ENABLE)
+ENDIF(MPI_ENABLE)
 
 # -------------------------------------------------------------
 # Enable examples?
 # -------------------------------------------------------------
 
-OPTION(ENABLE_EXAMPLES "Build the SUNDIALS examples" OFF)
+OPTION(EXAMPLES_ENABLE "Build the SUNDIALS examples" OFF)
 
-# If both shared and static SUNDIALS libraries are built,
-# the default is to link the examples against the shared libraries.
-# the user can change this thourgh the option LINK_WITH_STATIC_LIBS
+IF(EXAMPLES_ENABLE)
 
-IF(BUILD_SHARED_LIBS)
-  SET(LINK_LIBRARY_TYPE "shared")
-ELSE(BUILD_SHARED_LIBS)
-  SET(LINK_LIBRARY_TYPE "static")
-ENDIF(BUILD_SHARED_LIBS)
+  # If examples are enabled, set different options
 
-IF(BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS)
-  
-  SHOW_VARIABLE(LINK_WITH_STATIC_LIBS BOOL
-    "Link examples with the shared SUNDIALS libraries" OFF)
-
-  IF(LINK_WITH_STATIC_LIBS)
+  # The examples will be linked with the library corresponding 
+  # to the build type
+  IF(BUILD_SHARED_LIBS)
+    SET(LINK_LIBRARY_TYPE "shared")
+  ELSE(BUILD_SHARED_LIBS)
     SET(LINK_LIBRARY_TYPE "static")
-  ENDIF(LINK_WITH_STATIC_LIBS)
+  ENDIF(BUILD_SHARED_LIBS)
 
-ELSE(BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS)
+  # However, if both shared and static SUNDIALS libraries are built,
+  # the default is to link the examples against the shared libraries.
+  # the user can change this thourgh the option EXAMPLES_USE_STATIC_LIBS  
+  IF(BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS)
+    SHOW_VARIABLE(EXAMPLES_USE_STATIC_LIBS BOOL
+      "Link examples with the shared SUNDIALS libraries" OFF)
+    IF(EXAMPLES_USE_STATIC_LIBS)
+      SET(LINK_LIBRARY_TYPE "static")
+    ENDIF(EXAMPLES_USE_STATIC_LIBS)
+  ELSE(BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS)
+    HIDE_VARIABLE(EXAMPLES_USE_STATIC_LIBS)
+  ENDIF(BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS)
 
-  HIDE_VARIABLE(LINK_WITH_STATIC_LIBS)
+  # Check if example files are to be exported
+  SHOW_VARIABLE(EXAMPLES_INSTALL BOOL
+    "Install example files" ON)
 
-ENDIF(BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS)
+  # If examples are to be exported, check where we should install them.
+  IF(EXAMPLES_INSTALL)
 
-# On UNIX systems, check if example Makefiles should be 
-# generated and installed.
-# We may want to create cmake build files on all platforms...
+    SHOW_VARIABLE(EXAMPLES_INSTALL_PATH STRING
+      "Output directory for installing example files" "${CMAKE_INSTALL_PREFIX}/examples")
+    
+    IF(NOT EXAMPLES_INSTALL_PATH)
+      PRINT_WARNING("The example installation path is empty"
+        "Example installation path was reset to its default value")
+      SET(EXAMPLES_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/examples" CACHE STRING
+        "Output directory for installing example files" FORCE)
+    ENDIF(NOT EXAMPLES_INSTALL_PATH)
 
-IF(UNIX)
-  IF(ENABLE_EXAMPLES)
-    SHOW_VARIABLE(GENERATE_EX_MAKEFILES BOOL
+  ELSE(EXAMPLES_INSTALL)
+
+    HIDE_VARIABLE(EXAMPLES_INSTALL_PATH)
+
+  ENDIF(EXAMPLES_INSTALL)
+
+  # On UNIX systems, if we install examples, check if we should also
+  # generate and install Makefiles.
+  IF(UNIX AND EXAMPLES_INSTALL)
+    SHOW_VARIABLE(EXAMPLES_GENERATE_MAKEFILES BOOL
       "Create Makefiles for building the examples" ON)
-  ELSE(ENABLE_EXAMPLES)
-    HIDE_VARIABLE(GENERATE_EX_MAKEFILES)
-  ENDIF(ENABLE_EXAMPLES)
-ELSE(UNIX)
-  SET(GENERATE_EX_MAKEFILES OFF)
-endIF(UNIX)
+  ELSE(UNIX AND EXAMPLES_INSTALL)
+    HIDE_VARIABLE(EXAMPLES_GENERATE_MAKEFILES)
+  ENDIF(UNIX AND EXAMPLES_INSTALL)
+
+ELSE(EXAMPLES_ENABLE)
+
+  # If examples are disabled, hide all options related to
+  # building and installing the SUNDIALS examples
+
+  HIDE_VARIABLE(EXAMPLES_INSTALL)
+  HIDE_VARIABLE(EXAMPLES_INSTALL_PATH)
+  HIDE_VARIABLE(EXAMPLES_USE_STATIC_LIBS)
+  HIDE_VARIABLE(EXAMPLES_GENERATE_MAKEFILES)
+  
+ENDIF(EXAMPLES_ENABLE)
+
 
 # -------------------------------------------------------------
 # Save compiler flags corresponding to the current build type
@@ -449,11 +492,13 @@ IF(F77_STATUS STREQUAL "needed")
   ELSE(FTEST_OK)
     SET(F77_STATUS "unavailable")
     IF(FCMIX_STATUS STREQUAL "needed")
-      PRINT_WARNING("FCMIX" "Unable to compile and link a simple Fortran program")
+      PRINT_WARNING("Unable to compile and link a simple Fortran program"
+        "FCMIX support will not be provided")
       SET(FCMIX_STATUS "unavailable")
     ENDIF(FCMIX_STATUS STREQUAL "needed")
     IF(MPIF_STATUS STREQUAL "needed")
-      PRINT_WARNING("MPI Fortran" "Unable to compile and link a simple Fortran program")
+      PRINT_WARNING("Unable to compile and link a simple Fortran program"
+        "MPI Fortran support will not be provided")
       SET(MPIF_STATUS "unavailable")
     ENDIF(MPIF_STATUS STREQUAL "needed")
   ENDIF(FTEST_OK)
@@ -798,17 +843,20 @@ ENDIF(FCMIX_STATUS STREQUAL "needed" AND SCHEME_STATUS STREQUAL "available")
 IF(SCHEME_STATUS STREQUAL "unavailable")
 
   IF(FCMIX_STATUS STREQUAL "needed")
-    PRINT_WARNING("FCMIX" "Unable to determine the Fortran name-mangling scheme")
+    PRINT_WARNING("Unable to determine the Fortran name-mangling scheme"
+      "FCMIX support will not be provided")
     SET(FCMIX_STATUS "unavailable")
   ENDIF(FCMIX_STATUS STREQUAL "needed")
 
   IF(MPIF_STATUS STREQUAL "needed")
-    PRINT_WARNING("MPI Fortran" "Unable to determine the Fortran name-mangling scheme")
+    PRINT_WARNING("Unable to determine the Fortran name-mangling scheme"
+      "MPI Fortran support will not be provided")
     SET(MPIF_STATUS "unavailable")
   ENDIF(MPIF_STATUS STREQUAL "needed")
 
   IF(LAPACK_STATUS STREQUAL "needed")
-    PRINT_WARNING("LAPACK" "Unable to determine the Fortran name-mangling scheme")
+    PRINT_WARNING("Unable to determine the Fortran name-mangling scheme"
+      "LAPACK support will not be provided")
     SET(LAPACK_STATUS "unavailable")
   ENDIF(LAPACK_STATUS STREQUAL "needed")
 
@@ -834,23 +882,30 @@ IF(LAPACK_STATUS STREQUAL "needed")
   MESSAGE(STATUS "Checking for Lapack libraries...")
 
   IF(F77_STATUS STREQUAL "available")
-    # Look for libraries only at first pass
+    # Look for libraries only if none are defined
     IF(NOT LAPACK_LIBRARIES)
       INCLUDE(FindLAPACK)
     ENDIF(NOT LAPACK_LIBRARIES)
   ENDIF(F77_STATUS STREQUAL "available")
 
-  # Expose to the user (and cache) LAPACK_LIBRARIES and LAPACK_LINKER_FLAGS
+  # If using a GNU C compiler, it is quite likely we'll want LAPACK_LINKER_FLAGS
+  # to include -lg2c (if not already present)
+  IF(CMAKE_COMPILER_IS_GNUCC)
+    IF(NOT LAPACK_LINKER_FLAGS MATCHES "g2c")
+      SET(LAPACK_LINKER_FLAGS "${LAPACK_LINKER_FLAGS} -lg2c")
+    ENDIF(NOT LAPACK_LINKER_FLAGS MATCHES "g2c")
+  ENDIF(CMAKE_COMPILER_IS_GNUCC)
 
+  # Expose to the user (and cache) LAPACK_LIBRARIES and LAPACK_LINKER_FLAGS
   SHOW_VARIABLE(LAPACK_LIBRARIES STRING
     "Lapack libraries" "${LAPACK_LIBRARIES}")
   SHOW_VARIABLE(LAPACK_LINKER_FLAGS STRING
     "Lapack required linker flags" "${LAPACK_LINKER_FLAGS}")
 
   # If the LAPACK_LIBRARIES were not found, set LAPACK_STATUS to "unavailable".
-
   IF(NOT LAPACK_LIBRARIES)
-    PRINT_WARNING("LAPACK" "Cannot find LAPACK libraries")
+    PRINT_WARNING("Cannot find LAPACK libraries"
+      "LAPACK support will not be provided")
     SET(LAPACK_STATUS "unavailable")
   ENDIF(NOT LAPACK_LIBRARIES)
 
@@ -871,6 +926,7 @@ IF(LAPACK_STATUS STREQUAL "needed")
     "PROJECT(LapackTest C)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
     "SET(CMAKE_C_FLAGS \"${TMP_C_FLAGS}\")\n"
+    "SET(CMAKE_EXE_LINKER_FLAGS \"\${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}\")\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
     "TARGET_LINK_LIBRARIES(ltest ${LAPACK_LIBRARIES})\n")
 
@@ -901,7 +957,8 @@ IF(LAPACK_STATUS STREQUAL "needed")
   IF(LTEST_OK)
     SET(LAPACK_STATUS "available")
   ELSE(LTEST_OK)
-    PRINT_WARNING("LAPACK" "Unable to link a C code to the Lapack libraries")
+    PRINT_WARNING("Unable to link a C code to the Lapack libraries"
+      "LAPACK support will not be provided")
     SET(LAPACK_STATUS "unavailable")
   ENDIF(LTEST_OK)
 
@@ -940,7 +997,8 @@ IF(MPIC_STATUS STREQUAL "needed")
     SHOW_VARIABLE(MPI_MPICC STRING "mpicc program" "${MPI_MPICC}")
 
     IF(NOT MPI_MPICC)
-      PRINT_WARNING("MPI" "Cannot find the MPI-C compiler script")
+      PRINT_WARNING("Cannot find the MPI-C compiler script"
+        "MPI support will not be provided")
       SET(MPIC_STATUS "unavailable")
       IF(MPIF_STATUS STREQUAL "needed")
         SET(MPIF_STATUS "unavailable")
@@ -951,7 +1009,8 @@ IF(MPIC_STATUS STREQUAL "needed")
       FIND_PROGRAM(MPI_MPIF77 NAMES mpif77 DOC "mpif77 program")
       SHOW_VARIABLE(MPI_MPIF77 STRING "mpif77 program" "${MPI_MPIF77}")
       IF(NOT MPI_MPIF77)
-        PRINT_WARNING("MPI Fortran" "Cannot find MPI-F77 compiler script")
+        PRINT_WARNING("Cannot find MPI-F77 compiler script"
+          "MPI Fortran support will not be provided")
         SET(MPIF_STATUS "unavailable")
       ENDIF(NOT MPI_MPIF77)
     ELSE(MPIF_STATUS STREQUAL "needed")
@@ -968,7 +1027,8 @@ IF(MPIC_STATUS STREQUAL "needed")
     SHOW_VARIABLE(MPI_LIBRARIES STRING "MPI libraries" "${MPI_LIBRARIES}")
     
     IF(NOT MPI_LIBRARIES)
-      PRINT_WARNING("MPI" "Cannot find MPI libraries")
+      PRINT_WARNING("Cannot find MPI libraries"
+        "MPI support will not be provided")
       SET(MPIC_STATUS "unavailable")
       IF(MPIF_STATUS STREQUAL "needed")
         SET(MPIF_STATUS "unavailable")
@@ -1043,7 +1103,8 @@ IF(MPIC_STATUS STREQUAL "needed")
   IF(MPITEST_OK)
     SET(MPIC_STATUS "available")
   ELSE(MPITEST_OK)
-    PRINT_WARNING("MPI" "Unable to compile a simple MPI C program")
+    PRINT_WARNING("Unable to compile a simple MPI C program"
+      "MPI support will not be provided")
     SET(MPIC_STATUS "unavailable")
     IF(MPIF_STATUS STREQUAL "needed")
       SET(MPIF_STATUS "unavailable")
@@ -1098,7 +1159,8 @@ IF(MPIF_STATUS STREQUAL "needed")
   IF(MPITEST_OK)
     SET(MPIF_STATUS "available")
   ELSE(MPITEST_OK)
-    PRINT_WARNING("MPI Fortran" "Unable to compile a simple MPI F77 program")
+    PRINT_WARNING("Unable to compile a simple MPI F77 program"
+      "MPI Fortran support will not be provided")
     SET(MPIF_STATUS "unavailable")
   ENDIF(MPITEST_OK)
 
@@ -1287,6 +1349,12 @@ IF(BUILD_KINSOL)
   ENDIF(FCMIX_OK)
 ENDIF(BUILD_KINSOL)
 
+# CPODES library
+
+IF(BUILD_CPODES)	
+  ADD_SUBDIRECTORY(src/cpodes)
+ENDIF(BUILD_CPODES)
+
 # -------------------------------------------------------------
 # Include the subdirectories corresponding to various examples
 # -------------------------------------------------------------
@@ -1296,9 +1364,9 @@ ENDIF(BUILD_KINSOL)
 # Also, if we will generate exported example Makefiles, set 
 # variables needed in generating them from templates.
 
-IF(ENABLE_EXAMPLES)
+IF(EXAMPLES_ENABLE)
 
-  IF(GENERATE_EX_MAKEFILES)
+  IF(EXAMPLES_GENERATE_MAKEFILES)
     SET(SHELL "sh")
     SET(prefix "${CMAKE_INSTALL_PREFIX}")
     SET(exec_prefix "${CMAKE_INSTALL_PREFIX}")
@@ -1309,16 +1377,20 @@ IF(ENABLE_EXAMPLES)
     SET(CPPFLAGS "${CMAKE_C_FLAGS_RELEASE}")
     SET(CFLAGS "${CMAKE_C_FLAGS_RELEASE}")
     SET(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
-    SET(LIBS "${EXTRA_LINK_LIBS}")
+    LIST2STRING(EXTRA_LINK_LIBS LIBS)
+#    SET(LIBS "${EXTRA_LINK_LIBS}")
     IF(FCMIX_OK)
       SET(F77 "${CMAKE_Fortran_COMPILER}")
       SET(F77_LNKR "${CMAKE_Fortran_COMPILER}")
       SET(FFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
       SET(F77_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
-      SET(F77_LIBS "${EXTRA_LINK_LIBS}")
+      LIST2STRING(EXTRA_LINK_LIBS F77_LIBS)
+#      SET(F77_LIBS "${EXTRA_LINK_LIBS}")
     ENDIF(FCMIX_OK)
     IF(LAPACK_OK)
-      SET(BLAS_LAPACK_LIBS "${LAPACK_LIBRARIES}")
+      LIST2STRING(LAPACK_LIBRARIES BLAS_LAPACK_LIBS)
+#      SET(BLAS_LAPACK_LIBS "${LAPACK_LIBRARIES}")
+      SET(BLAS_LAPACK_LIBS "${LAPACK_LINKER_FLAGS} ${BLAS_LAPACK_LIBS}")
     ENDIF(LAPACK_OK)
     IF(MPIC_OK)
       IF(MPI_USE_MPISCRIPTS)
@@ -1339,10 +1411,11 @@ IF(ENABLE_EXAMPLES)
         ENDIF(MPIF_OK)
         SET(MPI_INC_DIR "${MPI_INCLUDE_PATH}")
         SET(MPI_LIB_DIR ".")
-        SET(MPI_LIBS "${MPI_LIBRARIES}")
+        LIST2STRING(MPI_LIBRARIES MPI_LIBS)
+#        SET(MPI_LIBS "${MPI_LIBRARIES}")
       ENDIF(MPI_USE_MPISCRIPTS)
     ENDIF(MPIC_OK)
-  ENDIF(GENERATE_EX_MAKEFILES)
+  ENDIF(EXAMPLES_GENERATE_MAKEFILES)
 
   IF(BUILD_CVODE)
     ADD_SUBDIRECTORY(examples/cvode/serial)
@@ -1390,7 +1463,14 @@ IF(ENABLE_EXAMPLES)
     ENDIF(MPIF_OK)
   ENDIF(BUILD_KINSOL)
 
-ENDIF(ENABLE_EXAMPLES)
+  IF(BUILD_CPODES)	
+    ADD_SUBDIRECTORY(examples/cpodes/serial)
+#    IF(MPIC_OK)
+#      ADD_SUBDIRECTORY(examples/cpodes/parallel)
+#    ENDIF(MPIC_OK)
+  ENDIF(BUILD_CPODES)
+  
+ENDIF(EXAMPLES_ENABLE)
 
 #----------------------------------
 # Install configuration header file

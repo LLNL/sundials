@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-01-29 17:40:00 $
+# $Revision: 1.2 $
+# $Date: 2007-02-01 16:42:07 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -11,6 +11,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the IDA library
 
+INSTALL(CODE "MESSAGE(\"\nInstall IDA\n\")")
 
 # Add variable ida_SOURCES with the sources for the IDA library
 SET(ida_SOURCES

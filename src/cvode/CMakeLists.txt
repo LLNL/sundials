@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-01-29 17:39:59 $
+# $Revision: 1.2 $
+# $Date: 2007-02-01 16:42:07 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -11,6 +11,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the CVODE library
 
+INSTALL(CODE "MESSAGE(\"\nInstall CVODE\n\")")
 
 # Add variable cvode_SOURCES with the sources for the CVODE library
 SET(cvode_SOURCES

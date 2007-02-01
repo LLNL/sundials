@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-01-29 17:40:00 $
+# $Revision: 1.2 $
+# $Date: 2007-02-01 16:42:07 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -10,6 +10,8 @@
 # For details, see the LICENSE file.
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the parallel NVECTOR library
+
+INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_PARALLEL\n\")")
 
 IF(MPI_USE_MPISCRIPTS)
   # use MPI_MPICC as the compiler

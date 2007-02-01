@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-01-29 17:40:00 $
+# $Revision: 1.2 $
+# $Date: 2007-02-01 16:42:07 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -11,6 +11,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the serial NVECTOR library
 
+INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_SERIAL\n\")")
 
 # Add variable nvecserial_SOURCES with the sources for the NVECSERIAL lib
 SET(nvecserial_SOURCES nvector_serial.c)

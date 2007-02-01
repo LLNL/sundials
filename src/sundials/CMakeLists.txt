@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-01-29 17:40:00 $
+# $Revision: 1.2 $
+# $Date: 2007-02-01 16:42:07 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -11,9 +11,10 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the generic SUNDIALS modules
 
-
 # From here we only install the generic SUNDIALS headers. 
 # The implementations themselves are incorporated in the individual SUNDIALS solver libraries.
+
+INSTALL(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 SET(sundials_HEADERS
