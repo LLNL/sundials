@@ -1,0 +1,162 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2007-02-01 16:39:04 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for CPODES serial examples
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+srcdir       = @srcdir@
+top_builddir = @top_builddir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL      = @INSTALL@
+INSTALL_PROG = @INSTALL_PROGRAM@
+INSTALL_FILE = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+LAPACK_ENABLED = @LAPACK_ENABLED@
+BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+
+OBJ_EXT = @OBJEXT@
+EXE_EXT = @EXEEXT@
+
+EXS_INSTDIR = @EXS_INSTDIR@
+
+top_srcdir = $(srcdir)/../../..
+
+SUNDIALS_INCS = -I$(top_srcdir)/include -I$(top_builddir)/include
+
+SUNDIALS_LIBS = $(top_builddir)/src/cpodes/libsundials_cpodes.la          \
+	        $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
+
+SUNDIALS_BL_LIBS = $(top_builddir)/src/cpodes/libsundials_cpodes_bl.la    \
+	           $(top_builddir)/src/cpodes/libsundials_cpodes.la       \
+	           $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
+
+EXEC_FILES = cpsdenx$(EXE_EXT) \
+	     cpsbanx$(EXE_EXT) \
+	     cpsadamsx${EXE_EXT} \
+	     pend_test${EXE_EXT}
+EXEC_BL_FILES = cpsdenx_lap$(EXE_EXT) \
+	        cpsbanx_lap$(EXE_EXT) \
+	        pendLr$(EXE_EXT)
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+all: $(EXEC_FILES)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make all_bl;                               \
+	fi
+all_bl: $(EXEC_BL_FILES)
+
+install:
+	$(mkinstalldirs) $(EXS_INSTDIR)/cpodes/serial
+	$(INSTALL_FILE) Makefile_ex                                        $(EXS_INSTDIR)/cpodes/serial/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/README        $(EXS_INSTDIR)/cpodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsbanx.c     $(EXS_INSTDIR)/cpodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsdenx.c     $(EXS_INSTDIR)/cpodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsadamsx.c   $(EXS_INSTDIR)/cpodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/pend_test.c   $(EXS_INSTDIR)/cpodes/serial/
+#	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsbanx.out   $(EXS_INSTDIR)/cpodes/serial/
+#	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsdenx.out   $(EXS_INSTDIR)/cpodes/serial/
+#	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsadamsx.out $(EXS_INSTDIR)/cpodes/serial/
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make install_bl;                           \
+	fi
+
+install_bl:
+	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsdenx_lap.c   $(EXS_INSTDIR)/cpodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsbanx_lap.c   $(EXS_INSTDIR)/cpodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/pendLr.c        $(EXS_INSTDIR)/cpodes/serial/
+#	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsbanx_lap.out $(EXS_INSTDIR)/cpodes/serial/
+#	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsdenx_lap.out $(EXS_INSTDIR)/cpodes/serial/
+
+uninstall:
+	rm -f $(EXS_INSTDIR)/cpodes/serial/Makefile
+	rm -f $(EXS_INSTDIR)/cpodes/serial/README
+	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsbanx.c
+	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsdenx.c
+	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsadamsx.c
+	rm -f $(EXS_INSTDIR)/cpodes/serial/pend_test.c
+	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsdenx_lap.c
+	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsbanx_lap.c
+	rm -f $(EXS_INSTDIR)/cpodes/serial/pendLr.c
+#	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsbanx.out
+#	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsdenx.out
+#	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsadamsx.out
+#	rm -f $(EXS_INSTDIR)/cpodes/serial/pend_test.out
+#	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsdenx_lap.out
+#	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsbanx_lap.out
+#	rm -f $(EXS_INSTDIR)/cpodes/serial/pendLr.out
+	$(rminstalldirs) $(EXS_INSTDIR)/cpodes/serial
+	$(rminstalldirs) $(EXS_INSTDIR)/cpodes
+
+clean:
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+	rm -f $(EXEC_FILES)
+	rm -f $(EXEC_BL_FILES)
+
+distclean: clean
+	rm -f Makefile
+	rm -f Makefile_ex
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+cpsadamsx$(EXE_EXT): $(srcdir)/cpsadamsx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cpsadamsx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cpsadamsx$(EXE_EXT) $(builddir)/cpsadamsx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cpsdenx$(EXE_EXT): $(srcdir)/cpsdenx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cpsdenx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cpsdenx$(EXE_EXT) $(builddir)/cpsdenx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cpsbanx$(EXE_EXT): $(srcdir)/cpsbanx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cpsbanx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cpsbanx$(EXE_EXT) $(builddir)/cpsbanx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+pend_test$(EXE_EXT): $(srcdir)/pend_test.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/pend_test.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/pend_test$(EXE_EXT) $(builddir)/pend_test$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+
+
+cpsdenx_lap$(EXE_EXT): $(srcdir)/cpsdenx_lap.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cpsdenx_lap.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cpsdenx_lap$(EXE_EXT) $(builddir)/cpsdenx_lap$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+cpsbanx_lap$(EXE_EXT): $(srcdir)/cpsbanx_lap.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cpsbanx_lap.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cpsbanx_lap$(EXE_EXT) $(builddir)/cpsbanx_lap$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+pendLr$(EXE_EXT): $(srcdir)/pendLr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/pendLr.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/pendLr$(EXE_EXT) $(builddir)/pendLr$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

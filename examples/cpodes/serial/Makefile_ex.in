@@ -1,0 +1,58 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2007-02-01 16:39:04 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for CPODES serial examples
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+SUNDIALS_INCS = -I$(includedir)
+SUNDIALS_LIBS = -L$(libdir) -lsundials_cpodes -lsundials_nvecserial
+
+EXAMPLES = cpsdenx \
+	   cpsbanx \
+	   cpsadamsx \
+	   pend_test
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+all: $(EXAMPLES)
+
+clean:
+	rm -f *.o
+	rm -f $(EXAMPLES)
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+cpsadamsx: cpsadamsx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cpsadamsx.c
+	 $(CC) -o cpsadamsx cpsadamsx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cpsdenx: cpsdenx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cpsdenx.c
+	 $(CC) -o cpsdenx cpsdenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cpsbanx: cpsbanx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cpsbanx.c
+	 $(CC) -o cpsbanx cpsbanx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+pend_test: pend_test.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c pend_test.c
+	 $(CC) -o pend_test pend_test.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
