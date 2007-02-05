@@ -145,9 +145,13 @@ tar ufv $tarfile $distrobase/sundialsTB/idas/IDAPrecSetupFn.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/IDAPrecSolveFn.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/IDAQuadRhsFn.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/IDAResFn.m
+tar ufv $tarfile $distrobase/sundialsTB/idas/IDAReInitB.m
+tar ufv $tarfile $distrobase/sundialsTB/idas/IDAReInit.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/IDARootFn.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/IDASensMalloc.m
+tar ufv $tarfile $distrobase/sundialsTB/idas/IDASensReInit.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/IDASensResFn.m
+tar ufv $tarfile $distrobase/sundialsTB/idas/IDASensToggle.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/IDASetFSAOptions.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/IDASetOptions.m
 tar ufv $tarfile $distrobase/sundialsTB/idas/IDASolveB.m
