@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.11 $
+ * $Date: 2007-02-05 20:22:06 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -270,6 +270,17 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   int ptype, gstype, maxl;
   int mudq, mldq;
   double dqrely;
+
+  /* ------------------------------------
+   * If we are reintializing the solver
+   * and if monitoring was enabled,
+   * finalize it now.
+   * ------------------------------------
+   */
+
+  if ( (action == 1) && (cvm_mon) ) {
+    mtlb_CVodeMonitor(2, 0.0, NULL, NULL, NULL);
+  } 
 
   /* ------------------------------------
    * Initialize appropriate vector module
@@ -701,7 +712,7 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 }
 
 /*
- * CVM_SenstoggleOff
+ * CVM_SensToggleOff
  *
  * deactivates FSA
  */
@@ -812,6 +823,17 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   if (cvm_mon) {
     mtlb_CVodeMonitor(2, 0.0, NULL, NULL, NULL);
     cvm_mon = FALSE;
+  }
+
+  /* ------------------------------------
+   * If we are reintializing the solver
+   * and if backward monitoring was enabled,
+   * finalize it now.
+   * ------------------------------------
+   */
+
+  if ( (action == 1) && (cvm_monB) ) {
+    mtlb_CVodeMonitorB(2, 0.0, NULL, NULL);
   }
 
   /* 
