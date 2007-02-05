@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.14 $Date: 2006/11/22 19:48:11 $
+% $Revision: 1.15 $Date: 2006/12/06 00:46:10 $
 
 % MEX compiler command
 
@@ -589,6 +589,7 @@ idm_files = {
     fullfile('idas','IDASetOptions.m')
     fullfile('idas','IDAPrecSetupFn.m')
     fullfile('idas','IDAPrecSolveFn.m')
+    fullfile('idas','IDAReInit.m')
     fullfile('idas','IDAResFn.m')
     fullfile('idas','IDARootFn.m')
     fullfile('idas','idm','Contents.m')
