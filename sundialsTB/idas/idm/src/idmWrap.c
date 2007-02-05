@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-11-22 00:12:52 $
+ * $Revision: 1.6 $
+ * $Date: 2007-02-05 20:25:16 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -219,8 +219,7 @@ int mtlb_IdaGfct(realtype t, N_Vector yy, N_Vector yp,
   return(ret);
 }
 
-int mtlb_IdaDenseJac(int Neq, realtype c_j, 
-                     realtype tt, 
+int mtlb_IdaDenseJac(int Neq, realtype tt, realtype c_j, 
                      N_Vector yy, N_Vector yp, N_Vector rr,
                      DlsMat Jac, void *jac_data, 
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)

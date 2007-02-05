@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.11 $
+ * $Date: 2007-02-05 20:25:16 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,12 +45,11 @@ static void IDM_init();
 static void IDM_makePersistent();
 static void IDM_final();
 
-static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int IDM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int IDM_AdjMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int IDM_ReInit(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int IDM_ReInitB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int IDM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int IDM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int IDM_AdjInitialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_CalcICB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
@@ -75,20 +74,26 @@ void mexFunction(int nlhs, mxArray *plhs[],
      Modes:
      
      1 - initialize IDAS solver
-     2 - initialize forward sensitivity calculations
-     3 - initialize adjoint sensitivity calculations
-     4 - initialize backward solver
-     5 - reinitialize IDAS solver (NYI)
-     6 - reinitialize backward solver (NYI)
-     7 - calculate consistent IC
-     8 - calculate backward consistent IC
-    10 - solve problem
-    11 - solve backward problem
-    20 - get integrator stats
-    21 - get backward integrator stats
-    22 - extract data from ida_mem
-    23 - set one optional input at a time (NYI)
-    30 - finalize
+     2 - initialize forward sensitivity calculations (N/A)
+     3 - initialize adjoint sensitivity calculations (N/A)
+     4 - initialize backward solver (N/A)
+
+    11 - reinitialize IDAS solver
+    12 - reinitialize forward sensitivity calculations
+    13 - toggle FSA off (N/A)
+    14 - reinitialize backward solver (N/A)
+
+    20 - calculate consistent IC
+    21 - calculate backward consistent IC (N/A)
+    22 - solve problem
+    23 - solve backward problem (N/A)
+
+    30 - get integrator stats
+    31 - get backward integrator stats (N/A)
+    32 - extract data from ida_mem
+    33 - set one optional input at a time (NYI)
+
+    40 - finalize
   */
 
   mode = (int)mxGetScalar(prhs[0]);
@@ -103,55 +108,61 @@ void mexFunction(int nlhs, mxArray *plhs[],
       IDM_final();
     }
     IDM_init();
-    IDM_Malloc(nlhs, plhs, nrhs-1, &prhs[1]);
+    IDM_Initialization(0, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 2:
-    IDM_SensMalloc(nlhs, plhs, nrhs-1, &prhs[1]);
+    IDM_SensInitialization(0, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 3:
-    IDM_AdjMalloc(nlhs, plhs, nrhs-1, &prhs[1]);
+    IDM_AdjInitialization(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 4:
-    IDM_MallocB(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 5:
-    IDM_ReInit(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 6:
-    IDM_ReInitB(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 7:
-    IDM_CalcIC(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 8:
-    IDM_CalcICB(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 10:
-    IDM_Solve(nlhs, plhs, nrhs-1, &prhs[1]);
+    IDM_InitializationB(0, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 11:
-    IDM_SolveB(nlhs, plhs, nrhs-1, &prhs[1]);
+    IDM_Initialization(1, nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 12:
+    IDM_SensInitialization(1, nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 13:
+    IDM_SensToggleOff(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 14:
+    IDM_InitializationB(1, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 20:
-    IDM_Stats(nlhs, plhs, nrhs-1, &prhs[1]);
+    IDM_CalcIC(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 21:
-    IDM_StatsB(nlhs, plhs, nrhs-1, &prhs[1]);
+    IDM_CalcICB(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 22:
-    IDM_Get(nlhs, plhs, nrhs-1, &prhs[1]);
+    IDM_Solve(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 23:
-    IDM_Set(nlhs, plhs, nrhs-1, &prhs[1]);
+    IDM_SolveB(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 30:
+    IDM_Stats(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 31:
+    IDM_StatsB(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 32:
+    IDM_Get(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 33:
+    IDM_Set(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+  case 40:
     IDM_Free(nlhs, plhs, nrhs-1, &prhs[1]);
     IDM_final();
     return;
   }
 
   /* do not call IDM_makePersistent after free */
-  if (mode != 30) IDM_makePersistent();
+  if (mode != 40) IDM_makePersistent();
   mexLock();
 
   return;
@@ -221,12 +232,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
  * ---------------------------------------------------------------------------------
  */
 
-/* IDM_Malloc
+/* IDM_Initialization
+ *
+ * action = 0   -> IDACreate + IDAMalloc
+ * action = 1   -> IDAReInit
  *
  * prhs contains:
- *   fct
+ *   res
  *   t0
- *   y0
+ *   yy0
+ *   yp0
  *   options
  *   data
  *
@@ -235,7 +250,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
  *
  */
 
-static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double t0, *yy0, *yp0;
   int status;
@@ -275,11 +290,22 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   dqrely = 0.0;
 
   /* ------------------------------------
+   * If we are reintializing the solver
+   * and if monitoring was enabled,
+   * finalize it now.
+   * ------------------------------------
+   */
+
+  if ( (action == 1) && (idm_mon) ) {
+    mtlb_IdaMonitor(2, 0.0, NULL, NULL, NULL, NULL, NULL);
+  } 
+
+  /* ------------------------------------
    * Initialize appropriate vector module
    * ------------------------------------
    */
   
-  InitVectors();
+  if (action == 0) InitVectors();
 
   /* 
    * -----------------------------
@@ -327,10 +353,12 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
    * ---------------------------------------
    */
 
-  yy = NewVector(N);
-  PutData(yy, yy0, N);
+  if (action == 0) {
+    yy = NewVector(N);
+    yp = NewVector(N);
+  }
 
-  yp = NewVector(N);
+  PutData(yy, yy0, N);
   PutData(yp, yp0, N);
 
   switch (itol) {
@@ -346,24 +374,50 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* 
    * ----------------------------------------
-   * Create IDAS object and allocate memory
+   * If action = 0
+   *    Create IDAS object and allocate memory
+   *    Attach error handler function
+   *    Redirect output
+   * If action = 1
+   *    Reinitialize solver
    * ----------------------------------------
    */
 
-  ida_mem = IDACreate();
+  switch (action) {
 
-  /* Attach error handler function */
-  status = IDASetErrHandlerFn(ida_mem, mtlb_IdaErrHandler, NULL);
+  case 0:
 
-  /* Call IDAMalloc */
-  status = IDAMalloc(ida_mem, mtlb_IdaRes, t0, yy, yp, itol, reltol, abstol);
+    /* Create IDAS object */
+    ida_mem = IDACreate();
 
-  if (itol == IDA_SV) {
-    N_VDestroy(NV_abstol);
+    /* Attach error handler function */
+    status = IDASetErrHandlerFn(ida_mem, mtlb_IdaErrHandler, NULL);
+
+    /* Call IDAMalloc */
+    status = IDAMalloc(ida_mem, mtlb_IdaRes, t0, yy, yp, itol, reltol, abstol);
+
+    /* Redirect output */
+    status = IDASetErrFile(ida_mem, stdout);
+
+    break;
+
+  case 1:
+
+    /* Reinitialize solver */
+    status = IDAReInit(ida_mem, mtlb_IdaRes, t0, yy, yp, itol, reltol, abstol);
+
+    break;
+
   }
 
-  /* Redirect output */
-  status = IDASetErrFile(ida_mem, stdout);
+  /* Free NV_abstol if allocated */
+  if (itol == IDA_SV) N_VDestroy(NV_abstol);
+
+  /*
+   * --------------------------------
+   * Set various optional inputs
+   * --------------------------------
+   */
 
   /* set maxorder (default is 5) */
   status = IDASetMaxOrd(ida_mem, maxord);
@@ -415,10 +469,18 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
     if(status) mexErrMsgTxt("IDAMalloc:: illegal quadrature input.");      
 
-    yQ = NewVector(Nq);
+    if (action == 0) yQ = NewVector(Nq);
+
     PutData(yQ, yQ0, Nq);
 
-    status = IDAQuadMalloc(ida_mem, mtlb_IdaQuadFct, yQ);
+    switch (action) {
+    case 0:
+      status = IDAQuadMalloc(ida_mem, mtlb_IdaQuadFct, yQ);
+      break;
+    case 1:
+      status = IDAQuadReInit(ida_mem, mtlb_IdaQuadFct, yQ);
+      break;
+    }
 
     if (errconQ) {
     
@@ -539,7 +601,9 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
 }
 
-/* IDM_SensMalloc
+/* IDM_SensInitialization
+ * action = 0 -> IDASensMalloc
+ * action = 1 -> IDASensReInit
  *
  * prhs contains:
  *   Ns
@@ -552,12 +616,12 @@ static int IDM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
  *
  */
 
-static int IDM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int IDM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   return(0);
 }
 /*
-static int IDM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int IDM_SensInitialization(int action int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double t0, *yyS0, *ypS0;
   int buflen, status;
@@ -582,7 +646,7 @@ static int IDM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
   plist = NULL;
   pbar = NULL;
 
-  Ns = (int)mxGetScalar(prhs[0]);
+  if (action==0) Ns = (int)mxGetScalar(prhs[0]);
 
   buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
   bufval = mxCalloc(buflen, sizeof(char));
@@ -610,14 +674,25 @@ static int IDM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
     mxFree(pfield_name);
   }
 
-  yyS = N_VCloneVectorArray(Ns, yy);
-  ypS = N_VCloneVectorArray(Ns, yy);
+  if (action == 0) {
+    yyS = N_VCloneVectorArray(Ns, yy);
+    ypS = N_VCloneVectorArray(Ns, yy);
+  }
+
   for (is=0;is<Ns;is++) {
     PutData(yyS[is], &yyS0[is*N], N);
     PutData(ypS[is], &ypS0[is*N], N);
   }
 
-  status = IDASensMalloc(ida_mem, Ns, ism, yyS, ypS);
+
+  switch (action) {
+  case 0:
+    status = IDASensMalloc(ida_mem, Ns, ism, yyS, ypS);
+    break;
+  case 1:
+    status = IDASensReInit(ida_mem, ism, yyS, ypS);
+    break;
+  }
 
   switch (itolS) {
   case IDA_SS:
@@ -658,7 +733,19 @@ static int IDM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
 }
 */
 
-/* IDM_AdjMalloc
+/*
+ * IDM_SensToggleOff
+ *
+ * deactivates FSA
+ */
+
+static int IDM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+  return(0);
+}
+
+
+/* IDM_AdjInitialization
  *
  * prhs contains:
  *
@@ -666,12 +753,12 @@ static int IDM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
  *   status
  */
 
-static int IDM_AdjMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int IDM_AdjInitialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   return(0);
 }
 /*
-static int IDM_AdjMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int IDM_AdjInitialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   int buflen, status;
   char *bufval;
@@ -691,12 +778,30 @@ static int IDM_AdjMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prh
   return(0);
 }
 */
-static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+
+/* IDM_InitializationB
+ *
+ * action = 0   -> IDACreateB + IDAMallocB
+ * action = 1   -> IDAReInitB
+ *
+ * prhs contains:
+ *   resB
+ *   tF
+ *   yyB0
+ *   ypB0
+ *   options
+ *   data
+ *
+ * plhs contains:
+ *   status
+ *
+ */
+static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   return(0);
 }
 /*
-static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double tB0, *yyB0, *ypB0;
   int i, status;
@@ -735,8 +840,13 @@ static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   dqrely = 0.0;
 
   if (idm_mon) {
-    mtlb_IdaMonitor(2, 0.0, NULL, NULL, NULL);
+    mtlb_IdaMonitor(2, 0.0, NULL, NULL, NULL, NULL, NULL);
     idm_mon = FALSE;
+  }
+
+  
+  if ( (action == 1) && (idm_monB) ) {
+    mtlb_IdaMonitorB(2, 0.0, NULL, NULL, NULL);
   }
 
   mxDestroyArray(mx_RESfctB);
@@ -754,11 +864,12 @@ static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
                             &hinB, &hmaxB, &tstopB, &tstopSetB,
                             &suppressB,
                             &idB, &cnstrB);
+  if (action == 0) {
+    yyB = NewVector(NB);
+    ypB = NewVector(NB);
+  }
 
-  yyB = NewVector(NB);
   PutData(yyB, yyB0, NB);
-
-  ypB = NewVector(NB);
   PutData(ypB, ypB0, NB);
 
   switch (itolB) {
@@ -772,15 +883,21 @@ static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
     break;
   }
 
-  status = IDACreateB(idaadj_mem);
+  switch (action) {
 
-  status = IDAMallocB(idaadj_mem, mtlb_IdaResB, tB0, yyB, ypB, itolB, reltolB, abstolB);
+  case 0:
+    status = IDACreateB(idaadj_mem);
+    status = IDAMallocB(idaadj_mem, mtlb_IdaResB, tB0, yyB, ypB, itolB, reltolB, abstolB);
+    status = IDASetErrFileB(idaadj_mem, stdout);
+    break;
+  case 1:
+    status = IDAReInitB(idaadj_mem, mtlb_IdaResB, tB0, yyB, ypB, itolB, reltolB, abstolB);
+    break;
+  }
 
   if (itolB == IDA_SV) {
     N_VDestroy(NV_abstolB);
   }
-
-  status = IDASetErrFileB(idaadj_mem, stdout);
 
   status = IDASetMaxOrdB(idaadj_mem, maxordB);
 
@@ -799,11 +916,18 @@ static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
     if(status)
       mexErrMsgTxt("IDAMallocB:: illegal quadrature input.");      
 
-    yQB = NewVector(NqB);
+    if (action == 0) yQB = NewVector(NqB);
     PutData(yQB, yQB0, NqB);
 
-    status = IDAQuadMallocB(idaadj_mem, mtlb_IdaQuadFctB, yQB);
-    
+    switch (action) {
+    case 0:
+      status = IDAQuadMallocB(idaadj_mem, mtlb_IdaQuadFctB, yQB);
+      break;
+    case 1:
+      status = IDAQuadReInitB(idaadj_mem, mtlb_IdaQuadFctB, yQB);
+      break;
+    }
+
     switch (itolQB) {
     case IDA_SS:
       abstolQB = (void *) &SabstolQB;
@@ -912,21 +1036,12 @@ static int IDM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   }
 
   if (idm_monB) {
-    mtlb_IdaMonitorB(0, tB0, NULL, NULL);
+    mtlb_IdaMonitorB(0, tB0, NULL, NULL, NULL);
   }
 
   return(0);
 }
 */
-static int IDM_ReInit(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
-  return(0);
-}
-
-static int IDM_ReInitB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
-  return(0);
-}
 
 static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
