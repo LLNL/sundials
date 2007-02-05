@@ -58,9 +58,9 @@ function [status, varargout] = IDACalcIC(tout,icmeth)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/17 16:49:50 $
+% $Revision: 1.2 $Date: 2006/07/19 20:52:27 $
 
-mode = 7;
+mode = 20;
 
 if nargout == 1
   status = idm(mode, tout, icmeth);
