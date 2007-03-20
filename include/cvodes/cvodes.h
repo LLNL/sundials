@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-20 14:33:20 $
+ * $Revision: 1.7 $
+ * $Date: 2007-03-20 15:36:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1404,6 +1404,21 @@ SUNDIALS_EXPORT void CVodeSensFree(void *cvode_mem);
  */
   
 SUNDIALS_EXPORT void *CVadjMalloc(void *cvode_mem, long int steps, int interp);
+
+/*
+ * -----------------------------------------------------------------
+ * CVadjReInit
+ * -----------------------------------------------------------------
+ * CVadjReInit reinitializes the CVODEA memory structure assuming 
+ * that the number of steps between check points and the type of 
+ * interpolation remained unchanged. 
+ * The CVODES nenory for the forward problem can be reinitialized 
+ * separately by calling CVodeReInit (for changes to be seen, this 
+ * must be done BEFORE calling CVadjReInit).
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int CVadjReInit(void *cvadj_mem);
 
 /*
  * -----------------------------------------------------------------

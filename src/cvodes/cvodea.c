@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-12-03 00:14:33 $
+ * $Revision: 1.7 $
+ * $Date: 2007-03-20 15:36:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -336,6 +336,51 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
 
   return((void *)ca_mem);
 } 
+
+/* CVadjReInit
+ *
+ * This routine reinitializes the CVODEA memory structure
+ * assuming that the number of steps between check points
+ * and the type of interpolation remained unchanged. 
+ * The CVODES nenory for the forward problem can be
+ * reinitialized separately by calling CVodeReInit
+ * (for changes to be seen, this must be done BEFORE
+ * calling CVadjReInit).
+ */
+
+int CVadjReInit(void *cvadj_mem)
+{
+  CVadjMem ca_mem;
+  CVodeMem cv_mem;
+
+  /* Check arguments */
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjReInit", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cv_mem = ca_mem->cv_mem;
+
+  /* Free current list of Check Points */
+  while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
+
+  /* Re-initialize Check Points linked list */
+  ca_mem->ck_mem = NULL;
+  ca_mem->ck_mem = CVAckpntInit(cv_mem);
+  if (ca_mem->ck_mem == NULL) {
+    CVProcessError(NULL, CV_MEM_FAIL, "CVODEA", "CVadjReInit", MSGAM_MEM_FAIL);
+    return(CV_MEM_FAIL);
+  }
+
+  /* Other entries in ca_mem */
+  tinitial = tn;
+
+  /* Initialize nckpnts to ZERO */
+  nckpnts = 0;
+
+  return(CV_SUCCESS);
+}
 
 /* 
  * CVadjSetInterpType
