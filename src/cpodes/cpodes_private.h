@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-12-01 22:48:57 $
+ * $Revision: 1.6 $
+ * $Date: 2007-03-20 14:33:27 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -300,6 +300,7 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_RTFUNC_FAILED "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSGCP_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCP_BAD_TSTOP "tstop is behind current " MSG_TIME "in the direction of integration."
+#define MSGCP_NO_ROOT "Rootfinding was not initialized."
 
 /* Projection error messages */
 

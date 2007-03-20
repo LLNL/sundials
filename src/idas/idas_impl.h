@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-11-29 00:05:09 $
+ * $Revision: 1.7 $
+ * $Date: 2007-03-20 14:34:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -353,7 +353,8 @@ typedef struct IDAMemRec {
   IDARootFn ida_gfun;    /* Function g for roots sought                     */
   int ida_nrtfn;         /* number of components of g                       */
   void *ida_g_data;      /* pointer to user data for g                      */
-  int *ida_iroots;       /* int array for root information                  */
+  int *ida_iroots;       /* array for root information                      */
+  int *ida_rootdir;      /* array specifying direction of zero-crossing     */
   realtype ida_tlo;      /* nearest endpoint of interval in root search     */
   realtype ida_thi;      /* farthest endpoint of interval in root search    */
   realtype ida_trout;    /* t return value from rootfinder routine          */
@@ -813,6 +814,7 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_RES_NONRECOV   "At " MSG_TIME "the residual function failed unrecoverably."
 #define MSG_FAILED_CONSTR  "At " MSG_TIME "unable to satisfy inequality constraints."
 #define MSG_RTFUNC_FAILED  "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
+#define MSG_NO_ROOT        "Rootfinding was not initialized."
 
 #define MSG_EWTQ_NOW_BAD "At " MSG_TIME ", a component of ewtQ has become <= 0."
 #define MSG_QRHSFUNC_FAILED "At " MSG_TIME ", the quadrature right-hand side routine failed in an unrecoverable manner."

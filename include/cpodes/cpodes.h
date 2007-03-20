@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-11-30 21:16:45 $
+ * $Revision: 1.6 $
+ * $Date: 2007-03-20 14:33:17 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -909,6 +909,12 @@ SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
  *                         | between calls to CPode.
  *                         | [set by CPodeInit/CPodeReInit]
  *                         |
+ * ---------------------------------------------------------------- 
+ *                         |
+ * CPodeSetRootDirection   | Specifies the direction of zero
+ *                         | crossings to be monitored
+ *                         | [both directions]
+ *                         |
  * -----------------------------------------------------------------
  * Return flag:
  *   CP_SUCCESS   if successful
@@ -946,6 +952,8 @@ SUNDIALS_EXPORT int CPodeSetQuadErrCon(void *cpode_mem, booleantype errconQ,
 
 SUNDIALS_EXPORT int CPodeSetTolerances(void *cpode_mem,
 				       int tol_type, realtype reltol, void *abstol);
+
+SUNDIALS_EXPORT int CPodeSetRootDirection(void *cpode_mem, int *rootdir);
 
 /*
  * -----------------------------------------------------------------

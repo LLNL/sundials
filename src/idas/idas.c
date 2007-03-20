@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-02-01 21:56:23 $
+ * $Revision: 1.9 $
+ * $Date: 2007-03-20 14:34:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -614,13 +614,14 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
 
   /* Initialize root-finding variables */
 
-  IDA_mem->ida_glo    = NULL;
-  IDA_mem->ida_ghi    = NULL;
-  IDA_mem->ida_grout  = NULL;
-  IDA_mem->ida_iroots = NULL;
-  IDA_mem->ida_gfun   = NULL;
-  IDA_mem->ida_g_data = NULL;
-  IDA_mem->ida_nrtfn  = 0;
+  IDA_mem->ida_glo     = NULL;
+  IDA_mem->ida_ghi     = NULL;
+  IDA_mem->ida_grout   = NULL;
+  IDA_mem->ida_iroots  = NULL;
+  IDA_mem->ida_rootdir = NULL;
+  IDA_mem->ida_gfun    = NULL;
+  IDA_mem->ida_g_data  = NULL;
+  IDA_mem->ida_nrtfn   = 0;
 
   /* Initial setup not done yet */
   IDA_mem->ida_SetupDone = FALSE;
@@ -1066,6 +1067,7 @@ int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0)
 #define ghi    (IDA_mem->ida_ghi)
 #define grout  (IDA_mem->ida_grout)
 #define iroots (IDA_mem->ida_iroots)
+#define rootdir (IDA_mem->ida_rootdir)
 
 /*-----------------------------------------------------------------*/
 
@@ -1082,7 +1084,7 @@ int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0)
 int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
 {
   IDAMem IDA_mem;
-  int nrt;
+  int i, nrt;
 
   /* Check ida_mem pointer */
   if (ida_mem == NULL) {
@@ -1102,9 +1104,10 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
     free(ghi); ghi = NULL;
     free(grout); grout = NULL;
     free(iroots); iroots = NULL;
+    free(rootdir); iroots = NULL;
 
-    lrw -= 3* (IDA_mem->ida_nrtfn);
-    liw -= IDA_mem->ida_nrtfn;
+    lrw -= 3 * (IDA_mem->ida_nrtfn);
+    liw -= 2 * (IDA_mem->ida_nrtfn);
 
   }
 
@@ -1132,16 +1135,17 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
 	free(ghi); ghi = NULL;
 	free(grout); grout = NULL;
 	free(iroots); iroots = NULL;
+        free(rootdir); iroots = NULL;
 
         lrw -= 3*nrt;
-        liw -= nrt;
+        liw -= 2*nrt;
 
         IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDARootInit", MSG_ROOT_FUNC_NULL);
-	return(IDA_ILL_INPUT);
+        return(IDA_ILL_INPUT);
       }
       else {
-	gfun = g;
-	return(IDA_SUCCESS);
+        gfun = g;
+        return(IDA_SUCCESS);
       }
     }
     else return(IDA_SUCCESS);
@@ -1190,8 +1194,19 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
     return(IDA_MEM_FAIL);
   }
 
+  rootdir = NULL;
+  rootdir = (int *) malloc(nrt*sizeof(int));
+  if (rootdir == NULL) {
+    free(glo); glo = NULL;
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
+    free(iroots); iroots = NULL;
+    IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS", "IDARootInit", MSG_MEM_FAIL);
+    return(IDA_MEM_FAIL);
+  }
+
   lrw += 3*nrt;
-  liw += nrt;
+  liw += 2*nrt;
 
   return(IDA_SUCCESS);
 }
@@ -2004,6 +2019,7 @@ void IDAFree(void **ida_mem)
     free(ghi);  ghi = NULL;
     free(grout);  grout = NULL;
     free(iroots); iroots = NULL;
+    free(rootdir); rootdir = NULL;
   }
 
   free(*ida_mem);
@@ -4747,6 +4763,12 @@ static int IDARcheck3(IDAMem IDA_mem)
  * gfun     = user-defined function for g(t).  Its form is
  *           (void) gfun(t, y, yp, gt, g_data)
  *
+ * rootdir  = in array specifying the direction of zero-crossings.
+ *            If rootdir[i] > 0, search for roots of g_i only if
+ *            g_i is increasing; if rootdir[i] < 0, search for
+ *            roots of g_i only if g_i is decreasing; otherwise
+ *            always search for roots of g_i.
+ *
  * nge      = cumulative counter for gfun calls.
  *
  * ttol     = a convergence tolerance for trout.  Input only.
@@ -4777,7 +4799,10 @@ static int IDARcheck3(IDAMem IDA_mem)
  *            Output only.  If a root was found, iroots indicates
  *            which components g_i have a root at trout.  For
  *            i = 0, ..., nrtfn-1, iroots[i] = 1 if g_i has a root
- *            and iroots[i] = 0 otherwise.
+ *            and g_i is increasing, iroots[i] = -1 if g_i has a
+ *            root and g_i is decreasing, and iroots[i] = 0 if g_i
+ *            has no roots or g_i varies in the direction opposite
+ *            to that indicated by rootdir[i].
  *
  * This routine returns an int equal to:
  *      RTFOUND = 1 if a root of g was found, or
@@ -4799,9 +4824,11 @@ static int IDARootfind(IDAMem IDA_mem)
   sgnchg = FALSE;
   for (i = 0;  i < nrtfn; i++) {
     if (ABS(ghi[i]) == ZERO) {
-      zroot = TRUE;
+      if(rootdir[i]*glo[i] <= ZERO) {
+        zroot = TRUE;
+      }
     } else {
-      if (glo[i]*ghi[i] < ZERO) {
+      if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
         gfrac = ABS(ghi[i]/(ghi[i] - glo[i]));
         if (gfrac > maxfrac) {
           sgnchg = TRUE;
@@ -4820,7 +4847,7 @@ static int IDARootfind(IDAMem IDA_mem)
     if (!zroot) return(IDA_SUCCESS);
     for (i = 0; i < nrtfn; i++) {
       iroots[i] = 0;
-      if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
+      if (ABS(ghi[i]) == ZERO) iroots[i] = glo[i] > 0 ? -1:1;
     }
     return(RTFOUND);
   }
@@ -4877,9 +4904,11 @@ static int IDARootfind(IDAMem IDA_mem)
     sideprev = side;
     for (i = 0;  i < nrtfn; i++) {
       if (ABS(grout[i]) == ZERO) {
-        zroot = TRUE;
+        if(rootdir[i]*glo[i] <= ZERO) {
+          zroot = TRUE;
+        }
       } else {
-        if (glo[i]*grout[i] < ZERO) {
+        if ( (glo[i]*grout[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
           gfrac = ABS(grout[i]/(grout[i] - glo[i]));
           if (gfrac > maxfrac) {
             sgnchg = TRUE;
@@ -4921,8 +4950,10 @@ static int IDARootfind(IDAMem IDA_mem)
   for (i = 0; i < nrtfn; i++) {
     grout[i] = ghi[i];
     iroots[i] = 0;
-    if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
-    if (glo[i]*ghi[i] < ZERO) iroots[i] = 1;
+    if ( (ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
+      iroots[i] = glo[i] > 0 ? -1:1;
+    if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
+      iroots[i] = glo[i] > 0 ? -1:1;
   }
   return(RTFOUND);
 }

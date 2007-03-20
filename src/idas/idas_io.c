@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-07-20 16:59:36 $
+ * $Revision: 1.6 $
+ * $Date: 2007-03-20 14:34:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -525,6 +525,37 @@ int IDASetEwtFn(void *ida_mem, IDAEwtFn efun, void *edata)
 
   return(IDA_SUCCESS);
 }
+
+/* 
+ * IDASetRootDirection
+ *
+ * Specifies the direction of zero-crossings to be monitored.
+ * The default is to monitor both crossings.
+ */
+
+int IDASetRootDirection(void *ida_mem, int *rootdir)
+{
+  IDAMem IDA_mem;
+  int i, nrt;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetRootDirection", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  nrt = IDA_mem->ida_nrtfn;
+  if (nrt==0) {
+    IDAProcessError(NULL, IDA_ILL_INPUT, "IDA", "IDASetRootDirection", MSG_NO_ROOT);
+    return(IDA_ILL_INPUT);    
+  }
+
+  for(i=0; i<nrt; i++) IDA_mem->ida_rootdir[i] = rootdir[i];
+
+  return(IDA_SUCCESS);
+}
+
 
 
 /* 

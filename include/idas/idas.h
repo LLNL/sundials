@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-11-30 21:10:57 $
+ * $Revision: 1.8 $
+ * $Date: 2007-03-20 14:33:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -431,6 +431,12 @@ SUNDIALS_EXPORT void *IDACreate(void);
  *                      | [set by IDAMalloc/IDAReInit]
  *                      |
  * ---------------------------------------------------------------- 
+ *                      |
+ * IDASetRootDirection  | Specifies the direction of zero
+ *                      | crossings to be monitored
+ *                      | [both directions]
+ *                      |
+ * ---------------------------------------------------------------- 
  * Return flag:
  *   IDA_SUCCESS   if successful
  *   IDA_MEM_NULL  if the IDAS memory is NULL
@@ -457,6 +463,8 @@ SUNDIALS_EXPORT int IDASetId(void *ida_mem, N_Vector id);
 SUNDIALS_EXPORT int IDASetConstraints(void *ida_mem, N_Vector constraints);
 
 SUNDIALS_EXPORT int IDASetTolerances(void *ida_mem, int itol, realtype rtol, void *atol);
+
+SUNDIALS_EXPORT int IDASetRootDirection(void *ida_mem, int *rootdir);
 
 /*
  * ----------------------------------------------------------------

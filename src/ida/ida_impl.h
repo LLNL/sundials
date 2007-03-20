@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-20 14:34:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -227,7 +227,8 @@ typedef struct IDAMemRec {
   IDARootFn ida_gfun;    /* Function g for roots sought                     */
   int ida_nrtfn;         /* number of components of g                       */
   void *ida_g_data;      /* pointer to user data for g                      */
-  int *ida_iroots;       /* int array for root information                  */
+  int *ida_iroots;       /* array for root information                      */
+  int *ida_rootdir;      /* array specifying direction of zero-crossing     */
   realtype ida_tlo;      /* nearest endpoint of interval in root search     */
   realtype ida_thi;      /* farthest endpoint of interval in root search    */
   realtype ida_trout;    /* t return value from rootfinder routine          */
@@ -454,6 +455,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_RES_NONRECOV   "At " MSG_TIME "the residual function failed unrecoverably."
 #define MSG_FAILED_CONSTR  "At " MSG_TIME "unable to satisfy inequality constraints."
 #define MSG_RTFUNC_FAILED  "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
+#define MSG_NO_ROOT        "Rootfinding was not initialized."
 
 /* IDASet* / IDAGet* error messages */
 

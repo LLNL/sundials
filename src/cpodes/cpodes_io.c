@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-30 21:11:29 $
+ * $Revision: 1.3 $
+ * $Date: 2007-03-20 14:33:27 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -494,6 +494,36 @@ int CPodeSetEwtFn(void *cpode_mem, CPEwtFn efun, void *e_data)
 
   cp_mem->cp_efun   = efun;
   cp_mem->cp_e_data = e_data;
+
+  return(CP_SUCCESS);
+}
+
+/* 
+ * CPodeSetRootDirection
+ *
+ * Specifies the direction of zero-crossings to be monitored.
+ * The default is to monitor both crossings.
+ */
+
+int CPodeSetRootDirection(void *cpode_mem, int *rootdir)
+{
+  CPodeMem cp_mem;
+  int i, nrt;
+
+  if (cpode_mem==NULL) {
+    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeSetRootDirection", MSGCP_NO_MEM);
+    return(CP_MEM_NULL);
+  }
+
+  cp_mem = (CPodeMem) cpode_mem;
+
+  nrt = cp_mem->cp_nrtfn;
+  if (nrt==0) {
+    cpProcessError(NULL, CP_ILL_INPUT, "CPODES", "CPodeSetRootDirection", MSGCP_NO_ROOT);
+    return(CP_ILL_INPUT);    
+  }
+
+  for(i=0; i<nrt; i++) cp_mem->cp_rootdir[i] = rootdir[i];
 
   return(CP_SUCCESS);
 }

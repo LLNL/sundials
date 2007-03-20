@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-02-01 21:56:10 $
+ * $Revision: 1.7 $
+ * $Date: 2007-03-20 14:33:27 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -350,6 +350,7 @@ void *CPodeCreate(int ode_type, int lmm_type, int nls_type)
   cp_mem->cp_ghi           = NULL;
   cp_mem->cp_grout         = NULL;
   cp_mem->cp_iroots        = NULL;
+  cp_mem->cp_rootdir       = NULL;
   cp_mem->cp_gfun          = NULL;
   cp_mem->cp_g_data        = NULL;
 
@@ -1115,6 +1116,7 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data)
 #define ghi            (cp_mem->cp_ghi)
 #define grout          (cp_mem->cp_grout)
 #define iroots         (cp_mem->cp_iroots)
+#define rootdir        (cp_mem->cp_rootdir)
 
 /*-----------------------------------------------------------------*/
 
@@ -2171,8 +2173,17 @@ static booleantype cpRootAlloc(CPodeMem cp_mem, int nrt)
     return(FALSE);
   }
 
+  rootdir = NULL;
+  rootdir = (int *) malloc(nrt*sizeof(int));
+  if (rootdir == NULL) {
+    free(glo); glo = NULL; 
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
+    free(iroots); iroots = NULL;
+  }
+
   lrw += 3*nrt;
-  liw += nrt;
+  liw += 2*nrt;
 
   return(TRUE);
 }
@@ -2187,9 +2198,10 @@ static void cpRootFree(CPodeMem cp_mem)
   free(ghi); ghi = NULL;
   free(grout); grout = NULL;
   free(iroots); iroots = NULL;
+  free(rootdir); rootdir = NULL;
 
   lrw -= 3 * nrtfn;
-  liw -= nrtfn;
+  liw -= 2 * nrtfn;
 }
 
 /*  
@@ -4500,6 +4512,12 @@ static int cpRcheck3(CPodeMem cp_mem)
  * gfun     = user-defined function for g(t).  Its form is
  *            (void) gfun(t, y, gt, g_data)
  *
+ * rootdir  = in array specifying the direction of zero-crossings.
+ *            If rootdir[i] > 0, search for roots of g_i only if
+ *            g_i is increasing; if rootdir[i] < 0, search for
+ *            roots of g_i only if g_i is decreasing; otherwise
+ *            always search for roots of g_i.
+ *
  * nge      = cumulative counter for gfun calls.
  *
  * ttol     = a convergence tolerance for trout.  Input only.
@@ -4530,7 +4548,10 @@ static int cpRcheck3(CPodeMem cp_mem)
  *            Output only.  If a root was found, iroots indicates
  *            which components g_i have a root at trout.  For
  *            i = 0, ..., nrtfn-1, iroots[i] = 1 if g_i has a root
- *            and iroots[i] = 0 otherwise.
+ *            and g_i is increasing, iroots[i] = -1 if g_i has a
+ *            root and g_i is decreasing, and iroots[i] = 0 if g_i
+ *            has no roots or g_i varies in the direction opposite
+ *            to that indicated by rootdir[i].
  *
  * This routine returns an int equal to:
  *      RTFOUND =  1 if a root of g was found, or
@@ -4551,9 +4572,11 @@ static int cpRootfind(CPodeMem cp_mem)
   sgnchg = FALSE;
   for (i = 0;  i < nrtfn; i++) {
     if (ABS(ghi[i]) == ZERO) {
-      zroot = TRUE;
+      if(rootdir[i]*glo[i] <= ZERO) {
+        zroot = TRUE;
+      }
     } else {
-      if (glo[i]*ghi[i] < ZERO) {
+      if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
         gfrac = ABS(ghi[i]/(ghi[i] - glo[i]));
         if (gfrac > maxfrac) {
           sgnchg = TRUE;
@@ -4572,7 +4595,7 @@ static int cpRootfind(CPodeMem cp_mem)
     if (!zroot) return(CP_SUCCESS);
     for (i = 0; i < nrtfn; i++) {
       iroots[i] = 0;
-      if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
+      if (ABS(ghi[i]) == ZERO) iroots[i] = glo[i] > 0 ? -1:1;
     }
     return(RTFOUND);
   }
@@ -4629,9 +4652,11 @@ static int cpRootfind(CPodeMem cp_mem)
     sideprev = side;
     for (i = 0;  i < nrtfn; i++) {
       if (ABS(grout[i]) == ZERO) {
-        zroot = TRUE;
+        if(rootdir[i]*glo[i] <= ZERO) {
+          zroot = TRUE;
+        }
       } else {
-        if (glo[i]*grout[i] < ZERO) {
+        if ( (glo[i]*grout[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
           gfrac = ABS(grout[i]/(grout[i] - glo[i]));
           if (gfrac > maxfrac) {
             sgnchg = TRUE;
@@ -4673,8 +4698,10 @@ static int cpRootfind(CPodeMem cp_mem)
   for (i = 0; i < nrtfn; i++) {
     grout[i] = ghi[i];
     iroots[i] = 0;
-    if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
-    if (glo[i]*ghi[i] < ZERO) iroots[i] = 1;
+    if ( (ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
+      iroots[i] = glo[i] > 0 ? -1:1;
+    if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
+      iroots[i] = glo[i] > 0 ? -1:1;
   }
   return(RTFOUND);
 }

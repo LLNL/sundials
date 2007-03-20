@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.6 $
+ * $Date: 2007-03-20 14:33:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -548,6 +548,12 @@ SUNDIALS_EXPORT void *CVodeCreate(int lmm, int iter);
  *                         | [set by CVodeMalloc/CVodeReInit]
  *                         |
  * -----------------------------------------------------------------
+ *                         |
+ * CVodeSetRootDirection   | Specifies the direction of zero
+ *                         | crossings to be monitored
+ *                         | [both directions]
+ *                         |
+ * -----------------------------------------------------------------
  * Return flag:
  *   CV_SUCCESS   if successful
  *   CV_MEM_NULL  if the cvode memory is NULL
@@ -575,6 +581,8 @@ SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
 SUNDIALS_EXPORT int CVodeSetIterType(void *cvode_mem, int iter);
 SUNDIALS_EXPORT int CVodeSetTolerances(void *cvode_mem,
 				       int itol, realtype reltol, void *abstol);
+
+SUNDIALS_EXPORT int CVodeSetRootDirection(void *cvode_mem, int *rootdir);
 
 /*
  * -----------------------------------------------------------------

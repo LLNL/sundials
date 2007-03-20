@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.6 $
+ * $Date: 2007-03-20 14:33:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -381,7 +381,8 @@ typedef struct CVodeMemRec {
   CVRootFn cv_gfun;     /* Function g for roots sought                     */
   int cv_nrtfn;         /* number of components of g                       */
   void *cv_g_data;      /* pointer to user data for g                      */
-  int *cv_iroots;       /* int array for root information                  */
+  int *cv_iroots;       /* array for root information                      */
+  int *cv_rootdir;      /* array specifying direction of zero-crossing     */
   realtype cv_tlo;      /* nearest endpoint of interval in root search     */
   realtype cv_thi;      /* farthest endpoint of interval in root search    */
   realtype cv_trout;    /* t value returned by rootfinding routine         */
@@ -822,6 +823,7 @@ int CVSensRhs1DQ(int Ns, realtype t,
 #define MSGCV_BAD_K "Illegal value for k."
 #define MSGCV_NULL_DKY "dky = NULL illegal."
 #define MSGCV_BAD_T "Illegal value for t." MSG_TIME_INT
+#define MSGCV_NO_ROOT "Rootfinding was not initialized."
 
 #define MSGCV_NO_QUAD  "Illegal attempt to call before calling CVodeQuadMalloc."
 #define MSGCV_BAD_ITOLQ "Illegal value for itolQ. The legal values are CV_SS and CV_SV."

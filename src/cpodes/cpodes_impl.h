@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-30 21:11:29 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-20 14:33:27 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -346,7 +346,9 @@ typedef struct CPodeMemRec {
   CPRootFn cp_gfun;            /* Function g for roots sought                 */
   int cp_nrtfn;                /* number of components of g                   */
   void *cp_g_data;             /* pointer to user data for g                  */
-  int *cp_iroots;              /* int array for root information              */
+  int *cp_iroots;              /* array for root information                  */
+  int *cp_rootdir;             /* array specifying direction of zero-crossing */
+
   realtype cp_tlo;             /* nearest endpoint of interval in root search */
   realtype cp_thi;             /* farthest endpoint of interval in root search*/
   realtype cp_trout;           /* t value returned by rootfinding routine     */
