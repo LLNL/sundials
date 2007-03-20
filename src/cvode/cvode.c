@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-02-01 21:56:12 $
+ * $Revision: 1.6 $
+ * $Date: 2007-03-20 14:33:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -3176,6 +3176,7 @@ static int CVHandleFailure(CVodeMem cv_mem, int flag)
     break;
   case CV_TOO_CLOSE:
     CVProcessError(cv_mem, CV_TOO_CLOSE, "CVODE", "CVode", MSGCV_TOO_CLOSE);
+    break;
   default:
     return(CV_SUCCESS);   
   }
