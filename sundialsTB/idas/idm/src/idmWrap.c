@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-02-05 20:25:16 $
+ * $Revision: 1.7 $
+ * $Date: 2007-03-21 18:36:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1116,7 +1116,7 @@ void mtlb_IdaMonitor(int call, double t,
   double *tmp_yyS, *tmp_ypS;
   int is;
 
-  mx_in[0] = mxCreateScalarDouble(call);            /* call type (0:first, 1:interm. 2:last) */
+  mx_in[0] = mxCreateScalarDouble(call);            /* call type (1,2:first, 0:interm. 3:last) */
   mx_in[1] = mxCreateScalarDouble(t);               /* current time */
   mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);      /* current yy */
   mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);      /* current yp */
@@ -1136,7 +1136,7 @@ void mtlb_IdaMonitor(int call, double t,
   mx_in[8] = mx_MONfct;                             /* Matlab monitor function */
   mx_in[9] = mx_MONdata;                            /* data for monitor function */
 
-  if (call == 1) {
+  if ((call == 0) || (call == 1)) {
 
     GetData(yy, mxGetPr(mx_in[2]), N);
     GetData(yp, mxGetPr(mx_in[3]), N);
@@ -1192,7 +1192,7 @@ void mtlb_IdaMonitorB(int call, double tB, N_Vector yyB, N_Vector ypB, N_Vector 
   mx_in[8] = mx_MONfctB;
   mx_in[9] = mx_MONdataB;
 
-  if (call == 1) {
+  if ((call == 0) || (call == 1)) {
     
     GetData(yyB, mxGetPr(mx_in[2]), NB);
     GetData(ypB, mxGetPr(mx_in[3]), NB);

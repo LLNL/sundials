@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-10-09 23:56:24 $
+ * $Revision: 1.8 $
+ * $Date: 2007-03-21 18:36:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -88,10 +88,7 @@ extern idm_MATLABdata idm_Mdata; /* MATLAB data */
  * ---------------------------------------------------------------------------------
  */
 
-
-/* MUST ADD: suppressALG, ID, constraints */
-
-int get_IntgrOptions(const mxArray *options, booleantype fwd,
+int get_IntgrOptions(const mxArray *options, int action, booleantype fwd,
                      int *maxord, long int *mxsteps,
                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                      double *hin, double *hmax, double *tstop, booleantype *tstopSet,
@@ -312,25 +309,27 @@ int get_IntgrOptions(const mxArray *options, booleantype fwd,
 
   /* Monitor? */
 
-  opt = mxGetField(options,0,"MonitorFn");
-  if ( !mxIsEmpty(opt) ) {
-    if (fwd) {
-      idm_mon = TRUE;
-      mxDestroyArray(mx_MONfct);
-      mx_MONfct = mxDuplicateArray(opt);
-    } else {
-      idm_monB = TRUE;
-      mxDestroyArray(mx_MONfctB);
-      mx_MONfctB = mxDuplicateArray(opt);
-    }
-    opt = mxGetField(options,0,"MonitorData");
+  if (action == 0) {
+    opt = mxGetField(options,0,"MonitorFn");
     if ( !mxIsEmpty(opt) ) {
       if (fwd) {
-        mxDestroyArray(mx_MONdata);
-        mx_MONdata  = mxDuplicateArray(opt);
+        idm_mon = TRUE;
+        mxDestroyArray(mx_MONfct);
+        mx_MONfct = mxDuplicateArray(opt);
       } else {
-        mxDestroyArray(mx_MONdataB);
-        mx_MONdataB = mxDuplicateArray(opt);
+        idm_monB = TRUE;
+        mxDestroyArray(mx_MONfctB);
+        mx_MONfctB = mxDuplicateArray(opt);
+      }
+      opt = mxGetField(options,0,"MonitorData");
+      if ( !mxIsEmpty(opt) ) {
+        if (fwd) {
+          mxDestroyArray(mx_MONdata);
+          mx_MONdata  = mxDuplicateArray(opt);
+        } else {
+          mxDestroyArray(mx_MONdataB);
+          mx_MONdataB = mxDuplicateArray(opt);
+        }
       }
     }
   }

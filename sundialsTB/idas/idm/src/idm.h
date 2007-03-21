@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-11-22 00:12:52 $
+ * $Revision: 1.7 $
+ * $Date: 2007-03-21 18:36:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -258,7 +258,7 @@ extern "C" {
    * ---------------------------------------------------------------------------------
    */
 
-  int get_IntgrOptions(const mxArray *options, booleantype fwd,
+  int get_IntgrOptions(const mxArray *options, int action, booleantype fwd,
                        int *maxord,
                        long int *mxsteps,
                        int *itol, realtype *reltol, double *Sabstol, double **Vabstol,

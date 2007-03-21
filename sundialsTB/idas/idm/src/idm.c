@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-02-05 20:25:16 $
+ * $Revision: 1.12 $
+ * $Date: 2007-03-21 18:36:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -290,17 +290,6 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   dqrely = 0.0;
 
   /* ------------------------------------
-   * If we are reintializing the solver
-   * and if monitoring was enabled,
-   * finalize it now.
-   * ------------------------------------
-   */
-
-  if ( (action == 1) && (idm_mon) ) {
-    mtlb_IdaMonitor(2, 0.0, NULL, NULL, NULL, NULL, NULL);
-  } 
-
-  /* ------------------------------------
    * Initialize appropriate vector module
    * ------------------------------------
    */
@@ -335,7 +324,7 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   /* Integrator Options -- optional argument */
 
-  status = get_IntgrOptions(prhs[4], TRUE,
+  status = get_IntgrOptions(prhs[4], action, TRUE,
                             &maxord, &mxsteps,
                             &itol, &reltol, &Sabstol, &Vabstol,
                             &hin, &hmax, &tstop, &tstopSet,
@@ -346,6 +335,17 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   mxDestroyArray(mx_data);
   mx_data = mxDuplicateArray(prhs[5]);
+
+  /* 
+   * ----------------------------------------------------------
+   * If monitoring is enabled and if the solver is going to be
+   * reinitialized call the monitor function with call=2 
+   * ----------------------------------------------------------
+   */
+  
+  if (idm_mon && (action==1)) {
+    mtlb_IdaMonitor(2, t0, NULL, NULL, NULL, NULL, NULL);
+  }
 
   /* 
    * ---------------------------------------
@@ -591,12 +591,6 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     break;
   }
 
-  /* Do we monitor? */
-  
-  if (idm_mon) {
-    mtlb_IdaMonitor(0, t0, NULL, NULL, NULL, NULL, NULL);
-  }
-
   return(0);
 
 }
@@ -840,13 +834,8 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   dqrely = 0.0;
 
   if (idm_mon) {
-    mtlb_IdaMonitor(2, 0.0, NULL, NULL, NULL, NULL, NULL);
+    mtlb_IdaMonitor(3, 0.0, NULL, NULL, NULL, NULL, NULL);
     idm_mon = FALSE;
-  }
-
-  
-  if ( (action == 1) && (idm_monB) ) {
-    mtlb_IdaMonitorB(2, 0.0, NULL, NULL, NULL);
   }
 
   mxDestroyArray(mx_RESfctB);
@@ -858,12 +847,17 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   ypB0 = mxGetPr(prhs[3]);
   NB = mxGetM(prhs[2]);
 
-  status = get_IntgrOptions(prhs[4], FALSE,
+  status = get_IntgrOptions(prhs[4], action, FALSE,
                             &maxordB, &mxstepsB,
                             &itolB, &reltolB, &SabstolB, &VabstolB,
                             &hinB, &hmaxB, &tstopB, &tstopSetB,
                             &suppressB,
                             &idB, &cnstrB);
+
+  if (idm_monB && (action==1)) {
+    mtlb_IdaMonitorB(2, tB0, NULL, NULL, NULL);
+  }
+
   if (action == 0) {
     yyB = NewVector(NB);
     ypB = NewVector(NB);
@@ -1035,10 +1029,6 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     break;
   }
 
-  if (idm_monB) {
-    mtlb_IdaMonitorB(0, tB0, NULL, NULL, NULL);
-  }
-
   return(0);
 }
 */
@@ -1096,6 +1086,7 @@ static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   int itask1;
   booleantype iret;
   double h;
+  long int nst;
 
   /* Extract tout */
   tout = (double)mxGetScalar(prhs[0]);
@@ -1123,6 +1114,11 @@ static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     */
 
   } else {
+
+    /* Get step number and, at nst=0, initialize monitoring */
+    IDAGetNumSteps(ida_mem, &nst);
+    IDAGetCurrentTime(ida_mem, &tret);
+    if (nst==0) mtlb_IdaMonitor(1, tret, yy, yp, yQ, yyS, ypS); 
 
     if      (itask == IDA_NORMAL)         {iret = FALSE; itask1 = IDA_ONE_STEP;}
     else if (itask == IDA_ONE_STEP)       {iret = TRUE;  itask1 = IDA_ONE_STEP;}
@@ -1166,7 +1162,7 @@ static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       */
 
       /* Call the monitoring function */
-      mtlb_IdaMonitor(1, tret, yy, yp, yQ, yyS, ypS);
+      mtlb_IdaMonitor(0, tret, yy, yp, yQ, yyS, ypS);
 
       /* break if we need to */
       if(iret)  break;
@@ -1290,7 +1286,12 @@ static int IDM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     status = IDAsolveB(idaadj_mem, toutB, &tretB, yyB, ypB, itaskB);
 
   } else {
-    
+
+    ida_memB = IDAadjGetIDABmem(idaadj_mem);
+    IDAGetNumSteps(ida_memB, &nstB);
+    IDAGetCurrentTime(ida_memB, &tretB);
+    if (nstB==0) mtlb_IdaMonitorB(1, tretB, yyB, ypB, yQB);
+
     if      (itaskB == IDA_NORMAL)   iretB = FALSE;
     else if (itaskB == IDA_ONE_STEP) iretB = TRUE;
 
@@ -1301,7 +1302,6 @@ static int IDM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
       if (status < 0) break;   
       
       if (!iretB) {
-        ida_memB = IDAadjGetIDABmem(idaadj_mem);
         IDAGetCurrentStep(ida_memB, &hB);
         if ( (tretB - toutB)*hB >= 0.0 ) {
           tretB = toutB;
@@ -1313,7 +1313,7 @@ static int IDM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
       if (idm_quadB)
         status = IDAGetQuadB(idaadj_mem, tretB, yQB);
 
-      mtlb_IdaMonitorB(1, tretB, yyB, ypB, yQB);
+      mtlb_IdaMonitorB(0, tretB, yyB, ypB, yQB);
 
       if(iretB)  break;
 
@@ -1890,7 +1890,7 @@ static int IDM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   if (idm_Cdata == NULL) return(0);
   
   if (idm_mon) {
-    mtlb_IdaMonitor(2, 0.0, NULL, NULL, NULL, NULL, NULL);
+    mtlb_IdaMonitor(3, 0.0, NULL, NULL, NULL, NULL, NULL);
   }
 
   N_VDestroy(yy);
@@ -1913,7 +1913,7 @@ static int IDM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   if (idm_asa) {
 
     if (idm_monB) {
-      mtlb_IdaMonitorB(2, 0.0, NULL, NULL, NULL);
+      mtlb_IdaMonitorB(3, 0.0, NULL, NULL, NULL);
     }
 
     N_VDestroy(yyB);

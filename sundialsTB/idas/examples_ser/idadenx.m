@@ -4,7 +4,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:26 $
+% $Revision: 1.2 $Date: 2006/07/17 16:49:50 $
 
 data.p = [0.04; 1.0e4; 3.0e7];
 
@@ -20,7 +20,7 @@ options = IDASetOptions('RelTol',1.e-4,...
 options = IDASetOptions(options,'RootsFn',@idadenx_g, 'NumRoots',2);
 
 mondata.sol = true;
-mondata.update = 100;
+mondata.updt = 100;
 options = IDASetOptions(options,'MonitorFn',@IDAMonitor,'MonitorData',mondata);
 
 IDAMalloc(@idadenx_f,t0,y0,yp0,options,data);

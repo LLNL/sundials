@@ -1,42 +1,71 @@
 %IDAMonitorFn - type for user provided monitoring function.
 %
 %   The function MONFUN must be defined as
-%       FUNCTION [] = MONFUN(CALL, T, YY, YP, YQ, YYS, YPS)
-%   It is called after every internal IDASolve step and can be used to
-%   monitor the progress of the solver. MONFUN is called with CALL=0
-%   from IDAMalloc at which time it should initialize itself and it
-%   is called with CALL=2 from IDAFree. Otherwise, CALL=1.
+%      FUNCTION [] = MONFUN(CALL, T, YY, YP, YQ, YYS, YPS)
+% 
+%   To enable monitoring using a given monitor function MONFUN,
+%   use IDASetOptions to set the property 'MonitorFn" to 'MONFUN' 
+%   (or to @MONFUN).
 %
-%   It receives as arguments the current time T, solution vectors 
-%   YY and YP, and, if they were computed, quadrature vector YQ, and 
-%   forward sensitivity matrices YYS and YPS If YQ and/or YYS, YPS were 
-%   not computed they are empty here.
+%   MONFUN is called with the following input arguments:
 %
-%   If additional data is needed inside MONFUN, it must be defined
-%   as
+%   o CALL indicates the phase during the integration process at which
+%     MONFUN is called:
+%     CALL=1 : MONFUN was called at the initial time; this can be either 
+%              after IDAMalloc or after IDAReInit.
+%              (typically, MONFUN should perform its own initialization)
+%     CALL=2 : MONFUN was called right before a solver reinitializtion.
+%              (typically, MONFUN should decide whether to initialize
+%              itself or else to continue monitoring)
+%     CALL=3 : MONFUN was called during solver finalization.
+%              (typically, MONFUN should finalize monitoring)
+%     CALL=0 : MONFUN was called after the solver took a successful
+%              internal step.
+%              (typically, MONFUN should collect and/or display data)
+%
+%   o T is the current integration time
+%
+%   o YY and YP are vectors containing the solution and solution 
+%     derivative at time T
+%
+%   o YQ is a vector containing the quadrature variables at time T
+%
+%   o YYS and YPS are matrices containing the forward sensitivities
+%     and their derivatives, respectively, at time T.
+%
+%   If additional data is needed inside a MONFUN function, then it must 
+%   be defined as
 %      FUNCTION NEW_MONDATA = MONFUN(CALL, T, YY, YP, YQ, YYS, YPS, MONDATA)
-%   If the local modifications to the user data structure need to be 
-%   saved (e.g. for future calls to MONFUN), then MONFUN must set
-%   NEW_MONDATA. Otherwise, it should set NEW_MONDATA=[] 
-%   (do not set NEW_MONDATA = DATA as it would lead to unnecessary copying).
 %
-%   A sample monitoring function, IDAMonitor, is provided with IDAS.
-%
-%   See also IDASetOptions, IDAMonitor
+%   In this case, the MONFUN function is passed the additional argument
+%   MONDATA, the same as that specified through the property 'MonitorData'
+%   in IDASetOptions. If the local modifications to the monitor data structure 
+%   need to be saved (e.g. for future calls to MONFUN), then MONFUN must set
+%   NEW_MONDATA. Otherwise, it should set NEW_MONDATA=[] (do not set 
+%   NEW_MONDATA = DATA as it would lead to unnecessary copying).
 %
 %   NOTES: 
 %   
-%   MONFUN is specified through the MonitorFn property in IDASetOptions. 
-%   If this property is not set, or if it is empty, MONFUN is not used.
-%   MONDATA is specified through the MonitorData property in IDASetOptions.
+%   1. MONFUN is specified through the MonitorFn property in IDASetOptions. 
+%      If this property is not set, or if it is empty, MONFUN is not used.
+%      MONDATA is specified through the MonitorData property in IDASetOptions.
 %
-%   If MONFUN is used on the backward integration phase, YYS and YPS will 
-%   always be empty.
+%   2. If quadrature integration is not enabled, YQ is empty. Similarly, if
+%      forward sensitivity analysis is not enabled, YYS and YPS are empty.
 %
-%   See IDAMonitor for an example of using MONDATA to write a single
-%   monitoring function that works both for the forward and backward
-%   integration phases.
+%   3. When CALL = 2 or 3, all arguments YY, YP, YQ, YYS, and YPS are empty.
+%      Moreover, when CALL = 3, T = 0.0
+%
+%   4. If MONFUN is used on the backward integration phase, YYS and YPS are 
+%      always empty.
+%
+%   5. A sample monitoring function, IDAMonitor, is provided with IDAS.
+%      IDAMonitor is provided as an example of a monitoring function that 
+%      works both for the forward and backward integration phases.
+%
+%   See also IDASetOptions, IDAMonitor
+%
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/07 01:19:50 $
+% $Revision: 1.2 $Date: 2006/07/17 16:49:50 $
