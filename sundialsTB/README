@@ -1,6 +1,6 @@
                          sundialsTB
                 A MATLAB interface to SUNDIALS
-                   Release 2.3.0, November 2006
+                   Release 2.4.0, *** 2007
 
                         Radu Serban
          Center for Applied Scientific Computing, LLNL
@@ -21,7 +21,7 @@ The distribution file also contains a user guide, as well as several examples.
 An HTML version of the documentation is available on the SUNDIALS website 
 (www.llnl.gov/CASC/sundials)
 
-sundialsTB v. 2.3.0 requires SUNDIALS v 2.3.0 and, optionally (for parallel 
+sundialsTB v. 2.4.0 requires SUNDIALS v 2.4.0 and, optionally (for parallel 
 support), MPITB with LAM 7.1.1 for MPI-2 features.
 
 SUNDIALS: http://www.llnl.gov/CASC/sundials
@@ -135,12 +135,18 @@ C. References
 D. Releases
 -----------
 
+v. 2.4.0 - ***. 2007
 v. 2.3.0 - Nov. 2006
 v. 2.2.0 - Mar. 2006
 v. 2.1.1 - May. 2005 (first sundialsTB release)
 
 E. Revision History
 -------------------
+
+v. 2.3.0 (Nov. 2006) ---> v. 2.4.0 (***. 2007)
+---------------------------------------------------------
+
+- 
 
 v. 2.2.0 (Mar. 2006) ---> v. 2.3.0 (Nov. 2006)
 ---------------------------------------------------------
@@ -150,7 +156,7 @@ v. 2.2.0 (Mar. 2006) ---> v. 2.3.0 (Nov. 2006)
   - startup_STB.m is automatically created from a template.
 
 - Bug fixes
-  - install_STB.m was modified to be moe robust w.r.t. file naming 
+  - install_STB.m was modified to be more robust w.r.t. file naming 
     conventions omn different platforms.
 
 - Changes to user interface

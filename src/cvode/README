@@ -1,5 +1,5 @@
                               CVODE
-                    Release 2.5.0, November 2006
+                    Release 2.6.0, *** 2007
                  Alan C. Hindmarsh and Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -75,6 +75,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.6.0       - ***. 2007
 v. 2.5.0       - Nov. 2006
 v. 2.4.0       - Mar. 2006
 v. 2.3.0       - Apr. 2005
@@ -89,6 +90,33 @@ v. 1.0 (CVODE) - Sep. 1994 (date written)
 
 E. Revision History
 -------------------
+
+v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
+---------------------------------------------------------
+
+- New features
+   - added a new linear solver module based on Blas + Lapack for
+     both dense and banded matrices.
+   - added optional input to specify which direction of zero-crossing
+     is to be monitored while performing root-finding. The root information
+     array iroots (returned by CVodeGetRootInfo) also encodes the 
+     direction of zero-crossing.
+
+- Bug fixes
+   - in the rootfinding algorithm, fixed a bug resulting in unnecessary
+     evaluations of the root functions after reinitialization of the
+     solver right after a return at a root.
+
+- Changes to user interface
+   - common functionality for all direct linear solvers (dense, band, and
+     the new Lapack solver) has been collected into the DLS (Direct Linear
+     Solver) module, similar to the SPILS module for the iterative linear 
+     solvers. All optional input and output functions for these linear 
+     solver now have the prefix 'CVDls'. In addition, in order to include
+     the new Lapack-based linear solver, all dimensions for these linear
+     solvers (problem sizes, bandwidths, etc) are now of type 'int' 
+     (instead of 'long int').
+
 
 v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Nov. 2006)
 ---------------------------------------------------------

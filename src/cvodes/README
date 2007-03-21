@@ -91,6 +91,8 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
 ---------------------------------------------------------
 
 - New features
+   - added a new linear solver module based on Blas + Lapack for
+     both dense and banded matrices.
    - added optional input to specify which direction of zero-crossing
      is to be monitored while performing root-finding. The root information
      array iroots (returned by CVodeGetRootInfo) also encodes the 
@@ -108,6 +110,14 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
      solver right after a return at a root.
 
 - Changes to user interface
+   - common functionality for all direct linear solvers (dense, band, and
+     the new Lapack solver) has been collected into the DLS (Direct Linear
+     Solver) module, similar to the SPILS module for the iterative linear 
+     solvers. All optional input and output functions for these linear 
+     solver now have the prefix 'CVDls'. In addition, in order to include
+     the new Lapack-based linear solver, all dimensions for these linear
+     solvers (problem sizes, bandwidths, etc) are now of type 'int' 
+     (instead of 'long int').
    - changed the API for all functions in the adjoint module related to 
      initialization, set-up, and solution of backward problems 
    - the extraction functions CVodeGetQuad, CVodeGetSens, and CVodeGetSens1

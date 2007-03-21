@@ -1,6 +1,6 @@
                            SUNDIALS 
                         Shared Module
-                  Release 2.3.0, November 2006
+                  Release 2.4.0, *** 2007
 
 
 The family of solvers referred to as SUNDIALS consists of solvers CVODE 
@@ -50,6 +50,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.4.0 - ***. 2007
 v. 2.3.0 - Nov. 2006
 v. 2.2.0 - Mar. 2006
 v. 2.1.1 - May. 2005
@@ -63,6 +64,24 @@ v. 0.0   - Mar. 2002
 
 E. Revision History
 -------------------
+
+v. 2.3.0 (Nov. 2006) ---> v. 2.4.0 (***. 2007)
+---------------------------------------------------------
+
+- New features
+   - added a new generic linear solver module based on Blas + Lapack
+     for both dense and banded matrices.
+
+- Changes to user interface
+   - common functionality for all direct linear solvers (dense, band, and
+     the new Lapack solver) has been collected into the DLS (Direct Linear
+     Solver) module, implemented in the files sundials_direct.h and
+     sundials_direct.c (similar to the SPILS module for the iterative linear 
+     solvers).
+   - in order to include the new Lapack-based linear solver, all dimensions
+     for the above linear solvers (problem sizes, bandwidths,... including 
+     the underlying matrix data types) are now of type 'int' (and not 'long int').
+
 
 v. 2.2.0 (Mar. 2006) ---> v. 2.3.0 (Nov. 2006)
 ----------------------------------------------
