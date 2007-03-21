@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.3 $
+ * $Date: 2007-03-21 18:56:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -142,7 +142,7 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
  * Types : CVSpilsMemRecB, CVSpilsMemB       
  * -----------------------------------------------------------------
  * CVSpgmrB, CVSpbcgB, and CVSptfqmr attach such a structure to the 
- * lmemB filed of CVadjMem
+ * lmemB filed of CVodeBMem
  * -----------------------------------------------------------------
  */
 
@@ -172,7 +172,7 @@ typedef struct {
 int CVAspilsPrecSetup(realtype t, N_Vector yB, 
 		      N_Vector fyB, booleantype jokB, 
 		      booleantype *jcurPtrB, realtype gammaB,
-		      void *cvadj_mem,
+		      void *cvb_mem,
 		      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 /* 
@@ -183,7 +183,7 @@ int CVAspilsPrecSetup(realtype t, N_Vector yB,
 int CVAspilsPrecSolve(realtype t, N_Vector yB, N_Vector fyB,
 		      N_Vector rB, N_Vector zB,
 		      realtype gammaB, realtype deltaB,
-		      int lrB, void *cvadj_mem, N_Vector tmpB);
+		      int lrB, void *cvb_mem, N_Vector tmpB);
   
 /* 
  * CVAspilsJacTimesVec has type CVSpilsJacTimesVecFn 
@@ -192,7 +192,7 @@ int CVAspilsPrecSolve(realtype t, N_Vector yB, N_Vector fyB,
 
 int CVAspilsJacTimesVec(N_Vector vB, N_Vector JvB, realtype t, 
 			N_Vector yB, N_Vector fyB, 
-			void *cvadj_mem, N_Vector tmpB);
+			void *cvb_mem, N_Vector tmpB);
 
 /*
  * -----------------------------------------------------------------
@@ -200,7 +200,7 @@ int CVAspilsJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
  * -----------------------------------------------------------------
  */
 
-#define MSGS_CAMEM_NULL "cvadj_mem = NULL illegal."
+#define MSGS_CAMEM_NULL "cvb_mem = NULL illegal."
 #define MSGS_LMEMB_NULL "Linear solver memory is NULL for the backward integration."
 #define MSGS_BAD_T      "Bad t for interpolation."
 

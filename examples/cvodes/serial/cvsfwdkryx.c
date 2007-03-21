@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-21 18:56:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
     if(check_flag(&flag, "CVode", 1)) break;
     PrintOutput(cvode_mem, t, y);
     if (sensi) {
-      flag = CVodeGetSens(cvode_mem, t, uS);
+      flag = CVodeGetSens(cvode_mem, &t, uS);
       if(check_flag(&flag, "CVodeGetSens", 1)) break;
       PrintOutputS(uS);
     }

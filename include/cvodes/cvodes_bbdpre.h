@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-21 18:56:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -439,21 +439,19 @@ typedef int (*CVCommFnB)(int NlocalB, realtype t,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecAllocB(void *cvadj_mem, int NlocalB,
+SUNDIALS_EXPORT int CVBBDPrecAllocB(void *cvb_mem, int NlocalB,
 				    int mudqB, int mldqB,
 				    int mukeepB, int mlkeepB,
 				    realtype dqrelyB,
 				    CVLocalFnB glocB, CVCommFnB cfnB);
 
-SUNDIALS_EXPORT int CVBBDSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB);
-SUNDIALS_EXPORT int CVBBDSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
-SUNDIALS_EXPORT int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBBDSptfqmrB(void *cvb_mem, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBBDSpbcgB(void *cvb_mem, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBBDSpgmrB(void *cvb_mem, int pretypeB, int maxlB);
   
-SUNDIALS_EXPORT int CVBBDPrecReInitB(void *cvadj_mem, int mudqB, int mldqB,
+SUNDIALS_EXPORT int CVBBDPrecReInitB(void *cvb_mem, int mudqB, int mldqB,
                                      realtype dqrelyB, 
                                      CVLocalFnB glocB, CVCommFnB cfnB);
-
-SUNDIALS_EXPORT void CVBBDPrecFreeB(void *cvadj_mem);
 
 #ifdef __cplusplus
 }

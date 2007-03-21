@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-21 18:56:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -437,13 +437,13 @@ typedef int (*CVSpilsJacTimesVecFnB)(N_Vector vB, N_Vector JvB, realtype t,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVSpilsSetPrecTypeB(void *cvadj_mem, int pretypeB);
-SUNDIALS_EXPORT int CVSpilsSetGSTypeB(void *cvadj_mem, int gstypeB);
-SUNDIALS_EXPORT int CVSpilsSetDeltB(void *cvadj_mem, realtype deltB);
-SUNDIALS_EXPORT int CVSpilsSetMaxlB(void *cvadj_mem, int maxlB);
-SUNDIALS_EXPORT int CVSpilsSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
+SUNDIALS_EXPORT int CVSpilsSetPrecTypeB(void *cvb_mem, int pretypeB);
+SUNDIALS_EXPORT int CVSpilsSetGSTypeB(void *cvb_mem, int gstypeB);
+SUNDIALS_EXPORT int CVSpilsSetDeltB(void *cvb_mem, realtype deltB);
+SUNDIALS_EXPORT int CVSpilsSetMaxlB(void *cvb_mem, int maxlB);
+SUNDIALS_EXPORT int CVSpilsSetPreconditionerB(void *cvb_mem, CVSpilsPrecSetupFnB psetB,
 					      CVSpilsPrecSolveFnB psolveB, void *P_dataB);
-SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFnB(void *cvadj_mem, CVSpilsJacTimesVecFnB jtimesB,
+SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFnB(void *cvb_mem, CVSpilsJacTimesVecFnB jtimesB,
 					     void *jac_dataB);
 
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-21 18:56:36 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -294,13 +294,11 @@ SUNDIALS_EXPORT char *CVBandPrecGetReturnFlagName(int flag);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBandPrecAllocB(void *cvadj_mem, int nB, int muB, int mlB);
+SUNDIALS_EXPORT int CVBandPrecAllocB(void *cvb_mem, int nB, int muB, int mlB);
 
-SUNDIALS_EXPORT int CVBPSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB);
-SUNDIALS_EXPORT int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
-SUNDIALS_EXPORT int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
-
-SUNDIALS_EXPORT void CVBandPrecFreeB(void *cvadj_mem);
+SUNDIALS_EXPORT int CVBPSptfqmrB(void *cvb_mem, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBPSpbcgB(void *cvb_mem, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBPSpgmrB(void *cvb_mem, int pretypeB, int maxlB);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.3 $
+ * $Date: 2007-03-21 18:56:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -77,7 +77,7 @@ SUNDIALS_EXPORT int CVSptfqmr(void *cvode_mem, int pretype, int maxl);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVSptfqmrB(void *cvb_mem, int pretypeB, int maxlB);
 
 
 #ifdef __cplusplus

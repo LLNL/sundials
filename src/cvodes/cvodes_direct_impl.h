@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.3 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -112,7 +112,7 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
  * Types : CVDlsMemRecB, CVDlsMemB       
  * -----------------------------------------------------------------
  * A CVSDIRECT linear solver's specification function attaches such
- * a structure to the lmemB filed of CVadjMem
+ * a structure to the lmemB filed of CVodeBMem
  * -----------------------------------------------------------------
  */
 
@@ -139,7 +139,7 @@ typedef struct {
 #define MSGD_LMEM_NULL "Linear solver memory is NULL."
 #define MSGD_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 
-#define MSGD_CAMEM_NULL "cvadj_mem = NULL illegal."
+#define MSGD_CAMEM_NULL "cvb_mem = NULL illegal."
 #define MSGD_LMEMB_NULL "Linear solver memory is NULL for the backward integration."
 #define MSGD_BAD_T "Bad t for interpolation."
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-24 19:09:11 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-21 18:56:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -124,6 +124,7 @@ int main(int argc, char *argv[])
 
   void *cvadj_mem;
   void *cvode_mem;
+  void *cvodeB_mem;
 
   realtype dx, dy, reltol, abstol, t;
   N_Vector u;
@@ -206,25 +207,28 @@ int main(int argc, char *argv[])
 
   printf("\nCreate and allocate CVODES memory for backward run\n");
 
-  flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
-  if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
+  cvodeB_mem = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
+  if(check_flag((void *)(cvodeB_mem), "CVodeCreateB", 0)) return(1);
 
-  flag = CVodeSetFdataB(cvadj_mem, data);
+  flag = CVodeSetFdataB(cvodeB_mem, data);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
 
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, uB, CV_SS, reltolB, &abstolB);
+  flag = CVodeMallocB(cvodeB_mem, fB, TOUT, uB, CV_SS, reltolB, &abstolB);
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
-  flag = CVBandB(cvadj_mem, NEQ, MY, MY);
+  flag = CVBandB(cvodeB_mem, NEQ, MY, MY);
   if(check_flag(&flag, "CVBandB", 1)) return(1);
   
-  flag = CVDlsSetJacFnB(cvadj_mem, (void *)JacB, data);
+  flag = CVDlsSetJacFnB(cvodeB_mem, (void *)JacB, data);
   if(check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
   /* Perform backward integration */
   printf("\nBackward integration\n");
-  flag = CVodeB(cvadj_mem, T0, uB, &t, CV_NORMAL);
+  flag = CVodeB(cvadj_mem, T0, CV_NORMAL);
   if(check_flag(&flag, "CVodeB", 1)) return(1);
+
+  flag = CVodeGetB(cvodeB_mem, &t, uB);
+  if(check_flag(&flag, "CVodeGetB", 1)) return(1);
 
   PrintOutput(uB, data);
 

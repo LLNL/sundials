@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-24 19:09:22 $
+ * $Revision: 1.3 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -48,12 +48,12 @@
 
 static int cvDlsDenseJacBWrapper(int nB, realtype t,
                                  N_Vector yB, N_Vector fyB, 
-                                 DlsMat JB, void *cvadj_mem,
+                                 DlsMat JB, void *cvb_mem,
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 static int cvDlsBandJacBWrapper(int nB, int mupperB, int mlowerB, 
                                 realtype t, N_Vector yB, N_Vector fyB, 
-                                DlsMat Jac, void *cvadj_mem, 
+                                DlsMat Jac, void *cvb_mem, 
                                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 
@@ -464,7 +464,6 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
 
 #define ytmp        (ca_mem->ca_ytmp)
 #define getY        (ca_mem->ca_getY)
-#define lmemB       (ca_mem->ca_lmemB)
 
 #define mtypeB      (cvdlsB_mem->d_typeB)
 #define djacB       (cvdlsB_mem->d_djacB)
@@ -477,35 +476,35 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
  * -----------------------------------------------------------------
  */
 
-int CVDlsSetJacFnB(void *cvadj_mem, void *jacB, void *jac_dataB)
+int CVDlsSetJacFnB(void *cvb_mem, void *jacB, void *jac_dataB)
 {
-  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
   CVDlsMemB cvdlsB_mem;
-  CVodeMem cvB_mem;
+  void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
+  if (cvb_mem == NULL) {
     CVProcessError(NULL, CVDIRECT_ADJMEM_NULL, "CVSDIRECT", "CVDlsSetJacFnB", MSGD_CAMEM_NULL);
     return(CVDIRECT_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cvB_mem = ca_mem->cvb_mem;
+  cvode_mem = (void *) (cvB_mem->cv_mem);
 
-  if (lmemB == NULL) {
-    CVProcessError(cvB_mem, CVDIRECT_LMEMB_NULL, "CVSDIRECT", "CVDlsSetJacFnB", MSGD_LMEMB_NULL);
+  if (cvB_mem->cv_lmem == NULL) {
+    CVProcessError(NULL, CVDIRECT_LMEMB_NULL, "CVSDIRECT", "CVDlsSetJacFnB", MSGD_LMEMB_NULL);
     return(CVDIRECT_LMEMB_NULL);
   }
-  cvdlsB_mem = (CVDlsMemB) lmemB;
+  cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   switch (mtypeB) {
   case SUNDIALS_DENSE:
     djacB = (CVDlsDenseJacFnB) jacB;
-    flag = CVDlsSetJacFn(cvB_mem, (void *)cvDlsDenseJacBWrapper, cvadj_mem);
+    flag = CVDlsSetJacFn(cvode_mem, (void *)cvDlsDenseJacBWrapper, cvb_mem);
     break;
   case SUNDIALS_BAND:
     bjacB = (CVDlsBandJacFnB) jacB;
-    flag = CVDlsSetJacFn(cvB_mem, (void *)cvDlsBandJacBWrapper, cvadj_mem);
+    flag = CVDlsSetJacFn(cvode_mem, (void *)cvDlsBandJacBWrapper, cvb_mem);
     break;
   }
 
@@ -531,22 +530,27 @@ int CVDlsSetJacFnB(void *cvadj_mem, void *jacB, void *jac_dataB)
 
 static int cvDlsDenseJacBWrapper(int nB, realtype t,
                                  N_Vector yB, N_Vector fyB, 
-                                 DlsMat JB, void *cvadj_mem,
+                                 DlsMat JB, void *cvb_mem,
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
+  CVodeBMem cvB_mem;
+  CVodeMem cv_mem;
   CVadjMem ca_mem;
-  CVodeMem cvB_mem;
   CVDlsMemB cvdlsB_mem;
   int retval, flag;
 
-  ca_mem = (CVadjMem) cvadj_mem;
-  cvB_mem = ca_mem->cvb_mem;
-  cvdlsB_mem = (CVDlsMemB) lmemB;
+  cvB_mem = (CVodeBMem) cvb_mem;
+
+  cv_mem = cvB_mem->cv_mem;
+
+  ca_mem = (CVadjMem) (cv_mem->cv_f_data);
+
+  cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(cvB_mem, -1, "CVSDIRECT", "cvaDlsDenseJacwrapper", MSGD_BAD_T);
+    CVProcessError(NULL, -1, "CVSDIRECT", "cvaDlsDenseJacwrapper", MSGD_BAD_T);
     return(-1);
   }
 
@@ -569,22 +573,27 @@ static int cvDlsDenseJacBWrapper(int nB, realtype t,
 
 static int cvDlsBandJacBWrapper(int nB, int mupperB, int mlowerB, 
                                 realtype t, N_Vector yB, N_Vector fyB, 
-                                DlsMat JB, void *cvadj_mem, 
+                                DlsMat JB, void *cvb_mem, 
                                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
+  CVodeBMem cvB_mem;
+  CVodeMem cv_mem;
   CVadjMem ca_mem;
-  CVodeMem cvB_mem;
   CVDlsMemB cvdlsB_mem;
   int retval, flag;
 
-  ca_mem = (CVadjMem) cvadj_mem;
-  cvB_mem = ca_mem->cvb_mem;
-  cvdlsB_mem = (CVDlsMemB) lmemB;
+  cvB_mem = (CVodeBMem) cvb_mem;
+
+  cv_mem = cvB_mem->cv_mem;
+
+  ca_mem = (CVadjMem) (cv_mem->cv_f_data);
+
+  cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(cvB_mem, -1, "CVSDIRECT", "cvaDlsBandJacWrapper", MSGD_BAD_T);
+    CVProcessError(NULL, -1, "CVSDIRECT", "cvaDlsBandJacWrapper", MSGD_BAD_T);
     return(-1);
   }
 

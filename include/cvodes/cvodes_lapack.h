@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-21 18:56:36 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -82,7 +82,7 @@ SUNDIALS_EXPORT int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVLapackDenseB(void *cvadj_mem, int nB);
+SUNDIALS_EXPORT int CVLapackDenseB(void *cvb_mem, int nB);
 
 /*
  * -----------------------------------------------------------------
@@ -93,7 +93,7 @@ SUNDIALS_EXPORT int CVLapackDenseB(void *cvadj_mem, int nB);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVLapackBandB(void *cvadj_mem, int nB, int mupperB, int mlowerB);
+SUNDIALS_EXPORT int CVLapackBandB(void *cvb_mem, int nB, int mupperB, int mlowerB);
 
 #ifdef __cplusplus
 }

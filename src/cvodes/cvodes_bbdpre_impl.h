@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -91,7 +91,7 @@ typedef struct {
 #define MSGBBDP_PDATA_NULL  "CVBBDPRE memory is NULL."
 #define MSGBBDP_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
 
-#define MSGBBDP_CAMEM_NULL  "cvadj_mem = NULL illegal."
+#define MSGBBDP_CAMEM_NULL  "cvb_mem = NULL illegal."
 #define MSGBBDP_PDATAB_NULL "CVBBDPRE memory is NULL for the backward integration."
 #define MSGBBDP_BAD_T       "Bad t for interpolation."
 

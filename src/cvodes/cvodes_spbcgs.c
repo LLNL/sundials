@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:34 $
+ * $Revision: 1.2 $
+ * $Date: 2007-03-21 18:56:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +44,7 @@ static void CVSpbcgFree(CVodeMem cv_mem);
 
 /* CVSPBCG lfreeB function */
 
-static void CVSpbcgFreeB(CVadjMem ca_mem);
+static void CVSpbcgFreeB(CVodeBMem cvB_mem);
 
 /* 
  * ================================================================
@@ -477,9 +477,6 @@ static void CVSpbcgFree(CVodeMem cv_mem)
 
 /* Additional readability replacements */
 
-#define lmemB       (ca_mem->ca_lmemB)
-#define lfreeB      (ca_mem->ca_lfreeB)
-
 #define pset_B      (cvspilsB_mem->s_psetB)
 #define psolve_B    (cvspilsB_mem->s_psolveB)
 #define jtimes_B    (cvspilsB_mem->s_jtimesB)
@@ -492,26 +489,26 @@ static void CVSpbcgFree(CVodeMem cv_mem)
  * Wrapper for the backward phase
  */
 
-int CVSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
+int CVSpbcgB(void *cvb_mem, int pretypeB, int maxlB)
 {
-  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  void *cvode_mem;
   CVSpilsMemB cvspilsB_mem;
-  CVodeMem cvB_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
+  if (cvb_mem == NULL) {
     CVProcessError(NULL, CVSPILS_ADJMEM_NULL, "CVSPBCG", "CVSpbcgB", MSGS_CAMEM_NULL);
     return(CVSPILS_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cvB_mem = ca_mem->cvb_mem;
+  cvode_mem = (void *) (cvB_mem->cv_mem);
   
   /* Get memory for CVSpilsMemRecB */
   cvspilsB_mem = NULL;
   cvspilsB_mem = (CVSpilsMemB) malloc(sizeof(CVSpilsMemRecB));
   if (cvspilsB_mem == NULL) {
-    CVProcessError(cvB_mem, CVSPILS_MEM_FAIL, "CVSPBCG", "CVSpbcgB", MSGS_MEM_FAIL);
+    CVProcessError(NULL, CVSPILS_MEM_FAIL, "CVSPBCG", "CVSpbcgB", MSGS_MEM_FAIL);
     return(CVSPILS_MEM_FAIL);
   }
 
@@ -522,10 +519,10 @@ int CVSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
   jac_data_B = NULL;
 
   /* attach lmemB and lfree */
-  lmemB = cvspilsB_mem;
-  lfreeB = CVSpbcgFreeB;
+  cvB_mem->cv_lmem = cvspilsB_mem;
+  cvB_mem->cv_lfree = CVSpbcgFreeB;
 
-  flag = CVSpbcg(cvB_mem, pretypeB, maxlB);
+  flag = CVSpbcg(cvode_mem, pretypeB, maxlB);
 
   if (flag != CVSPILS_SUCCESS) {
     free(cvspilsB_mem);
@@ -540,11 +537,11 @@ int CVSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
  */
 
 
-static void CVSpbcgFreeB(CVadjMem ca_mem)
+static void CVSpbcgFreeB(CVodeBMem cvB_mem)
 {
   CVSpilsMemB cvspilsB_mem;
 
-  cvspilsB_mem = (CVSpilsMemB) lmemB;
+  cvspilsB_mem = (CVSpilsMemB) (cvB_mem->cv_lmem);
 
   free(cvspilsB_mem);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-02-01 00:03:25 $
+ * $Revision: 1.7 $
+ * $Date: 2007-03-21 18:56:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -135,6 +135,7 @@ int main(int argc, char *argv[])
 
   void *cvadj_mem;
   void *cvode_mem;
+  void *cvodeB_mem;
 
   realtype reltolQ, abstolQ;
   N_Vector y, q;
@@ -238,7 +239,7 @@ int main(int argc, char *argv[])
 
   printf("done ( nst = %ld )\n",nst);
 
-  flag = CVodeGetQuad(cvode_mem, TOUT, q);
+  flag = CVodeGetQuad(cvode_mem, &time, q);
   if (check_flag(&flag, "CVodeGetQuad", 1)) return(1);
 
   printf("--------------------------------------------------------\n");
@@ -300,39 +301,42 @@ int main(int argc, char *argv[])
   /* Create and allocate CVODES memory for backward run */
   printf("Create and allocate CVODES memory for backward run\n");
 
-  flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
-  if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
+  cvodeB_mem = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
+  if (check_flag((void *)(cvodeB_mem), "CVodeCreateB", 0)) return(1);
 
-  flag = CVodeMallocB(cvadj_mem, fB, TB1, yB, CV_SS, reltolB, &abstolB);
+  flag = CVodeMallocB(cvodeB_mem, fB, TB1, yB, CV_SS, reltolB, &abstolB);
   if (check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
-  flag = CVodeSetFdataB(cvadj_mem, data);
+  flag = CVodeSetFdataB(cvodeB_mem, data);
   if (check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
 
-  flag = CVDenseB(cvadj_mem, NEQ);
+  flag = CVDenseB(cvodeB_mem, NEQ);
   if (check_flag(&flag, "CVDenseB", 1)) return(1);
 
-  flag = CVDlsSetJacFnB(cvadj_mem, (void *)JacB, data);
+  flag = CVDlsSetJacFnB(cvodeB_mem, (void *)JacB, data);
   if (check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
-  flag = CVodeQuadMallocB(cvadj_mem, fQB, qB);
+  flag = CVodeQuadMallocB(cvodeB_mem, fQB, qB);
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
 
-  flag = CVodeSetQuadFdataB(cvadj_mem, data);
+  flag = CVodeSetQuadFdataB(cvodeB_mem, data);
   if (check_flag(&flag, "CVodeSetQuadFdataB", 1)) return(1);
 
-  flag = CVodeSetQuadErrConB(cvadj_mem, TRUE, CV_SS, reltolB, &abstolQB);
+  flag = CVodeSetQuadErrConB(cvodeB_mem, TRUE, CV_SS, reltolB, &abstolQB);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Backward Integration */
   printf("Backward integration ... ");
 
-  flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
+  flag = CVodeB(cvadj_mem, T0, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
-  CVodeGetNumSteps(CVadjGetCVodeBmem(cvadj_mem), &nstB);
+  CVodeGetNumSteps(CVadjGetCVodeBmem(cvodeB_mem), &nstB);
   printf("done ( nst = %ld )\n", nstB);
 
-  flag = CVodeGetQuadB(cvadj_mem, qB);
+  flag = CVodeGetB(cvodeB_mem, &time, yB);
+  if (check_flag(&flag, "CVodeGetB", 1)) return(1);
+
+  flag = CVodeGetQuadB(cvodeB_mem, &time, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
   PrintOutput(TB1, yB, qB);
@@ -349,20 +353,23 @@ int main(int argc, char *argv[])
 
   printf("Re-initialize CVODES memory for backward run\n");
 
-  flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, CV_SS, reltolB, &abstolB);
+  flag = CVodeReInitB(cvodeB_mem, fB, TB2, yB, CV_SS, reltolB, &abstolB);
   if (check_flag(&flag, "CVodeReInitB", 1)) return(1);
 
-  flag = CVodeQuadReInitB(cvadj_mem, fQB, qB); 
+  flag = CVodeQuadReInitB(cvodeB_mem, fQB, qB); 
   if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
 
   printf("Backward integration ... ");
 
-  flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
+  flag = CVodeB(cvadj_mem, T0, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
-  CVodeGetNumSteps(CVadjGetCVodeBmem(cvadj_mem), &nstB);
+  CVodeGetNumSteps(CVadjGetCVodeBmem(cvodeB_mem), &nstB);
   printf("done ( nst = %ld )\n", nstB);
 
-  flag = CVodeGetQuadB(cvadj_mem, qB);
+  flag = CVodeGetB(cvodeB_mem, &time, yB);
+  if (check_flag(&flag, "CVodeGetB", 1)) return(1);
+
+  flag = CVodeGetQuadB(cvodeB_mem, &time, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
   PrintOutput(TB2, yB, qB);

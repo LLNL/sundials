@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -39,7 +39,7 @@ static int cvDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 static void cvDenseFree(CVodeMem cv_mem);
 
 /* CVSDENSE lfreeB function */
-static void cvDenseFreeB(CVadjMem ca_mem);
+static void cvDenseFreeB(CVodeBMem cvb_mem);
 
 /* 
  * ================================================================
@@ -350,28 +350,28 @@ static void cvDenseFree(CVodeMem cv_mem)
 
 /*
  * CVDenseB is a wraper around CVDense. It attaches the CVSDENSE linear solver
- * to the adjoint memory block.
+ * to the backward problem memory block.
  */
 
-int CVDenseB(void *cvadj_mem, int nB)
+int CVDenseB(void *cvb_mem, int nB)
 {
-  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  void *cvode_mem;
   CVDlsMemB cvdlsB_mem;
-  CVodeMem cvB_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
+  if (cvb_mem == NULL) {
     CVProcessError(NULL, CVDIRECT_ADJMEM_NULL, "CVSDENSE", "CVDenseB", MSGD_CAMEM_NULL);
     return(CVDIRECT_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cvB_mem = ca_mem->cvb_mem;
+  cvode_mem = (void *) (cvB_mem->cv_mem);
 
   /* Get memory for CVDlsMemRecB */
   cvdlsB_mem = (CVDlsMemB) malloc(sizeof(CVDlsMemRecB));
   if (cvdlsB_mem == NULL) {
-    CVProcessError(cvB_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDenseB", MSGD_MEM_FAIL);
+    CVProcessError(NULL, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDenseB", MSGD_MEM_FAIL);
     return(CVDIRECT_MEM_FAIL);
   }
 
@@ -383,10 +383,10 @@ int CVDenseB(void *cvadj_mem, int nB)
   cvdlsB_mem->d_jac_dataB = NULL;
 
   /* attach lmemB and lfreeB */
-  ca_mem->ca_lmemB = cvdlsB_mem;
-  ca_mem->ca_lfreeB = cvDenseFreeB;
+  cvB_mem->cv_lmem = cvdlsB_mem;
+  cvB_mem->cv_lfree = cvDenseFreeB;
 
-  flag = CVDense(cvB_mem, nB);
+  flag = CVDense(cvode_mem, nB);
 
   if (flag != CVDIRECT_SUCCESS) {
     free(cvdlsB_mem);
@@ -401,11 +401,11 @@ int CVDenseB(void *cvadj_mem, int nB)
  * solver for backward integration.
  */
 
-static void cvDenseFreeB(CVadjMem ca_mem)
+static void cvDenseFreeB(CVodeBMem cvB_mem)
 {
   CVDlsMemB cvdlsB_mem;
 
-  cvdlsB_mem = (CVDlsMemB) ca_mem->ca_lmemB;
+  cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   free(cvdlsB_mem);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-20 14:33:59 $
+ * $Revision: 1.7 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -410,9 +410,10 @@ typedef struct CVodeMemRec {
  * -----------------------------------------------------------------
  */
 
-typedef struct CVadjMemRec *CVadjMem;
-typedef struct CkpntMemRec *CkpntMem;
-typedef struct DtpntMemRec *DtpntMem;
+typedef struct CVadjMemRec  *CVadjMem;
+typedef struct CkpntMemRec  *CkpntMem;
+typedef struct DtpntMemRec  *DtpntMem;
+typedef struct CVodeBMemRec *CVodeBMem;
 
 /*
  * -----------------------------------------------------------------
@@ -510,6 +511,63 @@ typedef struct PolynomialDataMemRec {
   int order;
 } *PolynomialDataMem;
 
+
+/*
+ * -----------------------------------------------------------------
+ * Type : struct CVodeBMemRec
+ * -----------------------------------------------------------------
+ * The type CVodeBMem is a pointer to a structure which stores all
+ * information for ONE backward problem.
+ * The CVadjMem structure contains a linked list of CVodeBMem pointers
+ * -----------------------------------------------------------------
+ */
+
+struct CVodeBMemRec {
+
+  /* Index of this backward problem */
+  int cv_index;
+
+  /* Time at which the backward problem is intialized */
+  realtype cv_t0;
+  
+  /* CVODES memory for this backward problem */
+  CVodeMem cv_mem;
+
+  /* Right hand side function for backward run */
+  CVRhsFnB cv_f;
+
+  /* Right hand side quadrature function for backward run */
+  CVQuadRhsFnB cv_fQ;
+
+  /* User f_data */
+  void *cv_f_data;
+    
+  /* User fQ_data */
+  void *cv_fQ_data;
+    
+  /* Memory block for a linear solver's interface to CVODEA */
+  void *cv_lmem;
+
+  /* Function to free any memory allocated by the linear solver */
+  void (*cv_lfree)(CVodeBMem cvB_mem);
+
+  /* Memory block for a preconditioner's module interface to CVODEA */ 
+  void *cv_pmem;
+
+  /* Function to free any memory allocated by the preconditioner module */
+  void (*cv_pfree)(CVodeBMem cvB_mem);
+
+  /* Time at which to extract solution / quadratures */
+  realtype cv_tout;
+  
+  /* Workspace Nvector */
+  N_Vector cv_y;
+
+  /* Pointer to next structure in list */
+  struct CVodeBMemRec *cv_next;
+
+};
+
 /*
  * -----------------------------------------------------------------
  * Type : struct CVadjMemRec
@@ -522,66 +580,62 @@ typedef struct PolynomialDataMemRec {
 
 struct CVadjMemRec {
     
+  /* --------------------
+   * Forward problem data
+   * -------------------- */
+
   /* CVODE memory for forward runs */
   struct CVodeMemRec *cv_mem;
     
-  /* CVODE memory for backward run */
-  struct CVodeMemRec *cvb_mem;
+  /* Integration interval */
+  realtype ca_tinitial, ca_tfinal;
     
+  /* ----------------------
+   * Backward problems data
+   * ---------------------- */
+
+  /* Storage for backward problems */
+  struct CVodeBMemRec *cvB_mem;
+
+  /* Number of backward problems */
+  int ca_nbckpbs;
+
+  /* Address of current backward problem */
+  struct CVodeBMemRec *ca_bckpbCrt;
+
+  /* ----------------
+   * Check point data
+   * ---------------- */
+
   /* Storage for check point information */
   struct CkpntMemRec *ck_mem;
+
+  /* Number of check points */
+  int ca_nckpnts;
+
+  /* address of the check point structure for which data is available */
+  struct CkpntMemRec *ca_ckpntData;
+    
+  /* ------------------
+   * Interpolation data
+   * ------------------ */
 
   /* Interpolation type */
   int ca_interpType;
 
+  /* Number of steps between 2 check points */
+  long int ca_nsteps;
+  
   /* Storage for data from forward runs */
   struct DtpntMemRec **dt_mem;
     
   /* Functions set by the interpolation module */
   CVAStorePntFn ca_storePnt; /* store a new interpolation point */
   CVAGetYFn     ca_getY;     /* interpolate forward solution    */
-    
-  /* Right hand side function (fB) for backward run */
-  CVRhsFnB ca_fB;
-    
-  /* Right hand side quadrature function (fQB) for backward run */
-  CVQuadRhsFnB ca_fQB;
 
-  /* User f_dataB */
-  void *ca_f_dataB;
-    
-  /* User fQ_dataB */
-  void *ca_fQ_dataB;
-    
-  /* Memory block for a linear solver's interface to CVODEA */
-  void *ca_lmemB;
 
-  /* Function to free any memory allocated by the linear solver */
-  void (*ca_lfreeB)(CVadjMem ca_mem);
-
-  /* Memory block for a preconditioner's module interface to CVODEA */ 
-  void *ca_pmemB;
-    
-  /* Unit roundoff */
-  realtype ca_uround;
-    
-  /* Integration interval */
-  realtype ca_tinitial, ca_tfinal;
-    
-  /* Time at which to extract quadratures */
-  realtype ca_t_for_quad;
-    
-  /* Number of check points */
-  int ca_nckpnts;
-    
-  /* Number of steps between 2 check points */
-  long int ca_nsteps;
-    
   /* Flag to indicate that data in dt_mem is new */
   booleantype ca_newData;
-    
-  /* address of the check point structure for which data is available */
-  struct CkpntMemRec *ca_ckpntData;
     
   /* Actual number of data points saved in current dt_mem */
   /* Commonly, np = nsteps+1                              */
@@ -594,6 +648,24 @@ struct CVadjMemRec {
   N_Vector ca_Y[L_MAX];     /* pointers to zn[i] */
   realtype ca_T[L_MAX];
 
+
+    
+  /* Memory block for a linear solver's interface to CVODEA */
+  void *ca_lmemB;
+
+  /* Function to free any memory allocated by the linear solver */
+  void (*ca_lfreeB)(CVadjMem ca_mem);
+
+  /* Memory block for a preconditioner's module interface to CVODEA */ 
+  void *ca_pmemB;
+
+  /* ------------------
+   * Miscellaneous data
+   * ------------------ */
+
+  /* Unit roundoff */
+  realtype ca_uround;
+    
   /* Workspace for wrapper functions */
   N_Vector ca_ytmp;
     
@@ -877,7 +949,7 @@ int CVSensRhs1DQ(int Ns, realtype t,
 #define MSGCV_RHSFUNC_FIRST "The right-hand side routine failed at the first call."
 #define MSGCV_RTFUNC_FAILED "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSGCV_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
-#define MSGCV_BAD_TSTOP "tstop is behind current " MSG_TIME "in the direction of integration."
+#define MSGCV_BAD_TSTOP "tstop is behind current " MSG_TIME " in the direction of integration."
 
 #define MSGCV_BAD_EWTQ "Initial ewtQ has component(s) equal to zero (illegal)."
 #define MSGCV_EWTQ_NOW_BAD "At " MSG_TIME ", a component of ewtQ has become <= 0."
@@ -911,7 +983,7 @@ int CVSensRhs1DQ(int Ns, realtype t,
 #define MSGAM_BAD_TBOUT    "The final time tBout is outside the interval over which the forward problem was solved."
 #define MSGAM_BAD_T        "Bad t for interpolation."
 #define MSGAM_WRONG_INTERP "This function cannot be called for the specified interp type."
-
+#define MSGAM_BACK_ERROR   "Error occured while integrating backward problem # %d" 
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-03-20 14:33:59 $
+ * $Revision: 1.9 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2298,13 +2298,27 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 /* 
  * CVodeGetQuad
  *
- * This routine extracts quadrature solution into yQout.
- * This is just a wrapper that calls CVodeGetQuadDky with k=0                    
+ * This routine extracts quadrature solution into yQout at the
+ * time which CVode returned the solution.
+ * This is just a wrapper that calls CVodeGetQuadDky with k=0.
  */
  
-int CVodeGetQuad(void *cvode_mem, realtype t, N_Vector yQout)
+int CVodeGetQuad(void *cvode_mem, realtype *tret, N_Vector yQout)
 {
-  return(CVodeGetQuadDky(cvode_mem,t,0,yQout));
+  CVodeMem cv_mem;
+  int flag;
+
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetQuad", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;  
+
+  *tret = tretlast;
+  
+  flag = CVodeGetQuadDky(cvode_mem,tretlast,0,yQout);
+
+  return(flag);
 }
 
 /*
@@ -2383,25 +2397,53 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dkyQ)
 /* 
  * CVodeGetSens
  *
- * This routine extracts sensitivity solution into ySout.
- * This is just a wrapper that calls CVodeSensDky with k=0                    
+ * This routine extracts sensitivity solution into ySout at the
+ * time at which CVode returned the solution.
+ * This is just a wrapper that calls CVodeSensDky with k=0.
  */
  
-int CVodeGetSens(void *cvode_mem, realtype t, N_Vector *ySout)
+int CVodeGetSens(void *cvode_mem, realtype *tret, N_Vector *ySout)
 {
-  return(CVodeGetSensDky(cvode_mem,t,0,ySout));
+  CVodeMem cv_mem;
+  int flag;
+
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetSens", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;  
+
+  *tret = tretlast;
+
+  flag = CVodeGetSensDky(cvode_mem,tretlast,0,ySout);
+
+  return(flag);
 }
     
 /* 
  * CVodeGetSens1
  *
- * This routine extracts the is-th sensitivity solution into ySout.
- * This is just a wrapper that calls CVodeSensDky1 with k=0                    
+ * This routine extracts the is-th sensitivity solution into ySout
+ * at the time at which CVode returned the solution.
+ * This is just a wrapper that calls CVodeSensDky1 with k=0.
  */
  
-int CVodeGetSens1(void *cvode_mem, realtype t, int is, N_Vector ySout)
+int CVodeGetSens1(void *cvode_mem, realtype *tret, int is, N_Vector ySout)
 {
-  return(CVodeGetSensDky1(cvode_mem,t,0,is,ySout));
+  CVodeMem cv_mem;
+  int flag;
+
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetSens1", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;  
+
+  *tret = tretlast;
+
+  flag = CVodeGetSensDky1(cvode_mem,tretlast,0,is,ySout);
+
+  return(flag);
 }
     
 /*
@@ -7216,19 +7258,19 @@ void CVProcessError(CVodeMem cv_mem,
 
   va_start(ap, msgfmt);
 
+  /* Compose the message */
+
+  vsprintf(msg, msgfmt, ap);
+
   if (cv_mem == NULL) {    /* We write to stderr */
 
 #ifndef NO_FPRINTF_OUTPUT
     fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
-    fprintf(stderr, msgfmt);
+    fprintf(stderr, msg);
     fprintf(stderr, "\n\n");
 #endif
 
   } else {                 /* We can call ehfun */
-
-    /* Compose the message */
-
-    vsprintf(msg, msgfmt, ap);
 
     /* Call ehfun */
 

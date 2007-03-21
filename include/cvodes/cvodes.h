@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-03-20 15:36:46 $
+ * $Revision: 1.8 $
+ * $Date: 2007-03-21 18:56:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1197,10 +1197,21 @@ SUNDIALS_EXPORT char *CVodeGetReturnFlagName(int flag);
  * The following functions can be called to obtain the quadrature
  * variables after a successful integration step.
  * If quadratures were not computed, they return CV_NO_QUAD.
+ *
+ * CVodeGetQuad returns the quadrature variables at the same time
+ *   as that at which CVode returned the solution.
+ *
+ * CVodeGetQuadDky returns the quadrature variables (or their 
+ *   derivatives up to the current method order) at any time within
+ *   the last integration step (dense output). See CVodeGetQuad for
+ *   more information.
+ *
+ * The output vectors yQout and dky must be allocated by the user.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeGetQuad(void *cvode_mem, realtype t, N_Vector yQout);
+SUNDIALS_EXPORT int CVodeGetQuad(void *cvode_mem, realtype *tret, N_Vector yQout);
+
 SUNDIALS_EXPORT int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky);
 
 /*
@@ -1239,31 +1250,32 @@ SUNDIALS_EXPORT int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals,
  * -----------------------------------------------------------------
  * Forward sensitivity solution extraction routines
  * -----------------------------------------------------------------
+ * The following functions can be called to obtain the sensitivity
+ * variables after a successful integration step.
+ * 
+ * CVodeGetSens and CVodeGetSens1 return all the sensitivity vectors
+ *   or only one of them, respectively, at the same time as that at 
+ *   which CVode returned the solution.
+ *   The array of output vectors or output vector ySout must be
+ *   allocated by the user.
+ *
  * CVodeGetSensDky1 computes the kth derivative of the is-th
- * sensitivity (is=1, 2, ..., Ns) of the y function at time t,
- * where tn-hu <= t <= tn, tn denotes the current internal time
- * reached, and hu is the last internal step size successfully
- * used by the solver. The user may request k=0, 1, ..., qu,
- * where qu is the current order.
- * The is-th sensitivity derivative vector is returned in dky.
- * This vector must be allocated by the caller. It is only legal
- * to call this function after a successful return from CVode
- * with sensitivty computations enabled.
- * Arguments have the same meaning as in CVodeDky.
+ *   sensitivity (is=1, 2, ..., Ns) of the y function at time t,
+ *   where tn-hu <= t <= tn, tn denotes the current internal time
+ *   reached, and hu is the last internal step size successfully
+ *   used by the solver. The user may request k=0, 1, ..., qu,
+ *   where qu is the current order.
+ *   The is-th sensitivity derivative vector is returned in dky.
+ *   This vector must be allocated by the caller. It is only legal
+ *   to call this function after a successful return from CVode
+ *   with sensitivty computations enabled.
+ *   Arguments have the same meaning as in CVodeDky.
  *
  * CVodeGetSensDky computes the k-th derivative of all
- * sensitivities of the y function at time t. It repeatedly calls
- * CVodeGetSensDky. The argument dkyA must be a pointer to
- * N_Vector and must be allocated by the user to hold at least Ns
- * vectors.
- *
- * CVodeGetSens1 returns the is-th sensitivity of the y function
- * at the time t. The argument ySout must be an N_Vector and must
- * be allocated by the user.
- *
- * CVodeGetSens returns sensitivities of the y function at
- * the time t. The argument ySout must be a pointer to N_Vector
- * and must be allocated by the user to hold at least Ns vectors.
+ *   sensitivities of the y function at time t. It repeatedly calls
+ *   CVodeGetSensDky. The argument dkyA must be a pointer to
+ *   N_Vector and must be allocated by the user to hold at least Ns
+ *   vectors.
  *
  * Return values are similar to those of CVodeDky. Additionally,
  * CVodeSensDky can return CV_NO_SENS if sensitivities were
@@ -1271,12 +1283,11 @@ SUNDIALS_EXPORT int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeGetSens(void *cvode_mem, realtype t, N_Vector *ySout);
-SUNDIALS_EXPORT int CVodeGetSens1(void *cvode_mem, realtype t, int is, N_Vector ySout);
-SUNDIALS_EXPORT int CVodeGetSensDky(void *cvode_mem, realtype t, int k,
-				    N_Vector *dkyA);
-SUNDIALS_EXPORT int CVodeGetSensDky1(void *cvode_mem, realtype t, int k,
-				     int is, N_Vector dky);
+SUNDIALS_EXPORT int CVodeGetSens(void *cvode_mem, realtype *tret, N_Vector *ySout);
+SUNDIALS_EXPORT int CVodeGetSens1(void *cvode_mem, realtype *tret, int is, N_Vector ySout);
+
+SUNDIALS_EXPORT int CVodeGetSensDky(void *cvode_mem, realtype t, int k, N_Vector *dkyA);
+SUNDIALS_EXPORT int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dky);
 
 /*
  * -----------------------------------------------------------------
@@ -1286,18 +1297,16 @@ SUNDIALS_EXPORT int CVodeGetSensDky1(void *cvode_mem, realtype t, int k,
  * and statistics related to the integration of sensitivities.
  * -----------------------------------------------------------------
  * CVodeGetNumSensRhsEvals returns the number of calls to the
- *                         sensitivity right hand side routine.
+ *   sensitivity right hand side routine.
  * CVodeGetNumRhsEvalsSens returns the number of calls to the
- *                         user f routine due to finite difference
- *                         evaluations of the sensitivity equations.
+ *   user f routine due to finite difference evaluations of the 
+ *   sensitivity equations.
  * CVodeGetNumSensErrTestFails returns the number of local error
- *                             test failures for sensitivity variables.
+ *   test failures for sensitivity variables.
  * CVodeGetNumSensLinSolvSetups returns the number of calls made
- *                              to the linear solver's setup routine
- *                              due to sensitivity computations.
+ *   to the linear solver's setup routine due to sensitivity computations.
  * CVodeGetSensErrWeights returns the sensitivity error weight
- *                        vectors. The user need not allocate space
- *                        for ewtS.
+ *   vectors. The user need not allocate space for ewtS.
  * -----------------------------------------------------------------
  */
 
@@ -1325,20 +1334,15 @@ SUNDIALS_EXPORT int CVodeGetSensStats(void *cvode_mem, long int *nfSevals, long 
  * and statistics related to the sensitivity nonlinear solver.
  * -----------------------------------------------------------------
  * CVodeGetNumSensNonlinSolvIters returns the total number of
- *                                nonlinear iterations for sensitivity
- *                                variables.
- * CVodeGetNumSensNonlinSolvConvFails returns the total number of
- *                                    nonlinear convergence failures
- *                                    for sensitivity variables
+ *   nonlinear iterations for sensitivity variables.
+ * CVodeGetNumSensNonlinSolvConvFails returns the total number
+ *   of nonlinear convergence failures for sensitivity variables
  * CVodeGetNumStgrSensNonlinSolvIters returns a vector of Ns
- *                                    nonlinear iteration counters
- *                                    for sensitivity variables
- *                                    in the CV_STAGGERED1 method.
+ *   nonlinear iteration counters for sensitivity variables in 
+ *   the CV_STAGGERED1 method.
  * CVodeGetNumStgrSensNonlinSolvConvFails returns a vector of Ns
- *                                        nonlinear solver convergence
- *                                        failure counters for
- *                                        sensitivity variables in
- *                                        the CV_STAGGERED1 method.
+ *   nonlinear solver convergence failure counters for sensitivity 
+ *   variables in the CV_STAGGERED1 method.
  * -----------------------------------------------------------------
  */
 
@@ -1454,70 +1458,85 @@ SUNDIALS_EXPORT int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
 
 /*
  * -----------------------------------------------------------------
- * Interfaces to CVODES functions for setting-up the
- *  backward integration
+ * Interfaces to CVODES functions for setting-up backward problems.
  * -----------------------------------------------------------------
- * CVodeCreateB, CVodeMallocB, CVodeSet*B
- *    These functions are just wrappers around the corresponding
- *    functions in cvodes.h, with some particularizations for the
- *    backward integration.
- * -----------------------------------------------------------------
- * CVodeSetQuad*B, CVodeQuadMallocB, CVodeQuadReInitB
+ * CVodeCreateB, CVodeMallocB, CVodeReInitB
+ * CvodeQuadMallocB, CVodeQuadReInitB
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB);
+SUNDIALS_EXPORT void *CVodeCreateB(void *cvadj_mem, int lmmB, int iterB);
 
-SUNDIALS_EXPORT int CVodeMallocB(void *cvadj_mem, CVRhsFnB fB,
+SUNDIALS_EXPORT int CVodeMallocB(void *cvb_mem, CVRhsFnB fB,
+                                 realtype tB0, N_Vector yB0,
+                                 int itolB, realtype reltolB, void *abstolB);
+SUNDIALS_EXPORT int CVodeReInitB(void *cvb_mem, CVRhsFnB fB,
 				 realtype tB0, N_Vector yB0,
 				 int itolB, realtype reltolB, void *abstolB);
+
+SUNDIALS_EXPORT int CVodeQuadMallocB(void *cvb_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
+SUNDIALS_EXPORT int CVodeQuadReInitB(void *cvb_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Optional input functions for backward problems
+ * -----------------------------------------------------------------
+ * These functions are just wrappers around the corresponding
+ * functions in cvodes.h, with some particularizations for the
+ * backward integration.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int CVodeSetErrHandlerFnB(void *cvb_mem, CVErrHandlerFn ehfunB, void *eh_dataB);
+SUNDIALS_EXPORT int CVodeSetErrFileB(void *cvb_mem, FILE *errfpB);
+SUNDIALS_EXPORT int CVodeSetIterTypeB(void *cvb_mem, int iterB);
+SUNDIALS_EXPORT int CVodeSetFdataB(void *cvb_mem, void *f_dataB);
+SUNDIALS_EXPORT int CVodeSetMaxOrdB(void *cvb_mem, int maxordB);
+SUNDIALS_EXPORT int CVodeSetMaxNumStepsB(void *cvb_mem, long int mxstepsB);
+SUNDIALS_EXPORT int CVodeSetStabLimDetB(void *cvb_mem, booleantype stldetB);
+SUNDIALS_EXPORT int CVodeSetInitStepB(void *cvb_mem, realtype hinB);
+SUNDIALS_EXPORT int CVodeSetMinStepB(void *cvb_mem, realtype hminB);
+SUNDIALS_EXPORT int CVodeSetMaxStepB(void *cvb_mem, realtype hmaxB);
   
-SUNDIALS_EXPORT int CVodeSetErrHandlerFnB(void *cvadj_mem, CVErrHandlerFn ehfunB, void *eh_dataB);
-SUNDIALS_EXPORT int CVodeSetErrFileB(void *cvadj_mem, FILE *errfpB);
-SUNDIALS_EXPORT int CVodeSetIterTypeB(void *cvadj_mem, int iterB);
-SUNDIALS_EXPORT int CVodeSetFdataB(void *cvadj_mem, void *f_dataB);
-SUNDIALS_EXPORT int CVodeSetMaxOrdB(void *cvadj_mem, int maxordB);
-SUNDIALS_EXPORT int CVodeSetMaxNumStepsB(void *cvadj_mem, long int mxstepsB);
-SUNDIALS_EXPORT int CVodeSetStabLimDetB(void *cvadj_mem, booleantype stldetB);
-SUNDIALS_EXPORT int CVodeSetInitStepB(void *cvadj_mem, realtype hinB);
-SUNDIALS_EXPORT int CVodeSetMinStepB(void *cvadj_mem, realtype hminB);
-SUNDIALS_EXPORT int CVodeSetMaxStepB(void *cvadj_mem, realtype hmaxB);
-  
-SUNDIALS_EXPORT int CVodeReInitB(void *cvadj_mem, CVRhsFnB fB,
-				 realtype tB0, N_Vector yB0,
-				 int itolB, realtype reltolB, void *abstolB);
     
-SUNDIALS_EXPORT int CVodeSetQuadFdataB(void *cvadj_mem, void *fQ_dataB);
-SUNDIALS_EXPORT int CVodeSetQuadErrConB(void *cvadj_mem, booleantype errconQB,
+SUNDIALS_EXPORT int CVodeSetQuadFdataB(void *cvb_mem, void *fQ_dataB);
+SUNDIALS_EXPORT int CVodeSetQuadErrConB(void *cvb_mem, booleantype errconQB,
 					int itolQB, realtype reltolQB, void *abstolQB);
-SUNDIALS_EXPORT int CVodeQuadMallocB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
-SUNDIALS_EXPORT int CVodeQuadReInitB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
     
 /*
  * -----------------------------------------------------------------
  * CVodeB
  * -----------------------------------------------------------------
- * CVodeB performs the backward integration from tfinal to
- * tinitial through a sequence of forward-backward runs in
- * between consecutive check points. It returns the values of
- * the adjoint variables and any existing quadrature variables
- * at tinitial.
+ * CVodeB performs the integration of all backward problems specified
+ * through calls to CVodeCreateB through a sequence of forward-backward
+ * runs in between consecutive check points. CVodeB can be called 
+ * either in CV_NORMAL or CV_ONE_STEP mode. After a successful return
+ * from CVodeB, the solution and quadrature variables at the current
+ * return time for any given backward problem can be obtained by
+ * calling CVodeGetB and CVodeGetQuadB, respectively.
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
-			   realtype *tBret, int itaskB);
+SUNDIALS_EXPORT int CVodeB(void *cvadj_mem, realtype tBout, int itaskB);
   
 /*
  * -----------------------------------------------------------------
- * CVodeGetQuadB
+ * CvodeGetB and CVodeGetQuadB
  * -----------------------------------------------------------------
- * CVodeGetQuadB extracts values for quadrature variables in
- * the N_Vector qB.
+ * Extraction functions for the solution and quadratures for a given 
+ * backward problem. They return their corresponding output vector
+ * at the current time reached by the integration of the backward
+ * problem. To obtain the solution or quadratures associated with
+ * a given backward problem at some other time within the last 
+ * integration step (dense output), first obtain a pointer to the
+ * proper CVODES memory by calling CVadjGetCVodeBmem and then use it
+ * to call CVodeGetDky and CVodeGetQuadDky.  
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT int CVodeGetQuadB(void *cvadj_mem, N_Vector qB);
+SUNDIALS_EXPORT int CVodeGetB(void *cvb_mem, realtype *tBret, N_Vector yB);
+SUNDIALS_EXPORT int CVodeGetQuadB(void *cvb_mem, realtype *tBret, N_Vector qB);
   
 /*
  * -----------------------------------------------------------------
@@ -1540,7 +1559,7 @@ SUNDIALS_EXPORT void CVadjFree(void **cvadj_mem);
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT void *CVadjGetCVodeBmem(void *cvadj_mem);
+SUNDIALS_EXPORT void *CVadjGetCVodeBmem(void *cvb_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -1551,6 +1570,13 @@ SUNDIALS_EXPORT void *CVadjGetCVodeBmem(void *cvadj_mem);
   
 SUNDIALS_EXPORT char *CVadjGetReturnFlagName(int flag);
 
+
+
+/* 
+ * ===============================================================
+ * DEVELOPMENT USER-CALLABLE FUNCTIONS
+ * ===============================================================
+ */
 
 /*
  * -----------------------------------------------------------------
@@ -1605,12 +1631,6 @@ SUNDIALS_EXPORT int CVadjGetDataPointHermite(void *cvadj_mem, long int which,
 SUNDIALS_EXPORT int CVadjGetDataPointPolynomial(void *cvadj_mem, long int which,
 						realtype *t, int *order, N_Vector y);
 
-/* 
- * ===============================================================
- * DEVELOPMENT USER-CALLABLE FUNCTIONS
- * ===============================================================
- */
-
 /*
  * -----------------------------------------------------------------
  * CVadjGetCurrentCheckPoint
@@ -1619,6 +1639,8 @@ SUNDIALS_EXPORT int CVadjGetDataPointPolynomial(void *cvadj_mem, long int which,
  */
 
 SUNDIALS_EXPORT int CVadjGetCurrentCheckPoint(void *cvadj_mem, void **addr);
+
+
 
 #ifdef __cplusplus
 }

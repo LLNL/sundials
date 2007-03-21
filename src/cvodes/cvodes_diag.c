@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:34 $
+ * $Revision: 1.2 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -467,21 +467,21 @@ static void CVDiagFree(CVodeMem cv_mem)
  * CVODES functions
  */
 
-int CVDiagB(void *cvadj_mem)
+int CVDiagB(void *cvb_mem)
 {
-  CVadjMem ca_mem;
-  CVodeMem cvB_mem;
+  CVodeBMem cvB_mem;
+  void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
+  if (cvb_mem == NULL) {
     CVProcessError(NULL, CVDIAG_ADJMEM_NULL, "CVDIAG", "CVDiagB", MSGDG_CAMEM_NULL);
     return(CVDIAG_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cvB_mem = ca_mem->cvb_mem;
+  cvode_mem = (void *) (cvB_mem->cv_mem);
   
-  flag = CVDiag(cvB_mem);
+  flag = CVDiag(cvode_mem);
 
   return(flag);
 }

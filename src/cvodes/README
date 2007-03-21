@@ -1,5 +1,5 @@
                            CVODES 
-                 Release 2.5.0, October 2006
+                 Release 2.6.0, *** 2007
                Alan C. Hindmarsh and Radu Serban
           Center for Applied Scientific Computing, LLNL
 
@@ -55,10 +55,10 @@ chapter in the CVODES User Guide.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.4.0," 
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.6.0," 
     LLNL technical report UCRL-SM-208111, November 2004.
 
-[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODES v2.4.0," 
+[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODES v2.6.0," 
     LLNL technical report UCRL-SM-208115, November 2004.
 
 [3] R. Serban and A. C. Hindmarsh, "CVODES: the Sensitivity-Enabled ODE 
@@ -73,6 +73,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.6.0   -
 v. 2.5.0   - Nov. 2006
 v. 2.4.0   - Mar. 2006
 v. 2.3.0   - May. 2005
@@ -85,6 +86,35 @@ v. 1.0     - Jul. 2002 (first SUNDIALS release)
 
 E. Revision History
 -------------------
+
+v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
+---------------------------------------------------------
+
+- New features
+   - added optional input to specify which direction of zero-crossing
+     is to be monitored while performing root-finding. The root information
+     array iroots (returned by CVodeGetRootInfo) also encodes the 
+     direction of zero-crossing.
+   - in the adjoint module, added support for propagating backwards in
+     time multiple adjoint systems, each initialized at posibly different
+     times.
+   - added option for reinitializing the adjoint module in order to
+     solve a new adjoint problem (with same number of steps between
+     check points and the same interpolation type)
+
+- Bug fixes
+   - in the rootfinding algorithm, fixed a bug resulting in unnecessary
+     evaluations of the root functions after reinitialization of the
+     solver right after a return at a root.
+
+- Changes to user interface
+   - changed the API for all functions in the adjoint module related to 
+     initialization, set-up, and solution of backward problems 
+   - the extraction functions CVodeGetQuad, CVodeGetSens, and CVodeGetSens1
+     now return the values of quadrature and sensitivity variables, respectively
+     at the same time as that at which CVode returned the solution (for dense
+     output of quadrature or sensitivity variables, the user can only use
+     CVodeGetQuadDky, CVodeGetSensDky, or CVodeGetSensDky1)
 
 v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Nov. 2006)
 ---------------------------------------------------------

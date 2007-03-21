@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -49,6 +49,10 @@ static int cvBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 static int cvBandPrecDQJac(CVBandPrecData pdata, 
                            realtype t, N_Vector y, N_Vector fy, 
                            N_Vector ftemp, N_Vector ytemp);
+
+/* Prototype for the pfree routine */
+
+static void CVBandPrecFreeB(CVodeBMem cvB_mem);
 
 /* 
  * ================================================================
@@ -536,10 +540,6 @@ static int cvBandPrecDQJac(CVBandPrecData pdata,
  * ================================================================
  */
 
-/* Additional readability replacements */
-
-#define bp_data_B   (ca_mem->ca_pmemB)
-
 /*
  * CVBandPrecAllocB, CVBPSp*B
  *
@@ -547,98 +547,98 @@ static int cvBandPrecDQJac(CVBandPrecData pdata,
  * CVODES functions
  */
 
-int CVBandPrecAllocB(void *cvadj_mem, int nB, int muB, int mlB)
+int CVBandPrecAllocB(void *cvb_mem, int nB, int muB, int mlB)
 {
-  CVadjMem ca_mem;
-  CVodeMem cvB_mem;
+  CVodeBMem cvB_mem;
+  void *cvode_mem;
   void *bp_dataB;
 
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVBANDPRE_ADJMEM_NULL, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_CAMEM_NULL);
+  if (cvb_mem == NULL) {
+    CVProcessError(NULL, CVBANDPRE_ADJMEM_NULL, "CVBANDPRE", "CVBandPrecAllocB", MSGBP_CAMEM_NULL);
     return(CVBANDPRE_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cvB_mem = ca_mem->cvb_mem;
+  cvode_mem = (void *) (cvB_mem->cv_mem);
 
-  bp_dataB = CVBandPrecAlloc(cvB_mem, nB, muB, mlB);
+  bp_dataB = CVBandPrecAlloc(cvode_mem, nB, muB, mlB);
   if (bp_dataB == NULL) {
-    CVProcessError(cvB_mem, CVBANDPRE_MEM_FAIL, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
+    CVProcessError(NULL, CVBANDPRE_MEM_FAIL, "CVBANDPRE", "CVBandPrecAllocB", MSGBP_MEM_FAIL);
     return(CVBANDPRE_MEM_FAIL);
   }
 
-  bp_data_B = bp_dataB;
+  cvB_mem->cv_pfree = CVBandPrecFreeB;
+  cvB_mem->cv_pmem = bp_dataB;
 
   return(CVBANDPRE_SUCCESS);
 
 }
 
-int CVBPSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
+int CVBPSptfqmrB(void *cvb_mem, int pretypeB, int maxlB)
 {
-  CVadjMem ca_mem;
-  CVodeMem cvB_mem;
+  CVodeBMem cvB_mem;
+  void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
+  if (cvb_mem == NULL) {
     CVProcessError(NULL, CVBANDPRE_ADJMEM_NULL, "CVBANDPRE", "CVBPSptfqmrAlloc", MSGBP_CAMEM_NULL);
     return(CVBANDPRE_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cvB_mem = ca_mem->cvb_mem;
+  cvode_mem = (void *) (cvB_mem->cv_mem);
   
-  flag = CVBPSptfqmr(cvB_mem, pretypeB, maxlB, bp_data_B);
+  flag = CVBPSptfqmr(cvode_mem, pretypeB, maxlB, cvB_mem->cv_pmem);
 
   return(flag);
 }
 
-int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
+int CVBPSpbcgB(void *cvb_mem, int pretypeB, int maxlB)
 {
-  CVadjMem ca_mem;
-  CVodeMem cvB_mem;
+  CVodeBMem cvB_mem;
+  void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVBANDPRE_ADJMEM_NULL, "CVBANDPRE", "CVBPSptbcgAlloc", MSGBP_CAMEM_NULL);
+  if (cvb_mem == NULL) {
+    CVProcessError(NULL, CVBANDPRE_ADJMEM_NULL, "CVBANDPRE", "CVBPSptfqmrAlloc", MSGBP_CAMEM_NULL);
     return(CVBANDPRE_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cvB_mem = ca_mem->cvb_mem;
-  
-  flag = CVBPSpbcg(cvB_mem, pretypeB, maxlB, bp_data_B);
+  cvode_mem = (void *) (cvB_mem->cv_mem);
+
+  flag = CVBPSpbcg(cvode_mem, pretypeB, maxlB, cvB_mem->cv_pmem);
 
   return(flag);
 }
 
-int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
+int CVBPSpgmrB(void *cvb_mem, int pretypeB, int maxlB)
 {
-  CVadjMem ca_mem;
-  CVodeMem cvB_mem;
+  CVodeBMem cvB_mem;
+  void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVBANDPRE_ADJMEM_NULL, "CVBANDPRE", "CVBPSpgmrAlloc", MSGBP_CAMEM_NULL);
+  if (cvb_mem == NULL) {
+    CVProcessError(NULL, CVBANDPRE_ADJMEM_NULL, "CVBANDPRE", "CVBPSptfqmrAlloc", MSGBP_CAMEM_NULL);
     return(CVBANDPRE_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cvB_mem = ca_mem->cvb_mem;
-  
-  flag = CVBPSpgmr(cvB_mem, pretypeB, maxlB, bp_data_B);
+  cvode_mem = (void *) (cvB_mem->cv_mem);
+
+  flag = CVBPSpgmr(cvode_mem, pretypeB, maxlB, cvB_mem->cv_pmem);
 
   return(flag);
 }
 
 
-void CVBandPrecFreeB(void *cvadj_mem)
+static void CVBandPrecFreeB(CVodeBMem cvB_mem)
 {
-  CVadjMem ca_mem;
+  void *bp_dataB;
 
-  if (cvadj_mem == NULL) return;
-  ca_mem = (CVadjMem) cvadj_mem;
+  bp_dataB = (void *) (cvB_mem->cv_pmem);
 
-  CVBandPrecFree(&bp_data_B);
+  CVBandPrecFree(&bp_dataB);
 }
 
 

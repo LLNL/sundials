@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.3 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,8 +63,8 @@ static int cvLapackBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 static void cvLapackBandFree(CVodeMem cv_mem);
 
 /* CVSLAPACK lfreeB functions */
-static void cvLapackDenseFreeB(CVadjMem ca_mem);
-static void cvLapackBandFreeB(CVadjMem ca_mem);
+static void cvLapackDenseFreeB(CVodeBMem cvB_mem);
+static void cvLapackBandFreeB(CVodeBMem cvB_mem);
 
 /* 
  * ================================================================
@@ -629,29 +629,29 @@ static void cvLapackBandFree(CVodeMem cv_mem)
  */
 
 /*
- * CVLapackDenseB is a wraper around CVLapackDense. It attaches 
- * the dense CVSLAPACK linear solver to the adjoint memory block.
+ * CVLapackDenseB is a wraper around CVLapackDense. It attaches the
+ * dense CVSLAPACK linear solver to the backward problem memory block.
  */
 
-int CVLapackDenseB(void *cvadj_mem, int nB)
+int CVLapackDenseB(void *cvb_mem, int nB)
 {
-  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  void *cvode_mem;
   CVDlsMemB cvdlsB_mem;
-  CVodeMem cvB_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
+  if (cvb_mem == NULL) {
     CVProcessError(NULL, CVDIRECT_ADJMEM_NULL, "CVSLAPACK", "CVLapackDenseB", MSGD_CAMEM_NULL);
     return(CVDIRECT_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cvB_mem = ca_mem->cvb_mem;
+  cvode_mem = (void *) (cvB_mem->cv_mem);
 
   /* Get memory for CVDlsMemRecB */
   cvdlsB_mem = (CVDlsMemB) malloc(sizeof(CVDlsMemRecB));
   if (cvdlsB_mem == NULL) {
-    CVProcessError(cvB_mem, CVDIRECT_MEM_FAIL, "CVSLAPACK", "CVLapackDenseB", MSGD_MEM_FAIL);
+    CVProcessError(NULL, CVDIRECT_MEM_FAIL, "CVSLAPACK", "CVLapackDenseB", MSGD_MEM_FAIL);
     return(CVDIRECT_MEM_FAIL);
   }
 
@@ -663,10 +663,10 @@ int CVLapackDenseB(void *cvadj_mem, int nB)
   cvdlsB_mem->d_jac_dataB = NULL;
 
   /* attach lmemB and lfreeB */
-  ca_mem->ca_lmemB = cvdlsB_mem;
-  ca_mem->ca_lfreeB = cvLapackDenseFreeB;
+  cvB_mem->cv_lmem = cvdlsB_mem;
+  cvB_mem->cv_lfree = cvLapackDenseFreeB;
 
-  flag = CVLapackDense(cvB_mem, nB);
+  flag = CVLapackDense(cvode_mem, nB);
 
   if (flag != CVDIRECT_SUCCESS) {
     free(cvdlsB_mem);
@@ -681,39 +681,39 @@ int CVLapackDenseB(void *cvadj_mem, int nB)
  * linear solver for backward integration.
  */
 
-static void cvLapackDenseFreeB(CVadjMem ca_mem)
+static void cvLapackDenseFreeB(CVodeBMem cvB_mem)
 {
   CVDlsMemB cvdlsB_mem;
 
-  cvdlsB_mem = (CVDlsMemB) ca_mem->ca_lmemB;
+  cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   free(cvdlsB_mem);
 }
 
 /*
  * CVLapackBandB is a wraper around CVLapackBand. It attaches the band
- * CVSLAPACK linear solver to the adjoint memory block.
+ * CVSLAPACK linear solver to the backward problem memory block.
  */
 
-int CVLapackBandB(void *cvadj_mem, int nB, int mupperB, int mlowerB)
+int CVLapackBandB(void *cvb_mem, int nB, int mupperB, int mlowerB)
 {
-  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  void *cvode_mem;
   CVDlsMemB cvdlsB_mem;
-  CVodeMem cvB_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
+  if (cvb_mem == NULL) {
     CVProcessError(NULL, CVDIRECT_ADJMEM_NULL, "CVSLAPACK", "CVLapackBandB", MSGD_CAMEM_NULL);
     return(CVDIRECT_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cvB_mem = ca_mem->cvb_mem;
+  cvode_mem = (void *) (cvB_mem->cv_mem);
 
   /* Get memory for CVDlsMemRecB */
   cvdlsB_mem = (CVDlsMemB) malloc(sizeof(CVDlsMemRecB));
   if (cvdlsB_mem == NULL) {
-    CVProcessError(cvB_mem, CVDIRECT_MEM_FAIL, "CVSLAPACK", "CVLapackBandB", MSGD_MEM_FAIL);
+    CVProcessError(NULL, CVDIRECT_MEM_FAIL, "CVSLAPACK", "CVLapackBandB", MSGD_MEM_FAIL);
     return(CVDIRECT_MEM_FAIL);
   }
 
@@ -725,10 +725,10 @@ int CVLapackBandB(void *cvadj_mem, int nB, int mupperB, int mlowerB)
   cvdlsB_mem->d_jac_dataB = NULL;
 
   /* attach lmemB and lfreeB */
-  ca_mem->ca_lmemB = cvdlsB_mem;
-  ca_mem->ca_lfreeB = cvLapackBandFreeB;
+  cvB_mem->cv_lmem = cvdlsB_mem;
+  cvB_mem->cv_lfree = cvLapackBandFreeB;
 
-  flag = CVLapackBand(cvB_mem, nB, mupperB, mlowerB);
+  flag = CVLapackBand(cvode_mem, nB, mupperB, mlowerB);
 
   if (flag != CVDIRECT_SUCCESS) {
     free(cvdlsB_mem);
@@ -743,11 +743,11 @@ int CVLapackBandB(void *cvadj_mem, int nB, int mupperB, int mlowerB)
  * linear solver for backward integration.
  */
 
-static void cvLapackBandFreeB(CVadjMem ca_mem)
+static void cvLapackBandFreeB(CVodeBMem cvB_mem)
 {
   CVDlsMemB cvdlsB_mem;
 
-  cvdlsB_mem = (CVDlsMemB) ca_mem->ca_lmemB;
+  cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   free(cvdlsB_mem);
 }

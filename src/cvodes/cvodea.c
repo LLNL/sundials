@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-03-20 15:36:48 $
+ * $Revision: 1.8 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -54,12 +54,11 @@
  * =================================================================
  */
 
-static booleantype CVAallocVectors(CVadjMem ca_mem);
-static void CVAfreeVectors(CVadjMem ca_mem);
-
 static CkpntMem CVAckpntInit(CVodeMem cv_mem);
 static CkpntMem CVAckpntNew(CVodeMem cv_mem);
 static void CVAckpntDelete(CkpntMem *ck_memPtr);
+
+static void CVAbckpbDelete(CVodeBMem *cvB_memPtr);
 
 static int  CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem);
 static int  CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem); 
@@ -102,15 +101,11 @@ static int CVArhsQ(realtype t, N_Vector yB,
 #define tfinal      (ca_mem->ca_tfinal)
 #define nckpnts     (ca_mem->ca_nckpnts)
 #define nsteps      (ca_mem->ca_nsteps)
+#define nbckpbs     (ca_mem->ca_nbckpbs)
 #define ckpntData   (ca_mem->ca_ckpntData)
 #define newData     (ca_mem->ca_newData)
 #define np          (ca_mem->ca_np)
 #define ytmp        (ca_mem->ca_ytmp)
-#define f_B         (ca_mem->ca_fB)
-#define f_data_B    (ca_mem->ca_f_dataB)
-#define fQ_B        (ca_mem->ca_fQB)
-#define fQ_data_B   (ca_mem->ca_fQ_dataB)
-#define t_for_quad  (ca_mem->ca_t_for_quad)
 #define Y0          (ca_mem->ca_Y0)
 #define Y1          (ca_mem->ca_Y1)
 #define Y           (ca_mem->ca_Y)
@@ -118,7 +113,6 @@ static int CVArhsQ(realtype t, N_Vector yB,
 #define interpType  (ca_mem->ca_interpType)
 #define getY        (ca_mem->ca_getY)
 #define storePnt    (ca_mem->ca_storePnt)
-#define lfreeB      (ca_mem->ca_lfreeB)
 
 #define zn         (cv_mem->cv_zn)
 #define nst        (cv_mem->cv_nst)
@@ -200,7 +194,10 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
   booleantype allocOK;
   long int i, ii;
 
-  /* Check arguments */
+  /* ---------------
+   * Check arguments
+   * --------------- */
+
   if (cvode_mem == NULL) {
     CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_NULL_CVMEM);
     return(NULL);
@@ -217,7 +214,10 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
     return(NULL);
   } 
 
-  /* Allocate memory block */
+  /* ----------------------------
+   * Allocate CVODEA memory block
+   * ---------------------------- */
+
   ca_mem = NULL;
   ca_mem = (CVadjMem) malloc(sizeof(struct CVadjMemRec));
   if (ca_mem == NULL) {
@@ -225,37 +225,70 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
     return(NULL);
   }
 
-  /* Attach CVODES memory for forward runs */
-  ca_mem->cv_mem = cv_mem;
+  /* Allocate memory for the workspace vector ytmp */
 
-  /* Set interpType */
-  interpType = interp;
-
-  /* Allocate memory for workspace vectors */
-  allocOK = CVAallocVectors(ca_mem);
-  if (!allocOK) {
+  ytmp = NULL;
+  ytmp = N_VClone(tempv);
+  if (ytmp == NULL) {
     free(ca_mem); ca_mem = NULL;
     CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
     return(NULL);
   }
 
+  /* ---------------------------------
+   * Initialization of forward problem
+   * --------------------------------- */
+
+  /* Attach CVODES memory for forward runs */
+
+  ca_mem->cv_mem = cv_mem;
+
+  /* Other entries in ca_mem */
+
+  uround   = cv_mem->cv_uround;
+
+  /* Initial time */
+
+  tinitial = tn; 
+
+  /* ------------------------------
+   * Initialization of check points
+   * ------------------------------ */
+
   /* Initialize Check Points linked list */
+
   ca_mem->ck_mem = NULL;
   ca_mem->ck_mem = CVAckpntInit(cv_mem);
   if (ca_mem->ck_mem == NULL) {
-    CVAfreeVectors(ca_mem);
+    N_VDestroy(ytmp);
     free(ca_mem); ca_mem = NULL;
     CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
     return(NULL);
   }
 
+  /* Initialize nckpnts to ZERO */
+
+  nckpnts = 0;
+
+  /* ------------------------------------
+   * Initialization of interpolation data
+   * ------------------------------------ */
+
+  /* Interpolation type */
+
+  interpType = interp;
+
+  /* Number of steps between check points */
+
+  nsteps   = steps;
+
   /* Allocate space for the array of Data Point structures */
-  
+
   ca_mem->dt_mem = NULL;
   ca_mem->dt_mem = (DtpntMem *) malloc((steps+1)*sizeof(struct DtpntMemRec *));
   if (ca_mem->dt_mem == NULL) {
     while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
-    CVAfreeVectors(ca_mem);
+    N_VDestroy(ytmp);
     free(ca_mem); ca_mem = NULL;
     CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
     return(NULL);
@@ -268,12 +301,14 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
       for(ii=0; ii<i; ii++) {free(ca_mem->dt_mem[ii]); ca_mem->dt_mem[ii] = NULL;}
       free(ca_mem->dt_mem); ca_mem->dt_mem = NULL;
       while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
-      CVAfreeVectors(ca_mem);
+      N_VDestroy(ytmp);
       free(ca_mem); ca_mem = NULL;
       CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
       return(NULL);
     }
   }
+
+  /* Workspace for interpolation functions */
 
   switch (interpType) {
 
@@ -284,7 +319,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
       for(i=0; i<=steps; i++) {free(ca_mem->dt_mem[i]); ca_mem->dt_mem[i] = NULL;}
       free(ca_mem->dt_mem); ca_mem->dt_mem = NULL;
       while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
-      CVAfreeVectors(ca_mem);
+      N_VDestroy(ytmp);
       free(ca_mem); ca_mem = NULL;
       CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
       return(NULL);
@@ -303,7 +338,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
       for(i=0; i<=steps; i++) {free(ca_mem->dt_mem[i]); ca_mem->dt_mem[i] = NULL;}
       free(ca_mem->dt_mem); ca_mem->dt_mem = NULL;
       while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
-      CVAfreeVectors(ca_mem);
+      N_VDestroy(ytmp);
       free(ca_mem); ca_mem = NULL;
       CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
       return(NULL);
@@ -316,35 +351,27 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
     break;
   }
 
-  /* Other entries in ca_mem */
-  uround   = cv_mem->cv_uround;
-  nsteps   = steps;
-  tinitial = tn; 
+  /* ------------------------------------
+   * Initialize list of backward problems
+   * ------------------------------------ */
 
-  /* Initialize nckpnts to ZERO */
-  nckpnts = 0;
+  ca_mem->cvB_mem = NULL;
+  nbckpbs = 0;
 
-  /* Initialize backward cvode memory to NULL */
-  ca_mem->cvb_mem = NULL;
-
-  ca_mem->ca_lmemB = NULL;
-  ca_mem->ca_lfreeB = NULL;
-  ca_mem->ca_pmemB = NULL;
-  
-  ca_mem->ca_f_dataB = NULL;
-  ca_mem->ca_fQ_dataB = NULL;
+  /* ---------------------------------------------
+   * Return pointer to newly created CVODEA memory
+   * --------------------------------------------- */
 
   return((void *)ca_mem);
 } 
 
 /* CVadjReInit
  *
- * This routine reinitializes the CVODEA memory structure
- * assuming that the number of steps between check points
- * and the type of interpolation remained unchanged. 
- * The CVODES nenory for the forward problem can be
- * reinitialized separately by calling CVodeReInit
- * (for changes to be seen, this must be done BEFORE
+ * This routine reinitializes the CVODEA memory structure assuming that the
+ * the number of steps between check points and the type of interpolation
+ * remain unchanged.
+ * The CVODES memory for the forward problem can be reinitialized separately 
+ * by calling CVodeReInit (for changes to be seen, this must be done BEFORE
  * calling CVadjReInit).
  */
 
@@ -360,12 +387,18 @@ int CVadjReInit(void *cvadj_mem)
   }
   ca_mem = (CVadjMem) cvadj_mem;
 
+  /* Read intial time from reinitialized forward memory */
+
   cv_mem = ca_mem->cv_mem;
 
+  tinitial = tn;
+
   /* Free current list of Check Points */
+
   while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
 
   /* Re-initialize Check Points linked list */
+
   ca_mem->ck_mem = NULL;
   ca_mem->ck_mem = CVAckpntInit(cv_mem);
   if (ca_mem->ck_mem == NULL) {
@@ -373,11 +406,16 @@ int CVadjReInit(void *cvadj_mem)
     return(CV_MEM_FAIL);
   }
 
-  /* Other entries in ca_mem */
-  tinitial = tn;
-
-  /* Initialize nckpnts to ZERO */
   nckpnts = 0;
+
+  /* Free current list of backward problems */
+
+  while (ca_mem->cvB_mem != NULL) CVAbckpbDelete(&(ca_mem->cvB_mem));
+
+  /* Re-initialize list of backward problems */
+
+  ca_mem->cvB_mem = NULL;
+  nbckpbs = 0;
 
   return(CV_SUCCESS);
 }
@@ -484,15 +522,11 @@ void CVadjFree(void **cvadj_mem)
   for(i=0; i<=nsteps; i++) {free(ca_mem->dt_mem[i]); ca_mem->dt_mem[i] = NULL;}
   free(ca_mem->dt_mem); ca_mem->dt_mem = NULL;
 
-  /* Free workspace vectors in ca_mem */
-  CVAfreeVectors(ca_mem);
+  /* Delete backward problems one by one */
+  while (ca_mem->cvB_mem != NULL) CVAbckpbDelete(&(ca_mem->cvB_mem));
 
-  /* Free memory allocated by the linear solver */
-  if (lfreeB != NULL) lfreeB(ca_mem);
-
-  /* Free CVODES memory for backward run */
-  cvode_bmem = (void *)ca_mem->cvb_mem;
-  CVodeFree(&cvode_bmem);
+  /* Free workspace vector ytmp in ca_mem */
+  N_VDestroy(ytmp);
 
   /* Free CVODEA memory */
   free(*cvadj_mem);
@@ -642,105 +676,165 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
   return(flag);
 }
 
-/*
- * CVodeCreateB, CVodeMallocB, and CVodeReInitB
- *
- * Wrappers for the backward phase around the corresponding 
- * CVODES functions
+
+
+/* 
+ * =================================================================
+ * FUNCTIONS FOR BACKWARD PROBLEMS
+ * =================================================================
  */
 
-int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB)
+
+
+void *CVodeCreateB(void *cvadj_mem, int lmmB, int iterB)
 {
   CVadjMem ca_mem;
+  CVodeBMem new_cvB_mem;
   void *cvode_mem;
 
   if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeCreateB", MSGAM_NULL_CAMEM);
-    return(CV_ADJMEM_NULL);
+    CVProcessError(NULL, 0, "CVODEA", "CVodeCreateB", MSGAM_NULL_CAMEM);
+    return(NULL);
   }
-
   ca_mem = (CVadjMem) cvadj_mem;
 
+  /* Allocate space for new CVodeBMem object */
+
+  new_cvB_mem = NULL;
+  new_cvB_mem = (CVodeBMem) malloc(sizeof(struct CVodeBMemRec));
+  if (new_cvB_mem == NULL) {
+    CVProcessError(NULL, 0, "CVODEA", "CVodeCreateB", MSGAM_MEM_FAIL);
+    return(NULL);
+  }
+
+  /* Create and set a new CVODES object */
+
   cvode_mem = CVodeCreate(lmmB, iterB);
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, 0, "CVODEA", "CVodeCreateB", MSGAM_MEM_FAIL);
+    return(NULL);
+  }
 
-  if (cvode_mem == NULL)
-    return(CV_MEM_FAIL);
+  CVodeSetFdata(cvode_mem, cvadj_mem);
 
-  ca_mem->cvb_mem = (CVodeMem) cvode_mem;
+  CVodeSetMaxHnilWarns(cvode_mem, -1);
 
-  return(CV_SUCCESS);
+  /* Set/initialize fields in the new CVodeBMem object, new_cvB_mem */
 
+  new_cvB_mem->cv_index   = nbckpbs;
+
+  new_cvB_mem->cv_mem     = (CVodeMem) cvode_mem;
+
+  new_cvB_mem->cv_f       = NULL;
+
+  new_cvB_mem->cv_fQ      = NULL;
+  new_cvB_mem->cv_f_data  = NULL;
+  new_cvB_mem->cv_fQ_data = NULL;
+  new_cvB_mem->cv_lmem    = NULL;
+  new_cvB_mem->cv_lfree   = NULL;
+  new_cvB_mem->cv_pmem    = NULL;
+  new_cvB_mem->cv_pfree   = NULL;
+
+  new_cvB_mem->cv_y       = NULL;
+
+  /* Attach the new object to the linked list cvB_mem */
+
+  new_cvB_mem->cv_next = ca_mem->cvB_mem;
+  ca_mem->cvB_mem = new_cvB_mem;
+  
+  nbckpbs++;
+
+  /* Return a pointer to the newly created CVodeBMem object.
+   * This can be passed to other ***B functions to set optional
+   * inputs for this backward problem */
+  return((void *)new_cvB_mem);
 }
 
-int CVodeMallocB(void *cvadj_mem, CVRhsFnB fB, 
+
+int CVodeMallocB(void *cvb_mem, CVRhsFnB fB,
                  realtype tB0, N_Vector yB0,
                  int itolB, realtype reltolB, void *abstolB)
 {
   CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
   CVodeMem cv_mem;
-  int sign, flag;
+  void *cvode_mem;
+  int flag, sign;
 
-  if (cvadj_mem == NULL) {
+  if (cvb_mem == NULL) {
     CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeMallocB", MSGAM_NULL_CAMEM);
     return(CV_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cv_mem = ca_mem->cvb_mem;
+  cv_mem = cvB_mem->cv_mem;
+
+  ca_mem = (CVadjMem) (cv_mem->cv_f_data);
+
+  /* Check if tB0 is legal (i.e. if the forward integration has reached it) */
+  
+  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
+  if ( (sign*(tB0-tinitial) < ZERO) || (sign*(tfinal-tB0) < ZERO) ) {
+    CVProcessError(NULL, CV_BAD_TB0, "CVODEA", "CVodeMallocB", MSGAM_BAD_TB0);
+    return(CV_BAD_TB0);
+  }
+
+  /* Allocate and set the CVODES object */
 
   flag = CVodeMalloc(cv_mem, CVArhs, tB0, yB0,
                      itolB, reltolB, abstolB);
   if (flag != CV_SUCCESS) return(flag);
 
-  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
-  if ( (sign*(tB0-tinitial) < ZERO) || (sign*(tfinal-tB0) < ZERO) ) {
-    CVProcessError(cv_mem, CV_BAD_TB0, "CVODEA", "CVodeMallocB", MSGAM_BAD_TB0);
-    return(CV_BAD_TB0);
-  }
+  /* Copy fB function in cvB_mem */
 
-  f_B = fB;
+  cvB_mem->cv_f = fB;
 
-  CVodeSetMaxHnilWarns(cv_mem, -1);
-  CVodeSetFdata(cv_mem, cvadj_mem);
+  /* Allocate space and initialize for the y Nvector in cvB_mem */
+  cvB_mem->cv_t0 = tB0;
+  cvB_mem->cv_y = N_VClone(yB0);
+  N_VScale(ONE, yB0, cvB_mem->cv_y);
 
   return(CV_SUCCESS);
-
 }
 
-int CVodeReInitB(void *cvadj_mem, CVRhsFnB fB, 
+
+int CVodeReInitB(void *cvb_mem, CVRhsFnB fB, 
                  realtype tB0, N_Vector yB0, 
                  int itolB, realtype reltolB, void *abstolB)
 {
   CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
   CVodeMem cv_mem;
-  int sign, flag;
+  int flag, sign;
 
-  if (cvadj_mem == NULL) {
+  if (cvb_mem == NULL) {
     CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeReInitB", MSGAM_NULL_CAMEM);
     return(CV_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  cv_mem = ca_mem->cvb_mem;
+  cv_mem = cvB_mem->cv_mem;
+
+  ca_mem = (CVadjMem) (cv_mem->cv_f_data);
+
+  /* Check if tB0 is legal (i.e. if the forward integration has reached it) */
+  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
+  if ( (sign*(tB0-tinitial) < ZERO) || (sign*(tfinal-tB0) < ZERO) ) {
+    CVProcessError(NULL, CV_BAD_TB0, "CVODEA", "CVodeReInitB", MSGAM_BAD_TB0);
+    return(CV_BAD_TB0);
+  }
+
+  /* Reinitialize CVODES object */
 
   flag = CVodeReInit(cv_mem, CVArhs, tB0, yB0,
                      itolB, reltolB, abstolB);
+  if (flag != CV_SUCCESS)  return(flag);
 
-  if (flag != CV_SUCCESS) return(flag);
+  /* Copy fB function in cvB_mem */
 
-  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
-  if ( (sign*(tB0-tinitial) < ZERO) || (sign*(tfinal-tB0) < ZERO) ) {
-    CVProcessError(cv_mem, CV_BAD_TB0, "CVODEA", "CVodeReInitB", MSGAM_BAD_TB0);
-    return(CV_BAD_TB0);
-  }
-  
-  f_B  = fB;
-
-  CVodeSetMaxHnilWarns(cv_mem, -1);
-  CVodeSetFdata(cv_mem, cvadj_mem);
+  cvB_mem->cv_f = fB;
 
   return(CV_SUCCESS);
-
 }
 
 /*
@@ -750,57 +844,61 @@ int CVodeReInitB(void *cvadj_mem, CVRhsFnB fB,
  * CVODES functions
  */
 
-int CVodeQuadMallocB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0)
+int CVodeQuadMallocB(void *cvb_mem, CVQuadRhsFnB fQB, N_Vector yQB0)
 {
   CVadjMem ca_mem;
-  void *cvode_mem;
+  CVodeBMem cvB_mem;
+  CVodeMem cv_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
+  if (cvb_mem == NULL) {
     CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeQuadMallocB", MSGAM_NULL_CAMEM);
     return(CV_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  fQ_B = fQB;
+  cv_mem = cvB_mem->cv_mem;
 
-  cvode_mem = (void *) ca_mem->cvb_mem;
+  ca_mem = (CVadjMem) (cv_mem->cv_f_data);
 
-  flag = CVodeQuadMalloc(cvode_mem, CVArhsQ, yQB0);
+  flag = CVodeQuadMalloc(cv_mem, CVArhsQ, yQB0);
   if (flag != CV_SUCCESS) return(flag);
 
-  flag = CVodeSetQuadFdata(cvode_mem, cvadj_mem);
+  flag = CVodeSetQuadFdata(cv_mem, ca_mem);
 
-  return(flag);
+  cvB_mem->cv_fQ = fQB;
 
+  return(CV_SUCCESS);
 }
 
-int CVodeQuadReInitB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0)
+int CVodeQuadReInitB(void *cvb_mem, CVQuadRhsFnB fQB, N_Vector yQB0)
 {
-  CVadjMem ca_mem;
-  void *cvode_mem;
+  CVodeBMem cvB_mem;
+  CVodeMem cv_mem;
   int flag;
 
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeQuadReInitB", MSGAM_NULL_CAMEM);
+  if (cvb_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeQuadMallocB", MSGAM_NULL_CAMEM);
     return(CV_ADJMEM_NULL);
   }
-  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = (CVodeBMem) cvb_mem;
 
-  fQ_B = fQB;
+  cv_mem = cvB_mem->cv_mem;
 
-  cvode_mem = (void *) ca_mem->cvb_mem;
+  flag = CVodeQuadReInit(cv_mem, CVArhsQ, yQB0);
+  if (flag != CV_SUCCESS) return(flag);
 
-  flag = CVodeQuadReInit(cvode_mem, CVArhsQ, yQB0);
+  cvB_mem->cv_fQ = fQB;
 
-  return(flag);
-
+  return(CV_SUCCESS);
 }
+
 
 /*
  * CVodeB
  *
- * This routine performs the backward integration towards tBout. 
+ * This routine performs the backward integration towards tBout
+ * of all backward problems that were defined.
  * When necessary, it performs a forward integration between two 
  * consecutive check points to update interpolation data.
  * itask can be CV_NORMAL or CV_ONE_STEP only.
@@ -809,16 +907,20 @@ int CVodeQuadReInitB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0)
  * (in ONE_STEP mode or if tBout was reached in NORMAL mode)
  * unless the return time happens to be a checkpoint, in which
  * case it returns CV_TSTOP_RETURN)
+ *
+ * NOTE that CVodeB DOES NOT return the solution for the backward
+ * problem(s). Use CVodeGetB to extract the solution at tBret
+ * for any given backward problem.
  */
 
-int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout, 
-           realtype *tBret, int itaskB)
+int CVodeB(void *cvadj_mem, realtype tBout, int itaskB)
 {
   CVadjMem ca_mem;
   CkpntMem ck_mem;
-  CVodeMem cvb_mem;
+  CVodeBMem cvB_mem, tmp_cvB_mem;
   int sign, flag, cv_itask;
-  realtype tBn, hB, troundoff;
+  realtype tBret, tBn, hB, troundoff, tmp_tBn;
+  booleantype gotCheckpoint, isActive, reachedTBout;
   
   if (cvadj_mem == NULL) {
     CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeB", MSGAM_NULL_CAMEM);
@@ -826,8 +928,8 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
   }
   ca_mem  = (CVadjMem) cvadj_mem;
 
-  cvb_mem = ca_mem->cvb_mem;
-  if (cvb_mem == NULL) {
+  cvB_mem = ca_mem->cvB_mem;
+  if (cvB_mem == NULL) {
     CVProcessError(NULL, CV_BCKMEM_NULL, "CVODEA", "CVodeB", MSGAM_NULL_CVMEM);
     return(CV_BCKMEM_NULL);
   }
@@ -837,7 +939,7 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
   else if (itaskB == CV_ONE_STEP)
     cv_itask = CV_ONE_STEP_TSTOP;
   else {
-    CVProcessError(cvb_mem, CV_BAD_ITASK, "CVODEA", "CVodeB", MSGAM_BAD_ITASKB);
+    CVProcessError(NULL, CV_BAD_ITASK, "CVODEA", "CVodeB", MSGAM_BAD_ITASKB);
     return(CV_BAD_ITASK);
   }
 
@@ -845,47 +947,129 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
 
   sign = (tfinal - tinitial > ZERO) ? 1 : -1;
 
+
   if ( (sign*(tBout-tinitial) < ZERO) || (sign*(tfinal-tBout) < ZERO) ) {
-    CVProcessError(cvb_mem, CV_BAD_TBOUT, "CVODEA", "CVodeB", MSGAM_BAD_TBOUT);
-    return(CV_BAD_TBOUT);
+    if ( ABS(tBout-tinitial) < HUNDRED*uround ) {
+      tBout = tinitial;
+    } else {
+      CVProcessError(NULL, CV_BAD_TBOUT, "CVODEA", "CVodeB", MSGAM_BAD_TBOUT);
+      return(CV_BAD_TBOUT);
+    }
   }
 
-  /* Move ck_mem pointer to the checkpoint appropriate for
-     tBn (the current time reached by CVODES) */
-  tBn = cvb_mem->cv_tn;
-  hB = cvb_mem->cv_hu;
-  troundoff = HUNDRED*uround*(ABS(tBn) + ABS(hB));
-  while ( sign*(tBn - t0_) <= troundoff ) {
+
+  /* Loop through the check points and stop as soon as a backward
+   * problem has its tn value larger than the current check point's
+   * t0_ value (taking into account the direction of integration) */
+
+  gotCheckpoint = FALSE;
+
+  loop {
+    
+    tmp_cvB_mem = cvB_mem;
+    while(tmp_cvB_mem != NULL) {
+      tBn = tmp_cvB_mem->cv_mem->cv_tn;
+      hB  = tmp_cvB_mem->cv_mem->cv_hu;
+      troundoff = HUNDRED*uround*(ABS(tBn) + ABS(hB));
+      if ( sign * (tBn-t0_) > troundoff ) {
+        gotCheckpoint = TRUE;
+        break;
+      }
+      tmp_cvB_mem = tmp_cvB_mem->cv_next;
+    }
+
+    if (gotCheckpoint) break;
+
     if (next_ == NULL) break;
+
     ck_mem = next_;
   }
 
+  /* Loop while propagating backward problems */
+
   loop {
 
-    /* Store interpolation data if not available 
+    /* Store interpolation data if not available.
        This is the 2nd forward integration pass */
+
     if (ck_mem != ckpntData) {
       flag = CVAdataStore(ca_mem, ck_mem);
       if (flag != CV_SUCCESS) break;
     }
 
-    /* Backward integration */
-    CVodeSetStopTime((void *)cvb_mem, t0_);
-    flag = CVode(cvb_mem, tBout, yBout, tBret, cv_itask);
+    /* Loop through all backward problems and, if needed,
+     * propagate their solution towards tBout */
+
+    tmp_cvB_mem = cvB_mem;
+    while (tmp_cvB_mem != NULL) {
+
+      /* Decide if current backward problem is "active" */
+
+      isActive = TRUE;
+
+      tBn = tmp_cvB_mem->cv_mem->cv_tn;
+      hB  = tmp_cvB_mem->cv_mem->cv_hu;
+      troundoff = HUNDRED*uround*(ABS(tBn) + ABS(hB));
+
+      if ( sign * (tBn - t0_)   < troundoff ) isActive = FALSE;
+      if ( sign * (tBn - tBout) < troundoff ) isActive = FALSE;
+
+      if ( isActive ) {
+
+        /* Store the address of current backward problem memory 
+         * in ca_mem to be used in the wrapper functions */
+        ca_mem->ca_bckpbCrt = tmp_cvB_mem;
+
+        /* Integrate current backward problem */
+        CVodeSetStopTime(tmp_cvB_mem->cv_mem, t0_);
+        flag = CVode(tmp_cvB_mem->cv_mem, tBout, tmp_cvB_mem->cv_y, &tBret, cv_itask);
+
+        /* If an error occured, exit while loop */
+        if (flag < 0) break;
+
+        /* Set the time at which we will report solution and/or quadratures */
+        tmp_cvB_mem->cv_tout = tBret;
+
+      } else {
+
+        flag = CV_SUCCESS;
+        tmp_cvB_mem->cv_tout = tBn;
+
+      }
+
+      /* Move to next backward problem */
+
+      tmp_cvB_mem = tmp_cvB_mem->cv_next;
+    }
 
     /* If an error occured, return now */
-    if (flag < 0) break;
 
-    /* Set the time at which CVodeGetQuadB will evaluate any quadratures */
-    t_for_quad = *tBret;
+    if (flag <0) {
+      CVProcessError(NULL, flag, "CVODEA", "CVodeB", MSGAM_BACK_ERROR, tmp_cvB_mem->cv_index);
+      return(flag);
+    }
 
     /* If in CV_ONE_STEP mode, return now (flag=CV_SUCCESS or flag=CV_TSTOP_RETURN) */
+
     if (itaskB == CV_ONE_STEP) break;
 
-    /* If succesfully reached tBout, return now */
-    if ( sign*(*tBret - tBout) <= ZERO) break;
+    /* If all backward problems have succesfully reached tBout, return now */
+
+    reachedTBout = TRUE;
+
+    tmp_cvB_mem = cvB_mem;
+    while(tmp_cvB_mem != NULL) {
+      if ( sign*(tmp_cvB_mem->cv_tout - tBout) > 0 ) {
+        reachedTBout = FALSE;
+        break;
+      }
+      tmp_cvB_mem = tmp_cvB_mem->cv_next;
+    }
+
+    if ( reachedTBout ) break;
 
     /* Move check point in linked list to next one */
+
     ck_mem = next_;
 
   } 
@@ -893,45 +1077,55 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
   return(flag);
 }
 
+
+
+int CVodeGetB(void *cvb_mem, realtype *tret, N_Vector yB)
+{
+  CVodeBMem cvB_mem;
+
+  if (cvb_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeGetB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
+  cvB_mem = (CVodeBMem) cvb_mem;
+
+  N_VScale(ONE, cvB_mem->cv_y, yB);
+  *tret = cvB_mem->cv_tout;
+
+  return(CV_SUCCESS);
+}
+
+
+/*
+ * CVodeGetQuadB
+ */
+
+int CVodeGetQuadB(void *cvb_mem, realtype *tret, N_Vector qB)
+{
+  CVodeBMem cvB_mem;
+  CVodeMem cv_mem;
+  int flag;
+
+  if (cvb_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeGetQuadB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
+  cvB_mem = (CVodeBMem) cvb_mem;
+
+  cv_mem = cvB_mem->cv_mem;
+  
+  flag = CVodeGetQuad(cv_mem, tret, qB);
+  /*  *tret = cvB_mem->cv_tout; */
+
+  return(flag);
+}
+
+
 /* 
  * =================================================================
- * PRIVATE FUNCTIONS
+ * PRIVATE FUNCTIONS FOR CHECK POINTS
  * =================================================================
  */
-
-/*
- * CVAallocVectors
- *
- * Allocate memory for adjoint workspace N_Vectors
- */
-
-static booleantype CVAallocVectors(CVadjMem ca_mem)
-{
-  CVodeMem cv_mem;
-
-  cv_mem = ca_mem->cv_mem;
-
-  ytmp = NULL;
-  ytmp = N_VClone(tempv);
-  if (ytmp == NULL) {
-    return(FALSE);
-  }
-
-  return(TRUE);
-
-}
-
-/*
- * CVAfreeVectors
- * 
- * Free memory allocated by CVAallocVectors
- */
-
-static void CVAfreeVectors(CVadjMem ca_mem)
-{
-  N_VDestroy(ytmp);
-}
-
 
 /*
  * CVAckpntInit
@@ -1140,6 +1334,50 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
 
   }
 }
+
+/* 
+ * =================================================================
+ * PRIVATE FUNCTIONS FOR BACKWARD PROBLEMS
+ * =================================================================
+ */
+
+static void CVAbckpbDelete(CVodeBMem *cvB_memPtr)
+{
+  CVodeBMem tmp;
+  void *cvode_mem;
+
+  if (*cvB_memPtr != NULL) {
+
+    /* Save head of the list */
+    tmp = *cvB_memPtr;
+
+    /* Move head of the list */
+    *cvB_memPtr = (*cvB_memPtr)->cv_next;
+
+    /* Free CVODES memory in tmp */
+    cvode_mem = (void *)(tmp->cv_mem);
+    CVodeFree(&cvode_mem);
+
+    /* Free linear solver memory */
+    if (tmp->cv_lfree != NULL) tmp->cv_lfree(tmp);
+
+    /* Free preconditioner memory */
+    if (tmp->cv_pfree != NULL) tmp->cv_pfree(tmp);
+
+    /* Free workspace Nvector */
+    N_VDestroy(tmp->cv_y);
+
+    free(tmp); tmp = NULL;
+
+  }
+
+}
+
+/* 
+ * =================================================================
+ * PRIVATE FUNCTIONS FOR INTERPOLATION
+ * =================================================================
+ */
 
 /*
  * CVAdataStore
@@ -1797,21 +2035,21 @@ static int CVArhs(realtype t, N_Vector yB,
                   N_Vector yBdot, void *cvadj_mem)
 {
   CVadjMem ca_mem;
-  CVodeMem cv_mem;
+  CVodeBMem cvB_mem;
   int flag, retval;
 
   ca_mem = (CVadjMem) cvadj_mem;
-  cv_mem = ca_mem->cvb_mem;
+  cvB_mem = ca_mem->ca_bckpbCrt;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(cv_mem, -1, "CVODEA", "CVArhs", MSGAM_BAD_T);
+    CVProcessError(NULL, -1, "CVODEA", "CVArhs", MSGAM_BAD_T);
     return(-1);
   }
 
   /* Call user's adjoint RHS routine */
-  retval = f_B(t, ytmp, yB, yBdot, f_data_B);
+  retval = (cvB_mem->cv_f)(t, ytmp, yB, yBdot, cvB_mem->cv_f_data);
 
   return(retval);
 }
@@ -1828,21 +2066,21 @@ static int CVArhsQ(realtype t, N_Vector yB,
                    N_Vector qBdot, void *cvadj_mem)
 {
   CVadjMem ca_mem;
-  CVodeMem cv_mem;
+  CVodeBMem cvB_mem;
   int flag, retval;
 
   ca_mem = (CVadjMem) cvadj_mem;
-  cv_mem = ca_mem->cvb_mem;
+  cvB_mem = ca_mem->ca_bckpbCrt;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(cv_mem, -1, "CVODEA", "CVArhsQ", MSGAM_BAD_T);
+    CVProcessError(NULL, -1, "CVODEA", "CVArhsQ", MSGAM_BAD_T);
     return(-1);
   }
 
   /* Call user's adjoint RHS routine */
-  retval = fQ_B(t, ytmp, yB, qBdot, fQ_data_B);
+  retval = (cvB_mem->cv_fQ)(t, ytmp, yB, qBdot, cvB_mem->cv_fQ_data);
 
   return(retval);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-21 18:56:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -153,8 +153,8 @@ typedef struct {
   realtype fsave[NEQ];
   realtype fBsave[NEQ];
   N_Vector rewt;
-  void *cvadj_mem;
-  void *cvode_memF;
+  void *cvodeB_mem;
+  void *cvodeF_mem;
 } *WebData;
 
 /* Adjoint calculation constants */
@@ -230,6 +230,7 @@ int main(int argc, char *argv[])
   N_Vector c;
   WebData wdata;
   void *cvode_mem;
+  void *cvodeB_mem;
   int flag;
 
   void *cvadj_mem;
@@ -261,7 +262,7 @@ int main(int argc, char *argv[])
   printf("\nCreate and allocate CVODE memory for forward run\n");
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
-  wdata->cvode_memF = cvode_mem; /* Used in Precond */
+  wdata->cvodeF_mem = cvode_mem; /* Used in Precond */
   flag = CVodeSetFdata(cvode_mem, wdata);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
   flag = CVodeMalloc(cvode_mem, f, T0, c, CV_SS, reltol, &abstol);
@@ -278,7 +279,6 @@ int main(int argc, char *argv[])
   printf("\nAllocate global memory\n");
   cvadj_mem = CVadjMalloc(cvode_mem, NSTEPS, CV_HERMITE);
   if(check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
-  wdata->cvadj_mem = cvadj_mem;
 
   /* Perform forward run */
 
@@ -304,26 +304,31 @@ int main(int argc, char *argv[])
 
   /* Create and allocate CVODES memory for backward run */
   printf("\nCreate and allocate CVODES memory for backward run\n");
-  flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
-  if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
-  flag = CVodeSetFdataB(cvadj_mem, wdata);
+  cvodeB_mem = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
+  if(check_flag((void *)(cvodeB_mem), "CVodeCreateB", 0)) return(1);
+  flag = CVodeSetFdataB(cvodeB_mem, wdata);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
-  flag = CVodeSetMaxNumStepsB(cvadj_mem, 1000);
+  flag = CVodeSetMaxNumStepsB(cvodeB_mem, 1000);
   if(check_flag(&flag, "CVodeSetMaxNumStepsB", 1)) return(1);
-  flag = CVodeMallocB(cvadj_mem, fB, TOUT, cB, CV_SS, reltolB, &abstolB);
+  flag = CVodeMallocB(cvodeB_mem, fB, TOUT, cB, CV_SS, reltolB, &abstolB);
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
+  wdata->cvodeB_mem = cvodeB_mem;
+
   /* Call CVSpgmr */
-  flag = CVSpgmrB(cvadj_mem, PREC_LEFT, 0);
+  flag = CVSpgmrB(cvodeB_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmrB", 1)) return(1);
-  flag = CVSpilsSetPreconditionerB(cvadj_mem, PrecondB, PSolveB, wdata);
+  flag = CVSpilsSetPreconditionerB(cvodeB_mem, PrecondB, PSolveB, wdata);
   if(check_flag(&flag, "CVSpilsSetPreconditionerB", 1)) return(1);
 
   /* Perform backward integration */
 
   printf("\nBackward integration\n");
-  flag = CVodeB(cvadj_mem, T0, cB, &t, CV_NORMAL);
+  flag = CVodeB(cvadj_mem, T0, CV_NORMAL);
   if(check_flag(&flag, "CVodeB", 1)) return(1);
+
+  flag = CVodeGetB(cvodeB_mem, &t, cB);
+  if(check_flag(&flag, "CVodeGetB", 1)) return(1);
 
   PrintOutput(cB, NS, MXNS, wdata);
 
@@ -434,7 +439,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   N_Vector rewt;
 
   wdata = (WebData) P_data;
-  cvode_mem = wdata->cvode_memF;
+  cvode_mem = wdata->cvodeF_mem;
   rewt = wdata->rewt;
   flag = CVodeGetErrWeights(cvode_mem, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
@@ -649,7 +654,7 @@ static int PrecondB(realtype t, N_Vector c,
   N_Vector rewt;
 
   wdata = (WebData) P_data;
-  cvode_mem = CVadjGetCVodeBmem(wdata->cvadj_mem);
+  cvode_mem = CVadjGetCVodeBmem(wdata->cvodeB_mem);
   if(check_flag((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) return(1);
   rewt = wdata->rewt;
   flag = CVodeGetErrWeights(cvode_mem, rewt);

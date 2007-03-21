@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-21 18:56:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -130,7 +130,7 @@ SUNDIALS_EXPORT char *CVDiagGetReturnFlagName(int flag);
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT int CVDiagB(void *cvadj_mem);
+SUNDIALS_EXPORT int CVDiagB(void *cvb_mem);
   
 
 #ifdef __cplusplus

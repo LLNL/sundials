@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-21 18:56:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -66,7 +66,7 @@ typedef struct {
 #define MSGBP_PDATA_NULL "CVBANDPRE memory is NULL."
 #define MSGBP_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
 
-#define MSGBP_CAMEM_NULL "cvadj_mem = NULL illegal."
+#define MSGBP_CAMEM_NULL "cvb_mem = NULL illegal."
 
 #ifdef __cplusplus
 }
