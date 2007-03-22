@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-21 18:56:36 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-22 18:05:50 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,7 +45,7 @@ extern "C" {
 #define CVBANDPRE_PDATA_NULL      -11
 #define CVBANDPRE_RHSFUNC_UNRECVR -12
 
-#define CVBANDPRE_ADJMEM_NULL     -111
+#define CVBANDPRE_NO_ADJ          -111
 #define CVBANDPRE_MEM_FAIL        -112
 
 /* 
@@ -294,11 +294,12 @@ SUNDIALS_EXPORT char *CVBandPrecGetReturnFlagName(int flag);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBandPrecAllocB(void *cvb_mem, int nB, int muB, int mlB);
+SUNDIALS_EXPORT int CVBandPrecAllocB(void *cvode_mem, int which,
+                                     int nB, int muB, int mlB);
 
-SUNDIALS_EXPORT int CVBPSptfqmrB(void *cvb_mem, int pretypeB, int maxlB);
-SUNDIALS_EXPORT int CVBPSpbcgB(void *cvb_mem, int pretypeB, int maxlB);
-SUNDIALS_EXPORT int CVBPSpgmrB(void *cvb_mem, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBPSptfqmrB(void *cvode_mem, int which, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBPSpbcgB(void *cvode_mem, int which, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBPSpgmrB(void *cvode_mem, int which, int pretypeB, int maxlB);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-21 18:56:38 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-22 18:05:53 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -219,8 +219,7 @@ int main(int argc, char *argv[])
   void *bbdp_data;
   int mudq, mldq, mukeep, mlkeep;
 
-  void *cvadj_mem;
-  void *cvodeB_mem;
+  int indexB;
   N_Vector yB, qB;
   realtype abstolB, reltolB, abstolQB, reltolQB;
   int mudqB, mldqB, mukeepB, mlkeepB;
@@ -294,11 +293,11 @@ int main(int argc, char *argv[])
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ); 
 
   /* Allocate space for the adjoint calculation */
-  cvadj_mem = CVadjMalloc(cvode_mem, STEPS, CV_HERMITE);
+  flag = CVodeAdjMalloc(cvode_mem, STEPS, CV_HERMITE);
 
   /* Integrate forward in time while storing check points */
   if (myId == 0) printf("Begin forward integration... ");
-  flag = CVodeF(cvadj_mem, tf, y, &tret, CV_NORMAL, &ncheckpnt);
+  flag = CVodeF(cvode_mem, tf, y, &tret, CV_NORMAL, &ncheckpnt);
   if (myId == 0) printf("done. ");
 
    /* Extract quadratures */
@@ -329,40 +328,40 @@ int main(int argc, char *argv[])
   N_VConst(ZERO, qB);
 
   /* Create and allocate backward CVODE memory */
-  cvodeB_mem = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
-  flag = CVodeSetFdataB(cvodeB_mem, d);
+  flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
+  flag = CVodeSetFdataB(cvode_mem, indexB, d);
   abstolB = ATOL_B;  
   reltolB = RTOL_B; 
-  flag = CVodeMallocB(cvodeB_mem, fB, tf, yB, CV_SS, reltolB, &abstolB);
+  flag = CVodeMallocB(cvode_mem, indexB, fB, tf, yB, CV_SS, reltolB, &abstolB);
 
   /* Attach preconditioner and linear solver modules */
   mudqB = mldqB = d->l_m[0]+1;
   mukeepB = mlkeepB = 2;  
-  flag = CVBBDPrecAllocB(cvodeB_mem, l_neq, mudqB, mldqB, 
+  flag = CVBBDPrecAllocB(cvode_mem, indexB, l_neq, mudqB, mldqB, 
                          mukeepB, mlkeepB, ZERO, fB_local, NULL);
-  flag = CVBBDSpgmrB(cvodeB_mem, PREC_LEFT, 0); 
+  flag = CVBBDSpgmrB(cvode_mem, indexB, PREC_LEFT, 0); 
 
   /* Initialize quadrature calculations */
   abstolQB = ATOL_QB;
   reltolQB = RTOL_QB;
-  flag = CVodeQuadMallocB(cvodeB_mem, fQB, qB);
-  flag = CVodeSetQuadFdataB(cvodeB_mem, d);
-  flag = CVodeSetQuadErrConB(cvodeB_mem, TRUE, CV_SS, reltolQB, &abstolQB); 
+  flag = CVodeQuadMallocB(cvode_mem, indexB, fQB, qB);
+  flag = CVodeSetQuadFdataB(cvode_mem, indexB, d);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE, CV_SS, reltolQB, &abstolQB); 
 
   /* Integrate backwards */
   if (myId == 0) printf("Begin backward integration... ");
-  flag = CVodeB(cvadj_mem, ti, CV_NORMAL);
+  flag = CVodeB(cvode_mem, ti, CV_NORMAL);
   if (myId == 0) printf("done.\n");
   
   /* Extract solution */
-  flag = CVodeGetB(cvodeB_mem, &tret, yB);
+  flag = CVodeGetB(cvode_mem, indexB, &tret, yB);
 
   /* Extract quadratures */
-  flag = CVodeGetQuadB(cvodeB_mem, &tret, qB);
+  flag = CVodeGetQuadB(cvode_mem, indexB, &tret, qB);
 
   /* Print statistics for backward run */
   if (myId == 0) {
-    PrintFinalStats(CVadjGetCVodeBmem(cvodeB_mem));
+    PrintFinalStats(CVodeGetAdjCVodeBmem(cvode_mem, indexB));
   }
 
   /* Process 0 collects the gradient components and prints them */
@@ -380,8 +379,6 @@ int main(int argc, char *argv[])
 
   CVBBDPrecFree(&bbdp_data);
   CVodeFree(&cvode_mem);
-
-  CVadjFree(&cvadj_mem);
 
   MPI_Finalize();
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-21 18:56:36 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-22 18:05:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -76,7 +76,8 @@ SUNDIALS_EXPORT int CVSpgmr(void *cvode_mem, int pretype, int maxl);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVSpgmrB(void *cvb_mem, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVSpgmrB(void *cvode_mem, int which,
+                             int pretypeB, int maxlB);
   
 
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-21 18:56:43 $
+ * $Revision: 1.7 $
+ * $Date: 2007-03-22 18:05:56 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -71,16 +71,14 @@ extern "C" {
     int pm;            /* preconditioner module */
     int ism;           /* sensitivity method */
     
-    void *cvadj_mem;   /* CVODES adjoint memory */
-    int interp;
-    N_Vector yB;
-    N_Vector yQB;
-    int NB;
-    int NqB;
-    int lsB;
-    int pmB;
-
-    void *cvodeB_mem;   /* backward problem memory */
+    int indexB;        /* Index of backward problem */
+    int interp;        /* interpolation type for ASA */
+    N_Vector yB;       /* solution vector for backward problem */
+    N_Vector yQB;      /* quadrature vector for backward problem */
+    int NB;            /* dimension of backward problem */
+    int NqB;           /* number of quadratures for backward problem */
+    int lsB;           /* linear solver type for backward problem */
+    int pmB;           /* preconditioner module for backward problem */
 
     booleantype errmsg;
 

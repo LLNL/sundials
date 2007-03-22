@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-21 18:56:33 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-22 18:05:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -91,9 +91,10 @@ typedef struct {
 #define MSGBBDP_PDATA_NULL  "CVBBDPRE memory is NULL."
 #define MSGBBDP_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
 
-#define MSGBBDP_CAMEM_NULL  "cvb_mem = NULL illegal."
+#define MSGBBDP_NO_ADJ      "Illegal attempt to call before calling CVodeAdjMalloc."
+#define MSGBBDP_BAD_WHICH   "Illegal value for which."
 #define MSGBBDP_PDATAB_NULL "CVBBDPRE memory is NULL for the backward integration."
-#define MSGBBDP_BAD_T       "Bad t for interpolation."
+#define MSGBBDP_BAD_TINTERP "Bad t for interpolation."
 
 
 #ifdef __cplusplus

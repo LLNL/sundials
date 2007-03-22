@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-21 18:56:33 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-22 18:05:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -58,7 +58,8 @@ typedef struct {
 #define MSGDG_LMEM_NULL "CVDIAG memory is NULL."
 #define MSGDG_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
 
-#define MSGDG_CAMEM_NULL "cvb_mem = NULL illegal."
+#define MSGDG_NO_ADJ "Illegal attempt to call before calling CVodeAdjMalloc."
+#define MSGDG_BAD_WHICH "Illegal value for which."
 
 #ifdef __cplusplus
 }

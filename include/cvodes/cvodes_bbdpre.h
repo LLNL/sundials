@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-21 18:56:36 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-22 18:05:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,7 +45,7 @@ extern "C" {
 #define CVBBDPRE_PDATA_NULL       -11
 #define CVBBDPRE_FUNC_UNRECVR     -12
 
-#define CVBBDPRE_ADJMEM_NULL      -111
+#define CVBBDPRE_NO_ADJ           -111
 #define CVBBDPRE_PDATAB_NULL      -112
 #define CVBBDPRE_MEM_FAIL         -113
 
@@ -439,17 +439,18 @@ typedef int (*CVCommFnB)(int NlocalB, realtype t,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecAllocB(void *cvb_mem, int NlocalB,
+SUNDIALS_EXPORT int CVBBDPrecAllocB(void *cvode_mem, int which, int NlocalB,
 				    int mudqB, int mldqB,
 				    int mukeepB, int mlkeepB,
 				    realtype dqrelyB,
 				    CVLocalFnB glocB, CVCommFnB cfnB);
 
-SUNDIALS_EXPORT int CVBBDSptfqmrB(void *cvb_mem, int pretypeB, int maxlB);
-SUNDIALS_EXPORT int CVBBDSpbcgB(void *cvb_mem, int pretypeB, int maxlB);
-SUNDIALS_EXPORT int CVBBDSpgmrB(void *cvb_mem, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBBDSptfqmrB(void *cvode_mem, int which, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBBDSpbcgB(void *cvode_mem, int which, int pretypeB, int maxlB);
+SUNDIALS_EXPORT int CVBBDSpgmrB(void *cvode_mem, int which, int pretypeB, int maxlB);
   
-SUNDIALS_EXPORT int CVBBDPrecReInitB(void *cvb_mem, int mudqB, int mldqB,
+SUNDIALS_EXPORT int CVBBDPrecReInitB(void *cvode_mem, int which, 
+                                     int mudqB, int mldqB,
                                      realtype dqrelyB, 
                                      CVLocalFnB glocB, CVCommFnB cfnB);
 

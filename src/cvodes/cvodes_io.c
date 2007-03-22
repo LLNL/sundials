@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-20 14:33:59 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-22 18:05:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2071,7 +2071,28 @@ char *CVodeGetReturnFlagName(int flag)
     break;
   case CV_TOO_CLOSE:
     sprintf(name,"CV_TOO_CLOSE");
-    break;    
+    break; 
+  case CV_NO_ADJ:
+    sprintf(name,"CV_NO_ADJ");
+    break;
+  case CV_NO_FWD:
+    sprintf(name,"CV_NO_FWD");
+    break;
+  case CV_NO_BCK:
+    sprintf(name,"CV_NO_BCK");
+    break;
+  case CV_BAD_TB0:
+    sprintf(name,"CV_BAD_TB0");
+    break;
+  case CV_REIFWD_FAIL:
+    sprintf(name,"CV_REIFWD_FAIL");
+    break;
+  case CV_FWD_FAIL:
+    sprintf(name,"CV_FWD_FAIL");
+    break;
+  case CV_GETY_BADT:
+    sprintf(name,"CV_GETY_BADT");
+    break;  
   default:
     sprintf(name,"NONE");
   }

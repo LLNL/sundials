@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-03-21 18:56:40 $
+ * $Revision: 1.8 $
+ * $Date: 2007-03-22 18:05:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -133,14 +133,14 @@ int main(int argc, char *argv[])
 {
   UserData data;
 
-  void *cvadj_mem;
   void *cvode_mem;
-  void *cvodeB_mem;
 
   realtype reltolQ, abstolQ;
   N_Vector y, q;
 
   int steps;
+
+  int indexB;
 
   realtype reltolB, abstolB, abstolQB;
   N_Vector yB, qB;
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
   CVadjCheckPointRec *ckpnt;
 
   data = NULL;
-  cvadj_mem = cvode_mem = NULL;
+  cvode_mem = NULL;
   ckpnt = NULL;
   y = yB = qB = NULL;
 
@@ -223,16 +223,16 @@ int main(int argc, char *argv[])
   /* Allocate global memory */
 
   steps = STEPS;
-  cvadj_mem = CVadjMalloc(cvode_mem, steps, CV_HERMITE);
+  flag = CVodeAdjMalloc(cvode_mem, steps, CV_HERMITE);
   /*
-  cvadj_mem = CVadjMalloc(cvode_mem, steps, CV_POLYNOMIAL);
+  flag = CVodeAdjMalloc(cvode_mem, steps, CV_POLYNOMIAL);
   */
-  if (check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
+  if (check_flag(&flag, "CVodeAdjMalloc", 1)) return(1);
 
   /* Perform forward run */
   printf("Forward integration ... ");
   
-  flag = CVodeF(cvadj_mem, TOUT, y, &time, CV_NORMAL, &ncheck);
+  flag = CVodeF(cvode_mem, TOUT, y, &time, CV_NORMAL, &ncheck);
   if (check_flag(&flag, "CVodeF", 1)) return(1);
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   if (check_flag(&flag, "CVodeGetNumSteps", 1)) return(1);
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
     
     printf("\nList of Check Points (ncheck = %d)\n\n", ncheck);
     ckpnt = (CVadjCheckPointRec *) malloc ( (ncheck+1)*sizeof(CVadjCheckPointRec));
-    CVadjGetCheckPointsInfo(cvadj_mem, ckpnt);
+    CVodeGetAdjCheckPointsInfo(cvode_mem, ckpnt);
     for (i=0;i<=ncheck;i++) {
       printf("Address:       %p\n",ckpnt[i].my_addr);
       printf("Next:          %p\n",ckpnt[i].next_addr);
@@ -301,42 +301,42 @@ int main(int argc, char *argv[])
   /* Create and allocate CVODES memory for backward run */
   printf("Create and allocate CVODES memory for backward run\n");
 
-  cvodeB_mem = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
-  if (check_flag((void *)(cvodeB_mem), "CVodeCreateB", 0)) return(1);
+  flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
+  if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
 
-  flag = CVodeMallocB(cvodeB_mem, fB, TB1, yB, CV_SS, reltolB, &abstolB);
+  flag = CVodeMallocB(cvode_mem, indexB, fB, TB1, yB, CV_SS, reltolB, &abstolB);
   if (check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
-  flag = CVodeSetFdataB(cvodeB_mem, data);
+  flag = CVodeSetFdataB(cvode_mem, indexB, data);
   if (check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
 
-  flag = CVDenseB(cvodeB_mem, NEQ);
+  flag = CVDenseB(cvode_mem, indexB, NEQ);
   if (check_flag(&flag, "CVDenseB", 1)) return(1);
 
-  flag = CVDlsSetJacFnB(cvodeB_mem, (void *)JacB, data);
+  flag = CVDlsSetJacFnB(cvode_mem, indexB, (void *)JacB, data);
   if (check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
-  flag = CVodeQuadMallocB(cvodeB_mem, fQB, qB);
+  flag = CVodeQuadMallocB(cvode_mem, indexB, fQB, qB);
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
 
-  flag = CVodeSetQuadFdataB(cvodeB_mem, data);
+  flag = CVodeSetQuadFdataB(cvode_mem, indexB, data);
   if (check_flag(&flag, "CVodeSetQuadFdataB", 1)) return(1);
 
-  flag = CVodeSetQuadErrConB(cvodeB_mem, TRUE, CV_SS, reltolB, &abstolQB);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE, CV_SS, reltolB, &abstolQB);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Backward Integration */
   printf("Backward integration ... ");
 
-  flag = CVodeB(cvadj_mem, T0, CV_NORMAL);
+  flag = CVodeB(cvode_mem, T0, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
-  CVodeGetNumSteps(CVadjGetCVodeBmem(cvodeB_mem), &nstB);
+  CVodeGetNumSteps(CVodeGetAdjCVodeBmem(cvode_mem, indexB), &nstB);
   printf("done ( nst = %ld )\n", nstB);
 
-  flag = CVodeGetB(cvodeB_mem, &time, yB);
+  flag = CVodeGetB(cvode_mem, indexB, &time, yB);
   if (check_flag(&flag, "CVodeGetB", 1)) return(1);
 
-  flag = CVodeGetQuadB(cvodeB_mem, &time, qB);
+  flag = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
   PrintOutput(TB1, yB, qB);
@@ -353,23 +353,23 @@ int main(int argc, char *argv[])
 
   printf("Re-initialize CVODES memory for backward run\n");
 
-  flag = CVodeReInitB(cvodeB_mem, fB, TB2, yB, CV_SS, reltolB, &abstolB);
+  flag = CVodeReInitB(cvode_mem, indexB, fB, TB2, yB, CV_SS, reltolB, &abstolB);
   if (check_flag(&flag, "CVodeReInitB", 1)) return(1);
 
-  flag = CVodeQuadReInitB(cvodeB_mem, fQB, qB); 
+  flag = CVodeQuadReInitB(cvode_mem, indexB, fQB, qB); 
   if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
 
   printf("Backward integration ... ");
 
-  flag = CVodeB(cvadj_mem, T0, CV_NORMAL);
+  flag = CVodeB(cvode_mem, T0, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
-  CVodeGetNumSteps(CVadjGetCVodeBmem(cvodeB_mem), &nstB);
+  CVodeGetNumSteps(CVodeGetAdjCVodeBmem(cvode_mem, indexB), &nstB);
   printf("done ( nst = %ld )\n", nstB);
 
-  flag = CVodeGetB(cvodeB_mem, &time, yB);
+  flag = CVodeGetB(cvode_mem, indexB, &time, yB);
   if (check_flag(&flag, "CVodeGetB", 1)) return(1);
 
-  flag = CVodeGetQuadB(cvodeB_mem, &time, qB);
+  flag = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
 
   PrintOutput(TB2, yB, qB);
@@ -382,7 +382,6 @@ int main(int argc, char *argv[])
   N_VDestroy_Serial(q);
   N_VDestroy_Serial(yB);
   N_VDestroy_Serial(qB);
-  CVadjFree(&cvadj_mem);
 
   if (ckpnt != NULL) free(ckpnt);
   free(data);

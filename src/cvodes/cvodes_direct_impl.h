@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-21 18:56:33 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-22 18:05:52 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -126,6 +126,7 @@ typedef struct {
 
 } CVDlsMemRecB, *CVDlsMemB;
 
+
 /*
  * =================================================================
  * E R R O R   M E S S A G E S
@@ -139,9 +140,11 @@ typedef struct {
 #define MSGD_LMEM_NULL "Linear solver memory is NULL."
 #define MSGD_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 
-#define MSGD_CAMEM_NULL "cvb_mem = NULL illegal."
+
+#define MSGD_NO_ADJ "Illegal attempt to call before calling CVodeAdjMalloc."
+#define MSGD_BAD_WHICH "Illegal value for which."
 #define MSGD_LMEMB_NULL "Linear solver memory is NULL for the backward integration."
-#define MSGD_BAD_T "Bad t for interpolation."
+#define MSGD_BAD_TINTERP "Bad t for interpolation."
 
 #ifdef __cplusplus
 }

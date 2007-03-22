@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-21 18:56:34 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-22 18:05:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,17 +24,22 @@ extern "C" {
 
 #include <cvodes/cvodes_spils.h>
 
+/*
+ * =================================================================
+ * C V S P I L S    I N T E R N A L    C O N S T A N T S
+ * =================================================================
+ */
+
 /* Types of iterative linear solvers */
 
 #define SPILS_SPGMR   1
 #define SPILS_SPBCG   2
 #define SPILS_SPTFQMR 3
 
-
-/* 
- * -----------------------------------------------------------------
- * PART I - forward problems
- * -----------------------------------------------------------------
+/*
+ * =================================================================
+ * PART I:  F O R W A R D    P R O B L E M S
+ * =================================================================
  */
 
 /*
@@ -111,30 +116,9 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
 
 /*
- * -----------------------------------------------------------------
- * Error Messages
- * -----------------------------------------------------------------
- */
-
-#define MSGS_CVMEM_NULL  "Integrator memory is NULL."
-#define MSGS_MEM_FAIL    "A memory request failed."
-#define MSGS_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGS_BAD_LSTYPE  "Incompatible linear solver type."
-#define MSGS_BAD_PRETYPE "Illegal value for pretype. Legal values are PREC_NONE, PREC_LEFT, PREC_RIGHT, and PREC_BOTH."
-#define MSGS_PSOLVE_REQ  "pretype != PREC_NONE, but PSOLVE = NULL is illegal."
-#define MSGS_LMEM_NULL   "Linear solver memory is NULL."
-#define MSGS_BAD_GSTYPE  "Illegal value for gstype. Legal values are MODIFIED_GS and CLASSICAL_GS."
-#define MSGS_BAD_DELT    "delt < 0 illegal."
-  
-#define MSGS_PSET_FAILED "The preconditioner setup routine failed in an unrecoverable manner."
-#define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
-#define MSGS_JTIMES_FAILED "The Jacobian x vector routine failed in an unrecoverable manner."
-
-
-/* 
- * -----------------------------------------------------------------
- * PART II - backward problems
- * -----------------------------------------------------------------
+ * =================================================================
+ * PART II:  B A C K W A R D    P R O B L E M S
+ * =================================================================
  */
 
 /*
@@ -158,51 +142,29 @@ typedef struct {
 
 
 /*
- * ------------------------------------------------
- * Wrapper functions for using the iterative linear 
- * solvers on adjoint (backward) problems
- * ------------------------------------------------
+ * =================================================================
+ * E R R O R   M E S S A G E S
+ * =================================================================
  */
 
-/* 
- * CVAspilsPrecSetup has type CVSpilsPrecSetupFn
- * It wraps around the user-provided function of type CVSpilsPrecSetupFnB
- */
-
-int CVAspilsPrecSetup(realtype t, N_Vector yB, 
-		      N_Vector fyB, booleantype jokB, 
-		      booleantype *jcurPtrB, realtype gammaB,
-		      void *cvb_mem,
-		      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-
-/* 
- * CVAspilsPrecSolve has type CVSpilsPrecSolveFn 
- * It wraps around the user-provided function of type CVSpilsPrecSolveFnB
- */
-
-int CVAspilsPrecSolve(realtype t, N_Vector yB, N_Vector fyB,
-		      N_Vector rB, N_Vector zB,
-		      realtype gammaB, realtype deltaB,
-		      int lrB, void *cvb_mem, N_Vector tmpB);
+#define MSGS_CVMEM_NULL  "Integrator memory is NULL."
+#define MSGS_MEM_FAIL    "A memory request failed."
+#define MSGS_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGS_BAD_LSTYPE  "Incompatible linear solver type."
+#define MSGS_BAD_PRETYPE "Illegal value for pretype. Legal values are PREC_NONE, PREC_LEFT, PREC_RIGHT, and PREC_BOTH."
+#define MSGS_PSOLVE_REQ  "pretype != PREC_NONE, but PSOLVE = NULL is illegal."
+#define MSGS_LMEM_NULL   "Linear solver memory is NULL."
+#define MSGS_BAD_GSTYPE  "Illegal value for gstype. Legal values are MODIFIED_GS and CLASSICAL_GS."
+#define MSGS_BAD_DELT    "delt < 0 illegal."
   
-/* 
- * CVAspilsJacTimesVec has type CVSpilsJacTimesVecFn 
- * It wraps around the user-provided function of type CVSpilsJacTimesVecFnB
- */
+#define MSGS_PSET_FAILED   "The preconditioner setup routine failed in an unrecoverable manner."
+#define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
+#define MSGS_JTIMES_FAILED "The Jacobian x vector routine failed in an unrecoverable manner."
 
-int CVAspilsJacTimesVec(N_Vector vB, N_Vector JvB, realtype t, 
-			N_Vector yB, N_Vector fyB, 
-			void *cvb_mem, N_Vector tmpB);
-
-/*
- * -----------------------------------------------------------------
- * Error Messages 
- * -----------------------------------------------------------------
- */
-
-#define MSGS_CAMEM_NULL "cvb_mem = NULL illegal."
-#define MSGS_LMEMB_NULL "Linear solver memory is NULL for the backward integration."
-#define MSGS_BAD_T      "Bad t for interpolation."
+#define MSGS_NO_ADJ      "Illegal attempt to call before calling CVodeAdjMalloc."
+#define MSGS_BAD_WHICH   "Illegal value for which."
+#define MSGS_LMEMB_NULL  "Linear solver memory is NULL for the backward integration."
+#define MSGS_BAD_TINTERP "Bad t for interpolation."
 
 
 #ifdef __cplusplus

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-03-21 18:56:34 $
+ * $Revision: 1.3 $
+ * $Date: 2007-03-22 18:05:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -486,26 +486,49 @@ static void CVSptfqmrFree(CVodeMem cv_mem)
  * Wrapper for the backward phase
  */
 
-int CVSptfqmrB(void *cvb_mem, int pretypeB, int maxlB)
+int CVSptfqmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
 {
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
   CVodeBMem cvB_mem;
-  void *cvode_mem;
+  void *cvodeB_mem;
   CVSpilsMemB cvspilsB_mem;
   int flag;
 
-  if (cvb_mem == NULL) {
-    CVProcessError(NULL, CVSPILS_ADJMEM_NULL, "CVSPTFQMR", "CVSptfqmrB", MSGS_CAMEM_NULL);
-    return(CVSPILS_ADJMEM_NULL);
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CVSPILS_MEM_NULL, "CVSPTFQMR", "CVSptfqmrB", MSGS_CVMEM_NULL);
+    return(CVSPILS_MEM_NULL);
   }
-  cvB_mem = (CVodeBMem) cvb_mem;
+  cv_mem = (CVodeMem) cvode_mem;
 
-  cvode_mem = (void *) (cvB_mem->cv_mem);
-  
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    CVProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSPTFQMR", "CVSptfqmrB", MSGS_NO_ADJ);
+    return(CVSPILS_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check which */
+  if ( which >= ca_mem->ca_nbckpbs ) {
+    CVProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPTFQMR", "CVSptfqmrB", MSGS_BAD_WHICH);
+    return(CVSPILS_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+
   /* Get memory for CVSpilsMemRecB */
   cvspilsB_mem = NULL;
   cvspilsB_mem = (CVSpilsMemB) malloc(sizeof(CVSpilsMemRecB));
   if (cvspilsB_mem == NULL) {
-    CVProcessError(NULL, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmrB", MSGS_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmrB", MSGS_MEM_FAIL);
     return(CVSPILS_MEM_FAIL);
   }
 
@@ -519,7 +542,7 @@ int CVSptfqmrB(void *cvb_mem, int pretypeB, int maxlB)
   cvB_mem->cv_lmem = cvspilsB_mem;
   cvB_mem->cv_lfree = CVSptfqmrFreeB;
 
-  flag = CVSptfqmr(cvode_mem, pretypeB, maxlB);
+  flag = CVSptfqmr(cvodeB_mem, pretypeB, maxlB);
 
   if (flag != CVSPILS_SUCCESS) {
     free(cvspilsB_mem); 

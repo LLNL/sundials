@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-03-21 18:56:33 $
+ * $Revision: 1.6 $
+ * $Date: 2007-03-22 18:05:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -353,25 +353,48 @@ static void cvDenseFree(CVodeMem cv_mem)
  * to the backward problem memory block.
  */
 
-int CVDenseB(void *cvb_mem, int nB)
+int CVDenseB(void *cvode_mem, int which, int nB)
 {
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
   CVodeBMem cvB_mem;
-  void *cvode_mem;
+  void *cvodeB_mem;
   CVDlsMemB cvdlsB_mem;
   int flag;
 
-  if (cvb_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_ADJMEM_NULL, "CVSDENSE", "CVDenseB", MSGD_CAMEM_NULL);
-    return(CVDIRECT_ADJMEM_NULL);
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVSDENSE", "CVDenseB", MSGD_CVMEM_NULL);
+    return(CVDIRECT_MEM_NULL);
   }
-  cvB_mem = (CVodeBMem) cvb_mem;
+  cv_mem = (CVodeMem) cvode_mem;
 
-  cvode_mem = (void *) (cvB_mem->cv_mem);
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    CVProcessError(cv_mem, CVDIRECT_NO_ADJ, "CVSDENSE", "CVDenseB", MSGD_NO_ADJ);
+    return(CVDIRECT_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check which */
+  if ( which >= ca_mem->ca_nbckpbs ) {
+    CVProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSDENSE", "CVDenseB", MSGD_BAD_WHICH);
+    return(CVDIRECT_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
 
   /* Get memory for CVDlsMemRecB */
   cvdlsB_mem = (CVDlsMemB) malloc(sizeof(CVDlsMemRecB));
   if (cvdlsB_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDenseB", MSGD_MEM_FAIL);
+    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDenseB", MSGD_MEM_FAIL);
     return(CVDIRECT_MEM_FAIL);
   }
 
@@ -386,7 +409,7 @@ int CVDenseB(void *cvb_mem, int nB)
   cvB_mem->cv_lmem = cvdlsB_mem;
   cvB_mem->cv_lfree = cvDenseFreeB;
 
-  flag = CVDense(cvode_mem, nB);
+  flag = CVDense(cvodeB_mem, nB);
 
   if (flag != CVDIRECT_SUCCESS) {
     free(cvdlsB_mem);

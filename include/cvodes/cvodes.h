@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-03-21 18:56:36 $
+ * $Revision: 1.9 $
+ * $Date: 2007-03-22 18:05:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,11 +50,11 @@ extern "C" {
  * -----------------------------------------------------------------
  * Enumerations for inputs to CVodeCreate, CVodeMalloc,
  * CVodeReInit, CVodeSensMalloc, CVodeSensReInit, CVodeQuadMalloc,
- * CVodeQuadReInit, CVodeSet*, CVode, and CVadjMalloc.
+ * CVodeQuadReInit, CVodeSet*, CVode, and CVodeAdjMalloc.
  * -----------------------------------------------------------------
  * Symbolic constants for the lmm, iter, and itol input parameters 
  * to CVodeMalloc and CVodeReInit, the input parameter itask to CVode, 
- * and the input parameter interp to CVadjMalloc, are given below.
+ * and the input parameter interp to CVodeAdjMalloc, are given below.
  *
  * lmm:   The user of the CVODES package specifies whether to use
  *        the CV_ADAMS or CV_BDF (backward differentiation formula)
@@ -195,14 +195,13 @@ extern "C" {
  * ----------------------------------------
  */
 
-#define CV_ADJMEM_NULL         -101
-#define CV_BAD_TB0             -103
-#define CV_BCKMEM_NULL         -104
-#define CV_REIFWD_FAIL         -105
-#define CV_FWD_FAIL            -106
-#define CV_BAD_ITASK           -107
-#define CV_BAD_TBOUT           -108
-#define CV_GETY_BADT           -109
+#define CV_NO_ADJ              -101
+#define CV_NO_FWD              -102
+#define CV_NO_BCK              -103
+#define CV_BAD_TB0             -104
+#define CV_REIFWD_FAIL         -106
+#define CV_FWD_FAIL            -107
+#define CV_GETY_BADT           -108
 
 /*
  * =================================================================
@@ -1400,40 +1399,50 @@ SUNDIALS_EXPORT void CVodeSensFree(void *cvode_mem);
 
 /*
  * -----------------------------------------------------------------
- * CVadjMalloc
+ * CVodeAdjMalloc
  * -----------------------------------------------------------------
- * CVadjMalloc specifies some parameters for the adjoint problem and
- * allocates space for the global CVODEA memory structure.
+ * CVodeAdjMalloc specifies some parameters for ASA, initializes ASA
+ * and allocates space for the adjoint memory structure.
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT void *CVadjMalloc(void *cvode_mem, long int steps, int interp);
+SUNDIALS_EXPORT int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp);
 
 /*
  * -----------------------------------------------------------------
- * CVadjReInit
+ * CVodeAdjFree
  * -----------------------------------------------------------------
- * CVadjReInit reinitializes the CVODEA memory structure assuming 
- * that the number of steps between check points and the type of 
- * interpolation remained unchanged. 
- * The CVODES nenory for the forward problem can be reinitialized 
- * separately by calling CVodeReInit (for changes to be seen, this 
- * must be done BEFORE calling CVadjReInit).
+ * CVodeAdjFree frees the memory allocated by CVodeAdjMalloc.
+ * It is typically called by CVodeFree.
+ * -----------------------------------------------------------------
+ */
+  
+SUNDIALS_EXPORT void CVodeAdjFree(void *cvode_mem);
+  
+/*
+ * -----------------------------------------------------------------
+ * CVodeAdjReInit
+ * -----------------------------------------------------------------
+ * CVodeAdjReInit reinitializes the CVODES memory structure for ASA,
+ * assuming that the number of steps between check points and the
+ * type of interpolation remained unchanged. 
+ * The CVODES menory for the forward problem can be reinitialized 
+ * separately by calling CVodeReInit.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVadjReInit(void *cvadj_mem);
+SUNDIALS_EXPORT int CVodeAdjReInit(void *cvode_mem);
 
 /*
  * -----------------------------------------------------------------
- * CVadjSetInterpType
+ * CVodeSetAdjInterpType
  * -----------------------------------------------------------------
  * Changes the interpolation type. 
- * Must be called only after CVadjMalloc
+ * Can only be called after CVodeAdjMalloc
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT int CVadjSetInterpType(void *cvadj_mem, int interp);
+SUNDIALS_EXPORT int CVodeSetAdjInterpType(void *cvode_mem, int interp);
 
 /*
  * -----------------------------------------------------------------
@@ -1446,14 +1455,10 @@ SUNDIALS_EXPORT int CVadjSetInterpType(void *cvadj_mem, int interp);
  *
  * ncheckPtr points to the number of check points stored so far.
  *
- * Return values:
- *    CV_SUCCESS
- *    CVADJ_MEM_FAIL
- *    any CVode return value
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
+SUNDIALS_EXPORT int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
 			   realtype *tret, int itask, int *ncheckPtr);
 
 /*
@@ -1465,17 +1470,21 @@ SUNDIALS_EXPORT int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void *CVodeCreateB(void *cvadj_mem, int lmmB, int iterB);
+SUNDIALS_EXPORT int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which);
 
-SUNDIALS_EXPORT int CVodeMallocB(void *cvb_mem, CVRhsFnB fB,
+SUNDIALS_EXPORT int CVodeMallocB(void *cvode_mem, int which,
+                                 CVRhsFnB fB,
                                  realtype tB0, N_Vector yB0,
                                  int itolB, realtype reltolB, void *abstolB);
-SUNDIALS_EXPORT int CVodeReInitB(void *cvb_mem, CVRhsFnB fB,
+SUNDIALS_EXPORT int CVodeReInitB(void *cvode_mem, int which,
+                                 CVRhsFnB fB,
 				 realtype tB0, N_Vector yB0,
 				 int itolB, realtype reltolB, void *abstolB);
 
-SUNDIALS_EXPORT int CVodeQuadMallocB(void *cvb_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
-SUNDIALS_EXPORT int CVodeQuadReInitB(void *cvb_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
+SUNDIALS_EXPORT int CVodeQuadMallocB(void *cvode_mem, int which,
+                                     CVQuadRhsFnB fQB, N_Vector yQB0);
+SUNDIALS_EXPORT int CVodeQuadReInitB(void *cvode_mem, int which,
+                                     CVQuadRhsFnB fQB, N_Vector yQB0);
 
 
 /*
@@ -1488,20 +1497,21 @@ SUNDIALS_EXPORT int CVodeQuadReInitB(void *cvb_mem, CVQuadRhsFnB fQB, N_Vector y
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeSetErrHandlerFnB(void *cvb_mem, CVErrHandlerFn ehfunB, void *eh_dataB);
-SUNDIALS_EXPORT int CVodeSetErrFileB(void *cvb_mem, FILE *errfpB);
-SUNDIALS_EXPORT int CVodeSetIterTypeB(void *cvb_mem, int iterB);
-SUNDIALS_EXPORT int CVodeSetFdataB(void *cvb_mem, void *f_dataB);
-SUNDIALS_EXPORT int CVodeSetMaxOrdB(void *cvb_mem, int maxordB);
-SUNDIALS_EXPORT int CVodeSetMaxNumStepsB(void *cvb_mem, long int mxstepsB);
-SUNDIALS_EXPORT int CVodeSetStabLimDetB(void *cvb_mem, booleantype stldetB);
-SUNDIALS_EXPORT int CVodeSetInitStepB(void *cvb_mem, realtype hinB);
-SUNDIALS_EXPORT int CVodeSetMinStepB(void *cvb_mem, realtype hminB);
-SUNDIALS_EXPORT int CVodeSetMaxStepB(void *cvb_mem, realtype hmaxB);
+SUNDIALS_EXPORT int CVodeSetErrHandlerFnB(void *cvode_mem, int which, 
+                                          CVErrHandlerFn ehfunB, void *eh_dataB);
+SUNDIALS_EXPORT int CVodeSetErrFileB(void *cvode_mem, int which, FILE *errfpB);
+SUNDIALS_EXPORT int CVodeSetIterTypeB(void *cvode_mem, int which, int iterB);
+SUNDIALS_EXPORT int CVodeSetFdataB(void *cvode_mem, int which, void *f_dataB);
+SUNDIALS_EXPORT int CVodeSetMaxOrdB(void *cvode_mem, int which, int maxordB);
+SUNDIALS_EXPORT int CVodeSetMaxNumStepsB(void *cvode_mem, int which, long int mxstepsB);
+SUNDIALS_EXPORT int CVodeSetStabLimDetB(void *cvode_mem, int which, booleantype stldetB);
+SUNDIALS_EXPORT int CVodeSetInitStepB(void *cvode_mem, int which, realtype hinB);
+SUNDIALS_EXPORT int CVodeSetMinStepB(void *cvode_mem, int which, realtype hminB);
+SUNDIALS_EXPORT int CVodeSetMaxStepB(void *cvode_mem, int which, realtype hmaxB);
   
     
-SUNDIALS_EXPORT int CVodeSetQuadFdataB(void *cvb_mem, void *fQ_dataB);
-SUNDIALS_EXPORT int CVodeSetQuadErrConB(void *cvb_mem, booleantype errconQB,
+SUNDIALS_EXPORT int CVodeSetQuadFdataB(void *cvode_mem, int which, void *fQ_dataB);
+SUNDIALS_EXPORT int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB,
 					int itolQB, realtype reltolQB, void *abstolQB);
     
 /*
@@ -1518,7 +1528,7 @@ SUNDIALS_EXPORT int CVodeSetQuadErrConB(void *cvb_mem, booleantype errconQB,
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT int CVodeB(void *cvadj_mem, realtype tBout, int itaskB);
+SUNDIALS_EXPORT int CVodeB(void *cvode_mem, realtype tBout, int itaskB);
   
 /*
  * -----------------------------------------------------------------
@@ -1530,46 +1540,28 @@ SUNDIALS_EXPORT int CVodeB(void *cvadj_mem, realtype tBout, int itaskB);
  * problem. To obtain the solution or quadratures associated with
  * a given backward problem at some other time within the last 
  * integration step (dense output), first obtain a pointer to the
- * proper CVODES memory by calling CVadjGetCVodeBmem and then use it
+ * proper CVODES memory by calling CVodeGetAdjCVodeBmem and then use it
  * to call CVodeGetDky and CVodeGetQuadDky.  
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT int CVodeGetB(void *cvb_mem, realtype *tBret, N_Vector yB);
-SUNDIALS_EXPORT int CVodeGetQuadB(void *cvb_mem, realtype *tBret, N_Vector qB);
+SUNDIALS_EXPORT int CVodeGetB(void *cvode_mem, int which,
+                              realtype *tBret, N_Vector yB);
+SUNDIALS_EXPORT int CVodeGetQuadB(void *cvode_mem, int which,
+                                  realtype *tBret, N_Vector qB);
   
 /*
  * -----------------------------------------------------------------
- * CVadjFree
+ * CVodeGetAdjCVodeBmem
  * -----------------------------------------------------------------
- * CVadjFree frees the memory allocated by CVadjMalloc.
- * -----------------------------------------------------------------
- */
-  
-SUNDIALS_EXPORT void CVadjFree(void **cvadj_mem);
-  
-/*
- * -----------------------------------------------------------------
- * CVadjGetCVodeBmem
- * -----------------------------------------------------------------
- * CVadjGetCVodeBmem returns a (void *) pointer to the CVODES
+ * CVodeGetAdjCVodeBmem returns a (void *) pointer to the CVODES
  * memory allocated for the backward problem. This pointer can
  * then be used to call any of the CVodeGet* CVODES routines to
  * extract optional output for the backward integration phase.
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT void *CVadjGetCVodeBmem(void *cvb_mem);
-
-/*
- * -----------------------------------------------------------------
- * The following function returns the name of the constant 
- * associated with a CVODEA-specific return flag
- * -----------------------------------------------------------------
- */
-  
-SUNDIALS_EXPORT char *CVadjGetReturnFlagName(int flag);
-
+SUNDIALS_EXPORT void *CVodeGetAdjCVodeBmem(void *cvode_mem, int which);
 
 
 /* 
@@ -1580,7 +1572,7 @@ SUNDIALS_EXPORT char *CVadjGetReturnFlagName(int flag);
 
 /*
  * -----------------------------------------------------------------
- * CVadjGetY
+ * CVodeGetAdjY
  *    Returns the interpolated forward solution at time t. This
  *    function is a wrapper around the interpType-dependent internal
  *    function.
@@ -1588,11 +1580,11 @@ SUNDIALS_EXPORT char *CVadjGetReturnFlagName(int flag);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y);
+SUNDIALS_EXPORT int CVodeGetAdjY(void *cvode_mem, realtype t, N_Vector y);
 
 /*
  * -----------------------------------------------------------------
- * CVadjGetCheckPointsInfo
+ * CVodeGetAdjCheckPointsInfo
  *    Loads an array of nckpnts structures of type CVadjCheckPointRec.
  *    The user must allocate space for ckpnt (ncheck+1).
  * -----------------------------------------------------------------
@@ -1608,37 +1600,37 @@ typedef struct {
   realtype step;
 } CVadjCheckPointRec;
 
-SUNDIALS_EXPORT int CVadjGetCheckPointsInfo(void *cvadj_mem, CVadjCheckPointRec *ckpnt);
+SUNDIALS_EXPORT int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointRec *ckpnt);
 
 /*
  * -----------------------------------------------------------------
- * CVadjGetDataPointHermite
+ * CVodeGetAdjDataPointHermite
  *    Returns the 2 vectors stored for cubic Hermite interpolation 
  *    at the data point 'which'. The user must allocate space for
- *    y and yd. Returns CVADJ_MEM_NULL if cvadj_mem is NULL.
+ *    y and yd. Returns CV_MEM_NULL if cvode_mem is NULL.
  *    Returns CV_ILL_INPUT if interpType != CV_HERMITE.
- * CVadjGetDataPointPolynomial
+ * CVodeGetAdjDataPointPolynomial
  *    Returns the vector stored for polynomial interpolation 
  *    at the data point 'which'. The user must allocate space for
- *    y. Returns CVADJ_MEM_NULL if cvadj_mem is NULL.
+ *    y. Returns CV_MEM_NULL if cvode_mem is NULL.
  *    Returns CV_ILL_INPUT if interpType != CV_POLYNOMIAL.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVadjGetDataPointHermite(void *cvadj_mem, long int which,
+SUNDIALS_EXPORT int CVodeGetAdjDataPointHermite(void *cvode_mem, long int which,
 					     realtype *t, N_Vector y, N_Vector yd);
   
-SUNDIALS_EXPORT int CVadjGetDataPointPolynomial(void *cvadj_mem, long int which,
+SUNDIALS_EXPORT int CVodeGetAdjDataPointPolynomial(void *cvode_mem, long int which,
 						realtype *t, int *order, N_Vector y);
 
 /*
  * -----------------------------------------------------------------
- * CVadjGetCurrentCheckPoint
+ * CVodeGetAdjCurrentCheckPoint
  *    Returns the address of the 'active' check point.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVadjGetCurrentCheckPoint(void *cvadj_mem, void **addr);
+SUNDIALS_EXPORT int CVodeGetAdjCurrentCheckPoint(void *cvode_mem, void **addr);
 
 
 

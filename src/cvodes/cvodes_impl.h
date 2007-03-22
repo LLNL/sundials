@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-03-21 18:56:33 $
+ * $Revision: 1.8 $
+ * $Date: 2007-03-22 18:05:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -29,7 +29,7 @@ extern "C" {
 
 /* 
  * =================================================================
- *   M A I N    I N T E G R A T O R    M E M O R Y    B L O C K
+ *   I N T E R N A L   C V O D E S   C O N S T A N T S
  * =================================================================
  */
 
@@ -57,6 +57,25 @@ extern "C" {
 
 #define CV_ONESENS 1
 #define CV_ALLSENS 2
+
+
+/* 
+ * =================================================================
+ *   F O R W A R D   P O I N T E R   R E F E R E N C E S
+ * =================================================================
+ */
+
+typedef struct CVadjMemRec  *CVadjMem;
+typedef struct CkpntMemRec  *CkpntMem;
+typedef struct DtpntMemRec  *DtpntMem;
+typedef struct CVodeBMemRec *CVodeBMem;
+
+/* 
+ * =================================================================
+ *   M A I N    I N T E G R A T O R    M E M O R Y    B L O C K
+ * =================================================================
+ */
+
 
 /*
  * -----------------------------------------------------------------
@@ -395,6 +414,16 @@ typedef struct CVodeMemRec {
   int cv_irfnd;         /* flag showing whether last step had a root       */
   long int cv_nge;      /* counter for g evaluations                       */
 
+  /*------------------------
+    Adjoint sensitivity data
+    ------------------------*/
+
+  booleantype cv_adj;             /* TRUE if performing ASA                */
+
+  struct CVadjMemRec *cv_adj_mem; /* Pointer to adjoint memory structure   */
+
+  booleantype cv_adjMallocDone;
+
 } *CVodeMem;
 
 
@@ -403,17 +432,6 @@ typedef struct CVodeMemRec {
  *   A D J O I N T   M O D U L E    M E M O R Y    B L O C K
  * =================================================================
  */
-
-/*
- * -----------------------------------------------------------------
- * Forward references for pointers to various structures 
- * -----------------------------------------------------------------
- */
-
-typedef struct CVadjMemRec  *CVadjMem;
-typedef struct CkpntMemRec  *CkpntMem;
-typedef struct DtpntMemRec  *DtpntMem;
-typedef struct CVodeBMemRec *CVodeBMem;
 
 /*
  * -----------------------------------------------------------------
@@ -426,7 +444,7 @@ typedef struct CVodeBMemRec *CVodeBMem;
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVAGetYFn)(CVadjMem ca_mem, realtype t, N_Vector y);
+typedef int (*CVAGetYFn)(CVodeMem cv_mem, realtype t, N_Vector y);
 typedef int (*CVAStorePntFn)(CVodeMem cv_mem, DtpntMem d);
 
 /*
@@ -584,11 +602,11 @@ struct CVadjMemRec {
    * Forward problem data
    * -------------------- */
 
-  /* CVODE memory for forward runs */
-  struct CVodeMemRec *cv_mem;
-    
   /* Integration interval */
   realtype ca_tinitial, ca_tfinal;
+
+  /* Flag for first call to CVodeF */
+  booleantype ca_firstCVodeFcall;
     
   /* ----------------------
    * Backward problems data
@@ -603,6 +621,9 @@ struct CVadjMemRec {
   /* Address of current backward problem */
   struct CVodeBMemRec *ca_bckpbCrt;
 
+  /* Flag for first call to CVodeB */
+  booleantype ca_firstCVodeBcall;
+    
   /* ----------------
    * Check point data
    * ---------------- */
@@ -663,9 +684,6 @@ struct CVadjMemRec {
    * Miscellaneous data
    * ------------------ */
 
-  /* Unit roundoff */
-  realtype ca_uround;
-    
   /* Workspace for wrapper functions */
   N_Vector ca_ytmp;
     
@@ -838,7 +856,6 @@ int CVSensRhs1DQ(int Ns, realtype t,
 		 void *fS_data,
 		 N_Vector tempv, N_Vector ftemp);
 
-
 /* 
  * =================================================================
  *   C V O D E S    E R R O R    M E S S A G E S
@@ -973,17 +990,18 @@ int CVSensRhs1DQ(int Ns, realtype t,
  * =================================================================
  */
 
-#define MSGAM_NULL_CVMEM   "cvode_mem = NULL illegal."
-#define MSGAM_NULL_CAMEM   "cvadj_mem = NULL illegal."
-#define MSGAM_BAD_STEPS    "Steps nonpositive illegal."
-#define MSGAM_MEM_FAIL     "A memory request failed."
-#define MSGAM_BAD_INTERP   "Illegal value for interp."
-#define MSGAM_BAD_ITASKB   "Illegal value for itaskB. Legal values are CV_NORMAL and CV_ONE_STEP."
-#define MSGAM_BAD_TB0      "The initial time tB0 is outside the interval over which the forward problem was solved."
-#define MSGAM_BAD_TBOUT    "The final time tBout is outside the interval over which the forward problem was solved."
-#define MSGAM_BAD_T        "Bad t for interpolation."
-#define MSGAM_WRONG_INTERP "This function cannot be called for the specified interp type."
-#define MSGAM_BACK_ERROR   "Error occured while integrating backward problem # %d" 
+#define MSGCV_NO_ADJ      "Illegal attempt to call before calling CVodeAdjMalloc."
+#define MSGCV_BAD_STEPS   "Steps nonpositive illegal."
+#define MSGCV_BAD_INTERP  "Illegal value for interp."
+#define MSGCV_BAD_WHICH   "Illegal value for which."
+#define MSGCV_NO_BCK      "No backward problems have been defined yet."
+#define MSGCV_NO_FWD      "Illegal attempt to call before calling CVodeF."
+#define MSGCV_BAD_TB0     "The initial time tB0 for problem %d is outside the interval over which the forward problem was solved."
+#define MSGCV_BAD_ITASKB  "Illegal value for itaskB. Legal values are CV_NORMAL and CV_ONE_STEP."
+#define MSGCV_BAD_TBOUT   "The final time tBout is outside the interval over which the forward problem was solved."
+#define MSGCV_BACK_ERROR  "Error occured while integrating backward problem # %d" 
+#define MSGCV_BAD_TINTERP "Bad t for interpolation."
+#define MSGCV_WRONG_INTERP "This function cannot be called for the specified interp type."
 
 #ifdef __cplusplus
 }

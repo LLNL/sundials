@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-21 18:56:33 $
+ * $Revision: 1.4 $
+ * $Date: 2007-03-22 18:05:52 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -48,12 +48,12 @@
 
 static int cvDlsDenseJacBWrapper(int nB, realtype t,
                                  N_Vector yB, N_Vector fyB, 
-                                 DlsMat JB, void *cvb_mem,
+                                 DlsMat JB, void *cvode_mem,
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 static int cvDlsBandJacBWrapper(int nB, int mupperB, int mlowerB, 
                                 realtype t, N_Vector yB, N_Vector fyB, 
-                                DlsMat Jac, void *cvb_mem, 
+                                DlsMat Jac, void *cvode_mem, 
                                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 
@@ -476,23 +476,46 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
  * -----------------------------------------------------------------
  */
 
-int CVDlsSetJacFnB(void *cvb_mem, void *jacB, void *jac_dataB)
+int CVDlsSetJacFnB(void *cvode_mem, int which, void *jacB, void *jac_dataB)
 {
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   CVDlsMemB cvdlsB_mem;
-  void *cvode_mem;
+  void *cvodeB_mem;
   int flag;
 
-  if (cvb_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_ADJMEM_NULL, "CVSDIRECT", "CVDlsSetJacFnB", MSGD_CAMEM_NULL);
-    return(CVDIRECT_ADJMEM_NULL);
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVSDIRECT", "CVDlsSetJacFnB", MSGD_CVMEM_NULL);
+    return(CVDIRECT_MEM_NULL);
   }
-  cvB_mem = (CVodeBMem) cvb_mem;
+  cv_mem = (CVodeMem) cvode_mem;
 
-  cvode_mem = (void *) (cvB_mem->cv_mem);
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    CVProcessError(cv_mem, CVDIRECT_NO_ADJ, "CVSDIRECT", "CVDlsSetJacFnB", MSGD_NO_ADJ);
+    return(CVDIRECT_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check which */
+  if ( which >= ca_mem->ca_nbckpbs ) {
+    CVProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSDIRECT", "CVDlsSetJacFnB", MSGD_BAD_WHICH);
+    return(CVDIRECT_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
 
   if (cvB_mem->cv_lmem == NULL) {
-    CVProcessError(NULL, CVDIRECT_LMEMB_NULL, "CVSDIRECT", "CVDlsSetJacFnB", MSGD_LMEMB_NULL);
+    CVProcessError(cv_mem, CVDIRECT_LMEMB_NULL, "CVSDIRECT", "CVDlsSetJacFnB", MSGD_LMEMB_NULL);
     return(CVDIRECT_LMEMB_NULL);
   }
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
@@ -500,11 +523,11 @@ int CVDlsSetJacFnB(void *cvb_mem, void *jacB, void *jac_dataB)
   switch (mtypeB) {
   case SUNDIALS_DENSE:
     djacB = (CVDlsDenseJacFnB) jacB;
-    flag = CVDlsSetJacFn(cvode_mem, (void *)cvDlsDenseJacBWrapper, cvb_mem);
+    flag = CVDlsSetJacFn(cvodeB_mem, (void *)cvDlsDenseJacBWrapper, cvode_mem);
     break;
   case SUNDIALS_BAND:
     bjacB = (CVDlsBandJacFnB) jacB;
-    flag = CVDlsSetJacFn(cvode_mem, (void *)cvDlsBandJacBWrapper, cvb_mem);
+    flag = CVDlsSetJacFn(cvodeB_mem, (void *)cvDlsBandJacBWrapper, cvode_mem);
     break;
   }
 
@@ -524,33 +547,33 @@ int CVDlsSetJacFnB(void *cvb_mem, void *jacB, void *jac_dataB)
  *
  * This routine interfaces to the CVDlsDenseJacFnB routine provided 
  * by the user. cvDlsDenseJacBWrapper is of type CVDlsDenseJacFn.
- * NOTE: jac_data actually contains cvadj_mem
+ * NOTE: jac_data actually contains cvode_mem
  */
 
 
 static int cvDlsDenseJacBWrapper(int nB, realtype t,
                                  N_Vector yB, N_Vector fyB, 
-                                 DlsMat JB, void *cvb_mem,
+                                 DlsMat JB, void *cvode_mem,
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
-  CVodeBMem cvB_mem;
   CVodeMem cv_mem;
   CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
   CVDlsMemB cvdlsB_mem;
   int retval, flag;
 
-  cvB_mem = (CVodeBMem) cvb_mem;
+  cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem = cvB_mem->cv_mem;
+  ca_mem = cv_mem->cv_adj_mem;
 
-  ca_mem = (CVadjMem) (cv_mem->cv_f_data);
+  cvB_mem = ca_mem->ca_bckpbCrt;
 
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
-  flag = getY(ca_mem, t, ytmp);
+  flag = getY(cv_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(NULL, -1, "CVSDIRECT", "cvaDlsDenseJacwrapper", MSGD_BAD_T);
+    CVProcessError(cv_mem, -1, "CVSDIRECT", "cvDlsDenseJacBWrapper", MSGD_BAD_TINTERP);
     return(-1);
   }
 
@@ -568,32 +591,32 @@ static int cvDlsDenseJacBWrapper(int nB, realtype t,
  *
  * This routine interfaces to the CVBandJacFnB routine provided 
  * by the user. cvDlsBandJacBWrapper is of type CVDlsBandJacFn.
- * NOTE: jac_data actually contains cvadj_mem
+ * NOTE: jac_data actually contains cvode_mem
  */
 
 static int cvDlsBandJacBWrapper(int nB, int mupperB, int mlowerB, 
                                 realtype t, N_Vector yB, N_Vector fyB, 
-                                DlsMat JB, void *cvb_mem, 
+                                DlsMat JB, void *cvode_mem, 
                                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
-  CVodeBMem cvB_mem;
   CVodeMem cv_mem;
   CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
   CVDlsMemB cvdlsB_mem;
   int retval, flag;
 
-  cvB_mem = (CVodeBMem) cvb_mem;
+  cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem = cvB_mem->cv_mem;
+  ca_mem = cv_mem->cv_adj_mem;
 
-  ca_mem = (CVadjMem) (cv_mem->cv_f_data);
+  cvB_mem = ca_mem->ca_bckpbCrt;
 
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
-  flag = getY(ca_mem, t, ytmp);
+  flag = getY(cv_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(NULL, -1, "CVSDIRECT", "cvaDlsBandJacWrapper", MSGD_BAD_T);
+    CVProcessError(cv_mem, -1, "CVSDIRECT", "cvDlsBandJacBWrapper", MSGD_BAD_TINTERP);
     return(-1);
   }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-03-21 18:56:33 $
+ * $Revision: 1.10 $
+ * $Date: 2007-03-22 18:05:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -629,12 +629,14 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_nrtfn    = 0;  
 
   /* Set default values for quad. optional inputs */
+
   cv_mem->cv_quadr    = FALSE;
   cv_mem->cv_fQ       = NULL;
   cv_mem->cv_fQ_data  = NULL;
   cv_mem->cv_errconQ  = FALSE;
 
   /* Set default values for sensi. optional inputs */
+
   cv_mem->cv_sensi        = FALSE;
   cv_mem->cv_fS_data      = (void *)cv_mem;
   cv_mem->cv_fS           = CVSensRhsDQ;
@@ -652,6 +654,11 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_ncfnS1       = NULL;
   cv_mem->cv_nniS1        = NULL;
   cv_mem->cv_itolS        = CV_EE;
+
+  /* Set default for ASA */
+
+  cv_mem->cv_adj     = FALSE;
+  cv_mem->cv_adj_mem = NULL;
 
   /* Set the saved values for qmax_alloc */
 
@@ -675,6 +682,8 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_VabstolSMallocDone = FALSE;
   cv_mem->cv_SabstolSMallocDone = FALSE;
   cv_mem->cv_sensMallocDone     = FALSE;
+
+  cv_mem->cv_adjMallocDone      = FALSE;
 
   /* Return pointer to CVODES memory block */
 
@@ -2587,6 +2596,8 @@ void CVodeFree(void **cvode_mem)
   CVodeQuadFree(cv_mem);
 
   CVodeSensFree(cv_mem);
+
+  CVodeAdjFree(cv_mem);
 
   if (iter == CV_NEWTON && lfree != NULL) lfree(cv_mem);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-21 18:56:40 $
+ * $Revision: 1.5 $
+ * $Date: 2007-03-22 18:05:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -122,12 +122,12 @@ int main(int argc, char *argv[])
 {
   UserData data;
 
-  void *cvadj_mem;
   void *cvode_mem;
-  void *cvodeB_mem;
 
   realtype dx, dy, reltol, abstol, t;
   N_Vector u;
+
+  int indexB;
 
   realtype reltolB, abstolB;
   N_Vector uB;
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
   int flag, ncheck;
 
   data = NULL;
-  cvadj_mem = cvode_mem = NULL;
+  cvode_mem = NULL;
   u = uB = NULL;
 
   /* Allocate and initialize user data memory */
@@ -185,12 +185,12 @@ int main(int argc, char *argv[])
 
   printf("\nAllocate global memory\n");
 
-  cvadj_mem = CVadjMalloc(cvode_mem, NSTEP, CV_HERMITE);
-  if(check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
+  flag = CVodeAdjMalloc(cvode_mem, NSTEP, CV_HERMITE);
+  if(check_flag(&flag, "CVodeAdjMalloc", 1)) return(1);
 
   /* Perform forward run */
   printf("\nForward integration\n");
-  flag = CVodeF(cvadj_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
+  flag = CVodeF(cvode_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
   if(check_flag(&flag, "CVodeF", 1)) return(1);
 
   /* Set the tolerances for the backward integration */
@@ -207,27 +207,27 @@ int main(int argc, char *argv[])
 
   printf("\nCreate and allocate CVODES memory for backward run\n");
 
-  cvodeB_mem = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
-  if(check_flag((void *)(cvodeB_mem), "CVodeCreateB", 0)) return(1);
+  flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
+  if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
 
-  flag = CVodeSetFdataB(cvodeB_mem, data);
+  flag = CVodeSetFdataB(cvode_mem, indexB, data);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
 
-  flag = CVodeMallocB(cvodeB_mem, fB, TOUT, uB, CV_SS, reltolB, &abstolB);
+  flag = CVodeMallocB(cvode_mem, indexB, fB, TOUT, uB, CV_SS, reltolB, &abstolB);
   if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
-  flag = CVBandB(cvodeB_mem, NEQ, MY, MY);
+  flag = CVBandB(cvode_mem, indexB, NEQ, MY, MY);
   if(check_flag(&flag, "CVBandB", 1)) return(1);
   
-  flag = CVDlsSetJacFnB(cvodeB_mem, (void *)JacB, data);
+  flag = CVDlsSetJacFnB(cvode_mem, indexB, (void *)JacB, data);
   if(check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
 
   /* Perform backward integration */
   printf("\nBackward integration\n");
-  flag = CVodeB(cvadj_mem, T0, CV_NORMAL);
+  flag = CVodeB(cvode_mem, T0, CV_NORMAL);
   if(check_flag(&flag, "CVodeB", 1)) return(1);
 
-  flag = CVodeGetB(cvodeB_mem, &t, uB);
+  flag = CVodeGetB(cvode_mem, indexB, &t, uB);
   if(check_flag(&flag, "CVodeGetB", 1)) return(1);
 
   PrintOutput(uB, data);
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Serial(u);   /* Free the u vector */
   N_VDestroy_Serial(uB);  /* Free the uB vector */
   CVodeFree(&cvode_mem);  /* Free the CVODE problem memory */
-  CVadjFree(&cvadj_mem);  /* Free adjoint memory block */
+
   free(data);             /* Free the user data */
 
   return(0);
