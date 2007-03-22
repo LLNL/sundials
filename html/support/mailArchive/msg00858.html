@@ -1,15 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
-<!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Subject: [sundials&#45;users] CVODE &#45; Constraining to experimental data -->
+<!--X-From-R13: Quevf [negva <puevfznegva81Ntznvy.pbz> -->
+<!--X-Date: Wed, 31 Jan 2007 08:01:31 &#45;0800 -->
+<!--X-Message-Id: 45C0BD18.30401@comp.leeds.ac.uk -->
+<!--X-Content-Type: multipart/mixed -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>[sundials-users] CVODE - Constraining to experimental data</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00857.html">Date Prev</a>] [<a href="msg00859.html">Date Next</a>] [<a href="msg00857.html">Thread Prev</a>] [<a href="msg00864.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00858">Date Index</a></b>]
+[<b><a href="threads.html#00858">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>[sundials-users] CVODE - Constraining to experimental data</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+Chris Martin &lt;<a href="mailto:chrismartin81%40gmail.com">chrismartin81@gmail.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Wed, 31 Jan 2007 16:00:24 +0000</td>
 </tr>
 
 </table>
@@ -102,23 +100,68 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<address>Title: <strong>Chris Martin</strong></address>
+<table width="100%"><tr><td bgcolor="#ffffff" style="background-color: #ffffff; color: #000000; "><font color="#000000">
 
-Thanks,
 
-sizeof(realtype) proves sufficient to my needs for the moment
 
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
+Hi,<br>
+<br>
+I am using the Fortran interface to CVODE to solve a system of ODEs
+that represent the chemistry taking place in the lower atmosphere.<br>
+<br>
+Currently I have an issue constraining the model to experimental data.
+I have successfully implemented a soution using the DENSE solver. Using
+the SPGMR solver convergence errors occur when constraining the model
+(the only change in my model is calling FCVSPGMR instead of FCVDENSE).<br>
+<br>
+Any ideas, comments etc. gratefully received!!<br>
+<br>
+Cheers<br>
+<div class="moz-signature">-- <br>
 
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
+
+
+
+
+
+<!---02-15T14:49:00Z</o:Created>
+  <o:LastSaved>2006-03-31T07:56:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>44</o:Words>
+  <o:Characters>251</o:Characters>
+  <o:Company>University of Leeds</o:Company>
+  <o:Lines>2</o:Lines>
+  <o:Paragraphs>1</o:Paragraphs>
+  <o:CharactersWithSpaces>294</o:CharactersWithSpaces>
+  <o:Version>10.6735</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!---->
+<!---->
+<div class="Section1">
+<p>Chris Martin</p>
+<p>NERC Funded E-Science PhD Student<br>
+University of Leeds<br>
+Department of Chemistry (Chem.2.04)<br>
+Department of Computing (IRR Lab)<br>
+<b>Email:</b> <a href="mailto:chmcjma@leeds.ac.uk">c.j.martin05@leeds.ac.uk</a><br>
+<b>Website:</b> <a href="http://www.cjmartin.co.uk/">www.cjmartin.co.uk</a><br>
+<b><st1:City><st1:place>Mobile</st1:place></st1:City>:</b> 07737681224</p>
+</div>
+</div>
+
+
+</font></td></tr></table><pre>begin:vcard
+fn:Chris Martin
+n:Martin;Chris
+org:University of Leeds
+adr;dom:School of Computing (IRR Lab);;School of Chemistry (Chem. 2.04)
+email;internet:chmcjma@leeds.ac.uk
+title:NERC Funded E-Science PhD
+tel;cell:07737681224
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
 
 </pre>
 <!--X-Body-of-Message-End-->
@@ -127,37 +170,35 @@ m3X7Act1fY8lB4NhKXqi6wc=
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00864" href="msg00864.html">Re: [sundials-users] CVODE - Constraining to experimental data</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00857.html">[sundials-users] Intel Compiler and other questions</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00859.html">Re: [sundials-users] CPU-Time and Output</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00857.html">[sundials-users] Intel Compiler and other questions</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00864.html">Re: [sundials-users] CVODE - Constraining to experimental data</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00858">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00858">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

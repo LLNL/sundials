@@ -1,15 +1,15 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
+<!--X-Subject: Re: [sundials&#45;users] Intel Compiler and other questions -->
+<!--X-From-R13: Hynqvzve Qunyhcrpxl <punyhcrpNxzyvahk.swsv.pihg.pm> -->
+<!--X-Date: Wed, 31 Jan 2007 10:08:09 &#45;0800 -->
+<!--X-Message-Id: 200701311907.31781.chalupec@kmlinux.fjfi.cvut.cz -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Reference: 200701311635.36392.chalupec@kmlinux.fjfi.cvut.cz -->
+<!--X-Reference: 45C0CBF8.1030303@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>Re: [sundials-users] Intel Compiler and other questions</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +68,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00860.html">Date Prev</a>] [<a href="msg00862.html">Date Next</a>] [<a href="msg00860.html">Thread Prev</a>] [<a href="msg00862.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00861">Date Index</a></b>]
+[<b><a href="threads.html#00861">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>Re: [sundials-users] Intel Compiler and other questions</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +85,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+Vladimir Chalupecky &lt;<a href="mailto:chalupec%40kmlinux.fjfi.cvut.cz">chalupec@kmlinux.fjfi.cvut.cz</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Wed, 31 Jan 2007 19:07:30 +0100</td>
 </tr>
 
 </table>
@@ -102,23 +102,78 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<pre>Hello,
 
-Thanks,
+On Wednesday 31 of January 2007 18:03:52 Radu Serban wrote:
+&gt;<i> Hello Vladimir,</i>
+&gt;<i></i>
+&gt;<i>  From the CMake FAQ:</i>
+&gt;<i></i>
+&gt;<i> I change CMAKE_C_COMPILER in the GUI but it changes back on the next</i>
+&gt;<i> configure step. Why?</i>
+&gt;<i>    Once a build tree is created with a given compiler it cannot be changed.</i>
+&gt;<i> There are a variety of implementation reasons for this policy. In order to</i>
+&gt;<i> choose a different compiler create a new build tree and set the CC and CXX</i>
+&gt;<i> environment variables to the compiler you want before running CMake.</i>
+&gt;<i>    NOTE: While I don't know what the preferred method of doing it is, I do</i>
+&gt;<i> know that the advice above (to set CC and CXX env vars) is in direct</i>
+&gt;<i> conflict with advice somewhere else that says not to use env vars to</i>
+&gt;<i> control CMAKE... Hopefully someone that knows a little more than I will fix</i>
+&gt;<i> this discrepancy.</i>
 
-sizeof(realtype) proves sufficient to my needs for the moment
+I am really ashamed for not having looked there first myself. It works now, 
+some loops do get parallelized, lets see if it gives some speedup.
 
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
+&gt;<i> &gt; 2) I would like to try to solve the phase-field model for solidification</i>
+&gt;<i> &gt; in by method of lines. The model is something like (nevermind the signs)</i>
+&gt;<i> &gt; *   du/dt = Laplacian u + dp/dt</i>
+&gt;<i> &gt; **  dp/dt = Laplacian p + 1/xi^2 f(p) + F(u)|grad p|</i>
+&gt;<i> &gt; Now, I cannot use CVode for this, can I? Do I have to use IDA?</i>
+&gt;<i></i>
+&gt;<i> Well, the answer also depends on the boundary conditions. But the above</i>
+&gt;<i> equations are PDEs and not PDAEs so you should be able to use either CVODE</i>
+&gt;<i> or IDA. As always, when this choice is available, we recommend using CVODE</i>
+&gt;<i> as it is more efficient (with direct linear solvers).</i>
+&gt;<i></i>
+&gt;<i> See the IDA example idakryx.c for a PDE semi-discretized to a DAE (through</i>
+&gt;<i> the boundary conditions) and the CVODE example cvkryx.c for a PDE</i>
+&gt;<i> semi-discretized to an ODE (by explicitly including the BC).</i>
 
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
+The boundary conditions are just zero Neumann. What was puzzling me was the 
+time derivative of p in * - can I just compute the rhs for ** and then use it 
+in rhs computation of *?
+
+&gt;<i></i>
+&gt;<i> You should be able to try the BANDPRE preconditioner provided with CVODE</i>
+&gt;<i> (see the CVODE example cvkryx_bp)</i>
+&gt;<i></i>
+&gt;<i> As an alternative to this operator-splitting way of solving * and ** you</i>
+&gt;<i> could try a fully implicit solution by solving both of them simultaneously</i>
+&gt;<i> (which I assume is the reason for your 2nd question). Again, the CVODE</i>
+&gt;<i> cvkryx*** examples are good starting points. In this case, if you plan on</i>
+&gt;<i> using the banded solver, be warned that the ordering of your variables has</i>
+&gt;<i> a heavy influence on the efficiency of the linear solver: make sure you</i>
+&gt;<i> order first by PDE component (u and p) and then by spatial index(es) and</i>
+&gt;<i> not the other way around (for the former case the Jacobian bandwidth is</i>
+&gt;<i> given by the nearest-neighbor in the discretized spatial operators while</i>
+&gt;<i> for the latter the 'bandwidth' is actually one more than the size of the</i>
+&gt;<i> entire matrix!). If you use one of the Krylov solvers, you could again try</i>
+&gt;<i> the band preconditioner CVBANDPRE.</i>
+
+Actually I intend to solve it fully implicitly, it is just that for now I 
+solve the ** equation on its own. I will try the BANDPRE preconditioner. 
+Thanks for pointing out the ordering of variables.
+
+Regards,
+
+Vladimir
+
+&gt;<i> &gt; Best regards,</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; Vladimir</i>
+&gt;<i></i>
+&gt;<i> Regards,</i>
+&gt;<i> --Radu</i>
 
 </pre>
 <!--X-Body-of-Message-End-->
@@ -127,37 +182,42 @@ m3X7Act1fY8lB4NhKXqi6wc=
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00862" href="msg00862.html">Re: [sundials-users] Intel Compiler and other questions</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00857" href="msg00857.html">[sundials-users] Intel Compiler and other questions</a></strong>
+<ul><li><em>From:</em> Vladimir Chalupecky &lt;chalupec@kmlinux.fjfi.cvut.cz&gt;</li></ul></li>
+<li><strong><a name="00860" href="msg00860.html">Re: [sundials-users] Intel Compiler and other questions</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00860.html">Re: [sundials-users] Intel Compiler and other questions</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00862.html">Re: [sundials-users] Intel Compiler and other questions</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00860.html">Re: [sundials-users] Intel Compiler and other questions</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00862.html">Re: [sundials-users] Intel Compiler and other questions</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00861">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00861">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

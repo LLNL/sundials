@@ -1,15 +1,17 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
+<!--X-Subject: Re: [sundials&#45;users] CVODE compile error -->
+<!--X-From-R13: [nani Pungvn <znaniNh.jnfuvatgba.rqh> -->
+<!--X-Date: Thu, 15 Mar 2007 11:49:55 &#45;0700 -->
+<!--X-Message-Id: 47930190&#45;30A5&#45;4101&#45;8562&#45;58081677C83B@u.washington.edu -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Reference: 0FAABD63&#45;F3CD&#45;445C&#45;8061&#45;596625B77A4A@shef.ac.uk -->
+<!--X-Reference: 45F966AF.1000107@llnl.gov -->
+<!--X-Reference: BD0B97D8&#45;1383&#45;48B1&#45;A5EE&#45;70B5113A33FE@shef.ac.uk -->
+<!--X-Reference: 45F98B73.6040801@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>Re: [sundials-users] CVODE compile error</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +70,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00921.html">Date Prev</a>] [<a href="msg00923.html">Date Next</a>] [<a href="msg00921.html">Thread Prev</a>] [Thread Next]<br>
+[<b><a href="maillist.html#00922">Date Index</a></b>]
+[<b><a href="threads.html#00922">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>Re: [sundials-users] CVODE compile error</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +87,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+Manav Bhatia &lt;<a href="mailto:manav%40u.washington.edu">manav@u.washington.edu</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Thu, 15 Mar 2007 11:48:58 -0700</td>
 </tr>
 
 </table>
@@ -102,25 +104,79 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<tt>I have used Xcode, and the process to link against an external  
+library is to drag the library into the project (from Finder), and  
+Xcode will automatically add this to the target. If you have multiple  
+libraries, and want to sort the order in which they are linked, you  
+can go to the &quot;Target&quot;, and move the libraries up or down to sort the  
+order.</tt><br>
+<br>
+<pre style="margin: 0em;">Manav</pre><br>
+<pre style="margin: 0em;"><br>On Mar 15, 2007, at 11:07 AM, Radu Serban wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Alex Best wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Hi again - sorry about the lack of information! I am indeed using  
+XCode. The code for the inbcluded headers, lifted straight from  
+the example cvbanx.c, is,<br>
+#include &lt;stdio.h&gt;<br>
+#include &lt;stdlib.h&gt;<br>
+#include &lt;math.h&gt;<br>
+/* Header files with a description of contents used in cvbanx.c */<br>
+#include &lt;cvode/cvode.h&gt;             /* prototypes for CVODE fcts.  
+and consts. */<br>
+#include &lt;cvode/cvode_band.h&gt;        /* prototype for CVBand */<br>
+#include &lt;nvector/nvector_serial.h&gt;  /* serial N_Vector types,  
+fcts., and macros */<br>
+#include &lt;sundials/sundials_band.h&gt;  /* definitions of type  
+BandMat and macros */<br>
+#include &lt;sundials/sundials_types.h&gt; /* definition of type  
+realtype */<br>
+#include &lt;sundials/sundials_math.h&gt;  /* definition of ABS and EXP */<br>
+and when the file runs I get the error I gave in the last message.  
+I can see the file you mention, libsundials_nvecserial has been  
+installed correctly in to usr/local/lib. Forgive my ignorance, and  
+I appreciate that you do not use XCode, but how might I go about  
+linking this in to the examples and my own code?<br>
+Thanks, Alex
+</tt></blockquote><pre style="margin: 0em;"><br>Alex,</pre><br>
+<tt>Since you are able to compile the example, the header files are  
+obviously found correctly. I was asking for other things possibly  
+relevant to your issue: what did you use to build the SUNDIALS  
+libraries? the autotool configure script? the CMake files I've  
+posted a while ago? XCode? Also, did you build shared or static  
+SUNDIALS libraries?</tt><br>
+<br>
+<tt>However, all of the above are probably irrelevant, as the problem  
+appears to be solely related to your IDE. Again, I've never used  
+XCode but I'm pretty sure its documentation will tell you how to  
+link to an external library.</tt><br>
+<br>
+<tt>Maybe someone else is using XCode and could tell you exactly how to  
+do that within XCode...</tt><br>
+<br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>On 15 Mar 2007, at 15:30, Radu Serban wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Alex Best wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>On compiling my code (including the examples), it builds fine  
+but when I actually run it I receive the following error:<br>
+[Session started at 2007-03-15 14:49:25 +0000.]<br>
+ZeroLink: unknown symbol '_N_VNew_Serial'<br>
+simod has exited due to signal 6 (SIGABRT).<br>
+Any ideas what might be causing this?
+</tt></blockquote><pre style="margin: 0em;"><br>ZeroLink maybe?</pre><br>
+<tt>I take it you're working under Max OS X (by the way, please  
+provide more details on your setup whenever asking such questions  
+so that we don't have to do detective work trying to figure these  
+things out ourselves). I've never used XCode myself, but I  
+suspect that somehow the libsundials_nvecserial (which provides  
+the N_VNew_Serial function) was not linked with the example.</tt><br>
+<br>
+<tt>Any code using one of the SUNDIALS solvers must be linked against  
+the corresponding solver library AND an NVECTOR library.</tt><br>
+<br>
+<tt>--Radu
+</tt></blockquote></blockquote></blockquote><br>
 
-Thanks,
-
-sizeof(realtype) proves sufficient to my needs for the moment
-
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
-
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -131,33 +187,34 @@ m3X7Act1fY8lB4NhKXqi6wc=
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00918" href="msg00918.html">[sundials-users] CVODE compile error</a></strong>
+<ul><li><em>From:</em> Alex Best &lt;a.best@sheffield.ac.uk&gt;</li></ul></li>
+<li><strong><a name="00919" href="msg00919.html">Re: [sundials-users] CVODE compile error</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00920" href="msg00920.html">Re: [sundials-users] CVODE compile error</a></strong>
+<ul><li><em>From:</em> Alex Best &lt;a.best@sheffield.ac.uk&gt;</li></ul></li>
+<li><strong><a name="00921" href="msg00921.html">Re: [sundials-users] CVODE compile error</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00921.html">Re: [sundials-users] CVODE compile error</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00923.html">Re: [sundials-users] Eigenvalues of IDA system</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-</li>
-<li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00921.html">Re: [sundials-users] CVODE compile error</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00922">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00922">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

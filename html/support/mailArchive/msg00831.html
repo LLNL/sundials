@@ -1,15 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
+<!--X-Subject: Re: [sundials&#45;users] RPM for SUNDIALS -->
+<!--X-From-R13: Xbanguna Rnl <vzvcnxNlnubb.pbz> -->
+<!--X-Date: Fri, 22 Dec 2006 21:58:16 &#45;0800 -->
+<!--X-Message-Id: 875778.57760.qm@web31507.mail.mud.yahoo.com -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Reference: 1166847683.16416.281768423@webmail.messagingengine.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>Re: [sundials-users] RPM for SUNDIALS</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00830.html">Date Prev</a>] [<a href="msg00824.html">Date Next</a>] [<a href="msg00829.html">Thread Prev</a>] [<a href="msg00830.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00831">Date Index</a></b>]
+[<b><a href="threads.html#00831">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>Re: [sundials-users] RPM for SUNDIALS</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+Jonathan Day &lt;<a href="mailto:imipak%40yahoo.com">imipak@yahoo.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Fri, 22 Dec 2006 21:57:33 -0800 (PST)</td>
 </tr>
 
 </table>
@@ -102,23 +101,64 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<pre>Assuming the SPEC file has been rpmlint'ed and put in
+a form the Fedora Extra people like, I would strongly
+advise putting the source RPM and .spec file on a
+public server then posting on their mailing list.
 
-Thanks,
+If Fedora Extras doesn't like it (unlikely, as they're
+borderline fanatical about this kind of package), I
+strongly suggest that someone establish a YUM server
+that hosts either this package specifically or this
+kind of package in general. Programmers who are also
+system administrators are rarer than programmers who
+can bribe the admins to install a pre-rolled package.
 
-sizeof(realtype) proves sufficient to my needs for the moment
+As it stands, I'm having a few problems with it. On
+trying to do an rpmbuild, I get the following error:
 
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
+error: Installed (but unpackaged) file(s) found:
+   /usr/bin/sundials-config
 
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
+I'd also like to suggest that the SPEC file produce
+different RPMs for the different subsections (CVODE,
+CVODES, IDA, KINSOL), that libraries are in a -libs
+and headers are in a -devel. This seems to be the
+general convention, as much as I happen to dislike
+large numbers of packages.
+
+--- John Pye &lt;john.pye@student.unsw.edu.au&gt; wrote:
+
+&gt;<i> Hi all</i>
+&gt;<i> </i>
+&gt;<i> Here is a .spec file that will allow you to easily</i>
+&gt;<i> build a SUNDIALS RPM</i>
+&gt;<i> on Fedora Core. It will build both parallel and</i>
+&gt;<i> serial libraries, but as</i>
+&gt;<i> yet it only builds static libraries, not shared</i>
+&gt;<i> libraries. It creates</i>
+&gt;<i> two RPMS -- sundials-doc (with all the PDFs) and</i>
+&gt;<i> sundials.</i>
+&gt;<i> </i>
+&gt;<i> If anyone wants a copy of the binary RPMs let me</i>
+&gt;<i> know.</i>
+&gt;<i> </i>
+&gt;<i> Cheers</i>
+&gt;<i> JP</i>
+&gt;<i> -- </i>
+&gt;<i> John Pye</i>
+&gt;<i> Department of Mechanical and Manufacturing</i>
+&gt;<i> Engineering</i>
+&gt;<i> University of New South Wales, Sydney, Australia.</i>
+&gt;<i> john.pye AT student DOT unsw.edu.au</i>
+&gt;<i> </i>
+&gt;<i> </i>
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> 
 
 </pre>
 <!--X-Body-of-Message-End-->
@@ -131,33 +171,31 @@ m3X7Act1fY8lB4NhKXqi6wc=
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00829" href="msg00829.html">[sundials-users] RPM for SUNDIALS</a></strong>
+<ul><li><em>From:</em> &quot;John Pye&quot; &lt;john.pye@student.unsw.edu.au&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00830.html">[sundials-users] RPM build script for SUNDIALS 2.3.0</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00824.html">[sundials-users] parallel ode solver</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00829.html">[sundials-users] RPM for SUNDIALS</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00830.html">[sundials-users] RPM build script for SUNDIALS 2.3.0</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00831">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00831">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

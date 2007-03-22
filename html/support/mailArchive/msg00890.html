@@ -1,15 +1,16 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
+<!--X-Subject: Re: [sundials&#45;users] nonlinear problem -->
+<!--X-From-R13: "Oaqernf @vpbynv" <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Thu, 22 Feb 2007 15:30:53 &#45;0800 -->
+<!--X-Message-Id: op.tn6bf1mht8lo91@smtp.kuleuven.ac.be -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Reference: 45F9E104&#45;C1EC&#45;453A&#45;9895&#45;CFD0F962E7D3@u.washington.edu -->
+<!--X-Reference: op.tn5zv4glt8lo91@helium -->
+<!--X-Reference: 45DE109C.1050603@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>Re: [sundials-users] nonlinear problem</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +69,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00889.html">Date Prev</a>] [<a href="msg00891.html">Date Next</a>] [<a href="msg00888.html">Thread Prev</a>] [<a href="msg00886.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00890">Date Index</a></b>]
+[<b><a href="threads.html#00890">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>Re: [sundials-users] nonlinear problem</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +86,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+&quot;Andreas Nicolai&quot; &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Thu, 22 Feb 2007 18:27:27 -0500</td>
 </tr>
 
 </table>
@@ -102,23 +103,45 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<pre>Hi Radu,
 
-Thanks,
+Am Thu, 22 Feb 2007 16:52:28 -0500 hat Radu Serban &lt;radu@llnl.gov&gt; geschrieben:
 
-sizeof(realtype) proves sufficient to my needs for the moment
+&gt;<i> The &quot;temperature calculation&quot; within the new RHS is nothing but an inversion </i>
+&gt;<i> of</i>
+&gt;<i> the matrix C, correct? So you say that it's possible to efficiently invert C.</i>
+&gt;<i> Why would this then be any better than writing T' = C^{-1}* {original rhs} ?</i>
 
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
+No :-) For the simple heat capacity which is a typically a constant or weakly 
+dependent on T, it would be absolutely the same to use the inverted capacity 
+matrix. Since the internal energy would be calculated as I proposed by:
 
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
+u = c(T)*rho(T)*T
+   = C(T)*T
+
+where c(T) is the specific heat capacity and rho is some mass density and the 
+unknowns {y}={u}.
+
+However, if one intends to extend the system of equations to include some more 
+complex physics (I assumed that this might be necessary) the matrix C cannot be 
+easily inverted. But T can be calculated, if necessary using some iteration 
+scheme, from the internal energy. Also, a formulation of this kind, using the 
+extensive quantities such as the internal energy directly as solution variable 
+might allow a better control for energy/mass conservation (basically the 
+tolerance parameters you define in CVODE for u would correspond to the accuracy 
+of energy conservation).
+
+But then again, probably doesn't make a big difference which formulation is 
+used...
+
+Andreas
+
+-- 
+Andreas Nicolai                         anicolai@syr.edu
+PhD Candidate, M.A.M.E                  (315) 443-2641
+Syracuse University
+151 Link Hall
+Syracuse, NY, 13244
 
 </pre>
 <!--X-Body-of-Message-End-->
@@ -131,33 +154,35 @@ m3X7Act1fY8lB4NhKXqi6wc=
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00880" href="msg00880.html">[sundials-users] nonlinear problem</a></strong>
+<ul><li><em>From:</em> Manav Bhatia &lt;manav@u.washington.edu&gt;</li></ul></li>
+<li><strong><a name="00883" href="msg00883.html">Re: [sundials-users] nonlinear problem</a></strong>
+<ul><li><em>From:</em> &quot;Andreas Nicolai&quot; &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00888" href="msg00888.html">Re: [sundials-users] nonlinear problem</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00889.html">Re: [sundials-users] Preconditioned Jacobian for CVODE</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00891.html">Re: [sundials-users] method of lines for one-dim flow using IDA</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00888.html">Re: [sundials-users] nonlinear problem</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00886.html">[sundials-users] Preconditioned Jacobian for CVODE</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00890">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00890">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

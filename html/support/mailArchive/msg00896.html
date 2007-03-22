@@ -1,15 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
+<!--X-Subject: Re: [sundials&#45;users] Preconditioned Jacobian for CVODE -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Tue, 06 Mar 2007 17:03:47 &#45;0800 -->
+<!--X-Message-Id: Pine.LNX.4.58.0703061657430.10762@tux64.llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Reference: op.tn54a1bjt8lo91@helium -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>Re: [sundials-users] Preconditioned Jacobian for CVODE</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00895.html">Date Prev</a>] [<a href="msg00897.html">Date Next</a>] [<a href="msg00889.html">Thread Prev</a>] [<a href="msg00892.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00896">Date Index</a></b>]
+[<b><a href="threads.html#00896">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>Re: [sundials-users] Preconditioned Jacobian for CVODE</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Tue, 6 Mar 2007 16:58:48 -0800 (PST)</td>
 </tr>
 
 </table>
@@ -102,23 +101,63 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<pre>
+Hi Andreas,
 
-Thanks,
+I have one additional comment in answer to your first question, about
+the direct solution of Jacobians from 3D problems.
 
-sizeof(realtype) proves sufficient to my needs for the moment
+For an explicit ODE system obtained from a 3D advection-diffusion PDE
+treated by nearest-neighbor differences, the coupling in the ODE
+Jacobian is either 7-point coupling (at a minimum) or something more
+involved, up to 27-point coupling.  The standard banded difference
+quotient scheme uses a number of RHS function evaluations equal to the
+bandwidth, which goes as the product of two grid dimensions.  As you
+say, this can be a very big number.  Instead, you can use a difference
+quotient scheme based on 27-point coupling that uses exactly 27
+RHS evaluations, independent of grid dimensions.  If you have only
+7-point coupling, this may sound too expensive, but I suspect it
+is in fact optimal or very close to it, and it certainly beats the
+band algorithm.
 
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
+For a system of p PDEs in 3D of advection-diffusion-reaction form,
+you can get DQ Jacobians at a cost of 27p RHS evaluations, by an
+extension of the above scheme.
 
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
+-Alan H
+
+
+
+On Thu, 22 Feb 2007, Andreas Nicolai wrote:
+
+&gt;<i> Hi there,</i>
+&gt;<i></i>
+&gt;<i> First question: For a 3D heat transfer problem (or similar diffusion</i>
+&gt;<i> problem), where the diffusive terms are discretized using second order</i>
+&gt;<i> central differences, the Jacobian matrix need only to include terms for</i>
+&gt;<i> the neighboring nodes of each node. However, if the default band-matrix is</i>
+&gt;<i> used (direct solver), the default Jacobian DQ-implementation will attempt</i>
+&gt;<i> to modify many more terms than are actually necessary resulting in (much)</i>
+&gt;<i> more RHS evaluations than necessary. For the iterative solvers a</i>
+&gt;<i> preconditioner exists. Does something similar exist for the direct</i>
+&gt;<i> matrices?</i>
+&gt;<i></i>
+&gt;<i> Second question: For 3D problems the Jacobien will actually become a very</i>
+&gt;<i> sparse matrix with only 7 bands and lots of zeros in between. Is the</i>
+&gt;<i> banded-matrix-direct-solver really the best choice here or would the</i>
+&gt;<i> iterative solvers prove to be much better? Did anyone already compare this</i>
+&gt;<i> for a typical 3D diffusion problem?</i>
+&gt;<i></i>
+&gt;<i> Thanks for any suggestions!</i>
+&gt;<i> Andreas</i>
+&gt;<i></i>
+&gt;<i> --</i>
+&gt;<i> Andreas Nicolai                         anicolai@syr.edu</i>
+&gt;<i> PhD Candidate, M.A.M.E                  (315) 443-2641</i>
+&gt;<i> Syracuse University</i>
+&gt;<i> 151 Link Hall</i>
+&gt;<i> Syracuse, NY, 13244</i>
+&gt;<i></i>
 
 </pre>
 <!--X-Body-of-Message-End-->
@@ -131,33 +170,31 @@ m3X7Act1fY8lB4NhKXqi6wc=
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00886" href="msg00886.html">[sundials-users] Preconditioned Jacobian for CVODE</a></strong>
+<ul><li><em>From:</em> &quot;Andreas Nicolai&quot; &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00895.html">Re: [sundials-users] nonlinear problem</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00897.html">[sundials-users] Eigenvalues of IDA system</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00889.html">Re: [sundials-users] Preconditioned Jacobian for CVODE</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00892.html">[sundials-users] Re: CVODES Question</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00896">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00896">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

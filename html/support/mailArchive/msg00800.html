@@ -1,15 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
-<!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Subject: [sundials&#45;users] SundialsTB::Cvodes::cvfdx.m -->
+<!--X-From-R13: "xnevzn qwnoryyn" <xnevzn.qwnoryynNtznvy.pbz> -->
+<!--X-Date: Sun, 03 Dec 2006 05:45:24 &#45;0800 -->
+<!--X-Message-Id: 35f4e4e10612030543g5a1ca0a1w4f4a862e1147f967@mail.gmail.com -->
+<!--X-Content-Type: multipart/alternative -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>[sundials-users] SundialsTB::Cvodes::cvfdx.m</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00798.html">Date Prev</a>] [<a href="msg00801.html">Date Next</a>] [<a href="msg00793.html">Thread Prev</a>] [<a href="msg00801.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00800">Date Index</a></b>]
+[<b><a href="threads.html#00800">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>[sundials-users] SundialsTB::Cvodes::cvfdx.m</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+&quot;karima djabella&quot; &lt;<a href="mailto:karima.djabella%40gmail.com">karima.djabella@gmail.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Sun, 3 Dec 2006 14:43:24 +0100</td>
 </tr>
 
 </table>
@@ -102,62 +100,61 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<div>Hello,</div>
+<div>&nbsp;</div>
+<div>I use cvodes of SundialsTB.&nbsp;I would like to use the sensitivity analysis capabilities (forward and adjoint)&nbsp; to my nonlinear&nbsp;system consisting of 8 state variables and 60 parametrers . In the example cvfdx.m (<font face="Courier New" color="#000000" size="2">
+CVODES forward sensitivity example</font>) i found a problem when i run it, the error message is:</div>
+<div><font color="#ff0000">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</font></div>
+<div><font color="#ff0000">??? Error using ==&gt; reshape<br>To RESHAPE the number of elements must not change.</font></div>
+<div>
+<p><font color="#ff0000">Error in ==&gt; cvm_monitor at 8<br>yS = reshape(yS,N,Ns);</font></p>
+<p><font color="#ff0000">Error in ==&gt; CVode at 62<br>&nbsp; [status,t,y,v1] = cvm(mode,tout,itask);</font></p>
+<p><font color="#ff0000">Error in ==&gt; cvfdx at 93<br>&nbsp; [status, t, y, yS] = CVode(tout,'Normal');</font></p>
+<p><font color="#ff0000">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</font></p>
+<p><font color="#000000">could you help me to overcome this error?</font></p>
+<p><font color="#000000">Also, you put on the options, of the case 2 (commented part), the following one: <font face="Courier New" color="#228b22" size="2">'ParamField', 'p'. <font color="#000000">is</font> <font color="#000000">
+this meant that you choose all the parameters for the sensitivity study?. In my problem, i have 60 parameters and i would like to study the sensitivity of a few number of parameters not the all. How can i change the program in order to choose only some parameters?
+</font></font></font></p>
+<p><font color="#000000"><font face="Courier New" color="#228b22" size="2"><font color="#000000">could you explain me the method of approximation used in the case 2 for the sensitivity problem?</font></font></font></p>
+<p><font color="#000000"><font face="Courier New" color="#228b22" size="2"><font color="#000000">Greetings.</font></font></font></p></div>
 
-Thanks,
-
-sizeof(realtype) proves sufficient to my needs for the moment
-
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
-
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00802" href="msg00802.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00801" href="msg00801.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+<ul><li><em>From:</em> Alexandre Donze &lt;Alexandre.Donze@imag.fr&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00798.html">RE: [sundials-users] Trouble cross compiling</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00801.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00793.html">[sundials-users] Trouble cross compiling</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00801.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00800">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00800">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

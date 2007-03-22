@@ -1,15 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
+<!--X-Subject: Re: [sundials&#45;users] Fortran 95/90 -->
+<!--X-From-R13: Oneba Qbyyvre <pbyyvre6Nyyay.tbi> -->
+<!--X-Date: Tue, 28 Nov 2006 16:38:37 &#45;0800 -->
+<!--X-Message-Id: 456CD5FA.4000702@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Reference: 60241A90&#45;2BBB&#45;4167&#45;AB7C&#45;549D6AD20057@columbia.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>Re: [sundials-users] Fortran 95/90</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00789.html">Date Prev</a>] [<a href="msg00791.html">Date Next</a>] [<a href="msg00786.html">Thread Prev</a>] [<a href="msg00791.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00790">Date Index</a></b>]
+[<b><a href="threads.html#00790">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>Re: [sundials-users] Fortran 95/90</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+Aaron Collier &lt;<a href="mailto:collier6%40llnl.gov">collier6@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Tue, 28 Nov 2006 16:36:10 -0800</td>
 </tr>
 
 </table>
@@ -102,62 +101,73 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<pre style="margin: 0em;">Dear Matthew Lanctot,</pre><br>
+<tt>Yes, SUNDIALS includes generic Fortran-C interface (FCMIX) modules for 
+the KINSOL, IDA and CVODE solvers.  All you need to do is set the F77 
+environment variable to the appropriate compiler so the build system can 
+determine the correct name mangling scheme.  For example, since the 
+Lahey/Fujitsu compiler is currently in my executable search path, I 
+could configure SUNDIALS by issuing the following commands from a shell 
+prompt:</tt><br>
+<br>
+<pre style="margin: 0em;">  &gt; cd build_dir
+  &gt; ../configure CC=gcc F77=lf95</pre><br>
+<tt>You do not need to do anything special to use a Fortran 90/95 compiler. 
+ Just set F77 to the compiler you want to use.</tt><br>
+<br>
+<pre style="margin: 0em;">Respectfully,
+Aaron Collier</pre><br>
+<tt>Matthew Lanctot wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Can SUNDIALS support Fortran 95/90?
+I did not see any options in the INSTALL_NOTES.</pre><br>
+<pre style="margin: 0em;">If so, what are the configure flags and which compilers
+can I use?  Can I use LF95, the Lahey/Fujitsu Optimizing
+Fortran 95 Compiler?</pre><br>
+<pre style="margin: 0em;">Thank you,
+Matthew Lanctot
+Columbia University</pre><br>
+</blockquote><br>
 
-Thanks,
-
-sizeof(realtype) proves sufficient to my needs for the moment
-
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
-
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00791" href="msg00791.html">Re: [sundials-users] Fortran 95/90</a></strong>
+<ul><li><em>From:</em> Matthew Lanctot &lt;mjl2126@columbia.edu&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00786" href="msg00786.html">[sundials-users] Fortran 95/90</a></strong>
+<ul><li><em>From:</em> Matthew Lanctot &lt;mjl2126@columbia.edu&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00789.html">Re: [sundials-users] multiple calls to CVODE in a single program</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00791.html">Re: [sundials-users] Fortran 95/90</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00786.html">[sundials-users] Fortran 95/90</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00791.html">Re: [sundials-users] Fortran 95/90</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00790">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00790">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

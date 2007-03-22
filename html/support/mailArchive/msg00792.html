@@ -1,15 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
+<!--X-Subject: [sundials&#45;users] Building and using SUNDIALS on Windows with Microsoft Visual Studio 2005 -->
+<!--X-From-R13: "Bnbyb Uerccv" <cnbyb.terccvNgvfpnyv.vg> -->
+<!--X-Date: Thu, 30 Nov 2006 08:12:41 &#45;0800 -->
+<!--X-Message-Id: 002e01c7149a$00eb7ae0$6400a8c0@VAHKIKEERAK -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Reference: 698D0FC6&#45;05E2&#45;4AD8&#45;B34D&#45;EDBCC4D46E30@columbia.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>[sundials-users] Building and using SUNDIALS on Windows with Microsoft Visual Studio 2005</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00791.html">Date Prev</a>] [<a href="msg00793.html">Date Next</a>] [<a href="msg00791.html">Thread Prev</a>] [<a href="msg00793.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00792">Date Index</a></b>]
+[<b><a href="threads.html#00792">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>[sundials-users] Building and using SUNDIALS on Windows with Microsoft Visual Studio 2005</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+&quot;Paolo Greppi&quot; &lt;<a href="mailto:paolo.greppi%40tiscali.it">paolo.greppi@tiscali.it</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Thu, 30 Nov 2006 17:10:07 +0100</td>
 </tr>
 
 </table>
@@ -102,23 +101,48 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<pre>Hi all,
 
-Thanks,
+many ideas have been posted on this list on how to suild SUNDIALS on windows
+with Microsoft Visual Studio 2005.
+I am posting one more solution because it is based on an approach I could
+not find in any of these previous posts, i.e.:
+- have ./configure do the job under cygwin and avoid tweaking any file
+- avoid .vcproj file; just start make under cygwin and have it launch
+Microsoft Visual Studio 2005's CL.EXE
+- minimizing moving around of files (i.e. not altering the 
 
-sizeof(realtype) proves sufficient to my needs for the moment
+The procedure is (in this case for IDA 2.5.0):
+1) Open the &quot;Visual Studio 2005 Command Prompt&quot; (after you install should be
+in Start-&gt;Programs-&gt;Visual C++ 2005 Express Edition-&gt;Visual Studio Tools);
+this will set the environment set for using Microsoft Visual Studio 2005 x86
+tools
+2) From within the same CMD shell, start your cygwin installation's bash
+shell, something like: &quot;C:\Program Files\cygwin\bin\bash --login -i&quot;; the
+environment setings will be inherited and now cl and lib should be in the
+path for bash
+3) Extract the SUNDIALS tar.gz archive choosing a location such to avoid any
+space in the path, easy thing is to put it in / or /cygdrive/c which is
+cygwin's path to C: &quot;cd /cygdrive/c; tar xvzf ida-2.5.0.tar.gz; cd
+ida-2.5.0/&quot;
+4) start configure &quot;./configure CC=cl LD=lib&quot;
+5) make it &quot;make&quot;
+6) Copy file sundials_config.h from ...\ida-2.5.0\src\sundials to
+...\ida-2.5.0\include\sundials (the ellipsis indicates the full path to
+where you extracted the tar.gz archive)
+7) copy libraries ...\ida-2.5.0\src\ida\.libs\libsundials_ida.lib and
+...\ida-2.5.0\src\nvec_ser\.libs\libsundials_nvecserial.lib to wherever you
+like
 
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
+To use the generated libraries in a project:
+1) start new Win32 Console Application project, tick the box &quot;empty project&quot;
+2) add existing item, ida-2.5.0\examples\ida\serial\idadenx.c
+3) in Project-&gt;Properties-&gt;Confguration Properties-&gt;C/C++-&gt;General set
+Additional Include Directories to &quot;...\ida-2.5.0\include&quot;
+4) in ...-&gt;Linker-&gt;Input enter libsundials_ida.lib
+libsundials_nvecserial.lib in additional dependencies
 
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
+Paolo
 
 </pre>
 <!--X-Body-of-Message-End-->
@@ -131,33 +155,31 @@ m3X7Act1fY8lB4NhKXqi6wc=
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00791" href="msg00791.html">Re: [sundials-users] Fortran 95/90</a></strong>
+<ul><li><em>From:</em> Matthew Lanctot &lt;mjl2126@columbia.edu&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00791.html">Re: [sundials-users] Fortran 95/90</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00793.html">[sundials-users] Trouble cross compiling</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00791.html">Re: [sundials-users] Fortran 95/90</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00793.html">[sundials-users] Trouble cross compiling</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00792">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00792">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

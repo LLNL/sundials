@@ -1,15 +1,17 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
-<!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Subject: Re: [sundials&#45;users] CMake build system for SUNDIALS &#45; Intel Compiler -->
+<!--X-From-R13: "Oaqernf @vpbynv" <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Tue, 30 Jan 2007 12:14:43 &#45;0800 -->
+<!--X-Message-Id: op.tmzg2errt8lo91@smtp.kuleuven.ac.be -->
+<!--X-Content-Type: multipart/mixed -->
+<!--X-Reference: 45BE49A6.1020900@llnl.gov -->
+<!--X-Reference: op.tmy7v1fnt8lo91@smtp.kuleuven.ac.be -->
+<!--X-Reference: 4251B222E06F43FF82CBC457ED7E9271@PCHEARTBREAK -->
+<!--X-Derived: gzxRARpvflax.gz -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>Re: [sundials-users] CMake build system for SUNDIALS - Intel Compiler</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +70,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00851.html">Date Prev</a>] [<a href="msg00853.html">Date Next</a>] [<a href="msg00851.html">Thread Prev</a>] [<a href="msg00855.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00852">Date Index</a></b>]
+[<b><a href="threads.html#00852">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>Re: [sundials-users] CMake build system for SUNDIALS - Intel Compiler</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +87,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+&quot;Andreas Nicolai&quot; &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Tue, 30 Jan 2007 15:12:04 -0500</td>
 </tr>
 
 </table>
@@ -102,62 +104,131 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<pre>Hi Alan,
 
-Thanks,
+&gt;<i> Just out of interest, which compiler provides the best results (in terms of</i>
+&gt;<i> computational speed) out of the four that you have at hand? I would think</i>
+&gt;<i> the Intel compiler, but I was wondering whether you coud give us some</i>
+&gt;<i> figures (in private, if necessary)?... :)</i>
 
-sizeof(realtype) proves sufficient to my needs for the moment
+I'm working on it, as part of my diss... so in a little while I have some 
+detailed results :-)
 
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
+Problem is, that my desktop machine and laptop are both AMD powered (because 
+AMD cores seem at the moment still a bit faster than the Intel counterparts, 
+when simply comparing the number-crunching speed). So the Intel compiler 
+extensions (particularly the math lib) will not really help here.
 
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
+The Borland compiler creates code that is way slower than the others. This is 
+unfortunately true for BCB5, BCB6 and the new Borland Developer Studio 2006. 
+The provided C/C++ lib implementations are just much slower and the only reason 
+why I keep using BCB is because its VCL library for graphical user interfaces 
+is way better/faster than .Net WinForms or MFC.
 
-</pre>
+Anyway, here's the result of a quick comparison on my machine for a fairly 
+demanding benchmark (forces variations in time step from 1e-4 to 3000), see 
+attached chart to get an impression of how badly I treat the solver :-). And, 
+btw, that is a somewhat exagerated real-world problem from building physics 
+(driving rain on a brick wall).
+
+
+RelTol = 1e-5, AbsTol = 1e-5
+
+mingw32-gcc 3.4.4
+------------------
+SimTime:   7.468 s
+
+Final stats:
+Steps    RhsEvals   JacEvals   NNiters    NNfails
+14795    20169      468        20168      42
+
+
+vc 8 (14.00.50727)
+------------------
+SimTime:   7.718 s
+
+Final stats:
+Steps    RhsEvals   JacEvals   NNiters    NNfails
+15256    20609      471        20608      43
+
+
+ic 9.1.034
+------------------
+SimTime:   9.515 s
+
+Final stats:
+Steps    RhsEvals   JacEvals   NNiters    NNfails
+14969    20447      459        20446      40
+
+
+The differences in the final results come from rounding errors or differences 
+in implementations of math functions. For any somewhat complex problem, getting 
+exactly the same stats for different compilers is IMHO impossible.
+
+Also mind that those results have been obtained with just the standard /03 
+optimization settings. I didn't use any of the specialities that the compilers 
+offer (e.g. specific optimizations for a particular processor).
+
+Btw, running the same benchmark on my machine with gcc on SuSE linux 10.1 
+results in about 10% shorter execution time (however, the stats look somewhat 
+favorable for the linux run, meaning less NNfails and JacEvals).
+
+Bye,
+Andreas
+
+-- 
+Andreas Nicolai                         anicolai@syr.edu
+PhD Candidate, M.A.M.E                  (315) 443-2641
+Syracuse University
+151 Link Hall
+Syracuse, NY, 13244</pre><p><strong>Attachment:
+<a href="gzxRARpvflax.gz" ><tt>benchmark.gif.gz</tt></a></strong><br>
+<em>Description:</em> GNU Zip compressed data</p>
+
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00855" href="msg00855.html">RE: [sundials-users] CMake build system for SUNDIALS - Intel Compiler</a></strong>
+<ul><li><em>From:</em> &quot;Alan Garny&quot; &lt;agml@hellix.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00842" href="msg00842.html">[sundials-users] CMake build system for SUNDIALS</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00849" href="msg00849.html">[sundials-users] CMake build system for SUNDIALS - Intel Compiler</a></strong>
+<ul><li><em>From:</em> &quot;Andreas Nicolai&quot; &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00851" href="msg00851.html">RE: [sundials-users] CMake build system for SUNDIALS - Intel Compiler</a></strong>
+<ul><li><em>From:</em> &quot;Alan Garny&quot; &lt;agml@hellix.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00851.html">RE: [sundials-users] CMake build system for SUNDIALS - Intel Compiler</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00853.html">Re: [sundials-users] CMake build system for SUNDIALS - Intel Compiler</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00851.html">RE: [sundials-users] CMake build system for SUNDIALS - Intel Compiler</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00855.html">RE: [sundials-users] CMake build system for SUNDIALS - Intel Compiler</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00852">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00852">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

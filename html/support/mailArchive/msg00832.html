@@ -1,15 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
+<!--X-Subject: Re: [sundials&#45;users] parallel ode solver -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Tue, 09 Jan 2007 14:27:21 &#45;0800 -->
+<!--X-Message-Id: Pine.LNX.4.58.0701091425070.16299@tux64.llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Reference: 1168206637.45a16b2d29b24@webmail.purdue.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>Re: [sundials-users] parallel ode solver</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00824.html">Date Prev</a>] [<a href="msg00833.html">Date Next</a>] [<a href="msg00824.html">Thread Prev</a>] [<a href="msg00836.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00832">Date Index</a></b>]
+[<b><a href="threads.html#00832">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>Re: [sundials-users] parallel ode solver</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Tue, 9 Jan 2007 14:25:56 -0800 (PST)</td>
 </tr>
 
 </table>
@@ -102,23 +101,41 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<pre>
+Hello Jun,
 
-Thanks,
+Let me offer a little advice:  For a small problem, do not use a
+parallel machine.  If your problem is similar to the cvdenx example,
+which has only 3 ODEs, it should be solved on a serial machine only.
+Parallel machines are intended only for very large problmes.
 
-sizeof(realtype) proves sufficient to my needs for the moment
+If you are developing an application of SUNDIALS for a parallel
+machine, there are parallel examples that you can follow as templates.
+For example, the CVODE example cvkryx_p solves a discretized PDE
+system in parallel.  That example itself is not large, but could be
+made arbitrarily large with a refinement of the spatial mesh.
 
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
+-Alan H
 
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
+
+
+On Sun, 7 Jan 2007 caoj@purdue.edu wrote:
+
+&gt;<i> HI:</i>
+&gt;<i></i>
+&gt;<i> I am a new user for sundials. I am looking for a parallel ode solver.</i>
+&gt;<i></i>
+&gt;<i> In the Example Programs for CVODE v2.5.0 posted on the web, A dense example</i>
+&gt;<i> (cvdenx) which is similiar to my problem solves the following problem:</i>
+&gt;<i> y1'=-0.04*y1+10^4*y2*y3</i>
+&gt;<i> y2'=0.04*y1-10^4*y2*y3-3*10^7*y2^2</i>
+&gt;<i> y3'=3*17^7*y2^2</i>
+&gt;<i></i>
+&gt;<i> Does anyone know if there is a parallel ode solver to solve this problems in</i>
+&gt;<i> sundials? Thanks.</i>
+&gt;<i></i>
+&gt;<i> Jun</i>
+&gt;<i></i>
 
 </pre>
 <!--X-Body-of-Message-End-->
@@ -127,37 +144,40 @@ m3X7Act1fY8lB4NhKXqi6wc=
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00836" href="msg00836.html">Re: [sundials-users] parallel ode solver</a></strong>
+<ul><li><em>From:</em> caoj@purdue.edu</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00824" href="msg00824.html">[sundials-users] parallel ode solver</a></strong>
+<ul><li><em>From:</em> caoj@purdue.edu</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00824.html">[sundials-users] parallel ode solver</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00833.html">[sundials-users] Fortran Compiler in Linux</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00824.html">[sundials-users] parallel ode solver</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00836.html">Re: [sundials-users] parallel ode solver</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00832">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00832">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

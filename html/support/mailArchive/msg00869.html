@@ -1,0 +1,295 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] The difference between these two codes using CVodeReInit -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Tue, 06 Feb 2007 13:47:17 &#45;0800 -->
+<!--X-Message-Id: Pine.LNX.4.58.0702061343580.27113@tux64.llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 45C8827D.2040705@iut&#45;bm.univ&#45;fcomte.fr -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] The difference between these two codes using CVodeReInit</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00868.html">Date Prev</a>] [<a href="msg00870.html">Date Next</a>] [<a href="msg00868.html">Thread Prev</a>] [<a href="msg00871.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00869">Date Index</a></b>]
+[<b><a href="threads.html#00869">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] The difference between these two codes using CVodeReInit</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Tue, 6 Feb 2007 13:45:31 -0800 (PST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hello Jean Claude,
+
+1. The two codes would not be expected to give identical answers,
+because the restarts in Code 2 generate a different sequence of values
+of the stepsize and method order than those chosen in Code 1.  (Here
+stepsizes refer to the internal choice of actual integration step, not
+related to your output interval DT.)  However, as long as the initial
+values and tolerances are the same for both codes, the results should
+agree within errors that are on the order of the tolerances.  Are the
+differences in answers greater than that?
+
+2. I understand that you must reinitialize, if the u vector is changed
+at each such point.  But of course when those changes are actually made,
+the codes will certainly give different answers.
+
+3. Why do you use the CV_NORMAL_TSTOP mode instead of CV_NORMAL in Code 2?
+If there is no singularity at tout, there is no reason to do this, and
+it is less efficient.
+
+4. I see that you are choosing SPGMR without preconditioning for the
+linear system solver.  This is generally not very effective.  You
+should look for a preconditioner based on the dominant features of the
+system Jacobian.  See the User Document for more on this.
+
+Alan H.
+
+
+
+On Tue, 6 Feb 2007, jeanclaude charr wrote:
+
+&gt;<i> Hello , i'm a phd student  in a french university  and i'm using cvode</i>
+&gt;<i> in my studies.</i>
+&gt;<i> i wish u can explain to me why the execution of these 2 codes return</i>
+&gt;<i> differents results?</i>
+&gt;<i> in the first code, i integrate the interval [0,T1] with steps equal to DT.</i>
+&gt;<i> but in the second code, i integrate every TWINDOW=10*DT then i</i>
+&gt;<i> reinitialize cvode and integrate the next TWINDOW until i integrate the</i>
+&gt;<i> whole interval [0,T1].</i>
+&gt;<i> Because, in a more complex program, i need to reinitialize the solver</i>
+&gt;<i> every TWINDOW with a new N_Vector ( u  in the code), and i m surprised</i>
+&gt;<i> to to  see that the execution of these two programs doesn't give the</i>
+&gt;<i> same results.</i>
+&gt;<i> if u have any idea why they differ please reply.</i>
+&gt;<i></i>
+&gt;<i> I will be utterly greatful</i>
+&gt;<i> regards,</i>
+&gt;<i> Jean claude charr</i>
+&gt;<i></i>
+&gt;<i> *_1st code:_*</i>
+&gt;<i>  .</i>
+&gt;<i>  .</i>
+&gt;<i>  .</i>
+&gt;<i>  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);</i>
+&gt;<i>  flag = CVodeSetFdata(cvode_mem, data);</i>
+&gt;<i></i>
+&gt;<i>  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &amp;abstol);</i>
+&gt;<i></i>
+&gt;<i>  flag = CVSpgmr(cvode_mem, PREC_NONE, 0);</i>
+&gt;<i></i>
+&gt;<i>  for (tout = DT;tout&lt;=T1; tout += DT) {</i>
+&gt;<i>    flag = CVode(cvode_mem, tout, u, &amp;t, CV_NORMAL);</i>
+&gt;<i>    if (check_flag(&amp;flag, &quot;CVode&quot;, 1, my_pe)) break;</i>
+&gt;<i>    PrintOutput(cvode_mem, my_pe, comm, u, t);</i>
+&gt;<i>  }</i>
+&gt;<i> //display results</i>
+&gt;<i>   udata = NV_DATA_P(u);</i>
+&gt;<i>   for(i=0;i&lt;MYSUB;i++){</i>
+&gt;<i>        for(j=MXSUB*2*i;j&lt;(MXSUB*2*i)+(MXSUB*2);j++)</i>
+&gt;<i>            if(j%2==0)</i>
+&gt;<i>            fprintf(fileu,&quot;%d %d</i>
+&gt;<i> %6e\n&quot;,(int)(data-&gt;isubx)*(MXSUB)+(j/2)%MXSUB,(int)(data-&gt;isuby)*(MYSUB)+i,udata[j]);</i>
+&gt;<i></i>
+&gt;<i>        else</i>
+&gt;<i>            fprintf(filev,&quot;%d %d</i>
+&gt;<i> %6e\n&quot;,(int)(data-&gt;isubx)*(MXSUB)+(j/2)%MXSUB,(int)(data-&gt;isuby)*(MYSUB)+i,udata[j]);</i>
+&gt;<i></i>
+&gt;<i>    }</i>
+&gt;<i>  .</i>
+&gt;<i>  .</i>
+&gt;<i>  .</i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> _*2nd code:*_</i>
+&gt;<i></i>
+&gt;<i> .</i>
+&gt;<i> .</i>
+&gt;<i> .</i>
+&gt;<i> for(wind=T0;wind&lt;T1;wind+=TWINDOW){    /*TWINDOW=10*DT;*/</i>
+&gt;<i>        if(wind==T0){</i>
+&gt;<i>            cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);</i>
+&gt;<i>            flag = CVodeSetFdata(cvode_mem, data);</i>
+&gt;<i>            flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &amp;abstol);</i>
+&gt;<i>        }</i>
+&gt;<i>        else{</i>
+&gt;<i>            ret=CVodeReInit(cvode_mem, f, wind , u,CV_SS, reltol,&amp;abstol);</i>
+&gt;<i>                      if(ret!=CV_SUCCESS) {</i>
+&gt;<i>                printf(&quot;pb de reinit\n&quot;);</i>
+&gt;<i>                exit(0);</i>
+&gt;<i>            }</i>
+&gt;<i>         }</i>
+&gt;<i></i>
+&gt;<i>      flag = CVSpgmr(cvode_mem, PREC_NONE, 0);</i>
+&gt;<i></i>
+&gt;<i>      flag = CVodeSetStopTime(cvode_mem,wind+TWINDOW);</i>
+&gt;<i></i>
+&gt;<i>      for (tout = wind+DT;tout&lt;=wind+TWINDOW &amp;&amp; tout&lt;=T1; tout += DT) {</i>
+&gt;<i>        flag = CVode(cvode_mem, tout, u, &amp;t, CV_NORMAL_TSTOP);</i>
+&gt;<i>        if (check_flag(&amp;flag, &quot;CVode&quot;, 1, my_pe)) break;</i>
+&gt;<i>      }</i>
+&gt;<i> }</i>
+&gt;<i> //display results</i>
+&gt;<i> udata = NV_DATA_P(u);</i>
+&gt;<i> for(i=0;i&lt;MYSUB;i++){</i>
+&gt;<i>   for(j=MXSUB*2*i;j&lt;(MXSUB*2*i)+(MXSUB*2);j++)</i>
+&gt;<i>       if(j%2==0)</i>
+&gt;<i>          fprintf(fileu,&quot;%d %d</i>
+&gt;<i> %6e\n&quot;,(int)(data-&gt;isubx)*(MXSUB)+(j/2)%MXSUB,(int)(data-&gt;isuby)*(MYSUB)+i,udata[j]);</i>
+&gt;<i></i>
+&gt;<i>       else</i>
+&gt;<i>          fprintf(filev,&quot;%d %d</i>
+&gt;<i> %6e\n&quot;,(int)(data-&gt;isubx)*(MXSUB)+(j/2)%MXSUB,(int)(data-&gt;isuby)*(MYSUB)+i,udata[j]);</i>
+&gt;<i></i>
+&gt;<i> }</i>
+&gt;<i> .</i>
+&gt;<i> .</i>
+&gt;<i> .</i>
+&gt;<i></i>
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00871" href="msg00871.html">Re: [sundials-users] The difference between these two codes using CVodeReInit</a></strong>
+<ul><li><em>From:</em> &quot;jean-claude charr&quot; &lt;j_charr@hotmail.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00868" href="msg00868.html">[sundials-users] The difference between these two codes using CVodeReInit</a></strong>
+<ul><li><em>From:</em> jeanclaude charr &lt;charr@iut-bm.univ-fcomte.fr&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00868.html">[sundials-users] The difference between these two codes using CVodeReInit</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00870.html">RE: [sundials-users] CMake build system for SUNDIALS - Intel Compiler</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00868.html">[sundials-users] The difference between these two codes using CVodeReInit</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00871.html">Re: [sundials-users] The difference between these two codes using CVodeReInit</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00869">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00869">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

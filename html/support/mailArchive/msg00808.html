@@ -1,0 +1,206 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] SundialsTB::Cvodes::cvfdx.m -->
+<!--X-From-R13: "xnevzn qwnoryyn" <xnevzn.qwnoryynNtznvy.pbz> -->
+<!--X-Date: Mon, 04 Dec 2006 09:30:01 &#45;0800 -->
+<!--X-Message-Id: 35f4e4e10612040928r3738d49fyf4a121f13621a931@mail.gmail.com -->
+<!--X-Content-Type: multipart/alternative -->
+<!--X-Reference: 35f4e4e10612030543g5a1ca0a1w4f4a862e1147f967@mail.gmail.com -->
+<!--X-Reference: Pine.LNX.4.64.0612031509410.619@pelve.imag.fr -->
+<!--X-Reference: 35f4e4e10612030825l13f9c3d3pbea56c416d2ade32@mail.gmail.com -->
+<!--X-Reference: 457301D5.2080504@llnl.gov -->
+<!--X-Reference: 35f4e4e10612030940yd842174k74e42f001d943d77@mail.gmail.com -->
+<!--X-Reference: 4573AC98.3080800@llnl.gov -->
+<!--X-Reference: 35f4e4e10612040540n48d81c9an87695f85565750d5@mail.gmail.com -->
+<!--X-Reference: 457451B1.4010300@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00807.html">Date Prev</a>] [<a href="msg00809.html">Date Next</a>] [<a href="msg00807.html">Thread Prev</a>] [<a href="msg00802.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00808">Date Index</a></b>]
+[<b><a href="threads.html#00808">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;karima djabella&quot; &lt;<a href="mailto:karima.djabella%40gmail.com">karima.djabella@gmail.com</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 4 Dec 2006 18:28:14 +0100</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<div>Hi,</div>
+<div>&nbsp;</div>
+<div>You are right, i put 'FSAParamList' as [0 1] and the two methods give the same results.</div>
+<div>I will download the last version of sundialsTB v2.3.0.</div>
+<div>Thanks a lot for your help.</div>
+<div>&nbsp;</div>
+<div>Greetings.<br><br>&nbsp;</div>
+<div><span class="gmail_quote">On 12/4/06, <b class="gmail_sendername">Radu Serban</b> &lt;<a  href="mailto:radu@llnl.gov" target="_blank">radu@llnl.gov</a>&gt; wrote:
+</span> 
+<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">Hi,<br><br>The results obtained with the analytical sensitivity RHS are correct. Recall<br>that in this case, we compute sensitivities with respect to p1 and p2. When you 
+<br>switched to the DQ approximation, it seems that you compute sensitivities with<br>respect to p2 and p3.<br><br>What version of sundialsTB are you using? In sundialsTB v2.2.0 and previous, the<br>list of parameters was 0-indexed, and therefore, passing [1 2] as the list of 
+<br>parameters meant computing sensitivities with respect to the second and third<br>parameters. I've just tested this and, if you specify 'FSAParamList' as [0 1],<br>you get the expected results. (note that the option names for FSA were also 
+<br>different in previous versions)<br><br>In sundialsTB v2.3.0 the list of parameters follows the Matlab convention and<br>starts at 1. Here, specifying 'ParamList' as [1 2] is what you want.<br><br>If you are not using the latest version, please update. Note that sundialsTB is 
+<br>NOT distributed as a separate file anymore. It is part of the<br>sundials-2.3.0.tar.gz file. (I should probably make that clear on the download<br>web page. The only place where that is mentioned right now is on the sundialsTB 
+<br>documentation web page.) Remember to fix the cvdx_fS.m file!<br><br>Please let me know if this was indeed the situation.<br><br>--Radu<br><br>karima djabella wrote:<br>&gt; I send you the results obtained from two runs, the first one is from the 
+<br>&gt; analytical method and the second one from the DQ approximation. I<br>&gt; observe differences that are too large than the tolerances. You can see<br>&gt; the results below:<br>&gt;<br>&gt; % Results from analytical method (sensitivity RHS) 
+<br>&gt; At t = 4.0000e-001&nbsp;&nbsp;status = 0<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp; y =&nbsp;&nbsp;9.851721e-001&nbsp;&nbsp; 3.386395e-005&nbsp;&nbsp; 1.479403e-002<br>&gt;&nbsp;&nbsp; yS1 = -3.559548e-001&nbsp;&nbsp; 3.902580e-004&nbsp;&nbsp; 3.555646e-001<br>&gt;&nbsp;&nbsp; yS2 =&nbsp;&nbsp;9.542174e-008&nbsp;&nbsp;-2.130965e-010&nbsp;&nbsp;-9.520865e-008
+ <br>&gt; At t = 4.0000e+000&nbsp;&nbsp;status = 0<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp; y =&nbsp;&nbsp;9.055184e-001&nbsp;&nbsp; 2.240473e-005&nbsp;&nbsp; 9.445917e-002<br>&gt;&nbsp;&nbsp; yS1 = -1.876125e+000&nbsp;&nbsp; 1.792094e-004&nbsp;&nbsp; 1.875946e+000<br>&gt;&nbsp;&nbsp; yS2 =&nbsp;&nbsp;2.961305e-006&nbsp;&nbsp;-5.830602e-010&nbsp;&nbsp;-2.960722e-006
+ <br>&gt; At t = 4.0000e+001&nbsp;&nbsp;status = 0<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp; y =&nbsp;&nbsp;7.158363e-001&nbsp;&nbsp; 9.185918e-006&nbsp;&nbsp; 2.841545e-001<br>&gt;&nbsp;&nbsp; yS1 = -4.247386e+000&nbsp;&nbsp; 4.591652e-005&nbsp;&nbsp; 4.247340e+000<br>&gt;&nbsp;&nbsp; yS2 =&nbsp;&nbsp;1.373041e-005&nbsp;&nbsp;-2.357367e-010&nbsp;&nbsp;-1.373018e-005
+ <br><br>[snip]<br><br>&gt; % Results from DQ approximation<br>&gt; At t = 4.0000e-001&nbsp;&nbsp;status = 0<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp; y =&nbsp;&nbsp;9.851695e-001&nbsp;&nbsp; 3.386347e-005&nbsp;&nbsp; 1.479660e-002<br>&gt;&nbsp;&nbsp; yS1 =&nbsp;&nbsp;9.496046e-008&nbsp;&nbsp;-2.131841e-010&nbsp;&nbsp;-9.474728e-008
+ <br>&gt;&nbsp;&nbsp; yS2 = -1.575480e-011&nbsp;&nbsp;-5.289956e-013&nbsp;&nbsp; 1.628379e-011<br>&gt; At t = 4.0000e+000&nbsp;&nbsp;status = 0<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp; y =&nbsp;&nbsp;9.055234e-001&nbsp;&nbsp; 2.240540e-005&nbsp;&nbsp; 9.445418e-002<br>&gt;&nbsp;&nbsp; yS1 =&nbsp;&nbsp;2.961832e-006&nbsp;&nbsp;-5.829638e-010&nbsp;&nbsp;-2.961249e-006
+ <br>&gt;&nbsp;&nbsp; yS2 = -4.934253e-010&nbsp;&nbsp;-2.762816e-013&nbsp;&nbsp; 4.937016e-010<br>&gt; At t = 4.0000e+001&nbsp;&nbsp;status = 0<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp; y =&nbsp;&nbsp;7.158131e-001&nbsp;&nbsp; 9.184935e-006&nbsp;&nbsp; 2.841777e-001<br>&gt;&nbsp;&nbsp; yS1 =&nbsp;&nbsp;1.373235e-005&nbsp;&nbsp;-2.356647e-010&nbsp;&nbsp;-1.373212e-005
+ <br>&gt;&nbsp;&nbsp; yS2 = -2.288441e-009&nbsp;&nbsp;-1.138007e-013&nbsp;&nbsp; 2.288555e-009<br><br>[snip]<br></blockquote></div><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00800" href="msg00800.html">[sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+<ul><li><em>From:</em> &quot;karima djabella&quot; &lt;karima.djabella@gmail.com&gt;</li></ul></li>
+<li><strong><a name="00801" href="msg00801.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+<ul><li><em>From:</em> Alexandre Donze &lt;Alexandre.Donze@imag.fr&gt;</li></ul></li>
+<li><strong><a name="00803" href="msg00803.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+<ul><li><em>From:</em> &quot;karima djabella&quot; &lt;karima.djabella@gmail.com&gt;</li></ul></li>
+<li><strong><a name="00804" href="msg00804.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00805" href="msg00805.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+<ul><li><em>From:</em> &quot;karima djabella&quot; &lt;karima.djabella@gmail.com&gt;</li></ul></li>
+<li><strong><a name="00806" href="msg00806.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00799" href="msg00799.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+<ul><li><em>From:</em> &quot;karima djabella&quot; &lt;karima.djabella@gmail.com&gt;</li></ul></li>
+<li><strong><a name="00807" href="msg00807.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00807.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00809.html">[sundials-users] Stiff ODE solution is slow?</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00807.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00802.html">Re: [sundials-users] SundialsTB::Cvodes::cvfdx.m</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00808">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00808">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

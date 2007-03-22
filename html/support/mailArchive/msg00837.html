@@ -1,0 +1,274 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] parallel ode solver -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Wed, 10 Jan 2007 11:47:22 &#45;0800 -->
+<!--X-Message-Id: Pine.LNX.4.58.0701101140560.16299@tux64.llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 1168206637.45a16b2d29b24@webmail.purdue.edu -->
+<!--X-Reference: Pine.LNX.4.58.0701091425070.16299@tux64.llnl.gov -->
+<!--X-Reference: 1168449317.45a51f25c3255@webmail.purdue.edu -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] parallel ode solver</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00836.html">Date Prev</a>] [<a href="msg00838.html">Date Next</a>] [<a href="msg00836.html">Thread Prev</a>] [<a href="msg00833.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00837">Date Index</a></b>]
+[<b><a href="threads.html#00837">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] parallel ode solver</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 10 Jan 2007 11:42:52 -0800 (PST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>
+Hello Jun,
+
+I should have been more quantitative.  I would not consider a parallel
+solution for your problem until the size is well over 1000, and
+probably not until it is larger than 10,000.  For sizes smaller than
+that, your best bet is to solve the problem in serial, but exploit the
+sparsity in the system as best you can.  The number of terms within
+the ODEs is not relevant to this decision.
+
+In the case of chemical kinetics systems (like the one in cvdenx), the
+sparsity pattern is likely to be rather random-looking, and exploiting
+will be difficult, even in serial.  We do not have a solver for ODE
+systems with general sparse Jacobians within SUNDIALS, but we do in a
+Fortran collection called ODEPACK.  See the LSODES solver, available at
+/www.llnl.gov/casc/odepack/.  A similar solver in parallel has not
+been written, as far as I know, though some work on this has been done
+here.
+
+Alternatively, you should look to see if your large ODE system
+actually has some regular structure to it.  For example, perhaps you
+can arrange your species in groups that have strong internal coupling
+but weak inter-group coupling.  In that case, a good approach would be
+to use a block-diagonal approximate Jacobian that ignores the
+inter-group couplings.  This approach does extend naturally to the
+parallel setting, with one group per processor.  Similarly, with a
+suitable ordering of the species, a banded approximate Jacobian might
+work well (in serial only).
+
+In any case, SUNDIALS does not have an automatic way to decide how
+variables are distributed over processors in a parallel solution, and
+I doubt that there is any software that does.  You have to decide
+that, based on your problem.  This would be especially true in the
+above situation with groups of species with different sized groups.
+
+We have not expolored IRK methods in SUNDIALS.  In almost all cases,
+the BDF methods we use are more efficient.  But if you would like to
+try an IRK solver, there is one called KRYSI, also available at
+/www.llnl.gov/casc/odepack/.  It uses the same preconditioned GMRES
+(iterative linear system) solver that CVODE does.
+
+I hope these remarks are useful.
+
+-Alan H
+
+
+
+On Wed, 10 Jan 2007 caoj@purdue.edu wrote:
+
+&gt;<i> Hi Alan:</i>
+&gt;<i></i>
+&gt;<i> Thanks for your reply.</i>
+&gt;<i></i>
+&gt;<i> My problem contains a very large size of odes, which have hundreds of species</i>
+&gt;<i> and each has hundreds of ode terms. It is the reason that I am looking for a</i>
+&gt;<i> parallel ode solver.</i>
+&gt;<i></i>
+&gt;<i> I am wondering if there is a Parallel Iterative Linear System Solver for IRK</i>
+&gt;<i> Methods in sundials. Users only defines the number of cpus to use, parellel</i>
+&gt;<i> solver will do it in parallel automatically. Instead of that user design some</i>
+&gt;<i> parallel method like the CVODE example cvkryx_p.</i>
+&gt;<i></i>
+&gt;<i> Thanks.</i>
+&gt;<i></i>
+&gt;<i> Jun</i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> Quoting Alan Hindmarsh &lt;alanh@llnl.gov&gt;:</i>
+&gt;<i></i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; Hello Jun,</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; Let me offer a little advice:  For a small problem, do not use a</i>
+&gt;<i> &gt; parallel machine.  If your problem is similar to the cvdenx example,</i>
+&gt;<i> &gt; which has only 3 ODEs, it should be solved on a serial machine only.</i>
+&gt;<i> &gt; Parallel machines are intended only for very large problmes.</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; If you are developing an application of SUNDIALS for a parallel</i>
+&gt;<i> &gt; machine, there are parallel examples that you can follow as templates.</i>
+&gt;<i> &gt; For example, the CVODE example cvkryx_p solves a discretized PDE</i>
+&gt;<i> &gt; system in parallel.  That example itself is not large, but could be</i>
+&gt;<i> &gt; made arbitrarily large with a refinement of the spatial mesh.</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; -Alan H</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; On Sun, 7 Jan 2007 caoj@purdue.edu wrote:</i>
+&gt;<i> &gt;</i>
+&gt;<i> &gt; &gt; HI:</i>
+&gt;<i> &gt; &gt;</i>
+&gt;<i> &gt; &gt; I am a new user for sundials. I am looking for a parallel ode solver.</i>
+&gt;<i> &gt; &gt;</i>
+&gt;<i> &gt; &gt; In the Example Programs for CVODE v2.5.0 posted on the web, A dense</i>
+&gt;<i> &gt; example</i>
+&gt;<i> &gt; &gt; (cvdenx) which is similiar to my problem solves the following problem:</i>
+&gt;<i> &gt; &gt; y1'=-0.04*y1+10^4*y2*y3</i>
+&gt;<i> &gt; &gt; y2'=0.04*y1-10^4*y2*y3-3*10^7*y2^2</i>
+&gt;<i> &gt; &gt; y3'=3*17^7*y2^2</i>
+&gt;<i> &gt; &gt;</i>
+&gt;<i> &gt; &gt; Does anyone know if there is a parallel ode solver to solve this problems</i>
+&gt;<i> &gt; in</i>
+&gt;<i> &gt; &gt; sundials? Thanks.</i>
+&gt;<i> &gt; &gt;</i>
+&gt;<i> &gt; &gt; Jun</i>
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00824" href="msg00824.html">[sundials-users] parallel ode solver</a></strong>
+<ul><li><em>From:</em> caoj@purdue.edu</li></ul></li>
+<li><strong><a name="00832" href="msg00832.html">Re: [sundials-users] parallel ode solver</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00836" href="msg00836.html">Re: [sundials-users] parallel ode solver</a></strong>
+<ul><li><em>From:</em> caoj@purdue.edu</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00836.html">Re: [sundials-users] parallel ode solver</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00838.html">[sundials-users] Re: IDA solver in Matlab</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00836.html">Re: [sundials-users] parallel ode solver</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00833.html">[sundials-users] Fortran Compiler in Linux</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00837">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00837">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

@@ -1,0 +1,158 @@
+#include <stdio.h>
+#include <math.h>
+
+#include <ida/ida.h>
+#include <ida/ida_dense.h>
+#include <ida/ida_band.h>
+#include <nvector/nvector_serial.h>
+#include <sundials/sundials_types.h>
+#include <sundials/sundials_math.h>
+
+# define TIMESTEPS 10001
+# define DIM 1001
+# define DH 1.0/1000.0
+
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
+
+
+/*
+
+     dt y - d^2/dx^2 y = f(x,y)
+
+     y[0] = sin(t);
+     0 = y[0]+y[1]+ ... +y[DIM]
+
+*/
+
+realtype rightside(realtype x,realtype t)
+{
+  realtype temp; 
+
+  temp = cos(t)*(x-0.5)*(x-0.5)*(x-0.5);
+  temp -= sin(t)*(x-0.5)*RCONST(6.0);
+  temp = temp * RCONST(-8.0);
+
+  return (temp);
+}
+
+int func_f (realtype tres, N_Vector y, N_Vector yt,
+	    N_Vector resval, void *rdata)
+{
+  realtype * dy;
+  realtype * dyt; 
+  realtype * dresval;
+  int i;
+
+  dy      = NV_DATA_S(y);
+  dyt     = NV_DATA_S(yt);
+  dresval = NV_DATA_S(resval);
+
+  dresval[0]     =  dy[0] - sin(tres);
+  
+  dresval[DIM-1] = 0;
+  for (i=0;i<DIM;i++)
+    dresval[DIM-1] += dy[i];
+
+  for (i=1;i<DIM-1;i++)
+    {
+      dresval[i] = dyt[i] - ( dy[i-1] -2*dy[i] +  dy[i+1])/(DH*DH);
+      dresval[i] -= rightside(DH*i,tres);
+    }
+  
+  return(0);
+}
+
+int
+jacrob (long int Neq, realtype tt, N_Vector y, N_Vector yt,
+	N_Vector resvec, realtype cj, void *jdata, DenseMat JJ,
+	N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+{
+  realtype *dy;
+  int i,j;
+
+  dy      = NV_DATA_S(y);
+
+  for (i=0;i<DIM;i++)
+    {
+      for (j=0;j<DIM;j++)
+	{ 
+	  DENSE_ELEM(JJ,i,j) = ZERO;
+	}
+    }
+
+  for (i=1;i<DIM-1;i++)
+    { 
+      DENSE_ELEM(JJ,i,i-1) = - ONE/(DH*DH);
+      DENSE_ELEM(JJ,i,i) = cj + RCONST(2.0)/(DH*DH);
+      DENSE_ELEM(JJ,i,i+1) = - ONE/(DH*DH);
+    }
+
+  DENSE_ELEM(JJ,0,0) = ONE;
+
+  for (i=0;i<DIM;i++)
+    { 
+      DENSE_ELEM(JJ,DIM-1,i) = ONE;
+    }
+
+  return (0);
+}
+
+
+int main ()
+{
+  void *mem;
+  FILE *datfile;
+  int i; 
+  realtype tret;
+  N_Vector y; 
+  N_Vector yt; 
+  N_Vector abstol; 
+  realtype rtol; 
+  realtype * dy; 
+  realtype * dyt; 
+  realtype * dabstol; 
+  realtype t0 = 0; 
+  realtype tout; 
+
+  y = N_VNew_Serial(DIM);
+  yt = N_VNew_Serial(DIM); 
+  abstol = N_VNew_Serial(DIM); 
+
+  dy = NV_DATA_S(y);
+  dyt = NV_DATA_S(yt);
+  dabstol = NV_DATA_S(abstol);
+  
+  
+  for (i=0;i<DIM;i++)
+    {
+      dy[i] = 0;
+      dabstol[i] = 1e-3;
+      dyt[i] = 0;
+    }
+
+  rtol = 1e-9;
+
+  mem = IDACreate();
+  IDAMalloc(mem, func_f,  t0, y, yt, IDA_SV, rtol, abstol);
+  
+  IDADense (mem, DIM);
+  IDADenseSetJacFn (mem, jacrob, NULL);
+
+  datfile = fopen ("links.dat", "w+");
+
+  for (i=1;i<TIMESTEPS;i++)
+    {
+      tout = i*RCONST(0.001); 
+      
+      IDASolve (mem, tout, &tret, y, yt, IDA_NORMAL);
+      
+      fprintf (datfile, "%e ", DH*i);
+      fprintf (datfile, "%e", dy[DIM-1]);
+      fprintf (datfile, "\n");
+
+    }
+  fclose (datfile);      
+
+  return(1);
+}

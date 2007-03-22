@@ -1,15 +1,17 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
+<!--X-Subject: Re: [sundials&#45;users] nonlinear problem -->
+<!--X-From-R13: [nani Pungvn <znaniNh.jnfuvatgba.rqh> -->
+<!--X-Date: Thu, 22 Feb 2007 13:08:24 &#45;0800 -->
+<!--X-Message-Id: C7353296&#45;B710&#45;43ED&#45;91AC&#45;D99F7CEDD99D@u.washington.edu -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Reference: 45F9E104&#45;C1EC&#45;453A&#45;9895&#45;CFD0F962E7D3@u.washington.edu -->
+<!--X-Reference: op.tn5zv4glt8lo91@helium -->
+<!--X-Reference: AFF9FB2B&#45;1941&#45;4673&#45;B616&#45;F72A16039641@u.washington.edu -->
+<!--X-Reference: op.tn53vdeat8lo91@helium -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>Re: [sundials-users] nonlinear problem</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +70,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00886.html">Date Prev</a>] [<a href="msg00888.html">Date Next</a>] [<a href="msg00885.html">Thread Prev</a>] [<a href="msg00895.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00887">Date Index</a></b>]
+[<b><a href="threads.html#00887">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>Re: [sundials-users] nonlinear problem</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +87,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+Manav Bhatia &lt;<a href="mailto:manav%40u.washington.edu">manav@u.washington.edu</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Thu, 22 Feb 2007 13:07:02 -0800</td>
 </tr>
 
 </table>
@@ -102,62 +104,89 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<pre style="margin: 0em;">Hi Andreas,</pre><br>
+<tt>    I am afraid I am a little hesitant to use finite difference to  
+calculate the jacobian, primarily due to CPU expense. I am solving a  
+3-D conduction heat transfer equation with temperature dependent  
+material properties, nonlinear radiation BC, and a combined internal  
+cavity radiation. And the combined problem is expensive to solve.  
+Hence, if a jacobian is calculated using finite difference, the f()  
+function will have to be calculated as many times as the number of  
+dofs in the model.</tt><br>
+<br>
+<tt>    Moreover, I already have the jacobian calculation in place for  
+the f() function. So, I only need to add some extra computing for the  
+jacobian of the restated problem.</tt><br>
+<br>
+<pre style="margin: 0em;">Manav</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">On Feb 22, 2007, at 12:43 PM, Andreas Nicolai wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi again,</pre><br>
+<tt>let CVODE figure out the Jacobian for you using its default  
+difference quotient approximation. Simply implement the f()  
+function. For a simple heat transfer equation with some non-linear  
+terms on the right-hand-side CVODE already performs extremely well.  
+A user-defined Jacobian would only make sense of your right-hand- 
+side terms are really non-linear over several orders of magnitude.  
+But in my experience, even if you include some heavily non-linear  
+radiation terms, this is not a problem for CVODE.</tt><br>
+<br>
+<pre style="margin: 0em;">Andreas</pre><br>
+<pre style="margin: 0em;">PS: are you solving 1D or 2D or 3D problems?</pre><br>
+<pre style="margin: 0em;">--
+Andreas Nicolai                         anicolai@syr.edu
+PhD Candidate, M.A.M.E                  (315) 443-2641
+Syracuse University
+151 Link Hall
+Syracuse, NY, 13244
+</pre></blockquote><br>
 
-Thanks,
-
-sizeof(realtype) proves sufficient to my needs for the moment
-
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
-
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00895" href="msg00895.html">Re: [sundials-users] nonlinear problem</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00880" href="msg00880.html">[sundials-users] nonlinear problem</a></strong>
+<ul><li><em>From:</em> Manav Bhatia &lt;manav@u.washington.edu&gt;</li></ul></li>
+<li><strong><a name="00883" href="msg00883.html">Re: [sundials-users] nonlinear problem</a></strong>
+<ul><li><em>From:</em> &quot;Andreas Nicolai&quot; &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00884" href="msg00884.html">Re: [sundials-users] nonlinear problem</a></strong>
+<ul><li><em>From:</em> Manav Bhatia &lt;manav@u.washington.edu&gt;</li></ul></li>
+<li><strong><a name="00885" href="msg00885.html">Re: [sundials-users] nonlinear problem</a></strong>
+<ul><li><em>From:</em> &quot;Andreas Nicolai&quot; &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00886.html">[sundials-users] Preconditioned Jacobian for CVODE</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00888.html">Re: [sundials-users] nonlinear problem</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00885.html">Re: [sundials-users] nonlinear problem</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00895.html">Re: [sundials-users] nonlinear problem</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00887">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00887">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

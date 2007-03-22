@@ -1,15 +1,15 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Determining the size/precision of realtype at runtime -->
-<!--X-From-R13: Xnzrf Rbzval <wnzrfNaoa.np.mn> -->
-<!--X-Date: Thu, 02 Nov 2006 04:19:15 &#45;0800 -->
-<!--X-Message-Id: 4549E1F7.2000303@nbn.ac.za -->
+<!--X-Subject: Re: [sundials&#45;users] method of lines for one&#45;dim flow using IDA -->
+<!--X-From-R13: Xbua Blr <wbua.clrNnah.rqh.nh> -->
+<!--X-Date: Sun, 25 Feb 2007 03:46:46 &#45;0800 -->
+<!--X-Message-Id: 45E17700.20606@anu.edu.au -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 4548C3BA.70902@nbn.ac.za -->
-<!--X-Reference: 4549A6CB.4050403@Uni&#45;Koeln.De -->
+<!--X-Reference: 45D8054C.1030103@student.unsw.edu.au -->
+<!--X-Reference: 45DDCCC8.5060007@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Determining the size/precision of realtype at runtime</title>
+<title>Re: [sundials-users] method of lines for one-dim flow using IDA</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +68,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00768.html">Date Prev</a>] [<a href="msg00770.html">Date Next</a>] [<a href="msg00768.html">Thread Prev</a>] [<a href="msg00770.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00769">Date Index</a></b>]
-[<b><a href="threads.html#00769">Thread Index</a></b>]
+[<a href="msg00890.html">Date Prev</a>] [<a href="msg00892.html">Date Next</a>] [<a href="msg00882.html">Thread Prev</a>] [<a href="msg00880.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00891">Date Index</a></b>]
+[<b><a href="threads.html#00891">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Determining the size/precision of realtype at runtime</h1>
+<h1>Re: [sundials-users] method of lines for one-dim flow using IDA</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +85,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-James Dominy &lt;<a href="mailto:james%40nbn.ac.za">james@nbn.ac.za</a>&gt;</td>
+John Pye &lt;<a href="mailto:john.pye%40anu.edu.au">john.pye@anu.edu.au</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Thu, 02 Nov 2006 14:17:59 +0200</td>
+Sun, 25 Feb 2007 22:46:08 +1100</td>
 </tr>
 
 </table>
@@ -102,23 +102,97 @@ Thu, 02 Nov 2006 14:17:59 +0200</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<pre>Hi Joerg and Radu,
 
-Thanks,
+Thanks very much for your suggestions. I will track down these
+references and have a read. FYI, I found some interesting comments in
+these papers, perhaps you may have come across them:
 
-sizeof(realtype) proves sufficient to my needs for the moment
+V. A. Mousseau
+Implicitly balanced solution of the two-phase flow equations coupled to
+nonlinear heat conduction
+Journal of Computational Physics, Volume 200, Issue 1, 10 October 2004,
+Pages 104-132
+doi:10.1016/j.jcp.2004.03.009
 
-Cheers,
-James
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - <a  href="http://enigmail.mozdev.org">http://enigmail.mozdev.org</a>
+The method of lines and the advective equation
+Michael B. Carver and H.W. Hinds
+SIMULATION, 8 1978; vol. 31: pp. 59 - 69.
+doi:10.1177/003754977803100205
+(complete with mention of solving with analogue computers :-)
 
-iD8DBQFFSeH3t/WEwSnpaFYRAuX1AKCVhtXbjYbAokPP4LF5bDSzRKxikQCeOcSO
-m3X7Act1fY8lB4NhKXqi6wc=
-=gViU
------END PGP SIGNATURE-----
+and this book:
+
+Patankar, S.V. (1980)
+Numerical Heat Transfer and Fluid Flow
+ISBN 0891165223
+
+Key points seem to include the fact that the standard two-phase flow
+equations are ill-posed and require 'numerical viscosity' to be added
+before they will solve. One approach is to use biased upwind estimates
+of one-way variables (eg fluid properties). A 'staggered grid' is
+another thing that seems to be used. But these comments seem to all be
+in the context of explicit and semi-implicit integration engines.
+
+The first paper deals with fully implicit solvers (like IDA), and talks
+about using Krylov methods.
+
+Another interesting area is the 'adaptive method of lines', which I
+presume is probably beyond what could easily be done with IDA:
+
+Vande Wouwer, Alain (2001)
+Adaptive Method of Lines
+ISBN 158488231X
+
+Thanks again for the suggestions,
+
+Cheers
+JP
+
+Radu Serban wrote:
+&gt;<i> John,</i>
+&gt;<i></i>
+&gt;<i> Try also this book:</i>
+&gt;<i> Brenan, Campbell, Petzold, &quot;Numerical solution of Initial-Value</i>
+&gt;<i> Problems in Differential-Algebraic Equations&quot;, SIAM, 1996</i>
+&gt;<i> ISBN 0-89871-353-6</i>
+&gt;<i></i>
+&gt;<i> --Radu</i>
+
+Joerg Frochte wrote:
+&gt;<i> Hi John,</i>
+&gt;<i></i>
+&gt;<i> First of all: I am a mathematician so my literature is maybe not that</i>
+&gt;<i> proper for an engineer. Nevertheless, let us have a look:</i>
+&gt;<i></i>
+&gt;<i> Numerical Approximation of Partial Differential Equations</i>
+&gt;<i> <a  href="http://www.amazon.com/Numerical-Approximation-Differential-Computational">http://www.amazon.com/Numerical-Approximation-Differential-Computational</a></i>
+&gt;<i> -Mathematics/dp/0387571116/sr=8-2/qid=1172216475/ref=pd_bbs_sr_2/103-661</i>
+&gt;<i> 4830-1011834?ie=UTF8&amp;s=books</i>
+&gt;<i></i>
+&gt;<i> Chapter 12 of this book (Brenner&amp;Scott)</i>
+&gt;<i> The Mathematical Theory of Finite Element Methods</i>
+&gt;<i> <a  href="http://www.amazon.com/Mathematical-Theory-Finite-Element-Methods/dp/0387">http://www.amazon.com/Mathematical-Theory-Finite-Element-Methods/dp/0387</a></i>
+&gt;<i> 954511/ref=pd_bxgy_b_img_b/103-6614830-1011834  </i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> And Chapter 5 and 6 in this Book (Braess)</i>
+&gt;<i> Finite Elements: Theory, Fast Solvers, and Applications in Solid</i>
+&gt;<i> Mechanics </i>
+&gt;<i> <a  href="http://www.amazon.com/Finite-Elements-Solvers-Applications-Mechanics/dp/">http://www.amazon.com/Finite-Elements-Solvers-Applications-Mechanics/dp/</a></i>
+&gt;<i> 0521705185/sr=8-1/qid=1172216129/ref=pd_bbs_sr_1/103-6614830-1011834?ie=</i>
+&gt;<i> UTF8&amp;s=books</i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> Also maybe this book</i>
+&gt;<i></i>
+&gt;<i> Turek, Stefan: Efficient Solvers for Incompressible Flow Problems.</i>
+&gt;<i> Berlin : Springer,</i>
+&gt;<i> 1999</i>
+&gt;<i></i>
+&gt;<i> Good luck, </i>
+&gt;<i></i>
+&gt;<i> Joerg</i>
 
 </pre>
 <!--X-Body-of-Message-End-->
@@ -131,33 +205,33 @@ m3X7Act1fY8lB4NhKXqi6wc=
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00765" href="msg00765.html">[sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> James Dominy &lt;james@nbn.ac.za&gt;</li></ul></li>
-<li><strong><a name="00768" href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
-<ul><li><em>From:</em> Kai Hartmann &lt;Kai.Hartmann@uni-koeln.de&gt;</li></ul></li>
+<li><strong><a name="00879" href="msg00879.html">[sundials-users] method of lines for one-dim flow using IDA</a></strong>
+<ul><li><em>From:</em> John Pye &lt;john.pye@student.unsw.edu.au&gt;</li></ul></li>
+<li><strong><a name="00882" href="msg00882.html">Re: [sundials-users] method of lines for one-dim flow using IDA</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;radu@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00890.html">Re: [sundials-users] nonlinear problem</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00892.html">[sundials-users] Re: CVODES Question</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00768.html">Re: [sundials-users] Determining the size/precision of realtype at runtime</a></strong>
+<strong><a href="msg00882.html">Re: [sundials-users] method of lines for one-dim flow using IDA</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00770.html">[sundials-users] Setting Dependent Variables without reinit</a></strong>
+<strong><a href="msg00880.html">[sundials-users] nonlinear problem</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00769">
+<li><a href="maillist.html#00891">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00769">
+<li><a href="threads.html#00891">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

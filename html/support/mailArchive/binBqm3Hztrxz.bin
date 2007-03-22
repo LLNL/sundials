@@ -1,0 +1,88 @@
+%define libname sundials
+
+Summary:	The SUNDIALS suite of nonlinear solvers
+Name:		sundials
+Version:	2.3.0
+Release:	0
+License:	BSD-style
+Group:		System/Libraries
+URL:		http://www.llnl.gov/casc/sundials/
+Source0:	http://www.llnl.gov/casc/sundials/download/code/%{name}-%{version}.tar.bz2
+
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires: openmpi-devel
+BuildRequires: gcc-gfortran
+BuildRequires: ccache
+
+%description
+SUNDIALS (SUite of Nonlinear and DIfferential/ALgebraic equation Solvers) consists of the following four solvers:
+
+CVODE 	solves initial value problems for ordinary differential equation (ODE) systems.
+CVODES 	solves ODE systems and includes sensitivity analysis capabilities (forward and adjoint).
+IDA 	solves initial value problems for differential-algebraic equation (DAE) systems.
+KINSOL 	solves nonlinear algebraic systems.
+
+Provides:	%{name} = %{version}-%{release}
+Provides:	%{libname} = %{version}-%{release}
+Obsoletes:	%{name}
+
+%description -n	%{libname}
+This package contains the library needed to run programs
+dynamically linked with SUNDIALS.
+
+SUNDIALS (SUite of Nonlinear and DIfferential/ALgebraic equation Solvers) consists of the following four solvers:
+
+CVODE 	solves initial value problems for ordinary differential equation (ODE) systems.
+CVODES 	solves ODE systems and includes sensitivity analysis capabilities (forward and adjoint).
+IDA 	solves initial value problems for differential-algebraic equation (DAE) systems.
+KINSOL 	solves nonlinear algebraic systems.
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+%prep
+%setup -q
+
+%build
+CC="ccache gcc" %configure --enable-static --with-examples-instdir=%_datadir/sundials \
+	--with-mpicc=om-mpicc --with-mpi-incdir=/usr/include/openmpi \
+	--with-mpi-libdir=/usr/lib/openmpi \
+	--with-mpif77=om-mpif77
+
+make %_smp_mflags
+
+%install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%makeinstall
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%files -n %{libname}
+%defattr(-,root,root)
+%{_libdir}/*.la
+%{_libdir}/*.a
+%{_includedir}/cvode/*.h
+%{_includedir}/cvodes/*.h
+%{_includedir}/ida/*.h
+%{_includedir}/kinsol/*.h
+%{_includedir}/nvector/*.h
+%{_includedir}/sundials/*.h
+%files doc
+%defattr(-,root,root)
+%doc README INSTALL_NOTES LICENSE
+%doc doc/*
+%docdir %_datadir/sundials
+
+%changelog
+* Sat Dec 23 2006 John Pye <john.pye@anu.edu.au> 2.3.0
+- First SUNDIALS RPM (to my knowledge)
+
