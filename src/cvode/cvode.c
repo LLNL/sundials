@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-20 14:33:50 $
+ * $Revision: 1.7 $
+ * $Date: 2007-03-27 20:46:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -3148,7 +3148,7 @@ static int CVHandleFailure(CVodeMem cv_mem, int flag)
   N_VAbs(tempv, tempv);
   */
 
-  /* Depending on kflag, print error message and return error flag */
+  /* Depending on flag, print error message and return error flag */
   switch (flag) {
   case CV_ERR_FAILURE: 
     CVProcessError(cv_mem, CV_ERR_FAILURE, "CVODE", "CVode", MSGCV_ERR_FAILS, tn, h);
