@@ -106,6 +106,7 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
    - in the rootfinding algorithm, fixed a bug resulting in unnecessary
      evaluations of the root functions after reinitialization of the
      solver right after a return at a root.
+   - in the initial step size calculation, restrict h based on tstop.
 
 - Changes to user interface
    - common functionality for all direct linear solvers (dense, band, and

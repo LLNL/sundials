@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-03-27 20:46:06 $
+ * $Revision: 1.8 $
+ * $Date: 2007-03-30 15:01:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1023,7 +1023,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   long int nstloc;
   int retval, hflag, kflag, istate, ier, task, irfndp;
   int ewtsetOK;
-  realtype troundoff, rh, nrm;
+  realtype troundoff, tout_hin, rh, nrm;
 
   /*
    * -------------------------------------
@@ -1122,7 +1122,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       return(CV_ILL_INPUT);
     }
     if (h == ZERO) {
-      hflag = CVHin(cv_mem, tout);
+      tout_hin = tout;
+      if ( tstopset && (tout-tn)*(tout-tstop) > 0 ) tout_hin = tstop; 
+      hflag = CVHin(cv_mem, tout_hin);
       if (hflag != CV_SUCCESS) {
         istate = CVHandleFailure(cv_mem, hflag);
         return(istate);
@@ -1747,7 +1749,9 @@ static int CVInitialSetup(CVodeMem cv_mem)
  *
  * This routine computes a tentative initial step size h0. 
  * If tout is too close to tn (= t0), then CVHin returns CV_TOO_CLOSE
- * and h remains uninitialized. 
+ * and h remains uninitialized. Note that here tout is either the value
+ * passed to CVode at the first call or the value of tstop (if tstop is 
+ * enabled and it is closer to t0=tn than tout).
  * If the RHS function fails unrecoverably, CVHin returns CV_RHSFUNC_FAIL.
  * If the RHS function fails recoverably too many times and recovery is
  * not possible, CVHin returns CV_REPTD_RHSFUNC_ERR.
