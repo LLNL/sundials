@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-03-22 18:05:51 $
+ * $Revision: 1.10 $
+ * $Date: 2007-03-30 15:05:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -257,6 +257,7 @@ int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp)
   /* Initialize nckpnts to ZERO */
 
   nckpnts = 0;
+  ca_mem->ca_ckpntData = NULL;
 
   /* ------------------------------------
    * Initialization of interpolation data
@@ -344,6 +345,7 @@ int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp)
    * ------------------------------------ */
 
   ca_mem->cvB_mem = NULL;
+  ca_mem->ca_bckpbCrt = NULL;
   nbckpbs = 0;
 
   /* --------------------------------
@@ -351,6 +353,8 @@ int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp)
    * -------------------------------- */
 
   ca_mem->ca_firstCVodeFcall = TRUE;
+  ca_mem->ca_tstopCVodeFcall = FALSE;
+
   ca_mem->ca_firstCVodeBcall = TRUE;
 
   /* ---------------------------------------------
@@ -368,8 +372,14 @@ int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp)
  * This routine reinitializes the CVODEA memory structure assuming that the
  * the number of steps between check points and the type of interpolation
  * remain unchanged.
- * The CVODES memory for the forward problem can be reinitialized separately 
- * by calling CVodeReInit.
+ * The list of check points (and associated memory) is deleted.
+ * The list of backward problems is kept (however, new backward problems can 
+ * be added to this list by calling CVodeCreateB).
+ * The CVODES memory for the forward and backward problems can be reinitialized
+ * separately by calling CVodeReInit and CVodeReInitB, respectively.
+ * NOTE: if a completely new list of backward problems is also needed, then
+ *       simply free the adjoint memory (by calling CVodeAdjFree) and reinitialize
+ *       ASA with CVodeAdjMalloc.
  */
 
 int CVodeAdjReInit(void *cvode_mem)
@@ -406,19 +416,12 @@ int CVodeAdjReInit(void *cvode_mem)
   }
 
   nckpnts = 0;
-
-  /* Free current list of backward problems */
-
-  while (ca_mem->cvB_mem != NULL) CVAbckpbDelete(&(ca_mem->cvB_mem));
-
-  /* Re-initialize list of backward problems */
-
-  ca_mem->cvB_mem = NULL;
-  nbckpbs = 0;
+  ca_mem->ca_ckpntData = NULL;
 
   /* CVodeF and CVodeB not called yet */
  
   ca_mem->ca_firstCVodeFcall = TRUE;
+  ca_mem->ca_tstopCVodeFcall = FALSE;
   ca_mem->ca_firstCVodeBcall = TRUE;
 
   return(CV_SUCCESS);
@@ -626,10 +629,14 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
   case CV_NORMAL_TSTOP:
     iret = FALSE;
     cv_itask = CV_ONE_STEP_TSTOP;
+    ca_mem->ca_tstopCVodeFcall = TRUE;
+    ca_mem->ca_tstopCVodeF = cv_mem->cv_tstop;
     break;
   case CV_ONE_STEP_TSTOP:
     iret = TRUE;
     cv_itask = CV_ONE_STEP_TSTOP;
+    ca_mem->ca_tstopCVodeFcall = TRUE;
+    ca_mem->ca_tstopCVodeF = cv_mem->cv_tstop;
     break;
   }
 
@@ -1619,7 +1626,7 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
   DtpntMem *dt_mem;
   realtype t;
   long int i;
-  int flag;
+  int cv_itask, flag;
 
   ca_mem = cv_mem->cv_adj_mem;
   dt_mem = ca_mem->dt_mem;
@@ -1633,13 +1640,19 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
   dt_mem[0]->t = t0_;
   storePnt(cv_mem, dt_mem[0]);
 
-  /* Run CVode to set following structures in dt_mem[i] */
+  /* Decide whether TSTOP must be activated */
+  if (ca_mem->ca_tstopCVodeFcall) {
+    CVodeSetStopTime(cv_mem, ca_mem->ca_tstopCVodeF);
+    cv_itask = CV_ONE_STEP_TSTOP;
+  } else {
+    cv_itask = CV_ONE_STEP;
+  }
 
+  /* Run CVode to set following structures in dt_mem[i] */
   i = 1;
   do {
-    flag = CVode(cv_mem, t1_, ytmp, &t, CV_ONE_STEP);
-    if (flag < 0) 
-      return(CV_FWD_FAIL);
+    flag = CVode(cv_mem, t1_, ytmp, &t, cv_itask);
+    if (flag < 0) return(CV_FWD_FAIL);
     dt_mem[i]->t = t;
     storePnt(cv_mem, dt_mem[i]);
     i++;
@@ -1801,7 +1814,9 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
 
     if ( *indx == 0 ) {
       /* t is beyond leftmost limit. Is it too far? */  
-      if ( ABS(t - dt_mem[0]->t) > FUZZ_FACTOR * uround ) return(CV_GETY_BADT);
+      if ( ABS(t - dt_mem[0]->t) > FUZZ_FACTOR * uround ) {
+        return(CV_GETY_BADT);
+      }
     }
 
   } else if ( to_right ) {
@@ -2279,7 +2294,7 @@ static int CVArhs(realtype t, N_Vector yB,
   /* Forward solution from interpolation */
   flag = getY(cv_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(cv_mem, -1, "CVODEA", "CVArhs", MSGCV_BAD_TINTERP);
+    CVProcessError(cv_mem, -1, "CVODEA", "CVArhs", MSGCV_BAD_TINTERP, t);
     return(-1);
   }
 
@@ -2314,7 +2329,7 @@ static int CVArhsQ(realtype t, N_Vector yB,
   /* Forward solution from interpolation */
   flag = getY(cv_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(cv_mem, -1, "CVODEA", "CVArhsQ", MSGCV_BAD_TINTERP);
+    CVProcessError(cv_mem, -1, "CVODEA", "CVArhsQ", MSGCV_BAD_TINTERP, t);
     return(-1);
   }
 

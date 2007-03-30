@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-03-22 18:05:52 $
+ * $Revision: 1.9 $
+ * $Date: 2007-03-30 15:05:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -607,6 +607,10 @@ struct CVadjMemRec {
 
   /* Flag for first call to CVodeF */
   booleantype ca_firstCVodeFcall;
+
+  /* Flag if CVodeF was called with TSTOP */
+  booleantype ca_tstopCVodeFcall;
+  realtype ca_tstopCVodeF;
     
   /* ----------------------
    * Backward problems data
@@ -669,22 +673,10 @@ struct CVadjMemRec {
   N_Vector ca_Y[L_MAX];     /* pointers to zn[i] */
   realtype ca_T[L_MAX];
 
+  /* -------------------------------
+   * Workspace for wrapper functions
+   * ------------------------------- */
 
-    
-  /* Memory block for a linear solver's interface to CVODEA */
-  void *ca_lmemB;
-
-  /* Function to free any memory allocated by the linear solver */
-  void (*ca_lfreeB)(CVadjMem ca_mem);
-
-  /* Memory block for a preconditioner's module interface to CVODEA */ 
-  void *ca_pmemB;
-
-  /* ------------------
-   * Miscellaneous data
-   * ------------------ */
-
-  /* Workspace for wrapper functions */
   N_Vector ca_ytmp;
     
 };
@@ -1000,7 +992,7 @@ int CVSensRhs1DQ(int Ns, realtype t,
 #define MSGCV_BAD_ITASKB  "Illegal value for itaskB. Legal values are CV_NORMAL and CV_ONE_STEP."
 #define MSGCV_BAD_TBOUT   "The final time tBout is outside the interval over which the forward problem was solved."
 #define MSGCV_BACK_ERROR  "Error occured while integrating backward problem # %d" 
-#define MSGCV_BAD_TINTERP "Bad t for interpolation."
+#define MSGCV_BAD_TINTERP "Bad t = %g for interpolation."
 #define MSGCV_WRONG_INTERP "This function cannot be called for the specified interp type."
 
 #ifdef __cplusplus

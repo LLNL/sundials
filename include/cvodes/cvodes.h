@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-03-22 18:05:50 $
+ * $Revision: 1.10 $
+ * $Date: 2007-03-30 15:05:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1425,9 +1425,15 @@ SUNDIALS_EXPORT void CVodeAdjFree(void *cvode_mem);
  * -----------------------------------------------------------------
  * CVodeAdjReInit reinitializes the CVODES memory structure for ASA,
  * assuming that the number of steps between check points and the
- * type of interpolation remained unchanged. 
- * The CVODES menory for the forward problem can be reinitialized 
- * separately by calling CVodeReInit.
+ * type of interpolation remained unchanged. The list of check points
+ * (and associated memory) is deleted. The list of backward problems
+ * is kept (however, new backward problems can be added to this list
+ * by calling CVodeCreateB). The CVODES memory for the forward and 
+ * backward problems can be reinitialized separately by calling 
+ * CVodeReInit and CVodeReInitB, respectively.
+ * NOTE: if a entirely new list of backward problems is desired,
+ *   then simply free the adjoint memory (by calling CVodeAdjFree)
+ *   and reinitialize ASA with CVodeAdjMalloc.
  * -----------------------------------------------------------------
  */
 
