@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:38 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-06 20:33:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -47,18 +47,16 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
   if ((l_max <= 0) || (vec_tmpl == NULL)) return(NULL);
 
   /* Allocate space for vectors */
-  r_star = NULL;
+
   r_star = N_VClone(vec_tmpl);
   if (r_star == NULL) return(NULL);
 
-  q = NULL;
   q = N_VClone(vec_tmpl);
   if (q == NULL) {
     N_VDestroy(r_star);
     return(NULL);
   }
 
-  d = NULL;
   d = N_VClone(vec_tmpl);
   if (d == NULL) {
     N_VDestroy(r_star);
@@ -66,7 +64,6 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  v = NULL;
   v = N_VClone(vec_tmpl);
   if (v == NULL) {
     N_VDestroy(r_star);
@@ -75,7 +72,6 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  p = NULL;
   p = N_VClone(vec_tmpl);
   if (p == NULL) {
     N_VDestroy(r_star);
@@ -85,7 +81,6 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  r = NULL;
   r = N_VCloneVectorArray(2, vec_tmpl);
   if (r == NULL) {
     N_VDestroy(r_star);
@@ -96,7 +91,6 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  u = NULL;
   u = N_VClone(vec_tmpl);
   if (u == NULL) {
     N_VDestroy(r_star);
@@ -108,7 +102,6 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  vtemp1 = NULL;
   vtemp1 = N_VClone(vec_tmpl);
   if (vtemp1 == NULL) {
     N_VDestroy(r_star);
@@ -121,7 +114,6 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  vtemp2 = NULL;
   vtemp2 = N_VClone(vec_tmpl);
   if (vtemp2 == NULL) {
     N_VDestroy(r_star);
@@ -135,7 +127,6 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  vtemp3 = NULL;
   vtemp3 = N_VClone(vec_tmpl);
   if (vtemp3 == NULL) {
     N_VDestroy(r_star);

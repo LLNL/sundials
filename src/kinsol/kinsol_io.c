@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-06 20:33:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -721,7 +721,6 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
   }
 
   if (!kin_mem->kin_constraintsSet) {
-    kin_mem->kin_constraints = NULL;
     kin_mem->kin_constraints = N_VClone(constraints);
     lrw += lrw1;
     liw += liw1;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:38 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-06 20:33:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Peter Brown and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -47,20 +47,17 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
 
   /* Get arrays to hold temporary vectors */
 
-  r_star = NULL;
   r_star = N_VClone(vec_tmpl);
   if (r_star == NULL) {
     return(NULL);
   }
 
-  r = NULL;
   r = N_VClone(vec_tmpl);
   if (r == NULL) {
     N_VDestroy(r_star);
     return(NULL);
   }
 
-  p = NULL;
   p = N_VClone(vec_tmpl);
   if (p == NULL) {
     N_VDestroy(r_star);
@@ -68,7 +65,6 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  q = NULL;
   q = N_VClone(vec_tmpl);
   if (q == NULL) {
     N_VDestroy(r_star);
@@ -77,7 +73,6 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  u = NULL;
   u = N_VClone(vec_tmpl);
   if (u == NULL) {
     N_VDestroy(r_star);
@@ -87,7 +82,6 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  Ap = NULL;
   Ap = N_VClone(vec_tmpl);
   if (Ap == NULL) {
     N_VDestroy(r_star);
@@ -98,7 +92,6 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
-  vtemp = NULL;
   vtemp = N_VClone(vec_tmpl);
   if (vtemp == NULL) {
     N_VDestroy(r_star);

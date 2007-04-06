@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-03-20 14:33:27 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-06 20:33:23 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -649,7 +649,6 @@ int CPodeReInit(void *cpode_mem,
     cp_mem->cp_Sabstol = *((realtype *)abstol);
   } else if (tol_type == CP_SV) {
     if ( !(cp_mem->cp_VabstolMallocDone) ) {
-      cp_mem->cp_Vabstol = NULL;
       cp_mem->cp_Vabstol = N_VClone(y0);
       lrw += lrw1;
       liw += liw1;
@@ -1844,18 +1843,15 @@ static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl, int tol)
 
   /* Allocate ewt, acor, tempv, ftemp */
   
-  ewt = NULL;
   ewt = N_VClone(tmpl);
   if (ewt == NULL) return(FALSE);
 
-  acor = NULL;
   acor = N_VClone(tmpl);
   if (acor == NULL) {
     N_VDestroy(ewt);
     return(FALSE);
   }
 
-  tempv = NULL;
   tempv = N_VClone(tmpl);
   if (tempv == NULL) {
     N_VDestroy(ewt);
@@ -1863,7 +1859,6 @@ static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl, int tol)
     return(FALSE);
   }
 
-  ftemp = NULL;
   ftemp = N_VClone(tmpl);
   if (ftemp == NULL) {
     N_VDestroy(tempv);
@@ -1875,7 +1870,6 @@ static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl, int tol)
   /* Allocate zn[0] ... zn[qmax] */
 
   for (j=0; j <= qmax; j++) {
-    zn[j] = NULL;
     zn[j] = N_VClone(tmpl);
     if (zn[j] == NULL) {
       N_VDestroy(ewt);
@@ -1892,7 +1886,6 @@ static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl, int tol)
   liw += (qmax + 5)*liw1;
 
   if (tol == CP_SV) {
-    Vabstol = NULL;
     Vabstol = N_VClone(tmpl);
     if (Vabstol == NULL) {
       N_VDestroy(ewt);
@@ -1950,18 +1943,15 @@ static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl
 
   /* Vectors cloned from c_tmpl (length M) */
 
-  ctol = NULL;
   ctol = N_VClone(c_tmpl);
   if (ctol == NULL) return(FALSE);
 
-  ctemp = NULL;
   ctemp = N_VClone(c_tmpl);
   if (ctemp == NULL) {
     N_VDestroy(ctol);
     return(FALSE);
   }
 
-  tempvP1 = NULL;
   tempvP1 = N_VClone(c_tmpl);
   if (tempvP1 == NULL) {
     N_VDestroy(ctol);
@@ -1969,7 +1959,6 @@ static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl
     return(FALSE);
   }
 
-  tempvP2 = NULL;
   tempvP2 = N_VClone(c_tmpl);
   if (tempvP2 == NULL) {
     N_VDestroy(ctol);
@@ -1980,7 +1969,6 @@ static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl
 
   /* Vectors cloned from s_tmpl (length N) */
 
-  acorP = NULL;
   acorP = N_VClone(s_tmpl);
   if (acorP == NULL) {
     N_VDestroy(ctol);
@@ -1990,7 +1978,6 @@ static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl
     return(FALSE);
   }
 
-  yC = NULL;
   yC = N_VClone(s_tmpl);
   if (yC == NULL) {
     N_VDestroy(ctol);
@@ -2001,7 +1988,6 @@ static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl
     return(FALSE);
   }
   
-  errP = NULL;
   errP = N_VClone(s_tmpl);
   if (errP == NULL) {
     N_VDestroy(ctol);
@@ -2053,14 +2039,12 @@ static booleantype cpQuadAlloc(CPodeMem cp_mem, N_Vector q_tmpl)
   int i, j;
 
   /* Allocate ewtQ */
-  ewtQ = NULL;
   ewtQ = N_VClone(q_tmpl);
   if (ewtQ == NULL) {
     return(FALSE);
   }
   
   /* Allocate acorQ */
-  acorQ = NULL;
   acorQ = N_VClone(q_tmpl);
   if (acorQ == NULL) {
     N_VDestroy(ewtQ);
@@ -2068,7 +2052,6 @@ static booleantype cpQuadAlloc(CPodeMem cp_mem, N_Vector q_tmpl)
   }
 
   /* Allocate yQ */
-  yQ = NULL;
   yQ = N_VClone(q_tmpl);
   if (yQ == NULL) {
     N_VDestroy(ewtQ);
@@ -2077,7 +2060,6 @@ static booleantype cpQuadAlloc(CPodeMem cp_mem, N_Vector q_tmpl)
   }
 
   /* Allocate tempvQ */
-  tempvQ = NULL;
   tempvQ = N_VClone(q_tmpl);
   if (tempvQ == NULL) {
     N_VDestroy(ewtQ);
@@ -2089,7 +2071,6 @@ static booleantype cpQuadAlloc(CPodeMem cp_mem, N_Vector q_tmpl)
   /* Allocate zQn[0] ... zQn[maxord] */
 
   for (j=0; j <= qmax; j++) {
-    znQ[j] = NULL;
     znQ[j] = N_VClone(q_tmpl);
     if (znQ[j] == NULL) {
       N_VDestroy(ewtQ);

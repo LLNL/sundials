@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-06 20:33:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -705,18 +705,15 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 {
   /* allocate unew, fval, pp, vtemp1 and vtemp2 */
   
-  unew = NULL;
   unew = N_VClone(tmpl);
   if (unew == NULL) return(FALSE);
 
-  fval = NULL;
   fval = N_VClone(tmpl);
   if (fval == NULL) {
     N_VDestroy(unew);
     return(FALSE);
   }
 
-  pp = NULL;
   pp = N_VClone(tmpl);
   if (pp == NULL) {
     N_VDestroy(unew);
@@ -724,7 +721,6 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     return(FALSE);
   }
 
-  vtemp1 = NULL;
   vtemp1 = N_VClone(tmpl);
   if (vtemp1 == NULL) {
     N_VDestroy(unew);
@@ -733,7 +729,6 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     return(FALSE);
   }
 
-  vtemp2 = NULL;
   vtemp2 = N_VClone(tmpl);
   if (vtemp2 == NULL) {
     N_VDestroy(unew);

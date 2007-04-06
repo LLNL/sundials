@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-03-30 15:01:22 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-06 20:33:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -675,7 +675,6 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   }
 
   if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
-    cv_mem->cv_Vabstol = NULL;
     cv_mem->cv_Vabstol = N_VClone(y0);
     lrw += lrw1;
     liw += liw1;
@@ -1585,18 +1584,15 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
 
   /* Allocate ewt, acor, tempv, ftemp */
   
-  ewt = NULL;
   ewt = N_VClone(tmpl);
   if (ewt == NULL) return(FALSE);
 
-  acor = NULL;
   acor = N_VClone(tmpl);
   if (acor == NULL) {
     N_VDestroy(ewt);
     return(FALSE);
   }
 
-  tempv = NULL;
   tempv = N_VClone(tmpl);
   if (tempv == NULL) {
     N_VDestroy(ewt);
@@ -1604,7 +1600,6 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
     return(FALSE);
   }
 
-  ftemp = NULL;
   ftemp = N_VClone(tmpl);
   if (ftemp == NULL) {
     N_VDestroy(tempv);
@@ -1616,7 +1611,6 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
   /* Allocate zn[0] ... zn[qmax] */
 
   for (j=0; j <= qmax; j++) {
-    zn[j] = NULL;
     zn[j] = N_VClone(tmpl);
     if (zn[j] == NULL) {
       N_VDestroy(ewt);
@@ -1633,7 +1627,6 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
   liw += (qmax + 5)*liw1;
 
   if (tol == CV_SV) {
-    Vabstol = NULL;
     Vabstol = N_VClone(tmpl);
     if (Vabstol == NULL) {
       N_VDestroy(ewt);

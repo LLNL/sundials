@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-20 14:34:00 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-06 20:33:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -606,7 +606,6 @@ int IDAReInit(void *ida_mem, IDAResFn res,
   }
 
   if ( (itol == IDA_SV) && !(IDA_mem->ida_VatolMallocDone) ) {
-    IDA_mem->ida_Vatol = NULL;
     IDA_mem->ida_Vatol = N_VClone(yy0);
     lrw += lrw1;
     liw += liw1;
@@ -1403,18 +1402,15 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
 
   /* Allocate ewt, ee, delta, tempv1, tempv2 */
   
-  ewt = NULL;
   ewt = N_VClone(tmpl);
   if (ewt == NULL) return(FALSE);
 
-  ee = NULL;
   ee = N_VClone(tmpl);
   if (ee == NULL) {
     N_VDestroy(ewt);
     return(FALSE);
   }
 
-  delta = NULL;
   delta = N_VClone(tmpl);
   if (delta == NULL) {
     N_VDestroy(ewt);
@@ -1422,7 +1418,6 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
     return(FALSE);
   }
 
-  tempv1 = NULL;
   tempv1 = N_VClone(tmpl);
   if (tempv1 == NULL) {
     N_VDestroy(ewt);
@@ -1431,7 +1426,6 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
     return(FALSE);
   }
 
-  tempv2 = NULL;
   tempv2= N_VClone(tmpl);
   if (tempv2 == NULL) {
     N_VDestroy(ewt);
@@ -1448,7 +1442,6 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
 
   maxcol = MAX(maxord,3);
   for (j=0; j <= maxcol; j++) {
-    phi[j] = NULL;
     phi[j] = N_VClone(tmpl);
     if (phi[j] == NULL) {
       N_VDestroy(ewt);
@@ -1466,7 +1459,6 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
   liw += (maxcol + 6)*liw1;
 
   if (tol == IDA_SV) {
-    Vatol = NULL;
     Vatol = N_VClone(tmpl);
     if (Vatol == NULL) {
       N_VDestroy(ewt);

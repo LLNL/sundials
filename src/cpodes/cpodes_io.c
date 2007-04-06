@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-20 14:33:27 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-06 20:33:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -463,7 +463,6 @@ int CPodeSetTolerances(void *cpode_mem,
     cp_mem->cp_Sabstol = *((realtype *)abstol);
   } else {
     if ( !(cp_mem->cp_VabstolMallocDone) ) {
-      cp_mem->cp_Vabstol = NULL;
       cp_mem->cp_Vabstol = N_VClone(cp_mem->cp_ewt);
       lrw += lrw1;
       liw += liw1;
@@ -722,7 +721,6 @@ int CPodeSetQuadErrCon(void *cpode_mem, booleantype errconQ,
   }
 
   if ( (tol_typeQ == CP_SV) && !(cp_mem->cp_VabstolQMallocDone) ) {
-    cp_mem->cp_VabstolQ = NULL;
     cp_mem->cp_VabstolQ = N_VClone(cp_mem->cp_tempvQ);
     lrw += lrw1Q;
     liw += liw1Q;

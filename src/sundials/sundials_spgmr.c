@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:38 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-06 20:33:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -50,7 +50,6 @@ SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl)
 
   /* Get memory for the Krylov basis vectors V[0], ..., V[l_max]. */
 
-  V = NULL;
   V = N_VCloneVectorArray(l_max+1, vec_tmpl);
   if (V == NULL) return(NULL);
 
@@ -87,7 +86,6 @@ SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl)
 
   /* Get memory to hold the correction to z_tilde. */
 
-  xcor = NULL;
   xcor = N_VClone(vec_tmpl);
   if (xcor == NULL) {
     free(givens); givens = NULL;
@@ -112,7 +110,6 @@ SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl)
 
   /* Get an array to hold a temporary vector. */
 
-  vtemp = NULL;
   vtemp = N_VClone(vec_tmpl);
   if (vtemp == NULL) {
     free(yg); yg = NULL;

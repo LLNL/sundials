@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-20 14:34:02 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-06 20:33:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -339,7 +339,6 @@ int IDASetId(void *ida_mem, N_Vector id)
   }
 
   if ( !(IDA_mem->ida_idMallocDone) ) {
-    IDA_mem->ida_id = NULL;
     IDA_mem->ida_id = N_VClone(id);
     lrw += lrw1;
     liw += liw1;
@@ -398,7 +397,6 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
   }
 
   if ( !(IDA_mem->ida_constraintsMallocDone) ) {
-    IDA_mem->ida_constraints = NULL;
     IDA_mem->ida_constraints = N_VClone(constraints);
     lrw += lrw1;
     liw += liw1;
@@ -475,7 +473,6 @@ int IDASetTolerances(void *ida_mem,
   }
 
   if ( (itol == IDA_SV) && !(IDA_mem->ida_VatolMallocDone) ) {
-    IDA_mem->ida_Vatol = NULL;
     IDA_mem->ida_Vatol = N_VClone(IDA_mem->ida_ewt);
     lrw += lrw1;
     liw += liw1;
@@ -795,7 +792,6 @@ int IDASetQuadErrCon(void *ida_mem, booleantype errconQ,
   }
 
   if ( (itolQ == IDA_SV) && !(IDA_mem->ida_VatolQMallocDone) ) {
-    IDA_mem->ida_VatolQ = NULL;
     IDA_mem->ida_VatolQ = N_VClone(IDA_mem->ida_ypQ);
     lrw += lrw1Q;
     liw += liw1Q;
@@ -1061,7 +1057,6 @@ int IDASetSensTolerances(void *ida_mem, int itolS,
   /* See if we need to allocate some memory */
 
   if ( (itolS == IDA_SV) && !(IDA_mem->ida_VatolSMallocDone) ) {
-    IDA_mem->ida_VatolS = NULL;
     IDA_mem->ida_VatolS = N_VCloneVectorArray(Ns, IDA_mem->ida_tempv1);
     lrw += Ns*lrw1;
     liw += Ns*liw1;

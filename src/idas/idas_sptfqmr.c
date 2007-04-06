@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-06 20:33:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -200,7 +200,7 @@ int IDASptfqmr(void *ida_mem, int maxl)
   setupNonNull = FALSE;
 
   /* Allocate memory for ytemp, yptemp, and xx */
-  ytemp = NULL;
+
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmr", MSGS_MEM_FAIL);
@@ -208,7 +208,6 @@ int IDASptfqmr(void *ida_mem, int maxl)
     return(IDASPILS_MEM_FAIL);
   }
 
-  yptemp = NULL;
   yptemp = N_VClone(vec_tmpl);
   if (yptemp == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmr", MSGS_MEM_FAIL);
@@ -217,7 +216,6 @@ int IDASptfqmr(void *ida_mem, int maxl)
     return(IDASPILS_MEM_FAIL);
   }
 
-  xx = NULL;
   xx = N_VClone(vec_tmpl);
   if (xx == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmr", MSGS_MEM_FAIL);

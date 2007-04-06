@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-06 20:33:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -172,14 +172,14 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   }
 
   /* Allocate memory for ytemp and x */
-  ytemp = NULL;
+
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
     CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGS_MEM_FAIL);
     free(cvspils_mem); cvspils_mem = NULL;
     return(CVSPILS_MEM_FAIL);
   }
-  x = NULL;
+
   x = N_VClone(vec_tmpl);
   if (x == NULL) {
     CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGS_MEM_FAIL);

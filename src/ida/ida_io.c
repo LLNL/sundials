@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-20 14:34:01 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-06 20:33:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -338,7 +338,6 @@ int IDASetId(void *ida_mem, N_Vector id)
   }
 
   if ( !(IDA_mem->ida_idMallocDone) ) {
-    IDA_mem->ida_id = NULL;
     IDA_mem->ida_id = N_VClone(id);
     lrw += lrw1;
     liw += liw1;
@@ -397,7 +396,6 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
   }
 
   if ( !(IDA_mem->ida_constraintsMallocDone) ) {
-    IDA_mem->ida_constraints = NULL;
     IDA_mem->ida_constraints = N_VClone(constraints);
     lrw += lrw1;
     liw += liw1;
@@ -474,7 +472,6 @@ int IDASetTolerances(void *ida_mem,
   }
 
   if ( (itol == IDA_SV) && !(IDA_mem->ida_VatolMallocDone) ) {
-    IDA_mem->ida_Vatol = NULL;
     IDA_mem->ida_Vatol = N_VClone(IDA_mem->ida_ewt);
     lrw += lrw1;
     liw += liw1;
