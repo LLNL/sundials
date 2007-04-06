@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-03-22 18:05:51 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-06 20:18:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -608,12 +608,13 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
 
 /* Additional readability replacements */
 
-#define ytmp        (ca_mem->ca_ytmp)
-#define getY        (ca_mem->ca_getY)
+#define ytmp  (ca_mem->ca_ytmp)
+#define yStmp (ca_mem->ca_yStmp)
+#define IMget (ca_mem->ca_IMget)
 
-#define bbd_data_B  (cvbbdB_mem->bbd_dataB)
-#define gloc_B      (cvbbdB_mem->glocB)
-#define cfn_B       (cvbbdB_mem->cfnB)
+#define bbd_data_B (cvbbdB_mem->bbd_dataB)
+#define gloc_B     (cvbbdB_mem->glocB)
+#define cfn_B      (cvbbdB_mem->cfnB)
 
 /*
  * CVBBDPrecAllocB, CVBPSp*B
@@ -937,7 +938,7 @@ static int cvGlocWrapper(int NlocalB, realtype t, N_Vector yB, N_Vector gB, void
   cvbbdB_mem = (CVBBDPrecDataB) (cvB_mem->cv_pmem);
 
   /* Forward solution from interpolation */
-  flag = getY(cv_mem, t, ytmp);
+  flag = IMget(cv_mem, t, ytmp, NULL);
   if (flag != CV_SUCCESS) {
     CVProcessError(cv_mem, -1, "CVBBDPRE", "cvGlocWrapper", MSGBBDP_BAD_TINTERP);
     return(-1);
@@ -976,7 +977,7 @@ static int cvCfnWrapper(int NlocalB, realtype t, N_Vector yB, void *cvode_mem)
   if (cfn_B == NULL) return(0);
 
   /* Forward solution from interpolation */
-  flag = getY(cv_mem, t, ytmp);
+  flag = IMget(cv_mem, t, ytmp, NULL);
   if (flag != CV_SUCCESS) {
     CVProcessError(cv_mem, -1, "CVBBDPRE", "cvCfnWrapper", MSGBBDP_BAD_TINTERP);
     return(-1);

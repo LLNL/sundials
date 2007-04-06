@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-22 18:05:52 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-06 20:18:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -753,14 +753,15 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
 /* Readability replacements */
 
-#define ytmp        (ca_mem->ca_ytmp)
-#define getY        (ca_mem->ca_getY)
+#define ytmp  (ca_mem->ca_ytmp)
+#define yStmp (ca_mem->ca_yStmp)
+#define IMget (ca_mem->ca_IMget)
 
-#define pset_B      (cvspilsB_mem->s_psetB)
-#define psolve_B    (cvspilsB_mem->s_psolveB)
-#define jtimes_B    (cvspilsB_mem->s_jtimesB)
-#define P_data_B    (cvspilsB_mem->s_P_dataB)
-#define jac_data_B  (cvspilsB_mem->s_jac_dataB)
+#define pset_B     (cvspilsB_mem->s_psetB)
+#define psolve_B   (cvspilsB_mem->s_psolveB)
+#define jtimes_B   (cvspilsB_mem->s_jtimesB)
+#define P_data_B   (cvspilsB_mem->s_P_dataB)
+#define jac_data_B (cvspilsB_mem->s_jac_dataB)
 
 /*
  * -----------------------------------------------------------------
@@ -1082,7 +1083,7 @@ static int cvSpilsPrecSetupBWrapper(realtype t, N_Vector yB,
   cvspilsB_mem = (CVSpilsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
-  flag = getY(cv_mem, t, ytmp);
+  flag = IMget(cv_mem, t, ytmp, NULL);
   if (flag != CV_SUCCESS) {
     CVProcessError(cv_mem, -1, "CVSPILS", "cvSpilsPrecSetupBWrapper", MSGS_BAD_TINTERP);
     return(-1);
@@ -1124,7 +1125,7 @@ static int cvSpilsPrecSolveBWrapper(realtype t, N_Vector yB, N_Vector fyB,
   cvspilsB_mem = (CVSpilsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
-  flag = getY(cv_mem, t, ytmp);
+  flag = IMget(cv_mem, t, ytmp, NULL);
   if (flag != CV_SUCCESS) {
     CVProcessError(cv_mem, -1, "CVSPILS", "cvSpilsPrecSolveBWrapper", MSGS_BAD_TINTERP);
     return(-1);
@@ -1165,7 +1166,7 @@ static int cvSpilsJacTimesVecBWrapper(N_Vector vB, N_Vector JvB, realtype t,
   cvspilsB_mem = (CVSpilsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
-  flag = getY(cv_mem, t, ytmp);
+  flag = IMget(cv_mem, t, ytmp, NULL);
   if (flag != CV_SUCCESS) {
     CVProcessError(cv_mem, -1, "CVSPILS", "cvSpilsJacTimesVecBWrapper", MSGS_BAD_TINTERP);
     return(-1);

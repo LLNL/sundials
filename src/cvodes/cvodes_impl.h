@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-03-30 15:05:02 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-06 20:18:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -435,20 +435,6 @@ typedef struct CVodeMemRec {
 
 /*
  * -----------------------------------------------------------------
- * Types for functions provided by an interpolation module
- * -----------------------------------------------------------------
- * CVAGetYFn:   Function type for a function that returns the 
- *              interpolated forward solution.
- * CVAStorePnt: Function type for a function that stores a new
- *              point in the structure d
- * -----------------------------------------------------------------
- */
-
-typedef int (*CVAGetYFn)(CVodeMem cv_mem, realtype t, N_Vector y);
-typedef int (*CVAStorePntFn)(CVodeMem cv_mem, DtpntMem d);
-
-/*
- * -----------------------------------------------------------------
  * Types : struct CkpntMemRec, CkpntMem
  * -----------------------------------------------------------------
  * The type CkpntMem is type pointer to struct CkpntMemRec.
@@ -466,11 +452,20 @@ struct CkpntMemRec {
   /* Nordsieck History Array */
   N_Vector ck_zn[L_MAX];
     
+  /* Do we need to carry quadratures? */
+  booleantype ck_quadr;
+    
   /* Nordsieck History Array for quadratures */
   N_Vector ck_znQ[L_MAX];
     
-  /* Do we need to carry quadratures? */
-  booleantype ck_quadr;
+  /* Do we need to carry sensitivities? */
+  booleantype ck_sensi;
+
+  /* number of sensitivities */
+  int ck_Ns;
+
+  /* Nordsieck History Array for sensitivities */
+  N_Vector *ck_znS[L_MAX];
     
   /* Was ck_zn[qmax] allocated?
      ck_zqm = 0    - no
@@ -504,28 +499,51 @@ struct CkpntMemRec {
   
 /*
  * -----------------------------------------------------------------
+ * Types for functions provided by an interpolation module
+ * -----------------------------------------------------------------
+ * cvaIMMallocFn: Type for a function that initializes the content
+ *                field of the structures in the dt array
+ * cvaIMFreeFn:   Type for a function that deallocates the content
+ *                field of the structures in the dt array
+ * cvaIMGetYFn:   Type for a function that returns the 
+ *                interpolated forward solution.
+ * cvaIMStorePnt: Type for a function that stores a new
+ *                point in the structure d
+ * -----------------------------------------------------------------
+ */
+
+typedef booleantype (*cvaIMMallocFn)(CVodeMem cv_mem);
+typedef void (*cvaIMFreeFn)(CVodeMem cv_mem);
+typedef int (*cvaIMGetYFn)(CVodeMem cv_mem, realtype t, N_Vector y, N_Vector *yS);
+typedef int (*cvaIMStorePntFn)(CVodeMem cv_mem, DtpntMem d);
+
+/*
+ * -----------------------------------------------------------------
  * Type : struct DtpntMemRec
  * -----------------------------------------------------------------
  * This structure contains fields to store all information at a
  * data point that is needed to interpolate solution of forward
- * simulations. Its content field is interpType-dependent.
+ * simulations. Its content field depends on IMtype.
  * -----------------------------------------------------------------
  */
   
 struct DtpntMemRec {
   realtype t;    /* time */
-  void *content; /* interpType-dependent content */
+  void *content; /* IMtype-dependent content */
 };
 
 /* Data for cubic Hermite interpolation */
 typedef struct HermiteDataMemRec {
   N_Vector y;
   N_Vector yd;
+  N_Vector *yS;
+  N_Vector *ySd;
 } *HermiteDataMem;
 
 /* Data for polynomial interpolation */
 typedef struct PolynomialDataMemRec {
   N_Vector y;
+  N_Vector *yS;
   int order;
 } *PolynomialDataMem;
 
@@ -551,11 +569,18 @@ struct CVodeBMemRec {
   /* CVODES memory for this backward problem */
   CVodeMem cv_mem;
 
+  /* Flags to indicate that this backward problem's RHS or quad RHS
+   * require forward sensitivities */
+  booleantype cv_f_withSensi;
+  booleantype cv_fQ_withSensi;
+
   /* Right hand side function for backward run */
   CVRhsFnB cv_f;
+  CVRhsFnBs cv_fs;
 
   /* Right hand side quadrature function for backward run */
   CVQuadRhsFnB cv_fQ;
+  CVQuadRhsFnBs cv_fQs;
 
   /* User f_data */
   void *cv_f_data;
@@ -645,32 +670,33 @@ struct CVadjMemRec {
    * Interpolation data
    * ------------------ */
 
-  /* Interpolation type */
-  int ca_interpType;
-
   /* Number of steps between 2 check points */
   long int ca_nsteps;
   
   /* Storage for data from forward runs */
   struct DtpntMemRec **dt_mem;
-    
-  /* Functions set by the interpolation module */
-  CVAStorePntFn ca_storePnt; /* store a new interpolation point */
-  CVAGetYFn     ca_getY;     /* interpolate forward solution    */
 
-
-  /* Flag to indicate that data in dt_mem is new */
-  booleantype ca_newData;
-    
-  /* Actual number of data points saved in current dt_mem */
-  /* Commonly, np = nsteps+1                              */
+  /* Actual number of data points in dt_mem (typically np=nsteps+1) */
   long int ca_np;
     
-  /* Workspace used by the Hermite interpolation */
-  N_Vector ca_Y0, ca_Y1;    /* pointers to zn[0] and zn[1] */
+  /* Interpolation type */
+  int ca_IMtype;
 
-  /* Workspace for polynomial interpolation */
+  /* Functions set by the interpolation module */
+  cvaIMMallocFn   ca_IMmalloc; 
+  cvaIMFreeFn     ca_IMfree;
+  cvaIMStorePntFn ca_IMstore; /* store a new interpolation point */
+  cvaIMGetYFn     ca_IMget;   /* interpolate forward solution    */
+
+  /* Flags controlling the interpolation module */
+  booleantype ca_IMmallocDone;   /* IM initialized? */
+  booleantype ca_IMnewData;      /* new data available in dt_mem?*/
+  booleantype ca_IMstoreSensi;   /* store sensitivities? */
+  booleantype ca_IMinterpSensi;  /* interpolate sensitivities? */
+
+  /* Workspace for the interpolation module */
   N_Vector ca_Y[L_MAX];     /* pointers to zn[i] */
+  N_Vector *ca_YS[L_MAX];   /* pointers to znS[i] */
   realtype ca_T[L_MAX];
 
   /* -------------------------------
@@ -678,6 +704,8 @@ struct CVadjMemRec {
    * ------------------------------- */
 
   N_Vector ca_ytmp;
+
+  N_Vector *ca_yStmp;
     
 };
   
@@ -834,6 +862,18 @@ void CVProcessError(CVodeMem cv_mem,
 void CVErrHandler(int error_code, const char *module, const char *function, 
 		  char *msg, void *eh_data);
 
+/* Prototypes for internal sensitivity rhs wrappers */
+
+int CVSensRhs(CVodeMem cv_mem, realtype time, 
+              N_Vector ycur, N_Vector fcur, 
+              N_Vector *yScur, N_Vector *fScur,
+              N_Vector temp1, N_Vector temp2);
+
+int CVSensRhs1(CVodeMem cv_mem, realtype time, 
+               N_Vector ycur, N_Vector fcur, 
+               int is, N_Vector yScur, N_Vector fScur,
+               N_Vector temp1, N_Vector temp2);
+
 /* Prototypes for internal sensitivity rhs DQ functions */
 
 int CVSensRhsDQ(int Ns, realtype t, 
@@ -989,6 +1029,7 @@ int CVSensRhs1DQ(int Ns, realtype t,
 #define MSGCV_NO_BCK      "No backward problems have been defined yet."
 #define MSGCV_NO_FWD      "Illegal attempt to call before calling CVodeF."
 #define MSGCV_BAD_TB0     "The initial time tB0 for problem %d is outside the interval over which the forward problem was solved."
+#define MSGCV_BAD_SENSI   "At least one backward problem requires sensitivities, but they were not stored for interpolation."
 #define MSGCV_BAD_ITASKB  "Illegal value for itaskB. Legal values are CV_NORMAL and CV_ONE_STEP."
 #define MSGCV_BAD_TBOUT   "The final time tBout is outside the interval over which the forward problem was solved."
 #define MSGCV_BACK_ERROR  "Error occured while integrating backward problem # %d" 

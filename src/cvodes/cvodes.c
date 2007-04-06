@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-03-30 15:01:24 $
+ * $Revision: 1.12 $
+ * $Date: 2007-04-06 20:18:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -529,17 +529,6 @@ static realtype CVSensUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
 static realtype CVStgrUpdateDsm(CVodeMem cv_mem, realtype old_dsm, 
                                 realtype dsmS);
 
-/* Wrappers for sensitivity RHS */
-
-static int CVSensRhs(CVodeMem cv_mem, realtype time, 
-                     N_Vector ycur, N_Vector fcur, 
-                     N_Vector *yScur, N_Vector *fScur,
-                     N_Vector temp1, N_Vector temp2);
-static int CVSensRhs1(CVodeMem cv_mem, realtype time, 
-                      N_Vector ycur, N_Vector fcur, 
-                      int is, N_Vector yScur, N_Vector fScur,
-                      N_Vector temp1, N_Vector temp2);
-
 /* 
  * =================================================================
  * EXPORTED FUNCTIONS IMPLEMENTATION
@@ -971,7 +960,6 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   }
 
   if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
-    cv_mem->cv_Vabstol = NULL;
     cv_mem->cv_Vabstol = N_VClone(y0);
     lrw += lrw1;
     liw += liw1;
@@ -2721,18 +2709,15 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
 
   /* Allocate ewt, acor, tempv, ftemp */
   
-  ewt = NULL;
   ewt = N_VClone(tmpl);
   if (ewt == NULL) return(FALSE);
 
-  acor = NULL;
   acor = N_VClone(tmpl);
   if (acor == NULL) {
     N_VDestroy(ewt);
     return(FALSE);
   }
 
-  tempv = NULL;
   tempv = N_VClone(tmpl);
   if (tempv == NULL) {
     N_VDestroy(ewt);
@@ -2740,7 +2725,6 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
     return(FALSE);
   }
 
-  ftemp = NULL;
   ftemp = N_VClone(tmpl);
   if (ftemp == NULL) {
     N_VDestroy(tempv);
@@ -2752,7 +2736,6 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
   /* Allocate zn[0] ... zn[qmax] */
 
   for (j=0; j <= qmax; j++) {
-    zn[j] = NULL;
     zn[j] = N_VClone(tmpl);
     if (zn[j] == NULL) {
       N_VDestroy(ewt);
@@ -2769,7 +2752,6 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
   liw += (qmax + 5)*liw1;
 
   if (tol == CV_SV) {
-    Vabstol = NULL;
     Vabstol = N_VClone(tmpl);
     if (Vabstol == NULL) {
       N_VDestroy(ewt);
@@ -2835,14 +2817,12 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   int i, j;
 
   /* Allocate ewtQ */
-  ewtQ = NULL;
   ewtQ = N_VClone(tmpl);
   if (ewtQ == NULL) {
     return(FALSE);
   }
   
   /* Allocate acorQ */
-  acorQ = NULL;
   acorQ = N_VClone(tmpl);
   if (acorQ == NULL) {
     N_VDestroy(ewtQ);
@@ -2850,7 +2830,6 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
 
   /* Allocate yQ */
-  yQ = NULL;
   yQ = N_VClone(tmpl);
   if (yQ == NULL) {
     N_VDestroy(ewtQ);
@@ -2859,7 +2838,6 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
 
   /* Allocate tempvQ */
-  tempvQ = NULL;
   tempvQ = N_VClone(tmpl);
   if (tempvQ == NULL) {
     N_VDestroy(ewtQ);
@@ -2871,7 +2849,6 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   /* Allocate zQn[0] ... zQn[maxord] */
 
   for (j=0; j <= qmax; j++) {
-    znQ[j] = NULL;
     znQ[j] = N_VClone(tmpl);
     if (znQ[j] == NULL) {
       N_VDestroy(ewtQ);
@@ -2936,14 +2913,12 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   int i, j;
   
   /* Allocate yS */
-  yS = NULL;
   yS = N_VCloneVectorArray(Ns, tmpl);
   if (yS == NULL) {
     return(FALSE);
   }
 
   /* Allocate ewtS */
-  ewtS = NULL;
   ewtS = N_VCloneVectorArray(Ns, tmpl);
   if (ewtS == NULL) {
     N_VDestroyVectorArray(yS, Ns);
@@ -2951,7 +2926,6 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
   
   /* Allocate acorS */
-  acorS = NULL;
   acorS = N_VCloneVectorArray(Ns, tmpl);
   if (acorS == NULL) {
     N_VDestroyVectorArray(yS, Ns);
@@ -2960,7 +2934,6 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
   
   /* Allocate tempvS */
-  tempvS = NULL;
   tempvS = N_VCloneVectorArray(Ns, tmpl);
   if (tempvS == NULL) {
     N_VDestroyVectorArray(yS, Ns);
@@ -2970,7 +2943,6 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
     
   /* Allocate ftempS */
-  ftempS = NULL;
   ftempS = N_VCloneVectorArray(Ns, tmpl);
   if (ftempS == NULL) {
     N_VDestroyVectorArray(yS, Ns);
@@ -2982,7 +2954,6 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   
   /* Allocate znS */
   for (j=0; j<=qmax; j++) {
-    znS[j] = NULL;
     znS[j] = N_VCloneVectorArray(Ns, tmpl);
     if (znS[j] == NULL) {
       N_VDestroyVectorArray(yS, Ns);
@@ -6994,10 +6965,10 @@ static realtype CVStgrUpdateDsm(CVodeMem cv_mem, realtype old_dsm,
  *
  */
 
-static int CVSensRhs(CVodeMem cv_mem, realtype time, 
-                     N_Vector ycur, N_Vector fcur, 
-                     N_Vector *yScur, N_Vector *fScur,
-                     N_Vector temp1, N_Vector temp2)
+int CVSensRhs(CVodeMem cv_mem, realtype time, 
+              N_Vector ycur, N_Vector fcur, 
+              N_Vector *yScur, N_Vector *fScur,
+              N_Vector temp1, N_Vector temp2)
 {
   int retval=0, is;
 
@@ -7030,10 +7001,10 @@ static int CVSensRhs(CVodeMem cv_mem, realtype time,
  * The return value is that of the sensitivity RHS function fS1,
  */
 
-static int CVSensRhs1(CVodeMem cv_mem, realtype time, 
-                      N_Vector ycur, N_Vector fcur, 
-                      int is, N_Vector yScur, N_Vector fScur,
-                      N_Vector temp1, N_Vector temp2)
+int CVSensRhs1(CVodeMem cv_mem, realtype time, 
+               N_Vector ycur, N_Vector fcur, 
+               int is, N_Vector yScur, N_Vector fScur,
+               N_Vector temp1, N_Vector temp2)
 {
   int retval;
 

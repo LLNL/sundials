@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2007-01-24 01:14:05 $
+# $Revision: 1.9 $
+# $Date: 2007-04-06 20:18:16 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -72,7 +72,8 @@ EXEC_FILES = cvsdenx$(EXE_EXT) \
 	     cvsadjbanx$(EXE_EXT) \
 	     cvsadjkryx_int$(EXE_EXT) \
 	     cvsadjkryx_pnt$(EXE_EXT) \
-	     cvskrydem_lin$(EXE_EXT)
+	     cvskrydem_lin$(EXE_EXT) \
+	     cvsadjhess$(EXE_EXT)
 
 EXEC_BL_FILES = cvsbanx_lap$(EXE_EXT) \
 	        cvsdenx_lap$(EXE_EXT)
@@ -96,6 +97,7 @@ install: $(EXEC_FILES)
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjdenx.c       $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjkryx_int.c   $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjkryx_pnt.c   $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjhess.c       $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsbanx.c          $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsdenx.c          $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsdenx_uw.c       $(EXS_INSTDIR)/cvodes/serial/
@@ -114,6 +116,7 @@ install: $(EXEC_FILES)
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjdenx.out     $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjkryx_int.out $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjkryx_pnt.out $(EXS_INSTDIR)/cvodes/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsadjhess.out     $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsbanx.out        $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsdenx.out        $(EXS_INSTDIR)/cvodes/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/serial/cvsdenx_uw.out     $(EXS_INSTDIR)/cvodes/serial/
@@ -145,6 +148,7 @@ uninstall:
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsadjdenx.c
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsadjkryx_int.c
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsadjkryx_pnt.c
+	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsadjhess.c
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsbanx.c
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsbanx_lap.c
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsdenx.c
@@ -162,6 +166,7 @@ uninstall:
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsadjdenx.out
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsadjkryx_int.out
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsadjkryx_pnt.out
+	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsadjhess.out
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsbanx_lap.out
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsbanx.out
 	rm -f $(EXS_INSTDIR)/cvodes/serial/cvsdenx_lap.out
@@ -230,6 +235,9 @@ cvsadjdenx$(EXE_EXT): $(srcdir)/cvsadjdenx.c
 cvsadjbanx$(EXE_EXT): $(srcdir)/cvsadjbanx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjbanx.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjbanx$(EXE_EXT) $(builddir)/cvsadjbanx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjhess$(EXE_EXT): $(srcdir)/cvsadjhess.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjhess.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjhess$(EXE_EXT) $(builddir)/cvsadjhess$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 cvsadjkryx_int$(EXE_EXT): $(srcdir)/cvsadjkryx_int.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvsadjkryx_int.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvsadjkryx_int$(EXE_EXT) $(builddir)/cvsadjkryx_int$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)

@@ -122,7 +122,7 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
    - changed the API for all functions in the adjoint module related to 
      initialization, set-up, and solution of backward problems 
    - the extraction functions CVodeGetQuad, CVodeGetSens, and CVodeGetSens1
-     now return the values of quadrature and sensitivity variables, respectively
+     now return the values of quadrature and sensitivity variables, respectively,
      at the same time as that at which CVode returned the solution (for dense
      output of quadrature or sensitivity variables, the user can only use
      CVodeGetQuadDky, CVodeGetSensDky, or CVodeGetSensDky1)

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-22 18:05:51 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-06 20:18:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -138,14 +138,12 @@ int CVDiag(void *cvode_mem)
 
   /* Allocate memory for M, bit, and bitcomp */
     
-  M = NULL;
   M = N_VClone(vec_tmpl);
   if (M == NULL) {
     CVProcessError(cv_mem, CVDIAG_MEM_FAIL, "CVDIAG", "CVDiag", MSGDG_MEM_FAIL);
     free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
-  bit = NULL;
   bit = N_VClone(vec_tmpl);
   if (bit == NULL) {
     CVProcessError(cv_mem, CVDIAG_MEM_FAIL, "CVDIAG", "CVDiag", MSGDG_MEM_FAIL);
@@ -153,7 +151,6 @@ int CVDiag(void *cvode_mem)
     free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
-  bitcomp = NULL;
   bitcomp = N_VClone(vec_tmpl);
   if (bitcomp == NULL) {
     CVProcessError(cv_mem, CVDIAG_MEM_FAIL, "CVDIAG", "CVDiag", MSGDG_MEM_FAIL);

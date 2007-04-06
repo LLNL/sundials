@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-22 18:05:51 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-06 20:18:11 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,11 +47,11 @@
  * -----------------------------------------------------------------
  */
 
-#define interpType  (ca_mem->ca_interpType)
-#define f_data_B    (ca_mem->ca_f_dataB)
-#define fQ_data_B   (ca_mem->ca_fQ_dataB)
-#define ckpntData   (ca_mem->ca_ckpntData)
-#define nbckpbs     (ca_mem->ca_nbckpbs)
+#define IMtype     (ca_mem->ca_IMtype)
+#define f_data_B   (ca_mem->ca_f_dataB)
+#define fQ_data_B  (ca_mem->ca_fQ_dataB)
+#define ckpntData  (ca_mem->ca_ckpntData)
+#define nbckpbs    (ca_mem->ca_nbckpbs)
 
 #define t0_         (ck_mem->ck_t0)
 #define t1_         (ck_mem->ck_t1)
@@ -59,6 +59,36 @@
 #define q_          (ck_mem->ck_q)
 #define h_          (ck_mem->ck_h)
 #define next_       (ck_mem->ck_next)
+
+/* 
+ * -----------------------------------------------------------------
+ * Optional input functions for ASA
+ * -----------------------------------------------------------------
+ */
+
+int CVodeSetAdjNoSensi(void *cvode_mem)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeSetAdjNoSensi", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    CVProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetAdjNoSensi", MSGCV_NO_ADJ);
+    return(CV_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  ca_mem->ca_IMstoreSensi = FALSE;
+
+  return(CV_SUCCESS);
+}
 
 /* 
  * -----------------------------------------------------------------
@@ -716,7 +746,7 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, long int which,
 
   dt_mem = ca_mem->dt_mem;
 
-  if (interpType != CV_HERMITE) {
+  if (IMtype != CV_HERMITE) {
     CVProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVadjGetDataPointHermite", MSGCV_WRONG_INTERP);
     return(CV_ILL_INPUT);
   }
@@ -765,7 +795,7 @@ int CVodeGetAdjDataPointPolynomial(void *cvode_mem, long int which,
 
   dt_mem = ca_mem->dt_mem;
 
-  if (interpType != CV_POLYNOMIAL) {
+  if (IMtype != CV_POLYNOMIAL) {
     CVProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVadjGetDataPointPolynomial", MSGCV_WRONG_INTERP);
     return(CV_ILL_INPUT);
   }

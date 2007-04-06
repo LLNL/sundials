@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-22 18:05:52 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-06 20:18:12 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -462,13 +462,14 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
  * -----------------------------------------------------------------
  */
 
-#define ytmp        (ca_mem->ca_ytmp)
-#define getY        (ca_mem->ca_getY)
+#define ytmp  (ca_mem->ca_ytmp)
+#define yStmp (ca_mem->ca_yStmp)
+#define IMget (ca_mem->ca_IMget)
 
-#define mtypeB      (cvdlsB_mem->d_typeB)
-#define djacB       (cvdlsB_mem->d_djacB)
-#define bjacB       (cvdlsB_mem->d_bjacB)
-#define jac_data_B  (cvdlsB_mem->d_jac_dataB)
+#define mtypeB     (cvdlsB_mem->d_typeB)
+#define djacB      (cvdlsB_mem->d_djacB)
+#define bjacB      (cvdlsB_mem->d_bjacB)
+#define jac_data_B (cvdlsB_mem->d_jac_dataB)
 
 /*
  * -----------------------------------------------------------------
@@ -571,7 +572,7 @@ static int cvDlsDenseJacBWrapper(int nB, realtype t,
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
-  flag = getY(cv_mem, t, ytmp);
+  flag = IMget(cv_mem, t, ytmp, NULL);
   if (flag != CV_SUCCESS) {
     CVProcessError(cv_mem, -1, "CVSDIRECT", "cvDlsDenseJacBWrapper", MSGD_BAD_TINTERP);
     return(-1);
@@ -614,7 +615,7 @@ static int cvDlsBandJacBWrapper(int nB, int mupperB, int mlowerB,
   cvdlsB_mem = (CVDlsMemB) (cvB_mem->cv_lmem);
 
   /* Forward solution from interpolation */
-  flag = getY(cv_mem, t, ytmp);
+  flag = IMget(cv_mem, t, ytmp, NULL);
   if (flag != CV_SUCCESS) {
     CVProcessError(cv_mem, -1, "CVSDIRECT", "cvDlsBandJacBWrapper", MSGD_BAD_TINTERP);
     return(-1);

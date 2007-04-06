@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-03-30 15:05:00 $
+ * $Revision: 1.11 $
+ * $Date: 2007-04-06 20:18:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -396,23 +396,36 @@ typedef int (*CVSensRhs1Fn)(int Ns, realtype t,
 
 /*
  * -----------------------------------------------------------------
- * CVRhsFnB
+ * CVRhsFnB and CVRhsFnBs
  *    The fB function which defines the right hand side of the
  *    ODE systems to be integrated backwards must have type CVRhsFnB.
+ *    If the backward problem depends on forward sensitivities, its
+ *    RHS function must have type CVRhsFnBs.
  * -----------------------------------------------------------------
- * CVQuadRhsFnB
+ * CVQuadRhsFnB and CVQuadRhsFnBs
  *    The fQB function which defines the quadratures to be integrated
  *    backwards must have type CVQuadRhsFnB.
+ *    If the backward problem depends on forward sensitivities, its
+ *    quadrature RHS function must have type CVQuadRhsFnBs.
  * -----------------------------------------------------------------
  */
   
 typedef int (*CVRhsFnB)(realtype t, N_Vector y,
 			N_Vector yB, N_Vector yBdot,
 			void *f_dataB);
+
+typedef int (*CVRhsFnBs)(realtype t, N_Vector y, N_Vector *yS,
+                         N_Vector yB, N_Vector yBdot,
+                         void *f_dataB);
+
   
 typedef int (*CVQuadRhsFnB)(realtype t, N_Vector y,
 			    N_Vector yB, N_Vector qBdot,
 			    void *fQ_dataB);
+
+typedef int (*CVQuadRhsFnBs)(realtype t, N_Vector y, N_Vector *yS,
+                             N_Vector yB, N_Vector qBdot,
+                             void *fQ_dataB);
 
 /*
  * =================================================================
@@ -1397,6 +1410,15 @@ SUNDIALS_EXPORT void CVodeQuadFree(void *cvode_mem);
 
 SUNDIALS_EXPORT void CVodeSensFree(void *cvode_mem);
 
+
+
+
+
+
+
+
+
+
 /*
  * -----------------------------------------------------------------
  * CVodeAdjMalloc
@@ -1441,14 +1463,11 @@ SUNDIALS_EXPORT int CVodeAdjReInit(void *cvode_mem);
 
 /*
  * -----------------------------------------------------------------
- * CVodeSetAdjInterpType
- * -----------------------------------------------------------------
- * Changes the interpolation type. 
- * Can only be called after CVodeAdjMalloc
+ * CVodeSetAdjNoSensi
  * -----------------------------------------------------------------
  */
-  
-SUNDIALS_EXPORT int CVodeSetAdjInterpType(void *cvode_mem, int interp);
+
+SUNDIALS_EXPORT int CVodeSetAdjNoSensi(void *cvode_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -1471,8 +1490,12 @@ SUNDIALS_EXPORT int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
  * -----------------------------------------------------------------
  * Interfaces to CVODES functions for setting-up backward problems.
  * -----------------------------------------------------------------
- * CVodeCreateB, CVodeMallocB, CVodeReInitB
- * CvodeQuadMallocB, CVodeQuadReInitB
+ * CVodeCreateB, 
+ *
+ * CVodeMallocB, CVodeMallocBs, CVodeReInitB
+ * 
+ * CVodeQuadMallocB, CVodeQuadMallocBs, CVodeQuadReInitB
+ * 
  * -----------------------------------------------------------------
  */
 
@@ -1482,16 +1505,24 @@ SUNDIALS_EXPORT int CVodeMallocB(void *cvode_mem, int which,
                                  CVRhsFnB fB,
                                  realtype tB0, N_Vector yB0,
                                  int itolB, realtype reltolB, void *abstolB);
+
+SUNDIALS_EXPORT int CVodeMallocBs(void *cvode_mem, int which,
+                                  CVRhsFnBs fBs,
+                                  realtype tB0, N_Vector yB0,
+                                  int itolB, realtype reltolB, void *abstolB);
+
 SUNDIALS_EXPORT int CVodeReInitB(void *cvode_mem, int which,
-                                 CVRhsFnB fB,
 				 realtype tB0, N_Vector yB0,
 				 int itolB, realtype reltolB, void *abstolB);
 
+
 SUNDIALS_EXPORT int CVodeQuadMallocB(void *cvode_mem, int which,
                                      CVQuadRhsFnB fQB, N_Vector yQB0);
-SUNDIALS_EXPORT int CVodeQuadReInitB(void *cvode_mem, int which,
-                                     CVQuadRhsFnB fQB, N_Vector yQB0);
 
+SUNDIALS_EXPORT int CVodeQuadMallocBs(void *cvode_mem, int which,
+                                      CVQuadRhsFnBs fQBs, N_Vector yQB0);
+
+SUNDIALS_EXPORT int CVodeQuadReInitB(void *cvode_mem, int which, N_Vector yQB0);
 
 /*
  * -----------------------------------------------------------------
@@ -1624,10 +1655,10 @@ SUNDIALS_EXPORT int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointR
  */
 
 SUNDIALS_EXPORT int CVodeGetAdjDataPointHermite(void *cvode_mem, long int which,
-					     realtype *t, N_Vector y, N_Vector yd);
+                                                realtype *t, N_Vector y, N_Vector yd);
   
 SUNDIALS_EXPORT int CVodeGetAdjDataPointPolynomial(void *cvode_mem, long int which,
-						realtype *t, int *order, N_Vector y);
+                                                   realtype *t, int *order, N_Vector y);
 
 /*
  * -----------------------------------------------------------------

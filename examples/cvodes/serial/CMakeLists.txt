@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2007-03-21 18:56:40 $
+# $Revision: 1.4 $
+# $Date: 2007-04-06 20:18:16 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -30,7 +30,7 @@ SET(cvodes_examples
   cvskrydem_pre
   cvskryx_bp
   cvskryx
-  cvsadjdemo
+  cvsadjhess
   )
 
 # Add variable cvodes_bl_examples with the names of the serial CVODES examples

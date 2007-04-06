@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-03-22 18:05:55 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-06 20:18:16 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -353,10 +353,10 @@ int main(int argc, char *argv[])
 
   printf("Re-initialize CVODES memory for backward run\n");
 
-  flag = CVodeReInitB(cvode_mem, indexB, fB, TB2, yB, CV_SS, reltolB, &abstolB);
+  flag = CVodeReInitB(cvode_mem, indexB, TB2, yB, CV_SS, reltolB, &abstolB);
   if (check_flag(&flag, "CVodeReInitB", 1)) return(1);
 
-  flag = CVodeQuadReInitB(cvode_mem, indexB, fQB, qB); 
+  flag = CVodeQuadReInitB(cvode_mem, indexB, qB); 
   if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
 
   printf("Backward integration ... ");
