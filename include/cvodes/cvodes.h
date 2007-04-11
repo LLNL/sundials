@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-04-06 20:18:13 $
+ * $Revision: 1.12 $
+ * $Date: 2007-04-11 22:34:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -683,7 +683,7 @@ SUNDIALS_EXPORT int CVodeMalloc(void *cvode_mem, CVRhsFn f,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem, CVRhsFn f,
+SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem,
 				realtype t0, N_Vector y0,
 				int itol, realtype reltol, void *abstol);
 
@@ -796,7 +796,7 @@ SUNDIALS_EXPORT int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeQuadReInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0);
+SUNDIALS_EXPORT int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0);
 
 /*
  * -----------------------------------------------------------------

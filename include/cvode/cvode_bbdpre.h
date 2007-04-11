@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-11 22:34:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -336,7 +336,7 @@ SUNDIALS_EXPORT int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd
  */
 
 SUNDIALS_EXPORT int CVBBDPrecReInit(void *bbd_data, int mudq, int mldq,
-				    realtype dqrely, CVLocalFn gloc, CVCommFn cfn);
+				    realtype dqrely);
 
 /*
  * -----------------------------------------------------------------

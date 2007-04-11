@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-04-06 20:18:11 $
+ * $Revision: 1.12 $
+ * $Date: 2007-04-11 22:34:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -935,7 +935,7 @@ int CVodeReInitB(void *cvode_mem, int which,
 
   /* Reinitialize CVODES object */
 
-  flag = CVodeReInit(cvodeB_mem, CVArhs, tB0, yB0,
+  flag = CVodeReInit(cvodeB_mem, tB0, yB0,
                      itolB, reltolB, abstolB);
   if (flag != CV_SUCCESS)  return(flag);
 
@@ -1077,7 +1077,7 @@ int CVodeQuadReInitB(void *cvode_mem, int which, N_Vector yQB0)
 
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
 
-  flag = CVodeQuadReInit(cvodeB_mem, CVArhsQ, yQB0);
+  flag = CVodeQuadReInit(cvodeB_mem, yQB0);
   if (flag != CV_SUCCESS) return(flag);
 
   return(CV_SUCCESS);
@@ -1844,11 +1844,11 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
       abstol = (void *)efun;
       break;
     }
-    flag = CVodeReInit(cv_mem, f, t0_, zn_[0], itol, reltol, abstol);
+    flag = CVodeReInit(cv_mem, t0_, zn_[0], itol, reltol, abstol);
     if (flag != CV_SUCCESS) return(flag);
 
     if (quadr_) {
-      flag = CVodeQuadReInit(cv_mem, fQ, znQ_[0]);
+      flag = CVodeQuadReInit(cv_mem, znQ_[0]);
       if (flag != CV_SUCCESS) return(flag);
     }
 

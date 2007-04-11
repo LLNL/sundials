@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-06 20:33:27 $
+ * $Revision: 1.11 $
+ * $Date: 2007-04-11 22:34:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -652,7 +652,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
  * a negative value otherwise.
  */
 
-int IDAReInit(void *ida_mem, IDAResFn res,
+int IDAReInit(void *ida_mem,
               realtype t0, N_Vector yy0, N_Vector yp0,
               int itol, realtype rtol, void *atol)
 {
@@ -691,11 +691,6 @@ int IDAReInit(void *ida_mem, IDAResFn res,
     return(IDA_ILL_INPUT);
   }
 
-  if (res == NULL) { 
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAReInit", MSG_RES_NULL);
-    return(IDA_ILL_INPUT); 
-  }
-
   /* Test tolerances */
 
   if (itol != IDA_WF) {
@@ -723,7 +718,6 @@ int IDAReInit(void *ida_mem, IDAResFn res,
   }
 
   /* Copy the input parameters into IDA memory block */
-  IDA_mem->ida_res = res;
   IDA_mem->ida_tn  = t0;
 
   if ( (itol != IDA_SV) && (IDA_mem->ida_VatolMallocDone) ) {
@@ -850,7 +844,7 @@ int IDAQuadMalloc(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
  * a negative value otherwise.
  */
 
-int IDAQuadReInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
+int IDAQuadReInit(void *ida_mem, N_Vector yQ0)
 {
   IDAMem IDA_mem;
 
@@ -869,9 +863,6 @@ int IDAQuadReInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
 
   /* Initialize phiQ in the history array */
   N_VScale(ONE, yQ0, IDA_mem->ida_phiQ[0]);
-
-  /* Copy the input parameters into IDAS state */
-  IDA_mem->ida_rhsQ = rhsQ;
 
   /* Initialize counters */
   IDA_mem->ida_nrQe  = 0;

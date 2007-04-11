@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-04-06 20:18:11 $
+ * $Revision: 1.13 $
+ * $Date: 2007-04-11 22:34:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -885,7 +885,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
  * a negative value otherwise.
  */
 
-int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0, 
+int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0, 
                 int itol, realtype reltol, void *abstol)
 {
   CVodeMem cv_mem;
@@ -916,11 +916,6 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   
   if ((itol != CV_SS) && (itol != CV_SV) && (itol != CV_WF)) {
     CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeReInit", MSGCV_BAD_ITOL);
-    return(CV_ILL_INPUT);
-  }
-
-  if (f == NULL) {
-    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeReInit", MSGCV_NULL_F);
     return(CV_ILL_INPUT);
   }
 
@@ -978,7 +973,6 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   
   /* Copy the input parameters into CVODES state */
 
-  cv_mem->cv_f = f;
   cv_mem->cv_tn = t0;
 
   /* Set step parameters */
@@ -1258,7 +1252,7 @@ int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
  * a negative value otherwise.
  */
 
-int CVodeQuadReInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
+int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0)
 {
   CVodeMem cv_mem;
 
@@ -1277,9 +1271,6 @@ int CVodeQuadReInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
 
   /* Initialize znQ[0] in the history array */
   N_VScale(ONE, yQ0, cv_mem->cv_znQ[0]);
-
-  /* Copy the input parameters into CVODES state */
-  cv_mem->cv_fQ = fQ;
 
   /* Initialize counters */
   cv_mem->cv_nfQe  = 0;

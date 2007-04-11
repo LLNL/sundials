@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:09 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-11 22:34:10 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -188,29 +188,6 @@ typedef struct {
 
 } IDASpilsMemRecB, *IDASpilsMemB;
 
-/*
- * ------------------------------------------------
- * Wrapper functions for using the iterative linear 
- * solvers on adjoint (backward) problems
- * ------------------------------------------------
- */
-
-int IDAAspilsPrecSetup(realtype tt, 
-		       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-		       realtype c_jB, void *idaadj_mem,
-		       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-
-int IDAAspilsPrecSolve(realtype tt, 
-		       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-		       N_Vector rvecB, N_Vector zvecB,
-		       realtype c_jB, realtype deltaB,
-		       void *idaadj_mem, N_Vector tmpB);
-
-int IDAAspilsJacTimesVec(realtype tt,
-			 N_Vector yyB, N_Vector ypB, N_Vector rrB,
-			 N_Vector vB, N_Vector JvB, 
-			 realtype c_jB, void *idaadj_mem, 
-			 N_Vector tmp1B, N_Vector tmp2B);
 /*
  * -----------------------------------------------------------------
  * Error Messages 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:06 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-11 22:34:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -205,7 +205,7 @@ int main()
       
       SetInitialProfiles(u, data->dx, data->dy);
       
-      flag = CVodeReInit(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, T0, u, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
       flag = CVSpilsSetPrecType(cvode_mem, PREC_RIGHT);

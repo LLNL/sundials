@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-11 22:34:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -335,8 +335,7 @@ SUNDIALS_EXPORT int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data);
 
 SUNDIALS_EXPORT int IDABBDPrecReInit(void *bbd_data,
 				     int mudq, int mldq,
-				     realtype dq_rel_yy,
-				     IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
+				     realtype dq_rel_yy);
 
 /*
  * -----------------------------------------------------------------

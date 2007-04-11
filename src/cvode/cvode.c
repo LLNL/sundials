@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-06 20:33:25 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-11 22:34:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -599,7 +599,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
  * a negative value otherwise.
  */
 
-int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0, 
+int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0, 
                 int itol, realtype reltol, void *abstol)
 {
   CVodeMem cv_mem;
@@ -630,11 +630,6 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   
   if ((itol != CV_SS) && (itol != CV_SV) && (itol != CV_WF)) {
     CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeReInit", MSGCV_BAD_ITOL);
-    return(CV_ILL_INPUT);
-  }
-
-  if (f == NULL) {
-    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeReInit", MSGCV_NULL_F);
     return(CV_ILL_INPUT);
   }
 
@@ -691,7 +686,6 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   
   /* Copy the input parameters into CVODE state */
 
-  cv_mem->cv_f = f;
   cv_mem->cv_tn = t0;
   
   /* Set step parameters */

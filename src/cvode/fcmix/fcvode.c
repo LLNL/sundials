@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-11 22:34:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -216,7 +216,7 @@ void FCV_REINIT(realtype *t0, realtype *y0,
   }
 
   /* Call CVReInit */
-  *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, F2C_CVODE_vec, itol, *rtol, atolptr);
+  *ier = CVodeReInit(CV_cvodemem, *t0, F2C_CVODE_vec, itol, *rtol, atolptr);
 
   /* destroy Vatol if allocated */
   if (itol == CV_SV) N_VDestroy(Vatol);

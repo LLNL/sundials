@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-02-01 21:56:25 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-11 22:34:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -498,7 +498,7 @@ SUNDIALS_EXPORT int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vecto
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
+SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0,
 				int itol, realtype reltol, void *abstol);
 
 /*

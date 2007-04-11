@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:36 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-11 22:34:10 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,6 +31,31 @@
 /* Algorithmic constants */
 
 #define MAX_ITERS  3  /* max. number of attempts to recover in DQ J*v */
+
+/* 
+ * =================================================================
+ * PRIVATE FUNCTION PROTOTYPES
+ * =================================================================
+ */
+
+static int IDAAspilsPrecSetup(realtype tt, 
+                              N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+                              realtype c_jB, void *idaadj_mem,
+                              N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+
+static int IDAAspilsPrecSolve(realtype tt, 
+                              N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+                              N_Vector rvecB, N_Vector zvecB,
+                              realtype c_jB, realtype deltaB,
+                              void *idaadj_mem, N_Vector tmpB);
+
+static int IDAAspilsJacTimesVec(realtype tt,
+                                N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                                N_Vector vB, N_Vector JvB, 
+                                realtype c_jB, void *idaadj_mem, 
+                                N_Vector tmp1B, N_Vector tmp2B);
+
+
 
 /* 
  * ================================================================
@@ -827,10 +852,10 @@ int IDASpilsSetJacTimesVecFnB(void *idaadj_mem, IDASpilsJacTimesVecFnB jtimesB,
  * -----------------------------------------------------------------
  */
 
-int IDAAspilsPrecSetup(realtype tt, 
-                       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                       realtype c_jB, void *idaadj_mem,
-                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+static int IDAAspilsPrecSetup(realtype tt, 
+                              N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+                              realtype c_jB, void *idaadj_mem,
+                              N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   IDAadjMem IDAADJ_mem;
   IDASpilsMemB idaspilsB_mem; 
@@ -856,11 +881,11 @@ int IDAAspilsPrecSetup(realtype tt,
   return(flag);
 }
 
-int IDAAspilsPrecSolve(realtype tt, 
-                       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                       N_Vector rvecB, N_Vector zvecB,
-                       realtype c_jB, realtype deltaB,
-                       void *idaadj_mem, N_Vector tmpB)
+static int IDAAspilsPrecSolve(realtype tt, 
+                              N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+                              N_Vector rvecB, N_Vector zvecB,
+                              realtype c_jB, realtype deltaB,
+                              void *idaadj_mem, N_Vector tmpB)
 {
   IDAadjMem IDAADJ_mem;
   IDASpilsMemB idaspilsB_mem; 
@@ -889,11 +914,11 @@ int IDAAspilsPrecSolve(realtype tt,
   return(flag);
 }
 
-int IDAAspilsJacTimesVec(realtype tt,
-                         N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                         N_Vector vB, N_Vector JvB, 
-                         realtype c_jB, void *idaadj_mem, 
-                         N_Vector tmp1B, N_Vector tmp2B)
+static int IDAAspilsJacTimesVec(realtype tt,
+                                N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                                N_Vector vB, N_Vector JvB, 
+                                realtype c_jB, void *idaadj_mem, 
+                                N_Vector tmp1B, N_Vector tmp2B)
 {
   IDAadjMem IDAADJ_mem;
   IDASpilsMemB idaspilsB_mem; 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-11 22:34:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -212,8 +212,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
 int CVBBDPrecReInit(void *bbd_data, 
                     int mudq, int mldq, 
-                    realtype dqrely, 
-                    CVLocalFn gloc, CVCommFn cfn)
+                    realtype dqrely)
 {
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
@@ -227,9 +226,7 @@ int CVBBDPrecReInit(void *bbd_data,
   pdata  = (CVBBDPrecData) bbd_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  /* Set pointers to gloc and cfn; load half-bandwidths */
-  pdata->gloc = gloc;
-  pdata->cfn = cfn;
+  /* Load half-bandwidths */
   Nlocal = pdata->n_local;
   pdata->mudq = MIN(Nlocal-1, MAX(0,mudq));
   pdata->mldq = MIN(Nlocal-1, MAX(0,mldq));

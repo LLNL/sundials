@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-11 22:34:10 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -263,10 +263,10 @@ int main(int argc, char *argv[])
 
     SetInitialProfiles(u, data);
 
-    flag = CVodeReInit(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
+    flag = CVodeReInit(cvode_mem, T0, u, CV_SS, reltol, &abstol);
     if(check_flag(&flag, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVBBDPrecReInit(pdata, mudq, mldq, ZERO, flocal, NULL);
+    flag = CVBBDPrecReInit(pdata, mudq, mldq, ZERO);
     if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVSpilsSetPrecType(cvode_mem, PREC_RIGHT);

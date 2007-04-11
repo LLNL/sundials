@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:44 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-11 22:34:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -220,7 +220,7 @@ int main(void)
 
     /* Re-initialize CVode for the solution of the same problem, but
        using a different linear solver module */
-      flag = CVodeReInit(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, T0, u, CV_SS, reltol, &abstol);
       if (check_flag(&flag, "CVodeReInit", 1)) return(1);
 
     }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-11 22:34:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -150,8 +150,7 @@ void FIDA_BBDREINIT(int *Nloc, int *mudq, int *mldq,
 {
   *ier = 0;
 
-  *ier = IDABBDPrecReInit(IDABBD_Data, *mudq, *mldq,
-			  *dqrely, (IDABBDLocalFn) FIDAgloc, (IDABBDCommFn) FIDAcfn);
+  *ier = IDABBDPrecReInit(IDABBD_Data, *mudq, *mldq, *dqrely);
 
   return;
 }

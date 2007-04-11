@@ -111,6 +111,8 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
    - in the initial step size calculation, restrict h based on tstop.
 
 - Changes to user interface
+   - removed function inputs from argument lists of all re-initialization
+     functions.
    - common functionality for all direct linear solvers (dense, band, and
      the new Lapack solver) has been collected into the DLS (Direct Linear
      Solver) module, similar to the SPILS module for the iterative linear 

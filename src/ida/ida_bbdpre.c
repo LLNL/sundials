@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-11 22:34:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -234,8 +234,7 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
 
 int IDABBDPrecReInit(void *bbd_data,
 		     int mudq, int mldq, 
-		     realtype dq_rel_yy,  
-		     IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
+		     realtype dq_rel_yy)
 {
   IBBDPrecData pdata;
   IDAMem IDA_mem;
@@ -251,11 +250,9 @@ int IDABBDPrecReInit(void *bbd_data,
 
   Nlocal = pdata->n_local;
 
-  /* Set pointers to res_data, glocal, and gcomm; load half-bandwidths. */
+  /* Load half-bandwidths. */
   pdata->mudq = MIN(Nlocal-1, MAX(0, mudq));
   pdata->mldq = MIN(Nlocal-1, MAX(0, mldq));
-  pdata->glocal = Gres;
-  pdata->gcomm = Gcomm;
 
   /* Set rel_yy based on input value dq_rel_yy (0 implies default). */
   pdata->rel_yy = (dq_rel_yy > ZERO) ? dq_rel_yy : RSqrt(uround); 

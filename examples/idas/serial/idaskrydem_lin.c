@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:10 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-11 22:34:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -180,7 +180,7 @@ int main(void)
       SetInitialProfile(data, uu, up, res);
 
       /* Re-initialize IDA */
-      ier = IDAReInit(mem, resHeat, t0, uu, up, IDA_SS, rtol, &atol);
+      ier = IDAReInit(mem, t0, uu, up, IDA_SS, rtol, &atol);
       if (check_flag(&ier, "IDAReInit", 1)) return(1);
 
     }

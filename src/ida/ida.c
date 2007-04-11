@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-06 20:33:26 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-11 22:34:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -524,7 +524,7 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
  * a negative value otherwise.
  */
 
-int IDAReInit(void *ida_mem, IDAResFn res,
+int IDAReInit(void *ida_mem,
               realtype t0, N_Vector yy0, N_Vector yp0,
               int itol, realtype rtol, void *atol)
 {
@@ -563,11 +563,6 @@ int IDAReInit(void *ida_mem, IDAResFn res,
     return(IDA_ILL_INPUT);
   }
 
-  if (res == NULL) { 
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAReInit", MSG_RES_NULL);
-    return(IDA_ILL_INPUT); 
-  }
-
   /* Test tolerances */
 
   if (itol != IDA_WF) {
@@ -595,7 +590,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
   }
 
   /* Copy the input parameters into IDA memory block */
-  IDA_mem->ida_res = res;
+
   IDA_mem->ida_tn  = t0;
 
   if ( (itol != IDA_SV) && (IDA_mem->ida_VatolMallocDone) ) {

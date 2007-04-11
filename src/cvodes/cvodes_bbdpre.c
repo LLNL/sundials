@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-06 20:18:11 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-11 22:34:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -224,8 +224,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
 int CVBBDPrecReInit(void *bbd_data, 
                     int mudq, int mldq, 
-                    realtype dqrely, 
-                    CVLocalFn gloc, CVCommFn cfn)
+                    realtype dqrely)
 {
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
@@ -239,9 +238,7 @@ int CVBBDPrecReInit(void *bbd_data,
   pdata  = (CVBBDPrecData) bbd_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  /* Set pointers to gloc and cfn; load half-bandwidths */
-  pdata->gloc = gloc;
-  pdata->cfn = cfn;
+  /* Load half-bandwidths */
   Nlocal = pdata->n_local;
   pdata->mudq = MIN(Nlocal-1, MAX(0,mudq));
   pdata->mldq = MIN(Nlocal-1, MAX(0,mldq));
@@ -846,7 +843,7 @@ int CVBBDSpgmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
 
 int CVBBDPrecReInitB(void *cvode_mem, int which, 
                      int mudqB, int mldqB,
-                     realtype dqrelyB, CVLocalFnB glocB, CVCommFnB cfnB)
+                     realtype dqrelyB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -890,11 +887,7 @@ int CVBBDPrecReInitB(void *cvode_mem, int which,
   }
   cvbbdB_mem = (CVBBDPrecDataB) (cvB_mem->cv_pmem);
 
-  gloc_B = glocB;
-  cfn_B  = cfnB;
-
-  flag = CVBBDPrecReInit(bbd_data_B, mudqB, mldqB,
-                         dqrelyB, cvGlocWrapper, cvCfnWrapper);
+  flag = CVBBDPrecReInit(bbd_data_B, mudqB, mldqB, dqrelyB);
 
   return(flag);
 }

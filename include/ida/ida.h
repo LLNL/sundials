@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-20 14:33:22 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-11 22:34:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -470,7 +470,7 @@ SUNDIALS_EXPORT int IDAMalloc(void *ida_mem, IDAResFn res,
  * ----------------------------------------------------------------
  */                                                                
 
-SUNDIALS_EXPORT int IDAReInit(void *ida_mem, IDAResFn res,
+SUNDIALS_EXPORT int IDAReInit(void *ida_mem,
 			      realtype t0, N_Vector yy0, N_Vector yp0,
 			      int itol, realtype rtol, void *atol);
  

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-11 22:34:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -235,7 +235,7 @@ void FIDA_REINIT(realtype *t0, realtype *yy0, realtype *yp0,
   }
 
   /* Call IDAReInit */
-  *ier = IDAReInit(IDA_idamem, (IDAResFn) FIDAresfn, *t0, F2C_IDA_vec, F2C_IDA_ypvec,
+  *ier = IDAReInit(IDA_idamem, *t0, F2C_IDA_vec, F2C_IDA_ypvec,
 		   itol, *rtol, atolptr);
 
   /* destroy Vatol if allocated */

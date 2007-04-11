@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-03-20 14:33:24 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-11 22:34:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -561,7 +561,7 @@ SUNDIALS_EXPORT int IDAMalloc(void *ida_mem, IDAResFn res,
  * ----------------------------------------------------------------
  */                                                                
 
-SUNDIALS_EXPORT int IDAReInit(void *ida_mem, IDAResFn res,
+SUNDIALS_EXPORT int IDAReInit(void *ida_mem,
 			      realtype t0, N_Vector yy0, N_Vector yp0,
 			      int itol, realtype rtol, void *atol);
  
@@ -731,7 +731,7 @@ SUNDIALS_EXPORT int IDAQuadMalloc(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAQuadReInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0);
+SUNDIALS_EXPORT int IDAQuadReInit(void *ida_mem, N_Vector yQ0);
 
 
 /* 
@@ -1410,7 +1410,7 @@ SUNDIALS_EXPORT int IDACreateB(void *idaadj_mem);
 SUNDIALS_EXPORT int IDAMallocB(void *idaadj_mem, IDAResFnB resB,
 			       realtype tB0, N_Vector yyB0, N_Vector ypB0, 
 			       int itolB, realtype *reltolB, void *abstolB);
-SUNDIALS_EXPORT int IDAReInitB(void *idaadj_mem, IDAResFnB resB,
+SUNDIALS_EXPORT int IDAReInitB(void *idaadj_mem,
 			       realtype tB0, N_Vector yyB0, N_Vector ypB0,
 			       int itolB, realtype *reltolB, void *abstolB);
 
@@ -1429,7 +1429,7 @@ SUNDIALS_EXPORT int IDASetQuadFdataB(void *idaadj_mem, void *rhsQ_dataB);
 SUNDIALS_EXPORT int IDASetQuadErrConB(void *idaadj_mem, booleantype errconQB, 
 				      int itolQB, realtype reltolQB, void *abstolQB);
 SUNDIALS_EXPORT int IDAQuadMallocB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0);
-SUNDIALS_EXPORT int IDAQuadReInitB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0);
+SUNDIALS_EXPORT int IDAQuadReInitB(void *idaadj_mem, N_Vector yQB0);
 
 /*
  * -----------------------------------------------------------------

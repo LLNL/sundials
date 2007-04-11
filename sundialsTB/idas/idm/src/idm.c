@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-03-21 18:36:24 $
+ * $Revision: 1.13 $
+ * $Date: 2007-04-11 22:34:11 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -404,7 +404,7 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   case 1:
 
     /* Reinitialize solver */
-    status = IDAReInit(ida_mem, mtlb_IdaRes, t0, yy, yp, itol, reltol, abstol);
+    status = IDAReInit(ida_mem, t0, yy, yp, itol, reltol, abstol);
 
     break;
 
@@ -478,7 +478,7 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
       status = IDAQuadMalloc(ida_mem, mtlb_IdaQuadFct, yQ);
       break;
     case 1:
-      status = IDAQuadReInit(ida_mem, mtlb_IdaQuadFct, yQ);
+      status = IDAQuadReInit(ida_mem, yQ);
       break;
     }
 
@@ -885,7 +885,7 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     status = IDASetErrFileB(idaadj_mem, stdout);
     break;
   case 1:
-    status = IDAReInitB(idaadj_mem, mtlb_IdaResB, tB0, yyB, ypB, itolB, reltolB, abstolB);
+    status = IDAReInitB(idaadj_mem, tB0, yyB, ypB, itolB, reltolB, abstolB);
     break;
   }
 
@@ -918,7 +918,7 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
       status = IDAQuadMallocB(idaadj_mem, mtlb_IdaQuadFctB, yQB);
       break;
     case 1:
-      status = IDAQuadReInitB(idaadj_mem, mtlb_IdaQuadFctB, yQB);
+      status = IDAQuadReInitB(idaadj_mem, yQB);
       break;
     }
 

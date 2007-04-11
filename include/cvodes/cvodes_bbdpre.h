@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-03-22 18:05:50 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-11 22:34:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -364,8 +364,7 @@ SUNDIALS_EXPORT int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd
  */
 
 SUNDIALS_EXPORT int CVBBDPrecReInit(void *bbd_data, int mudq, int mldq,
-                                    realtype dqrely, 
-                                    CVLocalFn gloc, CVCommFn cfn);
+                                    realtype dqrely);
 
 /*
  * -----------------------------------------------------------------
@@ -451,8 +450,7 @@ SUNDIALS_EXPORT int CVBBDSpgmrB(void *cvode_mem, int which, int pretypeB, int ma
   
 SUNDIALS_EXPORT int CVBBDPrecReInitB(void *cvode_mem, int which, 
                                      int mudqB, int mldqB,
-                                     realtype dqrelyB, 
-                                     CVLocalFnB glocB, CVCommFnB cfnB);
+                                     realtype dqrelyB);
 
 #ifdef __cplusplus
 }

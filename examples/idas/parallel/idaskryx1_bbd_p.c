@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:46 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-11 22:34:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -266,11 +266,11 @@ int main(int argc, char *argv[])
   SetInitialProfile(uu, up, id, res, data);
 
   /* Call IDAReInit to re-initialize IDA. */
-  ier = IDAReInit(mem, heatres, t0, uu, up, IDA_SS, rtol, &atol);
+  ier = IDAReInit(mem, t0, uu, up, IDA_SS, rtol, &atol);
   if(check_flag(&ier, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDPrecReInit to re-initialize BBD preconditioner. */
-  ier = IDABBDPrecReInit(P_data, mudq, mldq, ZERO, reslocal, NULL);
+  ier = IDABBDPrecReInit(P_data, mudq, mldq, ZERO);
   if(check_flag(&ier, "IDABBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only). */

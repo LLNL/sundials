@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2007-04-06 20:57:31 $
+ * $Revision: 1.15 $
+ * $Date: 2007-04-11 22:34:11 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -376,7 +376,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   case 1:
 
     /* Reinitialize solver */
-    status = CVodeReInit(cvode_mem, mtlb_CVodeRhs, t0, y, itol, reltol, abstol);
+    status = CVodeReInit(cvode_mem, t0, y, itol, reltol, abstol);
 
     break;
 
@@ -436,7 +436,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
       status = CVodeQuadMalloc(cvode_mem, mtlb_CVodeQUADfct, yQ);
       break;
     case 1:
-      status = CVodeQuadReInit(cvode_mem, mtlb_CVodeQUADfct, yQ);
+      status = CVodeQuadReInit(cvode_mem, yQ);
       break;
     }
 

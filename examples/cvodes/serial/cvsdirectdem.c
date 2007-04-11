@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-24 19:09:11 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-11 22:34:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -184,7 +184,7 @@ static int Problem1(void)
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f1, P1_T0, y, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, P1_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
@@ -235,7 +235,7 @@ static int Problem1(void)
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f1, P1_T0, y, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, P1_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
@@ -377,7 +377,7 @@ static int Problem2(void)
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f2, P2_T0, y, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, P2_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
@@ -428,7 +428,7 @@ static int Problem2(void)
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, f2, P2_T0, y, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, P2_T0, y, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
 

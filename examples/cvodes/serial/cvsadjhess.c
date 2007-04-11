@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-04-06 20:20:16 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-11 22:34:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -268,8 +268,8 @@ int main(int argc, char *argv[])
 
   N_VConst(ONE, y);
   N_VConst(ZERO, yQ);
-  CVodeReInit(cvode_mem, f, t0, y, CV_SS, reltol, &abstol);
-  CVodeQuadReInit(cvode_mem, fQ, yQ);
+  CVodeReInit(cvode_mem, t0, y, CV_SS, reltol, &abstol);
+  CVodeQuadReInit(cvode_mem, yQ);
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gm = Ith(yQ,1);
@@ -288,8 +288,8 @@ int main(int argc, char *argv[])
 
   N_VConst(ONE, y);
   N_VConst(ZERO, yQ);
-  CVodeReInit(cvode_mem, f, t0, y, CV_SS, reltol, &abstol);
-  CVodeQuadReInit(cvode_mem, fQ, yQ);
+  CVodeReInit(cvode_mem, t0, y, CV_SS, reltol, &abstol);
+  CVodeQuadReInit(cvode_mem, yQ);
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gp = Ith(yQ,1);
@@ -300,8 +300,8 @@ int main(int argc, char *argv[])
 
   N_VConst(ONE, y);
   N_VConst(ZERO, yQ);
-  CVodeReInit(cvode_mem, f, t0, y, CV_SS, reltol, &abstol);
-  CVodeQuadReInit(cvode_mem, fQ, yQ);
+  CVodeReInit(cvode_mem, t0, y, CV_SS, reltol, &abstol);
+  CVodeQuadReInit(cvode_mem, yQ);
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gm = Ith(yQ,1);
