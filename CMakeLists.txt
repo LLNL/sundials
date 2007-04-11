@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-02-01 16:42:07 $
+# $Revision: 1.3 $
+# $Date: 2007-04-11 22:36:36 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -59,6 +59,9 @@ SET(cvodeslib_SOVERSION "2")
 
 SET(idalib_VERSION "2.0.0")
 SET(idalib_SOVERSION "2")
+
+SET(idalib_VERSION "0.0.0")
+SET(idalib_SOVERSION "0")
 
 SET(kinsollib_VERSION "1.0.0")
 SET(kinsollib_SOVERSION "1")
@@ -157,6 +160,12 @@ IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/ida")
 ELSE(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/ida")
   SET(BUILD_IDA OFF)
 ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/ida")
+
+IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/idas")
+  OPTION(BUILD_IDAS  "Build the IDAS library"  ON)
+ELSE(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/idas")
+  SET(BUILD_IDAS OFF)
+ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/idas")
 
 IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/kinsol")
   OPTION(BUILD_KINSOL  "Build the KINSOL library"  ON)
@@ -1340,6 +1349,12 @@ IF(BUILD_IDA)
   ENDIF(FCMIX_OK)
 ENDIF(BUILD_IDA)
 
+# IDAS library
+
+IF(BUILD_IDAS)	
+  ADD_SUBDIRECTORY(src/idas)
+ENDIF(BUILD_IDAS)
+
 # KINSOL library
 
 IF(BUILD_KINSOL)	
@@ -1450,6 +1465,13 @@ IF(EXAMPLES_ENABLE)
     ENDIF(MPIF_OK)
   ENDIF(BUILD_IDA)
   
+  IF(BUILD_IDAS)	
+    ADD_SUBDIRECTORY(examples/idas/serial)
+    IF(MPIC_OK)
+      ADD_SUBDIRECTORY(examples/idas/parallel)
+    ENDIF(MPIC_OK)
+  ENDIF(BUILD_IDAS)
+
   IF(BUILD_KINSOL)	
     ADD_SUBDIRECTORY(examples/kinsol/serial)
     IF(FCMIX_OK)
