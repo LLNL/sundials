@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-11 22:34:09 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-17 21:49:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -1021,6 +1021,10 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
        Also check for zeros of root function g at and near t0.    */
 
     tdist = ABS(tout - tn);
+    if (tdist == ZERO) {
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_TOO_CLOSE);
+      return(IDA_ILL_INPUT);
+    }
     troundoff = TWO*uround*(ABS(tn) + ABS(tout));    
     if (tdist < troundoff) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_TOO_CLOSE);
