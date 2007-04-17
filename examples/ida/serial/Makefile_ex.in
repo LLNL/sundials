@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-11-29 00:05:05 $
+# $Revision: 1.2 $
+# $Date: 2007-04-17 22:29:03 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -58,5 +58,5 @@ idabanx2: idabanx2.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idabanx2.c
 	 $(CC) -o idabanx2 idabanx2.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idakrydem_lin: idakrydem_lin.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idakrydem_lin.c
-	$(LIBTOOL) --mode=link $(CC) -o idakrydem_lin idakrydem_lin.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idakrydem_lin.c
+	 $(CC) -o idakrydem_lin idakrydem_lin.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
