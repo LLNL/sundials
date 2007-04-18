@@ -97,12 +97,17 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
      is to be monitored while performing root-finding. The root information
      array iroots (returned by CVodeGetRootInfo) also encodes the 
      direction of zero-crossing.
-   - in the adjoint module, added support for propagating backwards in
-     time multiple adjoint systems, each initialized at posibly different
-     times.
+   - added support for performing FSA of quadrature variables (see functions
+     CVode**QuadSens**).
+   - in the adjoint module, added support for integrating forward sensitivities
+     of states and quadrature variables during the forward integration
+     phase (e.g. for computing 2nd order sensitivity information using
+     the "forward over adjoint" method).
+   - in the adjoint module, added support for propagating backwards in time
+     multiple adjoint systems, each initialized at posibly different times.
    - added option for reinitializing the adjoint module in order to
      solve a new adjoint problem (with same number of steps between
-     check points and the same interpolation type)
+     check points and the same interpolation type).
 
 - Bug fixes
    - in the rootfinding algorithm, fixed a bug resulting in unnecessary
@@ -121,13 +126,17 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
      the new Lapack-based linear solver, all dimensions for these linear
      solvers (problem sizes, bandwidths, etc) are now of type 'int' 
      (instead of 'long int').
+   - changed the API for CVodeSensMalloc. The sensitivity RHS function
+     is now passed through the argument fS to CVodeSensMalloc. A second
+     argument, ifS, specifies the type of fS (CVSensRhsFn or CVSensRhs1Fn).
+     Removed the functions CVodeSetSensRhsFn and CVodeSetSensRhs1Fn.
    - changed the API for all functions in the adjoint module related to 
-     initialization, set-up, and solution of backward problems 
+     initialization, set-up, and solution of backward problems.
    - the extraction functions CVodeGetQuad, CVodeGetSens, and CVodeGetSens1
      now return the values of quadrature and sensitivity variables, respectively,
      at the same time as that at which CVode returned the solution (for dense
      output of quadrature or sensitivity variables, the user can only use
-     CVodeGetQuadDky, CVodeGetSensDky, or CVodeGetSensDky1)
+     CVodeGetQuadDky, CVodeGetSensDky, or CVodeGetSensDky1).
 
 v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Nov. 2006)
 ---------------------------------------------------------

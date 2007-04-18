@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-06 20:18:16 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-18 19:24:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -105,7 +105,7 @@ static int Jac(int N, realtype t,
                N_Vector y, N_Vector fy, 
                DlsMat J, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data);
 static int ewt(N_Vector y, N_Vector w, void *e_data);
 
 static int fB(realtype t, N_Vector y, 
@@ -115,7 +115,7 @@ static int JacB(int NB, realtype t,
                 DlsMat JB, void *jac_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
-               N_Vector qBdot, void *fQ_dataB);
+               N_Vector qBdot, void *f_dataB);
 
 
 /* Prototypes of private functions */
@@ -213,9 +213,6 @@ int main(int argc, char *argv[])
 
   flag = CVodeQuadMalloc(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadMalloc", 1)) return(1);
-
-  flag = CVodeSetQuadFdata(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetQuadFdata", 1)) return(1);
 
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ);
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
@@ -318,9 +315,6 @@ int main(int argc, char *argv[])
 
   flag = CVodeQuadMallocB(cvode_mem, indexB, fQB, qB);
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
-
-  flag = CVodeSetQuadFdataB(cvode_mem, indexB, data);
-  if (check_flag(&flag, "CVodeSetQuadFdataB", 1)) return(1);
 
   flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE, CV_SS, reltolB, &abstolQB);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
@@ -445,7 +439,7 @@ static int Jac(int N, realtype t,
  * fQ routine. Compute fQ(t,y). 
 */
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data)
 {
   Ith(qdot,1) = Ith(y,3);  
 
@@ -546,7 +540,7 @@ static int JacB(int NB, realtype t,
 */
 
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
-               N_Vector qBdot, void *fQ_dataB)
+               N_Vector qBdot, void *f_dataB)
 {
   UserData data;
   realtype y1, y2, y3;
@@ -554,7 +548,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
   realtype l1, l2, l3;
   realtype l21, l32, y23;
 
-  data = (UserData) fQ_dataB;
+  data = (UserData) f_dataB;
 
   /* The p vector */
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];

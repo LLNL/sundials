@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-11 22:34:10 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-18 19:24:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,23 +51,31 @@ typedef struct {
 } *UserData;
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data);
 static int fS(int Ns, realtype t,
               N_Vector y, N_Vector ydot,
               N_Vector *yS, N_Vector *ySdot,
-              void *fS_data,
+              void *f_data,
               N_Vector tmp1, N_Vector tmp2);
+static int fQS(int Ns, realtype t,
+               N_Vector y, N_Vector *yS, 
+               N_Vector yQdot, N_Vector *yQSdot,
+               void *f_data,
+               N_Vector tmp, N_Vector tmpQ);
 
 static int fB1(realtype t, N_Vector y, N_Vector *yS, 
                N_Vector yB, N_Vector yBdot, void *f_dataB);
 static int fQB1(realtype t, N_Vector y, N_Vector *yS, 
-                N_Vector yB, N_Vector qBdot, void *fQ_dataB);
+                N_Vector yB, N_Vector qBdot, void *f_dataB);
 
 
 static int fB2(realtype t, N_Vector y, N_Vector *yS, 
                N_Vector yB, N_Vector yBdot, void *f_dataB);
 static int fQB2(realtype t, N_Vector y, N_Vector *yS,
-                N_Vector yB, N_Vector qBdot, void *fQ_dataB);
+                N_Vector yB, N_Vector qBdot, void *f_dataB);
+
+void PrintFwdStats(void *cvode_mem);
+void PrintBckStats(void *cvode_mem, int idx);
 
 /*
  *--------------------------------------------------------------------
@@ -86,11 +94,10 @@ int main(int argc, char *argv[])
   realtype t0, tf;
 
   realtype reltol;
-  realtype abstol, abstolQ, abstolS, abstolB, abstolQB;
+  realtype abstol, abstolQ, abstolB, abstolQB;
 
-  N_Vector y;
-  N_Vector yQ;
-  N_Vector *yS;
+  N_Vector y, yQ;
+  N_Vector *yS, *yQS;
   N_Vector yB1, yB2;
   N_Vector yQB1, yQB2;
 
@@ -98,11 +105,12 @@ int main(int argc, char *argv[])
   int indexB1, indexB2;
 
   int flag, is;
-  long int nst;
   realtype time;
 
   realtype dp;
   realtype G, Gp, Gm;
+  realtype grdG_fwd[2], grdG_bck[2], grdG_cntr[2];
+  realtype H11, H22;
 
   /* User data structure */
 
@@ -138,6 +146,10 @@ int main(int argc, char *argv[])
   N_VConst(ZERO, yS[0]);
   N_VConst(ZERO, yS[1]);
 
+  yQS = N_VCloneVectorArray_Serial(Np, yQ);
+  N_VConst(ZERO, yQS[0]);
+  N_VConst(ZERO, yQS[1]);
+
   /* Create and initialize forward problem */
 
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
@@ -148,12 +160,14 @@ int main(int argc, char *argv[])
   flag = CVDense(cvode_mem, Neq);
 
   flag = CVodeQuadMalloc(cvode_mem, fQ, yQ);
-  flag = CVodeSetQuadFdata(cvode_mem, data);
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltol, &abstolQ);
 
-  flag = CVodeSensMalloc(cvode_mem, Np, CV_STAGGERED, yS);
-  flag = CVodeSetSensRhsFn(cvode_mem, fS, data);
+  flag = CVodeSensMalloc(cvode_mem, Np, CV_SIMULTANEOUS, CV_ALLSENS, fS, yS);
   flag = CVodeSetSensErrCon(cvode_mem, TRUE);
+
+  flag = CVodeQuadSensMalloc(cvode_mem, fQS, yQS);
+
+  flag = CVodeSetQuadSensErrCon(cvode_mem, TRUE, CV_EE, 0.0, NULL);
 
   /* Initialize ASA */
 
@@ -162,25 +176,34 @@ int main(int argc, char *argv[])
 
   /* Forward integration */
 
-  printf("Forward integration ... ");
+  printf("-------------------\n");
+  printf("Forward integration\n");
+  printf("-------------------\n\n");
 
   flag = CVodeF(cvode_mem, tf, y, &time, CV_NORMAL, &ncheck);
-
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
 
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   G = Ith(yQ,1);
 
   flag = CVodeGetSens(cvode_mem, &time, yS);
 
-  printf("( nst = %ld, ncheck = %ld )\n", nst, ncheck);
+  flag = CVodeGetQuadSens(cvode_mem, &time, yQS);
+
+  printf("ncheck = %ld\n", ncheck);
   printf("\n");
-  printf("     y:    %12.4le %12.4le %12.4le\n", Ith(y,1), Ith(y,2), Ith(y,3));
+  printf("     y:    %12.4le %12.4le %12.4le", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:    %12.4le\n", Ith(yQ,1));
   printf("\n");
   printf("     yS1:  %12.4le %12.4le %12.4le\n", Ith(yS[0],1), Ith(yS[0],2), Ith(yS[0],3));
   printf("     yS2:  %12.4le %12.4le %12.4le\n", Ith(yS[1],1), Ith(yS[1],2), Ith(yS[1],3));
   printf("\n");
+  printf("   dG/dp:  %12.4le %12.4le\n", Ith(yQS[0],1), Ith(yQS[1],1));
+  printf("\n");
+
+  printf("Final Statistics for forward pb.\n");
+  printf("--------------------------------\n");
+  PrintFwdStats(cvode_mem);
+
 
   /* Initializations for backward problems */
 
@@ -199,24 +222,24 @@ int main(int argc, char *argv[])
   /* Create and initialize backward problems (one for each column of the Hessian) */
 
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB1);
-  flag = CVodeMallocBs(cvode_mem, indexB1, fB1, tf, yB1, CV_SS, reltol, &abstolB);
+  flag = CVodeMallocBS(cvode_mem, indexB1, fB1, tf, yB1, CV_SS, reltol, &abstolB);
   flag = CVodeSetFdataB(cvode_mem, indexB1, data);
-  flag = CVodeQuadMallocBs(cvode_mem, indexB1, fQB1, yQB1);
-  flag = CVodeSetQuadFdataB(cvode_mem, indexB1, data);
+  flag = CVodeQuadMallocBS(cvode_mem, indexB1, fQB1, yQB1);
   flag = CVodeSetQuadErrConB(cvode_mem, indexB1, TRUE, CV_SS, reltol, &abstolQB);
   flag = CVDenseB(cvode_mem, indexB1, 2*Neq);
 
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB2);
-  flag = CVodeMallocBs(cvode_mem, indexB2, fB2, tf, yB2, CV_SS, reltol, &abstolB);
+  flag = CVodeMallocBS(cvode_mem, indexB2, fB2, tf, yB2, CV_SS, reltol, &abstolB);
   flag = CVodeSetFdataB(cvode_mem, indexB2, data);
-  flag = CVodeQuadMallocBs(cvode_mem, indexB2, fQB2, yQB2);
-  flag = CVodeSetQuadFdataB(cvode_mem, indexB2, data);
+  flag = CVodeQuadMallocBS(cvode_mem, indexB2, fQB2, yQB2);
   flag = CVodeSetQuadErrConB(cvode_mem, indexB2, TRUE, CV_SS, reltol, &abstolQB);
   flag = CVDenseB(cvode_mem, indexB2, 2*Neq);
 
   /* Backward integration */
 
-  printf("Backward integration ... (2 adjoint problems)\n\n");
+  printf("---------------------------------------------\n");
+  printf("Backward integration ... (2 adjoint problems)\n");
+  printf("---------------------------------------------\n\n");
 
   flag = CVodeB(cvode_mem, t0, CV_NORMAL);
 
@@ -226,14 +249,22 @@ int main(int argc, char *argv[])
   flag = CVodeGetB(cvode_mem, indexB2, &time, yB2);
   flag = CVodeGetQuadB(cvode_mem, indexB2, &time, yQB2);
 
-  printf("Gradient (1):  %12.4le %12.4le\n", -Ith(yQB1,1), -Ith(yQB1,2));
-  printf("         (2):  %12.4le %12.4le\n", -Ith(yQB2,1), -Ith(yQB2,2));
+  printf("   dG/dp:  %12.4le %12.4le   (from backward pb. 1)\n", -Ith(yQB1,1), -Ith(yQB1,2));
+  printf("           %12.4le %12.4le   (from backward pb. 2)\n", -Ith(yQB2,1), -Ith(yQB2,2));
   printf("\n");
-  printf("Hessian\n");
+  printf("   H = d2G/dp2:\n");
   printf("        (1)            (2)\n");
   printf("  %12.4le   %12.4le\n", -Ith(yQB1,3) , -Ith(yQB2,3));
   printf("  %12.4le   %12.4le\n", -Ith(yQB1,4) , -Ith(yQB2,4));
   printf("\n");
+
+  printf("Final Statistics for backward pb. 1\n");
+  printf("-----------------------------------\n");
+  PrintBckStats(cvode_mem, indexB1);
+
+  printf("Final Statistics for backward pb. 2\n");
+  printf("-----------------------------------\n");
+  PrintBckStats(cvode_mem, indexB2);
 
   /* Free CVODES memory */
 
@@ -243,7 +274,11 @@ int main(int argc, char *argv[])
 
   dp = RCONST(1.0e-2);
 
-  printf("Finite Difference tests ... (del_p = %g)\n\n",dp);
+  printf("-----------------------\n");
+  printf("Finite Difference tests\n");
+  printf("-----------------------\n\n");
+
+  printf("del_p = %g\n\n",dp);
 
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
 
@@ -253,7 +288,6 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, data);
   flag = CVDense(cvode_mem, Neq);
   flag = CVodeQuadMalloc(cvode_mem, fQ, yQ);
-  flag = CVodeSetQuadFdata(cvode_mem, data);
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltol, &abstolQ);
 
   data->p1 += dp;
@@ -261,7 +295,7 @@ int main(int argc, char *argv[])
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gp = Ith(yQ,1);
-  printf("p1+  y:   %12.4le %12.4le %12.4le\n", Ith(y,1), Ith(y,2), Ith(y,3));
+  printf("p1+  y:   %12.4le %12.4le %12.4le", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:   %12.4le\n",Ith(yQ,1));
 
   data->p1 -= 2.0*dp;
@@ -273,16 +307,15 @@ int main(int argc, char *argv[])
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gm = Ith(yQ,1);
-  printf("p1-  y:   %12.4le %12.4le %12.4le\n", Ith(y,1), Ith(y,2), Ith(y,3));
+  printf("p1-  y:   %12.4le %12.4le %12.4le", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:   %12.4le\n",Ith(yQ,1));
  
   data->p1 += dp;
 
-  printf("\n");
-  printf("grad(1):  %12.4le (fwd)\n", (Gp-G)/dp);
-  printf("          %12.4le (bck)\n", (G-Gm)/dp);
-  printf("          %12.4le (cntr)\n", (Gp-Gm)/(2.0*dp));
-  printf("H(1,1):   %12.4le\n\n", (Gp - 2.0*G + Gm) / (dp*dp));
+  grdG_fwd[0] = (Gp-G)/dp;
+  grdG_bck[0] = (G-Gm)/dp;
+  grdG_cntr[0] = (Gp-Gm)/(2.0*dp);
+  H11 = (Gp - 2.0*G + Gm) / (dp*dp);
 
   data->p2 += dp;
 
@@ -293,7 +326,7 @@ int main(int argc, char *argv[])
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gp = Ith(yQ,1);
-  printf("p2+  y:   %12.4le %12.4le %12.4le\n", Ith(y,1), Ith(y,2), Ith(y,3));
+  printf("p2+  y:   %12.4le %12.4le %12.4le", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:   %12.4le\n",Ith(yQ,1));
  
   data->p2 -= 2.0*dp;
@@ -305,16 +338,25 @@ int main(int argc, char *argv[])
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
   Gm = Ith(yQ,1);
-  printf("p2-  y:   %12.4le %12.4le %12.4le\n", Ith(y,1), Ith(y,2), Ith(y,3));
+  printf("p2-  y:   %12.4le %12.4le %12.4le", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:   %12.4le\n",Ith(yQ,1));
 
   data->p2 += dp;
 
+  grdG_fwd[1] = (Gp-G)/dp;
+  grdG_bck[1] = (G-Gm)/dp;
+  grdG_cntr[1] = (Gp-Gm)/(2.0*dp);
+  H22 = (Gp - 2.0*G + Gm) / (dp*dp);
+
   printf("\n");
-  printf("grad(2):  %12.4le (fwd)\n", (Gp-G)/dp);
-  printf("          %12.4le (bck)\n", (G-Gm)/dp);
-  printf("          %12.4le (cntr)\n", (Gp-Gm)/(2.0*dp));
-  printf("H(2,2):   %12.4le\n\n", (Gp - 2.0*G + Gm) / (dp*dp));
+
+  printf("   dG/dp:  %12.4le %12.4le   (fwd FD)\n", grdG_fwd[0], grdG_fwd[1]);
+  printf("           %12.4le %12.4le   (bck FD)\n", grdG_bck[0], grdG_bck[1]);
+  printf("           %12.4le %12.4le   (cntr FD)\n", grdG_cntr[0], grdG_cntr[1]);
+  printf("\n");
+  printf("  H(1,1):  %12.4le\n", H11);
+  printf("  H(2,2):  %12.4le\n", H22);
+
 
   /* Free memory */
 
@@ -323,7 +365,8 @@ int main(int argc, char *argv[])
   N_VDestroy_Serial(y);
   N_VDestroy_Serial(yQ);
 
-  N_VDestroyVectorArray_Serial(yS, 1);
+  N_VDestroyVectorArray_Serial(yS, Np);
+  N_VDestroyVectorArray_Serial(yQS, 1);
 
   N_VDestroy_Serial(yB1);
   N_VDestroy_Serial(yQB1);
@@ -364,7 +407,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   return(0);
 }
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data)
 {
   realtype y1, y2, y3;
 
@@ -380,7 +423,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
 static int fS(int Ns, realtype t,
               N_Vector y, N_Vector ydot,
               N_Vector *yS, N_Vector *ySdot,
-              void *fS_data,
+              void *f_data,
               N_Vector tmp1, N_Vector tmp2)
 {
   UserData data;
@@ -389,7 +432,7 @@ static int fS(int Ns, realtype t,
   realtype fys1, fys2, fys3;
   realtype p1, p2;
 
-  data = (UserData) fS_data;
+  data = (UserData) f_data;
   p1 = data->p1; 
   p2 = data->p2; 
 
@@ -424,6 +467,40 @@ static int fS(int Ns, realtype t,
   Ith(ySdot[1],1) = fys1;
   Ith(ySdot[1],2) = fys2;
   Ith(ySdot[1],3) = fys3 - 2.0*p2*y2*y3;
+
+  return(0);
+}
+
+static int fQS(int Ns, realtype t,
+               N_Vector y, N_Vector *yS, 
+               N_Vector yQdot, N_Vector *yQSdot,
+               void *f_data,
+               N_Vector tmp, N_Vector tmpQ)
+{
+  realtype y1, y2, y3;
+  realtype s1, s2, s3;
+
+  y1 = Ith(y,1); 
+  y2 = Ith(y,2); 
+  y3 = Ith(y,3);
+
+
+  /* 1st sensitivity RHS */
+
+  s1 = Ith(yS[0],1);
+  s2 = Ith(yS[0],2);
+  s3 = Ith(yS[0],3);
+
+  Ith(yQSdot[0],1) = y1*s1 + y2*s2 + y3*s3;
+
+
+  /* 1st sensitivity RHS */
+
+  s1 = Ith(yS[1],1);
+  s2 = Ith(yS[1],2);
+  s3 = Ith(yS[1],3);
+
+  Ith(yQSdot[1],1) = y1*s1 + y2*s2 + y3*s3;
 
   return(0);
 }
@@ -471,7 +548,7 @@ static int fB1(realtype t, N_Vector y, N_Vector *yS,
 }
 
 static int fQB1(realtype t, N_Vector y, N_Vector *yS,
-                N_Vector yB, N_Vector qBdot, void *fQ_dataB)
+                N_Vector yB, N_Vector qBdot, void *f_dataB)
 {
   UserData data;
   realtype p1, p2;
@@ -480,7 +557,7 @@ static int fQB1(realtype t, N_Vector y, N_Vector *yS,
   realtype l1, l2, l3;  /* lambda */
   realtype m1, m2, m3;  /* mu */
   
-  data = (UserData) fQ_dataB;
+  data = (UserData) f_dataB;
   p1 = data->p1; 
   p2 = data->p2; 
 
@@ -556,7 +633,7 @@ static int fB2(realtype t, N_Vector y, N_Vector *yS,
 
 
 static int fQB2(realtype t, N_Vector y, N_Vector *yS,
-                N_Vector yB, N_Vector qBdot, void *fQ_dataB)
+                N_Vector yB, N_Vector qBdot, void *f_dataB)
 {
   UserData data;
   realtype p1, p2;
@@ -565,7 +642,7 @@ static int fQB2(realtype t, N_Vector y, N_Vector *yS,
   realtype l1, l2, l3;  /* lambda */
   realtype m1, m2, m3;  /* mu */
   
-  data = (UserData) fQ_dataB;
+  data = (UserData) f_dataB;
   p1 = data->p1; 
   p2 = data->p2; 
 
@@ -592,4 +669,99 @@ static int fQB2(realtype t, N_Vector y, N_Vector *yS,
   Ith(qBdot,4) = -2.0*p2*y2*y3 * m3 - l3 * 2.0*(p2*y3*s2 + p2*y2*s3 + y2*y3);
 
   return(0);
+}
+
+
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+void PrintFwdStats(void *cvode_mem)
+{
+  long int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nfQe, netfQ;
+  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int nfQSe, netfQS;
+
+  int qlast, qcur;
+  realtype h0u, hlast, hcur, tcur;
+
+  int flag;
+
+
+  flag = CVodeGetIntegratorStats(cvode_mem, &nst, &nfe, &nsetups, &netf, 
+                                 &qlast, &qcur,
+                                 &h0u, &hlast, &hcur,
+                                 &tcur);
+
+  flag = CVodeGetNonlinSolvStats(cvode_mem, &nni, &ncfn);
+
+  flag = CVodeGetQuadStats(cvode_mem, &nfQe, &netfQ);
+
+  flag = CVodeGetSensStats(cvode_mem, &nfSe, &nfeS, &netfS, &nsetupsS);
+
+  flag = CVodeGetSensNonlinSolvStats(cvode_mem, &nniS, &ncfnS);
+
+  flag = CVodeGetQuadSensStats(cvode_mem, &nfQSe, &netfQS);
+
+
+  printf(" Number steps: %5ld\n\n", nst);
+  printf(" Function evaluations:\n");
+  printf("  f:        %5ld\n  fQ:       %5ld\n  fS:       %5ld\n  fQS:      %5ld\n",
+         nfe, nfQe, nfSe, nfQSe);
+  printf(" Error test failures:\n");
+  printf("  netf:     %5ld\n  netfQ:    %5ld\n  netfS:    %5ld\n  netfQS:   %5ld\n",
+         netf, netfQ, netfS, netfQS);
+  printf(" Linear solver setups:\n");
+  printf("  nsetups:  %5ld\n  nsetupsS: %5ld\n", nsetups, nsetupsS);
+  printf(" Nonlinear iterations:\n");
+  printf("  nni:      %5ld\n  nniS:     %5ld\n", nni, nniS);
+  printf(" Convergence failures:\n");
+  printf("  ncfn:     %5ld\n  ncfnS:    %5ld\n", ncfn, ncfnS);
+
+  printf("\n");
+
+}
+
+
+void PrintBckStats(void *cvode_mem, int idx)
+{
+  void *cvode_mem_bck;
+
+  long int nst, nfe, nsetups, nni, ncfn, netf;
+  long int nfQe, netfQ;
+
+  int qlast, qcur;
+  realtype h0u, hlast, hcur, tcur;
+
+  int flag;
+
+  cvode_mem_bck = CVodeGetAdjCVodeBmem(cvode_mem, idx);
+
+  flag = CVodeGetIntegratorStats(cvode_mem_bck, &nst, &nfe, &nsetups, &netf, 
+                                 &qlast, &qcur,
+                                 &h0u, &hlast, &hcur,
+                                 &tcur);
+
+  flag = CVodeGetNonlinSolvStats(cvode_mem_bck, &nni, &ncfn);
+
+  flag = CVodeGetQuadStats(cvode_mem_bck, &nfQe, &netfQ);
+
+  printf(" Number steps: %5ld\n\n", nst);
+  printf(" Function evaluations:\n");
+  printf("  f:        %5ld\n  fQ:       %5ld\n", nfe, nfQe);
+  printf(" Error test failures:\n");
+  printf("  netf:     %5ld\n  netfQ:    %5ld\n", netf, netfQ);
+  printf(" Linear solver setups:\n");
+  printf("  nsetups:  %5ld\n", nsetups);
+  printf(" Nonlinear iterations:\n");
+  printf("  nni:      %5ld\n", nni);
+  printf(" Convergence failures:\n");
+  printf("  ncfn:     %5ld\n", ncfn);
+
+  printf("\n");
+
+
 }

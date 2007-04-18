@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-22 18:05:51 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-18 19:24:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -114,7 +114,7 @@ int CVDense(void *cvode_mem, int N)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVSDENSE", "CVDense", MSGD_CVMEM_NULL);
+    cvProcessError(NULL, CVDIRECT_MEM_NULL, "CVSDENSE", "CVDense", MSGD_CVMEM_NULL);
     return(CVDIRECT_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -122,7 +122,7 @@ int CVDense(void *cvode_mem, int N)
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL ||
       vec_tmpl->ops->nvsetarraypointer == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSDENSE", "CVDense", MSGD_BAD_NVECTOR);
+    cvProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSDENSE", "CVDense", MSGD_BAD_NVECTOR);
     return(CVDIRECT_ILL_INPUT);
   }
 
@@ -138,7 +138,7 @@ int CVDense(void *cvode_mem, int N)
   cvdls_mem = NULL;
   cvdls_mem = (CVDlsMem) malloc(sizeof(CVDlsMemRec));
   if (cvdls_mem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
     return(CVDIRECT_MEM_FAIL);
   }
 
@@ -160,14 +160,14 @@ int CVDense(void *cvode_mem, int N)
   M = NULL;
   M = NewDenseMat(N, N);
   if (M == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDIRECT_MEM_FAIL);
   }
   savedJ = NULL;
   savedJ = NewDenseMat(N, N);
   if (savedJ == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDIRECT_MEM_FAIL);
@@ -175,7 +175,7 @@ int CVDense(void *cvode_mem, int N)
   pivots = NULL;
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyMat(savedJ);
     free(cvdls_mem); cvdls_mem = NULL;
@@ -264,7 +264,7 @@ static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
     retval = jac(n, tn, ypred, fpred, M, J_data, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
-      CVProcessError(cv_mem, CVDIRECT_JACFUNC_UNRECVR, "CVSDENSE", "cvDenseSetup", MSGD_JACFUNC_FAILED);
+      cvProcessError(cv_mem, CVDIRECT_JACFUNC_UNRECVR, "CVSDENSE", "cvDenseSetup", MSGD_JACFUNC_FAILED);
       last_flag = CVDIRECT_JACFUNC_UNRECVR;
       return(-1);
     }
@@ -364,21 +364,21 @@ int CVDenseB(void *cvode_mem, int which, int nB)
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVSDENSE", "CVDenseB", MSGD_CVMEM_NULL);
+    cvProcessError(NULL, CVDIRECT_MEM_NULL, "CVSDENSE", "CVDenseB", MSGD_CVMEM_NULL);
     return(CVDIRECT_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    CVProcessError(cv_mem, CVDIRECT_NO_ADJ, "CVSDENSE", "CVDenseB", MSGD_NO_ADJ);
+    cvProcessError(cv_mem, CVDIRECT_NO_ADJ, "CVSDENSE", "CVDenseB", MSGD_NO_ADJ);
     return(CVDIRECT_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= ca_mem->ca_nbckpbs ) {
-    CVProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSDENSE", "CVDenseB", MSGD_BAD_WHICH);
+    cvProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSDENSE", "CVDenseB", MSGD_BAD_WHICH);
     return(CVDIRECT_ILL_INPUT);
   }
 
@@ -394,7 +394,7 @@ int CVDenseB(void *cvode_mem, int which, int nB)
   /* Get memory for CVDlsMemRecB */
   cvdlsB_mem = (CVDlsMemB) malloc(sizeof(CVDlsMemRecB));
   if (cvdlsB_mem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDenseB", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDenseB", MSGD_MEM_FAIL);
     return(CVDIRECT_MEM_FAIL);
   }
 

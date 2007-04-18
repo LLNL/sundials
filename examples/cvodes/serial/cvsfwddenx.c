@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-21 18:56:40 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-18 19:24:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -97,7 +97,7 @@ static int Jac(int N, realtype t,
 
 static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
               int iS, N_Vector yS, N_Vector ySdot, 
-              void *fS_data, N_Vector tmp1, N_Vector tmp2);
+              void *f_data, N_Vector tmp1, N_Vector tmp2);
 
 static int ewt(N_Vector y, N_Vector w, void *e_data);
 
@@ -191,11 +191,9 @@ int main(int argc, char *argv[])
     if (check_flag((void *)yS, "N_VCloneVectorArray_Serial", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
 
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, yS);
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, CV_ONESENS, fS, yS);
     if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
 
-    flag = CVodeSetSensRhs1Fn(cvode_mem, fS, data);
-    if (check_flag(&flag, "CVodeSetSensRhs1Fn", 1)) return(1);
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if (check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
     flag = CVodeSetSensParams(cvode_mem, NULL, pbar, NULL);
@@ -316,7 +314,7 @@ static int Jac(int N, realtype t,
 
 static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
               int iS, N_Vector yS, N_Vector ySdot, 
-              void *fS_data, N_Vector tmp1, N_Vector tmp2)
+              void *f_data, N_Vector tmp1, N_Vector tmp2)
 {
   UserData data;
   realtype p1, p2, p3;
@@ -324,7 +322,7 @@ static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
   realtype s1, s2, s3;
   realtype sd1, sd2, sd3;
 
-  data = (UserData) fS_data;
+  data = (UserData) f_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
   y1 = Ith(y,1);  y2 = Ith(y,2);  y3 = Ith(y,3);

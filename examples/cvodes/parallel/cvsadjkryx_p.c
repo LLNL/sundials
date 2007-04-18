@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-22 18:05:53 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-18 19:24:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -170,7 +170,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 static int f_local(int Nlocal, realtype t, N_Vector y, 
                    N_Vector ydot, void *f_data);
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data);
 
 
 static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
@@ -180,7 +180,7 @@ static int fB_local(int NlocalB, realtype t,
                     void *f_dataB);
 
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
-               N_Vector qBdot, void *fQ_dataB);
+               N_Vector qBdot, void *f_dataB);
 
 /*
  *------------------------------------------------------------------
@@ -289,7 +289,6 @@ int main(int argc, char *argv[])
   abstolQ = ATOL_Q;
   reltolQ = RTOL_Q;
   flag = CVodeQuadMalloc(cvode_mem, fQ, q);
-  flag = CVodeSetQuadFdata(cvode_mem, d);
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ); 
 
   /* Allocate space for the adjoint calculation */
@@ -345,7 +344,6 @@ int main(int argc, char *argv[])
   abstolQB = ATOL_QB;
   reltolQB = RTOL_QB;
   flag = CVodeQuadMallocB(cvode_mem, indexB, fQB, qB);
-  flag = CVodeSetQuadFdataB(cvode_mem, indexB, d);
   flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE, CV_SS, reltolQB, &abstolQB); 
 
   /* Integrate backwards */
@@ -794,12 +792,12 @@ static int f_local(int Nlocal, realtype t, N_Vector y,
  *------------------------------------------------------------------
  */
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data)
 {
   ProblemData d;
   realtype *dqdata;
 
-  d = (ProblemData) fQ_data;
+  d = (ProblemData) f_data;
 
   dqdata = NV_DATA_P(qdot);
 
@@ -935,11 +933,11 @@ static int fB_local(int NlocalB, realtype t,
  */
 
 static int fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, 
-               void *fQ_dataB)
+               void *f_dataB)
 {
   ProblemData d;
 
-  d = (ProblemData) fQ_dataB;
+  d = (ProblemData) f_dataB;
 
   N_VScale_Parallel(-(d->dOmega), yB, qBdot);
 

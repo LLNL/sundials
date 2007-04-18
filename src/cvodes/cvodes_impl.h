@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-06 20:18:12 $
+ * $Revision: 1.11 $
+ * $Date: 2007-04-18 19:24:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -46,19 +46,6 @@ extern "C" {
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
-/*                                                                
- * ifS is the type of the function returning the sensitivity
- * right-hand side. ifS can be either CV_ALLSENS if the function    
- * (of type CVSensRhsFn) returns right hand sides for all    
- * sensitivity systems at once, or CV_ONESENS if the function 
- * (of type SensRhs1Fn) returns the right hand side of one 
- *  sensitivity system at a time.                           
- */
-
-#define CV_ONESENS 1
-#define CV_ALLSENS 2
-
-
 /* 
  * =================================================================
  *   F O R W A R D   P O I N T E R   R E F E R E N C E S
@@ -96,10 +83,11 @@ typedef struct CVodeMemRec {
 
   CVRhsFn cv_f;            /* y' = f(t,y(t))                               */
   void *cv_f_data;         /* user pointer passed to f                     */
+
   int cv_lmm;              /* lmm = ADAMS or BDF                           */
   int cv_iter;             /* iter = FUNCTIONAL or NEWTON                  */
-  int cv_itol;             /* itol = SS or SV                              */
 
+  int cv_itol;             /* itol = CV_SS, CV_SV, or CV_WF                */
   realtype cv_reltol;      /* relative tolerance                           */
   realtype cv_Sabstol;     /* scalar absolute tolerance                    */
   N_Vector cv_Vabstol;     /* vector absolute tolerance                    */
@@ -112,11 +100,12 @@ typedef struct CVodeMemRec {
 
   booleantype cv_quadr;    /* TRUE if integrating quadratures              */
 
-  CVQuadRhsFn cv_fQ;
+  CVQuadRhsFn cv_fQ;       /* q' = fQ(t, y(t))                             */
   void *cv_fQ_data;        /* user pointer passed to fQ                    */
-  int cv_itolQ;
-  booleantype cv_errconQ;
 
+  booleantype cv_errconQ;  /* TRUE if quadrs. are included in error test   */
+
+  int cv_itolQ;            /* itolQ = CV_SS or CV_SV                       */
   realtype cv_reltolQ;     /* relative tolerance for quadratures           */
   realtype cv_SabstolQ;    /* scalar absolute tolerance for quadratures    */
   N_Vector cv_VabstolQ;    /* vector absolute tolerance for quadratures    */
@@ -133,9 +122,8 @@ typedef struct CVodeMemRec {
 
   CVSensRhsFn cv_fS;       /* fS = (df/dy)*yS + (df/dp)                    */
   CVSensRhs1Fn cv_fS1;     /* fS1 = (df/dy)*yS_i + (df/dp)                 */
-  void *cv_user_fS_data;   /* user data pointer for fS                     */
-  void *cv_fS_data;        /* actual data pointer passed to fS             */
-  booleantype cv_fSDQ;
+  void *cv_fS_data;        /* data pointer passed to fS                    */
+  booleantype cv_fSDQ;     /* TRUE if using internal DQ functions          */
   int cv_ifS;              /* ifS = ALLSENS or ONESENS                     */
 
   realtype *cv_p;          /* parameters in f(t,y,p)                       */
@@ -144,12 +132,29 @@ typedef struct CVodeMemRec {
   int cv_DQtype;           /* central/forward finite differences           */
   realtype cv_DQrhomax;    /* cut-off value for separate/simultaneous FD   */
 
-  booleantype cv_errconS;  /* TRUE if sensitivities are in err. control    */
+  booleantype cv_errconS;  /* TRUE if yS are considered in err. control    */
 
   int cv_itolS;
   realtype cv_reltolS;     /* relative tolerance for sensitivities         */
   realtype *cv_SabstolS;   /* scalar absolute tolerances for sensi.        */
   N_Vector *cv_VabstolS;   /* vector absolute tolerances for sensi.        */
+
+  /*-----------------------------------
+    Quadrature Sensitivity Related Data 
+    -----------------------------------*/
+
+  booleantype cv_quadr_sensi; /* TRUE if computing sensitivties of quadrs. */
+
+  CVQuadSensRhsFn cv_fQS;     /* fQS = (dfQ/dy)*yS + (dfQ/dp)              */
+  void *cv_fQS_data;          /* data pointer passed to fQS                */
+  booleantype cv_fQSDQ;       /* TRUE if using internal DQ functions       */
+
+  booleantype cv_errconQS;    /* TRUE if yQS are considered in err. con.   */
+
+  int cv_itolQS;
+  realtype cv_reltolQS;       /* relative tolerance for yQS                */
+  realtype *cv_SabstolQS;     /* scalar absolute tolerances for yQS        */
+  N_Vector *cv_VabstolQS;     /* vector absolute tolerances for yQS        */
 
   /*-----------------------
     Nordsieck History Array 
@@ -197,15 +202,23 @@ typedef struct CVodeMemRec {
   N_Vector *cv_tempvS;     /* temporary storage vector (~ tempv)           */
   N_Vector *cv_ftempS;     /* temporary storage vector (~ ftemp)           */
 
-  /*-----------------------------------------------
-    Does CVodeSensMalloc allocate additional space?
-    -----------------------------------------------*/  
-
   booleantype cv_stgr1alloc; /* Did we allocate ncfS1, ncfnS1, and nniS1?  */
 
+  /*--------------------------------------
+    Quadrature Sensitivity Related Vectors 
+    --------------------------------------*/
+
+  N_Vector *cv_znQS[L_MAX]; /* Nordsieck arrays for quadr. sensitivities   */
+  N_Vector *cv_ewtQS;       /* error weight vectors for sensitivities      */
+  N_Vector *cv_yQS;         /* Unlike yS, yQS is not allocated by the user */
+  N_Vector *cv_acorQS;      /* acorQS = yQS_n(m) - yQS_n(0)                */
+  N_Vector *cv_tempvQS;     /* temporary storage vector (~ tempv)          */
+  N_Vector cv_ftempQ;       /* temporary storage vector (~ ftemp)          */
+  
   /*-----------------
     Tstop information
     -----------------*/
+
   booleantype cv_istop;
   booleantype cv_tstopset;
   realtype cv_tstop;
@@ -215,11 +228,11 @@ typedef struct CVodeMemRec {
     ---------*/
 
   int cv_q;                    /* current order                            */
-  int cv_qprime;               /* order to be used on the next step        */ 
-  /* = q-1, q, or q+1                         */
+  int cv_qprime;               /* order to be used on the next step
+                                * qprime = q-1, q, or q+1                  */
   int cv_next_q;               /* order to be used on the next step        */
-  int cv_qwait;                /* number of internal steps to wait before  */
-  /* considering a change in q                */
+  int cv_qwait;                /* number of internal steps to wait before
+                                * considering a change in q                */
   int cv_L;                    /* L = q + 1                                */
 
   realtype cv_hin;
@@ -232,9 +245,9 @@ typedef struct CVodeMemRec {
   realtype cv_tretlast;        /* last value of t returned                 */
 
   realtype cv_tau[L_MAX+1];    /* array of previous q+1 successful step
-				  sizes indexed from 1 to q+1              */
+                                * sizes indexed from 1 to q+1              */
   realtype cv_tq[NUM_TESTS+1]; /* array of test quantities indexed from
-				  1 to NUM_TESTS(=5)                       */
+                                * 1 to NUM_TESTS(=5)                       */
   realtype cv_l[L_MAX];        /* coefficients of l(x) (degree q poly)     */
 
   realtype cv_rl1;             /* the scalar 1/l[1]                        */
@@ -245,12 +258,13 @@ typedef struct CVodeMemRec {
   realtype cv_crate;           /* est. corrector conv. rate in Nls         */
   realtype cv_crateS;          /* est. corrector conv. rate in NlsStgr     */
   realtype cv_acnrm;           /* | acor |                                 */
-  realtype cv_acnrmS;          /* | acorS |                                */
   realtype cv_acnrmQ;          /* | acorQ |                                */
+  realtype cv_acnrmS;          /* | acorS |                                */
+  realtype cv_acnrmQS;         /* | acorQS |                               */
   realtype cv_nlscoef;         /* coeficient in nonlinear convergence test */
   int  cv_mnewt;               /* Newton iteration counter                 */
   int  *cv_ncfS1;              /* Array of Ns local counters for conv.  
-				  failures (used in CVStep for STAGGERED1) */
+                                * failures (used in CVStep for STAGGERED1) */
 
   /*------
     Limits 
@@ -277,10 +291,14 @@ typedef struct CVodeMemRec {
     ----------*/
 
   long int cv_nst;         /* number of internal steps taken               */
+
   long int cv_nfe;         /* number of f calls                            */
-  long int cv_nfSe;        /* number of fS calls                           */
   long int cv_nfQe;        /* number of fQ calls                           */
+  long int cv_nfSe;        /* number of fS calls                           */
   long int cv_nfeS;        /* number of f calls from sensi DQ              */
+  long int cv_nfQSe;       /* number of fQS calls                          */
+  long int cv_nfQeS;       /* number of fQ calls from sensi DQ             */
+
 
   long int cv_ncfn;        /* number of corrector convergence failures     */
   long int cv_ncfnS;       /* number of total sensi. corr. conv. failures  */
@@ -291,8 +309,9 @@ typedef struct CVodeMemRec {
   long int *cv_nniS1;      /* number of sensi. nonlinear iterations        */
 
   long int cv_netf;        /* number of error test failures                */
-  long int cv_netfS;       /* number of sensi. error test failures         */
   long int cv_netfQ;       /* number of quadr. error test failures         */
+  long int cv_netfS;       /* number of sensi. error test failures         */
+  long int cv_netfQS;      /* number of quadr. sensi. error test failures  */
 
   long int cv_nsetups;     /* number of setup calls                        */
   long int cv_nsetupsS;    /* number of setup calls due to sensitivities   */
@@ -355,9 +374,10 @@ typedef struct CVodeMemRec {
   realtype cv_saved_tq5; /* saved value of tq[5]                                */
   booleantype cv_jcur;   /* Is the Jacobian info used by linear solver current? */
   realtype cv_tolsf;     /* tolerance scale factor                              */
-  int cv_qmax_alloc;     /* value of qmax used when allocating memory           */
-  int cv_qmax_allocQ;    /* value of qmax used when allocating quad. memory     */
-  int cv_qmax_allocS;    /* value of qmax used when allocating sensi. memory    */
+  int cv_qmax_alloc;     /* value of qmax used when allocating mem              */
+  int cv_qmax_allocQ;    /* value of qmax used when allocating quad. mem        */
+  int cv_qmax_allocS;    /* value of qmax used when allocating sensi. mem       */
+  int cv_qmax_allocQS;   /* value of qmax used when allocating quad. sensi. mem */
   int cv_indx_acor;      /* index of the zn vector in which acor is saved       */
   booleantype cv_setupNonNull; /* Does setup do something?                      */
 
@@ -370,11 +390,15 @@ typedef struct CVodeMemRec {
   booleantype cv_MallocDone;
 
   booleantype cv_VabstolQMallocDone;
-  booleantype cv_quadMallocDone;
+  booleantype cv_QuadMallocDone;
 
   booleantype cv_VabstolSMallocDone;
   booleantype cv_SabstolSMallocDone;
-  booleantype cv_sensMallocDone;
+  booleantype cv_SensMallocDone;
+
+  booleantype cv_VabstolQSMallocDone;
+  booleantype cv_SabstolQSMallocDone;
+  booleantype cv_QuadSensMallocDone;
 
   /*-------------------------------------------
     Error handler function and error ouput file 
@@ -466,6 +490,12 @@ struct CkpntMemRec {
 
   /* Nordsieck History Array for sensitivities */
   N_Vector *ck_znS[L_MAX];
+
+  /* Do we need to carry quadrature sensitivities? */
+  booleantype ck_quadr_sensi;
+
+  /* Nordsieck History Array for quadrature sensitivities */
+  N_Vector *ck_znQS[L_MAX];
     
   /* Was ck_zn[qmax] allocated?
      ck_zqm = 0    - no
@@ -576,17 +606,14 @@ struct CVodeBMemRec {
 
   /* Right hand side function for backward run */
   CVRhsFnB cv_f;
-  CVRhsFnBs cv_fs;
+  CVRhsFnBS cv_fs;
 
   /* Right hand side quadrature function for backward run */
   CVQuadRhsFnB cv_fQ;
-  CVQuadRhsFnBs cv_fQs;
+  CVQuadRhsFnBS cv_fQs;
 
   /* User f_data */
   void *cv_f_data;
-    
-  /* User fQ_data */
-  void *cv_fQ_data;
     
   /* Memory block for a linear solver's interface to CVODEA */
   void *cv_lmem;
@@ -849,44 +876,44 @@ struct CVadjMemRec {
   
 /* Prototype of internal ewtSet function */
 
-int CVEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
+int cvEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
 
 /* High level error handler */
 
-void CVProcessError(CVodeMem cv_mem, 
+void cvProcessError(CVodeMem cv_mem, 
 		    int error_code, const char *module, const char *fname, 
 		    const char *msgfmt, ...);
 
 /* Prototype of internal errHandler function */
 
-void CVErrHandler(int error_code, const char *module, const char *function, 
+void cvErrHandler(int error_code, const char *module, const char *function, 
 		  char *msg, void *eh_data);
 
 /* Prototypes for internal sensitivity rhs wrappers */
 
-int CVSensRhs(CVodeMem cv_mem, realtype time, 
-              N_Vector ycur, N_Vector fcur, 
-              N_Vector *yScur, N_Vector *fScur,
-              N_Vector temp1, N_Vector temp2);
+int cvSensRhsWrapper(CVodeMem cv_mem, realtype time, 
+                     N_Vector ycur, N_Vector fcur, 
+                     N_Vector *yScur, N_Vector *fScur,
+                     N_Vector temp1, N_Vector temp2);
 
-int CVSensRhs1(CVodeMem cv_mem, realtype time, 
-               N_Vector ycur, N_Vector fcur, 
-               int is, N_Vector yScur, N_Vector fScur,
-               N_Vector temp1, N_Vector temp2);
+int cvSensRhs1Wrapper(CVodeMem cv_mem, realtype time, 
+                      N_Vector ycur, N_Vector fcur, 
+                      int is, N_Vector yScur, N_Vector fScur,
+                      N_Vector temp1, N_Vector temp2);
 
 /* Prototypes for internal sensitivity rhs DQ functions */
 
-int CVSensRhsDQ(int Ns, realtype t, 
-		N_Vector y, N_Vector ydot, 
-		N_Vector *yS, N_Vector *ySdot, 
-		void *fS_data,  
-		N_Vector tempv, N_Vector ftemp);
+int cvSensRhsInternalDQ(int Ns, realtype t, 
+                        N_Vector y, N_Vector ydot, 
+                        N_Vector *yS, N_Vector *ySdot, 
+                        void *fS_data,  
+                        N_Vector tempv, N_Vector ftemp);
 
-int CVSensRhs1DQ(int Ns, realtype t, 
-		 N_Vector y, N_Vector ydot, 
-		 int is, N_Vector yS, N_Vector ySdot, 
-		 void *fS_data,
-		 N_Vector tempv, N_Vector ftemp);
+int cvSensRhs1InternalDQ(int Ns, realtype t, 
+                         N_Vector y, N_Vector ydot, 
+                         int is, N_Vector yS, N_Vector ySdot, 
+                         void *fS_data,
+                         N_Vector tempv, N_Vector ftemp);
 
 /* 
  * =================================================================
@@ -946,13 +973,13 @@ int CVSensRhs1DQ(int Ns, realtype t,
 #define MSGCV_BAD_T "Illegal value for t." MSG_TIME_INT
 #define MSGCV_NO_ROOT "Rootfinding was not initialized."
 
-#define MSGCV_NO_QUAD  "Illegal attempt to call before calling CVodeQuadMalloc."
+#define MSGCV_NO_QUAD  "Quadrature integration not activated."
 #define MSGCV_BAD_ITOLQ "Illegal value for itolQ. The legal values are CV_SS and CV_SV."
 #define MSGCV_NULL_ABSTOLQ "abstolQ = NULL illegal."
 #define MSGCV_BAD_RELTOLQ "reltolQ < 0 illegal."
 #define MSGCV_BAD_ABSTOLQ "abstolQ has negative component(s) (illegal)."  
 
-#define MSGCV_NO_SENSI  "Illegal attempt to call before calling CVodeSensMalloc."
+#define MSGCV_NO_SENSI  "Forward sensitivity analysis not activated."
 #define MSGCV_BAD_ITOLS "Illegal value for itolS. The legal values are CV_SS, CV_SV, and CV_EE."
 #define MSGCV_NULL_ABSTOLS "abstolS = NULL illegal."
 #define MSGCV_BAD_RELTOLS "reltolS < 0 illegal."
@@ -962,10 +989,19 @@ int CVSensRhs1DQ(int Ns, realtype t,
 #define MSGCV_BAD_NS "NS <= 0 illegal."
 #define MSGCV_NULL_YS0 "yS0 = NULL illegal."
 #define MSGCV_BAD_ISM "Illegal value for ism. Legal values are: CV_SIMULTANEOUS, CV_STAGGERED and CV_STAGGERED1."
+#define MSGCV_BAD_IFS "Illegal value for ifS. Legal values are: CV_ALLSENS and CV_ONESENS."
+#define MSGCV_BAD_ISM_IFS "Illegal combination ism = CV_STAGGERED1 and fS_type = CV_ALLSENS."
 #define MSGCV_BAD_IS "Illegal value for is."
 #define MSGCV_NULL_DKYA "dkyA = NULL illegal."
 #define MSGCV_BAD_DQTYPE "Illegal value for DQtype. Legal values are: CV_CENTERED and CV_FORWARD."
 #define MSGCV_BAD_DQRHO "DQrhomax < 0 illegal."
+
+#define MSGCV_BAD_ITOLQS "Illegal value for itolQS. The legal values are CV_SS, CV_SV, and CV_EE."
+#define MSGCV_NULL_ABSTOLQS "abstolQS = NULL illegal."
+#define MSGCV_BAD_RELTOLQS "reltolQS < 0 illegal."
+#define MSGCV_BAD_ABSTOLQS "abstolQS has negative component(s) (illegal)."  
+#define MSGCV_NO_QUADSENSI  "Forward sensitivity analysis for quadrature variables not activated."
+#define MSGCV_NULL_YQS0 "yQS0 = NULL illegal."
 
 /* CVode Error Messages */
 
@@ -994,7 +1030,7 @@ int CVSensRhs1DQ(int Ns, realtype t,
 #define MSGCV_SOLVE_FAILED "At " MSG_TIME ", the solve routine failed in an unrecoverable manner."
 #define MSGCV_RHSFUNC_FAILED "At " MSG_TIME ", the right-hand side routine failed in an unrecoverable manner."
 #define MSGCV_RHSFUNC_UNREC "At " MSG_TIME ", the right-hand side failed in a recoverable manner, but no recovery is possible."
-#define MSGCV_RHSFUNC_REPTD "At " MSG_TIME "repeated recoverable right-hand side function errors."
+#define MSGCV_RHSFUNC_REPTD "At " MSG_TIME " repeated recoverable right-hand side function errors."
 #define MSGCV_RHSFUNC_FIRST "The right-hand side routine failed at the first call."
 #define MSGCV_RTFUNC_FAILED "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSGCV_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
@@ -1004,17 +1040,25 @@ int CVSensRhs1DQ(int Ns, realtype t,
 #define MSGCV_EWTQ_NOW_BAD "At " MSG_TIME ", a component of ewtQ has become <= 0."
 #define MSGCV_QRHSFUNC_FAILED "At " MSG_TIME ", the quadrature right-hand side routine failed in an unrecoverable manner."
 #define MSGCV_QRHSFUNC_UNREC "At " MSG_TIME ", the quadrature right-hand side failed in a recoverable manner, but no recovery is possible."
-#define MSGCV_QRHSFUNC_REPTD "At " MSG_TIME "repeated recoverable quadrature right-hand side function errors."
+#define MSGCV_QRHSFUNC_REPTD "At " MSG_TIME " repeated recoverable quadrature right-hand side function errors."
 #define MSGCV_QRHSFUNC_FIRST "The quadrature right-hand side routine failed at the first call."
 
-#define MSGCV_BAD_ISM_IFS "Illegal sens. rhs for ism = CV_STAGGERED1."
 #define MSGCV_NULL_P "p = NULL when using internal DQ for sensitivity RHS illegal."
 #define MSGCV_BAD_EWTS "Initial ewtS has component(s) equal to zero (illegal)."
 #define MSGCV_EWTS_NOW_BAD "At " MSG_TIME ", a component of ewtS has become <= 0."
 #define MSGCV_SRHSFUNC_FAILED "At " MSG_TIME ", the sensitivity right-hand side routine failed in an unrecoverable manner."
 #define MSGCV_SRHSFUNC_UNREC "At " MSG_TIME ", the sensitivity right-hand side failed in a recoverable manner, but no recovery is possible."
-#define MSGCV_SRHSFUNC_REPTD "At " MSG_TIME "repeated recoverable sensitivity right-hand side function errors."
+#define MSGCV_SRHSFUNC_REPTD "At " MSG_TIME " repeated recoverable sensitivity right-hand side function errors."
 #define MSGCV_SRHSFUNC_FIRST "The sensitivity right-hand side routine failed at the first call."
+
+#define MSGCV_NULL_FQ "CVODES is expected to use DQ to evaluate the RHS of quad. sensi., but quadratures were not initialized."
+#define MSGCV_BAD_EWTQS "Initial ewtQS has component(s) equal to zero (illegal)."
+#define MSGCV_EWTQS_NOW_BAD "At " MSG_TIME ", a component of ewtQS has become <= 0."
+#define MSGCV_QSRHSFUNC_FAILED "At " MSG_TIME ", the quadrature sensitivity right-hand side routine failed in an unrecoverable manner."
+#define MSGCV_QSRHSFUNC_UNREC "At " MSG_TIME ", the quadrature sensitivity right-hand side failed in a recoverable manner, but no recovery is possible."
+#define MSGCV_QSRHSFUNC_REPTD "At " MSG_TIME " repeated recoverable quadrature sensitivity right-hand side function errors."
+#define MSGCV_QSRHSFUNC_FIRST "The quadrature sensitivity right-hand side routine failed at the first call."
+
 
 /* 
  * =================================================================

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-06 20:18:12 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-18 19:24:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -130,14 +130,14 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPILS_MEM_NULL, "CVSPTFQMR", "CVSptfqmr", MSGS_CVMEM_NULL);
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPTFQMR", "CVSptfqmr", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Check if N_VDotProd is present */
   if (vec_tmpl->ops->nvdotprod == NULL) {
-    CVProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPTFQMR", "CVSptfqmr", MSGS_BAD_NVECTOR);
+    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPTFQMR", "CVSptfqmr", MSGS_BAD_NVECTOR);
     return(CVSPILS_ILL_INPUT);
   }
 
@@ -153,7 +153,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   cvspils_mem = NULL;
   cvspils_mem = (CVSpilsMem) malloc(sizeof(CVSpilsMemRec));
   if (cvspils_mem == NULL) {
-    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGS_MEM_FAIL);
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGS_MEM_FAIL);
     return(CVSPILS_MEM_FAIL);
   }
 
@@ -178,20 +178,20 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    CVProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPTFQMR", "CVSptfqmr", MSGS_BAD_PRETYPE);
+    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPTFQMR", "CVSptfqmr", MSGS_BAD_PRETYPE);
     return(CVSPILS_ILL_INPUT);
   }
 
   /* Allocate memory for ytemp and x */
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
-    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGS_MEM_FAIL);
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGS_MEM_FAIL);
     free(cvspils_mem); cvspils_mem = NULL;
     return(CVSPILS_MEM_FAIL);
   }
   x = N_VClone(vec_tmpl);
   if (x == NULL) {
-    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGS_MEM_FAIL);
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
     free(cvspils_mem); cvspils_mem = NULL;
     return(CVSPILS_MEM_FAIL);
@@ -205,7 +205,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   sptfqmr_mem = NULL;
   sptfqmr_mem = SptfqmrMalloc(mxl, vec_tmpl);
   if (sptfqmr_mem == NULL) {
-    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGS_MEM_FAIL);
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(x);
     free(cvspils_mem); cvspils_mem = NULL;
@@ -255,7 +255,7 @@ static int CVSptfqmrInit(CVodeMem cv_mem)
 
   /* Check for legal combination pretype - psolve */
   if ((pretype != PREC_NONE) && (psolve == NULL)) {
-    CVProcessError(cv_mem, -1, "CVSPTFQMR", "CVSptfqmrInit", MSGS_PSOLVE_REQ);
+    cvProcessError(cv_mem, -1, "CVSPTFQMR", "CVSptfqmrInit", MSGS_PSOLVE_REQ);
     last_flag = CVSPILS_ILL_INPUT;
     return(-1);
   }
@@ -314,7 +314,7 @@ static int CVSptfqmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   retval = pset(tn, ypred, fpred, jok, jcurPtr, gamma, P_data, 
                 vtemp1, vtemp2, vtemp3);
   if (retval < 0) {
-    CVProcessError(cv_mem, SPTFQMR_PSET_FAIL_UNREC, "CVSPTFQMR", "CVSptfqmrSetup", MSGS_PSET_FAILED);
+    cvProcessError(cv_mem, SPTFQMR_PSET_FAIL_UNREC, "CVSPTFQMR", "CVSptfqmrSetup", MSGS_PSET_FAILED);
     last_flag = SPTFQMR_PSET_FAIL_UNREC;
   }
   if (retval > 0) {
@@ -424,11 +424,11 @@ static int CVSptfqmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     return(-1);
     break;
   case SPTFQMR_ATIMES_FAIL_UNREC:
-    CVProcessError(cv_mem, SPTFQMR_ATIMES_FAIL_UNREC, "CVSPTFQMR", "CVSptfqmrSolve", MSGS_JTIMES_FAILED);    
+    cvProcessError(cv_mem, SPTFQMR_ATIMES_FAIL_UNREC, "CVSPTFQMR", "CVSptfqmrSolve", MSGS_JTIMES_FAILED);    
     return(-1);
     break;
   case SPTFQMR_PSOLVE_FAIL_UNREC:
-    CVProcessError(cv_mem, SPTFQMR_PSOLVE_FAIL_UNREC, "CVSPTFQMR", "CVSptfqmrSolve", MSGS_PSOLVE_FAILED);
+    cvProcessError(cv_mem, SPTFQMR_PSOLVE_FAIL_UNREC, "CVSPTFQMR", "CVSptfqmrSolve", MSGS_PSOLVE_FAILED);
     return(-1);
     break;
   }
@@ -495,21 +495,21 @@ int CVSptfqmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPILS_MEM_NULL, "CVSPTFQMR", "CVSptfqmrB", MSGS_CVMEM_NULL);
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPTFQMR", "CVSptfqmrB", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    CVProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSPTFQMR", "CVSptfqmrB", MSGS_NO_ADJ);
+    cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSPTFQMR", "CVSptfqmrB", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= ca_mem->ca_nbckpbs ) {
-    CVProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPTFQMR", "CVSptfqmrB", MSGS_BAD_WHICH);
+    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPTFQMR", "CVSptfqmrB", MSGS_BAD_WHICH);
     return(CVSPILS_ILL_INPUT);
   }
 
@@ -526,7 +526,7 @@ int CVSptfqmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
   cvspilsB_mem = NULL;
   cvspilsB_mem = (CVSpilsMemB) malloc(sizeof(CVSpilsMemRecB));
   if (cvspilsB_mem == NULL) {
-    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmrB", MSGS_MEM_FAIL);
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPTFQMR", "CVSptfqmrB", MSGS_MEM_FAIL);
     return(CVSPILS_MEM_FAIL);
   }
 

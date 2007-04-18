@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-21 18:56:38 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-18 19:24:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
     for(is=0;is<NS;is++)
       N_VConst(ZERO,uS[is]);
 
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, uS);
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, CV_ONESENS, NULL, uS);
     if(check_flag(&flag, "CVodeSensMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);

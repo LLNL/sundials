@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-22 18:05:51 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-18 19:24:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -119,14 +119,14 @@ int CVBand(void *cvode_mem, int N, int mupper, int mlower)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVSBAND", "CVBand", MSGD_CVMEM_NULL);
+    cvProcessError(NULL, CVDIRECT_MEM_NULL, "CVSBAND", "CVBand", MSGD_CVMEM_NULL);
     return(CVDIRECT_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSBAND", "CVBand", MSGD_BAD_NVECTOR);
+    cvProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSBAND", "CVBand", MSGD_BAD_NVECTOR);
     return(CVDIRECT_ILL_INPUT);
   }
 
@@ -142,7 +142,7 @@ int CVBand(void *cvode_mem, int N, int mupper, int mlower)
   cvdls_mem = NULL;
   cvdls_mem = (CVDlsMem) malloc(sizeof(CVDlsMemRec));
   if (cvdls_mem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
     return(CVDIRECT_MEM_FAIL);
   }
 
@@ -165,7 +165,7 @@ int CVBand(void *cvode_mem, int N, int mupper, int mlower)
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    CVProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSBAND", "CVBand", MSGD_BAD_SIZES);
+    cvProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSBAND", "CVBand", MSGD_BAD_SIZES);
     return(CVDIRECT_ILL_INPUT);
   }
 
@@ -176,14 +176,14 @@ int CVBand(void *cvode_mem, int N, int mupper, int mlower)
   M = NULL;
   M = NewBandMat(N, mu, ml, smu);
   if (M == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDIRECT_MEM_FAIL);
   }
   savedJ = NULL;
   savedJ = NewBandMat(N, mu, ml, mu);
   if (savedJ == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDIRECT_MEM_FAIL);
@@ -191,7 +191,7 @@ int CVBand(void *cvode_mem, int N, int mupper, int mlower)
   pivots = NULL;
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSBAND", "CVBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyMat(savedJ);
     free(cvdls_mem); cvdls_mem = NULL;
@@ -280,7 +280,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
     retval = jac(n, mu, ml, tn, ypred, fpred, M, J_data, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
-      CVProcessError(cv_mem, CVDIRECT_JACFUNC_UNRECVR, "CVSBAND", "cvBandSetup", MSGD_JACFUNC_FAILED);
+      cvProcessError(cv_mem, CVDIRECT_JACFUNC_UNRECVR, "CVSBAND", "cvBandSetup", MSGD_JACFUNC_FAILED);
       last_flag = CVDIRECT_JACFUNC_UNRECVR;
       return(-1);
     }
@@ -384,21 +384,21 @@ int CVBandB(void *cvode_mem, int which,
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVSBAND", "CVBandB", MSGD_CVMEM_NULL);
+    cvProcessError(NULL, CVDIRECT_MEM_NULL, "CVSBAND", "CVBandB", MSGD_CVMEM_NULL);
     return(CVDIRECT_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    CVProcessError(cv_mem, CVDIRECT_NO_ADJ, "CVSBAND", "CVBandB", MSGD_NO_ADJ);
+    cvProcessError(cv_mem, CVDIRECT_NO_ADJ, "CVSBAND", "CVBandB", MSGD_NO_ADJ);
     return(CVDIRECT_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= ca_mem->ca_nbckpbs ) {
-    CVProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSBAND", "CVBandB", MSGCV_BAD_WHICH);
+    cvProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSBAND", "CVBandB", MSGCV_BAD_WHICH);
     return(CVDIRECT_ILL_INPUT);
   }
 
@@ -414,7 +414,7 @@ int CVBandB(void *cvode_mem, int which,
   /* Get memory for CVDlsMemRecB */
   cvdlsB_mem = (CVDlsMemB) malloc(sizeof(CVDlsMemRecB));
   if (cvdlsB_mem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSBAND", "CVBandB", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSBAND", "CVBandB", MSGD_MEM_FAIL);
     return(CVDIRECT_MEM_FAIL);
   }
 

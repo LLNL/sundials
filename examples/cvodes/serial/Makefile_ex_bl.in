@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-11-29 00:05:04 $
+# $Revision: 1.2 $
+# $Date: 2007-04-18 19:24:22 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -47,6 +47,7 @@ EXAMPLES = cvsdenx \
 	   cvsadjkryx_int \
 	   cvsadjkryx_pnt \
 	   cvskrydem_lin \
+           cvsadjhess \
 	   cvsbanx_lap \
 	   cvsdenx_lap
 
@@ -105,6 +106,10 @@ cvsadjkryx_pnt: cvsadjkryx_pnt.c
 cvskrydem_lin: cvskrydem_lin.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvskrydem_lin.c
 	 $(CC) -o cvskrydem_lin cvskrydem_lin.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjhess: cvsadjhess.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsadjhess.c
+	 $(CC) -o cvsadjhess cvsadjhess.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+
 
 cvsdenx_lap: cvsdenx_lap.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c cvsdenx_lap.c
