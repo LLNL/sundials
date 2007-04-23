@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.11 $
+ * $Date: 2007-04-23 23:37:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -106,7 +106,7 @@ static int Jac(int N, realtype t,
                DlsMat J, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data);
-static int ewt(N_Vector y, N_Vector w, void *e_data);
+static int ewt(N_Vector y, N_Vector w, void *f_data);
 
 static int fB(realtype t, N_Vector y, 
               N_Vector yB, N_Vector yBdot, void *f_dataB);
@@ -196,11 +196,11 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_WF, 0.0, NULL);
-  if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
+  flag = CVodeInit(cvode_mem, f, T0, y);
+  if (check_flag(&flag, "CVodeInit", 1)) return(1);
 
-  flag = CVodeSetEwtFn(cvode_mem, ewt, NULL);
-  if (check_flag(&flag, "CVodeSetEwtFn", 1)) return(1);
+  flag = CVodeWFtolerances(cvode_mem, ewt);
+  if (check_flag(&flag, "CVodeWFtolerances", 1)) return(1);
 
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
@@ -208,8 +208,8 @@ int main(int argc, char *argv[])
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
-  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
-  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
+  if (check_flag(&flag, "CVDlsSetDenseJacFn", 1)) return(1);
 
   flag = CVodeQuadMalloc(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadMalloc", 1)) return(1);
@@ -301,8 +301,11 @@ int main(int argc, char *argv[])
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
   if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
 
-  flag = CVodeMallocB(cvode_mem, indexB, fB, TB1, yB, CV_SS, reltolB, &abstolB);
-  if (check_flag(&flag, "CVodeMallocB", 1)) return(1);
+  flag = CVodeInitB(cvode_mem, indexB, fB, TB1, yB);
+  if (check_flag(&flag, "CVodeInitB", 1)) return(1);
+
+  flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
+  if (check_flag(&flag, "CVodeSStolerancesB", 1)) return(1);
 
   flag = CVodeSetFdataB(cvode_mem, indexB, data);
   if (check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
@@ -310,8 +313,8 @@ int main(int argc, char *argv[])
   flag = CVDenseB(cvode_mem, indexB, NEQ);
   if (check_flag(&flag, "CVDenseB", 1)) return(1);
 
-  flag = CVDlsSetJacFnB(cvode_mem, indexB, (void *)JacB, data);
-  if (check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
+  flag = CVDlsSetDenseJacFnB(cvode_mem, indexB, JacB);
+  if (check_flag(&flag, "CVDlsSetDenseJacFnB", 1)) return(1);
 
   flag = CVodeQuadMallocB(cvode_mem, indexB, fQB, qB);
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
@@ -347,7 +350,7 @@ int main(int argc, char *argv[])
 
   printf("Re-initialize CVODES memory for backward run\n");
 
-  flag = CVodeReInitB(cvode_mem, indexB, TB2, yB, CV_SS, reltolB, &abstolB);
+  flag = CVodeReInitB(cvode_mem, indexB, TB2, yB);
   if (check_flag(&flag, "CVodeReInitB", 1)) return(1);
 
   flag = CVodeQuadReInitB(cvode_mem, indexB, qB); 
@@ -450,7 +453,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data)
  * EwtSet function. Computes the error weights at the current solution.
  */
 
-static int ewt(N_Vector y, N_Vector w, void *e_data)
+static int ewt(N_Vector y, N_Vector w, void *f_data)
 {
   int i;
   realtype yy, ww, rtol, atol[3];

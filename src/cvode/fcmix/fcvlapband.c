@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-24 19:09:21 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,12 +51,12 @@ void FCV_LAPACKBANDSETJAC(int *flag, int *ier)
 
   if (*flag == 0) {
 
-    *ier = CVDlsSetJacFn(CV_cvodemem, NULL, NULL);
+    *ier = CVDlsSetBandJacFn(CV_cvodemem, NULL);
 
   } else {
 
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVDlsSetJacFn(CV_cvodemem, (void *)FCVLapackBandJac, cv_mem->cv_f_data);
+    *ier = CVDlsSetBandJacFn(CV_cvodemem, FCVLapackBandJac);
 
   }
 
@@ -77,7 +77,7 @@ void FCV_LAPACKBANDSETJAC(int *flag, int *ier)
 
 int FCVLapackBandJac(int N, int mupper, int mlower,
                      realtype t, N_Vector y, N_Vector fy, 
-                     DlsMat J, void *jac_data,
+                     DlsMat J, void *f_data,
                      N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
@@ -97,7 +97,7 @@ int FCVLapackBandJac(int N, int mupper, int mlower,
   eband = (J->s_mu) + mlower + 1;
   jacdata = BAND_COL(J,0) - mupper;
 
-  CV_userdata = (FCVUserData) jac_data;
+  CV_userdata = (FCVUserData) f_data;
 
   FCV_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, jacdata, &h,
            CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data, &ier);

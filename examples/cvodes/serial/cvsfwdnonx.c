@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -148,9 +148,12 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
   /* Allocate CVODES memory */
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-  if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
-  
+  flag = CVodeInit(cvode_mem, f, T0, u);
+  if(check_flag(&flag, "CVodeInit", 1)) return(1);
+
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+
   printf("\n1-D advection-diffusion equation, mesh size =%3d\n", MX);
 
   /* Sensitivity-related settings */

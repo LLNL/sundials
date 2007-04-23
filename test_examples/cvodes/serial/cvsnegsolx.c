@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:52 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:26 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -85,7 +85,8 @@ int main()
 
   /* Initialize and allocate solver memory */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  CVodeMalloc(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
+  CVodeInit(cvode_mem, f, T0, y);
+  CVodeSVtolerances(cvode_mem, reltol, abstol);
   CVodeSetFdata(cvode_mem, &check_negative);
   /* Call CVDense to specify the CVDENSE dense linear solver */
   CVDense(cvode_mem, NEQ);
@@ -112,7 +113,7 @@ int main()
   Ith(y,1) = Y1;
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
-  CVodeReInit(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
+  CVodeReInit(cvode_mem, T0, y);
   /* In loop, call CVode in CV_NORMAL mode */
   iout = 0;  tout = T1;
   while(1) {

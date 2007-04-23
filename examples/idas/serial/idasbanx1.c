@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:46 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example problem for IDAS: 2D heat equation, serial, banded.
+ * Example problem for IDA: 2D heat equation, serial, banded.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the band solver IDABand, and IDACalcIC.
@@ -20,7 +20,7 @@
  * equations u = 0 at the boundaries are appended, to form a DAE
  * system of size N = M^2. Here M = 10.
  *
- * The system is solved with IDAS using the banded linear system
+ * The system is solved with IDA using the banded linear system
  * solver, half-bandwidths equal to M, and default
  * difference-quotient Jacobian. For purposes of illustration,
  * IDACalcIC is called to compute correct values at the boundary,
@@ -135,8 +135,11 @@ int main(void)
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
   N_VDestroy_Serial(constraints);
 
-  ier = IDAMalloc(mem, heatres, t0, uu, up, IDA_SS, rtol, &atol);
-  if(check_flag(&ier, "IDAMalloc", 1)) return(1);
+  ier = IDAInit(mem, heatres, t0, uu, up);
+  if(check_flag(&ier, "IDAInit", 1)) return(1);
+
+  ier = IDASStolerances(mem, rtol, atol);
+  if(check_flag(&ier, "IDASStolerances", 1)) return(1);
 
   /* Call IDABand to specify the linear solver. */
   mu = MGRID; ml = MGRID;

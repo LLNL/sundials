@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-08 00:48:26 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -130,7 +130,7 @@ void FCV_ROOTFREE(void);
 
 /* Prototype of function called by CVODE module */
 
-int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data);
+int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *f_data);
 
 #ifdef __cplusplus
 }

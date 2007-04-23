@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-24 19:09:25 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:22 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,10 +51,10 @@ extern void FK_BJAC(int*, int*, int*, int*,
 void FKIN_LAPACKBANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = KINDlsSetJacFn(KIN_kinmem, NULL, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, NULL);
   }
   else {
-    *ier = KINDlsSetJacFn(KIN_kinmem, (void *)FKINLapackBandJac, NULL);
+    *ier = KINDlsSetJacFn(KIN_kinmem, FKINLapackBandJac);
   }
 
   return;
@@ -75,7 +75,7 @@ void FKIN_LAPACKBANDSETJAC(int *flag, int *ier)
 
 int FKINLapackBandJac(int N, int mupper, int mlower,
                       N_Vector uu, N_Vector fval, 
-                      DlsMat J, void *jac_data,
+                      DlsMat J, void *f_data,
                       N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;

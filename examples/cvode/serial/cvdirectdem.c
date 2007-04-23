@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-11 22:34:10 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -25,7 +25,7 @@
  * approximation: (1) band, user-supplied, (2) band, difference
  * quotient approximation, (3) diagonal approximation.
  *
- * For each problem, in the series of eight runs, CVodeMalloc is
+ * For each problem, in the series of eight runs, CVodeInit is
  * called only once, for the first run, whereas CVodeReInit is
  * called for each of the remaining seven runs.
  *
@@ -179,12 +179,14 @@ static int Problem1(void)
 
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, CV_SS, reltol, &abstol);
-      if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+      flag = CVodeInit(cvode_mem, f1, P1_T0, y);
+      if(check_flag(&flag, "CVodeInit", 1)) return(1);
+      flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+      if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, P1_T0, y, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, P1_T0, y);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
@@ -230,12 +232,14 @@ static int Problem1(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f1, P1_T0, y, CV_SS, reltol, &abstol);
-      if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+      flag = CVodeInit(cvode_mem, f1, P1_T0, y);
+      if(check_flag(&flag, "CVodeInit", 1)) return(1);
+      flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+      if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, P1_T0, y, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, P1_T0, y);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
@@ -283,13 +287,13 @@ static void PrintIntro1(void)
   printf(" xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" neq = %d,  itol = %s,  reltol = %.2Lg,  abstol = %.2Lg",
-	 P1_NEQ, "CV_SS", RTOL, ATOL);
+	 P1_NEQ, RTOL, ATOL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf(" neq = %d,  itol = %s,  reltol = %.2lg,  abstol = %.2lg",
-	 P1_NEQ, "CV_SS", RTOL, ATOL);
+	 P1_NEQ, RTOL, ATOL);
 #else
   printf(" neq = %d,  itol = %s,  reltol = %.2g,  abstol = %.2g",
-	 P1_NEQ, "CV_SS", RTOL, ATOL);
+	 P1_NEQ, RTOL, ATOL);
 #endif
 }
 
@@ -372,12 +376,14 @@ static int Problem2(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, CV_SS, reltol, &abstol);
-      if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+      flag = CVodeInit(cvode_mem, f2, P2_T0, y);
+      if(check_flag(&flag, "CVodeInit", 1)) return(1);
+      flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+      if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, P2_T0, y, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, P2_T0, y);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
       
@@ -423,12 +429,14 @@ static int Problem2(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeMalloc(cvode_mem, f2, P2_T0, y, CV_SS, reltol, &abstol);
-      if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+      flag = CVodeInit(cvode_mem, f2, P2_T0, y);
+      if(check_flag(&flag, "CVodeInit", 1)) return(1);
+      flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+      if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
     } else {
       flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
       if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, P2_T0, y, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, P2_T0, y);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
     }
 
@@ -619,13 +627,13 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
       flag = CVDense(cvode_mem, P1_NEQ);
       check_flag(&flag, "CVDense", 1);
       if(flag != CV_SUCCESS) break;
-      flag = CVDlsSetJacFn(cvode_mem, (void *)Jac1, NULL);
-      check_flag(&flag, "CVDlsSetJacFn", 1);
+      flag = CVDlsSetDenseJacFn(cvode_mem, Jac1);
+      check_flag(&flag, "CVDlsSetDenseJacFn", 1);
       break;
     case DENSE_DQ   : 
       printf("Dense, Difference Quotient Jacobian\n");
-      flag = CVDlsSetJacFn(cvode_mem, NULL, NULL);
-      check_flag(&flag, "CVDlsSetJacFn", 1);
+      flag = CVDlsSetDenseJacFn(cvode_mem, NULL);
+      check_flag(&flag, "CVDlsSetDenseJacFn", 1);
       break;
     case DIAG       : 
       printf("Diagonal Jacobian\n");
@@ -637,13 +645,13 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter,
       flag = CVBand(cvode_mem, P2_NEQ, mu, ml);
       check_flag(&flag, "CVBand", 1);
       if(flag != CV_SUCCESS) break;
-      flag = CVDlsSetJacFn(cvode_mem, (void *)Jac2, NULL);
-      check_flag(&flag, "CVDlsSetJacFn", 1);
+      flag = CVDlsSetBandJacFn(cvode_mem, Jac2);
+      check_flag(&flag, "CVDlsSetBandJacFn", 1);
       break;
     case BAND_DQ  :   
       printf("Band, Difference Quotient Jacobian\n");
-      flag = CVDlsSetJacFn(cvode_mem, NULL, NULL);
-      check_flag(&flag, "CVDlsSetJacFn", 1);
+      flag = CVDlsSetBandJacFn(cvode_mem, NULL);
+      check_flag(&flag, "CVDlsSetBandJacFn", 1);
       break;    
     }
   }

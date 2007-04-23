@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-23 23:37:19 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -64,15 +64,12 @@
 #define ml             (cvdls_mem->d_ml)
 #define mu             (cvdls_mem->d_mu)
 #define smu            (cvdls_mem->d_smu)
+#define jacDQ          (cvdls_mem->d_jacDQ)
 #define djac           (cvdls_mem->d_djac)
 #define bjac           (cvdls_mem->d_bjac)
 #define M              (cvdls_mem->d_M)
-#define savedJ         (cvdls_mem->d_savedJ)
-#define pivots         (cvdls_mem->d_pivots)
-#define nstlj          (cvdls_mem->d_nstlj)
 #define nje            (cvdls_mem->d_nje)
 #define nfeDQ          (cvdls_mem->d_nfeDQ)
-#define J_data         (cvdls_mem->d_J_data)
 #define last_flag      (cvdls_mem->d_last_flag)
 
 /* 
@@ -82,32 +79,63 @@
  */
               
 /*
- * CVDlsSetJacFn specifies the (dense or band) Jacobian function.
+ * CVDlsSetDenseJacFn specifies the dense Jacobian function.
  */
-int CVDlsSetJacFn(void *cvode_mem, void *jac, void *jac_data)
+int CVDlsSetDenseJacFn(void *cvode_mem, CVDlsDenseJacFn jac)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVDIRECT", "CVDlsSetJacFn", MSGD_CVMEM_NULL);
+    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVDIRECT", "CVDlsSetDenseJacFn", MSGD_CVMEM_NULL);
     return(CVDIRECT_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_LMEM_NULL, "CVDIRECT", "CVDlsSetJacFn", MSGD_LMEM_NULL);
+    CVProcessError(cv_mem, CVDIRECT_LMEM_NULL, "CVDIRECT", "CVDlsSetDenseJacFn", MSGD_LMEM_NULL);
     return(CVDIRECT_LMEM_NULL);
   }
   cvdls_mem = (CVDlsMem) lmem;
 
-  if (mtype == SUNDIALS_DENSE)
-    djac = (CVDlsDenseJacFn) jac;
-  else if (mtype == SUNDIALS_BAND)
-    bjac = (CVDlsBandJacFn) jac;
+  if (jac != NULL) {
+    jacDQ = FALSE;
+    djac = jac;
+  } else {
+    jacDQ = TRUE;
+  }
 
-  J_data = jac_data;
+  return(CVDIRECT_SUCCESS);
+}
+
+/*
+ * CVDlsSetBandJacFn specifies the band Jacobian function.
+ */
+int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac)
+{
+  CVodeMem cv_mem;
+  CVDlsMem cvdls_mem;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVDIRECT", "CVDlsSetBandJacFn", MSGD_CVMEM_NULL);
+    return(CVDIRECT_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    CVProcessError(cv_mem, CVDIRECT_LMEM_NULL, "CVDIRECT", "CVDlsSetBandJacFn", MSGD_LMEM_NULL);
+    return(CVDIRECT_LMEM_NULL);
+  }
+  cvdls_mem = (CVDlsMem) lmem;
+
+  if (jac != NULL) {
+    jacDQ = FALSE;
+    bjac = jac;
+  } else {
+    jacDQ = TRUE;
+  }
 
   return(CVDIRECT_SUCCESS);
 }
@@ -286,7 +314,7 @@ int CVDlsGetLastFlag(void *cvode_mem, int *flag)
 
 int cvDlsDenseDQJac(int N, realtype t,
                     N_Vector y, N_Vector fy, 
-                    DlsMat Jac, void *jac_data,
+                    DlsMat Jac, void *data,
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
@@ -298,8 +326,8 @@ int cvDlsDenseDQJac(int N, realtype t,
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
 
-  /* jac_data points to cvode_mem */
-  cv_mem = (CVodeMem) jac_data;
+  /* data points to cvode_mem */
+  cv_mem = (CVodeMem) data;
   cvdls_mem = (CVDlsMem) lmem;
 
   /* Save pointer to the array in tmp2 */
@@ -362,7 +390,7 @@ int cvDlsDenseDQJac(int N, realtype t,
 
 int cvDlsBandDQJac(int N, int mupper, int mlower,
                    realtype t, N_Vector y, N_Vector fy, 
-                   DlsMat Jac, void *jac_data,
+                   DlsMat Jac, void *data,
                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   N_Vector ftemp, ytemp;
@@ -374,8 +402,8 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
 
-  /* jac_dat points to cvode_mem */
-  cv_mem = (CVodeMem) jac_data;
+  /* data points to cvode_mem */
+  cv_mem = (CVodeMem) data;
   cvdls_mem = (CVDlsMem) lmem;
 
   /* Rename work vectors for use as temporary values of y and f */

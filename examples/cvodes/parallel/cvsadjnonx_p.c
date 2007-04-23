@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-03-22 18:05:53 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -200,8 +200,11 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-  if (check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeInit(cvode_mem, f, T0, u);
+  if (check_flag(&flag, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
+
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate combined forward/backward memory */
   flag = CVodeAdjMalloc(cvode_mem, STEPS, CV_HERMITE);
@@ -245,8 +248,10 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeCreateB", 1, my_pe)) MPI_Abort(comm, 1);
   flag = CVodeSetFdataB(cvode_mem, indexB, data);
   if (check_flag(&flag, "CVodeSetFdataB", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeMallocB(cvode_mem, indexB, fB, TOUT, uB, CV_SS, reltol, &abstol);
-  if (check_flag(&flag, "CVodeMallocB", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
+  if (check_flag(&flag, "CVodeInitB", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeSStolerancesB(cvode_mem, indexB, reltol, abstol);
+  if (check_flag(&flag, "CVodeSStolerancesB", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to T0 */
   flag = CVodeB(cvode_mem, T0, CV_NORMAL);

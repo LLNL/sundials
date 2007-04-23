@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -34,7 +34,7 @@
  *   FNVINITS* and FNVINITP*  interface to N_VNew_Serial and
  *                            N_VNew_Parallel, respectively
  *
- *   FIDAMALLOC  interfaces to IDACreate and IDAMalloc
+ *   FIDAMALLOC  interfaces to IDACreate and IDAInit
  *
  *   FIDAREINIT  interfaces to IDAReInit
  *
@@ -44,7 +44,7 @@
  *
  *   FIDACALCIC  interfaces to IDACalcIC
  *
- *   FIDAEWTSET  interfaces to IDASetEwtFn
+ *   FIDAEWTSET  interfaces to IDAWFtolerances
  *
  *   FIDADENSE        interfaces to IDADense
  *   FIDADENSESETJAC  interfaces to IDADenseSetJacFn
@@ -689,7 +689,7 @@ int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
              realtype c_j, realtype delta, void *prec_data,
              N_Vector vtemp1);
 
-int FIDAEwtSet(N_Vector yy, N_Vector ewt, void *e_data);
+int FIDAEwtSet(N_Vector yy, N_Vector ewt, void *res_data);
 
 /* Declarations for global variables shared amongst various routines */
 

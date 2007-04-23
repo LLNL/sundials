@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-12-01 22:48:59 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:21 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -72,7 +72,6 @@ static int idaLapackBandFree(IDAMem IDA_mem);
 
 #define res            (IDA_mem->ida_res)
 #define rdata          (IDA_mem->ida_rdata)
-#define uround         (IDA_mem->ida_uround)
 #define nst            (IDA_mem->ida_nst)
 #define tn             (IDA_mem->ida_tn)
 #define hh             (IDA_mem->ida_hh)
@@ -95,6 +94,7 @@ static int idaLapackBandFree(IDAMem IDA_mem);
 #define ml             (idadls_mem->d_ml)
 #define mu             (idadls_mem->d_mu)
 #define smu            (idadls_mem->d_smu)
+#define jacDQ          (idadls_mem->d_jacDQ)
 #define djac           (idadls_mem->d_djac)
 #define bjac           (idadls_mem->d_bjac)
 #define JJ             (idadls_mem->d_J)
@@ -174,8 +174,9 @@ int IDALapackDense(void *ida_mem, int N)
   mtype = SUNDIALS_DENSE;
 
   /* Set default Jacobian routine and Jacobian data */
-  djac = idaDlsDenseDQJac;
-  J_data = IDA_mem;
+  jacDQ  = TRUE;
+  djac   = NULL;
+  J_data = NULL;
 
   last_flag = IDADIRECT_SUCCESS;
   setupNonNull = TRUE;
@@ -271,8 +272,9 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
   mtype = SUNDIALS_BAND;
 
   /* Set default Jacobian routine and Jacobian data */
-  bjac = idaDlsBandDQJac;
-  J_data = IDA_mem;
+  jacDQ  = TRUE;
+  bjac   = NULL;
+  J_data = NULL;
 
   last_flag = IDADIRECT_SUCCESS;
   setupNonNull = TRUE;
@@ -336,9 +338,11 @@ static int idaLapackDenseInit(IDAMem IDA_mem)
   nje   = 0;
   nreDQ = 0;
   
-  if (djac == NULL) {
+  if (jacDQ) {
     djac = idaDlsDenseDQJac;
     J_data = IDA_mem;
+  } else {
+    J_data = rdata;
   }
 
   last_flag = IDADIRECT_SUCCESS;
@@ -444,9 +448,11 @@ static int idaLapackBandInit(IDAMem IDA_mem)
   nje   = 0;
   nreDQ = 0;
 
-  if (bjac == NULL) {
+  if (jacDQ) {
     bjac = idaDlsBandDQJac;
     J_data = IDA_mem;
+  } else {
+    J_data = rdata;
   }
 
   last_flag = IDADIRECT_SUCCESS;

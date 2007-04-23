@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:46 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -105,8 +105,8 @@ int main()
 
   /* y is used as a template */
 
-  flag = KINMalloc(kmem, func, y);
-  if (check_flag(&flag, "KINMalloc", 1)) return(1);
+  flag = KINInit(kmem, func, y);
+  if (check_flag(&flag, "KINInit", 1)) return(1);
 
   /* -------------------
    * Set optional inputs 

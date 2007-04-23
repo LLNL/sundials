@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-04-18 19:24:21 $
+ * $Revision: 1.14 $
+ * $Date: 2007-04-23 23:37:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,7 +42,7 @@
  *     
  *  3: INITIALIZATION AND DEALLOCATION FUNCTIONS FOR FORWARD PROBLEMS
  *     CVodeCreate
- *     CVodeMalloc        CVodeReInit
+ *     CVodeInit        CVodeReInit
  *     CVodeQuadMalloc    CVodeQuadReInit
  *     CVodeSensMalloc    CVodeSensReInit
  *     CVodeRootInit
@@ -67,7 +67,7 @@
  *  8: INITIALIZATION AND DEALLOCATION FUNCTIONS FOR BACKWARD PROBLEMS  
  *     CVodeAdjMalloc    CVodeAdjReInit
  *     CVodeAdjFree
- *     CVodeMallocB      CVodeMallocBS       CVodeReInitB
+ *     CVodeInitB      CVodeInitBS       CVodeReInitB
  *     CVodeQuadMallocB  CVodeQuadMallocBS   CVodeQuadReInitB
  *     
  *  9  MAIN SOLVER FUNCTIONS FOR FORWARD PROBLEMS
@@ -106,13 +106,12 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Enumerations for inputs to CVodeCreate, CVodeMalloc,
- * CVodeReInit, CVodeSensMalloc, CVodeSensReInit, CVodeQuadMalloc,
+ * Enumerations for inputs to CVodeCreate, CVodeSensMalloc, CVodeSensReInit, CVodeQuadMalloc,
  * CVodeQuadReInit, CVodeSet*, CVode, and CVodeAdjMalloc.
  * -----------------------------------------------------------------
- * Symbolic constants for the lmm, iter, and itol input parameters 
- * to CVodeMalloc and CVodeReInit, the input parameter itask to CVode, 
- * and the input parameter interp to CVodeAdjMalloc, are given below.
+ * Symbolic constants for the lmm and iter parameters to CVodeCreate
+ * the input parameter itask to CVode, and the input parameter interp
+ * to CVodeAdjMalloc, are given below.
  *
  * lmm:   The user of the CVODES package specifies whether to use
  *        the CV_ADAMS or CV_BDF (backward differentiation formula)
@@ -127,15 +126,6 @@ extern "C" {
  *        systems. In the CV_NEWTON case, the user also specifies a
  *        CVODE linear solver. CV_NEWTON is recommended in case of
  *        stiff problems.
- *
- * itol:  This parameter specifies the relative and absolute
- *        tolerance types to be used. The CV_SS tolerance type means
- *        a scalar relative and absolute tolerance. The CV_SV
- *        tolerance type means a scalar relative tolerance and a
- *        vector absolute tolerance (a potentially different
- *        absolute tolerance for each vector component). The CV_WF
- *        tolerance type means that the user provides a function
- *        (of type CVEwtFn) to set the error weight vector.
  *
  * ism:   This parameter specifies the sensitivity corrector type
  *        to be used. In the CV_SIMULTANEOUS case, the nonlinear
@@ -184,12 +174,6 @@ extern "C" {
 #define CV_FUNCTIONAL     1
 #define CV_NEWTON         2
 
-/* itol */
-#define CV_SS             1
-#define CV_SV             2
-#define CV_WF             3
-#define CV_EE             4
-
 /* itask */
 #define CV_NORMAL         1
 #define CV_ONE_STEP       2
@@ -212,6 +196,14 @@ extern "C" {
 /* interp */
 #define CV_HERMITE        1
 #define CV_POLYNOMIAL     2
+
+
+
+
+#define CV_SS  1
+#define CV_SV  2
+#define CV_WF  3
+#define CV_EE  4
 
 /* 
  * ----------------------------------------
@@ -328,8 +320,8 @@ typedef int (*CVRhsFn)(realtype t, N_Vector y,
  * t, and the dependent variable vector y.  It stores the nrtfn
  * values g_i(t,y) in the realtype array gout.
  * (Allocation of memory for gout is handled within CVODE.)
- * The g_data parameter is the same as that passed by the user
- * to the CVodeRootInit routine.  This user-supplied pointer is
+ * The f_data parameter is the same as that passed by the user
+ * to the CVodeSetFdata routine.  This user-supplied pointer is
  * passed to the user's g function every time it is called.
  *
  * A CVRootFn should return 0 if successful or a non-zero value
@@ -337,8 +329,7 @@ typedef int (*CVRhsFn)(realtype t, N_Vector y,
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
-			void *g_data);
+typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout, void *f_data);
 
 /*
  * -----------------------------------------------------------------
@@ -355,15 +346,15 @@ typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
  * 
  *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
  *
- * The e_data parameter is the same as that passed by the user
- * to the CVodeSetEdata routine.  This user-supplied pointer is
+ * The f_data parameter is the same as that passed by the user
+ * to the CVodeSetFdata routine.  This user-supplied pointer is
  * passed to the user's e function every time it is called.
  * A CVEwtFn e must return 0 if the error weight vector has been
  * successfuly set and a non-zero value otherwise.
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
+typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *f_data);
 
 
 /*
@@ -374,7 +365,7 @@ typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
  * CVErrHandlerFn.
  * The function eh takes as input the error code, the name of the
  * module reporting the error, the error message, and a pointer to
- * user data, the same as that passed to CVodeSetErrHandlerFn.
+ * user data, the same as that passed to CVodeSetFdata.
  * 
  * All error codes are negative, except CV_WARNING which indicates 
  * a warning (the solver continues).
@@ -385,7 +376,7 @@ typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
   
 typedef void (*CVErrHandlerFn)(int error_code, 
 			       const char *module, const char *function, 
-			       char *msg, void *eh_data); 
+			       char *msg, void *f_data); 
 
 /*
  * -----------------------------------------------------------------
@@ -567,7 +558,7 @@ typedef int (*CVQuadRhsFnBS)(realtype t, N_Vector y, N_Vector *yS,
  *       The legal values are CV_FUNCTIONAL and CV_NEWTON.
  *
  * If successful, CVodeCreate returns a pointer to initialized
- * problem memory. This pointer should be passed to CVodeMalloc.
+ * problem memory. This pointer should be passed to CVodeInit.
  * If an initialization error occurs, CVodeCreate prints an error
  * message to standard err and returns NULL.
  * -----------------------------------------------------------------
@@ -577,94 +568,108 @@ SUNDIALS_EXPORT void *CVodeCreate(int lmm, int iter);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVodeMalloc
+ * Function : CVodeInit
  * -----------------------------------------------------------------
- * CVodeMalloc allocates and initializes memory for a problem to
- * to be solved by CVODES.
+ * CVodeInit allocates and initializes memory for a problem to
+ * to be solved by CVODE.
  *
- * cvode_mem is pointer to CVODES memory returned by CVodeCreate.
+ * cvode_mem is pointer to CVODE memory returned by CVodeCreate.
  *
- * f       is the right hand side function in y' = f(t,y).
+ * f       is the name of the C function defining the right-hand
+ *         side function in y' = f(t,y).
  *
  * t0      is the initial value of t.
  *
  * y0      is the initial condition vector y(t0).
  *
- * itol    is the type of tolerances to be used.
- *         The legal values are:
- *            CV_SS (scalar relative and absolute  tolerances),
- *            CV_SV (scalar relative tolerance and vector
- *                  absolute tolerance).
- *            CV_WF (indicates that the user will provide a
- *                function to evaluate the error weights.
- *                In this case, reltol and abstol are ignored.)
- *
- * reltol  is the relative tolerance scalar.
- *
- * abstol  is a pointer to the absolute tolerance scalar or
- *         an N_Vector of absolute tolerances.
- *
- * The parameters itol, reltol, and abstol define a vector of
- * error weights, ewt, with components
- *   ewt[i] = 1/(reltol*abs(y[i]) + abstol)   (if itol = CV_SS), or
- *   ewt[i] = 1/(reltol*abs(y[i]) + abstol[i])   (if itol = CV_SV).
- * This vector is used in all error and convergence tests, which
- * use a weighted RMS norm on all error-like vectors v:
- *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),
- * where N is the problem dimension.
- *
- * If successful, CVodeMalloc returns SUCCESS. If an argument has
- * an illegal value, CVodeMalloc prints an error message to the
- * file specified by errfp and returns one of the error flags
- * defined below.
+ * Return flag:
+ *  CV_SUCCESS if successful
+ *  CV_MEM_NULL if the cvode memory was NULL
+ *  CV_MEM_FAIL if a memory allocation failed
+ *  CV_ILL_INPUT f an argument has an illegal value.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeMalloc(void *cvode_mem, CVRhsFn f,
-				realtype t0, N_Vector y0,
-				int itol, realtype reltol, void *abstol);
+SUNDIALS_EXPORT int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0);
 
 /*
  * -----------------------------------------------------------------
  * Function : CVodeReInit
  * -----------------------------------------------------------------
  * CVodeReInit re-initializes CVode for the solution of a problem,
- * where a prior call to CVodeMalloc has been made with the same
+ * where a prior call to CVodeInit has been made with the same
  * problem size N. CVodeReInit performs the same input checking
- * and initializations that CVodeMalloc does.
+ * and initializations that CVodeInit does.
  * But it does no memory allocation, assuming that the existing
  * internal memory is sufficient for the new problem.
  *
  * The use of CVodeReInit requires that the maximum method order,
  * maxord, is no larger for the new problem than for the problem
- * specified in the last call to CVodeMalloc.  This condition is
+ * specified in the last call to CVodeInit.  This condition is
  * automatically fulfilled if the multistep method parameter lmm
  * is unchanged (or changed from CV_ADAMS to CV_BDF) and the default
  * value for maxord is specified.
  *
- * The first argument to CVodeReInit is:
- *
- * cvode_mem = pointer to CVODES memory returned by CVodeCreate.
- *
- * All the remaining arguments to CVodeReInit have names and
- * meanings identical to those of CVodeMalloc.
+ * All of the arguments to CVodeReInit have names and meanings
+ * identical to those of CVodeInit.
  *
  * The return value of CVodeReInit is equal to CV_SUCCESS = 0 if
  * there were no errors; otherwise it is a negative int equal to:
- *   CV_MEM_NULL  indicating cvode_mem was NULL (i.e.,
- *                CVodeCreate has not been called).
- *   CV_NO_MALLOC indicating that cvode_mem has not been
- *                allocated (i.e., CVodeMalloc has not been
- *                called).
- *   CV_ILL_INPUT indicating an input argument was illegal
- *                (including an attempt to increase maxord).
+ *   CV_MEM_NULL      indicating cvode_mem was NULL (i.e.,
+ *                    CVodeCreate has not been called).
+ *   CV_NO_MALLOC     indicating that cvode_mem has not been
+ *                    allocated (i.e., CVodeInit has not been
+ *                    called).
+ *   CV_ILL_INPUT     indicating an input argument was illegal
+ *                    (including an attempt to increase maxord).
  * In case of an error return, an error message is also printed.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem,
-				realtype t0, N_Vector y0,
-				int itol, realtype reltol, void *abstol);
+SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions : CVodeSStolerances
+ *             CVodeSVtolerances
+ *             CVodeWFtolerances
+ * -----------------------------------------------------------------
+ *
+ * These functions specify the integration tolerances. One of them
+ * MUST be called before the first call to CVode.
+ *
+ * CVodeSStolerances specifies scalar relative and absolute tolerances.
+ * CVodeSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance (a potentially different absolute tolerance 
+ *   for each vector component).
+ * CVodeWFtolerances specifies a user-provides function (of type CVEwtFn)
+ *   which will be called to set the error weight vector.
+ *
+ * The tolerances reltol and abstol define a vector of error weights,
+ * ewt, with components
+ *   ewt[i] = 1/(reltol*abs(y[i]) + abstol)      (in the SS case), or
+ *   ewt[i] = 1/(reltol*abs(y[i]) + abstol[i])   (in the SV case).
+ * This vector is used in all error and convergence tests, which
+ * use a weighted RMS norm on all error-like vectors v:
+ *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),
+ * where N is the problem dimension.
+ *
+ * The return value of these functions is equal to CV_SUCCESS = 0 if
+ * there were no errors; otherwise it is a negative int equal to:
+ *   CV_MEM_NULL      indicating cvode_mem was NULL (i.e.,
+ *                    CVodeCreate has not been called).
+ *   CV_NO_MALLOC     indicating that cvode_mem has not been
+ *                    allocated (i.e., CVodeInit has not been
+ *                    called).
+ *   CV_ILL_INPUT     indicating an input argument was illegal
+ *                    (e.g. a negative tolerance)
+ * In case of an error return, an error message is also printed.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol);
+SUNDIALS_EXPORT int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol);
+SUNDIALS_EXPORT int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun);
 
 /*
  * -----------------------------------------------------------------
@@ -695,7 +700,7 @@ SUNDIALS_EXPORT int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ
  * -----------------------------------------------------------------
  * CVodeQuadReInit re-initializes CVODES's quadrature related
  * memory for a problem, assuming it has already been allocated
- * in prior calls to CVodeMalloc and CVodeQuadMalloc.
+ * in prior calls to CVodeInit and CVodeQuadMalloc.
  *
  * All problem specification inputs are checked for errors.
  * The number of quadratures Nq is assumed to be unchanged
@@ -753,7 +758,7 @@ SUNDIALS_EXPORT int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
  * -----------------------------------------------------------------
  * CVodeSensReInit re-initializes CVODES's sensitivity related
  * memory for a problem, assuming it has already been allocated
- * in prior calls to CVodeMalloc and CvodeSensMalloc.
+ * in prior calls to CVodeInit and CvodeSensMalloc.
  *
  * All problem specification inputs are checked for errors.
  * The number of sensitivities Ns is assumed to be unchanged
@@ -812,9 +817,6 @@ SUNDIALS_EXPORT int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0);
  * g         = name of user-supplied function, of type CVRootFn,
  *             defining the functions g_i whose roots are sought.
  *
- * g_data    = a pointer to user data that will be passed to the 
- *             user's g function every time g is called.
- *
  * If a new problem is to be solved with a call to CVodeReInit,
  * where the new problem has no root functions but the prior one
  * did, then call CVodeRootInit with nrtfn = 0.
@@ -829,14 +831,14 @@ SUNDIALS_EXPORT int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *g_data);
+SUNDIALS_EXPORT int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g);
 
 /*
  * -----------------------------------------------------------------
  * Function : CVodeFree
  * -----------------------------------------------------------------
  * CVodeFree frees the problem memory cvode_mem allocated by
- * CVodeMalloc.  Its only argument is the pointer cvode_mem
+ * CVodeInit.  Its only argument is the pointer cvode_mem
  * returned by CVodeCreate.
  * -----------------------------------------------------------------
  */
@@ -918,13 +920,6 @@ SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
  *                         | time f is called.
  *                         | [NULL]
  *                         |
- * CVodeSetEwtFn           | user-provide EwtSet function e and 
- *                         | a pointer to user data that will be
- *                         | passed to the user's e function every
- *                         | time e is called.
- *                         | [NULL]
- *                         | [NULL]
- *                         |
  * CVodeSetMaxOrd          | maximum lmm order to be used by the
  *                         | solver.
  *                         | [12 for Adams , 5 for BDF]
@@ -985,10 +980,6 @@ SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
  *                         | type.
  *                         | [set by CVodecreate]
  *                         |
- * CVodeSetTolerances      | Changes the integration tolerances
- *                         | between calls to CVode().
- *                         | [set by CVodeMalloc/CVodeReInit]
- *                         |
  * -----------------------------------------------------------------
  *                         |
  * CVodeSetRootDirection   | Specifies the direction of zero
@@ -1003,10 +994,9 @@ SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data);
+SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun);
 SUNDIALS_EXPORT int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 SUNDIALS_EXPORT int CVodeSetFdata(void *cvode_mem, void *f_data);
-SUNDIALS_EXPORT int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data);
 SUNDIALS_EXPORT int CVodeSetMaxOrd(void *cvode_mem, int maxord);
 SUNDIALS_EXPORT int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 SUNDIALS_EXPORT int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
@@ -1021,8 +1011,6 @@ SUNDIALS_EXPORT int CVodeSetMaxConvFails(void *cvode_mem, int maxncf);
 SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
 
 SUNDIALS_EXPORT int CVodeSetIterType(void *cvode_mem, int iter);
-SUNDIALS_EXPORT int CVodeSetTolerances(void *cvode_mem,
-				       int itol, realtype reltol, void *abstol);
 
 SUNDIALS_EXPORT int CVodeSetRootDirection(void *cvode_mem, int *rootdir);
 
@@ -1742,7 +1730,7 @@ SUNDIALS_EXPORT void CVodeAdjFree(void *cvode_mem);
  * -----------------------------------------------------------------
  * CVodeCreateB, 
  *
- * CVodeMallocB, CVodeMallocBS, CVodeReInitB
+ * CVodeInitB, CVodeInitBS, CVodeReInitB
  * 
  * CVodeQuadMallocB, CVodeQuadMallocBS, CVodeQuadReInitB
  * 
@@ -1751,20 +1739,21 @@ SUNDIALS_EXPORT void CVodeAdjFree(void *cvode_mem);
 
 SUNDIALS_EXPORT int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which);
 
-SUNDIALS_EXPORT int CVodeMallocB(void *cvode_mem, int which,
-                                 CVRhsFnB fB,
-                                 realtype tB0, N_Vector yB0,
-                                 int itolB, realtype reltolB, void *abstolB);
+SUNDIALS_EXPORT int CVodeInitB(void *cvode_mem, int which,
+                               CVRhsFnB fB,
+                               realtype tB0, N_Vector yB0);
 
-SUNDIALS_EXPORT int CVodeMallocBS(void *cvode_mem, int which,
-                                  CVRhsFnBS fBs,
-                                  realtype tB0, N_Vector yB0,
-                                  int itolB, realtype reltolB, void *abstolB);
+SUNDIALS_EXPORT int CVodeInitBS(void *cvode_mem, int which,
+                                CVRhsFnBS fBs,
+                                realtype tB0, N_Vector yB0);
 
 SUNDIALS_EXPORT int CVodeReInitB(void *cvode_mem, int which,
-				 realtype tB0, N_Vector yB0,
-				 int itolB, realtype reltolB, void *abstolB);
+				 realtype tB0, N_Vector yB0);
 
+SUNDIALS_EXPORT int CVodeSStolerancesB(void *cvode_mem, int which,
+                                       realtype reltolB, realtype abstolB);
+SUNDIALS_EXPORT int CVodeSVtolerancesB(void *cvode_mem, int which,
+                                       realtype reltolB, N_Vector abstolB);
 
 SUNDIALS_EXPORT int CVodeQuadMallocB(void *cvode_mem, int which,
                                      CVQuadRhsFnB fQB, N_Vector yQB0);
@@ -1843,9 +1832,6 @@ SUNDIALS_EXPORT int CVodeSetAdjNoSensi(void *cvode_mem);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeSetErrHandlerFnB(void *cvode_mem, int which, 
-                                          CVErrHandlerFn ehfunB, void *eh_dataB);
-SUNDIALS_EXPORT int CVodeSetErrFileB(void *cvode_mem, int which, FILE *errfpB);
 SUNDIALS_EXPORT int CVodeSetIterTypeB(void *cvode_mem, int which, int iterB);
 SUNDIALS_EXPORT int CVodeSetFdataB(void *cvode_mem, int which, void *f_dataB);
 SUNDIALS_EXPORT int CVodeSetMaxOrdB(void *cvode_mem, int which, int maxordB);

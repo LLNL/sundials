@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-11 22:34:10 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -559,20 +559,6 @@ int IDASetRdataB(void *idaadj_mem, void *res_dataB)
   rdata_B = res_dataB;
 
   return(IDA_SUCCESS);
-}
-
-int IDASetErrFileB(void *idaadj_mem, FILE *errfpB)
-{
-  IDAadjMem IDAADJ_mem;
-  void *ida_mem;
-  int flag;
-
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-  ida_mem = (void *)IDAADJ_mem->IDAB_mem;
-
-  flag = IDASetErrFile(ida_mem, errfpB);
-
-  return(flag);
 }
 
 int IDASetMaxOrdB(void *idaadj_mem, int maxordB)

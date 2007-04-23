@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-23 23:37:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -45,7 +45,7 @@ extern "C" {
 
 void FIDA_ROOTINIT(int *nrtfn, int *ier)
 {
-  *ier = IDARootInit(IDA_idamem, *nrtfn, (IDARootFn) FIDArootfunc, ((IDAMem) IDA_idamem)->ida_rdata);
+  *ier = IDARootInit(IDA_idamem, *nrtfn, (IDARootFn) FIDArootfunc);
   IDA_nrtfn = *nrtfn;
 
   return;
@@ -63,7 +63,7 @@ void FIDA_ROOTINFO(int *nrtfn, int *info, int *ier)
 
 void FIDA_ROOTFREE(void)
 {
-  IDARootInit(IDA_idamem, 0, NULL, NULL);
+  IDARootInit(IDA_idamem, 0, NULL);
 
   return;
 }
@@ -71,7 +71,7 @@ void FIDA_ROOTFREE(void)
 /***************************************************************************/
 
 int FIDArootfunc(realtype t, N_Vector y, N_Vector yp, realtype *gout,
-                 void *g_data)
+                 void *res_data)
 {
   int ier;
   realtype *ydata, *ypdata;
@@ -80,7 +80,7 @@ int FIDArootfunc(realtype t, N_Vector y, N_Vector yp, realtype *gout,
   ydata  = N_VGetArrayPointer(y);
   ypdata = N_VGetArrayPointer(yp);
 
-  IDA_userdata = (FIDAUserData) g_data;
+  IDA_userdata = (FIDAUserData) res_data;
 
   FIDA_ROOTFN(&t, ydata, ypdata, gout, IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 

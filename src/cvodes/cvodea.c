@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-04-18 19:24:21 $
+ * $Revision: 1.14 $
+ * $Date: 2007-04-23 23:37:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -399,11 +399,7 @@ void CVodeAdjFree(void *cvode_mem)
 #define f          (cv_mem->cv_f)
 #define lmm        (cv_mem->cv_lmm)
 #define iter       (cv_mem->cv_iter)
-#define itol       (cv_mem->cv_itol)
 #define reltol     (cv_mem->cv_reltol)
-#define Sabstol    (cv_mem->cv_Sabstol)
-#define Vabstol    (cv_mem->cv_Vabstol)
-#define efun       (cv_mem->cv_efun)
 #define f_data     (cv_mem->cv_f_data)
 #define errfp      (cv_mem->cv_errfp)
 #define h0u        (cv_mem->cv_h0u)
@@ -720,6 +716,9 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
 
   CVodeSetMaxHnilWarns(cvodeB_mem, -1);
 
+  CVodeSetErrHandlerFn(cvodeB_mem, cv_mem->cv_ehfun);
+  CVodeSetErrFile(cvodeB_mem, cv_mem->cv_errfp);
+
   /* Set/initialize fields in the new CVodeBMem object, new_cvB_mem */
 
   new_cvB_mem->cv_index   = nbckpbs;
@@ -747,7 +746,7 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
   ca_mem->cvB_mem = new_cvB_mem;
   
   /* Return the index of the newly created CVodeBMem object.
-   * This must be passed to CVodeMallocB and to other ***B 
+   * This must be passed to CVodeInitB and to other ***B 
    * functions to set optional inputs for this backward problem */
 
   *which = nbckpbs;
@@ -757,10 +756,9 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
   return(CV_SUCCESS);
 }
 
-int CVodeMallocB(void *cvode_mem, int which, 
-                 CVRhsFnB fB,
-                 realtype tB0, N_Vector yB0,
-                 int itolB, realtype reltolB, void *abstolB)
+int CVodeInitB(void *cvode_mem, int which, 
+               CVRhsFnB fB,
+               realtype tB0, N_Vector yB0)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -771,7 +769,7 @@ int CVodeMallocB(void *cvode_mem, int which,
   /* Check if cvode_mem exists */
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeMallocB", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeInitB", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -779,7 +777,7 @@ int CVodeMallocB(void *cvode_mem, int which,
   /* Was ASA initialized? */
 
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeMallocB", MSGCV_NO_ADJ);
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeInitB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
@@ -787,7 +785,7 @@ int CVodeMallocB(void *cvode_mem, int which,
   /* Check the value of which */
 
   if ( which >= nbckpbs ) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeMallocB", MSGCV_BAD_WHICH);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeInitB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
 
@@ -803,8 +801,8 @@ int CVodeMallocB(void *cvode_mem, int which,
   
   /* Allocate and set the CVODES object */
 
-  flag = CVodeMalloc(cvodeB_mem, CVArhs, tB0, yB0,
-                     itolB, reltolB, abstolB);
+  flag = CVodeInit(cvodeB_mem, CVArhs, tB0, yB0);
+
   if (flag != CV_SUCCESS) return(flag);
 
   /* Copy fB function in cvB_mem */
@@ -821,10 +819,9 @@ int CVodeMallocB(void *cvode_mem, int which,
   return(CV_SUCCESS);
 }
 
-int CVodeMallocBS(void *cvode_mem, int which, 
-                  CVRhsFnBS fBs,
-                  realtype tB0, N_Vector yB0,
-                  int itolB, realtype reltolB, void *abstolB)
+int CVodeInitBS(void *cvode_mem, int which, 
+                CVRhsFnBS fBs,
+                realtype tB0, N_Vector yB0)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -835,7 +832,7 @@ int CVodeMallocBS(void *cvode_mem, int which,
   /* Check if cvode_mem exists */
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeMallocBS", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeInitBS", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -843,7 +840,7 @@ int CVodeMallocBS(void *cvode_mem, int which,
   /* Was ASA initialized? */
 
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeMallocBS", MSGCV_NO_ADJ);
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeInitBS", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
@@ -851,7 +848,7 @@ int CVodeMallocBS(void *cvode_mem, int which,
   /* Check the value of which */
 
   if ( which >= nbckpbs ) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeMallocBS", MSGCV_BAD_WHICH);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeInitBS", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
 
@@ -867,8 +864,8 @@ int CVodeMallocBS(void *cvode_mem, int which,
   
   /* Allocate and set the CVODES object */
 
-  flag = CVodeMalloc(cvodeB_mem, CVArhs, tB0, yB0,
-                     itolB, reltolB, abstolB);
+  flag = CVodeInit(cvodeB_mem, CVArhs, tB0, yB0);
+
   if (flag != CV_SUCCESS) return(flag);
 
   /* Copy fBs function in cvB_mem */
@@ -887,8 +884,7 @@ int CVodeMallocBS(void *cvode_mem, int which,
 
 
 int CVodeReInitB(void *cvode_mem, int which,
-                 realtype tB0, N_Vector yB0, 
-                 int itolB, realtype reltolB, void *abstolB)
+                 realtype tB0, N_Vector yB0)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -927,12 +923,109 @@ int CVodeReInitB(void *cvode_mem, int which,
 
   /* Reinitialize CVODES object */
 
-  flag = CVodeReInit(cvodeB_mem, tB0, yB0,
-                     itolB, reltolB, abstolB);
-  if (flag != CV_SUCCESS)  return(flag);
+  flag = CVodeReInit(cvodeB_mem, tB0, yB0);
 
-  return(CV_SUCCESS);
+  return(flag);
 }
+
+
+int CVodeSStolerancesB(void *cvode_mem, int which, realtype reltolB, realtype abstolB)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  void *cvodeB_mem;
+  int flag;
+
+  /* Check if cvode_mem exists */
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeSStolerancesB", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was ASA initialized? */
+
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSStolerancesB", MSGCV_NO_ADJ);
+    return(CV_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check the value of which */
+
+  if ( which >= nbckpbs ) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSStolerancesB", MSGCV_BAD_WHICH);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+
+  /* Set tolerances */
+
+  flag = CVodeSStolerances(cvodeB_mem, reltolB, abstolB);
+
+  return(flag);
+}
+
+
+int CVodeSVtolerancesB(void *cvode_mem, int which, realtype reltolB, N_Vector abstolB)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  void *cvodeB_mem;
+  int flag;
+
+  /* Check if cvode_mem exists */
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeSVtolerancesB", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was ASA initialized? */
+
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSVtolerancesB", MSGCV_NO_ADJ);
+    return(CV_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check the value of which */
+
+  if ( which >= nbckpbs ) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSVtolerancesB", MSGCV_BAD_WHICH);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+
+  /* Set tolerances */
+
+  flag = CVodeSVtolerances(cvodeB_mem, reltolB, abstolB);
+
+  return(flag);
+}
+
 
 int CVodeQuadMallocB(void *cvode_mem, int which,
                      CVQuadRhsFnB fQB, N_Vector yQB0)
@@ -1892,9 +1985,6 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
 static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem) 
 {
   int flag, j, is, qmax;
-  void *abstol;
-
-  abstol = NULL;
 
   if (next_ == NULL) {
 
@@ -1904,18 +1994,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
 
     CVodeSetInitStep(cv_mem, h0u);
 
-    switch (itol) {
-    case CV_SS:
-      abstol = (void *) &Sabstol;
-      break;
-    case CV_SV:
-      abstol = (void *)Vabstol;
-      break;
-    case CV_EE:
-      abstol = (void *)efun;
-      break;
-    }
-    flag = CVodeReInit(cv_mem, t0_, zn_[0], itol, reltol, abstol);
+    flag = CVodeReInit(cv_mem, t0_, zn_[0]);
     if (flag != CV_SUCCESS) return(flag);
 
     if (quadr_) {

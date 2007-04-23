@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-25 21:39:48 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:26 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -114,11 +114,12 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   flag = CVodeSetFdata(cvode_mem, data);
   flag = CVodeSetMaxNumSteps(cvode_mem, MXSTEPS);
-  flag = CVodeMalloc(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
+  flag = CVodeInit(cvode_mem, f, T0, y0);
+  flag = CVodeSVtolerances(cvode_mem, reltol, abstol);
 
   /* Attach linear solver */
   flag = CVDense(cvode_mem, Neq);
-  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
+  flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
 
   /* Sensitivity-related settings */
 
@@ -142,19 +143,17 @@ int main(int argc, char *argv[])
 
   yS = N_VCloneVectorArray_Serial(Ns, y);
   
-  flag = CVodeSensMalloc(cvode_mem, Ns, meth, yS0);
+  flag = CVodeSensMalloc(cvode_mem, Ns, meth, CV_ONESENS, fS, yS0);
 
   flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
 
   /*
     Sensitivities are enabled
     Set full error control
-    Set user-provided sensitivity RHS
     Run CVODES
   */
 
   flag = CVodeSetSensErrCon(cvode_mem, errconS);
-  flag = CVodeSetSensRhs1Fn(cvode_mem, fS, data);
 
   flag = runCVode(cvode_mem, y, yS, data);
 
@@ -171,32 +170,11 @@ int main(int argc, char *argv[])
   sensi = FALSE;
 
   flag = CVodeSensToggleOff(cvode_mem);
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
-  flag = runCVode(cvode_mem, y, yS, data);
-
-  /*
-    Change parameters
-    Switch to internal DQ sensitivity RHS function
-    Toggle sensitivities ON (reinitialize sensitivities)
-    Reinitialize and run CVODES
-  */
-  
-  data->p[0] = RCONST(0.06);
-  data->p[1] = RCONST(3.0e4);
-  data->p[2] = RCONST(2.8e7);
-
-  sensi = TRUE;
-  fsDQ = TRUE;
-
-  flag = CVodeSetSensRhs1Fn(cvode_mem, NULL, NULL);
-  flag = CVodeSensReInit(cvode_mem, meth, yS0);
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
+  flag = CVodeReInit(cvode_mem, T0, y0);
   flag = runCVode(cvode_mem, y, yS, data);
 
   /*
     Switch to partial error control
-    Switch back to user-provided sensitivity RHS
-    Toggle sensitivities ON (reinitialize sensitivities)
     Change method to staggered
     Reinitialize and run CVODES
   */
@@ -207,9 +185,8 @@ int main(int argc, char *argv[])
   meth = CV_STAGGERED;
 
   flag = CVodeSetSensErrCon(cvode_mem, errconS);
-  flag = CVodeSetSensRhs1Fn(cvode_mem, fS, data);
   flag = CVodeSensReInit(cvode_mem, meth, yS0);
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
+  flag = CVodeReInit(cvode_mem, T0, y0);
   flag = runCVode(cvode_mem, y, yS, data);
 
   /*
@@ -221,7 +198,7 @@ int main(int argc, char *argv[])
   sensi = FALSE;
 
   CVodeSensFree(cvode_mem);
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
+  flag = CVodeReInit(cvode_mem, T0, y0);
   flag = runCVode(cvode_mem, y, yS, data);
   
   /* Free memory */

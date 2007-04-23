@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-11 22:34:11 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example problem for IDAS: 2D heat equation, parallel, GMRES,
+ * Example problem for IDA: 2D heat equation, parallel, GMRES,
  * IDABBDPRE.
  *
  * This example solves a discretized 2D heat equation problem.
@@ -210,8 +210,11 @@ int main(int argc, char *argv[])
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy_Parallel(constraints);
 
-  ier = IDAMalloc(mem, heatres, t0, uu, up, IDA_SS, rtol, &atol);
-  if(check_flag(&ier, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDAInit(mem, heatres, t0, uu, up);
+  if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
+
+  ier = IDASStolerances(mem, rtol, atol);
+  if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   mudq = MXSUB;
   mldq = MXSUB;
@@ -266,7 +269,7 @@ int main(int argc, char *argv[])
   SetInitialProfile(uu, up, id, res, data);
 
   /* Call IDAReInit to re-initialize IDA. */
-  ier = IDAReInit(mem, t0, uu, up, IDA_SS, rtol, &atol);
+  ier = IDAReInit(mem, t0, uu, up);
   if(check_flag(&ier, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDPrecReInit to re-initialize BBD preconditioner. */
@@ -702,7 +705,7 @@ static void PrintHeader(int Neq, realtype rtol, realtype atol)
     printf("                Zero boundary conditions,");
     printf(" polynomial initial conditions.\n");
     printf("                Mesh dimensions: %d x %d", MX, MY);
-    printf("        Total system size: %ld\n\n", Neq);
+    printf("        Total system size: %d\n\n", Neq);
 
     printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
     printf("         Processor array: %d x %d\n", NPEX, NPEY);
@@ -728,8 +731,8 @@ static void PrintHeader(int Neq, realtype rtol, realtype atol)
 static void PrintCase(int case_number, int mudq, int mukeep)
 {
   printf("\n\nCase %1d. \n", case_number);
-  printf("   Difference quotient half-bandwidths = %ld",mudq);
-  printf("   Retained matrix half-bandwidths = %ld \n",mukeep);
+  printf("   Difference quotient half-bandwidths = %d",mudq);
+  printf("   Retained matrix half-bandwidths = %d \n",mukeep);
   
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");

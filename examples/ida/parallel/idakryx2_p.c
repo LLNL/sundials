@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-02-01 00:03:25 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-23 23:37:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -317,8 +317,11 @@ int main(int argc, char *argv[])
   flag = IDASetId(mem, id);
   if (check_flag(&flag, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, rtol, &atol);
-  if (check_flag(&flag, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
+  flag = IDAInit(mem, resweb, t0, cc, cp);
+  if (check_flag(&flag, "IDAinit", 1, thispe)) MPI_Abort(comm, 1);
+
+  flag = IDASStolerances(mem, rtol, atol);
+  if (check_flag(&flag, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   webdata->ida_mem = mem;
 

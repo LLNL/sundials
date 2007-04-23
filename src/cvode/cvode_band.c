@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -48,7 +48,6 @@ static void cvBandFree(CVodeMem cv_mem);
 #define lmm       (cv_mem->cv_lmm)
 #define f         (cv_mem->cv_f)
 #define f_data    (cv_mem->cv_f_data)
-#define uround    (cv_mem->cv_uround)
 #define nst       (cv_mem->cv_nst)
 #define tn        (cv_mem->cv_tn)
 #define h         (cv_mem->cv_h)
@@ -67,6 +66,7 @@ static void cvBandFree(CVodeMem cv_mem);
 
 #define mtype      (cvdls_mem->d_type)
 #define n          (cvdls_mem->d_n)
+#define jacDQ      (cvdls_mem->d_jacDQ)
 #define jac        (cvdls_mem->d_bjac)
 #define M          (cvdls_mem->d_M)
 #define mu         (cvdls_mem->d_mu)
@@ -142,9 +142,11 @@ int CVBand(void *cvode_mem, int N, int mupper, int mlower)
   /* Set matrix type */
   mtype = SUNDIALS_BAND;
   
-  /* Set default Jacobian routine and Jacobian data */
-  jac = cvDlsBandDQJac;
-  J_data = cvode_mem;
+  /* Initialize Jacobian-related data */
+  jacDQ = TRUE;
+  jac = NULL;
+  J_data = NULL;
+
   last_flag = CVDIRECT_SUCCESS;
 
   setupNonNull = TRUE;
@@ -216,9 +218,12 @@ static int cvBandInit(CVodeMem cv_mem)
   nfeDQ  = 0;
   nstlj = 0;
 
-  if (jac == NULL) {
+  /* Set Jacobian function and data, depending on jacDQ */
+  if (jacDQ) {
     jac = cvDlsBandDQJac;
     J_data = cv_mem;
+  } else {
+    J_data = f_data;
   }
 
   last_flag = CVDIRECT_SUCCESS;

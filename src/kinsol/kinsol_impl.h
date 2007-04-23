@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:09 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -218,11 +218,9 @@ typedef struct KINMemRec {
     -------------------------------------------*/
 
   KINErrHandlerFn kin_ehfun;   /* Error messages are handled by ehfun          */
-  void *kin_eh_data;           /* user pointer passed to ehfun                 */
   FILE *kin_errfp;             /* KINSOL error messages are sent to errfp      */
 
   KINInfoHandlerFn kin_ihfun;  /* Info messages are handled by ihfun           */
-  void *kin_ih_data;           /* user pointer passed to ihfun                 */
   FILE *kin_infofp;            /* where KINSol info messages are sent          */
 
 } *KINMem;
@@ -337,7 +335,7 @@ void KINProcessError(KINMem kin_mem,
 /* Prototype of internal errHandler function */
 
 void KINErrHandler(int error_code, const char *module, const char *function, 
-		   char *msg, void *eh_data);
+		   char *msg, void *f_data);
 
 
 /* High level info handler */
@@ -349,7 +347,7 @@ void KINPrintInfo(KINMem kin_mem,
 /* Prototype of internal infoHandler function */
 
 void KINInfoHandler(const char *module, const char *function, 
-		    char *msg, void *ih_data);
+		    char *msg, void *f_data);
 
 /*
  * =================================================================

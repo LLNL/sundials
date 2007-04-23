@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-23 23:37:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -214,8 +214,11 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return(1);
 
   /* Allocate CVODES memory */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SS, reltol, &abstol);
-  if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+  flag = CVodeInit(cvode_mem, f, T0, y);
+  if(check_flag(&flag, "CVodeInit", 1)) return(1);
+
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
   /* Attach CVSPGMR linear solver */
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);

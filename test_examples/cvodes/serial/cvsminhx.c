@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-25 21:39:48 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:26 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -112,14 +112,15 @@ int main()
   Ith(atolT,2) = ATOL2;
   Ith(atolT,3) = ATOL3;
 
-  /* Call CVodeCreate and CVodeMalloc */
+  /* Call CVodeCreate and CVodeInit */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, reltol, atolT);
+  flag = CVodeInit(cvode_mem, f, T0, y);
+  flag = CVodeSVtolerances(cvode_mem, reltol, atolT);
   flag = CVodeSetFdata(cvode_mem, data);
 
   /* Use the CVDENSE dense linear solver with user-supplied Jacobian */
   flag = CVDense(cvode_mem, NEQ);
-  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
+  flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
 
   /* Integrate to TOUT1 in NORMAL_MODE */
   flag = CVode(cvode_mem, TOUT1, y, &t, CV_NORMAL);
@@ -149,7 +150,8 @@ int main()
       /* Enforce backward Euler */
       CVodeSetMaxOrd(cvode_mem, 1);
       /* Reinitialize solver with loose tolerances */
-      flag = CVodeReInit(cvode_mem, f, t, y, CV_SV, reltol, atolL);
+      flag = CVodeReInit(cvode_mem, t, y);
+      flag = CVodeSVtolerances(cvode_mem, reltol, atolL);
       mode = LOOSE;
       /* Keep going */
       continue;
@@ -172,7 +174,8 @@ int main()
         /* Reset maximum order */
         CVodeSetMaxOrd(cvode_mem, 5);
         /* Reinitialize solver with tight tolerances */
-        flag = CVodeReInit(cvode_mem, f, t, y, CV_SV, reltol, atolT);
+        flag = CVodeReInit(cvode_mem, t, y);
+        flag = CVodeSVtolerances(cvode_mem, reltol, atolT);
         mode = TIGHT;
         /* Keep going */
         continue;

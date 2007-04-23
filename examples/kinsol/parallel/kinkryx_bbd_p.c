@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-02-01 00:03:25 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -251,15 +251,15 @@ int main(int argc, char *argv[])
 
   fnormtol = FTOL; scsteptol = STOL;
 
-  /* Call KINCreate/KINMalloc to initialize KINSOL: 
+  /* Call KINCreate/KINInit to initialize KINSOL: 
      nvSpec  points to machine environment data
      A pointer to KINSOL problem memory is returned and stored in kmem. */
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Vector cc passed as template vector. */
-  flag = KINMalloc(kmem, func, cc);
-  if (check_flag(&flag, "KINMalloc", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = KINInit(kmem, func, cc);
+  if (check_flag(&flag, "KINInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = KINSetFdata(kmem, data);
   if (check_flag(&flag, "KINSetFdata", 1, my_pe)) MPI_Abort(comm, 1);

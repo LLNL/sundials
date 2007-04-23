@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:45 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -135,8 +135,11 @@ int main(void)
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
   N_VDestroy_Serial(constraints);
 
-  ier = IDAMalloc(mem, heatres, t0, uu, up, IDA_SS, rtol, &atol);
-  if(check_flag(&ier, "IDAMalloc", 1)) return(1);
+  ier = IDAInit(mem, heatres, t0, uu, up);
+  if(check_flag(&ier, "IDAInit", 1)) return(1);
+
+  ier = IDASStolerances(mem, rtol, atol);
+  if(check_flag(&ier, "IDASStolerances", 1)) return(1);
 
   /* Call IDABand to specify the linear solver. */
   mu = MGRID; ml = MGRID;

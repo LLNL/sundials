@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -35,13 +35,13 @@
  *   FNVINITS and FNVINITP interface to N_VNew_Serial and
  *               N_VNew_Parallel, respectively
  * 
- *   FCVMALLOC  interfaces to CVodeCreate, CVodeSetFdata, and CVodeMalloc
+ *   FCVMALLOC  interfaces to CVodeCreate, CVodeSetFdata, and CVodeInit
  * 
  *   FCVREINIT  interfaces to CVReInit
  * 
  *   FCVSETIIN and FCVSETRIN interface to CVodeSet*
  *
- *   FCVEWTSET  interfaces to CVodeSetEwtFn
+ *   FCVEWTSET  interfaces to CVodeWFtolerances
  * 
  *   FCVDIAG    interfaces to CVDiag
  * 
@@ -703,21 +703,21 @@ extern "C" {
   
   int FCVDenseJac(int N, realtype t, 
                   N_Vector y, N_Vector fy, 
-                  DlsMat J, void *jac_data,
+                  DlsMat J, void *f_data,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
   int FCVBandJac(int N, int mupper, int mlower,
                  realtype t, N_Vector y, N_Vector fy,
-                 DlsMat J, void *jac_data,
+                 DlsMat J, void *f_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
   int FCVLapackDenseJac(int N, realtype t,
                         N_Vector y, N_Vector fy, 
-                        DlsMat Jac, void *jac_data,
+                        DlsMat Jac, void *f_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   int FCVLapackBandJac(int N, int mupper, int mlower,
                        realtype t, N_Vector y, N_Vector fy, 
-                       DlsMat Jac, void *jac_data,
+                       DlsMat Jac, void *f_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
   int FCVPSet(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
@@ -733,7 +733,7 @@ extern "C" {
                 N_Vector y, N_Vector fy,
                 void *jac_data, N_Vector work);
   
-  int FCVEwtSet(N_Vector y, N_Vector ewt, void *e_data);
+  int FCVEwtSet(N_Vector y, N_Vector ewt, void *f_data);
 
   /* Declarations for global variables shared amongst various routines */
 

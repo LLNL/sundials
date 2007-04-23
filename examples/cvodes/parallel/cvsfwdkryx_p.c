@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-23 23:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -106,7 +106,7 @@
 #define MY        (NPEY*MYSUB)   /* MY = number of y mesh points         */
                                  /* Spatial mesh is MX by MY             */
 
-/* CVodeMalloc Constants */
+/* CVodeInit Constants */
 
 #define RTOL      RCONST(1.0e-5) /* scalar relative tolerance             */
 #define FLOOR     RCONST(100.0)  /* value of C1 or C2 at which tols.      */
@@ -275,8 +275,11 @@ int main(int argc, char *argv[])
   flag = CVodeSetMaxNumSteps(cvode_mem, 2000);
   if (check_flag(&flag, "CVodeSetMaxNumSteps", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-  if (check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeInit(cvode_mem, f, T0, u);
+  if (check_flag(&flag, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
+
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach linear solver CVSPGMR */
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);

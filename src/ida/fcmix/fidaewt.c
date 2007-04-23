@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-23 23:37:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -48,7 +48,7 @@ void FIDA_EWTSET(int *flag, int *ier)
   *ier = 0;
 
   if (*flag != 0) {
-    *ier = IDASetEwtFn(IDA_idamem, (IDAEwtFn) FIDAEwtSet, ((IDAMem) IDA_idamem)->ida_rdata);
+    *ier = IDAWFtolerances(IDA_idamem,  FIDAEwtSet);
   }
 
   return;
@@ -60,7 +60,7 @@ void FIDA_EWTSET(int *flag, int *ier)
  * C function to interface between IDA and a Fortran subroutine FIDAVEWT.
  */
 
-int FIDAEwtSet(N_Vector y, N_Vector ewt, void *e_data)
+int FIDAEwtSet(N_Vector y, N_Vector ewt, void *res_data)
 {
   int ier;
   realtype *y_data, *ewt_data;
@@ -78,7 +78,7 @@ int FIDAEwtSet(N_Vector y, N_Vector ewt, void *e_data)
   y_data   = N_VGetArrayPointer(y);
   ewt_data = N_VGetArrayPointer(ewt);
 
-  IDA_userdata = (FIDAUserData) e_data;
+  IDA_userdata = (FIDAUserData) res_data;
 
   /* Call user-supplied routine */
   FIDA_EWT(y_data, ewt_data, IDA_userdata->ipar, IDA_userdata->rpar, &ier);

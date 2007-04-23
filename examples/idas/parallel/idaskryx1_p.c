@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:09 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example problem for IDAS: 2D heat equation, parallel, GMRES.
+ * Example problem for IDA: 2D heat equation, parallel, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the Krylov solver IDASpgmr.
@@ -24,7 +24,7 @@
  * processor, with an MXSUB by MYSUB mesh on each of NPEX * NPEY
  * processors.
  *
- * The system is solved with IDAS using the Krylov linear solver
+ * The system is solved with IDA using the Krylov linear solver
  * IDASPGMR. The preconditioner uses the diagonal elements of the
  * Jacobian only. Routines for preconditioning, required by
  * IDASPGMR, are supplied here. The constraints u >= 0 are posed
@@ -228,9 +228,12 @@ int main(int argc, char *argv[])
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy_Parallel(constraints);  
 
-  ier = IDAMalloc(mem, resHeat, t0, uu, up, IDA_SS, rtol, &atol);
-  if(check_flag(&ier, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDAInit(mem, resHeat, t0, uu, up);
+  if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
   
+  ier = IDASStolerances(mem, rtol, atol);
+  if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+
   /* Call IDASpgmr to specify the linear solver. */
 
   ier = IDASpgmr(mem, 0);

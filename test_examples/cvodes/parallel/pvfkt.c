@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:52 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -112,7 +112,7 @@
 #define NS           2              /* number of sensitivities              */
 #define ZERO         RCONST(0.0)
 
-/* CVodeMalloc Constants */
+/* CVodeInit Constants */
 #define RTOL    RCONST(1.0e-5)            /* scalar relative tolerance */
 #define FLOOR   RCONST(100.0)             /* value of C1 or C2 at which tolerances */
                                   /* change from relative to absolute      */
@@ -267,8 +267,11 @@ int main(int argc, char *argv[])
   flag = CVodeSetMaxNumSteps(cvode_mem, 10000);
   if (check_flag(&flag, "CVodeSetMaxNumSteps", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-  if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeInit(cvode_mem, f, T0, u);
+  if(check_flag(&flag, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
+
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if(check_flag(&flag, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVSpgmr(cvode_mem, PREC_LEFT, MAXL);
   if(check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
@@ -299,7 +302,7 @@ int main(int argc, char *argv[])
     for (is = 0; is < NS; is++)
       N_VConst(ZERO,uS[is]);
 
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, uS);
+    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, CV_ONESENS, NULL, uS);
     if (check_flag(&flag, "CVodeSensMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
@@ -368,7 +371,7 @@ int main(int argc, char *argv[])
     PrintOutput(cvode_mem, my_pe, comm, u, t);
     
     if (sensi) {
-      flag = CVodeGetSens(cvode_mem, t, uS);
+      flag = CVodeGetSens(cvode_mem, &t, uS);
       if (check_flag(&flag, "CVodeGetSens", 1, my_pe)) break;
       PrintOutputS(my_pe, comm, uS);
     }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-02-01 00:03:25 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-23 23:37:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -305,9 +305,12 @@ int main(int argc, char *argv[])
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, rtol, &atol);
-  if(check_flag(&retval, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDAInit(mem, resweb, t0, cc, cp);
+  if(check_flag(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
   
+  retval = IDASStolerances(mem, rtol, atol);
+  if(check_flag(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+
   /* Call IDABBDPrecAlloc to initialize the band-block-diagonal preconditioner.
      The half-bandwidths for the difference quotient evaluation are exact
      for the system Jacobian, but only a 5-diagonal band matrix is retained. */

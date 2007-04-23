@@ -1,18 +1,18 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-11 22:34:11 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  *
  * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- * This example (a modified version of idaskryx.c) loops through the
+ * This example (a modified version of idakryx.c) loops through the
  * available iterative linear solvers: SPGMR, SPBCG and SPTFQMR.
  * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  *
- * Example problem for IDAS: 2D heat equation, serial, GMRES.
+ * Example problem for IDA: 2D heat equation, serial, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version loops through the Krylov solvers IDASpgmr, IDASpbcg
@@ -27,7 +27,7 @@
  * equations u = 0 at the boundaries are appended, to form a DAE
  * system of size N = M^2. Here M = 10.
  *
- * The system is solved with IDAS using the following Krylov
+ * The system is solved with IDA using the following Krylov
  * linear solvers: IDASPGMR, IDASPBCG and IDASPTFQMR. The
  * preconditioner uses the diagonal elements of the Jacobian only.
  * Routines for preconditioning, required by IDASP*, are supplied
@@ -168,8 +168,11 @@ int main(void)
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
   N_VDestroy_Serial(constraints);
 
-  ier = IDAMalloc(mem, resHeat, t0, uu, up, IDA_SS, rtol, &atol);
-  if(check_flag(&ier, "IDAMalloc", 1)) return(1);
+  ier = IDAInit(mem, resHeat, t0, uu, up);
+  if(check_flag(&ier, "IDAInit", 1)) return(1);
+
+  ier = IDASStolerances(mem, rtol, atol);
+  if(check_flag(&ier, "IDASStolerances", 1)) return(1);
 
   /* START: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
   for (linsolver = 0; linsolver < 3; ++linsolver) {
@@ -180,7 +183,7 @@ int main(void)
       SetInitialProfile(data, uu, up, res);
 
       /* Re-initialize IDA */
-      ier = IDAReInit(mem, t0, uu, up, IDA_SS, rtol, &atol);
+      ier = IDAReInit(mem, t0, uu, up);
       if (check_flag(&ier, "IDAReInit", 1)) return(1);
 
     }

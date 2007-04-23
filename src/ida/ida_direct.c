@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-12-01 22:48:59 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:21 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -68,13 +68,13 @@
 #define ml             (idadls_mem->d_ml)
 #define mu             (idadls_mem->d_mu)
 #define smu            (idadls_mem->d_smu)
+#define jacDQ          (idadls_mem->d_jacDQ)
 #define djac           (idadls_mem->d_djac)
 #define bjac           (idadls_mem->d_bjac)
 #define M              (idadls_mem->d_J)
 #define pivots         (idadls_mem->d_pivots)
 #define nje            (idadls_mem->d_nje)
 #define nreDQ          (idadls_mem->d_nreDQ)
-#define J_data         (idadls_mem->d_J_data)
 #define last_flag      (idadls_mem->d_last_flag)
 
 /* 
@@ -84,32 +84,63 @@
  */
               
 /*
- * IDADlsSetJacFn specifies the (dense or band) Jacobian function.
+ * IDADlsSetDenseJacFn specifies the dense Jacobian function.
  */
-int IDADlsSetJacFn(void *ida_mem, void *jac, void *jac_data)
+int IDADlsSetDenseJacFn(void *ida_mem, IDADlsDenseJacFn jac)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsSetJacFn", MSGD_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsSetDenseJacFn", MSGD_IDAMEM_NULL);
     return(IDADIRECT_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsSetJacFn", MSGD_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsSetDenseJacFn", MSGD_LMEM_NULL);
     return(IDADIRECT_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
-  if (mtype == SUNDIALS_DENSE) 
-    djac = (IDADlsDenseJacFn) jac;
-  else if (mtype == SUNDIALS_BAND)
-    bjac = (IDADlsBandJacFn) jac;
+  if (jac != NULL) {
+    jacDQ = FALSE;
+    djac = jac;
+  } else {
+    jacDQ = TRUE;
+  }
 
-  J_data = jac_data;
+  return(IDADIRECT_SUCCESS);
+}
+
+/*
+ * IDADlsSetBandJacFn specifies the band Jacobian function.
+ */
+int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac)
+{
+  IDAMem IDA_mem;
+  IDADlsMem idadls_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsSetBandJacFn", MSGD_IDAMEM_NULL);
+    return(IDADIRECT_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsSetBandJacFn", MSGD_LMEM_NULL);
+    return(IDADIRECT_LMEM_NULL);
+  }
+  idadls_mem = (IDADlsMem) lmem;
+
+  if (jac != NULL) {
+    jacDQ = FALSE;
+    bjac = jac;
+  } else {
+    jacDQ = TRUE;
+  }
 
   return(IDADIRECT_SUCCESS);
 }
@@ -287,7 +318,7 @@ int IDADlsGetLastFlag(void *ida_mem, int *flag)
  */ 
 int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
                      N_Vector yy, N_Vector yp, N_Vector rr, 
-                     DlsMat Jac, void *jac_data,
+                     DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype inc, inc_inv, yj, ypj, srur, conj;
@@ -299,8 +330,8 @@ int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
-  /* jac_data points to IDA_mem */
-  IDA_mem = (IDAMem) jac_data;
+  /* data points to IDA_mem */
+  IDA_mem = (IDAMem) data;
   idadls_mem = (IDADlsMem) lmem;
 
   /* Save pointer to the array in tmp2 */
@@ -387,7 +418,7 @@ int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
 int idaDlsBandDQJac(int N, int mupper, int mlower,
                     realtype tt, realtype c_j, 
                     N_Vector yy, N_Vector yp, N_Vector rr,
-                    DlsMat Jac, void *jac_data,
+                    DlsMat Jac, void *data,
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
@@ -402,8 +433,8 @@ int idaDlsBandDQJac(int N, int mupper, int mlower,
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
 
-  /* jac_data points to IDA_mem */
-  IDA_mem = (IDAMem) jac_data;
+  /* data points to IDA_mem */
+  IDA_mem = (IDAMem) data;
   idadls_mem = (IDADlsMem) lmem;
 
   rtemp = tmp1; /* Rename work vector for use as the perturbed residual. */

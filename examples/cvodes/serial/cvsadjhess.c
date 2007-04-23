@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -154,7 +154,8 @@ int main(int argc, char *argv[])
 
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
 
-  flag = CVodeMalloc(cvode_mem, f, t0, y, CV_SS, reltol, &abstol);
+  flag = CVodeInit(cvode_mem, f, t0, y);
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   flag = CVodeSetFdata(cvode_mem, data);
 
   flag = CVDense(cvode_mem, Neq);
@@ -222,14 +223,16 @@ int main(int argc, char *argv[])
   /* Create and initialize backward problems (one for each column of the Hessian) */
 
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB1);
-  flag = CVodeMallocBS(cvode_mem, indexB1, fB1, tf, yB1, CV_SS, reltol, &abstolB);
+  flag = CVodeInitBS(cvode_mem, indexB1, fB1, tf, yB1);
+  flag = CVodeSStolerancesB(cvode_mem, indexB1, reltol, abstolB);
   flag = CVodeSetFdataB(cvode_mem, indexB1, data);
   flag = CVodeQuadMallocBS(cvode_mem, indexB1, fQB1, yQB1);
   flag = CVodeSetQuadErrConB(cvode_mem, indexB1, TRUE, CV_SS, reltol, &abstolQB);
   flag = CVDenseB(cvode_mem, indexB1, 2*Neq);
 
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB2);
-  flag = CVodeMallocBS(cvode_mem, indexB2, fB2, tf, yB2, CV_SS, reltol, &abstolB);
+  flag = CVodeInitBS(cvode_mem, indexB2, fB2, tf, yB2);
+  flag = CVodeSStolerancesB(cvode_mem, indexB2, reltol, abstolB);
   flag = CVodeSetFdataB(cvode_mem, indexB2, data);
   flag = CVodeQuadMallocBS(cvode_mem, indexB2, fQB2, yQB2);
   flag = CVodeSetQuadErrConB(cvode_mem, indexB2, TRUE, CV_SS, reltol, &abstolQB);
@@ -284,7 +287,8 @@ int main(int argc, char *argv[])
 
   N_VConst(ONE, y);
   N_VConst(ZERO, yQ);
-  flag = CVodeMalloc(cvode_mem, f, t0, y, CV_SS, reltol, &abstol);
+  flag = CVodeInit(cvode_mem, f, t0, y);
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   flag = CVodeSetFdata(cvode_mem, data);
   flag = CVDense(cvode_mem, Neq);
   flag = CVodeQuadMalloc(cvode_mem, fQ, yQ);
@@ -302,7 +306,7 @@ int main(int argc, char *argv[])
 
   N_VConst(ONE, y);
   N_VConst(ZERO, yQ);
-  CVodeReInit(cvode_mem, t0, y, CV_SS, reltol, &abstol);
+  CVodeReInit(cvode_mem, t0, y);
   CVodeQuadReInit(cvode_mem, yQ);
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
@@ -321,7 +325,7 @@ int main(int argc, char *argv[])
 
   N_VConst(ONE, y);
   N_VConst(ZERO, yQ);
-  CVodeReInit(cvode_mem, t0, y, CV_SS, reltol, &abstol);
+  CVodeReInit(cvode_mem, t0, y);
   CVodeQuadReInit(cvode_mem, yQ);
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);
@@ -333,7 +337,7 @@ int main(int argc, char *argv[])
 
   N_VConst(ONE, y);
   N_VConst(ZERO, yQ);
-  CVodeReInit(cvode_mem, t0, y, CV_SS, reltol, &abstol);
+  CVodeReInit(cvode_mem, t0, y);
   CVodeQuadReInit(cvode_mem, yQ);
   flag = CVode(cvode_mem, tf, y, &time, CV_NORMAL);
   flag = CVodeGetQuad(cvode_mem, &time, yQ);

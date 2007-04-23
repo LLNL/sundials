@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-24 19:09:12 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -55,7 +55,7 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp,
 static int grob(realtype t, N_Vector yy, N_Vector yp,
                 realtype *gout, void *g_data);
 
-int jacrob(long int Neq, realtype tt,  realtype cj, 
+int jacrob(int Neq, realtype tt,  realtype cj, 
            N_Vector yy, N_Vector yp, N_Vector resvec,
            DlsMat JJ, void *jdata,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
@@ -121,21 +121,23 @@ int main(void)
   /* Call IDACreate and IDAMalloc to initialize IDA memory */
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
-  retval = IDAMalloc(mem, resrob, t0, yy, yp, IDA_SV, rtol, avtol);
-  if(check_flag(&retval, "IDAMalloc", 1)) return(1);
-  
+  retval = IDAInit(mem, resrob, t0, yy, yp);
+  if(check_flag(&retval, "IDAInit", 1)) return(1);
+  retval = IDASVtolerances(mem, rtol, avtol);
+  if(check_flag(&retval, "IDASVtolerances", 1)) return(1);
+
   /* Free avtol */
   N_VDestroy_Serial(avtol);
 
   /* Call IDARootInit to specify the root function grob with 2 components */
-  retval = IDARootInit(mem, 2, grob, NULL);
+  retval = IDARootInit(mem, 2, grob);
   if (check_flag(&retval, "IDARootInit", 1)) return(1);
 
   /* Call IDADense and set up the linear solver. */
   retval = IDADense(mem, NEQ);
   if(check_flag(&retval, "IDADense", 1)) return(1);
-  retval = IDADlsSetJacFn(mem, (void *)jacrob, NULL);
-  if(check_flag(&retval, "IDADlsSetJacFn", 1)) return(1);
+  retval = IDADlsSetDenseJacFn(mem, jacrob);
+  if(check_flag(&retval, "IDADlsSetDenseJacFn", 1)) return(1);
 
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
@@ -222,7 +224,7 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
  * Define the Jacobian function. 
  */
 
-int jacrob(long int Neq, realtype tt,  realtype cj, 
+int jacrob(int Neq, realtype tt,  realtype cj, 
            N_Vector yy, N_Vector yp, N_Vector resvec,
            DlsMat JJ, void *jdata,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)

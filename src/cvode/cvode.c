@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-11 22:34:09 $
+ * $Revision: 1.11 $
+ * $Date: 2007-04-23 23:37:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -233,7 +233,7 @@ static booleantype CVCheckNvector(N_Vector tmpl);
 
 static int CVInitialSetup(CVodeMem cv_mem);
 
-static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol);
+static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void CVFreeVectors(CVodeMem cv_mem);
 
 static int CVEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
@@ -308,7 +308,7 @@ static int CVRootfind(CVodeMem cv_mem);
  * CVodeCreate creates an internal memory block for a problem to 
  * be solved by CVODE.
  * If successful, CVodeCreate returns a pointer to the problem memory. 
- * This pointer should be passed to CVodeMalloc.  
+ * This pointer should be passed to CVodeInit.  
  * If an initialization error occurs, CVodeCreate prints an error 
  * message to standard err and returns NULL. 
  */
@@ -349,10 +349,10 @@ void *CVodeCreate(int lmm, int iter)
   /* Set default values for integrator optional inputs */
   cv_mem->cv_f        = NULL;
   cv_mem->cv_f_data   = NULL;
+  cv_mem->cv_itol     = CV_NN;
   cv_mem->cv_efun     = NULL;
   cv_mem->cv_e_data   = NULL;
   cv_mem->cv_ehfun    = CVErrHandler;
-  cv_mem->cv_eh_data  = (void *) cv_mem;
   cv_mem->cv_errfp    = stderr;
   cv_mem->cv_qmax     = maxord;
   cv_mem->cv_mxstep   = MXSTEP_DEFAULT;
@@ -375,7 +375,6 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_iroots  = NULL;
   cv_mem->cv_rootdir = NULL;
   cv_mem->cv_gfun    = NULL;
-  cv_mem->cv_g_data  = NULL;
   cv_mem->cv_nrtfn   = 0;
 
   /* Set the saved value qmax_alloc */
@@ -407,26 +406,25 @@ void *CVodeCreate(int lmm, int iter)
 /*-----------------------------------------------------------------*/
 
 /*
- * CVodeMalloc
+ * CVodeInit
  * 
- * CVodeMalloc allocates and initializes memory for a problem. All 
+ * CVodeInit allocates and initializes memory for a problem. All 
  * problem inputs are checked for errors. If any error occurs during 
  * initialization, it is reported to the file whose file pointer is 
  * errfp and an error flag is returned. Otherwise, it returns CV_SUCCESS
  */
 
-int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0, 
-                int itol, realtype reltol, void *abstol)
+int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 {
   CVodeMem cv_mem;
-  booleantype nvectorOK, allocOK, neg_abstol;
+  booleantype nvectorOK, allocOK;
   long int lrw1, liw1;
   int i,k;
 
   /* Check cvode_mem */
 
   if (cvode_mem==NULL) {
-    CVProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeMalloc", MSGCV_NO_MEM);
+    CVProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeInit", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -434,17 +432,12 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   /* Check for legal input parameters */
 
   if (y0==NULL) {
-    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeMalloc", MSGCV_NULL_Y0);
-    return(CV_ILL_INPUT);
-  }
-
-  if ((itol != CV_SS) && (itol != CV_SV) && (itol != CV_WF)) {
-    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeMalloc", MSGCV_BAD_ITOL);
+    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeInit", MSGCV_NULL_Y0);
     return(CV_ILL_INPUT);
   }
 
   if (f == NULL) {
-    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeMalloc", MSGCV_NULL_F);
+    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeInit", MSGCV_NULL_F);
     return(CV_ILL_INPUT);
   }
 
@@ -452,34 +445,8 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 
   nvectorOK = CVCheckNvector(y0);
   if(!nvectorOK) {
-    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeMalloc", MSGCV_BAD_NVECTOR);
+    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeInit", MSGCV_BAD_NVECTOR);
     return(CV_ILL_INPUT);
-  }
-
-  /* Test tolerances */
-
-  if (itol != CV_WF) {
-
-    if (abstol == NULL) {
-      CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeMalloc", MSGCV_NULL_ABSTOL);
-      return(CV_ILL_INPUT);
-    }
-
-    if (reltol < ZERO) {
-      CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeMalloc", MSGCV_BAD_RELTOL);
-      return(CV_ILL_INPUT);
-    }
-
-    if (itol == CV_SS)
-      neg_abstol = (*((realtype *)abstol) < ZERO);
-    else
-      neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
-
-    if (neg_abstol) {
-      CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeMalloc", MSGCV_BAD_ABSTOL);
-      return(CV_ILL_INPUT);
-    }
-
   }
 
   /* Set space requirements for one N_Vector */
@@ -495,21 +462,11 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 
   /* Allocate the vectors (using y0 as a template) */
 
-  allocOK = CVAllocVectors(cv_mem, y0, itol);
+  allocOK = CVAllocVectors(cv_mem, y0);
   if (!allocOK) {
-    CVProcessError(cv_mem, CV_MEM_FAIL, "CVODE", "CVodeMalloc", MSGCV_MEM_FAIL);
+    CVProcessError(cv_mem, CV_MEM_FAIL, "CVODE", "CVodeInit", MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
-
-  /* Copy tolerances into memory */
-
-  cv_mem->cv_itol   = itol;
-  cv_mem->cv_reltol = reltol;      
-
-  if (itol == CV_SS)
-    cv_mem->cv_Sabstol = *((realtype *)abstol);
-  else if (itol == CV_SV)
-    N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
 
   /* All error checking is complete at this point */
 
@@ -591,7 +548,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
  * CVodeReInit
  *
  * CVodeReInit re-initializes CVODE's memory for a problem, assuming
- * it has already been allocated in a prior CVodeMalloc call.
+ * it has already been allocated in a prior CVodeInit call.
  * All problem specification inputs are checked for errors.
  * If any error occurs during initialization, it is reported to the
  * file whose file pointer is errfp.
@@ -599,11 +556,9 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
  * a negative value otherwise.
  */
 
-int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0, 
-                int itol, realtype reltol, void *abstol)
+int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
 {
   CVodeMem cv_mem;
-  booleantype neg_abstol;
   int i,k;
  
   /* Check cvode_mem */
@@ -621,68 +576,12 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0,
     return(CV_NO_MALLOC);
   }
 
-/* Check for legal input parameters */
+  /* Check for legal input parameters */
 
   if (y0 == NULL) {
     CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeReInit", MSGCV_NULL_Y0);
     return(CV_ILL_INPUT);
   }
-  
-  if ((itol != CV_SS) && (itol != CV_SV) && (itol != CV_WF)) {
-    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeReInit", MSGCV_BAD_ITOL);
-    return(CV_ILL_INPUT);
-  }
-
-  /* Test tolerances */
-
-  if (itol != CV_WF) {
-
-    if (abstol == NULL) {
-      CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeReInit", MSGCV_NULL_ABSTOL);
-      return(CV_ILL_INPUT);
-    }
-
-    if (reltol < ZERO) {
-      CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeReInit", MSGCV_BAD_RELTOL);
-      return(CV_ILL_INPUT);
-    }
-    
-    if (itol == CV_SS) {
-      neg_abstol = (*((realtype *)abstol) < ZERO);
-    } else {
-      neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
-    }
-    
-    if (neg_abstol) {
-      CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeReInit", MSGCV_BAD_ABSTOL);
-      return(CV_ILL_INPUT);
-    }
-
-  }
-
-  /* Copy tolerances into memory */
-
-  if ( (itol != CV_SV) && (cv_mem->cv_VabstolMallocDone) ) {
-    N_VDestroy(cv_mem->cv_Vabstol);
-    lrw -= lrw1;
-    liw -= liw1;
-    cv_mem->cv_VabstolMallocDone = FALSE;
-  }
-
-  if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
-    cv_mem->cv_Vabstol = N_VClone(y0);
-    lrw += lrw1;
-    liw += liw1;
-    cv_mem->cv_VabstolMallocDone = TRUE;
-  }
-
-  cv_mem->cv_itol   = itol;
-  cv_mem->cv_reltol = reltol;    
-  
-  if (itol == CV_SS)
-    cv_mem->cv_Sabstol = *((realtype *)abstol);
-  else if (itol == CV_SV)
-    N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
   
   /* Copy the input parameters into CVODE state */
 
@@ -738,8 +637,135 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0,
 
 /*-----------------------------------------------------------------*/
 
+/*
+ * CVodeSStolerances
+ * CVodeSVtolerances
+ * CVodeWFtolerances
+ *
+ * These functions specify the integration tolerances. One of them
+ * MUST be called before the first call to CVode.
+ *
+ * CVodeSStolerances specifies scalar relative and absolute tolerances.
+ * CVodeSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance (a potentially different absolute tolerance 
+ *   for each vector component).
+ * CVodeWFtolerances specifies a user-provides function (of type CVEwtFn)
+ *   which will be called to set the error weight vector.
+ */
+
+int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    CVProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSStolerances", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (cv_mem->cv_MallocDone == FALSE) {
+    CVProcessError(cv_mem, CV_NO_MALLOC, "CVODE", "CVodeSStolerances", MSGCV_NO_MALLOC);
+    return(CV_NO_MALLOC);
+  }
+
+  /* Check inputs */
+
+  if (reltol < ZERO) {
+    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSStolerances", MSGCV_BAD_RELTOL);
+    return(CV_ILL_INPUT);
+  }
+
+  if (abstol < ZERO) {
+    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSStolerances", MSGCV_BAD_ABSTOL);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Copy tolerances into memory */
+  
+  cv_mem->cv_reltol = reltol;
+  cv_mem->cv_Sabstol = abstol;
+
+  cv_mem->cv_itol = CV_SS;
+
+  cv_mem->cv_efun = CVEwtSet;
+  cv_mem->cv_e_data = cvode_mem;
+
+  return(CV_SUCCESS);
+}
+
+
+int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    CVProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSVtolerances", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (cv_mem->cv_MallocDone == FALSE) {
+    CVProcessError(cv_mem, CV_NO_MALLOC, "CVODE", "CVodeSVtolerances", MSGCV_NO_MALLOC);
+    return(CV_NO_MALLOC);
+  }
+
+  /* Check inputs */
+
+  if (reltol < ZERO) {
+    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSVtolerances", MSGCV_BAD_RELTOL);
+    return(CV_ILL_INPUT);
+  }
+
+  if (N_VMin(abstol) < ZERO) {
+    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSVtolerances", MSGCV_BAD_ABSTOL);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Copy tolerances into memory */
+  
+  if ( !(cv_mem->cv_VabstolMallocDone) ) {
+    cv_mem->cv_Vabstol = N_VClone(cv_mem->cv_ewt);
+    lrw += lrw1;
+    liw += liw1;
+    cv_mem->cv_VabstolMallocDone = TRUE;
+  }
+
+  cv_mem->cv_reltol = reltol;
+  N_VScale(ONE, abstol, cv_mem->cv_Vabstol);
+
+  cv_mem->cv_itol = CV_SV;
+
+  cv_mem->cv_efun = CVEwtSet;
+  cv_mem->cv_e_data = cvode_mem;
+
+  return(CV_SUCCESS);
+}
+
+
+int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    CVProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeWFtolerances", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (cv_mem->cv_MallocDone == FALSE) {
+    CVProcessError(cv_mem, CV_NO_MALLOC, "CVODE", "CVodeWFtolerances", MSGCV_NO_MALLOC);
+    return(CV_NO_MALLOC);
+  }
+
+  cv_mem->cv_itol = CV_WF;
+  cv_mem->cv_efun = efun;
+  cv_mem->cv_e_data = cv_mem->cv_f_data;
+
+}
+
+/*-----------------------------------------------------------------*/
+
 #define gfun    (cv_mem->cv_gfun)
-#define g_data  (cv_mem->cv_g_data) 
 #define glo     (cv_mem->cv_glo)
 #define ghi     (cv_mem->cv_ghi)
 #define grout   (cv_mem->cv_grout)
@@ -758,7 +784,7 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0,
  * occurred, or a negative value otherwise.
  */
 
-int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
+int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
 {
   CVodeMem cv_mem;
   int i, nrt;
@@ -791,12 +817,8 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   if (nrt == 0) {
     cv_mem->cv_nrtfn = nrt;
     gfun = NULL;
-    g_data = NULL;
     return(CV_SUCCESS);
   }
-
-  /* Store user's data pointer */
-  g_data = gdata;
 
   /* If rerunning CVodeRootInit() with the same number of root functions
      (not changing number of gfun components), then check if the root
@@ -985,6 +1007,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
 #define taskc          (cv_mem->cv_taskc)
 #define irfnd          (cv_mem->cv_irfnd)
 #define nge            (cv_mem->cv_nge)
+
 
 /*-----------------------------------------------------------------*/
 
@@ -1498,7 +1521,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 /*
  * CVodeFree
  *
- * This routine frees the problem memory allocated by CVodeMalloc.
+ * This routine frees the problem memory allocated by CVodeInit.
  * Such memory includes all the vectors allocated by CVAllocVectors,
  * and the memory lmem for the linear solver (deallocated by a call
  * to lfree).
@@ -1564,7 +1587,7 @@ static booleantype CVCheckNvector(N_Vector tmpl)
  * CVAllocVectors
  *
  * This routine allocates the CVODE vectors ewt, acor, tempv, ftemp, and
- * zn[0], ..., zn[maxord]. If itol=CV_SV, it also allocates space for Vabstol.
+ * zn[0], ..., zn[maxord].
  * If all memory allocations are successful, CVAllocVectors returns TRUE. 
  * Otherwise all allocated memory is freed and CVAllocVectors returns FALSE.
  * This routine also sets the optional outputs lrw and liw, which are
@@ -1572,7 +1595,7 @@ static booleantype CVCheckNvector(N_Vector tmpl)
  * allocated here.
  */
 
-static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
+static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
   int i, j;
 
@@ -1620,21 +1643,6 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
   lrw += (qmax + 5)*lrw1;
   liw += (qmax + 5)*liw1;
 
-  if (tol == CV_SV) {
-    Vabstol = N_VClone(tmpl);
-    if (Vabstol == NULL) {
-      N_VDestroy(ewt);
-      N_VDestroy(acor);
-      N_VDestroy(tempv);
-      N_VDestroy(ftemp);
-      for (i=0; i <= qmax; i++) N_VDestroy(zn[i]);
-      return(FALSE);
-    }
-    lrw += lrw1;
-    liw += liw1;
-    cv_mem->cv_VabstolMallocDone = TRUE;
-  }
-
   /* Store the value of qmax used here */
   cv_mem->cv_qmax_alloc = qmax;
 
@@ -1680,22 +1688,18 @@ static void CVFreeVectors(CVodeMem cv_mem)
 static int CVInitialSetup(CVodeMem cv_mem)
 {
   int ier;
-  int ewtsetOK;
 
-  /* Did the user provide efun? */
+  /* Did the user specify tolerances? */
 
-  if (itol != CV_WF) {
-    efun = CVEwtSet;
-    e_data = (void *)cv_mem;
-  } else {
-    if (efun == NULL) {
-      CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVInitialSetup", MSGCV_NO_EFUN);
-      return(CV_ILL_INPUT);
-    }
+  if (itol == CV_NN) {
+
+    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVInitialSetup", MSGCV_NO_TOLS);
+    return(CV_ILL_INPUT);
+
   }
 
-  ewtsetOK = efun(zn[0], ewt, e_data);
-  if (ewtsetOK != 0) {
+  ier = efun(zn[0], ewt, e_data);
+  if (ier != 0) {
 
     if (itol == CV_WF) 
       CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVInitialSetup", MSGCV_EWT_FAIL);
@@ -3583,7 +3587,7 @@ static int CVRcheck1(CVodeMem cv_mem)
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
 
   /* Evaluate g at initial t and check for zero values. */
-  retval = gfun(tlo, zn[0], glo, g_data);
+  retval = gfun(tlo, zn[0], glo, f_data);
   nge = 1;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -3598,7 +3602,7 @@ static int CVRcheck1(CVodeMem cv_mem)
   smallh = hratio*h;
   tlo += smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
-  retval = gfun(tlo, y, glo, g_data);
+  retval = gfun(tlo, y, glo, f_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -3643,7 +3647,7 @@ static int CVRcheck2(CVodeMem cv_mem)
   if (irfnd == 0) return(CV_SUCCESS);
 
   (void) CVodeGetDky(cv_mem, tlo, 0, y);
-  retval = gfun(tlo, y, glo, g_data);
+  retval = gfun(tlo, y, glo, f_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -3667,7 +3671,7 @@ static int CVRcheck2(CVodeMem cv_mem)
   } else {
     (void) CVodeGetDky(cv_mem, tlo, 0, y);
   }
-  retval = gfun(tlo, y, glo, g_data);
+  retval = gfun(tlo, y, glo, f_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -3716,7 +3720,7 @@ static int CVRcheck3(CVodeMem cv_mem)
   }
 
   /* Set ghi = g(thi) and call CVRootfind to search (tlo,thi) for roots. */
-  retval = gfun(thi, y, ghi, g_data);
+  retval = gfun(thi, y, ghi, f_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -3754,7 +3758,7 @@ static int CVRcheck3(CVodeMem cv_mem)
  *            the vector-valued function g(t).  Input only.
  *
  * gfun     = user-defined function for g(t).  Its form is
- *            (void) gfun(t, y, gt, g_data)
+ *            (void) gfun(t, y, gt, f_data)
  *
  * rootdir  = in array specifying the direction of zero-crossings.
  *            If rootdir[i] > 0, search for roots of g_i only if
@@ -3884,7 +3888,7 @@ static int CVRootfind(CVodeMem cv_mem)
     }
 
     (void) CVodeGetDky(cv_mem, tmid, 0, y);
-    retval = gfun(tmid, y, grout, g_data);
+    retval = gfun(tmid, y, grout, f_data);
     nge++;
     if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -4046,7 +4050,6 @@ static int CVEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
  */
 
 #define ehfun    (cv_mem->cv_ehfun)
-#define eh_data  (cv_mem->cv_eh_data)
 
 void CVProcessError(CVodeMem cv_mem, 
                     int error_code, const char *module, const char *fname, 
@@ -4076,7 +4079,7 @@ void CVProcessError(CVodeMem cv_mem,
 
     /* Call ehfun */
 
-    ehfun(error_code, module, fname, msg, eh_data);
+    ehfun(error_code, module, fname, msg, f_data);
 
   }
 

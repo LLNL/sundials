@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-11-22 00:12:46 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example program for IDAS: Food web, parallel, GMRES, IDABBD
+ * Example program for IDA: Food web, parallel, GMRES, IDABBD
  * preconditioner.
  *
  * This example program for IDAS uses IDASPGMR as the linear solver.
@@ -305,9 +305,12 @@ int main(int argc, char *argv[])
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, rtol, &atol);
-  if(check_flag(&retval, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDAInit(mem, resweb, t0, cc, cp);
+  if(check_flag(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
   
+  retval = IDASStolerances(mem, rtol, atol);
+  if(check_flag(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+
   /* Call IDABBDPrecAlloc to initialize the band-block-diagonal preconditioner.
      The half-bandwidths for the difference quotient evaluation are exact
      for the system Jacobian, but only a 5-diagonal band matrix is retained. */
@@ -514,7 +517,7 @@ static void PrintHeader(int SystemSize, int maxl,
   printf("\nidakryx2_bbd_p: Predator-prey DAE parallel example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     Total system size: %ld\n",SystemSize);
+  printf("     Total system size: %d\n",SystemSize);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("     Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -526,7 +529,7 @@ static void PrintHeader(int SystemSize, int maxl,
 #endif
   printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
-  printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
+  printf("     mudq = %d,  mldq = %d,  mukeep = %d,  mlkeep = %d\n",
          mudq, mldq, mukeep, mlkeep);
   printf("CalcIC called to correct initial predator concentrations \n\n");
   printf("-----------------------------------------------------------\n");

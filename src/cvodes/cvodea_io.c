@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-18 19:24:21 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-23 23:37:20 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -95,97 +95,6 @@ int CVodeSetAdjNoSensi(void *cvode_mem)
  * Optional input functions for backward integration
  * -----------------------------------------------------------------
  */
-
-/*
- * CVodeSet***B
- *
- * Wrappers for the backward phase around the corresponding 
- * CVODES optional input functions
- */
-
-int CVodeSetErrHandlerFnB(void *cvode_mem, int which, CVErrHandlerFn ehfunB, void *eh_dataB)
-{
-  CVodeMem cv_mem;
-  CVadjMem ca_mem;
-  CVodeBMem cvB_mem;
-  void *cvodeB_mem;
-  int flag;
-
-  /* Check if cvode_mem exists */
-  if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeSetErrHandlerFnB", MSGCV_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetErrHandlerFnB", MSGCV_NO_ADJ);
-    return(CV_NO_ADJ);
-  } 
-  ca_mem = cv_mem->cv_adj_mem;
-
-  /* Check which */
-  if ( which >= nbckpbs ) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetErrHandlerFnB", MSGCV_BAD_WHICH);
-    return(CV_ILL_INPUT);
-  }
-
-  /* Find the CVodeBMem entry in the linked list corresponding to which */
-  cvB_mem = ca_mem->cvB_mem;
-  while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
-    cvB_mem = cvB_mem->cv_next;
-  }
-
-  cvodeB_mem = (void *) (cvB_mem->cv_mem);
-
-  flag = CVodeSetErrHandlerFn(cvodeB_mem, ehfunB, eh_dataB);
-
-  return(flag);
-}
-
-int CVodeSetErrFileB(void *cvode_mem, int which, FILE *errfpB)
-{
-  CVodeMem cv_mem;
-  CVadjMem ca_mem;
-  CVodeBMem cvB_mem;
-  void *cvodeB_mem;
-  int flag;
-
-  /* Check if cvode_mem exists */
-  if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeSetErrFileB", MSGCV_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetErrFileB", MSGCV_NO_ADJ);
-    return(CV_NO_ADJ);
-  }
-  ca_mem = cv_mem->cv_adj_mem;
-
-  /* Check which */
-  if ( which >= nbckpbs ) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetErrFileB", MSGCV_BAD_WHICH);
-    return(CV_ILL_INPUT);
-  }
-
-  /* Find the CVodeBMem entry in the linked list corresponding to which */
-  cvB_mem = ca_mem->cvB_mem;
-  while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
-    cvB_mem = cvB_mem->cv_next;
-  }
-
-  cvodeB_mem = (void *) (cvB_mem->cv_mem);
-
-  flag = CVodeSetErrFile(cvodeB_mem, errfpB);
-
-  return(flag);
-}
 
 int CVodeSetIterTypeB(void *cvode_mem, int which, int iterB)
 {

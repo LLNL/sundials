@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-23 23:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -273,10 +273,11 @@ int main(int argc, char *argv[])
   /* Create CVODES object, attach user data, and allocate space */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   flag = CVodeSetFdata(cvode_mem, d);
+  flag = CVodeInit(cvode_mem, f, ti, y);
   abstol = ATOL;  
-  reltol = RTOL; 
-  flag = CVodeMalloc(cvode_mem, f, ti, y, CV_SS, reltol, &abstol);
-  
+  reltol = RTOL;   
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+
   /* Attach preconditioner and linear solver modules */
   mudq = mldq = d->l_m[0]+1;
   mukeep = mlkeep = 2;  
@@ -329,9 +330,10 @@ int main(int argc, char *argv[])
   /* Create and allocate backward CVODE memory */
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
   flag = CVodeSetFdataB(cvode_mem, indexB, d);
+  flag = CVodeInitB(cvode_mem, indexB, fB, tf, yB);
   abstolB = ATOL_B;  
   reltolB = RTOL_B; 
-  flag = CVodeMallocB(cvode_mem, indexB, fB, tf, yB, CV_SS, reltolB, &abstolB);
+  flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
 
   /* Attach preconditioner and linear solver modules */
   mudqB = mldqB = d->l_m[0]+1;

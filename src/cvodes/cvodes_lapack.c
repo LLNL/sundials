@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-23 23:37:20 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -98,6 +98,7 @@ static void cvLapackBandFreeB(CVodeBMem cvB_mem);
 
 #define mtype          (cvdls_mem->d_type)
 #define n              (cvdls_mem->d_n)
+#define jacDQ          (cvdls_mem->d_jacDQ)
 #define djac           (cvdls_mem->d_djac)
 #define bjac           (cvdls_mem->d_bjac)
 #define M              (cvdls_mem->d_M)
@@ -174,7 +175,8 @@ int CVLapackDense(void *cvode_mem, int N)
   /* Set matrix type */
   mtype = SUNDIALS_DENSE;
 
-  /* Set default Jacobian routine and Jacobian data */
+  /* Initialize Jacobian-related data */
+  jacDQ  = TRUE;
   djac   = NULL;
   J_data = NULL;
 
@@ -279,8 +281,9 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   /* Set matrix type */
   mtype = SUNDIALS_BAND;
 
-  /* Set default Jacobian routine and Jacobian data */
-  bjac  = NULL;
+  /* Initialize Jacobian-related data */
+  jacDQ  = TRUE;
+  bjac   = NULL;
   J_data = NULL;
 
   last_flag = CVDIRECT_SUCCESS;
@@ -354,12 +357,15 @@ static int cvLapackDenseInit(CVodeMem cv_mem)
   nje   = 0;
   nfeDQ = 0;
   nstlj = 0;
-  
-  if (djac == NULL) {
+
+  /* Set Jacobian function and data, depending on jacDQ */
+  if (jacDQ) {
     djac = cvDlsDenseDQJac;
     J_data = cv_mem;
-  } 
-  
+  } else {
+    J_data = f_data;
+  }
+
   last_flag = CVDIRECT_SUCCESS;
   return(0);
 }
@@ -497,11 +503,14 @@ static int cvLapackBandInit(CVodeMem cv_mem)
   nfeDQ = 0;
   nstlj = 0;
 
-  if (bjac == NULL) {
+  /* Set Jacobian function and data, depending on jacDQ */
+  if (jacDQ) {
     bjac = cvDlsBandDQJac;
     J_data = cv_mem;
-  } 
-  
+  } else {
+    J_data = f_data;
+  }
+
   last_flag = CVDIRECT_SUCCESS;
   return(0);
 }
@@ -683,7 +692,6 @@ int CVLapackDenseB(void *cvode_mem, int which, int nB)
 
   /* initialize Jacobian function */
   cvdlsB_mem->d_djacB = NULL;
-  cvdlsB_mem->d_jac_dataB = NULL;
 
   /* attach lmemB and lfreeB */
   cvB_mem->cv_lmem = cvdlsB_mem;
@@ -769,7 +777,6 @@ int CVLapackBandB(void *cvode_mem, int which,
 
   /* initialize Jacobian function */
   cvdlsB_mem->d_bjacB = NULL;
-  cvdlsB_mem->d_jac_dataB = NULL;
 
   /* attach lmemB and lfreeB */
   cvB_mem->cv_lmem = cvdlsB_mem;

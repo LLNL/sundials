@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-23 23:37:22 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -77,6 +77,7 @@
 #define ml             (kindls_mem->d_ml)
 #define mu             (kindls_mem->d_mu)
 #define smu            (kindls_mem->d_smu)
+#define jacDQ          (kindls_mem->d_jacDQ)
 #define djac           (kindls_mem->d_djac)
 #define bjac           (kindls_mem->d_bjac)
 #define J              (kindls_mem->d_J)
@@ -98,30 +99,58 @@
  * -----------------------------------------------------------------
  */
 
-int KINDlsSetJacFn(void *kinmem, void *jac, void *jac_data)
+int KINDlsSetDenseJacFn(void *kinmem, KINDlsDenseJacFn jac)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINDIRECT", "KINDlsSetJacFn", MSGD_KINMEM_NULL);
+    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINDIRECT", "KINDlsSetDenseJacFn", MSGD_KINMEM_NULL);
     return(KINDIRECT_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_LMEM_NULL, "KINDIRECT", "KINDlsSetJacFn", MSGD_LMEM_NULL);
+    KINProcessError(kin_mem, KINDIRECT_LMEM_NULL, "KINDIRECT", "KINDlsSetDenseJacFn", MSGD_LMEM_NULL);
     return(KINDIRECT_LMEM_NULL);
   }
   kindls_mem = (KINDlsMem) lmem;
 
-  if (mtype == SUNDIALS_DENSE)
-    djac = (KINDlsDenseJacFn) jac;
-  else if (mtype == SUNDIALS_BAND)
-    bjac = (KINDlsBandJacFn) jac;
+  if (jac != NULL) {
+    jacDQ = FALSE;
+    djac = jac;
+  } else {
+    jacDQ = TRUE;
+  }
 
-  J_data = jac_data;
+  return(KINDIRECT_SUCCESS);
+}
+
+int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac)
+{
+  KINMem kin_mem;
+  KINDlsMem kindls_mem;
+
+  /* Return immediately if kinmem is NULL */
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINDIRECT", "KINDlsSetBandJacFn", MSGD_KINMEM_NULL);
+    return(KINDIRECT_MEM_NULL);
+  }
+  kin_mem = (KINMem) kinmem;
+
+  if (lmem == NULL) {
+    KINProcessError(kin_mem, KINDIRECT_LMEM_NULL, "KINDIRECT", "KINDlsSetBandJacFn", MSGD_LMEM_NULL);
+    return(KINDIRECT_LMEM_NULL);
+  }
+  kindls_mem = (KINDlsMem) lmem;
+
+  if (jac != NULL) {
+    jacDQ = FALSE;
+    bjac = jac;
+  } else {
+    jacDQ = TRUE;
+  }
 
   return(KINDIRECT_SUCCESS);
 }
@@ -319,7 +348,7 @@ char *KINDlsGetReturnFlagName(int flag)
 
 int kinDlsDenseDQJac(int N,
                      N_Vector u, N_Vector fu,
-                     DlsMat Jac, void *jac_data,
+                     DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2)
 {
   realtype inc, inc_inv, ujsaved, ujscale, sign;
@@ -331,8 +360,8 @@ int kinDlsDenseDQJac(int N,
   KINMem kin_mem;
   KINDlsMem  kindls_mem;
 
-  /* jac_data points to kin_mem */
-  kin_mem = (KINMem) jac_data;
+  /* data points to kin_mem */
+  kin_mem = (KINMem) data;
   kindls_mem = (KINDlsMem) lmem;
 
   /* Save pointer to the array in tmp2 */
@@ -398,7 +427,7 @@ int kinDlsDenseDQJac(int N,
 
 int kinDlsBandDQJac(int N, int mupper, int mlower,
                     N_Vector u, N_Vector fu,
-                    DlsMat Jac, void *jac_data,
+                    DlsMat Jac, void *data,
                     N_Vector tmp1, N_Vector tmp2)
 {
   realtype inc, inc_inv;
@@ -410,8 +439,8 @@ int kinDlsBandDQJac(int N, int mupper, int mlower,
   KINMem kin_mem;
   KINDlsMem kindls_mem;
 
-  /* jac_dat points to kinmem */
-  kin_mem = (KINMem) jac_data;
+  /* data points to kinmem */
+  kin_mem = (KINMem) data;
   kindls_mem = (KINDlsMem) lmem;
 
   /* Rename work vectors for use as temporary values of u and fu */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-11-25 21:39:48 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-23 23:37:26 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -139,11 +139,12 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   flag = CVodeSetFdata(cvode_mem, data);
   flag = CVodeSetMaxNumSteps(cvode_mem, 2000);
-  flag = CVodeMalloc(cvode_mem, f, T0, y0, CV_SS, reltol, &abstol);
+  flag = CVodeInit(cvode_mem, f, T0, y0);
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
 
   /* Attach linear solver */
   flag = CVDense(cvode_mem, Neq);
-  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
+  flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
 
   /*
    * Sensitivity-related settings
@@ -159,15 +160,9 @@ int main(int argc, char *argv[])
 
   yS = N_VCloneVectorArray_Serial(Ns, y);
 
-  flag = CVodeSensMalloc(cvode_mem, Ns, CV_SIMULTANEOUS, yS0);
+  flag = CVodeSensMalloc(cvode_mem, Ns, CV_SIMULTANEOUS, CV_ONESENS, fS, yS0);
   flag = CVodeSetSensErrCon(cvode_mem, TRUE);
 
-  /* 
-   * Use analytical sensitivity RHS 
-   */
-
-  /* Specify sensitivity RHS */
-  flag = CVodeSetSensRhs1Fn(cvode_mem, fS, data);
   /* Note that, by not calling CVodeSetSensParams, we will use
      the default pbar values which means that CVODES will use 
      the same tolerances for sensitivities as for the state variables */
@@ -178,37 +173,7 @@ int main(int argc, char *argv[])
   flag = runCVode(cvode_mem, y, yS, data, f1);
   fclose(f1);
 
-  /*
-   * Use DQ sensitivity RHS
-   */
-
-  /* Set "dummy parameters" in the user data */
-  data->p[0] = ZERO;
-  data->p[1] = ZERO;
-  data->p[2] = ZERO;
-  /* Attach dummy parameters and use default values for pbar 
-     which means that CVODES will use the same tolerances for 
-     sensitivities as for the state variables */
-  flag = CVodeSetSensParams(cvode_mem, data->p, NULL, NULL);
-  /* Switch to internal DQ sensitivity RHS function */
-  flag = CVodeSetSensRhs1Fn(cvode_mem, NULL, NULL);
-  /* Specify DQ strategy */
-  flag = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
-
-  /* Reinitialize solver and sensitivity calculations */
-  flag = CVodeSensReInit(cvode_mem, CV_SIMULTANEOUS, yS0);
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SS, reltol, &abstol);
-
-  /* Run CVODES */
-  printf("Use DQ sensitivity RHS (output written to cvsic.dat2)\n\n");
-  f2 = fopen("cvsic.dat2","w");
-  flag = runCVode(cvode_mem, y, yS, data, f2);
-  fclose(f2);
-
-
   /* Free memory */
-
- finalize:
 
   N_VDestroy_Serial(y);
   N_VDestroy_Serial(y0);
@@ -235,7 +200,7 @@ static int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, UserData data, FI
   t = T0;
   while(t<TF) {
     flag = CVode(cvode_mem, TF, y, &t, CV_ONE_STEP);
-    flag = CVodeGetSens(cvode_mem, t, yS);
+    flag = CVodeGetSens(cvode_mem, &t, yS);
     fprintf(f, "%lf   ", t);
     fprintf(f, "%lf %lf %lf   ",Ith(y,1), Ith(y,2), Ith(y,3));
     fprintf(f, "%lf %lf %lf   ",Ith(yS[0],1), Ith(yS[0],2), Ith(yS[0],3));

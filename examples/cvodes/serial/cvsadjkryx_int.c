@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-22 18:05:55 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-23 23:37:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -263,9 +263,11 @@ int main(int argc, char *argv[])
   wdata->cvode_mem = cvode_mem; /* Used in Precond */
   flag = CVodeSetFdata(cvode_mem, wdata);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
-  flag = CVodeMalloc(cvode_mem, f, T0, c, CV_SS, reltol, &abstol);
-  if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
-  
+  flag = CVodeInit(cvode_mem, f, T0, c);
+  if(check_flag(&flag, "CVodeInit", 1)) return(1);
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+
   /* Call CVSpgmr for forward run */
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
@@ -308,8 +310,10 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
   flag = CVodeSetMaxNumStepsB(cvode_mem, indexB, 1000);
   if(check_flag(&flag, "CVodeSetMaxNumStepsB", 1)) return(1);
-  flag = CVodeMallocB(cvode_mem, indexB, fB, TOUT, cB, CV_SS, reltolB, &abstolB);
-  if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
+  flag = CVodeInitB(cvode_mem, indexB, fB, TOUT, cB);
+  if(check_flag(&flag, "CVodeInitB", 1)) return(1);
+  flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
+  if(check_flag(&flag, "CVodeSStolerancesB", 1)) return(1);
 
   wdata->indexB = indexB;
 

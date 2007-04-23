@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:46 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example program for IDAS: Food web problem.
+ * Example program for IDA: Food web problem.
  *
  * This example program (serial version) uses the IDABAND linear 
  * solver, and IDACalcIC for initial condition calculation.
@@ -218,8 +218,11 @@ int main()
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1)) return(1);
 
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, rtol, &atol);
-  if(check_flag(&retval, "IDAMalloc", 1)) return(1);
+  retval = IDAInit(mem, resweb, t0, cc, cp);
+  if(check_flag(&retval, "IDAInit", 1)) return(1);
+
+  retval = IDASStolerances(mem, rtol, atol);
+  if(check_flag(&retval, "IDASStolerances", 1)) return(1);
 
   /* Call IDABand to specify the IDA linear solver. */
 

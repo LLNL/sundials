@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -95,9 +95,9 @@ void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
     return;
   }
 
-  /* Call KINMalloc */
+  /* Call KINInit */
   *ier = 0;
-  *ier = KINMalloc(KIN_kinmem, FKINfunc, F2C_KINSOL_vec);
+  *ier = KINInit(KIN_kinmem, FKINfunc, F2C_KINSOL_vec);
 
   /* On failure, exit */
   if (*ier != KIN_SUCCESS) {

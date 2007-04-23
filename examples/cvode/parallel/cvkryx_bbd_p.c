@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-11 22:34:10 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -101,7 +101,7 @@
 #define MX           (NPEX*MXSUB)   /* MX = number of x mesh points */
 #define MY           (NPEY*MYSUB)   /* MY = number of y mesh points */
                                     /* Spatial mesh is MX by MY */
-/* CVodeMalloc Constants */
+/* CVodeInit Constants */
 
 #define RTOL    RCONST(1.0e-5)    /* scalar relative tolerance */
 #define FLOOR   RCONST(100.0)     /* value of C1 or C2 at which tolerances */
@@ -207,15 +207,8 @@ int main(int argc, char *argv[])
   abstol = ATOL;
   reltol = RTOL;
 
-  /* 
-     Call CVodeCreate to create the solver memory:
-     
-     CV_BDF     specifies the Backward Differentiation Formula
-     CV_NEWTON  specifies a Newton iteration
-
-     A pointer to the integrator memory is returned and stored in cvode_mem.
-  */
-
+  /* Call CVodeCreate to create the solver memory and specify the 
+   * Backward Differentiation Formula and the use of a Newton iteration */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
@@ -223,20 +216,16 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
-  /* 
-     Call CVodeMalloc to initialize the integrator memory: 
+  /* Call CVodeInit to initialize the integrator memory and specify the
+   * user's right hand side function in u'=f(t,u), the inital time T0, and
+   * the initial dependent variable vector u. */
+  flag = CVodeInit(cvode_mem, f, T0, u);
+  if(check_flag(&flag, "CVodeInit", 1, my_pe)) return(1);
 
-     cvode_mem is the pointer to the integrator memory returned by CVodeCreate
-     f       is the user's right hand side function in y'=f(t,y)
-     T0      is the initial time
-     u       is the initial dependent variable vector
-     CV_SS   specifies scalar relative and absolute tolerances
-     reltol  is the relative tolerance
-     &abstol is a pointer to the scalar absolute tolerance
-  */
-
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-  if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Call CVodeSStolerances to specify the scalar relative tolerance
+   * and scalar absolute tolerances */
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
 
   /* Allocate preconditioner block */
   mudq = mldq = NVARS*MXSUB;
@@ -263,7 +252,7 @@ int main(int argc, char *argv[])
 
     SetInitialProfiles(u, data);
 
-    flag = CVodeReInit(cvode_mem, T0, u, CV_SS, reltol, &abstol);
+    flag = CVodeReInit(cvode_mem, T0, u);
     if(check_flag(&flag, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVBBDPrecReInit(pdata, mudq, mldq, ZERO);

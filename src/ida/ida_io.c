@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-06 20:33:26 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-23 23:37:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -41,7 +41,7 @@
 #define lrw1 (IDA_mem->ida_lrw1)
 #define liw1 (IDA_mem->ida_liw1)
 
-int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun, void *eh_data)
+int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun)
 {
   IDAMem IDA_mem;
 
@@ -53,7 +53,6 @@ int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun, void *eh_data)
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_ehfun = ehfun;
-  IDA_mem->ida_eh_data = eh_data;
 
   return(IDA_SUCCESS);
 }
@@ -407,117 +406,6 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
   N_VScale(ONE, constraints, IDA_mem->ida_constraints);
 
   IDA_mem->ida_constraintsSet = TRUE;
-
-  return(IDA_SUCCESS);
-}
-
-/*-----------------------------------------------------------------*/
-
-int IDASetTolerances(void *ida_mem, 
-                     int itol, realtype rtol, void *atol)
-{
-  IDAMem IDA_mem;
-  booleantype neg_atol;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetTolerances", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  /* Check if ida_mem was allocated */
-
-  if (IDA_mem->ida_MallocDone == FALSE) {
-    IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDA", "IDASetTolerances", MSG_NO_MALLOC);
-    return(IDA_NO_MALLOC);
-  }
-
-  /* Check inputs */
-
-  if ((itol != IDA_SS) && (itol != IDA_SV)) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetTolerances", MSG_BAD_ITOL);
-    return(IDA_ILL_INPUT);
-  }
-
-  if (atol == NULL) { 
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetTolerances", MSG_ATOL_NULL);
-    return(IDA_ILL_INPUT); 
-  }
-
-  if (rtol < ZERO) { 
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetTolerances", MSG_BAD_RTOL);
-    return(IDA_ILL_INPUT); 
-  }
-
-    
-  if (itol == IDA_SS) { 
-    neg_atol = (*((realtype *)atol) < ZERO); 
-  } else { 
-    neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
-  }
-
-  if (neg_atol) { 
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetTolerances", MSG_BAD_ATOL);
-    return(IDA_ILL_INPUT); 
-  }
-
-  /* Copy tolerances into memory */
-
-  if ( (itol != IDA_SV) && (IDA_mem->ida_VatolMallocDone) ) {
-    N_VDestroy(IDA_mem->ida_Vatol);
-    lrw -= lrw1;
-    liw -= liw1;
-    IDA_mem->ida_VatolMallocDone = FALSE;
-  }
-
-  if ( (itol == IDA_SV) && !(IDA_mem->ida_VatolMallocDone) ) {
-    IDA_mem->ida_Vatol = N_VClone(IDA_mem->ida_ewt);
-    lrw += lrw1;
-    liw += liw1;
-    IDA_mem->ida_VatolMallocDone = TRUE;
-  }
-
-  IDA_mem->ida_itol = itol;
-  IDA_mem->ida_rtol = rtol;      
-  if (itol == IDA_SS)
-    IDA_mem->ida_Satol = *((realtype *)atol);
-  else 
-    N_VScale(ONE, (N_Vector)atol, IDA_mem->ida_Vatol);
-
-  IDA_mem->ida_efun = IDAEwtSet;
-  IDA_mem->ida_edata = ida_mem;
-
-  return(IDA_SUCCESS);
-}
-
-/* 
- * IDASetEwtFn
- *
- * Specifies the user-provide EwtSet function and data pointer for e
- */
-
-int IDASetEwtFn(void *ida_mem, IDAEwtFn efun, void *edata)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetEwtFn", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  if ( IDA_mem->ida_VatolMallocDone ) {
-    N_VDestroy(IDA_mem->ida_Vatol);
-    lrw -= lrw1;
-    liw -= liw1;
-    IDA_mem->ida_VatolMallocDone = FALSE;
-  }
-
-  IDA_mem->ida_itol = IDA_WF;
-  IDA_mem->ida_efun = efun;
-  IDA_mem->ida_edata = edata;
 
   return(IDA_SUCCESS);
 }

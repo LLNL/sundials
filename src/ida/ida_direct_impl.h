@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-12-01 19:57:48 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:21 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,9 +47,10 @@ typedef struct {
   int d_mu;                 /* b_mu = upper bandwidth of savedJ              */ 
   int d_smu;                /* upper bandwith of M = MIN(N-1,b_mu+b_ml)      */
 
+  booleantype d_jacDQ;      /* TRUE if using internal DQ Jacobian approx.    */
   IDADlsDenseJacFn d_djac;  /* dense Jacobian routine to be called           */
   IDADlsBandJacFn d_bjac;   /* band Jacobian routine to be called            */
-  void *d_J_data;           /* J_data is passed to d_jac or b_jac            */
+  void *d_J_data;           /* J_data is passed to djac or bjac              */
 
   DlsMat d_J;               /* J = dF/dy + cj*dF/dy'                         */
   int *d_pivots;            /* pivots = pivot array for PM = LU              */
@@ -70,13 +71,13 @@ typedef struct {
   
 int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
 		     N_Vector yy, N_Vector yp, N_Vector rr, 
-		     DlsMat Jac, void *jac_data,
+		     DlsMat Jac, void *data,
 		     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
 int idaDlsBandDQJac(int N, int mupper, int mlower,
 		    realtype tt, realtype c_j, 
 		    N_Vector yy, N_Vector yp, N_Vector rr,
-		    DlsMat Jac, void *jac_data,
+		    DlsMat Jac, void *data,
 		    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*

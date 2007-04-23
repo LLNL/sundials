@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:55:54 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-23 23:37:26 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -72,8 +72,10 @@ int main()
   CVodeSetFdata(cvode_mem1, &flag1);
   CVodeSetFdata(cvode_mem2, &flag2);
 
-  CVodeMalloc(cvode_mem1, f, t0, y1, CV_SV, reltol, abstol1);
-  CVodeMalloc(cvode_mem2, f, t0, y2, CV_SV, reltol, abstol2);
+  CVodeInit(cvode_mem1, f, t0, y1);
+  CVodeSVtolerances(cvode_mem1, reltol, abstol1);
+  CVodeInit(cvode_mem2, f, t0, y2);
+  CVodeSVtolerances(cvode_mem2, reltol, abstol2);
   
   CVDense(cvode_mem1, neq1);
   CVDense(cvode_mem2, neq2);

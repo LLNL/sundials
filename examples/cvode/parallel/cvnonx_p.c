@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:50:05 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-23 23:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -131,35 +131,24 @@ int main(int argc, char *argv[])
 
   SetIC(u, dx, local_N, my_base);  /* Initialize u vector */
 
-  /* 
-     Call CVodeCreate to create the solver memory:
-     
-     CV_ADAMS   specifies the Adams Method
-     CV_FUNCTIONAL  specifies functional iteration
-
-     A pointer to the integrator memory is returned and stored in cvode_mem.
-  */
-
+  /* Call CVodeCreate to create the solver memory and specify the 
+   * Adams-Moulton LMM and the use of a functional iteration */
   cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
-  /* 
-     Call CVodeMalloc to initialize the integrator memory: 
+  /* Call CVodeInit to initialize the integrator memory and specify the
+   * user's right hand side function in u'=f(t,u), the inital time T0, and
+   * the initial dependent variable vector u. */
+  flag = CVodeInit(cvode_mem, f, T0, u);
+  if(check_flag(&flag, "CVodeInit", 1, my_pe)) return(1);
 
-     cvode_mem is the pointer to the integrator memory returned by CVodeCreate
-     f       is the user's right hand side function in y'=f(t,y)
-     T0      is the initial time
-     u       is the initial dependent variable vector
-     CV_SS   specifies scalar relative and absolute tolerances
-     reltol  is the relative tolerance
-     &abstol is a pointer to the scalar absolute tolerance
-  */
-
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-  if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Call CVodeSStolerances to specify the scalar relative tolerance
+   * and scalar absolute tolerances */
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
 
   if (my_pe == 0) PrintIntro(npes);
 

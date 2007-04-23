@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-24 19:09:21 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -48,10 +48,10 @@ void FCV_DENSESETJAC(int *flag, int *ier)
   CVodeMem cv_mem;
 
   if (*flag == 0) {
-    *ier = CVDlsSetJacFn(CV_cvodemem, NULL, NULL);
+    *ier = CVDlsSetDenseJacFn(CV_cvodemem, NULL);
   } else {
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVDlsSetJacFn(CV_cvodemem, (void *)FCVDenseJac, cv_mem->cv_f_data);
+    *ier = CVDlsSetDenseJacFn(CV_cvodemem, FCVDenseJac);
   }
 }
 
@@ -65,7 +65,7 @@ void FCV_DENSESETJAC(int *flag, int *ier)
 
 int FCVDenseJac(int N, realtype t, 
                 N_Vector y, N_Vector fy, 
-                DlsMat J, void *jac_data,
+                DlsMat J, void *f_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
@@ -83,7 +83,7 @@ int FCVDenseJac(int N, realtype t,
 
   jacdata = DENSE_COL(J,0);
 
-  CV_userdata = (FCVUserData) jac_data;
+  CV_userdata = (FCVUserData) f_data;
 
   FCV_DJAC(&N, &t, ydata, fydata, jacdata, &h, 
            CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data, &ier); 

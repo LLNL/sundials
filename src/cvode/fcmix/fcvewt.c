@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-23 23:37:19 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,7 +47,7 @@ void FCV_EWTSET(int *flag, int *ier)
 
   if (*flag != 0) {
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVodeSetEwtFn(CV_cvodemem, FCVEwtSet, cv_mem->cv_f_data);
+    *ier = CVodeWFtolerances(CV_cvodemem, FCVEwtSet);
   }
 }
 
@@ -57,7 +57,7 @@ void FCV_EWTSET(int *flag, int *ier)
  * C function to interface between CVODE and a Fortran subroutine FCVEWT.
  */
 
-int FCVEwtSet(N_Vector y, N_Vector ewt, void *e_data)
+int FCVEwtSet(N_Vector y, N_Vector ewt, void *f_data)
 {
   int ier = 0;
   realtype *ydata, *ewtdata;
@@ -66,7 +66,7 @@ int FCVEwtSet(N_Vector y, N_Vector ewt, void *e_data)
   ydata  = N_VGetArrayPointer(y);
   ewtdata = N_VGetArrayPointer(ewt);
 
-  CV_userdata = (FCVUserData) e_data;
+  CV_userdata = (FCVUserData) f_data;
 
   FCV_EWT(ydata, ewtdata, CV_userdata->ipar, CV_userdata->rpar, &ier);
 

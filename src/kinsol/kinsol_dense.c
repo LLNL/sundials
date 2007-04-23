@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,7 +50,6 @@ static void kinDenseFree(KINMem kin_mem);
 
 #define lrw1           (kin_mem->kin_lrw1)
 #define liw1           (kin_mem->kin_liw1)
-#define uround         (kin_mem->kin_uround)
 #define func           (kin_mem->kin_func)
 #define f_data         (kin_mem->kin_f_data)
 #define printfl        (kin_mem->kin_printfl)
@@ -79,6 +78,7 @@ static void kinDenseFree(KINMem kin_mem);
 #define ml             (kindls_mem->d_ml)
 #define mu             (kindls_mem->d_mu)
 #define smu            (kindls_mem->d_smu)
+#define jacDQ          (kindls_mem->d_jacDQ)
 #define djac           (kindls_mem->d_djac)
 #define J              (kindls_mem->d_J)
 #define pivots         (kindls_mem->d_pivots)
@@ -155,8 +155,9 @@ int KINDense(void *kinmem, int N)
   mtype = SUNDIALS_DENSE;  
 
   /* Set default Jacobian routine and Jacobian data */
-  djac = kinDlsDenseDQJac;
-  J_data = kin_mem;
+  jacDQ  = TRUE;
+  djac   = NULL;
+  J_data = NULL;
   last_flag = KINDIRECT_SUCCESS;
 
   setupNonNull = TRUE;
@@ -216,9 +217,11 @@ static int kinDenseInit(KINMem kin_mem)
   nje   = 0;
   nfeDQ = 0;
   
-  if (djac == NULL) {
+  if (jacDQ) {
     djac = kinDlsDenseDQJac;
     J_data = kin_mem;
+  } else {
+    J_data = f_data;
   }
 
   last_flag = KINDIRECT_SUCCESS;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-24 19:09:14 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -90,8 +90,8 @@ int main()
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
 
-  flag = KINMalloc(kmem, func, y); /* y passed as a template */
-  if (check_flag(&flag, "KINMalloc", 1)) return(1);
+  flag = KINInit(kmem, func, y); /* y passed as a template */
+  if (check_flag(&flag, "KINInit", 1)) return(1);
 
   /* Set optional inputs */
 
@@ -114,7 +114,8 @@ int main()
   flag = KINDense(kmem, NEQ);
   if (check_flag(&flag, "KINDense", 1)) return(1);
 
-  flag = KINDlsSetJacFn(kmem, (void *)jac, NULL);
+  flag = KINDlsSetDenseJacFn(kmem, jac);
+  if (check_flag(&flag, "KINDlsSetDenseJacFn", 1)) return(1);
 
   /* Indicate exact Newton */
 

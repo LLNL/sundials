@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:55:54 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-23 23:37:26 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -66,7 +66,8 @@ int main()
   /* Initialize solver */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   Ith(y,1) = 1.0;
-  CVodeMalloc(cvode_mem, f, t0, y, CV_SS, reltol, &abstol);
+  CVodeInit(cvode_mem, f, t0, y);
+  CVodeSStolerances(cvode_mem, reltol, abstol);
   CVodeSetFdata(cvode_mem, &flag);
   CVDense(cvode_mem, neq);
 
@@ -83,7 +84,7 @@ int main()
 
   /* Include discontinuity and reinitialize solver */
   Ith(y,1) = 1.0;
-  CVodeReInit(cvode_mem, f, t1, y, CV_SS, reltol, &abstol); 
+  CVodeReInit(cvode_mem, t1, y);
 
   /* Integrate from discontinuity */
   CVodeSetStopTime(cvode_mem, t2);
@@ -115,7 +116,8 @@ int main()
   /* Initialize solver */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   Ith(y,1) = 1.0;
-  CVodeMalloc(cvode_mem, f, t0, y, CV_SS, reltol, &abstol);
+  CVodeInit(cvode_mem, f, t0, y);
+  CVodeSStolerances(cvode_mem, reltol, abstol);
   CVodeSetFdata(cvode_mem, &flag);
   CVDense(cvode_mem, neq);
 
@@ -134,7 +136,7 @@ int main()
   /* CVodeGetDky(cvode_mem, t1, 0, y); */
 
   /* Reinitialize solver */
-  CVodeReInit(cvode_mem, f, t1, y, CV_SS, reltol, &abstol); 
+  CVodeReInit(cvode_mem, t1, y);
 
   /* Integrate from discontinuity with new RHS */
   CVodeSetStopTime(cvode_mem, t2);
@@ -166,7 +168,8 @@ int main()
   /* Initialize solver */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   Ith(y,1) = 1.0;
-  CVodeMalloc(cvode_mem, f, t0, y, CV_SS, reltol, &abstol);
+  CVodeInit(cvode_mem, f, t0, y);
+  CVodeSStolerances(cvode_mem, reltol, abstol);
   CVodeSetFdata(cvode_mem, &flag);
   CVDense(cvode_mem, neq);
 

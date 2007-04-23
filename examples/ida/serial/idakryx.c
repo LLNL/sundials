@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-11 22:34:11 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -155,8 +155,11 @@ int main()
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
   N_VDestroy_Serial(constraints);
 
-  ier = IDAMalloc(mem, resHeat, t0, uu, up, IDA_SS, rtol, &atol);
-  if(check_flag(&ier, "IDAMalloc", 1)) return(1);
+  ier = IDAInit(mem, resHeat, t0, uu, up);
+  if(check_flag(&ier, "IDAInit", 1)) return(1);
+
+  ier = IDASStolerances(mem, rtol, atol);
+  if(check_flag(&ier, "IDASStolerances", 1)) return(1);
 
   /* Call IDASpgmr to specify the linear solver. */
 
@@ -217,7 +220,7 @@ int main()
   
   /* Re-initialize IDA and IDASPGMR */
 
-  ier = IDAReInit(mem, t0, uu, up, IDA_SS, rtol, &atol);
+  ier = IDAReInit(mem, t0, uu, up);
   if(check_flag(&ier, "IDAReInit", 1)) return(1);
   
   ier = IDASpilsSetGSType(mem, CLASSICAL_GS);

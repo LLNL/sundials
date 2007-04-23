@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:19 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -76,7 +76,6 @@ static void cvLapackBandFree(CVodeMem cv_mem);
 #define lmm            (cv_mem->cv_lmm)
 #define f              (cv_mem->cv_f)
 #define f_data         (cv_mem->cv_f_data)
-#define uround         (cv_mem->cv_uround)
 #define nst            (cv_mem->cv_nst)
 #define tn             (cv_mem->cv_tn)
 #define h              (cv_mem->cv_h)
@@ -98,6 +97,7 @@ static void cvLapackBandFree(CVodeMem cv_mem);
 #define ml             (cvdls_mem->d_ml)
 #define mu             (cvdls_mem->d_mu)
 #define smu            (cvdls_mem->d_smu)
+#define jacDQ          (cvdls_mem->d_jacDQ)
 #define djac           (cvdls_mem->d_djac)
 #define bjac           (cvdls_mem->d_bjac)
 #define M              (cvdls_mem->d_M)
@@ -177,7 +177,8 @@ int CVLapackDense(void *cvode_mem, int N)
   /* Set matrix type */
   mtype = SUNDIALS_DENSE;
 
-  /* Set default Jacobian routine and Jacobian data */
+  /* Initialize Jacobian-related data */
+  jacDQ  = TRUE;
   djac   = NULL;
   J_data = NULL;
 
@@ -282,8 +283,9 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   /* Set matrix type */
   mtype = SUNDIALS_BAND;
 
-  /* Set default Jacobian routine and Jacobian data */
-  bjac  = NULL;
+  /* Initialize Jacobian-related data */
+  jacDQ  = TRUE;
+  bjac   = NULL;
   J_data = NULL;
 
   last_flag = CVDIRECT_SUCCESS;
@@ -357,11 +359,14 @@ static int cvLapackDenseInit(CVodeMem cv_mem)
   nje   = 0;
   nfeDQ = 0;
   nstlj = 0;
-  
-  if (djac == NULL) {
+
+  /* Set Jacobian function and data, depending on jacDQ */
+  if (jacDQ) {
     djac = cvDlsDenseDQJac;
     J_data = cv_mem;
-  } 
+  } else {
+    J_data = f_data;
+  }
   
   last_flag = CVDIRECT_SUCCESS;
   return(0);
@@ -500,10 +505,13 @@ static int cvLapackBandInit(CVodeMem cv_mem)
   nfeDQ = 0;
   nstlj = 0;
 
-  if (bjac == NULL) {
+  /* Set Jacobian function and data, depending on jacDQ */
+  if (jacDQ) {
     bjac = cvDlsBandDQJac;
     J_data = cv_mem;
-  } 
+  } else {
+    J_data = f_data;
+  }
   
   last_flag = CVDIRECT_SUCCESS;
   return(0);

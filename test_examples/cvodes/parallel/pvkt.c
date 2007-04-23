@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:52 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -116,7 +116,7 @@
 #define PRINT_BINARY 1
 #define MAXL	     10
 
-/* CVodeMalloc Constants */
+/* CVodeInit Constants */
 
 #define RTOL    RCONST(1.0e-5)            /* scalar relative tolerance */
 #define FLOOR   RCONST(100.0)             /* value of C1 or C2 at which tolerances */
@@ -266,20 +266,12 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
-  /* 
-     Call CVodeMalloc to initialize CVODES memory: 
 
-     cvode_mem is the pointer to CVODES memory returned by CVodeCreate
-     f       is the user's right hand side function in y'=f(t,y)
-     T0      is the initial time
-     u       is the initial dependent variable vector
-     CV_SS   specifies scalar relative and absolute tolerances
-     &reltol and &abstol are pointers to the scalar tolerances
-     nvSpec  is the vector specification object 
-  */
+  flag = CVodeInit(cvode_mem, f, T0, u);
+  if(check_flag(&flag, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-  if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if(check_flag(&flag, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVSpgmr to specify the CVODES linear solver CVSPGMR 
      with left preconditioning and the maximum Krylov dimension maxl */

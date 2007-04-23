@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -163,7 +163,7 @@ typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *f_data );
  * KINErrHandlerFn.
  * The function eh takes as input the error code, the name of the
  * module reporting the error, the error message, and a pointer to
- * user data, the same as that passed to KINSetErrHandlerFn.
+ * user data, the same as that passed to KINSetFdata.
  * 
  * All error codes are negative, except KIN_WARNING which indicates 
  * a warning (the solver continues).
@@ -174,7 +174,7 @@ typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *f_data );
 
 typedef void (*KINErrHandlerFn)(int error_code, 
 				const char *module, const char *function, 
-				char *msg, void *eh_data); 
+				char *msg, void *f_data); 
 
 
 /*
@@ -185,14 +185,14 @@ typedef void (*KINErrHandlerFn)(int error_code,
  * KINInfoHandlerFn.
  * The function ih takes as input the name of the module and of the
  * function reporting the info message and a pointer to
- * user data, the same as that passed to KINSetInfoHandlerFn.
+ * user data, the same as that passed to KINSetfdata.
  * 
  * A KINInfoHandlerFn has no return value.
  * -----------------------------------------------------------------
  */
 
 typedef void (*KINInfoHandlerFn)(const char *module, const char *function, 
-				 char *msg, void *ih_data); 
+				 char *msg, void *f_data); 
 
 /*
  * ================================================================
@@ -208,7 +208,7 @@ typedef void (*KINInfoHandlerFn)(const char *module, const char *function,
  * the KINSOL solver module.
  *
  * If successful, KINCreate returns a pointer to the initialized
- * memory block which should be passed to KINMalloc. If an
+ * memory block which should be passed to KINInit. If an
  * error occurs, then KINCreate returns a NULL pointer.
  * -----------------------------------------------------------------
  */
@@ -436,7 +436,7 @@ SUNDIALS_EXPORT void *KINCreate(void);
  *               set [0]
  *
  * KIN_MEM_NULL : means a NULL KINSOL memory block pointer was given
- *                (must call the KINCreate and KINMalloc memory
+ *                (must call the KINCreate and KINInit memory
  *                allocation subroutines prior to calling KINSol) [-1]
  *
  * KIN_ILL_INPUT : means the supplied parameter was invalid (check
@@ -448,9 +448,9 @@ SUNDIALS_EXPORT void *KINCreate(void);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun, void *eh_data);
+SUNDIALS_EXPORT int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun);
 SUNDIALS_EXPORT int KINSetErrFile(void *kinmem, FILE *errfp);
-SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data);
+SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun);
 SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
 SUNDIALS_EXPORT int KINSetFdata(void *kinmem, void *f_data);
 SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmemm, int printfl);
@@ -475,9 +475,9 @@ SUNDIALS_EXPORT int KINSetSysFunc(void *kinmem, KINSysFn func);
 
 /*
  * -----------------------------------------------------------------
- * Function : KINMalloc
+ * Function : KINInit
  * -----------------------------------------------------------------
- * KINMalloc allocates additional memory for vector storage and
+ * KINInit allocates additional memory for vector storage and
  * sets a couple problem-specific KINSOL variables.
  *
  * Note: Additional vectors must be initialized by the user and
@@ -492,12 +492,12 @@ SUNDIALS_EXPORT int KINSetSysFunc(void *kinmem, KINSysFn func);
  *  tmpl  implementation-specific template vector (type N_Vector)
  *        (created using either N_VNew_Serial or N_VNew_Parallel)
  *
- * KINMalloc return flags: KIN_SUCCESS, KIN_MEM_NULL, KIN_ILL_INPUT,
- * and KIN_MEM_FAIL (see below). If an error occurs, then KINMalloc
+ * KINInit return flags: KIN_SUCCESS, KIN_MEM_NULL, KIN_ILL_INPUT,
+ * and KIN_MEM_FAIL (see below). If an error occurs, then KINInit
  * prints an error message.
  *
  * -----------------------------------------------------------------
- * The possible return values for the KINMalloc subroutine are the
+ * The possible return values for the KINInit subroutine are the
  * following:
  *
  * KIN_SUCCESS : means the necessary system memory was successfully
@@ -505,7 +505,7 @@ SUNDIALS_EXPORT int KINSetSysFunc(void *kinmem, KINSysFn func);
  *
  * KIN_MEM_NULL : means a NULL KINSOL memory block pointer was given
  *                (must call the KINCreate routine before calling
- *                KINMalloc) [-1]
+ *                KINInit) [-1]
  *
  * KIN_ILL_INPUT : means the name of a user-supplied subroutine
  *                 implementing the nonlinear system function F(u)
@@ -518,7 +518,7 @@ SUNDIALS_EXPORT int KINSetSysFunc(void *kinmem, KINSysFn func);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl);
+SUNDIALS_EXPORT int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl);
 
 /*
  * -----------------------------------------------------------------
@@ -652,12 +652,12 @@ SUNDIALS_EXPORT int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl);
  *                   (lsolve) encountered an error condition [-12]
  *
  * KIN_MEM_NULL : means a NULL KINSOL memory block pointer was given
- *                (must call the KINCreate and KINMalloc memory
+ *                (must call the KINCreate and KINInit memory
  *                allocation subroutines prior to calling KINSol) [-1]
  *
  * KIN_NO_MALLOC : means additional system memory has not yet been
  *                 allocated for vector storage (forgot to call the
- *                 KINMalloc routine) [-3]
+ *                 KINInit routine) [-3]
  *
  * KIN_ILL_INPUT : means at least one input parameter was invalid
  *                 (check error output) [-2]
@@ -729,7 +729,7 @@ SUNDIALS_EXPORT int KINSol(void *kinmem, N_Vector uu, int strategy,
  * KIN_SUCCESS : means the information was successfully retrieved [0]
  * 
  * KIN_MEM_NULL : means a NULL KINSOL memory block pointer was given
- *                (must call the KINCreate and KINMalloc memory
+ *                (must call the KINCreate and KINInit memory
  *                allocation subroutines prior to calling KINSol) [-1]
  * -----------------------------------------------------------------
  */
@@ -751,7 +751,7 @@ SUNDIALS_EXPORT char *KINGetReturnFlagName(int flag);
  * solver module.
  *
  *  kinmem  pointer to an internal memory block allocated during
- *          prior calls to KINCreate and KINMalloc
+ *          prior calls to KINCreate and KINInit
  * -----------------------------------------------------------------
  */
 

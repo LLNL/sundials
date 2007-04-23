@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-23 23:37:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -99,7 +99,7 @@ static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
               int iS, N_Vector yS, N_Vector ySdot, 
               void *f_data, N_Vector tmp1, N_Vector tmp2);
 
-static int ewt(N_Vector y, N_Vector w, void *e_data);
+static int ewt(N_Vector y, N_Vector w, void *f_data);
 
 /* Prototypes of private functions */
 
@@ -160,11 +160,11 @@ int main(int argc, char *argv[])
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Allocate space for CVODES */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_WF, 0.0, NULL);
-  if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
+  flag = CVodeInit(cvode_mem, f, T0, y);
+  if (check_flag(&flag, "CVodeInit", 1)) return(1);
 
   /* Use private function to compute error weights */
-  flag = CVodeSetEwtFn(cvode_mem, ewt, NULL);
+  flag = CVodeWFtolerances(cvode_mem, ewt);
   if (check_flag(&flag, "CVodeSetEwtFn", 1)) return(1);
 
   /* Attach user data */
@@ -175,8 +175,8 @@ int main(int argc, char *argv[])
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
-  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
-  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
+  if (check_flag(&flag, "CVDlsSetDenseJacFn", 1)) return(1);
 
   printf("\n3-species chemical kinetics problem\n");
 
@@ -358,7 +358,7 @@ static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
  * EwtSet function. Computes the error weights at the current solution.
  */
 
-static int ewt(N_Vector y, N_Vector w, void *e_data)
+static int ewt(N_Vector y, N_Vector w, void *f_data)
 {
   int i;
   realtype yy, ww, rtol, atol[3];

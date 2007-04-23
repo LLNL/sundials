@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:09 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:22 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,9 +43,10 @@ typedef struct {
   int d_mu;                /* upper bandwidth of Jacobian                  */ 
   int d_smu;               /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
 
+  booleantype d_jacDQ;     /* TRUE if using internal DQ Jacobian approx.   */
   KINDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
   KINDlsBandJacFn d_bjac;  /* band Jacobian routine to be called           */
-  void *d_J_data;          /* J_data is passed to jac                      */
+  void *d_J_data;          /* J_data is passed to djac or bjac             */
     
   DlsMat d_J;              /* problem Jacobian                             */
     
@@ -68,12 +69,12 @@ typedef struct {
 
 int kinDlsDenseDQJac(int N,
 		     N_Vector u, N_Vector fu,
-		     DlsMat Jac, void *jac_data,
+		     DlsMat Jac, void *data,
 		     N_Vector tmp1, N_Vector tmp2);
 
 int kinDlsBandDQJac(int N, int mupper, int mlower,
 		    N_Vector u, N_Vector fu,
-		    DlsMat Jac, void *jac_data,
+		    DlsMat Jac, void *data,
 		    N_Vector tmp1, N_Vector tmp2);
 
 /*

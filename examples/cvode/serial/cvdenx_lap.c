@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-24 19:09:10 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -131,35 +131,24 @@ int main()
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
-  /* 
-     Call CVodeCreate to create the solver memory:
-     
-     CV_BDF     specifies the Backward Differentiation Formula
-     CV_NEWTON  specifies a Newton iteration
-
-     A pointer to the integrator problem memory is returned and stored in cvode_mem.
-  */
-
+  /* Call CVodeCreate to create the solver memory and specify the 
+   * Backward Differentiation Formula and the use of a Newton iteration */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   
-  /* 
-     Call CVodeMalloc to initialize the integrator memory: 
-     
-     cvode_mem is the pointer to the integrator memory returned by CVodeCreate
-     f         is the user's right hand side function in y'=f(t,y)
-     T0        is the initial time
-     y         is the initial dependent variable vector
-     CV_SV     specifies scalar relative and vector absolute tolerances
-     &reltol   is a pointer to the scalar relative tolerance
-     abstol    is the absolute tolerance vector
-  */
+  /* Call CVodeInit to initialize the integrator memory and specify the
+   * user's right hand side function in y'=f(t,y), the inital time T0, and
+   * the initial dependent variable vector y. */
+  flag = CVodeInit(cvode_mem, f, T0, y);
+  if (check_flag(&flag, "CVodeInit", 1)) return(1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
-  if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
+  /* Call CVodeSVtolerances to specify the scalar relative tolerance
+   * and vector absolute tolerances */
+  flag = CVodeSVtolerances(cvode_mem, reltol, abstol);
+  if (check_flag(&flag, "CVodeSVtolerances", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
-  flag = CVodeRootInit(cvode_mem, 2, g, NULL);
+  flag = CVodeRootInit(cvode_mem, 2, g);
   if (check_flag(&flag, "CVodeRootInit", 1)) return(1);
 
   /* Call CVLapackDense to specify the LAPACK dense linear solver */
@@ -167,11 +156,11 @@ int main()
   if (check_flag(&flag, "CVLapackDense", 1)) return(1);
 
   /* Set the Jacobian routine to Jac (user-supplied) */
-  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, NULL);
-  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
+  if (check_flag(&flag, "CVDlsSetDenseJacFn", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.
-     Break out of loop when NOUT preset output times have been reached.  */
+   * Break out of loop when NOUT preset output times have been reached.  */
   printf(" \n3-species kinetics problem\n\n");
 
   iout = 0;  tout = T1;

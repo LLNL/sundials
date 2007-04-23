@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-06 20:33:28 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:21 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -19,7 +19,7 @@
  * ------------------
  *   Creation and allocation functions
  *     KINCreate
- *     KINMalloc
+ *     KINInit
  *   Main solver function
  *     KINSol
  *   Deallocation function
@@ -195,7 +195,7 @@ static int KINStop(KINMem kin_mem, int strategy, booleantype maxStepTaken, int s
  * KINCreate creates an internal memory block for a problem to 
  * be solved by KINSOL. If successful, KINCreate returns a pointer
  * to the problem memory. This pointer should be passed to
- * KINMalloc. If an initialization error occurs, KINCreate prints
+ * KINInit. If an initialization error occurs, KINCreate prints
  * an error message to standard error and returns NULL. 
  */
 
@@ -224,10 +224,8 @@ void *KINCreate(void)
   kin_mem->kin_fscale           = NULL;
   kin_mem->kin_constraintsSet   = FALSE;
   kin_mem->kin_ehfun            = KINErrHandler;
-  kin_mem->kin_eh_data          = (void *) kin_mem;
   kin_mem->kin_errfp            = stderr;
   kin_mem->kin_ihfun            = KINInfoHandler;
-  kin_mem->kin_ih_data          = (void *) kin_mem;
   kin_mem->kin_infofp           = stdout;
   kin_mem->kin_printfl          = PRINTFL_DEFAULT;
   kin_mem->kin_mxiter           = MXITER_DEFAULT;
@@ -258,7 +256,7 @@ void *KINCreate(void)
   kin_mem->kin_lrw = 17;
   kin_mem->kin_liw = 22;
 
-  /* NOTE: needed since KINMalloc could be called after KINSetConstraints */
+  /* NOTE: needed since KINInit could be called after KINSetConstraints */
 
   kin_mem->kin_lrw1 = 0;
   kin_mem->kin_liw1 = 0;
@@ -271,15 +269,15 @@ void *KINCreate(void)
 #define lrw   (kin_mem->kin_lrw)
 
 /*
- * Function : KINMalloc
+ * Function : KINInit
  *
- * KINMalloc allocates memory for a problem or execution of KINSol. 
+ * KINInit allocates memory for a problem or execution of KINSol. 
  * If memory is successfully allocated, KIN_SUCCESS is returned.
  * Otherwise, an error message is printed and an error flag
  * returned.
  */
 
-int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
+int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 {
   long int liw1, lrw1;
   KINMem kin_mem;
@@ -288,13 +286,13 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
   /* check kinmem */
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINMalloc", MSG_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINInit", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (func == NULL) {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINMalloc", MSG_FUNC_NULL);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINInit", MSG_FUNC_NULL);
     return(KIN_ILL_INPUT);
   }
 
@@ -302,7 +300,7 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
 
   nvectorOK = KINCheckNvector(tmpl);
   if (!nvectorOK) {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINMalloc", MSG_BAD_NVECTOR);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINInit", MSG_BAD_NVECTOR);
     return(KIN_ILL_INPUT);
   }
 
@@ -322,7 +320,7 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
 
   allocOK = KINAllocVectors(kin_mem, tmpl);
   if (!allocOK) {
-    KINProcessError(kin_mem, KIN_MEM_FAIL, "KINSOL", "KINMalloc", MSG_MEM_FAIL);
+    KINProcessError(kin_mem, KIN_MEM_FAIL, "KINSOL", "KINInit", MSG_MEM_FAIL);
     free(kin_mem); kin_mem = NULL;
     return(KIN_MEM_FAIL);
   }
@@ -632,7 +630,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
 /*
  * Function : KINFree
  *
- * This routine frees the problem memory allocated by KINMalloc.
+ * This routine frees the problem memory allocated by KINInit.
  * Such memory includes all the vectors allocated by
  * KINAllocVectors, and the memory lmem for the linear solver
  * (deallocated by a call to lfree).
@@ -1716,7 +1714,6 @@ static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
  */
 
 #define ihfun    (kin_mem->kin_ihfun)
-#define ih_data  (kin_mem->kin_ih_data)
 
 void KINPrintInfo(KINMem kin_mem, 
                   int info_code, const char *module, const char *fname, 
@@ -1784,7 +1781,7 @@ void KINPrintInfo(KINMem kin_mem,
 
   /* call the info message handler */
 
-  ihfun(module, fname, msg, ih_data);
+  ihfun(module, fname, msg, f_data);
 
   /* finalize argument processing */
 
@@ -1835,7 +1832,6 @@ void KINInfoHandler(const char *module, const char *function,
  */
 
 #define ehfun    (kin_mem->kin_ehfun)
-#define eh_data  (kin_mem->kin_eh_data)
 
 void KINProcessError(KINMem kin_mem, 
                     int error_code, const char *module, const char *fname, 
@@ -1865,7 +1861,7 @@ void KINProcessError(KINMem kin_mem,
 
     /* Call ehfun */
 
-    ehfun(error_code, module, fname, msg, eh_data);
+    ehfun(error_code, module, fname, msg, f_data);
 
   }
 

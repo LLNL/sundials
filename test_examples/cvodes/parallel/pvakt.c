@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:52 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 
   realtype tret, *qdata, G;
 
-  int ncheckpnt, flag;
+  int ncheckpnt, indexB, flag;
 
   booleantype output;
 
@@ -259,8 +259,9 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, d);
   abstol = ATOL;  
   reltol = RTOL; 
-  flag = CVodeMalloc(cvode_mem, f, ti, y, CV_SS, reltol, &abstol);
-  
+  flag = CVodeInit(cvode_mem, f, ti, y);
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+
   /* Attach preconditioner and linear solver modules */
   mudq = mldq = d->l_m[0]+1;
   mukeep = mlkeep = 2;  
@@ -273,19 +274,18 @@ int main(int argc, char *argv[])
   abstolQ = ATOL_Q;
   reltolQ = RTOL_Q;
   flag = CVodeQuadMalloc(cvode_mem, fQ, q);
-  flag = CVodeSetQuadFdata(cvode_mem, d);
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ); 
 
   /* Allocate space for the adjoint calculation */
-  cvadj_mem = CVadjMalloc(cvode_mem, STEPS, CV_HERMITE);
+  flag = CVodeAdjMalloc(cvode_mem, STEPS, CV_HERMITE);
 
   /* Integrate forward in time while storing check points */
   if (myId == 0) printf("Begin forward integration... ");
-  flag = CVodeF(cvadj_mem, tf, y, &tret, CV_NORMAL, &ncheckpnt);
+  flag = CVodeF(cvode_mem, tf, y, &tret, CV_NORMAL, &ncheckpnt);
   if (myId == 0) printf("done. ");
 
    /* Extract quadratures */
-  flag = CVodeGetQuad(cvode_mem, tf, q);
+  flag = CVodeGetQuad(cvode_mem, &tret, q);
   qdata = NV_DATA_P(q);
   MPI_Allreduce(&qdata[0], &G, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
   if (myId == 0) printf("  G = %le\n",G);
@@ -306,39 +306,42 @@ int main(int argc, char *argv[])
   N_VConst(ZERO, qB);
 
   /* Create and allocate backward CVODE memory */
-  flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
-  flag = CVodeSetFdataB(cvadj_mem, d);
+  flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
+  flag = CVodeSetFdataB(cvode_mem, indexB, d);
+  flag = CVodeInitB(cvode_mem, indexB, fB, tf, yB);
   abstolB = ATOL_B;  
   reltolB = RTOL_B; 
-  flag = CVodeMallocB(cvadj_mem, fB, tf, yB, CV_SS, reltolB, &abstolB);
+  flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
+  
 
   /* Attach preconditioner and linear solver modules */
   mudqB = mldqB = d->l_m[0]+1;
   mukeepB = mlkeepB = 2;  
-  flag = CVBBDPrecAllocB(cvadj_mem, l_neq, mudqB, mldqB, 
+  flag = CVBBDPrecAllocB(cvode_mem, indexB, l_neq, mudqB, mldqB, 
                          mukeepB, mlkeepB, ZERO, fB_local, NULL);
-  flag = CVBBDSpgmrB(cvadj_mem, PREC_LEFT, 0); 
+  flag = CVBBDSpgmrB(cvode_mem, indexB, PREC_LEFT, 0); 
 
   /* Initialize quadrature calculations */
   abstolQB = ATOL_QB;
   reltolQB = RTOL_QB;
-  flag = CVodeQuadMallocB(cvadj_mem, fQB, qB);
-  flag = CVodeSetQuadFdataB(cvadj_mem, d);
-  flag = CVodeSetQuadErrConB(cvadj_mem, TRUE, CV_SS, reltolQB, &abstolQB); 
+  flag = CVodeQuadMallocB(cvode_mem, indexB, fQB, qB);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE, CV_SS, reltolQB, &abstolQB); 
 
   /* Integrate backwards */
   if (myId == 0) printf("Begin backward integration... ");
-  flag = CVodeB(cvadj_mem, ti, yB, &tret, CV_NORMAL);
+  flag = CVodeB(cvode_mem, ti, CV_NORMAL);
   if (myId == 0) printf("done.\n");
   
+  flag = CVodeGetB(cvode_mem, indexB, &tret, yB);
+
   /* Print statistics for backward run */
   if (myId == 0) {
-    cvode_memB = CVadjGetCVodeBmem(cvadj_mem);
+    cvode_memB = CVodeGetAdjCVodeBmem(cvode_mem, indexB);
     PrintFinalStats(cvode_memB);
   }
 
    /* Extract quadratures */
-  flag = CVodeGetQuadB(cvadj_mem, qB);
+  flag = CVodeGetQuadB(cvode_mem, indexB, &tret, qB);
 
   /* Process 0 collects the gradient components and prints them */
   if (output) {
@@ -354,9 +357,6 @@ int main(int argc, char *argv[])
 
   CVBBDPrecFree(&bbdp_data);
   CVodeFree(&cvode_mem);
-
-  CVBBDPrecFreeB(cvadj_mem);
-  CVadjFree(&cvadj_mem);
 
   MPI_Finalize();
 

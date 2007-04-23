@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-03-20 14:34:01 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-23 23:37:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -39,6 +39,20 @@ extern "C" {
 #define MAXORD_DEFAULT   5           /* maxord default value            */
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
+
+/*
+ * Type of tolerances
+ * ------------------
+ *
+ * itol is one of IDa_SS, IDA_SV, IDA_WF.
+ * IDA_NN is the initial value of itol and can be used to test whether
+ * required tolerances have been provided.
+ */
+
+#define IDA_NN  0
+#define IDA_SS  1
+#define IDA_SV  2
+#define IDA_WF  3
 
 /*
  * ----------------------------------------------------------------
@@ -181,7 +195,6 @@ typedef struct IDAMemRec {
   /* Error handler function and error ouput file */
 
   IDAErrHandlerFn ida_ehfun; /* Error messages are handled by ehfun           */
-  void *ida_eh_data;         /* user pointer passed to ehfun                  */
   FILE *ida_errfp;           /* IDA error messages are sent to errfp          */
 
   /* Flags to verify correct calling sequence */
@@ -226,7 +239,6 @@ typedef struct IDAMemRec {
 
   IDARootFn ida_gfun;    /* Function g for roots sought                     */
   int ida_nrtfn;         /* number of components of g                       */
-  void *ida_g_data;      /* pointer to user data for g                      */
   int *ida_iroots;       /* array for root information                      */
   int *ida_rootdir;      /* array specifying direction of zero-crossing     */
   realtype ida_tlo;      /* nearest endpoint of interval in root search     */
@@ -343,7 +355,7 @@ typedef struct IDAMemRec {
 
 /* Prototype of internal ewtSet function */
 
-int IDAEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
+int IDAEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
 /* High level error handler */
 
@@ -354,7 +366,7 @@ void IDAProcessError(IDAMem IDA_mem,
 /* Prototype of internal errHandler function */
 
 void IDAErrHandler(int error_code, const char *module, const char *function, 
-		   char *msg, void *eh_data);
+		   char *msg, void *data);
 
 /*
  * =================================================================
@@ -404,7 +416,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_ROOT_FUNC_NULL "g = NULL illegal."
 
 #define MSG_MISSING_ID     "id = NULL but suppressalg option on."
-#define MSG_NO_EFUN        "itol = IDA_WF but no EwtSet function was provided."
+#define MSG_NO_TOLS        "No integration tolerances have been specified."
 #define MSG_FAIL_EWT       "The user-provide EwtSet function failed."
 #define MSG_BAD_EWT        "Some initial ewt component = 0.0 illegal."
 #define MSG_Y0_FAIL_CONSTR "y0 fails to satisfy constraints."

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-11 22:34:09 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-23 23:37:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,7 +45,7 @@ extern "C" {
 /*
  * ----------------------------------------------------------------
  * Inputs to:
- *  IDAMalloc, IDAReInit, 
+ *  IDAInit, IDAReInit, 
  *  IDASensMalloc, IDASensReInit, 
  *  IDAQuadMalloc, IDAQuadReInit,
  *  IDACalcIC, IDASolve,
@@ -54,6 +54,7 @@ extern "C" {
  */
 
 /* itol */
+#define IDA_NN               0
 #define IDA_SS               1
 #define IDA_SV               2
 #define IDA_WF               3
@@ -182,8 +183,8 @@ typedef int (*IDAResFn)(realtype tt, N_Vector yy, N_Vector yp,
  * the dependent variable vector y, and its t-derivative yp (= y').
  * It stores the nrtfn values g_i(t,y,y') in the realtype array gout.
  * (Allocation of memory for gout is handled within IDA.)
- * The g_data parameter is the same as that passed by the user
- * to the IDARootInit routine.  This user-supplied pointer is
+ * The res_data parameter is the same as that passed by the user
+ * to the IDASetRdata routine.  This user-supplied pointer is
  * passed to the user's g function every time it is called.
  *
  * An IDARootFn should return 0 if successful or a non-zero value
@@ -192,7 +193,7 @@ typedef int (*IDAResFn)(realtype tt, N_Vector yy, N_Vector yp,
  */
 
 typedef int (*IDARootFn)(realtype t, N_Vector y, N_Vector yp,
-			 realtype *gout, void *g_data);
+			 realtype *gout, void *res_data);
 
 /*
  * -----------------------------------------------------------------
@@ -209,15 +210,15 @@ typedef int (*IDARootFn)(realtype t, N_Vector y, N_Vector yp,
  * 
  *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
  *
- * The e_data parameter is the same as that passed by the user
- * to the IDASetEdata routine.  This user-supplied pointer is
+ * The res_data parameter is the same as that passed by the user
+ * to the IDASetRdata routine.  This user-supplied pointer is
  * passed to the user's e function every time it is called.
  * An IDAEwtFn e must return 0 if the error weight vector has been
  * successfuly set and a non-zero value otherwise.
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
+typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *res_data);
 
 /*
  * -----------------------------------------------------------------
@@ -227,7 +228,7 @@ typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
  * IDAErrHandlerFn.
  * The function eh takes as input the error code, the name of the
  * module reporting the error, the error message, and a pointer to
- * user data, the same as that passed to CVodeSetErrHandlerFn.
+ * user data, the same as that passed to IDASetRdata.
  * 
  * All error codes are negative, except IDA_WARNING which indicates 
  * a warning (the solver continues).
@@ -238,7 +239,7 @@ typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
 
 typedef void (*IDAErrHandlerFn)(int error_code, 
 				const char *module, const char *function, 
-				char *msg, void *eh_data); 
+				char *msg, void *res_data); 
 
 
 /*
@@ -301,7 +302,7 @@ typedef void (*IDAQuadRhsFnB)(realtype tt,
  * be solved by IDA.                                              
  *                                                                
  * If successful, IDACreate returns a pointer to initialized      
- * problem memory. This pointer should be passed to IDAMalloc.    
+ * problem memory. This pointer should be passed to IDAInit.    
  * If an initialization error occurs, IDACreate prints an error   
  * message to standard err and returns NULL.                      
  *                                                                
@@ -326,7 +327,7 @@ SUNDIALS_EXPORT void *IDACreate(void);
  *                      | [internal]
  *                      |
  * IDASetErrFile        | the file pointer for an error file
- *                      | where all CVODE warning and error
+ *                      | where all IDA warning and error
  *                      | messages will be written if the default
  *                      | internal error handling function is used. 
  *                      | This parameter can be stdout (standard 
@@ -343,13 +344,6 @@ SUNDIALS_EXPORT void *IDACreate(void);
  *                      | time res is called.                     
  *                      | [NULL]                                  
  *                      |         
- * IDASetEwtFn          | user-provide EwtSet function e and 
- *                      | a pointer to user data that will be
- *                      | passed to the user's e function every
- *                      | time e is called.
- *                      | [NULL]
- *                      | [NULL]
- *                      |
  * IDASetMaxOrd         | maximum lmm order to be used by the     
  *                      | solver.                                 
  *                      | [5]                                      
@@ -426,12 +420,6 @@ SUNDIALS_EXPORT void *IDACreate(void);
  *                      |                                         
  * -----------------------------------------------------------------
  *                      |
- * IDASetTolerances     | Changes the integration tolerances
- *                      | between calls to IDASolve().
- *                      | [set by IDAMalloc/IDAReInit]
- *                      |
- * ---------------------------------------------------------------- 
- *                      |
  * IDASetRootDirection  | Specifies the direction of zero
  *                      | crossings to be monitored
  *                      | [both directions]
@@ -445,10 +433,9 @@ SUNDIALS_EXPORT void *IDACreate(void);
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun, void *eh_data);
+SUNDIALS_EXPORT int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun);
 SUNDIALS_EXPORT int IDASetErrFile(void *ida_mem, FILE *errfp);
 SUNDIALS_EXPORT int IDASetRdata(void *ida_mem, void *res_data);
-SUNDIALS_EXPORT int IDASetEwtFn(void *ida_mem, IDAEwtFn efun, void *edata);
 SUNDIALS_EXPORT int IDASetMaxOrd(void *ida_mem, int maxord);
 SUNDIALS_EXPORT int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
 SUNDIALS_EXPORT int IDASetInitStep(void *ida_mem, realtype hin);
@@ -462,15 +449,13 @@ SUNDIALS_EXPORT int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
 SUNDIALS_EXPORT int IDASetId(void *ida_mem, N_Vector id);
 SUNDIALS_EXPORT int IDASetConstraints(void *ida_mem, N_Vector constraints);
 
-SUNDIALS_EXPORT int IDASetTolerances(void *ida_mem, int itol, realtype rtol, void *atol);
-
 SUNDIALS_EXPORT int IDASetRootDirection(void *ida_mem, int *rootdir);
 
 /*
  * ----------------------------------------------------------------
- * Function : IDAMalloc                                           
+ * Function : IDAInit                                           
  * ----------------------------------------------------------------
- * IDAMalloc allocates and initializes memory for a problem to    
+ * IDAInit allocates and initializes memory for a problem to    
  * to be solved by IDAS.                                           
  *                                                                
  * res     is the residual function F in F(t,y,y') = 0.                     
@@ -481,34 +466,6 @@ SUNDIALS_EXPORT int IDASetRootDirection(void *ida_mem, int *rootdir);
  *                                                                
  * yp0     is the initial condition vector y'(t0)                 
  *                                                                
- * itol    is the type of tolerances to be used.                  
- *            The legal values are:                               
- *               IDA_SS (scalar relative and absolute  tolerances),   
- *               IDA_SV (scalar relative tolerance and vector         
- *                       absolute tolerance).                         
- *               IDA_WF (user-provided weight function)                       
- *                                         
- * rtol    is the relative tolerance scalar.         
- *                                                                
- * atol    is a pointer (void) to the absolute tolerance scalar or
- *            an N_Vector tolerance or an IDAEwtFn funciton.                              
- * (ewt)                                                          
- *         Both rtol and atol are used to compute the error weight
- *         vector, ewt. The error test required of a correction   
- *         delta is that the weighted-RMS norm of delta be less   
- *         than or equal to 1.0. Other convergence tests use the  
- *         same norm. The weighting vector used in this norm is   
- *         ewt. The components of ewt are defined by              
- *         ewt[i] = 1.0/(rtol*yy[i] + atol[i]). Here, yy is the   
- *         current approximate solution.  See the routine         
- *         N_VWrmsNorm for the norm used in this error test.      
- *                                                                
- * Note: The tolerance values may be changed in between calls to  
- *       IDASolve for the same problem. These values refer to     
- *       (*rtol) and either (*atol), for a scalar absolute        
- *       tolerance, or the components of atol, for a vector       
- *       absolute tolerance.                                      
- *                                                                 
  *  IDA_SUCCESS if successful
  *  IDA_MEM_NULL if the IDAS memory was NULL
  *  IDA_MEM_FAIL if a memory allocation failed
@@ -517,24 +474,23 @@ SUNDIALS_EXPORT int IDASetRootDirection(void *ida_mem, int *rootdir);
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAMalloc(void *ida_mem, IDAResFn res,
-			      realtype t0, N_Vector yy0, N_Vector yp0, 
-			      int itol, realtype rtol, void *atol);
+SUNDIALS_EXPORT int IDAInit(void *ida_mem, IDAResFn res,
+                            realtype t0, N_Vector yy0, N_Vector yp0);
 
 /*
  * ----------------------------------------------------------------
  * Function : IDAReInit                                           
  * ----------------------------------------------------------------
  * IDAReInit re-initializes IDAS for the solution of a problem,    
- * where a prior call to IDAMalloc has been made.                 
+ * where a prior call to IDAInit has been made.                 
  * IDAReInit performs the same input checking and initializations 
- * that IDAMalloc does.                                           
+ * that IDAInit does.                                           
  * But it does no memory allocation, assuming that the existing   
  * internal memory is sufficient for the new problem.             
  *                                                                
  * The use of IDAReInit requires that the maximum method order,   
  * maxord, is no larger for the new problem than for the problem  
- * specified in the last call to IDAMalloc.  This condition is    
+ * specified in the last call to IDAInit.  This condition is    
  * automatically fulfilled if the default value for maxord is     
  * specified.                                                     
  *                                                                
@@ -549,7 +505,7 @@ SUNDIALS_EXPORT int IDAMalloc(void *ida_mem, IDAResFn res,
  * ida_mem = pointer to IDA memory returned by IDACreate.         
  *                                                                
  * All the remaining arguments to IDAReInit have names and        
- * meanings identical to those of IDAMalloc.                      
+ * meanings identical to those of IDAInit.                      
  *                                                                
  * The return value of IDAReInit is equal to SUCCESS = 0 if there 
  * were no errors; otherwise it is a negative int equal to:       
@@ -562,9 +518,51 @@ SUNDIALS_EXPORT int IDAMalloc(void *ida_mem, IDAResFn res,
  */                                                                
 
 SUNDIALS_EXPORT int IDAReInit(void *ida_mem,
-			      realtype t0, N_Vector yy0, N_Vector yp0,
-			      int itol, realtype rtol, void *atol);
+			      realtype t0, N_Vector yy0, N_Vector yp0);
  
+/*
+ * -----------------------------------------------------------------
+ * Functions : IDASStolerances
+ *             IDASVtolerances
+ *             IDAWFtolerances
+ * -----------------------------------------------------------------
+ *
+ * These functions specify the integration tolerances. One of them
+ * MUST be called before the first call to IDA.
+ *
+ * IDASStolerances specifies scalar relative and absolute tolerances.
+ * IDASVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance (a potentially different absolute tolerance 
+ *   for each vector component).
+ * IDAWFtolerances specifies a user-provides function (of type IDAEwtFn)
+ *   which will be called to set the error weight vector.
+ *
+ * The tolerances reltol and abstol define a vector of error weights,
+ * ewt, with components
+ *   ewt[i] = 1/(reltol*abs(y[i]) + abstol)      (in the SS case), or
+ *   ewt[i] = 1/(reltol*abs(y[i]) + abstol[i])   (in the SV case).
+ * This vector is used in all error and convergence tests, which
+ * use a weighted RMS norm on all error-like vectors v:
+ *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),
+ * where N is the problem dimension.
+ *
+ * The return value of these functions is equal to IDA_SUCCESS = 0 if
+ * there were no errors; otherwise it is a negative int equal to:
+ *   IDa_MEM_NULL     indicating ida_mem was NULL (i.e.,
+ *                    IDACreate has not been called).
+ *   IDA_NO_MALLOC    indicating that ida_mem has not been
+ *                    allocated (i.e., IDAInit has not been
+ *                    called).
+ *   IDA_ILL_INPUT    indicating an input argument was illegal
+ *                    (e.g. a negative tolerance)
+ * In case of an error return, an error message is also printed.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol);
+SUNDIALS_EXPORT int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol);
+SUNDIALS_EXPORT int IDAWFtolerances(void *ida_mem, IDAEwtFn efun);
+
 /* ----------------------------------------------------------------
  * Initial Conditions optional input specification functions      
  * ----------------------------------------------------------------
@@ -643,9 +641,6 @@ SUNDIALS_EXPORT int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  * g       = name of user-supplied function, of type IDARootFn,
  *           defining the functions g_i whose roots are sought.
  *
- * g_data  = a pointer to user data that will be passed to the 
- *           user's g function every time g is called.
- *
  * If a new problem is to be solved with a call to IDAReInit,
  * where the new problem has no root functions but the prior one
  * did, then call IDARootInit with nrtfn = 0.
@@ -660,7 +655,7 @@ SUNDIALS_EXPORT int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *g_data);
+SUNDIALS_EXPORT int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g);
 
 /*
  * -----------------------------------------------------------------
@@ -722,7 +717,7 @@ SUNDIALS_EXPORT int IDAQuadMalloc(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0
  * ----------------------------------------------------------------
  * IDAQuadReInit re-initializes IDAS's quadrature related         
  * memory for a problem, assuming it has already been allocated   
- * in prior calls to IDAMalloc and IDAQuadMalloc.                 
+ * in prior calls to IDAInit and IDAQuadMalloc.                 
  *                                                                
  * All problem specification inputs are checked for errors.       
  * The number of quadratures Nq is assumed to be unchanged        
@@ -838,7 +833,7 @@ SUNDIALS_EXPORT int IDASensMalloc(void *ida_mem, int Ns, int ism, N_Vector *yS0,
  * ----------------------------------------------------------------
  * IDASensReInit re-initializes the IDAS sensitivity related      
  * memory for a problem, assuming it has already been allocated   
- * in prior calls to IDAMalloc and IDASensMalloc.                 
+ * in prior calls to IDAInit and IDASensMalloc.                 
  *                                                                
  * All problem specification inputs are checked for errors.       
  * The number of sensitivities Ns is assumed to be unchanged      
@@ -887,7 +882,7 @@ SUNDIALS_EXPORT int IDASensToggle(void *ida_mem, booleantype sensi);
  * a call to IDACalcIC is NOT necessary (for index-one problems). 
  *                                                                
  * A call to IDACalcIC must be preceded by a successful call to   
- * IDAMalloc or IDAReInit for the given DAE problem, and by a     
+ * IDAInit or IDAReInit for the given DAE problem, and by a     
  * successful call to the linear system solver specification      
  * routine.                                                       
  *
@@ -1006,7 +1001,7 @@ SUNDIALS_EXPORT int IDACalcIC (void *ida_mem, int icopt, realtype tout1);
  * ypret   is the derivative of the computed solution at t = tret.
  *                                                                
  * Note: yret and ypret may be the same N_Vectors as y0 and yp0   
- * in the call to IDAMalloc or IDAReInit.                         
+ * in the call to IDAInit or IDAReInit.                         
  *                                                                
  * itask   is IDA_NORMAL, IDA_NORMAL_TSTOP, IDA_ONE_STEP, or
  *         IDA_ONE_STEP_TSTOP.   These modes are described above.
@@ -1350,8 +1345,8 @@ SUNDIALS_EXPORT char *IDAGetReturnFlagName(int flag);
  * Function : IDAFree                                             
  * ----------------------------------------------------------------
  * IDAFree frees the problem memory IDA_mem allocated by          
- * IDAMalloc.  Its only argument is the pointer idamem            
- * returned by IDAMalloc.                                         
+ * IDAInit.  Its only argument is the pointer idamem            
+ * returned by IDAInit.                                         
  * ----------------------------------------------------------------
  */
 
@@ -1407,15 +1402,13 @@ SUNDIALS_EXPORT int IDASolveF(void *idaadj_mem, realtype tout, realtype *tret,
  */
 
 SUNDIALS_EXPORT int IDACreateB(void *idaadj_mem);
-SUNDIALS_EXPORT int IDAMallocB(void *idaadj_mem, IDAResFnB resB,
+SUNDIALS_EXPORT int IDAInitB(void *idaadj_mem, IDAResFnB resB,
 			       realtype tB0, N_Vector yyB0, N_Vector ypB0, 
 			       int itolB, realtype *reltolB, void *abstolB);
 SUNDIALS_EXPORT int IDAReInitB(void *idaadj_mem,
 			       realtype tB0, N_Vector yyB0, N_Vector ypB0,
 			       int itolB, realtype *reltolB, void *abstolB);
 
-SUNDIALS_EXPORT int IDASetErrHandlerFnB(void *idaadj_mem, IDAErrHandlerFn ehfunB, void *eh_dataB);
-SUNDIALS_EXPORT int IDASetErrFileB(void *idaadj_mem, FILE *errfpB);
 SUNDIALS_EXPORT int IDASetRdataB(void *idaadj_mem, void *res_dataB);
 SUNDIALS_EXPORT int IDASetMaxOrdB(void *idaadj_mem, int maxordB);
 SUNDIALS_EXPORT int IDASetMaxNumStepsB(void *idaadj_mem, long int mxstepsB);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:23 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -88,8 +88,8 @@ extern "C" {
  * c_j is the scalar in the system Jacobian, proportional to 
  *     the inverse of the step size h.
  *                                                                
- * jac_data is a pointer to user Jacobian data - the same as the    
- *     jdata parameter passed to IDADlsSetJacFn.                     
+ * res_data is a pointer to user Jacobian data - the same as the    
+ *     res_data parameter passed to IDASetRdata.                     
  *                                                                
  * Jac is the dense matrix (of type DlsMat) to be loaded by  
  *     an IDADlsDenseJacFn routine with an approximation to the   
@@ -146,7 +146,7 @@ extern "C" {
   
 typedef int (*IDADlsDenseJacFn)(int N, realtype t, realtype c_j,
 				N_Vector y, N_Vector yp, N_Vector r, 
-				DlsMat Jac, void *jac_data,
+				DlsMat Jac, void *res_data,
 				N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -174,8 +174,8 @@ typedef int (*IDADlsDenseJacFn)(int N, realtype t, realtype c_j,
  *                                                                
  * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *                                                                
- * jac_data  is a pointer to user Jacobian data - the same as the    
- *    jdata parameter passed to IDADlsSetJacFn.                      
+ * res_data  is a pointer to user Jacobian data - the same as the    
+ *    res_data parameter passed to IDASetRdata.                      
  *                                                                
  * Jac is the band matrix (of type BandMat) to be loaded by    
  *     an IDADlsBandJacFn routine with an approximation to the    
@@ -235,37 +235,37 @@ typedef int (*IDADlsDenseJacFn)(int N, realtype t, realtype c_j,
 typedef int (*IDADlsBandJacFn)(int N, int mupper, int mlower,
 			       realtype t, realtype c_j, 
 			       N_Vector y, N_Vector yp, N_Vector r,
-			       DlsMat Jac, void *jac_data,
+			       DlsMat Jac, void *res_data,
 			       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
 /*
- * -----------------------------------------------------------------
- * EXPORTED FUNCTIONS 
- * -----------------------------------------------------------------
+ * =================================================================
+ *            E X P O R T E D    F U N C T I O N S 
+ * =================================================================
  */
 
 /*
  * -----------------------------------------------------------------
  * Optional inputs to the IDADIRECT linear solver
  * -----------------------------------------------------------------
+ * IDADlsSetDenseJacFn specifies the dense Jacobian approximation
+ * routine to be used for a direct dense linear solver.
  *
- * IDADlsSetJacFn specifies the Jacobian approximation routine to be
- * used. When using dense Jacobians, a user-supplied jac routine must 
- * be of type IDADlsDenseJacFn. When using banded Jacobians, a 
- * user-supplied jac routine must be of type IDADlsBandJacFn.
- * By default, a difference quotient approximation, supplied with this 
- * solver is used.
- * IDADlsSetJacFn also specifies a pointer to user data which is 
- * passed to the user's jac routine every time it is called.
+ * IDADlsSetBandJacFn specifies the band Jacobian approximation
+ * routine to be used for a direct band linear solver.
  *
- * The return value of IDADlsSetJacFn is one of:
+ * By default, a difference quotient approximation, supplied with
+ * the solver is used.
+ *
+ * The return value is one of:
  *    IDADIRECT_SUCCESS   if successful
  *    IDADIRECT_MEM_NULL  if the IDA memory was NULL
  *    IDADIRECT_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDADlsSetJacFn(void *ida_mem, void *jac, void *jac_data);
+SUNDIALS_EXPORT int IDADlsSetDenseJacFn(void *ida_mem, IDADlsDenseJacFn jac);
+SUNDIALS_EXPORT int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac);
 
 /*
  * -----------------------------------------------------------------
@@ -327,7 +327,7 @@ SUNDIALS_EXPORT char *IDADlsGetReturnFlagName(int flag);
 typedef int (*IDADlsDenseJacFnB)(int NeqB, realtype tt, realtype c_jB, 
 				 N_Vector yy, N_Vector yp,
 				 N_Vector yyB, N_Vector ypB, N_Vector rrB,
-				 DlsMat JacB, void *jac_dataB, 
+				 DlsMat JacB, void *res_dataB, 
 				 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 
@@ -344,7 +344,7 @@ typedef int (*IDADlsBandJacFnB)(int NeqB, int mupperB, int mlowerB,
 				realtype tt, realtype c_jB, 
 				N_Vector yy, N_Vector yp,
 				N_Vector yyB, N_Vector ypB, N_Vector rrB,
-				DlsMat JacB, void *jac_dataB,
+				DlsMat JacB, void *res_dataB,
 				N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
   
 /*
@@ -357,12 +357,14 @@ typedef int (*IDADlsBandJacFnB)(int NeqB, int mupperB, int mlowerB,
  * -----------------------------------------------------------------
  * Functions: IDADlsSetJacFnB
  * -----------------------------------------------------------------
- * IDADlsSetJacFn specifies the Jacobian function to be used by an
+ * IDADlsSetDenseJacFnB and IDADlsSetBandJacFnB specify the dense
+ * and band, respectively, Jacobian functions to be used by a
  * IDASDIRECT linear solver for the bacward integration phase.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDADlsSetJacFnB(void *idaadj_mem, void *bjacB, void *jdataB);
+SUNDIALS_EXPORT int IDADlsSetDenseJacFnB(void *idaadj_mem, IDADlsDenseJacFnB jacB);
+SUNDIALS_EXPORT int IDADlsSetBandJacFnB(void *idaadj_mem, IDADlsBandJacFnB jacB);
 
 
 #ifdef __cplusplus

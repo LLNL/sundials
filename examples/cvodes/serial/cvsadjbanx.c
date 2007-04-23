@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-03-22 18:05:55 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-23 23:37:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -170,16 +170,19 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-  if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+  flag = CVodeInit(cvode_mem, f, T0, u);
+  if(check_flag(&flag, "CVodeInit", 1)) return(1);
+
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
   /* Call CVBand with  bandwidths ml = mu = MY, */
 
   flag = CVBand(cvode_mem, NEQ, MY, MY);
   if(check_flag(&flag, "CVBand", 1)) return(1);
 
-  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
-  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  flag = CVDlsSetBandJacFn(cvode_mem, Jac);
+  if(check_flag(&flag, "CVDlsSetBandJacFn", 1)) return(1);
 
   /* Allocate global memory */
 
@@ -213,14 +216,17 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdataB(cvode_mem, indexB, data);
   if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
 
-  flag = CVodeMallocB(cvode_mem, indexB, fB, TOUT, uB, CV_SS, reltolB, &abstolB);
-  if(check_flag(&flag, "CVodeMallocB", 1)) return(1);
+  flag = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
+  if(check_flag(&flag, "CVodeInitB", 1)) return(1);
+
+  flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
+  if(check_flag(&flag, "CVodeSStolerancesB", 1)) return(1);
 
   flag = CVBandB(cvode_mem, indexB, NEQ, MY, MY);
   if(check_flag(&flag, "CVBandB", 1)) return(1);
   
-  flag = CVDlsSetJacFnB(cvode_mem, indexB, (void *)JacB, data);
-  if(check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
+  flag = CVDlsSetBandJacFnB(cvode_mem, indexB, JacB);
+  if(check_flag(&flag, "CVDlsSetBandJacFnB", 1)) return(1);
 
   /* Perform backward integration */
   printf("\nBackward integration\n");

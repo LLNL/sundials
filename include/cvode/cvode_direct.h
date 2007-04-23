@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:22 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -74,8 +74,8 @@ extern "C" {
  *
  * fy  is the vector f(t,y).
  *
- * jac_data is a pointer to user data - the same as the jac_data
- *     parameter passed to CVDlsSetJacFn.
+ * f_data is a pointer to user data - the same as the f_data
+ *     parameter passed to CVodeSetFdata.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated for
  * vectors of length N which can be used by a CVDlsDenseJacFn
@@ -121,7 +121,7 @@ extern "C" {
   
 typedef int (*CVDlsDenseJacFn)(int N, realtype t,
 			       N_Vector y, N_Vector fy, 
-			       DlsMat Jac, void *jac_data,
+			       DlsMat Jac, void *f_data,
 			       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
 /*
@@ -186,8 +186,8 @@ typedef int (*CVDlsDenseJacFn)(int N, realtype t,
  * The BAND_ELEM(A,i,j) macro is appropriate for use in small
  * problems in which efficiency of access is NOT a major concern.
  *
- * jac_data is a pointer to user data - the same as the jac_data
- *          parameter passed to CVDlsSetJacFn.
+ * f_data is a pointer to user data - the same as the f_data
+ *          parameter passed to CVodeSetFdata.
  *
  * NOTE: If the user's Jacobian routine needs other quantities,
  *     they are accessible as follows: hcur (the current stepsize)
@@ -208,7 +208,7 @@ typedef int (*CVDlsDenseJacFn)(int N, realtype t,
 
 typedef int (*CVDlsBandJacFn)(int N, int mupper, int mlower,
 			      realtype t, N_Vector y, N_Vector fy, 
-			      DlsMat Jac, void *jac_data,
+			      DlsMat Jac, void *f_data,
 			      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -222,23 +222,24 @@ typedef int (*CVDlsBandJacFn)(int N, int mupper, int mlower,
  * Optional inputs to the CVDIRECT linear solver
  * -----------------------------------------------------------------
  *
- * CVDlsSetJacFn specifies the Jacobian approximation routine to be
- * used. When using dense Jacobians, a user-supplied jac routine must 
- * be of type CVDlsDenseJacFn. When using banded Jacobians, a 
- * user-supplied jac routine must be of type CVDlsBandJacFn.
- * By default, a difference quotient approximation, supplied with this 
- * solver is used.
- * CVDlsSetJacFn also specifies a pointer to user data which is 
- * passed to the user's jac routine every time it is called.
+ * CVDlsSetDenseJacFn specifies the dense Jacobian approximation
+ * routine to be used for a direct dense linear solver.
  *
- * The return value of CVDlsSetJacFn is one of:
+ * CVDlsSetBandJacFn specifies the band Jacobian approximation
+ * routine to be used for a direct band linear solver.
+ *
+ * By default, a difference quotient approximation, supplied with
+ * the solver is used.
+ *
+ * The return value is one of:
  *    CVDIRECT_SUCCESS   if successful
  *    CVDIRECT_MEM_NULL  if the CVODE memory was NULL
  *    CVDIRECT_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVDlsSetJacFn(void *cvode_mem, void *jac, void *jac_data);
+SUNDIALS_EXPORT int CVDlsSetDenseJacFn(void *cvode_mem, CVDlsDenseJacFn jac);
+SUNDIALS_EXPORT int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac);
 
 /*
  * -----------------------------------------------------------------

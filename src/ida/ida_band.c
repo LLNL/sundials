@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-23 23:37:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -52,7 +52,6 @@ static int IDABandFree(IDAMem IDA_mem);
 
 #define res         (IDA_mem->ida_res)
 #define rdata       (IDA_mem->ida_rdata)
-#define uround      (IDA_mem->ida_uround)
 #define tn          (IDA_mem->ida_tn)
 #define hh          (IDA_mem->ida_hh)
 #define cj          (IDA_mem->ida_cj)
@@ -72,6 +71,7 @@ static int IDABandFree(IDAMem IDA_mem);
 #define neq         (idadls_mem->d_n)
 #define ml          (idadls_mem->d_ml)
 #define mu          (idadls_mem->d_mu)
+#define jacDQ       (idadls_mem->d_jacDQ)
 #define bjac        (idadls_mem->d_bjac)
 #define JJ          (idadls_mem->d_J)
 #define smu         (idadls_mem->d_smu)
@@ -155,8 +155,10 @@ int IDABand(void *ida_mem, int Neq, int mupper, int mlower)
   mtype = SUNDIALS_BAND;
 
   /* Set default Jacobian routine and Jacobian data */
-  bjac = idaDlsBandDQJac;
-  jacdata = IDA_mem;
+  jacDQ   = TRUE;
+  bjac    = NULL;
+  jacdata = NULL;
+
   last_flag = IDADIRECT_SUCCESS;
 
   setupNonNull = TRUE;
@@ -215,9 +217,11 @@ static int IDABandInit(IDAMem IDA_mem)
   nje   = 0;
   nreDQ = 0;
 
-  if (bjac == NULL) {
+  if (jacDQ) {
     bjac = idaDlsBandDQJac;
     jacdata = IDA_mem;
+  } else {
+    jacdata = rdata;
   }
 
   last_flag = 0;

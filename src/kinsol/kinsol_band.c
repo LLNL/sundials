@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,7 +50,6 @@ static void kinBandFree(KINMem kin_mem);
 
 #define lrw1           (kin_mem->kin_lrw1)
 #define liw1           (kin_mem->kin_liw1)
-#define uround         (kin_mem->kin_uround)
 #define func           (kin_mem->kin_func)
 #define f_data         (kin_mem->kin_f_data)
 #define printfl        (kin_mem->kin_printfl)
@@ -79,6 +78,7 @@ static void kinBandFree(KINMem kin_mem);
 #define ml             (kindls_mem->d_ml)
 #define mu             (kindls_mem->d_mu)
 #define smu            (kindls_mem->d_smu)
+#define jacDQ          (kindls_mem->d_jacDQ)
 #define bjac           (kindls_mem->d_bjac)
 #define J              (kindls_mem->d_J)
 #define pivots         (kindls_mem->d_pivots)
@@ -155,8 +155,9 @@ int KINBand(void *kinmem, int N, int mupper, int mlower)
   mtype = SUNDIALS_BAND;  
 
   /* Set default Jacobian routine and Jacobian data */
-  bjac = kinDlsBandDQJac;
-  J_data = kinmem;
+  jacDQ  = TRUE;
+  bjac   = NULL;
+  J_data = NULL;
   last_flag = KINDIRECT_SUCCESS;
 
   setupNonNull = TRUE;
@@ -228,9 +229,11 @@ static int kinBandInit(KINMem kin_mem)
   nje   = 0;
   nfeDQ = 0;
 
-  if (bjac == NULL) {
+  if (jacDQ) {
     bjac = kinDlsBandDQJac;
     J_data = kin_mem;
+  } else {
+    J_data = f_data;
   }
 
   last_flag = KINDIRECT_SUCCESS;

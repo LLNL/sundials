@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -33,7 +33,7 @@
 
    FNVINITS and FNVINITP initialize serial and parallel vector
                          computations, respectively
-   FKINMALLOC interfaces to KINMalloc
+   FKINMALLOC interfaces to KINInit
    FKINSETIIN, FKINSETRIN, FKINSETVIN interface to KINSet* functions
    FKINDENSE interfaces to KINDense
    FKINSPTFQMR interfaces to KINSptfqmr
@@ -528,22 +528,22 @@ int FKINfunc(N_Vector uu, N_Vector fval, void *f_data);
 
 int FKINDenseJac(int N, 
                  N_Vector uu, N_Vector fval,
-                 DlsMat J, void *jac_data, 
+                 DlsMat J, void *f_data, 
                  N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINBandJac(int N, int mupper, int mlower,
                 N_Vector uu, N_Vector fval, 
-                DlsMat J, void *jac_data,
+                DlsMat J, void *f_data,
                 N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINLapackDenseJac(int N, 
                        N_Vector uu, N_Vector fval,
-                       DlsMat J, void *jac_data, 
+                       DlsMat J, void *f_data, 
                        N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINLapackBandJac(int N, int mupper, int mlower,
                       N_Vector uu, N_Vector fval, 
-                      DlsMat J, void *jac_data,
+                      DlsMat J, void *f_data,
                       N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINPSet(N_Vector uu, N_Vector uscale,

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-23 23:37:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,7 +47,7 @@
  * Specifies the error handler function
  */
 
-int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data)
+int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun)
 {
   CVodeMem cv_mem;
 
@@ -59,7 +59,6 @@ int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data)
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_ehfun = ehfun;
-  cv_mem->cv_eh_data = eh_data;
 
   return(CV_SUCCESS);
 }
@@ -466,113 +465,6 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_nlscoef = nlscoef;
-
-  return(CV_SUCCESS);
-}
-
-/*
- * CVodeSetTolerances
- *
- * Changes the integration tolerances between calls to CVode()
- */
-
-int CVodeSetTolerances(void *cvode_mem, 
-                       int itol, realtype reltol, void *abstol)
-{
-  CVodeMem cv_mem;
-  booleantype neg_abstol;
-
-  if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetTolerances", MSGCV_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  /* Check if cvode_mem was allocated */
-
-  if (cv_mem->cv_MallocDone == FALSE) {
-    cvProcessError(cv_mem, CV_NO_MALLOC, "CVODES", "CVodeSetTolerances", MSGCV_NO_MALLOC);
-    return(CV_NO_MALLOC);
-  }
-
-  /* Check inputs */
-
-  if ( (itol != CV_SS) && (itol != CV_SV) ) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetTolerances", MSGCV_BAD_ITOL);
-    return(CV_ILL_INPUT);
-  }
-
-  if (abstol == NULL) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetTolerances", MSGCV_NULL_ABSTOL);
-    return(CV_ILL_INPUT);
-  }
-
-  if (reltol < ZERO) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetTolerances", MSGCV_BAD_RELTOL);
-    return(CV_ILL_INPUT);
-  }
-
-  if (itol == CV_SS)
-    neg_abstol = (*((realtype *)abstol) < ZERO);
-  else
-    neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
-    
-  if (neg_abstol) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetTolerances", MSGCV_BAD_ABSTOL);
-    return(CV_ILL_INPUT);
-  }
-
-  /* Copy tolerances into memory */
-
-  cv_mem->cv_itol   = itol;
-
-  cv_mem->cv_reltol = reltol;
-
-  if (itol == CV_SS) {
-
-    cv_mem->cv_Sabstol = *((realtype *)abstol);
-
-  } else {
-
-    if (!(cv_mem->cv_VabstolMallocDone) ) {
-      cv_mem->cv_Vabstol = N_VClone(cv_mem->cv_ewt);
-      lrw += lrw1;
-      liw += liw1;
-      cv_mem->cv_VabstolMallocDone = TRUE;
-    }
-
-    N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
-    
-  }
-
-  cv_mem->cv_efun = cvEwtSet;
-  cv_mem->cv_e_data = cvode_mem;
-
-
-  return(CV_SUCCESS);
-}
-
-/* 
- * CVodeSetEwtFn
- *
- * Specifies the user-provide EwtSet function and data pointer for e
- */
-
-int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetEwtFn", MSGCV_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_itol = CV_WF;
-  cv_mem->cv_efun = efun;
-  cv_mem->cv_e_data = e_data;
 
   return(CV_SUCCESS);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:23 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -73,8 +73,8 @@ extern "C" {
  *            by a KINDlsDenseJacFn with an approximation to the
  *            Jacobian matrix J = (dF_i/dy_j).
  *
- * jac_data - pointer to user data - the same as the jac_data
- *            parameter passed to KINDlsSetJacFn.
+ * f_data   - pointer to user data - the same as the f_data
+ *            parameter passed to KINSetFdata.
  *
  * tmp1, tmp2 - available scratch vectors (volatile storage)
  *
@@ -111,7 +111,7 @@ extern "C" {
   
 typedef int (*KINDlsDenseJacFn)(int N,
 				N_Vector u, N_Vector fu, 
-				DlsMat J, void *jac_data,
+				DlsMat J, void *f_data,
 				N_Vector tmp1, N_Vector tmp2);
   
 /*
@@ -142,8 +142,8 @@ typedef int (*KINDlsDenseJacFn)(int N,
  *            KINDlsBandJacFn with an approximation to the Jacobian
  *            matrix Jac = (dF_i/dy_j).
  *
- * jac_data - pointer to user data - the same as the jac_data
- *            parameter passed to KINBandSetJacFn.
+ * f_data   - pointer to user data - the same as the f_data
+ *            parameter passed to KINSetFdata.
  *
  * tmp1, tmp2 - available scratch vectors (volatile storage)
  *
@@ -192,7 +192,7 @@ typedef int (*KINDlsDenseJacFn)(int N,
 
 typedef int (*KINDlsBandJacFn)(int N, int mupper, int mlower,
 			       N_Vector u, N_Vector fu, 
-			       DlsMat J, void *jac_data,
+			       DlsMat J, void *f_data,
 			       N_Vector tmp1, N_Vector tmp2);
 
 /*
@@ -206,23 +206,24 @@ typedef int (*KINDlsBandJacFn)(int N, int mupper, int mlower,
  * Optional inputs to the KINDIRECT linear solver
  * -----------------------------------------------------------------
  *
- * KINDlsSetJacFn specifies the Jacobian approximation routine to be
- * used. When using dense Jacobians, a user-supplied jac routine must 
- * be of type KINDlsDenseJacFn. When using banded Jacobians, a 
- * user-supplied jac routine must be of type KINDlsBandJacFn.
- * By default, a difference quotient approximation, supplied with this 
- * solver is used.
- * KINDlsSetJacFn also specifies a pointer to user data which is 
- * passed to the user's jac routine every time it is called.
+ * KINDlsSetDenseJacFn specifies the dense Jacobian approximation
+ * routine to be used for a direct dense linear solver.
  *
- * The return value of KINDlsSetJacFn is one of:
+ * KINDlsSetBandJacFn specifies the band Jacobian approximation
+ * routine to be used for a direct band linear solver.
+ *
+ * By default, a difference quotient approximation, supplied with
+ * the solver is used.
+ *
+ * The return value is one of:
  *    KINDIRECT_SUCCESS   if successful
  *    KINDIRECT_MEM_NULL  if the KINSOL memory was NULL
  *    KINDIRECT_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINDlsSetJacFn(void *kinmem, void *jac, void *jac_data);
+SUNDIALS_EXPORT int KINDlsSetDenseJacFn(void *kinmem, KINDlsDenseJacFn jac);
+SUNDIALS_EXPORT int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac);
 
 /*
  * -----------------------------------------------------------------

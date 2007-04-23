@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-18 19:24:21 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-23 23:37:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -44,6 +44,20 @@ extern "C" {
 #define HMAX_INV_DEFAULT RCONST(0.0)    /* hmax_inv default value */
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
+
+/*
+ * Type of tolerances
+ * ------------------
+ *
+ * itol is one of CV_SS, CV_SV, CV_WF.
+ * CV_NN is the initial value of itol and can be used to test whether
+ * required tolerances have been provided.
+ */
+
+#define CV_NN  0
+#define CV_SS  1
+#define CV_SV  2
+#define CV_WF  3
 
 /*
  * -----------------------------------------------------------------
@@ -229,7 +243,6 @@ typedef struct CVodeMemRec {
     -------------------------------------------*/
 
   CVErrHandlerFn cv_ehfun;    /* Error messages are handled by ehfun     */
-  void *cv_eh_data;           /* user pointer passed to ehfun            */
   FILE *cv_errfp;             /* CVODE error messages are sent to errfp  */
 
   /*-------------------------
@@ -247,7 +260,6 @@ typedef struct CVodeMemRec {
 
   CVRootFn cv_gfun;     /* Function g for roots sought                     */
   int cv_nrtfn;         /* number of components of g                       */
-  void *cv_g_data;      /* pointer to user data for g                      */
   int *cv_iroots;       /* array for root information                      */
   int *cv_rootdir;      /* array specifying direction of zero-crossing     */
   realtype cv_tlo;      /* nearest endpoint of interval in root search     */
@@ -403,7 +415,7 @@ typedef struct CVodeMemRec {
 
 /* Prototype of internal ewtSet function */
 
-int CVEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
+int CVEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
 /* High level error handler */
 
@@ -414,7 +426,7 @@ void CVProcessError(CVodeMem cv_mem,
 /* Prototype of internal errHandler function */
 
 void CVErrHandler(int error_code, const char *module, const char *function, 
-		  char *msg, void *eh_data);
+		  char *msg, void *data);
 
 /*
  * =================================================================
@@ -452,8 +464,7 @@ void CVErrHandler(int error_code, const char *module, const char *function,
 #define MSGCV_MEM_FAIL "A memory request failed."
 #define MSGCV_BAD_LMM  "Illegal value for lmm. The legal values are CV_ADAMS and CV_BDF."
 #define MSGCV_BAD_ITER  "Illegal value for iter. The legal values are CV_FUNCTIONAL and CV_NEWTON."
-#define MSGCV_BAD_ITOL "Illegal value for itol. The legal values are CV_SS, CV_SV, and CV_WF."
-#define MSGCV_NO_MALLOC "Attempt to call before CVodeMalloc."
+#define MSGCV_NO_MALLOC "Attempt to call before CVodeInit."
 #define MSGCV_NEG_MAXORD "maxord <= 0 illegal."
 #define MSGCV_BAD_MAXORD  "Illegal attempt to increase maximum method order."
 #define MSGCV_NEG_MXSTEPS "mxsteps < 0 illegal."
@@ -475,6 +486,7 @@ void CVErrHandler(int error_code, const char *module, const char *function,
 
 /* CVode Error Messages */
 
+#define MSGCV_NO_TOLS "No integration tolerances have been specified."
 #define MSGCV_LSOLVE_NULL "The linear solver's solve routine is NULL."
 #define MSGCV_YOUT_NULL "yout = NULL illegal."
 #define MSGCV_TRET_NULL "tret = NULL illegal."
@@ -484,7 +496,6 @@ void CVErrHandler(int error_code, const char *module, const char *function,
 #define MSGCV_BAD_H0 "h0 and tout - t0 inconsistent."
 #define MSGCV_BAD_INIT_ROOT "Root found at and very near initial t."
 #define MSGCV_BAD_TOUT "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration"
-#define MSGCV_NO_EFUN "itol = CV_WF but no EwtSet function was provided."
 #define MSGCV_NO_TSTOP "itask = CV_NORMAL_TSTOP or itask = CV_ONE_STEP_TSTOP but tstop was not set."
 #define MSGCV_EWT_FAIL "The user-provide EwtSet function failed."
 #define MSGCV_EWT_NOW_FAIL "At " MSG_TIME ", the user-provide EwtSet function failed."

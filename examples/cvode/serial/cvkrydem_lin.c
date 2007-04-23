@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-11 22:34:10 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -86,7 +86,7 @@
 #define NSMX         20             /* NSMX = NUM_SPECIES*MX */
 #define MM           (MX*MY)        /* MM = MX*MY */
 
-/* CVodeMalloc Constants */
+/* CVodeInit Constants */
 
 #define RTOL    RCONST(1.0e-5)    /* scalar relative tolerance */
 #define FLOOR   RCONST(100.0)     /* value of C1 or C2 at which tolerances */
@@ -185,12 +185,8 @@ int main(void)
   abstol=ATOL; 
   reltol=RTOL;
 
-  /* Call CvodeCreate to create the solver memory 
-
-     CV_BDF     specifies the Backward Differentiation Formula
-     CV_NEWTON  specifies a Newton iteration
-
-     A pointer to the integrator memory is returned and stored in cvode_mem. */
+  /* Call CVodeCreate to create the solver memory and specify the 
+   * Backward Differentiation Formula and the use of a Newton iteration */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
@@ -198,16 +194,16 @@ int main(void)
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  /* Call CVodeMalloc to initialize the integrator memory: 
+  /* Call CVodeInit to initialize the integrator memory and specify the
+   * user's right hand side function in u'=f(t,u), the inital time T0, and
+   * the initial dependent variable vector u. */
+  flag = CVodeInit(cvode_mem, f, T0, u);
+  if(check_flag(&flag, "CVodeInit", 1)) return(1);
 
-     f       is the user's right hand side function in u'=f(t,u)
-     T0      is the initial time
-     u       is the initial dependent variable vector
-     CV_SS   specifies scalar relative and absolute tolerances
-     reltol  is the relative tolerance
-     &abstol is a pointer to the scalar absolute tolerance      */
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-  if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+  /* Call CVodeSStolerances to specify the scalar relative tolerance
+   * and scalar absolute tolerances */
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
   /* START: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
   for (linsolver = 0; linsolver < 3; ++linsolver) {
@@ -220,7 +216,7 @@ int main(void)
 
     /* Re-initialize CVode for the solution of the same problem, but
        using a different linear solver module */
-      flag = CVodeReInit(cvode_mem, T0, u, CV_SS, reltol, &abstol);
+      flag = CVodeReInit(cvode_mem, T0, u);
       if (check_flag(&flag, "CVodeReInit", 1)) return(1);
 
     }

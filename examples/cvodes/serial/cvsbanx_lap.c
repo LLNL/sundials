@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-24 19:09:11 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-23 23:37:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
  *
  * The following is a simple example problem with a banded Jacobian,
- * with the program for its solution by CVODES.
+ * with the program for its solution by CVODE.
  * The problem is the semi-discrete form of the advection-diffusion
  * equation in 2-D:
  *   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2
@@ -34,7 +34,7 @@
 
 /* Header files with a description of contents used in cvbanx.c */
 
-#include <cvodes/cvodes.h>           /* prototypes for CVODES fcts. and consts. */
+#include <cvodes/cvodes.h>           /* prototypes for CVODE fcts. and consts. */
 #include <cvodes/cvodes_lapack.h>    /* prototype for CVLapackBand */
 #include <nvector/nvector_serial.h>  /* serial N_Vector types, fcts., and macros */
 #include <sundials/sundials_math.h>  /* definition of ABS and EXP */
@@ -133,52 +133,35 @@ int main(void)
 
   SetIC(u, data);  /* Initialize u vector */
 
-  /* 
-     Call CvodeCreate to create integrator memory 
-
-     CV_BDF     specifies the Backward Differentiation Formula
-     CV_NEWTON  specifies a Newton iteration
-
-     A pointer to the integrator problem memory is returned and
-     stored in cvode_mem.  
-  */
-
+  /* Call CVodeCreate to create the solver memory and specify the 
+   * Backward Differentiation Formula and the use of a Newton iteration */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
-  /* 
-     Call CVodeMalloc to initialize the integrator memory: 
+  /* Call CVodeInit to initialize the integrator memory and specify the
+   * user's right hand side function in u'=f(t,u), the inital time T0, and
+   * the initial dependent variable vector u. */
+  flag = CVodeInit(cvode_mem, f, T0, u);
+  if(check_flag(&flag, "CVodeInit", 1)) return(1);
 
-     cvode_mem is the pointer to the integrator memory returned by CVodeCreate
-     f       is the user's right hand side function in y'=f(t,y)
-     T0      is the initial time
-     u       is the initial dependent variable vector
-     CV_SS   specifies scalar relative and absolute tolerances
-     reltol  is the scalar relative tolerance
-     &abstol is a pointer to the scalar absolute tolerance
-  */
-
-  flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-  if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+  /* Call CVodeSStolerances to specify the scalar relative tolerance
+   * and scalar absolute tolerance */
+  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
   /* Set the pointer to user-defined data */
-
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
   /* Call CVLapackBand to specify the CVBAND band linear solver */
-
   flag = CVLapackBand(cvode_mem, NEQ, MY, MY);
   if(check_flag(&flag, "CVLapackBand", 1)) return(1);
 
-  /* Set the user-supplied Jacobian routine Jac and
-     the pointer to the user-defined block data. */
-
-  flag = CVDlsSetJacFn(cvode_mem, (void *)Jac, data);
-  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  /* Set the user-supplied Jacobian routine Jac */
+  flag = CVDlsSetBandJacFn(cvode_mem, Jac);
+  if(check_flag(&flag, "CVDlsSetBandJacFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
-
   umax = N_VMaxNorm(u);
   PrintHeader(reltol, abstol, umax);
   for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {

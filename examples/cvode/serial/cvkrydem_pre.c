@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-11 22:34:10 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -63,7 +63,7 @@
  * The product preconditoner is applied on the left and on the
  * right. In each case, both the modified and classical Gram-Schmidt
  * options are tested.
- * In the series of runs, CVodeMalloc and CVSpgmr are called only
+ * In the series of runs, CVodeInit and CVSpgmr are called only
  * for the first run, whereas CVodeReInit and CVReInitSpgmr are
  * called for each of the remaining three runs.
  *
@@ -133,7 +133,7 @@
 #define NGRP  (NGX*NGY)
 #define ITMAX 5
 
-/* CVodeMalloc Constants */
+/* CVodeInit Constants */
 
 #define NEQ  (NS*MX*MY)
 #define T0   ZERO
@@ -252,7 +252,7 @@ int main()
       CInit(c, wdata);
       PrintHeader(jpre, gstype);
 
-      /* Call CVodeMalloc or CVodeReInit, then CVSpgmr to set up problem */
+      /* Call CVodeInit or CVodeReInit, then CVSpgmr to set up problem */
       
       firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
@@ -264,8 +264,11 @@ int main()
         flag = CVodeSetFdata(cvode_mem, wdata);
         if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-        flag = CVodeMalloc(cvode_mem, f, T0, c, CV_SS, reltol, &abstol);
-        if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
+        flag = CVodeInit(cvode_mem, f, T0, c);
+        if(check_flag(&flag, "CVodeInit", 1)) return(1);
+
+        flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+        if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
         flag = CVSpgmr(cvode_mem, jpre, MAXL);
         if(check_flag(&flag, "CVSpgmr", 1)) return(1);
@@ -281,7 +284,7 @@ int main()
 
       } else {
 
-        flag = CVodeReInit(cvode_mem, T0, c, CV_SS, reltol, &abstol);
+        flag = CVodeReInit(cvode_mem, T0, c);
         if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
         flag = CVSpilsSetPrecType(cvode_mem, jpre);
@@ -474,13 +477,13 @@ static void PrintIntro(void)
   printf("Total system size is neq = %d \n\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerances: itol = %s,  reltol = %.2Lg, abstol = %.2Lg \n\n",
-         "CV_SS", RTOL, ATOL);
+         RTOL, ATOL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Tolerances: itol = %s,  reltol = %.2lg, abstol = %.2lg \n\n",
-         "CV_SS", RTOL, ATOL);
+         RTOL, ATOL);
 #else
   printf("Tolerances: itol = %s,  reltol = %.2g, abstol = %.2g \n\n",
-         "CV_SS", RTOL, ATOL);
+         RTOL, ATOL);
 #endif
   printf("Preconditioning uses a product of:\n");
   printf("  (1) Gauss-Seidel iterations with ");

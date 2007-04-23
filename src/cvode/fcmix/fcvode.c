@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-11 22:34:09 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-23 23:37:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -74,9 +74,8 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
                 long int *ipar, realtype *rpar,
                 int *ier)
 {
-  int lmm, iter, itol;
+  int lmm, iter;
   N_Vector Vatol;
-  void *atolptr;
   FCVUserData CV_userdata;
 
   *ier = 0;
@@ -92,7 +91,6 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   /* Initialize all pointers to NULL */
   CV_cvodemem = NULL;
   Vatol = NULL;
-  atolptr = NULL;
 
   /* Create CVODE object */
   lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
@@ -123,15 +121,25 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   /* Set data in F2C_CVODE_vec to y0 */
   N_VSetArrayPointer(y0, F2C_CVODE_vec);
 
-  /* Treat absolute tolerances */
-  itol = -1;
+  /* Call CVodeInit */
+  *ier = CVodeInit(CV_cvodemem, FCVf, *t0, F2C_CVODE_vec);
+
+  /* Reset data pointers */
+  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
+
+  /* On failure, exit */
+  if(*ier != CV_SUCCESS) {
+    free(CV_userdata); CV_userdata = NULL;
+    *ier = -1;
+    return;
+  }
+
+  /* Set tolerances */
   switch (*iatol) {
   case 1:
-    itol = CV_SS; 
-    atolptr = (void *) atol; 
+    *ier = CVodeSStolerances(CV_cvodemem, *rtol, *atol); 
     break;
   case 2:
-    itol = CV_SV; 
     Vatol = NULL;
     Vatol = N_VCloneEmpty(F2C_CVODE_vec);
     if (Vatol == NULL) {
@@ -140,21 +148,10 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
       return;
     }
     N_VSetArrayPointer(atol, Vatol);
-    atolptr = (void *) Vatol; 
-    break;
-  case 3:
-    itol = CV_WF;
+    *ier = CVodeSVtolerances(CV_cvodemem, *rtol, Vatol);
+    N_VDestroy(Vatol);
     break;
   }
-
-  /* Call CVodeMalloc */
-  *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, F2C_CVODE_vec, itol, *rtol, atolptr);
-
-  /* destroy Vatol if allocated */
-  if (itol == CV_SV) N_VDestroy(Vatol);
-
-  /* Reset data pointers */
-  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
 
   /* On failure, exit */
   if(*ier != CV_SUCCESS) {
@@ -179,28 +176,34 @@ void FCV_REINIT(realtype *t0, realtype *y0,
                 int *iatol, realtype *rtol, realtype *atol, 
                 int *ier)
 {
-  int itol;
   N_Vector Vatol;
-  void *atolptr;
 
   *ier = 0;
 
   /* Initialize all pointers to NULL */
   Vatol = NULL;
-  atolptr = NULL;
 
   /* Set data in F2C_CVODE_vec to y0 */
   N_VSetArrayPointer(y0, F2C_CVODE_vec);
 
-  /* Treat absolute tolerances */
-  itol = -1;
+  /* Call CVReInit */
+  *ier = CVodeReInit(CV_cvodemem, *t0, F2C_CVODE_vec);
+
+  /* Reset data pointers */
+  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
+
+  /* On failure, exit */
+  if (*ier != CV_SUCCESS) {
+    *ier = -1;
+    return;
+  }
+
+  /* Set tolerances */
   switch (*iatol) {
   case 1:
-    itol = CV_SS; 
-    atolptr = (void *) atol; 
+    *ier = CVodeSStolerances(CV_cvodemem, *rtol, *atol); 
     break;
   case 2:
-    itol = CV_SV; 
     Vatol = NULL;
     Vatol = N_VCloneEmpty(F2C_CVODE_vec);
     if (Vatol == NULL) {
@@ -208,21 +211,10 @@ void FCV_REINIT(realtype *t0, realtype *y0,
       return;
     }
     N_VSetArrayPointer(atol, Vatol);
-    atolptr = (void *) Vatol; 
-    break;
-  case 3:
-    itol = CV_WF;
+    *ier = CVodeSVtolerances(CV_cvodemem, *rtol, Vatol);
+    N_VDestroy(Vatol);
     break;
   }
-
-  /* Call CVReInit */
-  *ier = CVodeReInit(CV_cvodemem, *t0, F2C_CVODE_vec, itol, *rtol, atolptr);
-
-  /* destroy Vatol if allocated */
-  if (itol == CV_SV) N_VDestroy(Vatol);
-
-  /* Reset data pointers */
-  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
 
   /* On failure, exit */
   if (*ier != CV_SUCCESS) {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:46 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-23 23:37:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -256,14 +256,14 @@ int main(int argc, char *argv[])
 
   fnormtol=FTOL; scsteptol=STOL;
 
- /* Call KINCreate/KINMalloc to initialize KINSOL: 
+ /* Call KINCreate/KINInit to initialize KINSOL: 
      nvSpec is the nvSpec pointer used in the parallel version
      A pointer to KINSOL problem memory is returned and stored in kmem. */
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0, my_pe)) MPI_Abort(comm, 1);
   /* Vector cc passed as template vector. */
-  flag = KINMalloc(kmem, funcprpr, cc);
-  if (check_flag(&flag, "KINMalloc", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = KINInit(kmem, funcprpr, cc);
+  if (check_flag(&flag, "KINInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = KINSetNumMaxIters(kmem, 250);
   if (check_flag(&flag, "KINSetNumMaxIters", 1, my_pe)) MPI_Abort(comm, 1);

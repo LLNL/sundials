@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-23 23:37:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +44,7 @@ void FCV_ROOTINIT(int *nrtfn, int *ier)
   CVodeMem cv_mem;
   
   cv_mem = (CVodeMem) CV_cvodemem;
-  *ier = CVodeRootInit(CV_cvodemem, *nrtfn, (CVRootFn) FCVrootfunc, cv_mem->cv_f_data);
+  *ier = CVodeRootInit(CV_cvodemem, *nrtfn, (CVRootFn) FCVrootfunc);
   CV_nrtfn = *nrtfn;
 
   return;
@@ -62,14 +62,14 @@ void FCV_ROOTINFO(int *nrtfn, int *info, int *ier)
 
 void FCV_ROOTFREE(void)
 {
-  CVodeRootInit(CV_cvodemem, 0, NULL, NULL);
+  CVodeRootInit(CV_cvodemem, 0, NULL);
 
   return;
 }
 
 /***************************************************************************/
 
-int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data)
+int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *f_data)
 {
   int ier;
   realtype *ydata;
@@ -77,7 +77,7 @@ int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data)
 
   ydata = N_VGetArrayPointer(y);
 
-  CV_userdata = (FCVUserData) g_data;
+  CV_userdata = (FCVUserData) f_data;
 
   FCV_ROOTFN(&t, ydata, gout, CV_userdata->ipar, CV_userdata->rpar, &ier);
 
