@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-04-24 20:26:50 $
+ * $Revision: 1.14 $
+ * $Date: 2007-04-24 22:01:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,36 +45,6 @@ extern "C" {
 #define HMAX_INV_DEFAULT RCONST(0.0)    /* hmax_inv default value */
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
-
-/*
- * Type of tolerances
- * ------------------
- *
- * itol, itolQ, itolS, itolQS can be one of the following constants
- * CV_NN is the initial value of itol and can be used to test whether
- * required tolerances have been provided.
- */
-
-
-#define CV_NN  0
-/*
-#define CV_SS  1
-#define CV_SV  2
-#define CV_WF  3
-#define CV_EE  4
-*/
-
-
-/* 
- * Type of sensitivity RHS function
- * --------------------------------
- *
- * ifS = CV_ONESENS indicates fS of type CVSensRhs1Fn
- * ifS = CV_ALLSENS indicates fS of type CVSensRhsFn
- */
-
-#define CV_ONESENS  1
-#define CV_ALLSENS  2
 
 /* 
  * =================================================================
@@ -1064,6 +1034,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 #define MSGCV_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCV_BAD_TSTOP "tstop is behind current " MSG_TIME " in the direction of integration."
 
+#define MSGCV_NO_TOLQ "No integration tolerances for quadrature variables have been specified."
 #define MSGCV_BAD_EWTQ "Initial ewtQ has component(s) equal to zero (illegal)."
 #define MSGCV_EWTQ_NOW_BAD "At " MSG_TIME ", a component of ewtQ has become <= 0."
 #define MSGCV_QRHSFUNC_FAILED "At " MSG_TIME ", the quadrature right-hand side routine failed in an unrecoverable manner."
@@ -1081,13 +1052,13 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 #define MSGCV_SRHSFUNC_FIRST "The sensitivity right-hand side routine failed at the first call."
 
 #define MSGCV_NULL_FQ "CVODES is expected to use DQ to evaluate the RHS of quad. sensi., but quadratures were not initialized."
+#define MSGCV_NO_TOLQS "No integration tolerances for quadrature sensitivity variables have been specified."
 #define MSGCV_BAD_EWTQS "Initial ewtQS has component(s) equal to zero (illegal)."
 #define MSGCV_EWTQS_NOW_BAD "At " MSG_TIME ", a component of ewtQS has become <= 0."
 #define MSGCV_QSRHSFUNC_FAILED "At " MSG_TIME ", the quadrature sensitivity right-hand side routine failed in an unrecoverable manner."
 #define MSGCV_QSRHSFUNC_UNREC "At " MSG_TIME ", the quadrature sensitivity right-hand side failed in a recoverable manner, but no recovery is possible."
 #define MSGCV_QSRHSFUNC_REPTD "At " MSG_TIME " repeated recoverable quadrature sensitivity right-hand side function errors."
 #define MSGCV_QSRHSFUNC_FIRST "The quadrature sensitivity right-hand side routine failed at the first call."
-
 
 /* 
  * =================================================================

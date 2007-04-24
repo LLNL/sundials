@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-24 22:01:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -437,8 +437,7 @@ int CVodeSetMaxStepB(void *cvode_mem, int which, realtype hmaxB)
  * CVODES quadrature optional input functions
  */
 
-int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB,
-                        int itolQB, realtype reltolQB, void *abstolQB)
+int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -475,7 +474,7 @@ int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB,
 
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
 
-  flag = CVodeSetQuadErrCon(cvodeB_mem, errconQB, itolQB, reltolQB, abstolQB);
+  flag = CVodeSetQuadErrCon(cvodeB_mem, errconQB);
 
   return(flag);
 }

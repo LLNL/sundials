@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2007-04-24 20:26:50 $
+ * $Revision: 1.16 $
+ * $Date: 2007-04-24 22:01:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1164,6 +1164,89 @@ int CVodeQuadReInitB(void *cvode_mem, int which, N_Vector yQB0)
   return(CV_SUCCESS);
 }
 
+int CVodeQuadSStolerancesB(void *cvode_mem, int which, realtype reltolQB, realtype abstolQB)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  void *cvodeB_mem;
+  int flag;
+
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeQuadSStolerancesB", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadSStolerancesB", MSGCV_NO_ADJ);
+    return(CV_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check which */
+  if ( which >= nbckpbs ) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeQuadSStolerancesB", MSGCV_BAD_WHICH);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+
+  flag = CVodeQuadSStolerances(cvodeB_mem, reltolQB, abstolQB);
+
+  return(flag);
+}
+
+int CVodeQuadSVtolerancesB(void *cvode_mem, int which, realtype reltolQB, N_Vector abstolQB)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  void *cvodeB_mem;
+  int flag;
+
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeQuadSStolerancesB", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadSStolerancesB", MSGCV_NO_ADJ);
+    return(CV_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check which */
+  if ( which >= nbckpbs ) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeQuadSStolerancesB", MSGCV_BAD_WHICH);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+
+  flag = CVodeQuadSVtolerances(cvodeB_mem, reltolQB, abstolQB);
+
+  return(flag);
+}
 
 /*
  * CVodeB

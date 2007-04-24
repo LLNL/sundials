@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-24 22:01:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -273,11 +273,12 @@ int main(int argc, char *argv[])
   /* Initialize quadrature calculations */
   abstolQ = ATOL_Q;
   reltolQ = RTOL_Q;
-  flag = CVodeQuadMalloc(cvode_mem, fQ, q);
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ); 
+  flag = CVodeQuadInit(cvode_mem, fQ, q);
+  flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
+  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
 
   /* Allocate space for the adjoint calculation */
-  flag = CVodeAdjMalloc(cvode_mem, STEPS, CV_HERMITE);
+  flag = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
 
   /* Integrate forward in time while storing check points */
   if (myId == 0) printf("Begin forward integration... ");
@@ -324,8 +325,9 @@ int main(int argc, char *argv[])
   /* Initialize quadrature calculations */
   abstolQB = ATOL_QB;
   reltolQB = RTOL_QB;
-  flag = CVodeQuadMallocB(cvode_mem, indexB, fQB, qB);
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE, CV_SS, reltolQB, &abstolQB); 
+  flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
+  flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolQB, abstolQB);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE);
 
   /* Integrate backwards */
   if (myId == 0) printf("Begin backward integration... ");

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-04-24 20:26:50 $
+ * $Revision: 1.17 $
+ * $Date: 2007-04-24 22:01:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -29,6 +29,8 @@
  *
  *      CVodeQuadInit
  *      CVodeQuadReInit   
+ *      CVodeQuadSStolerances
+ *      CVodeQuadSVtolerances
  *
  *      CVodeSensInit
  *      CVodeSensInit1
@@ -39,6 +41,7 @@
  *
  *      CVodeQuadSensInit
  *      CVodeQuadSensReInit
+ *
  *      CVodeSensToggleOff
  *
  *      CVodeRootInit      
@@ -335,6 +338,24 @@
 #define FORWARD1         +3
 #define FORWARD2         +4
 
+/*
+ * Control constants for type of sensitivity RHS
+ * ---------------------------------------------
+ */
+
+#define CV_ONESENS  1
+#define CV_ALLSENS  2
+
+/*
+ * Control constants for tolerances
+ * --------------------------------
+ */
+
+#define CV_NN  0
+#define CV_SS  1
+#define CV_SV  2
+#define CV_WF  3
+#define CV_EE  4
 
 /*
  * Algorithmic constants
@@ -632,13 +653,16 @@ void *CVodeCreate(int lmm, int iter)
   maxord = (lmm == CV_ADAMS) ? ADAMS_Q_MAX : BDF_Q_MAX;
 
   /* copy input parameters into cv_mem */
+
   cv_mem->cv_lmm  = lmm;
   cv_mem->cv_iter = iter;
 
   /* Set uround */
+
   cv_mem->cv_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
+
   cv_mem->cv_f        = NULL;
   cv_mem->cv_f_data   = NULL;
   cv_mem->cv_itol     = CV_NN;
@@ -674,6 +698,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_quadr    = FALSE;
   cv_mem->cv_fQ       = NULL;
   cv_mem->cv_errconQ  = FALSE;
+  cv_mem->cv_itolQ    = CV_NN;
 
   /* Set default values for sensi. optional inputs */
 
@@ -702,7 +727,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_fQS_data     = NULL;
   cv_mem->cv_fQSDQ        = TRUE;
   cv_mem->cv_errconQS     = FALSE;
-  cv_mem->cv_itolQS       = CV_EE;
+  cv_mem->cv_itolQS       = CV_NN;
 
   /* Set default for ASA */
 
@@ -1227,6 +1252,115 @@ int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0)
 
 /*-----------------------------------------------------------------*/
 
+/*
+ * CVodeQuadSStolerances
+ * CVodeQuadSVtolerances
+ *
+ * These functions specify the integration tolerances for sensitivity
+ * variables. One of them MUST be called before the first call to 
+ * CVode IF error control on the quadrature variables is enabled
+ * (see CVodeSetQuadErrCon).
+ *
+ * CVodeQuadSStolerances specifies scalar relative and absolute tolerances.
+ * CVodeQuadSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute toleranc (a potentially different absolute tolerance for each
+ *   vector component).
+ */
+
+int CVodeQuadSStolerances(void *cvode_mem, realtype reltolQ, realtype abstolQ)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadSStolerances", MSGCV_NO_MEM);    
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Ckeck if quadrature was initialized? */
+
+  if (cv_mem->cv_QuadMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_QUAD, "CVODES", "CVodeQuadSStolerances", MSGCV_NO_QUAD); 
+    return(CV_NO_QUAD);
+  }
+
+  /* Test user-supplied tolerances */
+
+  if (reltolQ < ZERO) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSStolerances", MSGCV_BAD_RELTOLQ);
+    return(CV_ILL_INPUT);
+  }
+
+  if (abstolQ < 0) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSStolerances", MSGCV_BAD_ABSTOLQ);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Copy tolerances into memory */
+
+  cv_mem->cv_itolQ = CV_SS;
+
+  cv_mem->cv_reltolQ  = reltolQ;
+  cv_mem->cv_SabstolQ = abstolQ;
+
+  return(CV_SUCCESS);
+}
+
+int CVodeQuadSVtolerances(void *cvode_mem, realtype reltolQ, N_Vector abstolQ)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadSVtolerances", MSGCV_NO_MEM);    
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Ckeck if quadrature was initialized? */
+
+  if (cv_mem->cv_QuadMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_QUAD, "CVODES", "CVodeQuadSVtolerances", MSGCV_NO_QUAD); 
+    return(CV_NO_QUAD);
+  }
+
+  /* Test user-supplied tolerances */
+
+  if (reltolQ < ZERO) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSVtolerances", MSGCV_BAD_RELTOLQ);
+    return(CV_ILL_INPUT);
+  }
+
+  if (abstolQ == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSVtolerances", MSGCV_NULL_ABSTOLQ);
+    return(CV_ILL_INPUT);
+  }
+
+  if (N_VMin(abstolQ)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSVtolerances", MSGCV_BAD_ABSTOLQ);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Copy tolerances into memory */
+
+  cv_mem->cv_itolQ = CV_SV;
+
+  cv_mem->cv_reltolQ  = reltolQ;
+
+  if ( !(cv_mem->cv_VabstolQMallocDone) ) {
+    cv_mem->cv_VabstolQ = N_VClone(cv_mem->cv_tempvQ);
+    lrw += lrw1Q;
+    liw += liw1Q;
+    cv_mem->cv_VabstolQMallocDone = TRUE;
+  }
+  
+  N_VScale(ONE, abstolQ, cv_mem->cv_VabstolQ);
+
+  return(CV_SUCCESS);
+}
+
+
+/*-----------------------------------------------------------------*/
+
 #define stgr1alloc   (cv_mem->cv_stgr1alloc)
 #define nniS1        (cv_mem->cv_nniS1)
 #define ncfnS1       (cv_mem->cv_ncfnS1)
@@ -1724,7 +1858,7 @@ int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS)
 
   for (is=0; is<Ns; is++) 
     if (N_VMin(abstolS[is]) < ZERO) {
-      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetSensTolerances", MSGCV_BAD_ABSTOLS);
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensSVtolerances", MSGCV_BAD_ABSTOLS);
       return(CV_ILL_INPUT);
     }
 
@@ -1902,6 +2036,184 @@ int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0)
   /* Problem has been successfully re-initialized */
   return(CV_SUCCESS);
 }
+
+
+/*
+ * CVodeQuadSensSStolerances
+ * CVodeQuadSensSVtolerances
+ * CVodeQuadSensEEtolerances
+ *
+ * These functions specify the integration tolerances for quadrature
+ * sensitivity variables. One of them MUST be called before the first
+ * call to CVode IF these variables are included in the error test.
+ *
+ * CVodeQuadSensSStolerances specifies scalar relative and absolute tolerances.
+ * CVodeQuadSensSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance for each quadrature sensitivity vector (a potentially
+ *   different absolute tolerance for each vector component).
+ * CVodeQuadSensEEtolerances specifies that tolerances for sensitivity variables
+ *   should be estimated from those provided for the quadrature variables.
+ *   In this case, tolerances for the quadrature variables must be
+ *   specified through a call to one of CVodeQuad**tolerances.
+ */
+
+int CVodeQuadSensSStolerances(void *cvode_mem, realtype reltolQS, realtype *abstolQS)
+{
+  CVodeMem cv_mem;
+  int is;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadSensSStolerances", MSGCV_NO_MEM);    
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Check if sensitivity was initialized */
+
+  if (cv_mem->cv_SensMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeQuadSensSStolerances", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  } 
+
+  /* Ckeck if quadrature sensitivity was initialized? */
+
+  if (cv_mem->cv_QuadSensMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_QUADSENS, "CVODES", "CVodeQuadSSensSStolerances", MSGCV_NO_QUADSENSI); 
+    return(CV_NO_QUAD);
+  }
+
+  /* Test user-supplied tolerances */
+    
+  if (reltolQS < ZERO) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensSStolerances", MSGCV_BAD_RELTOLQS);
+    return(CV_ILL_INPUT);
+  }
+
+  if (abstolQS == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensSStolerances", MSGCV_NULL_ABSTOLQS);
+    return(CV_ILL_INPUT);
+  }
+
+  for (is=0; is<Ns; is++)
+    if (abstolQS[is] < ZERO) {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensSStolerances", MSGCV_BAD_ABSTOLQS);
+      return(CV_ILL_INPUT);
+    }
+
+  /* Copy tolerances into memory */
+
+  cv_mem->cv_itolQS = CV_SS;
+
+  cv_mem->cv_reltolQS = reltolQS;
+
+  if ( !(cv_mem->cv_SabstolQSMallocDone) ) {
+    cv_mem->cv_SabstolQS = NULL;
+    cv_mem->cv_SabstolQS = (realtype *)malloc(Ns*sizeof(realtype));
+    lrw += Ns;
+    cv_mem->cv_SabstolQSMallocDone = TRUE;
+  }
+  
+  for (is=0; is<Ns; is++)
+    cv_mem->cv_SabstolQS[is] = abstolQS[is];
+
+  return(CV_SUCCESS);
+}
+
+int CVodeQuadSensSVtolerances(void *cvode_mem,  realtype reltolQS, N_Vector *abstolQS)
+{
+  CVodeMem cv_mem;
+  int is;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadSensSVtolerances", MSGCV_NO_MEM);    
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* check if sensitivity was initialized */
+
+  if (cv_mem->cv_SensMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeQuadSensSVtolerances", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  } 
+
+  /* Ckeck if quadrature sensitivity was initialized? */
+
+  if (cv_mem->cv_QuadSensMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_QUADSENS, "CVODES", "CVodeQuadSensSVtolerances", MSGCV_NO_QUADSENSI); 
+    return(CV_NO_QUAD);
+  }
+
+  Ns = cv_mem->cv_Ns;
+
+  /* Test user-supplied tolerances */
+    
+  if (reltolQS < ZERO) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensSVtolerances", MSGCV_BAD_RELTOLQS);
+    return(CV_ILL_INPUT);
+  }
+
+  if (abstolQS == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensSVtolerances", MSGCV_NULL_ABSTOLQS);
+    return(CV_ILL_INPUT);
+  }
+
+  for (is=0; is<Ns; is++) 
+    if (N_VMin(abstolQS[is]) < ZERO) {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensSVtolerances", MSGCV_BAD_ABSTOLQS);
+      return(CV_ILL_INPUT);
+    }
+
+  /* Copy tolerances into memory */
+
+  cv_mem->cv_itolQS = CV_SV;
+
+  cv_mem->cv_reltolQS = reltolQS;
+
+  if ( !(cv_mem->cv_VabstolQSMallocDone) ) {
+    cv_mem->cv_VabstolQS = N_VCloneVectorArray(Ns, cv_mem->cv_tempvQ);
+    lrw += Ns*lrw1Q;
+    liw += Ns*liw1Q;
+    cv_mem->cv_VabstolQSMallocDone = TRUE;
+  }
+  
+  for (is=0; is<Ns; is++)    
+    N_VScale(ONE, abstolQS[is], cv_mem->cv_VabstolQS[is]);
+
+  return(CV_SUCCESS);
+}
+
+
+int CVodeQuadSensEEtolerances(void *cvode_mem)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadSensEEtolerances", MSGCV_NO_MEM);    
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* check if sensitivity was initialized */
+
+  if (cv_mem->cv_SensMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeQuadSensEEtolerances", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  } 
+
+  /* Ckeck if quadrature sensitivity was initialized? */
+
+  if (cv_mem->cv_QuadSensMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_QUADSENS, "CVODES", "CVodeQuadSensEEtolerances", MSGCV_NO_QUADSENSI); 
+    return(CV_NO_QUAD);
+  }
+
+  cv_mem->cv_itolQS = CV_EE;
+
+  return(CV_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
 
 /*
  * CVodeSensToggleOff
@@ -4255,26 +4567,30 @@ static int cvInitialSetup(CVodeMem cv_mem)
   int ier;
 
   /* Did the user specify tolerances? */
-
   if (itol == CV_NN) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_NO_TOL);
     return(CV_ILL_INPUT);
   }
 
+  /* Load ewt */
   ier = efun(zn[0], ewt, e_data);
   if (ier != 0) {
-
     if (itol == CV_WF) 
       cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_EWT_FAIL);
     else
       cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_BAD_EWT);
-
     return(CV_ILL_INPUT);
   }
   
   /* Quadrature initial setup */
 
   if (quadr && errconQ) {
+
+    /* Did the user specify tolerances? */
+    if (itolQ == CV_NN) {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_NO_TOLQ);
+      return(CV_ILL_INPUT);
+    }
 
     /* Load ewtQ */
     ier = cvQuadEwtSet(cv_mem, znQ[0], ewtQ);
@@ -4335,12 +4651,20 @@ static int cvInitialSetup(CVodeMem cv_mem)
 
     }
 
-    /* If itolQS = CV_EE but quadratures are not included in the error test, 
-     * also exclude the quadrature sensitivities from the error test */
-    if ( (itolQS == CV_EE) && !errconQ) errconQS = FALSE;
-
     if (errconQS) {
       
+      /* Did the user specify tolerances? */
+      if (itolQS == CV_NN) {
+        cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_NO_TOLQS);
+        return(CV_ILL_INPUT);
+      }
+
+      /* If needed, did the user provide quadrature tolerances? */
+      if ( (itolQS == CV_EE) && (itolQ == CV_NN) ) {
+        cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_NO_TOLQ);
+        return(CV_ILL_INPUT);
+      }
+
       /* Load ewtQS */
       ier = cvQuadSensEwtSet(cv_mem, znQS[0], ewtQS);
       if (ier != 0) {
@@ -4356,8 +4680,7 @@ static int cvInitialSetup(CVodeMem cv_mem)
 
   }
 
-  /* Check if lsolve function exists (if needed)
-     and call linit function (if it exists) */
+  /* Check if lsolve function exists (if needed) and call linit function (if it exists) */
 
   if (iter == CV_NEWTON) {
     if (lsolve == NULL) {

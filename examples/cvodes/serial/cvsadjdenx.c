@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-04-24 20:26:51 $
+ * $Revision: 1.13 $
+ * $Date: 2007-04-24 22:01:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -214,7 +214,10 @@ int main(int argc, char *argv[])
   flag = CVodeQuadInit(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadInit", 1)) return(1);
 
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ);
+  flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
+  if (check_flag(&flag, "CVodeQuadSStolerances", 1)) return(1);
+
+  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
 
   /* Allocate global memory */
@@ -319,7 +322,10 @@ int main(int argc, char *argv[])
   flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
   if (check_flag(&flag, "CVodeQuadInitB", 1)) return(1);
 
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE, CV_SS, reltolB, &abstolQB);
+  flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolB, abstolQB);
+  if (check_flag(&flag, "CVodeQuadSStolerancesB", 1)) return(1);
+
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Backward Integration */

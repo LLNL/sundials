@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2007-04-24 20:26:50 $
+ * $Revision: 1.16 $
+ * $Date: 2007-04-24 22:01:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -185,14 +185,6 @@ extern "C" {
 /* interp */
 #define CV_HERMITE        1
 #define CV_POLYNOMIAL     2
-
-
-
-
-#define CV_SS  1
-#define CV_SV  2
-#define CV_WF  3
-#define CV_EE  4
 
 /* 
  * ----------------------------------------
@@ -557,34 +549,11 @@ SUNDIALS_EXPORT void *CVodeCreate(int lmm, int iter);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVodeInit
+ * Functions : CVodeInit and CVodeReInit
  * -----------------------------------------------------------------
  * CVodeInit allocates and initializes memory for a problem to
  * to be solved by CVODE.
  *
- * cvode_mem is pointer to CVODE memory returned by CVodeCreate.
- *
- * f       is the name of the C function defining the right-hand
- *         side function in y' = f(t,y).
- *
- * t0      is the initial value of t.
- *
- * y0      is the initial condition vector y(t0).
- *
- * Return flag:
- *  CV_SUCCESS if successful
- *  CV_MEM_NULL if the cvode memory was NULL
- *  CV_MEM_FAIL if a memory allocation failed
- *  CV_ILL_INPUT f an argument has an illegal value.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0);
-
-/*
- * -----------------------------------------------------------------
- * Function : CVodeReInit
- * -----------------------------------------------------------------
  * CVodeReInit re-initializes CVode for the solution of a problem,
  * where a prior call to CVodeInit has been made with the same
  * problem size N. CVodeReInit performs the same input checking
@@ -599,22 +568,26 @@ SUNDIALS_EXPORT int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector 
  * is unchanged (or changed from CV_ADAMS to CV_BDF) and the default
  * value for maxord is specified.
  *
- * All of the arguments to CVodeReInit have names and meanings
- * identical to those of CVodeInit.
+ * cvode_mem is pointer to CVODE memory returned by CVodeCreate.
  *
- * The return value of CVodeReInit is equal to CV_SUCCESS = 0 if
- * there were no errors; otherwise it is a negative int equal to:
- *   CV_MEM_NULL      indicating cvode_mem was NULL (i.e.,
- *                    CVodeCreate has not been called).
- *   CV_NO_MALLOC     indicating that cvode_mem has not been
- *                    allocated (i.e., CVodeInit has not been
- *                    called).
- *   CV_ILL_INPUT     indicating an input argument was illegal
- *                    (including an attempt to increase maxord).
- * In case of an error return, an error message is also printed.
+ * f       is the name of the C function defining the right-hand
+ *         side function in y' = f(t,y).
+ *
+ * t0      is the initial value of t.
+ *
+ * y0      is the initial condition vector y(t0).
+ *
+ * Return flag:
+ *  CV_SUCCESS   if successful
+ *  CV_MEM_NULL  if the cvode memory was NULL
+ *  CV_MEM_FAIL  if a memory allocation failed
+ *  CV_NO_MALLOC if cvode_mem has not been allocated
+ *               (i.e., CVodeInit has not been called).
+ *  CV_ILL_INPUT if an argument has an illegal value.
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0);
 SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0);
 
 /*
@@ -662,10 +635,16 @@ SUNDIALS_EXPORT int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVodeQuadInit
+ * Function : CVodeQuadInit and CVodeQuadReInit
  * -----------------------------------------------------------------
  * CVodeQuadInit allocates and initializes memory related to
  * quadrature integration.
+ *
+ * CVodeQuadReInit re-initializes CVODES's quadrature related
+ * memory for a problem, assuming it has already been allocated
+ * in prior calls to CVodeInit and CVodeQuadInit.
+ * The number of quadratures Nq is assumed to be unchanged
+ * since the previous call to CVodeQuadInit.
  *
  * cvode_mem is a pointer to CVODES memory returned by CVodeCreate
  *
@@ -678,35 +657,45 @@ SUNDIALS_EXPORT int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun);
  *  CV_SUCCESS if successful
  *  CV_MEM_NULL if the cvode memory was NULL
  *  CV_MEM_FAIL if a memory allocation failed
+ *  CV_NO_QUAD  if quadratures were not initialized
+ *              (i.e. CVodeQuadInit has not been called)
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT int CVodeQuadInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0);
-
-/*
- * -----------------------------------------------------------------
- * Function : CVodeQuadReInit
- * -----------------------------------------------------------------
- * CVodeQuadReInit re-initializes CVODES's quadrature related
- * memory for a problem, assuming it has already been allocated
- * in prior calls to CVodeInit and CVodeQuadInit.
- *
- * All problem specification inputs are checked for errors.
- * The number of quadratures Nq is assumed to be unchanged
- * since the previous call to CVodeQuadInit.
- *
- * Return values:
- *  CV_SUCCESS  if successful
- *  CV_MEM_NULL if the cvode memory was NULL
- *  CV_NO_QUAD  if quadratures were not initialized
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVodeSensInit and CVSensInit1
+ * Functions : CVodeQuadSStolerances
+ *             CVodeQuadSVtolerances
+ * -----------------------------------------------------------------
+ *
+ * These functions specify the integration tolerances for quadrature
+ * variables. One of them MUST be called before the first call to
+ * CVode IF error control on the quadrature variables is enabled
+ * (see CVodeSetQuadErrCon).
+ *
+ * CVodeSStolerances specifies scalar relative and absolute tolerances.
+ * CVodeSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance (a potentially different absolute tolerance 
+ *   for each vector component).
+ *
+ * Return values:
+ *  CV_SUCCESS    if successful
+ *  CV_MEM_NULL   if the cvode memory was NULL
+ *  CV_NO_QUAD    if quadratures were not initialized
+ *  CV_ILL_INPUT  if an input argument was illegal
+ *                (e.g. a negative tolerance)
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int CVodeQuadSStolerances(void *cvode_mem, realtype reltolQ, realtype abstolQ);
+SUNDIALS_EXPORT int CVodeQuadSVtolerances(void *cvode_mem, realtype reltolQ, N_Vector abstolQ);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : CVodeSensInit, CVSensInit1, and CVodeSensReInit
  * -----------------------------------------------------------------
  * CVodeSensInit and CVSensInit1 allocate and initialize memory
  * related to sensitivity computations. They only differ in the 
@@ -718,6 +707,17 @@ SUNDIALS_EXPORT int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0);
  * compatible ONLY with a CVSensRhs1Fn. As such, this value for
  * ism cannot be passed to CVodeSensInit.
  *
+ * CVodeSensReInit re-initializes CVODES's sensitivity related
+ * memory for a problem, assuming it has already been allocated
+ * in prior calls to CVodeInit and CVodeSensInit.
+ * The number of sensitivities Ns is assumed to be unchanged
+ * since the previous call to CVodeSensInit.
+ * If any error occurs during initialization, it is reported to
+ * the file whose file pointer is errfp.
+ * CVodeSensReInit potentially does some minimal memory allocation
+ * (for the sensitivity absolute tolerance and for arrays of
+ * counters used by the CV_STAGGERED1 method).
+
  * cvode_mem is pointer to CVODES memory returned by CVodeCreate
  *
  * Ns        is the number of sensitivities to be computed.
@@ -737,6 +737,7 @@ SUNDIALS_EXPORT int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0);
  *   CV_MEM_NULL
  *   CV_ILL_INPUT
  *   CV_MEM_FAIL
+ *   CV_NO_SENS
  * -----------------------------------------------------------------
  */
 
@@ -744,37 +745,6 @@ SUNDIALS_EXPORT int CVodeSensInit(void *cvode_mem, int Ns, int ism,
                                   CVSensRhsFn fS, N_Vector *yS0);
 SUNDIALS_EXPORT int CVodeSensInit1(void *cvode_mem, int Ns, int ism,
                                    CVSensRhs1Fn fS1, N_Vector *yS0);
-    
-/*
- * -----------------------------------------------------------------
- * Function : CVodeSensReInit
- * -----------------------------------------------------------------
- * CVodeSensReInit re-initializes CVODES's sensitivity related
- * memory for a problem, assuming it has already been allocated
- * in prior calls to CVodeInit and CVodeSensInit.
- *
- * All problem specification inputs are checked for errors.
- * The number of sensitivities Ns is assumed to be unchanged
- * since the previous call to CVodeSensInit.
- * If any error occurs during initialization, it is reported to
- * the file whose file pointer is errfp.
- *
- * CVodeSensReInit potentially does some minimal memory allocation
- * (for the sensitivity absolute tolerance and for arrays of
- * counters used by the CV_STAGGERED1 method).
- *
- * The return value is equal to CV_SUCCESS = 0 if there were no
- * errors; otherwise it is a negative int equal to:
- *   CV_MEM_NULL  indicating cvode_mem was NULL, or
- *   CV_NO_SENS   indicating there was not a prior call to
- *                CVodeSensInit.
- *   CV_ILL_INPUT indicating an input argument was illegal
- *                (including an attempt to increase maxord).
- *   CV_MEM_FAIL  indicating a memory request failed.
- * In case of an error return, an error message is also printed.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0);
 
 /*
@@ -791,7 +761,7 @@ SUNDIALS_EXPORT int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0);
  * CVodeSensSVtolerances specifies scalar relative tolerance and a vector
  *   absolute tolerance for each sensitivity vector (a potentially different
  *   absolute tolerance for each vector component).
- * CVodeEEtolerances specifies that tolerances for sensitivity variables
+ * CVodeSensEEtolerances specifies that tolerances for sensitivity variables
  *   should be estimated from those provided for the state variables.
  *
  * The return value is equal to CV_SUCCESS = 0 if there were no
@@ -806,26 +776,53 @@ SUNDIALS_EXPORT int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0);
  */
 
 SUNDIALS_EXPORT int CVodeSensSStolerances(void *cvode_mem, realtype reltolS, realtype *abstolS);
-SUNDIALS_EXPORT int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS);
+SUNDIALS_EXPORT int CVodeSensSVtolerances(void *cvode_mem, realtype reltolS, N_Vector *abstolS);
 SUNDIALS_EXPORT int CVodeSensEEtolerances(void *cvode_mem);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVodeQuadSensInit
+ * Function : CVodeQuadSensInit and CVodeQuadSensReInit
  * -----------------------------------------------------------------
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0);
+SUNDIALS_EXPORT int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVodeQuadSensReInit
+ * Functions : CVodeQuadSensSStolerances
+ *             CVodeQuadSensSVtolerances
+ *             CVodeQuadSensEEtolerances
  * -----------------------------------------------------------------
+ *
+ * These functions specify the integration tolerances for quadrature
+ * sensitivity variables. One of them MUST be called before the first
+ * call to CVode IF these variables are included in the error test.
+ *
+ * CVodeQuadSensSStolerances specifies scalar relative and absolute tolerances.
+ * CVodeQuadSensSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance for each quadrature sensitivity vector (a potentially
+ *   different absolute tolerance for each vector component).
+ * CVodeQuadSensEEtolerances specifies that tolerances for sensitivity variables
+ *   should be estimated from those provided for the quadrature variables.
+ *   In this case, tolerances for the quadrature variables must be
+ *   specified through a call to one of CVodeQuad**tolerances.
+ *
+ * The return value is equal to CV_SUCCESS = 0 if there were no
+ * errors; otherwise it is a negative int equal to:
+ *   CV_MEM_NULL     if cvode_mem was NULL, or
+ *   CV_NO_QuadSENS  if there was not a prior call to
+ *                   CVodeQuadSensInit.
+ *   CV_ILL_INPUT    if an input argument was illegal
+ *                   (e.g. negative tolerances)
+ * In case of an error return, an error message is also printed.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0);
+SUNDIALS_EXPORT int CVodeQuadSensSStolerances(void *cvode_mem, realtype reltolQS, realtype *abstolQS);
+SUNDIALS_EXPORT int CVodeQuadSensSVtolerances(void *cvode_mem, realtype reltolQS, N_Vector *abstolQS);
+SUNDIALS_EXPORT int CVodeQuadSensEEtolerances(void *cvode_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -1052,10 +1049,9 @@ SUNDIALS_EXPORT int CVodeSetRootDirection(void *cvode_mem, int *rootdir);
  *                      |
  * CVodeSetQuadErrCon   | are quadrature variables considered in
  *                      | the error control?
- *                      | If yes, set tolerances for quadrature
- *                      | integration. 
+ *                      | If yes, tolerances for quadrature are
+ *                      | required (see CVodeQuad**tolerances) 
  *                      | [errconQ = FALSE]
- *                      | [no tolerances]
  *                      |
  * -----------------------------------------------------------------
  * If successful, these functions return CV_SUCCESS. If an argument
@@ -1064,8 +1060,7 @@ SUNDIALS_EXPORT int CVodeSetRootDirection(void *cvode_mem, int *rootdir);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ, 
-				       int itolQ, realtype reltolQ, void *abstolQ);
+SUNDIALS_EXPORT int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ); 
 
 /*
  * -----------------------------------------------------------------
@@ -1127,10 +1122,9 @@ SUNDIALS_EXPORT int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *p
  *                        |
  * CVodeSetQuadSensErrCon | are quadrature sensitivity variables
  *                        | considered in the error control?
- *                        | If yes, set tolerances for quadrature
- *                        | integration. 
+ *                        | If yes, tolerances for quadrature
+ *                        | sensitivity variables are required.
  *                        | [errconQS = FALSE]
- *                        | [no tolerances]
  *                        |
  * -----------------------------------------------------------------
  * If successful, these functions return CV_SUCCESS. If an argument
@@ -1139,8 +1133,7 @@ SUNDIALS_EXPORT int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *p
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeSetQuadSensErrCon(void *cvode_mem, booleantype errconQS, 
-                                           int itolQS, realtype reltolQS, void *abstolQS);
+SUNDIALS_EXPORT int CVodeSetQuadSensErrCon(void *cvode_mem, booleantype errconQS); 
 
 /*
  * -----------------------------------------------------------------
@@ -1753,11 +1746,9 @@ SUNDIALS_EXPORT int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *whic
 SUNDIALS_EXPORT int CVodeInitB(void *cvode_mem, int which,
                                CVRhsFnB fB,
                                realtype tB0, N_Vector yB0);
-
 SUNDIALS_EXPORT int CVodeInitBS(void *cvode_mem, int which,
                                 CVRhsFnBS fBs,
                                 realtype tB0, N_Vector yB0);
-
 SUNDIALS_EXPORT int CVodeReInitB(void *cvode_mem, int which,
 				 realtype tB0, N_Vector yB0);
 
@@ -1768,12 +1759,14 @@ SUNDIALS_EXPORT int CVodeSVtolerancesB(void *cvode_mem, int which,
 
 SUNDIALS_EXPORT int CVodeQuadInitB(void *cvode_mem, int which,
                                      CVQuadRhsFnB fQB, N_Vector yQB0);
-
 SUNDIALS_EXPORT int CVodeQuadInitBS(void *cvode_mem, int which,
                                       CVQuadRhsFnBS fQBs, N_Vector yQB0);
-
 SUNDIALS_EXPORT int CVodeQuadReInitB(void *cvode_mem, int which, N_Vector yQB0);
 
+SUNDIALS_EXPORT int CVodeQuadSStolerancesB(void *cvode_mem, int which,
+                                           realtype reltolQB, realtype abstolQB);
+SUNDIALS_EXPORT int CVodeQuadSVtolerancesB(void *cvode_mem, int which,
+                                           realtype reltolQB, N_Vector abstolQB);
 
 /*
  * =================================================================
@@ -1851,10 +1844,8 @@ SUNDIALS_EXPORT int CVodeSetStabLimDetB(void *cvode_mem, int which, booleantype 
 SUNDIALS_EXPORT int CVodeSetInitStepB(void *cvode_mem, int which, realtype hinB);
 SUNDIALS_EXPORT int CVodeSetMinStepB(void *cvode_mem, int which, realtype hminB);
 SUNDIALS_EXPORT int CVodeSetMaxStepB(void *cvode_mem, int which, realtype hmaxB);
-  
-    
-SUNDIALS_EXPORT int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB,
-					int itolQB, realtype reltolQB, void *abstolQB);
+      
+SUNDIALS_EXPORT int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB);
 
 /*
  * =================================================================

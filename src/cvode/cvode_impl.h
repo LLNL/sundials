@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-23 23:37:19 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-24 22:01:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -44,20 +44,6 @@ extern "C" {
 #define HMAX_INV_DEFAULT RCONST(0.0)    /* hmax_inv default value */
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
-
-/*
- * Type of tolerances
- * ------------------
- *
- * itol is one of CV_SS, CV_SV, CV_WF.
- * CV_NN is the initial value of itol and can be used to test whether
- * required tolerances have been provided.
- */
-
-#define CV_NN  0
-#define CV_SS  1
-#define CV_SV  2
-#define CV_WF  3
 
 /*
  * -----------------------------------------------------------------

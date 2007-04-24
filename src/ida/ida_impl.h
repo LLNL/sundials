@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-24 22:01:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -39,20 +39,6 @@ extern "C" {
 #define MAXORD_DEFAULT   5           /* maxord default value            */
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
-
-/*
- * Type of tolerances
- * ------------------
- *
- * itol is one of IDa_SS, IDA_SV, IDA_WF.
- * IDA_NN is the initial value of itol and can be used to test whether
- * required tolerances have been provided.
- */
-
-#define IDA_NN  0
-#define IDA_SS  1
-#define IDA_SV  2
-#define IDA_WF  3
 
 /*
  * ----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:26 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-24 22:01:25 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -143,7 +143,8 @@ int main(int argc, char *argv[])
 
   yS = N_VCloneVectorArray_Serial(Ns, y);
   
-  flag = CVodeSensMalloc(cvode_mem, Ns, meth, CV_ONESENS, fS, yS0);
+  flag = CVodeSensInit1(cvode_mem, Ns, meth, fS, yS0);
+  flag = CVodeSensEEtolerances(cvode_mem);
 
   flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-24 20:26:50 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-24 22:01:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -290,7 +290,8 @@ int main(int argc, char *argv[])
   abstolQ = ATOL_Q;
   reltolQ = RTOL_Q;
   flag = CVodeQuadInit(cvode_mem, fQ, q);
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ); 
+  flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
+  flag = CVodeSetQuadErrCon(cvode_mem, TRUE);
 
   /* Allocate space for the adjoint calculation */
   flag = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
@@ -346,7 +347,8 @@ int main(int argc, char *argv[])
   abstolQB = ATOL_QB;
   reltolQB = RTOL_QB;
   flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE, CV_SS, reltolQB, &abstolQB); 
+  flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolQB, abstolQB);
+  flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE);
 
   /* Integrate backwards */
   if (myId == 0) printf("Begin backward integration... ");

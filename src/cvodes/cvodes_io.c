@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-24 20:26:50 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-24 22:01:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,15 +31,6 @@
  * CVODES optional input functions
  * =================================================================
  */
-
-/* 
- * Readability constants
- */
-
-#define lrw   (cv_mem->cv_lrw)
-#define liw   (cv_mem->cv_liw)
-#define lrw1  (cv_mem->cv_lrw1)
-#define liw1  (cv_mem->cv_liw1)
 
 /* 
  * CVodeSetErrHandlerFn
@@ -506,20 +497,9 @@ int CVodeSetRootDirection(void *cvode_mem, int *rootdir)
  * =================================================================
  */
 
-/* 
- * Readability constants
- */
-
-#define lrw1Q (cv_mem->cv_lrw1Q)
-#define liw1Q (cv_mem->cv_liw1Q)
-
-/*-----------------------------------------------------------------*/
-
-int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ, 
-                       int itolQ, realtype reltolQ, void *abstolQ)
+int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ)
 {
   CVodeMem cv_mem;
-  booleantype neg_abstol;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetQuadErrCon", MSGCV_NO_MEM);    
@@ -527,67 +507,7 @@ int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  /* Ckeck if quadrature was initialized? */
-
-  if (cv_mem->cv_QuadMallocDone == FALSE) {
-    cvProcessError(cv_mem, CV_NO_QUAD, "CVODES", "CVodeSetQuadErrCon", MSGCV_NO_QUAD); 
-    return(CV_NO_QUAD);
-  }
-
   cv_mem->cv_errconQ = errconQ;
-
-  /* If disabling error control, return now */
-
-  if(errconQ == FALSE) return(CV_SUCCESS);
-  
-  /* Check inputs */
-
-  if ((itolQ != CV_SS) && (itolQ != CV_SV)) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetQuadErrCon", MSGCV_BAD_ITOLQ);
-    return(CV_ILL_INPUT);
-  }
-
-  if (abstolQ == NULL) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetQuadErrCon", MSGCV_NULL_ABSTOLQ);
-    return(CV_ILL_INPUT);
-  }
-
-  if (reltolQ < ZERO) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetQuadErrCon", MSGCV_BAD_RELTOLQ);
-    return(CV_ILL_INPUT);
-  }
-
-  if (itolQ == CV_SS)
-    neg_abstol = (*((realtype *)abstolQ) < ZERO);
-  else
-    neg_abstol = (N_VMin((N_Vector)abstolQ) < ZERO);
-
-  if (neg_abstol) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetQuadErrCon", MSGCV_BAD_ABSTOLQ);
-    return(CV_ILL_INPUT);
-  }
-
-  /* Copy tolerances into memory */
-
-  cv_mem->cv_itolQ    = itolQ;
-  cv_mem->cv_reltolQ  = reltolQ;
-
-  if (itolQ == CV_SS) {
-
-    cv_mem->cv_SabstolQ = *((realtype *)abstolQ);
-
-  } else {
-
-    if ( !(cv_mem->cv_VabstolQMallocDone) ) {
-      cv_mem->cv_VabstolQ = N_VClone(cv_mem->cv_tempvQ);
-      lrw += lrw1Q;
-      liw += liw1Q;
-      cv_mem->cv_VabstolQMallocDone = TRUE;
-    }
-
-    N_VScale(ONE, (N_Vector)abstolQ, cv_mem->cv_VabstolQ);
-
-  }  
 
   return(CV_SUCCESS);
 }
@@ -635,7 +555,6 @@ int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS)
     cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetSensErrCon", MSGCV_NO_MEM);    
     return(CV_MEM_NULL);
   }
-
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_errconS = errconS;
@@ -721,17 +640,9 @@ int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetQuadSensErrCon(void *cvode_mem, booleantype errconQS, 
-                           int itolQS, realtype reltolQS, void *abstolQS)
+int CVodeSetQuadSensErrCon(void *cvode_mem, booleantype errconQS)
 {
   CVodeMem cv_mem;
-  booleantype neg_abstol;
-  realtype *atolQS_S;
-  N_Vector *atolQS_V;
-  int is, Ns;
-
-  atolQS_S = NULL;
-  atolQS_V = NULL;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetQuadSensErrCon", MSGCV_NO_MEM);
@@ -754,86 +665,6 @@ int CVodeSetQuadSensErrCon(void *cvode_mem, booleantype errconQS,
   }
 
   cv_mem->cv_errconQS = errconQS;
-
-  /* If disabling error control, return now */
-
-  if(errconQS == FALSE) return(CV_SUCCESS);
-
-  /* If switching to estimated tolerances, return now */
-
-  if (itolQS == CV_EE) {
-    cv_mem->cv_itolQS = CV_EE;
-    return(CV_SUCCESS);
-  }
-
-  /* Check inputs */
-
-  Ns = cv_mem->cv_Ns;
-
-  if ((itolQS != CV_SS) && (itolQS != CV_SV)) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetQuadSensErrCon", MSGCV_BAD_ITOLQS);
-    return(CV_ILL_INPUT);
-  }
-
-  if (abstolQS == NULL) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetQuadSensErrCon", MSGCV_NULL_ABSTOLQS);
-    return(CV_ILL_INPUT);
-  }
-
-  if (reltolQS < ZERO) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetQuadSensErrCon", MSGCV_BAD_RELTOLQS);
-    return(CV_ILL_INPUT);
-  }
-
-  neg_abstol = FALSE;
-
-  if (itolQS == CV_SS) {
-    atolQS_S = (realtype *) abstolQS;
-    for (is=0; is<Ns; is++)
-      if (atolQS_S[is] < ZERO) {neg_abstol = TRUE; break;}
-  } else {
-    atolQS_V = (N_Vector *) abstolQS;
-    for (is=0; is<Ns; is++) 
-      if (N_VMin(atolQS_V[is]) < ZERO) {neg_abstol = TRUE; break;}
-  }
-  
-  if (neg_abstol) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetQuadSensErrCon", MSGCV_BAD_ABSTOLQS);
-    return(CV_ILL_INPUT);
-  }
-
-  /* Copy tolerances into memory */
-
-  cv_mem->cv_itolQS   = itolQS;
-
-  cv_mem->cv_reltolQS = reltolQS;
-
-  if (itolQS == CV_SS) {
-
-    if ( !(cv_mem->cv_SabstolQSMallocDone) ) {
-      cv_mem->cv_SabstolQS = NULL;
-      cv_mem->cv_SabstolQS = (realtype *)malloc(Ns*sizeof(realtype));
-      lrw += Ns;
-      cv_mem->cv_SabstolQSMallocDone = TRUE;
-    }
-
-    for (is=0; is<Ns; is++)
-      cv_mem->cv_SabstolQS[is] = atolQS_S[is];
-
-  } else {
-
-    if ( !(cv_mem->cv_VabstolQSMallocDone) ) {
-      cv_mem->cv_VabstolQS = N_VCloneVectorArray(Ns, cv_mem->cv_tempvQ);
-      lrw += Ns*lrw1Q;
-      liw += Ns*liw1Q;
-      cv_mem->cv_VabstolQSMallocDone = TRUE;
-    }
-
-    for (is=0; is<Ns; is++)    
-      N_VScale(ONE, atolQS_V[is], cv_mem->cv_VabstolQS[is]);
-
-  }  
-
 
   return(CV_SUCCESS);
 }

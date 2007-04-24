@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.11 $
+ * $Date: 2007-04-24 22:01:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -164,6 +164,16 @@
 #define RTFOUND          +1
 #define INITROOT         +2
 #define CLOSERT          +3
+
+/*
+ * Control constants for tolerances
+ * --------------------------------
+ */
+
+#define IDA_NN  0
+#define IDA_SS  1
+#define IDA_SV  2
+#define IDA_WF  3
 
 /*
  * Algorithmic constants

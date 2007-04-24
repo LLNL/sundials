@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-23 23:37:26 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-24 22:01:25 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -160,7 +160,8 @@ int main(int argc, char *argv[])
 
   yS = N_VCloneVectorArray_Serial(Ns, y);
 
-  flag = CVodeSensMalloc(cvode_mem, Ns, CV_SIMULTANEOUS, CV_ONESENS, fS, yS0);
+  flag = CVodeSensInit1(cvode_mem, Ns, CV_SIMULTANEOUS, fS, yS0);
+  flag = CVodeSensEEtolerances(cvode_mem);
   flag = CVodeSetSensErrCon(cvode_mem, TRUE);
 
   /* Note that, by not calling CVodeSetSensParams, we will use

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-04-23 23:37:19 $
+ * $Revision: 1.12 $
+ * $Date: 2007-04-24 22:01:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -133,6 +133,16 @@
 #define RTFOUND          +1
 #define INITROOT         +2
 #define CLOSERT          +3
+
+/*
+ * Control constants for tolerances
+ * --------------------------------
+ */
+
+#define CV_NN  0
+#define CV_SS  1
+#define CV_SV  2
+#define CV_WF  3
 
 /*
  * Algorithmic constants
