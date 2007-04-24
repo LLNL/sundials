@@ -116,8 +116,21 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
    - in the initial step size calculation, restrict h based on tstop.
 
 - Changes to user interface
+   - renamed all **Malloc functions to **Init
+   - tolerances are now specified through separate functions instead of
+     the initialization functions CVodeInit (former CVodeMalloc) and 
+     CVodeReInit. Depending on the tolerance type, one of 3 functions
+     must be called before the first call to CVode.
+   - tolerances for quadratures, sensitivities, and quadrature sensitivities
+     are specified in a manner similar to that for state variables, with the
+     exception that toelrances for quadratures and quadrature sensitivities
+     are required only if the corresponding variables are included in the
+     error test.
    - removed function inputs from argument lists of all re-initialization
      functions.
+   - all user-supplied functions now receive the same pointer to user data
+     (instead of having different ones for the system evaluation, Jacobian
+     information functions, etc.
    - common functionality for all direct linear solvers (dense, band, and
      the new Lapack solver) has been collected into the DLS (Direct Linear
      Solver) module, similar to the SPILS module for the iterative linear 
@@ -126,17 +139,21 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
      the new Lapack-based linear solver, all dimensions for these linear
      solvers (problem sizes, bandwidths, etc) are now of type 'int' 
      (instead of 'long int').
-   - changed the API for CVodeSensMalloc. The sensitivity RHS function
-     is now passed through the argument fS to CVodeSensMalloc. A second
-     argument, ifS, specifies the type of fS (CVSensRhsFn or CVSensRhs1Fn).
-     Removed the functions CVodeSetSensRhsFn and CVodeSetSensRhs1Fn.
+   - CVodeSensMalloc was replaced by CVodeSensInit and CvodeSensInit1. 
+     The sensitivity RHS function is now passed as an argument to these
+     initialization functions. The former takes as argument fS a function
+     of type CVSensRhsFn, while the latter takes as argument fS1 of type
+     CVSensRhs1Fn. Removed the functions CVodeSetSensRhsFn and CVodeSetSensRhs1Fn.
    - changed the API for all functions in the adjoint module related to 
-     initialization, set-up, and solution of backward problems.
+     initialization, set-up, and solution of backward problems. A backward problem
+     is always identified by its index (of type int) returned by the CvodeCreateB
+     function.
    - the extraction functions CVodeGetQuad, CVodeGetSens, and CVodeGetSens1
      now return the values of quadrature and sensitivity variables, respectively,
      at the same time as that at which CVode returned the solution (for dense
      output of quadrature or sensitivity variables, the user can only use
-     CVodeGetQuadDky, CVodeGetSensDky, or CVodeGetSensDky1).
+     CVodeGetQuadDky, CVodeGetSensDky, or CVodeGetSensDky1). Similar functions are
+     available for the new quadrature sensitivity feature.
 
 v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Nov. 2006)
 ---------------------------------------------------------

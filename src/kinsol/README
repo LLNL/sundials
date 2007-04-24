@@ -105,6 +105,10 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
      both dense and banded matrices.
 
 - Changes to user interface
+   - renamed all **Malloc functions to **Init
+   - all user-supplied functions now receive the same pointer to user data
+     (instead of having different ones for the system evaluation, Jacobian
+     information functions, etc.
    - common functionality for all direct linear solvers (dense, band, and
      the new Lapack solver) has been collected into the DLS (Direct Linear
      Solver) module, similar to the SPILS module for the iterative linear 
