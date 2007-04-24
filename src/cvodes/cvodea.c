@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.15 $
+ * $Date: 2007-04-24 20:26:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -91,13 +91,13 @@ static int CVArhsQ(realtype t, N_Vector yB,
  */
 
 /*
- * CVodeAdjMalloc
+ * CVodeAdjInit
  *
  * This routine initializes ASA and allocates space for the adjoint 
  * memory structure.
  */
 
-int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp)
+int CVodeAdjInit(void *cvode_mem, long int steps, int interp)
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
@@ -109,18 +109,18 @@ int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp)
    * --------------- */
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeAdjMalloc", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeAdjInit", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem)cvode_mem;
 
   if (steps <= 0) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeAdjMalloc", MSGCV_BAD_STEPS);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeAdjInit", MSGCV_BAD_STEPS);
     return(CV_ILL_INPUT);
   }
 
   if ( (interp != CV_HERMITE) && (interp != CV_POLYNOMIAL) ) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeAdjMalloc", MSGCV_BAD_INTERP);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeAdjInit", MSGCV_BAD_INTERP);
     return(CV_ILL_INPUT);
   } 
 
@@ -131,7 +131,7 @@ int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp)
   ca_mem = NULL;
   ca_mem = (CVadjMem) malloc(sizeof(struct CVadjMemRec));
   if (ca_mem == NULL) {
-    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODEA", "CVodeAdjMalloc", MSGCV_MEM_FAIL);
+    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODEA", "CVodeAdjInit", MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
@@ -170,7 +170,7 @@ int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp)
   ca_mem->dt_mem = (DtpntMem *) malloc((steps+1)*sizeof(struct DtpntMemRec *));
   if (ca_mem->dt_mem == NULL) {
     free(ca_mem); ca_mem = NULL;
-    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODEA", "CVodeAdjMalloc", MSGCV_MEM_FAIL);
+    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODEA", "CVodeAdjInit", MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
@@ -181,7 +181,7 @@ int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp)
       for(ii=0; ii<i; ii++) {free(ca_mem->dt_mem[ii]); ca_mem->dt_mem[ii] = NULL;}
       free(ca_mem->dt_mem); ca_mem->dt_mem = NULL;
       free(ca_mem); ca_mem = NULL;
-      cvProcessError(cv_mem, CV_MEM_FAIL, "CVODEA", "CVodeAdjMalloc", MSGCV_MEM_FAIL);
+      cvProcessError(cv_mem, CV_MEM_FAIL, "CVODEA", "CVodeAdjInit", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
   }
@@ -262,7 +262,7 @@ int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp)
  * separately by calling CVodeReInit and CVodeReInitB, respectively.
  * NOTE: if a completely new list of backward problems is also needed, then
  *       simply free the adjoint memory (by calling CVodeAdjFree) and reinitialize
- *       ASA with CVodeAdjMalloc.
+ *       ASA with CVodeAdjInit.
  */
 
 int CVodeAdjReInit(void *cvode_mem)
@@ -307,7 +307,7 @@ int CVodeAdjReInit(void *cvode_mem)
 /*
  * CVodeAdjFree
  *
- * This routine frees the memory allocated by CVodeAdjMalloc.
+ * This routine frees the memory allocated by CVodeAdjInit.
  */
 
 void CVodeAdjFree(void *cvode_mem)
@@ -1027,7 +1027,7 @@ int CVodeSVtolerancesB(void *cvode_mem, int which, realtype reltolB, N_Vector ab
 }
 
 
-int CVodeQuadMallocB(void *cvode_mem, int which,
+int CVodeQuadInitB(void *cvode_mem, int which,
                      CVQuadRhsFnB fQB, N_Vector yQB0)
 {
   CVodeMem cv_mem;
@@ -1038,21 +1038,21 @@ int CVodeQuadMallocB(void *cvode_mem, int which,
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeQuadMallocB", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeQuadInitB", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadMallocB", MSGCV_NO_ADJ);
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadInitB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= nbckpbs ) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeQuadMallocB", MSGCV_BAD_WHICH);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeQuadInitB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
 
@@ -1065,7 +1065,7 @@ int CVodeQuadMallocB(void *cvode_mem, int which,
 
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
 
-  flag = CVodeQuadMalloc(cvodeB_mem, CVArhsQ, yQB0);
+  flag = CVodeQuadInit(cvodeB_mem, CVArhsQ, yQB0);
   if (flag != CV_SUCCESS) return(flag);
 
   cvB_mem->cv_fQ_withSensi = FALSE;
@@ -1074,7 +1074,7 @@ int CVodeQuadMallocB(void *cvode_mem, int which,
   return(CV_SUCCESS);
 }
 
-int CVodeQuadMallocBS(void *cvode_mem, int which,
+int CVodeQuadInitBS(void *cvode_mem, int which,
                       CVQuadRhsFnBS fQBs, N_Vector yQB0)
 {
   CVodeMem cv_mem;
@@ -1085,21 +1085,21 @@ int CVodeQuadMallocBS(void *cvode_mem, int which,
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeQuadMallocBS", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeQuadInitBS", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadMallocBS", MSGCV_NO_ADJ);
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeQuadInitBS", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= nbckpbs ) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeQuadMallocBS", MSGCV_BAD_WHICH);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeQuadInitBS", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
 
@@ -1112,7 +1112,7 @@ int CVodeQuadMallocBS(void *cvode_mem, int which,
 
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
 
-  flag = CVodeQuadMalloc(cvodeB_mem, CVArhsQ, yQB0);
+  flag = CVodeQuadInit(cvodeB_mem, CVArhsQ, yQB0);
   if (flag != CV_SUCCESS) return(flag);
 
   cvB_mem->cv_fQ_withSensi = TRUE;

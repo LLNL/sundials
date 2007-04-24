@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-24 20:26:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -83,7 +83,7 @@
 #define NSMX         NUM_SPECIES*MX   /* NSMX = NUM_SPECIES*MX */
 #define MM           (MX*MZ)          /* MM = MX*MZ */
 
-/* CVodeMalloc Constants */
+/* CVodeInit Constants */
 #define RTOL         RCONST(1.0e-5)   /* scalar relative tolerance */
 #define FLOOR        RCONST(100.0)    /* value of C1 or C2 at which tolerances */
                                       /* change from relative to absolute      */
@@ -245,8 +245,11 @@ int main(int argc, char *argv[])
     for(is=0;is<NS;is++)
       N_VConst(ZERO,uS[is]);
 
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, CV_ONESENS, NULL, uS);
-    if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
+    flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
+    if(check_flag(&flag, "CVodeSensInit", 1)) return(1);
+
+    flag = CVodeSensEEtolerances(cvode_mem);
+    if(check_flag(&flag, "CVodeSensEEtolerances", 1)) return(1);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if(check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);

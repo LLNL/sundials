@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.12 $
+ * $Date: 2007-04-24 20:26:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -211,8 +211,8 @@ int main(int argc, char *argv[])
   flag = CVDlsSetDenseJacFn(cvode_mem, Jac);
   if (check_flag(&flag, "CVDlsSetDenseJacFn", 1)) return(1);
 
-  flag = CVodeQuadMalloc(cvode_mem, fQ, q);
-  if (check_flag(&flag, "CVodeQuadMalloc", 1)) return(1);
+  flag = CVodeQuadInit(cvode_mem, fQ, q);
+  if (check_flag(&flag, "CVodeQuadInit", 1)) return(1);
 
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ);
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
@@ -220,11 +220,11 @@ int main(int argc, char *argv[])
   /* Allocate global memory */
 
   steps = STEPS;
-  flag = CVodeAdjMalloc(cvode_mem, steps, CV_HERMITE);
+  flag = CVodeAdjInit(cvode_mem, steps, CV_HERMITE);
   /*
-  flag = CVodeAdjMalloc(cvode_mem, steps, CV_POLYNOMIAL);
+  flag = CVodeAdjInit(cvode_mem, steps, CV_POLYNOMIAL);
   */
-  if (check_flag(&flag, "CVodeAdjMalloc", 1)) return(1);
+  if (check_flag(&flag, "CVodeAdjInit", 1)) return(1);
 
   /* Perform forward run */
   printf("Forward integration ... ");
@@ -316,8 +316,8 @@ int main(int argc, char *argv[])
   flag = CVDlsSetDenseJacFnB(cvode_mem, indexB, JacB);
   if (check_flag(&flag, "CVDlsSetDenseJacFnB", 1)) return(1);
 
-  flag = CVodeQuadMallocB(cvode_mem, indexB, fQB, qB);
-  if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
+  flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
+  if (check_flag(&flag, "CVodeQuadInitB", 1)) return(1);
 
   flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE, CV_SS, reltolB, &abstolQB);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);

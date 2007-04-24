@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-24 20:26:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -160,20 +160,20 @@ int main(int argc, char *argv[])
 
   flag = CVDense(cvode_mem, Neq);
 
-  flag = CVodeQuadMalloc(cvode_mem, fQ, yQ);
+  flag = CVodeQuadInit(cvode_mem, fQ, yQ);
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltol, &abstolQ);
 
-  flag = CVodeSensMalloc(cvode_mem, Np, CV_SIMULTANEOUS, CV_ALLSENS, fS, yS);
+  flag = CVodeSensInit(cvode_mem, Np, CV_SIMULTANEOUS, fS, yS);
   flag = CVodeSetSensErrCon(cvode_mem, TRUE);
 
-  flag = CVodeQuadSensMalloc(cvode_mem, fQS, yQS);
+  flag = CVodeQuadSensInit(cvode_mem, fQS, yQS);
 
   flag = CVodeSetQuadSensErrCon(cvode_mem, TRUE, CV_EE, 0.0, NULL);
 
   /* Initialize ASA */
 
   steps = 100;
-  flag = CVodeAdjMalloc(cvode_mem, steps, CV_POLYNOMIAL);
+  flag = CVodeAdjInit(cvode_mem, steps, CV_POLYNOMIAL);
 
   /* Forward integration */
 
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
   flag = CVodeInitBS(cvode_mem, indexB1, fB1, tf, yB1);
   flag = CVodeSStolerancesB(cvode_mem, indexB1, reltol, abstolB);
   flag = CVodeSetFdataB(cvode_mem, indexB1, data);
-  flag = CVodeQuadMallocBS(cvode_mem, indexB1, fQB1, yQB1);
+  flag = CVodeQuadInitBS(cvode_mem, indexB1, fQB1, yQB1);
   flag = CVodeSetQuadErrConB(cvode_mem, indexB1, TRUE, CV_SS, reltol, &abstolQB);
   flag = CVDenseB(cvode_mem, indexB1, 2*Neq);
 
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
   flag = CVodeInitBS(cvode_mem, indexB2, fB2, tf, yB2);
   flag = CVodeSStolerancesB(cvode_mem, indexB2, reltol, abstolB);
   flag = CVodeSetFdataB(cvode_mem, indexB2, data);
-  flag = CVodeQuadMallocBS(cvode_mem, indexB2, fQB2, yQB2);
+  flag = CVodeQuadInitBS(cvode_mem, indexB2, fQB2, yQB2);
   flag = CVodeSetQuadErrConB(cvode_mem, indexB2, TRUE, CV_SS, reltol, &abstolQB);
   flag = CVDenseB(cvode_mem, indexB2, 2*Neq);
 
@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   flag = CVodeSetFdata(cvode_mem, data);
   flag = CVDense(cvode_mem, Neq);
-  flag = CVodeQuadMalloc(cvode_mem, fQ, yQ);
+  flag = CVodeQuadInit(cvode_mem, fQ, yQ);
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltol, &abstolQ);
 
   data->p1 += dp;

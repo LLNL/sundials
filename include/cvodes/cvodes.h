@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.15 $
+ * $Date: 2007-04-24 20:26:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,8 +43,8 @@
  *  3: INITIALIZATION AND DEALLOCATION FUNCTIONS FOR FORWARD PROBLEMS
  *     CVodeCreate
  *     CVodeInit        CVodeReInit
- *     CVodeQuadMalloc    CVodeQuadReInit
- *     CVodeSensMalloc    CVodeSensReInit
+ *     CVodeQuadInit    CVodeQuadReInit
+ *     CVodeSensInit    CVodeSensReInit
  *     CVodeRootInit
  *     CVodeFree          CVodeQuadFree      CVodeSensFree
  *    
@@ -65,10 +65,10 @@
  *  7: OPTIONAL OUTPUT FUNCTIONS FOR FORWARD PROBLEMS
  *    
  *  8: INITIALIZATION AND DEALLOCATION FUNCTIONS FOR BACKWARD PROBLEMS  
- *     CVodeAdjMalloc    CVodeAdjReInit
+ *     CVodeAdjInit    CVodeAdjReInit
  *     CVodeAdjFree
  *     CVodeInitB      CVodeInitBS       CVodeReInitB
- *     CVodeQuadMallocB  CVodeQuadMallocBS   CVodeQuadReInitB
+ *     CVodeQuadInitB  CVodeQuadInitBS   CVodeQuadReInitB
  *     
  *  9  MAIN SOLVER FUNCTIONS FOR FORWARD PROBLEMS
  *     CVodeF
@@ -106,12 +106,15 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Enumerations for inputs to CVodeCreate, CVodeSensMalloc, CVodeSensReInit, CVodeQuadMalloc,
- * CVodeQuadReInit, CVodeSet*, CVode, and CVodeAdjMalloc.
+ * Enumerations for inputs to:
+ * CVodeCreate (lmm, iter),
+ * CVodeSensInit, CvodeSensinit1, CVodeSensReInit (ism),
+ * CVodeAdjInit (interp),
+ * CVode (itask)
  * -----------------------------------------------------------------
  * Symbolic constants for the lmm and iter parameters to CVodeCreate
  * the input parameter itask to CVode, and the input parameter interp
- * to CVodeAdjMalloc, are given below.
+ * to CVodeAdjInit, are given below.
  *
  * lmm:   The user of the CVODES package specifies whether to use
  *        the CV_ADAMS or CV_BDF (backward differentiation formula)
@@ -135,16 +138,6 @@ extern "C" {
  *        nonlinear systems for all sensitivities are solved
  *        at the same time. Finally, in the CV_STAGGERED1 approach
  *        all nonlinear systems are solved in a sequence.
- *
- * ifS:   This parameter indicates the type of the function fS 
- *        returning the sensitivity right-hand side. ifS can be 
- *        either CV_ALLSENS if the function fS (of type CVSensRhsFn)
- *        returns right hand sides for all sensitivity systems
- *        at once, or CV_ONESENS if the function fS (of type 
- *        SensRhs1Fn) returns the right hand side of one sensitivity
- *        system at a time.
- *        Note that, if ism=CV_STAGGERED1, ifS must be CV_ONESENS
- *        and hence fS must be of type CVSensRhs1.
  *
  * itask: The itask input parameter to CVode indicates the job
  *        of the solver for the next user step. The CV_NORMAL
@@ -184,10 +177,6 @@ extern "C" {
 #define CV_SIMULTANEOUS   1
 #define CV_STAGGERED      2
 #define CV_STAGGERED1     3
-
-/* ifS */
-#define CV_ONESENS        1
-#define CV_ALLSENS        2
 
 /* DQtype */
 #define CV_CENTERED       1
@@ -479,7 +468,7 @@ typedef int (*CVSensRhs1Fn)(int Ns, realtype t,
  * must have type CVQuadSensRhsFn.
  *
  * fQS takes as input the number of sensitivities Ns (the same as
- * that passed to CVodeQuadSensMalloc), the independent variable 
+ * that passed to CVodeQuadSensInit), the independent variable 
  * value t, the states y and the dependent sensitivity vectors yS,
  * as well as the current value of the quadrature RHS yQdot.
  * It stores the result of fQS in yQSdot.
@@ -673,9 +662,9 @@ SUNDIALS_EXPORT int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVodeQuadMalloc
+ * Function : CVodeQuadInit
  * -----------------------------------------------------------------
- * CVodeQuadMalloc allocates and initializes memory related to
+ * CVodeQuadInit allocates and initializes memory related to
  * quadrature integration.
  *
  * cvode_mem is a pointer to CVODES memory returned by CVodeCreate
@@ -692,7 +681,7 @@ SUNDIALS_EXPORT int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0);
+SUNDIALS_EXPORT int CVodeQuadInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0);
 
 /*
  * -----------------------------------------------------------------
@@ -700,11 +689,11 @@ SUNDIALS_EXPORT int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ
  * -----------------------------------------------------------------
  * CVodeQuadReInit re-initializes CVODES's quadrature related
  * memory for a problem, assuming it has already been allocated
- * in prior calls to CVodeInit and CVodeQuadMalloc.
+ * in prior calls to CVodeInit and CVodeQuadInit.
  *
  * All problem specification inputs are checked for errors.
  * The number of quadratures Nq is assumed to be unchanged
- * since the previous call to CVodeQuadMalloc.
+ * since the previous call to CVodeQuadInit.
  *
  * Return values:
  *  CV_SUCCESS  if successful
@@ -717,10 +706,17 @@ SUNDIALS_EXPORT int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVodeSensMalloc
+ * Function : CVodeSensInit and CVSensInit1
  * -----------------------------------------------------------------
- * CVodeSensMalloc allocates and initializes memory related to
- * sensitivity computations.
+ * CVodeSensInit and CVSensInit1 allocate and initialize memory
+ * related to sensitivity computations. They only differ in the 
+ * type of the sensitivity RHS function: CVodeSensInit specifies
+ * fS of type CVSensRhsFn (i.e. a function that evaluates all
+ * sensitivity RHS simultaneously), while CVodeSensInit1 specifies
+ * fS of type CVSensRhs1Fn (i.e. a function that evaluates one
+ * sensitivity RHS at a time). Recall that ism=CV_STAGGERED1 is 
+ * compatible ONLY with a CVSensRhs1Fn. As such, this value for
+ * ism cannot be passed to CVodeSensInit.
  *
  * cvode_mem is pointer to CVODES memory returned by CVodeCreate
  *
@@ -729,11 +725,6 @@ SUNDIALS_EXPORT int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0);
  * ism       is the type of corrector used in sensitivity
  *           analysis. The legal values are: CV_SIMULTANEOUS,
  *           CV_STAGGERED, and CV_STAGGERED1.
- *
- * ifS       is the type of the sensitivity RHS function fS
- *           fS_type must be CV_ALLSENS if fS is of type CVSensRhs
- *           fS_type must be CV_ONESENS if fS is of type CVSensRhs1
- *           fS_type is ignored if fS = NULL
  *
  * fS        is the sensitivity righ-hand side function
  *           (pass NULL to use the internal DQ approximation)
@@ -749,8 +740,10 @@ SUNDIALS_EXPORT int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
-                                    int ifS, void *fS, N_Vector *yS0);
+SUNDIALS_EXPORT int CVodeSensInit(void *cvode_mem, int Ns, int ism,
+                                  CVSensRhsFn fS, N_Vector *yS0);
+SUNDIALS_EXPORT int CVodeSensInit1(void *cvode_mem, int Ns, int ism,
+                                   CVSensRhs1Fn fS1, N_Vector *yS0);
     
 /*
  * -----------------------------------------------------------------
@@ -758,11 +751,11 @@ SUNDIALS_EXPORT int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
  * -----------------------------------------------------------------
  * CVodeSensReInit re-initializes CVODES's sensitivity related
  * memory for a problem, assuming it has already been allocated
- * in prior calls to CVodeInit and CvodeSensMalloc.
+ * in prior calls to CVodeInit and CVodeSensInit.
  *
  * All problem specification inputs are checked for errors.
  * The number of sensitivities Ns is assumed to be unchanged
- * since the previous call to CVodeSensMalloc.
+ * since the previous call to CVodeSensInit.
  * If any error occurs during initialization, it is reported to
  * the file whose file pointer is errfp.
  *
@@ -774,7 +767,7 @@ SUNDIALS_EXPORT int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
  * errors; otherwise it is a negative int equal to:
  *   CV_MEM_NULL  indicating cvode_mem was NULL, or
  *   CV_NO_SENS   indicating there was not a prior call to
- *                CVodeSensMalloc.
+ *                CVodeSensInit.
  *   CV_ILL_INPUT indicating an input argument was illegal
  *                (including an attempt to increase maxord).
  *   CV_MEM_FAIL  indicating a memory request failed.
@@ -786,12 +779,44 @@ SUNDIALS_EXPORT int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0);
 
 /*
  * -----------------------------------------------------------------
- * Function : CVodeQuadSensMalloc
+ * Functions : CVodeSensSStolerances
+ *             CVodeSensSVtolerances
+ *             CVodeSensEEtolerances
+ * -----------------------------------------------------------------
+ *
+ * These functions specify the integration tolerances for sensitivity
+ * variables. One of them MUST be called before the first call to CVode.
+ *
+ * CVodeSensSStolerances specifies scalar relative and absolute tolerances.
+ * CVodeSensSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance for each sensitivity vector (a potentially different
+ *   absolute tolerance for each vector component).
+ * CVodeEEtolerances specifies that tolerances for sensitivity variables
+ *   should be estimated from those provided for the state variables.
+ *
+ * The return value is equal to CV_SUCCESS = 0 if there were no
+ * errors; otherwise it is a negative int equal to:
+ *   CV_MEM_NULL  indicating cvode_mem was NULL, or
+ *   CV_NO_SENS   indicating there was not a prior call to
+ *                CVodeSensInit.
+ *   CV_ILL_INPUT indicating an input argument was illegal
+ *                (e.g. negative tolerances)
+ * In case of an error return, an error message is also printed.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int CVodeSensSStolerances(void *cvode_mem, realtype reltolS, realtype *abstolS);
+SUNDIALS_EXPORT int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS);
+SUNDIALS_EXPORT int CVodeSensEEtolerances(void *cvode_mem);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : CVodeQuadSensInit
  * -----------------------------------------------------------------
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeQuadSensMalloc(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0);
+SUNDIALS_EXPORT int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0);
 
 /*
  * -----------------------------------------------------------------
@@ -1076,18 +1101,6 @@ SUNDIALS_EXPORT int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ,
  *                            | the error control?
  *                            | [FALSE]
  *                            |
- * CVodeSetSensTolerances     | type of sensi absolute tolerances.
- *                            |
- *                            | sensitivity relative tolerance scalar.
- *                            |
- *                            | pointer to the array of sensi
- *                            | abs tol scalars or a pointer
- *                            | to the array of N_Vector sensi
- *                            | absolute tolerances.
- *                            | [itolS = itol]
- *                            | [reltolS = reltol]
- *                            | [abstolS estimated by CVODES]
- *                            |
  * CVodeSetSensMaxNonlinIters | Maximum number of nonlinear solver
  *                            | iterations at one solution.
  *                            | [3]
@@ -1101,8 +1114,6 @@ SUNDIALS_EXPORT int CVodeSetSensDQMethod(void *cvode_mem, int DQtype, realtype D
 SUNDIALS_EXPORT int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS);
 SUNDIALS_EXPORT int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS);
 SUNDIALS_EXPORT int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist);
-SUNDIALS_EXPORT int CVodeSetSensTolerances(void *cvode_mem, int itolS,
-					   realtype reltolS, void *abstolS);
 
 /*
  * -----------------------------------------------------------------
@@ -1683,14 +1694,14 @@ SUNDIALS_EXPORT int CVodeGetQuadSensStats(void *cvode_mem,
 
 /*
  * -----------------------------------------------------------------
- * CVodeAdjMalloc
+ * CVodeAdjInit
  * -----------------------------------------------------------------
- * CVodeAdjMalloc specifies some parameters for ASA, initializes ASA
+ * CVodeAdjInit specifies some parameters for ASA, initializes ASA
  * and allocates space for the adjoint memory structure.
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp);
+SUNDIALS_EXPORT int CVodeAdjInit(void *cvode_mem, long int steps, int interp);
 
 /*
  * -----------------------------------------------------------------
@@ -1706,7 +1717,7 @@ SUNDIALS_EXPORT int CVodeAdjMalloc(void *cvode_mem, long int steps, int interp);
  * CVodeReInit and CVodeReInitB, respectively.
  * NOTE: if a entirely new list of backward problems is desired,
  *   then simply free the adjoint memory (by calling CVodeAdjFree)
- *   and reinitialize ASA with CVodeAdjMalloc.
+ *   and reinitialize ASA with CVodeAdjInit.
  * -----------------------------------------------------------------
  */
 
@@ -1716,7 +1727,7 @@ SUNDIALS_EXPORT int CVodeAdjReInit(void *cvode_mem);
  * -----------------------------------------------------------------
  * CVodeAdjFree
  * -----------------------------------------------------------------
- * CVodeAdjFree frees the memory allocated by CVodeAdjMalloc.
+ * CVodeAdjFree frees the memory allocated by CVodeAdjInit.
  * It is typically called by CVodeFree.
  * -----------------------------------------------------------------
  */
@@ -1732,7 +1743,7 @@ SUNDIALS_EXPORT void CVodeAdjFree(void *cvode_mem);
  *
  * CVodeInitB, CVodeInitBS, CVodeReInitB
  * 
- * CVodeQuadMallocB, CVodeQuadMallocBS, CVodeQuadReInitB
+ * CVodeQuadInitB, CVodeQuadInitBS, CVodeQuadReInitB
  * 
  * -----------------------------------------------------------------
  */
@@ -1755,10 +1766,10 @@ SUNDIALS_EXPORT int CVodeSStolerancesB(void *cvode_mem, int which,
 SUNDIALS_EXPORT int CVodeSVtolerancesB(void *cvode_mem, int which,
                                        realtype reltolB, N_Vector abstolB);
 
-SUNDIALS_EXPORT int CVodeQuadMallocB(void *cvode_mem, int which,
+SUNDIALS_EXPORT int CVodeQuadInitB(void *cvode_mem, int which,
                                      CVQuadRhsFnB fQB, N_Vector yQB0);
 
-SUNDIALS_EXPORT int CVodeQuadMallocBS(void *cvode_mem, int which,
+SUNDIALS_EXPORT int CVodeQuadInitBS(void *cvode_mem, int which,
                                       CVQuadRhsFnBS fQBs, N_Vector yQB0);
 
 SUNDIALS_EXPORT int CVodeQuadReInitB(void *cvode_mem, int which, N_Vector yQB0);

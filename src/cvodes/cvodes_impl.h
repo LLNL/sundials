@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.13 $
+ * $Date: 2007-04-24 20:26:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -64,6 +64,17 @@ extern "C" {
 #define CV_EE  4
 */
 
+
+/* 
+ * Type of sensitivity RHS function
+ * --------------------------------
+ *
+ * ifS = CV_ONESENS indicates fS of type CVSensRhs1Fn
+ * ifS = CV_ALLSENS indicates fS of type CVSensRhsFn
+ */
+
+#define CV_ONESENS  1
+#define CV_ALLSENS  2
 
 /* 
  * =================================================================
@@ -995,6 +1006,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 #define MSGCV_BAD_RELTOLQ "reltolQ < 0 illegal."
 #define MSGCV_BAD_ABSTOLQ "abstolQ has negative component(s) (illegal)."  
 
+#define MSGCV_SENSINIT_2 "Sensitivity analysis already initialized."
 #define MSGCV_NO_SENSI  "Forward sensitivity analysis not activated."
 #define MSGCV_BAD_ITOLS "Illegal value for itolS. The legal values are CV_SS, CV_SV, and CV_EE."
 #define MSGCV_NULL_ABSTOLS "abstolS = NULL illegal."
@@ -1006,7 +1018,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 #define MSGCV_NULL_YS0 "yS0 = NULL illegal."
 #define MSGCV_BAD_ISM "Illegal value for ism. Legal values are: CV_SIMULTANEOUS, CV_STAGGERED and CV_STAGGERED1."
 #define MSGCV_BAD_IFS "Illegal value for ifS. Legal values are: CV_ALLSENS and CV_ONESENS."
-#define MSGCV_BAD_ISM_IFS "Illegal combination ism = CV_STAGGERED1 and fS_type = CV_ALLSENS."
+#define MSGCV_BAD_ISM_IFS "Illegal ism = CV_STAGGERED1 for CVodeSensInit."
 #define MSGCV_BAD_IS "Illegal value for is."
 #define MSGCV_NULL_DKYA "dkyA = NULL illegal."
 #define MSGCV_BAD_DQTYPE "Illegal value for DQtype. Legal values are: CV_CENTERED and CV_FORWARD."
@@ -1021,7 +1033,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 
 /* CVode Error Messages */
 
-#define MSGCV_NO_TOLS "No integration tolerances have been specified."
+#define MSGCV_NO_TOL "No integration tolerances have been specified."
 #define MSGCV_LSOLVE_NULL "The linear solver's solve routine is NULL."
 #define MSGCV_YOUT_NULL "yout = NULL illegal."
 #define MSGCV_TRET_NULL "tret = NULL illegal."
@@ -1059,6 +1071,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 #define MSGCV_QRHSFUNC_REPTD "At " MSG_TIME " repeated recoverable quadrature right-hand side function errors."
 #define MSGCV_QRHSFUNC_FIRST "The quadrature right-hand side routine failed at the first call."
 
+#define MSGCV_NO_TOLS "No integration tolerances for sensitivity variables have been specified."
 #define MSGCV_NULL_P "p = NULL when using internal DQ for sensitivity RHS illegal."
 #define MSGCV_BAD_EWTS "Initial ewtS has component(s) equal to zero (illegal)."
 #define MSGCV_EWTS_NOW_BAD "At " MSG_TIME ", a component of ewtS has become <= 0."

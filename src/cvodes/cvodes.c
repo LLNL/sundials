@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.16 $
+ * $Date: 2007-04-24 20:26:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -18,17 +18,30 @@
  * ------------------
  *
  *   Creation, allocation and re-initialization functions
+ *
  *      CVodeCreate
+ *
  *      CVodeInit 
  *      CVodeReInit
- *      CVodeRootInit      
- *      CVodeQuadMalloc
+ *      CVodeSStolerances
+ *      CVodeSVtolerances
+ *      CVodeWFtolerances
+ *
+ *      CVodeQuadInit
  *      CVodeQuadReInit   
- *      CVodeSensMalloc
+ *
+ *      CVodeSensInit
+ *      CVodeSensInit1
  *      CVodeSensReInit             
- *      CVodeQuadSensMalloc
+ *      CVodeSensSStolerances
+ *      CVodeSensSVtolerances
+ *      CVodeSensEEtolerances
+ *
+ *      CVodeQuadSensInit
  *      CVodeQuadSensReInit
  *      CVodeSensToggleOff
+ *
+ *      CVodeRootInit      
  *
  *   Main solver function
  *      CVode
@@ -680,7 +693,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_ncfS1        = NULL;
   cv_mem->cv_ncfnS1       = NULL;
   cv_mem->cv_nniS1        = NULL;
-  cv_mem->cv_itolS        = CV_EE;
+  cv_mem->cv_itolS        = CV_NN;
 
   /* Set default values for quad. sensi. optional inputs */
 
@@ -1108,9 +1121,9 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
 /*-----------------------------------------------------------------*/
 
 /*
- * CVodeQuadMalloc
+ * CVodeQuadInit
  *
- * CVodeQuadMalloc allocates and initializes quadrature related 
+ * CVodeQuadInit allocates and initializes quadrature related 
  * memory for a problem. All problem specification inputs are 
  * checked for errors. If any error occurs during initialization, 
  * it is reported to the file whose file pointer is errfp. 
@@ -1118,7 +1131,7 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
  * a negative value otherwise.
  */
 
-int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
+int CVodeQuadInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
 {
   CVodeMem cv_mem;
   booleantype allocOK;
@@ -1126,7 +1139,7 @@ int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadMalloc", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadInit", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -1139,7 +1152,7 @@ int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
   /* Allocate the vectors (using yQ0 as a template) */
   allocOK = cvQuadAllocVectors(cv_mem, yQ0);
   if (!allocOK) {
-    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeQuadMalloc", MSGCV_MEM_FAIL);
+    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeQuadInit", MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
@@ -1173,7 +1186,7 @@ int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
  *
  * CVodeQuadReInit re-initializes CVODES's quadrature related memory 
  * for a problem, assuming it has already been allocated in prior 
- * calls to CVodeInit and CVodeQuadMalloc. 
+ * calls to CVodeInit and CVodeQuadInit. 
  * All problem specification inputs are checked for errors.
  * If any error occurs during initialization, it is reported to the
  * file whose file pointer is errfp.
@@ -1222,89 +1235,209 @@ int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0)
 /*-----------------------------------------------------------------*/
 
 /*
- * CVodeSenMalloc
+ * CVodeSensInit
  *
- * CVodeSensMalloc allocates and initializes sensitivity related 
- * memory for a problem. All problem specification inputs are 
- * checked for errors. If any error occurs during initialization, 
- * it is reported to the file whose file pointer is errfp. 
+ * CVodeSensInit allocates and initializes sensitivity related 
+ * memory for a problem (using a sensitivity RHS function of type
+ * CVSensRhsFn). All problem specification inputs are checked for 
+ * errors.
  * The return value is CV_SUCCESS = 0 if no errors occurred, or
  * a negative value otherwise.
  */
 
-int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, int ifS, void *fS, N_Vector *yS0)
+int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS0)
 {
-  CVodeMem    cv_mem;
+  CVodeMem cv_mem;
   booleantype allocOK;
   int is;
   
   /* Check cvode_mem */
+
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensMalloc", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensInit", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  /* Check if CVodeSensInit or CVodeSensInit1 was already called */
+
+  if (cv_mem->cv_SensMallocDone) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensInit", MSGCV_SENSINIT_2);
+    return(CV_ILL_INPUT);
+  }
+
   /* Check if Ns is legal */
+
   if (Ns<=0) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensMalloc", MSGCV_BAD_NS);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensInit", MSGCV_BAD_NS);
     return(CV_ILL_INPUT);
   }
   cv_mem->cv_Ns = Ns;
 
+  /* Check if ism is compatible */
+
+  if (ism==CV_STAGGERED1) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensInit", MSGCV_BAD_ISM_IFS);
+    return(CV_ILL_INPUT);
+  }
+
   /* Check if ism is legal */
-  if ((ism!=CV_SIMULTANEOUS) && (ism!=CV_STAGGERED) && (ism!=CV_STAGGERED1)) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensMalloc", MSGCV_BAD_ISM);
+
+  if ((ism!=CV_SIMULTANEOUS) && (ism!=CV_STAGGERED)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensInit", MSGCV_BAD_ISM);
     return(CV_ILL_INPUT);
   }
   cv_mem->cv_ism = ism;
 
   /* Check if yS0 is non-null */
+
   if (yS0 == NULL) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensMalloc", MSGCV_NULL_YS0);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensInit", MSGCV_NULL_YS0);
     return(CV_ILL_INPUT);
   }
+
+  /* Store sensitivity RHS-related data */
+
+  cv_mem->cv_ifS = CV_ALLSENS;
+  cv_mem->cv_fS1 = NULL;
 
   if (fS == NULL) {
 
     cv_mem->cv_fSDQ = TRUE;
-    cv_mem->cv_ifS  = CV_ONESENS;
     cv_mem->cv_fS   = cvSensRhsInternalDQ;
-    cv_mem->cv_fS1  = cvSensRhs1InternalDQ;
-
     cv_mem->cv_fS_data = cvode_mem;
 
   } else {
 
-    /* Check if ifS is legal */
-    if ((ifS!=CV_ALLSENS) && (ifS!=CV_ONESENS)) {
-      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensMalloc", MSGCV_BAD_IFS);
-      return(CV_ILL_INPUT);
-    }
+    cv_mem->cv_fSDQ = FALSE;
+    cv_mem->cv_fS   = fS;
+    cv_mem->cv_fS_data = cv_mem->cv_f_data;
 
-    /* Check if ism and ifS agree */
-    if ((ism==CV_STAGGERED1) && (ifS==CV_ALLSENS)) {
-      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensMalloc", MSGCV_BAD_ISM_IFS);
-      return(CV_ILL_INPUT);
-    } 
+  }
 
-    switch (ifS) {
-    case CV_ALLSENS:
-      cv_mem->cv_fS  = (CVSensRhsFn) fS;
-      break;
-    case CV_ONESENS:
-      cv_mem->cv_fS1 = (CVSensRhs1Fn) fS;
-      break;
-    }
+  /* No memory allocation for STAGGERED1 */
+
+  stgr1alloc = FALSE;
+
+  /* Allocate the vectors (using yS0[0] as a template) */
+
+  allocOK = cvSensAllocVectors(cv_mem, yS0[0]);
+  if (!allocOK) {
+    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensInit", MSGCV_MEM_FAIL);
+    return(CV_MEM_FAIL);
+  }
+  
+  /*---------------------------------------------- 
+    All error checking is complete at this point 
+    -----------------------------------------------*/
+
+  /* Initialize znS[0] in the history array */
+
+  for (is=0; is<Ns; is++) 
+    N_VScale(ONE, yS0[is], cv_mem->cv_znS[0][is]);
+
+  /* Initialize all sensitivity related counters */
+
+  cv_mem->cv_nfSe     = 0;
+  cv_mem->cv_nfeS     = 0;
+  cv_mem->cv_ncfnS    = 0;
+  cv_mem->cv_netfS    = 0;
+  cv_mem->cv_nniS     = 0;
+  cv_mem->cv_nsetupsS = 0;
+
+  /* Set default values for plist and pbar */
+
+  for (is=0; is<Ns; is++) {
+    cv_mem->cv_plist[is] = is;
+    cv_mem->cv_pbar[is] = ONE;
+  }
+
+  /* Sensitivities will be computed */
+
+  cv_mem->cv_sensi = TRUE;
+  cv_mem->cv_SensMallocDone = TRUE;
+
+  /* Sensitivity initialization was successfull */
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSensInit1
+ *
+ * CVodeSensInit1 allocates and initializes sensitivity related 
+ * memory for a problem (using a sensitivity RHS function of type
+ * CVSensRhs1Fn). All problem specification inputs are checked for 
+ * errors.
+ * The return value is CV_SUCCESS = 0 if no errors occurred, or
+ * a negative value otherwise.
+ */
+
+int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector *yS0)
+{
+  CVodeMem cv_mem;
+  booleantype allocOK;
+  int is;
+  
+  /* Check cvode_mem */
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensInit1", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Check if CVodeSensInit or CVodeSensInit1 was already called */
+
+  if (cv_mem->cv_SensMallocDone) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensInit1", MSGCV_SENSINIT_2);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Check if Ns is legal */
+
+  if (Ns<=0) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensInit1", MSGCV_BAD_NS);
+    return(CV_ILL_INPUT);
+  }
+  cv_mem->cv_Ns = Ns;
+
+  /* Check if ism is legal */
+
+  if ((ism!=CV_SIMULTANEOUS) && (ism!=CV_STAGGERED) && (ism!=CV_STAGGERED1)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensInit1", MSGCV_BAD_ISM);
+    return(CV_ILL_INPUT);
+  }
+  cv_mem->cv_ism = ism;
+
+  /* Check if yS0 is non-null */
+
+  if (yS0 == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensInit1", MSGCV_NULL_YS0);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Store sensitivity RHS-related data */
+
+  cv_mem->cv_ifS = CV_ONESENS;
+  cv_mem->cv_fS  = NULL;
+
+  if (fS1 == NULL) {
+
+    cv_mem->cv_fSDQ = TRUE;
+    cv_mem->cv_fS1  = cvSensRhs1InternalDQ;
+    cv_mem->cv_fS_data = cvode_mem;
+
+  } else {
 
     cv_mem->cv_fSDQ = FALSE;
-    cv_mem->cv_ifS  = ifS;
-
+    cv_mem->cv_fS1  = fS1;
     cv_mem->cv_fS_data = cv_mem->cv_f_data;
 
   }
 
   /* Allocate ncfS1, ncfnS1, and nniS1 if needed */
+
   if (ism == CV_STAGGERED1) {
     stgr1alloc = TRUE;
     ncfS1 = NULL;
@@ -1314,7 +1447,7 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, int ifS, void *fS, N_Vecto
     nniS1 = NULL;
     nniS1 = (long int*)malloc(Ns*sizeof(long int));
     if ( (ncfS1 == NULL) || (ncfnS1 == NULL) || (nniS1 == NULL) ) {
-      cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensMalloc", MSGCV_MEM_FAIL);
+      cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensInit1", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
   } else {
@@ -1322,6 +1455,7 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, int ifS, void *fS, N_Vecto
   }
 
   /* Allocate the vectors (using yS0[0] as a template) */
+
   allocOK = cvSensAllocVectors(cv_mem, yS0[0]);
   if (!allocOK) {
     if (stgr1alloc) {
@@ -1329,7 +1463,7 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, int ifS, void *fS, N_Vecto
       free(ncfnS1); ncfnS1 = NULL;
       free(nniS1); nniS1 = NULL;
     }
-    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensMalloc", MSGCV_MEM_FAIL);
+    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensInit1", MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
   
@@ -1338,10 +1472,12 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, int ifS, void *fS, N_Vecto
     -----------------------------------------------*/
 
   /* Initialize znS[0] in the history array */
+
   for (is=0; is<Ns; is++) 
     N_VScale(ONE, yS0[is], cv_mem->cv_znS[0][is]);
 
   /* Initialize all sensitivity related counters */
+
   cv_mem->cv_nfSe     = 0;
   cv_mem->cv_nfeS     = 0;
   cv_mem->cv_ncfnS    = 0;
@@ -1355,16 +1491,19 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, int ifS, void *fS, N_Vecto
     }
 
   /* Set default values for plist and pbar */
+
   for (is=0; is<Ns; is++) {
     cv_mem->cv_plist[is] = is;
     cv_mem->cv_pbar[is] = ONE;
   }
 
   /* Sensitivities will be computed */
+
   cv_mem->cv_sensi = TRUE;
   cv_mem->cv_SensMallocDone = TRUE;
 
   /* Sensitivity initialization was successfull */
+
   return(CV_SUCCESS);
 }
 
@@ -1380,10 +1519,10 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, int ifS, void *fS, N_Vecto
  *
  * CVodeSensReInit re-initializes CVODES's sensitivity related memory 
  * for a problem, assuming it has already been allocated in prior 
- * calls to CVodeInit and CVodeSensMalloc. 
+ * calls to CVodeInit and CVodeSensInit/CVodeSensInit1. 
  * All problem specification inputs are checked for errors.
  * The number of sensitivities Ns is assumed to be unchanged since
- * the previous call to CVodeSensMalloc.
+ * the previous call to CVodeSensInit.
  * If any error occurs during initialization, it is reported to the
  * file whose file pointer is errfp.
  * The return value is CV_SUCCESS = 0 if no errors occurred, or
@@ -1396,6 +1535,7 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
   int is;  
 
   /* Check cvode_mem */
+
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensReInit", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
@@ -1403,31 +1543,36 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was sensitivity initialized? */
+
   if (cv_mem->cv_SensMallocDone == FALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeSensReInit", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   } 
 
+  /* Check if ism is compatible */
+
+  if ((ifS==CV_ALLSENS) && (ism==CV_STAGGERED1)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensReInit", MSGCV_BAD_ISM_IFS);
+    return(CV_ILL_INPUT);
+  }
+  
   /* Check if ism is legal */
+
   if ((ism!=CV_SIMULTANEOUS) && (ism!=CV_STAGGERED) && (ism!=CV_STAGGERED1)) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensReInit", MSGCV_BAD_ISM);
     return(CV_ILL_INPUT);
   }
   cv_mem->cv_ism = ism;
-  
+
   /* Check if yS0 is non-null */
+
   if (yS0 == NULL) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensReInit", MSGCV_NULL_YS0);
     return(CV_ILL_INPUT);
   }  
 
-  /* Check if ism and ifS agree */
-  if ((ism==CV_STAGGERED1) && (cv_mem->cv_ifS==CV_ALLSENS)) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensReInit", MSGCV_BAD_ISM_IFS);
-    return(CV_ILL_INPUT);
-  } 
-  
   /* Allocate ncfS1, ncfnS1, and nniS1 if needed */
+
   if ( (ism==CV_STAGGERED1) && (stgr1alloc==FALSE) ) {
     stgr1alloc = TRUE;
     ncfS1 = NULL;
@@ -1447,10 +1592,12 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
     -----------------------------------------------*/
 
   /* Initialize znS[0] in the history array */
+
   for (is=0; is<Ns; is++) 
     N_VScale(ONE, yS0[is], cv_mem->cv_znS[0][is]);
 
   /* Initialize all sensitivity related counters */
+
   cv_mem->cv_nfSe     = 0;
   cv_mem->cv_nfeS     = 0;
   cv_mem->cv_ncfnS    = 0;
@@ -1464,18 +1611,174 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
     }
 
   /* Problem has been successfully re-initialized */
+
   cv_mem->cv_sensi = TRUE;
+
   return(CV_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
 
 /*
- * CVodeQuadSensMalloc
+ * CVodeSensSStolerances
+ * CVodeSensSVtolerances
+ * CVodeSensEEtolerances
+ *
+ * These functions specify the integration tolerances for sensitivity
+ * variables. One of them MUST be called before the first call to CVode.
+ *
+ * CVodeSensSStolerances specifies scalar relative and absolute tolerances.
+ * CVodeSensSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance for each sensitivity vector (a potentially different
+ *   absolute tolerance for each vector component).
+ * CVodeEEtolerances specifies that tolerances for sensitivity variables
+ *   should be estimated from those provided for the state variables.
+ */
+
+int CVodeSensSStolerances(void *cvode_mem, realtype reltolS, realtype *abstolS)
+{
+  CVodeMem cv_mem;
+  int is;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensSStolerances", MSGCV_NO_MEM);    
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was sensitivity initialized? */
+
+  if (cv_mem->cv_SensMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeSensSStolerances", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  } 
+
+  /* Test user-supplied tolerances */
+    
+  if (reltolS < ZERO) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensSStolerances", MSGCV_BAD_RELTOLS);
+    return(CV_ILL_INPUT);
+  }
+
+  if (abstolS == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensSStolerances", MSGCV_NULL_ABSTOLS);
+    return(CV_ILL_INPUT);
+  }
+
+  for (is=0; is<Ns; is++)
+    if (abstolS[is] < ZERO) {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensSStolerances", MSGCV_BAD_ABSTOLS);
+      return(CV_ILL_INPUT);
+    }
+
+  /* Copy tolerances into memory */
+
+  cv_mem->cv_itolS = CV_SS;
+
+  cv_mem->cv_reltolS = reltolS;
+
+  if ( !(cv_mem->cv_SabstolSMallocDone) ) {
+    cv_mem->cv_SabstolS = NULL;
+    cv_mem->cv_SabstolS = (realtype *)malloc(Ns*sizeof(realtype));
+    lrw += Ns;
+    cv_mem->cv_SabstolSMallocDone = TRUE;
+  }
+
+  for (is=0; is<Ns; is++)
+    cv_mem->cv_SabstolS[is] = abstolS[is];
+
+  return(CV_SUCCESS);
+}
+
+int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS)
+{
+  CVodeMem cv_mem;
+  int is;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensSVtolerances", MSGCV_NO_MEM);    
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was sensitivity initialized? */
+
+  if (cv_mem->cv_SensMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeSensSVtolerances", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  } 
+
+  Ns = cv_mem->cv_Ns;
+
+  /* Test user-supplied tolerances */
+    
+  if (reltolS < ZERO) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensSVtolerances", MSGCV_BAD_RELTOLS);
+    return(CV_ILL_INPUT);
+  }
+
+  if (abstolS == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSensSVtolerances", MSGCV_NULL_ABSTOLS);
+    return(CV_ILL_INPUT);
+  }
+
+  for (is=0; is<Ns; is++) 
+    if (N_VMin(abstolS[is]) < ZERO) {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetSensTolerances", MSGCV_BAD_ABSTOLS);
+      return(CV_ILL_INPUT);
+    }
+
+  /* Copy tolerances into memory */
+
+  cv_mem->cv_itolS = CV_SV;
+
+  cv_mem->cv_reltolS = reltolS;
+
+  if ( !(cv_mem->cv_VabstolSMallocDone) ) {
+    cv_mem->cv_VabstolS = N_VCloneVectorArray(Ns, cv_mem->cv_tempv);
+    lrw += Ns*lrw1;
+    liw += Ns*liw1;
+    cv_mem->cv_VabstolSMallocDone = TRUE;
+  }
+  
+  for (is=0; is<Ns; is++)    
+    N_VScale(ONE, abstolS[is], cv_mem->cv_VabstolS[is]);
+
+  return(CV_SUCCESS);
+}
+
+
+int CVodeSensEEtolerances(void *cvode_mem)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensEEtolerances", MSGCV_NO_MEM);    
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was sensitivity initialized? */
+
+  if (cv_mem->cv_SensMallocDone == FALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeSensEEtolerances", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  } 
+
+  cv_mem->cv_itolS = CV_EE;
+
+  return(CV_SUCCESS);
+}
+
+
+/*-----------------------------------------------------------------*/
+
+/*
+ * CVodeQuadSensInit
  *
  */
 
-int CVodeQuadSensMalloc(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
+int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
 {
   CVodeMem    cv_mem;
   booleantype allocOK;
@@ -1483,27 +1786,27 @@ int CVodeQuadSensMalloc(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadSensMalloc", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadSensInit", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Check if sensitivity analysis is active */
   if (!cv_mem->cv_sensi) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensMalloc", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensInit", MSGCV_NO_SENSI);
     return(CV_ILL_INPUT);
   }
 
   /* Check if yQS0 is non-null */
   if (yQS0 == NULL) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensMalloc", MSGCV_NULL_YQS0);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensInit", MSGCV_NULL_YQS0);
     return(CV_ILL_INPUT);
   }
 
   /* Allocate the vectors (using yQS0[0] as a template) */
   allocOK = cvQuadSensAllocVectors(cv_mem, yQS0[0]);
   if (!allocOK) {
-    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeQuadSensMalloc", MSGCV_MEM_FAIL);
+    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeQuadSensInit", MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
@@ -1557,14 +1860,14 @@ int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0)
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadSensMalloc", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeQuadSensReInit", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Check if sensitivity analysis is active */
   if (!cv_mem->cv_sensi) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensMalloc", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensReInit", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
@@ -1576,7 +1879,7 @@ int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0)
 
   /* Check if yQS0 is non-null */
   if (yQS0 == NULL) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensMalloc", MSGCV_NULL_YQS0);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSensReInit", MSGCV_NULL_YQS0);
     return(CV_ILL_INPUT);
   }
 
@@ -2983,7 +3286,7 @@ int CVodeGetQuadSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dk
  * Such memory includes all the vectors allocated by cvAllocVectors,
  * and the memory lmem for the linear solver (deallocated by a call
  * to lfree), as well as (if Ns!=0) all memory allocated for 
- * sensitivity computations by CVodeSensMalloc.
+ * sensitivity computations by CVodeSensInit.
  */
 
 void CVodeFree(void **cvode_mem)
@@ -3954,10 +4257,8 @@ static int cvInitialSetup(CVodeMem cv_mem)
   /* Did the user specify tolerances? */
 
   if (itol == CV_NN) {
-
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVInitialSetup", MSGCV_NO_TOLS);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_NO_TOL);
     return(CV_ILL_INPUT);
-
   }
 
   ier = efun(zn[0], ewt, e_data);
@@ -3989,6 +4290,12 @@ static int cvInitialSetup(CVodeMem cv_mem)
   /* Forward sensitivity initial setup */
 
   if (sensi) {
+
+    /* Did the user specify tolerances? */
+    if (itolS == CV_NN) {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_NO_TOLS);
+      return(CV_ILL_INPUT);
+    }
 
     /* If using the internal DQ functions, we must have access to the problem parameters */
     if(fSDQ && (p == NULL)) {
@@ -6535,7 +6842,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
   }
 
-  if (sensi) {
+  if (quadr_sensi) {
 
     wrk1 = ftemp;
     wrk2 = ftempQ;
@@ -7858,12 +8165,12 @@ int cvSensRhsWrapper(CVodeMem cv_mem, realtype time,
 
   if (ifS==CV_ALLSENS) {
     retval = fS(Ns, time, ycur, fcur, yScur, fScur, 
-                f_data, temp1, temp2);
+                fS_data, temp1, temp2);
     nfSe++;
   } else {
     for (is=0; is<Ns; is++) {
       retval = fS1(Ns, time, ycur, fcur, is, yScur[is], fScur[is], 
-                   f_data, temp1, temp2);
+                   fS_data, temp1, temp2);
       nfSe++;
       if (retval != 0) break;
     }
@@ -7879,7 +8186,7 @@ int cvSensRhsWrapper(CVodeMem cv_mem, realtype time,
  * side of the is-th sensitivity equation. 
  *
  * cvSensRhs1Wrapper is called only during the CV_STAGGERED1 corrector loop
- * (ifS must be CV_ONESENS, otherwise CVodeSensMalloc would have 
+ * (ifS must be CV_ONESENS, otherwise CVodeSensInit would have 
  * issued an error message).
  *
  * The return value is that of the sensitivity RHS function fS1,
@@ -7893,7 +8200,7 @@ int cvSensRhs1Wrapper(CVodeMem cv_mem, realtype time,
   int retval;
 
   retval = fS1(Ns, time, ycur, fcur, is, yScur, fScur, 
-               f_data, temp1, temp2);
+               fS_data, temp1, temp2);
   nfSe++;
 
   return(retval);
@@ -7904,7 +8211,6 @@ int cvSensRhs1Wrapper(CVodeMem cv_mem, realtype time,
  * Internal DQ approximations for sensitivity RHS
  * -----------------------------------------------------------------
  */
-
 
 /* Undefine Readibility Constants */
 

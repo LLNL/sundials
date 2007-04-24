@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-24 20:26:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -207,8 +207,8 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate combined forward/backward memory */
-  flag = CVodeAdjMalloc(cvode_mem, STEPS, CV_HERMITE);
-  if (check_flag(&flag, "CVadjMalloc", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
+  if (check_flag(&flag, "CVadjInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to TOUT and collect check point information */
   flag = CVodeF(cvode_mem, TOUT, u, &t, CV_NORMAL, &ncheck);

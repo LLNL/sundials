@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-24 20:26:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -125,7 +125,7 @@
 #define NGRP  (NGX*NGY)
 #define ITMAX 5
 
-/* CVodeMalloc Constants */
+/* CVodeInit Constants */
 
 #define NEQ   (NS*MX*MY)
 #define T0    RCONST(0.0)
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
   if(check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
   CInit(c, wdata);
 
-  /* Call CVodeCreate/CVodeMalloc for forward run */
+  /* Call CVodeCreate/CVodeInit for forward run */
   printf("\nCreate and allocate CVODE memory for forward run\n");
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -277,8 +277,8 @@ int main(int argc, char *argv[])
   /* Set-up adjoint calculations */
 
   printf("\nAllocate global memory\n");
-  flag = CVodeAdjMalloc(cvode_mem, NSTEPS, CV_HERMITE);
-  if(check_flag(&flag, "CVadjMalloc", 1)) return(1);
+  flag = CVodeAdjInit(cvode_mem, NSTEPS, CV_HERMITE);
+  if(check_flag(&flag, "CVadjInit", 1)) return(1);
 
   /* Perform forward run */
 

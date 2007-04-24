@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-24 20:26:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -172,8 +172,11 @@ int main(int argc, char *argv[])
     for(is=0;is<NS;is++)
       N_VConst(ZERO, uS[is]);
 
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, CV_ONESENS, NULL, uS);
-    if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
+    flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
+    if(check_flag(&flag, "CVodeSensInit1", 1)) return(1);
+
+    flag = CVodeSensEEtolerances(cvode_mem);
+    if(check_flag(&flag, "CVodeSensEEtolerances", 1)) return(1);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if(check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);

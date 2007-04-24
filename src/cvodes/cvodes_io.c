@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-24 20:26:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -715,114 +715,6 @@ int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist)
   else
     for (is=0; is<Ns; is++)
       cv_mem->cv_plist[is] = is;
-
-  return(CV_SUCCESS);
-}
-
-/*-----------------------------------------------------------------*/
-
-int CVodeSetSensTolerances(void *cvode_mem, int itolS,
-                           realtype reltolS, void *abstolS)
-{
-  CVodeMem cv_mem;
-  booleantype neg_abstol;
-  realtype *atolS_S;
-  N_Vector *atolS_V;
-  int is, Ns;
-
-  atolS_S = NULL;
-  atolS_V = NULL;
-
-  if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetSensTolerances", MSGCV_NO_MEM);    
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  /* Was sensitivity initialized? */
-
-  if (cv_mem->cv_SensMallocDone == FALSE) {
-    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeSetSensTolerances", MSGCV_NO_SENSI);
-    return(CV_NO_SENS);
-  } 
-
-  /* If switching to estimated tolerances, return now */
-
-  if (itolS == CV_EE) {
-    cv_mem->cv_itolS = CV_EE;
-    return(CV_SUCCESS);
-  }
-
-  /* Check inputs */
-
-  Ns = cv_mem->cv_Ns;
-
-  if ((itolS != CV_SS) && (itolS != CV_SV)) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetSensTolerances", MSGCV_BAD_ITOLS);
-    return(CV_ILL_INPUT);
-  }
-
-  /* Test user-supplied tolerances */
-    
-  if (reltolS < ZERO) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetSensTolerances", MSGCV_BAD_RELTOLS);
-    return(CV_ILL_INPUT);
-  }
-
-  if (abstolS == NULL) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetSensTolerances", MSGCV_NULL_ABSTOLS);
-    return(CV_ILL_INPUT);
-  }
-
-  neg_abstol = FALSE;
-
-  if (itolS == CV_SS) {
-    atolS_S = (realtype *) abstolS;
-    for (is=0; is<Ns; is++)
-      if (atolS_S[is] < ZERO) {neg_abstol = TRUE; break;}
-  } else {
-    atolS_V = (N_Vector *) abstolS;
-    for (is=0; is<Ns; is++) 
-      if (N_VMin(atolS_V[is]) < ZERO) {neg_abstol = TRUE; break;}
-  }
-
-  if (neg_abstol) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetSensTolerances", MSGCV_BAD_ABSTOLS);
-    return(CV_ILL_INPUT);
-  }
-    
-  /* Copy tolerances into memory */
-
-  cv_mem->cv_itolS   = itolS;
-
-  cv_mem->cv_reltolS = reltolS;
-
-  if (itolS == CV_SS) {
-
-    if ( !(cv_mem->cv_SabstolSMallocDone) ) {
-      cv_mem->cv_SabstolS = NULL;
-      cv_mem->cv_SabstolS = (realtype *)malloc(Ns*sizeof(realtype));
-      lrw += Ns;
-      cv_mem->cv_SabstolSMallocDone = TRUE;
-    }
-
-    for (is=0; is<Ns; is++)
-      cv_mem->cv_SabstolS[is] = atolS_S[is];
-
-  } else {
-
-    if ( !(cv_mem->cv_VabstolSMallocDone) ) {
-      cv_mem->cv_VabstolS = N_VCloneVectorArray(Ns, cv_mem->cv_tempv);
-      lrw += Ns*lrw1;
-      liw += Ns*liw1;
-      cv_mem->cv_VabstolSMallocDone = TRUE;
-    }
-
-    for (is=0; is<Ns; is++)    
-      N_VScale(ONE, atolS_V[is], cv_mem->cv_VabstolS[is]);
-
-  }
 
   return(CV_SUCCESS);
 }

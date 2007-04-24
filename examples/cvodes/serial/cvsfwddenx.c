@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-24 20:26:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -191,11 +191,15 @@ int main(int argc, char *argv[])
     if (check_flag((void *)yS, "N_VCloneVectorArray_Serial", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
 
-    flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, CV_ONESENS, fS, yS);
-    if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
+    flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, fS, yS);
+    if(check_flag(&flag, "CVodeSensInit", 1)) return(1);
+
+    flag = CVodeSensEEtolerances(cvode_mem);
+    if(check_flag(&flag, "CVodeSensEEtolerances", 1)) return(1);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if (check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
+
     flag = CVodeSetSensParams(cvode_mem, NULL, pbar, NULL);
     if (check_flag(&flag, "CVodeSetSensParams", 1)) return(1);
 

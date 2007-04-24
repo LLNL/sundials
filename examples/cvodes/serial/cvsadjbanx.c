@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-24 20:26:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -188,8 +188,8 @@ int main(int argc, char *argv[])
 
   printf("\nAllocate global memory\n");
 
-  flag = CVodeAdjMalloc(cvode_mem, NSTEP, CV_HERMITE);
-  if(check_flag(&flag, "CVodeAdjMalloc", 1)) return(1);
+  flag = CVodeAdjInit(cvode_mem, NSTEP, CV_HERMITE);
+  if(check_flag(&flag, "CVodeAdjInit", 1)) return(1);
 
   /* Perform forward run */
   printf("\nForward integration\n");

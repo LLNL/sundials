@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-24 20:26:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -289,11 +289,11 @@ int main(int argc, char *argv[])
   /* Initialize quadrature calculations */
   abstolQ = ATOL_Q;
   reltolQ = RTOL_Q;
-  flag = CVodeQuadMalloc(cvode_mem, fQ, q);
+  flag = CVodeQuadInit(cvode_mem, fQ, q);
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ); 
 
   /* Allocate space for the adjoint calculation */
-  flag = CVodeAdjMalloc(cvode_mem, STEPS, CV_HERMITE);
+  flag = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
 
   /* Integrate forward in time while storing check points */
   if (myId == 0) printf("Begin forward integration... ");
@@ -345,7 +345,7 @@ int main(int argc, char *argv[])
   /* Initialize quadrature calculations */
   abstolQB = ATOL_QB;
   reltolQB = RTOL_QB;
-  flag = CVodeQuadMallocB(cvode_mem, indexB, fQB, qB);
+  flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
   flag = CVodeSetQuadErrConB(cvode_mem, indexB, TRUE, CV_SS, reltolQB, &abstolQB); 
 
   /* Integrate backwards */
