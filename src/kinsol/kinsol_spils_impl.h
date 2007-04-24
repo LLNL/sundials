@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-24 16:15:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -82,6 +82,8 @@ typedef struct {
 			 was computed or number of calls made to jtimes
 			 routine                                               */
 
+  booleantype s_jtimesDQ; /* TRUE is using internal DQ approximation           */
+
   /* functions */
 
   KINSpilsPrecSetupFn s_pset;     /* routine called to compute preconditioner
@@ -123,7 +125,7 @@ int KINSpilsPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lr);
 
 int KINSpilsDQJtimes(N_Vector v, N_Vector Jv,
                      N_Vector u, booleantype *new_u, 
-                     void *jac_data);
+                     void *data);
 
 /*
  * -----------------------------------------------------------------

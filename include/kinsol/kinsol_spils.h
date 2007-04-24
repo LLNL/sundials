@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-24 16:15:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -172,8 +172,8 @@ typedef int (*KINSpilsPrecSolveFn)(N_Vector uu, N_Vector uscale,
  *          to be updated/reevaluated, if appropriate, unless
  *          new_uu = FALSE [input/output]
  *
- *  J_data  pointer to user-allocated memory block where J(uu) data
- *          is to be stored [input]
+ *  f_data  pointer to user data, the same as the f_data
+ *          parameter passed to the KINSetFdata function.
  *
  * If successful, the function should return 0 (zero). If an error
  * occurs, then the routine should return a non-zero integer value.
@@ -218,16 +218,11 @@ typedef int (*KINSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv,
  *                           |       and psolve routines
  *                           |       [NULL]
  *                           |
- * KINSpilsSetJacTimesVecFn  | used to set the following:
- *                           |   (a) name of user-supplied subroutine
- *                           |       used to compute the matrix-vector
- *                           |       product J(u)*v, where J denotes
- *                           |       the system Jacobian (jtimes)
- *                           |       [KINSpilsDQJtimes] (see kinsol_spils.c)
- *                           |   (b) pointer to a user-allocated memory
- *                           |       block that is passed to the jtimes
- *                           |       routine
- *                           |       [NULL]
+ * KINSpilsSetJacTimesVecFn  | used to set the following the name
+ *                           | of user-supplied subroutine used to 
+ *                           | compute the matrix-vector product J(u)*v,
+ *                           | where J denotes the system Jacobian.
+ *                           | [KINSpilsDQJtimes]
  * -----------------------------------------------------------------
  */
 
@@ -236,9 +231,7 @@ SUNDIALS_EXPORT int KINSpilsSetPreconditioner(void *kinmem,
 					      KINSpilsPrecSetupFn pset,
 					      KINSpilsPrecSolveFn psolve,
 					      void *P_data);
-SUNDIALS_EXPORT int KINSpilsSetJacTimesVecFn(void *kinmem,
-					     KINSpilsJacTimesVecFn jtimes,
-					     void *J_data);
+SUNDIALS_EXPORT int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv);
 
 /*
  * -----------------------------------------------------------------

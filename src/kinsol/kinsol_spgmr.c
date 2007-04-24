@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-24 16:15:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -54,7 +54,6 @@ static void KINSpgmrFree(KINMem kin_mem);
  * -----------------------------------------------------------------
  */
 
-#define uround         (kin_mem->kin_uround)
 #define nni            (kin_mem->kin_nni)
 #define nnilset        (kin_mem->kin_nnilset)
 #define func           (kin_mem->kin_func)
@@ -92,6 +91,11 @@ static void KINSpgmrFree(KINMem kin_mem);
 #define nfes      (kinspils_mem->s_nfes)
 #define new_uu    (kinspils_mem->s_new_uu)
 #define spils_mem (kinspils_mem->s_spils_mem)
+
+#define jtimesDQ  (kinspils_mem->s_jtimesDQ)
+#define jtimes    (kinspils_mem->s_jtimes)
+#define J_data    (kinspils_mem->s_J_data)
+
 #define last_flag (kinspils_mem->s_last_flag)
 
 /*
@@ -173,6 +177,12 @@ int KINSpgmr(void *kinmem, int maxl)
   maxl1 = (maxl <= 0) ? KINSPILS_MAXL : maxl;
   kinspils_mem->s_maxl = maxl1;  
 
+  /* Set defaults for Jacobian-related fileds */
+
+  jtimesDQ = TRUE;
+  jtimes   = NULL;
+  J_data   = NULL;
+
   /* set default values for the rest of the SPGMR parameters */
 
   kinspils_mem->s_pretype   = PREC_NONE;
@@ -182,8 +192,6 @@ int KINSpgmr(void *kinmem, int maxl)
   kinspils_mem->s_pset      = NULL;
   kinspils_mem->s_psolve    = NULL;
   kinspils_mem->s_P_data    = NULL;
-  kinspils_mem->s_jtimes    = NULL;
-  kinspils_mem->s_J_data    = NULL;
 
   /* call SpgmrMalloc to allocate workspace for SPGMR */
 
@@ -220,8 +228,6 @@ int KINSpgmr(void *kinmem, int maxl)
 #define pset    (kinspils_mem->s_pset)
 #define psolve  (kinspils_mem->s_psolve)
 #define P_data  (kinspils_mem->s_P_data)
-#define jtimes  (kinspils_mem->s_jtimes)
-#define J_data  (kinspils_mem->s_J_data)
 
 /*
  * -----------------------------------------------------------------
@@ -256,11 +262,13 @@ static int KINSpgmrInit(KINMem kin_mem)
 
   setupNonNull = (psolve != NULL) && (pset != NULL);
 
-  /* if jtimes is NULL at this time, set it to private DQ routine */
+  /* Set Jacobian-related fields, based on jtimesDQ */
 
-  if (jtimes == NULL) {
+  if (jtimesDQ) {
     jtimes = KINSpilsDQJtimes;
     J_data = kin_mem;
+  } else {
+    J_data = f_data;
   }
 
   last_flag = KINSPILS_SUCCESS;

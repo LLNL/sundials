@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -57,7 +57,6 @@ static void CVSpgmrFreeB(CVodeBMem cvB_mem);
 
 /* Readability Replacements */
 
-#define uround  (cv_mem->cv_uround)
 #define tq      (cv_mem->cv_tq)
 #define nst     (cv_mem->cv_nst)
 #define tn      (cv_mem->cv_tn)
@@ -90,8 +89,13 @@ static void CVSpgmrFreeB(CVodeBMem cvB_mem);
 #define ncfl    (cvspils_mem->s_ncfl)
 #define nstlpre (cvspils_mem->s_nstlpre)
 #define njtimes (cvspils_mem->s_njtimes)
-#define nfes   (cvspils_mem->s_nfes)
+#define nfes    (cvspils_mem->s_nfes)
 #define spils_mem (cvspils_mem->s_spils_mem)
+
+#define jtimesDQ (cvspils_mem->s_jtimesDQ)
+#define jtimes  (cvspils_mem->s_jtimes)
+#define j_data  (cvspils_mem->s_j_data)
+
 #define last_flag (cvspils_mem->s_last_flag)
 
 /*
@@ -167,16 +171,19 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   cvspils_mem->s_pretype    = pretype;
   mxl = cvspils_mem->s_maxl = (maxl <= 0) ? CVSPILS_MAXL : maxl;
 
+  /* Set defaults for Jacobian-related fileds */
+  jtimesDQ = TRUE;
+  jtimes   = NULL;
+  j_data   = NULL;
+
   /* Set default values for the rest of the Spgmr parameters */
   cvspils_mem->s_gstype     = MODIFIED_GS;
   cvspils_mem->s_delt       = CVSPILS_DELT;
   cvspils_mem->s_P_data     = NULL;
   cvspils_mem->s_pset       = NULL;
   cvspils_mem->s_psolve     = NULL;
-  cvspils_mem->s_jtimes     = CVSpilsDQJtimes;
-  cvspils_mem->s_j_data     = cvode_mem;
+  
   cvspils_mem->s_last_flag  = CVSPILS_SUCCESS;
-
 
   setupNonNull = FALSE;
 
@@ -236,8 +243,6 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
 #define psolve  (cvspils_mem->s_psolve)
 #define pset    (cvspils_mem->s_pset)
 #define P_data  (cvspils_mem->s_P_data)
-#define jtimes  (cvspils_mem->s_jtimes)
-#define j_data  (cvspils_mem->s_j_data)
 
 /*
  * -----------------------------------------------------------------
@@ -268,10 +273,12 @@ static int CVSpgmrInit(CVodeMem cv_mem)
      and there is a preconditioning setup phase (pset != NULL)             */
   setupNonNull = (pretype != PREC_NONE) && (pset != NULL);
 
-  /* If jtimes is NULL at this time, set it to DQ */
-  if (jtimes == NULL) {
+  /* Set Jacobian-related fields, based on jtimesDQ */
+  if (jtimesDQ) {
     jtimes = CVSpilsDQJtimes;
     j_data = cv_mem;
+  } else {
+    j_data = f_data;
   }
 
   last_flag = CVSPILS_SUCCESS;
@@ -485,7 +492,6 @@ static void CVSpgmrFree(CVodeMem cv_mem)
 #define psolve_B    (cvspilsB_mem->s_psolveB)
 #define jtimes_B    (cvspilsB_mem->s_jtimesB)
 #define P_data_B    (cvspilsB_mem->s_P_dataB)
-#define jac_data_B  (cvspilsB_mem->s_jac_dataB)
 
 /*
  * CVSpgmrB
@@ -542,9 +548,10 @@ int CVSpgmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
 
   pset_B = NULL;
   psolve_B = NULL;
-  jtimes_B = NULL;
   P_data_B = NULL;
-  jac_data_B = NULL;
+
+  /* initialize Jacobian function */
+  jtimes_B = NULL;
 
   /* attach lmemB and lfreeB */
   cvB_mem->cv_lmem = cvspilsB_mem;

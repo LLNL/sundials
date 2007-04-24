@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-22 18:05:50 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-24 16:15:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -255,9 +255,8 @@ typedef int (*CVSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
  *
  *   fy       is the vector f(t,y).
  *
- *   jac_data is a pointer to user Jacobian data, the same as the
- *            jac_data parameter passed to the CV*SetJacTimesVecFn 
- *            function.
+ *   f_data   is a pointer to user data, the same as the f_data
+ *            parameter passed to the CVodeSetFdata function. 
  *
  *   tmp      is a pointer to memory allocated for an N_Vector
  *            which can be used by Jtimes for work space.
@@ -266,7 +265,7 @@ typedef int (*CVSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
 
 typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
 				    N_Vector y, N_Vector fy,
-				    void *jac_data, N_Vector tmp);
+				    void *f_data, N_Vector tmp);
 
 
 /*
@@ -302,11 +301,8 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  *                every time these routines are called.
  *                Default is NULL for al three arguments.
  *
- * CVSpilsSetJacTimesVecFn specifies the jtimes function and a pointer to
- *                user Jacobian data. This pointer is passed to jtimes every 
- *                time the jtimes routine is called.
- *                Default is to use an internal finite difference
- *                approximation routine.
+ * CVSpilsSetJacTimesVecFn specifies the jtimes function. Default is to use 
+ *                an internal finite difference approximation routine.
  *
  * The return value of CVSpilsSet* is one of:
  *    CVSPILS_SUCCESS   if successful
@@ -322,8 +318,7 @@ SUNDIALS_EXPORT int CVSpilsSetMaxl(void *cvode_mem, int maxl);
 SUNDIALS_EXPORT int CVSpilsSetDelt(void *cvode_mem, realtype delt);
 SUNDIALS_EXPORT int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset, 
 					     CVSpilsPrecSolveFn psolve, void *P_data);
-SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFn(void *cvode_mem, 
-					    CVSpilsJacTimesVecFn jtimes, void *jac_data);
+SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtv);
 
 /*
  * -----------------------------------------------------------------
@@ -446,8 +441,7 @@ SUNDIALS_EXPORT int CVSpilsSetPreconditionerB(void *cvode_mem, int which,
 					      CVSpilsPrecSolveFnB psolveB, 
                                               void *P_dataB);
 SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFnB(void *cvode_mem, int which, 
-                                             CVSpilsJacTimesVecFnB jtimesB, 
-                                             void *jac_dataB);
+                                             CVSpilsJacTimesVecFnB jtvB);
 
 
 #ifdef __cplusplus

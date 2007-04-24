@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -666,18 +666,18 @@ int FIDAresfn(realtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *res_data)
 
 int FIDADenseJac(int N, realtype t, realtype c_j, 
                  N_Vector yy, N_Vector yp, N_Vector rr,
-                 DlsMat Jac, void *jac_data,
+                 DlsMat Jac, void *res_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDABandJac(int N, int mupper, int mlower,
                 realtype t, realtype c_j, 
                 N_Vector yy, N_Vector yp, N_Vector rr,
-                DlsMat Jac, void *jac_data,
+                DlsMat Jac, void *res_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
                N_Vector v, N_Vector Jv,
-               realtype c_j, void *jac_data,
+               realtype c_j, void *res_data,
                N_Vector vtemp1, N_Vector vtemp2);
 
 int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -58,6 +58,10 @@
 #define ncfl      (idaspils_mem->s_ncfl)
 #define njtimes   (idaspils_mem->s_njtimes)
 #define nres      (idaspils_mem->s_nres)
+
+#define jtimesDQ  (idaspils_mem->s_jtimesDQ)
+#define jtimes    (idaspils_mem->s_jtimes)
+#define jdata     (idaspils_mem->s_jdata)
 
 #define last_flag (idaspils_mem->s_last_flag)
 
@@ -250,8 +254,7 @@ int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtimes,
-			     void *jac_data)
+int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtv)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -269,8 +272,12 @@ int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtimes,
   }
   idaspils_mem = (IDASpilsMem) lmem;
 
-  idaspils_mem->s_jtimes = jtimes;
-  if (jtimes != NULL) idaspils_mem->s_jdata = jac_data;
+  if (jtv != NULL) {
+    jtimesDQ = FALSE;
+    jtimes = jtv;
+  } else {
+    jtimesDQ = TRUE;
+  }
 
   return(IDASPILS_SUCCESS);
 }
@@ -511,8 +518,6 @@ char *IDASpilsGetReturnFlagName(int flag)
 
 #define psolve   (idaspils_mem->s_psolve)
 #define pdata    (idaspils_mem->s_pdata)
-#define jtimes   (idaspils_mem->s_jtimes)
-#define jdata    (idaspils_mem->s_jdata)
 #define dqincfac (idaspils_mem->s_dqincfac)
 
 /*
@@ -575,7 +580,7 @@ int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr)
 int IDASpilsDQJtimes(realtype tt,
                      N_Vector yy, N_Vector yp, N_Vector rr,
                      N_Vector v, N_Vector Jv, 
-                     realtype c_j, void *jac_data, 
+                     realtype c_j, void *data, 
                      N_Vector work1, N_Vector work2)
 {
   IDAMem IDA_mem;
@@ -584,8 +589,8 @@ int IDASpilsDQJtimes(realtype tt,
   realtype sig, siginv;
   int iter, retval;
 
-  /* jac_data is ida_mem */
-  IDA_mem = (IDAMem) jac_data;
+  /* data is ida_mem */
+  IDA_mem = (IDAMem) data;
   idaspils_mem = (IDASpilsMem) lmem;
 
   switch(ils_type) {

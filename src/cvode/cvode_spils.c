@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -57,6 +57,10 @@
 #define ncfl    (cvspils_mem->s_ncfl)
 #define njtimes (cvspils_mem->s_njtimes)
 #define nfes    (cvspils_mem->s_nfes)
+
+#define jtimesDQ (cvspils_mem->s_jtimesDQ)
+#define jtimes   (cvspils_mem->s_jtimes)
+#define j_data   (cvspils_mem->s_j_data)
 
 #define last_flag (cvspils_mem->s_last_flag)
 
@@ -253,7 +257,7 @@ int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset,
  * -----------------------------------------------------------------
  */
 
-int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtimes, void *jac_data)
+int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtv)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -271,8 +275,12 @@ int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtimes, void *
   }
   cvspils_mem = (CVSpilsMem) lmem;
 
-  cvspils_mem->s_jtimes = jtimes;
-  if (jtimes != NULL) cvspils_mem->s_j_data = jac_data;
+  if (jtv != NULL) {
+    jtimesDQ = FALSE;
+    jtimes = jtv;
+  } else {
+    jtimesDQ = TRUE;
+  }
 
   return(CVSPILS_SUCCESS);
 }
@@ -575,8 +583,6 @@ char *CVSpilsGetReturnFlagName(int flag)
 #define maxl    (cvspils_mem->s_maxl)
 #define psolve  (cvspils_mem->s_psolve)
 #define P_data  (cvspils_mem->s_P_data)
-#define jtimes  (cvspils_mem->s_jtimes)
-#define j_data  (cvspils_mem->s_j_data)
 
 /*
  * -----------------------------------------------------------------
@@ -650,15 +656,15 @@ int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr)
 
 int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t, 
                     N_Vector y, N_Vector fy,
-                    void *jac_data, N_Vector work)
+                    void *data, N_Vector work)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   realtype sig, siginv;
   int iter, retval;
 
-  /* jac_data is cvode_mem */
-  cv_mem = (CVodeMem) jac_data;
+  /* data is cvode_mem */
+  cv_mem = (CVodeMem) data;
   cvspils_mem = (CVSpilsMem) lmem;
 
   /* Initialize perturbation to 1/||v|| */

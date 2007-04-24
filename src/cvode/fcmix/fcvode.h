@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -731,7 +731,7 @@ extern "C" {
   
   int FCVJtimes(N_Vector v, N_Vector Jv, realtype t, 
                 N_Vector y, N_Vector fy,
-                void *jac_data, N_Vector work);
+                void *f_data, N_Vector work);
   
   int FCVEwtSet(N_Vector y, N_Vector ewt, void *f_data);
 

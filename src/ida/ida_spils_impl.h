@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -84,6 +84,8 @@ typedef struct {
 
   void *s_spils_mem;              /* memory used by the generic solver */
 
+  booleantype s_jtimesDQ;         /* TRUE is using internal DQ approx. */
+
   IDASpilsJacTimesVecFn s_jtimes; /* Jacobian*vector routine           */ 
 
   void *s_jdata;                  /* data passed to Jtimes             */
@@ -110,7 +112,7 @@ int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr);
 int IDASpilsDQJtimes(realtype tt,
                      N_Vector yy, N_Vector yp, N_Vector rr,
                      N_Vector v, N_Vector Jv, 
-                     realtype c_j, void *jac_data, 
+                     realtype c_j, void *data, 
                      N_Vector work1, N_Vector work2);
 
 

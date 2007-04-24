@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-24 16:15:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -558,7 +558,7 @@ int FKINPSol(N_Vector uu, N_Vector uscale,
 
 int FKINJtimes(N_Vector v, N_Vector Jv,
                N_Vector uu, booleantype *new_uu, 
-               void *J_data);
+               void *f_data);
 
 /*
  * -----------------------------------------------------------------

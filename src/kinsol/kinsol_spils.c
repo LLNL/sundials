@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-24 16:15:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -68,6 +68,11 @@
 #define njtimes        (kinspils_mem->s_njtimes)
 #define nfes           (kinspils_mem->s_nfes)
 #define new_uu         (kinspils_mem->s_new_uu)
+
+#define jtimesDQ       (kinspils_mem->s_jtimesDQ)
+#define jtimes         (kinspils_mem->s_jtimes)
+#define J_data         (kinspils_mem->s_J_data)
+
 #define last_flag      (kinspils_mem->s_last_flag)
 
 
@@ -148,9 +153,8 @@ int KINSpilsSetPreconditioner(void *kinmem,
  * -----------------------------------------------------------------
  */
 
-int KINSpilsSetJacTimesVecFn(void *kinmem,
-			     KINSpilsJacTimesVecFn jtimes,
-			     void *J_data)
+int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv)
+
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -169,8 +173,12 @@ int KINSpilsSetJacTimesVecFn(void *kinmem,
   }
   kinspils_mem = (KINSpilsMem) lmem;
 
-  kinspils_mem->s_jtimes = jtimes;
-  kinspils_mem->s_J_data = J_data;
+  if (jtv != NULL) {
+    jtimesDQ = FALSE;
+    jtimes = jtv;
+  } else {
+    jtimesDQ = TRUE;
+  }
 
   return(KINSPILS_SUCCESS);
 }
@@ -472,8 +480,6 @@ char *KINSpilsGetReturnFlagName(int flag)
 #define pset    (kinspils_mem->s_pset)
 #define psolve  (kinspils_mem->s_psolve)
 #define P_data  (kinspils_mem->s_P_data)
-#define jtimes  (kinspils_mem->s_jtimes)
-#define J_data  (kinspils_mem->s_J_data)
 
 /*
  * -----------------------------------------------------------------
@@ -559,16 +565,16 @@ int KINSpilsPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lrdummy)
 
 int KINSpilsDQJtimes(N_Vector v, N_Vector Jv,
                      N_Vector u, booleantype *new_u, 
-                     void *jac_data)
+                     void *data)
 {
   realtype sigma, sigma_inv, sutsv, sq1norm, sign, vtv;
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
   int retval;
 
-  /* jac_data is kin_mem */
+  /* data is kin_mem */
 
-  kin_mem = (KINMem) jac_data;
+  kin_mem = (KINMem) data;
   kinspils_mem = (KINSpilsMem) lmem;
 
   /* scale the vector v and put Du*v into vtemp1 */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-22 18:05:52 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -76,21 +76,15 @@ typedef struct {
   N_Vector s_ycur;      /* CVODE current y vector in Newton Iteration   */
   N_Vector s_fcur;      /* fcur = f(tn, ycur)                           */
 
-  CVSpilsPrecSetupFn s_pset; 
-  /* pset = user-supplied routine to compute      */
-  /* a preconditioner                             */
-
-  CVSpilsPrecSolveFn s_psolve;   
-  /* psolve = user-supplied routine to solve      */
-  /* preconditioner linear system                 */
-
-  void *s_P_data;       /* P_data passed to psolve and pset             */
-
   void* s_spils_mem;    /* memory used by the generic solver            */
 
-  CVSpilsJacTimesVecFn s_jtimes;  
-  /* jtimes = Jacobian * vector routine           */
-  void *s_j_data;       /* j_data is passed to jtimes                   */
+  CVSpilsPrecSetupFn s_pset;   /* routine to compute the preconditioner */
+  CVSpilsPrecSolveFn s_psolve; /* routine to solve precond. lin. syst.  */
+  void *s_P_data;              /* data passed to psolve and pset        */
+
+  booleantype s_jtimesDQ;        /* TRUE is using internal DQ approx.   */
+  CVSpilsJacTimesVecFn s_jtimes; /* jtimes = Jacobian * vector routine  */
+  void *s_j_data;                /* data passed to jtimes               */
 
   int s_last_flag;      /* last error flag returned by any function     */
 
@@ -111,10 +105,8 @@ int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z, int lr);
 /* Difference quotient approximation for Jac times vector */
 
 int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
-		    N_Vector y, N_Vector fy, void *jac_data,
+		    N_Vector y, N_Vector fy, void *data,
 		    N_Vector work);
-
-
 /*
  * =================================================================
  * PART II:  B A C K W A R D    P R O B L E M S
@@ -136,7 +128,6 @@ typedef struct {
   CVSpilsPrecSetupFnB s_psetB;
   CVSpilsPrecSolveFnB s_psolveB;
   void *s_P_dataB;
-  void *s_jac_dataB;
 
 } CVSpilsMemRecB, *CVSpilsMemB;
 

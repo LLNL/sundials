@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-24 16:15:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -133,6 +133,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
+static int jtv(N_Vector v, N_Vector Jv, realtype t,
+               N_Vector y, N_Vector fy,
+               void *f_data, N_Vector tmp);
+
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
                    void *P_data, N_Vector vtemp1, N_Vector vtemp2,
@@ -193,16 +197,19 @@ int main()
   if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
   /* Call CVSpgmr to specify the linear solver CVSPGMR 
-     with left preconditioning and the maximum Krylov dimension maxl */
+   * with left preconditioning and the maximum Krylov dimension maxl */
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
 
-  /* Set modified Gram-Schmidt orthogonalization, preconditioner 
-     setup and solve routines Precond and PSolve, and the pointer 
-     to the user-defined block data */
+  /* set the JAcobian-times-vector function */
+  flag = CVSpilsSetJacTimesVecFn(cvode_mem, jtv);
+  if(check_flag(&flag, "CVSpilsSetJacTimesVecFn", 1)) return(1);
+
+  /* Set modified Gram-Schmidt orthogonalization */
   flag = CVSpilsSetGSType(cvode_mem, MODIFIED_GS);
   if(check_flag(&flag, "CVSpilsSetGSType", 1)) return(1);
 
+  /* Set the preconditioner solve and setup functions */
   flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, data);
   if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
@@ -530,6 +537,144 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
   return(0);
 }
+
+
+/* Jacobian-times-vector routine. */
+
+static int jtv(N_Vector v, N_Vector Jv, realtype t,
+               N_Vector u, N_Vector fu,
+               void *f_data, N_Vector tmp)
+{
+  realtype c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt, c1rt, c2rt;
+  realtype v1, v2, v1dn, v2dn, v1up, v2up, v1lt, v2lt, v1rt, v2rt;
+  realtype Jv1, Jv2;
+  realtype cydn, cyup;
+  realtype s, ydn, yup;
+  realtype q4coef, dely, verdco, hordco, horaco;
+  int jx, jy, idn, iup, ileft, iright;
+  realtype *udata, *vdata, *Jvdata;
+  UserData data;
+
+  data = (UserData) f_data;
+
+  udata = NV_DATA_S(u);
+  vdata = NV_DATA_S(v);
+  Jvdata = NV_DATA_S(Jv);
+
+  /* Set diurnal rate coefficients. */
+
+  s = sin(data->om*t);
+  if (s > ZERO) {
+    data->q4 = EXP(-A4/s);
+  } else {
+    data->q4 = ZERO;
+  }
+
+  /* Make local copies of problem variables, for efficiency. */
+
+  q4coef = data->q4;
+  dely = data->dy;
+  verdco = data->vdco;
+  hordco  = data->hdco;
+  horaco  = data->haco;
+
+  /* Loop over all grid points. */
+
+  for (jy=0; jy < MY; jy++) {
+
+    /* Set vertical diffusion coefficients at jy +- 1/2 */
+
+    ydn = YMIN + (jy - RCONST(0.5))*dely;
+    yup = ydn + dely;
+
+    cydn = verdco*EXP(RCONST(0.2)*ydn);
+    cyup = verdco*EXP(RCONST(0.2)*yup);
+
+    idn = (jy == 0) ? 1 : -1;
+    iup = (jy == MY-1) ? -1 : 1;
+
+    for (jx=0; jx < MX; jx++) {
+
+      Jv1 = ZERO;
+      Jv2 = ZERO;
+
+      /* Extract c1 and c2 at the current location and at neighbors */
+
+      c1 = IJKth(udata,1,jx,jy); 
+      c2 = IJKth(udata,2,jx,jy);
+
+      v1 = IJKth(vdata,1,jx,jy); 
+      v2 = IJKth(vdata,2,jx,jy);
+
+      c1dn = IJKth(udata,1,jx,jy+idn);
+      c2dn = IJKth(udata,2,jx,jy+idn);
+      c1up = IJKth(udata,1,jx,jy+iup);
+      c2up = IJKth(udata,2,jx,jy+iup);
+
+      v1dn = IJKth(vdata,1,jx,jy+idn);
+      v2dn = IJKth(vdata,2,jx,jy+idn);
+      v1up = IJKth(vdata,1,jx,jy+iup);
+      v2up = IJKth(vdata,2,jx,jy+iup);
+
+      ileft = (jx == 0) ? 1 : -1;
+      iright =(jx == MX-1) ? -1 : 1;
+
+      c1lt = IJKth(udata,1,jx+ileft,jy); 
+      c2lt = IJKth(udata,2,jx+ileft,jy);
+      c1rt = IJKth(udata,1,jx+iright,jy);
+      c2rt = IJKth(udata,2,jx+iright,jy);
+
+      v1lt = IJKth(vdata,1,jx+ileft,jy); 
+      v2lt = IJKth(vdata,2,jx+ileft,jy);
+      v1rt = IJKth(vdata,1,jx+iright,jy);
+      v2rt = IJKth(vdata,2,jx+iright,jy);
+
+      /* Set kinetic rate terms. */
+
+      //rkin1 = -Q1*C3 * c1 - Q2 * c1*c2 + q4coef * c2  + TWO*C3*q3;
+      //rkin2 =  Q1*C3 * c1 - Q2 * c1*c2 - q4coef * c2;
+
+      Jv1 += -(Q1*C3 + Q2*c2) * v1  +  (q4coef - Q2*c1) * v2;
+      Jv2 +=  (Q1*C3 - Q2*c2) * v1  -  (q4coef + Q2*c1) * v2;
+
+      /* Set vertical diffusion terms. */
+
+      //vertd1 = -(cyup+cydn) * c1 + cyup * c1up + cydn * c1dn;
+      //vertd2 = -(cyup+cydn) * c2 + cyup * c2up + cydn * c2dn;
+
+      Jv1 += -(cyup+cydn) * v1  +  cyup * v1up  +  cydn * v1dn;
+      Jv2 += -(cyup+cydn) * v2  +  cyup * v2up  +  cydn * v2dn;
+
+      /* Set horizontal diffusion and advection terms. */
+
+      //hord1 = hordco*(c1rt - TWO*c1 + c1lt);
+      //hord2 = hordco*(c2rt - TWO*c2 + c2lt);
+
+      Jv1 += hordco*(v1rt - TWO*v1 + v1lt);
+      Jv2 += hordco*(v2rt - TWO*v2 + v2lt);
+
+      //horad1 = horaco*(c1rt - c1lt);
+      //horad2 = horaco*(c2rt - c2lt);
+
+      Jv1 += horaco*(v1rt - v1lt);
+      Jv2 += horaco*(v2rt - v2lt);
+
+      /* Load two components of J*v */
+
+      //IJKth(dudata, 1, jx, jy) = vertd1 + hord1 + horad1 + rkin1; 
+      //IJKth(dudata, 2, jx, jy) = vertd2 + hord2 + horad2 + rkin2;
+
+      IJKth(Jvdata, 1, jx, jy) = Jv1;
+      IJKth(Jvdata, 2, jx, jy) = Jv2;
+
+    }
+
+  }
+
+  return(0);
+
+}
+
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 

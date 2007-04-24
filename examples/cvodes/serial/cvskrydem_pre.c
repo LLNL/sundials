@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-24 16:15:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -476,13 +476,13 @@ static void PrintIntro(void)
   printf("Mesh dimensions (mx,my) are %d, %d.  ", MX, MY);
   printf("Total system size is neq = %d \n\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Tolerances: itol = %s,  reltol = %.2Lg, abstol = %.2Lg \n\n",
+  printf("Tolerances: reltol = %.2Lg, abstol = %.2Lg \n\n",
          RTOL, ATOL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerances: itol = %s,  reltol = %.2lg, abstol = %.2lg \n\n",
+  printf("Tolerances: reltol = %.2lg, abstol = %.2lg \n\n",
          RTOL, ATOL);
 #else
-  printf("Tolerances: itol = %s,  reltol = %.2g, abstol = %.2g \n\n",
+  printf("Tolerances: reltol = %.2g, abstol = %.2g \n\n",
          RTOL, ATOL);
 #endif
   printf("Preconditioning uses a product of:\n");

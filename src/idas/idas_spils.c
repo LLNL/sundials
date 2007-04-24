@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-11 22:34:10 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-24 16:15:37 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -91,6 +91,10 @@ static int IDAAspilsJacTimesVec(realtype tt,
 #define ncfl      (idaspils_mem->s_ncfl)
 #define njtimes   (idaspils_mem->s_njtimes)
 #define nres      (idaspils_mem->s_nres)
+
+#define jtimesDQ  (idaspils_mem->s_jtimesDQ)
+#define jtimes    (idaspils_mem->s_jtimes)
+#define jdata     (idaspils_mem->s_jdata)
 
 #define last_flag (idaspils_mem->s_last_flag)
 
@@ -283,8 +287,7 @@ int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtimes,
-			     void *jac_data)
+int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtv)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -302,8 +305,12 @@ int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtimes,
   }
   idaspils_mem = (IDASpilsMem) lmem;
 
-  idaspils_mem->s_jtimes = jtimes;
-  if (jtimes != NULL) idaspils_mem->s_jdata = jac_data;
+  if (jtv != NULL) {
+    jtimesDQ = FALSE;
+    jtimes = jtv;
+  } else {
+    jtimesDQ = TRUE;
+  }
 
   return(IDASPILS_SUCCESS);
 }
@@ -544,8 +551,6 @@ char *IDASpilsGetReturnFlagName(int flag)
 
 #define psolve   (idaspils_mem->s_psolve)
 #define pdata    (idaspils_mem->s_pdata)
-#define jtimes   (idaspils_mem->s_jtimes)
-#define jdata    (idaspils_mem->s_jdata)
 #define dqincfac (idaspils_mem->s_dqincfac)
 
 /*
@@ -608,7 +613,7 @@ int IDASpilsPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr)
 int IDASpilsDQJtimes(realtype tt,
                      N_Vector yy, N_Vector yp, N_Vector rr,
                      N_Vector v, N_Vector Jv, 
-                     realtype c_j, void *jac_data, 
+                     realtype c_j, void *data, 
                      N_Vector work1, N_Vector work2)
 {
   IDAMem IDA_mem;
@@ -617,8 +622,8 @@ int IDASpilsDQJtimes(realtype tt,
   realtype sig, siginv;
   int iter, retval;
 
-  /* jac_data is ida_mem */
-  IDA_mem = (IDAMem) jac_data;
+  /* data is ida_mem */
+  IDA_mem = (IDAMem) data;
   idaspils_mem = (IDASpilsMem) lmem;
 
   switch(ils_type) {
@@ -677,12 +682,12 @@ int IDASpilsDQJtimes(realtype tt,
 #define yptmp       (IDAADJ_mem->ia_yptmp)
 #define getY        (IDAADJ_mem->ia_getY)
 #define lmemB       (IDAADJ_mem->ia_lmemB)
+#define rdata_B     (IDAADJ_mem->ia_rdataB)
 
 #define pset_B      (idaspilsB_mem->s_psetB)
 #define psolve_B    (idaspilsB_mem->s_psolveB)
 #define jtimes_B    (idaspilsB_mem->s_jtimesB)
 #define P_data_B    (idaspilsB_mem->s_P_dataB)
-#define jac_data_B  (idaspilsB_mem->s_jac_dataB)
 
 /*
  * -----------------------------------------------------------------
@@ -816,8 +821,7 @@ int IDASpilsSetPreconditionerB(void *idaadj_mem, IDASpilsPrecSetupFnB psetB,
   return(flag);
 }
 
-int IDASpilsSetJacTimesVecFnB(void *idaadj_mem, IDASpilsJacTimesVecFnB jtimesB,
-                             void *jac_dataB)
+int IDASpilsSetJacTimesVecFnB(void *idaadj_mem, IDASpilsJacTimesVecFnB jtvB)
 {
   IDAadjMem IDAADJ_mem;
   IDASpilsMemB idaspilsB_mem; 
@@ -838,10 +842,13 @@ int IDASpilsSetJacTimesVecFnB(void *idaadj_mem, IDASpilsJacTimesVecFnB jtimesB,
   }
   idaspilsB_mem = (IDASpilsMemB) lmemB;
 
-  jtimes_B   = jtimesB;
-  jac_data_B = jac_dataB;
+  jtimes_B   = jtvB;
 
-  flag = IDASpilsSetJacTimesVecFn(IDAB_mem, IDAAspilsJacTimesVec, idaadj_mem);
+  if (jtvB != NULL) {
+    flag = IDASpilsSetJacTimesVecFn(IDAB_mem, IDAAspilsJacTimesVec);
+  } else {
+    flag = IDASpilsSetJacTimesVecFn(IDAB_mem, NULL);
+  }
 
   return(flag);
 }
@@ -941,7 +948,7 @@ static int IDAAspilsJacTimesVec(realtype tt,
                   ytmp, yptmp, 
                   yyB, ypB, rrB, 
                   vB, JvB, 
-                  c_jB, jac_data_B, 
+                  c_jB, rdata_B, 
                   tmp1B, tmp2B);
 
   return(flag);

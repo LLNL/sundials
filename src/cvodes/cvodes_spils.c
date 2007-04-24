@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -104,6 +104,10 @@ static int cvSpilsJacTimesVecBWrapper(N_Vector vB, N_Vector JvB, realtype t,
 #define ncfl    (cvspils_mem->s_ncfl)
 #define njtimes (cvspils_mem->s_njtimes)
 #define nfes    (cvspils_mem->s_nfes)
+
+#define jtimesDQ (cvspils_mem->s_jtimesDQ)
+#define jtimes   (cvspils_mem->s_jtimes)
+#define j_data   (cvspils_mem->s_j_data)
 
 #define last_flag (cvspils_mem->s_last_flag)
 
@@ -303,7 +307,7 @@ int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset,
  * -----------------------------------------------------------------
  */
 
-int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtimes, void *jac_data)
+int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtv)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -321,8 +325,12 @@ int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtimes, void *
   }
   cvspils_mem = (CVSpilsMem) lmem;
 
-  cvspils_mem->s_jtimes = jtimes;
-  if (jtimes != NULL) cvspils_mem->s_j_data = jac_data;
+  if (jtv != NULL) {
+    jtimesDQ = FALSE;
+    jtimes = jtv;
+  } else {
+    jtimesDQ = TRUE;
+  }
 
   return(CVSPILS_SUCCESS);
 }
@@ -631,8 +639,6 @@ char *CVSpilsGetReturnFlagName(int flag)
 #define maxl    (cvspils_mem->s_maxl)
 #define psolve  (cvspils_mem->s_psolve)
 #define P_data  (cvspils_mem->s_P_data)
-#define jtimes  (cvspils_mem->s_jtimes)
-#define j_data  (cvspils_mem->s_j_data)
 
 /*
  * -----------------------------------------------------------------
@@ -706,15 +712,15 @@ int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr)
 
 int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t, 
                     N_Vector y, N_Vector fy,
-                    void *jac_data, N_Vector work)
+                    void *data, N_Vector work)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   realtype sig, siginv;
   int iter, retval;
 
-  /* jac_data is cvode_mem */
-  cv_mem = (CVodeMem) jac_data;
+  /* data is cvode_mem */
+  cv_mem = (CVodeMem) data;
   cvspils_mem = (CVSpilsMem) lmem;
 
   /* Initialize perturbation to 1/||v|| */
@@ -761,7 +767,6 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define psolve_B   (cvspilsB_mem->s_psolveB)
 #define jtimes_B   (cvspilsB_mem->s_jtimesB)
 #define P_data_B   (cvspilsB_mem->s_P_dataB)
-#define jac_data_B (cvspilsB_mem->s_jac_dataB)
 
 /*
  * -----------------------------------------------------------------
@@ -993,9 +998,7 @@ int CVSpilsSetPreconditionerB(void *cvode_mem, int which,
   return(flag);
 }
 
-int CVSpilsSetJacTimesVecFnB(void *cvode_mem, int which,
-                             CVSpilsJacTimesVecFnB jtimesB, 
-                             void *jac_dataB)
+int CVSpilsSetJacTimesVecFnB(void *cvode_mem, int which, CVSpilsJacTimesVecFnB jtvB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -1039,10 +1042,13 @@ int CVSpilsSetJacTimesVecFnB(void *cvode_mem, int which,
   }
   cvspilsB_mem = (CVSpilsMemB) (cvB_mem->cv_lmem);
 
-  jtimes_B   = jtimesB;
-  jac_data_B = jac_dataB;
+  jtimes_B = jtvB;
 
-  flag = CVSpilsSetJacTimesVecFn(cvodeB_mem, cvSpilsJacTimesVecBWrapper, cvode_mem);
+  if (jtvB != NULL) {
+    flag = CVSpilsSetJacTimesVecFn(cvodeB_mem, cvSpilsJacTimesVecBWrapper);
+  } else {
+    flag = CVSpilsSetJacTimesVecFn(cvodeB_mem, NULL);
+  }
 
   return(flag);
 }
@@ -1173,7 +1179,7 @@ static int cvSpilsJacTimesVecBWrapper(N_Vector vB, N_Vector JvB, realtype t,
   } 
 
   /* Call user's adjoint jtimesB routine */
-  retval = jtimes_B(vB, JvB, t, ytmp, yB, fyB, jac_data_B, tmpB);
+  retval = jtimes_B(vB, JvB, t, ytmp, yB, fyB, cvB_mem->cv_f_data, tmpB);
 
   return(retval);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-06 20:33:27 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-24 16:15:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -101,6 +101,11 @@ static void IDASpbcgFreeB(IDAadjMem IDAADJ_mem);
 #define njtimes   (idaspils_mem->s_njtimes)
 #define nres      (idaspils_mem->s_nres)
 #define spils_mem (idaspils_mem->s_spils_mem)
+
+#define jtimesDQ  (idaspils_mem->s_jtimesDQ)
+#define jtimes    (idaspils_mem->s_jtimes)
+#define jdata     (idaspils_mem->s_jdata)
+
 #define last_flag (idaspils_mem->s_last_flag)
 
 /*
@@ -184,14 +189,18 @@ int IDASpbcg(void *ida_mem, int maxl)
   maxl1 = (maxl <= 0) ? IDA_SPILS_MAXL : maxl;
   idaspils_mem->s_maxl = maxl1;
 
+  /* Set defaults for Jacobian-related fileds */
+  jtimesDQ = TRUE;
+  jtimes   = NULL;
+  jdata    = NULL;
+
   /* Set default values for the rest of the Spbcg parameters */
   idaspils_mem->s_eplifac   = PT05;
   idaspils_mem->s_dqincfac  = ONE;
   idaspils_mem->s_pset      = NULL;
   idaspils_mem->s_psolve    = NULL;
   idaspils_mem->s_pdata     = NULL;
-  idaspils_mem->s_jtimes    = IDASpilsDQJtimes;
-  idaspils_mem->s_jdata     = ida_mem;
+
   idaspils_mem->s_last_flag = IDASPILS_SUCCESS;
 
   /* Set setupNonNull to FALSE */
@@ -261,8 +270,6 @@ int IDASpbcg(void *ida_mem, int maxl)
 #define psolve   (idaspils_mem->s_psolve)
 #define pset     (idaspils_mem->s_pset)
 #define pdata    (idaspils_mem->s_pdata)
-#define jtimes   (idaspils_mem->s_jtimes)
-#define jdata    (idaspils_mem->s_jdata)
 
 static int IDASpbcgInit(IDAMem IDA_mem)
 {
@@ -279,10 +286,12 @@ static int IDASpbcgInit(IDAMem IDA_mem)
   /* Set setupNonNull to TRUE iff there is preconditioning with setup */
   setupNonNull = (psolve != NULL) && (pset != NULL);
 
-  /* If jtimes is NULL at this time, set it to DQ */
-  if (jtimes == NULL) {
+  /* Set Jacobian-related fields, based on jtimesDQ */
+  if (jtimesDQ) {
     jtimes = IDASpilsDQJtimes;
     jdata = IDA_mem;
+  } else {
+    jdata = rdata;
   }
 
   /*  Set maxl in the SPBCG memory in case it was changed by the user */
@@ -497,7 +506,6 @@ static int IDASpbcgFree(IDAMem IDA_mem)
 #define psolve_B    (idaspilsB_mem->s_psolveB)
 #define jtimes_B    (idaspilsB_mem->s_jtimesB)
 #define P_data_B    (idaspilsB_mem->s_P_dataB)
-#define jac_data_B  (idaspilsB_mem->s_jac_dataB)
 
 /*
  * IDASpbcgB
@@ -531,9 +539,10 @@ int IDASpbcgB(void *idaadj_mem, int maxlB)
   
   pset_B = NULL;
   psolve_B = NULL;
-  jtimes_B = NULL;
   P_data_B = NULL;
-  jac_data_B = NULL;
+
+  /* initialize Jacobian function */
+  jtimes_B = NULL;
 
   /* attach lmemB and lfreeB */
   lmemB = idaspilsB_mem;

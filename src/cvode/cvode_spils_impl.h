@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -64,21 +64,15 @@ typedef struct {
   N_Vector s_ycur;      /* CVODE current y vector in Newton Iteration   */
   N_Vector s_fcur;      /* fcur = f(tn, ycur)                           */
 
-  CVSpilsPrecSetupFn s_pset; 
-  /* pset = user-supplied routine to compute      */
-  /* a preconditioner                             */
-
-  CVSpilsPrecSolveFn s_psolve;   
-  /* psolve = user-supplied routine to solve      */
-  /* preconditioner linear system                 */
-
-  void *s_P_data;       /* P_data passed to psolve and pset             */
-
   void* s_spils_mem;    /* memory used by the generic solver            */
 
-  CVSpilsJacTimesVecFn s_jtimes;  
-  /* jtimes = Jacobian * vector routine           */
-  void *s_j_data;       /* j_data is passed to jtimes                   */
+  CVSpilsPrecSetupFn s_pset;
+  CVSpilsPrecSolveFn s_psolve;
+  void *s_P_data;
+
+  booleantype s_jtimesDQ;        /* TRUE is using internal DQ approx.   */
+  CVSpilsJacTimesVecFn s_jtimes; /* jtimes = Jacobian * vector routine  */
+  void *s_j_data;                /* data passed to jtimes               */
 
   int s_last_flag;      /* last error flag returned by any function     */
 
@@ -99,7 +93,7 @@ int CVSpilsPSolve(void *cv_mem, N_Vector r, N_Vector z, int lr);
 /* Difference quotient approximation for Jac times vector */
 
 int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
-                    N_Vector y, N_Vector fy, void *jac_data,
+                    N_Vector y, N_Vector fy, void *data,
                     N_Vector work);
 
 /*

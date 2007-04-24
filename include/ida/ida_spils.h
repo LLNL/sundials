@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-24 16:15:37 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -196,8 +196,8 @@ typedef int (*IDASpilsPrecSolveFn)(realtype tt,
  *   c_j  is the scalar in the system Jacobian, proportional
  *        to 1/hh.
  *
- *   jac_data is a pointer to user Jacobian data, the same as the
- *        pointer passed to IDASp*.
+ *   res_data is a pointer to user data, the same as the
+ *        pointer passed to IDASetRdata.
  *
  *   tmp1, tmp2 are two N_Vectors which can be used by Jtimes for
  *         work space.
@@ -207,7 +207,7 @@ typedef int (*IDASpilsPrecSolveFn)(realtype tt,
 typedef int (*IDASpilsJacTimesVecFn)(realtype tt,
 				     N_Vector yy, N_Vector yp, N_Vector rr,
 				     N_Vector v, N_Vector Jv,
-				     realtype c_j, void *jac_data,
+				     realtype c_j, void *res_data,
 				     N_Vector tmp1, N_Vector tmp2);
 
 
@@ -223,9 +223,7 @@ typedef int (*IDASpilsJacTimesVecFn)(realtype tt,
  *           Default is NULL for al three arguments.
  * IDASpilsSetJacTimesVecFn specifies the jtimes function.        
  *           Default is to use an internal finite difference      
- *           approximation routine. It also specifies a pointer 
- *           to user Jacobian data. This pointer is passed to jtimes 
- *           every time the jtimes routine is called.                              
+ *           approximation routine.                           
  * IDASpilsSetGSType specifies the type of Gram-Schmidt           
  *           orthogonalization to be used. This must be one of    
  *           the two enumeration constants MODIFIED_GS or         
@@ -259,8 +257,7 @@ typedef int (*IDASpilsJacTimesVecFn)(realtype tt,
 
 SUNDIALS_EXPORT int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset, 
 					      IDASpilsPrecSolveFn psolve, void *prec_data);
-SUNDIALS_EXPORT int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtimes,
-					     void *jac_data);
+SUNDIALS_EXPORT int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtv);
 SUNDIALS_EXPORT int IDASpilsSetGSType(void *ida_mem, int gstype);
 SUNDIALS_EXPORT int IDASpilsSetMaxRestarts(void *ida_mem, int maxrs);
 SUNDIALS_EXPORT int IDASpilsSetMaxl(void *ida_mem, int maxl);

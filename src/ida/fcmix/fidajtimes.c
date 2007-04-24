@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:35 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,7 +50,7 @@ void FIDA_SPILSSETJAC(int *flag, int *ier)
 
   if (*flag == 0) {
 
-    *ier = IDASpilsSetJacTimesVecFn(IDA_idamem, NULL, NULL);
+    *ier = IDASpilsSetJacTimesVecFn(IDA_idamem, NULL);
 
   } else {
 
@@ -62,8 +62,8 @@ void FIDA_SPILSSETJAC(int *flag, int *ier)
       }
     }
 
-    *ier = IDASpilsSetJacTimesVecFn(IDA_idamem,
-				    (IDASpilsJacTimesVecFn) FIDAJtimes, ((IDAMem) IDA_idamem)->ida_rdata);
+    *ier = IDASpilsSetJacTimesVecFn(IDA_idamem, FIDAJtimes);
+
   }
 
   return;
@@ -73,7 +73,7 @@ void FIDA_SPILSSETJAC(int *flag, int *ier)
 
 int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
 	       N_Vector v, N_Vector Jv,
-	       realtype c_j, void *jac_data,
+	       realtype c_j, void *res_data,
 	       N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *yy_data, *yp_data, *rr_data, *vdata, *Jvdata, *ewtdata;
@@ -104,7 +104,7 @@ int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
 
-  IDA_userdata = (FIDAUserData) jac_data;
+  IDA_userdata = (FIDAUserData) res_data;
 
   /* Call user-supplied routine */
   FIDA_JTIMES(&t, yy_data, yp_data, rr_data, vdata, Jvdata,

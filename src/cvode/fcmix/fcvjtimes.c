@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-24 16:15:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -52,10 +52,10 @@ void FCV_SPILSSETJAC(int *flag, int *ier)
   CVodeMem cv_mem;
 
   if (*flag == 0) {
-    *ier = CVSpilsSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
+    *ier = CVSpilsSetJacTimesVecFn(CV_cvodemem, NULL);
   } else {
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSpilsSetJacTimesVecFn(CV_cvodemem, FCVJtimes, cv_mem->cv_f_data);
+    *ier = CVSpilsSetJacTimesVecFn(CV_cvodemem, FCVJtimes);
   }
 }
 
@@ -70,7 +70,7 @@ void FCV_SPILSSETJAC(int *flag, int *ier)
 
 int FCVJtimes(N_Vector v, N_Vector Jv, realtype t, 
               N_Vector y, N_Vector fy,
-              void *jac_data, N_Vector work)
+              void *f_data, N_Vector work)
 {
   realtype *vdata, *Jvdata, *ydata, *fydata, *wkdata;
   realtype h;
@@ -86,7 +86,7 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
   fydata  = N_VGetArrayPointer(fy);
   wkdata  = N_VGetArrayPointer(work);
 
-  CV_userdata = (FCVUserData) jac_data;
+  CV_userdata = (FCVUserData) f_data;
  
   FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, &h, 
               CV_userdata->ipar, CV_userdata->rpar, wkdata, &ier);
