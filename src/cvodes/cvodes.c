@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2007-04-24 22:01:24 $
+ * $Revision: 1.18 $
+ * $Date: 2007-04-25 23:40:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -669,6 +669,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_efun     = NULL;
   cv_mem->cv_e_data   = NULL;
   cv_mem->cv_ehfun    = cvErrHandler;
+  cv_mem->cv_eh_data  = cv_mem;
   cv_mem->cv_errfp    = stderr;
   cv_mem->cv_qmax     = maxord;
   cv_mem->cv_mxstep   = MXSTEP_DEFAULT;
@@ -8859,6 +8860,7 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
  */
 
 #define ehfun    (cv_mem->cv_ehfun)
+#define eh_data  (cv_mem->cv_eh_data)
 
 void cvProcessError(CVodeMem cv_mem, 
                     int error_code, const char *module, const char *fname, 
@@ -8888,7 +8890,7 @@ void cvProcessError(CVodeMem cv_mem,
 
     /* Call ehfun */
 
-    ehfun(error_code, module, fname, msg, f_data);
+    ehfun(error_code, module, fname, msg, eh_data);
 
   }
 

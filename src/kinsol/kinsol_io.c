@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-25 23:40:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -62,6 +62,7 @@ int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun)
   kin_mem = (KINMem) kinmem;
 
   kin_mem->kin_ehfun = ehfun;
+  kin_mem->kin_eh_data = kin_mem->kin_f_data;
 
   return(KIN_SUCCESS);
 }
@@ -134,6 +135,7 @@ int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun)
   kin_mem = (KINMem) kinmem;
 
   kin_mem->kin_ihfun = ihfun;
+  kin_mem->kin_ih_data = kin_mem->kin_f_data;
 
   return(KIN_SUCCESS);
 }

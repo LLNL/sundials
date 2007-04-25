@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-04-24 22:01:24 $
+ * $Revision: 1.13 $
+ * $Date: 2007-04-25 23:40:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -363,6 +363,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_efun     = NULL;
   cv_mem->cv_e_data   = NULL;
   cv_mem->cv_ehfun    = CVErrHandler;
+  cv_mem->cv_eh_data  = cv_mem;
   cv_mem->cv_errfp    = stderr;
   cv_mem->cv_qmax     = maxord;
   cv_mem->cv_mxstep   = MXSTEP_DEFAULT;
@@ -4060,6 +4061,7 @@ static int CVEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
  */
 
 #define ehfun    (cv_mem->cv_ehfun)
+#define eh_data  (cv_mem->cv_eh_data)
 
 void CVProcessError(CVodeMem cv_mem, 
                     int error_code, const char *module, const char *fname, 
@@ -4089,7 +4091,7 @@ void CVProcessError(CVodeMem cv_mem,
 
     /* Call ehfun */
 
-    ehfun(error_code, module, fname, msg, f_data);
+    ehfun(error_code, module, fname, msg, eh_data);
 
   }
 

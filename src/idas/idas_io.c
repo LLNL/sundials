@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-25 23:40:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -54,6 +54,7 @@ int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun)
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_ehfun = ehfun;
+  IDA_mem->ida_eh_data = IDA_mem->ida_rdata;
 
   return(IDA_SUCCESS);
 }

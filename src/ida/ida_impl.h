@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-24 22:01:25 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-25 23:40:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -181,6 +181,7 @@ typedef struct IDAMemRec {
   /* Error handler function and error ouput file */
 
   IDAErrHandlerFn ida_ehfun; /* Error messages are handled by ehfun           */
+  void *ida_eh_data;         /* dats pointer passed to ehfun                  */
   FILE *ida_errfp;           /* IDA error messages are sent to errfp          */
 
   /* Flags to verify correct calling sequence */

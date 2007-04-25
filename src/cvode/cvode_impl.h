@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-24 22:01:24 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-25 23:40:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -229,6 +229,7 @@ typedef struct CVodeMemRec {
     -------------------------------------------*/
 
   CVErrHandlerFn cv_ehfun;    /* Error messages are handled by ehfun     */
+  void *cv_eh_data;           /* dats pointer passed to ehfun            */
   FILE *cv_errfp;             /* CVODE error messages are sent to errfp  */
 
   /*-------------------------

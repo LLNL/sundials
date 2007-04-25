@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-25 23:40:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -278,6 +278,7 @@ typedef struct IDAMemRec {
     -------------------------------------------*/
 
   IDAErrHandlerFn ida_ehfun; /* Error messages are handled by ehfun           */
+  void *ida_eh_data;         /* dats pointer passed to ehfun                  */
   FILE *ida_errfp;           /* IDA error messages are sent to errfp          */
 
   /* Flags to verify correct calling sequence */

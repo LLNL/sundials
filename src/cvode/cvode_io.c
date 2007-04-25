@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:19 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-25 23:40:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -53,6 +53,7 @@ int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun)
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_ehfun = ehfun;
+  cv_mem->cv_eh_data = cv_mem->cv_f_data;
 
   return(CV_SUCCESS);
 }

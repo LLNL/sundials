@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.14 $
+ * $Date: 2007-04-25 23:40:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -389,6 +389,7 @@ void *IDACreate(void)
   IDA_mem->ida_efun        = NULL;
   IDA_mem->ida_edata       = NULL;
   IDA_mem->ida_ehfun       = IDAErrHandler;
+  IDA_mem->ida_eh_data     = IDA_mem;
   IDA_mem->ida_errfp       = stderr;
   IDA_mem->ida_maxord      = MAXORD_DEFAULT;
   IDA_mem->ida_mxstep      = MXSTEP_DEFAULT;
@@ -5221,6 +5222,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
  */
 
 #define ehfun   (IDA_mem->ida_ehfun)
+#define eh_data (IDA_mem->ida_eh_data)
 
 void IDAProcessError(IDAMem IDA_mem, 
                     int error_code, const char *module, const char *fname, 
@@ -5250,7 +5252,7 @@ void IDAProcessError(IDAMem IDA_mem,
 
     /* Call ehfun */
 
-    ehfun(error_code, module, fname, msg, rdata);
+    ehfun(error_code, module, fname, msg, eh_data);
 
   }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-25 23:40:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -224,8 +224,10 @@ void *KINCreate(void)
   kin_mem->kin_fscale           = NULL;
   kin_mem->kin_constraintsSet   = FALSE;
   kin_mem->kin_ehfun            = KINErrHandler;
+  kin_mem->kin_eh_data          = kin_mem;
   kin_mem->kin_errfp            = stderr;
   kin_mem->kin_ihfun            = KINInfoHandler;
+  kin_mem->kin_ih_data          = kin_mem;
   kin_mem->kin_infofp           = stdout;
   kin_mem->kin_printfl          = PRINTFL_DEFAULT;
   kin_mem->kin_mxiter           = MXITER_DEFAULT;
@@ -1714,6 +1716,7 @@ static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
  */
 
 #define ihfun    (kin_mem->kin_ihfun)
+#define ih_data  (kin_mem->kin_ih_data)
 
 void KINPrintInfo(KINMem kin_mem, 
                   int info_code, const char *module, const char *fname, 
@@ -1781,7 +1784,7 @@ void KINPrintInfo(KINMem kin_mem,
 
   /* call the info message handler */
 
-  ihfun(module, fname, msg, f_data);
+  ihfun(module, fname, msg, ih_data);
 
   /* finalize argument processing */
 
@@ -1832,6 +1835,7 @@ void KINInfoHandler(const char *module, const char *function,
  */
 
 #define ehfun    (kin_mem->kin_ehfun)
+#define eh_data  (kin_mem->kin_eh_data)
 
 void KINProcessError(KINMem kin_mem, 
                     int error_code, const char *module, const char *fname, 
@@ -1861,7 +1865,7 @@ void KINProcessError(KINMem kin_mem,
 
     /* Call ehfun */
 
-    ehfun(error_code, module, fname, msg, f_data);
+    ehfun(error_code, module, fname, msg, eh_data);
 
   }
 
