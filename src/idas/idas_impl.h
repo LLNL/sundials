@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-25 23:40:26 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-26 23:17:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -193,7 +193,6 @@ typedef struct IDAMemRec {
 
   /* Tstop information */
 
-  booleantype ida_istop;
   booleantype ida_tstopset;
   realtype ida_tstop;
 
@@ -362,7 +361,7 @@ typedef struct IDAMemRec {
   realtype *ida_grout;   /* array of g values at t = trout                  */
   realtype ida_toutc;    /* copy of tout (if NORMAL mode)                   */
   realtype ida_ttol;     /* tolerance on root location                      */
-  int ida_taskc;         /* copy of parameter task                          */
+  int ida_taskc;         /* copy of parameter itask                         */
   int ida_irfnd;         /* flag showing whether last step had a root       */
   long int ida_nge;      /* counter for g evaluations                       */
 
@@ -791,7 +790,6 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_YPRET_NULL     "ypret = NULL illegal."
 #define MSG_TRET_NULL      "tret = NULL illegal."
 #define MSG_BAD_ITASK      "itask has an illegal value."
-#define MSG_NO_TSTOP       "tstop not set for this itask. "
 #define MSG_TOO_CLOSE      "tout too close to t0 to start integration."
 #define MSG_BAD_HINIT      "Initial step is not towards tout."
 #define MSG_BAD_TSTOP      "tstop is behind current " MSG_TIME "in the direction of integration."

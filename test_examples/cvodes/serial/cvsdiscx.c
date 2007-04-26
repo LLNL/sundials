@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-23 23:37:26 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-26 23:17:27 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -77,7 +77,7 @@ int main()
   t = t0;
   printf("%12.8e  %12.8e\n",t,Ith(y,1));
   while (t<t1) {
-    CVode(cvode_mem, t1, y, &t, CV_ONE_STEP_TSTOP);
+    CVode(cvode_mem, t1, y, &t, CV_ONE_STEP);
     printf("%12.8e  %12.8e\n",t,Ith(y,1));
   }
   CVodeGetNumSteps(cvode_mem, &nst1);
@@ -92,7 +92,7 @@ int main()
   t = t1;
   printf("%12.8e  %12.8e\n",t,Ith(y,1));
   while (t<t2) {
-    CVode(cvode_mem, t2, y, &t, CV_ONE_STEP_TSTOP);
+    CVode(cvode_mem, t2, y, &t, CV_ONE_STEP);
     printf("%12.8e  %12.8e\n",t,Ith(y,1));
   }
   CVodeGetNumSteps(cvode_mem, &nst2);
@@ -127,7 +127,7 @@ int main()
   t = t0;
   printf("%12.8e  %12.8e\n",t,Ith(y,1));
   while (t<t1) {
-    CVode(cvode_mem, t1, y, &t, CV_ONE_STEP_TSTOP);
+    CVode(cvode_mem, t1, y, &t, CV_ONE_STEP);
     printf("%12.8e  %12.8e\n",t,Ith(y,1));
   }
   CVodeGetNumSteps(cvode_mem, &nst1);
@@ -144,7 +144,7 @@ int main()
   t = t1;
   printf("%12.8e  %12.8e\n",t,Ith(y,1));
   while (t<t2) {
-    CVode(cvode_mem, t2, y, &t, CV_ONE_STEP_TSTOP);
+    CVode(cvode_mem, t2, y, &t, CV_ONE_STEP);
     printf("%12.8e  %12.8e\n",t,Ith(y,1));
   }
   CVodeGetNumSteps(cvode_mem, &nst2);
@@ -179,7 +179,7 @@ int main()
   t = t0;
   printf("%12.8e  %12.8e\n",t,Ith(y,1));
   while (t<t1) {
-    CVode(cvode_mem, t1, y, &t, CV_ONE_STEP_TSTOP);
+    CVode(cvode_mem, t1, y, &t, CV_ONE_STEP);
     printf("%12.8e  %12.8e\n",t,Ith(y,1));
   }
   CVodeGetNumSteps(cvode_mem, &nst1);
@@ -190,7 +190,7 @@ int main()
   t = t1;
   printf("%12.8e  %12.8e\n",t,Ith(y,1));
   while (t<t2) {
-    CVode(cvode_mem, t2, y, &t, CV_ONE_STEP_TSTOP);
+    CVode(cvode_mem, t2, y, &t, CV_ONE_STEP);
     printf("%12.8e  %12.8e\n",t,Ith(y,1));
   }
   CVodeGetNumSteps(cvode_mem, &nst);

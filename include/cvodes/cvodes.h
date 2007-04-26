@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-04-24 22:01:25 $
+ * $Revision: 1.17 $
+ * $Date: 2007-04-26 23:17:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -146,11 +146,7 @@ extern "C" {
  *        parameter. The solver then interpolates in order to
  *        return an approximate value of y(tout). The CV_ONE_STEP
  *        option tells the solver to just take one internal step
- *        and return the solution at the point reached by that
- *        step. The CV_NORMAL_TSTOP and CV_ONE_STEP_TSTOP modes are
- *        similar to CV_NORMAL and CV_ONE_STEP, respectively, except
- *        that the integration never proceeds past the value
- *        tstop (specified through the routine CVodeSetStopTime).
+ *        and return the solution at the point reached by that step.
  *
  * interp: Specifies the interpolation type used to evaluate the
  *        forward solution during the backward integration phase.
@@ -170,8 +166,6 @@ extern "C" {
 /* itask */
 #define CV_NORMAL         1
 #define CV_ONE_STEP       2
-#define CV_NORMAL_TSTOP   3
-#define CV_ONE_STEP_TSTOP 4
 
 /* ism */
 #define CV_SIMULTANEOUS   1
@@ -1172,11 +1166,12 @@ SUNDIALS_EXPORT int CVodeSensToggleOff(void *cvode_mem);
  * takes one internal time step and returns in yout the value of
  * y at the new internal time. In this case, tout is used only
  * during the first call to CVode to determine the direction of
- * integration and the rough scale of the problem.  If itask is
- * CV_NORMAL_TSTOP or CV_ONE_STEP_TSTOP, then CVode returns the
- * solution at tstop if that comes sooner than tout or the end of
- * the next internal step, respectively.  In any case,
- * the time reached by the solver is placed in (*tret). The
+ * integration and the rough scale of the problem. If tstop is
+ * enabled (through a call to CVodeSetStopTime), then CVode returns
+ * the solution at tstop. Once the integrator returns at a tstop
+ * time, any future testing for tstop is disabled (and can be 
+ * reenabled only though a new call to CVodeSetStopTime).
+ * The time reached by the solver is placed in (*tret). The
  * user is responsible for allocating the memory for this value.
  *
  * cvode_mem is the pointer to CVODES memory returned by
@@ -1190,8 +1185,7 @@ SUNDIALS_EXPORT int CVodeSensToggleOff(void *cvode_mem);
  * tret  is a pointer to a real location. CVode sets (*tret) to
  *       the time reached by the solver and returns yout=y(*tret).
  *
- * itask is CV_NORMAL, CV_ONE_STEP, CV_NORMAL_TSTOP, or CV_ONE_STEP_TSTOP.
- *       These four modes are described above.
+ * itask is CV_NORMAL or CV_ONE_STEP. These two modes are described above.
  *
  * Here is a brief description of each return value:
  *

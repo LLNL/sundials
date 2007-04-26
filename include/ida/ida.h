@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-26 23:17:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -50,8 +50,6 @@ extern "C" {
 /* itask */
 #define IDA_NORMAL           1
 #define IDA_ONE_STEP         2
-#define IDA_NORMAL_TSTOP     3 
-#define IDA_ONE_STEP_TSTOP   4
 
 /* icopt */
 #define IDA_YA_YDP_INIT      1 
@@ -668,12 +666,12 @@ SUNDIALS_EXPORT int IDACalcIC(void *ida_mem, int icopt, realtype tout1);
  * of y at the new internal independent variable value. In this
  * case, tout is used only during the first call to IDASolve to         
  * determine the direction of integration and the rough scale of  
- * the problem. If itask is IDA_NORMAL_TSTOP or IDA_ONE_STEP_TSTOP,
- * then IDA returns the solution at tstop if that comes sooner than
- * tout or the end of the next internal step, respectively.
- * In any case, the independent variable value reached by the solver
- * is placed in (*tret).  The user is responsible for allocating the
- * memory for this value.          
+ * the problem. If tstop is enabled (through a call to IDASetStopTime),
+ * then IDASolve returns the solution at tstop. Once the integrator
+ * returns at a tstop time, any future testing for tstop is disabled
+ * (and can be reenabled only though a new call to IDASetStopTime).
+ * The time reached by the solver is placed in (*tret). The
+ * user is responsible for allocating the memory for this value.
  *                                                                
  * ida_mem is the pointer (void) to IDA memory returned by        
  *         IDACreate.
@@ -694,8 +692,7 @@ SUNDIALS_EXPORT int IDACalcIC(void *ida_mem, int icopt, realtype tout1);
  * Note: yret and ypret may be the same N_Vectors as y0 and yp0   
  * in the call to IDAInit or IDAReInit.                         
  *                                                                
- * itask   is IDA_NORMAL, IDA_NORMAL_TSTOP, IDA_ONE_STEP, or
- *         IDA_ONE_STEP_TSTOP.   These modes are described above.
+ * itask   is IDA_NORMAL or IDA_ONE_STEP. These two modes are described above.
  *
  *
  * The return values for IDASolve are described below.            

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-04-24 22:01:24 $
+ * $Revision: 1.17 $
+ * $Date: 2007-04-26 23:17:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -498,10 +498,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
   }
 
   /* Check for valid itask */
-  if ((itask != CV_NORMAL)       && 
-      (itask != CV_ONE_STEP)     &&
-      (itask != CV_NORMAL_TSTOP) &&
-      (itask != CV_ONE_STEP_TSTOP) ) {
+  if ( (itask != CV_NORMAL) && (itask != CV_ONE_STEP) ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeF", MSGCV_BAD_ITASK);
     return(CV_ILL_INPUT);
   }
@@ -510,29 +507,16 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
 
   dt_mem = ca_mem->dt_mem;
 
-  /* Interpret itask */
-  switch (itask) {
-  case CV_NORMAL:
-    iret = FALSE;
-    cv_itask = CV_ONE_STEP;
-    break;
-  case CV_ONE_STEP:
-    iret = TRUE;
-    cv_itask = CV_ONE_STEP;
-    break;
-  case CV_NORMAL_TSTOP:
-    iret = FALSE;
-    cv_itask = CV_ONE_STEP_TSTOP;
+  /* If tstop is enabled, store some info */
+  if (cv_mem->cv_tstopset) {
     ca_mem->ca_tstopCVodeFcall = TRUE;
     ca_mem->ca_tstopCVodeF = cv_mem->cv_tstop;
-    break;
-  case CV_ONE_STEP_TSTOP:
-    iret = TRUE;
-    cv_itask = CV_ONE_STEP_TSTOP;
-    ca_mem->ca_tstopCVodeFcall = TRUE;
-    ca_mem->ca_tstopCVodeF = cv_mem->cv_tstop;
-    break;
   }
+
+  /* We will call CVode in CV_ONE_STEP mode, regardless
+   * of what itask is, so flag if we need to return */
+  if (itask == CV_ONE_STEP) iret = TRUE;
+  else                      iret = FALSE;
 
   /* On the first step:
    *   - set tinitial
@@ -598,7 +582,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
 
     /* Perform one step of the integration */
 
-    flag = CVode(cv_mem, tout, yout, tret, cv_itask);
+    flag = CVode(cv_mem, tout, yout, tret, CV_ONE_STEP);
     if (flag < 0) break;
 
     /* Test if a new check point is needed */
@@ -1273,7 +1257,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
   CVadjMem ca_mem;
   CVodeBMem cvB_mem, tmp_cvB_mem;
   CkpntMem ck_mem;
-  int sign, flag, cv_itask;
+  int sign, flag;
   realtype tBret, tBn, hB, troundoff, tmp_tBn;
   booleantype gotCheckpoint, isActive, reachedTBout;
   
@@ -1342,11 +1326,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
 
   /* Check if itaskB is legal */
 
-  if (itaskB == CV_NORMAL)
-    cv_itask = CV_NORMAL_TSTOP;
-  else if (itaskB == CV_ONE_STEP)
-    cv_itask = CV_ONE_STEP_TSTOP;
-  else {
+  if ( (itaskB != CV_NORMAL) && (itaskB != CV_ONE_STEP) ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeB", MSGCV_BAD_ITASKB);
     return(CV_ILL_INPUT);
   }
@@ -1430,7 +1410,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
 
         /* Integrate current backward problem */
         CVodeSetStopTime(tmp_cvB_mem->cv_mem, t0_);
-        flag = CVode(tmp_cvB_mem->cv_mem, tBout, tmp_cvB_mem->cv_y, &tBret, cv_itask);
+        flag = CVode(tmp_cvB_mem->cv_mem, tBout, tmp_cvB_mem->cv_y, &tBret, itaskB);
 
         /* If an error occured, exit while loop */
         if (flag < 0) break;
@@ -2015,7 +1995,7 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
   DtpntMem *dt_mem;
   realtype t;
   long int i;
-  int cv_itask, flag;
+  int flag;
 
   ca_mem = cv_mem->cv_adj_mem;
   dt_mem = ca_mem->dt_mem;
@@ -2032,16 +2012,13 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
   /* Decide whether TSTOP must be activated */
   if (ca_mem->ca_tstopCVodeFcall) {
     CVodeSetStopTime(cv_mem, ca_mem->ca_tstopCVodeF);
-    cv_itask = CV_ONE_STEP_TSTOP;
-  } else {
-    cv_itask = CV_ONE_STEP;
   }
 
   /* Run CVode to set following structures in dt_mem[i] */
   i = 1;
   do {
 
-    flag = CVode(cv_mem, t1_, ytmp, &t, cv_itask);
+    flag = CVode(cv_mem, t1_, ytmp, &t, CV_ONE_STEP);
     if (flag < 0) return(CV_FWD_FAIL);
 
     dt_mem[i]->t = t;

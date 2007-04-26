@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-25 23:40:26 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-26 23:17:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -349,8 +349,7 @@ int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
 /* 
  * CVodeSetStopTime
  *
- * Specifies the time beyond which the integration is not to
- * proceed
+ * Specifies the time beyond which the integration is not to proceed.
  */
 
 int CVodeSetStopTime(void *cvode_mem, realtype tstop)
@@ -361,8 +360,20 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
     CVProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetStopTime", MSGCV_NO_MEM);
     return (CV_MEM_NULL);
   }
-
   cv_mem = (CVodeMem) cvode_mem;
+
+  /* If CVode was called at least once, test if tstop is legal
+   * (i.e. if it was not already passed).
+   * If CVodeSetStopTime is called before the first call to CVode,
+   * tstop will be checked in CVode. */
+  if (cv_mem->cv_nst > 0) {
+
+    if ( (tstop - cv_mem->cv_tn) * cv_mem->cv_h <= ZERO ) {
+      CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetStopTime", MSGCV_BAD_TSTOP, cv_mem->cv_tn);
+      return(CV_ILL_INPUT);
+    }
+
+  }
 
   cv_mem->cv_tstop = tstop;
   cv_mem->cv_tstopset = TRUE;

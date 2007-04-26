@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-25 23:40:26 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-26 23:17:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -213,6 +213,19 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
   }
 
   IDA_mem = (IDAMem) ida_mem;
+
+  /* If IDASolve was called at least once, test if tstop is legal
+   * (i.e. if it was not already passed).
+   * If IDASetStopTime is called before the first call to IDASolve,
+   * tstop will be checked in IDASolve. */
+  if (IDA_mem->ida_nst > 0) {
+
+    if ( (tstop - IDA_mem->ida_tn) * IDA_mem->ida_hh <= ZERO ) {
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetStopTime", MSG_BAD_TSTOP, IDA_mem->ida_tn);
+      return(IDA_ILL_INPUT);
+    }
+
+  }
 
   IDA_mem->ida_tstop = tstop;
   IDA_mem->ida_tstopset = TRUE;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-25 23:40:25 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-26 23:17:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -102,7 +102,6 @@ typedef struct CVodeMemRec {
     Tstop information
     -----------------*/
   booleantype cv_tstopset;
-  booleantype cv_istop;
   realtype cv_tstop;
 
   /*---------
@@ -257,7 +256,7 @@ typedef struct CVodeMemRec {
   realtype *cv_grout;   /* array of g values at t = trout                  */
   realtype cv_toutc;    /* copy of tout (if NORMAL mode)                   */
   realtype cv_ttol;     /* tolerance on root location                      */
-  int cv_taskc;         /* copy of parameter task                          */
+  int cv_taskc;         /* copy of parameter itask                         */
   int cv_irfnd;         /* flag showing whether last step had a root       */
   long int cv_nge;      /* counter for g evaluations                       */
 
@@ -483,7 +482,6 @@ void CVErrHandler(int error_code, const char *module, const char *function,
 #define MSGCV_BAD_H0 "h0 and tout - t0 inconsistent."
 #define MSGCV_BAD_INIT_ROOT "Root found at and very near initial t."
 #define MSGCV_BAD_TOUT "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration"
-#define MSGCV_NO_TSTOP "itask = CV_NORMAL_TSTOP or itask = CV_ONE_STEP_TSTOP but tstop was not set."
 #define MSGCV_EWT_FAIL "The user-provide EwtSet function failed."
 #define MSGCV_EWT_NOW_FAIL "At " MSG_TIME ", the user-provide EwtSet function failed."
 #define MSGCV_LINIT_FAIL "The linear solver's init routine failed."
