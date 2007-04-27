@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-24 20:26:51 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-27 18:56:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
 
-  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, data);
+  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
   if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
   printf("\n2-species diurnal advection-diffusion problem\n");

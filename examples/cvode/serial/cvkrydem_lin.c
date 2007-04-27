@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-27 18:56:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -148,13 +148,13 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
-                   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   void *f_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp);
+                  int lr, void *f_data, N_Vector vtemp);
 
 
 /*
@@ -243,9 +243,6 @@ int main(void)
       flag = CVSpilsSetGSType(cvode_mem, MODIFIED_GS);
       if(check_flag(&flag, "CVSpilsSetGSType", 1)) return(1);
 
-      flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, data);
-      if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
-
       break;
 
     /* (b) SPBCG */
@@ -260,11 +257,6 @@ int main(void)
 	 with left preconditioning and the maximum Krylov dimension maxl */
       flag = CVSpbcg(cvode_mem, PREC_LEFT, 0);
       if(check_flag(&flag, "CVSpbcg", 1)) return(1);
-
-      /* Set preconditioner setup and solve routines Precond and PSolve,
-	 and the pointer to the user-defined block data */
-      flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, data);
-      if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
       break;
 
@@ -281,14 +273,15 @@ int main(void)
       flag = CVSptfqmr(cvode_mem, PREC_LEFT, 0);
       if(check_flag(&flag, "CVSptfqmr", 1)) return(1);
 
-      /* Set preconditioner setup and solve routines Precond and PSolve,
-	 and the pointer to the user-defined block data */
-      flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, data);
-      if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
-
       break;
 
     }
+
+
+    /* Set preconditioner setup and solve routines Precond and PSolve,
+       and the pointer to the user-defined block data */
+    flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
+    if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
     /* In loop over output points, call CVode, print results, test for error */
     printf(" \n2-species diurnal advection-diffusion problem\n\n");
@@ -624,7 +617,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
-                   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   void *f_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
@@ -634,9 +627,9 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   realtype *udata, **a, **j;
   UserData data;
   
-  /* Make local copies of pointers in P_data, and of pointer to u's data */
+  /* Make local copies of pointers in f_data, and of pointer to u's data */
   
-  data = (UserData) P_data;
+  data = (UserData) f_data;
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
@@ -714,7 +707,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp)
+                  int lr, void *f_data, N_Vector vtemp)
 {
   realtype **(*P)[MY];
   int *(*pivot)[MY];
@@ -722,9 +715,9 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   realtype *zdata, *v;
   UserData data;
 
-  /* Extract the P and pivot arrays from P_data. */
+  /* Extract the P and pivot arrays from f_data. */
 
-  data = (UserData) P_data;
+  data = (UserData) f_data;
   P = data->P;
   pivot = data->pivot;
   zdata = NV_DATA_S(z);

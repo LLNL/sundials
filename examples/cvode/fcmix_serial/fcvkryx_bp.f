@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.2 $
-C     $Date: 2007-01-29 17:40:00 $
+C     $Revision: 1.3 $
+C     $Date: 2007-04-27 18:56:28 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -86,6 +86,15 @@ C     Initialize CVODE
          STOP
       ENDIF
 C     
+C     Initialize SPGMR solver
+      CALL FCVSPGMR(JPRETYPE, IGSTYPE, MAXL, DELT, IER) 
+      IF (IER .NE. 0) THEN
+         WRITE(6,45) IER
+ 45      FORMAT(///' SUNDIALS_ERROR: FCVSPGMR returned IER = ', I5)
+         CALL FCVFREE
+         STOP
+      ENDIF
+C     
 C     Initialize band preconditioner
       MU = 2
       ML = 2
@@ -93,15 +102,6 @@ C     Initialize band preconditioner
       IF (IER .NE. 0) THEN
          WRITE(6,40) IER
  40      FORMAT(///' SUNDIALS_ERROR: FCVBPINIT returned IER = ', I5)
-         CALL FCVFREE
-         STOP
-      ENDIF
-C     
-C     Initialize SPGMR solver with band preconditioner
-      CALL FCVBPSPGMR(JPRETYPE, IGSTYPE, MAXL, DELT, IER) 
-      IF (IER .NE. 0) THEN
-         WRITE(6,45) IER
- 45      FORMAT(///' SUNDIALS_ERROR: FCVBPSPGMR returned IER = ', I5)
          CALL FCVFREE
          STOP
       ENDIF
@@ -124,7 +124,6 @@ C
             WRITE(6,60) IER, IOUT(15)
  60         FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      1             '                 Linear Solver returned IER = ', I5)
-            CALL FCVBPFREE
             CALL FCVFREE
             STOP
          ENDIF
@@ -170,7 +169,6 @@ C     Print final statistics.
      &        ' real/int workspace sizes = ', 2I5/
      &        ' number of f evaluations  = ', I5)
 C     
-      CALL FCVBPFREE
       CALL FCVFREE
 C     
       STOP

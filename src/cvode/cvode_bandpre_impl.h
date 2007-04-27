@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-24 19:09:20 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -32,7 +32,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CVBandPrecDataRec {
 
   /* Data set by user in CVBandPrecAlloc */
 
@@ -61,10 +61,11 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-#define MSGBP_CVMEM_NULL "Integrator memory is NULL."
+#define MSGBP_MEM_NULL "Integrator memory is NULL."
+#define MSGBP_LMEM_NULL "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
 #define MSGBP_MEM_FAIL "A memory request failed."
 #define MSGBP_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBP_PDATA_NULL "BandPrecData is NULL."
+#define MSGBP_PMEM_NULL "Band preconditioner memory is NULL. CVBandPrecInit must be called."
 #define MSGBP_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
 
 

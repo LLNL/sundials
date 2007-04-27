@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-27 18:56:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include <cvodes/cvodes_spils.h>
+#include "cvodes_impl.h"
 
 /*
  * =================================================================
@@ -50,7 +51,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CVSpilsMemRec {
 
   int s_type;           /* type of scaled preconditioned iterative LS   */
 
@@ -78,17 +79,34 @@ typedef struct {
 
   void* s_spils_mem;    /* memory used by the generic solver            */
 
-  CVSpilsPrecSetupFn s_pset;   /* routine to compute the preconditioner */
-  CVSpilsPrecSolveFn s_psolve; /* routine to solve precond. lin. syst.  */
-  void *s_P_data;              /* data passed to psolve and pset        */
+  /* Preconditioner computation
+   * (a) user-provided:
+   *     - P_data == f_data
+   *     - pfree == NULL (the user dealocates memory for f_data)
+   * (b) internal preconditioner module
+   *     - P_data == cvode_mem
+   *     - pfree == set by the prec. module and called in CVodeFree
+   */
+  CVSpilsPrecSetupFn s_pset;
+  CVSpilsPrecSolveFn s_psolve;
+  void (*s_pfree)(CVodeMem cv_mem);
+  void *s_P_data;
 
-  booleantype s_jtimesDQ;        /* TRUE is using internal DQ approx.   */
-  CVSpilsJacTimesVecFn s_jtimes; /* jtimes = Jacobian * vector routine  */
-  void *s_j_data;                /* data passed to jtimes               */
+  /* Jacobian times vector compuation
+   * (a) jtimes function provided by the user:
+   *     - j_data == f_data
+   *     - jtimesDQ == FALSE
+   * (b) internal jtimes
+   *     - j_data == cvode_mem
+   *     - jtimesDQ == TRUE
+   */
+  booleantype s_jtimesDQ;
+  CVSpilsJacTimesVecFn s_jtimes;
+  void *s_j_data;
 
   int s_last_flag;      /* last error flag returned by any function     */
 
-} CVSpilsMemRec, *CVSpilsMem;
+} *CVSpilsMem;
 
 /*
  * -----------------------------------------------------------------
@@ -122,14 +140,14 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CVSpilsMemRecB {
 
   CVSpilsJacTimesVecFnB s_jtimesB;
   CVSpilsPrecSetupFnB s_psetB;
   CVSpilsPrecSolveFnB s_psolveB;
   void *s_P_dataB;
 
-} CVSpilsMemRecB, *CVSpilsMemB;
+} *CVSpilsMemB;
 
 
 /*

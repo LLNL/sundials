@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include <cvode/cvode_spils.h>
+#include "cvode_impl.h"
 
 /* Types of iterative linear solvers */
 
@@ -38,7 +39,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CVSpilsMemRec {
 
   int s_type;           /* type of scaled preconditioned iterative LS   */
 
@@ -66,17 +67,34 @@ typedef struct {
 
   void* s_spils_mem;    /* memory used by the generic solver            */
 
+  /* Preconditioner computation
+   * (a) user-provided:
+   *     - P_data == f_data
+   *     - pfree == NULL (the user dealocates memory for f_data)
+   * (b) internal preconditioner module
+   *     - P_data == cvode_mem
+   *     - pfree == set by the prec. module and called in CVodeFree
+   */
   CVSpilsPrecSetupFn s_pset;
   CVSpilsPrecSolveFn s_psolve;
+  void (*s_pfree)(CVodeMem cv_mem);
   void *s_P_data;
 
-  booleantype s_jtimesDQ;        /* TRUE is using internal DQ approx.   */
-  CVSpilsJacTimesVecFn s_jtimes; /* jtimes = Jacobian * vector routine  */
-  void *s_j_data;                /* data passed to jtimes               */
+  /* Jacobian times vector compuation
+   * (a) jtimes function provided by the user:
+   *     - j_data == f_data
+   *     - jtimesDQ == FALSE
+   * (b) internal jtimes
+   *     - j_data == cvode_mem
+   *     - jtimesDQ == TRUE
+   */
+  booleantype s_jtimesDQ;
+  CVSpilsJacTimesVecFn s_jtimes;
+  void *s_j_data;
 
   int s_last_flag;      /* last error flag returned by any function     */
 
-} CVSpilsMemRec, *CVSpilsMem;
+} *CVSpilsMem;
 
 /*
  * -----------------------------------------------------------------

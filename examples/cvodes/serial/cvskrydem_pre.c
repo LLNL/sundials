@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-27 18:56:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -204,13 +204,13 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 static int Precond(realtype tn, N_Vector c, N_Vector fc,
 		   booleantype jok, booleantype *jcurPtr, realtype gamma,
-		   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+		   void *f_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp);
+                  int lr, void *f_data, N_Vector vtemp);
 
 /* Private function to check function return values */
 
@@ -279,7 +279,7 @@ int main()
         flag = CVSpilsSetDelt(cvode_mem, DELT);
         if(check_flag(&flag, "CVSpilsSetDelt", 1)) return(1);
 
-        flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, wdata);
+        flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
         if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
       } else {
@@ -746,7 +746,7 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
 */ 
 static int Precond(realtype t, N_Vector c, N_Vector fc,
 		   booleantype jok, booleantype *jcurPtr, realtype gamma,
-		   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+		   void *f_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3)
 {
   realtype ***P;
@@ -759,7 +759,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   void *cvode_mem;
   N_Vector rewt;
   
-  wdata = (WebData) P_data;
+  wdata = (WebData) f_data;
   cvode_mem = wdata->cvode_mem;
   cdata = NV_DATA_S(c);
   rewt = wdata->rewt;
@@ -858,14 +858,14 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
 static int PSolve(realtype tn, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp)
+                  int lr, void *f_data, N_Vector vtemp)
 {
   realtype   ***P;
   int **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
   
-  wdata = (WebData) P_data;
+  wdata = (WebData) f_data;
   
   N_VScale(ONE, r, z);
   

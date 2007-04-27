@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -33,84 +33,14 @@
 void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
 {
   /* 
-     Call CVBandPrecAlloc to initialize the CVBANDPRE module:
+     Call CVBandPrecInit to initialize the CVBANDPRE module:
      N      is the vector size
      mu, ml are the half-bandwidths of the retained preconditioner blocks
   */
 
-  CVBP_Data = CVBandPrecAlloc(CV_cvodemem, *N, *mu, *ml);
-
-  if (CVBP_Data == NULL) *ier = -1; 
-  else                   *ier = 0;
+  *ier = CVBandPrecInit(CV_cvodemem, *N, *mu, *ml);
 
   return;
-}
-
-/***************************************************************************/
-
-void FCV_BPSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier)
-{
-  /* 
-     Call CVBPSptfqmr to specify the SPTFQMR linear solver:
-     CV_cvodemem is the pointer to the CVODE memory block
-     pretype    is the preconditioner type
-     maxl       is the maximum Krylov dimension
-     delt       is the linear convergence tolerance factor 
-  */
-
-  *ier = CVBPSptfqmr(CV_cvodemem, *pretype, *maxl, CVBP_Data);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  CV_ls = CV_LS_SPTFQMR;
-}
-
-/***************************************************************************/
-
-void FCV_BPSPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
-{
-  /* 
-     Call CVBPSpbcg to specify the SPBCG linear solver:
-     CV_cvodemem is the pointer to the CVODE memory block
-     pretype    is the preconditioner type
-     maxl       is the maximum Krylov dimension
-     delt       is the linear convergence tolerance factor 
-  */
-
-  *ier = CVBPSpbcg(CV_cvodemem, *pretype, *maxl, CVBP_Data);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  CV_ls = CV_LS_SPBCG;
-}
-
-/***************************************************************************/
-
-void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
-{
-  /* 
-     Call CVBPSpgmr to specify the SPGMR linear solver:
-     CV_cvodemem is the pointer to the CVODE memory block
-     pretype    is the preconditioner type
-     gstype     is the Gram-Schmidt process type
-     maxl       is the maximum Krylov dimension
-     delt       is the linear convergence tolerance factor 
-  */
-
-  *ier = CVBPSpgmr(CV_cvodemem, *pretype, *maxl, CVBP_Data);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  *ier = CVSpilsSetGSType(CV_cvodemem, *gstype);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  CV_ls = CV_LS_SPGMR;
 }
 
 /***************************************************************************/
@@ -119,16 +49,6 @@ void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 
 void FCV_BPOPT(long int *lenrwbp, long int *leniwbp, long int *nfebp)
 {
-  CVBandPrecGetWorkSpace(CVBP_Data, lenrwbp, leniwbp);
-  CVBandPrecGetNumRhsEvals(CVBP_Data, nfebp);
-}
-
-/***************************************************************************/
-
-/* C function FCVBPFREE to interface to CVBandPrecFree, to free memory 
-   created by CVBandPrecAlloc */
-
-void FCV_BPFREE(void)
-{
-  CVBandPrecFree(&CVBP_Data);
+  CVBandPrecGetWorkSpace(CV_cvodemem, lenrwbp, leniwbp);
+  CVBandPrecGetNumRhsEvals(CV_cvodemem, nfebp);
 }

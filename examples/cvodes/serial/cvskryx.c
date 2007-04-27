@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-27 18:56:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -139,13 +139,13 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
-                   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   void *f_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp);
+                  int lr, void *f_data, N_Vector vtemp);
 
 
 /*
@@ -210,7 +210,7 @@ int main()
   if(check_flag(&flag, "CVSpilsSetGSType", 1)) return(1);
 
   /* Set the preconditioner solve and setup functions */
-  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, data);
+  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
   if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
   /* In loop over output points, call CVode, print results, test for error */
@@ -680,7 +680,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
-                   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   void *f_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
@@ -690,9 +690,9 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   realtype *udata, **a, **j;
   UserData data;
   
-  /* Make local copies of pointers in P_data, and of pointer to u's data */
+  /* Make local copies of pointers in f_data, and of pointer to u's data */
   
-  data = (UserData) P_data;
+  data = (UserData) f_data;
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
@@ -770,7 +770,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp)
+                  int lr, void *f_data, N_Vector vtemp)
 {
   realtype **(*P)[MY];
   int *(*pivot)[MY];
@@ -778,9 +778,9 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   realtype *zdata, *v;
   UserData data;
 
-  /* Extract the P and pivot arrays from P_data. */
+  /* Extract the P and pivot arrays from f_data. */
 
-  data = (UserData) P_data;
+  data = (UserData) f_data;
   P = data->P;
   pivot = data->pivot;
   zdata = NV_DATA_S(z);

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2006-07-05 15:50:04 $
+C     $Revision: 1.2 $
+C     $Date: 2007-04-27 18:56:28 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -105,6 +105,14 @@ C
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
+C
+      CALL FCVSPGMR(IPRE, IGS, 0, 0.0D0, IER)
+      IF (IER .NE. 0) THEN
+         WRITE(6,36) IER
+ 36      FORMAT(///' SUNDIALS_ERROR: FCVSPGMR returned IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
 C     
       MUDQ = 0
       MLDQ = 0
@@ -114,14 +122,6 @@ C
       IF (IER .NE. 0) THEN
          WRITE(6,35) IER
  35      FORMAT(///' SUNDIALS_ERROR: FCVBBDINIT returned IER = ', I5)
-         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
-         STOP
-      ENDIF
-C
-      CALL FCVBBDSPGMR(IPRE, IGS, 0, 0.0D0, IER)
-      IF (IER .NE. 0) THEN
-         WRITE(6,36) IER
- 36      FORMAT(///' SUNDIALS_ERROR: FCVBBDSPGMR returned IER = ', I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
@@ -252,8 +252,7 @@ C
       GO TO 40
 C     
 C     Free the memory and finalize MPI.
- 99   CALL FCVBBDFREE
-      CALL FCVFREE
+ 99   CALL FCVFREE
       CALL MPI_FINALIZE(IER)
 C     
       STOP

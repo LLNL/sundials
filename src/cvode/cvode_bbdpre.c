@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-11 22:34:09 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -21,16 +21,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cvode_impl.h"
+#include "cvode_bbdpre_impl.h"
+#include "cvode_spils_impl.h"
+
 #include <cvode/cvode_sptfqmr.h>
 #include <cvode/cvode_spbcgs.h>
 #include <cvode/cvode_spgmr.h>
 
-#include "cvode_impl.h"
-#include "cvode_bbdpre_impl.h"
-
 #include <sundials/sundials_math.h>
 
 #define MIN_INC_MULT RCONST(1000.0)
+
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 
@@ -46,6 +48,10 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
                           realtype gamma, realtype delta,
                           int lr, void *bbd_data, N_Vector tmp);
 
+/* Prototype for CVBBDPrecFree */
+static void CVBBDPrecFree(CVodeMem cv_mem);
+
+
 /* Prototype for difference quotient Jacobian calculation routine */
 
 static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
@@ -59,38 +65,47 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 
 /*
  * -----------------------------------------------------------------
- * User-Callable Functions: malloc, reinit and free
+ * User-Callable Functions: initialization, reinit and free
  * -----------------------------------------------------------------
  */
 
-void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal, 
-                     int mudq, int mldq,
-                     int mukeep, int mlkeep, 
-                     realtype dqrely, 
-                     CVLocalFn gloc, CVCommFn cfn)
+int CVBBDPrecInit(void *cvode_mem, int Nlocal, 
+                   int mudq, int mldq,
+                   int mukeep, int mlkeep, 
+                   realtype dqrely, 
+                   CVLocalFn gloc, CVCommFn cfn)
 {
   CVodeMem cv_mem;
+  CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
   int muk, mlk, storage_mu;
+  int flag;
 
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_CVMEM_NULL);
-    return(NULL);
+    CVProcessError(NULL, CVSPILS_MEM_NULL, "CVBBDPRE", "CVBBDPrecInit", MSGBBDP_MEM_NULL);
+    return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  /* Test if one of the SPILS linear solvers has been attached */
+  if (cv_mem->cv_lmem == NULL) {
+    CVProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBBDPRE", "CVBBDPrecInit", MSGBBD_LMEM_NULL);
+    return(CVSPILS_LMEM_NULL);
+  }
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
   /* Test if the NVECTOR package is compatible with the BLOCK BAND preconditioner */
   if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_BAD_NVECTOR);
-    return(NULL);
+    CVProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVBBDPRE", "CVBBDPrecInit", MSGBBDP_BAD_NVECTOR);
+    return(CVSPILS_ILL_INPUT);
   }
 
   /* Allocate data memory */
   pdata = NULL;
   pdata = (CVBBDPrecData) malloc(sizeof *pdata);  
   if (pdata == NULL) {
-    CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
-    return(NULL);
+    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBBDPRE", "CVBBDPrecInit", MSGBBDP_MEM_FAIL);
+    return(CVSPILS_MEM_FAIL);
   }
 
   /* Set pointers to gloc and cfn; load half-bandwidths */
@@ -108,8 +123,8 @@ void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal,
   pdata->savedJ = NewBandMat(Nlocal, muk, mlk, muk);
   if (pdata->savedJ == NULL) { 
     free(pdata); pdata = NULL; 
-    CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
-    return(NULL); 
+    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBBDPRE", "CVBBDPrecInit", MSGBBDP_MEM_FAIL);
+    return(CVSPILS_MEM_FAIL); 
   }
 
   /* Allocate memory for preconditioner matrix */
@@ -119,8 +134,8 @@ void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal,
   if (pdata->savedP == NULL) {
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
-    CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
-    return(NULL);
+    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBBDPRE", "CVBBDPrecInit", MSGBBDP_MEM_FAIL);
+    return(CVSPILS_MEM_FAIL);
   }
   /* Allocate memory for pivots */
   pdata->pivots = NULL;
@@ -129,8 +144,8 @@ void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal,
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
-    CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
-    return(NULL);
+    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBBDPRE", "CVBBDPrecInit", MSGBBDP_MEM_FAIL);
+    return(CVSPILS_MEM_FAIL);
   }
 
   /* Set pdata->dqrely based on input dqrely (0 implies default). */
@@ -144,87 +159,47 @@ void *CVBBDPrecAlloc(void *cvode_mem, int Nlocal,
   pdata->ipwsize = Nlocal;
   pdata->nge = 0;
 
-  return((void *)pdata);
+  /* Overwrite the P_data field in the SPILS memory */
+  cvspils_mem->s_P_data = pdata;
+
+  /* Attach the pfree function */
+  cvspils_mem->s_pfree = CVBBDPrecFree;
+
+  /* Attach preconditioner solve and setup functions */
+  flag = CVSpilsSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve);
+
+  return(flag);
 }
 
-int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
-{
-  CVodeMem cv_mem;
-  int flag;
 
-  flag = CVSptfqmr(cvode_mem, pretype, maxl);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (bbd_data == NULL) {
-    CVProcessError(cv_mem, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDSptfqmr", MSGBBDP_PDATA_NULL);
-    return(CVBBDPRE_PDATA_NULL);
-  } 
-
-  flag = CVSpilsSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  return(CVSPILS_SUCCESS);
-}
-
-int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
-{
-  CVodeMem cv_mem;
-  int flag;
-
-  flag = CVSpbcg(cvode_mem, pretype, maxl);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (bbd_data == NULL) {
-    CVProcessError(cv_mem, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDSpbcg", MSGBBDP_PDATA_NULL);
-    return(CVBBDPRE_PDATA_NULL);
-  } 
-
-  flag = CVSpilsSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  return(CVSPILS_SUCCESS);
-}
-
-int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
-{
-  CVodeMem cv_mem;
-  int flag;
-
-  flag = CVSpgmr(cvode_mem, pretype, maxl);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (bbd_data == NULL) {
-    CVProcessError(cv_mem, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDSpgmr", MSGBBDP_PDATA_NULL);
-    return(CVBBDPRE_PDATA_NULL);
-  } 
-
-  flag = CVSpilsSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  return(CVSPILS_SUCCESS);
-}
-
-int CVBBDPrecReInit(void *bbd_data, 
+int CVBBDPrecReInit(void *cvode_mem, 
                     int mudq, int mldq, 
                     realtype dqrely)
 {
-  CVBBDPrecData pdata;
   CVodeMem cv_mem;
+  CVSpilsMem cvspils_mem;
+  CVBBDPrecData pdata;
   int Nlocal;
 
-  if (bbd_data == NULL) {
-    CVProcessError(NULL, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBDP_PDATA_NULL);
-    return(CVBBDPRE_PDATA_NULL);
-  } 
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CVSPILS_MEM_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBDP_MEM_NULL);
+    return(CVSPILS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
 
-  pdata  = (CVBBDPrecData) bbd_data;
-  cv_mem = (CVodeMem) pdata->cvode_mem;
+  /* Test if one of the SPILS linear solvers has been attached */
+  if (cv_mem->cv_lmem == NULL) {
+    CVProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBD_LMEM_NULL);
+    return(CVSPILS_LMEM_NULL);
+  }
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
+  /* Test if the preconditioner data is non-NULL */
+  if (cvspils_mem->s_P_data == NULL) {
+    CVProcessError(NULL, CVSPILS_PMEM_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBDP_PMEM_NULL);
+    return(CVSPILS_PMEM_NULL);
+  } 
+  pdata = (CVBBDPrecData) cvspils_mem->s_P_data;
 
   /* Load half-bandwidths */
   Nlocal = pdata->n_local;
@@ -237,85 +212,66 @@ int CVBBDPrecReInit(void *bbd_data,
   /* Re-initialize nge */
   pdata->nge = 0;
 
-  return(CVBBDPRE_SUCCESS);
+  return(CVSPILS_SUCCESS);
 }
 
-void CVBBDPrecFree(void **bbd_data)
+int CVBBDPrecGetWorkSpace(void *cvode_mem, long int *lenrwBBDP, long int *leniwBBDP)
 {
-  CVBBDPrecData pdata;
-  
-  if (*bbd_data == NULL) return;
-
-  pdata = (CVBBDPrecData) (*bbd_data);
-  DestroyMat(pdata->savedJ);
-  DestroyMat(pdata->savedP);
-  DestroyArray(pdata->pivots);
-
-  free(*bbd_data);
-  *bbd_data = NULL;
-
-}
-
-int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP)
-{
+  CVodeMem cv_mem;
+  CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
 
-  if (bbd_data == NULL) {
-    CVProcessError(NULL, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDPrecGetWorkSpace", MSGBBDP_PDATA_NULL);    
-    return(CVBBDPRE_PDATA_NULL);
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CVSPILS_MEM_NULL, "CVBBDPRE", "CVBBDPrecGetWorkSpace", MSGBBDP_MEM_NULL);
+    return(CVSPILS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (cv_mem->cv_lmem == NULL) {
+    CVProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBBDPRE", "CVBBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
+    return(CVSPILS_LMEM_NULL);
+  }
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
+  if (cvspils_mem->s_P_data == NULL) {
+    CVProcessError(NULL, CVSPILS_PMEM_NULL, "CVBBDPRE", "CVBBDPrecGetWorkSpace", MSGBBDP_PMEM_NULL);
+    return(CVSPILS_PMEM_NULL);
   } 
-
-  pdata = (CVBBDPrecData) bbd_data;
+  pdata = (CVBBDPrecData) cvspils_mem->s_P_data;
 
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(CVBBDPRE_SUCCESS);
+  return(CVSPILS_SUCCESS);
 }
 
-int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
+int CVBBDPrecGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP)
 {
+  CVodeMem cv_mem;
+  CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
 
-  if (bbd_data == NULL) {
-    CVProcessError(NULL, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDPrecGetNumGfnEvals", MSGBBDP_PDATA_NULL);
-    return(CVBBDPRE_PDATA_NULL);
-  } 
+  if (cvode_mem == NULL) {
+    CVProcessError(NULL, CVSPILS_MEM_NULL, "CVBBDPRE", "CVBBDPrecGetNumGfnEvals", MSGBBDP_MEM_NULL);
+    return(CVSPILS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
 
-  pdata = (CVBBDPrecData) bbd_data;
+  if (cv_mem->cv_lmem == NULL) {
+    CVProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBBDPRE", "CVBBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
+    return(CVSPILS_LMEM_NULL);
+  }
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
+  if (cvspils_mem->s_P_data == NULL) {
+    CVProcessError(NULL, CVSPILS_PMEM_NULL, "CVBBDPRE", "CVBBDPrecGetNumGfnEvals", MSGBBDP_PMEM_NULL);
+    return(CVSPILS_PMEM_NULL);
+  } 
+  pdata = (CVBBDPrecData) cvspils_mem->s_P_data;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(CVBBDPRE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVBBDPrecGetReturnFlagName
- * -----------------------------------------------------------------
- */
-
-char *CVBBDPrecGetReturnFlagName(int flag)
-{
-  char *name;
-
-  name = (char *)malloc(30*sizeof(char));
-
-  switch(flag) {
-  case CVBBDPRE_SUCCESS:
-    sprintf(name,"CVBBDPRE_SUCCESS");
-    break;   
-  case CVBBDPRE_PDATA_NULL:
-    sprintf(name,"CVBBDPRE_PDATA_NULL");
-    break;
-  case CVBBDPRE_FUNC_UNRECVR:
-    sprintf(name,"CVBBDPRE_FUNC_UNRECVR");
-    break;
-  default:
-    sprintf(name,"NONE");
-  }
-
-  return(name);
+  return(CVSPILS_SUCCESS);
 }
 
 /* Readability Replacements */
@@ -372,9 +328,8 @@ char *CVBBDPrecGetReturnFlagName(int flag)
  *
  * gamma   is the scalar appearing in the Newton matrix.
  *
- * bbd_data  is a pointer to user data - the same as the P_data
- *           parameter passed to CVSp*. For CVBBDPrecon,
- *           this should be of type CVBBDData.
+ * bbd_data is a pointer to the preconditioner data set by
+ *          CVBBDPrecInit
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated
  *           for NVectors which are be used by CVBBDPrecSetup
@@ -415,7 +370,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     retval = CVBBDDQJac(pdata, t, y, tmp1, tmp2, tmp3);
     if (retval < 0) {
-      CVProcessError(cv_mem, CVBBDPRE_FUNC_UNRECVR, "CVBBDPRE", "CVBBDPrecSetup", MSGBBDP_FUNC_FAILED);
+      CVProcessError(cv_mem, -1, "CVBBDPRE", "CVBBDPrecSetup", MSGBBDP_FUNC_FAILED);
       return(-1);
     }
     if (retval > 0) {
@@ -448,12 +403,12 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
  *
  * The parameters of CVBBDPrecSolve used here are as follows:
  *
- * r      is the right-hand side vector of the linear system.
+ * r is the right-hand side vector of the linear system.
  *
- * bbd_data is a pointer to the preconditioner data returned by
- *          CVBBDPrecAlloc.
+ * bbd_data is a pointer to the preconditioner data set by
+ *   CVBBDPrecInit.
  *
- * z      is the output vector computed by CVBBDPrecSolve.
+ * z is the output vector computed by CVBBDPrecSolve.
  *
  * The value returned by the CVBBDPrecSolve function is always 0,
  * indicating success.
@@ -479,6 +434,27 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
   return(0);
 }
+
+
+static void CVBBDPrecFree(CVodeMem cv_mem)
+{
+  CVSpilsMem cvspils_mem;
+  CVBBDPrecData pdata;
+  
+  if (cv_mem->cv_lmem == NULL) return;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+  
+  if (cvspils_mem->s_P_data == NULL) return;
+  pdata = (CVBBDPrecData) cvspils_mem->s_P_data;
+
+  DestroyMat(savedJ);
+  DestroyMat(savedP);
+  DestroyArray(pivots);
+
+  free(pdata);
+  pdata = NULL;
+}
+
 
 #define ewt    (cv_mem->cv_ewt)
 #define h      (cv_mem->cv_h)

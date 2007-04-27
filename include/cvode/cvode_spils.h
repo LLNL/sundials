@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-27 18:56:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -25,6 +25,20 @@ extern "C" {
 
 #include <sundials/sundials_iterative.h>
 #include <sundials/sundials_nvector.h>
+
+
+/*
+ * -----------------------------------------------------------------
+ * CVSPILS return values 
+ * -----------------------------------------------------------------
+ */
+
+#define CVSPILS_SUCCESS          0
+#define CVSPILS_MEM_NULL        -1
+#define CVSPILS_LMEM_NULL       -2
+#define CVSPILS_ILL_INPUT       -3
+#define CVSPILS_MEM_FAIL        -4
+#define CVSPILS_PMEM_NULL       -5
 
 /*
  * -----------------------------------------------------------------
@@ -116,8 +130,8 @@ extern "C" {
  *
  * gamma   is the scalar appearing in the Newton matrix.
  *
- * P_data  is a pointer to user data - the same as the P_data
- *         parameter passed to the CV*SetPreconditioner function.
+ * f_data  is a pointer to user data - the same as the f_data
+ *         parameter passed to the CVodeSetFdata function.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated
  *                      for N_Vectors which can be used by
@@ -142,7 +156,7 @@ extern "C" {
 
 typedef int (*CVSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
                                   booleantype jok, booleantype *jcurPtr,
-                                  realtype gamma, void *P_data,
+                                  realtype gamma, void *f_data,
                                   N_Vector tmp1, N_Vector tmp2,
                                   N_Vector tmp3);
 
@@ -182,8 +196,8 @@ typedef int (*CVSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
  *        the left preconditioner P1 or right preconditioner
  *        P2: lr = 1 means use P1, and lr = 2 means use P2.
  *
- * P_data is a pointer to user data - the same as the P_data
- *        parameter passed to the CV*SetPreconditioner function.
+ * f_data  is a pointer to user data - the same as the f_data
+ *         parameter passed to the CVodeSetFdata function.
  *
  * tmp    is a pointer to memory allocated for an N_Vector
  *        which can be used by PSolve for work space.
@@ -200,7 +214,7 @@ typedef int (*CVSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
 typedef int (*CVSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
                                   N_Vector r, N_Vector z,
                                   realtype gamma, realtype delta,
-                                  int lr, void *P_data, N_Vector tmp);
+                                  int lr, void *f_data, N_Vector tmp);
 
 /*
  * -----------------------------------------------------------------
@@ -268,10 +282,7 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  *                Default value is 0.05.
  *
  * CVSpilsSetPreconditioner specifies the PrecSetup and PrecSolve functions.
- *                as well as a pointer to user preconditioner data.
- *                This pointer is passed to PrecSetup and PrecSolve
- *                every time these routines are called.
- *                Default is NULL for al three arguments.
+ *                Default is NULL for both arguments (no preconditioning)
  *
  * CVSpilsSetJacTimesVecFn specifies the jtimes function. Default is to 
  *                use an internal finite difference approximation routine.
@@ -288,9 +299,11 @@ SUNDIALS_EXPORT int CVSpilsSetPrecType(void *cvode_mem, int pretype);
 SUNDIALS_EXPORT int CVSpilsSetGSType(void *cvode_mem, int gstype);
 SUNDIALS_EXPORT int CVSpilsSetMaxl(void *cvode_mem, int maxl);
 SUNDIALS_EXPORT int CVSpilsSetDelt(void *cvode_mem, realtype delt);
-SUNDIALS_EXPORT int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset, 
-					     CVSpilsPrecSolveFn psolve, void *P_data);
-SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtv);
+SUNDIALS_EXPORT int CVSpilsSetPreconditioner(void *cvode_mem, 
+                                             CVSpilsPrecSetupFn pset,
+                                             CVSpilsPrecSolveFn psolve);
+SUNDIALS_EXPORT int CVSpilsSetJacTimesVecFn(void *cvode_mem, 
+                                            CVSpilsJacTimesVecFn jtv);
 
 /*
  * -----------------------------------------------------------------
@@ -344,14 +357,6 @@ SUNDIALS_EXPORT int CVSpilsGetLastFlag(void *cvode_mem, int *flag);
  */
 
 SUNDIALS_EXPORT char *CVSpilsGetReturnFlagName(int flag);
-
-/* CVSPILS return values */
-
-#define CVSPILS_SUCCESS          0
-#define CVSPILS_MEM_NULL        -1
-#define CVSPILS_LMEM_NULL       -2
-#define CVSPILS_ILL_INPUT       -3
-#define CVSPILS_MEM_FAIL        -4
 
 #ifdef __cplusplus
 }

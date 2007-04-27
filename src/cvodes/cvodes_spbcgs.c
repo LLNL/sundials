@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -156,7 +156,7 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
 
   /* Get memory for CVSpilsMemRec */
   cvspils_mem = NULL;
-  cvspils_mem = (CVSpilsMem) malloc(sizeof(CVSpilsMemRec));
+  cvspils_mem = (CVSpilsMem) malloc(sizeof(struct CVSpilsMemRec));
   if (cvspils_mem == NULL) {
     cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGS_MEM_FAIL);
     return(CVSPILS_MEM_FAIL);
@@ -174,11 +174,13 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
   jtimes   = NULL;
   j_data   = NULL;
 
+  /* Set defaults for preconditioner-related fields */
+  cvspils_mem->s_pset   = NULL;
+  cvspils_mem->s_psolve = NULL;
+  cvspils_mem->s_P_data = cv_mem->cv_f_data;
+
   /* Set default values for the rest of the Spbcg parameters */
   cvspils_mem->s_delt      = CVSPILS_DELT;
-  cvspils_mem->s_P_data    = NULL;
-  cvspils_mem->s_pset      = NULL;
-  cvspils_mem->s_psolve    = NULL;
 
   cvspils_mem->s_last_flag = CVSPILS_SUCCESS;
 
@@ -464,11 +466,14 @@ static void CVSpbcgFree(CVodeMem cv_mem)
 
   cvspils_mem = (CVSpilsMem) lmem;
 
-  spbcg_mem = (SpbcgMem) spils_mem;
-
   N_VDestroy(ytemp);
   N_VDestroy(x);
+
+  spbcg_mem = (SpbcgMem) spils_mem;
   SpbcgFree(spbcg_mem);
+
+  if (cvspils_mem->s_pfree != NULL) (cvspils_mem->s_pfree)(cv_mem);
+
   free(cvspils_mem); cvspils_mem = NULL;
 }
 
@@ -535,7 +540,7 @@ int CVSpbcgB(void *cvode_mem, int which, int pretypeB, int maxlB)
 
   /* Get memory for CVSpilsMemRecB */
   cvspilsB_mem = NULL;
-  cvspilsB_mem = (CVSpilsMemB) malloc(sizeof(CVSpilsMemRecB));
+  cvspilsB_mem = (CVSpilsMemB) malloc(sizeof(struct CVSpilsMemRecB));
   if (cvspilsB_mem == NULL) {
     cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPBCG", "CVSpbcgB", MSGS_MEM_FAIL);
     return(CVSPILS_MEM_FAIL);

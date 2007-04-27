@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -21,6 +21,7 @@
 
 #include "cvodes_impl.h"
 #include "cvodes_bandpre_impl.h"
+#include "cvodes_spils_impl.h"
 
 #include <cvodes/cvodes_sptfqmr.h>
 #include <cvodes/cvodes_spbcgs.h>
@@ -44,15 +45,15 @@ static int cvBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
                            realtype gamma, realtype delta,
                            int lr, void *bp_data, N_Vector tmp);
 
+/* Prototype for cvBandPrecFree */
+
+static void cvBandPrecFree(CVodeMem cv_mem);
+
 /* Prototype for difference quotient Jacobian calculation routine */
 
 static int cvBandPrecDQJac(CVBandPrecData pdata, 
                            realtype t, N_Vector y, N_Vector fy, 
                            N_Vector ftemp, N_Vector ytemp);
-
-/* Prototype for the pfree routine */
-
-static void CVBandPrecFreeB(CVodeBMem cvB_mem);
 
 /* 
  * ================================================================
@@ -68,37 +69,45 @@ static void CVBandPrecFreeB(CVodeBMem cvB_mem);
 
 /*
  * -----------------------------------------------------------------
- * Malloc, Free, and Get Functions
+ * Initialization, Free, and Get Functions
  * NOTE: The band linear solver assumes a serial implementation
- *       of the NVECTOR package. Therefore, CVBandPrecAlloc will
+ *       of the NVECTOR package. Therefore, CVBandPrecInit will
  *       first test for a compatible N_Vector internal representation
  *       by checking that the function N_VGetArrayPointer exists.
  * -----------------------------------------------------------------
  */
-
-void *CVBandPrecAlloc(void *cvode_mem, int N, int mu, int ml)
+int CVBandPrecInit(void *cvode_mem, int N, int mu, int ml)
 {
   CVodeMem cv_mem;
+  CVSpilsMem cvspils_mem;
   CVBandPrecData pdata;
   int mup, mlp, storagemu;
+  int flag;
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_CVMEM_NULL);
-    return(NULL);
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE", "CVBandPrecInit", MSGBP_MEM_NULL);
+    return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  /* Test if one of the SPILS linear solvers has been attached */
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBANDPRE", "CVBandPrecInit", MSGBP_LMEM_NULL);
+    return(CVSPILS_LMEM_NULL);
+  }
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
   /* Test if the NVECTOR package is compatible with the BAND preconditioner */
   if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    cvProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_BAD_NVECTOR);
-    return(NULL);
+    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVBANDPRE", "CVBandPrecInit", MSGBP_BAD_NVECTOR);
+    return(CVSPILS_ILL_INPUT);
   }
 
   pdata = NULL;
   pdata = (CVBandPrecData) malloc(sizeof *pdata);  /* Allocate data memory */
   if (pdata == NULL) {
-    cvProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
-    return(NULL);
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBANDPRE", "CVBandPrecInit", MSGBP_MEM_FAIL);
+    return(CVSPILS_MEM_FAIL);
   }
 
   /* Load pointers and bandwidths into pdata block. */
@@ -115,9 +124,10 @@ void *CVBandPrecAlloc(void *cvode_mem, int N, int mu, int ml)
   pdata->savedJ = NewBandMat(N, mup, mlp, mup);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
-    return(NULL);
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBANDPRE", "CVBandPrecInit", MSGBP_MEM_FAIL);
+    return(CVSPILS_MEM_FAIL);
   }
+
 
   /* Allocate memory for banded preconditioner. */
   storagemu = MIN(N-1, mup+mlp);
@@ -126,8 +136,8 @@ void *CVBandPrecAlloc(void *cvode_mem, int N, int mu, int ml)
   if (pdata->savedP == NULL) {
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
-    return(NULL);
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBANDPRE", "CVBandPrecInit", MSGBP_MEM_FAIL);
+    return(CVSPILS_MEM_FAIL);
   }
 
   /* Allocate memory for pivot array. */
@@ -137,103 +147,47 @@ void *CVBandPrecAlloc(void *cvode_mem, int N, int mu, int ml)
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
-    return(NULL);
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBANDPRE", "CVBandPrecInit", MSGBP_MEM_FAIL);
+    return(CVSPILS_MEM_FAIL);
   }
 
-  return((void *) pdata);
+  /* Overwrite the P_data field in the SPILS memory */
+  cvspils_mem->s_P_data = pdata;
+
+  /* Attach the pfree function */
+  cvspils_mem->s_pfree = cvBandPrecFree;
+
+  /* Attach preconditioner solve and setup functions */
+  flag = CVSpilsSetPreconditioner(cvode_mem, cvBandPrecSetup, cvBandPrecSolve);
+
+  return(flag);
 }
 
-int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data)
+int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP, long int *leniwBP)
 {
   CVodeMem cv_mem;
-  int flag;
-
-  flag = CVSptfqmr(cvode_mem, pretype, maxl);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-  
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if ( p_data == NULL ) {
-    cvProcessError(cv_mem, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBPSptfqmr", MSGBP_PDATA_NULL);
-    return(CVBANDPRE_PDATA_NULL);
-  } 
-
-  flag = CVSpilsSetPreconditioner(cvode_mem, cvBandPrecSetup, cvBandPrecSolve, p_data);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  return(CVSPILS_SUCCESS);
-}
-
-int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data)
-{
-  CVodeMem cv_mem;
-  int flag;
-
-  flag = CVSpbcg(cvode_mem, pretype, maxl);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if ( p_data == NULL ) {
-    cvProcessError(cv_mem, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBPSpbcg", MSGBP_PDATA_NULL);
-    return(CVBANDPRE_PDATA_NULL);
-  } 
-
-  flag = CVSpilsSetPreconditioner(cvode_mem, cvBandPrecSetup, cvBandPrecSolve, p_data);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  return(CVSPILS_SUCCESS);
-}
-
-int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
-{
-  CVodeMem cv_mem;
-  int flag;
-
-  flag = CVSpgmr(cvode_mem, pretype, maxl);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if ( p_data == NULL ) {
-    cvProcessError(cv_mem, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBPSpgmr", MSGBP_PDATA_NULL);
-    return(CVBANDPRE_PDATA_NULL);
-  }
-
-  flag = CVSpilsSetPreconditioner(cvode_mem, cvBandPrecSetup, cvBandPrecSolve, p_data);
-  if(flag != CVSPILS_SUCCESS) return(flag);
-
-  return(CVSPILS_SUCCESS);
-}
-
-void CVBandPrecFree(void **bp_data)
-{
-  CVBandPrecData pdata;
-
-  if (*bp_data == NULL) return;
-
-  pdata = (CVBandPrecData) (*bp_data);
-  DestroyMat(pdata->savedJ);
-  DestroyMat(pdata->savedP);
-  DestroyArray(pdata->pivots);
-
-  free(*bp_data);
-  *bp_data = NULL;
-
-}
-
-int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
-{
+  CVSpilsMem cvspils_mem;
   CVBandPrecData pdata;
   int N, ml, mu, smu;
 
-  if ( bp_data == NULL ) {
-    cvProcessError(NULL, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBandPrecGetWorkSpace", MSGBP_PDATA_NULL);
-    return(CVBANDPRE_PDATA_NULL);
-  } 
+  
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE", "CVBandPrecGetWorkSpace", MSGBP_MEM_NULL);
+    return(CVSPILS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
 
-  pdata = (CVBandPrecData) bp_data;
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBANDPRE", "CVBandPrecGetWorkSpace", MSGBP_LMEM_NULL);
+    return(CVSPILS_LMEM_NULL);
+  }
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
+  if (cvspils_mem->s_P_data == NULL) {
+    cvProcessError(NULL, CVSPILS_PMEM_NULL, "CVBANDPRE", "CVBandPrecGetWorkSpace", MSGBP_PMEM_NULL);
+    return(CVSPILS_PMEM_NULL);
+  } 
+  pdata = (CVBandPrecData) cvspils_mem->s_P_data;
 
   N   = pdata->N;
   mu  = pdata->mu;
@@ -243,58 +197,36 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
   *leniwBP = pdata->N;
   *lenrwBP = N * ( 2*ml + smu + mu + 2 );
 
-  return(CVBANDPRE_SUCCESS);
+  return(CVSPILS_SUCCESS);
 }
 
-int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
+int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
 {
+  CVodeMem cv_mem;
+  CVSpilsMem cvspils_mem;
   CVBandPrecData pdata;
 
-  if (bp_data == NULL) {
-    cvProcessError(NULL, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBandPrecGetNumRhsEvals", MSGBP_PDATA_NULL);
-    return(CVBANDPRE_PDATA_NULL);
-  } 
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE", "CVBandPrecGetNumRhsEvals", MSGBP_MEM_NULL);
+    return(CVSPILS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
 
-  pdata = (CVBandPrecData) bp_data;
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBANDPRE", "CVBandPrecGetNumRhsEvals", MSGBP_LMEM_NULL);
+    return(CVSPILS_LMEM_NULL);
+  }
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+
+  if (cvspils_mem->s_P_data == NULL) {
+    cvProcessError(NULL, CVSPILS_PMEM_NULL, "CVBANDPRE", "CVBandPrecGetNumRhsEvals", MSGBP_PMEM_NULL);
+    return(CVSPILS_PMEM_NULL);
+  } 
+  pdata = (CVBandPrecData) cvspils_mem->s_P_data;
 
   *nfevalsBP = pdata->nfeBP;
 
-  return(CVBANDPRE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVBandPrecGetReturnFlagName
- * -----------------------------------------------------------------
- */
-
-char *CVBandPrecGetReturnFlagName(int flag)
-{
-  char *name;
-
-  name = (char *)malloc(30*sizeof(char));
-
-  switch(flag) {
-  case CVBANDPRE_SUCCESS:
-    sprintf(name,"CVBANDPRE_SUCCESS");
-    break;    
-  case CVBANDPRE_PDATA_NULL:
-    sprintf(name,"CVBANDPRE_PDATA_NULL");
-    break;
-  case CVBANDPRE_RHSFUNC_UNRECVR:
-    sprintf(name,"CVBANDPRE_RHSFUNC_UNRECVR");
-    break;
-  case CVBANDPRE_NO_ADJ:
-    sprintf(name,"CVBANDPRE_NO_ADJ");
-    break;
-  case CVBANDPRE_MEM_FAIL:
-    sprintf(name,"CVBANDPRE_MEM_FAIL");
-    break;
-  default:
-    sprintf(name,"NONE");
-  }
-
-  return(name);
+  return(CVSPILS_SUCCESS);
 }
 
 /* Readability Replacements */
@@ -343,8 +275,7 @@ char *CVBandPrecGetReturnFlagName(int flag)
  *
  * gamma   is the scalar appearing in the Newton matrix.
  *
- * bp_data is a pointer to preconditoner data - the same as the
- *         bp_data parameter passed to CVSp*.
+ * bp_data is a pointer to preconditoner data (set by CVBandPrecInit)
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated
  *           for vectors of length N for work space. This
@@ -363,7 +294,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 {
   CVBandPrecData pdata;
   CVodeMem cv_mem;
-  int ier, retval;
+  int retval;
 
   /* Assume matrix and pivots have already been allocated. */
   pdata = (CVBandPrecData) bp_data;
@@ -384,7 +315,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     retval = cvBandPrecDQJac(pdata, t, y, fy, tmp1, tmp2);
     if (retval < 0) {
-      cvProcessError(cv_mem, CVBANDPRE_RHSFUNC_UNRECVR, "CVBANDPRE", "cvBandPrecSetup", MSGBP_RHSFUNC_FAILED);
+      cvProcessError(cv_mem, -1, "CVBANDPRE", "cvBandPrecSetup", MSGBP_RHSFUNC_FAILED);
       return(-1);
     }
     if (retval > 0) {
@@ -400,10 +331,10 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   BandAddI(savedP);
  
   /* Do LU factorization of matrix. */
-  ier = BandGBTRF(savedP, pivots);
+  retval = BandGBTRF(savedP, pivots);
  
   /* Return 0 if the LU was complete; otherwise return 1. */
-  if (ier > 0) return(1);
+  if (retval > 0) return(1);
   return(0);
 }
 
@@ -418,8 +349,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
  *
  * r       is the right-hand side vector of the linear system.
  *
- * bp_data is a pointer to preconditioner data - the same as the
- *         bp_data parameter passed to CVSp*.
+ * bp_data is a pointer to preconditoner data (set by CVBandPrecInit)
  *
  * z       is the output vector computed by cvBandPrecSolve.
  *
@@ -449,6 +379,27 @@ static int cvBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
   return(0);
 }
+
+
+static void cvBandPrecFree(CVodeMem cv_mem)
+{
+  CVSpilsMem cvspils_mem;
+  CVBandPrecData pdata;
+
+  if (cv_mem->cv_lmem == NULL) return;
+  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+  
+  if (cvspils_mem->s_P_data == NULL) return;
+  pdata = (CVBandPrecData) cvspils_mem->s_P_data;
+
+  DestroyMat(savedJ);
+  DestroyMat(savedP);
+  DestroyArray(pivots);
+
+  free(pdata);
+  pdata = NULL;
+}
+
 
 #define ewt    (cv_mem->cv_ewt)
 #define uround (cv_mem->cv_uround)
@@ -541,63 +492,13 @@ static int cvBandPrecDQJac(CVBandPrecData pdata,
  */
 
 /*
- * CVBandPrecAllocB, CVBPSp*B
+ * CVBandPrecInitB, CVBPSp*B
  *
  * Wrappers for the backward phase around the corresponding 
  * CVODES functions
  */
 
-int CVBandPrecAllocB(void *cvode_mem, int which, int nB, int muB, int mlB)
-{
-  CVodeMem cv_mem;
-  CVadjMem ca_mem;
-  CVodeBMem cvB_mem;
-  void *cvodeB_mem;
-  void *bp_dataB;
-
-  /* Check if cvode_mem exists */
-  if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE", "CVBandPrecAllocB", MSGBP_CVMEM_NULL);
-    return(CVSPILS_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVBANDPRE", "CVBandPrecAllocB", MSGBP_NO_ADJ);
-    return(CVSPILS_NO_ADJ);
-  } 
-  ca_mem = cv_mem->cv_adj_mem;
-
-  /* Check which */
-  if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVBANDPRE", "CVBandPrecAllocB", MSGBP_BAD_WHICH);
-    return(CVSPILS_ILL_INPUT);
-  }
-
-  /* Find the CVodeBMem entry in the linked list corresponding to which */
-  cvB_mem = ca_mem->cvB_mem;
-  while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
-    cvB_mem = cvB_mem->cv_next;
-  }
-
-  cvodeB_mem = (void *) (cvB_mem->cv_mem);
-
-  bp_dataB = CVBandPrecAlloc(cvodeB_mem, nB, muB, mlB);
-  if (bp_dataB == NULL) {
-    cvProcessError(cv_mem, CVBANDPRE_MEM_FAIL, "CVBANDPRE", "CVBandPrecAllocB", MSGBP_MEM_FAIL);
-    return(CVBANDPRE_MEM_FAIL);
-  }
-
-  cvB_mem->cv_pfree = CVBandPrecFreeB;
-  cvB_mem->cv_pmem = bp_dataB;
-
-  return(CVBANDPRE_SUCCESS);
-
-}
-
-int CVBPSptfqmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
+int CVBandPrecInitB(void *cvode_mem, int which, int nB, int muB, int mlB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -607,21 +508,21 @@ int CVBPSptfqmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE", "CVBPSptfqmrB", MSGBP_CVMEM_NULL);
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE", "CVBandPrecInitB", MSGBP_MEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVBANDPRE", "CVBPSptfqmrB", MSGBP_NO_ADJ);
+    cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVBANDPRE", "CVBandPrecInitB", MSGBP_NO_ADJ);
     return(CVSPILS_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVBANDPRE", "CVBPSptfqmrB", MSGBP_BAD_WHICH);
+    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVBANDPRE", "CVBandPrecInitB", MSGBP_BAD_WHICH);
     return(CVSPILS_ILL_INPUT);
   }
 
@@ -632,105 +533,12 @@ int CVBPSptfqmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
     cvB_mem = cvB_mem->cv_next;
   }
 
-  cvodeB_mem = (void *) (cvB_mem->cv_mem);
-  
-  flag = CVBPSptfqmr(cvodeB_mem, pretypeB, maxlB, cvB_mem->cv_pmem);
-
-  return(flag);
-}
-
-int CVBPSpbcgB(void *cvode_mem, int which, int pretypeB, int maxlB)
-{
-  CVodeMem cv_mem;
-  CVadjMem ca_mem;
-  CVodeBMem cvB_mem;
-  void *cvodeB_mem;
-  int flag;
-
-  /* Check if cvode_mem exists */
-  if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE", "CVBPSpbcgB", MSGBP_CVMEM_NULL);
-    return(CVSPILS_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVBANDPRE", "CVBPSpbcgB", MSGBP_NO_ADJ);
-    return(CVSPILS_NO_ADJ);
-  } 
-  ca_mem = cv_mem->cv_adj_mem;
-
-  /* Check which */
-  if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVBANDPRE", "CVBPSpbcgB", MSGBP_BAD_WHICH);
-    return(CVSPILS_ILL_INPUT);
-  }
-
-  /* Find the CVodeBMem entry in the linked list corresponding to which */
-  cvB_mem = ca_mem->cvB_mem;
-  while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
-    cvB_mem = cvB_mem->cv_next;
-  }
+  cvB_mem->cv_pfree = NULL;
 
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
 
-  flag = CVBPSpbcg(cvodeB_mem, pretypeB, maxlB, cvB_mem->cv_pmem);
+  flag = CVBandPrecInit(cvodeB_mem, nB, muB, mlB);
 
   return(flag);
 }
-
-int CVBPSpgmrB(void *cvode_mem, int which, int pretypeB, int maxlB)
-{
-  CVodeMem cv_mem;
-  CVadjMem ca_mem;
-  CVodeBMem cvB_mem;
-  void *cvodeB_mem;
-  int flag;
-
-  /* Check if cvode_mem exists */
-  if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE", "CVBPSpgmrB", MSGBP_CVMEM_NULL);
-    return(CVSPILS_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  /* Was ASA initialized? */
-  if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVBANDPRE", "CVBPSpgmrB", MSGBP_NO_ADJ);
-    return(CVSPILS_NO_ADJ);
-  } 
-  ca_mem = cv_mem->cv_adj_mem;
-
-  /* Check which */
-  if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVBANDPRE", "CVBPSpgmrB", MSGBP_BAD_WHICH);
-    return(CVSPILS_ILL_INPUT);
-  }
-
-  /* Find the CVodeBMem entry in the linked list corresponding to which */
-  cvB_mem = ca_mem->cvB_mem;
-  while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
-    cvB_mem = cvB_mem->cv_next;
-  }
-
-  cvodeB_mem = (void *) (cvB_mem->cv_mem);
-
-  flag = CVBPSpgmr(cvodeB_mem, pretypeB, maxlB, cvB_mem->cv_pmem);
-
-  return(flag);
-}
-
-
-static void CVBandPrecFreeB(CVodeBMem cvB_mem)
-{
-  void *bp_dataB;
-
-  bp_dataB = (void *) (cvB_mem->cv_pmem);
-
-  CVBandPrecFree(&bp_dataB);
-}
-
 

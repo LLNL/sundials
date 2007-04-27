@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-24 22:01:25 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-27 18:56:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -278,14 +278,16 @@ int main(int argc, char *argv[])
   reltol = RTOL;   
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
 
+  /* attach linear solver */
+  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
+  
   /* Attach preconditioner and linear solver modules */
   mudq = mldq = d->l_m[0]+1;
   mukeep = mlkeep = 2;  
-  bbdp_data = (void *) CVBBDPrecAlloc(cvode_mem, l_neq, mudq, mldq, 
-                                      mukeep, mlkeep, ZERO,
-				      f_local, NULL);
-  flag = CVBBDSpgmr(cvode_mem, PREC_LEFT, 0, bbdp_data);
-
+  flag = CVBBDPrecInit(cvode_mem, l_neq, mudq, mldq, 
+                       mukeep, mlkeep, ZERO,
+                       f_local, NULL);
+  
   /* Initialize quadrature calculations */
   abstolQ = ATOL_Q;
   reltolQ = RTOL_Q;
@@ -337,11 +339,11 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
 
   /* Attach preconditioner and linear solver modules */
+  flag = CVSpgmrB(cvode_mem, indexB, PREC_LEFT, 0); 
   mudqB = mldqB = d->l_m[0]+1;
   mukeepB = mlkeepB = 2;  
-  flag = CVBBDPrecAllocB(cvode_mem, indexB, l_neq, mudqB, mldqB, 
-                         mukeepB, mlkeepB, ZERO, fB_local, NULL);
-  flag = CVBBDSpgmrB(cvode_mem, indexB, PREC_LEFT, 0); 
+  flag = CVBBDPrecInitB(cvode_mem, indexB, l_neq, mudqB, mldqB, 
+                        mukeepB, mlkeepB, ZERO, fB_local, NULL);
 
   /* Initialize quadrature calculations */
   abstolQB = ATOL_QB;
@@ -379,7 +381,6 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(qB);
   N_VDestroy_Parallel(yB);
 
-  CVBBDPrecFree(&bbdp_data);
   CVodeFree(&cvode_mem);
 
   MPI_Finalize();

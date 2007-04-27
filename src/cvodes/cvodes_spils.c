@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-27 18:56:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -275,8 +275,8 @@ int CVSpilsSetDelt(void *cvode_mem, realtype delt)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset, 
-                             CVSpilsPrecSolveFn psolve, void *P_data)
+int CVSpilsSetPreconditioner(void *cvode_mem,
+                             CVSpilsPrecSetupFn pset, CVSpilsPrecSolveFn psolve)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -296,7 +296,6 @@ int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset,
 
   cvspils_mem->s_pset = pset;
   cvspils_mem->s_psolve = psolve;
-  if (psolve != NULL) cvspils_mem->s_P_data = P_data;
 
   return(CVSPILS_SUCCESS);
 }
@@ -612,6 +611,9 @@ char *CVSpilsGetReturnFlagName(int flag)
   case CVSPILS_MEM_FAIL:
     sprintf(name,"CVSPILS_MEM_FAIL");
     break;
+  case CVSPILS_PMEM_NULL:
+    sprintf(name,"CVSPILS_PMEM_NULL");
+    break;
   case CVSPILS_NO_ADJ:
     sprintf(name,"CVSPILS_NO_ADJ");
     break;
@@ -766,7 +768,6 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define pset_B     (cvspilsB_mem->s_psetB)
 #define psolve_B   (cvspilsB_mem->s_psolveB)
 #define jtimes_B   (cvspilsB_mem->s_jtimesB)
-#define P_data_B   (cvspilsB_mem->s_P_dataB)
 
 /*
  * -----------------------------------------------------------------
@@ -944,8 +945,7 @@ int CVSpilsSetMaxlB(void *cvode_mem, int which, int maxlB)
 
 int CVSpilsSetPreconditionerB(void *cvode_mem, int which, 
                               CVSpilsPrecSetupFnB psetB,
-                              CVSpilsPrecSolveFnB psolveB, 
-                              void *P_dataB)
+                              CVSpilsPrecSolveFnB psolveB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -991,9 +991,8 @@ int CVSpilsSetPreconditionerB(void *cvode_mem, int which,
 
   pset_B   = psetB;
   psolve_B = psolveB;
-  P_data_B = P_dataB;
 
-  flag = CVSpilsSetPreconditioner(cvodeB_mem, cvSpilsPrecSetupBWrapper, cvSpilsPrecSolveBWrapper, cvode_mem);
+  flag = CVSpilsSetPreconditioner(cvodeB_mem, cvSpilsPrecSetupBWrapper, cvSpilsPrecSolveBWrapper);
 
   return(flag);
 }
@@ -1065,7 +1064,6 @@ int CVSpilsSetJacTimesVecFnB(void *cvode_mem, int which, CVSpilsJacTimesVecFnB j
  *
  * This routine interfaces to the CVSpilsPrecSetupFnB routine 
  * provided by the user.
- * NOTE: p_data actually contains cvadj_mem
  */
 
 static int cvSpilsPrecSetupBWrapper(realtype t, N_Vector yB, 
@@ -1097,7 +1095,7 @@ static int cvSpilsPrecSetupBWrapper(realtype t, N_Vector yB,
 
   /* Call user's adjoint precondB routine */
   retval = pset_B(t, ytmp, yB, fyB, jokB, jcurPtrB, gammaB,
-                  P_data_B, tmp1B, tmp2B, tmp3B);
+                  cvB_mem->cv_f_data, tmp1B, tmp2B, tmp3B);
 
   return(retval);
 }
@@ -1108,7 +1106,6 @@ static int cvSpilsPrecSetupBWrapper(realtype t, N_Vector yB,
  *
  * This routine interfaces to the CVSpilsPrecSolveFnB routine 
  * provided by the user.
- * NOTE: p_data actually contains cvadj_mem
  */
 
 static int cvSpilsPrecSolveBWrapper(realtype t, N_Vector yB, N_Vector fyB,
@@ -1139,7 +1136,7 @@ static int cvSpilsPrecSolveBWrapper(realtype t, N_Vector yB, N_Vector fyB,
 
   /* Call user's adjoint psolveB routine */
   retval = psolve_B(t, ytmp, yB, fyB, rB, zB, gammaB, deltaB, 
-                    lrB, P_data_B, tmpB);
+                    lrB, cvB_mem->cv_f_data, tmpB);
 
   return(retval);
 }

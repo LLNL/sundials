@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-27 18:56:28 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -117,28 +117,27 @@
 
 /* Type : UserData 
    contains problem constants, preconditioner blocks, pivot arrays, 
-   grid constants, and processor indices */
+   grid constants, and processor indices, as well as data needed
+   for the preconditiner */
 
 typedef struct {
+
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
   int my_pe, isubx, isuby;
   int nvmxsub, nvmxsub2;
   MPI_Comm comm;
-} *UserData;
 
-typedef struct {
-  void *f_data;
+  /* For preconditioner */
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
   int *pivot[MXSUB][MYSUB];
-} *PreconData;
 
+} *UserData;
 
 /* Private Helper Functions */
 
-static PreconData AllocPreconData(UserData data);
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
-static void FreePreconData(PreconData pdata);
+static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
@@ -166,13 +165,13 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *P_data, 
+                   realtype gamma, void *f_data, 
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp);
+                  int lr, void *f_data, N_Vector vtemp);
 
 
 /* Private function to check function return values */
@@ -187,7 +186,6 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
-  PreconData predata;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
   long int neq, local_N;
@@ -195,7 +193,6 @@ int main(int argc, char *argv[])
 
   u = NULL;
   data = NULL;
-  predata = NULL;
   cvode_mem = NULL;
 
   /* Set problem size neq */
@@ -222,7 +219,6 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, comm, data);
-  predata = AllocPreconData (data);
 
   /* Allocate u, and set initial values and tolerances */ 
   u = N_VNew_Parallel(comm, local_N, neq);
@@ -257,7 +253,7 @@ int main(int argc, char *argv[])
 
   /* Set preconditioner setup and solve routines Precond and PSolve, 
      and the pointer to the user-defined block data */
-  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, predata);
+  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
   if (check_flag(&flag, "CVSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0)
@@ -275,8 +271,7 @@ int main(int argc, char *argv[])
 
   /* Free memory */
   N_VDestroy_Parallel(u);
-  free(data);
-  FreePreconData(predata);
+  FreeUserData(data);
   CVodeFree(&cvode_mem);
 
   MPI_Finalize();
@@ -287,33 +282,13 @@ int main(int argc, char *argv[])
 
 /*********************** Private Helper Functions ************************/
 
-/* Allocate memory for data structure of type UserData */
-
-static PreconData AllocPreconData(UserData fdata)
-{
-  int lx, ly;
-  PreconData pdata;
-
-  pdata = (PreconData) malloc(sizeof *pdata);
-
-  pdata->f_data = fdata;
-
-  for (lx = 0; lx < MXSUB; lx++) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      (pdata->P)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (pdata->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (pdata->pivot)[lx][ly] = newIntArray(NVARS);
-    }
-  }
-
-  return(pdata);
-}
 
 /* Load constants in data */
 
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 {
   int isubx, isuby;
+  int lx, ly;
 
   /* Set problem constants */
   data->om = PI/HALFDAY;
@@ -336,23 +311,32 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   /* Set the sizes of a boundary x-line in u and uext */
   data->nvmxsub = NVARS*MXSUB;
   data->nvmxsub2 = NVARS*(MXSUB+2);
+
+  /* Preconditioner-related fields */
+  for (lx = 0; lx < MXSUB; lx++) {
+    for (ly = 0; ly < MYSUB; ly++) {
+      (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
+      (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
+      (data->pivot)[lx][ly] = newIntArray(NVARS);
+    }
+  }
 }
 
-/* Free preconditioner data memory */
+/* Free user data memory */
 
-static void FreePreconData(PreconData pdata)
+static void FreeUserData(UserData data)
 {
   int lx, ly;
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      destroyMat((pdata->P)[lx][ly]);
-      destroyMat((pdata->Jbd)[lx][ly]);
-      destroyArray((pdata->pivot)[lx][ly]);
+      destroyMat((data->P)[lx][ly]);
+      destroyMat((data->Jbd)[lx][ly]);
+      destroyArray((data->pivot)[lx][ly]);
     }
   }
 
-  free(pdata);
+  free(data);
 }
 
 /* Set initial conditions in u */
@@ -829,7 +813,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 /* Preconditioner setup routine. Generate and preprocess P. */
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *P_data, 
+                   realtype gamma, void *f_data, 
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
@@ -837,16 +821,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   int nvmxsub, *(*pivot)[MYSUB], ier, offset;
   int lx, ly, jx, jy, isubx, isuby;
   realtype *udata, **a, **j;
-  PreconData predata;
   UserData data;
 
-  /* Make local copies of pointers in P_data, pointer to u's data,
+  /* Make local copies of pointers in f_data, pointer to u's data,
      and PE index pair */
-  predata = (PreconData) P_data;
-  data = (UserData) (predata->f_data);
-  P = predata->P;
-  Jbd = predata->Jbd;
-  pivot = predata->pivot;
+  data = (UserData) f_data;
+  P = data->P;
+  Jbd = data->Jbd;
+  pivot = data->pivot;
   udata = NV_DATA_P(u);
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
@@ -921,20 +903,18 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp)
+                  int lr, void *f_data, N_Vector vtemp)
 {
   realtype **(*P)[MYSUB];
   int nvmxsub, *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
-  PreconData predata;
   UserData data;
 
-  /* Extract the P and pivot arrays from P_data */
-  predata = (PreconData) P_data;
-  data = (UserData) (predata->f_data);
-  P = predata->P;
-  pivot = predata->pivot;
+  /* Extract the P and pivot arrays from f_data */
+  data = (UserData) f_data;
+  P = data->P;
+  pivot = data->pivot;
 
   /* Solve the block-diagonal system Px = r using LU factors stored
      in P and pivot data in pivot, and return the solution in z.

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-27 18:56:28 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -129,7 +129,7 @@ static void PrintIntro(int npes, long int mudq, long int mldq,
 		       long int mukeep, long int mlkeep);
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
-static void PrintFinalStats(void *cvode_mem, void *pdata);
+static void PrintFinalStats(void *cvode_mem);
 static void BSend(MPI_Comm comm, 
                   int my_pe, int isubx, int isuby, 
                   long int dsizex, long int dsizey,
@@ -164,7 +164,6 @@ int main(int argc, char *argv[])
 {
   UserData data;
   void *cvode_mem;
-  void *pdata;
   realtype abstol, reltol, t, tout;
   N_Vector u;
   int iout, my_pe, npes, flag, jpre;
@@ -172,7 +171,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
 
   data = NULL;
-  cvode_mem = pdata = NULL;
+  cvode_mem = NULL;
   u = NULL;
 
   /* Set problem size neq */
@@ -227,18 +226,17 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
 
-  /* Allocate preconditioner block */
+  /* Call CVSpgmr to specify the linear solver CVSPGMR with left
+     preconditioning and the default maximum Krylov dimension maxl  */
+  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
+  if(check_flag(&flag, "CVBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* Initialize BBD preconditioner */
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
-  pdata = CVBBDPrecAlloc(cvode_mem, local_N, mudq, mldq, 
-                         mukeep, mlkeep, ZERO, flocal, NULL);
-  if(check_flag((void *)pdata, "CVBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
-
-  /* Call CVBBDSpgmr to specify the linear solver CVSPGMR using the
-     CVBBDPRE preconditioner, with left preconditioning and the
-     default maximum Krylov dimension maxl  */
-  flag = CVBBDSpgmr(cvode_mem, PREC_LEFT, 0, pdata);
-  if(check_flag(&flag, "CVBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVBBDPrecInit(cvode_mem, local_N, mudq, mldq, 
+                       mukeep, mlkeep, ZERO, flocal, NULL);
+  if(check_flag(&flag, "CVBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
   if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
@@ -255,7 +253,7 @@ int main(int argc, char *argv[])
     flag = CVodeReInit(cvode_mem, T0, u);
     if(check_flag(&flag, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVBBDPrecReInit(pdata, mudq, mldq, ZERO);
+    flag = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
     if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVSpilsSetPrecType(cvode_mem, PREC_RIGHT);
@@ -284,13 +282,12 @@ int main(int argc, char *argv[])
 
   /* Print final statistics */
 
-  if (my_pe == 0) PrintFinalStats(cvode_mem, pdata);
+  if (my_pe == 0) PrintFinalStats(cvode_mem);
 
   } /* End of jpre loop */
 
   /* Free memory */
   N_VDestroy_Parallel(u);
-  CVBBDPrecFree(&pdata);
   free(data);
   CVodeFree(&cvode_mem);
 
@@ -446,7 +443,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
 
 /* Print final statistics contained in iopt */
 
-static void PrintFinalStats(void *cvode_mem, void *pdata)
+static void PrintFinalStats(void *cvode_mem)
 {
   long int lenrw, leniw ;
   long int lenrwLS, leniwLS;
@@ -493,9 +490,9 @@ static void PrintFinalStats(void *cvode_mem, void *pdata)
   printf("npe     = %5ld     nps     = %5ld\n"  , npe, nps);
   printf("ncfn    = %5ld     ncfl    = %5ld\n\n", ncfn, ncfl);
 
-  flag = CVBBDPrecGetWorkSpace(pdata, &lenrwBBDP, &leniwBBDP);
+  flag = CVBBDPrecGetWorkSpace(cvode_mem, &lenrwBBDP, &leniwBBDP);
   check_flag(&flag, "CVBBDPrecGetWorkSpace", 1, 0);
-  flag = CVBBDPrecGetNumGfnEvals(pdata, &ngevalsBBDP);
+  flag = CVBBDPrecGetNumGfnEvals(cvode_mem, &ngevalsBBDP);
   check_flag(&flag, "CVBBDPrecGetNumGfnEvals", 1, 0);
   printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
 	 lenrwBBDP, leniwBBDP);  

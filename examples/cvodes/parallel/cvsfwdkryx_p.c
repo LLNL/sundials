@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-24 20:26:50 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-27 18:56:28 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -134,22 +134,22 @@
 
 /* Types : UserData and PreconData 
    contain problem parameters, problem constants, preconditioner blocks, 
-   pivot arrays, grid constants, and processor indices */
+   pivot arrays, grid constants, and processor indices, as
+   well as data needed for preconditioning */
 
 typedef struct {
+
   realtype *p;
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
   long int my_pe, isubx, isuby, nvmxsub, nvmxsub2;
   MPI_Comm comm;
-} *UserData;
 
-typedef struct {
-  void *f_data;
+  /* For preconditioner */
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
   int *pivot[MXSUB][MYSUB];
-} *PreconData;
 
+} *UserData;
 
 /* Functions Called by the CVODES Solver */
 
@@ -157,13 +157,13 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *P_data, 
+                   realtype gamma, void *f_data, 
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp);
+                  int lr, void *f_data, N_Vector vtemp);
 
 /* Private Helper Functions */
 
@@ -171,9 +171,8 @@ static void ProcessArgs(int argc, char *argv[], int my_pe,
                         booleantype *sensi, int *sensi_meth, booleantype *err_con);
 static void WrongArgs(int my_pe, char *name);
 
-static PreconData AllocPreconData(UserData data);
-static void FreePreconData(PreconData pdata);
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
+static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
 
 static void BSend(MPI_Comm comm, int my_pe, long int isubx, 
@@ -205,7 +204,6 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
-  PreconData predata;
   void *cvode_mem;
   int iout, flag, my_pe, npes;
   long int neq, local_N;
@@ -219,7 +217,6 @@ int main(int argc, char *argv[])
 
   u = NULL;
   data = NULL;
-  predata = NULL;
   cvode_mem = NULL;
   pbar = NULL;
   plist = NULL;
@@ -251,13 +248,11 @@ int main(int argc, char *argv[])
 
   /* Allocate and load user data block; allocate preconditioner block */
   data = (UserData) malloc(sizeof *data);
-  data->p = NULL;
   if (check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  data->p = NULL;
   data->p = (realtype *) malloc(NP*sizeof(realtype));
   if (check_flag((void *)data->p, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, comm, data);
-  predata = AllocPreconData (data);
-  if (check_flag((void *)predata, "AllocPreconData", 2, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate u, and set initial values and tolerances */ 
   u = N_VNew_Parallel(comm, local_N, neq);
@@ -285,7 +280,7 @@ int main(int argc, char *argv[])
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if (check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, predata);
+  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
   if (check_flag(&flag, "CVSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   if(my_pe == 0)
@@ -309,6 +304,9 @@ int main(int argc, char *argv[])
 
     flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
     if (check_flag(&flag, "CVodeSensInit1", 1, my_pe)) MPI_Abort(comm, 1);
+
+    flag = CVodeSensEEtolerances(cvode_mem);
+    if (check_flag(&flag, "CVodeSensEEtolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if (check_flag(&flag, "CVodeSetSensErrCon", 1, my_pe)) MPI_Abort(comm, 1);
@@ -367,9 +365,7 @@ int main(int argc, char *argv[])
     free(plist);
     free(pbar);
   }
-  free(data->p);  
-  free(data);
-  FreePreconData(predata);
+  FreeUserData(data);
   CVodeFree(&cvode_mem);
 
   MPI_Finalize();
@@ -412,7 +408,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *P_data, 
+                   realtype gamma, void *f_data, 
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
@@ -421,17 +417,15 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   int nvmxsub, *(*pivot)[MYSUB], offset;
   int lx, ly, jx, jy, isubx, isuby;
   realtype *udata, **a, **j;
-  PreconData predata;
   UserData data;
   realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
-  /* Make local copies of pointers in P_data, pointer to u's data,
+  /* Make local copies of pointers in f_data, pointer to u's data,
      and PE index pair */
-  predata = (PreconData) P_data;
-  data = (UserData) (predata->f_data);
-  P = predata->P;
-  Jbd = predata->Jbd;
-  pivot = predata->pivot;
+  data = (UserData) f_data;
+  P = data->P;
+  Jbd = data->Jbd;
+  pivot = data->pivot;
   udata = NV_DATA_P(u);
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
@@ -513,20 +507,18 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp)
+                  int lr, void *f_data, N_Vector vtemp)
 {
   realtype **(*P)[MYSUB];
   int nvmxsub, *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
-  PreconData predata;
   UserData data;
 
   /* Extract the P and pivot arrays from P_data */
-  predata = (PreconData) P_data;
-  data = (UserData) (predata->f_data);
-  P = predata->P;
-  pivot = predata->pivot;
+  data = (UserData) f_data;
+  P = data->P;
+  pivot = data->pivot;
 
   /* Solve the block-diagonal system Px = r using LU factors stored
      in P and pivot data in pivot, and return the solution in z.
@@ -609,54 +601,13 @@ static void WrongArgs(int my_pe, char *name)
 
 
 /* 
- * Allocate memory for data structure of type PreconData. 
- */
-
-static PreconData AllocPreconData(UserData fdata)
-{
-  int lx, ly;
-  PreconData pdata;
-
-  pdata = (PreconData) malloc(sizeof *pdata);
-  pdata->f_data = fdata;
-
-  for (lx = 0; lx < MXSUB; lx++) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      (pdata->P)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (pdata->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (pdata->pivot)[lx][ly] = newIntArray(NVARS);
-    }
-  }
-
-  return(pdata);
-}
-
-/* 
- * Free preconditioner memory.
- */
-
-static void FreePreconData(PreconData pdata)
-{
-  int lx, ly;
-
-  for (lx = 0; lx < MXSUB; lx++) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      destroyMat((pdata->P)[lx][ly]);
-      destroyMat((pdata->Jbd)[lx][ly]);
-      destroyArray((pdata->pivot)[lx][ly]);
-    }
-  }
-
-  free(pdata);
-}
-
-/* 
  * Set user data. 
  */
 
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 {
   long int isubx, isuby;
+  int  lx, ly;
   realtype KH, VEL, KV0;
 
   /* Set problem parameters */
@@ -690,6 +641,36 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   /* Set the sizes of a boundary x-line in u and uext */
   data->nvmxsub = NVARS*MXSUB;
   data->nvmxsub2 = NVARS*(MXSUB+2);
+
+  /* Preconditioner-related fields */
+  for (lx = 0; lx < MXSUB; lx++) {
+    for (ly = 0; ly < MYSUB; ly++) {
+      (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
+      (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
+      (data->pivot)[lx][ly] = newIntArray(NVARS);
+    }
+  }
+}
+
+/* 
+ * Free user data memory.
+ */
+
+static void FreeUserData(UserData data)
+{
+  int lx, ly;
+
+  for (lx = 0; lx < MXSUB; lx++) {
+    for (ly = 0; ly < MYSUB; ly++) {
+      destroyMat((data->P)[lx][ly]);
+      destroyMat((data->Jbd)[lx][ly]);
+      destroyArray((data->pivot)[lx][ly]);
+    }
+  }
+
+  free(data->p);
+
+  free(data);
 }
 
 /* 

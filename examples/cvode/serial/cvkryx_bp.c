@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-27 18:56:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -122,7 +122,7 @@ static void InitUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy);
 static void PrintIntro(int mu, int ml);
 static void PrintOutput(void *cvode_mem, N_Vector u, realtype t);
-static void PrintFinalStats(void *cvode_mem, void *bpdata);
+static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, char *funcname, int opt);
@@ -142,13 +142,12 @@ int main()
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
-  void *bpdata;
   void *cvode_mem;
   int flag, ml, mu, iout, jpre;
 
   u = NULL;
   data = NULL;
-  bpdata = cvode_mem = NULL;
+  cvode_mem = NULL;
 
   /* Allocate and initialize u, and set problem data and tolerances */ 
   u = N_VNew_Serial(NEQ);
@@ -180,15 +179,15 @@ int main()
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
-  /* Call CVBandPreAlloc to initialize band preconditioner */
-  ml = mu = 2;
-  bpdata = CVBandPrecAlloc (cvode_mem, NEQ, mu, ml);
-  if(check_flag((void *)bpdata, "CVBandPrecAlloc", 0)) return(1);
-
-  /* Call CVBPSpgmr to specify the linear solver CVSPGMR 
+  /* Call CVSpgmr to specify the linear solver CVSPGMR 
      with left preconditioning and the maximum Krylov dimension maxl */
-  flag = CVBPSpgmr(cvode_mem, PREC_LEFT, 0, bpdata);
-  if(check_flag(&flag, "CVBPSpgmr", 1)) return(1);
+  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
+  if(check_flag(&flag, "CVSpgmr", 1)) return(1);
+
+  /* Call CVBandPreInit to initialize band preconditioner */
+  ml = mu = 2;
+  flag = CVBandPrecInit(cvode_mem, NEQ, mu, ml);
+  if(check_flag(&flag, "CVBandPrecInit", 0)) return(1);
 
   PrintIntro(mu, ml);
 
@@ -228,14 +227,13 @@ int main()
     
     /* Print final statistics */
     
-    PrintFinalStats(cvode_mem, bpdata);
+    PrintFinalStats(cvode_mem);
     
   } /* End of jpre loop */
 
   /* Free memory */
   N_VDestroy_Serial(u);
   free(data);
-  CVBandPrecFree(&bpdata);
   CVodeFree(&cvode_mem);
 
   return(0);
@@ -341,7 +339,7 @@ static void PrintOutput(void *cvode_mem, N_Vector u,realtype t)
 
 /* Get and print final statistics */
 
-static void PrintFinalStats(void *cvode_mem, void *bpdata)
+static void PrintFinalStats(void *cvode_mem)
 {
   long int lenrw, leniw ;
   long int lenrwLS, leniwLS;
@@ -379,9 +377,9 @@ static void PrintFinalStats(void *cvode_mem, void *bpdata)
   flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
   check_flag(&flag, "CVSpilsGetNumRhsEvals", 1);
 
-  flag = CVBandPrecGetWorkSpace(bpdata, &lenrwBP, &leniwBP);
+  flag = CVBandPrecGetWorkSpace(cvode_mem, &lenrwBP, &leniwBP);
   check_flag(&flag, "CVBandPrecGetWorkSpace", 1);
-  flag = CVBandPrecGetNumRhsEvals(bpdata, &nfeBP);
+  flag = CVBandPrecGetNumRhsEvals(cvode_mem, &nfeBP);
   check_flag(&flag, "CVBandPrecGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");

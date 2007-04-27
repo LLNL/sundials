@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-11 22:34:09 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -58,7 +58,7 @@ void FCV_BBDINIT(int *Nloc, int *mudq, int *mldq, int *mu, int *ml,
 {
 
   /* 
-     First call CVBBDPrecAlloc to initialize CVBBDPRE module:
+     First call CVBBDPrecInit to initialize CVBBDPRE module:
      Nloc       is the local vector size
      mudq,mldq  are the half-bandwidths for computing preconditioner blocks
      mu, ml     are the half-bandwidths of the retained preconditioner blocks
@@ -67,76 +67,10 @@ void FCV_BBDINIT(int *Nloc, int *mudq, int *mldq, int *mu, int *ml,
      FCVcfn     is a pointer to the CVCommFn function 
   */
 
-  CVBBD_Data = CVBBDPrecAlloc(CV_cvodemem, *Nloc, *mudq, *mldq, *mu, *ml, 
-                              *dqrely, FCVgloc, FCVcfn);
-  if (CVBBD_Data == NULL) *ier = -1; 
-  else                    *ier = 0;
+  *ier = CVBBDPrecInit(CV_cvodemem, *Nloc, *mudq, *mldq, *mu, *ml, 
+                       *dqrely, FCVgloc, FCVcfn);
 
   return; 
-}
-
-/***************************************************************************/
-
-void FCV_BBDSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier)
-{
-  /* 
-     Call CVBBDSptfqmr to specify the SPTFQMR linear solver:
-     pretype    is the preconditioner type
-     maxl       is the maximum Krylov dimension
-     delt       is the linear convergence tolerance factor 
-  */
-
-  *ier = CVBBDSptfqmr(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  CV_ls = CV_LS_SPTFQMR;
-}
-
-/***************************************************************************/
-
-void FCV_BBDSPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
-{
-  /* 
-     Call CVBBDSpbcg to specify the SPBCG linear solver:
-     pretype    is the preconditioner type
-     maxl       is the maximum Krylov dimension
-     delt       is the linear convergence tolerance factor 
-  */
-
-  *ier = CVBBDSpbcg(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  CV_ls = CV_LS_SPBCG;
-}
-
-/***************************************************************************/
-
-void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
-{
-  /* 
-     Call CVBBDSpgmr to specify the SPGMR linear solver:
-     pretype    is the preconditioner type
-     gstype     is the Gram-Schmidt process type
-     maxl       is the maximum Krylov dimension
-     delt       is the linear convergence tolerance factor 
-  */
-
-  *ier = CVBBDSpgmr(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  *ier = CVSpilsSetGSType(CV_cvodemem, *gstype);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPILS_SUCCESS) return;
-
-  CV_ls = CV_LS_SPGMR;
 }
 
 /***************************************************************************/
@@ -145,14 +79,13 @@ void FCV_BBDREINIT(int *Nloc, int *mudq, int *mldq, realtype* dqrely, int *ier)
 {
   /* 
      First call CVReInitBBD to re-initialize CVBBDPRE module:
-     CVBBD_Data  is the pointer to P_data
      mudq,mldq   are the half-bandwidths for computing preconditioner blocks
      dqrely      is the difference quotient relative increment factor
      FCVgloc     is a pointer to the CVLocalFn function
      FCVcfn      is a pointer to the CVCommFn function 
   */
 
-  *ier = CVBBDPrecReInit(CVBBD_Data, *mudq, *mldq, *dqrely);
+  *ier = CVBBDPrecReInit(CV_cvodemem, *mudq, *mldq, *dqrely);
 }
 
 /***************************************************************************/
@@ -203,17 +136,6 @@ int FCVcfn(int Nloc, realtype t, N_Vector y, void *f_data)
 
 void FCV_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd)
 {
-  CVBBDPrecGetWorkSpace(CVBBD_Data, lenrwbbd, leniwbbd);
-  CVBBDPrecGetNumGfnEvals(CVBBD_Data, ngebbd);
-}
-
-
-/***************************************************************************/
-
-/* C function FCVBBDFREE to interface to CVBBDPrecFree, to free memory 
-   created by CVBBDPrecAlloc */
-
-void FCV_BBDFREE(void)
-{
-  CVBBDPrecFree(&CVBBD_Data);
+  CVBBDPrecGetWorkSpace(CV_cvodemem, lenrwbbd, leniwbbd);
+  CVBBDPrecGetNumGfnEvals(CV_cvodemem, ngebbd);
 }

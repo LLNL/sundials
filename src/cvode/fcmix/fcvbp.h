@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-08 00:48:26 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -31,12 +31,11 @@
  * 
  * The user-callable functions in this package, with the corresponding
  * CVODE and CVBBDPRE functions, are as follows: 
- *   FCVBPINIT    interfaces to CVBandPrecAlloc
+ *   FCVBPINIT    interfaces to CVBandPrecInit
  *   FCVBPSPTFQMR interfaces to CVBPSptfqmr
  *   FCVBPSPBCG   interfaces to CVBPSpbcg
  *   FCVBPSPGMR   interfaces to CVBPSpgmr
  *   FCVBPOPT     accesses optional outputs
- *   FCVBPFREE    interfaces to CVBandPrecFree
  * 
  * In addition to the Fortran right-hand side function FCVFUN, the
  * user may (optionally) supply a routine FCVJTIMES which is called by 
@@ -203,10 +202,9 @@
  * K   = derivative order (0 .le. K .le. QU)
  * DKY = array containing computed K-th derivative of y on return
  * 
- * (7) Memory freeing: FCVBPFREE and FCVFREE
+ * (7) Memory freeing: FCVFREE
  *   To the free the internal memory created by the calls to FNVINITS,
- * FCVMALLOC, and FCVBPINIT, make the following calls, in this order:
- *       CALL FCVBPFREE
+ * FCVMALLOC, and FCVBPINIT, make the following call:
  *       CALL FCVFREE
  * 
  * ==============================================================================
@@ -233,7 +231,6 @@ extern "C" {
 #define FCV_BPSPBCG   F77_FUNC(fcvbpspbcg, FCVBPSPBCG)
 #define FCV_BPSPGMR   F77_FUNC(fcvbpspgmr, FCVBPSPGMR)
 #define FCV_BPOPT     F77_FUNC(fcvbpopt, FCVBPOPT)
-#define FCV_BPFREE    F77_FUNC(fcvbpfree, FCVBPFREE)
 
 #else
 
@@ -242,7 +239,6 @@ extern "C" {
 #define FCV_BPSPBCG   fcvbpspbcg_
 #define FCV_BPSPGMR   fcvbpspgmr_
 #define FCV_BPOPT     fcvbpopt_
-#define FCV_BPFREE    fcvbpfree_
 
 #endif
 
@@ -252,11 +248,6 @@ void FCV_BPSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BPSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
 void FCV_BPOPT(long int *lenrwbp, long int *leniwbp, long int *nfebp);
-void FCV_BPFREE(void);
-
-/* Declarations for global variables, shared among various routines */
-
-void *CVBP_Data;
 
 #ifdef __cplusplus
 }

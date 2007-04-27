@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -225,8 +225,8 @@ int CVSpilsSetDelt(void *cvode_mem, realtype delt)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset, 
-                             CVSpilsPrecSolveFn psolve, void *P_data)
+int CVSpilsSetPreconditioner(void *cvode_mem, 
+                             CVSpilsPrecSetupFn pset, CVSpilsPrecSolveFn psolve)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -246,7 +246,6 @@ int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset,
 
   cvspils_mem->s_pset = pset;
   cvspils_mem->s_psolve = psolve;
-  if (psolve != NULL) cvspils_mem->s_P_data = P_data;
 
   return(CVSPILS_SUCCESS);
 }
@@ -561,6 +560,9 @@ char *CVSpilsGetReturnFlagName(int flag)
     break;
   case CVSPILS_MEM_FAIL:
     sprintf(name,"CVSPILS_MEM_FAIL");
+    break;
+  case CVSPILS_PMEM_NULL:
+    sprintf(name,"CVSPILS_PMEM_NULL");
     break;
   default:
     sprintf(name,"NONE");

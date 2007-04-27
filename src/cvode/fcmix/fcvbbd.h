@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:49 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -35,13 +35,12 @@
  * 
  * The user-callable functions in this package, with the corresponding
  * CVODE and CVBBDPRE functions, are as follows: 
- *   FCVBBDININT   interfaces to CVBBDPrecAlloc
+ *   FCVBBDININT   interfaces to CVBBDPrecInit
  *   FCVBBDSPTFQMR interfaces to CVBBDSptfqmr
  *   FCVBBDSPBCG   interfaces to CVBBDSpbcg
  *   FCVBBDPSGMR   interfaces to CVBBDSpgmr
  *   FCVBBDREINIT  interfaces to CVBBDPrecReInit
  *   FCVBBDOPT     accesses optional outputs
- *   FCVBBDFREE    interfaces to CVBBDPrecFree
  * 
  * In addition to the Fortran right-hand side function FCVFUN, the
  * user-supplied functions used by this package, are listed below,
@@ -170,7 +169,13 @@
  * IER    = return completion flag.  Values are 0 = success, and -1 = failure.
  *          See printed message for details in case of failure.
  * 
- * (4.3) To allocate memory and initialize data associated with the CVBBDPRE
+ * (4.3) Attach one of the 3 SPILS linear solvers. Make one of the 
+ * following calls (see fcvode.h) for more details.
+ *       CALL FCVSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+ *       CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)
+ *       CALL FCVBBDSPTFQMR(IPRETYPE, MAXL, DELT, IER)
+ *    
+ * (4.4) To allocate memory and initialize data associated with the CVBBDPRE
  * preconditioner, make the following call:
  *       CALL FCVBBDINIT(NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IER)
  * 
@@ -188,46 +193,7 @@
  *             (optional). 0.0 indicates the default, sqrt(unit roundoff).
  * IER       = return completion flag: IER=0: success, IER<0: an error occurred
  *
- * (4.4A) To specify the SPGMR linear system solver and use it with the CVBBDPRE
- * preconditioner, make the following call:
- *       CALL FCVBBDSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
- * The arguments are:
- * IPRETYPE  = preconditioner type: 
- *             0 = none
- *             1 = left only
- *             2 = right only
- *             3 = both sides.
- * IGSTYPE   = Gram-schmidt process type: 1 = modified G-S, 1 = classical G-S.
- * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
- * DELT      = linear convergence tolerance factor; 0.0 indicates default.
- * IER       = return completion flag: IER=0: success, IER<0: an error occurred
- *
- * (4.4B) To specify the SPBCG linear system solver and use it with the CVBBDPRE
- * preconditioner, make the following call:
- *       CALL FCVBBDSPBCG(IPRETYPE, MAXL, DELT, IER)
- * The arguments are:
- * IPRETYPE  = preconditioner type: 
- *             0 = none
- *             1 = left only
- *             2 = right only
- *             3 = both sides.
- * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
- * DELT      = linear convergence tolerance factor; 0.0 indicates default.
- * IER       = return completion flag: IER=0: success, IER<0: an error occurred
- *
- * (4.4C) To specify the SPTFQMR linear system solver and use it with the CVBBDPRE
- * preconditioner, make the following call:
  *       CALL FCVBBDSPTFQMR(IPRETYPE, MAXL, DELT, IER)
- * The arguments are:
- * IPRETYPE  = preconditioner type: 
- *             0 = none
- *             1 = left only
- *             2 = right only
- *             3 = both sides.
- * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
- * DELT      = linear convergence tolerance factor; 0.0 indicates default.
- * IER       = return completion flag: IER=0: success, IER<0: an error occurred
- *
  * (4.5) To specify whether the Krylov linear solver (GMRES, Bi-CGSTAB, or TFQMR)
  * should use the supplied FCVJTIMES or the internal finite difference approximation, 
  * make the call
@@ -247,16 +213,19 @@
  * for the new problem).  FCVREINIT performs the same initializations as
  * FCVMALLOC, but does no memory allocation, using instead the existing
  * internal memory created by the previous FCVMALLOC call.
+ *
+ * If there is a change in any of the linear solver arguments, then
+ * a call to FCVSPGMR, FCVSPBCG, or FCVSPTFQMR must also be made;
+ * in this case the linear solver memory is reallocated. 
+ *
  * Following the call to FCVREINIT, a call to FCVBBDINIT may or may not be needed.
  * If the input arguments are the same, no FCVBBDINIT call is needed.
  * If there is a change in input arguments, then make the call
  *      CALL FCVBBDREINIT(NLOCAL, MUDQ, MLDQ, DQRELY, IER)
- * This reinitializes the SP* linear solver, but without reallocating its memory.
+ * This reinitializes the BBD preconditioner, but without reallocating its memory.
  * The arguments of the have the same names and meanings as FCVBBDINIT.  
  * If the value of MU or ML is being changed, then a call to FCVBBDINIT must
- * be made.  If there is a change in any of the linear solver arguments, then
- * a call to FCVBBDSPGMR, FCVBBDSPBCG, or FCVBBDSPTFQMR must also be made;
- * in this case the linear solver memory is reallocated. 
+ * be made.
  * 
  * (6) The integrator: FCVODE
  * Carrying out the integration is accomplished by making calls as follows:
@@ -296,10 +265,9 @@
  * K   = derivative order (0 .le. K .le. QU)
  * DKY = array containing computed K-th derivative of y on return
  * 
- * (9) Memory freeing: FCVBBDFREE and FCVFREE
+ * (9) Memory freeing: FCVFREE
  *   To the free the internal memory created by the calls to FNVINITP,
- * FCVMALLOC, and FCVBBDINIT, make the following calls, in this order:
- *       CALL FCVBBDFREE
+ * FCVMALLOC, and FCVBBDINIT, make the following call:
  *       CALL FCVFREE
  *
  * ==============================================================================
@@ -327,7 +295,6 @@ extern "C" {
 #define FCV_BBDSPGMR   F77_FUNC(fcvbbdspgmr, FCVBBDSPGMR)
 #define FCV_BBDREINIT  F77_FUNC(fcvbbdreinit, FCVBBDREINIT)
 #define FCV_BBDOPT     F77_FUNC(fcvbbdopt, FCVBBDOPT)
-#define FCV_BBDFREE    F77_FUNC(fcvbbdfree, FCVBBDFREE)
 #define FCV_GLOCFN     F77_FUNC(fcvglocfn, FCVGLOCFN)
 #define FCV_COMMFN     F77_FUNC(fcvcommfn, FCVCOMMFN)
 
@@ -339,7 +306,6 @@ extern "C" {
 #define FCV_BBDSPGMR   fcvbbdspgmr_
 #define FCV_BBDREINIT  fcvbbdreinit_
 #define FCV_BBDOPT     fcvbbdopt_
-#define FCV_BBDFREE    fcvbbdfree_
 #define FCV_GLOCFN     fcvglocfn_
 #define FCV_COMMFN     fcvcommfn_
 
@@ -353,18 +319,12 @@ void FCV_BBDSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDREINIT(int *Nloc, int *mudq, int *mldq, realtype* dqrely, int *ier);
 void FCV_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
-void FCV_BBDFREE(void);
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
 int FCVgloc(int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *f_data);
 
 int FCVcfn(int Nloc, realtype t, N_Vector y, void *f_data);
-
-
-/* Declarations for global variables, shared among various routines */
-
-void *CVBBD_Data;
 
 #ifdef __cplusplus
 }

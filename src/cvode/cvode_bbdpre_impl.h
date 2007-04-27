@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -31,7 +31,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CVBBDPrecDataRec {
 
   /* passed by user to CVBBDPrecAlloc and used by PrecSetup/PrecSolve */
 
@@ -68,10 +68,11 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-#define MSGBBDP_CVMEM_NULL "Integrator memory is NULL."
+#define MSGBBDP_MEM_NULL "Integrator memory is NULL."
+#define MSGBBD_LMEM_NULL "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
 #define MSGBBDP_MEM_FAIL "A memory request failed."
 #define MSGBBDP_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBBDP_PDATA_NULL "BBDPrecData is NULL."
+#define MSGBBDP_PMEM_NULL "BBD peconditioner memory is NULL. CVBBDPrecInit must be called"
 #define MSGBBDP_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus

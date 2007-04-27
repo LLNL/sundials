@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-22 18:05:51 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,7 +31,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CVBandPrecDataRec {
 
   /* Data set by user in CVBandPrecAlloc */
 
@@ -60,14 +60,15 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-#define MSGBP_CVMEM_NULL "Integrator memory is NULL."
+#define MSGBP_MEM_NULL "Integrator memory is NULL."
+#define MSGBP_LMEM_NULL "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
 #define MSGBP_MEM_FAIL "A memory request failed."
 #define MSGBP_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBP_PDATA_NULL "CVBANDPRE memory is NULL."
+#define MSGBP_PMEM_NULL "Band preconditioner memory is NULL. CVBandPrecInit must be called."
 #define MSGBP_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
 
-#define MSGBP_NO_ADJ    "Illegal attempt to call before calling CVodeAdjMalloc."
-#define MSGBP_BAD_WHICH "Illegal value for which."
+#define MSGBP_NO_ADJ    "Illegal attempt to call before calling CVodeAdjInit."
+#define MSGBP_BAD_WHICH "Illegal value for parameter which."
 
 #ifdef __cplusplus
 }

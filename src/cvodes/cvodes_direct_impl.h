@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -55,7 +55,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CVDlsMemRec {
 
   int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND              */
 
@@ -83,7 +83,7 @@ typedef struct {
 
   int d_last_flag;        /* last error return flag                       */
   
-} CVDlsMemRec, *CVDlsMem;
+} *CVDlsMem;
 
 /*
  * -----------------------------------------------------------------
@@ -117,14 +117,14 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CVDlsMemRecB {
 
   int d_typeB;
 
   CVDlsDenseJacFnB d_djacB;
   CVDlsBandJacFnB d_bjacB;
 
-} CVDlsMemRecB, *CVDlsMemB;
+} *CVDlsMemB;
 
 
 /*

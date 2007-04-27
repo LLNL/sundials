@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -146,7 +146,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
 
   /* Get memory for CVSpilsMemRec */
   cvspils_mem = NULL;
-  cvspils_mem = (CVSpilsMem) malloc(sizeof(CVSpilsMemRec));
+  cvspils_mem = (CVSpilsMem) malloc(sizeof(struct CVSpilsMemRec));
   if (cvspils_mem == NULL) {
     CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPGMR", "CVSpgmr", MSGS_MEM_FAIL);
     return(CVSPILS_MEM_FAIL);
@@ -164,12 +164,14 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   jtimes   = NULL;
   j_data   = NULL;
 
+  /* Set defaults for preconditioner-related fields */
+  cvspils_mem->s_pset   = NULL;
+  cvspils_mem->s_psolve = NULL;
+  cvspils_mem->s_P_data = cv_mem->cv_f_data;
+
   /* Set default values for the rest of the Spgmr parameters */
-  cvspils_mem->s_gstype     = MODIFIED_GS;
-  cvspils_mem->s_delt       = CVSPILS_DELT;
-  cvspils_mem->s_P_data     = NULL;
-  cvspils_mem->s_pset       = NULL;
-  cvspils_mem->s_psolve     = NULL;
+  cvspils_mem->s_gstype = MODIFIED_GS;
+  cvspils_mem->s_delt   = CVSPILS_DELT;
 
   cvspils_mem->s_last_flag  = CVSPILS_SUCCESS;
 
@@ -457,11 +459,14 @@ static void CVSpgmrFree(CVodeMem cv_mem)
 
   cvspils_mem = (CVSpilsMem) lmem;
   
-  spgmr_mem = (SpgmrMem) spils_mem;
-
   N_VDestroy(ytemp);
   N_VDestroy(x);
+
+  spgmr_mem = (SpgmrMem) spils_mem;
   SpgmrFree(spgmr_mem);
+
+  if (cvspils_mem->s_pfree != NULL) (cvspils_mem->s_pfree)(cv_mem);
+
   free(cvspils_mem); cvspils_mem = NULL;
 }
 

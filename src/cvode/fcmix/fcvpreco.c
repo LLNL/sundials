@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:33 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -59,10 +59,10 @@ void FCV_SPILSSETPREC(int *flag, int *ier)
   CVodeMem cv_mem;
 
   if (*flag == 0) {
-    *ier = CVSpilsSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
+    *ier = CVSpilsSetPreconditioner(CV_cvodemem, NULL, NULL);
   } else {
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSpilsSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, cv_mem->cv_f_data);
+    *ier = CVSpilsSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol);
   }
 }
 

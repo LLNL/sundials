@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:19 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-27 18:56:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -129,7 +129,7 @@ int CVDense(void *cvode_mem, int N)
 
   /* Get memory for CVDlsMemRec */
   cvdls_mem = NULL;
-  cvdls_mem = (CVDlsMem) malloc(sizeof(CVDlsMemRec));
+  cvdls_mem = (CVDlsMem) malloc(sizeof(struct CVDlsMemRec));
   if (cvdls_mem == NULL) {
     CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVDENSE", "CVDense", MSGD_MEM_FAIL);
     return(CVDIRECT_MEM_FAIL);
