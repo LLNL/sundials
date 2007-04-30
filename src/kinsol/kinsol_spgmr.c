@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -163,7 +163,7 @@ int KINSpgmr(void *kinmem, int maxl)
 
   /* get memory for KINSpilsMemRec */
   kinspils_mem = NULL;
-  kinspils_mem = (KINSpilsMem) malloc(sizeof(KINSpilsMemRec));
+  kinspils_mem = (KINSpilsMem) malloc(sizeof(struct KINSpilsMemRec));
   if (kinspils_mem == NULL){
     KINProcessError(NULL, KINSPILS_MEM_FAIL, "KINSPILS", "KINSpgmr", MSGS_MEM_FAIL);
     return(KINSPILS_MEM_FAIL);  
@@ -183,17 +183,21 @@ int KINSpgmr(void *kinmem, int maxl)
   jtimes   = NULL;
   J_data   = NULL;
 
-  /* set default values for the rest of the SPGMR parameters */
+  /* Set defaults for preconditioner-related fields */
+
+  kinspils_mem->s_pset   = NULL;
+  kinspils_mem->s_psolve = NULL;
+  kinspils_mem->s_pfree  = NULL;
+  kinspils_mem->s_P_data = kin_mem->kin_f_data;
+
+  /* Set default values for the rest of the SPGMR parameters */
 
   kinspils_mem->s_pretype   = PREC_NONE;
   kinspils_mem->s_gstype    = MODIFIED_GS;
   kinspils_mem->s_maxlrst   = 0;
   kinspils_mem->s_last_flag = KINSPILS_SUCCESS;
-  kinspils_mem->s_pset      = NULL;
-  kinspils_mem->s_psolve    = NULL;
-  kinspils_mem->s_P_data    = NULL;
 
-  /* call SpgmrMalloc to allocate workspace for SPGMR */
+  /* Call SpgmrMalloc to allocate workspace for SPGMR */
 
   /* vec_tmpl passed as template vector */
   spgmr_mem = NULL;
@@ -425,9 +429,11 @@ static void KINSpgmrFree(KINMem kin_mem)
   SpgmrMem spgmr_mem;
 
   kinspils_mem = (KINSpilsMem) lmem;
-  spgmr_mem = (SpgmrMem) spils_mem;
 
+  spgmr_mem = (SpgmrMem) spils_mem;
   SpgmrFree(spgmr_mem);
-  free(lmem);
-  lmem = NULL;
+
+  if (kinspils_mem->s_pfree != NULL) (kinspils_mem->s_pfree)(kin_mem);
+
+  free(kinspils_mem); kinspils_mem = NULL;
 }

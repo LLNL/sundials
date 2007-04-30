@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 17:43:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -197,7 +197,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *kmem, *pdata;
+  void *kmem;
   UserData data;
   N_Vector cc, sc, constraints;
   int globalstrategy;
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
   int my_pe, npes, npelast = NPEX*NPEY-1;
 
   data = NULL;
-  kmem = pdata = NULL;
+  kmem = NULL;
   cc = sc = constraints = NULL;
 
   /* Get processor number and total number of pe's */
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
   flag = KINSetScaledStepTol(kmem, scsteptol);
   if (check_flag(&flag, "KINSetScaledStepTol", 1, my_pe)) MPI_Abort(comm, 1);
   
-  /* Call KINBBDPrecAlloc to initialize and allocate memory for the
+  /* Call KINBBDPrecInit to initialize and allocate memory for the
      band-block-diagonal preconditioner, and specify the local and
      communication functions func_local and gcomm=NULL (all communication
      needed for the func_local is already done in func). */
@@ -285,17 +285,16 @@ int main(int argc, char *argv[])
   mudq = mldq = 2*NUM_SPECIES - 1;
   mukeep = mlkeep = NUM_SPECIES;
 
-  pdata = KINBBDPrecAlloc(kmem, Nlocal, mudq, mldq, mukeep, mlkeep,
-			  dq_rel_uu, func_local, NULL);
-  if (check_flag((void *)pdata, "KINBBDPrecAlloc", 0, my_pe)) 
-    MPI_Abort(comm, 1);
-
-  /* Call KINBBDSpgmr to specify the linear solver KINSPGMR 
-     with preconditioner KINBBDPRE */
+  /* Call KINBBDSpgmr to specify the linear solver KINSPGMR */
   maxl = 20; maxlrst = 2;
-  flag = KINBBDSpgmr(kmem, maxl, pdata);
-  if (check_flag(&flag, "KINBBDSpgmr", 1, my_pe)) 
-    MPI_Abort(comm, 1);
+  flag = KINSpgmr(kmem, maxl);
+  if (check_flag(&flag, "KINSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* Initialize BBD preconditioner */
+  flag = KINBBDPrecInit(kmem, Nlocal, mudq, mldq, mukeep, mlkeep,
+                        dq_rel_uu, func_local, NULL);
+  if (check_flag(&flag, "KINBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
+
 
   flag = KINSpilsSetMaxRestarts(kmem, maxlrst);
   if (check_flag(&flag, "KINSpilsSetMaxRestarts", 1, my_pe)) 
@@ -323,7 +322,7 @@ int main(int argc, char *argv[])
 
   N_VDestroy_Parallel(cc);
   N_VDestroy_Parallel(sc);
-  KINBBDPrecFree(&pdata);
+
   KINFree(&kmem);
   FreeUserData(data);
 

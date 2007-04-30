@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:09 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 17:43:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,7 +33,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct IBBDPrecDataRec {
 
   /* passed by user to IDABBDPrecAlloc and used by
      IDABBDPrecSetup/IDABBDPrecSolve functions */
@@ -74,7 +74,7 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct IDABBDPrecDataRecB{
 
   /* BBD user functions (glocB and cfnB) for backward run */
   IDABBDLocalFnB glocalB;
@@ -92,10 +92,11 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-#define MSGBBD_IDAMEM_NULL "Integrator memory is NULL."
+#define MSGBBD_MEM_NULL    "Integrator memory is NULL."
+#define MSGBBD_LMEM_NULL   "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
 #define MSGBBD_MEM_FAIL    "A memory request failed."
 #define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBBD_PDATA_NULL  "BBDPrecData is NULL."
+#define MSGBBD_PMEM_NULL   "BBD peconditioner memory is NULL. IDABBDPrecInit must be called."
 #define MSGBBD_FUNC_FAILED "The Glocal or Gcomm routine failed in an unrecoverable manner."
 
 #define MSGBBD_AMEM_NULL   "idaadj_mem = NULL illegal."

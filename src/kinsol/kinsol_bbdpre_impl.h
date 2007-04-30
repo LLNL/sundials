@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 17:43:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -32,7 +32,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct KBBDPrecDataRec {
 
   /* passed by user to KINBBDPrecAlloc, used by pset/psolve functions */
 
@@ -75,11 +75,12 @@ typedef struct {
  *-----------------------------------------------------------------
  */
 
-#define MSGBBD_KINMEM_NULL "KINSOL Memory is NULL."
-#define MSGBBD_MEM_FAIL "A memory request failed."
+#define MSGBBD_MEM_NULL    "KINSOL Memory is NULL."
+#define MSGBBD_LMEM_NULL   "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
+#define MSGBBD_MEM_FAIL    "A memory request failed."
 #define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGBBD_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
-#define MSGBBD_PDATA_NULL  "BBDPrecData is NULL."
+#define MSGBBD_PMEM_NULL   "BBD peconditioner memory is NULL. IDABBDPrecInit must be called."
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 17:43:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -145,7 +145,7 @@ int KINDense(void *kinmem, int N)
 
   /* Get memory for KINDlsMemRec */
   kindls_mem = NULL;
-  kindls_mem = (KINDlsMem) malloc(sizeof(KINDlsMemRec));
+  kindls_mem = (KINDlsMem) malloc(sizeof(struct KINDlsMemRec));
   if (kindls_mem == NULL) {
     KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINDENSE", "KINDense", MSGD_MEM_FAIL);
     return(KINDIRECT_MEM_FAIL);

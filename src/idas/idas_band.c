@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 17:43:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -157,7 +157,7 @@ int IDABand(void *ida_mem, int Neq, int mupper, int mlower)
 
   /* Get memory for IDADlsMemRec. */
   idadls_mem = NULL;
-  idadls_mem = (IDADlsMem) malloc(sizeof(IDADlsMemRec));
+  idadls_mem = (IDADlsMem) malloc(sizeof(struct IDADlsMemRec));
   if (idadls_mem == NULL) {
     IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDASBAND", "IDABand", MSGD_MEM_FAIL);
     return(IDADIRECT_MEM_FAIL);
@@ -359,7 +359,7 @@ int IDABandB(void *idaadj_mem, int NeqB, int mupperB, int mlowerB)
   IDAB_mem = (IDAMem) IDAADJ_mem->IDAB_mem;
   
   /* Get memory for IDADlsMemRecB */
-  idadlsB_mem = (IDADlsMemB) malloc(sizeof(IDADlsMemRecB));
+  idadlsB_mem = (IDADlsMemB) malloc(sizeof(struct IDADlsMemRecB));
   if (idadlsB_mem == NULL) {
     IDAProcessError(IDAB_mem, IDADIRECT_MEM_FAIL, "IDASBAND", "IDABandB", MSGD_MEM_FAIL);
     return(IDADIRECT_MEM_FAIL);

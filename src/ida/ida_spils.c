@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 17:43:09 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -228,8 +228,8 @@ int IDASpilsSetIncrementFactor(void *ida_mem, realtype dqincfac)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
-                              IDASpilsPrecSolveFn psolve, void *prec_data)
+int IDASpilsSetPreconditioner(void *ida_mem,
+                              IDASpilsPrecSetupFn pset, IDASpilsPrecSolveFn psolve)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -249,7 +249,6 @@ int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
 
   idaspils_mem->s_pset = pset;
   idaspils_mem->s_psolve = psolve;
-  if (psolve != NULL) idaspils_mem->s_pdata = prec_data;
 
   return(IDASPILS_SUCCESS);
 }
@@ -502,6 +501,9 @@ char *IDASpilsGetReturnFlagName(int flag)
     break;
   case IDASPILS_MEM_FAIL:
     sprintf(name,"IDASPILS_MEM_FAIL");
+    break;
+  case IDASPILS_PMEM_NULL:
+    sprintf(name,"IDASPILS_PMEM_NULL");
     break;
   default:
     sprintf(name,"NONE");

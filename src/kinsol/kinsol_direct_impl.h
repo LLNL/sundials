@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 17:43:10 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,7 +33,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct KINDlsMemRec {
 
   int d_type;              /* SUNDIALS_DENSE or SUNDIALS_BAND              */
 
@@ -58,7 +58,7 @@ typedef struct {
     
   int d_last_flag;         /* last error return flag                       */
     
-} KINDlsMemRec, *KINDlsMem;
+} *KINDlsMem;
 
 
 /*

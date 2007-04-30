@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -37,28 +37,24 @@
  *   #include <kinsol.h>
  *   #include <kinsol/kinsol_bbdpre.h>
  *   ...
- *   void *p_data;
- *   ...
  *   MPI_Init(&argc,&argv);
  *   ...
  *   tmpl = N_VNew_Parallel(...);
  *   ...
  *   kin_mem = KINCreate();
- *   KINMalloc(kin_mem,...,tmpl);
+ *   flag = KINInit(kin_mem,...,tmpl);
  *   ...
- *   p_data = KINBBDPrecAlloc(kin_mem,...);
+ *   flag = KINSptfqmr(kin_mem,...);
+ *         -or-
+ *   flag = KINSpbcg(kin_mem,...);
+ *         -or-
+ *   flag = KINSpgmr(kin_mem,...);
  *   ...
- *   KINBBDSptfqmr(kin_mem,...,p_data);
- *         -or-
- *   KINBBDSpbcg(kin_mem,...,p_data);
- *         -or-
- *   KINBBDSpgmr(kin_mem,...,p_data);
+ *   flag = KINBBDPrecInit(kin_mem,...);
  *   ...
  *   KINSol(kin_mem,...);
  *   ...
- *   KINBBDPrecFree(&p_data);
- *   ...
- *   KINFree(kin_mem);
+ *   KINFree(&kin_mem);
  *   ...
  *   N_VDestroy_Parallel(tmpl);
  *   ...
@@ -79,7 +75,7 @@
  *    the definition of the KBBDData data type and for needed
  *    function prototypes.
  *
- * 2) The KINBBDPrecAlloc call includes half-bandwiths mudq and mldq
+ * 2) The KINBBDPrecInit call includes half-bandwiths mudq and mldq
  *    to be used in the difference quotient calculation of the
  *    approximate Jacobian. They need not be the true half-bandwidths
  *    of the Jacobian of the local block of g, when smaller values may
@@ -91,7 +87,7 @@
  *
  * 3) The actual name of the user's f function is passed to
  *    KINMalloc, and the names of the user's glocal and gcomm
- *    functions are passed to KINBBDPrecAlloc.
+ *    functions are passed to KINBBDPrecInit.
  *
  * 4) Optional outputs specific to this module are available by
  *    way of the functions listed below. These include work space
@@ -133,7 +129,7 @@ extern "C" {
  * type KINCommFn can omit any communications done by f (func) if
  * relevant to the evaluation of the KINLocalFn function. If all
  * necessary communication was done in func, the user can pass
- * NULL for gcomm in the call to KINBBDPrecAlloc (see below).
+ * NULL for gcomm in the call to KINBBDPrecInit (see below).
  *
  * A KINCommFn function should return 0 if successful or
  * a non-zero value if an error occured.
@@ -171,13 +167,11 @@ typedef int (*KINLocalFn)(int Nlocal, N_Vector uu,
 
 /*
  * -----------------------------------------------------------------
- * Function : KINBBDPrecAlloc
+ * Function : KINBBDPrecInit
  * -----------------------------------------------------------------
- * KINBBDPrecAlloc allocates and initializes a KBBDData data
- * structure to be passed to KINSpgmr/KINSpbcg (and then used by
- * KINBBDPrecSetup and KINBBDPrecSolve).
+ * KINBBDPrecInit allocates and initializes the BBD preconditioner.
  *
- * The parameters of KINBBDPrecAlloc are as follows:
+ * The parameters of KINBBDPrecInit are as follows:
  *
  * kinmem  is a pointer to the KINSol memory block.
  *
@@ -204,117 +198,20 @@ typedef int (*KINLocalFn)(int Nlocal, N_Vector uu,
  *         necessary inter-process communication for the
  *         execution of gloc.
  *
- * Note: KINBBDPrecAlloc returns a pointer to the storage allocated,
- * or NULL if the request for storage cannot be satisfied.
+ * The return value of KINBBDPrecInit is one of:
+ *   KINSPILS_SUCCESS if no errors occurred
+ *   KINSPILS_MEM_NULL if the integrator memory is NULL
+ *   KINSPILS_LMEM_NULL if the linear solver memory is NULL
+ *   KINSPILS_ILL_INPUT if an input has an illegal value
+ *   KINSPILS_MEM_FAIL if a memory allocation request failed
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void *KINBBDPrecAlloc(void *kinmem, int Nlocal, 
-				      int mudq, int mldq,
-				      int mukeep, int mlkeep,
-				      realtype dq_rel_uu, 
-				      KINLocalFn gloc, KINCommFn gcomm);
-
-/*
- * -----------------------------------------------------------------
- * Function : KINBBDSptfqmr
- * -----------------------------------------------------------------
- * KINBBDSptfqmr links the KINBBDPRE preconditioner to the KINSPTFQMR
- * linear solver. It performs the following actions:
- *  1) Calls the KINSPTFQMR specification routine and attaches the
- *     KINSPTFQMR linear solver to the KINSOL solver;
- *  2) Sets the preconditioner data structure for KINSPTFQMR
- *  3) Sets the preconditioner setup routine for KINSPTFQMR
- *  4) Sets the preconditioner solve routine for KINSPTFQMR
- *
- * Its first 2 arguments are the same as for KINSptfqmr (see
- * kinsptfqmr.h). The last argument is the pointer to the KBBDPRE
- * memory block returned by KINBBDPrecAlloc.
- *
- * Possible return values are:
- *   (from kinsptfqmr.h) KINSPTFQMR_SUCCESS
- *                       KINSPTFQMR_MEM_NULL
- *                       KINSPTFQMR_LMEM_NULL
- *                       KINSPTFQMR_MEM_FAIL
- *                       KINSPTFQMR_ILL_INPUT
- *
- *   Additionaly, if KINBBDPrecAlloc was not previously called,
- *   KINBBDSptfqmr returns KINBBDPRE_PDATA_NULL.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int KINBBDSptfqmr(void *kinmem, int maxl, void *p_data);
-
-/*
- * -----------------------------------------------------------------
- * Function : KINBBDSpbcg
- * -----------------------------------------------------------------
- * KINBBDSpbcg links the KINBBDPRE preconditioner to the KINSPBCG
- * linear solver. It performs the following actions:
- *  1) Calls the KINSPBCG specification routine and attaches the
- *     KINSPBCG linear solver to the KINSOL solver;
- *  2) Sets the preconditioner data structure for KINSPBCG
- *  3) Sets the preconditioner setup routine for KINSPBCG
- *  4) Sets the preconditioner solve routine for KINSPBCG
- *
- * Its first 2 arguments are the same as for KINSpbcg (see
- * kinspbcg.h). The last argument is the pointer to the KBBDPRE
- * memory block returned by KINBBDPrecAlloc.
- *
- * Possible return values are:
- *   (from kinspbcg.h) KINSPBCG_SUCCESS
- *                     KINSPBCG_MEM_NULL
- *                     KINSPBCG_LMEM_NULL
- *                     KINSPBCG_MEM_FAIL
- *                     KINSPBCG_ILL_INPUT
- *
- *   Additionaly, if KINBBDPrecAlloc was not previously called,
- *   KINBBDSpbcg returns KINBBDPRE_PDATA_NULL.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int KINBBDSpbcg(void *kinmem, int maxl, void *p_data);
-
-/*
- * -----------------------------------------------------------------
- * Function : KINBBDSpgmr
- * -----------------------------------------------------------------
- * KINBBDSpgmr links the KINBBDPRE preconditioner to the KINSPGMR
- * linear solver. It performs the following actions:
- *  1) Calls the KINSPGMR specification routine and attaches the
- *     KINSPGMR linear solver to the KINSOL solver;
- *  2) Sets the preconditioner data structure for KINSPGMR
- *  3) Sets the preconditioner setup routine for KINSPGMR
- *  4) Sets the preconditioner solve routine for KINSPGMR
- *
- * Its first 2 arguments are the same as for KINSpgmr (see
- * kinspgmr.h). The last argument is the pointer to the KBBDPRE
- * memory block returned by KINBBDPrecAlloc.
- *
- * Possible return values are:
- *   (from kinspgmr.h) KINSPGMR_SUCCESS
- *                     KINSPGMR_MEM_NULL
- *                     KINSPGMR_LMEM_NULL
- *                     KINSPGMR_MEM_FAIL
- *                     KINSPGMR_ILL_INPUT
- *
- *   Additionaly, if KINBBDPrecAlloc was not previously called,
- *   KINBBDSpgmr returns KINBBDPRE_PDATA_NULL.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int KINBBDSpgmr(void *kinmem, int maxl, void *p_data);
-
-/*
- * -----------------------------------------------------------------
- * Function : KINBBDPrecFree
- * -----------------------------------------------------------------
- * KINBBDPrecFree frees the memory block p_data allocated by the
- * call to KINBBDPrecAlloc.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void KINBBDPrecFree(void **p_data);
+SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, int Nlocal, 
+                                   int mudq, int mldq,
+                                   int mukeep, int mlkeep,
+                                   realtype dq_rel_uu, 
+                                   KINLocalFn gloc, KINCommFn gcomm);
 
 /*
  * -----------------------------------------------------------------
@@ -326,29 +223,8 @@ SUNDIALS_EXPORT void KINBBDPrecFree(void **p_data);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP);
-SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
-
-/*
- * -----------------------------------------------------------------
- * The following function returns the name of the constant 
- * associated with a KINBBDPRE return flag
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT char *KINBBDPrecGetReturnFlagName(int flag);
-
-/* prototypes for functions KINBBDPrecSetup and KINBBDPrecSolve */
-
-SUNDIALS_EXPORT int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
-				    N_Vector fval, N_Vector fscale, 
-				    void *p_data,
-				    N_Vector vtemp1, N_Vector vtemp2);
-
-SUNDIALS_EXPORT int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
-				    N_Vector fval, N_Vector fscale, 
-				    N_Vector vv, void *p_data,
-				    N_Vector vtemp);
+SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *kinmem, long int *lenrwBBDP, long int *leniwBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *kinmem, long int *ngevalsBBDP);
 
 #ifdef __cplusplus
 }

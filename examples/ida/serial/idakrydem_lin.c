@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -203,9 +203,6 @@ int main(void)
       ier = IDASpgmr(mem, 0);
       if(check_flag(&ier, "IDASpgmr", 1)) return(1);
 
-      ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
-      if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
-
       break;
 
     /* (b) SPBCG */
@@ -219,9 +216,6 @@ int main(void)
       /* Call IDASpbcg to specify the linear solver. */
       ier = IDASpbcg(mem, 0);
       if(check_flag(&ier, "IDASpbcg", 1)) return(1);
-
-      ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
-      if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
 
       break;
 
@@ -237,12 +231,13 @@ int main(void)
       ier = IDASptfqmr(mem, 0);
       if(check_flag(&ier, "IDASptfqmr", 1)) return(1);
 
-      ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
-      if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
-
       break;
 
     }
+
+    /* Specify preconditioner */
+    ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
+    if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
 
     /* Print output heading. */
     PrintHeader(rtol, atol, linsolver);

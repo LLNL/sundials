@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -159,7 +159,7 @@ int KINSptfqmr(void *kinmem, int maxl)
 
   /* get memory for KINSpilsMemRec */
   kinspils_mem = NULL;
-  kinspils_mem = (KINSpilsMem) malloc(sizeof(KINSpilsMemRec));
+  kinspils_mem = (KINSpilsMem) malloc(sizeof(struct KINSpilsMemRec));
   if (kinspils_mem == NULL){
     KINProcessError(NULL, KINSPILS_MEM_FAIL, "KINSPILS", "KINSptfqmr", MSGS_MEM_FAIL);
     return(KINSPILS_MEM_FAIL);  
@@ -179,15 +179,19 @@ int KINSptfqmr(void *kinmem, int maxl)
   jtimes   = NULL;
   J_data   = NULL;
 
-  /* set default values for the rest of the SPTFQMR parameters */
+  /* Set defaults for preconditioner-related fields */
+
+  kinspils_mem->s_pset   = NULL;
+  kinspils_mem->s_psolve = NULL;
+  kinspils_mem->s_pfree  = NULL;
+  kinspils_mem->s_P_data = kin_mem->kin_f_data;
+
+  /* Set default values for the rest of the SPTFQMR parameters */
 
   kinspils_mem->s_pretype   = PREC_NONE;
   kinspils_mem->s_last_flag = KINSPILS_SUCCESS;
-  kinspils_mem->s_pset      = NULL;
-  kinspils_mem->s_psolve    = NULL;
-  kinspils_mem->s_P_data    = NULL;
 
-  /* call SptfqmrMalloc to allocate workspace for SPTFQMR */
+  /* Call SptfqmrMalloc to allocate workspace for SPTFQMR */
 
   /* vec_tmpl passed as template vector */
 
@@ -422,8 +426,11 @@ static void KINSptfqmrFree(KINMem kin_mem)
   SptfqmrMem sptfqmr_mem;
 
   kinspils_mem = (KINSpilsMem) lmem;
-  sptfqmr_mem = (SptfqmrMem) spils_mem;
 
+  sptfqmr_mem = (SptfqmrMem) spils_mem;
   SptfqmrFree(sptfqmr_mem);
-  free(lmem); lmem = NULL;
+
+  if (kinspils_mem->s_pfree != NULL) (kinspils_mem->s_pfree)(kin_mem);
+
+  free(kinspils_mem); kinspils_mem = NULL;
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -119,9 +119,7 @@ int KINSpilsSetMaxRestarts(void *kinmem, int maxrs)
  */
 
 int KINSpilsSetPreconditioner(void *kinmem,
-			      KINSpilsPrecSetupFn pset,
-			      KINSpilsPrecSolveFn psolve,
-			      void *P_data)
+			      KINSpilsPrecSetupFn pset, KINSpilsPrecSolveFn psolve)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -142,7 +140,6 @@ int KINSpilsSetPreconditioner(void *kinmem,
 
   kinspils_mem->s_pset   = pset;
   kinspils_mem->s_psolve = psolve;
-  kinspils_mem->s_P_data = P_data;
 
   return(KINSPILS_SUCCESS);
 }
@@ -461,6 +458,9 @@ char *KINSpilsGetReturnFlagName(int flag)
     break;
   case KINSPILS_MEM_FAIL:
     sprintf(name, "KINSPILS_MEM_FAIL");
+    break;
+  case KINSPILS_PMEM_NULL:
+    sprintf(name, "KINSPILS_PMEM_NULL");
     break;
   default:
     sprintf(name, "NONE");

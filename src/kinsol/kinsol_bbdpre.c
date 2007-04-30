@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:50 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 17:43:09 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -30,6 +30,7 @@
 #include <kinsol/kinsol_spgmr.h>
 
 #include "kinsol_impl.h"
+#include "kinsol_spils_impl.h"
 #include "kinsol_bbdpre_impl.h"
 
 #include <sundials/sundials_math.h>
@@ -43,11 +44,23 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
-/*
- *-----------------------------------------------------------------
- * prototype for difference quotient jacobian calculation routine
- *-----------------------------------------------------------------
- */
+/* Prototypes for functions KINBBDPrecSetup and KINBBDPrecSolve */
+
+static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
+                           N_Vector fval, N_Vector fscale, 
+                           void *p_data,
+                           N_Vector vtemp1, N_Vector vtemp2);
+
+static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
+                           N_Vector fval, N_Vector fscale, 
+                           N_Vector vv, void *p_data,
+                           N_Vector vtemp);
+
+/* Prototype for KINBBDPrecFree */
+
+static void KINBBDPrecFree(KINMem kin_mem);
+
+/* Prototype for difference quotient jacobian calculation routine */
 
 static int KBBDDQJac(KBBDPrecData pdata,
                      N_Vector uu, N_Vector uscale,
@@ -71,44 +84,51 @@ static int KBBDDQJac(KBBDPrecData pdata,
 
 /*
  *-----------------------------------------------------------------
- * Function : KINBBDPrecAlloc
+ * Function : KINBBDPrecInit
  *-----------------------------------------------------------------
  */
 
-void *KINBBDPrecAlloc(void *kinmem, int Nlocal, 
-		      int mudq, int mldq,
-		      int mukeep, int mlkeep,
-		      realtype dq_rel_uu, 
-		      KINLocalFn gloc, KINCommFn gcomm)
+int KINBBDPrecInit(void *kinmem, int Nlocal, 
+                   int mudq, int mldq,
+                   int mukeep, int mlkeep,
+                   realtype dq_rel_uu, 
+                   KINLocalFn gloc, KINCommFn gcomm)
 {
   KBBDPrecData pdata;
+  KINSpilsMem kinspils_mem;
   KINMem kin_mem;
   N_Vector vtemp3;
   int muk, mlk, storage_mu;
+  int flag;
 
   pdata = NULL;
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, 0, "KINBBDPRE", "KINBBDPrecAlloc", MSGBBD_KINMEM_NULL);
-    return(NULL);
+    KINProcessError(NULL, 0, "KINBBDPRE", "KINBBDPrecInit", MSGBBD_MEM_NULL);
+    return(KINSPILS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
-  /* test if the NVECTOR package is compatible with BLOCK BAND preconditioner */
+  /* Test if one of the SPILS linear solvers has been attached */
+  if (kin_mem->kin_lmem == NULL) {
+    KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINBBDPRE", "KINBBDPrecInit", MSGBBD_LMEM_NULL);
+    return(KINSPILS_LMEM_NULL);
+  }
+  kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
 
-  /* Note: do NOT need to check for N_VScale since it is required by KINSOL and
+  /* Test if the NVECTOR package is compatible with BLOCK BAND preconditioner.
+     Note: do NOT need to check for N_VScale since it is required by KINSOL and
      so has already been checked for (see KINMalloc) */
-
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
-    KINProcessError(kin_mem, 0, "KINBBDPRE", "KINBBDPrecAlloc", MSGBBD_BAD_NVECTOR);
-    return(NULL);
+    KINProcessError(kin_mem, KINSPILS_ILL_INPUT, "KINBBDPRE", "KINBBDPrecInit", MSGBBD_BAD_NVECTOR);
+    return(KINSPILS_ILL_INPUT);
   }
 
   pdata = NULL;
   pdata = (KBBDPrecData) malloc(sizeof *pdata);  /* allocate data memory */
   if (pdata == NULL) {
-    KINProcessError(kin_mem, 0, "KINBBDPRE", "KINBBDPrecAlloc", MSGBBD_MEM_FAIL);
-    return(NULL);
+    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE", "KINBBDPrecInit", MSGBBD_MEM_FAIL);
+    return(KINSPILS_MEM_FAIL);
   }
 
   /* set pointers to gloc and gcomm and load half-bandwiths */
@@ -130,7 +150,8 @@ void *KINBBDPrecAlloc(void *kinmem, int Nlocal,
   pdata->PP = NewBandMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) {
     free(pdata); pdata = NULL;
-    return(NULL);
+    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE", "KINBBDPrecInit", MSGBBD_MEM_FAIL);
+    return(KINSPILS_MEM_FAIL);
   }
 
   /* allocate memory for pivots */
@@ -140,7 +161,8 @@ void *KINBBDPrecAlloc(void *kinmem, int Nlocal,
   if (pdata->pivots == NULL) {
     DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
-    return(NULL);
+    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE", "KINBBDPrecInit", MSGBBD_MEM_FAIL);
+    return(KINSPILS_MEM_FAIL);
   }
 
   /* allocate vtemp3 for use by KBBDDQJac routine */
@@ -151,7 +173,8 @@ void *KINBBDPrecAlloc(void *kinmem, int Nlocal,
     DestroyArray(pdata->pivots);
     DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
-    return(NULL);
+    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE", "KINBBDPrecInit", MSGBBD_MEM_FAIL);
+    return(KINSPILS_MEM_FAIL);
   }
   pdata->vtemp3 = vtemp3;
 
@@ -170,119 +193,16 @@ void *KINBBDPrecAlloc(void *kinmem, int Nlocal,
   pdata->ipwsize = Nlocal + 1;
   pdata->nge = 0;
 
-  return((void *) pdata);
-}
+  /* Overwrite the P_data field in the SPILS memory */
+  kinspils_mem->s_P_data = pdata;
 
-/*
- *-----------------------------------------------------------------
- * Function : KINBBDSptfqmr
- *-----------------------------------------------------------------
- */
+  /* Attach the pfree function */
+  kinspils_mem->s_pfree = KINBBDPrecFree;
 
-int KINBBDSptfqmr(void *kinmem, int maxl, void *p_data)
-{
-  KINMem kin_mem;
-  int flag;
+  /* Attach preconditioner solve and setup functions */
+  flag = KINSpilsSetPreconditioner(kinmem, KINBBDPrecSetup, KINBBDPrecSolve);
 
-  flag = KINSptfqmr(kinmem, maxl);
-  if (flag != KINSPILS_SUCCESS) return(flag);
-
-  kin_mem = (KINMem) kinmem;
-
-  if (p_data == NULL) {
-    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSptfqmr", MSGBBD_PDATA_NULL);
-    return(KINBBDPRE_PDATA_NULL);
-  }
-
-  flag = KINSpilsSetPreconditioner(kinmem,
-                                   KINBBDPrecSetup,
-                                   KINBBDPrecSolve,
-                                   p_data);
-  if (flag != KINSPILS_SUCCESS) return(flag);
-
-  return(KINSPILS_SUCCESS);
-}
-
-/*
- *-----------------------------------------------------------------
- * Function : KINBBDSpbcg
- *-----------------------------------------------------------------
- */
-
-int KINBBDSpbcg(void *kinmem, int maxl, void *p_data)
-{
-  KINMem kin_mem;
-  int flag;
-
-  flag = KINSpbcg(kinmem, maxl);
-  if (flag != KINSPILS_SUCCESS) return(flag);
-
-  kin_mem = (KINMem) kinmem;
-
-  if (p_data == NULL) {
-    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSpbcg", MSGBBD_PDATA_NULL);
-    return(KINBBDPRE_PDATA_NULL);
-  }
-
-  flag = KINSpilsSetPreconditioner(kinmem,
-				   KINBBDPrecSetup,
-				   KINBBDPrecSolve,
-				   p_data);
-  if (flag != KINSPILS_SUCCESS) return(flag);
-
-  return(KINSPILS_SUCCESS);
-}
-
-/*
- *-----------------------------------------------------------------
- * Function : KINBBDSpgmr
- *-----------------------------------------------------------------
- */
-
-int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
-{
-  KINMem kin_mem;
-  int flag;
-
-  flag = KINSpgmr(kinmem, maxl);
-  if (flag != KINSPILS_SUCCESS) return(flag);
-
-  kin_mem = (KINMem) kinmem;
-
-  if (p_data == NULL) {
-    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSpgmr", MSGBBD_PDATA_NULL);
-    return(KINBBDPRE_PDATA_NULL);
-  }
-
-  flag = KINSpilsSetPreconditioner(kinmem,
-				   KINBBDPrecSetup,
-				   KINBBDPrecSolve,
-				   p_data);
-  if (flag != KINSPILS_SUCCESS) return(flag);
-
-  return(KINSPILS_SUCCESS);
-}
-
-/*
- *-----------------------------------------------------------------
- * Function : KINBBDPrecFree
- *-----------------------------------------------------------------
- */
-
-void KINBBDPrecFree(void **p_data)
-{
-  KBBDPrecData pdata;
-
-  if (*p_data == NULL) return;
-
-  pdata = (KBBDPrecData) (*p_data);
-  N_VDestroy(pdata->vtemp3);
-  DestroyMat(pdata->PP);
-  DestroyArray(pdata->pivots);
-
-  free(*p_data);
-  *p_data = NULL;
-
+  return(flag);
 }
 
 /*
@@ -291,21 +211,34 @@ void KINBBDPrecFree(void **p_data)
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP)
+int KINBBDPrecGetWorkSpace(void *kinmem, long int *lenrwBBDP, long int *leniwBBDP)
 {
+  KINMem kin_mem;
+  KINSpilsMem kinspils_mem;
   KBBDPrecData pdata;
 
-  if (p_data == NULL) {
-    KINProcessError(NULL, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDPrecGetWorkSpace", MSGBBD_PDATA_NULL);
-    return(KINBBDPRE_PDATA_NULL);
-  } 
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KINSPILS_MEM_NULL, "KINBBDPRE", "KINBBDPrecGetWorkSpace", MSGBBD_MEM_NULL);
+    return(KINSPILS_MEM_NULL);
+  }
+  kin_mem = (KINMem) kinmem;
 
-  pdata = (KBBDPrecData) p_data;
+  if (kin_mem->kin_lmem == NULL) {
+    KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINBBDPRE", "KINBBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
+    return(KINSPILS_LMEM_NULL);
+  }
+  kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
+
+  if (kinspils_mem->s_P_data == NULL) {
+    KINProcessError(kin_mem, KINSPILS_PMEM_NULL, "KINBBDPRE", "KINBBDPrecGetWorkSpace", MSGBBD_PMEM_NULL);
+    return(KINSPILS_PMEM_NULL);
+  } 
+  pdata = (KBBDPrecData) kinspils_mem->s_P_data;
 
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(KINBBDPRE_SUCCESS);
+  return(KINSPILS_SUCCESS);
 }
 
 /*
@@ -314,46 +247,33 @@ int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBD
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
+int KINBBDPrecGetNumGfnEvals(void *kinmem, long int *ngevalsBBDP)
 {
+  KINMem kin_mem;
+  KINSpilsMem kinspils_mem;
   KBBDPrecData pdata;
 
-  if (p_data == NULL) {
-    KINProcessError(NULL, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDPrecGetNumGfnEvals", MSGBBD_PDATA_NULL);
-    return(KINBBDPRE_PDATA_NULL);
-  } 
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KINSPILS_MEM_NULL, "KINBBDPRE", "KINBBDPrecGetNumGfnEvals", MSGBBD_MEM_NULL);
+    return(KINSPILS_MEM_NULL);
+  }
+  kin_mem = (KINMem) kinmem;
 
-  pdata = (KBBDPrecData) p_data;
+  if (kin_mem->kin_lmem == NULL) {
+    KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINBBDPRE", "KINBBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
+    return(KINSPILS_LMEM_NULL);
+  }
+  kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
+
+  if (kinspils_mem->s_P_data == NULL) {
+    KINProcessError(kin_mem, KINSPILS_PMEM_NULL, "KINBBDPRE", "KINBBDPrecGetNumGfnEvals", MSGBBD_PMEM_NULL);
+    return(KINSPILS_PMEM_NULL);
+  } 
+  pdata = (KBBDPrecData) kinspils_mem->s_P_data;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(KINBBDPRE_SUCCESS);
-}
-
-/*
- *-----------------------------------------------------------------
- * Function : KINBBDPrecGetReturnFlagName
- *-----------------------------------------------------------------
- */
-
-char *KINBBDPrecGetReturnFlagName(int flag)
-{
-  char *name;
-
-  name = (char *)malloc(30*sizeof(char));
-
-  switch(flag) {
-  case KINBBDPRE_SUCCESS:
-    sprintf(name, "KINBBDPRE_SUCCESS");
-    break;
-  case KINBBDPRE_PDATA_NULL:
-    sprintf(name, "KINBBDPRE_PDATA_NULL");
-    break;
-  default:
-    sprintf(name, "NONE");
-  }
-
-  return(name);
+  return(KINSPILS_SUCCESS);
 }
 
 /*
@@ -377,6 +297,7 @@ char *KINBBDPrecGetReturnFlagName(int flag)
 #define gcomm  (pdata->gcomm)
 #define pivots (pdata->pivots)
 #define PP     (pdata->PP)
+#define vtemp3 (pdata->vtemp3)
 #define nge    (pdata->nge)
 #define rel_uu (pdata->rel_uu)
 
@@ -403,9 +324,7 @@ char *KINBBDPrecGetReturnFlagName(int flag)
  *
  * fscale  is the function scaling vector
  *
- * p_data  is a pointer to user data - the same as the p_data
- *         parameter passed to KINSp*. For KINBBDPrecSetup,
- *         this should be of type KBBDData.
+ * bbd_data is the pointer to BBD data set by IDABBDInit.
  *
  * vtemp1, vtemp2 are pointers to memory allocated for vectors of
  *                length N which are be used by KINBBDPrecSetup
@@ -420,28 +339,25 @@ char *KINBBDPrecGetReturnFlagName(int flag)
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
-		    N_Vector fval, N_Vector fscale, 
-		    void *p_data,
-		    N_Vector vtemp1, N_Vector vtemp2)
+static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
+                           N_Vector fval, N_Vector fscale, 
+                           void *bbd_data,
+                           N_Vector vtemp1, N_Vector vtemp2)
 {
   KBBDPrecData pdata;
   KINMem kin_mem;
-  N_Vector vtemp3;
   int ier, retval;
 
-  pdata = (KBBDPrecData) p_data;
+  pdata = (KBBDPrecData) bbd_data;
 
   kin_mem = (KINMem) pdata->kin_mem;
-
-  vtemp3 = pdata->vtemp3;
 
   /* call KBBDDQJac for a new jacobian and store in PP */
 
   BandZero(PP);
   retval = KBBDDQJac(pdata, uu, uscale, vtemp1, vtemp2, vtemp3);
   if (retval != 0) {
-    KINProcessError(kin_mem, KINBBDPRE_FUNC_UNRECVR, "KINBBDPRE", "KINBBDPrecSetup", MSGBBD_FUNC_FAILED);
+    KINProcessError(kin_mem, -1, "KINBBDPRE", "KINBBDPrecSetup", MSGBBD_FUNC_FAILED);
     return(-1);
   }
 
@@ -478,9 +394,7 @@ int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
  * fscale an N_Vector giving the diagonal entries of the
  *        function scaling matrix
  *
- * p_data is a pointer to user data - the same as the P_data
- *        parameter passed to KINSp*. For KINBBDPrecSolve,
- *        this should be of type KBBDData.
+ * bbd_data is the pointer to BBD data set by IDABBDInit.
  *
  * vtemp  an N_Vector (temporary storage), usually the scratch
  *        vector vtemp from SPGMR/SPBCG/SPTFQMR (typical calling
@@ -492,15 +406,15 @@ int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
-		    N_Vector fval, N_Vector fscale, 
-		    N_Vector vv, void *p_data,
-		    N_Vector vtemp)
+static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
+                           N_Vector fval, N_Vector fscale, 
+                           N_Vector vv, void *bbd_data,
+                           N_Vector vtemp)
 {
   KBBDPrecData pdata;
   realtype *vd;
 
-  pdata = (KBBDPrecData) p_data;
+  pdata = (KBBDPrecData) bbd_data;
 
   /* do the backsolve and return */
 
@@ -509,6 +423,28 @@ int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
 
   return(0);
 }
+
+
+static void KINBBDPrecFree(KINMem kin_mem)
+{
+  KINSpilsMem kinspils_mem;
+  KBBDPrecData pdata;
+
+  if (kin_mem->kin_lmem == NULL) return;
+  kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
+  
+  if (kinspils_mem->s_P_data == NULL) return;
+  pdata = (KBBDPrecData) kinspils_mem->s_P_data;
+
+  N_VDestroy(vtemp3);
+  DestroyMat(PP);
+  DestroyArray(pivots);
+
+  free(pdata);
+  pdata = NULL;
+}
+
+
 
 /*
  *-----------------------------------------------------------------

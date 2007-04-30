@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 17:43:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -166,7 +166,7 @@ int main()
   ier = IDASpgmr(mem, 0);
   if(check_flag(&ier, "IDASpgmr", 1)) return(1);
 
-  ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
+  ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
   if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
 
   /* Print output heading. */

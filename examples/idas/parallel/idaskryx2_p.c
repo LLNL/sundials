@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 17:43:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "IDASpgmr", 1, thispe)) 
     MPI_Abort(comm, 1);
 
-  flag = IDASpilsSetPreconditioner(mem, Precondbd, PSolvebd, webdata);
+  flag = IDASpilsSetPreconditioner(mem, Precondbd, PSolvebd);
   if (check_flag(&flag, "IDASpilsSetPreconditioner", 1, thispe)) 
     MPI_Abort(comm, 1);
   

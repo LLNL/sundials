@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 17:43:10 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -36,6 +36,7 @@ extern "C" {
 #define IDASPILS_LMEM_NULL  -2 
 #define IDASPILS_ILL_INPUT  -3
 #define IDASPILS_MEM_FAIL   -4
+#define IDASPILS_PMEM_NULL  -5
 
 /*
  * -----------------------------------------------------------------
@@ -81,8 +82,8 @@ extern "C" {
  *
  * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *
- * prec_data is a pointer to user preconditioner data - the same as
- *     the pdata parameter passed to IDASp*.
+ * res_data is a pointer to user data, the same as the res_data
+ *     parameter passed to IDASetRdata.
  *
  * tmp1, tmp2, tmp3 are pointers to vectors of type N_Vector
  *     which can be used by an IDASpilsPrecSetupFn routine
@@ -106,7 +107,7 @@ extern "C" {
 
 typedef int (*IDASpilsPrecSetupFn)(realtype tt,
 				   N_Vector yy, N_Vector yp, N_Vector rr,
-				   realtype c_j, void *prec_data,
+				   realtype c_j, void *res_data,
 				   N_Vector tmp1, N_Vector tmp2,
 				   N_Vector tmp3);
 
@@ -144,8 +145,8 @@ typedef int (*IDASpilsPrecSetupFn)(realtype tt,
  *     Note: the error weight vector ewt can be obtained
  *     through a call to the routine IDAGetErrWeights.
  *
- * prec_data is a pointer to user preconditioner data - the same as
- *     the pdata parameter passed to IDASp*.
+ * res_data is a pointer to user data, the same as the res_data
+ *     parameter passed to IDASetRdata.
  *
  * tmp is an N_Vector which can be used by the PrecSolve
  *     routine as temporary storage or work space.
@@ -163,7 +164,7 @@ typedef int (*IDASpilsPrecSetupFn)(realtype tt,
 typedef int (*IDASpilsPrecSolveFn)(realtype tt,
 				   N_Vector yy, N_Vector yp, N_Vector rr,
 				   N_Vector rvec, N_Vector zvec,
-				   realtype c_j, realtype delta, void *prec_data,
+				   realtype c_j, realtype delta, void *res_data,
 				   N_Vector tmp);
 
 /*
@@ -217,10 +218,8 @@ typedef int (*IDASpilsJacTimesVecFn)(realtype tt,
  * -----------------------------------------------------------------
  *                                                                
  * IDASpilsSetPreconditioner specifies the PrecSetup and PrecSolve 
- *           functions, as well as a pointer to user preconditioner 
- *           data. This pointer is passed to PrecSetup and PrecSolve
- *           every time these routines are called.
- *           Default is NULL for al three arguments.
+ *           functions.
+ *           Default is NULL for both arguments.
  * IDASpilsSetJacTimesVecFn specifies the jtimes function.        
  *           Default is to use an internal finite difference      
  *           approximation routine.                           
@@ -255,9 +254,12 @@ typedef int (*IDASpilsJacTimesVecFn)(realtype tt,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset, 
-					      IDASpilsPrecSolveFn psolve, void *prec_data);
-SUNDIALS_EXPORT int IDASpilsSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtv);
+SUNDIALS_EXPORT int IDASpilsSetPreconditioner(void *ida_mem,
+                                              IDASpilsPrecSetupFn pset, 
+					      IDASpilsPrecSolveFn psolve);
+SUNDIALS_EXPORT int IDASpilsSetJacTimesVecFn(void *ida_mem,
+                                             IDASpilsJacTimesVecFn jtv);
+
 SUNDIALS_EXPORT int IDASpilsSetGSType(void *ida_mem, int gstype);
 SUNDIALS_EXPORT int IDASpilsSetMaxRestarts(void *ida_mem, int maxrs);
 SUNDIALS_EXPORT int IDASpilsSetMaxl(void *ida_mem, int maxl);

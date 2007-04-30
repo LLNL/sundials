@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 17:43:09 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -177,7 +177,7 @@ int IDASpgmr(void *ida_mem, int maxl)
 
   /* Get memory for IDASpilsMemRec */
   idaspils_mem = NULL;
-  idaspils_mem = (IDASpilsMem) malloc(sizeof(IDASpilsMemRec));
+  idaspils_mem = (IDASpilsMem) malloc(sizeof(struct IDASpilsMemRec));
   if (idaspils_mem == NULL) {
     IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPGMR", "IDASpgmr", MSGS_MEM_FAIL);
     return(IDASPILS_MEM_FAIL);
@@ -195,14 +195,17 @@ int IDASpgmr(void *ida_mem, int maxl)
   jtimes   = NULL;
   jdata    = NULL;
 
+  /* Set defaults for preconditioner-related fields */
+  idaspils_mem->s_pset   = NULL;
+  idaspils_mem->s_psolve = NULL;
+  idaspils_mem->s_pfree  = NULL;
+  idaspils_mem->s_pdata  = IDA_mem->ida_rdata;
+
   /* Set default values for the rest of the Spgmr parameters */
   idaspils_mem->s_gstype   = MODIFIED_GS;
   idaspils_mem->s_maxrs    = IDA_SPILS_MAXRS;
   idaspils_mem->s_eplifac  = PT05;
   idaspils_mem->s_dqincfac = ONE;
-  idaspils_mem->s_pset     = NULL;
-  idaspils_mem->s_psolve   = NULL;
-  idaspils_mem->s_pdata    = NULL;
 
   idaspils_mem->s_last_flag  = IDASPILS_SUCCESS;
 
@@ -479,12 +482,15 @@ static int IDASpgmrFree(IDAMem IDA_mem)
 
   idaspils_mem = (IDASpilsMem) lmem;
   
-  spgmr_mem = (SpgmrMem) spils_mem;
-
   N_VDestroy(ytemp);
   N_VDestroy(xx);
+
+  spgmr_mem = (SpgmrMem) spils_mem;
   SpgmrFree(spgmr_mem);
-  free(lmem); lmem = NULL;
+
+  if (idaspils_mem->s_pfree != NULL) (idaspils_mem->s_pfree)(IDA_mem);
+
+  free(idaspils_mem); idaspils_mem = NULL;
 
   return(0);
 }
@@ -531,7 +537,7 @@ int IDASpgmrB(void *idaadj_mem, int maxlB)
 
   /* Get memory for IDASpilsMemRecB */
   idaspilsB_mem = NULL;
-  idaspilsB_mem = (IDASpilsMemB) malloc(sizeof(IDASpilsMemRecB));
+  idaspilsB_mem = (IDASpilsMemB) malloc(sizeof(struct IDASpilsMemRecB));
   if (idaspilsB_mem == NULL) {
     IDAProcessError(IDAB_mem, IDASPILS_MEM_FAIL, "IDASPGMR", "IDASpgmrB", MSGS_MEM_FAIL);
     return(IDASPILS_MEM_FAIL);

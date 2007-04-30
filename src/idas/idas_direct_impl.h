@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 17:43:09 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,7 +43,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct IDADlsMemRec {
 
   int d_type;               /* Type of Jacobians (DENSE or BAND)             */
 
@@ -67,7 +67,7 @@ typedef struct {
 
   int d_last_flag;          /* last error return flag                        */
   
-} IDADlsMemRec, *IDADlsMem;
+} *IDADlsMem;
 
 /*
  * -----------------------------------------------------------------
@@ -101,14 +101,14 @@ int idaDlsBandDQJac(int N, int mupper, int mlower,
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct IDADlsMemRecB {
 
   int d_typeB;
 
   IDADlsDenseJacFnB d_djacB;
   IDADlsBandJacFnB  d_bjacB;
 
-} IDADlsMemRecB, *IDADlsMemB;
+} *IDADlsMemB;
 
 
 /*

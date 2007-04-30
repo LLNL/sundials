@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 17:43:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -274,11 +274,6 @@ int main(void)
 
       flag = KINSpilsSetMaxRestarts(kmem, maxlrst);
       if (check_flag(&flag, "KINSpilsSetMaxRestarts", 1)) return(1);
-      flag = KINSpilsSetPreconditioner(kmem,
-				       PrecSetupBD,
-				       PrecSolveBD,
-				       data);
-      if (check_flag(&flag, "KINSpilsSetPreconditioner", 1)) return(1);
 
       break;
 
@@ -296,12 +291,6 @@ int main(void)
       flag = KINSpbcg(kmem, maxl);
       if (check_flag(&flag, "KINSpbcg", 1)) return(1);
 
-      flag = KINSpilsSetPreconditioner(kmem,
-				       PrecSetupBD,
-				       PrecSolveBD,
-				       data);
-      if (check_flag(&flag, "KINSpilsSetPreconditioner", 1)) return(1);
-
       break;
 
     /* (c) SPTFQMR */
@@ -318,16 +307,16 @@ int main(void)
       flag = KINSptfqmr(kmem, maxl);
       if (check_flag(&flag, "KINSptfqmr", 1)) return(1);
 
-      flag = KINSpilsSetPreconditioner(kmem,
-                                       PrecSetupBD,
-                                       PrecSolveBD,
-                                       data);
-      if (check_flag(&flag, "KINSpilsSetPreconditioner", 1)) return(1);
-
       break;
 
     }
 
+    /* Set preconditioner functions */
+    flag = KINSpilsSetPreconditioner(kmem,
+                                     PrecSetupBD,
+                                     PrecSolveBD);
+    if (check_flag(&flag, "KINSpilsSetPreconditioner", 1)) return(1);
+    
     /* Print out the problem size, solution parameters, initial guess. */
     PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol, linsolver);
 

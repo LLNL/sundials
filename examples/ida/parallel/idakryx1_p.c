@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
   ier = IDASpgmr(mem, 0);
   if(check_flag(&ier, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
+  ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
   if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */

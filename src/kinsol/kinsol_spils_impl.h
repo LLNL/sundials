@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include <kinsol/kinsol_spils.h>
+#include "kinsol_impl.h"
 
 /* Types of iterative linear solvers */
 
@@ -50,7 +51,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct KINSpilsMemRec {
 
   int s_type;           /* type of scaled preconditioned iterative LS          */
 
@@ -73,8 +74,7 @@ typedef struct {
 
   long int s_nli;     /* number of linear iterations performed                 */
   long int s_npe;     /* number of preconditioner evaluations                  */
-  long int s_nps;     /* number of times preconditioner was applied to linear
-		         system                                                */
+  long int s_nps;     /* number of calls to preconditioner solve fun.          */
   long int s_ncfl;    /* number of linear convergence failures                 */
   long int s_nfes;    /* number of evaluations of the system function F(u) or
 			 number of calls made to func routine                  */    
@@ -82,32 +82,41 @@ typedef struct {
 			 was computed or number of calls made to jtimes
 			 routine                                               */
 
-  booleantype s_jtimesDQ; /* TRUE is using internal DQ approximation           */
+  /* miscellaneous */
 
-  /* functions */
+  void *s_spils_mem;  /* pointer to generic linear solver memory block         */
 
-  KINSpilsPrecSetupFn s_pset;     /* routine called to compute preconditioner
-				     matrix                                    */
-  KINSpilsPrecSolveFn s_psolve;   /* subroutine called to solve a
-				     preconditioned linear system              */ 
-  KINSpilsJacTimesVecFn s_jtimes; /* function called to compute matrix-vector
-				     product J(u)*v                            */
+  int s_last_flag;    /* last flag returned                                    */
 
-  /* memory references (pointers) */
 
-  void *s_P_data; /* pointer to user-allocated memory block that is passed
-		     to pset and psolve                                        */
-  void *s_J_data; /* pointer to user-allocated memory block that is passed
-		     to jtimes (only required if using a user-supplied
-		     jtimes routine)                                           */
+   /* Preconditioner computation
+   * (a) user-provided:
+   *     - P_data == f_data
+   *     - pfree == NULL (the user dealocates memory for f_data)
+   * (b) internal preconditioner module
+   *     - P_data == kinsol_mem
+   *     - pfree == set by the prec. module and called in KINSpilsFree
+   */
+ 
+  KINSpilsPrecSetupFn s_pset;     
+  KINSpilsPrecSolveFn s_psolve; 
+  void (*s_pfree)(KINMem kin_mem);
+  void *s_P_data;
 
-  void *s_spils_mem;    /* pointer to generic linear solver memory block       */
+  /* Jacobian times vector compuation
+   * (a) jtimes function provided by the user:
+   *     - J_data == f_data
+   *     - jtimesDQ == FALSE
+   * (b) internal jtimes
+   *     - J_data == kinsol_mem
+   *     - jtimesDQ == TRUE
+   */
 
-  /* miscellaneous data */
+  booleantype s_jtimesDQ;
+  KINSpilsJacTimesVecFn s_jtimes;
+  void *s_J_data;
 
-  int s_last_flag; /* last flag returned                                       */
-
-} KINSpilsMemRec, *KINSpilsMem;
+} *KINSpilsMem;
 
 
 /*

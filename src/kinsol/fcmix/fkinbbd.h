@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -33,7 +33,7 @@
  The user-callable functions in this package, with the corresponding KINSOL and
  KINBBDPRE functions, are as follows:
 
-   FKINBBDINIT : interfaces to KINBBDPrecAlloc
+   FKINBBDINIT : interfaces to KINBBDPrecInit
    FKINBBDSPTFQMR: interfaces with KINSptfqmr
    FKINBBDSPBCG : interfaces with KINSpbcg
    FKINBBDSPGMR : interfaces with KINSpgmr
@@ -179,7 +179,13 @@
 
        Note: See printed message for details in case of failure.
 
- (4.3) To allocate memory and initialize data associated with the BBD
+ (4.3) Attach one of the 3 SPILS linear solvers. Make one of the 
+       following calls (see fkinsol.h) for more details.
+          CALL FKINSPGMR (MAXL, MAXLRST, IER)
+          CALL FKINSPBCG (MAXL, IER)
+          CALL FKINSPTFQMR (MAXL, IER)
+
+ (4.4) To allocate memory and initialize data associated with the BBD
        preconditioner, make the following call:
 
          CALL FKINBBDINIT (NLOCAL, MU, ML, IER)
@@ -193,43 +199,6 @@
                     greater efficiency.
          IER      = return completion flag. Values are 0 = success, and
                     -1 = failure.
-
- (4.4A) To specify the SPTFQMR linear system solver, and to allocate memory
-        and initialize data associated with the SPTFQMR method, make the
-        following call:
-
-          CALL FKINBBDSPTFQMR (MAXL, IER)
-
-        The arguments are:
-          MAXL     = maximum Krylov subspace dimension
-                     Note: 0 indicates default.
-          IER      = return completion flag. Values are 0 = success, and
-                     -1 = failure.
-
- (4.4B) To specify the SPBCG linear system solver, and to allocate memory
-        and initialize data associated with the SPBCG method, make the
-        following call:
-
-          CALL FKINBBDSPBCG (MAXL, IER)
-
-        The arguments are:
-          MAXL     = maximum Krylov subspace dimension
-                     Note: 0 indicates default.
-          IER      = return completion flag. Values are 0 = success, and
-                     -1 = failure.
-
- (4.4C) To specify the SPGMR linear system solver, and to allocate memory
-        and initialize data associated with the SPGMR method, make the
-        following call:
-
-          CALL FKINBBDSPGMR (MAXL, MAXLRST, IER)
-
-        The arguments are:
-          MAXL     = maximum Krylov subspace dimension
-                     Note: 0 indicates default.
-          MAXLRST  = maximum number of linear solver restarts
-          IER      = return completion flag. Values are 0 = success, and
-                     -1 = failure.
 
  (5) To solve the system, make the following call:
 
@@ -261,12 +230,11 @@
                 Note: This size is local to the current process.
        NGE    = number of g(u) evaluations (calls to FKLOCFN)
 
- (7) Memory freeing: FKINBBDFREE and FKINFREE
+ (7) Memory freeing: FKINFREE
 
-     To the free the internal memory created by the calls to FKINBBDINIT, FNVINITP
-     and FKINMALLOC, make the following calls, in this order:
+     To the free the internal memory created by the calls to FNVINITP
+     and FKINMALLOC, make the following call:
 
-       CALL FKINBBDFREE
        CALL FKINFREE
 
 *******************************************************************************/
@@ -300,7 +268,6 @@ extern "C" {
 #define FKIN_BBDSPBCG   F77_FUNC(fkinbbdspbcg, FKINBBDSPBCG)
 #define FKIN_BBDSPGMR   F77_FUNC(fkinbbdspgmr, FKINBBDSPGMR)
 #define FKIN_BBDOPT     F77_FUNC(fkinbbdopt, FKINBBDOPT)
-#define FKIN_BBDFREE    F77_FUNC(fkinbbdfree, FKINBBDFREE)
 #define FK_COMMFN       F77_FUNC(fkcommfn, FKCOMMFN)
 #define FK_LOCFN        F77_FUNC(fklocfn, FKLOCFN)
 
@@ -311,7 +278,6 @@ extern "C" {
 #define FKIN_BBDSPBCG   fkinbbdspbcg_
 #define FKIN_BBDSPGMR   fkinbbdspgmr_
 #define FKIN_BBDOPT     fkinbbdopt_
-#define FKIN_BBDFREE    fkinbbdfree_
 #define FK_COMMFN       fkcommfn_
 #define FK_LOCFN        fklocfn_
 
@@ -329,7 +295,6 @@ void FKIN_BBDSPTFQMR(int *maxl, int *ier);
 void FKIN_BBDSPBCG(int *maxl, int *ier);
 void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier);
 void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
-void FKIN_BBDFREE(void);
 
 /*
  * -----------------------------------------------------------------
@@ -339,14 +304,6 @@ void FKIN_BBDFREE(void);
 
 int FKINgloc(int Nloc, N_Vector uu, N_Vector gval, void *f_data);
 int FKINgcomm(int Nloc, N_Vector uu, void *f_data);
-
-/*
- * -----------------------------------------------------------------
- * declaration for global variable shared amongst various routines
- * -----------------------------------------------------------------
- */
-
-void *KBBD_Data;
 
 #ifdef __cplusplus
 }

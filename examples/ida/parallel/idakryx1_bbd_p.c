@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -109,7 +109,7 @@ static void PrintHeader(int Neq, realtype rtol, realtype atol);
 
 static void PrintCase(int case_number, int mudq, int mukeep);
 
-static void PrintOutput(int id, void *mem, void *P_data, realtype t, N_Vector uu);
+static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
 
 static void PrintFinalStats(void *mem);
 
@@ -124,14 +124,14 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *mem, *P_data;
+  void *mem;
   UserData data;
   int thispe, iout, ier, npes;
   int Neq, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
-  mem = P_data = NULL;
+  mem = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
 
@@ -231,15 +231,15 @@ int main(int argc, char *argv[])
    * ----------------------------- 
    */
 
-  /* Call IDABBDPrecAlloc to initialize BBD preconditioner. */
-  P_data = IDABBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
-                           ZERO, reslocal, NULL);
-  if(check_flag((void *)P_data, "IDABBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
-
-  /* Call IDABBDSpgmr to specify the linear solver. */
-  ier = IDABBDSpgmr(mem, 0, P_data);
-  if(check_flag(&ier, "IDABBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  /* Call IDASpgmr to specify the linear solver. */
+  ier = IDASpgmr(mem, 0);
+  if(check_flag(&ier, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
   
+  /* Call IDABBDPrecInit to initialize BBD preconditioner. */
+  ier = IDABBDPrecInit(mem, local_N, mudq, mldq, mukeep, mlkeep, 
+                       ZERO, reslocal, NULL);
+  if(check_flag(&ier, "IDABBDPrecAlloc", 1, thispe)) MPI_Abort(comm, 1);
+
   /* Print output heading (on processor 0 only) and initial solution. */
   if (thispe == 0) PrintCase(1, mudq, mukeep);
 
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
     ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
-    PrintOutput(thispe, mem, P_data, tret, uu);
+    PrintOutput(thispe, mem, tret, uu);
     
   }
 
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
   if(check_flag(&ier, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDPrecReInit to re-initialize BBD preconditioner. */
-  ier = IDABBDPrecReInit(P_data, mudq, mldq, ZERO);
+  ier = IDABBDPrecReInit(mem, mudq, mldq, ZERO);
   if(check_flag(&ier, "IDABBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only). */
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
     ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
-    PrintOutput(thispe, mem, P_data, tret, uu);
+    PrintOutput(thispe, mem, tret, uu);
     
   }
   
@@ -293,7 +293,6 @@ int main(int argc, char *argv[])
   if (thispe == 0) PrintFinalStats(mem);
 
   /* Free Memory */
-  IDABBDPrecFree(&P_data);
   IDAFree(&mem);
   free(data);
   N_VDestroy_Parallel(id);
@@ -744,7 +743,7 @@ static void PrintCase(int case_number, int mudq, int mukeep)
  * Print integrator statistics and max-norm of solution
  */
 
-static void PrintOutput(int id, void *mem, void *P_data, realtype t, N_Vector uu)
+static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 {
   realtype umax, hused;
   int kused, ier;
@@ -768,7 +767,7 @@ static void PrintOutput(int id, void *mem, void *P_data, realtype t, N_Vector uu
     check_flag(&ier, "IDASpilsGetNumLinIters", 1, id);
     ier = IDASpilsGetNumResEvals(mem, &nreLS);
     check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
-    ier = IDABBDPrecGetNumGfnEvals(P_data, &nge);
+    ier = IDABBDPrecGetNumGfnEvals(mem, &nge);
     check_flag(&ier, "IDABBDPrecGetNumGfnEvals", 1, id);
     ier = IDASpilsGetNumPrecEvals(mem, &npe);
     check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);

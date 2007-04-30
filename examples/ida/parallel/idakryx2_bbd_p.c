@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -216,7 +216,7 @@ static void PrintHeader(int SystemSize, int maxl,
 static void PrintOutput(void *mem, N_Vector cc, realtype time,
                         UserData webdata, MPI_Comm comm);
 
-static void PrintFinalStats(void *mem, void *P_data);
+static void PrintFinalStats(void *mem);
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
@@ -229,7 +229,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *mem, *P_data;
+  void *mem;
   UserData webdata;
   int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
 
   cc = cp = res = id = NULL;
   webdata = NULL;
-  mem = P_data = NULL;
+  mem = NULL;
 
   /* Set communicator, and get processor number and total number of PE's. */
 
@@ -311,24 +311,22 @@ int main(int argc, char *argv[])
   retval = IDASStolerances(mem, rtol, atol);
   if(check_flag(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IDABBDPrecAlloc to initialize the band-block-diagonal preconditioner.
+  /* Call IDASpgmr to specify the IDA linear solver IDASPGMR */
+
+  maxl = 16;
+  retval = IDASpgmr(mem, maxl);
+  if(check_flag(&retval, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
+
+  /* Call IDABBDPrecInit to initialize the band-block-diagonal preconditioner.
      The half-bandwidths for the difference quotient evaluation are exact
      for the system Jacobian, but only a 5-diagonal band matrix is retained. */
   
   mudq = mldq = NSMXSUB;
   mukeep = mlkeep = 2;
-  P_data = IDABBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
-                           ZERO, reslocal, NULL);
-  if(check_flag((void *)P_data, "IDABBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
+  retval = IDABBDPrecInit(mem, local_N, mudq, mldq, mukeep, mlkeep, 
+                          ZERO, reslocal, NULL);
+  if(check_flag(&retval, "IDABBDPrecInit", 1, thispe)) MPI_Abort(comm, 1);
   
-  /* Call IDABBDSpgmr to specify the IDA linear solver IDASPGMR and specify
-     the preconditioner routines supplied
-     maxl (max. Krylov subspace dim.) is set to 16.   */
-
-  maxl = 16;
-  retval = IDABBDSpgmr(mem, maxl, P_data);
-  if(check_flag(&retval, "IDABBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
-
   /* Call IDACalcIC (with default options) to correct the initial values. */
   
   tout = RCONST(0.001);
@@ -358,15 +356,13 @@ int main(int argc, char *argv[])
   
   /* On PE 0, print final set of statistics. */
   
-  if (thispe == 0)  PrintFinalStats(mem, P_data);
+  if (thispe == 0)  PrintFinalStats(mem);
 
   /* Free memory. */
 
   N_VDestroy_Parallel(cc);
   N_VDestroy_Parallel(cp);
   N_VDestroy_Parallel(id);
-
-  IDABBDPrecFree(&P_data);
 
   IDAFree(&mem);
 
@@ -606,7 +602,7 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
  * PrintFinalStats: Print final run data contained in iopt.              
  */
 
-static void PrintFinalStats(void *mem, void *P_data)
+static void PrintFinalStats(void *mem)
 {
   long int nst, nre, nreLS, netf, ncfn, nni, ncfl, nli, npe, nps, nge;
   int flag;
@@ -633,7 +629,7 @@ static void PrintFinalStats(void *mem, void *P_data)
   flag = IDASpilsGetNumResEvals(mem, &nreLS);
   check_flag(&flag, "IDASpilsGetNumResEvals", 1, 0);
 
-  flag = IDABBDPrecGetNumGfnEvals(P_data, &nge);
+  flag = IDABBDPrecGetNumGfnEvals(mem, &nge);
   check_flag(&flag, "IDABBDPrecGetNumGfnEvals", 1, 0);
 
   printf("-----------------------------------------------------------\n");

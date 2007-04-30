@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.2 $
-c     $Date: 2006-10-19 22:13:15 $
+c     $Revision: 1.3 $
+c     $Date: 2007-04-30 17:43:10 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -160,18 +160,18 @@ c
 c
 c Initialize and attach BBDSPGMR module
 c
-      call fidabbdinit(nlocal, mudq, mldq, mukeep, mlkeep, dqrely, ier)
+      call fidaspgmr(maxl, gstype, maxrs, eplifac, dqincfac, ier)
       if (ier .ne. 0) then
-         write(*,8) ier
- 8       format(///' SUNDIALS_ERROR: FIDABBDINIT returned IER = ', i5)
+         write(*,9) ier
+ 9       format(///' SUNDIALS_ERROR: FIDABBDSPGMR returned IER = ', i5)
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
 c
-      call fidabbdspgmr(maxl, gstype, maxrs, eplifac, dqincfac, ier)
+      call fidabbdinit(nlocal, mudq, mldq, mukeep, mlkeep, dqrely, ier)
       if (ier .ne. 0) then
-         write(*,9) ier
- 9       format(///' SUNDIALS_ERROR: FIDABBDSPGMR returned IER = ', i5)
+         write(*,8) ier
+ 8       format(///' SUNDIALS_ERROR: FIDABBDINIT returned IER = ', i5)
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
@@ -262,7 +262,6 @@ c
 c
 c Free memory
 c
-      call fidabbdfree
       call fidafree
 c
       call mpi_finalize(ier)

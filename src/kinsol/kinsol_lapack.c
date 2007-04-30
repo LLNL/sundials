@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 17:43:10 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -157,7 +157,7 @@ int KINLapackDense(void *kinmem, int N)
 
   /* Get memory for KINDlsMemRec */
   kindls_mem = NULL;
-  kindls_mem = (KINDlsMem) malloc(sizeof(KINDlsMemRec));
+  kindls_mem = (KINDlsMem) malloc(sizeof(struct KINDlsMemRec));
   if (kindls_mem == NULL) {
     KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINLAPACK", "KINLapackDense", MSGD_MEM_FAIL);
     return(KINDIRECT_MEM_FAIL);
@@ -259,7 +259,7 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
   
   /* Get memory for KINDlsMemRec */
   kindls_mem = NULL;
-  kindls_mem = (KINDlsMem) malloc(sizeof(KINDlsMemRec));
+  kindls_mem = (KINDlsMem) malloc(sizeof(struct KINDlsMemRec));
   if (kindls_mem == NULL) {
     KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
     return(KINDIRECT_MEM_FAIL);

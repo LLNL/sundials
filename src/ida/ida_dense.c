@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 17:43:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -133,7 +133,7 @@ int IDADense(void *ida_mem, int Neq)
 
   /* Get memory for IDADlsMemRec. */
   idadls_mem = NULL;
-  idadls_mem = (IDADlsMem) malloc(sizeof(IDADlsMemRec));
+  idadls_mem = (IDADlsMem) malloc(sizeof(struct IDADlsMemRec));
   if (idadls_mem == NULL) {
     IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
     return(IDADIRECT_MEM_FAIL);

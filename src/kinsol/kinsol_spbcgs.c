@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -159,7 +159,7 @@ int KINSpbcg(void *kinmem, int maxl)
 
   /* get memory for KINSpilsMemRec */
   kinspils_mem = NULL;
-  kinspils_mem = (KINSpilsMem) malloc(sizeof(KINSpilsMemRec));
+  kinspils_mem = (KINSpilsMem) malloc(sizeof(struct KINSpilsMemRec));
   if (kinspils_mem == NULL){
     KINProcessError(NULL, KINSPILS_MEM_FAIL, "KINSPILS", "KINSpbcg", MSGS_MEM_FAIL);
     return(KINSPILS_MEM_FAIL);  
@@ -179,15 +179,19 @@ int KINSpbcg(void *kinmem, int maxl)
   jtimes   = NULL;
   J_data   = NULL;
 
-  /* set default values for the rest of the SPBCG parameters */
+  /* Set defaults for preconditioner-related fields */
+
+  kinspils_mem->s_pset   = NULL;
+  kinspils_mem->s_psolve = NULL;
+  kinspils_mem->s_pfree  = NULL;
+  kinspils_mem->s_P_data = kin_mem->kin_f_data;
+
+  /* Set default values for the rest of the SPBCG parameters */
 
   kinspils_mem->s_pretype   = PREC_NONE;
   kinspils_mem->s_last_flag = KINSPILS_SUCCESS;
-  kinspils_mem->s_pset      = NULL;
-  kinspils_mem->s_psolve    = NULL;
-  kinspils_mem->s_P_data    = NULL;
 
-  /* call SpbcgMalloc to allocate workspace for SPBCG */
+  /* Call SpbcgMalloc to allocate workspace for SPBCG */
 
   /* vec_tmpl passed as template vector */
   spbcg_mem = NULL;
@@ -420,8 +424,11 @@ static void KINSpbcgFree(KINMem kin_mem)
   SpbcgMem spbcg_mem;
 
   kinspils_mem = (KINSpilsMem) lmem;
-  spbcg_mem = (SpbcgMem) spils_mem;
 
+  spbcg_mem = (SpbcgMem) spils_mem;
   SpbcgFree(spbcg_mem);
-  free(lmem); lmem = NULL;
+
+  if (kinspils_mem->s_pfree != NULL) (kinspils_mem->s_pfree)(kin_mem);
+
+  free(kinspils_mem); kinspils_mem = NULL;
 }

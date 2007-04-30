@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 17:43:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -290,8 +290,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "KINSpilsSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
   flag = KINSpilsSetPreconditioner(kmem,
 				   Precondbd,
-				   PSolvebd,
-				   data);
+				   PSolvebd);
   if (check_flag(&flag, "KINSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print out the problem size, solution parameters, initial guess. */

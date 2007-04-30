@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-07-05 15:32:37 $
+ * $Revision: 1.2 $
+ * $Date: 2007-04-30 17:43:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -59,8 +59,11 @@ extern void FK_PSOL(realtype*, realtype*, realtype*, realtype*,
 
 void FKIN_SPILSSETPREC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpilsSetPreconditioner(KIN_kinmem, NULL, NULL, NULL);
-  else              KINSpilsSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol, NULL);
+  if ((*flag) == 0) {
+    *ier = KINSpilsSetPreconditioner(KIN_kinmem, NULL, NULL);
+  } else {
+    *ier = KINSpilsSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol);
+  }
 
   return;
 }
