@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 17:41:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -177,6 +177,7 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
   /* Set defaults for preconditioner-related fields */
   cvspils_mem->s_pset   = NULL;
   cvspils_mem->s_psolve = NULL;
+  cvspils_mem->s_pfree  = NULL;
   cvspils_mem->s_P_data = cv_mem->cv_f_data;
 
   /* Set default values for the rest of the Spbcg parameters */

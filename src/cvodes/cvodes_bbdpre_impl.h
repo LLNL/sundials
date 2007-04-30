@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 17:41:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -82,17 +82,17 @@ typedef struct CVBBDPrecDataRecB {
  * -----------------------------------------------------------------
  */
 
-#define MSGBBDP_MEM_NULL "Integrator memory is NULL."
-#define MSGBBD_LMEM_NULL "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
-#define MSGBBDP_MEM_FAIL "A memory request failed."
-#define MSGBBDP_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBBDP_PMEM_NULL "BBD peconditioner memory is NULL. CVBBDPrecInit must be called"
-#define MSGBBDP_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
+#define MSGBBD_MEM_NULL    "Integrator memory is NULL."
+#define MSGBBD_LMEM_NULL   "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
+#define MSGBBD_MEM_FAIL    "A memory request failed."
+#define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGBBD_PMEM_NULL   "BBD peconditioner memory is NULL. CVBBDPrecInit must be called."
+#define MSGBBD_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
 
-#define MSGBBDP_NO_ADJ      "Illegal attempt to call before calling CVodeAdjInit."
-#define MSGBBDP_BAD_WHICH   "Illegal value for the which parameter."
-#define MSGBBDP_PDATAB_NULL "BBD preconditioner memory is NULL for the backward integration."
-#define MSGBBDP_BAD_TINTERP "Bad t for interpolation."
+#define MSGBBD_NO_ADJ      "Illegal attempt to call before calling CVodeAdjInit."
+#define MSGBBD_BAD_WHICH   "Illegal value for the which parameter."
+#define MSGBBD_PDATAB_NULL "BBD preconditioner memory is NULL for the backward integration."
+#define MSGBBD_BAD_TINTERP "Bad t for interpolation."
 
 
 #ifdef __cplusplus

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 17:41:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -173,7 +173,7 @@
  * following calls (see fcvode.h) for more details.
  *       CALL FCVSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
  *       CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)
- *       CALL FCVBBDSPTFQMR(IPRETYPE, MAXL, DELT, IER)
+ *       CALL FCVSPTFQMR(IPRETYPE, MAXL, DELT, IER)
  *    
  * (4.4) To allocate memory and initialize data associated with the CVBBDPRE
  * preconditioner, make the following call:

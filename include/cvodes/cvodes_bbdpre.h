@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-27 18:56:28 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 17:41:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -262,7 +262,7 @@ SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, int Nlocal,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecReInit(void *bbd_data, int mudq, int mldq,
+SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem, int mudq, int mldq,
                                     realtype dqrely);
 
 /*

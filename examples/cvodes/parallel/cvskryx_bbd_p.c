@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-27 18:56:28 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 17:41:06 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
   mukeep = mlkeep = NVARS;
   flag = CVBBDPrecInit(cvode_mem, local_N, mudq, mldq, 
                        mukeep, mlkeep, ZERO, flocal, NULL);
-  if(check_flag(&flag, "CVBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
+  if(check_flag(&flag, "CVBBDPrecAlloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
   if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
