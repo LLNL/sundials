@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.17 $
+ * $Date: 2007-04-30 21:27:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1562,7 +1562,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     if (tstopset) {
       if ( (tstop - tn)*hh < ZERO) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_BAD_TSTOP, tn);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_BAD_TSTOP, tstop, tn);
         return(IDA_ILL_INPUT);
       }
       if ( (tn + hh - tstop)*hh > ZERO) 
@@ -2887,7 +2887,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if (tstopset) {
       /* Test for tn past tstop, tn = tretlast, tn past tout, tn near tstop. */
       if ( (tn - tstop)*hh > ZERO) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP, tn);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP, tstop, tn);
         return(IDA_ILL_INPUT);
       }
     }
@@ -2912,7 +2912,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
       if (ABS(tn - tstop) <= troundoff) {
         ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
         if (ier != IDA_SUCCESS) {
-          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP, tn);
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP, tstop, tn);
           return(IDA_ILL_INPUT);
         }
         *tret = tretlast = tstop;
@@ -2930,7 +2930,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if (tstopset) {
       /* Test for tn past tstop, tn past tretlast, and tn near tstop. */
       if ((tn - tstop)*hh > ZERO) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP, tn);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP, tstop, tn);
         return(IDA_ILL_INPUT);
       }
     }
@@ -2947,7 +2947,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
       if (ABS(tn - tstop) <= troundoff) {
         ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
         if (ier != IDA_SUCCESS) {
-          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP, tn);
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP, tstop, tn);
           return(IDA_ILL_INPUT);
         }
         *tret = tretlast = tstop;

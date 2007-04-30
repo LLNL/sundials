@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.11 $
+ * $Date: 2007-04-30 21:27:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -366,6 +366,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_TIME_H "t = %Lg and h = %Lg, "
 #define MSG_TIME_INT "t = %Lg is not between tcur - hu = %Lg and tcur = %Lg."
 #define MSG_TIME_TOUT "tout = %Lg"
+#define MSG_TIME_TSTOP "tstop = %Lg"
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
@@ -373,6 +374,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_TIME_H "t = %lg and h = %lg, "
 #define MSG_TIME_INT "t = %lg is not between tcur - hu = %lg and tcur = %lg."
 #define MSG_TIME_TOUT "tout = %lg"
+#define MSG_TIME_TSTOP "tstop = %lg"
 
 #else
 
@@ -380,6 +382,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_TIME_H "t = %g and h = %g, "
 #define MSG_TIME_INT "t = %g is not between tcur - hu = %g and tcur = %g."
 #define MSG_TIME_TOUT "tout = %g"
+#define MSG_TIME_TSTOP "tstop = %g"
 
 #endif
 
@@ -433,7 +436,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_BAD_ITASK      "itask has an illegal value."
 #define MSG_TOO_CLOSE      "tout too close to t0 to start integration."
 #define MSG_BAD_HINIT      "Initial step is not towards tout."
-#define MSG_BAD_TSTOP      "tstop is behind current " MSG_TIME "in the direction of integration."
+#define MSG_BAD_TSTOP      "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME "in the direction of integration."
 #define MSG_BAD_INIT_ROOT  "Root found at and very near initial t."
 #define MSG_CLOSE_ROOTS    "Root found at and very near " MSG_TIME "."
 #define MSG_MAX_STEPS      "At " MSG_TIME ", mxstep steps taken before reaching tout." 

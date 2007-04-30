@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.16 $
+ * $Date: 2007-04-30 21:27:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1143,7 +1143,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     if (tstopset) {
       if ( (tstop - tn)*h < ZERO ) {
-        CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVode", MSGCV_BAD_TSTOP, tn);
+        CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVode", MSGCV_BAD_TSTOP, tstop, tn);
         return(CV_ILL_INPUT);
       }
       if ( (tn + h - tstop)*h > ZERO ) 
@@ -1265,7 +1265,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       if ( ABS(tn - tstop) <= troundoff) {
         ier =  CVodeGetDky(cv_mem, tstop, 0, yout);
         if (ier != CV_SUCCESS) {
-          CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVode", MSGCV_BAD_TSTOP, tn);
+          CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVode", MSGCV_BAD_TSTOP, tstop, tn);
           return(CV_ILL_INPUT);
         }
         tretlast = *tret = tstop;

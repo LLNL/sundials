@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-30 21:27:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -368,7 +368,7 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
    * tstop will be checked in CVode. */
   if (cv_mem->cv_nst > 0) {
 
-    if ( (tstop - cv_mem->cv_tn) * cv_mem->cv_h <= ZERO ) {
+    if ( (tstop - cv_mem->cv_tn) * cv_mem->cv_h < ZERO ) {
       CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetStopTime", MSGCV_BAD_TSTOP, cv_mem->cv_tn);
       return(CV_ILL_INPUT);
     }

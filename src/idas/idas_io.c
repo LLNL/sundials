@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.12 $
+ * $Date: 2007-04-30 21:27:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -220,7 +220,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
    * tstop will be checked in IDASolve. */
   if (IDA_mem->ida_nst > 0) {
 
-    if ( (tstop - IDA_mem->ida_tn) * IDA_mem->ida_hh <= ZERO ) {
+    if ( (tstop - IDA_mem->ida_tn) * IDA_mem->ida_hh < ZERO ) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetStopTime", MSG_BAD_TSTOP, IDA_mem->ida_tn);
       return(IDA_ILL_INPUT);
     }
