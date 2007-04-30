@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -81,7 +81,7 @@ typedef struct {
 #define Ith(v,i)    NV_Ith_S(v,i-1)   
 
 /* Functions Called by the KINSOL Solver */
-static int func(N_Vector u, N_Vector f, void *f_data);
+static int func(N_Vector u, N_Vector f, void *user_data);
 
 /* Private Helper Functions */
 static void SetInitialGuess1(N_Vector u, UserData data);
@@ -152,8 +152,8 @@ int main()
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
 
-  flag = KINSetFdata(kmem, data);
-  if (check_flag(&flag, "KINSetFdata", 1)) return(1);
+  flag = KINSetUserData(kmem, data);
+  if (check_flag(&flag, "KINSetUserData", 1)) return(1);
   flag = KINSetConstraints(kmem, c);
   if (check_flag(&flag, "KINSetConstraints", 1)) return(1);
   flag = KINSetFuncNormTol(kmem, fnormtol);
@@ -297,14 +297,14 @@ static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
  * System function for predator-prey system 
  */
 
-static int func(N_Vector u, N_Vector f, void *f_data)
+static int func(N_Vector u, N_Vector f, void *user_data)
 {
   realtype *udata, *fdata;
   realtype x1, l1, L1, x2, l2, L2;
   realtype *lb, *ub;
   UserData data;
   
-  data = (UserData)f_data;
+  data = (UserData)user_data;
   lb = data->lb;
   ub = data->ub;
 

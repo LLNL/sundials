@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:41:05 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -322,9 +322,9 @@ void FCV_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
-int FCVgloc(int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *f_data);
+int FCVgloc(int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *user_data);
 
-int FCVcfn(int Nloc, realtype t, N_Vector y, void *f_data);
+int FCVcfn(int Nloc, realtype t, N_Vector y, void *user_data);
 
 #ifdef __cplusplus
 }

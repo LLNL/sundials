@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -132,7 +132,7 @@ void FIDA_ROOTFREE(void);
 /* Prototype of function called by IDA module */
 
 int FIDArootfunc(realtype t, N_Vector y, N_Vector yp, realtype *gout,
-                 void *res_data);
+                 void *user_data);
 
 #ifdef __cplusplus
 }

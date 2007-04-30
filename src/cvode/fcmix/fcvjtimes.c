@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -70,7 +70,7 @@ void FCV_SPILSSETJAC(int *flag, int *ier)
 
 int FCVJtimes(N_Vector v, N_Vector Jv, realtype t, 
               N_Vector y, N_Vector fy,
-              void *f_data, N_Vector work)
+              void *user_data, N_Vector work)
 {
   realtype *vdata, *Jvdata, *ydata, *fydata, *wkdata;
   realtype h;
@@ -86,7 +86,7 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
   fydata  = N_VGetArrayPointer(fy);
   wkdata  = N_VGetArrayPointer(work);
 
-  CV_userdata = (FCVUserData) f_data;
+  CV_userdata = (FCVUserData) user_data;
  
   FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, &h, 
               CV_userdata->ipar, CV_userdata->rpar, wkdata, &ier);

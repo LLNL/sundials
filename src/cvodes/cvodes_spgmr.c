@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 17:41:06 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -57,44 +57,44 @@ static void CVSpgmrFreeB(CVodeBMem cvB_mem);
 
 /* Readability Replacements */
 
-#define tq      (cv_mem->cv_tq)
-#define nst     (cv_mem->cv_nst)
-#define tn      (cv_mem->cv_tn)
-#define h       (cv_mem->cv_h)
-#define gamma   (cv_mem->cv_gamma)
-#define gammap  (cv_mem->cv_gammap)   
-#define f       (cv_mem->cv_f)
-#define f_data  (cv_mem->cv_f_data)
-#define ewt     (cv_mem->cv_ewt)
-#define mnewt   (cv_mem->cv_mnewt)
-#define ropt    (cv_mem->cv_ropt)
-#define linit   (cv_mem->cv_linit)
-#define lsetup  (cv_mem->cv_lsetup)
-#define lsolve  (cv_mem->cv_lsolve)
-#define lfree   (cv_mem->cv_lfree)
-#define lmem    (cv_mem->cv_lmem)
+#define tq           (cv_mem->cv_tq)
+#define nst          (cv_mem->cv_nst)
+#define tn           (cv_mem->cv_tn)
+#define h            (cv_mem->cv_h)
+#define gamma        (cv_mem->cv_gamma)
+#define gammap       (cv_mem->cv_gammap)   
+#define f            (cv_mem->cv_f)
+#define user_data    (cv_mem->cv_user_data)
+#define ewt          (cv_mem->cv_ewt)
+#define mnewt        (cv_mem->cv_mnewt)
+#define ropt         (cv_mem->cv_ropt)
+#define linit        (cv_mem->cv_linit)
+#define lsetup       (cv_mem->cv_lsetup)
+#define lsolve       (cv_mem->cv_lsolve)
+#define lfree        (cv_mem->cv_lfree)
+#define lmem         (cv_mem->cv_lmem)
 #define vec_tmpl     (cv_mem->cv_tempv)
 #define setupNonNull (cv_mem->cv_setupNonNull)
 
-#define sqrtN   (cvspils_mem->s_sqrtN)   
-#define ytemp   (cvspils_mem->s_ytemp)
-#define x       (cvspils_mem->s_x)
-#define ycur    (cvspils_mem->s_ycur)
-#define fcur    (cvspils_mem->s_fcur)
-#define delta   (cvspils_mem->s_delta)
-#define deltar  (cvspils_mem->s_deltar)
-#define npe     (cvspils_mem->s_npe)
-#define nli     (cvspils_mem->s_nli)
-#define nps     (cvspils_mem->s_nps)
-#define ncfl    (cvspils_mem->s_ncfl)
-#define nstlpre (cvspils_mem->s_nstlpre)
-#define njtimes (cvspils_mem->s_njtimes)
-#define nfes    (cvspils_mem->s_nfes)
+#define sqrtN     (cvspils_mem->s_sqrtN)   
+#define ytemp     (cvspils_mem->s_ytemp)
+#define x         (cvspils_mem->s_x)
+#define ycur      (cvspils_mem->s_ycur)
+#define fcur      (cvspils_mem->s_fcur)
+#define delta     (cvspils_mem->s_delta)
+#define deltar    (cvspils_mem->s_deltar)
+#define npe       (cvspils_mem->s_npe)
+#define nli       (cvspils_mem->s_nli)
+#define nps       (cvspils_mem->s_nps)
+#define ncfl      (cvspils_mem->s_ncfl)
+#define nstlpre   (cvspils_mem->s_nstlpre)
+#define njtimes   (cvspils_mem->s_njtimes)
+#define nfes      (cvspils_mem->s_nfes)
 #define spils_mem (cvspils_mem->s_spils_mem)
 
-#define jtimesDQ (cvspils_mem->s_jtimesDQ)
-#define jtimes  (cvspils_mem->s_jtimes)
-#define j_data  (cvspils_mem->s_j_data)
+#define jtimesDQ  (cvspils_mem->s_jtimesDQ)
+#define jtimes    (cvspils_mem->s_jtimes)
+#define j_data    (cvspils_mem->s_j_data)
 
 #define last_flag (cvspils_mem->s_last_flag)
 
@@ -180,7 +180,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   cvspils_mem->s_pset   = NULL;
   cvspils_mem->s_psolve = NULL;
   cvspils_mem->s_pfree  = NULL;
-  cvspils_mem->s_P_data = cv_mem->cv_f_data;
+  cvspils_mem->s_P_data = cv_mem->cv_user_data;
 
   /* Set default values for the rest of the Spgmr parameters */
   cvspils_mem->s_gstype     = MODIFIED_GS;
@@ -281,7 +281,7 @@ static int CVSpgmrInit(CVodeMem cv_mem)
     jtimes = CVSpilsDQJtimes;
     j_data = cv_mem;
   } else {
-    j_data = f_data;
+    j_data = user_data;
   }
 
   last_flag = CVSPILS_SUCCESS;

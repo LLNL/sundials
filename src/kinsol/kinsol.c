@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-25 23:40:26 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -218,7 +218,7 @@ void *KINCreate(void)
   /* set default values for solver optional inputs */
 
   kin_mem->kin_func             = NULL;
-  kin_mem->kin_f_data           = NULL;
+  kin_mem->kin_user_data        = NULL;
   kin_mem->kin_constraints      = NULL;
   kin_mem->kin_uscale           = NULL;
   kin_mem->kin_fscale           = NULL;
@@ -353,7 +353,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
  */
 
 #define func             (kin_mem->kin_func)
-#define f_data           (kin_mem->kin_f_data)
+#define user_data        (kin_mem->kin_user_data)
 #define printfl          (kin_mem->kin_printfl)
 #define mxiter           (kin_mem->kin_mxiter)
 #define noInitSetup      (kin_mem->kin_noInitSetup)
@@ -901,7 +901,7 @@ static int KINSolInit(KINMem kin_mem, int strategy)
 
   /* see if the system func(uu) = 0 is satisfied by the initial guess uu */
 
-  retval = func(uu, fval, f_data); nfe++;
+  retval = func(uu, fval, user_data); nfe++;
   if (retval < 0) {
     KINProcessError(kin_mem, KIN_SYSFUNC_FAIL, "KINSOL", "KINSolInit", MSG_SYSFUNC_FAILED);
     return(KIN_SYSFUNC_FAIL);
@@ -1061,7 +1061,7 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
     N_VLinearSum(ONE, uu, ONE, pp, unew);
 
     /* evaluate func(unew) and its norm, and return */
-    retval = func(unew, fval, f_data); nfe++;
+    retval = func(unew, fval, user_data); nfe++;
 
     /* if func was successful, accept pp */
     if (retval == 0) {fOK = TRUE; break;}
@@ -1210,7 +1210,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
     N_VLinearSum(ONE, uu, ONE, pp, unew);
 
     /* evaluate func(unew) and its norm, and return */
-    retval = func(unew, fval, f_data); nfe++;
+    retval = func(unew, fval, user_data); nfe++;
 
     /* if func was successful, accept pp */
     if (retval == 0) {fOK = TRUE; break;}
@@ -1302,7 +1302,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
     N_VLinearSum(ONE, uu, rl, pp, unew);
 
-    retval = func(unew, fval, f_data); nfe++;
+    retval = func(unew, fval, user_data); nfe++;
     if (retval != 0) return(KIN_SYSFUNC_FAIL);
 
     *fnormp = N_VWL2Norm(fval, fscale);
@@ -1339,7 +1339,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
         nbktrk_l++;
 
         N_VLinearSum(ONE, uu, rl, pp, unew);
-        retval = func(unew, fval, f_data); nfe++;
+        retval = func(unew, fval, user_data); nfe++;
         if (retval != 0) return(KIN_SYSFUNC_FAIL);
         *fnormp = N_VWL2Norm(fval, fscale);
         *f1normp = HALF * (*fnormp) * (*fnormp);
@@ -1368,7 +1368,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
         nbktrk_l++;
 
         N_VLinearSum(ONE, uu, rl, pp, unew);
-        retval = func(unew, fval, f_data); nfe++;
+        retval = func(unew, fval, user_data); nfe++;
         if (retval != 0) return(KIN_SYSFUNC_FAIL);
         *fnormp = N_VWL2Norm(fval, fscale);
         *f1normp = HALF * (*fnormp) * (*fnormp);
@@ -1395,7 +1395,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 	   that satisfied the alpha condition and continue */
 
         N_VLinearSum(ONE, uu, rllo, pp, unew);
-        retval = func(unew, fval, f_data); nfe++;
+        retval = func(unew, fval, user_data); nfe++;
         if (retval != 0) return(KIN_SYSFUNC_FAIL);
         *fnormp = N_VWL2Norm(fval, fscale);
         *f1normp = HALF * (*fnormp) * (*fnormp);   

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-27 18:56:29 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -200,17 +200,17 @@ static void v_zero(realtype u[], int n);
 
 /* Functions Called By The Solver */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int Precond(realtype tn, N_Vector c, N_Vector fc,
 		   booleantype jok, booleantype *jcurPtr, realtype gamma,
-		   void *f_data, N_Vector vtemp1, N_Vector vtemp2,
+		   void *user_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *f_data, N_Vector vtemp);
+                  int lr, void *user_data, N_Vector vtemp);
 
 /* Private function to check function return values */
 
@@ -261,8 +261,8 @@ int main()
 
         wdata->cvode_mem = cvode_mem;
 
-        flag = CVodeSetFdata(cvode_mem, wdata);
-        if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+        flag = CVodeSetUserData(cvode_mem, wdata);
+        if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
         flag = CVodeInit(cvode_mem, f, T0, c);
         if(check_flag(&flag, "CVodeInit", 1)) return(1);
@@ -653,14 +653,14 @@ static void FreeUserData(WebData wdata)
  returns it in cdot. The interaction rates are computed by calls to WebRates,
  and these are saved in fsave for use in preconditioning.
 */
-static int f(realtype t, N_Vector c, N_Vector cdot,void *f_data)
+static int f(realtype t, N_Vector c, N_Vector cdot,void *user_data)
 {
   int i, ic, ici, idxl, idxu, jx, ns, mxns, iyoff, jy, idyu, idyl;
   realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
   realtype *cdata, *cdotdata;
   WebData wdata;
   
-  wdata = (WebData) f_data;
+  wdata = (WebData) user_data;
   cdata = NV_DATA_S(c);
   cdotdata = NV_DATA_S(cdot);
   
@@ -746,7 +746,7 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
 */ 
 static int Precond(realtype t, N_Vector c, N_Vector fc,
 		   booleantype jok, booleantype *jcurPtr, realtype gamma,
-		   void *f_data, N_Vector vtemp1, N_Vector vtemp2,
+		   void *user_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3)
 {
   realtype ***P;
@@ -759,7 +759,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   void *cvode_mem;
   N_Vector rewt;
   
-  wdata = (WebData) f_data;
+  wdata = (WebData) user_data;
   cvode_mem = wdata->cvode_mem;
   cdata = NV_DATA_S(c);
   rewt = wdata->rewt;
@@ -858,14 +858,14 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
 static int PSolve(realtype tn, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *f_data, N_Vector vtemp)
+                  int lr, void *user_data, N_Vector vtemp)
 {
   realtype   ***P;
   int **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
   
-  wdata = (WebData) f_data;
+  wdata = (WebData) user_data;
   
   N_VScale(ONE, r, z);
   

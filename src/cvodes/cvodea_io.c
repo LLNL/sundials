@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-24 22:01:24 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 19:28:59 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,11 +47,11 @@
  * -----------------------------------------------------------------
  */
 
-#define IMtype     (ca_mem->ca_IMtype)
-#define f_data_B   (ca_mem->ca_f_dataB)
-#define fQ_data_B  (ca_mem->ca_fQ_dataB)
-#define ckpntData  (ca_mem->ca_ckpntData)
-#define nbckpbs    (ca_mem->ca_nbckpbs)
+#define IMtype      (ca_mem->ca_IMtype)
+#define user_data_B (ca_mem->ca_user_dataB)
+#define fQ_data_B   (ca_mem->ca_fQ_dataB)
+#define ckpntData   (ca_mem->ca_ckpntData)
+#define nbckpbs     (ca_mem->ca_nbckpbs)
 
 #define t0_         (ck_mem->ck_t0)
 #define t1_         (ck_mem->ck_t1)
@@ -138,7 +138,7 @@ int CVodeSetIterTypeB(void *cvode_mem, int which, int iterB)
   return(flag);
 }
 
-int CVodeSetFdataB(void *cvode_mem, int which, void *f_dataB)
+int CVodeSetUserDataB(void *cvode_mem, int which, void *user_dataB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -146,21 +146,21 @@ int CVodeSetFdataB(void *cvode_mem, int which, void *f_dataB)
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeSetFdataB", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeSetUserDataB", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetFdataB", MSGCV_NO_ADJ);
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetUserDataB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= nbckpbs ) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetFdataB", MSGCV_BAD_WHICH);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetUserDataB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
 
@@ -171,7 +171,7 @@ int CVodeSetFdataB(void *cvode_mem, int which, void *f_dataB)
     cvB_mem = cvB_mem->cv_next;
   }
 
-  cvB_mem->cv_f_data = f_dataB;
+  cvB_mem->cv_user_data = user_dataB;
 
   return(CV_SUCCESS);
 }

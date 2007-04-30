@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 17:41:05 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -456,9 +456,9 @@ static void CVBBDPrecFree(CVodeMem cv_mem)
 }
 
 
-#define ewt    (cv_mem->cv_ewt)
-#define h      (cv_mem->cv_h)
-#define f_data (cv_mem->cv_f_data)
+#define ewt       (cv_mem->cv_ewt)
+#define h         (cv_mem->cv_h)
+#define user_data (cv_mem->cv_user_data)
 
 /*
  * -----------------------------------------------------------------
@@ -494,11 +494,11 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 
   /* Call cfn and gloc to get base value of g(t,y) */
   if (cfn != NULL) {
-    retval = cfn(Nlocal, t, y, f_data);
+    retval = cfn(Nlocal, t, y, user_data);
     if (retval != 0) return(retval);
   }
 
-  retval = gloc(Nlocal, t, ytemp, gy, f_data);
+  retval = gloc(Nlocal, t, ytemp, gy, user_data);
   nge++;
   if (retval != 0) return(retval);
 
@@ -528,7 +528,7 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
     }
 
     /* Evaluate g with incremented y */
-    retval = gloc(Nlocal, t, ytemp, gtemp, f_data);
+    retval = gloc(Nlocal, t, ytemp, gtemp, user_data);
     nge++;
     if (retval != 0) return(retval);
 

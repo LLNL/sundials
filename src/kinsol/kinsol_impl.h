@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-25 23:40:26 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -62,7 +62,7 @@ typedef struct KINMemRec {
   /* problem specification data */
 
   KINSysFn kin_func;           /* nonlinear system function implementation     */
-  void *kin_f_data;            /* work space available to func routine         */
+  void *kin_user_data;         /* work space available to func routine         */
   realtype kin_fnormtol;       /* stopping tolerance on L2-norm of function
 				  value                                        */
   realtype kin_scsteptol;      /* scaled step length tolerance                 */
@@ -337,7 +337,7 @@ void KINProcessError(KINMem kin_mem,
 /* Prototype of internal errHandler function */
 
 void KINErrHandler(int error_code, const char *module, const char *function, 
-		   char *msg, void *f_data);
+		   char *msg, void *user_data);
 
 
 /* High level info handler */
@@ -349,7 +349,7 @@ void KINPrintInfo(KINMem kin_mem,
 /* Prototype of internal infoHandler function */
 
 void KINInfoHandler(const char *module, const char *function, 
-		    char *msg, void *f_data);
+		    char *msg, void *user_data);
 
 /*
  * =================================================================

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -55,7 +55,7 @@
 
 /* Private functions */
 
-static int func(N_Vector u, N_Vector f, void *f_data);
+static int func(N_Vector u, N_Vector f, void *user_data);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
 static int check_flag(void *flagvalue, char *funcname, int opt);
@@ -197,7 +197,7 @@ int main()
  * System function 
  */
 
-static int func(N_Vector u, N_Vector f, void *f_data)
+static int func(N_Vector u, N_Vector f, void *user_data)
 {
   realtype dx, dy, hdiff, vdiff;
   realtype hdc, vdc;

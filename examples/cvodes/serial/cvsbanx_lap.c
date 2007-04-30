@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -90,10 +90,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static int Jac(int N, int mu, int ml,
                realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *jac_data,
+               DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -150,8 +150,8 @@ int main(void)
   if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
   /* Set the pointer to user-defined data */
-  flag = CVodeSetFdata(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
   /* Call CVLapackBand to specify the CVBAND band linear solver */
   flag = CVLapackBand(cvode_mem, NEQ, MY, MY);
@@ -190,7 +190,7 @@ int main(void)
 
 /* f routine. Compute f(t,u). */
 
-static int f(realtype t, N_Vector u,N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
 {
   realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
   realtype *udata, *dudata;
@@ -202,7 +202,7 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *f_data)
 
   /* Extract needed constants from data */
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
@@ -237,7 +237,7 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *f_data)
 
 static int Jac(int N, int mu, int ml,
                realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *jac_data,
+               DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int i, j, k;
@@ -254,7 +254,7 @@ static int Jac(int N, int mu, int ml,
    *   df(i,j+1)/du(i,j) = 1/dy^2           (if j < MY)
    */
 
-  data = (UserData) jac_data;
+  data = (UserData) user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;

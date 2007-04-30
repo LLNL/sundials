@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-26 23:17:27 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -68,7 +68,7 @@ int main()
   Ith(y,1) = 1.0;
   CVodeInit(cvode_mem, f, t0, y);
   CVodeSStolerances(cvode_mem, reltol, abstol);
-  CVodeSetFdata(cvode_mem, &flag);
+  CVodeSetUserData(cvode_mem, &flag);
   CVDense(cvode_mem, neq);
 
   /* Integrate to the point of discontinuity */
@@ -118,7 +118,7 @@ int main()
   Ith(y,1) = 1.0;
   CVodeInit(cvode_mem, f, t0, y);
   CVodeSStolerances(cvode_mem, reltol, abstol);
-  CVodeSetFdata(cvode_mem, &flag);
+  CVodeSetUserData(cvode_mem, &flag);
   CVDense(cvode_mem, neq);
 
   /* Integrate to the point of discontinuity */
@@ -170,7 +170,7 @@ int main()
   Ith(y,1) = 1.0;
   CVodeInit(cvode_mem, f, t0, y);
   CVodeSStolerances(cvode_mem, reltol, abstol);
-  CVodeSetFdata(cvode_mem, &flag);
+  CVodeSetUserData(cvode_mem, &flag);
   CVDense(cvode_mem, neq);
 
   /* Integrate to the point of discontinuity */

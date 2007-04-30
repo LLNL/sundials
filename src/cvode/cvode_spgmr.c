@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:41:05 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -45,22 +45,22 @@ static void CVSpgmrFree(CVodeMem cv_mem);
 
 /* Readability Replacements */
 
-#define tq      (cv_mem->cv_tq)
-#define nst     (cv_mem->cv_nst)
-#define tn      (cv_mem->cv_tn)
-#define h       (cv_mem->cv_h)
-#define gamma   (cv_mem->cv_gamma)
-#define gammap  (cv_mem->cv_gammap)   
-#define f       (cv_mem->cv_f)
-#define f_data  (cv_mem->cv_f_data)
-#define ewt     (cv_mem->cv_ewt)
-#define mnewt   (cv_mem->cv_mnewt)
-#define ropt    (cv_mem->cv_ropt)
-#define linit   (cv_mem->cv_linit)
-#define lsetup  (cv_mem->cv_lsetup)
-#define lsolve  (cv_mem->cv_lsolve)
-#define lfree   (cv_mem->cv_lfree)
-#define lmem    (cv_mem->cv_lmem)
+#define tq           (cv_mem->cv_tq)
+#define nst          (cv_mem->cv_nst)
+#define tn           (cv_mem->cv_tn)
+#define h            (cv_mem->cv_h)
+#define gamma        (cv_mem->cv_gamma)
+#define gammap       (cv_mem->cv_gammap)   
+#define f            (cv_mem->cv_f)
+#define user_data    (cv_mem->cv_user_data)
+#define ewt          (cv_mem->cv_ewt)
+#define mnewt        (cv_mem->cv_mnewt)
+#define ropt         (cv_mem->cv_ropt)
+#define linit        (cv_mem->cv_linit)
+#define lsetup       (cv_mem->cv_lsetup)
+#define lsolve       (cv_mem->cv_lsolve)
+#define lfree        (cv_mem->cv_lfree)
+#define lmem         (cv_mem->cv_lmem)
 #define vec_tmpl     (cv_mem->cv_tempv)
 #define setupNonNull (cv_mem->cv_setupNonNull)
 
@@ -168,7 +168,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   cvspils_mem->s_pset   = NULL;
   cvspils_mem->s_psolve = NULL;
   cvspils_mem->s_pfree  = NULL;
-  cvspils_mem->s_P_data = cv_mem->cv_f_data;
+  cvspils_mem->s_P_data = cv_mem->cv_user_data;
 
   /* Set default values for the rest of the Spgmr parameters */
   cvspils_mem->s_gstype = MODIFIED_GS;
@@ -271,7 +271,7 @@ static int CVSpgmrInit(CVodeMem cv_mem)
     jtimes = CVSpilsDQJtimes;
     j_data = cv_mem;
   } else {
-    j_data = f_data;
+    j_data = user_data;
   }
 
   last_flag = CVSPILS_SUCCESS;

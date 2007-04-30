@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-24 20:26:51 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -78,7 +78,7 @@ typedef struct {
 
 /* Functions Called by the CVODES Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Private Helper Functions */
 
@@ -144,8 +144,8 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
-  flag = CVodeSetFdata(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
   /* Allocate CVODES memory */
   flag = CVodeInit(cvode_mem, f, T0, u);
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,u). 
  */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype dx;
@@ -259,7 +259,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   dudata = NV_DATA_S(udot);
 
   /* Extract needed problem constants from data */
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   dx    = data->dx;
   hordc = data->p[0]/(dx*dx);
   horac = data->p[1]/(RCONST(2.0)*dx);

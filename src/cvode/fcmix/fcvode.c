@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -111,7 +111,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   CV_userdata->rpar = rpar;
   CV_userdata->ipar = ipar;
 
-  *ier = CVodeSetFdata(CV_cvodemem, CV_userdata);
+  *ier = CVodeSetUserData(CV_cvodemem, CV_userdata);
   if(*ier != CV_SUCCESS) {
     free(CV_userdata); CV_userdata = NULL;
     *ier = -1;
@@ -565,7 +565,7 @@ void FCV_FREE ()
 
   cv_mem = (CVodeMem) CV_cvodemem;
 
-  free(cv_mem->cv_f_data); cv_mem->cv_f_data = NULL;
+  free(cv_mem->cv_user_data); cv_mem->cv_user_data = NULL;
 
   CVodeFree(&CV_cvodemem);
 
@@ -582,7 +582,7 @@ void FCV_FREE ()
  * Auxiliary data is assumed to be communicated by Common. 
  */
 
-int FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+int FCVf(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   int ier;
   realtype *ydata, *dydata;
@@ -591,7 +591,7 @@ int FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   ydata  = N_VGetArrayPointer(y);
   dydata = N_VGetArrayPointer(ydot);
 
-  CV_userdata = (FCVUserData) f_data;
+  CV_userdata = (FCVUserData) user_data;
 
   FCV_FUN(&t, ydata, dydata, CV_userdata->ipar, CV_userdata->rpar, &ier);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-07-19 20:52:26 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -77,36 +77,36 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval);
  * =================================================================
  */
 
-#define t0       (IDA_mem->ida_t0)
-#define yy0      (IDA_mem->ida_yy0)
-#define yp0      (IDA_mem->ida_yp0)
+#define t0             (IDA_mem->ida_t0)
+#define yy0            (IDA_mem->ida_yy0)
+#define yp0            (IDA_mem->ida_yp0)
 
-#define rdata    (IDA_mem->ida_rdata)
-#define res      (IDA_mem->ida_res)
-#define efun     (IDA_mem->ida_efun)
-#define edata    (IDA_mem->ida_edata)
-#define uround   (IDA_mem->ida_uround)  
-#define phi      (IDA_mem->ida_phi) 
-#define ewt      (IDA_mem->ida_ewt)  
-#define delta    (IDA_mem->ida_delta)
-#define ee       (IDA_mem->ida_ee)
-#define savres   (IDA_mem->ida_savres)
-#define tempv2   (IDA_mem->ida_tempv2) 
-#define hh       (IDA_mem->ida_hh)
-#define tn       (IDA_mem->ida_tn)
-#define cj       (IDA_mem->ida_cj)
-#define cjratio  (IDA_mem->ida_cjratio)
-#define nbacktr  (IDA_mem->ida_nbacktr)
-#define nre      (IDA_mem->ida_nre)
-#define ncfn     (IDA_mem->ida_ncfn)
-#define nni      (IDA_mem->ida_nni)
-#define nsetups  (IDA_mem->ida_nsetups)
-#define ns       (IDA_mem->ida_ns)
-#define lsetup   (IDA_mem->ida_lsetup)
-#define lsolve   (IDA_mem->ida_lsolve) 
-#define hused    (IDA_mem->ida_hused)         
-#define epsNewt  (IDA_mem->ida_epsNewt)
-#define id       (IDA_mem->ida_id)
+#define user_data      (IDA_mem->ida_user_data)
+#define res            (IDA_mem->ida_res)
+#define efun           (IDA_mem->ida_efun)
+#define edata          (IDA_mem->ida_edata)
+#define uround         (IDA_mem->ida_uround)  
+#define phi            (IDA_mem->ida_phi) 
+#define ewt            (IDA_mem->ida_ewt)  
+#define delta          (IDA_mem->ida_delta)
+#define ee             (IDA_mem->ida_ee)
+#define savres         (IDA_mem->ida_savres)
+#define tempv2         (IDA_mem->ida_tempv2) 
+#define hh             (IDA_mem->ida_hh)
+#define tn             (IDA_mem->ida_tn)
+#define cj             (IDA_mem->ida_cj)
+#define cjratio        (IDA_mem->ida_cjratio)
+#define nbacktr        (IDA_mem->ida_nbacktr)
+#define nre            (IDA_mem->ida_nre)
+#define ncfn           (IDA_mem->ida_ncfn)
+#define nni            (IDA_mem->ida_nni)
+#define nsetups        (IDA_mem->ida_nsetups)
+#define ns             (IDA_mem->ida_ns)
+#define lsetup         (IDA_mem->ida_lsetup)
+#define lsolve         (IDA_mem->ida_lsolve) 
+#define hused          (IDA_mem->ida_hused)         
+#define epsNewt        (IDA_mem->ida_epsNewt)
+#define id             (IDA_mem->ida_id)
 #define setupNonNull   (IDA_mem->ida_setupNonNull) 
 #define suppressalg    (IDA_mem->ida_suppressalg)
 #define constraints    (IDA_mem->ida_constraints)
@@ -354,7 +354,7 @@ static int IDAnlsIC(IDAMem IDA_mem)
   tv2 = tempv2;
   tv3 = phi[2];
 
-  retval = res(t0, yy0, yp0, delta, rdata);
+  retval = res(t0, yy0, yp0, delta, user_data);
   nre++;
   if(retval < 0) return(IDA_RES_FAIL);
   if(retval > 0) return(IDA_FIRST_RES_FAIL);
@@ -587,7 +587,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
   int retval;
 
   /* Get residual vector F, return if failed, and save F in savres. */
-  retval = res(t0, ynew, ypnew, delnew, rdata);
+  retval = res(t0, ynew, ypnew, delnew, user_data);
   nre++;
   if(retval < 0) return(IDA_RES_FAIL);
   if(retval > 0) return(IC_FAIL_RECOV);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -62,7 +62,7 @@ static int idaDlsBandJacBWrapper(int NeqB, int mupperB, int mlowerB,
  */
 
 #define res            (IDA_mem->ida_res)
-#define rdata          (IDA_mem->ida_rdata)
+#define user_data      (IDA_mem->ida_user_data)
 #define uround         (IDA_mem->ida_uround)
 #define nst            (IDA_mem->ida_nst)
 #define tn             (IDA_mem->ida_tn)
@@ -396,7 +396,7 @@ int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
     y_data[j] += inc;
     yp_data[j] += c_j*inc;
 
-    retval = res(tt, yy, yp, rtemp, rdata);
+    retval = res(tt, yy, yp, rtemp, user_data);
     nreDQ++;
     if (retval != 0) break;
 
@@ -521,7 +521,7 @@ int idaDlsBandDQJac(int N, int mupper, int mlower,
 
     /* Call res routine with incremented arguments. */
 
-    retval = res(tt, ytemp, yptemp, rtemp, rdata);
+    retval = res(tt, ytemp, yptemp, rtemp, user_data);
     nreDQ++;
     if (retval != 0) break;
 
@@ -572,7 +572,7 @@ int idaDlsBandDQJac(int N, int mupper, int mlower,
 
 /* Additional readability replacements */
 
-#define rdata_B    (IDAADJ_mem->ia_rdataB)
+#define user_data_B    (IDAADJ_mem->ia_user_dataB)
 
 #define ytmp        (IDAADJ_mem->ia_ytmp)
 #define yptmp       (IDAADJ_mem->ia_yptmp)
@@ -693,7 +693,7 @@ static int idaDlsDenseJacBWrapper(int NeqB, realtype tt, realtype c_jB,
   flag = djacB(NeqB, tt, c_jB, 
                ytmp, yptmp, 
                yyB, ypB, rrB, 
-               JacB, rdata_B, 
+               JacB, user_data_B, 
                tmp1B, tmp2B, tmp3B);
 
   return(flag);
@@ -734,7 +734,7 @@ static int idaDlsBandJacBWrapper(int NeqB, int mupperB, int mlowerB,
                tt, c_jB,
                ytmp, yptmp, 
                yyB, ypB, rrB,
-               JacB, rdata_B, 
+               JacB, user_data_B, 
                tmp1B, tmp2B, tmp3B);
 
   return(flag);

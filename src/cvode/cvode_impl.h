@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-26 23:17:26 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-30 19:28:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -63,7 +63,7 @@ typedef struct CVodeMemRec {
     --------------------------*/
 
   CVRhsFn cv_f;        /* y' = f(t,y(t))                    */
-  void *cv_f_data;     /* user pointer passed to f          */
+  void *cv_user_data;  /* user pointer passed to f          */
   int cv_lmm;          /* lmm = CV_ADAMS or CV_BDF          */
   int cv_iter;         /* iter = CV_FUNCTIONAL or CV_NEWTON */
   int cv_itol;         /* itol = CV_SS or CV_SV             */

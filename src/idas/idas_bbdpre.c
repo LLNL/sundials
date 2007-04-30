@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -66,11 +66,11 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
 static int IDAAglocal(int NlocalB, realtype tt,
                       N_Vector yyB, N_Vector ypB, N_Vector gvalB,
-                      void *res_dataB);
+                      void *user_dataB);
 
 static int IDAAgcomm(int NlocalB, realtype tt,
                      N_Vector yyB, N_Vector ypB,
-                     void *res_dataB);
+                     void *user_dataB);
 
 /* 
  * ================================================================
@@ -454,7 +454,7 @@ static void IDABBDPrecFree(IDAMem IDA_mem)
 
 
 #define ewt         (IDA_mem->ida_ewt)
-#define res_data    (IDA_mem->ida_rdata)
+#define user_data   (IDA_mem->ida_user_data)
 #define hh          (IDA_mem->ida_hh)
 #define constraints (IDA_mem->ida_constraints)
 
@@ -513,11 +513,11 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   /* Call gcomm and glocal to get base value of G(t,y,y'). */
 
   if (gcomm != NULL) {
-    retval = gcomm(Nlocal, tt, yy, yp, res_data);
+    retval = gcomm(Nlocal, tt, yy, yp, user_data);
     if (retval != 0) return(retval);
   }
 
-  retval = glocal(Nlocal, tt, yy, yp, gref, res_data); 
+  retval = glocal(Nlocal, tt, yy, yp, gref, user_data); 
   nge++;
   if (retval != 0) return(retval);
 
@@ -558,7 +558,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
     /* Evaluate G with incremented y and yp arguments. */
 
-    retval = glocal(Nlocal, tt, ytemp, yptemp, gtemp, res_data); 
+    retval = glocal(Nlocal, tt, ytemp, yptemp, gtemp, user_data); 
     nge++;
     if (retval != 0) return(retval);
 
@@ -605,7 +605,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 #define ytmp        (IDAADJ_mem->ia_ytmp)
 #define yptmp       (IDAADJ_mem->ia_yptmp)
 #define getY        (IDAADJ_mem->ia_getY)
-#define res_dataB   (IDAADJ_mem->ia_rdataB)
+#define user_dataB  (IDAADJ_mem->ia_user_dataB)
 #define pmemB       (IDAADJ_mem->ia_pmemB)
 
 #define bbd_data_B  (idabbdB_mem->bbd_dataB)
@@ -740,7 +740,7 @@ static int IDAAglocal(int NlocalB, realtype tt,
   } 
 
   /* Call user's adjoint glocB routine */
-  retval = glocal_B(NlocalB, tt, ytmp, yptmp, yyB, ypB, gvalB, res_dataB);
+  retval = glocal_B(NlocalB, tt, ytmp, yptmp, yyB, ypB, gvalB, user_dataB);
 
   return(retval);
 
@@ -769,7 +769,7 @@ static int IDAAgcomm(int NlocalB, realtype tt,
   } 
 
   /* Call user's adjoint cfnB routine */
-  retval = gcomm_B(NlocalB, tt, ytmp, yptmp, yyB, ypB, res_dataB);
+  retval = gcomm_B(NlocalB, tt, ytmp, yptmp, yyB, ypB, user_dataB);
 
   return(retval);
 }

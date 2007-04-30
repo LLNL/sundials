@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-23 23:37:26 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -69,8 +69,8 @@ int main()
   cvode_mem1 = CVodeCreate(CV_BDF, CV_NEWTON);
   cvode_mem2 = CVodeCreate(CV_BDF, CV_NEWTON);
   
-  CVodeSetFdata(cvode_mem1, &flag1);
-  CVodeSetFdata(cvode_mem2, &flag2);
+  CVodeSetUserData(cvode_mem1, &flag1);
+  CVodeSetUserData(cvode_mem2, &flag2);
 
   CVodeInit(cvode_mem1, f, t0, y1);
   CVodeSVtolerances(cvode_mem1, reltol, abstol1);

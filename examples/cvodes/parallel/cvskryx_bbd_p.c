@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 17:41:06 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -143,16 +143,16 @@ static void BRecvWait(MPI_Request request[],
                       long int dsizex, realtype uext[],
                       realtype buffer[]);
 
-static void fucomm(realtype t, N_Vector u, void *f_data);
+static void fucomm(realtype t, N_Vector u, void *user_data);
 
 /* Prototype of function called by the solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Prototype of functions called by the CVBBDPRE module */
 
 static int flocal(int Nlocal, realtype t, N_Vector u,
-                  N_Vector udot, void *f_data);
+                  N_Vector udot, void *user_data);
 
 /* Private function to check function return values */
 
@@ -212,8 +212,8 @@ int main(int argc, char *argv[])
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
-  flag = CVodeSetFdata(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if(check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
@@ -647,7 +647,7 @@ static void BRecvWait(MPI_Request request[],
 /* fucomm routine.  This routine performs all inter-processor
    communication of data in u needed to calculate f.         */
 
-static void fucomm(realtype t, N_Vector u, void *f_data)
+static void fucomm(realtype t, N_Vector u, void *user_data)
 {
   UserData data;
   realtype *uarray, *uext, buffer[2*NVARS*MYSUB];
@@ -656,7 +656,7 @@ static void fucomm(realtype t, N_Vector u, void *f_data)
   long int nvmxsub, nvmysub;
   MPI_Request request[4];
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   uarray = NV_DATA_P(u);
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
@@ -685,19 +685,19 @@ static void fucomm(realtype t, N_Vector u, void *f_data)
 /* f routine.  Evaluate f(t,y).  First call fucomm to do communication of 
    subgrid boundary data into uext.  Then calculate f by a call to flocal. */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   UserData data;
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
 
   /* Call fucomm to do inter-processor communication */
 
-  fucomm (t, u, f_data);
+  fucomm (t, u, user_data);
 
   /* Call flocal to calculate all right-hand sides */
 
-  flocal (data->Nlocal, t, u, udot, f_data);
+  flocal (data->Nlocal, t, u, udot, user_data);
 
   return(0);
 }
@@ -709,7 +709,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
    been done, and this data is in the work array uext.                    */
 
 static int flocal(int Nlocal, realtype t, N_Vector u,
-                  N_Vector udot, void *f_data)
+                  N_Vector udot, void *user_data)
 {
   realtype *uext;
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
@@ -727,7 +727,7 @@ static int flocal(int Nlocal, realtype t, N_Vector u,
 
   /* Get subgrid indices, array sizes, extended work array uext */
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub; nvmxsub2 = data->nvmxsub2;
   uext = data->uext;

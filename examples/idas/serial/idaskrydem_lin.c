@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:11 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -75,17 +75,17 @@ typedef struct {
 /* Prototypes for functions called by IDA */
 
 int resHeat(realtype tres, N_Vector uu, N_Vector up,
-            N_Vector resval, void *rdata);
+            N_Vector resval, void *user_data);
 
 int PsetupHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
-               realtype c_j, void *prec_data, 
+               realtype c_j, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 int PsolveHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
                N_Vector rvec, N_Vector zvec, 
-               realtype c_j, realtype delta, void *prec_data, 
+               realtype c_j, realtype delta, void *user_data, 
                N_Vector tmp);
 
 /* Prototypes for private functions */
@@ -161,8 +161,8 @@ int main(void)
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
 
-  ier = IDASetRdata(mem, data);
-  if(check_flag(&ier, "IDASetRdata", 1)) return(1);
+  ier = IDASetUserData(mem, data);
+  if(check_flag(&ier, "IDASetUserData", 1)) return(1);
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
@@ -306,7 +306,7 @@ int main(void)
 
 int resHeat(realtype tt, 
             N_Vector uu, N_Vector up, N_Vector rr, 
-            void *res_data)
+            void *user_data)
 {
   long int i, j, offset, loc, mm;
   realtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
@@ -316,7 +316,7 @@ int resHeat(realtype tt,
   up_data = NV_DATA_S(up); 
   rr_data = NV_DATA_S(rr);
 
-  data = (UserData) res_data;
+  data = (UserData) user_data;
   
   coeff = data->coeff;
   mm    = data->mm;
@@ -357,7 +357,7 @@ int resHeat(realtype tt,
   
 int PsetupHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
-               realtype c_j, void *prec_data, 
+               realtype c_j, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   
@@ -365,7 +365,7 @@ int PsetupHeat(realtype tt,
   realtype *ppv, pelinv;
   UserData data;
   
-  data = (UserData) prec_data;
+  data = (UserData) user_data;
   ppv = NV_DATA_S(data->pp);
   mm = data->mm;
 
@@ -397,11 +397,11 @@ int PsetupHeat(realtype tt,
 int PsolveHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
                N_Vector rvec, N_Vector zvec, 
-               realtype c_j, realtype delta, void *prec_data, 
+               realtype c_j, realtype delta, void *user_data, 
                N_Vector tmp)
 {
   UserData data;
-  data = (UserData) prec_data;
+  data = (UserData) user_data;
   N_VProd(data->pp, rvec, zvec);
   return(0);
 }

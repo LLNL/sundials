@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -78,7 +78,7 @@ void FCV_SPILSSETPREC(int *flag, int *ier)
 
 int FCVPSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
             booleantype *jcurPtr, realtype gamma,
-            void *P_data,
+            void *user_data,
             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier = 0;
@@ -94,7 +94,7 @@ int FCVPSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
 
-  CV_userdata = (FCVUserData) P_data;
+  CV_userdata = (FCVUserData) user_data;
 
   FCV_PSET(&t, ydata, fydata, &jok, jcurPtr, &gamma, &h,
            CV_userdata->ipar, CV_userdata->rpar,
@@ -115,7 +115,7 @@ int FCVPSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
 int FCVPSol(realtype t, N_Vector y, N_Vector fy, 
             N_Vector r, N_Vector z,
             realtype gamma, realtype delta,
-            int lr, void *P_data, N_Vector vtemp)
+            int lr, void *user_data, N_Vector vtemp)
 {
   int ier = 0;
   realtype *ydata, *fydata, *vtdata, *rdata, *zdata;
@@ -127,7 +127,7 @@ int FCVPSol(realtype t, N_Vector y, N_Vector fy,
   rdata   = N_VGetArrayPointer(r);
   zdata   = N_VGetArrayPointer(z);
 
-  CV_userdata = (FCVUserData) P_data;
+  CV_userdata = (FCVUserData) user_data;
 
   FCV_PSOL(&t, ydata, fydata, rdata, zdata, &gamma, &delta, &lr, 
            CV_userdata->ipar, CV_userdata->rpar, vtdata, &ier);

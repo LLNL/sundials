@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2007-04-26 23:17:27 $
+ * $Revision: 1.18 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -268,8 +268,8 @@ extern "C" {
  * in the vector ydot.  The y and ydot arguments are of type
  * N_Vector.
  * (Allocation of memory for ydot is handled within CVODES)
- * The f_data parameter is the same as the f_data
- * parameter set by the user through the CVodeSetFdata routine.
+ * The user_data parameter is the same as the user_data
+ * parameter set by the user through the CVodeSetUserData routine.
  * This user-supplied pointer is passed to the user's f function
  * every time it is called.
  *
@@ -283,7 +283,7 @@ extern "C" {
  */
 
 typedef int (*CVRhsFn)(realtype t, N_Vector y,
-		       N_Vector ydot, void *f_data);
+		       N_Vector ydot, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -295,8 +295,8 @@ typedef int (*CVRhsFn)(realtype t, N_Vector y,
  * t, and the dependent variable vector y.  It stores the nrtfn
  * values g_i(t,y) in the realtype array gout.
  * (Allocation of memory for gout is handled within CVODE.)
- * The f_data parameter is the same as that passed by the user
- * to the CVodeSetFdata routine.  This user-supplied pointer is
+ * The user_data parameter is the same as that passed by the user
+ * to the CVodeSetUserData routine.  This user-supplied pointer is
  * passed to the user's g function every time it is called.
  *
  * A CVRootFn should return 0 if successful or a non-zero value
@@ -304,7 +304,7 @@ typedef int (*CVRhsFn)(realtype t, N_Vector y,
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout, void *f_data);
+typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -321,15 +321,15 @@ typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout, void *f_data);
  * 
  *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
  *
- * The f_data parameter is the same as that passed by the user
- * to the CVodeSetFdata routine.  This user-supplied pointer is
+ * The user_data parameter is the same as that passed by the user
+ * to the CVodeSetUserData routine.  This user-supplied pointer is
  * passed to the user's e function every time it is called.
  * A CVEwtFn e must return 0 if the error weight vector has been
  * successfuly set and a non-zero value otherwise.
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *f_data);
+typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *user_data);
 
 
 /*
@@ -340,7 +340,7 @@ typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *f_data);
  * CVErrHandlerFn.
  * The function eh takes as input the error code, the name of the
  * module reporting the error, the error message, and a pointer to
- * user data, the same as that passed to CVodeSetFdata.
+ * user data, the same as that passed to CVodeSetUserData.
  * 
  * All error codes are negative, except CV_WARNING which indicates 
  * a warning (the solver continues).
@@ -351,7 +351,7 @@ typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *f_data);
   
 typedef void (*CVErrHandlerFn)(int error_code, 
 			       const char *module, const char *function, 
-			       char *msg, void *f_data); 
+			       char *msg, void *user_data); 
 
 /*
  * -----------------------------------------------------------------
@@ -362,8 +362,8 @@ typedef void (*CVErrHandlerFn)(int error_code,
  * fQ takes as input the value of the independent variable t,
  * the vector of states y and must store the result of fQ in
  * yQdot. (Allocation of memory for yQdot is handled by CVODES).
- * The f_data parameter is the same as the f_data parameter
- * set by the user through the CVodeSetFdata routine and is
+ * The user_data parameter is the same as the user_data parameter
+ * set by the user through the CVodeSetUserData routine and is
  * passed to the fQ function every time it is called.
  *
  * If the quadrature RHS also depends on the sensitivity variables,
@@ -380,7 +380,7 @@ typedef void (*CVErrHandlerFn)(int error_code,
 
 typedef int (*CVQuadRhsFn)(realtype t, N_Vector y,
                            N_Vector yQdot,
-			   void *f_data);
+			   void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -394,8 +394,8 @@ typedef int (*CVQuadRhsFn)(realtype t, N_Vector y,
  * corresponding value of f(t,y) in ydot, and the dependent
  * sensitivity vectors yS. It stores the result of fS in ySdot.
  * (Allocation of memory for ySdot is handled within CVODES)
- * The f_data parameter is the same as the f_data parameter
- * set by the user through the CVodeSetFdata routine and is
+ * The user_data parameter is the same as the user_data parameter
+ * set by the user through the CVodeSetUserData routine and is
  * passed to the fS function every time it is called.
  *
  * A CVSensRhsFn should return 0 if successful, a negative value if
@@ -410,7 +410,7 @@ typedef int (*CVQuadRhsFn)(realtype t, N_Vector y,
 typedef int (*CVSensRhsFn)(int Ns, realtype t,
 			   N_Vector y, N_Vector ydot,
 			   N_Vector *yS, N_Vector *ySdot,
-			   void *f_data,
+			   void *user_data,
 			   N_Vector tmp1, N_Vector tmp2);
 
 /*
@@ -426,8 +426,8 @@ typedef int (*CVSensRhsFn)(int Ns, realtype t,
  * dependent sensitivity vector yS. It stores the result of fS in
  * ySdot.
  * (Allocation of memory for ySdot is handled within CVODES)
- * The f_data parameter is the same as the f_data parameter
- * set by the user through the CVodeSetFdata routine and is
+ * The user_data parameter is the same as the user_data parameter
+ * set by the user through the CVodeSetUserData routine and is
  * passed to the fS1 function every time it is called.
  *
  * A CVSensRhs1Fn should return 0 if successful, a negative value if
@@ -442,7 +442,7 @@ typedef int (*CVSensRhsFn)(int Ns, realtype t,
 typedef int (*CVSensRhs1Fn)(int Ns, realtype t,
 			    N_Vector y, N_Vector ydot,
 			    int iS, N_Vector yS, N_Vector ySdot,
-			    void *f_data,
+			    void *user_data,
 			    N_Vector tmp1, N_Vector tmp2);
 
 /*
@@ -472,7 +472,7 @@ typedef int (*CVSensRhs1Fn)(int Ns, realtype t,
 typedef int (*CVQuadSensRhsFn)(int Ns, realtype t,
                                N_Vector y, N_Vector *yS, 
                                N_Vector yQdot, N_Vector *yQSdot,
-                               void *f_data,
+                               void *user_data,
                                N_Vector tmp, N_Vector tmpQ);
 
 /*
@@ -493,20 +493,20 @@ typedef int (*CVQuadSensRhsFn)(int Ns, realtype t,
   
 typedef int (*CVRhsFnB)(realtype t, N_Vector y,
 			N_Vector yB, N_Vector yBdot,
-			void *f_dataB);
+			void *user_dataB);
 
 typedef int (*CVRhsFnBS)(realtype t, N_Vector y, N_Vector *yS,
                          N_Vector yB, N_Vector yBdot,
-                         void *f_dataB);
+                         void *user_dataB);
 
   
 typedef int (*CVQuadRhsFnB)(realtype t, N_Vector y,
 			    N_Vector yB, N_Vector qBdot,
-			    void *f_dataB);
+			    void *user_dataB);
 
 typedef int (*CVQuadRhsFnBS)(realtype t, N_Vector y, N_Vector *yS,
                              N_Vector yB, N_Vector qBdot,
-                             void *f_dataB);
+                             void *user_dataB);
 
 
 /*
@@ -931,7 +931,7 @@ SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
  *                         | be written to the standard error stream.
  *                         | [stderr]
  *                         |
- * CVodeSetFdata           | a pointer to user data that will be
+ * CVodeSetUserData        | a pointer to user data that will be
  *                         | passed to the user's f function every
  *                         | time f is called.
  *                         | [NULL]
@@ -1012,7 +1012,7 @@ SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
 
 SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun);
 SUNDIALS_EXPORT int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
-SUNDIALS_EXPORT int CVodeSetFdata(void *cvode_mem, void *f_data);
+SUNDIALS_EXPORT int CVodeSetUserData(void *cvode_mem, void *user_data);
 SUNDIALS_EXPORT int CVodeSetMaxOrd(void *cvode_mem, int maxord);
 SUNDIALS_EXPORT int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 SUNDIALS_EXPORT int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
@@ -1831,7 +1831,7 @@ SUNDIALS_EXPORT int CVodeSetAdjNoSensi(void *cvode_mem);
  */
 
 SUNDIALS_EXPORT int CVodeSetIterTypeB(void *cvode_mem, int which, int iterB);
-SUNDIALS_EXPORT int CVodeSetFdataB(void *cvode_mem, int which, void *f_dataB);
+SUNDIALS_EXPORT int CVodeSetUserDataB(void *cvode_mem, int which, void *user_dataB);
 SUNDIALS_EXPORT int CVodeSetMaxOrdB(void *cvode_mem, int which, int maxordB);
 SUNDIALS_EXPORT int CVodeSetMaxNumStepsB(void *cvode_mem, int which, long int mxstepsB);
 SUNDIALS_EXPORT int CVodeSetStabLimDetB(void *cvode_mem, int which, booleantype stldetB);

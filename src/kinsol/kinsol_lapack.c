@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:01 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -62,7 +62,7 @@ static void kinLapackBandFree(KINMem kin_mem);
 #define lrw1           (kin_mem->kin_lrw1)
 #define liw1           (kin_mem->kin_liw1)
 #define func           (kin_mem->kin_func)
-#define f_data         (kin_mem->kin_f_data)
+#define user_data      (kin_mem->kin_user_data)
 #define printfl        (kin_mem->kin_printfl)
 #define linit          (kin_mem->kin_linit)
 #define lsetup         (kin_mem->kin_lsetup)
@@ -349,7 +349,7 @@ static int kinLapackDenseInit(KINMem kin_mem)
     djac = kinDlsDenseDQJac;
     J_data = kin_mem;
   } else {
-    J_data = f_data;
+    J_data = user_data;
   }
 
   last_flag = KINDIRECT_SUCCESS;
@@ -482,7 +482,7 @@ static int kinLapackBandInit(KINMem kin_mem)
     bjac = kinDlsBandDQJac;
     J_data = kin_mem;
   } else {
-    J_data = f_data;
+    J_data = user_data;
   }
 
   last_flag = KINDIRECT_SUCCESS;

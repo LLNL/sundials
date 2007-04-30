@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:43:11 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -152,16 +152,16 @@ typedef struct {
 
 /* Functions Called by the KINSol Solver */
 
-static int funcprpr(N_Vector cc, N_Vector fval, void *f_data);
+static int funcprpr(N_Vector cc, N_Vector fval, void *user_data);
 
 static int Precondbd(N_Vector cc, N_Vector cscale,
                      N_Vector fval, N_Vector fscale,
-                     void *P_data,
+                     void *user_data,
                      N_Vector vtemp1, N_Vector vtemp2);
 
 static int PSolvebd(N_Vector cc, N_Vector cscale, 
                     N_Vector fval, N_Vector fscale, 
-                    N_Vector vv, void *P_data,
+                    N_Vector vv, void *user_data,
                     N_Vector vtemp);
 
 /* Private Helper Functions */
@@ -175,7 +175,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc);
 static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
-                    void *f_data);
+                    void *user_data);
 static realtype DotProd(int size, realtype *x1, realtype *x2);
 static void BSend(MPI_Comm comm, int my_pe, int isubx, 
                   int isuby, int dsizex, 
@@ -188,7 +188,7 @@ static void BRecvWait(MPI_Request request[], int isubx,
                       int isuby, int dsizex, realtype *cext,
                       realtype *buffer);
 static void ccomm(realtype *cdata, UserData data);
-static void fcalcprpr(N_Vector cc, N_Vector fval,void *f_data);
+static void fcalcprpr(N_Vector cc, N_Vector fval,void *user_data);
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 /*
@@ -267,8 +267,8 @@ int main(int argc, char *argv[])
 
   flag = KINSetNumMaxIters(kmem, 250);
   if (check_flag(&flag, "KINSetNumMaxIters", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = KINSetFdata(kmem, data);
-  if (check_flag(&flag, "KINSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = KINSetUserData(kmem, data);
+  if (check_flag(&flag, "KINSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
   flag = KINSetConstraints(kmem, constraints);
   if (check_flag(&flag, "KINSetConstraints", 1, my_pe)) MPI_Abort(comm, 1);
   flag = KINSetFuncNormTol(kmem, fnormtol);
@@ -343,14 +343,14 @@ int main(int argc, char *argv[])
  *  by a call to fcalcprpr. 
  */
 
-static int funcprpr(N_Vector cc, N_Vector fval, void *f_data)
+static int funcprpr(N_Vector cc, N_Vector fval, void *user_data)
 {
   realtype *cdata, *fvdata;
   UserData data;
   
   cdata = NV_DATA_P(cc);
   fvdata = NV_DATA_P(fval);
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   
   /* Call ccomm to do inter-processor communicaiton */
   ccomm (cdata, data);
@@ -367,7 +367,7 @@ static int funcprpr(N_Vector cc, N_Vector fval, void *f_data)
 
 static int Precondbd(N_Vector cc, N_Vector cscale,
                      N_Vector fval, N_Vector fscale,
-                     void *P_data,
+                     void *user_data,
                      N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
@@ -375,7 +375,7 @@ static int Precondbd(N_Vector cc, N_Vector cscale,
   int i, j, jx, jy, ret;
   UserData data;
   
-  data = (UserData)P_data;
+  data = (UserData)user_data;
   delx = data->dx;
   dely = data->dy;
   
@@ -432,14 +432,14 @@ static int Precondbd(N_Vector cc, N_Vector cscale,
 
 static int PSolvebd(N_Vector cc, N_Vector cscale, 
                     N_Vector fval, N_Vector fscale, 
-                    N_Vector vv, void *P_data,
+                    N_Vector vv, void *user_data,
                     N_Vector vtemp)
 {
   realtype **Pxy, *vxy;
   int *piv, jx, jy;
   UserData data;
   
-  data = (UserData)P_data;
+  data = (UserData)user_data;
   
   for (jx = 0; jx < MXSUB; jx++) {
     
@@ -466,13 +466,13 @@ static int PSolvebd(N_Vector cc, N_Vector cscale,
  */
 
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
-                    void *f_data)
+                    void *user_data)
 {
   int i;
   realtype fac;
   UserData data;
   
-  data = (UserData)f_data;
+  data = (UserData)user_data;
   
   for (i = 0; i<NUM_SPECIES; i++)
     ratesxy[i] = DotProd(NUM_SPECIES, cxy, acoef[i]);
@@ -963,7 +963,7 @@ static void ccomm(realtype *cdata, UserData data)
  * System function for predator-prey system - calculation part 
  */
 
-static void fcalcprpr(N_Vector cc, N_Vector fval, void *f_data)
+static void fcalcprpr(N_Vector cc, N_Vector fval, void *user_data)
 {
   realtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
   realtype *cext, dely, delx, *cdata;
@@ -972,7 +972,7 @@ static void fcalcprpr(N_Vector cc, N_Vector fval, void *f_data)
   int shifty, offsetc, offsetce, offsetcl, offsetcr, offsetcd, offsetcu;
   UserData data;
   
-  data = (UserData)f_data;
+  data = (UserData)user_data;
   cdata = NV_DATA_P(cc);
 
   /* Get subgrid indices, data sizes, extended work array cext */
@@ -1038,7 +1038,7 @@ static void fcalcprpr(N_Vector cc, N_Vector fval, void *f_data)
       rxy = IJ_Vptr(data->rates,jx,jy);
       fxy = IJ_Vptr(fval,jx,jy);
       
-      WebRate(xx, yy, cxy, rxy, f_data);
+      WebRate(xx, yy, cxy, rxy, user_data);
 
       offsetc = (jx+1)*NUM_SPECIES + (jy+1)*NSMXSUB2;
       offsetcd = offsetc - shifty;

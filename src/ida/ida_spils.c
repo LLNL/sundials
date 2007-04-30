@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -39,7 +39,7 @@
 #define tn        (IDA_mem->ida_tn)
 #define cj        (IDA_mem->ida_cj)
 #define res       (IDA_mem->ida_res)
-#define rdata     (IDA_mem->ida_rdata)
+#define user_data (IDA_mem->ida_user_data)
 #define ewt       (IDA_mem->ida_ewt)
 #define lmem      (IDA_mem->ida_lmem)
 
@@ -618,7 +618,7 @@ int IDASpilsDQJtimes(realtype tt,
     N_VLinearSum(c_j*sig, v, ONE, yp, yp_tmp);
     
     /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
-    retval = res(tt, y_tmp, yp_tmp, Jv, rdata); 
+    retval = res(tt, y_tmp, yp_tmp, Jv, user_data); 
     nres++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 17:43:11 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -175,20 +175,20 @@ typedef struct {
 
 static int resweb(realtype time, 
                   N_Vector cc, N_Vector cp, N_Vector resval, 
-                  void *rdata);
+                  void *user_data);
 
 static int Precondbd(realtype tt, 
                      N_Vector cc, N_Vector cp, N_Vector rr, 
-                     realtype cj, void *Pdata,
+                     realtype cj, void *user_data,
                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 static int PSolvebd(realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector rr, 
                     N_Vector rvec, N_Vector zvec,
-                    realtype cj, realtype delta, void *Pdata, 
+                    realtype cj, realtype delta, void *user_data, 
                     N_Vector tempv);
 
-static int rescomm(N_Vector cc, N_Vector cp, void *rdata);
+static int rescomm(N_Vector cc, N_Vector cp, void *user_data);
 
 static void BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
                   int dsizex, int dsizey, realtype carray[]);
@@ -202,7 +202,7 @@ static void BRecvWait(MPI_Request request[], int ixsub, int jysub,
                       int dsizex, realtype cext[], realtype buffer[]);
 
 static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res, 
-                    void *rdata);
+                    void *user_data);
 
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
@@ -311,8 +311,8 @@ int main(int argc, char *argv[])
   mem = IDACreate();
   if (check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDASetRdata(mem, webdata);
-  if (check_flag(&flag, "IDASetRdata", 1, thispe)) MPI_Abort(comm, 1);
+  flag = IDASetUserData(mem, webdata);
+  if (check_flag(&flag, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
   flag = IDASetId(mem, id);
   if (check_flag(&flag, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
@@ -748,12 +748,12 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
  */
 
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
-                  N_Vector res,  void *rdata)
+                  N_Vector res,  void *user_data)
 {
   int flag;
   UserData webdata;
   
-  webdata = (UserData)rdata;
+  webdata = (UserData)user_data;
   
   /* Call rescomm to do inter-processor communication. */
   flag = rescomm(cc, cp, webdata);
@@ -775,7 +775,7 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
  * and receive-waiting, in routines BRecvPost, BSend, BRecvWait.         
  */
 
-static int rescomm(N_Vector cc, N_Vector cp, void *rdata)
+static int rescomm(N_Vector cc, N_Vector cp, void *user_data)
 {
 
   UserData webdata;
@@ -784,7 +784,7 @@ static int rescomm(N_Vector cc, N_Vector cp, void *rdata)
   MPI_Comm comm;
   MPI_Request request[4];
   
-  webdata = (UserData) rdata;
+  webdata = (UserData) user_data;
   cdata = NV_DATA_P(cc);
   
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */
@@ -987,14 +987,14 @@ static void BRecvWait(MPI_Request request[], int ixsub, int jysub,
  */
 
 static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res,
-                    void *rdata)
+                    void *user_data)
 {
   realtype *cdata, *ratesxy, *cpxy, *resxy,
     xx, yy, dcyli, dcyui, dcxli, dcxui;
   int ix, jy, is, i, locc, ylocce, locce;
   UserData webdata;
   
-  webdata = (UserData) rdata;
+  webdata = (UserData) user_data;
   
   /* Get data pointers, subgrid data, array sizes, work array cext. */
   cdata = NV_DATA_P(cc);
@@ -1123,7 +1123,7 @@ static realtype dotprod(int size, realtype *x1, realtype *x2)
 
 static int Precondbd(realtype tt, N_Vector cc,
                      N_Vector cp, N_Vector rr, 
-                     realtype cj, void *Pdata,
+                     realtype cj, void *user_data,
                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   int flag, thispe;
@@ -1136,7 +1136,7 @@ static int Precondbd(realtype tt, N_Vector cc,
   N_Vector ewt;
   realtype hh;
 
-  webdata = (UserData)Pdata;
+  webdata = (UserData)user_data;
   uround = UNIT_ROUNDOFF;
   sqru = SQRT(uround); 
   thispe = webdata->thispe;
@@ -1200,13 +1200,13 @@ static int PSolvebd(realtype tt, N_Vector cc,
                  N_Vector cp, N_Vector rr, 
                  N_Vector rvec, N_Vector zvec,
                  realtype cj, realtype delta,
-                 void *Pdata, N_Vector tempv)
+                 void *user_data, N_Vector tempv)
 {
   realtype **Pxy, *zxy;
   int *pivot, ix, jy;
   UserData webdata;
 
-  webdata = (UserData)Pdata;
+  webdata = (UserData)user_data;
   
   N_VScale(ONE, rvec, zvec);
   

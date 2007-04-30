@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2007-04-26 23:17:26 $
+ * $Revision: 1.15 $
+ * $Date: 2007-04-30 19:28:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -357,26 +357,26 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
-  cv_mem->cv_f        = NULL;
-  cv_mem->cv_f_data   = NULL;
-  cv_mem->cv_itol     = CV_NN;
-  cv_mem->cv_efun     = NULL;
-  cv_mem->cv_e_data   = NULL;
-  cv_mem->cv_ehfun    = CVErrHandler;
-  cv_mem->cv_eh_data  = cv_mem;
-  cv_mem->cv_errfp    = stderr;
-  cv_mem->cv_qmax     = maxord;
-  cv_mem->cv_mxstep   = MXSTEP_DEFAULT;
-  cv_mem->cv_mxhnil   = MXHNIL_DEFAULT;
-  cv_mem->cv_sldeton  = FALSE;
-  cv_mem->cv_hin      = ZERO;
-  cv_mem->cv_hmin     = HMIN_DEFAULT;
-  cv_mem->cv_hmax_inv = HMAX_INV_DEFAULT;
-  cv_mem->cv_tstopset = FALSE;
-  cv_mem->cv_maxcor   = NLS_MAXCOR;
-  cv_mem->cv_maxnef   = MXNEF;
-  cv_mem->cv_maxncf   = MXNCF;
-  cv_mem->cv_nlscoef  = CORTES;
+  cv_mem->cv_f         = NULL;
+  cv_mem->cv_user_data = NULL;
+  cv_mem->cv_itol      = CV_NN;
+  cv_mem->cv_efun      = NULL;
+  cv_mem->cv_e_data    = NULL;
+  cv_mem->cv_ehfun     = CVErrHandler;
+  cv_mem->cv_eh_data   = cv_mem;
+  cv_mem->cv_errfp     = stderr;
+  cv_mem->cv_qmax      = maxord;
+  cv_mem->cv_mxstep    = MXSTEP_DEFAULT;
+  cv_mem->cv_mxhnil    = MXHNIL_DEFAULT;
+  cv_mem->cv_sldeton   = FALSE;
+  cv_mem->cv_hin       = ZERO;
+  cv_mem->cv_hmin      = HMIN_DEFAULT;
+  cv_mem->cv_hmax_inv  = HMAX_INV_DEFAULT;
+  cv_mem->cv_tstopset  = FALSE;
+  cv_mem->cv_maxcor    = NLS_MAXCOR;
+  cv_mem->cv_maxnef    = MXNEF;
+  cv_mem->cv_maxncf    = MXNCF;
+  cv_mem->cv_nlscoef   = CORTES;
 
   /* Initialize root finding variables */
 
@@ -770,7 +770,7 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
 
   cv_mem->cv_itol = CV_WF;
   cv_mem->cv_efun = efun;
-  cv_mem->cv_e_data = cv_mem->cv_f_data;
+  cv_mem->cv_e_data = cv_mem->cv_user_data;
 
 }
 
@@ -929,7 +929,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
  */
 
 #define f              (cv_mem->cv_f)      
-#define f_data         (cv_mem->cv_f_data) 
+#define user_data      (cv_mem->cv_user_data) 
 #define efun           (cv_mem->cv_efun)
 #define e_data         (cv_mem->cv_e_data) 
 #define qmax           (cv_mem->cv_qmax)
@@ -1108,7 +1108,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
        set initial h (from H0 or CVHin), and scale zn[1] by h.
        Also check for zeros of root function g at and near t0.    */
     
-    retval = f(tn, zn[0], zn[1], f_data); 
+    retval = f(tn, zn[0], zn[1], user_data); 
     nfe++;
     if (retval < 0) {
       CVProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode", MSGCV_RHSFUNC_FAILED, tn);
@@ -1915,7 +1915,7 @@ static int CVYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
   int retval;
 
   N_VLinearSum(hg, zn[1], ONE, zn[0], y);
-  retval = f(tn+hg, y, tempv, f_data);
+  retval = f(tn+hg, y, tempv, user_data);
   nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -2512,7 +2512,7 @@ static int CVNlsFunctional(CVodeMem cv_mem)
   crate = ONE;
   m = 0;
 
-  retval = f(tn, zn[0], tempv, f_data);
+  retval = f(tn, zn[0], tempv, user_data);
   nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -2553,7 +2553,7 @@ static int CVNlsFunctional(CVodeMem cv_mem)
     /* Save norm of correction, evaluate f, and loop again */
     delp = del;
 
-    retval = f(tn, y, tempv, f_data);
+    retval = f(tn, y, tempv, user_data);
     nfe++;
     if (retval < 0) return(CV_RHSFUNC_FAIL);
     if (retval > 0) return(RHSFUNC_RECVR);
@@ -2610,7 +2610,7 @@ static int CVNlsNewton(CVodeMem cv_mem, int nflag)
   
   loop {
 
-    retval = f(tn, zn[0], ftemp, f_data);
+    retval = f(tn, zn[0], ftemp, user_data);
     nfe++; 
     if (retval < 0) return(CV_RHSFUNC_FAIL);
     if (retval > 0) return(RHSFUNC_RECVR);
@@ -2720,7 +2720,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
     
     /* Save norm of correction, evaluate f, and loop again */
     delp = del;
-    retval = f(tn, y, ftemp, f_data);
+    retval = f(tn, y, ftemp, user_data);
     nfe++;
     if (retval < 0) return(CV_RHSFUNC_FAIL);
     if (retval > 0) {
@@ -2897,7 +2897,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   qwait = LONG_WAIT;
   nscon = 0;
 
-  retval = f(tn, zn[0], tempv, f_data);
+  retval = f(tn, zn[0], tempv, user_data);
   nfe++;
   if (retval < 0)  return(CV_RHSFUNC_FAIL);
   if (retval > 0)  return(CV_UNREC_RHSFUNC_ERR);
@@ -3572,7 +3572,7 @@ static int CVRcheck1(CVodeMem cv_mem)
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
 
   /* Evaluate g at initial t and check for zero values. */
-  retval = gfun(tlo, zn[0], glo, f_data);
+  retval = gfun(tlo, zn[0], glo, user_data);
   nge = 1;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -3587,7 +3587,7 @@ static int CVRcheck1(CVodeMem cv_mem)
   smallh = hratio*h;
   tlo += smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
-  retval = gfun(tlo, y, glo, f_data);
+  retval = gfun(tlo, y, glo, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -3632,7 +3632,7 @@ static int CVRcheck2(CVodeMem cv_mem)
   if (irfnd == 0) return(CV_SUCCESS);
 
   (void) CVodeGetDky(cv_mem, tlo, 0, y);
-  retval = gfun(tlo, y, glo, f_data);
+  retval = gfun(tlo, y, glo, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -3656,7 +3656,7 @@ static int CVRcheck2(CVodeMem cv_mem)
   } else {
     (void) CVodeGetDky(cv_mem, tlo, 0, y);
   }
-  retval = gfun(tlo, y, glo, f_data);
+  retval = gfun(tlo, y, glo, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -3705,7 +3705,7 @@ static int CVRcheck3(CVodeMem cv_mem)
   }
 
   /* Set ghi = g(thi) and call CVRootfind to search (tlo,thi) for roots. */
-  retval = gfun(thi, y, ghi, f_data);
+  retval = gfun(thi, y, ghi, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -3743,7 +3743,7 @@ static int CVRcheck3(CVodeMem cv_mem)
  *            the vector-valued function g(t).  Input only.
  *
  * gfun     = user-defined function for g(t).  Its form is
- *            (void) gfun(t, y, gt, f_data)
+ *            (void) gfun(t, y, gt, user_data)
  *
  * rootdir  = in array specifying the direction of zero-crossings.
  *            If rootdir[i] > 0, search for roots of g_i only if
@@ -3873,7 +3873,7 @@ static int CVRootfind(CVodeMem cv_mem)
     }
 
     (void) CVodeGetDky(cv_mem, tmid, 0, y);
-    retval = gfun(tmid, y, grout, f_data);
+    retval = gfun(tmid, y, grout, user_data);
     nge++;
     if (retval != 0) return(CV_RTFUNC_FAIL);
 

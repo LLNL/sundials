@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -46,7 +46,7 @@ static int IDADenseFree(IDAMem IDA_mem);
 /* Readability Replacements */
 
 #define res          (IDA_mem->ida_res)
-#define rdata        (IDA_mem->ida_rdata)
+#define user_data    (IDA_mem->ida_user_data)
 #define tn           (IDA_mem->ida_tn)
 #define hh           (IDA_mem->ida_hh)
 #define cj           (IDA_mem->ida_cj)
@@ -203,7 +203,7 @@ static int IDADenseInit(IDAMem IDA_mem)
     djac = idaDlsDenseDQJac;
     jacdata = IDA_mem;
   } else {
-    jacdata = rdata;
+    jacdata = user_data;
   }
   
   last_flag = 0;

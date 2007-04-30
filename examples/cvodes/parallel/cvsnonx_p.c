@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -77,7 +77,7 @@ static void PrintFinalStats(void *cvode_mem);
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Private function to check function return values */
 
@@ -136,8 +136,8 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSetFdata(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if(check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
@@ -259,7 +259,7 @@ static void PrintFinalStats(void *cvode_mem)
 
 /* f routine. Compute f(t,u). */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;
@@ -273,7 +273,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   dudata = NV_DATA_P(udot);
 
   /* Extract needed problem constants from data */
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
 

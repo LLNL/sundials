@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-26 23:17:26 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 19:28:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -53,7 +53,7 @@ int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun)
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_ehfun = ehfun;
-  cv_mem->cv_eh_data = cv_mem->cv_f_data;
+  cv_mem->cv_eh_data = cv_mem->cv_user_data;
 
   return(CV_SUCCESS);
 }
@@ -108,23 +108,23 @@ int CVodeSetIterType(void *cvode_mem, int iter)
 }
 
 /* 
- * CVodeSetFdata
+ * CVodeSetUserData
  *
  * Specifies the user data pointer for f
  */
 
-int CVodeSetFdata(void *cvode_mem, void *f_data)
+int CVodeSetUserData(void *cvode_mem, void *user_data)
 {
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    CVProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetFdata", MSGCV_NO_MEM);
+    CVProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetUserData", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem->cv_f_data = f_data;
+  cv_mem->cv_user_data = user_data;
 
   return(CV_SUCCESS);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -74,7 +74,7 @@ extern "C" {
  *
  * fy  is the vector f(t,y).
  *
- * f_data is a pointer to user data - the same as the f_data
+ * user_data is a pointer to user data - the same as the user_data
  *     parameter passed to CVodeSetFdata.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated for
@@ -121,7 +121,7 @@ extern "C" {
   
 typedef int (*CVDlsDenseJacFn)(int N, realtype t,
 			       N_Vector y, N_Vector fy, 
-			       DlsMat Jac, void *f_data,
+			       DlsMat Jac, void *user_data,
 			       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
 /*
@@ -186,7 +186,7 @@ typedef int (*CVDlsDenseJacFn)(int N, realtype t,
  * The BAND_ELEM(A,i,j) macro is appropriate for use in small
  * problems in which efficiency of access is NOT a major concern.
  *
- * f_data is a pointer to user data - the same as the f_data
+ * user_data is a pointer to user data - the same as the user_data
  *          parameter passed to CVodeSetFdata.
  *
  * NOTE: If the user's Jacobian routine needs other quantities,
@@ -208,7 +208,7 @@ typedef int (*CVDlsDenseJacFn)(int N, realtype t,
 
 typedef int (*CVDlsBandJacFn)(int N, int mupper, int mlower,
 			      realtype t, N_Vector y, N_Vector fy, 
-			      DlsMat Jac, void *f_data,
+			      DlsMat Jac, void *user_data,
 			      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*

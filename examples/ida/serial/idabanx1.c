@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -60,7 +60,7 @@ typedef struct {
 
 /* Prototypes of functions called by IDA */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *rdata);
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user_data);
 
 /* Prototypes of private functions */
 
@@ -125,8 +125,8 @@ int main(void)
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
 
-  ier = IDASetRdata(mem, data);
-  if(check_flag(&ier, "IDASetRdata", 1)) return(1);
+  ier = IDASetUserData(mem, data);
+  if(check_flag(&ier, "IDASetUserData", 1)) return(1);
 
   ier = IDASetId(mem, id);
   if(check_flag(&ier, "IDASetId", 1)) return(1);
@@ -201,7 +201,7 @@ int main(void)
  */
 
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
-            void *rdata)
+            void *user_data)
 {
   long int mm, i, j, offset, loc;
   realtype *uv, *upv, *resv, coeff;
@@ -209,7 +209,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
   
   uv = NV_DATA_S(uu); upv = NV_DATA_S(up); resv = NV_DATA_S(resval);
 
-  data = (UserData)rdata;
+  data = (UserData)user_data;
   mm = data->mm;
   coeff = data->coeff;
   

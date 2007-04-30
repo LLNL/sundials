@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-27 18:56:28 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -81,8 +81,8 @@ typedef struct CVSpilsMemRec {
 
   /* Preconditioner computation
    * (a) user-provided:
-   *     - P_data == f_data
-   *     - pfree == NULL (the user dealocates memory for f_data)
+   *     - P_data == user_data
+   *     - pfree == NULL (the user dealocates memory for user_data)
    * (b) internal preconditioner module
    *     - P_data == cvode_mem
    *     - pfree == set by the prec. module and called in CVodeFree
@@ -94,7 +94,7 @@ typedef struct CVSpilsMemRec {
 
   /* Jacobian times vector compuation
    * (a) jtimes function provided by the user:
-   *     - j_data == f_data
+   *     - j_data == user_data
    *     - jtimesDQ == FALSE
    * (b) internal jtimes
    *     - j_data == cvode_mem

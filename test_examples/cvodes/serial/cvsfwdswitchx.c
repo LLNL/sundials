@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-24 22:01:25 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
   /* Create, set, and allocate CVODES object*/
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  flag = CVodeSetFdata(cvode_mem, data);
+  flag = CVodeSetUserData(cvode_mem, data);
   flag = CVodeSetMaxNumSteps(cvode_mem, MXSTEPS);
   flag = CVodeInit(cvode_mem, f, T0, y0);
   flag = CVodeSVtolerances(cvode_mem, reltol, abstol);

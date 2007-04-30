@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-26 23:17:27 $
+ * $Revision: 1.11 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -59,7 +59,7 @@ typedef struct IDAMemRec {
     --------------------------*/
 
   IDAResFn       ida_res;            /* F(t,y(t),y'(t))=0; the function F  */
-  void          *ida_rdata;          /* user pointer passed to res         */
+  void          *ida_user_data;      /* user pointer passed to res         */
 
   int            ida_itol;           /* itol = IDA_SS, IDA_SV or IDA_WF    */
   realtype       ida_rtol;           /* relative tolerance                 */
@@ -75,7 +75,7 @@ typedef struct IDAMemRec {
   booleantype    ida_quadr;
 
   IDAQuadRhsFn   ida_rhsQ;
-  void          *ida_rdataQ;
+  void          *ida_user_dataQ;
   int            ida_itolQ;
   booleantype    ida_errconQ;
 
@@ -92,7 +92,7 @@ typedef struct IDAMemRec {
   int            ida_ism;
 
   IDASensResFn   ida_resS;
-  void          *ida_rdataS;
+  void          *ida_user_dataS;
   booleantype    ida_resSDQ;
 
   realtype      *ida_p;
@@ -516,11 +516,11 @@ struct IDAadjMemRec {
   /* Right hand side quadrature function (fQB) for backward run */
   IDAQuadRhsFnB ia_rhsQB;
 
-  /* User rdataB */
-  void *ia_rdataB;
+  /* User user_dataB */
+  void *ia_user_dataB;
     
-  /* User rdataQB */
-  void *ia_rdataQB;
+  /* User user_dataQB */
+  void *ia_user_dataQB;
 
   /* Memory block for a linear solver's interface to IDAA */
   void *ia_lmemB;
@@ -686,7 +686,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 int IDASensResDQ(int Ns, realtype t, 
 		 N_Vector yy, N_Vector yp, N_Vector resval,
 		 N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
-		 void *rdataS,
+		 void *user_dataS,
 		 N_Vector ytemp, N_Vector yptemp, N_Vector restemp);
 
 /*

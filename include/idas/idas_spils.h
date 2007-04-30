@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -93,7 +93,7 @@ extern "C" {
  *
  * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *
- * res_data is a pointer to user data, the same as the res_data
+ * user_data is a pointer to user data, the same as the user_data
  *     parameter passed to IDASetRdata.
  *
  * tmp1, tmp2, tmp3 are pointers to vectors of type N_Vector
@@ -118,7 +118,7 @@ extern "C" {
 
 typedef int (*IDASpilsPrecSetupFn)(realtype tt,
 				   N_Vector yy, N_Vector yp, N_Vector rr,
-				   realtype c_j, void *res_data,
+				   realtype c_j, void *user_data,
 				   N_Vector tmp1, N_Vector tmp2,
 				   N_Vector tmp3);
 
@@ -156,7 +156,7 @@ typedef int (*IDASpilsPrecSetupFn)(realtype tt,
  *     Note: the error weight vector ewt can be obtained
  *     through a call to the routine IDAGetErrWeights.
  *
- * res_data is a pointer to user data, the same as the res_data
+ * user_data is a pointer to user data, the same as the user_data
  *     parameter passed to IDASetRdata.
  *
  * tmp is an N_Vector which can be used by the PrecSolve
@@ -175,7 +175,7 @@ typedef int (*IDASpilsPrecSetupFn)(realtype tt,
 typedef int (*IDASpilsPrecSolveFn)(realtype tt,
 				   N_Vector yy, N_Vector yp, N_Vector rr,
 				   N_Vector rvec, N_Vector zvec,
-				   realtype c_j, realtype delta, void *res_data,
+				   realtype c_j, realtype delta, void *user_data,
 				   N_Vector tmp);
 
 /*
@@ -208,7 +208,7 @@ typedef int (*IDASpilsPrecSolveFn)(realtype tt,
  *   c_j  is the scalar in the system Jacobian, proportional
  *        to 1/hh.
  *
- *   res_data is a pointer to user data, the same as the
+ *   user_data is a pointer to user data, the same as the
  *        pointer passed to IDASetRdata.
  *
  *   tmp1, tmp2 are two N_Vectors which can be used by Jtimes for
@@ -219,7 +219,7 @@ typedef int (*IDASpilsPrecSolveFn)(realtype tt,
 typedef int (*IDASpilsJacTimesVecFn)(realtype tt,
 				     N_Vector yy, N_Vector yp, N_Vector rr,
 				     N_Vector v, N_Vector Jv,
-				     realtype c_j, void *res_data,
+				     realtype c_j, void *user_data,
 				     N_Vector tmp1, N_Vector tmp2);
 
 
@@ -345,7 +345,7 @@ SUNDIALS_EXPORT char *IDASpilsGetReturnFlagName(int flag);
 typedef int (*IDASpilsPrecSetupFnB)(realtype tt, 
 				    N_Vector yy, N_Vector yp,
 				    N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-				    realtype c_jB, void *res_dataB,
+				    realtype c_jB, void *user_dataB,
 				    N_Vector tmp1B, N_Vector tmp2B, 
 				    N_Vector tmp3B);
 
@@ -363,7 +363,7 @@ typedef int (*IDASpilsPrecSolveFnB)(realtype tt,
 				    N_Vector yyB, N_Vector ypB, N_Vector rrB, 
 				    N_Vector rvecB, N_Vector zvecB,
 				    realtype c_jB, realtype deltaB,
-				    void *res_dataB, N_Vector tmpB);
+				    void *user_dataB, N_Vector tmpB);
 
 /*
  * -----------------------------------------------------------------
@@ -378,7 +378,7 @@ typedef int (*IDASpilsJacTimesVecFnB)(realtype t,
 				      N_Vector yy, N_Vector yp,
 				      N_Vector yyB, N_Vector ypB, N_Vector rrB,
 				      N_Vector vB, N_Vector JvB, 
-				      realtype c_jB, void *res_dataB, 
+				      realtype c_jB, void *user_dataB, 
 				      N_Vector tmp1B, N_Vector tmp2B);
 
 /*

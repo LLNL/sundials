@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -443,7 +443,7 @@ static void IDABBDPrecFree(IDAMem IDA_mem)
 
 
 #define ewt         (IDA_mem->ida_ewt)
-#define res_data    (IDA_mem->ida_rdata)
+#define user_data   (IDA_mem->ida_user_data)
 #define hh          (IDA_mem->ida_hh)
 #define constraints (IDA_mem->ida_constraints)
 
@@ -502,11 +502,11 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   /* Call gcomm and glocal to get base value of G(t,y,y'). */
 
   if (gcomm != NULL) {
-    retval = gcomm(Nlocal, tt, yy, yp, res_data);
+    retval = gcomm(Nlocal, tt, yy, yp, user_data);
     if (retval != 0) return(retval);
   }
 
-  retval = glocal(Nlocal, tt, yy, yp, gref, res_data); 
+  retval = glocal(Nlocal, tt, yy, yp, gref, user_data); 
   nge++;
   if (retval != 0) return(retval);
 
@@ -547,7 +547,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
     /* Evaluate G with incremented y and yp arguments. */
 
-    retval = glocal(Nlocal, tt, ytemp, yptemp, gtemp, res_data); 
+    retval = glocal(Nlocal, tt, ytemp, yptemp, gtemp, user_data); 
     nge++;
     if (retval != 0) return(retval);
 

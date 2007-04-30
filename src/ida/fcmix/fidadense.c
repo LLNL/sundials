@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -71,7 +71,7 @@ void FIDA_DENSESETJAC(int *flag, int *ier)
 
 int FIDADenseJac(int N, realtype t, realtype c_j, 
 		 N_Vector yy, N_Vector yp, N_Vector rr,
-                 DlsMat Jac, void *res_data,
+                 DlsMat Jac, void *user_data,
 		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype *yy_data, *yp_data, *rr_data, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
@@ -103,7 +103,7 @@ int FIDADenseJac(int N, realtype t, realtype c_j,
 
   jacdata = DENSE_COL(Jac,0);
 
-  IDA_userdata = (FIDAUserData) res_data;
+  IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine*/
   FIDA_DJAC(&N, &t, yy_data, yp_data, rr_data, jacdata,

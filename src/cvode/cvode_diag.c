@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-06 20:33:25 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -44,7 +44,7 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define lrw1      (cv_mem->cv_lrw1)
 #define liw1      (cv_mem->cv_liw1)
 #define f         (cv_mem->cv_f)
-#define f_data    (cv_mem->cv_f_data)
+#define user_data (cv_mem->cv_user_data)
 #define uround    (cv_mem->cv_uround)
 #define tn        (cv_mem->cv_tn)
 #define h         (cv_mem->cv_h)
@@ -336,7 +336,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   N_VLinearSum(r, ftemp, ONE, ypred, y);
 
   /* Evaluate f at perturbed y */
-  retval = f(tn, y, M, f_data);
+  retval = f(tn, y, M, user_data);
   nfeDI++;
   if (retval < 0) {
     CVProcessError(cv_mem, CVDIAG_RHSFUNC_UNRECVR, "CVDIAG", "CVDiagSetup", MSGDG_RHSFUNC_FAILED);

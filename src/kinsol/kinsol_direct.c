@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:29:01 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,7 +50,7 @@
 #define liw1           (kin_mem->kin_liw1)
 #define uround         (kin_mem->kin_uround)
 #define func           (kin_mem->kin_func)
-#define f_data         (kin_mem->kin_f_data)
+#define user_data      (kin_mem->kin_user_data)
 #define printfl        (kin_mem->kin_printfl)
 #define linit          (kin_mem->kin_linit)
 #define lsetup         (kin_mem->kin_lsetup)
@@ -389,7 +389,7 @@ int kinDlsDenseDQJac(int N,
     inc = sqrt_relfunc*MAX(ABS(ujsaved), ujscale)*sign;
     u_data[j] += inc;
 
-    retval = func(u, ftemp, f_data);
+    retval = func(u, ftemp, user_data);
     if (retval != 0) return(-1); 
 
     u_data[j] = ujsaved;
@@ -470,7 +470,7 @@ int kinDlsBandDQJac(int N, int mupper, int mlower,
     }
 
     /* Evaluate f with incremented u */
-    retval = func(utemp, futemp, f_data);
+    retval = func(utemp, futemp, user_data);
     if (retval != 0) return(-1); 
 
     /* Restore utemp components, then form and load difference quotients */

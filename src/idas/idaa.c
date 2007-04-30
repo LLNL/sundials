@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -121,7 +121,7 @@ static int IDAAspgmrJacTimesVec(realtype tt,
 #define ytmp       (IDAADJ_mem->ia_ytmp)
 #define yptmp      (IDAADJ_mem->ia_yptmp)
 #define res_B      (IDAADJ_mem->ia_resB)
-#define rdata_B    (IDAADJ_mem->ia_rdataB)
+#define user_data_B    (IDAADJ_mem->ia_user_dataB)
 #define djac_B     (IDAADJ_mem->ia_djacB)
 #define bjac_B     (IDAADJ_mem->ia_bjacB)
 #define pset_B     (IDAADJ_mem->ia_psetB)
@@ -130,7 +130,7 @@ static int IDAAspgmrJacTimesVec(realtype tt,
 #define jdata_B    (IDAADJ_mem->ia_jdataB)
 #define pdata_B    (IDAADJ_mem->ia_pdataB)
 #define rhsQ_B     (IDAADJ_mem->ia_rhsQB)
-#define rdataQ_B   (IDAADJ_mem->ia_rdataQB)
+#define user_dataQ_B   (IDAADJ_mem->ia_user_dataQB)
 #define t_for_quad (IDAADJ_mem->ia_t_for_quad)
 
 /* Forward IDAS memory block */
@@ -550,13 +550,13 @@ int IDACreateB(void *idaadj_mem)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetRdataB(void *idaadj_mem, void *res_dataB)
+int IDASetUserDataB(void *idaadj_mem, void *user_dataB)
 {
   IDAadjMem IDAADJ_mem;
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
-  rdata_B = res_dataB;
+  user_data_B = user_dataB;
 
   return(IDA_SUCCESS);
 }
@@ -751,7 +751,7 @@ int IDASetQuadRdataB(void *idaadj_mem, void *rhs_dataQB)
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
-  rdataQ_B = rhs_dataQB;
+  user_dataQ_B = rhs_dataQB;
 
   return(IDA_SUCCESS);
 }
@@ -1652,7 +1652,7 @@ static int IDAAres(realtype tt,
   }
 
   /* Call user's adjoint RES routine */
-  flag = res_B(tt, ytmp, yptmp, yyB, ypB, rrB, rdata_B);
+  flag = res_B(tt, ytmp, yptmp, yyB, ypB, rrB, user_data_B);
 
   return(flag);
 
@@ -1681,7 +1681,7 @@ static void IDAArhsQ(realtype tt, N_Vector yyB, N_Vector ypB,
   }
 
   /* Call user's adjoint quadrature RHS routine */
-  rhsQ_B(tt, ytmp, yptmp, yyB, ypB, ypQB, rdataQ_B);
+  rhsQ_B(tt, ytmp, yptmp, yyB, ypB, ypQB, user_dataQ_B);
 
 }
 

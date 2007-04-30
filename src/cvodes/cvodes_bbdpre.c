@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-30 17:41:05 $
+ * $Revision: 1.11 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -467,9 +467,9 @@ static void cvBBDPrecFree(CVodeMem cv_mem)
 
 
 
-#define ewt    (cv_mem->cv_ewt)
-#define h      (cv_mem->cv_h)
-#define f_data (cv_mem->cv_f_data)
+#define ewt       (cv_mem->cv_ewt)
+#define h         (cv_mem->cv_h)
+#define user_data (cv_mem->cv_user_data)
 
 /*
  * -----------------------------------------------------------------
@@ -505,11 +505,11 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
 
   /* Call cfn and gloc to get base value of g(t,y) */
   if (cfn != NULL) {
-    retval = cfn(Nlocal, t, y, f_data);
+    retval = cfn(Nlocal, t, y, user_data);
     if (retval != 0) return(retval);
   }
 
-  retval = gloc(Nlocal, t, ytemp, gy, f_data);
+  retval = gloc(Nlocal, t, ytemp, gy, user_data);
   nge++;
   if (retval != 0) return(retval);
 
@@ -539,7 +539,7 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
     }
 
     /* Evaluate g with incremented y */
-    retval = gloc(Nlocal, t, ytemp, gtemp, f_data);
+    retval = gloc(Nlocal, t, ytemp, gtemp, user_data);
     nge++;
     if (retval != 0) return(retval);
 
@@ -717,7 +717,6 @@ static void CVBBDPrecFreeB(CVodeBMem cvB_mem)
  *
  * This routine interfaces to the CVLocalFnB routine 
  * provided by the user.
- * NOTE: f_data actually contains cvode_mem
  */
 
 static int cvGlocWrapper(int NlocalB, realtype t, N_Vector yB, N_Vector gB, void *cvode_mem)
@@ -744,7 +743,7 @@ static int cvGlocWrapper(int NlocalB, realtype t, N_Vector yB, N_Vector gB, void
   } 
 
   /* Call user's adjoint glocB routine */
-  retval = gloc_B(NlocalB, t, ytmp, yB, gB, cvB_mem->cv_f_data);
+  retval = gloc_B(NlocalB, t, ytmp, yB, gB, cvB_mem->cv_user_data);
 
   return(retval);
 }
@@ -754,7 +753,6 @@ static int cvGlocWrapper(int NlocalB, realtype t, N_Vector yB, N_Vector gB, void
  *
  * This routine interfaces to the CVCommFnB routine 
  * provided by the user.
- * NOTE: f_data actually contains cvadj_mem
  */
 
 static int cvCfnWrapper(int NlocalB, realtype t, N_Vector yB, void *cvode_mem)
@@ -783,7 +781,7 @@ static int cvCfnWrapper(int NlocalB, realtype t, N_Vector yB, void *cvode_mem)
   } 
 
   /* Call user's adjoint cfnB routine */
-  retval = cfn_B(NlocalB, t, ytmp, yB, cvB_mem->cv_f_data);
+  retval = cfn_B(NlocalB, t, ytmp, yB, cvB_mem->cv_user_data);
 
   return(retval);
 }

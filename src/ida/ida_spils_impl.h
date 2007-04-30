@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -81,7 +81,7 @@ typedef struct IDASpilsMemRec {
 
   /* Preconditioner computation
    * (a) user-provided:
-   *     - pdata == res_data
+   *     - pdata == user_data
    *     - pfree == NULL (the user dealocates memory for f_data)
    * (b) internal preconditioner module
    *     - pdata == ida_mem
@@ -95,7 +95,7 @@ typedef struct IDASpilsMemRec {
   
   /* Jacobian times vector compuation
    * (a) jtimes function provided by the user:
-   *     - jdata == res_data
+   *     - jdata == user_data
    *     - jtimesDQ == FALSE
    * (b) internal jtimes
    *     - jdata == ida_mem

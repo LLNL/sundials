@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-26 23:17:27 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -105,7 +105,7 @@ extern "C" {
  * the dependent variable vector yy, and the derivative (with     
  * respect to t) of the yy vector, yp.  It stores the result of   
  * F(t,y,y') in the vector rr. The yy, yp, and rr arguments are of 
- * type N_Vector. The res_data parameter is the pointer res_data 
+ * type N_Vector. The user_data parameter is the pointer user_data 
  * passed by the user to the IDASetRdata routine. This user-supplied 
  * pointer is passed to the user's res function every time it is called, 
  * to provide access in res to user data.                                    
@@ -119,7 +119,7 @@ extern "C" {
  */
 
 typedef int (*IDAResFn)(realtype tt, N_Vector yy, N_Vector yp,
-			N_Vector rr, void *res_data);
+			N_Vector rr, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -131,7 +131,7 @@ typedef int (*IDAResFn)(realtype tt, N_Vector yy, N_Vector yp,
  * the dependent variable vector y, and its t-derivative yp (= y').
  * It stores the nrtfn values g_i(t,y,y') in the realtype array gout.
  * (Allocation of memory for gout is handled within IDA.)
- * The res_data parameter is the same as that passed by the user
+ * The user_data parameter is the same as that passed by the user
  * to the IDASetRdata routine.  This user-supplied pointer is
  * passed to the user's g function every time it is called.
  *
@@ -141,7 +141,7 @@ typedef int (*IDAResFn)(realtype tt, N_Vector yy, N_Vector yp,
  */
 
 typedef int (*IDARootFn)(realtype t, N_Vector y, N_Vector yp,
-			 realtype *gout, void *res_data);
+			 realtype *gout, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -158,7 +158,7 @@ typedef int (*IDARootFn)(realtype t, N_Vector y, N_Vector yp,
  * 
  *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
  *
- * The res_data parameter is the same as that passed by the user
+ * The user_data parameter is the same as that passed by the user
  * to the IDASetRdata routine.  This user-supplied pointer is
  * passed to the user's e function every time it is called.
  * An IDAEwtFn e must return 0 if the error weight vector has been
@@ -166,7 +166,7 @@ typedef int (*IDARootFn)(realtype t, N_Vector y, N_Vector yp,
  * -----------------------------------------------------------------
  */
 
-typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *res_data);
+typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -187,7 +187,7 @@ typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *res_data);
 
 typedef void (*IDAErrHandlerFn)(int error_code, 
 				const char *module, const char *function, 
-				char *msg, void *res_data); 
+				char *msg, void *user_data); 
 
 /*
  * ================================================================
@@ -240,9 +240,9 @@ SUNDIALS_EXPORT void *IDACreate(void);
  *                      | be written to the standard error stream.
  *                      | [stderr]
  *                      |                                          
- * IDASetRdata          | a pointer to user data that will be     
+ * IDASetUserData       | a pointer to user data that will be     
  *                      | passed to the user's res function every 
- *                      | time res is called.                     
+ *                      | time a user-supplied function is called.                     
  *                      | [NULL]                                  
  *                      |         
  * IDASetMaxOrd         | maximum lmm order to be used by the     
@@ -336,7 +336,7 @@ SUNDIALS_EXPORT void *IDACreate(void);
 
 SUNDIALS_EXPORT int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun);
 SUNDIALS_EXPORT int IDASetErrFile(void *ida_mem, FILE *errfp);
-SUNDIALS_EXPORT int IDASetRdata(void *ida_mem, void *res_data);
+SUNDIALS_EXPORT int IDASetUserData(void *ida_mem, void *user_data);
 SUNDIALS_EXPORT int IDASetMaxOrd(void *ida_mem, int maxord);
 SUNDIALS_EXPORT int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
 SUNDIALS_EXPORT int IDASetInitStep(void *ida_mem, realtype hin);

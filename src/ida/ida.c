@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-04-26 23:17:26 $
+ * $Revision: 1.14 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -300,7 +300,7 @@ void *IDACreate(void)
 
   /* Set default values for integrator optional inputs */
   IDA_mem->ida_res         = NULL;
-  IDA_mem->ida_rdata       = NULL;
+  IDA_mem->ida_user_data   = NULL;
   IDA_mem->ida_itol        = IDA_NN;
   IDA_mem->ida_efun        = NULL;
   IDA_mem->ida_edata       = NULL;
@@ -693,7 +693,7 @@ int IDAWFtolerances(void *ida_mem, IDAEwtFn efun)
 
   IDA_mem->ida_itol = IDA_WF;
   IDA_mem->ida_efun = efun;
-  IDA_mem->ida_edata = IDA_mem->ida_rdata;
+  IDA_mem->ida_edata = IDA_mem->ida_user_data;
 
 }
 
@@ -861,7 +861,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 #define efun  (IDA_mem->ida_efun)
 #define edata (IDA_mem->ida_edata)
 
-#define rdata       (IDA_mem->ida_rdata)
+#define user_data   (IDA_mem->ida_user_data)
 #define maxord      (IDA_mem->ida_maxord)
 #define mxstep      (IDA_mem->ida_mxstep)
 #define hin         (IDA_mem->ida_hin)
@@ -2213,7 +2213,7 @@ static int IDANls(IDAMem IDA_mem)
     /* Compute predicted values for yy and yp, and compute residual there. */
     IDAPredict(IDA_mem);
 
-    retval = res(tn, yy, yp, delta, rdata);
+    retval = res(tn, yy, yp, delta, user_data);
     nre++;
     if (retval < 0) return(IDA_RES_FAIL);
     if (retval > 0) return(IDA_RES_RECVR);
@@ -2370,7 +2370,7 @@ static int IDANewtonIter(IDAMem IDA_mem)
     if (mnewt >= maxcor) {retval = IDA_NCONV_RECVR; break;}
 
     /* Call res for new residual and check error flag from res. */
-    retval = res(tn, yy, yp, delta, rdata);
+    retval = res(tn, yy, yp, delta, user_data);
     nre++;
     if (retval < 0) return(IDA_RES_FAIL);
     if (retval > 0) return(IDA_RES_RECVR);
@@ -2785,7 +2785,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   ttol = (ABS(tn) + ABS(hh))*uround*HUNDRED;
 
   /* Evaluate g at initial t and check for zero values. */
-  retval = gfun (tlo, phi[0], phi[1], glo, rdata);
+  retval = gfun (tlo, phi[0], phi[1], glo, user_data);
   nge = 1;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -2800,7 +2800,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   smallh = hratio*hh;
   tlo += smallh;
   N_VLinearSum(ONE, phi[0], smallh, phi[1], yy);
-  retval = gfun (tlo, yy, phi[1], glo, rdata);  
+  retval = gfun (tlo, yy, phi[1], glo, user_data);  
   nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -2845,7 +2845,7 @@ static int IDARcheck2(IDAMem IDA_mem)
   if (irfnd == 0) return(IDA_SUCCESS);
 
   (void) IDAGetSolution(IDA_mem, tlo, yy, yp);
-  retval = gfun (tlo, yy, yp, glo, rdata);  
+  retval = gfun (tlo, yy, yp, glo, user_data);  
   nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -2869,7 +2869,7 @@ static int IDARcheck2(IDAMem IDA_mem)
   } else {
     (void) IDAGetSolution(IDA_mem, tlo, yy, yp);
   }
-  retval = gfun (tlo, yy, yp, glo, rdata);  
+  retval = gfun (tlo, yy, yp, glo, user_data);  
   nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -2913,7 +2913,7 @@ static int IDARcheck3(IDAMem IDA_mem)
 
 
   /* Set ghi = g(thi) and call IDARootfind to search (tlo,thi) for roots. */
-  retval = gfun (thi, yy, yp, ghi, rdata);  
+  retval = gfun (thi, yy, yp, ghi, user_data);  
   nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -2951,7 +2951,7 @@ static int IDARcheck3(IDAMem IDA_mem)
  *            the vector-valued function g(t).  Input only.
  *
  * gfun     = user-defined function for g(t).  Its form is
- *           (void) gfun(t, y, yp, gt, rdata)
+ *           (void) gfun(t, y, yp, gt, user_data)
  *
  * rootdir  = in array specifying the direction of zero-crossings.
  *            If rootdir[i] > 0, search for roots of g_i only if
@@ -3082,7 +3082,7 @@ static int IDARootfind(IDAMem IDA_mem)
     }
 
     (void) IDAGetSolution(IDA_mem, tmid, yy, yp);
-    retval = gfun (tmid, yy, yp, grout, rdata);  
+    retval = gfun (tmid, yy, yp, grout, user_data);  
     nge++;
     if (retval != 0) return(IDA_RTFUNC_FAIL);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-27 18:56:28 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -166,21 +166,21 @@ typedef struct {
  *------------------------------------------------------------------
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int f_local(int Nlocal, realtype t, N_Vector y, 
-                   N_Vector ydot, void *f_data);
+                   N_Vector ydot, void *user_data);
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data);
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
 
 
 static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
-              void *f_dataB);
+              void *user_dataB);
 static int fB_local(int NlocalB, realtype t, 
                     N_Vector y, N_Vector yB, N_Vector yBdot, 
-                    void *f_dataB);
+                    void *user_dataB);
 
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
-               N_Vector qBdot, void *f_dataB);
+               N_Vector qBdot, void *user_dataB);
 
 /*
  *------------------------------------------------------------------
@@ -191,7 +191,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
 static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
                     int *neq, int *l_neq);
 static void SetSource(ProblemData d);
-static void f_comm(int Nlocal, realtype t, N_Vector y, void *f_data);
+static void f_comm(int Nlocal, realtype t, N_Vector y, void *user_data);
 static void Load_yext(realtype *src, ProblemData d);
 static void PrintHeader();
 static void PrintFinalStats(void *cvode_mem);
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
 
   /* Create CVODES object, attach user data, and allocate space */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  flag = CVodeSetFdata(cvode_mem, d);
+  flag = CVodeSetUserData(cvode_mem, d);
   flag = CVodeInit(cvode_mem, f, ti, y);
   abstol = ATOL;  
   reltol = RTOL;   
@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
 
   /* Create and allocate backward CVODE memory */
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
-  flag = CVodeSetFdataB(cvode_mem, indexB, d);
+  flag = CVodeSetUserDataB(cvode_mem, indexB, d);
   flag = CVodeInitB(cvode_mem, indexB, fB, tf, yB);
   abstolB = ATOL_B;  
   reltolB = RTOL_B; 
@@ -571,7 +571,7 @@ static void SetSource(ProblemData d)
  *------------------------------------------------------------------
  */
 
-static void f_comm(int N_local, realtype t, N_Vector y, void *f_data)
+static void f_comm(int N_local, realtype t, N_Vector y, void *user_data)
 {
   int id, n[DIM], proc_cond[DIM], nbr[DIM][2];
   ProblemData d;
@@ -583,7 +583,7 @@ static void f_comm(int N_local, realtype t, N_Vector y, void *f_data)
   MPI_Comm comm;
   int dir, size = 1, small = INT_MAX;
 
-  d  = (ProblemData) f_data;
+  d  = (ProblemData) user_data;
   comm = d->comm;
   id = d->myId;
   
@@ -681,26 +681,26 @@ static void f_comm(int N_local, realtype t, N_Vector y, void *f_data)
  *------------------------------------------------------------------
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   ProblemData d;
   int l_neq=1;
   int dim;
 
-  d = (ProblemData) f_data;
+  d = (ProblemData) user_data;
   FOR_DIM l_neq *= d->l_m[dim];
   
   /* Do all inter-processor communication */
-  f_comm(l_neq, t, y, f_data);
+  f_comm(l_neq, t, y, user_data);
 
   /* Compute right-hand side locally */
-  f_local(l_neq, t, y, ydot, f_data);
+  f_local(l_neq, t, y, ydot, user_data);
 
   return(0);
 }
 
 static int f_local(int Nlocal, realtype t, N_Vector y, 
-                   N_Vector ydot, void *f_data)
+                   N_Vector ydot, void *user_data)
 {
   realtype *Ydata, *dydata, *pdata;
   realtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
@@ -710,7 +710,7 @@ static int f_local(int Nlocal, realtype t, N_Vector y,
   ProblemData d;
   int dim;
 
-  d = (ProblemData) f_data;
+  d = (ProblemData) user_data;
 
   /* Extract stuff from data structure */
   id = d->myId;
@@ -797,12 +797,12 @@ static int f_local(int Nlocal, realtype t, N_Vector y,
  *------------------------------------------------------------------
  */
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data)
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
 {
   ProblemData d;
   realtype *dqdata;
 
-  d = (ProblemData) f_data;
+  d = (ProblemData) user_data;
 
   dqdata = NV_DATA_P(qdot);
 
@@ -820,27 +820,27 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data)
  */
 
 static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
-              void *f_dataB)
+              void *user_dataB)
 {
   ProblemData d;
   int l_neq=1;
   int dim;
 
-  d = (ProblemData) f_dataB;
+  d = (ProblemData) user_dataB;
   FOR_DIM l_neq *= d->l_m[dim];
   
   /* Do all inter-processor communication */
-  f_comm(l_neq, t, yB, f_dataB);
+  f_comm(l_neq, t, yB, user_dataB);
 
   /* Compute right-hand side locally */
-  fB_local(l_neq, t, y, yB, yBdot, f_dataB);
+  fB_local(l_neq, t, y, yB, yBdot, user_dataB);
 
   return(0);
 }
 
 static int fB_local(int NlocalB, realtype t, 
                     N_Vector y, N_Vector yB, N_Vector dyB, 
-                    void *f_dataB)
+                    void *user_dataB)
 {
   realtype *YBdata, *dyBdata, *ydata;
   realtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
@@ -850,7 +850,7 @@ static int fB_local(int NlocalB, realtype t,
   ProblemData d;
   int dim;
   
-  d = (ProblemData) f_dataB;
+  d = (ProblemData) user_dataB;
 
   /* Extract stuff from data structure */
   id = d->myId;
@@ -938,11 +938,11 @@ static int fB_local(int NlocalB, realtype t,
  */
 
 static int fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, 
-               void *f_dataB)
+               void *user_dataB)
 {
   ProblemData d;
 
-  d = (ProblemData) f_dataB;
+  d = (ProblemData) user_dataB;
 
   N_VScale_Parallel(-(d->dOmega), yB, qBdot);
 

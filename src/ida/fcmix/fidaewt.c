@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -60,7 +60,7 @@ void FIDA_EWTSET(int *flag, int *ier)
  * C function to interface between IDA and a Fortran subroutine FIDAVEWT.
  */
 
-int FIDAEwtSet(N_Vector y, N_Vector ewt, void *res_data)
+int FIDAEwtSet(N_Vector y, N_Vector ewt, void *user_data)
 {
   int ier;
   realtype *y_data, *ewt_data;
@@ -78,7 +78,7 @@ int FIDAEwtSet(N_Vector y, N_Vector ewt, void *res_data)
   y_data   = N_VGetArrayPointer(y);
   ewt_data = N_VGetArrayPointer(ewt);
 
-  IDA_userdata = (FIDAUserData) res_data;
+  IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
   FIDA_EWT(y_data, ewt_data, IDA_userdata->ipar, IDA_userdata->rpar, &ier);

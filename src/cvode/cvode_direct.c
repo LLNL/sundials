@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-23 23:37:19 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -46,31 +46,31 @@
  * =================================================================
  */
 
-#define f              (cv_mem->cv_f)
-#define f_data         (cv_mem->cv_f_data)
-#define uround         (cv_mem->cv_uround)
-#define nst            (cv_mem->cv_nst)
-#define tn             (cv_mem->cv_tn)
-#define h              (cv_mem->cv_h)
-#define gamma          (cv_mem->cv_gamma)
-#define gammap         (cv_mem->cv_gammap)
-#define gamrat         (cv_mem->cv_gamrat)
-#define ewt            (cv_mem->cv_ewt)
+#define f         (cv_mem->cv_f)
+#define user_data (cv_mem->cv_user_data)
+#define uround    (cv_mem->cv_uround)
+#define nst       (cv_mem->cv_nst)
+#define tn        (cv_mem->cv_tn)
+#define h         (cv_mem->cv_h)
+#define gamma     (cv_mem->cv_gamma)
+#define gammap    (cv_mem->cv_gammap)
+#define gamrat    (cv_mem->cv_gamrat)
+#define ewt       (cv_mem->cv_ewt)
 
-#define lmem           (cv_mem->cv_lmem)
+#define lmem      (cv_mem->cv_lmem)
 
-#define mtype          (cvdls_mem->d_type)
-#define n              (cvdls_mem->d_n)
-#define ml             (cvdls_mem->d_ml)
-#define mu             (cvdls_mem->d_mu)
-#define smu            (cvdls_mem->d_smu)
-#define jacDQ          (cvdls_mem->d_jacDQ)
-#define djac           (cvdls_mem->d_djac)
-#define bjac           (cvdls_mem->d_bjac)
-#define M              (cvdls_mem->d_M)
-#define nje            (cvdls_mem->d_nje)
-#define nfeDQ          (cvdls_mem->d_nfeDQ)
-#define last_flag      (cvdls_mem->d_last_flag)
+#define mtype     (cvdls_mem->d_type)
+#define n         (cvdls_mem->d_n)
+#define ml        (cvdls_mem->d_ml)
+#define mu        (cvdls_mem->d_mu)
+#define smu       (cvdls_mem->d_smu)
+#define jacDQ     (cvdls_mem->d_jacDQ)
+#define djac      (cvdls_mem->d_djac)
+#define bjac      (cvdls_mem->d_bjac)
+#define M         (cvdls_mem->d_M)
+#define nje       (cvdls_mem->d_nje)
+#define nfeDQ     (cvdls_mem->d_nfeDQ)
+#define last_flag (cvdls_mem->d_last_flag)
 
 /* 
  * =================================================================
@@ -357,7 +357,7 @@ int cvDlsDenseDQJac(int N, realtype t,
     inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
 
-    retval = f(t, y, ftemp, f_data);
+    retval = f(t, y, ftemp, user_data);
     nfeDQ++;
     if (retval != 0) break;
     
@@ -441,7 +441,7 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
 
     /* Evaluate f with incremented y */
 
-    retval = f(tn, ytemp, ftemp, f_data);
+    retval = f(tn, ytemp, ftemp, user_data);
     nfeDQ++;
     if (retval != 0) break;
 

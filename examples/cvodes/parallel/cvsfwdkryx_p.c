@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-27 18:56:28 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -153,17 +153,17 @@ typedef struct {
 
 /* Functions Called by the CVODES Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *f_data, 
+                   realtype gamma, void *user_data, 
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *f_data, N_Vector vtemp);
+                  int lr, void *user_data, N_Vector vtemp);
 
 /* Private Helper Functions */
 
@@ -264,8 +264,8 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSetFdata(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if (check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVodeSetMaxNumSteps(cvode_mem, 2000);
   if (check_flag(&flag, "CVodeSetMaxNumSteps", 1, my_pe)) MPI_Abort(comm, 1);
@@ -384,14 +384,14 @@ int main(int argc, char *argv[])
  * subgrid boundary data into uext.  Then calculate f by a call to fcalc. 
  */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype *udata, *dudata;
   UserData data;
 
   udata = NV_DATA_P(u);
   dudata = NV_DATA_P(udot);
-  data = (UserData) f_data;
+  data = (UserData) user_data;
 
   /* Call ucomm to do inter-processor communicaiton */
   ucomm (t, u, data);
@@ -408,7 +408,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *f_data, 
+                   realtype gamma, void *user_data, 
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
@@ -420,9 +420,9 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   UserData data;
   realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
-  /* Make local copies of pointers in f_data, pointer to u's data,
+  /* Make local copies of pointers in user_data, pointer to u's data,
      and PE index pair */
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
@@ -507,7 +507,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
-                  int lr, void *f_data, N_Vector vtemp)
+                  int lr, void *user_data, N_Vector vtemp)
 {
   realtype **(*P)[MYSUB];
   int nvmxsub, *(*pivot)[MYSUB];
@@ -515,8 +515,8 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   realtype *zdata, *v;
   UserData data;
 
-  /* Extract the P and pivot arrays from P_data */
-  data = (UserData) f_data;
+  /* Extract the P and pivot arrays from user_data */
+  data = (UserData) user_data;
   P = data->P;
   pivot = data->pivot;
 

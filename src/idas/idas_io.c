@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-26 23:17:27 $
+ * $Revision: 1.11 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -54,7 +54,7 @@ int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun)
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_ehfun = ehfun;
-  IDA_mem->ida_eh_data = IDA_mem->ida_rdata;
+  IDA_mem->ida_eh_data = IDA_mem->ida_user_data;
 
   return(IDA_SUCCESS);
 }
@@ -78,18 +78,18 @@ int IDASetErrFile(void *ida_mem, FILE *errfp)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetRdata(void *ida_mem, void *res_data)
+int IDASetUserData(void *ida_mem, void *user_data)
 {
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetRdata", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetUserData", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
-  IDA_mem->ida_rdata = res_data;
+  IDA_mem->ida_user_data = user_data;
 
   return(IDA_SUCCESS);
 }
@@ -609,18 +609,18 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetQuadRdata(void *ida_mem, void *rhsQ_data)
+int IDASetQuadUser_Data(void *ida_mem, void *rhsQ_data)
 {
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetQuadRdata", MSG_NO_MEM);    
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetQuadUser_Data", MSG_NO_MEM);    
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
-  IDA_mem->ida_rdataQ = rhsQ_data;
+  IDA_mem->ida_user_dataQ = rhsQ_data;
 
   return(IDA_SUCCESS);
 }
@@ -733,12 +733,12 @@ int IDASetSensResFn(void *ida_mem, IDASensResFn resS, void *resS_data)
 
   if (resS != NULL) {
     IDA_mem->ida_resS    = resS;
-    IDA_mem->ida_rdataS  = resS_data;
+    IDA_mem->ida_user_dataS  = resS_data;
     IDA_mem->ida_resSDQ  = FALSE;
   } else {
-    IDA_mem->ida_resS    = IDASensResDQ;
-    IDA_mem->ida_rdataS  = ida_mem;
-    IDA_mem->ida_resSDQ  = TRUE;
+    IDA_mem->ida_resS       = IDASensResDQ;
+    IDA_mem->ida_user_dataS = ida_mem;
+    IDA_mem->ida_resSDQ     = TRUE;
   }
 
   return(IDA_SUCCESS);

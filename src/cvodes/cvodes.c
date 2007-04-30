@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2007-04-26 23:17:26 $
+ * $Revision: 1.20 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -663,26 +663,26 @@ void *CVodeCreate(int lmm, int iter)
 
   /* Set default values for integrator optional inputs */
 
-  cv_mem->cv_f        = NULL;
-  cv_mem->cv_f_data   = NULL;
-  cv_mem->cv_itol     = CV_NN;
-  cv_mem->cv_efun     = NULL;
-  cv_mem->cv_e_data   = NULL;
-  cv_mem->cv_ehfun    = cvErrHandler;
-  cv_mem->cv_eh_data  = cv_mem;
-  cv_mem->cv_errfp    = stderr;
-  cv_mem->cv_qmax     = maxord;
-  cv_mem->cv_mxstep   = MXSTEP_DEFAULT;
-  cv_mem->cv_mxhnil   = MXHNIL_DEFAULT;
-  cv_mem->cv_sldeton  = FALSE;
-  cv_mem->cv_hin      = ZERO;
-  cv_mem->cv_hmin     = HMIN_DEFAULT;
-  cv_mem->cv_hmax_inv = HMAX_INV_DEFAULT;
-  cv_mem->cv_tstopset = FALSE;
-  cv_mem->cv_maxcor   = NLS_MAXCOR;
-  cv_mem->cv_maxnef   = MXNEF;
-  cv_mem->cv_maxncf   = MXNCF;
-  cv_mem->cv_nlscoef  = CORTES;
+  cv_mem->cv_f         = NULL;
+  cv_mem->cv_user_data = NULL;
+  cv_mem->cv_itol      = CV_NN;
+  cv_mem->cv_efun      = NULL;
+  cv_mem->cv_e_data    = NULL;
+  cv_mem->cv_ehfun     = cvErrHandler;
+  cv_mem->cv_eh_data   = cv_mem;
+  cv_mem->cv_errfp     = stderr;
+  cv_mem->cv_qmax      = maxord;
+  cv_mem->cv_mxstep    = MXSTEP_DEFAULT;
+  cv_mem->cv_mxhnil    = MXHNIL_DEFAULT;
+  cv_mem->cv_sldeton   = FALSE;
+  cv_mem->cv_hin       = ZERO;
+  cv_mem->cv_hmin      = HMIN_DEFAULT;
+  cv_mem->cv_hmax_inv  = HMAX_INV_DEFAULT;
+  cv_mem->cv_tstopset  = FALSE;
+  cv_mem->cv_maxcor    = NLS_MAXCOR;
+  cv_mem->cv_maxnef    = MXNEF;
+  cv_mem->cv_maxncf    = MXNCF;
+  cv_mem->cv_nlscoef   = CORTES;
 
   /* Initialize root finding variables */
 
@@ -1140,7 +1140,7 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
 
   cv_mem->cv_itol = CV_WF;
   cv_mem->cv_efun = efun;
-  cv_mem->cv_e_data = cv_mem->cv_f_data;
+  cv_mem->cv_e_data = cv_mem->cv_user_data;
 
 }
 
@@ -1446,7 +1446,7 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
 
     cv_mem->cv_fSDQ = FALSE;
     cv_mem->cv_fS   = fS;
-    cv_mem->cv_fS_data = cv_mem->cv_f_data;
+    cv_mem->cv_fS_data = cv_mem->cv_user_data;
 
   }
 
@@ -1567,7 +1567,7 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
 
     cv_mem->cv_fSDQ = FALSE;
     cv_mem->cv_fS1  = fS1;
-    cv_mem->cv_fS_data = cv_mem->cv_f_data;
+    cv_mem->cv_fS_data = cv_mem->cv_user_data;
 
   }
 
@@ -1962,7 +1962,7 @@ int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
     cv_mem->cv_fQSDQ = FALSE;
     cv_mem->cv_fQS = fQS;
 
-    cv_mem->cv_fS_data = cv_mem->cv_f_data;
+    cv_mem->cv_fS_data = cv_mem->cv_user_data;
 
   }
 
@@ -2394,7 +2394,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
  */
 
 #define f              (cv_mem->cv_f)      
-#define f_data         (cv_mem->cv_f_data) 
+#define user_data      (cv_mem->cv_user_data) 
 #define efun           (cv_mem->cv_efun)
 #define e_data         (cv_mem->cv_e_data) 
 #define qmax           (cv_mem->cv_qmax)
@@ -2658,7 +2658,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
      * If computing quadr. sensi., call fQS at (t0,y0,yS0), set znQS[1][is] = yQS'(t0), is=1,...,Ns.
      */
 
-    retval = f(tn, zn[0], zn[1], f_data); 
+    retval = f(tn, zn[0], zn[1], user_data); 
     nfe++;
     if (retval < 0) {
       cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODES", "CVode", MSGCV_RHSFUNC_FAILED, tn);
@@ -2670,7 +2670,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     }
 
     if (quadr) {
-      retval = fQ(tn, zn[0], znQ[1], f_data);
+      retval = fQ(tn, zn[0], znQ[1], user_data);
       nfQe++;
       if (retval < 0) {
         cvProcessError(cv_mem, CV_QRHSFUNC_FAIL, "CVODES", "CVode", MSGCV_QRHSFUNC_FAILED, tn);
@@ -4461,13 +4461,13 @@ static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
   
   /* tempv <- f(t+h, h*y'(t)+y(t)) */
 
-  retval = f(tn+hg, y, tempv, f_data);
+  retval = f(tn+hg, y, tempv, user_data);
   nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
   if (quadr && errconQ) {
-    retval = fQ(tn+hg, y, tempvQ, f_data);
+    retval = fQ(tn+hg, y, tempvQ, user_data);
     nfQe++;
     if (retval < 0) return(CV_QRHSFUNC_FAIL);
     if (retval > 0) return(QRHSFUNC_RECVR);
@@ -5104,7 +5104,7 @@ static int cvStep(CVodeMem cv_mem)
        * If f() fails recoverably, treat it as a convergence failure and 
        * attempt the step again */
 
-      retval = f(tn, y, ftemp, f_data);
+      retval = f(tn, y, ftemp, user_data);
       nfe++;
       if (retval < 0) return(CV_RHSFUNC_FAIL);
       if (retval > 0) {
@@ -5859,7 +5859,7 @@ static int cvNlsFunctional(CVodeMem cv_mem)
   /* Initialize delS and Delp to avoid compiler warning message */
   delS = Delp = ZERO;
 
-  retval = f(tn, zn[0], tempv, f_data);
+  retval = f(tn, zn[0], tempv, user_data);
   nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -5950,7 +5950,7 @@ static int cvNlsFunctional(CVodeMem cv_mem)
 
     Delp = Del;
 
-    retval = f(tn, y, tempv, f_data);
+    retval = f(tn, y, tempv, user_data);
     nfe++;
     if (retval < 0) return(CV_RHSFUNC_FAIL);
     if (retval > 0) return(RHSFUNC_RECVR);
@@ -6040,7 +6040,7 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
 
   loop {
 
-    retval = f(tn, zn[0], ftemp, f_data);
+    retval = f(tn, zn[0], ftemp, user_data);
     nfe++; 
     if (retval < 0) return(CV_RHSFUNC_FAIL);
     if (retval > 0) return(RHSFUNC_RECVR);
@@ -6223,7 +6223,7 @@ static int cvNewtonIteration(CVodeMem cv_mem)
     
     /* Save norm of correction, evaluate f, and loop again */
     Delp = Del;
-    retval = f(tn, y, ftemp, f_data);
+    retval = f(tn, y, ftemp, user_data);
     nfe++;
     if (retval < 0) return(CV_RHSFUNC_FAIL);
     if (retval > 0) {
@@ -6267,7 +6267,7 @@ static int cvQuadNls(CVodeMem cv_mem)
   int retval;
 
   /* Save quadrature correction in acorQ */
-  retval = fQ(tn, y, acorQ, f_data);
+  retval = fQ(tn, y, acorQ, user_data);
   nfQe++;
   if (retval < 0) return(CV_QRHSFUNC_FAIL);
   if (retval > 0) return(QRHSFUNC_RECVR);
@@ -6308,7 +6308,7 @@ static int cvQuadSensNls(CVodeMem cv_mem)
   int is, retval;
 
   /* Save quadrature correction in acorQ */
-  retval = fQS(Ns, tn, y, yS, ftempQ, acorQS, f_data, tempv, tempvQ);
+  retval = fQS(Ns, tn, y, yS, ftempQ, acorQS, user_data, tempv, tempvQ);
   nfQSe++;
   if (retval < 0) return(CV_QSRHSFUNC_FAIL);
   if (retval > 0) return(QSRHSFUNC_RECVR);
@@ -7108,7 +7108,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   qwait = LONG_WAIT;
   nscon = 0;
 
-  retval = f(tn, zn[0], tempv, f_data);
+  retval = f(tn, zn[0], tempv, user_data);
   nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(CV_UNREC_RHSFUNC_ERR);
@@ -7117,7 +7117,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
   if (quadr) {
 
-    retval = fQ(tn, zn[0], tempvQ, f_data);
+    retval = fQ(tn, zn[0], tempvQ, user_data);
     nfQe++;
     if (retval < 0) return(CV_QRHSFUNC_FAIL);
     if (retval > 0) return(CV_UNREC_QRHSFUNC_ERR);
@@ -7955,7 +7955,7 @@ static int cvRcheck1(CVodeMem cv_mem)
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
 
   /* Evaluate g at initial t and check for zero values. */
-  retval = gfun(tlo, zn[0], glo, f_data);
+  retval = gfun(tlo, zn[0], glo, user_data);
   nge = 1;
   if (retval != 0) return(CV_RTFUNC_FAIL);
   
@@ -7970,7 +7970,7 @@ static int cvRcheck1(CVodeMem cv_mem)
   smallh = hratio*h;
   tlo += smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
-  retval = gfun(tlo, y, glo, f_data);
+  retval = gfun(tlo, y, glo, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -8015,7 +8015,7 @@ static int cvRcheck2(CVodeMem cv_mem)
   if (irfnd == 0) return(CV_SUCCESS);
 
   (void) CVodeGetDky(cv_mem, tlo, 0, y);
-  retval = gfun(tlo, y, glo, f_data);
+  retval = gfun(tlo, y, glo, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -8039,7 +8039,7 @@ static int cvRcheck2(CVodeMem cv_mem)
   } else {
     (void) CVodeGetDky(cv_mem, tlo, 0, y);
   }
-  retval = gfun(tlo, y, glo, f_data);
+  retval = gfun(tlo, y, glo, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -8088,7 +8088,7 @@ static int cvRcheck3(CVodeMem cv_mem)
   }
 
   /* Set ghi = g(thi) and call cvRootFind to search (tlo,thi) for roots. */
-  retval = gfun(thi, y, ghi, f_data);
+  retval = gfun(thi, y, ghi, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -8126,7 +8126,7 @@ static int cvRcheck3(CVodeMem cv_mem)
  *            the vector-valued function g(t).  Input only.
  *
  * gfun     = user-defined function for g(t).  Its form is
- *            (void) gfun(t, y, gt, f_data)
+ *            (void) gfun(t, y, gt, user_data)
  *
  * rootdir  = in array specifying the direction of zero-crossings.
  *            If rootdir[i] > 0, search for roots of g_i only if
@@ -8256,7 +8256,7 @@ static int cvRootFind(CVodeMem cv_mem)
     }
 
     (void) CVodeGetDky(cv_mem, tmid, 0, y);
-    retval = gfun(tmid, y, grout, f_data);
+    retval = gfun(tmid, y, grout, user_data);
     nge++;
     if (retval != 0) return(CV_RTFUNC_FAIL);
 
@@ -8607,14 +8607,14 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     N_VLinearSum(ONE,y,Delta,yS,ytemp);
     p[which] = psave + Delta;
 
-    retval = f(t, ytemp, ySdot, f_data);
+    retval = f(t, ytemp, ySdot, user_data);
     nfel++;
     if (retval != 0) return(retval);
     
     N_VLinearSum(ONE,y,-Delta,yS,ytemp);
     p[which] = psave - Delta;
 
-    retval = f(t, ytemp, ftemp, f_data);
+    retval = f(t, ytemp, ftemp, user_data);
     nfel++;
     if (retval != 0) return(retval);
 
@@ -8629,25 +8629,25 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     
     N_VLinearSum(ONE,y,Deltay,yS,ytemp);
 
-    retval = f(t, ytemp, ySdot, f_data);
+    retval = f(t, ytemp, ySdot, user_data);
     nfel++;
     if (retval != 0) return(retval);
 
     N_VLinearSum(ONE,y,-Deltay,yS,ytemp);
 
-    retval = f(t, ytemp, ftemp, f_data);
+    retval = f(t, ytemp, ftemp, user_data);
     nfel++;
     if (retval != 0) return(retval);
 
     N_VLinearSum(r2Deltay, ySdot, -r2Deltay, ftemp, ySdot);
     
     p[which] = psave + Deltap;
-    retval = f(t, y, ytemp, f_data);
+    retval = f(t, y, ytemp, user_data);
     nfel++;
     if (retval != 0) return(retval);
 
     p[which] = psave - Deltap;
-    retval = f(t, y, ftemp, f_data);
+    retval = f(t, y, ftemp, user_data);
     nfel++;
     if (retval != 0) return(retval);
 
@@ -8665,7 +8665,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     N_VLinearSum(ONE,y,Delta,yS,ytemp);
     p[which] = psave + Delta;
 
-    retval = f(t, ytemp, ySdot, f_data);
+    retval = f(t, ytemp, ySdot, user_data);
     nfel++;
     if (retval != 0) return(retval);
     
@@ -8677,14 +8677,14 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     
     N_VLinearSum(ONE,y,Deltay,yS,ytemp);
 
-    retval = f(t, ytemp, ySdot, f_data);
+    retval = f(t, ytemp, ySdot, user_data);
     nfel++;
     if (retval != 0) return(retval);
 
     N_VLinearSum(rDeltay, ySdot, -rDeltay, ydot, ySdot);
     
     p[which] = psave + Deltap;
-    retval = f(t, y, ytemp, f_data);
+    retval = f(t, y, ytemp, user_data);
     nfel++;
     if (retval != 0) return(retval);
 
@@ -8777,14 +8777,14 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
     N_VLinearSum(ONE, y, Delta, yS, tmp);
     p[which] = psave + Delta;
 
-    retval = fQ(t, tmp, yQSdot, f_data);
+    retval = fQ(t, tmp, yQSdot, user_data);
     nfel++;
     if (retval != 0) return(retval);
     
     N_VLinearSum(ONE, y, -Delta, yS, tmp);
     p[which] = psave - Delta;
 
-    retval = fQ(t, tmp, tmpQ, f_data);
+    retval = fQ(t, tmp, tmpQ, user_data);
     nfel++;
     if (retval != 0) return(retval);
 
@@ -8800,7 +8800,7 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
     N_VLinearSum(ONE, y, Delta, yS, tmp);
     p[which] = psave + Delta;
 
-    retval = fQ(t, tmp, yQSdot, f_data);
+    retval = fQ(t, tmp, yQSdot, user_data);
     nfel++;
     if (retval != 0) return(retval);
     

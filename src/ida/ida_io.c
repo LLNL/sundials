@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-26 23:17:26 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -53,7 +53,7 @@ int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun)
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_ehfun = ehfun;
-  IDA_mem->ida_eh_data = IDA_mem->ida_rdata;
+  IDA_mem->ida_eh_data = IDA_mem->ida_user_data;
 
   return(IDA_SUCCESS);
 }
@@ -77,18 +77,18 @@ int IDASetErrFile(void *ida_mem, FILE *errfp)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetRdata(void *ida_mem, void *res_data)
+int IDASetUserData(void *ida_mem, void *user_data)
 {
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetRdata", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetUserData", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
-  IDA_mem->ida_rdata = res_data;
+  IDA_mem->ida_user_data = user_data;
 
   return(IDA_SUCCESS);
 }

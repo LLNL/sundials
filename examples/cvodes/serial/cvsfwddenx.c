@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-24 20:26:51 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -88,18 +88,18 @@ typedef struct {
 
 /* Prototypes of functions by CVODES */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int Jac(int N, realtype t,
                N_Vector y, N_Vector fy, 
-               DlsMat J, void *jac_data, 
+               DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
               int iS, N_Vector yS, N_Vector ySdot, 
-              void *f_data, N_Vector tmp1, N_Vector tmp2);
+              void *user_data, N_Vector tmp1, N_Vector tmp2);
 
-static int ewt(N_Vector y, N_Vector w, void *f_data);
+static int ewt(N_Vector y, N_Vector w, void *user_data);
 
 /* Prototypes of private functions */
 
@@ -168,8 +168,8 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeSetEwtFn", 1)) return(1);
 
   /* Attach user data */
-  flag = CVodeSetFdata(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
   /* Attach linear solver */
   flag = CVDense(cvode_mem, NEQ);
@@ -270,14 +270,14 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,y). 
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   realtype y1, y2, y3, yd1, yd3;
   UserData data;
   realtype p1, p2, p3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
   yd1 = Ith(ydot,1) = -p1*y1 + p2*y2*y3;
@@ -294,7 +294,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
 static int Jac(int N, realtype t,
                N_Vector y, N_Vector fy, 
-               DlsMat J, void *jac_data, 
+               DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
@@ -302,7 +302,7 @@ static int Jac(int N, realtype t,
   realtype p1, p2, p3;
  
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-  data = (UserData) jac_data;
+  data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
  
   IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
@@ -318,7 +318,7 @@ static int Jac(int N, realtype t,
 
 static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
               int iS, N_Vector yS, N_Vector ySdot, 
-              void *f_data, N_Vector tmp1, N_Vector tmp2)
+              void *user_data, N_Vector tmp1, N_Vector tmp2)
 {
   UserData data;
   realtype p1, p2, p3;
@@ -326,7 +326,7 @@ static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
   realtype s1, s2, s3;
   realtype sd1, sd2, sd3;
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
   y1 = Ith(y,1);  y2 = Ith(y,2);  y3 = Ith(y,3);
@@ -362,7 +362,7 @@ static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
  * EwtSet function. Computes the error weights at the current solution.
  */
 
-static int ewt(N_Vector y, N_Vector w, void *f_data)
+static int ewt(N_Vector y, N_Vector w, void *user_data)
 {
   int i;
   realtype yy, ww, rtol, atol[3];

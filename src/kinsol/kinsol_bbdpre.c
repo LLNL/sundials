@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:01 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -462,7 +462,7 @@ static void KINBBDPrecFree(KINMem kin_mem)
  *-----------------------------------------------------------------
  */
 
-#define f_data (kin_mem->kin_f_data)
+#define user_data (kin_mem->kin_user_data)
 
 static int KBBDDQJac(KBBDPrecData pdata,
                      N_Vector uu, N_Vector uscale,
@@ -491,11 +491,11 @@ static int KBBDDQJac(KBBDPrecData pdata,
   /* call gcomm and gloc to get base value of g(uu) */
 
   if (gcomm != NULL) {
-    retval = gcomm(Nlocal, uu, f_data);
+    retval = gcomm(Nlocal, uu, user_data);
     if (retval != 0) return(retval);
   }
 
-  retval = gloc(Nlocal, uu, gu, f_data);
+  retval = gloc(Nlocal, uu, gu, user_data);
   if (retval != 0) return(retval);
 
   /* set bandwidth and number of column groups for band differencing */
@@ -516,7 +516,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
   
     /* evaluate g with incremented u */
 
-    retval = gloc(Nlocal, utemp, gtemp, f_data);
+    retval = gloc(Nlocal, utemp, gtemp, user_data);
     if (retval != 0) return(retval);
 
     /* restore utemp, then form and load difference quotients */

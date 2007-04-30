@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-26 23:17:27 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -138,8 +138,8 @@ extern "C" {
  * in the vector ydot.  The y and ydot arguments are of type
  * N_Vector.
  * (Allocation of memory for ydot is handled within CVODE)
- * The f_data parameter is the same as the f_data
- * parameter set by the user through the CVodeSetFdata routine.
+ * The user_data parameter is the same as the user_data
+ * parameter set by the user through the CVodeSetUserData routine.
  * This user-supplied pointer is passed to the user's f function
  * every time it is called.
  *
@@ -153,7 +153,7 @@ extern "C" {
  */
 
 typedef int (*CVRhsFn)(realtype t, N_Vector y,
-		       N_Vector ydot, void *f_data);
+		       N_Vector ydot, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -165,8 +165,8 @@ typedef int (*CVRhsFn)(realtype t, N_Vector y,
  * t, and the dependent variable vector y.  It stores the nrtfn
  * values g_i(t,y) in the realtype array gout.
  * (Allocation of memory for gout is handled within CVODE.)
- * The f_data parameter is the same as that passed by the user
- * to the CVodeSetFdata routine.  This user-supplied pointer is
+ * The user_data parameter is the same as that passed by the user
+ * to the CVodeSetUserData routine.  This user-supplied pointer is
  * passed to the user's g function every time it is called.
  *
  * A CVRootFn should return 0 if successful or a non-zero value
@@ -174,7 +174,7 @@ typedef int (*CVRhsFn)(realtype t, N_Vector y,
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout, void *f_data);
+typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -191,15 +191,15 @@ typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout, void *f_data);
  * 
  *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
  *
- * The f_data parameter is the same as that passed by the user
- * to the CVodeSetFdata routine.  This user-supplied pointer is
+ * The user_data parameter is the same as that passed by the user
+ * to the CVodeSetUserData routine.  This user-supplied pointer is
  * passed to the user's e function every time it is called.
  * A CVEwtFn e must return 0 if the error weight vector has been
  * successfuly set and a non-zero value otherwise.
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *f_data);
+typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -209,7 +209,7 @@ typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *f_data);
  * CVErrHandlerFn.
  * The function eh takes as input the error code, the name of the
  * module reporting the error, the error message, and a pointer to
- * user data, the same as that passed to CVodeSetFdata.
+ * user data, the same as that passed to CVodeSetUserData.
  * 
  * All error codes are negative, except CV_WARNING which indicates 
  * a warning (the solver continues).
@@ -220,7 +220,7 @@ typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *f_data);
 
 typedef void (*CVErrHandlerFn)(int error_code, 
 			       const char *module, const char *function, 
-			       char *msg, void *f_data); 
+			       char *msg, void *user_data); 
 
 /*
  * =================================================================
@@ -278,7 +278,7 @@ SUNDIALS_EXPORT void *CVodeCreate(int lmm, int iter);
  *                         | be written to the standard error stream.
  *                         | [stderr]
  *                         |
- * CVodeSetFdata           | a pointer to user data that will be
+ * CVodeSetUserData        | a pointer to user data that will be
  *                         | passed to the user's f function every
  *                         | time f is called.
  *                         | [NULL]
@@ -359,7 +359,7 @@ SUNDIALS_EXPORT void *CVodeCreate(int lmm, int iter);
 
 SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun);
 SUNDIALS_EXPORT int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
-SUNDIALS_EXPORT int CVodeSetFdata(void *cvode_mem, void *f_data);
+SUNDIALS_EXPORT int CVodeSetUserData(void *cvode_mem, void *user_data);
 SUNDIALS_EXPORT int CVodeSetMaxOrd(void *cvode_mem, int maxord);
 SUNDIALS_EXPORT int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 SUNDIALS_EXPORT int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);

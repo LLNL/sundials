@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -88,8 +88,8 @@ extern "C" {
  * c_j is the scalar in the system Jacobian, proportional to 
  *     the inverse of the step size h.
  *                                                                
- * res_data is a pointer to user Jacobian data - the same as the    
- *     res_data parameter passed to IDASetRdata.                     
+ * user_data is a pointer to user Jacobian data - the same as the    
+ *     user_data parameter passed to IDASetRdata.                     
  *                                                                
  * Jac is the dense matrix (of type DlsMat) to be loaded by  
  *     an IDADlsDenseJacFn routine with an approximation to the   
@@ -146,7 +146,7 @@ extern "C" {
   
 typedef int (*IDADlsDenseJacFn)(int N, realtype t, realtype c_j,
 				N_Vector y, N_Vector yp, N_Vector r, 
-				DlsMat Jac, void *res_data,
+				DlsMat Jac, void *user_data,
 				N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -174,8 +174,8 @@ typedef int (*IDADlsDenseJacFn)(int N, realtype t, realtype c_j,
  *                                                                
  * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *                                                                
- * res_data  is a pointer to user Jacobian data - the same as the    
- *    res_data parameter passed to IDASetRdata.                      
+ * user_data  is a pointer to user Jacobian data - the same as the    
+ *    user_data parameter passed to IDASetRdata.                      
  *                                                                
  * Jac is the band matrix (of type BandMat) to be loaded by    
  *     an IDADlsBandJacFn routine with an approximation to the    
@@ -235,7 +235,7 @@ typedef int (*IDADlsDenseJacFn)(int N, realtype t, realtype c_j,
 typedef int (*IDADlsBandJacFn)(int N, int mupper, int mlower,
 			       realtype t, realtype c_j, 
 			       N_Vector y, N_Vector yp, N_Vector r,
-			       DlsMat Jac, void *res_data,
+			       DlsMat Jac, void *user_data,
 			       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
 /*
@@ -327,7 +327,7 @@ SUNDIALS_EXPORT char *IDADlsGetReturnFlagName(int flag);
 typedef int (*IDADlsDenseJacFnB)(int NeqB, realtype tt, realtype c_jB, 
 				 N_Vector yy, N_Vector yp,
 				 N_Vector yyB, N_Vector ypB, N_Vector rrB,
-				 DlsMat JacB, void *res_dataB, 
+				 DlsMat JacB, void *user_dataB, 
 				 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 
@@ -344,7 +344,7 @@ typedef int (*IDADlsBandJacFnB)(int NeqB, int mupperB, int mlowerB,
 				realtype tt, realtype c_jB, 
 				N_Vector yy, N_Vector yp,
 				N_Vector yyB, N_Vector ypB, N_Vector rrB,
-				DlsMat JacB, void *res_dataB,
+				DlsMat JacB, void *user_dataB,
 				N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
   
 /*

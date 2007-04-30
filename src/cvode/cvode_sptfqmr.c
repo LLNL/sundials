@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:41:05 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,7 +51,7 @@ static void CVSptfqmrFree(CVodeMem cv_mem);
 #define gamma        (cv_mem->cv_gamma)
 #define gammap       (cv_mem->cv_gammap)
 #define f            (cv_mem->cv_f)
-#define f_data       (cv_mem->cv_f_data)
+#define user_data    (cv_mem->cv_user_data)
 #define ewt          (cv_mem->cv_ewt)
 #define errfp        (cv_mem->cv_errfp)
 #define mnewt        (cv_mem->cv_mnewt)
@@ -167,7 +167,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   cvspils_mem->s_pset   = NULL;
   cvspils_mem->s_psolve = NULL;
   cvspils_mem->s_pfree  = NULL;
-  cvspils_mem->s_P_data = cv_mem->cv_f_data;
+  cvspils_mem->s_P_data = cv_mem->cv_user_data;
 
   /* Set default values for the rest of the Sptfqmr parameters */
   cvspils_mem->s_delt = CVSPILS_DELT;
@@ -271,7 +271,7 @@ static int CVSptfqmrInit(CVodeMem cv_mem)
     jtimes = CVSpilsDQJtimes;
     j_data = cv_mem;
   } else {
-    j_data = f_data;
+    j_data = user_data;
   }
 
   /*  Set maxl in the SPTFQMR memory in case it was changed by the user */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -524,41 +524,41 @@ void FKIN_FREE(void);
  * -----------------------------------------------------------------
  */
 
-int FKINfunc(N_Vector uu, N_Vector fval, void *f_data);
+int FKINfunc(N_Vector uu, N_Vector fval, void *user_data);
 
 int FKINDenseJac(int N, 
                  N_Vector uu, N_Vector fval,
-                 DlsMat J, void *f_data, 
+                 DlsMat J, void *user_data, 
                  N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINBandJac(int N, int mupper, int mlower,
                 N_Vector uu, N_Vector fval, 
-                DlsMat J, void *f_data,
+                DlsMat J, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINLapackDenseJac(int N, 
                        N_Vector uu, N_Vector fval,
-                       DlsMat J, void *f_data, 
+                       DlsMat J, void *user_data, 
                        N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINLapackBandJac(int N, int mupper, int mlower,
                       N_Vector uu, N_Vector fval, 
-                      DlsMat J, void *f_data,
+                      DlsMat J, void *user_data,
                       N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINPSet(N_Vector uu, N_Vector uscale,
              N_Vector fval, N_Vector fscale,
-             void *P_data,
+             void *user_data,
              N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINPSol(N_Vector uu, N_Vector uscale, 
              N_Vector fval, N_Vector fscale, 
-             N_Vector vv, void *P_data,
+             N_Vector vv, void *user_data,
              N_Vector vtemp);
 
 int FKINJtimes(N_Vector v, N_Vector Jv,
                N_Vector uu, booleantype *new_uu, 
-               void *f_data);
+               void *user_data);
 
 /*
  * -----------------------------------------------------------------

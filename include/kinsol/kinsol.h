@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:28:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -143,7 +143,7 @@ extern "C" {
  * function (vector-valued function) F must take as input the
  * dependent variable vector uu (type N_Vector), and set fval (type
  * N_Vector) equal to F(uu) before returning. Additional workspace
- * is allocated by the user and referenced by the f_data memory
+ * is allocated by the user and referenced by the user_data memory
  * pointer.
  * 
  * Note: The user-defined routine (internally referenced by a
@@ -152,7 +152,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *f_data );
+typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *user_data );
 
 
 /*
@@ -163,7 +163,7 @@ typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *f_data );
  * KINErrHandlerFn.
  * The function eh takes as input the error code, the name of the
  * module reporting the error, the error message, and a pointer to
- * user data, the same as that passed to KINSetFdata.
+ * user data, the same as that passed to KINSetUserData.
  * 
  * All error codes are negative, except KIN_WARNING which indicates 
  * a warning (the solver continues).
@@ -174,7 +174,7 @@ typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *f_data );
 
 typedef void (*KINErrHandlerFn)(int error_code, 
 				const char *module, const char *function, 
-				char *msg, void *f_data); 
+				char *msg, void *user_data); 
 
 
 /*
@@ -192,7 +192,7 @@ typedef void (*KINErrHandlerFn)(int error_code,
  */
 
 typedef void (*KINInfoHandlerFn)(const char *module, const char *function, 
-				 char *msg, void *f_data); 
+				 char *msg, void *user_data); 
 
 /*
  * ================================================================
@@ -275,7 +275,7 @@ SUNDIALS_EXPORT void *KINCreate(void);
  *                        | handler is used
  *                        | [stdout]
  *                        |
- * KINSetFdata            | pointer to user-allocated memory that is
+ * KINSetUserData         | pointer to user-allocated memory that is
  *                        | passed to the user-supplied subroutine
  *                        | implementing the nonlinear system function
  *                        | F(u)
@@ -452,7 +452,7 @@ SUNDIALS_EXPORT int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun);
 SUNDIALS_EXPORT int KINSetErrFile(void *kinmem, FILE *errfp);
 SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun);
 SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
-SUNDIALS_EXPORT int KINSetFdata(void *kinmem, void *f_data);
+SUNDIALS_EXPORT int KINSetUserData(void *kinmem, void *user_data);
 SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmemm, int printfl);
 SUNDIALS_EXPORT int KINSetNumMaxIters(void *kinmem, long int mxiter);
 SUNDIALS_EXPORT int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup);

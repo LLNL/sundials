@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -54,7 +54,7 @@ static void cvBandFreeB(CVodeBMem cvB_mem);
 
 #define lmm       (cv_mem->cv_lmm)
 #define f         (cv_mem->cv_f)
-#define f_data    (cv_mem->cv_f_data)
+#define user_data (cv_mem->cv_user_data)
 #define nst       (cv_mem->cv_nst)
 #define tn        (cv_mem->cv_tn)
 #define h         (cv_mem->cv_h)
@@ -68,8 +68,8 @@ static void cvBandFreeB(CVodeBMem cvB_mem);
 #define lsolve    (cv_mem->cv_lsolve)
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
-#define vec_tmpl      (cv_mem->cv_tempv)
-#define setupNonNull  (cv_mem->cv_setupNonNull)
+#define vec_tmpl     (cv_mem->cv_tempv)
+#define setupNonNull (cv_mem->cv_setupNonNull)
 
 #define mtype      (cvdls_mem->d_type)
 #define n          (cvdls_mem->d_n)
@@ -83,7 +83,7 @@ static void cvBandFreeB(CVodeBMem cvB_mem);
 #define savedJ     (cvdls_mem->d_savedJ)
 #define nstlj      (cvdls_mem->d_nstlj)
 #define nje        (cvdls_mem->d_nje)
-#define nfeDQ       (cvdls_mem->d_nfeDQ)
+#define nfeDQ      (cvdls_mem->d_nfeDQ)
 #define J_data     (cvdls_mem->d_J_data)
 #define last_flag  (cvdls_mem->d_last_flag)
 
@@ -230,7 +230,7 @@ static int cvBandInit(CVodeMem cv_mem)
     jac = cvDlsBandDQJac;
     J_data = cv_mem;
   } else {
-    J_data = f_data;
+    J_data = user_data;
   }
 
   last_flag = CVDIRECT_SUCCESS;

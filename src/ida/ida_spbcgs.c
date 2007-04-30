@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -55,7 +55,7 @@ static int IDASpbcgFree(IDAMem IDA_mem);
 #define cj           (IDA_mem->ida_cj)
 #define epsNewt      (IDA_mem->ida_epsNewt)
 #define res          (IDA_mem->ida_res)
-#define rdata        (IDA_mem->ida_rdata)
+#define user_data    (IDA_mem->ida_user_data)
 #define ewt          (IDA_mem->ida_ewt)
 #define errfp        (IDA_mem->ida_errfp)
 #define linit        (IDA_mem->ida_linit)
@@ -187,7 +187,7 @@ int IDASpbcg(void *ida_mem, int maxl)
   idaspils_mem->s_pset   = NULL;
   idaspils_mem->s_psolve = NULL;
   idaspils_mem->s_pfree  = NULL;
-  idaspils_mem->s_pdata  = IDA_mem->ida_rdata;
+  idaspils_mem->s_pdata  = IDA_mem->ida_user_data;
 
   /* Set default values for the rest of the Spbcg parameters */
   idaspils_mem->s_eplifac   = PT05;
@@ -283,7 +283,7 @@ static int IDASpbcgInit(IDAMem IDA_mem)
     jtimes = IDASpilsDQJtimes;
     jdata = IDA_mem;
   } else {
-    jdata = rdata;
+    jdata = user_data;
   }
 
   /*  Set maxl in the SPBCG memory in case it was changed by the user */

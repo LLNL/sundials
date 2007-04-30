@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-24 16:15:37 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -65,7 +65,7 @@ void FKIN_SPILSSETJAC(int *flag, int *ier)
 
 int FKINJtimes(N_Vector v, N_Vector Jv,
                N_Vector uu, booleantype *new_uu, 
-               void *f_data)
+               void *user_data)
 {
   int retcode;
   realtype *vdata, *Jvdata, *uudata;

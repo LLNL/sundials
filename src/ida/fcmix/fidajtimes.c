@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -73,7 +73,7 @@ void FIDA_SPILSSETJAC(int *flag, int *ier)
 
 int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
 	       N_Vector v, N_Vector Jv,
-	       realtype c_j, void *res_data,
+	       realtype c_j, void *user_data,
 	       N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *yy_data, *yp_data, *rr_data, *vdata, *Jvdata, *ewtdata;
@@ -104,7 +104,7 @@ int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
 
-  IDA_userdata = (FIDAUserData) res_data;
+  IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
   FIDA_JTIMES(&t, yy_data, yp_data, rr_data, vdata, Jvdata,

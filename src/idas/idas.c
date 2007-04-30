@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2007-04-26 23:17:27 $
+ * $Revision: 1.16 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -340,7 +340,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
                          N_Vector yy, N_Vector yp, N_Vector resval,
                          int iS,
                          N_Vector yyS, N_Vector ypS, N_Vector resvalS,
-                         void *rdataS,
+                         void *user_dataS,
                          N_Vector ytemp, N_Vector yptemp, N_Vector restemp);
 
 /* 
@@ -384,7 +384,7 @@ void *IDACreate(void)
   /* Set default values for integrator optional inputs */
 
   IDA_mem->ida_res         = NULL;
-  IDA_mem->ida_rdata       = NULL;
+  IDA_mem->ida_user_data   = NULL;
   IDA_mem->ida_itol        = IDA_NN;
   IDA_mem->ida_efun        = NULL;
   IDA_mem->ida_edata       = NULL;
@@ -420,15 +420,15 @@ void *IDACreate(void)
 
   /* Set default values for quad. optional inputs */
 
-  IDA_mem->ida_quadr   = FALSE;
-  IDA_mem->ida_rhsQ    = NULL;
-  IDA_mem->ida_rdataQ  = NULL;
-  IDA_mem->ida_errconQ = FALSE;
+  IDA_mem->ida_quadr      = FALSE;
+  IDA_mem->ida_rhsQ       = NULL;
+  IDA_mem->ida_user_dataQ = NULL;
+  IDA_mem->ida_errconQ    = FALSE;
 
   /* Set default values for sensi. optional inputs */
 
   IDA_mem->ida_sensi        = FALSE;
-  IDA_mem->ida_rdataS       = (void *)IDA_mem;
+  IDA_mem->ida_user_dataS   = (void *)IDA_mem;
   IDA_mem->ida_resS         = IDASensResDQ;
   IDA_mem->ida_resSDQ       = TRUE;
   IDA_mem->ida_DQtype       = IDA_CENTERED;
@@ -811,7 +811,7 @@ int IDAWFtolerances(void *ida_mem, IDAEwtFn efun)
 
   IDA_mem->ida_itol = IDA_WF;
   IDA_mem->ida_efun = efun;
-  IDA_mem->ida_edata = IDA_mem->ida_rdata;
+  IDA_mem->ida_edata = IDA_mem->ida_user_data;
 
 }
 
@@ -1252,7 +1252,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 /* State variables */
 
 #define res            (IDA_mem->ida_res)
-#define rdata          (IDA_mem->ida_rdata)
+#define user_data      (IDA_mem->ida_user_data)
 #define y0             (IDA_mem->ida_y0)
 #define yp0            (IDA_mem->ida_yp0)
 
@@ -1348,7 +1348,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 
 #define quadr          (IDA_mem->ida_quadr)
 #define rhsQ           (IDA_mem->ida_rhsQ)
-#define rdataQ         (IDA_mem->ida_rdataQ)
+#define user_dataQ     (IDA_mem->ida_user_dataQ)
 #define errconQ        (IDA_mem->ida_errconQ)
 #define itolQ          (IDA_mem->ida_itolQ)
 #define rtolQ          (IDA_mem->ida_rtolQ)
@@ -1374,7 +1374,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 #define ism            (IDA_mem->ida_ism)
 
 #define resS           (IDA_mem->ida_resS)
-#define rdataS         (IDA_mem->ida_rdataS)
+#define user_dataS     (IDA_mem->ida_user_dataS)
 #define resSDQ         (IDA_mem->ida_resSDQ)
 
 #define errconS        (IDA_mem->ida_errconS)
@@ -1507,7 +1507,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   /* Sensitivity-specific tests (if using internal DQ functions) */
   if (sensi && resSDQ) {
     /* Make sure we have the right 'user data' */
-    rdataS = ida_mem;
+    user_dataS = ida_mem;
     /* Test if we have the problem parameters */
     if(p == NULL) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_NULL_P);
@@ -2557,7 +2557,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
   if (quadr) {
 
     /* Evaluate quadrature rhs and set phiQ[1] */
-    retval = rhsQ(tn, phi[0], phi[1], phiQ[1], rdataQ);
+    retval = rhsQ(tn, phi[0], phi[1], phiQ[1], user_dataQ);
     nrQe++;
     if (retval < 0) {
       IDAProcessError(IDA_mem, IDA_QRHS_FAIL, "IDAS", "IDAInitialSetup", MSG_QRHSFUNC_FAILED);
@@ -3268,7 +3268,7 @@ static int IDAStep(IDAMem IDA_mem)
          If res() fails recoverably, treat it as a convergence failure and 
          attempt the step again */
 
-      retval = res(tn, yy, yp, delta, rdata);
+      retval = res(tn, yy, yp, delta, user_data);
       if (retval < 0)      return(IDA_RES_FAIL);
       else if (retval > 0) continue;
         
@@ -3458,7 +3458,7 @@ static int IDANls(IDAMem IDA_mem)
 
     /* Compute predicted values for yy and yp, and compute residual there. */
     IDAPredict(IDA_mem);
-    retval = res(tn, yy, yp, delta, rdata);
+    retval = res(tn, yy, yp, delta, user_data);
     nre++;
     if (retval < 0) return(IDA_RES_FAIL);
     if (retval > 0) return(IDA_RES_RECVR);
@@ -3466,7 +3466,7 @@ static int IDANls(IDAMem IDA_mem)
     if (sensi_sim) {
       for(is=0;is<Ns;is++) IDASensPredict(IDA_mem, is, yyS[is], ypS[is]);
       retval = resS(Ns, tn, yy, yp, delta, yyS, ypS, deltaS,
-                    rdataS, tmpS1, tmpS2, tmpS3);
+                    user_dataS, tmpS1, tmpS2, tmpS3);
       nrSe++;
       if (retval < 0) return(IDA_SRES_FAIL);
       if (retval > 0) return(IDA_SRES_RECVR);
@@ -3650,14 +3650,14 @@ static int IDANewtonIter(IDAMem IDA_mem)
     if (mnewt >= maxcor) {retval = IDA_NCONV_RECVR; break;}
 
     /* Call res for new residual and check error flag from res. */
-    retval = res(tn, yy, yp, delta, rdata);
+    retval = res(tn, yy, yp, delta, user_data);
     nre++;
     if (retval < 0) return(IDA_RES_FAIL);
     if (retval > 0) return(IDA_RES_RECVR);
 
     if (sensi_sim) {
       retval = resS(Ns, tn, yy, yp, delta, yyS, ypS, deltaS,
-                    rdataS, tmpS1, tmpS2, tmpS3);
+                    user_dataS, tmpS1, tmpS2, tmpS3);
       nrSe++;
       if(retval < 0) return(IDA_SRES_FAIL);
       if(retval > 0) return(IDA_SRES_RECVR);
@@ -3690,7 +3690,7 @@ static int IDAQuadNls(IDAMem IDA_mem)
   IDAQuadPredict(IDA_mem);
   
   /* Compute correction eeQ */
-  retval = rhsQ(tn, yy, yp, eeQ, rdataQ);
+  retval = rhsQ(tn, yy, yp, eeQ, user_dataQ);
   nrQe++;
   if (retval < 0) return(IDA_QRHS_FAIL);
   else if (retval > 0) return(IDA_QRHS_RECVR);
@@ -3748,7 +3748,7 @@ static int IDASensNls(IDAMem IDA_mem)
 
     /* Sensitivity residuals at predicted sensitivities -> in deltaS */
     retval = resS(Ns, tn, yy, yp, delta, yyS, ypS, deltaS,
-                  rdataS, tmpS1, tmpS2, tmpS3);
+                  user_dataS, tmpS1, tmpS2, tmpS3);
     nrSe++;
     if(retval < 0) return(IDA_SRES_FAIL);
     if(retval > 0) return(IDA_SRES_RECVR);
@@ -3872,7 +3872,7 @@ static int IDASensNewtonIter(IDAMem IDA_mem)
     if(mnewt >= maxcorS) return(IDA_NCONV_RECVR);
 
     retval = resS(Ns, tn, yy, yp, delta, yyS, ypS, deltaS,
-                  rdataS, tmpS1, tmpS2, tmpS3);
+                  user_dataS, tmpS1, tmpS2, tmpS3);
     nrSe++;
     if (retval < 0) return(IDA_SRES_FAIL);
     if (retval > 0) return(IDA_SRES_RECVR);
@@ -4578,7 +4578,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   ttol = (ABS(tn) + ABS(hh))*uround*HUNDRED;
 
   /* Evaluate g at initial t and check for zero values. */
-  retval = gfun (tlo, phi[0], phi[1], glo, rdata);
+  retval = gfun (tlo, phi[0], phi[1], glo, user_data);
   nge = 1;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -4593,7 +4593,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   smallh = hratio*hh;
   tlo += smallh;
   N_VLinearSum(ONE, phi[0], smallh, phi[1], yy);
-  retval = gfun (tlo, yy, phi[1], glo, rdata);  
+  retval = gfun (tlo, yy, phi[1], glo, user_data);  
   nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -4638,7 +4638,7 @@ static int IDARcheck2(IDAMem IDA_mem)
   if (irfnd == 0) return(IDA_SUCCESS);
 
   (void) IDAGetSolution(IDA_mem, tlo, yy, yp);
-  retval = gfun (tlo, yy, yp, glo, rdata);  
+  retval = gfun (tlo, yy, yp, glo, user_data);  
   nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -4662,7 +4662,7 @@ static int IDARcheck2(IDAMem IDA_mem)
   } else {
     (void) IDAGetSolution(IDA_mem, tlo, yy, yp);
   }
-  retval = gfun (tlo, yy, yp, glo, rdata);  
+  retval = gfun (tlo, yy, yp, glo, user_data);  
   nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -4706,7 +4706,7 @@ static int IDARcheck3(IDAMem IDA_mem)
 
 
   /* Set ghi = g(thi) and call IDARootfind to search (tlo,thi) for roots. */
-  retval = gfun (thi, yy, yp, ghi, rdata);  
+  retval = gfun (thi, yy, yp, ghi, user_data);  
   nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -4744,7 +4744,7 @@ static int IDARcheck3(IDAMem IDA_mem)
  *            the vector-valued function g(t).  Input only.
  *
  * gfun     = user-defined function for g(t).  Its form is
- *           (void) gfun(t, y, yp, gt, rdata)
+ *           (void) gfun(t, y, yp, gt, user_data)
  *
  * rootdir  = in array specifying the direction of zero-crossings.
  *            If rootdir[i] > 0, search for roots of g_i only if
@@ -4875,7 +4875,7 @@ static int IDARootfind(IDAMem IDA_mem)
     }
 
     (void) IDAGetSolution(IDA_mem, tmid, yy, yp);
-    retval = gfun (tmid, yy, yp, grout, rdata);  
+    retval = gfun (tmid, yy, yp, grout, user_data);  
     nge++;
     if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -4952,7 +4952,7 @@ static int IDARootfind(IDAMem IDA_mem)
 #undef yp
 #undef yyS
 #undef ypS
-#undef rdataS
+#undef user_dataS
 
 /*
  * IDASensResDQ
@@ -4966,7 +4966,7 @@ static int IDARootfind(IDAMem IDA_mem)
 int IDASensResDQ(int Ns, realtype t, 
                  N_Vector yy, N_Vector yp, N_Vector resval,
                  N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
-                 void *rdataS,
+                 void *user_dataS,
                  N_Vector ytemp, N_Vector yptemp, N_Vector restemp)
 {
   int retval, is;
@@ -4975,7 +4975,7 @@ int IDASensResDQ(int Ns, realtype t,
     retval = IDASensRes1DQ(Ns, t, 
                            yy, yp, resval, 
                            is, yyS[is], ypS[is], resvalS[is], 
-                           rdataS,
+                           user_dataS,
                            ytemp, yptemp, restemp);
     if (retval != 0) return(retval);
   }
@@ -4996,7 +4996,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
                          N_Vector yy, N_Vector yp, N_Vector resval,
                          int is,
                          N_Vector yyS, N_Vector ypS, N_Vector resvalS,
-                         void *rdataS,
+                         void *user_dataS,
                          N_Vector ytemp, N_Vector yptemp, N_Vector restemp)
 {
   IDAMem IDA_mem;
@@ -5010,8 +5010,8 @@ static int IDASensRes1DQ(int Ns, realtype t,
   realtype Del , rDel , r2Del ;
   realtype norms, ratio;
 
-  /* rdataS points to IDA_mem */
-  IDA_mem = (IDAMem) rdataS;
+  /* user_dataS points to IDA_mem */
+  IDA_mem = (IDAMem) user_dataS;
 
   /* Set base perturbation del */
   del  = RSqrt(MAX(rtol, uround));
@@ -5054,7 +5054,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     p[which] = psave + Del;
 
     /* Save residual in resvalS */
-    retval = res(t, ytemp, yptemp, resvalS, rdata);
+    retval = res(t, ytemp, yptemp, resvalS, user_data);
     nreS++;
     if (retval != 0) return(retval);
     
@@ -5064,7 +5064,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     p[which] = psave - Del;
 
     /* Save residual in restemp */
-    retval = res(t, ytemp, yptemp, restemp, rdata);
+    retval = res(t, ytemp, yptemp, restemp, user_data);
     nreS++;
     if (retval != 0) return(retval);
 
@@ -5083,7 +5083,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     N_VLinearSum(Dely, ypS, ONE, yp, yptemp);
     
     /* Save residual in resvalS */
-    retval = res(t, ytemp, yptemp, resvalS, rdata);
+    retval = res(t, ytemp, yptemp, resvalS, user_data);
     nreS++;
     if (retval != 0) return(retval);
     
@@ -5092,7 +5092,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     N_VLinearSum(-Dely, ypS, ONE, yp, yptemp);
 
     /* Save residual in restemp */
-    retval = res(t, ytemp, yptemp, restemp, rdata);
+    retval = res(t, ytemp, yptemp, restemp, user_data);
     nreS++;
     if (retval != 0) return(retval);
 
@@ -5103,7 +5103,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     p[which] = psave + Delp;
 
     /* Save residual in ytemp */
-    retval = res(t, yy, yp, ytemp, rdata);
+    retval = res(t, yy, yp, ytemp, user_data);
     nreS++;
     if (retval != 0) return(retval);
 
@@ -5111,7 +5111,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     p[which] = psave - Delp;
 
     /* Save residual in yptemp */
-    retval = res(t, yy, yp, yptemp, rdata);
+    retval = res(t, yy, yp, yptemp, user_data);
     nreS++;
     if (retval != 0) return(retval);
     
@@ -5134,7 +5134,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     p[which] = psave + Del;
 
     /* Save residual in resvalS */
-    retval = res(t, ytemp, yptemp, resvalS, rdata);
+    retval = res(t, ytemp, yptemp, resvalS, user_data);
     nreS++;
     if (retval != 0) return(retval);
 
@@ -5150,7 +5150,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     N_VLinearSum(Dely, ypS, ONE, yp, yptemp);
 
     /* Save residual in resvalS */
-    retval = res(t, ytemp, yptemp, resvalS, rdata);
+    retval = res(t, ytemp, yptemp, resvalS, user_data);
     nreS++;
     if (retval != 0) return(retval);
 
@@ -5161,7 +5161,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     p[which] = psave + Delp;
 
     /* Save residual in restemp */
-    retval = res(t, yy, yp, restemp, rdata);
+    retval = res(t, yy, yp, restemp, user_data);
     nreS++;
     if (retval != 0) return(retval);
 

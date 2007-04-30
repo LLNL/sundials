@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-27 18:56:28 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -129,7 +129,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Function Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /*
  *-------------------------------
@@ -165,8 +165,8 @@ int main()
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Set the pointer to user-defined data */
-  flag = CVodeSetFdata(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
@@ -438,7 +438,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
 /* f routine. Compute f(t,u). */
 
-static int f(realtype t, N_Vector u, N_Vector udot,void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot,void *user_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
@@ -448,7 +448,7 @@ static int f(realtype t, N_Vector u, N_Vector udot,void *f_data)
   int idn, iup, ileft, iright, jx, jy;
   UserData data;
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   udata = NV_DATA_S(u);
   dudata = NV_DATA_S(udot);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-27 18:56:28 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -130,7 +130,7 @@ extern "C" {
  *
  * gamma   is the scalar appearing in the Newton matrix.
  *
- * f_data  is a pointer to user data - the same as the f_data
+ * user_data  is a pointer to user data - the same as the user_data
  *         parameter passed to the CVodeSetFdata function.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated
@@ -156,7 +156,7 @@ extern "C" {
 
 typedef int (*CVSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
                                   booleantype jok, booleantype *jcurPtr,
-                                  realtype gamma, void *f_data,
+                                  realtype gamma, void *user_data,
                                   N_Vector tmp1, N_Vector tmp2,
                                   N_Vector tmp3);
 
@@ -196,7 +196,7 @@ typedef int (*CVSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
  *        the left preconditioner P1 or right preconditioner
  *        P2: lr = 1 means use P1, and lr = 2 means use P2.
  *
- * f_data  is a pointer to user data - the same as the f_data
+ * user_data  is a pointer to user data - the same as the user_data
  *         parameter passed to the CVodeSetFdata function.
  *
  * tmp    is a pointer to memory allocated for an N_Vector
@@ -214,7 +214,7 @@ typedef int (*CVSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
 typedef int (*CVSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
                                   N_Vector r, N_Vector z,
                                   realtype gamma, realtype delta,
-                                  int lr, void *f_data, N_Vector tmp);
+                                  int lr, void *user_data, N_Vector tmp);
 
 /*
  * -----------------------------------------------------------------
@@ -240,7 +240,7 @@ typedef int (*CVSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
  *
  *   fy       is the vector f(t,y).
  *
- *   f_data   is a pointer to user data, the same as the f_data
+ *   user_data   is a pointer to user data, the same as the user_data
  *            parameter passed to the CVodeSetFdata function.
  *
  *   tmp      is a pointer to memory allocated for an N_Vector
@@ -250,7 +250,7 @@ typedef int (*CVSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
 
 typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
                                     N_Vector y, N_Vector fy,
-                                    void *f_data, N_Vector tmp);
+                                    void *user_data, N_Vector tmp);
 
 
 

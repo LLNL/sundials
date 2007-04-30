@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-27 18:56:29 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -165,32 +165,32 @@ typedef struct {
 
 /* Prototypes for user-supplied functions */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int Precond(realtype t, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *P_data,
+                   realtype gamma, void *user_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp);
+                  int lr, void *user_data, N_Vector vtemp);
 
 static int fB(realtype t, N_Vector c, N_Vector cB, 
-               N_Vector cBdot, void *f_data);
+               N_Vector cBdot, void *user_data);
 
 static int PrecondB(realtype t, N_Vector c, 
                     N_Vector cB, N_Vector fcB, booleantype jok, 
                     booleantype *jcurPtr, realtype gamma,
-                    void *P_data,
+                    void *user_data,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 static int PSolveB(realtype t, N_Vector c, 
                    N_Vector cB, N_Vector fcB, 
                    N_Vector r, N_Vector z,
                    realtype gamma, realtype delta, 
-                   int lr, void *P_data, N_Vector vtemp);
+                   int lr, void *user_data, N_Vector vtemp);
 
 /* Prototypes for private functions */
 
@@ -261,8 +261,8 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   wdata->cvode_mem = cvode_mem; /* Used in Precond */
-  flag = CVodeSetFdata(cvode_mem, wdata);
-  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+  flag = CVodeSetUserData(cvode_mem, wdata);
+  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
   flag = CVodeInit(cvode_mem, f, T0, c);
   if(check_flag(&flag, "CVodeInit", 1)) return(1);
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
@@ -306,8 +306,8 @@ int main(int argc, char *argv[])
   printf("\nCreate and allocate CVODES memory for backward run\n");
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
   if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
-  flag = CVodeSetFdataB(cvode_mem, indexB, wdata);
-  if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
+  flag = CVodeSetUserDataB(cvode_mem, indexB, wdata);
+  if(check_flag(&flag, "CVodeSetUserDataB", 1)) return(1);
   flag = CVodeSetMaxNumStepsB(cvode_mem, indexB, 1000);
   if(check_flag(&flag, "CVodeSetMaxNumStepsB", 1)) return(1);
   flag = CVodeInitB(cvode_mem, indexB, fB, TOUT, cB);
@@ -357,14 +357,14 @@ int main(int argc, char *argv[])
  * and these are saved in fsave for use in preconditioning.
  */
 
-static int f(realtype t, N_Vector c, N_Vector cdot, void *f_data)
+static int f(realtype t, N_Vector c, N_Vector cdot, void *user_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
   realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
   realtype *cdata, *cdotdata;
   WebData wdata;
   
-  wdata = (WebData) f_data;
+  wdata = (WebData) user_data;
   cdata = NV_DATA_S(c);
   cdotdata = NV_DATA_S(cdot);
   
@@ -427,7 +427,7 @@ static int f(realtype t, N_Vector c, N_Vector cdot, void *f_data)
  
 static int Precond(realtype t, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *P_data,
+                   realtype gamma, void *user_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int N;
@@ -441,7 +441,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   WebData wdata;
   N_Vector rewt;
 
-  wdata = (WebData) P_data;
+  wdata = (WebData) user_data;
   cvode_mem = wdata->cvode_mem;
   rewt = wdata->rewt;
   flag = CVodeGetErrWeights(cvode_mem, rewt);
@@ -525,14 +525,14 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
 static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp)
+                  int lr, void *user_data, N_Vector vtemp)
 {
   realtype ***P;
   int **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
-  wdata = (WebData) P_data;
+  wdata = (WebData) user_data;
 
   N_VScale(ONE, r, z);
 
@@ -576,7 +576,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
  */
 
 static int fB(realtype t, N_Vector c, N_Vector cB, 
-               N_Vector cBdot, void *f_data)
+               N_Vector cBdot, void *user_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
   realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, *fBsave, dx, dy;
@@ -585,7 +585,7 @@ static int fB(realtype t, N_Vector c, N_Vector cB,
 
   realtype gu[NS];
 
-  wdata = (WebData) f_data;
+  wdata = (WebData) user_data;
   cdata = NV_DATA_S(c);
   cBdata = NV_DATA_S(cB);
   cBdotdata = NV_DATA_S(cBdot);
@@ -642,7 +642,7 @@ static int fB(realtype t, N_Vector c, N_Vector cB,
 static int PrecondB(realtype t, N_Vector c, 
                     N_Vector cB, N_Vector fcB, booleantype jok, 
                     booleantype *jcurPtr, realtype gamma,
-                    void *P_data,
+                    void *user_data,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int N;
@@ -656,7 +656,7 @@ static int PrecondB(realtype t, N_Vector c,
   WebData wdata;
   N_Vector rewt;
 
-  wdata = (WebData) P_data;
+  wdata = (WebData) user_data;
   cvode_mem = CVodeGetAdjCVodeBmem(wdata->cvode_mem, wdata->indexB);
   if(check_flag((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) return(1);
   rewt = wdata->rewt;
@@ -734,14 +734,14 @@ static int PSolveB(realtype t, N_Vector c,
                    N_Vector cB, N_Vector fcB, 
                    N_Vector r, N_Vector z,
                    realtype gamma, realtype delta, 
-                   int lr, void *P_data, N_Vector vtemp)
+                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype ***P;
   int **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
-  wdata = (WebData) P_data;
+  wdata = (WebData) user_data;
 
   N_VScale(ONE, r, z);
 

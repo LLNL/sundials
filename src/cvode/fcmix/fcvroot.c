@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -69,7 +69,7 @@ void FCV_ROOTFREE(void)
 
 /***************************************************************************/
 
-int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *f_data)
+int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *user_data)
 {
   int ier;
   realtype *ydata;
@@ -77,7 +77,7 @@ int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *f_data)
 
   ydata = N_VGetArrayPointer(y);
 
-  CV_userdata = (FCVUserData) f_data;
+  CV_userdata = (FCVUserData) user_data;
 
   FCV_ROOTFN(&t, ydata, gout, CV_userdata->ipar, CV_userdata->rpar, &ier);
 

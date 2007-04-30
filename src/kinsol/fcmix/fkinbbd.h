@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -302,8 +302,8 @@ void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
  * -----------------------------------------------------------------
  */
 
-int FKINgloc(int Nloc, N_Vector uu, N_Vector gval, void *f_data);
-int FKINgcomm(int Nloc, N_Vector uu, void *f_data);
+int FKINgloc(int Nloc, N_Vector uu, N_Vector gval, void *user_data);
+int FKINgcomm(int Nloc, N_Vector uu, void *user_data);
 
 #ifdef __cplusplus
 }

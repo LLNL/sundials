@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-04-24 22:01:25 $
+ * $Revision: 1.14 $
+ * $Date: 2007-04-30 19:29:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -100,22 +100,22 @@ typedef struct {
 
 /* Prototypes of user-supplied functions */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Jac(int N, realtype t,
                N_Vector y, N_Vector fy, 
-               DlsMat J, void *jac_data, 
+               DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data);
-static int ewt(N_Vector y, N_Vector w, void *f_data);
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
+static int ewt(N_Vector y, N_Vector w, void *user_data);
 
 static int fB(realtype t, N_Vector y, 
-              N_Vector yB, N_Vector yBdot, void *f_dataB);
+              N_Vector yB, N_Vector yBdot, void *user_dataB);
 static int JacB(int NB, realtype t,
                 N_Vector y, N_Vector yB, N_Vector fyB,
-                DlsMat JB, void *jac_dataB,
+                DlsMat JB, void *user_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
-               N_Vector qBdot, void *f_dataB);
+               N_Vector qBdot, void *user_dataB);
 
 
 /* Prototypes of private functions */
@@ -202,8 +202,8 @@ int main(int argc, char *argv[])
   flag = CVodeWFtolerances(cvode_mem, ewt);
   if (check_flag(&flag, "CVodeWFtolerances", 1)) return(1);
 
-  flag = CVodeSetFdata(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
@@ -310,8 +310,8 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
   if (check_flag(&flag, "CVodeSStolerancesB", 1)) return(1);
 
-  flag = CVodeSetFdataB(cvode_mem, indexB, data);
-  if (check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
+  flag = CVodeSetUserDataB(cvode_mem, indexB, data);
+  if (check_flag(&flag, "CVodeSetUserDataB", 1)) return(1);
 
   flag = CVDenseB(cvode_mem, indexB, NEQ);
   if (check_flag(&flag, "CVDenseB", 1)) return(1);
@@ -403,14 +403,14 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,y). 
 */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   realtype y1, y2, y3, yd1, yd3;
   UserData data;
   realtype p1, p2, p3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
   yd1 = Ith(ydot,1) = -p1*y1 + p2*y2*y3;
@@ -426,7 +426,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
 static int Jac(int N, realtype t,
                N_Vector y, N_Vector fy, 
-               DlsMat J, void *jac_data, 
+               DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
@@ -434,7 +434,7 @@ static int Jac(int N, realtype t,
   realtype p1, p2, p3;
  
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-  data = (UserData) jac_data;
+  data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
  
   IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
@@ -448,7 +448,7 @@ static int Jac(int N, realtype t,
  * fQ routine. Compute fQ(t,y). 
 */
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data)
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
 {
   Ith(qdot,1) = Ith(y,3);  
 
@@ -459,7 +459,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data)
  * EwtSet function. Computes the error weights at the current solution.
  */
 
-static int ewt(N_Vector y, N_Vector w, void *f_data)
+static int ewt(N_Vector y, N_Vector w, void *user_data)
 {
   int i;
   realtype yy, ww, rtol, atol[3];
@@ -483,7 +483,7 @@ static int ewt(N_Vector y, N_Vector w, void *f_data)
  * fB routine. Compute fB(t,y,yB). 
 */
 
-static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB)
+static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_dataB)
 {
   UserData data;
   realtype y1, y2, y3;
@@ -491,7 +491,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB
   realtype l1, l2, l3;
   realtype l21, l32, y23;
   
-  data = (UserData) f_dataB;
+  data = (UserData) user_dataB;
 
   /* The p vector */
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
@@ -521,14 +521,14 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB
 
 static int JacB(int NB, realtype t,
                 N_Vector y, N_Vector yB, N_Vector fyB,
-                DlsMat JB, void *jac_dataB,
+                DlsMat JB, void *user_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   UserData data;
   realtype y1, y2, y3;
   realtype p1, p2, p3;
   
-  data = (UserData) jac_dataB;
+  data = (UserData) user_dataB;
 
   /* The p vector */
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
@@ -549,7 +549,7 @@ static int JacB(int NB, realtype t,
 */
 
 static int fQB(realtype t, N_Vector y, N_Vector yB, 
-               N_Vector qBdot, void *f_dataB)
+               N_Vector qBdot, void *user_dataB)
 {
   UserData data;
   realtype y1, y2, y3;
@@ -557,7 +557,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
   realtype l1, l2, l3;
   realtype l21, l32, y23;
 
-  data = (UserData) f_dataB;
+  data = (UserData) user_dataB;
 
   /* The p vector */
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];

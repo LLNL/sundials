@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -335,8 +335,8 @@ void FIDA_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
 
 /* Prototypes: Functions Called by the IDABBD Module */
 
-int FIDAgloc(int Nloc, realtype t, N_Vector yy, N_Vector yp, N_Vector gval, void *res_data);
-int FIDAcfn(int Nloc, realtype t, N_Vector yy, N_Vector yp, void *res_data);
+int FIDAgloc(int Nloc, realtype t, N_Vector yy, N_Vector yp, N_Vector gval, void *user_data);
+int FIDAcfn(int Nloc, realtype t, N_Vector yy, N_Vector yp, void *user_data);
 
 #ifdef __cplusplus
 }

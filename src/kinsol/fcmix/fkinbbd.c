@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -79,7 +79,7 @@ void FKIN_BBDINIT(int *nlocal, int *mudq, int *mldq,
  * ----------------------------------------------------------------
  */
 
-int FKINgloc(int Nloc, N_Vector uu, N_Vector gval, void *f_data)
+int FKINgloc(int Nloc, N_Vector uu, N_Vector gval, void *user_data)
 {
   realtype *uloc, *gloc;
   int ier;
@@ -105,7 +105,7 @@ int FKINgloc(int Nloc, N_Vector uu, N_Vector gval, void *f_data)
  * ----------------------------------------------------------------
  */
 
-int FKINgcomm(int Nloc, N_Vector uu, void *f_data)
+int FKINgcomm(int Nloc, N_Vector uu, void *user_data)
 {
   realtype *uloc;
   int ier;

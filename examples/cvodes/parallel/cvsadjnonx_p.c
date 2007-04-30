@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-24 20:26:50 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -86,9 +86,9 @@ typedef struct {
 
 /* Prototypes of user-supplied funcitons */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static int fB(realtype t, N_Vector u, 
-              N_Vector uB, N_Vector uBdot, void *f_dataB);
+              N_Vector uB, N_Vector uBdot, void *user_dataB);
 
 /* Prototypes of private functions */
 
@@ -197,8 +197,8 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSetFdata(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if (check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = CVodeInit(cvode_mem, f, T0, u);
   if (check_flag(&flag, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
@@ -246,8 +246,8 @@ int main(int argc, char *argv[])
   /* Allocate CVODES memory for the backward integration */
   flag = CVodeCreateB(cvode_mem, CV_ADAMS, CV_FUNCTIONAL, &indexB);
   if (check_flag(&flag, "CVodeCreateB", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeSetFdataB(cvode_mem, indexB, data);
-  if (check_flag(&flag, "CVodeSetFdataB", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVodeSetUserDataB(cvode_mem, indexB, data);
+  if (check_flag(&flag, "CVodeSetUserDataB", 1, my_pe)) MPI_Abort(comm, 1);
   flag = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
   if (check_flag(&flag, "CVodeInitB", 1, my_pe)) MPI_Abort(comm, 1);
   flag = CVodeSStolerancesB(cvode_mem, indexB, reltol, abstol);
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,u) for forward phase. 
  */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype uLeft, uRight, ui, ult, urt;
   realtype hordc, horac, hdiff, hadv;
@@ -302,7 +302,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   MPI_Comm comm;
 
   /* Extract MPI info. from data */
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   comm = data->comm;
   npes = data->npes;
   my_pe = data->my_pe;
@@ -362,7 +362,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
  */
 
 static int fB(realtype t, N_Vector u, 
-              N_Vector uB, N_Vector uBdot, void *f_dataB)
+              N_Vector uB, N_Vector uBdot, void *user_dataB)
 {
   realtype *uBdata, *duBdata, *udata;
   realtype uBLeft, uBRight, uBi, uBlt, uBrt;
@@ -377,7 +377,7 @@ static int fB(realtype t, N_Vector u,
   MPI_Comm comm;
 
   /* Extract MPI info. from data */
-  data = (UserData) f_dataB;
+  data = (UserData) user_dataB;
   comm = data->comm;
   npes = data->npes;
   my_pe = data->my_pe;

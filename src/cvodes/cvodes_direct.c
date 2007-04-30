@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -64,7 +64,7 @@ static int cvDlsBandJacBWrapper(int nB, int mupperB, int mlowerB,
  */
 
 #define f              (cv_mem->cv_f)
-#define f_data         (cv_mem->cv_f_data)
+#define user_data      (cv_mem->cv_user_data)
 #define uround         (cv_mem->cv_uround)
 #define nst            (cv_mem->cv_nst)
 #define tn             (cv_mem->cv_tn)
@@ -377,7 +377,7 @@ int cvDlsDenseDQJac(int N, realtype t,
     inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
 
-    retval = f(t, y, ftemp, f_data);
+    retval = f(t, y, ftemp, user_data);
     nfeDQ++;
     if (retval != 0) break;
     
@@ -461,7 +461,7 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
 
     /* Evaluate f with incremented y */
 
-    retval = f(tn, ytemp, ftemp, f_data);
+    retval = f(tn, ytemp, ftemp, user_data);
     nfeDQ++;
     if (retval != 0) break;
 
@@ -660,7 +660,7 @@ static int cvDlsDenseJacBWrapper(int nB, realtype t,
   }
 
   /* Call user's adjoint dense djacB routine (of type CVDlsDenseJacFnB) */
-  retval = djacB(nB, t, ytmp, yB, fyB, JB, cvB_mem->cv_f_data, 
+  retval = djacB(nB, t, ytmp, yB, fyB, JB, cvB_mem->cv_user_data, 
                  tmp1B, tmp2B, tmp3B);
 
   return(retval);
@@ -703,7 +703,7 @@ static int cvDlsBandJacBWrapper(int nB, int mupperB, int mlowerB,
   }
 
   /* Call user's adjoint band bjacB routine (of type CVDlsBandJacFnB) */
-  retval = bjacB(nB, mupperB, mlowerB, t, ytmp, yB, fyB, JB, cvB_mem->cv_f_data,
+  retval = bjacB(nB, mupperB, mlowerB, t, ytmp, yB, fyB, JB, cvB_mem->cv_user_data,
                  tmp1B, tmp2B, tmp3B);
 
   return(retval);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -32,35 +32,35 @@
 
 /* Readability Replacements */
 
-#define lrw1    (cv_mem->cv_lrw1)
-#define liw1    (cv_mem->cv_liw1)
-#define tq      (cv_mem->cv_tq)
-#define tn      (cv_mem->cv_tn)
-#define h       (cv_mem->cv_h)
-#define gamma   (cv_mem->cv_gamma)
-#define nfe     (cv_mem->cv_nfe)
-#define f       (cv_mem->cv_f)
-#define f_data  (cv_mem->cv_f_data)
-#define ewt     (cv_mem->cv_ewt)
-#define lmem    (cv_mem->cv_lmem)
+#define lrw1      (cv_mem->cv_lrw1)
+#define liw1      (cv_mem->cv_liw1)
+#define tq        (cv_mem->cv_tq)
+#define tn        (cv_mem->cv_tn)
+#define h         (cv_mem->cv_h)
+#define gamma     (cv_mem->cv_gamma)
+#define nfe       (cv_mem->cv_nfe)
+#define f         (cv_mem->cv_f)
+#define user_data (cv_mem->cv_user_data)
+#define ewt       (cv_mem->cv_ewt)
+#define lmem      (cv_mem->cv_lmem)
 
-#define ils_type (cvspils_mem->s_type)
-#define sqrtN   (cvspils_mem->s_sqrtN)   
-#define ytemp   (cvspils_mem->s_ytemp)
-#define x       (cvspils_mem->s_x)
-#define ycur    (cvspils_mem->s_ycur)
-#define fcur    (cvspils_mem->s_fcur)
-#define delta   (cvspils_mem->s_delta)
-#define npe     (cvspils_mem->s_npe)
-#define nli     (cvspils_mem->s_nli)
-#define nps     (cvspils_mem->s_nps)
-#define ncfl    (cvspils_mem->s_ncfl)
-#define njtimes (cvspils_mem->s_njtimes)
-#define nfes    (cvspils_mem->s_nfes)
+#define ils_type  (cvspils_mem->s_type)
+#define sqrtN     (cvspils_mem->s_sqrtN)   
+#define ytemp     (cvspils_mem->s_ytemp)
+#define x         (cvspils_mem->s_x)
+#define ycur      (cvspils_mem->s_ycur)
+#define fcur      (cvspils_mem->s_fcur)
+#define delta     (cvspils_mem->s_delta)
+#define npe       (cvspils_mem->s_npe)
+#define nli       (cvspils_mem->s_nli)
+#define nps       (cvspils_mem->s_nps)
+#define ncfl      (cvspils_mem->s_ncfl)
+#define njtimes   (cvspils_mem->s_njtimes)
+#define nfes      (cvspils_mem->s_nfes)
 
-#define jtimesDQ (cvspils_mem->s_jtimesDQ)
-#define jtimes   (cvspils_mem->s_jtimes)
-#define j_data   (cvspils_mem->s_j_data)
+#define jtimesDQ  (cvspils_mem->s_jtimesDQ)
+#define jtimes    (cvspils_mem->s_jtimes)
+#define j_data    (cvspils_mem->s_j_data)
 
 #define last_flag (cvspils_mem->s_last_flag)
 
@@ -678,7 +678,7 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
     N_VLinearSum(sig, v, ONE, y, work);
 
     /* Set Jv = f(tn, y+sig*v) */
-    retval = f(t, work, Jv, f_data); 
+    retval = f(t, work, Jv, user_data); 
     nfes++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);

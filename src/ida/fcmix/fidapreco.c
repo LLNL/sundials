@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -76,7 +76,7 @@ void FIDA_SPILSSETPREC(int *flag, int *ier)
 /*************************************************/
 
 int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
-	     realtype c_j, void *prec_data,
+	     realtype c_j, void *user_data,
 	     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype *yy_data, *yp_data, *rr_data, *ewtdata, *v1data, *v2data, *v3data;
@@ -106,7 +106,7 @@ int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   v2data = N_VGetArrayPointer(vtemp2);
   v3data = N_VGetArrayPointer(vtemp3);
 
-  IDA_userdata = (FIDAUserData) prec_data;
+  IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
   FIDA_PSET(&t, yy_data, yp_data, rr_data, &c_j, ewtdata, &h,
@@ -120,7 +120,7 @@ int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
 
 int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
 	     N_Vector rvec, N_Vector zvec,
-	     realtype c_j, realtype delta, void *prec_data,
+	     realtype c_j, realtype delta, void *user_data,
 	     N_Vector vtemp1)
 {
   realtype *yy_data, *yp_data, *rr_data, *ewtdata, *rdata, *zdata, *v1data;
@@ -128,7 +128,7 @@ int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
-  yy_data = yp_data = rr_data = ewtdata = rdata = zdata = v1data = NULL;
+  yy_data = yp_data = rr_data = ewtdata = user_data = zdata = v1data = NULL;
 
   /* NOTE: The user-supplied routine should set ier to an
      appropriate value, but we preset the value to zero
@@ -147,7 +147,7 @@ int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   zdata   = N_VGetArrayPointer(zvec);
   v1data  = N_VGetArrayPointer(vtemp1);
 
-  IDA_userdata = (FIDAUserData) prec_data;
+  IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
   FIDA_PSOL(&t, yy_data, yp_data, rr_data, rdata, zdata,

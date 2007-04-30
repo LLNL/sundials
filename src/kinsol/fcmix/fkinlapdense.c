@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:01 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -71,7 +71,7 @@ void FKIN_LAPACKDENSESETJAC(int *flag, int *ier)
  */
 
 int FKINLapackDenseJac(int N, N_Vector uu, N_Vector fval,
-                       DlsMat J, void *f_data, N_Vector vtemp1, N_Vector vtemp2)
+                       DlsMat J, void *user_data, N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;
   int ier;

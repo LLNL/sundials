@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -75,12 +75,12 @@
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int g(realtype t, N_Vector y, realtype *gout, void *g_data);
+static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
 static int Jac(int N, realtype t,
-               N_Vector y, N_Vector fy, DlsMat J, void *jac_data,
+               N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions to output results */
@@ -207,7 +207,7 @@ int main()
  * f routine. Compute function f(t,y). 
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   realtype y1, y2, y3, yd1, yd3;
 
@@ -224,7 +224,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
  * g routine. Compute functions g_i(t,y) for i = 0,1. 
  */
 
-static int g(realtype t, N_Vector y, realtype *gout, void *g_data)
+static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
 {
   realtype y1, y3;
 
@@ -240,7 +240,7 @@ static int g(realtype t, N_Vector y, realtype *gout, void *g_data)
  */
 
 static int Jac(int N, realtype t,
-               N_Vector y, N_Vector fy, DlsMat J, void *jac_data,
+               N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;

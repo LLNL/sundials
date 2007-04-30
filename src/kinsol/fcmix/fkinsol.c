@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:22 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -380,7 +380,7 @@ void FKIN_FREE(void)
  * ----------------------------------------------------------------
  */
 
-int FKINfunc(N_Vector uu, N_Vector fval, void *f_data)
+int FKINfunc(N_Vector uu, N_Vector fval, void *user_data)
 {
   realtype *udata, *fdata;
   int ier;

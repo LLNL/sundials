@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -71,7 +71,7 @@ static int idaLapackBandFree(IDAMem IDA_mem);
  */
 
 #define res            (IDA_mem->ida_res)
-#define rdata          (IDA_mem->ida_rdata)
+#define user_data      (IDA_mem->ida_user_data)
 #define nst            (IDA_mem->ida_nst)
 #define tn             (IDA_mem->ida_tn)
 #define hh             (IDA_mem->ida_hh)
@@ -342,7 +342,7 @@ static int idaLapackDenseInit(IDAMem IDA_mem)
     djac = idaDlsDenseDQJac;
     J_data = IDA_mem;
   } else {
-    J_data = rdata;
+    J_data = user_data;
   }
 
   last_flag = IDADIRECT_SUCCESS;
@@ -452,7 +452,7 @@ static int idaLapackBandInit(IDAMem IDA_mem)
     bjac = idaDlsBandDQJac;
     J_data = IDA_mem;
   } else {
-    J_data = rdata;
+    J_data = user_data;
   }
 
   last_flag = IDADIRECT_SUCCESS;

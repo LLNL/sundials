@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -76,15 +76,15 @@ typedef struct {
 
 static int heatres(realtype tres, 
                    N_Vector uu, N_Vector up, N_Vector res, 
-                   void *rdata);
+                   void *user_data);
 
 static int rescomm(int Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, 
-                   void *rdata);
+                   void *user_data);
 
 static int reslocal(int Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
-                    void *rdata);
+                    void *user_data);
 
 static int BSend(MPI_Comm comm, int thispe, int ixsub,
                  int jysub, int dsizex, int dsizey,
@@ -197,8 +197,8 @@ int main(int argc, char *argv[])
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetRdata(mem, data);
-  if(check_flag(&ier, "IDASetRdata", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDASetUserData(mem, data);
+  if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetSuppressAlg(mem, TRUE);
   if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
@@ -328,13 +328,13 @@ int main(int argc, char *argv[])
  */
 
 static int heatres(realtype tres, N_Vector uu, N_Vector up, 
-                   N_Vector res, void *rdata)
+                   N_Vector res, void *user_data)
 {
   int retval;
   UserData data;
   int Nlocal;
   
-  data = (UserData) rdata;
+  data = (UserData) user_data;
   
   Nlocal = data->n_local;
 
@@ -354,7 +354,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
  */
 
 static int rescomm(int Nlocal, realtype tt, 
-                   N_Vector uu, N_Vector up, void *rdata)
+                   N_Vector uu, N_Vector up, void *user_data)
 {
   UserData data;
   realtype *uarray, *uext, buffer[2*MYSUB];
@@ -362,7 +362,7 @@ static int rescomm(int Nlocal, realtype tt,
   int thispe, ixsub, jysub, mxsub, mysub;
   MPI_Request request[4];
 
-  data = (UserData) rdata;
+  data = (UserData) user_data;
   uarray = NV_DATA_P(uu);
 
   /* Get comm, thispe, subgrid indices, data sizes, extended array uext. */
@@ -392,7 +392,7 @@ static int rescomm(int Nlocal, realtype tt,
 
 static int reslocal(int Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
-                    void *rdata)
+                    void *user_data)
 {
   realtype *uext, *uuv, *upv, *resv;
   realtype termx, termy, termctr;
@@ -403,7 +403,7 @@ static int reslocal(int Nlocal, realtype tres,
 
   /* Get subgrid indices, array sizes, extended work array uext. */
 
-  data = (UserData) rdata;
+  data = (UserData) user_data;
   uext = data->uext;
   uuv = NV_DATA_P(uu);
   upv = NV_DATA_P(up);

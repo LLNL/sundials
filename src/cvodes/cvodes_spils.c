@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-27 18:56:28 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -79,31 +79,31 @@ static int cvSpilsJacTimesVecBWrapper(N_Vector vB, N_Vector JvB, realtype t,
 
 /* Readability Replacements */
 
-#define lrw1    (cv_mem->cv_lrw1)
-#define liw1    (cv_mem->cv_liw1)
-#define tq      (cv_mem->cv_tq)
-#define tn      (cv_mem->cv_tn)
-#define h       (cv_mem->cv_h)
-#define gamma   (cv_mem->cv_gamma)
-#define nfe     (cv_mem->cv_nfe)
-#define f       (cv_mem->cv_f)
-#define f_data  (cv_mem->cv_f_data)
-#define ewt     (cv_mem->cv_ewt)
-#define lmem    (cv_mem->cv_lmem)
+#define lrw1      (cv_mem->cv_lrw1)
+#define liw1      (cv_mem->cv_liw1)
+#define tq        (cv_mem->cv_tq)
+#define tn        (cv_mem->cv_tn)
+#define h         (cv_mem->cv_h)
+#define gamma     (cv_mem->cv_gamma)
+#define nfe       (cv_mem->cv_nfe)
+#define f         (cv_mem->cv_f)
+#define user_data (cv_mem->cv_user_data)
+#define ewt       (cv_mem->cv_ewt)
+#define lmem      (cv_mem->cv_lmem)
 
 #define ils_type (cvspils_mem->s_type)
-#define sqrtN   (cvspils_mem->s_sqrtN)   
-#define ytemp   (cvspils_mem->s_ytemp)
-#define x       (cvspils_mem->s_x)
-#define ycur    (cvspils_mem->s_ycur)
-#define fcur    (cvspils_mem->s_fcur)
-#define delta   (cvspils_mem->s_delta)
-#define npe     (cvspils_mem->s_npe)
-#define nli     (cvspils_mem->s_nli)
-#define nps     (cvspils_mem->s_nps)
-#define ncfl    (cvspils_mem->s_ncfl)
-#define njtimes (cvspils_mem->s_njtimes)
-#define nfes    (cvspils_mem->s_nfes)
+#define sqrtN    (cvspils_mem->s_sqrtN)   
+#define ytemp    (cvspils_mem->s_ytemp)
+#define x        (cvspils_mem->s_x)
+#define ycur     (cvspils_mem->s_ycur)
+#define fcur     (cvspils_mem->s_fcur)
+#define delta    (cvspils_mem->s_delta)
+#define npe      (cvspils_mem->s_npe)
+#define nli      (cvspils_mem->s_nli)
+#define nps      (cvspils_mem->s_nps)
+#define ncfl     (cvspils_mem->s_ncfl)
+#define njtimes  (cvspils_mem->s_njtimes)
+#define nfes     (cvspils_mem->s_nfes)
 
 #define jtimesDQ (cvspils_mem->s_jtimesDQ)
 #define jtimes   (cvspils_mem->s_jtimes)
@@ -734,7 +734,7 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
     N_VLinearSum(sig, v, ONE, y, work);
 
     /* Set Jv = f(tn, y+sig*v) */
-    retval = f(t, work, Jv, f_data); 
+    retval = f(t, work, Jv, user_data); 
     nfes++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);
@@ -1095,7 +1095,7 @@ static int cvSpilsPrecSetupBWrapper(realtype t, N_Vector yB,
 
   /* Call user's adjoint precondB routine */
   retval = pset_B(t, ytmp, yB, fyB, jokB, jcurPtrB, gammaB,
-                  cvB_mem->cv_f_data, tmp1B, tmp2B, tmp3B);
+                  cvB_mem->cv_user_data, tmp1B, tmp2B, tmp3B);
 
   return(retval);
 }
@@ -1136,7 +1136,7 @@ static int cvSpilsPrecSolveBWrapper(realtype t, N_Vector yB, N_Vector fyB,
 
   /* Call user's adjoint psolveB routine */
   retval = psolve_B(t, ytmp, yB, fyB, rB, zB, gammaB, deltaB, 
-                    lrB, cvB_mem->cv_f_data, tmpB);
+                    lrB, cvB_mem->cv_user_data, tmpB);
 
   return(retval);
 }
@@ -1176,7 +1176,7 @@ static int cvSpilsJacTimesVecBWrapper(N_Vector vB, N_Vector JvB, realtype t,
   } 
 
   /* Call user's adjoint jtimesB routine */
-  retval = jtimes_B(vB, JvB, t, ytmp, yB, fyB, cvB_mem->cv_f_data, tmpB);
+  retval = jtimes_B(vB, JvB, t, ytmp, yB, fyB, cvB_mem->cv_user_data, tmpB);
 
   return(retval);
 }

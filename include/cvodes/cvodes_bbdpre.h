@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 17:41:06 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -111,7 +111,7 @@ extern "C" {
  *    CVodeMalloc, and the names of the user's gloc and cfn
  *    functions are passed to CVBBDPrecInit.
  *
- * 4) The pointer to the user-defined data block f_data, which is
+ * 4) The pointer to the user-defined data block user_data, which is
  *    set through CVodeSetFdata is also available to the user in
  *    gloc and cfn.
  *
@@ -141,11 +141,11 @@ extern "C" {
  * This function takes as input the local vector size Nlocal, the
  * independent variable value t, the local real dependent
  * variable vector y, and a pointer to the user-defined data
- * block f_data. It is to compute the local part of g(t,y) and
+ * block user_data. It is to compute the local part of g(t,y) and
  * store this in the vector g.
  * (Allocation of memory for y and g is handled within the
  * preconditioner module.)
- * The f_data parameter is the same as that specified by the user
+ * The user_data parameter is the same as that specified by the user
  * through the CVodeSetFdata routine.
  *
  * A CVLocalFn should return 0 if successful, a positive value if 
@@ -155,7 +155,7 @@ extern "C" {
  */
 
 typedef int (*CVLocalFn)(int Nlocal, realtype t, 
-			 N_Vector y, N_Vector g, void *f_data);
+			 N_Vector y, N_Vector g, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -167,11 +167,11 @@ typedef int (*CVLocalFn)(int Nlocal, realtype t,
  *
  * This function takes as input the local vector size Nlocal,
  * the independent variable value t, the dependent variable
- * vector y, and a pointer to the user-defined data block f_data.
- * The f_data parameter is the same as that specified by the user
+ * vector y, and a pointer to the user-defined data block user_data.
+ * The user_data parameter is the same as that specified by the user
  * through the CVodeSetFdata routine. The CVCommFn cfn is
  * expected to save communicated data in space defined within the
- * structure f_data. Note: A CVCommFn cfn does not have a return value.
+ * structure user_data. Note: A CVCommFn cfn does not have a return value.
  *
  * Each call to the CVCommFn cfn is preceded by a call to the
  * CVRhsFn f with the same (t,y) arguments. Thus cfn can omit any
@@ -187,7 +187,7 @@ typedef int (*CVLocalFn)(int Nlocal, realtype t,
 
 typedef int (*CVCommFn)(int Nlocal, realtype t, 
 			N_Vector y,
-			void *f_data);
+			void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -303,12 +303,12 @@ SUNDIALS_EXPORT int CVBBDPrecGetNumGfnEvals(void *cvode_mem, long int *ngevalsBB
 typedef int (*CVLocalFnB)(int NlocalB, realtype t, 
 			  N_Vector y, 
 			  N_Vector yB, N_Vector gB,
-			  void *f_dataB);
+			  void *user_dataB);
   
 typedef int (*CVCommFnB)(int NlocalB, realtype t,
 			 N_Vector y, 
 			 N_Vector yB,
-			 void *f_dataB);
+			 void *user_dataB);
 
 /*
  * -----------------------------------------------------------------

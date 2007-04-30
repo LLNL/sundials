@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2007-04-26 23:17:26 $
+ * $Revision: 1.18 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -400,7 +400,7 @@ void CVodeAdjFree(void *cvode_mem)
 #define lmm        (cv_mem->cv_lmm)
 #define iter       (cv_mem->cv_iter)
 #define reltol     (cv_mem->cv_reltol)
-#define f_data     (cv_mem->cv_f_data)
+#define user_data  (cv_mem->cv_user_data)
 #define errfp      (cv_mem->cv_errfp)
 #define h0u        (cv_mem->cv_h0u)
 #define tempv      (cv_mem->cv_tempv)
@@ -696,7 +696,7 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
     return(CV_MEM_FAIL);
   }
 
-  CVodeSetFdata(cvodeB_mem, cvode_mem);
+  CVodeSetUserData(cvodeB_mem, cvode_mem);
 
   CVodeSetMaxHnilWarns(cvodeB_mem, -1);
 
@@ -715,7 +715,7 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
   new_cvB_mem->cv_fQ      = NULL;
   new_cvB_mem->cv_fQs     = NULL;
 
-  new_cvB_mem->cv_f_data  = NULL;
+  new_cvB_mem->cv_user_data  = NULL;
 
   new_cvB_mem->cv_lmem    = NULL;
   new_cvB_mem->cv_lfree   = NULL;
@@ -2445,7 +2445,7 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
 
   if (nst == 0) {
 
-    retval = f(tn, content->y, content->yd, f_data);
+    retval = f(tn, content->y, content->yd, user_data);
 
     if (IMstoreSensi) {
       retval = cvSensRhsWrapper(cv_mem, tn, content->y, content->yd,
@@ -2871,7 +2871,6 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
  *
  * This routine interfaces to the CVRhsFnB (or CVRhsFnBS) routine 
  * provided by the user.
- * NOTE: f_data actually contains cvadj_mem
  */
 
 static int CVArhs(realtype t, N_Vector yB, 
@@ -2903,9 +2902,9 @@ static int CVArhs(realtype t, N_Vector yB,
   /* Call the user's RHS function */
 
   if (cvB_mem->cv_f_withSensi)
-    retval = (cvB_mem->cv_fs)(t, ytmp, yStmp, yB, yBdot, cvB_mem->cv_f_data);
+    retval = (cvB_mem->cv_fs)(t, ytmp, yStmp, yB, yBdot, cvB_mem->cv_user_data);
   else
-    retval = (cvB_mem->cv_f)(t, ytmp, yB, yBdot, cvB_mem->cv_f_data);
+    retval = (cvB_mem->cv_f)(t, ytmp, yB, yBdot, cvB_mem->cv_user_data);
 
   return(retval);
 }
@@ -2941,9 +2940,9 @@ static int CVArhsQ(realtype t, N_Vector yB,
   /* Call the user's RHS function */
 
   if (cvB_mem->cv_fQ_withSensi)
-    retval = (cvB_mem->cv_fQs)(t, ytmp, yStmp, yB, qBdot, cvB_mem->cv_f_data);
+    retval = (cvB_mem->cv_fQs)(t, ytmp, yStmp, yB, qBdot, cvB_mem->cv_user_data);
   else
-    retval = (cvB_mem->cv_fQ)(t, ytmp, yB, qBdot, cvB_mem->cv_f_data);
+    retval = (cvB_mem->cv_fQ)(t, ytmp, yB, qBdot, cvB_mem->cv_user_data);
 
   return(retval);
 }

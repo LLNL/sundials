@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -110,7 +110,7 @@ void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
   IDA_userdata->rpar = rpar;
   IDA_userdata->ipar = ipar;
 
-  *ier = IDASetRdata(IDA_idamem, IDA_userdata);
+  *ier = IDASetUserData(IDA_idamem, IDA_userdata);
   if(*ier != IDA_SUCCESS) {
     free(IDA_userdata); IDA_userdata = NULL;
     *ier = -1;
@@ -705,7 +705,7 @@ void FIDA_FREE(void)
 
   IDAFree(&IDA_idamem);
 
-  free(ida_mem->ida_rdata); ida_mem->ida_rdata = NULL;
+  free(ida_mem->ida_user_data); ida_mem->ida_user_data = NULL;
 
   /* Free F2C_IDA_vec */
   N_VSetArrayPointer(NULL, F2C_IDA_vec);
@@ -725,7 +725,7 @@ void FIDA_FREE(void)
 /*************************************************/
 
 int FIDAresfn(realtype t, N_Vector yy, N_Vector yp,
-	      N_Vector rr, void *res_data)
+	      N_Vector rr, void *user_data)
 {
   int ier;
   realtype *yy_data, *yp_data, *rr_data;
@@ -742,7 +742,7 @@ int FIDAresfn(realtype t, N_Vector yy, N_Vector yp,
   yp_data = N_VGetArrayPointer(yp);
   rr_data = N_VGetArrayPointer(rr);
 
-  IDA_userdata = (FIDAUserData) res_data;
+  IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
   FIDA_RESFUN(&t, yy_data, yp_data, rr_data, 

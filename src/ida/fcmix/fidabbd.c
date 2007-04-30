@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -79,7 +79,7 @@ void FIDA_BBDREINIT(int *Nloc, int *mudq, int *mldq,
 /*************************************************/
 
 int FIDAgloc(int Nloc, realtype t, N_Vector yy, N_Vector yp,
-	     N_Vector gval, void *res_data)
+	     N_Vector gval, void *user_data)
 {
   realtype *yy_data, *yp_data, *gval_data;
   int ier;
@@ -99,7 +99,7 @@ int FIDAgloc(int Nloc, realtype t, N_Vector yy, N_Vector yp,
   yp_data   = N_VGetArrayPointer(yp);
   gval_data = N_VGetArrayPointer(gval);
 
-  IDA_userdata = (FIDAUserData) res_data;
+  IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
   FIDA_GLOCFN(&Nloc, &t, yy_data, yp_data, gval_data, 
@@ -111,7 +111,7 @@ int FIDAgloc(int Nloc, realtype t, N_Vector yy, N_Vector yp,
 /*************************************************/
 
 int FIDAcfn(int Nloc, realtype t, N_Vector yy, N_Vector yp,
-	    void *res_data)
+	    void *user_data)
 {
   realtype *yy_data, *yp_data;
   int ier;
@@ -130,7 +130,7 @@ int FIDAcfn(int Nloc, realtype t, N_Vector yy, N_Vector yp,
   yy_data = N_VGetArrayPointer(yy);
   yp_data = N_VGetArrayPointer(yp);
 
-  IDA_userdata = (FIDAUserData) res_data;
+  IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
   FIDA_COMMFN(&Nloc, &t, yy_data, yp_data, 

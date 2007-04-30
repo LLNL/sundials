@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-04-26 23:17:26 $
+ * $Revision: 1.17 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -82,7 +82,7 @@ typedef struct CVodeMemRec {
     --------------------------*/
 
   CVRhsFn cv_f;            /* y' = f(t,y(t))                               */
-  void *cv_f_data;         /* user pointer passed to f                     */
+  void *cv_user_data;      /* user pointer passed to f                     */
 
   int cv_lmm;              /* lmm = ADAMS or BDF                           */
   int cv_iter;             /* iter = FUNCTIONAL or NEWTON                  */
@@ -610,8 +610,8 @@ struct CVodeBMemRec {
   CVQuadRhsFnB cv_fQ;
   CVQuadRhsFnBS cv_fQs;
 
-  /* User f_data */
-  void *cv_f_data;
+  /* User user_data */
+  void *cv_user_data;
     
   /* Memory block for a linear solver's interface to CVODEA */
   void *cv_lmem;

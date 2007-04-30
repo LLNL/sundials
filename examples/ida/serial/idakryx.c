@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -62,7 +62,7 @@ typedef struct {
 /* Prototypes for functions called by IDA */
 
 int resHeat(realtype tres, N_Vector uu, N_Vector up,
-            N_Vector resval, void *rdata);
+            N_Vector resval, void *user_data);
 
 int PsetupHeat(realtype tt, 
                N_Vector uu, N_Vector up, N_Vector rr, 
@@ -148,8 +148,8 @@ int main()
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
 
-  ier = IDASetRdata(mem, data);
-  if(check_flag(&ier, "IDASetRdata", 1)) return(1);
+  ier = IDASetUserData(mem, data);
+  if(check_flag(&ier, "IDASetUserData", 1)) return(1);
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
@@ -287,7 +287,7 @@ int main()
 
 int resHeat(realtype tt, 
             N_Vector uu, N_Vector up, N_Vector rr, 
-            void *res_data)
+            void *user_data)
 {
   long int i, j, offset, loc, mm;
   realtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
@@ -297,7 +297,7 @@ int resHeat(realtype tt,
   up_data = NV_DATA_S(up); 
   rr_data = NV_DATA_S(rr);
 
-  data = (UserData) res_data;
+  data = (UserData) user_data;
   
   coeff = data->coeff;
   mm    = data->mm;

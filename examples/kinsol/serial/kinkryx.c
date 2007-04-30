@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:43:11 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -142,16 +142,16 @@ typedef struct {
 
 /* Functions Called by the KINSOL Solver */
 
-static int func(N_Vector cc, N_Vector fval, void *f_data);
+static int func(N_Vector cc, N_Vector fval, void *user_data);
 
 static int PrecSetupBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
-                       void *P_data,
+                       void *user_data,
                        N_Vector vtemp1, N_Vector vtemp2);
 
 static int PrecSolveBD(N_Vector cc, N_Vector cscale, 
                        N_Vector fval, N_Vector fscale, 
-                       N_Vector vv, void *P_data,
+                       N_Vector vv, void *user_data,
                        N_Vector ftem);
 
 /* Private Helper Functions */
@@ -165,7 +165,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 static void PrintOutput(N_Vector cc);
 static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
-                    void *f_data);
+                    void *user_data);
 static realtype DotProd(long int size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
@@ -221,8 +221,8 @@ int main(void)
   flag = KINInit(kmem, func, cc);
   if (check_flag(&flag, "KINInit", 1)) return(1);
 
-  flag = KINSetFdata(kmem, data);
-  if (check_flag(&flag, "KINSetFdata", 1)) return(1);
+  flag = KINSetUserData(kmem, data);
+  if (check_flag(&flag, "KINSetUserData", 1)) return(1);
   flag = KINSetConstraints(kmem, constraints);
   if (check_flag(&flag, "KINSetConstraints", 1)) return(1);
   flag = KINSetFuncNormTol(kmem, fnormtol);
@@ -290,13 +290,13 @@ int main(void)
  * System function for predator-prey system 
  */
 
-static int func(N_Vector cc, N_Vector fval, void *f_data)
+static int func(N_Vector cc, N_Vector fval, void *user_data)
 {
   realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
   long int jx, jy, is, idyu, idyl, idxr, idxl;
   UserData data;
   
-  data = (UserData)f_data;
+  data = (UserData)user_data;
   delx = data->dx;
   dely = data->dy;
   
@@ -322,7 +322,7 @@ static int func(N_Vector cc, N_Vector fval, void *f_data)
       fxy = IJ_Vptr(fval,jx,jy);
 
       /* Get species interaction rate array at (xx,yy) */
-      WebRate(xx, yy, cxy, rxy, f_data);
+      WebRate(xx, yy, cxy, rxy, user_data);
       
       for(is = 0; is < NUM_SPECIES; is++) {
         
@@ -353,7 +353,7 @@ static int func(N_Vector cc, N_Vector fval, void *f_data)
 
 static int PrecSetupBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
-                       void *P_data,
+                       void *user_data,
                        N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
@@ -361,7 +361,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
   long int i, j, jx, jy, ret;
   UserData data;
   
-  data = (UserData) P_data;
+  data = (UserData) user_data;
   delx = data->dx;
   dely = data->dy;
   
@@ -420,14 +420,14 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
 
 static int PrecSolveBD(N_Vector cc, N_Vector cscale, 
                        N_Vector fval, N_Vector fscale, 
-                       N_Vector vv, void *P_data,
+                       N_Vector vv, void *user_data,
                        N_Vector ftem)
 {
   realtype **Pxy, *vxy;
   int *piv, jx, jy;
   UserData data;
   
-  data = (UserData)P_data;
+  data = (UserData)user_data;
   
   for (jx=0; jx<MX; jx++) {
     
@@ -454,13 +454,13 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
  */
 
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
-                    void *f_data)
+                    void *user_data)
 {
   long int i;
   realtype fac;
   UserData data;
   
-  data = (UserData)f_data;
+  data = (UserData)user_data;
   
   for (i = 0; i<NUM_SPECIES; i++)
     ratesxy[i] = DotProd(NUM_SPECIES, cxy, acoef[i]);

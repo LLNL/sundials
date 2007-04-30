@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:20 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -67,7 +67,7 @@ void FCV_LAPACKDENSESETJAC(int *flag, int *ier)
 
 int FCVLapackDenseJac(int N, realtype t,
                       N_Vector y, N_Vector fy, 
-                      DlsMat J, void *f_data,
+                      DlsMat J, void *user_data,
                       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
@@ -85,7 +85,7 @@ int FCVLapackDenseJac(int N, realtype t,
 
   jacdata = DENSE_COL(J,0);
 
-  CV_userdata = (FCVUserData) f_data;
+  CV_userdata = (FCVUserData) user_data;
 
   FCV_DJAC(&N, &t, ydata, fydata, jacdata, &h, 
            CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data, &ier); 

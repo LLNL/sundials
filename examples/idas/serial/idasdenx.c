@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -50,14 +50,14 @@
 /* Prototypes of functions called by IDA */
 
 int resrob(realtype tres, N_Vector yy, N_Vector yp, 
-           N_Vector resval, void *rdata);
+           N_Vector resval, void *user_data);
 
 static int grob(realtype t, N_Vector yy, N_Vector yp,
-                realtype *gout, void *g_data);
+                realtype *gout, void *user_data);
 
 int jacrob(int Neq, realtype tt,  realtype cj, 
            N_Vector yy, N_Vector yp, N_Vector resvec,
-           DlsMat JJ, void *jdata,
+           DlsMat JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
@@ -187,7 +187,7 @@ int main(void)
  * Define the system residual function. 
  */
 
-int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
+int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
 {
   realtype *yval, *ypval, *rval;
 
@@ -208,7 +208,7 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
  */
 
 static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
-                void *g_data)
+                void *user_data)
 {
   realtype *yval, y1, y3;
 
@@ -226,7 +226,7 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
 
 int jacrob(int Neq, realtype tt,  realtype cj, 
            N_Vector yy, N_Vector yp, N_Vector resvec,
-           DlsMat JJ, void *jdata,
+           DlsMat JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;

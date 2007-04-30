@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -91,8 +91,8 @@ typedef struct KINSpilsMemRec {
 
    /* Preconditioner computation
    * (a) user-provided:
-   *     - P_data == f_data
-   *     - pfree == NULL (the user dealocates memory for f_data)
+   *     - P_data == user_data
+   *     - pfree == NULL (the user dealocates memory for user_data)
    * (b) internal preconditioner module
    *     - P_data == kinsol_mem
    *     - pfree == set by the prec. module and called in KINSpilsFree
@@ -105,7 +105,7 @@ typedef struct KINSpilsMemRec {
 
   /* Jacobian times vector compuation
    * (a) jtimes function provided by the user:
-   *     - J_data == f_data
+   *     - J_data == user_data
    *     - jtimesDQ == FALSE
    * (b) internal jtimes
    *     - J_data == kinsol_mem

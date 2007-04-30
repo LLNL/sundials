@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-24 20:26:51 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -91,19 +91,19 @@ typedef struct {
 
 /* Prototypes of user-supplied functions */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int Jac(int N, int mu, int ml,
                realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *jac_data,
+               DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
 
-static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *f_dataB);
+static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *user_dataB);
 
 static int JacB(int NB, int muB, int mlB,
                 realtype tB, N_Vector u, 
                 N_Vector uB, N_Vector fuB,
-                DlsMat JB, void *jac_dataB,
+                DlsMat JB, void *user_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B); 
 
 /* Prototypes of private functions */
@@ -167,8 +167,8 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
-  flag = CVodeSetFdata(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
   flag = CVodeInit(cvode_mem, f, T0, u);
   if(check_flag(&flag, "CVodeInit", 1)) return(1);
@@ -213,8 +213,8 @@ int main(int argc, char *argv[])
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
   if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
 
-  flag = CVodeSetFdataB(cvode_mem, indexB, data);
-  if(check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
+  flag = CVodeSetUserDataB(cvode_mem, indexB, data);
+  if(check_flag(&flag, "CVodeSetUserDataB", 1)) return(1);
 
   flag = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
   if(check_flag(&flag, "CVodeInitB", 1)) return(1);
@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
  * f routine. right-hand side of forward ODE.
  */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
   realtype *udata, *dudata;
@@ -269,7 +269,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
   /* Extract needed constants from data */
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
@@ -306,7 +306,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
 static int Jac(int N, int mu, int ml,
                realtype t, N_Vector u, N_Vector fu, 
-               DlsMat J, void *jac_data,
+               DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int i, j, k;
@@ -323,7 +323,7 @@ static int Jac(int N, int mu, int ml,
       df(i,j+1)/du(i,j) = 1/dy^2           (if j < MY)
   */
 
-  data = (UserData) jac_data;
+  data = (UserData) user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
@@ -351,7 +351,7 @@ static int Jac(int N, int mu, int ml,
  */
 
 static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, 
-              void *f_dataB)
+              void *user_dataB)
 {
   UserData data;
   realtype *uBdata, *duBdata;
@@ -365,7 +365,7 @@ static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
 
   /* Extract needed constants from data */
 
-  data = (UserData) f_dataB;
+  data = (UserData) user_dataB;
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
@@ -403,7 +403,7 @@ static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
 static int JacB(int NB, int muB, int mlB,
                 realtype tB, N_Vector u, 
                 N_Vector uB, N_Vector fuB,
-                DlsMat JB, void *jac_dataB,
+                DlsMat JB, void *user_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   int i, j, k;
@@ -412,7 +412,7 @@ static int JacB(int NB, int muB, int mlB,
 
   /* The Jacobian of the adjoint system is: JB = -J^T */
 
-  data = (UserData) jac_dataB;
+  data = (UserData) user_dataB;
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;

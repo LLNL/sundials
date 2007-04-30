@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -43,7 +43,7 @@
 #define lrw1           (kin_mem->kin_lrw1)
 #define liw1           (kin_mem->kin_liw1)
 #define func           (kin_mem->kin_func)
-#define f_data         (kin_mem->kin_f_data)
+#define user_data      (kin_mem->kin_user_data)
 #define printfl        (kin_mem->kin_printfl)
 #define lmem           (kin_mem->kin_lmem)
 #define uu             (kin_mem->kin_uu)
@@ -609,7 +609,7 @@ int KINSpilsDQJtimes(N_Vector v, N_Vector Jv,
  
   /* call the system function to calculate func(u+sigma*v) */
 
-  retval = func(vtemp1, vtemp2, f_data);    
+  retval = func(vtemp1, vtemp2, user_data);    
   nfes++;
   if (retval != 0) return(retval);
 

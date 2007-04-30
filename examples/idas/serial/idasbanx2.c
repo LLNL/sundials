@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:25 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -145,7 +145,7 @@ typedef struct {
 /* Prototypes for functions called by the IDA Solver. */
 
 static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval, 
-                  void *rdata);
+                  void *user_data);
 
 /* Prototypes for private Helper Functions. */
 
@@ -212,8 +212,8 @@ int main()
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
 
-  retval = IDASetRdata(mem, webdata);
-  if(check_flag(&retval, "IDASetRdata", 1)) return(1);
+  retval = IDASetUserData(mem, webdata);
+  if(check_flag(&retval, "IDASetUserData", 1)) return(1);
 
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1)) return(1);
@@ -295,13 +295,13 @@ int main()
  */
 
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
-                  N_Vector res,  void *rdata)
+                  N_Vector res,  void *user_data)
 {
   long int jx, jy, is, yloc, loc, np;
   realtype *resv, *cpv;
   UserData webdata;
   
-  webdata = (UserData)rdata;
+  webdata = (UserData)user_data;
   
   cpv = NV_DATA_S(cp);
   resv = NV_DATA_S(res);

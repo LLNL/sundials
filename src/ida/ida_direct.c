@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +44,7 @@
  */
 
 #define res            (IDA_mem->ida_res)
-#define rdata          (IDA_mem->ida_rdata)
+#define user_data      (IDA_mem->ida_user_data)
 #define uround         (IDA_mem->ida_uround)
 #define nst            (IDA_mem->ida_nst)
 #define tn             (IDA_mem->ida_tn)
@@ -378,7 +378,7 @@ int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
     y_data[j] += inc;
     yp_data[j] += c_j*inc;
 
-    retval = res(tt, yy, yp, rtemp, rdata);
+    retval = res(tt, yy, yp, rtemp, user_data);
     nreDQ++;
     if (retval != 0) break;
 
@@ -503,7 +503,7 @@ int idaDlsBandDQJac(int N, int mupper, int mlower,
 
     /* Call res routine with incremented arguments. */
 
-    retval = res(tt, ytemp, yptemp, rtemp, rdata);
+    retval = res(tt, ytemp, yptemp, rtemp, user_data);
     nreDQ++;
     if (retval != 0) break;
 

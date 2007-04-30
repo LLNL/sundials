@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -87,7 +87,7 @@ extern "C" {
  *  fscale  vector (type N_Vector) containing diagonal elements
  *          of scaling matrix for fval [input]
  *
- *  f_data  pointer to user-allocated dat memory block
+ *  user_data  pointer to user-allocated dat memory block
  *
  *  vtemp1/vtemp2  available scratch vectors (temporary storage)
  *
@@ -98,7 +98,7 @@ extern "C" {
 
 typedef int (*KINSpilsPrecSetupFn)(N_Vector uu, N_Vector uscale,
                                    N_Vector fval, N_Vector fscale,
-                                   void *f_data, N_Vector vtemp1,
+                                   void *user_data, N_Vector vtemp1,
 				   N_Vector vtemp2);
 
 /*
@@ -127,7 +127,7 @@ typedef int (*KINSpilsPrecSetupFn)(N_Vector uu, N_Vector uscale,
  *      which upon return contains a solution of the linear system
  *      P*z = r [input/output]
  *
- *  f_data  pointer to user-allocated dat memory block
+ *  user_data  pointer to user-allocated dat memory block
  *
  *  vtemp  available scratch vector (volatile storage)
  *
@@ -143,7 +143,7 @@ typedef int (*KINSpilsPrecSetupFn)(N_Vector uu, N_Vector uscale,
 
 typedef int (*KINSpilsPrecSolveFn)(N_Vector uu, N_Vector uscale, 
                                    N_Vector fval, N_Vector fscale, 
-                                   N_Vector vv, void *f_data,
+                                   N_Vector vv, void *user_data,
                                    N_Vector vtemp);
 
 /*
@@ -168,7 +168,7 @@ typedef int (*KINSpilsPrecSolveFn)(N_Vector uu, N_Vector uscale,
  *          to be updated/reevaluated, if appropriate, unless
  *          new_uu = FALSE [input/output]
  *
- *  f_data  pointer to user data, the same as the f_data
+ *  user_data  pointer to user data, the same as the user_data
  *          parameter passed to the KINSetFdata function.
  *
  * If successful, the function should return 0 (zero). If an error

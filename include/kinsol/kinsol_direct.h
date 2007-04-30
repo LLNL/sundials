@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:23 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -73,7 +73,7 @@ extern "C" {
  *            by a KINDlsDenseJacFn with an approximation to the
  *            Jacobian matrix J = (dF_i/dy_j).
  *
- * f_data   - pointer to user data - the same as the f_data
+ * user_data   - pointer to user data - the same as the user_data
  *            parameter passed to KINSetFdata.
  *
  * tmp1, tmp2 - available scratch vectors (volatile storage)
@@ -111,7 +111,7 @@ extern "C" {
   
 typedef int (*KINDlsDenseJacFn)(int N,
 				N_Vector u, N_Vector fu, 
-				DlsMat J, void *f_data,
+				DlsMat J, void *user_data,
 				N_Vector tmp1, N_Vector tmp2);
   
 /*
@@ -142,7 +142,7 @@ typedef int (*KINDlsDenseJacFn)(int N,
  *            KINDlsBandJacFn with an approximation to the Jacobian
  *            matrix Jac = (dF_i/dy_j).
  *
- * f_data   - pointer to user data - the same as the f_data
+ * user_data   - pointer to user data - the same as the user_data
  *            parameter passed to KINSetFdata.
  *
  * tmp1, tmp2 - available scratch vectors (volatile storage)
@@ -192,7 +192,7 @@ typedef int (*KINDlsDenseJacFn)(int N,
 
 typedef int (*KINDlsBandJacFn)(int N, int mupper, int mlower,
 			       N_Vector u, N_Vector fu, 
-			       DlsMat J, void *f_data,
+			       DlsMat J, void *user_data,
 			       N_Vector tmp1, N_Vector tmp2);
 
 /*

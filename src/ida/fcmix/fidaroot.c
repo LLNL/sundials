@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-23 23:37:21 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -71,7 +71,7 @@ void FIDA_ROOTFREE(void)
 /***************************************************************************/
 
 int FIDArootfunc(realtype t, N_Vector y, N_Vector yp, realtype *gout,
-                 void *res_data)
+                 void *user_data)
 {
   int ier;
   realtype *ydata, *ypdata;
@@ -80,7 +80,7 @@ int FIDArootfunc(realtype t, N_Vector y, N_Vector yp, realtype *gout,
   ydata  = N_VGetArrayPointer(y);
   ypdata = N_VGetArrayPointer(yp);
 
-  IDA_userdata = (FIDAUserData) res_data;
+  IDA_userdata = (FIDAUserData) user_data;
 
   FIDA_ROOTFN(&t, ydata, ypdata, gout, IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 

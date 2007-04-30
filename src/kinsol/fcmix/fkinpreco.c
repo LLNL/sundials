@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.3 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -79,7 +79,7 @@ void FKIN_SPILSSETPREC(int *flag, int *ier)
 
 int FKINPSet(N_Vector uu, N_Vector uscale,
              N_Vector fval, N_Vector fscale,
-             void *P_data,
+             void *user_data,
              N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *udata, *uscaledata, *fdata, *fscaledata, *vtemp1data, *vtemp2data;
@@ -113,7 +113,7 @@ int FKINPSet(N_Vector uu, N_Vector uscale,
 
 int FKINPSol(N_Vector uu, N_Vector uscale, 
              N_Vector fval, N_Vector fscale, 
-             N_Vector vv, void *P_data,
+             N_Vector vv, void *user_data,
              N_Vector ftem)
 {
   realtype *udata, *uscaledata, *fdata, *fscaledata, *vvdata, *ftemdata;

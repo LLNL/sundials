@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-27 18:56:29 $
+ * $Revision: 1.10 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -134,16 +134,16 @@ typedef struct {
 
 /* Prototypes of user-supplied functions */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, void *P_data,
+                   booleantype *jcurPtr, realtype gamma, void *user_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp);
+                  int lr, void *user_data, N_Vector vtemp);
 
 /* Prototypes of private functions */
 
@@ -207,8 +207,8 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
-  flag = CVodeSetFdata(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
   flag = CVodeSetMaxNumSteps(cvode_mem, 2000);
   if(check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return(1);
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,y). 
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;
@@ -333,7 +333,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   UserData data;
   realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   ydata = NV_DATA_S(y);
   dydata = NV_DATA_S(ydot);
 
@@ -429,7 +429,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
  */
 
 static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, void *P_data,
+                   booleantype *jcurPtr, realtype gamma, void *user_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
@@ -440,8 +440,8 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
   UserData data;
   realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
-  /* Make local copies of pointers in P_data, and of pointer to y's data */
-  data = (UserData) P_data;
+  /* Make local copies of pointers in user_data, and of pointer to y's data */
+  data = (UserData) user_data;
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
@@ -531,7 +531,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *P_data, N_Vector vtemp)
+                  int lr, void *user_data, N_Vector vtemp)
 {
   realtype **(*P)[MZ];
   int *(*pivot)[MZ];
@@ -539,9 +539,9 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
   realtype *zdata, *v;
   UserData data;
 
-  /* Extract the P and pivot arrays from P_data. */
+  /* Extract the P and pivot arrays from user_data. */
 
-  data = (UserData) P_data;
+  data = (UserData) user_data;
   P = data->P;
   pivot = data->pivot;
   zdata = NV_DATA_S(z);

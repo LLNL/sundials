@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:41:05 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -394,11 +394,11 @@ static void CVBandPrecFree(CVodeMem cv_mem)
   pdata = NULL;
 }
 
-#define ewt    (cv_mem->cv_ewt)
-#define uround (cv_mem->cv_uround)
-#define h      (cv_mem->cv_h)
-#define f      (cv_mem->cv_f)
-#define f_data (cv_mem->cv_f_data)
+#define ewt       (cv_mem->cv_ewt)
+#define uround    (cv_mem->cv_uround)
+#define h         (cv_mem->cv_h)
+#define f         (cv_mem->cv_f)
+#define user_data (cv_mem->cv_user_data)
 
 /*
  * -----------------------------------------------------------------
@@ -455,7 +455,7 @@ static int CVBandPDQJac(CVBandPrecData pdata,
 
     /* Evaluate f with incremented y. */
 
-    retval = f(t, ytemp, ftemp, f_data);
+    retval = f(t, ytemp, ftemp, user_data);
     nfeBP++;
     if (retval != 0) return(retval);
 

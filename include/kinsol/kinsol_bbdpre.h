@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:28:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -119,10 +119,10 @@ extern "C" {
  *
  * This function takes as input the local vector size Nlocal,
  * the solution vector u, and a pointer to the user-defined
- * data block f_data.
+ * data block user_data.
  *
  * The KINCommFn gcomm is expected to save communicated data in
- * space defined with the structure *f_data.
+ * space defined with the structure *user_data.
  *
  * Each call to the KINCommFn is preceded by a call to the system
  * function func at the current iterate uu. Thus functions of the
@@ -136,7 +136,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINCommFn)(int Nlocal, N_Vector u, void *f_data);
+typedef int (*KINCommFn)(int Nlocal, N_Vector u, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -150,7 +150,7 @@ typedef int (*KINCommFn)(int Nlocal, N_Vector u, void *f_data);
  * The implementation of this function must have type KINLocalFn
  * and take as input the local vector size Nlocal, the local
  * solution vector uu, the returned local g values vector, and a
- * pointer to the user-defined data block f_data. It is to
+ * pointer to the user-defined data block user_data. It is to
  * compute the local part of g(u) and store the result in the
  * vector gval. (Note: Memory for uu and gval is handled within the
  * preconditioner module.) It is expected that this routine will
@@ -163,7 +163,7 @@ typedef int (*KINCommFn)(int Nlocal, N_Vector u, void *f_data);
  */
 
 typedef int (*KINLocalFn)(int Nlocal, N_Vector uu,
-                          N_Vector gval, void *f_data);
+                          N_Vector gval, void *user_data);
 
 /*
  * -----------------------------------------------------------------

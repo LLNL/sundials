@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 17:43:11 $
+ * $Revision: 1.9 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -172,15 +172,15 @@ typedef struct {
 
 static int resweb(realtype tt, 
                   N_Vector cc, N_Vector cp, N_Vector rr, 
-                  void *res_data);
+                  void *user_data);
 
 static int reslocal(int Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector res, 
-                    void *res_data);
+                    void *user_data);
 
 static int rescomm(int Nlocal, realtype tt,
                    N_Vector cc, N_Vector cp, 
-                   void *res_data);
+                   void *user_data);
 
 /* Prototypes for supporting functions */
 
@@ -299,8 +299,8 @@ int main(int argc, char *argv[])
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASetRdata(mem, webdata);
-  if(check_flag(&retval, "IDASetRdata", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetUserData(mem, webdata);
+  if(check_flag(&retval, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
@@ -705,21 +705,21 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 
 static int resweb(realtype tt, 
                   N_Vector cc, N_Vector cp, N_Vector rr, 
-                  void *res_data)
+                  void *user_data)
 {
   int retval;
   UserData webdata;
   int Nlocal;
   
-  webdata = (UserData) res_data;
+  webdata = (UserData) user_data;
   
   Nlocal = webdata->n_local;
 
   /* Call rescomm to do inter-processor communication. */
-  retval = rescomm(Nlocal, tt, cc, cp, res_data);
+  retval = rescomm(Nlocal, tt, cc, cp, user_data);
   
   /* Call reslocal to calculate the local portion of residual vector. */
-  retval = reslocal(Nlocal, tt, cc, cp, rr, res_data);
+  retval = reslocal(Nlocal, tt, cc, cp, rr, user_data);
   
   return(0);
 }
@@ -736,7 +736,7 @@ static int resweb(realtype tt,
 
 static int rescomm(int Nlocal, realtype tt, 
                    N_Vector cc, N_Vector cp,
-                   void *res_data)
+                   void *user_data)
 {
 
   UserData webdata;
@@ -745,7 +745,7 @@ static int rescomm(int Nlocal, realtype tt,
   MPI_Comm comm;
   MPI_Request request[4];
   
-  webdata = (UserData) res_data;
+  webdata = (UserData) user_data;
   cdata = NV_DATA_P(cc);
   
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */
@@ -959,14 +959,14 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
 
 static int reslocal(int Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector rr,
-                    void *res_data)
+                    void *user_data)
 {
   realtype *cdata, *ratesxy, *cpxy, *resxy,
     xx, yy, dcyli, dcyui, dcxli, dcxui;
   int ix, jy, is, i, locc, ylocce, locce;
   UserData webdata;
   
-  webdata = (UserData) res_data;
+  webdata = (UserData) user_data;
   
   /* Get data pointers, subgrid data, array sizes, work array cext. */
   

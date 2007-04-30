@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -47,7 +47,7 @@ static void cvDenseFree(CVodeMem cv_mem);
 
 #define lmm       (cv_mem->cv_lmm)
 #define f         (cv_mem->cv_f)
-#define f_data    (cv_mem->cv_f_data)
+#define user_data (cv_mem->cv_user_data)
 #define nst       (cv_mem->cv_nst)
 #define tn        (cv_mem->cv_tn)
 #define h         (cv_mem->cv_h)
@@ -207,7 +207,7 @@ static int cvDenseInit(CVodeMem cv_mem)
     jac = cvDlsDenseDQJac;
     J_data = cv_mem;
   } else {
-    J_data = f_data;
+    J_data = user_data;
   }
 
   last_flag = CVDIRECT_SUCCESS;

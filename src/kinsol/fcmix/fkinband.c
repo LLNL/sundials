@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-24 19:09:25 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -74,7 +74,7 @@ void FKIN_BANDSETJAC(int *flag, int *ier)
 
 int FKINBandJac(int N, int mupper, int mlower,
                 N_Vector uu, N_Vector fval, 
-                DlsMat J, void *jac_data,
+                DlsMat J, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;

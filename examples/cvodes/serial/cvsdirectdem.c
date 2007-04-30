@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-23 23:37:24 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:29:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -124,15 +124,15 @@ static void PrintErrInfo(int nerr);
 
 /* Functions Called by the Solver */
 
-static int f1(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f1(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Jac1(int N, realtype tn,
                 N_Vector y, N_Vector fy, 
-                DlsMat J, void *jac_data,
+                DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int f2(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Jac2(int N, int mu, int ml, 
                 realtype tn, N_Vector y, N_Vector fy, 
-                DlsMat J, void *jac_data,
+                DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
@@ -317,7 +317,7 @@ static void PrintOutput1(realtype t, realtype y0, realtype y1, int qu, realtype 
   return;
 }
 
-static int f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f1(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   realtype y0, y1;
   
@@ -332,7 +332,7 @@ static int f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
 static int Jac1(int N, realtype tn,
                 N_Vector y, N_Vector fy, 
-                DlsMat J, void *jac_data,
+                DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y0, y1;
@@ -512,7 +512,7 @@ static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu)
   return;
 }
 
-static int f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   long int i, j, k;
   realtype d, *ydata, *dydata;
@@ -542,7 +542,7 @@ static int f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
 static int Jac2(int N, int mu, int ml, 
                 realtype tn, N_Vector y, N_Vector fy, 
-                DlsMat J, void *jac_data,
+                DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int i, j, k;

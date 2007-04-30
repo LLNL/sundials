@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -93,7 +93,7 @@ void FCV_BBDREINIT(int *Nloc, int *mudq, int *mldq, realtype* dqrely, int *ier)
 /* C function FCVgloc to interface between CVBBDPRE module and a Fortran 
    subroutine FCVLOCFN. */
 
-int FCVgloc(int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *f_data)
+int FCVgloc(int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *user_data)
 {
   int ier;
   realtype *yloc_data, *gloc_data;
@@ -102,7 +102,7 @@ int FCVgloc(int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *f_data)
   yloc_data = N_VGetArrayPointer(yloc);
   gloc_data = N_VGetArrayPointer(gloc);
 
-  CV_userdata = (FCVUserData) f_data;
+  CV_userdata = (FCVUserData) user_data;
 
   FCV_GLOCFN(&Nloc, &t, yloc_data, gloc_data, 
              CV_userdata->ipar, CV_userdata->rpar,
@@ -115,7 +115,7 @@ int FCVgloc(int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *f_data)
 /* C function FCVcfn to interface between CVBBDPRE module and a Fortran 
    subroutine FCVCOMMF. */
 
-int FCVcfn(int Nloc, realtype t, N_Vector y, void *f_data)
+int FCVcfn(int Nloc, realtype t, N_Vector y, void *user_data)
 {
   int ier;
   realtype *yloc;
@@ -123,7 +123,7 @@ int FCVcfn(int Nloc, realtype t, N_Vector y, void *f_data)
 
   yloc = N_VGetArrayPointer(y);
 
-  CV_userdata = (FCVUserData) f_data;
+  CV_userdata = (FCVUserData) user_data;
 
   FCV_COMMFN(&Nloc, &t, yloc, CV_userdata->ipar, CV_userdata->rpar, &ier);
 

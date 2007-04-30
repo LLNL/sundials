@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -35,7 +35,7 @@
  *   FNVINITS and FNVINITP interface to N_VNew_Serial and
  *               N_VNew_Parallel, respectively
  * 
- *   FCVMALLOC  interfaces to CVodeCreate, CVodeSetFdata, and CVodeInit
+ *   FCVMALLOC  interfaces to CVodeCreate, CVodeSetUserData, and CVodeInit
  * 
  *   FCVREINIT  interfaces to CVReInit
  * 
@@ -699,41 +699,41 @@ extern "C" {
 
   /* Prototypes: Functions Called by the CVODE Solver */
   
-  int FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+  int FCVf(realtype t, N_Vector y, N_Vector ydot, void *user_data);
   
   int FCVDenseJac(int N, realtype t, 
                   N_Vector y, N_Vector fy, 
-                  DlsMat J, void *f_data,
+                  DlsMat J, void *user_data,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
   int FCVBandJac(int N, int mupper, int mlower,
                  realtype t, N_Vector y, N_Vector fy,
-                 DlsMat J, void *f_data,
+                 DlsMat J, void *user_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
   int FCVLapackDenseJac(int N, realtype t,
                         N_Vector y, N_Vector fy, 
-                        DlsMat Jac, void *f_data,
+                        DlsMat Jac, void *user_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   int FCVLapackBandJac(int N, int mupper, int mlower,
                        realtype t, N_Vector y, N_Vector fy, 
-                       DlsMat Jac, void *f_data,
+                       DlsMat Jac, void *user_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
   int FCVPSet(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
-              booleantype *jcurPtr, realtype gamma, void *P_data,
+              booleantype *jcurPtr, realtype gamma, void *user_data,
               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
   int FCVPSol(realtype tn, N_Vector y, N_Vector fy, 
               N_Vector r, N_Vector z,
               realtype gamma, realtype delta,
-              int lr, void *P_data, N_Vector vtemp);
+              int lr, void *user_data, N_Vector vtemp);
   
   int FCVJtimes(N_Vector v, N_Vector Jv, realtype t, 
                 N_Vector y, N_Vector fy,
-                void *f_data, N_Vector work);
+                void *user_data, N_Vector work);
   
-  int FCVEwtSet(N_Vector y, N_Vector ewt, void *f_data);
+  int FCVEwtSet(N_Vector y, N_Vector ewt, void *user_data);
 
   /* Declarations for global variables shared amongst various routines */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-26 23:17:27 $
+ * $Revision: 1.8 $
+ * $Date: 2007-04-30 19:29:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,29 +50,29 @@ typedef struct {
   realtype p1, p2;
 } *UserData;
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
 static int fS(int Ns, realtype t,
               N_Vector y, N_Vector ydot,
               N_Vector *yS, N_Vector *ySdot,
-              void *f_data,
+              void *user_data,
               N_Vector tmp1, N_Vector tmp2);
 static int fQS(int Ns, realtype t,
                N_Vector y, N_Vector *yS, 
                N_Vector yQdot, N_Vector *yQSdot,
-               void *f_data,
+               void *user_data,
                N_Vector tmp, N_Vector tmpQ);
 
 static int fB1(realtype t, N_Vector y, N_Vector *yS, 
-               N_Vector yB, N_Vector yBdot, void *f_dataB);
+               N_Vector yB, N_Vector yBdot, void *user_dataB);
 static int fQB1(realtype t, N_Vector y, N_Vector *yS, 
-                N_Vector yB, N_Vector qBdot, void *f_dataB);
+                N_Vector yB, N_Vector qBdot, void *user_dataB);
 
 
 static int fB2(realtype t, N_Vector y, N_Vector *yS, 
-               N_Vector yB, N_Vector yBdot, void *f_dataB);
+               N_Vector yB, N_Vector yBdot, void *user_dataB);
 static int fQB2(realtype t, N_Vector y, N_Vector *yS,
-                N_Vector yB, N_Vector qBdot, void *f_dataB);
+                N_Vector yB, N_Vector qBdot, void *user_dataB);
 
 void PrintFwdStats(void *cvode_mem);
 void PrintBckStats(void *cvode_mem, int idx);
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
 
   flag = CVodeInit(cvode_mem, f, t0, y);
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  flag = CVodeSetFdata(cvode_mem, data);
+  flag = CVodeSetUserData(cvode_mem, data);
 
   flag = CVDense(cvode_mem, Neq);
 
@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB1);
   flag = CVodeInitBS(cvode_mem, indexB1, fB1, tf, yB1);
   flag = CVodeSStolerancesB(cvode_mem, indexB1, reltol, abstolB);
-  flag = CVodeSetFdataB(cvode_mem, indexB1, data);
+  flag = CVodeSetUserDataB(cvode_mem, indexB1, data);
   flag = CVodeQuadInitBS(cvode_mem, indexB1, fQB1, yQB1);
   flag = CVodeQuadSStolerancesB(cvode_mem, indexB1, reltol, abstolQB);
   flag = CVodeSetQuadErrConB(cvode_mem, indexB1, TRUE);
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
   flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB2);
   flag = CVodeInitBS(cvode_mem, indexB2, fB2, tf, yB2);
   flag = CVodeSStolerancesB(cvode_mem, indexB2, reltol, abstolB);
-  flag = CVodeSetFdataB(cvode_mem, indexB2, data);
+  flag = CVodeSetUserDataB(cvode_mem, indexB2, data);
   flag = CVodeQuadInitBS(cvode_mem, indexB2, fQB2, yQB2);
   flag = CVodeQuadSStolerancesB(cvode_mem, indexB2, reltol, abstolQB);
   flag = CVodeSetQuadErrConB(cvode_mem, indexB2, TRUE);
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
   N_VConst(ZERO, yQ);
   flag = CVodeInit(cvode_mem, f, t0, y);
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  flag = CVodeSetFdata(cvode_mem, data);
+  flag = CVodeSetUserData(cvode_mem, data);
   flag = CVDense(cvode_mem, Neq);
   flag = CVodeQuadInit(cvode_mem, fQ, yQ);
   flag = CVodeQuadSStolerances(cvode_mem, reltol, abstolQ);
@@ -396,13 +396,13 @@ int main(int argc, char *argv[])
  */
 
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   realtype y1, y2, y3, yd1, yd3;
   UserData data;
   realtype p1, p2;
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   p1 = data->p1; 
   p2 = data->p2; 
 
@@ -417,7 +417,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   return(0);
 }
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data)
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
 {
   realtype y1, y2, y3;
 
@@ -433,7 +433,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *f_data)
 static int fS(int Ns, realtype t,
               N_Vector y, N_Vector ydot,
               N_Vector *yS, N_Vector *ySdot,
-              void *f_data,
+              void *user_data,
               N_Vector tmp1, N_Vector tmp2)
 {
   UserData data;
@@ -442,7 +442,7 @@ static int fS(int Ns, realtype t,
   realtype fys1, fys2, fys3;
   realtype p1, p2;
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   p1 = data->p1; 
   p2 = data->p2; 
 
@@ -484,7 +484,7 @@ static int fS(int Ns, realtype t,
 static int fQS(int Ns, realtype t,
                N_Vector y, N_Vector *yS, 
                N_Vector yQdot, N_Vector *yQSdot,
-               void *f_data,
+               void *user_data,
                N_Vector tmp, N_Vector tmpQ)
 {
   realtype y1, y2, y3;
@@ -516,7 +516,7 @@ static int fQS(int Ns, realtype t,
 }
 
 static int fB1(realtype t, N_Vector y, N_Vector *yS, 
-               N_Vector yB, N_Vector yBdot, void *f_dataB)
+               N_Vector yB, N_Vector yBdot, void *user_dataB)
 {
   UserData data;
   realtype p1, p2;
@@ -525,7 +525,7 @@ static int fB1(realtype t, N_Vector y, N_Vector *yS,
   realtype l1, l2, l3;  /* lambda */
   realtype m1, m2, m3;  /* mu */
   
-  data = (UserData) f_dataB;
+  data = (UserData) user_dataB;
   p1 = data->p1; 
   p2 = data->p2; 
 
@@ -558,7 +558,7 @@ static int fB1(realtype t, N_Vector y, N_Vector *yS,
 }
 
 static int fQB1(realtype t, N_Vector y, N_Vector *yS,
-                N_Vector yB, N_Vector qBdot, void *f_dataB)
+                N_Vector yB, N_Vector qBdot, void *user_dataB)
 {
   UserData data;
   realtype p1, p2;
@@ -567,7 +567,7 @@ static int fQB1(realtype t, N_Vector y, N_Vector *yS,
   realtype l1, l2, l3;  /* lambda */
   realtype m1, m2, m3;  /* mu */
   
-  data = (UserData) f_dataB;
+  data = (UserData) user_dataB;
   p1 = data->p1; 
   p2 = data->p2; 
 
@@ -600,7 +600,7 @@ static int fQB1(realtype t, N_Vector y, N_Vector *yS,
 
 
 static int fB2(realtype t, N_Vector y, N_Vector *yS, 
-               N_Vector yB, N_Vector yBdot, void *f_dataB)
+               N_Vector yB, N_Vector yBdot, void *user_dataB)
 {
   UserData data;
   realtype p1, p2;
@@ -609,7 +609,7 @@ static int fB2(realtype t, N_Vector y, N_Vector *yS,
   realtype l1, l2, l3;  /* lambda */
   realtype m1, m2, m3;  /* mu */
 
-  data = (UserData) f_dataB;
+  data = (UserData) user_dataB;
   p1 = data->p1; 
   p2 = data->p2; 
 
@@ -643,7 +643,7 @@ static int fB2(realtype t, N_Vector y, N_Vector *yS,
 
 
 static int fQB2(realtype t, N_Vector y, N_Vector *yS,
-                N_Vector yB, N_Vector qBdot, void *f_dataB)
+                N_Vector yB, N_Vector qBdot, void *user_dataB)
 {
   UserData data;
   realtype p1, p2;
@@ -652,7 +652,7 @@ static int fQB2(realtype t, N_Vector y, N_Vector *yS,
   realtype l1, l2, l3;  /* lambda */
   realtype m1, m2, m3;  /* mu */
   
-  data = (UserData) f_dataB;
+  data = (UserData) user_dataB;
   p1 = data->p1; 
   p2 = data->p2; 
 

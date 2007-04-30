@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-18 19:24:22 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -53,7 +53,7 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define lrw1      (cv_mem->cv_lrw1)
 #define liw1      (cv_mem->cv_liw1)
 #define f         (cv_mem->cv_f)
-#define f_data    (cv_mem->cv_f_data)
+#define user_data (cv_mem->cv_user_data)
 #define uround    (cv_mem->cv_uround)
 #define tn        (cv_mem->cv_tn)
 #define h         (cv_mem->cv_h)
@@ -68,7 +68,7 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
 #define vec_tmpl  (cv_mem->cv_tempv)
-#define setupNonNull   (cv_mem->cv_setupNonNull)
+#define setupNonNull (cv_mem->cv_setupNonNull)
 
 #define gammasv   (cvdiag_mem->di_gammasv)
 #define M         (cvdiag_mem->di_M)
@@ -347,7 +347,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   N_VLinearSum(r, ftemp, ONE, ypred, y);
 
   /* Evaluate f at perturbed y */
-  retval = f(tn, y, M, f_data);
+  retval = f(tn, y, M, user_data);
   nfeDI++;
   if (retval < 0) {
     cvProcessError(cv_mem, CVDIAG_RHSFUNC_UNRECVR, "CVDIAG", "CVDiagSetup", MSGDG_RHSFUNC_FAILED);

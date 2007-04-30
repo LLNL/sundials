@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.6 $
+ * $Date: 2007-04-30 19:28:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -86,7 +86,7 @@
  *    IDAMalloc, and the names of the user's Gres and Gcomm
  *    functions are passed to IDABBDPrecInit.        
  *
- * 4) The pointer to the user-defined data block res_data, which
+ * 4) The pointer to the user-defined data block user_data, which
  *    is set through IDASetRdata is also available to the user
  *    in glocal and gcomm.
  *
@@ -122,12 +122,12 @@ extern "C" {
  * This function takes as input the independent variable value tt,
  * the current solution vector yy, the current solution
  * derivative vector yp, and a pointer to the user-defined data
- * block res_data. It is to compute the local part of G(t,y,y')
+ * block user_data. It is to compute the local part of G(t,y,y')
  * and store it in the vector gval. (Providing memory for yy and
  * gval is handled within this preconditioner module.) It is
  * expected that this routine will save communicated data in work
  * space defined by the user, and made available to the
- * preconditioner function for the problem. The res_data
+ * preconditioner function for the problem. The user_data
  * parameter is the same as that passed by the user to the
  * IDASetRdata routine.
  *
@@ -138,7 +138,7 @@ extern "C" {
 
 typedef int (*IDABBDLocalFn)(int Nlocal, realtype tt,
 			     N_Vector yy, N_Vector yp, N_Vector gval,
-			     void *res_data);
+			     void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -149,12 +149,12 @@ typedef int (*IDABBDLocalFn)(int Nlocal, realtype tt,
  * evaluate the approximate system function described above.
  *
  * This function takes as input the solution vectors yy and yp,
- * and a pointer to the user-defined data block res_data. The
- * res_data parameter is the same as that passed by the user to
+ * and a pointer to the user-defined data block user_data. The
+ * user_data parameter is the same as that passed by the user to
  * the IDAMalloc routine.
  *
  * The IDABBDCommFn Gcomm is expected to save communicated data in
- * space defined with the structure *res_data.
+ * space defined with the structure *user_data.
  *
  * A IDABBDCommFn Gcomm returns an int value equal to 0 (success),
  * > 0 (recoverable error), or < 0 (unrecoverable error).
@@ -170,7 +170,7 @@ typedef int (*IDABBDLocalFn)(int Nlocal, realtype tt,
 
 typedef int (*IDABBDCommFn)(int Nlocal, realtype tt,
 			    N_Vector yy, N_Vector yp,
-			    void *res_data);
+			    void *user_data);
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-23 23:37:26 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:03 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -87,7 +87,7 @@ int main()
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   CVodeInit(cvode_mem, f, T0, y);
   CVodeSVtolerances(cvode_mem, reltol, abstol);
-  CVodeSetFdata(cvode_mem, &check_negative);
+  CVodeSetUserData(cvode_mem, &check_negative);
   /* Call CVDense to specify the CVDENSE dense linear solver */
   CVDense(cvode_mem, NEQ);
 

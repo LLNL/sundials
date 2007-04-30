@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-27 18:56:28 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -131,21 +131,21 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int jtv(N_Vector v, N_Vector Jv, realtype t,
                N_Vector y, N_Vector fy,
-               void *f_data, N_Vector tmp);
+               void *user_data, N_Vector tmp);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
-                   void *f_data, N_Vector vtemp1, N_Vector vtemp2,
+                   void *user_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3);
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *f_data, N_Vector vtemp);
+                  int lr, void *user_data, N_Vector vtemp);
 
 
 /*
@@ -182,8 +182,8 @@ int main()
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Set the pointer to user-defined data */
-  flag = CVodeSetFdata(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
+  flag = CVodeSetUserData(cvode_mem, data);
+  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
@@ -448,7 +448,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
 /* f routine. Compute RHS function f(t,u). */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
@@ -458,7 +458,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   int jx, jy, idn, iup, ileft, iright;
   UserData data;
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   udata = NV_DATA_S(u);
   dudata = NV_DATA_S(udot);
 
@@ -543,7 +543,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
 static int jtv(N_Vector v, N_Vector Jv, realtype t,
                N_Vector u, N_Vector fu,
-               void *f_data, N_Vector tmp)
+               void *user_data, N_Vector tmp)
 {
   realtype c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt, c1rt, c2rt;
   realtype v1, v2, v1dn, v2dn, v1up, v2up, v1lt, v2lt, v1rt, v2rt;
@@ -555,7 +555,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
   realtype *udata, *vdata, *Jvdata;
   UserData data;
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
 
   udata = NV_DATA_S(u);
   vdata = NV_DATA_S(v);
@@ -680,7 +680,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
-                   void *f_data, N_Vector vtemp1, N_Vector vtemp2,
+                   void *user_data, N_Vector vtemp1, N_Vector vtemp2,
                    N_Vector vtemp3)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
@@ -690,9 +690,9 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   realtype *udata, **a, **j;
   UserData data;
   
-  /* Make local copies of pointers in f_data, and of pointer to u's data */
+  /* Make local copies of pointers in user_data, and of pointer to u's data */
   
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
@@ -770,7 +770,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
-                  int lr, void *f_data, N_Vector vtemp)
+                  int lr, void *user_data, N_Vector vtemp)
 {
   realtype **(*P)[MY];
   int *(*pivot)[MY];
@@ -778,9 +778,9 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   realtype *zdata, *v;
   UserData data;
 
-  /* Extract the P and pivot arrays from f_data. */
+  /* Extract the P and pivot arrays from user_data. */
 
-  data = (UserData) f_data;
+  data = (UserData) user_data;
   P = data->P;
   pivot = data->pivot;
   zdata = NV_DATA_S(z);

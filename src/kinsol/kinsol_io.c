@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-25 23:40:26 $
+ * $Revision: 1.5 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -62,7 +62,7 @@ int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun)
   kin_mem = (KINMem) kinmem;
 
   kin_mem->kin_ehfun = ehfun;
-  kin_mem->kin_eh_data = kin_mem->kin_f_data;
+  kin_mem->kin_eh_data = kin_mem->kin_user_data;
 
   return(KIN_SUCCESS);
 }
@@ -135,7 +135,7 @@ int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun)
   kin_mem = (KINMem) kinmem;
 
   kin_mem->kin_ihfun = ihfun;
-  kin_mem->kin_ih_data = kin_mem->kin_f_data;
+  kin_mem->kin_ih_data = kin_mem->kin_user_data;
 
   return(KIN_SUCCESS);
 }
@@ -164,21 +164,21 @@ int KINSetInfoFile(void *kinmem, FILE *infofp)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetFdata
+ * Function : KINSetUserData
  * -----------------------------------------------------------------
  */
 
-int KINSetFdata(void *kinmem, void *f_data)
+int KINSetUserData(void *kinmem, void *user_data)
 {
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetFdata", MSG_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetUserData", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
-  kin_mem->kin_f_data = f_data;
+  kin_mem->kin_user_data = user_data;
 
   return(KIN_SUCCESS);
 }

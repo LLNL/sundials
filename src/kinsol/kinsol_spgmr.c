@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.4 $
+ * $Date: 2007-04-30 19:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -57,7 +57,7 @@ static void KINSpgmrFree(KINMem kin_mem);
 #define nni            (kin_mem->kin_nni)
 #define nnilset        (kin_mem->kin_nnilset)
 #define func           (kin_mem->kin_func)
-#define f_data         (kin_mem->kin_f_data)
+#define user_data      (kin_mem->kin_user_data)
 #define printfl        (kin_mem->kin_printfl)
 #define linit          (kin_mem->kin_linit)
 #define lsetup         (kin_mem->kin_lsetup)
@@ -188,7 +188,7 @@ int KINSpgmr(void *kinmem, int maxl)
   kinspils_mem->s_pset   = NULL;
   kinspils_mem->s_psolve = NULL;
   kinspils_mem->s_pfree  = NULL;
-  kinspils_mem->s_P_data = kin_mem->kin_f_data;
+  kinspils_mem->s_P_data = kin_mem->kin_user_data;
 
   /* Set default values for the rest of the SPGMR parameters */
 
@@ -272,7 +272,7 @@ static int KINSpgmrInit(KINMem kin_mem)
     jtimes = KINSpilsDQJtimes;
     J_data = kin_mem;
   } else {
-    J_data = f_data;
+    J_data = user_data;
   }
 
   last_flag = KINSPILS_SUCCESS;

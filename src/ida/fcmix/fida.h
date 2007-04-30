@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-24 16:15:36 $
+ * $Revision: 1.7 $
+ * $Date: 2007-04-30 19:29:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -662,34 +662,34 @@ void FIDA_GETESTLOCALERR(realtype *ele, int *ier);
 
 /* Prototypes: Functions Called by the IDA Solver */
 
-int FIDAresfn(realtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *res_data);
+int FIDAresfn(realtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data);
 
 int FIDADenseJac(int N, realtype t, realtype c_j, 
                  N_Vector yy, N_Vector yp, N_Vector rr,
-                 DlsMat Jac, void *res_data,
+                 DlsMat Jac, void *user_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDABandJac(int N, int mupper, int mlower,
                 realtype t, realtype c_j, 
                 N_Vector yy, N_Vector yp, N_Vector rr,
-                DlsMat Jac, void *res_data,
+                DlsMat Jac, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
                N_Vector v, N_Vector Jv,
-               realtype c_j, void *res_data,
+               realtype c_j, void *user_data,
                N_Vector vtemp1, N_Vector vtemp2);
 
 int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
-             realtype c_j, void *prec_data,
+             realtype c_j, void *user_data,
              N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
              N_Vector rvec, N_Vector zvec,
-             realtype c_j, realtype delta, void *prec_data,
+             realtype c_j, realtype delta, void *user_data,
              N_Vector vtemp1);
 
-int FIDAEwtSet(N_Vector yy, N_Vector ewt, void *res_data);
+int FIDAEwtSet(N_Vector yy, N_Vector ewt, void *user_data);
 
 /* Declarations for global variables shared amongst various routines */
 
