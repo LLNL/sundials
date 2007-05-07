@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.6 $
+ * $Date: 2007-05-07 21:19:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -1813,8 +1813,10 @@ void KINInfoHandler(const char *module, const char *function,
   kin_mem = (KINMem) data;
   
 #ifndef NO_FPRINTF_OUTPUT
-  fprintf(infofp,"\n[%s] %s\n",module, function);
-  fprintf(infofp,"   %s\n",msg);
+  if (infofp != NULL) {
+    fprintf(infofp,"\n[%s] %s\n",module, function);
+    fprintf(infofp,"   %s\n",msg);
+  }
 #endif  
 
 }
@@ -1902,7 +1904,7 @@ void KINErrHandler(int error_code, const char *module,
     sprintf(err_type,"ERROR");
 
 #ifndef NO_FPRINTF_OUTPUT
-  if (errfp!=NULL) {
+  if (errfp != NULL) {
     fprintf(errfp,"\n[%s %s]  %s\n",module,err_type,function);
     fprintf(errfp,"  %s\n\n",msg);
   }
