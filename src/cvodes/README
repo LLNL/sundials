@@ -130,7 +130,11 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
      functions.
    - all user-supplied functions now receive the same pointer to user data
      (instead of having different ones for the system evaluation, Jacobian
-     information functions, etc.
+     information functions, etc.)
+   - removed CV_NORMAL_TSTOP and CV_ONE_STEP_TSTOP named constants for the
+     itask argument to CVode/CVodeF. A tstop value is now both set and activated
+     through CVodeSetStopTime. Once tstop is reached it is also deactivated.
+     A new value can be then spcified by calling again CVodeSetStopTime.
    - common functionality for all direct linear solvers (dense, band, and
      the new Lapack solver) has been collected into the DLS (Direct Linear
      Solver) module, similar to the SPILS module for the iterative linear 
@@ -139,6 +143,15 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
      the new Lapack-based linear solver, all dimensions for these linear
      solvers (problem sizes, bandwidths, etc) are now of type 'int' 
      (instead of 'long int').
+   - the initialization functions for the two preconditioner modules,
+     CVBANDPRE and CVBBDPRE were renamed ***Init (from ***Alloc) and they
+     do not return a pointer to preconditioner memory anymore. Instead,
+     all preconditioner module-related functions are now called with
+     the main solver memory pointer as their first argument. When using
+     one of these two modules, there is no need to use special functions
+     to attach one of the SPILS linear solvers (instead use one of
+     CVSpgmr, CVSpbcg, or CVSptfqmr). Moreover, there is no need to call
+     a memory deallocation function for the preconditioner module.
    - CVodeSensMalloc was replaced by CVodeSensInit and CvodeSensInit1. 
      The sensitivity RHS function is now passed as an argument to these
      initialization functions. The former takes as argument fS a function

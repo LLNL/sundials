@@ -125,7 +125,11 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
      functions.
    - all user-supplied functions now receive the same pointer to user data
      (instead of having different ones for the system evaluation, Jacobian
-     information functions, etc.
+     information functions, etc.)
+   - removed IDA_NORMAL_TSTOP and IDA_ONE_STEP_TSTOP named constants for the
+     itask argument to IDASolve. A tstop value is now both set and activated
+     through IDASetStopTime. Once tstop is reached it is also deactivated.
+     A new value can be then spcified by calling again IDASetStopTime.
    - common functionality for all direct linear solvers (dense, band, and
      the new Lapack solver) has been collected into the DLS (Direct Linear
      Solver) module, similar to the SPILS module for the iterative linear 
@@ -134,6 +138,16 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
      the new Lapack-based linear solver, all dimensions for these linear
      solvers (problem sizes, bandwidths, etc) are now of type 'int' 
      (instead of 'long int').
+   - the initialization function for the preconditioner module IDABBDPRE
+     was renamed IDABBDInit (from IDABBDAlloc) and it does not return
+     a pointer to preconditioner memory anymore. Instead, all preconditioner
+     module-related functions are now called with the main solver memory 
+     pointer as their first argument. When using the IDABBDPRE module,
+     there is no need to use special functions to attach one of the SPILS
+     linear solvers (instead use one of IDASpgmr, IDASpbcg, or IDASptfqmr).
+     Moreover, there is no need to call a memory deallocation function for
+     the preconditioner module.
+   - changes corresponding to the above were made to the FCMIX interface.
 
 v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Oct. 2006)
 ---------------------------------------------------------

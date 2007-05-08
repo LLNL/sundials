@@ -117,7 +117,16 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (***. 2007)
      the new Lapack-based linear solver, all dimensions for these linear
      solvers (problem sizes, bandwidths, etc) are now of type 'int' 
      (instead of 'long int').
-
+   - the initialization function for the preconditioner module KINBBDPRE
+     was renamed KINBBDInit (from KINBBDAlloc) and it does not return
+     a pointer to preconditioner memory anymore. Instead, all preconditioner
+     module-related functions are now called with the main solver memory 
+     pointer as their first argument. When using the KINBBDPRE module,
+     there is no need to use special functions to attach one of the SPILS
+     linear solvers (instead use one of KINSpgmr, KINSpbcg, or KINSptfqmr).
+     Moreover, there is no need to call a memory deallocation function for
+     the preconditioner module.
+   - changes corresponding to the above were made to the FCMIX interface.
 
 v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Oct. 2006)
 ------------------------------------------------
