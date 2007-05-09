@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.19 $
+ * $Date: 2007-05-09 20:20:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1518,6 +1518,7 @@ int CVodeGetQuadB(void *cvode_mem, int which, realtype *tret, N_Vector qB)
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   void *cvodeB_mem;
+  long int nstB;
   int flag;
 
   /* Check if cvode_mem exists */
@@ -1550,7 +1551,17 @@ int CVodeGetQuadB(void *cvode_mem, int which, realtype *tret, N_Vector qB)
 
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
 
-  flag = CVodeGetQuad(cvodeB_mem, tret, qB);
+  /* If the integration for this backward problem has not started yet,
+   * simply return the current value of qB (i.e. the final conditions) */
+
+  flag = CVodeGetNumSteps(cvodeB_mem, &nstB);
+  
+  if (nstB == 0) {
+    N_VScale(ONE, cvB_mem->cv_mem->cv_znQ[0], qB);
+    *tret = cvB_mem->cv_tout;
+  } else {
+    flag = CVodeGetQuad(cvodeB_mem, tret, qB);
+  }
 
   return(flag);
 }
