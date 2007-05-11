@@ -1,4 +1,4 @@
-%CVPrecSetupFn - type for user provided preconditioner setup function.
+%CVPrecSetupFnB - type for user provided preconditioner setup function for backward problems.
 %
 %   The user-supplied preconditioner setup function PSETFUN and
 %   the user-supplied preconditioner solve function PSOLFUN
@@ -33,32 +33,6 @@
 %   function can use any auxiliary data that is computed and
 %   saved by the ODEFUN function and made accessible to PSETFUN.
 %
-%IVP Problem
-%
-%   The function PSETFUN must be defined as 
-%        FUNCTION [JCUR, FLAG] = PSETFUN(T,Y,FY,JOK,GAMMA)
-%   and must return a logical flag JCUR (true if Jacobian information
-%   was recomputed and false if saved data was reused). If PSETFUN
-%   was successful, it must return FLAG=0. For a recoverable error (in    
-%   which case the setup will be retried) it must set FLAG to a positive
-%   integer value. If an unrecoverable error occurs, it must set FLAG
-%   to a negative value, in which case the integration will be halted.
-%   The input argument FY contains the current value of f(t,y).
-%   If the input logical flag JOK is false, it means that
-%   Jacobian-related data must be recomputed from scratch. If it is true,
-%   it means that Jacobian data, if saved from the previous PSETFUN call
-%   can be reused (with the current value of GAMMA).
-%
-%   If a user data structure DATA was specified in CVodeMalloc, then
-%   PSETFUN must be defined as
-%        FUNCTION [JCUR, FLAG, NEW_DATA] = PSETFUN(T,Y,FY,JOK,GAMMA,DATA)
-%   If the local modifications to the user data structure are needed in
-%   other user-provided functions then, besides setting the flags JCUR
-%   and FLAG, the PSETFUN function must also set NEW_DATA. Otherwise, it 
-%   should set NEW_DATA=[] (do not set NEW_DATA = DATA as it would lead
-%   to unnecessary copying).
-%
-%Adjoint Problem
 %
 %   The function PSETFUNB must be defined either as
 %        FUNCTION [JCURB, FLAG] = PSETFUNB(T,Y,YB,FYB,JOK,GAMMAB)
@@ -67,13 +41,13 @@
 %   depending on whether a user data structure DATA was specified in
 %   CVodeMalloc. In either case, it must return the flags JCURB and FLAG.
 %
-%   See also CVPrecSolveFn, CVodeSetOptions
+%   See also CVPrecSolveFnB, CVodeSetOptions
 %
-%   NOTE: PSETFUN and PSETFUNB are specified through the property
-%   PrecSetupFn to CVodeSetOptions and are used only if the property
-%   LinearSolver was set to 'GMRES', 'BiCGStab', or 'TFQMR' and if the 
-%   property PrecType is not 'None'.
+%   NOTE: PSETFUNB is specified through the property PrecSetupFn to
+%   CVodeSetOptions and is used only if the property LinearSolver was 
+%   set to 'GMRES', 'BiCGStab', or 'TFQMR' and if the property PrecType
+%   is not 'None'.
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/02/13 23:01:20 $
+% $Revision: 1.1 $Date: 2006/07/07 19:08:40 $

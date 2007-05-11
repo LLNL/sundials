@@ -79,8 +79,8 @@ function si = CVodeGetStats()
 %o ncfnS     - number of convergence test failures due to sensitivity variables
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:50 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.4 $Date: 2006/10/11 18:12:36 $
 
 mode = 30;
 si = cvm(mode);

@@ -5,8 +5,6 @@
 %   one of the preconditioner matrices P1 or P2, depending on the
 %   type of preconditioning chosen.
 %
-%IVP Problem
-%
 %   The function PSOLFUN must be defined as 
 %        FUNCTION [Z, FLAG] = PSOLFUN(T,Y,FY,R)
 %   and must return a vector Z containing the solution of Pz=r.
@@ -25,23 +23,13 @@
 %   it should set NEW_DATA=[] (do not set NEW_DATA = DATA as it would
 %   lead to unnecessary copying).
 %
-%Adjoint Problem
-%
-%   The function PSOLFUNB must be defined either as
-%        FUNCTION [ZB, FLAG] = PSOLFUNB(T,Y,YB,FYB,RB)
-%   or as
-%        FUNCTION [ZB, FLAG, NEW_DATA] = PSOLFUNB(T,Y,YB,FYB,RB,DATA)
-%   depending on whether a user data structure DATA was specified in
-%   CVodeMalloc. In either case, it must return the vector ZB and the
-%   flag FLAG.
-%
 %   See also CVPrecSetupFn, CVodeSetOptions
 %
-%   NOTE: PSOLFUN and PSOLFUNB are specified through the property
-%   PrecSolveFn to CVodeSetOptions and are used only if the property
-%   LinearSolver was set to 'GMRES', 'BiCGStab', or 'TFQMR' and if 
-%   the property PrecType is not 'None'.
+%   NOTE: PSOLFUN is specified through the property PrecSolveFn to 
+%   CVodeSetOptions and is used only if the property LinearSolver was
+%   set to 'GMRES', 'BiCGStab', or 'TFQMR' and if the property PrecType
+%   is not 'None'.
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/02/13 23:01:20 $
+% $Revision: 1.1 $Date: 2006/07/07 19:08:40 $

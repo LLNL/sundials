@@ -1,7 +1,10 @@
-function si = CVodeGetStatsB()
+function si = CVodeGetStatsB(idxB)
 %CVodeGetStatsB returns run statistics for the backward CVODES solver.
 %
-%   Usage: STATS = CVodeGetStatsB
+%   Usage: STATS = CVodeGetStatsB( IDXB ) 
+%
+%   IDXB     is the index of the backward problem, returned by
+%            CVodeInitB.
 %
 %Fields in the structure STATS
 %
@@ -59,8 +62,15 @@ function si = CVodeGetStatsB()
 %          Jacobian-vector product approximation
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:50 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.4 $Date: 2006/10/11 18:12:36 $
 
 mode = 31;
-si = cvm(mode);
+
+if nargin ~= 1
+  error('Wrong number of input arguments');
+end
+
+idxB = idxB-1;
+si = cvm(mode, idxB);
+

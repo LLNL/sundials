@@ -1,7 +1,7 @@
-function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
-%CVodeMonitor is the default CVODES monitoring function.
+function [new_data] = CVodeMonitorB(call, idxB, T, Y, YQ, data)
+%CVodeMonitorB is the default CVODES monitoring function for backward problems.
 %   To use it, set the Monitor property in CVodeSetOptions to
-%   'CVodeMonitor' or to @CVodeMonitor and 'MonitorData' to mondata
+%   'CVodeMonitorB' or to @CVodeMonitorB and 'MonitorData' to mondata
 %   (defined as a structure).
 %  
 %   With default settings, this function plots the evolution of the step 
@@ -23,8 +23,6 @@ function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
 %         In text mode, print a table.
 %     o sol  [ true | {false} ]
 %         If true, plot solution components.
-%     o sensi [ true | {false} ]
-%         If true and if FSA is enabled, plot sensitivity components.
 %     o select [ array of integers ]
 %         To plot only particular solution components, specify their indeces in
 %         the field select. If not defined, but sol=true, all components are plotted.
@@ -32,13 +30,11 @@ function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
 %         Update frequency. Data is posted in blocks of dimension n.
 %     o skip [ integer | {0} ]
 %         Number of integrations steps to skip in collecting data to post.
-%     o dir [ {1} | -1 ]
-%         Specifies forward or backward integration.
 %     o post [ {true} | false ]
 %         If false, disable all posting. This option is necessary to disable
 %         monitoring on some processors when running in parallel.
 %
-%   See also CVodeSetOptions, CVMonitorFn
+%   See also CVodeSetOptions, CVMonitorFnB
 %
 %   NOTES:
 %     1. The argument mondata is REQUIRED. Even if only the default options
@@ -47,11 +43,13 @@ function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.5 $Date: 2006/10/05 22:12:20 $
+% $Revision: 1.1 $Date: 2006/10/05 22:12:20 $
+
 
 if (nargin ~= 6) 
   error('Monitor data not defined.');
 end
+
 
 new_data = [];
 
@@ -82,7 +80,7 @@ if call == 0
       end
     end
 
-    if data.sol | data.sensi
+    if data.sol
       data.hfs = figure; 
     end
   
@@ -114,15 +112,11 @@ if call == 0
 else
 
 % If this is the first call ~= 0, 
-% use Y and YS for additional initializations
+% use Y for additional initializations
   
   if data.first
 
-    if isempty(YS)
-      data.sensi = false;
-    end
-    
-    if data.sol | data.sensi
+    if data.sol
       
       if isempty(data.select)
       
@@ -140,12 +134,6 @@ else
         data.nps = data.nps + 1;
       end
         
-      if data.sensi
-        data.Ns = size(YS,2);
-        data.ys = zeros(data.N, data.Ns, data.updt);
-        data.nps = data.nps + data.Ns;
-      end
-      
     end
     
     data.first = false;
@@ -163,9 +151,7 @@ else
   n    = data.n;
   t    = data.t;
   N    = data.N;
-  Ns   = data.Ns;
   y    = data.y;
-  ys   = data.ys;
   h    = data.h;
   q    = data.q;
   nst  = data.nst;
@@ -188,11 +174,7 @@ if call == 1
     return;
   end
 
-  if data.dir == 1
-    si = CVodeGetStats;
-  else
-    si = CVodeGetStatsB;
-  end
+  si = CVodeGetStatsB(idxB);
 
   t(n) = si.tcur;
   
@@ -215,14 +197,6 @@ if call == 1
     end
   end
 
-  if data.sensi
-    for k = 1:Ns
-      for j = 1:N
-        ys(j,k,n) = YS(data.select(j),k);
-      end
-    end
-  end
-  
 end
 
 % Is it time to post?
@@ -236,7 +210,7 @@ if data.post & (n == data.updt | call==2)
   if ~data.initialized
 
     if (data.stats | data.cntr) & data.grph
-      graphical_init(n, hfg, npg, data.stats, data.cntr, data.dir, ...
+      graphical_init(n, hfg, npg, data.stats, data.cntr, ...
                      t, h, q, nst, nfe, nni, netf, ncfn);
     end
     
@@ -245,9 +219,9 @@ if data.post & (n == data.updt | call==2)
                 t, h, q, nst, nfe, nni, netf, ncfn);
     end
 
-    if data.sol | data.sensi
-      sol_init(n, hfs, nps, data.sol, data.sensi, data.dir, ...
-               N, Ns, t, y, ys);
+    if data.sol
+      sol_init(n, hfs, nps, data.sol, ...
+               N, t, y);
     end
     
     data.initialized = true;
@@ -265,7 +239,7 @@ if data.post & (n == data.updt | call==2)
     end
     
     if data.sol
-      sol_update(n, hfs, nps, data.sol, data.sensi, N, Ns, t, y, ys);
+      sol_update(n, hfs, nps, data.sol, N, t, y);
     end
       
   end
@@ -276,8 +250,8 @@ if data.post & (n == data.updt | call==2)
       graphical_final(hfg, npg, data.cntr, data.stats);
     end
     
-    if data.sol | data.sensi
-      sol_final(hfs, nps, data.sol, data.sensi, N, Ns);
+    if data.sol
+      sol_final(hfs, nps, data.sol, N);
     end
 
     return;
@@ -300,7 +274,6 @@ data.n    = n;
 data.npg  = npg;
 data.t    = t;
 data.y    = y;
-data.ys   = ys;
 data.h    = h;
 data.q    = q;
 data.nst  = nst;
@@ -335,14 +308,8 @@ end
 if ~isfield(data,'sol')
   data.sol = false;
 end
-if ~isfield(data,'sensi')
-  data.sensi = false;
-end
 if ~isfield(data,'select')
   data.select = [];
-end
-if ~isfield(data,'dir')
-  data.dir = 1;
 end
 if ~isfield(data,'post')
   data.post = true;
@@ -357,7 +324,7 @@ if strcmp(data.mode,'text')
   data.grph = false;
 end
 
-if ~data.sol & ~data.sensi
+if ~data.sol
   data.select = [];
 end
   
@@ -375,13 +342,11 @@ data.nni = 0;
 data.netf = 0;
 data.ncfn = 0;
 data.N = 0;
-data.Ns = 0;
 data.y = 0;
-data.ys = 0;
 
 %-------------------------------------------------------------------------
 
-function [] = graphical_init(n, hfg, npg, stats, cntr, dir, ...
+function [] = graphical_init(n, hfg, npg, stats, cntr, ...
                              t, h, q, nst, nfe, nni, netf, ncfn)
 
 fig_name = 'CVODES run statistics';
@@ -402,11 +367,7 @@ pl = 0;
 
 % Time label and figure title
 
-if dir==1
-  tlab = '\rightarrow   t   \rightarrow';
-else
-  tlab = '\leftarrow   t   \leftarrow';
-end
+tlab = '\leftarrow   t   \leftarrow';
 
 % Step size and order
 if stats
@@ -627,7 +588,7 @@ drawnow
 
 %-------------------------------------------------------------------------
 
-function [] = sol_init(n, hfs, nps, sol, sensi, dir, N, Ns, t, y, ys)
+function [] = sol_init(n, hfs, nps, sol, N, t, y)
 
 fig_name = 'CVODES solution';
 
@@ -647,11 +608,7 @@ set(hfs,'color',[1 1 1]);
 
 % Time label
 
-if dir==1
-  tlab = '\rightarrow   t   \rightarrow';
-else
-  tlab = '\leftarrow   t   \leftarrow';
-end
+tlab = '\leftarrow   t   \leftarrow';
 
 % Get number of colors in colormap
 map = colormap;
@@ -679,36 +636,11 @@ if sol
 
 end
 
-if sensi
-  
-  for is = 1:Ns
-    
-    pl = pl+1;
-    subplot(nps,1,pl);
-    hold on;
-      
-    ys_crt = ys(:,is,1:n);
-    for i = 1:N
-      hp = plot(t(1:n),ys_crt(i,1:n),'-');
-      ic = 1+(i-1)*floor(ncols/N);
-      set(hp,'Color',map(ic,:));
-    end
-    box on;
-    grid on;
-    xlabel(tlab);
-    str = sprintf('s_{%d}',is); ylabel(str);
-    str = sprintf('Sensitivity %d',is); title(str);
-    
-  end
-  
-end
-
-
 drawnow;
 
 %-------------------------------------------------------------------------
 
-function [] = sol_update(n, hfs, nps, sol, sensi, N, Ns, t, y, ys)
+function [] = sol_update(n, hfs, nps, sol, N, t, y)
 
 figure(hfs);
 
@@ -728,35 +660,13 @@ if sol
   end
 
 end
-  
-if sensi
-  
-  for is = 1:Ns
-    
-    pl = pl+1;
-    subplot(nps,1,pl);
-
-    ys_crt = ys(:,is,:);
-    
-    hc = get(gca,'Children');
-    xd = [get(hc(1),'XData') t(1:n)];
-%   Attention: Children are loaded in reverse order!
-    for i = 1:N
-      yd = [get(hc(i),'YData') ys_crt(N-i+1,1:n)];
-      set(hc(i), 'XData', xd, 'YData', yd);
-    end
-    
-  end
-  
-end
-
 
 drawnow;
 
 
 %-------------------------------------------------------------------------
 
-function [] = sol_final(hfs, nps, sol, sensi, N, Ns)
+function [] = sol_final(hfs, nps, sol, N)
 
 figure(hfs);
 
@@ -781,32 +691,6 @@ if sol
     cstring{i} = sprintf('y_{%d}',i);
   end
   legend(cstring);
-  
-end
-
-if sensi
-  
-  for is = 1:Ns
-    
-    pl = pl+1;
-    subplot(nps,1,pl);
-
-    hc = get(gca,'Children');
-    xd = get(hc(1),'XData');
-    set(gca,'XLim',sort([xd(1) xd(end)]));
-
-    ylim = get(gca,'YLim');
-    addon = 0.1*abs(ylim(2)-ylim(1));
-    ylim(1) = ylim(1) + sign(ylim(1))*addon;
-    ylim(2) = ylim(2) + sign(ylim(2))*addon;
-    set(gca,'YLim',ylim);
-  
-    for i = 1:N
-      cstring{i} = sprintf('s%d_{%d}',is,i);
-    end
-    legend(cstring);
-    
-  end
   
 end
 

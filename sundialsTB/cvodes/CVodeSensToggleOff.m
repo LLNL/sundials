@@ -6,11 +6,11 @@ function [] = CVodeSensToggleOff()
 %
 %   Usage: CVodeSensToggleOff
 %
-%   See also: CVodeSensMalloc, CVodeSensReInit
+%   See also: CVodeSensInit, CVodeSensReInit
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/07 19:08:40 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.2 $Date: 2006/11/25 19:57:25 $
 
-mode = 13;
+mode = 18;
 cvm(mode);

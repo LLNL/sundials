@@ -1,5 +1,5 @@
-function [status,t,yB,varargout] = CVodeB(tout,itask)
-%CVodeB integrates the backward ODE.
+function [varargout] = CVodeB(tout,itask)
+%CVodeB integrates all backwards ODEs currently defined.
 %
 %   Usage:  [STATUS, T, YB] = CVodeB ( TOUT, ITASK ) 
 %           [STATUS, T, YB, YQB] = CVodeB ( TOUT, ITASK )
@@ -12,42 +12,37 @@ function [status,t,yB,varargout] = CVodeB(tout,itask)
 %   integration and the rough scale of the problem. In either case, the time 
 %   reached by the solver is returned in T. 
 %
-%   If quadratures were computed (see CVodeSetOptions), CVodeB will return their
+%   If quadratures were computed (see CVodeQuadInitB), CVodeB will return their
 %   values at T in the vector YQB.
 %
+%   In ITASK =' Normal' mode, to obtain solutions at specific times T0,T1,...,TFINAL
+%   (all increasing or all decreasing) use TOUT = [T0 T1  ... TFINAL]. In this case
+%   the output arguments YB and YQB are matrices, each column representing the solution
+%   vector at the corresponding time returned in the vector T.
+%
+%   If more than one backward problem was defined, the return arguments are cell
+%   arrays, with T{IDXB}, YB{IDXB}, and YQB{IDXB} corresponding to the backward
+%   problem with index IDXB (as returned by CVodeInitB).
+%
 %   On return, STATUS is one of the following:
-%     0: CVodeB succeeded and no roots were found.
-%    -2: One of the inputs to CVodeB is illegal.
-%    -4: The solver took mxstep internal steps but could not reach TOUT. 
-%        The default value for mxstep is 500.
-%   -5:  The solver could not satisfy the accuracy demanded by the user for 
-%        some internal step.
-%   -6:  Error test failures occurred too many times (MXNEF = 7) during one 
-%        internal time step or occurred with |h| = hmin.
-%   -7:  Convergence test failures occurred too many times (MXNCF = 10) during 
-%        one internal time step or occurred with |h| = hmin.
-%   -9:  The linear solver's setup routine failed in an unrecoverable manner.
-%  -10:  The linear solver's solve routine failed in an unrecoverable manner.
-%  -101: Illegal attempt to call before initializing adjoint sensitivity 
-%        (see CVodeMalloc).
-%  -104: Illegal attempt to call before CVodeMallocB.
-%  -108: Wrong value for TOUT.
+%     0: successful CVodeB return.
+%     1: CVode succeded and return at a tstop value (internally set).
 %
 %   See also CVodeSetOptions, CVodeGetStatsB
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/07/07 19:08:40 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.5 $Date: 2006/10/11 18:12:36 $
 
 mode = 21;
-if nargout < 3 | nargout > 4
-  disp('CVodeB:: wrong number of arguments');
-  return
+
+if nargin ~= 2
+  error('Wrong number of input arguments');
 end
 
-if nargout == 3
-  [status,t,yB] = cvm(mode,tout,itask);
-elseif nargout == 4
-  [status,t,yB,qB] = cvm(mode,tout,itask);
-  varargout(1) = {qB};
+if nargout < 3 || nargout > 4
+  error('Wrong number of output arguments');
 end
+
+varargout = cell (nargout, 1);
+[varargout{:}] = cvm(mode,tout,itask);

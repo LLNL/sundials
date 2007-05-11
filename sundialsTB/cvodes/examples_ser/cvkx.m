@@ -25,7 +25,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:54 $
+% $Revision: 1.4 $Date: 2006/03/15 19:31:26 $
 
 %------------------------
 % SET USER DATA STRUCTURE
@@ -134,7 +134,7 @@ options = CVodeSetOptions('RelTol',rtol, 'AbsTol',atol,...
 mondata = struct;
 options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
 
-CVodeMalloc(@cvkx_f,t0,u0,options,data);
+CVodeInit(@cvkx_f,t0,u0,options,data);
 
 %------------------------
 % SOLVE PROBLEM

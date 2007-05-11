@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.7 $
+ * $Date: 2007-05-11 18:51:32 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,14 +17,9 @@
 #include "cvm.h"
 #include "nvm.h"
 
-static void UpdateUserData(mxArray *mx_data);
-static void UpdateMonitorData(mxArray *mx_data);
-static void UpdateMonitorDataB(mxArray *mx_data);
-
-booleantype cvm_quad;      /* Forward quadratures? */
-booleantype cvm_quadB;     /* Backward quadratures? */
-booleantype cvm_asa;       /* Adjoint sensitivity? */
-booleantype cvm_fsa;       /* Forward sensitivity? */
+static void UpdateUserData(mxArray *mx_data, cvmInterfaceData cvmData);
+static void UpdateMonitorData(mxArray *mx_data, cvmInterfaceData cvmData);
+static void UpdateMonitorDataB(mxArray *mx_data, cvmInterfaceData cvmData);
 
 /*
  * ---------------------------------------------------------------------------------
@@ -32,83 +27,68 @@ booleantype cvm_fsa;       /* Forward sensitivity? */
  * ---------------------------------------------------------------------------------
  */
 
-#define N           (cvm_Cdata->N) 
-#define Nq          (cvm_Cdata->Nq) 
-#define Ng          (cvm_Cdata->Ng) 
-#define Ns          (cvm_Cdata->Ns) 
-#define Nd          (cvm_Cdata->Nd) 
-#define Nc          (cvm_Cdata->Nc) 
-#define ls          (cvm_Cdata->ls) 
-#define pm          (cvm_Cdata->pm) 
-#define ism         (cvm_Cdata->ism) 
-#define NB          (cvm_Cdata->NB) 
-#define NqB         (cvm_Cdata->NqB) 
-#define lsB         (cvm_Cdata->lsB) 
-#define pmB         (cvm_Cdata->pmB) 
-#define errmsg      (cvm_Cdata->errmsg)
 
-#define mx_data     (cvm_Mdata->mx_data)
-
-#define mx_RHSfct   (cvm_Mdata->mx_RHSfct)
-#define mx_QUADfct  (cvm_Mdata->mx_QUADfct)
-#define mx_JACfct   (cvm_Mdata->mx_JACfct)
-#define mx_PSETfct  (cvm_Mdata->mx_PSETfct)
-#define mx_PSOLfct  (cvm_Mdata->mx_PSOLfct)
-#define mx_GLOCfct  (cvm_Mdata->mx_GLOCfct)
-#define mx_GCOMfct  (cvm_Mdata->mx_GCOMfct)
-#define mx_Gfct     (cvm_Mdata->mx_Gfct)
-#define mx_SRHSfct  (cvm_Mdata->mx_SRHSfct)
-
-#define mx_RHSfctB  (cvm_Mdata->mx_RHSfctB)
-#define mx_QUADfctB (cvm_Mdata->mx_QUADfctB)
-#define mx_JACfctB  (cvm_Mdata->mx_JACfctB)
-#define mx_PSETfctB (cvm_Mdata->mx_PSETfctB)
-#define mx_PSOLfctB (cvm_Mdata->mx_PSOLfctB)
-#define mx_GLOCfctB (cvm_Mdata->mx_GLOCfctB)
-#define mx_GCOMfctB (cvm_Mdata->mx_GCOMfctB)
-
-#define mx_MONfct   (cvm_Mdata->mx_MONfct)
-#define mx_MONdata  (cvm_Mdata->mx_MONdata)
-
-#define mx_MONfctB  (cvm_Mdata->mx_MONfctB)
-#define mx_MONdataB (cvm_Mdata->mx_MONdataB)
+#define mx_data     (cvmData->mx_data)
 
 
-/*
- * ---------------------------------------------------------------------------------
- * Error handler
- * ---------------------------------------------------------------------------------
- */
+#define fsa         (fwdPb->Fsa)
+#define quadr       (fwdPb->Quadr)
+#define N           (fwdPb->n) 
+#define Nq          (fwdPb->nq) 
+#define Ng          (fwdPb->ng) 
+#define Ns          (fwdPb->ns) 
+#define ls          (fwdPb->LS) 
+#define pm          (fwdPb->PM)
 
-void mtlb_CVodeErrHandler(int error_code, 
-                          const char *module, const char *function, 
-                          char *msg, void *eh_data)
-{
-  char err_type[10];
+#define mx_RHSfct   (fwdPb->RHSfct)
+#define mx_QUADfct  (fwdPb->QUADfct)
+#define mx_JACfct   (fwdPb->JACfct)
+#define mx_PSETfct  (fwdPb->PSETfct)
+#define mx_PSOLfct  (fwdPb->PSOLfct)
+#define mx_GLOCfct  (fwdPb->GLOCfct)
+#define mx_GCOMfct  (fwdPb->GCOMfct)
+#define mx_Gfct     (fwdPb->Gfct)
+#define mx_SRHSfct  (fwdPb->SRHSfct)
 
-  if (!errmsg) return;
+#define mx_MONfct   (fwdPb->MONfct)
+#define mx_MONdata  (fwdPb->MONdata)
 
-  if (error_code == CV_WARNING)
-    sprintf(err_type,"WARNING");
-  else
-    sprintf(err_type,"ERROR");
 
-  mexPrintf("\n[%s %s]  %s\n",module,err_type,function);
-  mexPrintf("  %s\n\n",msg);
 
-  return;
-}
+#define quadrB      (bckPb->Quadr)
+#define NB          (bckPb->n) 
+#define NqB         (bckPb->nq) 
+#define lsB         (bckPb->LS) 
+#define pmB         (bckPb->PM) 
+
+#define mx_RHSfctB  (bckPb->RHSfct)
+#define mx_QUADfctB (bckPb->QUADfct)
+#define mx_JACfctB  (bckPb->JACfct)
+#define mx_PSETfctB (bckPb->PSETfct)
+#define mx_PSOLfctB (bckPb->PSOLfct)
+#define mx_GLOCfctB (bckPb->GLOCfct)
+#define mx_GCOMfctB (bckPb->GCOMfct)
+
+#define mx_MONfctB  (bckPb->MONfct)
+#define mx_MONdataB (bckPb->MONdata)
+
 
 /*
  * ---------------------------------------------------------------------------------
- * Wrapper functions
+ * FORWARD PROBLEMS
  * ---------------------------------------------------------------------------------
  */
 
 int mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   mxArray *mx_in[5], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);        /* type=1: forward ODE */
@@ -126,7 +106,7 @@ int mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -140,10 +120,16 @@ int mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
   return(ret);
 }
 
-int mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data)
+int mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *f_data)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   mxArray *mx_in[5], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);        /* type=1: forward ODE */
@@ -161,7 +147,7 @@ int mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data)
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -175,12 +161,18 @@ int mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data)
   return(ret);
 }
 
-int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data)
+int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *f_data)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   double *gdata;
   int i, ret;
   mxArray *mx_in[4], *mx_out[3];
   
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
+
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);          /* current t */
   mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL); /* current y */
@@ -198,7 +190,7 @@ int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data)
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -214,13 +206,19 @@ int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data)
 
 int mtlb_CVodeDenseJac(int Neq, realtype t,
                        N_Vector y, N_Vector fy, 
-                       DlsMat J, void *jac_data,
+                       DlsMat J, void *f_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   double *J_data;
   long int i;
   int ret;
   mxArray *mx_in[6], *mx_out[3];
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
@@ -244,7 +242,7 @@ int mtlb_CVodeDenseJac(int Neq, realtype t,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -261,12 +259,18 @@ int mtlb_CVodeDenseJac(int Neq, realtype t,
 
 int mtlb_CVodeBandJac(int Neq, int mupper, int mlower, realtype t,
                       N_Vector y, N_Vector fy, 
-                      DlsMat J, void *jac_data,
+                      DlsMat J, void *f_data,
                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   double *J_data;
   int eband, i, ret;
   mxArray *mx_in[6], *mx_out[3];
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
@@ -291,7 +295,7 @@ int mtlb_CVodeBandJac(int Neq, int mupper, int mlower, realtype t,
   ret = (int)*mxGetPr(mx_out[1]);
   
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -309,10 +313,16 @@ int mtlb_CVodeBandJac(int Neq, int mupper, int mlower, realtype t,
 
 int mtlb_CVodeSpilsJac(N_Vector v, N_Vector Jv, realtype t,
                        N_Vector y, N_Vector fy,
-                       void *jac_data, N_Vector tmp)
+                       void *f_data, N_Vector tmp)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   mxArray *mx_in[7], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
@@ -334,7 +344,7 @@ int mtlb_CVodeSpilsJac(N_Vector v, N_Vector Jv, realtype t,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -353,12 +363,18 @@ int mtlb_CVodeSpilsJac(N_Vector v, N_Vector Jv, realtype t,
 
 int mtlb_CVodeSpilsPset(realtype t, N_Vector y, N_Vector fy,
                         booleantype jok, booleantype *jcurPtr,
-                        realtype gamma, void *P_data,
+                        realtype gamma, void *f_data,
                         N_Vector tmp1, N_Vector tmp2,
                         N_Vector tmp3)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   mxArray *mx_in[8], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
@@ -380,7 +396,7 @@ int mtlb_CVodeSpilsPset(realtype t, N_Vector y, N_Vector fy,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -401,10 +417,16 @@ int mtlb_CVodeSpilsPset(realtype t, N_Vector y, N_Vector fy,
 int mtlb_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
                         N_Vector r, N_Vector z,
                         realtype gamma, realtype delta,
-                        int lr, void *P_data, N_Vector tmp)
+                        int lr, void *f_data, N_Vector tmp)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   mxArray *mx_in[7], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);        /* type=1: forward ODE */
@@ -426,7 +448,7 @@ int mtlb_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -451,8 +473,14 @@ int mtlb_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
 int mtlb_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y,
                       N_Vector g, void *f_data)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   mxArray *mx_in[5], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
@@ -470,7 +498,7 @@ int mtlb_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -486,8 +514,14 @@ int mtlb_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y,
 
 int mtlb_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   mxArray *mx_in[5], *mx_out[2];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
@@ -504,7 +538,7 @@ int mtlb_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data)
   ret = (int)*mxGetPr(mx_out[0]);
 
   if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+    UpdateUserData(mx_out[1], cvmData);
   }
 
   /* Free temporary space */
@@ -526,12 +560,18 @@ int mtlb_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data)
 int mtlb_CVodeSensRhs(int Nsens, realtype t,
                       N_Vector y, N_Vector yd,
                       N_Vector *yS, N_Vector *ySd,
-                      void *fS_data,
+                      void *f_data,
                       N_Vector tmp1, N_Vector tmp2)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb;
   mxArray *mx_in[7], *mx_out[3];
   int is, ret;
   double *tmp;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_data;
+  fwdPb = cvmData->fwdPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);             /* current t */
@@ -559,7 +599,7 @@ int mtlb_CVodeSensRhs(int Nsens, realtype t,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -586,8 +626,15 @@ int mtlb_CVodeSensRhs(int Nsens, realtype t,
 
 int mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_dataB)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb, bckPb;
   mxArray *mx_in[6], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_dataB;
+  fwdPb = cvmData->fwdPb;
+  bckPb = cvmData->bckPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -608,7 +655,7 @@ int mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_da
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -624,10 +671,17 @@ int mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_da
 }
 
 
-int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void *fQ_dataB)
+int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void *f_dataB)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb, bckPb;
   mxArray *mx_in[6], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_dataB;
+  fwdPb = cvmData->fwdPb;
+  bckPb = cvmData->bckPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -648,7 +702,7 @@ int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void 
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -666,12 +720,19 @@ int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void 
 
 int mtlb_CVodeDenseJacB(int NeqB, realtype t,
                         N_Vector y, N_Vector yB, N_Vector fyB,
-                        DlsMat JB, void *jac_dataB, 
+                        DlsMat JB, void *f_dataB, 
                         N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb, bckPb;
   double *JB_data;
   mxArray *mx_in[7], *mx_out[3];
   int i, ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_dataB;
+  fwdPb = cvmData->fwdPb;
+  bckPb = cvmData->bckPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -696,7 +757,7 @@ int mtlb_CVodeDenseJacB(int NeqB, realtype t,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -715,12 +776,19 @@ int mtlb_CVodeDenseJacB(int NeqB, realtype t,
 
 int mtlb_CVodeBandJacB(int NeqB, int mupperB, int mlowerB, realtype t, 
                        N_Vector y, N_Vector yB, N_Vector fyB,
-                       DlsMat JB, void *jac_dataB, 
+                       DlsMat JB, void *f_dataB, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb, bckPb;
   double *JB_data;
   mxArray *mx_in[7], *mx_out[3];
   int ebandB, i, ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_dataB;
+  fwdPb = cvmData->fwdPb;
+  bckPb = cvmData->bckPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -746,7 +814,7 @@ int mtlb_CVodeBandJacB(int NeqB, int mupperB, int mlowerB, realtype t,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -765,10 +833,17 @@ int mtlb_CVodeBandJacB(int NeqB, int mupperB, int mlowerB, realtype t,
 
 int mtlb_CVodeSpilsJacB(N_Vector vB, N_Vector JvB, realtype t,
                         N_Vector y, N_Vector yB, N_Vector fyB,
-                        void *jac_dataB, N_Vector tmpB)
+                        void *f_dataB, N_Vector tmpB)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb, bckPb;
   mxArray *mx_in[8], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_dataB;
+  fwdPb = cvmData->fwdPb;
+  bckPb = cvmData->bckPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -792,7 +867,7 @@ int mtlb_CVodeSpilsJacB(N_Vector vB, N_Vector JvB, realtype t,
   ret = (int)*mxGetPr(mx_out[1]);
   
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -815,12 +890,19 @@ int mtlb_CVodeSpilsPsetB(realtype t, N_Vector y,
                          N_Vector yB, N_Vector fyB,
                          booleantype jokB,
                          booleantype *jcurPtrB, realtype gammaB,
-                         void *P_dataB,
+                         void *f_dataB,
                          N_Vector tmp1B, N_Vector tmp2B,
                          N_Vector tmp3B)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb, bckPb;
   mxArray *mx_in[9], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_dataB;
+  fwdPb = cvmData->fwdPb;
+  bckPb = cvmData->bckPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -844,7 +926,7 @@ int mtlb_CVodeSpilsPsetB(realtype t, N_Vector y,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -868,10 +950,17 @@ int mtlb_CVodeSpilsPsolB(realtype t, N_Vector y,
                          N_Vector yB, N_Vector fyB,
                          N_Vector rB, N_Vector zB,
                          realtype gammaB, realtype deltaB,
-                         int lrB, void *P_dataB, N_Vector tmpB)
+                         int lrB, void *f_dataB, N_Vector tmpB)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb, bckPb;
   mxArray *mx_in[8], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_dataB;
+  fwdPb = cvmData->fwdPb;
+  bckPb = cvmData->bckPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -895,7 +984,7 @@ int mtlb_CVodeSpilsPsolB(realtype t, N_Vector y,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -916,8 +1005,15 @@ int mtlb_CVodeSpilsPsolB(realtype t, N_Vector y,
 int mtlb_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y,
                        N_Vector yB, N_Vector gB, void *f_dataB)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb, bckPb;
   mxArray *mx_in[6], *mx_out[3];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_dataB;
+  fwdPb = cvmData->fwdPb;
+  bckPb = cvmData->bckPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -938,7 +1034,7 @@ int mtlb_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], cvmData);
   }
 
   /* Free temporary space */
@@ -956,8 +1052,15 @@ int mtlb_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y,
 int mtlb_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y, 
                        N_Vector yB, void *f_dataB)
 {
+  cvmInterfaceData cvmData;
+  cvmPbData fwdPb, bckPb;
   mxArray *mx_in[6], *mx_out[2];
   int ret;
+
+  /* Extract global interface data from user-data */
+  cvmData = (cvmInterfaceData) f_dataB;
+  fwdPb = cvmData->fwdPb;
+  bckPb = cvmData->bckPb;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -976,7 +1079,7 @@ int mtlb_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y,
   ret = (int)*mxGetPr(mx_out[0]);
 
   if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+    UpdateUserData(mx_out[1], cvmData);
   }
 
   /* Free temporary space */
@@ -996,21 +1099,24 @@ int mtlb_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y,
  * ---------------------------------------------------------------------------------
  */
 
-void mtlb_CVodeMonitor(int call, double t, N_Vector y, N_Vector yQ, N_Vector *yS)
+void mtlb_CVodeMonitor(int call, double t, N_Vector y, N_Vector yQ, N_Vector *yS, cvmInterfaceData cvmData)
 {
+  cvmPbData fwdPb;
   mxArray *mx_in[8], *mx_out[1];
   double *tmp;
   int is;
 
+  fwdPb = cvmData->fwdPb;
+
   mx_in[0] = mxCreateScalarDouble(call);            /* call type (0:first, 1:interm. 2:last) */
   mx_in[1] = mxCreateScalarDouble(t);               /* current time */
   mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);      /* current solution */
-  if (cvm_quad)
+  if (quadr)
     mx_in[3] = mxCreateDoubleMatrix(Nq,1,mxREAL);   /* current quadratures */
   else
     mx_in[3] = mxCreateDoubleMatrix(0,0,mxREAL);
   mx_in[4] = mxCreateScalarDouble(Ns);              /* number of sensitivities */
-  if (cvm_fsa)
+  if (fsa)
     mx_in[5] = mxCreateDoubleMatrix(N*Ns,1,mxREAL); /* current sensitivities */
   else
     mx_in[5] = mxCreateDoubleMatrix(0,0,mxREAL);
@@ -1021,10 +1127,10 @@ void mtlb_CVodeMonitor(int call, double t, N_Vector y, N_Vector yQ, N_Vector *yS
 
     GetData(y, mxGetPr(mx_in[2]), N);
 
-    if (cvm_quad)
+    if (quadr)
       GetData(yQ, mxGetPr(mx_in[3]), Nq);
 
-    if (cvm_fsa) {
+    if (fsa) {
       tmp = mxGetPr(mx_in[5]);
       for (is=0; is<Ns; is++)
         GetData(yS[is], &tmp[is*N], N);
@@ -1035,7 +1141,7 @@ void mtlb_CVodeMonitor(int call, double t, N_Vector y, N_Vector yQ, N_Vector *yS
   mexCallMATLAB(1,mx_out,8,mx_in,"cvm_monitor");
 
   if (!mxIsEmpty(mx_out[0])) {
-    UpdateMonitorData(mx_out[0]);
+    UpdateMonitorData(mx_out[0], cvmData);
   }
 
   mxDestroyArray(mx_in[0]);
@@ -1047,34 +1153,36 @@ void mtlb_CVodeMonitor(int call, double t, N_Vector y, N_Vector yQ, N_Vector *yS
   mxDestroyArray(mx_out[0]);
 }
 
-void mtlb_CVodeMonitorB(int call, double tB, N_Vector yB, N_Vector yQB)
+void mtlb_CVodeMonitorB(int call, int idxB, double tB, N_Vector yB, N_Vector yQB, cvmInterfaceData cvmData)
 {
-  mxArray *mx_in[8], *mx_out[1];
+  cvmPbData bckPb;
+  mxArray *mx_in[7], *mx_out[1];
+
+  bckPb = cvmData->bckPb;
 
   mx_in[0] = mxCreateScalarDouble(call);            /* 0: first, 1: interm. 2: last */
-  mx_in[1] = mxCreateScalarDouble(tB);              /* current time */
-  mx_in[2] = mxCreateDoubleMatrix(NB,1,mxREAL);     /* current solution */
-  if (cvm_quadB)
-    mx_in[3] = mxCreateDoubleMatrix(NqB,1,mxREAL);  /* current quadratures */
+  mx_in[1] = mxCreateScalarDouble(idxB);            /* index of current problem */
+  mx_in[2] = mxCreateScalarDouble(tB);              /* current time */
+  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL);     /* current solution */
+  if (quadrB)
+    mx_in[4] = mxCreateDoubleMatrix(NqB,1,mxREAL);  /* current quadratures */
   else
-    mx_in[3] = mxCreateDoubleMatrix(0,0,mxREAL);
-  mx_in[4] = mxCreateScalarDouble(0.0);             /* Ns is always zero here */
-  mx_in[5] = mxCreateDoubleMatrix(0,0,mxREAL);      /* yS is always empty here */
-  mx_in[6] = mx_MONfctB;
-  mx_in[7] = mx_MONdataB;
+    mx_in[4] = mxCreateDoubleMatrix(0,0,mxREAL);
+  mx_in[5] = mx_MONfctB;
+  mx_in[6] = mx_MONdataB;
 
   if (call == 1) {
     
-    GetData(yB, mxGetPr(mx_in[2]), NB);
+    GetData(yB, mxGetPr(mx_in[3]), NB);
 
-    if (cvm_quadB)
-      GetData(yQB, mxGetPr(mx_in[3]), NqB);
+    if (quadrB)
+      GetData(yQB, mxGetPr(mx_in[4]), NqB);
   }
 
-  mexCallMATLAB(1,mx_out,8,mx_in,"cvm_monitor");
+  mexCallMATLAB(1,mx_out,7,mx_in,"cvm_monitorB");
 
   if (!mxIsEmpty(mx_out[0])) {
-    UpdateMonitorDataB(mx_out[0]);
+    UpdateMonitorDataB(mx_out[0], cvmData);
   }
 
   mxDestroyArray(mx_in[0]);
@@ -1082,7 +1190,6 @@ void mtlb_CVodeMonitorB(int call, double tB, N_Vector yB, N_Vector yQB)
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_in[4]);
-  mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_out[0]);
 }
 
@@ -1093,7 +1200,7 @@ void mtlb_CVodeMonitorB(int call, double tB, N_Vector yB, N_Vector yQB)
  * ---------------------------------------------------------------------------------
  */
 
-static void UpdateUserData(mxArray *mx_newdata)
+static void UpdateUserData(mxArray *mx_newdata, cvmInterfaceData cvmData)
 {
   mexUnlock();
   mxDestroyArray(mx_data);
@@ -1102,8 +1209,12 @@ static void UpdateUserData(mxArray *mx_newdata)
   mexLock();
 }
 
-static void UpdateMonitorData(mxArray *mx_newdata)
+static void UpdateMonitorData(mxArray *mx_newdata, cvmInterfaceData cvmData)
 {
+  cvmPbData fwdPb;
+
+  fwdPb = cvmData->fwdPb;
+
   mexUnlock();
   mxDestroyArray(mx_MONdata);
   mx_MONdata = mxDuplicateArray(mx_newdata);
@@ -1111,8 +1222,12 @@ static void UpdateMonitorData(mxArray *mx_newdata)
   mexLock();
 }
 
-static void UpdateMonitorDataB(mxArray *mx_newdata)
+static void UpdateMonitorDataB(mxArray *mx_newdata, cvmInterfaceData cvmData)
 {
+  cvmPbData bckPb;
+
+  bckPb = cvmData->bckPb;
+
   mexUnlock();
   mxDestroyArray(mx_MONdataB);
   mx_MONdataB = mxDuplicateArray(mx_newdata);

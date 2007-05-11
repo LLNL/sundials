@@ -29,7 +29,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:54 $
+% $Revision: 1.4 $Date: 2006/07/20 16:59:42 $
 
 % -------------------
 % User data structure
@@ -54,30 +54,31 @@ options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondat
 t0 = 0.0;
 y0 = [1.0;0.0;0.0];
 
-CVodeMalloc(@cvdx_f,t0,y0,options,data);
+CVodeInit(@cvdx_f,t0,y0,options,data);
 
 
 % ------------------
 % FSA initialization
 % ------------------
 
-% Case 1: user-provided sensitivity RHS
-
-FSAoptions = CVodeSetFSAOptions('SensErrControl', 'on',...
-                                'ParamScales', [0.04; 1.0e4],...
-                                'SensRhsFn', @cvdx_fS);
-
-% Case 2: internal DQ approximation
-
-%FSAoptions = CVodeSetFSAOptions('SensErrControl', 'on',...
-%                                'ParamField', 'p',...
-%                                'ParamList', [1 2],...
-%                                'ParamScales', [0.04 1.0e4]);
-
 Ns = 2;
 yS0 = zeros(3,Ns);
 
-CVodeSensMalloc(Ns, 'Simultaneous', yS0, FSAoptions);
+% Case 1: user-provided sensitivity RHS
+
+FSAoptions = CVodeSensSetOptions('method','Simultaneous',...
+                                 'ErrControl', 'on',...
+                                 'ParamScales', [0.04; 1.0e4]);
+CVodeSensInit(Ns, @cvdx_fS, yS0, FSAoptions);
+
+% Case 2: internal DQ approximation
+
+%FSAoptions = CVodeSensSetOptions('method','Simultaneous',...
+%                                 'ErrControl', 'on',...
+%                                 'ParamField', 'p',...
+%                                 'ParamList', [1 2],...
+%                                 'ParamScales', [0.04 1.0e4]);
+%CVodeSensInit(Ns, [], yS0, FSAoptions);
 
 % ----------------
 % Problem solution

@@ -1,6 +1,4 @@
-%CVRhsFn - type for user provided RHS type
-%
-%IVP Problem
+%CVRhsFn - type for user provided RHS function
 %
 %   The function ODEFUN must be defined as 
 %        FUNCTION [YD, FLAG] = ODEFUN(T,Y)
@@ -18,25 +16,9 @@
 %   unrecoverable failure occurred, or FLAG>0 if a recoverable error
 %   occurred.
 %
-%Adjoint Problem
+%   See also CVodeInit
 %
-%   The function ODEFUNB must be defined either as
-%        FUNCTION [YBD, FLAG] = ODEFUNB(T,Y,YB)
-%   or as
-%        FUNCTION [YBD, FLAG, NEW_DATA] = ODEFUNB(T,Y,YB,DATA)
-%   depending on whether a user data structure DATA was specified in
-%   CVodeMalloc. In either case, it must return the vector YBD
-%   corresponding to fB(t,y,yB).
-%
-%   The function ODEFUNB must set FLAG=0 if successful, FLAG<0 if an
-%   unrecoverable failure occurred, or FLAG>0 if a recoverable error
-%   occurred.
-%
-%   See also CVodeMalloc, CVodeMallocB
-%
-%   NOTE: ODEFUN and ODEFUNB are specified through the CVodeMalloc and
-%   CVodeMallocB functions, respectively.
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
+% $Revision: 1.1 $Date: 2006/02/13 23:01:20 $

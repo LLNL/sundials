@@ -1,4 +1,4 @@
-function [status,t,y,varargout] = CVode(tout,itask)
+function [varargout] = CVode(tout, itask)
 %CVode integrates the ODE.
 %
 %   Usage: [STATUS, T, Y] = CVode ( TOUT, ITASK ) 
@@ -12,57 +12,43 @@ function [status,t,y,varargout] = CVode(tout,itask)
 %   and returns in Y the solution at the new internal time. In this case, TOUT 
 %   is used only during the first call to CVode to determine the direction of 
 %   integration and the rough scale of the problem. In either case, the time 
-%   reached by the solver is returned in T. The 'NormalTstop' and 'OneStepTstop' 
-%   modes are similar to 'Normal' and 'OneStep', respectively, except that the 
-%   integration never proceeds past the value tstop.
+%   reached by the solver is returned in T.
 %
-%   If quadratures were computed (see CVodeSetOptions), CVode will return their
+%   If quadratures were computed (see CVodeQuadInit), CVode will return their
 %   values at T in the vector YQ.
 %
-%   If sensitivity calculations were enabled (see CVodeSetOptions), CVode will 
-%   return their values at T in the matrix YS.
+%   If sensitivity calculations were enabled (see CVodeSensInit), CVode will 
+%   return their values at T in the matrix YS. Each row in the matrix YS
+%   represents the sensitivity vector with respect to one of the problem parameters.
+%
+%   In ITASK =' Normal' mode, to obtain solutions at specific times T0,T1,...,TFINAL
+%   (all increasing or all decreasing) use TOUT = [T0 T1  ... TFINAL]. In this case
+%   the output arguments Y and YQ are matrices, each column representing the solution
+%   vector at the corresponding time returned in the vector T. If computed, the 
+%   sensitivities are eturned in the 3-dimensional array YS, with YS(:,:,I) representing
+%   the sensitivity vectors at the time T(I).
 %
 %   On return, STATUS is one of the following:
-%     0: CVode succeeded and no roots were found.
+%     0: successful CVode return.
 %     1: CVode succeded and returned at tstop.
-%     2: CVode succeeded, and found one or more roots. 
-%    -1: Illegal attempt to call before CVodeMalloc
-%    -2: One of the inputs to CVode is illegal. This includes the situation 
-%        when a component of the error weight vectors becomes < 0 during internal 
-%        time-stepping.
-%    -4: The solver took mxstep internal steps but could not reach TOUT. The 
-%        default value for mxstep is 500.
-%    -5: The solver could not satisfy the accuracy demanded by the user for some 
-%        internal step.
-%    -6: Error test failures occurred too many times (MXNEF = 7) during one internal 
-%        time step 
-%        or occurred with |h| = hmin.
-%    -7: Convergence test failures occurred too many times (MXNCF = 10) during one 
-%        internal time step or occurred with |h| = hmin.
-%    -9: The linear solver's setup routine failed in an unrecoverable manner.
-%   -10: The linear solver's solve routine failed in an unrecoverable manner.
+%     2: CVode succeeded and found one or more roots. 
 %
 %
 %   See also CVodeSetOptions, CVodeGetStats
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/07/07 19:08:40 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.5 $Date: 2006/10/11 18:12:36 $
 
 mode = 20;
-if nargout < 3 | nargout > 5
-  disp('CVode:: wrong number of output arguments');
-  return
+
+if nargin ~= 2
+  error('Wrong number of input arguments');
 end
 
-if nargout == 3
-  [status,t,y] = cvm(mode,tout,itask);
-elseif nargout == 4
-  % v1 can be either yQ or yS
-  [status,t,y,v1] = cvm(mode,tout,itask);
-  varargout(1) = {v1};
-elseif nargout == 5
-  [status,t,y,yQ,yS] = cvm(mode,tout,itask);
-  varargout(1) = {yQ};
-  varargout(2) = {yS};
+if nargout < 3 || nargout > 5
+  error('Wrong number of output arguments');
 end
+
+varargout = cell (nargout, 1);
+[varargout{:}] = cvm(mode,tout,itask);

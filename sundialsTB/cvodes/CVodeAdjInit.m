@@ -1,7 +1,7 @@
-function [] = CVadjMalloc(steps, interp)
-%CVadjMalloc allocates and initializes memory for ASA with CVODES.
+function CVodeAdjInit(steps, interp)
+%CVodeAdjInit allocates and initializes memory for ASA with CVODES.
 %
-%   Usage: CVadjMalloc(STEPS, INTEPR) 
+%   Usage: CVodeAdjInit(STEPS, INTEPR) 
 %
 %   STEPS    specifies the (maximum) number of integration steps between two 
 %            consecutive check points.
@@ -11,9 +11,13 @@ function [] = CVadjMalloc(steps, interp)
 %            indicating variable order polynomial interpolation.
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/03/07 01:19:50 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.1 $Date: 2006/03/15 19:31:25 $
 
-mode = 3;
+mode = 4;
+
+if nargin ~= 2
+  error('Wrong number of input arguments');
+end
 
 cvm(mode,steps,interp);

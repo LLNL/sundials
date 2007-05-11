@@ -42,7 +42,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:54 $
+% $Revision: 1.4 $Date: 2006/10/05 22:12:23 $
 
 
 % ----------------------------------------
@@ -55,21 +55,11 @@ data.p = [0.04; 1.0e4; 3.0e7];
 % Forward CVODES options
 % ----------------------------------------
 
-t0 = 0.0;
-y0 = [1.0;0.0;0.0];
-q0 = 0.0;
 
 options = CVodeSetOptions('RelTol',1.e-4,...
                           'AbsTol',[1.e-8; 1.e-14; 1.e-6],...
                           'LinearSolver','Dense',...
                           'JacobianFn',@cvdx_J);
-
-options = CVodeSetOptions(options,...
-                          'Quadratures','on',...
-                          'QuadRhsFn',@cvdx_q,...
-                          'QuadInitcond', q0,...
-                          'QuadErrControl','on',...
-                          'QuadRelTol',1.e-4,'QuadAbsTol',1.e-6);
 
 mondata = struct;
 mondata.sol = true;
@@ -78,9 +68,22 @@ options = CVodeSetOptions(options,...
                           'MonitorFn',@CVodeMonitor,...
                           'MonitorData',mondata);
 
-CVodeMalloc(@cvdx_f,t0,y0,options,data);
+t0 = 0.0;
+y0 = [1.0;0.0;0.0];
+CVodeInit(@cvdx_f,t0,y0,options,data);
 
-CVadjMalloc(150, 'Hermite');
+
+optionsQ = CVodeQuadSetOptions('ErrControl','on',...
+                               'RelTol',1.e-4,'AbsTol',1.e-6);
+
+q0 = 0.0;
+CVodeQuadInit(@cvdx_q, q0, optionsQ);
+
+% ----------------------------------------
+% Initialize ASA
+% ----------------------------------------
+
+CVodeAdjInit(150, 'Hermite');
 
 % ----------------------------------------
 % Forward integration
@@ -98,13 +101,10 @@ fprintf('G = %12.4e\n',q);
 fprintf('\nCheck point info\n');
 
 ck = CVodeGet('CheckPointsInfo');
-fprintf(['    t0         t1'...
-         '     nstep  order'...
-         '  step size\n']); 
+fprintf(['    t0         t1     nstep  order  step size\n']); 
 for i = 1:length(ck)
   fprintf('%8.3e  %8.3e  %4d     %1d   %10.5e\n',...
-          ck(i).t0, ck(i).t1, ck(i).nstep, ...
-          ck(i).order, ck(i).step);
+          ck(i).t0, ck(i).t1, ck(i).nstep, ck(i).order, ck(i).step);
 end
 fprintf('\n');
 
@@ -112,29 +112,26 @@ fprintf('\n');
 % Backward CVODES options
 % ----------------------------------------
 
-tB1 = 4.e7;
-yB1 = [0.0;0.0;0.0];
-qB1 = [0.0;0.0;0.0];
-
 optionsB = CVodeSetOptions('RelTol',1.e-6,...
                            'AbsTol',1.e-3,...
                            'LinearSolver','Dense',...
                            'JacobianFn',@cvdx_JB);
 
-optionsB = CVodeSetOptions(optionsB,...
-                           'Quadratures','on',...
-                           'QuadRhsFn',@cvdx_qB,...
-                           'QuadInitcond', qB1,...
-                           'QuadErrControl','on',...
-                           'QuadRelTol',1.e-6,'QuadAbsTol',1.e-3);
 mondataB = struct;
-mondataB.dir = -1;
 mondataB.mode = 'both';
 optionsB = CVodeSetOptions(optionsB,...
-                           'MonitorFn','CVodeMonitor',...
+                           'MonitorFn','CVodeMonitorB',...
                            'MonitorData', mondataB);
 
-CVodeMallocB(@cvdx_fB, tB1, yB1, optionsB);
+tB1 = 4.e7;
+yB1 = [0.0;0.0;0.0];
+idxB = CVodeInitB(@cvdx_fB, tB1, yB1, optionsB);
+
+optionsQB = CVodeQuadSetOptions('ErrControl','on',...
+                                'RelTol',1.e-6,'AbsTol',1.e-3);
+
+qB1 = [0.0;0.0;0.0];
+CVodeQuadInitB(idxB, @cvdx_qB, qB1, optionsQB);
 
 % ----------------------------------------
 % Backward integration
@@ -143,7 +140,7 @@ CVodeMallocB(@cvdx_fB, tB1, yB1, optionsB);
 fprintf('Backward integration ');
 
 [status,t,yB,qB] = CVodeB(t0,'Normal');
-sB=CVodeGetStatsB;
+sB=CVodeGetStatsB(idxB);
 fprintf('(%d steps)\n',sB.nst);
 
 fprintf('tB1:        %12.4e\n',tB1);

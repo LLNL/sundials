@@ -1,7 +1,5 @@
 %CVGlocalFn - type for user provided RHS approximation function (BBDPre).
 %
-%IVP Problem
-%
 %   The function GLOCFUN must be defined as 
 %        FUNCTION [GLOC, FLAG] = GLOCFUN(T,Y)
 %   and must return a vector GLOC corresponding to an approximation to f(t,y)
@@ -20,26 +18,11 @@
 %   unrecoverable failure occurred, or FLAG>0 if a recoverable error
 %   occurred.
 %
-%Adjoint Problem
-%
-%   The function GLOCFUNB must be defined either as
-%        FUNCTION [GLOCB, FLAG] = GLOCFUNB(T,Y,YB)
-%   or as
-%        FUNCTION [GLOCB, FLAG, NEW_DATA] = GLOCFUNB(T,Y,YB,DATA)
-%   depending on whether a user data structure DATA was specified in
-%   CVodeMalloc. In either case, it must return the vector GLOCB
-%   corresponding to an approximation to fB(t,y,yB).
-%
-%   The function GLOCFUNB must set FLAG=0 if successful, FLAG<0 if an
-%   unrecoverable failure occurred, or FLAG>0 if a recoverable error
-%   occurred.
-%
 %   See also CVGcommFn, CVodeSetOptions
 %
-%   NOTE: GLOCFUN and GLOCFUNB are specified through the GlocalFn property
-%   in CVodeSetOptions and are used only if the property PrecModule
-%   is set to 'BBDPre'.
+%   NOTE: GLOCFUN is specified through the GlocalFn property in CVodeSetOptions
+%   and is used only if the property PrecModule is set to 'BBDPre'.
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
+% $Revision: 1.1 $Date: 2006/02/13 23:01:20 $

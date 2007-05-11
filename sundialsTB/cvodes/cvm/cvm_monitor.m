@@ -5,6 +5,7 @@ function [new_mondata] = cvm_monitor(call, t, y, yQ, Ns, yS, fct, mondata)
 %
 
 N = length(y);
+
 yS = reshape(yS,N,Ns);
 
 if isempty(mondata)

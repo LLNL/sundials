@@ -1,7 +1,7 @@
-function [] = CVodeMalloc(fct,t0,y0,varargin)
-%CVodeMalloc allocates and initializes memory for CVODES.
+function CVodeInit(fct, t0, y0, options, data)
+%CVodeInit allocates and initializes memory for CVODES.
 %
-%   Usage: CVodeMalloc ( ODEFUN, T0, Y0 [, OPTIONS [, DATA] ] ) 
+%   Usage: CVodeInit ( ODEFUN, T0, Y0 [, OPTIONS [, DATA] ] ) 
 %
 %   ODEFUN   is a function defining the ODE right-hand side: y' = f(t,y).
 %            This function must return a vector containing the current 
@@ -14,26 +14,24 @@ function [] = CVodeMalloc(fct,t0,y0,varargin)
 %            user-provided functions when they are called. For example,
 %            YD = ODEFUN(T,Y,DATA).
 %
-%   See also: CVRhsFn 
+%   See also: CVodeSetOptions, CVRhsFn 
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.1 $Date: 2006/07/07 19:08:40 $
 
 mode = 1;
 
 if nargin < 3
-  disp('CVodeMalloc:: too few parameters');
-  return
+  error('Too few input arguments');
 end
 
-options = [];
-data =[];
-if nargin > 3
-  options = varargin{1};
-end
-if nargin > 4
-  data = varargin{2};
+if nargin < 4
+  options = [];
 end
 
-cvm(mode,fct,t0,y0,options,data);
+if nargin < 5
+  data =[];
+end
+
+cvm(mode, fct, t0, y0, options, data);

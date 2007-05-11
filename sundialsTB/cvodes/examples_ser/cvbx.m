@@ -22,7 +22,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/02/02 00:38:30 $
+% $Revision: 1.4 $Date: 2006/03/07 01:19:54 $
 
 xmax = 2.0;
 ymax = 1.0;
@@ -50,7 +50,20 @@ data.hdcoef = 1.0/dx^2;
 data.hacoef = 0.5/(2.0*dx);
 data.vdcoef = 1.0/dy^2;
 
-% initial conditions for states
+% Options for integration
+options = CVodeSetOptions('RelTol',rtol, 'AbsTol',atol);
+options = CVodeSetOptions(options,...
+                          'LinearSolver','Band',...
+                          'JacobianFn',@cvbx_J,...
+                          'UpperBwidth',my,...
+                          'LowerBwidth',my);
+
+mondata.grph = false;
+options = CVodeSetOptions(options,...
+                          'MonitorFn',@CVodeMonitor,...
+                          'MonitorData',mondata);
+
+% Initial conditions for states
 t = t0;
 u = zeros(mx*my,1);
 for j = 1:my
@@ -61,28 +74,16 @@ for j = 1:my
   end
 end
 
+% Initialize integrator
+CVodeInit(@cvbx_f, t, u, options, data);
+
 % Initial condition for quadrature variable
 q = 0.0;
 
-options = CVodeSetOptions('RelTol',rtol, 'AbsTol',atol);
-options = CVodeSetOptions(options,...
-                          'LinearSolver','Band',...
-                          'JacobianFn',@cvbx_J,...
-                          'UpperBwidth',my,...
-                          'LowerBwidth',my);
-options = CVodeSetOptions(options,...
-                          'Quadratures', 'on',...
-                          'QuadRhsFn',@cvbx_q,...
-                          'QuadInitCond', q);
+% Initialize quadratures (with default optional inputs)
+CVodeQuadInit(@cvbx_q, q);
 
 
-
-mondata.grph = false;
-options = CVodeSetOptions(options,...
-                          'MonitorFn',@CVodeMonitor,...
-                          'MonitorData',mondata);
-
-CVodeMalloc(@cvbx_f, t, u, options, data);
 
 
 ff=figure;

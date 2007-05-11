@@ -3,7 +3,6 @@ function options = CVodeSetOptions(varargin)
 %
 %   Usage: OPTIONS = CVodeSetOptions('NAME1',VALUE1,'NAME2',VALUE2,...)
 %          OPTIONS = CVodeSetOptions(OLDOPTIONS,'NAME1',VALUE1,...)
-%          OPTIONS = CVodeSetOptions(OLDOPTIONS,NEWOPTIONS)
 %
 %   OPTIONS = CVodeSetOptions('NAME1',VALUE1,'NAME2',VALUE2,...) creates 
 %   a CVODES options structure OPTIONS in which the named properties have 
@@ -13,10 +12,6 @@ function options = CVodeSetOptions(varargin)
 %   
 %   OPTIONS = CVodeSetOptions(OLDOPTIONS,'NAME1',VALUE1,...) alters an 
 %   existing options structure OLDOPTIONS.
-%   
-%   OPTIONS = CVodeSetOptions(OLDOPTIONS,NEWOPTIONS) combines an existing 
-%   options structure OLDOPTIONS with a new options structure NEWOPTIONS. 
-%   Any new properties overwrite corresponding old properties. 
 %   
 %   CVodeSetOptions with no input arguments displays all property names 
 %   and their possible values.
@@ -92,6 +87,9 @@ function options = CVodeSetOptions(varargin)
 %   For the iterative linear solvers, GMRES, BiCGStab, and TFQMR, JacobianFn must 
 %   be of type CVJacTimesVecFn and must return a Jacobian-vector product. This 
 %   property is not used for the Diag linear solver.
+%   If these options are for a backward problem, the corresponding funciton types
+%   are CVDenseJacFnB for the Dense linear solver, CVBandJacFnB for he band linear
+%   solver, and CVJacTimesVecFnB for the iterative linear solvers.
 %KrylovMaxDim - Maximum number of Krylov subspace vectors [ integer | {5} ]
 %   Specifies the maximum number of vectors in the Krylov subspace. This property 
 %   is used only if an iterative linear solver, GMRES, BiCGStab, or TFQMR is used 
@@ -128,19 +126,21 @@ function options = CVodeSetOptions(varargin)
 %   If PrecType is not 'None', PrecSetupFn specifies an optional function which,
 %   together with PrecSolve, defines left and right preconditioner matrices
 %   (either of which can be trivial), such that the product P1*P2 is an 
-%   aproximation to the Newton matrix. PrecSetupFn must be of type CVPrecSetupFn. 
+%   aproximation to the Newton matrix. PrecSetupFn must be of type CVPrecSetupFn
+%   or CVPrecSetupFnB for forward and backward problems, respectively.
 %PrecSolveFn - Preconditioner solve function [ function ]
 %   If PrecType is not 'None', PrecSolveFn specifies a required function which 
 %   must solve a linear system Pz = r, for given r. PrecSolveFn must be of type
-%   CVPrecSolveFn.
+%   CVPrecSolveFn or CVPrecSolveFnB for forward and backward problems, respectively.
 %GlocalFn - Local right-hand side approximation funciton for BBDPre [ function ]
 %   If PrecModule is BBDPre, GlocalFn specifies a required function that
 %   evaluates a local approximation to the ODE right-hand side. GlocalFn must
-%   be of type CVGlocFn.
+%   be of type CVGlocFn or CVGlocFnB for forward and backward problems, respectively.
 %GcommFn - Inter-process communication function for BBDPre [ function ]
 %   If PrecModule is BBDPre, GcommFn specifies an optional function
 %   to perform any inter-process communication required for the evaluation of
-%   GlocalFn. GcommFn must be of type CVGcommFn.
+%   GlocalFn. GcommFn must be of type CVGcommFn or CVGcommFnB  for forward and
+%   backward problems, respectively.
 %LowerBwidth - Jacobian/preconditioner lower bandwidth [ integer | {0} ]
 %   This property is overloaded. If the Band linear solver is used (see LinSolver),
 %   it specifies the lower half-bandwidth of the band Jacobian approximation. 
@@ -167,55 +167,52 @@ function options = CVodeSetOptions(varargin)
 %   Specifies the upper half-bandwidth used in the difference-quotient Jacobian
 %   approximation for the BBDPre preconditioner (see PrecModule).
 %
-%Quadratures - Quadrature integration [ on | {off} ]
-%   Enables or disables quadrature integration.
-%QuadRhsFn - Quadrature right-hand side function [ function ]
-%   Specifies the user-supplied function to evaluate the integrand for
-%   quadrature computations. See CVQuadRhsfn.
-%QuadInitCond - Initial conditions for quadrature variables [ vector ]
-%   Specifies the initial conditions for quadrature variables.
-%QuadErrControl - Error control strategy for quadrature variables [ on | {off} ]
-%   Specifies whether quadrature variables are included in the error test.
-%QuadRelTol - Relative tolerance for quadrature variables [ scalar {1e-4} ]
-%   Specifies the relative tolerance for quadrature variables. This parameter is
-%   used only if QuadErrCon=on.
-%QuadAbsTol - Absolute tolerance for quadrature variables [ scalar or vector {1e-6} ]
-%   Specifies the absolute tolerance for quadrature variables. This parameter is
-%   used only if QuadErrCon=on.
-%
-%ASANumDataPoints - Number of data points for ASA [ integer | {100} ]
-%   Specifies the (maximum) number of integration steps between two consecutive
-%   check points.
-%ASAInterpType - Type of interpolation [ Polynomial | {Hermite} ]
-%   Specifies the type of interpolation used for estimating the forward solution
-%   during the backward integration phase. At this time, the only option is
-%   'Hermite', specifying cubic Hermite interpolation.
-%
 %MonitorFn - User-provied monitoring function [ function ]
 %   Specifies a function that is called after each successful integration step.
-%   This function must have type CVMonitorFn. A simple monitoring function,
-%   CVodeMonitor is provided with CVODES.
+%   This function must have type CVMonitorFn or CVMonitorFnB, depending on
+%   whether these options are for a forward or a backward problem, respectively.
+%   Sample monitoring functions CVodeMonitor and CvodeMonitorB are provided
+%   with CVODES.
 %MonitorData - User-provied data for the monitoring function [ struct ]
-%   Specifies a data structure that is passed to the Monitor function every time
-%   it is called. 
+%   Specifies a data structure that is passed to the MonitorFn function every
+%   time it is called. 
 %
 %ErrMessages - Turn on/off display of error/warning messages [ {on} | off ]
 %
+%SensDependent - Backward problem depending on sensitivities [ {false} | true ]
+%   Specifies whether the backward problem right-hand side depends on 
+%   forward sensitivites. If TRUE, the right-hand side function provided for
+%   this backward problem must have the appropriate type (see CVRhsFnB).
+%
+%
+%NOTES:
+%
+%   The properties listed above that can only be used for forward problems
+%   are: StopTime, RootsFn, NumRoots, and ErrMessages.
+%
+%   The property SensDependent can only be used for backward problems.
+%
+%
 %   See also
-%        CVRootFn, CVQuadRhsFn
+%        CVodeInit, CVodeReInit, CVodeInitB, CVodeReInitB
+%        CVRhsFn, CVRootFn,
 %        CVDenseJacFn, CVBandJacFn, CVJacTimesVecFn
 %        CVPrecSetupFn, CVPrecSolveFn
 %        CVGlocalFn, CVGcommFn
 %        CVMonitorFn
+%        CVRhsFnB,
+%        CVDenseJacFnB, CVBandJacFnB, CVJacTimesVecFnB
+%        CVPrecSetupFnB, CVPrecSolveFnB
+%        CVGlocalFnB, CVGcommFnB
+%        CVMonitorFnB
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.5 $Date: 2006/07/07 19:08:40 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.6 $Date: 2006/08/10 17:59:57 $
 
-% Based on Matlab's ODESET function
+% If called without input and output arguments, print out the possible keywords
 
-% Print out possible values of properties.
-if (nargin == 0) & (nargout == 0)
+if (nargin == 0) && (nargout == 0)
   fprintf('             LMM: [ Adams | {BDF} ]\n');
   fprintf(' NonlinearSolver: [ Functional | {Newton} ]\n');
   fprintf('          RelTol: [ positive scalar | {1e-4} ]\n');
@@ -245,16 +242,6 @@ if (nargin == 0) & (nargout == 0)
   fprintf('   LowerBwidthDQ: [ integer | {0} ]\n');
   fprintf('   UpperBwidthDQ: [ integer | {0} ]\n');
   fprintf('\n');
-  fprintf('     Quadratures: [ on | {off} ]\n');
-  fprintf('       QuadRhsFn: [ function ]\n');
-  fprintf('    QuadInitCond: [ vector ]\n');
-  fprintf('  QuadErrControl: [ on | {off} ]\n');
-  fprintf('      QuadRelTol: [ positive scalar {1e-4} ]\n');
-  fprintf('      QuadAbsTol: [ positive scalar or vector {1e-6} ]\n');
-  fprintf('\n');
-  fprintf('    ASANumPoints: [ integer | {100} ]\n');
-  fprintf('   ASAInterpType: [ Polynomial | {Hermite} ]\n');
-  fprintf('\n');
   fprintf('       MonitorFn: [ function ]\n');
   fprintf('     MonitorData: [ struct ]\n');
   fprintf('\n');
@@ -263,121 +250,38 @@ if (nargin == 0) & (nargout == 0)
   return;
 end
 
-Names = [
-    'LMM             '
-    'NonlinearSolver '
-    'RelTol          '
-    'AbsTol          '
-    'MaxNumSteps     '
-    'InitialStep     '
-    'MaxStep         '
-    'MinStep         '
-    'MaxOrder        '
-    'StopTime        '
-    'RootsFn         '
-    'NumRoots        '
-    'StabilityLimDet '
-    'LinearSolver    '
-    'JacobianFn      '
-    'PrecType        '
-    'PrecModule      '
-    'PrecSetupFn     '
-    'PrecSolveFn     '
-    'KrylovMaxDim    '
-    'GramSchmidtType '
-    'GlocalFn        '
-    'GcommFn         '
-    'LowerBwidth     '
-    'UpperBwidth     '
-    'LowerBwidthDQ   '
-    'UpperBwidthDQ   '
-    'Quadratures     '
-    'QuadRhsFn       '
-    'QuadInitCond    '
-    'QuadErrControl  '
-    'QuadRelTol      '
-    'QuadAbsTol      '
-    'ASANumPoints    '
-    'ASAInterpType   '
-    'MonitorFn       '
-    'MonitorData     '
-    'ErrMessages     '
-    ];
-[m,n] = size(Names);
-names = lower(Names);
+KeyNames = {
+    'LMM'
+    'NonlinearSolver'
+    'RelTol'
+    'AbsTol'
+    'MaxNumSteps'
+    'InitialStep'
+    'MaxStep'
+    'MinStep'
+    'MaxOrder'
+    'StopTime'
+    'RootsFn'
+    'NumRoots'
+    'StabilityLimDet'
+    'LinearSolver'
+    'JacobianFn'
+    'PrecType'
+    'PrecModule'
+    'PrecSetupFn'
+    'PrecSolveFn'
+    'KrylovMaxDim'
+    'GramSchmidtType'
+    'GlocalFn'
+    'GcommFn'
+    'LowerBwidth'
+    'UpperBwidth'
+    'LowerBwidthDQ'
+    'UpperBwidthDQ'
+    'MonitorFn'
+    'MonitorData'
+    'ErrMessages'
+    };
 
-% Combine all leading options structures o1, o2, ... in (o1,o2,...).
-options = [];
-for j = 1:m
-  options.(deblank(Names(j,:))) = [];
-end
-i = 1;
-while i <= nargin
-  arg = varargin{i};
-  if isstr(arg)                         % arg is an option name
-    break;
-  end
-  if ~isempty(arg)                      % [] is a valid options argument
-    if ~isa(arg,'struct')
-      error(sprintf(['Expected argument %d to be a string property name ' ...
-                     'or an options structure\ncreated with CVodeSetOptions.'], i));
-    end
-    for j = 1:m
-      if any(strcmp(fieldnames(arg),deblank(Names(j,:))))
-        val = arg.(deblank(Names(j,:)));
-      else
-        val = [];
-      end
-      if ~isempty(val)
-        options.(deblank(Names(j,:))) = val;
-      end
-    end
-  end
-  i = i + 1;
-end
+options = cvm_options(KeyNames,varargin{:});
 
-% A finite state machine to parse name-value pairs.
-if rem(nargin-i+1,2) ~= 0
-  error('Arguments must occur in name-value pairs.');
-end
-expectval = 0;                          % start expecting a name, not a value
-while i <= nargin
-  arg = varargin{i};
-    
-  if ~expectval
-    if ~isstr(arg)
-      error(sprintf('Expected argument %d to be a string property name.', i));
-    end
-    
-    lowArg = lower(arg);
-    j = strmatch(lowArg,names);
-    if isempty(j)                       % if no matches
-      error(sprintf('Unrecognized property name ''%s''.', arg));
-    elseif length(j) > 1                % if more than one match
-      % Check for any exact matches (in case any names are subsets of others)
-      k = strmatch(lowArg,names,'exact');
-      if length(k) == 1
-        j = k;
-      else
-        msg = sprintf('Ambiguous property name ''%s'' ', arg);
-        msg = [msg '(' deblank(Names(j(1),:))];
-        for k = j(2:length(j))'
-          msg = [msg ', ' deblank(Names(k,:))];
-        end
-        msg = sprintf('%s).', msg);
-        error(msg);
-      end
-    end
-    expectval = 1;                      % we expect a value next
-    
-  else
-    options.(deblank(Names(j,:))) = arg;
-    expectval = 0;
-      
-  end
-  i = i + 1;
-end
-
-if expectval
-  error(sprintf('Expected value for property ''%s''.', arg));
-end
