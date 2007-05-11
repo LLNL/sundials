@@ -1,16 +1,18 @@
 function [] = install_STB
 %
-% INSTALL_STB Compilation of sundialsTB MEX files
+% INSTALL_STB Interactive compilation and installtion of sundialsTB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.15 $Date: 2006/12/06 00:46:10 $
+% $Revision: 1.16 $Date: 2007/02/05 20:20:33 $
 
 % MEX compiler command
+% --------------------
 
 mexcompiler = 'mex';
 
 % Location of sundialsTB and top of sundials source tree
+% ------------------------------------------------------
 
 stb = pwd;
 cd('..');
@@ -18,6 +20,7 @@ sun = pwd;
 cd(stb);
 
 % Should we enable parallel support?
+% ----------------------------------
 
 par = true;
 if isempty(getenv('LAMHOME'))
@@ -32,6 +35,8 @@ if ~exist(q, 'dir')
 end
 
 % Create sundials_config.h
+% ------------------------
+
 mkdir('sundials');
 fi = fopen(fullfile('sundials','sundials_config.h'),'w');
 fprintf(fi,'#define SUNDIALS_PACKAGE_VERSION "2.3.0"\n');
@@ -41,19 +46,50 @@ fprintf(fi,'#define SUNDIALS_EXPORT\n');
 fclose(fi);
 
 % Compile MEX file
+% ----------------
 
-compile_CVM(mexcompiler,stb,sun,par);
-compile_IDM(mexcompiler,stb,sun,par);
-compile_KIM(mexcompiler,stb,sun,par);
+cvm_ok = false;
+q = fullfile(sun,'src','cvodes');
+if exist(q, 'dir')
+  answ = input('    Compile CVODES interface? (y/n) ','s');
+  if answ == 'y'
+    compile_CVM(mexcompiler,stb,sun,par);
+    cvm_ok = true;
+  end
+end
+  
+idm_ok = false;
+q = fullfile(sun,'src','ida');
+if exist(q, 'dir')
+  answ = input('    Compile IDAS interface? (y/n) ','s');
+  if answ == 'y'
+    compile_IDM(mexcompiler,stb,sun,par);
+    idm_ok = false;
+  end
+end
+  
+kim_ok = false;
+q = fullfile(sun,'src','kinsol');
+if exist(q, 'dir')
+  answ = input('    Compile KINSOL interface? (y/n) ','s');
+  if answ == 'y'
+    compile_KIM(mexcompiler,stb,sun,par);
+    kim_ok = true;
+  end
+end
 
 % Remove sundials_config.h
+% ------------------------
 
 rmdir('sundials','s');
 
 % Install sundialsTB
+% ------------------
 
-ans = input('    Install toolbox? (y/n) ','s');
-if ans ~= 'y'
+fprintf('\nMEX files were successfully created.\n');
+
+answ = input('    Install toolbox? (y/n) ','s');
+if answ ~= 'y'
   fprintf('\nOK. All done.\n');
   return
 end
@@ -84,8 +120,8 @@ stbi = fullfile(where,'sundialsTB');
 go = 1;
 if exist(stbi,'dir')
   fprintf('\nDirectory %s exists!\n',stbi);
-  ans = input('    Replace? (y/n) ','s');
-  if ans == 'y'
+  answ = input('    Replace? (y/n) ','s');
+  if answ == 'y'
     rmdir(stbi,'s');
     go = 1;
   else
@@ -99,25 +135,46 @@ if ~go
 end
 
 mkdir(where,'sundialsTB');
-mkdir(fullfile(where,'sundialsTB'),'cvodes');
-mkdir(fullfile(where,'sundialsTB','cvodes'),'cvm');
-mkdir(fullfile(where,'sundialsTB','cvodes'),'examples_ser');
-mkdir(fullfile(where,'sundialsTB'),'idas');
-mkdir(fullfile(where,'sundialsTB','idas'),'idm');
-mkdir(fullfile(where,'sundialsTB','idas'),'examples_ser');
-mkdir(fullfile(where,'sundialsTB'),'kinsol');
-mkdir(fullfile(where,'sundialsTB','kinsol'),'kim');
-mkdir(fullfile(where,'sundialsTB','kinsol'),'examples_ser');
 mkdir(fullfile(where,'sundialsTB'),'nvector');
 if par
   mkdir(fullfile(where,'sundialsTB'),'putils');
-  mkdir(fullfile(where,'sundialsTB','cvodes'),'examples_par');
-  mkdir(fullfile(where,'sundialsTB','idas'),'examples_par');
-  mkdir(fullfile(where,'sundialsTB','kinsol'),'examples_par');
 end
 
 instSTB(stb, where, par);
 
+if cvm_ok
+  mkdir(fullfile(where,'sundialsTB'),'cvodes');
+  mkdir(fullfile(where,'sundialsTB','cvodes'),'cvm');
+  mkdir(fullfile(where,'sundialsTB','cvodes'),'function_types');
+  mkdir(fullfile(where,'sundialsTB','cvodes'),'examples_ser');
+  if par
+    mkdir(fullfile(where,'sundialsTB','cvodes'),'examples_par');
+  end
+  instCVM(stb, where, par);
+end
+
+if idm_ok
+  mkdir(fullfile(where,'sundialsTB'),'idas');
+  mkdir(fullfile(where,'sundialsTB','idas'),'idm');
+  mkdir(fullfile(where,'sundialsTB','idas'),'function_types');
+  mkdir(fullfile(where,'sundialsTB','idas'),'examples_ser');
+  if par
+    mkdir(fullfile(where,'sundialsTB','idas'),'examples_par');
+  end
+  instIDM(stb, where, par);
+end
+
+if kim_ok
+  mkdir(fullfile(where,'sundialsTB'),'kinsol');
+  mkdir(fullfile(where,'sundialsTB','kinsol'),'kim');
+  mkdir(fullfile(where,'sundialsTB','kinsol'),'function_types');
+  mkdir(fullfile(where,'sundialsTB','kinsol'),'examples_ser');
+  if par
+    mkdir(fullfile(where,'sundialsTB','kinsol'),'examples_par');
+  end
+  instKIM(stb, where, par);
+end
+  
 fprintf('\nThe sundialsTB toolbox was installed in %s\n',stbi);
 fprintf('\nA startup file, "startup_STB.m" was created in %s.\n',stbi);
 fprintf('Use it as your Matlab startup file, or, if you already have a startup.m file,\n');
@@ -452,7 +509,7 @@ eval(mex_cmd);
 cd(stb)
 
 %---------------------------------------------------------------------------------
-% install sundialsTB
+% Installation of common sundialsTB files
 %---------------------------------------------------------------------------------
 
 function [] = instSTB(stb, where, par)
@@ -476,45 +533,81 @@ end
 fclose(fo);
 fclose(fi);
 
+nvm_files = {
+    fullfile('nvector','Contents.m')
+    fullfile('nvector','N_VDotProd.m')
+    fullfile('nvector','N_VL1Norm.m')
+    fullfile('nvector','N_VMax.m')
+    fullfile('nvector','N_VMaxNorm.m')
+    fullfile('nvector','N_VMin.m')
+    fullfile('nvector','N_VWL2Norm.m')
+    fullfile('nvector','N_VWrmsNorm.m')
+            };
+
+put_files = {
+    fullfile('putils','Contents.m')
+    fullfile('putils','mpistart.m')
+    fullfile('putils','mpirun.m')
+    fullfile('putils','mpiruns.m')    
+            };
+
+stb_files = [nvm_files];
+if par
+  stb_files = [stb_files; put_files];
+end
+
+fprintf('\n\n');
+for i=1:length(stb_files)
+  src = fullfile(stb,stb_files{i});
+  dest = fullfile(stbi,stb_files{i});
+  fprintf('Install %s\n',dest);
+  [success,msg,msgid] = copyfile(src,dest);
+  if ~success
+    disp(msg);
+    break;
+  end
+end
+
+%---------------------------------------------------------------------------------
+% Installation of CVODES files
+%---------------------------------------------------------------------------------
+
+function [] = instCVM(stb, where, par)
+
+stbi = fullfile(where,'sundialsTB');
+
 % Copy files to installation directory
 
 cvmmex = ['cvm.' mexext];
-idmmex = ['idm.' mexext];
-kimmex = ['kim.' mexext];
 
 cvm_files = {
     'LICENSE'
     'Contents.m'
     fullfile('cvodes','Contents.m')
-    fullfile('cvodes','CVadjMalloc.m')
-    fullfile('cvodes','CVBandJacFn.m')
-    fullfile('cvodes','CVDenseJacFn.m')
-    fullfile('cvodes','CVGcommFn.m')
-    fullfile('cvodes','CVGlocalFn.m')
-    fullfile('cvodes','CVJacTimesVecFn.m')
-    fullfile('cvodes','CVMonitorFn.m')
+    fullfile('cvodes','CVodeSetOptions.m')
+    fullfile('cvodes','CVodeQuadSetOptions.m')
+    fullfile('cvodes','CVodeSensSetOptions.m')
+    fullfile('cvodes','CVodeInit.m')
+    fullfile('cvodes','CVodeReInit.m')
+    fullfile('cvodes','CVodeQuadInit.m')
+    fullfile('cvodes','CVodeQuadReInit.m')
+    fullfile('cvodes','CVodeSensInit.m')
+    fullfile('cvodes','CVodeSensReInit.m')
+    fullfile('cvodes','CVodeAdjInit.m')
+    fullfile('cvodes','CVodeAdjReInit.m')
+    fullfile('cvodes','CVodeInitB.m')
+    fullfile('cvodes','CVodeReInitB.m')
+    fullfile('cvodes','CVodeQuadInitB.m')
+    fullfile('cvodes','CVodeQuadReInitB.m')
+    fullfile('cvodes','CVodeSensToggleOff.m')
+    fullfile('cvodes','CVode.m')
     fullfile('cvodes','CVodeB.m')
-    fullfile('cvodes','CVodeFree.m')
     fullfile('cvodes','CVodeGet.m')
     fullfile('cvodes','CVodeGetStatsB.m')
     fullfile('cvodes','CVodeGetStats.m')
-    fullfile('cvodes','CVode.m')
-    fullfile('cvodes','CVodeMallocB.m')
-    fullfile('cvodes','CVodeMalloc.m')
+    fullfile('cvodes','CVodeFree.m')
     fullfile('cvodes','CVodeMonitor.m')
-    fullfile('cvodes','CVodeReInit.m')
-    fullfile('cvodes','CVodeReInitB.m')
-    fullfile('cvodes','CVodeSensMalloc.m')
-    fullfile('cvodes','CVodeSensToggleOff.m')
-    fullfile('cvodes','CVodeSensReInit.m')
-    fullfile('cvodes','CVodeSetFSAOptions.m')
-    fullfile('cvodes','CVodeSetOptions.m')
-    fullfile('cvodes','CVPrecSetupFn.m')
-    fullfile('cvodes','CVPrecSolveFn.m')
-    fullfile('cvodes','CVQuadRhsFn.m')
-    fullfile('cvodes','CVRhsFn.m')
-    fullfile('cvodes','CVRootFn.m')
-    fullfile('cvodes','CVSensRhsFn.m')
+    fullfile('cvodes','CVodeMonitorB.m')
     fullfile('cvodes','cvm','Contents.m')
     fullfile('cvodes','cvm','cvm_bjac.m')
     fullfile('cvodes','cvm','cvm_djac.m')
@@ -522,14 +615,41 @@ cvm_files = {
     fullfile('cvodes','cvm','cvm_gloc.m')
     fullfile('cvodes','cvm','cvm_jtv.m')
     fullfile('cvodes','cvm','cvm_monitor.m')
+    fullfile('cvodes','cvm','cvm_monitorB.m')
     fullfile('cvodes','cvm','cvm_pset.m')
     fullfile('cvodes','cvm','cvm_psol.m')
     fullfile('cvodes','cvm','cvm_rhs.m')
     fullfile('cvodes','cvm','cvm_rhsQ.m')
     fullfile('cvodes','cvm','cvm_rhsS.m')
     fullfile('cvodes','cvm','cvm_root.m')
+    fullfile('cvodes','cvm','cvm_options.m')
     fullfile('cvodes','cvm',cvmmex)    
             };
+
+cvm_ftypes = {
+    fullfile('cvodes','function_types','CVRhsFn.m')
+    fullfile('cvodes','function_types','CVQuadRhsFn.m')
+    fullfile('cvodes','function_types','CVSensRhsFn.m')
+    fullfile('cvodes','function_types','CVRootFn.m')
+    fullfile('cvodes','function_types','CVBandJacFn.m')
+    fullfile('cvodes','function_types','CVDenseJacFn.m')
+    fullfile('cvodes','function_types','CVJacTimesVecFn.m')
+    fullfile('cvodes','function_types','CVPrecSetupFn.m')
+    fullfile('cvodes','function_types','CVPrecSolveFn.m')
+    fullfile('cvodes','function_types','CVGcommFn.m')
+    fullfile('cvodes','function_types','CVGlocalFn.m')
+    fullfile('cvodes','function_types','CVMonitorFn.m')
+    fullfile('cvodes','function_types','CVRhsFnB.m')
+    fullfile('cvodes','function_types','CVQuadRhsFnB.m')
+    fullfile('cvodes','function_types','CVBandJacFnB.m')
+    fullfile('cvodes','function_types','CVDenseJacFnB.m')
+    fullfile('cvodes','function_types','CVJacTimesVecFnB.m')
+    fullfile('cvodes','function_types','CVPrecSetupFnB.m')
+    fullfile('cvodes','function_types','CVPrecSolveFnB.m')
+    fullfile('cvodes','function_types','CVGcommFnB.m')
+    fullfile('cvodes','function_types','CVGlocalFnB.m')
+    fullfile('cvodes','function_types','CVMonitorFnB.m')
+             };    
 
 cvm_exs = {
     fullfile('cvodes','examples_ser','cvadx.m')
@@ -559,6 +679,11 @@ cvm_exs = {
     fullfile('cvodes','examples_ser','vdp_f.m')
     fullfile('cvodes','examples_ser','vdp_J.m')
     fullfile('cvodes','examples_ser','vdp.m')
+    fullfile('cvodes','examples_ser','cvhess.m')
+    fullfile('cvodes','examples_ser','cvhess_f.m')
+    fullfile('cvodes','examples_ser','cvhess_q.m')
+    fullfile('cvodes','examples_ser','cvhess_fB.m')
+    fullfile('cvodes','examples_ser','cvhess_qB.m')          
           };
 
 cvm_exp = {
@@ -571,15 +696,38 @@ cvm_exp = {
     fullfile('cvodes','examples_par','pvnx.m')    
           };
 
+stb_files = [cvm_files ; cvm_ftypes ; cvm_exs];
+if par
+  stb_files = [stb_files ; cvm_exp];
+end
+
+fprintf('\n\n');
+for i=1:length(stb_files)
+  src = fullfile(stb,stb_files{i});
+  dest = fullfile(stbi,stb_files{i});
+  fprintf('Install %s\n',dest);
+  [success,msg,msgid] = copyfile(src,dest);
+  if ~success
+    disp(msg);
+    break;
+  end
+end
+
+%---------------------------------------------------------------------------------
+% Installation of IDAS files
+%---------------------------------------------------------------------------------
+
+function [] = instIDM(stb, where, par)
+
+stbi = fullfile(where,'sundialsTB');
+
+% Copy files to installation directory
+
+idmmex = ['idm.' mexext];
+
 idm_files = {
     fullfile('idas','Contents.m')
-    fullfile('idas','IDABandJacFn.m')
     fullfile('idas','IDACalcIC.m')
-    fullfile('idas','IDADenseJacFn.m')
-    fullfile('idas','IDAGcommFn.m')
-    fullfile('idas','IDAGlocalFn.m')
-    fullfile('idas','IDAJacTimesVecFn.m')
-    fullfile('idas','IDAMonitorFn.m')
     fullfile('idas','IDAFree.m')
     fullfile('idas','IDAGet.m')
     fullfile('idas','IDAGetStats.m')
@@ -587,11 +735,7 @@ idm_files = {
     fullfile('idas','IDAMalloc.m')
     fullfile('idas','IDAMonitor.m')
     fullfile('idas','IDASetOptions.m')
-    fullfile('idas','IDAPrecSetupFn.m')
-    fullfile('idas','IDAPrecSolveFn.m')
     fullfile('idas','IDAReInit.m')
-    fullfile('idas','IDAResFn.m')
-    fullfile('idas','IDARootFn.m')
     fullfile('idas','idm','Contents.m')
     fullfile('idas','idm','idm_bjac.m')
     fullfile('idas','idm','idm_djac.m')
@@ -606,6 +750,19 @@ idm_files = {
     fullfile('idas','idm',idmmex)    
             };
 
+idm_ftypes = {
+    fullfile('idas','function_types','IDAResFn.m')
+    fullfile('idas','function_types','IDARootFn.m')
+    fullfile('idas','function_types','IDADenseJacFn.m')
+    fullfile('idas','function_types','IDABandJacFn.m')
+    fullfile('idas','function_types','IDAJacTimesVecFn.m')
+    fullfile('idas','function_types','IDAGcommFn.m')
+    fullfile('idas','function_types','IDAGlocalFn.m')
+    fullfile('idas','function_types','IDAPrecSetupFn.m')
+    fullfile('idas','function_types','IDAPrecSolveFn.m')
+    fullfile('idas','function_types','IDAMonitorFn.m')
+             };
+
 idm_exs = {
     fullfile('idas','examples_ser','idabanx.m')
     fullfile('idas','examples_ser','idabanx_ic.m')
@@ -618,21 +775,42 @@ idm_exs = {
     fullfile('idas','examples_ser','pendGGL.m')
           };
 
+stb_files = [idm_files ; idm_ftypes ; idm_exs];
+%if par
+%  stb_files = [stb_files ; idm_exp];
+%end
+
+fprintf('\n\n');
+for i=1:length(stb_files)
+  src = fullfile(stb,stb_files{i});
+  dest = fullfile(stbi,stb_files{i});
+  fprintf('Install %s\n',dest);
+  [success,msg,msgid] = copyfile(src,dest);
+  if ~success
+    disp(msg);
+    break;
+  end
+end
+
+%---------------------------------------------------------------------------------
+% Installation of KINSOL files
+%---------------------------------------------------------------------------------
+
+function [] = instKIM(stb, where, par)
+
+stbi = fullfile(where,'sundialsTB');
+
+% Copy files to installation directory
+
+kimmex = ['kim.' mexext];
+
 kim_files = {
     fullfile('kinsol','Contents.m')
-    fullfile('kinsol','KINBandJacFn.m')
-    fullfile('kinsol','KINDenseJacFn.m')
     fullfile('kinsol','KINFree.m')
-    fullfile('kinsol','KINGcommFn.m')
     fullfile('kinsol','KINGetStats.m')
-    fullfile('kinsol','KINGlocalFn.m')
-    fullfile('kinsol','KINJacTimesVecFn.m')
     fullfile('kinsol','KINMalloc.m')
-    fullfile('kinsol','KINPrecSetupFn.m')
-    fullfile('kinsol','KINPrecSolveFn.m')
     fullfile('kinsol','KINSetOptions.m')
     fullfile('kinsol','KINSol.m')
-    fullfile('kinsol','KINSysFn.m')
     fullfile('kinsol','kim','Contents.m')
     fullfile('kinsol','kim','kim_bjac.m')
     fullfile('kinsol','kim','kim_djac.m')
@@ -645,6 +823,17 @@ kim_files = {
     fullfile('kinsol','kim','kim_sys.m')
     fullfile('kinsol','kim',kimmex)
             };
+
+kim_ftypes = {
+    fullfile('kinsol','function_types','KINSysFn.m')
+    fullfile('kinsol','function_types','KINBandJacFn.m')
+    fullfile('kinsol','function_types','KINDenseJacFn.m')
+    fullfile('kinsol','function_types','KINJacTimesVecFn.m')
+    fullfile('kinsol','function_types','KINPrecSetupFn.m')
+    fullfile('kinsol','function_types','KINPrecSolveFn.m')
+    fullfile('kinsol','function_types','KINGcommFn.m')
+    fullfile('kinsol','function_types','KINGlocalFn.m')
+             };
 
 kim_exs = {
     fullfile('kinsol','examples_ser','kindiag.m')
@@ -662,27 +851,9 @@ kim_exp = {
     fullfile('kinsol','examples_par','kindiagp_sys.m') 
           };
 
-nvm_files = {
-    fullfile('nvector','Contents.m')
-    fullfile('nvector','N_VDotProd.m')
-    fullfile('nvector','N_VL1Norm.m')
-    fullfile('nvector','N_VMax.m')
-    fullfile('nvector','N_VMaxNorm.m')
-    fullfile('nvector','N_VMin.m')
-    fullfile('nvector','N_VWL2Norm.m')
-    fullfile('nvector','N_VWrmsNorm.m')
-            };
-
-put_files = {
-    fullfile('putils','Contents.m')
-    fullfile('putils','mpistart.m')
-    fullfile('putils','mpirun.m')
-    fullfile('putils','mpiruns.m')    
-            };
-
-stb_files = [cvm_files; idm_files; kim_files; nvm_files; cvm_exs; idm_exs; kim_exs];
+stb_files = [kim_files ; kim_ftypes ; kim_exs];
 if par
-  stb_files = [stb_files ; put_files ; cvm_exp ; kim_exp];
+  stb_files = [stb_files ; kim_exp];
 end
 
 fprintf('\n\n');
@@ -696,3 +867,5 @@ for i=1:length(stb_files)
     break;
   end
 end
+
+
