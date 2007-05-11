@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-05-11 18:51:32 $
+ * $Revision: 1.9 $
+ * $Date: 2007-05-11 21:42:53 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -113,18 +113,18 @@ typedef struct cvmPbData_ {
 
 typedef struct cvmInterfaceData_ {
 
-  void *cvode_mem;    /* CVODES solver memory */
+  void *cvode_mem;       /* CVODES solver memory */
 
-  booleantype asa;    /* Perform ASA? */
-  int Nd;             /* number of data points */
-  int Nc;             /* number of check points */
+  booleantype asa;       /* Perform ASA? */
+  int Nd;                /* number of data points */
+  int Nc;                /* number of check points */
 
   struct cvmPbData_ *fwdPb;
   struct cvmPbData_ *bckPb;
 
-  int NbckPb;         /* Number of backward problems in the linked list bckPb */
+  int NbckPb;            /* Number of backward problems in the linked list bckPb */
 
-  mxArray *mx_data;    /* Matlab user data */
+  mxArray *mx_data;      /* Matlab user data */
 
 } *cvmInterfaceData;
 
@@ -191,8 +191,16 @@ int mtlb_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data);
 
 
 
-int mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB);
-int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_dataB);
+int mtlb_CVodeRhsB(realtype t, N_Vector y,
+                   N_Vector yB, N_Vector yBdot, void *f_dataB);
+int mtlb_CVodeRhsBS(realtype t, N_Vector y,  N_Vector *yS,
+                    N_Vector yB, N_Vector yBd, void *f_dataB);
+
+int mtlb_CVodeQUADfctB(realtype t, N_Vector y, 
+                       N_Vector yB, N_Vector qBdot, void *fQ_dataB);
+int mtlb_CVodeQUADfctBS(realtype t, N_Vector y,  N_Vector *yS,
+                        N_Vector yB, N_Vector yQBd, void *f_dataB);
+
 int mtlb_CVodeDenseJacB(int nB, realtype t,
                         N_Vector y, N_Vector yB, N_Vector fyB,
                         DlsMat JB, void *jac_dataB, 
@@ -223,6 +231,7 @@ int mtlb_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y,
 int mtlb_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y, 
                        N_Vector yB, void *f_dataB);
 
+
 void mtlb_CVodeMonitor(int call, double t, 
                        N_Vector y, N_Vector yQ, N_Vector *yS,
                        cvmInterfaceData cvm_Cdata);
@@ -240,7 +249,7 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
                       long int *mxsteps,
                       int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                       double *hin, double *hmax, double *hmin, 
-                      double *tstop);
+                      double *tstop, booleantype *rhs_s);
 
 void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
                         int *mupper, int *mlower,
@@ -248,7 +257,7 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
                         int *ptype, int *gstype, int *maxl);
 
 void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                     int Nq,
+                     int Nq, booleantype *rhs_s,
                      booleantype *errconQ,
                      int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ);
 

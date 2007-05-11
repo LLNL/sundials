@@ -20,14 +20,20 @@ function options = CVodeQuadSetOptions(varargin)
 %CVodeQuadSetOptions properties
 %(See also the CVODES User Guide)
 %
-%ErrControl - Error control strategy for quadrature variables [ on | {off} ]
+%ErrControl - Error control strategy for quadrature variables [ {false} | true ]
 %   Specifies whether quadrature variables are included in the error test.
 %RelTol - Relative tolerance for quadrature variables [ scalar {1e-4} ]
 %   Specifies the relative tolerance for quadrature variables. This parameter is
-%   used only if ErrControl = on.
+%   used only if ErrControl = true.
 %AbsTol - Absolute tolerance for quadrature variables [ scalar or vector {1e-6} ]
 %   Specifies the absolute tolerance for quadrature variables. This parameter is
-%   used only if ErrControl = on.
+%   used only if ErrControl = true.
+%
+%SensDependent - Backward problem depending on sensitivities [ {false} | true ]
+%   Specifies whether the backward problem quadrature right-hand side depends
+%   on forward sensitivites. If TRUE, the right-hand side function provided for
+%   this backward problem must have the appropriate type (see CVQuadRhsFnB).
+%
 %
 %   See also
 %        CVQuadInit, CVodeQuadReInit.
@@ -35,14 +41,16 @@ function options = CVodeQuadSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/08/10 17:59:57 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
 
 % If called without input and output arguments, print out the possible keywords
 
 if (nargin == 0) && (nargout == 0)
-  fprintf('      ErrControl: [ on | {off} ]\n');
+  fprintf('      ErrControl: [ {false} | true ]\n');
   fprintf('          RelTol: [ positive scalar {1e-4} ]\n');
   fprintf('          AbsTol: [ positive scalar or vector {1e-6} ]\n');
+  fprintf('\n');
+  fprintf('   SensDependent: [ {false} | true ]\n');
   fprintf('\n');
   return;
 end
@@ -51,6 +59,7 @@ KeyNames = {
     'ErrControl'
     'RelTol'
     'AbsTol'
+    'SensDependent'
     };
 
 options = cvm_options(KeyNames,varargin{:});

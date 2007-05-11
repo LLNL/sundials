@@ -55,7 +55,7 @@ function options = CVodeSensSetOptions(varargin)
 %   By default, CVODES estimates the integration tolerances for sensitivity 
 %   variables, based on those for the states and on the order of magnitude 
 %   information for the problem parameters specified through ParamScales.
-%ErrControl - Error control strategy for sensitivity variables [ on | {off} ]
+%ErrControl - Error control strategy for sensitivity variables [ false | {true} ]
 %   Specifies whether sensitivity variables are included in the error control test.
 %   Note that sensitivity variables are always included in the nonlinear system
 %   convergence test.
@@ -81,7 +81,7 @@ function options = CVodeSensSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/20 16:59:38 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
 
 % If called without input and output arguments, print out the possible keywords
 
@@ -92,7 +92,7 @@ if (nargin == 0) & (nargout == 0)
   fprintf('     ParamScales: [ vector ]\n');
   fprintf('          RelTol: [ positive scalar ]\n');
   fprintf('          AbsTol: [ row-vector or matrix ]\n');
-  fprintf('      ErrControl: [ off | {on} ]\n');
+  fprintf('      ErrControl: [ false | {true} ]\n');
   fprintf('          DQtype: [ {Centered} | {Forward} ]\n');
   fprintf('         DQparam: [ scalar | {0.0} ]\n');
   fprintf('\n');

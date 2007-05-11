@@ -42,7 +42,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/10/05 22:12:23 $
+% $Revision: 1.5 $Date: 2007/05/11 18:51:32 $
 
 
 % ----------------------------------------
@@ -73,7 +73,7 @@ y0 = [1.0;0.0;0.0];
 CVodeInit(@cvdx_f,t0,y0,options,data);
 
 
-optionsQ = CVodeQuadSetOptions('ErrControl','on',...
+optionsQ = CVodeQuadSetOptions('ErrControl',true,...
                                'RelTol',1.e-4,'AbsTol',1.e-6);
 
 q0 = 0.0;
@@ -127,7 +127,7 @@ tB1 = 4.e7;
 yB1 = [0.0;0.0;0.0];
 idxB = CVodeInitB(@cvdx_fB, tB1, yB1, optionsB);
 
-optionsQB = CVodeQuadSetOptions('ErrControl','on',...
+optionsQB = CVodeQuadSetOptions('ErrControl',true,...
                                 'RelTol',1.e-6,'AbsTol',1.e-3);
 
 qB1 = [0.0;0.0;0.0];

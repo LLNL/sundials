@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-05-11 18:51:32 $
+ * $Revision: 1.17 $
+ * $Date: 2007-05-11 21:42:53 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -558,6 +558,8 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   booleantype sld;
 
+  booleantype rhs_s; /* ignored */
+
   int mupper, mlower;
   int ptype, gstype, maxl;
   int mudq, mldq;
@@ -651,7 +653,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   get_IntgrOptions(options, fwdPb, TRUE,
                    &lmm, &iter, &maxord, &sld, &mxsteps,
                    &itol, &reltol, &Sabstol, &Vabstol,
-                   &hin, &hmax, &hmin, &tstop);
+                   &hin, &hmax, &hmin, &tstop, &rhs_s);
 
   /* 
    * ----------------------------------------
@@ -873,6 +875,8 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   double *yQ0;
 
+  booleantype rhs_s; /* ignored */
+
   booleantype errconQ;
   int itolQ;
   realtype reltolQ, SabstolQ, *VabstolQ;
@@ -936,7 +940,7 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
   /* Process the options structure */
 
   get_QuadOptions(options, fwdPb, TRUE,
-                  Nq,
+                  Nq, &rhs_s,
                   &errconQ, 
                   &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
 
@@ -1308,6 +1312,8 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   double tstopB;            /* ignored */
   booleantype sldB;         /* ignored */
 
+  booleantype rhs_s;
+
   int mupperB, mlowerB;
   int ptypeB, gstypeB, maxlB;
   int mudqB, mldqB;
@@ -1409,7 +1415,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   get_IntgrOptions(options, bckPb, FALSE,
                    &lmmB, &iterB, &maxordB, &sldB, &mxstepsB,
                    &itolB, &reltolB, &SabstolB, &VabstolB,
-                   &hinB, &hmaxB, &hminB, &tstopB);
+                   &hinB, &hmaxB, &hminB, &tstopB, &rhs_s);
 
   /* 
    * ----------------------------------------
@@ -1618,6 +1624,8 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   double *yQB0;
 
+  booleantype rhs_s;
+  
   booleantype errconQB;
   int itolQB;
   realtype reltolQB, SabstolQB, *VabstolQB;
@@ -1690,7 +1698,7 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
   /* Process the options structure */
 
   get_QuadOptions(options, bckPb, FALSE,
-                  NqB,
+                  NqB, &rhs_s,
                   &errconQB, 
                   &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
 

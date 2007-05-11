@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-05-11 18:51:32 $
+ * $Revision: 1.8 $
+ * $Date: 2007-05-11 21:42:53 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,7 +63,8 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
                       int *lmm, int *iter, int *maxord, booleantype *sld,
                       long int *mxsteps,
                       int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
-                      double *hin, double *hmax, double *hmin, double *tstop)
+                      double *hin, double *hmax, double *hmin, double *tstop,
+                      booleantype *rhs_s)
 {
   mxArray *opt;
   char *bufval;
@@ -81,6 +82,7 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   *lmm = CV_BDF;
   *iter = CV_NEWTON;
   *maxord = 5;
+
   *sld = FALSE;
 
   *mxsteps = 0;
@@ -94,6 +96,9 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   *hmax = 0.0;
   *hmin = 0.0;
 
+  *rhs_s = FALSE;
+
+  Ng = 0;
   tstopSet = FALSE;
   mon = FALSE;
 
@@ -217,27 +222,14 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
                                    "MinStep is negative.", NULL);
   }
 
-  /* Stopping time */
-
-  opt = mxGetField(options,0,"StopTime");
-  if ( !mxIsEmpty(opt) ) {
-    *tstop = *mxGetPr(opt);
-    tstopSet = TRUE;
-  }
-
   /* Stability Limit Detection */
 
   opt = mxGetField(options,0,"StabilityLimDet");
   if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", fctName,
-                                  "Cannot parse StabilityLimDet.", NULL);
-    if(!strcmp(bufval,"on")) *sld = TRUE;
-    else if(!strcmp(bufval,"off")) *sld = FALSE;
-    else cvmErrHandler(-999, "CVODES", fctName,
-                       "StabilityLimDet has an illegal value.", NULL);
+    if (!mxIsLogicalScalar(opt)) cvmErrHandler(-999, "CVODES", fctName,
+                                               "StabilityLimDet is not a logical scalar.", NULL);
+    if (mxIsLogicalScalarTrue(opt)) *sld = TRUE;
+    else                            *sld = FALSE;
   }
 
   /* Monitor? */
@@ -254,27 +246,49 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
     }
   }
 
-  /* The remaining options are interpreted only for forward phase */
+  /* The remaining options are interpreted either for 
+   * forward problems only or backward problems only */
 
-  if (!fwd) return;
+  if (fwd) {   /* FORWARD PROBLEM ONLY */
 
-  /* Number of root functions */
-  opt = mxGetField(options,0,"NumRoots");
-  if ( !mxIsEmpty(opt) ) {
+    /* Stopping time */
+    opt = mxGetField(options,0,"StopTime");
+    if ( !mxIsEmpty(opt) ) {
+      *tstop = *mxGetPr(opt);
+      tstopSet = TRUE;
+    }
 
-    Ng = (int)*mxGetPr(opt);
-    if (Ng < 0) cvmErrHandler(-999, "CVODES", fctName,
-                              "NumRoots is negative.", NULL);
-    if (Ng > 0) {
-      /* Roots function */
-      opt = mxGetField(options,0,"RootsFn");
-      if ( !mxIsEmpty(opt) ) {
-        mxDestroyArray(mx_Gfct);
-        mx_Gfct = mxDuplicateArray(opt);
-      } else {
-        cvmErrHandler(-999, "CVODES", fctName,
-                      "RootsFn required for NumRoots > 0", NULL);
+    /* Number of root functions */
+    opt = mxGetField(options,0,"NumRoots");
+    if ( !mxIsEmpty(opt) ) {
+
+      Ng = (int)*mxGetPr(opt);
+      if (Ng < 0) cvmErrHandler(-999, "CVODES", fctName,
+                                "NumRoots is negative.", NULL);
+      if (Ng > 0) {
+        /* Roots function */
+        opt = mxGetField(options,0,"RootsFn");
+        if ( !mxIsEmpty(opt) ) {
+          mxDestroyArray(mx_Gfct);
+          mx_Gfct = mxDuplicateArray(opt);
+        } else {
+          cvmErrHandler(-999, "CVODES", fctName,
+                        "RootsFn required for NumRoots > 0", NULL);
+        }
       }
+      
+    }
+
+  } else {   /* BACKWARD PROBLEM ONLY */
+
+    /* Dependency on forward sensitivities */
+
+    opt = mxGetField(options,0,"SensDependent");
+    if ( !mxIsEmpty(opt) ) {
+      if (!mxIsLogicalScalar(opt)) cvmErrHandler(-999, "CVODES", fctName,
+                                                 "SensDependent is not a logical scalar.", NULL);
+      if (mxIsLogicalScalarTrue(opt)) *rhs_s = TRUE;
+      else                            *rhs_s = FALSE;
     }
 
   }
@@ -487,7 +501,7 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
 
 
 void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                     int Nq,
+                     int Nq, booleantype *rhs_s,
                      booleantype *errconQ,
                      int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ)
 {
@@ -508,26 +522,36 @@ void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   *SabstolQ = 1.0e-6;
   *VabstolQ = NULL;
 
+  *rhs_s = FALSE;
+
   /* Return now if options was empty */
 
   if (mxIsEmpty(options)) return;
+
+  /* For backward problems only, check dependency on forward sensitivities */
+
+  if (!fwd) {
+
+    opt = mxGetField(options,0,"SensDependent");
+    if ( !mxIsEmpty(opt) ) {
+      if (!mxIsLogicalScalar(opt)) cvmErrHandler(-999, "CVODES", fctName,
+                                                 "SensDependent is not a logical scalar.", NULL);
+      if (mxIsLogicalScalarTrue(opt)) *rhs_s = TRUE;
+      else                            *rhs_s = FALSE;
+    }
+
+  }
 
   /* Quadrature error control and tolerances */
 
   opt = mxGetField(options,0,"ErrControl");
   if ( mxIsEmpty(opt) ) return;
+
+  if (!mxIsLogicalScalar(opt)) cvmErrHandler(-999, "CVODES", fctName,
+                                             "ErrControl is not a logical scalar.", NULL);
+
+  if (!mxIsLogicalScalarTrue(opt)) return;
   
-  buflen = mxGetM(opt) * mxGetN(opt) + 1;
-  bufval = mxCalloc(buflen, sizeof(char));
-  status = mxGetString(opt, bufval, buflen);
-  if(status != 0) cvmErrHandler(-999, "CVODES", fctName,
-                                "Canot parse ErrControl.", NULL);
-
-  if(strcmp(bufval,"off") == 0) return;
-
-  if(strcmp(bufval,"on")  != 0) cvmErrHandler(-999, "CVODES", fctName,
-                                              "ErrControl has an illegal value.", NULL);
-
   *errconQ = TRUE;
 
   opt = mxGetField(options,0,"RelTol");
@@ -710,18 +734,10 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
 
   opt = mxGetField(options,0,"ErrControl");
   if ( !mxIsEmpty(opt) ) {
-
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                  "Canot parse ErrControl.", NULL);
-
-    if(!strcmp(bufval,"off")) *errconS = FALSE;
-    else if(!strcmp(bufval,"on")) *errconS = TRUE;
-    else cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                       "ErrControl has an illegal value.", NULL);
-
+    if (!mxIsLogicalScalar(opt)) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
+                                               "ErrControl is not a logical scalar.", NULL);
+    if (mxIsLogicalScalarTrue(opt)) *errconS = TRUE;
+    else                            *errconS = FALSE;
   }
 
   /* Tolerances */

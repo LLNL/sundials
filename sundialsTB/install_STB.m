@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.16 $Date: 2007/02/05 20:20:33 $
+% $Revision: 1.17 $Date: 2007/05/11 18:52:47 $
 
 % MEX compiler command
 % --------------------
@@ -609,20 +609,29 @@ cvm_files = {
     fullfile('cvodes','CVodeMonitor.m')
     fullfile('cvodes','CVodeMonitorB.m')
     fullfile('cvodes','cvm','Contents.m')
-    fullfile('cvodes','cvm','cvm_bjac.m')
-    fullfile('cvodes','cvm','cvm_djac.m')
-    fullfile('cvodes','cvm','cvm_gcom.m')
-    fullfile('cvodes','cvm','cvm_gloc.m')
-    fullfile('cvodes','cvm','cvm_jtv.m')
-    fullfile('cvodes','cvm','cvm_monitor.m')
-    fullfile('cvodes','cvm','cvm_monitorB.m')
-    fullfile('cvodes','cvm','cvm_pset.m')
-    fullfile('cvodes','cvm','cvm_psol.m')
     fullfile('cvodes','cvm','cvm_rhs.m')
     fullfile('cvodes','cvm','cvm_rhsQ.m')
     fullfile('cvodes','cvm','cvm_rhsS.m')
     fullfile('cvodes','cvm','cvm_root.m')
-    fullfile('cvodes','cvm','cvm_options.m')
+    fullfile('cvodes','cvm','cvm_bjac.m')
+    fullfile('cvodes','cvm','cvm_djac.m')
+    fullfile('cvodes','cvm','cvm_jtv.m')
+    fullfile('cvodes','cvm','cvm_pset.m')
+    fullfile('cvodes','cvm','cvm_psol.m')
+    fullfile('cvodes','cvm','cvm_gcom.m')
+    fullfile('cvodes','cvm','cvm_gloc.m')
+    fullfile('cvodes','cvm','cvm_rhsB.m')
+    fullfile('cvodes','cvm','cvm_rhsQB.m')
+    fullfile('cvodes','cvm','cvm_bjacB.m')
+    fullfile('cvodes','cvm','cvm_djacB.m')
+    fullfile('cvodes','cvm','cvm_jtvB.m')
+    fullfile('cvodes','cvm','cvm_psetB.m')
+    fullfile('cvodes','cvm','cvm_psolB.m')
+    fullfile('cvodes','cvm','cvm_gcomB.m')
+    fullfile('cvodes','cvm','cvm_glocB.m')
+    fullfile('cvodes','cvm','cvm_monitor.m')
+    fullfile('cvodes','cvm','cvm_monitorB.m')
+    fullfile('cvodes','cvm','cvm_options.m')    
     fullfile('cvodes','cvm',cvmmex)    
             };
 

@@ -64,7 +64,7 @@ function options = CVodeSetOptions(varargin)
 %NumRoots - Number of root functions [ integer | {0} ]
 %   Set NumRoots to the number of functions for which roots are monitored.
 %   If NumRoots is 0, rootfinding is disabled.
-%StabilityLimDet - Stability limit detection algorithm [ on | {off} ]
+%StabilityLimDet - Stability limit detection algorithm [ {false} | true ]
 %   Flag used to turn on or off the stability limit detection algorithm 
 %   within CVODES. This property can be used only with the BDF method. 
 %   In this case, if the order is 3 or greater and if the stability limit 
@@ -177,8 +177,6 @@ function options = CVodeSetOptions(varargin)
 %   Specifies a data structure that is passed to the MonitorFn function every
 %   time it is called. 
 %
-%ErrMessages - Turn on/off display of error/warning messages [ {on} | off ]
-%
 %SensDependent - Backward problem depending on sensitivities [ {false} | true ]
 %   Specifies whether the backward problem right-hand side depends on 
 %   forward sensitivites. If TRUE, the right-hand side function provided for
@@ -188,7 +186,7 @@ function options = CVodeSetOptions(varargin)
 %NOTES:
 %
 %   The properties listed above that can only be used for forward problems
-%   are: StopTime, RootsFn, NumRoots, and ErrMessages.
+%   are: StopTime, RootsFn, and NumRoots.
 %
 %   The property SensDependent can only be used for backward problems.
 %
@@ -208,7 +206,7 @@ function options = CVodeSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.6 $Date: 2006/08/10 17:59:57 $
+% $Revision: 1.7 $Date: 2007/05/11 18:51:32 $
 
 % If called without input and output arguments, print out the possible keywords
 
@@ -225,7 +223,7 @@ if (nargin == 0) && (nargout == 0)
   fprintf('        StopTime: [ scalar ]\n');
   fprintf('         RootsFn: [ function ]\n');
   fprintf('        NumRoots: [ integer | {0} ]\n');
-  fprintf(' StabilityLimDet: [ on | {off} ]\n');
+  fprintf(' StabilityLimDet: [ {false} | true ]\n');
   fprintf('\n');
   fprintf('    LinearSolver: [ {Dense} | Diag | Band | GMRES | BiCGStab | TFQMR ]\n');
   fprintf('      JacobianFn: [ function ]\n');
@@ -245,7 +243,7 @@ if (nargin == 0) && (nargout == 0)
   fprintf('       MonitorFn: [ function ]\n');
   fprintf('     MonitorData: [ struct ]\n');
   fprintf('\n');
-  fprintf('     ErrMessages: [ {on} | off ]\n');
+  fprintf('   SensDependent: [ {false} | true ]\n');
   fprintf('\n');
   return;
 end
@@ -280,7 +278,7 @@ KeyNames = {
     'UpperBwidthDQ'
     'MonitorFn'
     'MonitorData'
-    'ErrMessages'
+    'SensDependent'
     };
 
 options = cvm_options(KeyNames,varargin{:});
