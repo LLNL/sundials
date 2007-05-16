@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2007-05-11 21:42:53 $
+ * $Revision: 1.18 $
+ * $Date: 2007-05-16 17:12:56 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,8 +63,12 @@ static void cvmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itask
 static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 
-static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
 static int CVM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int CVM_SetB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
+static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
 
 static int CVM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 
@@ -103,7 +107,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     30 - get integrator stats
     31 - get backward integrator stats
     32 - extract data from cvode_mem
-    33 - set one optional input at a time (NYI)
+
+    33 - set one optional input at a time
+    34 - set one optional input at a time for backward problems
 
     40 - finalize
   */
@@ -212,6 +218,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     CVM_Set(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
 
+  case 34:
+    CVM_SetB(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+
     /* Memory deallocation function */
 
   case 40:
@@ -221,7 +231,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   }
 
-  /* Unless this was the CvodeFree call,
+  /* Unless this was the CVodeFree call,
    * make data persistent and lock the MEX file */
   if (mode != 40) {
     cvmPersistCVODESdata();
@@ -240,11 +250,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
 static void cvmInitCVODESdata()
 {
-  mxArray *empty;
-
-  empty = mxCreateDoubleMatrix(0,0,mxREAL);
-
   /* Allocate space for global CVODES data structure */
+
   cvmData = (cvmInterfaceData) mxMalloc(sizeof(struct cvmInterfaceData_));
 
   /* Initialize global CVODES data */
@@ -256,13 +263,9 @@ static void cvmInitCVODESdata()
 
   cvmData->NbckPb    = 0;
 
-  cvmData->mx_data   = mxDuplicateArray(empty);
-
   cvmData->Nd        = 0;
   cvmData->Nc        = 0;
   cvmData->asa       = FALSE;
-
-  mxDestroyArray(empty);
 
   return;
 }
@@ -303,6 +306,10 @@ static void cvmInitPbData(cvmPbData pb)
   pb->MONfct   = mxDuplicateArray(empty);
   pb->MONdata  = mxDuplicateArray(empty);
 
+  pb->mtlb_data = mxDuplicateArray(empty);
+
+  pb->fwd = cvmData->fwdPb;
+
   pb->index = 0;
   pb->next  = NULL;
 
@@ -315,8 +322,6 @@ static void cvmPersistCVODESdata()
   cvmPbData tmpPb;
 
   /* Make global memory persistent */
-
-  mexMakeArrayPersistent(cvmData->mx_data);
 
   if (cvmData->fwdPb != NULL) {
     cvmPersistPbData(cvmData->fwdPb);
@@ -338,6 +343,8 @@ static void cvmPersistCVODESdata()
 
 static void cvmPersistPbData(cvmPbData pb)
 {
+  mexMakeArrayPersistent(pb->mtlb_data);
+
   mexMakeArrayPersistent(pb->RHSfct);
   mexMakeArrayPersistent(pb->Gfct);
   mexMakeArrayPersistent(pb->QUADfct);
@@ -372,8 +379,6 @@ static void cvmFinalCVODESdata()
     cvmData->bckPb = tmpPb;
   }
 
-  mxDestroyArray(cvmData->mx_data);
-
   mxFree(cvmData);
   cvmData = NULL;
 
@@ -386,6 +391,8 @@ static void cvmFinalPbData(cvmPbData pb)
   if (pb->Y != NULL) N_VDestroy(pb->Y);
   if (pb->YQ != NULL) N_VDestroy(pb->YQ);
   if (pb->YS != NULL) N_VDestroyVectorArray(pb->YS, pb->ns);
+
+  mxDestroyArray(pb->mtlb_data);
 
   mxDestroyArray(pb->RHSfct);
   mxDestroyArray(pb->Gfct);
@@ -429,8 +436,8 @@ void cvmErrHandler(int error_code,
     sprintf(err_msg,"Warning in ==> %s\n%s",function,msg);
     mexWarnMsgTxt(err_msg);    
   } else if (error_code < 0) {
-    cvmFinalCVODESdata();
-    mexUnlock();
+    /*mexUnlock();
+      cvmFinalCVODESdata();*/
     sprintf(err_msg,"Error using ==> %s\n%s",function,msg);
     mexErrMsgTxt(err_msg);
   }
@@ -451,9 +458,6 @@ void cvmErrHandler(int error_code,
 #define Nc          (cvmData->Nc) 
 #define NbckPb      (cvmData->NbckPb)
 
-#define mx_data     (cvmData->mx_data)
-
-
 #define fsa         (fwdPb->Fsa)
 #define quadr       (fwdPb->Quadr)
 #define mon         (fwdPb->Mon)
@@ -470,18 +474,20 @@ void cvmErrHandler(int error_code,
 #define ls          (fwdPb->LS) 
 #define pm          (fwdPb->PM)
 
-#define mx_RHSfct   (fwdPb->RHSfct)
-#define mx_QUADfct  (fwdPb->QUADfct)
-#define mx_JACfct   (fwdPb->JACfct)
-#define mx_PSETfct  (fwdPb->PSETfct)
-#define mx_PSOLfct  (fwdPb->PSOLfct)
-#define mx_GLOCfct  (fwdPb->GLOCfct)
-#define mx_GCOMfct  (fwdPb->GCOMfct)
-#define mx_Gfct     (fwdPb->Gfct)
-#define mx_SRHSfct  (fwdPb->SRHSfct)
+#define mtlb_data     (fwdPb->mtlb_data)
 
-#define mx_MONfct   (fwdPb->MONfct)
-#define mx_MONdata  (fwdPb->MONdata)
+#define mtlb_RHSfct   (fwdPb->RHSfct)
+#define mtlb_QUADfct  (fwdPb->QUADfct)
+#define mtlb_JACfct   (fwdPb->JACfct)
+#define mtlb_PSETfct  (fwdPb->PSETfct)
+#define mtlb_PSOLfct  (fwdPb->PSOLfct)
+#define mtlb_GLOCfct  (fwdPb->GLOCfct)
+#define mtlb_GCOMfct  (fwdPb->GCOMfct)
+#define mtlb_Gfct     (fwdPb->Gfct)
+#define mtlb_SRHSfct  (fwdPb->SRHSfct)
+
+#define mtlb_MONfct   (fwdPb->MONfct)
+#define mtlb_MONdata  (fwdPb->MONdata)
 
 
 
@@ -497,16 +503,18 @@ void cvmErrHandler(int error_code,
 #define lsB         (bckPb->LS) 
 #define pmB         (bckPb->PM) 
 
-#define mx_RHSfctB  (bckPb->RHSfct)
-#define mx_QUADfctB (bckPb->QUADfct)
-#define mx_JACfctB  (bckPb->JACfct)
-#define mx_PSETfctB (bckPb->PSETfct)
-#define mx_PSOLfctB (bckPb->PSOLfct)
-#define mx_GLOCfctB (bckPb->GLOCfct)
-#define mx_GCOMfctB (bckPb->GCOMfct)
+#define mtlb_dataB    (bckPb->mtlb_data)
 
-#define mx_MONfctB  (bckPb->MONfct)
-#define mx_MONdataB (bckPb->MONdata)
+#define mtlb_RHSfctB  (bckPb->RHSfct)
+#define mtlb_QUADfctB (bckPb->QUADfct)
+#define mtlb_JACfctB  (bckPb->JACfct)
+#define mtlb_PSETfctB (bckPb->PSETfct)
+#define mtlb_PSOLfctB (bckPb->PSOLfct)
+#define mtlb_GLOCfctB (bckPb->GLOCfct)
+#define mtlb_GCOMfctB (bckPb->GCOMfct)
+
+#define mtlb_MONfctB  (bckPb->MONfct)
+#define mtlb_MONdataB (bckPb->MONdata)
 
 
 
@@ -539,6 +547,8 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   cvmPbData fwdPb;
 
   const mxArray *options;
+
+  mxArray *mdata;
 
   double t0, *y0;
 
@@ -588,8 +598,8 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
     /* Extract user-provided RHS function */
 
-    mxDestroyArray(mx_RHSfct);
-    mx_RHSfct = mxDuplicateArray(prhs[0]);
+    mxDestroyArray(mtlb_RHSfct);
+    mtlb_RHSfct = mxDuplicateArray(prhs[0]);
 
     /* Extract initial time */
 
@@ -612,11 +622,6 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     
     options = prhs[3];
 
-    /* Extract user-data -- optional argument */
-
-    mxDestroyArray(mx_data);
-    mx_data = mxDuplicateArray(prhs[4]);
-
     break;
 
   case 1:    /* SOLVER RE-INITIALIZATION */
@@ -625,7 +630,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
     /* If monitoring was enabled, finalize it now. */
 
-    if (mon) mtlb_CVodeMonitor(2, 0.0, NULL, NULL, NULL, cvmData);
+    if (mon) mxW_CVodeMonitor(2, 0.0, NULL, NULL, NULL, fwdPb);
 
     /* Extract initial time */
 
@@ -634,7 +639,9 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     /* Extract initial conditions */
 
     y0 = mxGetPr(prhs[1]);
-    N = mxGetM(prhs[1]);
+
+    if (mxGetM(prhs[1]) != N) cvmErrHandler(-999, "CVODES", "CVodeReInit",
+                                            "Size of y0 changed from CVodeInit call.", NULL);
 
     /* Load initial conditions */
 
@@ -675,11 +682,11 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     /* Create CVODES object */
     cvode_mem = CVodeCreate(lmm, iter);
     /* Attach the global CVODES data as 'user-data' */
-    CVodeSetUserData(cvode_mem, cvmData);
+    CVodeSetUserData(cvode_mem, fwdPb);
     /* Attach error handler function */
     CVodeSetErrHandlerFn(cvode_mem, cvmErrHandler);
     /* Call CVodeInit */
-    CVodeInit(cvode_mem, mtlb_CVodeRhs, t0, y);
+    CVodeInit(cvode_mem, mxW_CVodeRhs, t0, y);
     /* Redirect output */
     CVodeSetErrFile(cvode_mem, stdout);
 
@@ -742,8 +749,8 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   CVodeSetStabLimDet(cvode_mem, sld);
  
   /* Rootfinding? */
-  if ( !mxIsEmpty(mx_Gfct) && (Ng > 0) ) {
-    CVodeRootInit(cvode_mem, Ng, mtlb_CVodeGfct);
+  if ( !mxIsEmpty(mtlb_Gfct) && (Ng > 0) ) {
+    CVodeRootInit(cvode_mem, Ng, mxW_CVodeGfct);
     rootSet = TRUE;
   } else {
     rootSet = FALSE;
@@ -767,7 +774,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     case LS_DENSE:
 
       CVDense(cvode_mem, N);
-      if (!mxIsEmpty(mx_JACfct)) CVDlsSetDenseJacFn(cvode_mem, mtlb_CVodeDenseJac);
+      if (!mxIsEmpty(mtlb_JACfct)) CVDlsSetDenseJacFn(cvode_mem, mxW_CVodeDenseJac);
 
       break;
 
@@ -780,7 +787,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     case LS_BAND:
 
       CVBand(cvode_mem, N, mupper, mlower);
-      if (!mxIsEmpty(mx_JACfct)) CVDlsSetBandJacFn(cvode_mem, mtlb_CVodeBandJac);
+      if (!mxIsEmpty(mtlb_JACfct)) CVDlsSetBandJacFn(cvode_mem, mxW_CVodeBandJac);
 
       break;
 
@@ -809,15 +816,15 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
     if ( (ls==LS_SPGMR) || (ls==LS_SPBCG) || (ls==LS_SPTFQMR) ) {
 
-      if (!mxIsEmpty(mx_JACfct)) CVSpilsSetJacTimesVecFn(cvode_mem, mtlb_CVodeSpilsJac);
+      if (!mxIsEmpty(mtlb_JACfct)) CVSpilsSetJacTimesVecFn(cvode_mem, mxW_CVodeSpilsJac);
 
       switch (pm) {
 
       case PM_NONE:
 
-        if (!mxIsEmpty(mx_PSOLfct)) {
-          if (!mxIsEmpty(mx_PSETfct)) CVSpilsSetPreconditioner(cvode_mem, mtlb_CVodeSpilsPset, mtlb_CVodeSpilsPsol);
-          else                        CVSpilsSetPreconditioner(cvode_mem, NULL, mtlb_CVodeSpilsPsol);
+        if (!mxIsEmpty(mtlb_PSOLfct)) {
+          if (!mxIsEmpty(mtlb_PSETfct)) CVSpilsSetPreconditioner(cvode_mem, mxW_CVodeSpilsPset, mxW_CVodeSpilsPsol);
+          else                        CVSpilsSetPreconditioner(cvode_mem, NULL, mxW_CVodeSpilsPsol);
         }
 
         break;
@@ -830,8 +837,8 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
       case PM_BBDPRE:
 
-        if (!mxIsEmpty(mx_GCOMfct)) CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, mtlb_CVodeBBDgcom);
-        else                        CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, NULL);
+        if (!mxIsEmpty(mtlb_GCOMfct)) CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_CVodeBBDgloc, mxW_CVodeBBDgcom);
+        else                        CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_CVodeBBDgloc, NULL);
 
         break;
       }
@@ -846,7 +853,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   /* Do we monitor? */
   
-  if (mon) mtlb_CVodeMonitor(0, t0, NULL, NULL, NULL, cvmData);
+  if (mon) mxW_CVodeMonitor(0, t0, NULL, NULL, NULL, fwdPb);
 
   return(0);
 
@@ -896,8 +903,8 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
     /* Extract user-provided quadrature RHS function */
 
-    mxDestroyArray(mx_QUADfct);
-    mx_QUADfct = mxDuplicateArray(prhs[0]);
+    mxDestroyArray(mtlb_QUADfct);
+    mtlb_QUADfct = mxDuplicateArray(prhs[0]);
   
     /* Extract quadrature initial conditions */
 
@@ -923,7 +930,9 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
     /* Extract quadrature initial conditions */
 
     yQ0 = mxGetPr(prhs[0]);
-    Nq = mxGetM(prhs[0]);
+
+    if (mxGetM(prhs[0]) != Nq) cvmErrHandler(-999, "CVODES", "CVodeQuadReInit",
+                                             "Size of yQ0 changed from CVodeQuadInit call.", NULL);
 
     /* Load quadrature initial conditions */
     
@@ -957,7 +966,7 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   switch (action) {
   case 0:
-    CVodeQuadInit(cvode_mem, mtlb_CVodeQUADfct, yQ);
+    CVodeQuadInit(cvode_mem, mxW_CVodeQUADfct, yQ);
     break;
   case 1:
     CVodeQuadReInit(cvode_mem, yQ);
@@ -1058,12 +1067,12 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
     /* Extract user-provided sensitivity RHS function */
 
-    mxDestroyArray(mx_SRHSfct);
+    mxDestroyArray(mtlb_SRHSfct);
 
     if ( mxIsEmpty(prhs[1]) ) {
       fS_DQ = TRUE;
     } else {
-      mx_SRHSfct = mxDuplicateArray(prhs[1]);
+      mtlb_SRHSfct = mxDuplicateArray(prhs[1]);
       fS_DQ = FALSE;
     }
 
@@ -1091,6 +1100,9 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
     /* Extract sensitivity initial condition */
 
     yS0 = mxGetPr(prhs[0]);
+
+    if ( (mxGetM(prhs[0]) != N) || (mxGetN(prhs[0]) != Ns) )  cvmErrHandler(-999, "CVODES", "CVodeSensReInit",
+                                                                            "Size of yS0 changed from CVodeSensInit call.", NULL);
 
     /* Load sensitivity initial conditions */
 
@@ -1134,18 +1146,18 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
     if (fS_DQ) {
 
       if (pfield_name == NULL) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                             "CVode FSA Initialization:: pfield required but was not provided.", NULL);
+                                             "pfield required but was not provided.", NULL);
 
-      pfield = mxGetField(mx_data,0,pfield_name);
+      pfield = mxGetField(mtlb_data,0,pfield_name);
 
       if (pfield == NULL) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                        "CVode FSA Initialization:: illegal pfield input.", NULL);
+                                        "illegal pfield input.", NULL);
 
       p = mxGetPr(pfield);
 
     }
 
-    CVodeSensInit(cvode_mem, Ns, ism, mtlb_CVodeSensRhs, yS);
+    CVodeSensInit(cvode_mem, Ns, ism, mxW_CVodeSensRhs, yS);
 
     break;
 
@@ -1296,6 +1308,8 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   const mxArray *options;
 
+  mxArray *mdata;
+
   int idxB;
 
   double tB0, *yB0;
@@ -1319,6 +1333,8 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   int mudqB, mldqB;
   double dqrelyB;
 
+  booleantype found_bck;
+
 
   /* 
    * -----------------------------
@@ -1327,7 +1343,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
    */
 
   if (cvmData->fwdPb->Mon) {
-    mtlb_CVodeMonitor(2, 0.0, NULL, NULL, NULL, cvmData);
+    mxW_CVodeMonitor(2, 0.0, NULL, NULL, NULL, cvmData->fwdPb);
     cvmData->fwdPb->Mon = FALSE;
   }
 
@@ -1351,8 +1367,8 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
     /* Extract user-provided RHS function */
 
-    mxDestroyArray(mx_RHSfctB);
-    mx_RHSfctB = mxDuplicateArray(prhs[0]);
+    mxDestroyArray(mtlb_RHSfctB);
+    mtlb_RHSfctB = mxDuplicateArray(prhs[0]);
 
     /* Extract final time */
 
@@ -1379,15 +1395,28 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   case 1:     /* BACKWARD SOLVER RE-INITIALIZATION */
 
-    bckPb = cvmData->bckPb;
-
-    /* If backward monitoring was enabled, finalize it now. */
-
-    if (monB) mtlb_CVodeMonitor(2, 0.0, NULL, NULL, NULL, cvmData);
-
     /* Extract index of current backward problem */
     
     idxB = (int)mxGetScalar(prhs[0]);
+
+    /* Find current backward problem */
+
+    found_bck = FALSE;
+    bckPb = cvmData->bckPb;
+    while (bckPb != NULL) {
+      if (indexB == idxB) {
+        found_bck = TRUE;
+        break;
+      }
+      bckPb = bckPb->next;
+    }
+
+    if (!found_bck) cvmErrHandler(-999, "CVODES", "CVodeReInitB",
+                                  "idxB has an illegal value.", NULL);
+
+    /* If backward monitoring was enabled, finalize it now. */
+
+    if (monB) mxW_CVodeMonitorB(2, indexB, 0.0, NULL, NULL, bckPb);
 
     /* Extract final time */
 
@@ -1396,7 +1425,9 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     /* Extract final conditions */
 
     yB0 = mxGetPr(prhs[2]);
-    NB = mxGetM(prhs[2]);
+
+    if (mxGetM(prhs[2]) != NB) cvmErrHandler(-999, "CVODES", "CVodeReInitB",
+                                             "Size of yB0 changed from CVodeInitB call.", NULL);
 
     /* Load final conditions */
 
@@ -1434,8 +1465,10 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   case 0:
 
     CVodeCreateB(cvode_mem, lmmB, iterB, &idxB);
-    CVodeSetUserDataB(cvode_mem, idxB, cvmData);
-    CVodeInitB(cvode_mem, idxB, mtlb_CVodeRhsB, tB0, yB);
+    CVodeSetUserDataB(cvode_mem, idxB, bckPb);
+
+    if (rhs_s) CVodeInitBS(cvode_mem, idxB, mxW_CVodeRhsBS, tB0, yB);
+    else       CVodeInitB(cvode_mem, idxB, mxW_CVodeRhsB, tB0, yB);
 
     /* Return idxB */
 
@@ -1512,7 +1545,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     case LS_DENSE:
 
       CVDenseB(cvode_mem, idxB, NB);
-      if (!mxIsEmpty(mx_JACfctB)) CVDlsSetDenseJacFnB(cvode_mem, idxB, mtlb_CVodeDenseJacB);
+      if (!mxIsEmpty(mtlb_JACfctB)) CVDlsSetDenseJacFnB(cvode_mem, idxB, mxW_CVodeDenseJacB);
 
       break;
 
@@ -1525,7 +1558,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     case LS_BAND:
 
       CVBandB(cvode_mem, idxB, NB, mupperB, mlowerB);
-      if (!mxIsEmpty(mx_JACfctB)) CVDlsSetBandJacFnB(cvode_mem, idxB, mtlb_CVodeBandJacB);
+      if (!mxIsEmpty(mtlb_JACfctB)) CVDlsSetBandJacFnB(cvode_mem, idxB, mxW_CVodeBandJacB);
 
       break;
 
@@ -1554,15 +1587,15 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
     if ( (lsB==LS_SPGMR) || (lsB==LS_SPBCG) || (lsB==LS_SPTFQMR) ) {
 
-      if (!mxIsEmpty(mx_JACfctB)) CVSpilsSetJacTimesVecFnB(cvode_mem, idxB, mtlb_CVodeSpilsJacB);
+      if (!mxIsEmpty(mtlb_JACfctB)) CVSpilsSetJacTimesVecFnB(cvode_mem, idxB, mxW_CVodeSpilsJacB);
 
       switch (pmB) {
 
       case PM_NONE:
 
-        if (!mxIsEmpty(mx_PSOLfctB)) {
-          if (!mxIsEmpty(mx_PSETfctB)) CVSpilsSetPreconditionerB(cvode_mem, idxB, mtlb_CVodeSpilsPsetB, mtlb_CVodeSpilsPsolB);
-          else                         CVSpilsSetPreconditionerB(cvode_mem, idxB, NULL, mtlb_CVodeSpilsPsolB);
+        if (!mxIsEmpty(mtlb_PSOLfctB)) {
+          if (!mxIsEmpty(mtlb_PSETfctB)) CVSpilsSetPreconditionerB(cvode_mem, idxB, mxW_CVodeSpilsPsetB, mxW_CVodeSpilsPsolB);
+          else                         CVSpilsSetPreconditionerB(cvode_mem, idxB, NULL, mxW_CVodeSpilsPsolB);
         }
 
         break;
@@ -1575,8 +1608,8 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
       case PM_BBDPRE:
 
-        if (!mxIsEmpty(mx_GCOMfctB)) CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_CVodeBBDglocB, mtlb_CVodeBBDgcomB);
-        else                         CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_CVodeBBDglocB, NULL);
+        if (!mxIsEmpty(mtlb_GCOMfctB)) CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_CVodeBBDglocB, mxW_CVodeBBDgcomB);
+        else                         CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_CVodeBBDglocB, NULL);
 
         break;
 
@@ -1592,7 +1625,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   /* Do we monitor? */
 
-  if (monB) mtlb_CVodeMonitorB(0, idxB, tB0, NULL, NULL, cvmData);
+  if (monB) mxW_CVodeMonitorB(0, idxB, tB0, NULL, NULL, bckPb);
 
   return(0);
 }
@@ -1631,8 +1664,26 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
   realtype reltolQB, SabstolQB, *VabstolQB;
   N_Vector NV_abstolQB;
 
+  booleantype found_bck;
 
+  /* Extract index of current backward problem */
+    
+  idxB = (int)mxGetScalar(prhs[0]);
+
+  /* Find current backward problem */
+
+  found_bck = FALSE;
   bckPb = cvmData->bckPb;
+  while (bckPb != NULL) {
+    if (indexB == idxB) {
+      found_bck = TRUE;
+      break;
+    }
+    bckPb = bckPb->next;
+  }
+
+  if (!found_bck) cvmErrHandler(-999, "CVODES", "CVodeQuadInitB/CVodeQuadReInitB",
+                                "idxB has an illegal value.", NULL);
 
   /* 
    * ------------------------------------
@@ -1644,14 +1695,10 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   case 0:     /* BACKWARD QUADRATURE INITIALIZATION */
 
-    /* Extract index of current backward problem */
-    
-    idxB = (int)mxGetScalar(prhs[0]);
-
     /* Extract user-provided quadrature RHS function */
 
-    mxDestroyArray(mx_QUADfctB);
-    mx_QUADfctB = mxDuplicateArray(prhs[1]);
+    mxDestroyArray(mtlb_QUADfctB);
+    mtlb_QUADfctB = mxDuplicateArray(prhs[1]);
 
     /* Extract quadrature final conditions */
 
@@ -1674,14 +1721,13 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   case 1:     /* BACKWARD QUADRATURE RE-INITIALIZATION */
 
-    /* Extract index of current backward problem */
-    
-    idxB = (int)mxGetScalar(prhs[0]);
 
     /* Extract quadrature final conditions */
 
     yQB0 = mxGetPr(prhs[1]);
-    NqB = mxGetM(prhs[1]);
+
+    if (mxGetM(prhs[1]) != NqB) cvmErrHandler(-999, "CVODES", "CVodeQuadReInitB",
+                                              "Size of yQB0 changed from CVodeQuadInitB call.", NULL);
 
     /* Load quadrature final conditions */
 
@@ -1715,7 +1761,8 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   switch (action) {
   case 0:
-    CVodeQuadInitB(cvode_mem, idxB, mtlb_CVodeQUADfctB, yQB);
+    if (rhs_s) CVodeQuadInitBS(cvode_mem, idxB, mxW_CVodeQUADfctBS, yQB);
+    else       CVodeQuadInitB(cvode_mem, idxB, mxW_CVodeQUADfctB, yQB);
     break;
   case 1:
     CVodeQuadReInitB(cvode_mem, idxB, yQB);
@@ -1803,23 +1850,6 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   Ntout = mxGetM(prhs[0]) * mxGetN(prhs[0]);
   tout = mxGetPr(prhs[0]);
 
-  /* Check if tout values are legal */
-
-  CVodeGetCurrentTime(cvode_mem, &tret);
-  CVodeGetNumSteps(cvode_mem, &nst);
-
-  if (nst == 0) {
-    h = tout[0] - tret;
-  } else {
-    CVodeGetLastStep(cvode_mem, &h);
-    if ( (tout[0] - tret + h)*h < 0.0 ) cvmErrHandler(-999, "CVODES", "CVode",
-                                                      "Illegal value of tout.", NULL);
-  }
-
-  for (itout=1; itout<Ntout; itout++) 
-    if ( (tout[itout] - tout[itout-1])*h < 0.0 ) cvmErrHandler(-999, "CVODES", "CVode",
-                                                               "tout values are not monotonic.", NULL);
-
   /* If rootfinding or tstop are enabled, we do not allow multiple output times */
 
   if (rootSet && (Ntout>1)) cvmErrHandler(-999, "CVODES", "CVode",
@@ -1838,9 +1868,10 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   else cvmErrHandler(-999, "CVODES", "CVode",
                      "Illegal value for itask.", NULL); 
 
-  /* If itask==CV_ONE_STEP, we do not allow multiple output times and we do not monitor */
 
   if (itask==CV_ONE_STEP) {
+
+    /* If itask==CV_ONE_STEP, we do not allow multiple output times and we do not monitor */
 
     if (Ntout>1) cvmErrHandler(-999, "CVODES", "CVode",
                                "More than one tout value prohibited in ONE_STEP mode.", NULL); 
@@ -1850,6 +1881,26 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                     "Monitoring disabled in itask=CV_ONE_STEP", NULL);
       mon = FALSE;
     }
+
+  } else {
+
+    /* Check if tout values are legal */
+
+    CVodeGetCurrentTime(cvode_mem, &tret);
+    CVodeGetNumSteps(cvode_mem, &nst);
+
+    /* h is used throughout this function as integration direction only */
+    if (nst == 0) {
+      h = tout[0] - tret;
+    } else {
+      CVodeGetLastStep(cvode_mem, &h);
+      if ( (tout[0] - tret + h)*h < 0.0 ) cvmErrHandler(-999, "CVODES", "CVode",
+                                                        "Illegal value of tout.", NULL);
+    }
+    
+    for (itout=1; itout<Ntout; itout++) 
+      if ( (tout[itout] - tout[itout-1])*h < 0.0 ) cvmErrHandler(-999, "CVODES", "CVode",
+                                                                 "tout values are not monotonic.", NULL);
 
   }
 
@@ -1925,42 +1976,49 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     for (itout=0; itout<Ntout; itout++) {
       
-      while(1) {
-      
-        if (!asa) status = CVode(cvode_mem, tout[itout], y, &tret, CV_ONE_STEP);
-        else      status = CVodeF(cvode_mem, tout[itout], y, &tret, CV_ONE_STEP, &Nc);
+      /* In ONE_STEP mode, CVODE reads tout only at the first step.
+       * We must therefore check here whether we need to take additional steps,
+       * or simply return interpolated solution at tout. */
 
-        /* Call the monitoring function */
+      CVodeGetNumSteps(cvode_mem, &nst);
+      CVodeGetCurrentTime(cvode_mem, &tret);
 
-        if (quadr)
-          CVodeGetQuad(cvode_mem, &tret, yQ);
+      if ( (nst>0) && ((tret - tout[itout])*h >= 0.0) ) {
 
-        if (fsa)
-          CVodeGetSens(cvode_mem, &tret, yS);
+        /* No need to take an additional step */
+        status = CV_SUCCESS;
 
-        mtlb_CVodeMonitor(1, tret, y, yQ, yS, cvmData);
+      } else {
 
-        /* If a root was found or tstop was reached, break out of while loop */
+        /* Take additional steps */
+        while(1) {
 
-        if (status == CV_TSTOP_RETURN || status == CV_ROOT_RETURN) break;
+          if (!asa) status = CVode(cvode_mem, tout[itout], y, &tret, CV_ONE_STEP);
+          else      status = CVodeF(cvode_mem, tout[itout], y, &tret, CV_ONE_STEP, &Nc);
 
-        /* If current tout was reached break out of while loop */
+          /* Call the monitoring function */
+          if (quadr) CVodeGetQuad(cvode_mem, &tret, yQ);
+          if (fsa)   CVodeGetSens(cvode_mem, &tret, yS);
+          mxW_CVodeMonitor(1, tret, y, yQ, yS, fwdPb);
 
-        CVodeGetCurrentStep(cvode_mem, &h);
-        if ( (tret - tout[itout])*h >= 0.0 ) break;
-          
-      };
+          /* If a root was found or tstop was reached, break out of while loop */
+          if (status == CV_TSTOP_RETURN || status == CV_ROOT_RETURN) break;
+
+          /* If current tout was reached break out of while loop */
+          if ( (tret - tout[itout])*h >= 0.0 )  break;
+
+        }
+
+      }
       
       /* On a tstop or root return, return solution at tret.
        * Otherwise (status=CV_SUCCESS), return solution at tout[itout]. */
 
       if (status == CV_TSTOP_RETURN || status == CV_ROOT_RETURN) {
 
-        if (quadr)
-          CVodeGetQuad(cvode_mem, &tret, yQ);
+        if (quadr) CVodeGetQuad(cvode_mem, &tret, yQ);
 
-        if (fsa)
-          CVodeGetSens(cvode_mem, &tret, yS);
+        if (fsa)   CVodeGetSens(cvode_mem, &tret, yS);
 
       } else {
 
@@ -1968,11 +2026,9 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         
         CVodeGetDky(cvode_mem, tret, 0, y);
 
-        if (quadr)
-          CVodeGetQuadDky(cvode_mem, tret, 0, yQ);
+        if (quadr) CVodeGetQuadDky(cvode_mem, tret, 0, yQ);
 
-        if (fsa)
-          CVodeGetSensDky(cvode_mem, tret, 0, yS);
+        if (fsa)   CVodeGetSensDky(cvode_mem, tret, 0, yS);
 
       }
 
@@ -1980,8 +2036,7 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
       GetData(y, &ydata[itout*N], N);
 
-      if (quadr)
-        GetData(yQ, &yQdata[itout*Nq], Nq);
+      if (quadr)  GetData(yQ, &yQdata[itout*Nq], Nq);
 
       if (fsa)
         for (is=0; is<Ns; is++)
@@ -2064,6 +2119,7 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   CVodeGetLastStep(cvode_mem, &h);
   CVodeGetCurrentTime(cvode_mem, &tret);
 
+  /* The stepsize of the forward problem is used to indicate the integration direction */
   if ( (tret - toutB[0])*h < 0.0 ) cvmErrHandler(-999, "CVODES", "CVodeB",
                                                  "tout value in wrong direction.", NULL);
   
@@ -2128,6 +2184,7 @@ static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
   CVodeGetCurrentTime(cvode_memB, &tretB);
   CVodeGetNumSteps(cvode_memB, &nstB);
 
+  /* hB is used throughout this function as integration direction only */
   if (nstB == 0) {
     hB = toutB[0] - tretB;
   } else {
@@ -2196,27 +2253,37 @@ static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
     /* Monitoring. itask = CV_NORMAL */
 
     for (itout=0; itout<NtoutB; itout++) {
-      
-      while(1) {
-        
-        status = CVodeB(cvode_mem, toutB[itout], CV_ONE_STEP);
-        
-        /* Call the monitoring function */
 
-        CVodeGetB(cvode_mem, indexB, &tretB, yB);
-        
-        if (quadrB)
-          CVodeGetQuadB(cvode_mem, indexB, &tretB, yQB);
-        
-        mtlb_CVodeMonitorB(1, indexB, tretB, yB, yQB, cvmData);
-        
-        /* If current tout was reached break out of while loop */
+      /* In ONE_STEP mode, CVODE reads tout only at the first step.
+       * We must therefore check here whether we need to take additional steps,
+       * or simply return interpolated solution at tout. */
 
-        CVodeGetCurrentStep(cvode_memB, &hB);
-        if ( (tretB - toutB[itout])*hB >= 0.0 ) break;
+      CVodeGetNumSteps(cvode_memB, &nstB);
+      CVodeGetCurrentTime(cvode_memB, &tretB);
+
+      if ( (nstB>0) && ((tretB - toutB[itout])*hB >= 0.0) ) {
+
+        /* No need to take an additional step */
+        status = CV_SUCCESS;
+
+      } else {
+
+        /* Take additional steps */
+        while(1) {
+        
+          status = CVodeB(cvode_mem, toutB[itout], CV_ONE_STEP);
           
-      };
+          /* Call the monitoring function */          
+          CVodeGetB(cvode_mem, indexB, &tretB, yB);
+          if (quadrB) CVodeGetQuadB(cvode_mem, indexB, &tretB, yQB);
+          mxW_CVodeMonitorB(1, indexB, tretB, yB, yQB, bckPb);
+          
+          /* If current tout was reached break out of while loop */
+          if ( (tretB - toutB[itout])*hB >= 0.0 ) break;
+          
+        }
 
+      }
 
       tretB = toutB[itout];
 
@@ -2464,8 +2531,8 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   long int nniS, ncfnS;
 
   int i, flag;
-  mxArray *mx_root, *mx_ls, *mx_quad, *mx_fsa;
-  mxArray *mx_rootsfound;
+  mxArray *mxS_root, *mxS_ls, *mxS_quad, *mxS_fsa;
+  mxArray *mxS_rootsfound;
   double *tmp;
   int nfields;
   
@@ -2503,25 +2570,25 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     flag = CVodeGetNumGEvals(cvode_mem, &nge);
 
     nfields = sizeof(fnames_root)/sizeof(*fnames_root);
-    mx_root = mxCreateStructMatrix(1, 1, nfields, fnames_root);
+    mxS_root = mxCreateStructMatrix(1, 1, nfields, fnames_root);
 
-    mxSetField(mx_root, 0, "nge", mxCreateScalarDouble((double)nge));
+    mxSetField(mxS_root, 0, "nge", mxCreateScalarDouble((double)nge));
 
     rootsfound = (int *) malloc(nge*sizeof(int));
     flag = CVodeGetRootInfo(cvode_mem, rootsfound);
-    mx_rootsfound = mxCreateDoubleMatrix(Ng,1,mxREAL);
-    tmp = mxGetPr(mx_rootsfound);
+    mxS_rootsfound = mxCreateDoubleMatrix(Ng,1,mxREAL);
+    tmp = mxGetPr(mxS_rootsfound);
     for (i=0;i<Ng;i++)
       tmp[i] = (double)rootsfound[i];
-    mxSetField(mx_root, 0, "roots", mx_rootsfound);
+    mxSetField(mxS_root, 0, "roots", mxS_rootsfound);
 
   } else {
 
-    mx_root = mxCreateDoubleMatrix(0,0,mxREAL);
+    mxS_root = mxCreateDoubleMatrix(0,0,mxREAL);
 
   }
   
-  mxSetField(plhs[0], 0, "RootInfo", mx_root);
+  mxSetField(plhs[0], 0, "RootInfo", mxS_root);
 
   /* Quadrature Statistics */
 
@@ -2530,18 +2597,18 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     flag = CVodeGetQuadStats(cvode_mem, &nfQe, &netfQ);
 
     nfields = sizeof(fnames_quad)/sizeof(*fnames_quad);
-    mx_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
+    mxS_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
 
-    mxSetField(mx_quad, 0, "nfQe",  mxCreateScalarDouble((double)nfQe));
-    mxSetField(mx_quad, 0, "netfQ", mxCreateScalarDouble((double)netfQ));
+    mxSetField(mxS_quad, 0, "nfQe",  mxCreateScalarDouble((double)nfQe));
+    mxSetField(mxS_quad, 0, "netfQ", mxCreateScalarDouble((double)netfQ));
 
   } else {
 
-    mx_quad = mxCreateDoubleMatrix(0,0,mxREAL);
+    mxS_quad = mxCreateDoubleMatrix(0,0,mxREAL);
 
   }
   
-  mxSetField(plhs[0], 0, "QuadInfo", mx_quad);
+  mxSetField(plhs[0], 0, "QuadInfo", mxS_quad);
 
   /* Linear Solver Statistics */
 
@@ -2549,7 +2616,7 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   case LS_NONE:
 
-    mx_ls = mxCreateDoubleMatrix(0,0,mxREAL);
+    mxS_ls = mxCreateDoubleMatrix(0,0,mxREAL);
     break;
 
   case LS_DENSE:
@@ -2558,11 +2625,11 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeD);
     
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
     
-    mxSetField(mx_ls, 0, "name", mxCreateString("Dense"));
-    mxSetField(mx_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
-    mxSetField(mx_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
+    mxSetField(mxS_ls, 0, "name", mxCreateString("Dense"));
+    mxSetField(mxS_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
+    mxSetField(mxS_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
     
     break;
 
@@ -2571,10 +2638,10 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     flag = CVDiagGetNumRhsEvals(cvode_mem, &nfeDI);
       
     nfields = sizeof(fnames_diag)/sizeof(*fnames_diag);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_diag);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_diag);
  
-    mxSetField(mx_ls, 0, "name", mxCreateString("Diag"));
-    mxSetField(mx_ls, 0, "nfeDI", mxCreateScalarDouble((double)nfeDI));
+    mxSetField(mxS_ls, 0, "name", mxCreateString("Diag"));
+    mxSetField(mxS_ls, 0, "nfeDI", mxCreateScalarDouble((double)nfeDI));
       
     break;
 
@@ -2584,11 +2651,11 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeB);
       
     nfields = sizeof(fnames_band)/sizeof(*fnames_band);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
  
-    mxSetField(mx_ls, 0, "name", mxCreateString("Band"));
-    mxSetField(mx_ls, 0, "njeB", mxCreateScalarDouble((double)njeB));
-    mxSetField(mx_ls, 0, "nfeB", mxCreateScalarDouble((double)nfeB));
+    mxSetField(mxS_ls, 0, "name", mxCreateString("Band"));
+    mxSetField(mxS_ls, 0, "njeB", mxCreateScalarDouble((double)njeB));
+    mxSetField(mxS_ls, 0, "nfeB", mxCreateScalarDouble((double)nfeB));
       
     break;
 
@@ -2604,27 +2671,27 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeSG);
     
     nfields = sizeof(fnames_spils)/sizeof(*fnames_spils);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
     
     if (ls == LS_SPGMR)
-      mxSetField(mx_ls, 0, "name",  mxCreateString("GMRES"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("GMRES"));
     else if (ls == LS_SPBCG)
-      mxSetField(mx_ls, 0, "name",  mxCreateString("BiCGStab"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("BiCGStab"));
     else
-      mxSetField(mx_ls, 0, "name",  mxCreateString("TFQMR"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("TFQMR"));
 
-    mxSetField(mx_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
-    mxSetField(mx_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
-    mxSetField(mx_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
-    mxSetField(mx_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
-    mxSetField(mx_ls, 0, "njeSG", mxCreateScalarDouble((double)njeSG));
-    mxSetField(mx_ls, 0, "nfeSG", mxCreateScalarDouble((double)nfeSG));
+    mxSetField(mxS_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
+    mxSetField(mxS_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
+    mxSetField(mxS_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
+    mxSetField(mxS_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
+    mxSetField(mxS_ls, 0, "njeSG", mxCreateScalarDouble((double)njeSG));
+    mxSetField(mxS_ls, 0, "nfeSG", mxCreateScalarDouble((double)nfeSG));
     
     break;
     
   }
 
-  mxSetField(plhs[0], 0, "LSInfo", mx_ls);
+  mxSetField(plhs[0], 0, "LSInfo", mxS_ls);
 
   /* Forward Sensitivity Statistics */
 
@@ -2635,22 +2702,22 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     flag = CVodeGetSensNonlinSolvStats(cvode_mem, &nniS, &ncfnS);
 
     nfields = sizeof(fnames_sens)/sizeof(*fnames_sens);
-    mx_fsa = mxCreateStructMatrix(1, 1, nfields, fnames_sens);
+    mxS_fsa = mxCreateStructMatrix(1, 1, nfields, fnames_sens);
     
-    mxSetField(mx_fsa, 0, "nfSe",     mxCreateScalarDouble((double)nfSe));
-    mxSetField(mx_fsa, 0, "nfeS",     mxCreateScalarDouble((double)nfeS));
-    mxSetField(mx_fsa, 0, "nsetupsS", mxCreateScalarDouble((double)nsetupsS));
-    mxSetField(mx_fsa, 0, "netfS",    mxCreateScalarDouble((double)netfS));
-    mxSetField(mx_fsa, 0, "nniS",     mxCreateScalarDouble((double)nniS));
-    mxSetField(mx_fsa, 0, "ncfnS",    mxCreateScalarDouble((double)ncfnS));
+    mxSetField(mxS_fsa, 0, "nfSe",     mxCreateScalarDouble((double)nfSe));
+    mxSetField(mxS_fsa, 0, "nfeS",     mxCreateScalarDouble((double)nfeS));
+    mxSetField(mxS_fsa, 0, "nsetupsS", mxCreateScalarDouble((double)nsetupsS));
+    mxSetField(mxS_fsa, 0, "netfS",    mxCreateScalarDouble((double)netfS));
+    mxSetField(mxS_fsa, 0, "nniS",     mxCreateScalarDouble((double)nniS));
+    mxSetField(mxS_fsa, 0, "ncfnS",    mxCreateScalarDouble((double)ncfnS));
     
   } else {
 
-    mx_fsa = mxCreateDoubleMatrix(0,0,mxREAL);
+    mxS_fsa = mxCreateDoubleMatrix(0,0,mxREAL);
 
   }
   
-  mxSetField(plhs[0], 0, "FSAInfo", mx_fsa);
+  mxSetField(plhs[0], 0, "FSAInfo", mxS_fsa);
 
   return(0);
 }
@@ -2719,9 +2786,11 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   long int nfQe, netfQ;
 
   int flag;
-  mxArray *mx_ls, *mx_quad;
+  mxArray *mxS_ls, *mxS_quad;
   int nfields;
 
+  booleantype found_bck;
+  
 
   /* Extract index of current backward problem */
     
@@ -2729,11 +2798,18 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* Find current backward problem */
 
+  found_bck = FALSE;
   bckPb = cvmData->bckPb;
   while (bckPb != NULL) {
-    if (indexB == idxB) break;
+    if (indexB == idxB) {
+      found_bck = TRUE;
+      break;
+    }
     bckPb = bckPb->next;
   }
+
+  if (!found_bck) cvmErrHandler(-999, "CVODES", "CVodeGetStatsB",
+                                "idxB has an illegal value.", NULL);
 
   cvode_memB = CVodeGetAdjCVodeBmem(cvode_mem, indexB);
 
@@ -2766,18 +2842,18 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     flag = CVodeGetQuadStats(cvode_memB, &nfQe, &netfQ);
 
     nfields = sizeof(fnames_quad)/sizeof(*fnames_quad);
-    mx_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
+    mxS_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
 
-    mxSetField(mx_quad, 0, "nfQe",  mxCreateScalarDouble((double)nfQe));
-    mxSetField(mx_quad, 0, "netfQ", mxCreateScalarDouble((double)netfQ));
+    mxSetField(mxS_quad, 0, "nfQe",  mxCreateScalarDouble((double)nfQe));
+    mxSetField(mxS_quad, 0, "netfQ", mxCreateScalarDouble((double)netfQ));
 
   } else {
 
-    mx_quad = mxCreateDoubleMatrix(0,0,mxREAL);
+    mxS_quad = mxCreateDoubleMatrix(0,0,mxREAL);
 
   }
   
-  mxSetField(plhs[0], 0, "QuadInfo", mx_quad);
+  mxSetField(plhs[0], 0, "QuadInfo", mxS_quad);
 
   /* Linear Solver Statistics */
 
@@ -2785,7 +2861,7 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   case LS_NONE:
 
-    mx_ls = mxCreateDoubleMatrix(0,0,mxREAL);
+    mxS_ls = mxCreateDoubleMatrix(0,0,mxREAL);
     break;
 
   case LS_DENSE:
@@ -2794,11 +2870,11 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     flag = CVDlsGetNumRhsEvals(cvode_memB, &nfeD);
     
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
 
-    mxSetField(mx_ls, 0, "name", mxCreateString("Dense"));
-    mxSetField(mx_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
-    mxSetField(mx_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
+    mxSetField(mxS_ls, 0, "name", mxCreateString("Dense"));
+    mxSetField(mxS_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
+    mxSetField(mxS_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
     
     break;
 
@@ -2807,10 +2883,10 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     flag = CVDiagGetNumRhsEvals(cvode_memB, &nfeDI);
       
     nfields = sizeof(fnames_diag)/sizeof(*fnames_diag);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_diag);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_diag);
  
-    mxSetField(mx_ls, 0, "name", mxCreateString("Diag"));
-    mxSetField(mx_ls, 0, "nfeDI", mxCreateScalarDouble((double)nfeDI));
+    mxSetField(mxS_ls, 0, "name", mxCreateString("Diag"));
+    mxSetField(mxS_ls, 0, "nfeDI", mxCreateScalarDouble((double)nfeDI));
       
     break;
 
@@ -2820,11 +2896,11 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     flag = CVDlsGetNumRhsEvals(cvode_memB, &nfeB);
       
     nfields = sizeof(fnames_band)/sizeof(*fnames_band);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
  
-    mxSetField(mx_ls, 0, "name", mxCreateString("Band"));
-    mxSetField(mx_ls, 0, "njeB", mxCreateScalarDouble((double)njeB));
-    mxSetField(mx_ls, 0, "nfeB", mxCreateScalarDouble((double)nfeB));
+    mxSetField(mxS_ls, 0, "name", mxCreateString("Band"));
+    mxSetField(mxS_ls, 0, "njeB", mxCreateScalarDouble((double)njeB));
+    mxSetField(mxS_ls, 0, "nfeB", mxCreateScalarDouble((double)nfeB));
       
     break;
 
@@ -2840,32 +2916,70 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     flag = CVSpilsGetNumRhsEvals(cvode_memB, &nfeSG);
     
     nfields = sizeof(fnames_spils)/sizeof(*fnames_spils);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
  
     if (lsB == LS_SPGMR)
-      mxSetField(mx_ls, 0, "name",  mxCreateString("GMRES"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("GMRES"));
     else if (lsB == LS_SPBCG)
-      mxSetField(mx_ls, 0, "name",  mxCreateString("BiCGStab"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("BiCGStab"));
     else
-      mxSetField(mx_ls, 0, "name",  mxCreateString("TFQMR"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("TFQMR"));
 
-    mxSetField(mx_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
-    mxSetField(mx_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
-    mxSetField(mx_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
-    mxSetField(mx_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
-    mxSetField(mx_ls, 0, "njeSG", mxCreateScalarDouble((double)njeSG));
-    mxSetField(mx_ls, 0, "nfeSG", mxCreateScalarDouble((double)nfeSG));
+    mxSetField(mxS_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
+    mxSetField(mxS_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
+    mxSetField(mxS_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
+    mxSetField(mxS_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
+    mxSetField(mxS_ls, 0, "njeSG", mxCreateScalarDouble((double)njeSG));
+    mxSetField(mxS_ls, 0, "nfeSG", mxCreateScalarDouble((double)nfeSG));
     
     break;
   }
 
-  mxSetField(plhs[0], 0, "LSInfo", mx_ls);
+  mxSetField(plhs[0], 0, "LSInfo", mxS_ls);
 
   return(0);
 }
 
 
 static int CVM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+  cvmPbData fwdPb;
+
+  const mxArray *options;
+  mxArray *opt;
+
+  double tstop, reltol;
+
+
+
+  fwdPb = cvmData->fwdPb;
+  options = prhs[0];
+
+  /* Return now if options was empty */
+
+  if (mxIsEmpty(options)) return;
+
+
+  /* User data */
+
+  opt = mxGetField(options,0,"UserData");
+  if ( !mxIsEmpty(opt) ) {
+    mxDestroyArray(mtlb_data);
+    mtlb_data = mxDuplicateArray(opt);
+  }
+
+  /* Stopping time */
+
+  opt = mxGetField(options,0,"StopTime");
+  if ( !mxIsEmpty(opt) ) {
+    tstop = (double)mxGetScalar(opt);
+    CVodeSetStopTime(cvode_mem, tstop);
+  }
+
+  return(0);
+}
+
+static int CVM_SetB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   return(0);
 }
@@ -2878,7 +2992,7 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   N_Vector yd, ewt;
   double *this, *next;
   int key, k, which, i, nfields;
-  mxArray *mx_y, *mx_yd;
+  mxArray *mxS_y, *mxS_yd;
 
   CVadjCheckPointRec *ckpnt;
   const char *fnames_ckpnt[]={
@@ -2962,11 +3076,11 @@ static int CVM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   if (cvmData == NULL) return(0);
 
   fwdPb = cvmData->fwdPb;
-  if (mon) mtlb_CVodeMonitor(2, 0.0, NULL, NULL, NULL, cvmData);
+  if (mon) mxW_CVodeMonitor(2, 0.0, NULL, NULL, NULL, fwdPb);
 
   bckPb = cvmData->bckPb;
   while (bckPb != NULL) {
-    if (monB) mtlb_CVodeMonitorB(2, indexB, 0.0, NULL, NULL, cvmData);   
+    if (monB) mxW_CVodeMonitorB(2, indexB, 0.0, NULL, NULL, bckPb);   
     bckPb = bckPb->next;
   }
 

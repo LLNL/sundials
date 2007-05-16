@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-05-11 21:42:53 $
+ * $Revision: 1.9 $
+ * $Date: 2007-05-16 17:12:56 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,41 +17,32 @@
 #include <string.h>
 #include "cvm.h"
 
-/*extern cvm_CVODESdata cvm_Cdata;*/
-
-/* 
- * ---------------------------------------------------------------------------------
- * Private constants
- * ---------------------------------------------------------------------------------
- */
-
-#define ONE RCONST(1.0)
-
 /*
  * ---------------------------------------------------------------------------------
  * Redability replacements
  * ---------------------------------------------------------------------------------
  */
 
+#define N             (thisPb->n) 
+#define Ns            (thisPb->ns) 
+#define Ng            (thisPb->ng) 
+#define ls            (thisPb->LS) 
+#define pm            (thisPb->PM) 
 
-#define N           (thisPb->n) 
-#define Ns          (thisPb->ns) 
-#define Ng          (thisPb->ng) 
-#define ls          (thisPb->LS) 
-#define pm          (thisPb->PM) 
+#define mtlb_data     (thisPb->mtlb_data)
 
-#define mx_JACfct   (thisPb->JACfct)
-#define mx_PSETfct  (thisPb->PSETfct)
-#define mx_PSOLfct  (thisPb->PSOLfct)
-#define mx_GLOCfct  (thisPb->GLOCfct)
-#define mx_GCOMfct  (thisPb->GCOMfct)
-#define mx_Gfct     (thisPb->Gfct)
+#define mtlb_JACfct   (thisPb->JACfct)
+#define mtlb_PSETfct  (thisPb->PSETfct)
+#define mtlb_PSOLfct  (thisPb->PSOLfct)
+#define mtlb_GLOCfct  (thisPb->GLOCfct)
+#define mtlb_GCOMfct  (thisPb->GCOMfct)
+#define mtlb_Gfct     (thisPb->Gfct)
 
-#define mon         (thisPb->Mon)
-#define tstopSet    (thisPb->TstopSet)
+#define mon           (thisPb->Mon)
+#define tstopSet      (thisPb->TstopSet)
 
-#define mx_MONfct   (thisPb->MONfct)
-#define mx_MONdata  (thisPb->MONdata)
+#define mtlb_MONfct   (thisPb->MONfct)
+#define mtlb_MONdata  (thisPb->MONdata)
 
 /*
  * ---------------------------------------------------------------------------------
@@ -105,6 +96,14 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   /* Return now if options was empty */
 
   if (mxIsEmpty(options)) return;
+
+  /* User data */
+
+  opt = mxGetField(options,0,"UserData");
+  if ( !mxIsEmpty(opt) ) {
+    mxDestroyArray(mtlb_data);
+    mtlb_data = mxDuplicateArray(opt);
+  }
 
   /* Tolerances */
 
@@ -237,12 +236,12 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   opt = mxGetField(options,0,"MonitorFn");
   if ( !mxIsEmpty(opt) ) {
     mon = TRUE;
-    mxDestroyArray(mx_MONfct);
-    mx_MONfct = mxDuplicateArray(opt);
+    mxDestroyArray(mtlb_MONfct);
+    mtlb_MONfct = mxDuplicateArray(opt);
     opt = mxGetField(options,0,"MonitorData");
     if ( !mxIsEmpty(opt) ) {
-      mxDestroyArray(mx_MONdata);
-      mx_MONdata  = mxDuplicateArray(opt);
+      mxDestroyArray(mtlb_MONdata);
+      mtlb_MONdata  = mxDuplicateArray(opt);
     }
   }
 
@@ -269,8 +268,8 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
         /* Roots function */
         opt = mxGetField(options,0,"RootsFn");
         if ( !mxIsEmpty(opt) ) {
-          mxDestroyArray(mx_Gfct);
-          mx_Gfct = mxDuplicateArray(opt);
+          mxDestroyArray(mtlb_Gfct);
+          mtlb_Gfct = mxDuplicateArray(opt);
         } else {
           cvmErrHandler(-999, "CVODES", fctName,
                         "RootsFn required for NumRoots > 0", NULL);
@@ -352,8 +351,8 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
 
   opt = mxGetField(options,0,"JacobianFn");
   if ( !mxIsEmpty(opt) ) {
-    mxDestroyArray(mx_JACfct);
-    mx_JACfct  = mxDuplicateArray(opt);
+    mxDestroyArray(mtlb_JACfct);
+    mtlb_JACfct  = mxDuplicateArray(opt);
   }
 
   /* Band linear solver */
@@ -425,14 +424,14 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
 
     opt = mxGetField(options,0,"PrecSetupFn");
     if ( !mxIsEmpty(opt) ) {
-      mxDestroyArray(mx_PSETfct);
-      mx_PSETfct  = mxDuplicateArray(opt);
+      mxDestroyArray(mtlb_PSETfct);
+      mtlb_PSETfct  = mxDuplicateArray(opt);
     }
 
     opt = mxGetField(options,0,"PrecSolveFn");
     if ( !mxIsEmpty(opt) ) {
-      mxDestroyArray(mx_PSOLfct);
-      mx_PSOLfct  = mxDuplicateArray(opt);
+      mxDestroyArray(mtlb_PSOLfct);
+      mtlb_PSOLfct  = mxDuplicateArray(opt);
     }
 
     /* Preconditioner module */
@@ -475,8 +474,8 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
 
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) {
-        mxDestroyArray(mx_GLOCfct);
-        mx_GLOCfct  = mxDuplicateArray(opt);
+        mxDestroyArray(mtlb_GLOCfct);
+        mtlb_GLOCfct  = mxDuplicateArray(opt);
       } else { 
         cvmErrHandler(-999, "CVODES", fctName,
                       "GlocalFn required for BBD preconditioner.", NULL);
@@ -484,8 +483,8 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
 
       opt = mxGetField(options,0,"GcommFn");
       if ( !mxIsEmpty(opt) ) {
-        mxDestroyArray(mx_GCOMfct);
-        mx_GCOMfct  = mxDuplicateArray(opt);
+        mxDestroyArray(mtlb_GCOMfct);
+        mtlb_GCOMfct  = mxDuplicateArray(opt);
       }
 
     }

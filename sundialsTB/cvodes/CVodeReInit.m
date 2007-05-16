@@ -1,4 +1,4 @@
-function CVodeReInit(t0, y0, options, data)
+function CVodeReInit(t0, y0, options)
 %CVodeReInit reinitializes memory for CVODES
 %   where a prior call to CVodeInit has been made with the same
 %   problem size N. CVodeReInit performs the same input checking
@@ -6,21 +6,18 @@ function CVodeReInit(t0, y0, options, data)
 %   memory allocation, assuming that the existing internal memory 
 %   is sufficient for the new problem.
 %
-%   Usage: CVodeReInit ( T0, Y0 [, OPTIONS [, DATA] ] ) 
+%   Usage: CVodeReInit ( T0, Y0 [, OPTIONS ] ) 
 %
 %   T0       is the initial value of t.
 %   Y0       is the initial condition vector y(t0).  
 %   OPTIONS  is an (optional) set of integration options, created with
 %            the CVodeSetOptions function. 
-%   DATA     is (optional) problem data passed unmodified to all
-%            user-provided functions when they are called. For example,
-%            YD = ODEFUN(T,Y,DATA).
 %
 %   See also: CVodeSetOptions, CVodeInit
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/11/25 19:57:25 $
+% $Revision: 1.3 $Date: 2007/05/11 18:51:32 $
 
 mode = 11;
 
@@ -32,8 +29,4 @@ if nargin < 3
   options = [];
 end
 
-if nargin < 4
-  data = [];
-end
-
-cvm(mode, t0, y0, options, data);
+cvm(mode, t0, y0, options);

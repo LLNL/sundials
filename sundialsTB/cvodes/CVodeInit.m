@@ -1,7 +1,7 @@
-function CVodeInit(fct, t0, y0, options, data)
+function CVodeInit(fct, t0, y0, options)
 %CVodeInit allocates and initializes memory for CVODES.
 %
-%   Usage: CVodeInit ( ODEFUN, T0, Y0 [, OPTIONS [, DATA] ] ) 
+%   Usage: CVodeInit ( ODEFUN, T0, Y0 [, OPTIONS ] ) 
 %
 %   ODEFUN   is a function defining the ODE right-hand side: y' = f(t,y).
 %            This function must return a vector containing the current 
@@ -10,15 +10,12 @@ function CVodeInit(fct, t0, y0, options, data)
 %   Y0       is the initial condition vector y(t0).  
 %   OPTIONS  is an (optional) set of integration options, created with
 %            the CVodeSetOptions function. 
-%   DATA     is (optional) problem data passed unmodified to all
-%            user-provided functions when they are called. For example,
-%            YD = ODEFUN(T,Y,DATA).
 %
 %   See also: CVodeSetOptions, CVRhsFn 
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/07 19:08:40 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
 
 mode = 1;
 
@@ -30,8 +27,4 @@ if nargin < 4
   options = [];
 end
 
-if nargin < 5
-  data =[];
-end
-
-cvm(mode, fct, t0, y0, options, data);
+cvm(mode, fct, t0, y0, options);

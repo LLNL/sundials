@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-05-11 21:42:53 $
+ * $Revision: 1.10 $
+ * $Date: 2007-05-16 17:12:56 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -103,8 +103,13 @@ typedef struct cvmPbData_ {
   mxArray *MONfct;
   mxArray *MONdata;
 
-  /* Information for lists of problems (backward problems only) */
+  /* Pointer to the global Matlab user data */
 
+  mxArray *mtlb_data;
+
+  /* Information for backward problems only */
+
+  struct cvmPbData_ *fwd;
   int index;               /* index of this problem */
   struct cvmPbData_ *next; /* pointer to next problem in linked list */
 
@@ -123,8 +128,6 @@ typedef struct cvmInterfaceData_ {
   struct cvmPbData_ *bckPb;
 
   int NbckPb;            /* Number of backward problems in the linked list bckPb */
-
-  mxArray *mx_data;      /* Matlab user data */
 
 } *cvmInterfaceData;
 
@@ -145,98 +148,99 @@ void cvmErrHandler(int error_code,
  * ---------------------------------------------------------------------------------
  */
 
-int mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data);
+int mxW_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data);
 
-int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data);
+int mxW_CVodeGfct(realtype t, N_Vector y, double *g, void *f_data);
 
-int mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data);
+int mxW_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *f_data);
 
 
-int mtlb_CVodeSensRhs1(int Ns, realtype t,
+int mxW_CVodeSensRhs1(int Ns, realtype t,
                        N_Vector y, N_Vector ydot,
                        int iS, N_Vector yS, N_Vector ySdot,
-                       void *fS_data,
+                       void *f_data,
                        N_Vector tmp1, N_Vector tmp2);
-int mtlb_CVodeSensRhs(int Ns, realtype t,
+int mxW_CVodeSensRhs(int Ns, realtype t,
                       N_Vector y, N_Vector ydot,
                       N_Vector *yS, N_Vector *ySdot,
-                      void *fS_data,
+                      void *f_data,
                       N_Vector tmp1, N_Vector tmp2);
 
 
-int mtlb_CVodeDenseJac(int N, realtype t,
+int mxW_CVodeDenseJac(int N, realtype t,
                        N_Vector y, N_Vector fy, 
-                       DlsMat J, void *jac_data,
+                       DlsMat J, void *f_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-int mtlb_CVodeBandJac(int N, int mupper, int mlower, realtype t,
+int mxW_CVodeBandJac(int N, int mupper, int mlower, realtype t,
                       N_Vector y, N_Vector fy, 
-                      DlsMat J, void *jac_data,
+                      DlsMat J, void *f_data,
                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-int mtlb_CVodeSpilsJac(N_Vector v, N_Vector Jv, realtype t,
+int mxW_CVodeSpilsJac(N_Vector v, N_Vector Jv, realtype t,
                        N_Vector y, N_Vector fy,
-                       void *jac_data, N_Vector tmp);
-int mtlb_CVodeSpilsPset(realtype t, N_Vector y, N_Vector fy,
+                       void *f_data, N_Vector tmp);
+int mxW_CVodeSpilsPset(realtype t, N_Vector y, N_Vector fy,
                         booleantype jok, booleantype *jcurPtr,
-                        realtype gamma, void *P_data,
+                        realtype gamma, void *f_data,
                         N_Vector tmp1, N_Vector tmp2,
                         N_Vector tmp3);
-int mtlb_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
+int mxW_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
                         N_Vector r, N_Vector z,
                         realtype gamma, realtype delta,
-                        int lr, void *P_data, N_Vector tmp);
+                        int lr, void *f_data, N_Vector tmp);
 
   
-int mtlb_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y, N_Vector g, void *f_data);
-int mtlb_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data);
+int mxW_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y, N_Vector g, void *f_data);
+int mxW_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data);
+
+void mxW_CVodeMonitor(int call, double t, 
+                       N_Vector y, N_Vector yQ, N_Vector *yS,
+                       cvmPbData fwdPb);
 
 
-
-int mtlb_CVodeRhsB(realtype t, N_Vector y,
+int mxW_CVodeRhsB(realtype t, N_Vector y,
                    N_Vector yB, N_Vector yBdot, void *f_dataB);
-int mtlb_CVodeRhsBS(realtype t, N_Vector y,  N_Vector *yS,
+int mxW_CVodeRhsBS(realtype t, N_Vector y,  N_Vector *yS,
                     N_Vector yB, N_Vector yBd, void *f_dataB);
 
-int mtlb_CVodeQUADfctB(realtype t, N_Vector y, 
-                       N_Vector yB, N_Vector qBdot, void *fQ_dataB);
-int mtlb_CVodeQUADfctBS(realtype t, N_Vector y,  N_Vector *yS,
+int mxW_CVodeQUADfctB(realtype t, N_Vector y, 
+                       N_Vector yB, N_Vector qBdot, void *f_dataB);
+int mxW_CVodeQUADfctBS(realtype t, N_Vector y,  N_Vector *yS,
                         N_Vector yB, N_Vector yQBd, void *f_dataB);
 
-int mtlb_CVodeDenseJacB(int nB, realtype t,
+int mxW_CVodeDenseJacB(int nB, realtype t,
                         N_Vector y, N_Vector yB, N_Vector fyB,
-                        DlsMat JB, void *jac_dataB, 
+                        DlsMat JB, void *f_dataB, 
                         N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-int mtlb_CVodeBandJacB(int nB, int mupperB, int mlowerB, realtype t,
+int mxW_CVodeBandJacB(int nB, int mupperB, int mlowerB, realtype t,
                        N_Vector y, N_Vector yB, N_Vector fyB,
-                       DlsMat JB, void *jac_dataB, 
+                       DlsMat JB, void *f_dataB, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-int mtlb_CVodeSpilsJacB(N_Vector vB, N_Vector JvB, realtype t,
+int mxW_CVodeSpilsJacB(N_Vector vB, N_Vector JvB, realtype t,
                         N_Vector y, N_Vector yB, N_Vector fyB,
-                        void *jac_dataB, N_Vector tmpB);
-int mtlb_CVodeSpilsPsetB(realtype t, N_Vector y,
+                        void *f_dataB, N_Vector tmpB);
+int mxW_CVodeSpilsPsetB(realtype t, N_Vector y,
                          N_Vector yB, N_Vector fyB,
                          booleantype jokB,
                          booleantype *jcurPtrB, realtype gammaB,
-                         void *P_dataB,
+                         void *f_dataB,
                          N_Vector tmp1B, N_Vector tmp2B,
                          N_Vector tmp3B);
-int mtlb_CVodeSpilsPsolB(realtype t, N_Vector y,
+int mxW_CVodeSpilsPsolB(realtype t, N_Vector y,
                          N_Vector yB, N_Vector fyB,
                          N_Vector rB, N_Vector zB,
                          realtype gammaB, realtype deltaB,
-                         int lrB, void *P_dataB, N_Vector tmpB);
+                         int lrB, void *f_dataB, N_Vector tmpB);
   
-int mtlb_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y, 
+int mxW_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y, 
                        N_Vector yB, N_Vector gB, void *f_dataB);
 
-int mtlb_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y, 
+int mxW_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y, 
                        N_Vector yB, void *f_dataB);
 
 
-void mtlb_CVodeMonitor(int call, double t, 
-                       N_Vector y, N_Vector yQ, N_Vector *yS,
-                       cvmInterfaceData cvm_Cdata);
-void mtlb_CVodeMonitorB(int call, int idxB, double tB, N_Vector yB, N_Vector yQB,
-                        cvmInterfaceData cvm_Cdata);
+void mxW_CVodeMonitorB(int call, int idxB, double tB,
+                        N_Vector yB, N_Vector yQB,
+                        cvmPbData bckPb);
 
 /*
  * ---------------------------------------------------------------------------------

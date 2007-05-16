@@ -38,7 +38,7 @@ function [varargout] = CVode(tout, itask)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.5 $Date: 2006/10/11 18:12:36 $
+% $Revision: 1.6 $Date: 2007/05/11 18:51:31 $
 
 mode = 20;
 
@@ -51,4 +51,5 @@ if nargout < 3 || nargout > 5
 end
 
 varargout = cell (nargout, 1);
+
 [varargout{:}] = cvm(mode,tout,itask);

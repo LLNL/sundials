@@ -29,11 +29,15 @@ switch type
    
   t    = varargin{1};
   y    = varargin{2};
-  yS   = varargin{3};
-  yB   = varargin{4};
-  fct  = varargin{5};
-  data = varargin{6};
+  Ns   = varargin{3};
+  yS   = varargin{4};
+  yB   = varargin{5};
+  fct  = varargin{6};
+  data = varargin{7};
    
+  N = length(y);
+  yS = reshape(yS,N,Ns);
+  
   if isempty(data)
     [yBd, flag] = feval(fct,t,y,yS,yB);
     new_data = [];

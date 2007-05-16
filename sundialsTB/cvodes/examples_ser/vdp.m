@@ -1,47 +1,63 @@
+function vdp()
 %VDP - CVODES example problem (serial, dense)
-%   This is the van der Pol Matlab example, solved with CVODES.
-%
-%   See also: vdp_f, vdp_J
+%   van der Pol problem.
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:54 $
+% $Revision: 1.4 $Date: 2006/10/05 22:12:23 $
 
 
 data.mu = 100.0;
 
 t0 = 0.0;
+tf = 300.0;
 y0 = [2.0;0.0];
 
-options = CVodeSetOptions('RelTol',1.e-3,...
+options = CVodeSetOptions('UserData',data,...
+                          'RelTol',1.e-8,...
                           'AbsTol',1e-6,...
-                          'JacobianFn',@vdp_J);
-
-mondata.mode = 'both';
-mondata.sol = true;
+                          'JacobianFn',@djacfn);
+mondata.mode = 'text';
+mondata.skip = 20;
 options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
 
-CVodeMalloc(@vdp_f,t0,y0,options,data);
+CVodeInit(@rhsfn, t0, y0, options);
 
-% Using default options
-%CVodeMalloc('vdp_f',t0,y0,[],data);
+ntout = 50;
+dt = (tf-t0)/ntout;
+tt = linspace(t0+dt,tf,ntout-1);
 
-tout = 300.0;
-i = 1;
-while 1
-  [status,t,y] = CVode(tout,'OneStep');
-  if status < 0
-    fprintf('At t = %f   status = %d\n',t,status);
-  end
-  tt(i) = t;
-  yy(i) = y(1);
-  i = i + 1;
-  if t > tout
-    break;
-  end
-end
+[status,t,y] = CVode(tt,'Normal');
   
 CVodeFree;
 
 figure;
-plot(tt,yy);
+plot(t,y(1,:),'r',t,y(1,:),'.');
+
+% ===========================================================================
+
+function [yd, flag, new_data] = rhsfn(t, y, data)
+% Right-hand side function
+
+mu = data.mu;
+
+yd = [            y(2)
+        mu*(1-y(1)^2)*y(2)-y(1) ];
+
+flag = 0;
+new_data = [];
+
+return
+
+% ===========================================================================
+
+function [J, flag, new_data] = djacfn(t, y, fy, data)
+% Dense Jacobian function (if using Newton)
+
+mu = data.mu;
+
+J = [         0                  1
+      -2*mu*y(1)*y(2)-1    mu*(1-y(1)^2) ];
+
+flag = 0;
+new_data = [];

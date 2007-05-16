@@ -19,6 +19,11 @@ function options = CVodeSetOptions(varargin)
 %CVodeSetOptions properties
 %(See also the CVODES User Guide)
 %
+%UserData - User data passed unmodified to all functions [ empty ]
+%   If UserData is not empty, all user provided functions will be
+%   passed the problem data as their last input argument. For example,
+%   the RHS function must be defined as YD = ODEFUN(T,Y,DATA).
+%
 %LMM - Linear Multistep Method [ 'Adams' | {'BDF'} ]
 %   This property specifies whether the Adams method is to be used instead
 %   of the default Backward Differentiation Formulas (BDF) method.
@@ -188,7 +193,7 @@ function options = CVodeSetOptions(varargin)
 %   The properties listed above that can only be used for forward problems
 %   are: StopTime, RootsFn, and NumRoots.
 %
-%   The property SensDependent can only be used for backward problems.
+%   The property SensDependent is relevant only for backward problems.
 %
 %
 %   See also
@@ -206,11 +211,13 @@ function options = CVodeSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.7 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.8 $Date: 2007/05/11 21:42:52 $
 
 % If called without input and output arguments, print out the possible keywords
 
 if (nargin == 0) && (nargout == 0)
+  fprintf('        UserData: [ empty ]\n');
+  fprintf('\n');
   fprintf('             LMM: [ Adams | {BDF} ]\n');
   fprintf(' NonlinearSolver: [ Functional | {Newton} ]\n');
   fprintf('          RelTol: [ positive scalar | {1e-4} ]\n');
@@ -249,6 +256,7 @@ if (nargin == 0) && (nargout == 0)
 end
 
 KeyNames = {
+    'UserData'
     'LMM'
     'NonlinearSolver'
     'RelTol'
@@ -279,7 +287,7 @@ KeyNames = {
     'MonitorFn'
     'MonitorData'
     'SensDependent'
-    };
+           };
 
 options = cvm_options(KeyNames,varargin{:});
 

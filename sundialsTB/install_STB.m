@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.17 $Date: 2007/05/11 18:52:47 $
+% $Revision: 1.18 $Date: 2007/05/11 21:42:52 $
 
 % MEX compiler command
 % --------------------
@@ -603,6 +603,8 @@ cvm_files = {
     fullfile('cvodes','CVode.m')
     fullfile('cvodes','CVodeB.m')
     fullfile('cvodes','CVodeGet.m')
+    fullfile('cvodes','CVodeSet.m')
+    fullfile('cvodes','CVodeSetB.m')
     fullfile('cvodes','CVodeGetStatsB.m')
     fullfile('cvodes','CVodeGetStats.m')
     fullfile('cvodes','CVodeFree.m')
