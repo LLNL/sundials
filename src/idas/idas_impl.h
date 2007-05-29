@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-04-30 21:27:35 $
+ * $Revision: 1.13 $
+ * $Date: 2007-05-29 19:10:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -76,9 +76,10 @@ typedef struct IDAMemRec {
 
   IDAQuadRhsFn   ida_rhsQ;
   void          *ida_user_dataQ;
-  int            ida_itolQ;
+
   booleantype    ida_errconQ;
 
+  int            ida_itolQ;
   realtype       ida_rtolQ;
   realtype       ida_SatolQ;    /* scalar absolute tolerance for quadratures    */
   N_Vector       ida_VatolQ;    /* vector absolute tolerance for quadratures    */

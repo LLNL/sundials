@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.13 $
+ * $Date: 2007-05-29 19:10:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,7 +47,7 @@ extern "C" {
  * Inputs to:
  *  IDAInit, IDAReInit, 
  *  IDASensMalloc, IDASensReInit, 
- *  IDAQuadMalloc, IDAQuadReInit,
+ *  IDAQuadInit, IDAQuadReInit,
  *  IDACalcIC, IDASolve,
  *  IDAadjMalloc
  * ----------------------------------------------------------------
@@ -684,16 +684,19 @@ SUNDIALS_EXPORT int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDASetQuadRdata(void *ida_mem, void *rhsQ_data);
-SUNDIALS_EXPORT int IDASetQuadErrCon(void *ida_mem, booleantype errconQ, 
-				     int itolQ, realtype reltolQ, void *abstolQ);
+/*SUNDIALS_EXPORT int IDASetQuadRdata(void *ida_mem, void *rhsQ_data);*/
+SUNDIALS_EXPORT int IDASetQuadErrCon(void *ida_mem, booleantype errconQ);
 
 /*
  * ----------------------------------------------------------------
- * Function : IDAQuadMalloc                                       
+ * Function : IDAQuadInit and IDAQuadReInit                                     
  * ----------------------------------------------------------------
- * IDAQuadMalloc allocates and initializes memory related to      
+ * IDAQuadInit allocates and initializes memory related to      
  * quadrature integration.                                        
+ *
+ * IDAQuadReInit re-initializes IDAS's quadrature related         
+ * memory for a problem, assuming it has already been allocated   
+ * in prior calls to IDAInit and IDAQuadInit. 
  *                                                                
  * ida_mem is a pointer to IDAS memory returned by IDACreate      
  *                                                                
@@ -706,25 +709,36 @@ SUNDIALS_EXPORT int IDASetQuadErrCon(void *ida_mem, booleantype errconQ,
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAQuadMalloc(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0);
-
-/* 
- * ----------------------------------------------------------------
- * Function : IDAQuadReInit                                       
- * ----------------------------------------------------------------
- * IDAQuadReInit re-initializes IDAS's quadrature related         
- * memory for a problem, assuming it has already been allocated   
- * in prior calls to IDAInit and IDAQuadMalloc.                 
- *                                                                
- * All problem specification inputs are checked for errors.       
- * The number of quadratures Nq is assumed to be unchanged        
- * since the previous call to IDAQuadMalloc.                      
- *                                                                
- * ----------------------------------------------------------------
- */
-
+SUNDIALS_EXPORT int IDAQuadInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0);
 SUNDIALS_EXPORT int IDAQuadReInit(void *ida_mem, N_Vector yQ0);
 
+/*
+ * -----------------------------------------------------------------
+ * Functions : IDAQuadSStolerances
+ *             IDAQuadSVtolerances
+ * -----------------------------------------------------------------
+ *
+ * These functions specify the integration tolerances for quadrature
+ * variables. One of them MUST be called before the first call to
+ * IDA IF error control on the quadrature variables is enabled
+ * (see IDASetQuadErrCon).
+ *
+ * IDASStolerances specifies scalar relative and absolute tolerances.
+ * IDASVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance (a potentially different absolute tolerance 
+ *   for each vector component).
+ *
+ * Return values:
+ *  IDA_SUCCESS    if successful
+ *  IDA_MEM_NULL   if the solver memory was NULL
+ *  IDA_NO_QUAD    if quadratures were not initialized
+ *  IDA_ILL_INPUT  if an input argument was illegal
+ *                 (e.g. a negative tolerance)
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAQuadSStolerances(void *ida_mem, realtype reltolQ, realtype abstolQ);
+SUNDIALS_EXPORT int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vector abstolQ);
 
 /* 
  * ----------------------------------------------------------------
@@ -749,7 +763,7 @@ SUNDIALS_EXPORT int IDAQuadReInit(void *ida_mem, N_Vector yQ0);
  *                          | the sensitivity right hand sides:
  *                          | (centered vs. forward and 
  *                          | simultaneous vs. separate)
- *                          | [DQtype=CV_CENTERED]
+ *                          | [DQtype=IDA_CENTERED]
  *                          | [DQrhomax=0.0]                                   
  *                          |                                         
  * IDASetSensParams         |   parameter information:
