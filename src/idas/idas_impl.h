@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-05-29 19:10:44 $
+ * $Revision: 1.14 $
+ * $Date: 2007-06-05 21:03:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -40,6 +40,13 @@ extern "C" {
 #define MAXORD_DEFAULT   5           /* maxord default value            */
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
+
+/* itol */
+#define IDA_NN               0
+#define IDA_SS               1
+#define IDA_SV               2
+#define IDA_WF               3
+#define IDA_EE               4 
 
 /*
  * -----------------------------------------------------------------
@@ -283,7 +290,7 @@ typedef struct IDAMemRec {
 
   /* Flags to verify correct calling sequence */
     
-  booleantype ida_SetupDone;     /* set to FALSE by IDAMalloc and IDAReInit
+  booleantype ida_SetupDone;     /* set to FALSE by IDAInit and IDAReInit
 				    set to TRUE by IDACalcIC or IDASolve      */
 
   booleantype ida_VatolMallocDone;
@@ -291,7 +298,7 @@ typedef struct IDAMemRec {
   booleantype ida_idMallocDone;
 
   booleantype ida_MallocDone;    /* set to FALSE by IDACreate
-				    set to TRUE by IDAMAlloc
+				    set to TRUE by IDAInit
 				    tested by IDAReInit and IDASolve          */
 
   booleantype ida_VatolQMallocDone;
@@ -748,14 +755,15 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_LSOLVE_NULL    "The linear solver's solve routine is NULL."
 #define MSG_LINIT_FAIL     "The linear solver's init routine failed."
 
-#define MSG_NO_QUAD        "Illegal attempt to call before calling IDAQuadMalloc."
+#define MSG_NO_QUAD        "Illegal attempt to call before calling IDAQuadInit."
 #define MSG_BAD_EWTQ       "Initial ewtQ has component(s) equal to zero (illegal)."
 #define MSG_BAD_ITOLQ      "Illegal value for itolQ. The legal values are IDA_SS and IDA_SV."
+#define MSG_NO_TOLQ        "No integration tolerances for quadrature variables have been specified."
 #define MSG_NULL_ATOLQ     "atolQ = NULL illegal."
 #define MSG_BAD_RTOLQ      "rtolQ < 0 illegal."
 #define MSG_BAD_ATOLQ      "atolQ has negative component(s) (illegal)."  
 
-#define MSG_NO_SENSI       "Illegal attempt to call before calling IDASensMalloc."
+#define MSG_NO_SENSI       "Illegal attempt to call before calling IDASensInit."
 #define MSG_BAD_EWTS       "Initial ewtS has component(s) equal to zero (illegal)."
 #define MSG_BAD_ITOLS      "Illegal value for itolS. The legal values are IDA_SS, IDA_SV, and IDA_EE."
 #define MSG_NULL_ATOLS     "atolS = NULL illegal."
@@ -806,6 +814,10 @@ int IDASensResDQ(int Ns, realtype t,
 
 #define MSG_BAD_T          "Illegal value for t." MSG_TIME_INT
 #define MSG_BAD_TOUT       "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration."
+
+#define MSG_BAD_K        "Illegal value for k."
+#define MSG_NULL_DKY     "dky = NULL illegal."
+#define MSG_NULL_DKYP    "dkyp = NULL illegal."
 
 #define MSG_ERR_FAILS      "At " MSG_TIME_H "the error test failed repeatedly or with |h| = hmin."
 #define MSG_CONV_FAILS     "At " MSG_TIME_H "the corrector convergence failed repeatedly or with |h| = hmin."

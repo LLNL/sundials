@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-05-29 19:10:44 $
+ * $Revision: 1.14 $
+ * $Date: 2007-06-05 21:03:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -52,13 +52,6 @@ extern "C" {
  *  IDAadjMalloc
  * ----------------------------------------------------------------
  */
-
-/* itol */
-#define IDA_NN               0
-#define IDA_SS               1
-#define IDA_SV               2
-#define IDA_WF               3
-#define IDA_EE               4 
 
 /* itask */
 #define IDA_NORMAL           1
@@ -116,6 +109,10 @@ extern "C" {
 #define IDA_NO_RECOVERY     -19
 
 #define IDA_RTFUNC_FAIL     -20
+
+#define IDA_BAD_K           -21
+#define IDA_BAD_DKY         -22
+#define IDA_BAD_DKYP        -23
 
 #define IDA_NO_QUAD         -30
 #define IDA_QRHS_FAIL       -31
@@ -680,7 +677,7 @@ SUNDIALS_EXPORT int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g);
  * If successful, these functions return IDA_SUCCESS. If an argument
  * has an illegal value, they print an error message to the
  * file specified by errfp and return one of the error flags
- * defined for the CVodeSet* routines.
+ * defined for the IDASet* routines.
  * -----------------------------------------------------------------
  */
 
@@ -751,13 +748,6 @@ SUNDIALS_EXPORT int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vecto
  *                          |                                          
  * -------------------------------------------------------------- 
  *                          |                                         
- * IDASetSensResFn          | sensitivity residual function and
- *                          | user data pointer.
- *                          | This function must compute residuals    
- *                          | for all sensitivity equations.          
- *                          | [IDAS difference quotient approx.]      
- *                          | [internal]
- *                          |                                         
  * IDASetSensDQMethod       | controls the selection of finite
  *                          | difference schemes used in evaluating
  *                          | the sensitivity right hand sides:
@@ -782,11 +772,6 @@ SUNDIALS_EXPORT int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vecto
  *                          | the error control?                      
  *                          | [TRUE]                                  
  *                          |                                         
- * IDASetSensTolerances     | a pointer to the sensitivity relative   
- *                          | tolerance scalar and one for the        
- *                          | absolute tolerance                      
- *                          | [estimated by IDAS]                     
- *                          |                                         
  * IDASetSensMaxNonlinIters | Maximum number of nonlinear solver  
  *                          | iterations for sensitivity systems  
  *                          | (staggered)                         
@@ -799,19 +784,16 @@ SUNDIALS_EXPORT int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vecto
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDASetSensResFn(void *ida_mem, IDASensResFn resS, void *rdataS);
 SUNDIALS_EXPORT int IDASetSensDQMethod(void *ida_mem, int DQtype, realtype DQrhomax);
 SUNDIALS_EXPORT int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist);
 SUNDIALS_EXPORT int IDASetSensErrCon(void *ida_mem, booleantype errconS);
-SUNDIALS_EXPORT int IDASetSensTolerances(void *ida_mem, int itolS, 
-					 realtype reltolS, void *abstolS);
 SUNDIALS_EXPORT int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS);
   
 /*
  * ----------------------------------------------------------------
- * Function : IDASensMalloc                                       
+ * Function : IDASensInit                                       
  * ----------------------------------------------------------------
- * IDASensMalloc allocates and initializes memory related to      
+ * IDASensInit allocates and initializes memory related to      
  * sensitivity computations.                                      
  *                                                                
  * ida_mem is a pointer to IDAS memory returned by IDACreate.     
@@ -835,7 +817,9 @@ SUNDIALS_EXPORT int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS);
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDASensMalloc(void *ida_mem, int Ns, int ism, N_Vector *yS0, N_Vector *ypS0);
+SUNDIALS_EXPORT int IDASensInit(void *ida_mem, int Ns, int ism, 
+                                IDASensResFn fS,
+                                N_Vector *yS0, N_Vector *ypS0);
   
   
 /*
@@ -857,27 +841,54 @@ SUNDIALS_EXPORT int IDASensMalloc(void *ida_mem, int Ns, int ism, N_Vector *yS0,
  *                                                                
  * ----------------------------------------------------------------
  */
-
 SUNDIALS_EXPORT int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0);
 
 /*
  * -----------------------------------------------------------------
- * Function : IDASensToggle
+ * Function : IDASensToggleOff
  * -----------------------------------------------------------------
- * IDASensToggle activates or deactivates sensitivity calculations.
- * It does NOT deallocate sensitivity-related memory.
- * It is allowed to set sensi=TRUE only if IDASensMalloc has been
- * previously called.
+ * IDASensToggleOff deactivates sensitivity calculations.
+ * It does NOT deallocate sensitivity-related memory so that 
+ * sensitivity computations can be later toggled ON (through
+ * IDASensReInit).
+ * 
  * 
  * The return value is equal to IDA_SUCCESS = 0 if there were no
- * errors; otherwise it is a negative int equal to:
- *   IDa_MEM_NULL  indicating ida_mem was NULL
- *   IDA_NO_SENS   indicating there was not a prior call to
- *                 IDASensMalloc.   
+ * errors or IDA_MEM_NULL if ida_mem was NULL
  * -----------------------------------------------------------------
  */
+SUNDIALS_EXPORT int IDASensToggleOff(void *ida_mem);
 
-SUNDIALS_EXPORT int IDASensToggle(void *ida_mem, booleantype sensi);
+/*
+ * -----------------------------------------------------------------
+ * Functions : IDASensSStolerances
+ *             IDASensSVtolerances
+ *             IDASensEEtolerances
+ * -----------------------------------------------------------------
+ *
+ * These functions specify the integration tolerances for sensitivity
+ * variables. One of them MUST be called before the first call to IDASolve.
+ *
+ * IDASensSStolerances specifies scalar relative and absolute tolerances.
+ * IDASensSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance for each sensitivity vector (a potentially different
+ *   absolute tolerance for each vector component).
+ * IDASensEEtolerances specifies that tolerances for sensitivity variables
+ *   should be estimated from those provided for the state variables.
+ *
+ * The return value is equal to IDA_SUCCESS = 0 if there were no
+ * errors; otherwise it is a negative int equal to:
+ *   IDA_MEM_NULL  indicating ida_mem was NULL, or
+ *   IDA_NO_SENS   indicating there was not a prior call to
+ *                IDASensInit.
+ *   IDA_ILL_INPUT indicating an input argument was illegal
+ *                (e.g. negative tolerances)
+ * In case of an error return, an error message is also printed.
+ * -----------------------------------------------------------------
+ */
+SUNDIALS_EXPORT int IDASetSensSStolerances(void *ida_mem, realtype reltolS, realtype *abstolS);
+SUNDIALS_EXPORT int IDASetSensSVtolerances(void *ida_mem, realtype reltolS, N_Vector *abstolS);
+SUNDIALS_EXPORT int IDASetSensEEtolerances(void *ida_mem);
 
 
 /*
@@ -1091,30 +1102,23 @@ SUNDIALS_EXPORT int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
 /*
  * ----------------------------------------------------------------
- * Function: IDAGetSolution                                       
+ * Function: IDAGetDky                                     
  * ----------------------------------------------------------------
- *                                                                
- * This routine evaluates y(t) and y'(t) as the value and         
- * derivative of the interpolating polynomial at the independent  
- * variable t, and stores the results in the vectors yret and     
- * ypret.  It uses the current independent variable value, tn,    
- * and the method order last used, kused. This function is        
- * called by IDASolve with t = tout, t = tn, or t = tstop.        
- *                                                                
- * If kused = 0 (no step has been taken), or if t = tn, then the  
- * order used here is taken to be 1, giving yret = phi[0],        
- * ypret = phi[1]/psi[0].                                         
- *                                                                
+ *
+ * This routine computes the k-th derivative of the interpolating
+ * polynomial at the time t and stores the result in the vector dky.
+ *
  * The return values are:                                         
  *   IDA_SUCCESS:  succeess.                                  
  *   IDA_BAD_T:    t is not in the interval [tn-hu,tn].                   
- *   IDA_MEM_NULL: The ida_mem argument was NULL.     
+ *   IDA_MEM_NULL: The ida_mem argument was NULL.
+ *   IDA_BAD_DKY  if the dky vector is NULL.
+ *   IDA_BAD_K    if the requested k is not in the range 0,1,...,order used 
  *                                                                
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetSolution(void *ida_mem, realtype t, 
-				   N_Vector yret, N_Vector ypret);
+SUNDIALS_EXPORT int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky);
 
 /* ----------------------------------------------------------------
  * Integrator optional output extraction functions                
@@ -1127,7 +1131,7 @@ SUNDIALS_EXPORT int IDAGetSolution(void *ida_mem, realtype t,
  * IDAGetWorkSpace returns the IDA real and integer workspace sizes      
  * IDAGetNumSteps returns the cumulative number of internal       
  *       steps taken by the solver                                
- * IDAGetNumRhsEvals returns the number of calls to the user's    
+ * IDAGetNumResEvals returns the number of calls to the user's    
  *       res function                                             
  * IDAGetNumLinSolvSetups returns the number of calls made to     
  *       the linear solver's setup routine                        
@@ -1203,7 +1207,6 @@ SUNDIALS_EXPORT int IDAGetIntegratorStats(void *ida_mem, long int *nsteps,
 					  long int *netfails, int *qlast, int *qcur, 
 					  realtype *hinused, realtype *hlast, realtype *hcur, 
 					  realtype *tcur);
-
 /*
  * ----------------------------------------------------------------
  * Nonlinear solver optional output extraction functions          
@@ -1236,16 +1239,26 @@ SUNDIALS_EXPORT int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,
 
 /*
  * -----------------------------------------------------------------
- * Quadrature integration solution extraction routine
+ * Quadrature integration solution extraction routines
  * -----------------------------------------------------------------
  * The following function can be called to obtain the quadrature
  * variables after a successful integration step.
  * If quadratures were not computed, it returns IDA_NO_QUAD.
+ *
+ * IDAGetQuad returns the quadrature variables at the same time
+ *   as that at which IDASolve returned the solution.
+ *
+ * IDAGetQuadDky returns the quadrature variables (or their 
+ *   derivatives up to the current method order) at any time within
+ *   the last integration step (dense output). See IDAGetQuad for
+ *   more information.
+ *
+ * The output vectors yQout and dky must be allocated by the user.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetQuad(void *ida_mem, realtype t, N_Vector yQout);
-
+SUNDIALS_EXPORT int IDAGetQuad(void *ida_mem, realtype *t, N_Vector yQout);
+SUNDIALS_EXPORT int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dky);
 /*
  * -----------------------------------------------------------------
  * Quadrature integration optional output extraction routines
@@ -1275,22 +1288,51 @@ SUNDIALS_EXPORT int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetQuadStats(void *ida_mem, long int *nrhsQevals, long int *nQetfails);
+SUNDIALS_EXPORT int IDAGetQuadSats(void *ida_mem, long int *nrhsQevals, long int *nQetfails);
 
 /*
  * -----------------------------------------------------------------
- * Sensitivity solution extraction routine
+ * Sensitivity solution extraction routines
  * -----------------------------------------------------------------
  * The following functions can be called to obtain the sensitivity
  * variables after a successful integration step.
- * IDAGetSens returns all sensitivity vectors.
- * IDAGetSens1 returns only the 'is'-th sensitivity vectors.
- * If sensitivities were not computed, they returns IDA_NO_SENS.
+ * 
+ * IDAGetSens and IDAGetSens1 return all the sensitivity vectors
+ *   or only one of them, respectively, at the same time as that at 
+ *   which IDASolve returned the solution.
+ *   The array of output vectors or output vector ySout must be
+ *   allocated by the user.
+ *
+ * IDAGetSensDky1 computes the kth derivative of the is-th
+ *   sensitivity (is=1, 2, ..., Ns) of the y function at time t,
+ *   where tn-hu <= t <= tn, tn denotes the current internal time
+ *   reached, and hu is the last internal step size successfully
+ *   used by the solver. The user may request k=0, 1, ..., qu,
+ *   where qu is the current order.
+ *   The is-th sensitivity derivative vector is returned in dky.
+ *   This vector must be allocated by the caller. It is only legal
+ *   to call this function after a successful return from IDASolve
+ *   with sensitivty computations enabled.
+ *   Arguments have the same meaning as in IDADGetky.
+ *
+ * IDAGetSensDky computes the k-th derivative of all
+ *   sensitivities of the y function at time t. It repeatedly calls
+ *   IDAGetSensDky. The argument dkyS must be a pointer to
+ *   N_Vector and must be allocated by the user to hold at least Ns
+ *   vectors.
+ *
+ * Return values are similar to those of IDAGetDky. Additionally,
+ * these functions can return IDA_NO_SENS if sensitivities were
+ * not computed and IDA_BAD_IS if is < 0 or is >= Ns.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetSens(void *ida_mem, realtype t, N_Vector *yySout, N_Vector *ypSout);
-SUNDIALS_EXPORT int IDAGetSens1(void *ida_mem, realtype t, int is, N_Vector yySret, N_Vector ypSret);
+
+SUNDIALS_EXPORT int IDAGetSens(void *ida_mem, realtype *tret, N_Vector *yySout);
+SUNDIALS_EXPORT int IDAGetSens1(void *ida_mem, realtype *tret, int is, N_Vector yySret);
+
+SUNDIALS_EXPORT int IDAGetSensDky(void *ida_mem, realtype t, int k, N_Vector *dkyS);
+SUNDIALS_EXPORT int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS);
 
 /*
  * -----------------------------------------------------------------

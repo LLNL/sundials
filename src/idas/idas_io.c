@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-04-30 21:27:35 $
+ * $Revision: 1.13 $
+ * $Date: 2007-06-05 21:03:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -455,8 +455,6 @@ int IDASetRootDirection(void *ida_mem, int *rootdir)
   return(IDA_SUCCESS);
 }
 
-
-
 /* 
  * =================================================================
  * IDA IC optional input functions
@@ -609,142 +607,26 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetQuadUser_Data(void *ida_mem, void *rhsQ_data)
+int IDASetQuadErrCon(void *ida_mem, booleantype errconQ)
 {
   IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetQuadUser_Data", MSG_NO_MEM);    
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  IDA_mem->ida_user_dataQ = rhsQ_data;
-
-  return(IDA_SUCCESS);
-}
-
-int IDASetQuadErrCon(void *ida_mem, booleantype errconQ, 
-                       int itolQ, realtype rtolQ, void *atolQ)
-{
-  IDAMem IDA_mem;
-  booleantype neg_atol;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetQuadErrCon", MSG_NO_MEM);    
     return(IDA_MEM_NULL);
-  }
-  
+  }  
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_errconQ = errconQ;
 
-  /* Ckeck if quadrature was initialized? */
-
-  if (IDA_mem->ida_quadMallocDone == FALSE) {
-    IDAProcessError(IDA_mem, IDA_NO_QUAD, "IDAS", "IDASetQuadErrCon", MSG_NO_QUAD); 
-    return(IDA_NO_QUAD);
-  }
-
-  /* Check inputs */
-
-  if(errconQ == FALSE) {
-    if (IDA_mem->ida_VatolQMallocDone) {
-      N_VDestroy(IDA_mem->ida_VatolQ);
-      lrw -= lrw1Q;
-      liw -= liw1Q;
-      IDA_mem->ida_VatolQMallocDone = FALSE;
-    }
-    return(IDA_SUCCESS);
-  }
-  
-  if ((itolQ != IDA_SS) && (itolQ != IDA_SV)) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetQuadErrCon", MSG_BAD_ITOLQ);
-    return(IDA_ILL_INPUT);
-  }
-
-  if (atolQ == NULL) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetQuadErrCon", MSG_NULL_ATOLQ);
-    return(IDA_ILL_INPUT);
-  }
-
-  if (rtolQ < ZERO) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetQuadErrCon", MSG_BAD_RTOLQ);
-    return(IDA_ILL_INPUT);
-  }
-
-  if (itolQ == IDA_SS)
-    neg_atol = (*((realtype *)atolQ) < ZERO);
-  else
-    neg_atol = (N_VMin((N_Vector)atolQ) < ZERO);
-
-  if (neg_atol) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetQuadErrCon", MSG_BAD_ATOLQ);
-    return(IDA_ILL_INPUT);
-  }
-
-  /* See if we need to free or allocate memory */
-
-  if ( (itolQ != IDA_SV) && (IDA_mem->ida_VatolQMallocDone) ) {
-    N_VDestroy(IDA_mem->ida_VatolQ);
-    lrw -= lrw1Q;
-    liw -= liw1Q;
-    IDA_mem->ida_VatolQMallocDone = FALSE;
-  }
-
-  if ( (itolQ == IDA_SV) && !(IDA_mem->ida_VatolQMallocDone) ) {
-    IDA_mem->ida_VatolQ = N_VClone(IDA_mem->ida_ypQ);
-    lrw += lrw1Q;
-    liw += liw1Q;
-    IDA_mem->ida_VatolQMallocDone = TRUE;
-  }
-
-  /* Copy tolerances into memory */
-
-  IDA_mem->ida_itolQ = itolQ;
-  IDA_mem->ida_rtolQ = rtolQ;
-
-  if (itolQ == IDA_SS)
-    IDA_mem->ida_SatolQ = *((realtype *)atolQ);
-  else
-    N_VScale(ONE, (N_Vector)atolQ, IDA_mem->ida_VatolQ);
-  
-  return(IDA_SUCCESS);
+  return (IDA_SUCCESS);
 }
-
 
 /* 
  * =================================================================
  * FSA optional input functions
  * =================================================================
  */
-
-int IDASetSensResFn(void *ida_mem, IDASensResFn resS, void *resS_data)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetSensResFn", MSG_NO_MEM);    
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (resS != NULL) {
-    IDA_mem->ida_resS    = resS;
-    IDA_mem->ida_user_dataS  = resS_data;
-    IDA_mem->ida_resSDQ  = FALSE;
-  } else {
-    IDA_mem->ida_resS       = IDASensResDQ;
-    IDA_mem->ida_user_dataS = ida_mem;
-    IDA_mem->ida_resSDQ     = TRUE;
-  }
-
-  return(IDA_SUCCESS);
-}
-
-/*-----------------------------------------------------------------*/
 
 int IDASetSensDQMethod(void *ida_mem, int DQtype, realtype DQrhomax)
 {
@@ -785,7 +667,6 @@ int IDASetSensErrCon(void *ida_mem, booleantype errconS)
   }
 
   IDA_mem = (IDAMem) ida_mem;
-
   IDA_mem->ida_errconS = errconS;
 
   return(IDA_SUCCESS);
@@ -866,127 +747,6 @@ int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist)
 
   return(IDA_SUCCESS);
 }
-
-/*-----------------------------------------------------------------*/
-
-int IDASetSensTolerances(void *ida_mem, int itolS,
-                         realtype rtolS, void *atolS)
-{
-  IDAMem IDA_mem;
-  booleantype neg_atol;
-  realtype *atolSS;
-  N_Vector *atolSV;
-  int is, Ns;
-
-  atolSS = NULL;
-  atolSV = NULL;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetSensTolerances", MSG_NO_MEM);    
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  /* Was sensitivity initialized? */
-
-  if (IDA_mem->ida_sensMallocDone == FALSE) {
-    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDASetSensTolerances", MSG_NO_SENSI);
-    return(IDA_NO_SENS);
-  } 
-
-  /* Check inputs */
-
-  Ns = IDA_mem->ida_Ns;
-
-  if ((itolS != IDA_SS) && (itolS != IDA_SV) && (itolS != IDA_EE)) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetSensTolerances", MSG_BAD_ITOLS);
-    return(IDA_ILL_INPUT);
-  }
-
-  if (itolS != IDA_EE) {
-
-    /* Test user-supplied tolerances */
-    
-    if (rtolS < ZERO) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetSensTolerances", MSG_BAD_RTOLS);
-      return(IDA_ILL_INPUT);
-    }
-
-    if (atolS == NULL) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetSensTolerances", MSG_NULL_ATOLS);
-      return(IDA_ILL_INPUT);
-    }
-
-    neg_atol = FALSE;
-
-    if (itolS == IDA_SS) {
-      atolSS = (realtype *) atolS;
-      for (is=0; is<Ns; is++)
-        if (atolSS[is] < ZERO) {neg_atol = TRUE; break;}
-    } else {
-      atolSV = (N_Vector *) atolS;
-      for (is=0; is<Ns; is++) 
-        if (N_VMin(atolSV[is]) < ZERO) {neg_atol = TRUE; break;}
-    }
-
-    if (neg_atol) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetSensTolerances", MSG_BAD_ATOLS);
-      return(IDA_ILL_INPUT);
-    }
-    
-  }
-
-  /* See if we should release some memory */
-
-  if ( (itolS != IDA_SV) && (IDA_mem->ida_VatolSMallocDone) ) {
-    N_VDestroyVectorArray(IDA_mem->ida_VatolS, Ns);
-    lrw -= Ns*lrw1;
-    liw -= Ns*liw1;
-    IDA_mem->ida_VatolSMallocDone = FALSE;
-  }
-
-  if ( (itolS != IDA_SS) && (IDA_mem->ida_SatolSMallocDone) ) {
-    free(IDA_mem->ida_SatolS); IDA_mem->ida_SatolS = NULL;
-    lrw -= Ns;
-    IDA_mem->ida_SatolSMallocDone = FALSE;
-  }
-
-  /* If tolerances will be estimated, return now */
-
-  if (itolS == IDA_EE) return(IDA_SUCCESS);
-
-  /* See if we need to allocate some memory */
-
-  if ( (itolS == IDA_SV) && !(IDA_mem->ida_VatolSMallocDone) ) {
-    IDA_mem->ida_VatolS = N_VCloneVectorArray(Ns, IDA_mem->ida_tempv1);
-    lrw += Ns*lrw1;
-    liw += Ns*liw1;
-    IDA_mem->ida_VatolSMallocDone = TRUE;
-  }
-
-  if ( (itolS == IDA_SS) && !(IDA_mem->ida_SatolSMallocDone) ) {
-    IDA_mem->ida_SatolS = NULL;
-    IDA_mem->ida_SatolS = (realtype *)malloc(Ns*sizeof(realtype));
-    lrw += Ns;
-    IDA_mem->ida_SatolSMallocDone = TRUE;
-  }
-
-  /* Copy tolerances into memory */
-
-  IDA_mem->ida_itolS = itolS;
-  IDA_mem->ida_rtolS = rtolS;
-
-  if (itolS == IDA_SS)
-    for (is=0; is<Ns; is++)
-      IDA_mem->ida_SatolS[is] = atolSS[is];
-  else
-    for (is=0; is<Ns; is++)    
-      N_VScale(ONE, atolSV[is], IDA_mem->ida_VatolS[is]);
-
-  return(IDA_SUCCESS);
-}
-
 
 /* 
  * =================================================================
