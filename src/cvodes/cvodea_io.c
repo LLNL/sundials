@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.9 $
+ * $Date: 2007-06-05 20:55:57 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -48,8 +48,6 @@
  */
 
 #define IMtype      (ca_mem->ca_IMtype)
-#define user_data_B (ca_mem->ca_user_dataB)
-#define fQ_data_B   (ca_mem->ca_fQ_dataB)
 #define ckpntData   (ca_mem->ca_ckpntData)
 #define nbckpbs     (ca_mem->ca_nbckpbs)
 

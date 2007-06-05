@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2007-04-30 21:27:35 $
+ * $Revision: 1.19 $
+ * $Date: 2007-06-05 20:55:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -101,7 +101,6 @@ typedef struct CVodeMemRec {
   booleantype cv_quadr;    /* TRUE if integrating quadratures              */
 
   CVQuadRhsFn cv_fQ;       /* q' = fQ(t, y(t))                             */
-  void *cv_fQ_data;        /* user pointer passed to fQ                    */
 
   booleantype cv_errconQ;  /* TRUE if quadrs. are included in error test   */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2007-04-30 21:27:35 $
+ * $Revision: 1.22 $
+ * $Date: 2007-06-05 20:55:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1336,7 +1336,7 @@ int CVodeQuadSVtolerances(void *cvode_mem, realtype reltolQ, N_Vector abstolQ)
     return(CV_ILL_INPUT);
   }
 
-  if (N_VMin(abstolQ)) {
+  if (N_VMin(abstolQ) < ZERO) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeQuadSVtolerances", MSGCV_BAD_ABSTOLQ);
     return(CV_ILL_INPUT);
   }
