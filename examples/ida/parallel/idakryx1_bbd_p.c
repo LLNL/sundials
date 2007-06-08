@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-30 19:29:02 $
+ * $Revision: 1.8 $
+ * $Date: 2007-06-08 14:30:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -735,7 +735,7 @@ static void PrintCase(int case_number, int mudq, int mukeep)
   
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nli   nre nreLS nge   h      npe nps\n");
+  printf("  time     umax       k  nst  nni  nli   nre nreLS nge     h      npe nps\n");
   printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
 }
 
