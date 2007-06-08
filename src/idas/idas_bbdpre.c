@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.7 $
+ * $Date: 2007-06-08 14:14:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -226,6 +226,7 @@ int IDABBDPrecReInit(void *ida_mem,
     IDAProcessError(IDA_mem, IDASPILS_PMEM_NULL, "IDABBDPRE", "IDABBDPrecReInit", MSGBBD_PMEM_NULL);
     return(IDASPILS_PMEM_NULL);
   } 
+  pdata = (IBBDPrecData) idaspils_mem->s_pdata;
 
   /* Load half-bandwidths. */
   Nlocal = pdata->n_local;
