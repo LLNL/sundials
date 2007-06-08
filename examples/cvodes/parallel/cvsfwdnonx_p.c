@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-30 19:29:02 $
+ * $Revision: 1.8 $
+ * $Date: 2007-06-08 14:16:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
@@ -206,6 +206,9 @@ int main(int argc, char *argv[])
 
     flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
     if(check_flag(&flag, "CVodeSensInit1", 1, my_pe)) MPI_Abort(comm, 1);
+
+    flag = CVodeSensEEtolerances(cvode_mem);
+    if(check_flag(&flag, "CVodeSensEEtolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if(check_flag(&flag, "CVodeSetSensErrCon", 1, my_pe)) MPI_Abort(comm, 1);
