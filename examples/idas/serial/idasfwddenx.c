@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-06-05 21:03:55 $
+ * $Revision: 1.2 $
+ * $Date: 2007-06-11 21:23:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Cosmin Petra and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -89,9 +89,15 @@ static void ProcessArgs(int argc, char *argv[],
                         booleantype *sensi, int *sensi_meth, 
                         booleantype *err_con);
 static void WrongArgs(char *name);
+
+static void PrintIC(N_Vector y, N_Vector yp);
+static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS); 
+
 static void PrintOutput(void *ida_mem, realtype t, N_Vector u);
-static void PrintOutputS(N_Vector *uS);
+static void PrintSensOutput(N_Vector *uS);
+
 static void PrintFinalStats(void *ida_mem, booleantype sensi);
+
 static int check_flag(void *flagvalue, char *funcname, int opt);
 /*
  *--------------------------------------------------------------------
@@ -104,7 +110,7 @@ int main(int argc, char *argv[])
   void *ida_mem;
   UserData data;
   realtype reltol, t, tout;
-  N_Vector y, yp, abstol;
+  N_Vector y, yp, abstol, id;
   int iout, flag;
 
   realtype pbar[NS];
@@ -140,8 +146,9 @@ int main(int argc, char *argv[])
   yp = N_VNew_Serial(NEQ);
   if(check_flag((void *)yp, "N_VNew_Serial", 0)) return(1);
 
-  Ith(yp,1) = RCONST(-0.04);
-  Ith(yp,2) = RCONST(0.04);
+  /* These initial conditions are NOT consistent. See IDACalcIC below. */
+  Ith(yp,1) = RCONST(0.1);
+  Ith(yp,2) = ZERO;
   Ith(yp,3) = ZERO;  
 
   /* Create IDAS object */
@@ -160,6 +167,14 @@ int main(int argc, char *argv[])
   Ith(abstol,3) = RCONST(1.0e-6);
   flag = IDASVtolerances(ida_mem, reltol, abstol);
   if (check_flag(&flag, "IDASVtolerances", 1)) return(1);
+
+  /* Set ID vector */
+  id = N_VNew_Serial(NEQ);
+  Ith(id,1) = 1.0;
+  Ith(id,2) = 1.0;
+  Ith(id,3) = 0.0;
+  flag = IDASetId(ida_mem, id);
+  if (check_flag(&flag, "IDASetId", 1)) return(1);
 
   /* Attach user data */
   flag = IDASetUserData(ida_mem, data);
@@ -186,10 +201,14 @@ int main(int argc, char *argv[])
     if (check_flag((void *)ypS, "N_VCloneVectorArray_Serial", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, ypS[is]);
 
-    /* Only non-zero sensitivity I.C. are ypS[0] */
-    Ith(ypS[0],1) = -ONE;
-    Ith(ypS[0],2) =  ONE;
-
+    /* 
+    * Only non-zero sensitivity I.C. are ypS[0]: 
+    * - Ith(ypS[0],1) = -ONE;
+    * - Ith(ypS[0],2) =  ONE;
+    *
+    * They are not set. IDACalcIC also computes consistent IC for sensitivities.
+    */
+    
     flag = IDASensInit(ida_mem, NS, sensi_meth, resS, yS, ypS);
     if(check_flag(&flag, "IDASensInit", 1)) return(1);
 
@@ -215,7 +234,23 @@ int main(int argc, char *argv[])
     printf("Sensitivity: NO ");
 
   }
-  
+
+  /* Call IDACalcIC to compute consistent initial conditions. If sensitivity is
+     enabled, this function also try to find consistent IC for the sensitivities. */
+
+  flag = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, T1);;
+  if (check_flag(&flag, "IDACalcIC", 1)) return(1);
+
+  flag = IDAGetConsistentIC(ida_mem, y, yp);
+  if (check_flag(&flag, "IDAGetConsistentIC", 1)) return(1);
+
+  PrintIC(y, yp);
+
+  if(sensi) {
+      IDAGetSensConsistentIC(ida_mem, yS, ypS);
+      PrintSensIC(y, yp, yS, ypS); 
+    }
+      
   /* In loop over output points, call IDA, print results, test for error */
   
   printf("\n\n");
@@ -236,7 +271,7 @@ int main(int argc, char *argv[])
     if (sensi) {
       flag = IDAGetSens(ida_mem, &t, yS);
       if (check_flag(&flag, "IDAGetSens", 1)) break;
-      PrintOutputS(yS);
+      PrintSensOutput(yS);
     } 
     printf("-----------------------------------------");
     printf("------------------------------\n");
@@ -420,6 +455,103 @@ static void WrongArgs(char *name)
     exit(0);
 }
 
+
+static void PrintIC(N_Vector y, N_Vector yp)
+{
+  realtype* data;
+
+  data = NV_DATA_S(y);
+  printf("\n\nConsistent IC:\n");
+  printf("\ty = ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", data[0], data[1], data[2]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le %12.4le \n", data[0], data[1], data[2]);
+#else
+  printf("%12.4e %12.4e %12.4e \n", data[0], data[1], data[2]);
+#endif
+
+  data = NV_DATA_S(yp);
+  printf("\typ= ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", data[0], data[1], data[2]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le %12.4le \n", data[0], data[1], data[2]);
+#else
+  printf("%12.4e %12.4e %12.4e \n", data[0], data[1], data[2]);
+#endif
+
+}
+static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
+{
+  realtype *sdata;
+
+  sdata = NV_DATA_S(yS[0]);
+  printf("                  Sensitivity 1  ");
+
+  printf("\n\ts1 = ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le %12.4le \n", sdata[0], sdata[1], sdata[2]);
+#else
+  printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
+#endif
+  sdata = NV_DATA_S(ypS[0]);
+  printf("\ts1'= ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le %12.4le \n", sdata[0], sdata[1], sdata[2]);
+#else
+  printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
+#endif
+
+
+  printf("                  Sensitivity 2  ");
+  sdata = NV_DATA_S(yS[1]);
+  printf("\n\ts2 = ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le %12.4le \n", sdata[0], sdata[1], sdata[2]);
+#else
+  printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
+#endif
+  sdata = NV_DATA_S(ypS[1]);
+  printf("\ts2'= ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le %12.4le \n", sdata[0], sdata[1], sdata[2]);
+#else
+  printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
+#endif
+
+
+  printf("                  Sensitivity 3  ");
+  sdata = NV_DATA_S(yS[2]);
+  printf("\n\ts3 = ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le %12.4le \n", sdata[0], sdata[1], sdata[2]);
+#else
+  printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
+#endif
+  sdata = NV_DATA_S(ypS[2]);
+  printf("\ts3'= ");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("%12.4le %12.4le %12.4le \n", sdata[0], sdata[1], sdata[2]);
+#else
+  printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
+#endif
+
+
+}
+
 /*
  * Print current t, step count, order, stepsize, and solution.
  */
@@ -463,7 +595,7 @@ static void PrintOutput(void *ida_mem, realtype t, N_Vector u)
  * Print sensitivities.
 */
 
-static void PrintOutputS(N_Vector *uS)
+static void PrintSensOutput(N_Vector *uS)
 {
   realtype *sdata;
 

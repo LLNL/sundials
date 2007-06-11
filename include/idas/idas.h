@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2007-06-05 21:03:54 $
+ * $Revision: 1.15 $
+ * $Date: 2007-06-11 21:23:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -983,7 +983,7 @@ SUNDIALS_EXPORT int IDASetSensEEtolerances(void *ida_mem);
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDACalcIC (void *ida_mem, int icopt, realtype tout1); 
+SUNDIALS_EXPORT int IDACalcIC(void *ida_mem, int icopt, realtype tout1); 
 
 /*
  * ----------------------------------------------------------------
@@ -1333,6 +1333,15 @@ SUNDIALS_EXPORT int IDAGetSens1(void *ida_mem, realtype *tret, int is, N_Vector 
 
 SUNDIALS_EXPORT int IDAGetSensDky(void *ida_mem, realtype t, int k, N_Vector *dkyS);
 SUNDIALS_EXPORT int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Consistent sensitivity IC calculation optional outputs
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vector *ypS0);
 
 /*
  * -----------------------------------------------------------------

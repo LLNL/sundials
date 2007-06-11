@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2007-06-05 21:03:55 $
+ * $Revision: 1.19 $
+ * $Date: 2007-06-11 21:23:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -268,7 +268,8 @@ static int IDAQuadEwtSet(IDAMem IDA_mem, N_Vector qcur, N_Vector weightQ);
 static int IDAQuadEwtSetSS(IDAMem IDA_mem, N_Vector qcur, N_Vector weightQ);
 static int IDAQuadEwtSetSV(IDAMem IDA_mem, N_Vector qcur, N_Vector weightQ);
 
-static int IDASensEwtSet(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS);
+/* Used in IC for sensitivities. */
+int IDASensEwtSet(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS);
 static int IDASensEwtSetEE(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS);
 static int IDASensEwtSetSS(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS);
 static int IDASensEwtSetSV(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS);
@@ -327,20 +328,20 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
                         N_Vector yret, N_Vector ypret, int itask);
 static int IDAHandleFailure(IDAMem IDA_mem, int sflag);
 
-/* Norm functions */
+/* Norm functions. Some of them are used also for IC, so they are global.*/
 
 realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, 
                      booleantype mask);
 
-static realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
+realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
                                 booleantype mask);
 
+realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
+                                      N_Vector *xS, N_Vector *wS,
+                                      booleantype mask);
 static realtype IDAQuadWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
                                       N_Vector xQ, N_Vector wQ);
 
-static realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
-                                      N_Vector *xS, N_Vector *wS,
-                                      booleantype mask);
 /* Functions for rootfinding */
 
 static int IDARcheck1(IDAMem IDA_mem);
@@ -2999,8 +3000,10 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   liw += (3*Ns+1)*liw1;
 
   /* Allocate space for phiS */
+  /*  Make sure phiS[2], phiS[3] and phiS[4] are
+      allocated (for use as temporary vectors), regardless of maxord.*/
 
-  maxcol = MAX(maxord,3);
+  maxcol = MAX(maxord,4);
   for (j=0; j <= maxcol; j++) {
     phiS[j] = N_VCloneVectorArray(Ns, tmpl);
     if (phiS[j] == NULL) {
@@ -3070,7 +3073,7 @@ static void IDASensFreeVectors(IDAMem IDA_mem)
   N_VDestroyVectorArray(ewtS, Ns);
   N_VDestroy(tmpS3);
 
-  maxcol = MAX(IDA_mem->ida_maxord_alloc,3);
+  maxcol = MAX(IDA_mem->ida_maxord_alloc, 4);
   for (j=0; j<=maxcol; j++) 
     N_VDestroyVectorArray(phiS[j], Ns);
 
@@ -3373,7 +3376,7 @@ static int IDAQuadEwtSetSV(IDAMem IDA_mem, N_Vector qcur, N_Vector weightQ)
  *
  */
 
-static int IDASensEwtSet(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS)
+int IDASensEwtSet(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS)
 {
   int flag=0;
 
@@ -3880,6 +3883,7 @@ static int IDAStep(IDAMem IDA_mem)
          attempt the step again */
 
       retval = res(tn, yy, yp, delta, user_data);
+
       if (retval < 0)      return(IDA_RES_FAIL);
       else if (retval > 0) continue;
         
@@ -5173,9 +5177,11 @@ realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
  *
  * Called by IDASensUpdateNorm or directly in the IDA_STAGGERED approach 
  * during the NLS solution and before the error test.
+ *
+ * Declared global for use in the computation of IC for sensitivities.
  */
 
-static realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
+realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
                                 booleantype mask)
 {
   int is;
@@ -5210,9 +5216,12 @@ static realtype IDAQuadWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
  * IDASensWrmsNormUpdate
  *
  * Updates the norm old_nrm to account for all sensitivities.
+ *
+ * This function is declared global since it is used for finding 
+ * IC for sensitivities,
  */
 
-static realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
+realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
                                       N_Vector *xS, N_Vector *wS,
                                       booleantype mask)
 {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2007-06-05 21:03:55 $
+ * $Revision: 1.15 $
+ * $Date: 2007-06-11 21:23:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -150,6 +150,7 @@ typedef struct IDAMemRec {
   N_Vector ida_delnew;      /* work vector for delta in IDACalcIC (= phi[2]) */
   N_Vector ida_dtemp;       /* work vector in IDACalcIC (= phi[3])           */
 
+
   /*----------------------------
     Quadrature Related N_Vectors 
     ----------------------------*/
@@ -167,8 +168,8 @@ typedef struct IDAMemRec {
   N_Vector *ida_phiS[MXORDP1];
   N_Vector *ida_ewtS;
 
-  N_Vector *ida_yS0;        /* initial yS vector (user-supplied)            */
-  N_Vector *ida_ypS0;       /* initial yS' vector (user-supplied)           */
+  //N_Vector *ida_yyS0;       /* initial yS vector (user-supplied)            */
+  //N_Vector *ida_ypS0;       /* initial yS' vector (user-supplied)           */
 
   N_Vector *ida_eeS;        /* cumulative sensitivity corrections           */
 
@@ -179,6 +180,16 @@ typedef struct IDAMemRec {
   N_Vector ida_tmpS1;       /* work space vectors  | tmpS1 = tempv1         */
   N_Vector ida_tmpS2;       /* for resS            | tmpS2 = tempv2         */
   N_Vector ida_tmpS3;       /*                     | tmpS3 = allocated      */    
+
+  N_Vector *ida_savresS;   /* work vector in IDACalcIC for stg (= phiS[2])  */ 
+  N_Vector *ida_delnewS;   /* work vector in IDACalcIC for stg (= phiS[3])  */ 
+
+  N_Vector *ida_yyS0;       /* initial yS, ypS vectors allocated and        */
+  N_Vector *ida_ypS0;       /* deallocated in IDACalcIC function            */
+
+  N_Vector *ida_yyS0new;   /* work vector in IDASensLineSrch   (= phiS[4])  */
+  N_Vector *ida_ypS0new;   /* work vector in IDASensLineSrch   (= eeS)      */
+
 
   /*------------------------------ 
     Variables for use by IDACalcIC

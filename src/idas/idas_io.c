@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-06-05 21:03:55 $
+ * $Revision: 1.14 $
+ * $Date: 2007-06-11 21:23:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,7 +63,7 @@ int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun)
 int IDASetErrFile(void *ida_mem, FILE *errfp)
 {
   IDAMem IDA_mem;
-
+  
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetErrFile", MSG_NO_MEM);
     return(IDA_MEM_NULL);
@@ -695,7 +695,7 @@ int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS)
 int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist)
 {
   IDAMem IDA_mem;
-  int is, Ns;
+  int Ns, is;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetSensParams", MSG_NO_MEM);    
@@ -1318,6 +1318,7 @@ int IDAGetQuadStats(void *ida_mem, long int *nrQevals, long int *nQetfails)
  */
 
 #define sensi          (IDA_mem->ida_sensi)
+#define Ns             (IDA_mem->ida_Ns)
 #define ism            (IDA_mem->ida_ism)
 #define ewtS           (IDA_mem->ida_ewtS)
 #define nrSe           (IDA_mem->ida_nrSe)
@@ -1326,6 +1327,43 @@ int IDAGetQuadStats(void *ida_mem, long int *nrQevals, long int *nQetfails)
 #define ncfnS          (IDA_mem->ida_ncfnS)
 #define netfS          (IDA_mem->ida_netfS)
 #define nsetupsS       (IDA_mem->ida_nsetupsS)
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vector *ypS0)
+{
+  IDAMem IDA_mem;
+  int is;
+ 
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetSensConsistentIC", MSG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem; 
+
+  if (sensi==FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensConsistentIC", MSG_NO_SENSI);
+    return(IDA_NO_SENS);
+  }
+
+  if (IDA_mem->ida_kused != 0) {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAGetSensConsistentIC", MSG_TOO_LATE);
+    return(IDA_ILL_INPUT);
+  }
+
+  if(yyS0 != NULL) {
+    for (is=0; is<Ns; is++)
+      N_VScale(ONE, IDA_mem->ida_phiS[0][is], yyS0[is]);
+  }
+
+  if(ypS0 != NULL) {
+    for (is=0; is<Ns; is++)
+      N_VScale(ONE, IDA_mem->ida_phiS[1][is], ypS0[is]);
+  }
+
+  return(IDA_SUCCESS);
+}
 
 /*-----------------------------------------------------------------*/
 
@@ -1424,7 +1462,7 @@ int IDAGetNumSensLinSolvSetups(void *ida_mem, long int *nlinsetupsS)
 int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight)
 {
   IDAMem IDA_mem;
-  int is, Ns;
+  int is;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetSensErrWeights", MSG_NO_MEM);    
@@ -1437,8 +1475,6 @@ int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight)
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensErrWeights", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
-
-  Ns = IDA_mem->ida_Ns;
 
   for (is=0; is<Ns; is++)
     N_VScale(ONE, ewtS[is], eSweight[is]);

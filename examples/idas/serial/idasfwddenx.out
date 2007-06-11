@@ -2,6 +2,20 @@
 3-species chemical kinetics problem
 Sensitivity: YES ( SIMULTANEOUS + FULL ERROR CONTROL )
 
+Consistent IC:
+	y =   1.0000e+00   0.0000e+00  -7.4293e-17 
+	yp=  -4.0000e-02   4.0000e-02   0.0000e+00 
+                  Sensitivity 1  
+	s1 =   0.0000e+00   0.0000e+00  -5.3259e-16 
+	s1'=  -1.0000e-00   1.0000e-00   0.0000e+00 
+                  Sensitivity 2  
+	s2 =   0.0000e+00   0.0000e+00   0.0000e+00 
+	s2'=   0.0000e+00   0.0000e+00   0.0000e+00 
+                  Sensitivity 3  
+	s3 =   0.0000e+00   0.0000e+00   0.0000e+00 
+	s3'=   0.0000e+00   0.0000e+00   0.0000e+00 
+
+
 =======================================================================
      T     Q       H      NST           y1           y2           y3    
 =======================================================================
@@ -82,12 +96,12 @@ Final Statistics
 
 nst     =   573
 
-nfe     =   975
-netf    =     6    nsetups  =   130
-nni     =   975    ncfn     =    16
+nfe     =   980
+netf    =     6    nsetups  =   132
+nni     =   978    ncfn     =    16
 
-nfSe    =   975    nfeS     =     0
+nfSe    =   980    nfeS     =     0
 netfs   =     0    nsetupsS =     0
 nniS    =     0    ncfnS    =     0
 
-nje    =   130    nfeLS     =   390
+nje    =   132    nfeLS     =   396
