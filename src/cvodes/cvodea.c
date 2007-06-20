@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2007-05-09 20:20:58 $
+ * $Revision: 1.20 $
+ * $Date: 2007-06-20 19:52:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2256,6 +2256,8 @@ int CVodeGetAdjY(void *cvode_mem, realtype t, N_Vector y)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  ca_mem = cv_mem->cv_adj_mem;
 
   flag = IMget(cv_mem, t, y, NULL);
 
