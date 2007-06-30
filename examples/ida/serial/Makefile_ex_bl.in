@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-04-17 22:29:03 $
+# $Revision: 1.3 $
+# $Date: 2007-06-30 00:52:47 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -36,7 +36,8 @@ EXAMPLES = idadenx \
 	   idabanx1 \
 	   idakryx \
 	   idabanx2 \
-	   idakrydem_lin
+	   idakrydem_lin \
+           idaslcr
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -63,3 +64,6 @@ idabanx2: idabanx2.c
 idakrydem_lin: idakrydem_lin.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idakrydem_lin.c
 	 $(CC) -o idakrydem_lin idakrydem_lin.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idaslcr: idaslcr.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idaslcr.c
+	 $(CC) -o idaslcr idaslcr.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)

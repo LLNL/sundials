@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2007-06-05 21:13:42 $
+# $Revision: 1.9 $
+# $Date: 2007-06-30 00:52:48 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -63,6 +63,7 @@ EXEC_FILES = idasdenx$(EXE_EXT) \
 	     idaskryx$(EXE_EXT) \
 	     idasbanx2$(EXE_EXT) \
 	     idaskrydem_lin$(EXE_EXT) \
+	     idasslcr$(EXE_EXT) \
 	     idasfwddenx$(EXE_EXT)
 
 EXEC_BL_FILES =
@@ -87,12 +88,14 @@ install:
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasdenx.c         $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idaskrydem_lin.c   $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idaskryx.c         $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasslcr.c         $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasfwddenx.c      $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasbanx1.out      $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasbanx2.out      $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasdenx.out       $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idaskrydem_lin.out $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idaskryx.out       $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasslcr.out       $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasfwddenx.out    $(EXS_INSTDIR)/idas/serial/
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
 	  make install_bl;                           \
@@ -108,12 +111,14 @@ uninstall:
 	rm -f $(EXS_INSTDIR)/idas/serial/idasdenx.c
 	rm -f $(EXS_INSTDIR)/idas/serial/idaskrydem_lin.c
 	rm -f $(EXS_INSTDIR)/idas/serial/idaskryx.c
+	rm -f $(EXS_INSTDIR)/idas/serial/idasslcr.c
 	rm -f $(EXS_INSTDIR)/idas/serial/idasfwddenx.c
 	rm -f $(EXS_INSTDIR)/idas/serial/idasbanx1.out
 	rm -f $(EXS_INSTDIR)/idas/serial/idasbanx2.out
 	rm -f $(EXS_INSTDIR)/idas/serial/idasdenx.out
 	rm -f $(EXS_INSTDIR)/idas/serial/idaskrydem_lin.out
 	rm -f $(EXS_INSTDIR)/idas/serial/idaskryx.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasslcr.out
 	rm -f $(EXS_INSTDIR)/idas/serial/idasfwddenx.out
 	$(rminstalldirs) $(EXS_INSTDIR)/idas/serial
 	$(rminstalldirs) $(EXS_INSTDIR)/idas
@@ -146,6 +151,9 @@ idasbanx2$(EXE_EXT): $(srcdir)/idasbanx2.c
 idaskrydem_lin$(EXE_EXT): $(srcdir)/idaskrydem_lin.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idaskrydem_lin.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idaskrydem_lin$(EXE_EXT) $(builddir)/idaskrydem_lin$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasslcr$(EXE_EXT): $(srcdir)/idasslcr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasslcr.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasslcr$(EXE_EXT) $(builddir)/idasslcr$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 
 idasfwddenx$(EXE_EXT): $(srcdir)/idasfwddenx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasfwddenx.c

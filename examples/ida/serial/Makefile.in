@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-01-24 01:14:05 $
+# $Revision: 1.8 $
+# $Date: 2007-06-30 00:52:47 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -62,7 +62,8 @@ EXEC_FILES = idadenx$(EXE_EXT) \
 	     idabanx1$(EXE_EXT) \
 	     idakryx$(EXE_EXT) \
 	     idabanx2$(EXE_EXT) \
-	     idakrydem_lin$(EXE_EXT)
+	     idakrydem_lin$(EXE_EXT) \
+	     idaslcr$(EXE_EXT)
 
 EXEC_BL_FILES =
 
@@ -86,11 +87,13 @@ install:
 	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idadenx.c         $(EXS_INSTDIR)/ida/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idakrydem_lin.c   $(EXS_INSTDIR)/ida/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idakryx.c         $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idaslcr.c         $(EXS_INSTDIR)/ida/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idabanx1.out      $(EXS_INSTDIR)/ida/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idabanx2.out      $(EXS_INSTDIR)/ida/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idadenx.out       $(EXS_INSTDIR)/ida/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idakrydem_lin.out $(EXS_INSTDIR)/ida/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idakryx.out       $(EXS_INSTDIR)/ida/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/serial/idaslcr.out       $(EXS_INSTDIR)/ida/serial/
 
 uninstall:
 	rm -f $(EXS_INSTDIR)/ida/serial/Makefile
@@ -100,11 +103,13 @@ uninstall:
 	rm -f $(EXS_INSTDIR)/ida/serial/idadenx.c
 	rm -f $(EXS_INSTDIR)/ida/serial/idakrydem_lin.c
 	rm -f $(EXS_INSTDIR)/ida/serial/idakryx.c
+	rm -f $(EXS_INSTDIR)/ida/serial/idaslcr.c
 	rm -f $(EXS_INSTDIR)/ida/serial/idabanx1.out
 	rm -f $(EXS_INSTDIR)/ida/serial/idabanx2.out
 	rm -f $(EXS_INSTDIR)/ida/serial/idadenx.out
 	rm -f $(EXS_INSTDIR)/ida/serial/idakrydem_lin.out
 	rm -f $(EXS_INSTDIR)/ida/serial/idakryx.out
+	rm -f $(EXS_INSTDIR)/ida/serial/idaslcr.out
 	$(rminstalldirs) $(EXS_INSTDIR)/ida/serial
 	$(rminstalldirs) $(EXS_INSTDIR)/ida
 
@@ -136,6 +141,9 @@ idabanx2$(EXE_EXT): $(srcdir)/idabanx2.c
 idakrydem_lin$(EXE_EXT): $(srcdir)/idakrydem_lin.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idakrydem_lin.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idakrydem_lin$(EXE_EXT) $(builddir)/idakrydem_lin$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idaslcr$(EXE_EXT): $(srcdir)/idaslcr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idaslcr.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idaslcr$(EXE_EXT) $(builddir)/idaslcr$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

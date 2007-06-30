@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-02-01 16:42:08 $
+# $Revision: 1.3 $
+# $Date: 2007-06-30 00:52:47 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -20,6 +20,7 @@ SET(ida_examples
   idadenx
   idakrydem_lin
   idakryx
+  idaslcr
   )
 
 # Add variable ida_bl_examples with the names of the serial IDA examples
