@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.9 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,7 +50,7 @@ static int IDABandFree(IDAMem IDA_mem);
 
 /* IDABAND lfreeB function */
 
-static void IDABandFreeB(IDAadjMem IDAADJ_mem);
+static void IDABandFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -340,41 +340,68 @@ static int IDABandFree(IDAMem IDA_mem)
 
 
 /*
- * IDABandB is a wrapper around IDABand.
+ * IDABandB is a wrapper around IDABand. It attaches the IDASBAND linear solver
+ * to the backward problem memory block.
  */
 
-int IDABandB(void *idaadj_mem, int NeqB, int mupperB, int mlowerB)
+int IDABandB(void *ida_mem, int which,
+             int NeqB, int mupperB, int mlowerB)
 {
+  IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
   IDADlsMemB idadlsB_mem;
-  IDAMem IDAB_mem;
+  void *ida_memB;
   int flag;
-
-  if (idaadj_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_ADJMEM_NULL, "IDASBAND", "IDABandB", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_ADJMEM_NULL);
-  }
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-
-  IDAB_mem = (IDAMem) IDAADJ_mem->IDAB_mem;
   
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASBAND", "IDABandB", MSGD_CAMEM_NULL);
+    return(IDADIRECT_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDADIRECT_NO_ADJ, "IDASBAND", "IDABandB",  MSGD_NO_ADJ);
+    return(IDADIRECT_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDASBAND", "IDABandB", MSGD_BAD_WHICH);
+    return(IDADIRECT_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+
   /* Get memory for IDADlsMemRecB */
   idadlsB_mem = (IDADlsMemB) malloc(sizeof(struct IDADlsMemRecB));
   if (idadlsB_mem == NULL) {
-    IDAProcessError(IDAB_mem, IDADIRECT_MEM_FAIL, "IDASBAND", "IDABandB", MSGD_MEM_FAIL);
+    IDAProcessError(IDAB_mem->IDA_mem, IDADIRECT_MEM_FAIL, "IDASBAND", "IDABandB", MSGD_MEM_FAIL);
     return(IDADIRECT_MEM_FAIL);
+  
   }
 
-  /* set matrix type */
+  /* set matrix type and initialize Jacob function. */
   idadlsB_mem->d_typeB = SUNDIALS_BAND;
-
   idadlsB_mem->d_bjacB = NULL;
 
-  /* attach lmemB and lfreeB */
-  IDAADJ_mem->ia_lmemB = idadlsB_mem;
-  IDAADJ_mem->ia_lfreeB = IDABandFreeB;
 
-  flag = IDABand(IDAB_mem, NeqB, mupperB, mlowerB);
+  /* Attach lmemB data and lfreeB function. */
+  IDAB_mem->ida_lmem  = idadlsB_mem;
+  IDAB_mem->ida_lfree = IDABandFreeB;
+
+  /* Call IDABand for the IDAS data of the backward problem. */
+  ida_memB = (void *)IDAB_mem->IDA_mem;
+  flag = IDABand(ida_memB, NeqB, mupperB, mlowerB);
 
   if (flag != IDADIRECT_SUCCESS) {
     free(idadlsB_mem);
@@ -388,11 +415,11 @@ int IDABandB(void *idaadj_mem, int NeqB, int mupperB, int mlowerB)
  * IDABandFreeB 
  */
 
-static void IDABandFreeB(IDAadjMem IDAADJ_mem)
+static void IDABandFreeB(IDABMem IDAB_mem)
 {
   IDADlsMemB idadlsB_mem;
 
-  idadlsB_mem = (IDADlsMemB) IDAADJ_mem->ia_lmemB;
+  idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   free(idadlsB_mem);
 }

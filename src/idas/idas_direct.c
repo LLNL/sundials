@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.5 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,14 +45,14 @@
 
 static int idaDlsDenseJacBWrapper(int NeqB, realtype tt, realtype c_jB,
                                   N_Vector yyB, N_Vector ypB, N_Vector rBr, 
-                                  DlsMat JacB, void *idaadj_mem,
+                                  DlsMat JacB, void *ida_mem,
                                   N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 
 static int idaDlsBandJacBWrapper(int NeqB, int mupperB, int mlowerB,
                                  realtype tt, realtype c_jB, 
                                  N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                                 DlsMat JacB, void *idaadj_mem,
+                                 DlsMat JacB, void *ida_mem,
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 /*
@@ -111,13 +111,13 @@ int IDADlsSetDenseJacFn(void *ida_mem, IDADlsDenseJacFn jac)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsSetDenseJacFn", MSGD_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsSetDenseJacFn", MSGD_IDAMEM_NULL);
     return(IDADIRECT_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsSetDenseJacFn", MSGD_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsSetDenseJacFn", MSGD_LMEM_NULL);
     return(IDADIRECT_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
@@ -142,13 +142,13 @@ int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsSetBandJacFn", MSGD_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsSetBandJacFn", MSGD_IDAMEM_NULL);
     return(IDADIRECT_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsSetBandJacFn", MSGD_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsSetBandJacFn", MSGD_LMEM_NULL);
     return(IDADIRECT_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
@@ -174,13 +174,13 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsGetWorkSpace", MSGD_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsGetWorkSpace", MSGD_IDAMEM_NULL);
     return(IDADIRECT_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsGetWorkSpace", MSGD_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsGetWorkSpace", MSGD_LMEM_NULL);
     return(IDADIRECT_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
@@ -206,13 +206,13 @@ int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsGetNumJacEvals", MSGD_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsGetNumJacEvals", MSGD_IDAMEM_NULL);
     return(IDADIRECT_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsGetNumJacEvals", MSGD_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsGetNumJacEvals", MSGD_LMEM_NULL);
     return(IDADIRECT_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
@@ -233,13 +233,13 @@ int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsGetNumFctEvals", MSGD_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsGetNumFctEvals", MSGD_IDAMEM_NULL);
     return(IDADIRECT_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsGetNumFctEvals", MSGD_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsGetNumFctEvals", MSGD_LMEM_NULL);
     return(IDADIRECT_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
@@ -298,13 +298,13 @@ int IDADlsGetLastFlag(void *ida_mem, int *flag)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsGetLastFlag", MSGD_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsGetLastFlag", MSGD_IDAMEM_NULL);
     return(IDADIRECT_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsGetLastFlag", MSGD_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsGetLastFlag", MSGD_LMEM_NULL);
     return(IDADIRECT_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
@@ -397,6 +397,7 @@ int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
     yp_data[j] += c_j*inc;
 
     retval = res(tt, yy, yp, rtemp, user_data);
+
     nreDQ++;
     if (retval != 0) break;
 
@@ -571,18 +572,9 @@ int idaDlsBandDQJac(int N, int mupper, int mlower,
  */
 
 /* Additional readability replacements */
-
-#define user_data_B    (IDAADJ_mem->ia_user_dataB)
-
-#define ytmp        (IDAADJ_mem->ia_ytmp)
-#define yptmp       (IDAADJ_mem->ia_yptmp)
-#define getY        (IDAADJ_mem->ia_getY)
-#define lmemB       (IDAADJ_mem->ia_lmemB)
-#define lfreeB      (IDAADJ_mem->ia_lfreeB)
-
-#define mtypeB      (idadlsB_mem->d_typeB)
-#define djacB       (idadlsB_mem->d_djacB)
-#define bjacB       (idadlsB_mem->d_bjacB)
+#define yyTmp       (IDAADJ_mem->ia_yyTmp)
+#define ypTmp       (IDAADJ_mem->ia_ypTmp)
+#define noInterp    (IDAADJ_mem->ia_noInterp)
 
 /*
  * -----------------------------------------------------------------
@@ -590,65 +582,117 @@ int idaDlsBandDQJac(int N, int mupper, int mlower,
  * -----------------------------------------------------------------
  */
 
-int IDADlsSetDenseJacFnB(void *idaadj_mem, IDADlsDenseJacFnB jacB)
+int IDADlsSetDenseJacFnB(void *ida_mem, int which, IDADlsDenseJacFnB jacB)
 {
+  IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
   IDADlsMemB idadlsB_mem;
-  IDAMem IDAB_mem;
+  void *ida_memB;
   int flag;
-
-  if (idaadj_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_ADJMEM_NULL, "IDADIRECT", "IDADlsSetDenseJacFnB", MSGD_CAMEM_NULL);
-    return(IDADIRECT_ADJMEM_NULL);
+  
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsSetDenseJacFnB", MSGD_CAMEM_NULL);
+    return(IDADIRECT_MEM_NULL);
   }
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  IDA_mem = (IDAMem) ida_mem;
 
-  IDAB_mem = (IDAMem) IDAADJ_mem->IDAB_mem;
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDADIRECT_NO_ADJ, "IDASDIRECT", "IDADlsSetDenseJacFnB",  MSGD_NO_ADJ);
+    return(IDADIRECT_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
 
-  if (lmemB == NULL) {
-    IDAProcessError(IDAB_mem, IDADIRECT_LMEMB_NULL, "IDADIRECT", "IDADlsSetDenseJacFnB", MSGD_LMEMB_NULL);
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDASDIRECT", "IDADlsSetDenseJacFnB", MSGD_BAD_WHICH);
+    return(IDADIRECT_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+
+  /* Get the IDAMem corresponding to this backward problem. */
+  ida_memB = (void*) IDAB_mem->IDA_mem;
+
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDADIRECT_LMEMB_NULL, 
+                    "IDASDIRECT", "IDADlsSetDenseJacFnB", MSGD_LMEMB_NULL);
     return(IDADIRECT_LMEMB_NULL);
   }
-  idadlsB_mem = (IDADlsMemB) lmemB;
+  idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
-  djacB = jacB;
+  idadlsB_mem->d_djacB = jacB;
 
   if (jacB != NULL) {
-    flag = IDADlsSetDenseJacFn(IDAB_mem, idaDlsDenseJacBWrapper);
+    flag = IDADlsSetDenseJacFn(ida_memB, idaDlsDenseJacBWrapper);
   } else {
-    flag = IDADlsSetDenseJacFn(IDAB_mem, NULL);
+    flag = IDADlsSetDenseJacFn(ida_memB, NULL);
   }
 
   return(flag);
 }
 
-int IDADlsSetBandJacFnB(void *idaadj_mem, IDADlsBandJacFnB jacB)
+int IDADlsSetBandJacFnB(void *ida_mem, int which, IDADlsBandJacFnB jacB)
 {
+  IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
   IDADlsMemB idadlsB_mem;
-  IDAMem IDAB_mem;
+  void *ida_memB;
   int flag;
-
-  if (idaadj_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_ADJMEM_NULL, "IDADIRECT", "IDADlsSetBandJacFnB", MSGD_CAMEM_NULL);
-    return(IDADIRECT_ADJMEM_NULL);
+  
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsSetBandJacFnB", MSGD_CAMEM_NULL);
+    return(IDADIRECT_MEM_NULL);
   }
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  IDA_mem = (IDAMem) ida_mem;
 
-  IDAB_mem = (IDAMem) IDAADJ_mem->IDAB_mem;
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDADIRECT_NO_ADJ, "IDASDIRECT", "IDADlsSetBandJacFnB",  MSGD_NO_ADJ);
+    return(IDADIRECT_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
 
-  if (lmemB == NULL) {
-    IDAProcessError(IDAB_mem, IDADIRECT_LMEMB_NULL, "IDADIRECT", "IDADlsSetBandJacFnB", MSGD_LMEMB_NULL);
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDASDIRECT", "IDADlsSetBandJacFnB", MSGD_BAD_WHICH);
+    return(IDADIRECT_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+
+  /* Get the IDAMem corresponding to this backward problem. */
+  ida_memB = (void*) IDAB_mem->IDA_mem;
+
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDADIRECT_LMEMB_NULL, 
+                    "IDASDIRECT", "IDADlsSetBandJacFnB", MSGD_LMEMB_NULL);
     return(IDADIRECT_LMEMB_NULL);
   }
-  idadlsB_mem = (IDADlsMemB) lmemB;
+  idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
-  bjacB = jacB;
+  idadlsB_mem->d_bjacB = jacB;
 
   if (jacB != NULL) {
-    flag = IDADlsSetBandJacFn(IDAB_mem, idaDlsBandJacBWrapper);
+    flag = IDADlsSetBandJacFn(ida_memB, idaDlsBandJacBWrapper);
   } else {
-    flag = IDADlsSetBandJacFn(IDAB_mem, NULL);
+    flag = IDADlsSetBandJacFn(ida_memB, NULL);
   }
 
   return(flag);
@@ -665,37 +709,44 @@ int IDADlsSetBandJacFnB(void *idaadj_mem, IDADlsBandJacFnB jacB)
  *
  * This routine interfaces to the IDADenseJacFnB routine provided 
  * by the user. idaDlsDenseJacBWrapper is of type IDADlsDenseJacFn.
- * NOTE: data actually contains idaadj_mem
+ * NOTE: data actually contains ida_mem
  */
 
 static int idaDlsDenseJacBWrapper(int NeqB, realtype tt, realtype c_jB,
                                   N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                                  DlsMat JacB, void *idaadj_mem, 
+                                  DlsMat JacB, void *ida_mem, 
                                   N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   IDAadjMem IDAADJ_mem;
-  IDAMem IDAB_mem;
+  IDAMem IDA_mem;
+  IDABMem IDAB_mem;
   IDADlsMemB idadlsB_mem;
   int flag;
 
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-  IDAB_mem = IDAADJ_mem->IDAB_mem;
-  idadlsB_mem = (IDADlsMemB) lmemB;
+  IDA_mem = (IDAMem) ida_mem;
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+  
+  /* Get linear solver's data for this backward problem. */
+  idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   /* Forward solution from interpolation */
-  flag = getY(IDAADJ_mem, tt, ytmp, yptmp);
-  if (flag != IDA_SUCCESS) {
-    IDAProcessError(IDAB_mem, -1, "IDADIRECT", "idaDlsDenseJacWrapper", MSGD_BAD_T);
-    return(-1);
+  if (noInterp == FALSE) {
+    flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
+    if (flag != IDA_SUCCESS) {
+      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDIRECT", "idaDlsDenseJacWrapper", MSGD_BAD_T);
+      return(-1);
+    }
   }
 
   /* Call user's adjoint dense djacB routine */
-  flag = djacB(NeqB, tt, c_jB, 
-               ytmp, yptmp, 
-               yyB, ypB, rrB, 
-               JacB, user_data_B, 
-               tmp1B, tmp2B, tmp3B);
-
+  flag = idadlsB_mem->d_djacB(NeqB, tt, c_jB, 
+                              yyTmp, ypTmp, 
+                              yyB, ypB, rrB, 
+                              JacB, IDAB_mem->ida_user_data, 
+                              tmp1B, tmp2B, tmp3B);
   return(flag);
 }
 
@@ -704,39 +755,46 @@ static int idaDlsDenseJacBWrapper(int NeqB, realtype tt, realtype c_jB,
  *
  * This routine interfaces to the IDABandJacFnB routine provided 
  * by the user. idaDlsBandJacBWrapper is of type IDADlsBandJacFn.
- * NOTE: data actually contains idaadj_mem
+ * NOTE: data actually contains ida_mem
  */
 
 static int idaDlsBandJacBWrapper(int NeqB, int mupperB, int mlowerB, 
                                  realtype tt, realtype c_jB, 
                                  N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                                 DlsMat JacB, void *idaadj_mem, 
+                                 DlsMat JacB, void *ida_mem, 
                                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   IDAadjMem IDAADJ_mem;
-  IDAMem IDAB_mem;
+  IDAMem IDA_mem;
+  IDABMem IDAB_mem;
   IDADlsMemB idadlsB_mem;
   int flag;
 
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-  IDAB_mem = IDAADJ_mem->IDAB_mem;
-  idadlsB_mem = (IDADlsMemB) lmemB;
+  IDA_mem = (IDAMem) ida_mem;
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+  
+  /* Get linear solver's data for this backward problem. */
+  idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   /* Forward solution from interpolation */
-  flag = getY(IDAADJ_mem, tt, ytmp, yptmp);
-  if (flag != IDA_SUCCESS) {
-    IDAProcessError(IDAB_mem, -1, "IDABAND", "IDAAbandJac", MSGD_BAD_T);
-    return(-1);
+  if (noInterp == FALSE) {
+    flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
+    if (flag != IDA_SUCCESS) {
+      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDIRECT", "idaDlsBandJacWrapper", MSGD_BAD_T);
+      return(-1);
+    }
   }
 
   /* Call user's adjoint band bjacB routine */
-  flag = bjacB(NeqB, mupperB, mlowerB, 
-               tt, c_jB,
-               ytmp, yptmp, 
-               yyB, ypB, rrB,
-               JacB, user_data_B, 
-               tmp1B, tmp2B, tmp3B);
-
+  flag = idadlsB_mem->d_bjacB(NeqB, mupperB, mlowerB, 
+                              tt, c_jB,
+                              yyTmp, ypTmp, 
+                              yyB, ypB, rrB,
+                              JacB, IDAB_mem->ida_user_data, 
+                              tmp1B, tmp2B, tmp3B);
   return(flag);
 }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.9 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,7 +45,7 @@ static int IDADenseFree(IDAMem IDA_mem);
 
 /* IDADENSE lfreeB function */
 
-static void IDADenseFreeB(IDAadjMem IDAADJ_mem);
+static void IDADenseFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -325,38 +325,62 @@ static int IDADenseFree(IDAMem IDA_mem)
  * IDADenseB is a wrapper around IDADense.
  */
 
-int IDADenseB(void *idaadj_mem, int NeqB)
+int IDADenseB(void *ida_mem, int which, int NeqB)
 {
+  IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
   IDADlsMemB idadlsB_mem;
-  IDAMem IDAB_mem;
+  void *ida_memB;
   int flag;
-
-  if (idaadj_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_ADJMEM_NULL, "IDASDENSE", "IDADenseB", MSGD_CAMEM_NULL);
-    return(IDADIRECT_ADJMEM_NULL);
+  
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDENSE", "IDADenseB", MSGD_CAMEM_NULL);
+    return(IDADIRECT_MEM_NULL);
   }
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  IDA_mem = (IDAMem) ida_mem;
 
-  IDAB_mem = (IDAMem) IDAADJ_mem->IDAB_mem;
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDADIRECT_NO_ADJ, "IDASDENSE", "IDADenseB",  MSGD_NO_ADJ);
+    return(IDADIRECT_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
 
-  /* Get memory for IDADlsMemRecB */
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDASDENSE", "IDADenseB", MSGD_BAD_WHICH);
+    return(IDADIRECT_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+
+  /* Alloc memory for IDADlsMemRecB */
   idadlsB_mem = (IDADlsMemB) malloc(sizeof(struct IDADlsMemRecB));
   if (idadlsB_mem == NULL) {
-    IDAProcessError(IDAB_mem, IDADIRECT_MEM_FAIL, "IDASDENSE", "IDADenseB", MSGD_MEM_FAIL);
+    IDAProcessError(IDAB_mem->IDA_mem, IDADIRECT_MEM_FAIL, "IDASDENSE", "IDADenseB", MSGD_MEM_FAIL);
     return(IDADIRECT_MEM_FAIL);
+  
   }
 
-  /* set matrix type */
+  /* set matrix type and initialize Jacob function. */
   idadlsB_mem->d_typeB = SUNDIALS_DENSE;
+  idadlsB_mem->d_bjacB = NULL;
 
-  idadlsB_mem->d_djacB = NULL;
+  /* Attach lmemB data and lfreeB function. */
+  IDAB_mem->ida_lmem  = idadlsB_mem;
+  IDAB_mem->ida_lfree = IDADenseFreeB;
 
-  /* attach lmemB and lfreeB */
-  IDAADJ_mem->ia_lmemB = idadlsB_mem;
-  IDAADJ_mem->ia_lfreeB = IDADenseFreeB;
-
-  flag = IDADense(IDAB_mem, NeqB);
+  /* Call IDADense to the IDAS data of the backward problem. */
+  ida_memB = (void *)IDAB_mem->IDA_mem;
+  flag = IDADense(ida_memB, NeqB);
 
   if (flag != IDADIRECT_SUCCESS) {
     free(idadlsB_mem);
@@ -367,14 +391,15 @@ int IDADenseB(void *idaadj_mem, int NeqB)
 }
 
 /*
- * IDADenseFreeB 
+ * IDADenseFreeB frees the linear solver's memory for that backward problem passed 
+ * as argument. 
  */
 
-static void IDADenseFreeB(IDAadjMem IDAADJ_mem)
+static void IDADenseFreeB(IDABMem IDAB_mem)
 {
   IDADlsMemB idadlsB_mem;
 
-  idadlsB_mem = (IDADlsMemB) IDAADJ_mem->ia_lmemB;
+  idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
   free(idadlsB_mem);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.6 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,9 +47,8 @@ static int IDASptfqmrPerf(IDAMem IDA_mem, int perftask);
 
 static int IDASptfqmrFree(IDAMem IDA_mem);
 
-/* IDASPTFQMR lfreeB function */
-
-static void IDASptfqmrFreeB(IDAadjMem IDAADJ_mem);
+/* IDASPTFQMR lfree function for backward problem. */
+static void IDASptfqmrFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -506,17 +505,6 @@ static int IDASptfqmrFree(IDAMem IDA_mem)
  *
  * ================================================================
  */
-
-/* Additional readability replacements */
-
-#define lmemB       (IDAADJ_mem->ia_lmemB)
-#define lfreeB      (IDAADJ_mem->ia_lfreeB)
-
-#define pset_B      (idaspilsB_mem->s_psetB)
-#define psolve_B    (idaspilsB_mem->s_psolveB)
-#define jtimes_B    (idaspilsB_mem->s_jtimesB)
-#define P_data_B    (idaspilsB_mem->s_P_dataB)
-
 /*
  * IDASptfqmrB
  *
@@ -524,41 +512,66 @@ static int IDASptfqmrFree(IDAMem IDA_mem)
  *
  */
 
-int IDASptfqmrB(void *idaadj_mem, int maxlB)
+int IDASptfqmrB(void *ida_mem, int which, int maxlB)
 {
+  IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
   IDASpilsMemB idaspilsB_mem;
-  IDAMem IDAB_mem;
+  void *ida_memB;
   int flag;
-
-  if (idaadj_mem == NULL) {
-    IDAProcessError(NULL, IDASPILS_ADJMEM_NULL, "IDASPTFQMR", "IDASptfqmrB", MSGS_CAMEM_NULL);
-    return(IDASPILS_ADJMEM_NULL);
+  
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASPTFQMR", "IDASptfqmrB", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
   }
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  IDA_mem = (IDAMem) ida_mem;
 
-  IDAB_mem = (IDAMem) IDAADJ_mem->IDAB_mem;
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASPTFQMR", "IDASptfqmrB",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
 
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDASPILS_ILL_INPUT, "IDASPTFQMR", "IDASptfqmrB", MSGS_BAD_WHICH);
+    return(IDASPILS_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+  /* ida_mem corresponding to 'which' problem. */
+  ida_memB = (void *) IDAB_mem->IDA_mem;
+
+  
   /* Get memory for IDASpilsMemRecB */
   idaspilsB_mem = NULL;
   idaspilsB_mem = (IDASpilsMemB) malloc(sizeof(struct IDASpilsMemRecB));
   if (idaspilsB_mem == NULL) {
-    IDAProcessError(IDAB_mem, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmrB", MSGS_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmrB", MSGS_MEM_FAIL);
     return(IDASPILS_MEM_FAIL);
   }
-  
-  pset_B = NULL;
-  psolve_B = NULL;
-  P_data_B = NULL;
+
+  idaspilsB_mem->s_psetB = NULL;
+  idaspilsB_mem->s_psolveB = NULL;
+  idaspilsB_mem->s_P_dataB = NULL;
 
   /* initialize Jacobian function */
-  jtimes_B = NULL;
+  idaspilsB_mem->s_jtimesB = NULL;
 
-  /* attach lmemB and lfreeB */
-  lmemB = idaspilsB_mem;
-  lfreeB = IDASptfqmrFreeB;
+  /* attach lmem and lfree */
+  IDAB_mem->ida_lmem = idaspilsB_mem;
+  IDAB_mem->ida_lfree = IDASptfqmrFreeB;
 
-  flag = IDASptfqmr(IDAB_mem, maxlB);
+  flag = IDASptfqmr(IDAB_mem->IDA_mem, maxlB);
 
   if (flag != IDASPILS_SUCCESS) {
     free(idaspilsB_mem);
@@ -572,11 +585,11 @@ int IDASptfqmrB(void *idaadj_mem, int maxlB)
  * IDASptfqmrFreeB 
  */
 
-static void IDASptfqmrFreeB(IDAadjMem IDAADJ_mem)
+static void IDASptfqmrFreeB(IDABMem IDAB_mem)
 {
   IDASpilsMemB idaspilsB_mem;
 
-  idaspilsB_mem = (IDASpilsMemB) lmemB;
+  idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
 
   free(idaspilsB_mem);
 }

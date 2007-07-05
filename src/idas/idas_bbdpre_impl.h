@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.5 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -81,7 +81,7 @@ typedef struct IDABBDPrecDataRecB{
   IDABBDCommFnB  gcommB;
     
   /* BBD prec data */
-  void *bbd_dataB;
+  /* //!void *bbd_dataB; */
 
 } *IDABBDPrecDataB;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.6 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,13 +42,14 @@ extern "C" {
 #define IDADIRECT_ILL_INPUT        -3
 #define IDADIRECT_MEM_FAIL         -4
 
+
 /* Additional last_flag values */
 
 #define IDADIRECT_JACFUNC_UNRECVR  -5
 #define IDADIRECT_JACFUNC_RECVR    -6
 
 /* Return values for the adjoint module */
-
+#define IDADIRECT_NO_ADJ           -100
 #define IDADIRECT_ADJMEM_NULL      -101
 #define IDADIRECT_LMEMB_NULL       -102
 
@@ -363,8 +364,8 @@ typedef int (*IDADlsBandJacFnB)(int NeqB, int mupperB, int mlowerB,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDADlsSetDenseJacFnB(void *idaadj_mem, IDADlsDenseJacFnB jacB);
-SUNDIALS_EXPORT int IDADlsSetBandJacFnB(void *idaadj_mem, IDADlsBandJacFnB jacB);
+SUNDIALS_EXPORT int IDADlsSetDenseJacFnB(void *ida_mem, int which, IDADlsDenseJacFnB jacB);
+SUNDIALS_EXPORT int IDADlsSetBandJacFnB(void *idaa_mem, int which, IDADlsBandJacFnB jacB);
 
 
 #ifdef __cplusplus

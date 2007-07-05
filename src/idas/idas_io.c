@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2007-06-11 21:23:10 $
+ * $Revision: 1.15 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1653,6 +1653,12 @@ char *IDAGetReturnFlagName(int flag)
   case IDA_BAD_T:
     sprintf(name,"IDA_BAD_T");
     break;
+  case IDA_BAD_K:
+    sprintf(name,"IDA_BAD_K");
+    break;
+  case IDA_BAD_DKY:
+    sprintf(name,"IDA_BAD_DKY");
+    break;
   case IDA_BAD_EWT:
     sprintf(name,"IDA_BAD_EWT");
     break;
@@ -1662,7 +1668,41 @@ char *IDAGetReturnFlagName(int flag)
   case IDA_LINESEARCH_FAIL:
     sprintf(name,"IDA_LINESEARCH_FAIL");
     break;
+  case IDA_NO_SENS:
+    sprintf(name,"IDA_NO_SENS");
+    break;
+  case IDA_BAD_IS:
+    sprintf(name,"IDA_BAD_IS");
+    break;
+  case IDA_NO_QUAD:
+    sprintf(name,"IDA_NO_QUAD");
+    break;
 
+    /* IDAA flags follow below. */
+  case IDA_NO_ADJ:
+    sprintf(name, "IDA_NO_ADJ");
+    break;
+  case IDA_BAD_TB0:
+    sprintf(name, "IDA_BAD_TB0");
+    break;
+    //case IDA_BCKMEM_NULL:
+    //sprintf(name, "IDA_BCKMEM_NULL");
+    //break;
+    //  case IDA_REIFWD_FAIL:
+    //sprintf(name, "IDA_REIFWD_FAIL");
+    //break;
+  case IDA_FWD_FAIL:
+    sprintf(name, "IDA_FWD_FAIL");
+    break;
+  case IDA_BAD_ITASK:
+    sprintf(name, "IDA_BAD_ITASK");
+    break;
+  case IDA_BAD_TBOUT:
+    sprintf(name, "IDA_BAD_TBOUT");
+    break;
+  case IDA_GETY_BADT:
+    sprintf(name, "IDA_GETY_BADT");
+    break;
   default:
     sprintf(name,"NONE");
   }

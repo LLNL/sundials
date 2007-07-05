@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.5 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -60,7 +60,7 @@ SUNDIALS_EXPORT int IDADense(void *ida_mem, int Neq);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDADenseB(void *idaadj_mem, int NeqB);
+SUNDIALS_EXPORT int IDADenseB(void *ida_mem, int which, int NeqB);
   
 #ifdef __cplusplus
 }

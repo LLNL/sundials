@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.8 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,6 +42,7 @@ extern "C" {
 
 #define IDASPILS_ADJMEM_NULL     -101
 #define IDASPILS_LMEMB_NULL      -102
+#define IDASPILS_NO_ADJ          -103
 
 /* 
  * -----------------------------------------------------------------
@@ -387,15 +388,21 @@ typedef int (*IDASpilsJacTimesVecFnB)(realtype t,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDASpilsSetGSTypeB(void *idaadj_mem, int gstypeB);
-SUNDIALS_EXPORT int IDASpilsSetMaxRestartsB(void *idaadj_mem, int maxrsB);
-SUNDIALS_EXPORT int IDASpilsSetEpsLinB(void *idaadj_mem, realtype eplifacB);
-SUNDIALS_EXPORT int IDASpilsSetMaxlB(void *idaadj_mem, int maxlB);
-SUNDIALS_EXPORT int IDASpilsSetIncrementFactorB(void *idaadj_mem, realtype dqincfacB);
-SUNDIALS_EXPORT int IDASpilsSetPreconditionerB(void *idaadj_mem,
+SUNDIALS_EXPORT int IDASpilsSetGSTypeB(void *ida_mem, int which, int gstypeB);
+
+SUNDIALS_EXPORT int IDASpilsSetMaxRestartsB(void *ida_mem, int which, int maxrsB);
+
+SUNDIALS_EXPORT int IDASpilsSetEpsLinB(void *ida_mem, int which, realtype eplifacB);
+
+SUNDIALS_EXPORT int IDASpilsSetMaxlB(void *ida_mem, int which, int maxlB);
+
+SUNDIALS_EXPORT int IDASpilsSetIncrementFactorB(void *ida_mem, int which, 
+                                                realtype dqincfacB);
+
+SUNDIALS_EXPORT int IDASpilsSetPreconditionerB(void *ida_mem, int which,
                                                IDASpilsPrecSetupFnB psetB,
 					       IDASpilsPrecSolveFnB psolveB);
-SUNDIALS_EXPORT int IDASpilsSetJacTimesVecFnB(void *idaadj_mem,
+SUNDIALS_EXPORT int IDASpilsSetJacTimesVecFnB(void *ida_mem, int which,
                                               IDASpilsJacTimesVecFnB jtvB);
 
 

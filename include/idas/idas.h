@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2007-06-11 21:23:10 $
+ * $Revision: 1.16 $
+ * $Date: 2007-07-05 19:10:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -36,8 +36,7 @@ extern "C" {
 
 #include <sundials/sundials_nvector.h>
 
-/*
- * =================================================================
+/* * =================================================================
  *              I D A S     C O N S T A N T S
  * =================================================================
  */
@@ -46,10 +45,11 @@ extern "C" {
  * ----------------------------------------------------------------
  * Inputs to:
  *  IDAInit, IDAReInit, 
- *  IDASensMalloc, IDASensReInit, 
+ *  IDASensInit, IDASensReInit, 
  *  IDAQuadInit, IDAQuadReInit,
+ *  IDAQuadSensInit, IDAQuadSensReInit,
  *  IDACalcIC, IDASolve,
- *  IDAadjMalloc
+ *  IDAAdjInit
  * ----------------------------------------------------------------
  */
 
@@ -112,7 +112,6 @@ extern "C" {
 
 #define IDA_BAD_K           -21
 #define IDA_BAD_DKY         -22
-#define IDA_BAD_DKYP        -23
 
 #define IDA_NO_QUAD         -30
 #define IDA_QRHS_FAIL       -31
@@ -124,14 +123,21 @@ extern "C" {
 #define IDA_SRES_FAIL       -42
 #define IDA_REP_SRES_ERR    -43
 
-#define IDA_ADJMEM_NULL     -101
+/*
+ * -----------------------------------------
+ * IDAA return flags
+ * -----------------------------------------
+ */
+
+#define IDA_NO_ADJ          -102
 #define IDA_BAD_TB0         -103
-#define IDA_BCKMEM_NULL     -104
+#define IDA_BAD_TBOUT       -104
 #define IDA_REIFWD_FAIL     -105
 #define IDA_FWD_FAIL        -106
 #define IDA_BAD_ITASK       -107
-#define IDA_BAD_TBOUT       -108
-#define IDA_GETY_BADT       -109
+#define IDA_GETY_BADT       -108
+#define IDA_NO_BCK          -109
+#define IDA_NO_FWD          -110
 
 /*
  * =================================================================
@@ -236,53 +242,139 @@ typedef void (*IDAErrHandlerFn)(int error_code,
 				const char *module, const char *function, 
 				char *msg, void *user_data); 
 
-
 /*
  * -----------------------------------------------------------------
  * Type : IDAQuadRhsFn
+ * -----------------------------------------------------------------
+ * The fQ function which defines the right hand side of the
+ * quadrature equations yQ' = fQ(t,y) must have type IDAQuadRhsFn.
+ * fQ takes as input the value of the independent variable t,
+ * the vector of states y and y' and must store the result of fQ in
+ * rrQ. (Allocation of memory for rrQ is handled by IDAS).
+ *
+ * The user_data parameter is the same as the user_data parameter
+ * set by the user through the IDASetUserData routine and is
+ * passed to the fQ function every time it is called.
+ *
+ * If the quadrature RHS also depends on the sensitivity variables,
+ * fQ must be of type IDAQuadSensRhsFn.
+ *
+ * A IDAQuadRhsFn or IDAQuadSensRhsFn should return 0 if successful,
+ * a negative value if an unrecoverable error occured, and a positive
+ * value if a recoverable error (e.g. invalid y values) occured. 
+ * If an unrecoverable occured, the integration is halted. 
+ * If a recoverable error occured, then (in most cases) IDAS will
+ * try to correct and retry.
  * -----------------------------------------------------------------
  */
   
 typedef int (*IDAQuadRhsFn)(realtype tres, 
 			    N_Vector yy, N_Vector yp,
-			    N_Vector ypQ,
-			    void *rdataQ);
+			    N_Vector rrQ,
+			    void *user_data);
 
 /*
  * -----------------------------------------------------------------
  * Type : IDASensResFn
  * -----------------------------------------------------------------
+ * The resS function which defines the right hand side of the
+ * sensitivity DAE systems F_y * s + F_y' * s' + F_p = 0 
+ * must have type IDASensResFn.
+ * 
+ * resS takes as input the number of sensitivities Ns, the
+ * independent variable value t, the states yy and yp and the
+ * corresponding value of the residual in resval, and the dependent
+ * sensitivity vectors yyS and ypS. It stores the residual in 
+ * resvalS. (Memory allocation for resvalS is handled within IDAS)
+ *
+ * The user_data parameter is the same as the user_data parameter
+ * set by the user through the IDASetUserData routine and is
+ * passed to the resS function every time it is called.
+ *
+ * A IDASensRhsFn should return 0 if successful, a negative value if
+ * an unrecoverable error occured, and a positive value if a 
+ * recoverable error (e.g. invalid y, yp, yyS or ypS values) 
+ * occured. If an unrecoverable occured, the integration is halted. 
+ * If a recoverable error occured, then (in most cases) IDAS will
+ * try to correct and retry.
+ * -----------------------------------------------------------------
  */
 
-typedef int (*IDASensResFn)(int Ns, realtype tres, 
+typedef int (*IDASensResFn)(int Ns, realtype t, 
 			    N_Vector yy, N_Vector yp, N_Vector resval,
-			    N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
-			    void *rdataS,
+			    N_Vector *yyS, N_Vector *ypS, 
+                            N_Vector *resvalS, void *user_data,
 			    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
  * -----------------------------------------------------------------
- * Type : IDAResFnB
+ * Type : IDAQuadSensRhsFn
+ * -----------------------------------------------------------------
+ * The fQS function which defines the RHS of the sensitivity DAE 
+ * systems for quadratures  must have type IDAQuadSensRhsFn.
+ *
+ * fQS takes as input the number of sensitivities Ns (the same as
+ * that passed to IDAQuadSensInit), the independent variable 
+ * value t, the states yy, yp and the dependent sensitivity vectors 
+ * yyS and ypS, as well as the current value of the quadrature RHS 
+ * rrQ. It stores the result of fQS in resvalQS.
+ * (Allocation of memory for resvalQS is handled within IDAS)
+ *
+ * A IDAQuadSensRhsFn should return 0 if successful, a negative
+ * value if an unrecoverable error occured, and a positive value
+ * if a recoverable error (e.g. invalid yy, yp, yyS or ypS values) 
+ * occured. If an unrecoverable occured, the integration is halted. 
+ * If a recoverable error occured, then (in most cases) IDAS
+ * will try to correct and retry.
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*IDAQuadSensRhsFn)(int Ns, realtype t,
+                               N_Vector yy, N_Vector yp, 
+                               N_Vector *yyS, N_Vector *ypS, 
+                               N_Vector rrQ, N_Vector *resvalQS,
+                               void *user_data,
+                               N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS);
+
+/*
+ * -----------------------------------------------------------------
+ * Types: IDAResFnB and IDAResFnBS
+ * -----------------------------------------------------------------
+ *    The resB function which defines the right hand side of the
+ *    DAE systems to be integrated backwards must have type IDAResFnB.
+ *    If the backward problem depends on forward sensitivities, its
+ *    RHS function must have type IDAResFnBS.
+ * -----------------------------------------------------------------
+ * Types: IDAQuadRhsFnB and IDAQuadRhsFnBS
+ * -----------------------------------------------------------------
+ *    The fQB function which defines the quadratures to be integrated
+ *    backwards must have type IDAQuadRhsFnB.
+ *    If the backward problem depends on forward sensitivities, its
+ *    quadrature RHS function must have type IDAQuadRhsFnBS.
  * -----------------------------------------------------------------
  */
 
 typedef int (*IDAResFnB)(realtype tt, 
 			 N_Vector yy, N_Vector yp,
-			 N_Vector yyB, N_Vector ypB, N_Vector rrB,
-			 void *rdataB);
+			 N_Vector yyB, N_Vector ypB, 
+                         N_Vector rrB, void *user_dataB);
 
-/*
- * -----------------------------------------------------------------
- * Type : IDAQuadRhsFnB
- * -----------------------------------------------------------------
- */
+typedef int (*IDAResFnBS)(realtype t, 
+                          N_Vector yy, N_Vector yp, 
+                          N_Vector *yyS, N_Vector *ypS,
+                          N_Vector yyB, N_Vector ypB,
+                          N_Vector rrBS, void *user_dataB);
 
-typedef void (*IDAQuadRhsFnB)(realtype tt, 
-			      N_Vector yy, N_Vector yp, 
-			      N_Vector yyB, N_Vector ypB,
-			      N_Vector ypQB, void *rdataQB);
+typedef int (*IDAQuadRhsFnB)(realtype tt, 
+                             N_Vector yy, N_Vector yp, 
+                             N_Vector yyB, N_Vector ypB,
+                             N_Vector resvalBQ, void *user_dataB);
 
-
+typedef int (*IDAQuadRhsFnBS)(realtype t, 
+                              N_Vector yy, N_Vector yp,
+                              N_Vector *yyS, N_Vector *ypS,
+                              N_Vector yyB, N_Vector ypB,
+                              N_Vector resvalBQS, void *user_dataB);
 /*
  * ================================================================
  *          U S E R - C A L L A B L E   R O U T I N E S           
@@ -383,7 +475,7 @@ SUNDIALS_EXPORT void *IDACreate(void);
  *                      | NOTE: if suppressed algebraic variables 
  *                      | is selected, the nvector 'id' must be   
  *                      | supplied for identification of those    
- *                      | algebraic components (see IDASetId).    
+ *                      | algebraic components (see IDASetId    
  *                      |                                          
  * IDASetId             | an N_Vector, which states a given       
  *                      | element to be either algebraic or       
@@ -892,8 +984,53 @@ SUNDIALS_EXPORT int IDASetSensEEtolerances(void *ida_mem);
 
 
 /*
+ * -----------------------------------------------------------------
+ * Function : IDAQuadSensInit and IDAQuadSensReInit
+ * -----------------------------------------------------------------
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAQuadSensInit(void *ida_mem, IDAQuadSensRhsFn fQS, N_Vector *yQS0);
+SUNDIALS_EXPORT int IDAQuadSensReInit(void *ida_mem, N_Vector *yQS0);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions : IDAQuadSensSStolerances
+ *             IDAQuadSensSVtolerances
+ *             IDAQuadSensEEtolerances
+ * -----------------------------------------------------------------
+ *
+ * These functions specify the integration tolerances for quadrature
+ * sensitivity variables. One of them MUST be called before the first
+ * call to IDAS IF these variables are included in the error test.
+ *
+ * IDAQuadSensSStolerances specifies scalar relative and absolute tolerances.
+ * IDAQuadSensSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance for each quadrature sensitivity vector (a potentially
+ *   different absolute tolerance for each vector component).
+ * IDAQuadSensEEtolerances specifies that tolerances for sensitivity variables
+ *   should be estimated from those provided for the quadrature variables.
+ *   In this case, tolerances for the quadrature variables must be
+ *   specified through a call to one of IDAQuad**tolerances.
+ *
+ * The return value is equal to IDA_SUCCESS = 0 if there were no
+ * errors; otherwise it is a negative int equal to:
+ *   IDA_MEM_NULL     if ida_mem was NULL, or
+ *   IDA_NO_QUADSENS  if there was not a prior call to
+ *                    IDAQuadSensInit.
+ *   IDA_ILL_INPUT    if an input argument was illegal
+ *                   (e.g. negative tolerances)
+ * In case of an error return, an error message is also printed.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAQuadSensSStolerances(void *ida_mem, realtype reltolQS, realtype *abstolQS);
+SUNDIALS_EXPORT int IDAQuadSensSVtolerances(void *ida_mem, realtype reltolQS, N_Vector *abstolQS);
+SUNDIALS_EXPORT int IDAQuadSensEEtolerances(void *ida_mem);
+
+/*
  * ----------------------------------------------------------------
- * Function : IDACalcIC                                           
+ * Function : IDACalcIC                                          
  * ----------------------------------------------------------------
  * IDACalcIC calculates corrected initial conditions for the DAE  
  * system for a class of index-one problems of semi-implicit form.
@@ -1147,7 +1284,7 @@ SUNDIALS_EXPORT int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky);
  *       internal step                                            
  * IDAGetActualInitStep returns the actual initial step size      
  *       used by IDA                                              
- * IDAGetLAstStep returns the step size for the last internal     
+ * IDAGetLastStep returns the step size for the last internal     
  *       step (if from IDASolve), or the last value of the        
  *       artificial step size h (if from IDACalcIC)               
  * IDAGetCurrentStep returns the step size to be attempted on the 
@@ -1250,8 +1387,7 @@ SUNDIALS_EXPORT int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,
  *
  * IDAGetQuadDky returns the quadrature variables (or their 
  *   derivatives up to the current method order) at any time within
- *   the last integration step (dense output). See IDAGetQuad for
- *   more information.
+ *   the last integration step (dense output). 
  *
  * The output vectors yQout and dky must be allocated by the user.
  * -----------------------------------------------------------------
@@ -1437,108 +1573,352 @@ SUNDIALS_EXPORT void IDAQuadFree(void *ida_mem);
 
 SUNDIALS_EXPORT void IDASensFree(void *ida_mem);
 
-/* 
- * -----------------------------------------------------------------
- * Initialization and optional input for ADJOINT module 
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void *IDAadjMalloc(void *ida_mem, long int steps, int interp);
-
-SUNDIALS_EXPORT int IDAadjSetInterpType(void *idaadj_mem, int interp);
-
-/*
- * -----------------------------------------------------------------
- * Forward solution function 
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int IDASolveF(void *idaadj_mem, realtype tout, realtype *tret,
-			      N_Vector yret, N_Vector ypret, int itask, int *ncheckPtr);
-
-/*
- * -----------------------------------------------------------------
- * Initialization and optional input for backward integration 
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int IDACreateB(void *idaadj_mem);
-SUNDIALS_EXPORT int IDAInitB(void *idaadj_mem, IDAResFnB resB,
-			       realtype tB0, N_Vector yyB0, N_Vector ypB0, 
-			       int itolB, realtype *reltolB, void *abstolB);
-SUNDIALS_EXPORT int IDAReInitB(void *idaadj_mem,
-			       realtype tB0, N_Vector yyB0, N_Vector ypB0,
-			       int itolB, realtype *reltolB, void *abstolB);
-
-SUNDIALS_EXPORT int IDASetUserDataB(void *idaadj_mem, void *user_dataB);
-SUNDIALS_EXPORT int IDASetMaxOrdB(void *idaadj_mem, int maxordB);
-SUNDIALS_EXPORT int IDASetMaxNumStepsB(void *idaadj_mem, long int mxstepsB);
-SUNDIALS_EXPORT int IDASetInitStepB(void *idaadj_mem, realtype hinB);
-SUNDIALS_EXPORT int IDASetMaxStepB(void *idaadj_mem, realtype hmaxB);
-SUNDIALS_EXPORT int IDASetSuppressAlgB(void *idaadj_mem, booleantype suppressalgB);
-SUNDIALS_EXPORT int IDASetIdB(void *idaadj_mem, N_Vector idB);
-SUNDIALS_EXPORT int IDASetConstraintsB(void *idaadj_mem, N_Vector constraintsB);
-
-SUNDIALS_EXPORT int IDASetQuadFdataB(void *idaadj_mem, void *rhsQ_dataB);
-SUNDIALS_EXPORT int IDASetQuadErrConB(void *idaadj_mem, booleantype errconQB, 
-				      int itolQB, realtype reltolQB, void *abstolQB);
-SUNDIALS_EXPORT int IDAQuadMallocB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0);
-SUNDIALS_EXPORT int IDAQuadReInitB(void *idaadj_mem, N_Vector yQB0);
-
-/*
- * -----------------------------------------------------------------
- * Backward solution function 
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int IDASolveB(void *idaadj_mem, realtype tBout, realtype *tBret,
-			      N_Vector yBret, N_Vector ypBret, int itaskB);
-
-/*
- * -----------------------------------------------------------------
- * Optional output from backward integration 
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int IDAGetQuadB(void *idaadj_mem, N_Vector qB);
 
 /* 
- * -----------------------------------------------------------------
- * Deallocation of ADJOINT module 
- * -----------------------------------------------------------------
+ * =================================================================
+ *
+ * INITIALIZATION AND DEALLOCATION FUNCTIONS FOR BACKWARD PROBLEMS 
+ *
+ * =================================================================
  */
-
-SUNDIALS_EXPORT void IDAadjFree(void **idaadj_mem);
 
 /*
  * -----------------------------------------------------------------
- * Optional output from ADJOINT module 
+ * IDAAdjInit
+ * -----------------------------------------------------------------
+ * IDAAdjInit specifies some parameters for ASA, initializes ASA
+ * and allocates space for the adjoint memory structure.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void *IDAadjGetIDABmem(void *idaadj_mem);
+SUNDIALS_EXPORT int IDAAdjInit(void *ida_mem, long int steps, int interp);
+/*
+ * -----------------------------------------------------------------
+ * IDAAdjReInit
+ * -----------------------------------------------------------------
+ * IDAAdjReInit reinitializes the IDAS memory structure for ASA,
+ * assuming that the number of steps between check points and the
+ * type of interpolation remained unchanged. The list of check points
+ * (and associated memory) is deleted. The list of backward problems
+ * is kept (however, new backward problems can be added to this list
+ * by calling IDACreateB). The IDAS memory for the forward and 
+ * backward problems can be reinitialized separately by calling 
+ * IDAReInit and IDAReInitB, respectively.
+ * NOTE: if a entirely new list of backward problems is desired,
+ *   then simply free the adjoint memory (by calling IDAAdjFree)
+ *   and reinitialize ASA with IDAAdjReInit 
+ * -----------------------------------------------------------------
+ */
 
-SUNDIALS_EXPORT char *IDAadjGetReturnFlagName(int flag);
+SUNDIALS_EXPORT int IDAAdjReInit(void *ida_mem);
 
 /*
  * -----------------------------------------------------------------
- * IDAadjGetY
- *    Returns the interpolated forward solution at time t. This
- *    function is a wrapper around the interpType-dependent internal
- *    function.
- *    The calling function must allocate space for y.
+ * IDAAdjFree
+ * -----------------------------------------------------------------
+ * IDAAdjFree frees the memory allocated by IDAAdjInit.
+ * It is typically called by IDAFree.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAadjGetY(void *idaadj_mem, realtype t, N_Vector y, N_Vector yp);
+SUNDIALS_EXPORT void IDAAdjFree(void *ida_mem);
+
+/*
+ * =================================================================
+ *
+ * OPTIONAL INPUT FUNCTIONS FOR BACKWARD PROBLEMS
+ *
+ * =================================================================
+ */
+
+
+/*
+ * =================================================================
+ *
+ * Interfaces to IDAS functions for setting-up backward problems.
+ *
+ * =================================================================
+ */
+
+SUNDIALS_EXPORT int IDACreateB(void *ida_mem, int *which);
+
+SUNDIALS_EXPORT int IDAInitB(void *ida_mem, int which, IDAResFnB resB,
+                             realtype tB0, N_Vector yyB0, N_Vector ypB0);
+
+SUNDIALS_EXPORT int IDAInitBS(void *ida_mem, int which, IDAResFnBS resS,
+                              realtype tB0, N_Vector yyB0, N_Vector ypB0);
+
+SUNDIALS_EXPORT int IDAReInitB(void *ida_mem, int which,
+			       realtype tB0, N_Vector yyB0, N_Vector ypB0);
+
+SUNDIALS_EXPORT int IDAQuadSStolerancesB(void *ida_mem, int which,
+                                         realtype reltolQB, realtype abstolQB);
+SUNDIALS_EXPORT int IDAQuadSVtolerancesB(void *ida_mem, int which,
+                                         realtype reltolQB, N_Vector abstolQB);
+
+SUNDIALS_EXPORT int IDAQuadInitB(void *ida_mem, int which, 
+                                 IDAQuadRhsFnB rhsQB, N_Vector yQB0);
+
+SUNDIALS_EXPORT int IDAQuadInitBS(void *ida_mem, int which, 
+                                  IDAQuadRhsFnBS rhsQS, N_Vector yQB0);
+
+SUNDIALS_EXPORT int IDAQuadReInitB(void *ida_mem, int which, N_Vector yQB0);
+
+/*
+ * ----------------------------------------------------------------
+ * The following functions computes consistent initial conditions
+ * for the backward problems.
+ * ----------------------------------------------------------------
+ * Function : IDACalcICB                                         
+ * ----------------------------------------------------------------
+ * IDACalcICB calculates corrected initial conditions for a DAE  
+ * backward system (index-one in semi-implicit form).
+ * ----------------------------------------------------------------
+ * Function : IDACalcICBS
+ * ----------------------------------------------------------------
+ * IDACalcICBS calculates corrected initial conditions for a DAE  
+ * backward problems that also depends on  the sensitivities.
+ *
+ * They use Newton iteration combined with a Linesearch algorithm. 
+ *
+ * Calling IDACalcICB(S) is optional. It is only necessary when the   
+ * initial conditions do not solve the given system.  I.e., if    
+ * yB0 and ypB0 are known to satisfy the backward problem, then       
+ * a call to IDACalcICB is NOT necessary (for index-one problems). 
+ *
+ * Any call to IDACalcICB(S) should precede the call(s) to 
+ * IDASolveB for the given problem. 
+ * 
+ * The functions compute the algebraic components of y and 
+ * differential components of y', given the differential        
+ * components of y.  This option requires that the N_Vector id was 
+ * set through a call to IDASetIdB specifying the differential and 
+ * algebraic components.      
+ *
+ * The arguments to IDACalcICB(S) are as follows:
+ *                                                                
+ * ida_mem  is the pointer to IDA memory returned by IDACreate.                        
+ *
+ * which    is the index of the backward problem returned by
+ *          IDACreateB
+ *
+ * tout1    is the first value of t at which a soluton will be      
+ *          requested (from IDASolveB).  (This is needed here to     
+ *          determine the direction of integration and rough 
+ *          scale  in the independent variable t.)  
+ *
+ * yy0      state variables y and y' corresponding to the initial
+ * yp0      time at which the backward problem is (re)started.
+ *
+ * yyS0     sensitivities variables corresponding to the initial
+ * ypS0     time at which the backward problem is (re)started. 
+ *
+ * Return value is a int flag. For more information see IDACalcIC.
+*/
+
+SUNDIALS_EXPORT int IDACalcICB (void *ida_mem, int which, realtype tout1,
+                                N_Vector yy0, N_Vector yp0);
+
+SUNDIALS_EXPORT int IDACalcICBS(void *ida_mem, int which, realtype tout1,
+                                N_Vector yy0, N_Vector yp0,
+                                N_Vector *yyS0, N_Vector *ypS0); 
+
+
+/*
+ * =================================================================
+ *
+ * MAIN SOLVER FUNCTIONS FOR FORWARD PROBLEMS
+ *
+ * =================================================================
+ */
+
+/*
+ * -----------------------------------------------------------------
+ * IDASolveF
+ * -----------------------------------------------------------------
+ * IDASolveF integrates towards tout and returns solution into yret
+ * and ypret.
+ *
+ * In the same time, it stores check point data every 'steps'.
+ *
+ * IDASolveF can be called repeatedly by the user.
+ *
+ * ncheckPtr points to the number of check points stored so far.
+ *
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDASolveF(void *ida_mem, realtype tout, 
+                              realtype *tret, 
+                              N_Vector yret, N_Vector ypret, 
+                              int itask, int *ncheckPtr);
+
+
+/*
+ * -----------------------------------------------------------------
+ * IDASolveB
+ * -----------------------------------------------------------------
+ * IDASolveB performs the integration of all backward problems 
+ * specified through calls to IDACreateB through a sequence of 
+ * forward-backward runs in between consecutive check points. It can 
+ * be called either in IDA_NORMAL or IDA_ONE_STEP mode. After a 
+ * successful return from IDASolveB, the solution and quadrature 
+ * variables at the current return time for any given backward 
+ * problem can be obtained by calling IDAGetB and IDAGetQuadB.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDASolveB(void *ida_mem, realtype tBout, int itaskB);
+
+
+/*
+ * =================================================================
+ *
+ * OPTIONAL INPUT FUNCTIONS FOR BACKWARD PROBLEMS
+ *
+ * =================================================================
+ */
+
+/*
+ * -----------------------------------------------------------------
+ * IDASetAdjNoSensi
+ * -----------------------------------------------------------------
+ * Disables the forward sensitivity analysis in IDASolveF.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDASetAdjNoSensi(void *ida_mem);
+
+/*
+ * -----------------------------------------------------------------
+ * Optional input functions for backward problems
+ * -----------------------------------------------------------------
+ * These functions are just wrappers around the corresponding
+ * functions in cvodes.h, with some particularizations for the
+ * backward integration.
+ * -----------------------------------------------------------------
+ */
+
+/*
+ * -----------------------------------------------------------------
+ * Optional input functions for backward problems
+ * -----------------------------------------------------------------
+ * These functions are just wrappers around the corresponding
+ * functions in idas.h, with some particularizations for the
+ * backward integration.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDASetUserDataB(void *ida_mem, int which, void *user_dataB);
+
+SUNDIALS_EXPORT int IDASetMaxOrdB(void *ida_mem, int which, int maxordB);
+
+SUNDIALS_EXPORT int IDASetMaxNumStepsB(void *ida_mem, int which, long int mxstepsB);
+
+SUNDIALS_EXPORT int IDASetInitStepB(void *ida_mem, int which, realtype hinB);
+
+SUNDIALS_EXPORT int IDASetMaxStepB(void *ida_mem, int which, realtype hmaxB);
+
+SUNDIALS_EXPORT int IDASetSuppressAlgB(void *ida_mem, int which, 
+                                       booleantype suppressalgB);
+SUNDIALS_EXPORT int IDASetIdB(void *ida_mem, int which, N_Vector idB);
+
+SUNDIALS_EXPORT int IDASetConstraintsB(void *ida_mem, int which, 
+                                       N_Vector constraintsB);
+SUNDIALS_EXPORT int IDASStolerancesB(void *ida_mem, int which, 
+                                     realtype relTolB, realtype absTolB);
+SUNDIALS_EXPORT int IDASVtolerancesB(void *ida_mem, int which, 
+                                     realtype relTolB, N_Vector absTolB);
+SUNDIALS_EXPORT int IDASetQuadErrConB(void *ida_mem, int which, int errconQB);
+
+
+
+/*
+ * =================================================================
+ *
+ * EXTRACTION AND DENSE OUTPUT FUNCTIONS FOR BACKWARD PROBLEMS
+ *
+ * =================================================================
+ */
+  
+/*
+ * -----------------------------------------------------------------
+ * IDAGetB and IDAGetQuadB
+ * -----------------------------------------------------------------
+ * Extraction functions for the solution and quadratures for a given 
+ * backward problem. They return their corresponding output vector
+ * at the current time reached by the integration of the backward
+ * problem. To obtain the solution or quadratures associated with
+ * a given backward problem at some other time within the last 
+ * integration step (dense output), first obtain a pointer to the
+ * proper IDAS memory by calling IDAGetAdjIDABmem and then use it
+ * to call IDAGetDky and IDAGetQuadDky.  
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAGetB(void* ida_mem, int which, realtype *tret,
+                            N_Vector yy, N_Vector yp);
+
+SUNDIALS_EXPORT int IDAGetQuadB(void *ida_mem, int which, 
+                                realtype *tret, N_Vector qB);
+
+/*
+ * =================================================================
+ *
+ * OPTIONAL OUTPUT FUNCTIONS FOR BACKWARD PROBLEMS
+ *
+ * =================================================================
+ */
+
+/*
+ * -----------------------------------------------------------------
+ * IDAGetAdjIDABmem
+ * -----------------------------------------------------------------
+ * IDAGetAdjIDABmem returns a (void *) pointer to the IDAS
+ * memory allocated for the backward problem. This pointer can
+ * then be used to call any of the IDAGet* IDAS routines to
+ * extract optional output for the backward integration phase.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void *IDAGetAdjIDABmem(void *ida_mem, int which);
 
 /* 
- * ===============================================================
- * DEVELOPMENT USER-CALLABLE FUNCTIONS
- * ===============================================================
+ * -----------------------------------------------------------------
+ * IDAGetConsistentICB
+ * -----------------------------------------------------------------
+ * IDAGetConsistentIC returns the consistent initial conditions
+ * computed by IDACalcICB or IDCalcICBS
  */
+int IDAGetConsistentICB(void *ida_mem, int which, 
+                       N_Vector yyB0, N_Vector ypB0);
 
 /*
+ * -----------------------------------------------------------------
+ * IDAGetAdjY
+ * -----------------------------------------------------------------
+ * Returns the interpolated forward solution at time t. This
+ * function is a wrapper around the interpType-dependent internal
+ * function.
+ * The calling function must allocate space for yy and yp.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAGetAdjY(void *ida_mem, realtype t, 
+                               N_Vector yy, N_Vector yp);
+
+
+/*
+ * -----------------------------------------------------------------
+ * IDAGetAdjCheckPointsInfo
+ * -----------------------------------------------------------------
+ * Loads an array of nckpnts structures of type IDAadjCheckPointRec
+ * defined below.
+ *
+ * The user must allocate space for ckpnt (ncheck+1).
+ * -----------------------------------------------------------------
+ */
+
   typedef struct {
   void *my_addr;
   void *next_addr;
@@ -1549,16 +1929,51 @@ SUNDIALS_EXPORT int IDAadjGetY(void *idaadj_mem, realtype t, N_Vector y, N_Vecto
   realtype step;
   } IDAadjCheckPointRec;
 
-  int IDAadjGetCheckPointsInfo(void *idaadj_mem, IDAadjCheckPointRec *ckpnt);
-  int IDAadjGetCurrentCheckPoint(void *idaadj_mem, void **addr);
+SUNDIALS_EXPORT int IDAGetAdjCheckPointsInfo(void *ida_mem, 
+                                             IDAadjCheckPointRec *ckpnt);
 
-  int IDAadjGetDataPointHermite(void *idaadj_mem, long int which,
-  realtype *t, N_Vector y, N_Vector yd);
+/*
+ * -----------------------------------------------------------------
+ * IDAGetAdjDataPointHermite
+ * -----------------------------------------------------------------
+ * Returns the 2 vectors stored for cubic Hermite interpolation at
+ * the data point 'which'. The user must allocate space for yy and
+ * yd. 
+ *
+ * Returns IDA_MEM_NULL if ida_mem is NULL, IDA_ILL_INPUT if the 
+ * interpolation type previously specified is not IDA_HERMITE or
+ * IDA_SUCCESS otherwise.
+ *
+ * -----------------------------------------------------------------
+ * IDAGetAdjDataPointPolynomial
+ * -----------------------------------------------------------------
+ * Returns the vector stored for polynomial interpolation at the
+ * data point 'which'. The user must allocate space for y.
+ *
+ * Returns IDA_MEM_NULL if ida_mem is NULL, IDA_ILL_INPUT if the 
+ * interpolation type previously specified is not IDA_POLYNOMIAL or
+ * IDA_SUCCESS otherwise.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAGetAdjDataPointHermite(void *ida_mem, long int which,
+                                              realtype *t, N_Vector yy, N_Vector yd);
+
+SUNDIALS_EXPORT int IDAGetAdjDataPointPolynomial(void *ida_mem, long int which,
+                                                 realtype *t, int *order, 
+                                                 N_Vector y);
   
-  int CVadjGetDataPointPolynomial(void *idaadj_mem, long int which,
-  realtype *t, int *order, N_Vector y);
   
-*/
+/*
+ * -----------------------------------------------------------------
+ * IDAGetAdjCurrentCheckPoint
+ * -----------------------------------------------------------------
+ * Returns the address of the 'active' check point.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAGetAdjCurrentCheckPoint(void *ida_mem, void **addr);
+
 
 #ifdef __cplusplus
 }

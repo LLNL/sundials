@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-04-11 22:36:36 $
+# $Revision: 1.2 $
+# $Date: 2007-07-05 19:10:36 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -11,13 +11,15 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the IDAS library
 
-INSTALL(CODE "MESSAGE(\"\nInstall IDA\n\")")
+INSTALL(CODE "MESSAGE(\"\nInstall IDAS\n\")")
 
 # Add variable idas_SOURCES with the sources for the IDAS library
 SET(idas_SOURCES
   idas.c
+  idaa.c
   idas_io.c
   idas_ic.c
+  idaa_io.c
   idas_direct.c
   idas_band.c
   idas_dense.c

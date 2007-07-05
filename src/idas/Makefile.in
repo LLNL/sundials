@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2007-01-23 20:05:03 $
+# $Revision: 1.9 $
+# $Date: 2007-07-05 19:10:36 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -52,7 +52,7 @@ LIB_REVISION = 0:0:0
 IDAS_LIB    = libsundials_idas.la
 IDAS_BL_LIB = libsundials_idas_bl.la
 
-IDAS_SRC_FILES = idas.c idas_ic.c idas_io.c idas_direct.c idas_dense.c idas_band.c idas_spils.c idas_spbcgs.c idas_spgmr.c idas_sptfqmr.c idas_bbdpre.c
+IDAS_SRC_FILES = idas.c idaa.c idas_ic.c idas_io.c idaa_io.c idas_direct.c idas_dense.c idas_band.c idas_spils.c idas_spbcgs.c idas_spgmr.c idas_sptfqmr.c idas_bbdpre.c
 IDAS_BL_SRC_FILES = idas_lapack.c
 
 IDAS_OBJ_FILES = $(IDAS_SRC_FILES:.c=.o)
@@ -146,10 +146,14 @@ distclean: clean
 
 idas.lo: $(srcdir)/idas.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/idas.c
+idaa.lo: $(srcdir)/idaa.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/idaa.c
 idas_ic.lo: $(srcdir)/idas_ic.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/idas_ic.c
 idas_io.lo: $(srcdir)/idas_io.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/idas_io.c
+idaa_io.lo: $(srcdir)/idaa_io.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/idaa_io.c
 idas_direct.lo: $(srcdir)/idas_direct.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/idas_direct.c
 idas_dense.lo: $(srcdir)/idas_dense.c

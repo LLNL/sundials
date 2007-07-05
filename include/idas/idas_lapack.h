@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.4 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -34,7 +34,7 @@ extern "C" {
  * ida_mem is the pointer to the integrator memory returned by
  *           IDACreate.
  *
- * N is the size of the ODE system.
+ * N is the size of the DAE system.
  *
  * The return value of IDALapackDense is one of:
  *    IDADIRECT_SUCCESS   if successful
@@ -82,7 +82,7 @@ SUNDIALS_EXPORT int IDALapackBand(void *ida_mem, int N, int mupper, int mlower);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDALapackDenseB(void *idaadj_mem, int NeqB);
+SUNDIALS_EXPORT int IDALapackDenseB(void *ida_mem, int NeqB);
 
 /*
  * -----------------------------------------------------------------
@@ -93,7 +93,7 @@ SUNDIALS_EXPORT int IDALapackDenseB(void *idaadj_mem, int NeqB);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDALapackBandB(void *idaadj_mem, int NeqB, int mupperB, int mlowerB);
+SUNDIALS_EXPORT int IDALapackBandB(void *ida_mem, int NeqB, int mupperB, int mlowerB);
 
 
 #ifdef __cplusplus

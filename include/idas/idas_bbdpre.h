@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.7 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -311,14 +311,14 @@ typedef int (*IDABBDCommFnB)(int NlocalB, realtype tt,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDABBDPrecInitB(void *idaadj_mem, int NlocalB,
+SUNDIALS_EXPORT int IDABBDPrecInitB(void *ida_mem, int which, int NlocalB,
                                     int mudqB, int mldqB,
                                     int mukeepB, int mlkeepB,
                                     realtype dq_rel_yyB,
                                     IDABBDLocalFnB GresB, IDABBDCommFnB GcommB);
 
-SUNDIALS_EXPORT int IDABBDPrecReInitB(void *idaadj_mem, int mudqB, int mldqB,
-				      realtype dq_rel_yyB);
+SUNDIALS_EXPORT int IDABBDPrecReInitB(void *ida_mem, int which, 
+                                      int mudqB, int mldqB, realtype dq_rel_yyB);
 
 #ifdef __cplusplus
 }

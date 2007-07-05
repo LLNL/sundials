@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.7 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -209,9 +209,10 @@ typedef struct IDASpilsMemRecB {
  * -----------------------------------------------------------------
  */
 
-#define MSGS_CAMEM_NULL "idaadj_mem = NULL illegal."
 #define MSGS_LMEMB_NULL "Linear solver memory is NULL for the backward integration."
 #define MSGS_BAD_T      "Bad t for interpolation."
+#define MSGS_BAD_WHICH  "Illegal value for which."
+#define MSGS_NO_ADJ     "Illegal attempt to call before calling IDAAdjInit."
 
 
 #ifdef __cplusplus

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.5 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -69,7 +69,8 @@ SUNDIALS_EXPORT int IDABand(void *ida_mem, int Neq, int mupper, int mlower);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDABandB(void *idaadj_mem, int NeqB, int mupperB, int mlowerB);
+SUNDIALS_EXPORT int IDABandB(void *idaadj_mem, int which, 
+                             int NeqB, int mupperB, int mlowerB);
 
 #ifdef __cplusplus
 }

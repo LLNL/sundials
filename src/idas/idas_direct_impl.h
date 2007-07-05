@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.5 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -97,7 +97,7 @@ int idaDlsBandDQJac(int N, int mupper, int mlower,
  * Types : IDADlsMemRecB, IDADlsMemB       
  * -----------------------------------------------------------------
  * An IDASDIRECT linear solver's specification function attaches such
- * a structure to the lmemB filed of IDAadjMem
+ * a structure to the lmemB filed of IDABMem
  * -----------------------------------------------------------------
  */
 
@@ -127,6 +127,8 @@ typedef struct IDADlsMemRecB {
 #define MSGD_CAMEM_NULL "idaadj_mem = NULL illegal."
 #define MSGD_LMEMB_NULL "Linear solver memory is NULL for the backward integration."
 #define MSGD_BAD_T "Bad t for interpolation."
+#define MSGD_BAD_WHICH "Illegal value for which."
+#define MSGD_NO_ADJ "Illegal attempt to call before calling IDAAdjInit."
 
 #ifdef __cplusplus
 }

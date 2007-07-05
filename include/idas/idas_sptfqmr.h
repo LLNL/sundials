@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.3 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -69,7 +69,7 @@ SUNDIALS_EXPORT int IDASptfqmr(void *ida_mem, int maxl);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDASptfqmrB(void *idaadj_mem, int maxlB);
+SUNDIALS_EXPORT int IDASptfqmrB(void *ida_mem, int which, int maxlB);
 
 #ifdef __cplusplus
 }

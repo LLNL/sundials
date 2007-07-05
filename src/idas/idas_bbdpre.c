@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-06-08 14:14:05 $
+ * $Revision: 1.8 $
+ * $Date: 2007-07-05 19:10:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -71,6 +71,10 @@ static int IDAAglocal(int NlocalB, realtype tt,
 static int IDAAgcomm(int NlocalB, realtype tt,
                      N_Vector yyB, N_Vector ypB,
                      void *user_dataB);
+
+/* Prototype for the pfree routine for backward problems. */
+
+static void IDABBDPrecFreeB(IDABMem IDAB_mem);
 
 /* 
  * ================================================================
@@ -603,15 +607,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
 /* Readability replacements */
 
-#define ytmp        (IDAADJ_mem->ia_ytmp)
-#define yptmp       (IDAADJ_mem->ia_yptmp)
-#define getY        (IDAADJ_mem->ia_getY)
-#define user_dataB  (IDAADJ_mem->ia_user_dataB)
-#define pmemB       (IDAADJ_mem->ia_pmemB)
-
-#define bbd_data_B  (idabbdB_mem->bbd_dataB)
-#define glocal_B    (idabbdB_mem->glocalB)
-#define gcomm_B     (idabbdB_mem->gcommB)
+#define yyTmp       (IDAADJ_mem->ia_yyTmp)
+#define ypTmp       (IDAADJ_mem->ia_ypTmp)
+#define noInterp    (IDAADJ_mem->ia_noInterp)
 
 /* 
  * ----------------------------------------------------------------
@@ -619,99 +617,124 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
  * ----------------------------------------------------------------
  */
 
-int IDABBDPrecInitB(void *idaadj_mem, int NlocalB,
+int IDABBDPrecInitB(void *ida_mem, int which, int NlocalB,
                      int mudqB, int mldqB,
                      int mukeepB, int mlkeepB,
                      realtype dq_rel_yyB,
                      IDABBDLocalFnB glocalB, IDABBDCommFnB gcommB)
 {
+  IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
   IDABBDPrecDataB idabbdB_mem;
-  IDAMem IDAB_mem;
-  void *bbd_dataB;
+  void *ida_memB;
   int flag;
-
-  if (idaadj_mem == NULL) {
-    IDAProcessError(NULL, IDASPILS_ADJMEM_NULL, "IDABBDPRE", "IDABBDPrecInitB", MSGBBD_AMEM_NULL);
-    return(IDASPILS_ADJMEM_NULL);
+  
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDABBDPRE", "IDABBDPrecInitB", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
   }
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  IDA_mem = (IDAMem) ida_mem;
 
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDABBDPRE", "IDABBDPrecInitB",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDASPILS_ILL_INPUT, "IDABBDPRE", "IDABBDPrecInitB", MSGS_BAD_WHICH);
+    return(IDASPILS_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
-
-  /* Get memory for IDABBDPrecDataB */
-  idabbdB_mem = NULL;
-  idabbdB_mem = (IDABBDPrecDataB) malloc(sizeof(* idabbdB_mem));
-  if (idabbdB_mem == NULL) {
-    IDAProcessError(IDAB_mem, IDASPILS_MEM_FAIL, "IDABBDPRE", "IDABBDPrecInitB", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL);
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
   }
+  /* ida_mem corresponding to 'which' problem. */
+  ida_memB = (void *) IDAB_mem->IDA_mem;
 
-  glocal_B = glocalB;
-  gcomm_B  = gcommB;
-
-  flag = IDABBDPrecInit(IDAB_mem, NlocalB, 
+  /* Initialize the BBD preconditioner for this backward problem. */
+  flag = IDABBDPrecInit(ida_memB, NlocalB, 
                         mudqB, mldqB,
                         mukeepB, mlkeepB, 
                         dq_rel_yyB, 
                         IDAAglocal, IDAAgcomm);
   if (flag != IDA_SUCCESS) return(flag);
 
+  /* Allocate memory for IDABBDPrecDataB to store the user-provided
+   * functions which will be called from the wrappers */
+  idabbdB_mem = NULL;
+  idabbdB_mem = (IDABBDPrecDataB) malloc(sizeof(* idabbdB_mem));
+  if (idabbdB_mem == NULL) {
+    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDABBDPRE", "IDABBDPrecInitB", MSGBBD_MEM_FAIL);
+    return(IDASPILS_MEM_FAIL);
+  }
 
-  bbd_data_B = bbd_dataB;
+  idabbdB_mem->glocalB = glocalB;
+  idabbdB_mem->gcommB  = gcommB;
 
-  /* attach pmemB */
-  pmemB = idabbdB_mem;
+
+  /* Attach pmem */
+  IDAB_mem->ida_pmem  = idabbdB_mem;
+  /* Attach deallocation routine pfree. */
+  IDAB_mem->ida_pfree = IDABBDPrecFreeB;
 
   return(IDASPILS_SUCCESS);
 }
 
-int IDABBDPrecReInitB(void *idaadj_mem, int mudqB, int mldqB, realtype dq_rel_yyB)
+int IDABBDPrecReInitB(void *ida_mem, int which, int mudqB, int mldqB, realtype dq_rel_yyB)
 {
+  IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
-  IDAMem IDAB_mem;
-  IDABBDPrecDataB idabbdB_mem;
+  IDABMem IDAB_mem;
+  void *ida_memB;
   int flag;
-
-  if (idaadj_mem == NULL) {
-    IDAProcessError(NULL, IDASPILS_ADJMEM_NULL, "IDABBDPRE", "IDABBDPrecReInitB", MSGBBD_AMEM_NULL);
-    return(IDASPILS_ADJMEM_NULL);
-  }
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
   
-  IDAB_mem = IDAADJ_mem->IDAB_mem;
-
-  /*
-  if (pmemB == NULL) {
-    IDAProcessError(IDAB_mem, IDASPILS_PDATAB_NULL, "IDABBDPRE", "IDABBDPrecReInitB", MSGBBD_PDATAB_NULL);
-    return(IDASPILS_PDATAB_NULL);
+  /* Check if ida_mem is allright. */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDABBDPRE", "IDABBDPrecReInitB", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
   }
-  */
-  idabbdB_mem = (IDABBDPrecDataB) pmemB;
+  IDA_mem = (IDAMem) ida_mem;
 
-  flag = IDABBDPrecReInit(bbd_data_B, mudqB, mldqB, dq_rel_yyB);
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDABBDPRE", "IDABBDPrecReInitB",  MSGS_NO_ADJ);
+    return(IDASPILS_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
 
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDASPILS_ILL_INPUT, "IDABBDPRE", "IDABBDPrecReInitB", MSGS_BAD_WHICH);
+    return(IDASPILS_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+  /* ida_mem corresponding to 'which' backward problem. */
+  ida_memB = (void *) IDAB_mem->IDA_mem;
+
+  flag = IDABBDPrecReInit(ida_memB, mudqB, mldqB, dq_rel_yyB);
   return(flag);
-
 }
 
-void IDABBDPrecFreeB(void *idaadj_mem)
+static void IDABBDPrecFreeB(IDABMem IDAB_mem)
 {
-  IDAadjMem IDAADJ_mem;
-  IDABBDPrecDataB idabbdB_mem;
-
-  if (idaadj_mem == NULL) return;
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-  
-  if (pmemB == NULL) return;
-  idabbdB_mem = (IDABBDPrecDataB) pmemB;
-
-  /*
-  IDABBDPrecFree(&bbd_data_B);
-  */  
-
-  free(pmemB); pmemB = NULL;
-
+  free(IDAB_mem->ida_pmem);
+  IDAB_mem->ida_pmem = NULL;
 }
 
 /* 
@@ -720,57 +743,85 @@ void IDABBDPrecFreeB(void *idaadj_mem)
  * ----------------------------------------------------------------
  */
 
+/*
+ * IDAAglocal
+ *
+ * This routine interfaces to the IDALocalFnB routine 
+ * provided by the user.
+ */
+
 static int IDAAglocal(int NlocalB, realtype tt,
                       N_Vector yyB, N_Vector ypB, N_Vector gvalB,
-                      void *idaadj_mem)
+                      void *ida_mem)
 {
+  IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
-  IDAMem IDAB_mem;
+  IDABMem IDAB_mem;
   IDABBDPrecDataB idabbdB_mem;
-  int retval, flag;
+  int flag;
 
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-  IDAB_mem = IDAADJ_mem->IDAB_mem;
-  idabbdB_mem = (IDABBDPrecDataB) pmemB;
+  IDA_mem = (IDAMem) ida_mem;
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+  
+  /* Get current backward problem. */
+  IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
 
-  /* Forward solution from interpolation */
-  flag = getY(IDAADJ_mem, tt, ytmp, yptmp);
-  if (flag != IDA_SUCCESS) {
-    IDAProcessError(IDAB_mem, -1, "IDABBDPRE", "IDAAglocal", MSGBBD_BAD_T);
-    return(-1);
-  } 
+  /* Get the preconditioner's memory. */
+  idabbdB_mem = (IDABBDPrecDataB) IDAB_mem->ida_pmem;
 
-  /* Call user's adjoint glocB routine */
-  retval = glocal_B(NlocalB, tt, ytmp, yptmp, yyB, ypB, gvalB, user_dataB);
-
-  return(retval);
+  /* Get forward solution from interpolation. */
+  if (noInterp == FALSE) {
+    flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
+    if (flag != IDA_SUCCESS) {
+      IDAProcessError(IDA_mem, -1, "IDABBDPRE", "IDAAglocal", MSGBBD_BAD_T);
+      return(-1);
+    } 
+  }
+  /* Call user's adjoint LocalFnB function. */
+  return idabbdB_mem->glocalB(NlocalB, tt, 
+                              yyTmp, ypTmp, 
+                              yyB, ypB, gvalB, 
+                              IDAB_mem->ida_user_data);
 
 }
 
+/*
+ * IDAAgcomm
+ *
+ * This routine interfaces to the IDACommFnB routine 
+ * provided by the user.
+ */
 static int IDAAgcomm(int NlocalB, realtype tt,
                      N_Vector yyB, N_Vector ypB,
-                     void *idaadj_mem)
+                     void *ida_mem)
 {
+  IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
-  IDAMem IDAB_mem;
+  IDABMem IDAB_mem;
   IDABBDPrecDataB idabbdB_mem;
-  int retval, flag;
+  int flag;
 
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-  IDAB_mem = IDAADJ_mem->IDAB_mem;
-  idabbdB_mem = (IDABBDPrecDataB) pmemB;
+  IDA_mem = (IDAMem) ida_mem;
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+  
+  /* Get current backward problem. */
+  IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
 
-  if (gcomm_B == NULL) return(0);
+  /* Get the preconditioner's memory. */
+  idabbdB_mem = (IDABBDPrecDataB) IDAB_mem->ida_pmem;
+  if (idabbdB_mem->gcommB == NULL) return(0);
 
-  /* Forward solution from interpolation */
-  flag = getY(IDAADJ_mem, tt, ytmp, yptmp);
-  if (flag != IDA_SUCCESS) {
-    IDAProcessError(IDAB_mem, -1, "IDABBDPRE", "IDAAgcomm", MSGBBD_BAD_T);
-    return(-1);
-  } 
+  /* Get forward solution from interpolation. */
+  if (noInterp == FALSE) {
+    flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
+    if (flag != IDA_SUCCESS) {
+      IDAProcessError(IDA_mem, -1, "IDABBDPRE", "IDAAgcomm", MSGBBD_BAD_T);
+      return(-1);
+    } 
+  }
 
-  /* Call user's adjoint cfnB routine */
-  retval = gcomm_B(NlocalB, tt, ytmp, yptmp, yyB, ypB, user_dataB);
-
-  return(retval);
+  /* Call user's adjoint CommFnB routine */
+  return idabbdB_mem->gcommB(NlocalB, tt, yyTmp, 
+                             ypTmp, yyB, ypB, 
+                             IDAB_mem->ida_user_data);
 }
