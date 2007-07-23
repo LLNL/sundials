@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.6 $
+ * $Date: 2007-07-23 17:21:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -189,6 +189,8 @@ extern int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypr
 #define phiQ       (IDA_mem->ida_phiQ)
 #define rhsQ       (IDA_mem->ida_rhsQ)
 
+#define quadr_sensi (IDA_mem->ida_quadr_sensi)
+#define errconQS   (IDA_mem->ida_errconQS)
 #define phiQS      (IDA_mem->ida_phiQS)
 
 #define tempvQ     (IDA_mem->ida_eeQ)
@@ -363,27 +365,26 @@ void IDAAdjFree(void *ida_mem)
   if (ida_mem == NULL) return;
   IDA_mem = (IDAMem) ida_mem;
 
-  /* Data for adjoint. */
-  IDAADJ_mem = IDA_mem->ida_adj_mem;
+  if(IDA_mem->ida_adjMallocDone) {
 
-  /* Delete check points one by one */
-  while (IDAADJ_mem->ck_mem != NULL) {
-    IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
+    /* Data for adjoint. */
+    IDAADJ_mem = IDA_mem->ida_adj_mem;
+    
+    /* Delete check points one by one */
+    while (IDAADJ_mem->ck_mem != NULL) {
+      IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
+    }
+    
+    IDAAdataFree(IDA_mem);
+    
+    /* Free all backward problems. */
+    while (IDAADJ_mem->IDAB_mem != NULL)
+      IDAAbckpbDelete( &(IDAADJ_mem->IDAB_mem) );
+    
+    /* Free IDAA memory. */
+    free(IDAADJ_mem);
+    IDA_mem->ida_adj_mem = NULL;
   }
-
-  IDAAdataFree(IDA_mem);
-
-  /* Free vectors in IDAADJ_mem */
-  //N_VDestroy(ytmp);
-  //N_VDestroy(yptmp);
-
-  /* Free all backward problems. */
-  while (IDAADJ_mem->IDAB_mem != NULL)
-    IDAAbckpbDelete( &(IDAADJ_mem->IDAB_mem) );
-
-  /* Free IDAA memory. */
-  free(IDAADJ_mem);
-  IDA_mem->ida_adj_mem = NULL;
 }
 
 /*------------------  IDAAdjGetIDABmem  --------------------------*/
@@ -830,7 +831,7 @@ int IDAInitBS(void *ida_mem, int which, IDAResFnBS resS,
   }
 
   /* Were sensitivities active during the forward integration? */
-  if (storeSensi) {
+  if (!storeSensi) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDAInitBS", MSGAM_BAD_SENSI);
     return(IDA_ILL_INPUT);
   }
@@ -1339,7 +1340,7 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Were sensitivities active during the forward integration? */
-  if (storeSensi) {
+  if (!storeSensi) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDACalcICBS", MSGAM_BAD_SENSI);
     return(IDA_ILL_INPUT);
   }
@@ -1741,11 +1742,24 @@ int IDAGetQuadB(void *ida_mem, int which, realtype *tret, N_Vector qB)
 static CkpntMem IDAAckpntInit(IDAMem IDA_mem)
 {
   CkpntMem ck_mem;
+  int is;
 
   /* Allocate space for ckdata */
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
+  if (NULL==ck_mem) return(NULL);
+
   phi_[0] = N_VClone(tempv);
+  if (NULL==phi_[0]) {
+    free(ck_mem); 
+    return(NULL);
+  }
+
   phi_[1] = N_VClone(tempv);
+  if (NULL==phi_[1]) {
+    N_VDestroy(phi_[0]);
+    free(ck_mem); 
+    return(NULL);
+  }
 
   /* Load ckdata from IDA_mem 
      Note: phi[1] has not been scaled by the step size yet!!! */
@@ -1758,10 +1772,61 @@ static CkpntMem IDAAckpntInit(IDAMem IDA_mem)
   
   /* Do we need to carry quadratures? */
   quadr_ = quadr && errconQ;
-
   if (quadr_) {
     phiQ_[0] = N_VClone(tempvQ);
+    if (NULL == phiQ_[0]) {
+      N_VDestroy(phi_[0]);
+      N_VDestroy(phi_[1]);
+      free(ck_mem);
+      return(NULL);
+    }
     N_VScale(ONE, phiQ[0], phiQ_[0]);
+  }
+
+  sensi_ = sensi;
+  if(sensi_) {
+    Ns_ = Ns;
+    phiS_[0] = N_VCloneVectorArray(Ns, tempv);
+    if (NULL == phiS_[0]) {
+      N_VDestroy(phi_[0]);
+      N_VDestroy(phi_[1]);
+      if(quadr_) N_VDestroy(phiQ_[0]);
+      free(ck_mem);
+      return(NULL);
+    }
+
+    phiS_[1] = N_VCloneVectorArray(Ns, tempv);
+    if (NULL == phiS_[1]) {
+      N_VDestroy(phi_[0]);
+      N_VDestroy(phi_[1]);
+      if(quadr_) N_VDestroy(phiQ_[0]);
+      N_VDestroyVectorArray(phiS_[0], Ns);
+      free(ck_mem);
+      return(NULL);
+    }
+
+    for (is=0; is<Ns; is++) { 
+      N_VScale(ONE, phiS[0][is], phiS_[0][is]);
+      N_VScale(ONE, phiS[1][is], phiS_[1][is]);
+    }
+  }
+
+  quadr_sensi_ = quadr_sensi && errconQS;
+  if (quadr_sensi_) {
+    phiQS_[0] = N_VCloneVectorArray(Ns, tempvQ);
+    if (NULL == phiQS_[0]) {
+      N_VDestroy(phi_[0]);
+      N_VDestroy(phi_[1]);
+      if(quadr_) N_VDestroy(phiQ_[0]);
+      if (sensi_) {
+        N_VDestroyVectorArray(phiS_[0], Ns);
+        N_VDestroyVectorArray(phiS_[1], Ns);
+      }
+      free(ck_mem);
+      return(NULL);
+    }
+    for (is=0; is<Ns; is++)
+      N_VScale(ONE, phiQS[0][is], phiQS_[0][is]);
   }
 
   /* Next in list */
@@ -1780,7 +1845,7 @@ static CkpntMem IDAAckpntInit(IDAMem IDA_mem)
 static CkpntMem IDAAckpntNew(IDAMem IDA_mem)
 {
   CkpntMem ck_mem;
-  int j, maxkk, jj;
+  int j, maxkk, jj, is;
 
   maxkk = kk+2<MXORDP1?kk+2:MXORDP1;
 
@@ -1817,14 +1882,64 @@ static CkpntMem IDAAckpntNew(IDAMem IDA_mem)
   sensi_ = sensi;
   if(sensi_) {
     Ns_ = Ns;
-    //!
+    
+    for (j=0; j<maxkk; j++) {
+      phiS_[j] = N_VCloneVectorArray(Ns, tempv);
+      if (phiS_[j] == NULL) {
+        for (jj=0; jj<j; jj++) N_VDestroyVectorArray(phiS_[jj], Ns);
+
+        if (quadr_)
+          for (jj=0; jj<maxkk; jj++) N_VDestroy(phiQ_[jj]);
+
+        for (jj=0; jj<maxkk; jj++) N_VDestroy(phi_[jj]);
+
+        free(ck_mem); ck_mem = NULL;
+        return(NULL);
+      }
+    }
   }
+
+  /* Test if we need to carry quadrature sensitivities */
+  quadr_sensi_ = quadr_sensi && errconQS;
+
+  if (quadr_sensi_) {
+
+    for (j=0; j<maxkk; j++) {
+      phiQS_[j] = N_VCloneVectorArray(Ns, tempvQ);
+      if (phiQS_[j] == NULL) {
+        for (jj=0; jj<j; jj++) N_VDestroyVectorArray(phiQS_[jj], Ns);
+
+        for (jj=0; jj<maxkk; jj++) N_VDestroyVectorArray(phiS_[jj], Ns);
+
+        if (quadr_) 
+          for (jj=0; jj<maxkk; jj++) N_VDestroy(phiQ_[jj]);
+
+        for (jj=0; jj<maxkk; jj++) N_VDestroy(phi_[jj]);
+        free(ck_mem); ck_mem = NULL;
+        return(NULL);
+      }
+    }
+  }
+
 
   /* Load check point data from IDA_mem */
   for (j=0; j<maxkk; j++) N_VScale(ONE, phi[j], phi_[j]);
 
-  if(quadr_) {
+  if (quadr_) {
     for (j=0; j<maxkk; j++) N_VScale(ONE, phiQ[j], phiQ_[j]);
+  }
+
+  if (sensi_) {
+    for (is=0; is<Ns; is++)
+      for (j=0; j<maxkk; j++) 
+        N_VScale(ONE, phiS[j][is], phiS_[j][is]);
+  }
+
+  if(quadr_sensi_) {
+    for (is=0; is<Ns; is++)
+      for (j=0; j<maxkk; j++) 
+        N_VScale(ONE, phiQS[j][is], phiQS_[j][is]);
+
   }
 
   for (j=0; j<MXORDP1; j++) {
@@ -1864,7 +1979,8 @@ static CkpntMem IDAAckpntNew(IDAMem IDA_mem)
 static void IDAAckpntDelete(CkpntMem *ck_memPtr)
 {
   CkpntMem tmp;
-  int j;
+  int j, maxkk, is;
+
 
   if (*ck_memPtr != NULL) {
     /* store head of list */
@@ -1872,21 +1988,26 @@ static void IDAAckpntDelete(CkpntMem *ck_memPtr)
     /* move head of list */
     *ck_memPtr = (*ck_memPtr)->ck_next;
 
-    /* free N_Vectors in tmp */
-    for (j=0;j<=tmp->ck_kk;j++) N_VDestroy(tmp->ck_phi[j]);
+    maxkk = tmp->ck_kk+2<MXORDP1?tmp->ck_kk+2:MXORDP1;
 
-    /* free N_Vectors for quadratures in tmp,
-       Note that at the check point at t_initial only phiQ_[0] 
-       was allocated */
-    if(tmp->ck_quadr) {
-      if(tmp->ck_next != NULL) {
-        for (j=0;j<=tmp->ck_kk;j++) N_VDestroy(tmp->ck_phiQ[j]);
-      } else {
-        N_VDestroy(tmp->ck_phiQ[0]);
-      }
+    /* free N_Vectors in tmp */
+    for (j=0;j<maxkk;j++) N_VDestroy(tmp->ck_phi[j]);
+
+    /* free N_Vectors for quadratures in tmp */
+    if (tmp->ck_quadr) {
+      for (j=0;j<maxkk;j++) N_VDestroy(tmp->ck_phiQ[j]);
     }
 
-    free(tmp);
+    /* Free sensitivity related data. */
+    if (tmp->ck_sensi) {
+      for (j=0;j<maxkk;j++) N_VDestroyVectorArray(tmp->ck_phiS[j], tmp->ck_Ns);
+    }
+    
+    if (tmp->ck_quadr_sensi) {
+      for (j=0;j<maxkk;j++) N_VDestroyVectorArray(tmp->ck_phiQS[j], tmp->ck_Ns);
+    }
+
+    free(tmp); tmp=NULL;
   }
 }
 
@@ -2088,16 +2209,13 @@ static int IDAAckpntGet(IDAMem IDA_mem, CkpntMem ck_mem)
 
     if (sensi_) {
       for (is=0; is<Ns; is++) {
-        //for (j=0; j<=q; j++) N_VScale(ONE, znS_[j][is], znS[j][is]);
-        //if ( q < qmax ) N_VScale(ONE, znS_[qmax][is], znS[qmax][is]);
-        for (j=0; j<=maxkk; j++) N_VScale(ONE, phiS_[j][is], phiS[j][is]);
+        for (j=0; j<maxkk; j++) N_VScale(ONE, phiS_[j][is], phiS[j][is]);
       }
     }
 
     if (quadr_sensi_) {
       for (is=0; is<Ns; is++) {
-        for (j=0; j<=maxkk; j++) N_VScale(ONE, phiQS_[j][is], phiQS[j][is]);
-        //if ( q < qmax ) N_VScale(ONE, znQS_[qmax][is], znQS[qmax][is]);
+        for (j=0; j<maxkk; j++) N_VScale(ONE, phiQS_[j][is], phiQS[j][is]);
       }
     }
 
@@ -2206,7 +2324,6 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
     }
 
     if (storeSensi) {
-
       
       content->yS = N_VCloneVectorArray(Ns, tempv);
       if (content->yS == NULL) {

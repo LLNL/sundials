@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.17 $
+ * $Date: 2007-07-23 17:21:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -210,10 +210,12 @@ typedef struct IDAMemRec {
 
   N_Vector *ida_phiQS[MXORDP1];/* Nordsieck arrays for quadr. sensitivities   */
   N_Vector *ida_ewtQS;         /* error weight vectors for sensitivities      */
+
+  N_Vector *ida_eeQS;          /* cumulative quadr.sensi.corrections          */
+
   N_Vector *ida_yyQS;          /* Unlike yS, yQS is not allocated by the user */
-  //N_Vector *ida_acorQS;      /* acorQS = yQS_n(m) - yQS_n(0)                */
   N_Vector *ida_tempvQS;       /* temporary storage vector (~ tempv)          */
-  //N_Vector ida_ftempQ;       /* temporary storage vector (~ ftemp)          */
+  N_Vector ida_savrhsQ;        /* saved quadr. rhs (needed for rhsQS calls)   */
 
   /*------------------------------ 
     Variables for use by IDACalcIC
@@ -819,16 +821,6 @@ struct IDAadjMemRec {
  */                                                                 
 
 /*
- * -----------------------------------------------------------------
- * int (*ida_lfree)(IDAMem IDA_mem);                               
- * -----------------------------------------------------------------
- * ida_lfree should free up any memory allocated by the linear     
- * solver. This routine is called once a problem has been          
- * completed and the linear solver is no longer needed.            
- * -----------------------------------------------------------------
- */                                                                 
-
-/*
  * =================================================================
  *   I D A S    I N T E R N A L   F U N C T I O N S
  * =================================================================
@@ -940,6 +932,13 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_BAD_DQTYPE     "Illegal value for DQtype. Legal values are: IDA_CENTERED and IDA_FORWARD."
 #define MSG_BAD_DQRHO      "DQrhomax < 0 illegal."
 
+#define MSG_NULL_ABSTOLQS  "abstolQS = NULL illegal parameter."
+#define MSG_BAD_RELTOLQS   "reltolQS < 0 illegal parameter."
+#define MSG_BAD_ABSTOLQS   "abstolQS has negative component(s) (illegal)."  
+#define MSG_NO_QUADSENSI   "Forward sensitivity analysis for quadrature variables was not activated."
+#define MSG_NULL_YQS0      "yQS0 = NULL illegal parameter."
+
+
 /* IDACalcIC error messages */
 
 #define MSG_IC_BAD_ICOPT   "icopt has an illegal value."
@@ -995,17 +994,20 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_QRHSFUNC_REPTD "At " MSG_TIME "repeated recoverable quadrature right-hand side function errors."
 #define MSG_QRHSFUNC_FIRST "The quadrature right-hand side routine failed at the first call."
 
-#define MSG_NULL_P "p = NULL when using internal DQ for sensitivity residual illegal."
+#define MSG_NULL_P "p = NULL when using internal DQ for sensitivity residual is illegal."
 #define MSG_EWTS_NOW_BAD "At " MSG_TIME ", a component of ewtS has become <= 0."
 #define MSG_SRHSFUNC_FAILED "At " MSG_TIME ", the sensitivity residual routine failed in an unrecoverable manner."
 #define MSG_SRHSFUNC_UNREC "At " MSG_TIME ", the sensitivity residual failed in a recoverable manner, but no recovery is possible."
 #define MSG_SRHSFUNC_REPTD "At " MSG_TIME "repeated recoverable sensitivity residual function errors."
 
+#define MSG_NO_TOLQS  "No integration tolerances for quadrature sensitivity variables have been specified."
+#define MSG_NULL_RHSQ "IDAS is expected to use DQ to evaluate the RHS of quad. sensi., but quadratures were not initialized."
 #define MSG_BAD_EWTQS "Initial ewtQS has component(s) equal to zero (illegal)."
 #define MSG_EWTQS_NOW_BAD "At " MSG_TIME ", a component of ewtQS has become <= 0."
+#define MSG_QSRHSFUNC_FAILED "At " MSG_TIME ", the sensitivity quadrature right-hand side routine failed in an unrecoverable manner."
+#define MSG_QSRHSFUNC_FIRST "The quadrature right-hand side routine failed at the first call."
 
 /* IDASet* / IDAGet* error messages */
-
 #define MSG_NEG_MAXORD     "maxord<=0 illegal."
 #define MSG_BAD_MAXORD     "Illegal attempt to increase maximum order."
 #define MSG_NEG_MXSTEPS    "mxsteps < 0 illegal."

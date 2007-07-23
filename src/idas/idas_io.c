@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.16 $
+ * $Date: 2007-07-23 17:21:58 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
@@ -744,6 +744,42 @@ int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist)
   else
     for (is=0; is<Ns; is++)
       IDA_mem->ida_plist[is] = is;
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function: IDASetQuadSensErrCon 
+ * -----------------------------------------------------------------
+ * IDASetQuadSensErrCon specifies if quadrature sensitivity variables
+ * are considered or not in the error control.
+ * -----------------------------------------------------------------
+ */
+int IDASetQuadSensErrCon(void *ida_mem, booleantype errconQS)
+{
+  IDAMem IDA_mem;
+  int Ns, is;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetQuadSensErrCon", MSG_NO_MEM);    
+    return(IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* Was sensitivity initialized? */
+  if (IDA_mem->ida_sensMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDASetQuadSensErrCon", MSG_NO_SENSI);
+    return(IDA_NO_SENS);
+  }
+
+  /* Was quadrature sensitivity initialized? */
+  if (IDA_mem->ida_quadSensMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDASetQuadSensErrCon", MSG_NO_SENSI);
+    return(IDA_NO_QUADSENS);
+  }
+
+  IDA_mem->ida_errconQS = errconQS;
 
   return(IDA_SUCCESS);
 }
@@ -1671,12 +1707,23 @@ char *IDAGetReturnFlagName(int flag)
   case IDA_NO_SENS:
     sprintf(name,"IDA_NO_SENS");
     break;
+  case IDA_SRES_FAIL:
+    sprintf(name, "IDA_SRES_FAIL");
+    break;
+  case IDA_REP_SRES_ERR:
+    sprintf(name, "IDA_REP_SRES_ERR");
+    break;
   case IDA_BAD_IS:
     sprintf(name,"IDA_BAD_IS");
     break;
   case IDA_NO_QUAD:
     sprintf(name,"IDA_NO_QUAD");
     break;
+  case IDA_NO_QUADSENS:
+    sprintf(name, "IDA_NO_QUADSENS");
+    break;
+  case IDA_QSRHS_FAIL:
+    sprintf(name, "IDA_QSRHS_FAIL");
 
     /* IDAA flags follow below. */
   case IDA_NO_ADJ:
@@ -1685,12 +1732,9 @@ char *IDAGetReturnFlagName(int flag)
   case IDA_BAD_TB0:
     sprintf(name, "IDA_BAD_TB0");
     break;
-    //case IDA_BCKMEM_NULL:
-    //sprintf(name, "IDA_BCKMEM_NULL");
-    //break;
-    //  case IDA_REIFWD_FAIL:
-    //sprintf(name, "IDA_REIFWD_FAIL");
-    //break;
+  case IDA_REIFWD_FAIL:
+    sprintf(name, "IDA_REIFWD_FAIL");
+    break;
   case IDA_FWD_FAIL:
     sprintf(name, "IDA_FWD_FAIL");
     break;
@@ -1702,6 +1746,12 @@ char *IDAGetReturnFlagName(int flag)
     break;
   case IDA_GETY_BADT:
     sprintf(name, "IDA_GETY_BADT");
+    break;
+  case IDA_NO_BCK:
+    sprintf(name, "IDA_NO_BCK");
+    break;
+  case IDA_NO_FWD:
+    sprintf(name,"IDA_NO_FWD");
     break;
   default:
     sprintf(name,"NONE");
