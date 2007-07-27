@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2007-07-23 17:21:59 $
+ * $Revision: 1.18 $
+ * $Date: 2007-07-27 23:52:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -368,7 +368,7 @@ typedef int (*IDAResFnBS)(realtype t,
 typedef int (*IDAQuadRhsFnB)(realtype tt, 
                              N_Vector yy, N_Vector yp, 
                              N_Vector yyB, N_Vector ypB,
-                             N_Vector resvalBQ, void *user_dataB);
+                             N_Vector rhsvalBQ, void *user_dataB);
 
 typedef int (*IDAQuadRhsFnBS)(realtype t, 
                               N_Vector yy, N_Vector yp,
@@ -1742,10 +1742,10 @@ SUNDIALS_EXPORT int IDAInitBS(void *ida_mem, int which, IDAResFnBS resS,
 SUNDIALS_EXPORT int IDAReInitB(void *ida_mem, int which,
 			       realtype tB0, N_Vector yyB0, N_Vector ypB0);
 
-SUNDIALS_EXPORT int IDAQuadSStolerancesB(void *ida_mem, int which,
-                                         realtype reltolQB, realtype abstolQB);
-SUNDIALS_EXPORT int IDAQuadSVtolerancesB(void *ida_mem, int which,
-                                         realtype reltolQB, N_Vector abstolQB);
+SUNDIALS_EXPORT int IDASStolerancesB(void *ida_mem, int which, 
+                                     realtype relTolB, realtype absTolB);
+SUNDIALS_EXPORT int IDASVtolerancesB(void *ida_mem, int which, 
+                                     realtype relTolB, N_Vector absTolB);
 
 SUNDIALS_EXPORT int IDAQuadInitB(void *ida_mem, int which, 
                                  IDAQuadRhsFnB rhsQB, N_Vector yQB0);
@@ -1754,6 +1754,11 @@ SUNDIALS_EXPORT int IDAQuadInitBS(void *ida_mem, int which,
                                   IDAQuadRhsFnBS rhsQS, N_Vector yQB0);
 
 SUNDIALS_EXPORT int IDAQuadReInitB(void *ida_mem, int which, N_Vector yQB0);
+
+SUNDIALS_EXPORT int IDAQuadSStolerancesB(void *ida_mem, int which,
+                                         realtype reltolQB, realtype abstolQB);
+SUNDIALS_EXPORT int IDAQuadSVtolerancesB(void *ida_mem, int which,
+                                         realtype reltolQB, N_Vector abstolQB);
 
 /*
  * ----------------------------------------------------------------
@@ -1916,13 +1921,8 @@ SUNDIALS_EXPORT int IDASetIdB(void *ida_mem, int which, N_Vector idB);
 
 SUNDIALS_EXPORT int IDASetConstraintsB(void *ida_mem, int which, 
                                        N_Vector constraintsB);
-SUNDIALS_EXPORT int IDASStolerancesB(void *ida_mem, int which, 
-                                     realtype relTolB, realtype absTolB);
-SUNDIALS_EXPORT int IDASVtolerancesB(void *ida_mem, int which, 
-                                     realtype relTolB, N_Vector absTolB);
+
 SUNDIALS_EXPORT int IDASetQuadErrConB(void *ida_mem, int which, int errconQB);
-
-
 
 /*
  * =================================================================

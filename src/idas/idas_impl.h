@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2007-07-23 17:21:58 $
+ * $Revision: 1.18 $
+ * $Date: 2007-07-27 23:52:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -534,6 +534,8 @@ struct CkpntMemRec {
   realtype     ck_sigma[MXORDP1];
   realtype     ck_gamma[MXORDP1];
 
+  /* How many phi, phiS, phiQ and phiQS were allocated? */
+  int          ck_phi_alloc;
         
   /* Pointer to next structure in list */
   struct CkpntMemRec *ck_next;    
@@ -723,9 +725,6 @@ struct IDAadjMemRec {
 
   booleantype ia_noInterp;     /* interpolations are temporarly  */
                                /* disabled ( IDACalcICB )        */
-
-  /* Unit roundoff */
-  realtype ia_uround;
 
   /* Workspace for polynomial interpolation */
   N_Vector ia_Y[MXORDP1];      /* pointers  phi[i]               */
@@ -971,7 +970,7 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_EWT_NOW_BAD    "At " MSG_TIME "some ewt component has become <= 0.0."
 #define MSG_TOO_MUCH_ACC   "At " MSG_TIME "too much accuracy requested."
 
-#define MSG_BAD_T          "Illegal value for t." MSG_TIME_INT
+#define MSG_BAD_T          "Illegal value for t. " MSG_TIME_INT
 #define MSG_BAD_TOUT       "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration."
 
 #define MSG_BAD_K        "Illegal value for k."

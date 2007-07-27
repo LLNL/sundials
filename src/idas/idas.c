@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2007-07-23 17:21:58 $
+ * $Revision: 1.22 $
+ * $Date: 2007-07-27 23:52:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2568,7 +2568,7 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
        For k=0, j=1: c_1 = c_0^(-1) + (delt+psi[-1]) / psi[0]
 
        In order to be able to deal with k=0 in the same way as for k>0, the
-       following conventions was done:
+       following conventions were adopted:
          - c_0(t) = 1 , c_0^(-1)(t)=0 
          - psij_1 stands for psi[-1]=0 when j=1 
                          for psi[j-2]  when j>1
@@ -3713,7 +3713,6 @@ static booleantype IDAQuadSensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   for (j=0; j<=maxcol; j++) {
     phiQS[j] = N_VCloneVectorArray(Ns, tmpl);
     if (phiQS[j] == NULL) {
-      //N_VDestroy(ftempQ);
       N_VDestroyVectorArray(yyQS, Ns);
       N_VDestroyVectorArray(ewtQS, Ns);
       N_VDestroyVectorArray(tempvQS, Ns);

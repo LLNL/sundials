@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-06-11 21:23:10 $
+ * $Revision: 1.5 $
+ * $Date: 2007-07-27 23:52:53 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -294,10 +294,8 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   hic = PT001*tdist;
   ypnorm = IDAWrmsNorm(IDA_mem, yp0, ewt, suppressalg);
 
-  if (sensi_sim) {
-    // update ypnorm using sensi info.
+  if (sensi_sim) 
     ypnorm = IDASensWrmsNormUpdate(IDA_mem, ypnorm, ypS0, ewtS, FALSE);
-  }
 
   if(ypnorm > HALF/hic) hic = HALF/ypnorm;
   if(tout1 < tn) hic = -hic;
@@ -1022,7 +1020,7 @@ static int IDASensNlsIC(IDAMem IDA_mem)
                 user_dataS, tmpS1, tmpS2, tmpS3);
   nrSe++;
   if(retval < 0) return(IDA_RES_FAIL);
-  if(retval > 0) return(IDA_FIRST_RES_FAIL);//!maybe IDA_FIRST_RESQ_FAIL
+  if(retval > 0) return(IDA_FIRST_RES_FAIL);
   
   /* Save deltaS */
   for(is=0; is<Ns; is++) N_VScale(ONE, deltaS[is], savresS[is]);
