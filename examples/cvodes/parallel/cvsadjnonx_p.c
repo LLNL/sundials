@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:29:02 $
+ * $Revision: 1.7 $
+ * $Date: 2007-07-30 23:18:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
   realtype dx, t, g_val;
   int flag, my_pe, nprocs, npes, ncheck;
-  long int local_N=0, nperpe, nrem, my_base=0;
+  long int local_N=0, nperpe, nrem, my_base=-1;
 
   MPI_Comm comm;
 
