@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.7 $
+ * $Date: 2007-07-30 18:46:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -314,9 +314,6 @@ extern "C" {
 /* Prototypes of exported functions */
 
 void FCV_BBDINIT(int *Nloc, int *mudq, int *mldq, int *mu, int *ml, realtype* dqrely, int *ier);
-void FCV_BBDSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
-void FCV_BBDSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
-void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDREINIT(int *Nloc, int *mudq, int *mldq, realtype* dqrely, int *ier);
 void FCV_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
 

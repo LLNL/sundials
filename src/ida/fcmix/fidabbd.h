@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.6 $
+ * $Date: 2007-07-30 18:46:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -325,12 +325,6 @@ extern "C" {
 /* Prototypes of exported functions */
 
 void FIDA_BBDINIT(int *Nloc, int *mudq, int *mldq, int *mu, int *ml, realtype *dqrely, int *ier);
-void FIDA_BBDSPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
-void FIDA_BBDSPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
-void FIDA_BBDSPGMR(int *maxl, int *gstype, int *maxrs,
-		   realtype *eplifac, realtype *dqincfac, int *ier);
-void FIDA_BBDREINIT(int *Nloc, int *mudq, int *mldq,
-		    realtype *dqrely, int *ier);
 void FIDA_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
 
 /* Prototypes: Functions Called by the IDABBD Module */
