@@ -1,0 +1,2548 @@
+%===================================================================================
+\chapter{Using IDAS for Adjoint Sensitivity Analysis}\label{s:adjoint}
+%===================================================================================
+
+This chapter describes the use of {\idas} to compute sensitivities of derived 
+functions using adjoint sensitivity analysis. As mentioned before, the adjoint
+sensitivity module of {\idas} provides the infrastructure for integrating
+backward in time any system of ODEs that depends on the solution of the original
+IVP, by providing various interfaces to the main {\idas} integrator, as well 
+as several supporting user-callable functions. For this reason, in the following
+sections we refer to the {\em backward problem} and not to the 
+{\em adjoint problem} when discussing details relevant to the ODEs that
+are integrated backward in  time. The backward problem can be the adjoint problem
+(\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}), and
+can be augmented with some quadrature differential equations.
+
+{\idas} uses various constants for both input and output.  These are
+defined as needed in this chapter, but for convenience are also listed
+separately in Chapter \ref{c:constants}.
+
+We begin with a brief overview, in the form of a skeleton user program.
+Following that are detailed descriptions of the interface to the
+various user-callable functions and of the user-supplied functions that were not already
+described in \S\ref{s:simulation}.
+
+%%
+%%----------------------------------------------------------------------
+%%----------------------------------------------------------------------
+\section{A skeleton of the user's main program}
+\label{ss:skeleton_adj}
+%%---------------------------------------------------------------------
+%%----------------------------------------------------------------------
+%%
+
+The following is a skeleton of the user's main program as an application of
+{\idas}. The user program is to have these steps in the order indicated, 
+unless otherwise noted. For the sake of brevity, we defer many of the details to 
+the later sections.
+As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
+implementation used; where this is not the case, usage specifications are given for the
+two implementations provided with {\idas}: steps marked with {\p} correspond to 
+{\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
+
+\index{User main program!Adjoint sensitivity analysis}
+\begin{Steps}
+
+\item
+  {\bf Include necessary header files}
+  
+  The \id{idas.h} header file also defines additional types, constants, and
+  function prototypes for the adjoint sensitivity module user-callable functions.
+  In addition, the main program should include an {\nvector} 
+  implementation header file (\id{nvector\_serial.h} or \id{nvector\_parallel.h}
+  for the two implementations provided with {\idas}) and, if Newton iteration 
+  was selected, the main header file of the desired linear solver module.
+
+\item
+  \textcolor{gray}{\bf {\p} Initialize MPI}
+
+  \vspace{0.2in}\centerline{\bf Forward problem}
+
+\item
+  \textcolor{gray}{\bf Set problem dimensions for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Set initial conditions for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Create {\idas} object for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Allocate internal memory for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Set optional inputs for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Attach linear solver module for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Set linear solver optional inputs for the forward problem}
+
+\item
+  {\bf Allocate space for the adjoint computation}
+
+  Call \id{idaadj\_mem = }\Id{IDAAdjInit}\id{()} to allocate memory for the 
+  combined forward-backward problem (see \S\ref{sss:idaadjmalloc} for more details).
+  This call requires \id{Nd}, the number of steps between two consecutive checkpoints.
+  \Id{IDAAdjInit} also specifies the type of interpolation used 
+  (see \S\ref{ss:checkpointing}).
+
+\item
+  {\bf Integrate forward problem}
+
+  Call \Id{IDASolveF}, a wrapper for the {\idas} main integration
+  function \id{IDASolve}, either in \Id{IDA\_NORMAL} mode to the time 
+  \id{tout} or in \Id{IDA\_ONE\_STEP} mode inside a loop (if intermediate
+  solutions of the forward problem are desired (see \S\ref{sss:idasolvef})).
+  The final value of \id{tret}, denoted \id{tfinal}, is then
+  the maximum allowable value for the endpoint $t_1$.
+
+  \vspace{0.2in}\centerline{\bf Backward problem}
+
+\item \label{i:back_start}
+  {\bf Set problem dimensions for the backward problem}
+
+  {\s} set \id{NB}, the number of variables in the backward problem \\
+  {\p} set \id{NB} and \id{NBlocal}
+
+\item
+  {\bf Set final values for the backward problem}
+
+  Set the vector \id{yB0} of final values for the backward problem.
+
+\item
+  {\bf Create {\idas} object for the backward problem}
+
+  Call \Id{IDACreateB}, a wrapper for \id{IDACreate}, to
+  create the {\idas} memory block and specify the solution method
+  (linear multistep method and nonlinear solver iteration type) for
+  the backward problem. Unlike \id{IDACreate}, the function \id{IDACreateB}
+  does not return a pointer to the newly created memory block. Instead,
+  this pointer is attached to the adjoint memory block (returned by
+  \id{IDAAdjInit} and passed as the first argument to \id{IDACreateB}).
+
+\item
+  {\bf Allocate memory for the backward problem}
+
+  Call \Id{IDAInitB}, a wrapper for \id{IDAInit}, to 
+  allocate internal memory and initialize {\idas} at \id{tB0} for 
+  the backward problem (see \S\ref{sss:idainitb}).
+
+\item
+  {\bf Set optional inputs for the backward problem}
+
+  Call \id{IDASet*B} functions to change from their default values
+  any optional inputs that control the behavior of {\idas}. Unlike
+  their counterparts for the forward problem, these functions take as
+  their first argument the adjoint memory block returned by \id{IDAAdjInit}.
+
+\item \label{i:lin_solverB}
+  {\bf Attach linear solver module for the backward problem}
+
+  If Newton iteration is chosen, initialize the linear solver module 
+  for the backward problem by calling the appropriate wrapper
+  function: \id{IDADenseB}, \id{IDABandB}, \id{IDADiagB},
+  \id{IDASpgmrB}, \id{IDASpbcgB}, or \id{IDASptfqmr} (see \S\ref{sss:lin_solv_b}). 
+  Note that it is not required
+  to use the same linear solver module for both the forward and the 
+  backward problems; for example, the forward problem could be solved
+  with the {\idadense} linear solver and the backward problem with {\idaspgmr}.
+
+\item \label{i:quadB}
+  {\bf Initialize quadrature calculation}
+
+  If additional quadrature equations must be evaluated, 
+  call \id{IDAQuadInitB}, a wrapper around \id{IDAQuadInit},
+  to initialize and allocate memory for quadrature integration.
+  Optionally, call \id{IDASetQuad*B} functions to change from their
+  default values optional inputs that control the integration of
+  quadratures during the backward phase.
+
+\item
+  {\bf Integrate backward problem}
+
+  Call \Id{IDASolveB}, a second wrapper around the {\idas} main integration
+  function \id{IDASolve}, to integrate the backward problem from \id{tB0}
+  (see \S\ref{sss:idasolveb}). This function can be called either in \id{IDA\_NORMAL}
+  or \id{IDA\_ONE\_STEP} mode. Typically, \id{IDASolveB} will be called in \id{IDA\_NORMAL}
+  mode with an end time equal to the initial time of the forward problem.
+
+\item \label{i:back_end}
+  {\bf Extract quadrature variables}
+
+  If applicable, call \Id{IDAGetQuadB}, a wrapper around \id{IDAGetQuad},
+  to extract the values of the quadrature variables at the time returned
+  by the last call to \id{IDASolveB}.
+
+\item
+  {\bf Deallocate memory}
+
+  Upon completion of the backward integration, call all necessary deallocation
+  functions. These include appropriate destructors for the vectors 
+  \id{y} and \id{yB}, a call to \id{IDASolveFree} to free the {\idas} memory block 
+  for the forward problem, and a call to \id{IDAAdjFree} (see \S\ref{sss:idaadjmalloc}) to free 
+  the memory allocated for the combined problem. 
+  Note that \id{IDAAdjFree} also deallocates the {\idas} memory for the backward problem.
+
+\item
+  \textcolor{gray}{\bf Finalize MPI}
+
+  {\p} If {\mpi} was initialized by the user main program, call \id{MPI\_Finalize();}.
+
+\end{Steps}
+
+The above user interface to the adjoint sensitivity module in {\idas} was motivated by
+the desire to keep it as close as possible in look and feel to the one for ODE IVP 
+integration. Note that if steps (\ref{i:back_start})-(\ref{i:back_end}) are not present, 
+a program with the above structure will have the same functionality as one described in
+\S\ref{ss:skeleton_sim} for integration of ODEs, albeit with some overhead due to 
+the checkpointing scheme.
+
+%%
+%%-------------------------------------------------------------------------------
+%%-------------------------------------------------------------------------------
+\section{User-callable functions for adjoint sensitivity analysis}
+%%-------------------------------------------------------------------------------
+%%-------------------------------------------------------------------------------
+%%
+
+%%-------------------------------------------------------------------------------
+\subsection{Adjoint sensitivity allocation and deallocation functions}
+\label{sss:idaadjmalloc}
+%%-------------------------------------------------------------------------------
+
+After the setup phase for the forward problem, but before the call
+to \id{IDASolveF}, memory for the combined forward-backward problem must be
+allocated by a call to the function \id{IDAAdjInit}.
+The form of the call to this function is
+%%
+%%
+\ucfunction{IDAAdjInit}
+{
+  idaadj\_mem = IDAAdjInit(ida\_mem, Nd, interpType);
+}
+{
+  The function \ID{IDAAdjInit} allocates internal memory for the combined
+  forward and backward integration, other than the {\idas} memory block. 
+  Space is allocated for the $N_d$ interpolation data points and a linked 
+  list of checkpoints is initialized.
+}
+{
+  \begin{args}[interpType]
+  \item[ida\_mem] (\id{void *}) 
+    is the {\idas} memory block for the forward problem
+    returned by a previous call to \id{IDACreate}.
+  \item[Nd] (\id{long int}) 
+    is the number of integration steps between two consecutive checkpoints.
+  \item[interpType] (\id{int})
+    specifies the type of interpolation used and can be \Id{IDA\_POLYNOMIAL}
+    or \Id{IDA\_HERMITE}, indicating variable-degree polynomial and cubic Hermite
+    interpolation, respectively (see \S\ref{ss:checkpointing}).
+  \end{args}
+}
+{
+  If successful, \id{IDAAdjInit} returns a pointer of type \id{void *}. The user
+  does not need to access this memory block but must pass it to other adjoint module
+  user-callable functions. In case of failure (\id{ida\_mem} is \id{NULL}, an input
+  has an illegal value, or a memory request fails), \id{IDAAdjInit} prints an error
+  message to the standard output stream \id{stderr} and returns \id{NULL}.
+}
+{
+  The user must set \id{Nd} so that all data needed for interpolation of the 
+  forward problem solution between two checkpoints fits in memory. \id{IDAAdjInit}
+  attempts to allocate space for $(2$\id{Nd}$+3)$ variables of type \id{N\_Vector}.
+}
+%%
+%%
+\ucfunction{IDAAdjFree}
+{
+  IDAAdjFree(\&idaadj\_mem);
+}
+{
+  The function \ID{IDAAdjFree} frees the memory allocated by
+  a previous call to \id{IDAAdjInit}.
+}
+{
+  The only argument is the address of the pointer to the adjoint memory 
+  block (of type \id{void *}).
+}
+{
+  The function \id{IDAAdjFree} has no return value.
+}
+{
+  This function frees all memory allocated by \id{IDAAdjInit}. This includes workspace memory, 
+  the linked list of checkpoints, memory for the interpolation data, as well as the {\idas} memory 
+  for the backward integration phase.
+}
+%%
+%%
+If the user wishes to change the interpolation method after the call to \id{IDAAdjInit},
+this can be done through a call to the function \id{IDASetInterpType}.
+The form of the call to this function is
+%%
+\ucfunction{IDAAdjSetInterpType}
+{
+  flag = IDAAdjSetInterpType(idaadj\_mem, interpType);
+}
+{
+  The function \ID{IDAAdjSetInterpType} resets the interpolation method to \id{interpType}.
+}
+{
+  \begin{args}[interpType]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[interpType] (\id{int})
+    specifies the type of interpolation used and can be \Id{IDA\_POLYNOMIAL}
+    or \Id{IDA\_HERMITE}, indicating variable-degree polynomial and cubic Hermite
+    interpolation, respectively (see \S\ref{ss:checkpointing}).
+  \end{args}
+}
+{
+  The return \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDA\_ADJMEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}]
+    The call to \id{IDAAdjSetInterpType} was successful.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}] 
+    The input argument \id{interpType} has an illegal value.
+  \item[\Id{IDA\_MEM\_FAIL}]
+    An error occured while trying to allocate memory for the interpolation module.
+  \end{args}
+}
+{
+  The function \id{IDAAdjSetInterpType} performs memory deallocation and allocation.
+}
+
+
+%%---------------------------------------------------------------------
+\subsection{Forward integration function}
+\label{sss:idasolvef}
+%%---------------------------------------------------------------------
+
+The function \ID{IDASolveF} is very similar to the {\idas} function \id{IDASolve}
+(see \S\ref{sss:idasolve}) in that it integrates the solution of the forward
+problem and returns the solution in \id{y}. At the same time,
+however, \id{IDASolveF} stores checkpoint data every \id{Nd} integration steps.
+\id{IDASolveF} can be called repeatedly by the user.
+%%
+The call to this function has the form
+%%
+\ucfunction{IDASolveF}
+{
+  flag = IDASolveF(idaadj\_mem, tout, yout, tret, itask, ncheck);
+}
+{
+  The function \ID{IDASolveF} integrates the forward problem over an interval in $t$
+  and saves checkpointing data.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[tout] (\id{realtype})
+    the next time at which a computed solution is desired.
+  \item[yout] (\id{N\_Vector})
+    the computed solution vector.
+  \item[tret] (\id{realtype *})
+    the time reached by the solver.
+  \item[itask] (\id{int})
+    \index{itask@\texttt{itask}}
+    \index{output mode}
+    a flag indicating the job of the solver for the next step. 
+    The \Id{IDA\_NORMAL} task is to have the solver take internal steps until   
+    it has reached or just passed the user-specified \id{tout}
+    parameter. The solver then interpolates in order to   
+    return an approximate value of $y($\id{tout}$)$. 
+    The \Id{IDA\_ONE\_STEP} option tells the solver to just take one internal step  
+    and return the solution at the point reached by that step. 
+    The \Id{IDA\_NORMAL\_TSTOP} and \Id{IDA\_ONE\_STEP\_TSTOP} modes are     
+    similar to \id{IDA\_NORMAL} and \id{IDA\_ONE\_STEP}, respectively, except    
+    that the integration never proceeds past the value      
+    \id{tstop} (specified through the function \id{IDASetStopTime}).
+  \end{args}
+}
+{
+  On return, \id{IDASolveF} returns a vector \id{yout} and a corresponding 
+  independent variable value $t=$\id{*tret}, such that \id{yout} is the computed 
+  value of $y(t)$. Additionally, it returns in \id{ncheck} the number of
+  checkpoints saved.
+  The return value \id{flag} (of type \id{int}) will be one of the following.
+  For more details see \S\ref{sss:idasolve}.
+  \begin{args}[IDA\_TOO\_MUCH\_WORK]
+  \item[\Id{IDA\_SUCCESS}]
+    \id{IDASolveF} succeeded.
+  \item[\Id{IDA\_TSTOP\_RETURN}]
+    \id{IDASolveF} succeeded by reaching the optional stopping point.
+  \item[\Id{IDA\_NO\_MALLOC}]
+    The function \id{IDAInit} has not been previously called.
+  \item[\Id{IDA\_ILL\_IPUT}]
+    One of the inputs to \id{IDASolveF} is illegal.
+  \item[\Id{IDA\_TOO\_MUCH\_WORK}] 
+    The solver took \id{mxstep} internal steps but could not reach tout. 
+  \item[\Id{IDA\_TOO\_MUCH\_ACC}] 
+    The solver could not satisfy the accuracy demanded by the user for some 
+    internal step.
+  \item[\Id{IDA\_ERR\_FAILURE}]
+    Error test failures occurred too many times during one 
+    internal time step or occurred with $|h| = h_{min}$.
+  \item[\Id{IDA\_CONV\_FAILURE}] 
+    Convergence test failures occurred too many times during 
+    one internal time step or occurred with $|h| = h_{min}$.             
+  \item[\Id{IDA\_LSETUP\_FAIL}] 
+    The linear solver's setup function failed in an unrecoverable manner.
+  \item[\Id{IDA\_LSOLVE\_FAIL}] 
+    The linear solver's solve function failed in an unrecoverable manner.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \item[\Id{IDA\_MEM\_FAIL}]
+    A memory allocation request has failed (in an attempt to allocate space
+    for a new checkpoint).
+  \end{args} 
+}
+{
+  All failure return values are negative and therefore a test \id{flag}$< 0$
+  will trap all \id{IDASolveF} failures.
+
+  At this time, \id{IDASolveF} stores checkpoint information in memory
+  only. Future versions will provide for a safeguard option of dumping checkpoint
+  data into a temporary file as needed. The data stored at each checkpoint is basically
+  a snapshot of the {\idas} internal memory block and contains enough information
+  to restart the integration from that time and to proceed with the same step size and
+  method order sequence as during the forward integration.
+  
+  In addition, \id{IDASolveF} also stores interpolation data between consecutive checkpoints
+  so that, at the end of this first forward integration phase, interpolation information
+  is already available from the last checkpoint forward. In particular,
+  if no check points were necessary, there is no need for the second forward integration phase.
+
+  {\warn}Although it is legal to define a value for \id{tstop} and then call \id{IDASolveF}
+  in \id{IDA\_NORMAL\_TSTOP} or \id{IDA\_ONE\_STEP\_TSTOP} modes, 
+  after a return with \id{flag} $=$ \id{TSTOP\_RETURN}, the integration should not be 
+  continued (no \id{tstop} information is stored at checkpoints).
+
+  {\warn}It is illegal to change the integration tolerances between consecutive calls
+  to \id{IDASolveF}, as this information is not captured in the checkpoints data.
+}  
+
+%%---------------------------------------------------------------------
+\subsection{Backward problem initialization functions}
+\label{sss:idainitb}
+%%---------------------------------------------------------------------
+
+The functions \id{IDACreateB} and \id{IDAInitB} must be called in the order listed. 
+They instantiate a {\idas} solver object, provide problem and solution specifications, 
+and allocate internal memory for the backward problem.
+%%
+%%
+\ucfunction{IDACreateB}
+{
+  flag = IDACreateB(idaadj\_mem, lmm, iter);
+}
+{
+  The function \ID{IDACreateB} instantiates a {\idas} solver object and specifies 
+  the solution method for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[lmm] (\id{int})
+    specifies the linear multistep method and must be one of two
+    possible values: \Id{IDA\_ADAMS} or \Id{IDA\_BDF}.     
+  \item[iter] (\id{int})
+    specifies the type of nonlinear solver iteration and must be
+    either \Id{IDA\_NEWTON} or \Id{IDA\_FUNCTIONAL}. 
+  \end{args}
+}
+{
+  If successful, \id{IDACreateB} stores a pointer to the newly created 
+  {\idas} memory block (of type \id{void *}) for the backward problem.
+  The return \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDA\_ADJMEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}]
+    The call to \id{IDACreateB} was successful.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \item[\Id{IDA\_MEM\_FAIL}]
+    An error occured while trying to create the {\idas} memory block for the backward 
+    problem.
+  \end{args}
+}
+{}
+%%
+%%
+The function \id{IDAInitB} is essentially a call to \id{IDAInit} with some 
+particularization for backward integration as described below.
+\ucfunction{IDAInitB}
+{
+  flag = IDAInitB(idaadj\_mem, fB, tB0, yB0, itolB, reltolB, abstolB);
+}
+{
+  The function \ID{IDAInitB} provides required problem and solution specifications, 
+  allocates internal memory, and initializes {\idas} for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[fB] (\Id{IDARhsFnB})
+    is the {\C} function which computes $fB$, the right-hand side of the 
+    backward ODE problem. This function has the form 
+    \id{fB(t, y, yB, yBdot, f\_dataB)} (for full details see \S\ref{ss:user_fct_adj}).
+  \item[tB0] (\id{realtype})
+    specifies the endpoint where final conditions are provided for the 
+    backward problem.
+  \item[yB0] (\id{N\_Vector})
+    is the final value of the backward problem. 
+  \item[itolB] (\id{int}) 
+    is one of \Id{IDA\_SS} or \Id{IDA\_SV}  where \Id{itol}$=$\id{IDA\_SS} indicates scalar relative error 
+    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{IDA\_SV} indicates scalar
+    relative error tolerance and vector absolute error tolerance. 
+  \item[reltolB] (\id{realtype})
+    \index{tolerances}
+    is the relative error tolerance.
+  \item[abstolB] (\id{void *})
+    is a pointer to the absolute error tolerance. If \id{itolB} $=$ \id{IDA\_SS}, \id{abstolB}
+    must be a pointer to a \id{realtype} variable. If \id{itolB} $=$ \id{IDA\_SV}, \id{abstolB}
+    must be an \id{N\_Vector} variable.
+  \end{args}
+}
+{
+  The return \id{flag} (of type \id{int}) will be one of the following:
+  \begin{args}[IDA\_ADJMEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}]
+    The call to \id{IDAInitB} was successful.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \item[\Id{IDA\_BAD\_TB0}]
+    The final time \id{tB0} is outside the interval over which the forward problem
+    was solved.
+  \item[\Id{IDA\_MEM\_NULL}] 
+    The {\idas} memory block for the backward problem was not initialized through 
+    a previous call to \id{IDACreateB}.
+  \item[\Id{IDA\_MEM\_FAIL}] 
+    A memory allocation request has failed.
+  \item[\Id{IDA\_ILL\_INPUT}] 
+    An input argument to \id{IDAInitB} has an illegal value.
+  \end{args}
+}
+{
+  {\warn}It is the user's responsibility to provide compatible \id{itolB} and
+  \id{abstolB} arguments.
+
+  The memory allocated by \id{IDAInitB} is deallocated by the function 
+  \id{IDAAdjFree}.
+
+}
+%%
+%%
+For the case when it is needed to solve several different backward problems 
+corresponding to the same original problem, {\idas} provides a mechanism 
+to reuse the existing checkpoints. The function \ID{IDAReInitB} reinitializes
+the {\idas} memory block for the backward problem, where a prior call to
+\Id{IDAInitB} has been made with the same problem size \id{NB}.
+\id{IDAReInitB} performs the same input checking and initializations that 
+\id{IDAInitB} does, but does no memory allocation, 
+assuming that the existing internal memory is sufficient for the new problem. 
+Note that \id{IDAReInitB} is essentially a wrapper for \id{IDAReInit}
+and so all details given for \id{IDAReInit} in \S\ref{sss:idareinit}
+apply.\index{reinitialization}
+The call to the \id{IDAReInitB} function has the form
+%%
+%%
+\ucfunction{IDAReInitB}
+{
+  flag = IDAReInitB(idaadj\_mem, fB, tB0, yB0, itolB, reltolB, abstolB);
+}
+{
+  The function \id{IDAReInitB} provides required problem specifications 
+  and reinitializes {\idas} for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[fB] (\Id{IDARhsFnB})
+    is the {\C} function which computes $fB$, the right-hand side of the 
+    backward ODE problem. This function has the form 
+    \id{fB(t, y, yB, yBdot, f\_dataB)} (for full details see \S\ref{ss:user_fct_adj}).
+  \item[tB0] (\id{realtype})
+    specifies the endpoint where final conditions are provided for the 
+    backward problem.
+  \item[yB0] (\id{N\_Vector})
+    is the final value of the backward problem. 
+  \item[itolB] (\id{int}) 
+    is either \Id{IDA\_SS} or \Id{IDA\_SV}, where \Id{itol}$=$\id{IDA\_SS} indicates scalar relative error 
+    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{IDA\_SV} indicates scalar
+    relative error tolerance and vector absolute error tolerance. 
+  \item[reltolB] (\id{realtype})
+    \index{tolerances}
+    is the relative error tolerance.
+  \item[abstolB] (\id{void *})
+    is a pointer to the absolute error tolerance. If \id{itolB} $=$ \id{IDA\_SS}, \id{abstolB}
+    must be a pointer to a \id{realtype} variable. If \id{itolB} $=$ \id{IDA\_SV}, \id{abstolB}
+    must be an \id{N\_Vector} variable.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) will be one of the following:
+  \begin{args}[IDA\_ADJMEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}]
+    The call to \id{IDAReInitB} was successful.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \item[\Id{IDA\_BAD\_TB0}]
+    The final time \id{tB0} is outside the interval over which the forward problem
+    was solved.
+  \item[\Id{IDA\_MEM\_NULL}] 
+    The {\idas} memory block for the backward problem was not initialized through a 
+    previous call to \id{IDACreateB}.
+  \item[\Id{IDA\_NO\_MALLOC}] 
+    Memory space for the {\idas} memory block for the backward problem was not 
+    allocated through a previous call to \id{IDAInitB}.
+  \item[\Id{IDA\_ILL\_INPUT}] 
+    An input argument to \id{IDAReInitB} has an illegal value.
+  \end{args}
+}
+{
+  {\warn}It is the user's responsibility to provide compatible \id{itolB} and
+  \id{abstolB} arguments.
+}
+%%
+%%
+%%
+
+%%---------------------------------------------------------------------
+\subsection{Linear solver initialization functions for backward problem}
+\label{sss:lin_solv_b}
+%%---------------------------------------------------------------------
+
+\index{IDASS@{\idas} linear solvers!usage with adjoint module|(} 
+All linear solver modules in {\idas} provide additional specification functions 
+for the case in which Newton iteration is selected for the solution of the backward problem. 
+The initialization functions described in \S\ref{sss:lin_solv_init} cannot be directly used 
+since the optional user-defined Jacobian-related functions have different prototypes for the
+backward problem than for the forward problem (see \S\ref{ss:user_fct_adj}).
+\index{IDASS@{\idas} linear solvers!usage with adjoint module|)} 
+
+The following six wrapper functions can be used to initialize one of the linear
+solver modules for the backward problem. Their arguments are identical to those
+of the functions in \S\ref{sss:lin_solv_init} with the exception of their first
+argument which must be the pointer to the adjoint memory block returned by
+\id{IDAAdjInit}.
+\begin{verbatim}
+  flag = IDADenseB(idaadj_mem, nB);
+  flag = IDADiagB(idaadj_mem);
+  flag = IDABandB(idaadj_mem, nB, mupperB, mlowerB);
+  flag = IDASpgmrB(idaadj_mem, pretypeB, maxlB);
+  flag = IDASpbcgB(idaadj_mem, pretypeB, maxlB);
+  flag = IDASptfqmrB(idaadj_mem, pretypeB, maxlB);
+  flag = IDASpbcgB(idaadj_mem, pretypeB, maxlB);
+  flag = IDASptfqmrB(idaadj_mem, pretypeB, maxlB);
+\end{verbatim}
+Their return value \id{flag} (of type \id{int}) can have any of the return values 
+of their counterparts.
+If the \id{idaadj\_mem} argument was \id{NULL}, \id{flag} will be
+\id{IDADENSE\_ADJMEM\_NULL}, \id{IDADIAG\_ADJMEM\_NULL}, 
+\id{IDABAND\_ADJMEM\_NULL}, or \id{IDASPILS\_ADJMEM\_NULL}.
+
+%%---------------------------------------------------------------------
+\subsection{Backward integration function}
+\label{sss:idasolveb}
+%%---------------------------------------------------------------------
+
+The function \ID{IDASolveB} performs the integration of the backward problem.
+It is essentially a wrapper for the {\idas} main integration function 
+\id{IDASolve} and, in the case in which checkpoints were needed, it evolves 
+the solution of the backward problem through a sequence of forward-backward 
+integrations between consecutive checkpoints. 
+The first run integrates the original IVP forward in time and
+stores interpolation data; the second run integrates the backward problem 
+backward in time and performs the required interpolation to provide
+the solution of the IVP to the backward problem.
+
+The call to this function has the form
+%%
+%%
+\ucfunction{IDASolveB}
+{
+  flag = IDASolveB(idaadj\_mem, tBout, yBout, tBret, itaskB);
+}
+{
+  The function \ID{IDASolveB} integrates the backward ODE problem over an 
+  interval in $t$.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[tBout] (\id{realtype})
+    the next time at which a computed solution is desired.
+  \item[yBout] (\id{N\_Vector})
+    the computed solution vector of the backward problem.
+  \item[tBret] (\id{realtype *})
+    the time reached by the solver.
+  \item[itaskB] (\id{int})
+    \index{output mode}
+    a flag indicating the job of the solver for the next step. 
+    The \Id{IDA\_NORMAL} task is to have the solver take internal steps until   
+    it has reached or just passed the user specified \id{tBout}
+    parameter. The solver then interpolates in order to   
+    return an approximate value of $yB($\id{tBout}$)$. 
+    The \Id{IDA\_ONE\_STEP} option tells the solver to just take one internal step  
+    and return the solution at the point reached by that step. 
+  \end{args}
+}
+{
+  On return, \id{IDASolveB} returns a vector \id{yBout} and a corresponding 
+  independent variable value $t=$\id{*tBret}, such that \id{yBout} is the computed 
+  value of the solution of the backward problem.
+
+  The return value \id{flag} (of type \id{int}) will be one of the following.
+  For more details see \S\ref{sss:idasolve}.
+  \begin{args}[IDA\_TOO\_MUCH\_WORK]
+  \item[\Id{IDA\_SUCCESS}]
+    \id{IDASolveB} succeeded.
+  \item[\Id{IDA\_NO\_MALLOC}]
+    The {\idas} memory for the backward problem was \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    One of the inputs to \id{IDASolve} is illegal.
+  \item[\Id{IDA\_BAD\_ITASK}]
+    The \id{itaskB} argument has an illegal value.
+  \item[\Id{IDA\_TOO\_MUCH\_WORK}] 
+    The solver took \id{mxstep} internal steps but could not reach \id{tBout}. 
+  \item[\Id{IDA\_TOO\_MUCH\_ACC}] 
+    The solver could not satisfy the accuracy demanded by the user for some 
+    internal step.
+  \item[\Id{IDA\_ERR\_FAILURE}]
+    Error test failures occurred too many times during one internal time step.
+  \item[\Id{IDA\_CONV\_FAILURE}] 
+    Convergence test failures occurred too many times during one internal time step.
+  \item[\Id{IDA\_LSETUP\_FAIL}] 
+    The linear solver's setup function failed in an unrecoverable manner.
+  \item[\Id{IDA\_SOLVE\_FAIL}] 
+    The linear solver's solve function failed in an unrecoverable manner.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \item[\Id{IDA\_BCKMEM\_NULL}]
+    The \id{idas} memory for the backward problem was not created through
+    a call to \id{IDACreateB}.
+  \item[\Id{IDA\_BAD\_TBOUT}]
+    The desired output time \id{tBout} is outside the interval over which the 
+    forward problem was solved.
+  \item[\Id{IDA\_REIFWD\_FAIL}]
+    Reinitialization of the forward problem failed at the first checkpoint
+    (corresponding to the initial time of the forward problem).
+  \item[\Id{IDA\_FWD\_FAIL}]
+    An error occured during the integration of the forward problem.
+  \end{args} 
+}
+{
+  All failure return values are negative and therefore a test \id{flag}$< 0$
+  will trap all \id{IDASolveB} failures.
+}
+
+%%---------------------------------------------------------------------
+\subsection{Optional input functions for the backward problem}
+\label{ss:optional_input_B}
+%%---------------------------------------------------------------------
+%%
+\subsubsection{Main solver optional input functions}
+\index{optional input!backward solver|(}
+
+The adjoint module in {\idas} provides wrappers for most of the optional 
+input functions defined in \S\ref{sss:optin_main}. The only difference is 
+that the first argument of the optional input functions for the backward problem
+is the pointer to the adjoint memory block, \id{idaadj\_mem}, of type \id{void *},
+returned by \id{IDAAdjInit}. 
+The optional input functions defined for the backward problem are:
+\begin{verbatim}
+  flag = IDASetErrHandlerB(idaadj_mem, ehfunB, eh\_dataB);
+  flag = IDASetErrFileB(idaadj_mem, errfpB);
+  flag = IDASetIterTypeB(idaadj_mem, iterB);
+  flag = IDASetFdataB(idaadj_mem, f_dataB);
+  flag = IDASetMaxOrdB(idaadj_mem, maxordB);
+  flag = IDASetMaxNumStepsB(idaadj_mem, mxstepsB);
+  flag = IDASetStabLimDetB(idaadj_mem, stldetB);
+  flag = IDASetInitStepB(idaadj_mem, hinB);
+  flag = IDASetMinStepB(idaadj_mem, hminB);
+  flag = IDASetMaxStepB(idaadj_mem, hmaxB);
+\end{verbatim}
+Their return value \id{flag} (of type \id{int}) can have any of the return values 
+of their counterparts, but it can also be \Id{IDA\_ADJMEM\_NULL} if the \id{idaadj\_mem} 
+argument was \id{NULL}.
+\index{optional input!backward solver|)}
+
+\subsubsection{Dense linear solver}
+\index{optional input!dense linear solver|(}
+\index{IDADENSE@{\idadense} linear solver!optional input|(}
+Optional inputs for the {\idadense} linear solver module can be set for the backward
+problem through the following function:
+%%
+\index{Jacobian approximation function!dense!user-supplied (backward)}
+\ucfunction{IDADenseSetJacFnB}
+{
+  flag = IDADenseSetJacFnB(idaadj\_mem, djacB, jac\_dataB);
+}
+{
+  The function \ID{IDADenseSetJacFnB} specifies the dense Jacobian
+  approximation function to be used for the backward problem and the
+  pointer to user data.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[djacB] (\id{IDADenseJacFnB})
+    user-defined dense Jacobian approximation function.
+  \item[jac\_dataB] (\id{void *})
+    pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDADENSE\_ADJMEM\_NULL]
+  \item[\Id{IDADENSE\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDADENSE\_MEM\_NULL}]
+    The {\idas} solver memory block was not created through a call to \id{IDACreateB}.
+  \item[\Id{IDADENSE\_LMEM\_NULL}]
+    The {\idadense} linear solver has not been initialized through a call to \id{IDADenseB}.
+  \item[\Id{IDADENSE\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  The function type \id{IDADenseJacFnB} is described in \S\ref{ss:user_fct_adj}.
+}
+\index{IDADENSE@{\idadense} linear solver!optional input|)}
+\index{optional input!dense linear solver|)}
+
+
+\subsubsection{Band linear solver}
+\index{optional input!band linear solver|(}
+\index{IDABAND@{\idaband} linear solver!optional input|(}
+Optional inputs for the {\idaband} linear solver module can be set for the backward
+problem through the following function:
+%%
+\index{Jacobian approximation function!band!user-supplied (backward)}
+\ucfunction{IDABandSetJacFnB}
+{
+  flag = IDABandSetJacFnB(idaadj\_mem, bjacB, jac\_dataB);
+}
+{
+  The function \ID{IDABandSetJacFnB} specifies the banded Jacobian
+  approximation function to be used for the backward problem and the
+  pointer to user data.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[bjacB] (\id{IDABandJacFnB})
+    user-defined banded Jacobian approximation function.
+  \item[jac\_dataB] (\id{void *})
+    pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDABAND\_ADJMEM\_NULL]
+  \item[\Id{IDABAND\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDABAND\_MEM\_NULL}]
+    The {\idas} solver memory block was not created through a call to \id{IDACreateB}.
+  \item[\Id{IDABAND\_LMEM\_NULL}]
+    The {\idaband} linear solver has not been initialized through a call to \id{IDABandB}.
+  \item[\Id{IDABAND\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  The function type \id{IDABandJacFnB} is described in \S\ref{ss:user_fct_adj}.
+}
+\index{IDABAND@{\idaband} linear solver!optional input|)}
+\index{optional input!band linear solver|)}
+
+\subsubsection{SPILS linear solvers}
+\index{optional input!iterative linear solver|(}
+\index{IDASPGMR@{\idaspgmr} linear solver!optional input|(}
+\index{IDASPBCG@{\idaspbcg} linear solver!optional input|(}
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!optional input|(}
+Optional inputs for the {\idaspils} linear solver module can be set for the backward
+problem through the following functions:
+%%
+\index{preconditioning!user-supplied|(}
+\ucfunction{IDASpilsSetPreconditionerB}
+{
+  flag = IDASpilsSetPreconditionerB(idaadj\_mem, psolveB, psetupB, p\_dataB);
+}
+{
+  The function \ID{IDASpilsSetPrecSolveFnB} specifies the preconditioner
+  setup and solve functions and the pointer to user data for the backward integration.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[psolveB] (\id{IDASpilsPrecSolveFnB})
+    user-defined preconditioner solve function.
+  \item[psetupB] (\id{IDASpilsPrecSetupFnB})
+    user-defined preconditioner setup function.
+  \item[p\_dataB] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASPILS\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} solver memory block was not created through a call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPILS\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+   The function types \id{IDASpilsPrecSolveFnB} and \id{IDASpilsPrecSetupFnB} are
+   described in \S\ref{ss:user_fct_adj}.
+}
+%%
+\index{preconditioning!user-supplied|)}
+%%
+\index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
+\ucfunction{IDASpilsSetJacTimesVecFnB}
+{
+  flag = IDASpilsSetJacTimesVecFnB(idaadj\_mem, jtimesB, jac\_data);
+}
+{
+  The function \ID{IDASpilsSetJacTimesFnB} specifies the Jacobian-vector 
+  product function to be used and te pointer to user data.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[jtimesB] (\id{IDASpilsJacTimesVecFnB})
+    user-defined Jacobian-vector product function.
+  \item[jac\_dataB] (\id{void *})
+    pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASPILS\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} solver memory block was not created through a call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPILS\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  The function type \id{IDASpilsJacTimesVecFnB} is described in \S\ref{ss:user_fct_adj}.
+}
+%%
+%%
+\ucfunction{IDASpilsSetGSTypeB}
+{
+  flag = IDASpilsSetGSType(idaadj\_mem, gstypeB);
+}
+{
+  The function \ID{IDASpilsSetGSTypeB} specifies the type of
+  Gram-Schmidt orthogonalization to be used with {\idaspgmr}.
+  This must be one of the enumeration constants \ID{MODIFIED\_GS}
+  or \ID{CLASSICAL\_GS}. These correspond to using modified Gram-Schmidt 
+  and classical Gram-Schmidt, respectively. 
+  \index{Gram-Schmidt procedure}
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[gstypeB] (\id{int})
+    type of Gram-Schmidt orthogonalization.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASPILS\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} solver memory block was not created through a call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The Gram-Schmidt orthogonalization type \id{gstypeB} is not valid.
+  \item[\Id{IDASPILS\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  The default value is \id{MODIFIED\_GS}.
+
+  {\warn}This option is available only with {\idaspgmr}.
+}
+%%
+%%
+\ucfunction{IDASpilsSetDeltB}
+{
+  flag = IDASpilsSetDeltB(idaadj\_mem, deltB);
+}
+{
+  The function \ID{IDASpilsSetDeltB} specifies the factor by
+  which the Krylov linear solver's convergence test constant is reduced
+  from the Newton iteration test constant.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[deltB] (\id{realtype})
+    the value of the convergence test constant reduction factor.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASPILS\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} solver memory block was not created through a call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The factor \id{deltB} is negative.  
+  \item[\Id{IDASPILS\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  The default value is $0.05$.
+  Passing a value \id{deltB}$ = 0.0$ also indicates using the default value.
+}
+%%
+%%
+%%
+\ucfunction{IDASpilsSetMaxlB}
+{
+  flag = IDASpilsSetMaxlB(idaadj\_mem, maxlB);
+}
+{
+  The function \ID{IDASpilsSetMaxlB} resets maximum Krylov subspace
+  dimension for the Bi-CGStab\index{Bi-CGStab method} or TFQMR\index{TFQMR method} 
+  methods.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[maxlB] (\id{realtype})
+    maximum dimension of the Krylov subspace.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASPILS\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} solver memory block was not created through a call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The factor \id{deltB} is negative.  
+  \item[\Id{IDASPILS\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  The maximum subspace dimension is initially specified in the call
+  to \id{IDASpbcgB} or \id{IDASptfqmrB}.
+  The call to \id{IDASpilsSetMaxlB} is needed only if \id{maxl} is being changed from its 
+  previous value.
+
+  {\warn}This option is available only for the {\idaspbcg} and {\idasptfqmr} linear solvers.
+
+}
+%%
+%%
+\ucfunction{IDASpilsSetPrecTypeB}
+{
+  flag = IDASpilsSetPrecTypeB(idaadj\_mem, pretypeB);
+}
+{
+  The function \ID{IDASpilsSetPrecTypeB} resets the type
+  of preconditioning to be used.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[pretypeB] (\id{int})
+    \index{pretypeB@\texttt{pretypeB}}
+    specifies the type of prconditioning and must be one of:
+    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASPILS\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} solver memory block was not created through a call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The preconditioner type \id{pretype} is not valid.
+  \item[\Id{IDASPILS\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  The preconditioning type is initially specified in the call
+  to the linear solver specification function (see \S\ref{sss:lin_solv_b}). 
+  The call to \id{IDASpilsSetPrecTypeB} is needed only if \id{pretypeB} is being changed from its 
+  previous value.
+}
+\index{IDASPGMR@{\idaspgmr} linear solver!optional input|)}
+\index{IDASPBCG@{\idaspbcg} linear solver!optional input|)}
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!optional input|)}
+\index{optional input!iterative linear solver|)}
+
+%---------------------------------------------------------------------------
+\subsection{Optional output functions for the backward problem}
+\label{ss:optional_output_B}
+%---------------------------------------------------------------------------
+\index{optional output!backward solver|(}
+The user of the adjoint module in {\idas} has access to any of the optional output 
+functions described in \S\ref{ss:optional_output}, both for the main solver and for
+the linear solver modules. The first argument of these \id{IDAGet*} and \id{IDA*Get*}
+functions is the {\idas} memory block for the backward problem. In order to call any of these
+functions, the user must first call the following function to obtain a pointer to
+this memory block:
+%%
+\ucfunction{IDAAdjGetIDASolveBmem}
+{
+  ida\_memB = IDAAdjGetIDASolveBmem(idaadj\_mem);
+}
+{
+  The function \ID{IdaadjGetIDASolveBmem} returns a pointer to the {\idas}
+  memory block for the backward problem.
+}
+{
+  The argument \id{idaadj\_mem} (of type \id{void *}) is a pointer to the
+  adjoint memory block returned by \id{IDAAdjInit}.
+}
+{
+  The return value, \id{ida\_memB} (of type \id{void *}), is a pointer to the
+  {\idas} memory for the backward problem.
+}
+{
+  {\warn}The user should not modify in any way \id{ida\_memB}.
+}
+\index{optional output!backward solver|)}
+
+%%---------------------------------------------------------------------
+\subsection{Backward integration of pure quadrature equations}
+%%---------------------------------------------------------------------
+
+
+\subsubsection{Backward quadrature initialization functions}\label{sss:idaquadmallocb}
+
+The function \id{IDAQuadInitB} initializes and allocates memory for the backward
+integration of quadrature equations. It has the following form:
+%%
+%%
+\ucfunction{IDAQuadInitB}
+{
+flag = IDAQuadInitB(idaadj\_mem, fQB, yQB0);
+}
+{
+  The function \ID{IDAQuadInitB} provides required problem specifications,
+  allocates internal memory, and initializes backward quadrature integration.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[fQB] (\Id{IDAQuadRhsFnB})
+    is the {\C} function which computes $fQB$, the right-hand side of the 
+    backward quadrature equations. This function has the form 
+    \id{fQB(t, y, yB, qBdot, fQ\_dataB)} (for full details see below).
+  \item[yQB0] (\id{N\_Vector})
+    is the value of the quadrature variables at \id{tB0}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) will be one of the following:
+  \begin{args}[IDA\_ADJMEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}]
+    The call to \id{IDAQuadInitB} was successful.
+  \item[\Id{IDA\_MEM\_NULL}] 
+    The {\idas} solver memory block was not created through a previous 
+    call to \id{IDACreateB}.
+  \item[\Id{IDA\_MEM\_FAIL}] 
+    A memory allocation request has failed.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+The integration of quadrature equations during the backward phase can be
+re-initialized by calling
+%%
+%%
+\ucfunction{IDAQuadReInitB}
+{
+  flag = IDAQuadReInitB(idaadj\_mem, fQB, yQB0);
+}
+{
+  The function \id{IDAQuadReInitB} re-initializes the backward quadrature integration.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[fQB] (\Id{IDAQuadRhsFnB})
+    is the {\C} function which computes $fQB$, the right-hand side of the 
+    backward quadrature equations.
+  \item[yQB0] (\id{N\_Vector})
+    is the value of the quadrature variables at \id{tB0}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) will be one of the following:
+  \begin{args}[IDA\_ADJMEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}]
+    The call to \id{IDAReInitB} was successful.
+  \item[\Id{IDA\_MEM\_NULL}] 
+    The {\idas} solver memory block was not created through a 
+    previous call to \id{IDACreateB}.
+  \item[\Id{IDA\_NO\_QUAD}] 
+    Quadrature integration was not activated through a 
+    previous call to \id{IDAQuadInitB}.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+
+\subsubsection{Backward quadrature extraction function}
+
+To extract the values of the quadrature variables at the last return time
+of \id{IDASolveB}, {\idas} provides a wrapper for the function \ID{IDAGetQuad}
+(see \S\ref{ss:quad_get}). The call to this function has the form
+%%
+%%
+\ucfunction{IDAGetQuadB}
+{
+  flag = IDAGetQuadB(idaadj\_mem, yQB);
+}
+{
+  The function \id{IDAGetQuadB} returns the quadrature solution vector after
+  a successful return from \id{IDASolveB}.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory returned by \id{IDAAdjInit}.
+  \item[yQB] (\id{N\_Vector})
+    the computed backward quadrature vector.
+  \end{args}
+}
+{
+  The return value \id{flag} of \id{IDAGetQuadB} is one of:
+  \begin{args}[IDA\_ADJMEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    \id{IDAGetQuadB} was successful.
+  \item[\Id{IDA\_MEM\_NULL}] 
+    The {\idas} solver memory block was not created through a 
+    previous call to \id{IDACreateB}.
+  \item[\Id{IDA\_NO\_QUAD}] 
+    Quadrature integration was not initialized through a 
+    previous call to \id{IDAQuadInitB}..
+  \item[\Id{Ida\_BAD\_DKY}] 
+    \id{yQB} is \id{NULL}.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+
+\subsubsection{Optional input/output functions for backward quadrature integration}
+\index{optional input!quadrature integration}
+\index{optional output!quadrature integration}
+Optional values controlling the backward integration of quadrature equations can be changed
+from their default values through calls to one of the following functions which are wrappers for
+the corresponding optional input functions defined in \S\ref{ss:quad_optional_input}:
+\begin{verbatim}
+  flag = IDASetQuadFdataB(idaadj_mem, fQ_dataB);
+  flag = IDASetQuadErrConB(idaadj_mem, errconQB, itolQB, reltolQB, abstolQB);
+\end{verbatim}
+Their return value \id{flag} (of type \id{int}) can have any of the return values 
+of their counterparts, but it can also be \Id{IDA\_ADJMEM\_NULL} if the \id{idaadj\_mem} 
+argument was \id{NULL}. 
+
+Access to optional outputs related to backward quadrature integration can be obtained
+by calling the corresponding \id{IDAGetQuad*} functions 
+(see \S\ref{ss:quad_optional_output}). 
+A pointer to the {\idas} memory block for the backward problem, required as the first 
+argument of these functions, can be obtained through a call to the functions 
+\id{IDAAdjGetIDASolveBmem} (see \S\ref{ss:optional_output_B}).
+
+%%---------------------------------------------------------------------
+\subsection{Optional output from the adjoint module}
+%%---------------------------------------------------------------------
+\subsubsection{Checkpoint information function}
+\index{optional output!checkpoint information}
+For debugging purposes, {\idas} provides a function \ID{IDAAdjGetCheckPointsInfo} which
+returns partial information from the linked list of checkpoints generated by
+\id{IDASolveF}. The call to this function has the form:
+%%
+%%
+\ucfunction{IDAAdjGetCheckPointsInfo}
+{
+  flag = IDAAdjCheckPointsList(idaadj\_mem, ckpnt);
+}
+{
+  The function \ID{IDAAdjGetCheckPointsList} returns a structure array
+  with checkpoint information.
+}
+{  
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory returned by \id{IDAAdjInit}.
+  \item[ckpnt] (\id{IDAAdjCheckPointRec *})
+    an array of \id{ncheck}+1 structures with checkpoint information, where
+    \id{ncheck} is the numebr of checkpoints returned by \id{IDASolveF}.
+  \end{args}
+}
+{
+  The return value \id{flag} of \id{IDAAdjGetCheckPointsInfo} is one of:
+  \begin{args}[IDA\_ADJMEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    \id{IDAAdjGetCheckPointsInfo} was successful.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  For an example of using \id{IDAAdjGetCheckPointsInfo}, see the \id{idaadjdenx} 
+  example.
+}
+%%
+%%
+The type \Id{IDAAdjCheckPointRec} is defined in the header file \id{idas.h}:
+\begin{verbatim}
+     typedef struct {
+       void *my_addr;
+       void *next_addr;
+       realtype t0;
+       realtype t1;
+       long int nstep;
+       int order;
+       realtype step;
+     } IDAAdjCheckPointRec;
+\end{verbatim}
+%%
+The fields in this structure have the following meanings:
+\begin{args}[next\_addr]
+\item[my\_addr]
+  Address of current checkpoint.
+\item[next\_addr]
+  Address of next checkpoint.
+\item[t0]
+\item[t1]
+  Time interval between current and next checkpoint.
+\item[nstep]
+  Step number at which the current checkpoint was saved.
+\item[order]
+  Linear multistep method order at the current checkpoint.
+\item[step]
+  Integration stepsize at current checkpoint.
+\end{args}
+%%
+%%
+\subsubsection{Interpolation data}
+%%
+\index{optional output!interpolation data}
+Fo debugging purposes, {\idaa} provides two extraction functions which 
+return the data stored for interpolation purposes.
+%%
+\ucfunction{IDAAdjGetDataPointHermite}
+{
+  int = IDAAdjGetDataPointHermite(idaadj\_mem, which, \&t, y, yd);
+}
+{
+  The function \ID{IDAAdjGetDataPointHermite} returns the
+  time and two vectors associated with the \id{which} interpolation data point.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory returned by \id{IDAAdjInit}.
+  \item[which] (\id{long int})
+    index of the intepolation data point.
+  \item[t] (\id{realtype *})
+  \item[y] (\id{N\_Vector})
+  \item[yd] (\id{N\_Vector})
+    time, solution, and solution derivative for the forward problem 
+    stored for interpolation purposes at the \id{which} data point.
+  \end{args}
+}
+{
+  The return value \id{flag} is one of:
+  \begin{args}[IDA\_ADJMEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    \id{IDAAdjGetDataPointHermite} was successful.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    The interpolation type was not cubic Hermite.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  It is the user's responsibility to allocate space for \id{y} and \id{yd}.
+}
+%%
+\ucfunction{IDAAdjGetDataPointPolynomial}
+{
+  int = IDAAdjGetDataPointPolynomial(idaadj\_mem, which, \&t, order, y);
+}
+{
+  The function \ID{IDAAdjGetDataPointPolynomial} returns the
+  time and two vectors associated with the \id{which} interpolation data point.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory returned by \id{IDAAdjInit}.
+  \item[which] (\id{long int})
+    index of the intepolation data point.
+  \item[t] (\id{realtype *})
+  \item[order] (\id{int})
+  \item[yd] (\id{N\_Vector})
+    time, method order, and solution of the forward problem 
+    stored for interpolation purposes at the \id{which} data point.
+  \end{args}
+}
+{
+  The return value \id{flag} is one of:
+  \begin{args}[IDA\_ADJMEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    \id{IDAAdjGetDataPointPolynomial} was successful.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    The interpolation type was not variable-order polynomial.
+  \item[\Id{IDA\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  It is the user's responsibility to allocate space for \id{y}.
+}
+%%
+\subsubsection{Return flag name}
+%%
+The names of constants associated with {\idaa}-specific return values can
+be obtained by calling the following function:
+%%
+\ucfunction{IDAAdjGetReturnFlagName}
+{
+  name = IDAAdjGetReturnFlagName(flag);
+}
+{
+  The function \ID{IDAAdjGetReturnFlagName} returns the
+  name of the {\idaa} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\idaa} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
+%%
+%%-------------------------------------------------------------------------------------
+%%-------------------------------------------------------------------------------------
+\section{User-supplied functions for adjoint sensitivity analysis}
+\label{ss:user_fct_adj}
+%%-------------------------------------------------------------------------------------
+%%-------------------------------------------------------------------------------------
+%%
+
+In addition to the required ODE right-hand side function and any optional functions
+for the forward problem, when using the adjoint sensitivity module in {\idas},
+the user must supply one function defining the backward problem ODE and, optionally,
+functions to supply Jacobian-related information (if Newton iteration is chosen) and
+one or two functions that define the preconditioner (if one of the {\idaspils} solvers is
+selected) for the backward problem.
+Type definitions for all these user-supplied functions are given below.
+
+\subsection{ODE right-hand side for the backward problem}
+\index{adjoint sensitivity analysis!right-hand side evaluation}
+\index{right-hand side function!backward problem}
+
+The user must provide a function of type \ID{IDARhsFnB} defined as follows:
+\usfunction{IDARhsFnB}
+{
+  typedef int (*IDARhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
+                          &N\_Vector yBdot, void *f\_dataB);
+}
+{
+  This function computes the right-hand side of the backward problem ODE system.
+  This could be (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}).
+}
+{
+  \begin{args}[f\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the dependent variable vector.
+  \item[yBdot]
+    is the output vector containing the right-hand side of the backward ODE problem.
+  \item[f\_dataB]
+    is a pointer to user data - the same as the \Id{f\_dataB}      
+    parameter passed to \id{IDASetFdataB}.   
+  \end{args}
+}
+{
+  A \id{IDARhsFnB} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\idas} will attempt to correct), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted and
+  \id{IDASolveB} returns \Id{IDA\_RHSFUNC\_FAIL}).
+}
+{
+  Allocation of memory for \id{yBdot} is handled within {\idas}.
+
+  The \id{y}, \id{yB}, and \id{yBdot} arguments are all of type \id{N\_Vector},
+  but \id{yB} and \id{yBdot}  typically have different internal representations
+  from \id{y}. It is the user's 
+  responsibility to access the vector data consistently (including the use of the 
+  correct accessor macros from each {\nvector} implementation). For the sake of 
+  computational efficiency, the vector functions in the two {\nvector} implementations 
+  provided with {\idas} do not perform any consistency checks with respect to their 
+  \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
+
+  The \id{f\_dataB} pointer is passed to 
+  the user's \id{fB} function every time it is called and can be the same as the 
+  \id{f\_data} pointer used for the forward problem.
+
+  {\warn}Before calling the user's \id{IDARhsFnB}, {\idaa} needs to evaluate
+  (through interpolation) the values of the states from the forward integration. 
+  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  failure in the righ-hand side function which will halt the integration and
+  \id{IDASolveB} will return \id{IDA\_RHSFUNC\_FAIL}.
+}
+
+%%-------------------------------------------------------------------------------------
+\subsection{Quadrature right-hand side for the backward problem}
+\index{right-hand side function!quadrature backward problem}
+\index{adjoint sensitivity analysis!quadrature evaluation}
+The user must provide a function of type \ID{IDAQuadRhsFnB} defined by
+\usfunction{IDAQuadRhsFnB}
+{
+  typedef int (*IDAQuadRhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
+                              &N\_Vector qBdot, void *fQ\_dataB);
+}
+{
+  This function computes the quadrature equation right-hand side for the
+  backward problem.
+}
+{
+  \begin{args}[fQ\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the dependent variable vector.
+  \item[qBdot]
+    is the output vector containing the right-hand side of the backward quadrature
+    equations.
+  \item[fQ\_dataB]
+    is a pointer to user data - the same as the \Id{fQ\_dataB}      
+    parameter passed to \id{IDASetQuadFdataB}.   
+  \end{args}
+}
+{
+  A \id{IDAQuadRhsFnB} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\idas} will attempt to correct), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted and
+  \id{IDASolveB} returns \Id{IDA\_QRHSFUNC\_FAIL}).
+}
+{
+  Allocation of memory for \id{qBdot} is handled within {\idas}.
+
+  The \id{y}, \id{yB}, and \id{yQBdot} arguments are all of type \id{N\_Vector},
+  but they  typically all have different internal representations. It is the user's 
+  responsibility to access the vector data consistently (including the use of the 
+  correct accessor macros from each {\nvector} implementation). For the sake of 
+  computational efficiency, the vector functions in the two {\nvector} implementations 
+  provided with {\idas} do not perform any consistency checks with repsect to their 
+  \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
+
+  The \id{fQ\_dataB} pointer is passed to the user's \id{fQB} function every time 
+  it is called and can be the same as the \id{f\_data} pointer used for the forward problem.
+
+  {\warn}Before calling the user's \id{IDAQuadRhsFnB}, {\idaa} needs to evaluate
+  (through interpolation) the values of the states from the forward integration. 
+  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  failure in the quadrature righ-hand side function which will halt the integration and
+  \id{IDASolveB} will return \id{IDA\_QRHSFUNC\_FAIL}.
+}
+
+%%-------------------------------------------------------------------------------------
+\subsection{Jacobian information for the backward problem 
+  (direct method with dense Jacobian)}
+  
+If the direct linear solver with dense treatment of the Jacobian is selected
+for the backward problem (i.e. \Id{IDADenseB} is called in step \ref{i:lin_solverB} 
+of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADenseSetJacFnB}
+(see \S\ref{ss:optional_input_B}), a function of the following type:
+%%
+\index{Jacobian approximation function!dense!user-supplied (backward)}
+\usfunction{IDADenseJacFnB}
+{
+  typedef int (*IDADenseJacFnB)(&long int nB, DenseMat JB, realtype t, \\
+                               &N\_Vector y, N\_Vector yB, N\_Vector fyB, \\
+                               &void *jac\_dataB, N\_Vector tmp1B, \\
+                               &N\_Vector tmp2B, N\_Vector tmp3B);
+}
+{
+  This function computes the dense Jacobian of the backward problem (or an approximation
+  to it). If the backward problem is the adjoint of the original IVP, then
+  this Jacobian is just the transpose of $J = \dfdyI$ with
+  a change in sign.
+}
+{
+  \begin{args}[jac\_dataB]
+  \item[nB]
+    is the backward problem size.
+  \item[J]
+    is the output Jacobian matrix.  
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the dependent variable vector.
+  \item[fyB]
+    is the current value of the right-hand side of the backward problem.
+  \item[jac\_dataB]
+    is a pointer to user data - the same as the \id{jac\_dataB}      
+    parameter passed to \id{IDADenseSetJacDataB}.   
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated    
+    for variables of type \id{N\_Vector} which can be used by           
+    \id{IDADenseJacFnB} as temporary storage or work space.    
+  \end{args}
+}
+{
+  A \id{IDADenseJacFnB} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\idas} will attempt to correct, while {\idadense} sets
+  \id{last\_flag} on \Id{IDADENSE\_JACFUNC\_REIDAR}), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted, \id{IDASolveB}
+  returns \Id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} on 
+  \Id{IDADENSE\_JACFUNC\_UNREIDAR}).
+}
+{
+  A user-supplied dense Jacobian function must load the \id{nB} by \id{nB}
+  dense matrix \id{JB} with an approximation to the Jacobian matrix
+  at the point (\id{t},\id{y},\id{yB}), where \id{y} is the solution
+  of the original IVP at time \id{t} and \id{yB} is the solution of the
+  backward problem at the same time.
+  Only nonzero elements need to be loaded into \id{JB} as this matrix 
+  is set to zero before the call to the Jacobian function. 
+  The type of \id{JB} is \Id{DenseMat}. The user is referred to 
+  \S\ref{ss:djacFn} for details regarding accessing a \id{DenseMat} object.
+
+  {\warn}Before calling the user's \id{IDADenseJacFnB}, {\idaa} needs to evaluate
+  (through interpolation) the values of the states from the forward integration. 
+  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  failure in the Jacobian function which will halt the integration
+  (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} on 
+  \Id{IDADENSE\_JACFUNC\_UNREIDAR}).
+}
+
+%%-------------------------------------------------------------------------------------
+\subsection{Jacobian information for the backward problem
+  (direct method with banded Jacobian)}
+\index{Jacobian approximation function!band!user-supplied (backward)}
+If the direct linear solver with banded treatment of the Jacobian is selected
+for the backward problem (i.e. \Id{IDABandB} is called in step \ref{i:lin_solverB} 
+of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDABandSetJacFnB}
+(see \S\ref{ss:optional_input_B}), a function the following type:
+%%
+\usfunction{IDABandJacFnB}
+{
+ typedef int (*IDABandJacFnB)(&long int nB, \\
+                             &long int mupperB, long int mlowerB, \\
+                             &BandMat JB, realtype t, N\_Vector y, \\
+                             &N\_Vector yB, N\_Vector fyB, void *jac\_dataB, \\
+                             &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                             &N\_Vector tmp3B);
+}
+{
+  This function computes the banded Jacobian of the backward problem
+  (or a banded approximation to it).
+}
+{
+  \begin{args}[jac\_dataB]
+  \item[nB]
+    is the backward problem size.
+  \item[mlowerB]
+  \item[mupperB]
+    are the lower and upper half-bandwidth of the Jacobian.
+  \item[JB]
+    is the output Jacobian matrix.  
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the dependent variable vector.
+  \item[fyB]
+    is the current value of the right-hand side of the backward problem.
+  \item[jac\_dataB]
+    is a pointer to user data - the same as the \id{jac\_dataB}      
+    parameter passed to \id{IDABandSetJacDataB}.   
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated    
+    for variables of type \id{N\_Vector} which can be used by           
+    \id{IDABandJacFnB} as temporary storage or work space.    
+  \end{args}
+}
+{
+  A \id{IDABandJacFnB} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\idas} will attempt to correct, while {\idaband} sets
+  \id{last\_flag} on \Id{IDABAND\_JACFUNC\_REIDAR}), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted, \id{IDASolveB}
+  returns \Id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} on 
+  \Id{IDABAND\_JACFUNC\_UNREIDAR}).
+}
+{
+  A user-supplied band Jacobian function must load the band matrix \id{JB}
+  (of type \Id{BandMat}) with the elements of the Jacobian at the
+  point (\id{t},\id{y},\id{yB}), where \id{y} is the solution
+  of the original IVP at time \id{t} and \id{yB} is the solution of the
+  backward problem at the same time.  
+  Only nonzero elements need to be loaded into
+  \id{JB} because \id{JB} is preset to zero before the call to the
+  Jacobian function. More details on the accessor macros provided for
+  a \id{BandMat} object and on the rest of the arguments passed to a function
+  of type \id{IDABandJacFnB} are given in \S\ref{ss:bjacFn}.
+
+  {\warn}Before calling the user's \id{IDABandJacFnB}, {\idaa} needs to evaluate
+  (through interpolation) the values of the states from the forward integration. 
+  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  failure in the Jacobian function which will halt the integration
+  (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idaband} sets \id{last\_flag} on 
+  \Id{IDABAND\_JACFUNC\_UNREIDAR}).
+}
+
+%%-------------------------------------------------------------------------------------
+\subsection{Jacobian information for the backward problem (matrix-vector product)}
+\index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
+If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr}
+is selected (\id{IDASp*B} is called in step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), 
+the user may provide a function of type \ID{IDASpilsJacTimesVecFnB} in the following form:
+%%
+\usfunction{IDASpilsJacTimesVecFnB}
+{
+  typedef int (*IDASpilsJacTimesVecFnB)(&N\_Vector vB, N\_Vector JvB, \\
+                                       &realtype t, N\_Vector y, \\
+                                       &N\_Vector yB, N\_Vector fyB, \\
+                                       &void *jac\_dataB, N\_Vector tmpB);
+}
+{
+  This function computes the action of the Jacobian on a given vector \id{vB} for
+  the backward problem (or an approximation to it).
+}
+{
+  \begin{args}[jac\_dataB]
+  \item[vB]
+    is the vector by which the Jacobian must be multiplied to the right.
+  \item[JvB]
+      is the output vector computed.
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the dependent variable vector.
+  \item[fyB]
+    is the current value of the right-hand side of the backward problem.
+  \item[jac\_dataB]
+    is a pointer to user data - the same as the \id{jac\_dataB}      
+    parameter passed to \id{IDASp*SetJacTimesVecFnB}.   
+  \item[tmpB]
+    is a pointer to memory allocated for a vector which can be used for work space.
+  \end{args}
+}
+{  
+  The return value of a function of type \id{IDASpilsJtimesFnB} should be
+  $0$ if successful or nonzero if an error was encountered, in which case
+  the integration is halted.
+}
+{
+  A user-supplied Jacobian-vector product function must load the vector \id{JvB}
+  with the result of the product between the Jacobian of the backward problem 
+  at the point (\id{t},\id{y}, \id{yB}) and the vector \id{vB}. 
+  Here, \id{y} is the solution of the original IVP at time \id{t} and 
+  \id{yB} is the solution of the backward problem at the same time.  
+  The rest of the arguments are equivalent to those passed to a function of type
+  \id{IDASpilsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
+  If the backward problem is the adjoint of ${\dot y} = f(t, y)$, then this 
+  function is to compute $-(\dfdyI)^T v_B$.
+}
+
+%%-------------------------------------------------------------------------------------
+\subsection{Preconditioning for the backward problem (linear system solution)}
+\index{preconditioning!user-supplied}
+\index{IDASPGMR@{\idaspgmr} linear solver!preconditioner solve function}
+\index{IDASPBCG@{\idaspbcg} linear solver!preconditioner solve function}
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner solve function}
+If preconditioning is used during integration of the backward problem, 
+then the user must provide a {\C} function to solve the linear system 
+$Pz = r$, where $P$ may be either a left or a right preconditioner matrix.
+This function must be of type \ID{IDASpilsPrecSolveFnB} defined by
+%%
+\usfunction{IDASpilsPrecSolveFnB}
+{
+  typedef int (*IDASpilsPrecSolveFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
+                                     &N\_Vector fyB, N\_Vector rB, \\
+                                     &N\_Vector zB, realtype gammaB, \\
+                                     &realtype deltaB, int lrB, \\
+                                     &void *P\_dataB, N\_Vector tmpB);
+}
+{
+  This function solves the preconditioning system $Pz = r$ for the backward problem.
+}
+{  
+  \begin{args}[P\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the dependent variable vector.
+  \item[fyB]
+    is the current value of the right-hand side of the backward problem.
+  \item[rB]
+    is the right-hand side vector of the linear system.
+  \item[zB]
+    is the output vector computed.
+  \item[gammaB]
+    is the scalar $\gamma$ appearing in the Newton matrix.
+  \item[deltaB]
+    is an input tolerance to be used if an iterative method 
+    is employed in the solution.
+  \item[lrB]
+    is an input flag indicating whether the preconditioner solve
+    function is to use the left preconditioner (\id{lr=1}) or 
+    the right preconditioner (\id{lr=2});
+  \item[P\_dataB]
+    is a pointer to user data - the same as the \id{P\_dataB}      
+    parameter passed to the function \id{IDASp*SetPreconditionerB}.
+  \item[tmpB]
+    is a pointer to memory allocated for a vector which can be used for work space.
+  \end{args}
+}
+{
+  The return value of a preconditioner solve function for the backward
+  problem should be $0$ if successful, 
+  positive for a recoverable error (in which case the step will be retried), or
+  negative for an unrecoverable error (in which case the integration is halted).
+}
+{}
+
+%%-------------------------------------------------------------------------------------
+\subsection{Preconditioning for the backward problem (Jacobian data)}
+\index{preconditioning!user-supplied}
+\index{IDASPGMR@{\idaspgmr} linear solver!preconditioner setup function}
+\index{IDASPBCG@{\idaspbcg} linear solver!preconditioner setup function}
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner setup function}
+If the user's preconditioner requires that any Jacobian-related data
+be preprocessed or evaluated, then this needs to be done in a
+user-supplied {\C} function of type \ID{IDASpilsPrecSetupFnB} defined by
+%%
+\usfunction{IDASpilsPrecSetupFnB}
+{
+  typedef int (*IDASpilsPrecSetupFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\ 
+                                     &N\_Vector fyB, booleantype jokB, \\
+                                     &booleantype *jcurPtrB, \\
+                                     &realtype gammaB, void *P\_dataB,\\
+                                     &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                                     &N\_Vector tmp3B);
+}
+{
+  This function preprocesses and/or evaluates Jacobian-related data needed
+  by the preconditioner for the backward problem.
+}
+{
+  The arguments of a \id{IDASpilsPrecSetupFnB} are as follows:
+  \begin{args}[jcurPtrB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the dependent variable vector.
+  \item[fyB]
+    is the current value of the right-hand side of the backward problem.
+  \item[jokB]
+    is an input flag indicating whether Jacobian-related   
+    data needs to be recomputed.
+  \item[jcurPtrB]
+    is a pointer to an output integer flag which is        
+    to be set to \id{TRUE} if Jacobian data was recomputed, or   
+    to \id{FALSE} if Jacobian data was not recomputed but saved data was still reused.
+  \item[gammaB]
+    is the scalar $\gamma$ appearing in the Newton matrix.
+  \item[P\_dataB]
+    is a pointer to user data - the same as the \id{P\_dataB}      
+    parameter passed to \id{IDASpilsSetPreconditionerB}.
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated for vectors which can be used           
+    as temporary storage or work space.    
+  \end{args}
+}
+{
+  The return value of a preconditioner setup function for the backward
+  problem should be $0$ if successful, 
+  positive for a recoverable error (in which case the step will be retried),     
+  or negative for an unrecoverable error (in which case the integration is halted).
+}
+{}
+
+%%
+%%-------------------------------------------------------------------
+%%-------------------------------------------------------------------
+\section{Using IDAS preconditioner modules for the backward problem}
+%%-------------------------------------------------------------------
+%%-------------------------------------------------------------------
+%%
+
+As on the forward integration phase, the efficiency of Krylov iterative methods 
+for the solution of linear systems can be greatly enhanced through preconditioning.
+Both preconditioner modules provided with {\sundials}, the banded
+preconditioner {\idabandpre} and the band-block-diagonal preconditioner module {\idabbdpre},
+provide interface functions through which they can be used on the backward integration phase.
+
+%%-------------------------------------------------------------------
+\subsection{Using the banded preconditioner IDABANDPRE}
+%%-------------------------------------------------------------------
+
+\index{IDABANDPRE@{\idabandpre} preconditioner!usage with adjoint module|(}
+The adjoint module in {\idas} offers an interface to the banded 
+preconditioner module {\idabandpre} described in section \S\ref{sss:idabandpre}.
+This preconditioner provides a band matrix preconditioner based on difference
+quotients of the backward problem right-hand side function \id{fB}. It generates
+a banded approximation to the Jacobian with $m_{lB}$ sub-diagonals and $m_{uB}$
+super-diagonals to be used with one of the Krylov linear solvers.
+
+In order to use the {\idabandpre} module in the solution of the backward problem,
+the user need not define any additional functions. First, the user must initialize the
+{\idabandpre} module by calling
+%%
+%%
+\index{IDABANDPRE@{\idabandpre} preconditioner!user-callable functions|(}
+\ucfunction{IDABandPrecAllocB}
+{
+  flag = IDABandPrecAlloc(idaadj\_mem, nB, muB, mlB);
+}
+{
+  The function \ID{IDABandPrecAllocB} initializes and allocates
+  memory for the {\idabandpre} preconditioner for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[nB] (\id{long int})
+    backward problem dimension.
+  \item[muB] (\id{long int})
+    upper half-bandwidth of the backward problem Jacobian approximation.
+  \item[mlB] (\id{long int})
+    lower half-bandwidth of the backward problem Jacobian approximation.
+  \end{args}
+}
+{
+  If successful, \id{IDABandPrecAlloc} stores a pointer to the newly created 
+  {\idabandpre} memory block.
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDABANDPRE\_ADJMEM\_NULL]
+  \item[\Id{IDABANDPRE\_SUCCESS}]
+    The call to \id{IDABandPrecAllocB} was successful.
+  \item[\Id{IDABANDPRE\_MEM\_FAIL}]
+    An error occured while trying to create the {\idabandpre} memory block.
+  \item[\Id{IDABANDPRE\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+To specify the use of the {\idaspgmr} linear solver module with the {\idabandpre} 
+preconditioner module, make the following call:
+%%
+\ucfunction{IDABPSpgmrB}
+{
+  flag = IDABPSpgmrB(idaadj\_mem, pretypeB, maxlB);
+}
+{
+  The function \ID{IDABPSpgmrB} links the {\idabandpre} data to the
+  {\idaspgmr} linear solver and attaches the latter to the {\idas}
+  memory block for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[pretypeB] (\id{int})
+    \index{pretypeB@\texttt{pretypeB}}
+    preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
+  \item[maxlB] (\id{int})
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{IDASPILS\_MAXL}$=5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDABANDPRE\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}]
+    The {\idaspgmr} initialization was successful.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} memory block for the backward problem was not initialized through a 
+    previous call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The preconditioner type \id{pretypeB} is not valid.
+  \item[\Id{IDASPILS\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \item[\Id{IDABANDPRE\_PDATA\_NULL}]
+    The {\idabandpre} preconditioner has not been initialized.
+  \item[\Id{IDABANDPRE\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+To specify the use of the {\idaspbcg} linear solver module with the {\idabandpre} 
+preconditioner module, make the following call:
+%%
+\ucfunction{IDABPSpbcgB}
+{
+  flag = IDABPSpbcgB(idaadj\_mem, pretypeB, maxlB);
+}
+{
+  The function \ID{IDABPSpbcgB} links the {\idabandpre} data to the
+  {\idaspbcg} linear solver and attaches the latter to the {\idas}
+  memory block for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[pretypeB] (\id{int})
+    \index{pretypeB@\texttt{pretypeB}}
+    preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
+  \item[maxlB] (\id{int})
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{IDASPILS\_MAXL}$=5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDABANDPRE\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}]
+    The {\idaspbcg} initialization was successful.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} memory block for the backward problem was not initialized through a 
+    previous call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The preconditioner type \id{pretypeB} is not valid.
+  \item[\Id{IDASPILS\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \item[\Id{IDABANDPRE\_PDATA\_NULL}]
+    The {\idabandpre} preconditioner has not been initialized.
+  \item[\Id{IDABANDPRE\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+To specify the use of the {\idasptfqmr} linear solver module with the {\idabandpre} 
+preconditioner module, make the following call:
+%%
+\ucfunction{IDABPSptfqmrB}
+{
+  flag = IDABPSptfqmrB(idaadj\_mem, pretypeB, maxlB);
+}
+{
+  The function \ID{IDABPSptfqmrB} links the {\idabandpre} data to the
+  {\idasptfqmr} linear solver and attaches the latter to the {\idas}
+  memory block for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[pretypeB] (\id{int})
+    \index{pretypeB@\texttt{pretypeB}}
+    preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
+  \item[maxlB] (\id{int})
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{IDASPILS\_MAXL}$=5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASPILS\_ILL\_INPUT]
+  \item[\Id{IDABANDPRE\_ADJMEM\_NULL}]
+    The {\idasptfqmr} initialization was successful.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} memory block for the backward problem was not initialized through a 
+    previous call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The preconditioner type \id{pretypeB} is not valid.
+  \item[\Id{IDASPILS\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \item[\Id{IDABANDPRE\_PDATA\_NULL}]
+    The {\idabandpre} preconditioner has not been initialized.
+  \item[\Id{IDABANDPRE\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+To deallocate the {\idabandpre} preconditioner module memory used for the
+backward integration, make the following call:
+%%
+\ucfunction{IDABandPrecFreeB}
+{
+  IDABandPrecFreeB(idaadj\_mem);
+}
+{
+  The function \ID{IDABandPrecFreeB} frees the memory allocated by
+  \id{IDABandPrecAllocB}.
+}
+{
+  The only argument passed to \id{IDABandPrecFreeB} is the pointer to the {\idaa} 
+  memory block (of type \id{void *}).
+}
+{
+  The function \id{IDABandPrecFreeB} has no return value.
+}
+{
+  The call to \id{IDABandPrecFreeB} must preceed that to \id{IDAAdjFree}.
+}
+%%
+%%
+\index{IDABANDPRE@{\idabandpre} preconditioner!user-callable functions|)}
+For more details on {\idabandpre} see \S\ref{sss:idabandpre}.
+\index{IDABANDPRE@{\idabandpre} preconditioner!usage with adjoint module|)}
+
+%%-------------------------------------------------------------------
+\subsection{Using the band-block-diagonal preconditioner IDABBDPRE}
+
+\index{IDABBDPRE@{\idabbdpre} preconditioner!usage with adjoint module|(}
+The adjoint module in {\idas} offers an interface to the band-block-diagonal
+preconditioner module {\idabbdpre} described in section \S\ref{sss:idabbdpre}.
+This generates a preconditioner that is a block-diagonal matrix with each
+block being a band matrix and can be used with one of the Krylov linear solvers
+and with the parallel vector module {\nvecp}.
+
+In order to use the {\idabbdpre} module in the solution of the backward problem,
+the user must define one or two additional functions, described at the end of this section. 
+
+\subsubsection{Usage of IDABBDPRE for the backward problem}
+%%
+\index{IDABBDPRE@{\idabbdpre} preconditioner!user-callable functions|(}
+The {\idabbdpre} module is initialized by calling
+%%
+%%
+\ucfunction{IDABBDPrecAllocB}
+{
+  \begin{tabular}[t]{@{}r@{}l@{}}
+    flag = IDABBDPrecAllocB(&idaadj\_mem, NlocalB, mudqB, mldqB, \\
+                           &mukeepB, mlkeepB, dqrelyB, glocB, cfnB);
+  \end{tabular}
+}
+{
+  The function \ID{IDABBDPrecAllocB} initializes and allocates
+  memory for the {\idabbdpre} preconditioner for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[NlocalB] (\id{long int})
+    local vector dimension for the backward problem.
+  \item[mudqB] (\id{long int})
+    upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
+  \item[mldqB] (\id{long int})
+    lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
+  \item[mukeepB] (\id{long int})
+    upper half-bandwidth of the retained banded approximate Jacobian block.
+  \item[mlkeepB] (\id{long int})
+    lower half-bandwidth of the retained banded approximate Jacobian block.
+  \item[dqrelyB] (\id{realtype})
+    the relative increment in components of \id{yB} used in the difference quotient
+    approximations.  The default is \id{dqrelyB}$ = \sqrt{\text{unit roundoff}}$, which
+    can be specified by passing \id{dqrely}$ = 0.0$.
+  \item[glocB] (\id{IDALocalFnB})
+    the {\C} function which computes the approximation $g_B(t,y)$ to the right-hand
+    side of the backward problem. 
+  \item[cfnB] (\id{IDACommFnB})
+    the optional {\C} function which performs all interprocess communication required for
+    the computation of $g_B(t,y)$.
+  \end{args}
+}
+{
+  If successful, \id{IDABBDPrecAlloc} stores a pointer to the newly created 
+  {\idabbdpre} memory block.
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDABBDPRE\_ADJMEM\_NULL]
+  \item[\Id{IDABBDPRE\_SUCCESS}]
+    The call to \id{IDABBDPrecAllocB} was successful.
+  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
+    An error occured while trying to create the {\idabbdpre} memory block.
+  \item[\Id{IDABBDPRE\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+To specify the use of the {\idaspgmr} linear solver module with the {\idabbdpre} 
+preconditioner module, make the following call:
+%%
+\ucfunction{IDABBDSpgmrB}
+{
+  flag = IDABBDSpgmrB(idaadj\_mem, pretypeB, maxlB);
+}
+{
+  The function \ID{IDABBDSpgmrB} links the {\idabbdpre} data to the
+  {\idaspgmr} linear solver and attaches the latter to the {\idas}
+  memory block for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[pretypeB] (\id{int})
+    \index{pretypeB@\texttt{pretypeB}}
+    preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
+  \item[maxlB] (\id{int})
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{IDASPILS\_MAXL}$=5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDABBDPRE\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The {\idaspgmr} initialization was successful.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} memory block for the backward problem was not initialized through a 
+    previous call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The preconditioner type \id{pretypeB} is not valid.
+  \item[\Id{IDASPILS\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
+    The {\idabbdpre} preconditioner has not been initialized.
+  \item[\Id{IDABBDPRE\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+To specify the use of the {\idaspbcg} linear solver module with the {\idabbdpre} 
+preconditioner module, make the following call:
+%%
+\ucfunction{IDABBDSpbcgB}
+{
+  flag = IDABBDSpbcgB(idaadj\_mem, pretypeB, maxlB);
+}
+{
+  The function \ID{IDABBDSpbcgB} links the {\idabbdpre} data to the
+  {\idaspbcg} linear solver and attaches the latter to the {\idas}
+  memory block for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[pretypeB] (\id{int})
+    \index{pretypeB@\texttt{pretypeB}}
+    preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
+  \item[maxlB] (\id{int})
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{IDASPILS\_MAXL}$=5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDABBDPRE\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The {\idaspbcg} initialization was successful.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} memory block for the backward problem was not initialized through a 
+    previous call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The preconditioner type \id{pretypeB} is not valid.
+  \item[\Id{IDASPILS\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
+    The {\idabbdpre} preconditioner has not been initialized.
+  \item[\Id{IDABBDPRE\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+To specify the use of the {\idasptfqmr} linear solver module with the {\idabbdpre} 
+preconditioner module, make the following call:
+%%
+\ucfunction{IDABBDSptfqmrB}
+{
+  flag = IDABBDSptfqmrB(idaadj\_mem, pretypeB, maxlB);
+}
+{
+  The function \ID{IDABBDSptfqmrB} links the {\idabbdpre} data to the
+  {\idasptfqmr} linear solver and attaches the latter to the {\idas}
+  memory block for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[pretypeB] (\id{int})
+    \index{pretypeB@\texttt{pretypeB}}
+    preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
+  \item[maxlB] (\id{int})
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{IDASPILS\_MAXL}$=5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDABBDPRE\_ADJMEM\_NULL]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The {\idasptfqmr} initialization was successful.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The {\idas} memory block for the backward problem was not initialized through a 
+    previous call to \id{IDACreateB}.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The preconditioner type \id{pretypeB} is not valid.
+  \item[\Id{IDASPILS\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
+    The {\idabbdpre} preconditioner has not been initialized.
+  \item[\Id{IDABBDPRE\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+To reinitialize the {\idabbdpre} preconditioner module for the backward problem
+call the following function:
+%%
+\ucfunction{IDABBDPrecReInitB}
+{
+  flag = IDABBDPrecReInitB(idaadj\_mem, mudqB, mldqB, dqrelyB, glocB, cfnB);
+}
+{
+  The function \ID{IDABBDPrecReInitB} reinitializes the {\idabbdpre} preconditioner
+  for the backward problem.
+}
+{
+  \begin{args}[idaadj\_mem]
+  \item[idaadj\_mem] (\id{void *})
+    pointer to the adjoint memory block returned by \id{IDAAdjInit}.
+  \item[mudqB] (\id{long int})
+    upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
+  \item[mldqB] (\id{long int})
+    lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
+  \item[dqrelyB] (\id{realtype})
+    the relative increment in components of \id{yB} used in the difference quotient
+    approximations.
+  \item[glocB] (\id{IDALocalFnB})
+    the {\C} function which computes the approximation $g_B(t,y)$  to the right-hand
+    side of the backward problem. 
+  \item[cfnB] (\id{IDACommFnB})
+    the optional {\C} function which performs all interprocess communication required for
+    the computation of $g_B(t,y)$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDABBDPRE\_ADJMEM\_NULL]
+  \item[\Id{IDABBDPRE\_SUCCESS}] 
+    The {\idabbdpre} initialization was successful.
+  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
+    The {\idabbdpre} preconditioner has not been initialized.
+  \item[\Id{IDABBDPRE\_ADJMEM\_NULL}]
+    The \id{idaadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+To deallocate the {\idabbdpre} preconditioner module memory used for the
+backward integration, make the following call:
+%%
+\ucfunction{IDABBDPrecFreeB}
+{
+  IDABBDPrecFreeB(idaadj\_mem);
+}
+{
+  The function \ID{IDABBDPrecFreeB} frees the memory allocated by
+  \id{IDABBDPrecAllocB}.
+}
+{
+  The only argument passed to \id{IDABBDPrecFreeB} is the pointer to the {\idaa} 
+  memory block (of type \id{void *}).
+}
+{
+  The function \id{IDABBDPrecFreeB} has no return value.
+}
+{
+  The call to \id{IDABBDPrecFreeB} must preceed that to \id{IDAAdjFree}.
+}
+%%
+\index{IDABBDPRE@{\idabbdpre} preconditioner!user-callable functions|)}
+%%
+For more details on {\idabbdpre} see \S\ref{sss:idabbdpre}.
+
+\subsubsection{User-supplied functions for IDABBDPRE}
+%%
+\index{IDABBDPRE@{\idabbdpre} preconditioner!user-supplied functions|(}
+To use the {\idabbdpre} module, the user must supply one or two functions which the
+module calls to construct the preconditioner: a required function \id{glocB} 
+(of type \id{IDALocalFnB}) which approximates the right-hand side of the backward
+problem and which is computed locally, and an optional function \id{cfnB} 
+(of type \id{IDACommFnB}) which performs all interprocess communication necessary 
+to evaluate this approximate right-hand side (see \S\ref{sss:idabbdpre}).
+The prototypes for these two functions are described below.
+%%
+%%
+\usfunction{IDALocalFnB}
+{
+  typedef int (*IDALocalFnB)(&long int NlocalB, realtype t,  \\
+                            &N\_Vector y, N\_Vector yB, N\_Vector gB, \\
+                            &void *f\_dataB);
+}
+{
+  This function loads the vector
+  \id{gB} as a function of \id{t}, \id{y}, and \id{yB}.  
+}
+{
+  \begin{args}[NlocalB]
+  \item[NlocalB] 
+    is the local vector length for the backward problem.
+  \item[t]
+    is the value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the dependent variable vector.
+  \item[gB]
+    is the output vector.
+  \item[f\_dataB]
+    is a pointer to user data - the same as the \Id{f\_dataB}      
+    parameter passed to \id{IDASetFdataB}.  
+  \end{args}
+}
+{
+  A \id{IDALocalFnB} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\idas} will attempt to correct), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted and
+  \id{IDASolveB} returns \Id{IDA\_LSETUP\_FAIL}). 
+}
+{
+  This routine assumes that all interprocess communication of data needed to 
+  calculate \id{gB} has already been done, and this data is accessible within
+  \id{f\_dataB}.
+
+  {\warn}Before calling the user's \id{IDALocalFnB}, {\idaa} needs to evaluate
+  (through interpolation) the values of the states from the forward integration. 
+  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  failure in the preconditioner setup function which will halt the integration
+  (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL}).
+}
+%%
+%%
+\usfunction{IDACommFnB}
+{
+  typedef int (*IDACommFnB)(&long int NlocalB, realtype t,  \\
+                           &N\_Vector y, N\_Vector yB, void *f\_dataB);
+}
+{
+  This function performs all interprocess communications necessary 
+  for the execution of the \id{glocB} function above, using the input 
+  vectors \id{y} and \id{yB}.
+}
+{
+  \begin{args}[NlocalB]
+  \item[NlocalB] 
+    is the local vector length.
+  \item[t]
+    is the value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the dependent variable vector.
+  \item[f\_dataB]
+    is a pointer to user data - the same as the \Id{f\_dataB}
+    parameter passed to \id{IDASetFdataB}.
+  \end{args}
+}
+{
+  A \id{IDACommFn} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\idas} will attempt to correct), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted and
+  \id{IDASolveB} returns \Id{IDA\_LSETUP\_FAIL}). 
+}
+{
+  The \id{cfnB} function is expected to save communicated data in space defined within the
+  structure \id{f\_dataB}. 
+
+  Each call to the \id{cfnB} function is preceded by a call to the function that 
+  evaluates the right-hand side of the backward problem with the same \id{t}, \id{y}, 
+  and \id{yB} arguments. If there is no additional communication needed, then pass
+  \id{cfnB} $=$ \id{NULL} to \id{IDABBDPrecAllocB}.
+}
+\index{IDABBDPRE@{\idabbdpre} preconditioner!user-supplied functions|)}
+%%
+%%
+\index{IDABBDPRE@{\idabbdpre} preconditioner!usage with adjoint module|)}

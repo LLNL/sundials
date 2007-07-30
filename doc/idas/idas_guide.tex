@@ -1,0 +1,90 @@
+\documentclass[twoside,openright,10pt]{report}
+%\documentclass[openright,10pt]{report}
+
+% Package useful for debuging
+%\usepackage{showlabels}
+
+\input{ug.tex}
+
+%===============================================================
+
+\title{User Documentation for {\ida} {\idarelease}}
+\author{
+  Radu Serban and Cosmin Petra\\
+  {\em Center for Applied Scientific Computing} \\
+  {\em Lawrence Livermore National Laboratory}
+}
+\date{
+  \today 
+  \vfill 
+  {\centerline{\psfig{figure=doc_logo.eps,width=0.5\textwidth}}}
+  \vfill \idaucrlug
+}
+
+%===============================================================
+
+\makeindex
+
+%===============================================================
+
+\begin{document}
+
+\frontug
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+
+%===============================================================
+% Introduction
+\include{idas_intro}
+\clearemptydoublepage
+%===============================================================
+% SUNDIALS installation procedure
+\include{idas_install}
+\clearemptydoublepage
+%===============================================================
+% Mathematical Considerations
+\include{idas_math}
+\clearemptydoublepage
+%===============================================================
+% CVODE Code Organization
+\include{idas_org}
+\clearemptydoublepage
+%===============================================================
+% Usage for simulation
+\include{idas_sim}
+\clearemptydoublepage
+%===============================================================
+% Usage for FSA
+\include{idas_fwd}
+\clearemptydoublepage
+%===============================================================
+% Usage for ASA
+\include{idas_asa}
+\clearemptydoublepage
+%===============================================================
+% Description of the NVECTOR Concept
+\include{idas_nvec}
+\clearemptydoublepage
+%===============================================================
+% Providing a new linear solver module
+\include{idas_newlinsolv}
+\clearemptydoublepage
+%===============================================================
+% Generic linear solvers
+\include{idas_linsolv}
+\clearemptydoublepage
+%===============================================================
+% IDA constants
+\include{idas_constants}
+\clearemptydoublepage
+%===============================================================
+% References
+\bibliographystyle{plain}
+\bibliography{biblio}
+\clearemptydoublepage
+%===============================================================
+% Index
+\printindex
+\clearemptydoublepage
+%===============================================================
+\end{document}

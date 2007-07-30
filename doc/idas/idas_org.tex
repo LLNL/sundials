@@ -1,0 +1,111 @@
+%===================================================================================
+\chapter{Code Organization}\label{s:organization}
+%===================================================================================
+
+%----------------------------------
+\section{SUNDIALS organization}\label{ss:sun_org}
+%----------------------------------
+\input{sun_org}
+
+%----------------------------------
+\section{IDAS organization}\label{ss:ida_org}
+%----------------------------------
+
+\index{IDAS@{\ida}!package structure}
+The {\ida} package is written in the ANSI {\C} language. The following
+summarizes the basic structure of the package, although knowledge
+of this structure is not necessary for its use.
+
+The overall organization of the {\ida} package is shown in Figure
+\ref{f:idasorg}.
+\begin{figure}
+{\centerline{\psfig{figure=idasorg.eps,width=\textwidth}}}
+\caption [Overall structure diagram of the {\ida} package]
+{Overall structure diagram of the {\ida} package.
+  Modules specific to {\ida} are distinguished by rounded boxes, while 
+  generic solver and auxiliary modules are in square boxes.}
+\label{f:idasorg}
+\end{figure}
+The central integration module, implemented in the files \id{ida.h},
+\id{ida\_impl.h}, and \id{ida.c}, deals with the evaluation of integration 
+coefficients, the Newton iteration process, estimation of local error,
+selection of stepsize and order, and interpolation to user output
+points, among other issues.  Although this module contains logic for
+the basic Newton iteration algorithm, it has no knowledge of the
+method being used to solve the linear systems that arise.  For any
+given user problem, one of the linear system modules is specified, and
+is then invoked as needed during the integration. 
+
+\index{IDAS@{\ida} linear solvers!list of|(} 
+At present, the package includes the following five {\ida} linear system
+modules:
+\begin{itemize} 
+\item {\idadense}: LU factorization and backsolving with dense matrices; 
+\item {\idaband}: LU factorization and backsolving with banded matrices; 
+\item {\idaspgmr}: scaled preconditioned GMRES method;
+\item {\idaspbcg}: scaled preconditioned Bi-CGStab method;
+\item {\idasptfqmr}: scaled preconditioned TFQMR method.
+\end{itemize}
+This set of linear solver modules is intended to be expanded in the
+future as new algorithms are developed.
+\index{IDAS@{\ida} linear solvers!list of|)} 
+
+In the case of the direct methods {\idadense} and {\idaband}, the package includes
+an algorithm for the approximation of the Jacobian by difference
+quotients, but the user also has the option of supplying the Jacobian
+(or an approximation to it) directly. In the case of the Krylov iterative methods
+{\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}, the package includes an algorithm for
+the approximation by difference quotients of the product between the Jacobian matrix
+and a vector of appropriate length. Again, the user has the option of providing
+a routine for this operation.
+When \index{preconditioning!setup and solve phases} using any of the Krylov
+methods, the user must supply the preconditioning in two phases: 
+a setup phase (preprocessing of Jacobian data) and a solve phase.
+While\index{preconditioning!advice on} there is no default
+choice of preconditioner analogous to the difference quotient
+approximation in the direct case, the references
+\cite{BrHi:89, Byr:92}, together with
+the example and demonstration programs included with {\ida}, offer
+considerable assistance in building preconditioners.
+
+\index{IDAS@{\ida} linear solvers!implementation details|(} 
+Each {\ida} linear solver module consists of five routines, devoted to
+(1) memory allocation and initialization, (2) setup of the matrix data
+involved, (3) solution of the system, (4) monitoring performance,
+and (5) freeing of memory.  
+The setup and solution phases are separate because the evaluation of
+Jacobians and preconditioners is done only periodically during the
+integration, as required to achieve convergence. The call list within
+the central {\ida} module to each of the five associated functions is
+fixed, thus allowing the central module to be completely independent
+of the linear system method.
+\index{IDAS@{\ida} linear solvers!implementation details|)} 
+
+These modules are also decomposed in another way.
+\index{generic linear solvers!use in {\ida}|(} 
+Each of the modules {\idadense}, {\idaband}, {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}
+is a set of interface routines built on top of a generic solver module, 
+named {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.  
+The interfaces deal with the use of these methods in the {\ida} context, 
+whereas the generic solver is independent of the context.
+While the generic solvers here were generated with {\sundials} in mind, our
+intention is that they be usable in other applications as
+general-purpose solvers.  This separation also allows for any generic
+solver to be replaced by an improved version, with no necessity to
+revise the {\ida} package elsewhere.
+\index{generic linear solvers!use in {\ida}|)}
+
+{\ida} also provides a preconditioner module,
+{\idabbdpre}, that works in conjunction with {\nvecp} and generates a 
+preconditioner that is a block-diagonal matrix with each block being 
+a band matrix.
+
+All state information used by {\ida} to solve a given problem is saved
+in a structure, and a pointer to that structure is returned to the
+user.  There is no global data in the {\ida} package, and so in this
+respect it is reentrant. State information specific to the linear
+solver is saved in a separate structure, a pointer to which resides in
+the {\ida} memory structure. The reentrancy of {\ida} was motivated
+by the situation where two or more problems are solved by
+intermixed calls to the package from one user program.
+
