@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-07-27 23:52:53 $
+ * $Revision: 1.8 $
+ * $Date: 2007-07-30 23:57:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -415,15 +415,16 @@ void IDAAdjFree(void *ida_mem)
     while (IDAADJ_mem->ck_mem != NULL) {
       IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     }
-    
+
     IDAAdataFree(IDA_mem);
-    
+
     /* Free all backward problems. */
     while (IDAADJ_mem->IDAB_mem != NULL)
       IDAAbckpbDelete( &(IDAADJ_mem->IDAB_mem) );
-    
+
     /* Free IDAA memory. */
     free(IDAADJ_mem);
+
     IDA_mem->ida_adj_mem = NULL;
   }
 }
@@ -2044,6 +2045,7 @@ static booleantype IDAAdataMalloc(IDAMem IDA_mem)
       free(dt_mem);
       return(FALSE);
     }
+    dt_mem[i]->content = NULL;
   }
   /* Attach the allocated dt_mem to IDAADJ_mem. */
   IDAADJ_mem->dt_mem = dt_mem;
@@ -2403,16 +2405,21 @@ static void IDAAhermiteFree(IDAMem IDA_mem)
   dt_mem = IDAADJ_mem->dt_mem;
 
   for (i=0; i<=nsteps; i++) {
+
     content = (HermiteDataMem) (dt_mem[i]->content);
-    N_VDestroy(content->y);
-    N_VDestroy(content->yd);
+    /* content might be NULL, if IDAAdjInit was called but IDASolveF was not. */
+    if(content) {
 
-    if (storeSensi) {
-      N_VDestroyVectorArray(content->yS, Ns);
-      N_VDestroyVectorArray(content->ySd, Ns);      
+      N_VDestroy(content->y);
+      N_VDestroy(content->yd);
+
+      if (storeSensi) {
+        N_VDestroyVectorArray(content->yS, Ns);
+        N_VDestroyVectorArray(content->ySd, Ns);      
+      }
+      free(dt_mem[i]->content); 
+      dt_mem[i]->content = NULL;
     }
-
-    free(dt_mem[i]->content); dt_mem[i]->content = NULL;
   }
 }
 
@@ -2767,19 +2774,24 @@ static void IDAApolynomialFree(IDAMem IDA_mem)
   dt_mem = IDAADJ_mem->dt_mem;
 
   for (i=0; i<=nsteps; i++) {
+
     content = (PolynomialDataMem) (dt_mem[i]->content);
-    N_VDestroy(content->y);
 
-    if (content->yd) N_VDestroy(content->yd);
+    /* content might be NULL, if IDAAdjInit was called but IDASolveF was not. */
+    if(content) {
+      N_VDestroy(content->y);
 
-    if (storeSensi) {
-      
-      N_VDestroyVectorArray(content->yS, Ns);
+      if (content->yd) N_VDestroy(content->yd);
 
-      if (content->ySd)
-        N_VDestroyVectorArray(content->ySd, Ns);
+      if (storeSensi) {
+        
+        N_VDestroyVectorArray(content->yS, Ns);
+        
+        if (content->ySd)
+          N_VDestroyVectorArray(content->ySd, Ns);
+      }
+      free(dt_mem[i]->content); dt_mem[i]->content = NULL;
     }
-    free(dt_mem[i]->content); dt_mem[i]->content = NULL;
   }
 }
 
