@@ -28,17 +28,17 @@ are as follows:
 \item Interface to the main {\ida} module
   \begin{itemize}
   \item \id{FIDAMALLOC}
-    interfaces to \id{IDACreate} and \id{IDAMalloc}.
+    interfaces to \id{IDACreate}, \id{IDAInit}, and \id{IDASStolerances}/\id{IDASVtolerances}.
   \item \id{FIDAREINIT}
-    interfaces to \id{IDAReInit}.
+    interfaces to \id{IDAReInit} and \id{IDASStolerances}/\id{IDASVtolerances}.
   \item \id{FIDASETIIN}, \id{FIDASETVIN}, and \id{FIDASETRIN}
     interface to \id{IDASet*} functions.    
   \item \id{FIDATOLREINIT}
-    interfaces to \id{IDASetTolerances}.
+    interfaces to \id{IDASStolerances}/\id{IDASVtolerances}.
   \item \id{FIDACALCIC}
     interfaces to \id{IDACalcIC}.
   \item \id{FIDAEWTSET}
-    interfaces to \id{IDAEwtSetFn}.
+    interfaces to \id{IDAWFtolerances}.
   \item \id{FIDASOLVE}
     interfaces to \id{IDASolve}, \id{IDAGet*} functions, and to the optional
     output functions for the selected linear solver module.
@@ -55,12 +55,20 @@ are as follows:
   \begin{itemize}
   \item \id{FIDADENSE}
     interfaces to \id{IDADense}.
-  \item \id{FIDADENSESETJAC}
-    interfaces to \id{IDADenseSetJacFn}.
   \item \id{FIDABAND}
     interfaces to \id{IDABand}.
+  \item \id{FIDALAPACKDENSE}
+    interfaces to \id{IDALapackDense}.
+  \item \id{FIDALAPACKBAND}
+    interfaces to \id{IDALapackBand}.
+  \item \id{FIDADENSESETJAC}
+    interfaces to \id{IDADlsSetDenseJacFn}.
   \item \id{FIDABANDSETJAC}
-    interfaces to \id{IDABandSetJacFn}.
+    interfaces to \id{IDADlsSetBandJacFn}.
+  \item \id{FIDALAPACKDENSESETJAC}
+    interfaces to \id{IDADlsSetDenseJacFn}.
+  \item \id{FIDALAPACKBANDSETJAC}
+    interfaces to \id{IDADlsSetBandJacFn}.
   \item \id{FIDASPGMR}
     interfaces to \id{IDASpgmr} and {\spgmr} optional input functions.
   \item \id{FIDASPGMRREINIT}
@@ -87,11 +95,11 @@ The user-supplied functions, each listed with the corresponding interface
 function which calls it (and its type within {\ida}), are as follows:
 \begin{center}
 \begin{tabular}{l|l|l}
-{\fida} routine ({\F})  &  {\ida} function ({\C}) & {\ida} function type \\\hline
+{\fida} routine ({\F})  &  {\fida} wrapper function ({\C}) & {\ida} function type \\\hline
 \id{FIDARESFUN} & \id{FIDAresfn}    & \id{IDAResFn} \\
 \id{FIDAEWT}    & \id{FIDAEwtSet}   & \id{IDAEwtFn} \\
-\id{FIDADJAC}   & \id{FIDADenseJac} & \id{IDADenseJacFn} \\
-\id{FIDABJAC}   & \id{FIDABandJac}  & \id{IDABandJacFn} \\
+\id{FIDADJAC}   & \id{FIDADenseJac} & \id{IDADlsDenseJacFn} \\
+\id{FIDABJAC}   & \id{FIDABandJac}  & \id{IDADlsBandJacFn} \\
 \id{FIDAPSOL}   & \id{FIDAPSol}     & \id{IDASpilsPrecSolveFn} \\
 \id{FIDAPSET}   & \id{FIDAPSet}     & \id{IDASpilsPrecSetupFn} \\
 \id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDASpilsJacTimesVecFn} \\
@@ -306,7 +314,12 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FIDADENSE (NEQ, IER)
 \end{verbatim}
-  where \id{NEQ} is the size of the DAE system.
+  or
+\begin{verbatim}
+      CALL FIDALAPACKDENSE (NEQ, IER)
+\end{verbatim}
+  where \id{NEQ} is the size of the DAE system, depending on whther the internal
+  or a Lapack dense linear solver is to be used.
   The argument \id{IER} is an error return flag, which is $0$ 
   for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal
   input.  \index{Jacobian approximation function!dense!use in {\fida}}
@@ -335,10 +348,14 @@ apply to {\nvecp}.
   passed from the calling program to this routine using \id{COMMON}.
 
   If the \id{FIDADJAC} routine is provided, then, 
-  following the call to \id{FIDADENSE}, the user must make the call:
+  following the call to \id{FIDADENSE} (or \id{FIDALAPACKDENSE}), the user must make the call:
   \index{FIDADENSESETJAC@\texttt{FIDADENSESETJAC}}
 \begin{verbatim}
       CALL FIDADENSESETJAC (FLAG, IER)
+\end{verbatim}
+  or
+\begin{verbatim}
+      CALL FIDALAPACKDENSESETJAC (FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian
   approximation.  The argument \id{IER} is an error return flag, which is $0$ 
@@ -357,6 +374,12 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FIDABAND (NEQ, MU, ML, IER)
 \end{verbatim}
+  or
+\begin{verbatim}
+      CALL FIDALAPACK (NEQ, MU, ML, IER)
+\end{verbatim}
+  depending on whther the internal
+  or a Lapack dense linear solver is to be used.
   The arguments are: \id{MU}, the upper half-bandwidth; \id{ML}, 
   the lower half-bandwidth; and \id{IER}, an error return flag, which is  
   $0$ for success , $-1$ if a memory allocation failure occurred, or $-2$ 
@@ -391,10 +414,14 @@ apply to {\nvecp}.
   passed from the calling program to this routine using \id{COMMON}.
 
   If the \id{FIDABJAC} routine is provided, then, following the call to
-  \id{FIDABAND}, the user must make the call:
+  \id{FIDABAND} (or \id{FIDALAPACKBAND}), the user must make the call:
   \index{FIDABANDSETJAC@\texttt{FIDABANDSETJAC}}
 \begin{verbatim}
       CALL FIDABANDSETJAC (FLAG, IER)
+\end{verbatim}
+  or
+\begin{verbatim}
+      CALL FIDALAPACKBANDSETJAC (FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian
   approximation.  The argument \id{IER} is an error return flag, which is $0$ 
@@ -831,21 +858,13 @@ and \S\ref{ss:optional_output}.
 11 & \id{NBCKTRKOPS}& \id{IDAGetNumBacktrackOps} \\
 12 & \id{NGE}       & \id{IDAGetNumGEvals} \\
 \hline
-\multicolumn{3}{|c|}{{\idadense} linear solver}\\
+\multicolumn{3}{|c|}{{\idadense} and {\idaband} linear solvers}\\
 \hline
-13 &  \id{LENRWLS}  & \id{IDADenseGetWorkSpace} \\ 
-14 &  \id{LENIWLS}  & \id{IDADenseGetWorkSpace} \\ 
-15 &  \id{LS\_FLAG} & \id{IDADenseGetLastFlag} \\
-16 &  \id{NRELS}    & \id{IDADenseGetNumResEvals} \\
-17 &  \id{NJE}      & \id{IDADenseGetNumJacEvals} \\ 
-\hline
-\multicolumn{3}{|c|}{{\idaband} linear solver}\\
-\hline
-13 &  \id{LENRWLS}  & \id{IDABandGetWorkSpace} \\ 
-14 &  \id{LENIWLS}  & \id{IDABandGetWorkSpace} \\ 
-15 &  \id{LS\_FLAG} & \id{IDABandGetLastFlag} \\ 
-16 &  \id{NRELS}    & \id{IDABandGetNumResEvals} \\
-17 &  \id{NJE}      & \id{IDABandGetNumJacEvals} \\ 
+13 &  \id{LENRWLS}  & \id{IDADlsGetWorkSpace} \\ 
+14 &  \id{LENIWLS}  & \id{IDADlsGetWorkSpace} \\ 
+15 &  \id{LS\_FLAG} & \id{IDADlsGetLastFlag} \\
+16 &  \id{NRELS}    & \id{IDADlsGetNumResEvals} \\
+17 &  \id{NJE}      & \id{IDADlsGetNumJacEvals} \\ 
 \hline
 \multicolumn{3}{|c|}{{\idaspgmr}, {\idaspbcg}, {\idasptfqmr} linear solvers}\\
 \hline
@@ -975,7 +994,7 @@ the following call:
 \begin{verbatim}
       CALL FIDAROOTFREE
 \end{verbatim}
-See \S\ref{s:using_rootfinding} for additional information on the
+See \S\ref{ss:idarootinit} for additional information on the
 rootfinding feature.
 \index{FIDA@{\fida} interface module!rootfinding|)}
 
@@ -1041,7 +1060,9 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
 
 \item \textcolor{gray}{\bf Problem specification}
 
-\item {\bf Linear solver specification}
+\item \textcolor{gray}{\bf Iterative linear solver specification}
+
+\item {\bf BBD preconditioner initialization}
 
   To initialize the {\idabbdpre} preconditioner, make the following call:
   \index{FIDABBDINIT@\texttt{FIDABBDINIT}}
@@ -1063,42 +1084,6 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   \id{IER} is a return completion flag.  A value of $0$ indicates success, while
   a value of $-1$ indicates that a memory failure occurred or that an input had
   an illegal value.
-
-  To specify the {\spgmr} linear system solver and use the {\idabbdpre}
-  preconditioner, make the following call:
-  \index{FIDABBDSPGMR@\texttt{FIDABBDSPGMR}}
-\begin{verbatim}
-       CALL FIDABBDSPGMR (MAXL, IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
-\end{verbatim}
-  Its arguments are the same as those of \id{FIDASPGMR}
-  (see step \ref{i:fida_lin_solv_spec} in \S\ref{ss:fida_usage}).
-
-  To specify the {\spbcg} linear system solver and use the {\idabbdpre}
-  preconditioner, make the following call:
-  \index{FIDABBDSPBCG@\texttt{FIDABBDSPBCG}}
-\begin{verbatim}
-       CALL FIDABBDSPBCG (MAXL, EPLIFAC, DQINCFAC, IER)
-\end{verbatim}
-  Its arguments are the same as those of \id{FIDASPBCG}
-  (see step \ref{i:fida_lin_solv_spec} in \S\ref{ss:fida_usage}).
-
-  To specify the {\sptfqmr} linear system solver and use the {\idabbdpre}
-  preconditioner, make the following call:
-  \index{FIDABBDSPTFQMR@\texttt{FIDABBDSPTFQMR}}
-\begin{verbatim}
-       CALL FIDABBDSPTFQMR (MAXL, EPLIFAC, DQINCFAC, IER)
-\end{verbatim}
-  Its arguments are the same as those of \id{FIDASPTFQMR}
-  (see step \ref{i:fida_lin_solv_spec} in \S\ref{ss:fida_usage}).
-
-  Optionally, to specify that {\spgmr}, {\spbcg}, or {\sptfqmr} should use 
-  the supplied \id{FIDAJTIMES}, make the call
-  \index{FIDASPILSSETJAC@\texttt{FIDASPILSSETJAC}}
-\begin{verbatim}
-       CALL FIDASPILSSETJAC (FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$ 
-  (see step \ref{i:fida_lin_solv_spec} in \S\ref{ss:fida_usage} for details).
 
 \item \textcolor{gray}{\bf Problem solution}
   

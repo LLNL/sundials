@@ -34,8 +34,6 @@ description of their meaning.
 \multicolumn{3}{c}{\bf {\ida} main solver module}\\
 \hline\\
 
-\id{IDA\_SS}               & 1 & Scalar relative tolerance, scalar absolute tolerance. \\
-\id{IDA\_SV}               & 2 & Scalar relative tolerance, vector absolute tolerance. \\
 \id{IDA\_NORMAL}           & 1 & Solver returns at specified output time. \\
 \id{IDA\_ONE\_STEP}        & 2 & Solver returns after each successful step. \\
 \id{IDA\_NORMAL\_TSTOP}    & 3 & Solver returns at specified output time, but does not proceed past the specified stopping time. \\
@@ -88,28 +86,16 @@ description of their meaning.
 \id{IDA\_RTFUNC\_FAIL}    & -20 & The rootfinding function failed in an unrecoverable manner. \\
 
 \\\hline
-\multicolumn{3}{c}{\bf {\idadense} linear solver module}\\
+\multicolumn{3}{c}{\bf {\idadls} linear solver modules}\\
 \hline\\
 
-\id{IDADENSE\_SUCCESS}    &  0 & Successful function return. \\
-\id{IDADENSE\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
-\id{IDADENSE\_LMEM\_NULL} & -2 & The {\idadense} linear solver has not been initialized.\\
-\id{IDADENSE\_ILL\_INPUT} & -3 & The {\idadense} solver is not compatible with the current {\nvector} module.\\
-\id{IDADENSE\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\id{IDADENSE\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{IDADENSE\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\idaband} linear solver module}\\
-\hline\\
-
-\id{IDABAND\_SUCCESS}    &  0 & Successful function return. \\
-\id{IDABAND\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
-\id{IDABAND\_LMEM\_NULL} & -2 & The {\idaband} linear solver has not been initialized.\\
-\id{IDABAND\_ILL\_INPUT} & -3 & The {\idaband} solver is not compatible with the current {\nvector} module.\\
-\id{IDABAND\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\id{IDABAND\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{IDABAND\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+\id{IDADIRECT\_SUCCESS}    &  0 & Successful function return. \\
+\id{IDADIRECT\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
+\id{IDADIRECT\_LMEM\_NULL} & -2 & The {\idadls} linear solver has not been initialized.\\
+\id{IDADIRECT\_ILL\_INPUT} & -3 & The {\idadls} solver is not compatible with the current {\nvector} module.\\
+\id{IDADIRECT\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{IDADIRECT\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
+\id{IDADIRECT\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\idaspils} linear solver modules}\\
@@ -120,6 +106,7 @@ description of their meaning.
 \id{IDASPILS\_LMEM\_NULL} & -2 & The linear solver has not been initialized.\\
 \id{IDASPILS\_ILL\_INPUT} & -3 & The solver is not compatible with the current {\nvector} module.\\
 \id{IDASPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{IDASPILS\_PMEM\_NULL} & -5 & The preconditioner module has not been initialized. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\
@@ -168,13 +155,5 @@ description of their meaning.
 \id{SPTFQMR\_ATIMES\_FAIL\_UNREC} & -2 & The Jacobian-times-vector function failed. \\
 \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
 \id{SPTFQMR\_PSET\_FAIL\_UNREC}   & -4 & The preconditioner setup function failed unrecoverably. \\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\idabbdpre} preconditioner module}\\
-\hline\\
-
-\id{IDABBDPRE\_SUCCESS}         &  0 & Successful function return. \\
-\id{IDABBDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
-\id{IDABBDPRE\_FUNC\_UNRECVR}   & -12 & A user supplied function failed unrecoverably.
 
 \end{supertabular*} 
