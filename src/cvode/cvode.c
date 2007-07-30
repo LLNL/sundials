@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-04-30 21:27:34 $
+ * $Revision: 1.17 $
+ * $Date: 2007-07-30 16:23:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -772,6 +772,7 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
   cv_mem->cv_efun = efun;
   cv_mem->cv_e_data = cv_mem->cv_user_data;
 
+  return(CV_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/

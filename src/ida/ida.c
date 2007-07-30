@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2007-04-30 21:27:35 $
+ * $Revision: 1.16 $
+ * $Date: 2007-07-30 16:23:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -695,6 +695,7 @@ int IDAWFtolerances(void *ida_mem, IDAEwtFn efun)
   IDA_mem->ida_efun = efun;
   IDA_mem->ida_edata = IDA_mem->ida_user_data;
 
+  return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
