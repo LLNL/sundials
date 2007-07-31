@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-07-30 23:57:36 $
+ * $Revision: 1.9 $
+ * $Date: 2007-07-31 17:32:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -449,7 +449,7 @@ static void IDAAbckpbDelete(IDABMem *IDAB_memPtr)
 
   /* Free IDAS memory for this backward problem. */
   ida_mem = (void *)IDAB_mem->IDA_mem;
-  IDAFree(ida_mem);
+  IDAFree(&ida_mem);
 
   /* Free linear solver memory. */
   if (IDAB_mem->ida_lfree != NULL) IDAB_mem->ida_lfree(IDAB_mem);
