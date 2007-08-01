@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2007-06-30 00:52:49 $
+# $Revision: 1.5 $
+# $Date: 2007-08-01 01:26:18 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -9,7 +9,7 @@
 # All rights reserved.
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
-# Makefile for CVODE serial examples
+# Makefile for IDAS serial examples
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
@@ -38,8 +38,10 @@ EXAMPLES = idasdenx \
 	   idasbanx2 \
 	   idaskrydem_lin \
            idasslcr \
-           idasfwddenx
-
+           idasfwddenx \
+           idasadjdenx \
+           idasadjhess
+           idasakzonobel
 # ----------------------------------------------------------------------------------------------------------------------
 
 all: $(EXAMPLES)
@@ -68,7 +70,15 @@ idaskrydem_lin: idaskrydem_lin.c
 idasslcr: idasslcr.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasslcr.c
 	 $(CC) -o idasslcr idasslcr.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-
 idasfwddenx: idasfwddenx.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasfwddenx.c
 	 $(CC) -o idasfwddenx idasfwddenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasadjdenx: idasadjdenx.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasadjdenx.c
+	 $(CC) -o idasadjdenx idasadjdenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasadjhess: idasadjhess.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasadjhess.c
+	 $(CC) -o idasadjhess idasadjhess.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasakzonobel: idasakzonobel.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasakzonobel.c
+	 $(CC) -o idasakzonobel idasakzonobel.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)

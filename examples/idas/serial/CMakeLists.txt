@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2007-06-30 00:52:48 $
+# $Revision: 1.4 $
+# $Date: 2007-08-01 01:26:18 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -22,6 +22,9 @@ SET(idas_examples
   idaskryx
   idasslcr
   idasfwddenx
+  idasadjdenx
+  idasadjhess
+  idasakzonobel
   )
 
 # Add variable idas_bl_examples with the names of the serial IDAS examples

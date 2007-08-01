@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-06-11 21:23:09 $
+ * $Revision: 1.3 $
+ * $Date: 2007-08-01 01:26:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Cosmin Petra and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -71,6 +71,7 @@
 
 typedef struct {
   realtype p[3];           /* problem parameters */
+  realtype coef;
 } *UserData;
 
 /* Prototypes of functions by IDAS */
@@ -82,6 +83,9 @@ static int resS(int Ns, realtype t,
                 N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
                 void *user_data, 
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+static int rhsQ(realtype tres, N_Vector yy, N_Vector yp,
+                 N_Vector rrQ, void *user_data);
 
 /* Prototypes of private functions */
 
@@ -131,9 +135,10 @@ int main(int argc, char *argv[])
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2)) return(1);
-  data->p[0] = RCONST(0.04);
+  data->p[0] = RCONST(0.040);
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
+  data->coef = 0.5;
 
   /* Initial conditions */
   y = N_VNew_Serial(NEQ);
@@ -160,7 +165,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "IDAInit", 1)) return(1);
 
   /* Specify scalar relative tol. and vector absolute tol. */
-  reltol = RCONST(1.0e-4);
+  reltol = RCONST(1.0e-6);
   abstol = N_VNew_Serial(NEQ);
   Ith(abstol,1) = RCONST(1.0e-8);
   Ith(abstol,2) = RCONST(1.0e-14);
@@ -235,6 +240,22 @@ int main(int argc, char *argv[])
 
   }
 
+  /*----------------------------------------------------------
+   *               Q U A D R A T U R E S
+   * ---------------------------------------------------------*/
+  N_Vector yQ, *yQS;
+  yQ = N_VNew_Serial(2);
+
+  Ith(yQ,1) = 0;
+  Ith(yQ,2) = 0;
+
+  IDAQuadInit(ida_mem, rhsQ, yQ);
+
+  yQS = N_VCloneVectorArray_Serial(NS, yQ);
+  for (is=0;is<NS;is++) N_VConst(ZERO, yQS[is]);  
+
+  IDAQuadSensInit(ida_mem, NULL, yQS);
+
   /* Call IDACalcIC to compute consistent initial conditions. If sensitivity is
      enabled, this function also try to find consistent IC for the sensitivities. */
 
@@ -262,12 +283,12 @@ int main(int argc, char *argv[])
   printf("============================\n");
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
-
+    
     flag = IDASolve(ida_mem, tout, &t, y, yp, IDA_NORMAL);
     if (check_flag(&flag, "IDASolve", 1)) break;
 
     PrintOutput(ida_mem, t, y);
-
+    
     if (sensi) {
       flag = IDAGetSens(ida_mem, &t, yS);
       if (check_flag(&flag, "IDAGetSens", 1)) break;
@@ -276,6 +297,18 @@ int main(int argc, char *argv[])
     printf("-----------------------------------------");
     printf("------------------------------\n");
 
+  }
+
+  printf("\nQuadrature:\n");
+  IDAGetQuad(ida_mem, &t, yQ);
+  printf("G:      %10.4e\n", Ith(yQ,1)); 
+
+  if(sensi) {
+    IDAGetQuadSens(ida_mem, &t, yQS);
+    printf("\nSensitivities at t=%g:\n",t);
+    printf("dG/dp1: %11.4e\n", Ith(yQS[0], 1));
+    printf("dG/dp1: %11.4e\n", Ith(yQS[1], 1));
+    printf("dG/dp1: %11.4e\n", Ith(yQS[2], 1));
   }
 
   /* Print final statistics */
@@ -288,6 +321,7 @@ int main(int argc, char *argv[])
   }
   free(data);
   IDAFree(&ida_mem);
+  N_VDestroy_Serial(yQ);
 
   return(0);
 }
@@ -397,6 +431,23 @@ static int resS(int Ns, realtype t,
 
   return(0);
 }
+
+static int rhsQ(realtype t, N_Vector y, N_Vector yp, 
+              N_Vector ypQ, void* user_data)
+{
+  UserData data;
+
+  data = (UserData) user_data;
+
+  Ith(ypQ,1) = Ith(y,3);
+  
+  Ith(ypQ,2) = data->coef*( Ith(y,1)*Ith(y,1)+ 
+                            Ith(y,2)*Ith(y,2)+ 
+                            Ith(y,3)*Ith(y,3) );
+                    
+  return(0);
+}
+
 
 /*
  *--------------------------------------------------------------------

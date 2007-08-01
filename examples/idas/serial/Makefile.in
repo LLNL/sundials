@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2007-06-30 00:52:48 $
+# $Revision: 1.10 $
+# $Date: 2007-08-01 01:26:18 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -64,7 +64,10 @@ EXEC_FILES = idasdenx$(EXE_EXT) \
 	     idasbanx2$(EXE_EXT) \
 	     idaskrydem_lin$(EXE_EXT) \
 	     idasslcr$(EXE_EXT) \
-	     idasfwddenx$(EXE_EXT)
+	     idasfwddenx$(EXE_EXT) \
+	     idasadjdenx$(EXE_EXT) \
+	     idasadjhess$(EXE_EXT) \
+             idasakzonobel$(EXE_EXT)
 
 EXEC_BL_FILES =
 
@@ -97,6 +100,9 @@ install:
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idaskryx.out       $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasslcr.out       $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasfwddenx.out    $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasadjdenx.out    $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasadjhess.out    $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasakzonobel.out  $(EXS_INSTDIR)/idas/serial/
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
 	  make install_bl;                           \
 	fi
@@ -120,6 +126,9 @@ uninstall:
 	rm -f $(EXS_INSTDIR)/idas/serial/idaskryx.out
 	rm -f $(EXS_INSTDIR)/idas/serial/idasslcr.out
 	rm -f $(EXS_INSTDIR)/idas/serial/idasfwddenx.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasadjdenx.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasadjhess.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasakzonobel.out
 	$(rminstalldirs) $(EXS_INSTDIR)/idas/serial
 	$(rminstalldirs) $(EXS_INSTDIR)/idas
 
@@ -154,12 +163,18 @@ idaskrydem_lin$(EXE_EXT): $(srcdir)/idaskrydem_lin.c
 idasslcr$(EXE_EXT): $(srcdir)/idasslcr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasslcr.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasslcr$(EXE_EXT) $(builddir)/idasslcr$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-
 idasfwddenx$(EXE_EXT): $(srcdir)/idasfwddenx.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasfwddenx.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasfwddenx$(EXE_EXT) $(builddir)/idasfwddenx$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-
-
+idasadjdenx$(EXE_EXT): $(srcdir)/idasadjdenx.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasadjdenx.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasadjdenx$(EXE_EXT) $(builddir)/idasadjdenx$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasadjhess$(EXE_EXT): $(srcdir)/idasadjhess.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasadjhess.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasadjhess$(EXE_EXT) $(builddir)/idasadjhess$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasakzonobel$(EXE_EXT): $(srcdir)/idasakzonobel.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasakzonobel.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasakzonobel$(EXE_EXT) $(builddir)/idasakzonobel$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \
 	 ${SHELL} ./config.status --recheck ; \

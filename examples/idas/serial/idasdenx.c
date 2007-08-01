@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:29:03 $
+ * $Revision: 1.6 $
+ * $Date: 2007-08-01 01:26:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -109,7 +109,7 @@ int main(void)
 
   atval = NV_DATA_S(avtol);
   atval[0] = RCONST(1.0e-8);
-  atval[1] = RCONST(1.0e-14);
+  atval[1] = RCONST(1.0e-6);
   atval[2] = RCONST(1.0e-6);
 
   /* Integration limits */
