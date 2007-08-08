@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-07-31 17:32:18 $
+ * $Revision: 1.10 $
+ * $Date: 2007-08-08 17:36:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -740,6 +740,9 @@ int IDACreateB(void *ida_mem, int *which)
 
   new_IDAB_mem->ida_yy       = NULL;
   new_IDAB_mem->ida_yp       = NULL;
+
+  new_IDAB_mem->ida_res_withSensi = FALSE;
+  new_IDAB_mem->ida_rhsQ_withSensi = FALSE;
   
   /* Attach the new object to the beginning of the linked list IDAADJ_mem->IDAB_mem. */
   new_IDAB_mem->ida_next = IDAADJ_mem->IDAB_mem;
@@ -809,7 +812,6 @@ int IDAInitB(void *ida_mem, int which, IDAResFnB resB,
   /* Copy residual function in IDAB_mem. */
   IDAB_mem->ida_res = resB;
   IDAB_mem->ida_res_withSensi = FALSE;
-  IDAB_mem->ida_rhsQ_withSensi = FALSE;
 
   /* Initialized the initial time field. */
   IDAB_mem->ida_t0 = tB0;
