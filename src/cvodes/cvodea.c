@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2007-06-20 19:52:10 $
+ * $Revision: 1.21 $
+ * $Date: 2007-08-08 17:32:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -328,7 +328,9 @@ void CVodeAdjFree(void *cvode_mem)
     while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
 
     /* Free vectors at all data points */
-    ca_mem->ca_IMfree(cv_mem);
+    if (ca_mem->ca_IMmallocDone) {
+      ca_mem->ca_IMfree(cv_mem);
+    }
     for(i=0; i<=ca_mem->ca_nsteps; i++) {
       free(ca_mem->dt_mem[i]);
       ca_mem->dt_mem[i] = NULL;
@@ -723,6 +725,9 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
   new_cvB_mem->cv_pfree   = NULL;
 
   new_cvB_mem->cv_y       = NULL;
+
+  new_cvB_mem->cv_f_withSensi = FALSE;
+  new_cvB_mem->cv_fQ_withSensi = FALSE;
 
   /* Attach the new object to the linked list cvB_mem */
 
