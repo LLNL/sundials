@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-07-23 17:21:58 $
+ * $Revision: 1.17 $
+ * $Date: 2007-08-10 21:12:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -616,6 +616,11 @@ int IDASetQuadErrCon(void *ida_mem, booleantype errconQ)
     return(IDA_MEM_NULL);
   }  
   IDA_mem = (IDAMem) ida_mem;
+
+  if (IDA_mem->ida_quadMallocDone == FALSE) {
+    IDAProcessError(NULL, IDA_NO_QUAD, "IDAS", "IDASetQuadErrCon", MSG_NO_QUAD);    
+    return(IDA_NO_QUAD);
+  }
 
   IDA_mem->ida_errconQ = errconQ;
 
@@ -1341,6 +1346,121 @@ int IDAGetQuadStats(void *ida_mem, long int *nrQevals, long int *nQetfails)
 
   return(IDA_SUCCESS);
 }
+
+
+/* 
+ * =================================================================
+ * Quadrature FSA optional output functions
+ * =================================================================
+ */
+
+/* 
+ * Readability constants
+ */
+
+#define quadr_sensi    (IDA_mem->ida_quadr_sensi)
+#define nrQSe          (IDA_mem->ida_nrQSe)
+#define netfQS         (IDA_mem->ida_netfQS)
+#define ewtQS          (IDA_mem->ida_ewtQS)
+#define errconQS       (IDA_mem->ida_errconQS)
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetQuadSensNumRhsEvals(void *ida_mem, long int *nrhsQSevals)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetQuadSensNumRhsEvals", MSG_NO_MEM);    
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (quadr_sensi == FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensNumRhsEvals", MSG_NO_QUADSENSI); 
+    return(IDA_NO_QUADSENS);
+  }
+
+  *nrhsQSevals = nrQSe;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetQuadSensNumErrTestFails(void *ida_mem, long int *nQSetfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetQuadSensNumErrTestFails", MSG_NO_MEM);    
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (quadr_sensi == FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensNumErrTestFails", MSG_NO_QUADSENSI); 
+    return(IDA_NO_QUADSENS);
+  }
+
+  *nQSetfails = netfQS;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetQuadSensErrWeights(void *ida_mem, N_Vector *eQSweight)
+{
+  IDAMem IDA_mem;
+  int is, Ns;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetQuadSensErrWeights", MSG_NO_MEM); 
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (quadr_sensi == FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensErrWeights", MSG_NO_QUADSENSI); 
+    return(IDA_NO_QUADSENS);
+  }
+  Ns = IDA_mem->ida_Ns;
+
+  if (errconQS)
+    for (is=0; is<Ns; is++)
+      N_VScale(ONE, ewtQS[is], eQSweight[is]);
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetQuadSensStats(void *ida_mem, long int *nrhsQSevals, long int *nQSetfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetQuadSensStats", MSG_NO_MEM);    
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (quadr_sensi == FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensStats", MSG_NO_QUADSENSI); 
+    return(IDA_NO_QUADSENS);
+  }
+
+  *nrhsQSevals = nrQSe;
+  *nQSetfails = netfQS;
+
+  return(IDA_SUCCESS);
+}
+
 
 
 /* 

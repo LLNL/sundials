@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2007-07-27 23:52:54 $
+ * $Revision: 1.19 $
+ * $Date: 2007-08-10 21:12:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -114,7 +114,6 @@ extern "C" {
 #define IDA_QRHS_FAIL       -31
 #define IDA_FIRST_QRHS_ERR  -32
 #define IDA_REP_QRHS_ERR    -33
-#define IDA_REP_QSRHS_ERR   -34
 
 #define IDA_NO_SENS         -40
 #define IDA_SRES_FAIL       -41
@@ -125,7 +124,7 @@ extern "C" {
 #define IDA_NO_QUADSENS     -50
 #define IDA_QSRHS_FAIL      -51
 #define IDA_FIRST_QSRHS_ERR -52
-
+#define IDA_REP_QSRHS_ERR   -54
 /*
  * -----------------------------------------
  * IDAA return flags
@@ -249,15 +248,15 @@ typedef void (*IDAErrHandlerFn)(int error_code,
  * -----------------------------------------------------------------
  * Type : IDAQuadRhsFn
  * -----------------------------------------------------------------
- * The fQ function which defines the right hand side of the
- * quadrature equations yQ' = fQ(t,y) must have type IDAQuadRhsFn.
- * fQ takes as input the value of the independent variable t,
- * the vector of states y and y' and must store the result of fQ in
+ * The rhsQ function which defines the right hand side of the
+ * quadrature equations yQ' = rhsQ(t,y) must have type IDAQuadRhsFn.
+ * rhsQ takes as input the value of the independent variable t,
+ * the vector of states y and y' and must store the result of rhsQ in
  * rrQ. (Allocation of memory for rrQ is handled by IDAS).
  *
  * The user_data parameter is the same as the user_data parameter
  * set by the user through the IDASetUserData routine and is
- * passed to the fQ function every time it is called.
+ * passed to the rhsQ function every time it is called.
  *
  * A function of type IDAQuadRhsFn should return 0 if successful,
  * a negative value if an unrecoverable error occured, and a positive
@@ -291,7 +290,7 @@ typedef int (*IDAQuadRhsFn)(realtype tres,
  * set by the user through the IDASetUserData routine and is
  * passed to the resS function every time it is called.
  *
- * A IDASensRhsFn should return 0 if successful, a negative value if
+ * A IDASensResFn should return 0 if successful, a negative value if
  * an unrecoverable error occured, and a positive value if a 
  * recoverable error (e.g. invalid y, yp, yyS or ypS values) 
  * occured. If an unrecoverable occured, the integration is halted. 
@@ -310,14 +309,14 @@ typedef int (*IDASensResFn)(int Ns, realtype t,
  * -----------------------------------------------------------------
  * Type : IDAQuadSensRhsFn
  * -----------------------------------------------------------------
- * The fQS function which defines the RHS of the sensitivity DAE 
+ * The rhsQS function which defines the RHS of the sensitivity DAE 
  * systems for quadratures  must have type IDAQuadSensRhsFn.
  *
- * fQS takes as input the number of sensitivities Ns (the same as
+ * rhsQS takes as input the number of sensitivities Ns (the same as
  * that passed to IDAQuadSensInit), the independent variable 
  * value t, the states yy, yp and the dependent sensitivity vectors 
  * yyS and ypS, as well as the current value of the quadrature RHS 
- * rrQ. It stores the result of fQS in resvalQS.
+ * rrQ. It stores the result of rhsQS in rhsvalQS.
  * (Allocation of memory for resvalQS is handled within IDAS)
  *
  * A IDAQuadSensRhsFn should return 0 if successful, a negative
@@ -347,7 +346,7 @@ typedef int (*IDAQuadSensRhsFn)(int Ns, realtype t,
  * -----------------------------------------------------------------
  * Types: IDAQuadRhsFnB and IDAQuadRhsFnBS
  * -----------------------------------------------------------------
- *    The fQB function which defines the quadratures to be integrated
+ *    The rhsQB function which defines the quadratures to be integrated
  *    backwards must have type IDAQuadRhsFnB.
  *    If the backward problem depends on forward sensitivities, its
  *    quadrature RHS function must have type IDAQuadRhsFnBS.
@@ -747,26 +746,20 @@ SUNDIALS_EXPORT int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g);
  * -----------------------------------------------------------------
  * Quadrature optional input specification functions
  * -----------------------------------------------------------------
- * The following functions can be called to set optional inputs
+ * The following function can be called to set optional inputs
  * to values other than the defaults given below:
  *
  * Function             |  Optional input / [ default value ]
  * --------------------------------------------------------------
- *                      |
- * IDASetQuadRdata      | a pointer to user data that will be
- *                      | passed to the user's rhsQ function every
- *                      | time rhsQ is called.
- *                      | [NULL]
  *                      |
  * IDASetQuadErrCon     | are quadrature variables considered in
  *                      | the error control?
  *                      | If yes, set tolerances for quadrature
  *                      | integration. 
  *                      | [errconQ = FALSE]
- *                      | [ not tolerances]
  *                      |
  * -----------------------------------------------------------------
- * If successful, these functions return IDA_SUCCESS. If an argument
+ * If successful, the function return IDA_SUCCESS. If an argument
  * has an illegal value, they print an error message to the
  * file specified by errfp and return one of the error flags
  * defined for the IDASet* routines.
@@ -901,15 +894,15 @@ SUNDIALS_EXPORT int IDASetSensMaxNonlinIters(void *ida_mem, int maxcorS);
  * ypS0      is the array of initial condition vectors for        
  *           sensitivity derivatives.                              
  *                                                                
- * If successful, IDASensMalloc returns SUCCESS. If an            
- * initialization error occurs, IDASensMalloc returns one of      
+ * If successful, IDASensInit returns SUCCESS. If an            
+ * initialization error occurs, IDASensInit returns one of      
  * the error flags defined above.                                 
  *                                                                
  * ----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT int IDASensInit(void *ida_mem, int Ns, int ism, 
-                                IDASensResFn fS,
+                                IDASensResFn resS,
                                 N_Vector *yS0, N_Vector *ypS0);
   
   
@@ -919,11 +912,11 @@ SUNDIALS_EXPORT int IDASensInit(void *ida_mem, int Ns, int ism,
  * ----------------------------------------------------------------
  * IDASensReInit re-initializes the IDAS sensitivity related      
  * memory for a problem, assuming it has already been allocated   
- * in prior calls to IDAInit and IDASensMalloc.                 
+ * in prior calls to IDAInit and IDASensInit.                 
  *                                                                
  * All problem specification inputs are checked for errors.       
  * The number of sensitivities Ns is assumed to be unchanged      
- * since the previous call to IDASensMalloc.                      
+ * since the previous call to IDASensInit.                      
  * If any error occurs during initialization, it is reported to   
  * the file whose file pointer is errfp.                          
  *                                                                
@@ -993,11 +986,11 @@ SUNDIALS_EXPORT int IDASensEEtolerances(void *ida_mem);
  * related memory for a problem, assuming it has already been 
  * allocated in prior calls to IDAInit and IDAQuadSensInit.
  * The number of quadratures Ns is assumed to be unchanged
- * since the previous call to CVodeQuadInit.
+ * since the previous call to IDAQuadInit.
  *
  * ida_mem is a pointer to IDAS memory returned by IDACreate
  *
- * fQS     is the sensitivity righ-hand side function
+ * resQS     is the sensitivity righ-hand side function
  *        (pass NULL to use the internal DQ approximation)
  *
  * yQS    is an N_Vector with initial values for sensitivities
@@ -1005,7 +998,7 @@ SUNDIALS_EXPORT int IDASensEEtolerances(void *ida_mem);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAQuadSensInit(void *ida_mem, IDAQuadSensRhsFn fQS, N_Vector *yQS0);
+SUNDIALS_EXPORT int IDAQuadSensInit(void *ida_mem, IDAQuadSensRhsFn resQS, N_Vector *yQS0);
 SUNDIALS_EXPORT int IDAQuadSensReInit(void *ida_mem, N_Vector *yQS0);
 
 /*
@@ -1437,13 +1430,13 @@ SUNDIALS_EXPORT int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dky
  * and statistics related to the integration of quadratures.
  * -----------------------------------------------------------------
  * IDAGetQuadNumRhsEvals returns the number of calls to the
- *                         user function fQ defining the right hand
- *                         side of the quadrature variables.
+ *                       user function rhsQ defining the right hand
+ *                       side of the quadrature variables.
  * IDAGetQuadNumErrTestFails returns the number of local error
- *                             test failures for quadrature variables.
+ *                           test failures for quadrature variables.
  * IDAGetQuadErrWeights returns the vector of error weights for
- *                        the quadrature variables. The user must
- *                        allocate space for ewtQ.
+ *                      the quadrature variables. The user must
+ *                      allocate space for ewtQ.
  * -----------------------------------------------------------------
  */
 
@@ -1458,7 +1451,8 @@ SUNDIALS_EXPORT int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetQuadStats(void *ida_mem, long int *nrhsQevals, long int *nQetfails);
+SUNDIALS_EXPORT int IDAGetQuadStats(void *ida_mem, 
+                                    long int *nrhsQevals, long int *nQetfails);
 
 /*
  * -----------------------------------------------------------------
@@ -1549,8 +1543,10 @@ SUNDIALS_EXPORT int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetSensStats(void *ida_mem, long int *nresSevals, long int *nresevalsS, 
-                                    long int *nSetfails, long int *nlinsetupsS);
+SUNDIALS_EXPORT int IDAGetSensStats(void *ida_mem, long int *nresSevals, 
+                                    long int *nresevalsS, 
+                                    long int *nSetfails, 
+                                    long int *nlinsetupsS);
 
 /*
  * ----------------------------------------------------------------
@@ -1559,8 +1555,46 @@ SUNDIALS_EXPORT int IDAGetSensStats(void *ida_mem, long int *nresSevals, long in
  */
 
 SUNDIALS_EXPORT int IDAGetNumSensNonlinSolvIters(void *ida_mem, long int *nSniters);
-SUNDIALS_EXPORT int IDAGetNumSensNonlinSolvConvFails(void *ida_mem, long int *nSncfails);
-SUNDIALS_EXPORT int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncfails);
+SUNDIALS_EXPORT int IDAGetNumSensNonlinSolvConvFails(void *ida_mem, 
+                                                     long int *nSncfails);
+SUNDIALS_EXPORT int IDAGetSensNonlinSolvStats(void *ida_mem, 
+                                              long int *nSniters, 
+                                              long int *nSncfails);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Quadrature sensitivity optional output extraction routines
+ * -----------------------------------------------------------------
+ * The following functions can be called to get optional outputs and
+ * statistics related to the integration of quadrature sensitivitiess.
+ * -----------------------------------------------------------------
+ * IDAGetQuadSensNumRhsEvals returns the number of calls to the
+ *       user function fQS defining the right hand side of the 
+ *       quadrature sensitivity equations.
+ * IDAGetQuadSensNumErrTestFails returns the number of local error
+ *       test failures for quadrature sensitivity variables.
+ * IDAGetQuadSensErrWeights returns the vector of error weights
+ *       for the quadrature sensitivity variables. The user must
+ *       allocate space for ewtQS.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAGetQuadSensNumRhsEvals(void *ida_mem, long int *nrhsQSevals);
+SUNDIALS_EXPORT int IDAGetQuadSensNumErrTestFails(void *ida_mem, long int *nQSetfails);
+SUNDIALS_EXPORT int IDAGetQuadSensErrWeights(void *ida_mem, N_Vector *eQSweight);
+
+/*
+ * -----------------------------------------------------------------
+ * As a convenience, the following function provides the above
+ * optional outputs in a group.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDAGetQuadSensStats(void *ida_mem,
+                                          long int *nrhsQSevals,
+                                          long int *nQSetfails);
+
 
 /*
  * -----------------------------------------------------------------
@@ -1839,7 +1873,7 @@ SUNDIALS_EXPORT int IDACalcICBS(void *ida_mem, int which, realtype tout1,
  *
  * IDASolveF can be called repeatedly by the user.
  *
- * ncheckPtr points to the number of check points stored so far.
+ * ncheckPtr represents the number of check points stored so far.
  *
  * -----------------------------------------------------------------
  */
@@ -1890,18 +1924,8 @@ SUNDIALS_EXPORT int IDASetAdjNoSensi(void *ida_mem);
  * Optional input functions for backward problems
  * -----------------------------------------------------------------
  * These functions are just wrappers around the corresponding
- * functions in cvodes.h, with some particularizations for the
- * backward integration.
- * -----------------------------------------------------------------
- */
-
-/*
- * -----------------------------------------------------------------
- * Optional input functions for backward problems
- * -----------------------------------------------------------------
- * These functions are just wrappers around the corresponding
- * functions in idas.h, with some particularizations for the
- * backward integration.
+ * functions from the forward module, with some particularizations 
+ * for the backward integration.
  * -----------------------------------------------------------------
  */
 
@@ -1981,8 +2005,8 @@ SUNDIALS_EXPORT void *IDAGetAdjIDABmem(void *ida_mem, int which);
  * IDAGetConsistentIC returns the consistent initial conditions
  * computed by IDACalcICB or IDCalcICBS
  */
-int IDAGetConsistentICB(void *ida_mem, int which, 
-                       N_Vector yyB0, N_Vector ypB0);
+SUNDIALS_EXPORT int IDAGetConsistentICB(void *ida_mem, int which, 
+                                        N_Vector yyB0, N_Vector ypB0);
 
 /*
  * -----------------------------------------------------------------

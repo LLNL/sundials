@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2007-07-30 16:23:31 $
+ * $Revision: 1.24 $
+ * $Date: 2007-08-10 21:12:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -655,6 +655,9 @@ int IDAInit(void *ida_mem, IDAResFn res,
 
   IDA_mem->ida_irfnd = 0;
 
+  /* Initialize counters specific to IC calculation. */
+  IDA_mem->ida_nbacktr     = 0;  
+
   /* Initialize root-finding variables */
 
   IDA_mem->ida_glo     = NULL;
@@ -803,7 +806,6 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
   }
 
   /* Check inputs */
-
   if (reltol < ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASStolerances", MSG_BAD_RTOL);
     return(IDA_ILL_INPUT);
@@ -815,7 +817,6 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
   }
 
   /* Copy tolerances into memory */
-  
   IDA_mem->ida_rtol = reltol;
   IDA_mem->ida_Satol = abstol;
 
@@ -1480,8 +1481,8 @@ int IDAQuadSensInit(void *ida_mem, IDAQuadSensRhsFn rhsQS, N_Vector *yQS0)
 
   /* Check if sensitivity analysis is active */
   if (!IDA_mem->ida_sensi) {
-    IDAProcessError(NULL, IDA_ILL_INPUT, "IDAS", "IDAQuadSensInit", MSG_NO_SENSI);    
-    return(IDA_ILL_INPUT);
+    IDAProcessError(NULL, IDA_NO_SENS, "IDAS", "IDAQuadSensInit", MSG_NO_SENSI);    
+    return(IDA_NO_SENS);
   }
 
   /* Verifiy yQS0 parameter. */
@@ -1540,8 +1541,8 @@ int IDAQuadSensReInit(void *ida_mem, N_Vector *yQS0)
 
   /* Check if sensitivity analysis is active */
   if (!IDA_mem->ida_sensi) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAQuadSensReInit", MSG_NO_SENSI);    
-    return(IDA_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAQuadSensReInit", MSG_NO_SENSI);    
+    return(IDA_NO_SENS);
   }
   
   /* Was sensitivity for quadrature already initialized? */
@@ -1605,8 +1606,8 @@ int IDAQuadSensSStolerances(void *ida_mem, realtype reltolQS, realtype *abstolQS
 
   /* Check if sensitivity analysis is active */
   if (!IDA_mem->ida_sensi) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAQuadSensSStolerances", MSG_NO_SENSI);    
-    return(IDA_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAQuadSensSStolerances", MSG_NO_SENSI);    
+    return(IDA_NO_SENS);
   }
   
   /* Was sensitivity for quadrature already initialized? */
@@ -1662,8 +1663,8 @@ int IDAQuadSensSVtolerances(void *ida_mem, realtype reltolQS, N_Vector *abstolQS
 
   /* Check if sensitivity analysis is active */
   if (!IDA_mem->ida_sensi) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAQuadSensSVtolerances", MSG_NO_SENSI);    
-    return(IDA_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAQuadSensSVtolerances", MSG_NO_SENSI);    
+    return(IDA_NO_SENS);
   }
   
   /* Was sensitivity for quadrature already initialized? */
@@ -1719,8 +1720,8 @@ int IDAQuadSensEEtolerances(void *ida_mem)
 
   /* Check if sensitivity analysis is active */
   if (!IDA_mem->ida_sensi) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAQuadSensEEtolerances", MSG_NO_SENSI);    
-    return(IDA_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAQuadSensEEtolerances", MSG_NO_SENSI);    
+    return(IDA_NO_SENS);
   }
   
   /* Was sensitivity for quadrature already initialized? */
@@ -2995,6 +2996,11 @@ int IDAGetQuadSensDky(void *ida_mem, realtype t, int k, N_Vector *dkyQSout)
     return(IDA_NO_SENS);
   }
 
+  if (quadr_sensi==FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensDky", MSG_NO_QUADSENSI);
+    return(IDA_NO_QUADSENS);
+  }
+
   if (dkyQSout == NULL) {
     IDAProcessError(IDA_mem, IDA_BAD_DKY, "IDAS", "IDAGetQuadSensDky", MSG_NULL_DKY);
     return(IDA_BAD_DKY);
@@ -3031,6 +3037,21 @@ int IDAGetQuadSens1(void *ida_mem, realtype *ptret, int is, N_Vector yyQSret)
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
+
+  if (sensi==FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetQuadSens1", MSG_NO_SENSI);
+    return(IDA_NO_SENS);
+  }
+
+  if (quadr_sensi==FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSens1", MSG_NO_QUADSENSI);
+    return(IDA_NO_QUADSENS);
+  }
+
+  if (yyQSret == NULL) {
+    IDAProcessError(IDA_mem, IDA_BAD_DKY, "IDAS", "IDAGetQuadSens1", MSG_NULL_DKY);
+    return(IDA_BAD_DKY);
+  }
 
   *ptret = tretlast;
 
@@ -3069,6 +3090,12 @@ int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
     IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetQuadSensDky1", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
+
+  if (quadr_sensi==FALSE) {
+    IDAProcessError(IDA_mem, IDA_NO_QUADSENS, "IDAS", "IDAGetQuadSensDky1", MSG_NO_QUADSENSI);
+    return(IDA_NO_QUADSENS);
+  }
+
 
   if (dkyQS == NULL) {
     IDAProcessError(IDA_mem, IDA_BAD_DKY, "IDAS", "IDAGetQuadSensDky1", MSG_NULL_DKY);
@@ -5847,7 +5874,7 @@ static void IDARestore(IDAMem IDA_mem, realtype saved_t)
  *   IDA_CONSTR_RECVR           > 0
  *   IDA_NCONV_RECVR            > 0
  *   IDA_QRHS_RECVR             > 0
- *   IDA_QSRHS_RECVR             > 0
+ *   IDA_QSRHS_RECVR            > 0
  *   IDA_RES_FAIL               < 0
  *   IDA_LSOLVE_FAIL            < 0
  *   IDA_LSETUP_FAIL            < 0
@@ -5903,6 +5930,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       /* Test if there were too many convergence failures */
       if (*ncfPtr < maxncf)               return(PREDICT_AGAIN);
       else if (nflag == IDA_RES_RECVR)    return(IDA_REP_RES_ERR);
+      else if (nflag == IDA_SRES_RECVR)   return(IDA_REP_SRES_ERR);
       else if (nflag == IDA_QRHS_RECVR)   return(IDA_REP_QRHS_ERR);
       else if (nflag == IDA_QSRHS_RECVR)  return(IDA_REP_QSRHS_ERR);
       else if (nflag == IDA_CONSTR_RECVR) return(IDA_CONSTR_FAIL);
