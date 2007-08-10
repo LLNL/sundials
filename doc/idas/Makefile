@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-07-30 19:51:31 $
+# $Revision: 1.2 $
+# $Date: 2007-08-10 20:23:29 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -83,10 +83,10 @@ warning.png
 
 all:
 	@echo "Usage:"
-	@echo "  make ug     - compile LaTeX files to generate DVI file for IDA User's Guide"
-	@echo "  make ug_pdf - compile LaTeX files to generate PS + PDF files for IDA User's Guide"
-	@echo "  make ex     - compile LaTeX files to generate DVI file for IDA Examples Guide"
-	@echo "  make ex_pdf - compile LaTeX files to generate PS + PDF files for IDA Examples Guide"
+	@echo "  make ug     - compile LaTeX files to generate DVI file for IDAS User's Guide"
+	@echo "  make ug_pdf - compile LaTeX files to generate PS + PDF files for IDAS User's Guide"
+	@echo "  make ex     - compile LaTeX files to generate DVI file for IDAS Examples Guide"
+	@echo "  make ex_pdf - compile LaTeX files to generate PS + PDF files for IDAS Examples Guide"
 	@echo "  make clean  - remove all temporary files"
 	@echo "  make purge  - remove temporary files + PS + PDF files"
 	@echo ""

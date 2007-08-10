@@ -37,14 +37,14 @@ associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
 {\idas}.  The relevant library files are
 \begin{itemize}
-\item {\em libdir}\id{/libsundials\_ida.}{\em lib},
+\item {\em libdir}\id{/libsundials\_idas.}{\em lib},
 \item {\em libdir}\id{/libsundials\_nvec*.}{\em lib} (one or two files),
 \end{itemize}
 where the file extension .{\em lib} is typically \id{.so} for shared libraries
 and \id{.a} for static libraries. The relevant header files are located in
 the subdirectories
 \begin{itemize}
-\item {\em incdir}\id{/include/ida}
+\item {\em incdir}\id{/include/idas}
 \item {\em incdir}\id{/include/sundials}
 \item {\em incdir}\id{/include/nvector}
 \end{itemize}
@@ -66,12 +66,12 @@ The calling program must include several header files so that various macros
 and data types can be used. The header file that is always required is:
 %%
 \begin{itemize}
-\item  \Id{ida.h}, 
+\item  \Id{idas.h}, 
   the header file for {\idas}, which defines the several
   types and various constants, and includes function prototypes.
 \end{itemize}
 %%
-Note that \id{ida.h} includes \Id{sundials\_types.h}, 
+Note that \id{idas.h} includes \Id{sundials\_types.h}, 
 which defines the types \id{realtype} and \id{booleantype}
 and the constants \id{FALSE} and \id{TRUE}.
 
@@ -96,31 +96,31 @@ The header files corresponding to the various linear solver options in {\idas} a
 as follows:
 %%
 \begin{itemize}
-\item \Id{ida\_dense.h}, 
+\item \Id{idas\_dense.h}, 
   which is used with the dense direct linear solver;
 
-\item \Id{ida\_band.h}, 
+\item \Id{idas\_band.h}, 
   which is used with the band direct linear solver;
 
-\item \Id{ida\_lapack.h},
+\item \Id{idas\_lapack.h},
   which is used with Lapack implementations of dense or band direct linear solvers;
   
-\item \Id{ida\_spgmr.h}, 
+\item \Id{idas\_spgmr.h}, 
   which is used with the scaled, preconditioned GMRES Krylov linear solver {\spgmr};
 
-\item \Id{ida\_spbcgs.h}, 
+\item \Id{idas\_spbcgs.h}, 
   which is used with the scaled, preconditioned Bi-CGStab Krylov linear solver {\spbcg};
 
-\item \Id{ida\_sptfqmr.h}, 
+\item \Id{idas\_sptfqmr.h}, 
   which is used with the scaled, preconditioned TFQMR Krylov solver {\sptfqmr};
 \end{itemize}
 
-The header files for the dense and banded linear solvers (both internal and Lapack) include
-\id{ida\_direct.h} which defines common functions and which in turn includes a header file
+The header files for the dense and banded linear solvers (both internal and Lapack) include \id{idas\_direct.h} 
+which defines common functions and which in turn includes a header file
 (\id{sundials\_direct.h}) which defines the matrix type for these direct linear solvers
 (\id{DlsMat}), as well as various functions and macros acting on such matrices.
 
-The header files for the Krylov iterative solvers include \id{ida\_spils.h}
+The header files for the Krylov iterative solvers include \id{idas\_spils.h}
 which defines common functions and which in turn includes a header file (\id{sundials\_iterative.h})
 which enumerates the kind of preconditioning and (for the {\spgmr} solver only) the choices for the Gram-Schmidt process.
 
@@ -156,18 +156,18 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
   and the active set of processors.
     
 \item
-  {\bf Set vector of initial values}
+  {\bf Set vectors of initial values}
  
   To set the vectors \id{y0} and \id{yp0} to initial values for $y$ and $y'$, 
   use functions defined by a particular {\nvector} implementation. 
   For the two {\nvector} implementations provided, if a \id{realtype} array  \id{ydata}
-  already exists, containing the initial values of $y$, make the call:
+  already exists, containing the initial values of $y$, make the calls:
 
-  {\s} \id{y0 = N\_VMake\_Serial(N, ydata);}
+  {\s} \id{y0  = N\_VMake\_Serial(N, ydata);}
 
   {\p} \id{y0 = N\_VMake\_Parallel(comm, Nlocal, N, ydata);}
 
-  Otherwise, make the call:
+  Otherwise, make the calls:
 
   {\s} \id{y0 = N\_VNew\_Serial(N);}
 
@@ -209,7 +209,7 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
   {\bf Specify integration tolerances}
 
   Call \id{IDASStolerances}\id{(...);} or \id{IDASvtolerances}\id{(...);}
-  to specify a scalar relative tolerance and scalara absolute tolerance or
+  to specify a scalar relative tolerance and scalar absolute tolerance or
   scalar relative tolerance and a vector of absolute tolerances, respectively.
   Alternatively, call \id{IDAWFtolerances} to specify a function which sets 
   directly the weights used in evaluating WRMS vector norms.
@@ -281,7 +281,7 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
   See \S\ref{ss:optional_output} for details.
 
 \item
-  {\bf Deallocate memory for solution vector}
+  {\bf Deallocate memory for solution vectors}
 
   Upon completion of the integration, deallocate memory for the vectors \id{yret}
   and \id{ypret} by calling the destructor function defined by the {\nvector} 
@@ -307,7 +307,7 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
 
 %%===================================================================================
 \section{User-callable functions}
-\label{ss:ida_fct_sim}
+\label{ss:idas_fct_sim}
 %%===================================================================================
 
 This section describes the {\idas} functions that are called by the
@@ -320,8 +320,12 @@ skipped for a casual use of {\idas}. In any case, refer to
 
 {\bf TODO: say something about error handling (i.e. sending error messages to the handler)}
 
+On error, each user-callable function returns a negative value and sends an error message
+to the error handler routine, which prints the message on standard error by default. However, 
+the user can set a file as error output or can provide his  
+own error handler function ( see \S\ref{ss:user_fct_sim} ).
 
-\subsection{IDA initialization and deallocation functions}
+\subsection{IDAS initialization and deallocation functions}
 \label{sss:idainit}
 %%
 The following three functions must be called in the order listed. The last one
@@ -340,14 +344,14 @@ memory block created and allocated by the first two calls.
 }
 {
   If successful, \id{IDACreate} returns a pointer to the newly created 
-  {\idas} memory block (of type \id{void *}).
+  {\idas} memory block (of type \id{void *}), otherwise returns \id{NULL}.
 }
 {}
 %%
 %%
 \ucfunction{IDAInit}
 {
-flag = IDAInit(ida\_mem, res, t0, y0, yp0);
+  flag = IDAInit(ida\_mem, res, t0, y0, yp0);
 }
 {
   The function \ID{IDAInit} provides required problem and solution
@@ -407,7 +411,7 @@ flag = IDAInit(ida\_mem, res, t0, y0, yp0);
 
 
 %%==============================================================================
-\subsection{IDA tolerance specification functions}\label{sss:idatolerances}
+\subsection{IDAS tolerance specification functions}\label{sss:idatolerances}
 %%==============================================================================
 %%
 One of the following three functions must be called to specify the
@@ -527,7 +531,7 @@ For many users, the appropriate choices for tolerance values in
 advice are relevant.
 
 (1) The scalar relative tolerance \id{reltol} is to be set to control relative
-errors.  So \id{reltol}$10^{-4}$ means that errors are controlled to .01\%.  We
+errors.  So \id{reltol}=$10^{-4}$ means that errors are controlled to .01\%.  We
 do not recommend using \id{reltol} larger than $10^{-3}$.  On the other hand,
 \id{reltol} should not be so small that it is comparable to the unit roundoff
 of the machine arithmetic (generally around $10^{-15}$).
@@ -540,7 +544,7 @@ decays to zero, then pure relative error control on \id{y[i]} makes no sense
 (and is overly costly) after \id{y[i]} is below some noise level.  Then
 \id{abstol} (if scalar) or \id{abstol[i]} (if a vector) needs to be set to that
 noise level.  If the different components have different noise levels,
-then \id{abstol} should be a vector.  See the example \id{idadenx} in the
+then \id{abstol} should be a vector.  See the example \id{idasdenx} in the
 {\idas} package, and the discussion of it in the {\idas} Examples document
 \cite{ida2.4.0_ex}.
 In that problem, the three components vary betwen 0 and 1, and have
@@ -665,7 +669,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDADense} selects the {\idadense} linear solver. 
 
-  The user's main function must include the \id{ida\_dense.h} header file.
+  The user's main function must include the \id{idas\_dense.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -704,7 +708,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{IDALapackDense} selects the {\idadense} linear solver and 
   indicates the use of Lapack functions. 
 
-  The user's main function must include the \id{ida\_lapack.h} header file.
+  The user's main function must include the \id{idas\_lapack.h} header file.
 }
 {
   The input arguments are identical to those of \id{IDADense}.
@@ -727,7 +731,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDABand} selects the {\idaband} linear solver. 
 
-  The user's main function must include the \id{ida\_band.h} header file.
+  The user's main function must include the \id{idas\_band.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -773,7 +777,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{IDALapackBand} selects the {\idaband} linear solver and
   indicates the use of Lapack functions. 
 
-  The user's main function must include the \id{ida\_lapack.h} header file.
+  The user's main function must include the \id{idas\_lapack.h} header file.
 }
 {
   The input arguments are identical to those of \id{IDABand}.
@@ -794,7 +798,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDASpgmr} selects the {\idaspgmr} linear solver. 
 
-  The user's main function must include the \id{ida\_spgmr.h} header file.
+  The user's main function must include the \id{idas\_spgmr.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -830,7 +834,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDASpbcg} selects the {\idaspbcg} linear solver. 
 
-  The user's main function must include the \id{ida\_spbcgs.h} header file.
+  The user's main function must include the \id{idas\_spbcgs.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -866,7 +870,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDASptfqmr} selects the {\idasptfqmr} linear solver. 
 
-  The user's main function must include the \id{ida\_sptfqmr.h} header file.
+  The user's main function must include the \id{idas\_sptfqmr.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -1061,7 +1065,7 @@ for the given problem.
 
 %%===================================================================================
 
-\subsection{IDA solver function}\label{sss:idasolve}
+\subsection{IDAS solver function}\label{sss:idasolve}
 %
 This is the central step in the solution process --- the call to perform the
 integration of the DAE.
@@ -1222,7 +1226,7 @@ Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
 Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{FALSE} \\
 Variable types (differential/algebraic) & \id{IDASetId} & \id{NULL} \\
 Inequality constraints on solution & \id{IDASetConstraints} & \id{NULL} \\
-Integration tolerances & \id{IDASetTolerances} & none \\
+%%Integration tolerances & \id{IDASetTolerances} & none \\
 \hline
 \multicolumn{3}{|c|}{\bf IDA initial conditions calculation} \\
 \hline
@@ -1763,56 +1767,56 @@ flag = IDASetConstraints(ida\_mem, constraints);
   all components will cause constraint checking to be performed.
 }
 %%
-\ucfunction{IDASetTolerances}
-{
-flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
-}
-{
-  The function \ID{IDASetTolerances} resets the integration tolerances.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block.
-  \item[itol] (\id{int}) 
-    is either \ID{IDA\_SS} or \ID{IDA\_SV}, where \ID{itol}$=$\id{IDA\_SS} indicates
-    scalar relative error tolerance and scalar absolute error tolerance, while
-    \id{itol}$=$\id{IDA\_SV} indicates scalar relative error tolerance and vector
-    absolute error tolerance.  The latter choice is important when the absolute
-    error tolerance needs to be different for each component of the DAE. 
-  \item[reltol] (\id{realtype})
-    \index{tolerances}
-    is the relative error tolerance.
-  \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS},
-    \id{abstol} must be a pointer to a \id{realtype} variable. If
-    \id{itol} $ = $ \id{IDA\_SV}, \id{abstol} must be an \id{N\_Vector} variable.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_ILL\_INPUT]
-  \item[\Id{IDA\_SUCCESS}] 
-    The tolerances have been successfully set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}]
-    An input argument has an illegal value.
-  \end{args}
-}
-{
-  The integration tolerances are initially specified in the call
-  to \id{IDAInit} (see \S\ref{sss:idainit}). This function call
-  to \id{IDASetTolerances} is needed only if the tolerances are being changed
-  from their values between successive calls to \id{IDASolve}.
-
-  {\warn}It is the user's responsibility to provide compatible \id{itol} and
-  \id{abstol} arguments.
-
-  It is illegal to call \id{IDASetTolerances} before a call to
-  \id{IDAInit}.
-
-}
+%%\ucfunction{IDASetTolerances}
+%%{
+%%flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
+%%}
+%%{
+%%  The function \ID{IDASetTolerances} resets the integration tolerances.
+%%}
+%%{
+%%  \begin{args}[ida\_mem]
+%%  \item[ida\_mem] (\id{void *})
+%%    pointer to the {\idas} memory block.
+%%  \item[itol] (\id{int}) 
+%%    is either \ID{IDA\_SS} or \ID{IDA\_SV}, where \ID{itol}$=$\id{IDA\_SS} indicates
+%%    scalar relative error tolerance and scalar absolute error tolerance, while
+%%    \id{itol}$=$\id{IDA\_SV} indicates scalar relative error tolerance and vector
+%%    absolute error tolerance.  The latter choice is important when the absolute
+%%    error tolerance needs to be different for each component of the DAE. 
+%%  \item[reltol] (\id{realtype})
+%%    \index{tolerances}
+%%    is the relative error tolerance.
+%%  \item[abstol] (\id{void *})
+%%    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS},
+%%    \id{abstol} must be a pointer to a \id{realtype} variable. If
+%%    \id{itol} $ = $ \id{IDA\_SV}, \id{abstol} must be an \id{N\_Vector} variable.
+%%  \end{args}
+%%}
+%%{
+%%  The return value \id{flag} (of type \id{int}) is one of
+%%  \begin{args}[IDA\_ILL\_INPUT]
+%%  \item[\Id{IDA\_SUCCESS}] 
+%%    The tolerances have been successfully set.
+%%  \item[\Id{IDA\_MEM\_NULL}]
+%%    The \id{ida\_mem} pointer is \id{NULL}.
+%%  \item[\Id{IDA\_ILL\_INPUT}]
+%%    An input argument has an illegal value.
+%%  \end{args}
+%%}
+%%{
+%%  The integration tolerances are initially specified in the call
+%%  to \id{IDAInit} (see \S\ref{sss:idainit}). This function call
+%%  to \id{IDASetTolerances} is needed only if the tolerances are being changed
+%%  from their values between successive calls to \id{IDASolve}.
+%%
+%%  {\warn}It is the user's responsibility to provide compatible \id{itol} and
+%%  \id{abstol} arguments.
+%%
+%%  It is illegal to call \id{IDASetTolerances} before a call to
+%%  \id{IDAInit}.
+%%
+%%}
 %%
 %%
 \index{optional input!solver|)}
@@ -2463,20 +2467,22 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
 \subsection{Interpolated output function}\label{ss:optional_dky}
 \index{optional output!interpolated solution}
 
-An optional function \ID{IDAGetSolution} is available to obtain additional output
+An optional function \ID{IDAGetDky} is available to obtain additional output
 values.  This function must be called after a successful return from \id{IDASolve}
-and provides interpolated values of $y$ and $y'$ for any value of $t$ in the last
-internal step taken by {\idas}.
+and provides interpolated values of $y$ or its derivatives of order up to the last internal order used
+for any value of $t$ in the last internal step taken by {\idas}.
 
-The call to the \id{IDAGetSolution} function has the following form:
+The call to the \id{IDAGetDky} function has the following form:
 %%
-\ucfunction{IDAGetSolution}
+\ucfunction{IDAGetDky}
 {
-  flag = IDAGetSolution(ida\_mem, t, yret, ypret);
+  flag = IDAGetDky(ida\_mem, t, k, dky);
 }
 {
-  The function \ID{IDAGetSolution} computes the interpolated values of 
-  $y$ and $y'$ for any value of $t$ in the last internal step taken by {\idas}.
+  The function \ID{IDAGetDky} computes the interpolated values of the $k^{th}$
+  derivative of $y$ for any value of $t$ in the last internal step taken by {\idas}.
+  The value of $k$ must be non-negative and smaller than the last internal order used. A 
+  value of $0$ for $k$ means that the $y$ is interpolated.
   The value of $t$ must satisfy $t_n - h_u \le t \le t_n$, where $t_n$ denotes
   the current internal time reached, and $h_u$ is the last internal step size
   used successfully.
@@ -2486,28 +2492,32 @@ The call to the \id{IDAGetSolution} function has the following form:
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[t] (\id{realtype})
-  \item[yret] (\id{N\_Vector})
-    vector containing the interpolated $y(t)$.
-  \item[ypret] (\id{N\_Vector})
-    vector containing the interpolated $y'(t)$.
+    time at which the to interpolate.
+  \item[k] (\id{int})
+    integer specifying the order of the derivative of $y$ wanted.
+  \item[dky] (\id{N\_Vector})
+    vector containing the interpolated $k^{th}$ derivative of $y(t)$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDA\_MEM\_NULL] 
   \item[\Id{IDA\_SUCCESS}]
-    \id{IDAGetSolution} succeeded.
+    \id{IDAGetDky} succeeded.
   \item[\Id{IDA\_MEM\_NULL}] 
     The \id{ida\_mem} argument was \id{NULL}.
   \item[\Id{IDA\_BAD\_T}] 
     \id{t} is not in the interval $[t_n - h_u , t_n]$.
+  \item[\Id{IDA\_BAD\_DKY}] 
+    \id{k} is not one of the  $\{0, 1, \ldots, kused\}$.
   \end{args}
 
 }
 {
-  It is only legal to call the function \id{IDAGetSolution} after a 
-  successful return from \id{IDASolve}. See \id{IDAGetCurrentTime} and
-  \id{IDAGetLastStep} for access to $t_n$ and $h_u$.
+  It is only legal to call the function \id{IDAGetDky} after a 
+  successful return from \id{IDASolve}. See \id{IDAGetCurrentTime},
+  \id{IDAGetLastStep} and \id{IDAGetLastOrder} for access to $t_n$ $h_u$
+  and $kused$.
 }
 
 %%
@@ -2645,7 +2655,7 @@ These optional output functions are described next.
   given by the following:
   \begin{itemize}
   \item base value: \id{lenrw} $= 55 + (m + 6)*N_r + 3*$\id{nrtfn};
-  \item with \id{itol = IDA\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N_r$;
+  \item with \id{IDASVtolerances}: \id{lenrw} $=$ \id{lenrw} $+ N_r$;
   \item with constraint checking (see \id{IDASetConstraints}): 
     \id{lenrw} $=$ \id{lenrw} $+ N_r$;
   \item with \id{id} specified (see \id{IDASetId}): 
@@ -2658,7 +2668,7 @@ These optional output functions are described next.
   and \id{long int} words) is given by:
   \begin{itemize}
   \item base value: \id{leniw} $= 38 + (m + 6)*N_i ~ + ~ $\id{nrtfn};  
-  \item with \id{itol = IDA\_SV}: \id{leniw} $=$ \id{leniw} $+ N_i$;
+  \item with \id{IDASVtolerances}: \id{leniw} $=$ \id{leniw} $+ N_i$;
   \item with constraint checking: \id{lenrw} $=$ \id{lenrw} $+ N_i$;
   \item with \id{id} specified: \id{lenrw} $=$ \id{lenrw} $+ N_i$;
   \end{itemize}
@@ -2666,7 +2676,7 @@ These optional output functions are described next.
   (= 1 for {\nvecs} and 2*\id{npes} for {\nvecp} on \id{npes} processors).
 
   For the default value of \id{maxord}, with no rootfinding, no \id{id},
-  no constraints, and with \id{itol} $\neq$ \id{IDA\_SV}, these lengths are
+  no constraints, and with no call to \id{IDASVtolerances}, these lengths are
   given roughly by: \id{lenrw} $= 55 + 11N$, \id{leniw} $= 38$.
 }
 %%
@@ -2790,7 +2800,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetLastOrder}
 {
-  flag = IDAGetLastOrder(ida\_mem, \&qlast);
+  flag = IDAGetLastOrder(ida\_mem, \&klast);
 }
 {
   The function \ID{IDAGetLastOrder} returns the
@@ -2800,7 +2810,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[qlast] (\id{int})
+  \item[klast] (\id{int})
     method order used on the last internal step.
   \end{args}
 }
@@ -2818,7 +2828,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetCurrentOrder}
 {
-  flag = IDAGetCurrentOrder(ida\_mem, \&qcur);
+  flag = IDAGetCurrentOrder(ida\_mem, \&kcur);
 }
 {
   The function \ID{IDAGetCurrentOrder} returns the
@@ -2828,7 +2838,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[qcur] (\id{int})
+  \item[kcur] (\id{int})
     method order to be used on the next internal step.
   \end{args}
 }
@@ -3068,7 +3078,7 @@ These optional output functions are described next.
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
     flag = IDAGetIntegratorStats(&ida\_mem, \&nsteps, \&nrevals, \&nlinsetups, \\
-                                 &\&netfails, \&qlast, \&qcur, \&hinused,\\
+                                 &\&netfails, \&klast, \&kcur, \&hinused,\\
                                  &\&hlast, \&hcur, \&tcur);
   \end{tabular}
 }
@@ -3088,9 +3098,9 @@ These optional output functions are described next.
     cumulative number of calls made to the linear solver setup function.
   \item[netfails] (\id{long int})
     cumulative number of error test failures.
-  \item[qlast] (\id{int})
+  \item[klast] (\id{int})
     method order used on the last internal step.
-  \item[qcur] (\id{int})
+  \item[kcur] (\id{int})
     method order to be used on the next internal step.
   \item[hinused] (\id{realtype})
     actual value of initial step size.
@@ -3539,7 +3549,7 @@ solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
 %
 %--------------------------------
 %
-\subsubsection{Iterative linear solvers optinoal output functions}\label{sss:optout_spils}
+\subsubsection{Iterative linear solvers optional output functions}\label{sss:optout_spils}
 \index{optional output!iterative linear solver|(}
 \index{IDASPGMR@{\idaspgmr} linear solver!optional output|(}
 \index{IDASPBCG@{\idaspbcg} linear solver!optional output|(}
@@ -3876,7 +3886,7 @@ solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
 
 %%===================================================================================
 
-\subsection{IDA reinitialization function}\label{sss:idareinit}
+\subsection{IDAS reinitialization function}\label{sss:idareinit}
 \index{reinitialization}
 
 The function \ID{IDAReInit} reinitializes the main {\idas} solver for
@@ -4129,9 +4139,9 @@ If the direct linear solver with dense treatment of the Jacobian is used (i.e.
 the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
 \usfunction{IDADlsDenseJacFn}
 {
-  typedef int (*IDADlsDenseJacFn&)(long int Neq, realtype tt, \\
+  typedef int (*IDADlsDenseJacFn&)(long int Neq, realtype tt, realtype c\_j, \\
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
-                             &realtype c\_j, void *user\_data, DlsMat Jac, \\
+                             &void *user\_data, DlsMat Jac, \\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
@@ -4145,15 +4155,15 @@ the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
     is the problem size (number of equations).
   \item[tt]
     is the current value of the independent variable $t$.
+  \item[c\_j]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[yy]
     is the current value of the dependent variable vector, $y(t)$.
   \item[yp]
     is the current value of $y'(t)$.
   \item[rr]
     is the current value of the residual vector $F(t,y,y')$.
-  \item[c\_j]
-    is the scalar in the system Jacobian, proportional to the inverse of the
-    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[user\_data]
     is a pointer to user data --- the same as the \id{user\_data}      
     parameter passed to \id{IDASetUserData}.   
@@ -4552,11 +4562,11 @@ foo
 %%===================================================================================
 %%
 
-If the system of ODEs contains {\em pure quadratures}, it is more efficient
+If the system of DAEs contains {\em pure quadratures}, it is more efficient
 to treat them separately by excluding them from the nonlinear solution stage. 
-To do this, begin by excluding the quadrature variables from the vector \id{y}
-and the quadrature equations from within \id{f}. The following is an overview of 
-the sequence of calls in a user's main program in this situation. Steps that are
+To do this, begin by excluding the quadrature variables from the vectors \id{yy} and 
+\id{yp} and the quadrature equations from within \id{res}. The following is an overview 
+of the sequence of calls in a user's main program in this situation. Steps that are
 unchanged from the skeleton program presented in \S\ref{ss:skeleton_sim} are 
 grayed out.
 
@@ -4576,7 +4586,7 @@ grayed out.
   and \id{Nqlocal} to the local number of quadrature variables.
   
 \item
-  \textcolor{gray}{\bf Set vector of initial values}
+  \textcolor{gray}{\bf Set vectors of initial values}
  
 \item\label{i:quad_ida_create}
   \textcolor{gray}{\bf Create {\idas} object}
@@ -4601,17 +4611,18 @@ grayed out.
 \item
   {\bf Initialize quadrature integration}
 
-  Call \id{IDAQuadMalloc} to specify the quadrature equation right-hand
+  Call \id{IDAQuadInit} to specify the quadrature equation right-hand
   side function and to allocate internal memory related to quadrature integration. 
-  See \S\ref{ss:quad_malloc} for details.
+  See \S\ref{ss:quad_init} for details.
 
 \item\label{i:quad_optional_inputs}
   {\bf Set optional inputs for quadrature integration}
 
-  Call \id{IDASetQuadFdata} to specify user data required for the evaluation
-  of the quadrature equation right-hand side.
+%%  Call \id{IDASetQuadFdata} to specify user data required for the evaluation
+%%  of the quadrature equation right-hand side.
   Call \id{IDASetQuadErrCon} to indicate whether or not quadrature variables
-  shoule be used in the step size control mechanism, and to specify the integration 
+  should be used in the step size control mechanism. If so, one of the 
+  \id{IDAQuad*tolerances} functions  must be called to specify the integration 
   tolerances for quadrature variables.
   See \S\ref{ss:quad_optional_input} for details.
 
@@ -4621,8 +4632,8 @@ grayed out.
 \item
   {\bf Extract quadrature variables}
 
-  Call \id{IDAGetQuad} to obtain the values of the quadrature variables at
-  the current time. See \S\ref{ss:quad_get} for details.
+  Call \id{IDAGetQuad} or \id{IDAGetQuadDky} to obtain the values of the quadrature 
+  variables or their derivatives at the current time. See \S\ref{ss:quad_get} for details.
 
 \item
   \textcolor{gray}{\bf Get optional outputs}
@@ -4635,7 +4646,7 @@ grayed out.
   See \S\ref{ss:quad_optional_output} for details.
 
 \item
-  {\bf Deallocate memory for solution vector and for the vector of quadrature variables}
+  {\bf Deallocate memory for solution vectors and for the vector of quadrature variables}
   
 \item
   {\bf Free solver memory}
@@ -4645,34 +4656,34 @@ grayed out.
   
 \end{Steps}
 %%
-\id{IDAQuadMalloc} can be called and quadrature-related optional inputs 
+\id{IDAQuadInit} can be called and quadrature-related optional inputs 
 (step \ref{i:quad_optional_inputs} above) can be set, anywhere between steps 
 \ref{i:quad_ida_create} and \ref{i:quad_ida_solve}.
 
 %%===================================================================================
 
-\subsection{Quadrature initialization functions}\label{ss:quad_malloc}
+\subsection{Quadrature initialization and deallocation functions}\label{ss:quad_init}
 
-The function \id{IDAQuadMalloc} activates integration of quadrature equations 
+The function \id{IDAQuadInit} activates integration of quadrature equations 
 and allocates internal memory related to these calculations.
 The form of the call to this function is as follows:
 %%
-\ucfunction{IDAQuadMalloc}
+\ucfunction{IDAQuadInit}
 {
-flag = IDAQuadMalloc(ida\_mem, fQ, yQ0);
+flag = IDAQuadInit(ida\_mem, rhsQ, yQ0);
 }
 {
-  The function \Id{IDAQuadMalloc} provides required problem specifications,
+  The function \Id{IDAQuadInit} provides required problem specifications,
   allocates internal memory, and initializes quadrature integration.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block returned by \id{IDACreate}.
-  \item[fQ] (\Id{IDAQuadRhsFn})
+  \item[rhsQ] (\Id{IDAQuadRhsFn})
     is the {\C} function which computes $f_Q$, the right-hand side of the quadrature
     equations. This function has the form 
-    \id{fQ(t, y, yQdot, fQ\_data)} (for full details see \S\ref{ss:user_fct_quad}).
+    \id{fQ(t, yy, yp, rhsQ, user\_data)} (for full details see \S\ref{ss:user_fct_quad}).
   \item[yQ0] (\id{N\_Vector})
     is the initial value of $y_Q$.
   \end{args}
@@ -4681,7 +4692,7 @@ flag = IDAQuadMalloc(ida\_mem, fQ, yQ0);
   The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[IDA\_MEM\_FAIL]
   \item[\Id{IDA\_SUCCESS}]
-    The call to \id{IDAQuadMalloc} was successful.
+    The call to \id{IDAQuadInit} was successful.
   \item[\Id{IDA\_MEM\_NULL}] 
     The {\idas} memory was not initialized by a prior call to \id{IDACreate}.
   \item[\Id{IDA\_MEM\_FAIL}] 
@@ -4689,7 +4700,7 @@ flag = IDAQuadMalloc(ida\_mem, fQ, yQ0);
   \end{args}
 }
 {
-  If an error occured, \id{IDAQuadMalloc} also sends an error message to the
+  If an error occured, \id{IDAQuadInit} also sends an error message to the
   error handler function.
 }
 %%
@@ -4698,24 +4709,24 @@ In terms of the number of quadrature variables $N_q$ and maximum method order \i
 the size of the real workspace is increased by:
 \begin{itemize}
 \item Base value: \id{lenrw} $=$ \id{lenrw} $+$ (\id{maxord+5})$N_q$
-\item With \id{itolQ = IDA\_SV} (see \id{IDASetQuadErrCon}): \id{lenrw} $=$ \id{lenrw} $+ N_q$ 
+\item if \id{IDAQuadSVtolerances} is called: \id{lenrw} $=$ \id{lenrw} $+ N_q$ 
 \end{itemize}
-the size of the integer workspace is increased by:
+and the size of the integer workspace is increased by:
 \begin{itemize}
 \item Base value: \id{leniw} $=$ \id{leniw} $+$ (\id{maxord+5})$N_q$
-\item With \id{itolQ = IDA\_SV}: \id{leniw} $=$ \id{leniw} $+ N_q$ 
+\item if \id{IDAQuadSVtolerances} is called: \id{leniw} $=$ \id{leniw} $+ N_q$ 
 \end{itemize}
 
 The function \id{IDAQuadReInit}, useful during the solution of a sequence of problems of 
 same size, reinitializes the quadrature related internal memory 
-and must follow a call to \Id{IDAQuadMalloc} (and maybe a call to \id{IDAReInit}). 
+and must follow a call to \Id{IDAQuadInit} (and maybe a call to \id{IDAReInit}). 
 The number \id{Nq} of quadratures is assumed to be unchanged from the prior call to 
-\id{IDAQuadMalloc}.
+\id{IDAQuadInit}.
 The call to the \id{IDAQuadReInit} function has the form:
 %%
 \ucfunction{IDAQuadReInit}
 {
-  flag = IDAQuadReInit(ida\_mem, fQ, yQ0);
+  flag = IDAQuadReInit(ida\_mem, yQ0);
 }
 {
   The function \id{IDAQuadReInit} provides required problem specifications 
@@ -4725,9 +4736,6 @@ The call to the \id{IDAQuadReInit} function has the form:
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[fQ] (\Id{IDAQuadRhsFn})
-    is the {\C} function which computes $f_Q$, the right-hand side of the quadrature
-    equations.
   \item[yQ0] (\id{N\_Vector})
     is the initial value of $y_Q$.
   \end{args}
@@ -4741,7 +4749,7 @@ The call to the \id{IDAQuadReInit} function has the form:
     The {\idas} memory was not initialized by a prior call to \id{IDACreate}.
   \item[\Id{IDA\_NO\_QUAD}] 
     Memory space for the quadrature integration was not allocated by a prior
-    call to \id{IDAQuadMalloc}.
+    call to \id{IDAQuadInit}.
   \end{args}
 }
 {
@@ -4749,6 +4757,21 @@ The call to the \id{IDAQuadReInit} function has the form:
   error handler function.
 }
 %%
+%%
+\ucfunction{IDAQuadFree}
+{
+  IDAQuadFree(ida\_mem);
+}
+{
+  The function \ID{IDAQuadFree} frees the memory allocated for quadrature integration.
+}
+{
+  The argument is the pointer to the {\idas} memory block (of type \id{void *}).
+}
+{
+  The function \id{IDAQuadFree} has no return value.
+}
+{}
 
 %%===================================================================================
 
@@ -4758,27 +4781,27 @@ Even if quadrature integration was enabled, the call to the main solver
 function \id{IDASolve} is exactly the same as in \S\ref{sss:idasolve}. However, in this
 case the return value \id{flag} can also be one of the following:
 \begin{args}[IDA\_FIRST\_QRHSFUNC\_FAIL]
-\item[\Id{IDA\_QRHSFUNC\_FAIL}]
+\item[\Id{IDA\_QRHS\_FAIL}]
   The quadrature right-hand side function failed in an unrecoverable manner.
-\item[\Id{IDA\_FIRST\_QRHSFUNC\_FAIL}]
+\item[\Id{IDA\_FIRST\_QRHS\_ERR}]
   The quadrature right-hand side function failed at the first call.
-\item[\Id{IDA\_REPTD\_QRHSFUNC\_ERR}]
+\item[\Id{IDA\_REP\_QRHS\_ERR}]
   Convergence tests occurred too many times due to repeated recoverable errors in
-  the quadrature right-hand side function. The \id{IDA\_REPTD\_RHSFUNC\_ERR} will also
+  the quadrature right-hand side function. The \id{IDA\_REP\_RES\_ERR} will also
   be returned if the quadrature right-hand side function had repeated recoverable errors
   during the estimation of an initial step size (assuming the quadrature
   variables are included in the error tests).
-\item[\Id{IDA\_UNREC\_RHSFUNC\_ERR}]
-  The quadrature right-hand function had a recoverable error, but no recovery was possible.
-  This failure mode is rare, as it can occur only if the quadrature right-hand side function
-  fails recoverably after an error test failed while at order one.
-\end{args}
+%% \item[\Id{IDA\_UNREC\_RHSFUNC\_ERR}]
+%%   The quadrature right-hand function had a recoverable error, but no recovery was possible.
+%%   This failure mode is rare, as it can occur only if the quadrature right-hand side function
+%%   fails recoverably after an error test failed while at order one.
+  \end{args}
 
 %%===================================================================================
 
 \subsection{Quadrature extraction functions}\label{ss:quad_get}
 
-If quadrature integration has been initialized by a call to \id{IDAQuadMalloc},
+If quadrature integration has been initialized by a call to \id{IDAQuadInit},
 or reinitialized by a call to \id{IDAQuadReInit}, then {\idas} computes both a solution
 and quadratures at time \id{t}. However, \id{IDASolve} will still return only the solution
 $y$ in \id{y}. Solution quadratures can be obtained using the following function:
@@ -4786,7 +4809,7 @@ $y$ in \id{y}. Solution quadratures can be obtained using the following function
 %%
 \ucfunction{IDAGetQuad}
 {
-  flag = IDAGetQuad(ida\_mem, t, yQ);
+  flag = IDAGetQuad(ida\_mem, \&t, yQ);
 }
 {
   The function \id{IDAGetQuad} returns the quadrature solution vector after a
@@ -4795,11 +4818,9 @@ $y$ in \id{y}. Solution quadratures can be obtained using the following function
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
-    pointer to the memory previously allocated by \id{IDAMalloc}.
+    pointer to the memory previously allocated by \id{IDAInit}.
   \item[t] (\id{realtype})
-    the time at which quadrature information is 
-    requested. The time \id{t} must fall within the interval defined by the last 
-    successful step taken by {\idas}.
+    the time reached by the solver.
   \item[yQ] (\id{N\_Vector})
     the computed quadrature vector.
   \end{args}
@@ -4815,8 +4836,6 @@ $y$ in \id{y}. Solution quadratures can be obtained using the following function
     Quadrature integration was not initialized.
   \item[IDA\_BAD\_DKY] 
     \id{yQ} is \id{NULL}.
-  \item[IDA\_BAD\_T] 
-    The time \id{t} is not in the allowed range.
   \end{args}
 }
 {
@@ -4842,7 +4861,7 @@ directly by the user.
 {
   \begin{args}[ida\_mem]
   \item[\id{ida\_mem}] (\id{void *})
-    pointer to the memory previously allocated by \id{IDAMalloc}.
+    pointer to the memory previously allocated by \id{IDAInit}.
   \item[\id{t}] (\id{realtype})
     the time at which quadrature information is 
     requested. The time \id{t} must fall within the interval defined by the last 
@@ -4864,7 +4883,7 @@ directly by the user.
   \item[\Id{IDA\_BAD\_DKY}] 
     The vector \id{dkyQ} is \id{NULL}.
   \item[\Id{IDA\_BAD\_K}]
-    \id{k} is not in the range $0, 1, ..., q_u$.
+    \id{k} is not in the range $0, 1, ..., kused$.
   \item[\Id{IDA\_BAD\_T}] 
     The time \id{t} is not in the allowed range.
   \end{args}
@@ -4882,49 +4901,16 @@ directly by the user.
 {\idas} provides the following optional input functions to control the integration
 of quadrature equations.
 %%
-%%
-\ucfunction{IDASetQuadFdata}
-{
-  flag = IDASetQuadFdata(ida\_mem, fQ\_data);
-}
-{
-  The function \Id{IDASetQuadFdata} specifies the user-defined data block \Id{fQ\_data}
-  and attaches it to the main {\idas} memory block.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block.
-  \item[fQ\_data] (\id{void *})
-    pointer to the user data.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDA\_MEM\_NULL]
-  \item[\Id{IDA\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{
-  If \id{fQ\_data} is not specified, a \id{NULL} pointer is
-  passed to all user-supplied functions that have it as an argument.
-  Note that \id{fQ\_data} can be the same as the
-  pointer \id{f\_data} set through \id{IDASetFdata}.
-}
-%%
-%%
 \ucfunction{IDASetQuadErrCon}
 {
- flag = IDASetQuadErrCon(ida\_mem, errconQ, itolQ, reltolQ, abstolQ);
+ flag = IDASetQuadErrCon(ida\_mem, errconQ)
 }
 {
   The function \Id{IDASetQuadErrCon} specifies whether or not the
   quadrature variables should be used in the step size control
-  mechanism, and if so, specifies the integration tolerances for the
-  quadrature variables.  
+  mechanism. If so, the user must call \id{IDAQuadSStolerances} or
+  \id{IDAQuadSVtolerances} to specify the 
+  integration tolerances for the quadrature variables.  
 }
 {
   \begin{args}[ida\_mem]
@@ -4932,23 +4918,7 @@ of quadrature equations.
     pointer to the {\idas} memory block.
   \item[errconQ] (\id{booleantype})
     specifies whether quadrature variables are included (\id{TRUE}) or not
-    (\id{FALSE}) in the error control mechanism. If \id{errconQ}$=$\id{FALSE},
-    the following three arguments are ignored.
-  \item[itolQ] (\id{int}) 
-    is either \Id{IDA\_SS} or \Id{IDA\_SV}, where \Id{itolQ} \id{= IDA\_SS} indicates 
-    scalar relative error tolerance and scalar absolute error tolerance, 
-    while \id{itolQ = IDA\_SV} indicates scalar relative error tolerance and 
-    vector absolute error tolerance. 
-    The latter choice is important when the absolute error tolerance needs to
-    be different for each quadrature variable.
-  \item[reltolQ] (\id{realtype *})
-    \index{tolerances}
-    is a pointer to the relative error tolerance.
-  \item[abstolQ] (\id{void *})
-    is a pointer to the absolute error tolerance.  If \id{itolQ}$=$\id{IDA\_SS},
-    \id{abstolQ} must be a pointer to a \id{realtype} variable. If
-    \id{itolQ} $=$ \id{IDA\_SV}, \id{abstolQ} must be an \id{N\_Vector} variable.
-  \item
+    (\id{FALSE}) in the error control mechanism. 
   \end{args}
 }
 {
@@ -4957,17 +4927,92 @@ of quadrature equations.
   \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}] 
-    An input argument to \id{IDASetQuadErrCon} has an illegal value.
+    The \id{ida\_mem} pointer is \id{NULL}
+  \item[\Id{IDA\_NO\_QUAD}]
+    Quadrature integration has not been initialized.
   \end{args}
 }
 {
   By default, \id{errconQ} is set to \id{FALSE}. 
 
   {\warn}It is illegal to call \id{IDASetQuadErrCon} before a call 
-  to \id{IDAQuadMalloc}.
+  to \id{IDAQuadInit}.
 }
+
+
+If the quadrature variables are part of the step size control mechanism, 
+one of the following functions must be called to specify the
+integration tolerances for quadrature variables. 
+
+\ucfunction{IDAQuadSStolerances}
+{
+ flag = IDAQuadSVtolerances(ida\_mem, reltolQ, abstolQ);
+}
+{
+  The function \ID{IDAQuadSStolerances} specifies scalar relative and absolute
+  tolerances.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[reltolQ] (\id{realtype})
+    \index{tolerances}
+    is the scalar relative error tolerance.
+  \item[abstolQ] (\id{realtype})
+    is the scalar absolute error tolerance.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDA\_NO\_QUAD}]
+    Quadrature integration was not initialized.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}] 
+    One of the input tolerances was negative.
+  \end{args}
+}
+{}
+
+\ucfunction{IDAQuadSVtolerances}
+{
+ flag = IDAQuadSVtolerances(ida\_mem, reltolQ, abstolQ);
+}
+{
+  The function \ID{IDAQuadSVtolerances} specifies scalar relative and 
+  vector absolute tolerances.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[reltolQ] (\id{realtype})
+    \index{tolerances}
+    is the scalar relative error tolerance.
+  \item[abstolQ] (\id{N\_Vector})
+    is the vector absolute error tolerance.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDA\_NO\_QUAD}]
+    Quadrature integration was not initialized.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}] 
+    One of the input tolerances was negative.
+  \end{args}
+}
+{}
+
+
 \index{optional input!quadrature integration|)}
 %%
 %%
@@ -4982,7 +5027,7 @@ performance information related to quadrature integration.
 
 \ucfunction{IDAGetQuadNumRhsEvals}
 {
-  flag = IDAGetQuadNumRhsEvals(ida\_mem, \&nfQevals);
+  flag = IDAGetQuadNumRhsEvals(ida\_mem, \&nrhsQevals);
 }
 {
   The function \Id{IDAGetQuadNumRhsEvals} returns the 
@@ -4992,8 +5037,8 @@ performance information related to quadrature integration.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[nfQevals] (\id{long int})
-    number of calls made to the user's \id{fQ} function.
+  \item[nrhsQevals] (\id{long int})
+    number of calls made to the user's \id{rhsQ} function.
   \end{args}
 }
 {
@@ -5078,7 +5123,7 @@ performance information related to quadrature integration.
 %%
 \ucfunction{IDAGetQuadStats}
 {
-  flag = IDAGetQuadStats(ida\_mem, \&nfQevals, \&nQetfails);
+  flag = IDAGetQuadStats(ida\_mem, \&nrhsQevals, \&nQetfails);
 }
 {
   The function \Id{IDAGetQuadStats} returns the {\idas} integrator statistics
@@ -5088,8 +5133,8 @@ performance information related to quadrature integration.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[nfQevals] (\id{long int})
-    number of calls to the user's \id{fQ} function.
+  \item[nrhsQevals] (\id{long int})
+    number of calls to the user's \id{rhsQ} function.
   \item[nQetfails] (\id{long int})
     number of error test failures due to quadrature variables.
   \end{args}
@@ -5121,36 +5166,37 @@ that defines the right-hand side of the quadrature equations. This function
 must be of type \Id{IDAQuadRhsFn} defined as follows:
 \usfunction{IDAQuadRhsFn}
 {
-  typedef int (*IDAQuadRhsFn)(&realtype t, N\_Vector y, \\
-                             &N\_Vector yQdot, void *fQ\_data);
+  typedef int (*IDAQuadRhsFn)(&realtype t, N\_Vector y, N\_Vector yy, N\_Vector yp, \\
+                             &N\_Vector rhsQ, void *user\_data);
 }
 {
   This function computes the quadrature equation right-hand side for a given value
-  of the independent variable $t$ and state vector $y$.
+  of the independent variable $t$ and state vectors $y$ and $y'$.
 }
 {
-  \begin{args}[fQ\_data]
+  \begin{args}[user\_data]
   \item[t]
     is the current value of the independent variable.
-  \item[y]
+  \item[yy]
     is the current value of the dependent variable vector, $y(t)$.
-  \item[yQdot]
-    is the output vector $f_Q(t,y)$.
-  \item[fQ\_data]
-    is the \Id{fQ\_data}      
-    pointer passed to \id{IDASetQuadFdata}.   
+  \item[yp]
+    is the current value of the dependent variable vector, $y'(t)$.
+  \item[rhsQ]
+    is the output vector $f_Q(t,y,y')$.
+  \item[user\_data]
+    is the \Id{user\_data} pointer passed to \id{IDASetUserData}.   
   \end{args}
 }
 {
   A \id{IDAQuadRhsFn} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\idas} will attempt to correct), or a negative 
   value if it failed unrecoverably (in which case the integration is halted and
-  \Id{IDA\_QRHSFUNC\_FAIL} is returned).
+  \Id{IDA\_QRHS\_FAIL} is returned).
 }
 {
-  Allocation of memory for \id{yQdot} is automatically handled within {\idas}.
+  Allocation of memory for \id{rhsQt} is automatically handled within {\idas}.
 
-  Both \id{y} and \id{yQdot} are of type \id{N\_Vector},
+  Both \id{y} and \id{rhsQ} are of type \id{N\_Vector},
   but they  typically have different internal representations. It is the user's 
   responsibility to access the vector data consistently (including the use of the 
   correct accessor macros from each {\nvector} implementation). For the sake of 
@@ -5161,9 +5207,11 @@ must be of type \Id{IDAQuadRhsFn} defined as follows:
   There are two situations in which recovery is not possible even if \id{IDAQuadRhsFn}
   function returns a recoverable error flag. This include the situation when this
   occurrs at the very first call to the \id{IDAQuadRhsFn} (in which case {\idas} returns
-  \Id{IDA\_FIRST\_QRHSFUNC\_ERR}) or if a recoverable error is reported when \id{IDAQuadRhsFn}
+  \Id{IDA\_FIRST\_QRHS\_ERR}) or if a recoverable error is reported when \id{IDAQuadRhsFn}
   is called after an error test failure, while the linear multistep method order is
   equal to 1 (in which case {\idas} returns \Id{IDA\_UNREC\_QRHSFUNC\_ERR}).
+
+\bigskip TODO: Fix the last proposition.
 }
 
 

@@ -20,7 +20,7 @@ Briefly, their purposes are as follows:
 A linear solver module must also provide a user-callable specification routine
 (like those described in \S\ref{sss:lin_solv_init}) which will attach
 the above five routines to the main {\idas} memory block. 
-The {\idas} memory block is a structure defined in the header file \id{ida\_impl.h}. 
+The {\idas} memory block is a structure defined in the header file \id{idas\_impl.h}. 
 A pointer to such a structure is defined as the type \id{IDAMem}. 
 The five fields in a \id{IDAMem} structure that must point to the linear solver's 
 functions are \id{ida\_linit}, \id{ida\_lsetup}, \id{ida\_lsolve}, \id{ida\_lperf}, 
@@ -48,7 +48,7 @@ The following is a complete description of the call list for each of
 these routines.  Note that the call list of each routine includes a
 pointer to the main {\idas} memory block, by which the routine can access
 various data related to the {\idas} solution.  The contents of this memory
-block are given in the file \id{ida.h} (but not reproduced here, for
+block are given in the file \id{idas.h} (but not reproduced here, for
 the sake of space).
 
 %------------------------------------------------------------------------------
