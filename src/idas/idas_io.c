@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2007-08-10 21:12:14 $
+ * $Revision: 1.18 $
+ * $Date: 2007-08-14 22:52:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -1857,12 +1857,6 @@ char *IDAGetReturnFlagName(int flag)
     break;
   case IDA_FWD_FAIL:
     sprintf(name, "IDA_FWD_FAIL");
-    break;
-  case IDA_BAD_ITASK:
-    sprintf(name, "IDA_BAD_ITASK");
-    break;
-  case IDA_BAD_TBOUT:
-    sprintf(name, "IDA_BAD_TBOUT");
     break;
   case IDA_GETY_BADT:
     sprintf(name, "IDA_GETY_BADT");

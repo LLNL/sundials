@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2007-08-10 21:12:13 $
+ * $Revision: 1.20 $
+ * $Date: 2007-08-14 22:52:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -93,22 +93,22 @@ extern "C" {
 #define IDA_LSETUP_FAIL     -6
 #define IDA_LSOLVE_FAIL     -7
 #define IDA_RES_FAIL        -8
-#define IDA_REP_RES_ERR     -10
-#define IDA_RTFUNC_FAIL     -12
-#define IDA_CONSTR_FAIL     -13
+#define IDA_REP_RES_ERR     -9
+#define IDA_RTFUNC_FAIL     -10
+#define IDA_CONSTR_FAIL     -11
 
-#define IDA_BAD_EWT         -16
-#define IDA_FIRST_RES_FAIL  -17
-#define IDA_LINESEARCH_FAIL -18
-#define IDA_NO_RECOVERY     -19
+#define IDA_FIRST_RES_FAIL  -12
+#define IDA_LINESEARCH_FAIL -13
+#define IDA_NO_RECOVERY     -14
 
 #define IDA_MEM_NULL        -20
 #define IDA_MEM_FAIL        -21
 #define IDA_ILL_INPUT       -22
 #define IDA_NO_MALLOC       -23
-#define IDA_BAD_K           -24
-#define IDA_BAD_T           -25
-#define IDA_BAD_DKY         -26
+#define IDA_BAD_EWT         -24
+#define IDA_BAD_K           -25
+#define IDA_BAD_T           -26
+#define IDA_BAD_DKY         -27
 
 #define IDA_NO_QUAD         -30
 #define IDA_QRHS_FAIL       -31
@@ -117,29 +117,26 @@ extern "C" {
 
 #define IDA_NO_SENS         -40
 #define IDA_SRES_FAIL       -41
-#define IDA_REP_SRES_ERR    -43
-
-#define IDA_BAD_IS          -45
+#define IDA_REP_SRES_ERR    -42
+#define IDA_BAD_IS          -43
 
 #define IDA_NO_QUADSENS     -50
 #define IDA_QSRHS_FAIL      -51
 #define IDA_FIRST_QSRHS_ERR -52
-#define IDA_REP_QSRHS_ERR   -54
+#define IDA_REP_QSRHS_ERR   -53
 /*
  * -----------------------------------------
  * IDAA return flags
  * -----------------------------------------
  */
 
-#define IDA_NO_ADJ          -102
-#define IDA_BAD_TB0         -103
-#define IDA_BAD_TBOUT       -104
-#define IDA_REIFWD_FAIL     -105
-#define IDA_FWD_FAIL        -106
-#define IDA_BAD_ITASK       -107
-#define IDA_GETY_BADT       -108
-#define IDA_NO_BCK          -109
-#define IDA_NO_FWD          -110
+#define IDA_NO_ADJ          -100
+#define IDA_BAD_TB0         -101
+#define IDA_REIFWD_FAIL     -102
+#define IDA_FWD_FAIL        -103
+#define IDA_GETY_BADT       -104
+#define IDA_NO_BCK          -105
+#define IDA_NO_FWD          -106
 
 /*
  * =================================================================

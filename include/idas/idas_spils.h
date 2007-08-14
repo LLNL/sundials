@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.9 $
+ * $Date: 2007-08-14 22:52:33 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -40,9 +40,7 @@ extern "C" {
 
 /* Return values for the adjoint module */
 
-#define IDASPILS_ADJMEM_NULL     -101
-#define IDASPILS_LMEMB_NULL      -102
-#define IDASPILS_NO_ADJ          -103
+#define IDASPILS_NO_ADJ          -100
 
 /* 
  * -----------------------------------------------------------------
