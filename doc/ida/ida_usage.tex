@@ -281,7 +281,7 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
   See \S\ref{ss:optional_output} for details.
 
 \item
-  {\bf Deallocate memory for solution vector}
+  {\bf Deallocate memory for solution vectors}
 
   Upon completion of the integration, deallocate memory for the vectors \id{yret}
   and \id{ypret} by calling the destructor function defined by the {\nvector} 
@@ -340,7 +340,7 @@ memory block created and allocated by the first two calls.
 }
 {
   If successful, \id{IDACreate} returns a pointer to the newly created 
-  {\ida} memory block (of type \id{void *}).
+  {\ida} memory block (of type \id{void *}), otherwise returns \id{NULL}.
 }
 {}
 %%
@@ -527,7 +527,7 @@ For many users, the appropriate choices for tolerance values in
 advice are relevant.
 
 (1) The scalar relative tolerance \id{reltol} is to be set to control relative
-errors.  So \id{reltol}$10^{-4}$ means that errors are controlled to .01\%.  We
+errors.  So \id{reltol}=$10^{-4}$ means that errors are controlled to .01\%.  We
 do not recommend using \id{reltol} larger than $10^{-3}$.  On the other hand,
 \id{reltol} should not be so small that it is comparable to the unit roundoff
 of the machine arithmetic (generally around $10^{-15}$).
@@ -1222,7 +1222,7 @@ Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
 Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{FALSE} \\
 Variable types (differential/algebraic) & \id{IDASetId} & \id{NULL} \\
 Inequality constraints on solution & \id{IDASetConstraints} & \id{NULL} \\
-Integration tolerances & \id{IDASetTolerances} & none \\
+%%Integration tolerances & \id{IDASetTolerances} & none \\
 \hline
 \multicolumn{3}{|c|}{\bf IDA initial conditions calculation} \\
 \hline
@@ -1763,56 +1763,56 @@ flag = IDASetConstraints(ida\_mem, constraints);
   all components will cause constraint checking to be performed.
 }
 %%
-\ucfunction{IDASetTolerances}
-{
-flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
-}
-{
-  The function \ID{IDASetTolerances} resets the integration tolerances.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[itol] (\id{int}) 
-    is either \ID{IDA\_SS} or \ID{IDA\_SV}, where \ID{itol}$=$\id{IDA\_SS} indicates
-    scalar relative error tolerance and scalar absolute error tolerance, while
-    \id{itol}$=$\id{IDA\_SV} indicates scalar relative error tolerance and vector
-    absolute error tolerance.  The latter choice is important when the absolute
-    error tolerance needs to be different for each component of the DAE. 
-  \item[reltol] (\id{realtype})
-    \index{tolerances}
-    is the relative error tolerance.
-  \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS},
-    \id{abstol} must be a pointer to a \id{realtype} variable. If
-    \id{itol} $ = $ \id{IDA\_SV}, \id{abstol} must be an \id{N\_Vector} variable.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_ILL\_INPUT]
-  \item[\Id{IDA\_SUCCESS}] 
-    The tolerances have been successfully set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}]
-    An input argument has an illegal value.
-  \end{args}
-}
-{
-  The integration tolerances are initially specified in the call
-  to \id{IDAInit} (see \S\ref{sss:idainit}). This function call
-  to \id{IDASetTolerances} is needed only if the tolerances are being changed
-  from their values between successive calls to \id{IDASolve}.
+%% \ucfunction{IDASetTolerances}
+%% {
+%% flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
+%% }
+%% {
+%%   The function \ID{IDASetTolerances} resets the integration tolerances.
+%% }
+%% {
+%%   \begin{args}[ida\_mem]
+%%   \item[ida\_mem] (\id{void *})
+%%     pointer to the {\ida} memory block.
+%%   \item[itol] (\id{int}) 
+%%     is either \ID{IDA\_SS} or \ID{IDA\_SV}, where \ID{itol}$=$\id{IDA\_SS} indicates
+%%     scalar relative error tolerance and scalar absolute error tolerance, while
+%%     \id{itol}$=$\id{IDA\_SV} indicates scalar relative error tolerance and vector
+%%     absolute error tolerance.  The latter choice is important when the absolute
+%%     error tolerance needs to be different for each component of the DAE. 
+%%   \item[reltol] (\id{realtype})
+%%     \index{tolerances}
+%%     is the relative error tolerance.
+%%   \item[abstol] (\id{void *})
+%%     is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS},
+%%     \id{abstol} must be a pointer to a \id{realtype} variable. If
+%%     \id{itol} $ = $ \id{IDA\_SV}, \id{abstol} must be an \id{N\_Vector} variable.
+%%   \end{args}
+%% }
+%% {
+%%   The return value \id{flag} (of type \id{int}) is one of
+%%   \begin{args}[IDA\_ILL\_INPUT]
+%%   \item[\Id{IDA\_SUCCESS}] 
+%%     The tolerances have been successfully set.
+%%   \item[\Id{IDA\_MEM\_NULL}]
+%%     The \id{ida\_mem} pointer is \id{NULL}.
+%%   \item[\Id{IDA\_ILL\_INPUT}]
+%%     An input argument has an illegal value.
+%%   \end{args}
+%% }
+%% {
+%%   The integration tolerances are initially specified in the call
+%%   to \id{IDAInit} (see \S\ref{sss:idainit}). This function call
+%%   to \id{IDASetTolerances} is needed only if the tolerances are being changed
+%%   from their values between successive calls to \id{IDASolve}.
 
-  {\warn}It is the user's responsibility to provide compatible \id{itol} and
-  \id{abstol} arguments.
+%%   {\warn}It is the user's responsibility to provide compatible \id{itol} and
+%%   \id{abstol} arguments.
 
-  It is illegal to call \id{IDASetTolerances} before a call to
-  \id{IDAInit}.
+%%   It is illegal to call \id{IDASetTolerances} before a call to
+%%   \id{IDAInit}.
 
-}
+%% }
 %%
 %%
 \index{optional input!solver|)}
@@ -2465,8 +2465,8 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
 
 An optional function \ID{IDAGetSolution} is available to obtain additional output
 values.  This function must be called after a successful return from \id{IDASolve}
-and provides interpolated values of $y$ and $y'$ for any value of $t$ in the last
-internal step taken by {\ida}.
+and provides interpolated values of $y$ or $y'$
+for any value of $t$ in the last internal step taken by {\ida}.
 
 The call to the \id{IDAGetSolution} function has the following form:
 %%
@@ -2645,7 +2645,7 @@ These optional output functions are described next.
   given by the following:
   \begin{itemize}
   \item base value: \id{lenrw} $= 55 + (m + 6)*N_r + 3*$\id{nrtfn};
-  \item with \id{itol = IDA\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N_r$;
+  \item with \id{IDASVtolerances}: \id{lenrw} $=$ \id{lenrw} $+ N_r$;
   \item with constraint checking (see \id{IDASetConstraints}): 
     \id{lenrw} $=$ \id{lenrw} $+ N_r$;
   \item with \id{id} specified (see \id{IDASetId}): 
@@ -2658,7 +2658,7 @@ These optional output functions are described next.
   and \id{long int} words) is given by:
   \begin{itemize}
   \item base value: \id{leniw} $= 38 + (m + 6)*N_i ~ + ~ $\id{nrtfn};  
-  \item with \id{itol = IDA\_SV}: \id{leniw} $=$ \id{leniw} $+ N_i$;
+  \item with \id{itol = IDASVtolerances}: \id{leniw} $=$ \id{leniw} $+ N_i$;
   \item with constraint checking: \id{lenrw} $=$ \id{lenrw} $+ N_i$;
   \item with \id{id} specified: \id{lenrw} $=$ \id{lenrw} $+ N_i$;
   \end{itemize}
@@ -2666,7 +2666,7 @@ These optional output functions are described next.
   (= 1 for {\nvecs} and 2*\id{npes} for {\nvecp} on \id{npes} processors).
 
   For the default value of \id{maxord}, with no rootfinding, no \id{id},
-  no constraints, and with \id{itol} $\neq$ \id{IDA\_SV}, these lengths are
+  no constraints, and no call to \id{IDASVtolerances}, these lengths are
   given roughly by: \id{lenrw} $= 55 + 11N$, \id{leniw} $= 38$.
 }
 %%
@@ -2790,7 +2790,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetLastOrder}
 {
-  flag = IDAGetLastOrder(ida\_mem, \&qlast);
+  flag = IDAGetLastOrder(ida\_mem, \&klast);
 }
 {
   The function \ID{IDAGetLastOrder} returns the
@@ -2800,7 +2800,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[qlast] (\id{int})
+  \item[klast] (\id{int})
     method order used on the last internal step.
   \end{args}
 }
@@ -2818,7 +2818,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetCurrentOrder}
 {
-  flag = IDAGetCurrentOrder(ida\_mem, \&qcur);
+  flag = IDAGetCurrentOrder(ida\_mem, \&kcur);
 }
 {
   The function \ID{IDAGetCurrentOrder} returns the
@@ -2828,7 +2828,7 @@ These optional output functions are described next.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[qcur] (\id{int})
+  \item[kcur] (\id{int})
     method order to be used on the next internal step.
   \end{args}
 }
@@ -3068,7 +3068,7 @@ These optional output functions are described next.
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
     flag = IDAGetIntegratorStats(&ida\_mem, \&nsteps, \&nrevals, \&nlinsetups, \\
-                                 &\&netfails, \&qlast, \&qcur, \&hinused,\\
+                                 &\&netfails, \&klast, \&kcur, \&hinused,\\
                                  &\&hlast, \&hcur, \&tcur);
   \end{tabular}
 }
@@ -3088,9 +3088,9 @@ These optional output functions are described next.
     cumulative number of calls made to the linear solver setup function.
   \item[netfails] (\id{long int})
     cumulative number of error test failures.
-  \item[qlast] (\id{int})
+  \item[klast] (\id{int})
     method order used on the last internal step.
-  \item[qcur] (\id{int})
+  \item[kcur] (\id{int})
     method order to be used on the next internal step.
   \item[hinused] (\id{realtype})
     actual value of initial step size.
@@ -3539,7 +3539,7 @@ solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
 %
 %--------------------------------
 %
-\subsubsection{Iterative linear solvers optinoal output functions}\label{sss:optout_spils}
+\subsubsection{Iterative linear solvers optional output functions}\label{sss:optout_spils}
 \index{optional output!iterative linear solver|(}
 \index{IDASPGMR@{\idaspgmr} linear solver!optional output|(}
 \index{IDASPBCG@{\idaspbcg} linear solver!optional output|(}
@@ -3859,10 +3859,10 @@ solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
 }
 {
   The function \ID{IDASpilsGetReturnFlagName} returns the
-  name of the {\cvspils} constant corresponding to \id{flag}.
+  name of the {\idaspils} constant corresponding to \id{flag}.
 }
 {
-  The only argument, of type \id{int} is a return flag from a {\cvspils} function.
+  The only argument, of type \id{int} is a return flag from a {\idaspils} function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
