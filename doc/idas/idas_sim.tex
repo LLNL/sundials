@@ -2540,7 +2540,7 @@ of this section.
 
 \begin{table}
 \centering
-\caption{Optional outputs from {\idas}, {\idadense}, {\idaband}, and {\idaspils}}
+\caption{Optional outputs from {\idas}, {\idadls}, and {\idaspils}}
 \label{t:optional_output}
 \medskip
 \begin{tabular}{|p{\colAA}|p{\colBB}|}
@@ -2574,21 +2574,13 @@ Name of constant associated with a return flag & \id{IDAGetReturnFlagName} \\
 Number of backtrack operations & \id{IDAGatNumBacktrackops} \\
 Corrected initial conditions & \id{IDAGetConsistentIC} \\ 
 \hline
-\multicolumn{2}{|c|}{\bf IDADENSE linear solver} \\
+\multicolumn{2}{|c|}{\bf IDADLS linear solver} \\
 \hline
-Size of {\idadense} real and integer workspace & \id{IDADenseGetWorkSpace} \\
-No. of Jacobian evaluations & \id{IDADenseGetNumJacEvals} \\
-No. of residual calls for finite diff. Jacobian evals. & \id{IDADenseGetNumResEvals} \\ 
-Last return from a {\idadense} function & \id{IDADenseGetLastFlag} \\ 
-Name of constant associated with a return flag & \id{IDADenseGetReturnFlagName} \\
-\hline
-\multicolumn{2}{|c|}{\bf IDABAND linear solver} \\
-\hline
-Size of {\idaband} real and integer workspace & \id{IDABandGetWorkSpace} \\
-No. of Jacobian evaluations & \id{IDABandGetNumJacEvals} \\
-No. of residual calls for finite diff. Jacobian evals. & \id{IDABandGetNumResEvals} \\ 
-Last return from a {\idaband} function & \id{IDABandGetLastFlag} \\ 
-Name of constant associated with a return flag & \id{IDABandGetReturnFlagName} \\
+Size of real and integer workspace & \id{IDADlsGetWorkSpace} \\
+No. of Jacobian evaluations & \id{IDADlsGetNumJacEvals} \\
+No. of residual calls for finite diff. Jacobian evals. & \id{IDADlsGetNumResEvals} \\ 
+Last return from a linear solver function & \id{IDADlsGetLastFlag} \\ 
+Name of constant associated with a return flag & \id{IDADlsGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDASPILS linear solvers} \\
 \hline

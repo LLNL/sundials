@@ -39,6 +39,23 @@ Bi-CGFStab and TFQMR have an advantage in storage requirements, in
 that the number of workspace vectors they require is fixed, while that
 number for GMRES depends on the desired Krylov subspace size.
 
+\index{IDAS@{\idas}!relationship to {\ida}|(}
+{\idas} is written with a functionality that is a superset of that
+of {\ida}. Sensitivity analysis capabilities, both
+forward and adjoint, have been added to the main integrator. Enabling
+forward sensititivity computations in {\idas} will result in the
+code integrating the so-called {\em sensitivity equations}
+simultaneously with the original IVP, yielding both the solution and
+its sensitivity with respect to parameters in the model. Adjoint
+sensitivity analysis, most useful when the gradients of relatively few
+functionals of the solution with respect to many parameters are
+sought, involves integration of the original IVP forward in time
+followed by the integration of the so-called {\em adjoint equations}
+backward in time. {\idas} provides the infrastructure needed to
+integrate any final-condition ODE dependent on the solution of the
+original IVP (in particular the adjoint system).
+\index{IDAS@{\idas}!relationship to {\ida}|)}
+
 \index{IDAS@{\idas}!motivation for writing in C|(}
 There are several motivations for choosing the {\C} language for {\idas}.
 First, a general movement away from {\F} and toward {\C} in scientific
@@ -51,109 +68,8 @@ and the greater ease of interfacing the solver to applications written
 in extended {\F}.
 \index{IDAS@{\idas}!motivation for writing in C|)}
 
-\section{Changes from previous versions}
-
-\subsection*{Changes in v2.5.0}
-
-The main changes in this release involve a rearrangement of the entire 
-{\sundials} source tree (see \S\ref{ss:sun_org}). At the user interface 
-level, the main impact is in the mechanism of including {\sundials} header
-files which must now include the relative path (e.g. \id{\#include <cvode/cvode.h>}).
-Additional changes were made to the build system: all exported header files are
-now installed in separate subdirectories of the instaltion {\em include} directory.
-
-A bug was fixed in the internal difference-quotient dense and banded Jacobian approximations,
-related to the estimation of the perturbation (which could have lead to a failure
-of the linear solver when zero components with sufficiently small absolute tolerances
-were present).
-
-The user interface to the consistent initial conditions calculations has been modified. 
-The \id{IDACalcIC} arguments \id{t0}, \id{yy0}, and \id{yp0} were removed and 
-a new function, \id{IDAGetconsistentIC} is provided (see \S\ref{ss:idacalcic} and 
-\S\ref{sss:optout_iccalc} for details).
-
-The functions in the generic dense linear solver (\id{sundials\_dense} and
-\id{sundials\_smalldense}) were modified to work for rectangular $m \times n$
-matrices ($m \le n$), while the factorization and solution functions were
-renamed to \id{DenseGETRF}/\id{denGETRF} and \id{DenseGETRS}/\id{denGETRS}, 
-respectively.
-The factorization and solution functions in the generic band linear solver were 
-renamed \id{BandGBTRF} and \id{BandGBTRS}, respectively.
-
-\subsection*{Changes in v2.4.0}
-
-{\fida}, a {\F}-{\C} interface module, was added (for details see Chapter
-\ref{s:fcmix}).
-
-{\idaspbcg} and {\idasptfqmr} modules have been added to interface with the
-Scaled Preconditioned Bi-CGstab ({\spbcg}) and Scaled Preconditioned
-Transpose-Free Quasi-Minimal Residual ({\sptfqmr}) linear solver modules,
-respectively (for details see Chapter \ref{s:simulation}).
-At the same time, function type names for Scaled Preconditioned Iterative
-Linear Solvers were added for the user-supplied Jacobian-times-vector and
-preconditioner setup and solve functions.
-
-The rootfinding feature was added, whereby the roots of a set of given
-functions may be computed during the integration of the DAE system.
-
-A user-callable routine was added to access the estimated local error
-vector.
-
-The deallocation functions now take as arguments the address of the respective 
-memory block pointer.
-
-To reduce the possibility of conflicts, the names of all header files have
-been changed by adding unique prefixes (\id{ida\_} and \id{sundials\_}).
-When using the default installation procedure, the header files are exported
-under various subdirectories of the target \id{include} directory. For more
-details see~\S\ref{s:install}.
-
-\subsection*{Changes in v2.3.0}
-
-The user interface has been further refined. Several functions used
-for setting optional inputs were combined into a single one.
-An optional user-supplied routine for setting the error weight
-vector was added.
-Additionally, to resolve potential variable scope issues, all
-SUNDIALS solvers release user data right after its use. The build
-systems has been further improved to make it more robust.
-
-\subsection*{Changes in v2.2.2}
-
-Minor corrections and improvements were made to the build system.
-A new chapter in the User Guide was added --- with constants that
-appear in the user interface.
-
-\subsection*{Changes in v2.2.1}
-
-The changes in this minor {\sundials} release affect only the build system.
-
-\subsection*{Changes in v2.2.0}
-
-The major changes from the previous version involve a redesign of the
-user interface across the entire {\sundials} suite. We have eliminated the
-mechanism of providing optional inputs and extracting optional statistics 
-from the solver through the \id{iopt} and \id{ropt} arrays. Instead,
-{\idas} now provides a set of routines (with prefix \id{IDASet})
-to change the default values for various quantities controlling the
-solver and a set of extraction routines (with prefix \id{IDAGet})
-to extract statistics after return from the main solver routine.
-Similarly, each linear solver module provides its own set of {\id{Set}-}
-and {\id{Get}-type} routines. For more details see \S\ref{ss:optional_input}
-and \S\ref{ss:optional_output}.
-
-Additionally, the interfaces to several user-supplied routines
-(such as those providing Jacobians and preconditioner information) 
-were simplified by reducing the number
-of arguments. The same information that was previously accessible
-through such arguments can now be obtained through {\id{Get}-type}
-functions.
-
-Installation of {\idas} (and all of {\sundials}) has been completely 
-redesigned and is now based on configure scripts.
 
 
-\section{Reading this User Guide}\label{ss:reading}
 
 The structure of this document is as follows:
 \begin{itemize}
@@ -163,26 +79,47 @@ The structure of this document is as follows:
 \item
   In Chapter \ref{s:math}, we give short descriptions of the numerical 
   methods implemented by {\idas} for the solution of initial value problems
-  for systems of DAEs.
+  for systems of DAEs, continue with an overview of the mathematical aspects 
+  of sensitivity analysis, both forward (\S\ref{ss:fwd_sensi}) and adjoint
+  (\S\ref{ss:adj_sensi}), and conclude with short descriptions of preconditioning
+  (\S\ref{s:preconditioning}) and rootfinding (\S\ref{s:rootfinding}).
 \item
   The following chapter describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\idas}
-  solver (\S\ref{ss:ida_org}). 
+  solver (\S\ref{ss:idas_org}). 
 \item
-  Chapter \ref{s:simulation} is the main usage document for {\idas} for
-  {\C} applications.  It includes a complete description of the user interface
-  for the integration of DAE initial value problems.
+  Chapter \ref{s:simulation} is the main usage document for {\idas}
+  for simulation applications.  It includes a complete description of
+  the user interface for the integration of DAE initial value problems.
+  Readers that are not interested in using {\idas} for sensitivity
+  analysis can then skip the next two chapters.
 \item
-  In Chapter \ref{s:fcmix}, we describe {\fida}, an interface module
-  for the use of {\idas} with {\F} applications.
+  Chapter \ref{s:forward} describes the usage of {\idas} for forward
+  sensitivity analysis as an extension of its IVP integration
+  capabilities.  We begin with a skeleton of the user main program,
+  with emphasis on the steps that are required in addition to those
+  already described in Chapter \ref{s:simulation}.  Following that we
+  provide detailed descriptions of the user-callable interface
+  routines specific to forward sensitivity analysis and of the
+  additonal optional user-defined routines.
 \item
-  Chapter \ref{s:nvector} gives a brief overview of the generic {\nvector} module 
-  shared among the various components of {\sundials}, as well as details on the two
-  {\nvector} implementations provided with {\sundials}: a serial implementation
-  (\S\ref{ss:nvec_ser}) and a parallel MPI implementation (\S\ref{ss:nvec_par}).
+  Chapter \ref{s:adjoint} describes the usage of {\idas} for adjoint
+  sensitivity analysis. We begin by describing the {\idas} checkpointing 
+  implementation for interpolation of the original IVP solution during
+  integration of the adjoint system backward in time, and with 
+  an overview of a user's main program. Following that we provide complete
+  descriptions of the user-callable interface routines for adjoint sensitivity
+  analysis as well as descriptions of the required additional user-defined routines.
 \item
-  Chapter \ref{s:new_linsolv} describes the interfaces to the linear solver
-  modules, so that a user can provide his/her own such module.
+  Chapter \ref{s:nvector} gives a brief overview of the generic
+  {\nvector} module shared amongst the various components of
+  {\sundials}, as well as details on the two {\nvector}
+  implementations provided with {\sundials}: a serial implementation
+  (\S\ref{ss:nvec_ser}) and a parallel implementation based on
+  {\mpi}\index{MPI} (\S\ref{ss:nvec_par}).
+\item
+  Chapter \ref{s:new_linsolv} describes the specifications of linear
+  solver modules as supplied by the user.
 \item
   Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers shared 
   by all {\sundials} solvers.
@@ -192,14 +129,7 @@ The structure of this document is as follows:
 \end{itemize}
 
 Finally, the reader should be aware of the following notational conventions
-in this user guide:  program listings and identifiers (such as \id{IDAMalloc}) 
+in this user guide:  program listings and identifiers (such as \id{IDAInit}) 
 within textual explanations appear in typewriter type style; 
 fields in {\C} structures (such as {\em content}) appear in italics;
 and packages or modules, such as {\idadense}, are written in all capitals. 
-In the Index, page numbers that appear in bold indicate the main reference
-for that entry.
-
-\paragraph{Acknowledgments.}
-We wish to acknowledge the contributions to previous versions of the
-{\idas} code and user guide of Allan G. Taylor.
-

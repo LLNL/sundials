@@ -2671,9 +2671,7 @@ must be of type \Id{IDAQuadSensRhsFn} defined as follows:
 For some problems, when sensitivities are excluded from the error control test, 
 the behavior of {\idas} may appear at first glance to be erroneous. One would
 expect that, in such cases, the sensitivity variables would not influence in
-any way the step size selection. A comparison of the solver diagnostics 
-reported for \id{idasdenx} and the second run of the \id{idasfwddenx} example 
-in \cite{idas2.4.0_ex} indicates that this may not always be the case.
+any way the step size selection.
 
 The short explanation of this behavior is that the step size selection
 implemented by the error control mechanism in {\idas} is based on the 
