@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2007-04-30 21:27:35 $
+ * $Revision: 1.15 $
+ * $Date: 2007-08-20 20:54:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1450,19 +1450,19 @@ int CVodeGetQuadSensStats(void *cvode_mem, long int *nfQSevals, long int *nQSetf
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSensRhsEvals(void *cvode_mem, long int *nfSevals)
+int CVodeGetSensNumRhsEvals(void *cvode_mem, long int *nfSevals)
 {
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumSensRhsEvals", MSGCV_NO_MEM);    
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetSensNumRhsEvals", MSGCV_NO_MEM);    
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (sensi==FALSE) {
-    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetNumSensRhsEvals", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumRhsEvals", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
@@ -1496,19 +1496,19 @@ int CVodeGetNumRhsEvalsSens(void *cvode_mem, long int *nfevalsS)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSensErrTestFails(void *cvode_mem, long int *nSetfails)
+int CVodeGetSensNumErrTestFails(void *cvode_mem, long int *nSetfails)
 {
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumSensErrTestFails", MSGCV_NO_MEM);    
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetSensNumErrTestFails", MSGCV_NO_MEM);    
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (sensi==FALSE) {
-    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetNumSensErrTestFails", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumErrTestFails", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
@@ -1519,19 +1519,19 @@ int CVodeGetNumSensErrTestFails(void *cvode_mem, long int *nSetfails)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSensLinSolvSetups(void *cvode_mem, long int *nlinsetupsS)
+int CVodeGetSensNumLinSolvSetups(void *cvode_mem, long int *nlinsetupsS)
 {
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumSensLinSolvSetups", MSGCV_NO_MEM);    
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetSensNumLinSolvSetups", MSGCV_NO_MEM);    
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (sensi==FALSE) {
-    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetNumSensLinSolvSetups", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumLinSolvSetups", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
@@ -1596,19 +1596,19 @@ int CVodeGetSensStats(void *cvode_mem, long int *nfSevals, long int *nfevalsS,
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSensNonlinSolvIters(void *cvode_mem, long int *nSniters)
+int CVodeGetSensNumNonlinSolvIters(void *cvode_mem, long int *nSniters)
 {
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumSensNonlinSolvIters", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetSensNumNonlinSolvIters", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (sensi==FALSE) {
-    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetNumSensNonlinSolvIters", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumNonlinSolvIters", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
@@ -1619,19 +1619,19 @@ int CVodeGetNumSensNonlinSolvIters(void *cvode_mem, long int *nSniters)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSensNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
+int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
 {
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumSensNonlinSolvConvFails", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetSensNumNonlinSolvConvFails", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (sensi==FALSE) {
-    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetNumSensNonlinSolvConvFails", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumNonlinSolvConvFails", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
@@ -1642,13 +1642,13 @@ int CVodeGetNumSensNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumStgrSensNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters)
+int CVodeGetStgrSensNumNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters)
 {
   CVodeMem cv_mem;
   int is, Ns;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumStgrSensNonlinSolvIters", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetStgrSensNumNonlinSolvIters", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
@@ -1657,7 +1657,7 @@ int CVodeGetNumStgrSensNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters)
   Ns = cv_mem->cv_Ns;
 
   if (sensi==FALSE) {
-    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetNumStgrSensNonlinSolvIters", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetStgrSensNumNonlinSolvIters", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
@@ -1669,13 +1669,13 @@ int CVodeGetNumStgrSensNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumStgrSensNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfails)
+int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfails)
 {
   CVodeMem cv_mem;
   int is, Ns;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumStgrSensNonlinSolvConvFails", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetStgrSensNumNonlinSolvConvFails", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
@@ -1684,7 +1684,7 @@ int CVodeGetNumStgrSensNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfa
   Ns = cv_mem->cv_Ns;
 
   if (sensi==FALSE) {
-    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetNumStgrSensNonlinSolvConvFails", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetStgrSensNumNonlinSolvConvFails", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 

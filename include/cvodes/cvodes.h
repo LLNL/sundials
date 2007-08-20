@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.19 $
+ * $Date: 2007-08-20 20:54:41 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1570,24 +1570,24 @@ SUNDIALS_EXPORT int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals,
  * The following functions can be called to get optional outputs
  * and statistics related to the integration of sensitivities.
  * -----------------------------------------------------------------
- * CVodeGetNumSensRhsEvals returns the number of calls to the
+ * CVodeGetSensNumRhsEvals returns the number of calls to the
  *   sensitivity right hand side routine.
  * CVodeGetNumRhsEvalsSens returns the number of calls to the
  *   user f routine due to finite difference evaluations of the 
  *   sensitivity equations.
- * CVodeGetNumSensErrTestFails returns the number of local error
+ * CVodeGetSensNumErrTestFails returns the number of local error
  *   test failures for sensitivity variables.
- * CVodeGetNumSensLinSolvSetups returns the number of calls made
+ * CVodeGetSensNumLinSolvSetups returns the number of calls made
  *   to the linear solver's setup routine due to sensitivity computations.
  * CVodeGetSensErrWeights returns the sensitivity error weight
  *   vectors. The user need not allocate space for ewtS.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeGetNumSensRhsEvals(void *cvode_mem, long int *nfSevals);
+SUNDIALS_EXPORT int CVodeGetSensNumRhsEvals(void *cvode_mem, long int *nfSevals);
 SUNDIALS_EXPORT int CVodeGetNumRhsEvalsSens(void *cvode_mem, long int *nfevalsS);
-SUNDIALS_EXPORT int CVodeGetNumSensErrTestFails(void *cvode_mem, long int *nSetfails);
-SUNDIALS_EXPORT int CVodeGetNumSensLinSolvSetups(void *cvode_mem, long int *nlinsetupsS);
+SUNDIALS_EXPORT int CVodeGetSensNumErrTestFails(void *cvode_mem, long int *nSetfails);
+SUNDIALS_EXPORT int CVodeGetSensNumLinSolvSetups(void *cvode_mem, long int *nlinsetupsS);
 SUNDIALS_EXPORT int CVodeGetSensErrWeights(void *cvode_mem, N_Vector *eSweight);
 
 /*
@@ -1607,23 +1607,23 @@ SUNDIALS_EXPORT int CVodeGetSensStats(void *cvode_mem, long int *nfSevals, long 
  * The following functions can be called to get optional outputs
  * and statistics related to the sensitivity nonlinear solver.
  * -----------------------------------------------------------------
- * CVodeGetNumSensNonlinSolvIters returns the total number of
+ * CVodeGetSensNumNonlinSolvIters returns the total number of
  *   nonlinear iterations for sensitivity variables.
- * CVodeGetNumSensNonlinSolvConvFails returns the total number
+ * CVodeGetSensNumNonlinSolvConvFails returns the total number
  *   of nonlinear convergence failures for sensitivity variables
- * CVodeGetNumStgrSensNonlinSolvIters returns a vector of Ns
+ * CVodeGetStgrSensNumNonlinSolvIters returns a vector of Ns
  *   nonlinear iteration counters for sensitivity variables in 
  *   the CV_STAGGERED1 method.
- * CVodeGetNumStgrSensNonlinSolvConvFails returns a vector of Ns
+ * CVodeGetStgrSensNumNonlinSolvConvFails returns a vector of Ns
  *   nonlinear solver convergence failure counters for sensitivity 
  *   variables in the CV_STAGGERED1 method.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeGetNumSensNonlinSolvIters(void *cvode_mem, long int *nSniters);
-SUNDIALS_EXPORT int CVodeGetNumSensNonlinSolvConvFails(void *cvode_mem, long int *nSncfails);
-SUNDIALS_EXPORT int CVodeGetNumStgrSensNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters);
-SUNDIALS_EXPORT int CVodeGetNumStgrSensNonlinSolvConvFails(void *cvode_mem, 
+SUNDIALS_EXPORT int CVodeGetSensNumNonlinSolvIters(void *cvode_mem, long int *nSniters);
+SUNDIALS_EXPORT int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSncfails);
+SUNDIALS_EXPORT int CVodeGetStgrSensNumNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters);
+SUNDIALS_EXPORT int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, 
 							   long int *nSTGR1ncfails);
 
 /*

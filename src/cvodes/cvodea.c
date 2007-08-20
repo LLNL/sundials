@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2007-08-08 17:32:04 $
+ * $Revision: 1.22 $
+ * $Date: 2007-08-20 20:54:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -101,7 +101,6 @@ int CVodeAdjInit(void *cvode_mem, long int steps, int interp)
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
-  booleantype allocOK;
   long int i, ii;
 
   /* ---------------
@@ -314,7 +313,6 @@ void CVodeAdjFree(void *cvode_mem)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
-  void *cvode_bmem;
   long int i;
   
   if (cvode_mem == NULL) return;
@@ -469,7 +467,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
   CVodeMem cv_mem;
   CkpntMem tmp;
   DtpntMem *dt_mem;
-  int cv_itask, flag, i;
+  int flag, i;
   booleantype iret, allocOK;
 
   /* Check if cvode_mem exists */
@@ -1263,7 +1261,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
   CVodeBMem cvB_mem, tmp_cvB_mem;
   CkpntMem ck_mem;
   int sign, flag;
-  realtype tBret, tBn, hB, troundoff, tmp_tBn;
+  realtype tBret, tBn, hB, troundoff;
   booleantype gotCheckpoint, isActive, reachedTBout;
   
   /* Check if cvode_mem exists */

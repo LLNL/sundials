@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.12 $
+ * $Date: 2007-08-20 20:54:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -664,7 +664,6 @@ int CVBBDPrecReInitB(void *cvode_mem, int which,
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   void *cvodeB_mem;
-  CVBBDPrecDataB cvbbdB_mem;
   int flag;
 
   /* Check if cvode_mem exists */
@@ -704,9 +703,6 @@ int CVBBDPrecReInitB(void *cvode_mem, int which,
 
 static void CVBBDPrecFreeB(CVodeBMem cvB_mem)
 {
-  void *cvodeB_mem;
-  CVBBDPrecDataB cvbbdB_mem;
-
   free(cvB_mem->cv_pmem); 
   cvB_mem->cv_pmem = NULL;
 }

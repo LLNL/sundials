@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2007-07-30 16:23:31 $
+ * $Revision: 1.24 $
+ * $Date: 2007-08-20 20:54:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -790,7 +790,7 @@ void *CVodeCreate(int lmm, int iter)
 int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 {
   CVodeMem cv_mem;
-  booleantype nvectorOK, allocOK, neg_abstol;
+  booleantype nvectorOK, allocOK;
   long int lrw1, liw1;
   int i,k;
 
@@ -2266,7 +2266,7 @@ int CVodeSensToggleOff(void *cvode_mem)
 int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
 {
   CVodeMem cv_mem;
-  int i, nrt;
+  int nrt;
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
@@ -4127,6 +4127,7 @@ static booleantype cvQuadSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   /* Store the value of qmax used here */
   cv_mem->cv_qmax_allocQS = qmax;
 
+  return(TRUE);
 }
 
 /*
