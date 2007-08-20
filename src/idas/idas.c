@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2007-08-20 16:23:38 $
+ * $Revision: 1.26 $
+ * $Date: 2007-08-20 22:40:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2519,8 +2519,8 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
   IDAMem IDA_mem;
   realtype tfuzz, tp, delt, psij_1;
   int i, j;
-  realtype cjk  [MAXORD_DEFAULT];
-  realtype cjk_1[MAXORD_DEFAULT];
+  realtype cjk  [MXORDP1];
+  realtype cjk_1[MXORDP1];
 
   /* Check ida_mem */
   if (ida_mem == NULL) {
@@ -2550,7 +2550,7 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
   }
 
   /* Initialize the c_j^(k) and c_k^(k-1) */
-  for(i=0; i<MAXORD_DEFAULT; i++) {
+  for(i=0; i<MXORDP1; i++) {
     cjk  [i] = 0;
     cjk_1[i] = 0;
   }
@@ -2596,8 +2596,7 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
     }
 
     /* save existing c_j^(i)'s */
-
-    for(j=i+1; j<MAXORD_DEFAULT; j++) cjk_1[j] = cjk[j];
+    for(j=i+1; j<=kused-k+i; j++) cjk_1[j] = cjk[j];
   }
 
   /* Compute sum (c_j(t) * phi(t)) */
@@ -2647,8 +2646,8 @@ int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dkyQ)
   IDAMem IDA_mem;
   realtype tfuzz, tp, delt, psij_1;
   int i, j;
-  realtype cjk  [MAXORD_DEFAULT];
-  realtype cjk_1[MAXORD_DEFAULT];
+  realtype cjk  [MXORDP1];
+  realtype cjk_1[MXORDP1];
 
   /* Check ida_mem */
   if (ida_mem == NULL) {
@@ -2658,7 +2657,7 @@ int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dkyQ)
   IDA_mem = (IDAMem) ida_mem; 
 
   /* Ckeck if quadrature was initialized */
-  if(quadr != TRUE) {
+  if (quadr != TRUE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, "IDAS", "IDAGetQuadDky", MSG_NO_QUAD);
     return(IDA_NO_QUAD);
   }
@@ -2683,7 +2682,7 @@ int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dkyQ)
   }
 
   /* Initialize the c_j^(k) and c_k^(k-1) */
-  for(i=0; i<MAXORD_DEFAULT; i++) {
+  for(i=0; i<MXORDP1; i++) {
     cjk  [i] = 0;
     cjk_1[i] = 0;
   }
@@ -2707,7 +2706,7 @@ int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dkyQ)
     }
 
     /* save existing c_j^(i)'s */
-    for(j=i+1; j<MAXORD_DEFAULT; j++) cjk_1[j] = cjk[j];
+    for(j=i+1; j<=kused-k+i; j++) cjk_1[j] = cjk[j];
   }
 
   /* Compute sum (c_j(t) * phi(t)) */
@@ -2848,8 +2847,8 @@ int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS)
   IDAMem IDA_mem;  
   realtype tfuzz, tp, delt, psij_1;
   int i, j;
-  realtype cjk  [MAXORD_DEFAULT];
-  realtype cjk_1[MAXORD_DEFAULT];
+  realtype cjk  [MXORDP1];
+  realtype cjk_1[MXORDP1];
 
   /* Check all inputs for legality */
   if (ida_mem == NULL) {
@@ -2868,7 +2867,7 @@ int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS)
     return(IDA_BAD_DKY);
   }
 
-  /* Is the requested sensitivity index valid*/
+  /* Is the requested sensitivity index valid? */
   if(is<0 || is >= Ns) {
     IDAProcessError(IDA_mem, IDA_BAD_IS, "IDAS", "IDAGetSensDky1", MSG_BAD_IS);
   }
@@ -2890,7 +2889,7 @@ int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS)
   }
 
   /* Initialize the c_j^(k) and c_k^(k-1) */
-  for(i=0; i<MAXORD_DEFAULT; i++) {
+  for(i=0; i<MXORDP1; i++) {
     cjk  [i] = 0;
     cjk_1[i] = 0;
   }
@@ -2914,7 +2913,7 @@ int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS)
     }
 
     /* Update cjk_1 for the next step */
-    for(j=i+1; j<MAXORD_DEFAULT; j++) cjk_1[j] = cjk[j];
+    for(j=i+1; j<=kused-k+i; j++) cjk_1[j] = cjk[j];
   }  
 
   /* Compute sum (c_j(t) * phi(t)) */
@@ -3074,8 +3073,8 @@ int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
   IDAMem IDA_mem;  
   realtype tfuzz, tp, delt, psij_1;
   int i, j;
-  realtype cjk  [MAXORD_DEFAULT];
-  realtype cjk_1[MAXORD_DEFAULT];
+  realtype cjk  [MXORDP1];
+  realtype cjk_1[MXORDP1];
 
   /* Check all inputs for legality */
   if (ida_mem == NULL) {
@@ -3122,7 +3121,7 @@ int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
   }
 
   /* Initialize the c_j^(k) and c_k^(k-1) */
-  for(i=0; i<MAXORD_DEFAULT; i++) {
+  for(i=0; i<MXORDP1; i++) {
     cjk  [i] = 0;
     cjk_1[i] = 0;
   }
@@ -3146,7 +3145,7 @@ int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
     }
 
     /* Update cjk_1 for the next step */
-    for(j=i+1; j<MAXORD_DEFAULT; j++) cjk_1[j] = cjk[j];
+    for(j=i+1; j<=kused-k+i; j++) cjk_1[j] = cjk[j];
   }  
 
   /* Compute sum (c_j(t) * phi(t)) */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-08-20 16:23:38 $
+ * $Revision: 1.13 $
+ * $Date: 2007-08-20 22:40:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -83,21 +83,6 @@ static int IDAAres(realtype tt,
 static int IDAArhsQ(realtype tt, 
                      N_Vector yyB, N_Vector ypB,
                      N_Vector rrQB, void *ida_mem);
-
-static int IDAAspgmrPrecSetup(realtype tt, 
-                              N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                              realtype c_jB, void *idaadj_mem,
-                              N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-static int IDAAspgmrPrecSolve(realtype tt, 
-                              N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                              N_Vector rvecB, N_Vector zvecB,
-                              realtype c_jB, realtype deltaB,
-                              void *idaadj_mem, N_Vector tmpB);
-static int IDAAspgmrJacTimesVec(realtype tt,
-                                N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                                N_Vector vB, N_Vector JvB, 
-                                realtype c_jB, void *idaadj_mem, 
-                                N_Vector tmp1B, N_Vector tmp2B);
 
 static int IDAAGettnSolutionYp(IDAMem IDA_mem, N_Vector yp);
 static int IDAAGettnSolutionYpS(IDAMem IDA_mem, N_Vector *ypS);

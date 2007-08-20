@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2007-08-20 16:23:38 $
+ * $Revision: 1.20 $
+ * $Date: 2007-08-20 22:40:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -1522,7 +1522,7 @@ int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vector *ypS0)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumSensResEvals(void *ida_mem, long int *nrSevals)
+int IDAGetSensNumResEvals(void *ida_mem, long int *nrSevals)
 {
   IDAMem IDA_mem;
 
@@ -1568,7 +1568,7 @@ int IDAGetNumResEvalsSens(void *ida_mem, long int *nrevalsS)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumSensErrTestFails(void *ida_mem, long int *nSetfails)
+int IDAGetSensNumErrTestFails(void *ida_mem, long int *nSetfails)
 {
   IDAMem IDA_mem;
 
@@ -1591,7 +1591,7 @@ int IDAGetNumSensErrTestFails(void *ida_mem, long int *nSetfails)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumSensLinSolvSetups(void *ida_mem, long int *nlinsetupsS)
+int IDAGetSensNumLinSolvSetups(void *ida_mem, long int *nlinsetupsS)
 {
   IDAMem IDA_mem;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2007-08-14 22:52:33 $
+ * $Revision: 1.21 $
+ * $Date: 2007-08-20 22:40:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1511,14 +1511,14 @@ SUNDIALS_EXPORT int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vect
  * The following functions can be called to get optional outputs
  * and statistics related to the integration of sensitivities.
  * -----------------------------------------------------------------
- * IDAGetNumSensResEvals returns the number of calls to the
+ * IDAGetSensNumResEvals returns the number of calls to the
  *                       sensitivity residual function.
  * IDAGetNumResEvalsSens returns the number of calls to the
  *                       user res routine due to finite difference
  *                       evaluations of the sensitivity equations.
- * IDAGetNumSensErrTestFails returns the number of local error
+ * IDAGetSensNumErrTestFails returns the number of local error
  *                           test failures for sensitivity variables.
- * IDAGetNumSensLinSolvSetups returns the number of calls made
+ * IDAGetSensNumLinSolvSetups returns the number of calls made
  *                            to the linear solver's setup routine
  *                            due to sensitivity computations.
  * IDAGetSensErrWeights returns the sensitivity error weight
