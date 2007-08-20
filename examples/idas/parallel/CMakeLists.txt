@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-04-11 22:36:36 $
+# $Revision: 1.2 $
+# $Date: 2007-08-20 22:49:06 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -19,6 +19,9 @@ SET(idas_examples
   idaskryx1_p
   idaskryx2_bbd_p
   idaskryx2_p
+  idasBrusselator_p
+  idasBrusselatorFSA_p
+  idasBrusselatorASA_p
   )
 
 # Check whether we use MPI compiler scripts.

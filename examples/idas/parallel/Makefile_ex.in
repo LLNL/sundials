@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-11-29 00:05:05 $
+# $Revision: 1.2 $
+# $Date: 2007-08-20 22:49:07 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -9,7 +9,7 @@
 # All rights reserved.
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
-# Makefile for IDA parallel examples
+# Makefile for IDAS parallel examples
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
@@ -38,7 +38,9 @@ EXAMPLES = idaskryx1_p \
 	   idaskryx1_bbd_p \
 	   idaskryx2_p \
 	   idaskryx2_bbd_p
-
+           idasBrusselator_p \
+	   idasBrusselatorFSA_p \
+	   idasBrusselatorASA_p
 # ----------------------------------------------------------------------------------------------------------------------
 
 all: $(EXAMPLES)
@@ -61,4 +63,13 @@ idaskryx2_p: idaskryx2_p.c
 idaskryx2_bbd_p: idaskryx2_bbd_p.c
 	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idaskryx2_bbd_p.c
 	$(MPICC) -o idaskryx2_bbd_p idaskryx2_bbd_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idasBrusselator_p: idasBrusselator_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idasBrusselator_p.c
+	$(MPICC) -o idasBrusselator_p idasBrusselator_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idasBrusselatorFSA_p: idasBrusselatorFSA_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idasBrusselatorFSA_p.c
+	$(MPICC) -o idasBrusselatorFSA_p idasBrusselatorFSA_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idasBrusselatorASA_p: idasBrusselatorASA_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idasBrusselatorASA_p.c
+	$(MPICC) -o idasBrusselatorASA_p idasBrusselatorASA_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
