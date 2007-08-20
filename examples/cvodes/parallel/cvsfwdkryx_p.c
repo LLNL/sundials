@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-30 19:29:02 $
+ * $Revision: 1.11 $
+ * $Date: 2007-08-20 20:56:23 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -1216,18 +1216,18 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
   if (sensi) {
-    flag = CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
-    check_flag(&flag, "CVodeGetNumSensRhsEvals", 1, 0);
+    flag = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
+    check_flag(&flag, "CVodeGetSensNumRhsEvals", 1, 0);
     flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
     check_flag(&flag, "CVodeGetNumRhsEvalsSens", 1, 0);
-    flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
-    check_flag(&flag, "CVodeGetNumSensLinSolvSetups", 1, 0);
-    flag = CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
-    check_flag(&flag, "CVodeGetNumSensErrTestFails", 1, 0);
-    flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
-    check_flag(&flag, "CVodeGetNumSensNonlinSolvIters", 1, 0);
-    flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
-    check_flag(&flag, "CVodeGetNumSensNonlinSolvConvFails", 1, 0);
+    flag = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
+    check_flag(&flag, "CVodeGetSensNumLinSolvSetups", 1, 0);
+    flag = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
+    check_flag(&flag, "CVodeGetSensNumErrTestFails", 1, 0);
+    flag = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
+    check_flag(&flag, "CVodeGetSensNumNonlinSolvIters", 1, 0);
+    flag = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
+    check_flag(&flag, "CVodeGetSensNumNonlinSolvConvFails", 1, 0);
   }
 
   printf("\nFinal Statistics\n\n");

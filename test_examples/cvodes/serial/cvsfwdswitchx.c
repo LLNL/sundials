@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:29:03 $
+ * $Revision: 1.7 $
+ * $Date: 2007-08-20 20:56:23 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -391,12 +391,12 @@ static void PrintFinalStats(void *cvode_mem, UserData data)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
 
   if (sensi) {
-    flag = CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
+    flag = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
     flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
-    flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
-    flag = CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
-    flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
-    flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
+    flag = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
+    flag = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
+    flag = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
+    flag = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
   }
 
   flag = CVDlsGetNumJacEvals(cvode_mem, &njeD);

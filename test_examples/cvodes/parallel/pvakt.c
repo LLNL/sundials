@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:29:03 $
+ * $Revision: 1.7 $
+ * $Date: 2007-08-20 20:56:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -204,7 +204,6 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, abstolQ, reltolQ;
   int mudq, mldq, mukeep, mlkeep;
 
-  void *cvadj_mem;
   void *cvode_memB;
   N_Vector yB, qB;
   realtype abstolB, reltolB, abstolQB, reltolQB;

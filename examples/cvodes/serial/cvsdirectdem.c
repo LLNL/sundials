@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:29:02 $
+ * $Revision: 1.7 $
+ * $Date: 2007-08-20 20:56:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -286,13 +286,13 @@ static void PrintIntro1(void)
   printf("Problem 1: Van der Pol oscillator\n");
   printf(" xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf(" neq = %d,  itol = %s,  reltol = %.2Lg,  abstol = %.2Lg",
+  printf(" neq = %d,  reltol = %.2Lg,  abstol = %.2Lg",
 	 P1_NEQ, RTOL, ATOL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf(" neq = %d,  itol = %s,  reltol = %.2lg,  abstol = %.2lg",
+  printf(" neq = %d,  reltol = %.2lg,  abstol = %.2lg",
 	 P1_NEQ, RTOL, ATOL);
 #else
-  printf(" neq = %d,  itol = %s,  reltol = %.2g,  abstol = %.2g",
+  printf(" neq = %d,  reltol = %.2g,  abstol = %.2g",
 	 P1_NEQ, RTOL, ATOL);
 #endif
 }

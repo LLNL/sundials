@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 19:29:02 $
+ * $Revision: 1.9 $
+ * $Date: 2007-08-20 20:56:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
   int steps, ncheck;
   int indexB1, indexB2;
 
-  int flag, is;
+  int flag;
   realtype time;
 
   realtype dp;
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
 
   flag = CVodeGetQuadSens(cvode_mem, &time, yQS);
 
-  printf("ncheck = %ld\n", ncheck);
+  printf("ncheck = %d\n", ncheck);
   printf("\n");
   printf("     y:    %12.4le %12.4le %12.4le", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:    %12.4le\n", Ith(yQ,1));
@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype y1, y2, y3, yd1, yd3;
+  realtype y1, y2, y3;
   UserData data;
   realtype p1, p2;
 

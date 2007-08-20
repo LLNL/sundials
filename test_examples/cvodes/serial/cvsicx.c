@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 19:29:03 $
+ * $Revision: 1.9 $
+ * $Date: 2007-08-20 20:56:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
   int flag;
 
-  FILE *f1, *f2;
+  FILE *f1;
 
   /* 
    * Allocate and initialize user data structure 
@@ -235,12 +235,12 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
 
-  flag = CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);
+  flag = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
   flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
-  flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &nsetupsS);
-  flag = CVodeGetNumSensErrTestFails(cvode_mem, &netfS);
-  flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &nniS);
-  flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &ncfnS);
+  flag = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
+  flag = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
+  flag = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
+  flag = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
 
   flag = CVDlsGetNumJacEvals(cvode_mem, &njeD);
   flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeD);
@@ -318,7 +318,6 @@ static int Jac(int N, realtype t,
                DlsMat J, void *jac_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  UserData data;
   realtype a11, a12, a13;
   realtype a21, a22;
   realtype a31, a33;
