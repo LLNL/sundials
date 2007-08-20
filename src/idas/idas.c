@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2007-08-10 21:12:14 $
+ * $Revision: 1.25 $
+ * $Date: 2007-08-20 16:23:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -704,7 +704,6 @@ int IDAReInit(void *ida_mem,
               realtype t0, N_Vector yy0, N_Vector yp0)
 {
   IDAMem IDA_mem;
-  booleantype neg_atol;
 
   /* Check for legal input parameters */
   
@@ -1530,7 +1529,6 @@ int IDAQuadSensInit(void *ida_mem, IDAQuadSensRhsFn rhsQS, N_Vector *yQS0)
 int IDAQuadSensReInit(void *ida_mem, N_Vector *yQS0)
 {
   IDAMem IDA_mem;
-  booleantype allocOK;
   int is;
 
   if (ida_mem==NULL) {
@@ -1784,7 +1782,7 @@ int IDASensToggleOff(void *ida_mem)
 int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 {
   IDAMem IDA_mem;
-  int i, nrt;
+  int nrt;
 
   /* Check ida_mem pointer */
   if (ida_mem == NULL) {
@@ -2520,7 +2518,7 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
 {
   IDAMem IDA_mem;
   realtype tfuzz, tp, delt, psij_1;
-  int i, j, ii;
+  int i, j;
   realtype cjk  [MAXORD_DEFAULT];
   realtype cjk_1[MAXORD_DEFAULT];
 
@@ -2648,7 +2646,7 @@ int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dkyQ)
 {
   IDAMem IDA_mem;
   realtype tfuzz, tp, delt, psij_1;
-  int i, j, kord;
+  int i, j;
   realtype cjk  [MAXORD_DEFAULT];
   realtype cjk_1[MAXORD_DEFAULT];
 
@@ -2849,7 +2847,7 @@ int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS)
 {
   IDAMem IDA_mem;  
   realtype tfuzz, tp, delt, psij_1;
-  int i, j, kord;
+  int i, j;
   realtype cjk  [MAXORD_DEFAULT];
   realtype cjk_1[MAXORD_DEFAULT];
 
@@ -3075,7 +3073,7 @@ int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
 {
   IDAMem IDA_mem;  
   realtype tfuzz, tp, delt, psij_1;
-  int i, j, kord;
+  int i, j;
   realtype cjk  [MAXORD_DEFAULT];
   realtype cjk_1[MAXORD_DEFAULT];
 
@@ -6997,7 +6995,7 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
   realtype del , rdel;
   realtype Delp, rDelp;
   realtype Dely, rDely;
-  realtype Del , rDel , r2Del ;
+  realtype Del , r2Del ;
   realtype norms;
 
   del = RSqrt(MAX(rtol, uround));

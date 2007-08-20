@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-08-10 21:12:14 $
+ * $Revision: 1.12 $
+ * $Date: 2007-08-20 16:23:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -399,7 +399,6 @@ int IDAAdjReInit(void *ida_mem)
 
 void IDAAdjFree(void *ida_mem)
 {
-  void *ida_bmem;
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
 
@@ -1445,7 +1444,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
   CkpntMem ck_mem;
   IDABMem IDAB_mem, tmp_IDAB_mem;
   int flag, sign;
-  realtype tBret, tBn, hB, troundoff, tmp_tBn;
+  realtype tBret, tBn, hB, troundoff;
   booleantype gotCkpnt, reachedTBout, isActive;
 
   /* Is the mem OK? */
@@ -1650,8 +1649,6 @@ SUNDIALS_EXPORT int IDAGetB(void* ida_mem, int which, realtype *tret,
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
   IDABMem IDAB_mem;
-  int flag;
-  long int nstB;
   
   /* Is ida_mem valid? */
   if (ida_mem == NULL) {
@@ -2095,13 +2092,13 @@ static void IDAAdataFree(IDAMem IDA_mem)
  *   - IDA_SUCCESS
  */
 
-int IDAAdataStore(IDAMem IDA_mem, CkpntMem ck_mem)
+static int IDAAdataStore(IDAMem IDA_mem, CkpntMem ck_mem)
 {
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   realtype t;
   long int i;
-  int j, flag;
+  int flag;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
   dt_mem = IDAADJ_mem->dt_mem;
@@ -2437,7 +2434,7 @@ static int IDAAhermiteStorePnt(IDAMem IDA_mem, DtpntMem d)
 {
   IDAadjMem IDAADJ_mem;
   HermiteDataMem content;
-  int is, retval;
+  int is;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
@@ -3193,7 +3190,7 @@ int IDAGetAdjY(void *ida_mem, realtype t, N_Vector yy, N_Vector yp)
   IDAadjMem IDAADJ_mem;
   int flag;
 
-  if (IDA_mem == NULL) {
+  if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDAGetAdjY", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }

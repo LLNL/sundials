@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2007-08-14 22:52:34 $
+ * $Revision: 1.19 $
+ * $Date: 2007-08-20 16:23:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -764,7 +764,6 @@ int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist)
 int IDASetQuadSensErrCon(void *ida_mem, booleantype errconQS)
 {
   IDAMem IDA_mem;
-  int Ns, is;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetQuadSensErrCon", MSG_NO_MEM);    
