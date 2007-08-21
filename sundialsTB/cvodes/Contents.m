@@ -10,11 +10,10 @@
 % functions and the types of user-supplied functions are listed below.
 % For completness, some functions appear more than once.
 %
-%
 % Functions for ODE integration
 %
 %  CVodeSetOptions     - create an options structure for an ODE problem.
-%  CVodeSetQuadOptions - create an options structure for quadrature integration.
+%  CVodeQuadSetOptions - create an options structure for quadrature integration.
 %  CVodeInit           - allocate and initialize memory for CVODES.
 %  CVodeQuadInit       - allocate and initialize memory for quadrature integration.
 %  CVodeReInit         - reinitialize memory for CVODES.
@@ -24,12 +23,11 @@
 %  CVodeGet            - extract data from CVODES memory.
 %  CVodeFree           - deallocate memory for the CVODES solver.
 %
-%
 % Functions for forward sensitivity analysis
 %
 %  CVodeSetOptions     - create an options structure for an ODE problem.
-%  CVodeSetQuadOptions - create an options structure for quadrature integration.
-%  CVodeSetFSAOptions  - create an options structure for FSA.
+%  CVodeQuadSetOptions - create an options structure for quadrature integration.
+%  CVodeSensSetOptions - create an options structure for FSA.
 %  CVodeInit           - allocate and initialize memory for CVODES.
 %  CVodeQuadInit       - allocate and initialize memory for quadrature integration.
 %  CVodeSensInit       - allocate and initialize memory for FSA.
@@ -42,11 +40,10 @@
 %  CVodeGet            - extract data from CVODES memory.
 %  CVodeFree           - deallocate memory for the CVODES solver.
 %
-%
 % Functions for adjoint sensitivity analysis
 %
-%  CVodeSetOptions - create an options structure for an ODE problem.
-%  CVodeSetQuadOptions - create an options structure for quadrature integration.
+%  CVodeSetOptions     - create an options structure for an ODE problem.
+%  CVodeQuadSetOptions - create an options structure for quadrature integration.
 %  CVodeInit           - allocate and initialize memory for the forward problem.
 %  CVodeQuadInit       - allocate and initialize memory for forward quadrature integration.
 %  CVodeQuadReInit     - reinitialize memory for forward quadrature integration.
@@ -61,7 +58,6 @@
 %  CVodeGetStatsB      - return statistics for the integration of a backward problem.
 %  CVodeGet            - extract data from CVODES memory.
 %  CVodeFree           - deallocate memory for the CVODES solver.
-%
 %
 % User-supplied function types for forward problems
 %
@@ -78,7 +74,6 @@
 %   CVGcomFn           -  communication function (BBDPre)
 %   CVMonitorFn        -  monitoring function
 %
-%
 % User-supplied function types for backward problems
 %
 %   CVRhsFnB           -  RHS function
@@ -92,22 +87,19 @@
 %   CVGcomFnB          -  communication function (BBDPre)
 %   CVMonitorFnB       -  monitoring function
 %
-%
 % Serial examples provided with the toolbox
 %
-%   cvdx               - chemical kinetics problem (BDF, Newton, dense)
-%   cvbx               - 2D adv-diff problem (BDF, Newton, band)
-%   cvkx               - 2D diurnal kinetics problem 
-%                        (BDF, Newton, GMRES, user-provided preconditioner)
-%   cvkxb              - 2D diurnal kinetics problem 
-%                        (BDF, Newton, GMRES, BandPre preconditioner)
-%   vdp                - van der Pol problem (BDF, Newton, dense)
-%   pleiades           - celestial mechanics problem (Adams, Functional)
-%   cvfdx              - FSA for cvdx
-%   cvadx              - ASA for cvdx
-%   cvhess             - example for multiple backward problems
-%
-%
+%   robertson.m        -  chemical kinetics problem 
+%   robertsonFSA.m     -  FSA for the robertson problem
+%   robertsonASA.m     -  ASA for the robertson problem
+%   advdiff.m          -  advection-diffusion PDE
+%   diurnal.m          -  2D, 2-species, time dependent PDE
+%   pleiades.m         -  nonstiff celestial mechanics problem
+%   vdp.m              -  Van der Pol problem
+%   discontRHS.m       -  integration over RHS discontinuities
+%   discontSOL.m       -  integration over solution discontinuities
+%   hessian.m          -  illustration for computing Hessian information
+%                         (forward-over-adjoint approach)
 % Parallel examples provided with the toolbox
 %
 %   pvnx               - diagonal ODE example
@@ -115,7 +107,6 @@
 %   pvkx               - 3D adv-diff with distributed source problem
 %                        (BDF, Newton, GMRES, BBDPre preconditioner)
 % Use the mpirun function to run any of the parallel examples
-%
 %
 % See also nvector, putils
 

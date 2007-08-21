@@ -1,7 +1,7 @@
-function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
-%CVodeMonitor is the default CVODES monitoring function.
+function [new_data] = CVodeMonitorB(call, idxB, T, Y, YQ, data)
+%CVodeMonitorB is the default CVODES monitoring function for backward problems.
 %   To use it, set the Monitor property in CVodeSetOptions to
-%   'CVodeMonitor' or to @CVodeMonitor and 'MonitorData' to mondata
+%   'CVodeMonitorB' or to @CVodeMonitorB and 'MonitorData' to mondata
 %   (defined as a structure).
 %  
 %   With default settings, this function plots the evolution of the step 
@@ -18,13 +18,8 @@ function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
 %     o cntr [ {true} | false ]
 %         If true, report the evolution of the following counters:
 %         nst, nfe, nni, netf, ncfn (see CVodeGetStats)
-%     o mode [ {'graphical'} | 'text' | 'both' ] 
-%         In graphical mode, plot the evolutions of the above quantities.
-%         In text mode, print a table.
 %     o sol  [ true | {false} ]
 %         If true, plot solution components.
-%     o sensi [ true | {false} ]
-%         If true and if FSA is enabled, plot sensitivity components.
 %     o select [ array of integers ]
 %         To plot only particular solution components, specify their indeces in
 %         the field select. If not defined, but sol=true, all components are plotted.
@@ -36,7 +31,7 @@ function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
 %         If false, disable all posting. This option is necessary to disable
 %         monitoring on some processors when running in parallel.
 %
-%   See also CVodeSetOptions, CVMonitorFn
+%   See also CVodeSetOptions, CVMonitorFnB
 %
 %   NOTES:
 %     1. The argument mondata is REQUIRED. Even if only the default options
@@ -45,11 +40,13 @@ function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.6 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.1 $Date: 2007/05/11 18:51:32 $
+
 
 if (nargin ~= 6) 
   error('Monitor data not defined.');
 end
+
 
 new_data = [];
 
@@ -61,26 +58,18 @@ if call == 0
 % Open figure windows
   if data.post
 
-    if data.grph
-      if data.stats | data.cntr
-        data.hfg = figure;
-      end
-%     Number of subplots in figure hfg
-      if data.stats
-        data.npg = data.npg + 2;
-      end
-      if data.cntr
-        data.npg = data.npg + 1;
-      end
+    if data.stats | data.cntr
+      data.hfg = figure;
+    end
+%   Number of subplots in figure hfg
+    if data.stats
+      data.npg = data.npg + 2;
+    end
+    if data.cntr
+      data.npg = data.npg + 1;
     end
     
-    if data.text
-      if data.cntr | data.stats
-        data.hft = figure;
-      end
-    end
-
-    if data.sol | data.sensi
+    if data.sol
       data.hfs = figure; 
     end
   
@@ -112,15 +101,11 @@ if call == 0
 else
 
 % If this is the first call ~= 0, 
-% use Y and YS for additional initializations
+% use Y for additional initializations
   
   if data.first
 
-    if isempty(YS)
-      data.sensi = false;
-    end
-    
-    if data.sol | data.sensi
+    if data.sol
       
       if isempty(data.select)
       
@@ -138,12 +123,6 @@ else
         data.nps = data.nps + 1;
       end
         
-      if data.sensi
-        data.Ns = size(YS,2);
-        data.ys = zeros(data.N, data.Ns, data.updt);
-        data.nps = data.nps + data.Ns;
-      end
-      
     end
     
     data.first = false;
@@ -161,9 +140,7 @@ else
   n    = data.n;
   t    = data.t;
   N    = data.N;
-  Ns   = data.Ns;
   y    = data.y;
-  ys   = data.ys;
   h    = data.h;
   q    = data.q;
   nst  = data.nst;
@@ -186,7 +163,7 @@ if call == 1
     return;
   end
 
-  si = CVodeGetStats;
+  si = CVodeGetStatsB(idxB);
 
   t(n) = si.tcur;
   
@@ -209,14 +186,6 @@ if call == 1
     end
   end
 
-  if data.sensi
-    for k = 1:Ns
-      for j = 1:N
-        ys(j,k,n) = YS(data.select(j),k);
-      end
-    end
-  end
-  
 end
 
 % Is it time to post?
@@ -229,49 +198,39 @@ if data.post & (n == data.updt | call==2)
   
   if ~data.initialized
 
-    if (data.stats | data.cntr) & data.grph
+    if (data.stats | data.cntr)
       graphical_init(n, hfg, npg, data.stats, data.cntr, ...
                      t, h, q, nst, nfe, nni, netf, ncfn);
     end
     
-    if (data.stats | data.cntr) & data.text
-      text_init(n, hft, data.stats, data.cntr, ...
-                t, h, q, nst, nfe, nni, netf, ncfn);
-    end
-
-    if data.sol | data.sensi
-      sol_init(n, hfs, nps, data.sol, data.sensi,  ...
-               N, Ns, t, y, ys);
+    if data.sol
+      sol_init(n, hfs, nps, data.sol, ...
+               N, t, y);
     end
     
     data.initialized = true;
   
   else
 
-    if (data.stats | data.cntr) & data.grph
+    if (data.stats | data.cntr)
       graphical_update(n, hfg, npg, data.stats, data.cntr, ...
                        t, h, q, nst, nfe, nni, netf, ncfn);
     end
 
-    if (data.stats | data.cntr) & data.text
-      text_update(n, hft, data.stats, data.cntr, ...
-                  t, h, q, nst, nfe, nni, netf, ncfn);
-    end
-    
     if data.sol
-      sol_update(n, hfs, nps, data.sol, data.sensi, N, Ns, t, y, ys);
+      sol_update(n, hfs, nps, data.sol, N, t, y);
     end
       
   end
 
   if call == 2
     
-    if (data.stats | data.cntr) & data.grph
+    if (data.stats | data.cntr)
       graphical_final(hfg, npg, data.cntr, data.stats);
     end
     
-    if data.sol | data.sensi
-      sol_final(hfs, nps, data.sol, data.sensi, N, Ns);
+    if data.sol
+      sol_final(hfs, nps, data.sol, N);
     end
 
     return;
@@ -294,7 +253,6 @@ data.n    = n;
 data.npg  = npg;
 data.t    = t;
 data.y    = y;
-data.ys   = ys;
 data.h    = h;
 data.q    = q;
 data.nst  = nst;
@@ -311,9 +269,6 @@ return;
 
 function data = initialize_data(data)
 
-if ~isfield(data,'mode')
-  data.mode = 'graphical';
-end
 if ~isfield(data,'updt')
   data.updt = 50;
 end
@@ -329,9 +284,6 @@ end
 if ~isfield(data,'sol')
   data.sol = false;
 end
-if ~isfield(data,'sensi')
-  data.sensi = false;
-end
 if ~isfield(data,'select')
   data.select = [];
 end
@@ -339,16 +291,7 @@ if ~isfield(data,'post')
   data.post = true;
 end
 
-data.grph = true;
-data.text = true;
-if strcmp(data.mode,'graphical')
-  data.text = false;
-end
-if strcmp(data.mode,'text')
-  data.grph = false;
-end
-
-if ~data.sol & ~data.sensi
+if ~data.sol
   data.select = [];
 end
   
@@ -366,34 +309,19 @@ data.nni = 0;
 data.netf = 0;
 data.ncfn = 0;
 data.N = 0;
-data.Ns = 0;
 data.y = 0;
-data.ys = 0;
 
 %-------------------------------------------------------------------------
 
 function [] = graphical_init(n, hfg, npg, stats, cntr, ...
                              t, h, q, nst, nfe, nni, netf, ncfn)
 
-fig_name = 'CVODES run statistics';
-
-% If this is a parallel job, look for the MPI rank in the global
-% workspace and append it to the figure name
-
-global sundials_MPI_rank
-
-if ~isempty(sundials_MPI_rank)
-  fig_name = sprintf('%s (PE %d)',fig_name,sundials_MPI_rank);
-end
-
 figure(hfg);
-set(hfg,'Name',fig_name);
-set(hfg,'color',[1 1 1]);
 pl = 0;
 
 % Time label and figure title
 
-tlab = '\rightarrow   t   \rightarrow';
+tlab = '<-   t   <-';
 
 % Step size and order
 if stats
@@ -447,35 +375,43 @@ if stats
   pl = pl+1;
   subplot(npg,1,pl)
   hc = get(gca,'Children');
-  xd = [get(hc,'XData') t(1:n)];
-  yd = [get(hc,'YData') abs(h(1:n))];
+  xd = [get(hc,'XData') ; t(1:n)'];
+  yd = [get(hc,'YData') ; abs(h(1:n)')];
   set(hc, 'XData', xd, 'YData', yd);
   
   pl = pl+1;
   subplot(npg,1,pl)
   hc = get(gca,'Children');
-  xd = [get(hc,'XData') t(1:n)];
-  yd = [get(hc,'YData') q(1:n)];
+  xd = [get(hc,'XData') ; t(1:n)'];
+  yd = [get(hc,'YData') ; q(1:n)'];
   set(hc, 'XData', xd, 'YData', yd);
 end
 
 % Counters
 if cntr
+  
   pl = pl+1;
+
   subplot(npg,1,pl)
   hc = get(gca,'Children');
-% Attention: Children are loaded in reverse order!
-  xd = [get(hc(1),'XData') t(1:n)];
-  yd = [get(hc(1),'YData') ncfn(1:n)];
-  set(hc(1), 'XData', xd, 'YData', yd);
-  yd = [get(hc(2),'YData') netf(1:n)];
-  set(hc(2), 'XData', xd, 'YData', yd);
-  yd = [get(hc(3),'YData') nni(1:n)];
-  set(hc(3), 'XData', xd, 'YData', yd);
-  yd = [get(hc(4),'YData') nfe(1:n)];
-  set(hc(4), 'XData', xd, 'YData', yd);
-  yd = [get(hc(5),'YData') nst(1:n)];
+
+  xd = [get(hc(1),'XData') ; t(1:n)'];
+
+  yd = [get(hc(5),'YData') ; ncfn(1:n)'];
   set(hc(5), 'XData', xd, 'YData', yd);
+
+  yd = [get(hc(4),'YData') ; netf(1:n)'];
+  set(hc(4), 'XData', xd, 'YData', yd);
+
+  yd = [get(hc(3),'YData') ; nni(1:n)'];
+  set(hc(3), 'XData', xd, 'YData', yd);
+
+  yd = [get(hc(2),'YData') ; nfe(1:n)'];
+  set(hc(2), 'XData', xd, 'YData', yd);
+
+  yd = [get(hc(1),'YData') ; nst(1:n)'];
+  set(hc(1), 'XData', xd, 'YData', yd);
+
 end
 
 drawnow;
@@ -514,127 +450,13 @@ end
 
 %-------------------------------------------------------------------------
 
-function [] = text_init(n,hft,stats,cntr,t,h,q,nst,nfe,nni,netf,ncfn)
-
-fig_name = 'CVODES run statistics';
-
-% If this is a parallel job, look for the MPI rank in the global
-% workspace and append it to the figure name
-
-global sundials_MPI_rank
-
-if ~isempty(sundials_MPI_rank)
-  fig_name = sprintf('%s (PE %d)',fig_name,sundials_MPI_rank);
-end
-
-figure(hft);
-set(hft,'Name',fig_name);
-set(hft,'color',[1 1 1]);
-set(hft,'MenuBar','none');
-set(hft,'Resize','off');
-
-% Create text box
-
-margins=[10 10 50 50]; % left, right, top, bottom
-pos=get(hft,'position');
-tbpos=[margins(1) margins(4) pos(3)-margins(1)-margins(2) ...
-       pos(4)-margins(3)-margins(4)];
-tbpos(tbpos<1)=1;
-
-htb=uicontrol(hft,'style','listbox','position',tbpos,'tag','textbox');
-set(htb,'BackgroundColor',[1 1 1]);
-set(htb,'SelectionHighlight','off');
-set(htb,'FontName','courier');
-
-% Create table head
-
-tpos = [tbpos(1) tbpos(2)+tbpos(4)+10 tbpos(3) 20];
-ht=uicontrol(hft,'style','text','position',tpos,'tag','text');
-set(ht,'BackgroundColor',[1 1 1]);
-set(ht,'HorizontalAlignment','left');
-set(ht,'FontName','courier');
-newline = '   time         step      order  |    nst   nfe   nni  netf  ncfn';
-set(ht,'String',newline);
-
-% Create OK button
-  
-bsize=[60,28];
-badjustpos=[0,25];
-bpos=[pos(3)/2-bsize(1)/2+badjustpos(1) -bsize(2)/2+badjustpos(2)...
-      bsize(1) bsize(2)];
-bpos=round(bpos);
-bpos(bpos<1)=1;
-hb=uicontrol(hft,'style','pushbutton','position',bpos,...
-             'string','Close','tag','okaybutton');
-set(hb,'callback','close');
-
-% Save handles
-
-handles=guihandles(hft);
-guidata(hft,handles);
-
-for i = 1:n
-  newline = '';
-  if stats
-    newline = sprintf('%10.3e   %10.3e     %1d    |',t(i),h(i),q(i));
-  end
-  if cntr
-    newline = sprintf('%s %5d %5d %5d %5d %5d',...
-                      newline,nst(i),nfe(i),nni(i),netf(i),ncfn(i));
-  end
-  string = get(handles.textbox,'String');
-  string{end+1}=newline;
-  set(handles.textbox,'String',string);
-end
-
-drawnow
-
-%-------------------------------------------------------------------------
-
-function [] = text_update(n,hft,stats,cntr,t,h,q,nst,nfe,nni,netf,ncfn)
-
-figure(hft);
-
-handles=guidata(hft);
-
-for i = 1:n
-   if stats
-    newline = sprintf('%10.3e   %10.3e     %1d    |',t(i),h(i),q(i));
-  end
-  if cntr
-    newline = sprintf('%s %5d %5d %5d %5d %5d',...
-                      newline,nst(i),nfe(i),nni(i),netf(i),ncfn(i));
-  end
-  string = get(handles.textbox,'String');
-  string{end+1}=newline;
-  set(handles.textbox,'String',string);
-end
-
-drawnow
-
-%-------------------------------------------------------------------------
-
-function [] = sol_init(n, hfs, nps, sol, sensi, N, Ns, t, y, ys)
-
-fig_name = 'CVODES solution';
-
-% If this is a parallel job, look for the MPI rank in the global
-% workspace and append it to the figure name
-
-global sundials_MPI_rank
-
-if ~isempty(sundials_MPI_rank)
-  fig_name = sprintf('%s (PE %d)',fig_name,sundials_MPI_rank);
-end
-
+function [] = sol_init(n, hfs, nps, sol, N, t, y)
 
 figure(hfs);
-set(hfs,'Name',fig_name);
-set(hfs,'color',[1 1 1]);
 
 % Time label
 
-tlab = '\rightarrow   t   \rightarrow';
+tlab = '<-   t   <-';
 
 % Get number of colors in colormap
 map = colormap;
@@ -662,36 +484,11 @@ if sol
 
 end
 
-if sensi
-  
-  for is = 1:Ns
-    
-    pl = pl+1;
-    subplot(nps,1,pl);
-    hold on;
-      
-    ys_crt = ys(:,is,1:n);
-    for i = 1:N
-      hp = plot(t(1:n),ys_crt(i,1:n),'-');
-      ic = 1+(i-1)*floor(ncols/N);
-      set(hp,'Color',map(ic,:));
-    end
-    box on;
-    grid on;
-    xlabel(tlab);
-    str = sprintf('s_{%d}',is); ylabel(str);
-    str = sprintf('Sensitivity %d',is); title(str);
-    
-  end
-  
-end
-
-
 drawnow;
 
 %-------------------------------------------------------------------------
 
-function [] = sol_update(n, hfs, nps, sol, sensi, N, Ns, t, y, ys)
+function [] = sol_update(n, hfs, nps, sol, N, t, y)
 
 figure(hfs);
 
@@ -703,43 +500,21 @@ if sol
   subplot(nps,1,pl);
   
   hc = get(gca,'Children');
-  xd = [get(hc(1),'XData') t(1:n)];
-% Attention: Children are loaded in reverse order!
+  xd = [get(hc(1),'XData') ; t(1:n)'];
+
   for i = 1:N
-    yd = [get(hc(i),'YData') y(N-i+1,1:n)];
+    yd = [get(hc(i),'YData') ; y(i,1:n)'];
     set(hc(i), 'XData', xd, 'YData', yd);
   end
 
 end
-  
-if sensi
-  
-  for is = 1:Ns
-    
-    pl = pl+1;
-    subplot(nps,1,pl);
-
-    ys_crt = ys(:,is,:);
-    
-    hc = get(gca,'Children');
-    xd = [get(hc(1),'XData') t(1:n)];
-%   Attention: Children are loaded in reverse order!
-    for i = 1:N
-      yd = [get(hc(i),'YData') ys_crt(N-i+1,1:n)];
-      set(hc(i), 'XData', xd, 'YData', yd);
-    end
-    
-  end
-  
-end
-
 
 drawnow;
 
 
 %-------------------------------------------------------------------------
 
-function [] = sol_final(hfs, nps, sol, sensi, N, Ns)
+function [] = sol_final(hfs, nps, sol, N)
 
 figure(hfs);
 
@@ -764,32 +539,6 @@ if sol
     cstring{i} = sprintf('y_{%d}',i);
   end
   legend(cstring);
-  
-end
-
-if sensi
-  
-  for is = 1:Ns
-    
-    pl = pl+1;
-    subplot(nps,1,pl);
-
-    hc = get(gca,'Children');
-    xd = get(hc(1),'XData');
-    set(gca,'XLim',sort([xd(1) xd(end)]));
-
-    ylim = get(gca,'YLim');
-    addon = 0.1*abs(ylim(2)-ylim(1));
-    ylim(1) = ylim(1) + sign(ylim(1))*addon;
-    ylim(2) = ylim(2) + sign(ylim(2))*addon;
-    set(gca,'YLim',ylim);
-  
-    for i = 1:N
-      cstring{i} = sprintf('s%d_{%d}',is,i);
-    end
-    legend(cstring);
-    
-  end
   
 end
 

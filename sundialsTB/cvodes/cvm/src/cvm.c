@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2007-05-16 17:12:56 $
+ * $Revision: 1.19 $
+ * $Date: 2007-08-21 17:42:39 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -365,8 +365,6 @@ static void cvmFinalCVODESdata()
 
   if (cvmData == NULL) return;
 
-  CVodeFree(&(cvmData->cvode_mem));
-
   if (cvmData->fwdPb != NULL) {
     cvmFinalPbData(cvmData->fwdPb);
     mxFree(cvmData->fwdPb);
@@ -428,7 +426,7 @@ static void cvmFinalPbData(cvmPbData pb)
 
 void cvmErrHandler(int error_code, 
                    const char *module, const char *function, 
-                   char *msg, void *f_data)
+                   char *msg, void *user_data)
 {
   char err_msg[256];
 
@@ -548,8 +546,6 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   const mxArray *options;
 
-  mxArray *mdata;
-
   double t0, *y0;
 
   int lmm, iter, maxord;
@@ -559,8 +555,6 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   int itol;
   realtype reltol, Sabstol, *Vabstol;
   N_Vector NV_abstol;
-
-  double *yQ0;
 
   double hin, hmax, hmin;
 
@@ -812,6 +806,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
     }
 
+
     /* Jacobian * vector and preconditioner for SPILS linear solvers */
 
     if ( (ls==LS_SPGMR) || (ls==LS_SPBCG) || (ls==LS_SPTFQMR) ) {
@@ -823,8 +818,10 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
       case PM_NONE:
 
         if (!mxIsEmpty(mtlb_PSOLfct)) {
+
           if (!mxIsEmpty(mtlb_PSETfct)) CVSpilsSetPreconditioner(cvode_mem, mxW_CVodeSpilsPset, mxW_CVodeSpilsPsol);
-          else                        CVSpilsSetPreconditioner(cvode_mem, NULL, mxW_CVodeSpilsPsol);
+          else                          CVSpilsSetPreconditioner(cvode_mem, NULL, mxW_CVodeSpilsPsol);
+
         }
 
         break;
@@ -838,7 +835,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
       case PM_BBDPRE:
 
         if (!mxIsEmpty(mtlb_GCOMfct)) CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_CVodeBBDgloc, mxW_CVodeBBDgcom);
-        else                        CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_CVodeBBDgloc, NULL);
+        else                          CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_CVodeBBDgloc, NULL);
 
         break;
       }
@@ -1026,6 +1023,7 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
   const mxArray *options;
 
   booleantype fS_DQ;
+  CVSensRhsFn rhsS;
 
   double *yS0;
 
@@ -1067,12 +1065,13 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
     /* Extract user-provided sensitivity RHS function */
 
-    mxDestroyArray(mtlb_SRHSfct);
-
     if ( mxIsEmpty(prhs[1]) ) {
+      rhsS = NULL;
       fS_DQ = TRUE;
     } else {
+      mxDestroyArray(mtlb_SRHSfct);
       mtlb_SRHSfct = mxDuplicateArray(prhs[1]);
+      rhsS = mxW_CVodeSensRhs;
       fS_DQ = FALSE;
     }
 
@@ -1157,7 +1156,7 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
     }
 
-    CVodeSensInit(cvode_mem, Ns, ism, mxW_CVodeSensRhs, yS);
+    CVodeSensInit(cvode_mem, Ns, ism, rhsS, yS);
 
     break;
 
@@ -1261,7 +1260,7 @@ static int CVM_AdjInitialization(int action, int nlhs, mxArray *plhs[], int nrhs
 
     if(!strcmp(bufval,"Hermite"))         interp = CV_HERMITE;
     else if(!strcmp(bufval,"Polynomial")) interp = CV_POLYNOMIAL;
-    else cvmErrHandler(-999, "CVODES", "CvoeAdjInit",
+    else cvmErrHandler(-999, "CVODES", "CVodeAdjInit",
                        "Interp. type has an illegal value.", NULL);
 
     CVodeAdjInit(cvode_mem, Nd, interp);
@@ -1307,8 +1306,6 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   cvmPbData bckPb;
 
   const mxArray *options;
-
-  mxArray *mdata;
 
   int idxB;
 
@@ -1447,7 +1444,6 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
                    &lmmB, &iterB, &maxordB, &sldB, &mxstepsB,
                    &itolB, &reltolB, &SabstolB, &VabstolB,
                    &hinB, &hmaxB, &hminB, &tstopB, &rhs_s);
-
   /* 
    * ----------------------------------------
    * Call appropriate CVODES functions
@@ -1467,8 +1463,11 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     CVodeCreateB(cvode_mem, lmmB, iterB, &idxB);
     CVodeSetUserDataB(cvode_mem, idxB, bckPb);
 
-    if (rhs_s) CVodeInitBS(cvode_mem, idxB, mxW_CVodeRhsBS, tB0, yB);
-    else       CVodeInitB(cvode_mem, idxB, mxW_CVodeRhsB, tB0, yB);
+    if (rhs_s) {
+      CVodeInitBS(cvode_mem, idxB, mxW_CVodeRhsBS, tB0, yB);
+    } else {
+      CVodeInitB(cvode_mem, idxB, mxW_CVodeRhsB, tB0, yB);
+    }
 
     /* Return idxB */
 
@@ -1595,7 +1594,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
         if (!mxIsEmpty(mtlb_PSOLfctB)) {
           if (!mxIsEmpty(mtlb_PSETfctB)) CVSpilsSetPreconditionerB(cvode_mem, idxB, mxW_CVodeSpilsPsetB, mxW_CVodeSpilsPsolB);
-          else                         CVSpilsSetPreconditionerB(cvode_mem, idxB, NULL, mxW_CVodeSpilsPsolB);
+          else                           CVSpilsSetPreconditionerB(cvode_mem, idxB, NULL, mxW_CVodeSpilsPsolB);
         }
 
         break;
@@ -1609,7 +1608,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
       case PM_BBDPRE:
 
         if (!mxIsEmpty(mtlb_GCOMfctB)) CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_CVodeBBDglocB, mxW_CVodeBBDgcomB);
-        else                         CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_CVodeBBDglocB, NULL);
+        else                           CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_CVodeBBDglocB, NULL);
 
         break;
 
@@ -1878,7 +1877,7 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     if (mon) {
       cvmErrHandler(+999, "CVODES", "CVode",
-                    "Monitoring disabled in itask=CV_ONE_STEP", NULL);
+                    "Monitoring disabled in ONE_STEP mode.", NULL);
       mon = FALSE;
     }
 
@@ -2302,7 +2301,7 @@ static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
 
   }
 
-  /* CVODE return flag */
+  /* CVode return flag */
 
   plhs[0] = mxCreateScalarDouble((double)status);
     
@@ -2948,7 +2947,7 @@ static int CVM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   const mxArray *options;
   mxArray *opt;
 
-  double tstop, reltol;
+  double tstop;
 
 
 
@@ -2957,7 +2956,7 @@ static int CVM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   /* Return now if options was empty */
 
-  if (mxIsEmpty(options)) return;
+  if (mxIsEmpty(options)) return(0);
 
 
   /* User data */
@@ -2989,10 +2988,9 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   cvmPbData fwdPb;
 
   double t;
-  N_Vector yd, ewt;
+  N_Vector ewt;
   double *this, *next;
-  int key, k, which, i, nfields;
-  mxArray *mxS_y, *mxS_yd;
+  int key, k, i, nfields;
 
   CVadjCheckPointRec *ckpnt;
   const char *fnames_ckpnt[]={
@@ -3054,16 +3052,6 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     break;
 
-  case 5:    /* CurrentCheckPoint */
-
-    CVodeGetAdjCurrentCheckPoint(cvode_mem, (void **)(&this));
-
-    plhs[0] = mxCreateScalarDouble(*this);
-
-    break;
-
-    break;
-
   }
 
   return(0);
@@ -3083,6 +3071,8 @@ static int CVM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (monB) mxW_CVodeMonitorB(2, indexB, 0.0, NULL, NULL, bckPb);   
     bckPb = bckPb->next;
   }
+
+  CVodeFree(&cvode_mem);
 
   return(0);
 }

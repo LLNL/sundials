@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-05-16 17:12:56 $
+ * $Revision: 1.10 $
+ * $Date: 2007-08-21 17:42:39 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -225,8 +225,8 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
   opt = mxGetField(options,0,"StabilityLimDet");
   if ( !mxIsEmpty(opt) ) {
-    if (!mxIsLogicalScalar(opt)) cvmErrHandler(-999, "CVODES", fctName,
-                                               "StabilityLimDet is not a logical scalar.", NULL);
+    if (!mxIsLogical(opt)) cvmErrHandler(-999, "CVODES", fctName,
+                                         "StabilityLimDet is not a logical scalar.", NULL);
     if (mxIsLogicalScalarTrue(opt)) *sld = TRUE;
     else                            *sld = FALSE;
   }
@@ -284,8 +284,8 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
     opt = mxGetField(options,0,"SensDependent");
     if ( !mxIsEmpty(opt) ) {
-      if (!mxIsLogicalScalar(opt)) cvmErrHandler(-999, "CVODES", fctName,
-                                                 "SensDependent is not a logical scalar.", NULL);
+      if (!mxIsLogical(opt)) cvmErrHandler(-999, "CVODES", fctName,
+                                           "SensDependent is not a logical scalar.", NULL);
       if (mxIsLogicalScalarTrue(opt)) *rhs_s = TRUE;
       else                            *rhs_s = FALSE;
     }
@@ -305,7 +305,7 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
 {
   mxArray *opt;
   char *bufval;
-  int buflen, status, tmp_ls, tmp_pm;
+  int buflen, status;
   char *fctName;
   char *fwd_fctName = "CVodeInit/CVodeReInit";
   char *bck_fctName = "CVodeInitB/CVodeReInitB";
@@ -357,7 +357,7 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
 
   /* Band linear solver */
 
-  if (tmp_ls==LS_BAND) {
+  if (ls==LS_BAND) {
 
     opt = mxGetField(options,0,"UpperBwidth");
     if ( !mxIsEmpty(opt) )
@@ -371,7 +371,7 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
 
   /* SPGMR linear solver options */
   
-  if (tmp_ls==LS_SPGMR) {
+  if (ls==LS_SPGMR) {
 
     /* Type of Gram-Schmidt procedure */
 
@@ -392,7 +392,7 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
 
   /* SPILS linear solver options */
 
-  if ( (tmp_ls==LS_SPGMR) || (tmp_ls==LS_SPBCG) || (tmp_ls==LS_SPTFQMR) ) {
+  if ( (ls==LS_SPGMR) || (ls==LS_SPBCG) || (ls==LS_SPTFQMR) ) {
 
     /* Max. dimension of Krylov subspace */
 
@@ -445,12 +445,12 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
                                     "Cannot parse PrecModule.", NULL);
       if(!strcmp(bufval,"BandPre"))          pm = PM_BANDPRE;
       else if(!strcmp(bufval,"BBDPre"))      pm = PM_BBDPRE;
-      else if(!strcmp(bufval,"UserDefined")) tmp_pm = PM_NONE;
+      else if(!strcmp(bufval,"UserDefined")) pm = PM_NONE;
       else cvmErrHandler(-999, "CVODES", fctName,
                          "PrecModule has an illegal value.", NULL);
     }
 
-    if (tmp_pm != PM_NONE) {
+    if (pm != PM_NONE) {
     
       opt = mxGetField(options,0,"UpperBwidth");
       if ( !mxIsEmpty(opt) )
@@ -462,7 +462,7 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
       
     }
 
-    if (tmp_pm == PM_BBDPRE) {
+    if (pm == PM_BBDPRE) {
       
       opt = mxGetField(options,0,"UpperBwidthDQ");
       if ( !mxIsEmpty(opt) )
@@ -505,8 +505,7 @@ void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
                      int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ)
 {
   mxArray *opt;
-  char *bufval;
-  int i, buflen, status, m, n;
+  int i, m, n;
   double *tmp;
   char *fctName;
   char *fwd_fctName = "CVodeQuadInit/CVodeQuadReInit";
@@ -533,8 +532,8 @@ void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
     opt = mxGetField(options,0,"SensDependent");
     if ( !mxIsEmpty(opt) ) {
-      if (!mxIsLogicalScalar(opt)) cvmErrHandler(-999, "CVODES", fctName,
-                                                 "SensDependent is not a logical scalar.", NULL);
+      if (!mxIsLogical(opt)) cvmErrHandler(-999, "CVODES", fctName,
+                                           "SensDependent is not a logical scalar.", NULL);
       if (mxIsLogicalScalarTrue(opt)) *rhs_s = TRUE;
       else                            *rhs_s = FALSE;
     }
@@ -546,8 +545,8 @@ void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   opt = mxGetField(options,0,"ErrControl");
   if ( mxIsEmpty(opt) ) return;
 
-  if (!mxIsLogicalScalar(opt)) cvmErrHandler(-999, "CVODES", fctName,
-                                             "ErrControl is not a logical scalar.", NULL);
+  if (!mxIsLogical(opt)) cvmErrHandler(-999, "CVODES", fctName,
+                                       "ErrControl is not a logical scalar.", NULL);
 
   if (!mxIsLogicalScalarTrue(opt)) return;
   
@@ -733,8 +732,8 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
 
   opt = mxGetField(options,0,"ErrControl");
   if ( !mxIsEmpty(opt) ) {
-    if (!mxIsLogicalScalar(opt)) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                               "ErrControl is not a logical scalar.", NULL);
+    if (!mxIsLogical(opt)) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
+                                         "ErrControl is not a logical scalar.", NULL);
     if (mxIsLogicalScalarTrue(opt)) *errconS = TRUE;
     else                            *errconS = FALSE;
   }

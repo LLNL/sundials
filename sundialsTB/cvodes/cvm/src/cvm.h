@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-05-16 17:12:56 $
+ * $Revision: 1.11 $
+ * $Date: 2007-08-21 17:42:39 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -140,7 +140,7 @@ typedef struct cvmInterfaceData_ {
 
 void cvmErrHandler(int error_code, 
                    const char *module, const char *function, 
-                   char *msg, void *f_data);
+                   char *msg, void *user_data);
 
 /*
  * ---------------------------------------------------------------------------------
@@ -148,99 +148,99 @@ void cvmErrHandler(int error_code,
  * ---------------------------------------------------------------------------------
  */
 
-int mxW_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data);
+int mxW_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *user_data);
 
-int mxW_CVodeGfct(realtype t, N_Vector y, double *g, void *f_data);
+int mxW_CVodeGfct(realtype t, N_Vector y, double *g, void *user_data);
 
-int mxW_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *f_data);
+int mxW_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *user_data);
 
 
 int mxW_CVodeSensRhs1(int Ns, realtype t,
-                       N_Vector y, N_Vector ydot,
-                       int iS, N_Vector yS, N_Vector ySdot,
-                       void *f_data,
-                       N_Vector tmp1, N_Vector tmp2);
-int mxW_CVodeSensRhs(int Ns, realtype t,
                       N_Vector y, N_Vector ydot,
-                      N_Vector *yS, N_Vector *ySdot,
-                      void *f_data,
+                      int iS, N_Vector yS, N_Vector ySdot,
+                      void *user_data,
                       N_Vector tmp1, N_Vector tmp2);
+int mxW_CVodeSensRhs(int Ns, realtype t,
+                     N_Vector y, N_Vector ydot,
+                     N_Vector *yS, N_Vector *ySdot,
+                     void *user_data,
+                     N_Vector tmp1, N_Vector tmp2);
 
 
 int mxW_CVodeDenseJac(int N, realtype t,
-                       N_Vector y, N_Vector fy, 
-                       DlsMat J, void *f_data,
-                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-int mxW_CVodeBandJac(int N, int mupper, int mlower, realtype t,
                       N_Vector y, N_Vector fy, 
-                      DlsMat J, void *f_data,
+                      DlsMat J, void *user_data,
                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+int mxW_CVodeBandJac(int N, int mupper, int mlower, realtype t,
+                     N_Vector y, N_Vector fy, 
+                     DlsMat J, void *user_data,
+                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 int mxW_CVodeSpilsJac(N_Vector v, N_Vector Jv, realtype t,
-                       N_Vector y, N_Vector fy,
-                       void *f_data, N_Vector tmp);
+                      N_Vector y, N_Vector fy,
+                      void *user_data, N_Vector tmp);
 int mxW_CVodeSpilsPset(realtype t, N_Vector y, N_Vector fy,
-                        booleantype jok, booleantype *jcurPtr,
-                        realtype gamma, void *f_data,
-                        N_Vector tmp1, N_Vector tmp2,
-                        N_Vector tmp3);
+                       booleantype jok, booleantype *jcurPtr,
+                       realtype gamma, void *user_data,
+                       N_Vector tmp1, N_Vector tmp2,
+                       N_Vector tmp3);
 int mxW_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
-                        N_Vector r, N_Vector z,
-                        realtype gamma, realtype delta,
-                        int lr, void *f_data, N_Vector tmp);
+                       N_Vector r, N_Vector z,
+                       realtype gamma, realtype delta,
+                       int lr, void *user_data, N_Vector tmp);
 
   
-int mxW_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y, N_Vector g, void *f_data);
-int mxW_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data);
+int mxW_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y, N_Vector g, void *user_data);
+int mxW_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *user_data);
 
 void mxW_CVodeMonitor(int call, double t, 
-                       N_Vector y, N_Vector yQ, N_Vector *yS,
-                       cvmPbData fwdPb);
+                      N_Vector y, N_Vector yQ, N_Vector *yS,
+                      cvmPbData fwdPb);
 
 
 int mxW_CVodeRhsB(realtype t, N_Vector y,
-                   N_Vector yB, N_Vector yBdot, void *f_dataB);
+                  N_Vector yB, N_Vector yBdot, void *user_dataB);
 int mxW_CVodeRhsBS(realtype t, N_Vector y,  N_Vector *yS,
-                    N_Vector yB, N_Vector yBd, void *f_dataB);
+                   N_Vector yB, N_Vector yBd, void *user_dataB);
 
 int mxW_CVodeQUADfctB(realtype t, N_Vector y, 
-                       N_Vector yB, N_Vector qBdot, void *f_dataB);
+                      N_Vector yB, N_Vector qBdot, void *user_dataB);
 int mxW_CVodeQUADfctBS(realtype t, N_Vector y,  N_Vector *yS,
-                        N_Vector yB, N_Vector yQBd, void *f_dataB);
+                       N_Vector yB, N_Vector yQBd, void *user_dataB);
 
 int mxW_CVodeDenseJacB(int nB, realtype t,
-                        N_Vector y, N_Vector yB, N_Vector fyB,
-                        DlsMat JB, void *f_dataB, 
-                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-int mxW_CVodeBandJacB(int nB, int mupperB, int mlowerB, realtype t,
                        N_Vector y, N_Vector yB, N_Vector fyB,
-                       DlsMat JB, void *f_dataB, 
+                       DlsMat JB, void *user_dataB, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+int mxW_CVodeBandJacB(int nB, int mupperB, int mlowerB, realtype t,
+                      N_Vector y, N_Vector yB, N_Vector fyB,
+                      DlsMat JB, void *user_dataB, 
+                      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 int mxW_CVodeSpilsJacB(N_Vector vB, N_Vector JvB, realtype t,
-                        N_Vector y, N_Vector yB, N_Vector fyB,
-                        void *f_dataB, N_Vector tmpB);
+                       N_Vector y, N_Vector yB, N_Vector fyB,
+                       void *user_dataB, N_Vector tmpB);
 int mxW_CVodeSpilsPsetB(realtype t, N_Vector y,
-                         N_Vector yB, N_Vector fyB,
-                         booleantype jokB,
-                         booleantype *jcurPtrB, realtype gammaB,
-                         void *f_dataB,
-                         N_Vector tmp1B, N_Vector tmp2B,
-                         N_Vector tmp3B);
+                        N_Vector yB, N_Vector fyB,
+                        booleantype jokB,
+                        booleantype *jcurPtrB, realtype gammaB,
+                        void *user_dataB,
+                        N_Vector tmp1B, N_Vector tmp2B,
+                        N_Vector tmp3B);
 int mxW_CVodeSpilsPsolB(realtype t, N_Vector y,
-                         N_Vector yB, N_Vector fyB,
-                         N_Vector rB, N_Vector zB,
-                         realtype gammaB, realtype deltaB,
-                         int lrB, void *f_dataB, N_Vector tmpB);
+                        N_Vector yB, N_Vector fyB,
+                        N_Vector rB, N_Vector zB,
+                        realtype gammaB, realtype deltaB,
+                        int lrB, void *user_dataB, N_Vector tmpB);
   
 int mxW_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y, 
-                       N_Vector yB, N_Vector gB, void *f_dataB);
+                      N_Vector yB, N_Vector gB, void *user_dataB);
 
 int mxW_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y, 
-                       N_Vector yB, void *f_dataB);
+                      N_Vector yB, void *user_dataB);
 
 
 void mxW_CVodeMonitorB(int call, int idxB, double tB,
-                        N_Vector yB, N_Vector yQB,
-                        cvmPbData bckPb);
+                       N_Vector yB, N_Vector yQB,
+                       cvmPbData bckPb);
 
 /*
  * ---------------------------------------------------------------------------------

@@ -13,12 +13,12 @@ function [] = CVodeSensInit(Ns,fctS,yS0,options)
 %   OPTIONS  is an (optional) set of FSA options, created with
 %            the CVodeSetFSAOptions function. 
 %
-%   See also CVodeSetFSAOptions, CVodeInit, CVSensRhsFn
+%   See also CVodeSensSetOptions, CVodeInit, CVSensRhsFn
 %
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/07 01:19:50 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
 
 mode = 3;
 

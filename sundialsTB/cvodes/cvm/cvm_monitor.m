@@ -1,4 +1,4 @@
-function [new_mondata] = cvm_monitor(call, t, y, yQ, Ns, yS, fct, mondata)
+function new_mondata = cvm_monitor(call, t, y, yQ, Ns, yS, fct, mondata)
 
 %
 % Wrapper around the actual user-provided Matlab function

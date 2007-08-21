@@ -4,7 +4,7 @@ function vdp()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/10/05 22:12:23 $
+% $Revision: 1.5 $Date: 2007/05/16 17:12:57 $
 
 
 data.mu = 100.0;
@@ -17,7 +17,7 @@ options = CVodeSetOptions('UserData',data,...
                           'RelTol',1.e-8,...
                           'AbsTol',1e-6,...
                           'JacobianFn',@djacfn);
-mondata.mode = 'text';
+mondata.mode = 'both';
 mondata.skip = 20;
 options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
 

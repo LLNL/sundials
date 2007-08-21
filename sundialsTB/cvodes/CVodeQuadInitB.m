@@ -1,7 +1,7 @@
 function CVodeQuadInitB(idxB, fctQB, yQB0, optionsB)
 %CVodeQuadInitB allocates and initializes memory for backward quadrature integration.
 %
-%   Usage: CVodeQuadInitB ( IDXB, QBFUN, YS0 [, OPTIONS ] ) 
+%   Usage: CVodeQuadInitB ( IDXB, QBFUN, YQB0 [, OPTIONS ] ) 
 %
 %   IDXB     is the index of the backward problem, returned by
 %            CVodeInitB.
@@ -16,7 +16,7 @@ function CVodeQuadInitB(idxB, fctQB, yQB0, optionsB)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/07 01:19:50 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
 
 mode = 6;
 

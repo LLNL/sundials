@@ -3,7 +3,6 @@ function options = CVodeSensSetOptions(varargin)
 %
 %   Usage: OPTIONS = CVodeSensSetOptions('NAME1',VALUE1,'NAME2',VALUE2,...)
 %          OPTIONS = CVodeSensSetOptions(OLDOPTIONS,'NAME1',VALUE1,...)
-%          OPTIONS = CVodeSensSetOptions(OLDOPTIONS,NEWOPTIONS)
 %
 %   OPTIONS = CVodeSensSetOptions('NAME1',VALUE1,'NAME2',VALUE2,...) creates 
 %   a CVODES options structure OPTIONS in which the named properties have 
@@ -27,22 +26,20 @@ function options = CVodeSensSetOptions(varargin)
 %   Staggered case, the nonlinear system for states is solved first and then
 %   the nonlinear systems for all sensitivities are solved at the same time. 
 %ParamField - Problem parameters  [ string ]
-%   Specifies the name of the field in the user data structure (passed as an 
-%   argument to CVodeMalloc) in which the nominal values of the problem 
+%   Specifies the name of the field in the user data structure (specified through
+%   the 'UserData' field with CVodeSetOptions) in which the nominal values of the problem 
 %   parameters are stored. This property is used only if  CVODES will use difference
-%   quotient approximations to the sensitivity right-hand sides (see SensRhsFn).
+%   quotient approximations to the sensitivity right-hand sides (see CVSensRhsFn).
 %ParamList - Parameters with respect to which FSA is performed [ integer vector ]
 %   Specifies a list of Ns parameters with respect to which sensitivities are to
 %   be computed. This property is used only if CVODES will use difference-quotient
-%   approximations to the sensitivity right-hand sides (see SensRhsFn below).
-%   Its length must be Ns, consistent with the number of columns of yS0
-%   (see CVodeSensMalloc).
+%   approximations to the sensitivity right-hand sides. Its length must be Ns, 
+%   consistent with the number of columns of yS0 (see CVodeSensInit).
 %ParamScales - Order of magnitude for problem parameters [ vector ]
 %   Provides order of magnitude information for the parameters with respect to
 %   which sensitivities are computed. This information is used if CVODES 
-%   approximates the sensitivity right-hand sides (see SensRhsFn below) or if CVODES 
-%   estimates integration tolerances for the sensitivity variables (see RelTol 
-%   and AbsTol).
+%   approximates the sensitivity right-hand sides or if CVODES estimates integration
+%   tolerances for the sensitivity variables (see RelTol and AbsTol).
 %RelTol - Relative tolerance for sensitivity variables [ positive scalar ]
 %   Specifies the scalar relative tolerance for the sensitivity variables. 
 %   See also AbsTol.
@@ -81,7 +78,7 @@ function options = CVodeSensSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.3 $Date: 2007/05/11 21:42:52 $
 
 % If called without input and output arguments, print out the possible keywords
 

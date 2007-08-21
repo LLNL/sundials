@@ -1,5 +1,9 @@
 function [JB, flag, new_data] = cvm_bjacB(t, y, yB, fyB, fct, data)
 
+%
+% Wrapper around the actual user-provided Matlab function
+%
+
 if isempty(data)
   [JB, flag] = feval(fct,t,y,yB,fyB);
   new_data = [];

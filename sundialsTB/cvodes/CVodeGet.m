@@ -16,18 +16,10 @@ function varargout = CVodeGet(key, varargin)
 %       EWT = CVodeGet('ErrorWeights')
 %    o CheckPointsInfo - Returns an array of structures with check point information.
 %       CK = CVodeGet('CheckPointInfo)
-%    o CurrentCheckPoint - Returns the address of the active check point
-%       ADDR = CVodeGet('CurrentCheckPoint');
-%    o DataPointInfo - Returns information stored for interpolation at the I-th data
-%       point in between the current check points. The index I must be passed through
-%       the agument P1.
-%       If the interpolation type was Hermite (see CVodeSetOptions), it returns two
-%       vectors, Y and YD:
-%       [Y, YD] = CVodeGet('DataPointInfo', I)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/10/11 18:12:36 $
+% $Revision: 1.5 $Date: 2007/05/11 18:51:31 $
 
 mode = 32;
 
@@ -42,12 +34,6 @@ elseif strcmp(key, 'ErrorWeights')
 elseif strcmp(key, 'CheckPointsInfo')
   ck = cvm(mode,4);
   varargout(1) = {ck};
-elseif strcmp(key, 'CurrentCheckPoint')
-  addr = cvm(mode, 5);
-  varargout(1) = {addr};
-elseif strcmp(key, 'DataPointInfo')
-  i = varargin{1};
-  varargout = cvm(mode,6,i);
 else
   error('CVodeGet:: Unrecognized key');
 end

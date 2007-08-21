@@ -24,7 +24,7 @@ function [x,y,u0_2, u_2] = diurnal()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:51:33 $
+% $Revision: 1.2 $Date: 2007/05/16 17:12:57 $
 
 %------------------------
 % SET USER DATA STRUCTURE
@@ -286,7 +286,7 @@ return
 % ===========================================================================
 
 function [jcur, flag, data] = psetfn(t,u,fu,jok,gm,data)
-% Preconditrioner setup function
+% Preconditioner setup function
 
 persistent Jbd
 

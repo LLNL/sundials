@@ -3,7 +3,6 @@ function options = CVodeQuadSetOptions(varargin)
 %
 %   Usage: OPTIONS = CVodeQuadSetOptions('NAME1',VALUE1,'NAME2',VALUE2,...)
 %          OPTIONS = CVodeQuadSetOptions(OLDOPTIONS,'NAME1',VALUE1,...)
-%          OPTIONS = CVodeQuadSetOptions(OLDOPTIONS,NEWOPTIONS)
 %
 %   OPTIONS = CVodeQuadSetOptions('NAME1',VALUE1,'NAME2',VALUE2,...) creates 
 %   a CVODES options structure OPTIONS in which the named properties have 
@@ -36,12 +35,12 @@ function options = CVodeQuadSetOptions(varargin)
 %
 %
 %   See also
-%        CVQuadInit, CVodeQuadReInit.
+%        CVodeQuadInit, CVodeQuadReInit.
 %        CVodeQuadInitB, CVodeQuadReInitB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.3 $Date: 2007/05/11 21:42:52 $
 
 % If called without input and output arguments, print out the possible keywords
 

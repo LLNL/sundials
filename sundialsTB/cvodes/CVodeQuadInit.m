@@ -1,7 +1,7 @@
 function CVodeQuadInit(fctQ, yQ0, options)
 %CVodeQuadInit allocates and initializes memory for quadrature integration.
 %
-%   Usage: CVodeQuadInit ( QFUN, YS0 [, OPTIONS ] ) 
+%   Usage: CVodeQuadInit ( QFUN, YQ0 [, OPTIONS ] ) 
 %
 %   QFUN     is a function defining the righ-hand sides of the quadrature
 %            ODEs yQ' = fQ(t,y).
@@ -13,7 +13,7 @@ function CVodeQuadInit(fctQ, yQ0, options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/07 01:19:50 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
 
 mode = 2;
 

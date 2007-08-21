@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-05-16 17:12:56 $
+ * $Revision: 1.10 $
+ * $Date: 2007-08-21 17:42:39 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,14 +43,14 @@ static void UpdateMonitorData(mxArray *new_mtlb_data, cvmPbData pb);
  * ---------------------------------------------------------------------------------
  */
 
-int mxW_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
+int mxW_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *user_data)
 {
   cvmPbData fwdPb;
   mxArray *mx_in[4], *mx_out[3];
   int ret;
 
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);          /* current t */
@@ -80,14 +80,14 @@ int mxW_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
   return(ret);
 }
 
-int mxW_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *f_data)
+int mxW_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *user_data)
 {
   cvmPbData fwdPb;
   mxArray *mx_in[4], *mx_out[3];
   int ret;
 
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);          /* current t */
@@ -117,7 +117,7 @@ int mxW_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *f_data)
   return(ret);
 }
 
-int mxW_CVodeGfct(realtype t, N_Vector y, double *g, void *f_data)
+int mxW_CVodeGfct(realtype t, N_Vector y, double *g, void *user_data)
 {
   cvmPbData fwdPb;
   double *gdata;
@@ -125,7 +125,7 @@ int mxW_CVodeGfct(realtype t, N_Vector y, double *g, void *f_data)
   mxArray *mx_in[4], *mx_out[3];
   
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);          /* current t */
@@ -160,7 +160,7 @@ int mxW_CVodeGfct(realtype t, N_Vector y, double *g, void *f_data)
 
 int mxW_CVodeDenseJac(int Neq, realtype t,
                       N_Vector y, N_Vector fy, 
-                      DlsMat J, void *f_data,
+                      DlsMat J, void *user_data,
                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   cvmPbData fwdPb;
@@ -170,7 +170,7 @@ int mxW_CVodeDenseJac(int Neq, realtype t,
   mxArray *mx_in[5], *mx_out[3];
 
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);           /* current t */  
@@ -209,7 +209,7 @@ int mxW_CVodeDenseJac(int Neq, realtype t,
 
 int mxW_CVodeBandJac(int Neq, int mupper, int mlower, realtype t,
                      N_Vector y, N_Vector fy, 
-                     DlsMat J, void *f_data,
+                     DlsMat J, void *user_data,
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   cvmPbData fwdPb;
@@ -218,7 +218,7 @@ int mxW_CVodeBandJac(int Neq, int mupper, int mlower, realtype t,
   mxArray *mx_in[5], *mx_out[3];
 
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);           /* current t */
@@ -259,14 +259,14 @@ int mxW_CVodeBandJac(int Neq, int mupper, int mlower, realtype t,
 
 int mxW_CVodeSpilsJac(N_Vector v, N_Vector Jv, realtype t,
                       N_Vector y, N_Vector fy,
-                      void *f_data, N_Vector tmp)
+                      void *user_data, N_Vector tmp)
 {
   cvmPbData fwdPb;
   mxArray *mx_in[6], *mx_out[3];
   int ret;
 
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);           /* current t */ 
@@ -305,7 +305,7 @@ int mxW_CVodeSpilsJac(N_Vector v, N_Vector Jv, realtype t,
 
 int mxW_CVodeSpilsPset(realtype t, N_Vector y, N_Vector fy,
                        booleantype jok, booleantype *jcurPtr,
-                       realtype gamma, void *f_data,
+                       realtype gamma, void *user_data,
                        N_Vector tmp1, N_Vector tmp2,
                        N_Vector tmp3)
 {
@@ -314,7 +314,7 @@ int mxW_CVodeSpilsPset(realtype t, N_Vector y, N_Vector fy,
   int ret;
 
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);           /* current t */
@@ -355,14 +355,14 @@ int mxW_CVodeSpilsPset(realtype t, N_Vector y, N_Vector fy,
 int mxW_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
                        N_Vector r, N_Vector z,
                        realtype gamma, realtype delta,
-                       int lr, void *f_data, N_Vector tmp)
+                       int lr, void *user_data, N_Vector tmp)
 {
   cvmPbData fwdPb;
   mxArray *mx_in[6], *mx_out[3];
   int ret;
 
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);          /* current t */   
@@ -405,14 +405,14 @@ int mxW_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
  */
 
 int mxW_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y,
-                     N_Vector g, void *f_data)
+                     N_Vector g, void *user_data)
 {
   cvmPbData fwdPb;
   mxArray *mx_in[4], *mx_out[3];
   int ret;
 
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);           /* current t */
@@ -442,14 +442,14 @@ int mxW_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y,
   return(ret);
 }
 
-int mxW_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data)
+int mxW_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *user_data)
 {
   cvmPbData fwdPb;
   mxArray *mx_in[4], *mx_out[2];
   int ret;
 
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);           /* current t */
@@ -486,7 +486,7 @@ int mxW_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *f_data)
 int mxW_CVodeSensRhs(int Nsens, realtype t,
                      N_Vector y, N_Vector yd,
                      N_Vector *yS, N_Vector *ySd,
-                     void *f_data,
+                     void *user_data,
                      N_Vector tmp1, N_Vector tmp2)
 {
   cvmPbData fwdPb;
@@ -495,7 +495,7 @@ int mxW_CVodeSensRhs(int Nsens, realtype t,
   double *tmp;
 
   /* Extract global interface data from user-data */
-  fwdPb = (cvmPbData) f_data;
+  fwdPb = (cvmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);             /* current t */
@@ -547,14 +547,14 @@ int mxW_CVodeSensRhs(int Nsens, realtype t,
  * ----------------------------
  */
 
-int mxW_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_dataB)
+int mxW_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *user_dataB)
 {
   cvmPbData fwdPb, bckPb;
   mxArray *mx_in[6], *mx_out[3];
   int ret;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
@@ -593,7 +593,7 @@ int mxW_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_dat
 
 
 int mxW_CVodeRhsBS(realtype t, N_Vector y,  N_Vector *yS,
-                   N_Vector yB, N_Vector yBd, void *f_dataB)
+                   N_Vector yB, N_Vector yBd, void *user_dataB)
 {
   cvmPbData fwdPb, bckPb;
   mxArray *mx_in[8], *mx_out[3];
@@ -601,7 +601,7 @@ int mxW_CVodeRhsBS(realtype t, N_Vector y,  N_Vector *yS,
   double *tmp;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
@@ -649,14 +649,14 @@ int mxW_CVodeRhsBS(realtype t, N_Vector y,  N_Vector *yS,
 
 
 
-int mxW_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void *f_dataB)
+int mxW_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void *user_dataB)
 {
   cvmPbData fwdPb, bckPb;
   mxArray *mx_in[6], *mx_out[3];
   int ret;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
@@ -695,7 +695,7 @@ int mxW_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void *
 
 
 int mxW_CVodeQUADfctBS(realtype t, N_Vector y,  N_Vector *yS,
-                       N_Vector yB, N_Vector yQBd, void *f_dataB)
+                       N_Vector yB, N_Vector yQBd, void *user_dataB)
 {
   cvmPbData fwdPb, bckPb;
   mxArray *mx_in[8], *mx_out[3];
@@ -703,7 +703,7 @@ int mxW_CVodeQUADfctBS(realtype t, N_Vector y,  N_Vector *yS,
   double *tmp;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
@@ -755,7 +755,7 @@ int mxW_CVodeQUADfctBS(realtype t, N_Vector y,  N_Vector *yS,
 
 int mxW_CVodeDenseJacB(int NeqB, realtype t,
                        N_Vector y, N_Vector yB, N_Vector fyB,
-                       DlsMat JB, void *f_dataB, 
+                       DlsMat JB, void *user_dataB, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   cvmPbData fwdPb, bckPb;
@@ -764,7 +764,7 @@ int mxW_CVodeDenseJacB(int NeqB, realtype t,
   int i, ret;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
@@ -807,7 +807,7 @@ int mxW_CVodeDenseJacB(int NeqB, realtype t,
 
 int mxW_CVodeBandJacB(int NeqB, int mupperB, int mlowerB, realtype t, 
                        N_Vector y, N_Vector yB, N_Vector fyB,
-                       DlsMat JB, void *f_dataB, 
+                       DlsMat JB, void *user_dataB, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   cvmPbData fwdPb, bckPb;
@@ -816,7 +816,7 @@ int mxW_CVodeBandJacB(int NeqB, int mupperB, int mlowerB, realtype t,
   int ebandB, i, ret;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
@@ -860,14 +860,14 @@ int mxW_CVodeBandJacB(int NeqB, int mupperB, int mlowerB, realtype t,
 
 int mxW_CVodeSpilsJacB(N_Vector vB, N_Vector JvB, realtype t,
                         N_Vector y, N_Vector yB, N_Vector fyB,
-                        void *f_dataB, N_Vector tmpB)
+                        void *user_dataB, N_Vector tmpB)
 {
   cvmPbData fwdPb, bckPb;
   mxArray *mx_in[7], *mx_out[3];
   int ret;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
@@ -913,7 +913,7 @@ int mxW_CVodeSpilsPsetB(realtype t, N_Vector y,
                          N_Vector yB, N_Vector fyB,
                          booleantype jokB,
                          booleantype *jcurPtrB, realtype gammaB,
-                         void *f_dataB,
+                         void *user_dataB,
                          N_Vector tmp1B, N_Vector tmp2B,
                          N_Vector tmp3B)
 {
@@ -922,7 +922,7 @@ int mxW_CVodeSpilsPsetB(realtype t, N_Vector y,
   int ret;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
@@ -969,14 +969,14 @@ int mxW_CVodeSpilsPsolB(realtype t, N_Vector y,
                          N_Vector yB, N_Vector fyB,
                          N_Vector rB, N_Vector zB,
                          realtype gammaB, realtype deltaB,
-                         int lrB, void *f_dataB, N_Vector tmpB)
+                         int lrB, void *user_dataB, N_Vector tmpB)
 {
   cvmPbData fwdPb, bckPb;
   mxArray *mx_in[7], *mx_out[3];
   int ret;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
@@ -1018,14 +1018,14 @@ int mxW_CVodeSpilsPsolB(realtype t, N_Vector y,
 }
 
 int mxW_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y,
-                       N_Vector yB, N_Vector gB, void *f_dataB)
+                       N_Vector yB, N_Vector gB, void *user_dataB)
 {
   cvmPbData fwdPb, bckPb;
   mxArray *mx_in[5], *mx_out[3];
   int ret;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
@@ -1061,14 +1061,14 @@ int mxW_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y,
 }
 
 int mxW_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y, 
-                       N_Vector yB, void *f_dataB)
+                       N_Vector yB, void *user_dataB)
 {
   cvmPbData fwdPb, bckPb;
   mxArray *mx_in[5], *mx_out[2];
   int ret;
 
   /* Extract global interface data from user-data */
-  bckPb = (cvmPbData) f_dataB;
+  bckPb = (cvmPbData) user_dataB;
   fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */

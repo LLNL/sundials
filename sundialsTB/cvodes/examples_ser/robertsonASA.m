@@ -4,14 +4,13 @@ function robertsonASA()
 %   needed for its solution by CVODES. The problem is from
 %   chemical kinetics, and consists of the following three rate
 %   equations:         
-%      dy1/dt = -.04*y1 + 1.e4*y2*y3
-%      dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2
-%      dy3/dt = 3.e7*(y2)^2
+%      dy1/dt = -p1*y1 + p2*y2*y3
+%      dy2/dt =  p1*y1 - p2*y2*y3 - p3*(y2)^2
+%      dy3/dt =  p3*(y2)^2
 %   on the interval from t = 0.0 to t = 4.e10, with initial
 %   conditions: y1 = 1.0, y2 = y3 = 0. The problem is stiff.
-%   While integrating the system, we also use the rootfinding
-%   feature to find the points at which y1 = 1e-4 or at which
-%   y3 = 0.01. This program solves the problem with the BDF method,
+%
+%   This program solves the problem with the BDF method,
 %   Newton iteration with the CVDENSE dense linear solver, and a
 %   user-supplied Jacobian routine. It uses a scalar relative 
 %   tolerance and a vector absolute tolerance.
@@ -39,7 +38,7 @@ function robertsonASA()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 21:42:53 $
+% $Revision: 1.2 $Date: 2007/05/16 17:12:57 $
 
 
 % ----------------------------------------

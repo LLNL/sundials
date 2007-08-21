@@ -1,5 +1,5 @@
 function CVodeReInitB(idxB, tB0, yB0, optionsB)
-%CVodeReInitB allocates and initializes backward memory for CVODES.
+%CVodeReInitB re-initializes backward memory for CVODES.
 %   where a prior call to CVodeInitB has been made with the same
 %   problem size NB. CVodeReInitB performs the same input checking
 %   and initializations that CVodeInitB does, but it does no 
@@ -20,7 +20,7 @@ function CVodeReInitB(idxB, tB0, yB0, optionsB)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/11/25 19:57:25 $
+% $Revision: 1.3 $Date: 2007/05/11 18:51:32 $
 
 mode = 15;
 

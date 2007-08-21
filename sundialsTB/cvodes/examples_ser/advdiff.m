@@ -21,7 +21,7 @@ function advdiff()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:51:33 $
+% $Revision: 1.2 $Date: 2007/05/16 17:12:56 $
 
 xmax = 2.0;
 ymax = 1.0;
@@ -87,7 +87,7 @@ hold on;
 box
 
 umax = norm(u,'inf');
-uavg = cvbx_q(t,u,data);
+uavg = quadfn(t,u,data);
 fprintf('At t = %f   max.norm(u) = %e\n',t, umax);
 
 for i = 1:nout
@@ -102,7 +102,7 @@ for i = 1:nout
     return
   end
   
-  uavg = cvbx_q(t,u,data);
+  uavg = quadfn(t,u,data);
   umax = norm(u,'inf');
   fprintf('At t = %f   max.norm(u) = %e\n',tout, umax);
 

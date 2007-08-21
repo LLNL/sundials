@@ -11,13 +11,13 @@ function CVodeSensReInit(yS0, options)
 %            YS0 must be a matrix with N rows and Ns columns, where N is the problem
 %            dimension and Ns the number of sensitivity systems.
 %   OPTIONS  is an (optional) set of FSA options, created with
-%            the CVodeSetFSAOptions function. 
+%            the CVodeSensSetOptions function. 
 %
-%   See also: CVodeSetFSAOptions, CVodeReInit, CVodeSensInit
+%   See also: CVodeSensSetOptions, CVodeReInit, CVodeSensInit
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/11/25 19:57:25 $
+% $Revision: 1.3 $Date: 2007/05/11 18:51:32 $
 
 mode = 13;
 

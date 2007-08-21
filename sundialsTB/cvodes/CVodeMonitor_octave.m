@@ -18,9 +18,6 @@ function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
 %     o cntr [ {true} | false ]
 %         If true, report the evolution of the following counters:
 %         nst, nfe, nni, netf, ncfn (see CVodeGetStats)
-%     o mode [ {'graphical'} | 'text' | 'both' ] 
-%         In graphical mode, plot the evolutions of the above quantities.
-%         In text mode, print a table.
 %     o sol  [ true | {false} ]
 %         If true, plot solution components.
 %     o sensi [ true | {false} ]
@@ -45,7 +42,11 @@ function [new_data] = CVodeMonitor(call, T, Y, YQ, YS, data)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.6 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.1 $Date: 2007/05/11 18:51:32 $
+
+% NOTES:
+%   - Unlike Matlab, Octave loads children in the normal order
+%   - Unlike Matlab, Octave stores 'XData' and 'YData' as column vectors
 
 if (nargin ~= 6) 
   error('Monitor data not defined.');
@@ -61,25 +62,17 @@ if call == 0
 % Open figure windows
   if data.post
 
-    if data.grph
-      if data.stats | data.cntr
-        data.hfg = figure;
-      end
-%     Number of subplots in figure hfg
-      if data.stats
-        data.npg = data.npg + 2;
-      end
-      if data.cntr
-        data.npg = data.npg + 1;
-      end
+    if data.stats | data.cntr
+      data.hfg = figure;
+    end
+%   Number of subplots in figure hfg
+    if data.stats
+      data.npg = data.npg + 2;
+    end
+    if data.cntr
+      data.npg = data.npg + 1;
     end
     
-    if data.text
-      if data.cntr | data.stats
-        data.hft = figure;
-      end
-    end
-
     if data.sol | data.sensi
       data.hfs = figure; 
     end
@@ -229,18 +222,13 @@ if data.post & (n == data.updt | call==2)
   
   if ~data.initialized
 
-    if (data.stats | data.cntr) & data.grph
+    if (data.stats | data.cntr)
       graphical_init(n, hfg, npg, data.stats, data.cntr, ...
                      t, h, q, nst, nfe, nni, netf, ncfn);
     end
     
-    if (data.stats | data.cntr) & data.text
-      text_init(n, hft, data.stats, data.cntr, ...
-                t, h, q, nst, nfe, nni, netf, ncfn);
-    end
-
     if data.sol | data.sensi
-      sol_init(n, hfs, nps, data.sol, data.sensi,  ...
+      sol_init(n, hfs, nps, data.sol, data.sensi, ...
                N, Ns, t, y, ys);
     end
     
@@ -248,16 +236,11 @@ if data.post & (n == data.updt | call==2)
   
   else
 
-    if (data.stats | data.cntr) & data.grph
+    if (data.stats | data.cntr)
       graphical_update(n, hfg, npg, data.stats, data.cntr, ...
                        t, h, q, nst, nfe, nni, netf, ncfn);
     end
 
-    if (data.stats | data.cntr) & data.text
-      text_update(n, hft, data.stats, data.cntr, ...
-                  t, h, q, nst, nfe, nni, netf, ncfn);
-    end
-    
     if data.sol
       sol_update(n, hfs, nps, data.sol, data.sensi, N, Ns, t, y, ys);
     end
@@ -266,7 +249,7 @@ if data.post & (n == data.updt | call==2)
 
   if call == 2
     
-    if (data.stats | data.cntr) & data.grph
+    if (data.stats | data.cntr)
       graphical_final(hfg, npg, data.cntr, data.stats);
     end
     
@@ -311,9 +294,6 @@ return;
 
 function data = initialize_data(data)
 
-if ~isfield(data,'mode')
-  data.mode = 'graphical';
-end
 if ~isfield(data,'updt')
   data.updt = 50;
 end
@@ -337,15 +317,6 @@ if ~isfield(data,'select')
 end
 if ~isfield(data,'post')
   data.post = true;
-end
-
-data.grph = true;
-data.text = true;
-if strcmp(data.mode,'graphical')
-  data.text = false;
-end
-if strcmp(data.mode,'text')
-  data.grph = false;
 end
 
 if ~data.sol & ~data.sensi
@@ -375,25 +346,12 @@ data.ys = 0;
 function [] = graphical_init(n, hfg, npg, stats, cntr, ...
                              t, h, q, nst, nfe, nni, netf, ncfn)
 
-fig_name = 'CVODES run statistics';
-
-% If this is a parallel job, look for the MPI rank in the global
-% workspace and append it to the figure name
-
-global sundials_MPI_rank
-
-if ~isempty(sundials_MPI_rank)
-  fig_name = sprintf('%s (PE %d)',fig_name,sundials_MPI_rank);
-end
-
 figure(hfg);
-set(hfg,'Name',fig_name);
-set(hfg,'color',[1 1 1]);
 pl = 0;
 
 % Time label and figure title
 
-tlab = '\rightarrow   t   \rightarrow';
+tlab = '->   t   ->';
 
 % Step size and order
 if stats
@@ -447,15 +405,15 @@ if stats
   pl = pl+1;
   subplot(npg,1,pl)
   hc = get(gca,'Children');
-  xd = [get(hc,'XData') t(1:n)];
-  yd = [get(hc,'YData') abs(h(1:n))];
+  xd = [get(hc,'XData') ; t(1:n)'];
+  yd = [get(hc,'YData') ; abs(h(1:n)')];
   set(hc, 'XData', xd, 'YData', yd);
   
   pl = pl+1;
   subplot(npg,1,pl)
   hc = get(gca,'Children');
-  xd = [get(hc,'XData') t(1:n)];
-  yd = [get(hc,'YData') q(1:n)];
+  xd = [get(hc,'XData') ; t(1:n)'];
+  yd = [get(hc,'YData') ; q(1:n)'];
   set(hc, 'XData', xd, 'YData', yd);
 end
 
@@ -464,17 +422,16 @@ if cntr
   pl = pl+1;
   subplot(npg,1,pl)
   hc = get(gca,'Children');
-% Attention: Children are loaded in reverse order!
-  xd = [get(hc(1),'XData') t(1:n)];
-  yd = [get(hc(1),'YData') ncfn(1:n)];
+  xd = [get(hc(1),'XData') ; t(1:n)'];
+  yd = [get(hc(1),'YData') ; ncfn(1:n)'];
   set(hc(1), 'XData', xd, 'YData', yd);
-  yd = [get(hc(2),'YData') netf(1:n)];
+  yd = [get(hc(2),'YData') ; netf(1:n)'];
   set(hc(2), 'XData', xd, 'YData', yd);
-  yd = [get(hc(3),'YData') nni(1:n)];
+  yd = [get(hc(3),'YData') ; nni(1:n)'];
   set(hc(3), 'XData', xd, 'YData', yd);
-  yd = [get(hc(4),'YData') nfe(1:n)];
+  yd = [get(hc(4),'YData') ; nfe(1:n)'];
   set(hc(4), 'XData', xd, 'YData', yd);
-  yd = [get(hc(5),'YData') nst(1:n)];
+  yd = [get(hc(5),'YData') ; nst(1:n)'];
   set(hc(5), 'XData', xd, 'YData', yd);
 end
 
@@ -514,127 +471,13 @@ end
 
 %-------------------------------------------------------------------------
 
-function [] = text_init(n,hft,stats,cntr,t,h,q,nst,nfe,nni,netf,ncfn)
-
-fig_name = 'CVODES run statistics';
-
-% If this is a parallel job, look for the MPI rank in the global
-% workspace and append it to the figure name
-
-global sundials_MPI_rank
-
-if ~isempty(sundials_MPI_rank)
-  fig_name = sprintf('%s (PE %d)',fig_name,sundials_MPI_rank);
-end
-
-figure(hft);
-set(hft,'Name',fig_name);
-set(hft,'color',[1 1 1]);
-set(hft,'MenuBar','none');
-set(hft,'Resize','off');
-
-% Create text box
-
-margins=[10 10 50 50]; % left, right, top, bottom
-pos=get(hft,'position');
-tbpos=[margins(1) margins(4) pos(3)-margins(1)-margins(2) ...
-       pos(4)-margins(3)-margins(4)];
-tbpos(tbpos<1)=1;
-
-htb=uicontrol(hft,'style','listbox','position',tbpos,'tag','textbox');
-set(htb,'BackgroundColor',[1 1 1]);
-set(htb,'SelectionHighlight','off');
-set(htb,'FontName','courier');
-
-% Create table head
-
-tpos = [tbpos(1) tbpos(2)+tbpos(4)+10 tbpos(3) 20];
-ht=uicontrol(hft,'style','text','position',tpos,'tag','text');
-set(ht,'BackgroundColor',[1 1 1]);
-set(ht,'HorizontalAlignment','left');
-set(ht,'FontName','courier');
-newline = '   time         step      order  |    nst   nfe   nni  netf  ncfn';
-set(ht,'String',newline);
-
-% Create OK button
-  
-bsize=[60,28];
-badjustpos=[0,25];
-bpos=[pos(3)/2-bsize(1)/2+badjustpos(1) -bsize(2)/2+badjustpos(2)...
-      bsize(1) bsize(2)];
-bpos=round(bpos);
-bpos(bpos<1)=1;
-hb=uicontrol(hft,'style','pushbutton','position',bpos,...
-             'string','Close','tag','okaybutton');
-set(hb,'callback','close');
-
-% Save handles
-
-handles=guihandles(hft);
-guidata(hft,handles);
-
-for i = 1:n
-  newline = '';
-  if stats
-    newline = sprintf('%10.3e   %10.3e     %1d    |',t(i),h(i),q(i));
-  end
-  if cntr
-    newline = sprintf('%s %5d %5d %5d %5d %5d',...
-                      newline,nst(i),nfe(i),nni(i),netf(i),ncfn(i));
-  end
-  string = get(handles.textbox,'String');
-  string{end+1}=newline;
-  set(handles.textbox,'String',string);
-end
-
-drawnow
-
-%-------------------------------------------------------------------------
-
-function [] = text_update(n,hft,stats,cntr,t,h,q,nst,nfe,nni,netf,ncfn)
-
-figure(hft);
-
-handles=guidata(hft);
-
-for i = 1:n
-   if stats
-    newline = sprintf('%10.3e   %10.3e     %1d    |',t(i),h(i),q(i));
-  end
-  if cntr
-    newline = sprintf('%s %5d %5d %5d %5d %5d',...
-                      newline,nst(i),nfe(i),nni(i),netf(i),ncfn(i));
-  end
-  string = get(handles.textbox,'String');
-  string{end+1}=newline;
-  set(handles.textbox,'String',string);
-end
-
-drawnow
-
-%-------------------------------------------------------------------------
-
 function [] = sol_init(n, hfs, nps, sol, sensi, N, Ns, t, y, ys)
 
-fig_name = 'CVODES solution';
-
-% If this is a parallel job, look for the MPI rank in the global
-% workspace and append it to the figure name
-
-global sundials_MPI_rank
-
-if ~isempty(sundials_MPI_rank)
-  fig_name = sprintf('%s (PE %d)',fig_name,sundials_MPI_rank);
-end
-
-
 figure(hfs);
-set(hfs,'Name',fig_name);
-set(hfs,'color',[1 1 1]);
 
 % Time label
 
-tlab = '\rightarrow   t   \rightarrow';
+tlab = '->   t   ->';
 
 % Get number of colors in colormap
 map = colormap;
@@ -703,10 +546,9 @@ if sol
   subplot(nps,1,pl);
   
   hc = get(gca,'Children');
-  xd = [get(hc(1),'XData') t(1:n)];
-% Attention: Children are loaded in reverse order!
+  xd = [get(hc(1),'XData') ; t(1:n)'];
   for i = 1:N
-    yd = [get(hc(i),'YData') y(N-i+1,1:n)];
+    yd = [get(hc(i),'YData') ; y(i,1:n)'];
     set(hc(i), 'XData', xd, 'YData', yd);
   end
 
@@ -722,10 +564,9 @@ if sensi
     ys_crt = ys(:,is,:);
     
     hc = get(gca,'Children');
-    xd = [get(hc(1),'XData') t(1:n)];
-%   Attention: Children are loaded in reverse order!
+    xd = [get(hc(1),'XData') ; t(1:n)'];
     for i = 1:N
-      yd = [get(hc(i),'YData') ys_crt(N-i+1,1:n)];
+      yd = [get(hc(i),'YData') ; ys_crt(i,1:n)'];
       set(hc(i), 'XData', xd, 'YData', yd);
     end
     

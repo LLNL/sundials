@@ -22,7 +22,7 @@ function robertson()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:51:33 $
+% $Revision: 1.2 $Date: 2007/05/16 17:12:57 $
 
 data.p = [0.04; 1.0e4; 3.0e7];
 
@@ -39,7 +39,7 @@ options = CVodeSetOptions('UserData', data,...
 mondata.sol = true;
 mondata.mode = 'text';
 mondata.skip = 9;
-mondata.update = 100;
+mondata.updt = 100;
 options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
 
 CVodeInit(@rhsfn, t0, y0, options);
