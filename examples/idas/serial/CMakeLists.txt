@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2007-08-21 16:55:07 $
+# $Revision: 1.7 $
+# $Date: 2007-08-21 19:16:56 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -25,6 +25,7 @@ SET(idas_examples
   idasRobertsonFSA
   idasRobertsonASA
   idasRobertsonHessian
+  idasAkzoNobel
   idasAkzoNobelASA
   )
 

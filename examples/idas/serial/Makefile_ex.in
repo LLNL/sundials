@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-08-21 16:55:07 $
+# $Revision: 1.8 $
+# $Date: 2007-08-21 19:16:56 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -39,6 +39,7 @@ EXAMPLES = idasRobertson \
            idasRobertsonFSA \
            idasRobertsonASA \
            idasRobertsonHessian \
+           idasAkzoNobel \
            idasAkzoNobelASA
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -81,6 +82,9 @@ idasRobertsonASA: idasRobertsonASA.c
 idasRobertsonHessian: idasRobertsonHessian.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasRobertsonHessian.c
 	 $(CC) -o idasRobertsonHessian idasRobertsonHessian.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasAkzoNobel: idasAkzoNobel.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasAkzoNobel.c
+	 $(CC) -o idasAkzoNobel idasAkzoNobel.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idasAkzoNobelASA: idasAkzoNobelASA.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasAkzoNobelASA.c
 	 $(CC) -o idasAkzoNobelASA idasAkzoNobelASA.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)

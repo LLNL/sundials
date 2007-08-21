@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2007-08-21 16:55:07 $
+# $Revision: 1.13 $
+# $Date: 2007-08-21 19:16:56 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -68,6 +68,7 @@ EXEC_FILES = idasRobertson$(EXE_EXT) \
 	     idasRobertsonFSA$(EXE_EXT) \
 	     idasRobertsonASA$(EXE_EXT) \
 	     idasRobertsonHessian$(EXE_EXT) \
+             idasAkzoNobel$(EXE_EXT)
              idasAkzoNobelASA$(EXE_EXT)
 
 EXEC_BL_FILES =
@@ -85,27 +86,32 @@ all_bl: $(EXEC_BL_FILES)
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/idas/serial
-	$(INSTALL_FILE) Makefile_ex                                               $(EXS_INSTDIR)/idas/serial/Makefile
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/README                 $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_b.c            $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasFoodWeb_b.c            $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertson.c             $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasKrylovDemo.c       $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_k.c             $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrank.c             $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrankFSA.c   $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonFSA.c          $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_b.out          $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasFoodWeb_b.out          $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertson.out           $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasKrylovDemo.out     $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_k.out           $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrank.out           $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrankFSA.out $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonFSA.out        $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonASA.out        $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonHessian.out        $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasAkzoNobelASA.out      $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) Makefile_ex                                                 $(EXS_INSTDIR)/idas/serial/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/README                   $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_b.c           $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasFoodWeb_b.c          $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertson.c          $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasKrylovDemo.c         $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_k.c           $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrank.c        $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrankFSA.c     $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonFSA.c       $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonASA.c       $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonHessian.c   $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasAkzoNobel.c          $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasAkzoNobelASA.c       $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_b.out         $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasFoodWeb_b.out        $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertson.out        $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasKrylovDemo.out       $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_k.out         $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrank.out      $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrankFSA.out   $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonFSA.out     $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonASA.out     $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonHessian.out $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasAkzoNobel.out        $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasAkzoNobelASA.out     $(EXS_INSTDIR)/idas/serial/
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
 	  make install_bl;                           \
 	fi
@@ -123,6 +129,8 @@ uninstall:
 	rm -f $(EXS_INSTDIR)/idas/serial/idasSliderCrank.c
 	rm -f $(EXS_INSTDIR)/idas/serial/idasSliderCrankFSA.c
 	rm -f $(EXS_INSTDIR)/idas/serial/idasRobertsonFSA.c
+	rm -f $(EXS_INSTDIR)/idas/serial/idasRobertsonASA.c
+	rm -f $(EXS_INSTDIR)/idas/serial/idasRobertsonHessian.c
 	rm -f $(EXS_INSTDIR)/idas/serial/idasHeat2D_b.out
 	rm -f $(EXS_INSTDIR)/idas/serial/idasFoodWeb_b.out
 	rm -f $(EXS_INSTDIR)/idas/serial/idasRobertson.out
@@ -180,6 +188,9 @@ idasRobertsonASA$(EXE_EXT): $(srcdir)/idasRobertsonASA.c
 idasRobertsonHessian$(EXE_EXT): $(srcdir)/idasRobertsonHessian.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasRobertsonHessian.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasRobertsonHessian$(EXE_EXT) $(builddir)/idasRobertsonHessian$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasAkzoNobel$(EXE_EXT): $(srcdir)/idasAkzoNobel.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasAkzoNobel.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasAkzoNobel$(EXE_EXT) $(builddir)/idasAkzoNobel$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idasAkzoNobelASA$(EXE_EXT): $(srcdir)/idasAkzoNobelASA.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasAkzoNobelASA.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasAkzoNobelASA$(EXE_EXT) $(builddir)/idasAkzoNobelASA$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
