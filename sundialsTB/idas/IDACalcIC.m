@@ -5,7 +5,7 @@ function [status, varargout] = IDACalcIC(tout,icmeth)
 %          [STATUS, YY0, YP0] = IDACalcIC ( TOUT, ICMETH )
 %
 %   IDACalcIC corrects the guess for initial conditions passed
-%   to IDAMalloc or IDAReInit so that the algebraic constraints
+%   to IDAInit or IDAReInit so that the algebraic constraints
 %   are satisfied. 
 %
 %   The argument TOUT is the first value of t at which a soluton will be      
@@ -47,20 +47,20 @@ function [status, varargout] = IDACalcIC(tout,icmeth)
 %                     satisfying the inequality constraints.     
 % IDA_LINESEARCH_FAIL The Linesearch algorithm failed to find a  
 %                     solution with a step larger than steptol   
-%                     in weighted RMS norm.                                                                                      
+%                     in weighted RMS norm.
 % IDA_CONV_FAIL       IDACalcIC failed to get convergence of the 
 %                     Newton iterations.  
 %
 %   If the output arguments YY0 and YP0 are present, they will
 %   contain the consistent initial conditions.
 %
-%  See also: IDASetOptions, IDAMalloc, IDAReInit
+%  See also: IDASetOptions, IDAInit, IDAReInit
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/07/19 20:52:27 $
+% $Revision: 1.3 $Date: 2007/02/05 20:23:46 $
 
-mode = 20;
+mode = 25;
 
 if nargout == 1
   status = idm(mode, tout, icmeth);

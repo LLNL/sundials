@@ -1,16 +1,16 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-04-11 22:34:11 $
+ * $Revision: 1.14 $
+ * $Date: 2007-08-21 17:38:45 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials-x.y.z/src/ida/LICENSE.
+ * For details, see sundials-x.y.z/src/idas/LICENSE.
  * -----------------------------------------------------------------
- * MEX implementation for IDA Matlab interface.
+ * MEX implementation for IDAS Matlab interface.
  * -----------------------------------------------------------------
  */
 
@@ -21,19 +21,11 @@
 
 /*
  * ---------------------------------------------------------------------------------
- * Definitions for global variables (declared in cvm.h)
+ * Global interface data variable
  * ---------------------------------------------------------------------------------
  */
 
-booleantype idm_quad;      /* Forward quadratures? */
-booleantype idm_quadB;     /* Backward quadratures? */
-booleantype idm_asa;       /* Adjoint sensitivity? */
-booleantype idm_fsa;       /* Forward sensitivity? */
-booleantype idm_mon;       /* Forward monitoring? */ 
-booleantype idm_monB;      /* Backward monitoring? */ 
-
-idm_IDASdata   idm_Cdata = NULL;  /* IDAS data */
-idm_MATLABdata idm_Mdata = NULL;  /* MATLAB data */
+idmInterfaceData idmData = NULL;
 
 /*
  * ---------------------------------------------------------------------------------
@@ -41,23 +33,43 @@ idm_MATLABdata idm_Mdata = NULL;  /* MATLAB data */
  * ---------------------------------------------------------------------------------
  */
 
-static void IDM_init();
-static void IDM_makePersistent();
-static void IDM_final();
+static void idmInitIDASdata();
+static void idmPersistIDASdata();
+static void idmFinalIDASdata();
+
+static void idmInitPbData(idmPbData pb);
+static void idmPersistPbData(idmPbData pb);
+static void idmFinalPbData(idmPbData pb);
+
 
 static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int IDM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int IDM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int IDM_AdjInitialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int IDM_AdjInitialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
 static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int IDM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
+static int IDM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
 static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_CalcICB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
 static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
+static void idmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB);
+static void idmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itaskB,
+                           booleantype any_quadrB, booleantype any_monB);
+
 static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
 static int IDM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int IDM_SetB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
+static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
 static int IDM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 
 /*
@@ -74,24 +86,33 @@ void mexFunction(int nlhs, mxArray *plhs[],
      Modes:
      
      1 - initialize IDAS solver
-     2 - initialize forward sensitivity calculations (N/A)
-     3 - initialize adjoint sensitivity calculations (N/A)
-     4 - initialize backward solver (N/A)
+     2 - initialize quadratures
+     3 - initialize forward sensitivity calculations
+     4 - initialize adjoint sensitivity calculations
+     5 - initialize backward solver
+     6 - initialize backward quadratures
 
     11 - reinitialize IDAS solver
-    12 - reinitialize forward sensitivity calculations
-    13 - toggle FSA off (N/A)
-    14 - reinitialize backward solver (N/A)
+    12 - reinitialize quadratures
+    13 - reinitialize forward sensitivity calculations
+    14 - reinitialize adjoint sensitivity calculations
+    15 - reinitialize backward solver
+    16 - reinitialize backward quadratures
 
-    20 - calculate consistent IC
-    21 - calculate backward consistent IC (N/A)
-    22 - solve problem
-    23 - solve backward problem (N/A)
+    18 - toggle FSA off
+
+    20 - solve problem
+    21 - solve backward problem                TODO
+
+    25 - calculate consistent IC
+    26 - calculate backward consistent IC      TODO
 
     30 - get integrator stats
-    31 - get backward integrator stats (N/A)
+    31 - get backward integrator stats
     32 - extract data from ida_mem
-    33 - set one optional input at a time (NYI)
+
+    33 - set one optional input at a time
+    34 - set one optional input at a time for backward problems
 
     40 - finalize
   */
@@ -100,73 +121,349 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   mexUnlock();
 
+  if ( (mode != 1) && (idmData == NULL) ) {
+    idmErrHandler(-999, "IDAS", "-",
+                  "Illegal attempt to call before IDAInit.", NULL);
+  }
+
+
   switch(mode) {
+
+    /* Initialization functions */
+
   case 1:
-    if (idm_Cdata != NULL) {
-      /* a previous pb ws initialized, we must clear  memory */
+    if (idmData != NULL) {
       IDM_Free(nlhs, plhs, nrhs-1, &prhs[1]);
-      IDM_final();
+      idmFinalIDASdata();
     }
-    IDM_init();
+    idmInitIDASdata();
     IDM_Initialization(0, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
+
   case 2:
+    IDM_QuadInitialization(0, nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+
+  case 3:
     IDM_SensInitialization(0, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
-  case 3:
-    IDM_AdjInitialization(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
+
   case 4:
+    IDM_AdjInitialization(0, nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+
+  case 5:
     IDM_InitializationB(0, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
+
+  case 6:
+    IDM_QuadInitializationB(0, nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+
+    /* Re-initialization functions */
+
   case 11:
     IDM_Initialization(1, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
+
   case 12:
+    IDM_QuadInitialization(1, nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+
+  case 13:
     IDM_SensInitialization(1, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
-  case 13:
-    IDM_SensToggleOff(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
+
   case 14:
+    IDM_AdjInitialization(1, nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+
+  case 15:
     IDM_InitializationB(1, nlhs, plhs, nrhs-1, &prhs[1]);
     break;
+
+  case 16:
+    IDM_QuadInitializationB(1, nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+
+    /* Sensitivity toggle function */
+
+  case 18:
+    IDM_SensToggleOff(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+    
+    /* Solve functions */
+
   case 20:
-    IDM_CalcIC(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 21:
-    IDM_CalcICB(nlhs, plhs, nrhs-1, &prhs[1]);
-    break;
-  case 22:
     IDM_Solve(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
-  case 23:
+
+  case 21:
     IDM_SolveB(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
+
+    /* Consistent IC calculation functions */
+
+  case 25:
+    IDM_CalcIC(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+
+  case 26:
+    IDM_CalcICB(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+
+    /* Optional output extraction functions */
+
   case 30:
     IDM_Stats(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
+
   case 31:
     IDM_StatsB(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
+
   case 32:
     IDM_Get(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
+
   case 33:
     IDM_Set(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
+
+  case 34:
+    IDM_SetB(nlhs, plhs, nrhs-1, &prhs[1]);
+    break;
+
+    /* Memory deallocation function */
+
   case 40:
     IDM_Free(nlhs, plhs, nrhs-1, &prhs[1]);
-    IDM_final();
+    idmFinalIDASdata();
     return;
+
   }
 
-  /* do not call IDM_makePersistent after free */
-  if (mode != 40) IDM_makePersistent();
-  mexLock();
+  /* Unless this was the IDAFree call,
+   * make data persistent and lock the MEX file */
+  if (mode != 40) {
+    idmPersistIDASdata();
+    mexLock();
+  }
 
   return;
 }
+
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Private functions
+ * ---------------------------------------------------------------------------------
+ */
+
+
+static void idmInitIDASdata()
+{
+  /* Allocate space for global IDAS data structure */
+
+  idmData = (idmInterfaceData) mxMalloc(sizeof(struct idmInterfaceData_));
+
+  /* Initialize global IDAS data */
+
+  idmData->ida_mem = NULL;
+
+  idmData->fwdPb     = NULL;
+  idmData->bckPb     = NULL;
+
+  idmData->NbckPb    = 0;
+
+  idmData->Nd        = 0;
+  idmData->Nc        = 0;
+  idmData->asa       = FALSE;
+
+  return;
+}
+
+
+static void idmInitPbData(idmPbData pb)
+{
+  mxArray *empty;
+
+  pb->n  = 0;
+  pb->nq = 0;
+  pb->ng = 0;
+  pb->ns = 0;
+
+  pb->YY = NULL;
+  pb->YP = NULL;
+
+  pb->YQ = NULL;
+
+  pb->YYS = NULL;
+  pb->YPS = NULL;
+
+  pb->Quadr = FALSE;
+  pb->Fsa   = FALSE;
+  pb->Mon   = FALSE;
+
+  pb->LS = LS_DENSE;
+  pb->PM = PM_NONE;
+
+  empty = mxCreateDoubleMatrix(0,0,mxREAL);
+
+  pb->RESfct   = mxDuplicateArray(empty);
+  pb->Gfct     = mxDuplicateArray(empty);
+  pb->QUADfct  = mxDuplicateArray(empty);
+  pb->SRESfct  = mxDuplicateArray(empty);
+  pb->JACfct   = mxDuplicateArray(empty);
+  pb->PSETfct  = mxDuplicateArray(empty);
+  pb->PSOLfct  = mxDuplicateArray(empty);
+  pb->GLOCfct  = mxDuplicateArray(empty);
+  pb->GCOMfct  = mxDuplicateArray(empty);
+
+  pb->MONfct   = mxDuplicateArray(empty);
+  pb->MONdata  = mxDuplicateArray(empty);
+
+  pb->mtlb_data = mxDuplicateArray(empty);
+
+  pb->fwd = idmData->fwdPb;
+
+  pb->index = 0;
+  pb->next  = NULL;
+
+  mxDestroyArray(empty);
+}
+
+
+static void idmPersistIDASdata()
+{
+  idmPbData tmpPb;
+
+  /* Make global memory persistent */
+
+  if (idmData->fwdPb != NULL) {
+    idmPersistPbData(idmData->fwdPb);
+    mexMakeMemoryPersistent(idmData->fwdPb);
+  }
+
+  tmpPb = idmData->bckPb;
+  while(tmpPb != NULL) {
+    idmPersistPbData(tmpPb);
+    mexMakeMemoryPersistent(tmpPb);
+    tmpPb = tmpPb->next;
+  }
+  
+  mexMakeMemoryPersistent(idmData);
+
+  return;
+}
+
+
+static void idmPersistPbData(idmPbData pb)
+{
+  mexMakeArrayPersistent(pb->mtlb_data);
+
+  mexMakeArrayPersistent(pb->RESfct);
+  mexMakeArrayPersistent(pb->Gfct);
+  mexMakeArrayPersistent(pb->QUADfct);
+  mexMakeArrayPersistent(pb->SRESfct);
+  mexMakeArrayPersistent(pb->JACfct);
+  mexMakeArrayPersistent(pb->PSETfct);
+  mexMakeArrayPersistent(pb->PSOLfct);
+  mexMakeArrayPersistent(pb->GLOCfct);
+  mexMakeArrayPersistent(pb->GCOMfct);
+
+  mexMakeArrayPersistent(pb->MONfct);
+  mexMakeArrayPersistent(pb->MONdata);
+}
+
+static void idmFinalIDASdata()
+{  
+  idmPbData tmpPb;
+
+  if (idmData == NULL) return;
+
+  if (idmData->fwdPb != NULL) {
+    idmFinalPbData(idmData->fwdPb);
+    mxFree(idmData->fwdPb);
+    idmData->fwdPb = NULL;
+  }
+
+  while(idmData->bckPb != NULL) {
+    tmpPb = idmData->bckPb->next;
+    mxFree(idmData->bckPb);
+    idmData->bckPb = tmpPb;
+  }
+
+  mxFree(idmData);
+  idmData = NULL;
+
+  return;
+}
+
+
+static void idmFinalPbData(idmPbData pb)
+{
+
+  if (pb->YY != NULL) N_VDestroy(pb->YY);
+  if (pb->YP != NULL) N_VDestroy(pb->YP);
+
+  if (pb->YQ != NULL) N_VDestroy(pb->YQ);
+
+  if (pb->YYS != NULL) N_VDestroyVectorArray(pb->YYS, pb->ns);
+  if (pb->YPS != NULL) N_VDestroyVectorArray(pb->YPS, pb->ns);
+
+  mxDestroyArray(pb->mtlb_data);
+
+  mxDestroyArray(pb->RESfct);
+  mxDestroyArray(pb->Gfct);
+  mxDestroyArray(pb->QUADfct);
+  mxDestroyArray(pb->SRESfct);
+  mxDestroyArray(pb->JACfct);
+  mxDestroyArray(pb->PSETfct);
+  mxDestroyArray(pb->PSOLfct);
+  mxDestroyArray(pb->GLOCfct);
+  mxDestroyArray(pb->GCOMfct);
+
+  mxDestroyArray(pb->MONfct);
+  mxDestroyArray(pb->MONdata);
+
+}
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Error handler function.
+ *
+ * This function is both passed as the IDAS error handler and used throughout
+ * the Matlab interface.
+ *
+ * If called directly by one of the interface functions, error_code = -999 to
+ * indicate an error and err_code = +999 to indicate a warning. Otherwise,
+ * err_code is set by the calling IDAS function.
+ *
+ * NOTE: mexErrMsgTxt will end the execution of the MEX file. Therefore we do
+ *       not have to intercept any of the IDAS error return flags.
+ *       The only return flags we intercept are those from IDASolve() and IDASolveB()
+ *       which are passed back to the user (only positive values will make it). 
+ * ---------------------------------------------------------------------------------
+ */
+
+void idmErrHandler(int error_code, 
+                   const char *module, const char *function, 
+                   char *msg, void *f_data)
+{
+  char err_msg[256];
+
+  if (error_code > 0) {
+    sprintf(err_msg,"Warning in ==> %s\n%s",function,msg);
+    mexWarnMsgTxt(err_msg);    
+  } else if (error_code < 0) {
+    sprintf(err_msg,"Error using ==> %s\n%s",function,msg);
+    mexErrMsgTxt(err_msg);
+  }
+
+  return;
+}
+
 
 /*
  * ---------------------------------------------------------------------------------
@@ -174,57 +471,73 @@ void mexFunction(int nlhs, mxArray *plhs[],
  * ---------------------------------------------------------------------------------
  */
 
-#define ida_mem     (idm_Cdata->ida_mem)
-#define bp_data     (idm_Cdata->bp_data) 
-#define yy          (idm_Cdata->yy) 
-#define yp          (idm_Cdata->yp) 
-#define yQ          (idm_Cdata->yQ) 
-#define yyS         (idm_Cdata->yyS) 
-#define ypS         (idm_Cdata->ypS) 
-#define N           (idm_Cdata->N) 
-#define Nq          (idm_Cdata->Nq) 
-#define Ng          (idm_Cdata->Ng) 
-#define Ns          (idm_Cdata->Ns) 
-#define Nd          (idm_Cdata->Nd) 
-#define Nc          (idm_Cdata->Nc) 
-#define ls          (idm_Cdata->ls) 
-#define pm          (idm_Cdata->pm) 
-#define ism         (idm_Cdata->ism) 
-#define idaadj_mem  (idm_Cdata->idaadj_mem) 
-#define interp      (idm_Cdata->interp) 
-#define yyB         (idm_Cdata->yyB) 
-#define ypB         (idm_Cdata->ypB) 
-#define yQB         (idm_Cdata->yQB) 
-#define NB          (idm_Cdata->NB) 
-#define NqB         (idm_Cdata->NqB) 
-#define lsB         (idm_Cdata->lsB) 
-#define pmB         (idm_Cdata->pmB) 
+#define ida_mem     (idmData->ida_mem)
 
-#define mx_data     (idm_Mdata->mx_data)
+#define asa         (idmData->asa)
+#define Nd          (idmData->Nd) 
+#define Nc          (idmData->Nc) 
+#define NbckPb      (idmData->NbckPb)
 
-#define mx_RESfct   (idm_Mdata->mx_RESfct)
-#define mx_QUADfct  (idm_Mdata->mx_QUADfct)
-#define mx_JACfct   (idm_Mdata->mx_JACfct)
-#define mx_PSETfct  (idm_Mdata->mx_PSETfct)
-#define mx_PSOLfct  (idm_Mdata->mx_PSOLfct)
-#define mx_GLOCfct  (idm_Mdata->mx_GLOCfct)
-#define mx_GCOMfct  (idm_Mdata->mx_GCOMfct)
-#define mx_Gfct     (idm_Mdata->mx_Gfct)
-#define mx_SRESfct  (idm_Mdata->mx_SRESfct)
+#define fsa         (fwdPb->Fsa)
+#define quadr       (fwdPb->Quadr)
+#define mon         (fwdPb->Mon)
+#define rootSet     (fwdPb->RootSet)
+#define tstopSet    (fwdPb->TstopSet)
 
-#define mx_RESfctB  (idm_Mdata->mx_RESfctB)
-#define mx_QUADfctB (idm_Mdata->mx_QUADfctB)
-#define mx_JACfctB  (idm_Mdata->mx_JACfctB)
-#define mx_PSETfctB (idm_Mdata->mx_PSETfctB)
-#define mx_PSOLfctB (idm_Mdata->mx_PSOLfctB)
-#define mx_GLOCfctB (idm_Mdata->mx_GLOCfctB)
-#define mx_GCOMfctB (idm_Mdata->mx_GCOMfctB)
+#define yy          (fwdPb->YY) 
+#define yp          (fwdPb->YP) 
+#define yQ          (fwdPb->YQ) 
+#define yyS         (fwdPb->YYS) 
+#define ypS         (fwdPb->YPS) 
+#define N           (fwdPb->n) 
+#define Nq          (fwdPb->nq) 
+#define Ng          (fwdPb->ng) 
+#define Ns          (fwdPb->ns) 
+#define ls          (fwdPb->LS) 
+#define pm          (fwdPb->PM)
 
-#define mx_MONfct   (idm_Mdata->mx_MONfct)
-#define mx_MONdata  (idm_Mdata->mx_MONdata)
+#define mtlb_data     (fwdPb->mtlb_data)
 
-#define mx_MONfctB  (idm_Mdata->mx_MONfctB)
-#define mx_MONdataB (idm_Mdata->mx_MONdataB)
+#define mtlb_RESfct   (fwdPb->RESfct)
+#define mtlb_QUADfct  (fwdPb->QUADfct)
+#define mtlb_JACfct   (fwdPb->JACfct)
+#define mtlb_PSETfct  (fwdPb->PSETfct)
+#define mtlb_PSOLfct  (fwdPb->PSOLfct)
+#define mtlb_GLOCfct  (fwdPb->GLOCfct)
+#define mtlb_GCOMfct  (fwdPb->GCOMfct)
+#define mtlb_Gfct     (fwdPb->Gfct)
+#define mtlb_SRESfct  (fwdPb->SRESfct)
+
+#define mtlb_MONfct   (fwdPb->MONfct)
+#define mtlb_MONdata  (fwdPb->MONdata)
+
+
+#define indexB      (bckPb->index)
+
+#define quadrB      (bckPb->Quadr)
+#define monB        (bckPb->Mon)
+
+#define yyB         (bckPb->YY) 
+#define ypB         (bckPb->YP) 
+#define yQB         (bckPb->YQ) 
+#define NB          (bckPb->n) 
+#define NqB         (bckPb->nq) 
+#define lsB         (bckPb->LS) 
+#define pmB         (bckPb->PM) 
+
+#define mtlb_dataB    (bckPb->mtlb_data)
+
+#define mtlb_RESfctB  (bckPb->RESfct)
+#define mtlb_QUADfctB (bckPb->QUADfct)
+#define mtlb_JACfctB  (bckPb->JACfct)
+#define mtlb_PSETfctB (bckPb->PSETfct)
+#define mtlb_PSOLfctB (bckPb->PSOLfct)
+#define mtlb_GLOCfctB (bckPb->GLOCfct)
+#define mtlb_GCOMfctB (bckPb->GCOMfct)
+
+#define mtlb_MONfctB  (bckPb->MONfct)
+#define mtlb_MONdataB (bckPb->MONdata)
+
 
 /*
  * ---------------------------------------------------------------------------------
@@ -252,8 +565,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
 static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
+  idmPbData fwdPb;
+
+  const mxArray *options;
+
   double t0, *yy0, *yp0;
-  int status;
 
   int maxord;
   long int mxsteps;
@@ -261,21 +577,9 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   int itol;
   realtype reltol, Sabstol, *Vabstol;
   N_Vector NV_abstol;
-  void *abstol;
-
-  /*
-  double *yQ0;
-
-  booleantype errconQ;
-  int itolQ;
-  realtype reltolQ, SabstolQ, *VabstolQ;
-  N_Vector NV_abstolQ;
-  void *abstolQ;
-  */
 
   double hin, hmax;
   double tstop;
-  booleantype tstopSet;
 
   booleantype suppress;
 
@@ -287,93 +591,111 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   double *id, *cnstr;
   N_Vector NV_id, NV_cnstr;
 
-  dqrely = 0.0;
+  booleantype res_s; /* ignored */
 
-  /* ------------------------------------
-   * Initialize appropriate vector module
+  /* 
+   * ------------------------------------
+   * Process inputs based on action
    * ------------------------------------
    */
-  
-  if (action == 0) InitVectors();
 
-  /* 
-   * -----------------------------
-   * Extract stuff from arguments:
-   * - RES function
-   * - initial time
-   * - initial conditions
-   * - integration options
-   * - user data
-   * -----------------------------
-   */
+  switch (action) {
 
-  /* Matlab user-provided function */
+  case 0:     /* SOLVER INITIALIZATION */
 
-  mxDestroyArray(mx_RESfct);
-  mx_RESfct = mxDuplicateArray(prhs[0]);
-  
-  /* Initial time */
+    /* Create and initialize a new problem */
 
-  t0 = (double)mxGetScalar(prhs[1]);
+    fwdPb = (idmPbData) mxMalloc(sizeof(struct idmPbData_));
+    idmInitPbData(fwdPb);
 
-  /* Initial conditions */
+    idmData->fwdPb = fwdPb;
 
-  yy0 = mxGetPr(prhs[2]);
-  yp0 = mxGetPr(prhs[3]);
-  N = mxGetM(prhs[2]);
+    /* Initialize appropriate vector module */
 
-  /* Integrator Options -- optional argument */
+    InitVectors();
 
-  status = get_IntgrOptions(prhs[4], action, TRUE,
-                            &maxord, &mxsteps,
-                            &itol, &reltol, &Sabstol, &Vabstol,
-                            &hin, &hmax, &tstop, &tstopSet,
-                            &suppress,
-                            &id, &cnstr);
+    /* Extract user-provided RES function */
 
-  /* User data -- optional argument */
+    mxDestroyArray(mtlb_RESfct);
+    mtlb_RESfct = mxDuplicateArray(prhs[0]);
 
-  mxDestroyArray(mx_data);
-  mx_data = mxDuplicateArray(prhs[5]);
+    /* Extract initial time */
 
-  /* 
-   * ----------------------------------------------------------
-   * If monitoring is enabled and if the solver is going to be
-   * reinitialized call the monitor function with call=2 
-   * ----------------------------------------------------------
-   */
-  
-  if (idm_mon && (action==1)) {
-    mtlb_IdaMonitor(2, t0, NULL, NULL, NULL, NULL, NULL);
-  }
+    t0 = (double)mxGetScalar(prhs[1]);
 
-  /* 
-   * ---------------------------------------
-   * Set initial conditions and tolerances
-   * ---------------------------------------
-   */
+    /* Extract initial conditions */
 
-  if (action == 0) {
+    yy0 = mxGetPr(prhs[2]);
+    yp0 = mxGetPr(prhs[3]);
+    N = mxGetM(prhs[2]);
+
+    /* Create the solution N_Vectors */
+
     yy = NewVector(N);
     yp = NewVector(N);
+
+    /* Load initial conditions */
+
+    PutData(yy, yy0, N);
+    PutData(yp, yp0, N);
+
+    /* Extract options structure */
+    
+    options = prhs[4];
+
+    break;
+
+  case 1:    /* SOLVER RE-INITIALIZATION */
+
+    fwdPb = idmData->fwdPb;
+
+    /* If monitoring was enabled, finalize it now. */
+
+    if (mon) mxW_IDAMonitor(2, 0.0, NULL, NULL, NULL, fwdPb);
+
+    /* Extract initial time */
+
+    t0 = (double)mxGetScalar(prhs[0]);
+
+    /* Extract initial conditions */
+
+    yy0 = mxGetPr(prhs[1]);
+
+    if (mxGetM(prhs[1]) != N) idmErrHandler(-999, "IDAS", "IDAReInit",
+                                            "Size of yy0 changed from IDAInit call.", NULL);
+    yp0 = mxGetPr(prhs[2]);
+
+    if (mxGetM(prhs[2]) != N) idmErrHandler(-999, "IDAS", "IDAReInit",
+                                            "Size of yp0 changed from IDAInit call.", NULL);
+
+    /* Load initial conditions */
+
+    PutData(yy, yy0, N);
+    PutData(yp, yp0, N);
+
+    /* Extract options structure */
+    
+    options = prhs[3];
+
+    break;
+
   }
 
-  PutData(yy, yy0, N);
-  PutData(yp, yp0, N);
+  /* Process the options structure */
 
-  switch (itol) {
-  case IDA_SS:
-    abstol = (void *) &Sabstol;
-    break;
-  case IDA_SV:
-    NV_abstol = N_VClone(yy);
-    PutData(NV_abstol, Vabstol, N);
-    abstol = (void *) NV_abstol;
-    break;
-  }
+  get_IntgrOptions(options, fwdPb, TRUE,
+                   &maxord, &mxsteps,
+                   &itol, &reltol, &Sabstol, &Vabstol,
+                   &hin, &hmax, &tstop,
+                   &suppress,
+                   &id, &cnstr,
+                   &res_s);
+
 
   /* 
    * ----------------------------------------
+   * Call appropriate IDAS functions
+   *
    * If action = 0
    *    Create IDAS object and allocate memory
    *    Attach error handler function
@@ -389,29 +711,44 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
     /* Create IDAS object */
     ida_mem = IDACreate();
-
+    /* Attach the global IDAS data as 'user-data' */
+    IDASetUserData(ida_mem, fwdPb);
     /* Attach error handler function */
-    status = IDASetErrHandlerFn(ida_mem, mtlb_IdaErrHandler, NULL);
-
-    /* Call IDAMalloc */
-    status = IDAMalloc(ida_mem, mtlb_IdaRes, t0, yy, yp, itol, reltol, abstol);
-
+    IDASetErrHandlerFn(ida_mem, idmErrHandler);
+    /* Call IDAInit */
+    IDAInit(ida_mem, mxW_IDARes, t0, yy, yp);
     /* Redirect output */
-    status = IDASetErrFile(ida_mem, stdout);
+    IDASetErrFile(ida_mem, stdout);
 
     break;
 
   case 1:
 
     /* Reinitialize solver */
-    status = IDAReInit(ida_mem, t0, yy, yp, itol, reltol, abstol);
+    IDAReInit(ida_mem, t0, yy, yp);
 
     break;
 
   }
 
-  /* Free NV_abstol if allocated */
-  if (itol == IDA_SV) N_VDestroy(NV_abstol);
+  /*
+   * ----------------------------------------
+   * Set tolerances
+   * ----------------------------------------
+   */
+
+  switch (itol) {
+    case IDA_SS:
+      IDASStolerances(ida_mem, reltol, Sabstol);
+      break;
+    case IDA_SV:
+      NV_abstol = N_VClone(yy);
+      PutData(NV_abstol, Vabstol, N);
+      IDASVtolerances(ida_mem, reltol, NV_abstol);
+      N_VDestroy(NV_abstol);
+      break;
+    }
+
 
   /*
    * --------------------------------
@@ -420,34 +757,37 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
    */
 
   /* set maxorder (default is 5) */
-  status = IDASetMaxOrd(ida_mem, maxord);
+  IDASetMaxOrd(ida_mem, maxord);
 
   /* set initial step size (the default value of 0.0 is ignored by IDAS) */
-  status = IDASetInitStep(ida_mem, hin);
+  IDASetInitStep(ida_mem, hin);
 
   /* set max step (default is infinity) */
-  status = IDASetMaxStep(ida_mem, hmax);
+  IDASetMaxStep(ida_mem, hmax);
 
   /* set number of max steps */
-  status = IDASetMaxNumSteps(ida_mem, mxsteps);
+  IDASetMaxNumSteps(ida_mem, mxsteps);
 
   /* set suppressAlg */
-  status = IDASetSuppressAlg(ida_mem, suppress);
+  IDASetSuppressAlg(ida_mem, suppress);
 
   /* set tstop? */
   if (tstopSet)
-    status = IDASetStopTime(ida_mem, tstop);
+    IDASetStopTime(ida_mem, tstop);
   
   /* Rootfinding? */
-  if ( !mxIsEmpty(mx_Gfct) && (Ng > 0) ) {
-    status = IDARootInit(ida_mem, Ng, mtlb_IdaGfct, NULL);
+  if ( !mxIsEmpty(mtlb_Gfct) && (Ng > 0) ) {
+    IDARootInit(ida_mem, Ng, mxW_IDAGfct);
+    rootSet = TRUE;
+  } else {
+    rootSet = FALSE;
   }
 
   /* ID vector specified? */
   if (id != NULL) {
     NV_id = N_VClone(yy);
     PutData(NV_id, id, N);
-    status = IDASetId(ida_mem, NV_id);
+    IDASetId(ida_mem, NV_id);
     N_VDestroy(NV_id);
   }
 
@@ -455,145 +795,241 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   if (cnstr != NULL) {
     NV_cnstr = N_VClone(yy);
     PutData(NV_cnstr, cnstr, N);
-    status = IDASetConstraints(ida_mem, NV_cnstr);
+    IDASetConstraints(ida_mem, NV_cnstr);
     N_VDestroy(NV_cnstr);
   }
 
-  /* Quadratures? */
+
   /*
-  if ( idm_quad ) {
+   * ----------------------------------------
+   * Linear solver
+   * ----------------------------------------
+   */
 
-    status = get_QuadOptions(prhs[4], TRUE,
-                             &yQ0, &errconQ, 
-                             &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
-
-    if(status) mexErrMsgTxt("IDAMalloc:: illegal quadrature input.");      
-
-    if (action == 0) yQ = NewVector(Nq);
-
-    PutData(yQ, yQ0, Nq);
-
-    switch (action) {
-    case 0:
-      status = IDAQuadMalloc(ida_mem, mtlb_IdaQuadFct, yQ);
-      break;
-    case 1:
-      status = IDAQuadReInit(ida_mem, yQ);
-      break;
-    }
-
-    if (errconQ) {
-    
-      switch (itolQ) {
-      case IDA_SS:
-        abstolQ = (void *) &SabstolQ;
-        break;
-      case IDA_SV:
-        NV_abstolQ = N_VClone(yQ);
-        PutData(NV_abstolQ, VabstolQ, Nq);
-        abstolQ = (void *) NV_abstolQ;
-        break;
-      }
-      
-      status = IDASetQuadErrCon(ida_mem, errconQ, itolQ, reltolQ, abstolQ);
-      
-      if (itolQ == IDA_SV) N_VDestroy(NV_abstolQ);
-
-    }
-
-  }
-  */
-
-  /* Linear solver */
-
-  status = get_LinSolvOptions(prhs[4], TRUE,
-                              &mupper, &mlower,
-                              &mudq, &mldq,
-                              &gstype, &maxl);
+  get_LinSolvOptions(options, fwdPb, TRUE,
+                     &mupper, &mlower,
+                     &mudq, &mldq, &dqrely,
+                     &gstype, &maxl);
   
   switch (ls) {
+
   case LS_DENSE:
-    status = IDADense(ida_mem, N);
-    if (!mxIsEmpty(mx_JACfct))
-      status = IDADlsSetJacFn(ida_mem, mtlb_IdaDenseJac, NULL);
+
+    IDADense(ida_mem, N);
+    if (!mxIsEmpty(mtlb_JACfct)) IDADlsSetDenseJacFn(ida_mem, mxW_IDADenseJac);
+
     break;
+
   case LS_BAND:
-    status = IDABand(ida_mem, N, mupper, mlower);
-    if (!mxIsEmpty(mx_JACfct))
-      status = IDADlsSetJacFn(ida_mem, mtlb_IdaBandJac, NULL);
+
+    IDABand(ida_mem, N, mupper, mlower);
+    if (!mxIsEmpty(mtlb_JACfct)) IDADlsSetBandJacFn(ida_mem, mxW_IDABandJac);
+
     break;
+
   case LS_SPGMR:
-    switch (pm) {
-    case PM_NONE:
-      status = IDASpgmr(ida_mem, maxl);
-      if (!mxIsEmpty(mx_PSOLfct)) {
-        if (!mxIsEmpty(mx_PSETfct))
-          status = IDASpilsSetPreconditioner(ida_mem, mtlb_IdaSpilsPset, mtlb_IdaSpilsPsol, NULL);
-        else
-          status = IDASpilsSetPreconditioner(ida_mem, NULL, mtlb_IdaSpilsPsol, NULL);
-      }
-      break;
-    case PM_BBDPRE:
-      if (!mxIsEmpty(mx_GCOMfct))
-        bp_data = IDABBDPrecAlloc(ida_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_IdaBBDgloc, mtlb_IdaBBDgcom);
-      else
-        bp_data = IDABBDPrecAlloc(ida_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_IdaBBDgloc, NULL);
-      status = IDABBDSpgmr(ida_mem, maxl, bp_data);
-      break;
-    }
-    status = IDASpilsSetGSType(ida_mem, gstype);
-    if (!mxIsEmpty(mx_JACfct))
-      status = IDASpilsSetJacTimesVecFn(ida_mem, mtlb_IdaSpilsJac, NULL);
+
+    IDASpgmr(ida_mem, maxl);
+    IDASpilsSetGSType(ida_mem, gstype);
+
     break;
+
   case LS_SPBCG:
-    switch (pm) {
-    case PM_NONE:
-      status = IDASpbcg(ida_mem, maxl);
-      if (!mxIsEmpty(mx_PSOLfct)) {
-        if (!mxIsEmpty(mx_PSETfct))
-          status = IDASpilsSetPreconditioner(ida_mem, mtlb_IdaSpilsPset, mtlb_IdaSpilsPsol, NULL);
-        else
-          status = IDASpilsSetPreconditioner(ida_mem, NULL, mtlb_IdaSpilsPsol, NULL);
-      }
-      break;
-    case PM_BBDPRE:
-      if (!mxIsEmpty(mx_GCOMfct))
-        bp_data = IDABBDPrecAlloc(ida_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_IdaBBDgloc, mtlb_IdaBBDgcom);
-      else
-        bp_data = IDABBDPrecAlloc(ida_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_IdaBBDgloc, NULL);
-      IDABBDSpbcg(ida_mem, maxl, bp_data);
-      break;
-    }
-    if (!mxIsEmpty(mx_JACfct))
-      status = IDASpilsSetJacTimesVecFn(ida_mem, mtlb_IdaSpilsJac, NULL);
+
+    IDASpbcg(ida_mem, maxl);
+
     break;
+
   case LS_SPTFQMR:
-    switch (pm) {
-    case PM_NONE:
-      status = IDASptfqmr(ida_mem, maxl);
-      if (!mxIsEmpty(mx_PSOLfct)) {
-        if (!mxIsEmpty(mx_PSETfct))
-          status = IDASpilsSetPreconditioner(ida_mem, mtlb_IdaSpilsPset, mtlb_IdaSpilsPsol, NULL);
-        else
-          status = IDASpilsSetPreconditioner(ida_mem, NULL, mtlb_IdaSpilsPsol, NULL);
-      }
-      break;
-    case PM_BBDPRE:
-      if (!mxIsEmpty(mx_GCOMfct))
-        bp_data = IDABBDPrecAlloc(ida_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_IdaBBDgloc, mtlb_IdaBBDgcom);
-      else
-        bp_data = IDABBDPrecAlloc(ida_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_IdaBBDgloc, NULL);
-      IDABBDSptfqmr(ida_mem, maxl, bp_data);
-      break;
-    }
-    if (!mxIsEmpty(mx_JACfct))
-      status = IDASpilsSetJacTimesVecFn(ida_mem, mtlb_IdaSpilsJac, NULL);
+
+    IDASptfqmr(ida_mem, maxl);
+
     break;
+    
   }
+
+  /* Jacobian * vector and preconditioner for SPILS linear solvers */
+
+  if ( (ls==LS_SPGMR) || (ls==LS_SPBCG) || (ls==LS_SPTFQMR) ) {
+
+    if (!mxIsEmpty(mtlb_JACfct)) IDASpilsSetJacTimesVecFn(ida_mem, mxW_IDASpilsJac);
+
+    switch (pm) {
+
+    case PM_NONE:
+
+      if (!mxIsEmpty(mtlb_PSOLfct)) {
+        if (!mxIsEmpty(mtlb_PSETfct)) IDASpilsSetPreconditioner(ida_mem, mxW_IDASpilsPset, mxW_IDASpilsPsol);
+        else                          IDASpilsSetPreconditioner(ida_mem, NULL, mxW_IDASpilsPsol);
+      }
+
+      break;
+
+    case PM_BBDPRE:
+
+      if (!mxIsEmpty(mtlb_GCOMfct)) IDABBDPrecInit(ida_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_IDABBDgloc, mxW_IDABBDgcom);
+      else                          IDABBDPrecInit(ida_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_IDABBDgloc, NULL);
+
+      break;
+
+    }
+
+  }
+
+  /* Do we monitor? */
+  
+  if (mon) mxW_IDAMonitor(0, t0, NULL, NULL, NULL, fwdPb);
 
   return(0);
 
 }
+
+/* IDM_QuadInitialization
+ *
+ * action = 0   -> IDAQuadInit
+ * prhs contains:
+ *   fQ
+ *   y0
+ *   options
+ *
+ * action = 1   -> IDAQuadReInit
+ * prhs contains:
+ *   y0
+ *   options
+ *
+ */
+
+static int IDM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+  idmPbData fwdPb;
+
+  const mxArray *options;
+
+  double *yQ0;
+
+  booleantype rhs_s; /* ignored */
+
+  booleantype errconQ;
+  int itolQ;
+  realtype reltolQ, SabstolQ, *VabstolQ;
+  N_Vector NV_abstolQ;
+
+  fwdPb = idmData->fwdPb;
+
+  /* 
+   * ------------------------------------
+   * Process inputs based on action
+   * ------------------------------------
+   */
+
+  switch (action) {
+
+  case 0:     /* QUADRATURE INITIALIZATION */
+
+    /* Extract user-provided quadrature RHS function */
+
+    mxDestroyArray(mtlb_QUADfct);
+    mtlb_QUADfct = mxDuplicateArray(prhs[0]);
+  
+    /* Extract quadrature initial conditions */
+
+    yQ0 = mxGetPr(prhs[1]);
+    Nq = mxGetM(prhs[1]);
+
+    /* Create the quadrature N_Vector */
+
+    yQ = NewVector(Nq);
+
+    /* Load quadrature initial conditions */
+    
+    PutData(yQ, yQ0, Nq);
+
+    /* Extract quadrature options structure */
+
+    options = prhs[2];
+
+    break;
+
+  case 1:     /* QUADRATURE RE-INITIALIZATION */
+
+    /* Extract quadrature initial conditions */
+
+    yQ0 = mxGetPr(prhs[0]);
+
+    if (mxGetM(prhs[0]) != Nq) idmErrHandler(-999, "IDAS", "IDAQuadReInit",
+                                             "Size of yQ0 changed from IDAQuadInit call.", NULL);
+
+    /* Load quadrature initial conditions */
+    
+    PutData(yQ, yQ0, Nq);
+
+    /* Extract quadrature options structure */
+
+    options = prhs[1];
+
+    break;
+
+  }
+
+  /* Process the options structure */
+
+  get_QuadOptions(options, fwdPb, TRUE,
+                  Nq, &rhs_s,
+                  &errconQ, 
+                  &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
+
+  /* 
+   * ----------------------------------------
+   * Call appropriate IDAS functions
+   *
+   * If action = 0
+   *    Initialize quadratures
+   * If action = 1
+   *    Reinitialize quadratures
+   * ----------------------------------------
+   */
+
+  switch (action) {
+  case 0:
+    IDAQuadInit(ida_mem, mxW_IDAQuadFct, yQ);
+    break;
+  case 1:
+    IDAQuadReInit(ida_mem, yQ);
+    break;
+  }
+
+  /*
+   * ----------------------------------------
+   * Set tolerances for quadrature variables
+   * ----------------------------------------
+   */
+
+  IDASetQuadErrCon(ida_mem, errconQ);
+
+  if (errconQ) {
+    
+    switch (itolQ) {
+    case IDA_SS:
+      IDAQuadSStolerances(ida_mem, reltolQ, SabstolQ);
+      break;
+    case IDA_SV:
+      NV_abstolQ = N_VClone(yQ);
+      PutData(NV_abstolQ, VabstolQ, Nq);
+      IDAQuadSVtolerances(ida_mem, reltolQ, NV_abstolQ);
+      N_VDestroy(NV_abstolQ);
+      break;
+    }
+    
+  }
+
+  /* Quadratures will be integrated */
+
+  quadr = TRUE;
+
+  return(0);
+
+}
+
 
 /* IDM_SensInitialization
  * action = 0 -> IDASensMalloc
@@ -612,24 +1048,25 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
 static int IDM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  return(0);
-}
-/*
-static int IDM_SensInitialization(int action int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
-  double t0, *yyS0, *ypS0;
-  int buflen, status;
-  char *bufval;
+  idmPbData fwdPb;
+
+  const mxArray *options;
+
+  booleantype fS_DQ;
+  IDASensResFn resS;
+
+  double *yyS0, *ypS0;
+
+  int ism;
 
   mxArray *pfield;
   char *pfield_name;
 
-  booleantype userSRES, errconS;
+  booleantype errconS;
   int itolS;
   realtype reltolS;
   realtype *SabstolS, *VabstolS;
   N_Vector *NV_abstolS;
-  void *abstolS;
 
   int *plist, dqtype;
   double *p, *pbar, rho;
@@ -640,92 +1077,172 @@ static int IDM_SensInitialization(int action int nlhs, mxArray *plhs[], int nrhs
   plist = NULL;
   pbar = NULL;
 
-  if (action==0) Ns = (int)mxGetScalar(prhs[0]);
+  fwdPb = idmData->fwdPb;
 
-  buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
-  bufval = mxCalloc(buflen, sizeof(char));
-  status = mxGetString(prhs[1], bufval, buflen);
-  if(!strcmp(bufval,"Simultaneous")) ism = IDA_SIMULTANEOUS;
-  if(!strcmp(bufval,"Staggered"))    ism = IDA_STAGGERED;
-
-  yyS0 = mxGetPr(prhs[2]);
-  ypS0 = mxGetPr(prhs[3]);
-
-  status = get_FSAOptions(prhs[4], 
-                          &pfield_name, &plist, &pbar,
-                          &userSRES, &dqtype, &rho,
-                          &errconS, &itolS, &reltolS, &SabstolS, &VabstolS);
-
-  if(status) mexErrMsgTxt("IDAMalloc:: illegal forward sensitivity input.");   
-
-  if (mxIsEmpty(mx_SRESfct)) {
-    if (pfield_name == NULL)
-      mexErrMsgTxt("IDAMalloc:: pfield required but was not provided.");
-    pfield = mxGetField(mx_data,0,pfield_name);
-    if (pfield == NULL)
-      mexErrMsgTxt("IDAMalloc:: illegal pfield input.");
-    p = mxGetPr(pfield);
-    mxFree(pfield_name);
-  }
-
-  if (action == 0) {
-    yyS = N_VCloneVectorArray(Ns, yy);
-    ypS = N_VCloneVectorArray(Ns, yy);
-  }
-
-  for (is=0;is<Ns;is++) {
-    PutData(yyS[is], &yyS0[is*N], N);
-    PutData(ypS[is], &ypS0[is*N], N);
-  }
-
+  /* 
+   * ------------------------------------
+   * Process inputs based on action
+   * ------------------------------------
+   */
 
   switch (action) {
-  case 0:
-    status = IDASensMalloc(ida_mem, Ns, ism, yyS, ypS);
+
+  case 0:     /* FSA INITIALIZATION */
+
+    /* Extract number of sensitivities */
+
+    Ns = (int)mxGetScalar(prhs[0]);
+
+    /* Extract user-provided sensitivity residual function */
+
+    if ( mxIsEmpty(prhs[1]) ) {
+      resS = NULL;
+      fS_DQ = TRUE;
+    } else {
+      mxDestroyArray(mtlb_SRESfct);
+      mtlb_SRESfct = mxDuplicateArray(prhs[1]);
+      resS = mxW_IDASensRes;
+      fS_DQ = FALSE;
+    }
+
+    /* Extract sensitivity initial conditions */
+
+    yyS0 = mxGetPr(prhs[2]);
+    ypS0 = mxGetPr(prhs[3]);
+
+    /* Create the sensitivity N_Vectors */
+
+    yyS = N_VCloneVectorArray(Ns, yy);
+    ypS = N_VCloneVectorArray(Ns, yy);
+
+    /* Load sensitivity initial conditions */
+
+    for (is=0;is<Ns;is++) {
+      PutData(yyS[is], &yyS0[is*N], N);
+      PutData(ypS[is], &ypS0[is*N], N);
+    }
+
+    /* Extract FSA options structure */
+
+    options = prhs[4];
+
     break;
-  case 1:
-    status = IDASensReInit(ida_mem, ism, yyS, ypS);
+
+  case 1:     /* FSA RE-INITIALIZATION */
+
+    /* Extract sensitivity initial condition */
+
+    yyS0 = mxGetPr(prhs[0]);
+    ypS0 = mxGetPr(prhs[1]);
+
+    if ( (mxGetM(prhs[0]) != N) || (mxGetN(prhs[0]) != Ns) )  idmErrHandler(-999, "IDAS", "IDASensReInit",
+                                                                            "Size of yyS0 changed from IDASensInit call.", NULL);
+    if ( (mxGetM(prhs[1]) != N) || (mxGetN(prhs[1]) != Ns) )  idmErrHandler(-999, "IDAS", "IDASensReInit",
+                                                                            "Size of ypS0 changed from IDASensInit call.", NULL);
+
+    /* Load sensitivity initial conditions */
+
+    for (is=0;is<Ns;is++) {
+      PutData(yyS[is], &yyS0[is*N], N);
+      PutData(ypS[is], &ypS0[is*N], N);
+    }
+
+    /* Extract qFSA options structure */
+
+    options = prhs[2];
+
     break;
+
   }
+
+  /* Process the options structure */
+
+  get_FSAOptions(options, fwdPb, 
+                 &ism,
+                 &pfield_name, &plist, &pbar,
+                 &dqtype, &rho,
+                 &errconS, &itolS, &reltolS, &SabstolS, &VabstolS);
+
+  /* 
+   * ----------------------------------------
+   * Call appropriate IDAS functions
+   *
+   * If action = 0
+   *    Check if required inputs are available
+   *    Initialize FSA
+   * If action = 1
+   *    Reinitialize FSA
+   * ----------------------------------------
+   */
+
+  switch (action) {
+
+  case 0:
+
+    if (fS_DQ) {
+
+      if (pfield_name == NULL) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                             "pfield required but was not provided.", NULL);
+
+      pfield = mxGetField(mtlb_data,0,pfield_name);
+
+      if (pfield == NULL) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                        "illegal pfield input.", NULL);
+
+      p = mxGetPr(pfield);
+
+    }
+
+    IDASensInit(ida_mem, Ns, ism, resS, yyS, ypS);
+
+    break;
+
+  case 1:
+
+    IDASensReInit(ida_mem, ism, yyS, ypS);
+
+    break;
+
+  }
+
+  /*
+   * ----------------------------------------
+   * Set tolerances for sensitivity variables
+   * ----------------------------------------
+   */
 
   switch (itolS) {
   case IDA_SS:
-    abstolS = (void *) SabstolS;
+    IDASensSStolerances(ida_mem, reltolS, SabstolS);
     break;
   case IDA_SV:
-    NV_abstolS = N_VCloneVectorArray(Ns, y);
+    NV_abstolS = N_VCloneVectorArray(Ns, yy);
     for (is=0;is<Ns;is++)
       PutData(NV_abstolS[is], &VabstolS[is*N], N);
-    abstolS = (void *) NV_abstolS;
+    IDASensSVtolerances(ida_mem, reltolS, NV_abstolS);
+    N_VDestroyVectorArray(NV_abstolS, Ns);
     break;
   case IDA_EE:
-    abstolS = NULL;
+    IDASensEEtolerances(ida_mem);
     break;
   }
-  
-  status = IDASetSensTolerances(ida_mem, itolS, reltolS, abstolS);
-  
-  if (itolS == IDA_SS)      free(SabstolS);
-  else if (itolS == IDA_SV) N_VDestroyVectorArray(NV_abstolS, Ns);
-  
-  status = IDASetSensParams(ida_mem, p, pbar, plist);
-  
-  if (plist != NULL) free(plist);
-  if (pbar != NULL)  free(pbar);
-  
-  status = IDASetSensDQMethod(ida_mem, dqtype, rho);
-  
-  status = IDASetSensErrCon(ida_mem, errconS);
 
-  if (userSRES) {
-    status = IDASetSensResFn(ida_mem, mtlb_IdaSensRhs, NULL);
-  }
+  /*
+   * --------------------------------
+   * Set various optional inputs
+   * --------------------------------
+   */
+  
+  IDASetSensParams(ida_mem, p, pbar, plist);
 
-  idm_fsa = TRUE;
+  IDASetSensDQMethod(ida_mem, dqtype, rho);
+  
+  IDASetSensErrCon(ida_mem, errconS);
+
+  fsa = TRUE;
 
   return(0);
 }
-*/
 
 /*
  * IDM_SensToggleOff
@@ -735,6 +1252,14 @@ static int IDM_SensInitialization(int action int nlhs, mxArray *plhs[], int nrhs
 
 static int IDM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
+  idmPbData fwdPb;
+
+  fwdPb = idmData->fwdPb;
+
+  IDASensToggleOff(ida_mem);
+  
+  fsa = FALSE;
+
   return(0);
 }
 
@@ -747,35 +1272,55 @@ static int IDM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray 
  *   status
  */
 
-static int IDM_AdjInitialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static int IDM_AdjInitialization(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  return(0);
-}
-/*
-static int IDM_AdjInitialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
+  int interp;
+
   int buflen, status;
   char *bufval;
 
-  Nd = (int)mxGetScalar(prhs[0]);
+  switch (action) {
 
-  buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
-  bufval = mxCalloc(buflen, sizeof(char));
-  status = mxGetString(prhs[1], bufval, buflen);
-  if(!strcmp(bufval,"Hermite"))    interp = IDA_HERMITE;
-  if(!strcmp(bufval,"Polynomial")) interp = IDA_POLYNOMIAL;
+  case 0:
 
-  idaadj_mem = IDAadjMalloc(ida_mem, Nd, interp);
+    /* Number of steps */
 
-  idm_asa = TRUE;
-  
+    Nd = (int)mxGetScalar(prhs[0]);
+
+    /* Interpolation method */
+
+    buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
+    bufval = mxCalloc(buflen, sizeof(char));
+    status = mxGetString(prhs[1], bufval, buflen);
+    if(status != 0) idmErrHandler(-999, "IDAS", "IDAAdjInit", 
+                                  "Could not parse InterpType.", NULL);
+
+    if(!strcmp(bufval,"Hermite"))         interp = IDA_HERMITE;
+    else if(!strcmp(bufval,"Polynomial")) interp = IDA_POLYNOMIAL;
+    else idmErrHandler(-999, "IDAS", "IDAAdjInit",
+                       "Interp. type has an illegal value.", NULL);
+
+    IDAAdjInit(ida_mem, Nd, interp);
+
+    break;
+
+  case 1:
+
+    IDAAdjReInit(ida_mem);
+
+    break;
+
+  }
+
+  asa = TRUE;
+
   return(0);
 }
-*/
+
 
 /* IDM_InitializationB
  *
- * action = 0   -> IDACreateB + IDAMallocB
+ * action = 0   -> IDACreateB + IDAInitB
  * action = 1   -> IDAReInitB
  *
  * prhs contains:
@@ -792,35 +1337,23 @@ static int IDM_AdjInitialization(int nlhs, mxArray *plhs[], int nrhs, const mxAr
  */
 static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  return(0);
-}
-/*
-static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
+  idmPbData bckPb;
+
+  const mxArray *options;
+
+  int idxB;
+
   double tB0, *yyB0, *ypB0;
-  int i, status;
 
   int maxordB;
-
   long int mxstepsB;
 
   int itolB;
   realtype reltolB, SabstolB, *VabstolB;
   N_Vector NV_abstolB;
-  void *abstolB;
-
-  double *yQB0;
-
-  booleantype errconQB;
-  int itolQB;
-  realtype reltolQB, SabstolQB, *VabstolQB;
-  N_Vector NV_abstolQB;
-  void *abstolQB;
 
   double hinB, hmaxB;
-
-  double tstopB;
-  booleantype tstopSetB;
+  double tstopB;            /* ignored */
 
   booleantype suppressB;
 
@@ -830,214 +1363,484 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   double dqrelyB;
 
   double *idB, *cnstrB;
+  N_Vector NV_idB;
 
-  dqrely = 0.0;
+  booleantype res_s;
 
-  if (idm_mon) {
-    mtlb_IdaMonitor(3, 0.0, NULL, NULL, NULL, NULL, NULL);
-    idm_mon = FALSE;
+  booleantype found_bck;
+
+  /* 
+   * -----------------------------
+   * Finalize Forward monitoring
+   * -----------------------------
+   */
+
+  if (idmData->fwdPb->Mon) {
+    mxW_IDAMonitor(2, 0.0, NULL, NULL, NULL, idmData->fwdPb);
+    idmData->fwdPb->Mon = FALSE;
   }
 
-  mxDestroyArray(mx_RESfctB);
-  mx_RESfctB = mxDuplicateArray(prhs[0]);
-  
-  tB0 = (double)mxGetScalar(prhs[1]);
+  /* 
+   * ------------------------------------
+   * Process inputs based on action
+   * ------------------------------------
+   */
 
-  yyB0 = mxGetPr(prhs[2]);
-  ypB0 = mxGetPr(prhs[3]);
-  NB = mxGetM(prhs[2]);
+  switch (action) {
 
-  status = get_IntgrOptions(prhs[4], action, FALSE,
-                            &maxordB, &mxstepsB,
-                            &itolB, &reltolB, &SabstolB, &VabstolB,
-                            &hinB, &hmaxB, &tstopB, &tstopSetB,
-                            &suppressB,
-                            &idB, &cnstrB);
+  case 0:     /* BACKWARD SOLVER INITIALIZATION */
 
-  if (idm_monB && (action==1)) {
-    mtlb_IdaMonitorB(2, tB0, NULL, NULL, NULL);
-  }
+    /* Create and initialize a new problem */
 
-  if (action == 0) {
+    bckPb = (idmPbData) mxMalloc(sizeof(struct idmPbData_));
+    idmInitPbData(bckPb);
+
+    bckPb->next = idmData->bckPb;
+    idmData->bckPb = bckPb;
+
+    /* Extract user-provided RHS function */
+
+    mxDestroyArray(mtlb_RESfctB);
+    mtlb_RESfctB = mxDuplicateArray(prhs[0]);
+
+    /* Extract final time */
+
+    tB0 = (double)mxGetScalar(prhs[1]);
+
+    /* Extract final conditions */
+
+    yyB0 = mxGetPr(prhs[2]);
+    ypB0 = mxGetPr(prhs[3]);
+    NB = mxGetM(prhs[2]);
+
+    /* Create the solution N_Vectors */
+
     yyB = NewVector(NB);
     ypB = NewVector(NB);
+
+    /* Load final conditions */
+
+    PutData(yyB, yyB0, NB);
+    PutData(ypB, ypB0, NB);
+
+    /* Extract options structure */
+    
+    options = prhs[4];
+
+    break;
+
+  case 1:     /* BACKWARD SOLVER RE-INITIALIZATION */
+
+    /* Extract index of current backward problem */
+    
+    idxB = (int)mxGetScalar(prhs[0]);
+
+    /* Find current backward problem */
+
+    found_bck = FALSE;
+    bckPb = idmData->bckPb;
+    while (bckPb != NULL) {
+      if (indexB == idxB) {
+        found_bck = TRUE;
+        break;
+      }
+      bckPb = bckPb->next;
+    }
+
+    if (!found_bck) idmErrHandler(-999, "IDAS", "IDAReInitB",
+                                  "idxB has an illegal value.", NULL);
+
+    /* If backward monitoring was enabled, finalize it now. */
+
+    if (monB) mxW_IDAMonitorB(2, indexB, 0.0, NULL, NULL, bckPb);
+
+    /* Extract final time */
+
+    tB0 = (double)mxGetScalar(prhs[1]);
+
+    /* Extract final conditions */
+
+    yyB0 = mxGetPr(prhs[2]);
+
+    if (mxGetM(prhs[2]) != NB) idmErrHandler(-999, "IDAS", "IDAReInitB",
+                                             "Size of yyB0 changed from IDAInitB call.", NULL);
+
+    yyB0 = mxGetPr(prhs[3]);
+
+    if (mxGetM(prhs[3]) != NB) idmErrHandler(-999, "IDAS", "IDAReInitB",
+                                             "Size of ypB0 changed from IDAInitB call.", NULL);
+
+    /* Load final conditions */
+
+    PutData(yyB, yyB0, NB);
+    PutData(ypB, ypB0, NB);
+
+    /* Extract options structure */
+    
+    options = prhs[4];
+
+    break;
+
   }
 
-  PutData(yyB, yyB0, NB);
-  PutData(ypB, ypB0, NB);
+  /* Process the options structure */
 
-  switch (itolB) {
-  case IDA_SS:
-    abstolB = (void *) &SabstolB;
-    break;
-  case IDA_SV:
-    NV_abstolB = N_VClone(yB);
-    PutData(NV_abstolB, VabstolB, NB);
-    abstolB = (void *) VabstolB;
-    break;
-  }
+  get_IntgrOptions(options, bckPb, FALSE,
+                   &maxordB, &mxstepsB,
+                   &itolB, &reltolB, &SabstolB, &VabstolB,
+                   &hinB, &hmaxB, &tstopB,
+                   &suppressB,
+                   &idB, &cnstrB,
+                   &res_s);
+
+  /* 
+   * ----------------------------------------
+   * Call appropriate IDAS functions
+   *
+   * If action = 0
+   *    Create IDAS object and allocate memory
+   *    Initialize and allocate memory
+   * If action = 1
+   *    Reinitialize solver
+   * ----------------------------------------
+   */
 
   switch (action) {
 
   case 0:
-    status = IDACreateB(idaadj_mem);
-    status = IDAMallocB(idaadj_mem, mtlb_IdaResB, tB0, yyB, ypB, itolB, reltolB, abstolB);
-    status = IDASetErrFileB(idaadj_mem, stdout);
+
+    IDACreateB(ida_mem, &idxB);
+    IDASetUserDataB(ida_mem, idxB, bckPb);
+
+    if (res_s) IDAInitBS(ida_mem, idxB, mxW_IDAResBS, tB0, yyB, ypB);
+    else       IDAInitB(ida_mem, idxB, mxW_IDAResB, tB0, yyB, ypB);
+
+    /* Return idxB */
+
+    plhs[0] = mxCreateScalarDouble((double)idxB);
+
+    indexB = idxB;
+
+    NbckPb++;
+
     break;
+
   case 1:
-    status = IDAReInitB(idaadj_mem, tB0, yyB, ypB, itolB, reltolB, abstolB);
+
+    IDAReInitB(ida_mem, idxB, tB0, yyB, ypB);
+
+    break;
+
+  }
+
+  /*
+   * ----------------------------------------
+   * Set tolerances
+   * ----------------------------------------
+   */
+
+  switch (itolB) {
+  case IDA_SS:
+    IDASStolerancesB(ida_mem, idxB, reltolB, SabstolB);
+    break;
+  case IDA_SV:
+    NV_abstolB = N_VClone(yyB);
+    PutData(NV_abstolB, VabstolB, NB);
+    IDASVtolerancesB(ida_mem, idxB, reltolB, NV_abstolB);
+    N_VDestroy(NV_abstolB);
     break;
   }
 
-  if (itolB == IDA_SV) {
-    N_VDestroy(NV_abstolB);
+  /*
+   * --------------------------------
+   * Set various optional inputs
+   * --------------------------------
+   */
+
+  /* set maxorder (default is consistent with LMM) */
+  IDASetMaxOrdB(ida_mem, idxB, maxordB);
+
+  /* set initial step size (the default value of 0.0 is ignored by IDAS) */
+  IDASetInitStepB(ida_mem, idxB, hinB);
+
+  /* set max step (default is infinity) */
+  IDASetMaxStepB(ida_mem, idxB, hmaxB);
+
+  /* set number of max steps */
+  IDASetMaxNumStepsB(ida_mem, idxB, mxstepsB);
+
+  /* set suppressAlg */
+  IDASetSuppressAlgB(ida_mem, idxB, suppressB);
+
+  /* ID vector specified? */
+  if (idB != NULL) {
+    NV_idB = N_VClone(yyB);
+    PutData(NV_idB, idB, NB);
+    IDASetIdB(ida_mem, idxB, NV_idB);
+    N_VDestroy(NV_idB);
   }
 
-  status = IDASetMaxOrdB(idaadj_mem, maxordB);
+  /*
+   * ----------------------------------------
+   * Linear solver
+   * ----------------------------------------
+   */
 
-  status = IDASetInitStepB(idaadj_mem, hinB);
+  get_LinSolvOptions(options, bckPb, FALSE,
+                     &mupperB, &mlowerB,
+                     &mudqB, &mldqB, &dqrelyB,
+                     &gstypeB, &maxlB);
 
-  status = IDASetMaxStepB(idaadj_mem, hmaxB);
+  switch(lsB) {
 
-  status = IDASetMaxNumStepsB(idaadj_mem, mxstepsB);
+  case LS_DENSE:
 
-  if ( idm_quadB ) {
-    
-    status = get_QuadOptions(prhs[4], FALSE,
-                             &yQB0, &errconQB, 
-                             &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
+    IDADenseB(ida_mem, idxB, NB);
+    if (!mxIsEmpty(mtlb_JACfctB)) IDADlsSetDenseJacFnB(ida_mem, idxB, mxW_IDADenseJacB);
 
-    if(status)
-      mexErrMsgTxt("IDAMallocB:: illegal quadrature input.");      
+    break;
 
-    if (action == 0) yQB = NewVector(NqB);
-    PutData(yQB, yQB0, NqB);
+  case LS_BAND:
 
-    switch (action) {
-    case 0:
-      status = IDAQuadMallocB(idaadj_mem, mtlb_IdaQuadFctB, yQB);
+    IDABandB(ida_mem, idxB, NB, mupperB, mlowerB);
+    if (!mxIsEmpty(mtlb_JACfctB)) IDADlsSetBandJacFnB(ida_mem, idxB, mxW_IDABandJacB);
+
+    break;
+
+  case LS_SPGMR:
+
+    IDASpgmrB(ida_mem, idxB, maxlB);
+    IDASpilsSetGSTypeB(ida_mem, idxB, gstypeB);
+
+    break;
+
+  case LS_SPBCG:
+
+    IDASpbcgB(ida_mem, idxB, maxlB);
+
+    break;
+
+  case LS_SPTFQMR:
+
+    IDASptfqmrB(ida_mem, idxB, maxlB);
+
+    break;
+
+  }
+
+  /* Jacobian * vector and preconditioner for SPILS linear solvers */
+
+  if ( (lsB==LS_SPGMR) || (lsB==LS_SPBCG) || (lsB==LS_SPTFQMR) ) {
+
+    if (!mxIsEmpty(mtlb_JACfctB)) IDASpilsSetJacTimesVecFnB(ida_mem, idxB, mxW_IDASpilsJacB);
+
+    switch (pmB) {
+
+    case PM_NONE:
+
+      if (!mxIsEmpty(mtlb_PSOLfctB)) {
+        if (!mxIsEmpty(mtlb_PSETfctB)) IDASpilsSetPreconditionerB(ida_mem, idxB, mxW_IDASpilsPsetB, mxW_IDASpilsPsolB);
+        else                           IDASpilsSetPreconditionerB(ida_mem, idxB, NULL, mxW_IDASpilsPsolB);
+      }
+
       break;
-    case 1:
-      status = IDAQuadReInitB(idaadj_mem, yQB);
+
+    case PM_BBDPRE:
+
+      if (!mxIsEmpty(mtlb_GCOMfctB)) IDABBDPrecInitB(ida_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_IDABBDglocB, mxW_IDABBDgcomB);
+      else                           IDABBDPrecInitB(ida_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_IDABBDglocB, NULL);
+
+      break;
+
+    }
+
+  }
+
+  /* Do we monitor? */
+
+  if (monB) mxW_IDAMonitorB(0, idxB, tB0, NULL, NULL, bckPb);
+
+  return(0);
+}
+
+/* IDM_QuadInitializationB
+ *
+ * action = 0   -> IDAQuadInitB
+ * prhs contains:
+ *   idxB
+ *   fQB
+ *   yQB0
+ *   options
+ *
+ * action = 1   -> IDAQuadReInitB
+ *   idxB
+ *   yQB0
+ *   options
+ *
+ */
+
+static int IDM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+  idmPbData bckPb;
+
+  const mxArray *options;
+
+  int idxB;
+
+  double *yQB0;
+
+  booleantype rhs_s;
+  
+  booleantype errconQB;
+  int itolQB;
+  realtype reltolQB, SabstolQB, *VabstolQB;
+  N_Vector NV_abstolQB;
+
+  booleantype found_bck;
+
+  /* Extract index of current backward problem */
+    
+  idxB = (int)mxGetScalar(prhs[0]);
+
+  /* Find current backward problem */
+
+  found_bck = FALSE;
+  bckPb = idmData->bckPb;
+  while (bckPb != NULL) {
+    if (indexB == idxB) {
+      found_bck = TRUE;
       break;
     }
+    bckPb = bckPb->next;
+  }
+
+  if (!found_bck) idmErrHandler(-999, "IDAS", "IDAQuadInitB/IDAQuadReInitB",
+                                "idxB has an illegal value.", NULL);
+
+  /* 
+   * ------------------------------------
+   * Process inputs based on action
+   * ------------------------------------
+   */
+
+  switch (action) {
+
+  case 0:     /* BACKWARD QUADRATURE INITIALIZATION */
+
+    /* Extract user-provided quadrature RHS function */
+
+    mxDestroyArray(mtlb_QUADfctB);
+    mtlb_QUADfctB = mxDuplicateArray(prhs[1]);
+
+    /* Extract quadrature final conditions */
+
+    yQB0 = mxGetPr(prhs[2]);
+    NqB = mxGetM(prhs[2]);
+
+    /* Create the backward quadrature N_Vector */
+
+    yQB = NewVector(NqB);
+
+    /* Load quadrature final conditions */
+
+    PutData(yQB, yQB0, NqB);
+
+    /* Extract quadrature options structure */
+
+    options = prhs[3];
+
+    break;
+
+  case 1:     /* BACKWARD QUADRATURE RE-INITIALIZATION */
+
+
+    /* Extract quadrature final conditions */
+
+    yQB0 = mxGetPr(prhs[1]);
+
+    if (mxGetM(prhs[1]) != NqB) idmErrHandler(-999, "IDAS", "IDAQuadReInitB",
+                                              "Size of yQB0 changed from IDAQuadInitB call.", NULL);
+
+    /* Load quadrature final conditions */
+
+    PutData(yQB, yQB0, NqB);
+
+    /* Extract quadrature options structure */
+
+    options = prhs[2];
+
+    break;
+
+  }
+
+  /* Process the options structure */
+
+  get_QuadOptions(options, bckPb, FALSE,
+                  NqB, &rhs_s,
+                  &errconQB, 
+                  &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
+
+  /* 
+   * ----------------------------------------
+   * Call appropriate IDAS functions
+   *
+   * If action = 0
+   *    Initialize backward quadratures
+   * If action = 1
+   *    Reinitialize backward quadratures
+   * ----------------------------------------
+   */
+
+  switch (action) {
+  case 0:
+    if (rhs_s) IDAQuadInitBS(ida_mem, idxB, mxW_IDAQuadFctBS, yQB);
+    else       IDAQuadInitB(ida_mem, idxB, mxW_IDAQuadFctB, yQB);
+    break;
+  case 1:
+    IDAQuadReInitB(ida_mem, idxB, yQB);
+    break;
+  }
+
+  /*
+   * ----------------------------------------
+   * Set tolerances for quadrature variables
+   * ----------------------------------------
+   */
+  
+  IDASetQuadErrConB(ida_mem, idxB, errconQB);
+
+  if (errconQB) {
 
     switch (itolQB) {
     case IDA_SS:
-      abstolQB = (void *) &SabstolQB;
+      IDAQuadSStolerancesB(ida_mem, idxB, reltolQB, SabstolQB);
       break;
     case IDA_SV:
       NV_abstolQB = N_VClone(yQB);
       PutData(NV_abstolQB, VabstolQB, NqB);
-      abstolQB = (void *) NV_abstolQB;
-      break;
-    }
-
-    status = IDASetQuadErrConB(idaadj_mem, errconQB, itolQB, reltolQB, abstolQB);
-
-    if (itolQB == IDA_SV) {
+      IDAQuadSVtolerancesB(ida_mem, idxB, reltolQB, NV_abstolQB);
       N_VDestroy(NV_abstolQB);
+      break;
     }
-
+    
   }
 
-  status = get_LinSolvOptions(prhs[4], FALSE,
-                              &mupperB, &mlowerB,
-                              &mudqB, &mldqB,
-                              &gstypeB, &maxlB);
-  
-  switch(lsB) {
-  case LS_DENSE:
-    status = IDADenseB(idaadj_mem, NB);
-    if (!mxIsEmpty(mx_JACfctB))
-      status = IDADlsSetJacFnB(idaadj_mem, mtlb_IdaDenseJacB, NULL);
-    break;
-  case LS_BAND:
-    status = IDABandB(idaadj_mem, NB, mupperB, mlowerB);
-    if (!mxIsEmpty(mx_JACfctB))
-      status = IDADlsSetJacFnB(idaadj_mem, mtlb_IdaBandJacB, NULL);
-    break;
-  case LS_SPGMR:
-    switch (pmB) {
-    case PM_NONE:
-      status = IDASpgmrB(idaadj_mem, maxlB);
-      if (!mxIsEmpty(mx_PSOLfctB)) {
-        if (!mxIsEmpty(mx_PSETfctB))
-          status = IDASpilsSetPreconditionerB(idaadj_mem, mtlb_IdaSpilsPsetB, mtlb_IdaSpilsPsolB, NULL);
-        else
-          status = IDASpilsSetPreconditionerB(idaadj_mem, NULL, mtlb_IdaSpilsPsolB, NULL);
-      }
-      break;
-    case PM_BBDPRE:
-      if (!mxIsEmpty(mx_GCOMfctB)) {
-        status = IDABBDPrecAllocB(idaadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_IdaBBDglocB, mtlb_IdaBBDgcomB);
-      } else {
-        status = IDABBDPrecAllocB(idaadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_IdaBBDglocB, NULL);
-      }
-      IDABBDSpgmrB(idaadj_mem, maxlB);
-      break;
-    }
-    status = IDASpilsSetGSTypeB(idaadj_mem, gstypeB);
-    if (!mxIsEmpty(mx_JACfctB))
-      status = IDASpilsSetJacTimesVecFnB(idaadj_mem, mtlb_IdaSpilsJacB, NULL);
-    break;
-  case LS_SPBCG:
-    switch (pmB) {
-    case PM_NONE:
-      status = IDASpbcgB(idaadj_mem, maxlB);
-      if (!mxIsEmpty(mx_PSOLfctB)) {
-        if (!mxIsEmpty(mx_PSETfctB))
-          status = IDASpilsSetPreconditionerB(idaadj_mem, mtlb_IdaSpilsPsetB, mtlb_IdaSpilsPsolB, NULL);
-        else
-          status = IDASpilsSetPreconditionerB(idaadj_mem, NULL, mtlb_IdaSpilsPsolB, NULL);
-      }
-      break;
-    case PM_BBDPRE:
-      if (!mxIsEmpty(mx_GCOMfctB)) {
-        status = IDABBDPrecAllocB(idaadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_IdaBBDglocB, mtlb_IdaBBDgcomB);
-      } else {
-        status = IDABBDPrecAllocB(idaadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_IdaBBDglocB, NULL);
-      }
-      IDABBDSpbcgB(idaadj_mem, maxlB);
-      break;
-    }
-    if (!mxIsEmpty(mx_JACfctB))
-      status = IDASpilsSetJacTimesVecFnB(idaadj_mem, mtlb_IdaSpilsJacB, NULL);
-    break;
-  case LS_SPTFQMR:
-    switch (pmB) {
-    case PM_NONE:
-      status = IDASptfqmrB(idaadj_mem, maxlB);
-      if (!mxIsEmpty(mx_PSOLfctB)) {
-        if (!mxIsEmpty(mx_PSETfctB))
-          status = IDASpilsSetPreconditionerB(idaadj_mem, mtlb_IdaSpilsPsetB, mtlb_IdaSpilsPsolB, NULL);
-        else
-          status = IDASpilsSetPreconditionerB(idaadj_mem, NULL, mtlb_IdaSpilsPsolB, NULL);
-      }
-      break;
-    case PM_BBDPRE:
-      if (!mxIsEmpty(mx_GCOMfctB)) {
-        status = IDABBDPrecAllocB(idaadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_IdaBBDglocB, mtlb_IdaBBDgcomB);
-      } else {
-        status = IDABBDPrecAllocB(idaadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_IdaBBDglocB, NULL);
-      }
-      IDABBDSptfqmrB(idaadj_mem, maxlB);
-      break;
-    }
-    if (!mxIsEmpty(mx_JACfctB))
-      status = IDASpilsSetJacTimesVecFnB(idaadj_mem, mtlb_IdaSpilsJacB, NULL);
-    break;
-  }
+  quadrB = TRUE;
 
   return(0);
 }
-*/
 
 static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
+  idmPbData fwdPb;
+
   double tout;
   int buflen, status, icopt;
   char *bufval;
+
+
+  fwdPb = idmData->fwdPb;
+
 
   /* Extract tout */
   tout = (double) mxGetScalar(prhs[0]);
@@ -1075,285 +1878,527 @@ static int IDM_CalcICB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
 static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  double tout, tret;
-  int buflen, status, itask;
-  /*
-  double *yySdata, *ypSdata;
-  int is;
-  */
+  idmPbData fwdPb;
+
+  int buflen;
   char *bufval;
 
-  int itask1;
-  booleantype iret;
-  double h;
+  int nlhs_needed, dims[3];
+
+  int itask, is, Ntout, itout, status, s_idx;
+  double *tout, tret, h;
+  double *tdata, *yydata, *yQdata, *yySdata;
   long int nst;
 
+
+  fwdPb = idmData->fwdPb;
+
+
+  /*
+   * ----------------------------------------------------------------
+   * Verify if number of output arguments agrees with current options
+   * ----------------------------------------------------------------
+   */
+
+  nlhs_needed = 3;
+
+  if (quadr) nlhs_needed++;
+  if (fsa)   nlhs_needed++;
+
+  if (nlhs < nlhs_needed) idmErrHandler(-999, "IDAS", "IDASolve",
+                                        "Too few output arguments.", NULL);
+  if (nlhs > nlhs_needed) idmErrHandler(-999, "IDAS", "IDASolve",
+                                        "Too many output arguments.", NULL);
+
+  /*
+   * ----------------------------------------------------------------
+   * Extract input arguments
+   * ----------------------------------------------------------------
+   */
+
   /* Extract tout */
-  tout = (double)mxGetScalar(prhs[0]);
+
+  Ntout = mxGetM(prhs[0]) * mxGetN(prhs[0]);
+  tout = mxGetPr(prhs[0]);
+
+  /* If rootfinding or tstop are enabled, we do not allow multiple output times */
+
+  if (rootSet && (Ntout>1)) idmErrHandler(-999, "IDAS", "IDASolve",
+                                          "More than one tout value prohibited with rootfinding enabled.", NULL);
+
+  if (tstopSet && (Ntout>1)) idmErrHandler(-999, "IDAS", "IDASolve",
+                                           "More than one tout value prohibited with tstop enabled.", NULL);
 
   /* Extract itask */
-  itask = -1;
+
   buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
   bufval = mxCalloc(buflen, sizeof(char));
   status = mxGetString(prhs[1], bufval, buflen);
   if(!strcmp(bufval,"Normal")) itask = IDA_NORMAL;
   else if(!strcmp(bufval,"OneStep")) itask = IDA_ONE_STEP;
-  else if(!strcmp(bufval,"NormalTstop")) itask = IDA_NORMAL_TSTOP;
-  else if(!strcmp(bufval,"OneStepTstop")) itask = IDA_ONE_STEP_TSTOP;
+  else idmErrHandler(-999, "IDAS", "IDASolve",
+                     "Illegal value for itask.", NULL); 
 
-  /* Call IDA */
 
-  if (!idm_mon) {
 
-    status = IDASolve(ida_mem, tout, &tret, yy, yp, itask);
-    /*
-    if (!idm_asa)
-      status = IDASolve(ida_mem, tout, &tret, yy, yp, itask);
-    else
-      status = IDASolveF(idaadj_mem, tout, &tret, yy, yp, itask, &Nc);
-    */
+  if (itask==IDA_ONE_STEP) {
+
+    /* If itask==IDA_ONE_STEP, we do not allow multiple output times and we do not monitor */
+
+    if (Ntout>1) idmErrHandler(-999, "IDAS", "IDASolve",
+                               "More than one tout value prohibited in ONE_STEP mode.", NULL); 
+
+    if (mon) {
+      idmErrHandler(+999, "IDAS", "IDASolve",
+                    "Monitoring disabled in ONE_STEP mode.", NULL);
+      mon = FALSE;
+    }
 
   } else {
 
-    /* Get step number and, at nst=0, initialize monitoring */
-    IDAGetNumSteps(ida_mem, &nst);
+    /* Check if tout values are legal */
+
     IDAGetCurrentTime(ida_mem, &tret);
-    if (nst==0) mtlb_IdaMonitor(1, tret, yy, yp, yQ, yyS, ypS); 
+    IDAGetNumSteps(ida_mem, &nst);
 
-    if      (itask == IDA_NORMAL)         {iret = FALSE; itask1 = IDA_ONE_STEP;}
-    else if (itask == IDA_ONE_STEP)       {iret = TRUE;  itask1 = IDA_ONE_STEP;}
-    else if (itask == IDA_NORMAL_TSTOP)   {iret = FALSE; itask1 = IDA_ONE_STEP_TSTOP;}
-    else if (itask == IDA_ONE_STEP_TSTOP) {iret = TRUE;  itask1 = IDA_ONE_STEP_TSTOP;}
+    /* h is used throughout this function as integration direction only */
+    if (nst == 0) {
+      h = tout[0] - tret;
+    } else {
+      IDAGetLastStep(ida_mem, &h);
+      if ( (tout[0] - tret + h)*h < 0.0 ) idmErrHandler(-999, "IDAS", "IDASolve",
+                                                        "Illegal value of tout.", NULL);
+    }
     
-    while(1) {
-      
-      status = IDASolve(ida_mem, tout, &tret, yy, yp, itask1);
-      /*
-      if (!idm_asa)
-        status = IDASolve(ida_mem, tout, &tret, yy, yp, itask1);
-      else
-        status = IDASolveF(idaadj_mem, tout, &tret, yy, yp, itask1, &Nc);
-      */
-
-      /* break on IDA error */
-      if (status < 0) break;   
-      
-      /* In NORMAL_MODE test if tout was reached */
-      if (!iret) {
-        IDAGetCurrentStep(ida_mem, &h);
-        if ( (tret - tout)*h >= 0.0 ) {
-          tret = tout;
-          IDAGetSolution(ida_mem, tout, yy, yp);
-          iret = TRUE;
-        }
-      }
-
-      /* If root or tstop return, we'll need to break */
-      if (status != IDA_SUCCESS) iret = TRUE; 
-
-      /*
-      if (idm_quad)
-        status = IDAGetQuad(ida_mem, tret, yQ);
-      */
-
-      /*
-      if (idm_fsa)
-        status = IDAGetSens(ida_mem, tret, yyS, ypS);
-      */
-
-      /* Call the monitoring function */
-      mtlb_IdaMonitor(0, tret, yy, yp, yQ, yyS, ypS);
-
-      /* break if we need to */
-      if(iret)  break;
-      
-    };
+    for (itout=1; itout<Ntout; itout++) 
+      if ( (tout[itout] - tout[itout-1])*h < 0.0 ) idmErrHandler(-999, "IDAS", "IDASolve",
+                                                                 "tout values are not monotonic.", NULL);
 
   }
 
-  /* IDA return flag */
-  plhs[0] = mxCreateScalarDouble((double)status);
-
-  /* Return time */
-  plhs[1] = mxCreateScalarDouble(tret);
-
-  /* Solution vectors */
-  plhs[2] = mxCreateDoubleMatrix(N,1,mxREAL);
-  GetData(yy, mxGetPr(plhs[2]), N);
-  plhs[3] = mxCreateDoubleMatrix(N,1,mxREAL);
-  GetData(yp, mxGetPr(plhs[3]), N);
-
-  if (nlhs == 4) return(0);
 
   /*
-  if (nlhs == 5) {
+   * ----------------------------------------------------------------
+   * Prepare the output arrays
+   * ----------------------------------------------------------------
+   */
 
-    if (idm_quad) {
-      plhs[4] = mxCreateDoubleMatrix(Nq,1,mxREAL);
-      status = IDAGetQuad(ida_mem, tret, yQ);
-      GetData(yQ, mxGetPr(plhs[4]), Nq);
-      return(0);
-    } else {
-      mexErrMsgTxt("IDA:: incorrect number of outputs for IDASolve.");
-      return(1);
-    }
+  /* Return time(s) */
 
+  plhs[1] = mxCreateDoubleMatrix(1,Ntout,mxREAL);
+  tdata = mxGetPr(plhs[1]);
+
+  /* Solution vector(s) */
+
+  plhs[2] = mxCreateDoubleMatrix(N,Ntout,mxREAL);
+  yydata = mxGetPr(plhs[2]);
+
+  /* Quadrature vector(s) */
+
+  if (quadr) {
+    plhs[3] = mxCreateDoubleMatrix(Nq,Ntout,mxREAL);
+    yQdata = mxGetPr(plhs[3]);
   }
 
-  if (nlhs == 6) {
+  /* Sensitivity vectors */
 
-    if (idm_quad) {
-      mexErrMsgTxt("IDA:: incorrect number of outputs for IDASolve.");
-      return(1);
-    } 
-    if (idm_fsa) {
-      plhs[4] = mxCreateDoubleMatrix(N,Ns,mxREAL);
-      plhs[5] = mxCreateDoubleMatrix(N,Ns,mxREAL);
-      yySdata = mxGetPr(plhs[4]);
-      ypSdata = mxGetPr(plhs[5]);
-      status = IDAGetSens(ida_mem, tret, yyS, ypS);
-      for (is=0; is<Ns; is++) {
-        GetData(yyS[is], &yySdata[is*N], N);
-        GetData(ypS[is], &ypSdata[is*N], N);
+  if (fsa) {
+    s_idx = quadr ? 4 : 3;
+    dims[0] = N;
+    dims[1] = Ns;
+    dims[2] = Ntout;
+    plhs[s_idx] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL);
+    yySdata = mxGetPr(plhs[s_idx]);
+  }
+
+  /*
+   * ----------------------------------------------------------------
+   * Call the IDAS main solver function
+   * ----------------------------------------------------------------
+   */
+
+  if (!mon) {
+
+    /* No monitoring. itask can be either IDA_ONE_STEP or IDA_NORMAL */
+
+    for (itout=0; itout<Ntout; itout++) {
+
+      if (!asa) {
+        status = IDASolve(ida_mem, tout[itout], &tret, yy, yp, itask);
+      } else {
+        status = IDASolveF(ida_mem, tout[itout], &tret, yy, yp, itask, &Nc);
       }
-      return(0);
-    } else {
-      mexErrMsgTxt("IDA:: incorrect number of outputs for IDASolve.");
-      return(1);
+
+      tdata[itout] = tret;
+
+      GetData(yy, &yydata[itout*N], N);
+
+      if (quadr) {
+        IDAGetQuad(ida_mem, &tret, yQ);
+        GetData(yQ, &yQdata[itout*Nq], Nq);
+      }
+
+      if (fsa) {
+        IDAGetSens(ida_mem, &tret, yyS);
+        for (is=0; is<Ns; is++)
+          GetData(yyS[is], &yySdata[itout*Ns*N+is*N], N);
+      }
+
+    }
+
+  } else {
+
+    /* Monitoring. itask = IDA_NORMAL */
+
+    for (itout=0; itout<Ntout; itout++) {
+      
+      /* In ONE_STEP mode, IDAS reads tout only at the first step.
+       * We must therefore check here whether we need to take additional steps,
+       * or simply return interpolated solution at tout. */
+
+      IDAGetNumSteps(ida_mem, &nst);
+      IDAGetCurrentTime(ida_mem, &tret);
+
+      if ( (nst>0) && ((tret - tout[itout])*h >= 0.0) ) {
+
+        /* No need to take an additional step */
+        status = IDA_SUCCESS;
+
+      } else {
+
+        /* Take additional steps */
+        while(1) {
+
+          if (!asa) status = IDASolve(ida_mem, tout[itout], &tret, yy, yp, IDA_ONE_STEP);
+          else      status = IDASolveF(ida_mem, tout[itout], &tret, yy, yp, IDA_ONE_STEP, &Nc);
+
+          /* Call the monitoring function */
+          if (quadr) IDAGetQuad(ida_mem, &tret, yQ);
+          if (fsa)   IDAGetSens(ida_mem, &tret, yyS);
+          mxW_IDAMonitor(1, tret, yy, yQ, yyS, fwdPb);
+
+          /* If a root was found or tstop was reached, break out of while loop */
+          if (status == IDA_TSTOP_RETURN || status == IDA_ROOT_RETURN) break;
+
+          /* If current tout was reached break out of while loop */
+          if ( (tret - tout[itout])*h >= 0.0 )  break;
+
+        }
+
+      }
+      
+      /* On a tstop or root return, return solution at tret.
+       * Otherwise (status=IDA_SUCCESS), return solution at tout[itout]. */
+
+      if (status == IDA_TSTOP_RETURN || status == IDA_ROOT_RETURN) {
+
+        if (quadr) IDAGetQuad(ida_mem, &tret, yQ);
+
+        if (fsa)   IDAGetSens(ida_mem, &tret, yyS);
+
+      } else {
+
+        tret = tout[itout];
+        
+        IDAGetDky(ida_mem, tret, 0, yy);
+
+        if (quadr) IDAGetQuadDky(ida_mem, tret, 0, yQ);
+
+        if (fsa)   IDAGetSensDky(ida_mem, tret, 0, yyS);
+
+      }
+
+      tdata[itout] = tret;
+
+      GetData(yy, &yydata[itout*N], N);
+
+      if (quadr)  GetData(yQ, &yQdata[itout*Nq], Nq);
+
+      if (fsa)
+        for (is=0; is<Ns; is++)
+          GetData(yyS[is], &yySdata[itout*Ns*N+is*N], N);
+
     }
 
   }
 
-  if (nlhs == 7) {
+  /* IDASolve return flag */
 
-    if ( (!idm_quad) || (!idm_fsa) ) {
-      mexErrMsgTxt("IDA:: incorrect number of outputs for IDASolve.");
-      return(1);
-    }
+  plhs[0] = mxCreateScalarDouble((double)status);
 
-    plhs[4] = mxCreateDoubleMatrix(Nq,1,mxREAL);
-    status = IDAGetQuad(ida_mem, tret, yQ);
-    GetData(yQ, mxGetPr(plhs[4]), Nq);
-
-    plhs[5] = mxCreateDoubleMatrix(N,Ns,mxREAL);
-    plhs[6] = mxCreateDoubleMatrix(N,Ns,mxREAL);
-    yySdata = mxGetPr(plhs[5]);
-    ypSdata = mxGetPr(plhs[6]);
-    status = IDAGetSens(ida_mem, tret, yyS, ypS);
-    for (is=0; is<Ns; is++) {
-      GetData(yyS[is], &yySdata[is*N], N);
-      GetData(ypS[is], &ypSdata[is*N], N);
-    }
-    return(0);
-  }
-  */
-
-  mexErrMsgTxt("IDA:: incorrect number of outputs for IDASolve.");
-  return(1);
-
-}
-
-
-static int IDM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
   return(0);
+
 }
-/*
+
+
 static int IDM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  double toutB, tretB;
-  int itaskB;
-  double *tmp;
-  int buflen, status, i;
+  idmPbData bckPb;
+
+  int buflen;
   char *bufval;
 
-  void *ida_memB;
-  booleantype iretB;
-  double hB;
+  int nlhs_bad;
 
+  int itaskB, NtoutB, status;
+  double *toutB;
 
-  toutB = (double)mxGetScalar(prhs[0]);
+  double tret, h;
+
+  booleantype any_quadrB, any_monB;
+
+  /*
+   * -------------------------------------------------------
+   * Check whether quadratures and/or monitoring are enabled
+   * for at least one backward problem
+   * -------------------------------------------------------
+   */
+
+  any_quadrB = FALSE;
+  any_monB   = FALSE;
+  bckPb = idmData->bckPb;
+  while(bckPb != NULL) {
+    if (quadrB) any_quadrB = TRUE;
+    if (monB)   any_monB   = TRUE;
+    bckPb = bckPb->next;
+  }
+  
+  /*
+   * ----------------------------------------------------------------
+   * Verify if number of output arguments agrees with current options
+   * ----------------------------------------------------------------
+   */
+
+  nlhs_bad = 0;
+
+  if (nlhs < 3) nlhs_bad = -1;
+  if (nlhs > 4) nlhs_bad = 1;
+  if ( (nlhs == 3) && any_quadrB ) nlhs_bad = -1;
+
+  if (nlhs_bad < 0) idmErrHandler(-999, "IDAS", "IDASolveB",
+                                  "Too few output arguments.", NULL);
+  if (nlhs_bad > 0) idmErrHandler(-999, "IDAS", "IDASolveB",
+                                  "Too many output arguments.", NULL);
+
+  /*
+   * ----------------------------------------------------------------
+   * Extract input arguments
+   * ----------------------------------------------------------------
+   */
+
+  /* Extract tout */
+
+  NtoutB = mxGetM(prhs[0]) * mxGetN(prhs[0]);
+  toutB = mxGetPr(prhs[0]);
+
+  /* Check if first tout value is in the right direction */
+
+  IDAGetLastStep(ida_mem, &h);
+  IDAGetCurrentTime(ida_mem, &tret);
+
+  /* The stepsize of the forward problem is used to indicate the integration direction */
+  if ( (tret - toutB[0])*h < 0.0 ) idmErrHandler(-999, "IDAS", "IDASolveB",
+                                                 "tout value in wrong direction.", NULL);
+  
+  /* Extract itaskB */
 
   buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
   bufval = mxCalloc(buflen, sizeof(char));
   status = mxGetString(prhs[1], bufval, buflen);
   if(!strcmp(bufval,"Normal"))       itaskB = IDA_NORMAL;
   else if(!strcmp(bufval,"OneStep")) itaskB = IDA_ONE_STEP;
-  else status = -1;
+  else idmErrHandler(-999, "IDAS", "IDASolveB",
+                     "Illegal value for itask.", NULL); 
 
-  if (!idm_monB) {
+  /* If itask == IDA_ONE_STEP, then
+   * - we do not allow multiple output times
+   * - we disable monitoring 
+   */
 
-    status = IDAsolveB(idaadj_mem, toutB, &tretB, yyB, ypB, itaskB);
+  if ( itaskB == IDA_ONE_STEP ) {
+    
+    if (NtoutB > 1) idmErrHandler(-999, "IDAS", "IDASolveB",
+                                  "More than one tout value prohibited in ONE_STEP mode.", NULL); 
 
-  } else {
-
-    ida_memB = IDAadjGetIDABmem(idaadj_mem);
-    IDAGetNumSteps(ida_memB, &nstB);
-    IDAGetCurrentTime(ida_memB, &tretB);
-    if (nstB==0) mtlb_IdaMonitorB(1, tretB, yyB, ypB, yQB);
-
-    if      (itaskB == IDA_NORMAL)   iretB = FALSE;
-    else if (itaskB == IDA_ONE_STEP) iretB = TRUE;
-
-    while(1) {
-
-      status = IDASolveB(idaadj_mem, toutB, &tretB, yyB, ypB, IDA_ONE_STEP);
-
-      if (status < 0) break;   
-      
-      if (!iretB) {
-        IDAGetCurrentStep(ida_memB, &hB);
-        if ( (tretB - toutB)*hB >= 0.0 ) {
-          tretB = toutB;
-          IDAGetSolution(ida_memB, toutB, yyB, ypB);
-          iretB = TRUE;
-        }
+    if (any_monB) {
+      idmErrHandler(+999, "IDAS", "IDASolveB",
+                    "Monitoring disabled in itask=ONE_STEP", NULL);
+      bckPb = idmData->bckPb;
+      while(bckPb != NULL) {
+        monB = FALSE;
+        bckPb = bckPb->next;
       }
-
-      if (idm_quadB)
-        status = IDAGetQuadB(idaadj_mem, tretB, yQB);
-
-      mtlb_IdaMonitorB(0, tretB, yyB, ypB, yQB);
-
-      if(iretB)  break;
-
-    };
-
-  }
-
-  plhs[0] = mxCreateScalarDouble((double)status);
-
-  plhs[1] = mxCreateScalarDouble(tretB);
-
-  plhs[2] = mxCreateDoubleMatrix(NB,1,mxREAL);
-  GetData(yyB, mxGetPr(plhs[2]), NB);
-  plhs[3] = mxCreateDoubleMatrix(NB,1,mxREAL);
-  GetData(ypB, mxGetPr(plhs[3]), NB);
-
-  if (nlhs == 4) return(0);
-
-  if (nlhs == 5) {
-    if (idm_quadB) {
-      plhs[4] = mxCreateDoubleMatrix(NqB,1,mxREAL);
-      status = IDAGetQuadB(idaadj_mem, yQB);
-      GetData(yQB, mxGetPr(plhs[4]), NqB);
-      return;
-    } else {
-      mexErrMsgTxt("IDA:: incorrect number of outputs for IDASolveB.");
-      return;
+      any_monB = FALSE;
     }
+
   }
 
-  mexErrMsgTxt("IDA:: incorrect number of outputs for IDASolveB.");
-  return(1);
+  if (NbckPb == 1) idmSolveB_one(plhs, NtoutB, toutB, itaskB);
+  else             idmSolveB_more(plhs, NtoutB, toutB, itaskB, any_quadrB, any_monB);
+
+  return(0);
 }
 
-*/
+static void idmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB)
+{
+  idmPbData bckPb;
+  
+  void *ida_memB;
+
+  double tretB, hB;
+  double *tdata, *ydata, *yQdata;
+  int itout, status;
+  long int nstB;
+
+  bckPb = idmData->bckPb;
+
+  ida_memB = IDAGetAdjIDABmem(ida_mem, indexB);
+
+  /* Check if tout values are legal */
+
+  IDAGetCurrentTime(ida_memB, &tretB);
+  IDAGetNumSteps(ida_memB, &nstB);
+
+  /* hB is used throughout this function as integration direction only */
+  if (nstB == 0) {
+    hB = toutB[0] - tretB;
+  } else {
+    IDAGetLastStep(ida_memB, &hB);
+    if ( (toutB[0] - tretB + hB)*hB < 0.0 ) idmErrHandler(-999, "IDAS", "IDASolveB",
+                                                          "Illegal value of tout.", NULL);
+  }
+
+  for (itout=1; itout<NtoutB; itout++) 
+    if ( (toutB[itout] - toutB[itout-1])*hB < 0.0 ) idmErrHandler(-999, "IDAS", "IDASolveB",
+                                                                  "tout values are not monotonic.", NULL);
+
+  /*
+   * ----------------------------------------------------------------
+   * Prepare the output arrays
+   * ----------------------------------------------------------------
+   */
+
+  /* Return time(s) */
+
+  plhs[1] = mxCreateDoubleMatrix(1,NtoutB,mxREAL);
+  tdata = mxGetPr(plhs[1]);
+  
+  /* Solution vector(s) */
+  
+  plhs[2] = mxCreateDoubleMatrix(NB,NtoutB,mxREAL);
+  ydata = mxGetPr(plhs[2]);
+  
+  /* Quadrature vector(s) */
+  
+  if (quadrB) {
+    plhs[3] = mxCreateDoubleMatrix(NqB,NtoutB,mxREAL);
+    yQdata = mxGetPr(plhs[3]);
+  }
+  
+  /*
+   * ----------------------------------------------------------------
+   * Call the IDASolveB main solver function
+   * ----------------------------------------------------------------
+   */
+
+  if (!monB) {
+
+    /* No monitoring. itaskB can be either IDA_ONE_STEP or IDA_NORMAL */
+
+    for (itout=0; itout<NtoutB; itout++) {
+      
+      status = IDASolveB(ida_mem, toutB[itout], itaskB);
+      
+      IDAGetB(ida_mem, indexB, &tretB, yyB, ypB);
+      
+      tdata[itout] = tretB;
+      
+      GetData(yyB, &ydata[itout*NB], NB);
+      
+      if (quadrB) {
+        IDAGetQuadB(ida_mem, indexB, &tretB, yQB);
+        GetData(yQB, &yQdata[itout*NqB], NqB);
+      }
+      
+    }
+    
+    
+  } else {
+
+    /* Monitoring. itask = IDA_NORMAL */
+
+    for (itout=0; itout<NtoutB; itout++) {
+
+      /* In ONE_STEP mode, IDAS reads tout only at the first step.
+       * We must therefore check here whether we need to take additional steps,
+       * or simply return interpolated solution at tout. */
+
+      IDAGetNumSteps(ida_memB, &nstB);
+      IDAGetCurrentTime(ida_memB, &tretB);
+
+      if ( (nstB>0) && ((tretB - toutB[itout])*hB >= 0.0) ) {
+
+        /* No need to take an additional step */
+        status = IDA_SUCCESS;
+
+      } else {
+
+        /* Take additional steps */
+        while(1) {
+        
+          status = IDASolveB(ida_mem, toutB[itout], IDA_ONE_STEP);
+          
+          /* Call the monitoring function */          
+          IDAGetB(ida_mem, indexB, &tretB, yyB, ypB);
+          if (quadrB) IDAGetQuadB(ida_mem, indexB, &tretB, yQB);
+          mxW_IDAMonitorB(1, indexB, tretB, yyB, yQB, bckPb);
+          
+          /* If current tout was reached break out of while loop */
+          if ( (tretB - toutB[itout])*hB >= 0.0 ) break;
+          
+        }
+
+      }
+
+      tretB = toutB[itout];
+
+      tdata[itout] = tretB;
+
+      IDAGetDky(ida_memB, tretB, 0, yyB);
+
+      GetData(yyB, &ydata[itout*NB], NB);
+      
+      if (quadrB) {
+        IDAGetQuadDky(ida_memB, tretB, 0, yQB);
+        GetData(yQB, &yQdata[itout*NqB], NqB);
+      }
+
+    }
+
+  }
+
+  /* IDASolve return flag */
+
+  plhs[0] = mxCreateScalarDouble((double)status);
+    
+  return;
+}
+
+
+static void idmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itaskB,
+                           booleantype any_quadrB, booleantype any_monB)
+{
+  return;
+}
+
+
 static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
+  idmPbData fwdPb;
+
   const char *fnames_intgr[]={
     "nst",
-    "nre",
+    "nfe",
     "nge",
     "nsetups",
     "netf",
@@ -1377,12 +2422,12 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   const char *fnames_dense[]={
     "name",
     "njeD",
-    "nreD"
+    "nfeD"
   };
   const char *fnames_band[]={
     "name",
     "njeB",
-    "nreB"
+    "nfeB"
   };
   const char *fnames_spils[]={
     "name",
@@ -1391,49 +2436,46 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "nps",
     "ncfl",
     "njeSG",
-    "nreSG"
+    "nfeSG"
   };
-  /*
   const char *fnames_quad[]={
     "nfQe",
     "netfQ"
   };
   const char *fnames_sens[]={
     "nrSe",
-    "nreS",
+    "nfeS",
     "nsetupsS",
     "netfS",
     "nniS",
     "ncfnS",
   };
-  */
 
-  long int nst, nre, nsetups, nni, ncfn, netf, nge;
+  long int nst, nfe, nsetups, nni, ncfn, netf, nge;
   int qlast, qcur;
   double h0used, hlast, hcur, tcur;
   int *rootsfound;
 
-  long int njeD, nreD;
-  long int njeB, nreB;
-  long int nli, npe, nps, ncfl, njeSG, nreSG;
+  long int njeD, nfeD;
+  long int njeB, nfeB;
+  long int nli, npe, nps, ncfl, njeSG, nfeSG;
 
-  /*
   long int nfQe, netfQ;
 
-  long int nrSe, nreS, netfS, nsetupsS;
+  long int nrSe, nfeS, netfS, nsetupsS;
   long int nniS, ncfnS;
-  */
 
   int i, flag;
-  mxArray *mx_root, *mx_ls;
-  /*mxArray *mx_quad, *mx_fsa, *mx_asa;*/
-  mxArray *mx_rootsfound;
+  mxArray *mxS_root, *mxS_ls, *mxS_quad, *mxS_fsa;
+  mxArray *mxS_rootsfound;
   double *tmp;
   int nfields;
 
-  if (idm_Cdata == NULL) return(0);
+  if (idmData == NULL) return(0);
 
-  flag = IDAGetIntegratorStats(ida_mem, &nst, &nre, &nsetups, 
+  fwdPb = idmData->fwdPb;
+
+  flag = IDAGetIntegratorStats(ida_mem, &nst, &nfe, &nsetups, 
                                &netf, &qlast, &qcur, &h0used, &hlast, &hcur, &tcur);
 
   flag = IDAGetNonlinSolvStats(ida_mem, &nni, &ncfn);
@@ -1442,7 +2484,7 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   plhs[0] = mxCreateStructMatrix(1, 1, nfields, fnames_intgr);
  
   mxSetField(plhs[0], 0, "nst",     mxCreateScalarDouble((double)nst));
-  mxSetField(plhs[0], 0, "nre",     mxCreateScalarDouble((double)nre));
+  mxSetField(plhs[0], 0, "nfe",     mxCreateScalarDouble((double)nfe));
   mxSetField(plhs[0], 0, "nsetups", mxCreateScalarDouble((double)nsetups));
   mxSetField(plhs[0], 0, "netf",    mxCreateScalarDouble((double)netf));
   mxSetField(plhs[0], 0, "nni",     mxCreateScalarDouble((double)nni));
@@ -1462,47 +2504,45 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     flag = IDAGetNumGEvals(ida_mem, &nge);
 
     nfields = sizeof(fnames_root)/sizeof(*fnames_root);
-    mx_root = mxCreateStructMatrix(1, 1, nfields, fnames_root);
+    mxS_root = mxCreateStructMatrix(1, 1, nfields, fnames_root);
 
-    mxSetField(mx_root, 0, "nge", mxCreateScalarDouble((double)nge));
+    mxSetField(mxS_root, 0, "nge", mxCreateScalarDouble((double)nge));
 
     rootsfound = (int *) malloc(nge*sizeof(int));
     flag = IDAGetRootInfo(ida_mem, rootsfound);
-    mx_rootsfound = mxCreateDoubleMatrix(Ng,1,mxREAL);
-    tmp = mxGetPr(mx_rootsfound);
+    mxS_rootsfound = mxCreateDoubleMatrix(Ng,1,mxREAL);
+    tmp = mxGetPr(mxS_rootsfound);
     for (i=0;i<Ng;i++)
       tmp[i] = (double)rootsfound[i];
-    mxSetField(mx_root, 0, "roots", mx_rootsfound);
+    mxSetField(mxS_root, 0, "roots", mxS_rootsfound);
 
   } else {
 
-    mx_root = mxCreateDoubleMatrix(0,0,mxREAL);
+    mxS_root = mxCreateDoubleMatrix(0,0,mxREAL);
 
   }
   
-  mxSetField(plhs[0], 0, "RootInfo", mx_root);
+  mxSetField(plhs[0], 0, "RootInfo", mxS_root);
 
   /* Quadrature Statistics */
 
-  /*
-  if (idm_quad) {
+  if (quadr) {
 
     flag = IDAGetQuadStats(ida_mem, &nfQe, &netfQ);
 
     nfields = sizeof(fnames_quad)/sizeof(*fnames_quad);
-    mx_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
+    mxS_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
 
-    mxSetField(mx_quad, 0, "nfQe",  mxCreateScalarDouble((double)nfQe));
-    mxSetField(mx_quad, 0, "netfQ", mxCreateScalarDouble((double)netfQ));
+    mxSetField(mxS_quad, 0, "nfQe",  mxCreateScalarDouble((double)nfQe));
+    mxSetField(mxS_quad, 0, "netfQ", mxCreateScalarDouble((double)netfQ));
 
   } else {
 
-    mx_quad = mxCreateDoubleMatrix(0,0,mxREAL);
+    mxS_quad = mxCreateDoubleMatrix(0,0,mxREAL);
 
   }
   
-  mxSetField(plhs[0], 0, "QuadInfo", mx_quad);
-  */
+  mxSetField(plhs[0], 0, "QuadInfo", mxS_quad);
 
   /* Linear Solver Statistics */
 
@@ -1511,28 +2551,28 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   case LS_DENSE:
     
     flag = IDADlsGetNumJacEvals(ida_mem, &njeD);
-    flag = IDADlsGetNumResEvals(ida_mem, &nreD);
+    flag = IDADlsGetNumResEvals(ida_mem, &nfeD);
     
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
     
-    mxSetField(mx_ls, 0, "name", mxCreateString("Dense"));
-    mxSetField(mx_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
-    mxSetField(mx_ls, 0, "nreD", mxCreateScalarDouble((double)nreD));
+    mxSetField(mxS_ls, 0, "name", mxCreateString("Dense"));
+    mxSetField(mxS_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
+    mxSetField(mxS_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
     
     break;
 
   case LS_BAND:
       
     flag = IDADlsGetNumJacEvals(ida_mem, &njeB);
-    flag = IDADlsGetNumResEvals(ida_mem, &nreB);
+    flag = IDADlsGetNumResEvals(ida_mem, &nfeB);
       
     nfields = sizeof(fnames_band)/sizeof(*fnames_band);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
  
-    mxSetField(mx_ls, 0, "name", mxCreateString("Band"));
-    mxSetField(mx_ls, 0, "njeB", mxCreateScalarDouble((double)njeB));
-    mxSetField(mx_ls, 0, "nreB", mxCreateScalarDouble((double)nreB));
+    mxSetField(mxS_ls, 0, "name", mxCreateString("Band"));
+    mxSetField(mxS_ls, 0, "njeB", mxCreateScalarDouble((double)njeB));
+    mxSetField(mxS_ls, 0, "nfeB", mxCreateScalarDouble((double)nfeB));
       
     break;
 
@@ -1545,72 +2585,68 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     flag = IDASpilsGetNumPrecSolves(ida_mem, &nps);
     flag = IDASpilsGetNumConvFails(ida_mem, &ncfl);
     flag = IDASpilsGetNumJtimesEvals(ida_mem, &njeSG);
-    flag = IDASpilsGetNumResEvals(ida_mem, &nreSG);
+    flag = IDASpilsGetNumResEvals(ida_mem, &nfeSG);
     
     nfields = sizeof(fnames_spils)/sizeof(*fnames_spils);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
     
     if (ls == LS_SPGMR)
-      mxSetField(mx_ls, 0, "name",  mxCreateString("GMRES"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("GMRES"));
     else if (ls == LS_SPBCG)
-      mxSetField(mx_ls, 0, "name",  mxCreateString("BiCGStab"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("BiCGStab"));
     else
-      mxSetField(mx_ls, 0, "name",  mxCreateString("TFQMR"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("TFQMR"));
 
-    mxSetField(mx_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
-    mxSetField(mx_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
-    mxSetField(mx_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
-    mxSetField(mx_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
-    mxSetField(mx_ls, 0, "njeSG", mxCreateScalarDouble((double)njeSG));
-    mxSetField(mx_ls, 0, "nreSG", mxCreateScalarDouble((double)nreSG));
+    mxSetField(mxS_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
+    mxSetField(mxS_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
+    mxSetField(mxS_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
+    mxSetField(mxS_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
+    mxSetField(mxS_ls, 0, "njeSG", mxCreateScalarDouble((double)njeSG));
+    mxSetField(mxS_ls, 0, "nfeSG", mxCreateScalarDouble((double)nfeSG));
     
     break;
     
   }
 
-  mxSetField(plhs[0], 0, "LSInfo", mx_ls);
+  mxSetField(plhs[0], 0, "LSInfo", mxS_ls);
 
   /* Forward Sensitivity Statistics */
 
-  /*
-  if (idm_fsa) {
+  if (fsa) {
 
-    flag = IDAGetSensStats(ida_mem, &nrSe, &nreS, &netfS, &nsetupsS); 
+    flag = IDAGetSensStats(ida_mem, &nrSe, &nfeS, &netfS, &nsetupsS); 
 
     flag = IDAGetSensNonlinSolvStats(ida_mem, &nniS, &ncfnS);
 
     nfields = sizeof(fnames_sens)/sizeof(*fnames_sens);
-    mx_fsa = mxCreateStructMatrix(1, 1, nfields, fnames_sens);
+    mxS_fsa = mxCreateStructMatrix(1, 1, nfields, fnames_sens);
     
-    mxSetField(mx_fsa, 0, "nrSe",     mxCreateScalarDouble((double)nrSe));
-    mxSetField(mx_fsa, 0, "nreS",     mxCreateScalarDouble((double)nreS));
-    mxSetField(mx_fsa, 0, "nsetupsS", mxCreateScalarDouble((double)nsetupsS));
-    mxSetField(mx_fsa, 0, "netfS",    mxCreateScalarDouble((double)netfS));
-    mxSetField(mx_fsa, 0, "nniS",     mxCreateScalarDouble((double)nniS));
-    mxSetField(mx_fsa, 0, "ncfnS",    mxCreateScalarDouble((double)ncfnS));
+    mxSetField(mxS_fsa, 0, "nrSe",     mxCreateScalarDouble((double)nrSe));
+    mxSetField(mxS_fsa, 0, "nfeS",     mxCreateScalarDouble((double)nfeS));
+    mxSetField(mxS_fsa, 0, "nsetupsS", mxCreateScalarDouble((double)nsetupsS));
+    mxSetField(mxS_fsa, 0, "netfS",    mxCreateScalarDouble((double)netfS));
+    mxSetField(mxS_fsa, 0, "nniS",     mxCreateScalarDouble((double)nniS));
+    mxSetField(mxS_fsa, 0, "ncfnS",    mxCreateScalarDouble((double)ncfnS));
     
   } else {
 
-    mx_fsa = mxCreateDoubleMatrix(0,0,mxREAL);
+    mxS_fsa = mxCreateDoubleMatrix(0,0,mxREAL);
 
   }
   
-  mxSetField(plhs[0], 0, "FSAInfo", mx_fsa);
-  */
-
+  mxSetField(plhs[0], 0, "FSAInfo", mxS_fsa);
+  
   return(0);
 }
 
 static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  return(0);
-}
-/*
-static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
+  idmPbData bckPb;
+  int idxB;
+
   const char *fnames_intgr[]={
     "nst",
-    "nre",
+    "nfe",
     "nge",
     "nsetups",
     "netf",
@@ -1628,12 +2664,12 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   const char *fnames_dense[]={
     "name",
     "njeD",
-    "nreD"
+    "nfeD"
   };
   const char *fnames_band[]={
     "name",
     "njeB",
-    "nreB"
+    "nfeB"
   };
   const char *fnames_spils[]={
     "name",
@@ -1642,7 +2678,7 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     "nps",
     "ncfl",
     "njeSG",
-    "nreSG"
+    "nfeSG"
   };
   const char *fnames_quad[]={
     "nfQe",
@@ -1651,33 +2687,54 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   void *ida_memB;
 
-  long int nst, nre, nsetups, nni, ncfn, netf;
+  long int nst, nfe, nsetups, nni, ncfn, netf;
   int qlast, qcur;
   double h0used, hlast, hcur, tcur;
 
-  long int njeD, nreD;
-  long int njeB, nreB;
-  long int nli, npe, nps, ncfl, njeSG, nreSG;
+  long int njeD, nfeD;
+  long int njeB, nfeB;
+  long int nli, npe, nps, ncfl, njeSG, nfeSG;
 
   long int nfQe, netfQ;
 
-  int i, flag;
-  mxArray *mx_ls, *mx_quad;
-  double *tmp;
+  int flag;
+  mxArray *mxS_ls, *mxS_quad;
   int nfields;
 
-  ida_memB = IDAadjGetIDABmem(idaadj_mem);
+  booleantype found_bck;
+  
 
-  flag = IDAGetIntegratorStats(ida_memB, &nst, &nre, &nsetups, 
+  /* Extract index of current backward problem */
+    
+  idxB = (int)mxGetScalar(prhs[0]);
+
+  /* Find current backward problem */
+
+  found_bck = FALSE;
+  bckPb = idmData->bckPb;
+  while (bckPb != NULL) {
+    if (indexB == idxB) {
+      found_bck = TRUE;
+      break;
+    }
+    bckPb = bckPb->next;
+  }
+
+  if (!found_bck) idmErrHandler(-999, "IDAS", "IDAGetStatsB",
+                                "idxB has an illegal value.", NULL);
+
+  ida_memB = IDAGetAdjIDABmem(ida_mem, indexB);
+
+  flag = IDAGetIntegratorStats(ida_memB, &nst, &nfe, &nsetups, 
                                &netf, &qlast, &qcur, &h0used, &hlast, &hcur, &tcur);
 
   flag = IDAGetNonlinSolvStats(ida_memB, &nni, &ncfn);
 
   nfields = sizeof(fnames_intgr)/sizeof(*fnames_intgr);
   plhs[0] = mxCreateStructMatrix(1, 1, nfields, fnames_intgr);
- 
+
   mxSetField(plhs[0], 0, "nst",     mxCreateScalarDouble((double)nst));
-  mxSetField(plhs[0], 0, "nre",     mxCreateScalarDouble((double)nre));
+  mxSetField(plhs[0], 0, "nfe",     mxCreateScalarDouble((double)nfe));
   mxSetField(plhs[0], 0, "nsetups", mxCreateScalarDouble((double)nsetups));
   mxSetField(plhs[0], 0, "netf",    mxCreateScalarDouble((double)netf));
   mxSetField(plhs[0], 0, "nni",     mxCreateScalarDouble((double)nni));
@@ -1689,51 +2746,56 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   mxSetField(plhs[0], 0, "hcur",    mxCreateScalarDouble(hcur));
   mxSetField(plhs[0], 0, "tcur",    mxCreateScalarDouble(tcur));
 
-  if (idm_quadB) {
+
+  /* Quadrature Statistics */
+
+  if (quadrB) {
 
     flag = IDAGetQuadStats(ida_memB, &nfQe, &netfQ);
 
     nfields = sizeof(fnames_quad)/sizeof(*fnames_quad);
-    mx_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
+    mxS_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
 
-    mxSetField(mx_quad, 0, "nfQe",  mxCreateScalarDouble((double)nfQe));
-    mxSetField(mx_quad, 0, "netfQ", mxCreateScalarDouble((double)netfQ));
+    mxSetField(mxS_quad, 0, "nfQe",  mxCreateScalarDouble((double)nfQe));
+    mxSetField(mxS_quad, 0, "netfQ", mxCreateScalarDouble((double)netfQ));
 
   } else {
 
-    mx_quad = mxCreateDoubleMatrix(0,0,mxREAL);
+    mxS_quad = mxCreateDoubleMatrix(0,0,mxREAL);
 
   }
   
-  mxSetField(plhs[0], 0, "QuadInfo", mx_quad);
+  mxSetField(plhs[0], 0, "QuadInfo", mxS_quad);
+
+  /* Linear Solver Statistics */
 
   switch(lsB){
 
   case LS_DENSE:
     
     flag = IDADlsGetNumJacEvals(ida_memB, &njeD);
-    flag = IDADlsGetNumResEvals(ida_memB, &nreD);
+    flag = IDADlsGetNumResEvals(ida_memB, &nfeD);
     
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
 
-    mxSetField(mx_ls, 0, "name", mxCreateString("Dense"));
-    mxSetField(mx_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
-    mxSetField(mx_ls, 0, "nreD", mxCreateScalarDouble((double)nreD));
+    mxSetField(mxS_ls, 0, "name", mxCreateString("Dense"));
+    mxSetField(mxS_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
+    mxSetField(mxS_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
     
     break;
 
   case LS_BAND:
       
     flag = IDADlsGetNumJacEvals(ida_memB, &njeB);
-    flag = IDADlsGetNumResEvals(ida_memB, &nreB);
+    flag = IDADlsGetNumResEvals(ida_memB, &nfeB);
       
     nfields = sizeof(fnames_band)/sizeof(*fnames_band);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
  
-    mxSetField(mx_ls, 0, "name", mxCreateString("Band"));
-    mxSetField(mx_ls, 0, "njeB", mxCreateScalarDouble((double)njeB));
-    mxSetField(mx_ls, 0, "nreB", mxCreateScalarDouble((double)nreB));
+    mxSetField(mxS_ls, 0, "name", mxCreateString("Band"));
+    mxSetField(mxS_ls, 0, "njeB", mxCreateScalarDouble((double)njeB));
+    mxSetField(mxS_ls, 0, "nfeB", mxCreateScalarDouble((double)nfeB));
       
     break;
 
@@ -1746,56 +2808,85 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     flag = IDASpilsGetNumPrecSolves(ida_memB, &nps);
     flag = IDASpilsGetNumConvFails(ida_memB, &ncfl);
     flag = IDASpilsGetNumJtimesEvals(ida_memB, &njeSG);
-    flag = IDASpilsGetNumResEvals(ida_memB, &nreSG);
+    flag = IDASpilsGetNumResEvals(ida_memB, &nfeSG);
     
     nfields = sizeof(fnames_spils)/sizeof(*fnames_spils);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
+    mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
  
     if (lsB == LS_SPGMR)
-      mxSetField(mx_ls, 0, "name",  mxCreateString("GMRES"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("GMRES"));
     else if (lsB == LS_SPBCG)
-      mxSetField(mx_ls, 0, "name",  mxCreateString("BiCGStab"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("BiCGStab"));
     else
-      mxSetField(mx_ls, 0, "name",  mxCreateString("TFQMR"));
+      mxSetField(mxS_ls, 0, "name",  mxCreateString("TFQMR"));
 
-    mxSetField(mx_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
-    mxSetField(mx_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
-    mxSetField(mx_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
-    mxSetField(mx_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
-    mxSetField(mx_ls, 0, "njeSG", mxCreateScalarDouble((double)njeSG));
-    mxSetField(mx_ls, 0, "nreSG", mxCreateScalarDouble((double)nreSG));
+    mxSetField(mxS_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
+    mxSetField(mxS_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
+    mxSetField(mxS_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
+    mxSetField(mxS_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
+    mxSetField(mxS_ls, 0, "njeSG", mxCreateScalarDouble((double)njeSG));
+    mxSetField(mxS_ls, 0, "nfeSG", mxCreateScalarDouble((double)nfeSG));
     
     break;
   }
 
-  mxSetField(plhs[0], 0, "LSInfo", mx_ls);
+  mxSetField(plhs[0], 0, "LSInfo", mxS_ls);
 
   return(0);
 }
-*/
 
 static int IDM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
+  idmPbData fwdPb;
+
+  const mxArray *options;
+  mxArray *opt;
+
+  double tstop;
+
+
+  fwdPb = idmData->fwdPb;
+  options = prhs[0];
+
+  /* Return now if options was empty */
+
+  if (mxIsEmpty(options)) return(0);
+
+  /* User data */
+
+  opt = mxGetField(options,0,"UserData");
+  if ( !mxIsEmpty(opt) ) {
+    mxDestroyArray(mtlb_data);
+    mtlb_data = mxDuplicateArray(opt);
+  }
+
+  /* Stopping time */
+
+  opt = mxGetField(options,0,"StopTime");
+  if ( !mxIsEmpty(opt) ) {
+    tstop = (double)mxGetScalar(opt);
+    IDASetStopTime(ida_mem, tstop);
+  }
+
+  return(0);
+}
+
+static int IDM_SetB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
   return(0);
 }
 
 static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  return(0);
-}
-/*
-static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
+  idmPbData fwdPb;
+
   double t;
   N_Vector ewt;
   double *this, *next;
-  int key, k, which, status, i, nfields;
-  mxArray *mx_yy, *mx_yp;
+  int key, k, i, nfields;
 
   IDAadjCheckPointRec *ckpnt;
   const char *fnames_ckpnt[]={
-    "addr",
-    "next",
     "t0",
     "t1",
     "nstep",
@@ -1803,40 +2894,49 @@ static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "step"
   };
 
+
+  fwdPb = idmData->fwdPb;
+
   key = (int) (*mxGetPr(prhs[0]));
 
   switch (key) {
-  case 1:
+
+  case 1:    /* DerivSolution */
+
+    t = *mxGetPr(prhs[1]);
+    k = (int) (*mxGetPr(prhs[2]));
+
+    plhs[0] = mxCreateDoubleMatrix(N,1,mxREAL);
+    IDAGetDky(ida_mem, t, k, yy);
+    GetData(yy, mxGetPr(plhs[0]), N);
 
     break;
 
-  case 2:
+  case 2:    /* ErrorWeights */
 
     ewt = N_VClone(yy);
 
     plhs[0] = mxCreateDoubleMatrix(N,1,mxREAL);
-    status = IDAGetErrWeights(ida_mem, ewt);
+    IDAGetErrWeights(ida_mem, ewt);
     GetData(ewt, mxGetPr(plhs[0]), N);
 
     N_VDestroy(ewt);
 
     break;
 
-  case 3:
+  case 3:    /* not used */
 
     break;
 
-  case 4:
+  case 4:    /* CheckPointsInfo */
 
     ckpnt = (IDAadjCheckPointRec *) malloc ( (Nc+1)*sizeof(IDAadjCheckPointRec));
-    IDAadjGetCheckPointsInfo(idaadj_mem, ckpnt);
+    IDAGetAdjCheckPointsInfo(ida_mem, ckpnt);
     nfields = sizeof(fnames_ckpnt)/sizeof(*fnames_ckpnt);
     plhs[0] = mxCreateStructMatrix(Nc+1, 1, nfields, fnames_ckpnt);
     for (i=0; i<=Nc; i++) {
       this = (double *)(ckpnt[Nc-i].my_addr);
       next = (double *)(ckpnt[Nc-i].next_addr);
-      mxSetField(plhs[0], i, "addr",  mxCreateScalarDouble(*this));
-      mxSetField(plhs[0], i, "next",  mxCreateScalarDouble(*next));
       mxSetField(plhs[0], i, "t0",    mxCreateScalarDouble((double)(ckpnt[Nc-i].t0)));
       mxSetField(plhs[0], i, "t1",    mxCreateScalarDouble((double)(ckpnt[Nc-i].t1)));
       mxSetField(plhs[0], i, "nstep", mxCreateScalarDouble((double)(ckpnt[Nc-i].nstep)));
@@ -1846,249 +2946,28 @@ static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     break;
 
-  case 5:
-
-    status = IDAadjGetCurrentCheckPoint(idaadj_mem, (void **)(&this));
-
-    plhs[0] = mxCreateScalarDouble(*this);
-
-    break;
-
-  case 6:
-    
-    which = (int) (*mxGetPr(prhs[1]));
-
-    if (interp == IDA_HERMITE) {
-    
-      status = IDAadjGetDataPointHermite(idaadj_mem, which, &t, y, yd);
-
-      plhs[0] = mxCreateCellMatrix(1, 3);
-
-      mxSetCell(plhs[0],1,mxCreateScalarDouble(t));
-
-      mx_yy  = mxCreateDoubleMatrix(N,1,mxREAL);
-      GetData(yy, mxGetPr(mx_yy), N);
-      mxSetCell(plhs[0],2,mx_yy);
-
-      mx_yp = mxCreateDoubleMatrix(N,1,mxREAL);
-      GetData(yp, mxGetPr(mx_yp), N);
-      mxSetCell(plhs[0],3,mx_yp);
-
-    }
-
-    break;
-
   }
 
   return(0);
 }
-*/
 
 static int IDM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
+  idmPbData fwdPb, bckPb;
 
-  if (idm_Cdata == NULL) return(0);
+  if (idmData == NULL) return(0);
   
-  if (idm_mon) {
-    mtlb_IdaMonitor(3, 0.0, NULL, NULL, NULL, NULL, NULL);
-  }
+  fwdPb = idmData->fwdPb;
+  if (mon) mxW_IDAMonitor(2, 0.0, NULL, NULL, NULL, fwdPb);
 
-  N_VDestroy(yy);
-  N_VDestroy(yp);
-  /*
-  if (idm_quad) N_VDestroy(yQ);
-  */
-  if (pm == PM_BBDPRE)  IDABBDPrecFree(&bp_data);
-
-  /*
-  if (idm_fsa) {
-    N_VDestroyVectorArray(yyS, Ns);
-    N_VDestroyVectorArray(ypS, Ns);
+  bckPb = idmData->bckPb;
+  while (bckPb != NULL) {
+    if (monB) mxW_IDAMonitorB(2, indexB, 0.0, NULL, NULL, bckPb);   
+    bckPb = bckPb->next;
   }
-  */
 
   IDAFree(&ida_mem);
-
-  /*
-  if (idm_asa) {
-
-    if (idm_monB) {
-      mtlb_IdaMonitorB(3, 0.0, NULL, NULL, NULL);
-    }
-
-    N_VDestroy(yyB);
-    N_VDestroy(ypB);
-
-    if (idm_quadB) N_VDestroy(yQB);
-   
-    IDAadjFree(&idaadj_mem);
-
-  }
-  */
 
   return(0);
 }
 
-
-static void IDM_init()
-{
-  mxArray *empty;
-
-  /* Allocate space for global IDAS and MATLAB data structures */
-  
-  idm_Cdata = (idm_IDASdata) mxMalloc(sizeof(struct idm_IDASdataStruct));
-  idm_Mdata = (idm_MATLABdata) mxMalloc(sizeof(struct idm_MATLABdataStruct));
-
-  /* Initialize global IDAS data */
-
-  ida_mem = NULL;
-  idaadj_mem = NULL;
-  bp_data   = NULL;
-
-  yy  = NULL;
-  yp  = NULL;
-  yQ  = NULL;
-  yyS = NULL;
-  ypS = NULL;
-  yyB = NULL;
-  ypB = NULL;
-  yQB = NULL;
-
-  N   = 0;
-  Nq  = 0;
-  Ng  = 0;
-  Ns  = 0;
-  Nd  = 0;
-  Nc  = 0;
-  NB  = 0;
-  NqB = 0;
-
-  /*
-  ism = IDA_STAGGERED;
-  interp = IDA_POLYNOMIAL;
-  */
-
-  ls  = LS_DENSE;
-  lsB = LS_DENSE;
-  pm  = PM_NONE;
-  pmB = PM_NONE;
-
-  /* Initialize global control variables */
-
-  idm_quad  = FALSE;
-  idm_quadB = FALSE;
-  idm_fsa   = FALSE;
-  idm_asa   = FALSE;
-  idm_mon   = FALSE;
-  idm_monB  = FALSE;
-
-  /* Initialize global MATLAB data */
-
-  empty = mxCreateDoubleMatrix(0,0,mxREAL);
-
-  mx_data     = mxDuplicateArray(empty);
-
-  mx_RESfct   = mxDuplicateArray(empty);
-  mx_Gfct     = mxDuplicateArray(empty);
-  mx_QUADfct  = mxDuplicateArray(empty);
-  mx_SRESfct  = mxDuplicateArray(empty);
-  mx_JACfct   = mxDuplicateArray(empty);
-  mx_PSETfct  = mxDuplicateArray(empty);
-  mx_PSOLfct  = mxDuplicateArray(empty);
-  mx_GLOCfct  = mxDuplicateArray(empty);
-  mx_GCOMfct  = mxDuplicateArray(empty);
-
-  mx_RESfctB  = mxDuplicateArray(empty);
-  mx_QUADfctB = mxDuplicateArray(empty);
-  mx_JACfctB  = mxDuplicateArray(empty);
-  mx_PSETfctB = mxDuplicateArray(empty);
-  mx_PSOLfctB = mxDuplicateArray(empty);
-  mx_GLOCfctB = mxDuplicateArray(empty);
-  mx_GCOMfctB = mxDuplicateArray(empty);
-
-  mx_MONfct   = mxDuplicateArray(empty);
-  mx_MONdata  = mxDuplicateArray(empty);
-
-  mx_MONfctB  = mxDuplicateArray(empty);
-  mx_MONdataB = mxDuplicateArray(empty);  
-
-  mxDestroyArray(empty);
-
-  return;
-}
-
-static void IDM_makePersistent()
-{
-  /* Make global memory persistent */
-
-  mexMakeArrayPersistent(mx_data);
-
-  mexMakeArrayPersistent(mx_RESfct);
-  mexMakeArrayPersistent(mx_Gfct);
-  mexMakeArrayPersistent(mx_QUADfct);
-  mexMakeArrayPersistent(mx_SRESfct);
-  mexMakeArrayPersistent(mx_JACfct);
-  mexMakeArrayPersistent(mx_PSETfct);
-  mexMakeArrayPersistent(mx_PSOLfct);
-  mexMakeArrayPersistent(mx_GLOCfct);
-  mexMakeArrayPersistent(mx_GCOMfct);
-
-  mexMakeArrayPersistent(mx_RESfctB);
-  mexMakeArrayPersistent(mx_QUADfctB);
-  mexMakeArrayPersistent(mx_JACfctB);
-  mexMakeArrayPersistent(mx_PSETfctB);
-  mexMakeArrayPersistent(mx_PSOLfctB);
-  mexMakeArrayPersistent(mx_GLOCfctB);
-  mexMakeArrayPersistent(mx_GCOMfctB);
-
-  mexMakeArrayPersistent(mx_MONfct);
-  mexMakeArrayPersistent(mx_MONdata);
-
-  mexMakeArrayPersistent(mx_MONfctB);
-  mexMakeArrayPersistent(mx_MONdataB);
-
-  mexMakeMemoryPersistent(idm_Cdata);
-  mexMakeMemoryPersistent(idm_Mdata);
-
-  return;
-}
-
-
-static void IDM_final()
-{  
-
-  if (idm_Cdata == NULL) return;
-
-  mxDestroyArray(mx_data);
-  
-  mxDestroyArray(mx_RESfct);
-  mxDestroyArray(mx_Gfct);
-  mxDestroyArray(mx_QUADfct);
-  mxDestroyArray(mx_SRESfct);
-  mxDestroyArray(mx_JACfct);
-  mxDestroyArray(mx_PSETfct);
-  mxDestroyArray(mx_PSOLfct);
-  mxDestroyArray(mx_GLOCfct);
-  mxDestroyArray(mx_GCOMfct);
-  
-  mxDestroyArray(mx_RESfctB);
-  mxDestroyArray(mx_QUADfctB);
-  mxDestroyArray(mx_JACfctB);
-  mxDestroyArray(mx_PSETfctB);
-  mxDestroyArray(mx_PSOLfctB);
-  mxDestroyArray(mx_GLOCfctB);
-  mxDestroyArray(mx_GCOMfctB);
-
-  mxDestroyArray(mx_MONfct);
-  mxDestroyArray(mx_MONdata);
-  
-  mxDestroyArray(mx_MONfctB);
-  mxDestroyArray(mx_MONdataB);
-
-  mxFree(idm_Cdata);
-  idm_Cdata = NULL;
-  mxFree(idm_Mdata);
-  idm_Mdata = NULL;
-
-  return;
-}

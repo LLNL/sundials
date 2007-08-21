@@ -1,27 +1,32 @@
-function [status, t, yy, yp, varargout] = IDASolve(tout,itask)
+function [varargout] = IDASolve(tout,itask)
 %IDASolve integrates the DAE.
 %
-%   Usage: [STATUS, T, YY, YP] = IDASolve ( TOUT, ITASK ) 
-%          [STATUS, T, YY, YP, YQ] = IDASolve  (TOUT, ITASK )
-%          [STATUS, T, YY, YP, YYS, YPS] = IDASolve ( TOUT, ITASK )
-%          [STATUS, T, YY, YP, YQ, YYS, YPS] = IDASolve ( TOUT, ITASK )
+%   Usage: [STATUS, T, Y] = IDASolve ( TOUT, ITASK ) 
+%          [STATUS, T, Y, YQ] = IDASolve  (TOUT, ITASK )
+%          [STATUS, T, Y, YS] = IDASolve ( TOUT, ITASK )
+%          [STATUS, T, Y, YQ, YS] = IDASolve ( TOUT, ITASK )
 %
 %   If ITASK is 'Normal', then the solver integrates from its current internal 
-%   T value to a point at or beyond TOUT, then interpolates to T = TOUT and 
-%   returns YY(TOUT) and YP(TOUT). If ITASK is 'OneStep', then the solver takes 
-%   one internal time step and returns in YY and YP the solution at the new 
-%   internal time. In this case, TOUT is used only during the first call to 
-%   IDASolve to determine the direction of integration and the rough scale of 
-%   the problem. In either case, the time reached by the solver is returned in T. 
-%   The 'NormalTstop' and 'OneStepTstop' modes are similar to 'Normal' and 
-%   'OneStep', respectively, except that the integration never proceeds past 
-%   the value tstop.
+%   T value to a point at or beyond TOUT, then interpolates to T = TOUT and returns 
+%   Y(TOUT). If ITASK is 'OneStep', then the solver takes one internal time step 
+%   and returns in Y the solution at the new internal time. In this case, TOUT 
+%   is used only during the first call to IDASolve to determine the direction of 
+%   integration and the rough scale of the problem. In either case, the time 
+%   reached by the solver is returned in T.
 %
-%   If quadratures were computed (see IDASetOptions), IDASolve will return their
+%   If quadratures were computed (see IDAQuadInit), IDASolve will return their
 %   values at T in the vector YQ.
 %
-%   If sensitivity calculations were enabled (see IDASetOptions), IDASolve will 
-%   return their values at T in the matrix YS.
+%   If sensitivity calculations were enabled (see IDASensInit), IDASolve will 
+%   return their values at T in the matrix YS. Each row in the matrix YS
+%   represents the sensitivity vector with respect to one of the problem parameters.
+%
+%   In ITASK =' Normal' mode, to obtain solutions at specific times T0,T1,...,TFINAL
+%   (all increasing or all decreasing) use TOUT = [T0 T1  ... TFINAL]. In this case
+%   the output arguments Y and YQ are matrices, each column representing the solution
+%   vector at the corresponding time returned in the vector T. If computed, the 
+%   sensitivities are eturned in the 3-dimensional array YS, with YS(:,:,I) representing
+%   the sensitivity vectors at the time T(I).
 %
 %   On return, STATUS is one of the following:
 %     0: IDASolve succeeded and no roots were found.
@@ -47,27 +52,20 @@ function [status, t, yy, yp, varargout] = IDASolve(tout,itask)
 %   See also IDASetOptions, IDAGetStats
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/07/17 16:49:50 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.3 $Date: 2007/02/05 20:23:47 $
 
-mode = 22;
-if nargout < 4 | nargout > 7
-  disp('IDASolve:: wrong number of output arguments');
-  return
+
+mode = 20;
+
+if nargin ~= 2
+  error('Wrong number of input arguments');
 end
 
-if nargout == 4
-  [status,t,yy,yp] = idm(mode,tout,itask);
-elseif nargout == 5
-  [status,t,yy,yp,yQ] = idm(mode,tout,itask);
-  varargout(1) = {yQ};
-elseif nargout == 6
-  [status,t,yy,yp,yyS,ypS] = idm(mode,tout,itask);
-  varargout(1) = {yyS};
-  varargout(2) = {ypS};
-elseif nargout == 7
-  [status,t,yy,yp,yQ,yyS,ypS] = idm(mode,tout,itask);
-  varargout(1) = {yQ};
-  varargout(2) = {yyS};
-  varargout(3) = {ypS};
+if nargout < 3 || nargout > 5
+  error('Wrong number of output arguments');
 end
+
+varargout = cell (nargout, 1);
+
+[varargout{:}] = idm(mode,tout,itask);

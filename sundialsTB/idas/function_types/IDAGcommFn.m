@@ -1,6 +1,4 @@
-%IDAGcommFn - type for user provided communication function (BBDPre).
-%
-%IVP Problem
+%IDAGcommFn - type for communication function (BBDPre).
 %
 %   The function GCOMFUN must be defined as 
 %        FUNCTION FLAG = GCOMFUN(T, YY, YP)
@@ -19,33 +17,18 @@
 %   unrecoverable failure occurred, or FLAG>0 if a recoverable error
 %   occurred.
 %
-%Adjoint Problem
-%
-%   The function GCOMFUNB must be defined either as
-%        FUNCTION FLAG = GCOMFUNB(T, YY, YP, YYB, YPB)
-%   or as
-%        FUNCTION [FLAG, NEW_DATA] = GCOMFUNB(T, YY, YP, YYB, YPB, DATA)
-%   depending on whether a user data structure DATA was specified in
-%   IDAMalloc. 
-%
-%   The function GCOMFUNB must set FLAG=0 if successful, FLAG<0 if an
-%   unrecoverable failure occurred, or FLAG>0 if a recoverable error
-%   occurred.
-%
 %   See also IDAGlocalFn, IDASetOptions
 %
 %   NOTES:
-%     GCOMFUN and GCOMFUNB are specified through the GcommFn property in
-%     IDASetOptions and are used only if the property PrecModule is set 
-%     to 'BBDPre'.
+%     GCOMFUN is specified through the GcommFn property in IDASetOptions 
+%     and is used only if the property PrecModule is set to 'BBDPre'.
 %
 %     Each call to GCOMFUN is preceded by a call to the residual function
-%     DAEFUN with the same arguments T, YY, and YP (and YYB and YPB in the 
-%     case of GCOMFUNB). Thus GCOMFUN can omit any communication done by 
-%     DAEFUN if relevant to the evaluation of G by GLOCFUN. 
-%     If all necessary communication was done by DAEFUN, GCOMFUN need 
-%     not be provided.     
+%     DAEFUN with the same arguments T, YY, and YP.
+%     Thus GCOMFUN can omit any communication done by DAEFUN if relevant 
+%     to the evaluation of G by GLOCFUN. If all necessary communication 
+%     was done by DAEFUN, GCOMFUN need not be provided.     
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/17 16:49:49 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.2 $Date: 2007/05/11 18:48:45 $

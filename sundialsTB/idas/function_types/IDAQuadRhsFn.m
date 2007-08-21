@@ -1,7 +1,5 @@
 %IDAQuadRhsFn - type for user provided quadrature RHS function.
 %
-%IVP Problem
-%
 %   The function QFUN must be defined as 
 %        FUNCTION [YQD, FLAG] = QFUN(T, YY, YP)
 %   and must return a vector YQD corresponding to fQ(t,yy,yp), the 
@@ -19,27 +17,8 @@
 %   unrecoverable failure occurred, or FLAG>0 if a recoverable error
 %   occurred.
 %
-%Adjoint Problem
-%
-%   The function QFUNB must be defined either as
-%        FUNCTION [YQBD, FLAG] = QFUNB(T, YY, YP, YYB, YPB)
-%   or as
-%        FUNCTION [YQBD, FLAG, NEW_DATA] = QFUNB(T, YY, YP, YYB, YPB, DATA)
-%   depending on whether a user data structure DATA was specified in
-%   IDAMalloc. In either case, it must return the vector YQBD
-%   corresponding to fQB(t,yy,yp,yyB,ypB), the integrand for the integral to be 
-%   evaluated on the backward phase.
-%
-%   The function QFUNB must set FLAG=0 if successful, FLAG<0 if an
-%   unrecoverable failure occurred, or FLAG>0 if a recoverable error
-%   occurred.
-%
-%   See also IDASetOptions
-%
-%   NOTE: QFUN and QFUNB are specified through the property
-%   QuadRhsFn to IDASetOptions and are used only if the property
-%   Quadratures was set to 'on'.
+%   See also IDAQuadInit
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/17 16:49:50 $
+% $Revision: 1.2 $Date: 2007/05/11 18:48:45 $

@@ -1,6 +1,4 @@
-%IDAResFn - type for user provided RHS type
-%
-%IVP Problem
+%IDAResFn - type for residual function
 %
 %   The function DAEFUN must be defined as 
 %        FUNCTION [R, FLAG] = DAEFUN(T, YY, YP)
@@ -18,25 +16,8 @@
 %   unrecoverable failure occurred, or FLAG>0 if a recoverable error
 %   occurred.
 %
-%Adjoint Problem
-%
-%   The function DAEFUNB must be defined either as
-%        FUNCTION [RB, FLAG] = DAEFUNB(T, YY, YP, YYB, YPB)
-%   or as
-%        FUNCTION [RB, FLAG, NEW_DATA] = DAEFUNB(T, YY, YP, YYB, YPB, DATA)
-%   depending on whether a user data structure DATA was specified in
-%   IDAMalloc. In either case, it must return the vector RB
-%   corresponding to fB(t,yy,yp,yyB,ypB).
-%
-%   The function DAEFUNB must set FLAG=0 if successful, FLAG<0 if an
-%   unrecoverable failure occurred, or FLAG>0 if a recoverable error
-%   occurred.
-%
-%   See also IDAMalloc, IDAMallocB
-%
-%   NOTE: DAEFUN and DAEFUNB are specified through the IDAMalloc and
-%   IDAMallocB functions, respectively.
+%   See also IDAInit
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/17 16:49:50 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.2 $Date: 2007/05/11 18:48:45 $

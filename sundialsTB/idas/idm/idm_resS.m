@@ -4,7 +4,7 @@ function [rrS, flag, new_data] = idm_resS(t, yy, yp, rr, Ns, yyS, ypS, fct, data
 % Wrapper around the actual user-provided Matlab function
 %
 
-N = length(y);
+N = length(yy);
 yyS = reshape(yyS, N, Ns);
 ypS = reshape(ypS, N, Ns);
 

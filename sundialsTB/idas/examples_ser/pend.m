@@ -25,7 +25,7 @@ yp0 = zeros(neq,1);
 fprintf('Estimated IC\n');
 disp([y0 yp0])
 
-IDAMalloc(@pend_f,t0,y0,yp0,options);
+IDAInit(@pend_f,t0,y0,yp0,options);
 
 [status, y0_mod, yp0_mod] = IDACalcIC(tf, 'FindAlgebraic');
 fprintf('Corrected IC\n');
@@ -34,17 +34,15 @@ disp([y0_mod yp0_mod])
 it = 1;
 time(it) = t0;
 sol_y(it,:) = y0_mod';
-sol_yp(it,:) = yp0_mod';
 [pc(it) vc(it)] = pend_constr(t0,y0_mod);
 
 t = t0;
 t_start = clock;
 while t < tf
-  [status,t,y,yp] = IDASolve(tf,'OneStep');
+  [status,t,y] = IDASolve(tf,'OneStep');
   it = it+1;
   time(it) = t;
   sol_y(it,:) = y';
-  sol_yp(it,:) = yp';
   % Compute position and velocity constraint violations
   [pc(it) vc(it)] = pend_constr(t,y);
 end

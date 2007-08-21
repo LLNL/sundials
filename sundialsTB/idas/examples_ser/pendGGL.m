@@ -16,9 +16,6 @@ options = IDASetOptions('RelTol',1.e-6,...
                         'suppressAlgVars','on',...
                         'MaxNumSteps', 1000,...
                         'LinearSolver','Dense');
-%mondata.update = 100;
-%options = IDASetOptions(options,'MonitorFn',@IDAMonitor,'MonitorData',mondata);
-
 y0 = zeros(neq,1);
 yp0 = zeros(neq,1);
 y0(1) = 1.0;
@@ -26,12 +23,11 @@ yp0(4) = 9.81;
 fprintf('Consistent IC:\n');
 disp([y0 yp0])
 
-IDAMalloc(@pendGGL_f,t0,y0,yp0,options);
+IDAInit(@pendGGL_f,t0,y0,yp0,options);
 
 it = 1;
 time(it) = t0;
 sol_y(it,:) = y0';
-sol_yp(it,:) = yp0';
 [res, dummy1, status] = pendGGL_f(t0, y0, yp0);
 pc(it) = res(5);
 vc(it) = res(6);
@@ -39,15 +35,17 @@ vc(it) = res(6);
 t = t0;
 t_start = clock;
 while t < tf
-  [status,t,y,yp] = IDASolve(tf,'OneStep');
+  [status,t,y] = IDASolve(tf,'OneStep');
   it = it+1;
   time(it) = t;
   sol_y(it,:) = y';
-  sol_yp(it,:) = yp';
+  yp=yp0;
   % For verification purposes only, compute position and velocity constraint violations
-  [res, dummy1, status] = pendGGL_f(t, y, yp);
+  % (use dummy yp = yp0)
+  [res, dummy1, status] = pendGGL_f(t, y, yp0);
   pc(it) = res(5);
   vc(it) = res(6);
+  
 end
 runtime = etime(clock,t_start);
 

@@ -1,45 +1,33 @@
-function [] = IDAReInit(fct,t0,yy0,yp0,varargin)
+function [] = IDAReInit(t0,yy0,yp0,options)
 %IDAReInit reinitializes memory for IDAS.
-%   where a prior call to IDAMalloc has been made with the same
+%   where a prior call to IDAInit has been made with the same
 %   problem size N. IDAReInit performs the same input checking
-%   and initializations that IDAMalloc does, but it does no 
+%   and initializations that IDAInit does, but it does no 
 %   memory allocation, assuming that the existing internal memory 
 %   is sufficient for the new problem.
 %
-%   Usage: IDAReInit ( DAEFUN, T0, YY0, YP0 [, OPTIONS [, DATA] ] ) 
+%   Usage: IDAReInit ( T0, YY0, YP0 [, OPTIONS ] ) 
 %
-%   DAEFUN   is a function defining the DAE residual: f(t,yy,yp).
-%            This function must return a vector containing the current 
-%            value of the residual.
 %   T0       is the initial value of t.
 %   YY0      is the initial condition vector y(t0).  
 %   YP0      is the initial condition vector y'(t0).  
 %   OPTIONS  is an (optional) set of integration options, created with
 %            the IDASetOptions function. 
-%   DATA     is (optional) problem data passed unmodified to all
-%            user-provided functions when they are called. For example,
-%            YD = DAEFUN(T,YY,YP,DATA).
 %
-%  See also: IDAMalloc, IDARhsFn 
+%  See also: IDASetOptions, IDAInit
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date:$
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.2 $Date: 2007/02/05 20:23:46 $
 
 mode = 11;
 
+if nargin < 3
+  error('Too few input arguments');
+end
+
 if nargin < 4
-  disp('IDAReInit:: too few parameters');
-  return
+  options = [];
 end
 
-options = [];
-data =[];
-if nargin > 4
-  options = varargin{1};
-end
-if nargin > 5
-  data = varargin{2};
-end
-
-idm(mode,fct,t0,yy0,yp0,options,data);
+idm(mode, t0, yy0, yp0, options);

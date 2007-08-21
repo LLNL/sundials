@@ -6,11 +6,11 @@ function [] = IDASensToggleOff()
 %
 %   Usage: IDASensToggleOff
 %
-%   See also: IDASensMalloc, IDASensReInit
+%   See also: IDASensInit, IDASensReInit
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/11/25 19:57:25 $
+% $Revision: 1.2 $Date: 2007/02/05 20:23:47 $
 
-mode = 13;
+mode = 18;
 idm(mode);

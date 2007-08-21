@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-03-21 18:36:24 $
+ * $Revision: 1.8 $
+ * $Date: 2007-08-21 17:38:45 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,14 +17,8 @@
 #include "idm.h"
 #include "nvm.h"
 
-static void UpdateUserData(mxArray *mx_data);
-static void UpdateMonitorData(mxArray *mx_data);
-static void UpdateMonitorDataB(mxArray *mx_data);
-
-booleantype idm_quad;      /* Forward quadratures? */
-booleantype idm_quadB;     /* Backward quadratures? */
-booleantype idm_asa;       /* Adjoint sensitivity? */
-booleantype idm_fsa;       /* Forward sensitivity? */
+static void UpdateUserData(mxArray *new_mtlb_data, idmPbData pb);
+static void UpdateMonitorData(mxArray *new_mtlb_data, idmPbData pb);
 
 /*
  * ---------------------------------------------------------------------------------
@@ -32,68 +26,16 @@ booleantype idm_fsa;       /* Forward sensitivity? */
  * ---------------------------------------------------------------------------------
  */
 
-#define N           (idm_Cdata->N) 
-#define Nq          (idm_Cdata->Nq) 
-#define Ng          (idm_Cdata->Ng) 
-#define Ns          (idm_Cdata->Ns) 
-#define Nd          (idm_Cdata->Nd) 
-#define Nc          (idm_Cdata->Nc) 
-#define ls          (idm_Cdata->ls) 
-#define pm          (idm_Cdata->pm) 
-#define ism         (idm_Cdata->ism) 
-#define NB          (idm_Cdata->NB) 
-#define NqB         (idm_Cdata->NqB) 
-#define lsB         (idm_Cdata->lsB) 
-#define pmB         (idm_Cdata->pmB) 
+#define fsa         (fwdPb->Fsa)
+#define quadr       (fwdPb->Quadr)
+#define N           (fwdPb->n) 
+#define Nq          (fwdPb->nq) 
+#define Ng          (fwdPb->ng) 
+#define Ns          (fwdPb->ns) 
 
-#define mx_data     (idm_Mdata->mx_data)
-
-#define mx_RESfct   (idm_Mdata->mx_RESfct)
-#define mx_QUADfct  (idm_Mdata->mx_QUADfct)
-#define mx_JACfct   (idm_Mdata->mx_JACfct)
-#define mx_PSETfct  (idm_Mdata->mx_PSETfct)
-#define mx_PSOLfct  (idm_Mdata->mx_PSOLfct)
-#define mx_GLOCfct  (idm_Mdata->mx_GLOCfct)
-#define mx_GCOMfct  (idm_Mdata->mx_GCOMfct)
-#define mx_Gfct     (idm_Mdata->mx_Gfct)
-#define mx_SRESfct  (idm_Mdata->mx_SRESfct)
-
-#define mx_RESfctB  (idm_Mdata->mx_RESfctB)
-#define mx_QUADfctB (idm_Mdata->mx_QUADfctB)
-#define mx_JACfctB  (idm_Mdata->mx_JACfctB)
-#define mx_PSETfctB (idm_Mdata->mx_PSETfctB)
-#define mx_PSOLfctB (idm_Mdata->mx_PSOLfctB)
-#define mx_GLOCfctB (idm_Mdata->mx_GLOCfctB)
-#define mx_GCOMfctB (idm_Mdata->mx_GCOMfctB)
-
-#define mx_MONfct   (idm_Mdata->mx_MONfct)
-#define mx_MONdata  (idm_Mdata->mx_MONdata)
-
-#define mx_MONfctB  (idm_Mdata->mx_MONfctB)
-#define mx_MONdataB (idm_Mdata->mx_MONdataB)
-
-
-/*
- * ---------------------------------------------------------------------------------
- * Error handler
- * ---------------------------------------------------------------------------------
- */
-
-void mtlb_IdaErrHandler(int error_code, 
-                        const char *module, const char *function, 
-                        char *msg, void *eh_data)
-{
-  char err_type[10];
-
-  if (error_code == IDA_WARNING)
-    sprintf(err_type,"WARNING");
-  else
-    sprintf(err_type,"ERROR");
-
-  mexPrintf("\n[%s %s]  %s\n",module,err_type,function);
-  mexPrintf("  %s\n\n",msg);
-
-}
+#define quadrB      (bckPb->Quadr)
+#define NB          (bckPb->n) 
+#define NqB         (bckPb->nq) 
 
 /*
  * ---------------------------------------------------------------------------------
@@ -101,38 +43,40 @@ void mtlb_IdaErrHandler(int error_code,
  * ---------------------------------------------------------------------------------
  */
 
-int mtlb_IdaRes(realtype tt, N_Vector yy, N_Vector yp,
-                N_Vector rr, void *res_data)
+int mxW_IDARes(realtype tt, N_Vector yy, N_Vector yp,
+               N_Vector rr, void *user_data)
 {
-  mxArray *mx_in[6], *mx_out[3];
+  idmPbData fwdPb;
+  mxArray *mx_in[5], *mx_out[3];
   int ret;
 
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(1.0);        /* type=1: forward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);         /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yp */
-  mx_in[4] = mx_RESfct;                        /* matlab function handle */ 
-  mx_in[5] = mx_data;                          /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);         /* current t */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yp */
+  mx_in[3] = fwdPb->RESfct;                    /* matlab function handle */ 
+  mx_in[4] = fwdPb->mtlb_data;                 /* matlab user data */
 
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
 
-  mexCallMATLAB(3,mx_out,6,mx_in,"idm_res");
+  mexCallMATLAB(3,mx_out,5,mx_in,"idm_res");
 
   PutData(rr, mxGetPr(mx_out[0]), N);
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], fwdPb);
   }
 
   /* Free temporary space */
   mxDestroyArray(mx_in[0]);
   mxDestroyArray(mx_in[1]);
   mxDestroyArray(mx_in[2]);
-  mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -140,38 +84,40 @@ int mtlb_IdaRes(realtype tt, N_Vector yy, N_Vector yp,
   return(ret);
 }
 
-int mtlb_IdaQuadFct(realtype tres, N_Vector yy, N_Vector yp, N_Vector ypQ,
-                    void *rdataQ)
+int mxW_IDAQuadFct(realtype tres, N_Vector yy, N_Vector yp, N_Vector ypQ,
+                   void *user_data)
 {
-  mxArray *mx_in[6], *mx_out[3];
+  idmPbData fwdPb;
+  mxArray *mx_in[5], *mx_out[3];
   int ret;
 
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(1.0);        /* type=1: forward ODE */
-  mx_in[1] = mxCreateScalarDouble(tres);       /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yp */
-  mx_in[4] = mx_QUADfct;                       /* matlab function handle */ 
-  mx_in[5] = mx_data;                          /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tres);       /* current t */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yp */
+  mx_in[3] = fwdPb->QUADfct;                   /* matlab function handle */ 
+  mx_in[4] = fwdPb->mtlb_data;                 /* matlab user data */
 
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
 
-  mexCallMATLAB(3,mx_out,6,mx_in,"idm_rhsQ");
+  mexCallMATLAB(3,mx_out,5,mx_in,"idm_rhsQ");
 
   PutData(ypQ, mxGetPr(mx_out[0]), Nq);
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], fwdPb);
   }
 
   /* Free temporary space */
   mxDestroyArray(mx_in[0]);
   mxDestroyArray(mx_in[1]);
   mxDestroyArray(mx_in[2]);
-  mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -179,19 +125,23 @@ int mtlb_IdaQuadFct(realtype tres, N_Vector yy, N_Vector yp, N_Vector ypQ,
   return(ret);
 }
 
-int mtlb_IdaGfct(realtype t, N_Vector yy, N_Vector yp,
-                 realtype *gout, void *g_data)
+int mxW_IDAGfct(realtype t, N_Vector yy, N_Vector yp,
+                realtype *gout, void *user_data)
 {
+  idmPbData fwdPb;
   double *gdata;
   int i, ret;
   mxArray *mx_in[5], *mx_out[3];
   
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
+
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);          /* current t */
   mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yy */
   mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yp */
-  mx_in[3] = mx_Gfct;                          /* matlab function handle */
-  mx_in[4] = mx_data;                          /* matlab user data */
+  mx_in[3] = fwdPb->Gfct;                      /* matlab function handle */
+  mx_in[4] = fwdPb->mtlb_data;                 /* matlab user data */
   
   /* Call matlab wrapper */
   GetData(yy, mxGetPr(mx_in[1]), N);
@@ -205,7 +155,7 @@ int mtlb_IdaGfct(realtype t, N_Vector yy, N_Vector yp,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], fwdPb);
   }
 
   /* Free temporary space */
@@ -219,31 +169,34 @@ int mtlb_IdaGfct(realtype t, N_Vector yy, N_Vector yp,
   return(ret);
 }
 
-int mtlb_IdaDenseJac(int Neq, realtype tt, realtype c_j, 
-                     N_Vector yy, N_Vector yp, N_Vector rr,
-                     DlsMat Jac, void *jac_data, 
-                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int mxW_IDADenseJac(int Neq, realtype tt, realtype c_j, 
+                    N_Vector yy, N_Vector yp, N_Vector rr,
+                    DlsMat Jac, void *user_data, 
+                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
+  idmPbData fwdPb;
   double *J_data;
   int i, ret;
-  mxArray *mx_in[8], *mx_out[3];
+  mxArray *mx_in[7], *mx_out[3];
+
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
 
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */  
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current rr */
-  mx_in[5] = mxCreateScalarDouble(c_j);         /* current c_j */  
-  mx_in[6] = mx_JACfct;                         /* matlab function handle */
-  mx_in[7] = mx_data;                           /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */  
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current rr */
+  mx_in[4] = mxCreateScalarDouble(c_j);         /* current c_j */  
+  mx_in[5] = fwdPb->JACfct;                     /* matlab function handle */
+  mx_in[6] = fwdPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(rr, mxGetPr(mx_in[4]), N);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(rr, mxGetPr(mx_in[3]), N);
 
-  mexCallMATLAB(3,mx_out,8,mx_in,"idm_djac");
+  mexCallMATLAB(3,mx_out,7,mx_in,"idm_djac");
 
   /* Extract data */
   J_data = mxGetPr(mx_out[0]);
@@ -253,7 +206,7 @@ int mtlb_IdaDenseJac(int Neq, realtype tt, realtype c_j,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], fwdPb);
   }
 
   /* Free temporary space */
@@ -262,7 +215,6 @@ int mtlb_IdaDenseJac(int Neq, realtype tt, realtype c_j,
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_in[4]);
-  mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -270,32 +222,35 @@ int mtlb_IdaDenseJac(int Neq, realtype tt, realtype c_j,
   return(ret);
 }
 
-int mtlb_IdaBandJac(int Neq, int mupper, int mlower, 
-                    realtype tt, realtype c_j, 
-                    N_Vector yy, N_Vector yp, N_Vector rr, 
-                    DlsMat Jac, void *jac_data,
-                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int mxW_IDABandJac(int Neq, int mupper, int mlower, 
+                   realtype tt, realtype c_j, 
+                   N_Vector yy, N_Vector yp, N_Vector rr, 
+                   DlsMat Jac, void *user_data,
+                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
+  idmPbData fwdPb;
   double *J_data;
   int eband, i, ret;
-  mxArray *mx_in[8], *mx_out[3];
+  mxArray *mx_in[7], *mx_out[3];
+
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
 
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current rr */
-  mx_in[5] = mxCreateScalarDouble(c_j);         /* current c_j */
-  mx_in[6] = mx_JACfct;                         /* matlab function handle */
-  mx_in[7] = mx_data;                           /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current rr */
+  mx_in[4] = mxCreateScalarDouble(c_j);         /* current c_j */
+  mx_in[5] = fwdPb->JACfct;                     /* matlab function handle */
+  mx_in[6] = fwdPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(rr, mxGetPr(mx_in[4]), N);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(rr, mxGetPr(mx_in[3]), N);
 
-  mexCallMATLAB(3,mx_out,8,mx_in,"idm_bjac");
+  mexCallMATLAB(3,mx_out,7,mx_in,"idm_bjac");
 
   /* Extract data */
   eband =  mupper + mlower + 1;
@@ -306,7 +261,7 @@ int mtlb_IdaBandJac(int Neq, int mupper, int mlower,
   ret = (int)*mxGetPr(mx_out[1]);
   
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], fwdPb);
   }
 
   /* Free temporary space */
@@ -315,7 +270,6 @@ int mtlb_IdaBandJac(int Neq, int mupper, int mlower,
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_in[4]);
-  mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -323,39 +277,42 @@ int mtlb_IdaBandJac(int Neq, int mupper, int mlower,
   return(ret);
 }
 
-int mtlb_IdaSpilsJac(realtype tt,
-                     N_Vector yy, N_Vector yp, N_Vector rr,
-                     N_Vector v, N_Vector Jv,
-                     realtype c_j, void *jac_data,
-                     N_Vector tmp1, N_Vector tmp2)
+int mxW_IDASpilsJac(realtype tt,
+                    N_Vector yy, N_Vector yp, N_Vector rr,
+                    N_Vector v, N_Vector Jv,
+                    realtype c_j, void *user_data,
+                    N_Vector tmp1, N_Vector tmp2)
 {
-  mxArray *mx_in[9], *mx_out[3];
+  idmPbData fwdPb;
+  mxArray *mx_in[8], *mx_out[3];
   int ret;
 
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */ 
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current rr */
-  mx_in[5] = mxCreateDoubleMatrix(N,1,mxREAL);  /* vector v */
-  mx_in[6] = mxCreateScalarDouble(c_j);         /* current c_j */ 
-  mx_in[7] = mx_JACfct;                         /* matlab function handle */
-  mx_in[8] = mx_data;                           /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */ 
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current rr */
+  mx_in[4] = mxCreateDoubleMatrix(N,1,mxREAL);  /* vector v */
+  mx_in[5] = mxCreateScalarDouble(c_j);         /* current c_j */ 
+  mx_in[6] = fwdPb->JACfct;                     /* matlab function handle */
+  mx_in[7] = fwdPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(rr, mxGetPr(mx_in[4]), N);
-  GetData(v, mxGetPr(mx_in[5]), N);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(rr, mxGetPr(mx_in[3]), N);
+  GetData(v, mxGetPr(mx_in[4]), N);
 
-  mexCallMATLAB(3,mx_out,9,mx_in,"idm_jtv");
+  mexCallMATLAB(3,mx_out,8,mx_in,"idm_jtv");
 
   PutData(Jv, mxGetPr(mx_out[0]), N);
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], fwdPb);
   }
 
   /* Free temporary space */
@@ -365,7 +322,6 @@ int mtlb_IdaSpilsJac(realtype tt,
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_in[4]);
   mxDestroyArray(mx_in[5]);
-  mxDestroyArray(mx_in[6]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -373,36 +329,39 @@ int mtlb_IdaSpilsJac(realtype tt,
   return(ret);
 }
 
-int mtlb_IdaSpilsPset(realtype tt,
-                      N_Vector yy, N_Vector yp, N_Vector rr,
-                      realtype c_j, void *prec_data,
-                      N_Vector tmp1, N_Vector tmp2,
-                      N_Vector tmp3)
+int mxW_IDASpilsPset(realtype tt,
+                     N_Vector yy, N_Vector yp, N_Vector rr,
+                     realtype c_j, void *user_data,
+                     N_Vector tmp1, N_Vector tmp2,
+                     N_Vector tmp3)
 {
-  mxArray *mx_in[8], *mx_out[2];
+  idmPbData fwdPb;
+  mxArray *mx_in[7], *mx_out[2];
   int ret;
 
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current rr */
-  mx_in[5] = mxCreateLogicalScalar(c_j);        /* current c_j */
-  mx_in[6] = mx_PSETfct;                        /* matlab function handle */
-  mx_in[7] = mx_data;                           /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current rr */
+  mx_in[4] = mxCreateLogicalScalar(c_j);        /* current c_j */
+  mx_in[5] = fwdPb->PSETfct;                    /* matlab function handle */
+  mx_in[6] = fwdPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(rr, mxGetPr(mx_in[4]), N);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(rr, mxGetPr(mx_in[3]), N);
 
-  mexCallMATLAB(2,mx_out,8,mx_in,"idm_pset");
+  mexCallMATLAB(2,mx_out,7,mx_in,"idm_pset");
 
   ret = (int)*mxGetPr(mx_out[0]);
 
   if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+    UpdateUserData(mx_out[1], fwdPb);
   }
 
   /* Free temporary space */
@@ -411,46 +370,48 @@ int mtlb_IdaSpilsPset(realtype tt,
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_in[4]);
-  mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
   return(ret);
 }
 
-int mtlb_IdaSpilsPsol(realtype tt,
-                      N_Vector yy, N_Vector yp, N_Vector rr,
-                      N_Vector rvec, N_Vector zvec,
-                      realtype c_j, realtype delta, void *prec_data,
-                      N_Vector tmp)
+int mxW_IDASpilsPsol(realtype tt,
+                     N_Vector yy, N_Vector yp, N_Vector rr,
+                     N_Vector rvec, N_Vector zvec,
+                     realtype c_j, realtype delta, void *user_data,
+                     N_Vector tmp)
 {
-  mxArray *mx_in[9], *mx_out[3];
+  idmPbData fwdPb;
+  mxArray *mx_in[8], *mx_out[3];
   int ret;
 
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(1.0);        /* type=1: forward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);         /* current t */   
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(N,1,mxREAL); /* current rr */
-  mx_in[5] = mxCreateDoubleMatrix(N,1,mxREAL); /* right hand side r */
-  mx_in[6] = mxCreateScalarDouble(c_j);        /* current c_j */   
-  mx_in[7] = mx_PSOLfct;                       /* matlab function handle */
-  mx_in[8] = mx_data;                          /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);         /* current t */   
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL); /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL); /* current rr */
+  mx_in[4] = mxCreateDoubleMatrix(N,1,mxREAL); /* right hand side r */
+  mx_in[5] = mxCreateScalarDouble(c_j);        /* current c_j */   
+  mx_in[6] = fwdPb->PSOLfct;                   /* matlab function handle */
+  mx_in[7] = fwdPb->mtlb_data;                 /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(rr, mxGetPr(mx_in[4]), N);
-  GetData(rvec, mxGetPr(mx_in[5]), N);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(rr, mxGetPr(mx_in[3]), N);
+  GetData(rvec, mxGetPr(mx_in[4]), N);
 
-  mexCallMATLAB(3,mx_out,9,mx_in,"idm_psol");
+  mexCallMATLAB(3,mx_out,8,mx_in,"idm_psol");
 
   PutData(zvec, mxGetPr(mx_out[0]), N);
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], fwdPb);
   }
 
   /* Free temporary space */
@@ -460,7 +421,6 @@ int mtlb_IdaSpilsPsol(realtype tt,
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_in[4]);
   mxDestroyArray(mx_in[5]);
-  mxDestroyArray(mx_in[6]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -474,39 +434,41 @@ int mtlb_IdaSpilsPsol(realtype tt,
  * ----------------------------
  */
 
-int mtlb_IdaBBDgloc(int Nlocal, realtype tt,
-                    N_Vector yy, N_Vector yp, N_Vector gval,
-                    void *res_data)
+int mxW_IDABBDgloc(int Nlocal, realtype tt,
+                   N_Vector yy, N_Vector yp, N_Vector gval,
+                   void *user_data)
 {
-  mxArray *mx_in[6], *mx_out[3];
+  idmPbData fwdPb;
+  mxArray *mx_in[5], *mx_out[3];
   int ret;
 
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mx_GLOCfct;                        /* matlab function handle */
-  mx_in[5] = mx_data;                           /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = fwdPb->GLOCfct;                    /* matlab function handle */
+  mx_in[4] = fwdPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
 
-  mexCallMATLAB(3,mx_out,6,mx_in,"idm_gloc");
+  mexCallMATLAB(3,mx_out,5,mx_in,"idm_gloc");
 
   PutData(gval, mxGetPr(mx_out[0]), N);
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], fwdPb);
   }
 
   /* Free temporary space */
   mxDestroyArray(mx_in[0]);
   mxDestroyArray(mx_in[1]);
   mxDestroyArray(mx_in[2]);
-  mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -514,38 +476,40 @@ int mtlb_IdaBBDgloc(int Nlocal, realtype tt,
   return(ret);
 }
 
-int mtlb_IdaBBDgcom(int Nlocal, realtype tt,
-                    N_Vector yy, N_Vector yp,
-                    void *res_data)
+int mxW_IDABBDgcom(int Nlocal, realtype tt,
+                   N_Vector yy, N_Vector yp,
+                   void *user_data)
 {
-  mxArray *mx_in[6], *mx_out[2];
+  idmPbData fwdPb;
+  mxArray *mx_in[5], *mx_out[2];
   int ret;
 
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mx_GCOMfct;                        /* matlab function handle */
-  mx_in[5] = mx_data;                           /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = fwdPb->GCOMfct;                    /* matlab function handle */
+  mx_in[4] = fwdPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
 
-  mexCallMATLAB(2,mx_out,6,mx_in,"idm_gcom");
+  mexCallMATLAB(2,mx_out,5,mx_in,"idm_gcom");
 
   ret = (int)*mxGetPr(mx_out[0]);
 
   if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+    UpdateUserData(mx_out[1], fwdPb);
   }
 
   /* Free temporary space */
   mxDestroyArray(mx_in[0]);
   mxDestroyArray(mx_in[1]);
   mxDestroyArray(mx_in[2]);
-  mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
@@ -558,15 +522,19 @@ int mtlb_IdaBBDgcom(int Nlocal, realtype tt,
  * ----------------------------
  */
 
-int mtlb_IdaSensRes(int Nsens, realtype tres, 
-                    N_Vector yy, N_Vector yp, N_Vector rr,
-                    N_Vector *yyS, N_Vector *ypS, N_Vector *rrS,
-                    void *rdataS,
-                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int mxW_IDASensRes(int Nsens, realtype tres, 
+                   N_Vector yy, N_Vector yp, N_Vector rr,
+                   N_Vector *yyS, N_Vector *ypS, N_Vector *rrS,
+                   void *user_data,
+                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
+  idmPbData fwdPb;
   mxArray *mx_in[9], *mx_out[3];
   int is, ret;
   double *tmp_yyS, *tmp_ypS, *tmp_rrS;
+
+  /* Extract global interface data from user-data */
+  fwdPb = (idmPbData) user_data;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(tres);          /* current t */
@@ -576,13 +544,15 @@ int mtlb_IdaSensRes(int Nsens, realtype tres,
   mx_in[4] = mxCreateScalarDouble(Ns);            /* number of sensitivities */
   mx_in[5] = mxCreateDoubleMatrix(N*Ns,1,mxREAL); /* current yyS */
   mx_in[6] = mxCreateDoubleMatrix(N*Ns,1,mxREAL); /* current ypS */
-  mx_in[7] = mx_SRESfct;                          /* matlab function handle */      
-  mx_in[8] = mx_data;                             /* matlab user data */
+  mx_in[7] = fwdPb->SRESfct;                      /* matlab function handle */      
+  mx_in[8] = fwdPb->mtlb_data;                    /* matlab user data */
   
   /* Call matlab wrapper */
+
   GetData(yy, mxGetPr(mx_in[1]), N);
   GetData(yp, mxGetPr(mx_in[2]), N);
   GetData(rr, mxGetPr(mx_in[3]), N);
+
   tmp_yyS = mxGetPr(mx_in[5]);
   tmp_ypS = mxGetPr(mx_in[6]);
   for (is=0; is<Ns; is++) {
@@ -600,7 +570,7 @@ int mtlb_IdaSensRes(int Nsens, realtype tres,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], fwdPb);
   }
 
   /* Free temporary space */
@@ -626,23 +596,28 @@ int mtlb_IdaSensRes(int Nsens, realtype tres,
  * ----------------------------
  */
 
-int mtlb_IdaResB(realtype tt, 
-                 N_Vector yy, N_Vector yp,
-                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                 void *rdataB)
+int mxW_IDAResB(realtype tt, 
+                N_Vector yy, N_Vector yp,
+                N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                void *user_dataB)
 {
+  idmPbData fwdPb, bckPb;
   mxArray *mx_in[8], *mx_out[3];
   int ret;
 
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
+  mx_in[0] = mxCreateScalarDouble(0.0);         /* type=0: not dependent on yS */
   mx_in[1] = mxCreateScalarDouble(tt);          /* current t */
   mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
   mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
   mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
   mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
-  mx_in[6] = mx_RESfctB;                        /* matlab function handle */ 
-  mx_in[7] = mx_data;                           /* matlab user data */
+  mx_in[6] = bckPb->RESfct;                     /* matlab function handle */ 
+  mx_in[7] = bckPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
   GetData(yy, mxGetPr(mx_in[2]), N);
@@ -650,14 +625,14 @@ int mtlb_IdaResB(realtype tt,
   GetData(yyB, mxGetPr(mx_in[4]), NB);
   GetData(ypB, mxGetPr(mx_in[5]), NB);
 
-  mexCallMATLAB(3,mx_out,8,mx_in,"idm_res");
+  mexCallMATLAB(3,mx_out,8,mx_in,"idm_resB");
 
   PutData(rrB, mxGetPr(mx_out[0]), NB);
 
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], bckPb);
   }
 
   /* Free temporary space */
@@ -674,94 +649,57 @@ int mtlb_IdaResB(realtype tt,
   return(ret);
 }
 
-int mtlb_IdaQuadFctB(realtype tt, 
-                     N_Vector yy, N_Vector yp, 
-                     N_Vector yyB, N_Vector ypB,
-                     N_Vector ypQB, void *rdataQB)
+int mxW_IDAResBS(realtype tt, 
+                 N_Vector yy, N_Vector yp,
+                 N_Vector *yyS, N_Vector *ypS,
+                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                 void *user_dataB)
 {
-  mxArray *mx_in[8], *mx_out[3];
-  int ret;
+  idmPbData fwdPb, bckPb;
+  mxArray *mx_in[11], *mx_out[3];
+  double *tmp_yyS, *tmp_ypS;
+  int is, ret;
+
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
-  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
-  mx_in[6] = mx_QUADfctB;                       /* matlab function handle */ 
-  mx_in[7] = mx_data;                           /* matlab user data */
-
-  /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(yyB, mxGetPr(mx_in[4]), NB);
-  GetData(ypB, mxGetPr(mx_in[5]), NB);
-
-  mexCallMATLAB(3,mx_out,8,mx_in,"idm_rhsQ");
-
-  PutData(ypQB, mxGetPr(mx_out[0]), NqB);
-
-  ret = (int)*mxGetPr(mx_out[1]);
-
-  if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
-  }
-
-  /* Free temporary space */
-  mxDestroyArray(mx_in[0]);
-  mxDestroyArray(mx_in[1]);
-  mxDestroyArray(mx_in[2]);
-  mxDestroyArray(mx_in[3]);
-  mxDestroyArray(mx_in[4]);
-  mxDestroyArray(mx_in[5]);
-  mxDestroyArray(mx_out[0]);
-  mxDestroyArray(mx_out[1]);
-  mxDestroyArray(mx_out[2]);
-
-  return(ret);
-}
-
-int mtlb_IdaDenseJacB(int NeqB,
-                      realtype tt, realtype c_jB,
-                      N_Vector yy, N_Vector yp,
-                      N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                      DlsMat JacB, void *jac_dataB, 
-                      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
-{
-  double *JB_data;
-  mxArray *mx_in[10], *mx_out[3];
-  int i, ret;
-
-  /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */  
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
-  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
-  mx_in[6] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current rrB */
-  mx_in[7] = mxCreateScalarDouble(c_jB);        /* current c_jB */  
-  mx_in[8] = mx_JACfctB;                        /* matlab function handle */
-  mx_in[9] = mx_data;                           /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(1.0);           /* type=1: dependent on yS */
+  mx_in[1] = mxCreateScalarDouble(tt);            /* current t */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);    /* current yy */
+  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);    /* current yp */
+  mx_in[4] = mxCreateScalarDouble(Ns);            /* number of sensitivities */
+  mx_in[5] = mxCreateDoubleMatrix(N*Ns,1,mxREAL); /* current yyS */
+  mx_in[6] = mxCreateDoubleMatrix(N*Ns,1,mxREAL); /* current ypS */
+  mx_in[7] = mxCreateDoubleMatrix(NB,1,mxREAL);   /* current yyB */
+  mx_in[8] = mxCreateDoubleMatrix(NB,1,mxREAL);   /* current ypB */
+  mx_in[9] = bckPb->RESfct;                       /* matlab function handle */ 
+  mx_in[10] = bckPb->mtlb_data;                   /* matlab user data */
   
   /* Call matlab wrapper */
+
   GetData(yy, mxGetPr(mx_in[2]), N);
   GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(yyB, mxGetPr(mx_in[4]), NB);
-  GetData(ypB, mxGetPr(mx_in[5]), NB);
-  GetData(rrB, mxGetPr(mx_in[6]), NB);
 
-  mexCallMATLAB(3,mx_out,10,mx_in,"idm_djac");
+  tmp_yyS = mxGetPr(mx_in[5]);
+  tmp_ypS = mxGetPr(mx_in[6]);
+  for (is=0; is<Ns; is++) {
+    GetData(yyS[is], &tmp_yyS[is*N], N);
+    GetData(ypS[is], &tmp_ypS[is*N], N);
+  }
 
-  JB_data = mxGetPr(mx_out[0]);
-  for (i=0;i<NB;i++)
-    memcpy(DENSE_COL(JacB,i), JB_data + i*NB, NB*sizeof(double));
+  GetData(yyB, mxGetPr(mx_in[7]), NB);
+  GetData(ypB, mxGetPr(mx_in[8]), NB);
+
+  mexCallMATLAB(3,mx_out,11,mx_in,"idm_resB");
+
+  PutData(rrB, mxGetPr(mx_out[0]), NB);
 
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], bckPb);
   }
 
   /* Free temporary space */
@@ -773,6 +711,7 @@ int mtlb_IdaDenseJacB(int NeqB,
   mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_in[6]);
   mxDestroyArray(mx_in[7]);
+  mxDestroyArray(mx_in[8]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -780,37 +719,225 @@ int mtlb_IdaDenseJacB(int NeqB,
   return(ret);
 }
 
-int mtlb_IdaBandJacB(int NeqB, int mupperB, int mlowerB, 
-                     realtype tt, realtype c_jB, 
-                     N_Vector yy, N_Vector yp,
-                     N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                     DlsMat JacB, void *jac_dataB,
-                     N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+int mxW_IDAQuadFctB(realtype tt, 
+                    N_Vector yy, N_Vector yp, 
+                    N_Vector yyB, N_Vector ypB,
+                    N_Vector ypQB, void *user_dataB)
 {
-  double *JB_data;
-  mxArray *mx_in[10], *mx_out[3];
-  int ebandB, i, ret;
+  idmPbData fwdPb, bckPb;
+  mxArray *mx_in[8], *mx_out[3];
+  int ret;
+
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
 
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
+  mx_in[0] = mxCreateScalarDouble(0.0);         /* type=0: not dependent on yS */
   mx_in[1] = mxCreateScalarDouble(tt);          /* current t */
   mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
   mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
   mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
   mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
-  mx_in[6] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current rrB */
-  mx_in[7] = mxCreateScalarDouble(c_jB);        /* current c_jB */
-  mx_in[8] = mx_JACfctB;                        /* matlab function handle */
-  mx_in[9] = mx_data;                           /* matlab user data */
-  
+  mx_in[6] = bckPb->QUADfct;                    /* matlab function handle */ 
+  mx_in[7] = bckPb->mtlb_data;                  /* matlab user data */
+
   /* Call matlab wrapper */
   GetData(yy, mxGetPr(mx_in[2]), N);
   GetData(yp, mxGetPr(mx_in[3]), N);
   GetData(yyB, mxGetPr(mx_in[4]), NB);
   GetData(ypB, mxGetPr(mx_in[5]), NB);
-  GetData(rrB, mxGetPr(mx_in[6]), NB);
 
-  mexCallMATLAB(3,mx_out,10,mx_in,"idm_bjac");
+  mexCallMATLAB(3,mx_out,8,mx_in,"idm_rhsQB");
+
+  PutData(ypQB, mxGetPr(mx_out[0]), NqB);
+
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2], bckPb);
+  }
+
+  /* Free temporary space */
+  mxDestroyArray(mx_in[0]);
+  mxDestroyArray(mx_in[1]);
+  mxDestroyArray(mx_in[2]);
+  mxDestroyArray(mx_in[3]);
+  mxDestroyArray(mx_in[4]);
+  mxDestroyArray(mx_in[5]);
+  mxDestroyArray(mx_out[0]);
+  mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
+
+  return(ret);
+}
+
+int mxW_IDAQuadFctBS(realtype tt, 
+                     N_Vector yy, N_Vector yp, 
+                     N_Vector *yyS, N_Vector *ypS,
+                     N_Vector yyB, N_Vector ypB,
+                     N_Vector ypQB, void *user_dataB)
+{
+  idmPbData fwdPb, bckPb;
+  mxArray *mx_in[11], *mx_out[3];
+  double *tmp_yyS, *tmp_ypS;
+  int is, ret;
+
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
+
+  /* Inputs to the Matlab function */
+  mx_in[0] = mxCreateScalarDouble(1.0);           /* type=1: dependent on yS */
+  mx_in[1] = mxCreateScalarDouble(tt);            /* current t */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);    /* current yy */
+  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);    /* current yp */
+  mx_in[4] = mxCreateScalarDouble(Ns);            /* number of sensitivities */
+  mx_in[5] = mxCreateDoubleMatrix(N*Ns,1,mxREAL); /* current yyS */
+  mx_in[6] = mxCreateDoubleMatrix(N*Ns,1,mxREAL); /* current ypS */
+  mx_in[7] = mxCreateDoubleMatrix(NB,1,mxREAL);   /* current yyB */
+  mx_in[8] = mxCreateDoubleMatrix(NB,1,mxREAL);   /* current ypB */
+  mx_in[9] = bckPb->QUADfct;                      /* matlab function handle */ 
+  mx_in[10] = bckPb->mtlb_data;                   /* matlab user data */
+
+  /* Call matlab wrapper */
+
+  GetData(yy, mxGetPr(mx_in[2]), N);
+  GetData(yp, mxGetPr(mx_in[3]), N);
+
+  tmp_yyS = mxGetPr(mx_in[5]);
+  tmp_ypS = mxGetPr(mx_in[6]);
+  for (is=0; is<Ns; is++) {
+    GetData(yyS[is], &tmp_yyS[is*N], N);
+    GetData(ypS[is], &tmp_ypS[is*N], N);
+  }
+
+  GetData(yyB, mxGetPr(mx_in[7]), NB);
+  GetData(ypB, mxGetPr(mx_in[8]), NB);
+
+  mexCallMATLAB(3,mx_out,11,mx_in,"idm_rhsQB");
+
+  PutData(ypQB, mxGetPr(mx_out[0]), NqB);
+
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2], bckPb);
+  }
+
+  /* Free temporary space */
+  mxDestroyArray(mx_in[0]);
+  mxDestroyArray(mx_in[1]);
+  mxDestroyArray(mx_in[2]);
+  mxDestroyArray(mx_in[3]);
+  mxDestroyArray(mx_in[4]);
+  mxDestroyArray(mx_in[5]);
+  mxDestroyArray(mx_in[6]);
+  mxDestroyArray(mx_in[7]);
+  mxDestroyArray(mx_in[8]);
+  mxDestroyArray(mx_out[0]);
+  mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
+
+  return(ret);
+}
+
+int mxW_IDADenseJacB(int NeqB,
+                     realtype tt, realtype c_jB,
+                     N_Vector yy, N_Vector yp,
+                     N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                     DlsMat JacB, void *user_dataB, 
+                     N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+{
+  idmPbData fwdPb, bckPb;
+  double *JB_data;
+  mxArray *mx_in[9], *mx_out[3];
+  int i, ret;
+
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
+
+  /* Inputs to the Matlab function */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */  
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
+  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
+  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current rrB */
+  mx_in[6] = mxCreateScalarDouble(c_jB);        /* current c_jB */  
+  mx_in[7] = bckPb->JACfct;                     /* matlab function handle */
+  mx_in[8] = bckPb->mtlb_data;                  /* matlab user data */
+  
+  /* Call matlab wrapper */
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(yyB, mxGetPr(mx_in[3]), NB);
+  GetData(ypB, mxGetPr(mx_in[4]), NB);
+  GetData(rrB, mxGetPr(mx_in[5]), NB);
+
+  mexCallMATLAB(3,mx_out,9,mx_in,"idm_djacB");
+
+  JB_data = mxGetPr(mx_out[0]);
+  for (i=0;i<NB;i++)
+    memcpy(DENSE_COL(JacB,i), JB_data + i*NB, NB*sizeof(double));
+
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2], bckPb);
+  }
+
+  /* Free temporary space */
+  mxDestroyArray(mx_in[0]);
+  mxDestroyArray(mx_in[1]);
+  mxDestroyArray(mx_in[2]);
+  mxDestroyArray(mx_in[3]);
+  mxDestroyArray(mx_in[4]);
+  mxDestroyArray(mx_in[5]);
+  mxDestroyArray(mx_in[6]);
+  mxDestroyArray(mx_out[0]);
+  mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
+
+  return(ret);
+}
+
+int mxW_IDABandJacB(int NeqB, int mupperB, int mlowerB, 
+                    realtype tt, realtype c_jB, 
+                    N_Vector yy, N_Vector yp,
+                    N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                    DlsMat JacB, void *user_dataB,
+                    N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+{
+  idmPbData fwdPb, bckPb;
+  double *JB_data;
+  mxArray *mx_in[9], *mx_out[3];
+  int ebandB, i, ret;
+
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
+
+  /* Inputs to the Matlab function */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
+  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
+  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current rrB */
+  mx_in[6] = mxCreateScalarDouble(c_jB);        /* current c_jB */
+  mx_in[7] = bckPb->JACfct;                     /* matlab function handle */
+  mx_in[8] = bckPb->mtlb_data;                  /* matlab user data */
+  
+  /* Call matlab wrapper */
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(yyB, mxGetPr(mx_in[3]), NB);
+  GetData(ypB, mxGetPr(mx_in[4]), NB);
+  GetData(rrB, mxGetPr(mx_in[5]), NB);
+
+  mexCallMATLAB(3,mx_out,9,mx_in,"idm_bjacB");
 
   ebandB =  mupperB + mlowerB + 1;
   JB_data = mxGetPr(mx_out[0]);
@@ -820,7 +947,7 @@ int mtlb_IdaBandJacB(int NeqB, int mupperB, int mlowerB,
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], bckPb);
   }
 
   /* Free temporary space */
@@ -831,7 +958,6 @@ int mtlb_IdaBandJacB(int NeqB, int mupperB, int mlowerB,
   mxDestroyArray(mx_in[4]);
   mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_in[6]);
-  mxDestroyArray(mx_in[7]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -839,44 +965,48 @@ int mtlb_IdaBandJacB(int NeqB, int mupperB, int mlowerB,
   return(ret);
 }
 
-int mtlb_IdaSpilsJacB(realtype tt,
-                      N_Vector yy, N_Vector yp,
-                      N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                      N_Vector vB, N_Vector JvB, 
-                      realtype c_jB, void *jac_dataB, 
-                      N_Vector tmp1B, N_Vector tmp2B)
+int mxW_IDASpilsJacB(realtype tt,
+                     N_Vector yy, N_Vector yp,
+                     N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                     N_Vector vB, N_Vector JvB, 
+                     realtype c_jB, void *user_dataB, 
+                     N_Vector tmp1B, N_Vector tmp2B)
 {
-  mxArray *mx_in[11], *mx_out[3];
+  idmPbData fwdPb, bckPb;
+  mxArray *mx_in[10], *mx_out[3];
   int ret;
 
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */ 
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
-  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
-  mx_in[6] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current rrB */
-  mx_in[7] = mxCreateDoubleMatrix(NB,1,mxREAL); /* vector vB */
-  mx_in[8] = mxCreateScalarDouble(c_jB);        /* current c_jB */ 
-  mx_in[9] = mx_JACfctB;                        /* matlab function handle */
-  mx_in[10] = mx_data;                          /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */ 
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
+  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
+  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current rrB */
+  mx_in[6] = mxCreateDoubleMatrix(NB,1,mxREAL); /* vector vB */
+  mx_in[7] = mxCreateScalarDouble(c_jB);        /* current c_jB */ 
+  mx_in[8] = bckPb->JACfct;                     /* matlab function handle */
+  mx_in[9] = bckPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(yyB, mxGetPr(mx_in[4]), NB);
-  GetData(ypB, mxGetPr(mx_in[5]), NB);
-  GetData(rrB, mxGetPr(mx_in[6]), NB);
-  GetData(vB, mxGetPr(mx_in[7]), NB);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(yyB, mxGetPr(mx_in[3]), NB);
+  GetData(ypB, mxGetPr(mx_in[4]), NB);
+  GetData(rrB, mxGetPr(mx_in[5]), NB);
+  GetData(vB, mxGetPr(mx_in[6]), NB);
 
-  mexCallMATLAB(3,mx_out,11,mx_in,"idm_jtv");
+  mexCallMATLAB(3,mx_out,10,mx_in,"idm_jtvB");
 
   PutData(JvB, mxGetPr(mx_out[0]), NB);
   ret = (int)*mxGetPr(mx_out[1]);
   
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], bckPb);
   }
 
   /* Free temporary space */
@@ -888,7 +1018,6 @@ int mtlb_IdaSpilsJacB(realtype tt,
   mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_in[6]);
   mxDestroyArray(mx_in[7]);
-  mxDestroyArray(mx_in[8]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -897,41 +1026,45 @@ int mtlb_IdaSpilsJacB(realtype tt,
 
 }
 
-int mtlb_IdaSpilsPsetB(realtype tt, 
-                       N_Vector yy, N_Vector yp,
-                       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                       realtype c_jB, void *prec_dataB,
-                       N_Vector tmp1B, N_Vector tmp2B, 
-                       N_Vector tmp3B)
+int mxW_IDASpilsPsetB(realtype tt, 
+                      N_Vector yy, N_Vector yp,
+                      N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+                      realtype c_jB, void *user_dataB,
+                      N_Vector tmp1B, N_Vector tmp2B, 
+                      N_Vector tmp3B)
 {
-  mxArray *mx_in[10], *mx_out[2];
+  idmPbData fwdPb, bckPb;
+  mxArray *mx_in[9], *mx_out[2];
   int ret;
 
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
-  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
-  mx_in[6] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current rrB */
-  mx_in[7] = mxCreateScalarDouble(c_jB);        /* current c_jB */
-  mx_in[8] = mx_PSETfctB;                       /* matlab function handle */
-  mx_in[9] = mx_data;                           /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
+  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
+  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current rrB */
+  mx_in[6] = mxCreateScalarDouble(c_jB);        /* current c_jB */
+  mx_in[7] = bckPb->PSETfct;                    /* matlab function handle */
+  mx_in[8] = bckPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(yyB, mxGetPr(mx_in[4]), NB);
-  GetData(ypB, mxGetPr(mx_in[5]), NB);
-  GetData(rrB, mxGetPr(mx_in[6]), NB);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(yyB, mxGetPr(mx_in[3]), NB);
+  GetData(ypB, mxGetPr(mx_in[4]), NB);
+  GetData(rrB, mxGetPr(mx_in[5]), NB);
 
-  mexCallMATLAB(2,mx_out,10,mx_in,"idm_pset");
+  mexCallMATLAB(2,mx_out,9,mx_in,"idm_psetB");
 
   ret = (int)*mxGetPr(mx_out[0]);
 
   if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+    UpdateUserData(mx_out[1], bckPb);
   }
 
   /* Free temporary space */
@@ -942,7 +1075,6 @@ int mtlb_IdaSpilsPsetB(realtype tt,
   mxDestroyArray(mx_in[4]);
   mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_in[6]);
-  mxDestroyArray(mx_in[7]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
@@ -950,44 +1082,48 @@ int mtlb_IdaSpilsPsetB(realtype tt,
 
 }
 
-int mtlb_IdaSpilsPsolB(realtype tt, 
-                       N_Vector yy, N_Vector yp,
-                       N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                       N_Vector rvecB, N_Vector zvecB,
-                       realtype c_jB, realtype deltaB,
-                       void *prec_dataB, N_Vector tmpB)
+int mxW_IDASpilsPsolB(realtype tt, 
+                      N_Vector yy, N_Vector yp,
+                      N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+                      N_Vector rvecB, N_Vector zvecB,
+                      realtype c_jB, realtype deltaB,
+                      void *user_dataB, N_Vector tmpB)
 {
-  mxArray *mx_in[11], *mx_out[3];
+  idmPbData fwdPb, bckPb;
+  mxArray *mx_in[10], *mx_out[3];
   int ret;
 
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */   
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
-  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
-  mx_in[6] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current rrB */
-  mx_in[7] = mxCreateDoubleMatrix(NB,1,mxREAL); /* right hand side rB */
-  mx_in[8] = mxCreateScalarDouble(c_jB);        /* current c_jB */   
-  mx_in[9] = mx_PSOLfctB;                       /* matlab function handle */
-  mx_in[10] = mx_data;                          /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */   
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
+  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
+  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current rrB */
+  mx_in[6] = mxCreateDoubleMatrix(NB,1,mxREAL); /* right hand side rB */
+  mx_in[7] = mxCreateScalarDouble(c_jB);        /* current c_jB */   
+  mx_in[8] = bckPb->PSOLfct;                    /* matlab function handle */
+  mx_in[9] = bckPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(yyB, mxGetPr(mx_in[4]), NB);
-  GetData(ypB, mxGetPr(mx_in[5]), NB);
-  GetData(rrB, mxGetPr(mx_in[6]), NB);
-  GetData(rvecB, mxGetPr(mx_in[7]), NB);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(yyB, mxGetPr(mx_in[3]), NB);
+  GetData(ypB, mxGetPr(mx_in[4]), NB);
+  GetData(rrB, mxGetPr(mx_in[5]), NB);
+  GetData(rvecB, mxGetPr(mx_in[6]), NB);
 
-  mexCallMATLAB(3,mx_out,11,mx_in,"idm_psol");
+  mexCallMATLAB(3,mx_out,10,mx_in,"idm_psolB");
 
   PutData(zvecB, mxGetPr(mx_out[0]), NB);
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], bckPb);
   }
 
   /* Free temporary space */
@@ -999,7 +1135,6 @@ int mtlb_IdaSpilsPsolB(realtype tt,
   mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_in[6]);
   mxDestroyArray(mx_in[7]);
-  mxDestroyArray(mx_in[8]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -1008,38 +1143,42 @@ int mtlb_IdaSpilsPsolB(realtype tt,
 
 }
 
-int mtlb_IdaBBDglocB(int NlocalB, realtype tt,
-                     N_Vector yy, N_Vector yp, 
-                     N_Vector yyB, N_Vector ypB, N_Vector gvalB,
-                     void *res_dataB)
+int mxW_IDABBDglocB(int NlocalB, realtype tt,
+                    N_Vector yy, N_Vector yp, 
+                    N_Vector yyB, N_Vector ypB, N_Vector gvalB,
+                    void *user_dataB)
 {
-  mxArray *mx_in[8], *mx_out[3];
+  idmPbData fwdPb, bckPb;
+  mxArray *mx_in[7], *mx_out[3];
   int ret;
 
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
-  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
-  mx_in[6] = mx_GLOCfctB;                       /* matlab function handle */
-  mx_in[7] = mx_data;                           /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
+  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
+  mx_in[5] = bckPb->GLOCfct;                    /* matlab function handle */
+  mx_in[6] = bckPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(yyB, mxGetPr(mx_in[4]), NB);
-  GetData(ypB, mxGetPr(mx_in[5]), NB);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(yyB, mxGetPr(mx_in[3]), NB);
+  GetData(ypB, mxGetPr(mx_in[4]), NB);
 
-  mexCallMATLAB(3,mx_out,8,mx_in,"idm_gloc");
+  mexCallMATLAB(3,mx_out,7,mx_in,"idm_glocB");
 
   PutData(gvalB, mxGetPr(mx_out[0]), NB);
 
   ret = (int)*mxGetPr(mx_out[1]);
 
   if (!mxIsEmpty(mx_out[2])) {
-    UpdateUserData(mx_out[2]);
+    UpdateUserData(mx_out[2], bckPb);
   }
 
   /* Free temporary space */
@@ -1048,7 +1187,6 @@ int mtlb_IdaBBDglocB(int NlocalB, realtype tt,
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_in[4]);
-  mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   mxDestroyArray(mx_out[2]);
@@ -1056,36 +1194,40 @@ int mtlb_IdaBBDglocB(int NlocalB, realtype tt,
   return(ret);
 }
 
-int mtlb_IdaBBDgcomB(int NlocalB, realtype tt,
-                     N_Vector yy, N_Vector yp,
-                     N_Vector yyB, N_Vector ypB,
-                     void *res_dataB)
+int mxW_IDABBDgcomB(int NlocalB, realtype tt,
+                    N_Vector yy, N_Vector yp,
+                    N_Vector yyB, N_Vector ypB,
+                    void *user_dataB)
 {
-  mxArray *mx_in[8], *mx_out[2];
+  idmPbData fwdPb, bckPb;
+  mxArray *mx_in[7], *mx_out[2];
   int ret;
 
+  /* Extract global interface data from user-data */
+  bckPb = (idmPbData) user_dataB;
+  fwdPb = bckPb->fwd;
+
   /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
-  mx_in[1] = mxCreateScalarDouble(tt);          /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
-  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
-  mx_in[5] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
-  mx_in[6] = mx_GCOMfctB;                       /* matlab function handle */
-  mx_in[7] = mx_data;                           /* matlab user data */
+  mx_in[0] = mxCreateScalarDouble(tt);          /* current t */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yy */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yp */
+  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yyB */
+  mx_in[4] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current ypB */
+  mx_in[5] = bckPb->GCOMfct;                    /* matlab function handle */
+  mx_in[6] = bckPb->mtlb_data;                  /* matlab user data */
   
   /* Call matlab wrapper */
-  GetData(yy, mxGetPr(mx_in[2]), N);
-  GetData(yp, mxGetPr(mx_in[3]), N);
-  GetData(yyB, mxGetPr(mx_in[4]), NB);
-  GetData(ypB, mxGetPr(mx_in[5]), NB);
+  GetData(yy, mxGetPr(mx_in[1]), N);
+  GetData(yp, mxGetPr(mx_in[2]), N);
+  GetData(yyB, mxGetPr(mx_in[3]), NB);
+  GetData(ypB, mxGetPr(mx_in[4]), NB);
 
-  mexCallMATLAB(2,mx_out,8,mx_in,"idm_gcom");
+  mexCallMATLAB(2,mx_out,7,mx_in,"idm_gcomB");
 
   ret = (int)*mxGetPr(mx_out[0]);
 
   if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+    UpdateUserData(mx_out[1], bckPb);
   }
 
   /* Free temporary space */
@@ -1094,7 +1236,6 @@ int mtlb_IdaBBDgcomB(int NlocalB, realtype tt,
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_in[4]);
-  mxDestroyArray(mx_in[5]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
@@ -1107,59 +1248,54 @@ int mtlb_IdaBBDgcomB(int NlocalB, realtype tt,
  * ---------------------------------------------------------------------------------
  */
 
-void mtlb_IdaMonitor(int call, double t, 
-                     N_Vector yy, N_Vector yp, 
-                     N_Vector yQ, 
-                     N_Vector *yyS, N_Vector *ypS)
+void mxW_IDAMonitor(int call, double t, 
+                    N_Vector yy,
+                    N_Vector yQ, 
+                    N_Vector *yyS,
+                    idmPbData fwdPb)
 {
-  mxArray *mx_in[10], *mx_out[1];
-  double *tmp_yyS, *tmp_ypS;
+  mxArray *mx_in[8], *mx_out[1];
+  double *tmp_yyS;
   int is;
 
-  mx_in[0] = mxCreateScalarDouble(call);            /* call type (1,2:first, 0:interm. 3:last) */
+  mx_in[0] = mxCreateScalarDouble(call);            /* call type (0:first, 1:interm. 2:last) */
   mx_in[1] = mxCreateScalarDouble(t);               /* current time */
   mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);      /* current yy */
-  mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);      /* current yp */
-  if (idm_quad) {
-    mx_in[4] = mxCreateDoubleMatrix(Nq,1,mxREAL);   /* current quadratures */
+  if (quadr) {
+    mx_in[3] = mxCreateDoubleMatrix(Nq,1,mxREAL);   /* current quadratures */
   } else {
-    mx_in[4] = mxCreateDoubleMatrix(0,0,mxREAL);
+    mx_in[3] = mxCreateDoubleMatrix(0,0,mxREAL);
   }
-  mx_in[5] = mxCreateScalarDouble(Ns);              /* number of sensitivities */
-  if (idm_fsa) {
-    mx_in[6] = mxCreateDoubleMatrix(N*Ns,1,mxREAL); /* current yyS */
-    mx_in[7] = mxCreateDoubleMatrix(N*Ns,1,mxREAL); /* current ypS */
+  mx_in[4] = mxCreateScalarDouble(Ns);              /* number of sensitivities */
+  if (fsa) {
+    mx_in[5] = mxCreateDoubleMatrix(N*Ns,1,mxREAL); /* current yyS */
   } else {
-    mx_in[6] = mxCreateDoubleMatrix(0,0,mxREAL);
-    mx_in[7] = mxCreateDoubleMatrix(0,0,mxREAL);
+    mx_in[5] = mxCreateDoubleMatrix(0,0,mxREAL);
   }
-  mx_in[8] = mx_MONfct;                             /* Matlab monitor function */
-  mx_in[9] = mx_MONdata;                            /* data for monitor function */
+  mx_in[6] = fwdPb->MONfct;                         /* Matlab monitor function */
+  mx_in[7] = fwdPb->MONdata;                        /* data for monitor function */
 
-  if ((call == 0) || (call == 1)) {
+  if (call == 1) {
 
     GetData(yy, mxGetPr(mx_in[2]), N);
-    GetData(yp, mxGetPr(mx_in[3]), N);
 
-    if (idm_quad) {
-      GetData(yQ, mxGetPr(mx_in[4]), Nq);
+    if (quadr) {
+      GetData(yQ, mxGetPr(mx_in[3]), Nq);
     }
 
-    if (idm_fsa) {
-      tmp_yyS = mxGetPr(mx_in[6]);
-      tmp_ypS = mxGetPr(mx_in[7]);
+    if (fsa) {
+      tmp_yyS = mxGetPr(mx_in[5]);
       for (is=0; is<Ns; is++) {
         GetData(yyS[is], &tmp_yyS[is*N], N);
-        GetData(ypS[is], &tmp_ypS[is*N], N);
       }
     }
 
   }
 
-  mexCallMATLAB(1,mx_out,10,mx_in,"idm_monitor");
+  mexCallMATLAB(1,mx_out,8,mx_in,"idm_monitor");
 
   if (!mxIsEmpty(mx_out[0])) {
-    UpdateMonitorData(mx_out[0]);
+    UpdateMonitorData(mx_out[0], fwdPb);
   }
 
   mxDestroyArray(mx_in[0]);
@@ -1168,43 +1304,40 @@ void mtlb_IdaMonitor(int call, double t,
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_in[4]);
   mxDestroyArray(mx_in[5]);
-  mxDestroyArray(mx_in[6]);
-  mxDestroyArray(mx_in[7]);
   mxDestroyArray(mx_out[0]);
 }
 
-void mtlb_IdaMonitorB(int call, double tB, N_Vector yyB, N_Vector ypB, N_Vector yQB)
+void mxW_IDAMonitorB(int call, int idxB, double tB,
+                     N_Vector yyB,
+                     N_Vector yQB,
+                     idmPbData bckPb)
 {
-  mxArray *mx_in[10], *mx_out[1];
+  mxArray *mx_in[7], *mx_out[1];
 
   mx_in[0] = mxCreateScalarDouble(call);            /* 0: first, 1: interm. 2: last */
-  mx_in[1] = mxCreateScalarDouble(tB);              /* current time */
-  mx_in[2] = mxCreateDoubleMatrix(NB,1,mxREAL);     /* current yyB */
-  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL);     /* current ypB */
-  if (idm_quadB) {
+  mx_in[1] = mxCreateScalarDouble(idxB);            /* index of current problem */
+  mx_in[2] = mxCreateScalarDouble(tB);              /* current time */
+  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL);     /* current yyB */
+  if (quadrB) {
     mx_in[4] = mxCreateDoubleMatrix(NqB,1,mxREAL);  /* current quadratures */
   } else {
     mx_in[4] = mxCreateDoubleMatrix(0,0,mxREAL);
   }
-  mx_in[5] = mxCreateScalarDouble(0.0);             /* Ns is always zero here */
-  mx_in[6] = mxCreateDoubleMatrix(0,0,mxREAL);      /* yyS is always empty here */
-  mx_in[7] = mxCreateDoubleMatrix(0,0,mxREAL);      /* ypS is always empty here */
-  mx_in[8] = mx_MONfctB;
-  mx_in[9] = mx_MONdataB;
+  mx_in[5] = bckPb->MONfct;
+  mx_in[6] = bckPb->MONdata;
 
-  if ((call == 0) || (call == 1)) {
+  if (call == 1) {
     
-    GetData(yyB, mxGetPr(mx_in[2]), NB);
-    GetData(ypB, mxGetPr(mx_in[3]), NB);
+    GetData(yyB, mxGetPr(mx_in[3]), NB);
 
-    if (idm_quadB)
+    if (quadrB)
       GetData(yQB, mxGetPr(mx_in[4]), NqB);
   }
 
-  mexCallMATLAB(1,mx_out,10,mx_in,"idm_monitor");
+  mexCallMATLAB(1,mx_out,7,mx_in,"idm_monitorB");
 
   if (!mxIsEmpty(mx_out[0])) {
-    UpdateMonitorDataB(mx_out[0]);
+    UpdateMonitorData(mx_out[0], bckPb);
   }
 
   mxDestroyArray(mx_in[0]);
@@ -1212,9 +1345,6 @@ void mtlb_IdaMonitorB(int call, double tB, N_Vector yyB, N_Vector ypB, N_Vector 
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_in[4]);
-  mxDestroyArray(mx_in[5]);
-  mxDestroyArray(mx_in[6]);
-  mxDestroyArray(mx_in[7]);
   mxDestroyArray(mx_out[0]);
 }
 
@@ -1225,30 +1355,22 @@ void mtlb_IdaMonitorB(int call, double tB, N_Vector yyB, N_Vector ypB, N_Vector 
  * ---------------------------------------------------------------------------------
  */
 
-static void UpdateUserData(mxArray *mx_newdata)
+static void UpdateUserData(mxArray *new_mtlb_data, idmPbData pb)
 {
   mexUnlock();
-  mxDestroyArray(mx_data);
-  mx_data = mxDuplicateArray(mx_newdata);
-  mexMakeArrayPersistent(mx_data);
+  mxDestroyArray(pb->mtlb_data);
+  pb->mtlb_data = mxDuplicateArray(new_mtlb_data);
+  mexMakeArrayPersistent(pb->mtlb_data);
   mexLock();
 }
 
-static void UpdateMonitorData(mxArray *mx_newdata)
+static void UpdateMonitorData(mxArray *new_mtlb_data, idmPbData pb)
 {
   mexUnlock();
-  mxDestroyArray(mx_MONdata);
-  mx_MONdata = mxDuplicateArray(mx_newdata);
-  mexMakeArrayPersistent(mx_MONdata);
+  mxDestroyArray(pb->MONdata);
+  pb->MONdata = mxDuplicateArray(new_mtlb_data);
+  mexMakeArrayPersistent(pb->MONdata);
   mexLock();
 }
 
-static void UpdateMonitorDataB(mxArray *mx_newdata)
-{
-  mexUnlock();
-  mxDestroyArray(mx_MONdataB);
-  mx_MONdataB = mxDuplicateArray(mx_newdata);
-  mexMakeArrayPersistent(mx_MONdataB);
-  mexLock();
-}
 

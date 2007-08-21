@@ -1,4 +1,4 @@
-function [new_mondata] = idm_monitor(call, t, yy, yp, yQ, Ns, yyS, ypS, fct, mondata)
+function new_mondata = idm_monitor(call, t, yy, yQ, Ns, yyS, fct, mondata)
 
 %
 % Wrapper around the actual user-provided Matlab function
@@ -6,12 +6,11 @@ function [new_mondata] = idm_monitor(call, t, yy, yp, yQ, Ns, yyS, ypS, fct, mon
 
 N = length(yy);
 yyS = reshape(yyS, N, Ns);
-ypS = reshape(ypS, N, Ns);
 
 if isempty(mondata)
-  feval(fct, call, t, yy, yp, yQ, yyS, ypS);
+  feval(fct, call, t, yy, yQ, yyS);
   new_mondata = [];
 else
-  new_mondata = feval(fct, call, t, yy, yp, yQ, yyS, ypS, mondata);
+  new_mondata = feval(fct, call, t, yy, yQ, yyS, mondata);
 end
 

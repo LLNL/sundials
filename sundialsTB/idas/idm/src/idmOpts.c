@@ -1,48 +1,21 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-03-21 18:36:24 $
+ * $Revision: 1.9 $
+ * $Date: 2007-08-21 17:38:45 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials-x.y.z/src/ida/LICENSE.
+ * For details, see sundials-x.y.z/src/idas/LICENSE.
  * -----------------------------------------------------------------
- * Option parsing functions for the IDA Matlab interface.
+ * Option parsing functions for the IDAS Matlab interface.
  * -----------------------------------------------------------------
  */
 
 #include <string.h>
 #include "idm.h"
-
-extern idm_IDASdata idm_Cdata;   /* IDAS data */
-extern booleantype idm_quad;     /* Quadratures? */
-extern booleantype idm_asa;      /* Adjoint sensitivity? */
-extern booleantype idm_fsa;      /* forward sensitivity? */
-
-extern idm_MATLABdata idm_Mdata; /* MATLAB data */
-
-/* 
- * ---------------------------------------------------------------------------------
- * Private constants
- * ---------------------------------------------------------------------------------
- */
-
-#define ONE RCONST(1.0)
-
-
-
-
-
-
-
-#define IDA_CENTERED 1
-#define IDA_FORWARD  2
-
-
-
 
 /*
  * ---------------------------------------------------------------------------------
@@ -50,37 +23,27 @@ extern idm_MATLABdata idm_Mdata; /* MATLAB data */
  * ---------------------------------------------------------------------------------
  */
 
-#define N           (idm_Cdata->N) 
-#define Ns          (idm_Cdata->Ns) 
-#define Nq          (idm_Cdata->Nq) 
-#define NqB         (idm_Cdata->NqB) 
-#define Ng          (idm_Cdata->Ng) 
-#define ls          (idm_Cdata->ls) 
-#define pm          (idm_Cdata->pm) 
-#define lsB         (idm_Cdata->lsB) 
-#define pmB         (idm_Cdata->pmB) 
+#define N             (thisPb->n) 
+#define Ns            (thisPb->ns) 
+#define Ng            (thisPb->ng) 
+#define ls            (thisPb->LS) 
+#define pm            (thisPb->PM) 
 
-#define mx_QUADfct  (idm_Mdata->mx_QUADfct)
-#define mx_JACfct   (idm_Mdata->mx_JACfct)
-#define mx_PSETfct  (idm_Mdata->mx_PSETfct)
-#define mx_PSOLfct  (idm_Mdata->mx_PSOLfct)
-#define mx_GLOCfct  (idm_Mdata->mx_GLOCfct)
-#define mx_GCOMfct  (idm_Mdata->mx_GCOMfct)
-#define mx_Gfct     (idm_Mdata->mx_Gfct)
-#define mx_SRESfct  (idm_Mdata->mx_SRESfct)
+#define mtlb_data     (thisPb->mtlb_data)
 
-#define mx_QUADfctB (idm_Mdata->mx_QUADfctB)
-#define mx_JACfctB  (idm_Mdata->mx_JACfctB)
-#define mx_PSETfctB (idm_Mdata->mx_PSETfctB)
-#define mx_PSOLfctB (idm_Mdata->mx_PSOLfctB)
-#define mx_GLOCfctB (idm_Mdata->mx_GLOCfctB)
-#define mx_GCOMfctB (idm_Mdata->mx_GCOMfctB)
+#define mtlb_JACfct   (thisPb->JACfct)
+#define mtlb_PSETfct  (thisPb->PSETfct)
+#define mtlb_PSOLfct  (thisPb->PSOLfct)
+#define mtlb_GLOCfct  (thisPb->GLOCfct)
+#define mtlb_GCOMfct  (thisPb->GCOMfct)
+#define mtlb_Gfct     (thisPb->Gfct)
 
-#define mx_MONfct   (idm_Mdata->mx_MONfct)
-#define mx_MONdata  (idm_Mdata->mx_MONdata)
+#define mon           (thisPb->Mon)
+#define tstopSet      (thisPb->TstopSet)
 
-#define mx_MONfctB  (idm_Mdata->mx_MONfctB)
-#define mx_MONdataB (idm_Mdata->mx_MONdataB)
+#define mtlb_MONfct   (thisPb->MONfct)
+#define mtlb_MONdata  (thisPb->MONdata)
+
 
 /*
  * ---------------------------------------------------------------------------------
@@ -88,18 +51,26 @@ extern idm_MATLABdata idm_Mdata; /* MATLAB data */
  * ---------------------------------------------------------------------------------
  */
 
-int get_IntgrOptions(const mxArray *options, int action, booleantype fwd,
-                     int *maxord, long int *mxsteps,
-                     int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
-                     double *hin, double *hmax, double *tstop, booleantype *tstopSet,
-                     booleantype *suppress,
-                     double **id, double **cnstr)
+void get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
+                      int *maxord,
+                      long int *mxsteps,
+                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
+                      double *hin, double *hmax,
+                      double *tstop,
+                      booleantype *suppress,
+                      double **id, double **cnstr,
+                      booleantype *res_s)
 {
   mxArray *opt;
   char *bufval;
   int i, buflen, status, q, m, n;
   double *tmp;
-  booleantype tmp_quad;
+  char *fctName;
+  char *fwd_fctName = "IDAInit/IDAReInit";
+  char *bck_fctName = "IDAInitB/IDAReInitB";
+
+  if (fwd) fctName = fwd_fctName;
+  else     fctName = bck_fctName;
 
   /* Set default values */
 
@@ -114,51 +85,63 @@ int get_IntgrOptions(const mxArray *options, int action, booleantype fwd,
 
   *hin = 0.0;
   *hmax = 0.0;
-  *tstopSet = FALSE;
+
+  *res_s = FALSE;
 
   *suppress = FALSE;
 
   *id = NULL;
   *cnstr = NULL;
 
-  tmp_quad = FALSE;
+  Ng = 0;
+  tstopSet = FALSE;
+  mon = FALSE;
 
   /* Return now if options was empty */
 
-  if (mxIsEmpty(options)) return(0);
+  if (mxIsEmpty(options)) return;
+
+  /* User data */
+
+  opt = mxGetField(options,0,"UserData");
+  if ( !mxIsEmpty(opt) ) {
+    mxDestroyArray(mtlb_data);
+    mtlb_data = mxDuplicateArray(opt);
+  }
 
   /* Tolerances */
 
   opt = mxGetField(options,0,"RelTol");
   if ( !mxIsEmpty(opt) ) {
     *reltol = *mxGetPr(opt);
-    if (*reltol < 0.0 )
-      mexErrMsgTxt("RelTol is negative.");
+    if (*reltol < 0.0 ) idmErrHandler(-999, "IDAS", fctName,
+                                      "RelTol is negative.", NULL);
   }
 
   opt = mxGetField(options,0,"AbsTol");
   if ( !mxIsEmpty(opt) ) {
     m = mxGetM(opt);
     n = mxGetN(opt);
-    if ( (n != 1) && (m != 1) )
-      mexErrMsgTxt("AbsTol is not a scalar or a vector.");
+    if ( (n != 1) && (m != 1) ) idmErrHandler(-999, "IDAS", fctName,
+                                              "AbsTol is not a scalar or a vector.", NULL);
     if ( m > n ) n = m;
     tmp = mxGetPr(opt);
     if (n == 1) {
       *itol = IDA_SS;
       *Sabstol = *tmp;
-      if (*Sabstol < 0.0)
-        mexErrMsgTxt("AbsTol is negative.");
+      if (*Sabstol < 0.0) idmErrHandler(-999, "IDAS", fctName,
+                                        "AbsTol is negative.", NULL);
     } else if (n == N) {
       *itol = IDA_SV;
       *Vabstol = (double *) malloc(N*sizeof(double));
       for(i=0;i<N;i++) {
         (*Vabstol)[i] = tmp[i];
-        if (tmp[i] < 0.0)
-          mexErrMsgTxt("AbsTol has a negative component.");
+        if (tmp[i] < 0.0) idmErrHandler(-999, "IDAS", fctName,
+                                        "AbsTol has a negative component.", NULL);
       }
     } else {
-      mexErrMsgTxt("AbsTol does not contain N elements.");
+      idmErrHandler(-999, "IDAS", fctName,
+                    "AbsTol does not contain N elements.", NULL);
     }
   }
 
@@ -167,8 +150,8 @@ int get_IntgrOptions(const mxArray *options, int action, booleantype fwd,
   opt = mxGetField(options,0,"MaxNumSteps");
   if ( !mxIsEmpty(opt) ) {
     *mxsteps = (int)*mxGetPr(opt);
-    if (*mxsteps < 0)
-      mexErrMsgTxt("MaxNumSteps is negative.");
+    if (*mxsteps < 0) idmErrHandler(-999, "IDAS", fctName,
+                                    "MaxNumSteps is negative.", NULL);
   }
 
   /* Maximum order */
@@ -176,10 +159,10 @@ int get_IntgrOptions(const mxArray *options, int action, booleantype fwd,
   opt = mxGetField(options,0,"MaxOrder");
   if ( !mxIsEmpty(opt) ) {
     q = (int)*mxGetPr(opt);
-    if (q <= 0)
-      mexErrMsgTxt("MaxOrder must be positive.");
-    if (q > *maxord)
-      mexErrMsgTxt("MaxOrder is too large for the Method specified.");
+    if (q <= 0) idmErrHandler(-999, "IDAS", fctName,
+                              "MaxOrder must be positive.", NULL);
+    if (q > *maxord) idmErrHandler(-999, "IDAS", fctName,
+                                   "MaxOrder is too large for BDF.", NULL);
     *maxord = q;
   }
 
@@ -195,20 +178,12 @@ int get_IntgrOptions(const mxArray *options, int action, booleantype fwd,
   opt = mxGetField(options,0,"MaxStep");
   if ( !mxIsEmpty(opt) ) {
     tmp = mxGetPr(opt);
-    if (*tmp < 0.0)
-      mexErrMsgTxt("MaxStep is negative.");
+    if (*tmp < 0.0) idmErrHandler(-999, "IDAS", fctName,
+                                  "MaxStep is negative.", NULL);
     if ( mxIsInf(*tmp) )
       *hmax = 0.0;
     else
       *hmax = *tmp;
-  }
-
-  /* Stopping time */
-
-  opt = mxGetField(options,0,"StopTime");
-  if ( !mxIsEmpty(opt) ) {
-    *tstop = *mxGetPr(opt);
-    *tstopSet = TRUE;
   }
 
   /* ID vector */
@@ -217,8 +192,8 @@ int get_IntgrOptions(const mxArray *options, int action, booleantype fwd,
   if ( !mxIsEmpty(opt) ) {
     m = mxGetM(opt);
     n = mxGetN(opt);
-    if ( (n != 1) && (m != 1) )
-      mexErrMsgTxt("VariableTypes is not a vector.");
+    if ( (n != 1) && (m != 1) ) idmErrHandler(-999, "IDAS", fctName,
+                                              "VariableTypes is not a vector.", NULL);
     if ( m > n ) n = m;
     if (n == N) {
       tmp = mxGetPr(opt);
@@ -226,146 +201,144 @@ int get_IntgrOptions(const mxArray *options, int action, booleantype fwd,
       for(i=0;i<N;i++) 
         (*id)[i] = tmp[i];
     } else {
-      mexErrMsgTxt("VariableTypes has wrong dimension.");
-    }
-  }
-
-  /* Constraints vector */
-
-  opt = mxGetField(options,0,"ConstraintTypes");
-  if ( !mxIsEmpty(opt) ) {
-    m = mxGetM(opt);
-    n = mxGetN(opt);
-    if ( (n != 1) && (m != 1) )
-      mexErrMsgTxt("ConstraintTypes is not a vector.");
-    if ( m > n ) n = m;
-    if (n == N) {
-      tmp = mxGetPr(opt);
-      *cnstr = (double *)malloc(N*sizeof(double));
-      for(i=0;i<N;i++) 
-        (*cnstr)[i] = tmp[i];
-    } else {
-      mexErrMsgTxt("ConstraintTypes has wrong dimension.");
+      idmErrHandler(-999, "IDAS", fctName,
+                    "VariableTypes has wrong dimension." , NULL);
     }
   }
 
   /* Suppress algebraic variables? */
+
   opt = mxGetField(options,0,"SuppressAlgVars");
   if ( !mxIsEmpty(opt) ) {
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Canot parse SuppressAlgVars.");
+    if(status != 0) idmErrHandler(-999, "IDAS", fctName,
+                                  "Canot parse SuppressAlgVars.", NULL);
     if(!strcmp(bufval,"on")) {
       *suppress = TRUE;
     } else if(!strcmp(bufval,"off")) {
       *suppress = FALSE;
     } else {
-      mexErrMsgTxt("SuppressAlgVars has an illegal value.");
+      idmErrHandler(-999, "IDAS", fctName,
+                    "SuppressAlgVars has an illegal value.", NULL);
     }
   }
 
-  /* Options interpreted only for forward phase */
+  /* Monitor? */
 
-  if (fwd) {
+  opt = mxGetField(options,0,"MonitorFn");
+  if ( !mxIsEmpty(opt) ) {
+    mon = TRUE;
+    mxDestroyArray(mtlb_MONfct);
+    mtlb_MONfct = mxDuplicateArray(opt);
+    opt = mxGetField(options,0,"MonitorData");
+    if ( !mxIsEmpty(opt) ) {
+      mxDestroyArray(mtlb_MONdata);
+      mtlb_MONdata  = mxDuplicateArray(opt);
+    }
+  }
+
+  /* The remaining options are interpreted either for 
+   * forward problems only or backward problems only */
+
+  if (fwd) {   /* FORWARD PROBLEM ONLY */
+
+    /* Stopping time */
+    opt = mxGetField(options,0,"StopTime");
+    if ( !mxIsEmpty(opt) ) {
+      *tstop = *mxGetPr(opt);
+      tstopSet = TRUE;
+    }
 
     /* Number of root functions */
     opt = mxGetField(options,0,"NumRoots");
     if ( !mxIsEmpty(opt) ) {
+
       Ng = (int)*mxGetPr(opt);
-      if (Ng < 0)
-        mexErrMsgTxt("NumRoots is negative.");
+      if (Ng < 0) idmErrHandler(-999, "IDAS", fctName,
+                                "NumRoots is negative.", NULL);
       if (Ng > 0) {
         /* Roots function */
         opt = mxGetField(options,0,"RootsFn");
         if ( !mxIsEmpty(opt) ) {
-          mxDestroyArray(mx_Gfct);
-          mx_Gfct = mxDuplicateArray(opt);
+          mxDestroyArray(mtlb_Gfct);
+          mtlb_Gfct = mxDuplicateArray(opt);
         } else {
-          mexErrMsgTxt("RootsFn required for NumRoots > 0");
+          idmErrHandler(-999, "IDAS", fctName,
+                        "RootsFn required for NumRoots > 0", NULL);
         }
       }
+      
     }
 
-  }
-
-  /* Quadratures? */
-
-  opt = mxGetField(options,0,"Quadratures");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Cannot parse Quadratures.");
-    if(!strcmp(bufval,"on")) tmp_quad = TRUE;
-    else if(!strcmp(bufval,"off")) tmp_quad = FALSE;
-    else mexErrMsgTxt("Quadratures has an illegal value.");
-  }
-
-  if (fwd) idm_quad  = tmp_quad;
-  else     idm_quadB = tmp_quad;
-
-  /* Monitor? */
-
-  if (action == 0) {
-    opt = mxGetField(options,0,"MonitorFn");
+    /* Constraints vector */
+    opt = mxGetField(options,0,"ConstraintTypes");
     if ( !mxIsEmpty(opt) ) {
-      if (fwd) {
-        idm_mon = TRUE;
-        mxDestroyArray(mx_MONfct);
-        mx_MONfct = mxDuplicateArray(opt);
+      m = mxGetM(opt);
+      n = mxGetN(opt);
+      if ( (n != 1) && (m != 1) ) idmErrHandler(-999, "IDAS", fctName,
+                                                "ConstraintTypes is not a vector.", NULL);
+      if ( m > n ) n = m;
+      if (n == N) {
+        tmp = mxGetPr(opt);
+        *cnstr = (double *)malloc(N*sizeof(double));
+        for(i=0;i<N;i++) 
+          (*cnstr)[i] = tmp[i];
       } else {
-        idm_monB = TRUE;
-        mxDestroyArray(mx_MONfctB);
-        mx_MONfctB = mxDuplicateArray(opt);
-      }
-      opt = mxGetField(options,0,"MonitorData");
-      if ( !mxIsEmpty(opt) ) {
-        if (fwd) {
-          mxDestroyArray(mx_MONdata);
-          mx_MONdata  = mxDuplicateArray(opt);
-        } else {
-          mxDestroyArray(mx_MONdataB);
-          mx_MONdataB = mxDuplicateArray(opt);
-        }
+        idmErrHandler(-999, "IDAS", fctName,
+                      "ConstraintTypes has wrong dimension.", NULL);
       }
     }
+    
+  } else {   /* BACKWARD PROBLEM ONLY */
+
+    /* Dependency on forward sensitivities */
+
+    opt = mxGetField(options,0,"SensDependent");
+    if ( !mxIsEmpty(opt) ) {
+      if (!mxIsLogical(opt)) idmErrHandler(-999, "IDAS", fctName,
+                                           "SensDependent is not a logical scalar.", NULL);
+      if (mxIsLogicalScalarTrue(opt)) *res_s = TRUE;
+      else                            *res_s = FALSE;
+    }
+
   }
 
   /* We made it here without problems */
 
-  return(0);
+  return;
 }
 
 
-/* MUST ADD: maxrs, epslin?, dqincfac? */
-
-int get_LinSolvOptions(const mxArray *options, booleantype fwd,
-                       int *mupper, int *mlower,
-                       int *mudq, int *mldq,
-                       int *gstype, int *maxl)
+void get_LinSolvOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
+                        int *mupper, int *mlower,
+                        int *mudq, int *mldq, double *dqrely,
+                        int *gstype, int *maxl)
 {
   mxArray *opt;
   char *bufval;
-  int buflen, status, tmp_ls, tmp_pm;
-  
+  int buflen, status;
+  char *fctName;
+  char *fwd_fctName = "IDAInit/IDAReInit";
+  char *bck_fctName = "IDAInitB/IDAReInitB";
+
+  if (fwd) fctName = fwd_fctName;
+  else     fctName = bck_fctName;
+
   *mupper = 0;
   *mlower = 0;
 
   *mudq = 0;
   *mldq = 0;
+  *dqrely = 0.0;
 
   *gstype = MODIFIED_GS;
   *maxl = 0;
 
-  tmp_ls = LS_DENSE;
-  tmp_pm = PM_NONE;
-
   /* Return now if options was empty */
 
-  if (mxIsEmpty(options)) return(0);
+  if (mxIsEmpty(options)) return;
 
   /* Linear solver type */
 
@@ -374,35 +347,28 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0) 
-      mexErrMsgTxt("Cannot parse LinearSolver.");
-    if(!strcmp(bufval,"Dense")) tmp_ls = LS_DENSE;
-    else if(!strcmp(bufval,"Band")) tmp_ls = LS_BAND;
-    else if(!strcmp(bufval,"GMRES")) tmp_ls = LS_SPGMR;
-    else if(!strcmp(bufval,"BiCGStab")) tmp_ls = LS_SPBCG;
-    else if(!strcmp(bufval,"TFQMR")) tmp_ls = LS_SPTFQMR;
-    else mexErrMsgTxt("LinearSolver has an illegal value.");
-
-    if (fwd) ls  = tmp_ls;
-    else     lsB = tmp_ls;
+    if(status != 0) idmErrHandler(-999, "IDAS", fctName,
+                                  "Cannot parse LinearSolver.", NULL);
+    if(!strcmp(bufval,"Band"))          ls = LS_BAND;
+    else if(!strcmp(bufval,"GMRES"))    ls = LS_SPGMR;
+    else if(!strcmp(bufval,"BiCGStab")) ls = LS_SPBCG;
+    else if(!strcmp(bufval,"TFQMR"))    ls = LS_SPTFQMR;
+    else if(!strcmp(bufval,"Dense"))    ls = LS_DENSE;
+    else idmErrHandler(-999, "IDAS", fctName,
+                       "LinearSolver has an illegal value.", NULL);
   }
   
   /* Jacobian function */
 
   opt = mxGetField(options,0,"JacobianFn");
   if ( !mxIsEmpty(opt) ) {
-    if (fwd) {
-      mxDestroyArray(mx_JACfct);
-      mx_JACfct  = mxDuplicateArray(opt);
-    } else {
-      mxDestroyArray(mx_JACfctB);
-      mx_JACfctB = mxDuplicateArray(opt);
-    }
+    mxDestroyArray(mtlb_JACfct);
+    mtlb_JACfct  = mxDuplicateArray(opt);
   }
 
   /* Band linear solver */
 
-  if (tmp_ls==LS_BAND) {
+  if (ls==LS_BAND) {
 
     opt = mxGetField(options,0,"UpperBwidth");
     if ( !mxIsEmpty(opt) )
@@ -416,7 +382,7 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
 
   /* SPGMR linear solver options */
   
-  if (tmp_ls==LS_SPGMR) {
+  if (ls==LS_SPGMR) {
 
     /* Type of Gram-Schmidt procedure */
 
@@ -425,50 +391,41 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
       buflen = mxGetM(opt) * mxGetN(opt) + 1;
       bufval = mxCalloc(buflen, sizeof(char));
       status = mxGetString(opt, bufval, buflen);
-      if(status != 0)
-        mexErrMsgTxt("Cannot parse GramSchmidtType.");
-      if(!strcmp(bufval,"Classical")) *gstype = CLASSICAL_GS;
+      if(status != 0) idmErrHandler(-999, "IDAS", fctName,
+                                    "Cannot parse GramSchmidtType.", NULL);
+      if(!strcmp(bufval,"Classical"))     *gstype = CLASSICAL_GS;
       else if(!strcmp(bufval,"Modified")) *gstype = MODIFIED_GS;
-      else mexErrMsgTxt("GramSchmidtType has an illegal value.");
+      else idmErrHandler(-999, "IDAS", fctName,
+                         "GramSchmidtType has an illegal value.", NULL);
     }
 
   }
 
   /* SPILS linear solver options */
 
-  if ( (tmp_ls==LS_SPGMR) || (tmp_ls==LS_SPBCG) || (tmp_ls==LS_SPTFQMR) ) {
+  if ( (ls==LS_SPGMR) || (ls==LS_SPBCG) || (ls==LS_SPTFQMR) ) {
 
     /* Max. dimension of Krylov subspace */
 
     opt = mxGetField(options,0,"KrylovMaxDim");
     if ( !mxIsEmpty(opt) ) {
       *maxl = (int)*mxGetPr(opt);
-      if (*maxl < 0) 
-        mexErrMsgTxt("KrylovMaxDim is negative.");
+      if (*maxl < 0) idmErrHandler(-999, "IDAS", fctName,
+                                   "KrylovMaxDim is negative.", NULL);
     }
 
     /* User defined precoditioning */
 
     opt = mxGetField(options,0,"PrecSetupFn");
     if ( !mxIsEmpty(opt) ) {
-      if (fwd) {
-        mxDestroyArray(mx_PSETfct);
-        mx_PSETfct  = mxDuplicateArray(opt);
-      } else {
-        mxDestroyArray(mx_PSETfctB);
-        mx_PSETfctB = mxDuplicateArray(opt);
-      }
+      mxDestroyArray(mtlb_PSETfct);
+      mtlb_PSETfct  = mxDuplicateArray(opt);
     }
 
     opt = mxGetField(options,0,"PrecSolveFn");
     if ( !mxIsEmpty(opt) ) {
-      if (fwd) {
-        mxDestroyArray(mx_PSOLfct);
-        mx_PSOLfct  = mxDuplicateArray(opt);
-      } else {
-        mxDestroyArray(mx_PSOLfctB);
-        mx_PSOLfctB = mxDuplicateArray(opt);
-      }
+      mxDestroyArray(mtlb_PSOLfct);
+      mtlb_PSOLfct  = mxDuplicateArray(opt);
     }
 
     /* Preconditioner module */
@@ -478,17 +435,15 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
       buflen = mxGetM(opt) * mxGetN(opt) + 1;
       bufval = mxCalloc(buflen, sizeof(char));
       status = mxGetString(opt, bufval, buflen);
-      if(status != 0)
-        mexErrMsgTxt("Cannot parse PrecModule.");
-      if(!strcmp(bufval,"BBDPre")) tmp_pm = PM_BBDPRE;
-      else if(!strcmp(bufval,"UserDefined")) tmp_pm = PM_NONE;
-      else mexErrMsgTxt("PrecModule has an illegal value.");
-      
-      if (fwd) pm  = tmp_pm;
-      else     pmB = tmp_pm;
+      if(status != 0) idmErrHandler(-999, "IDAS", fctName,
+                                    "Cannot parse PrecModule.", NULL);
+      if(!strcmp(bufval,"BBDPre"))           pm = PM_BBDPRE;
+      else if(!strcmp(bufval,"UserDefined")) pm = PM_NONE;
+      else idmErrHandler(-999, "IDAS", fctName,
+                         "PrecModule has an illegal value.", NULL);
     }
 
-    if (tmp_pm == PM_BBDPRE) {
+    if (pm == PM_BBDPRE) {
       
       opt = mxGetField(options,0,"UpperBwidth");
       if ( !mxIsEmpty(opt) )
@@ -497,7 +452,7 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
       opt = mxGetField(options,0,"LowerBwidth");
       if ( !mxIsEmpty(opt) )
         *mlower = (int)*mxGetPr(opt);
-      
+
       opt = mxGetField(options,0,"UpperBwidthDQ");
       if ( !mxIsEmpty(opt) )
         *mudq = (int)*mxGetPr(opt);
@@ -508,27 +463,19 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
 
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) {
-        if (fwd) {
-          mxDestroyArray(mx_GLOCfct);
-          mx_GLOCfct  = mxDuplicateArray(opt);
-        } else {
-          mxDestroyArray(mx_GLOCfctB);
-          mx_GLOCfctB = mxDuplicateArray(opt);
-        }
-      } else {
-        mexErrMsgTxt("GlocalFn required for BBD preconditioner.");
+        mxDestroyArray(mtlb_GLOCfct);
+        mtlb_GLOCfct  = mxDuplicateArray(opt);
+      } else { 
+        idmErrHandler(-999, "IDAS", fctName,
+                      "GlocalFn required for BBD preconditioner.", NULL);
       }      
 
       opt = mxGetField(options,0,"GcommFn");
       if ( !mxIsEmpty(opt) ) {
-        if (fwd) {
-          mxDestroyArray(mx_GCOMfct);
-          mx_GCOMfct  = mxDuplicateArray(opt);
-        } else {
-          mxDestroyArray(mx_GCOMfctB);
-          mx_GCOMfctB = mxDuplicateArray(opt);
-        }
+        mxDestroyArray(mtlb_GCOMfct);
+        mtlb_GCOMfct  = mxDuplicateArray(opt);
       }
+
     }
 
   }
@@ -536,22 +483,25 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
   
   /* We made it here without problems */
 
-  return(0);
+  return;
 
 }
 
 
-int get_QuadOptions(const mxArray *options, booleantype fwd,
-                    double **yQ0, booleantype *errconQ,
-                    int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ)
+void get_QuadOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
+                     int Nq, booleantype *rhs_s,
+                     booleantype *errconQ,
+                     int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ)
 {
   mxArray *opt;
-  char *bufval;
-  int tmp_Nq, i, buflen, status, m, n;
+  int i, m, n;
   double *tmp;
+  char *fctName;
+  char *fwd_fctName = "IDAQuadInit/IDAQuadReInit";
+  char *bck_fctName = "IDAQuadInitB/IDAQuadReInitB";
 
-  tmp_Nq = 0;
-  *yQ0 = NULL;
+  if (fwd) fctName = fwd_fctName;
+  else     fctName = bck_fctName;
 
   *errconQ = FALSE;
   *itolQ = IDA_SS;
@@ -559,120 +509,102 @@ int get_QuadOptions(const mxArray *options, booleantype fwd,
   *SabstolQ = 1.0e-6;
   *VabstolQ = NULL;
 
+  *rhs_s = FALSE;
+
   /* Return now if options was empty */
 
-  if (mxIsEmpty(options)) return(0);
+  if (mxIsEmpty(options)) return;
 
-  /* Initial conditions for quadratures */
+  /* For backward problems only, check dependency on forward sensitivities */
 
-  opt = mxGetField(options,0,"QuadInitCond");
-  if ( !mxIsEmpty(opt) ) {
-    m = mxGetM(opt);
-    n = mxGetN(opt);
-    if ( (n != 1) && (m != 1) )
-      mexErrMsgTxt("QuadInitCond is not a vector.");
-    if ( n > m ) tmp_Nq = n;
-    else         tmp_Nq = m;
-    tmp = mxGetPr(opt);
-    *yQ0 = (double *)malloc((tmp_Nq)*sizeof(double));
-    for(i=0;i<tmp_Nq;i++) 
-      (*yQ0)[i] = tmp[i];
-  } else {
-    mexErrMsgTxt("QuadInitCond required for quadrature integration.");
-  }
+  if (!fwd) {
 
-  if (fwd) Nq  = tmp_Nq;
-  else     NqB = tmp_Nq;
-
-  /* Quadrature function */
-
-  opt = mxGetField(options,0,"QuadRhsFn");
-  if ( !mxIsEmpty(opt) ) {
-    if (fwd) {
-      mxDestroyArray(mx_QUADfct);
-      mx_QUADfct  = mxDuplicateArray(opt);
-    } else {
-      mxDestroyArray(mx_QUADfctB);
-      mx_QUADfctB = mxDuplicateArray(opt);
+    opt = mxGetField(options,0,"SensDependent");
+    if ( !mxIsEmpty(opt) ) {
+      if (!mxIsLogical(opt)) idmErrHandler(-999, "IDAS", fctName,
+                                           "SensDependent is not a logical scalar.", NULL);
+      if (mxIsLogicalScalarTrue(opt)) *rhs_s = TRUE;
+      else                            *rhs_s = FALSE;
     }
-  } else {
-    mexErrMsgTxt("QuadRhsFn required for quadrature integration.");
+
   }
 
   /* Quadrature error control and tolerances */
 
-  opt = mxGetField(options,0,"QuadErrControl");
+  opt = mxGetField(options,0,"ErrControl");
+  if ( mxIsEmpty(opt) ) return;
+
+  if (!mxIsLogical(opt)) idmErrHandler(-999, "IDAS", fctName,
+                                       "ErrControl is not a logical scalar.", NULL);
+
+  if (!mxIsLogicalScalarTrue(opt)) return;
+  
+  *errconQ = TRUE;
+
+  opt = mxGetField(options,0,"RelTol");
   if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Canot parse QuadErrControl.");
-    if(!strcmp(bufval,"on")) {
-      *errconQ = TRUE;
-      opt = mxGetField(options,0,"QuadRelTol");
-      if ( !mxIsEmpty(opt) ) {
-        *reltolQ = *mxGetPr(opt);
-        if (*reltolQ < 0.0)
-          mexErrMsgTxt("QuadRelTol is negative.");
-      } 
-      opt = mxGetField(options,0,"QuadAbsTol");
-      if ( !mxIsEmpty(opt) ) {
-        m = mxGetN(opt);
-        n = mxGetM(opt);
-        if ( (n != 1) && (m != 1) )
-          mexErrMsgTxt("QuadAbsTol is not a scalar or a vector.");
-        if ( m > n ) n = m;
-        tmp = mxGetPr(opt);
-        if (n == 1) {
-          *itolQ = IDA_SS;
-          *SabstolQ = *tmp;
-          if (*SabstolQ < 0.0)
-            mexErrMsgTxt("QuadAbsTol is negative.");
-        } else if (n == tmp_Nq) {
-          *itolQ = IDA_SV;
-          *VabstolQ = (double *)malloc(tmp_Nq*sizeof(double));
-          for(i=0;i<tmp_Nq;i++) {
-            (*VabstolQ)[i] = tmp[i];
-            if (tmp[i] < 0.0)
-              mexErrMsgTxt("QuadAbsTol has a negative component.");
-          }
-        } else {
-          mexErrMsgTxt("QuadAbsTol does not contain Nq elements.");
-        }
+    *reltolQ = *mxGetPr(opt);
+    if (*reltolQ < 0.0) idmErrHandler(-999, "IDAS", fctName,
+                                      "RelTol is negative.", NULL);
+  } 
+
+  opt = mxGetField(options,0,"AbsTol");
+  if ( !mxIsEmpty(opt) ) {
+
+    m = mxGetN(opt);
+    n = mxGetM(opt);
+    if ( (n != 1) && (m != 1) ) idmErrHandler(-999, "IDAS", fctName,
+                                              "AbsTol is not a scalar or a vector.", NULL);
+    if ( m > n ) n = m;
+    tmp = mxGetPr(opt);
+
+    if (n == 1) {
+      *itolQ = IDA_SS;
+      *SabstolQ = *tmp;
+      if (*SabstolQ < 0.0) idmErrHandler(-999, "IDAS", fctName,
+                                         "AbsTol is negative.", NULL);
+    } else if (n == Nq) {
+      *itolQ = IDA_SV;
+      *VabstolQ = (double *)malloc(Nq*sizeof(double));
+      for(i=0;i<Nq;i++) {
+        (*VabstolQ)[i] = tmp[i];
+        if (tmp[i] < 0.0) idmErrHandler(-999, "IDAS", fctName,
+                                        "AbsTol has a negative component.", NULL);
       }
-    } else if(!strcmp(bufval,"off")) {
-      *errconQ = FALSE;
     } else {
-      mexErrMsgTxt("QuadErrControl has an illegal value.");
+      idmErrHandler(-999, "IDAS", fctName,
+                    "AbsTol does not contain Nq elements.", NULL);
     }
+
   }
 
   /* We made it here without problems */
 
-  return(0);
+  return;
 }
 
-int get_FSAOptions(const mxArray *options, 
-                   char **pfield_name, int **plist, double **pbar,
-                   booleantype *userSRES, int *dqtype, double *rho,
-                   booleantype *errconS, int *itolS, double *reltolS, 
-                   double **SabstolS, double **VabstolS)
+void get_FSAOptions(const mxArray *options, idmPbData thisPb,
+                    int *ism,
+                    char **pfield_name, int **plist, double **pbar,
+                    int *dqtype, double *rho,
+                    booleantype *errconS, int *itolS, double *reltolS, 
+                    double **SabstolS, double **VabstolS)
 {
   mxArray *opt;
   char *bufval;
-  int i, is, m, n, buflen, status;
+  int i, is, m, n, buflen, status, this_plist;
   double *tmp;
 
   /* Set default values */
 
-  *userSRES = FALSE;
-  *errconS = TRUE;
+  *ism = IDA_STAGGERED;
 
   *dqtype = IDA_CENTERED;
   *rho = 0.0;
 
-  /*  *itolS = IDA_EE;*/
+  *errconS = TRUE;
+
+  *itolS = IDA_EE;
   *SabstolS = NULL;
   *VabstolS = NULL;
 
@@ -682,98 +614,130 @@ int get_FSAOptions(const mxArray *options,
 
   /* Return now if options was empty */
 
-  if (mxIsEmpty(options)) return(0);
+  if (mxIsEmpty(options)) return;
+
+  /* Sensitivity method */
+
+  opt = mxGetField(options,0,"method");
+  if ( !mxIsEmpty(opt) ) {
+  
+    buflen = mxGetM(opt) * mxGetN(opt) + 1;
+    bufval = mxCalloc(buflen, sizeof(char));
+    status = mxGetString(opt, bufval, buflen);
+    if(status != 0) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                  "Could not parse method.", NULL);
+
+    if(!strcmp(bufval,"Simultaneous"))   *ism = IDA_SIMULTANEOUS;
+    else if(!strcmp(bufval,"Staggered")) *ism = IDA_STAGGERED;
+    else idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                       "Method has an illegal value.", NULL);
+
+  }
 
   /* Field name in data structure for params. */
 
   opt = mxGetField(options,0,"ParamField");
   if ( !mxIsEmpty(opt) ) {
+
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Could not parse ParamField.");
+    if(status != 0) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                  "Could not parse ParamField.", NULL);
+
     *pfield_name = mxCalloc(buflen, sizeof(char));
     strcpy((*pfield_name), bufval);
+
   }  
 
   /* PLIST */
 
   opt = mxGetField(options,0,"ParamList");
   if ( !mxIsEmpty(opt) ) {
+
     tmp = mxGetPr(opt);
     m = mxGetM(opt);
     n = mxGetN(opt);
-    if ( (n != 1) && (m != 1) )
-      mexErrMsgTxt("ParamList is not a vector.");
+    if ( (n != 1) && (m != 1) ) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                              "ParamList is not a vector.", NULL);
     if (m > n) n = m;
-    if ( n != Ns)
-      mexErrMsgTxt("ParamList does not contain Ns elements.");
+    if ( n != Ns) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                "ParamList does not contain Ns elements.", NULL);
     *plist = (int *) malloc(Ns*sizeof(int));
-    for (is=0;is<Ns;is++)
-      (*plist)[is] = (int) tmp[is];
+    for (is=0;is<Ns;is++) {
+      this_plist = (int) tmp[is];
+      if (this_plist <= 0) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                         "ParamList must contain only positive integers.", NULL);
+      (*plist)[is] = this_plist - 1;
+    }
+
   }
 
   /* PBAR */
 
   opt = mxGetField(options,0,"ParamScales");
   if ( !mxIsEmpty(opt) ) {
+
     m = mxGetM(opt);
     n = mxGetN(opt);
-    if ( (n != 1) && (m != 1) )
-      mexErrMsgTxt("ParamScales is not a vector.");
+    if ( (n != 1) && (m != 1) ) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                              "ParamScales is not a vector.", NULL);
     if ( m > n ) n = m;
-    if ( n != Ns)
-      mexErrMsgTxt("ParamScales does not contain Ns elements.");
+    if ( n != Ns) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                "ParamScales does not contain Ns elements.", NULL);
     tmp = mxGetPr(opt);
     *pbar = (double *) malloc(Ns*sizeof(double));
     for(i=0;i<Ns;i++)
       (*pbar)[i] = tmp[i];
+
   }
 
-  /* DQtype and DQparam */
+  /* DQ type */
 
-  opt = mxGetField(options,0,"SensDQtype");
+  opt = mxGetField(options,0,"DQtype");
   if ( !mxIsEmpty(opt) ) {
+
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Cannot parse SensDQtype.");
+    if(status != 0) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                  "Cannot parse DQtype.", NULL);
+
     if(!strcmp(bufval,"Centered")) *dqtype = IDA_CENTERED;
     else if(!strcmp(bufval,"Forward")) *dqtype = IDA_FORWARD;
-    else mexErrMsgTxt("SensDQtype has an illegal value.");
+    else idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                       "DQtype has an illegal value.", NULL);
+
   }
+  
+  /* DQ parameter */
 
-
-  opt = mxGetField(options,0,"SensDQparam");
+  opt = mxGetField(options,0,"DQparam");
   if ( !mxIsEmpty(opt) )
     *rho = *mxGetPr(opt);
 
   /* Error control */
 
-  opt = mxGetField(options,0,"SensErrControl");
+  opt = mxGetField(options,0,"ErrControl");
   if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Canot parse SensErrControl.");
-    if(!strcmp(bufval,"off")) *errconS = FALSE;
-    else if(!strcmp(bufval,"on")) *errconS = TRUE;
-    else mexErrMsgTxt("SensErrControl has an illegal value.");
+    if (!mxIsLogical(opt)) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                         "ErrControl is not a logical scalar.", NULL);
+    if (mxIsLogicalScalarTrue(opt)) *errconS = TRUE;
+    else                            *errconS = FALSE;
   }
 
   /* Tolerances */
   
-  opt = mxGetField(options,0,"SensRelTol");
-
+  opt = mxGetField(options,0,"RelTol");
   if ( !mxIsEmpty(opt) ) {
+
     *reltolS = *mxGetPr(opt);
-    if (*reltolS < 0.0)
-      mexErrMsgTxt("SensRelTol is negative.");
-    opt = mxGetField(options,0,"SensAbsTol");
+    if (*reltolS < 0.0) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                      "RelTol is negative.", NULL);
+
+    opt = mxGetField(options,0,"AbsTol");
     if ( !mxIsEmpty(opt) ) {
+
       m = mxGetM(opt);
       n = mxGetN(opt);
       if ( (m == 1) && (n == Ns) ) {
@@ -782,8 +746,8 @@ int get_FSAOptions(const mxArray *options,
         *SabstolS = (double *) malloc(Ns*sizeof(double));
         for (is=0; is<Ns; is++) {
           (*SabstolS)[is] = tmp[is];
-          if ( tmp[is] < 0.0 )
-            mexErrMsgTxt("SensAbsTol has a negative component.");
+          if ( tmp[is] < 0.0 ) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                             "AbsTol has a negative component.", NULL);
         }
       } else if ( (m == N) && (n == Ns) ) {
         *itolS = IDA_SV;
@@ -791,29 +755,25 @@ int get_FSAOptions(const mxArray *options,
         *VabstolS = (double *)malloc(Ns*N*sizeof(double));
         for (i=0; i<Ns*N; i++) {
           (*VabstolS)[i] = tmp[i];
-          if ( tmp[i] < 0.0 )
-            mexErrMsgTxt("SensAbsTol has a negative component.");
+          if ( tmp[i] < 0.0 ) idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                                            "AbsTol has a negative component.", NULL);
         }
       } else {
-        mexErrMsgTxt("SensAbsTol must be either a 1xNs vector or a NxNs matrix.");
+        idmErrHandler(-999, "IDAS", "IDASensInit/IDASensReInit",
+                      "AbsTol must be either a 1xNs vector or a NxNs matrix.", NULL);
       }
+
     } else {
-      /**itolS = IDA_EE;*/
+
+      *itolS = IDA_EE;
+
     }
+
   }
-
-  /* Sensitivity RES function type */
-
-  opt = mxGetField(options,0,"SensResFn");
-  if ( !mxIsEmpty(opt) ) {
-    *userSRES = TRUE;
-    mxDestroyArray(mx_SRESfct);
-    mx_SRESfct = mxDuplicateArray(opt);
-  } 
 
   /* We made it here without problems */
 
-  return(0);
+  return;
 
 }
 

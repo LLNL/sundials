@@ -1,7 +1,7 @@
-function [] = IDAadjMalloc(steps, interp)
-%IDAadjMalloc allocates and initializes memory for ASA with IDAS.
+function [] = IDAAdjInit(steps, interp)
+%IDAAdjInit allocates and initializes memory for ASA with IDAS.
 %
-%   Usage: IDAadjMalloc(STEPS, INTEPR) 
+%   Usage: IDAAdjInit(STEPS, INTEPR) 
 %
 %   STEPS    specifies the (maximum) number of integration steps between two 
 %            consecutive check points.
@@ -12,8 +12,12 @@ function [] = IDAadjMalloc(steps, interp)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:25 $
+% $Revision: 1.1 $Date: 2006/07/17 16:49:50 $
 
-mode = 3;
+mode = 4;
+
+if nargin ~= 2
+  error('Wrong number of input arguments');
+end
 
 idm(mode,steps,interp);

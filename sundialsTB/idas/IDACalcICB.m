@@ -8,9 +8,9 @@ function [status, varargout] = IDACalcICB(tout,icmeth)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/07/19 20:52:28 $
+% $Revision: 1.3 $Date: 2007/02/05 20:23:46 $
 
-mode = 21;
+mode = 26;
 
 if nargout == 1
   status = idm(mode, tout, icmeth);

@@ -1,4 +1,4 @@
-%IDAMonitorFn - type for user provided monitoring function.
+%IDAMonitorFn - type for monitoring function.
 %
 %   The function MONFUN must be defined as
 %      FUNCTION [] = MONFUN(CALL, T, YY, YP, YQ, YYS, YPS)
@@ -59,13 +59,9 @@
 %   4. If MONFUN is used on the backward integration phase, YYS and YPS are 
 %      always empty.
 %
-%   5. A sample monitoring function, IDAMonitor, is provided with IDAS.
-%      IDAMonitor is provided as an example of a monitoring function that 
-%      works both for the forward and backward integration phases.
-%
 %   See also IDASetOptions, IDAMonitor
 %
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/03/21 18:36:22 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.2 $Date: 2007/05/11 18:48:45 $

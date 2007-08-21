@@ -1,4 +1,4 @@
-%IDAPrecSetupFn - type for user provided preconditioner setup function.
+%IDAPrecSetupFn - type for preconditioner setup function.
 %
 %   The user-supplied preconditioner setup function PSETFUN and
 %   the user-supplied preconditioner solve function PSOLFUN
@@ -31,8 +31,6 @@
 %   function can use any auxiliary data that is computed and
 %   saved by the DAEFUN function and made accessible to PSETFUN.
 %
-%IVP Problem
-%
 %   The function PSETFUN must be defined as 
 %        FUNCTION FLAG = PSETFUN(T,YY,YP,RR,CJ)
 %   If successful, it must return FLAG=0. For a recoverable error (in    
@@ -50,15 +48,6 @@
 %   should set NEW_DATA=[] (do not set NEW_DATA = DATA as it would lead
 %   to unnecessary copying).
 %
-%Adjoint Problem
-%
-%   The function PSETFUNB must be defined either as
-%        FUNCTION FLAG = PSETFUNB(T,YY,YP,YYB,YPB,RRB,CJB)
-%   or as
-%        FUNCTION [FLAG,NEW_DATA] = PSETFUNB(T,YY,YP,YYB,YPB,RRB,CJB,DATA)
-%   depending on whether a user data structure DATA was specified in
-%   IDAMalloc.
-%
 %   See also IDAPrecSolveFn, IDASetOptions
 %
 %   NOTE: PSETFUN and PSETFUNB are specified through the property
@@ -66,5 +55,5 @@
 %   LinearSolver was set to 'GMRES', 'BiCGStab', or 'TFQMR'.
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/17 16:49:50 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.2 $Date: 2007/05/11 18:48:45 $
