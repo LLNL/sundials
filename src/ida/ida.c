@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-07-30 16:23:31 $
+ * $Revision: 1.17 $
+ * $Date: 2007-08-21 23:32:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -505,7 +505,6 @@ int IDAReInit(void *ida_mem,
               realtype t0, N_Vector yy0, N_Vector yp0)
 {
   IDAMem IDA_mem;
-  booleantype neg_atol;
 
   /* Check for legal input parameters */
   
@@ -722,7 +721,7 @@ int IDAWFtolerances(void *ida_mem, IDAEwtFn efun)
 int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 {
   IDAMem IDA_mem;
-  int i, nrt;
+  int nrt;
 
   /* Check ida_mem pointer */
   if (ida_mem == NULL) {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-06-30 00:52:47 $
+ * $Revision: 1.2 $
+ * $Date: 2007-08-21 23:32:13 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -18,6 +18,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 #include <ida/ida.h>
@@ -67,7 +68,7 @@ int main(void)
 
   void *mem;
   N_Vector yy, yp, id;
-  realtype rtol, atol, *yval, *ypval;
+  realtype rtol, atol;
   realtype t0, tf, tout, dt, tret;
   int flag, iout;
 

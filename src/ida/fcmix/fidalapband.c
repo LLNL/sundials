@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.5 $
+ * $Date: 2007-08-21 23:32:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,7 +21,7 @@
 #include "fida.h"     /* function names, prototypes, global vars.*/
 #include "ida_impl.h" /* definition of IDAMem type               */
 
-#include <ida/ida_band.h>
+#include <ida/ida_lapack.h>
 
 /*************************************************/
 

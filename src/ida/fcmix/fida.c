@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.8 $
+ * $Date: 2007-08-21 23:32:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -338,7 +338,6 @@ void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier)
 {
   int itol;
   N_Vector Vatol=NULL;
-  void *atolptr;
 
   *ier = 0;
 
