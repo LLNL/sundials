@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.5 $
+ * $Date: 2007-08-21 23:31:21 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -49,10 +49,10 @@ extern void FK_DJAC(int*, realtype*, realtype*, realtype*,
 void FKIN_LAPACKDENSESETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = KINDlsSetJacFn(KIN_kinmem, NULL);
+    *ier = KINDlsSetDenseJacFn(KIN_kinmem, NULL);
   }
   else {
-    *ier = KINDlsSetJacFn(KIN_kinmem, FKINLapackDenseJac);
+    *ier = KINDlsSetDenseJacFn(KIN_kinmem, FKINLapackDenseJac);
   }
   return;
 }

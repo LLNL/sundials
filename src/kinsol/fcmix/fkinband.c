@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.6 $
+ * $Date: 2007-08-21 23:31:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,10 +51,10 @@ extern void FK_BJAC(int*, int*, int*, int*,
 void FKIN_BANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = KINDlsSetJacFn(KIN_kinmem, NULL, NULL);
+    *ier = KINDlsSetBandJacFn(KIN_kinmem, NULL);
   }
   else {
-    *ier = KINDlsSetJacFn(KIN_kinmem, (void *)FKINBandJac, NULL);
+    *ier = KINDlsSetBandJacFn(KIN_kinmem, FKINBandJac);
   }
 
   return;
