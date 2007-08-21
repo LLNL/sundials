@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2007-08-01 01:39:18 $
+# $Revision: 1.7 $
+# $Date: 2007-08-21 14:53:15 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -38,6 +38,7 @@ EXAMPLES = idasdenx \
 	   idasbanx2 \
 	   idaskrydem_lin \
            idasslcr \
+           idasSliderCrankFSA \
            idasfwddenx \
            idasadjdenx \
            idasadjhess \
@@ -70,6 +71,9 @@ idaskrydem_lin: idaskrydem_lin.c
 idasslcr: idasslcr.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasslcr.c
 	 $(CC) -o idasslcr idasslcr.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasSliderCrankFSA: idasSliderCrankFSA.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasSliderCrankFSA.c
+	 $(CC) -o idasSliderCrankFSA idasSliderCrankFSA.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idasfwddenx: idasfwddenx.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasfwddenx.c
 	 $(CC) -o idasfwddenx idasfwddenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)

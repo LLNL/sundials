@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-08-01 01:26:19 $
+ * $Revision: 1.2 $
+ * $Date: 2007-08-21 14:53:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -40,6 +40,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include <idas/idas.h>
 #include <idas/idas_dense.h>
@@ -114,13 +115,12 @@ static int rhsQBS2(realtype tt, N_Vector yy, N_Vector yp,
 
 int main(int argc, char *argv[])
 {
-  N_Vector yy, yp, resid, q, *yyS, *ypS, *qS; 
-  N_Vector residB, yyB1, ypB1, qB1, yyB2, ypB2, qB2;
+  N_Vector yy, yp, q, *yyS, *ypS, *qS; 
+  N_Vector yyB1, ypB1, qB1, yyB2, ypB2, qB2;
   void *ida_mem;
   UserData data;
   realtype time, ti, tf;
   int flag, nckp, indexB1, indexB2;
-  long int nst;
   realtype G, Gm, Gp, dp1, dp2, grdG_fwd[2], grdG_bck[2], grdG_cntr[2], H11, H22;
   realtype rtolFD, atolFD;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-08-01 01:26:19 $
+ * $Revision: 1.4 $
+ * $Date: 2007-08-21 14:53:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Cosmin Petra and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -710,14 +710,14 @@ static void PrintFinalStats(void *ida_mem, booleantype sensi)
   check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1);
 
   if (sensi) {
-    flag = IDAGetNumSensResEvals(ida_mem, &nfSe);
-    check_flag(&flag, "IDAGetNumSensRhsEvals", 1);
+    flag = IDAGetSensNumResEvals(ida_mem, &nfSe);
+    check_flag(&flag, "IDAGetSensNumRhsEvals", 1);
     flag = IDAGetNumResEvalsSens(ida_mem, &nfeS);
-    check_flag(&flag, "IDAGetNumRhsEvalsSens", 1);
-    flag = IDAGetNumSensLinSolvSetups(ida_mem, &nsetupsS);
-    check_flag(&flag, "IDAGetNumSensLinSolvSetups", 1);
-    flag = IDAGetNumSensErrTestFails(ida_mem, &netfS);
-    check_flag(&flag, "IDAGetNumSensErrTestFails", 1);
+    check_flag(&flag, "IDAGetNumResEvalsSens", 1);
+    flag = IDAGetSensNumLinSolvSetups(ida_mem, &nsetupsS);
+    check_flag(&flag, "IDAGetSensNumLinSolvSetups", 1);
+    flag = IDAGetSensNumErrTestFails(ida_mem, &netfS);
+    check_flag(&flag, "IDAGetSensNumErrTestFails", 1);
     flag = IDAGetNumSensNonlinSolvIters(ida_mem, &nniS);
     check_flag(&flag, "IDAGetNumSensNonlinSolvIters", 1);
     flag = IDAGetNumSensNonlinSolvConvFails(ida_mem, &ncfnS);

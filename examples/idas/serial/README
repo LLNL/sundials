@@ -1,10 +1,16 @@
 List of serial IDAS examples
 
-  idasdenx       : 3-species Robertson kinetics system
-  idasbanx1      : 2-D heat equation, banded Jacobian
-  idasbanx2      : 2-D food web system, banded Jacobian
-  idaskryx       : 2-D heat equation, diagonal preconditioner
-  idaskrydem_lin : demonstration program with 3 Krylov solvers
+  idasdenx           : 3-species Robertson kinetics system  with a user-supplied Jacobian
+  idasbanx1          : 2-D heat equation, banded Jacobian
+  idasbanx2          : 2-D food web system, banded Jacobian
+  idaskryx           : 2-D heat equation, diagonal preconditioner
+  idaskrydem_lin     : demonstration program with 3 Krylov solvers
+  idasfwddenx        : forward sensitivity for Robertson kinetics system
+  idasadjdenx        : adjoint sensitivity for Robertson kinetics system
+  idasadjhess        : computation of Hessian for Robertson kinetics system
+  idasslcr           : slider-crank simulation
+  idasSliderCrankFSA : forward sensitivity for slider-crank
+  idasakzonobel      : sensitivities with respect to initial condition for Azko Nobel chemical reactions system
 
 Sample results:
 

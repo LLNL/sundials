@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
+ * $Revision: 1.1 $
  * $Date: 2007-08-21 14:53:15 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban and Cosmin Petra @ LLNL
@@ -40,17 +40,22 @@
 /* Problem Constants */
 
 #define NEQ   10
+#define NP     2
 
 #define TBEGIN  RCONST(0.0)
-#define TEND    RCONST(10.0)
+#define TEND    RCONST(5.000)
 
-#define NOUT  25
+#define NOUT  40
 
 #define RTOLF   RCONST(1.0e-06)
 #define ATOLF   RCONST(1.0e-07)
 
 #define RTOLQ   RCONST(1.0e-06)
 #define ATOLQ   RCONST(1.0e-08)
+
+#define RTOLFD  RCONST(1.0e-06)
+#define ATOLFD  RCONST(1.0e-08)
+
 
 #define ZERO     RCONST(0.00)
 #define QUARTER  RCONST(0.25)
@@ -71,11 +76,14 @@ static int ressc(realtype tres, N_Vector yy, N_Vector yp,
            N_Vector resval, void *user_data);
 static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
 
+static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp, 
+                 N_Vector *yyS, N_Vector *ypS, N_Vector rrQ, N_Vector *rhsQS,
+                 void *user_data,  N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS);
+
+
 static void setIC(N_Vector yy, N_Vector yp, UserData data);
 static void force(N_Vector yy, realtype *Q, UserData data);
 
-static void PrintHeader(realtype rtol, realtype avtol, N_Vector y);
-static void PrintOutput(void *mem, realtype t, N_Vector y);
 static void PrintFinalStats(void *mem);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 /*
@@ -89,14 +97,21 @@ int main(void)
   UserData data;
 
   void *mem;
-  N_Vector yy, yp, id, q;
-  realtype tret, tout;
-  int flag;
+  N_Vector yy, yp, id, q, *yyS, *ypS, *qS;
+  realtype tret;
+  realtype pbar[2];
+  realtype dp, G, Gm[2], Gp[2];
+  int flag, is;
+  realtype atolS[NP];
 
   id = N_VNew_Serial(NEQ);
   yy = N_VNew_Serial(NEQ);
   yp = N_VNew_Serial(NEQ);
   q = N_VNew_Serial(1);
+
+  yyS= N_VCloneVectorArray(NP,yy);
+  ypS= N_VCloneVectorArray(NP,yp);
+  qS = N_VCloneVectorArray_Serial(NP, q);
 
   data = (UserData) malloc(sizeof *data);
 
@@ -116,10 +131,17 @@ int main(void)
   NV_Ith_S(id, 7) = ZERO;
   NV_Ith_S(id, 6) = ZERO;
   
+  printf("\nSlider-Crank example for IDAS:\n");
+
   /* Consistent IC*/
   setIC(yy, yp, data);
 
-  /* IDAS initialization */
+  for (is=0;is<NP;is++) {
+    N_VConst(ZERO, yyS[is]);
+    N_VConst(ZERO, ypS[is]);
+  }
+
+  /* IDA initialization */
   mem = IDACreate();
   flag = IDAInit(mem, ressc, TBEGIN, yy, yp);
   flag = IDASStolerances(mem, RTOLF, ATOLF);
@@ -131,31 +153,32 @@ int main(void)
   /* Call IDADense and set up the linear solver. */
   flag = IDADense(mem, NEQ);
 
+  flag = IDASensInit(mem, NP, IDA_SIMULTANEOUS, NULL, yyS, ypS);
+  pbar[0] = data->params[0];pbar[1] = data->params[1];
+  flag = IDASetSensParams(mem, data->params, pbar, NULL);
+  flag = IDASensEEtolerances(mem);
+  IDASetSensErrCon(mem, TRUE);
+  
   N_VConst(ZERO, q);
   flag = IDAQuadInit(mem, rhsQ, q);
   flag = IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
   flag = IDASetQuadErrCon(mem, TRUE);
-
-  PrintHeader(RTOLF, ATOLF, yy);
-
-  /* Print initial states */
-  PrintOutput(mem,0.0,yy);
+  
+  N_VConst(ZERO, qS[0]);
+  flag = IDAQuadSensInit(mem, rhsQS, qS);
+  atolS[0] = atolS[1] = ATOLQ;
+  flag = IDAQuadSensSStolerances(mem, RTOLQ, atolS);
+  flag = IDASetQuadSensErrCon(mem, TRUE);  
+  
 
   /* Perform forward run */
-  tout = TEND/NOUT;
+  printf("\nForward integration ... ");
 
-  while (1) {
+  flag = IDASolve(mem, TEND, &tret, yy, yp, IDA_NORMAL);
+  if (check_flag(&flag, "IDASolve", 1)) return(1);
 
-    flag = IDASolve(mem, tout, &tret, yy, yp, IDA_NORMAL);
-    if (check_flag(&flag, "IDASolve", 1)) return(1);
+  printf("done!\n");
 
-    PrintOutput(mem,tret,yy);
-
-    tout += TEND/NOUT;
-    
-    if (tret > TEND) break;
-  }
-  
   PrintFinalStats(mem);
 
   IDAGetQuad(mem, &tret, q);
@@ -163,17 +186,125 @@ int main(void)
   printf("  G = %24.16f\n", Ith(q,1));
   printf("--------------------------------------------\n\n");
   
+  IDAGetQuadSens(mem, &tret, qS);
+  printf("-------------F O R W A R D------------------\n");
+  printf("   dG/dp:  %12.4le %12.4le\n", Ith(qS[0],1), Ith(qS[1],1));
+  printf("--------------------------------------------\n\n");
+
   IDAFree(&mem);
 
-  /* Free memory */
 
+
+  /* Finite differences for dG/dp */
+  dp = 0.00001;
+  data->params[0] = ONE;
+  data->params[1] = ONE;
+
+  mem = IDACreate();
+
+  setIC(yy, yp, data);
+  flag = IDAInit(mem, ressc, TBEGIN, yy, yp);
+  flag = IDASStolerances(mem, RTOLFD, ATOLFD);
+  flag = IDASetUserData(mem, data);
+  flag = IDASetId(mem, id);
+  flag = IDASetSuppressAlg(mem, TRUE);
+  /* Call IDADense and set up the linear solver. */
+  flag = IDADense(mem, NEQ);
+
+  N_VConst(ZERO, q);
+  IDAQuadInit(mem, rhsQ, q);
+  IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
+  IDASetQuadErrCon(mem, TRUE);
+
+  IDASolve(mem, TEND, &tret, yy, yp, IDA_NORMAL);
+
+  IDAGetQuad(mem,&tret,q);
+  G = Ith(q,1);
+  /*printf("  G  =%12.6e\n", Ith(q,1));*/
+
+  /******************************
+  * BACKWARD for k
+  ******************************/
+  data->params[0] -= dp;
+  setIC(yy, yp, data);
+
+  IDAReInit(mem, TBEGIN, yy, yp);
+
+  N_VConst(ZERO, q);
+  IDAQuadReInit(mem, q);
+
+  IDASolve(mem, TEND, &tret, yy, yp, IDA_NORMAL);
+  IDAGetQuad(mem, &tret, q);
+  Gm[0] = Ith(q,1);
+  /*printf("Gm[0]=%12.6e\n", Ith(q,1));*/
+
+  /****************************
+  * FORWARD for k *
+  ****************************/
+  data->params[0] += (TWO*dp);
+  setIC(yy, yp, data);
+  IDAReInit(mem, TBEGIN, yy, yp);
+
+  N_VConst(ZERO, q);
+  IDAQuadReInit(mem, q);
+
+  IDASolve(mem, TEND, &tret, yy, yp, IDA_NORMAL);
+  IDAGetQuad(mem, &tret, q);
+  Gp[0] = Ith(q,1);
+  /*printf("Gp[0]=%12.6e\n", Ith(q,1));*/
+
+
+  /* Backward for c */
+  data->params[0] = ONE;
+  data->params[1] -= dp;
+  setIC(yy, yp, data);
+  IDAReInit(mem, TBEGIN, yy, yp);
+
+  N_VConst(ZERO, q);
+  IDAQuadReInit(mem, q);
+
+  IDASolve(mem, TEND, &tret, yy, yp, IDA_NORMAL);
+  IDAGetQuad(mem, &tret, q);
+  Gm[1] = Ith(q,1);
+
+  /* Forward for c */
+  data->params[1] += (TWO*dp);
+  setIC(yy, yp, data);
+  IDAReInit(mem, TBEGIN, yy, yp);
+
+  N_VConst(ZERO, q);
+  IDAQuadReInit(mem, q);
+
+  IDASolve(mem, TEND, &tret, yy, yp, IDA_NORMAL);
+  IDAGetQuad(mem, &tret, q);
+  Gp[1] = Ith(q,1);
+
+  IDAFree(&mem);
+
+  printf("\n\n   Checking using Finite Differences \n\n");
+
+  printf("---------------BACKWARD------------------\n");
+  printf("   dG/dp:  %12.4le %12.4le\n", (G-Gm[0])/dp, (G-Gm[1])/dp);
+  printf("-----------------------------------------\n\n");
+
+  printf("---------------FORWARD-------------------\n");
+  printf("   dG/dp:  %12.4le %12.4le\n", (Gp[0]-G)/dp, (Gp[1]-G)/dp);
+  printf("-----------------------------------------\n\n");
+
+  printf("--------------CENTERED-------------------\n");
+  printf("   dG/dp:  %12.4le %12.4le\n", (Gp[0]-Gm[0])/(TWO*dp) ,(Gp[1]-Gm[1])/(TWO*dp));
+  printf("-----------------------------------------\n\n");
+
+
+  /* Free memory */
   free(data);
+
   N_VDestroy(id);
   N_VDestroy_Serial(yy);
   N_VDestroy_Serial(yp);
   N_VDestroy_Serial(q);
-
-  return(0);  
+  return(0);
+  
 }
 
 static void setIC(N_Vector yy, N_Vector yp, UserData data)
@@ -335,54 +466,41 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
   return(0);
 }
 
-static void PrintHeader(realtype rtol, realtype avtol, N_Vector y)
+static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp, 
+                 N_Vector *yyS, N_Vector *ypS, N_Vector rrQ, N_Vector *rhsQS,
+                 void *user_data,  N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS)
 {
-  printf("\nidasSliderCrank: Slider-Crank DAE serial example problem for IDAS\n");
-  printf("Linear solver: IDADENSE, Jacobian is computed by IDAS.\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n",
-         rtol, avtol);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters:  rtol = %lg   atol = %lg\n",
-         rtol, avtol);
-#else
-  printf("Tolerance parameters:  rtol = %g   atol = %g\n",
-         rtol, avtol);
-#endif
-  printf("-----------------------------------------------------------------------\n");
-  printf("  t         y1          y2           y3");
-  printf("      | nst  k      h\n");
-  printf("-----------------------------------------------------------------------\n");
+  realtype v1, v2, v3;
+  realtype m1, J1, J1hat, m2, J2, a;
+  UserData data;
+  realtype s1, s2, s3;
+  
+  data = (UserData) user_data;
+  J1 = data->J1;
+  m1 = data->m1;
+  m2 = data->m2;
+  J2 = data->J2;
+  a  = data->a;
+
+  J1hat = J1 - HALF*QUARTER*a*a*m1;
+
+  v1 = Ith(yy,4); v2 = Ith(yy,5); v3 = Ith(yy,6);
+  
+  /* Sensitivities of v. */
+  s1 = Ith(yyS[0],4);
+  s2 = Ith(yyS[0],5);
+  s3 = Ith(yyS[0],6);
+
+  Ith(rhsQS[0], 1) = J1hat*v1*s1 + m2*v2*s2 + J2*v3*s3;
+
+  s1 = Ith(yyS[1],4);
+  s2 = Ith(yyS[1],5);
+  s3 = Ith(yyS[1],6);
+
+  Ith(rhsQS[1], 1) = J1hat*v1*s1 + m2*v2*s2 + J2*v3*s3;
+
+  return(0);
 }
-
-
-static void PrintOutput(void *mem, realtype t, N_Vector y)
-{
-  realtype *yval;
-  int retval, kused;
-  long int nst;
-  realtype hused;
-
-  yval  = NV_DATA_S(y);
-
-  retval = IDAGetLastOrder(mem, &kused);
-  check_flag(&retval, "IDAGetLastOrder", 1);
-  retval = IDAGetNumSteps(mem, &nst);
-  check_flag(&retval, "IDAGetNumSteps", 1);
-  retval = IDAGetLastStep(mem, &hused);
-  check_flag(&retval, "IDAGetLastStep", 1);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("%5.2Lf %12.4Le %12.4Le %12.4Le | %3ld  %1d %12.4Le\n", 
-         t, yval[0], yval[1], yval[2], nst, kused, hused);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("%5.2lf %12.4le %12.4le %12.4le | %3ld  %1d %12.4le\n", 
-         t, yval[0], yval[1], yval[2], nst, kused, hused);
-#else
-  printf("%5.2f %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n", 
-         t, yval[0], yval[1], yval[2], nst, kused, hused);
-#endif
-}
-
 
 static void PrintFinalStats(void *mem)
 {
@@ -405,6 +523,7 @@ static void PrintFinalStats(void *mem)
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
 }
+
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
@@ -432,5 +551,3 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   return(0);
 }
-
-

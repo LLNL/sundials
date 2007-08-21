@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-08-01 01:26:19 $
+ * $Revision: 1.2 $
+ * $Date: 2007-08-21 14:53:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -30,7 +30,7 @@
 #include <math.h>
  
 #include <idas/idas.h>
-#include <idas/idas_lapack.h>
+#include <idas/idas_dense.h>
 #include <sundials/sundials_math.h>
 #include <nvector/nvector_serial.h>
 
@@ -81,7 +81,6 @@ int main()
 {
   UserData data;
   void *mem;
-  realtype atol, rtol;
   N_Vector yy, yp, rr, q;
   N_Vector yB, ypB;
   int ncheck, flag;
@@ -326,10 +325,10 @@ static int resB(realtype tt,
   realtype y1, y2, y3, y4, y5, y6;
 
   realtype yB1, yB2, yB3, yB4, yB5, yB6;
-  realtype ypB1, ypB2, ypB3, ypB4, ypB5, ypB6;
+  realtype ypB1, ypB2, ypB3, ypB4, ypB5;
 
   realtype k1, k2, k3, k4;
-  realtype K, klA, Ks, pCO2, H, Fin;
+  realtype K, klA, Ks, pCO2, H;
 
   realtype y2tohalf, y1to3, k2overK, tmp1, tmp2;
 

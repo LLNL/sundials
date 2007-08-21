@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2007-08-01 01:26:18 $
+# $Revision: 1.5 $
+# $Date: 2007-08-21 14:53:15 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -21,6 +21,7 @@ SET(idas_examples
   idaskrydem_lin
   idaskryx
   idasslcr
+  idasSliderCrankFSA
   idasfwddenx
   idasadjdenx
   idasadjhess
