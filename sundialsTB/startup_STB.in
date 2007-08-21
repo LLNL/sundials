@@ -1,16 +1,19 @@
+function [] = startup_STB(stb)
 % STARTUP_STB  path/environment setup script for sundialsTB
-%              Add to or call from Matlab's startup.m
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.5 $Date: 2006/12/06 00:46:10 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.6 $Date: 2007/05/11 18:52:47 $
 
-stb_path = '@STB_PATH@';
+% If called without any argument, use the path specified at installation
 
-stb = fullfile(stb_path,'sundialsTB');
+if nargin == 0
+  stb_path = '@STB_PATH@';
+  stb = fullfile(stb_path,'sundialsTB');
+end
+  
 
 if ~exist(stb, 'dir')
-  clear stb
   warning('SUNDIALS Toolbox not found'); 
   return
 end
@@ -58,5 +61,4 @@ if exist(q, 'dir')
   addpath(q);
 end
 
-clear stb q
 

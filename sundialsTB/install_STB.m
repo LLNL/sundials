@@ -3,8 +3,8 @@ function [] = install_STB
 % INSTALL_STB Interactive compilation and installtion of sundialsTB
 
 % Radu Serban <radu@llnl.gov>
-% Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.18 $Date: 2007/05/11 21:42:52 $
+% Copyright (c) 2007, The Regents of the University of California.
+% $Revision: 1.19 $Date: 2007/05/16 17:12:56 $
 
 % MEX compiler command
 % --------------------
@@ -64,7 +64,7 @@ if exist(q, 'dir')
   answ = input('    Compile IDAS interface? (y/n) ','s');
   if answ == 'y'
     compile_IDM(mexcompiler,stb,sun,par);
-    idm_ok = false;
+    idm_ok = true;
   end
 end
   
@@ -330,19 +330,19 @@ libraries = '';
 % Add IDAS sources and header files
 
 ids_sources = {
-    fullfile(sun,'src','ida','ida_band.c')
-    fullfile(sun,'src','ida','ida_bbdpre.c')
-    fullfile(sun,'src','ida','ida_dense.c')
-    fullfile(sun,'src','ida','ida_direct.c')
-%    fullfile(sun,'src','idas','idaa.c')
-    fullfile(sun,'src','ida','ida.c')
-    fullfile(sun,'src','ida','ida_ic.c')
-    fullfile(sun,'src','ida','ida_io.c')
-%    fullfile(sun,'src','idas','idaa_io.c')
-    fullfile(sun,'src','ida','ida_spils.c')
-    fullfile(sun,'src','ida','ida_spbcgs.c')
-    fullfile(sun,'src','ida','ida_spgmr.c')
-    fullfile(sun,'src','ida','ida_sptfqmr.c')
+    fullfile(sun,'src','idas','idas_band.c')
+    fullfile(sun,'src','idas','idas_bbdpre.c')
+    fullfile(sun,'src','idas','idas_dense.c')
+    fullfile(sun,'src','idas','idas_direct.c')
+    fullfile(sun,'src','idas','idaa.c')
+    fullfile(sun,'src','idas','idas.c')
+    fullfile(sun,'src','idas','idas_ic.c')
+    fullfile(sun,'src','idas','idas_io.c')
+    fullfile(sun,'src','idas','idaa_io.c')
+    fullfile(sun,'src','idas','idas_spils.c')
+    fullfile(sun,'src','idas','idas_spbcgs.c')
+    fullfile(sun,'src','idas','idas_spgmr.c')
+    fullfile(sun,'src','idas','idas_sptfqmr.c')
               };
 shr_sources = {
     fullfile(sun,'src','sundials','sundials_band.c')
@@ -363,7 +363,7 @@ for i=1:length(shr_sources)
 end
 
 sun_incdir = fullfile(sun,'include');     % for SUNDIALS exported headers
-ids_srcdir = fullfile(sun,'src','ida');   % for idas_impl.h
+ids_srcdir = fullfile(sun,'src','idas');  % for idas_impl.h
 includes = sprintf('%s -I"%s" -I"%s"',includes,sun_incdir,ids_srcdir);
 
 % Add NVEC_SER sources and header files
@@ -533,6 +533,11 @@ end
 fclose(fo);
 fclose(fi);
 
+top_files = {
+    'LICENSE'
+    'Contents.m'
+            };
+
 nvm_files = {
     fullfile('nvector','Contents.m')
     fullfile('nvector','N_VDotProd.m')
@@ -551,7 +556,7 @@ put_files = {
     fullfile('putils','mpiruns.m')    
             };
 
-stb_files = [nvm_files];
+stb_files = [top_files ; nvm_files];
 if par
   stb_files = [stb_files; put_files];
 end
@@ -581,9 +586,8 @@ stbi = fullfile(where,'sundialsTB');
 cvmmex = ['cvm.' mexext];
 
 cvm_files = {
-    'LICENSE'
-    'Contents.m'
     fullfile('cvodes','Contents.m')
+%
     fullfile('cvodes','CVodeSetOptions.m')
     fullfile('cvodes','CVodeQuadSetOptions.m')
     fullfile('cvodes','CVodeSensSetOptions.m')
@@ -593,24 +597,28 @@ cvm_files = {
     fullfile('cvodes','CVodeQuadReInit.m')
     fullfile('cvodes','CVodeSensInit.m')
     fullfile('cvodes','CVodeSensReInit.m')
+    fullfile('cvodes','CVode.m')
+    fullfile('cvodes','CVodeGet.m')
+    fullfile('cvodes','CVodeSet.m')
+    fullfile('cvodes','CVodeGetStats.m')
+%
     fullfile('cvodes','CVodeAdjInit.m')
     fullfile('cvodes','CVodeAdjReInit.m')
+%
     fullfile('cvodes','CVodeInitB.m')
     fullfile('cvodes','CVodeReInitB.m')
     fullfile('cvodes','CVodeQuadInitB.m')
     fullfile('cvodes','CVodeQuadReInitB.m')
     fullfile('cvodes','CVodeSensToggleOff.m')
-    fullfile('cvodes','CVode.m')
     fullfile('cvodes','CVodeB.m')
-    fullfile('cvodes','CVodeGet.m')
-    fullfile('cvodes','CVodeSet.m')
     fullfile('cvodes','CVodeSetB.m')
     fullfile('cvodes','CVodeGetStatsB.m')
-    fullfile('cvodes','CVodeGetStats.m')
+%
     fullfile('cvodes','CVodeFree.m')
-    fullfile('cvodes','CVodeMonitor.m')
-    fullfile('cvodes','CVodeMonitorB.m')
+%
     fullfile('cvodes','cvm','Contents.m')
+    fullfile('cvodes','cvm','cvm_options.m')
+%
     fullfile('cvodes','cvm','cvm_rhs.m')
     fullfile('cvodes','cvm','cvm_rhsQ.m')
     fullfile('cvodes','cvm','cvm_rhsS.m')
@@ -622,6 +630,8 @@ cvm_files = {
     fullfile('cvodes','cvm','cvm_psol.m')
     fullfile('cvodes','cvm','cvm_gcom.m')
     fullfile('cvodes','cvm','cvm_gloc.m')
+    fullfile('cvodes','cvm','cvm_monitor.m')
+%
     fullfile('cvodes','cvm','cvm_rhsB.m')
     fullfile('cvodes','cvm','cvm_rhsQB.m')
     fullfile('cvodes','cvm','cvm_bjacB.m')
@@ -631,9 +641,8 @@ cvm_files = {
     fullfile('cvodes','cvm','cvm_psolB.m')
     fullfile('cvodes','cvm','cvm_gcomB.m')
     fullfile('cvodes','cvm','cvm_glocB.m')
-    fullfile('cvodes','cvm','cvm_monitor.m')
     fullfile('cvodes','cvm','cvm_monitorB.m')
-    fullfile('cvodes','cvm','cvm_options.m')    
+%
     fullfile('cvodes','cvm',cvmmex)    
             };
 
@@ -650,6 +659,7 @@ cvm_ftypes = {
     fullfile('cvodes','function_types','CVGcommFn.m')
     fullfile('cvodes','function_types','CVGlocalFn.m')
     fullfile('cvodes','function_types','CVMonitorFn.m')
+%
     fullfile('cvodes','function_types','CVRhsFnB.m')
     fullfile('cvodes','function_types','CVQuadRhsFnB.m')
     fullfile('cvodes','function_types','CVBandJacFnB.m')
@@ -663,38 +673,16 @@ cvm_ftypes = {
              };    
 
 cvm_exs = {
-    fullfile('cvodes','examples_ser','cvadx.m')
-    fullfile('cvodes','examples_ser','cvbx_f.m')
-    fullfile('cvodes','examples_ser','cvbx_J.m')
-    fullfile('cvodes','examples_ser','cvbx.m')
-    fullfile('cvodes','examples_ser','cvbx_q.m')
-    fullfile('cvodes','examples_ser','cvdiscx.m')
-    fullfile('cvodes','examples_ser','cvdx_fB.m')
-    fullfile('cvodes','examples_ser','cvdx_f.m')
-    fullfile('cvodes','examples_ser','cvdx_fS.m')
-    fullfile('cvodes','examples_ser','cvdx_g.m')
-    fullfile('cvodes','examples_ser','cvdx_JB.m')
-    fullfile('cvodes','examples_ser','cvdx_J.m')
-    fullfile('cvodes','examples_ser','cvdx.m')
-    fullfile('cvodes','examples_ser','cvdx_qB.m')
-    fullfile('cvodes','examples_ser','cvdx_q.m')
-    fullfile('cvodes','examples_ser','cvfdx.m')
-    fullfile('cvodes','examples_ser','cvkxb.m')
-    fullfile('cvodes','examples_ser','cvkx_f.m')
-    fullfile('cvodes','examples_ser','cvkx.m')
-    fullfile('cvodes','examples_ser','cvkx_pset.m')
-    fullfile('cvodes','examples_ser','cvkx_psol.m')
-    fullfile('cvodes','examples_ser','pleiades_f.m')
-    fullfile('cvodes','examples_ser','pleiades_J.m')
+    fullfile('cvodes','examples_ser','advdiff.m')
+    fullfile('cvodes','examples_ser','discontRHS.m')
+    fullfile('cvodes','examples_ser','discontSOL.m')
+    fullfile('cvodes','examples_ser','diurnal.m')
+    fullfile('cvodes','examples_ser','hessian.m')
     fullfile('cvodes','examples_ser','pleiades.m')
-    fullfile('cvodes','examples_ser','vdp_f.m')
-    fullfile('cvodes','examples_ser','vdp_J.m')
+    fullfile('cvodes','examples_ser','robertson.m')
+    fullfile('cvodes','examples_ser','robertsonFSA.m')
+    fullfile('cvodes','examples_ser','robertsonASA.m')
     fullfile('cvodes','examples_ser','vdp.m')
-    fullfile('cvodes','examples_ser','cvhess.m')
-    fullfile('cvodes','examples_ser','cvhess_f.m')
-    fullfile('cvodes','examples_ser','cvhess_q.m')
-    fullfile('cvodes','examples_ser','cvhess_fB.m')
-    fullfile('cvodes','examples_ser','cvhess_qB.m')          
           };
 
 cvm_exp = {
@@ -724,6 +712,30 @@ for i=1:length(stb_files)
   end
 end
 
+if (exist ('OCTAVE_VERSION'))
+  cvmon = fullfile('cvodes','CVodeMonitor_octave.m');
+  cvmonB = fullfile('cvodes','CVodeMonitorB_octave.m');
+else
+  cvmon = fullfile('cvodes','CVodeMonitor.m');
+  cvmonB = fullfile('cvodes','CVodeMonitorB.m');
+end
+
+src = fullfile(stb,cvmon);
+dest = fullfile(stbi,'cvodes','CVodeMonitor.m');
+fprintf('Install %s\n',dest);
+[success,msg,msgid] = copyfile(src,dest);
+if ~success
+  disp(msg);
+end
+
+src = fullfile(stb,cvmonB);
+dest = fullfile(stbi,'cvodes','CVodeMonitorB.m');
+fprintf('Install %s\n',dest);
+[success,msg,msgid] = copyfile(src,dest);
+if ~success
+  disp(msg);
+end
+
 %---------------------------------------------------------------------------------
 % Installation of IDAS files
 %---------------------------------------------------------------------------------
@@ -738,26 +750,64 @@ idmmex = ['idm.' mexext];
 
 idm_files = {
     fullfile('idas','Contents.m')
+%
+    fullfile('idas','IDASetOptions.m')
+    fullfile('idas','IDAQuadSetOptions.m')
+    fullfile('idas','IDASensSetOptions.m')
+    fullfile('idas','IDAInit.m')
+    fullfile('idas','IDAReInit.m')
+    fullfile('idas','IDAQuadInit.m')
+    fullfile('idas','IDAQuadReInit.m')
+    fullfile('idas','IDASensInit.m')
+    fullfile('idas','IDASensReInit.m')
+    fullfile('idas','IDASensToggleOff.m')
+    fullfile('idas','IDAAdjReInit.m')
     fullfile('idas','IDACalcIC.m')
-    fullfile('idas','IDAFree.m')
+    fullfile('idas','IDASolve.m')
+    fullfile('idas','IDASet.m')
     fullfile('idas','IDAGet.m')
     fullfile('idas','IDAGetStats.m')
-    fullfile('idas','IDASolve.m')
-    fullfile('idas','IDAMalloc.m')
-    fullfile('idas','IDAMonitor.m')
-    fullfile('idas','IDASetOptions.m')
-    fullfile('idas','IDAReInit.m')
+%
+    fullfile('idas','IDAAdjInit.m')
+%
+    fullfile('idas','IDAInitB.m')
+    fullfile('idas','IDAReInitB.m')
+    fullfile('idas','IDAQuadInitB.m')
+    fullfile('idas','IDAQuadReInitB.m')
+    fullfile('idas','IDACalcICB.m')
+    fullfile('idas','IDASolveB.m')
+    fullfile('idas','IDASetB.m')
+    fullfile('idas','IDAGetStatsB.m')
+%
+    fullfile('idas','IDAFree.m')
+%
     fullfile('idas','idm','Contents.m')
+    fullfile('idas','idm','idm_options.m')
+%
+    fullfile('idas','idm','idm_res.m')
+    fullfile('idas','idm','idm_rhsQ.m')
     fullfile('idas','idm','idm_bjac.m')
     fullfile('idas','idm','idm_djac.m')
     fullfile('idas','idm','idm_gcom.m')
     fullfile('idas','idm','idm_gloc.m')
     fullfile('idas','idm','idm_jtv.m')
-    fullfile('idas','idm','idm_monitor.m')
     fullfile('idas','idm','idm_pset.m')
     fullfile('idas','idm','idm_psol.m')
-    fullfile('idas','idm','idm_res.m')
     fullfile('idas','idm','idm_root.m')
+    fullfile('idas','idm','idm_resS.m')
+    fullfile('idas','idm','idm_monitor.m')
+%
+    fullfile('idas','idm','idm_resB.m')
+    fullfile('idas','idm','idm_rhsQB.m')
+    fullfile('idas','idm','idm_bjacB.m')
+    fullfile('idas','idm','idm_djacB.m')
+    fullfile('idas','idm','idm_jtvB.m')
+    fullfile('idas','idm','idm_psetB.m')
+    fullfile('idas','idm','idm_psolB.m')
+    fullfile('idas','idm','idm_gcomB.m')
+    fullfile('idas','idm','idm_glocB.m')
+    fullfile('idas','idm','idm_monitorB.m')
+%
     fullfile('idas','idm',idmmex)    
             };
 
@@ -772,18 +822,26 @@ idm_ftypes = {
     fullfile('idas','function_types','IDAPrecSetupFn.m')
     fullfile('idas','function_types','IDAPrecSolveFn.m')
     fullfile('idas','function_types','IDAMonitorFn.m')
+%
              };
 
 idm_exs = {
-    fullfile('idas','examples_ser','idabanx.m')
-    fullfile('idas','examples_ser','idabanx_ic.m')
-    fullfile('idas','examples_ser','idabanx_f.m')
-    fullfile('idas','examples_ser','idadenx.m')
-    fullfile('idas','examples_ser','idadenx_f.m')
-    fullfile('idas','examples_ser','idadenx_J.m')
-    fullfile('idas','examples_ser','idadenx_g.m')
+    fullfile('idas','examples_ser','brusselator.m')
+%    fullfile('idas','examples_ser','brusselatorFSA.m')
+    fullfile('idas','examples_ser','brusselatorASA.m')
+%
+    fullfile('idas','examples_ser','heat2D.m')
+%
     fullfile('idas','examples_ser','pend.m')
     fullfile('idas','examples_ser','pendGGL.m')
+%
+    fullfile('idas','examples_ser','reinit_example.m')
+%
+    fullfile('idas','examples_ser','robertson.m')
+    fullfile('idas','examples_ser','robertsonASA.m')
+%
+    fullfile('idas','examples_ser','slider_crank.m')
+    fullfile('idas','examples_ser','slider_crankFSA.m')
           };
 
 stb_files = [idm_files ; idm_ftypes ; idm_exs];
@@ -802,6 +860,32 @@ for i=1:length(stb_files)
     break;
   end
 end
+
+if (exist ('OCTAVE_VERSION'))
+  idamon = fullfile('idas','IDAMonitor_octave.m');
+  idamonB = fullfile('idas','IDAMonitorB_octave.m');
+else
+  idamon = fullfile('idas','IDAMonitor.m');
+  idamonB = fullfile('idas','IDAMonitorB.m');
+end
+
+src = fullfile(stb,idamon);
+dest = fullfile(stbi,'idas','IDAMonitor.m');
+fprintf('Install %s\n',dest);
+[success,msg,msgid] = copyfile(src,dest);
+if ~success
+  disp(msg);
+end
+
+src = fullfile(stb,idamonB);
+dest = fullfile(stbi,'idas','IDAMonitorB.m');
+fprintf('Install %s\n',dest);
+[success,msg,msgid] = copyfile(src,dest);
+if ~success
+  disp(msg);
+end
+
+
 
 %---------------------------------------------------------------------------------
 % Installation of KINSOL files
