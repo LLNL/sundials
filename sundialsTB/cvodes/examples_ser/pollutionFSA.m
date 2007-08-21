@@ -1,10 +1,10 @@
-function [time, sol, sens] = pollution()
+function [time, sol, sens] = pollutionFSA()
 %POLLUTION - Air pollution model
 %   J.G Verwer - Gauss-Seidel Iteration for Stiff ODEs from Chemical Kinetics
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/03/21 18:36:23 $
+% $Revision: 1.2 $Date: 2007/08/21 17:42:39 $
 
 
 t0 = 0.0;
@@ -44,7 +44,7 @@ y0 = [0 ; 0.2   ; 0   ; 0.04 ; 0 ; ...
       0 ; 0.007 ; 0   ; 0    ; 0];
 
 
-CVodeInit(@rhsfn, t0, y0, options);
+CVodeInit(@rhsfn, 'BDF', 'Newton', t0, y0, options);
 
 
 % ------------------

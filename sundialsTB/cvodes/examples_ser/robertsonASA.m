@@ -38,7 +38,7 @@ function robertsonASA()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/16 17:12:57 $
+% $Revision: 1.3 $Date: 2007/08/21 17:42:39 $
 
 
 % ----------------------------------------
@@ -67,7 +67,7 @@ options = CVodeSetOptions(options,...
 
 t0 = 0.0;
 y0 = [1.0;0.0;0.0];
-CVodeInit(@rhsfn, t0, y0, options);
+CVodeInit(@rhsfn, 'BDF', 'Newton', t0, y0, options);
 
 
 optionsQ = CVodeQuadSetOptions('ErrControl',true,...
@@ -123,7 +123,7 @@ optionsB = CVodeSetOptions(optionsB,...
 
 tB1 = 4.e7;
 yB1 = [0.0;0.0;0.0];
-idxB = CVodeInitB(@rhsBfn, tB1, yB1, optionsB);
+idxB = CVodeInitB(@rhsBfn, 'BDF', 'Newton', tB1, yB1, optionsB);
 
 optionsQB = CVodeQuadSetOptions('ErrControl',true,...
                                 'RelTol',1.e-6,'AbsTol',1.e-3);

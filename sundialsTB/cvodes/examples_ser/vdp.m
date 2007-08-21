@@ -4,7 +4,7 @@ function vdp()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.5 $Date: 2007/05/16 17:12:57 $
+% $Revision: 1.6 $Date: 2007/08/21 17:42:39 $
 
 
 data.mu = 100.0;
@@ -21,7 +21,7 @@ mondata.mode = 'both';
 mondata.skip = 20;
 options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
 
-CVodeInit(@rhsfn, t0, y0, options);
+CVodeInit(@rhsfn, 'BDF', 'Newton', t0, y0, options);
 
 ntout = 50;
 dt = (tf-t0)/ntout;

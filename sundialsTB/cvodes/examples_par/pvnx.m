@@ -7,7 +7,7 @@ function [] = pvnx(comm)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:46 $
+% $Revision: 1.3 $Date: 2006/03/07 01:19:52 $
 
 [status npes] = MPI_Comm_size(comm);
 [status mype] = MPI_Comm_rank(comm);
@@ -39,9 +39,7 @@ if mype == 0
   fprintf('  rtol = %e  atol = %e\n\n',rtol,atol);
 end
 
-options = CVodeSetOptions('LMM','Adams',...
-                          'NonlinearSolver','Functional',...
-                          'Reltol',rtol,'AbsTol',atol);
+options = CVodeSetOptions('Reltol',rtol,'AbsTol',atol);
 
 mondata = struct;
 
@@ -58,7 +56,7 @@ options = CVodeSetOptions(options,...
                           'MonitorFn','CVodeMonitor',...
                           'MonitorData',mondata);
 
-CVodeMalloc(@pvnx_f,t0,y0,options,data);
+CVodeInit(@pvnx_f,'Adams','Functional',t0,y0,options,data);
 
 
 nout = 10;

@@ -1,10 +1,10 @@
-function [time, sol] = ozone()
+function [time, sol] = ozoneFSA()
 %OZONE - CVODES example problem (serial, dense)
 %        ozone depletion chemical mechanism (3 species)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/03/21 18:36:23 $
+% $Revision: 1.2 $Date: 2007/08/21 17:42:39 $
 
 
 % -------------------
@@ -27,7 +27,7 @@ y0 = [1.0e6 ; 1.0e12 ; 3.7e16];
 
 
 
-CVodeInit(@rhsfn, t0, y0, options);
+CVodeInit(@rhsfn, 'BDF', 'Newton', t0, y0, options);
 
 
 % ------------------

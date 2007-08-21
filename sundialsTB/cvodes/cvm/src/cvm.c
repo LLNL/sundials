@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2007-08-21 17:42:39 $
+ * $Revision: 1.20 $
+ * $Date: 2007-08-21 23:09:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -527,6 +527,8 @@ void cvmErrHandler(int error_code,
  * action = 0   -> CVodeCreate + CVodeInit
  * prhs contains:
  *   fct 
+ *   lmm
+ *   iter
  *   t0
  *   y0
  *   options
@@ -569,6 +571,9 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   int mudq, mldq;
   double dqrely;
 
+  char *bufval;
+  int buflen, status;
+
   /* 
    * ------------------------------------
    * Process inputs based on action
@@ -595,14 +600,40 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     mxDestroyArray(mtlb_RHSfct);
     mtlb_RHSfct = mxDuplicateArray(prhs[0]);
 
+    /* Extract lmm */
+
+    buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
+    bufval = mxCalloc(buflen, sizeof(char));
+    status = mxGetString(prhs[1], bufval, buflen);
+    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeInit",
+                                  "Cannot parse LMM input argument.", NULL);
+    if(!strcmp(bufval,"Adams"))    lmm = CV_ADAMS;
+    else if(!strcmp(bufval,"BDF")) lmm = CV_BDF;
+    else cvmErrHandler(-999, "CVODES", "CVodeInit",
+                       "LMM has an illegal value.", NULL);
+    mxFree(bufval);
+
+    /* Extract iter */
+
+    buflen = mxGetM(prhs[2]) * mxGetN(prhs[2]) + 1;
+    bufval = mxCalloc(buflen, sizeof(char));
+    status = mxGetString(prhs[2], bufval, buflen);
+    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeInit",
+                                  "Cannot parse NLS input argument.", NULL);
+    if(!strcmp(bufval,"Functional"))  iter = CV_FUNCTIONAL;
+    else if(!strcmp(bufval,"Newton")) iter = CV_NEWTON;
+    else cvmErrHandler(-999, "CVODES", "CVodeInit",
+                       "NLS has an illegal value.", NULL);
+    mxFree(bufval);
+
     /* Extract initial time */
 
-    t0 = (double)mxGetScalar(prhs[1]);
+    t0 = (double)mxGetScalar(prhs[3]);
 
     /* Extract initial conditions */
 
-    y0 = mxGetPr(prhs[2]);
-    N = mxGetM(prhs[2]);
+    y0 = mxGetPr(prhs[4]);
+    N = mxGetM(prhs[4]);
 
     /* Create the solution N_Vector */
 
@@ -614,7 +645,7 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
     /* Extract options structure */
     
-    options = prhs[3];
+    options = prhs[5];
 
     break;
 
@@ -651,8 +682,8 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   /* Process the options structure */
 
-  get_IntgrOptions(options, fwdPb, TRUE,
-                   &lmm, &iter, &maxord, &sld, &mxsteps,
+  get_IntgrOptions(options, fwdPb, TRUE, lmm,
+                   &maxord, &sld, &mxsteps,
                    &itol, &reltol, &Sabstol, &Vabstol,
                    &hin, &hmax, &hmin, &tstop, &rhs_s);
 
@@ -1286,6 +1317,8 @@ static int CVM_AdjInitialization(int action, int nlhs, mxArray *plhs[], int nrhs
  * action = 0   -> CVodeCreateB + CVodeInitB
  * prhs contains:
  *   fctB
+ *   lmmB
+ *   iterB
  *   tF
  *   yB0
  *   options
@@ -1332,6 +1365,8 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   booleantype found_bck;
 
+  char *bufval;
+  int buflen, status;
 
   /* 
    * -----------------------------
@@ -1367,14 +1402,40 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     mxDestroyArray(mtlb_RHSfctB);
     mtlb_RHSfctB = mxDuplicateArray(prhs[0]);
 
+    /* Extract lmmB */
+
+    buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
+    bufval = mxCalloc(buflen, sizeof(char));
+    status = mxGetString(prhs[1], bufval, buflen);
+    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeInitB",
+                                  "Cannot parse LMM input argument.", NULL);
+    if(!strcmp(bufval,"Adams"))    lmmB = CV_ADAMS;
+    else if(!strcmp(bufval,"BDF")) lmmB = CV_BDF;
+    else cvmErrHandler(-999, "CVODES", "CVodeInitB",
+                       "LMM has an illegal value.", NULL);
+    mxFree(bufval);
+
+    /* Extract iterB */
+
+    buflen = mxGetM(prhs[2]) * mxGetN(prhs[2]) + 1;
+    bufval = mxCalloc(buflen, sizeof(char));
+    status = mxGetString(prhs[2], bufval, buflen);
+    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeInitB",
+                                  "Cannot parse NLS input argument.", NULL);
+    if(!strcmp(bufval,"Functional"))  iterB = CV_FUNCTIONAL;
+    else if(!strcmp(bufval,"Newton")) iterB = CV_NEWTON;
+    else cvmErrHandler(-999, "CVODES", "CVodeInitB",
+                       "NLS has an illegal value.", NULL);
+    mxFree(bufval);
+
     /* Extract final time */
 
-    tB0 = (double)mxGetScalar(prhs[1]);
+    tB0 = (double)mxGetScalar(prhs[3]);
 
     /* Extract final conditions */
 
-    yB0 = mxGetPr(prhs[2]);
-    NB = mxGetM(prhs[2]);
+    yB0 = mxGetPr(prhs[4]);
+    NB = mxGetM(prhs[4]);
 
     /* Create the solution N_Vector */
 
@@ -1386,7 +1447,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
     /* Extract options structure */
     
-    options = prhs[3];
+    options = prhs[5];
 
     break;
 
@@ -1440,8 +1501,8 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   /* Process the options structure */
 
-  get_IntgrOptions(options, bckPb, FALSE,
-                   &lmmB, &iterB, &maxordB, &sldB, &mxstepsB,
+  get_IntgrOptions(options, bckPb, FALSE, lmmB,
+                   &maxordB, &sldB, &mxstepsB,
                    &itolB, &reltolB, &SabstolB, &VabstolB,
                    &hinB, &hmaxB, &hminB, &tstopB, &rhs_s);
   /* 
@@ -1534,7 +1595,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   if (iterB == CV_NEWTON) {
 
-    get_LinSolvOptions(prhs[3], bckPb, FALSE,
+    get_LinSolvOptions(options, bckPb, FALSE,
                        &mupperB, &mlowerB,
                        &mudqB, &mldqB, &dqrelyB,
                        &ptypeB, &gstypeB, &maxlB);

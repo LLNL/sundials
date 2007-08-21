@@ -21,7 +21,7 @@ function advdiff()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/16 17:12:56 $
+% $Revision: 1.3 $Date: 2007/08/21 17:42:39 $
 
 xmax = 2.0;
 ymax = 1.0;
@@ -75,7 +75,7 @@ for j = 1:my
 end
 
 % Initialize integrator
-CVodeInit(@rhsfn, t, u, options);
+CVodeInit(@rhsfn, 'BDF', 'Newton', t, u, options);
 
 % Initialize quadratures (with default optional inputs)
 q = 0.0;

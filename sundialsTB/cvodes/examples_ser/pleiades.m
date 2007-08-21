@@ -3,7 +3,7 @@ function pleiades()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.5 $Date: 2006/10/05 22:12:23 $
+% $Revision: 1.6 $Date: 2007/05/16 17:12:57 $
 
 neq = 28;
 
@@ -28,14 +28,12 @@ y0(21) = -1.5;
 y0(25) = -1.25;
 y0(26) =  1.0;
 
-options = CVodeSetOptions('LMM', 'Adams',...
-                          'NonlinearSolver', 'Functional',...
-                          'RelTol', 1.0e-7,...
+options = CVodeSetOptions('RelTol', 1.0e-7,...
                           'AbsTol', 1.0e-7,...
                           'StopTime',tout,...
                           'MaxNumSteps',2000);
 
-CVodeInit(@rhsfn, t0, y0, options);
+CVodeInit(@rhsfn, 'Adams', 'Functional', t0, y0, options);
 
 % Loop in one-step mode
 t = t0;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-08-21 17:42:39 $
+ * $Revision: 1.11 $
+ * $Date: 2007-08-21 23:09:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,16 +50,15 @@
  * ---------------------------------------------------------------------------------
  */
 
-void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                      int *lmm, int *iter, int *maxord, booleantype *sld,
+void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, int lmm,
+                      int *maxord, booleantype *sld,
                       long int *mxsteps,
                       int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                       double *hin, double *hmax, double *hmin, double *tstop,
                       booleantype *rhs_s)
 {
   mxArray *opt;
-  char *bufval;
-  int i, buflen, status, q, m, n;
+  int i, q, m, n;
   double *tmp;
   char *fctName;
   char *fwd_fctName = "CVodeInit/CVodeReInit";
@@ -70,9 +69,7 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
   /* Set default values */
 
-  *lmm = CV_BDF;
-  *iter = CV_NEWTON;
-  *maxord = 5;
+  *maxord = (lmm == CV_ADAMS) ? 12 : 5;
 
   *sld = FALSE;
 
@@ -141,36 +138,6 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
     }
   }
 
-  /* LMM */
-
-  opt = mxGetField(options,0,"LMM");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", fctName,
-                                  "Cannot parse LMM.", NULL);
-    if(!strcmp(bufval,"Adams")) {*lmm = CV_ADAMS; *maxord = 12;}
-    else if(!strcmp(bufval,"BDF")) {*lmm = CV_BDF; *maxord = 5;}
-    else cvmErrHandler(-999, "CVODES", fctName,
-                       "LMM has an illegal value.", NULL);
-  }
-
-  /* ITER */
-  
-  opt = mxGetField(options,0,"NonlinearSolver");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", fctName,
-                                  "Cannot parse NonlinearSolver.", NULL);
-    if(!strcmp(bufval,"Functional")) *iter = CV_FUNCTIONAL;
-    else if(!strcmp(bufval,"Newton")) *iter = CV_NEWTON;
-    else cvmErrHandler(-999, "CVODES", fctName,
-                       "NonlinearSolver has an illegal value.", NULL);
-  }
-    
   /* Maximum number of steps */
 
   opt = mxGetField(options,0,"MaxNumSteps");
@@ -181,7 +148,7 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   }
 
   /* Maximum order */
-  
+
   opt = mxGetField(options,0,"MaxOrder");
   if ( !mxIsEmpty(opt) ) {
     q = (int)*mxGetPr(opt);

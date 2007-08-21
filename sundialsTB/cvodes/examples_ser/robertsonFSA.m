@@ -28,7 +28,7 @@ function robertsonFSA()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 21:42:53 $
+% $Revision: 1.2 $Date: 2007/05/16 17:12:57 $
 
 % -------------------
 % User data structure
@@ -54,7 +54,7 @@ options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondat
 t0 = 0.0;
 y0 = [1.0;0.0;0.0];
 
-CVodeInit(@rhsfn, t0, y0, options);
+CVodeInit(@rhsfn, 'BDF', 'Newton', t0, y0, options);
 
 
 % ------------------

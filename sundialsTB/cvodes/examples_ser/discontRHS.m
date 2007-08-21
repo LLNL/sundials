@@ -11,7 +11,7 @@ function discontRHS()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $
+% $Revision: 1.2 $
 
 t0 = 0.0;
 t1 = 1.0;
@@ -30,7 +30,7 @@ options = CVodeSetOptions('UserData',data,...
                           'RelTol',1.e-3,...
                           'AbsTol',1.e-4,...
                           'LinearSolver','Dense');
-CVodeInit(@rhsfn1, t0, y0, options);
+CVodeInit(@rhsfn1, 'BDF', 'Newton', t0, y0, options);
 
 % Integrate over the point of discontinuity
 t = t0;
@@ -63,7 +63,7 @@ options = CVodeSetOptions('UserData',data,...
                           'AbsTol',1.e-4,...
                           'StopTime',t1,...
                           'LinearSolver','Dense');
-CVodeInit(@rhsfn2, t0, y0, options);
+CVodeInit(@rhsfn2, 'BDF', 'Newton', t0, y0, options);
 
 % Integrate to the point of discontinuity
 t = t0;

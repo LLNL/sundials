@@ -21,7 +21,7 @@ function [] = pvfnx(comm)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:52 $
+% $Revision: 1.4 $Date: 2006/07/20 16:59:40 $
 
 sensi = true;
 
@@ -61,10 +61,8 @@ end
 rtol = 0.0;
 atol = 1.0e-5;
 
-options = CVodeSetOptions('LMM','Adams',...
-                          'NonlinearSolver','Functional',...
-                          'Reltol',rtol,'AbsTol',atol);
-CVodeMalloc(@pvfnx_f,t0,u0,options,data);
+options = CVodeSetOptions('Reltol',rtol,'AbsTol',atol);
+CVodeInit(@pvfnx_f,'Adams','Functional',t0,u0,options,data);
 
 
 if sensi
@@ -74,14 +72,13 @@ if sensi
   pbar = data.p;
   plist = [1;2];
 
-  FSAoptions = CVodeSetFSAOptions('SensErrControl', 'on',...
-                                  'ParamField', 'p',...
-                                  'ParamList', plist,...
-                                  'ParamScales', pbar,...
-                                  'SensDQtype', 'Centered',...
-                                  'SensDQparam', 0.0);
+  FSAoptions = CVodeSensSetOptions('method','Simultaneous',...
+                                   'ErrControl', 'on',...
+                                   'ParamField', 'p',...
+                                   'ParamList', plist,...
+                                   'ParamScales', pbar);
 
-  CVodeSensMalloc(Ns, 'Simultaneous', uS0, FSAoptions);
+  CVodeSensInit(Ns, [], uS0, FSAoptions);
 
 end
 

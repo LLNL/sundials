@@ -24,7 +24,7 @@ function [x,y,u0_2, u_2] = diurnal()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/16 17:12:57 $
+% $Revision: 1.3 $Date: 2007/08/21 17:42:39 $
 
 %------------------------
 % SET USER DATA STRUCTURE
@@ -127,7 +127,7 @@ options = CVodeSetOptions('UserData',data,...
 %mondata = struct;
 %options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
 
-CVodeInit(@rhsfn, t0, u0, options);
+CVodeInit(@rhsfn, 'BDF', 'Newton', t0, u0, options);
 
 %------------------------
 % SOLVE PROBLEM

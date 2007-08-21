@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-08-21 17:42:39 $
+ * $Revision: 1.12 $
+ * $Date: 2007-08-21 23:09:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -248,8 +248,8 @@ void mxW_CVodeMonitorB(int call, int idxB, double tB,
  * ---------------------------------------------------------------------------------
  */
 
-void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                      int *lmm, int *iter, int *maxord, booleantype *sld,
+void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, int lmm,
+                      int *maxord, booleantype *sld,
                       long int *mxsteps,
                       int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
                       double *hin, double *hmax, double *hmin, 

@@ -26,7 +26,7 @@ function hessian
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/10/05 22:12:23 $
+% $Revision: 1.2 $Date: 2007/05/16 17:12:57 $
 
 
 
@@ -59,7 +59,7 @@ optionsS = CVodeSensSetOptions('method','Simultaneous',...
                                'ParamScales', [1.0; 2.0]);
 
 y0 = ones(Neq,1);
-CVodeInit(@rhsfn, t0, y0, options);
+CVodeInit(@rhsfn, 'BDF', 'Newton', t0, y0, options);
 
 q0 = 0.0;
 CVodeQuadInit(@rhsQfn, q0, optionsQ);
@@ -101,14 +101,14 @@ optionsQB = CVodeQuadSetOptions('ErrControl',true,...
 
 
 yB1 = zeros(2*Neq,1);
-idxB1 = CVodeInitB(@rhsB1fn, tf, yB1, optionsB);
+idxB1 = CVodeInitB(@rhsB1fn, 'BDF', 'Newton', tf, yB1, optionsB);
 
 qB1 = zeros(2*Np,1);
 CVodeQuadInitB(idxB1, @rhsQB1fn, qB1, optionsQB);
 
 
 yB2 = zeros(2*Neq,1);
-idxB2 = CVodeInitB(@rhsB2fn, tf, yB2, optionsB);
+idxB2 = CVodeInitB(@rhsB2fn, 'BDF', 'Newton', tf, yB2, optionsB);
 
 qB2 = zeros(2*Np,1);
 CVodeQuadInitB(idxB2, @rhsQB2fn, qB2, optionsQB);

@@ -9,7 +9,7 @@ function discontSOL()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $
+% $Revision: 1.2 $
 
 t0 = 0.0;
 t1 = 1.0;
@@ -21,7 +21,7 @@ options = CVodeSetOptions('RelTol',1.e-3,...
                           'AbsTol',1.e-4,...
                           'StopTime',t1,...
                           'LinearSolver','Dense');
-CVodeInit(@rhsfn,t0,y,options);
+CVodeInit(@rhsfn,'BDF','Newton',t0,y,options);
 
 % Integrate to the point of discontinuity
 t = t0;
