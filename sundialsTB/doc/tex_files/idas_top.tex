@@ -15,41 +15,147 @@ To illustrate the use of the {\idas} {\matlab} interface, several example proble
 with {\sundialsTB}, both for serial and parallel computations. Most of them are {\matlab} translations of example
 problems provided with {\idas}.
 
+
+
 \begin{table}[h]
 \centering
-\caption{{\idas} {\matlab} interface functions}
-\label{t:idas_fct}
+\caption{{\idas} {\matlab} interface functions for DAE integration}
+\label{t:idas_fct_ivp}
 \medskip
-\begin{tabular}{|c||r|l|}
+\begin{tabular}{|r|l|r|}
   \hline
-  \multirow{9}{*}{\begin{sideways} Functions  \end{sideways}}
-  &  IDASetOptions & creates an options structure for {\idas}. \\
-%  &  IDASetFSAOptions & creates an options structure for FSA with {\idas}. \\
-  &  IDAMalloc     & allocates and initializes memory for {\idas}. \\
-%  &  IDASensMalloc & allocates and initializes memory for FSA with {\idas}. \\
-%  &  IDAadjMalloc     & allocates and initializes memory for ASA with {\idas}. \\
-%  &  IDAMallocB    & allocates and initializes backward memory for {\idas}. \\
-  &  IDASolve      & integrates the ODE. \\
-%  &  IDASolveB     & integrates the backward ODE. \\
-  &  IDAGetStats   & returns statistics for the {\idas} solver. \\
-%  &  IDAGetStatsB  & returns statistics for the backward {\idas} solver. \\
-%  &  IDAGet        & extracts data from {\idas} memory. \\
-  &  IDAFree       & deallocates memory for the {\idas} solver. \\
-  &  IDAMonitor    & sample monitoring function. \\
+  IDASetOptions & create an options structure for an DAE problem. & \pageref{p:IDASetOptions} \\
+  IDAQuadSetOptions & create an options structure for quadrature integration. & \pageref{p:IDAQuadSetOptions} \\
   \hline
-  \multirow{13}{*}{\begin{sideways} Function types  \end{sideways}}
-  &  IDAResFn         &  residual function \\
-  &  IDARootFn        &  root-finding function  \\
-%  &  IDAQuadRhsFn     &  quadrature RHS function \\
-  &  IDADenseJacFn    &  dense Jacobian function \\
-  &  IDABandJacFn     &  banded Jacobian function \\
-  &  IDAJacTimesVecFn &  Jacobian times vector function \\
-  &  IDAPrecSetupFn   &  preconditioner setup function \\
-  &  IDAPrecSolveFn   &  preconditioner solve function \\
-  &  IDAGlocalFn      &  residual approximation function (BBDPre) \\
-  &  IDAGcommFn       &  communication function (BBDPre) \\
-%  &  IDASensResFn     &  sensitivity residual function \\
-  &  IDAMonitorFn     &  monitoring function \\
+  IDAInit       & allocate and initialize memory for {\idas}. & \pageref{p:IDAInit} \\
+  IDAQuadInit   & allocate and initialize memory for quadrature integration. & \pageref{p:IDAQuadInit} \\  
+  IDAReInit     & reinitialize memory for {\idas}. & \pageref{p:IDAReInit} \\
+  IDAQuadReInit & reinitialize memory for quadrature integration. & \pageref{p:IDAQuadReInit} \\  
+  \hline
+  IDACalcIC     & compute consistent initial conditions. & \pageref{p:IDACalcIC} \\
+  \hline
+  IDASolve      & integrate the DAE problem. & \pageref{p:IDASolve} \\
+  \hline
+  IDAGetStats   & return statistics for the {\idas} solver. & \pageref{p:IDAGetStats} \\
+  IDAGet        & extract data from {\idas} memory. & \pageref{p:IDAGet} \\
+  \hline
+  IDAFree       & deallocate memory for the {\idas} solver. & \pageref{p:IDAFree} \\
+  \hline
+  IDAMonitor    & monitoring function. & \pageref{p:IDAMonitor} \\
+  \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h]
+\centering
+\caption{{\idas} {\matlab} interface functions for FSA}
+\label{t:idas_fct_fsa}
+\medskip
+\begin{tabular}{|r|l|r|}
+  \hline
+  IDASetOptions & create an options structure for an DAE problem. & \pageref{p:IDASetOptions} \\
+  IDAQuadSetOptions & create an options structure for quadrature integration. & \pageref{p:IDAQuadSetOptions} \\
+  IDASensSetOptions & create an options structure for FSA. & \pageref{p:IDASensSetOptions} \\
+  \hline
+  IDAInit       & allocate and initialize memory for {\idas}. & \pageref{p:IDAInit} \\
+  IDAQuadInit   & allocate and initialize memory for quadrature integration. & \pageref{p:IDAQuadInit} \\  
+  IDASensInit   & allocate and initialize memory for FSA. & \pageref{p:IDASensInit} \\
+  IDAReInit     & reinitialize memory for {\idas}. & \pageref{p:IDAReInit} \\
+  IDAQuadReInit & reinitialize memory for quadrature integration. & \pageref{p:IDAQuadReInit} \\  
+  IDASensReInit & reinitialize memory for FSA. & \pageref{p:IDASensReInit} \\
+  \hline
+  IDASensToggleOff & temporarily deactivates FSA. & \pageref{p:IDASensToggleOff} \\
+  \hline
+  IDACalcIC     & compute consistent initial conditions. & \pageref{p:IDACalcIC} \\
+  \hline
+  IDASolve      & integrate the DAE problem. & \pageref{p:IDASolve} \\
+  \hline
+  IDAGetStats   & return statistics for the {\idas} solver. & \pageref{p:IDAGetStats} \\
+  IDAGet        & extract data from {\idas} memory. & \pageref{p:IDAGet} \\
+  \hline
+  IDAFree       & deallocate memory for the {\idas} solver. & \pageref{p:IDAFree} \\
+  \hline
+  IDAMonitor    & monitoring function. & \pageref{p:IDAMonitor} \\
+  \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h]
+\centering
+\caption{{\idas} {\matlab} interface functions for ASA}
+\label{t:idas_fct_asa}
+\medskip
+\begin{tabular}{|r|l|r|}
+  \hline
+  IDASetOptions & create an options structure for an DAE problem. & \pageref{p:IDASetOptions} \\
+  IDAQuadSetOptions & create an options structure for quadrature integration. & \pageref{p:IDAQuadSetOptions} \\
+  \hline
+  IDAInit       & allocate and initialize memory for the forward problem. & \pageref{p:IDAInit} \\
+  IDAQuadInit   & allocate and initialize memory for forward quadrature integration. & \pageref{p:IDAQuadInit} \\  
+  IDAQuadReInit & reinitialize memory for forward quadrature integration. & \pageref{p:IDAQuadReInit} \\  
+  IDAReInit     & reinitialize memory for the forward problem. & \pageref{p:IDAReInit} \\
+  \hline
+  IDAAdjInit    & allocate and initialize memory for ASA. & \pageref{p:IDAAdjInit} \\
+  IDAInitB      & allocate and initialize a backward problem. & \pageref{p:IDAInitB} \\
+  IDAAdjReInit  & reinitialize memory for ASA. & \pageref{p:IDAAdjReInit} \\
+  IDAReInitB    & reinitialize a backward problem. & \pageref{p:IDAReInitB} \\
+  \hline
+  IDACalcIC     & compute consistent initial conditions. & \pageref{p:IDACalcIC} \\
+  IDACalcICB    & compute consistent initial conditions for the backward problem. & \pageref{p:IDACalcICB} \\
+  \hline
+  IDASolve      & integrate the forward DAE problem. & \pageref{p:IDASolve} \\
+  IDASolveB     & integrate the backward problems. & \pageref{p:IDASolveB} \\
+  \hline
+  IDAGetStats   & return statistics for the integration of the forward problem. & \pageref{p:IDAGetStats} \\
+  IDAGetStatsB  & return statistics for the integration of a backward problem. & \pageref{p:IDAGetStatsB} \\
+  IDAGet        & extract data from {\idas} memory. & \pageref{p:IDAGet} \\
+  \hline
+  IDAFree       & deallocate memory for the {\idas} solver. & \pageref{p:IDAFree} \\
+  \hline
+  IDAMonitor    & monitoring function for forward problem. & \pageref{p:IDAMonitor} \\
+  IDAMonitorB   & monitoring function for backward problems. & \pageref{p:IDAMonitorB} \\
+  \hline
+\end{tabular}
+\end{table}
+
+
+
+
+
+\begin{table}[h]
+\centering
+\caption{{\idas} {\matlab} function types}
+\label{t:idas_fct_types}
+\medskip
+\begin{tabular}{|c||r|l|r|}
+  \hline
+  \multirow{12}{*}{\begin{sideways} Forward problems \end{sideways}}
+  &  IDARhsFn         &  residual function & \pageref{p:IDARhsFn} \\
+  &  IDARootFn        &  root-finding function  & \pageref{p:IDARootFn} \\
+  &  IDAQuadRhsFn     &  quadrature RHS function & \pageref{p:IDAQuadRhsFn} \\
+  &  IDASensRhsFn     &  sensitivity RHS function & \pageref{p:IDASensRhsFn} \\
+  &  IDADenseJacFn    &  dense Jacobian function & \pageref{p:IDADenseJacFn} \\
+  &  IDABandJacFn     &  banded Jacobian function & \pageref{p:IDABandJacFn} \\
+  &  IDAJacTimesVecFn &  Jacobian times vector function & \pageref{p:IDAJacTimesVecFn} \\
+  &  IDAPrecSetupFn   &  preconditioner setup function & \pageref{p:IDAPrecSetupFn} \\
+  &  IDAPrecSolveFn   &  preconditioner solve function & \pageref{p:IDAPrecSolveFn} \\
+  &  IDAGlocalFn      &  residual approximation function (BBDPre) & \pageref{p:IDAGlocalFn} \\
+  &  IDAGcommFn       &  communication function (BBDPre) & \pageref{p:IDAGcommFn} \\
+  &  IDAMonitorFn     &  monitoring function & \pageref{p:IDAMonitorFn} \\
+  \hline
+  \multirow{10}{*}{\begin{sideways} Backward problems \end{sideways}}
+  &  IDARhsFnB        &  residual function & \pageref{p:IDARhsFnB} \\
+  &  IDAQuadRhsFnB    &  quadrature RHS function & \pageref{p:IDAQuadRhsFnB} \\
+  &  IDADenseJacFnB   &  dense Jacobian function & \pageref{p:IDADenseJacFnB} \\
+  &  IDABandJacFnB    &  banded Jacobian function & \pageref{p:IDABandJacFnB} \\
+  &  IDAJacTimesVecFnB&  Jacobian times vector function & \pageref{p:IDAJacTimesVecFnB} \\
+  &  IDAPrecSetupFnB  &  preconditioner setup function & \pageref{p:IDAPrecSetupFnB} \\
+  &  IDAPrecSolveFnB  &  preconditioner solve function & \pageref{p:IDAPrecSolveFnB} \\
+  &  IDAGlocalFnB     &  residual approximation function (BBDPre) & \pageref{p:IDAGlocalFnB} \\
+  &  IDAGcommFnB      &  communication function (BBDPre) & \pageref{p:IDAGcommFnB} \\
+  &  IDAMonitorFnB    &  monitoring function & \pageref{p:IDAMonitorFnB} \\
  \hline
 \end{tabular}
 \end{table}

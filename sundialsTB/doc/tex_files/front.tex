@@ -8,21 +8,56 @@
 \usepackage{multirow}
 \usepackage{tabls}
 \usepackage{epsfig}
+\usepackage{makeidx}
+
+
+%% Finally, use hyperref package to include links in the PDF
+%% Note that since hyperref redefines a bunch of LaTeX commands,
+%% to give it a fighting chance, it MUST be included last.
+
+\usepackage[
+letterpaper=true, 
+dvips, 
+ps2pdf, 
+hyperindex=true, 
+linktocpage=true,
+colorlinks=true, 
+linkcolor=blue,
+citecolor=blue,
+bookmarks=true]
+{hyperref}
+
 
 %----- Page formatting
-\setlength{\oddsidemargin}{0.5in}
-\setlength{\evensidemargin}{0.0in}
+
+%% \setlength{\oddsidemargin}{0.5in}
+%% \setlength{\evensidemargin}{0.0in}
+%% \setlength{\paperwidth}{8.5in}
+%% \setlength{\hoffset}{0in}
+%% \setlength{\textwidth}{\paperwidth-(1in+\hoffset)*2-\oddsidemargin-\evensidemargin}
+%% \setlength{\textheight}{9.0in}
+
+
 \setlength{\paperwidth}{8.5in}
-\setlength{\hoffset}{0in}
-\setlength{\textwidth}{\paperwidth-(1in+\hoffset)*2-\oddsidemargin-\evensidemargin}
+\setlength{\textwidth}{6.1in}
+\setlength{\hoffset}{0.0in}
+\setlength{\oddsidemargin}{0.2in}
+\setlength{\evensidemargin}{0.2in}
+\setlength{\marginparsep}{0.25in}
+\setlength{\marginparwidth}{0.5in}
+
+\setlength{\paperheight}{11.0in}
 \setlength{\textheight}{9.0in}
+\setlength{\voffset}{-0.5in}
+\setlength{\topmargin}{0.0in}
+
 
 %---- Tables
 \setlength{\extrarulesep}{2pt}
 
 %----- UCRL number, date, versions
 \newcommand{\STBucrl}{UCRL-SM-212121}
-\newcommand{\STBrelease}{v2.2.0}
+\newcommand{\STBrelease}{v2.5.0}
 
 %----- LLNL disclaimer
 \newcommand{\disclaimer}{%
@@ -91,6 +126,8 @@ Approved for public release; further dissemination unlimited
 
 %------ BEGIN document
 
+\makeindex
+
 \begin{document}
 
 \pagestyle{empty}
@@ -139,24 +176,26 @@ with calls to separate functions ({\tt CVodeGetStats} and {\tt CVodeGet} for {\c
 
 This document provides a complete documentation for the {\sundialsTB} functions.
 For additional details on the methods and underlying {\sundials} software consult
-also the coresponding {\sundials} user guides~\cite{cvodes_ug,kinsol_ug}.
+also the coresponding {\sundials} user guides~\cite{cvodes_ug,idas_ug,kinsol_ug}.
 
-\subsection{Notes}
+\vspace{0.15in}
+\noindent{\bf Requirements.}
+For parallel support, {\sundialsTB} depends on {\mpiTB} with {\sc lam} v $> 7.1.1$ (for MPI-2 spawning feature).
+The required software packages can be obtained from the following addresses.
+%
+\begin{center}
+\begin{tabular}{rl}
+{\sundials} & {\tt http://www.llnl.gov/CASC/sundials} \\
+{\mpiTB}    & {\tt http://atc.ugr.es/javier-bin/mpitb\_eng}\\
+{\sc lam}   & {\tt http://www.lam-mpi.org/}
+\end{tabular}
+\end{center}
 
-The version numbers for the {\matlab} interfaces correspond to those of the 
-corresponding {\sundials} solver with wich the interface is compatible.
-
-\subsection{Requirements}
-
-Each interface module in {\sundialsTB} requires the appropriate version of the 
-corresponding {\sundials} solver. For parallel support, {\sundialsTB} depends on
-{\mpiTB} with {\sc lam} v $> 7.1.1$ (for MPI-2 spawning feature).
-
-\subsection{Installation/Setup} 
+\section{Installation} 
 
 The following steps are required to install and setup {\sundialsTB}:
 
-\subsubsection{Compilation and installation of sundialsTB}
+\subsection{Compilation and installation of sundialsTB}
 
 As of version 2.3.0, {\sundialsTB} is distributed only with the complete {\sundials} package
 and, on *nix systems (or under cygwin in Windows), the {\matlab} toolbox can be configured,
@@ -202,7 +241,7 @@ present in the {\sundialsTB} top directory.
 
 \end{enumerate}
 
-\subsubsection{Configuring Matlab's startup}
+\subsection{Configuring Matlab's startup}
 
 After a successful installation, a {\sundialsTB}.m startup script is generated
 in {\em instdir}{\tt /sundialsTB}. This file must be called by {\matlab} at initialization.
@@ -237,7 +276,7 @@ If you already have a startup.m, use the method described above, first linking
 (or copying) {\tt startup\_STB.m} to the destination subdirectory and then editing 
 the file {\tt ~/matlab/startup.m} to run {\tt startup\_STB.m}.
 
-\subsubsection{Testing the installation}
+\subsection{Testing the installation}
 
 If everything went fine, you should now be able to try one of the {\cvodes}, IDAS,
 or KINSOL examples (in matlab, type 'help cvodes', 'help idas', or 'help kinsol' 
@@ -248,13 +287,3 @@ example directory:
 \end{verbatim}
 and then launch matlab and execute cvdx.
 
-
-\subsection{Links} 
-
-The required software packages can be obtained from the following addresses.
-
-\begin{tabular}{rl}
-{\sundials} & {\tt http://www.llnl.gov/CASC/sundials} \\
-{\mpiTB}    & {\tt http://atc.ugr.es/javier-bin/mpitb\_eng}\\
-{\sc lam}   & {\tt http://www.lam-mpi.org/}
-\end{tabular}
