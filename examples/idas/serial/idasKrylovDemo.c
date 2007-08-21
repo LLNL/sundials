@@ -1,15 +1,21 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:29:03 $
+ * $Revision: 1.1 $
+ * $Date: 2007-08-21 16:55:07 $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ *
+ * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ * This example (a modified version of idasHeat2D_k.c) loops through
+ * the available iterative linear solvers: SPGMR, SPBCG and SPTFQMR.
+ * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ *
  * Example problem for IDA: 2D heat equation, serial, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver IDASpgmr.
+ * This version loops through the Krylov solvers IDASpgmr, IDASpbcg
+ * and IDASptfqmr.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -20,14 +26,12 @@
  * equations u = 0 at the boundaries are appended, to form a DAE
  * system of size N = M^2. Here M = 10.
  *
- * The system is solved with IDA using the Krylov linear solver
- * IDASPGMR. The preconditioner uses the diagonal elements of the
- * Jacobian only. Routines for preconditioning, required by
- * IDASPGMR, are supplied here. The constraints u >= 0 are posed
- * for all components. Output is taken at t = 0, .01, .02, .04,
- * ..., 10.24. Two cases are run -- with the Gram-Schmidt type
- * being Modified in the first case, and Classical in the second.
- * The second run uses IDAReInit and IDAReInitSpgmr.
+ * The system is solved with IDA using the following Krylov
+ * linear solvers: IDASPGMR, IDASPBCG and IDASPTFQMR. The
+ * preconditioner uses the diagonal elements of the Jacobian only.
+ * Routines for preconditioning, required by IDASP*, are supplied
+ * here. The constraints u >= 0 are posed for all components. Output
+ * is taken at t = 0, .01, .02, .04,..., 10.24.
  * -----------------------------------------------------------------
  */
 
@@ -37,6 +41,8 @@
 
 #include <idas/idas.h>
 #include <idas/idas_spgmr.h>
+#include <idas/idas_spbcgs.h>
+#include <idas/idas_sptfqmr.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_types.h>
 
@@ -49,6 +55,12 @@
 #define ONE   RCONST(1.0)
 #define TWO   RCONST(2.0)
 #define FOUR  RCONST(4.0)
+
+/* Linear Solver Loop Constants */
+
+#define USE_SPGMR   0
+#define USE_SPBCG   1
+#define USE_SPTFQMR 2
 
 /* User data type */
 
@@ -79,8 +91,8 @@ int PsolveHeat(realtype tt,
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector res);
-static void PrintHeader(realtype rtol, realtype atol);
-static void PrintOutput(void *mem, realtype t, N_Vector uu);
+static void PrintHeader(realtype rtol, realtype atol, int linsolver);
+static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
@@ -89,12 +101,12 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
  *--------------------------------------------------------------------
  */
 
-int main()
+int main(void)
 {
   void *mem;
   UserData data;
   N_Vector uu, up, constraints, res;
-  int ier, iout;
+  int ier, iout, linsolver;
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
 
@@ -161,100 +173,106 @@ int main()
   ier = IDASStolerances(mem, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1)) return(1);
 
-  /* Call IDASpgmr to specify the linear solver. */
+  /* START: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
+  for (linsolver = 0; linsolver < 3; ++linsolver) {
 
-  ier = IDASpgmr(mem, 0);
-  if(check_flag(&ier, "IDASpgmr", 1)) return(1);
+    if (linsolver != 0) {
 
-  ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
-  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
+      /* Re-initialize uu, up. */
+      SetInitialProfile(data, uu, up, res);
 
-  /* Print output heading. */
-  PrintHeader(rtol, atol);
-  
-  /* 
-   * -------------------------------------------------------------------------
-   * CASE I 
-   * -------------------------------------------------------------------------
-   */
-  
-  /* Print case number, output table heading, and initial line of table. */
+      /* Re-initialize IDA */
+      ier = IDAReInit(mem, t0, uu, up);
+      if (check_flag(&ier, "IDAReInit", 1)) return(1);
 
-  printf("\n\nCase 1: gsytpe = MODIFIED_GS\n");
-  printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
-  printf("----------------------------------------------------------------------\n");
+    }
 
-  /* Loop over output times, call IDASolve, and print results. */
+    /* Attach a linear solver module */
+    switch(linsolver) {
 
-  for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
-    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_flag(&ier, "IDASolve", 1)) return(1);
-    PrintOutput(mem, tret, uu);
-  }
+    /* (a) SPGMR */
+    case(USE_SPGMR):
 
-  /* Print remaining counters. */
+      /* Print header */
+      printf(" -------");
+      printf(" \n| SPGMR |\n");
+      printf(" -------\n");
 
-  ier = IDAGetNumErrTestFails(mem, &netf);
-  check_flag(&ier, "IDAGetNumErrTestFails", 1);
+      /* Call IDASpgmr to specify the linear solver. */
+      ier = IDASpgmr(mem, 0);
+      if(check_flag(&ier, "IDASpgmr", 1)) return(1);
 
-  ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
+      break;
 
-  ier = IDASpilsGetNumConvFails(mem, &ncfl);
-  check_flag(&ier, "IDASpilsGetNumConvFails", 1);
+    /* (b) SPBCG */
+    case(USE_SPBCG):
 
-  printf("\nError test failures            = %ld\n", netf);
-  printf("Nonlinear convergence failures = %ld\n", ncfn);
-  printf("Linear convergence failures    = %ld\n", ncfl);
+      /* Print header */
+      printf(" -------");
+      printf(" \n| SPBCG |\n");
+      printf(" -------\n");
 
-  /* 
-   * -------------------------------------------------------------------------
-   * CASE II
-   * -------------------------------------------------------------------------
-   */
-  
-  /* Re-initialize uu, up. */
+      /* Call IDASpbcg to specify the linear solver. */
+      ier = IDASpbcg(mem, 0);
+      if(check_flag(&ier, "IDASpbcg", 1)) return(1);
 
-  SetInitialProfile(data, uu, up, res);
-  
-  /* Re-initialize IDA and IDASPGMR */
+      break;
 
-  ier = IDAReInit(mem, t0, uu, up);
-  if(check_flag(&ier, "IDAReInit", 1)) return(1);
-  
-  ier = IDASpilsSetGSType(mem, CLASSICAL_GS);
-  if(check_flag(&ier, "IDASpilsSetGSType",1)) return(1); 
-  
-  /* Print case number, output table heading, and initial line of table. */
+    /* (c) SPTFQMR */
+    case(USE_SPTFQMR):
 
-  printf("\n\nCase 2: gstype = CLASSICAL_GS\n");
-  printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
-  printf("----------------------------------------------------------------------\n");
+      /* Print header */
+      printf(" ---------");
+      printf(" \n| SPTFQMR |\n");
+      printf(" ---------\n");
 
-  /* Loop over output times, call IDASolve, and print results. */
+      /* Call IDASptfqmr to specify the linear solver. */
+      ier = IDASptfqmr(mem, 0);
+      if(check_flag(&ier, "IDASptfqmr", 1)) return(1);
 
-  for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
-    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_flag(&ier, "IDASolve", 1)) return(1);
-    PrintOutput(mem, tret, uu);
-  }
+      break;
 
-  /* Print remaining counters. */
+    }
 
-  ier = IDAGetNumErrTestFails(mem, &netf);
-  check_flag(&ier, "IDAGetNumErrTestFails", 1);
+    /* Specify preconditioner */
+    ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
+    if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
 
-  ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
+    /* Print output heading. */
+    PrintHeader(rtol, atol, linsolver);
 
-  ier = IDASpilsGetNumConvFails(mem, &ncfl);
-  check_flag(&ier, "IDASpilsGetNumConvFails", 1);
+    /* Print output table heading, and initial line of table. */
 
-  printf("\nError test failures            = %ld\n", netf);
-  printf("Nonlinear convergence failures = %ld\n", ncfn);
-  printf("Linear convergence failures    = %ld\n", ncfl);
+    printf("\n   Output Summary (umax = max-norm of solution) \n\n");
+    printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
+    printf("----------------------------------------------------------------------\n");
+
+    /* Loop over output times, call IDASolve, and print results. */
+
+    for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
+      ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+      if(check_flag(&ier, "IDASolve", 1)) return(1);
+      PrintOutput(mem, tret, uu, linsolver);
+    }
+
+    /* Print remaining counters. */
+    ier = IDAGetNumErrTestFails(mem, &netf);
+    check_flag(&ier, "IDAGetNumErrTestFails", 1);
+
+    ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+    check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
+
+    ier = IDASpilsGetNumConvFails(mem, &ncfl);
+    check_flag(&ier, "IDASpilsGetNumConvFails", 1);
+
+    printf("\nError test failures            = %ld\n", netf);
+    printf("Nonlinear convergence failures = %ld\n", ncfn);
+    printf("Linear convergence failures    = %ld\n", ncfl);
+
+    if (linsolver < 2)
+      printf("\n======================================================================\n\n");
+
+  } /* END: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
 
   /* Free Memory */
 
@@ -320,7 +338,7 @@ int resHeat(realtype tt,
 }
 
 /*
- * PsetupHeat: setup for diagonal preconditioner for idakryx.   
+ * PsetupHeat: setup for diagonal preconditioner.   
  *                                                                 
  * The optional user-supplied functions PsetupHeat and          
  * PsolveHeat together must define the left preconditoner        
@@ -445,14 +463,14 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(realtype rtol, realtype atol)
+static void PrintHeader(realtype rtol, realtype atol, int linsolver)
 {
-  printf("\nidakryx: Heat equation, serial example problem for IDA \n");
-  printf("         Discretized heat equation on 2D unit square. \n");
-  printf("         Zero boundary conditions,");
+  printf("\nidasKrylovDemo: Heat equation, serial example problem for IDA\n");
+  printf("                  Discretized heat equation on 2D unit square.\n");
+  printf("                  Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
-  printf("         Mesh dimensions: %d x %d", MGRID, MGRID);
-  printf("        Total system size: %d\n\n", NEQ);
+  printf("                  Mesh dimensions: %d x %d", MGRID, MGRID);
+  printf("       Total system size: %d\n\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION) 
@@ -461,14 +479,28 @@ static void PrintHeader(realtype rtol, realtype atol)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
   printf("Constraints set to force all solution components >= 0. \n");
-  printf("Linear solver: IDASPGMR, preconditioner using diagonal elements. \n");
+
+  switch(linsolver) {
+
+  case(USE_SPGMR):
+    printf("Linear solver: IDASPGMR, preconditioner using diagonal elements. \n");
+    break;
+
+  case(USE_SPBCG):
+    printf("Linear solver: IDASPBCG, preconditioner using diagonal elements. \n");
+    break;
+
+  case(USE_SPTFQMR):
+    printf("Linear solver: IDASPTFQMR, preconditioner using diagonal elements. \n");
+    break;
+  }
 }
 
 /*
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(void *mem, realtype t, N_Vector uu)
+static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
 {
   realtype hused, umax;
   long int nst, nni, nje, nre, nreLS, nli, npe, nps;
@@ -486,6 +518,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_flag(&ier, "IDAGetNumResEvals", 1);
   ier = IDAGetLastStep(mem, &hused);
   check_flag(&ier, "IDAGetLastStep", 1);
+
   ier = IDASpilsGetNumJtimesEvals(mem, &nje);
   check_flag(&ier, "IDASpilsGetNumJtimesEvals", 1);
   ier = IDASpilsGetNumLinIters(mem, &nli);

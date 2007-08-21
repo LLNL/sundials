@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-08-21 14:53:15 $
+# $Revision: 1.8 $
+# $Date: 2007-08-21 16:55:07 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -32,17 +32,17 @@ SUNDIALS_INCS = -I$(includedir)
 SUNDIALS_LIBS = -L$(libdir) -lsundials_idas -lsundials_nvecserial
 SUNDIALS_BL_LIBS = -L$(libdir) -lsundials_idas_bl -lsundials_idas -lsundials_nvecserial
 
-EXAMPLES = idasdenx \
-	   idasbanx1 \
-	   idaskryx \
-	   idasbanx2 \
-	   idaskrydem_lin \
-           idasslcr \
+EXAMPLES = idasRobertson \
+	   idasHeat2D_b \
+	   idasHeat2D_k \
+	   idasFoodWeb_b \
+	   idasKrylovDemo \
+           idasSliderCrank \
            idasSliderCrankFSA \
-           idasfwddenx \
-           idasadjdenx \
-           idasadjhess \
-           idasakzonobel
+           idasRobertsonFSA \
+           idasRobertsonASA \
+           idasRobertsonHessian \
+           idasAkzoNobelASA
 # ----------------------------------------------------------------------------------------------------------------------
 
 all: $(EXAMPLES)
@@ -53,36 +53,36 @@ clean:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-idasdenx: idasdenx.c
-	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasdenx.c
-	 $(CC) -o idasdenx idasdenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasbanx1: idasbanx1.c
-	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasbanx1.c
-	 $(CC) -o idasbanx1 idasbanx1.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idaskryx: idaskryx.c
-	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idaskryx.c
-	 $(CC) -o idaskryx idaskryx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasbanx2: idasbanx2.c
-	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasbanx2.c
-	 $(CC) -o idasbanx2 idasbanx2.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idaskrydem_lin: idaskrydem_lin.c
-	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idaskrydem_lin.c
-	 $(CC) -o idaskrydem_lin idaskrydem_lin.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasslcr: idasslcr.c
-	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasslcr.c
-	 $(CC) -o idasslcr idasslcr.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasRobertson: idasRobertson.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasRobertson.c
+	 $(CC) -o idasRobertson idasRobertson.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasHeat2D_b: idasHeat2D_b.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasHeat2D_b.c
+	 $(CC) -o idasHeat2D_b idasHeat2D_b.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasHeat2D_k: idasHeat2D_k.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasHeat2D_k.c
+	 $(CC) -o idasHeat2D_k idasHeat2D_k.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasFoodWeb_b: idasFoodWeb_b.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasFoodWeb_b.c
+	 $(CC) -o idasFoodWeb_b idasFoodWeb_b.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasKrylovDemo: idasKrylovDemo.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasKrylovDemo.c
+	 $(CC) -o idasKrylovDemo idasKrylovDemo.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasSliderCrank: idasSliderCrank.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasSliderCrank.c
+	 $(CC) -o idasSliderCrank idasSliderCrank.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idasSliderCrankFSA: idasSliderCrankFSA.c
 	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasSliderCrankFSA.c
 	 $(CC) -o idasSliderCrankFSA idasSliderCrankFSA.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasfwddenx: idasfwddenx.c
-	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasfwddenx.c
-	 $(CC) -o idasfwddenx idasfwddenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasadjdenx: idasadjdenx.c
-	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasadjdenx.c
-	 $(CC) -o idasadjdenx idasadjdenx.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasadjhess: idasadjhess.c
-	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasadjhess.c
-	 $(CC) -o idasadjhess idasadjhess.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasakzonobel: idasakzonobel.c
-	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasakzonobel.c
-	 $(CC) -o idasakzonobel idasakzonobel.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasRobertsonFSA: idasRobertsonFSA.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasRobertsonFSA.c
+	 $(CC) -o idasRobertsonFSA idasRobertsonFSA.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasRobertsonASA: idasRobertsonASA.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasRobertsonASA.c
+	 $(CC) -o idasRobertsonASA idasRobertsonASA.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasRobertsonHessian: idasRobertsonHessian.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasRobertsonHessian.c
+	 $(CC) -o idasRobertsonHessian idasRobertsonHessian.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasAkzoNobelASA: idasAkzoNobelASA.c
+	 $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c idasAkzoNobelASA.c
+	 $(CC) -o idasAkzoNobelASA idasAkzoNobelASA.o $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)

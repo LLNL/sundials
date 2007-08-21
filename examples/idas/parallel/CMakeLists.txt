@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-08-20 22:49:06 $
+# $Revision: 1.3 $
+# $Date: 2007-08-21 16:55:05 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -15,10 +15,11 @@
 # Add variable idas_examples with the names of the parallel IDAS examples
 
 SET(idas_examples
-  idaskryx1_bbd_p
-  idaskryx1_p
-  idaskryx2_bbd_p
-  idaskryx2_p
+  idasHeat2D_p
+  idasHeat2D_bbd_p
+  idasHeat2DFSA_bbd_p
+  idasFoodWeb_p
+  idasFoodWeb_bbd_p
   idasBrusselator_p
   idasBrusselatorFSA_p
   idasBrusselatorASA_p

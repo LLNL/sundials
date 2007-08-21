@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-08-21 14:53:15 $
+ * $Revision: 1.1 $
+ * $Date: 2007-08-21 16:55:08 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -14,10 +14,8 @@
  * The equations of motion are formulated as a system of stabilized
  * index-2 DAEs (Gear-Gupta-Leimkuhler formulation).
  *
- * IDAS also computes sensitivities with respect to the problem 
- * parameters k (spring constant) and c (damper constant) of the 
- * kinetic energy:
- *   E = int_t0^tend g(t,y,p) dt, 
+ * IDAS also computes the average kinetic energy as the quadrature:
+ *   G = int_t0^tend g(t,y,p) dt, 
  * where
  *   g(t,y,p) = 0.5*J1*v1^2 + 0.5*J2*v3^2 + 
  *              0.5*m1*a^2/4*v1^2 + 0.5*m2*v2^2

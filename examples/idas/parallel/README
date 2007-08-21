@@ -1,9 +1,10 @@
 List of parallel IDAS examples
 
-  idaskryx1_p          : 2-D heat equation, diagonal preconditioner
-  idaskryx1_bbd_p      : 2-D heat equation, BBD preconditioner
-  idaskryx2_p          : 2-D food web, block-diagonal preconditioner
-  idaskryx2_bbd_p      : 2-D food web, BBD preconditioner
+  idasHeat2D_p         : 2-D heat equation, diagonal preconditioner
+  idasHeat2D_bbd_p     : 2-D heat equation, BBD preconditioner
+  idasHeat2DFSA_bbd_p  : 2-D heat equation, BBD preconditioner, FSA
+  idasFoodWeb_p        : 2-D food web, block-diagonal preconditioner
+  idasFoodWeb_bbd_p    : 2-D food web, BBD preconditioner
   idasBrusselator_p    : 2-D chemically reacting system, BBD preconditioner
   idasBrusselatorFSA_p : 2-D chemically reacting system, BBD preconditioner, FSA
   idasBrusselatorASA_p : 2-D chemically reacting system, BBD preconditioner, ASA

@@ -2,10 +2,10 @@
 | SPGMR |
  -------
 
-idakrydem_lin: Heat equation, serial example problem for IDA
-               Discretized heat equation on 2D unit square.
-               Zero boundary conditions, polynomial initial conditions.
-         Mesh dimensions: 10 x 10       Total system size: 100
+idasKrylovDemo: Heat equation, serial example problem for IDA
+                Discretized heat equation on 2D unit square.
+                Zero boundary conditions, polynomial initial conditions.
+                Mesh dimensions: 10 x 10       Total system size: 100
 
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
@@ -37,10 +37,10 @@ Linear convergence failures    = 0
 | SPBCG |
  -------
 
-idakrydem_lin: Heat equation, serial example problem for IDA
-               Discretized heat equation on 2D unit square.
-               Zero boundary conditions, polynomial initial conditions.
-         Mesh dimensions: 10 x 10       Total system size: 100
+idasKrylovDemo: Heat equation, serial example problem for IDA
+                Discretized heat equation on 2D unit square.
+                Zero boundary conditions, polynomial initial conditions.
+                Mesh dimensions: 10 x 10       Total system size: 100
 
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
@@ -72,10 +72,10 @@ Linear convergence failures    = 0
 | SPTFQMR |
  ---------
 
-idakrydem_lin: Heat equation, serial example problem for IDA
-               Discretized heat equation on 2D unit square.
-               Zero boundary conditions, polynomial initial conditions.
-         Mesh dimensions: 10 x 10       Total system size: 100
+idasKrylovDemo: Heat equation, serial example problem for IDA
+                Discretized heat equation on 2D unit square.
+                Zero boundary conditions, polynomial initial conditions.
+                Mesh dimensions: 10 x 10       Total system size: 100
 
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 

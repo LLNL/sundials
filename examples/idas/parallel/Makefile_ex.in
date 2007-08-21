@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-08-20 22:49:07 $
+# $Revision: 1.3 $
+# $Date: 2007-08-21 16:55:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -34,10 +34,11 @@ MPI_FLAGS   = @MPI_FLAGS@
 SUNDIALS_INCS = -I$(includedir)
 SUNDIALS_LIBS = -L$(libdir) -lsundials_idas -lsundials_nvecparallel
 
-EXAMPLES = idaskryx1_p \
-	   idaskryx1_bbd_p \
-	   idaskryx2_p \
-	   idaskryx2_bbd_p
+EXAMPLES = idasHeat2D_p \
+	   idasHeat2D_bbd_p \
+	   idasHeat2DFSA_bbd_p \
+	   idasFoodWeb_p \
+	   idasFoodWeb_bbd_p
            idasBrusselator_p \
 	   idasBrusselatorFSA_p \
 	   idasBrusselatorASA_p
@@ -51,18 +52,21 @@ clean:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-idaskryx1_p: idaskryx1_p.c
-	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idaskryx1_p.c
-	$(MPICC) -o idaskryx1_p idaskryx1_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-idaskryx1_bbd_p: idaskryx1_bbd_p.c
-	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idaskryx1_bbd_p.c
-	$(MPICC) -o idaskryx1_bbd_p idaskryx1_bbd_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-idaskryx2_p: idaskryx2_p.c
-	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idaskryx2_p.c
-	$(MPICC) -o idaskryx2_p idaskryx2_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-idaskryx2_bbd_p: idaskryx2_bbd_p.c
-	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idaskryx2_bbd_p.c
-	$(MPICC) -o idaskryx2_bbd_p idaskryx2_bbd_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idasHeat2D_p: idasHeat2D_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idasHeat2D_p.c
+	$(MPICC) -o idasHeat2D_p idasHeat2D_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idasHeat2D_bbd_p: idasHeat2D_bbd_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idasHeat2D_bbd_p.c
+	$(MPICC) -o idasHeat2D_bbd_p idasHeat2D_bbd_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idasHeat2DFSA_bbd_p: idasHeat2DFSA_bbd_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idasHeat2DFSA_bbd_p.c
+	$(MPICC) -o idasHeat2DFSA_bbd_p idasHeat2DFSA_bbd_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idasFoodWeb_p: idasFoodWeb_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idasFoodWeb_p.c
+	$(MPICC) -o idasFoodWeb_p idasFoodWeb_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+idasFoodWeb_bbd_p: idasFoodWeb_bbd_p.c
+	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idasFoodWeb_bbd_p.c
+	$(MPICC) -o idasFoodWeb_bbd_p idasFoodWeb_bbd_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 idasBrusselator_p: idasBrusselator_p.c
 	$(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c idasBrusselator_p.c
 	$(MPICC) -o idasBrusselator_p idasBrusselator_p.o $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)

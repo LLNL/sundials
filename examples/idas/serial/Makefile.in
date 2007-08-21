@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2007-08-21 14:53:15 $
+# $Revision: 1.12 $
+# $Date: 2007-08-21 16:55:07 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -58,17 +58,17 @@ SUNDIALS_BL_LIBS = $(top_builddir)/src/idas/libsundials_idas_bl.la        \
 	           $(top_builddir)/src/idas/libsundials_idas.la           \
 	           $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
 
-EXEC_FILES = idasdenx$(EXE_EXT) \
-	     idasbanx1$(EXE_EXT) \
-	     idaskryx$(EXE_EXT) \
-	     idasbanx2$(EXE_EXT) \
-	     idaskrydem_lin$(EXE_EXT) \
-	     idasslcr$(EXE_EXT) \
+EXEC_FILES = idasRobertson$(EXE_EXT) \
+	     idasHeat2D_b$(EXE_EXT) \
+	     idasHeat2D_k$(EXE_EXT) \
+	     idasFoodWeb_b$(EXE_EXT) \
+	     idasKrylovDemo$(EXE_EXT) \
+	     idasSliderCrank$(EXE_EXT) \
 	     idasSliderCrankFSA$(EXE_EXT) \
-	     idasfwddenx$(EXE_EXT) \
-	     idasadjdenx$(EXE_EXT) \
-	     idasadjhess$(EXE_EXT) \
-             idasakzonobel$(EXE_EXT)
+	     idasRobertsonFSA$(EXE_EXT) \
+	     idasRobertsonASA$(EXE_EXT) \
+	     idasRobertsonHessian$(EXE_EXT) \
+             idasAkzoNobelASA$(EXE_EXT)
 
 EXEC_BL_FILES =
 
@@ -87,25 +87,25 @@ install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/idas/serial
 	$(INSTALL_FILE) Makefile_ex                                               $(EXS_INSTDIR)/idas/serial/Makefile
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/README                 $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasbanx1.c            $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasbanx2.c            $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasdenx.c             $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idaskrydem_lin.c       $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idaskryx.c             $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasslcr.c             $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_b.c            $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasFoodWeb_b.c            $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertson.c             $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasKrylovDemo.c       $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_k.c             $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrank.c             $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrankFSA.c   $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasfwddenx.c          $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasbanx1.out          $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasbanx2.out          $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasdenx.out           $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idaskrydem_lin.out     $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idaskryx.out           $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasslcr.out           $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonFSA.c          $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_b.out          $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasFoodWeb_b.out          $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertson.out           $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasKrylovDemo.out     $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasHeat2D_k.out           $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrank.out           $(EXS_INSTDIR)/idas/serial/
 	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasSliderCrankFSA.out $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasfwddenx.out        $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasadjdenx.out        $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasadjhess.out        $(EXS_INSTDIR)/idas/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasakzonobel.out      $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonFSA.out        $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonASA.out        $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasRobertsonHessian.out        $(EXS_INSTDIR)/idas/serial/
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/serial/idasAkzoNobelASA.out      $(EXS_INSTDIR)/idas/serial/
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
 	  make install_bl;                           \
 	fi
@@ -115,25 +115,25 @@ install_bl:
 uninstall:
 	rm -f $(EXS_INSTDIR)/idas/serial/Makefile
 	rm -f $(EXS_INSTDIR)/idas/serial/README
-	rm -f $(EXS_INSTDIR)/idas/serial/idasbanx1.c
-	rm -f $(EXS_INSTDIR)/idas/serial/idasbanx2.c
-	rm -f $(EXS_INSTDIR)/idas/serial/idasdenx.c
-	rm -f $(EXS_INSTDIR)/idas/serial/idaskrydem_lin.c
-	rm -f $(EXS_INSTDIR)/idas/serial/idaskryx.c
-	rm -f $(EXS_INSTDIR)/idas/serial/idasslcr.c
+	rm -f $(EXS_INSTDIR)/idas/serial/idasHeat2D_b.c
+	rm -f $(EXS_INSTDIR)/idas/serial/idasFoodWeb_b.c
+	rm -f $(EXS_INSTDIR)/idas/serial/idasRobertson.c
+	rm -f $(EXS_INSTDIR)/idas/serial/idasKrylovDemo.c
+	rm -f $(EXS_INSTDIR)/idas/serial/idasHeat2D_k.c
+	rm -f $(EXS_INSTDIR)/idas/serial/idasSliderCrank.c
 	rm -f $(EXS_INSTDIR)/idas/serial/idasSliderCrankFSA.c
-	rm -f $(EXS_INSTDIR)/idas/serial/idasfwddenx.c
-	rm -f $(EXS_INSTDIR)/idas/serial/idasbanx1.out
-	rm -f $(EXS_INSTDIR)/idas/serial/idasbanx2.out
-	rm -f $(EXS_INSTDIR)/idas/serial/idasdenx.out
-	rm -f $(EXS_INSTDIR)/idas/serial/idaskrydem_lin.out
-	rm -f $(EXS_INSTDIR)/idas/serial/idaskryx.out
-	rm -f $(EXS_INSTDIR)/idas/serial/idasslcr.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasRobertsonFSA.c
+	rm -f $(EXS_INSTDIR)/idas/serial/idasHeat2D_b.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasFoodWeb_b.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasRobertson.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasKrylovDemo.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasHeat2D_k.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasSliderCrank.out
 	rm -f $(EXS_INSTDIR)/idas/serial/idasSliderCrankFSA.out
-	rm -f $(EXS_INSTDIR)/idas/serial/idasfwddenx.out
-	rm -f $(EXS_INSTDIR)/idas/serial/idasadjdenx.out
-	rm -f $(EXS_INSTDIR)/idas/serial/idasadjhess.out
-	rm -f $(EXS_INSTDIR)/idas/serial/idasakzonobel.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasRobertsonFSA.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasRobertsonASA.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasRobertsonHessian.out
+	rm -f $(EXS_INSTDIR)/idas/serial/idasAkzoNobelASA.out
 	$(rminstalldirs) $(EXS_INSTDIR)/idas/serial
 	$(rminstalldirs) $(EXS_INSTDIR)/idas
 
@@ -150,39 +150,39 @@ distclean: clean
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-idasdenx$(EXE_EXT): $(srcdir)/idasdenx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasdenx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasdenx$(EXE_EXT) $(builddir)/idasdenx$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasbanx1$(EXE_EXT): $(srcdir)/idasbanx1.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasbanx1.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasbanx1$(EXE_EXT) $(builddir)/idasbanx1$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idaskryx$(EXE_EXT): $(srcdir)/idaskryx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idaskryx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idaskryx$(EXE_EXT) $(builddir)/idaskryx$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasbanx2$(EXE_EXT): $(srcdir)/idasbanx2.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasbanx2.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasbanx2$(EXE_EXT) $(builddir)/idasbanx2$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idaskrydem_lin$(EXE_EXT): $(srcdir)/idaskrydem_lin.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idaskrydem_lin.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idaskrydem_lin$(EXE_EXT) $(builddir)/idaskrydem_lin$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasslcr$(EXE_EXT): $(srcdir)/idasslcr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasslcr.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasslcr$(EXE_EXT) $(builddir)/idasslcr$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasRobertson$(EXE_EXT): $(srcdir)/idasRobertson.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasRobertson.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasRobertson$(EXE_EXT) $(builddir)/idasRobertson$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasHeat2D_b$(EXE_EXT): $(srcdir)/idasHeat2D_b.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasHeat2D_b.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasHeat2D_b$(EXE_EXT) $(builddir)/idasHeat2D_b$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasHeat2D_k$(EXE_EXT): $(srcdir)/idasHeat2D_k.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasHeat2D_k.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasHeat2D_k$(EXE_EXT) $(builddir)/idasHeat2D_k$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasFoodWeb_b$(EXE_EXT): $(srcdir)/idasFoodWeb_b.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasFoodWeb_b.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasFoodWeb_b$(EXE_EXT) $(builddir)/idasFoodWeb_b$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasKrylovDemo$(EXE_EXT): $(srcdir)/idasKrylovDemo.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasKrylovDemo.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasKrylovDemo$(EXE_EXT) $(builddir)/idasKrylovDemo$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasSliderCrank$(EXE_EXT): $(srcdir)/idasSliderCrank.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasSliderCrank.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasSliderCrank$(EXE_EXT) $(builddir)/idasSliderCrank$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 idasSliderCrankFSA$(EXE_EXT): $(srcdir)/idasSliderCrankFSA.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasSliderCrankFSA.c
 	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasSliderCrankFSA$(EXE_EXT) $(builddir)/idasSliderCrankFSA$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasfwddenx$(EXE_EXT): $(srcdir)/idasfwddenx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasfwddenx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasfwddenx$(EXE_EXT) $(builddir)/idasfwddenx$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasadjdenx$(EXE_EXT): $(srcdir)/idasadjdenx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasadjdenx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasadjdenx$(EXE_EXT) $(builddir)/idasadjdenx$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasadjhess$(EXE_EXT): $(srcdir)/idasadjhess.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasadjhess.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasadjhess$(EXE_EXT) $(builddir)/idasadjhess$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-idasakzonobel$(EXE_EXT): $(srcdir)/idasakzonobel.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasakzonobel.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasakzonobel$(EXE_EXT) $(builddir)/idasakzonobel$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasRobertsonFSA$(EXE_EXT): $(srcdir)/idasRobertsonFSA.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasRobertsonFSA.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasRobertsonFSA$(EXE_EXT) $(builddir)/idasRobertsonFSA$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasRobertsonASA$(EXE_EXT): $(srcdir)/idasRobertsonASA.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasRobertsonASA.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasRobertsonASA$(EXE_EXT) $(builddir)/idasRobertsonASA$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasRobertsonHessian$(EXE_EXT): $(srcdir)/idasRobertsonHessian.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasRobertsonHessian.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasRobertsonHessian$(EXE_EXT) $(builddir)/idasRobertsonHessian$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
+idasAkzoNobelASA$(EXE_EXT): $(srcdir)/idasAkzoNobelASA.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idasAkzoNobelASA.c
+	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/idasAkzoNobelASA$(EXE_EXT) $(builddir)/idasAkzoNobelASA$(OBJ_EXT) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \
 	 ${SHELL} ./config.status --recheck ; \

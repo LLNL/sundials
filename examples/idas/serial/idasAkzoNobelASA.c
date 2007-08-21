@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-08-21 14:53:15 $
+ * $Revision: 1.1 $
+ * $Date: 2007-08-21 16:55:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -21,8 +21,8 @@
  * IDAS also computes the sensitivities with respect to initial
  * conditions of the following quantity:
  *   G = int_t0^t1 y1 dt
- * The sensitivity of G is the solution of the adjoint system at
- * t0. 
+ * The sensitivity of G is the solution of the adjoint system at t0. 
+ * -----------------------------------------------------------------
  */
  
 #include <stdio.h>

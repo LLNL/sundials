@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:29:03 $
+ * $Revision: 1.1 $
+ * $Date: 2007-08-21 16:55:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -447,7 +447,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
 
 static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol)
 {
-  printf("\nidabanx2: Predator-prey DAE serial example problem for IDA \n\n");
+  printf("\nidasFoodWeb_b: Predator-prey DAE serial example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
   printf("     System size: %d\n", NEQ);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:03 $
+ * $Revision: 1.1 $
+ * $Date: 2007-08-21 16:55:05 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -758,11 +758,11 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 
 static void PrintHeader(long int Neq, realtype rtol, realtype atol)
 { 
-  printf("\nidakryx1_p: Heat equation, parallel example problem for IDA\n");
-  printf("            Discretized heat equation on 2D unit square.\n");
-  printf("            Zero boundary conditions,");
+  printf("\nidasHeat2D_p: Heat equation, parallel example problem for IDA\n");
+  printf("                Discretized heat equation on 2D unit square.\n");
+  printf("                Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
-  printf("            Mesh dimensions: %d x %d", MX, MY);
+  printf("                Mesh dimensions: %d x %d", MX, MY);
   printf("        Total system size: %ld\n\n", Neq);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("        Processor array: %d x %d\n", NPEX, NPEY);
