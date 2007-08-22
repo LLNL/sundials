@@ -962,7 +962,7 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \item[p] (\id{realtype *})
     a pointer to the array of real problem parameters used to evaluate $f(t,y,p)$.
     If non-\id{NULL}, \id{p} must point to a field in the user's data structure
-    $user\_data$ passed to the righ-hand side function.
+    \id{user\_data} passed to the righ-hand side function.
     (See \S\ref{s:forward_usage}).
   \item[pbar] (\id{realtype *})
     an array of \id{Ns} positive scaling factors. If non-\id{NULL}, \id{pbar} must

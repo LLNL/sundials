@@ -907,7 +907,7 @@ algorithm, call the following function:
 %%
 \ucfunction{IDARootInit}
 {
-  flag = IDARootInit(ida\_mem, nrtfn, g, g\_data);
+  flag = IDARootInit(ida\_mem, nrtfn, g);
 }
 {
   The function \ID{IDARootInit} specifies that the roots of a set of
@@ -922,8 +922,6 @@ algorithm, call the following function:
   \item[g] (\id{IDARootFn})
     is the {\C} function which defines the \id{nrtfn} functions $g_i(t,y,y')$
     whose roots are sought. See \S\ref{ss:rootFn} for details.
-  \item[g\_data] (\id{void *})
-    pointer to the user data for use by the user's root function $g$.
  \end{args}
 }
 {
@@ -1268,20 +1266,18 @@ effect for any later error message.
 \index{error messages!user-defined handler}
 \ucfunction{IDASetErrHandlerFn}
 {
-flag = IDASetErrHandlerFn(ida\_mem, ehfun, eh\_data);
+flag = IDASetErrHandlerFn(ida\_mem, ehfun);
 }
 {
   The function \ID{IDASetErrHandlerFn} specifies the optional user-defined function
   to be used in handling error messages.
 }
 {
-  \begin{args}[eh\_data]
+  \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[ehfun] (\id{IDAErrHandlerFn}) 
     is the {\C} error handler function (see \S\ref{ss:ehFn}).
-  \item[eh\_data] (\id{void *})
-    pointer to user data passed to \id{ehfun} every time it is called.
   \end{args}
 }
 {
@@ -4007,7 +4003,7 @@ The function type \id{IDAErrHandlerFn} is defined as follows:
 {
   typedef void (*IDAErrHandlerFn)(&int error\_code,  \\
                                   &const char *module, const char *function, \\ 
-                                  &char *msg, void *eh\_data); 
+                                  &char *msg, void *user\_data); 
 }
 {
   This function processes error and warning messages from {\idas} and 
@@ -4023,9 +4019,9 @@ The function type \id{IDAErrHandlerFn} is defined as follows:
     is the name of the function in which the error occurred.
   \item[msg]
     is the error message.
-  \item[eh\_data]
-    is a pointer to user data, the same as the \Id{eh\_data}      
-    parameter passed to \id{IDASetErrHandlerFn}.   
+  \item[user\_data]
+    is a pointer to user data, the same as the \Id{user\_data}
+    parameter passed to \id{IDASetUserData}.   
   \end{args}
 }
 {
@@ -4050,20 +4046,20 @@ These weights will used in place of those defined by Eq. (\ref{e:errwt}).
 The function type \id{IDAEwtFn} is defined as follows:
 \usfunction{IDAEwtFn}
 {
-  typedef int (*IDAEwtFn)(N\_Vector y, N\_Vector ewt, void *e\_data);
+  typedef int (*IDAEwtFn)(N\_Vector y, N\_Vector ewt, void *user\_data);
 }
 {
   This function computes the WRMS error weights for the vector $y$.
 }
 {
-  \begin{args}[e\_data]
+  \begin{args}[user\_data]
   \item[y]
     is the value of the vector for which the WRMS norm must be computed.
   \item[ewt]
     is the output vector containing the error weights.
-  \item[e\_data]
-    is a pointer to user data --- the same as the \Id{e\_data}      
-    parameter passed to \id{IDASetEwtFn}.   
+  \item[user\_data]
+    is a pointer to user data --- the same as the \Id{user\_data}      
+    parameter passed to \id{IDASetUserData}.   
   \end{args}
 }
 {
@@ -4089,7 +4085,7 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
 \usfunction{IDARootFn}
 {
   typedef int (*IDARootFn)(&realtype t, N\_Vector y, N\_Vector yp, \\
-                           &realtype *gout, void *g\_data);
+                           &realtype *gout, void *user\_data);
 }
 {
   This function computes a vector-valued function $g(t,y,y')$ such that the
@@ -4097,7 +4093,7 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
   the integration.
 }
 {
-  \begin{args}[g\_data]
+  \begin{args}[user\_data]
   \item[t]
     is the current value of the independent variable.
   \item[y]
@@ -4106,9 +4102,9 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
     is the current value of $y'(t)$, the $t-$derivative of $y$.
   \item[gout]
     is the output array, of length \id{nrtfn}, with components $g_i(t,y,y')$.
-  \item[g\_data]
-    is a pointer to user data --- the same as the \Id{g\_data}      
-    parameter passed to \id{IDARootInit}.   
+  \item[user\_data]
+    is a pointer to user data --- the same as the \Id{user\_data}      
+    parameter passed to \id{IDASetUserData}.   
   \end{args}
 }
 {
@@ -5451,6 +5447,15 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   \textcolor{gray}{\bf Set optional inputs}
 
+\item \label{i:bbdpre_attach}
+  {\bf Attach iterative linear solver, one of:}
+
+  \begin{itemize}
+  \item[(a) ] \id{flag = IDASpgmr(ida\_mem, maxl);}
+  \item[(b) ] \id{flag = IDASpbcg(ida\_mem, maxl);}
+  \item[(c) ] \id{flag = IDASptfqmr(ida\_mem, maxl);}
+  \end{itemize}
+
 \item \label{i:bbdpre_init}
   {\bf Initialize the {\idabbdpre} preconditioner module}
 
@@ -5459,8 +5464,8 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 
    \id{
      \begin{tabular}[t]{@{}r@{}l@{}}
-       bbd\_data = IDABBDPrecAlloc(&ida\_mem, Nlocal, mudq, mldq, \\
-                                   &mukeep, mlkeep, dq\_rel\_yy, Gres, Gcomm);
+       flag = IDABBDPrecInit(&ida\_mem, Nlocal, mudq, mldq, \\
+                             &mukeep, mlkeep, dq\_rel\_yy, Gres, Gcomm);
      \end{tabular}
    }
 
@@ -5468,25 +5473,6 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \id{void *}, to be passed to any of the Krylov linear solvers. The last two
   arguments of \id{IDABBDPrecAlloc} are the two user-supplied functions described
   above.
-
-\item \label{i:bbdpre_attach}
-  {\bf Attach iterative linear solver, one of:}
-
-  \begin{itemize}
-  \item[(a) ] \id{flag = IDABBDSpgmr(ida\_mem, maxl, bbd\_data);}
-  \item[(b) ] \id{flag = IDABBDSpbcg(ida\_mem, maxl, bbd\_data);}
-  \item[(c) ] \id{flag = IDABBDSptfqmr(ida\_mem, maxl, bbd\_data);}
-  \end{itemize}
-
-  The function \Id{IDABBDSp*} is a wrapper around the specification
-  function \id{IDASp*} and performs the following actions:
-  \begin{itemize}
-    \item Attaches the {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr} linear solver
-     to the main {\idas} solver memory;
-    \item Sets the preconditioner data structure for {\idabbdpre};
-    \item Sets the preconditioner setup function for {\idabbdpre};
-    \item Sets the preconditioner solve function for {\idabbdpre};
-  \end{itemize}
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
@@ -5514,11 +5500,6 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   \textcolor{gray}{\bf Deallocate memory for solution vector}
 
-\item \label{i:bbdpre_free}
-  {\bf Free the {\idabbdpre} data structure}
-
-  \id{IDABBDPrecFree(\&bbd\_data);}
-
 \item
   \textcolor{gray}{\bf Free solver memory}
   
@@ -5533,21 +5514,19 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-callable functions|(}
 %%
-The user-callable functions that initialize, attach, and deallocate
-the {\idabbdpre} preconditioner module (steps \ref{i:bbdpre_init},
-\ref{i:bbdpre_attach}, and \ref{i:bbdpre_free} above) are described
-next.
+The user-callable functions that initialize ((step \ref{i:bbdpre_init} above) or re-initialize
+the {\idabbdpre} preconditioner module are described next.
 %%
 \index{half-bandwidths}
-\ucfunction{IDABBDPrecAlloc}
+\ucfunction{IDABBDPrecInit}
 {
    \begin{tabular}[t]{@{}r@{}l@{}}
-     bbd\_data = IDABBDPrecAlloc(&ida\_mem, Nlocal, mudq, mldq, \\
-                                 &mukeep, mlkeep, dq\_rel\_yy, Gres, Gcomm);
+     flag = IDABBDPrecInit(&ida\_mem, Nlocal, mudq, mldq, \\
+                           &mukeep, mlkeep, dq\_rel\_yy, Gres, Gcomm);
    \end{tabular}
 }
 {
-  The function \ID{IDABBDPrecAlloc} initializes and allocates
+  The function \ID{IDABBDPrecInit} initializes and allocates (internal)
   memory for the {\idabbdpre} preconditioner.
 }
 {
@@ -5578,9 +5557,11 @@ next.
   \end{args}
 }
 {
-  If successful, \id{IDABBDPrecAlloc} returns a pointer to the newly created 
-  {\idabbdpre} memory block (of type \id{void *}).
-  If an error occurred, \id{IDABBDPrecAlloc} returns \id{NULL}.
+
+  {\bf MORE HRE!!!!}
+
+  The return value of \id{IDABBDPrecReInit} is \Id{IDABBDPRE\_SUCCESS} indicating
+  success, or \Id{IDABBDPRE\_PDATA\_NULL} if \id{bbd\_data} is \id{NULL}.
 }
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} to be used in the 
@@ -5601,132 +5582,6 @@ next.
 }
 %%
 %%
-\ucfunction{IDABBDSpgmr}
-{
-  flag = IDABBDSpgmr(ida\_mem, maxl, bbd\_data);
-}
-{
-  The function \ID{IDABBDSpgmr} links the {\idabbdpre} data to the
-  {\idaspgmr} linear solver and attaches the latter to the {\idas}
-  memory block.
-}
-{
-  \begin{args}[bbd\_data]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block.
-  \item[maxl] (\id{int})
-    \index{maxl@\texttt{maxl}}
-    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{IDA\_SPGMR\_MAXL}$=5$.
-  \item[bbd\_data] (\id{void *})
-    pointer to the {\idabbdpre} data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDABBDPRE\_PDATA\_NULL]
-  \item[\Id{IDASPILS\_SUCCESS}] 
-    The {\idaspgmr} initialization was successful.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASPILS\_MEM\_FAIL}]
-    A memory allocation request failed.
-  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
-    The {\idabbdpre} preconditioner has not been initialized.
-  \end{args}
-}
-{}
-%%
-%%
-\ucfunction{IDABBDSpbcg}
-{
-  flag = IDABBDSpbcg(ida\_mem, maxl, bbd\_data);
-}
-{
-  The function \ID{IDABBDSpbcg} links the {\idabbdpre} data to the
-  {\idaspbcg} linear solver and attaches the latter to the {\idas}
-  memory block.
-}
-{
-  \begin{args}[bbd\_data]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block.
-  \item[maxl] (\id{int})
-    \index{maxl@\texttt{maxl}}
-    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{IDA\_SPBCG\_MAXL}$=5$.
-  \item[bbd\_data] (\id{void *})
-    pointer to the {\idabbdpre} data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDABBDPRE\_PDATA\_NULL]
-  \item[\Id{IDASPILS\_SUCCESS}] 
-    The {\idaspbcg} initialization was successful.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASPILS\_MEM\_FAIL}]
-    A memory allocation request failed.
-  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
-    The {\idabbdpre} preconditioner has not been initialized.
-  \end{args}
-}
-{}
-%%
-%%
-\ucfunction{IDABBDSptfqmr}
-{
-  flag = IDABBDSptfqmr(ida\_mem, maxl, bbd\_data);
-}
-{
-  The function \ID{IDABBDSptfqmr} links the {\idabbdpre} data to the
-  {\idasptfqmr} linear solver and attaches the latter to the {\idas}
-  memory block.
-}
-{
-  \begin{args}[bbd\_data]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block.
-  \item[maxl] (\id{int})
-    \index{maxl@\texttt{maxl}}
-    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{IDA\_SPTFQMR\_MAXL}$=5$.
-  \item[bbd\_data] (\id{void *})
-    pointer to the {\idabbdpre} data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDABBDPRE\_PDATA\_NULL]
-  \item[\Id{IDASPILS\_SUCCESS}] 
-    The {\idasptfqmr} initialization was successful.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASPILS\_MEM\_FAIL}]
-    A memory allocation request failed.
-  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
-    The {\idabbdpre} preconditioner has not been initialized.
-  \end{args}
-}
-{}
-%%
-\ucfunction{IDABBDPrecFree}
-{
-  IDABBDPrecFree(\&bbd\_data);
-}
-{
-  The function \ID{IDABBDPrecFree} frees the pointer allocated by
-  \id{IDABBDPrecAlloc}.
-}
-{
-  The only argument of \id{IDABBDPrecFree} is the pointer to the {\idabbdpre} 
-  data structure (of type \id{void *}).
-}
-{
-  The function \id{IDABBDPrecFree} has no return value.
-}
-{}
 %%
 The {\idabbdpre} module also provides a reinitialization function to allow
 for a sequence of problems of the same size with {\idaspgmr}/{\idabbdpre},
@@ -5740,15 +5595,15 @@ used in the difference-quotient Jacobian approximations, the relative increment
 %%
 \ucfunction{IDABBDPrecReInit}
 {
-  flag = IDABBDPrecReInit(bbd\_data, mudq, mldq, dq\_rel\_yy, Gres, Gcomm);
+  flag = IDABBDPrecReInit(ida\_mem, mudq, mldq, dq\_rel\_yy, Gres, Gcomm);
 }
 {
   The function \ID{IDABBDPrecReInit} reinitializes the {\idabbdpre} preconditioner.
 }
 {
   \begin{args}[dq\_rel\_yy]
-  \item[bbd\_data] (\id{void *})
-    pointer to the {\idabbdpre} data structure.
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
   \item[mudq] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[mldq] (\id{long int})
@@ -5767,6 +5622,9 @@ used in the difference-quotient Jacobian approximations, the relative increment
   \end{args}
 }
 {
+
+  {\bf MORE HERE!!!}
+
   The return value of \id{IDABBDPrecReInit} is \Id{IDABBDPRE\_SUCCESS} indicating
   success, or \Id{IDABBDPRE\_PDATA\_NULL} if \id{bbd\_data} is \id{NULL}.
 }
@@ -5788,7 +5646,7 @@ the {\idabbdpre} module:
 \index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner}
 \ucfunction{IDABBDPrecGetWorkSpace}
 {
-  flag = IDABBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
+  flag = IDABBDPrecGetWorkSpace(ida\_mem, \&lenrwBBDP, \&leniwBBDP);
 }
 {
   The function \ID{IDABBDPrecGetWorkSpace} returns the local sizes
@@ -5796,8 +5654,8 @@ the {\idabbdpre} module:
 }
 {
   \begin{args}[lenrwBBDP]
-  \item[bbd\_data] (\id{void *})
-    pointer to the {\idabbdpre} data structure.
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
   \item[lenrwBBDP] (\id{long int})
     local number of real values in the {\idabbdpre} workspace.
   \item[leniwBBDP] (\id{long int})
@@ -5805,6 +5663,9 @@ the {\idabbdpre} module:
   \end{args}
 }
 {
+
+  {\bf FIX THIS!!!}
+
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDABBDPRE\_PDATA\_NULL]
   \item[IDABBDPRE\_SUCCESS] 
@@ -5824,7 +5685,7 @@ the {\idabbdpre} module:
 %%
 \ucfunction{IDABBDPrecGetNumGfnEvals}
 {
-  flag = IDABBDPrecGetNumGfnEvals(bbd\_data, \&ngevalsBBDP);
+  flag = IDABBDPrecGetNumGfnEvals(ida\_mem, \&ngevalsBBDP);
 }
 {
   The function \ID{IDABBDPrecGetNumGfnEvals} returns the
@@ -5834,13 +5695,16 @@ the {\idabbdpre} module:
 }
 {
   \begin{args}[ngevalsBBDP]
-  \item[bbd\_data] (\id{void *})
-    pointer to the {\idabbdpre} data structure.
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
   \item[ngevalsBBDP] (\id{long int})
     the cumulative number of calls to the user \id{Gres} function.
   \end{args}
 }
 {
+
+  {\bf FIX THIS!!!}
+
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDABBDPRE\_PDATA\_NULL]
   \item[IDABBDPRE\_SUCCESS] 
@@ -5848,22 +5712,6 @@ the {\idabbdpre} module:
   \item[\Id{IDABBDPRE\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
-}
-{}
-%%
-\ucfunction{IDABBDPrecGetReturnFlagName}
-{
-  name = IDABBDPrecGetReturnFlagName(flag);
-}
-{
-  The function \ID{IDABBDPrecGetReturnFlagName} returns the
-  name of the {\idabbdpre} constant corresponding to \id{flag}.
-}
-{
-  The only argument, of type \id{int} is a return flag from an {\idabbdpre} function.
-}
-{
-  The return value is a string containing the name of the corresponding constant.
 }
 {}
 %%
