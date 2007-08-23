@@ -1182,26 +1182,26 @@ and described in detail in the remainder of this section.
 \begin{tabular}{|l|l|}\hline
 {\bf Optional output} & {\bf Routine name} \\
 \hline
-No. of calls to sensitivity residual function & \id{IDAGetNumSensResEvals} \\
+No. of calls to sensitivity residual function & \id{IDAGetSensNumResEvals} \\
 No. of calls to residual function for sensitivity& \id{IDAGetNumResEvalsSens} \\
-No. of sensitivity local error test failures & \id{IDAGetNumSensErrTestFails} \\
-No. of calls to lin. solv. setup routine for sens.& \id{IDAGetNumSensLinSolvSetups} \\
+No. of sensitivity local error test failures & \id{IDAGetSensNumErrTestFails} \\
+No. of calls to lin. solv. setup routine for sens.& \id{IDAGetSensNumLinSolvSetups} \\
 Error weight vector for sensitivity variables & \id{IDAGetSensErrWeights} \\
 No. of sens. nonlinear solver iterations& \id{IDAGetNumSensNonlinSolvIters} \\
 No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\ 
-No. of staggered nonlinear solver iterations& \id{IDAGetNumStgrSensNonlinSolvIters} \\
-No. of staggered convergence failures& \id{IDAGetNumStgrSensNonlinSolvConvFails} \\ 
+%% No. of staggered nonlinear solver iterations& \id{IDAGetNumStgrSensNonlinSolvIters} \\
+%% No. of staggered convergence failures& \id{IDAGetNumStgrSensNonlinSolvConvFails} \\ 
 \hline
 \end{tabular}
 \end{table}
 %%
 %%
-\ucfunction{IDAGetNumSensResEvals}
+\ucfunction{IDAGetSensNumResEvals}
 {
-  flag = IDAGetNumSensResEvals(ida\_mem, \&nfSevals);
+  flag = IDAGetSensNumResEvals(ida\_mem, \&nfSevals);
 }
 {
-  The function \ID{IDAGetNumSensResEvals} returns the number of calls to the sensitivity
+  The function \ID{IDAGetSensNumResEvals} returns the number of calls to the sensitivity
   residual function.
 }
 {
@@ -1267,12 +1267,12 @@ No. of staggered convergence failures& \id{IDAGetNumStgrSensNonlinSolvConvFails}
 }
 %%
 %%
-\ucfunction{IDAGetNumSensErrTestFails}
+\ucfunction{IDAGetSensNumErrTestFails}
 {
-  flag = IDAGetNumSensErrTestFails(ida\_mem, \&nSetfails);
+  flag = IDAGetSensNumErrTestFails(ida\_mem, \&nSetfails);
 }
 {
-  The function \ID{IDAGetNumSensErrTestFails} returns the number of local
+  The function \ID{IDAGetSensNumErrTestFails} returns the number of local
   error test failures for the sensitivity variables that have occured.
 }
 {
@@ -1302,12 +1302,12 @@ No. of staggered convergence failures& \id{IDAGetNumStgrSensNonlinSolvConvFails}
 }
 %%
 %%
-\ucfunction{IDAGetNumSensLinSolvSetups}
+\ucfunction{IDAGetSensNumLinSolvSetups}
 {
-  flag = IDAGetNumSensLinSolvSetups(ida\_mem, \&nlinsetupsS);
+  flag = IDAGetSensNumLinSolvSetups(ida\_mem, \&nlinsetupsS);
 }
 {
-  The function \ID{IDAGetNumSensLinSolvSetups} returns the number of calls
+  The function \ID{IDAGetSensNumLinSolvSetups} returns the number of calls
   to the linear solver setup function due to forward sensitivity calculations.
 }
 {
@@ -1331,7 +1331,7 @@ No. of staggered convergence failures& \id{IDAGetNumStgrSensNonlinSolvConvFails}
 }
 {
   This counter is incremented only if Newton iteration has been used and if
-  either the \id{ism}$=$\id{IDA\_STAGGERED} or the \id{ism}$=$\id{IDA\_STAGGERED1} sensitivity
+  \id{ism}$=$\id{IDA\_STAGGERED} sensitivity
   solution method has been specified in the call to \id{IDASensInit}
   (see \S\ref{ss:sensi_init}).
 }
@@ -1438,13 +1438,8 @@ No. of staggered convergence failures& \id{IDAGetNumStgrSensNonlinSolvConvFails}
   \end{args}
 }
 {
-  This counter is incremented only if the \id{ism} was \id{IDA\_STAGGERED} or 
-  \id{IDA\_STAGGERED1} in the call to \id{IDASensInit} (see \S\ref{ss:sensi_init}).
-  
-  In the \id{IDA\_STAGGERED1} case, the value of \id{nSniters} is the sum of 
-  the number of nonlinear iterations performed for each sensitivity equation.
-  These individual counters can be obtained through a call to
-  \id{IDAGetNumStgrSensNonlinSolvIters} (see below).
+  This counter is incremented only if the \id{ism} was \id{IDA\_STAGGERED}
+  in the call to \id{IDASensInit} (see \S\ref{ss:sensi_init}).
 }
 %%
 %%
@@ -1477,13 +1472,8 @@ No. of staggered convergence failures& \id{IDAGetNumStgrSensNonlinSolvConvFails}
   \end{args}
 }
 {
-  This counter is incremented only if the \id{ism} was \id{IDA\_STAGGERED} or 
-  \id{IDA\_STAGGERED1} in the call to \id{IDASensInit} (see \S\ref{ss:sensi_init}).
-  
-  In the \id{IDA\_STAGGERED1} case, the value of \id{nSncfails} is the sum of 
-  the number of nonlinear convergence failures that occured for each sensitivity equation.
-  These individual counters can be obtained through a call to
-  \id{IDAGetNumStgrSensNonlinConvFails} (see below).
+  This counter is incremented only if the \id{ism} was \id{IDA\_STAGGERED}
+  in the call to \id{IDASensInit} (see \S\ref{ss:sensi_init}).
 }
 %%
 %%

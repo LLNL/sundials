@@ -317,13 +317,10 @@ optional inputs/outputs or restarting, and those paragraphs can be
 skipped for a casual use of {\idas}. In any case, refer to
 \S\ref{ss:skeleton_sim} for the correct order of these calls.
 
-
-{\bf TODO: say something about error handling (i.e. sending error messages to the handler)}
-
 On error, each user-callable function returns a negative value and sends an error message
 to the error handler routine, which prints the message on standard error by default. However, 
 the user can set a file as error output or can provide his  
-own error handler function ( see \S\ref{ss:user_fct_sim} ).
+own error handler function ( see \S\ref{sss:optin_main} ).
 
 \subsection{IDAS initialization and deallocation functions}
 \label{sss:idainit}
@@ -769,7 +766,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 }
 %%
 %%
-\ucfunction{IDABand}
+\ucfunction{IDALapackBand}
 {
   flag = IDALapackBand(ida\_mem, N, mupper, mlower);
 }
@@ -1428,7 +1425,7 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDA\_ILL\_INPUT}]
-    \id{mxsteps} is non-positive.
+    Parameter \id{mxsteps} is non-positive.
   \end{args}
 }
 {
@@ -2511,9 +2508,9 @@ The call to the \id{IDAGetDky} function has the following form:
 }
 {
   It is only legal to call the function \id{IDAGetDky} after a 
-  successful return from \id{IDASolve}. See \id{IDAGetCurrentTime},
-  \id{IDAGetLastStep} and \id{IDAGetLastOrder} for access to $t_n$ $h_u$
-  and $kused$.
+  successful return from \id{IDASolve}. Functions \id{IDAGetCurrentTime},
+  \id{IDAGetLastStep} and \id{IDAGetLastOrder} (see \S\ref{sss:optout_main})
+  can be used to access $t_n$, $h_u$ and $kused$.
 }
 
 %%
@@ -2567,7 +2564,7 @@ Name of constant associated with a return flag & \id{IDAGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDA initial conditions calculation} \\
 \hline
-Number of backtrack operations & \id{IDAGatNumBacktrackops} \\
+Number of backtrack operations & \id{IDAGetNumBacktrackops} \\
 Corrected initial conditions & \id{IDAGetConsistentIC} \\ 
 \hline
 \multicolumn{2}{|c|}{\bf IDADLS linear solver} \\
@@ -5419,7 +5416,7 @@ are then used by \id{Gres}, which is not expected to do any communication.
 %%
 Besides the header files required for the integration of the DAE problem
 (see \S\ref{ss:header_sim}),  to use the {\idabbdpre} module, the main program 
-must include the header file \id{ida\_bbdpre.h} which declares the needed
+must include the header file \id{idas\_bbdpre.h} which declares the needed
 function prototypes.\index{header files}
 
 The following is a summary of the usage of this module and describes the sequence 
@@ -5469,8 +5466,10 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
      \end{tabular}
    }
 
-  to allocate memory for and initialize a data structure \id{bbd\_data}, of type
-  \id{void *}, to be passed to any of the Krylov linear solvers. The last two
+  to allocate memory and initialize internal preconditioner's data.
+%% and initialize a data structure \id{bbd\_data}, of type \id{void *}, to be 
+%% passed to any of the Krylov linear solvers. 
+  The last two
   arguments of \id{IDABBDPrecAlloc} are the two user-supplied functions described
   above.
 
@@ -5557,11 +5556,19 @@ the {\idabbdpre} preconditioner module are described next.
   \end{args}
 }
 {
-
-  {\bf MORE HRE!!!!}
-
-  The return value of \id{IDABBDPrecReInit} is \Id{IDABBDPRE\_SUCCESS} indicating
-  success, or \Id{IDABBDPRE\_PDATA\_NULL} if \id{bbd\_data} is \id{NULL}.
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPILS\_ILL\_INPUT]
+  \item[IDASPILS\_SUCCESS]
+    The call to \id{IDABBDPrecInit} was successfull.
+  \item[\id{IDASPILS\_MEM\_NULL}] 
+    The \id{ida\_mem} pointer was \id{NULL}.
+  \item[\Id{IDASPILS\_MEM\_FAIL}]
+    A memory allocation request has failed.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    A {\idaspils} linear solver memory was not attached.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The supplied vector implementation was not compatible with block band preconditioner.
+  \end{args}
 }
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} to be used in the 
@@ -5622,11 +5629,18 @@ used in the difference-quotient Jacobian approximations, the relative increment
   \end{args}
 }
 {
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPILS\_PMEM\_NULL]
+  \item[IDASPILS\_SUCCESS]
+    The call to \id{IDABBDPrecReInit} was successfull.
+  \item[\id{IDASPILS\_MEM\_NULL}] 
+    The \id{ida\_mem} pointer was \id{NULL}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    A {\idaspils} linear solver memory was not attached.
+  \item[\Id{IDASPILS\_PMEM\_NULL}]
+    The function \id{IDABBDPrecInit} was not previously called.
+  \end{args}
 
-  {\bf MORE HERE!!!}
-
-  The return value of \id{IDABBDPrecReInit} is \Id{IDABBDPRE\_SUCCESS} indicating
-  success, or \Id{IDABBDPRE\_PDATA\_NULL} if \id{bbd\_data} is \id{NULL}.
 }
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or
@@ -5664,13 +5678,13 @@ the {\idabbdpre} module:
 }
 {
 
-  {\bf FIX THIS!!!}
-
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDABBDPRE\_PDATA\_NULL]
-  \item[IDABBDPRE\_SUCCESS] 
+  \begin{args}[IDASPILS\_PMEM\_NULL]
+  \item[IDASPILS\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
+  \item[\id{IDASPILS\_MEM\_NULL}] 
+    The \id{ida\_mem} pointer was \id{NULL}.
+  \item[\Id{IDASPILS\_PMEM\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -5703,13 +5717,13 @@ the {\idabbdpre} module:
 }
 {
 
-  {\bf FIX THIS!!!}
-
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDABBDPRE\_PDATA\_NULL]
-  \item[IDABBDPRE\_SUCCESS] 
+  \begin{args}[IDASPILS\_PMEM\_NULL]
+  \item[IDASPILS\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
+  \item[\id{IDASPILS\_MEM\_NULL}] 
+    The \id{ida\_mem} pointer was \id{NULL}.
+  \item[\Id{IDASPILS\_PMEM\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
 }
