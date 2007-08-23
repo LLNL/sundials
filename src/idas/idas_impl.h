@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2007-07-27 23:52:53 $
+ * $Revision: 1.19 $
+ * $Date: 2007-08-23 20:35:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -903,6 +903,7 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_FAIL_EWT       "The user-provide EwtSet function failed."
 #define MSG_BAD_EWT        "Some initial ewt component = 0.0 illegal."
 #define MSG_Y0_FAIL_CONSTR "y0 fails to satisfy constraints."
+#define MSG_BAD_ISM_CONSTR "Constraints can not be enforced while forward sensitivity is used with simultaneous method."
 #define MSG_LSOLVE_NULL    "The linear solver's solve routine is NULL."
 #define MSG_LINIT_FAIL     "The linear solver's init routine failed."
 

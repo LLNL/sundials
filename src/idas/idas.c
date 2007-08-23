@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2007-08-20 22:40:35 $
+ * $Revision: 1.27 $
+ * $Date: 2007-08-23 20:35:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3830,7 +3830,6 @@ int IDAInitialSetup(IDAMem IDA_mem)
   }
 
   /* Did the user specify tolerances? */
-
   if (itol == IDA_NN) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_NO_TOLS);
     return(IDA_ILL_INPUT);
@@ -3952,9 +3951,16 @@ int IDAInitialSetup(IDAMem IDA_mem)
     errconQS = FALSE;
   }
 
-  /* Check to see if y0 satisfies constraints. */
 
+
+  /* Check to see if y0 satisfies constraints. */
   if (constraintsSet) {
+
+    if (sensi && (ism==IDA_SIMULTANEOUS)) {
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_BAD_ISM_CONSTR);
+      return(IDA_ILL_INPUT);
+    }
+
     conOK = N_VConstrMask(constraints, phi[0], tempv2);
     if (!conOK) { 
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_Y0_FAIL_CONSTR);
