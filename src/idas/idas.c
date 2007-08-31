@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2007-08-23 20:35:38 $
+ * $Revision: 1.28 $
+ * $Date: 2007-08-31 15:27:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1782,7 +1782,7 @@ int IDASensToggleOff(void *ida_mem)
 int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 {
   IDAMem IDA_mem;
-  int nrt;
+  int i, nrt;
 
   /* Check ida_mem pointer */
   if (ida_mem == NULL) {
@@ -1898,6 +1898,9 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
     IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS", "IDARootInit", MSG_MEM_FAIL);
     return(IDA_MEM_FAIL);
   }
+
+  /* Set default values for rootdir (both directions) */
+  for(i=0; i<nrt; i++) rootdir[i] = 0;
 
   lrw += 3*nrt;
   liw += 2*nrt;

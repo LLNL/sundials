@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2007-08-20 20:54:44 $
+ * $Revision: 1.25 $
+ * $Date: 2007-08-31 15:27:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2266,7 +2266,7 @@ int CVodeSensToggleOff(void *cvode_mem)
 int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
 {
   CVodeMem cv_mem;
-  int nrt;
+  int i, nrt;
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
@@ -2381,6 +2381,9 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
     cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeRootInit", MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
+
+  /* Set default values for rootdir (both directions) */
+  for(i=0; i<nrt; i++) rootdir[i] = 0;
 
   lrw += 3*nrt;
   liw += 2*nrt;
