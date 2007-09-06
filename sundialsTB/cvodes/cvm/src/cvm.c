@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2007-08-21 23:09:18 $
+ * $Revision: 1.21 $
+ * $Date: 2007-09-06 15:36:14 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1172,19 +1172,9 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
   case 0:
 
     /* Test required inputs */
-
-    if (fS_DQ) {
-
-      if (pfield_name == NULL) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                             "pfield required but was not provided.", NULL);
-
-      pfield = mxGetField(mtlb_data,0,pfield_name);
-
-      if (pfield == NULL) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                        "illegal pfield input.", NULL);
-
-      p = mxGetPr(pfield);
-
+    if ( fS_DQ && (pfield_name == NULL) ) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
+                    "pfield required but was not provided.", NULL);
     }
 
     CVodeSensInit(cvode_mem, Ns, ism, rhsS, yS);
@@ -1226,6 +1216,13 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
    * Set various optional inputs
    * --------------------------------
    */
+
+  if (pfield_name != NULL) {
+    pfield = mxGetField(mtlb_data,0,pfield_name);
+    if (pfield == NULL) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
+                                      "illegal pfield input.", NULL);
+    p = mxGetPr(pfield);
+  }
   
   CVodeSetSensParams(cvode_mem, p, pbar, plist);
 
