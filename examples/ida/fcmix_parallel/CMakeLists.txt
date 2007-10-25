@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-02-01 16:42:08 $
+# $Revision: 1.3 $
+# $Date: 2007-10-25 20:03:34 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -14,8 +14,8 @@
 
 # Add variable ida_examples with the names of the parallel IDA examples
 
-SET(fida_examples
-  fidakryx_bbd_p
+SET(FIDA_examples
+  fidaHeat2D_kry_bbd_p
   )
 
 # Check whether we use MPI compiler scripts.
@@ -49,7 +49,7 @@ SET(FIDA_LIB sundials_fida_static)
 
 # Add the build and install targets for each IDA example
 
-FOREACH(example ${fida_examples})
+FOREACH(example ${FIDA_examples})
   # add build target for example
   ADD_EXECUTABLE(${example} ${example}.f)
   # link to the sundials libraries
@@ -65,80 +65,29 @@ FOREACH(example ${fida_examples})
     # install example files
     INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_parallel)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${fida_examples})
+ENDFOREACH(example ${FIDA_examples})
 
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
   INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_parallel)
 
+  # Prepare substitution variables for Makefile and/or CMakeLists templates
+  SET(SOLVER "IDA")
+  SET(SOLVER_LIB "sundials_ida")
+  SET(SOLVER_FLIB "sundials_fida")
+  LIST2STRING(FIDA_examples EXAMPLES)
+
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
-  IF(MPI_USE_MPISCRIPTS)
-    FILE(WRITE ${PROJECT_BINARY_DIR}/examples/ida/fcmix_parallel/CMakeLists.txt
-      "PROJECT(FIDA_parallel_examples Fortran)\n"
-      "MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)\n"
-      "SET(fida_examples ${fida_examples})\n"
-      "SET(MPI_MPIF77 ${MPI_MPIF77} CACHE STRING \"MPIF77 compiler script\")\n"
-      "SET(CMAKE_Fortran_COMPILER \${MPI_MPIF77})\n"
-      "SET(SUNDIALS_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)\n"
-      "FIND_LIBRARY(SUNDIALS_FIDA_LIB \n"
-      "  sundials_fida \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"FIDA wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_IDA_LIB \n"
-      "  sundials_ida \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"IDA library\")\n"
-      "FIND_LIBRARY(SUNDIALS_FNVECP_LIB \n"
-      "  sundials_fnvecparallel \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"FNVECPARALLEL wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_NVECP_LIB \n"
-      "  sundials_nvecparallel \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"NVECPARALLEL library\")\n"
-      "SET(SUNDIALS_EXTRA_LIB ${EXTRA_LINK_LIBS} CACHE STRING \"Additional libraries\")\n"
-      "FOREACH(example \${fida_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.f)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \n"
-      "    \${SUNDIALS_FIDA_LIB} \${SUNDIALS_IDA_LIB} \n"
-      "    \${SUNDIALS_FNVECP_LIB} \${SUNDIALS_NVECP_LIB} \n"
-      "    \${SUNDIALS_EXTRA_LIB})\n"
-      "ENDFOREACH(example \${fida_examples})\n"
+  CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_F77_ex.in
+      ${PROJECT_BINARY_DIR}/examples/ida/fcmix_parallel/CMakeLists.txt
+      @ONLY
       )
-  ELSE(MPI_USE_MPISCRIPTS)
-    FILE(WRITE ${PROJECT_BINARY_DIR}/examples/ida/fcmix_parallel/CMakeLists.txt
-      "PROJECT(FIDA_parallel_examples Fortran)\n"
-      "MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)\n"
-      "SET(fida_examples ${fida_examples})\n"
-      "SET(SUNDIALS_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)\n"
-      "FIND_LIBRARY(SUNDIALS_FIDA_LIB \n"
-      "  sundials_fida \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"FIDA wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_IDA_LIB \n"
-      "  sundials_ida \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"IDA library\")\n"
-      "FIND_LIBRARY(SUNDIALS_FNVECP_LIB \n"
-      "  sundials_fnvecparallel \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"FNVECPARALLEL wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_NVECP_LIB \n"
-      "  sundials_nvecparallel \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"NVECPARALLEL library\")\n"
-      "SET(SUNDIALS_EXTRA_LIB ${EXTRA_LINK_LIBS} CACHE STRING \"Additional libraries\")\n"
-      "SET(MPI_INC_DIR ${MPI_INCLUDE_PATH} CACHE STRING \"Location of MPI header files\")\n"
-      "INCLUDE_DIRECTORIES(\${MPI_INC_DIR})\n"
-      "SET(MPI_LIB ${MPI_LIBRARY} CACHE STRING \"Main MPI library\")\n"
-      "SET(MPI_EXTRA_LIB ${MPI_EXTRA_LIBRARIES} CACHE STRING \"Additional MPI libraries\")\n"
-      "FOREACH(example \${fida_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.f)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \n"
-      "    \${SUNDIALS_FIDA_LIB} \${SUNDIALS_IDA_LIB} \n"
-      "    \${SUNDIALS_FNVECP_LIB} \${SUNDIALS_NVECP_LIB} \n"
-      "    \${SUNDIALS_EXTRA_LIB} \n"
-      "    \${MPI_LIB} \${MPI_EXTRA_LIB})\n"
-      "ENDFOREACH(example \${fida_examples})\n"
-      )
-  ENDIF(MPI_USE_MPISCRIPTS)
 
   # install CMakelists.txt
   INSTALL(
@@ -151,18 +100,21 @@ IF(EXAMPLES_INSTALL)
   # as a template for the user's own programs.
 
   IF(EXAMPLES_GENERATE_MAKEFILES)
+
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/ida/fcmix_parallel/Makefile_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_F77_ex.in
       ${PROJECT_BINARY_DIR}/examples/ida/fcmix_parallel/Makefile_ex
       @ONLY
       )
+
     # install the configured Makefile_ex as Makefile
     INSTALL(
       FILES ${PROJECT_BINARY_DIR}/examples/ida/fcmix_parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_parallel 
       RENAME Makefile
       )
+
   ENDIF(EXAMPLES_GENERATE_MAKEFILES)
 
 ENDIF(EXAMPLES_INSTALL)

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-02-01 16:39:04 $
+# $Revision: 1.2 $
+# $Date: 2007-10-25 20:03:25 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -58,73 +58,75 @@ SUNDIALS_BL_LIBS = $(top_builddir)/src/cpodes/libsundials_cpodes_bl.la    \
 	           $(top_builddir)/src/cpodes/libsundials_cpodes.la       \
 	           $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
 
-EXEC_FILES = cpsdenx$(EXE_EXT) \
-	     cpsbanx$(EXE_EXT) \
-	     cpsadamsx${EXE_EXT} \
-	     pend_test${EXE_EXT}
-EXEC_BL_FILES = cpsdenx_lap$(EXE_EXT) \
-	        cpsbanx_lap$(EXE_EXT) \
-	        pendLr$(EXE_EXT)
-
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
+EXAMPLES = cpsAdvDiff_bnd \
+	   cpsAdvDiff_non \
+	   cpsNewtCrd_dns \
+	   cpsPend_dns \
+	   cpsRoberts_dns \
+	   cpsVanDPol_non
+
+EXAMPLES_BL = cpsAdvDiff_bndL \
+	      cpsPend_dnsL \
+	      cpsRoberts_dnsL
+
+OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
+OBJECTS_BL = ${EXAMPLES_BL:=${OBJ_EXT}}
+EXECS = ${EXAMPLES:=${EXE_EXT}}
+EXECS_BL = ${EXAMPLES_BL:=${EXE_EXT}}
+
 # ----------------------------------------------------------------------------------------------------------------------
 
-all: $(EXEC_FILES)
+all:
+	@for i in ${EXAMPLES} ; do \
+	  $(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(CC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}${OBJ_EXT} $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) ; \
+	done
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make all_bl;                               \
+	for i in ${EXAMPLES_BL} ; do \
+	  $(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(CC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}${OBJ_EXT} $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS) ; \
+	done ; \
 	fi
-all_bl: $(EXEC_BL_FILES)
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/cpodes/serial
-	$(INSTALL_FILE) Makefile_ex                                        $(EXS_INSTDIR)/cpodes/serial/Makefile
-	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/README        $(EXS_INSTDIR)/cpodes/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsbanx.c     $(EXS_INSTDIR)/cpodes/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsdenx.c     $(EXS_INSTDIR)/cpodes/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsadamsx.c   $(EXS_INSTDIR)/cpodes/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/pend_test.c   $(EXS_INSTDIR)/cpodes/serial/
-#	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsbanx.out   $(EXS_INSTDIR)/cpodes/serial/
-#	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsdenx.out   $(EXS_INSTDIR)/cpodes/serial/
-#	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsadamsx.out $(EXS_INSTDIR)/cpodes/serial/
+	$(INSTALL_FILE) Makefile_ex $(EXS_INSTDIR)/cpodes/serial/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/README $(EXS_INSTDIR)/cpodes/serial/
+	for i in ${EXAMPLES} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/$${i}.c   $(EXS_INSTDIR)/cpodes/serial/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/$${i}.out $(EXS_INSTDIR)/cpodes/serial/ ; \
+	done
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make install_bl;                           \
+	for i in ${EXAMPLES_BL} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/$${i}.c   $(EXS_INSTDIR)/cpodes/serial/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/$${i}.out $(EXS_INSTDIR)/cpodes/serial/ ; \
+	done ; \
 	fi
-
-install_bl:
-	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsdenx_lap.c   $(EXS_INSTDIR)/cpodes/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsbanx_lap.c   $(EXS_INSTDIR)/cpodes/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/pendLr.c        $(EXS_INSTDIR)/cpodes/serial/
-#	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsbanx_lap.out $(EXS_INSTDIR)/cpodes/serial/
-#	$(INSTALL_FILE) $(top_srcdir)/examples/cpodes/serial/cpsdenx_lap.out $(EXS_INSTDIR)/cpodes/serial/
 
 uninstall:
 	rm -f $(EXS_INSTDIR)/cpodes/serial/Makefile
 	rm -f $(EXS_INSTDIR)/cpodes/serial/README
-	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsbanx.c
-	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsdenx.c
-	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsadamsx.c
-	rm -f $(EXS_INSTDIR)/cpodes/serial/pend_test.c
-	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsdenx_lap.c
-	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsbanx_lap.c
-	rm -f $(EXS_INSTDIR)/cpodes/serial/pendLr.c
-#	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsbanx.out
-#	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsdenx.out
-#	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsadamsx.out
-#	rm -f $(EXS_INSTDIR)/cpodes/serial/pend_test.out
-#	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsdenx_lap.out
-#	rm -f $(EXS_INSTDIR)/cpodes/serial/cpsbanx_lap.out
-#	rm -f $(EXS_INSTDIR)/cpodes/serial/pendLr.out
+	for i in ${EXAMPLES} ; do \
+	  rm -f $(EXS_INSTDIR)/cpodes/serial/$${i}.c ; \
+	  rm -f $(EXS_INSTDIR)/cpodes/serial/$${i}.out ; \
+	done
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	for i in ${EXAMPLES_BL} ; do \
+	  rm -f $(EXS_INSTDIR)/cpodes/serial/$${i}.c ; \
+	  rm -f $(EXS_INSTDIR)/cpodes/serial/$${i}.out ; \
+	done ; \
+	fi
 	$(rminstalldirs) $(EXS_INSTDIR)/cpodes/serial
 	$(rminstalldirs) $(EXS_INSTDIR)/cpodes
 
 clean:
 	rm -rf .libs
 	rm -f *.lo
-	rm -f *.o
-	rm -f $(EXEC_FILES)
-	rm -f $(EXEC_BL_FILES)
+	rm -f ${OBJECTS} ${OBJECTS_BL}
+	rm -f $(EXECS) $(EXECS_BL)
 
 distclean: clean
 	rm -f Makefile
@@ -132,31 +134,7 @@ distclean: clean
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-cpsadamsx$(EXE_EXT): $(srcdir)/cpsadamsx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cpsadamsx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cpsadamsx$(EXE_EXT) $(builddir)/cpsadamsx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-cpsdenx$(EXE_EXT): $(srcdir)/cpsdenx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cpsdenx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cpsdenx$(EXE_EXT) $(builddir)/cpsdenx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-cpsbanx$(EXE_EXT): $(srcdir)/cpsbanx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cpsbanx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cpsbanx$(EXE_EXT) $(builddir)/cpsbanx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-pend_test$(EXE_EXT): $(srcdir)/pend_test.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/pend_test.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/pend_test$(EXE_EXT) $(builddir)/pend_test$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-
-
-cpsdenx_lap$(EXE_EXT): $(srcdir)/cpsdenx_lap.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cpsdenx_lap.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cpsdenx_lap$(EXE_EXT) $(builddir)/cpsdenx_lap$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
-cpsbanx_lap$(EXE_EXT): $(srcdir)/cpsbanx_lap.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cpsbanx_lap.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cpsbanx_lap$(EXE_EXT) $(builddir)/cpsbanx_lap$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
-pendLr$(EXE_EXT): $(srcdir)/pendLr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/pendLr.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/pendLr$(EXE_EXT) $(builddir)/pendLr$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
-
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \
-	 ${SHELL} ./config.status --recheck ; \
-	 cd ${abs_builddir}
+	${SHELL} ./config.status --recheck ; \
+	cd ${abs_builddir}

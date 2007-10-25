@@ -1,0 +1,88 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2007-10-25 20:03:42 $
+# -----------------------------------------------------------------
+# Programmer: Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for @SOLVER@ serial examples
+#
+# This file is generated from a template using the following 
+# substitution variables:
+#    prefix
+#    exec_prefix
+#    includedir
+#    libdir
+#
+#    CPP
+#    CPPFLAGS
+#    CC
+#    CFLAGS
+#    LDFLAGS
+#    LIBS
+#
+#    SOLVER         SUNDIALS solver name
+#    EXAMPLES       list of examples
+#    EXAMPLES_BL    list of examples using Blas/Lapack
+#                   (possibly empty)
+#    SOLVER_LIB     name of the SUNDIALS solver's library
+#    SOLVER_BL_LIB  name of the SUNDIALS solver's Blas/Lapack 
+#                   interface library (possibly empty)
+#    BLAS_LAPACK_LIBS list of libraries for Blas and Lapack
+#                   (possibly empty)
+#
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+INCLUDES = -I${includedir}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecserial ${LIBS}
+LIBRARIES_BL =  -l@SOLVER_BL_LIB@ @BLAS_LAPACK_LIBS@
+
+EXAMPLES = @EXAMPLES@
+EXAMPLES_BL = @EXAMPLES_BL@
+
+OBJECTS = ${EXAMPLES:=.o}
+OBJECTS_BL = ${EXAMPLES_BL:=.o}
+
+# -----------------------------------------------------------------------------------------
+
+.SUFFIXES : .o .c
+
+.c.o :
+	${CC} ${CPPFLAGS} ${CFLAGS} ${INCLUDES} -c $<
+
+# -----------------------------------------------------------------------------------------
+
+all: ${OBJECTS} ${OBJECTS_BL}
+	@for i in ${EXAMPLES} ; do \
+	  echo "${CC} -o $${i} $${i}.o ${CFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES}" ; \
+	  ${CC} -o $${i} $${i}.o ${CFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES} ; \
+	done
+	@for i in ${EXAMPLES_BL} ; do \
+	  echo "${CC} -o $${i} $${i}.o ${CFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES_BL} ${LIBRARIES}" ; \
+	  ${CC} -o $${i} $${i}.o ${CFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES_BL} ${LIBRARIES}; \
+	done
+
+clean:
+	rm -f ${OBJECTS} ${OBJECTS_BL}
+	rm -f ${EXAMPLES} ${EXAMPLES_BL}
+
+# -----------------------------------------------------------------------------------------
+

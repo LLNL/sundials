@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-02-01 16:39:04 $
+# $Revision: 1.2 $
+# $Date: 2007-10-25 20:03:25 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -12,22 +12,24 @@
 # CMakeLists.txt file for CPODES serial examples
 
 
-# Add variable cpodes_examples with the names of the serial CPODES examples
+# Add variable CPODES_examples with the names of the serial CPODES examples
 
-SET(cpodes_examples
-  cpsdenx
-  cpsbanx
-  cpsadamsx
-  pend_test
+SET(CPODES_examples
+  cpsAdvDiff_bnd
+  cpsAdvDiff_non
+  cpsNewtCrd_dns
+  cpsPend_dns
+  cpsRoberts_dns
+  cpsVanDPol_non
   )
 
-# Add variable cpodes_bl_examples with the names of the serial CPODES examples
+# Add variable CPODES_examples_BL with the names of the serial CPODES examples
 # that use Lapack
 
-SET(cpodes_bl_examples
-  cpsbanx_lap
-  cpsdenx_lap
-  pendLr
+SET(CPODES_examples_BL
+  cpsAdvDiff_bndL
+  cpsPend_dnsL
+  cpsRoberts_dnsL
   )
 
 # Specify libraries to link against (through the target that was used to 
@@ -45,7 +47,7 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Add the build and install targets for each CPODES example
 
-FOREACH(example ${cpodes_examples})
+FOREACH(example ${CPODES_examples})
   # add build target for example
   ADD_EXECUTABLE(${example} ${example}.c)
   # link to the sundials libraries
@@ -56,14 +58,14 @@ FOREACH(example ${cpodes_examples})
     # install example files
     INSTALL(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${cpodes_examples})
+ENDFOREACH(example ${CPODES_examples})
 
 # If Lapack support is enabled, add the build and install targets for
 # the examples using Lapack
 
 IF(LAPACK_OK)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
-  FOREACH(example ${cpodes_bl_examples})
+  FOREACH(example ${CPODES_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.c)
     TARGET_LINK_LIBRARIES(${example} ${CPODES_BL_LIB} ${CPODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
     TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
@@ -71,7 +73,7 @@ IF(LAPACK_OK)
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
     ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${cpodes_bl_examples})
+  ENDFOREACH(example ${CPODES_examples_BL})
 ENDIF(LAPACK_OK)
 
 IF(EXAMPLES_INSTALL)
@@ -79,73 +81,28 @@ IF(EXAMPLES_INSTALL)
   # Install the README file
   INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
 
+  # Prepare substitution variables for Makefile and/or CMakeLists templates
+  SET(SOLVER "CPODES")
+  SET(SOLVER_LIB "sundials_cpodes")
+  LIST2STRING(CPODES_examples EXAMPLES)
+  IF(LAPACK_OK)
+    SET(SOLVER_BL_LIB "sundials_cpodes_bl")
+    LIST2STRING(CPODES_examples_BL EXAMPLES_BL)
+  ELSE(LAPACK_OK)
+    SET(EXAMPLES_BL "")
+    SET(SOLVER_BL_LIB "")
+  ENDIF(LAPACK_OK)
+
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
-  IF(LAPACK_OK)
-
-    FILE(WRITE ${PROJECT_BINARY_DIR}/examples/cpodes/serial/CMakeLists.txt
-      "PROJECT(CPODES_serial_examples C)\n"
-      "MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)\n"
-      "SET(cpodes_examples ${cpodes_examples})\n"
-      "SET(cpodes_bl_examples ${cpodes_bl_examples})\n"
-      "SET(SUNDIALS_INC_DIR\n"
-      "  ${CMAKE_INSTALL_PREFIX}/include\n"
-      "  CACHE STRING\n"
-      "  \"Location of SUNDIALS header files\")\n"
-      "INCLUDE_DIRECTORIES(\${SUNDIALS_INC_DIR})\n"
-      "SET(SUNDIALS_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)\n"
-      "FIND_LIBRARY(SUNDIALS_CPODES_BL_LIB\n"
-      "  sundials_cpodes_bl \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"CPODES Lapack wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_CPODES_LIB\n"
-      "  sundials_cpodes \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"CPODES library\")\n"
-      "FIND_LIBRARY(SUNDIALS_NVECS_LIB\n"
-      "  sundials_nvecserial \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"NVECSERIAL library\")\n"
-      "SET(SUNDIALS_EXTRA_LIB ${EXTRA_LINK_LIBS} CACHE STRING \"Additional libraries\")\n"
-      "SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} CACHE STRING \"Lapack libraries\")\n"
-      "FOREACH(example \${cpodes_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.c)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${SUNDIALS_CPODES_LIB} \${SUNDIALS_NVECS_LIB} \${SUNDIALS_EXTRA_LIB})\n"
-      "ENDFOREACH(example \${cpodes_examples})\n"
-      "SET(CMAKE_EXE_LINKER_FLAGS \"\${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}\")\n"
-      "FOREACH(example \${cpodes_bl_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.c)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${SUNDIALS_CPODES_BL_LIB} \${SUNDIALS_CPODES_LIB} \${SUNDIALS_NVECS_LIB} \${SUNDIALS_EXTRA_LIB})\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${LAPACK_LIBRARIES})\n"
-      "ENDFOREACH(example \${cpodes_bl_examples})\n"
+  CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
+      ${PROJECT_BINARY_DIR}/examples/cpodes/serial/CMakeLists.txt
+      @ONLY
       )
-
-  ELSE(LAPACK_OK)
-
-    FILE(WRITE ${PROJECT_BINARY_DIR}/examples/cpodes/serial/CMakeLists.txt
-      "PROJECT(CPODES_serial_examples C)\n"
-      "MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)\n"
-      "SET(cpodes_examples ${cpodes_examples})\n"
-      "SET(SUNDIALS_INC_DIR\n"
-      "  ${CMAKE_INSTALL_PREFIX}/include\n"
-      "  CACHE STRING\n"
-      "  \"Location of SUNDIALS header files\")\n"
-      "INCLUDE_DIRECTORIES(\${SUNDIALS_INC_DIR})\n"
-      "SET(SUNDIALS_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)\n"
-      "FIND_LIBRARY(SUNDIALS_CPODES_LIB\n"
-      "  sundials_cpodes \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"CPODES library\")\n"
-      "FIND_LIBRARY(SUNDIALS_NVECS_LIB\n"
-      "  sundials_nvecserial \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"NVECSERIAL library\")\n"
-      "SET(SUNDIALS_EXTRA_LIB ${EXTRA_LINK_LIBS} CACHE STRING \"Additional libraries\")\n"
-      "FOREACH(example \${cpodes_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.c)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${SUNDIALS_CPODES_LIB} \${SUNDIALS_NVECS_LIB} \${SUNDIALS_EXTRA_LIB})\n"
-      "ENDFOREACH(example \${cpodes_examples})\n"
-      )
-    
-  ENDIF(LAPACK_OK)
 
   # install CMakelists.txt
   INSTALL(
@@ -160,19 +117,11 @@ IF(EXAMPLES_INSTALL)
   IF(EXAMPLES_GENERATE_MAKEFILES)
 
     # generate Makefile and place it in the binary dir
-    IF(LAPACK_OK)
-      CONFIGURE_FILE(
-        ${PROJECT_SOURCE_DIR}/examples/cpodes/serial/Makefile_ex_bl.in
-        ${PROJECT_BINARY_DIR}/examples/cpodes/serial/Makefile_ex
-        @ONLY
-        )
-    ELSE(LAPACK_OK)
-      CONFIGURE_FILE(
-        ${PROJECT_SOURCE_DIR}/examples/cpodes/serial/Makefile_ex.in
-        ${PROJECT_BINARY_DIR}/examples/cpodes/serial/Makefile_ex
-        @ONLY
-        )
-    ENDIF(LAPACK_OK)
+    CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
+      ${PROJECT_BINARY_DIR}/examples/cpodes/serial/Makefile_ex
+      @ONLY
+      )
 
     # install the configured Makefile_ex as Makefile
     INSTALL(

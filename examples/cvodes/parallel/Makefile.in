@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-01-24 01:14:05 $
+# $Revision: 1.8 $
+# $Date: 2007-10-25 20:03:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -55,103 +55,58 @@ SUNDIALS_INCS = -I$(top_srcdir)/include -I$(top_builddir)/include
 
 SUNDIALS_LIBS = $(top_builddir)/src/cvodes/libsundials_cvodes.la $(top_builddir)/src/nvec_par/libsundials_nvecparallel.la
 
-EXEC_FILES = cvsnonx_p$(EXE_EXT) \
-	     cvskryx_p$(EXE_EXT) \
-	     cvskryx_bbd_p$(EXE_EXT) \
-	     cvsfwdnonx_p$(EXE_EXT) \
-	     cvsfwdkryx_p$(EXE_EXT) \
-	     cvsadjnonx_p$(EXE_EXT) \
-	     cvsadjkryx_p$(EXE_EXT) \
-	     cvsadjkryx_p3D$(EXE_EXT)
-
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
+EXAMPLES = cvsAdvDiff_ASAp_non_p \
+	   cvsAdvDiff_FSA_non_p \
+	   cvsAdvDiff_non_p \
+	   cvsAtmDisp_ASAi_kry_bbd_p \
+	   cvsDiurnal_FSA_kry_p \
+	   cvsDiurnal_kry_bbd_p \
+	   cvsDiurnal_kry_p
+
+OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
+EXECS = ${EXAMPLES:=${EXE_EXT}}
+
 # ----------------------------------------------------------------------------------------------------------------------
 
-all: $(EXEC_FILES)
+all:
+	@for i in ${EXAMPLES} ; do \
+	  $(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) ; \
+	done
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/cvodes/parallel
-	$(INSTALL_FILE) Makefile_ex                                              $(EXS_INSTDIR)/cvodes/parallel/Makefile
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/README            $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsadjkryx_p.c    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsadjnonx_p.c    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdkryx_p.c    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdkryx_p.c    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdnonx_p.c    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdnonx_p.c    $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvskryx_bbd_p.c   $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvskryx_p.c       $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsnonx_p.c       $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsadjkryx_p.out  $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsadjnonx_p.out  $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdkryx_p.out1 $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdkryx_p.out2 $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdnonx_p.out1 $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsfwdnonx_p.out2 $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvskryx_bbd_p.out $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvskryx_p.out     $(EXS_INSTDIR)/cvodes/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/cvsnonx_p.out     $(EXS_INSTDIR)/cvodes/parallel/
+	$(INSTALL_FILE) Makefile_ex $(EXS_INSTDIR)/cvodes/parallel/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/README $(EXS_INSTDIR)/cvodes/parallel/
+	for i in ${EXAMPLES} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/$${i}.c   $(EXS_INSTDIR)/cvodes/parallel/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cvodes/parallel/$${i}.out $(EXS_INSTDIR)/cvodes/parallel/ ; \
+	done
 
 uninstall:
 	rm -f $(EXS_INSTDIR)/cvodes/parallel/Makefile
 	rm -f $(EXS_INSTDIR)/cvodes/parallel/README
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsadjkryx_p.c
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsadjnonx_p.c
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsfwdkryx_p.c
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsfwdnonx_p.c
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvskryx_bbd_p.c
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvskryx_p.c
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsnonx_p.c
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsadjkryx_p.out
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsadjnonx_p.out
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsfwdkryx_p.out1
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsfwdkryx_p.out2
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsfwdnonx_p.out1
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsfwdnonx_p.out2
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvskryx_bbd_p.out
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvskryx_p.out
-	rm -f $(EXS_INSTDIR)/cvodes/parallel/cvsnonx_p.out
+	for i in ${EXAMPLES} ; do \
+	  rm -f $(EXS_INSTDIR)/cvodes/parallel/$${i}.c ; \
+	  rm -f $(EXS_INSTDIR)/cvodes/parallel/$${i}.out ; \
+	done
 	$(rminstalldirs) $(EXS_INSTDIR)/cvodes/parallel
 	$(rminstalldirs) $(EXS_INSTDIR)/cvodes
 
 clean:
 	rm -rf .libs
-	rm -f *.lo
-	rm -f *.o
-	rm -f $(EXEC_FILES)
+	rm -f *.lo *.o
+	rm -f ${OBJECTS}
+	rm -f $(EXECS)
 
 distclean: clean
 	rm -f Makefile
 	rm -f Makefile_ex
 
 # ----------------------------------------------------------------------------------------------------------------------
-
-cvsnonx_p$(EXE_EXT): $(srcdir)/cvsnonx_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsnonx_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvsnonx_p$(EXE_EXT) $(builddir)/cvsnonx_p$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvskryx_p$(EXE_EXT): $(srcdir)/cvskryx_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvskryx_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvskryx_p$(EXE_EXT) $(builddir)/cvskryx_p$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvskryx_bbd_p$(EXE_EXT): $(srcdir)/cvskryx_bbd_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvskryx_bbd_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvskryx_bbd_p$(EXE_EXT) $(builddir)/cvskryx_bbd_p$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvsfwdnonx_p$(EXE_EXT): $(srcdir)/cvsfwdnonx_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsfwdnonx_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvsfwdnonx_p$(EXE_EXT) $(builddir)/cvsfwdnonx_p$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvsfwdkryx_p$(EXE_EXT): $(srcdir)/cvsfwdkryx_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsfwdkryx_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvsfwdkryx_p$(EXE_EXT) $(builddir)/cvsfwdkryx_p$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvsadjnonx_p$(EXE_EXT): $(srcdir)/cvsadjnonx_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsadjnonx_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvsadjnonx_p$(EXE_EXT) $(builddir)/cvsadjnonx_p$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvsadjkryx_p$(EXE_EXT): $(srcdir)/cvsadjkryx_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsadjkryx_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvsadjkryx_p$(EXE_EXT) $(builddir)/cvsadjkryx_p$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvsadjkryx_p3D$(EXE_EXT): $(srcdir)/cvsadjkryx_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -DUSE3D -c $(srcdir)/cvsadjkryx_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/cvsadjkryx_p3D$(EXE_EXT) $(builddir)/cvsadjkryx_p$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

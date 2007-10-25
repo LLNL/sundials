@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2007-01-24 01:14:05 $
+# $Revision: 1.10 $
+# $Date: 2007-10-25 20:03:29 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -58,91 +58,76 @@ SUNDIALS_BL_LIBS = $(top_builddir)/src/cvode/libsundials_cvode_bl.la      \
 	           $(top_builddir)/src/cvode/libsundials_cvode.la         \
 	           $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
 
-EXEC_FILES = cvdenx$(EXE_EXT) \
-	     cvdenx_uw$(EXE_EXT) \
-	     cvbanx$(EXE_EXT) \
-	     cvkryx$(EXE_EXT) \
-	     cvkryx_bp$(EXE_EXT) \
-	     cvdirectdem$(EXE_EXT) \
-	     cvkrydem_pre$(EXE_EXT) \
-	     cvkrydem_lin$(EXE_EXT)
-
-EXEC_BL_FILES = cvdenx_lap$(EXE_EXT) \
-	        cvbanx_lap$(EXE_EXT)
-
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
+EXAMPLES = cvAdvDiff_bnd \
+	   cvDirectDemo_ls \
+	   cvDiurnal_kry_bp \
+	   cvDiurnal_kry \
+	   cvKrylovDemo_ls \
+	   cvKrylovDemo_prec \
+	   cvRoberts_dns \
+	   cvRoberts_dns_uw 
+
+EXAMPLES_BL = cvAdvDiff_bndL \
+	      cvRoberts_dnsL
+
+OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
+OBJECTS_BL = ${EXAMPLES_BL:=${OBJ_EXT}}
+EXECS = ${EXAMPLES:=${EXE_EXT}}
+EXECS_BL = ${EXAMPLES_BL:=${EXE_EXT}}
+
 # ----------------------------------------------------------------------------------------------------------------------
 
-all: $(EXEC_FILES)
+all:
+	@for i in ${EXAMPLES} ; do \
+	  $(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(CC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}${OBJ_EXT} $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) ; \
+	done
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make all_bl;                               \
+	for i in ${EXAMPLES_BL} ; do \
+	  $(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(CC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}${OBJ_EXT} $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS) ; \
+	done ; \
 	fi
-all_bl: $(EXEC_BL_FILES)
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/cvode/serial
-	$(INSTALL_FILE) Makefile_ex                                          $(EXS_INSTDIR)/cvode/serial/Makefile
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/README           $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvbanx.c         $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvdenx.c         $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvdenx_uw.c      $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvdirectdem.c    $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkrydem_lin.c   $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkrydem_pre.c   $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkryx_bp.c      $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkryx.c         $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvbanx.out       $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvdenx.out       $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvdenx_uw.out    $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvdirectdem.out  $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkrydem_lin.out $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkrydem_pre.out $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkryx_bp.out    $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvkryx.out       $(EXS_INSTDIR)/cvode/serial/
+	$(INSTALL_FILE) Makefile_ex $(EXS_INSTDIR)/cvode/serial/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/README $(EXS_INSTDIR)/cvode/serial/
+	for i in ${EXAMPLES} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/$${i}.c   $(EXS_INSTDIR)/cvode/serial/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/$${i}.out $(EXS_INSTDIR)/cvode/serial/ ; \
+	done
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make install_bl;                           \
+	for i in ${EXAMPLES_BL} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/$${i}.c   $(EXS_INSTDIR)/cvode/serial/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/$${i}.out $(EXS_INSTDIR)/cvode/serial/ ; \
+	done ; \
 	fi
-
-install_bl:
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvdenx_lap.c   $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvbanx_lap.c   $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvdenx_lap.out $(EXS_INSTDIR)/cvode/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/cvode/serial/cvbanx_lap.out $(EXS_INSTDIR)/cvode/serial/
 
 uninstall:
 	rm -f $(EXS_INSTDIR)/cvode/serial/Makefile
 	rm -f $(EXS_INSTDIR)/cvode/serial/README
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvbanx.c
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvbanx_lap.c
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvdenx.c
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvdenx_lap.c
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvdenx_uw.c
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvdirectdem.c
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvkrydem_lin.c
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvkrydem_pre.c
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvkryx_bp.c
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvkryx.c
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvbanx_lap.out
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvbanx.out
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvdenx_lap.out
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvdenx.out
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvdenx_uw.out
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvdirectdem.out
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvkrydem_lin.out
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvkrydem_pre.out
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvkryx_bp.out
-	rm -f $(EXS_INSTDIR)/cvode/serial/cvkryx.out
+	for i in ${EXAMPLES} ; do \
+	  rm -f $(EXS_INSTDIR)/cvode/serial/$${i}.c ; \
+	  rm -f $(EXS_INSTDIR)/cvode/serial/$${i}.out ; \
+	done
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	for i in ${EXAMPLES_BL} ; do \
+	  rm -f $(EXS_INSTDIR)/cvode/serial/$${i}.c ; \
+	  rm -f $(EXS_INSTDIR)/cvode/serial/$${i}.out ; \
+	done ; \
+	fi
 	$(rminstalldirs) $(EXS_INSTDIR)/cvode/serial
 	$(rminstalldirs) $(EXS_INSTDIR)/cvode
 
 clean:
 	rm -rf .libs
-	rm -f *.lo
-	rm -f *.o
-	rm -f $(EXEC_FILES)
-	rm -f $(EXEC_BL_FILES)
+	rm -f *.lo *.o
+	rm -f ${OBJECTS} ${OBJECTS_BL}
+	rm -f $(EXECS) $(EXECS_BL)
 
 distclean: clean
 	rm -f Makefile
@@ -150,41 +135,7 @@ distclean: clean
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-cvdenx$(EXE_EXT): $(srcdir)/cvdenx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvdenx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdenx$(EXE_EXT) $(builddir)/cvdenx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-cvdenx_uw$(EXE_EXT): $(srcdir)/cvdenx_uw.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvdenx_uw.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdenx_uw$(EXE_EXT) $(builddir)/cvdenx_uw$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-cvbanx$(EXE_EXT): $(srcdir)/cvbanx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvbanx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvbanx$(EXE_EXT) $(builddir)/cvbanx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-cvkryx$(EXE_EXT): $(srcdir)/cvkryx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvkryx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvkryx$(EXE_EXT) $(builddir)/cvkryx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-cvkryx_bp$(EXE_EXT): $(srcdir)/cvkryx_bp.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvkryx_bp.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvkryx_bp$(EXE_EXT) $(builddir)/cvkryx_bp$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-cvdirectdem$(EXE_EXT): $(srcdir)/cvdirectdem.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvdirectdem.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdirectdem$(EXE_EXT) $(builddir)/cvdirectdem$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-cvkrydem_pre$(EXE_EXT): $(srcdir)/cvkrydem_pre.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvkrydem_pre.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvkrydem_pre$(EXE_EXT) $(builddir)/cvkrydem_pre$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-cvkrydem_lin$(EXE_EXT): $(srcdir)/cvkrydem_lin.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvkrydem_lin.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvkrydem_lin$(EXE_EXT) $(builddir)/cvkrydem_lin$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-
-cvdenx_lap$(EXE_EXT): $(srcdir)/cvdenx_lap.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvdenx_lap.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdenx_lap$(EXE_EXT) $(builddir)/cvdenx_lap$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
-cvbanx_lap$(EXE_EXT): $(srcdir)/cvbanx_lap.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/cvbanx_lap.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvbanx_lap$(EXE_EXT) $(builddir)/cvbanx_lap$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS)
-
-# ----------------------------------------------------------------------------------------------------------------------
-
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \
-	 ${SHELL} ./config.status --recheck ; \
-	 cd ${abs_builddir}
+	${SHELL} ./config.status --recheck ; \
+	cd ${abs_builddir}

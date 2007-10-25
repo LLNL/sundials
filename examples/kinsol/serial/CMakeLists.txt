@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-02-01 16:42:08 $
+# $Revision: 1.3 $
+# $Date: 2007-10-25 20:03:41 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -12,20 +12,20 @@
 # CMakeLists.txt file for KINSOL serial examples
 
 
-# Add variable kinsol_examples with the names of the serial KINSOL examples
+# Add variable KINSOL_examples with the names of the serial KINSOL examples
 
-SET(kinsol_examples
-  kinbanx
-  kindenx1
-  kindenx2
-  kinkrydem_lin
-  kinkryx
+SET(KINSOL_examples
+  kinFerTron_dns
+  kinFoodWeb_kry
+  kinKrylovDemo_ls
+  kinLaplace_bnd
+  kinRoboKin_dns
   )
 
-# Add variable kinsol_bl_examples with the names of the serial KINSOL examples
+# Add variable KINSOL_examples_BL with the names of the serial KINSOL examples
 # that use Lapack
 
-SET(kinsol_bl_examples
+SET(KINSOL_examples_BL
   )
 
 # Specify libraries to link against (through the target that was used to 
@@ -43,7 +43,7 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Add the build and install targets for each KINSOL example
 
-FOREACH(example ${kinsol_examples})
+FOREACH(example ${KINSOL_examples})
   # add build target for example
   ADD_EXECUTABLE(${example} ${example}.c)
   # link to the sundials libraries
@@ -52,21 +52,21 @@ FOREACH(example ${kinsol_examples})
     # install example files
     INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${kinsol_examples})
+ENDFOREACH(example ${KINSOL_examples})
 
 # If Lapack support is enabled, add the build and install targets for
 # the examples using Lapack
 
 IF(LAPACK_OK)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
-  FOREACH(example ${kinsol_bl_examples})
+  FOREACH(example ${KINSOL_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.c)    
     TARGET_LINK_LIBRARIES(${example} ${KINSOL_BL_LIB} ${KINSOL_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
     TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
     ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${kinsol_bl_examples})
+  ENDFOREACH(example ${KINSOL_examples_BL})
 ENDIF(LAPACK_OK)
 
 IF(EXAMPLES_INSTALL)
@@ -74,73 +74,28 @@ IF(EXAMPLES_INSTALL)
   # Install the README file
   INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
 
+  # Prepare substitution variables for Makefile and/or CMakeLists templates
+  SET(SOLVER "KINSOL")
+  SET(SOLVER_LIB "sundials_kinsol")
+  LIST2STRING(KINSOL_examples EXAMPLES)
+  IF(LAPACK_OK)
+    SET(SOLVER_BL_LIB "sundials_kinsol_bl")
+    LIST2STRING(KINSOL_examples_BL EXAMPLES_BL)
+  ELSE(LAPACK_OK)
+    SET(EXAMPLES_BL "")
+    SET(SOLVER_BL_LIB "")
+  ENDIF(LAPACK_OK)
+
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.
-  
+
   # generate CMakelists.txt in the binary directory
-  IF(LAPACK_OK)
-
-    FILE(WRITE ${PROJECT_BINARY_DIR}/examples/kinsol/serial/CMakeLists.txt
-      "PROJECT(KINSOL_serial_examples C)\n"
-      "MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)\n"
-      "SET(kinsol_examples ${kinsol_examples})\n"
-      "SET(kinsol_bl_examples ${kinsol_bl_examples})\n"
-      "SET(SUNDIALS_INC_DIR\n"
-      "  ${CMAKE_INSTALL_PREFIX}/include\n"
-      "  CACHE STRING\n"
-      "  \"Location of SUNDIALS header files\")\n"
-      "INCLUDE_DIRECTORIES(\${SUNDIALS_INC_DIR})\n"
-      "SET(SUNDIALS_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)\n"
-      "FIND_LIBRARY(SUNDIALS_KINSOL_BL_LIB\n"
-      "  sundials_kinsol_bl \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"KINSOL Lapack wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_KINSOL_LIB\n"
-      "  sundials_kinsol \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"KINSOL library\")\n"
-      "FIND_LIBRARY(SUNDIALS_NVECS_LIB\n"
-      "  sundials_nvecserial \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"NVECSERIAL library\")\n"
-      "SET(SUNDIALS_EXTRA_LIB ${EXTRA_LINK_LIBS} CACHE STRING \"Additional libraries\")\n"
-      "SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} CACHE STRING \"Lapack libraries\")\n"
-      "FOREACH(example \${kinsol_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.c)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${SUNDIALS_KINSOL_LIB} \${SUNDIALS_NVECS_LIB} \${SUNDIALS_EXTRA_LIB})\n"
-      "ENDFOREACH(example \${kinsol_examples})\n"
-      "SET(CMAKE_EXE_LINKER_FLAGS \"\${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}\")\n"
-      "FOREACH(example \${kinsol_bl_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.c)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${SUNDIALS_KINSOL_BL_LIB} \${SUNDIALS_KINSOL_LIB} \${SUNDIALS_NVECS_LIB} \${SUNDIALS_EXTRA_LIB})\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${LAPACK_LIBRARIES})\n"
-      "ENDFOREACH(example \${kinsol_bl_examples})\n"
+  CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
+      ${PROJECT_BINARY_DIR}/examples/kinsol/serial/CMakeLists.txt
+      @ONLY
       )
-
-  ELSE(LAPACK_OK)
-
-    FILE(WRITE ${PROJECT_BINARY_DIR}/examples/kinsol/serial/CMakeLists.txt
-      "PROJECT(KINSOL_serial_examples C)\n"
-      "MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)\n"
-      "SET(kinsol_examples ${kinsol_examples})\n"
-      "SET(SUNDIALS_INC_DIR\n"
-      "  ${CMAKE_INSTALL_PREFIX}/include\n"
-      "  CACHE STRING\n"
-      "  \"Location of SUNDIALS header files\")\n"
-      "INCLUDE_DIRECTORIES(\${SUNDIALS_INC_DIR})\n"
-      "SET(SUNDIALS_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)\n"
-      "FIND_LIBRARY(SUNDIALS_KINSOL_LIB\n"
-      "  sundials_kinsol \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"KINSOL library\")\n"
-      "FIND_LIBRARY(SUNDIALS_NVECS_LIB\n"
-      "  sundials_nvecserial \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"NVECSERIAL library\")\n"
-      "SET(SUNDIALS_EXTRA_LIB ${EXTRA_LINK_LIBS} CACHE STRING \"Additional libraries\")\n"
-      "FOREACH(example \${kinsol_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.c)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${SUNDIALS_KINSOL_LIB} \${SUNDIALS_NVECS_LIB} \${SUNDIALS_EXTRA_LIB})\n"
-      "ENDFOREACH(example \${kinsol_examples})\n"
-      )
-    
-  ENDIF(LAPACK_OK)
 
   # install CMakelists.txt
   INSTALL(
@@ -155,19 +110,11 @@ IF(EXAMPLES_INSTALL)
   IF(EXAMPLES_GENERATE_MAKEFILES)
 
     # generate Makefile and place it in the binary dir
-    IF(LAPACK_OK)
-      CONFIGURE_FILE(
-        ${PROJECT_SOURCE_DIR}/examples/kinsol/serial/Makefile_ex_bl.in
-        ${PROJECT_BINARY_DIR}/examples/kinsol/serial/Makefile_ex
-        @ONLY
-        )
-    ELSE(LAPACK_OK)
-      CONFIGURE_FILE(
-        ${PROJECT_SOURCE_DIR}/examples/kinsol/serial/Makefile_ex.in
-        ${PROJECT_BINARY_DIR}/examples/kinsol/serial/Makefile_ex
-        @ONLY
-        )
-    ENDIF(LAPACK_OK)
+    CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
+      ${PROJECT_BINARY_DIR}/examples/kinsol/serial/Makefile_ex
+      @ONLY
+      )
 
     # install the configured Makefile_ex as Makefile
     INSTALL(

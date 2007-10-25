@@ -1,0 +1,96 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2007-10-25 20:03:42 $
+# -----------------------------------------------------------------
+# Programmer: Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2007, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# CMakeLists.txt for @SOLVER@ serial examples
+#
+# This file is generated from a template using the following 
+# substitution variables:
+#    SOLVER         SUNDIALS solver name
+#    EXAMPLES       list of examples
+#    EXAMPLES_BL    list of examples using Blas/Lapack
+#                   (possibly empty)
+#    includedir     path to SUNDIALS header files
+#    libdir         path to SUNDIALS libraries
+#    SOLVER_LIB     name of the SUNDIALS solver's library
+#    SOLVER_FLIB    name of the SUNDIALS solver's F77-C library
+#    SOLVER_BL_LIB  name of the SUNDIALS solver's Blas/Lapack 
+#                   interface library (possibly empty)
+#    SOLVER_BL_FLIB name of the SUNDIALS solver's Blas/Lapack
+#                   F77-C interface library
+#    BLAS_LAPACK_LIBS list of libraries for Blas and Lapack
+#                   (possibly empty)
+#    LIBS           additional libraries
+#
+# -----------------------------------------------------------------
+
+# Specify project name
+PROJECT(F@SOLVER@_serial_examples Fortran)
+
+MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
+
+# Set the names of the examples to be built
+SET(examples @EXAMPLES@)
+SET(examples_BL @EXAMPLES_BL@)
+
+# Set search path for SUNDIALS libraries 
+SET(SUNDIALS_LIB_DIR @libdir@)
+
+# Find the SUNDIALS solver's library
+FIND_LIBRARY(SUNDIALS_SOLVER_LIB
+  @SOLVER_LIB@ ${SUNDIALS_LIB_DIR}
+  DOC "@SOLVER@ library")
+
+FIND_LIBRARY(SUNDIALS_SOLVER_FLIB
+  @SOLVER_FLIB@ ${SUNDIALS_LIB_DIR}
+  DOC "@SOLVER@ F77-C library")
+
+# Find the NVECTOR library
+FIND_LIBRARY(SUNDIALS_NVEC_LIB
+  sundials_nvecserial ${SUNDIALS_LIB_DIR}
+  DOC "NVECTOR library")
+
+FIND_LIBRARY(SUNDIALS_NVEC_FLIB
+  sundials_fnvecserial ${SUNDIALS_LIB_DIR}
+  DOC "NVECTOR F77-C library")
+
+# Find the SUNDIALS solver's Blas/Lapack interface library
+FIND_LIBRARY(SUNDIALS_SOLVER_BL_LIB
+  @SOLVER_BL_LIB@ ${SUNDIALS_LIB_DIR}
+  DOC "@SOLVER@ Blas/Lapack interface library")
+
+FIND_LIBRARY(SUNDIALS_SOLVER_BL_FLIB 
+  @SOLVER_BL_FLIB@ ${SUNDIALS_LIB_DIR}
+  DOC "@SOLVER@ Blas/Lapack F77-C interface library")
+
+# Set additional libraries
+SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
+
+# Set blas/Lapack libraries
+SET(LAPACK_LIBRARIES @BLAS_LAPACK_LIBS@ CACHE STRING "Lapack libraries")
+
+# Build each example one by one
+FOREACH(example ${examples})
+  ADD_EXECUTABLE(${example} ${example}.f)
+  TARGET_LINK_LIBRARIES(${example}
+    ${SUNDIALS_SOLVER_FLIB} ${SUNDIALS_SOLVER_LIB}
+    ${SUNDIALS_NVEC_FLIB} ${SUNDIALS_NVEC_LIB}
+    ${SUNDIALS_EXTRA_LIB})
+ENDFOREACH(example ${examples})
+
+FOREACH(example ${examples_BL})
+  ADD_EXECUTABLE(${example} ${example}.f)
+  TARGET_LINK_LIBRARIES(${example}
+    ${SUNDIALS_SOLVER_BL_FLIB} ${SUNDIALS_SOLVER_BL_LIB}
+    ${SUNDIALS_SOLVER_FLIB} ${SUNDIALS_SOLVER_LIB}
+    ${SUNDIALS_NVEC_FLIB} ${SUNDIALS_NVEC_LIB}
+    ${SUNDIALS_EXTRA_LIB})
+  TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
+ENDFOREACH(example ${examples_BL})

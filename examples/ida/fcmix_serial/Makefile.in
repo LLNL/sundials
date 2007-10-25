@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-01-24 01:14:05 $
+# $Revision: 1.8 $
+# $Date: 2007-10-25 20:03:35 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -58,60 +58,78 @@ SUNDIALS_BL_LIBS = $(top_builddir)/src/ida/fcmix/libsundials_fida_bl.la    \
 
 fortran-update = ${SHELL} ${top_builddir}/bin/fortran-update.sh
 
-EXEC_FILES = fidadenx$(EXE_EXT)
-
-EXEC_BL_FILES =
-
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
+EXAMPLES = fidaRoberts_dns
+
+EXAMPLES_BL =
+
+OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
+OBJECTS_BL = ${EXAMPLES_BL:=${OBJ_EXT}}
+EXECS = ${EXAMPLES:=${EXE_EXT}}
+EXECS_BL = ${EXAMPLES_BL:=${EXE_EXT}}
+
 # ----------------------------------------------------------------------------------------------------------------------
 
-all: $(EXEC_FILES)
+all:
+	@for i in ${EXAMPLES} ; do \
+	  ${fortran-update} ${srcdir} $${i}.f ; \
+	  ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c ${builddir}/$${i}-updated.f ; \
+	  ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS} ; \
+	done
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make all_bl;                               \
+	for i in ${EXAMPLES_BL} ; do \
+	  ${fortran-update} ${srcdir} $${i}.f ; \
+	  ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c ${builddir}/$${i}-updated.f ; \
+	  ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_BL_LIBS} ${SUNDIALS_LIBS} ${F77_LIBS} ${BLAS_LAPACK_LIBS} ; \
+	done ; \
 	fi
 
-all_bl: $(EXEC_BL_FILES)
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/ida/fcmix_serial
-	$(INSTALL_FILE) Makefile_ex                                          $(EXS_INSTDIR)/ida/fcmix_serial/Makefile
-	$(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_serial/README       $(EXS_INSTDIR)/ida/fcmix_serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_serial/fidadenx.f   $(EXS_INSTDIR)/ida/fcmix_serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_serial/fidadenx.out $(EXS_INSTDIR)/ida/fcmix_serial/
+	$(INSTALL_FILE) Makefile_ex $(EXS_INSTDIR)/ida/fcmix_serial/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_serial/README $(EXS_INSTDIR)/ida/fcmix_serial/
+	for i in ${EXAMPLES} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_serial/$${i}.f   $(EXS_INSTDIR)/ida/fcmix_serial/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_serial/$${i}.out $(EXS_INSTDIR)/ida/fcmix_serial/ ; \
+	done
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make install_bl;                           \
+	for i in ${EXAMPLES_BL} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_serial/$${i}.f   $(EXS_INSTDIR)/ida/fcmix_serial/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/ida/fcmix_serial/$${i}.out $(EXS_INSTDIR)/ida/fcmix_serial/ ; \
+	done ; \
 	fi
-
-install_bl:
 
 uninstall:
 	rm -f $(EXS_INSTDIR)/ida/fcmix_serial/Makefile
 	rm -f $(EXS_INSTDIR)/ida/fcmix_serial/README
-	rm -f $(EXS_INSTDIR)/ida/fcmix_serial/fidadenx.f
-	rm -f $(EXS_INSTDIR)/ida/fcmix_serial/fidadenx.out
+	for i in ${EXAMPLES} ; do \
+	  rm -f $(EXS_INSTDIR)/ida/fcmix_serial/$${i}.f ; \
+	  rm -f $(EXS_INSTDIR)/ida/fcmix_serial/$${i}.out ; \
+	done
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	for i in ${EXAMPLES_BL} ; do \
+	  rm -f $(EXS_INSTDIR)/ida/fcmix_serial/$${i}.f ; \
+	  rm -f $(EXS_INSTDIR)/ida/fcmix_serial/$${i}.out ; \
+	done ; \
+	fi
 	$(rminstalldirs) $(EXS_INSTDIR)/ida/fcmix_serial
 	$(rminstalldirs) $(EXS_INSTDIR)/ida
 
 clean:
 	rm -rf .libs
-	rm -f *.lo
-	rm -f *.o
+	rm -f *.lo *.o
 	rm -f *-updated.f
-	rm -f $(EXEC_FILES)
-	rm -f $(EXEC_BL_FILES)
+	rm -f ${OBJECTS} ${OBJECTS_BL}
+	rm -f $(EXECS) $(EXECS_BL)
 
 distclean: clean
 	rm -f Makefile
 	rm -f Makefile_ex
 
 # ----------------------------------------------------------------------------------------------------------------------
-
-fidadenx$(EXE_EXT): $(srcdir)/fidadenx.f
-	@${fortran-update} ${srcdir} fidadenx.f
-	 ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c ${builddir}/fidadenx-updated.f
-	 ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/fidadenx${EXE_EXT} ${builddir}/fidadenx-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS}
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

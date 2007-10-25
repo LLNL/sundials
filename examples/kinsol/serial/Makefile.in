@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-01-24 01:14:05 $
+# $Revision: 1.8 $
+# $Date: 2007-10-25 20:03:41 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -58,67 +58,73 @@ SUNDIALS_BL_LIBS = $(top_builddir)/src/kinsol/libsundials_kinsol_bl.la   \
 	           $(top_builddir)/src/kinsol/libsundials_kinsol.la      \
 	           $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
 
-EXEC_FILES = kinkryx$(EXE_EXT) \
-	     kindenx1$(EXE_EXT) \
-	     kindenx2$(EXE_EXT) \
-	     kinbanx$(EXE_EXT) \
-	     kinkrydem_lin$(EXE_EXT)
-
-EXEC_BL_FILES =
-
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
+EXAMPLES = kinFerTron_dns \
+	   kinFoodWeb_kry \
+	   kinKrylovDemo_ls \
+	   kinLaplace_bnd \
+	   kinRoboKin_dns \
+	   kinkrydem_lin
+
+EXAMPLES_BL =
+
+OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
+OBJECTS_BL = ${EXAMPLES_BL:=${OBJ_EXT}}
+EXECS = ${EXAMPLES:=${EXE_EXT}}
+EXECS_BL = ${EXAMPLES_BL:=${EXE_EXT}}
+
 # ----------------------------------------------------------------------------------------------------------------------
 
-all: $(EXEC_FILES)
+all:
+	@for i in ${EXAMPLES} ; do \
+	  $(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(CC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}${OBJ_EXT} $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) ; \
+	done
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make all_bl;                               \
+	for i in ${EXAMPLES_BL} ; do \
+	  $(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(CC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}${OBJ_EXT} $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS) ; \
+	done ; \
 	fi
-all_bl: $(EXEC_BL_FILES)
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/kinsol/serial
-	$(INSTALL_FILE) Makefile_ex                                            $(EXS_INSTDIR)/kinsol/serial/Makefile
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/README            $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinkryx.c         $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kindenx1.c        $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kindenx2.c        $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinbanx.c         $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinkrydem_lin.c   $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinkryx.out       $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kindenx1.out      $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kindenx2.out      $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinbanx.out       $(EXS_INSTDIR)/kinsol/serial/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/kinkrydem_lin.out $(EXS_INSTDIR)/kinsol/serial/
+	$(INSTALL_FILE) Makefile_ex $(EXS_INSTDIR)/kinsol/serial/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/README $(EXS_INSTDIR)/kinsol/serial/
+	for i in ${EXAMPLES} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/$${i}.c   $(EXS_INSTDIR)/kinsol/serial/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/$${i}.out $(EXS_INSTDIR)/kinsol/serial/ ; \
+	done
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make install_bl;                           \
+	for i in ${EXAMPLES_BL} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/$${i}.c   $(EXS_INSTDIR)/kinsol/serial/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/kinsol/serial/$${i}.out $(EXS_INSTDIR)/kinsol/serial/ ; \
+	done ; \
 	fi
-
-install_bl:
 
 uninstall:
 	rm -f $(EXS_INSTDIR)/kinsol/serial/Makefile
 	rm -f $(EXS_INSTDIR)/kinsol/serial/README
-	rm -f $(EXS_INSTDIR)/kinsol/serial/kinbanx.c
-	rm -f $(EXS_INSTDIR)/kinsol/serial/kindenx1.c
-	rm -f $(EXS_INSTDIR)/kinsol/serial/kindenx2.c
-	rm -f $(EXS_INSTDIR)/kinsol/serial/kinkrydem_lin.c
-	rm -f $(EXS_INSTDIR)/kinsol/serial/kinkryx.c
-	rm -f $(EXS_INSTDIR)/kinsol/serial/kinbanx.out
-	rm -f $(EXS_INSTDIR)/kinsol/serial/kindenx1.out
-	rm -f $(EXS_INSTDIR)/kinsol/serial/kindenx2.out
-	rm -f $(EXS_INSTDIR)/kinsol/serial/kinkrydem_lin.out
-	rm -f $(EXS_INSTDIR)/kinsol/serial/kinkryx.out
+	for i in ${EXAMPLES} ; do \
+	  rm -f $(EXS_INSTDIR)/kinsol/serial/$${i}.c ; \
+	  rm -f $(EXS_INSTDIR)/kinsol/serial/$${i}.out ; \
+	done
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	for i in ${EXAMPLES_BL} ; do \
+	  rm -f $(EXS_INSTDIR)/kinsol/serial/$${i}.c ; \
+	  rm -f $(EXS_INSTDIR)/kinsol/serial/$${i}.out ; \
+	done ; \
+	fi
 	$(rminstalldirs) $(EXS_INSTDIR)/kinsol/serial
 	$(rminstalldirs) $(EXS_INSTDIR)/kinsol
 
 clean:
 	rm -rf .libs
 	rm -f *.lo
-	rm -f *.o
-	rm -f $(EXEC_FILES)
-	rm -f $(EXEC_BL_FILES)
+	rm -f ${OBJECTS} ${OBJECTS_BL}
+	rm -f $(EXECS) $(EXECS_BL)
 
 distclean: clean
 	rm -f Makefile
@@ -126,23 +132,7 @@ distclean: clean
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-kinkryx$(EXE_EXT): $(srcdir)/kinkryx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kinkryx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kinkryx$(EXE_EXT) $(builddir)/kinkryx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-kindenx1$(EXE_EXT): $(srcdir)/kindenx1.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kindenx1.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kindenx1$(EXE_EXT) $(builddir)/kindenx1$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-kindenx2$(EXE_EXT): $(srcdir)/kindenx2.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kindenx2.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kindenx2$(EXE_EXT) $(builddir)/kindenx2$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-kinbanx$(EXE_EXT): $(srcdir)/kinbanx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kinbanx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kinbanx$(EXE_EXT) $(builddir)/kinbanx$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-kinkrydem_lin$(EXE_EXT): $(srcdir)/kinkrydem_lin.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kinkrydem_lin.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/kinkrydem_lin$(EXE_EXT) $(builddir)/kinkrydem_lin$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS)
-
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \
-	 ${SHELL} ./config.status --recheck ; \
-	 cd ${abs_builddir}
+	${SHELL} ./config.status --recheck ; \
+	cd ${abs_builddir}

@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-02-01 16:42:08 $
+# $Revision: 1.3 $
+# $Date: 2007-10-25 20:03:35 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -14,14 +14,14 @@
 
 # Add variable ida_examples with the names of the serial FIDA examples
 
-SET(fida_examples
-  fidadenx
+SET(FIDA_examples
+  fidaRoberts_dns
   )
 
-# Add variable fida_bl_examples with the names of the serial FIDA examples
+# Add variable FIDA_examples_BL with the names of the serial FIDA examples
 # that use Lapack
 
-SET(fida_bl_examples
+SET(FIDA_examples_BL
   )
 
 # Specify libraries to link against (through the target that was used to 
@@ -46,7 +46,7 @@ SET(FIDA_BL_LIB sundials_fida_bl_static)
 
 # Add the build and install targets for each FIDA example
 
-FOREACH(example ${fida_examples})
+FOREACH(example ${FIDA_examples})
   # add build target for example
   ADD_EXECUTABLE(${example} ${example}.f)
   # link to the sundials libraries
@@ -58,14 +58,14 @@ FOREACH(example ${fida_examples})
     # install example source and output files
     INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${fida_examples})
+ENDFOREACH(example ${FIDA_examples})
 
 # If Lapack support is enabled, add the build and install targets for
 # the examples using Lapack
 
 IF(LAPACK_OK)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
-  FOREACH(example ${fida_bl_examples})
+  FOREACH(example ${FIDA_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.f)
     TARGET_LINK_LIBRARIES(${example} 
       ${FIDA_BL_LIB} ${IDA_BL_LIB}
@@ -76,7 +76,7 @@ IF(LAPACK_OK)
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial)
     ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${fida_examples})
+  ENDFOREACH(example ${FIDA_examples_BL})
 ENDIF(LAPACK_OK)
 
 IF(EXAMPLES_INSTALL)
@@ -84,88 +84,31 @@ IF(EXAMPLES_INSTALL)
   # Install the README file
   INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial)
 
+  # Prepare substitution variables for Makefile and/or CMakeLists templates
+  SET(SOLVER "IDA")
+  SET(SOLVER_LIB "sundials_ida")
+  SET(SOLVER_FLIB "sundials_fida")
+  LIST2STRING(FIDA_examples EXAMPLES)
+  IF(LAPACK_OK)
+    SET(SOLVER_BL_LIB "sundials_ida_bl")
+    SET(SOLVER_BL_FLIB "sundials_fida_bl")
+    LIST2STRING(FIDA_examples_BL EXAMPLES_BL)
+  ELSE(LAPACK_OK)
+    SET(EXAMPLES_BL "")
+    SET(SOLVER_BL_LIB "")
+    SET(SOLVER_BL_FLIB "")
+  ENDIF(LAPACK_OK)
+
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
-  IF(LAPACK_OK)
-
-    FILE(WRITE ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/CMakeLists.txt
-      "PROJECT(FIDA_serial_examples Fortran)\n"
-      "MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)\n"
-      "SET(fida_examples ${fida_examples})\n"
-      "SET(fida_bl_examples ${fida_bl_examples})\n"
-      "SET(SUNDIALS_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)\n"
-      "FIND_LIBRARY(SUNDIALS_FIDA_BL_LIB \n"
-      "  sundials_fida_bl \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"FIDA Lapack wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_IDA_BL_LIB\n"
-      "  sundials_ida_bl \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"IDA Lapack wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_FIDA_LIB\n"
-      "  sundials_fida \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"FIDA wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_IDA_LIB\n"
-      "  sundials_ida \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"IDA library\")\n"
-      "FIND_LIBRARY(SUNDIALS_FNVECS_LIB \n"
-      "  sundials_fnvecserial \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"FNVECSERIAL wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_NVECS_LIB \n"
-      "  sundials_nvecserial \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"NVECSERIAL library\")\n"
-      "SET(SUNDIALS_EXTRA_LIB ${EXTRA_LINK_LIBS} CACHE STRING \"Additional libraries\")\n"
-      "SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} CACHE STRING \"Lapack libraries\")\n"
-      "FOREACH(example \${fida_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.f)\n"
-      "  TARGET_LINK_LIBRARIES(\${example}\n"
-      "    \${SUNDIALS_FIDA_LIB} \${SUNDIALS_IDA_LIB}\n"
-      "    \${SUNDIALS_FNVECS_LIB} \${SUNDIALS_NVECS_LIB}\n"
-      "    \${SUNDIALS_EXTRA_LIB})\n"
-      "ENDFOREACH(example \${fida_examples})\n"
-      "SET(CMAKE_EXE_LINKER_FLAGS \"\${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}\")\n"
-      "FOREACH(example \${fida_bl_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.f)\n"
-      "  TARGET_LINK_LIBRARIES(\${example}\n"
-      "    \${SUNDIALS_FIDA_BL_LIB} \${SUNDIALS_IDA_BL_LIB}\n"
-      "    \${SUNDIALS_FIDA_LIB} \${SUNDIALS_IDA_LIB}\n"
-      "    \${SUNDIALS_FNVECS_LIB} \${SUNDIALS_NVECS_LIB}\n"
-      "    \${SUNDIALS_EXTRA_LIB})\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${LAPACK_LIBRARIES})\n"
-      "ENDFOREACH(example \${fida_bl_examples})\n"
+  CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F77_ex.in
+      ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/CMakeLists.txt
+      @ONLY
       )
-
-  ELSE(LAPACK_OK)
-
-    FILE(WRITE ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/CMakeLists.txt
-      "PROJECT(FIDA_serial_examples Fortran)\n"
-      "MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)\n"
-      "SET(fida_examples ${fida_examples})\n"
-      "SET(SUNDIALS_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)\n"
-      "FIND_LIBRARY(SUNDIALS_FIDA_LIB\n"
-      "  sundials_fida \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"FIDA wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_IDA_LIB\n"
-      "  sundials_ida \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"IDA library\")\n"
-      "FIND_LIBRARY(SUNDIALS_FNVECS_LIB\n"
-      "  sundials_fnvecserial \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"FNVECSERIAL wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_NVECS_LIB\n"
-      "  sundials_nvecserial \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"NVECSERIAL library\")\n"
-      "SET(SUNDIALS_EXTRA_LIB ${EXTRA_LINK_LIBS} CACHE STRING \"Additional libraries\")\n"
-      "FOREACH(example \${fida_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.f)\n"
-      "  TARGET_LINK_LIBRARIES(\${example}\n"
-      "    \${SUNDIALS_FIDA_LIB} \${SUNDIALS_IDA_LIB}\n"
-      "    \${SUNDIALS_FNVECS_LIB} \${SUNDIALS_NVECS_LIB}\n"
-      "    \${SUNDIALS_EXTRA_LIB})\n"
-      "ENDFOREACH(example \${fida_examples})\n"
-      )
-
-  ENDIF(LAPACK_OK)
 
   # install CMakelists.txt
   INSTALL(
@@ -180,19 +123,11 @@ IF(EXAMPLES_INSTALL)
   IF(EXAMPLES_GENERATE_MAKEFILES)
 
     # generate Makefile and place it in the binary dir
-    IF(LAPACK_OK)
-      CONFIGURE_FILE(
-        ${PROJECT_SOURCE_DIR}/examples/ida/fcmix_serial/Makefile_ex_bl.in
-        ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/Makefile_ex
-        @ONLY
-        )
-    ELSE(LAPACK_OK)
-      CONFIGURE_FILE(
-        ${PROJECT_SOURCE_DIR}/examples/ida/fcmix_serial/Makefile_ex.in
-        ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/Makefile_ex
-        @ONLY
-        )
-    ENDIF(LAPACK_OK)
+    CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_F77_ex.in
+      ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/Makefile_ex
+      @ONLY
+      )
 
     # install the configured Makefile_ex as Makefile
     INSTALL(

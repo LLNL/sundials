@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.47 $
-# $Date: 2007-01-23 20:05:00 $
+# $Revision: 1.48 $
+# $Date: 2007-10-25 20:03:25 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -147,6 +147,20 @@ echo "Create Makefiles and configuration files"
 echo "----------------------------------------"
 echo ""
 SUNDIALS_BUILD_MODULES_LIST
+
+# Set-up postprocessing commands
+if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${EXS_INSTDIR}" != "Xno"; then
+  AC_CONFIG_COMMANDS([postprocessing],
+  [
+    echo ""
+    echo "Postprocess exported Makefiles"
+    echo "------------------------------"
+    echo ""
+  ])
+  SUNDIALS_POST_PROCESSING
+fi
+
+# Specify files to be configured and call AC_OUTPUT
 AC_CONFIG_FILES([${SUNDIALS_MAKEFILES}])
 AC_CONFIG_FILES([${SUNDIALS_CONFIGFILES}])
 AC_OUTPUT

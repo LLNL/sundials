@@ -1,0 +1,36 @@
+#! @SHELL@
+# -----------------------------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2007-10-25 20:03:25 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2007, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# This script updates example Makefiles before export.
+# It is called by the configure script, after an initial export
+# Makefile_ex has been created by config.status.
+# -----------------------------------------------------------------
+
+infile="${1}"
+solver="${2}"
+examples="${3}"
+examples_bl="${4}"
+solver_lib="${5}"
+solver_flib="${6}"
+solver_bl_lib="${7}"
+solver_bl_flib="${8}"
+
+sed "s/@SOLVER@/${solver}/" ${infile}       | \
+sed "s/@EXAMPLES@/${examples}/"             | \
+sed "s/@EXAMPLES_BL@/${examples_bl}/"       | \
+sed "s/@SOLVER_LIB@/${solver_lib}/"         | \
+sed "s/@SOLVER_FLIB@/${solver_flib}/"       | \
+sed "s/@SOLVER_BL_LIB@/${solver_bl_lib}/"   | \
+sed "s/@SOLVER_BL_FLIB@/${solver_bl_flib}/" > foo_makefile
+
+mv foo_makefile ${infile}
+

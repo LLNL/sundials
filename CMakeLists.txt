@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2007-04-11 22:36:36 $
+# $Revision: 1.4 $
+# $Date: 2007-10-25 20:03:22 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -1447,8 +1447,14 @@ IF(EXAMPLES_ENABLE)
   
   IF(BUILD_CVODES)	
     ADD_SUBDIRECTORY(examples/cvodes/serial)
+    IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/test_examples/cvodes/serial")
+      ADD_SUBDIRECTORY(test_examples/cvodes/serial)
+    ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/test_examples/cvodes/serial")
     IF(MPIC_OK)
       ADD_SUBDIRECTORY(examples/cvodes/parallel)
+      IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/test_examples/cvodes/parallel")
+        ADD_SUBDIRECTORY(test_examples/cvodes/parallel)
+      ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/test_examples/cvodes/parallel")
     ENDIF(MPIC_OK)
   ENDIF(BUILD_CVODES)
   
@@ -1487,9 +1493,9 @@ IF(EXAMPLES_ENABLE)
 
   IF(BUILD_CPODES)	
     ADD_SUBDIRECTORY(examples/cpodes/serial)
-#    IF(MPIC_OK)
-#      ADD_SUBDIRECTORY(examples/cpodes/parallel)
-#    ENDIF(MPIC_OK)
+    IF(MPIC_OK)
+      ADD_SUBDIRECTORY(examples/cpodes/parallel)
+    ENDIF(MPIC_OK)
   ENDIF(BUILD_CPODES)
   
 ENDIF(EXAMPLES_ENABLE)

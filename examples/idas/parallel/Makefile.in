@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2007-08-21 16:55:05 $
+# $Revision: 1.10 $
+# $Date: 2007-10-25 20:03:37 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -55,101 +55,59 @@ SUNDIALS_INCS = -I$(top_srcdir)/include -I$(top_builddir)/include
 
 SUNDIALS_LIBS = $(top_builddir)/src/idas/libsundials_idas.la $(top_builddir)/src/nvec_par/libsundials_nvecparallel.la
 
-EXEC_FILES = idasHeat2D_p$(EXE_EXT) \
-	     idasHeat2D_bbd_p$(EXE_EXT) \
-	     idasHeat2DFSA_bbd_p$(EXE_EXT) \
-	     idasFoodWeb_p$(EXE_EXT) \
-	     idasFoodWeb_bbd_p$(EXE_EXT) \
-             idasBrusselator_p$(EXE_EXT) \
-	     idasBrusselatorFSA_p$(EXE_EXT) \
-	     idasBrusselatorASA_p$(EXE_EXT)
-
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
+EXAMPLES = idasBruss_ASAp_kry_bbd_p \
+	   idasBruss_FSA_kry_bbd_p \
+	   idasBruss_kry_bbd_p \
+	   idasFoodWeb_kry_bbd_p \
+	   idasFoodWeb_kry_p \
+	   idasHeat2D_FSA_kry_bbd_p \
+	   idasHeat2D_kry_bbd_p \
+	   idasHeat2D_kry_p 
+
+OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
+EXECS = ${EXAMPLES:=${EXE_EXT}}
+
 # ----------------------------------------------------------------------------------------------------------------------
 
-all: $(EXEC_FILES)
+all:
+	@for i in ${EXAMPLES} ; do \
+	  $(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) ; \
+	done
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/idas/parallel
-	$(INSTALL_FILE) Makefile_ex                                                    $(EXS_INSTDIR)/idas/parallel/Makefile
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/README                    $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasHeat2D_p.c            $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasHeat2D_bbd_p.c        $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasHeat2DFSA_bbd_p.c     $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasFoodWeb_p.c           $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasFoodWeb_bbd_p.c       $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasBrusselator_p.c       $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasBrusselatorFSA_p.c    $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasBrusselatorASA_p.c    $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasHeat2D_p.out          $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasHeat2D_bbd_p.out      $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasHeat2DFSA_bbd_p.out   $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasFoodWeb_p.out         $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasFoodWeb_bbd_p.out     $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasBrusselator_p.out     $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasBrusselatorFSA_p.out  $(EXS_INSTDIR)/idas/parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/idasBrusselatorASA_p.out  $(EXS_INSTDIR)/idas/parallel/
+	$(INSTALL_FILE) Makefile_ex $(EXS_INSTDIR)/idas/parallel/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/README $(EXS_INSTDIR)/idas/parallel/
+	for i in ${EXAMPLES} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/$${i}.c   $(EXS_INSTDIR)/idas/parallel/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/idas/parallel/$${i}.out $(EXS_INSTDIR)/idas/parallel/ ; \
+	done
 
 uninstall:
 	rm -f $(EXS_INSTDIR)/idas/parallel/Makefile
 	rm -f $(EXS_INSTDIR)/idas/parallel/README
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasHeat2D_p.c
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasHeat2D_bbd_p.c
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasHeat2DFSA_bbd_p.c
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasFoodWeb_p.c
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasFoodWeb_bbd_p.c
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasBrusselator_p.c
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasBrusselatorFSA_p.c
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasBrusselatorASA_p.c
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasHeat2D_p.out
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasHeat2D_bbd_p.out
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasHeat2DFSA_bbd_p.out
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasFoodWeb_p.out
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasFoodWeb_bbd_p.out
-	rm -f $(EXS_INSTDIR)/idas/parallel/idaskBrusselator_p.out
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasBrusselatorFSA_p.out
-	rm -f $(EXS_INSTDIR)/idas/parallel/idasBrusselatorASA_p.out
+	for i in ${EXAMPLES} ; do \
+	  rm -f $(EXS_INSTDIR)/idas/parallel/$${i}.c ; \
+	  rm -f $(EXS_INSTDIR)/idas/parallel/$${i}.out ; \
+	done
 	$(rminstalldirs) $(EXS_INSTDIR)/idas/parallel
 	$(rminstalldirs) $(EXS_INSTDIR)/idas
 
 clean:
 	rm -rf .libs
-	rm -f *.lo
-	rm -f *.o
-	rm -f $(EXEC_FILES)
+	rm -f *.lo *.o
+	rm -f ${OBJECTS}
+	rm -f $(EXECS)
 
 distclean: clean
 	rm -f Makefile
 	rm -f Makefile_ex
 
 # ----------------------------------------------------------------------------------------------------------------------
-
-idasHeat2D_p$(EXE_EXT): $(srcdir)/idasHeat2D_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/idasHeat2D_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/idasHeat2D_p$(EXE_EXT) $(builddir)/idasHeat2D_p$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-idasHeat2D_bbd_p$(EXE_EXT): $(srcdir)/idasHeat2D_bbd_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/idasHeat2D_bbd_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/idasHeat2D_bbd_p$(EXE_EXT) $(builddir)/idasHeat2D_bbd_p$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-idasHeat2DFSA_bbd_p$(EXE_EXT): $(srcdir)/idasHeat2DFSA_bbd_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/idasHeat2DFSA_bbd_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/idasHeat2DFSA_bbd_p$(EXE_EXT) $(builddir)/idasHeat2DFSA_bbd_p$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-idasFoodWeb_p$(EXE_EXT): $(srcdir)/idasFoodWeb_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/idasFoodWeb_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/idasFoodWeb_p$(EXE_EXT) $(builddir)/idasFoodWeb_p$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-idasFoodWeb_bbd_p$(EXE_EXT): $(srcdir)/idasFoodWeb_bbd_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/idasFoodWeb_bbd_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/idasFoodWeb_bbd_p$(EXE_EXT) $(builddir)/idasFoodWeb_bbd_p$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-idasBrusselator_p$(EXE_EXT): $(srcdir)/idasBrusselator_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/idasBrusselator_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/idasBrusselator_p$(EXE_EXT) $(builddir)/idasBrusselator_p$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-idasBrusselatorFSA_p$(EXE_EXT): $(srcdir)/idasBrusselatorFSA_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/idasBrusselatorFSA_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/idasBrusselatorFSA_p$(EXE_EXT) $(builddir)/idasBrusselatorFSA_p$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-idasBrusselatorASA_p$(EXE_EXT): $(srcdir)/idasBrusselatorASA_p.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/idasBrusselatorASA_p.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/idasBrusselatorASA_p$(EXE_EXT) $(builddir)/idasBrusselatorASA_p$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

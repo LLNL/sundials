@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-01-24 01:14:05 $
+# $Revision: 1.8 $
+# $Date: 2007-10-25 20:03:40 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -57,47 +57,54 @@ SUNDIALS_LIBS = $(top_builddir)/src/kinsol/fcmix/libsundials_fkinsol.la   \
 
 fortran-update = ${SHELL} ${top_builddir}/bin/fortran-update.sh
 
-EXEC_FILES = fkinkryx_p$(EXE_EXT)
-
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
+EXAMPLES = fkinDiagon_kry_p
+
+OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
+EXECS = ${EXAMPLES:=${EXE_EXT}}
+
 # ----------------------------------------------------------------------------------------------------------------------
 
-all: $(EXEC_FILES)
+all:
+	@for i in ${EXAMPLES} ; do \
+	  ${fortran-update} ${srcdir} $${i}.f ; \
+	  ${LIBTOOL} --mode=compile ${MPIF77} ${MPI_FLAGS} -I${MPI_INC_DIR} ${FFLAGS} -c ${builddir}/$${i}-updated.f ; \
+	  ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${MPI_FLAGS} ${F77_LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F77_LIBS} ; \
+	done
 
 install:
 	$(mkinstalldirs) $(EXS_INSTDIR)/kinsol/fcmix_parallel
-	$(INSTALL_FILE) Makefile_ex                                                 $(EXS_INSTDIR)/kinsol/fcmix_parallel/Makefile
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_parallel/README         $(EXS_INSTDIR)/kinsol/fcmix_parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_parallel/fkinkryx_p.f   $(EXS_INSTDIR)/kinsol/fcmix_parallel/
-	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_parallel/fkinkryx_p.out $(EXS_INSTDIR)/kinsol/fcmix_parallel/
+	$(INSTALL_FILE) Makefile_ex  $(EXS_INSTDIR)/kinsol/fcmix_parallel/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_parallel/README  $(EXS_INSTDIR)/kinsol/fcmix_parallel/
+	for i in ${EXAMPLES} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_parallel/$${i}.f   $(EXS_INSTDIR)/kinsol/fcmix_parallel/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/kinsol/fcmix_parallel/$${i}.out $(EXS_INSTDIR)/kinsol/fcmix_parallel/ ; \
+	done
 
 uninstall:
 	rm -f $(EXS_INSTDIR)/kinsol/fcmix_parallel/Makefile
 	rm -f $(EXS_INSTDIR)/kinsol/fcmix_parallel/README
-	rm -f $(EXS_INSTDIR)/kinsol/fcmix_parallel/fkinkryx_p.f
-	rm -f $(EXS_INSTDIR)/kinsol/fcmix_parallel/fkinkryx_p.out
+	for i in ${EXAMPLES} ; do \
+	  rm -f $(EXS_INSTDIR)/kinsol/fcmix_parallel/$${i}.f ; \
+	  rm -f $(EXS_INSTDIR)/kinsol/fcmix_parallel/$${i}.out ; \
+	done
 	$(rminstalldirs) $(EXS_INSTDIR)/kinsol/fcmix_parallel
 	$(rminstalldirs) $(EXS_INSTDIR)/kinsol
 
 clean:
 	rm -rf .libs
-	rm -f *.lo
-	rm -f *.o
+	rm -f *.lo *.o
 	rm -f *-updated.f
-	rm -f $(EXEC_FILES)
+	rm -f ${OBJECTS}
+	rm -f $(EXECS)
 
 distclean: clean
 	rm -f Makefile
 	rm -f Makefile_ex
 
 # ----------------------------------------------------------------------------------------------------------------------
-
-fkinkryx_p$(EXE_EXT): $(srcdir)/fkinkryx_p.f
-	@${fortran-update} ${srcdir} fkinkryx_p.f
-	 ${LIBTOOL} --mode=compile $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fkinkryx_p-updated.f
-	 ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p${EXE_EXT} ${builddir}/fkinkryx_p-updated${OBJ_EXT} ${MPI_FLAGS} ${F77_LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F77_LIBS}
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

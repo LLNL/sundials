@@ -1,0 +1,84 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2007-10-25 20:03:42 $
+# -----------------------------------------------------------------
+# Programmer: Radu Serban @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2007, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for @SOLVER@ Fortran serial examples
+# This file is generated from a template using the following 
+# substitution variables:
+#    prefix
+#    exec_prefix
+#    includedir
+#    libdir
+#
+#    F77
+#    FFLAGS
+#    F77_LNKR
+#    F77_LDFLAGS
+#    F77_LIBS
+#
+#    SOLVER         SUNDIALS solver name
+#    EXAMPLES       list of examples
+#    EXAMPLES_BL    list of examples using Blas/Lapack
+#                   (possibly empty)
+#    SOLVER_LIB     name of the SUNDIALS solver's library
+#    SOLVER_FLIB    name of the SUNDIALS solver's F77-C interface library
+#    SOLVER_BL_LIB  name of the SUNDIALS solver's Blas/Lapack 
+#                   interface library (possibly empty)
+#    BLAS_LAPACK_LIBS list of libraries for Blas and Lapack
+#                   (possibly empty)
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+F77         = @F77@
+FFLAGS      = @FFLAGS@
+F77_LNKR    = @F77_LNKR@
+F77_LDFLAGS = @F77_LDFLAGS@
+F77_LIBS    = @F77_LIBS@
+
+LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecserial -lsundials_nvecserial ${LIBS}
+LIBRARIES_BL = -l@SOLVER_BL_FLIB@ -l@SOLVER_BL_LIB@ @BLAS_LAPACK_LIBS@
+
+EXAMPLES = @EXAMPLES@
+EXAMPLES_BL = @EXAMPLES_BL@
+
+OBJECTS = ${EXAMPLES:=.o}
+OBJECTS_BL = ${EXAMPLES_BL:=.o}
+
+# -----------------------------------------------------------------------------------------
+
+.SUFFIXES : .o .f
+
+.f.o :
+	${F77} ${FFLAGS} -c $<
+
+# -----------------------------------------------------------------------------------------
+
+all: ${OBJECTS} ${OBJECTS_BL}
+	@for i in ${EXAMPLES} ; do \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ; \
+	done
+	@for i in ${EXAMPLES_BL} ; do \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES_BL} ${LIBRARIES}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES_BL} ${LIBRARIES} ; \
+	done
+
+clean:
+	rm -f ${OBJECTS} ${OBJECTS_BL}
+	rm -f ${EXAMPLES} ${EXAMPLES_BL}
+
+# -----------------------------------------------------------------------------------------
+

@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2007-04-06 20:18:16 $
+# $Revision: 1.5 $
+# $Date: 2007-10-25 20:03:31 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -12,33 +12,33 @@
 # CMakeLists.txt file for CVODES serial examples
 
 
-# Add variable cvodes_examples with the names of the serial CVODES examples
+# Add variable CVODES_examples with the names of the serial CVODES examples
 
-SET(cvodes_examples
-  cvsadjbanx
-  cvsadjdenx
-  cvsadjkryx_int
-  cvsadjkryx_pnt
-  cvsbanx
-  cvsdenx
-  cvsdenx_uw
-  cvsdirectdem
-  cvsfwddenx
-  cvsfwdkryx
-  cvsfwdnonx
-  cvskrydem_lin
-  cvskrydem_pre
-  cvskryx_bp
-  cvskryx
-  cvsadjhess
+SET(CVODES_examples
+  cvsAdvDiff_ASAi_bnd
+  cvsAdvDiff_bnd
+  cvsAdvDiff_FSA_non
+  cvsDirectDemo_ls
+  cvsDiurnal_FSA_kry
+  cvsDiurnal_kry_bp
+  cvsDiurnal_kry
+  cvsFoodWeb_ASAi_kry
+  cvsFoodWeb_ASAp_kry
+  cvsHessian_ASA_FSA
+  cvsKrylovDemo_ls
+  cvsKrylovDemo_prec
+  cvsRoberts_ASAi_dns
+  cvsRoberts_dns
+  cvsRoberts_dns_uw
+  cvsRoberts_FSA_dns
   )
 
-# Add variable cvodes_bl_examples with the names of the serial CVODES examples
+# Add variable CVODES_examples_BL with the names of the serial CVODES examples
 # that use Lapack
 
-SET(cvodes_bl_examples
-  cvsbanx_lap
-  cvsdenx_lap
+SET(CVODES_examples_BL
+  cvsAdvDiff_bndL
+  cvsRoberts_dnsL
   )
 
 # Specify libraries to link against (through the target that was used to 
@@ -56,7 +56,7 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Add the build and install targets for each CVODES example
 
-FOREACH(example ${cvodes_examples})
+FOREACH(example ${CVODES_examples})
   # add build target for example
   ADD_EXECUTABLE(${example} ${example}.c)
   # link to the sundials libraries
@@ -67,14 +67,14 @@ FOREACH(example ${cvodes_examples})
     # install example files
     INSTALL(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${cvodes_examples})
+ENDFOREACH(example ${CVODES_examples})
 
 # If Lapack support is enabled, add the build and install targets for
 # the examples using Lapack
 
 IF(LAPACK_OK)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
-  FOREACH(example ${cvodes_bl_examples})
+  FOREACH(example ${CVODES_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.c)
     TARGET_LINK_LIBRARIES(${example} ${CVODES_BL_LIB} ${CVODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
     TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
@@ -82,7 +82,7 @@ IF(LAPACK_OK)
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
     ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${cvodes_bl_examples})
+  ENDFOREACH(example ${CVODES_examples_BL})
 ENDIF(LAPACK_OK)
 
 IF(EXAMPLES_INSTALL)
@@ -90,73 +90,28 @@ IF(EXAMPLES_INSTALL)
   # Install the README file
   INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
 
+  # Prepare substitution variables for Makefile and/or CMakeLists templates
+  SET(SOLVER "CVODES")
+  SET(SOLVER_LIB "sundials_cvodes")
+  LIST2STRING(CVODES_examples EXAMPLES)
+  IF(LAPACK_OK)
+    SET(SOLVER_BL_LIB "sundials_cvodes_bl")
+    LIST2STRING(CVODES_examples_BL EXAMPLES_BL)
+  ELSE(LAPACK_OK)
+    SET(EXAMPLES_BL "")
+    SET(SOLVER_BL_LIB "")
+  ENDIF(LAPACK_OK)
+
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
-  IF(LAPACK_OK)
-
-    FILE(WRITE ${PROJECT_BINARY_DIR}/examples/cvodes/serial/CMakeLists.txt
-      "PROJECT(CVODES_serial_examples C)\n"
-      "MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)\n"
-      "SET(cvodes_examples ${cvodes_examples})\n"
-      "SET(cvodes_bl_examples ${cvodes_bl_examples})\n"
-      "SET(SUNDIALS_INC_DIR\n"
-      "  ${CMAKE_INSTALL_PREFIX}/include\n"
-      "  CACHE STRING\n"
-      "  \"Location of SUNDIALS header files\")\n"
-      "INCLUDE_DIRECTORIES(\${SUNDIALS_INC_DIR})\n"
-      "SET(SUNDIALS_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)\n"
-      "FIND_LIBRARY(SUNDIALS_CVODES_BL_LIB\n"
-      "  sundials_cvodes_bl \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"CVODES Lapack wrapper library\")\n"
-      "FIND_LIBRARY(SUNDIALS_CVODES_LIB\n"
-      "  sundials_cvodes \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"CVODES library\")\n"
-      "FIND_LIBRARY(SUNDIALS_NVECS_LIB\n"
-      "  sundials_nvecserial \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"NVECSERIAL library\")\n"
-      "SET(SUNDIALS_EXTRA_LIB ${EXTRA_LINK_LIBS} CACHE STRING \"Additional libraries\")\n"
-      "SET(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} CACHE STRING \"Lapack libraries\")\n"
-      "FOREACH(example \${cvodes_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.c)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${SUNDIALS_CVODES_LIB} \${SUNDIALS_NVECS_LIB} \${SUNDIALS_EXTRA_LIB})\n"
-      "ENDFOREACH(example \${cvodes_examples})\n"
-      "SET(CMAKE_EXE_LINKER_FLAGS \"\${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}\")\n"
-      "FOREACH(example \${cvodes_bl_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.c)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${SUNDIALS_CVODES_BL_LIB} \${SUNDIALS_CVODES_LIB} \${SUNDIALS_NVECS_LIB} \${SUNDIALS_EXTRA_LIB})\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${LAPACK_LIBRARIES})\n"
-      "ENDFOREACH(example \${cvodes_bl_examples})\n"
+  CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
+      ${PROJECT_BINARY_DIR}/examples/cvodes/serial/CMakeLists.txt
+      @ONLY
       )
-
-  ELSE(LAPACK_OK)
-
-    FILE(WRITE ${PROJECT_BINARY_DIR}/examples/cvodes/serial/CMakeLists.txt
-      "PROJECT(CVODES_serial_examples C)\n"
-      "MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)\n"
-      "SET(cvodes_examples ${cvodes_examples})\n"
-      "SET(SUNDIALS_INC_DIR\n"
-      "  ${CMAKE_INSTALL_PREFIX}/include\n"
-      "  CACHE STRING\n"
-      "  \"Location of SUNDIALS header files\")\n"
-      "INCLUDE_DIRECTORIES(\${SUNDIALS_INC_DIR})\n"
-      "SET(SUNDIALS_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)\n"
-      "FIND_LIBRARY(SUNDIALS_CVODES_LIB\n"
-      "  sundials_cvodes \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"CVODES library\")\n"
-      "FIND_LIBRARY(SUNDIALS_NVECS_LIB\n"
-      "  sundials_nvecserial \${SUNDIALS_LIB_DIR}\n"
-      "  DOC \"NVECSERIAL library\")\n"
-      "SET(SUNDIALS_EXTRA_LIB ${EXTRA_LINK_LIBS} CACHE STRING \"Additional libraries\")\n"
-      "FOREACH(example \${cvodes_examples})\n"
-      "  ADD_EXECUTABLE(\${example} \${example}.c)\n"
-      "  TARGET_LINK_LIBRARIES(\${example} \${SUNDIALS_CVODES_LIB} \${SUNDIALS_NVECS_LIB} \${SUNDIALS_EXTRA_LIB})\n"
-      "ENDFOREACH(example \${cvodes_examples})\n"
-      )
-    
-  ENDIF(LAPACK_OK)
 
   # install CMakelists.txt
   INSTALL(
@@ -171,19 +126,11 @@ IF(EXAMPLES_INSTALL)
   IF(EXAMPLES_GENERATE_MAKEFILES)
 
     # generate Makefile and place it in the binary dir
-    IF(LAPACK_OK)
-      CONFIGURE_FILE(
-        ${PROJECT_SOURCE_DIR}/examples/cvodes/serial/Makefile_ex_bl.in
-        ${PROJECT_BINARY_DIR}/examples/cvodes/serial/Makefile_ex
-        @ONLY
-        )
-    ELSE(LAPACK_OK)
-      CONFIGURE_FILE(
-        ${PROJECT_SOURCE_DIR}/examples/cvodes/serial/Makefile_ex.in
-        ${PROJECT_BINARY_DIR}/examples/cvodes/serial/Makefile_ex
-        @ONLY
-        )
-    ENDIF(LAPACK_OK)
+    CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
+      ${PROJECT_BINARY_DIR}/examples/cvodes/serial/Makefile_ex
+      @ONLY
+      )
 
     # install the configured Makefile_ex as Makefile
     INSTALL(
