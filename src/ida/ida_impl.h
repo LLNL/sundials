@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-04-30 21:27:35 $
+ * $Revision: 1.12 $
+ * $Date: 2007-10-26 21:51:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -238,6 +238,8 @@ typedef struct IDAMemRec {
   int ida_taskc;         /* copy of parameter itask                         */
   int ida_irfnd;         /* flag showing whether last step had a root       */
   long int ida_nge;      /* counter for g evaluations                       */
+  booleantype *ida_gactive; /* array with active/inactive event functions   */
+  int ida_mxgnull;       /* number of warning messages about possible g==0  */
 
 
 } *IDAMem;
@@ -437,7 +439,6 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_TOO_CLOSE      "tout too close to t0 to start integration."
 #define MSG_BAD_HINIT      "Initial step is not towards tout."
 #define MSG_BAD_TSTOP      "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME "in the direction of integration."
-#define MSG_BAD_INIT_ROOT  "Root found at and very near initial t."
 #define MSG_CLOSE_ROOTS    "Root found at and very near " MSG_TIME "."
 #define MSG_MAX_STEPS      "At " MSG_TIME ", mxstep steps taken before reaching tout." 
 #define MSG_EWT_NOW_FAIL   "At " MSG_TIME "the user-provide EwtSet function failed."
@@ -456,12 +457,13 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_FAILED_CONSTR  "At " MSG_TIME "unable to satisfy inequality constraints."
 #define MSG_RTFUNC_FAILED  "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSG_NO_ROOT        "Rootfinding was not initialized."
+#define MSG_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
+
 
 /* IDASet* / IDAGet* error messages */
 
 #define MSG_NEG_MAXORD     "maxord<=0 illegal."
 #define MSG_BAD_MAXORD     "Illegal attempt to increase maximum order."
-#define MSG_NEG_MXSTEPS    "mxsteps < 0 illegal."
 #define MSG_NEG_HMAX       "hmax < 0 illegal."
 #define MSG_NEG_EPCON      "epcon < 0.0 illegal."
 #define MSG_BAD_CONSTR     "Illegal values in constraints vector."

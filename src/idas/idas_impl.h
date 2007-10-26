@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2007-08-23 20:35:38 $
+ * $Revision: 1.20 $
+ * $Date: 2007-10-26 21:51:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -416,6 +416,8 @@ typedef struct IDAMemRec {
   int ida_taskc;         /* copy of parameter itask                         */
   int ida_irfnd;         /* flag showing whether last step had a root       */
   long int ida_nge;      /* counter for g evaluations                       */
+  booleantype *ida_gactive; /* array with active/inactive event functions   */
+  int ida_mxgnull;       /* number of warning messages about possible g==0  */
 
   /*------------------------
     Adjoint sensitivity data
@@ -964,7 +966,6 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_TOO_CLOSE      "tout too close to t0 to start integration."
 #define MSG_BAD_HINIT      "Initial step is not towards tout."
 #define MSG_BAD_TSTOP      "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME "in the direction of integration."
-#define MSG_BAD_INIT_ROOT  "Root found at and very near initial t."
 #define MSG_CLOSE_ROOTS    "Root found at and very near " MSG_TIME "."
 #define MSG_MAX_STEPS      "At " MSG_TIME ", mxstep steps taken before reaching tout." 
 #define MSG_EWT_NOW_FAIL   "At " MSG_TIME "the user-provide EwtSet function failed."
@@ -987,6 +988,7 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_FAILED_CONSTR  "At " MSG_TIME "unable to satisfy inequality constraints."
 #define MSG_RTFUNC_FAILED  "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSG_NO_ROOT        "Rootfinding was not initialized."
+#define MSG_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
 
 #define MSG_EWTQ_NOW_BAD "At " MSG_TIME ", a component of ewtQ has become <= 0."
 #define MSG_QRHSFUNC_FAILED "At " MSG_TIME ", the quadrature right-hand side routine failed in an unrecoverable manner."
@@ -1010,7 +1012,6 @@ int IDASensResDQ(int Ns, realtype t,
 /* IDASet* / IDAGet* error messages */
 #define MSG_NEG_MAXORD     "maxord<=0 illegal."
 #define MSG_BAD_MAXORD     "Illegal attempt to increase maximum order."
-#define MSG_NEG_MXSTEPS    "mxsteps < 0 illegal."
 #define MSG_NEG_HMAX       "hmax < 0 illegal."
 #define MSG_NEG_EPCON      "epcon < 0.0 illegal."
 #define MSG_BAD_CONSTR     "Illegal values in constraints vector."

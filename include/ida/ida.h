@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.11 $
+ * $Date: 2007-10-26 21:51:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -320,11 +320,14 @@ SUNDIALS_EXPORT void *IDACreate(void);
  *                      | checking to be performed.               
  *                      |                                         
  * -----------------------------------------------------------------
- *                      |
- * IDASetRootDirection  | Specifies the direction of zero
- *                      | crossings to be monitored
- *                      | [both directions]
- *                      |
+ *                          |
+ * IDASetRootDirection      | Specifies the direction of zero
+ *                          | crossings to be monitored
+ *                          | [both directions]
+ *                          |
+ * IDASetNoInactiveRootWarn | disable warning about possible
+ *                          | g==0 at beginning of integration
+ *                          | 
  * -----------------------------------------------------------------
  * Return flag:
  *   IDA_SUCCESS   if successful
@@ -351,6 +354,7 @@ SUNDIALS_EXPORT int IDASetId(void *ida_mem, N_Vector id);
 SUNDIALS_EXPORT int IDASetConstraints(void *ida_mem, N_Vector constraints);
 
 SUNDIALS_EXPORT int IDASetRootDirection(void *ida_mem, int *rootdir);
+SUNDIALS_EXPORT int IDASetNoInactiveRootWarn(void *ida_mem);
 
 /*
  * ----------------------------------------------------------------

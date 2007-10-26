@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-20 14:33:27 $
+ * $Revision: 1.7 $
+ * $Date: 2007-10-26 21:51:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -275,7 +275,6 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_EWT_NOW_BAD "At " MSG_TIME ", a component of ewt has become <= 0."
 #define MSGCP_BAD_MODE "Illegal value for mode."
 #define MSGCP_BAD_H0 "h0 and tout - t0 inconsistent."
-#define MSGCP_BAD_INIT_ROOT "Root found at and very near initial t."
 #define MSGCP_BAD_TOUT "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration"
 #define MSGCP_NO_EFUN "tol_type = CP_WF but no error weight function was provided."
 #define MSGCP_NO_PFUN "proj_type = CP_PROJ_USER but no projection function was provided."

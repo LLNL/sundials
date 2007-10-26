@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-30 21:27:34 $
+ * $Revision: 1.10 $
+ * $Date: 2007-10-26 21:51:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -183,12 +183,8 @@ int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (mxsteps < 0) {
-    CVProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetMaxNumSteps", MSGCV_NEG_MXSTEPS);
-    return(CV_ILL_INPUT);
-  }
+  /* Passing mxsteps=0 sets the default. Passing mxsteps<0 disables the test. */
 
-  /* Passing 0 sets the default */
   if (mxsteps == 0)
     cv_mem->cv_mxstep = MXSTEP_DEFAULT;
   else
@@ -502,6 +498,30 @@ int CVodeSetRootDirection(void *cvode_mem, int *rootdir)
 
   return(CV_SUCCESS);
 }
+
+/*
+ * CVodeSetNoInactiveRootWarn
+ *
+ * Disables issuing a warning if some root function appears
+ * to be identically zero at the beginning of the integration
+ */
+
+int CVodeSetNoInactiveRootWarn(void *cvode_mem)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    CVProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetNoInactiveRootWarn", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_mxgnull = 0;
+  
+  return(CV_SUCCESS);
+}
+
 
 /* 
  * =================================================================

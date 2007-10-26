@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2007-08-20 20:54:41 $
+ * $Revision: 1.20 $
+ * $Date: 2007-10-26 21:51:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -997,11 +997,14 @@ SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
  *                         | [set by CVodecreate]
  *                         |
  * -----------------------------------------------------------------
- *                         |
- * CVodeSetRootDirection   | Specifies the direction of zero
- *                         | crossings to be monitored
- *                         | [both directions]
- *                         |
+ *                            |
+ * CVodeSetRootDirection      | Specifies the direction of zero
+ *                            | crossings to be monitored
+ *                            | [both directions]
+ *                            |
+ * CVodeSetNoInactiveRootWarn | disable warning about possible
+ *                            | g==0 at beginning of integration
+ *                            | 
  * -----------------------------------------------------------------
  * Return flag:
  *   CV_SUCCESS   if successful
@@ -1029,6 +1032,7 @@ SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
 SUNDIALS_EXPORT int CVodeSetIterType(void *cvode_mem, int iter);
 
 SUNDIALS_EXPORT int CVodeSetRootDirection(void *cvode_mem, int *rootdir);
+SUNDIALS_EXPORT int CVodeSetNoInactiveRootWarn(void *cvode_mem);
 
 
 /*

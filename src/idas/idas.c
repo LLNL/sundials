@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2007-08-31 15:27:20 $
+ * $Revision: 1.29 $
+ * $Date: 2007-10-26 21:51:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -229,7 +229,6 @@
  */
 
 #define RTFOUND   1
-#define INITROOT  2
 #define CLOSERT   3
 
 /*
@@ -667,6 +666,8 @@ int IDAInit(void *ida_mem, IDAResFn res,
   IDA_mem->ida_rootdir = NULL;
   IDA_mem->ida_gfun    = NULL;
   IDA_mem->ida_nrtfn   = 0;
+  IDA_mem->ida_gactive  = NULL;
+  IDA_mem->ida_mxgnull  = 1;
 
   /* Initial setup not done yet */
 
@@ -1766,6 +1767,7 @@ int IDASensToggleOff(void *ida_mem)
 #define grout  (IDA_mem->ida_grout)
 #define iroots (IDA_mem->ida_iroots)
 #define rootdir (IDA_mem->ida_rootdir)
+#define gactive (IDA_mem->ida_gactive)
 
 /*-----------------------------------------------------------------*/
 
@@ -1803,9 +1805,10 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
     free(grout); grout = NULL;
     free(iroots); iroots = NULL;
     free(rootdir); iroots = NULL;
+    free(gactive); gactive = NULL;
 
     lrw -= 3 * (IDA_mem->ida_nrtfn);
-    liw -= 2 * (IDA_mem->ida_nrtfn);
+    liw -= 3 * (IDA_mem->ida_nrtfn);
 
   }
 
@@ -1830,9 +1833,10 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 	free(grout); grout = NULL;
 	free(iroots); iroots = NULL;
         free(rootdir); iroots = NULL;
+        free(gactive); gactive = NULL;
 
         lrw -= 3*nrt;
-        liw -= 2*nrt;
+        liw -= 3*nrt;
 
         IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDARootInit", MSG_ROOT_FUNC_NULL);
         return(IDA_ILL_INPUT);
@@ -1899,11 +1903,26 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
     return(IDA_MEM_FAIL);
   }
 
+  gactive = NULL;
+  gactive = (booleantype *) malloc(nrt*sizeof(booleantype));
+  if (gactive == NULL) {
+    free(glo); glo = NULL; 
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
+    free(iroots); iroots = NULL;
+    free(rootdir); rootdir = NULL;
+    IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDARootInit", MSG_MEM_FAIL);
+    return(IDA_MEM_FAIL);
+  }
+
   /* Set default values for rootdir (both directions) */
   for(i=0; i<nrt; i++) rootdir[i] = 0;
 
+  /* Set default values for gactive (all active) */
+  for(i=0; i<nrt; i++) gactive[i] = TRUE;
+
   lrw += 3*nrt;
-  liw += 2*nrt;
+  liw += 3*nrt;
 
   return(IDA_SUCCESS);
 }
@@ -2143,9 +2162,10 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
   long int nstloc;
-  int sflag, istate, ier, irfndp, is;
+  int sflag, istate, ier, irfndp, is, ir;
   realtype tdist, troundoff, ypnorm, rh, nrm;
   IDAMem IDA_mem;
+  booleantype inactive_roots;
 
   /* Check for legal inputs in all cases. */
   if (ida_mem == NULL) {
@@ -2268,10 +2288,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     /* Check for exact zeros of the root functions at or near t0. */
     if (nrtfn > 0) {
       ier = IDARcheck1(IDA_mem);
-      if (ier == INITROOT) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDARcheck1", MSG_BAD_INIT_ROOT);
-        return(IDA_ILL_INPUT);
-      } else if (ier == IDA_RTFUNC_FAIL) {
+      if (ier == IDA_RTFUNC_FAIL) {
         IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDAS", "IDARcheck1", MSG_RTFUNC_FAILED, tn);
         return(IDA_RTFUNC_FAIL);
       }
@@ -2363,8 +2380,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   loop {
    
     /* Check for too many steps taken. */
-    
-    if (nstloc >= mxstep) {
+
+    if ( (mxstep>0) && (nstloc >= mxstep) ) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_MAX_STEPS, tn);
       istate = IDA_TOO_MUCH_WORK;
       *tret = tretlast = tn;
@@ -2476,6 +2493,24 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
         IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDAS", "IDARcheck3", MSG_RTFUNC_FAILED, tlo);
         istate = IDA_RTFUNC_FAIL;
         break;
+      }
+
+      /* If we are at the end of the first step and we still have
+       * some event functions that are inactive, issue a warning
+       * as this may indicate a user error in the implementation
+       * of the root function. */
+
+      if (nst==1) {
+        inactive_roots = FALSE;
+        for (ir=0; ir<nrtfn; ir++) { 
+          if (!gactive[ir]) {
+            inactive_roots = TRUE;
+            break;
+          }
+        }
+        if ((IDA_mem->ida_mxgnull > 0) && inactive_roots) {
+          IDAProcessError(IDA_mem, IDA_WARNING, "IDAS", "IDASolve", MSG_INACTIVE_ROOTS);
+        }
       }
 
     }
@@ -3202,6 +3237,7 @@ void IDAFree(void **ida_mem)
     free(grout);  grout = NULL;
     free(iroots); iroots = NULL;
     free(rootdir); rootdir = NULL;
+    free(gactive); gactive = NULL;
   }
 
   free(*ida_mem);
@@ -6340,8 +6376,8 @@ static realtype IDAQuadSensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
  * the initial point of the IVP.
  *
  * This routine returns an int equal to:
- *   INITROOT    (>0) if a close pair of zeros was found, and
- *   IDA_SUCCESS (=0) otherwise.
+ *  IDA_RTFUNC_FAIL < 0  if the g function failed
+ *  IDA_SUCCESS     = 0  otherwise.
  */
 
 static int IDARcheck1(IDAMem IDA_mem)
@@ -6361,7 +6397,10 @@ static int IDARcheck1(IDAMem IDA_mem)
 
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
-    if (ABS(glo[i]) == ZERO) zroot = TRUE;
+    if (ABS(glo[i]) == ZERO) {
+      zroot = TRUE;
+      gactive[i] = FALSE;
+    }
   }
   if (!zroot) return(IDA_SUCCESS);
 
@@ -6374,16 +6413,17 @@ static int IDARcheck1(IDAMem IDA_mem)
   nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
-  zroot = FALSE;
+  /* We check now only the components of g which were exactly 0.0 at t0
+   * to see if we can 'activate' them. */
+
   for (i = 0; i < nrtfn; i++) {
-    if (ABS(glo[i]) == ZERO) {
-      zroot = TRUE;
-      iroots[i] = 1;
+    if (!gactive[i] && ABS(glo[i]) != ZERO) {
+      gactive[i] = TRUE;
+
     }
   }
-  if (zroot) return(INITROOT);
-  return(IDA_SUCCESS);
 
+  return(IDA_SUCCESS);
 }
 
 /*
@@ -6422,6 +6462,7 @@ static int IDARcheck2(IDAMem IDA_mem)
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   for (i = 0; i < nrtfn; i++) {
+    if (!gactive[i]) continue;
     if (ABS(glo[i]) == ZERO) {
       zroot = TRUE;
       iroots[i] = 1;
@@ -6445,6 +6486,7 @@ static int IDARcheck2(IDAMem IDA_mem)
 
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
+    if (!gactive[i]) continue;
     if (ABS(glo[i]) == ZERO) {
       if (iroots[i] == 1) return(CLOSERT);
       zroot = TRUE;
@@ -6489,6 +6531,9 @@ static int IDARcheck3(IDAMem IDA_mem)
 
   ttol = (ABS(tn) + ABS(hh))*uround*HUNDRED;
   ier = IDARootfind(IDA_mem);
+  for(i=0; i<nrtfn; i++) {
+    if(!gactive[i] && grout[i] != ZERO) gactive[i] = TRUE;
+  }
   tlo = trout;
   for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
 
@@ -6528,6 +6573,14 @@ static int IDARcheck3(IDAMem IDA_mem)
  *            g_i is increasing; if rootdir[i] < 0, search for
  *            roots of g_i only if g_i is decreasing; otherwise
  *            always search for roots of g_i.
+ *
+ * gactive  = array specifying whether a component of g should
+ *            or should not be monitored. gactive[i] is initially
+ *            set to TRUE for all i=0,...,nrtfn-1, but it may be
+ *            reset to FALSE if at the first step g[i] is 0.0
+ *            both at the I.C. and at a small perturbation of them.
+ *            gactive[i] is then set back on TRUE only after the 
+ *            corresponding g function moves away from 0.0.
  *
  * nge      = cumulative counter for gfun calls.
  *
@@ -6583,6 +6636,7 @@ static int IDARootfind(IDAMem IDA_mem)
   zroot = FALSE;
   sgnchg = FALSE;
   for (i = 0;  i < nrtfn; i++) {
+    if(!gactive[i]) continue;
     if (ABS(ghi[i]) == ZERO) {
       if(rootdir[i]*glo[i] <= ZERO) {
         zroot = TRUE;
@@ -6607,6 +6661,7 @@ static int IDARootfind(IDAMem IDA_mem)
     if (!zroot) return(IDA_SUCCESS);
     for (i = 0; i < nrtfn; i++) {
       iroots[i] = 0;
+      if(!gactive[i]) continue;
       if (ABS(ghi[i]) == ZERO) iroots[i] = glo[i] > 0 ? -1:1;
     }
     return(RTFOUND);
@@ -6663,6 +6718,7 @@ static int IDARootfind(IDAMem IDA_mem)
     sgnchg = FALSE;
     sideprev = side;
     for (i = 0;  i < nrtfn; i++) {
+      if(!gactive[i]) continue;
       if (ABS(grout[i]) == ZERO) {
         if(rootdir[i]*glo[i] <= ZERO) {
           zroot = TRUE;
@@ -6710,6 +6766,7 @@ static int IDARootfind(IDAMem IDA_mem)
   for (i = 0; i < nrtfn; i++) {
     grout[i] = ghi[i];
     iroots[i] = 0;
+    if(!gactive[i]) continue;
     if ( (ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
       iroots[i] = glo[i] > 0 ? -1:1;
     if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 

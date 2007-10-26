@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-06 20:33:23 $
+ * $Revision: 1.9 $
+ * $Date: 2007-10-26 21:51:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -85,7 +85,6 @@
  * cpRcheck1 return values:
  *    CP_SUCCESS,
  *    CP_RTFUNC_FAIL,
- *    INITROOT
  * cpRcheck2 return values:
  *    CP_SUCCESS
  *    CP_RTFUNC_FAIL,
@@ -102,7 +101,6 @@
  */
 
 #define RTFOUND          +1
-#define INITROOT         +2
 #define CLOSERT          +3
 
 /*
@@ -349,6 +347,7 @@ void *CPodeCreate(int ode_type, int lmm_type, int nls_type)
   cp_mem->cp_glo           = NULL;
   cp_mem->cp_ghi           = NULL;
   cp_mem->cp_grout         = NULL;
+  cp_mem->cp_gactive       = NULL;
   cp_mem->cp_iroots        = NULL;
   cp_mem->cp_rootdir       = NULL;
   cp_mem->cp_gfun          = NULL;
@@ -937,6 +936,7 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data)
 {
   CPodeMem cp_mem;
   booleantype allocOK;
+  int i;
 
   /* Check cpode_mem pointer */
   if (cpode_mem == NULL) {
@@ -979,6 +979,13 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data)
   cp_mem->cp_nrtfn  = nrtfn;
   cp_mem->cp_gfun   = gfun;
   cp_mem->cp_g_data = g_data;
+
+  /* Set default values for rootdir (both directions) 
+     and for gactive (all active) */
+  for(i=0; i<nrtfn; i++) {
+    cp_mem->cp_rootdir[i] = 0;
+    cp_mem->cp_gactive[i] = TRUE;
+  }
 
   /* Rootfinding is now enabled */
   cp_mem->cp_doRootfinding = TRUE;
@@ -1114,6 +1121,7 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data)
 #define glo            (cp_mem->cp_glo)
 #define ghi            (cp_mem->cp_ghi)
 #define grout          (cp_mem->cp_grout)
+#define gactive        (cp_mem->cp_gactive)
 #define iroots         (cp_mem->cp_iroots)
 #define rootdir        (cp_mem->cp_rootdir)
 
@@ -1291,10 +1299,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
     /* Check for zeros of root function g at and near t0. */
     if (doRootfinding) {
       retval = cpRcheck1(cp_mem);
-      if (retval == INITROOT) {
-        cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "cpRcheck1", MSGCP_BAD_INIT_ROOT);
-        return(CP_ILL_INPUT);
-      } else if (retval == CP_RTFUNC_FAIL) {
+      if (retval == CP_RTFUNC_FAIL) {
         cpProcessError(cp_mem, CP_RTFUNC_FAIL, "CPODES", "cpRcheck1", MSGCP_RTFUNC_FAILED, tn);
         return(CP_RTFUNC_FAIL);
       }
@@ -2163,8 +2168,18 @@ static booleantype cpRootAlloc(CPodeMem cp_mem, int nrt)
     free(iroots); iroots = NULL;
   }
 
+  gactive = NULL;
+  gactive = (booleantype *) malloc(nrt*sizeof(booleantype));
+  if (gactive == NULL) {
+    free(glo); glo = NULL; 
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
+    free(iroots); iroots = NULL;
+    free(rootdir); rootdir = NULL;
+  }
+
   lrw += 3*nrt;
-  liw += 2*nrt;
+  liw += 3*nrt;
 
   return(TRUE);
 }
@@ -2178,11 +2193,12 @@ static void cpRootFree(CPodeMem cp_mem)
   free(glo); glo = NULL;
   free(ghi); ghi = NULL;
   free(grout); grout = NULL;
+  free(gactive); gactive = NULL;
   free(iroots); iroots = NULL;
   free(rootdir); rootdir = NULL;
 
   lrw -= 3 * nrtfn;
-  liw -= 2 * nrtfn;
+  liw -= 3 * nrtfn;
 }
 
 /*  
@@ -4305,8 +4321,8 @@ static int cpSLdet(CPodeMem cp_mem)
  * the initial point of the IVP.
  *
  * The return value will be
- *    INITROOT   = -1 if a close pair of zeros was found, and
- *    CP_SUCCESS =  0 otherwise.
+ *    CV_RTFUNC_FAIL < 0 if the g function failed
+ *    CP_SUCCESS     = 0 otherwise.
  */
 
 static int cpRcheck1(CPodeMem cp_mem)
@@ -4328,7 +4344,10 @@ static int cpRcheck1(CPodeMem cp_mem)
 
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
-    if (ABS(glo[i]) == ZERO) zroot = TRUE;
+    if (ABS(glo[i]) == ZERO) {
+      zroot = TRUE;
+      gactive[i] = FALSE;
+    }
   }
   if (!zroot) return(CP_SUCCESS);
 
@@ -4345,16 +4364,16 @@ static int cpRcheck1(CPodeMem cp_mem)
   nge++;
   if (retval != 0) return(CP_RTFUNC_FAIL);
 
-  zroot = FALSE;
+  /* We check now only the components of g which were exactly 0.0 at t0
+     to see if we can 'activate' them. */
+
   for (i = 0; i < nrtfn; i++) {
-    if (ABS(glo[i]) == ZERO) {
-      zroot = TRUE;
-      iroots[i] = 1;
+    if (!gactive[i] && ABS(glo[i]) != ZERO) {
+      gactive[i] = TRUE;
     }
   }
-  if (zroot) return(INITROOT);
-  return(CP_SUCCESS);
 
+  return(CP_SUCCESS);
 }
 
 /*
@@ -4393,6 +4412,7 @@ static int cpRcheck2(CPodeMem cp_mem)
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   for (i = 0; i < nrtfn; i++) {
+    if (!gactive[i]) continue;
     if (ABS(glo[i]) == ZERO) {
       zroot = TRUE;
       iroots[i] = 1;
@@ -4417,6 +4437,7 @@ static int cpRcheck2(CPodeMem cp_mem)
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
     if (ABS(glo[i]) == ZERO) {
+      if (!gactive[i]) continue;
       if (iroots[i] == 1) return(CLOSERT);
       zroot = TRUE;
       iroots[i] = 1;
@@ -4459,6 +4480,9 @@ static int cpRcheck3(CPodeMem cp_mem)
 
   ttol = (ABS(tn) + ABS(h))*uround*FUZZ_FACTOR;
   ier = cpRootfind(cp_mem);
+  for(i=0; i<nrtfn; i++) {
+    if(!gactive[i] && grout[i] != ZERO) gactive[i] = TRUE;
+  }
   tlo = trout;
   for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
 
@@ -4493,7 +4517,15 @@ static int cpRcheck3(CPodeMem cp_mem)
  * gfun     = user-defined function for g(t).  Its form is
  *            (void) gfun(t, y, gt, g_data)
  *
- * rootdir  = in array specifying the direction of zero-crossings.
+ * gactive  = array specifying whether a component of g should
+ *            or should not be monitored. gactive[i] is initially
+ *            set to TRUE for all i=0,...,nrtfn-1, but it may be
+ *            reset to FALSE if at the first step g[i] is 0.0
+ *            both at the I.C. and at a small perturbation of them.
+ *            gactive[i] is then set back on TRUE only after the 
+ *            corresponding g function moves away from 0.0.
+ *
+ * rootdir  = array specifying the direction of zero-crossings.
  *            If rootdir[i] > 0, search for roots of g_i only if
  *            g_i is increasing; if rootdir[i] < 0, search for
  *            roots of g_i only if g_i is decreasing; otherwise
@@ -4552,6 +4584,7 @@ static int cpRootfind(CPodeMem cp_mem)
   zroot = FALSE;
   sgnchg = FALSE;
   for (i = 0;  i < nrtfn; i++) {
+    if(!gactive[i]) continue;
     if (ABS(ghi[i]) == ZERO) {
       if(rootdir[i]*glo[i] <= ZERO) {
         zroot = TRUE;
@@ -4576,6 +4609,7 @@ static int cpRootfind(CPodeMem cp_mem)
     if (!zroot) return(CP_SUCCESS);
     for (i = 0; i < nrtfn; i++) {
       iroots[i] = 0;
+      if(!gactive[i]) continue;
       if (ABS(ghi[i]) == ZERO) iroots[i] = glo[i] > 0 ? -1:1;
     }
     return(RTFOUND);
@@ -4632,6 +4666,7 @@ static int cpRootfind(CPodeMem cp_mem)
     sgnchg = FALSE;
     sideprev = side;
     for (i = 0;  i < nrtfn; i++) {
+      if(!gactive[i]) continue;
       if (ABS(grout[i]) == ZERO) {
         if(rootdir[i]*glo[i] <= ZERO) {
           zroot = TRUE;
@@ -4679,6 +4714,7 @@ static int cpRootfind(CPodeMem cp_mem)
   for (i = 0; i < nrtfn; i++) {
     grout[i] = ghi[i];
     iroots[i] = 0;
+    if(!gactive[i]) continue;
     if ( (ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
       iroots[i] = glo[i] > 0 ? -1:1;
     if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 

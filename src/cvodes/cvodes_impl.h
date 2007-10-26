@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2007-06-05 20:55:57 $
+ * $Revision: 1.20 $
+ * $Date: 2007-10-26 21:51:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -434,6 +434,8 @@ typedef struct CVodeMemRec {
   int cv_taskc;         /* copy of parameter itask                         */
   int cv_irfnd;         /* flag showing whether last step had a root       */
   long int cv_nge;      /* counter for g evaluations                       */
+  booleantype *cv_gactive; /* array with active/inactive event functions   */
+  int cv_mxgnull;       /* number of warning messages about possible g==0  */
 
   /*------------------------
     Adjoint sensitivity data
@@ -955,7 +957,6 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 #define MSGCV_NO_MALLOC "Attempt to call before CVodeInit."
 #define MSGCV_NEG_MAXORD "maxord <= 0 illegal."
 #define MSGCV_BAD_MAXORD  "Illegal attempt to increase maximum method order."
-#define MSGCV_NEG_MXSTEPS "mxsteps < 0 illegal."
 #define MSGCV_SET_SLDET  "Attempt to use stability limit detection with the CV_ADAMS method illegal."
 #define MSGCV_NEG_HMIN "hmin < 0 illegal."
 #define MSGCV_NEG_HMAX "hmax < 0 illegal."
@@ -1013,7 +1014,6 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 #define MSGCV_EWT_NOW_BAD "At " MSG_TIME ", a component of ewt has become <= 0."
 #define MSGCV_BAD_ITASK "Illegal value for itask."
 #define MSGCV_BAD_H0 "h0 and tout - t0 inconsistent."
-#define MSGCV_BAD_INIT_ROOT "Root found at and very near initial t."
 #define MSGCV_BAD_TOUT "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration"
 #define MSGCV_EWT_FAIL "The user-provide EwtSet function failed."
 #define MSGCV_EWT_NOW_FAIL "At " MSG_TIME ", the user-provide EwtSet function failed."
@@ -1034,6 +1034,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 #define MSGCV_RTFUNC_FAILED "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSGCV_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCV_BAD_TSTOP "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME " in the direction of integration."
+#define MSGCV_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
 
 #define MSGCV_NO_TOLQ "No integration tolerances for quadrature variables have been specified."
 #define MSGCV_BAD_EWTQ "Initial ewtQ has component(s) equal to zero (illegal)."

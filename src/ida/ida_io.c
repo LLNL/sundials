@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-04-30 21:27:35 $
+ * $Revision: 1.11 $
+ * $Date: 2007-10-26 21:51:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -139,12 +139,8 @@ int IDASetMaxNumSteps(void *ida_mem, long int mxsteps)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (mxsteps < 0) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetMaxNumSteps", MSG_NEG_MXSTEPS);
-    return(IDA_ILL_INPUT);
-  }
+  /* Passing mxsteps=0 sets the default. Passing mxsteps<0 disables the test. */
 
-  /* Passing 0 sets the default */
   if (mxsteps == 0)
     IDA_mem->ida_mxstep = MXSTEP_DEFAULT;
   else
@@ -453,6 +449,30 @@ int IDASetRootDirection(void *ida_mem, int *rootdir)
 
   return(IDA_SUCCESS);
 }
+
+/*
+ * IDASetNoInactiveRootWarn
+ *
+ * Disables issuing a warning if some root function appears
+ * to be identically zero at the beginning of the integration
+ */
+
+int IDASetNoInactiveRootWarn(void *ida_mem)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetNoInactiveRootWarn", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_mxgnull = 0;
+  
+  return(IDA_SUCCESS);
+}
+
 
 /* 
  * =================================================================

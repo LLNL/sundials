@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-20 14:33:27 $
+ * $Revision: 1.5 $
+ * $Date: 2007-10-26 21:51:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -346,6 +346,7 @@ typedef struct CPodeMemRec {
   CPRootFn cp_gfun;            /* Function g for roots sought                 */
   int cp_nrtfn;                /* number of components of g                   */
   void *cp_g_data;             /* pointer to user data for g                  */
+  booleantype *cp_gactive;     /* flags for active/inactive g functions       */
   int *cp_iroots;              /* array for root information                  */
   int *cp_rootdir;             /* array specifying direction of zero-crossing */
 
