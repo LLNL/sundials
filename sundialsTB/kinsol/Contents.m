@@ -17,11 +17,11 @@
 %   KINGcomFn        -  communication function (BBDPre)
 %
 % Serial examples
-%   kindiag  - simple serial diagonal example
-%   kindx    - simple 2 dimensional example
+%   mkinDiagon_kry - simple serial diagonal example
+%   mkinTest_dns   - simple 2 dimensional example
 %
 % Parallel examples
-%   kindiagp  - simple parallel diagonal example
+%   mkinDiagon_kry_p - simple parallel diagonal example
 % Use the mpirun function to run any of the parallel examples
 %
 % See also nvector, putils

@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.19 $Date: 2007/05/16 17:12:56 $
+% $Revision: 1.20 $Date: 2007/08/21 17:43:48 $
 
 % MEX compiler command
 % --------------------
@@ -673,26 +673,24 @@ cvm_ftypes = {
              };    
 
 cvm_exs = {
-    fullfile('cvodes','examples_ser','advdiff.m')
-    fullfile('cvodes','examples_ser','discontRHS.m')
-    fullfile('cvodes','examples_ser','discontSOL.m')
-    fullfile('cvodes','examples_ser','diurnal.m')
-    fullfile('cvodes','examples_ser','hessian.m')
-    fullfile('cvodes','examples_ser','pleiades.m')
-    fullfile('cvodes','examples_ser','robertson.m')
-    fullfile('cvodes','examples_ser','robertsonFSA.m')
-    fullfile('cvodes','examples_ser','robertsonASA.m')
-    fullfile('cvodes','examples_ser','vdp.m')
+    fullfile('cvodes','examples_ser','mcvsAdvDiff_bnd.m')
+    fullfile('cvodes','examples_ser','mcvsDiscRHS_dns.m')
+    fullfile('cvodes','examples_ser','mcvsDiscSOL_dns.m')
+    fullfile('cvodes','examples_ser','mcvsDiurnal_kry.m')
+    fullfile('cvodes','examples_ser','mcvsHessian_FSA_ASA.m')
+    fullfile('cvodes','examples_ser','mcvsOzone_FSA_dns.m')
+    fullfile('cvodes','examples_ser','mcvsPleiades_non.m')
+    fullfile('cvodes','examples_ser','mcvsPollut_FSA_dns.m')
+    fullfile('cvodes','examples_ser','mcvsRoberts_ASAi_dns.m')
+    fullfile('cvodes','examples_ser','mcvsRoberts_dns.m')
+    fullfile('cvodes','examples_ser','mcvsRoberts_FSA_dns.m')
+    fullfile('cvodes','examples_ser','mcvsVanDPol_dns.m')
           };
 
 cvm_exp = {
-    fullfile('cvodes','examples_par','pvfnx_f.m')
-    fullfile('cvodes','examples_par','pvfnx.m')
-    fullfile('cvodes','examples_par','pvkx_fl.m')
-    fullfile('cvodes','examples_par','pvkx_f.m')
-    fullfile('cvodes','examples_par','pvkx.m')
-    fullfile('cvodes','examples_par','pvnx_f.m')
-    fullfile('cvodes','examples_par','pvnx.m')    
+    fullfile('cvodes','examples_par','mcvsAdvDiff_FSA_non_p.m')
+    fullfile('cvodes','examples_par','mcvsAtmDisp_kry_bbd_p.m')
+    fullfile('cvodes','examples_par','mcvsDecoupl_non_p.m')
           };
 
 stb_files = [cvm_files ; cvm_ftypes ; cvm_exs];
@@ -826,22 +824,16 @@ idm_ftypes = {
              };
 
 idm_exs = {
-    fullfile('idas','examples_ser','brusselator.m')
-%    fullfile('idas','examples_ser','brusselatorFSA.m')
-    fullfile('idas','examples_ser','brusselatorASA.m')
-%
-    fullfile('idas','examples_ser','heat2D.m')
-%
-    fullfile('idas','examples_ser','pend.m')
-    fullfile('idas','examples_ser','pendGGL.m')
-%
-    fullfile('idas','examples_ser','reinit_example.m')
-%
-    fullfile('idas','examples_ser','robertson.m')
-    fullfile('idas','examples_ser','robertsonASA.m')
-%
-    fullfile('idas','examples_ser','slider_crank.m')
-    fullfile('idas','examples_ser','slider_crankFSA.m')
+    fullfile('idas','examples_ser','midasBruss_ASA_dns.m')
+    fullfile('idas','examples_ser','midasBruss_dns.m')
+    fullfile('idas','examples_ser','midasHeat2D_bnd.m')
+    fullfile('idas','examples_ser','midasPendI1_dns.m')
+    fullfile('idas','examples_ser','midasPendI2_dns.m')
+    fullfile('idas','examples_ser','midasReInit_dns.m')
+    fullfile('idas','examples_ser','midasRoberts_ASAi_dns.m')
+    fullfile('idas','examples_ser','midasRoberts_dns.m')
+    fullfile('idas','examples_ser','midasSlCrank_dns.m')
+    fullfile('idas','examples_ser','midasSlCrank_FSA_dns.m')
           };
 
 stb_files = [idm_files ; idm_ftypes ; idm_exs];
@@ -931,19 +923,12 @@ kim_ftypes = {
              };
 
 kim_exs = {
-    fullfile('kinsol','examples_ser','kindiag.m')
-    fullfile('kinsol','examples_ser','kindiag_pset.m')
-    fullfile('kinsol','examples_ser','kindiag_psol.m')
-    fullfile('kinsol','examples_ser','kindiag_sys.m')
-    fullfile('kinsol','examples_ser','kindx.m')
-    fullfile('kinsol','examples_ser','kindx_sys.m')
+    fullfile('kinsol','examples_ser','mkinDiagon_kry.m')
+    fullfile('kinsol','examples_ser','mkinTest_dns.m')
           };
 
 kim_exp = {
-    fullfile('kinsol','examples_par','kindiagp.m')
-    fullfile('kinsol','examples_par','kindiagp_pset.m')
-    fullfile('kinsol','examples_par','kindiagp_psol.m')
-    fullfile('kinsol','examples_par','kindiagp_sys.m') 
+    fullfile('kinsol','examples_par','mkinDiagon_kry_p.m') 
           };
 
 stb_files = [kim_files ; kim_ftypes ; kim_exs];

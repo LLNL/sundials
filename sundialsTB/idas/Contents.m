@@ -93,16 +93,16 @@
 %
 % Serial examples provided with the toolbox
 %
-%   robertson.m         -  chemical kinetics problem (index-1 DAE)
-%   robertsonASA.m      -  ASA for the robertson problem
-%   brusselator.m       -  2D, 2-species, time dependent PDE (index-1 DAE)
-%   brusselatorASA.m    -  ASA for the brusselator example
-%   heat2D.m            -  2D heat problem
-%   pend.m              -  simple pendulum example (index-1 DAE)
-%   pendGGL.m           -  simple pendulum example (stabilized index-2 DAE)
-%   slider_crank.m      -  slider-crank example (stabilized index-2 DAE)
-%   slider_crankFSA.m   -  FSA for the slider-crank example
-%   reinit_example.m    -  integration over solution discontinuities
+%   midasRoberts_dns      -  chemical kinetics problem (index-1 DAE)
+%   midasRoberts_ASAi_dns -  ASA for the robertson problem
+%   midasBruss_dns        -  2D, 2-species, time dependent PDE (index-1 DAE)
+%   midasBruss_ASA_dns    -  ASA for the brusselator example
+%   midasHeat2D_bnd       -  2D heat problem
+%   midasPendI1_dns       -  simple pendulum example (index-1 DAE)
+%   midasPendI2_dns       -  simple pendulum example (stabilized index-2 DAE)
+%   midasSlCrank_dns      -  slider-crank example (stabilized index-2 DAE)
+%   midasSlCrank_FSA_dns  -  FSA for the slider-crank example
+%   midasReInit_dns       -  integration over solution discontinuities
 %
 % Parallel examples provided with the toolbox
 %

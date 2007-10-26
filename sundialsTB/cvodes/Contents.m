@@ -89,23 +89,26 @@
 %
 % Serial examples provided with the toolbox
 %
-%   robertson.m        -  chemical kinetics problem 
-%   robertsonFSA.m     -  FSA for the robertson problem
-%   robertsonASA.m     -  ASA for the robertson problem
-%   advdiff.m          -  advection-diffusion PDE
-%   diurnal.m          -  2D, 2-species, time dependent PDE
-%   pleiades.m         -  nonstiff celestial mechanics problem
-%   vdp.m              -  Van der Pol problem
-%   discontRHS.m       -  integration over RHS discontinuities
-%   discontSOL.m       -  integration over solution discontinuities
-%   hessian.m          -  illustration for computing Hessian information
-%                         (forward-over-adjoint approach)
+%   mcvsRoberts_dns      -  chemical kinetics problem 
+%   mcvsRoberts_FSA_dns  -  FSA for the robertson problem
+%   mcvsRoberts_ASAi_dns -  ASA for the robertson problem
+%   mcvsAdvDiff_bnd      -  advection-diffusion PDE
+%   mcvsDiurnal_kry      -  2D, 2-species, time dependent PDE
+%   mcvsPleiades_non     -  nonstiff celestial mechanics problem
+%   mcvsVanDPol_dns      -  Van der Pol problem
+%   mcvsPollut_FSA_dns   -  FSA for pollution chemical kinetics
+%   mcvsOzone_FSA_dns    -  FSA for ozone chemical kinetics
+%   mcvsDiscRHS_dns      -  integration over RHS discontinuities
+%   mcvsDiscSOL_dns      -  integration over solution discontinuities
+%   mcvsHessian_FSA_ASA  -  illustration for computing Hessian information
+%                           (forward-over-adjoint approach)
+%
 % Parallel examples provided with the toolbox
 %
-%   pvnx               - diagonal ODE example
-%   pvfnx              - FSA for 1D adv-diff problem (Adams, Functional)
-%   pvkx               - 3D adv-diff with distributed source problem
-%                        (BDF, Newton, GMRES, BBDPre preconditioner)
+%   mcvsDecoupl_non_p     - diagonal ODE example
+%   mcvsAdvDiff_FSA_non_p - FSA for 1D adv-diff problem (Adams, Functional)
+%   mcvsAtmDisp_kry_bbd_p - 3D adv-diff with distributed source problem
+%                           (BDF, Newton, GMRES, BBDPre preconditioner)
 % Use the mpirun function to run any of the parallel examples
 %
 % See also nvector, putils
