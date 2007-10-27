@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2007-10-26 21:51:30 $
+ * $Revision: 1.20 $
+ * $Date: 2007-10-27 00:57:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -2691,6 +2691,7 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
     if(nst > 1) {
       kk++;
       hnew = TWO * hh;
+      if( (tmp = ABS(hnew)*hmax_inv) > ONE ) hnew /= tmp;
       hh = hnew;
     }
 
