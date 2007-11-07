@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2007-10-27 00:57:32 $
+ * $Revision: 1.31 $
+ * $Date: 2007-11-07 15:31:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1197,9 +1197,6 @@ int IDASensInit(void *ida_mem, int Ns, int ism,
   for (is=0; is<Ns; is++) {
     N_VScale(ONE, yS0[is],  IDA_mem->ida_phiS[0][is]);  
     N_VScale(ONE, ypS0[is], IDA_mem->ida_phiS[1][is]);  
-
-    for(i=0; i<=MAX(IDA_mem->ida_maxord_alloc,4); i++)
-      N_VConst(ZERO, IDA_mem->ida_phiS[i][is]);
   }
 
   /* Initialize all sensitivity related counters */
@@ -1288,9 +1285,6 @@ int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0)
   for (is=0; is<Ns; is++) {
     N_VScale(ONE, yS0[is],  IDA_mem->ida_phiS[0][is]);  
     N_VScale(ONE, ypS0[is], IDA_mem->ida_phiS[1][is]);  
-
-    for(i=0; i<=MAX(IDA_mem->ida_maxord_alloc,4); i++)
-      N_VConst(ZERO, IDA_mem->ida_phiS[i][is]);
   }
 
   /* Initialize all sensitivity related counters */
