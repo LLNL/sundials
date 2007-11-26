@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.5 $
+ * $Date: 2007-11-26 16:20:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -108,18 +108,10 @@ static void KINSpbcgFree(KINMem kin_mem);
  * memory for a structure of type KINSpilsMemRec and sets the
  * kin_lmem field in *kinmem to the address of this structure. It
  * also calls SpbcgMalloc to allocate memory for the module
- * SPBCG. In summary, KINSpbcg sets the following fields in the
- * KINSpilsMemRec structure:
- *
- *  pretype     = PREC_NONE
- *  s_maxl      = KINSPILS_MAXL  if maxl <= 0
- *              = maxl           if maxl >  0
- *  s_pset      = NULL
- *  s_psolve    = NULL
- *  s_P_data    = NULL
- *  s_jtimes    = NULL
- *  s_J_data    = NULL
- *  s_last_flag = KINSPILS_SUCCESS
+ * SPBCG. It sets setupNonNull in (*kin_mem) and sets various
+ * fields in the KINSpilsMemRec structure.
+ * Finally, KINSpbcg allocates memory for local vectors, and calls
+ * SpbcgMalloc to allocate memory for the Spbcg solver.
  * -----------------------------------------------------------------
  */
 

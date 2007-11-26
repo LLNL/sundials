@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2007-10-26 21:51:30 $
+ * $Revision: 1.17 $
+ * $Date: 2007-11-26 16:20:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -38,7 +38,7 @@
  * Specifies the error handler function
  */
 
-int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun)
+int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data)
 {
   CVodeMem cv_mem;
 
@@ -50,7 +50,7 @@ int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun)
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_ehfun = ehfun;
-  cv_mem->cv_eh_data = cv_mem->cv_user_data;
+  cv_mem->cv_eh_data = eh_data;
 
   return(CV_SUCCESS);
 }
@@ -731,7 +731,6 @@ int CVodeSetQuadSensErrCon(void *cvode_mem, booleantype errconQS)
 #define sldeton        (cv_mem->cv_sldeton)
 #define tn             (cv_mem->cv_tn)
 #define efun           (cv_mem->cv_efun)
-#define e_data         (cv_mem->cv_e_data) 
 
 /*
  * CVodeGetNumSteps

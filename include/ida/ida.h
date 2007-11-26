@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-10-26 21:51:29 $
+ * $Revision: 1.12 $
+ * $Date: 2007-11-26 16:19:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -337,7 +337,7 @@ SUNDIALS_EXPORT void *IDACreate(void);
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun);
+SUNDIALS_EXPORT int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun, void *eh_data);
 SUNDIALS_EXPORT int IDASetErrFile(void *ida_mem, FILE *errfp);
 SUNDIALS_EXPORT int IDASetUserData(void *ida_mem, void *user_data);
 SUNDIALS_EXPORT int IDASetMaxOrd(void *ida_mem, int maxord);

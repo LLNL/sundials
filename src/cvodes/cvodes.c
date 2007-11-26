@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2007-10-26 21:51:30 $
+ * $Revision: 1.27 $
+ * $Date: 2007-11-26 16:19:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -661,79 +661,80 @@ void *CVodeCreate(int lmm, int iter)
 
   /* Set default values for integrator optional inputs */
 
-  cv_mem->cv_f         = NULL;
-  cv_mem->cv_user_data = NULL;
-  cv_mem->cv_itol      = CV_NN;
-  cv_mem->cv_efun      = NULL;
-  cv_mem->cv_e_data    = NULL;
-  cv_mem->cv_ehfun     = cvErrHandler;
-  cv_mem->cv_eh_data   = cv_mem;
-  cv_mem->cv_errfp     = stderr;
-  cv_mem->cv_qmax      = maxord;
-  cv_mem->cv_mxstep    = MXSTEP_DEFAULT;
-  cv_mem->cv_mxhnil    = MXHNIL_DEFAULT;
-  cv_mem->cv_sldeton   = FALSE;
-  cv_mem->cv_hin       = ZERO;
-  cv_mem->cv_hmin      = HMIN_DEFAULT;
-  cv_mem->cv_hmax_inv  = HMAX_INV_DEFAULT;
-  cv_mem->cv_tstopset  = FALSE;
-  cv_mem->cv_maxcor    = NLS_MAXCOR;
-  cv_mem->cv_maxnef    = MXNEF;
-  cv_mem->cv_maxncf    = MXNCF;
-  cv_mem->cv_nlscoef   = CORTES;
+  cv_mem->cv_f          = NULL;
+  cv_mem->cv_user_data  = NULL;
+  cv_mem->cv_itol       = CV_NN;
+  cv_mem->cv_user_efun  = FALSE;
+  cv_mem->cv_efun       = NULL;
+  cv_mem->cv_e_data     = NULL;
+  cv_mem->cv_ehfun      = cvErrHandler;
+  cv_mem->cv_eh_data    = cv_mem;
+  cv_mem->cv_errfp      = stderr;
+  cv_mem->cv_qmax       = maxord;
+  cv_mem->cv_mxstep     = MXSTEP_DEFAULT;
+  cv_mem->cv_mxhnil     = MXHNIL_DEFAULT;
+  cv_mem->cv_sldeton    = FALSE;
+  cv_mem->cv_hin        = ZERO;
+  cv_mem->cv_hmin       = HMIN_DEFAULT;
+  cv_mem->cv_hmax_inv   = HMAX_INV_DEFAULT;
+  cv_mem->cv_tstopset   = FALSE;
+  cv_mem->cv_maxcor     = NLS_MAXCOR;
+  cv_mem->cv_maxnef     = MXNEF;
+  cv_mem->cv_maxncf     = MXNCF;
+  cv_mem->cv_nlscoef    = CORTES;
 
   /* Initialize root finding variables */
 
-  cv_mem->cv_glo      = NULL;
-  cv_mem->cv_ghi      = NULL;
-  cv_mem->cv_grout    = NULL;
-  cv_mem->cv_iroots   = NULL;
-  cv_mem->cv_rootdir  = NULL;
-  cv_mem->cv_gfun     = NULL;
-  cv_mem->cv_nrtfn    = 0;  
-  cv_mem->cv_gactive  = NULL;
-  cv_mem->cv_mxgnull  = 1;
+  cv_mem->cv_glo        = NULL;
+  cv_mem->cv_ghi        = NULL;
+  cv_mem->cv_grout      = NULL;
+  cv_mem->cv_iroots     = NULL;
+  cv_mem->cv_rootdir    = NULL;
+  cv_mem->cv_gfun       = NULL;
+  cv_mem->cv_nrtfn      = 0;  
+  cv_mem->cv_gactive    = NULL;
+  cv_mem->cv_mxgnull    = 1;
 
   /* Set default values for quad. optional inputs */
 
-  cv_mem->cv_quadr    = FALSE;
-  cv_mem->cv_fQ       = NULL;
-  cv_mem->cv_errconQ  = FALSE;
-  cv_mem->cv_itolQ    = CV_NN;
+  cv_mem->cv_quadr      = FALSE;
+  cv_mem->cv_fQ         = NULL;
+  cv_mem->cv_errconQ    = FALSE;
+  cv_mem->cv_itolQ      = CV_NN;
 
   /* Set default values for sensi. optional inputs */
 
-  cv_mem->cv_sensi        = FALSE;
-  cv_mem->cv_fS_data      = NULL;
-  cv_mem->cv_fS           = cvSensRhsInternalDQ;
-  cv_mem->cv_fS1          = cvSensRhs1InternalDQ;
-  cv_mem->cv_fSDQ         = TRUE;
-  cv_mem->cv_ifS          = CV_ONESENS;
-  cv_mem->cv_DQtype       = CV_CENTERED;
-  cv_mem->cv_DQrhomax     = ZERO;
-  cv_mem->cv_p            = NULL;
-  cv_mem->cv_pbar         = NULL;
-  cv_mem->cv_plist        = NULL;
-  cv_mem->cv_errconS      = FALSE;
-  cv_mem->cv_maxcorS      = NLS_MAXCOR;
-  cv_mem->cv_ncfS1        = NULL;
-  cv_mem->cv_ncfnS1       = NULL;
-  cv_mem->cv_nniS1        = NULL;
-  cv_mem->cv_itolS        = CV_NN;
+  cv_mem->cv_sensi      = FALSE;
+  cv_mem->cv_fS_data    = NULL;
+  cv_mem->cv_fS         = cvSensRhsInternalDQ;
+  cv_mem->cv_fS1        = cvSensRhs1InternalDQ;
+  cv_mem->cv_fSDQ       = TRUE;
+  cv_mem->cv_ifS        = CV_ONESENS;
+  cv_mem->cv_DQtype     = CV_CENTERED;
+  cv_mem->cv_DQrhomax   = ZERO;
+  cv_mem->cv_p          = NULL;
+  cv_mem->cv_pbar       = NULL;
+  cv_mem->cv_plist      = NULL;
+  cv_mem->cv_errconS    = FALSE;
+  cv_mem->cv_maxcorS    = NLS_MAXCOR;
+  cv_mem->cv_ncfS1      = NULL;
+  cv_mem->cv_ncfnS1     = NULL;
+  cv_mem->cv_nniS1      = NULL;
+  cv_mem->cv_itolS      = CV_NN;
 
   /* Set default values for quad. sensi. optional inputs */
 
-  cv_mem->cv_quadr_sensi  = FALSE;
-  cv_mem->cv_fQS          = NULL;
-  cv_mem->cv_fQS_data     = NULL;
-  cv_mem->cv_fQSDQ        = TRUE;
-  cv_mem->cv_errconQS     = FALSE;
-  cv_mem->cv_itolQS       = CV_NN;
+  cv_mem->cv_quadr_sensi = FALSE;
+  cv_mem->cv_fQS         = NULL;
+  cv_mem->cv_fQS_data    = NULL;
+  cv_mem->cv_fQSDQ       = TRUE;
+  cv_mem->cv_errconQS    = FALSE;
+  cv_mem->cv_itolQS      = CV_NN;
 
   /* Set default for ASA */
 
-  cv_mem->cv_adj     = FALSE;
-  cv_mem->cv_adj_mem = NULL;
+  cv_mem->cv_adj         = FALSE;
+  cv_mem->cv_adj_mem     = NULL;
 
   /* Set the saved values for qmax_alloc */
 
@@ -1068,8 +1069,9 @@ int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
 
   cv_mem->cv_itol = CV_SS;
 
+  cv_mem->cv_user_efun = FALSE;
   cv_mem->cv_efun = cvEwtSet;
-  cv_mem->cv_e_data = cvode_mem;
+  cv_mem->cv_e_data = NULL; /* will be set to cvode_mem in InitialSetup */
 
   return(CV_SUCCESS);
 }
@@ -1116,8 +1118,9 @@ int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
 
   cv_mem->cv_itol = CV_SV;
 
+  cv_mem->cv_user_efun = FALSE;
   cv_mem->cv_efun = cvEwtSet;
-  cv_mem->cv_e_data = cvode_mem;
+  cv_mem->cv_e_data = NULL; /* will be set to cvode_mem in InitialSetup */
 
   return(CV_SUCCESS);
 }
@@ -1139,8 +1142,10 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
   }
 
   cv_mem->cv_itol = CV_WF;
+
+  cv_mem->cv_user_efun = TRUE;
   cv_mem->cv_efun = efun;
-  cv_mem->cv_e_data = cv_mem->cv_user_data;
+  cv_mem->cv_e_data = NULL; /* will be set to user_data in InitialSetup */
 
   return(CV_SUCCESS);
 }
@@ -4589,7 +4594,11 @@ static int cvInitialSetup(CVodeMem cv_mem)
     return(CV_ILL_INPUT);
   }
 
-  /* Load ewt */
+  /* Set data for efun */
+  if (cv_mem->cv_user_efun) e_data = user_data;
+  else                      e_data = cv_mem;
+
+  /* Load intial error weights */
   ier = efun(zn[0], ewt, e_data);
   if (ier != 0) {
     if (itol == CV_WF) 
@@ -4698,7 +4707,6 @@ static int cvInitialSetup(CVodeMem cv_mem)
   }
 
   /* Check if lsolve function exists (if needed) and call linit function (if it exists) */
-
   if (iter == CV_NEWTON) {
     if (lsolve == NULL) {
       cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_LSOLVE_NULL);

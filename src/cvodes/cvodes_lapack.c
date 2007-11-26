@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.9 $
+ * $Date: 2007-11-26 16:20:00 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -78,7 +78,6 @@ static void cvLapackBandFreeB(CVodeBMem cvB_mem);
 
 #define lmm            (cv_mem->cv_lmm)
 #define f              (cv_mem->cv_f)
-#define user_data      (cv_mem->cv_user_data)
 #define uround         (cv_mem->cv_uround)
 #define nst            (cv_mem->cv_nst)
 #define tn             (cv_mem->cv_tn)
@@ -363,7 +362,7 @@ static int cvLapackDenseInit(CVodeMem cv_mem)
     djac = cvDlsDenseDQJac;
     J_data = cv_mem;
   } else {
-    J_data = user_data;
+    J_data = cv_mem->cv_user_data;
   }
 
   last_flag = CVDIRECT_SUCCESS;
@@ -508,7 +507,7 @@ static int cvLapackBandInit(CVodeMem cv_mem)
     bjac = cvDlsBandDQJac;
     J_data = cv_mem;
   } else {
-    J_data = user_data;
+    J_data = cv_mem->cv_user_data;
   }
 
   last_flag = CVDIRECT_SUCCESS;

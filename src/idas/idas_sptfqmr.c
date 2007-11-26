@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.7 $
+ * $Date: 2007-11-26 16:20:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -120,22 +120,10 @@ static void IDASptfqmrFreeB(IDABMem IDAB_mem);
  * IDASptfqmrSolve, IDASptfqmrPerf, and IDASptfqmrFree, respectively.
  * It allocates memory for a structure of type IDASpilsMemRec and sets
  * the ida_lmem field in (*IDA_mem) to the address of this structure.
- * It sets setupNonNull in (*IDA_mem). It then sets the following
- * fields in the IDASpilsMemRec structure:
- *
- *   s_maxl      = IDA_SPILS_MAXL  if maxl <= 0
- *               = maxl            if maxl > 0
- *   s_eplifac   = PT05
- *   s_dqincfac  = ONE
- *   s_pdata     = NULL
- *   s_pset      = NULL
- *   s_psolve    = NULL
- *   s_jtimes    = IDASptfqmrDQJtimes
- *   s_jdata     = ida_mem
- *   s_last_flag = IDASPILS_SUCCESS
- *
- * Finally, IDASptfqmr allocates memory for ytemp, yptemp, and xx, and
- * calls SptfqmrMalloc to allocate memory for the Sptfqmr solver.
+ * It sets setupNonNull in (*IDA_mem). It then sets various fields
+ * in the IDASpilsMemRec structure. Finally, IDASptfqmr allocates 
+ * memory for ytemp, yptemp, and xx, and calls SptfqmrMalloc to 
+ * allocate memory for the Sptfqmr solver.
  *
  * The return value of IDASptfqmr is:
  *   IDASPILS_SUCCESS   =  0 if successful

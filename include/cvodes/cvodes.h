@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2007-10-26 21:51:29 $
+ * $Revision: 1.21 $
+ * $Date: 2007-11-26 16:19:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1013,7 +1013,7 @@ SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun);
+SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data);
 SUNDIALS_EXPORT int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 SUNDIALS_EXPORT int CVodeSetUserData(void *cvode_mem, void *user_data);
 SUNDIALS_EXPORT int CVodeSetMaxOrd(void *cvode_mem, int maxord);

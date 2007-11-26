@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.10 $
+ * $Date: 2007-11-26 16:20:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,7 +63,6 @@ static void IDABandFreeB(IDABMem IDAB_mem);
 /* Readability Replacements */
 
 #define res         (IDA_mem->ida_res)
-#define user_data   (IDA_mem->ida_user_data)
 #define tn          (IDA_mem->ida_tn)
 #define hh          (IDA_mem->ida_hh)
 #define cj          (IDA_mem->ida_cj)
@@ -232,7 +231,7 @@ static int IDABandInit(IDAMem IDA_mem)
     bjac = idaDlsBandDQJac;
     jacdata = IDA_mem;
   } else {
-    jacdata = user_data;
+    jacdata = IDA_mem->ida_user_data;
   }
 
   last_flag = 0;

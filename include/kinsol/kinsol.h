@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.5 $
+ * $Date: 2007-11-26 16:19:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -448,7 +448,7 @@ SUNDIALS_EXPORT void *KINCreate(void);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun);
+SUNDIALS_EXPORT int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun, void *eh_data);
 SUNDIALS_EXPORT int KINSetErrFile(void *kinmem, FILE *errfp);
 SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun);
 SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);

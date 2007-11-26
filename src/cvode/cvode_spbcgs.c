@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.7 $
+ * $Date: 2007-11-26 16:19:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -97,19 +97,7 @@ static void CVSpbcgFree(CVodeMem cv_mem);
  * respectively. It allocates memory for a structure of type
  * CVSpilsMemRec and sets the cv_lmem field in (*cvode_mem) to the
  * address of this structure. It sets setupNonNull in (*cvode_mem),
- * and sets the following fields in the CVSpilsMemRec structure:
- *
- *   s_pretype   = pretype
- *   s_maxl      = CVSPILS_MAXL  if maxl <= 0
- *               = maxl          if maxl >  0
- *   s_delt      = CVSPILS_DELT
- *   s_P_data    = NULL
- *   s_pset      = NULL
- *   s_psolve    = NULL
- *   s_jtimes    = CVSpilsDQJtimes
- *   s_j_data    = cvode_mem
- *   s_last_flag = CVSPILS_SUCCESS
- *
+ * and sets various fields in the CVSpilsMemRec structure.
  * Finally, CVSpbcg allocates memory for ytemp and x, and calls
  * SpbcgMalloc to allocate memory for the Spbcg solver.
  * -----------------------------------------------------------------

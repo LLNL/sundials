@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.7 $
+ * $Date: 2007-11-26 16:19:59 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -68,7 +68,7 @@ typedef struct CVDlsMemRec {
   booleantype d_jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
   CVDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
   CVDlsBandJacFn d_bjac;  /* band Jacobian routine to be called           */
-  void *d_J_data;         /* user data is passed to djac or bjac          */
+  void *d_J_data;         /* data pointer passed to djac or bjac          */
 
   DlsMat d_M;             /* M = I - gamma * df/dy                        */
   DlsMat d_savedJ;        /* savedJ = old Jacobian                        */

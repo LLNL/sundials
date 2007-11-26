@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.7 $
+ * $Date: 2007-11-26 16:19:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -98,19 +98,7 @@ static void CVSpgmrFree(CVodeMem cv_mem);
  * respectively.  It allocates memory for a structure of type
  * CVSpilsMemRec and sets the cv_lmem field in (*cvode_mem) to the
  * address of this structure.  It sets setupNonNull in (*cvode_mem),
- * and sets the following fields in the CVSpilsMemRec structure:
- *   s_pretype = pretype                                       
- *   s_gstype  = gstype                                       
- *   s_maxl    = MIN(N,CVSPILS_MAXL  if maxl <= 0             
- *             = maxl                 if maxl > 0              
- *   s_delt    = CVSPILS_DELT if delt == 0.0                     
- *             = delt         if delt != 0.0                     
- *   s_P_data  = P_data                                        
- *   s_pset    = pset                                       
- *   s_psolve  = psolve                                        
- *   s_jtimes  = input parameter jtimes  if jtimes != NULL
- *             = CVSpilsDQJtimes         otherwise
- *   s_j_data  = input parameter jac_data
+ * and sets various fields in the CVSpilsMemRec structure.
  * Finally, CVSpgmr allocates memory for ytemp and x, and calls
  * SpgmrMalloc to allocate memory for the Spgmr solver.
  * -----------------------------------------------------------------

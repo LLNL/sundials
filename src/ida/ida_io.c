@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-10-26 21:51:30 $
+ * $Revision: 1.12 $
+ * $Date: 2007-11-26 16:20:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -41,7 +41,7 @@
 #define lrw1 (IDA_mem->ida_lrw1)
 #define liw1 (IDA_mem->ida_liw1)
 
-int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun)
+int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun, void *eh_data)
 {
   IDAMem IDA_mem;
 
@@ -53,7 +53,7 @@ int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun)
   IDA_mem = (IDAMem) ida_mem;
 
   IDA_mem->ida_ehfun = ehfun;
-  IDA_mem->ida_eh_data = IDA_mem->ida_user_data;
+  IDA_mem->ida_eh_data = eh_data;
 
   return(IDA_SUCCESS);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.6 $
+ * $Date: 2007-11-26 16:20:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -111,21 +111,10 @@ static int IDASpgmrFree(IDAMem IDA_mem);
  * IDASpgmrSolve, IDASpgmrPerf, and IDASpgmrFree, respectively.
  * It allocates memory for a structure of type IDASpilsMemRec and sets
  * the ida_lmem field in (*IDA_mem) to the address of this structure.
- * It sets setupNonNull in (*IDA_mem).  It then sets the following
- * fields in the IDASpilsMemRec structure:
- *   s_gstype   = gstype
- *   s_maxl     = MIN(Neq,IDA_SPILS_MAXL) if maxl <= 0,  else MIN(Neq,maxl)
- *   s_maxrs    = 0 if maxrs < 0,  MIN(5,Neq/s_maxl) if maxrs = 0, and
- *                MIN(maxrs,Neq/s_maxl) if maxrs > 0.
- *   s_eplifac  = 0.05 if eplifac = 0.0,  else eplifac
- *   s_dqincfac = 1.0 if dqincfac = 0.0,  else dqincfac
- *   s_pdata    = NULL
- *   s_pset     = NULL
- *   s_psolve   = NULL
- *   s_jtimes   = NULL
- *   s_jdata    = NULL
- * Finally, IDASpgmr allocates memory for ytemp, yptemp, and xx, and
- * calls SpgmrMalloc to allocate memory for the Spgmr solver.
+ * It sets setupNonNull in (*IDA_mem).  It then various fields in the
+ * IDASpilsMemRec structure. Finally, IDASpgmr allocates memory for 
+ * ytemp, yptemp, and xx, and calls SpgmrMalloc to allocate memory
+ * for the Spgmr solver.
  *
  * The return value of IDASpgmr is:
  *   IDASPILS_SUCCESS       = 0  if successful

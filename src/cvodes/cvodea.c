@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2007-08-20 20:54:44 $
+ * $Revision: 1.23 $
+ * $Date: 2007-11-26 16:19:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -700,7 +700,7 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
 
   CVodeSetMaxHnilWarns(cvodeB_mem, -1);
 
-  CVodeSetErrHandlerFn(cvodeB_mem, cv_mem->cv_ehfun);
+  CVodeSetErrHandlerFn(cvodeB_mem, cv_mem->cv_ehfun, cv_mem->cv_eh_data);
   CVodeSetErrFile(cvodeB_mem, cv_mem->cv_errfp);
 
   /* Set/initialize fields in the new CVodeBMem object, new_cvB_mem */

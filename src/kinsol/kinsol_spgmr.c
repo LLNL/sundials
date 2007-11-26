@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.5 $
+ * $Date: 2007-11-26 16:20:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -110,20 +110,8 @@ static void KINSpgmrFree(KINMem kin_mem);
  * memory for a structure of type KINSpilsMemRec and sets the
  * kin_lmem field in *kinmem to the address of this structure. It
  * also calls SpgmrMalloc to allocate memory for the module
- * SPGMR. In summary, KINSpgmr sets the following fields in the
- * KINSpilsMemRec structure:
- *
- *  s_pretype   = PREC_NONE
- *  s_gstype    = MODIFIED_GS
- *  s_maxl      = KINSPILS_MAXL  if maxl <= 0
- *              = maxl           if maxl > 0
- *  s_maxlrst   = 0 (default)
- *  s_last_flag = KINSPILS_SUCCESS
- *  s_pset      = NULL
- *  s_psolve    = NULL
- *  s_P_data    = NULL
- *  s_jtimes    = NULL
- *  s_J_data    = NULL
+ * SPGMR. In summary, KINSpgmr sets various fields in the
+ * KINSpilsMemRec structure.
  * -----------------------------------------------------------------
  */
 

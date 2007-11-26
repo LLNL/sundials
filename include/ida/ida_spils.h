@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.8 $
+ * $Date: 2007-11-26 16:19:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -83,7 +83,7 @@ extern "C" {
  * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *
  * user_data is a pointer to user data, the same as the user_data
- *     parameter passed to IDASetRdata.
+ *     parameter passed to IDASetUserData.
  *
  * tmp1, tmp2, tmp3 are pointers to vectors of type N_Vector
  *     which can be used by an IDASpilsPrecSetupFn routine
@@ -146,7 +146,7 @@ typedef int (*IDASpilsPrecSetupFn)(realtype tt,
  *     through a call to the routine IDAGetErrWeights.
  *
  * user_data is a pointer to user data, the same as the user_data
- *     parameter passed to IDASetRdata.
+ *     parameter passed to IDASetUserData.
  *
  * tmp is an N_Vector which can be used by the PrecSolve
  *     routine as temporary storage or work space.
@@ -198,7 +198,7 @@ typedef int (*IDASpilsPrecSolveFn)(realtype tt,
  *        to 1/hh.
  *
  *   user_data is a pointer to user data, the same as the
- *        pointer passed to IDASetRdata.
+ *        pointer passed to IDASetUserData.
  *
  *   tmp1, tmp2 are two N_Vectors which can be used by Jtimes for
  *         work space.

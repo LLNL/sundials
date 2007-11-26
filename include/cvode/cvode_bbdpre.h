@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.7 $
+ * $Date: 2007-11-26 16:19:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -82,17 +82,14 @@
  *    same on every processor.
  *
  * 3) The actual name of the user's f function is passed to
- *    CVodeMalloc, and the names of the user's gloc and cfn
+ *    CVodeInit, and the names of the user's gloc and cfn
  *    functions are passed to CVBBDPrecInit.
  *
  * 4) The pointer to the user-defined data block user_data, which is
- *    set through CVodeSetFdata is also available to the user in
+ *    set through CVodeSetUserData is also available to the user in
  *    gloc and cfn.
  *
- * 5) For the CVSpgmr solver, the Gram-Schmidt type gstype,
- *    is left to the user to specify through CVSpgmrSetGStype.
- *
- * 6) Optional outputs specific to this module are available by
+ * 5) Optional outputs specific to this module are available by
  *    way of routines listed below. These include work space sizes
  *    and the cumulative number of gloc calls. The costs
  *    associated with this module also include nsetups banded LU
@@ -152,7 +149,7 @@ typedef int (*CVLocalFn)(int Nlocal, realtype t, N_Vector y,
  * the independent variable value t, the dependent variable
  * vector y, and a pointer to the user-defined data block user_data.
  * The user_data parameter is the same as that specified by the user
- * through the CVodeSetFdata routine. The CVCommFn cfn is
+ * through the CVodeSetUserData routine. The CVCommFn cfn is
  * expected to save communicated data in space defined within the
  * structure user_data. Note: A CVCommFn cfn does not have a return value.
  *
@@ -229,9 +226,7 @@ SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, int Nlocal,
  * CVSPBCG/CVBBDPRE or CVSPTFQMR/CVBBDPRE provided there is no change 
  * in Nlocal, mukeep, or mlkeep. After solving one problem, and after 
  * calling CVodeReInit to re-initialize the integrator for a subsequent 
- * problem, call CVBBDPrecReInit. Then call CVSpgmrSet* or CVSpbcgSet* 
- * or CVSptfqmrSet* functions if necessary for any changes to CVSPGMR, 
- * CVSPBCG, or CVSPTFQMR parameters, before calling CVode.
+ * problem, call CVBBDPrecReInit.
  *
  * All arguments have the same names and meanings as those
  * of CVBBDPrecInit.

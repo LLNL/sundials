@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.6 $
+ * $Date: 2007-11-26 16:19:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -86,7 +86,7 @@
  *    for every process.
  *
  * 3) The actual name of the user's f function is passed to
- *    KINMalloc, and the names of the user's glocal and gcomm
+ *    KINInit, and the names of the user's glocal and gcomm
  *    functions are passed to KINBBDPrecInit.
  *
  * 4) Optional outputs specific to this module are available by

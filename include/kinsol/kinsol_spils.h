@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.6 $
+ * $Date: 2007-11-26 16:19:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -87,7 +87,7 @@ extern "C" {
  *  fscale  vector (type N_Vector) containing diagonal elements
  *          of scaling matrix for fval [input]
  *
- *  user_data  pointer to user-allocated dat memory block
+ *  user_data  pointer to user-allocated data memory block
  *
  *  vtemp1/vtemp2  available scratch vectors (temporary storage)
  *
@@ -127,7 +127,7 @@ typedef int (*KINSpilsPrecSetupFn)(N_Vector uu, N_Vector uscale,
  *      which upon return contains a solution of the linear system
  *      P*z = r [input/output]
  *
- *  user_data  pointer to user-allocated dat memory block
+ *  user_data  pointer to user-allocated data memory block
  *
  *  vtemp  available scratch vector (volatile storage)
  *
@@ -169,7 +169,7 @@ typedef int (*KINSpilsPrecSolveFn)(N_Vector uu, N_Vector uscale,
  *          new_uu = FALSE [input/output]
  *
  *  user_data  pointer to user data, the same as the user_data
- *          parameter passed to the KINSetFdata function.
+ *          parameter passed to the KINSetUserData function.
  *
  * If successful, the function should return 0 (zero). If an error
  * occurs, then the routine should return a non-zero integer value.

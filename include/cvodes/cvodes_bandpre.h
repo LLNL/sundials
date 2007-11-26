@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-27 18:56:28 $
+ * $Revision: 1.7 $
+ * $Date: 2007-11-26 16:19:58 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -91,8 +91,7 @@ extern "C" {
  * (2) In the CVBandPrecInit call, the arguments N is the
  *     problem dimension.
  * (3) In the CVBPSp* call, the user is free to specify
- *     the input pretype and the optional input maxl. The last
- *     argument must be the pointer returned by CVBandPrecInit.
+ *     the input pretype and the optional input maxl.
  * -----------------------------------------------------------------
  */
 
@@ -101,9 +100,9 @@ extern "C" {
  * -----------------------------------------------------------------
  * Function : CVBandPrecInit
  * -----------------------------------------------------------------
- * CVBandPrecInit allocates and initializes a CVBandPrecData
- * structure to be passed to CVSp* (and subsequently used
- * by CVBandPrecSetup and CVBandPrecSolve).
+ * CVBandPrecInit allocates and initializes the BANDPRE preconditioner
+ * module. This functino must be called AFTER one of the SPILS linear
+ * solver modules has been attached to the CVODE integrator.
  *
  * The parameters of CVBandPrecInit are as follows:
  *
@@ -115,7 +114,7 @@ extern "C" {
  *
  * ml is the lower half bandwidth.
  *
- * The return value of CVBBDPrecInit is one of:
+ * The return value of CVBandPrecInit is one of:
  *   CVSPILS_SUCCESS if no errors occurred
  *   CVSPILS_MEM_NULL if the integrator memory is NULL
  *   CVSPILS_LMEM_NULL if the linear solver memory is NULL

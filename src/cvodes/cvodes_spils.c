@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.9 $
+ * $Date: 2007-11-26 16:20:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1147,7 +1147,6 @@ static int cvSpilsPrecSolveBWrapper(realtype t, N_Vector yB, N_Vector fyB,
  *
  * This routine interfaces to the CVSpilsJacTimesVecFnB routine 
  * provided by the user.
- * NOTE: jac_data actually contains cvadj_mem
  */
 
 static int cvSpilsJacTimesVecBWrapper(N_Vector vB, N_Vector JvB, realtype t, 

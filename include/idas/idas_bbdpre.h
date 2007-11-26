@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.8 $
+ * $Date: 2007-11-26 16:19:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -102,11 +102,11 @@ extern "C" {
  *    mldq need not be the same on every processor.
  *
  * 3) The actual name of the user's res function is passed to
- *    IDAMalloc, and the names of the user's Gres and Gcomm
+ *    IDAInit, and the names of the user's Gres and Gcomm
  *    functions are passed to IDABBDPrecInit.        
  *
  * 4) The pointer to the user-defined data block user_data, which
- *    is set through IDASetRdata is also available to the user
+ *    is set through IDASetUserData is also available to the user
  *    in glocal and gcomm.
  *
  * 5) Optional outputs specific to this module are available by
@@ -161,7 +161,7 @@ typedef int (*IDABBDLocalFn)(int Nlocal, realtype tt,
  * This function takes as input the solution vectors yy and yp,
  * and a pointer to the user-defined data block user_data. The
  * user_data parameter is the same as that passed by the user to
- * the IDAMalloc routine.
+ * the IDASetUserData routine.
  *
  * The IDABBDCommFn Gcomm is expected to save communicated data in
  * space defined with the structure *user_data.

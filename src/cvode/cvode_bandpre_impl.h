@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:41:05 $
+ * $Revision: 1.6 $
+ * $Date: 2007-11-26 16:19:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -34,7 +34,7 @@ extern "C" {
 
 typedef struct CVBandPrecDataRec {
 
-  /* Data set by user in CVBandPrecAlloc */
+  /* Data set by user in CVBandPrecInit */
 
   int N;
   int ml, mu;

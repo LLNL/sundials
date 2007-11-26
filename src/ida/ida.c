@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2007-10-27 00:57:30 $
+ * $Revision: 1.21 $
+ * $Date: 2007-11-26 16:20:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -301,6 +301,7 @@ void *IDACreate(void)
   IDA_mem->ida_res         = NULL;
   IDA_mem->ida_user_data   = NULL;
   IDA_mem->ida_itol        = IDA_NN;
+  IDA_mem->ida_user_efun   = FALSE;
   IDA_mem->ida_efun        = NULL;
   IDA_mem->ida_edata       = NULL;
   IDA_mem->ida_ehfun       = IDAErrHandler;
@@ -616,13 +617,14 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
 
   /* Copy tolerances into memory */
   
-  IDA_mem->ida_rtol = reltol;
+  IDA_mem->ida_rtol  = reltol;
   IDA_mem->ida_Satol = abstol;
 
   IDA_mem->ida_itol = IDA_SS;
 
+  IDA_mem->ida_user_efun = FALSE;
   IDA_mem->ida_efun = IDAEwtSet;
-  IDA_mem->ida_edata = ida_mem;
+  IDA_mem->ida_edata = NULL; /* will be set to ida_mem in InitialSetup; */
 
   return(IDA_SUCCESS);
 }
@@ -669,8 +671,9 @@ int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
 
   IDA_mem->ida_itol = IDA_SV;
 
+  IDA_mem->ida_user_efun = FALSE;
   IDA_mem->ida_efun = IDAEwtSet;
-  IDA_mem->ida_edata = ida_mem;
+  IDA_mem->ida_edata = NULL; /* will be set to ida_mem in InitialSetup; */
 
   return(IDA_SUCCESS);
 }
@@ -692,8 +695,10 @@ int IDAWFtolerances(void *ida_mem, IDAEwtFn efun)
   }
 
   IDA_mem->ida_itol = IDA_WF;
+
+  IDA_mem->ida_user_efun = TRUE;
   IDA_mem->ida_efun = efun;
-  IDA_mem->ida_edata = IDA_mem->ida_user_data;
+  IDA_mem->ida_edata = NULL; /* will be set to user_data in InitialSetup */ 
 
   return(IDA_SUCCESS);
 }
@@ -1597,7 +1602,6 @@ int IDAInitialSetup(IDAMem IDA_mem)
   int ier;
 
   /* Test for more vector operations, depending on options */
-
   if (suppressalg)
     if (id->ops->nvwrmsnormmask == NULL) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup", MSG_BAD_NVECTOR);
@@ -1605,21 +1609,22 @@ int IDAInitialSetup(IDAMem IDA_mem)
   }
 
   /* Test id vector for legality */
-  
   if (suppressalg && (id==NULL)){ 
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup", MSG_MISSING_ID);
     return(IDA_ILL_INPUT); 
   }
 
   /* Did the user specify tolerances? */
-
   if (itol == IDA_NN) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup", MSG_NO_TOLS);
     return(IDA_ILL_INPUT);
   }
 
-  /* Initial error weight vector */
+  /* Set data for efun */
+  if (IDA_mem->ida_user_efun) edata = user_data;
+  else                        edata = IDA_mem;
 
+  /* Initial error weight vector */
   ier = efun(phi[0], ewt, edata);
   if (ier != 0) {
     if (itol == IDA_WF) 
@@ -1630,7 +1635,6 @@ int IDAInitialSetup(IDAMem IDA_mem)
   }
 
   /* Check to see if y0 satisfies constraints. */
-
   if (constraintsSet) {
     conOK = N_VConstrMask(constraints, phi[0], tempv2);
     if (!conOK) { 
@@ -1640,7 +1644,6 @@ int IDAInitialSetup(IDAMem IDA_mem)
   }
 
   /* Check that lsolve exists and call linit function if it exists. */
-
   if (lsolve == NULL) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup", MSG_LSOLVE_NULL);
     return(IDA_ILL_INPUT);

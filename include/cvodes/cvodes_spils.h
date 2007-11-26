@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.10 $
+ * $Date: 2007-11-26 16:19:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -147,7 +147,7 @@ extern "C" {
  * gamma   is the scalar appearing in the Newton matrix.
  *
  * user_data  is a pointer to user data - the same as the user_data
- *         parameter passed to the CVodeSetFdata function.
+ *         parameter passed to the CVodeSetUserData function.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated
  *                      for N_Vectors which can be used by
@@ -213,7 +213,7 @@ typedef int (*CVSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
  *        P2: lr = 1 means use P1, and lr = 2 means use P2.
  *
  * user_data is a pointer to user data - the same as the user_data
- *        parameter passed to the CVodeSetFdata function.
+ *        parameter passed to the CVodeSetUserData function.
  *
  * tmp    is a pointer to memory allocated for an N_Vector
  *        which can be used by PSolve for work space.
@@ -257,7 +257,7 @@ typedef int (*CVSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
  *   fy       is the vector f(t,y).
  *
  *   user_data   is a pointer to user data, the same as the user_data
- *            parameter passed to the CVodeSetFdata function. 
+ *            parameter passed to the CVodeSetUserData function. 
  *
  *   tmp      is a pointer to memory allocated for an N_Vector
  *            which can be used by Jtimes for work space.

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-08-20 22:40:35 $
+ * $Revision: 1.14 $
+ * $Date: 2007-11-26 16:20:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -702,7 +702,7 @@ int IDACreateB(void *ida_mem, int *which)
   IDASetUserData(ida_memB, ida_mem);
   
   /* Set same error output and handler for ida_memB. */
-  IDASetErrHandlerFn(ida_memB, IDA_mem->ida_ehfun);
+  IDASetErrHandlerFn(ida_memB, IDA_mem->ida_ehfun, IDA_mem->ida_eh_data);
   IDASetErrFile(ida_memB, IDA_mem->ida_errfp);
 
   /* Initialize fields in the IDABMem struct. */
