@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-11-26 16:20:01 $
+ * $Revision: 1.7 $
+ * $Date: 2007-12-05 23:37:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -123,7 +123,7 @@ int KINSetPrintLevel(void *kinmem, int printfl)
  * -----------------------------------------------------------------
  */
 
-int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun)
+int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data)
 {
   KINMem kin_mem;
 
@@ -135,7 +135,7 @@ int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun)
   kin_mem = (KINMem) kinmem;
 
   kin_mem->kin_ihfun = ihfun;
-  kin_mem->kin_ih_data = kin_mem->kin_user_data;
+  kin_mem->kin_ih_data = ih_data;
 
   return(KIN_SUCCESS);
 }
