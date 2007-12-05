@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.18 $
-# $Date: 2007-10-25 20:03:25 $
+# $Revision: 1.19 $
+# $Date: 2007-12-05 23:33:24 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
-# Copyright (c) 2002, The Regents of the University of California.
+# Copyright (c) 2007, The Regents of the University of California.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
@@ -13,7 +13,7 @@
 # ------------------------------------------------------------------------
 
 # Initialize configure
-AC_INIT(SUNDIALS, 2.3.0, radu@llnl.gov)
+AC_INIT(SUNDIALS, 2.4.0, radu@llnl.gov)
 
 # Display greeting
 SUNDIALS_DEV="yes"
@@ -56,7 +56,7 @@ if test "X${MPI_ENABLED}" = "Xyes"; then
   SUNDIALS_SET_MPICC
 fi
 if test "X${MPI_C_COMP_OK}" = "Xyes"; then
-  if test "X${FCMIX_ENABLED}" = "Xyes" || test "X${STB_ENABLED}" = "Xyes"; then
+  if test "X${FCMIX_ENABLED}" = "Xyes"; then
     echo ""
     echo "MPI-2 Functionality"
     echo "-------------------"
@@ -80,15 +80,6 @@ if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
   echo ""
   SUNDIALS_SET_EXAMPLES
   SUNDIALS_SET_DEV_EXAMPLES
-fi
-
-# Set Matlab support (optional)
-if test "X${STB_ENABLED}" = "Xyes"; then
-  echo ""
-  echo "Matlab Settings"
-  echo "---------------"
-  echo ""  
-  SUNDIALS_SET_MATLAB  
 fi
 
 # Run libtool checks
@@ -129,9 +120,6 @@ AC_SUBST(BLAS_LAPACK_LIBS)
 AC_SUBST(MPIF77_LNKR)
 AC_SUBST(OBJEXT)
 AC_SUBST(EXEEXT)
-AC_SUBST(STB_PARALLEL_OK)
-AC_SUBST(STB_OS)
-AC_SUBST(STB_PATH)
 AC_SUBST(MATLAB_CMD)
 AC_SUBST(MATLAB_CMD_FLAGS)
 AC_SUBST(MEXEXT)
@@ -140,9 +128,7 @@ AC_SUBST(MEXFLAGS)
 AC_SUBST(MEXLDADD)
 AC_SUBST(SLV_MODULES)
 AC_SUBST(EXS_MODULES)
-AC_SUBST(STB_MODULES)
 AC_SUBST(EXS_INSTDIR)
-AC_SUBST(STB_INSTDIR)
 
 # Generate makefiles
 echo ""

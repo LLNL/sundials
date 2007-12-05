@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2007-10-25 20:03:22 $
+# $Revision: 1.5 $
+# $Date: 2007-12-05 23:33:24 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -60,8 +60,8 @@ SET(cvodeslib_SOVERSION "2")
 SET(idalib_VERSION "2.0.0")
 SET(idalib_SOVERSION "2")
 
-SET(idalib_VERSION "0.0.0")
-SET(idalib_SOVERSION "0")
+SET(idaslib_VERSION "0.0.0")
+SET(idaslib_SOVERSION "0")
 
 SET(kinsollib_VERSION "1.0.0")
 SET(kinsollib_SOVERSION "1")

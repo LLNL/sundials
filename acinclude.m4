@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.53 $
-# $Date: 2007-10-25 20:03:23 $
+# $Revision: 1.54 $
+# $Date: 2007-12-05 23:33:24 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -130,7 +130,6 @@ MPI_ENABLED="yes"
 #
 CPODES_ENABLED="no"
 #
-STB_ENABLED="no"
 EXAMPLES_ENABLED="no"
 F77_EXAMPLES_ENABLED="no"
 DEV_EXAMPLES_ENABLED="no"
@@ -140,7 +139,6 @@ DEV_EXAMPLES_ENABLED="no"
 F77_OK="no"
 MPI_C_COMP_OK="no"
 MPI_F77_COMP_OK="no"
-STB_PARALLEL_OK="no"
 
 # This variable is set to "yes" if an AC_MSG_WARN statement
 # was executed
@@ -200,7 +198,6 @@ fi
 #   LAPACK_ENABLED   - enable Lapack support [yes]
 #   MPI_ENABLED      - enable parallel support [yes]
 #   EXAMPLES_ENABLED - enable example programs [no]
-#   STB_ENABLED      - enable sundialsTB Matlab interfaces [no]
 #  
 #------------------------------------------------------------------
 
@@ -358,23 +355,6 @@ if test "X${enableval}" = "Xno"; then
   EXAMPLES_ENABLED="no"
 else
   EXAMPLES_ENABLED="yes"
-fi
-])
-
-# Check if user wants to enable support for MEX compilation
-# sundialsTB is NOT built by default
-# If yes, then make certain source directory actually exists
-AC_ARG_ENABLE([sundialsTB],
-[AC_HELP_STRING([--enable-sundialsTB],[enable configuration of sundialsTB])],
-[
-if test "X${enableval}" = "Xno"; then
-  STB_ENABLED="no"
-else
-  if test -d ${srcdir}/sundialsTB ; then
-    STB_ENABLED="yes"
-  else
-    STB_ENABLED="no"
-  fi
 fi
 ])
 
@@ -2440,26 +2420,6 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
      F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"])
   fi
 
-  # Check if MPI implementation supports MPI_Comm_spawn() from
-  # MPI-2 specification
-  if test "X${STB_ENABLED}" = "Xyes"; then
-    AC_MSG_CHECKING([for MPI_Comm_spawn() from MPI-2 specification])
-    AC_LINK_IFELSE(
-    [AC_LANG_PROGRAM([[#include "mpi.h"]],
-    [[
-        int c;
-        char **v;
-        MPI_Info info;
-        MPI_Comm comm;
-        MPI_Init(&c, &v);
-        c = MPI_Comm_spawn(*v, v, c, info, c, comm, &comm, &c);
-        MPI_Finalize();
-    ]])],
-    [STB_PARALLEL_OK="yes"],
-    [STB_PARALLEL_OK="no"])
-     AC_MSG_RESULT([${STB_PARALLEL_OK}])
-  fi
-
   # Reset CC if necessary
   if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
     CC="${SAVED_CC}"
@@ -2477,248 +2437,6 @@ LIBS="${SAVED_LIBS}"
 
 ]) dnl END SUNDIALS_CHECK_MPI2
 
-#------------------------------------------------------------------
-# CHECK MATLAB
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_SET_MATLAB],
-[
-
-AC_REQUIRE([AC_CANONICAL_HOST])
-
-# Set the STB_OS variable, depending on the build OS
-case $build_os in
-  *cygwin*)
-    STB_OS="cygwin"
-    ;;
-  *mingw*)
-    STB_OS="mingw"
-    ;;
-  *) 
-    STB_OS="other"
-    ;;
-esac
-
-# Under cygwin, check if CFLGAGS contains -mno-cygwin 
-if test "X${STB_OS}" = "Xcygwin"; then
-  AC_MSG_CHECKING([if CFLAGS contains -mno-cygwin])
-  cv_no_cygwin_exists="no"
-  for i in ${CFLAGS}
-  do
-    if test "X${i}" = "X-mno-cygwin"; then
-      cv_no_cygwin_exists="yes"
-    fi
-  done
-  AC_MSG_RESULT([${cv_no_cygwin_exists}])
-  if test "X${cv_no_cygwin_exists}" = "Xno"; then
-    AC_MSG_WARN([compilation of sundialsTB mex files may fail])
-    echo ""
-    echo "   Building under CYGWIN without -mno-cygwin"
-    echo ""
-    echo "   Beware that compilation of the sundialsTB mex files may fail."
-    echo ""
-    SUNDIALS_WARN_FLAG="yes"
-  fi 
-fi
-
-AC_ARG_WITH([],[      ],[])
-
-# Find Matlab program. If --with-matlab=<matlab> was passed to the configure 
-# script, then we only check if it exists and is an executable file. We'll try
-# to run it later... Otherwise, use AC_PATH_PROG to search for matlab.
-MATLAB_CMD="none"
-AC_ARG_WITH([matlab], 
-[AC_HELP_STRING([--with-matlab=MATLAB], [specify Matlab executable])],
-[
-AC_MSG_CHECKING([for matlab])
-if test -f ${withval} ; then
-  AC_MSG_RESULT([${withval}])
-  MATLAB_CMD="${withval}"
-else
-  AC_MSG_RESULT([none])
-  AC_MSG_WARN([invalid value '${withval}' for --with-matlab])
-  echo ""
-  echo "   ${withval} does not exist"
-  echo ""
-  echo "   Disabling compilation of sundialsTB mex files..."
-  echo ""
-  SUNDIALS_WARN_FLAG="yes"
-  STB_ENABLED="no"
-fi
-],
-[
-AC_PATH_PROG(MATLAB_CMD, matlab, "none")
-if test "X${MATLAB_CMD}" = "Xnone"; then
-  STB_ENABLED="no"
-fi
-])
-
-MATLAB_CMD_FLAGS="-nojvm -nosplash"
-
-# Set MEXOPTS (MEX options file)
-if test "X${STB_ENABLED}" = "Xyes"; then
-
-  MEXOPTS=""
-  AC_ARG_WITH([mexopts], 
-  AC_HELP_STRING([--with-mexopts=ARG], [use MEX options file ARG [[standard]]]),
-  [
-  cv_mexopts_file="${withval}"
-  if test -f ${cv_mexopts_file} ; then
-    cv_mexopts_dir=`AS_DIRNAME(["${cv_mexopts_file}"])`
-    # MEX options file is located under the current working directory
-    if test "X${cv_mexopts_dir}" = "X${cv_mexopts_file}"; then
-      cv_mexopts_dir="."
-      cv_mexopts_name="${cv_mexopts_file}"
-      cv_mexopts_file="${cv_mexopts_dir}/${cv_mexopts_name}"
-    fi
-    MEXOPTS="-f ${cv_mexopts_file}"
-  else
-    AC_MSG_WARN([invalid value '${cv_mexopts_file}' for --with-mexopts])
-    echo ""
-    echo "   ${cv_mexopts_file} does not exist"
-    echo ""
-    echo "   Disabling compilation of sundialsTB mex files..."
-    echo ""
-    SUNDIALS_WARN_FLAG="yes"
-    STB_ENABLED="no"
-  fi
-  ])
-
-fi
-
-# Set MEXFLAGS and MEXLDADD
-if test "X${STB_ENABLED}" = "Xyes"; then
-
-  AC_MSG_CHECKING([for MEX compiler compiler flags])
-  AC_ARG_WITH([mexflags], 
-  [AC_HELP_STRING([--with-mexflags=ARG], [specify MEX compiler flags])],
-  [
-  AC_MSG_RESULT([${withval}])
-  MEXFLAGS="${withval}"
-  ],
-  [
-  # If MEXFLAGS is not defined, set it to the default -O
-  if test "X${MEXFLAGS}" = "X"; then
-    MEXFLAGS="-O"
-  fi
-  AC_MSG_RESULT([${MEXFLAGS}])
-  ])
-
-  AC_MSG_CHECKING([for additional MEX linker flags])
-  AC_ARG_WITH([mexldadd], 
-  [AC_HELP_STRING([--with-mexldadd=ARG], [specify additional MEX linker flags])],
-  [
-  AC_MSG_RESULT([${withval}])
-  MEXLDADD="${withval}"
-  ],
-  [
-  # If MEXLDADD is not defined, none are used
-  if test "X${MEXLDADD}" = "X"; then
-    MEXLDADD=""
-    AC_MSG_RESULT([none])
-  else
-    AC_MSG_RESULT([${MEXLDADD}])
-  fi
-  ])
-
-fi
-
-# Run matlab and try the MEX compiler. Set extension for MEX files (set MEXEXT)
-if test "X${STB_ENABLED}" = "Xyes"; then
-
-  AC_MSG_CHECKING([if the Matlab MEX compiler works])
-
-  # Create test file cvmextest.c (temporary file)
-  cat > cvmextest.c <<_END_MEX_C
-#include "mex.h"
-void mexFunction(int nlhs, mxArray **plhs, int nrhs, const mxArray **prhs)
-{}
-_END_MEX_C
-
-  # Create test file cvmextest_script.m (temporary file)
-  cat > cvmextest_script.m <<_END_MEX_M
-mex ${MEXOPTS} ${MEXFLAGS} -output cvmextest cvmextest.c ${MEXLDADD}
-exit
-_END_MEX_M
-
-  # Run matlab in batch mode
-  # Warning: File descriptors and I/O redirection can be problematic
-  ( eval ${MATLAB_CMD} ${MATLAB_CMD_FLAGS} -r cvmextest_script ) 2>/dev/null 1>&2
-
-  # Get exit status of previous command (meaning eval statement)
-  cv_status=$?
-
-  # MEX test succeeded
-  if test "${cv_status}" = "0"; then
-     AC_MSG_RESULT([yes])
-     AC_MSG_CHECKING([for MEX file extension])
-     if test -f cvmextest.dll ; then
-        MEXEXT="dll"
-     elif test -f cvmextest.mex ; then
-        MEXEXT="mex"
-     elif test -f cvmextest.mexaxp ; then
-        MEXEXT="mexaxp"
-     elif test -f cvmextest.mexglx ; then
-        MEXEXT="mexglx"
-     elif test -f cvmextest.mexhp7 ; then
-        MEXEXT="mexhp7"
-     elif test -f cvmextest.mexhpux ; then
-        MEXEXT="mexhpux"
-     elif test -f cvmextest.mexrs6 ; then
-        MEXEXT="mexrs6"
-     elif test -f cvmextest.mexsg ; then
-        MEXEXT="mexsg"
-     elif test -f cvmextest.mexsol ; then
-        MEXEXT="mexsol"
-     else
-	MEXEXT=""
-     fi
-     AC_MSG_RESULT([${MEXEXT}])
-  # MEX test failed
-  else 
-     AC_MSG_RESULT([no])
-     STB_ENABLED="no"
-  fi
-
-  # Remove temporary files
-  rm -f cvmextest*
-
-fi
-
-# Determine where to install sundialsTB
-if test "X${STB_ENABLED}" = "Xyes"; then
-
-  AC_ARG_WITH([],[           ],[])
-  AC_MSG_CHECKING([where to install sundialsTB])
-  AC_ARG_WITH([sundialsTB-instdir],
-  [AC_HELP_STRING([--with-sundialsTB-instdir=STBINSTDIR], [install sundialsTB in STBINSTDIR @<:@MATLAB/toolbox@:>@])],
-  [
-    STB_INSTDIR="${withval}"
-  ],
-  [
-    if test "X${MATLAB}" = "X"; then
-      STB_INSTDIR="no"
-    else
-      STB_INSTDIR="${MATLAB}/toolbox/sundialsTB"
-    fi
-  ])
-
-  # Set STB_PATH (usually same as STB_INSTDIR)
-  if test "X${STB_OS}" = "Xcygwin"; then
-    STB_PATH=`cygpath -a -m "${STB_INSTDIR}"`
-  elif test "X${STB_OS}" = "Xmingw"; then
-    STB_PATH=`cd "${STB_INSTDIR}" > /dev/null 2>&1 && pwd -W`
-  else
-    STB_PATH="${STB_INSTDIR}"
-  fi
-
-  AC_MSG_RESULT([${STB_PATH}])
-
-fi
-
-AC_ARG_WITH([],[        ],[])
-
-]) dnl END SUNDIALS_SET_MEX
 
 #------------------------------------------------------------------
 # ADD SOME MORE STUFF TO configure --help
@@ -2880,7 +2598,6 @@ else
 fi
 
 EXS_MODULES=""
-STB_MODULES=""
 
 # NVECTOR modules
 if test -d ${srcdir}/src/nvec_ser ; then
@@ -3138,39 +2855,6 @@ fi
 if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${EXS_INSTDIR}" != "Xno"; then
   SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} bin/makefile-update.sh:bin/makefile-update.in"
 fi
-
-# sundialsTB modules
-if test "X${STB_ENABLED}" = "Xyes"; then
-
-  if test "X${CVODES_ENABLED}" = "Xyes" || test "X${IDA_ENABLED}" = "Xyes" || test "X${KINSOL_ENABLED}" = "Xyes"; then
-    SLV_MODULES="${SLV_MODULES} sundialsTB"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/Makefile:sundialsTB/Makefile.in"
-    SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundialsTB/startup_STB.m:sundialsTB/startup_STB.in"
-  fi
-
-  if test "X${CVODES_ENABLED}" = "Xyes"; then
-    STB_MODULES="${STB_MODULES} cvodes/cvm/src"
-    SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundialsTB/cvodes/cvm/src/setup.m:sundialsTB/cvodes/cvm/src/setup.m.in"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/cvodes/cvm/src/Makefile:sundialsTB/cvodes/cvm/src/Makefile.in"
-  fi
-
-  if test "X${IDA_ENABLED}" = "Xyes"; then
-    STB_MODULES="${STB_MODULES} idas/idm/src"
-    SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundialsTB/idas/idm/src/setup.m:sundialsTB/idas/idm/src/setup.m.in"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/idas/idm/src/Makefile:sundialsTB/idas/idm/src/Makefile.in"
-  fi
-
-  if test "X${KINSOL_ENABLED}" = "Xyes"; then
-    STB_MODULES="${STB_MODULES} kinsol/kim/src"
-    SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} sundialsTB/kinsol/kim/src/setup.m:sundialsTB/kinsol/kim/src/setup.m.in"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} sundialsTB/kinsol/kim/src/Makefile:sundialsTB/kinsol/kim/src/Makefile.in"
-  fi
-
-fi
-
-
-
-
 
 ]) dnl END SUNDIALS_BUILD_MODULES_LIST
 
@@ -3599,15 +3283,6 @@ echo "
   MPI-Fortran Linker:        ${MPIF77_LNKR}"
 fi
 
-if test "X${STB_ENABLED}" = "Xyes"; then
-echo "
-  Matlab executable:         ${MATLAB_CMD}
-  Extension of MEX files:    ${MEXEXT}
-  Mex options file:          ${MEXOPTS}
-  Mex compiler options:      ${MEXFLAGS}
-  Mex linker flags:          ${MEXLDADD}"
-fi
-
 # Determine SOURCE, BUILD, and EXEC_PREFIX directories
 cv_srcdir=`( cd ${srcdir} ; pwd )`
 cv_builddir=`pwd`
@@ -3627,9 +3302,6 @@ echo "
 
 if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
 echo "  examples installed in:     ${EXS_INSTDIR}"
-fi
-if test "X${STB_ENABLED}" = "Xyes"; then
-echo "  sundialsTB installed in:   ${STB_PATH}"
 fi
 
 echo "
@@ -3673,20 +3345,6 @@ fi
 
 if test "X${CPODES_ENABLED}" = "Xyes"; then
   THIS_LINE="CPODES"
-  echo "  ${THIS_LINE}"
-fi
-
-if test "X${STB_ENABLED}" = "Xyes"; then
-  THIS_LINE="sundialsTB:"
-  if test "X${CVODES_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/cvodes ; then
-    THIS_LINE="${THIS_LINE} cvodes"
-  fi
-  if test "X${IDA_ENABLED}" = "Xyes" && test -d ${srcdir}/sundialsTB/idas ; then
-    THIS_LINE="${THIS_LINE} idas"
-  fi
-  if test "X${KINSOL_ENABLED}" = "Xyes"; then
-     THIS_LINE="${THIS_LINE} kinsol"
-  fi
   echo "  ${THIS_LINE}"
 fi
 
