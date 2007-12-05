@@ -1,7 +1,7 @@
 List of parallel KINSOL examples
 
-  kinkryx_p     : 2-D food web system, block-diagonal preconditioner
-  kinkryx_bbd_p : kinkryx_p problem with BBD preconditioner
+  kinFoodWeb_kry_bbd_p: 2-D food web system, BBD preconditioner
+  kinFoodWeb_kry_p:     2-D food web system, block-diagonal preconditioner
 
 Sample results:
 

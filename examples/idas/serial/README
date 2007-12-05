@@ -1,17 +1,18 @@
 List of serial IDAS examples
 
-  idasRobertson        : 3-species Robertson kinetics system  with a user-supplied Jacobian
-  idasHeat2D_b         : 2-D heat equation, banded Jacobian
-  idasFoodWeb_b        : 2-D food web system, banded Jacobian
-  idasHeat2D_k         : 2-D heat equation, diagonal preconditioner
-  idasKrylovDemo       : demonstration program with 3 Krylov solvers
-  idasRobertsonFSA     : forward sensitivity for Robertson kinetics system
-  idasRobertsonASA     : adjoint sensitivity for Robertson kinetics system
-  idasRobertsonHessian : computation of Hessian for Robertson kinetics system
-  idasSliderCrank      : slider-crank simulation
-  idasSliderCrankFSA   : forward sensitivity for slider-crank
-  idasAkzoNobel        : chemical Akzo-Nobel problem
-  idasAkzoNobelASA     : adjoint sensitivity for the chemical Akzo-Nobel problem
+  idasAkzoNob_ASAi_dns  : adjoint sensitivity for the chemical Akzo-Nobel problem
+  idasAkzoNob_dns       : chemical Akzo-Nobel problem
+  idasFoodWeb_bnd       : 2-D food web system, banded Jacobian
+  idasHeat2D_bnd        : 2-D heat equation, banded Jacobian
+  idasHeat2D_kry        : 2-D heat equation, diagonal preconditioner
+  idasHessian_ASA_FSA   : computation of Hessian for Robertson kinetics system
+  idasKrylovDemo_ls     : demonstration program with 3 Krylov solvers
+  idasRoberts_ASAi_dns  : adjoint sensitivity for Robertson kinetics system
+  idasRoberts_dns       : 3-species Robertson kinetics system  with a user-supplied Jacobian
+  idasRoberts_FSA_dns   : forward sensitivity for Robertson kinetics system
+  idasSlCrank_dns       : slider-crank simulation
+  idasSlCrank_FSA_dns   : forward sensitivity for slider-crank
+
 
 Sample results:
 

@@ -1,8 +1,8 @@
 List of parallel CVODE examples
 
-  cvnonx_p     : 1-D advection-diffusion (nonstiff)
-  cvkryx_p     : 2-D 2-species diurnal advection-diffusion
-  cvkryx_bbd_p : cvkryx_p with BBD preconditioner
+  cvAdvDiff_non_p       : 1-D advection-diffusion (nonstiff)
+  cvDiurnal_kry_bbd_p   : 2-D 2-species diurnal advection-diffusion with BBD preconditioner
+  cvDiurnal_kry_p       : 2-D 2-species diurnal advection-diffusion
 
 Sample results:
 

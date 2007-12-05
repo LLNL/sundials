@@ -1,9 +1,10 @@
 List of serial CVODE FCMIX examples
 
-  fcvdenx    : chemical kinetics example (BDF/DENSE)
-  fcvbanx    : advection-diffusion example (BDF/BAND)
-  fcvkryx    : kinetics-transport example (BDF/SPGMR/User Prec)
-  fcvkryx_bp : kinetics-transport example (BDF/SPGMR/FCVBP)
+  fcvAdvDiff_bnd     : advection-diffusion example (BDF/BAND)
+  fcvDiurnal_kry_bp  : kinetics-transport example (BDF/SPGMR/FCVBP)
+  fcvDiurnal_kry     : kinetics-transport example (BDF/SPGMR/User Prec)
+  fcvRoberts_dns     : chemical kinetics example (BDF/DENSE)
+  fcvRoberts_dnsL    : chemical kinetics example (BDF/DENSE lapack)
 
 Sample results:
 

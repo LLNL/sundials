@@ -1,6 +1,6 @@
 List of parallel IDA FCMIX examples
 
-  fidakryx_bbd_p : 2D heat equation (SPGMR w/FIDABBD preconditioner)
+  fidaHeat2D_kry_bbd_p : 2D heat equation (SPGMR w/FIDABBD preconditioner)
 
 Sample results:
 

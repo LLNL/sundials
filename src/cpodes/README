@@ -1,5 +1,5 @@
                               CPODES
-                    Release 0.0.1, December 2006
+                    Release 1.0.0, Month YYYY
                             Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -18,8 +18,8 @@ invariant manifold (i.e. c(t0, y0) = 0).
 
 CPODES is part of a software family called SUNDIALS: SUite of Nonlinear
 and DIfferential/ALgebraic equation Solvers.  This suite consists of
-CVODE, CVODES, KINSOL, IDA, and CPODES. The directory structure of the 
-package reflects this family relationship.
+CVODE, CVODES, IDA, IDAS, KINSOL, and CPODES. The directory structure of
+the package reflects this family relationship.
 
 CPODES can be used both on serial and parallel (MPI) computers, the main 
 difference being in the NVECTOR module of vector kernels.  The desired
@@ -131,7 +131,7 @@ C. References
 D. Releases
 -----------
 
-v. 0.0.1       - Dec. 2006
+v. 1.0.0       - mmm. YYY
 
 
 E. Revision History

@@ -1,6 +1,6 @@
 List of parallel KINSOL FCMIX examples
 
-  fkinkryx_p : simple diagonal test with Fortran interface
+  fkinDiagon_kry_p: simple diagonal test with Fortran interface
 
 Sample result:
 

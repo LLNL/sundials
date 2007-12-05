@@ -1,13 +1,15 @@
 List of serial CVODE examples
 
-  cvdenx       : dense example
-  cvdenx_uw    : dense example with user ewt function
-  cvbanx       : banded example
-  cvkryx       : Krylov example
-  cvkryx_bp    : Krylov example with banded preconditioner
-  cvdirectdem  : demonstration program for direct methods
-  cvkrydem_lin : demonstration program with 3 Krylov solvers
-  cvkrydem_pre : demonstration program for Krylov methods
+  cvAdvDiff_bnd      : banded example
+  cvAdvDiff_bndL     : banded example (Lapack)
+  cvDirectDemo_ls    : demonstration program for direct methods
+  cvDiurnal_kry_bp   : Krylov example with banded preconditioner
+  cvDiurnal_kry      : Krylov example
+  cvKrylovDemo_ls    : demonstration program with 3 Krylov solvers
+  cvKrylovDemo_prec  : demonstration program for Krylov methods
+  cvRoberts_dns      : dense example
+  cvRoberts_dnsL     : dense example (Lapack)
+  cvRoberts_dns_uw   : dense example with user ewt function
 
 Sample results:
 

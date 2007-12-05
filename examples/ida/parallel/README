@@ -1,9 +1,9 @@
 List of parallel IDA examples
 
-  idakryx1_p     : 2-D heat equation, diagonal preconditioner
-  idakryx1_bbd_p : 2-D heat equation, BBD preconditioner
-  idakryx2_p     : 2-D food web, block-diagonal preconditioner
-  idakryx2_bbd_p : 2-D food web, BBD preconditioner
+  idaFoodWeb_kry_bbd_p : 2-D food web, BBD preconditioner
+  idaFoodWeb_kry_p     : 2-D food web, block-diagonal preconditioner
+  idaHeat2D_kry_bbd_p  : 2-D heat equation, BBD preconditioner
+  idaHeat2D_kry_p      : 2-D heat equation, diagonal preconditioner
 
 Sample results:
 

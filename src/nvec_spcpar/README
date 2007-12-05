@@ -45,9 +45,8 @@ A. Documentation
 ----------------
 
 The MPI spc_parallel NVECTOR implementation is fully described in the user
-documentation for any of the SUNDIALS solvers [1,2,3,4]. PostScript
-and PDF files for the user guide for a particular solver are available
-in the solver's directory.
+documentation for any of the SUNDIALS solvers [1-5].  A PDF file for the user
+guide for a particular solver is available in the solver's subdirectory under doc/.
 
 
 B. Installation
@@ -69,7 +68,10 @@ C. References
 [3] A. C. Hindmarsh and R. Serban, "User Documentation for IDA v2.2.0," 
     LLNL technical report UCRL-MA-208112, November 2004.
 
-[4] A. M. Collier, A. C. Hindmarsh, R. Serban,and C. S. Woodward, "User 
+[4] R. Serban and C. Petra,  "User Documentation for IDAS v1.0.0," 
+    LLNL technical report UCRL-SM-234051, August 2007.
+
+[5] A. M. Collier, A. C. Hindmarsh, R. Serban,and C. S. Woodward, "User 
     Documentation for KINSOL v2.2.0," LLNL technical report UCRL-MA-208116, 
     November 2004.
 
