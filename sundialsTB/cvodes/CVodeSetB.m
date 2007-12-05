@@ -1,4 +1,4 @@
-function CVodeSetB(idxB, varargin)
+function status = CVodeSetB(idxB, varargin)
 %CVodeSetB changes optional input values during the integration.
 %
 %   Usage: CVodeSetB( IDXB, 'NAME1',VALUE1,'NAME2',VALUE2,... )
@@ -24,7 +24,7 @@ function CVodeSetB(idxB, varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:51:31 $
+% $Revision: 1.2 $Date: 2007/05/16 17:12:56 $
 
 if (nargin == 0)
   fprintf('        UserData\n');
@@ -45,4 +45,4 @@ options = cvm_options(KeyNames,varargin{:});
 
 mode = 34;
 
-cvm(mode, idxB, options);
+status = cvm(mode, idxB, options);

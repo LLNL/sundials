@@ -1,4 +1,4 @@
-function CVodeAdjReInit()
+function status = CVodeAdjReInit()
 %CVodeAdjReInit re-initializes memory for ASA with CVODES.
 %
 %   Usage: CVodeAdjReInit
@@ -6,8 +6,8 @@ function CVodeAdjReInit()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:25 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:31 $
 
 mode = 14;
 
-cvm(mode);
+status = cvm(mode);

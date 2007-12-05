@@ -154,6 +154,10 @@ function options = IDASetOptions(varargin)
 %   forward sensitivites. If TRUE, the residual function provided for
 %   this backward problem must have the appropriate type (see IDAResFnB).
 %
+%ErrorMessages - Post error/warning messages [ {true} | false ]
+%   Note that any errors in IDAInit will result in a Matlab error, thus
+%   stoping execution. Only subsequent calls to IDAS functions will respect
+%   the value specified for 'ErrorMessages'.
 %
 %NOTES:
 %
@@ -177,7 +181,7 @@ function options = IDASetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/08/10 18:01:03 $
+% $Revision: 1.5 $Date: 2007/08/21 17:38:43 $
 
 
 % If called without input and output arguments, print out the possible keywords
@@ -218,6 +222,8 @@ if (nargin == 0) & (nargout == 0)
   fprintf('\n');
   fprintf('   SensDependent: [ {false} | true ]\n');
   fprintf('\n');
+  fprintf('   ErrorMessages: [ false | {true} ]\n');
+  fprintf('\n');
   return;
 end
 
@@ -251,6 +257,7 @@ KeyNames = {
     'MonitorFn'
     'MonitorData'
     'SensDependent'
+    'ErrorMessages'
            };
 
 options = idm_options(KeyNames,varargin{:});

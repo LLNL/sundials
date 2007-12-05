@@ -1,4 +1,4 @@
-function CVodeAdjInit(steps, interp)
+function status = CVodeAdjInit(steps, interp)
 %CVodeAdjInit allocates and initializes memory for ASA with CVODES.
 %
 %   Usage: CVodeAdjInit(STEPS, INTEPR) 
@@ -12,7 +12,7 @@ function CVodeAdjInit(steps, interp)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:25 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:31 $
 
 mode = 4;
 
@@ -20,4 +20,4 @@ if nargin ~= 2
   error('Wrong number of input arguments');
 end
 
-cvm(mode,steps,interp);
+status = cvm(mode,steps,interp);

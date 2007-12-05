@@ -1,4 +1,4 @@
-function si = CVodeGetStatsB(idxB)
+function [si, status] = CVodeGetStatsB(idxB)
 %CVodeGetStatsB returns run statistics for the backward CVODES solver.
 %
 %   Usage: STATS = CVodeGetStatsB( IDXB ) 
@@ -63,7 +63,7 @@ function si = CVodeGetStatsB(idxB)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/10/11 18:12:36 $
+% $Revision: 1.5 $Date: 2007/05/11 18:51:32 $
 
 mode = 31;
 
@@ -72,5 +72,5 @@ if nargin ~= 1
 end
 
 idxB = idxB-1;
-si = cvm(mode, idxB);
+[si, status] = cvm(mode, idxB);
 

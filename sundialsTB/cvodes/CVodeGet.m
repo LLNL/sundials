@@ -1,4 +1,4 @@
-function varargout = CVodeGet(key, varargin)
+function [output, status] = CVodeGet(key, varargin)
 %CVodeGet extracts data from the CVODES solver memory.
 %
 %   Usage: RET = CVodeGet ( KEY [, P1 [, P2] ... ]) 
@@ -19,21 +19,18 @@ function varargout = CVodeGet(key, varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.5 $Date: 2007/05/11 18:51:31 $
+% $Revision: 1.6 $Date: 2007/08/21 17:42:38 $
 
 mode = 32;
 
 if strcmp(key, 'DerivSolution')
   t = varargin{1};
   k = varargin{2};
-  dky = cvm(mode,1,t,k);
-  varargout(1) = {dky};
+  [output, status] = cvm(mode, 1, t, k);
 elseif strcmp(key, 'ErrorWeights')
-  ewt = cvm(mode,2);
-  varargout(1) = {ewt};
+  [output, status] = cvm(mode, 2);
 elseif strcmp(key, 'CheckPointsInfo')
-  ck = cvm(mode,4);
-  varargout(1) = {ck};
+  [output, status] = cvm(mode, 4);
 else
   error('CVodeGet:: Unrecognized key');
 end

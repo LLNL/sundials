@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-10-09 23:56:25 $
+ * $Revision: 1.4 $
+ * $Date: 2007-12-05 21:58:20 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,16 +17,13 @@
 #include <string.h>
 #include "kim.h"
 
-extern kim_KINSOLdata kim_Kdata;  /* KINSOL data */
-extern kim_MATLABdata kim_Mdata;  /* MATLAB data */
-
-/* 
+/*
  * ---------------------------------------------------------------------------------
- * Private constants
+ * Global interface data variable (defined in kim.c)
  * ---------------------------------------------------------------------------------
  */
 
-#define ONE RCONST(1.0)
+extern kimInterfaceData kimData;
 
 /*
  * ---------------------------------------------------------------------------------
@@ -34,15 +31,17 @@ extern kim_MATLABdata kim_Mdata;  /* MATLAB data */
  * ---------------------------------------------------------------------------------
  */
 
-#define N  (kim_Kdata->N)
-#define ls (kim_Kdata->ls)
-#define pm (kim_Kdata->pm)
+#define N            (kimData->n)
+#define ls           (kimData->LS)
+#define pm           (kimData->PM)
 
-#define mx_JACfct  (kim_Mdata->mx_JACfct)
-#define mx_PSETfct (kim_Mdata->mx_PSETfct)
-#define mx_PSOLfct (kim_Mdata->mx_PSOLfct)
-#define mx_GLOCfct (kim_Mdata->mx_GLOCfct)
-#define mx_GCOMfct (kim_Mdata->mx_GCOMfct)
+#define mtlb_data    (kimData->mtlb_data)
+
+#define mtlb_JACfct  (kimData->JACfct)
+#define mtlb_PSETfct (kimData->PSETfct)
+#define mtlb_PSOLfct (kimData->PSOLfct)
+#define mtlb_GLOCfct (kimData->GLOCfct)
+#define mtlb_GCOMfct (kimData->GCOMfct)
 
 /*
  * ---------------------------------------------------------------------------------
@@ -51,7 +50,7 @@ extern kim_MATLABdata kim_Mdata;  /* MATLAB data */
  */
 
 int get_SolverOptions(const mxArray *options,
-                      booleantype *verbose,
+                      booleantype *verbose, booleantype *errmsg,
                       int *mxiter, int *msbset, int *msbsetsub, 
                       int *etachoice, int *mxnbcf,
                       double *eta, double *egamma, double *ealpha, double *mxnewtstep, 
@@ -61,7 +60,7 @@ int get_SolverOptions(const mxArray *options,
 {
   mxArray *opt;
   char *bufval;
-  int i, buflen, status, n;
+  int i, buflen, status, m, n;
   double *tmp;
 
   /* Set default values (pass 0 values. KINSOL does the rest) */
@@ -82,13 +81,23 @@ int get_SolverOptions(const mxArray *options,
 
   *noInitSetup = FALSE;
   *noMinEps = FALSE;
-  *verbose = FALSE;
 
   *constraints = NULL;
+
+  *verbose = FALSE;
+  *errmsg = TRUE;
 
   /* Return now if options was empty */
 
   if (mxIsEmpty(options)) return(0);
+
+  /* User data */
+
+  opt = mxGetField(options,0,"UserData");
+  if ( !mxIsEmpty(opt) ) {
+    mxDestroyArray(mtlb_data);
+    mtlb_data = mxDuplicateArray(opt);
+  }
 
   /* Integer values */
 
@@ -113,10 +122,17 @@ int get_SolverOptions(const mxArray *options,
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0) return(status);
+    if(status != 0) {
+      kimErrHandler(-999, "KINSOL", "KINInit", "Cannot parse EtaForm.", NULL);
+      return(-1);
+    }
     if(strcmp(bufval,"Type1"))         *etachoice = KIN_ETACHOICE1;
     else if(strcmp(bufval,"Type2"))    *etachoice = KIN_ETACHOICE2;
     else if(strcmp(bufval,"Constant")) *etachoice = KIN_ETACONSTANT;
+    else {
+      kimErrHandler(-999, "KINSOL", "KINInit", "EtaForm has an illegal value.", NULL);
+      return(-1);
+    }
   }
   
   /* Real values */
@@ -151,40 +167,71 @@ int get_SolverOptions(const mxArray *options,
 
   /* Boolean values */
 
+  opt = mxGetField(options,0,"ErrorMessages");
+  if ( !mxIsEmpty(opt) ) {
+    if (!mxIsLogical(opt)) {
+      kimErrHandler(-999, "KINSOL", "KINInit", "ErrorMessages is not a logical scalar.", NULL);
+      return(-1);
+    }
+    if (mxIsLogicalScalarTrue(opt)) *errmsg = TRUE;
+    else                            *errmsg = FALSE;
+  }
+
   opt = mxGetField(options,0,"Verbose");
-  if ( !mxIsEmpty(opt) )
-    *verbose = mxIsLogicalScalarTrue(opt);
+  if ( !mxIsEmpty(opt) ) {
+    if (!mxIsLogical(opt)) {
+      kimErrHandler(-999, "KINSOL", "KINInit", "Verbose is not a logical scalar.", NULL);
+      return(-1);
+    }
+    if (mxIsLogicalScalarTrue(opt)) *verbose = TRUE;
+    else                            *verbose = FALSE;
+  }
 
   opt = mxGetField(options,0,"InitialSetup");
-  if ( !mxIsEmpty(opt) )
-    *noInitSetup = !mxIsLogicalScalarTrue(opt);
+  if ( !mxIsEmpty(opt) ) {
+    if (!mxIsLogical(opt)) {
+      kimErrHandler(-999, "KINSOL", "KINInit", "InitialSetup is not a logical scalar.", NULL);
+      return(-1);
+    }
+    if (mxIsLogicalScalarTrue(opt)) *noInitSetup = FALSE;
+    else                            *noInitSetup = TRUE;
+  }
+
 
   opt = mxGetField(options,0,"MinBoundEps");
-  if ( !mxIsEmpty(opt) )
-    *noMinEps = !mxIsLogicalScalarTrue(opt);
-
+  if ( !mxIsEmpty(opt) ) {
+    if (!mxIsLogical(opt)) {
+      kimErrHandler(-999, "KINSOL", "KINInit", "MinBoundEps is not a logical scalar.", NULL);
+      return(-1);
+    }
+    if (mxIsLogicalScalarTrue(opt)) *noMinEps = FALSE;
+    else                            *noMinEps = TRUE;
+  }
 
   /* Constraints */
 
   opt = mxGetField(options,0,"Constraints");
   if ( !mxIsEmpty(opt) ) {
-    tmp = mxGetPr(opt);
+    m = mxGetM(opt);
     n = mxGetN(opt);
-    if (n == N) {
-      *constraints = (double *) malloc(N*sizeof(int));
-      for (i=0;i<N;i++)
-        (*constraints)[i] = tmp[i];
-    } else {
-      return(1); /* Error */
+    if ( (n != 1) && (m != 1) ) {
+      kimErrHandler(-999, "KINSOL", "KINInit", "constraints is not a vector.", NULL);
+      return(-1);
     }
+    if ( m > n ) n = m;
+    if ( n != N ) {
+      kimErrHandler(-999, "KINSOL", "KINInit", "constraints has wrong number of components.", NULL);
+      return(-1);
+    }
+    tmp = mxGetPr(opt);
+    *constraints = (double *) malloc(N*sizeof(double));
+    for (i=0;i<N;i++) (*constraints)[i] = tmp[i];
   }
 
   /* We made it here without problems */
 
   return(0);
 }
-
-
 
 
 int get_LinSolvOptions(const mxArray *options,
@@ -222,22 +269,27 @@ int get_LinSolvOptions(const mxArray *options,
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0) 
-      mexErrMsgTxt("Cannot parse LinearSolver.");
-    if(!strcmp(bufval,"Band")) ls = LS_BAND;
-    else if(!strcmp(bufval,"GMRES")) ls = LS_SPGMR;
+    if(status != 0) {
+      kimErrHandler(-999, "KINSOL", "KINInit", "Cannot parse LinearSolver.", NULL);
+      return(-1);
+    }
+    if(!strcmp(bufval,"Band"))          ls = LS_BAND;
+    else if(!strcmp(bufval,"GMRES"))    ls = LS_SPGMR;
     else if(!strcmp(bufval,"BiCGStab")) ls = LS_SPBCG;
-    else if(!strcmp(bufval,"TFQMR")) ls = LS_SPTFQMR;
-    else if(!strcmp(bufval,"Dense")) ls = LS_DENSE;
-    else mexErrMsgTxt("LinearSolver has an illegal value.");
+    else if(!strcmp(bufval,"TFQMR"))    ls = LS_SPTFQMR;
+    else if(!strcmp(bufval,"Dense"))    ls = LS_DENSE;
+    else {
+      kimErrHandler(-999, "KINSOL", "KINInit", "LinearSolver has an illegal value.", NULL);
+      return(-1);
+    }
   }
   
   /* Jacobian function */
 
   opt = mxGetField(options,0,"JacobianFn");
   if ( !mxIsEmpty(opt) ) {
-    mxDestroyArray(mx_JACfct);
-    mx_JACfct  = mxDuplicateArray(opt);
+    mxDestroyArray(mtlb_JACfct);
+    mtlb_JACfct  = mxDuplicateArray(opt);
   }
 
   /* Band linear solver */
@@ -273,8 +325,10 @@ int get_LinSolvOptions(const mxArray *options,
     opt = mxGetField(options,0,"KrylovMaxDim");
     if ( !mxIsEmpty(opt) ) {
       *maxl = (int)*mxGetPr(opt);
-      if (*maxl < 0) 
-        mexErrMsgTxt("KrylovMaxDim is negative.");
+      if (*maxl < 0) {
+        kimErrHandler(-999, "KINSOL", "KINInit", "KrylovMaxDim is negative.", NULL);
+        return(-1);
+      }
     }
 
     /* Preconditioning type */
@@ -284,25 +338,30 @@ int get_LinSolvOptions(const mxArray *options,
       buflen = mxGetM(opt) * mxGetN(opt) + 1;
       bufval = mxCalloc(buflen, sizeof(char));
       status = mxGetString(opt, bufval, buflen);
-      if(status != 0)
-        mexErrMsgTxt("Cannot parse PrecType.");
-      if(!strcmp(bufval,"Right")) *ptype = PREC_RIGHT;
+      if(status != 0) {
+        kimErrHandler(-999, "KINSOL", "KINInit", "Cannot parse PrecType.", NULL);
+        return(-1);
+      }
+      if(!strcmp(bufval,"Right"))     *ptype = PREC_RIGHT;
       else if(!strcmp(bufval,"None")) *ptype = PREC_NONE;
-      else mexErrMsgTxt("PrecType has an illegal value.");
+      else {
+        kimErrHandler(-999, "KINSOL", "KINInit", "PrecType has an illegal value.", NULL);
+        return(-1);
+      }
     }
 
     /* User defined precoditioning */
 
     opt = mxGetField(options,0,"PrecSetupFn");
     if ( !mxIsEmpty(opt) ) {
-      mxDestroyArray(mx_PSETfct);
-      mx_PSETfct  = mxDuplicateArray(opt);
+      mxDestroyArray(mtlb_PSETfct);
+      mtlb_PSETfct  = mxDuplicateArray(opt);
     }
   
     opt = mxGetField(options,0,"PrecSolveFn");
     if ( !mxIsEmpty(opt) ) {
-      mxDestroyArray(mx_PSOLfct);
-      mx_PSOLfct  = mxDuplicateArray(opt);
+      mxDestroyArray(mtlb_PSOLfct);
+      mtlb_PSOLfct  = mxDuplicateArray(opt);
     }
     
     /* Preconditioner module */
@@ -312,12 +371,16 @@ int get_LinSolvOptions(const mxArray *options,
       buflen = mxGetM(opt) * mxGetN(opt) + 1;
       bufval = mxCalloc(buflen, sizeof(char));
       status = mxGetString(opt, bufval, buflen);
-      if(status != 0)
-        mexErrMsgTxt("Cannot parse PrecModule.");
-      if(!strcmp(bufval,"BBDPre")) pm = PM_BBDPRE;
+      if(status != 0) {
+        kimErrHandler(-999, "KINSOL", "KINInit", "Cannot parse PrecModule.", NULL);
+        return(-1);
+      }
+      if(!strcmp(bufval,"BBDPre"))           pm = PM_BBDPRE;
       else if(!strcmp(bufval,"UserDefined")) pm = PM_NONE;
-      else mexErrMsgTxt("PrecModule has an illegal value.");
-      
+      else {
+        kimErrHandler(-999, "KINSOL", "KINInit", "PrecModule has an illegal value.", NULL);
+        return(-1);
+      }
     }
 
     
@@ -341,16 +404,18 @@ int get_LinSolvOptions(const mxArray *options,
       
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) {
-        mxDestroyArray(mx_GLOCfct);
-        mx_GLOCfct  = mxDuplicateArray(opt);
+        mxDestroyArray(mtlb_GLOCfct);
+        mtlb_GLOCfct  = mxDuplicateArray(opt);
       }
-      else 
-        mexErrMsgTxt("GlocalFn required for BBD preconditioner.");
-      
+      else {
+        kimErrHandler(-999, "KINSOL", "KINInit", "GlocalFn required for BBD preconditioner.", NULL);
+        return(-1);
+      }      
+
       opt = mxGetField(options,0,"GcommFn");
       if ( !mxIsEmpty(opt) ) {
-        mxDestroyArray(mx_GCOMfct);
-        mx_GCOMfct  = mxDuplicateArray(opt);
+        mxDestroyArray(mtlb_GCOMfct);
+        mtlb_GCOMfct  = mxDuplicateArray(opt);
       }
       
     }

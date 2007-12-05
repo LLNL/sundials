@@ -1,4 +1,4 @@
-function CVodeInit(fct, lmm, nls, t0, y0, options)
+function status = CVodeInit(fct, lmm, nls, t0, y0, options)
 %CVodeInit allocates and initializes memory for CVODES.
 %
 %   Usage: CVodeInit ( ODEFUN, LMM, NLS, T0, Y0 [, OPTIONS ] ) 
@@ -27,7 +27,7 @@ function CVodeInit(fct, lmm, nls, t0, y0, options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2007/05/16 17:12:56 $
+% $Revision: 1.4 $Date: 2007/08/21 23:09:18 $
 
 mode = 1;
 
@@ -39,4 +39,4 @@ if nargin < 6
   options = [];
 end
 
-cvm(mode, fct, lmm, nls, t0, y0, options);
+status = cvm(mode, fct, lmm, nls, t0, y0, options);

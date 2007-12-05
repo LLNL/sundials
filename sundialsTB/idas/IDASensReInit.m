@@ -1,4 +1,4 @@
-function [] = IDASensReInit(yyS0,ypS0,options)
+function status = IDASensReInit(yyS0,ypS0,options)
 %IDASensReInit reinitializes IDAS's FSA-related memory
 %   assuming it has already been allocated in prior calls to IDAInit
 %   and IDASensInit.
@@ -17,7 +17,7 @@ function [] = IDASensReInit(yyS0,ypS0,options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/02/05 20:23:47 $
+% $Revision: 1.3 $Date: 2007/08/21 17:38:43 $
 
 mode = 13;
 
@@ -29,4 +29,4 @@ if nargin < 3
   options = [];
 end
 
-idm(mode, yyS0, ypS0, options);
+status = idm(mode, yyS0, ypS0, options);

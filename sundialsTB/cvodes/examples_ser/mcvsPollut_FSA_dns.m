@@ -1,10 +1,10 @@
-function [time, sol, sens] = mcvsPollut_FSA_dns()
+function mcvsPollut_FSA_dns()
 %mcvsPollut_FSA_dns - Air pollution model
 %   J.G Verwer - Gauss-Seidel Iteration for Stiff ODEs from Chemical Kinetics
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/08/21 23:09:18 $
+% $Revision: 1.2 $Date: 2007/10/26 16:30:48 $
 
 
 t0 = 0.0;
@@ -79,6 +79,20 @@ while t<tf
 end
 
 si = CVodeGetStats
+
+% -------------
+% Plot solution
+% -------------
+
+figure
+hold on
+for i = 1:Ny
+  plot(time, sol(:,i))
+end
+set(gca,'XLim',[t0 tf]);
+xlabel('time')
+grid on
+box on
 
 % -----------
 % Free memory

@@ -1,4 +1,4 @@
-function CVodeQuadInit(fctQ, yQ0, options)
+function status = CVodeQuadInit(fctQ, yQ0, options)
 %CVodeQuadInit allocates and initializes memory for quadrature integration.
 %
 %   Usage: CVodeQuadInit ( QFUN, YQ0 [, OPTIONS ] ) 
@@ -13,7 +13,7 @@ function CVodeQuadInit(fctQ, yQ0, options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.3 $Date: 2007/08/21 17:42:38 $
 
 mode = 2;
 
@@ -25,4 +25,4 @@ if nargin < 3
   options = [];
 end
 
-cvm(mode, fctQ, yQ0, options);
+status = cvm(mode, fctQ, yQ0, options);

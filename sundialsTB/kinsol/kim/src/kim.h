@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-22 00:12:52 $
+ * $Revision: 1.4 $
+ * $Date: 2007-12-05 21:58:20 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -32,132 +32,132 @@ extern "C" {
 #include <kinsol/kinsol_sptfqmr.h>
 #include <kinsol/kinsol_bbdpre.h>
 
-  /*
-   * ---------------------------------------------------------------------------------
-   * Constants
-   * ---------------------------------------------------------------------------------
-   */
+/*
+ * ---------------------------------------------------------------------------------
+ * Constants
+ * ---------------------------------------------------------------------------------
+ */
 
 
-  /* Linear solver types */
+/* Linear solver types */
 
-  enum {LS_NONE, LS_DENSE, LS_BAND, LS_SPGMR, LS_SPBCG, LS_SPTFQMR};
+enum {LS_NONE, LS_DENSE, LS_BAND, LS_SPGMR, LS_SPBCG, LS_SPTFQMR};
 
-  /* Preconditioner modules */
+/* Preconditioner modules */
 
-  enum {PM_NONE, PM_BBDPRE};
+enum {PM_NONE, PM_BBDPRE};
 
-  /*
-   * ---------------------------------------------------------------------------------
-   * Types for global data structures
-   * ---------------------------------------------------------------------------------
-   */
+/*
+ * ---------------------------------------------------------------------------------
+ * Types for global data structures
+ * ---------------------------------------------------------------------------------
+ */
 
-  /* KINSOL data */
+typedef struct kimInterfaceData_ {
 
-  typedef struct kim_KINSOLdataStruct {
+  void *kin_mem;        /* KINSOL solver memory */
 
-    void *kin_mem;     /* KINSOL solver memory */
-    void *bbd_data;    /* BBD preconditioner data */
-    N_Vector y;        /* solution vector */
-    int N;             /* problem dimension */
-    int ls;            /* linear solver type */
-    int pm;            /* preconditioner module */
+  int n;                /* problem dimension */
 
-  } *kim_KINSOLdata;
+  N_Vector Y;           /* solution vector */
 
-  /* Matlab data */
+  int LS;               /* linear solver type */
+  int PM;               /* preconditioner module */
 
-  typedef struct kim_MATLABdataStruct {
+  booleantype errMsg;   /* post error/warning messages? */
 
-    mxArray *mx_SYSfct;
-    mxArray *mx_JACfct;
-    mxArray *mx_PSETfct;
-    mxArray *mx_PSOLfct;
-    mxArray *mx_GLOCfct;
-    mxArray *mx_GCOMfct;
-    mxArray *mx_data;
-    int fig_handle;
+  int fig_handle;       /* figure for posting info */
 
-  } *kim_MATLABdata;
+  /* Matlab functions and data associated with this problem */
+
+  mxArray *SYSfct;
+
+  mxArray *JACfct;
+
+  mxArray *PSETfct;
+  mxArray *PSOLfct;
+
+  mxArray *GLOCfct;
+  mxArray *GCOMfct;
+
+  mxArray *mtlb_data;
+
+} *kimInterfaceData;
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Error and info handler functions
+ * ---------------------------------------------------------------------------------
+ */
+
+void kimErrHandler(int error_code, 
+                   const char *module, const char *function, 
+                   char *msg, void *eh_data); 
+
+void kimInfoHandler(const char *module, const char *function, 
+                    char *msg, void *ih_data); 
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Wrapper functions
+ * ---------------------------------------------------------------------------------
+ */
 
 
-  /*
-   * ---------------------------------------------------------------------------------
-   * Declarations for global variables (defined in kim.c)
-   * ---------------------------------------------------------------------------------
-   */
+int mxW_KINSys(N_Vector y, N_Vector fy, void *user_data );
 
-  extern kim_KINSOLdata kim_Kdata;  /* KINSOL data */
-  extern kim_MATLABdata kim_Mdata;  /* MATLAB data */
+/* Dense direct linear solver */
 
-  /*
-   * ---------------------------------------------------------------------------------
-   * Wrapper functions
-   * ---------------------------------------------------------------------------------
-   */
+int mxW_KINDenseJac(int N,
+                    N_Vector y, N_Vector fy, 
+                    DlsMat J, void *user_data,
+                    N_Vector tmp1, N_Vector tmp2);
 
-  void mtlb_KINErrHandler(int error_code, 
-                          const char *module, const char *function, 
-                          char *msg, void *eh_data); 
-  
-  void mtlb_KINInfoHandler(const char *module, const char *function, 
-                           char *msg, void *ih_data); 
+/* Band direct linear solver */
 
-  int mtlb_KINSys(N_Vector y, N_Vector fy, void *f_data );
+int mxW_KINBandJac(int N, int mupper, int mlower,
+                   N_Vector u, N_Vector fu, 
+                   DlsMat J, void *user_data,
+                   N_Vector tmp1, N_Vector tmp2);
 
-  /* Dense direct linear solver */
+/* Scaled Preconditioned Iterative Linear Solver (SPGMR or SPBCG) */
 
-  int mtlb_KINDenseJac(int N,
-                       N_Vector y, N_Vector fy, 
-                       DlsMat J, void *jac_data,
-                       N_Vector tmp1, N_Vector tmp2);
+int mxW_KINSpilsJac(N_Vector v, N_Vector Jv,
+                    N_Vector y, booleantype *new_y, 
+                    void *user_data);
+int mxW_KINSpilsPset(N_Vector y, N_Vector yscale,
+                     N_Vector fy, N_Vector fscale,
+                     void *user_data, N_Vector vtemp1,
+                     N_Vector vtemp2);
+int mxW_KINSpilsPsol(N_Vector y, N_Vector yscale, 
+                     N_Vector fy, N_Vector fscale, 
+                     N_Vector v, void *user_data,
+                     N_Vector vtemp);
 
-  /* Band direct linear solver */
+/* BBD Preconditioner */
 
-  int mtlb_KINBandJac(int N, int mupper, int mlower,
-                      N_Vector u, N_Vector fu, 
-                      DlsMat J, void *jac_data,
-                      N_Vector tmp1, N_Vector tmp2);
+int mxW_KINGloc(int Nlocal, N_Vector y, N_Vector gval, void *user_data);
+int mxW_KINGcom(int Nlocal, N_Vector y, void *user_data);
 
-  /* Scaled Preconditioned Iterative Linear Solver (SPGMR or SPBCG) */
+/*
+ * ---------------------------------------------------------------------------------
+ * Option handling functions
+ * ---------------------------------------------------------------------------------
+ */
 
-  int mtlb_KINSpilsJac(N_Vector v, N_Vector Jv,
-                       N_Vector y, booleantype *new_y, 
-                       void *J_data);
-  int mtlb_KINSpilsPset(N_Vector y, N_Vector yscale,
-                        N_Vector fy, N_Vector fscale,
-                        void *P_data, N_Vector vtemp1,
-                        N_Vector vtemp2);
-  int mtlb_KINSpilsPsol(N_Vector y, N_Vector yscale, 
-                        N_Vector fy, N_Vector fscale, 
-                        N_Vector v, void *P_data,
-                        N_Vector vtemp);
+int get_SolverOptions(const mxArray *options,
+                      booleantype *verbose, booleantype *errmsg,
+                      int *mxiter, int *msbset, int *msbsetsub,
+                      int *etachoice, int *mxnbcf,
+                      double *eta, double *egamma, double *ealpha, double *mxnewtstep, 
+                      double *relfunc, double *fnormtol, double *scsteptol,
+                      double **constraints,
+                      booleantype *noInitSetup, booleantype *noMinEps);
 
-  /* BBD Preconditioner */
-  
-  int mtlb_KINGloc(int Nlocal, N_Vector y, N_Vector gval, void *f_data);
-  int mtlb_KINGcom(int Nlocal, N_Vector y, void *f_data);
-
-  /*
-   * ---------------------------------------------------------------------------------
-   * Option handling functions
-   * ---------------------------------------------------------------------------------
-   */
-
-  int get_SolverOptions(const mxArray *options,
-                        booleantype *verbose,
-                        int *mxiter, int *msbset, int *msbsetsub,
-                        int *etachoice, int *mxnbcf,
-                        double *eta, double *egamma, double *ealpha, double *mxnewtstep, 
-                        double *relfunc, double *fnormtol, double *scsteptol,
-                        double **constraints,
-                        booleantype *noInitSetup, booleantype *noMinEps);
-
-  int get_LinSolvOptions(const mxArray *options,
-                         int *mupper, int *mlower,
-                         int *mudq, int *mldq, double *dqrely,
-                         int *ptype, int *maxrs, int *maxl);
+int get_LinSolvOptions(const mxArray *options,
+                       int *mupper, int *mlower,
+                       int *mudq, int *mldq, double *dqrely,
+                       int *ptype, int *maxrs, int *maxl);
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,4 @@
-function idxB = IDAInitB(fctB, tB0, yyB0, ypB0, optionsB)
+function [idxB, status] = IDAInitB(fctB, tB0, yyB0, ypB0, optionsB)
 %IDAInitB allocates and initializes backward memory for CVODES.
 %
 %   Usage:   IDXB = IDAInitB ( DAEFUNB, TB0, YYB0, YPB0 [, OPTIONSB] )
@@ -21,7 +21,7 @@ function idxB = IDAInitB(fctB, tB0, yyB0, ypB0, optionsB)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:42 $
 
 mode = 5;
 
@@ -33,5 +33,5 @@ if nargin < 5
   optionsB = [];
 end
 
-idxB = idm(mode, fctB, tB0, yyB0, ypB0, optionsB);
+[idxB, status] = idm(mode, fctB, tB0, yyB0, ypB0, optionsB);
 idxB = idxB+1;

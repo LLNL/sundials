@@ -1,4 +1,4 @@
-function IDAQuadInitB(idxB, fctQB, yQB0, optionsB)
+function status = IDAQuadInitB(idxB, fctQB, yQB0, optionsB)
 %IDAQuadInitB allocates and initializes memory for backward quadrature integration.
 %
 %   Usage: IDAQuadInitB ( IDXB, QBFUN, YQB0 [, OPTIONS ] ) 
@@ -16,7 +16,7 @@ function IDAQuadInitB(idxB, fctQB, yQB0, optionsB)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:42 $
 
 mode = 6;
 
@@ -29,4 +29,4 @@ if nargin < 4
 end
 
 idxB = idxB-1;
-idm(mode, idxB, fctQB, yQB0, optionsB);
+status = idm(mode, idxB, fctQB, yQB0, optionsB);

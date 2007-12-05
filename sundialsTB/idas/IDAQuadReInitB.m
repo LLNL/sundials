@@ -1,4 +1,4 @@
-function [] = IDAQuadReInitB(idxB, yQB0, optionsB)
+function status = IDAQuadReInitB(idxB, yQB0, optionsB)
 %IDAQuadReInitB reinitializes memory for backward quadrature integration.
 %
 %   Usage: IDAQuadReInitB ( IDXB, YS0 [, OPTIONS ] ) 
@@ -14,7 +14,7 @@ function [] = IDAQuadReInitB(idxB, yQB0, optionsB)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:42 $
 
 mode = 16;
 
@@ -27,4 +27,4 @@ if nargin < 3
 end
   
 idxB = idxB-1;
-idm(mode, idxB, yQB0, optionsB);
+status = idm(mode, idxB, yQB0, optionsB);

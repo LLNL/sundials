@@ -14,7 +14,7 @@ function mkinDiagon_kry
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/02/02 00:39:00 $
+% $Revision: 1.2 $Date: 2007/10/26 16:30:49 $
 
 neq = 128;
 
@@ -26,18 +26,19 @@ maxl   = 10;
 maxrs  = 2;
 msbset = 5;
 
-options = KINSetOptions('Verbose',true,...
+data.P = [];
+
+options = KINSetOptions('UserData', data,...
+                        'Verbose',true,...
                         'FuncNormTol', fnormtol,...
                         'ScaledStepTol',scsteptol,...
                         'LinearSolver','GMRES',....
                         'KrylovMaxDim', maxl,...
                         'MaxNumRestarts', maxrs,...
                         'MaxNumSetups', msbset,...
-                        'PrecSetupFn','psetfn',...
-                        'PrecSolveFn','psolfn');
-data.P = [];
-
-KINMalloc('sysfn', neq, options, data);
+                        'PrecSetupFn',@psetfn,...
+                        'PrecSolveFn',@psolfn);
+KINInit(@sysfn, neq, options);
 
 y0 = 2.0*[1:neq]';
 scale = ones(neq,1);
@@ -53,7 +54,11 @@ else
   end
 end
 
-s = KINGetStats
+stats = KINGetStats;
+ls_stats = stats.LSInfo;
+
+stats
+ls_stats
 
 KINFree;
 

@@ -1,4 +1,4 @@
-function si = CVodeGetStats()
+function [si, status] = CVodeGetStats()
 %CVodeGetStats returns run statistics for the CVODES solver.
 %
 %   Usage: STATS = CVodeGetStats
@@ -80,7 +80,7 @@ function si = CVodeGetStats()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/10/11 18:12:36 $
+% $Revision: 1.5 $Date: 2007/05/11 18:51:32 $
 
 mode = 30;
-si = cvm(mode);
+[si, status] = cvm(mode);

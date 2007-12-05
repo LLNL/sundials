@@ -1,4 +1,4 @@
-function CVodeReInitB(idxB, tB0, yB0, optionsB)
+function status = CVodeReInitB(idxB, tB0, yB0, optionsB)
 %CVodeReInitB re-initializes backward memory for CVODES.
 %   where a prior call to CVodeInitB has been made with the same
 %   problem size NB. CVodeReInitB performs the same input checking
@@ -20,7 +20,7 @@ function CVodeReInitB(idxB, tB0, yB0, optionsB)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.4 $Date: 2007/08/21 17:42:38 $
 
 mode = 15;
 
@@ -33,4 +33,4 @@ if nargin < 4
 end
 
 idxB = idxB-1;
-cvm(mode,idxB,tB0,yB0,optionsB);
+status = cvm(mode,idxB,tB0,yB0,optionsB);

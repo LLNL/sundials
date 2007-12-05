@@ -1,5 +1,5 @@
 function midasPendI1_dns
-%midasPendI1_dns - Simple pendulkum modeled as an index-1 DAE
+%midasPendI1_dns - Simple pendulum modeled as an index-1 DAE
 %  The pendulum is modeled using the x and y positions with
 %  the constraint x^2 + y^2 = L^2
 %  The index-1 DAE formulation (in first-order form) includes
@@ -8,7 +8,7 @@ function midasPendI1_dns
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/08/21 23:09:18 $
+% $Revision: 1.2 $Date: 2007/10/26 16:30:48 $
 
 
 % x, y, vx, vy, lam
@@ -47,14 +47,29 @@ time(it) = t0;
 sol_y(it,:) = y0_mod';
 [pc(it) vc(it)] = pend_constr(t0,y0_mod);
 
-t = t0;
+%t = t0;
+%t_start = clock;
+%while t < tf
+%  [status,t,y] = IDASolve(tf,'OneStep');
+%  it = it+1;
+%  time(it) = t;
+%  sol_y(it,:) = y';
+%  % Compute position and velocity constraint violations
+%  [pc(it) vc(it)] = pend_constr(t,y);
+%end
+%runtime = etime(clock,t_start);
+
+
+dt = 0.1;
+nt = ceil((tf-t0)/dt);
+
 t_start = clock;
-while t < tf
-  [status,t,y] = IDASolve(tf,'OneStep');
-  it = it+1;
+for it = 1:nt
+  tout = t0 + it*dt;
+  [status,t,y] = IDASolve(tout,'Normal');
   time(it) = t;
   sol_y(it,:) = y';
-  % Compute position and velocity constraint violations
+% Compute position and velocity constraint violations
   [pc(it) vc(it)] = pend_constr(t,y);
 end
 runtime = etime(clock,t_start);
@@ -126,12 +141,17 @@ IDAFree;
 % ================================================================================
 
 function [res, flag, new_data] = pend_f(t,y,yp)
+% Residual function for a simple pendulum
+%   mass = 1.0
+%   length = 1.0
+%   damping coeff. = 0.3
+%   g = 9.81
 
 res = [
-    -yp(1)+y(3)  
-    -yp(2)+y(4)  
-    -yp(3)-2*y(1)*y(5)-0.3*y(3)  
-    -yp(4)+9.81-2*y(2)*y(5)-0.3*y(4)  
+    -yp(1) + y(3)  
+    -yp(2) + y(4)  
+    -yp(3) - 2*y(1)*y(5) - 0.3*y(3)  
+    -yp(4) + 9.81 - 2*y(2)*y(5) - 0.3*y(4)  
     -2*y(5) + y(3)^2 - 0.3*y(1)*y(3) + y(4)^2 + y(2)*(9.81-0.3*y(4))
 	];
 

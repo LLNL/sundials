@@ -1,4 +1,4 @@
-function idxB = CVodeInitB(fctB, lmmB, nlsB, tB0, yB0, optionsB)
+function [idxB, status] = CVodeInitB(fctB, lmmB, nlsB, tB0, yB0, optionsB)
 %CVodeInitB allocates and initializes backward memory for CVODES.
 %
 %   Usage:   IDXB = CVodeInitB ( FCTB, LMMB, NLSB, TB0, YB0 [, OPTIONSB] )
@@ -21,7 +21,7 @@ function idxB = CVodeInitB(fctB, lmmB, nlsB, tB0, yB0, optionsB)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.3 $Date: 2007/08/21 23:09:18 $
 
 mode = 5;
 
@@ -33,5 +33,5 @@ if nargin < 6
   optionsB = [];
 end
 
-idxB = cvm(mode, fctB, lmmB, nlsB, tB0, yB0, optionsB);
+[idxB, status] = cvm(mode, fctB, lmmB, nlsB, tB0, yB0, optionsB);
 idxB = idxB+1;

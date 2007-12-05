@@ -1,4 +1,4 @@
-function IDASet(varargin)
+function status = IDASet(varargin)
 %IDASet changes optional input values during the integration.
 %
 %   Usage: IDASet('NAME1',VALUE1,'NAME2',VALUE2,...)
@@ -26,7 +26,7 @@ function IDASet(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/16 17:12:56 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:43 $
 
 if (nargin == 0)
   fprintf('        UserData\n');
@@ -49,4 +49,4 @@ options = idm_options(KeyNames,varargin{:});
 
 mode = 33;
 
-idm(mode, options);
+status = idm(mode, options);

@@ -1,4 +1,4 @@
-function CVodeQuadReInit(yQ0, options)
+function status = CVodeQuadReInit(yQ0, options)
 %CVodeQuadReInit reinitializes CVODES's quadrature-related memory
 %   assuming it has already been allocated in prior calls to CVodeInit 
 %   and CVodeQuadInit.
@@ -13,7 +13,7 @@ function CVodeQuadReInit(yQ0, options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/11/25 19:57:25 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
 
 mode = 12;
 
@@ -25,4 +25,4 @@ if nargin < 2
   options = [];
 end
   
-cvm(mode, yQ0, options);
+status = cvm(mode, yQ0, options);

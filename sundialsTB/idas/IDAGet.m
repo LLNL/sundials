@@ -1,4 +1,4 @@
-function varargout = IDAGet(key, varargin)
+function [output, status] = IDAGet(key, varargin)
 %IDAGet extracts data from the IDAS solver memory.
 %
 %   Usage: RET = IDAGet ( KEY [, P1 [, P2] ... ]) 
@@ -19,21 +19,18 @@ function varargout = IDAGet(key, varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2007/02/05 20:23:46 $
+% $Revision: 1.4 $Date: 2007/08/21 17:38:42 $
 
 mode = 32;
 
 if strcmp(key, 'DerivSolution')
   t = varargin{1};
   k = varargin{2};
-  dky = idm(mode,1,t,k);
-  varargout(1) = {dky};
+  [output, status] = idm(mode,1,t,k);
 elseif strcmp(key, 'ErrorWeights')
-  ewt = idm(mode,2);
-  varargout(1) = {ewt};
+  [output, status] = idm(mode,2);
 elseif strcmp(key, 'CheckPointsInfo')
-  ck = idm(mode,4);
-  varargout(1) = {ck};
+  [output, status] = idm(mode,4);
 else
   error('IDAGet:: Unrecognized key');
 end

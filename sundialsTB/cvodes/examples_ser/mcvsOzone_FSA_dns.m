@@ -1,10 +1,10 @@
-function [time, sol] = mcvsOzone_FSA_dns()
+function mcvsOzone_FSA_dns()
 %mcvsOzone_FSA_dns - CVODES example problem (serial, dense)
 %        ozone depletion chemical mechanism (3 species)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/08/21 23:09:18 $
+% $Revision: 1.2 $Date: 2007/10/26 16:30:47 $
 
 
 % -------------------
@@ -56,20 +56,34 @@ it = 1;
 while t<tf
   it = it+1;
   [status, t, y, yS] = CVode(tf,'OneStep');
-%  [status, t, y] = CVode(tf,'OneStep');
   time(it,1) = t;
   sol(it,:) = y';
 end
 
-yS
-
 si = CVodeGetStats
+
+% -------------
+% Plot solution
+% -------------
+
+figure
+hold on
+plot(time, sol(:,1),'r');
+plot(time, sol(:,2),'g');
+plot(time, sol(:,3),'b');
+set(gca,'YScale','log');
+set(gca,'XLim',[t0 tf]);
+xlabel('time')
+
+grid on
+box on
 
 % -----------
 % Free memory
 % -----------
-
 CVodeFree;
+
+return
 
 % ===========================================================================
 

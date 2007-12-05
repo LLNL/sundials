@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-08-21 23:09:18 $
+ * $Revision: 1.13 $
+ * $Date: 2007-12-05 21:58:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -129,6 +129,8 @@ typedef struct cvmInterfaceData_ {
 
   int NbckPb;            /* Number of backward problems in the linked list bckPb */
 
+  booleantype errMsg;    /* post error/warning messages? */
+
 } *cvmInterfaceData;
 
 
@@ -140,7 +142,7 @@ typedef struct cvmInterfaceData_ {
 
 void cvmErrHandler(int error_code, 
                    const char *module, const char *function, 
-                   char *msg, void *user_data);
+                   char *msg, void *eh_data);
 
 /*
  * ---------------------------------------------------------------------------------
@@ -248,29 +250,29 @@ void mxW_CVodeMonitorB(int call, int idxB, double tB,
  * ---------------------------------------------------------------------------------
  */
 
-void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, int lmm,
-                      int *maxord, booleantype *sld,
-                      long int *mxsteps,
-                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
-                      double *hin, double *hmax, double *hmin, 
-                      double *tstop, booleantype *rhs_s);
+int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, int lmm,
+                     int *maxord, booleantype *sld, booleantype *errmsg,
+                     long int *mxsteps,
+                     int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
+                     double *hin, double *hmax, double *hmin, 
+                     double *tstop, booleantype *rhs_s);
 
-void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                        int *mupper, int *mlower,
-                        int *mudq, int *mldq, double *dqrely,
-                        int *ptype, int *gstype, int *maxl);
+int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
+                       int *mupper, int *mlower,
+                       int *mudq, int *mldq, double *dqrely,
+                       int *ptype, int *gstype, int *maxl);
 
-void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                     int Nq, booleantype *rhs_s,
-                     booleantype *errconQ,
-                     int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ);
+int get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
+                    int Nq, booleantype *rhs_s,
+                    booleantype *errconQ,
+                    int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ);
 
-void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
-                    int *ism,
-                    char **pfield_name, int **plist, double **pbar,
-                    int *dqtype, double *rho,
-                    booleantype *errconS, int *itolS, double *reltolS, 
-                    double **SabstolS, double **VabstolS);
+int get_FSAOptions(const mxArray *options, cvmPbData thisPb,
+                   int *ism,
+                   char **pfield_name, int **plist, double **pbar,
+                   int *dqtype, double *rho,
+                   booleantype *errconS, int *itolS, double *reltolS, 
+                   double **SabstolS, double **VabstolS);
 
 #ifdef __cplusplus
 }

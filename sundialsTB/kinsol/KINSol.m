@@ -1,4 +1,4 @@
-function [status,y] = KINSol(y0, strategy, yscale, fscale)
+function [status, y] = KINSol(y0, strategy, yscale, fscale)
 %KINSol solves the nonlinear problem.
 %
 %   Usage:  [STATUS, Y] = KINSol(Y0, STRATEGY, YSCALE, FSCALE)
@@ -33,28 +33,13 @@ function [status,y] = KINSol(y0, strategy, yscale, fscale)
 %     0: KINSol succeeded
 %     1: The initial y0 already satisfies the stopping criterion given above
 %     2: Stopping tolerance on scaled step length satisfied
-%    -1: Illegal attempt to call before KINMalloc
-%    -2: One of the inputs to KINSol is illegal.
-%    -5: The line search algorithm was unable to find an iterate sufficiently 
-%        distinct from the current iterate
-%    -6: The maximum number of nonlinear iterations has been reached
-%    -7: Five consecutive steps have been taken that satisfy the following 
-%        inequality:
-%             ||yscale*p||_L2 > 0.99*mxnewtstep
-%    -8: The line search algorithm failed to satisfy the beta-condition
-%        for too many times.
-%    -9: The linear solver's solve routine failed in a recoverable manner,
-%        but the linear solver is up to date.
-%   -10: The linear solver's intialization routine failed.
-%   -11: The linear solver's setup routine failed in an unrecoverable manner.
-%   -12: The linear solver's solve routine failed in an unrecoverable manner.
+%    -1: An error occurred (see printed error message)
 %
 %   See also KINSetOptions, KINGetstats
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
-
+% $Revision: 1.2 $Date: 2006/01/06 19:00:02 $
 
 mode = 2;
 

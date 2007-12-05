@@ -1,4 +1,4 @@
-function CVodeSensReInit(yS0, options)
+function status = CVodeSensReInit(yS0, options)
 %CVodeSensReInit reinitializes CVODES's FSA-related memory
 %   assuming it has already been allocated in prior calls to CVodeInit 
 %   and CVodeSensInit.
@@ -17,7 +17,7 @@ function CVodeSensReInit(yS0, options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.4 $Date: 2007/08/21 17:42:38 $
 
 mode = 13;
 
@@ -29,4 +29,4 @@ if nargin < 2
   options = [];
 end
 
-cvm(mode, yS0, options);
+status = cvm(mode, yS0, options);

@@ -1,4 +1,4 @@
-function CVodeSet(varargin)
+function status = CVodeSet(varargin)
 %CVodeSet changes optional input values during the integration.
 %
 %   Usage: CVodeSet('NAME1',VALUE1,'NAME2',VALUE2,...)
@@ -26,7 +26,7 @@ function CVodeSet(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:51:31 $
+% $Revision: 1.2 $Date: 2007/05/16 17:12:56 $
 
 if (nargin == 0)
   fprintf('        UserData\n');
@@ -49,4 +49,4 @@ options = cvm_options(KeyNames,varargin{:});
 
 mode = 33;
 
-cvm(mode, options);
+status = cvm(mode, options);

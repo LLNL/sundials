@@ -1,10 +1,10 @@
-function si = KINGetStats()
+function [si, status] = KINGetStats()
 %KINGetStats returns statistics for the main KINSOL solver and the linear
 %solver used.
 %
-%   Usage: solver_stats = KINGetStats;
+%   Usage: STATS = KINGetStats
 %
-%Fields in the structure solver_stats
+%Fields in the structure STATS
 %
 %o nfe    - total number evaluations of the nonlinear system function SYSFUN
 %o nni    - total number of nonlinear iterations
@@ -37,8 +37,8 @@ function si = KINGetStats()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 19:00:02 $
 
 
 mode = 3;
-si = kim(mode);
+[si, status] = kim(mode);

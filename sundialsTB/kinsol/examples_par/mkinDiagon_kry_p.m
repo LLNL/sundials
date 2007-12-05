@@ -14,7 +14,7 @@ function [] = mkinDiagon_kry_p(comm)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:29 $
+% $Revision: 1.2 $Date: 2007/10/26 16:30:49 $
 
 [status npes] = MPI_Comm_size(comm);
 [status mype] = MPI_Comm_rank(comm);
@@ -32,7 +32,15 @@ maxl = 10;
 maxlrst = 2;
 msbset = 5;
 
-options = KINSetOptions('FuncNormTol', fnormtol,...
+% User data structure
+
+data.mype = mype;       % MPI id
+data.nlocal = nlocal;   % local problem size
+data.P = [];            % workspace for preconditioner
+
+
+options = KINSetOptions('UserData', data,...
+                        'FuncNormTol', fnormtol,...
                         'ScaledStepTol',scsteptol,...
                         'LinearSolver','GMRES',....
                         'KrylovMaxDim', maxl,...
@@ -45,13 +53,7 @@ if mype==0
   options = KINSetOptions(options,'Verbose',true);
 end
 
-% User data structure
-
-data.mype = mype;       % MPI id
-data.nlocal = nlocal;   % local problem size
-data.P = [];            % workspace for preconditioner
-
-KINMalloc(@sysfn, nlocal, options, data);
+KINInit(@sysfn, nlocal, options);
 
 % Initial guess and scale vector
 

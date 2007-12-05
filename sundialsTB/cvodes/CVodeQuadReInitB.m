@@ -1,4 +1,4 @@
-function [] = CVodeQuadReInitB(idxB, yQB0, optionsB)
+function status = CVodeQuadReInitB(idxB, yQB0, optionsB)
 %CVodeQuadReInitB reinitializes memory for backward quadrature integration.
 %
 %   Usage: CVodeQuadReInitB ( IDXB, YS0 [, OPTIONS ] ) 
@@ -14,7 +14,7 @@ function [] = CVodeQuadReInitB(idxB, yQB0, optionsB)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/07 01:19:50 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:32 $
 
 mode = 16;
 
@@ -27,4 +27,4 @@ if nargin < 3
 end
   
 idxB = idxB-1;
-cvm(mode, idxB, yQB0, optionsB);
+status = cvm(mode, idxB, yQB0, optionsB);

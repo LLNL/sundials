@@ -1,5 +1,5 @@
 function midasPendI2_dns
-%midasPendI1_dns - Simple pendulkum modeled as an index-2 DAE
+%midasPendI1_dns - Simple pendulum modeled as an index-2 DAE
 %  The pendulum is modeled using the x and y positions with
 %  the constraint x^2 + y^2 = L^2
 %  The stabilized index-2 (GGL formulation) DAE (in first-order form)
@@ -9,7 +9,7 @@ function midasPendI2_dns
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/08/21 23:09:18 $
+% $Revision: 1.2 $Date: 2007/10/26 16:30:48 $
 
 % x, y, vx, vy, lam, mu
 neq = 6;

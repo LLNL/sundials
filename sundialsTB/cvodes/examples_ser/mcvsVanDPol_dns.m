@@ -4,7 +4,7 @@ function mcvsVanDPol_dns()
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/08/21 23:09:18 $
+% $Revision: 1.2 $Date: 2007/10/26 16:30:48 $
 
 
 data.mu = 100.0;
@@ -17,6 +17,7 @@ options = CVodeSetOptions('UserData',data,...
                           'RelTol',1.e-8,...
                           'AbsTol',1e-6,...
                           'JacobianFn',@djacfn);
+
 mondata.mode = 'both';
 mondata.skip = 20;
 options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
@@ -28,7 +29,7 @@ dt = (tf-t0)/ntout;
 tt = linspace(t0+dt,tf,ntout-1);
 
 [status,t,y] = CVode(tt,'Normal');
-  
+
 CVodeFree;
 
 figure;

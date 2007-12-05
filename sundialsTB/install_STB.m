@@ -4,12 +4,12 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.20 $Date: 2007/08/21 17:43:48 $
+% $Revision: 1.21 $Date: 2007/10/26 16:30:47 $
 
 % MEX compiler command
 % --------------------
 
-mexcompiler = 'mex';
+mexcompiler = 'mex -v';
 
 % Location of sundialsTB and top of sundials source tree
 % ------------------------------------------------------
@@ -18,6 +18,15 @@ stb = pwd;
 cd('..');
 sun = pwd;
 cd(stb);
+
+% Test mex
+% --------
+
+mex_ok = check_mex(mexcompiler);
+
+if ~mex_ok
+  return
+end
 
 % Should we enable parallel support?
 % ----------------------------------
@@ -34,48 +43,69 @@ if ~exist(q, 'dir')
     par = false;
 end
 
+% Figure out what modules exist and which ones will be built
+% ----------------------------------------------------------
+
+fprintf('\n\nSelect modules to be built\n');
+
+q = fullfile(sun,'src','cvodes');
+if exist(q, 'dir')
+  answ = input('    Compile CVODES interface? (y/n) ','s');
+  if answ == 'y'
+    cvm_ok = true;
+  else
+    cvm_ok = false;
+  end
+end
+
+if exist(q, 'dir')
+  answ = input('    Compile IDAS interface? (y/n) ','s');
+  if answ == 'y'
+    idm_ok = true;
+  else
+    idm_ok = false;
+  end
+end
+
+q = fullfile(sun,'src','kinsol');
+if exist(q, 'dir')
+  answ = input('    Compile KINSOL interface? (y/n) ','s');
+  if answ == 'y'
+    kim_ok = true;
+  else
+    kim_ok = false;
+  end
+end
+
+if ~cvm_ok && ~idm_ok && ~kim_ok
+  fprintf('\nOK. All done.\n');
+  return
+end
+
 % Create sundials_config.h
 % ------------------------
 
 mkdir('sundials');
 fi = fopen(fullfile('sundials','sundials_config.h'),'w');
-fprintf(fi,'#define SUNDIALS_PACKAGE_VERSION "2.3.0"\n');
+fprintf(fi,'#define SUNDIALS_PACKAGE_VERSION "2.4.0"\n');
 fprintf(fi,'#define SUNDIALS_DOUBLE_PRECISION 1\n');
 fprintf(fi,'#define SUNDIALS_USE_GENERIC_MATH 1\n');
 fprintf(fi,'#define SUNDIALS_EXPORT\n');
 fclose(fi);
 
-% Compile MEX file
-% ----------------
+% Compile MEX file for the selected modules
+% -----------------------------------------
 
-cvm_ok = false;
-q = fullfile(sun,'src','cvodes');
-if exist(q, 'dir')
-  answ = input('    Compile CVODES interface? (y/n) ','s');
-  if answ == 'y'
-    compile_CVM(mexcompiler,stb,sun,par);
-    cvm_ok = true;
-  end
+if cvm_ok
+  compile_CVM(mexcompiler,stb,sun,par);
+end
+
+if idm_ok
+  compile_IDM(mexcompiler,stb,sun,par);
 end
   
-idm_ok = false;
-q = fullfile(sun,'src','ida');
-if exist(q, 'dir')
-  answ = input('    Compile IDAS interface? (y/n) ','s');
-  if answ == 'y'
-    compile_IDM(mexcompiler,stb,sun,par);
-    idm_ok = true;
-  end
-end
-  
-kim_ok = false;
-q = fullfile(sun,'src','kinsol');
-if exist(q, 'dir')
-  answ = input('    Compile KINSOL interface? (y/n) ','s');
-  if answ == 'y'
-    compile_KIM(mexcompiler,stb,sun,par);
-    kim_ok = true;
-  end
+if kim_ok
+  compile_KIM(mexcompiler,stb,sun,par);
 end
 
 % Remove sundials_config.h
@@ -86,16 +116,15 @@ rmdir('sundials','s');
 % Install sundialsTB
 % ------------------
 
-fprintf('\nMEX files were successfully created.\n');
-
+fprintf('\n\nMEX files were successfully created.\n');
 answ = input('    Install toolbox? (y/n) ','s');
 if answ ~= 'y'
-  fprintf('\nOK. All done.\n');
+  fprintf('\n\nOK. All done.\n');
   return
 end
 
 while true
-  fprintf('\nSpecify the location where you wish to install the toolbox.\n');
+  fprintf('\n\nSpecify the location where you wish to install the toolbox.\n');
   fprintf('The toolbox will be installed in a subdirectory "sundialsTB".\n');
   fprintf('Enter return to cancel the installation.\n');
   where = input('    Installation directory: ','s');
@@ -111,7 +140,7 @@ while true
 end
 
 if ~go
-  fprintf('\nOK. All done.\n');
+  fprintf('\n\nOK. All done.\n');
   return
 end
 
@@ -119,7 +148,7 @@ stbi = fullfile(where,'sundialsTB');
 
 go = 1;
 if exist(stbi,'dir')
-  fprintf('\nDirectory %s exists!\n',stbi);
+  fprintf('\n\nDirectory %s exists!\n',stbi);
   answ = input('    Replace? (y/n) ','s');
   if answ == 'y'
     rmdir(stbi,'s');
@@ -130,7 +159,7 @@ if exist(stbi,'dir')
 end
 
 if ~go
-  fprintf('\nOK. All done.\n');
+  fprintf('\n\nOK. All done.\n');
   return
 end
 
@@ -175,11 +204,42 @@ if kim_ok
   instKIM(stb, where, par);
 end
   
-fprintf('\nThe sundialsTB toolbox was installed in %s\n',stbi);
+fprintf('\n\nThe sundialsTB toolbox was installed in %s\n',stbi);
 fprintf('\nA startup file, "startup_STB.m" was created in %s.\n',stbi);
 fprintf('Use it as your Matlab startup file, or, if you already have a startup.m file,\n');
 fprintf('add a call to %s\n',fullfile(stbi,'startup_STB.m'));
 fprintf('\nEnjoy!\n\n');
+
+%---------------------------------------------------------------------------------
+% Check if mex works and if the user accepts the current mexopts
+%---------------------------------------------------------------------------------
+
+function mex_ok = check_mex(mexcompiler)
+
+% Create a dummy file
+fid = fopen('foo.c', 'w');
+fprintf(fid,'#include "mex.h"\n');
+fprintf(fid,'void mexFunction(int nlhs,mxArray *plhs[],int nrhs,const mxArray *prhs[])\n');
+fprintf(fid,'{return;}\n');
+
+% Run mexcompiler on foo.c
+mex_cmd = sprintf('%s foo.c', mexcompiler);
+eval(mex_cmd);
+
+% Remove dummy source file and resulting mex file
+delete('foo.c')
+delete(sprintf('foo.%s', mexext))
+
+fprintf('\n\nMEX files will be compiled and built using the above options\n');
+answ = input('    Proceed? (y/n) ','s');
+if answ == 'y'
+  mex_ok = true;
+else
+  fprintf('\n\nOK. All done.\n');
+  mex_ok = false;
+end
+
+return
 
 %---------------------------------------------------------------------------------
 % compilation of cvm MEX file
@@ -283,7 +343,7 @@ end
 
 cvm_dir = fullfile(stb,'cvodes','cvm');
 cd(cvm_dir)
-mex_cmd = sprintf('%s -v %s %s %s', mexcompiler, includes, sources, libraries);
+mex_cmd = sprintf('%s %s %s %s', mexcompiler, includes, sources, libraries);
 disp(mex_cmd);
 eval(mex_cmd);
 
@@ -392,7 +452,7 @@ end
 
 idm_dir = fullfile(stb,'idas','idm');
 cd(idm_dir)
-mex_cmd = sprintf('%s -v %s %s %s', mexcompiler, includes, sources, libraries);
+mex_cmd = sprintf('%s %s %s %s', mexcompiler, includes, sources, libraries);
 disp(mex_cmd);
 eval(mex_cmd);
 
@@ -500,7 +560,7 @@ end
 
 kim_dir = fullfile(stb, 'kinsol', 'kim');
 cd(kim_dir)
-mex_cmd = sprintf('%s -v %s %s %s', mexcompiler, includes, sources, libraries);
+mex_cmd = sprintf('%s %s %s %s', mexcompiler, includes, sources, libraries);
 disp(mex_cmd);
 eval(mex_cmd);
 
@@ -526,7 +586,7 @@ while(~feof(fi))
   l = fgets(fi);
   i = strfind(l,'@STB_PATH@');
   if ~isempty(i)
-    l = sprintf('stb_path = ''%s'';\n',where);
+    l = sprintf('  stb_path = ''%s'';\n',where);
   end
   fprintf(fo,'%s',l);
 end
@@ -895,7 +955,7 @@ kim_files = {
     fullfile('kinsol','Contents.m')
     fullfile('kinsol','KINFree.m')
     fullfile('kinsol','KINGetStats.m')
-    fullfile('kinsol','KINMalloc.m')
+    fullfile('kinsol','KINInit.m')
     fullfile('kinsol','KINSetOptions.m')
     fullfile('kinsol','KINSol.m')
     fullfile('kinsol','kim','Contents.m')
@@ -925,6 +985,8 @@ kim_ftypes = {
 kim_exs = {
     fullfile('kinsol','examples_ser','mkinDiagon_kry.m')
     fullfile('kinsol','examples_ser','mkinTest_dns.m')
+    fullfile('kinsol','examples_ser','mkinFerTron_dns.m')
+    fullfile('kinsol','examples_ser','mkinRoboKin_dns.m')
           };
 
 kim_exp = {

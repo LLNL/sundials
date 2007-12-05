@@ -1,4 +1,4 @@
-function [] = IDAInit(fct,t0,yy0,yp0,options)
+function status = IDAInit(fct,t0,yy0,yp0,options)
 %IDAMalloc allocates and initializes memory for IDAS.
 %
 %   Usage: IDAMalloc ( DAEFUN, T0, YY0, YP0 [, OPTIONS ] ) 
@@ -16,7 +16,7 @@ function [] = IDAInit(fct,t0,yy0,yp0,options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/17 16:49:50 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:42 $
 
 mode = 1;
 
@@ -28,4 +28,4 @@ if nargin < 5
   options = [];
 end
 
-idm(mode, fct, t0, yy0, yp0, options);
+status = idm(mode, fct, t0, yy0, yp0, options);

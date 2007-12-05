@@ -22,8 +22,11 @@ function options = KINSetOptions(varargin)
 %KINSetOptions properties
 %(See also the KINSOL User Guide)
 % 
-%Verbose - verbose output [ {false} | true ]
-%   Specifies whether or not KINSOL should output additional information
+%UserData - User data passed unmodified to all functions [ empty ]
+%   If UserData is not empty, all user provided functions will be
+%   passed the problem data as their last input argument. For example,
+%   the SYS function must be defined as YD = ODEFUN(T,Y,DATA). 
+%
 %MaxNumIter - maximum number of nonlinear iterations [ scalar | {200} ]
 %   Specifies the maximum number of iterations that the nonlinar solver is allowed
 %   to take.
@@ -159,6 +162,12 @@ function options = KINSetOptions(varargin)
 %   Specifies the upper half-bandwidth used in the difference-quotient Jacobian
 %   approximation for the BBDPre preconditioner (see PrecModule).
 %
+%Verbose - verbose output [ true | {false} ]
+%   Specifies whether or not KINSOL should output additional information
+%ErrorMessages - Post error/warning messages [ false | {true} ]
+%   Note that any errors in KINInit will result in a Matlab error, thus
+%   stoping execution. Only subsequent calls to KINSOL functions will respect
+%   the value specified for 'ErrorMessages'.
 %
 %   See also
 %        KINDenseJacFn, KINJacTimesVecFn
@@ -168,13 +177,14 @@ function options = KINSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/02/02 00:38:58 $
+% $Revision: 1.4 $Date: 2006/03/15 19:31:28 $
 
 % Based on Matlab's ODESET function
 
 % Print out possible values of properties.
 if (nargin == 0) & (nargout == 0)
-  fprintf('         Verbose: [ true   | {false} ]\n');
+  fprintf('        UserData: [ empty ]\n');
+  fprintf('\n');
   fprintf('      MaxNumIter: [ scalar | {200} ]\n');
   fprintf('      FuncRelErr: [ scalar | {eps} ]\n');
   fprintf('     FuncNormTol: [ scalar | {eps^(1/3)} ]\n');
@@ -205,117 +215,122 @@ if (nargin == 0) & (nargout == 0)
   fprintf('   LowerBwidthDQ: [ scalar | {0} ]\n');
   fprintf('   UpperBwidthDQ: [ scalar | {0} ]\n');
   fprintf('\n');
+  fprintf('         Verbose: [ true | {false} ]\n');
+  fprintf('   ErrorMessages: [ false | {true} ]\n');
   fprintf('\n');
   return;
 end
 
-Names = [
-    'Verbose         '
-    'MaxNumIter      '
-    'MaxNumSetups    '
-    'MaxNumSubSetups '
-    'MaxNumBetaFails '
-    'EtaForm         '
-    'Eta             '
-    'EtaAlpha        '
-    'EtaGamma        '
-    'MaxNewtonStep   '
-    'FuncRelErr      '
-    'FuncNormTol     '
-    'ScaledStepTol   '
-    'InitialSetup    '
-    'MinBoundEps     '
-    'Constraints     '
-    'LinearSolver    '
-    'JacobianFn      '
-    'PrecType        '
-    'PrecModule      '
-    'PrecSetupFn     '
-    'PrecSolveFn     '
-    'GlocalFn        '
-    'GcommFn         '
-    'KrylovMaxDim    '
-    'MaxNumRestarts  '
-    'LowerBwidthDQ   '
-    'UpperBwidthDQ   '
-    'LowerBwidth     '
-    'UpperBwidth     '
-    ];
-[m,n] = size(Names);
-names = lower(Names);
+KeyNames = {
+    'UserData'
+    'MaxNumIter'
+    'MaxNumSetups'
+    'MaxNumSubSetups'
+    'MaxNumBetaFails'
+    'EtaForm'
+    'Eta'
+    'EtaAlpha'
+    'EtaGamma'
+    'MaxNewtonStep'
+    'FuncRelErr'
+    'FuncNormTol'
+    'ScaledStepTol'
+    'InitialSetup'
+    'MinBoundEps'
+    'Constraints'
+    'LinearSolver'
+    'JacobianFn'
+    'PrecType'
+    'PrecModule'
+    'PrecSetupFn'
+    'PrecSolveFn'
+    'GlocalFn'
+    'GcommFn'
+    'KrylovMaxDim'
+    'MaxNumRestarts'
+    'LowerBwidthDQ'
+    'UpperBwidthDQ'
+    'LowerBwidth'
+    'UpperBwidth'
+    'Verbose'
+    'ErrorMessages'
+    };
 
-% Combine all leading options structures o1, o2, ... in (o1,o2,...).
+
+options = cvm_options(KeyNames,varargin{:});
+
+return;
+
+
+%
+% Actual option processing
+% ------------------------
+
+function options = kim_options(KeyNames, varargin)
+
+m = length(KeyNames);
+
+% Initialize the output options structure
+
 options = [];
-for j = 1:m
-  options.(deblank(Names(j,:))) = [];
-end
-i = 1;
-while i <= nargin
-  arg = varargin{i};
-  if isstr(arg)                         % arg is an option name
-    break;
-  end
-  if ~isempty(arg)                      % [] is a valid options argument
-    if ~isa(arg,'struct')
-      error(sprintf(['Expected argument %d to be a string property name ' ...
-                     'or an options structure\ncreated with KINSetOptions.'], i));
-    end
-    for j = 1:m
-      if any(strcmp(fieldnames(arg),deblank(Names(j,:))))
-        val = arg.(deblank(Names(j,:)));
-      else
-        val = [];
-      end
-      if ~isempty(val)
-        options.(deblank(Names(j,:))) = val;
-      end
-    end
-  end
-  i = i + 1;
+for i = 1:m
+  options.(KeyNames{i}) = [];
 end
 
-% A finite state machine to parse name-value pairs.
-if rem(nargin-i+1,2) ~= 0
-  error('Arguments must occur in name-value pairs.');
-end
-expectval = 0;                          % start expecting a name, not a value
-while i <= nargin
-  arg = varargin{i};
-    
-  if ~expectval
-    if ~isstr(arg)
-      error(sprintf('Expected argument %d to be a string property name.', i));
+% If the first argument is an options structure, read its non-empty fields
+% and update options. Store in j the start of key-value pairs.
+
+arg = varargin{1};
+
+if isa(arg,'struct')
+  for i = 1:m
+    if isfield(arg,KeyNames{i})
+      options.(KeyNames{i}) = arg.(KeyNames{i});
     end
-    
-    lowArg = lower(arg);
-    j = strmatch(lowArg,names);
-    if isempty(j)                       % if no matches
-      error(sprintf('Unrecognized property name ''%s''.', arg));
-    elseif length(j) > 1                % if more than one match
-      % Check for any exact matches (in case any names are subsets of others)
-      k = strmatch(lowArg,names,'exact');
-      if length(k) == 1
-        j = k;
-      else
-        msg = sprintf('Ambiguous property name ''%s'' ', arg);
-        msg = [msg '(' deblank(Names(j(1),:))];
-        for k = j(2:length(j))'
-          msg = [msg ', ' deblank(Names(k,:))];
-        end
-        msg = sprintf('%s).', msg);
-        error(msg);
-      end
-    end
-    expectval = 1;                      % we expect a value next
-    
-  else
-    options.(deblank(Names(j,:))) = arg;
-    expectval = 0;
-      
   end
-  i = i + 1;
+  j = 2;
+else
+  j = 1;  
 end
 
-if expectval
-  error(sprintf('Expected value for property ''%s''.', arg));
+% The remaining input arguments must be key-value pairs
+
+if rem(nargin-j,2) ~= 0
+  error('Arguments must be key-value pairs.');
 end
+
+% Process each key-value pair
+
+np = (nargin-j)/2;
+
+keynames = lower(KeyNames);
+
+for i = 1:np
+  
+  % Get the key
+  key = varargin{j};
+  
+  % key must be a string 
+  if ~isstr(key)
+    error(sprintf('Argument %d is not a string property name.', j));
+  end
+  
+  % Get the index in keynames that exactly matches the current key
+  % (modulo the case)
+  ik = strmatch(lower(key), keynames, 'exact');
+  if isempty(ik)
+    error(sprintf('Unrecognized property "%s"', key));
+  end
+
+  % Get the value
+  val = varargin{j+1};
+
+  % Set the proper field in options
+  options.(KeyNames{ik}) = val;
+  
+  % move to next pair  
+  j = j+2;
+  
+end
+
+return;

@@ -1,4 +1,4 @@
-function [] = IDASensInit(Ns,fctS,yyS0,ypS0,options)
+function status = IDASensInit(Ns,fctS,yyS0,ypS0,options)
 %IDASensInit allocates and initializes memory for FSA with IDAS.
 %
 %   Usage: IDASensInit ( NS, SFUN, YYS0, YPS0 [, OPTIONS ] ) 
@@ -17,7 +17,7 @@ function [] = IDASensInit(Ns,fctS,yyS0,ypS0,options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/17 16:49:50 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:42 $
 
 mode = 3;
 
@@ -29,4 +29,4 @@ if nargin < 5
   options = [];
 end
 
-idm(mode, Ns, fctS, yyS0, ypS0, options);
+status = idm(mode, Ns, fctS, yyS0, ypS0, options);

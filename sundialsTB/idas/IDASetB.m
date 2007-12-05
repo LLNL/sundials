@@ -1,4 +1,4 @@
-function IDASetB(idxB, varargin)
+function status = IDASetB(idxB, varargin)
 %IDASetB changes optional input values during the integration.
 %
 %   Usage: IDASetB( IDXB, 'NAME1',VALUE1,'NAME2',VALUE2,... )
@@ -24,7 +24,7 @@ function IDASetB(idxB, varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/16 17:12:56 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:43 $
 
 if (nargin == 0)
   fprintf('        UserData\n');
@@ -45,4 +45,4 @@ options = idm_options(KeyNames,varargin{:});
 
 mode = 34;
 
-idm(mode, idxB, options);
+status = idm(mode, idxB, options);

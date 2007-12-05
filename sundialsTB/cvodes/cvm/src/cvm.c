@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2007-09-06 15:36:14 $
+ * $Revision: 1.22 $
+ * $Date: 2007-12-05 21:58:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -55,9 +55,9 @@ static int CVM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray 
 static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 
-static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB);
-static void cvmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itaskB,
-                           booleantype any_quadrB, booleantype any_monB);
+static int cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB);
+static int cvmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itaskB,
+                          booleantype any_quadrB, booleantype any_monB);
 
 
 static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
@@ -120,8 +120,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
 
   if ( (mode != 1) && (cvmData == NULL) ) {
-    cvmErrHandler(-999, "CVODES", "-",
-                  "Illegal attempt to call before CVodeInit.", NULL);
+    mexErrMsgTxt("CVODES - Illegal attempt to call before CVodeInit.");
   }
 
 
@@ -247,7 +246,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
  * ---------------------------------------------------------------------------------
  */
 
-
 static void cvmInitCVODESdata()
 {
   /* Allocate space for global CVODES data structure */
@@ -267,6 +265,8 @@ static void cvmInitCVODESdata()
   cvmData->Nc        = 0;
   cvmData->asa       = FALSE;
 
+  cvmData->errMsg    = TRUE;
+
   return;
 }
 
@@ -284,9 +284,9 @@ static void cvmInitPbData(cvmPbData pb)
   pb->YQ = NULL;
   pb->YS = NULL;
 
-  pb->Quadr = FALSE;
-  pb->Fsa   = FALSE;
-  pb->Mon   = FALSE;
+  pb->Quadr  = FALSE;
+  pb->Fsa    = FALSE;
+  pb->Mon    = FALSE;
 
   pb->LS = LS_DENSE;
   pb->PM = PM_NONE;
@@ -426,9 +426,11 @@ static void cvmFinalPbData(cvmPbData pb)
 
 void cvmErrHandler(int error_code, 
                    const char *module, const char *function, 
-                   char *msg, void *user_data)
+                   char *msg, void *eh_data)
 {
   char err_msg[256];
+
+  if (!(cvmData->errMsg)) return;
 
   if (error_code > 0) {
     sprintf(err_msg,"Warning in ==> %s\n%s",function,msg);
@@ -564,6 +566,8 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   booleantype sld;
 
+  booleantype errmsg;
+
   booleantype rhs_s; /* ignored */
 
   int mupper, mlower;
@@ -605,12 +609,20 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(prhs[1], bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeInit",
-                                  "Cannot parse LMM input argument.", NULL);
-    if(!strcmp(bufval,"Adams"))    lmm = CV_ADAMS;
-    else if(!strcmp(bufval,"BDF")) lmm = CV_BDF;
-    else cvmErrHandler(-999, "CVODES", "CVodeInit",
-                       "LMM has an illegal value.", NULL);
+    if(status != 0) {
+      cvmErrHandler(-999, "CVODES", "CVodeInit",
+                    "Cannot parse LMM input argument.", NULL);
+      goto error_return;
+    }
+    if(!strcmp(bufval,"Adams"))    {
+      lmm = CV_ADAMS;
+    } else if(!strcmp(bufval,"BDF")) {
+      lmm = CV_BDF;
+    } else {
+      cvmErrHandler(-999, "CVODES", "CVodeInit",
+                    "LMM has an illegal value.", NULL);
+      goto error_return;
+    }
     mxFree(bufval);
 
     /* Extract iter */
@@ -618,12 +630,20 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
     buflen = mxGetM(prhs[2]) * mxGetN(prhs[2]) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(prhs[2], bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeInit",
-                                  "Cannot parse NLS input argument.", NULL);
-    if(!strcmp(bufval,"Functional"))  iter = CV_FUNCTIONAL;
-    else if(!strcmp(bufval,"Newton")) iter = CV_NEWTON;
-    else cvmErrHandler(-999, "CVODES", "CVodeInit",
-                       "NLS has an illegal value.", NULL);
+    if(status != 0) {
+      cvmErrHandler(-999, "CVODES", "CVodeInit",
+                    "Cannot parse NLS input argument.", NULL);
+      goto error_return;
+    }
+    if(!strcmp(bufval,"Functional"))  {
+      iter = CV_FUNCTIONAL;
+    } else if(!strcmp(bufval,"Newton")) {
+      iter = CV_NEWTON;
+    } else {
+      cvmErrHandler(-999, "CVODES", "CVodeInit",
+                    "NLS has an illegal value.", NULL);
+      goto error_return;
+    }
     mxFree(bufval);
 
     /* Extract initial time */
@@ -665,8 +685,11 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
     y0 = mxGetPr(prhs[1]);
 
-    if (mxGetM(prhs[1]) != N) cvmErrHandler(-999, "CVODES", "CVodeReInit",
-                                            "Size of y0 changed from CVodeInit call.", NULL);
+    if (mxGetM(prhs[1]) != N) {
+      cvmErrHandler(-999, "CVODES", "CVodeReInit",
+                    "Size of y0 changed from CVodeInit call.", NULL);
+      goto error_return;
+    }
 
     /* Load initial conditions */
 
@@ -682,10 +705,11 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   /* Process the options structure */
 
-  get_IntgrOptions(options, fwdPb, TRUE, lmm,
-                   &maxord, &sld, &mxsteps,
-                   &itol, &reltol, &Sabstol, &Vabstol,
-                   &hin, &hmax, &hmin, &tstop, &rhs_s);
+  status = get_IntgrOptions(options, fwdPb, TRUE, lmm,
+                            &maxord, &sld, &errmsg, &mxsteps,
+                            &itol, &reltol, &Sabstol, &Vabstol,
+                            &hin, &hmax, &hmin, &tstop, &rhs_s);
+  if (status != 0) goto error_return;
 
   /* 
    * ----------------------------------------
@@ -706,21 +730,31 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
     /* Create CVODES object */
     cvode_mem = CVodeCreate(lmm, iter);
+    if (cvode_mem == NULL) goto error_return;
+
     /* Attach the global CVODES data as 'user-data' */
-    CVodeSetUserData(cvode_mem, fwdPb);
+    status = CVodeSetUserData(cvode_mem, fwdPb);
+    if (status != CV_SUCCESS) goto error_return;
+
     /* Attach error handler function */
-    CVodeSetErrHandlerFn(cvode_mem, cvmErrHandler);
+    status = CVodeSetErrHandlerFn(cvode_mem, cvmErrHandler, NULL);
+    if (status != CV_SUCCESS) goto error_return;
+
     /* Call CVodeInit */
-    CVodeInit(cvode_mem, mxW_CVodeRhs, t0, y);
+    status = CVodeInit(cvode_mem, mxW_CVodeRhs, t0, y);
+    if (status != CV_SUCCESS) goto error_return;
+
     /* Redirect output */
-    CVodeSetErrFile(cvode_mem, stdout);
+    status = CVodeSetErrFile(cvode_mem, stdout);
+    if (status != CV_SUCCESS) goto error_return;
 
     break;
 
   case 1:
 
     /* Reinitialize solver */
-    CVodeReInit(cvode_mem, t0, y);
+    status = CVodeReInit(cvode_mem, t0, y);
+    if (status != CV_SUCCESS) goto error_return;
 
     break;
 
@@ -734,12 +768,14 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   switch (itol) {
     case CV_SS:
-      CVodeSStolerances(cvode_mem, reltol, Sabstol);
+      status = CVodeSStolerances(cvode_mem, reltol, Sabstol);
+      if (status != CV_SUCCESS) goto error_return;
       break;
     case CV_SV:
       NV_abstol = N_VClone(y);
       PutData(NV_abstol, Vabstol, N);
-      CVodeSVtolerances(cvode_mem, reltol, NV_abstol);
+      status = CVodeSVtolerances(cvode_mem, reltol, NV_abstol);
+      if (status != CV_SUCCESS) goto error_return;
       N_VDestroy(NV_abstol);
       break;
     }
@@ -751,31 +787,39 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
    */
 
   /* set maxorder (default is consistent with LMM) */
-  CVodeSetMaxOrd(cvode_mem, maxord);
+  status = CVodeSetMaxOrd(cvode_mem, maxord);
+  if (status != CV_SUCCESS) goto error_return;
 
   /* set initial step size (the default value of 0.0 is ignored by CVODES) */
-  CVodeSetInitStep(cvode_mem, hin);
+  status = CVodeSetInitStep(cvode_mem, hin);
+  if (status != CV_SUCCESS) goto error_return;
 
   /* set max step (default is infinity) */
-  CVodeSetMaxStep(cvode_mem, hmax);
+  status = CVodeSetMaxStep(cvode_mem, hmax);
+  if (status != CV_SUCCESS) goto error_return;
 
   /* set min step (default is 0) */
-  CVodeSetMinStep(cvode_mem, hmin);
+  status = CVodeSetMinStep(cvode_mem, hmin);
+  if (status != CV_SUCCESS) goto error_return;
  
   /* set number of max steps */
-  CVodeSetMaxNumSteps(cvode_mem, mxsteps);
+  status = CVodeSetMaxNumSteps(cvode_mem, mxsteps);
+  if (status != CV_SUCCESS) goto error_return;
 
   /* set tstop? */
   if (tstopSet) {
-    CVodeSetStopTime(cvode_mem, tstop);
+    status = CVodeSetStopTime(cvode_mem, tstop);
+    if (status != CV_SUCCESS) goto error_return;
   }
 
   /* set stability limit detection (default is FALSE) */
-  CVodeSetStabLimDet(cvode_mem, sld);
- 
+  status = CVodeSetStabLimDet(cvode_mem, sld);
+  if (status != CV_SUCCESS) goto error_return;
+
   /* Rootfinding? */
   if ( !mxIsEmpty(mtlb_Gfct) && (Ng > 0) ) {
-    CVodeRootInit(cvode_mem, Ng, mxW_CVodeGfct);
+    status = CVodeRootInit(cvode_mem, Ng, mxW_CVodeGfct);
+    if (status != CV_SUCCESS) goto error_return;
     rootSet = TRUE;
   } else {
     rootSet = FALSE;
@@ -789,49 +833,63 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   if (iter == CV_NEWTON) {
 
-    get_LinSolvOptions(options, fwdPb, TRUE,
-                       &mupper, &mlower,
-                       &mudq, &mldq, &dqrely,
-                       &ptype, &gstype, &maxl);
+    status = get_LinSolvOptions(options, fwdPb, TRUE,
+                                &mupper, &mlower,
+                                &mudq, &mldq, &dqrely,
+                                &ptype, &gstype, &maxl);
+    if (status != 0) goto error_return;
 
     switch (ls) {
 
     case LS_DENSE:
 
-      CVDense(cvode_mem, N);
-      if (!mxIsEmpty(mtlb_JACfct)) CVDlsSetDenseJacFn(cvode_mem, mxW_CVodeDenseJac);
+      status = CVDense(cvode_mem, N);
+      if (status != CV_SUCCESS) goto error_return;
+      if (!mxIsEmpty(mtlb_JACfct)) {
+        status = CVDlsSetDenseJacFn(cvode_mem, mxW_CVodeDenseJac);
+        if (status != CV_SUCCESS) goto error_return;
+      }
 
       break;
 
     case LS_DIAG:
 
-      CVDiag(cvode_mem);
+      status = CVDiag(cvode_mem);
+      if (status != CV_SUCCESS) goto error_return;
 
       break;
 
     case LS_BAND:
 
-      CVBand(cvode_mem, N, mupper, mlower);
-      if (!mxIsEmpty(mtlb_JACfct)) CVDlsSetBandJacFn(cvode_mem, mxW_CVodeBandJac);
+      status = CVBand(cvode_mem, N, mupper, mlower);
+      if (status != CV_SUCCESS) goto error_return;
+      if (!mxIsEmpty(mtlb_JACfct)) {
+        status = CVDlsSetBandJacFn(cvode_mem, mxW_CVodeBandJac);
+        if (status != CV_SUCCESS) goto error_return;
+      }
 
       break;
 
     case LS_SPGMR:
 
-      CVSpgmr(cvode_mem, ptype, maxl);
-      CVSpilsSetGSType(cvode_mem, gstype);
+      status = CVSpgmr(cvode_mem, ptype, maxl);
+      if (status != CV_SUCCESS) goto error_return;
+      status = CVSpilsSetGSType(cvode_mem, gstype);
+      if (status != CV_SUCCESS) goto error_return;
 
       break;
 
     case LS_SPBCG:
 
-      CVSpbcg(cvode_mem, ptype, maxl);
+      status = CVSpbcg(cvode_mem, ptype, maxl);
+      if (status != CV_SUCCESS) goto error_return;
 
       break;
 
     case LS_SPTFQMR:
 
-      CVSptfqmr(cvode_mem, ptype, maxl);
+      status = CVSptfqmr(cvode_mem, ptype, maxl);
+      if (status != CV_SUCCESS) goto error_return;
 
       break;
 
@@ -842,7 +900,10 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
     if ( (ls==LS_SPGMR) || (ls==LS_SPBCG) || (ls==LS_SPTFQMR) ) {
 
-      if (!mxIsEmpty(mtlb_JACfct)) CVSpilsSetJacTimesVecFn(cvode_mem, mxW_CVodeSpilsJac);
+      if (!mxIsEmpty(mtlb_JACfct)) {
+        status = CVSpilsSetJacTimesVecFn(cvode_mem, mxW_CVodeSpilsJac);
+        if (status != CV_SUCCESS) goto error_return;
+      }
 
       switch (pm) {
 
@@ -850,8 +911,9 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
         if (!mxIsEmpty(mtlb_PSOLfct)) {
 
-          if (!mxIsEmpty(mtlb_PSETfct)) CVSpilsSetPreconditioner(cvode_mem, mxW_CVodeSpilsPset, mxW_CVodeSpilsPsol);
-          else                          CVSpilsSetPreconditioner(cvode_mem, NULL, mxW_CVodeSpilsPsol);
+          if (!mxIsEmpty(mtlb_PSETfct)) status = CVSpilsSetPreconditioner(cvode_mem, mxW_CVodeSpilsPset, mxW_CVodeSpilsPsol);
+          else                          status = CVSpilsSetPreconditioner(cvode_mem, NULL, mxW_CVodeSpilsPsol);
+          if (status != CV_SUCCESS) goto error_return;
 
         }
 
@@ -859,14 +921,16 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
       case PM_BANDPRE:
 
-        CVBandPrecInit(cvode_mem, N, mupper, mlower);
+        status = CVBandPrecInit(cvode_mem, N, mupper, mlower);
+        if (status != CV_SUCCESS) goto error_return;
 
         break;
 
       case PM_BBDPRE:
 
-        if (!mxIsEmpty(mtlb_GCOMfct)) CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_CVodeBBDgloc, mxW_CVodeBBDgcom);
-        else                          CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_CVodeBBDgloc, NULL);
+        if (!mxIsEmpty(mtlb_GCOMfct)) status = CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_CVodeBBDgloc, mxW_CVodeBBDgcom);
+        else                          status = CVBBDPrecInit(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mxW_CVodeBBDgloc, NULL);
+        if (status != CV_SUCCESS) goto error_return;
 
         break;
       }
@@ -883,7 +947,23 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   
   if (mon) mxW_CVodeMonitor(0, t0, NULL, NULL, NULL, fwdPb);
 
+  /* Set errMsg field in global data 
+   * (all error messages from here on will respect this) */
+
+  cvmData->errMsg = errmsg;
+
+  /* Successfull return */
+
+  status = 0;
+  plhs[0] = mxCreateScalarDouble((double)status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[0] = mxCreateScalarDouble((double)status);
+  return(-1);
 
 }
 
@@ -916,6 +996,8 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
   int itolQ;
   realtype reltolQ, SabstolQ, *VabstolQ;
   N_Vector NV_abstolQ;
+
+  int status;
 
   fwdPb = cvmData->fwdPb;
 
@@ -959,8 +1041,11 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
     yQ0 = mxGetPr(prhs[0]);
 
-    if (mxGetM(prhs[0]) != Nq) cvmErrHandler(-999, "CVODES", "CVodeQuadReInit",
-                                             "Size of yQ0 changed from CVodeQuadInit call.", NULL);
+    if (mxGetM(prhs[0]) != Nq) {
+      cvmErrHandler(-999, "CVODES", "CVodeQuadReInit",
+                    "Size of yQ0 changed from CVodeQuadInit call.", NULL);
+      goto error_return;
+    }
 
     /* Load quadrature initial conditions */
     
@@ -976,10 +1061,11 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   /* Process the options structure */
 
-  get_QuadOptions(options, fwdPb, TRUE,
-                  Nq, &rhs_s,
-                  &errconQ, 
-                  &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
+  status = get_QuadOptions(options, fwdPb, TRUE,
+                           Nq, &rhs_s,
+                           &errconQ, 
+                           &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
+  if (status != 0) goto error_return;
 
   /* 
    * ----------------------------------------
@@ -994,10 +1080,12 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   switch (action) {
   case 0:
-    CVodeQuadInit(cvode_mem, mxW_CVodeQUADfct, yQ);
+    status = CVodeQuadInit(cvode_mem, mxW_CVodeQUADfct, yQ);
+    if (status != CV_SUCCESS) goto error_return;
     break;
   case 1:
-    CVodeQuadReInit(cvode_mem, yQ);
+    status = CVodeQuadReInit(cvode_mem, yQ);
+    if (status != CV_SUCCESS) goto error_return;
     break;
   }
 
@@ -1007,18 +1095,21 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
    * ----------------------------------------
    */
 
-  CVodeSetQuadErrCon(cvode_mem, errconQ);
+  status = CVodeSetQuadErrCon(cvode_mem, errconQ);
+  if (status != CV_SUCCESS) goto error_return;
 
   if (errconQ) {
     
     switch (itolQ) {
     case CV_SS:
-      CVodeQuadSStolerances(cvode_mem, reltolQ, SabstolQ);
+      status = CVodeQuadSStolerances(cvode_mem, reltolQ, SabstolQ);
+      if (status != CV_SUCCESS) goto error_return;
       break;
     case CV_SV:
       NV_abstolQ = N_VClone(yQ);
       PutData(NV_abstolQ, VabstolQ, Nq);
-      CVodeQuadSVtolerances(cvode_mem, reltolQ, NV_abstolQ);
+      status = CVodeQuadSVtolerances(cvode_mem, reltolQ, NV_abstolQ);
+      if (status != CV_SUCCESS) goto error_return;
       N_VDestroy(NV_abstolQ);
       break;
     }
@@ -1029,7 +1120,18 @@ static int CVM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   quadr = TRUE;
 
+  /* Successfull return */
+
+  status = 0;
+  plhs[0] = mxCreateScalarDouble((double)status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[0] = mxCreateScalarDouble((double)status);
+  return(-1);
 
 }
 
@@ -1072,7 +1174,7 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
   int *plist, dqtype;
   double *p, *pbar, rho;
 
-  int is;
+  int is, status;
 
   p = NULL;
   plist = NULL;
@@ -1131,8 +1233,11 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
     yS0 = mxGetPr(prhs[0]);
 
-    if ( (mxGetM(prhs[0]) != N) || (mxGetN(prhs[0]) != Ns) )  cvmErrHandler(-999, "CVODES", "CVodeSensReInit",
-                                                                            "Size of yS0 changed from CVodeSensInit call.", NULL);
+    if ( (mxGetM(prhs[0]) != N) || (mxGetN(prhs[0]) != Ns) )  {
+      cvmErrHandler(-999, "CVODES", "CVodeSensReInit",
+                    "Size of yS0 changed from CVodeSensInit call.", NULL);
+      goto error_return;
+    }
 
     /* Load sensitivity initial conditions */
 
@@ -1149,11 +1254,12 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   /* Process the options structure */
 
-  get_FSAOptions(options, fwdPb, 
-                 &ism,
-                 &pfield_name, &plist, &pbar,
-                 &dqtype, &rho,
-                 &errconS, &itolS, &reltolS, &SabstolS, &VabstolS);
+  status = get_FSAOptions(options, fwdPb, 
+                          &ism,
+                          &pfield_name, &plist, &pbar,
+                          &dqtype, &rho,
+                          &errconS, &itolS, &reltolS, &SabstolS, &VabstolS);
+  if (status != 0) goto error_return;
 
   /* 
    * ----------------------------------------
@@ -1175,15 +1281,18 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
     if ( fS_DQ && (pfield_name == NULL) ) {
       cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
                     "pfield required but was not provided.", NULL);
+      goto error_return;
     }
 
-    CVodeSensInit(cvode_mem, Ns, ism, rhsS, yS);
+    status = CVodeSensInit(cvode_mem, Ns, ism, rhsS, yS);
+    if (status != CV_SUCCESS) goto error_return;
 
     break;
 
   case 1:
 
-    CVodeSensReInit(cvode_mem, ism, yS);
+    status = CVodeSensReInit(cvode_mem, ism, yS);
+    if (status != CV_SUCCESS) goto error_return;
 
     break;
 
@@ -1197,17 +1306,20 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   switch (itolS) {
   case CV_SS:
-    CVodeSensSStolerances(cvode_mem, reltolS, SabstolS);
+    status = CVodeSensSStolerances(cvode_mem, reltolS, SabstolS);
+    if (status != CV_SUCCESS) goto error_return;
     break;
   case CV_SV:
     NV_abstolS = N_VCloneVectorArray(Ns, y);
     for (is=0;is<Ns;is++)
       PutData(NV_abstolS[is], &VabstolS[is*N], N);
-    CVodeSensSVtolerances(cvode_mem, reltolS, NV_abstolS);
+    status = CVodeSensSVtolerances(cvode_mem, reltolS, NV_abstolS);
+    if (status != CV_SUCCESS) goto error_return;
     N_VDestroyVectorArray(NV_abstolS, Ns);
     break;
   case CV_EE:
-    CVodeSensEEtolerances(cvode_mem);
+    status = CVodeSensEEtolerances(cvode_mem);
+    if (status != CV_SUCCESS) goto error_return;
     break;
   }
 
@@ -1219,20 +1331,38 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   if (pfield_name != NULL) {
     pfield = mxGetField(mtlb_data,0,pfield_name);
-    if (pfield == NULL) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                      "illegal pfield input.", NULL);
+    if (pfield == NULL) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
+                    "illegal pfield input.", NULL);
+      goto error_return;
+    }
     p = mxGetPr(pfield);
   }
   
-  CVodeSetSensParams(cvode_mem, p, pbar, plist);
+  status = CVodeSetSensParams(cvode_mem, p, pbar, plist);
+  if (status != CV_SUCCESS) goto error_return;
 
-  CVodeSetSensDQMethod(cvode_mem, dqtype, rho);
-  
-  CVodeSetSensErrCon(cvode_mem, errconS);
+  status = CVodeSetSensDQMethod(cvode_mem, dqtype, rho);
+  if (status != CV_SUCCESS) goto error_return;
+
+  status = CVodeSetSensErrCon(cvode_mem, errconS);
+  if (status != CV_SUCCESS) goto error_return;
 
   fsa = TRUE;
 
+  /* Successfull return */
+
+  status = 0;
+  plhs[0] = mxCreateScalarDouble((double)status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[0] = mxCreateScalarDouble((double)status);
+  return(-1);
+
 }
 
 /*
@@ -1244,13 +1374,21 @@ static int CVM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 static int CVM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   cvmPbData fwdPb;
+  int status;
 
   fwdPb = cvmData->fwdPb;
 
-  CVodeSensToggleOff(cvode_mem);
-  
+  status = CVodeSensToggleOff(cvode_mem);
+  if (status != CV_SUCCESS) {
+    status = -1;
+    plhs[0] = mxCreateScalarDouble((double)status);
+    return(-1);
+  }
+
   fsa = FALSE;
 
+  status = 0;
+  plhs[0] = mxCreateScalarDouble((double)status);
   return(0);
 }
 
@@ -1283,21 +1421,30 @@ static int CVM_AdjInitialization(int action, int nlhs, mxArray *plhs[], int nrhs
     buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(prhs[1], bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeAdjInit", 
-                                  "Could not parse InterpType.", NULL);
+    if(status != 0) {
+      cvmErrHandler(-999, "CVODES", "CVodeAdjInit", 
+                    "Could not parse InterpType.", NULL);
+      goto error_return;
+    }
+    if(!strcmp(bufval,"Hermite")) {
+      interp = CV_HERMITE;
+    } else if(!strcmp(bufval,"Polynomial")) {
+      interp = CV_POLYNOMIAL;
+    } else {
+      cvmErrHandler(-999, "CVODES", "CVodeAdjInit",
+                    "Interp. type has an illegal value.", NULL);
+      goto error_return;
+    }
 
-    if(!strcmp(bufval,"Hermite"))         interp = CV_HERMITE;
-    else if(!strcmp(bufval,"Polynomial")) interp = CV_POLYNOMIAL;
-    else cvmErrHandler(-999, "CVODES", "CVodeAdjInit",
-                       "Interp. type has an illegal value.", NULL);
-
-    CVodeAdjInit(cvode_mem, Nd, interp);
+    status = CVodeAdjInit(cvode_mem, Nd, interp);
+    if (status != CV_SUCCESS) goto error_return;
 
     break;
 
   case 1:
 
-    CVodeAdjReInit(cvode_mem);
+    status = CVodeAdjReInit(cvode_mem);
+    if (status != CV_SUCCESS) goto error_return;
 
     break;
 
@@ -1305,7 +1452,19 @@ static int CVM_AdjInitialization(int action, int nlhs, mxArray *plhs[], int nrhs
 
   asa = TRUE;
   
+  /* Successfull return */
+
+  status = 0;
+  plhs[0] = mxCreateScalarDouble((double)status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[0] = mxCreateScalarDouble((double)status);
+  return(-1);
+
 }
 
 
@@ -1352,6 +1511,7 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   double tstopB;            /* ignored */
   booleantype sldB;         /* ignored */
+  booleantype errmsgB;      /* ignored */
 
   booleantype rhs_s;
 
@@ -1363,7 +1523,14 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   booleantype found_bck;
 
   char *bufval;
-  int buflen, status;
+  int buflen;
+
+  int status;
+  int i_status;
+
+  /* Set output containing status */
+
+  i_status = (action == 0) ? 1 : 0;
 
   /* 
    * -----------------------------
@@ -1404,12 +1571,20 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(prhs[1], bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeInitB",
-                                  "Cannot parse LMM input argument.", NULL);
-    if(!strcmp(bufval,"Adams"))    lmmB = CV_ADAMS;
-    else if(!strcmp(bufval,"BDF")) lmmB = CV_BDF;
-    else cvmErrHandler(-999, "CVODES", "CVodeInitB",
-                       "LMM has an illegal value.", NULL);
+    if(status != 0) {
+      cvmErrHandler(-999, "CVODES", "CVodeInitB",
+                    "Cannot parse LMM input argument.", NULL);
+      goto error_return;
+    }
+    if(!strcmp(bufval,"Adams")) {
+      lmmB = CV_ADAMS;
+    } else if(!strcmp(bufval,"BDF")) {
+      lmmB = CV_BDF;
+    } else {
+      cvmErrHandler(-999, "CVODES", "CVodeInitB",
+                    "LMM has an illegal value.", NULL);
+      goto error_return;
+    }
     mxFree(bufval);
 
     /* Extract iterB */
@@ -1417,12 +1592,20 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
     buflen = mxGetM(prhs[2]) * mxGetN(prhs[2]) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(prhs[2], bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeInitB",
-                                  "Cannot parse NLS input argument.", NULL);
-    if(!strcmp(bufval,"Functional"))  iterB = CV_FUNCTIONAL;
-    else if(!strcmp(bufval,"Newton")) iterB = CV_NEWTON;
-    else cvmErrHandler(-999, "CVODES", "CVodeInitB",
-                       "NLS has an illegal value.", NULL);
+    if(status != 0) {
+      cvmErrHandler(-999, "CVODES", "CVodeInitB",
+                    "Cannot parse NLS input argument.", NULL);
+      goto error_return;
+    }
+    if(!strcmp(bufval,"Functional")) {
+      iterB = CV_FUNCTIONAL;
+    } else if(!strcmp(bufval,"Newton")) {
+      iterB = CV_NEWTON;
+    } else {
+      cvmErrHandler(-999, "CVODES", "CVodeInitB",
+                    "NLS has an illegal value.", NULL);
+      goto error_return;
+    }
     mxFree(bufval);
 
     /* Extract final time */
@@ -1466,8 +1649,11 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
       bckPb = bckPb->next;
     }
 
-    if (!found_bck) cvmErrHandler(-999, "CVODES", "CVodeReInitB",
-                                  "idxB has an illegal value.", NULL);
+    if (!found_bck) {
+      cvmErrHandler(-999, "CVODES", "CVodeReInitB",
+                    "idxB has an illegal value.", NULL);
+      goto error_return;
+    }
 
     /* If backward monitoring was enabled, finalize it now. */
 
@@ -1481,9 +1667,12 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
     yB0 = mxGetPr(prhs[2]);
 
-    if (mxGetM(prhs[2]) != NB) cvmErrHandler(-999, "CVODES", "CVodeReInitB",
-                                             "Size of yB0 changed from CVodeInitB call.", NULL);
-
+    if (mxGetM(prhs[2]) != NB) {
+      cvmErrHandler(-999, "CVODES", "CVodeReInitB",
+                    "Size of yB0 changed from CVodeInitB call.", NULL);
+      goto error_return;
+    }
+    
     /* Load final conditions */
 
     PutData(yB, yB0, NB);
@@ -1498,10 +1687,12 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   /* Process the options structure */
 
-  get_IntgrOptions(options, bckPb, FALSE, lmmB,
-                   &maxordB, &sldB, &mxstepsB,
-                   &itolB, &reltolB, &SabstolB, &VabstolB,
-                   &hinB, &hmaxB, &hminB, &tstopB, &rhs_s);
+  status = get_IntgrOptions(options, bckPb, FALSE, lmmB,
+                            &maxordB, &sldB, &errmsgB, &mxstepsB,
+                            &itolB, &reltolB, &SabstolB, &VabstolB,
+                            &hinB, &hmaxB, &hminB, &tstopB, &rhs_s);
+  if (status != 0) goto error_return;
+
   /* 
    * ----------------------------------------
    * Call appropriate CVODES functions
@@ -1518,16 +1709,20 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   case 0:
 
-    CVodeCreateB(cvode_mem, lmmB, iterB, &idxB);
-    CVodeSetUserDataB(cvode_mem, idxB, bckPb);
+    status = CVodeCreateB(cvode_mem, lmmB, iterB, &idxB);
+    if (status != CV_SUCCESS) goto error_return;
+
+    status = CVodeSetUserDataB(cvode_mem, idxB, bckPb);
+    if (status != CV_SUCCESS) goto error_return;
 
     if (rhs_s) {
-      CVodeInitBS(cvode_mem, idxB, mxW_CVodeRhsBS, tB0, yB);
+      status = CVodeInitBS(cvode_mem, idxB, mxW_CVodeRhsBS, tB0, yB);
     } else {
-      CVodeInitB(cvode_mem, idxB, mxW_CVodeRhsB, tB0, yB);
+      status = CVodeInitB(cvode_mem, idxB, mxW_CVodeRhsB, tB0, yB);
     }
+    if (status != CV_SUCCESS) goto error_return;
 
-    /* Return idxB */
+    /* Load idxB in the 1st output (status is 2nd one for this action) */
 
     plhs[0] = mxCreateScalarDouble((double)idxB);
 
@@ -1539,7 +1734,8 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   case 1:
 
-    CVodeReInitB(cvode_mem, idxB, tB0, yB);
+    status = CVodeReInitB(cvode_mem, idxB, tB0, yB);
+    if (status != CV_SUCCESS) goto error_return;
 
     break;
 
@@ -1553,12 +1749,14 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   switch (itolB) {
   case CV_SS:
-    CVodeSStolerancesB(cvode_mem, idxB, reltolB, SabstolB);
+    status = CVodeSStolerancesB(cvode_mem, idxB, reltolB, SabstolB);
+    if (status != CV_SUCCESS) goto error_return;
     break;
   case CV_SV:
     NV_abstolB = N_VClone(yB);
     PutData(NV_abstolB, VabstolB, NB);
-    CVodeSVtolerancesB(cvode_mem, idxB, reltolB, NV_abstolB);
+    status = CVodeSVtolerancesB(cvode_mem, idxB, reltolB, NV_abstolB);
+    if (status != CV_SUCCESS) goto error_return;
     N_VDestroy(NV_abstolB);
     break;
   }
@@ -1570,19 +1768,24 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
    */
 
   /* set maxorder (default is consistent with LMM) */
-  CVodeSetMaxOrdB(cvode_mem, idxB, maxordB);
+  status = CVodeSetMaxOrdB(cvode_mem, idxB, maxordB);
+  if (status != CV_SUCCESS) goto error_return;
 
   /* set initial step size (the default value of 0.0 is ignored by CVODES) */
-  CVodeSetInitStepB(cvode_mem, idxB, hinB);
+  status = CVodeSetInitStepB(cvode_mem, idxB, hinB);
+  if (status != CV_SUCCESS) goto error_return;
 
   /* set max step (default is infinity) */
-  CVodeSetMaxStepB(cvode_mem, idxB, hmaxB);
+  status = CVodeSetMaxStepB(cvode_mem, idxB, hmaxB);
+  if (status != CV_SUCCESS) goto error_return;
 
   /* set min step (default is 0) */
-  CVodeSetMinStepB(cvode_mem, idxB, hminB);
+  status = CVodeSetMinStepB(cvode_mem, idxB, hminB);
+  if (status != CV_SUCCESS) goto error_return;
  
   /* set number of max steps */
-  CVodeSetMaxNumStepsB(cvode_mem, idxB, mxstepsB);
+  status = CVodeSetMaxNumStepsB(cvode_mem, idxB, mxstepsB);
+  if (status != CV_SUCCESS) goto error_return;
 
   /*
    * ----------------------------------------
@@ -1592,49 +1795,63 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   if (iterB == CV_NEWTON) {
 
-    get_LinSolvOptions(options, bckPb, FALSE,
-                       &mupperB, &mlowerB,
-                       &mudqB, &mldqB, &dqrelyB,
-                       &ptypeB, &gstypeB, &maxlB);
+    status = get_LinSolvOptions(options, bckPb, FALSE,
+                                &mupperB, &mlowerB,
+                                &mudqB, &mldqB, &dqrelyB,
+                                &ptypeB, &gstypeB, &maxlB);
+    if (status != 0) goto error_return;
 
     switch(lsB) {
 
     case LS_DENSE:
 
-      CVDenseB(cvode_mem, idxB, NB);
-      if (!mxIsEmpty(mtlb_JACfctB)) CVDlsSetDenseJacFnB(cvode_mem, idxB, mxW_CVodeDenseJacB);
+      status = CVDenseB(cvode_mem, idxB, NB);
+      if (status != CV_SUCCESS) goto error_return;
+      if (!mxIsEmpty(mtlb_JACfctB)) {
+        status = CVDlsSetDenseJacFnB(cvode_mem, idxB, mxW_CVodeDenseJacB);
+        if (status != CV_SUCCESS) goto error_return;
+      }
 
       break;
 
     case LS_DIAG:
 
-      CVDiagB(cvode_mem, idxB);
+      status = CVDiagB(cvode_mem, idxB);
+      if (status != CV_SUCCESS) goto error_return;
 
       break;
 
     case LS_BAND:
 
-      CVBandB(cvode_mem, idxB, NB, mupperB, mlowerB);
-      if (!mxIsEmpty(mtlb_JACfctB)) CVDlsSetBandJacFnB(cvode_mem, idxB, mxW_CVodeBandJacB);
+      status = CVBandB(cvode_mem, idxB, NB, mupperB, mlowerB);
+      if (status != CV_SUCCESS) goto error_return;
+      if (!mxIsEmpty(mtlb_JACfctB)) {
+        status = CVDlsSetBandJacFnB(cvode_mem, idxB, mxW_CVodeBandJacB);
+        if (status != CV_SUCCESS) goto error_return;
+      }
 
       break;
 
     case LS_SPGMR:
-
-      CVSpgmrB(cvode_mem, idxB, ptypeB, maxlB);
-      CVSpilsSetGSTypeB(cvode_mem, idxB, gstypeB);
+      
+      status = CVSpgmrB(cvode_mem, idxB, ptypeB, maxlB);
+      if (status != CV_SUCCESS) goto error_return;
+      status = CVSpilsSetGSTypeB(cvode_mem, idxB, gstypeB);
+      if (status != CV_SUCCESS) goto error_return;
 
       break;
 
     case LS_SPBCG:
 
-      CVSpbcgB(cvode_mem, idxB, ptypeB, maxlB);
+      status = CVSpbcgB(cvode_mem, idxB, ptypeB, maxlB);
+      if (status != CV_SUCCESS) goto error_return;
 
       break;
 
     case LS_SPTFQMR:
 
-      CVSptfqmrB(cvode_mem, idxB, ptypeB, maxlB);
+      status = CVSptfqmrB(cvode_mem, idxB, ptypeB, maxlB);
+      if (status != CV_SUCCESS) goto error_return;
 
       break;
 
@@ -1644,29 +1861,35 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
     if ( (lsB==LS_SPGMR) || (lsB==LS_SPBCG) || (lsB==LS_SPTFQMR) ) {
 
-      if (!mxIsEmpty(mtlb_JACfctB)) CVSpilsSetJacTimesVecFnB(cvode_mem, idxB, mxW_CVodeSpilsJacB);
+      if (!mxIsEmpty(mtlb_JACfctB)) {
+        status = CVSpilsSetJacTimesVecFnB(cvode_mem, idxB, mxW_CVodeSpilsJacB);
+        if (status != CV_SUCCESS) goto error_return;
+      }
 
       switch (pmB) {
 
       case PM_NONE:
 
         if (!mxIsEmpty(mtlb_PSOLfctB)) {
-          if (!mxIsEmpty(mtlb_PSETfctB)) CVSpilsSetPreconditionerB(cvode_mem, idxB, mxW_CVodeSpilsPsetB, mxW_CVodeSpilsPsolB);
-          else                           CVSpilsSetPreconditionerB(cvode_mem, idxB, NULL, mxW_CVodeSpilsPsolB);
+          if (!mxIsEmpty(mtlb_PSETfctB)) status = CVSpilsSetPreconditionerB(cvode_mem, idxB, mxW_CVodeSpilsPsetB, mxW_CVodeSpilsPsolB);
+          else                           status = CVSpilsSetPreconditionerB(cvode_mem, idxB, NULL, mxW_CVodeSpilsPsolB);
         }
+        if (status != CV_SUCCESS) goto error_return;
 
         break;
 
       case PM_BANDPRE:
 
-        CVBandPrecInitB(cvode_mem, idxB, NB, mupperB, mlowerB);
+        status = CVBandPrecInitB(cvode_mem, idxB, NB, mupperB, mlowerB);
+        if (status != CV_SUCCESS) goto error_return;
 
         break;
 
       case PM_BBDPRE:
 
-        if (!mxIsEmpty(mtlb_GCOMfctB)) CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_CVodeBBDglocB, mxW_CVodeBBDgcomB);
-        else                           CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_CVodeBBDglocB, NULL);
+        if (!mxIsEmpty(mtlb_GCOMfctB)) status = CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_CVodeBBDglocB, mxW_CVodeBBDgcomB);
+        else                           status = CVBBDPrecInitB(cvode_mem, idxB, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mxW_CVodeBBDglocB, NULL);
+        if (status != CV_SUCCESS) goto error_return;
 
         break;
 
@@ -1684,7 +1907,19 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   if (monB) mxW_CVodeMonitorB(0, idxB, tB0, NULL, NULL, bckPb);
 
+  /* Successfull return */
+
+  status = 0;
+  plhs[i_status] = mxCreateScalarDouble((double)status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[i_status] = mxCreateScalarDouble((double)status);
+  return(-1);
+
 }
 
 
@@ -1723,6 +1958,8 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   booleantype found_bck;
 
+  int status;
+
   /* Extract index of current backward problem */
     
   idxB = (int)mxGetScalar(prhs[0]);
@@ -1739,8 +1976,11 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
     bckPb = bckPb->next;
   }
 
-  if (!found_bck) cvmErrHandler(-999, "CVODES", "CVodeQuadInitB/CVodeQuadReInitB",
-                                "idxB has an illegal value.", NULL);
+  if (!found_bck) {
+    cvmErrHandler(-999, "CVODES", "CVodeQuadInitB/CVodeQuadReInitB",
+                  "idxB has an illegal value.", NULL);
+    goto error_return;
+  }
 
   /* 
    * ------------------------------------
@@ -1800,10 +2040,11 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   /* Process the options structure */
 
-  get_QuadOptions(options, bckPb, FALSE,
-                  NqB, &rhs_s,
-                  &errconQB, 
-                  &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
+  status = get_QuadOptions(options, bckPb, FALSE,
+                           NqB, &rhs_s,
+                           &errconQB, 
+                           &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
+  if (status != 0) goto error_return;
 
   /* 
    * ----------------------------------------
@@ -1818,11 +2059,13 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   switch (action) {
   case 0:
-    if (rhs_s) CVodeQuadInitBS(cvode_mem, idxB, mxW_CVodeQUADfctBS, yQB);
-    else       CVodeQuadInitB(cvode_mem, idxB, mxW_CVodeQUADfctB, yQB);
+    if (rhs_s) status = CVodeQuadInitBS(cvode_mem, idxB, mxW_CVodeQUADfctBS, yQB);
+    else       status = CVodeQuadInitB(cvode_mem, idxB, mxW_CVodeQUADfctB, yQB);
+    if (status != CV_SUCCESS) goto error_return;
     break;
   case 1:
-    CVodeQuadReInitB(cvode_mem, idxB, yQB);
+    status = CVodeQuadReInitB(cvode_mem, idxB, yQB);
+    if (status != CV_SUCCESS) goto error_return;
     break;
   }
 
@@ -1832,18 +2075,21 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
    * ----------------------------------------
    */
   
-  CVodeSetQuadErrConB(cvode_mem, idxB, errconQB);
+  status = CVodeSetQuadErrConB(cvode_mem, idxB, errconQB);
+  if (status != CV_SUCCESS) goto error_return;
 
   if (errconQB) {
 
     switch (itolQB) {
     case CV_SS:
-      CVodeQuadSStolerancesB(cvode_mem, idxB, reltolQB, SabstolQB);
+      status = CVodeQuadSStolerancesB(cvode_mem, idxB, reltolQB, SabstolQB);
+      if (status != CV_SUCCESS) goto error_return;
       break;
     case CV_SV:
       NV_abstolQB = N_VClone(yQB);
       PutData(NV_abstolQB, VabstolQB, NqB);
-      CVodeQuadSVtolerancesB(cvode_mem, idxB, reltolQB, NV_abstolQB);
+      status = CVodeQuadSVtolerancesB(cvode_mem, idxB, reltolQB, NV_abstolQB);
+      if (status != CV_SUCCESS) goto error_return;
       N_VDestroy(NV_abstolQB);
       break;
     }
@@ -1852,7 +2098,19 @@ static int CVM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   quadrB = TRUE;
 
+  /* Successfull return */
+
+  status = 0;
+  plhs[0] = mxCreateScalarDouble((double)status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[0] = mxCreateScalarDouble((double)status);
+  return(-1);
+
 }
 
 
@@ -1870,12 +2128,21 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   int nlhs_bad, dims[3];
 
-  int itask, is, Ntout, itout, status, s_idx;
+  int status, cv_status;
+  int itask, is, Ntout, itout, s_idx;
   double *tout, tret, h;
   double *tdata, *ydata, *yQdata, *ySdata;
   long int nst;
 
   fwdPb = cvmData->fwdPb;
+
+
+  /* Set index of output corresponding to FSA */
+
+  if (fsa) {
+    s_idx = quadr ? 4 : 3;
+  }
+
 
   /*
    * ----------------------------------------------------------------
@@ -1891,10 +2158,17 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   if ( (nlhs == 4) && (quadr && fsa) ) nlhs_bad = -1;
   if ( (nlhs == 5) && (!quadr || !fsa) ) nlhs_bad = 1;
 
-  if (nlhs_bad < 0) cvmErrHandler(-999, "CVODES", "CVode",
-                                  "Too few output arguments.", NULL);
-  if (nlhs_bad > 0) cvmErrHandler(-999, "CVODES", "CVode",
-                                  "Too many output arguments.", NULL);
+  if (nlhs_bad < 0) {
+    cvmErrHandler(-999, "CVODES", "CVode",
+                  "Too few output arguments.", NULL);
+    goto error_return;
+  }
+
+  if (nlhs_bad > 0) {
+    cvmErrHandler(-999, "CVODES", "CVode",
+                  "Too many output arguments.", NULL);
+    goto error_return;
+  }
 
   /*
    * ----------------------------------------------------------------
@@ -1909,29 +2183,42 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   /* If rootfinding or tstop are enabled, we do not allow multiple output times */
 
-  if (rootSet && (Ntout>1)) cvmErrHandler(-999, "CVODES", "CVode",
-                                          "More than one tout value prohibited with rootfinding enabled.", NULL);
+  if (rootSet && (Ntout>1)) {
+    cvmErrHandler(-999, "CVODES", "CVode",
+                  "More than one tout value prohibited with rootfinding enabled.", NULL);
+    goto error_return;
+  }
 
-  if (tstopSet && (Ntout>1)) cvmErrHandler(-999, "CVODES", "CVode",
-                                           "More than one tout value prohibited with tstop enabled.", NULL);
+  if (tstopSet && (Ntout>1)) {
+    cvmErrHandler(-999, "CVODES", "CVode",
+                  "More than one tout value prohibited with tstop enabled.", NULL);
+    goto error_return;
+  }
 
   /* Extract itask */
 
   buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
   bufval = mxCalloc(buflen, sizeof(char));
   status = mxGetString(prhs[1], bufval, buflen);
-  if(!strcmp(bufval,"Normal")) itask = CV_NORMAL;
-  else if(!strcmp(bufval,"OneStep")) itask = CV_ONE_STEP;
-  else cvmErrHandler(-999, "CVODES", "CVode",
-                     "Illegal value for itask.", NULL); 
+  if(!strcmp(bufval,"Normal")) {
+    itask = CV_NORMAL;
+  } else if(!strcmp(bufval,"OneStep")) {
+    itask = CV_ONE_STEP;
+  } else {
+    cvmErrHandler(-999, "CVODES", "CVode",
+                  "Illegal value for itask.", NULL); 
+    goto error_return;
+  }
 
-
-  if (itask==CV_ONE_STEP) {
+  if (itask == CV_ONE_STEP) {
 
     /* If itask==CV_ONE_STEP, we do not allow multiple output times and we do not monitor */
 
-    if (Ntout>1) cvmErrHandler(-999, "CVODES", "CVode",
-                               "More than one tout value prohibited in ONE_STEP mode.", NULL); 
+    if (Ntout > 1) {
+      cvmErrHandler(-999, "CVODES", "CVode",
+                    "More than one tout value prohibited in ONE_STEP mode.", NULL); 
+      goto error_return;
+    }
 
     if (mon) {
       cvmErrHandler(+999, "CVODES", "CVode",
@@ -1943,21 +2230,30 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     /* Check if tout values are legal */
 
-    CVodeGetCurrentTime(cvode_mem, &tret);
-    CVodeGetNumSteps(cvode_mem, &nst);
+    status = CVodeGetCurrentTime(cvode_mem, &tret);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVodeGetNumSteps(cvode_mem, &nst);
+    if (status != CV_SUCCESS) goto error_return;
 
     /* h is used throughout this function as integration direction only */
     if (nst == 0) {
       h = tout[0] - tret;
     } else {
-      CVodeGetLastStep(cvode_mem, &h);
-      if ( (tout[0] - tret + h)*h < 0.0 ) cvmErrHandler(-999, "CVODES", "CVode",
-                                                        "Illegal value of tout.", NULL);
+      status = CVodeGetLastStep(cvode_mem, &h);
+      if (status != CV_SUCCESS) goto error_return;
+      if ( (tout[0] - tret + h)*h < 0.0 ) {
+        cvmErrHandler(-999, "CVODES", "CVode",
+                      "Illegal value of tout.", NULL);
+        goto error_return;
+      }
     }
     
     for (itout=1; itout<Ntout; itout++) 
-      if ( (tout[itout] - tout[itout-1])*h < 0.0 ) cvmErrHandler(-999, "CVODES", "CVode",
-                                                                 "tout values are not monotonic.", NULL);
+      if ( (tout[itout] - tout[itout-1])*h < 0.0 ) {
+        cvmErrHandler(-999, "CVODES", "CVode",
+                      "tout values are not monotonic.", NULL);
+        goto error_return;
+      }
 
   }
 
@@ -1987,7 +2283,6 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   /* Sensitivity vectors */
 
   if (fsa) {
-    s_idx = quadr ? 4 : 3;
     dims[0] = N;
     dims[1] = Ns;
     dims[2] = Ntout;
@@ -2007,20 +2302,23 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     for (itout=0; itout<Ntout; itout++) {
 
-      if (!asa) status = CVode(cvode_mem, tout[itout], y, &tret, itask);
-      else      status = CVodeF(cvode_mem, tout[itout], y, &tret, itask, &Nc);
+      if (!asa) cv_status = CVode(cvode_mem, tout[itout], y, &tret, itask);
+      else      cv_status = CVodeF(cvode_mem, tout[itout], y, &tret, itask, &Nc);
+      if (cv_status < 0) goto error_return;
 
       tdata[itout] = tret;
 
       GetData(y, &ydata[itout*N], N);
 
       if (quadr) {
-        CVodeGetQuad(cvode_mem, &tret, yQ);
+        status = CVodeGetQuad(cvode_mem, &tret, yQ);
+        if (status != CV_SUCCESS) goto error_return;
         GetData(yQ, &yQdata[itout*Nq], Nq);
       }
 
       if (fsa) {
-        CVodeGetSens(cvode_mem, &tret, yS);
+        status = CVodeGetSens(cvode_mem, &tret, yS);
+        if (status != CV_SUCCESS) goto error_return;
         for (is=0; is<Ns; is++)
           GetData(yS[is], &ySdata[itout*Ns*N+is*N], N);
       }
@@ -2037,29 +2335,38 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
        * We must therefore check here whether we need to take additional steps,
        * or simply return interpolated solution at tout. */
 
-      CVodeGetNumSteps(cvode_mem, &nst);
-      CVodeGetCurrentTime(cvode_mem, &tret);
+      status = CVodeGetNumSteps(cvode_mem, &nst);
+      if (status != CV_SUCCESS) goto error_return;
+      status = CVodeGetCurrentTime(cvode_mem, &tret);
+      if (status != CV_SUCCESS) goto error_return;
 
       if ( (nst>0) && ((tret - tout[itout])*h >= 0.0) ) {
 
         /* No need to take an additional step */
-        status = CV_SUCCESS;
+        cv_status = CV_SUCCESS;
 
       } else {
 
         /* Take additional steps */
         while(1) {
 
-          if (!asa) status = CVode(cvode_mem, tout[itout], y, &tret, CV_ONE_STEP);
-          else      status = CVodeF(cvode_mem, tout[itout], y, &tret, CV_ONE_STEP, &Nc);
+          if (!asa) cv_status = CVode(cvode_mem, tout[itout], y, &tret, CV_ONE_STEP);
+          else      cv_status = CVodeF(cvode_mem, tout[itout], y, &tret, CV_ONE_STEP, &Nc);
+          if (cv_status < 0) goto error_return;
 
           /* Call the monitoring function */
-          if (quadr) CVodeGetQuad(cvode_mem, &tret, yQ);
-          if (fsa)   CVodeGetSens(cvode_mem, &tret, yS);
+          if (quadr) {
+            status = CVodeGetQuad(cvode_mem, &tret, yQ);
+            if (status != CV_SUCCESS) goto error_return;
+          }
+          if (fsa) {
+            status = CVodeGetSens(cvode_mem, &tret, yS);
+            if (status != CV_SUCCESS) goto error_return;
+          }
           mxW_CVodeMonitor(1, tret, y, yQ, yS, fwdPb);
 
           /* If a root was found or tstop was reached, break out of while loop */
-          if (status == CV_TSTOP_RETURN || status == CV_ROOT_RETURN) break;
+          if (cv_status == CV_TSTOP_RETURN || cv_status == CV_ROOT_RETURN) break;
 
           /* If current tout was reached break out of while loop */
           if ( (tret - tout[itout])*h >= 0.0 )  break;
@@ -2069,23 +2376,36 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       }
       
       /* On a tstop or root return, return solution at tret.
-       * Otherwise (status=CV_SUCCESS), return solution at tout[itout]. */
+       * Otherwise (cv_status=CV_SUCCESS), return solution at tout[itout]. */
 
-      if (status == CV_TSTOP_RETURN || status == CV_ROOT_RETURN) {
+      if (cv_status == CV_TSTOP_RETURN || cv_status == CV_ROOT_RETURN) {
 
-        if (quadr) CVodeGetQuad(cvode_mem, &tret, yQ);
+        if (quadr) {
+          status = CVodeGetQuad(cvode_mem, &tret, yQ);
+          if (status != CV_SUCCESS) goto error_return;
+        }
 
-        if (fsa)   CVodeGetSens(cvode_mem, &tret, yS);
+        if (fsa) {
+          status = CVodeGetSens(cvode_mem, &tret, yS);
+          if (status != CV_SUCCESS) goto error_return;
+        }
 
       } else {
 
         tret = tout[itout];
         
-        CVodeGetDky(cvode_mem, tret, 0, y);
+        status = CVodeGetDky(cvode_mem, tret, 0, y);
+        if (status != CV_SUCCESS) goto error_return;
 
-        if (quadr) CVodeGetQuadDky(cvode_mem, tret, 0, yQ);
+        if (quadr) {
+          status = CVodeGetQuadDky(cvode_mem, tret, 0, yQ);
+          if (status != CV_SUCCESS) goto error_return;
+        }
 
-        if (fsa)   CVodeGetSensDky(cvode_mem, tret, 0, yS);
+        if (fsa) {
+          status = CVodeGetSensDky(cvode_mem, tret, 0, yS);
+          if (status != CV_SUCCESS) goto error_return;
+        }
 
       }
 
@@ -2103,11 +2423,27 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   }
 
-  /* CVODE return flag */
+  /* CVODE return flag (only non-negative values make it here) */
 
-  plhs[0] = mxCreateScalarDouble((double)status);
-
+  plhs[0] = mxCreateScalarDouble((double)cv_status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleMatrix(0,0,mxREAL);
+  plhs[2] = mxCreateDoubleMatrix(0,0,mxREAL);
+  if (quadr) {
+    plhs[3] = mxCreateDoubleMatrix(0,0,mxREAL);
+  }
+  if (fsa) {
+    s_idx = quadr ? 4 : 3;
+    plhs[s_idx] = mxCreateDoubleMatrix(0,0,mxREAL);
+  }
+  return(-1);
+
 }
 
 
@@ -2120,12 +2456,14 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   int nlhs_bad;
 
-  int itaskB, NtoutB, status;
+  int itaskB, NtoutB;
   double *toutB;
 
   double tret, h;
 
   booleantype any_quadrB, any_monB;
+
+  int status, cv_status;
 
   /*
    * -------------------------------------------------------
@@ -2155,10 +2493,17 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   if (nlhs > 4) nlhs_bad = 1;
   if ( (nlhs == 3) && any_quadrB ) nlhs_bad = -1;
 
-  if (nlhs_bad < 0) cvmErrHandler(-999, "CVODES", "CVodeB",
-                                  "Too few output arguments.", NULL);
-  if (nlhs_bad > 0) cvmErrHandler(-999, "CVODES", "CVodeB",
-                                  "Too many output arguments.", NULL);
+  if (nlhs_bad < 0) {
+    cvmErrHandler(-999, "CVODES", "CVodeB",
+                  "Too few output arguments.", NULL);
+    goto error_return;
+  }
+
+  if (nlhs_bad > 0) {
+    cvmErrHandler(-999, "CVODES", "CVodeB",
+                  "Too many output arguments.", NULL);
+    goto error_return;
+  }
 
   /*
    * ----------------------------------------------------------------
@@ -2173,22 +2518,32 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* Check if first tout value is in the right direction */
 
-  CVodeGetLastStep(cvode_mem, &h);
-  CVodeGetCurrentTime(cvode_mem, &tret);
-
+  status = CVodeGetLastStep(cvode_mem, &h);
+  if (status != CV_SUCCESS) goto error_return;
+  status = CVodeGetCurrentTime(cvode_mem, &tret);
+  if (status != CV_SUCCESS) goto error_return;
+ 
   /* The stepsize of the forward problem is used to indicate the integration direction */
-  if ( (tret - toutB[0])*h < 0.0 ) cvmErrHandler(-999, "CVODES", "CVodeB",
-                                                 "tout value in wrong direction.", NULL);
-  
+  if ( (tret - toutB[0])*h < 0.0 ) {
+    cvmErrHandler(-999, "CVODES", "CVodeB",
+                  "tout value in wrong direction.", NULL);
+    goto error_return;
+  }
+
   /* Extract itaskB */
 
   buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
   bufval = mxCalloc(buflen, sizeof(char));
   status = mxGetString(prhs[1], bufval, buflen);
-  if(!strcmp(bufval,"Normal"))       itaskB = CV_NORMAL;
-  else if(!strcmp(bufval,"OneStep")) itaskB = CV_ONE_STEP;
-  else cvmErrHandler(-999, "CVODES", "CVodeB",
-                     "Illegal value for itask.", NULL); 
+  if(!strcmp(bufval,"Normal")) {
+    itaskB = CV_NORMAL;
+  } else if(!strcmp(bufval,"OneStep")) {
+    itaskB = CV_ONE_STEP;
+  } else {
+    cvmErrHandler(-999, "CVODES", "CVodeB",
+                  "Illegal value for itask.", NULL); 
+    goto error_return;
+  }
 
   /* If itask == CV_ONE_STEP, then
    * - we do not allow multiple output times
@@ -2197,8 +2552,11 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   if ( itaskB == CV_ONE_STEP ) {
     
-    if (NtoutB > 1) cvmErrHandler(-999, "CVODES", "CVodeB",
-                                  "More than one tout value prohibited in ONE_STEP mode.", NULL); 
+    if (NtoutB > 1) {
+      cvmErrHandler(-999, "CVODES", "CVodeB",
+                    "More than one tout value prohibited in ONE_STEP mode.", NULL); 
+      goto error_return;
+    }
 
     if (any_monB) {
       cvmErrHandler(+999, "CVODES", "CVodeB",
@@ -2213,15 +2571,33 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   }
 
-  if (NbckPb == 1) cvmSolveB_one(plhs, NtoutB, toutB, itaskB);
-  else             cvmSolveB_more(plhs, NtoutB, toutB, itaskB, any_quadrB, any_monB);
+  /* Call the appropriate function to do all the work.
+   * Note: if we made it here, we rely on the functions cvmSolveB_one and cvmSolveB_more
+   *       to set the output arrays in plhs appropriately. */
 
-  return(0);
+  if (NbckPb == 1) cv_status = cvmSolveB_one(plhs, NtoutB, toutB, itaskB);
+  else             cv_status = cvmSolveB_more(plhs, NtoutB, toutB, itaskB, any_quadrB, any_monB);
+
+  if (cv_status < 0) return(-1);
+  else               return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleMatrix(0,0,mxREAL);
+  plhs[2] = mxCreateDoubleMatrix(0,0,mxREAL);
+  if (quadrB) {
+    plhs[3] = mxCreateDoubleMatrix(0,0,mxREAL);
+  }
+  return(-1);
+
 }
 
 
 
-static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB)
+static int cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB)
 {
   cvmPbData bckPb;
   
@@ -2229,8 +2605,10 @@ static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
 
   double tretB, hB;
   double *tdata, *ydata, *yQdata;
-  int itout, status;
+  int itout;
   long int nstB;
+
+  int status, cv_status;
 
   bckPb = cvmData->bckPb;
 
@@ -2246,13 +2624,20 @@ static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
     hB = toutB[0] - tretB;
   } else {
     CVodeGetLastStep(cvode_memB, &hB);
-    if ( (toutB[0] - tretB + hB)*hB < 0.0 ) cvmErrHandler(-999, "CVODES", "CVodeB",
-                                                          "Illegal value of tout.", NULL);
+    if ( (toutB[0] - tretB + hB)*hB < 0.0 ) {
+      cvmErrHandler(-999, "CVODES", "CVodeB",
+                    "Illegal value of tout.", NULL);
+      goto error_return;
+    }
   }
 
-  for (itout=1; itout<NtoutB; itout++) 
-    if ( (toutB[itout] - toutB[itout-1])*hB < 0.0 ) cvmErrHandler(-999, "CVODES", "CVodeB",
-                                                                  "tout values are not monotonic.", NULL);
+  for (itout=1; itout<NtoutB; itout++) {
+    if ( (toutB[itout] - toutB[itout-1])*hB < 0.0 ) {
+      cvmErrHandler(-999, "CVODES", "CVodeB",
+                    "tout values are not monotonic.", NULL);
+      goto error_return;
+    }
+  }
 
   /*
    * ----------------------------------------------------------------
@@ -2289,16 +2674,19 @@ static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
 
     for (itout=0; itout<NtoutB; itout++) {
       
-      status = CVodeB(cvode_mem, toutB[itout], itaskB);
-      
-      CVodeGetB(cvode_mem, indexB, &tretB, yB);
-      
+      cv_status = CVodeB(cvode_mem, toutB[itout], itaskB);
+      if (cv_status < 0) goto error_return;
+
+      status = CVodeGetB(cvode_mem, indexB, &tretB, yB);
+      if (status != CV_SUCCESS) goto error_return;
+
       tdata[itout] = tretB;
       
       GetData(yB, &ydata[itout*NB], NB);
       
       if (quadrB) {
-        CVodeGetQuadB(cvode_mem, indexB, &tretB, yQB);
+        status = CVodeGetQuadB(cvode_mem, indexB, &tretB, yQB);
+        if (status != CV_SUCCESS) goto error_return;
         GetData(yQB, &yQdata[itout*NqB], NqB);
       }
       
@@ -2315,24 +2703,35 @@ static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
        * We must therefore check here whether we need to take additional steps,
        * or simply return interpolated solution at tout. */
 
-      CVodeGetNumSteps(cvode_memB, &nstB);
-      CVodeGetCurrentTime(cvode_memB, &tretB);
+      status = CVodeGetNumSteps(cvode_memB, &nstB);
+      if (status != CV_SUCCESS) goto error_return;
+
+      status = CVodeGetCurrentTime(cvode_memB, &tretB);
+      if (status != CV_SUCCESS) goto error_return;
 
       if ( (nstB>0) && ((tretB - toutB[itout])*hB >= 0.0) ) {
 
         /* No need to take an additional step */
-        status = CV_SUCCESS;
+        cv_status = CV_SUCCESS;
 
       } else {
 
         /* Take additional steps */
         while(1) {
         
-          status = CVodeB(cvode_mem, toutB[itout], CV_ONE_STEP);
-          
+          cv_status = CVodeB(cvode_mem, toutB[itout], CV_ONE_STEP);
+          if (cv_status < 0) goto error_return;          
+
           /* Call the monitoring function */          
-          CVodeGetB(cvode_mem, indexB, &tretB, yB);
-          if (quadrB) CVodeGetQuadB(cvode_mem, indexB, &tretB, yQB);
+
+          status = CVodeGetB(cvode_mem, indexB, &tretB, yB);
+          if (status != CV_SUCCESS) goto error_return;
+
+          if (quadrB) {
+            CVodeGetQuadB(cvode_mem, indexB, &tretB, yQB);
+            if (status != CV_SUCCESS) goto error_return;
+          }
+
           mxW_CVodeMonitorB(1, indexB, tretB, yB, yQB, bckPb);
           
           /* If current tout was reached break out of while loop */
@@ -2346,12 +2745,14 @@ static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
 
       tdata[itout] = tretB;
 
-      CVodeGetDky(cvode_memB, tretB, 0, yB);
+      status = CVodeGetDky(cvode_memB, tretB, 0, yB);
+      if (status != CV_SUCCESS) goto error_return;
 
       GetData(yB, &ydata[itout*NB], NB);
       
       if (quadrB) {
-        CVodeGetQuadDky(cvode_memB, tretB, 0, yQB);
+        status = CVodeGetQuadDky(cvode_memB, tretB, 0, yQB);
+        if (status != CV_SUCCESS) goto error_return;
         GetData(yQB, &yQdata[itout*NqB], NqB);
       }
 
@@ -2359,16 +2760,26 @@ static void cvmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
 
   }
 
-  /* CVode return flag */
+  /* CVodeB return flag (only non-negative values make it here) */
 
+  plhs[0] = mxCreateScalarDouble((double)cv_status);
+  return(0);
+
+ error_return:
+  status = -1;
   plhs[0] = mxCreateScalarDouble((double)status);
-    
-  return;
+  plhs[1] = mxCreateDoubleMatrix(0,0,mxREAL);
+  plhs[2] = mxCreateDoubleMatrix(0,0,mxREAL);
+  if (quadrB) {
+    plhs[3] = mxCreateDoubleMatrix(0,0,mxREAL);
+  }
+  return(-1);
+
 }
 
 
-static void cvmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itaskB,
-                           booleantype any_quadrB, booleantype any_monB)
+static int cvmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itaskB,
+                          booleantype any_quadrB, booleantype any_monB)
 {
   cvmPbData bckPb;
   mxArray *cell;
@@ -2376,10 +2787,12 @@ static void cvmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itask
 
   double tretB, h, hB;
   double **tdata, **ydata, **yQdata;
-  int itout, status;
+  int itout;
   long int nstB;
 
   char err_msg[80];
+
+  int status, cv_status;
 
   /* Check if tout values are legal */
 
@@ -2390,22 +2803,29 @@ static void cvmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itask
 
     cvode_memB = CVodeGetAdjCVodeBmem(cvode_mem, indexB);
 
-    CVodeGetCurrentTime(cvode_memB, &tretB);
-    CVodeGetNumSteps(cvode_memB, &nstB);
+    status = CVodeGetCurrentTime(cvode_memB, &tretB);
+    if (status != CV_SUCCESS) goto error_return;
+
+    status = CVodeGetNumSteps(cvode_memB, &nstB);
+    if (status != CV_SUCCESS) goto error_return;
 
     if (nstB > 0) {
-      CVodeGetLastStep(cvode_memB, &hB);
+      status = CVodeGetLastStep(cvode_memB, &hB);
+      if (status != CV_SUCCESS) goto error_return;
       if ( (toutB[0] - tretB + hB)*hB < 0.0 ) {
         sprintf(err_msg, "CVodeB:: illegal value of tout (pb. %d).",indexB+1);
         cvmErrHandler(-999, "CVODES", "CVodeB", err_msg, NULL);
+        goto error_return;
       }
     }
     
-    for (itout=1; itout<NtoutB; itout++) 
+    for (itout=1; itout<NtoutB; itout++) {
       if ( (toutB[itout] - toutB[itout-1]) * h > 0.0 ) {
         sprintf(err_msg, "CVodeB:: tout values are not monotonic (pb. %d).", indexB+1);
         cvmErrHandler(-999, "CVODES", "CVodeB", err_msg, NULL);
-      }    
+        goto error_return;
+      }
+    }
 
     bckPb = bckPb->next;
     
@@ -2470,19 +2890,22 @@ static void cvmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itask
 
     for (itout=0; itout<NtoutB; itout++) {
 
-      status = CVodeB(cvode_mem, toutB[itout], itaskB);
-      
+      cv_status = CVodeB(cvode_mem, toutB[itout], itaskB);
+      if (cv_status < 0) goto error_return;
+
       bckPb = cvmData->bckPb;
       while (bckPb != NULL) {
 
-        CVodeGetB(cvode_mem, indexB, &tretB, yB);
+        status = CVodeGetB(cvode_mem, indexB, &tretB, yB);
+        if (status != CV_SUCCESS) goto error_return;
 
         tdata[indexB][itout] = tretB;
 
         GetData(yB, &ydata[indexB][itout*NB], NB);
       
         if (quadrB) {
-          CVodeGetQuadB(cvode_mem, indexB, &tretB, yQB);
+          status = CVodeGetQuadB(cvode_mem, indexB, &tretB, yQB);
+          if (status != CV_SUCCESS) goto error_return;
           GetData(yQB, &yQdata[indexB][itout*NqB], NqB);
         }
 
@@ -2497,15 +2920,27 @@ static void cvmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itask
 
     /* Monitoring for at least one backward problem. itask = CV_NORMAL */
 
+    cvmErrHandler(-999, "CVODES", "CVodeB",
+                  "Monitoring currently prohibited with more than one backward problem defined .", NULL); 
+    goto error_return;
 
   }
 
-  /* CVODE return flag */
+  /* CVODE return flag (only non-negative values make it here) */
 
+  plhs[0] = mxCreateScalarDouble((double)cv_status);
+  return(0);
+
+ error_return:
+  status = -1;
   plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleMatrix(0,0,mxREAL);
+  plhs[2] = mxCreateDoubleMatrix(0,0,mxREAL);
+  if (quadrB) {
+    plhs[3] = mxCreateDoubleMatrix(0,0,mxREAL);
+  }
+  return(-1);
 
-
-  return;
 }
 
 
@@ -2587,7 +3022,7 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   long int nfSe, nfeS, netfS, nsetupsS;
   long int nniS, ncfnS;
 
-  int i, flag;
+  int i, status;
   mxArray *mxS_root, *mxS_ls, *mxS_quad, *mxS_fsa;
   mxArray *mxS_rootsfound;
   double *tmp;
@@ -2598,10 +3033,12 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   fwdPb = cvmData->fwdPb;
 
-  flag = CVodeGetIntegratorStats(cvode_mem, &nst, &nfe, &nsetups, 
-                                 &netf, &qlast, &qcur, &h0used, &hlast, &hcur, &tcur);
+  status = CVodeGetIntegratorStats(cvode_mem, &nst, &nfe, &nsetups, 
+                                   &netf, &qlast, &qcur, &h0used, &hlast, &hcur, &tcur);
+  if (status != CV_SUCCESS) goto error_return;
 
-  flag = CVodeGetNonlinSolvStats(cvode_mem, &nni, &ncfn);
+  status = CVodeGetNonlinSolvStats(cvode_mem, &nni, &ncfn);
+  if (status != CV_SUCCESS) goto error_return;
 
   nfields = sizeof(fnames_intgr)/sizeof(*fnames_intgr);
   plhs[0] = mxCreateStructMatrix(1, 1, nfields, fnames_intgr);
@@ -2624,7 +3061,8 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   if (Ng > 0) {
 
-    flag = CVodeGetNumGEvals(cvode_mem, &nge);
+    status = CVodeGetNumGEvals(cvode_mem, &nge);
+    if (status != CV_SUCCESS) goto error_return;
 
     nfields = sizeof(fnames_root)/sizeof(*fnames_root);
     mxS_root = mxCreateStructMatrix(1, 1, nfields, fnames_root);
@@ -2632,7 +3070,8 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mxSetField(mxS_root, 0, "nge", mxCreateScalarDouble((double)nge));
 
     rootsfound = (int *) malloc(nge*sizeof(int));
-    flag = CVodeGetRootInfo(cvode_mem, rootsfound);
+    status = CVodeGetRootInfo(cvode_mem, rootsfound);
+    if (status != CV_SUCCESS) goto error_return;
     mxS_rootsfound = mxCreateDoubleMatrix(Ng,1,mxREAL);
     tmp = mxGetPr(mxS_rootsfound);
     for (i=0;i<Ng;i++)
@@ -2651,7 +3090,8 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   if (quadr) {
 
-    flag = CVodeGetQuadStats(cvode_mem, &nfQe, &netfQ);
+    status = CVodeGetQuadStats(cvode_mem, &nfQe, &netfQ);
+    if (status != CV_SUCCESS) goto error_return;
 
     nfields = sizeof(fnames_quad)/sizeof(*fnames_quad);
     mxS_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
@@ -2678,9 +3118,11 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   case LS_DENSE:
     
-    flag = CVDlsGetNumJacEvals(cvode_mem, &njeD);
-    flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeD);
-    
+    status = CVDlsGetNumJacEvals(cvode_mem, &njeD);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVDlsGetNumRhsEvals(cvode_mem, &nfeD);
+    if (status != CV_SUCCESS) goto error_return;
+
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
     
@@ -2692,8 +3134,9 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   case LS_DIAG:
 
-    flag = CVDiagGetNumRhsEvals(cvode_mem, &nfeDI);
-      
+    status = CVDiagGetNumRhsEvals(cvode_mem, &nfeDI);
+    if (status != CV_SUCCESS) goto error_return;
+
     nfields = sizeof(fnames_diag)/sizeof(*fnames_diag);
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_diag);
  
@@ -2704,9 +3147,11 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   case LS_BAND:
       
-    flag = CVDlsGetNumJacEvals(cvode_mem, &njeB);
-    flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeB);
-      
+    status = CVDlsGetNumJacEvals(cvode_mem, &njeB);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVDlsGetNumRhsEvals(cvode_mem, &nfeB);
+    if (status != CV_SUCCESS) goto error_return;
+  
     nfields = sizeof(fnames_band)/sizeof(*fnames_band);
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
  
@@ -2720,12 +3165,18 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   case LS_SPBCG:
   case LS_SPTFQMR:
 
-    flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
-    flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-    flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-    flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-    flag = CVSpilsGetNumJtimesEvals(cvode_mem, &njeSG);
-    flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeSG);
+    status = CVSpilsGetNumLinIters(cvode_mem, &nli);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVSpilsGetNumJtimesEvals(cvode_mem, &njeSG);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVSpilsGetNumRhsEvals(cvode_mem, &nfeSG);
+    if (status != CV_SUCCESS) goto error_return;
     
     nfields = sizeof(fnames_spils)/sizeof(*fnames_spils);
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
@@ -2754,9 +3205,11 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   if (fsa) {
 
-    flag = CVodeGetSensStats(cvode_mem, &nfSe, &nfeS, &netfS, &nsetupsS); 
+    status = CVodeGetSensStats(cvode_mem, &nfSe, &nfeS, &netfS, &nsetupsS); 
+    if (status != CV_SUCCESS) goto error_return;
 
-    flag = CVodeGetSensNonlinSolvStats(cvode_mem, &nniS, &ncfnS);
+    status = CVodeGetSensNonlinSolvStats(cvode_mem, &nniS, &ncfnS);
+    if (status != CV_SUCCESS) goto error_return;
 
     nfields = sizeof(fnames_sens)/sizeof(*fnames_sens);
     mxS_fsa = mxCreateStructMatrix(1, 1, nfields, fnames_sens);
@@ -2776,7 +3229,19 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   
   mxSetField(plhs[0], 0, "FSAInfo", mxS_fsa);
 
+  /* Successfull return */
+
+  status = 0;
+  plhs[1] = mxCreateScalarDouble((double)status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[1] = mxCreateScalarDouble((double)status);
+  return(-1);
+
 }
 
 static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -2842,12 +3307,12 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   long int nfQe, netfQ;
 
-  int flag;
   mxArray *mxS_ls, *mxS_quad;
   int nfields;
 
   booleantype found_bck;
-  
+
+  int status;
 
   /* Extract index of current backward problem */
     
@@ -2870,10 +3335,12 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   cvode_memB = CVodeGetAdjCVodeBmem(cvode_mem, indexB);
 
-  flag = CVodeGetIntegratorStats(cvode_memB, &nst, &nfe, &nsetups, 
+  status = CVodeGetIntegratorStats(cvode_memB, &nst, &nfe, &nsetups, 
                                  &netf, &qlast, &qcur, &h0used, &hlast, &hcur, &tcur);
+  if (status != CV_SUCCESS) goto error_return;
 
-  flag = CVodeGetNonlinSolvStats(cvode_memB, &nni, &ncfn);
+  status = CVodeGetNonlinSolvStats(cvode_memB, &nni, &ncfn);
+  if (status != CV_SUCCESS) goto error_return;
 
   nfields = sizeof(fnames_intgr)/sizeof(*fnames_intgr);
   plhs[0] = mxCreateStructMatrix(1, 1, nfields, fnames_intgr);
@@ -2896,7 +3363,8 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   if (quadrB) {
 
-    flag = CVodeGetQuadStats(cvode_memB, &nfQe, &netfQ);
+    status = CVodeGetQuadStats(cvode_memB, &nfQe, &netfQ);
+    if (status != CV_SUCCESS) goto error_return;
 
     nfields = sizeof(fnames_quad)/sizeof(*fnames_quad);
     mxS_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
@@ -2923,8 +3391,10 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   case LS_DENSE:
     
-    flag = CVDlsGetNumJacEvals(cvode_memB, &njeD);
-    flag = CVDlsGetNumRhsEvals(cvode_memB, &nfeD);
+    status = CVDlsGetNumJacEvals(cvode_memB, &njeD);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVDlsGetNumRhsEvals(cvode_memB, &nfeD);
+    if (status != CV_SUCCESS) goto error_return;
     
     nfields = sizeof(fnames_dense)/sizeof(*fnames_dense);
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
@@ -2937,7 +3407,8 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   case LS_DIAG:
 
-    flag = CVDiagGetNumRhsEvals(cvode_memB, &nfeDI);
+    status = CVDiagGetNumRhsEvals(cvode_memB, &nfeDI);
+    if (status != CV_SUCCESS) goto error_return;
       
     nfields = sizeof(fnames_diag)/sizeof(*fnames_diag);
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_diag);
@@ -2949,8 +3420,10 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   case LS_BAND:
       
-    flag = CVDlsGetNumJacEvals(cvode_memB, &njeB);
-    flag = CVDlsGetNumRhsEvals(cvode_memB, &nfeB);
+    status = CVDlsGetNumJacEvals(cvode_memB, &njeB);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVDlsGetNumRhsEvals(cvode_memB, &nfeB);
+    if (status != CV_SUCCESS) goto error_return;
       
     nfields = sizeof(fnames_band)/sizeof(*fnames_band);
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
@@ -2965,12 +3438,18 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   case LS_SPBCG:
   case LS_SPTFQMR:
 
-    flag = CVSpilsGetNumLinIters(cvode_memB, &nli);
-    flag = CVSpilsGetNumPrecEvals(cvode_memB, &npe);
-    flag = CVSpilsGetNumPrecSolves(cvode_memB, &nps);
-    flag = CVSpilsGetNumConvFails(cvode_memB, &ncfl);
-    flag = CVSpilsGetNumJtimesEvals(cvode_memB, &njeSG);
-    flag = CVSpilsGetNumRhsEvals(cvode_memB, &nfeSG);
+    status = CVSpilsGetNumLinIters(cvode_memB, &nli);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVSpilsGetNumPrecEvals(cvode_memB, &npe);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVSpilsGetNumPrecSolves(cvode_memB, &nps);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVSpilsGetNumConvFails(cvode_memB, &ncfl);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVSpilsGetNumJtimesEvals(cvode_memB, &njeSG);
+    if (status != CV_SUCCESS) goto error_return;
+    status = CVSpilsGetNumRhsEvals(cvode_memB, &nfeSG);
+    if (status != CV_SUCCESS) goto error_return;
     
     nfields = sizeof(fnames_spils)/sizeof(*fnames_spils);
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
@@ -2994,7 +3473,19 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   mxSetField(plhs[0], 0, "LSInfo", mxS_ls);
 
+  /* Successfull return */
+
+  status = 0;
+  plhs[1] = mxCreateScalarDouble((double)status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[1] = mxCreateScalarDouble((double)status);
+  return(-1);
+
 }
 
 
@@ -3007,7 +3498,7 @@ static int CVM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   double tstop;
 
-
+  int status;
 
   fwdPb = cvmData->fwdPb;
   options = prhs[0];
@@ -3015,7 +3506,6 @@ static int CVM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   /* Return now if options was empty */
 
   if (mxIsEmpty(options)) return(0);
-
 
   /* User data */
 
@@ -3030,10 +3520,23 @@ static int CVM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   opt = mxGetField(options,0,"StopTime");
   if ( !mxIsEmpty(opt) ) {
     tstop = (double)mxGetScalar(opt);
-    CVodeSetStopTime(cvode_mem, tstop);
+    status = CVodeSetStopTime(cvode_mem, tstop);
+    if (status != CV_SUCCESS) goto error_return;
   }
 
+  /* Successfull return */
+
+  status = 0;
+  plhs[0] = mxCreateScalarDouble((double)status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[0] = mxCreateScalarDouble((double)status);
+  return(-1);
+
 }
 
 static int CVM_SetB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -3059,6 +3562,8 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "step"
   };
 
+  int status;
+
 
   fwdPb = cvmData->fwdPb;
 
@@ -3071,7 +3576,8 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     k = (int) (*mxGetPr(prhs[2]));
 
     plhs[0] = mxCreateDoubleMatrix(N,1,mxREAL);
-    CVodeGetDky(cvode_mem, t, k, y);
+    status = CVodeGetDky(cvode_mem, t, k, y);
+    if (status != CV_SUCCESS) goto error_return;
     GetData(y, mxGetPr(plhs[0]), N);
 
     break;
@@ -3081,7 +3587,8 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     ewt = N_VClone(y);
 
     plhs[0] = mxCreateDoubleMatrix(N,1,mxREAL);
-    CVodeGetErrWeights(cvode_mem, ewt);
+    status = CVodeGetErrWeights(cvode_mem, ewt);
+    if (status != CV_SUCCESS) goto error_return;
     GetData(ewt, mxGetPr(plhs[0]), N);
 
     N_VDestroy(ewt);
@@ -3095,7 +3602,8 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   case 4:    /* CheckPointsInfo */
 
     ckpnt = (CVadjCheckPointRec *) malloc ( (Nc+1)*sizeof(CVadjCheckPointRec));
-    CVodeGetAdjCheckPointsInfo(cvode_mem, ckpnt);
+    status = CVodeGetAdjCheckPointsInfo(cvode_mem, ckpnt);
+    if (status != CV_SUCCESS) goto error_return;
     nfields = sizeof(fnames_ckpnt)/sizeof(*fnames_ckpnt);
     plhs[0] = mxCreateStructMatrix(Nc+1, 1, nfields, fnames_ckpnt);
     for (i=0; i<=Nc; i++) {
@@ -3112,7 +3620,19 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   }
 
+  /* Successfull return */
+
+  status = 0;
+  plhs[1] = mxCreateScalarDouble((double)status);
   return(0);
+
+  /* Error return */
+
+ error_return:
+  status = -1;
+  plhs[1] = mxCreateScalarDouble((double)status);
+  return(-1);
+
 }
 
 static int CVM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])

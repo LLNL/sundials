@@ -1,4 +1,4 @@
-function CVodeReInit(t0, y0, options)
+function status = CVodeReInit(t0, y0, options)
 %CVodeReInit reinitializes memory for CVODES
 %   where a prior call to CVodeInit has been made with the same
 %   problem size N. CVodeReInit performs the same input checking
@@ -17,7 +17,7 @@ function CVodeReInit(t0, y0, options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.4 $Date: 2007/05/16 17:12:56 $
 
 mode = 11;
 
@@ -29,4 +29,4 @@ if nargin < 3
   options = [];
 end
 
-cvm(mode, t0, y0, options);
+status = cvm(mode, t0, y0, options);

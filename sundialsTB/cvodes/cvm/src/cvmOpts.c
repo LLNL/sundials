@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-08-21 23:09:18 $
+ * $Revision: 1.12 $
+ * $Date: 2007-12-05 21:58:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,12 +50,12 @@
  * ---------------------------------------------------------------------------------
  */
 
-void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, int lmm,
-                      int *maxord, booleantype *sld,
-                      long int *mxsteps,
-                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
-                      double *hin, double *hmax, double *hmin, double *tstop,
-                      booleantype *rhs_s)
+int get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd, int lmm,
+                     int *maxord, booleantype *sld, booleantype *errmsg,
+                     long int *mxsteps,
+                     int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
+                     double *hin, double *hmax, double *hmin, double *tstop,
+                     booleantype *rhs_s)
 {
   mxArray *opt;
   int i, q, m, n;
@@ -66,11 +66,11 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
   if (fwd) fctName = fwd_fctName;
   else     fctName = bck_fctName;
-
+  
   /* Set default values */
-
+  
   *maxord = (lmm == CV_ADAMS) ? 12 : 5;
-
+  
   *sld = FALSE;
 
   *mxsteps = 0;
@@ -90,9 +90,12 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   tstopSet = FALSE;
   mon = FALSE;
 
+  *errmsg = TRUE;
+
+
   /* Return now if options was empty */
 
-  if (mxIsEmpty(options)) return;
+  if (mxIsEmpty(options)) return(0);
 
   /* User data */
 
@@ -101,40 +104,48 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
     mxDestroyArray(mtlb_data);
     mtlb_data = mxDuplicateArray(opt);
   }
-
+  
   /* Tolerances */
 
   opt = mxGetField(options,0,"RelTol");
   if ( !mxIsEmpty(opt) ) {
     *reltol = *mxGetPr(opt);
-    if (*reltol < 0.0 ) cvmErrHandler(-999, "CVODES", fctName,
-                                      "RelTol is negative.", NULL);
+    if (*reltol < 0.0 ) {
+      cvmErrHandler(-999, "CVODES", fctName, "RelTol is negative.", NULL);
+      return(-1);
+    }
   }
-
+    
   opt = mxGetField(options,0,"AbsTol");
   if ( !mxIsEmpty(opt) ) {
     m = mxGetM(opt);
     n = mxGetN(opt);
-    if ( (n != 1) && (m != 1) ) cvmErrHandler(-999, "CVODES", fctName,
-                                              "AbsTol is not a scalar or a vector.", NULL);
+    if ( (n != 1) && (m != 1) ) {
+      cvmErrHandler(-999, "CVODES", fctName, "AbsTol is not a scalar or a vector.", NULL);
+      return(-1);
+    }
     if ( m > n ) n = m;
     tmp = mxGetPr(opt);
     if (n == 1) {
       *itol = CV_SS;
       *Sabstol = *tmp;
-      if (*Sabstol < 0.0) cvmErrHandler(-999, "CVODES", fctName,
-                                        "AbsTol is negative.", NULL);
+      if (*Sabstol < 0.0) {
+        cvmErrHandler(-999, "CVODES", fctName, "AbsTol is negative.", NULL);
+      return(-1);
+      }
     } else if (n == N) {
       *itol = CV_SV;
       *Vabstol = (double *) malloc(N*sizeof(double));
       for(i=0;i<N;i++) {
         (*Vabstol)[i] = tmp[i];
-        if (tmp[i] < 0.0) cvmErrHandler(-999, "CVODES", fctName,
-                                        "AbsTol has a negative component.", NULL);
+        if (tmp[i] < 0.0) {
+          cvmErrHandler(-999, "CVODES", fctName, "AbsTol has a negative component.", NULL);
+          return(-1);
+        }
       }
     } else {
-      cvmErrHandler(-999, "CVODES", fctName,
-                    "AbsTol does not contain N elements.", NULL);
+      cvmErrHandler(-999, "CVODES", fctName, "AbsTol does not contain N elements.", NULL);
+      return(-1);
     }
   }
 
@@ -143,8 +154,10 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   opt = mxGetField(options,0,"MaxNumSteps");
   if ( !mxIsEmpty(opt) ) {
     *mxsteps = (int)*mxGetPr(opt);
-    if (*mxsteps < 0) cvmErrHandler(-999, "CVODES", fctName,
-                                    "MaxNumSteps is negative.", NULL);
+    if (*mxsteps < 0) {
+      cvmErrHandler(-999, "CVODES", fctName, "MaxNumSteps is negative.", NULL);
+      return(-1);
+    }
   }
 
   /* Maximum order */
@@ -152,10 +165,14 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   opt = mxGetField(options,0,"MaxOrder");
   if ( !mxIsEmpty(opt) ) {
     q = (int)*mxGetPr(opt);
-    if (q <= 0) cvmErrHandler(-999, "CVODES", fctName,
-                              "MaxOrder must be positive.", NULL);
-    if (q > *maxord) cvmErrHandler(-999, "CVODES", fctName,
-                                   "MaxOrder is too large for the Method specified.", NULL);
+    if (q <= 0) {
+      cvmErrHandler(-999, "CVODES", fctName, "MaxOrder must be positive.", NULL);
+      return(-1);
+    }
+    if (q > *maxord) {
+      cvmErrHandler(-999, "CVODES", fctName, "MaxOrder is too large for the Method specified.", NULL);
+      return(-1);
+    }
     *maxord = q;
   }
 
@@ -171,12 +188,12 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   opt = mxGetField(options,0,"MaxStep");
   if ( !mxIsEmpty(opt) ) {
     tmp = mxGetPr(opt);
-    if (*tmp < 0.0) cvmErrHandler(-999, "CVODES", fctName,
-                                  "MaxStep is negative.", NULL);
-    if ( mxIsInf(*tmp) )
-      *hmax = 0.0;
-    else
-      *hmax = *tmp;
+    if (*tmp < 0.0) {
+      cvmErrHandler(-999, "CVODES", fctName, "MaxStep is negative.", NULL);
+      return(-1);
+    }
+    if ( mxIsInf(*tmp) ) *hmax = 0.0;
+    else                 *hmax = *tmp;
   }
 
   /* Minimum step size */
@@ -184,16 +201,20 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   opt = mxGetField(options,0,"MinStep");
   if ( !mxIsEmpty(opt) ) {
     *hmin = *mxGetPr(opt);
-    if (*hmin < 0.0) cvmErrHandler(-999, "CVODES", fctName,
-                                   "MinStep is negative.", NULL);
+    if (*hmin < 0.0) {
+      cvmErrHandler(-999, "CVODES", fctName, "MinStep is negative.", NULL);
+      return(-1);
+    }
   }
 
   /* Stability Limit Detection */
 
   opt = mxGetField(options,0,"StabilityLimDet");
   if ( !mxIsEmpty(opt) ) {
-    if (!mxIsLogical(opt)) cvmErrHandler(-999, "CVODES", fctName,
-                                         "StabilityLimDet is not a logical scalar.", NULL);
+    if (!mxIsLogical(opt)) {
+      cvmErrHandler(-999, "CVODES", fctName, "StabilityLimDet is not a logical scalar.", NULL);
+      return(-1);
+    }
     if (mxIsLogicalScalarTrue(opt)) *sld = TRUE;
     else                            *sld = FALSE;
   }
@@ -217,6 +238,18 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
   if (fwd) {   /* FORWARD PROBLEM ONLY */
 
+    /* Disable error/warning messages? */
+
+    opt = mxGetField(options,0,"ErrorMessages");
+    if ( !mxIsEmpty(opt) ) {
+      if (!mxIsLogical(opt)) {
+        cvmErrHandler(-999, "CVODES", fctName, "ErrorMessages is not a logical scalar.", NULL);
+        return(-1);
+      }
+      if (mxIsLogicalScalarTrue(opt)) *errmsg = TRUE;
+      else                            *errmsg = FALSE;
+    }
+
     /* Stopping time */
     opt = mxGetField(options,0,"StopTime");
     if ( !mxIsEmpty(opt) ) {
@@ -229,8 +262,10 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
     if ( !mxIsEmpty(opt) ) {
 
       Ng = (int)*mxGetPr(opt);
-      if (Ng < 0) cvmErrHandler(-999, "CVODES", fctName,
-                                "NumRoots is negative.", NULL);
+      if (Ng < 0) {
+        cvmErrHandler(-999, "CVODES", fctName, "NumRoots is negative.", NULL);
+        return(-1);
+      }
       if (Ng > 0) {
         /* Roots function */
         opt = mxGetField(options,0,"RootsFn");
@@ -238,8 +273,8 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
           mxDestroyArray(mtlb_Gfct);
           mtlb_Gfct = mxDuplicateArray(opt);
         } else {
-          cvmErrHandler(-999, "CVODES", fctName,
-                        "RootsFn required for NumRoots > 0", NULL);
+          cvmErrHandler(-999, "CVODES", fctName, "RootsFn required for NumRoots > 0", NULL);
+          return(-1);
         }
       }
       
@@ -251,8 +286,10 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
     opt = mxGetField(options,0,"SensDependent");
     if ( !mxIsEmpty(opt) ) {
-      if (!mxIsLogical(opt)) cvmErrHandler(-999, "CVODES", fctName,
-                                           "SensDependent is not a logical scalar.", NULL);
+      if (!mxIsLogical(opt)) {
+        cvmErrHandler(-999, "CVODES", fctName, "SensDependent is not a logical scalar.", NULL);
+        return(-1);
+      }
       if (mxIsLogicalScalarTrue(opt)) *rhs_s = TRUE;
       else                            *rhs_s = FALSE;
     }
@@ -261,14 +298,14 @@ void get_IntgrOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
   /* We made it here without problems */
 
-  return;
+  return(0);
 }
 
 
-void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                        int *mupper, int *mlower,
-                        int *mudq, int *mldq, double *dqrely,
-                        int *ptype, int *gstype, int *maxl)
+int get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
+                       int *mupper, int *mlower,
+                       int *mudq, int *mldq, double *dqrely,
+                       int *ptype, int *gstype, int *maxl)
 {
   mxArray *opt;
   char *bufval;
@@ -293,7 +330,7 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
 
   /* Return now if options was empty */
 
-  if (mxIsEmpty(options)) return;
+  if (mxIsEmpty(options)) return(0);
 
   /* Linear solver type */
 
@@ -302,16 +339,20 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", fctName,
-                                  "Cannot parse LinearSolver.", NULL);
+    if(status != 0) {
+      cvmErrHandler(-999, "CVODES", fctName, "Cannot parse LinearSolver.", NULL);
+      return(-1);
+    }
     if(!strcmp(bufval,"Diag"))          ls = LS_DIAG;
     else if(!strcmp(bufval,"Band"))     ls = LS_BAND;
     else if(!strcmp(bufval,"GMRES"))    ls = LS_SPGMR;
     else if(!strcmp(bufval,"BiCGStab")) ls = LS_SPBCG;
     else if(!strcmp(bufval,"TFQMR"))    ls = LS_SPTFQMR;
     else if(!strcmp(bufval,"Dense"))    ls = LS_DENSE;
-    else cvmErrHandler(-999, "CVODES", fctName,
-                       "LinearSolver has an illegal value.", NULL);
+    else {
+      cvmErrHandler(-999, "CVODES", fctName, "LinearSolver has an illegal value.", NULL);
+      return(-1);
+    }
   }
   
   /* Jacobian function */
@@ -347,12 +388,16 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
       buflen = mxGetM(opt) * mxGetN(opt) + 1;
       bufval = mxCalloc(buflen, sizeof(char));
       status = mxGetString(opt, bufval, buflen);
-      if(status != 0) cvmErrHandler(-999, "CVODES", fctName,
-                                    "Cannot parse GramSchmidtType.", NULL);
+      if(status != 0) {
+        cvmErrHandler(-999, "CVODES", fctName, "Cannot parse GramSchmidtType.", NULL);
+        return(-1);
+      }
       if(!strcmp(bufval,"Classical"))     *gstype = CLASSICAL_GS;
       else if(!strcmp(bufval,"Modified")) *gstype = MODIFIED_GS;
-      else cvmErrHandler(-999, "CVODES", fctName,
-                         "GramSchmidtType has an illegal value.", NULL);
+      else {
+        cvmErrHandler(-999, "CVODES", fctName, "GramSchmidtType has an illegal value.", NULL);
+        return(-1);
+      }
     }
 
   }
@@ -366,8 +411,10 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
     opt = mxGetField(options,0,"KrylovMaxDim");
     if ( !mxIsEmpty(opt) ) {
       *maxl = (int)*mxGetPr(opt);
-      if (*maxl < 0) cvmErrHandler(-999, "CVODES", fctName,
-                                   "KrylovMaxDim is negative.", NULL);
+      if (*maxl < 0) {
+        cvmErrHandler(-999, "CVODES", fctName, "KrylovMaxDim is negative.", NULL);
+        return(-1);
+      }
     }
 
     /* Preconditioning type */
@@ -377,14 +424,18 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
       buflen = mxGetM(opt) * mxGetN(opt) + 1;
       bufval = mxCalloc(buflen, sizeof(char));
       status = mxGetString(opt, bufval, buflen);
-      if(status != 0) cvmErrHandler(-999, "CVODES", fctName,
-                                    "Cannot parse PrecType.", NULL);
+      if(status != 0) {
+        cvmErrHandler(-999, "CVODES", fctName, "Cannot parse PrecType.", NULL);
+        return(-1);
+      }
       if(!strcmp(bufval,"Left")) *ptype = PREC_LEFT;
       else if(!strcmp(bufval,"Right")) *ptype = PREC_RIGHT;
-      else if(!strcmp(bufval,"Both")) *ptype = PREC_BOTH;
-      else if(!strcmp(bufval,"None")) *ptype = PREC_NONE;
-      else cvmErrHandler(-999, "CVODES", fctName,
-                         "PrecType has an illegal value.", NULL);
+      else if(!strcmp(bufval,"Both"))  *ptype = PREC_BOTH;
+      else if(!strcmp(bufval,"None"))  *ptype = PREC_NONE;
+      else {
+        cvmErrHandler(-999, "CVODES", fctName, "PrecType has an illegal value.", NULL);
+        return(-1);
+      }
     }
 
     /* User defined precoditioning */
@@ -408,13 +459,17 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
       buflen = mxGetM(opt) * mxGetN(opt) + 1;
       bufval = mxCalloc(buflen, sizeof(char));
       status = mxGetString(opt, bufval, buflen);
-      if(status != 0) cvmErrHandler(-999, "CVODES", fctName,
-                                    "Cannot parse PrecModule.", NULL);
+      if(status != 0) {
+        cvmErrHandler(-999, "CVODES", fctName, "Cannot parse PrecModule.", NULL);
+        return(-1);
+      }
       if(!strcmp(bufval,"BandPre"))          pm = PM_BANDPRE;
       else if(!strcmp(bufval,"BBDPre"))      pm = PM_BBDPRE;
       else if(!strcmp(bufval,"UserDefined")) pm = PM_NONE;
-      else cvmErrHandler(-999, "CVODES", fctName,
-                         "PrecModule has an illegal value.", NULL);
+      else {
+        cvmErrHandler(-999, "CVODES", fctName, "PrecModule has an illegal value.", NULL);
+        return(-1);
+      }
     }
 
     if (pm != PM_NONE) {
@@ -444,8 +499,8 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
         mxDestroyArray(mtlb_GLOCfct);
         mtlb_GLOCfct  = mxDuplicateArray(opt);
       } else { 
-        cvmErrHandler(-999, "CVODES", fctName,
-                      "GlocalFn required for BBD preconditioner.", NULL);
+        cvmErrHandler(-999, "CVODES", fctName, "GlocalFn required for BBD preconditioner.", NULL);
+        return(-1);
       }      
 
       opt = mxGetField(options,0,"GcommFn");
@@ -461,15 +516,15 @@ void get_LinSolvOptions(const mxArray *options, cvmPbData thisPb, booleantype fw
   
   /* We made it here without problems */
 
-  return;
+  return(0);
 
 }
 
 
-void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
-                     int Nq, booleantype *rhs_s,
-                     booleantype *errconQ,
-                     int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ)
+int get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
+                    int Nq, booleantype *rhs_s,
+                    booleantype *errconQ,
+                    int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ)
 {
   mxArray *opt;
   int i, m, n;
@@ -491,7 +546,7 @@ void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
   /* Return now if options was empty */
 
-  if (mxIsEmpty(options)) return;
+  if (mxIsEmpty(options)) return(0);
 
   /* For backward problems only, check dependency on forward sensitivities */
 
@@ -499,8 +554,10 @@ void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
     opt = mxGetField(options,0,"SensDependent");
     if ( !mxIsEmpty(opt) ) {
-      if (!mxIsLogical(opt)) cvmErrHandler(-999, "CVODES", fctName,
-                                           "SensDependent is not a logical scalar.", NULL);
+      if (!mxIsLogical(opt)) {
+        cvmErrHandler(-999, "CVODES", fctName, "SensDependent is not a logical scalar.", NULL);
+        return(-1);
+      }
       if (mxIsLogicalScalarTrue(opt)) *rhs_s = TRUE;
       else                            *rhs_s = FALSE;
     }
@@ -510,20 +567,27 @@ void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
   /* Quadrature error control and tolerances */
 
   opt = mxGetField(options,0,"ErrControl");
-  if ( mxIsEmpty(opt) ) return;
 
-  if (!mxIsLogical(opt)) cvmErrHandler(-999, "CVODES", fctName,
-                                       "ErrControl is not a logical scalar.", NULL);
+  if ( mxIsEmpty(opt) ) return(0);
 
-  if (!mxIsLogicalScalarTrue(opt)) return;
+  if (!mxIsLogical(opt)) {
+    cvmErrHandler(-999, "CVODES", fctName, "ErrControl is not a logical scalar.", NULL);
+    return(-1);
+  }
+
+  if (!mxIsLogicalScalarTrue(opt)) return(0);
   
+  /* the remining options are interpreted only if quadratures are included in error control */
+
   *errconQ = TRUE;
 
   opt = mxGetField(options,0,"RelTol");
   if ( !mxIsEmpty(opt) ) {
     *reltolQ = *mxGetPr(opt);
-    if (*reltolQ < 0.0) cvmErrHandler(-999, "CVODES", fctName,
-                                      "RelTol is negative.", NULL);
+    if (*reltolQ < 0.0) {
+      cvmErrHandler(-999, "CVODES", fctName, "RelTol is negative.", NULL);
+      return(-1);
+    }
   } 
 
   opt = mxGetField(options,0,"AbsTol");
@@ -531,42 +595,48 @@ void get_QuadOptions(const mxArray *options, cvmPbData thisPb, booleantype fwd,
 
     m = mxGetN(opt);
     n = mxGetM(opt);
-    if ( (n != 1) && (m != 1) ) cvmErrHandler(-999, "CVODES", fctName,
-                                              "AbsTol is not a scalar or a vector.", NULL);
+    if ( (n != 1) && (m != 1) ) {
+      cvmErrHandler(-999, "CVODES", fctName, "AbsTol is not a scalar or a vector.", NULL);
+      return(-1);
+    }
     if ( m > n ) n = m;
     tmp = mxGetPr(opt);
 
     if (n == 1) {
       *itolQ = CV_SS;
       *SabstolQ = *tmp;
-      if (*SabstolQ < 0.0) cvmErrHandler(-999, "CVODES", fctName,
-                                         "AbsTol is negative.", NULL);
+      if (*SabstolQ < 0.0) {
+        cvmErrHandler(-999, "CVODES", fctName, "AbsTol is negative.", NULL);
+        return(-1);
+      }
     } else if (n == Nq) {
       *itolQ = CV_SV;
       *VabstolQ = (double *)malloc(Nq*sizeof(double));
       for(i=0;i<Nq;i++) {
         (*VabstolQ)[i] = tmp[i];
-        if (tmp[i] < 0.0) cvmErrHandler(-999, "CVODES", fctName,
-                                        "AbsTol has a negative component.", NULL);
+        if (tmp[i] < 0.0) {
+          cvmErrHandler(-999, "CVODES", fctName, "AbsTol has a negative component.", NULL);
+          return(-1);
+        }
       }
     } else {
-      cvmErrHandler(-999, "CVODES", fctName,
-                    "AbsTol does not contain Nq elements.", NULL);
+      cvmErrHandler(-999, "CVODES", fctName, "AbsTol does not contain Nq elements.", NULL);
+      return(-1);
     }
 
   }
 
   /* We made it here without problems */
 
-  return;
+  return(0);
 }
 
-void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
-                    int *ism,
-                    char **pfield_name, int **plist, double **pbar,
-                    int *dqtype, double *rho,
-                    booleantype *errconS, int *itolS, double *reltolS, 
-                    double **SabstolS, double **VabstolS)
+int get_FSAOptions(const mxArray *options, cvmPbData thisPb,
+                   int *ism,
+                   char **pfield_name, int **plist, double **pbar,
+                   int *dqtype, double *rho,
+                   booleantype *errconS, int *itolS, double *reltolS, 
+                   double **SabstolS, double **VabstolS)
 {
   mxArray *opt;
   char *bufval;
@@ -592,7 +662,7 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
 
   /* Return now if options was empty */
 
-  if (mxIsEmpty(options)) return;
+  if (mxIsEmpty(options)) return(0);
 
   /* Sensitivity method */
 
@@ -602,14 +672,16 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                  "Could not parse method.", NULL);
-
+    if(status != 0) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "Could not parse method.", NULL);
+      return(-1);
+    }
     if(!strcmp(bufval,"Simultaneous"))   *ism = CV_SIMULTANEOUS;
     else if(!strcmp(bufval,"Staggered")) *ism = CV_STAGGERED;
-    else cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                       "method has an illegal value.", NULL);
-
+    else {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "method has an illegal value.", NULL);
+      return(-1);
+    }
   }
 
 
@@ -621,9 +693,10 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                  "Could not parse ParamField.", NULL);
-
+    if(status != 0) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "Could not parse ParamField.", NULL);
+      return(-1);
+    }
     *pfield_name = mxCalloc(buflen, sizeof(char));
     strcpy((*pfield_name), bufval);
 
@@ -637,16 +710,22 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
     tmp = mxGetPr(opt);
     m = mxGetM(opt);
     n = mxGetN(opt);
-    if ( (n != 1) && (m != 1) ) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                              "ParamList is not a vector.", NULL);
+    if ( (n != 1) && (m != 1) ) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "ParamList is not a vector.", NULL);
+      return(-1);
+    }
     if (m > n) n = m;
-    if ( n != Ns) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                "ParamList does not contain Ns elements.", NULL);
+    if ( n != Ns) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "ParamList does not contain Ns elements.", NULL);
+      return(-1);
+    }
     *plist = (int *) malloc(Ns*sizeof(int));
     for (is=0;is<Ns;is++) {
       this_plist = (int) tmp[is];
-      if (this_plist <= 0) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                         "ParamList must contain only positive integers.", NULL);
+      if (this_plist <= 0) {
+        cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "ParamList must contain only positive integers.", NULL);
+        return(-1);
+      }
       (*plist)[is] = this_plist - 1;
     }
 
@@ -659,11 +738,15 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
 
     m = mxGetM(opt);
     n = mxGetN(opt);
-    if ( (n != 1) && (m != 1) ) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                              "ParamScales is not a vector.", NULL);
+    if ( (n != 1) && (m != 1) ) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "ParamScales is not a vector.", NULL);
+      return(-1);
+    }
     if ( m > n ) n = m;
-    if ( n != Ns) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                "ParamScales does not contain Ns elements.", NULL);
+    if ( n != Ns) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "ParamScales does not contain Ns elements.", NULL);
+      return(-1);
+    }
     tmp = mxGetPr(opt);
     *pbar = (double *) malloc(Ns*sizeof(double));
     for(i=0;i<Ns;i++)
@@ -679,14 +762,16 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                  "Cannot parse DQtype.", NULL);
-
+    if(status != 0) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "Cannot parse DQtype.", NULL);
+      return(-1);
+    }
     if(!strcmp(bufval,"Centered")) *dqtype = CV_CENTERED;
     else if(!strcmp(bufval,"Forward")) *dqtype = CV_FORWARD;
-    else cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                       "DQtype has an illegal value.", NULL);
-
+    else {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "DQtype has an illegal value.", NULL);
+      return(-1);
+    }
   }
   
   /* DQ parameter */
@@ -699,8 +784,10 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
 
   opt = mxGetField(options,0,"ErrControl");
   if ( !mxIsEmpty(opt) ) {
-    if (!mxIsLogical(opt)) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                         "ErrControl is not a logical scalar.", NULL);
+    if (!mxIsLogical(opt)) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "ErrControl is not a logical scalar.", NULL);
+      return(-1);
+    }
     if (mxIsLogicalScalarTrue(opt)) *errconS = TRUE;
     else                            *errconS = FALSE;
   }
@@ -711,9 +798,10 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
   if ( !mxIsEmpty(opt) ) {
 
     *reltolS = *mxGetPr(opt);
-    if (*reltolS < 0.0) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                      "RelTol is negative.", NULL);
-
+    if (*reltolS < 0.0) {
+      cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "RelTol is negative.", NULL);
+      return(-1);
+    }
     opt = mxGetField(options,0,"AbsTol");
     if ( !mxIsEmpty(opt) ) {
 
@@ -725,8 +813,10 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
         *SabstolS = (double *) malloc(Ns*sizeof(double));
         for (is=0; is<Ns; is++) {
           (*SabstolS)[is] = tmp[is];
-          if ( tmp[is] < 0.0 ) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                             "AbsTol has a negative component.", NULL);
+          if ( tmp[is] < 0.0 ) {
+            cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "AbsTol has a negative component.", NULL);
+            return(-1);
+          }
         }
       } else if ( (m == N) && (n == Ns) ) {
         *itolS = CV_SV;
@@ -734,12 +824,14 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
         *VabstolS = (double *)malloc(Ns*N*sizeof(double));
         for (i=0; i<Ns*N; i++) {
           (*VabstolS)[i] = tmp[i];
-          if ( tmp[i] < 0.0 ) cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                                            "AbsTol has a negative component.", NULL);
+          if ( tmp[i] < 0.0 ) {
+            cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "AbsTol has a negative component.", NULL);
+            return(-1);
+          }
         }
       } else {
-        cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit",
-                      "AbsTol must be either a 1xNs vector or a NxNs matrix.", NULL);
+        cvmErrHandler(-999, "CVODES", "CVodeSensInit/CVodeSensReInit", "AbsTol must be either a 1xNs vector or an NxNs matrix.", NULL);
+        return(-1);
       }
 
     } else {
@@ -752,7 +844,6 @@ void get_FSAOptions(const mxArray *options, cvmPbData thisPb,
 
   /* We made it here without problems */
 
-  return;
+  return(0);
 
 }
-

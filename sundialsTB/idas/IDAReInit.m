@@ -1,4 +1,4 @@
-function [] = IDAReInit(t0,yy0,yp0,options)
+function status = IDAReInit(t0,yy0,yp0,options)
 %IDAReInit reinitializes memory for IDAS.
 %   where a prior call to IDAInit has been made with the same
 %   problem size N. IDAReInit performs the same input checking
@@ -18,7 +18,7 @@ function [] = IDAReInit(t0,yy0,yp0,options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/02/05 20:23:46 $
+% $Revision: 1.3 $Date: 2007/08/21 17:38:42 $
 
 mode = 11;
 
@@ -30,4 +30,4 @@ if nargin < 4
   options = [];
 end
 
-idm(mode, t0, yy0, yp0, options);
+status = idm(mode, t0, yy0, yp0, options);

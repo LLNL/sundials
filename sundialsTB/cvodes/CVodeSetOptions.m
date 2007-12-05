@@ -187,6 +187,10 @@ function options = CVodeSetOptions(varargin)
 %   forward sensitivites. If TRUE, the right-hand side function provided for
 %   this backward problem must have the appropriate type (see CVRhsFnB).
 %
+%ErrorMessages - Post error/warning messages [ {true} | false ]
+%   Note that any errors in CVodeInit will result in a Matlab error, thus
+%   stoping execution. Only subsequent calls to CVODES functions will respect
+%   the value specified for 'ErrorMessages'.
 %
 %NOTES:
 %
@@ -211,7 +215,7 @@ function options = CVodeSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.8 $Date: 2007/05/11 21:42:52 $
+% $Revision: 1.9 $Date: 2007/05/16 17:12:56 $
 
 % If called without input and output arguments, print out the possible keywords
 
@@ -252,6 +256,8 @@ if (nargin == 0) && (nargout == 0)
   fprintf('\n');
   fprintf('   SensDependent: [ {false} | true ]\n');
   fprintf('\n');
+  fprintf('   ErrorMessages: [ false | {true} ]\n');
+  fprintf('\n');
   return;
 end
 
@@ -287,6 +293,7 @@ KeyNames = {
     'MonitorFn'
     'MonitorData'
     'SensDependent'
+    'ErrorMessages'
            };
 
 options = cvm_options(KeyNames,varargin{:});

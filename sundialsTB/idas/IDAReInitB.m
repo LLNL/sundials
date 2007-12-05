@@ -1,4 +1,4 @@
-function [] = IDAReInitB(idxB,tB0,yyB0,ypB0,optionsB)
+function status = IDAReInitB(idxB,tB0,yyB0,ypB0,optionsB)
 %IDAReInitB allocates and initializes backward memory for IDAS.
 %   where a prior call to IDAInitB has been made with the same
 %   problem size NB. IDAReInitB performs the same input checking
@@ -21,7 +21,7 @@ function [] = IDAReInitB(idxB,tB0,yyB0,ypB0,optionsB)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/02/05 20:23:47 $
+% $Revision: 1.3 $Date: 2007/08/21 17:38:42 $
 
 mode = 15;
 
@@ -34,4 +34,4 @@ if nargin < 5
 end
 
 idxB = idxB-1;
-idm(mode, idxB, tB0, yyB0, ypB0, optionsB);
+status = idm(mode, idxB, tB0, yyB0, ypB0, optionsB);
