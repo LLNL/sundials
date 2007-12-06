@@ -67,40 +67,34 @@ echo "   --- Add kinsol examples to $tarfile"
 tar ufv $tarfile $distrobase/examples/kinsol/serial/README
 tar ufv $tarfile $distrobase/examples/kinsol/serial/Makefile.in
 tar ufv $tarfile $distrobase/examples/kinsol/serial/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/kinsol/serial/Makefile_ex.in
-tar ufv $tarfile $distrobase/examples/kinsol/serial/Makefile_ex_bl.in
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinbanx.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinbanx.out
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kindenx1.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kindenx1.out
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kindenx2.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kindenx2.out
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinkrydem_lin.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinkrydem_lin.out
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinkryx.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinkryx.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.out
 
 tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/README
 tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/Makefile.in
 tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/Makefile_ex.in
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/Makefile_ex_bl.in
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinkryx.f
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinkryx.out
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.f
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.out
 
 tar ufv $tarfile $distrobase/examples/kinsol/parallel/README
 tar ufv $tarfile $distrobase/examples/kinsol/parallel/Makefile.in
 tar ufv $tarfile $distrobase/examples/kinsol/parallel/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/Makefile_ex.in
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinkryx_bbd_p.c
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinkryx_bbd_p.out
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinkryx_p.c
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinkryx_p.out
-    
+tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.c
+tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.out
+tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.c
+tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.out
+   
 tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/README
 tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/Makefile.in
 tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/Makefile_ex.in
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinkryx_p.f
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinkryx_p.out
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f
+tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out
 

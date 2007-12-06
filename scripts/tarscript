@@ -23,7 +23,7 @@ function print_usage
     echo "Usage: tarscript [-fhs] [module]"
     echo "   -h       : help"
     echo "   -s       : short (no documentation)"
-    echo "   module   : all, sundials, cvode, cvodes, ida, kinsol, cpodes"
+    echo "   module   : all, sundials, cvode, cvodes, ida, idas, kinsol"
     echo ""
     echo "Notes: If the module is not specified, all tarballs are created."
     echo "       This script must be executed from within its directory." 
@@ -42,12 +42,12 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="2.3.0"
-CV_VER="2.5.0"
-CVS_VER="2.5.0"
-IDA_VER="2.5.0"
-KIN_VER="2.5.0"
-CPS_VER="0.0.1"
+SUN_VER="2.4.0"
+CV_VER="2.6.0"
+CVS_VER="2.6.0"
+IDA_VER="2.6.0"
+IDAS_VER="1.0.0"
+KIN_VER="2.6.0"
 
 #---------------------------------------------------------
 # Test if the script is executed from within its directory
@@ -88,8 +88,8 @@ do_sundials=F
 do_cvode=F
 do_cvodes=F
 do_ida=F
+do_idas=F
 do_kinsol=F
-do_cpodes=F
 
 if [ -z $module ]; then
     module="all"
@@ -97,8 +97,8 @@ if [ -z $module ]; then
     do_cvode=T
     do_cvodes=T
     do_ida=T
+    do_idas=T
     do_kinsol=T
-    do_cpodes=T
 else
     case $module in
         all) 
@@ -106,8 +106,8 @@ else
             do_cvode=T
             do_cvodes=T
             do_ida=T
+            do_idas=T
             do_kinsol=T
-            do_cpodes=T
             ;;
         sundials)
             do_sundials=T
@@ -121,11 +121,11 @@ else
         ida)
             do_ida=T
             ;;
+        idas)
+            do_idas=T
+            ;;
         kinsol)
             do_kinsol=T
-            ;;
-        cpodes)
-            do_cpodes=T
             ;;
         *)
             echo "Invalid module $module"
@@ -238,6 +238,19 @@ if [ $do_sundials = "T" ]; then
         cd -
     fi
 
+    cp -r sundials/include/idas tmp_dir/include/
+    cp -r sundials/src/idas tmp_dir/src/
+    cp -r sundials/doc/idas tmp_dir/doc/
+    cp -r sundials/examples/idas tmp_dir/examples/
+    if [ $doc = "T" ]; then
+        echo -e "--- IDAS documentation"
+        cd tmp_dir/doc/idas
+        make QUIET=-q purge
+        make QUIET=-q ug_pdf
+#        make QUIET=-q ex_pdf
+        cd -
+    fi
+
     cp -r sundials/include/kinsol tmp_dir/include/
     cp -r sundials/src/kinsol tmp_dir/src/
     cp -r sundials/doc/kinsol tmp_dir/doc/
@@ -250,19 +263,6 @@ if [ $do_sundials = "T" ]; then
         make QUIET=-q ex_pdf
         cd -
     fi
-
-    cp -r sundials/include/cpodes tmp_dir/include/
-    cp -r sundials/src/cpodes tmp_dir/src/
-    cp -r sundials/doc/cpodes tmp_dir/doc/
-    cp -r sundials/examples/cpodes tmp_dir/examples/
-#    if [ $doc = "T" ]; then
-#        echo -e "--- CPODES documentation"
-#        cd tmp_dir/doc/kinsol
-#        make QUIET=-q purge
-#        make QUIET=-q ug_pdf
-#        make QUIET=-q ex_pdf
-#        cd -
-#    fi
 
 fi
 
@@ -311,6 +311,21 @@ if [ $do_ida = "T" ];    then
     fi
 fi
 
+if [ $do_idas = "T" ];    then
+    cp -r sundials/include/idas tmp_dir/include/
+    cp -r sundials/src/idas tmp_dir/src/
+    cp -r sundials/doc/idas tmp_dir/doc/
+    cp -r sundials/examples/idas tmp_dir/examples/
+    if [ $doc = "T" ]; then
+        echo -e "--- IDAS documentation"
+        cd tmp_dir/doc/idas
+        make QUIET=-q purge
+        make QUIET=-q ug_pdf
+#        make QUIET=-q ex_pdf
+        cd -
+    fi
+fi
+
 if [ $do_kinsol = "T" ]; then
     cp -r sundials/include/kinsol tmp_dir/include/
     cp -r sundials/src/kinsol tmp_dir/src/
@@ -324,21 +339,6 @@ if [ $do_kinsol = "T" ]; then
         make QUIET=-q ex_pdf
         cd -
     fi
-fi
-
-if [ $do_cpodes = "T" ]; then
-    cp -r sundials/include/cpodes tmp_dir/include/
-    cp -r sundials/src/cpodes tmp_dir/src/
-    cp -r sundials/doc/cpodes tmp_dir/doc/
-    cp -r sundials/examples/cpodes tmp_dir/examples/
-#    if [ $doc = "T" ]; then
-#        echo -e "--- CPODES documentation"
-#        cd tmp_dir/doc/kinsol
-#        make QUIET=-q purge
-#        make QUIET=-q ug_pdf
-#        make QUIET=-q ex_pdf
-#        cd -
-#    fi
 fi
 
 
@@ -363,8 +363,8 @@ if [ $do_sundials = "T" ]; then
     $scriptdir/cvode $tarfile $distrobase $doc
     $scriptdir/cvodes $tarfile $distrobase $doc
     $scriptdir/ida $tarfile $distrobase $doc
+    $scriptdir/idas $tarfile $distrobase $doc
     $scriptdir/kinsol $tarfile $distrobase $doc
-    $scriptdir/cpodes $tarfile $distrobase $doc
     $scriptdir/stb $tarfile $distrobase $doc
     gzip $tarfile
 fi
@@ -411,6 +411,20 @@ if [ $do_ida = "T" ]; then
     gzip $tarfile
 fi
  
+# IDAS
+if [ $do_idas = "T" ]; then
+    echo -e "\n--- Generate IDAS tarball ---"
+    
+    mv $distrobase idas-$IDAS_VER
+    distrobase="idas-"$IDAS_VER
+    filename="idas-"$IDAS_VER
+    
+    tarfile=$filename".tar"
+    $scriptdir/shared $tarfile $distrobase
+    $scriptdir/idas $tarfile $distrobase $doc
+    gzip $tarfile
+fi
+ 
 # KINSOL
 if [ $do_kinsol = "T" ]; then
     echo -e "\n--- Generate KINSOL tarball ---"
@@ -422,20 +436,6 @@ if [ $do_kinsol = "T" ]; then
     tarfile=$filename".tar"
     $scriptdir/shared $tarfile $distrobase
     $scriptdir/kinsol $tarfile $distrobase $doc
-    gzip $tarfile
-fi
-
-# CPODES
-if [ $do_cpodes = "T" ]; then
-    echo -e "\n--- Generate CPODES tarball ---"
-
-    mv $distrobase cpodes-$CPS_VER
-    distrobase="cpodes-"$CPS_VER
-    filename="cpodes-"$CPS_VER
-    
-    tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase
-    $scriptdir/cpodes $tarfile $distrobase $doc
     gzip $tarfile
 fi
 
