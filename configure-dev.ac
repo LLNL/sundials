@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.19 $
-# $Date: 2007-12-05 23:33:24 $
+# $Revision: 1.20 $
+# $Date: 2007-12-12 18:13:21 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -41,11 +41,13 @@ AC_PROG_CC(cc gcc)
 SUNDIALS_SET_CC
 
 # Set Fortran support
-echo ""
-echo "Fortran Settings"
-echo "----------------"
-echo ""
-SUNDIALS_F77_SUPPORT
+if test "X${FCMIX_ENABLED}" = "Xyes" || test "X${LAPACK_ENABLED}" = "Xyes"; then
+  echo ""
+  echo "Fortran Settings"
+  echo "----------------"
+  echo ""
+  SUNDIALS_F77_SUPPORT
+fi
 
 # Set MPI support (Optional)
 if test "X${MPI_ENABLED}" = "Xyes"; then

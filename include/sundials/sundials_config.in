@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-01-24 01:05:12 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-12 18:13:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,17 +17,21 @@
 /* Define SUNDIALS version number */
 #define SUNDIALS_PACKAGE_VERSION "@PACKAGE_VERSION@"
 
-/* FCMIX: Define Fortran name-mangling macro 
- * Depending on the inferred scheme, one of the following 
- * six macros will be defined:
- *     #define F77_FUNC(name,NAME) name
- *     #define F77_FUNC(name,NAME) name ## _
- *     #define F77_FUNC(name,NAME) name ## __
- *     #define F77_FUNC(name,NAME) NAME
- *     #define F77_FUNC(name,NAME) NAME ## _
- *     #define F77_FUNC(name,NAME) NAME ## __
+/* FCMIX: Define Fortran name-mangling macro for C identifiers.
+ * Depending on the inferred scheme, one of the following six
+ * macros will be defined:
+ *     #define SUNDIALS_F77_FUNC(name,NAME) name
+ *     #define SUNDIALS_F77_FUNC(name,NAME) name ## _
+ *     #define SUNDIALS_F77_FUNC(name,NAME) name ## __
+ *     #define SUNDIALS_F77_FUNC(name,NAME) NAME
+ *     #define SUNDIALS_F77_FUNC(name,NAME) NAME ## _
+ *     #define SUNDIALS_F77_FUNC(name,NAME) NAME ## __
  */
 @F77_MANGLE_MACRO1@
+
+/* FCMIX: Define Fortran name-mangling macro for C identifiers
+ *        which contain underscores.
+ */
 @F77_MANGLE_MACRO2@
 
 /* Define precision of SUNDIALS data type 'realtype' 

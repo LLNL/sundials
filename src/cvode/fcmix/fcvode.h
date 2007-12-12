@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.8 $
+ * $Date: 2007-12-12 18:13:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -560,42 +560,42 @@ extern "C" {
 
 /* Definitions of interface function names */
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
 
-#define FCV_MALLOC         F77_FUNC(fcvmalloc, FCVMALLOC)
-#define FCV_REINIT         F77_FUNC(fcvreinit, FCVREINIT)
-#define FCV_SETIIN         F77_FUNC(fcvsetiin, FCVSETIIN)
-#define FCV_SETRIN         F77_FUNC(fcvsetrin, FCVSETRIN)
-#define FCV_EWTSET         F77_FUNC(fcvewtset, FCVEWTSET)
-#define FCV_DIAG           F77_FUNC(fcvdiag, FCVDIAG)
-#define FCV_DENSE          F77_FUNC(fcvdense, FCVDENSE)
-#define FCV_DENSESETJAC    F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
-#define FCV_BAND           F77_FUNC(fcvband, FCVBAND)
-#define FCV_BANDSETJAC     F77_FUNC(fcvbandsetjac, FCVBANDSETJAC)
-#define FCV_LAPACKDENSE    F77_FUNC(fcvlapackdense, FCVLAPACKDENSE)
-#define FCV_LAPACKDENSESETJAC   F77_FUNC(fcvlapackdensesetjac, FCVLAPACKDENSESETJAC)
-#define FCV_LAPACKBAND     F77_FUNC(fcvlapackband, FCVLAPACKBAND)
-#define FCV_LAPACKBANDSETJAC    F77_FUNC(fcvlapackbandsetjac, FCVLAPACKBANDSETJAC)
-#define FCV_SPTFQMR        F77_FUNC(fcvsptfqmr, FCVSPTFQMR)
-#define FCV_SPTFQMRREINIT  F77_FUNC(fcvsptfqmrreinit, FCVSPTFQMRREINIT)
-#define FCV_SPBCG          F77_FUNC(fcvspbcg, FCVSPBCG)
-#define FCV_SPBCGREINIT    F77_FUNC(fcvspbcgreinit, FCVSPBCGREINIT)
-#define FCV_SPGMR          F77_FUNC(fcvspgmr, FCVSPGMR)
-#define FCV_SPGMRREINIT    F77_FUNC(fcvspgmrreinit, FCVSPGMRREINIT)
-#define FCV_SPILSSETJAC    F77_FUNC(fcvspilssetjac, FCVSPILSSETJAC)
-#define FCV_SPILSSETPREC   F77_FUNC(fcvspilssetprec, FCVSPILSSETPREC)
-#define FCV_CVODE          F77_FUNC(fcvode, FCVODE)
-#define FCV_DKY            F77_FUNC(fcvdky, FCVDKY)
-#define FCV_FREE           F77_FUNC(fcvfree, FCVFREE)
-#define FCV_FUN            F77_FUNC(fcvfun, FCVFUN)
-#define FCV_DJAC           F77_FUNC(fcvdjac, FCVDJAC)
-#define FCV_BJAC           F77_FUNC(fcvbjac, FCVBJAC)
-#define FCV_PSOL           F77_FUNC(fcvpsol, FCVPSOL)
-#define FCV_PSET           F77_FUNC(fcvpset, FCVPSET)
-#define FCV_JTIMES         F77_FUNC(fcvjtimes, FCVJTIMES)
-#define FCV_EWT            F77_FUNC(fcvewt, FCVEWT)
-#define FCV_GETERRWEIGHTS  F77_FUNC(fcvgeterrweights, FCVGETERRWEIGHTS)
-#define FCV_GETESTLOCALERR F77_FUNC(fcvgetestlocalerr, FCVGETESTLOCALERR)
+#define FCV_MALLOC         SUNDIALS_F77_FUNC(fcvmalloc, FCVMALLOC)
+#define FCV_REINIT         SUNDIALS_F77_FUNC(fcvreinit, FCVREINIT)
+#define FCV_SETIIN         SUNDIALS_F77_FUNC(fcvsetiin, FCVSETIIN)
+#define FCV_SETRIN         SUNDIALS_F77_FUNC(fcvsetrin, FCVSETRIN)
+#define FCV_EWTSET         SUNDIALS_F77_FUNC(fcvewtset, FCVEWTSET)
+#define FCV_DIAG           SUNDIALS_F77_FUNC(fcvdiag, FCVDIAG)
+#define FCV_DENSE          SUNDIALS_F77_FUNC(fcvdense, FCVDENSE)
+#define FCV_DENSESETJAC    SUNDIALS_F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
+#define FCV_BAND           SUNDIALS_F77_FUNC(fcvband, FCVBAND)
+#define FCV_BANDSETJAC     SUNDIALS_F77_FUNC(fcvbandsetjac, FCVBANDSETJAC)
+#define FCV_LAPACKDENSE    SUNDIALS_F77_FUNC(fcvlapackdense, FCVLAPACKDENSE)
+#define FCV_LAPACKDENSESETJAC   SUNDIALS_F77_FUNC(fcvlapackdensesetjac, FCVLAPACKDENSESETJAC)
+#define FCV_LAPACKBAND     SUNDIALS_F77_FUNC(fcvlapackband, FCVLAPACKBAND)
+#define FCV_LAPACKBANDSETJAC    SUNDIALS_F77_FUNC(fcvlapackbandsetjac, FCVLAPACKBANDSETJAC)
+#define FCV_SPTFQMR        SUNDIALS_F77_FUNC(fcvsptfqmr, FCVSPTFQMR)
+#define FCV_SPTFQMRREINIT  SUNDIALS_F77_FUNC(fcvsptfqmrreinit, FCVSPTFQMRREINIT)
+#define FCV_SPBCG          SUNDIALS_F77_FUNC(fcvspbcg, FCVSPBCG)
+#define FCV_SPBCGREINIT    SUNDIALS_F77_FUNC(fcvspbcgreinit, FCVSPBCGREINIT)
+#define FCV_SPGMR          SUNDIALS_F77_FUNC(fcvspgmr, FCVSPGMR)
+#define FCV_SPGMRREINIT    SUNDIALS_F77_FUNC(fcvspgmrreinit, FCVSPGMRREINIT)
+#define FCV_SPILSSETJAC    SUNDIALS_F77_FUNC(fcvspilssetjac, FCVSPILSSETJAC)
+#define FCV_SPILSSETPREC   SUNDIALS_F77_FUNC(fcvspilssetprec, FCVSPILSSETPREC)
+#define FCV_CVODE          SUNDIALS_F77_FUNC(fcvode, FCVODE)
+#define FCV_DKY            SUNDIALS_F77_FUNC(fcvdky, FCVDKY)
+#define FCV_FREE           SUNDIALS_F77_FUNC(fcvfree, FCVFREE)
+#define FCV_FUN            SUNDIALS_F77_FUNC(fcvfun, FCVFUN)
+#define FCV_DJAC           SUNDIALS_F77_FUNC(fcvdjac, FCVDJAC)
+#define FCV_BJAC           SUNDIALS_F77_FUNC(fcvbjac, FCVBJAC)
+#define FCV_PSOL           SUNDIALS_F77_FUNC(fcvpsol, FCVPSOL)
+#define FCV_PSET           SUNDIALS_F77_FUNC(fcvpset, FCVPSET)
+#define FCV_JTIMES         SUNDIALS_F77_FUNC(fcvjtimes, FCVJTIMES)
+#define FCV_EWT            SUNDIALS_F77_FUNC(fcvewt, FCVEWT)
+#define FCV_GETERRWEIGHTS  SUNDIALS_F77_FUNC(fcvgeterrweights, FCVGETERRWEIGHTS)
+#define FCV_GETESTLOCALERR SUNDIALS_F77_FUNC(fcvgetestlocalerr, FCVGETESTLOCALERR)
 
 #else
 

@@ -3,7 +3,7 @@
 
     NAME_="sundials-config"
  PURPOSE_="returns required flags for linking to SUNDIALS libraries"
-SYNOPSIS_="$NAME_ -m cvode|cvodes|ida|kinsol -t s|p -l c|f [-s libs|cppflags -hv]"
+SYNOPSIS_="$NAME_ -m cvode|cvodes|ida|idas|kinsol -t s|p -l c|f [-s libs|cppflags -hv]"
 REQUIRES_="standard GNU commands"
  VERSION_="0.1"
     DATE_="2006-07-25"
@@ -17,15 +17,15 @@ echo >&2 "$NAME_ $VERSION_ - $PURPOSE_
 Usage: $SYNOPSIS_
 Requires: $REQUIRES_
 Options:
-    -m cvode|cvodes|ida|kinsol   SUNDIALS module
-    -t s|p                       use serial or parallel vectors
-    -l c|f                       use C or Fortran
-    -s libs|cppflags             show linking flags or C preprocessor flags. 
-                                 (show both if option not given.)
-    -h                           usage and options (this help)
-    -v                           view this script
+    -m cvode|cvodes|ida|idas|kinsol  SUNDIALS module
+    -t s|p                           use serial or parallel vectors
+    -l c|f                           use C or Fortran
+    -s libs|cppflags                 show linking flags or C preprocessor flags. 
+                                     (show both if option not given.)
+    -h                               usage and options (this help)
+    -v                               view this script
 Notes:
-    '-l f' is not valid for '-m cvodes'
+    '-l f' is not valid for '-m cvodes' or '-m idas'
     '-s cppflags' returns an empty string for '-l f'" 
     exit 1
 }
@@ -83,6 +83,10 @@ case $module in
     ida) 
         sun_lib="-lsundials_ida";
         sun_flib="-lsundials_fida";
+        ;;
+    idas) 
+        sun_lib="-lsundials_idas";
+        sun_flib=;
         ;;
     kinsol) 
         sun_lib="-lsundials_kinsol";

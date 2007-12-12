@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2007-10-25 20:03:41 $
+# $Revision: 1.9 $
+# $Date: 2007-12-12 18:13:22 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -65,8 +65,7 @@ EXAMPLES = kinFerTron_dns \
 	   kinFoodWeb_kry \
 	   kinKrylovDemo_ls \
 	   kinLaplace_bnd \
-	   kinRoboKin_dns \
-	   kinkrydem_lin
+	   kinRoboKin_dns
 
 EXAMPLES_BL =
 

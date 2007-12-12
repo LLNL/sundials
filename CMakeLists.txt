@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2007-12-05 23:33:24 $
+# $Revision: 1.6 $
+# $Date: 2007-12-12 18:13:19 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -532,13 +532,13 @@ ENDIF(FCMIX_STATUS STREQUAL "needed" OR LAPACK_STATUS STREQUAL "needed")
 # we have to consider both cases.
 #
 # Once the name-mangling schemes are determined, we use them to define two C
-# preprocessor macros, F77_FUNC and F77_FUNC_, corresponding to the two cases:
+# preprocessor macros, SUNDIALS_F77_FUNC and SUNDIALS_F77_FUNC_, corresponding to the two cases:
 # symbols with names not containing underscores and symbols with names containing 
 # underscores. For example, if using g77 the definitions of these two macros will be:
-#     #define F77_FUNC(name,NAME) name ## _
-#     #define F77_FUNC_(name,NAME) name ## __
-# The appropriate #define lines are stored in the variables DEFINE_F77_FUNC and
-# DEFINE_F77_FUNC_, respectively, and can be used to generate a configuration header
+#     #define SUNDIALS_F77_FUNC(name,NAME) name ## _
+#     #define SUNDIALS_F77_FUNC_(name,NAME) name ## __
+# The appropriate #define lines are stored in the variables DEFINE_SUNDIALS_F77_FUNC and
+# DEFINE_SUNDIALS_F77_FUNC_, respectively, and can be used to generate a configuration header
 # file (using CONFIGURE_FILE).
 # 
 # Since all FCMIX interface functions in SUNDIALS use function names NOT containing 
@@ -630,37 +630,37 @@ IF(SCHEME_STATUS STREQUAL "needed" AND F77_STATUS STREQUAL "available")
     SET(SCHEME_STATUS "available")
 
     IF(SCHEME_NO_UNDERSCORES MATCHES "mysub")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) name")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) name")
     ENDIF(SCHEME_NO_UNDERSCORES MATCHES "mysub")
     
     IF(SCHEME_NO_UNDERSCORES MATCHES "mysub_")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) name ## _")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) name ## _")
     ENDIF(SCHEME_NO_UNDERSCORES MATCHES "mysub_")      
     
     IF(SCHEME_NO_UNDERSCORES MATCHES "mysub__")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) name ## __")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) name ## __")
     ENDIF(SCHEME_NO_UNDERSCORES MATCHES "mysub__")
     
     IF(SCHEME_NO_UNDERSCORES MATCHES "MYSUB")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) NAME")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) NAME")
     ENDIF(SCHEME_NO_UNDERSCORES MATCHES "MYSUB")
     
     IF(SCHEME_NO_UNDERSCORES MATCHES "MYSUB_")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) NAME ## _")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## _")
     ENDIF(SCHEME_NO_UNDERSCORES MATCHES "MYSUB_")
     
     IF(SCHEME_NO_UNDERSCORES MATCHES "MYSUB__")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) NAME ## __")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## __")
     ENDIF(SCHEME_NO_UNDERSCORES MATCHES "MYSUB__")
     
     MESSAGE(STATUS 
       "name-mangling scheme for symbol names without underscores:\n"
       "   mysub  ->  ${SCHEME_NO_UNDERSCORES}\n"
-      "   ${DEFINE_F77_FUNC}")
+      "   ${DEFINE_SUNDIALS_F77_FUNC}")
 
   ELSE(SCHEME_NO_UNDERSCORES)
 
-    SET(DEFINE_F77_FUNC "")
+    SET(DEFINE_SUNDIALS_F77_FUNC "")
 
   ENDIF(SCHEME_NO_UNDERSCORES)
 
@@ -700,37 +700,37 @@ IF(SCHEME_STATUS STREQUAL "needed" AND F77_STATUS STREQUAL "available")
   IF(SCHEME_WITH_UNDERSCORES)
     
     IF(SCHEME_WITH_UNDERSCORES MATCHES "my_sub")
-      SET(DEFINE_F77_FUNC_ "#define F77_FUNC_(name,NAME) name")
+      SET(DEFINE_SUNDIALS_F77_FUNC_ "#define SUNDIALS_F77_FUNC_(name,NAME) name")
     ENDIF(SCHEME_WITH_UNDERSCORES MATCHES "my_sub")
     
     IF(SCHEME_WITH_UNDERSCORES MATCHES "my_sub_")
-      SET(DEFINE_F77_FUNC_ "#define F77_FUNC_(name,NAME) name ## _")
+      SET(DEFINE_SUNDIALS_F77_FUNC_ "#define SUNDIALS_F77_FUNC_(name,NAME) name ## _")
     ENDIF(SCHEME_WITH_UNDERSCORES MATCHES "my_sub_")      
     
     IF(SCHEME_WITH_UNDERSCORES MATCHES "my_sub__")
-      SET(DEFINE_F77_FUNC_ "#define F77_FUNC_(name,NAME) name ## __")
+      SET(DEFINE_SUNDIALS_F77_FUNC_ "#define SUNDIALS_F77_FUNC_(name,NAME) name ## __")
     ENDIF(SCHEME_WITH_UNDERSCORES MATCHES "my_sub__")
     
     IF(SCHEME_WITH_UNDERSCORES MATCHES "MY_SUB")
-      SET(DEFINE_F77_FUNC_ "#define F77_FUNC_(name,NAME) NAME")
+      SET(DEFINE_SUNDIALS_F77_FUNC_ "#define SUNDIALS_F77_FUNC_(name,NAME) NAME")
     ENDIF(SCHEME_WITH_UNDERSCORES MATCHES "MY_SUB")
     
     IF(SCHEME_WITH_UNDERSCORES MATCHES "MY_SUB_")
-      SET(DEFINE_F77_FUNC_ "#define F77_FUNC_(name,NAME) NAME ## _")
+      SET(DEFINE_SUNDIALS_F77_FUNC_ "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## _")
     ENDIF(SCHEME_WITH_UNDERSCORES MATCHES "MY_SUB_")
     
     IF(SCHEME_WITH_UNDERSCORES MATCHES "MY_SUB__")
-      SET(DEFINE_F77_FUNC_ "#define F77_FUNC_(name,NAME) NAME ## __")
+      SET(DEFINE_SUNDIALS_F77_FUNC_ "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## __")
     ENDIF(SCHEME_WITH_UNDERSCORES MATCHES "MY_SUB__")
     
     MESSAGE(STATUS 
       "name-mangling scheme for symbol names with underscores:\n"
       "   my_sub ->  ${SCHEME_WITH_UNDERSCORES}\n"
-      "   ${DEFINE_F77_FUNC_}")
+      "   ${DEFINE_SUNDIALS_F77_FUNC_}")
 
   ELSE(SCHEME_WITH_UNDERSCORES)
 
-    SET(DEFINE_F77_FUNC_ "")
+    SET(DEFINE_SUNDIALS_F77_FUNC_ "")
 
   ENDIF(SCHEME_WITH_UNDERSCORES)
 
@@ -754,45 +754,45 @@ IF(SCHEME_STATUS STREQUAL "needed")
   # Note: the default scheme is lower case - one underscore
 
   # Specify the case for the Fortran name-mangling scheme
-  SHOW_VARIABLE(F77_FUNC_CASE STRING
+  SHOW_VARIABLE(SUNDIALS_F77_FUNC_CASE STRING
     "case of Fortran function names (lower/upper)"
     "lower")
   # Specify the number of appended underscores for the Fortran name-mangling scheme
-  SHOW_VARIABLE(F77_FUNC_UNDERSCORES STRING 
+  SHOW_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES STRING 
     "number of underscores appended to Fortran function names"
     "one")
   
   # Based on the given case and number of underscores,
   # set the C preprocessor macro definition
 
-  IF(${F77_FUNC_CASE} MATCHES "lower")
+  IF(${SUNDIALS_F77_FUNC_CASE} MATCHES "lower")
     
-    IF(${F77_FUNC_UNDERSCORES} MATCHES "none")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) name")
-    ENDIF(${F77_FUNC_UNDERSCORES} MATCHES "none")
-    IF(${F77_FUNC_UNDERSCORES} MATCHES "one")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) name ## _")
-    ENDIF(${F77_FUNC_UNDERSCORES} MATCHES "one")
-    IF(${F77_FUNC_UNDERSCORES} MATCHES "two")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) name ## __")
-    ENDIF(${F77_FUNC_UNDERSCORES} MATCHES "two")
+    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) name")
+    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
+    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) name ## _")
+    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
+    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) name ## __")
+    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
     
-  ELSE(${F77_FUNC_CASE} MATCHES "lower")
+  ELSE(${SUNDIALS_F77_FUNC_CASE} MATCHES "lower")
 
-    IF(${F77_FUNC_UNDERSCORES} MATCHES "none")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) NAME")
-    ENDIF(${F77_FUNC_UNDERSCORES} MATCHES "none")
-    IF(${F77_FUNC_UNDERSCORES} MATCHES "one")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) NAME ## _")
-    ENDIF(${F77_FUNC_UNDERSCORES} MATCHES "one")
-    IF(${F77_FUNC_UNDERSCORES} MATCHES "two")
-      SET(DEFINE_F77_FUNC "#define F77_FUNC(name,NAME) NAME ## __")
-    ENDIF(${F77_FUNC_UNDERSCORES} MATCHES "two")
+    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) NAME")
+    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
+    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## _")
+    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
+    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
+      SET(DEFINE_SUNDIALS_F77_FUNC "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## __")
+    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
     
-  ENDIF(${F77_FUNC_CASE} MATCHES "lower")
+  ENDIF(${SUNDIALS_F77_FUNC_CASE} MATCHES "lower")
 
   # Test the user-provided scheme 
-  # (use the F77_FUNC macro defined in DEFINE_F77_FUNC)
+  # (use the SUNDIALS_F77_FUNC macro defined in DEFINE_SUNDIALS_F77_FUNC)
 
   FILE(WRITE ${FortranTest_DIR}/CMakeLists.txt
     "PROJECT(FortranTest C)\n"
@@ -803,8 +803,8 @@ IF(SCHEME_STATUS STREQUAL "needed")
     "TARGET_LINK_LIBRARIES(ctest3 \${FLIB})\n")
   
   FILE(WRITE ${FortranTest_DIR}/ctest3.c
-    "${DEFINE_F77_FUNC}\n"
-    "#define sub F77_FUNC(mysub, MYSUB)\n"
+    "${DEFINE_SUNDIALS_F77_FUNC}\n"
+    "#define sub SUNDIALS_F77_FUNC(mysub, MYSUB)\n"
     "int main(){\n"
     "sub();\n"
     "return(0);\n"
@@ -819,12 +819,12 @@ IF(SCHEME_STATUS STREQUAL "needed")
     SET(SCHEME_STATUS "available")
   ELSE(CTEST_OK)
     SET(SCHEME_STATUS "unavailable")
-    SET(DEFINE_F77_FUNC "")
+    SET(DEFINE_SUNDIALS_F77_FUNC "")
   ENDIF(CTEST_OK)
 
   # Since the SUNDIALS FCMIX modules do not use symbol names containing
-  # underscores, simply set DEFINE_F77_FUNC_ to the empty string
-  SET(DEFINE_F77_FUNC_ "")
+  # underscores, simply set DEFINE_SUNDIALS_F77_FUNC_ to the empty string
+  SET(DEFINE_SUNDIALS_F77_FUNC_ "")
 
 ELSE(SCHEME_STATUS STREQUAL "needed")
 
@@ -832,8 +832,8 @@ ELSE(SCHEME_STATUS STREQUAL "needed")
   # or else it was automatically determined.
 
   # Hide options which are not needed.
-  HIDE_VARIABLE(F77_FUNC_CASE)
-  HIDE_VARIABLE(F77_FUNC_UNDERSCORES)
+  HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
+  HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
 
 ENDIF(SCHEME_STATUS STREQUAL "needed")
 
@@ -871,13 +871,13 @@ IF(SCHEME_STATUS STREQUAL "unavailable")
 
 ENDIF(SCHEME_STATUS STREQUAL "unavailable")
 
-# Copy DEFINE_F77_FUNC and DEFINE_F77_FUNC_ in the substitution variables 
+# Copy DEFINE_SUNDIALS_F77_FUNC and DEFINE_SUNDIALS_F77_FUNC_ in the substitution variables 
 # F77_MANGLE_MACRO1 and F77_MANGLE_MACRO2, as required by the template 
 # sundials_config.in (if the F77 name-mangling scheme is not needed or 
 # unavailable, these two variables are empty strings)
 
-SET(F77_MANGLE_MACRO1 ${DEFINE_F77_FUNC})
-SET(F77_MANGLE_MACRO2 ${DEFINE_F77_FUNC_})
+SET(F77_MANGLE_MACRO1 ${DEFINE_SUNDIALS_F77_FUNC})
+SET(F77_MANGLE_MACRO2 ${DEFINE_SUNDIALS_F77_FUNC_})
 
 # -------------------------------------------------------------
 # Find and test the Lapack libraries
@@ -941,9 +941,9 @@ IF(LAPACK_STATUS STREQUAL "needed")
 
   # Create a C source file which calls a Blas function (dcopy) and an Lapack function (dgetrf)
   FILE(WRITE ${LapackTest_DIR}/ltest.c
-    "${DEFINE_F77_FUNC}\n"
-    "#define dcopy_f77 F77_FUNC(dcopy, DCOPY)\n"
-    "#define dgetrf_f77 F77_FUNC(dgetrf, DGETRF)\n"
+    "${DEFINE_SUNDIALS_F77_FUNC}\n"
+    "#define dcopy_f77 SUNDIALS_F77_FUNC(dcopy, DCOPY)\n"
+    "#define dgetrf_f77 SUNDIALS_F77_FUNC(dgetrf, DGETRF)\n"
     "extern void dcopy_f77(int *n, const double *x, const int *inc_x, double *y, const int *inc_y);\n"
     "extern void dgetrf_f77(const int *m, const int *n, double *a, int *lda, int *ipiv, int *info);\n"
     "int main(){\n"

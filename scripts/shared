@@ -91,7 +91,7 @@ tar ufv $tarfile $distrobase/src/nvec_par/fnvector_parallel.h
 tar ufv $tarfile $distrobase/src/nvec_par/nvector_parallel.c
 tar ufv $tarfile $distrobase/src/nvec_par/fnvector_parallel.c
 
-echo "   --- Add directory with example Makefile templates"
+echo "   --- Add directory with example Makefile templates to $tarfile"
 
 tar ufv $tarfile $distrobase/examples/templates/cmakelists_parallel_C_ex.in
 tar ufv $tarfile $distrobase/examples/templates/cmakelists_parallel_F77_ex.in

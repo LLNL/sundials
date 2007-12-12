@@ -1,8 +1,5 @@
 /* config.hin.  Generated from configure.ac by autoheader.  */
 
-/* FCMIX: Define name-mangling macro */
-#undef F77_FUNC
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -80,6 +77,12 @@
 
 /* Define SUNDIALS data type 'realtype' as 'long double' */
 #undef SUNDIALS_EXTENDED_PRECISION
+
+/* FCMIX: Define name-mangling macro for C identifiers */
+#undef SUNDIALS_F77_FUNC
+
+/* FCMIX: Define name-mangling macro for C identifiers with underscores */
+#undef SUNDIALS_F77_FUNC_
 
 /* FNVECTOR: Allow user to specify different MPI communicator */
 #undef SUNDIALS_MPI_COMM_F2C

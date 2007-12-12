@@ -20,7 +20,7 @@ function print_usage
 
     # Print help message
     echo ""
-    echo "Usage: tarscript [-fhs] [module]"
+    echo "Usage: tarscript [-hs] [module]"
     echo "   -h       : help"
     echo "   -s       : short (no documentation)"
     echo "   module   : all, sundials, cvode, cvodes, ida, idas, kinsol"
@@ -67,7 +67,7 @@ doc=T   # Documentation flag
 #----------------
 # Process options
 #----------------
-while getopts ":fhs" name ; do
+while getopts ":hs" name ; do
     case $name in
         h) hlp=T;;
         s) doc=F;;
@@ -188,6 +188,8 @@ cp -r sundials/src/nvec_par tmp_dir/src/
 cp -r sundials/doc/sundials tmp_dir/doc/
 
 cp -r sundials/bin tmp_dir/
+
+cp -r sundials/examples/templates tmp_dir/examples/
 
 cd tmp_dir
 echo -e "\n--- Generate configure script ---"

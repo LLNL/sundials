@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.7 $
+ * $Date: 2007-12-12 18:13:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -425,33 +425,33 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
 
-#define FKIN_MALLOC         F77_FUNC(fkinmalloc, FKINMALLOC)
-#define FKIN_SETIIN         F77_FUNC(fkinsetiin, FKINSETIIN)
-#define FKIN_SETRIN         F77_FUNC(fkinsetrin, FKINSETRIN)
-#define FKIN_SETVIN         F77_FUNC(fkinsetvin, FKINSETVIN)
-#define FKIN_DENSE          F77_FUNC(fkindense, FKINDENSE)
-#define FKIN_DENSESETJAC    F77_FUNC(fkindensesetjac, FKINDENSESETJAC)
-#define FKIN_BAND           F77_FUNC(fkinband, FKINBAND)
-#define FKIN_BANDSETJAC     F77_FUNC(fkinbandsetjac, FKINBANDSETJAC)
-#define FKIN_LAPACKDENSE       F77_FUNC(fkinlapackdense, FKINLAPACKDENSE)
-#define FKIN_LAPACKDENSESETJAC F77_FUNC(fkinlapackdensesetjac, FKINLAPACKDENSESETJAC)
-#define FKIN_LAPACKBAND        F77_FUNC(fkinlapackband, FKINLAPACKBAND)
-#define FKIN_LAPACKBANDSETJAC  F77_FUNC(fkinlapackbandsetjac, FKINLAPACKBANDSETJAC)
-#define FKIN_SPTFQMR        F77_FUNC(fkinsptfqmr, FKINSPTFQMR)
-#define FKIN_SPBCG          F77_FUNC(fkinspbcg, FKINSPBCG)
-#define FKIN_SPGMR          F77_FUNC(fkinspgmr, FKINSPGMR)
-#define FKIN_SPILSSETJAC    F77_FUNC(fkinspilssetjac, FKINSPILSSETJAC)
-#define FKIN_SPILSSETPREC   F77_FUNC(fkinspilssetprec, FKINSPILSSETPREC)
-#define FKIN_SOL            F77_FUNC(fkinsol, FKINSOL)
-#define FKIN_FREE           F77_FUNC(fkinfree, FKINFREE)
-#define FK_FUN              F77_FUNC(fkfun, FKFUN)
-#define FK_PSET             F77_FUNC(fkpset, FKPSET)
-#define FK_PSOL             F77_FUNC(fkpsol, FKPSOL)
-#define FK_JTIMES           F77_FUNC(fkjtimes, FKJTIMES)
-#define FK_DJAC             F77_FUNC(fkdjac, FKDJAC)
-#define FK_BJAC             F77_FUNC(fkbjac, FKBJAC)
+#define FKIN_MALLOC         SUNDIALS_F77_FUNC(fkinmalloc, FKINMALLOC)
+#define FKIN_SETIIN         SUNDIALS_F77_FUNC(fkinsetiin, FKINSETIIN)
+#define FKIN_SETRIN         SUNDIALS_F77_FUNC(fkinsetrin, FKINSETRIN)
+#define FKIN_SETVIN         SUNDIALS_F77_FUNC(fkinsetvin, FKINSETVIN)
+#define FKIN_DENSE          SUNDIALS_F77_FUNC(fkindense, FKINDENSE)
+#define FKIN_DENSESETJAC    SUNDIALS_F77_FUNC(fkindensesetjac, FKINDENSESETJAC)
+#define FKIN_BAND           SUNDIALS_F77_FUNC(fkinband, FKINBAND)
+#define FKIN_BANDSETJAC     SUNDIALS_F77_FUNC(fkinbandsetjac, FKINBANDSETJAC)
+#define FKIN_LAPACKDENSE       SUNDIALS_F77_FUNC(fkinlapackdense, FKINLAPACKDENSE)
+#define FKIN_LAPACKDENSESETJAC SUNDIALS_F77_FUNC(fkinlapackdensesetjac, FKINLAPACKDENSESETJAC)
+#define FKIN_LAPACKBAND        SUNDIALS_F77_FUNC(fkinlapackband, FKINLAPACKBAND)
+#define FKIN_LAPACKBANDSETJAC  SUNDIALS_F77_FUNC(fkinlapackbandsetjac, FKINLAPACKBANDSETJAC)
+#define FKIN_SPTFQMR        SUNDIALS_F77_FUNC(fkinsptfqmr, FKINSPTFQMR)
+#define FKIN_SPBCG          SUNDIALS_F77_FUNC(fkinspbcg, FKINSPBCG)
+#define FKIN_SPGMR          SUNDIALS_F77_FUNC(fkinspgmr, FKINSPGMR)
+#define FKIN_SPILSSETJAC    SUNDIALS_F77_FUNC(fkinspilssetjac, FKINSPILSSETJAC)
+#define FKIN_SPILSSETPREC   SUNDIALS_F77_FUNC(fkinspilssetprec, FKINSPILSSETPREC)
+#define FKIN_SOL            SUNDIALS_F77_FUNC(fkinsol, FKINSOL)
+#define FKIN_FREE           SUNDIALS_F77_FUNC(fkinfree, FKINFREE)
+#define FK_FUN              SUNDIALS_F77_FUNC(fkfun, FKFUN)
+#define FK_PSET             SUNDIALS_F77_FUNC(fkpset, FKPSET)
+#define FK_PSOL             SUNDIALS_F77_FUNC(fkpsol, FKPSOL)
+#define FK_JTIMES           SUNDIALS_F77_FUNC(fkjtimes, FKJTIMES)
+#define FK_DJAC             SUNDIALS_F77_FUNC(fkdjac, FKDJAC)
+#define FK_BJAC             SUNDIALS_F77_FUNC(fkbjac, FKBJAC)
 
 #else
 

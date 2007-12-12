@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.5 $
+ * $Date: 2007-12-12 18:13:22 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -60,23 +60,23 @@ SUNDIALS_EXPORT void LapackBandAddI(DlsMat A);
  * ==================================================================
  */
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
 
-#define dcopy_f77       F77_FUNC(dcopy, DCOPY)
-#define dscal_f77       F77_FUNC(dscal, DSCAL)
-#define dgemv_f77       F77_FUNC(dgemv, DGEMV)
-#define dtrsv_f77       F77_FUNC(dtrsv, DTRSV)
-#define dsyrk_f77       F77_FUNC(dsyrk, DSKYR)
+#define dcopy_f77       SUNDIALS_F77_FUNC(dcopy, DCOPY)
+#define dscal_f77       SUNDIALS_F77_FUNC(dscal, DSCAL)
+#define dgemv_f77       SUNDIALS_F77_FUNC(dgemv, DGEMV)
+#define dtrsv_f77       SUNDIALS_F77_FUNC(dtrsv, DTRSV)
+#define dsyrk_f77       SUNDIALS_F77_FUNC(dsyrk, DSKYR)
 
-#define dgbtrf_f77      F77_FUNC(dgbtrf, DGBTRF)
-#define dgbtrs_f77      F77_FUNC(dgbtrs, DGBTRS)
-#define dgetrf_f77      F77_FUNC(dgetrf, DGETRF)
-#define dgetrs_f77      F77_FUNC(dgetrs, DGETRS)
-#define dgeqp3_f77      F77_FUNC(dgeqp3, DGEQP3)
-#define dgeqrf_f77      F77_FUNC(dgeqrf, DGEQRF)
-#define dormqr_f77      F77_FUNC(dormqr, DORMQR)
-#define dpotrf_f77      F77_FUNC(dpotrf, DPOTRF)
-#define dpotrs_f77      F77_FUNC(dpotrs, DPOTRS)
+#define dgbtrf_f77      SUNDIALS_F77_FUNC(dgbtrf, DGBTRF)
+#define dgbtrs_f77      SUNDIALS_F77_FUNC(dgbtrs, DGBTRS)
+#define dgetrf_f77      SUNDIALS_F77_FUNC(dgetrf, DGETRF)
+#define dgetrs_f77      SUNDIALS_F77_FUNC(dgetrs, DGETRS)
+#define dgeqp3_f77      SUNDIALS_F77_FUNC(dgeqp3, DGEQP3)
+#define dgeqrf_f77      SUNDIALS_F77_FUNC(dgeqrf, DGEQRF)
+#define dormqr_f77      SUNDIALS_F77_FUNC(dormqr, DORMQR)
+#define dpotrf_f77      SUNDIALS_F77_FUNC(dpotrf, DPOTRF)
+#define dpotrs_f77      SUNDIALS_F77_FUNC(dpotrs, DPOTRS)
 
 #else
 

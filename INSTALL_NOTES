@@ -1,48 +1,44 @@
                      SUNDIALS Installation Instructions
-                        Release 2.3.0, August 2006  
+                        Release 2.4.0, January 2008  
 
 
 These are generic installation instructions. For complete installation instructions, 
 consult the user guide for any of the SUNDIALS solvers.
 
 Contents:
-1. Basic Installation
-2. Installation Names
-3. Compilers and Options
-  3.1. General options
-  3.2. Options for Fortran support
-  3.3. Options for MPI support
-  3.4. Options for library support
-  3.5. Options for Matlab support
-  3.6. Environment variables
-4. Configuration examples
 
-1. Basic Installation
-=====================
+[A] Preliminaries
+    A.1. Libraries and exported headers
+[B] autotools-based installation
+    B.1. Basic Installation
+    B.2. Installation names
+    B.3. Compilers and Options
+       B.3.1. General options
+       B.3.2. Options for Fortran support
+       B.3.3. Options for MPI support
+       B.3.4. Options for library support
+       B.3.5. Options for Matlab support
+       B.3.6. Environment variables
+    B.4. Configuration examples
+[C] CMake-based installation
+    C.1. Prerequisites
+    C.2. Configuration and build
 
-The SUNDIALS suite (or individual solvers) are distributed as compressed archives
-(.tgz). The name of the distribution archive is of the form 'solver'-x.y.z.tgz,
-where 'solver' is one of: 'sundials', 'cvode', 'cvodes', 'ida', or 'kinsol',
+================
+A. Preliminaries
+================
+
+The SUNDIALS suite (or an individual solver) is distributed as a compressed archive
+(.tar.gz). The name of the distribution archive is of the form 'solver'-x.y.z.tar.gz,
+where 'solver' is one of: 'sundials', 'cvode', 'cvodes', 'ida', 'idas', or 'kinsol',
 and x.y.z represents the version number (of the SUNDIALS suite or of the individual 
 solver).
 
 To begin the installation, first uncompress and expand the sources, by issuing
 
-   % tar xzf solver-x.y.z.tgz
+   % tar xzf solver-x.y.z.tar.gz
 
 This will extract source files under a directory 'solver'-x.y.z.
-
-The installation procedure outlined below will work on commodity linux/unix 
-systems without modification. However, users are still encouraged to carefully read 
-the entire chapter before attempting to install the SUNDIALS suite, in case
-non-default choices are desired for compilers, compilation options, or the like.
-In lieu of reading the option list below, the user may invoke the configuration
-script with the help flag to view a complete listing of available options, which
-may be done by issuing 
-
-   % ./configure --help 
-
-from within the directory created above.
 
 In the remainder of this chapter, we make the following distinctions:
 
@@ -54,7 +50,10 @@ In the remainder of this chapter, we make the following distinctions:
 'builddir'
 
   is the directory under which SUNDIALS is built; i.e., the directory from within 
-  which the configure command is issued. Usually, this is the same as 'srcdir'.
+  which the configure or ccmake command is issued. 
+
+  NOTE: When using the autoconf configure script, this directory can be the same 
+  as 'srcdir'. However, when using ccmake, insource builds are prohibited.
 
 'instdir'
 
@@ -62,65 +61,40 @@ In the remainder of this chapter, we make the following distinctions:
   be installed. Typically, header files are exported under a directory 'instdir'/include 
   while libraries are installed under 'instdir'/lib, with 'instdir' specified with the 
   --prefix flag to configure. See below for more details on the installation directories, 
-  including the special cases of the SUNDIALS examples and the sundialsTB toolbox.
+  including the special cases of the SUNDIALS examples.
 
-Note: The installation directory 'instdir' should NOT be the same as the source directory 
-      'srcdir'.
-
-The installation steps for SUNDIALS can be as simple as 
-
-   % tar xzf solver-x.y.z.tgz
-   % cd solver-x.y.z
-   % ./configure
-   % make
-   % make install
-
-in which case the SUNDIALS header files and libraries are installed under /usr/local/include
-and /usr/local/lib, respectively. Note that, by default, neither the example programs nor the 
-{\sundialsTB toolbox are built and installed.
-
-If disk space is a priority, then to delete all temporary files created by building SUNDIALS, issue
-
-   % make clean
-
-To prepare the SUNDIALS distribution for a new install (using, for example, different options and/or
-installation destinations), issue
-
-   % make distclean
+  NOTE: The installation directory 'instdir' should NOT be the same as the source 
+        directory 'srcdir'.
 
 
-2. Installation Names
-=====================
+SUNDIALS provides two build alternatives:
+1) autotools-based build system. This options, suitable for *nix systems 
+   (Linux, Unix, Mac OS X, cygwin, mingw, etc.) is based on running a 'configure'
+   shell script which generates all required makefiles. 
+2) CMake-based build system. This option is available on a variety of platforms 
+   (*nix, Windows, Mac OS, etc) but relies on additional software (freely
+   available CMake).
+
+
+-----------------------------------
+A.1. Libraries and exported headers
+-----------------------------------
 
 By default, 'make install' will install the SUNDIALS libraries under 'libdir' and the public 
 header files under 'includedir'. The default values for these directories are 'instdir'/lib 
-and 'instdir'/include, respectively, but can be changed using the configure script options
---prefix, --exec-prefix, --includedir, and --libdir (see below). For example, a global 
-installation of SUNDIALS on a *NIX system could be accomplished using
-
-   % ./configure --prefix=/opt/sundials-2.3.0
-
-Although all installed libraries reside under 'libdir', the public header files are further 
-organized into subdirectories under 'includedir'.
-
-The installed libraries and exported header files are listed for reference in the table below.
-
-A typical user program need not explicitly include any of the shared SUNDIALS header files 
-from under the 'includedir'/sundials directory since they are explicitly included by the 
-appropriate solver header files (e.g., cvode_dense.h includes sundials_dense.h). 
-However, it is both legal and safe to do so (e.g., the functions declared in 
-sundials_smalldense.h could be used in building a preconditioner.
+and 'instdir'/include, respectively, but can be changed at the configuration stage.
 
 The SUNDIALS libraries and header files are summarized below (names are relative to 'libdir' 
 for libraries and to 'includedir' for header files)
 
 SHARED module
-  header files: sundials/sundials_types.h     sundials/sundials_math.h
-                sundials/sundials_config.h    sundias/sundials_nvector.h
-                sundials/sunials_smalldense.h sundials/sundials_dense.h
-                sundials/sundials_iterative.h sundials/sundials_band.h
-                sundials/sundials_spbcgs.h    sundials/sundials_sptfqmr.h
-                sundials/sundials_spgmr.h
+  header files: sundials/sundials_types.h      sundials/sundials_math.h
+                sundials/sundials_config.h     sundias/sundials_nvector.h
+                sundials/sundials_smalldense.h sundials/sundials_dense.h
+                sundials/sundials_iterative.h  sundials/sundials_band.h
+                sundials/sundials_spbcgs.h     sundials/sundials_sptfqmr.h
+                sundials/sundials_spgmr.h      sundials/sundials_lapack.h
+                sundials/sundials_fnvector.h
 
 
 NVECTOR_SERIAL module
@@ -135,31 +109,44 @@ NVECTOR_PARALLEL module
 
 CVODE module
   libraries:    libsundials_cvode.{a,so} libsundials_fcvode.a
-  header files: cvode/cvode.h
+  header files: cvode/cvode.h          cvode/cvode_direct.h
                 cvode/cvode_dense.h    cvode/cvode_band.h
                 cvode/cvode_diag.h     cvode/cvode_spils.h
                 cvode/cvode_bandpre.h  cvode/cvode_bbdpre.h
                 cvode/cvode_spgmr.h    cvode/cvode_spbcgs.h
                 cvode/cvode_sptfqmr.h  cvode/cvode_impl.h
+                cvode/cvode_lapack.h
 
 
 CVODES module
   library:      libsundials_cvodes.{a,so}
-  header files: cvodes/cvodes.h
+  header files: cvodes/cvodes.h           cvodes/cvodes_direct.h
                 cvodes/cvodes_dense.h     cvodes/cvodes_band.h
                 cvodes/cvodes_diag.h      cvodes/cvodes_spils.h
                 cvodes/cvodes_bandpre.h   cvodes/cvodes_bbdpre.h
                 cvodes/cvodes_spgmr.h     cvodes/cvodes_spbcgs.h
                 cvodes/cvodes_sptfqmr.h   cvodes/cvodes_impl.h
-                cvodes/cvodea_impl.h
+                cvodes/cvodes_lapack.h
+
 
 IDA module
   library:      libsundials_ida.{a,so}
-  header files: ida/ida.h
+  header files: ida/ida.h          ida/ida_direct.h
                 ida/ida_dense.h    ida/ida_band.h
                 ida/ida_spils.h    ida/ida_spgmr.h
                 ida/ida_spbcgs.h   ida/ida_sptfqmr.h
                 ida/ida_bbdpre.h   ida/ida_impl.h
+                ida/dia_lapack.h
+
+
+IDAS module
+  library:      libsundials_idas.{a,so}
+  header files: idas/idas.h          idas/idas_direct.h
+                idas/idas_dense.h    idas/idas_band.h
+                idas/idas_spils.h    idas/idas_spgmr.h
+                idas/idas_spbcgs.h   idas/idas_sptfqmr.h
+                idas/idas_bbdpre.h   idas/idas_impl.h
+                idas/dia_lapack.h
 
 
 KINSOL module
@@ -172,8 +159,76 @@ KINSOL module
 
 
 
-3. Compilers and Options
-========================
+===============================
+B. autotools-based installation
+===============================
+
+-----------------------
+B.1. Basic Installation
+-----------------------
+
+The installation procedure outlined below will work on commodity Linux/Unix 
+systems without modification. However, users are still encouraged to carefully read 
+the entire chapter before attempting to install the SUNDIALS suite, in case
+non-default choices are desired for compilers, compilation options, or the like.
+Instead of reading the option list below, the user may invoke the configuration
+script with the help flag to view a complete listing of available options, which
+may be done by issuing 
+
+   % ./configure --help 
+
+from within the 'srcdir' directory created above.
+
+
+The installation steps for SUNDIALS can be as simple as 
+
+   % tar xzf solver-x.y.z.tar.gz
+   % cd solver-x.y.z
+   % ./configure
+   % make
+   % make install
+
+in which case the SUNDIALS header files and libraries are installed under /usr/local/include
+and /usr/local/lib, respectively. Note that, by default, the example programs are not built 
+and installed.
+
+If disk space is a priority, then to delete all temporary files created by building SUNDIALS, issue
+
+   % make clean
+
+To prepare the SUNDIALS distribution for a new install (using, for example, different options and/or
+installation destinations), issue
+
+   % make distclean
+
+
+-----------------------
+B.2. Installation names
+-----------------------
+
+By default, 'make install' will install the SUNDIALS libraries under 'libdir' and the public 
+header files under 'includedir'. The default values for these directories are 'instdir'/lib 
+and 'instdir'/include, respectively, but can be changed using the configure script options
+--prefix, --exec-prefix, --includedir, and --libdir (see below). For example, a global 
+installation of SUNDIALS on a *NIX system could be accomplished using
+
+   % ./configure --prefix=/opt/sundials-2.3.0
+
+Although all installed libraries reside under 'libdir', the public header files are further 
+organized into subdirectories under 'includedir'.
+
+The installed libraries and exported header files are listed for reference in Section A.1.
+
+A typical user program need not explicitly include any of the shared SUNDIALS header files 
+from under the 'includedir'/sundials directory since they are explicitly included by the 
+appropriate solver header files (e.g., cvode_dense.h includes sundials_dense.h). 
+However, it is both legal and safe to do so (e.g., the functions declared in 
+sundials_smalldense.h could be used in building a preconditioner.
+
+
+--------------------------
+B.3. Compilers and Options
+--------------------------
 
 Some systems require unusual options for compilation or linking that the `configure' 
 script does not know about.  Run `./configure --help' for details on some of the 
@@ -187,8 +242,10 @@ environment.  You can do that on the command line like this:
 Here is a detailed description of the configure options that are pertinent to SUNDIALS. 
 In what follows, 'build_tree' is the directory from where 'configure' was invoked.
 
-3.1. General options
---------------------
+
+----------------------
+B.3.1. General options
+----------------------
 
 --help
 -h
@@ -246,27 +303,27 @@ In what follows, 'build_tree' is the directory from where 'configure' was invoke
   Note: Some of these subdirectories may not exist depending upon the
   solver and/or the configuration options given.
 
---with-examples-instdir=EXINSTDIR
+--with-exinstdir=DIR
 
-  Alternate location for example executables and sample output files (valid only if
-  examples are enabled). Note that installtion of example files can be completely disabled
-  by issuing EXINSTDIR=no (in case building the examples is desired only as a test of
-  the sundials libraries).
+  Alternate location for example sources and sample output files (valid only if
+  examples are enabled). Note that installtion of example files can be completely
+  disabled by issuing DIR=no (in case building the examples is desired only as a
+  test of the SUNDIALS libraries).
 
   Default: DIR=EPREFIX/examples
 
 --with-cppflags=ARG
 
-  Specify additional C preprocessor flags 
+  Specify C preprocessor flags (overrides the environment variable CPPFLAGS)
   (e.g., ARG=-I<include_dir> if necessary header files are located in nonstandard locations).
 
 --with-cflags=ARG
 
-  Specify additional C compilation flags.
+  Specify C compilation flags (overrides the environment variable CFLAGS)
 
 --with-ldflags=ARG
 
-  Specify additional linker flags 
+  Specify linker flags (overrides the environment variable LDFLAGS)
   (e.g., ARG=-L<lib_dir> if required libraries are located in nonstandard locations).
 
 --with-libs=ARG
@@ -284,43 +341,38 @@ In what follows, 'build_tree' is the directory from where 'configure' was invoke
 
   Default: ARG=double
 
-3.2. Options for Fortran support
---------------------------------
+----------------------------------
+B.3.2. Options for Fortran support
+----------------------------------
 
 --disable-f77
 
-  Using this option will disable all F77 support. The fcvode, fkinsol and
+  Using this option will disable all F77 support. The fcvode, fida, fkinsol and
   fnvector modules will not be built regardless of availability.
 
 --with-fflags=ARG
 
-  Specify additional F77 compilation flags.
+  Specify F77 compilation flags (overrides the environment variable FFLAGS)
 
+--------------------------------------
+B.3.3. Options for Blas/Lapack support
+--------------------------------------
 
-The configuration script will attempt to automatically determine the
-function name mangling scheme required by the specified F77 compiler, but the
-following two options may be used to override the default behavior.
+--disable-lapack
 
---with-f77underscore=ARG
+  Disable support for the linear solver module based on Blas/Lapack.
 
-  This option pertains to the fkinsol, fcvode and fnvector F/C interface 
-  modules and is used to specify the number of underscores to append to 
-  function names so F77 routines can properly link with the associated
-  sundials libraries. Valid values for ARG are: none, one, and two.
+--with-blas=ARG
 
-  Default: ARG=one
+  Specifies the BLAS library to be used
 
---with-f77case=ARG
+--with-lapack=ARG
 
-  Use this option to specify whether the external names of the fkinsol,
-  fcvode and fnvector F/C interface functions should be lowercase
-  or uppercase so F77 routines can properly link with the associated sundials
-  libraries. Valid values for ARG are: lower and upper.
+  Specifies the LAPACK library to be used
 
-  Default: ARG=lower
-
-3.3. Options for MPI support
-----------------------------
+------------------------------
+B.3.4. Options for MPI support
+------------------------------
 
 The following configuration options are only applicable to the parallel sundials packages:
 
@@ -367,8 +419,9 @@ The following configuration options are only applicable to the parallel sundials
 
   Specify additional MPI-specific flags.
 
-3.4. Options for library support
---------------------------------
+----------------------------------
+B.3.5. Options for library support
+----------------------------------
 
 By default, only static libraries are built, but the following option
 may be used to build shared libraries on supported platforms.
@@ -386,53 +439,9 @@ may be used to build shared libraries on supported platforms.
   unresolvable external symbols, the libraries are still built as static libraries
   for the purpose of consistency.
 
-3.5. Options for Matlab support
--------------------------------
-
-The following options are relevant only for configuring and building 
-the sundialsTB Matlab toolbox:
-
---enable-sundialsTB
-
-  The sundialsTB Matlab toolbox is  not built by default. Use this option
-  to enable configuration and compilation of the mex files. Upon completion
-  of the make command, the following mex files will be created:
-    'builddir'/sundialsTB/cvodes/cvm/cvm.'mexext'
-    'builddir'/sundialsTB/idas/idm/idm.'mexext'
-    'builddir'/sundialsTB/kinsol/kim/kim.'mexext'
-  where 'mexext' is the platform-specific extension of mex files.
-  
---with-sundialsTB-instdir=STBINSTDIR
-
-  Alternate location for the installed sundialsTB toolbox (valid only if
-  sundialsTB is enabled). As for the example programs, installation of sundialsTB can 
-  be completely disabled by issuing STBINSTDIR=no (in case building the toolbox is desired 
-  but its installtion will be done manually afterwards). Otherwise, all required sundialsTB 
-  files will be installed under the directory STBINSTDIR/sundialsTB.
-
-  Default: DIR=MATLAB/toolbox  (see below for the definition of MATLAB).
-
---with-matlab=MATLAB
-
-  This option can be used to specify the locatin of the Matlab installation. 
-  If it is defined, the environment variable MATLAB will be used. Otherwise,
-  the configure system will attempt to infer MATLAB from the location of
-  the matlab executable.
-
---with-mex=ARG
-
-  Specify the mex compiler to be used.
-
-  Default: ARG=MATLAB/bin/mex
-
---with-mexopts=ARG
-
-  Specify the mex options file to be used.
-
-  Default: Standard Matlab mex options file.
-
-3.6. Environment variables
---------------------------
+----------------------------
+B.3.6. Environment variables
+----------------------------
 
 The following environment variables can be locally (re)defined for use during the 
 configuration of sundials. See the next section for illustrations of these.
@@ -453,27 +462,26 @@ FFLAGS
 
   Use these environment variables to override the default C and F77 compilation flags.
 
-4. Configuration examples
-=========================
+
+---------------------------
+B.4. Configuration examples
+---------------------------
 
 The following examples are meant to help demonstrate proper usage of the configure options.
 
 To build SUNDIALS using the default C and Fortran compilers, and default mpicc and mpif77 
-parallel compilers, enable compilation of examples, build the Matlab mex files for sundialsTB, 
-and install it under /home/myname/matlab/sundialsTB, use
+parallel compilers, enable compilation of examples, and install them under the default
+directory /home/myname/sundials/examples, use
 
-   % ./configure --prefix=/home/myname/sundials --enable-examples \
-                 --enable-sundialsTB --with-sundialsTB-instdir=/home/myname/matlab
+   % ./configure --prefix=/home/myname/sundials --enable-examples
 
 To disable installation of the examples, use:
    % ./configure --prefix=/home/myname/sundials \
-                 --enable-examples --with-examples-instdir=no \
-                 --enable-sundialsTB --with-sundialsTB-instdir=/home/myname/matlab
-
+                 --enable-examples --with-examples-instdir=no
 
 The following example builds SUNDIALS using gcc as the serial C compiler, g77 as the serial 
 Fortran compiler, mpicc as the parallel C compiler, mpif77 as the parallel Fortran compiler, 
-and appends the -g3 compilaton flag to the list of default flags:
+and uses the -g3 C compilation flag:
 
    % ./configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \
                  --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \ 
@@ -484,11 +492,68 @@ The next example again builds SUNDIALS using gcc as the serial C compiler, but t
 script. In addition, since the  --with-mpi-root option is given, the compilation flags
 -I/usr/apps/mpich/1.2.4/include and -L/usr/apps/mpich/1.2.4/lib are passed to gcc when 
 compiling the MPI-enabled functions. 
-The --disable-examples option explicitly disables the examples (which means a Fortran 
-compiler is not required).
+The --disable-examples option explicitly disables the examples.
 The --with-mpi-libs option is required so that the configure script can check if gcc 
 can link with the appropriate MPI library.
 
    % ./configure CC=gcc --disable-examples --with-mpicc=no \
                  --with-mpi-root=/usr/apps/mpich/1.2.4 \
                  --with-mpi-libs=-lmpich
+
+
+
+===========================
+C. CMake-based installation
+===========================
+
+Using CMake as a build system for the SUNDIALS libraries has the advantage 
+that GUI based build configuration is possible. Also build files for Windows 
+development environments can be easily generated. On the Windows platform 
+compilers such as the Borland C++ compiler or Visual C++ compiler are natively 
+supported. 
+
+The installation options are very similar to the options mentioned above. 
+Note, however, that CMake may not support all features and plattforms that 
+are supported by the autotools build system.
+
+------------------
+C.1. Prerequisites
+------------------
+
+You may need to get CMake if it isn't available on your system already. 
+In order to use the CMake build system, you need a fairly recent CMake version. 
+You can download it from http://www.cmake.org www.cmake.org. 
+
+----------------------------
+C.2. Configuration and build
+----------------------------
+
+We assume here a *nix system. For other systems, the required steps are very 
+similar and are explained in more detail in the SUNDIALS user guides.
+The installation steps are as follows:
+
+- uncompress solver-x.y.z.tar.gz to obtain 'srcdir'
+- create the directories 'builddir' and 'instdir'
+- change directory to 'builddir'
+- run ccmake with 'srcdir' as an argument
+
+You should now see the ccmake curses interface. Press 'c' to configure your build 
+with the default options. (If you don't have curses on your system and cannot use 
+ccmake, you can configure cmake with command line options very similar to ./configure 
+of the autotools. You can read about this on the cmake webpage.)
+
+In the dialog you can adjust the build options. For details see the options above
+in the autotools section. To adjust advanced options press 't' to show all the options
+and settings CMake offers. 
+
+After adjusting some options, for instance enabling the examples by turning 
+ENABLE_EXAMPLES to ON, you need to press 'c' again. Depending on the options, 
+you will see new options at the top of the list, marked with a star. After 
+adjusting the new options, press 'c' again. Once all options have been set, 
+you can press 'g' to generate the make files.
+
+Now you can build and install the sundials library:
+   % make
+   % make install
+
+

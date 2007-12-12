@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.8 $
+ * $Date: 2007-12-12 18:13:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -526,43 +526,43 @@ extern "C" {
 #include <sundials/sundials_nvector.h> /* definition of type N_Vector */
 #include <sundials/sundials_types.h>   /* definition of type realtype */
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
 
-#define FIDA_MALLOC         F77_FUNC(fidamalloc, FIDAMALLOC)
-#define FIDA_REINIT         F77_FUNC(fidareinit, FIDAREINIT)
-#define FIDA_SETIIN         F77_FUNC(fidasetiin, FIDASETIIN)
-#define FIDA_SETRIN         F77_FUNC(fidasetrin, FIDASETRIN)
-#define FIDA_SETVIN         F77_FUNC(fidasetvin, FIDASETVIN)
-#define FIDA_TOLREINIT      F77_FUNC(fidatolreinit, FIDATOLREINIT)
-#define FIDA_SOLVE          F77_FUNC(fidasolve, FIDASOLVE)
-#define FIDA_FREE           F77_FUNC(fidafree, FIDAFREE)
-#define FIDA_CALCIC         F77_FUNC(fidacalcic, FIDACALCIC)
-#define FIDA_BAND           F77_FUNC(fidaband, FIDABAND)
-#define FIDA_BANDSETJAC     F77_FUNC(fidabandsetjac, FIDABANDSETJAC)
-#define FIDA_DENSE          F77_FUNC(fidadense, FIDADENSE)
-#define FIDA_DENSESETJAC    F77_FUNC(fidadensesetjac, FIDADENSESETJAC)
-#define FIDA_LAPACKBAND        F77_FUNC(fidalapackband, FIDALAPACKBAND)
-#define FIDA_LAPACKBANDSETJAC  F77_FUNC(fidalapackbandsetjac, FIDALAPACKBANDSETJAC)
-#define FIDA_LAPACKDENSE       F77_FUNC(fidalapackdense, FIDALAPACKDENSE)
-#define FIDA_LAPACKDENSESETJAC F77_FUNC(fidalapackdensesetjac, FIDALAPACKDENSESETJAC)
-#define FIDA_SPTFQMR        F77_FUNC(fidasptfqmr, FIDASPTFQMR)
-#define FIDA_SPBCG          F77_FUNC(fidaspbcg, FIDASPBCG)
-#define FIDA_SPGMR          F77_FUNC(fidaspgmr, FIDASPGMR)
-#define FIDA_SPTFQMRREINIT  F77_FUNC(fidasptfqmrreinit, FIDASPTFQMRREINIT)
-#define FIDA_SPBCGREINIT    F77_FUNC(fidaspbcgreinit, FIDASPBCGREINIT)
-#define FIDA_SPGMRREINIT    F77_FUNC(fidaspgmrreinit, FIDASPGMRREINIT)
-#define FIDA_SPILSSETJAC    F77_FUNC(fidaspilssetjac, FIDASPILSSETJAC)
-#define FIDA_SPILSSETPREC   F77_FUNC(fidaspilssetprec, FIDASPILSSETPREC)
-#define FIDA_RESFUN         F77_FUNC(fidaresfun, FIDARESFUN)
-#define FIDA_DJAC           F77_FUNC(fidadjac, FIDADJAC)
-#define FIDA_BJAC           F77_FUNC(fidabjac, FIDABJAC)
-#define FIDA_PSET           F77_FUNC(fidapset, FIDAPSET)
-#define FIDA_PSOL           F77_FUNC(fidapsol, FIDAPSOL)
-#define FIDA_JTIMES         F77_FUNC(fidajtimes, FIDAJTIMES)
-#define FIDA_EWT            F77_FUNC(fidaewt, FIDAEWT)
-#define FIDA_GETSOL         F77_FUNC(fidagetsol, FIDAGETSOL)
-#define FIDA_GETERRWEIGHTS  F77_FUNC(fidageterrweights, FIDAGETERRWEIGHTS)
-#define FIDA_GETESTLOCALERR F77_FUNC(fidagetestlocalerr, FIDAGETESTLOCALERR)
+#define FIDA_MALLOC         SUNDIALS_F77_FUNC(fidamalloc, FIDAMALLOC)
+#define FIDA_REINIT         SUNDIALS_F77_FUNC(fidareinit, FIDAREINIT)
+#define FIDA_SETIIN         SUNDIALS_F77_FUNC(fidasetiin, FIDASETIIN)
+#define FIDA_SETRIN         SUNDIALS_F77_FUNC(fidasetrin, FIDASETRIN)
+#define FIDA_SETVIN         SUNDIALS_F77_FUNC(fidasetvin, FIDASETVIN)
+#define FIDA_TOLREINIT      SUNDIALS_F77_FUNC(fidatolreinit, FIDATOLREINIT)
+#define FIDA_SOLVE          SUNDIALS_F77_FUNC(fidasolve, FIDASOLVE)
+#define FIDA_FREE           SUNDIALS_F77_FUNC(fidafree, FIDAFREE)
+#define FIDA_CALCIC         SUNDIALS_F77_FUNC(fidacalcic, FIDACALCIC)
+#define FIDA_BAND           SUNDIALS_F77_FUNC(fidaband, FIDABAND)
+#define FIDA_BANDSETJAC     SUNDIALS_F77_FUNC(fidabandsetjac, FIDABANDSETJAC)
+#define FIDA_DENSE          SUNDIALS_F77_FUNC(fidadense, FIDADENSE)
+#define FIDA_DENSESETJAC    SUNDIALS_F77_FUNC(fidadensesetjac, FIDADENSESETJAC)
+#define FIDA_LAPACKBAND        SUNDIALS_F77_FUNC(fidalapackband, FIDALAPACKBAND)
+#define FIDA_LAPACKBANDSETJAC  SUNDIALS_F77_FUNC(fidalapackbandsetjac, FIDALAPACKBANDSETJAC)
+#define FIDA_LAPACKDENSE       SUNDIALS_F77_FUNC(fidalapackdense, FIDALAPACKDENSE)
+#define FIDA_LAPACKDENSESETJAC SUNDIALS_F77_FUNC(fidalapackdensesetjac, FIDALAPACKDENSESETJAC)
+#define FIDA_SPTFQMR        SUNDIALS_F77_FUNC(fidasptfqmr, FIDASPTFQMR)
+#define FIDA_SPBCG          SUNDIALS_F77_FUNC(fidaspbcg, FIDASPBCG)
+#define FIDA_SPGMR          SUNDIALS_F77_FUNC(fidaspgmr, FIDASPGMR)
+#define FIDA_SPTFQMRREINIT  SUNDIALS_F77_FUNC(fidasptfqmrreinit, FIDASPTFQMRREINIT)
+#define FIDA_SPBCGREINIT    SUNDIALS_F77_FUNC(fidaspbcgreinit, FIDASPBCGREINIT)
+#define FIDA_SPGMRREINIT    SUNDIALS_F77_FUNC(fidaspgmrreinit, FIDASPGMRREINIT)
+#define FIDA_SPILSSETJAC    SUNDIALS_F77_FUNC(fidaspilssetjac, FIDASPILSSETJAC)
+#define FIDA_SPILSSETPREC   SUNDIALS_F77_FUNC(fidaspilssetprec, FIDASPILSSETPREC)
+#define FIDA_RESFUN         SUNDIALS_F77_FUNC(fidaresfun, FIDARESFUN)
+#define FIDA_DJAC           SUNDIALS_F77_FUNC(fidadjac, FIDADJAC)
+#define FIDA_BJAC           SUNDIALS_F77_FUNC(fidabjac, FIDABJAC)
+#define FIDA_PSET           SUNDIALS_F77_FUNC(fidapset, FIDAPSET)
+#define FIDA_PSOL           SUNDIALS_F77_FUNC(fidapsol, FIDAPSOL)
+#define FIDA_JTIMES         SUNDIALS_F77_FUNC(fidajtimes, FIDAJTIMES)
+#define FIDA_EWT            SUNDIALS_F77_FUNC(fidaewt, FIDAEWT)
+#define FIDA_GETSOL         SUNDIALS_F77_FUNC(fidagetsol, FIDAGETSOL)
+#define FIDA_GETERRWEIGHTS  SUNDIALS_F77_FUNC(fidageterrweights, FIDAGETERRWEIGHTS)
+#define FIDA_GETESTLOCALERR SUNDIALS_F77_FUNC(fidagetestlocalerr, FIDAGETESTLOCALERR)
 
 #else
 

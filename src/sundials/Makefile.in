@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2007-01-23 20:05:03 $
+# $Revision: 1.10 $
+# $Date: 2007-12-12 18:13:22 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -65,6 +65,7 @@ install: $(SHARED_LIB_FILES)
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_math.h       $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_types.h      $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_nvector.h    $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_fnvector.h   $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_builddir)/include/sundials/sundials_config.h   $(includedir)/sundials/
 
 uninstall:
@@ -79,6 +80,7 @@ uninstall:
 	rm -f $(includedir)/sundials/sundials_math.h
 	rm -f $(includedir)/sundials/sundials_types.h
 	rm -f $(includedir)/sundials/sundials_nvector.h
+	rm -f $(includedir)/sundials/sundials_fnvector.h
 	rm -f $(includedir)/sundials/sundials_config.h
 	$(rminstalldirs) $(includedir)/sundials
 

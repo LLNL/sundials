@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.54 $
-# $Date: 2007-12-05 23:33:24 $
+# $Revision: 1.55 $
+# $Date: 2007-12-12 18:13:19 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -9,8 +9,55 @@
 # All rights reserved.
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
+#
 # SUNDIALS autoconf macros
+#
+# The functions defined here fall into the following categories:
+#
+# (1) Initializations:
+#     SUNDIALS_GREETING
+#     SUNDIALS_INITIALIZE
+#     SUNDIALS_ENABLES
+#
+# (2) C compiler tests
+#     SUNDIALS_SET_CC
+#     SUNDIALS_CC_CHECK
+#     SUNDIALS_CPLUSPLUS_CHECK
+#
+# (3) Fortran support
+#     SUNDIALS_F77_SUPPORT
+#     SUNDIALS_F77_CHECK
+#     SUNDIALS_F77_LNKR_CHECK
+#     SUNDIALS_F77_NAME_MANGLING
+#     SUNDIALS_F77_LAPACK_SET
+#
+# (4) Parallel support
+#     SUNDIALS_SET_MPICC
+#     SUNDIALS_CHECK_MPICC
+#     SUNDIALS_CC_WITH_MPI_CHECK
+#     SUNDIALS_SET_MPIF77
+#     SUNDIALS_CHECK_MPIF77
+#     SUNDIALS_MPIF77_LNKR_CHECK
+#     SUNDIALS_F77_WITH_MPI_CHECK
+#     SUNDIALS_CHECK_MPI2
+#
+# (5) Finalizations:
+#     SUNDIALS_MORE_HELP
+#     SUNDIALS_SET_EXAMPLES
+#     SUNDIALS_BUILD_MODULES_LIST
+#     SUNDIALS_POST_PROCESSING
+#     SUNDIALS_REPORT
+#
 # -----------------------------------------------------------------
+
+
+#=================================================================#
+#                                                                 #
+#                                                                 #
+#               I N I T I A L I Z A T I O N S                     #
+#                                                                 #
+#                                                                 #
+#==================================================================
 
 #------------------------------------------------------------------
 # GREETING
@@ -81,34 +128,9 @@ AC_PROG_MAKE_SET
 # Also sets INSTALL_PROGRAM and INSTALL_SCRIPT
 AC_PROG_INSTALL
 
-# Test if various environment variables exist.
-# If not, we may set some default values for them
-if test "X${CPPFLAGS}" = "X"; then
-  CPPFLAGS_PROVIDED="no"
-else
-  CPPFLAGS_PROVIDED="yes"
-fi
-if test "X${CFLAGS}" = "X"; then
-  CFLAGS_PROVIDED="no"
-else
-  CFLAGS_PROVIDED="yes"
-fi
-if test "X${LDFLAGS}" = "X"; then
-  LDFLAGS_PROVIDED="no"
-else
-  LDFLAGS_PROVIDED="yes"
-fi
-if test "X${FFLAGS}" = "X"; then
-  FFLAGS_PROVIDED="no"
-else
-  FFLAGS_PROVIDED="yes"
-fi
-
 # Set defaults for config/sundials_config.in file
 F77_MANGLE_MACRO1=""
 F77_MANGLE_MACRO2=""
-F77_CASE=""
-F77_UNDERSCORES=""
 PRECISION_LEVEL=""
 GENERIC_MATH_LIB=""
 F77_MPI_COMM_F2C=""
@@ -137,6 +159,7 @@ DEV_EXAMPLES_ENABLED="no"
 # Initialize variables that may NOT necessarily be initialized
 # during normal execution. Should NOT use uninitialized variables
 F77_OK="no"
+LAPACK_OK="no"
 MPI_C_COMP_OK="no"
 MPI_F77_COMP_OK="no"
 
@@ -147,45 +170,6 @@ SUNDIALS_WARN_FLAG="no"
 ]) dnl END SUNDIALS_INITIALIZE
 
 #------------------------------------------------------------------
-# FIND ARCHIVER (not used)
-#------------------------------------------------------------------
-
-# Check for archiver (ar)
-# Define AR="ar rc" if found
-# AC_SUBST is called automatically for AR
-AC_DEFUN([SUNDIALS_CHECK_AR],
-[
-
-AC_CHECK_TOOL([AR],[ar],["none"])
-
-if test "X${AR}" = "Xnone"; then
-  AC_MSG_ERROR([cannot find archiver])
-else
-  AR="${AR} rc"
-fi
-
-]) dnl END SUNDIALS_CHECK_AR
-
-#------------------------------------------------------------------
-# FIND ARCHIVE INDEX UTILITY (not used)
-#------------------------------------------------------------------
-
-# Check for ranlib utility
-# Defines RANLIB="ranlib" if found
-# AC_SUBST is called automatically for RANLIB
-AC_DEFUN([SUNDIALS_CHECK_RANLIB],
-[
-
-AC_CHECK_TOOL([RANLIB],[ranlib],["none"])
-
-if test "X${RANLIB}" = "Xnone"; then
-  AC_MSG_WARN([cannot find ranlib])
-  SUNDIALS_WARN_FLAG="yes"
-fi
-
-]) dnl END SUNDIALS_CHECK_RANLIB
-
-#------------------------------------------------------------------
 # TEST ENABLES
 #
 # The following variables may be changed here (default value in []):
@@ -193,11 +177,13 @@ fi
 #   CVODE_ENABLED    - enable CVODE module [yes]
 #   CVODES_ENABLED   - enable CVODES module [yes]
 #   IDA_ENABLED      - enable IDA module [yes]
+#   IDAS_ENABLED     - enable IDAS module [yes]
 #   KINSOL_ENABLED   - enable KINSOL module [yes]
-#   FCMIX_ENABLED    - enable Fortran-C inerfaces [yes]
+#   FCMIX_ENABLED    - enable Fortran-C interfaces [yes]
 #   LAPACK_ENABLED   - enable Lapack support [yes]
 #   MPI_ENABLED      - enable parallel support [yes]
 #   EXAMPLES_ENABLED - enable example programs [no]
+#   F77_EXAMPLES_ENABLED - enable Fortran example programs [no]
 #  
 #------------------------------------------------------------------
 
@@ -346,7 +332,7 @@ else
 fi
 ])
 
-# Check if user wants to enable all examples
+# Check if user wants to enable all examples.
 # Examples are NOT built by default
 AC_ARG_ENABLE(examples,
 [AC_HELP_STRING([--enable-examples],[enable configuration of examples])],
@@ -358,7 +344,7 @@ else
 fi
 ])
 
-# Fortran examples are enabled only if bot FCMIX and EXAMPLES are enabled
+# Fortran examples are enabled only if both FCMIX and EXAMPLES are enabled
 if test "X${FCMIX_ENABLED}" = "Xyes" && test "X${EXAMPLES_ENABLED}" = "Xyes"; then
   F77_EXAMPLES_ENABLED="yes"
 fi
@@ -393,6 +379,18 @@ fi
 
 ]) dnl END SUNDIALS_DEV_ENABLES
 
+
+
+
+#=================================================================#
+#                                                                 #
+#                                                                 #
+#              C    C O M P I L E R     T E S T S                 #
+#                                                                 #
+#                                                                 #
+#==================================================================
+
+
 #------------------------------------------------------------------
 # CHECK C COMPILER
 #------------------------------------------------------------------
@@ -413,14 +411,14 @@ if test "X${CC}" = "X"; then
 
 else
 
-  SUNDIALS_CHECK_CC
+  SUNDIALS_CC_CHECK
 
 fi
 
 ]) dnl END SUNDIALS_SET_CC
  
 
-AC_DEFUN([SUNDIALS_CHECK_CC],
+AC_DEFUN([SUNDIALS_CC_CHECK],
 [
 
 # Default is C programming language (initialize language stack)
@@ -474,18 +472,13 @@ PRECISION_LEVEL="#define SUNDIALS_DOUBLE_PRECISION 1"
 
 AC_ARG_WITH([],[ ],[])
 
-# If CFLAGS is not provided, set defaults
-if test "X${CFLAGS_PROVIDED}" = "Xno"; then
-  SUNDIALS_DEFAULT_CFLAGS
-fi
-
-# Add any additional CFLAGS
-AC_MSG_CHECKING([for extra C compiler flags])
+# Overwrite CFLAGS
+AC_MSG_CHECKING([for C compiler flags])
 AC_ARG_WITH(cflags,
-[AC_HELP_STRING([--with-cflags=ARG],[add extra C compiler flags])],
+[AC_HELP_STRING([--with-cflags=ARG],[specify C compiler flags (CFLAGS will be overridden)])],
 [
 AC_MSG_RESULT([${withval}])
-CFLAGS="${CFLAGS} ${withval}"
+CFLAGS="${withval}"
 ],
 [
 AC_MSG_RESULT([none])
@@ -494,35 +487,25 @@ AC_MSG_RESULT([none])
 # Set CPP to command that runs C preprocessor
 AC_PROG_CPP
 
-# If CPPFLAGS is not provided, set defaults
-if test "X${CPPFLAGS_PROVIDED}" = "Xno"; then
-  SUNDIALS_DEFAULT_CPPFLAGS
-fi
-
-# Add any additional CPPFLAGS
-AC_MSG_CHECKING([for extra C/C++ preprocessor flags])
+# Overwrite CPPFLAGS
+AC_MSG_CHECKING([for C/C++ preprocessor flags])
 AC_ARG_WITH(cppflags,
-[AC_HELP_STRING([--with-cppflags=ARG],[add extra C/C++ preprocessor flags])],
+[AC_HELP_STRING([--with-cppflags=ARG],[specify C/C++ preprocessor flags (CPPFLAGS will be overridden)])],
 [
 AC_MSG_RESULT([${withval}])
-CPPFLAGS="${CPPFLAGS} ${withval}"
+CPPFLAGS="${withval}"
 ],
 [
 AC_MSG_RESULT([none])
 ])
 
-# If LDFLAGS is not provided, set defaults
-if test "X${LDFLAGS_PROVIDED}" = "Xno"; then
-  SUNDIALS_DEFAULT_LDFLAGS
-fi
-
-# Add any additional linker flags 
-AC_MSG_CHECKING([for extra linker flags])
+# Overwrite LDFLAGS
+AC_MSG_CHECKING([for linker flags])
 AC_ARG_WITH(ldflags,
-[AC_HELP_STRING([--with-ldflags=ARG],[add extra linker flags])],
+[AC_HELP_STRING([--with-ldflags=ARG],[specify linker flags (LDFLAGS will be overridden)])],
 [
 AC_MSG_RESULT([${withval}])
-LDFLAGS="${LDFLAGS} ${withval}"
+LDFLAGS="${withval}"
 ],
 [
 AC_MSG_RESULT([none])
@@ -693,405 +676,164 @@ AC_LANG_POP([C])
 
 ]) dnl END SUNDIALS_CPLUSPLUS_CHECK
 
-#------------------------------------------------------------------
-# DEFAULT CFLAGS
-#
-# Set default CFLAGS (called only if CFLAGS is not provided)
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_DEFAULT_CFLAGS],
-[
-
-# Extract executable name of C compiler, for optional use below
-CC_EXEC=`basename "${CC}"`
-
-case $host in 
-
-  # IA-32 system running Linux
-  i*-pc-linux-*)
-    #if test "X${GCC}" = "Xyes"; then
-    #  if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-    #    CFLAGS="-ffloat-store"
-    #  fi
-    #fi
-    ;;
-
-  *)
-    CFLAGS=""
-    ;;
-
-esac
-
-]) dnl END SUNDIALS_DEFAULT_CFLAGS
-
-#------------------------------------------------------------------
-# DEFAULT CPPFLAGS
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_DEFAULT_CPPFLAGS],
-[
-
-# Set default CPPFLAGS (called only if CPPFLAGS is not provided)
-
-CPPFLAGS=""
-
-]) dnl END SUNDIALS_DEFAULT_CFLAGS
-
-#------------------------------------------------------------------
-# DEFAULT LDFLAGS
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_DEFAULT_LDFLAGS],
-[
-
-# Set default LDFLAGS (called only if LDFLAGS is not provided)
-
-case $build_os in
-
-  *cygwin*)
-     # Under cygwin, if building shared libraries, add -no-undefined
-     # and explicitly specify library extension
-     if test "X${enable_shared}" = "Xyes"; then
-       LDFLAGS="-no-undefined"
-     fi
-     ;;
-
-  *mingw*)
-     # Under mingw, if building shared libraries, add -no-undefined
-     # and explicitly specify library extension
-     if test "X${enable_shared}" = "Xyes"; then
-       LDFLAGS="-no-undefined"
-     fi
-     ;;
 
 
-  *)
-     LDFLAGS=""
-     ;;
 
-esac
+#=================================================================#
+#                                                                 #
+#                                                                 #
+#             F O R T R A N     S U P P O R T                     #
+#                                                                 #
+#                                                                 #
+#==================================================================
 
-]) dnl END SUNDIALS_DEFAULT_CFLAGS
 
 
 #------------------------------------------------------------------
 # FORTRAN SUPPORT
 #
-# Conditionally find the Fortran name-mangling scheme, find the
-# libraries required to link C and Fortran, find and test the Fortran
-# compiler, etc...
+# Fortran support is required if FCMIX is enabled OR if LAPACK
+# is enabled. In either case, we need a working F77 compiler in
+# order to determine the Fortran name-mangling scheme.
+#
+# If we do need Fortran support, we first find and test a F77
+# compiler, determine the mangling scheme, then we find the 
+# libraries required to link C and Fortran.
+#
+# Throughout this function we use the control variable F77_OK
+# which was initialized to "no".
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_F77_SUPPORT],
 [
 
-# Initialize control variables
-# possible values: "disabled", "needed", "user", "set" 
-FNAME_STATUS="disabled"
-BLLIBS_STATUS="disabled"
-F77_STATUS="disabled"
+F77_OK="yes"
 
-# Check if Blas/Lapack support will be enabled
-# --------------------------------------------
+# Look for a F77 compiler
+# If unsuccessful, disable all Fortran support
 
-BLAS_LAPACK_LIBS=""
+AC_PROG_F77(f77 g77)
 
-# If the user specifies the complete library linkage for Blas/Lapack,
-# enable Lapack support and disable any subsequent related checks.
+if test "X${F77}" = "X"; then
 
-AC_ARG_WITH(blas-lapack-libs,
-[AC_HELP_STRING([--with-blas-lapack-libs=ARG],[specify complete library linkages for Blas/Lapack support])],
-[
-BLAS_LAPACK_LIBS="${withval}"
-BLLIBS_STATUS="user"
-])
+  F77_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
 
-# Check if the user specifies Blas libraries
-# If BLLIB_STATUS="user", we already have BLAS_LAPACK_LIBS, so do nothing
-
-AC_ARG_WITH(blas,
-[AC_HELP_STRING([--with-blas=<lib>],[use Blas library <lib>])],
-[
-if test "X${BLLIBS_STATUS}" != "Xuser"; then
-  case $withval in
-    -* | */* | *.a | *.so | *.so.* | *.o) 
-        BLAS_LIBS="$withval" 
-        ;;
-    *) 
-        BLAS_LIBS="-l$withval" 
-        ;;
-  esac
-fi
-])
-
-# Check if the user specifies Lapack libraries
-# If BLLIB_STATUS="user", we already have BLAS_LAPACK_LIBS, so do nothing
-
-AC_ARG_WITH(lapack,
-[AC_HELP_STRING([--with-lapack=<lib>],[use Lapack library <lib>])],
-[
-if test "X${BLLIBS_STATUS}" != "Xuser"; then
-  case $withval in
-    -* | */* | *.a | *.so | *.so.* | *.o) 
-        LAPACK_LIBS="$withval" 
-        ;;
-    *) 
-        LAPACK_LIBS="-l$withval" 
-        ;;
-  esac
-fi
-])
-
-if test "X${BLLIBS_STATUS}" = "Xuser"; then
-  AC_MSG_CHECKING([for Blas/Lapack library linkage])
-  AC_MSG_RESULT([user provided: ${BLAS_LAPACK_LIBS}])
-fi
-
-echo ""
-
-# Decide on what is needed 
-# ------------------------
-
-if test "X${FCMIX_ENABLED}" = "Xyes"; then
-  FNAME_STATUS="needed"
-fi
-
-if test "X${LAPACK_ENABLED}" = "Xyes"; then
-  FNAME_STATUS="needed"
-  if test "X${BLLIBS_STATUS}" != "Xuser"; then
-    BLLIBS_STATUS="needed"
-    F77_STATUS="needed"
+  echo ""
+  echo "   Unable to find a working Fortran compiler"
+  echo ""
+  echo "   Try using F77 to explicitly specify a C compiler"
+  echo ""
+  if test "X${FCMIX_ENABLED}" = "Xyes"; then
+    echo "   Disabling compilation of Fortran-C interfaces..."
   fi
-fi
-
-if test "X${F77_EXAMPLES_ENABLED}" = "Xyes"; then
-  FNAME_STATUS="needed"
-  F77_STATUS="needed"
-fi
-
-# Check if user specifies the Fortran name-mangling scheme
-# If either the case or the number of underscores is specified, we consider
-# that we have the scheme (use a default value for what was not specified)
-# -------------------------------------------------------------------------
-
-F77_FUNC_CASE="lower"
-F77_FUNC_UNDERSCORES="one"
-TMP_FNAME_STATUS=""
-
-AC_ARG_WITH(f77underscore, 
-[AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
-[
-if test "X${FNAME_STATUS}" = "Xneeded"; then
-  if test "X${withval}" = "Xnone" || test "X${withval}" = "Xone" || test "X${withval}" = "Xtwo"; then
-    F77_FUNC_UNDERSCORES="${withval}"
-  else
-    AC_MSG_ERROR([invalid input for --with-f77underscore])
+  if test "X${LAPACK_ENABLED}" = "Xyes"; then
+    echo "   Disabling compilation of Blas/Lapack interfaces..."
   fi
-  TMP_FNAME_STATUS="user"
-fi
-])
+  echo ""
 
-AC_ARG_WITH(f77case, 
-[AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
-[
-if test "X${FNAME_STATUS}" = "Xneeded"; then
-  if test "X${withval}" = "Xupper" || test "X${withval}" = "Xlower"; then
-    F77_FUNC_CASE="${withval}"
-  else
-    AC_MSG_ERROR([invalid input for --with-f77case])
-  fi
-  TMP_FNAME_STATUS="user"
-fi
-])
+  FCMIX_ENABLED="no"
+  LAPACK_ENABLED="no"
+  F77_EXAMPLES_ENABLED="no"
 
-# If the Fortran name-mangling scheme has been set, issue a message.
-# If the Fortran name-mangling scheme is needed, request a Fortran compiler to determine it
-
-if test "X${TMP_FNAME_STATUS}" = "Xuser"; then
-  FNAME_STATUS="user"
-  AC_MSG_CHECKING([for Fortran name-mangling scheme])
-  AC_MSG_RESULT([user defined: ${F77_FUNC_CASE} case, ${F77_FUNC_UNDERSCORES} underscores])
 fi
 
-if test "X${FNAME_STATUS}" = "Xneeded"; then
-  F77_STATUS="needed" 
-fi
+# Check Fortran compiler
+# If unsuccessful, disable all Fortran support
 
-# If we need a Fortran compiler, try to set it now. 
-# -------------------------------------------------
+if test "X${F77_OK}" = "Xyes"; then
 
-if test "X${F77_STATUS}" = "Xneeded"; then
+  SUNDIALS_F77_CHECK
 
-  # Set F77
-  AC_PROG_F77(f77 g77)
-
-  if test "X${F77}" = "X"; then
-    # Cannot find F77: issue warning
-    SUNDIALS_WARN_FLAG="yes"
-    AC_MSG_WARN([cannot find a Fortran compiler])
-    echo ""
-    echo "   Unable to find a working Fortran compiler"
-    echo ""
-    echo "   Try using F77 to explicitly specify a C compiler"
-    echo ""
-    F77_OK="no"
-  else
-    # Have F77: check it and, if needed, also try to determine the 
-    # Fortran name-mangling scheme and/or the Lapack library linkage.
-    F77_OK="yes"
-    SUNDIALS_F77_CHECK
-    if test "X${F77_OK}" = "Xno"; then
-      SUNDIALS_WARN_FLAG="yes"
-      echo ""
-      echo "   Unable to compile test program using given Fortran compiler."
-      echo ""
-    fi
-  fi
-
-  # If we do not have a working F77 compiler issue warnings
   if test "X${F77_OK}" = "Xno"; then
 
-    # If we were counting on the Fortran compiler to determine
-    # the name-mangling scheme, disable all Fortran support
-    if test "X${FNAME_STATUS}" = "Xneeded"; then
-      echo "   Disabling all Fortran support..."
-      F77_EXAMPLES_ENABLED="no"
-      FCMIX_ENABLED="no"
-      LAPACK_ENABLED="no"
-      FNAME_STATUS="disabled"
-      BLLIBS_STATUS="disabled"
-    fi
-
-    # If we were counting on the Fortran compiler to determine
-    # the Blas/lapack linkage, disable Blas/Lapack support
-    if test "X${BLLIBS_STATUS}" = "Xneeded"; then
-      echo "   Disabling Blas/Lapack support..."
-      LAPACK_ENABLED="no"
-      BLLIBS_STATUS="disabled"
-    fi
-
-    # We will not be able to compile any Fortran examples
-    if test "X${F77_EXAMPLES_ENABLED}" = "Xyes"; then
-      echo "   Disabling compilation of Fortran support..."
-      F77_EXAMPLES_ENABLED="no"
-    fi
+    SUNDIALS_WARN_FLAG="yes"
 
     echo ""
+    echo "   Unable to compile test program using given Fortran compiler."
+    echo ""
+    if test "X${FCMIX_ENABLED}" = "Xyes"; then
+      echo "   Disabling compilation of Fortran-C interfaces..."
+    fi
+    if test "X${LAPACK_ENABLED}" = "Xyes"; then
+      echo "   Disabling compilation of Blas/Lapack interfaces..."
+    fi
+    echo ""
 
+    FCMIX_ENABLED="no"
+    LAPACK_ENABLED="no"
+    F77_EXAMPLES_ENABLED="no"
+    
   fi
 
 fi
 
-# If the Fortran name-mangling scheme is still needed, try to
-# determine it now (we do have a working F77 compiler)
-# -----------------------------------------------------------
 
-if test "X${FNAME_STATUS}" = "Xneeded"; then
+# Determine the Fortran name-mangling scheme
+# If successfull, provide variable description templates for config.hin 
+# and config.h files required by autoheader utility
+# Otherwise, disable all Fortran support.
+
+if test "X${F77_OK}" = "Xyes"; then
 
   SUNDIALS_F77_NAME_MANGLING
 
-  if test "X${FNAME_STATUS}" = "Xset"; then 
-    AC_MSG_CHECKING([for Fortran name-mangling scheme])
-    AC_MSG_RESULT([${F77_FUNC_CASE} case, ${F77_FUNC_UNDERSCORES} underscores])
-  else
+  AH_TEMPLATE([SUNDIALS_F77_FUNC], [FCMIX: Define name-mangling macro for C identifiers])
+  AH_TEMPLATE([SUNDIALS_F77_FUNC_], [FCMIX: Define name-mangling macro for C identifiers with underscores])
+
+  if test "X${F77_OK}" = "Xno"; then
+
     SUNDIALS_WARN_FLAG="yes"
-    AC_MSG_WARN([cannot determine Fortran name-mangling scheme])
+
     echo ""
     echo "   Unable to determine Fortran name-mangling scheme."
     echo ""
-    echo "   Try using --with-f77case and --with-f77underscore to explicitly"
-    echo "   specify the appropriate name-mangling scheme."
+    if test "X${FCMIX_ENABLED}" = "Xyes"; then
+      echo "   Disabling compilation of Fortran-C interfaces..."
+    fi
+    if test "X${LAPACK_ENABLED}" = "Xyes"; then
+      echo "   Disabling compilation of Blas/Lapack interfaces..."
+    fi
     echo ""
-    echo "   Disabling all Fortran support..."
-    echo ""
+
     F77_EXAMPLES_ENABLED="no"
     FCMIX_ENABLED="no"
     LAPACK_ENABLED="no"
-    FNAME_STATUS="disabled"
-    BLLIBS_STATUS="disabled"
+
   fi
 
 fi
 
-# If we have the Fortran name-mangling scheme, set the C preprocessor macro
-# F77_FUNC, using F77_FUNC_CASE and F77_FUNC_UNDERSCORES
-# In case they'll be needed later, also define dgemm and dgetrf (for Blas/Lapack tests)
 
-if test "X${FNAME_STATUS}" = "Xuser" || test "X${FNAME_STATUS}" = "Xset"; then 
+# If LAPACK is enabled, determine the proper library linkage
+# If successful, set the libaries
+# Otherwise, disable all Blas/Lapack support.
 
-  if test "X${F77_FUNC_CASE}" = "Xlower"; then
-    if test "X${F77_FUNC_UNDERSCORES}" = "Xnone"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[name],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name"
-      dgemm="dgemm"
-      dgetrf="dgetrf"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## _],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## _"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## _"
-      dgemm="dgemm_"
-      dgetrf="dgetrf_"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[name ## __],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## __"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## __"
-      dgemm="dgemm__"
-      dgetrf="dgetrf__"
-    fi
-  elif test "X${F77_FUNC_CASE}" = "Xupper"; then
-    if test "X${F77_FUNC_UNDERSCORES}" = "Xnone"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME"
-      dgemm="DGEMM"
-      dgetrf="DGETRF"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xone"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## _],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## _"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## _"
-      dgemm="DGEMM_"
-      dgetrf="DGETRF_"
-    elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo"; then
-      AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## __],[])
-      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## __"
-      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## __"
-      dgemm="DGEMM__"
-      dgetrf="DGETRF__"
-    fi
-  fi
+if test "X${LAPACK_ENABLED}" = "Xyes" && test "X${F77_OK}" = "Xyes"; then
 
-  # Provide variable description templates for config.hin and config.h files
-  # Required by autoheader utility
-  AH_TEMPLATE(F77[_FUNC], [FCMIX: Define name-mangling macro])
-
-fi
-
-# If the Blas/Lapack library linkage scheme is still needed,
-# try to determine it now (we do have a working F77 compiler)
-# -----------------------------------------------------------
-
-if test "X${BLLIBS_STATUS}" = "Xneeded"; then
 
   SUNDIALS_F77_LAPACK_SET
 
-  if test "X${BLLIBS_STATUS}" = "Xset"; then
-    AC_MSG_CHECKING([for Lapack library linkage])
+  if test "X${LAPACK_OK}" = "Xyes"; then
+
+    AC_MSG_CHECKING([for Blas/Lapack library linkage])
     BLAS_LAPACK_LIBS="${LAPACK_LIBS} ${BLAS_LIBS} ${LIBS} ${FLIBS}"
-    AC_MSG_RESULT([${BLAS_LAPACK_LIBS}])
-  elif test "X${BLLIBS_STATUS}" = "Xneeded"; then
+    AC_MSG_RESULT([${LAPACK_LIBS} ${BLAS_LIBS}])
+
+  else
+
     SUNDIALS_WARN_FLAG="yes"
-    AC_MSG_WARN([cannot determine Lapack library linkage])
+    AC_MSG_CHECKING([for Blas/Lapack library linkage])
+    AC_MSG_RESULT("no")
     echo ""
     echo "   Unable to determine Blas/Lapack library linkage."
     echo ""
-    echo "   Try using --with-lapack-libs to explicitly specify the"
-    echo "   required library linkage flags."
+    echo "   Try using --with-blas and --with-lapack."
     echo ""
-    echo "   Disabling Blas/Lapack support..."
-    echo ""
+    echo "   Disabling compilation of Blas/Lapack interfaces..."
+
     LAPACK_ENABLED="no"
-    BLLIBS_STATUS="disabled"
+
   fi
 
 fi
@@ -1113,11 +855,6 @@ AC_DEFUN([SUNDIALS_F77_CHECK],
 [
 
 AC_LANG_PUSH([Fortran 77])
-
-# If FFLAGS is not provided, set defaults
-if test "X${FFLAGS_PROVIDED}" = "Xno"; then
-  SUNDIALS_DEFAULT_FFLAGS
-fi        
 
 # Add any additional FFLAGS
 AC_MSG_CHECKING([for extra Fortran compiler flags])
@@ -1164,6 +901,7 @@ fi
 AC_LANG_POP([Fortran 77])
 
 ]) dnl END SUNDIALS_SET_F77
+
 
 #------------------------------------------------------------------
 # F77 LINKER CHECK
@@ -1217,48 +955,6 @@ fi
 
 ]) dnl SUNDIALS_F77_LNKR_CHECK
 
-#------------------------------------------------------------------
-# DEFAULT FFLAGS
-#
-# Set default FFLAGS (called only if FFLAGS is not provided)
-#------------------------------------------------------------------
-
-AC_DEFUN([SUNDIALS_DEFAULT_FFLAGS],
-[
-
-# Extract executable name of Fortran compiler, for optional use below
-F77_EXEC=`basename "${F77}"`
-
-case $host in
-
-  # IA-32 system running Linux
-  i*-pc-linux-*)
-    #if test "X${G77}" = "Xyes"; then
-    #  if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
-    #    FFLAGS="-ffloat-store"
-    #  fi
-    #fi
-    ;;
-
-  # SGI/IRIX
-  mips-sgi-irix*) 
-    FFLAGS="-64"
-    ;;
-
-  # Compaq/Tru64
-  *-dec-osf*)
-    if test "X${F77_EXEC}" = "Xf77"; then
-      FFLAGS="-O1"
-    fi
-    ;;
-
-  *)
-    FFLAGS=""
-    ;;
-
-esac
-
-]) dnl END SUNDIALS_DEFAULT_FFLAGS
 
 #------------------------------------------------------------------
 # DETERMINE FORTRAN NAME-MANGLING SCHEME
@@ -1267,65 +963,207 @@ esac
 # Interpret results to infer name-mangling scheme.
 #------------------------------------------------------------------
 
+
 AC_DEFUN([SUNDIALS_F77_NAME_MANGLING],
 [
 
 AC_LANG_PUSH([Fortran 77])
 
-# Compile a dummy Fortran subroutine
+# (1) Compile a dummy Fortran subroutine named SUNDIALS
+
+FNAME_STATUS="none"
+
 AC_COMPILE_IFELSE(
-[AC_LANG_SOURCE(
-[[
+  [AC_LANG_SOURCE(
+  [[
 	SUBROUTINE SUNDIALS()
 	RETURN
 	END
-]])],
-[
+  ]])],
+  [
 
-mv conftest.${ac_objext} f77_wrapper_check.${ac_objext}
+  mv conftest.${ac_objext} f77_wrapper_check.${ac_objext}
 
-# Temporarily reset LIBS environment variable to perform test
-SAVED_LIBS="${LIBS}"
-LIBS="f77_wrapper_check.${ac_objext} ${LIBS} ${FLIBS}"
+  # Temporarily reset LIBS environment variable to perform test
+  SAVED_LIBS="${LIBS}"
+  LIBS="f77_wrapper_check.${ac_objext} ${LIBS} ${FLIBS}"
 
-AC_LANG_PUSH([C])
+  AC_LANG_PUSH([C])
 
-for i in "sundials" "SUNDIALS"
-do
-  for j in "" "_" "__"
+  for i in "sundials" "SUNDIALS"
   do
-    F77_MANGLED_NAME="${i}${j}"
-    AC_LINK_IFELSE([AC_LANG_CALL([],[${F77_MANGLED_NAME}])],[FNAME_STATUS="set" ; break 2])
+    for j in "" "_" "__"
+    do
+      F77_MANGLED_NAME="${i}${j}"
+      AC_LINK_IFELSE([AC_LANG_CALL([],[${F77_MANGLED_NAME}])],[FNAME_STATUS="set" ; break 2])
+    done
   done
-done
 
-AC_LANG_POP([C])
+  AC_LANG_POP([C])
 
-# If test succeeded, then set F77_FUNC_CASE and F77_FUNC_UNDERSCORES variables
-if test "X${FNAME_STATUS}" = "Xset"; then
-  # Determine case (lower, upper)
-  if test "X${i}" = "Xsundials"; then
-    F77_FUNC_CASE="lower"
+  # If test succeeded, then set the F77_MANGLE_MACRO1 macro
+
+  if test "X${FNAME_STATUS}" = "Xset"; then
+
+    if test "X${i}" = "Xsundials"; then
+
+      FNAME_MSG="lower case "
+
+      if test "X${j}" = "X"; then
+        FNAME_MSG="${FNAME_MSG} + no underscore"
+        AC_DEFINE([SUNDIALS_F77_FUNC(name,NAME)],[name],[])
+        F77_MANGLE_MACRO1="#define SUNDIALS_F77_FUNC(name,NAME) name"
+        dgemm="dgemm"
+        dgetrf="dgetrf"
+      elif test "X${j}" = "X_"; then
+        FNAME_MSG="${FNAME_MSG} + one underscore"
+        AC_DEFINE([SUNDIALS_F77_FUNC(name,NAME)],[name ## _],[])
+        F77_MANGLE_MACRO1="#define SUNDIALS_F77_FUNC(name,NAME) name ## _"
+        dgemm="dgemm_"
+        dgetrf="dgetrf_"
+      else
+        FNAME_MSG="${FNAME_MSG} + two underscores"
+        AC_DEFINE([SUNDIALS_F77_FUNC(name,NAME)],[name ## __],[])
+        F77_MANGLE_MACRO1="#define SUNDIALS_F77_FUNC(name,NAME) name ## __"
+        dgemm="dgemm__"
+        dgetrf="dgetrf__"
+      fi
+
+    else
+
+      FNAME_MSG="upper case "
+
+      if test "X${j}" = "X"; then
+        FNAME_MSG="${FNAME_MSG} + no underscore"
+        AC_DEFINE([SUNDIALS_F77_FUNC(name,NAME)],[name],[])
+        F77_MANGLE_MACRO1="#define SUNDIALS_F77_FUNC(name,NAME) NAME"
+        dgemm="DGEMM"
+        dgetrf="DGETRF"
+      elif test "X${j}" = "X_"; then
+        FNAME_MSG="${FNAME_MSG} + one underscore"
+        AC_DEFINE([SUNDIALS_F77_FUNC(name,NAME)],[name ## _],[])
+        F77_MANGLE_MACRO1="#define SUNDIALS_F77_FUNC(name,NAME) NAME ## _"
+        dgemm="DGEMM_"
+        dgetrf="DGETRF_"
+      else
+        FNAME_MSG="${FNAME_MSG} + two underscores"
+        AC_DEFINE([SUNDIALS_F77_FUNC(name,NAME)],[name ## __],[])
+        F77_MANGLE_MACRO1="#define SUNDIALS_F77_FUNC(name,NAME) NAME ## __"
+        dgemm="DGEMM__"
+        dgetrf="DGETRF__"
+      fi
+
+    fi
+
+    AC_MSG_CHECKING([for Fortran name-mangling scheme of C identifiers])
+    AC_MSG_RESULT([${FNAME_MSG}])
+
   else
-    F77_FUNC_CASE="upper"
-  fi
-  # Determine number of underscores to append (none, one, two)
-  if test "X${j}" = "X"; then
-    F77_FUNC_UNDERSCORES="none"
-  elif test "X${j}" = "X_"; then
-    F77_FUNC_UNDERSCORES="one"
-  else
-    F77_FUNC_UNDERSCORES="two"
-  fi
-fi
 
-# Set LIBS environment variable back to original value
-LIBS="${SAVED_LIBS}"
+    F77_OK="no"
 
-])
+  fi
+
+  # Set LIBS environment variable back to original value
+  LIBS="${SAVED_LIBS}"
+
+  ])
 
 # Remove temporary file
 rm -f f77_wrapper_check.${ac_objext}
+
+
+# (2) Compile a dummy Fortran subroutine named SUN_DIALS
+
+FNAME_STATUS="none"
+
+AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE(
+  [[
+	SUBROUTINE SUN_DIALS()
+	RETURN
+	END
+  ]])],
+  [
+
+  mv conftest.${ac_objext} f77_wrapper_check.${ac_objext}
+
+  # Temporarily reset LIBS environment variable to perform test
+  SAVED_LIBS="${LIBS}"
+  LIBS="f77_wrapper_check.${ac_objext} ${LIBS} ${FLIBS}"
+
+  AC_LANG_PUSH([C])
+
+  for i in "sun_dials" "SUN_DIALS"
+  do
+    for j in "" "_" "__"
+    do
+      F77_MANGLED_NAME="${i}${j}"
+      AC_LINK_IFELSE([AC_LANG_CALL([],[${F77_MANGLED_NAME}])],[FNAME_STATUS="set" ; break 2])
+    done
+  done
+
+  AC_LANG_POP([C])
+
+  # If test succeeded, then set the F77_MANGLE_MACRO2 macro
+
+  if test "X${FNAME_STATUS}" = "Xset"; then
+
+    if test "X${i}" = "Xsun_dials"; then
+
+      FNAME_MSG="lower case "
+
+      if test "X${j}" = "X"; then
+        FNAME_MSG="${FNAME_MSG} + no underscore"
+        AC_DEFINE([SUNDIALS_F77_FUNC_(name,NAME)],[name],[])
+        F77_MANGLE_MACRO2="#define SUNDIALS_F77_FUNC_(name,NAME) name"
+      elif test "X${j}" = "X_"; then
+        FNAME_MSG="${FNAME_MSG} + one underscore"
+        AC_DEFINE([SUNDIALS_F77_FUNC_(name,NAME)],[name ## _],[])
+        F77_MANGLE_MACRO2="#define SUNDIALS_F77_FUNC_(name,NAME) name ## _"
+      else
+        FNAME_MSG="${FNAME_MSG} + two underscores"
+        AC_DEFINE([SUNDIALS_F77_FUNC_(name,NAME)],[name ## __],[])
+        F77_MANGLE_MACRO2="#define SUNDIALS_F77_FUNC_(name,NAME) name ## __"
+      fi
+
+    else
+
+      FNAME_MSG="upper case "
+
+      if test "X${j}" = "X"; then
+        FNAME_MSG="${FNAME_MSG} + no underscore"
+        AC_DEFINE([SUNDIALS_F77_FUNC_(name,NAME)],[name],[])
+        F77_MANGLE_MACRO2="#define SUNDIALS_F77_FUNC_(name,NAME) NAME"
+      elif test "X${j}" = "X_"; then
+        FNAME_MSG="${FNAME_MSG} + one underscore"
+        AC_DEFINE([SUNDIALS_F77_FUNC_(name,NAME)],[name ## _],[])
+        F77_MANGLE_MACRO2="#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## _"
+      else
+        FNAME_MSG="${FNAME_MSG} + two underscores"
+        AC_DEFINE([SUNDIALS_F77_FUNC_(name,NAME)],[name ## __],[])
+        F77_MANGLE_MACRO2="#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## __"
+      fi
+
+    fi
+
+    AC_MSG_CHECKING([for Fortran name-mangling scheme of C identifiers with underscores])
+    AC_MSG_RESULT([${FNAME_MSG}])
+
+  else
+
+    F77_OK="no"
+
+  fi
+
+  # Set LIBS environment variable back to original value
+  LIBS="${SAVED_LIBS}"
+
+  ])
+
+# Remove temporary file
+rm -f f77_wrapper_check.${ac_objext}
+
 
 AC_LANG_POP([Fortran 77])
 
@@ -1335,11 +1173,40 @@ AC_LANG_POP([Fortran 77])
 #------------------------------------------------------------------
 # DETERMINE BLAS/LAPACK LIBRARY LINKAGE SCHEME
 #
-# 
+# If successful, this function sets LAPACK_OK="yes".
+# Otherwise, it sets LAPACK_OK="no" 
 #------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_F77_LAPACK_SET],
 [
+
+# Check if the user specifies Blas libraries
+AC_ARG_WITH(blas,
+[AC_HELP_STRING([--with-blas=ARG],[specify Blas library])],
+[
+  case $withval in
+    -* | */* | *.a | *.so | *.so.* | *.o) 
+        BLAS_LIBS="$withval" 
+        ;;
+    *) 
+        BLAS_LIBS="-l$withval" 
+        ;;
+  esac
+])
+
+# Check if the user specifies Lapack libraries
+AC_ARG_WITH(lapack,
+[AC_HELP_STRING([--with-lapack=ARG],[specify Lapack library])],
+[
+  case $withval in
+    -* | */* | *.a | *.so | *.so.* | *.o) 
+        LAPACK_LIBS="$withval" 
+        ;;
+    *) 
+        LAPACK_LIBS="-l$withval" 
+        ;;
+  esac
+])
 
 acx_blas_ok=no
 acx_lapack_ok=no
@@ -1455,14 +1322,28 @@ for lapack in lapack lapack_rs6k; do
   fi
 done
 
-# If we have both libraries, set BLLIBS_STATUS to "set"
+# If we have both libraries, set LAPACK_OK to yes
 # -----------------------------------------------------
 
 if test $acx_blas_ok = yes && test $acx_lapack_ok = yes; then
-  BLLIBS_STATUS="set"
+  LAPACK_OK="yes"
+else
+  LAPACK_OK="no"
 fi
 
 ]) dnl SUNDIALS_F77_LAPACK_SET
+
+
+
+
+
+#=================================================================#
+#                                                                 #
+#                                                                 #
+#           P A R A L L E L     S U P P O R T                     #
+#                                                                 #
+#                                                                 #
+#==================================================================
 
 
 #------------------------------------------------------------------
@@ -1560,7 +1441,7 @@ if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
 else
   MPICC_COMP="${CC}"
   MPICC="${CC}"
-  SUNDIALS_CHECK_CC_WITH_MPI
+  SUNDIALS_CC_WITH_MPI_CHECK
 fi
 
 ]) dnl END SUNDIALS_SET_MPICC
@@ -1678,7 +1559,7 @@ fi
 # TEST C COMPILER WITH MPI
 #------------------------------------------------------------------
 
-AC_DEFUN([SUNDIALS_CHECK_CC_WITH_MPI],
+AC_DEFUN([SUNDIALS_CC_WITH_MPI_CHECK],
 [
 
 # Test if we can compile MPI programs using the CC compiler
@@ -1837,7 +1718,7 @@ CPPFLAGS="${SAVED_CPPFLAGS}"
 LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
 
-]) dnl END SUNDIALS_CHECK_CC_WITH_MPI
+]) dnl END SUNDIALS_CC_WITH_MPI_CHECK
 
 #------------------------------------------------------------------
 # SET MPI-F77 COMPILER
@@ -1874,7 +1755,7 @@ if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
 else
   MPIF77_COMP="${F77}"
   MPIF77="${F77}"
-  SUNDIALS_CHECK_F77_WITH_MPI
+  SUNDIALS_F77_WITH_MPI_CHECK
 fi
 
 ]) dnl END SUNDIALS_SET_MPIF77
@@ -2102,7 +1983,7 @@ AC_MSG_RESULT([${MPIF77_LNKR}])
 # TEST FORTRAN COMPILER WITH MPI
 #------------------------------------------------------------------
 
-AC_DEFUN([SUNDIALS_CHECK_F77_WITH_MPI],
+AC_DEFUN([SUNDIALS_F77_WITH_MPI_CHECK],
 [
 
 # Test if we can compile MPI programs using the F77 compiler
@@ -2119,7 +2000,7 @@ SAVED_LDFLAGS="${LDFLAGS}"
 SAVED_LIBS="${LIBS}"
 
 # This may seem redundant, but we are not guaranteed that
-# SUNDIALS_CHECK_CC_WITH_MPI has been executed
+# SUNDIALS_CC_WITH_MPI_CHECK has been executed
 # Determine location of MPI header files (find MPI include directory)
 MPI_EXISTS="yes"
 
@@ -2270,7 +2151,7 @@ LIBS="${SAVED_LIBS}"
 
 AC_LANG_POP([Fortran 77])
 
-]) dnl END SUNDIALS_CHECK_F77_WITH_MPI
+]) dnl END SUNDIALS_F77_WITH_MPI_CHECK
 
 #------------------------------------------------------------------
 # TEST MPI-2 FUNCTIONALITY
@@ -2288,9 +2169,6 @@ AC_DEFUN([SUNDIALS_CHECK_MPI2],
 #   (2) YES : FNVECTOR_PARALLEL module will allow user to specify
 #             an MPI communicator
 #
-# Test for MPI_Comm_spawn() funciton:
-#   (1) NO  : sundialsTB will NOT provide parallel support
-#   (2) YES : sundialsTB will be confoigured with parallel support
  
 # Provide variable description templates for config.hin and config.h files
 # Required by autoheader utility
@@ -2438,6 +2316,17 @@ LIBS="${SAVED_LIBS}"
 ]) dnl END SUNDIALS_CHECK_MPI2
 
 
+
+
+#=================================================================#
+#                                                                 #
+#                                                                 #
+#                   F I N A L I Z A T I O N S                     #
+#                                                                 #
+#                                                                 #
+#==================================================================
+
+
 #------------------------------------------------------------------
 # ADD SOME MORE STUFF TO configure --help
 #------------------------------------------------------------------
@@ -2447,10 +2336,10 @@ AC_DEFUN([SUNDIALS_MORE_HELP],
 
 AC_ARG_WITH([],[          ],[])
 AC_ARG_WITH([],[NOTES],[])
-AC_ARG_WITH([],[  Both --with-examples-instdir and --with-sundialsTB-instdir can be set to "no",],[])
-AC_ARG_WITH([],[  in which case the examples and sundialsTB, respectively, are built but not installed.],[])
+AC_ARG_WITH([],[  It is legal to set --with-exinstdir to "no", in which case the examples],[])
+AC_ARG_WITH([],[  are built but not installed.],[])
 AC_ARG_WITH([],[  Enabling the compilation of the examples (--enable-examples) but disabling their],[])
-AC_ARG_WITH([],[  installation (--with-examples-instdir=no) can be used to test the SUNDIALS libraries.],[])
+AC_ARG_WITH([],[  installation (--with-exinstdir=no) can be used to test the SUNDIALS libraries.],[])
 
 ]) dnl END SUNDIALS_MORE_HELP
 
@@ -2525,8 +2414,8 @@ fi
 # Note: setting this to "no" will disable example installation!
 AC_MSG_CHECKING([where to install the SUNDIALS examples])
 AC_ARG_WITH([],[   ],[])
-AC_ARG_WITH([examples-instdir],
-[AC_HELP_STRING([--with-examples-instdir=EXINSTDIR], [install SUNDIALS examples in EXINSTDIR @<:@EPREFIX/examples@:>@])],
+AC_ARG_WITH([exinstdir],
+[AC_HELP_STRING([--with-exinstdir=DIR], [install SUNDIALS examples in DIR @<:@EPREFIX/examples@:>@])],
 [
   EXS_INSTDIR="${withval}"
 ],
@@ -2589,7 +2478,7 @@ SUNDIALS_MAKEFILES="Makefile"
 SUNDIALS_CONFIGFILES="include/sundials/sundials_config.h:include/sundials/sundials_config.in"
 SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} bin/sundials-config:bin/sundials-config.in"
 
-# Initialize lists of solver modules, example modules, and sundialsTB modules
+# Initialize lists of solver modules and example modules
 SLV_MODULES="src/sundials"
 if test "X${SUNDIALS_DEV}" = "Xyes" && test -f ${srcdir}/src/sundials/Makefile.dev.in ; then
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/sundials/Makefile:src/sundials/Makefile.dev.in"
@@ -3250,11 +3139,6 @@ Configuration
   C Linker:                  ${CC}
   Linker Flags:              ${LDFLAGS}
   Libraries:                 ${LIBS}"
-
-if test "X${FCMIX_ENABLED}" = "Xyes"; then
-echo "
-  F77 name-mangling scheme:  ${F77_FUNC_CASE} case, ${F77_FUNC_UNDERSCORES} underscores"
-fi
 
 if test "X${F77_OK}" = "Xyes"; then
 echo "
