@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-10-25 20:03:42 $
+# $Revision: 1.2 $
+# $Date: 2007-12-19 20:34:00 $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -20,8 +20,6 @@
 #    includedir     path to SUNDIALS header files
 #    libdir         path to SUNDIALS libraries
 #    SOLVER_LIB     name of the SUNDIALS solver's library
-#    SOLVER_BL_LIB  name of the SUNDIALS solver's Blas/Lapack 
-#                   interface library (possibly empty)
 #    BLAS_LAPACK_LIBS list of libraries for Blas and Lapack
 #                   (possibly empty)
 #    LIBS           additional libraries
@@ -59,11 +57,6 @@ FIND_LIBRARY(SUNDIALS_NVEC_LIB
   sundials_nvecserial ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR library")
 
-# Find the SUNDIALS solver's Blas/Lapack interface library
-FIND_LIBRARY(SUNDIALS_SOLVER_BL_LIB
-  @SOLVER_BL_LIB@ ${SUNDIALS_LIB_DIR}
-  DOC "@SOLVER@ Blas/Lapack interface library")
-
 # Set additional libraries
 SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
@@ -79,6 +72,6 @@ ENDFOREACH(example ${examples})
 # Build each Blas/Lapack example one by one
 FOREACH(example ${examples_BL})
   ADD_EXECUTABLE(${example} ${example}.c)
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_SOLVER_BL_LIB} ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_EXTRA_LIB})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_EXTRA_LIB})
   TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
 ENDFOREACH(example ${examples_BL})

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2007-01-29 17:36:28 $
+# $Revision: 1.10 $
+# $Date: 2007-12-19 20:34:01 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,8 +49,7 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 
 LIB_REVISION = 1:0:0
 
-KINSOL_LIB    = libsundials_kinsol.la
-KINSOL_BL_LIB = libsundials_kinsol_bl.la
+KINSOL_LIB = libsundials_kinsol.la
 
 KINSOL_SRC_FILES = kinsol.c kinsol_io.c kinsol_direct.c kinsol_dense.c kinsol_band.c kinsol_spils.c kinsol_spgmr.c kinsol_spbcgs.c kinsol_sptfqmr.c kinsol_bbdpre.c
 KINSOL_BL_SRC_FILES = kinsol_lapack.c
@@ -63,7 +62,6 @@ KINSOL_BL_LIB_FILES = $(KINSOL_BL_SRC_FILES:.c=.lo)
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
-                   $(top_builddir)/src/sundials/sundials_lapack.lo \
                    $(top_builddir)/src/sundials/sundials_direct.lo \
                    $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_spgmr.lo \
@@ -71,6 +69,7 @@ SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_sptfqmr.lo \
                    $(top_builddir)/src/sundials/sundials_math.lo \
                    $(top_builddir)/src/sundials/sundials_nvector.lo
+SHARED_BL_LIB_FILES = $(top_builddir)/src/sundials/sundials_lapack.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
@@ -78,17 +77,19 @@ rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 # ----------------------------------------------------------------------------------------------------------------------
 
 all: $(KINSOL_LIB)
+
+$(KINSOL_LIB):
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make all_bl;                               \
+	  make lib_with_bl;                          \
+	else                                         \
+	  make lib_without_bl;                       \
 	fi
 
-all_bl: $(KINSOL_BL_LIB)
-
-$(KINSOL_LIB): shared $(KINSOL_LIB_FILES)
+lib_without_bl: shared $(KINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
-$(KINSOL_BL_LIB): shared $(KINSOL_BL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_BL_LIB) $(KINSOL_BL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+lib_with_bl: shared $(KINSOL_LIB_FILES) $(KINSOL_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) $(KINSOL_BL_LIB_FILES) $(SHARED_LIB_FILES) $(SHARED_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 install: $(KINSOL_LIB)
 	$(mkinstalldirs) $(includedir)/kinsol
@@ -105,16 +106,11 @@ install: $(KINSOL_LIB)
 	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_spils.h   $(includedir)/kinsol/
 	$(INSTALL_HEADER) $(top_srcdir)/src/kinsol/kinsol_impl.h        $(includedir)/kinsol/
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make install_bl;                           \
+	  $(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_lapack.h  $(includedir)/kinsol/ ; \
 	fi
-
-install_bl: $(KINSOL_BL_LIB)
-	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(KINSOL_BL_LIB) $(libdir)
-	$(INSTALL_HEADER) $(top_srcdir)/include/kinsol/kinsol_lapack.h  $(includedir)/kinsol/
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(KINSOL_LIB)
-	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(KINSOL_BL_LIB)
 	rm -f $(includedir)/kinsol/kinsol.h
 	rm -f $(includedir)/kinsol/kinsol_direct.h
 	rm -f $(includedir)/kinsol/kinsol_dense.h
@@ -135,7 +131,6 @@ shared:
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(KINSOL_LIB)
-	$(LIBTOOL) --mode=clean rm -f $(KINSOL_BL_LIB)
 	rm -f $(KINSOL_LIB_FILES)
 	rm -f $(KINSOL_BL_LIB_FILES)
 	rm -f $(KINSOL_OBJ_FILES)

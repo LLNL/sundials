@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2007-10-25 20:03:41 $
+# $Revision: 1.4 $
+# $Date: 2007-12-19 20:34:00 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -33,11 +33,9 @@ SET(KINSOL_examples_BL
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(KINSOL_LIB sundials_kinsol_static)
-  SET(KINSOL_BL_LIB sundials_kinsol_bl_static)
   SET(NVECS_LIB sundials_nvecserial_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
   SET(KINSOL_LIB sundials_kinsol_shared)
-  SET(KINSOL_BL_LIB sundials_kinsol_bl_shared)
   SET(NVECS_LIB sundials_nvecserial_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
@@ -61,7 +59,7 @@ IF(LAPACK_OK)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
   FOREACH(example ${KINSOL_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.c)    
-    TARGET_LINK_LIBRARIES(${example} ${KINSOL_BL_LIB} ${KINSOL_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+    TARGET_LINK_LIBRARIES(${example} ${KINSOL_LIB} ${KINSOL_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
     TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
@@ -79,11 +77,9 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_LIB "sundials_kinsol")
   LIST2STRING(KINSOL_examples EXAMPLES)
   IF(LAPACK_OK)
-    SET(SOLVER_BL_LIB "sundials_kinsol_bl")
     LIST2STRING(KINSOL_examples_BL EXAMPLES_BL)
   ELSE(LAPACK_OK)
     SET(EXAMPLES_BL "")
-    SET(SOLVER_BL_LIB "")
   ENDIF(LAPACK_OK)
 
   # Regardless of the platform we're on, we will generate and install 

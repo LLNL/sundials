@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2007-10-25 20:03:27 $
+# $Revision: 1.10 $
+# $Date: 2007-12-19 20:33:59 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -53,9 +53,6 @@ SUNDIALS_LIBS = $(top_builddir)/src/cvode/fcmix/libsundials_fcvode.la       \
                 $(top_builddir)/src/nvec_ser/libsundials_fnvecserial.la     \
                 $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
 
-SUNDIALS_BL_LIBS = $(top_builddir)/src/cvode/fcmix/libsundials_fcvode_bl.la \
-                   $(top_builddir)/src/cvode/libsundials_cvode_bl.la
-
 fortran-update = ${SHELL} ${top_builddir}/bin/fortran-update.sh
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
@@ -85,7 +82,7 @@ all:
 	for i in ${EXAMPLES_BL} ; do \
 	  ${fortran-update} ${srcdir} $${i}.f ; \
 	  ${LIBTOOL} --mode=compile ${F77} ${FFLAGS} -c ${builddir}/$${i}-updated.f ; \
-	  ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_BL_LIBS} ${SUNDIALS_LIBS} ${F77_LIBS} ${BLAS_LAPACK_LIBS} ; \
+	  ${LIBTOOL} --mode=link ${F77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${F77_LDFLAGS} ${SUNDIALS_LIBS} ${F77_LIBS} ${BLAS_LAPACK_LIBS} ; \
 	done ; \
 	fi
 

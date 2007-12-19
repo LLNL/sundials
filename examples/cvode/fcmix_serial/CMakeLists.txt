@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2007-10-25 20:03:27 $
+# $Revision: 1.4 $
+# $Date: 2007-12-19 20:33:59 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -33,12 +33,10 @@ SET(FCVODE_examples_BL
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_static)
-  SET(CVODE_BL_LIB sundials_cvode_bl_static)
   SET(NVECS_LIB sundials_nvecserial_static)
   SET(FNVECS_LIB sundials_fnvecserial_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_shared)
-  SET(CVODE_BL_LIB sundials_cvode_bl_shared)
   SET(NVECS_LIB sundials_nvecserial_shared)
   SET(FNVECS_LIB sundials_fnvecserial_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
@@ -46,7 +44,6 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 # Only static FCMIX libraries are available
 
 SET(FCVODE_LIB sundials_fcvode_static)
-SET(FCVODE_BL_LIB sundials_fcvode_bl_static)
 
 # Add the build and install targets for each FCVODE example
 
@@ -72,7 +69,6 @@ IF(LAPACK_OK)
   FOREACH(example ${FCVODE_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.f)
     TARGET_LINK_LIBRARIES(${example} 
-      ${FCVODE_BL_LIB} ${CVODE_BL_LIB}
       ${FCVODE_LIB} ${CVODE_LIB}
       ${FNVECS_LIB} ${NVECS_LIB}
       ${EXTRA_LINK_LIBS})
@@ -94,13 +90,9 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_FLIB "sundials_fcvode")
   LIST2STRING(FCVODE_examples EXAMPLES)
   IF(LAPACK_OK)
-    SET(SOLVER_BL_LIB "sundials_cvode_bl")
-    SET(SOLVER_BL_FLIB "sundials_fcvode_bl")
     LIST2STRING(FCVODE_examples_BL EXAMPLES_BL)
   ELSE(LAPACK_OK)
     SET(EXAMPLES_BL "")
-    SET(SOLVER_BL_LIB "")
-    SET(SOLVER_BL_FLIB "")
   ENDIF(LAPACK_OK)
 
   # Regardless of the platform we're on, we will generate and install 

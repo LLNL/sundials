@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-07-05 19:10:36 $
+# $Revision: 1.3 $
+# $Date: 2007-12-19 20:34:01 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -63,6 +63,19 @@ SET(idas_HEADERS
 # Add prefix with complete path to the IDAS header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/idas/ idas_HEADERS)
 
+# If Blas/Lapack support was enabled, set-up additional file lists
+IF(LAPACK_OK)
+  SET(idas_BL_SOURCES idas_lapack.c)
+  SET(shared_BL_SOURCES sundials_lapack.c)
+  ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_BL_SOURCES)
+  SET(idas_BL_HEADERS idas_lapack.h)
+  ADD_PREFIX(${sundials_SOURCE_DIR}/include/idas/ idas_BL_HEADERS)
+ELSE(LAPACK_OK)
+  SET(idas_BL_SOURCES "")
+  SET(shared_BL_SOURCES "")
+  SET(idas_BL_HEADERS "")
+ENDIF(LAPACK_OK)
+
 # Add source directories to include directories for access to
 # implementation only header files.
 INCLUDE_DIRECTORIES(.)
@@ -75,7 +88,9 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static IDAS library
-  ADD_LIBRARY(sundials_idas_static STATIC ${idas_SOURCES} ${shared_SOURCES})
+  ADD_LIBRARY(sundials_idas_static STATIC 
+    ${idas_SOURCES}   ${idas_BL_SOURCES} 
+    ${shared_SOURCES} ${shared_BL_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_idas_static
@@ -90,7 +105,9 @@ ENDIF(BUILD_STATIC_LIBS)
 IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the IDAS library
-  ADD_LIBRARY(sundials_idas_shared SHARED ${idas_SOURCES} ${shared_SOURCES})
+  ADD_LIBRARY(sundials_idas_shared SHARED 
+    ${idas_SOURCES}   ${idas_BL_SOURCES} 
+    ${shared_SOURCES} ${shared_BL_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_idas_shared
@@ -106,32 +123,7 @@ IF(BUILD_SHARED_LIBS)
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the IDAS header files
-INSTALL(FILES ${idas_HEADERS} DESTINATION include/idas)
+INSTALL(FILES ${idas_HEADERS} ${idas_BL_HEADERS} DESTINATION include/idas)
 
 # Install the IDAS implementation header file
 INSTALL(FILES idas_impl.h DESTINATION include/idas)
-
-# If Blas/Lapack support was enabled, create and install the wrapper library
-# and install the interface headers
-IF(LAPACK_OK)
-  SET(idas_BL_SOURCES idas_lapack.c)
-  SET(shared_BL_SOURCES sundials_lapack.c)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_BL_SOURCES)
-  SET(idas_BL_HEADERS idas_lapack.h)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/include/idas/ idas_BL_HEADERS)
-  IF(BUILD_STATIC_LIBS)
-    ADD_LIBRARY(sundials_idas_bl_static STATIC ${idas_BL_SOURCES} ${shared_BL_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_idas_bl_static
-      PROPERTIES OUTPUT_NAME sundials_idas_bl CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_idas_bl_static DESTINATION lib)
-  ENDIF(BUILD_STATIC_LIBS)
-  IF(BUILD_SHARED_LIBS)
-    ADD_LIBRARY(sundials_idas_bl_shared SHARED ${idas_BL_SOURCES} ${shared_BL_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_idas_bl_shared
-      PROPERTIES OUTPUT_NAME sundials_idas_bl CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_idas_bl_shared
-      PROPERTIES VERSION ${idaslib_VERSION} SOVERSION ${idaslib_SOVERSION})
-    INSTALL(TARGETS sundials_idas_bl_shared DESTINATION lib)
-  ENDIF(BUILD_SHARED_LIBS)
-  INSTALL(FILES ${idas_BL_HEADERS} DESTINATION include/idas)
-ENDIF(LAPACK_OK)

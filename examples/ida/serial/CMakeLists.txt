@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2007-10-25 20:03:36 $
+# $Revision: 1.5 $
+# $Date: 2007-12-19 20:33:59 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -34,11 +34,9 @@ SET(IDA_examples_BL
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
-  SET(IDA_BL_LIB sundials_ida_bl_static)
   SET(NVECS_LIB sundials_nvecserial_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_shared)
-  SET(IDA_BL_LIB sundials_ida_bl_shared)
   SET(NVECS_LIB sundials_nvecserial_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
@@ -62,7 +60,7 @@ IF(LAPACK_OK)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
   FOREACH(example ${IDA_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.c)
-    TARGET_LINK_LIBRARIES(${example} ${IDA_BL_LIB} ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+    TARGET_LINK_LIBRARIES(${example} ${IDA_LIB} ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
     TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
@@ -80,11 +78,9 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_LIB "sundials_ida")
   LIST2STRING(IDA_examples EXAMPLES)
   IF(LAPACK_OK)
-    SET(SOLVER_BL_LIB "sundials_ida_bl")
     LIST2STRING(IDA_examples_BL EXAMPLES_BL)
   ELSE(LAPACK_OK)
     SET(EXAMPLES_BL "")
-    SET(SOLVER_BL_LIB "")
   ENDIF(LAPACK_OK)
 
   # Regardless of the platform we're on, we will generate and install 

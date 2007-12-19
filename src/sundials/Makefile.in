@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.10 $
-# $Date: 2007-12-12 18:13:22 $
+# $Revision: 1.11 $
+# $Date: 2007-12-19 20:34:01 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -40,24 +40,43 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LAPACK_ENABLED = @LAPACK_ENABLED@
+
 top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 
-SHARED_LIB_FILES = sundials_direct.lo sundials_band.lo sundials_dense.lo sundials_lapack.lo sundials_iterative.lo sundials_math.lo sundials_nvector.lo sundials_spgmr.lo sundials_spbcgs.lo sundials_sptfqmr.lo
-SHARED_OBJ_FILES = sundials_direct.o sundials_band.o sundials_dense.o sundials_lapack.o sundials_iterative.o sundials_math.o sundials_nvector.o sundials_spgmr.o sundials_spbcgs.o sundials_sptfqmr.o
+SHARED_SRC_FILES = sundials_direct.c sundials_band.c sundials_dense.c sundials_iterative.c sundials_math.c sundials_nvector.c sundials_spgmr.c sundials_spbcgs.c sundials_sptfqmr.c
+SHARED_BL_SRC_FILES = sundials_lapack.c
+
+SHARED_OBJ_FILES = $(SHARED_SRC_FILES:.c=.o)
+SHARED_BL_OBJ_FILES = $(SHARED_BL_SRC_FILES:.c=.o)
+
+SHARED_LIB_FILES = $(SHARED_SRC_FILES:.c=.lo)
+SHARED_BL_LIB_FILES = $(SHARED_BL_SRC_FILES:.c=.lo)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
-all: $(SHARED_LIB_FILES)
+# ----------------------------------------------------------------------------------------------------------------------
 
-install: $(SHARED_LIB_FILES)
+
+all:
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make lib_with_bl;                          \
+	else                                         \
+	  make lib_without_bl;                       \
+	fi
+
+lib_without_bl: $(SHARED_LIB_FILES)
+
+lib_with_bl: $(SHARED_LIB_FILES) $(SHARED_BL_LIB_FILES)
+
+install:
 	$(mkinstalldirs)  $(includedir)/sundials
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_direct.h     $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_band.h       $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_dense.h      $(includedir)/sundials/
-	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_lapack.h     $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_iterative.h  $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spgmr.h      $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spbcgs.h     $(includedir)/sundials/
@@ -67,6 +86,9 @@ install: $(SHARED_LIB_FILES)
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_nvector.h    $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_fnvector.h   $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_builddir)/include/sundials/sundials_config.h   $(includedir)/sundials/
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  $(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_lapack.h     $(includedir)/sundials/ ; \
+	fi
 
 uninstall:
 	rm -f $(includedir)/sundials/sundials_direct.h
@@ -86,7 +108,9 @@ uninstall:
 
 clean:
 	rm -f $(SHARED_LIB_FILES)
+	rm -f $(SHARED_BL_LIB_FILES)
 	rm -f $(SHARED_OBJ_FILES)
+	rm -f $(SHARED_BL_OBJ_FILES)
 	rm -rf .libs
 
 distclean: clean

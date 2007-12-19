@@ -13,6 +13,12 @@ SET(fcvode_SOURCES
   fcvroot.c
   )
 
+IF(LAPACK_OK)
+  SET(fcvode_BL_SOURCES fcvlapack.c fcvlapband.c fcvlapdense.c)
+ELSE(LAPACK_OK)
+  SET(fcvode_BL_SOURCES "")
+ENDIF(LAPACK_OK)
+
 # Add source directories to include directories for access to
 # implementation only header files (both for fcvode and cvode)
 INCLUDE_DIRECTORIES(.)
@@ -26,7 +32,7 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 # coming from inexistent user-provided functions)
 
 # Add the build target for the FCVODE library
-ADD_LIBRARY(sundials_fcvode_static STATIC ${fcvode_SOURCES})
+ADD_LIBRARY(sundials_fcvode_static STATIC ${fcvode_SOURCES} ${fcvode_BL_SOURCES})
 
 # Set the library name and make sure it is not deleted
 SET_TARGET_PROPERTIES(sundials_fcvode_static
@@ -35,12 +41,3 @@ SET_TARGET_PROPERTIES(sundials_fcvode_static
 # Install the FCVODE library
 INSTALL(TARGETS sundials_fcvode_static DESTINATION lib)
 
-# If Blas/Lapack support was enabled, create and install the wrapper library
-# and install the interface headers
-IF(LAPACK_OK)
-  SET(fcvode_BL_SOURCES fcvlapack.c fcvlapband.c fcvlapdense.c)
-  ADD_LIBRARY(sundials_fcvode_bl_static STATIC ${fcvode_BL_SOURCES})
-  SET_TARGET_PROPERTIES(sundials_fcvode_bl_static
-    PROPERTIES OUTPUT_NAME sundials_fcvode_bl CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_fcvode_bl_static DESTINATION lib)
-ENDIF(LAPACK_OK)

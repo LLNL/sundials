@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-02-01 16:42:07 $
+# $Revision: 1.3 $
+# $Date: 2007-12-19 20:34:01 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -60,6 +60,19 @@ SET(kinsol_HEADERS
 # Add prefix with complete path to the KINSOL header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_HEADERS)
 
+# If Blas/Lapack support was enabled, set-up additional file lists
+IF(LAPACK_OK)
+  SET(kinsol_BL_SOURCES kinsol_lapack.c)
+  SET(shared_BL_SOURCES sundials_lapack.c)
+  ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_BL_SOURCES)
+  SET(kinsol_BL_HEADERS kinsol_lapack.h)
+  ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_BL_HEADERS)
+ELSE(LAPACK_OK)
+  SET(kinsol_BL_SOURCES "")
+  SET(shared_BL_SOURCES "")
+  SET(kinsol_BL_HEADERS "")
+ENDIF(LAPACK_OK)
+
 # Add source directories to include directories for access to
 # implementation only header files.
 INCLUDE_DIRECTORIES(.)
@@ -72,7 +85,9 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static KINSOL library
-  ADD_LIBRARY(sundials_kinsol_static STATIC ${kinsol_SOURCES} ${shared_SOURCES})
+  ADD_LIBRARY(sundials_kinsol_static STATIC
+    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} 
+    ${shared_SOURCES} ${shared_BL_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_kinsol_static
@@ -87,7 +102,9 @@ ENDIF(BUILD_STATIC_LIBS)
 IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the KINSOL library
-  ADD_LIBRARY(sundials_kinsol_shared SHARED ${kinsol_SOURCES} ${shared_SOURCES})
+  ADD_LIBRARY(sundials_kinsol_shared SHARED
+    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} 
+    ${shared_SOURCES} ${shared_BL_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_kinsol_shared
@@ -103,32 +120,7 @@ IF(BUILD_SHARED_LIBS)
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the KINSOL header files
-INSTALL(FILES ${kinsol_HEADERS} DESTINATION include/kinsol)
+INSTALL(FILES ${kinsol_HEADERS} ${kinsol_BL_HEADERS} DESTINATION include/kinsol)
 
 # Install the KINSOL implementation header file
 INSTALL(FILES kinsol_impl.h DESTINATION include/kinsol)
-
-# If Blas/Lapack support was enabled, create and install the wrapper library
-# and install the interface headers
-IF(LAPACK_OK)
-  SET(kinsol_BL_SOURCES kinsol_lapack.c)
-  SET(shared_BL_SOURCES sundials_lapack.c)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_BL_SOURCES)
-  SET(kinsol_BL_HEADERS kinsol_lapack.h)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_BL_HEADERS)
-  IF(BUILD_STATIC_LIBS)
-    ADD_LIBRARY(sundials_kinsol_bl_static STATIC ${kinsol_BL_SOURCES} ${shared_BL_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_kinsol_bl_static
-      PROPERTIES OUTPUT_NAME sundials_kinsol_bl CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_kinsol_bl_static DESTINATION lib)
-  ENDIF(BUILD_STATIC_LIBS)
-  IF(BUILD_SHARED_LIBS)
-    ADD_LIBRARY(sundials_kinsol_bl_shared SHARED ${kinsol_BL_SOURCES} ${shared_BL_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_kinsol_bl_shared
-      PROPERTIES OUTPUT_NAME sundials_kinsol_bl CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_kinsol_bl_shared
-      PROPERTIES VERSION ${kinsollib_VERSION} SOVERSION ${kinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_kinsol_bl_shared DESTINATION lib)
-  ENDIF(BUILD_SHARED_LIBS)
-  INSTALL(FILES ${kinsol_BL_HEADERS} DESTINATION include/kinsol)
-ENDIF(LAPACK_OK)

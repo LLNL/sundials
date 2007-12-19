@@ -12,6 +12,12 @@ SET(fida_SOURCES
   fidaroot.c
   )
 
+IF(LAPACK_OK)
+  SET(fida_BL_SOURCES fidalapack.c fidalapdense.c fidalapband.c)
+ELSE(LAPACK_OK)
+  SET(fida_BL_SOURCES "")
+ENDIF(LAPACK_OK)
+
 # Add source directories to include directories for access to
 # implementation only header files (both for fida and ida)
 INCLUDE_DIRECTORIES(.)
@@ -25,7 +31,7 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 # coming from inexistent user-provided functions)
 
 # Add the build target for the FIDA library
-ADD_LIBRARY(sundials_fida_static STATIC ${fida_SOURCES})
+ADD_LIBRARY(sundials_fida_static STATIC ${fida_SOURCES} ${fida_BL_SOURCES})
 
 # Set the library name and make sure it is not deleted
 SET_TARGET_PROPERTIES(sundials_fida_static
@@ -33,13 +39,3 @@ SET_TARGET_PROPERTIES(sundials_fida_static
 
 # Install the FIDA library
 INSTALL(TARGETS sundials_fida_static DESTINATION lib)
-
-# If Blas/Lapack support was enabled, create and install the wrapper library
-# and install the interface headers
-IF(LAPACK_OK)
-  SET(fida_BL_SOURCES fidalapack.c fidalapdense.c fidalapband.c)
-  ADD_LIBRARY(sundials_fida_bl_static STATIC ${fida_BL_SOURCES})
-  SET_TARGET_PROPERTIES(sundials_fida_bl_static
-    PROPERTIES OUTPUT_NAME sundials_fida_bl CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_fida_bl_static DESTINATION lib)
-ENDIF(LAPACK_OK)

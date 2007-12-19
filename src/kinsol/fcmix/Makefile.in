@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-01-24 01:14:04 $
+# $Revision: 1.8 $
+# $Date: 2007-12-19 20:34:01 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -47,8 +47,7 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/src/kinsol -I$(top_builddir)/
 
 LIB_REVISION = 0:1:0
 
-FKINSOL_LIB    = libsundials_fkinsol.la
-FKINSOL_BL_LIB = libsundials_fkinsol_bl.la
+FKINSOL_LIB = libsundials_fkinsol.la
 
 FKINSOL_SRC_FILES = fkinsol.c fkindense.c fkinband.c fkinpreco.c fkinjtimes.c fkinbbd.c
 FKINSOL_BL_SRC_FILES = fkinlapack.c fkinlapdense.c fkinlapband.c 
@@ -64,35 +63,29 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 # ----------------------------------------------------------------------------------------------------------------------
 
 all: $(FKINSOL_LIB)
+
+$(FKINSOL_LIB):
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make all_bl;                               \
+	  make lib_with_bl;                          \
+	else                                         \
+	  make lib_without_bl;                       \
 	fi
 
-all_bl: $(FKINSOL_BL_LIB)
-
-$(FKINSOL_LIB): $(FKINSOL_LIB_FILES)
+lib_without_bl: $(FKINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FKINSOL_LIB) $(FKINSOL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
 
-$(FKINSOL_BL_LIB): $(FKINSOL_BL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FKINSOL_BL_LIB) $(FKINSOL_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
+lib_with_bl: $(FKINSOL_LIB_FILES) $(FKINSOL_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FKINSOL_LIB) $(FKINSOL_LIB_FILES) $(FKINSOL_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
 
 install: $(FKINSOL_LIB)
 	$(mkinstalldirs) $(libdir)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FKINSOL_LIB) $(libdir)
-	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make install_bl;                           \
-	fi
-
-install_bl: $(FKINSOL_BL_LIB)
-	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FKINSOL_BL_LIB) $(libdir)
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FKINSOL_LIB)
-	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FKINSOL_BL_LIB)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(FKINSOL_LIB)
-	$(LIBTOOL) --mode=clean rm -f $(FKINSOL_BL_LIB)
 	rm -f $(FKINSOL_LIB_FILES)
 	rm -f $(FKINSOL_BL_LIB_FILES)
 	rm -f $(FKINSOL_OBJ_FILES)

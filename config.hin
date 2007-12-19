@@ -72,6 +72,9 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
+/* Availability of Blas/Lapack libraries */
+#undef SUNDIALS_BLAS_LAPACK
+
 /* Define SUNDIALS data type 'realtype' as 'double' */
 #undef SUNDIALS_DOUBLE_PRECISION
 

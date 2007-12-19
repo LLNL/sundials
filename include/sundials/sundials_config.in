@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-12-12 18:13:22 $
+ * $Revision: 1.4 $
+ * $Date: 2007-12-19 20:34:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,6 +50,14 @@
  *     #define SUNDIALS_USE_GENERIC_MATH 0
  */
 @GENERIC_MATH_LIB@
+
+/* Blas/Lapack available
+ * If working libraries for Blas/lapack support were found, then
+ *     #define SUNDIALS_BLAS_LAPACK 1
+ * otherwise
+ *     #define SUNDIALS_BLAS_LAPACK 0
+ */
+@BLAS_LAPACK_MACRO@
 
 /* FNVECTOR: Allow user to specify different MPI communicator
  * If it was found that the MPI implementation supports MPI_Comm_f2c, then

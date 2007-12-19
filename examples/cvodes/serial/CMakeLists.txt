@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2007-10-25 20:03:31 $
+# $Revision: 1.6 $
+# $Date: 2007-12-19 20:33:59 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -46,11 +46,9 @@ SET(CVODES_examples_BL
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODES_LIB sundials_cvodes_static)
-  SET(CVODES_BL_LIB sundials_cvodes_bl_static)
   SET(NVECS_LIB sundials_nvecserial_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODES_LIB sundials_cvodes_shared)
-  SET(CVODES_BL_LIB sundials_cvodes_bl_shared)
   SET(NVECS_LIB sundials_nvecserial_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
@@ -76,7 +74,7 @@ IF(LAPACK_OK)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
   FOREACH(example ${CVODES_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.c)
-    TARGET_LINK_LIBRARIES(${example} ${CVODES_BL_LIB} ${CVODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+    TARGET_LINK_LIBRARIES(${example} ${CVODES_LIB} ${CVODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
     TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
     FILE(GLOB example_out ${example}.out*)
     IF(EXAMPLES_INSTALL)
@@ -95,11 +93,9 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_LIB "sundials_cvodes")
   LIST2STRING(CVODES_examples EXAMPLES)
   IF(LAPACK_OK)
-    SET(SOLVER_BL_LIB "sundials_cvodes_bl")
     LIST2STRING(CVODES_examples_BL EXAMPLES_BL)
   ELSE(LAPACK_OK)
     SET(EXAMPLES_BL "")
-    SET(SOLVER_BL_LIB "")
   ENDIF(LAPACK_OK)
 
   # Regardless of the platform we're on, we will generate and install 

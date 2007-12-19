@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2007-01-29 17:36:28 $
+# $Revision: 1.10 $
+# $Date: 2007-12-19 20:34:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -50,7 +50,6 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 LIB_REVISION = 1:0:0
 
 CVODE_LIB    = libsundials_cvode.la
-CVODE_BL_LIB = libsundials_cvode_bl.la
 
 CVODE_SRC_FILES = cvode.c cvode_io.c cvode_direct.c cvode_band.c cvode_dense.c cvode_diag.c cvode_spils.c cvode_spbcgs.c cvode_spgmr.c cvode_sptfqmr.c cvode_bandpre.c cvode_bbdpre.c
 CVODE_BL_SRC_FILES = cvode_lapack.c
@@ -63,7 +62,6 @@ CVODE_BL_LIB_FILES = $(CVODE_BL_SRC_FILES:.c=.lo)
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
-                   $(top_builddir)/src/sundials/sundials_lapack.lo \
                    $(top_builddir)/src/sundials/sundials_direct.lo \
                    $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_spgmr.lo \
@@ -71,6 +69,7 @@ SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_sptfqmr.lo \
                    $(top_builddir)/src/sundials/sundials_math.lo \
                    $(top_builddir)/src/sundials/sundials_nvector.lo
+SHARED_BL_LIB_FILES = $(top_builddir)/src/sundials/sundials_lapack.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
@@ -78,17 +77,19 @@ rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 # ----------------------------------------------------------------------------------------------------------------------
 
 all: $(CVODE_LIB)
+
+$(CVODE_LIB):
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make all_bl;                               \
+	  make lib_with_bl;                          \
+	else                                         \
+	  make lib_without_bl;                       \
 	fi
 
-all_bl: $(CVODE_BL_LIB)
-
-$(CVODE_LIB): shared $(CVODE_LIB_FILES)
+lib_without_bl: shared $(CVODE_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_LIB) $(CVODE_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
-$(CVODE_BL_LIB): shared $(CVODE_BL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_BL_LIB) $(CVODE_BL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+lib_with_bl: shared $(CVODE_LIB_FILES) $(CVODE_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_LIB) $(CVODE_LIB_FILES)  $(CVODE_BL_LIB_FILES) $(SHARED_LIB_FILES) $(SHARED_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 install: $(CVODE_LIB)
 	$(mkinstalldirs) $(includedir)/cvode
@@ -107,16 +108,11 @@ install: $(CVODE_LIB)
 	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_bbdpre.h  $(includedir)/cvode/
 	$(INSTALL_HEADER) $(top_srcdir)/src/cvode/cvode_impl.h        $(includedir)/cvode/
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make install_bl;                           \
+	  $(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_lapack.h  $(includedir)/cvode/ ; \
 	fi
-
-install_bl: $(CVODE_BL_LIB)
-	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CVODE_BL_LIB) $(libdir)
-	$(INSTALL_HEADER) $(top_srcdir)/include/cvode/cvode_lapack.h  $(includedir)/cvode/
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CVODE_LIB)
-	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CVODE_BL_LIB)
 	rm -f $(includedir)/cvode/cvode.h
 	rm -f $(includedir)/cvode/cvode_direct.h
 	rm -f $(includedir)/cvode/cvode_dense.h
@@ -134,12 +130,11 @@ uninstall:
 
 shared:
 	@cd ${top_builddir}/src/sundials ; \
-	 ${MAKE} ;                         \
-	 cd ${abs_builddir}
+	${MAKE} ;                         \
+	cd ${abs_builddir}
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(CVODE_LIB)
-	$(LIBTOOL) --mode=clean rm -f $(CVODE_BL_LIB)
 	rm -f $(CVODE_LIB_FILES)
 	rm -f $(CVODE_BL_LIB_FILES)
 	rm -f $(CVODE_OBJ_FILES)

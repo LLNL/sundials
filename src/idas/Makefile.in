@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2007-07-05 19:10:36 $
+# $Revision: 1.10 $
+# $Date: 2007-12-19 20:34:01 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,8 +49,7 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 
 LIB_REVISION = 0:0:0
 
-IDAS_LIB    = libsundials_idas.la
-IDAS_BL_LIB = libsundials_idas_bl.la
+IDAS_LIB = libsundials_idas.la
 
 IDAS_SRC_FILES = idas.c idaa.c idas_ic.c idas_io.c idaa_io.c idas_direct.c idas_dense.c idas_band.c idas_spils.c idas_spbcgs.c idas_spgmr.c idas_sptfqmr.c idas_bbdpre.c
 IDAS_BL_SRC_FILES = idas_lapack.c
@@ -63,7 +62,6 @@ IDAS_BL_LIB_FILES = $(IDAS_BL_SRC_FILES:.c=.lo)
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
-                   $(top_builddir)/src/sundials/sundials_lapack.lo \
                    $(top_builddir)/src/sundials/sundials_direct.lo \
                    $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_spgmr.lo \
@@ -71,6 +69,7 @@ SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_sptfqmr.lo \
                    $(top_builddir)/src/sundials/sundials_math.lo \
                    $(top_builddir)/src/sundials/sundials_nvector.lo
+SHARED_BL_LIB_FILES = $(top_builddir)/src/sundials/sundials_lapack.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
@@ -78,17 +77,19 @@ rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 # ----------------------------------------------------------------------------------------------------------------------
 
 all: $(IDAS_LIB)
+
+$(IDAS_LIB):
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make all_bl;                               \
+	  make lib_with_bl;                          \
+	else                                         \
+	  make lib_without_bl;                       \
 	fi
 
-all_bl: $(IDAS_BL_LIB)
-
-$(IDAS_LIB): shared $(IDAS_LIB_FILES)
+lib_without_bl: shared $(IDAS_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_LIB) $(IDAS_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
-$(IDAS_BL_LIB): shared $(IDAS_BL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_BL_LIB) $(IDAS_BL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+lib_with_bl: shared $(IDAS_LIB_FILES) $(IDAS_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_LIB) $(IDAS_LIB_FILES) $(IDAS_BL_LIB_FILES) $(SHARED_LIB_FILES) $(SHARED_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 install: $(IDAS_LIB)
 	$(mkinstalldirs) $(includedir)/idas
@@ -105,16 +106,11 @@ install: $(IDAS_LIB)
 	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_spils.h   $(includedir)/idas/
 	$(INSTALL_HEADER) $(top_srcdir)/src/idas/idas_impl.h        $(includedir)/idas/
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make install_bl;                           \
+	  $(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_lapack.h  $(includedir)/idas/ ; \
 	fi
-
-install_bl: $(IDAS_BL_LIB)
-	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(IDAS_BL_LIB) $(libdir)
-	$(INSTALL_HEADER) $(top_srcdir)/include/idas/idas_lapack.h  $(includedir)/idas/
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDAS_LIB)
-	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDAS_BL_LIB)
 	rm -f $(includedir)/idas/idas.h
 	rm -f $(includedir)/idas/idas_direct.h
 	rm -f $(includedir)/idas/idas_dense.h
@@ -135,7 +131,6 @@ shared:
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(IDAS_LIB)
-	$(LIBTOOL) --mode=clean rm -f $(IDAS_BL_LIB)
 	rm -f $(IDAS_LIB_FILES)
 	rm -f $(IDAS_BL_LIB_FILES)
 	rm -f $(IDAS_OBJ_FILES)

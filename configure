@@ -855,6 +855,7 @@ F77_CASE
 F77_UNDERSCORES
 PRECISION_LEVEL
 GENERIC_MATH_LIB
+BLAS_LAPACK_MACRO
 SUNDIALS_EXPORT
 F77_MPI_COMM_F2C
 F77_LNKR
@@ -1468,6 +1469,7 @@ Optional Features:
   --disable-ida           disable configuration of IDA
   --disable-idas          disable configuration of IDAS
   --disable-kinsol        disable configuration of KINSOL
+  --disable-cpodes        disable configuration of CPODES
   --disable-fcmix         disable Fortran-C support
   --disable-lapack        disable Lapack support
   --disable-mpi           disable MPI support
@@ -1971,19 +1973,11 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 # Say Hi!
-if test "X${SUNDIALS_DEV}" = "Xyes"; then
-echo "
----------------------------------------------
-Running SUNDIALS Development Configure Script
----------------------------------------------
-"
-else
 echo "
 ---------------------------------
 Running SUNDIALS Configure Script
 ---------------------------------
 "
-fi
 
 
 
@@ -2450,6 +2444,7 @@ F77_MANGLE_MACRO1=""
 F77_MANGLE_MACRO2=""
 PRECISION_LEVEL=""
 GENERIC_MATH_LIB=""
+BLAS_LAPACK_MACRO=""
 F77_MPI_COMM_F2C=""
 SUNDIALS_EXPORT="#define SUNDIALS_EXPORT"
 
@@ -2591,20 +2586,23 @@ fi
 
 # Check if user wants to disable CPODES module
 # If not, then make certain source directory actually exists
-#AC_ARG_ENABLE(cpodes,
-#[AC_HELP_STRING([--disable-cpodes],[disable configuration of CPODES])],
-#[
-#if test "X${enableval}" = "Xno"; then
-#  CPODES_ENABLED="no"
-#fi
-#],
-#[
-#if test -d ${srcdir}/src/cpodes ; then
-#  CPODES_ENABLED="yes"
-#else
-#  CPODES_ENABLED="no"
-#fi
-#])
+# Check whether --enable-cpodes was given.
+if test "${enable_cpodes+set}" = set; then
+  enableval=$enable_cpodes;
+if test "X${enableval}" = "Xno"; then
+  CPODES_ENABLED="no"
+fi
+
+else
+
+if test -d ${srcdir}/src/cpodes ; then
+  CPODES_ENABLED="yes"
+else
+  CPODES_ENABLED="no"
+fi
+
+fi
+
 
 # Check if user wants to disable Fortran support (FCMIX components).
 # Check whether --enable-fcmix was given.
@@ -2635,7 +2633,7 @@ fi
 
 
 # Check if user wants to disable support for MPI.
-# If not, then make certain source directory actually exists
+# If not, set the default based on whetehr certain source directories exist
 # Check whether --enable-mpi was given.
 if test "${enable_mpi+set}" = set; then
   enableval=$enable_mpi;
@@ -9017,7 +9015,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:9020: \"$ac_link\") >&5
+(eval echo $as_me:9018: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -9100,7 +9098,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:9103: \"$ac_link\") >&5
+(eval echo $as_me:9101: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -11385,6 +11383,26 @@ echo "${ECHO_T}\"no\"" >&6; }
 fi
 
 
+# Set the macro BLAS_LAPACK_MACRO for expansion in sundials_config.h
+
+
+
+
+if test "X${LAPACK_ENABLED}" = "Xyes"; then
+  cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_BLAS_LAPACK 1
+_ACEOF
+
+  BLAS_LAPACK_MACRO="#define SUNDIALS_BLAS_LAPACK 1"
+else
+  cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_BLAS_LAPACK 0
+_ACEOF
+
+  BLAS_LAPACK_MACRO="#define SUNDIALS_BLAS_LAPACK 0"
+fi
+
+
 fi
 
 # Set MPI support (Optional)
@@ -13064,11 +13082,29 @@ fi
 { echo "$as_me:$LINENO: result: ${EXS_INSTDIR}" >&5
 echo "${ECHO_T}${EXS_INSTDIR}" >&6; }
 
-# Development examples are disabled
-SERIAL_DEV_C_EXAMPLES="disabled"
-PARALLEL_DEV_C_EXAMPLES="disabled"
-SERIAL_DEV_F77_EXAMPLES="disabled"
-PARALLEL_DEV_F77_EXAMPLES="disabled"
+# Enable compilation of test examples if
+# (1) the test_examples directory exists
+# (2) the corresponding distribution examples can be built
+
+if test -d ${srcdir}/test_examples ; then
+
+  DEV_EXAMPLES_ENABLED="yes"
+
+  SERIAL_DEV_C_EXAMPLES="${SERIAL_C_EXAMPLES}"
+  PARALLEL_DEV_C_EXAMPLES="${PARALLEL_C_EXAMPLES}"
+  SERIAL_DEV_F77_EXAMPLES="${SERIAL_F77_EXAMPLES}"
+  PARALLEL_DEV_F77_EXAMPLES="${PARALLEL_F77_EXAMPLES}"
+
+else
+
+  DEV_EXAMPLES_ENABLED="no"
+
+  SERIAL_DEV_C_EXAMPLES="disabled"
+  PARALLEL_DEV_C_EXAMPLES="disabled"
+  SERIAL_DEV_F77_EXAMPLES="disabled"
+  PARALLEL_DEV_F77_EXAMPLES="disabled"
+
+fi
 
 # Prepare substitution variables to create the exported example Makefiles
 
@@ -13640,7 +13676,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 13643 "configure"' > conftest.$ac_ext
+  echo '#line 13679 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -15957,11 +15993,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15960: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15996: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15964: \$? = $ac_status" >&5
+   echo "$as_me:16000: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16225,11 +16261,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16228: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16264: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16232: \$? = $ac_status" >&5
+   echo "$as_me:16268: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16329,11 +16365,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16332: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16368: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16336: \$? = $ac_status" >&5
+   echo "$as_me:16372: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -18781,7 +18817,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18784 "configure"
+#line 18820 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -18881,7 +18917,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18884 "configure"
+#line 18920 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -21250,11 +21286,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:21253: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:21289: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:21257: \$? = $ac_status" >&5
+   echo "$as_me:21293: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -21354,11 +21390,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:21357: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:21393: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:21361: \$? = $ac_status" >&5
+   echo "$as_me:21397: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -22925,11 +22961,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:22928: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:22964: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:22932: \$? = $ac_status" >&5
+   echo "$as_me:22968: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -23029,11 +23065,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:23032: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:23068: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:23036: \$? = $ac_status" >&5
+   echo "$as_me:23072: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -25260,11 +25296,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:25263: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:25299: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:25267: \$? = $ac_status" >&5
+   echo "$as_me:25303: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -25528,11 +25564,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:25531: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:25567: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:25535: \$? = $ac_status" >&5
+   echo "$as_me:25571: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -25632,11 +25668,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:25635: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:25671: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:25639: \$? = $ac_status" >&5
+   echo "$as_me:25675: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -28407,6 +28443,7 @@ fi
 
 
 
+
 # Generate makefiles
 echo ""
 echo "Create Makefiles and configuration files"
@@ -28423,11 +28460,7 @@ SUNDIALS_CONFIGFILES="${SUNDIALS_CONFIGFILES} bin/sundials-config:bin/sundials-c
 
 # Initialize lists of solver modules and example modules
 SLV_MODULES="src/sundials"
-if test "X${SUNDIALS_DEV}" = "Xyes" && test -f ${srcdir}/src/sundials/Makefile.dev.in ; then
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/sundials/Makefile:src/sundials/Makefile.dev.in"
-else
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/sundials/Makefile"
-fi
+SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} src/sundials/Makefile"
 
 EXS_MODULES=""
 
@@ -28668,7 +28701,7 @@ if test "X${CPODES_ENABLED}" = "Xyes"; then
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cpodes/parallel ; then
     EXS_MODULES="${EXS_MODULES} examples/cpodes/parallel"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cpodes/parallel/Makefile"
-    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cpodes/parallel/Makefile_ex:examples/templates/makefile_parallel_F77_ex.in"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} examples/cpodes/parallel/Makefile_ex:examples/templates/makefile_parallel_C_ex.in"
   fi
 
   if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/test_examples/cpodes/parallel ; then
@@ -28706,7 +28739,7 @@ if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${EXS_INSTDIR}" != "Xno"; then
 #   SOLVER
 #   EXAMPLES
 #   EXAMPLES_BL
-#   SOLVER_LIB SOLVER_FLIB SOLVER_BL_LIB SOLVER_BL_FLIB
+#   SOLVER_LIB SOLVER_FLIB
 #   NVEC_LIB NVEC_FLIB
 #
 # This function is called ONLY if examples are enabled AND examples will
@@ -28721,13 +28754,23 @@ if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${EXS_INSTDIR}" != "Xno"; then
 if test "X${CVODE_ENABLED}" = "Xyes"; then
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/serial ; then
-     ac_config_commands="$ac_config_commands cvode_ser_ex"
+     if test "X${LAPACK_ENABLED}" = "Xyes"; then
+       ac_config_commands="$ac_config_commands cvode_ser_ex_bl"
 
+     else
+       ac_config_commands="$ac_config_commands cvode_ser_ex"
+
+     fi
   fi
 
   if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/fcmix_serial ; then
-     ac_config_commands="$ac_config_commands cvode_fser_ex"
+     if test "X${LAPACK_ENABLED}" = "Xyes"; then
+       ac_config_commands="$ac_config_commands cvode_fser_ex_bl"
 
+     else
+       ac_config_commands="$ac_config_commands cvode_fser_ex"
+
+     fi
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvode/parallel ; then
@@ -28747,8 +28790,13 @@ fi
 if test "X${CVODES_ENABLED}" = "Xyes"; then
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvodes/serial ; then
-     ac_config_commands="$ac_config_commands cvodes_ser_ex"
+     if test "X${LAPACK_ENABLED}" = "Xyes"; then
+       ac_config_commands="$ac_config_commands cvodes_ser_ex_bl"
 
+     else
+       ac_config_commands="$ac_config_commands cvodes_ser_ex"
+
+     fi
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cvodes/parallel ; then
@@ -28763,13 +28811,23 @@ fi
 if test "X${IDA_ENABLED}" = "Xyes"; then
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/serial ; then
-     ac_config_commands="$ac_config_commands ida_ser_ex"
+     if test "X${LAPACK_ENABLED}" = "Xyes"; then
+       ac_config_commands="$ac_config_commands ida_ser_ex_bl"
 
+     else
+       ac_config_commands="$ac_config_commands ida_ser_ex"
+
+     fi
   fi
 
   if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/fcmix_serial ; then
-     ac_config_commands="$ac_config_commands ida_fser_ex"
+     if test "X${LAPACK_ENABLED}" = "Xyes"; then
+       ac_config_commands="$ac_config_commands ida_fser_ex_bl"
 
+     else
+       ac_config_commands="$ac_config_commands ida_fser_ex"
+
+     fi
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/ida/parallel ; then
@@ -28789,8 +28847,13 @@ fi
 if test "X${IDAS_ENABLED}" = "Xyes"; then
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/idas/serial ; then
-     ac_config_commands="$ac_config_commands idas_ser_ex"
+     if test "X${LAPACK_ENABLED}" = "Xyes"; then
+       ac_config_commands="$ac_config_commands idas_ser_ex_bl"
 
+     else
+       ac_config_commands="$ac_config_commands idas_ser_ex"
+
+     fi
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/idas/parallel ; then
@@ -28805,13 +28868,23 @@ fi
 if test "X${KINSOL_ENABLED}" = "Xyes"; then
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/serial ; then
-     ac_config_commands="$ac_config_commands kinsol_ser_ex"
+     if test "X${LAPACK_ENABLED}" = "Xyes"; then
+       ac_config_commands="$ac_config_commands kinsol_ser_ex_bl"
 
+     else
+       ac_config_commands="$ac_config_commands kinsol_ser_ex"
+
+     fi
   fi
 
   if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/fcmix_serial ; then
-     ac_config_commands="$ac_config_commands kinsol_fser_ex"
+     if test "X${LAPACK_ENABLED}" = "Xyes"; then
+       ac_config_commands="$ac_config_commands kinsol_fser_ex_bl"
 
+     else
+       ac_config_commands="$ac_config_commands kinsol_fser_ex"
+
+     fi
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/kinsol/parallel ; then
@@ -28831,8 +28904,13 @@ fi
 if test "X${CPODES_ENABLED}" = "Xyes"; then
 
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cpodes/serial ; then
-     ac_config_commands="$ac_config_commands cpodes_ser_ex"
+     if test "X${LAPACK_ENABLED}" = "Xyes"; then
+       ac_config_commands="$ac_config_commands cpodes_ser_ex_bl"
 
+     else
+       ac_config_commands="$ac_config_commands cpodes_ser_ex"
+
+     fi
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/examples/cpodes/parallel ; then
@@ -29396,22 +29474,31 @@ do
   case $ac_config_target in
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h:config.hin" ;;
     "postprocessing") CONFIG_COMMANDS="$CONFIG_COMMANDS postprocessing" ;;
+    "cvode_ser_ex_bl") CONFIG_COMMANDS="$CONFIG_COMMANDS cvode_ser_ex_bl" ;;
     "cvode_ser_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS cvode_ser_ex" ;;
+    "cvode_fser_ex_bl") CONFIG_COMMANDS="$CONFIG_COMMANDS cvode_fser_ex_bl" ;;
     "cvode_fser_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS cvode_fser_ex" ;;
     "cvode_par_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS cvode_par_ex" ;;
     "cvode_fpar_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS cvode_fpar_ex" ;;
+    "cvodes_ser_ex_bl") CONFIG_COMMANDS="$CONFIG_COMMANDS cvodes_ser_ex_bl" ;;
     "cvodes_ser_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS cvodes_ser_ex" ;;
     "cvodes_par_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS cvodes_par_ex" ;;
+    "ida_ser_ex_bl") CONFIG_COMMANDS="$CONFIG_COMMANDS ida_ser_ex_bl" ;;
     "ida_ser_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS ida_ser_ex" ;;
+    "ida_fser_ex_bl") CONFIG_COMMANDS="$CONFIG_COMMANDS ida_fser_ex_bl" ;;
     "ida_fser_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS ida_fser_ex" ;;
     "ida_par_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS ida_par_ex" ;;
     "ida_fpar_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS ida_fpar_ex" ;;
+    "idas_ser_ex_bl") CONFIG_COMMANDS="$CONFIG_COMMANDS idas_ser_ex_bl" ;;
     "idas_ser_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS idas_ser_ex" ;;
     "idas_par_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS idas_par_ex" ;;
+    "kinsol_ser_ex_bl") CONFIG_COMMANDS="$CONFIG_COMMANDS kinsol_ser_ex_bl" ;;
     "kinsol_ser_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS kinsol_ser_ex" ;;
+    "kinsol_fser_ex_bl") CONFIG_COMMANDS="$CONFIG_COMMANDS kinsol_fser_ex_bl" ;;
     "kinsol_fser_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS kinsol_fser_ex" ;;
     "kinsol_par_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS kinsol_par_ex" ;;
     "kinsol_fpar_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS kinsol_fpar_ex" ;;
+    "cpodes_ser_ex_bl") CONFIG_COMMANDS="$CONFIG_COMMANDS cpodes_ser_ex_bl" ;;
     "cpodes_ser_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS cpodes_ser_ex" ;;
     "cpodes_par_ex") CONFIG_COMMANDS="$CONFIG_COMMANDS cpodes_par_ex" ;;
     "${SUNDIALS_MAKEFILES}") CONFIG_FILES="$CONFIG_FILES ${SUNDIALS_MAKEFILES}" ;;
@@ -29572,9 +29659,9 @@ F77_CASE!$F77_CASE$ac_delim
 F77_UNDERSCORES!$F77_UNDERSCORES$ac_delim
 PRECISION_LEVEL!$PRECISION_LEVEL$ac_delim
 GENERIC_MATH_LIB!$GENERIC_MATH_LIB$ac_delim
+BLAS_LAPACK_MACRO!$BLAS_LAPACK_MACRO$ac_delim
 SUNDIALS_EXPORT!$SUNDIALS_EXPORT$ac_delim
 F77_MPI_COMM_F2C!$F77_MPI_COMM_F2C$ac_delim
-F77_LNKR!$F77_LNKR$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -29616,6 +29703,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+F77_LNKR!$F77_LNKR$ac_delim
 F77_LIBS!$F77_LIBS$ac_delim
 F77_LDFLAGS!$F77_LDFLAGS$ac_delim
 LAPACK_ENABLED!$LAPACK_ENABLED$ac_delim
@@ -29634,7 +29722,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 16; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 17; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -30043,221 +30131,248 @@ echo "$as_me: executing $ac_file commands" >&6;}
     echo "------------------------------"
     echo ""
    ;;
+    "cvode_ser_ex_bl":C)
+       IN_FILE="examples/cvode/serial/Makefile_ex"
+       SOLVER="CVODE"
+       SOLVER_LIB="sundials_cvode"
+       SOLVER_FLIB=""
+       EXAMPLES="cvAdvDiff_bnd cvDirectDemo_ls cvDiurnal_kry_bp cvDiurnal_kry cvKrylovDemo_ls cvKrylovDemo_prec cvRoberts_dns cvRoberts_dns_uw"
+       EXAMPLES_BL="cvAdvDiff_bndL cvRoberts_dnsL"
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "cvode_ser_ex":C)
-     IN_FILE="examples/cvode/serial/Makefile_ex"
-     SOLVER="CVODE"
-     SOLVER_LIB="sundials_cvode"
-     SOLVER_FLIB=""
-     SOLVER_BL_LIB="sundials_cvode_bl"
-     SOLVER_BL_FLIB=""
-     EXAMPLES="cvAdvDiff_bnd cvDirectDemo_ls cvDiurnal_kry_bp cvDiurnal_kry cvKrylovDemo_ls cvKrylovDemo_prec cvRoberts_dns cvRoberts_dns_uw"
-     EXAMPLES_BL="cvAdvDiff_bndL cvRoberts_dnsL"
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
-      ;;
+       IN_FILE="examples/cvode/serial/Makefile_ex"
+       SOLVER="CVODE"
+       SOLVER_LIB="sundials_cvode"
+       SOLVER_FLIB=""
+       EXAMPLES="cvAdvDiff_bnd cvDirectDemo_ls cvDiurnal_kry_bp cvDiurnal_kry cvKrylovDemo_ls cvKrylovDemo_prec cvRoberts_dns cvRoberts_dns_uw"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
+    "cvode_fser_ex_bl":C)
+       IN_FILE="examples/cvode/fcmix_serial/Makefile_ex"
+       SOLVER="CVODE"
+       SOLVER_LIB="sundials_cvode"
+       SOLVER_FLIB="sundials_fcvode"
+       EXAMPLES="fcvAdvDiff_bnd fcvDiurnal_kry_bp fcvDiurnal_kry fcvRoberts_dns"
+       EXAMPLES_BL="fcvRoberts_dnsL"
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "cvode_fser_ex":C)
-     IN_FILE="examples/cvode/fcmix_serial/Makefile_ex"
-     SOLVER="CVODE"
-     SOLVER_LIB="sundials_cvode"
-     SOLVER_FLIB="sundials_fcvode"
-     SOLVER_BL_LIB="sundials_cvode_bl"
-     SOLVER_BL_FLIB="sundials_fcvode_bl"
-     EXAMPLES=""
-     EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
-      ;;
+       IN_FILE="examples/cvode/fcmix_serial/Makefile_ex"
+       SOLVER="CVODE"
+       SOLVER_LIB="sundials_cvode"
+       SOLVER_FLIB="sundials_fcvode"
+       EXAMPLES="fcvAdvDiff_bnd fcvDiurnal_kry_bp fcvDiurnal_kry fcvRoberts_dns"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "cvode_par_ex":C)
      IN_FILE="examples/cvode/parallel/Makefile_ex"
      SOLVER="CVODE"
      SOLVER_LIB="sundials_cvode"
      SOLVER_FLIB=""
-     SOLVER_BL_LIB=""
-     SOLVER_BL_FLIB=""
-     EXAMPLES=""
+     EXAMPLES="cvAdvDiff_non_p cvDiurnal_kry_bbd_p cvDiurnal_kry_p"
      EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
+     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
       ;;
     "cvode_fpar_ex":C)
      IN_FILE="examples/cvode/fcmix_parallel/Makefile_ex"
      SOLVER="CVODE"
      SOLVER_LIB="sundials_cvode"
      SOLVER_FLIB="sundials_fcvode"
-     SOLVER_BL_LIB=""
-     SOLVER_BL_FLIB=""
-     EXAMPLES=""
+     EXAMPLES="fcvAdvDiff_non_p fcvDiurnal_kry_bbd_p fcvDiurnal_kry_p"
      EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
+     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
       ;;
+    "cvodes_ser_ex_bl":C)
+       IN_FILE="examples/cvodes/serial/Makefile_ex"
+       SOLVER="CVODES"
+       SOLVER_LIB="sundials_cvodes"
+       SOLVER_FLIB=""
+       EXAMPLES="cvsAdvDiff_ASAi_bnd cvsAdvDiff_FSA_non cvsDiurnal_kry_bp cvsFoodWeb_ASAp_kry cvsKrylovDemo_prec cvsAdvDiff_bnd cvsDirectDemo_ls cvsDiurnal_kry cvsHessian_ASA_FSA cvsRoberts_ASAi_dns cvsRoberts_dns_uw  cvsDiurnal_FSA_kry cvsFoodWeb_ASAi_kry cvsKrylovDemo_ls cvsRoberts_dns cvsRoberts_FSA_dns"
+       EXAMPLES_BL="cvsRoberts_dnsL cvsAdvDiff_bndL"
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "cvodes_ser_ex":C)
-     IN_FILE="examples/cvodes/serial/Makefile_ex"
-     SOLVER="CVODES"
-     SOLVER_LIB="sundials_cvodes"
-     SOLVER_FLIB=""
-     SOLVER_BL_LIB="sundials_cvodes_bl"
-     SOLVER_BL_FLIB=""
-     EXAMPLES="cvsAdvDiff_ASAi_bnd cvsAdvDiff_FSA_non cvsDiurnal_kry_bp cvsFoodWeb_ASAp_kry cvsKrylovDemo_prec cvsAdvDiff_bnd cvsDirectDemo_ls cvsDiurnal_kry cvsHessian_ASA_FSA cvsRoberts_ASAi_dns cvsRoberts_dns_uw  cvsDiurnal_FSA_kry cvsFoodWeb_ASAi_kry cvsKrylovDemo_ls cvsRoberts_dns cvsRoberts_FSA_dns"
-     EXAMPLES_BL="cvsRoberts_dnsL cvsAdvDiff_bndL"
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
-      ;;
+       IN_FILE="examples/cvodes/serial/Makefile_ex"
+       SOLVER="CVODES"
+       SOLVER_LIB="sundials_cvodes"
+       SOLVER_FLIB=""
+       EXAMPLES="cvsAdvDiff_ASAi_bnd cvsAdvDiff_FSA_non cvsDiurnal_kry_bp cvsFoodWeb_ASAp_kry cvsKrylovDemo_prec cvsAdvDiff_bnd cvsDirectDemo_ls cvsDiurnal_kry cvsHessian_ASA_FSA cvsRoberts_ASAi_dns cvsRoberts_dns_uw  cvsDiurnal_FSA_kry cvsFoodWeb_ASAi_kry cvsKrylovDemo_ls cvsRoberts_dns cvsRoberts_FSA_dns"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "cvodes_par_ex":C)
      IN_FILE="examples/cvodes/parallel/Makefile_ex"
      SOLVER="CVODES"
      SOLVER_LIB="sundials_cvodes"
      SOLVER_FLIB=""
-     SOLVER_BL_LIB=""
-     SOLVER_BL_FLIB=""
      EXAMPLES="cvsAdvDiff_ASAp_non_p cvsAdvDiff_non_p cvsDiurnal_FSA_kry_p cvsDiurnal_kry_p cvsAdvDiff_FSA_non_p cvsAtmDisp_ASAi_kry_bbd_p cvsDiurnal_kry_bbd_p"
      EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
+     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
       ;;
+    "ida_ser_ex_bl":C)
+       IN_FILE="examples/ida/serial/Makefile_ex"
+       SOLVER="IDA"
+       SOLVER_LIB="sundials_ida"
+       SOLVER_FLIB=""
+       EXAMPLES="idaFoodWeb_bnd idaHeat2D_bnd idaHeat2D_kry idaKrylovDemo_ls idaRoberts_dns idaSlCrank_dns"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "ida_ser_ex":C)
-     IN_FILE="examples/ida/serial/Makefile_ex"
-     SOLVER="IDA"
-     SOLVER_LIB="sundials_ida"
-     SOLVER_FLIB=""
-     SOLVER_BL_LIB="sundials_ida_bl"
-     SOLVER_BL_FLIB=""
-     EXAMPLES="idaFoodWeb_bnd idaHeat2D_bnd idaHeat2D_kry idaKrylovDemo_ls idaRoberts_dns idaSlCrank_dns"
-     EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
-      ;;
+       IN_FILE="examples/ida/serial/Makefile_ex"
+       SOLVER="IDA"
+       SOLVER_LIB="sundials_ida"
+       SOLVER_FLIB=""
+       EXAMPLES="idaFoodWeb_bnd idaHeat2D_bnd idaHeat2D_kry idaKrylovDemo_ls idaRoberts_dns idaSlCrank_dns"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
+    "ida_fser_ex_bl":C)
+       IN_FILE="examples/ida/fcmix_serial/Makefile_ex"
+       SOLVER="IDA"
+       SOLVER_LIB="sundials_ida"
+       SOLVER_FLIB="sundials_fida"
+       EXAMPLES="fidaRoberts_dns"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "ida_fser_ex":C)
-     IN_FILE="examples/ida/fcmix_serial/Makefile_ex"
-     SOLVER="IDA"
-     SOLVER_LIB="sundials_ida"
-     SOLVER_FLIB="sundials_fida"
-     SOLVER_BL_LIB="sundials_ida_bl"
-     SOLVER_BL_FLIB="sundials_fida_bl"
-     EXAMPLES="fidaRoberts_dns"
-     EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
-      ;;
+       IN_FILE="examples/ida/fcmix_serial/Makefile_ex"
+       SOLVER="IDA"
+       SOLVER_LIB="sundials_ida"
+       SOLVER_FLIB="sundials_fida"
+       EXAMPLES="fidaRoberts_dns"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "ida_par_ex":C)
      IN_FILE="examples/ida/parallel/Makefile_ex"
      SOLVER="IDA"
      SOLVER_LIB="sundials_ida"
      SOLVER_FLIB=""
-     SOLVER_BL_LIB=""
-     SOLVER_BL_FLIB=""
-     EXAMPLES=""
+     EXAMPLES="idaFoodWeb_kry_bbd_p idaFoodWeb_kry_p idaHeat2D_kry_bbd_p idaHeat2D_kry_p"
      EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
+     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
       ;;
     "ida_fpar_ex":C)
      IN_FILE="examples/ida/fcmix_parallel/Makefile_ex"
      SOLVER="IDA"
      SOLVER_LIB="sundials_ida"
      SOLVER_FLIB="sundials_fida"
-     SOLVER_BL_LIB=""
-     SOLVER_BL_FLIB=""
      EXAMPLES="fidaHeat2D_kry_bbd_p"
      EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
+     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
       ;;
+    "idas_ser_ex_bl":C)
+       IN_FILE="examples/idas/serial/Makefile_ex"
+       SOLVER="IDAS"
+       SOLVER_LIB="sundials_idas"
+       SOLVER_FLIB=""
+       EXAMPLES="idasAkzoNob_ASAi_dns idasFoodWeb_bnd idasHeat2D_kry idasKrylovDemo_ls idasRoberts_dns idasSlCrank_dns idasAkzoNob_dns idasHeat2D_bnd idasHessian_ASA_FSA idasRoberts_ASAi_dns idasRoberts_FSA_dns idasSlCrank_FSA_dns"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "idas_ser_ex":C)
-     IN_FILE="examples/idas/serial/Makefile_ex"
-     SOLVER="IDAS"
-     SOLVER_LIB="sundials_idas"
-     SOLVER_FLIB=""
-     SOLVER_BL_LIB="sundials_idas_bl"
-     SOLVER_BL_FLIB=""
-     EXAMPLES="idasAkzoNob_ASAi_dns idasFoodWeb_bnd idasHeat2D_kry idasKrylovDemo_ls idasRoberts_dns idasSlCrank_dns idasAkzoNob_dns idasHeat2D_bnd idasHessian_ASA_FSA idasRoberts_ASAi_dns idasRoberts_FSA_dns idasSlCrank_FSA_dns"
-     EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
-      ;;
+       IN_FILE="examples/idas/serial/Makefile_ex"
+       SOLVER="IDAS"
+       SOLVER_LIB="sundials_idas"
+       SOLVER_FLIB=""
+       EXAMPLES="idasAkzoNob_ASAi_dns idasFoodWeb_bnd idasHeat2D_kry idasKrylovDemo_ls idasRoberts_dns idasSlCrank_dns idasAkzoNob_dns idasHeat2D_bnd idasHessian_ASA_FSA idasRoberts_ASAi_dns idasRoberts_FSA_dns idasSlCrank_FSA_dns"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "idas_par_ex":C)
      IN_FILE="examples/idas/parallel/Makefile_ex"
      SOLVER="IDAS"
      SOLVER_LIB="sundials_idas"
      SOLVER_FLIB=""
-     SOLVER_BL_LIB=""
-     SOLVER_BL_FLIB=""
      EXAMPLES="idasBruss_ASAp_kry_bbd_p idasBruss_kry_bbd_p idasFoodWeb_kry_p idasHeat2D_kry_bbd_p idasBruss_FSA_kry_bbd_p idasFoodWeb_kry_bbd_p idasHeat2D_FSA_kry_bbd_p idasHeat2D_kry_p"
      EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
+     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
       ;;
+    "kinsol_ser_ex_bl":C)
+       IN_FILE="examples/kinsol/serial/Makefile_ex"
+       SOLVER="KINSOL"
+       SOLVER_LIB="sundials_kinsol"
+       SOLVER_FLIB=""
+       EXAMPLES="kinFerTron_dns kinFoodWeb_kry kinKrylovDemo_ls kinLaplace_bnd kinRoboKin_dns"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "kinsol_ser_ex":C)
-     IN_FILE="examples/kinsol/serial/Makefile_ex"
-     SOLVER="KINSOL"
-     SOLVER_LIB="sundials_kinsol"
-     SOLVER_FLIB=""
-     SOLVER_BL_LIB="sundials_kinsol_bl"
-     SOLVER_BL_FLIB=""
-     EXAMPLES="kinFerTron_dns kinFoodWeb_kry kinKrylovDemo_ls kinLaplace_bnd kinRoboKin_dns"
-     EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
-      ;;
+       IN_FILE="examples/kinsol/serial/Makefile_ex"
+       SOLVER="KINSOL"
+       SOLVER_LIB="sundials_kinsol"
+       SOLVER_FLIB=""
+       EXAMPLES="kinFerTron_dns kinFoodWeb_kry kinKrylovDemo_ls kinLaplace_bnd kinRoboKin_dns"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
+    "kinsol_fser_ex_bl":C)
+       IN_FILE="examples/kinsol/fcmix_serial/Makefile_ex"
+       SOLVER="KINSOL"
+       SOLVER_LIB="sundials_kinsol"
+       SOLVER_FLIB="sundials_fkinsol"
+       EXAMPLES="fkinDiagon_kry"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "kinsol_fser_ex":C)
-     IN_FILE="examples/kinsol/fcmix_serial/Makefile_ex"
-     SOLVER="KINSOL"
-     SOLVER_LIB="sundials_kinsol"
-     SOLVER_FLIB="sundials_fkinsol"
-     SOLVER_BL_LIB="sundials_kinsol_bl"
-     SOLVER_BL_FLIB="sundials_fkinsol_bl"
-     EXAMPLES="fkinDiagon_kry"
-     EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
-      ;;
+       IN_FILE="examples/kinsol/fcmix_serial/Makefile_ex"
+       SOLVER="KINSOL"
+       SOLVER_LIB="sundials_kinsol"
+       SOLVER_FLIB="sundials_fkinsol"
+       EXAMPLES="fkinDiagon_kry"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "kinsol_par_ex":C)
      IN_FILE="examples/kinsol/parallel/Makefile_ex"
      SOLVER="KINSOL"
      SOLVER_LIB="sundials_kinsol"
      SOLVER_FLIB=""
-     SOLVER_BL_LIB=""
-     SOLVER_BL_FLIB=""
      EXAMPLES="kinFoodWeb_kry_bbd_p kinFoodWeb_kry_p"
      EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
+     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
       ;;
     "kinsol_fpar_ex":C)
      IN_FILE="examples/kinsol/fcmix_parallel/Makefile_ex"
      SOLVER="KINSOL"
      SOLVER_LIB="sundials_kinsol"
      SOLVER_FLIB="sundials_fkinsol"
-     SOLVER_BL_LIB=""
-     SOLVER_BL_FLIB=""
      EXAMPLES="fkinDiagon_kry_p"
      EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
+     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
       ;;
+    "cpodes_ser_ex_bl":C)
+       IN_FILE="examples/cpodes/serial/Makefile_ex"
+       SOLVER="CPODES"
+       SOLVER_LIB="sundials_cpodes"
+       SOLVER_FLIB=""
+       EXAMPLES="cpsAdvDiff_bnd cpsAdvDiff_non cpsNewtCrd_dns cpsPend_dns cpsRoberts_dns cpsVanDPol_non"
+       EXAMPLES_BL="cpsAdvDiff_bndL cpsPend_dnsL cpsRoberts_dnsL"
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "cpodes_ser_ex":C)
-     IN_FILE="examples/cpodes/serial/Makefile_ex"
-     SOLVER="CPODES"
-     SOLVER_LIB="sundials_cpodes"
-     SOLVER_FLIB=""
-     SOLVER_BL_LIB="sundials_cpodes_bl"
-     SOLVER_BL_FLIB=""
-     EXAMPLES="cpsAdvDiff_bnd cpsAdvDiff_non cpsNewtCrd_dns cpsPend_dns cpsRoberts_dns cpsVanDPol_non"
-     EXAMPLES_BL="cpsAdvDiff_bndL cpsPend_dnsL cpsRoberts_dnsL"
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
-      ;;
+       IN_FILE="examples/cpodes/serial/Makefile_ex"
+       SOLVER="CPODES"
+       SOLVER_LIB="sundials_cpodes"
+       SOLVER_FLIB=""
+       EXAMPLES="cpsAdvDiff_bnd cpsAdvDiff_non cpsNewtCrd_dns cpsPend_dns cpsRoberts_dns cpsVanDPol_non"
+       EXAMPLES_BL=""
+       ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
+        ;;
     "cpodes_par_ex":C)
      IN_FILE="examples/cpodes/parallel/Makefile_ex"
      SOLVER="CPODES"
      SOLVER_LIB="sundials_cpodes"
      SOLVER_FLIB=""
-     SOLVER_BL_LIB=""
-     SOLVER_BL_FLIB=""
      EXAMPLES="cpsHeat2D_kry_bbd_p"
      EXAMPLES_BL=""
-     #
-     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}" "${SOLVER_BL_LIB}" "${SOLVER_BL_FLIB}"
+     ${SHELL} bin/makefile-update.sh "${IN_FILE}" "${SOLVER}" "${EXAMPLES}" "${EXAMPLES_BL}" "${SOLVER_LIB}" "${SOLVER_FLIB}"
       ;;
 
   esac
@@ -30432,8 +30547,10 @@ echo "  Serial Fortran examples:   ${SERIAL_F77_EXAMPLES}"
 echo "  Parallel Fortran examples: ${PARALLEL_F77_EXAMPLES}"
 
 if test "X${DEV_EXAMPLES_ENABLED}" = "Xyes"; then
-echo "  Serial C examples (dev):   ${SERIAL_DEV_C_EXAMPLES}"
-echo "  Parallel C examples (dev): ${PARALLEL_DEV_C_EXAMPLES}"
+echo "  Serial C examples (dev):         ${SERIAL_DEV_C_EXAMPLES}"
+echo "  Parallel C examples (dev):       ${PARALLEL_DEV_C_EXAMPLES}"
+echo "  Serial Fortran examples (dev):   ${SERIAL_DEV_F77_EXAMPLES}"
+echo "  Parallel Fortran examples (dev): ${PARALLEL_DEV_F77_EXAMPLES}"
 fi
 fi
 

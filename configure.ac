@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.50 $
-# $Date: 2007-12-12 18:13:21 $
+# $Revision: 1.51 $
+# $Date: 2007-12-19 20:33:58 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -109,6 +109,7 @@ AC_SUBST(F77_CASE)
 AC_SUBST(F77_UNDERSCORES)
 AC_SUBST(PRECISION_LEVEL)
 AC_SUBST(GENERIC_MATH_LIB)
+AC_SUBST(BLAS_LAPACK_MACRO)
 AC_SUBST(SUNDIALS_EXPORT)
 AC_SUBST(F77_MPI_COMM_F2C)
 AC_SUBST(F77_LNKR)

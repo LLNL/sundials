@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2007-12-12 18:13:19 $
+# $Revision: 1.7 $
+# $Date: 2007-12-19 20:33:56 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -969,9 +969,18 @@ IF(LAPACK_STATUS STREQUAL "needed")
     PRINT_WARNING("Unable to link a C code to the Lapack libraries"
       "LAPACK support will not be provided")
     SET(LAPACK_STATUS "unavailable")
+    SET(BLAS_LAPACK_MACRO "#define SUNDIALS_BLAS_LAPACK 0")
   ENDIF(LTEST_OK)
 
 ENDIF(LAPACK_STATUS STREQUAL "needed")
+
+# Set the macro to be inserted in sundials_config.h
+IF(LAPACK_STATUS STREQUAL "available")
+  SET(BLAS_LAPACK_MACRO "#define SUNDIALS_BLAS_LAPACK 1")
+ELSE(LAPACK_STATUS STREQUAL "available")
+  SET(BLAS_LAPACK_MACRO "#define SUNDIALS_BLAS_LAPACK 0")
+ENDIF(LAPACK_STATUS STREQUAL "available")
+  
 
 # -------------------------------------------------------------
 # Decide how to compile MPI codes.

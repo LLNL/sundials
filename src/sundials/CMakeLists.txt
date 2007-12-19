@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-02-01 16:42:07 $
+# $Revision: 1.3 $
+# $Date: 2007-12-19 20:34:01 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -24,6 +24,7 @@ SET(sundials_HEADERS
   sundials_iterative.h
   sundials_math.h
   sundials_nvector.h
+  sundials_fnvector.h
   sundials_spbcgs.h
   sundials_spgmr.h
   sundials_sptfqmr.h

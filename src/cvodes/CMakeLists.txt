@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-02-01 16:42:07 $
+# $Revision: 1.3 $
+# $Date: 2007-12-19 20:34:00 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -66,6 +66,20 @@ SET(cvodes_HEADERS
 # Add prefix with complete path to the CVODES header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvodes/ cvodes_HEADERS)
 
+# If Blas/Lapack support was enabled, set-up additional file lists
+IF(LAPACK_OK)
+  SET(cvodes_BL_SOURCES cvodes_lapack.c)
+  SET(shared_BL_SOURCES sundials_lapack.c)
+  ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_BL_SOURCES)
+  SET(cvodes_BL_HEADERS cvodes_lapack.h)
+  ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvodes/ cvodes_BL_HEADERS)
+ELSE(LAPACK_OK)
+  SET(cvodes_BL_SOURCES "")
+  SET(shared_BL_SOURCES "")
+  SET(cvodes_BL_HEADERS "")
+ENDIF(LAPACK_OK)
+
+
 # Add source directories to include directories for access to
 # implementation only header files.
 INCLUDE_DIRECTORIES(.)
@@ -78,7 +92,9 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static CVODES library
-  ADD_LIBRARY(sundials_cvodes_static STATIC ${cvodes_SOURCES} ${shared_SOURCES})
+  ADD_LIBRARY(sundials_cvodes_static STATIC 
+    ${cvodes_SOURCES}  ${cvodes_BL_SOURCES}
+    ${shared_SOURCES}  ${shared_BL_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvodes_static
@@ -93,7 +109,9 @@ ENDIF(BUILD_STATIC_LIBS)
 IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the CVODES library
-  ADD_LIBRARY(sundials_cvodes_shared SHARED ${cvodes_SOURCES} ${shared_SOURCES})
+  ADD_LIBRARY(sundials_cvodes_shared SHARED 
+    ${cvodes_SOURCES}  ${cvodes_BL_SOURCES}
+    ${shared_SOURCES}  ${shared_BL_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvodes_shared
@@ -109,32 +127,8 @@ IF(BUILD_SHARED_LIBS)
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the CVODES header files
-INSTALL(FILES ${cvodes_HEADERS} DESTINATION include/cvodes)
+INSTALL(FILES ${cvodes_HEADERS}  ${cvodes_BL_HEADERS} DESTINATION include/cvodes)
 
 # Install the CVODES implementation header file
 INSTALL(FILES cvodes_impl.h DESTINATION include/cvodes)
 
-# If Blas/Lapack support was enabled, create and install the wrapper library
-# and install the interface headers
-IF(LAPACK_OK)
-  SET(cvodes_BL_SOURCES cvodes_lapack.c)
-  SET(shared_BL_SOURCES sundials_lapack.c)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_BL_SOURCES)
-  SET(cvodes_BL_HEADERS cvodes_lapack.h)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvodes/ cvodes_BL_HEADERS)
-  IF(BUILD_STATIC_LIBS)
-    ADD_LIBRARY(sundials_cvodes_bl_static STATIC ${cvodes_BL_SOURCES} ${shared_BL_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_cvodes_bl_static
-      PROPERTIES OUTPUT_NAME sundials_cvodes_bl CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_cvodes_bl_static DESTINATION lib)
-  ENDIF(BUILD_STATIC_LIBS)
-  IF(BUILD_SHARED_LIBS)
-    ADD_LIBRARY(sundials_cvodes_bl_shared SHARED ${cvodes_BL_SOURCES} ${shared_BL_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_cvodes_bl_shared
-      PROPERTIES OUTPUT_NAME sundials_cvodes_bl CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_cvodes_bl_shared
-      PROPERTIES VERSION ${cvodeslib_VERSION} SOVERSION ${cvodeslib_SOVERSION})
-    INSTALL(TARGETS sundials_cvodes_bl_shared DESTINATION lib)
-  ENDIF(BUILD_SHARED_LIBS)
-  INSTALL(FILES ${cvodes_BL_HEADERS} DESTINATION include/cvodes)
-ENDIF(LAPACK_OK)

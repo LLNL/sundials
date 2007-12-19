@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-10-25 20:03:42 $
+# $Revision: 1.2 $
+# $Date: 2007-12-19 20:34:00 $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -21,10 +21,6 @@
 #    libdir         path to SUNDIALS libraries
 #    SOLVER_LIB     name of the SUNDIALS solver's library
 #    SOLVER_FLIB    name of the SUNDIALS solver's F77-C library
-#    SOLVER_BL_LIB  name of the SUNDIALS solver's Blas/Lapack 
-#                   interface library (possibly empty)
-#    SOLVER_BL_FLIB name of the SUNDIALS solver's Blas/Lapack
-#                   F77-C interface library
 #    BLAS_LAPACK_LIBS list of libraries for Blas and Lapack
 #                   (possibly empty)
 #    LIBS           additional libraries
@@ -61,15 +57,6 @@ FIND_LIBRARY(SUNDIALS_NVEC_FLIB
   sundials_fnvecserial ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR F77-C library")
 
-# Find the SUNDIALS solver's Blas/Lapack interface library
-FIND_LIBRARY(SUNDIALS_SOLVER_BL_LIB
-  @SOLVER_BL_LIB@ ${SUNDIALS_LIB_DIR}
-  DOC "@SOLVER@ Blas/Lapack interface library")
-
-FIND_LIBRARY(SUNDIALS_SOLVER_BL_FLIB 
-  @SOLVER_BL_FLIB@ ${SUNDIALS_LIB_DIR}
-  DOC "@SOLVER@ Blas/Lapack F77-C interface library")
-
 # Set additional libraries
 SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
@@ -88,7 +75,6 @@ ENDFOREACH(example ${examples})
 FOREACH(example ${examples_BL})
   ADD_EXECUTABLE(${example} ${example}.f)
   TARGET_LINK_LIBRARIES(${example}
-    ${SUNDIALS_SOLVER_BL_FLIB} ${SUNDIALS_SOLVER_BL_LIB}
     ${SUNDIALS_SOLVER_FLIB} ${SUNDIALS_SOLVER_LIB}
     ${SUNDIALS_NVEC_FLIB} ${SUNDIALS_NVEC_LIB}
     ${SUNDIALS_EXTRA_LIB})

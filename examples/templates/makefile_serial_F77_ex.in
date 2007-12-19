@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-10-25 20:03:42 $
+# $Revision: 1.2 $
+# $Date: 2007-12-19 20:34:00 $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -29,8 +29,6 @@
 #                   (possibly empty)
 #    SOLVER_LIB     name of the SUNDIALS solver's library
 #    SOLVER_FLIB    name of the SUNDIALS solver's F77-C interface library
-#    SOLVER_BL_LIB  name of the SUNDIALS solver's Blas/Lapack 
-#                   interface library (possibly empty)
 #    BLAS_LAPACK_LIBS list of libraries for Blas and Lapack
 #                   (possibly empty)
 # -----------------------------------------------------------------
@@ -49,7 +47,7 @@ F77_LDFLAGS = @F77_LDFLAGS@
 F77_LIBS    = @F77_LIBS@
 
 LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecserial -lsundials_nvecserial ${LIBS}
-LIBRARIES_BL = -l@SOLVER_BL_FLIB@ -l@SOLVER_BL_LIB@ @BLAS_LAPACK_LIBS@
+LIBRARIES_BL = @BLAS_LAPACK_LIBS@
 
 EXAMPLES = @EXAMPLES@
 EXAMPLES_BL = @EXAMPLES_BL@

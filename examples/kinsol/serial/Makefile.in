@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2007-12-12 18:13:22 $
+# $Revision: 1.10 $
+# $Date: 2007-12-19 20:34:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -54,10 +54,6 @@ SUNDIALS_INCS = -I$(top_srcdir)/include -I$(top_builddir)/include
 SUNDIALS_LIBS = $(top_builddir)/src/kinsol/libsundials_kinsol.la         \
 	        $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
 
-SUNDIALS_BL_LIBS = $(top_builddir)/src/kinsol/libsundials_kinsol_bl.la   \
-	           $(top_builddir)/src/kinsol/libsundials_kinsol.la      \
-	           $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
-
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
@@ -84,7 +80,7 @@ all:
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
 	for i in ${EXAMPLES_BL} ; do \
 	  $(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/$${i}.c -o $${i}${OBJ_EXT} ; \
-	  $(LIBTOOL) --mode=link $(CC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}${OBJ_EXT} $(CFLAGS) $(LDFLAGS) $(SUNDIALS_BL_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS) ; \
+	  $(LIBTOOL) --mode=link $(CC) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}${OBJ_EXT} $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS) ; \
 	done ; \
 	fi
 
