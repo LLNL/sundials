@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:26 $
+ * $Revision: 1.2 $
+ * $Date: 2007-12-19 20:26:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -19,9 +19,6 @@
 #include <cpodes/cpodes.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_math.h>
-
-
-#define ODE CP_EXPL
 
 /* Problem Constants */
 
@@ -41,7 +38,6 @@
 #define P1_DTOUT      RCONST(2.214773875)
 
 /* Private Helper Functions */
-static realtype MaxError(N_Vector y, realtype t);
 static void PrintFinalStats(void *cpode_mem);
 
 /* Functions Called by the Solver */
@@ -50,7 +46,6 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 int main()
 {
-  void *fct;
   void *cpode_mem;
   N_Vector y, yp;
   realtype reltol=RTOL, abstol=ATOL, t, tout, hu;
@@ -66,16 +61,16 @@ int main()
 
   yp = N_VNew_Serial(P1_NEQ);
   
-  if (ODE == CP_EXPL) {
-    fct = (void *)f;
-  } else {
-    fct = (void *)res;
-    f(P1_T0, y, yp, NULL);
-  }
+  cpode_mem = CPodeCreate(CP_ADAMS, CP_FUNCTIONAL);
 
-  cpode_mem = CPodeCreate(ODE, CP_ADAMS, CP_FUNCTIONAL);
-  /*  flag = CPodeSetInitStep(cpode_mem, 4.0e-9);*/
-  flag = CPodeInit(cpode_mem, fct, NULL, P1_T0, y, yp, CP_SS, reltol, &abstol);
+  flag = CPodeInitExpl(cpode_mem, f, P1_T0, y);
+
+  /*
+    f(P1_T0, y, yp, NULL);
+    flag = CPodeInitImpl(cpode_mem, res, P1_T0, y, yp);
+  */
+
+  flag = CPodeSStolerances(cpode_mem, reltol, abstol);
 
   printf("\n     t           x              xdot         qu     hu \n");
   for(iout=1, tout=P1_T1; iout <= P1_NOUT; iout++, tout += P1_DTOUT) {
@@ -115,32 +110,6 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
   return(0);
 } 
-
-
-static realtype MaxError(N_Vector y, realtype t)
-{
-  long int i, j, k;
-  realtype *ydata, er, ex=ZERO, yt, maxError=ZERO, ifact_inv, jfact_inv=ONE;
-  
-  if (t == ZERO) return(ZERO);
-
-  ydata = NV_DATA_S(y);
-  if (t <= THIRTY) ex = EXP(-TWO*t); 
-  
-  for (j = 0; j < P2_MESHY; j++) {
-    ifact_inv = ONE;
-    for (i = 0; i < P2_MESHX; i++) {
-      k = i + j * P2_MESHX;
-      yt = RPowerI(t,i+j) * ex * ifact_inv * jfact_inv;
-      er = ABS(ydata[k] - yt);
-      if (er > maxError) maxError = er;
-      ifact_inv /= (i+1);
-    }
-    jfact_inv /= (j+1);
-  }
-  return(maxError);
-}
-
 
 
 static void PrintFinalStats(void *cpode_mem)

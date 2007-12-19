@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-24 19:09:18 $
+ * $Revision: 1.4 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -32,6 +32,7 @@
 
 #include "cpodes_bbdpre_impl.h"
 #include "cpodes_private.h"
+#include "cpodes_spils_impl.h"
 
 #include <sundials/sundials_math.h>
 
@@ -72,6 +73,9 @@ static int cpBBDPrecSolveImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
                               realtype gamma, realtype delta, 
                               void *bbd_data, N_Vector tmp);
 
+/* Prototype for cpBBDPrecFree */
+static void cpBBDPrecFree(CPodeMem cp_mem);
+
 /* Difference quotient Jacobian calculation routines */
 
 static int cpBBDDQJacExpl(CPBBDPrecData pdata, realtype t, 
@@ -94,34 +98,44 @@ static int cpBBDDQJacImpl(CPBBDPrecData pdata, realtype tt, realtype gamma,
  * =================================================================
  */
 
-void *CPBBDPrecAlloc(void *cpode_mem, int Nlocal, 
-                     int mudq, int mldq, int mukeep, int mlkeep, 
-                     realtype dqrely, 
-                     void *gloc, CPBBDCommFn cfn)
+int CPBBDPrecInit(void *cpode_mem, int Nlocal, 
+                  int mudq, int mldq,
+                  int mukeep, int mlkeep, 
+                  realtype dqrely, 
+                  void *gloc, CPBBDCommFn cfn)
 {
   CPodeMem cp_mem;
+  CPSpilsMem cpspils_mem;
   CPBBDPrecData pdata;
   N_Vector tmp4;
   int muk, mlk, storage_mu;
+  int flag;
 
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, 0, "CPBBDPRE", "CPBBDPrecAlloc", MSGBBDP_CPMEM_NULL);
-    return(NULL);
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPBBDPRE", "CPBBDPrecInit", MSGBBD_CPMEM_NULL);
+    return(CPSPILS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
+  /* Test if one of the SPILS linear solvers has been attached */
+  if (cp_mem->cp_lmem == NULL) {
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPBBDPRE", "CPBBDPrecInit", MSGBBD_LMEM_NULL);
+    return(CPSPILS_LMEM_NULL);
+  }
+  cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
+
   /* Test if the NVECTOR package is compatible with the BLOCK BAND preconditioner */
   if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    cpProcessError(cp_mem, 0, "CPBBDPRE", "CPBBDPrecAlloc", MSGBBDP_BAD_NVECTOR);
-    return(NULL);
+    cpProcessError(cp_mem, CPSPILS_ILL_INPUT, "CPBBDPRE", "CPBBDPrecInit", MSGBBD_BAD_NVECTOR);
+    return(CPSPILS_ILL_INPUT);
   }
 
   /* Allocate data memory */
   pdata = NULL;
   pdata = (CPBBDPrecData) malloc(sizeof *pdata);  
   if (pdata == NULL) {
-    cpProcessError(cp_mem, 0, "CPBBDPRE", "CPBBDPrecAlloc", MSGBBDP_MEM_FAIL);
-    return(NULL);
+    cpProcessError(cp_mem, CPSPILS_ILL_INPUT, "CPBBDPRE", "CPBBDPrecInit", MSGBBD_MEM_FAIL);
+    return(CPSPILS_ILL_INPUT);
   }
 
   /* Set pointers to gloc and cfn; load half-bandwidths */
@@ -153,8 +167,8 @@ void *CPBBDPrecAlloc(void *cpode_mem, int Nlocal,
   pdata->savedJ = NewBandMat(Nlocal, muk, mlk, muk);
   if (pdata->savedJ == NULL) { 
     free(pdata); pdata = NULL; 
-    cpProcessError(cp_mem, 0, "CPBBDPRE", "CPBBDPrecAlloc", MSGBBDP_MEM_FAIL);
-    return(NULL); 
+    cpProcessError(cp_mem, CPSPILS_MEM_FAIL, "CPBBDPRE", "CPBBDPrecInit", MSGBBD_MEM_FAIL);
+    return(CPSPILS_MEM_FAIL); 
   }
 
   /* Allocate memory for preconditioner matrix */
@@ -164,9 +178,10 @@ void *CPBBDPrecAlloc(void *cpode_mem, int Nlocal,
   if (pdata->savedP == NULL) {
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cpProcessError(cp_mem, 0, "CPBBDPRE", "CPBBDPrecAlloc", MSGBBDP_MEM_FAIL);
-    return(NULL);
+    cpProcessError(cp_mem, CPSPILS_MEM_FAIL, "CPBBDPRE", "CPBBDPrecInit", MSGBBD_MEM_FAIL);
+    return(CPSPILS_MEM_FAIL);
   }
+
   /* Allocate memory for pivots */
   pdata->pivots = NULL;
   pdata->pivots = NewIntArray(Nlocal);
@@ -174,9 +189,10 @@ void *CPBBDPrecAlloc(void *cpode_mem, int Nlocal,
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cpProcessError(cp_mem, 0, "CPBBDPRE", "CPBBDPrecAlloc", MSGBBDP_MEM_FAIL);
-    return(NULL);
+    cpProcessError(cp_mem, CPSPILS_MEM_FAIL, "CPBBDPRE", "CPBBDPrecInit", MSGBBD_MEM_FAIL);
+    return(CPSPILS_MEM_FAIL);
   }
+
   /* Allocate tmp4 for use by cpBBDDQJacImpl */
   tmp4 = NULL;
   tmp4 = N_VClone(vec_tmpl); 
@@ -185,8 +201,8 @@ void *CPBBDPrecAlloc(void *cpode_mem, int Nlocal,
     DestroyMat(pdata->savedJ);
     DestroyArray(pdata->pivots);
     free(pdata); pdata = NULL;
-    cpProcessError(cp_mem, 0, "CPBBDPRE", "CPBBDPrecAlloc", MSGBBDP_MEM_FAIL);
-    return(NULL);
+    cpProcessError(cp_mem, CPSPILS_MEM_FAIL, "CPBBDPRE", "CPBBDPrecInit", MSGBBD_MEM_FAIL);
+    return(CPSPILS_MEM_FAIL);
   }
   pdata->tmp4 = tmp4;
 
@@ -201,120 +217,54 @@ void *CPBBDPrecAlloc(void *cpode_mem, int Nlocal,
   pdata->ipwsize = Nlocal;
   pdata->nge = 0;
 
-  return((void *)pdata);
-}
+  /* Overwrite the P_data field in the SPILS memory */
+  cpspils_mem->s_P_data = pdata;
 
-int CPBBDSptfqmr(void *cpode_mem, int pretype, int maxl, void *bbd_data)
-{
-  CPodeMem cp_mem;
-  int flag;
+  /* Attach the pfree function */
+  cpspils_mem->s_pfree = cpBBDPrecFree;
 
-  flag = CPSptfqmr(cpode_mem, pretype, maxl);
-  if(flag != CPSPILS_SUCCESS) return(flag);
-
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (bbd_data == NULL) {
-    cpProcessError(cp_mem, CPBBDPRE_PDATA_NULL, "CPBBDPRE", "CPBBDSptfqmr", MSGBBDP_PDATA_NULL);
-    return(CPBBDPRE_PDATA_NULL);
-  } 
-
+  /* Attach preconditioner solve and setup functions */
   switch (ode_type) {
   case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupExpl, (void *)cpBBDPrecSolveExpl, bbd_data);
+    flag = CPSpilsSetPrecFnExpl(cpode_mem, cpBBDPrecSetupExpl, cpBBDPrecSolveExpl);
     break;
   case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupImpl, (void *)cpBBDPrecSolveImpl, bbd_data);
+    flag = CPSpilsSetPrecFnImpl(cpode_mem, cpBBDPrecSetupImpl, cpBBDPrecSolveImpl);
     break;
   }
-  if(flag != CPSPILS_SUCCESS) return(flag);
 
-  return(CPSPILS_SUCCESS);
+  return(flag);
 }
 
-int CPBBDSpbcg(void *cpode_mem, int pretype, int maxl, void *bbd_data)
+
+int CPBBDPrecReInit(void *cpode_mem, int mudq, int mldq, realtype dqrely)
 {
   CPodeMem cp_mem;
-  int flag;
-
-  flag = CPSpbcg(cpode_mem, pretype, maxl);
-  if(flag != CPSPILS_SUCCESS) return(flag);
-
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (bbd_data == NULL) {
-    cpProcessError(cp_mem, CPBBDPRE_PDATA_NULL, "CPBBDPRE", "CPBBDSpbcg", MSGBBDP_PDATA_NULL);
-    return(CPBBDPRE_PDATA_NULL);
-  } 
-
-  switch (ode_type) {
-  case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupExpl, (void *)cpBBDPrecSolveExpl, bbd_data);
-    break;
-  case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupImpl, (void *)cpBBDPrecSolveImpl, bbd_data);
-    break;
-  }
-  if(flag != CPSPILS_SUCCESS) return(flag);
-
-  return(CPSPILS_SUCCESS);
-}
-
-int CPBBDSpgmr(void *cpode_mem, int pretype, int maxl, void *bbd_data)
-{
-  CPodeMem cp_mem;
-  int flag;
-
-  flag = CPSpgmr(cpode_mem, pretype, maxl);
-  if(flag != CPSPILS_SUCCESS) return(flag);
-
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if (bbd_data == NULL) {
-    cpProcessError(cp_mem, CPBBDPRE_PDATA_NULL, "CPBBDPRE", "CPBBDSpgmr", MSGBBDP_PDATA_NULL);
-    return(CPBBDPRE_PDATA_NULL);
-  } 
-
-  switch (ode_type) {
-  case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupExpl, (void *)cpBBDPrecSolveExpl, bbd_data);
-    break;
-  case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBBDPrecSetupImpl, (void *)cpBBDPrecSolveImpl, bbd_data);
-    break;
-  }
-  if(flag != CPSPILS_SUCCESS) return(flag);
-
-  return(CPSPILS_SUCCESS);
-}
-
-int CPBBDPrecReInit(void *bbd_data, int mudq, int mldq, 
-                    realtype dqrely,
-                    void *gloc, CPBBDCommFn cfn)
-{
+  CPSpilsMem cpspils_mem;
   CPBBDPrecData pdata;
-  CPodeMem cp_mem;
   int Nlocal;
 
-  if (bbd_data == NULL) {
-    cpProcessError(NULL, CPBBDPRE_PDATA_NULL, "CPBBDPRE", "CPBBDPrecReInit", MSGBBDP_PDATA_NULL);
-    return(CPBBDPRE_PDATA_NULL);
+  if (cpode_mem == NULL) {
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPBBDPRE", "CPBBDPrecReInit", MSGBBD_CPMEM_NULL);
+    return(CPSPILS_MEM_NULL);
   }
-  pdata  = (CPBBDPrecData) bbd_data;
-  cp_mem = (CPodeMem) pdata->cpode_mem;
+  cp_mem = (CPodeMem) cpode_mem;
 
-  /* Set pointers to gloc and cfn; load half-bandwidths */
-  switch (ode_type) {
-  case CP_EXPL:
-    pdata->glocE = (CPBBDLocalRhsFn) gloc;
-    pdata->glocI = NULL;
-    break;
-  case CP_IMPL:
-    pdata->glocI = (CPBBDLocalResFn) gloc;
-    pdata->glocE = NULL;
-    break;
+  /* Test if one of the SPILS linear solvers has been attached */
+  if (cp_mem->cp_lmem == NULL) {
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPBBDPRE", "CPBBDPrecReInit", MSGBBD_LMEM_NULL);
+    return(CPSPILS_LMEM_NULL);
   }
-  pdata->cfn = cfn;
+  cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
+
+  /* Test if the preconditioner data is non-NULL */
+  if (cpspils_mem->s_P_data == NULL) {
+    cpProcessError(cp_mem, CPSPILS_PMEM_NULL, "CPBBDPRE", "CPBBDPrecReInit", MSGBBD_PMEM_NULL);
+    return(CPSPILS_PMEM_NULL);
+  } 
+  pdata = (CPBBDPrecData) cpspils_mem->s_P_data;
+
+  /* Load half-bandwidths */
   Nlocal = pdata->n_local;
   pdata->mudq = MIN(Nlocal-1, MAX(0,mudq));
   pdata->mldq = MIN(Nlocal-1, MAX(0,mldq));
@@ -325,87 +275,70 @@ int CPBBDPrecReInit(void *bbd_data, int mudq, int mldq,
   /* Re-initialize nge */
   pdata->nge = 0;
 
-  return(CPBBDPRE_SUCCESS);
+  return(CPSPILS_SUCCESS);
 }
 
-void CPBBDPrecFree(void **bbd_data)
+
+int CPBBDPrecGetWorkSpace(void *cpode_mem, long int *lenrwBBDP, long int *leniwBBDP)
 {
-  CPBBDPrecData pdata;
-  
-  if (*bbd_data == NULL) return;
-
-  pdata = (CPBBDPrecData) (*bbd_data);
-  DestroyMat(pdata->savedJ);
-  DestroyMat(pdata->savedP);
-  DestroyArray(pdata->pivots);
-  N_VDestroy(pdata->tmp4);
-
-  free(*bbd_data);
-  *bbd_data = NULL;
-
-}
-
-int CPBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP)
-{
+  CPodeMem cp_mem;
+  CPSpilsMem cpspils_mem;
   CPBBDPrecData pdata;
 
-  if (bbd_data == NULL) {
-    cpProcessError(NULL, CPBBDPRE_PDATA_NULL, "CPBBDPRE", "CPBBDPrecGetWorkSpace", MSGBBDP_PDATA_NULL);    
-    return(CPBBDPRE_PDATA_NULL);
+  if (cpode_mem == NULL) {
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPBBDPRE", "CPBBDPrecGetWorkSpace", MSGBBD_CPMEM_NULL);
+    return(CPSPILS_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  if (cp_mem->cp_lmem == NULL) {
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPBBDPRE", "CPBBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
+    return(CPSPILS_LMEM_NULL);
+  }
+  cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
+
+  if (cpspils_mem->s_P_data == NULL) {
+    cpProcessError(cp_mem, CPSPILS_PMEM_NULL, "CPBBDPRE", "CPBBDPrecGetWorkSpace", MSGBBD_PMEM_NULL);
+    return(CPSPILS_PMEM_NULL);
   } 
-
-  pdata = (CPBBDPrecData) bbd_data;
+  pdata = (CPBBDPrecData) cpspils_mem->s_P_data;
 
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(CPBBDPRE_SUCCESS);
+  return(CPSPILS_SUCCESS);
 }
 
-int CPBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
+
+int CPBBDPrecGetNumGfnEvals(void *cpode_mem, long int *ngevalsBBDP)
 {
+  CPodeMem cp_mem;
+  CPSpilsMem cpspils_mem;
   CPBBDPrecData pdata;
 
-  if (bbd_data == NULL) {
-    cpProcessError(NULL, CPBBDPRE_PDATA_NULL, "CPBBDPRE", "CPBBDPrecGetNumGfnEvals", MSGBBDP_PDATA_NULL);
-    return(CPBBDPRE_PDATA_NULL);
-  } 
+  if (cpode_mem == NULL) {
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPBBDPRE", "CPBBDPrecGetNumGfnEvals", MSGBBD_CPMEM_NULL);
+    return(CPSPILS_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
 
-  pdata = (CPBBDPrecData) bbd_data;
+  if (cp_mem->cp_lmem == NULL) {
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPBBDPRE", "CPBBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
+    return(CPSPILS_LMEM_NULL);
+  }
+  cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
+
+  if (cpspils_mem->s_P_data == NULL) {
+    cpProcessError(cp_mem, CPSPILS_PMEM_NULL, "CPBBDPRE", "CPBBDPrecGetNumGfnEvals", MSGBBD_PMEM_NULL);
+    return(CPSPILS_PMEM_NULL);
+  } 
+  pdata = (CPBBDPrecData) cpspils_mem->s_P_data;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(CPBBDPRE_SUCCESS);
+  return(CPSPILS_SUCCESS);
 }
 
-/*
- * -----------------------------------------------------------------
- * CPBBDPrecGetReturnFlagName
- * -----------------------------------------------------------------
- */
-
-char *CPBBDPrecGetReturnFlagName(int flag)
-{
-  char *name;
-
-  name = (char *)malloc(30*sizeof(char));
-
-  switch(flag) {
-  case CPBBDPRE_SUCCESS:
-    sprintf(name,"CPBBDPRE_SUCCESS");
-    break;   
-  case CPBBDPRE_PDATA_NULL:
-    sprintf(name,"CPBBDPRE_PDATA_NULL");
-    break;
-  case CPBBDPRE_FUNC_UNRECVR:
-    sprintf(name,"CPBBDPRE_FUNC_UNRECVR");
-    break;
-  default:
-    sprintf(name,"NONE");
-  }
-
-  return(name);
-}
 
 /* 
  * =================================================================
@@ -468,7 +401,7 @@ char *CPBBDPrecGetReturnFlagName(int flag)
  *
  * gamma   is the scalar appearing in the Newton matrix.
  *
- * bbd_data  is a pointer to user data returned by CPBBDPrecAlloc.
+ * bbd_data  is a pointer to user data returned by CPBBDPrecInit.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated for
  *           NVectors which are be used by cpBBDPrecSetupExpl
@@ -509,7 +442,7 @@ static int cpBBDPrecSetupExpl(realtype t, N_Vector y, N_Vector fy,
 
     retval = cpBBDDQJacExpl(pdata, t, y, tmp1, tmp2, tmp3);
     if (retval < 0) {
-      cpProcessError(cp_mem, CPBBDPRE_FUNC_UNRECVR, "CPBBDPRE", "cpBBDPrecSetup", MSGBBDP_FUNC_FAILED);
+      cpProcessError(cp_mem, -1, "CPBBDPRE", "cpBBDPrecSetup", MSGBBD_FUNC_FAILED);
       return(-1);
     }
     if (retval > 0) {
@@ -545,7 +478,7 @@ static int cpBBDPrecSetupExpl(realtype t, N_Vector y, N_Vector fy,
  *   r - right-hand side vector of the linear system.
  *
  *   bbd_data - pointer to the preconditioner data returned by
- *              CPBBDPrecAlloc.
+ *              CPBBDPrecInit.
  *
  *   z - output vector computed by cpBBDPrecSolveExpl.
  *
@@ -598,7 +531,7 @@ static int cpBBDPrecSolveExpl(realtype t, N_Vector y, N_Vector fy,
  * gamma is the scalar in the system Jacobian, proportional to h.
  *
  * bbd_data is a pointer to user preconditioner data returned by
- *    CPBBDPrecAlloc.
+ *    CPBBDPrecInit.
  *
  * tmp1, tmp2, tmp3 are pointers to vectors of type N_Vector, 
  *    used for temporary storage or work space.
@@ -629,7 +562,7 @@ static int cpBBDPrecSetupImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
   retval = cpBBDDQJacImpl(pdata, t, gamma, y, yp,
                           tmp1, tmp2, tmp3, pdata->tmp4);
   if (retval < 0) {
-    cpProcessError(cp_mem, CPBBDPRE_FUNC_UNRECVR, "CPBBDPRE", "cpBBDPrecSetupImpl", MSGBBDP_FUNC_FAILED);
+    cpProcessError(cp_mem, -1, "CPBBDPRE", "cpBBDPrecSetupImpl", MSGBBD_FUNC_FAILED);
     return(-1);
   }
   if (retval > 0) {
@@ -660,7 +593,7 @@ static int cpBBDPrecSetupImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
  * x is the computed solution vector.
  *
  * bbd_data is a pointer to user preconditioner data returned
- *     by CPBBDPrecAlloc.
+ *     by CPBBDPrecInit.
  *
  * The arguments t, y, yp, r, gamma, delta, and tmp are NOT used.
  *
@@ -689,14 +622,42 @@ static int cpBBDPrecSolveImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
 }
 
 /* 
+ * -----------------------------------------------------------------
+ * Function: cpBBDPrecFree
+ * -----------------------------------------------------------------
+ * This is the pfree function (in the SPILS memory) defined by the
+ * BBD preconditioner.
+ */
+
+static void cpBBDPrecFree(CPodeMem cp_mem)
+{
+  CPSpilsMem cpspils_mem;
+  CPBBDPrecData pdata;
+  
+  if (cp_mem->cp_lmem == NULL) return;
+  cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
+  
+  if (cpspils_mem->s_P_data == NULL) return;
+  pdata = (CPBBDPrecData) cpspils_mem->s_P_data;
+
+  DestroyMat(savedJ);
+  DestroyMat(savedP);
+  DestroyArray(pivots);
+
+  free(pdata);
+  pdata = NULL;
+}
+
+
+/* 
  * =================================================================
  * DQ LOCAL JACOBIAN APROXIMATIONS
  * =================================================================
  */
 
-#define ewt    (cp_mem->cp_ewt)
-#define h      (cp_mem->cp_h)
-#define f_data (cp_mem->cp_f_data)
+#define ewt       (cp_mem->cp_ewt)
+#define h         (cp_mem->cp_h)
+#define user_data (cp_mem->cp_user_data)
 
 /*
  * -----------------------------------------------------------------
@@ -732,11 +693,11 @@ static int cpBBDDQJacExpl(CPBBDPrecData pdata, realtype t,
 
   /* Call cfn and glocE to get base value of g(t,y) */
   if (cfn != NULL) {
-    retval = cfn(Nlocal, t, y, NULL, f_data);
+    retval = cfn(Nlocal, t, y, NULL, user_data);
     if (retval != 0) return(retval);
   }
 
-  retval = glocE(Nlocal, t, ytemp, gy, f_data);
+  retval = glocE(Nlocal, t, ytemp, gy, user_data);
   nge++;
   if (retval != 0) return(retval);
 
@@ -766,7 +727,7 @@ static int cpBBDDQJacExpl(CPBBDPrecData pdata, realtype t,
     }
 
     /* Evaluate g with incremented y */
-    retval = glocE(Nlocal, t, ytemp, gtemp, f_data);
+    retval = glocE(Nlocal, t, ytemp, gtemp, user_data);
     nge++;
     if (retval != 0) return(retval);
 
@@ -838,11 +799,11 @@ static int cpBBDDQJacImpl(CPBBDPrecData pdata, realtype t, realtype gamma,
 
   /* Call cfn and glocI to get base value of G(t,y,y'). */
   if (cfn != NULL) {
-    retval = cfn(Nlocal, t, y, yp, f_data);
+    retval = cfn(Nlocal, t, y, yp, user_data);
     if (retval != 0) return(retval);
   }
 
-  retval = glocI(Nlocal, t, y, yp, gref, f_data); 
+  retval = glocI(Nlocal, t, y, yp, gref, user_data); 
   nge++;
   if (retval != 0) return(retval);
 
@@ -873,7 +834,7 @@ static int cpBBDDQJacImpl(CPBBDPrecData pdata, realtype t, realtype gamma,
     }
 
     /* Evaluate G with incremented y and yp arguments. */
-    retval = glocI(Nlocal, t, ytemp, yptemp, gtemp, f_data); 
+    retval = glocI(Nlocal, t, ytemp, yptemp, gtemp, user_data); 
     nge++;
     if (retval != 0) return(retval);
 

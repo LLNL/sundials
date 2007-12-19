@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-10-26 21:51:29 $
+ * $Revision: 1.10 $
+ * $Date: 2007-12-19 20:26:42 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -22,7 +22,6 @@
  *   CPodeReInit   - re-initialize solver
  *   CPodeProjInit - initialize internal projection algorithm
  *   CPodeProjDefine - initialize user-provided projection
- *   CPodeRootInit - (re)initialize root finding algorithm
  *   CPode         - main solver function
  *   CPodeGetDky   - dense output function
  *   CPodeFree     - memory deallocation
@@ -32,11 +31,8 @@
  *   - Initial step size evaluation functions
  *   - Main step function
  *   - LMM-related functions
- *   - Nonlinear and error test failure handlers
  *   - Succesful step completion functions
  *   - BDF stability limit detection functions
- *   - Projection functions
- *   - Root finding functions 
  *   - Internal error weight evaluation functions
  *   - Error reporting functions
  */
@@ -79,37 +75,9 @@
  */
 
 /*
- * Control constants for lower-level rootfinding functions
- * -------------------------------------------------------
- *
- * cpRcheck1 return values:
- *    CP_SUCCESS,
- *    CP_RTFUNC_FAIL,
- * cpRcheck2 return values:
- *    CP_SUCCESS
- *    CP_RTFUNC_FAIL,
- *    CLOSERT
- *    RTFOUND
- * cpRcheck3 return values:
- *    CP_SUCCESS
- *    CP_RTFUNC_FAIL,
- *    RTFOUND
- * cpRootFind return values:
- *    CP_SUCCESS
- *    CP_RTFUNC_FAIL,
- *    RTFOUND
- */
-
-#define RTFOUND          +1
-#define CLOSERT          +3
-
-/*
  * Algorithmic constants
  * ---------------------
  */
-
-/* fuzz factor used in defining an infinitesimal time interval*/
-#define FUZZ_FACTOR RCONST(100.0)
 
 /* constants used in estimating an initial step size */
 #define HLB_FACTOR RCONST(100.0)
@@ -136,15 +104,14 @@
  */
 
 /* Memory allocation/deallocation and initialization functions */
+static void cpCompleteInitialization(CPodeMem cp_mem);
 static booleantype cpCheckNvector(N_Vector tmpl);
-static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl, int tol);
+static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl);
 static void cpFreeVectors(CPodeMem cp_mem);
 static booleantype cpProjAlloc(CPodeMem cp_mem, N_Vector c_tmpl, N_Vector s_tmpl);
 static void cpProjFree(CPodeMem cp_mem);
 static booleantype cpQuadAlloc(CPodeMem cp_mem, N_Vector q_tmpl);
 static void cpQuadFree(CPodeMem cp_mem);
-static booleantype cpRootAlloc(CPodeMem cp_mem, int nrt);
-static void cpRootFree(CPodeMem cp_mem);
 static int cpInitialSetup(CPodeMem cp_mem);
 
 /* Initial step size evaluation functions */
@@ -156,7 +123,6 @@ static int cpHinImpl(CPodeMem cp_mem, realtype tdist, realtype *h0);
 
 /* Main step function */
 static int cpStep(CPodeMem cp_mem);
-static int cpGetSolution(void *cpode_mem, realtype t, N_Vector yret, N_Vector ypret);
 
 /* Functions acting on Nordsieck history array */
 static void cpPredict(CPodeMem cp_mem);
@@ -198,12 +164,6 @@ static int  cpHandleFailure(CPodeMem cp_mem,int flag);
 static void cpBDFStab(CPodeMem cp_mem);
 static int cpSLdet(CPodeMem cp_mem);
 
-/* Root finding functions */
-static int cpRcheck1(CPodeMem cp_mem);
-static int cpRcheck2(CPodeMem cp_mem);
-static int cpRcheck3(CPodeMem cp_mem);
-static int cpRootfind(CPodeMem cp_mem);
-
 /* Internal error weight evaluation functions */
 static int cpEwtSetSS(CPodeMem cp_mem, N_Vector ycur, N_Vector weight);
 static int cpEwtSetSV(CPodeMem cp_mem, N_Vector ycur, N_Vector weight);
@@ -223,7 +183,7 @@ static void cpErrHandler(int error_code, const char *module,
 
 /* 
  * =================================================================
- * EXPORTED FUNCTIONS
+ * SOLVER INITIALIZATION
  * =================================================================
  */
 
@@ -233,21 +193,16 @@ static void cpErrHandler(int error_code, const char *module,
  * CPodeCreate creates an internal memory block for a problem to 
  * be solved by CPODES.
  * If successful, CPodeCreate returns a pointer to the problem memory. 
- * This pointer should be passed to CPodeInit.  
- * If an initialization error occurs, CPodeCreate prints an error 
- * message to standard err and returns NULL. 
+ * This pointer should be passed to all subsequent CPODES functions.
+ * If an initialization error occurs, CPodeCreate returns NULL.
  */
 
-void *CPodeCreate(int ode_type, int lmm_type, int nls_type)
+void *CPodeCreate(int lmm_type, int nls_type)
 {
   int maxord;
   CPodeMem cp_mem;
 
   /* Test inputs */
-  if ((ode_type != CP_EXPL) && (ode_type != CP_IMPL)) {
-    cpProcessError(NULL, 0, "CPODES", "CPodeCreate", MSGCP_BAD_ODE);
-    return(NULL);
-  }
   if ((lmm_type != CP_ADAMS) && (lmm_type != CP_BDF)) {
     cpProcessError(NULL, 0, "CPODES", "CPodeCreate", MSGCP_BAD_LMM);
     return(NULL);
@@ -256,11 +211,7 @@ void *CPodeCreate(int ode_type, int lmm_type, int nls_type)
     cpProcessError(NULL, 0, "CPODES", "CPodeCreate", MSGCP_BAD_NLS);
     return(NULL);
   }
-  if ((ode_type == CP_IMPL) && (nls_type == CP_FUNCTIONAL)) {
-    cpProcessError(NULL, 0, "CPODES", "CPodeCreate", MSGCP_BAD_ODE_NLS);
-    return(NULL);
-  }
-
+  
   /* Allocate space for solver object */
   cp_mem = NULL;
   cp_mem = (CPodeMem) malloc(sizeof(struct CPodeMemRec));
@@ -272,36 +223,41 @@ void *CPodeCreate(int ode_type, int lmm_type, int nls_type)
   maxord = (lmm_type == CP_ADAMS) ? ADAMS_Q_MAX : BDF_Q_MAX;
 
   /* Copy input parameters into cp_mem */
-  cp_mem->cp_ode_type = ode_type;
   cp_mem->cp_lmm_type = lmm_type;
   cp_mem->cp_nls_type = nls_type;
 
   /* Set uround */
   cp_mem->cp_uround = UNIT_ROUNDOFF;
 
-  /* Initialize required values */
-  cp_mem->cp_fi       = NULL;
-  cp_mem->cp_fe       = NULL;
-  cp_mem->cp_f_data   = NULL;
+  /* Problem function not specified */
+  cp_mem->cp_fi        = NULL;
+  cp_mem->cp_fe        = NULL;
+
+  /* User data pointer not specified */
+  cp_mem->cp_user_data = NULL;
+
+  /* Tolerances are not yet specified */
+  cp_mem->cp_tol_type = CP_NN;
 
   /* Set default values for integrator optional inputs */
-  cp_mem->cp_efun     = cpEwtSet;
-  cp_mem->cp_e_data   = (void *) cp_mem;
-  cp_mem->cp_ehfun    = cpErrHandler;
-  cp_mem->cp_eh_data  = (void *) cp_mem;
-  cp_mem->cp_errfp    = stderr;
-  cp_mem->cp_qmax     = maxord;
-  cp_mem->cp_mxstep   = MXSTEP_DEFAULT;
-  cp_mem->cp_mxhnil   = MXHNIL_DEFAULT;
-  cp_mem->cp_sldeton  = FALSE;
-  cp_mem->cp_hin      = ZERO;
-  cp_mem->cp_hmin     = HMIN_DEFAULT;
-  cp_mem->cp_hmax_inv = HMAX_INV_DEFAULT;
-  cp_mem->cp_tstopset = FALSE;
-  cp_mem->cp_maxcor   = NLS_MAXCOR;
-  cp_mem->cp_maxnef   = MXNEF;
-  cp_mem->cp_maxncf   = MXNCF;
-  cp_mem->cp_nlscoef  = NLS_TEST_COEF;
+  cp_mem->cp_user_efun  = FALSE;
+  cp_mem->cp_efun       = cpEwtSet;
+  cp_mem->cp_e_data     = NULL;
+  cp_mem->cp_ehfun      = cpErrHandler;
+  cp_mem->cp_eh_data    = (void *) cp_mem;
+  cp_mem->cp_errfp      = stderr;
+  cp_mem->cp_qmax       = maxord;
+  cp_mem->cp_mxstep     = MXSTEP_DEFAULT;
+  cp_mem->cp_mxhnil     = MXHNIL_DEFAULT;
+  cp_mem->cp_sldeton    = FALSE;
+  cp_mem->cp_hin        = ZERO;
+  cp_mem->cp_hmin       = HMIN_DEFAULT;
+  cp_mem->cp_hmax_inv   = HMAX_INV_DEFAULT;
+  cp_mem->cp_tstopset   = FALSE;
+  cp_mem->cp_maxcor     = NLS_MAXCOR;
+  cp_mem->cp_maxnef     = MXNEF;
+  cp_mem->cp_maxncf     = MXNCF;
+  cp_mem->cp_nlscoef    = NLS_TEST_COEF;
 
   /* Set the linear solver addresses to NULL. */
   cp_mem->cp_linit  = NULL;
@@ -316,9 +272,7 @@ void *CPodeCreate(int ode_type, int lmm_type, int nls_type)
   cp_mem->cp_proj_type     = CP_PROJ_INTERNAL;
   cp_mem->cp_cnstr_type    = CP_CNSTR_NONLIN;
   cp_mem->cp_cfun          = NULL;
-  cp_mem->cp_c_data        = NULL;
   cp_mem->cp_pfun          = NULL;
-  cp_mem->cp_p_data        = NULL;
   cp_mem->cp_prjcoef       = PRJ_TEST_COEF;
   cp_mem->cp_maxcorP       = PRJ_MAXCOR;
   cp_mem->cp_project_err   = TRUE;
@@ -330,7 +284,6 @@ void *CPodeCreate(int ode_type, int lmm_type, int nls_type)
   /* Initialize quadrature variables */
   cp_mem->cp_quadr    = FALSE;
   cp_mem->cp_qfun     = NULL;
-  cp_mem->cp_q_data   = NULL;
   cp_mem->cp_errconQ  = FALSE;
 
   /* Set the linear solver addresses to NULL. */
@@ -351,7 +304,6 @@ void *CPodeCreate(int ode_type, int lmm_type, int nls_type)
   cp_mem->cp_iroots        = NULL;
   cp_mem->cp_rootdir       = NULL;
   cp_mem->cp_gfun          = NULL;
-  cp_mem->cp_g_data        = NULL;
 
   /* Set the saved value qmax_alloc */
   cp_mem->cp_qmax_alloc = maxord;
@@ -376,87 +328,50 @@ void *CPodeCreate(int ode_type, int lmm_type, int nls_type)
 
 /*-----------------------------------------------------------------*/
 
-#define ode_type (cp_mem->cp_ode_type)
-#define lmm_type (cp_mem->cp_lmm_type)
-#define nls_type (cp_mem->cp_nls_type)
-#define lrw      (cp_mem->cp_lrw)
-#define liw      (cp_mem->cp_liw)
-
-/*-----------------------------------------------------------------*/
-
 /*
- * CPodeInit
+ * CPodeInitExpl
  * 
- * CPodeInit allocates and initializes memory for a problem. All 
- * problem inputs are checked for errors. If any error occurs during 
+ * CPodeInitExpl allocates and initializes memory for a problem in
+ * explicit form, y' = f(t,y).
+ * All problem inputs are checked for errors. If any error occurs during 
  * initialization, it is reported to the file whose file pointer is 
- * errfp and an error flag is returned. Otherwise, it returns CP_SUCCESS
+ * errfp and an error flag is returned. Otherwise, it returns CP_SUCCESS.
  */
 
-int CPodeInit(void *cpode_mem,
-              void *fun, void *f_data,
-              realtype t0, N_Vector y0, N_Vector yp0,
-              int tol_type, realtype reltol, void *abstol)
+int CPodeInitExpl(void *cpode_mem, CPRhsFn f, realtype t0, N_Vector y0)
 {
   CPodeMem cp_mem;
-  booleantype nvectorOK, allocOK, neg_abstol;
+  booleantype nvectorOK, allocOK;
   long int lrw1, liw1;
-  int i,k;
 
   /* Check cpode_mem */
   if (cpode_mem==NULL) {
-    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeInit", MSGCP_NO_MEM);
+    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeInitExpl", MSGCP_NO_MEM);
     return(CP_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
+  /* Check that CPODES was not already initialized */
+  if (cp_mem->cp_MallocDone == TRUE) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitExpl", MSGCP_MALLOC_DONE);
+    return(CP_ILL_INPUT);
+  }
+
   /* Check for legal input parameters */
-  if (fun == NULL) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInit", MSGCP_NULL_F);
+  if (f == NULL) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitExpl", MSGCP_NULL_F);
     return(CP_ILL_INPUT);
   }
   if (y0==NULL) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInit", MSGCP_NULL_Y0);
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitExpl", MSGCP_NULL_Y0);
     return(CP_ILL_INPUT);
   }
-  if ( (ode_type==CP_IMPL) && (yp0==NULL) ) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInit", MSGCP_NULL_YP0);
-    return(CP_ILL_INPUT);
-  }
-  if ((tol_type != CP_SS) && (tol_type != CP_SV) && (tol_type != CP_WF)) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInit", MSGCP_BAD_ITOL);
-    return(CP_ILL_INPUT);
-  }
+
   /* Test if all required vector operations are implemented */
   nvectorOK = cpCheckNvector(y0);
   if(!nvectorOK) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInit", MSGCP_BAD_NVECTOR);
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitExpl", MSGCP_BAD_NVECTOR);
     return(CP_ILL_INPUT);
-  }
-
-  /* Test tolerances */
-  if (tol_type != CP_WF) {
-
-    if (abstol == NULL) {
-      cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInit", MSGCP_NULL_ABSTOL);
-      return(CP_ILL_INPUT);
-    }
-
-    if (reltol < ZERO) {
-      cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInit", MSGCP_BAD_RELTOL);
-      return(CP_ILL_INPUT);
-    }
-
-    if (tol_type == CP_SS)
-      neg_abstol = (*((realtype *)abstol) < ZERO);
-    else
-      neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
-
-    if (neg_abstol) {
-      cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInit", MSGCP_BAD_ABSTOL);
-      return(CP_ILL_INPUT);
-    }
-
   }
 
   /* Set space requirements for one N_Vector */
@@ -470,80 +385,113 @@ int CPodeInit(void *cpode_mem,
   cp_mem->cp_liw1 = liw1;
 
   /* Allocate the vectors (using y0 as a template) */
-  allocOK = cpAllocVectors(cp_mem, y0, tol_type);
+  allocOK = cpAllocVectors(cp_mem, y0);
   if (!allocOK) {
-    cpProcessError(cp_mem, CP_MEM_FAIL, "CPODES", "CPodeInit", MSGCP_MEM_FAIL);
+    cpProcessError(cp_mem, CP_MEM_FAIL, "CPODES", "CPodeInitExpl", MSGCP_MEM_FAIL);
     return(CP_MEM_FAIL);
   }
 
-  /* 
-   * All error checking is complete at this point 
-   */
+  /* Copy the input parameters into CPODES state */
+  cp_mem->cp_fe = f;
+  cp_mem->cp_tn = t0;
+  N_VScale(ONE, y0, cp_mem->cp_zn[0]);
 
-  /* Copy tolerances into memory */
-  cp_mem->cp_tol_type = tol_type;
-  cp_mem->cp_reltol   = reltol;      
+  /* Set type of the differential equation */
+  cp_mem->cp_ode_type = CP_EXPL;
 
-  if (tol_type == CP_SS) {
-    cp_mem->cp_Sabstol = *((realtype *)abstol);
-  } else if (tol_type == CP_SV) {
-    N_VScale(ONE, (N_Vector)abstol, cp_mem->cp_Vabstol);
+  /* Complete intialization of CPODES state */
+  cpCompleteInitialization(cp_mem);
+
+  /* Problem has been successfully initialized */
+  cp_mem->cp_MallocDone = TRUE;
+
+  return(CP_SUCCESS);
+}
+
+/*
+ * CPodeInitImpl
+ * 
+ * CPodeInitImpl allocates and initializes memory for a problem in
+ * implicit form, F(t,y,y')=0.
+ * All problem inputs are checked for errors. If any error occurs during 
+ * initialization, it is reported to the file whose file pointer is 
+ * errfp and an error flag is returned. Otherwise, it returns CP_SUCCESS.
+ */
+
+int CPodeInitImpl(void *cpode_mem, CPResFn f, realtype t0, N_Vector y0, N_Vector yp0)
+{
+  CPodeMem cp_mem;
+  booleantype nvectorOK, allocOK;
+  long int lrw1, liw1;
+
+  /* Check cpode_mem */
+  if (cpode_mem==NULL) {
+    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeInitImpl", MSGCP_NO_MEM);
+    return(CP_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  /* Check that CPODES was not already initialized */
+  if (cp_mem->cp_MallocDone == TRUE) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitImpl", MSGCP_MALLOC_DONE);
+    return(CP_ILL_INPUT);
+  }
+
+  /* Check that nls_type is NOT "Functional iteration" */
+  if (cp_mem->cp_nls_type == CP_FUNCTIONAL) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitImpl", MSGCP_BAD_ODE_NLS);
+    return(CP_ILL_INPUT);
+  }
+
+  /* Check for legal input parameters */
+  if (f == NULL) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitImpl", MSGCP_NULL_F);
+    return(CP_ILL_INPUT);
+  }
+  if (y0==NULL) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitImpl", MSGCP_NULL_Y0);
+    return(CP_ILL_INPUT);
+  }
+  if (yp0==NULL) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitImpl", MSGCP_NULL_YP0);
+    return(CP_ILL_INPUT);
+  }
+
+  /* Test if all required vector operations are implemented */
+  nvectorOK = cpCheckNvector(y0);
+  if(!nvectorOK) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeInitImpl", MSGCP_BAD_NVECTOR);
+    return(CP_ILL_INPUT);
+  }
+
+  /* Set space requirements for one N_Vector */
+  if (y0->ops->nvspace != NULL) {
+    N_VSpace(y0, &lrw1, &liw1);
+  } else {
+    lrw1 = 0;
+    liw1 = 0;
+  }
+  cp_mem->cp_lrw1 = lrw1;
+  cp_mem->cp_liw1 = liw1;
+
+  /* Allocate the vectors (using y0 as a template) */
+  allocOK = cpAllocVectors(cp_mem, y0);
+  if (!allocOK) {
+    cpProcessError(cp_mem, CP_MEM_FAIL, "CPODES", "CPodeInitImpl", MSGCP_MEM_FAIL);
+    return(CP_MEM_FAIL);
   }
 
   /* Copy the input parameters into CPODES state */
-  if (ode_type == CP_EXPL) cp_mem->cp_fe = (CPRhsFn) fun;
-  else                     cp_mem->cp_fi = (CPResFn) fun;
-  cp_mem->cp_f_data = f_data;
+  cp_mem->cp_fi = f;
   cp_mem->cp_tn = t0;
-
-  /* Set step parameters */
-  cp_mem->cp_q      = 1;
-  cp_mem->cp_L      = 2;
-  cp_mem->cp_qwait  = cp_mem->cp_L;
-  cp_mem->cp_etamax = ETAMX1;
-  cp_mem->cp_qu     = 0;
-  cp_mem->cp_hu     = ZERO;
-  cp_mem->cp_tolsf  = ONE;
-
-  /* Initialize the history array zn */
   N_VScale(ONE, y0, cp_mem->cp_zn[0]);
-  if(ode_type==CP_IMPL) N_VScale(ONE, yp0, cp_mem->cp_zn[1]);
+  N_VScale(ONE, yp0, cp_mem->cp_zn[1]);
 
-  /* Initialize all the counters */
-  cp_mem->cp_nst     = 0;
-  cp_mem->cp_nfe     = 0;
-  cp_mem->cp_ncfn    = 0;
-  cp_mem->cp_netf    = 0;
-  cp_mem->cp_nni     = 0;
-  cp_mem->cp_nsetups = 0;
-  cp_mem->cp_nhnil   = 0;
-  cp_mem->cp_nstlset = 0;
-  cp_mem->cp_nscon   = 0;
-  cp_mem->cp_nge     = 0;
+  /* Set type of the differential equation */
+  cp_mem->cp_ode_type = CP_IMPL;
 
-  cp_mem->cp_irfnd   = 0;
-
-  cp_mem->cp_nproj    = 0;
-  cp_mem->cp_nprf     = 0;
-  cp_mem->cp_nce      = 0;
-  cp_mem->cp_nstlprj  = 0;
-  cp_mem->cp_nsetupsP = 0;
-  cp_mem->cp_first_proj = TRUE;
-
-  /* Initialize other integrator optional outputs */
-  cp_mem->cp_h0u     = ZERO;
-  cp_mem->cp_next_h  = ZERO;
-  cp_mem->cp_next_q  = 0;
-
-  /* 
-   * Initialize Stablilty Limit Detection data.
-   * NOTE: We do this even if stab lim det was not turned on yet.
-   *       This way, the user can turn it on at any later time.
-   */
-  cp_mem->cp_nor = 0;
-  for (i = 1; i <= 5; i++)
-    for (k = 1; k <= 3; k++) 
-      cp_mem->cp_ssdat[i-1][k-1] = ZERO;
+  /* Complete intialization of CPODES state */
+  cpCompleteInitialization(cp_mem);
 
   /* Problem has been successfully initialized */
   cp_mem->cp_MallocDone = TRUE;
@@ -553,115 +501,126 @@ int CPodeInit(void *cpode_mem,
 
 /*-----------------------------------------------------------------*/
 
-#define lrw1 (cp_mem->cp_lrw1)
-#define liw1 (cp_mem->cp_liw1)
-
-/*-----------------------------------------------------------------*/
-
 /*
- * CPodeReInit
+ * CPodeReInitExpl
  *
- * CPodeReInit re-initializes CPODE's memory for a problem, assuming
- * it has already been allocated in a prior CPodeInit call.
- * All problem specification inputs are checked for errors.
- * If any error occurs during initialization, it is reported to the
- * file whose file pointer is errfp.
- * The return value is CP_SUCCESS = 0 if no errors occurred, or
- * a negative value otherwise.
+ * CPodeReInitExpl re-initializes CPODE's memory for a problem given
+ * in explicit form, assuming it has already been allocated in a
+ * prior CPodeInitExpl call.
+ * All problem specification inputs are checked for errors. The
+ * return value is CP_SUCCESS = 0 if no errors occurred, or a
+ * negative value otherwise.
  */
 
-int CPodeReInit(void *cpode_mem, 
-                void *fun, void *f_data,
-                realtype t0, N_Vector y0, N_Vector yp0,
-                int tol_type, realtype reltol, void *abstol)
+int CPodeReInitExpl(void *cpode_mem, realtype t0, N_Vector y0)
 {
   CPodeMem cp_mem;
-  booleantype neg_abstol;
-  int i,k;
  
   /* Check cpode_mem */
   if (cpode_mem==NULL) {
-    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeReInit", MSGCP_NO_MEM);
+    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeReInitExpl", MSGCP_NO_MEM);
     return(CP_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Check if cpode_mem was allocated */
   if (cp_mem->cp_MallocDone == FALSE) {
-    cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeReInit", MSGCP_NO_MALLOC);
+    cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeReInitExpl", MSGCP_NO_MALLOC);
     return(CP_NO_MALLOC);
   }
 
+  /* Check if the type matches */
+  if (cp_mem->cp_ode_type == CP_IMPL) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInitExpl", MSGCP_BAD_ODE);
+    return(CP_ILL_INPUT);
+  }
+
   /* Check for legal input parameters */
-  if (fun == NULL) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInit", MSGCP_NULL_F);
-    return(CP_ILL_INPUT);
-  }
   if (y0 == NULL) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInit", MSGCP_NULL_Y0);
-    return(CP_ILL_INPUT);
-  }
-  if ( (ode_type==CP_IMPL) && (yp0==NULL) ) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInit", MSGCP_NULL_YP0);
-    return(CP_ILL_INPUT);
-  }
-  if ((tol_type != CP_SS) && (tol_type != CP_SV) && (tol_type != CP_WF)) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInit", MSGCP_BAD_ITOL);
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInitExpl", MSGCP_NULL_Y0);
     return(CP_ILL_INPUT);
   }
 
-  /* Test tolerances */
-  if (tol_type != CP_WF) {
-
-    if (abstol == NULL) {
-      cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInit", MSGCP_NULL_ABSTOL);
-      return(CP_ILL_INPUT);
-    }
-
-    if (reltol < ZERO) {
-      cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInit", MSGCP_BAD_RELTOL);
-      return(CP_ILL_INPUT);
-    }
-    
-    if (tol_type == CP_SS) {
-      neg_abstol = (*((realtype *)abstol) < ZERO);
-    } else {
-      neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
-    }
-    
-    if (neg_abstol) {
-      cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInit", MSGCP_BAD_ABSTOL);
-      return(CP_ILL_INPUT);
-    }
-
-  }
-
-  /* 
-   * All error checking is complete at this point 
-   */  
-
-  /* Copy tolerances into memory */
-  cp_mem->cp_tol_type = tol_type;
-  cp_mem->cp_reltol   = reltol;    
-
-  if (tol_type == CP_SS) {
-    cp_mem->cp_Sabstol = *((realtype *)abstol);
-  } else if (tol_type == CP_SV) {
-    if ( !(cp_mem->cp_VabstolMallocDone) ) {
-      cp_mem->cp_Vabstol = N_VClone(y0);
-      lrw += lrw1;
-      liw += liw1;
-      cp_mem->cp_VabstolMallocDone = TRUE;
-    }
-    N_VScale(ONE, (N_Vector)abstol, cp_mem->cp_Vabstol);
-  }
-  
   /* Copy the input parameters into CPODES state */
-  if (ode_type == CP_EXPL) cp_mem->cp_fe = (CPRhsFn) fun;
-  else                     cp_mem->cp_fi = (CPResFn) fun;
-  cp_mem->cp_f_data = f_data;
   cp_mem->cp_tn = t0;
+  N_VScale(ONE, y0, cp_mem->cp_zn[0]);
   
+  /* Complete intialization of CPODES state */
+  cpCompleteInitialization(cp_mem);
+  
+  /* Problem has been successfully re-initialized */
+  return(CP_SUCCESS);
+}
+
+
+/*
+ * CPodeReInitImpl
+ *
+ * CPodeReInitImpl re-initializes CPODE's memory for a problem given
+ * in implicit form, assuming it has already been allocated in a
+ * prior CPodeInitImpl call.
+ * All problem specification inputs are checked for errors. The
+ * return value is CP_SUCCESS = 0 if no errors occurred, or a
+ * negative value otherwise.
+ */
+
+int CPodeReInitImpl(void *cpode_mem, realtype t0, N_Vector y0, N_Vector yp0)
+{
+  CPodeMem cp_mem;
+ 
+  /* Check cpode_mem */
+  if (cpode_mem==NULL) {
+    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeReInitImpl", MSGCP_NO_MEM);
+    return(CP_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  /* Check if cpode_mem was allocated */
+  if (cp_mem->cp_MallocDone == FALSE) {
+    cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeReInitImpl", MSGCP_NO_MALLOC);
+    return(CP_NO_MALLOC);
+  }
+
+  /* Check if the type matches */
+  if (cp_mem->cp_ode_type == CP_EXPL) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInitImpl", MSGCP_BAD_ODE);
+    return(CP_ILL_INPUT);
+  }
+
+  /* Check for legal input parameters */
+  if (y0 == NULL) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInitImpl", MSGCP_NULL_Y0);
+    return(CP_ILL_INPUT);
+  }
+  if (yp0==NULL) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeReInitImpl", MSGCP_NULL_YP0);
+    return(CP_ILL_INPUT);
+  }
+
+  /* Copy the input parameters into CPODES state */
+  cp_mem->cp_tn = t0;
+  N_VScale(ONE, y0, cp_mem->cp_zn[0]);
+  N_VScale(ONE, yp0, cp_mem->cp_zn[1]);
+  
+  /* Complete intialization of CPODES state */
+  cpCompleteInitialization(cp_mem);
+  
+  /* Problem has been successfully re-initialized */
+  return(CP_SUCCESS);
+}
+
+
+/*
+ * cpCompleteInitialization
+ * 
+ * cpCompleteInitialization sets default values for various internal 
+ * quantities in the CPODES state after a solver (re)initialization.
+ */
+
+static void cpCompleteInitialization(CPodeMem cp_mem)
+{
+  int i, k;
+
   /* Set step parameters */
   cp_mem->cp_q      = 1;
   cp_mem->cp_L      = 2;
@@ -671,10 +630,6 @@ int CPodeReInit(void *cpode_mem,
   cp_mem->cp_hu     = ZERO;
   cp_mem->cp_tolsf  = ONE;
 
-  /* Initialize the history array zn */
-  N_VScale(ONE, y0,  cp_mem->cp_zn[0]);
-  if(ode_type==CP_IMPL) N_VScale(ONE, yp0, cp_mem->cp_zn[1]);
- 
   /* Initialize all the counters */
   cp_mem->cp_nst     = 0;
   cp_mem->cp_nfe     = 0;
@@ -701,13 +656,157 @@ int CPodeReInit(void *cpode_mem,
   cp_mem->cp_next_h  = ZERO;
   cp_mem->cp_next_q  = 0;
 
-  /* Initialize Stablilty Limit Detection data */
+  /* Initialize Stablilty Limit Detection data.
+   * We do this even if stab lim det was not turned on yet.
+   * This way, the user can turn it on at any later time.
+   */
+
   cp_mem->cp_nor = 0;
   for (i = 1; i <= 5; i++)
     for (k = 1; k <= 3; k++) 
       cp_mem->cp_ssdat[i-1][k-1] = ZERO;
+
+  return;
+}
+
+
+/*-----------------------------------------------------------------*/
+
+#define lrw            (cp_mem->cp_lrw)
+#define liw            (cp_mem->cp_liw)
+#define lrw1           (cp_mem->cp_lrw1)
+#define liw1           (cp_mem->cp_liw1)
+
+/*-----------------------------------------------------------------*/
+
+/*
+ * CPodeSStolerances
+ * CPodeSVtolerances
+ * CPodeWFtolerances
+ *
+ * These functions specify the integration tolerances. One of them
+ * MUST be called before the first call to CPode.
+ *
+ * CPodeSStolerances specifies scalar relative and absolute tolerances.
+ * CPodeSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance (a potentially different absolute tolerance 
+ *   for each vector component).
+ * CPodeWFtolerances specifies a user-provides function (of type CPEwtFn)
+ *   which will be called to set the error weight vector.
+ */
+
+int CPodeSStolerances(void *cpode_mem, realtype reltol, realtype abstol)
+{
+  CPodeMem cp_mem;
+
+  if (cpode_mem==NULL) {
+    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeSStolerances", MSGCP_NO_MEM);
+    return(CP_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  if (cp_mem->cp_MallocDone == FALSE) {
+    cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeSStolerances", MSGCP_NO_MALLOC);
+    return(CP_NO_MALLOC);
+  }
+
+  /* Check inputs */
+
+  if (reltol < ZERO) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeSStolerances", MSGCP_BAD_RELTOL);
+    return(CP_ILL_INPUT);
+  }
+
+  if (abstol < ZERO) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeSStolerances", MSGCP_BAD_ABSTOL);
+    return(CP_ILL_INPUT);
+  }
+
+  /* Copy tolerances into memory */
   
-  /* Problem has been successfully re-initialized */
+  cp_mem->cp_reltol = reltol;
+  cp_mem->cp_Sabstol = abstol;
+
+  cp_mem->cp_tol_type = CP_SS;
+
+  cp_mem->cp_user_efun = FALSE;
+  cp_mem->cp_efun = cpEwtSet;
+  cp_mem->cp_e_data = NULL; /* will be set to cpode_mem in InitialSetup */
+
+  return(CP_SUCCESS);
+}
+
+
+int CPodeSVtolerances(void *cpode_mem, realtype reltol, N_Vector abstol)
+{
+  CPodeMem cp_mem;
+
+  if (cpode_mem==NULL) {
+    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeSVtolerances", MSGCP_NO_MEM);
+    return(CP_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  if (cp_mem->cp_MallocDone == FALSE) {
+    cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeSVtolerances", MSGCP_NO_MALLOC);
+    return(CP_NO_MALLOC);
+  }
+
+  /* Check inputs */
+
+  if (reltol < ZERO) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeSVtolerances", MSGCP_BAD_RELTOL);
+    return(CP_ILL_INPUT);
+  }
+
+  if (N_VMin(abstol) < ZERO) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeSVtolerances", MSGCP_BAD_ABSTOL);
+    return(CP_ILL_INPUT);
+  }
+
+  /* Copy tolerances into memory */
+  
+  if ( !(cp_mem->cp_VabstolMallocDone) ) {
+    cp_mem->cp_Vabstol = N_VClone(cp_mem->cp_ewt);
+    lrw += lrw1;
+    liw += liw1;
+    cp_mem->cp_VabstolMallocDone = TRUE;
+  }
+
+  cp_mem->cp_reltol = reltol;
+  N_VScale(ONE, abstol, cp_mem->cp_Vabstol);
+
+  cp_mem->cp_tol_type = CP_SV;
+
+  cp_mem->cp_user_efun = FALSE;
+  cp_mem->cp_efun = cpEwtSet;
+  cp_mem->cp_e_data = NULL; /* will be set to cpode_mem in InitialSetup */
+
+  return(CP_SUCCESS);
+}
+
+
+int CPodeWFtolerances(void *cpode_mem, CPEwtFn efun)
+{
+  CPodeMem cp_mem;
+
+  if (cpode_mem==NULL) {
+    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeWFtolerances", MSGCP_NO_MEM);
+    return(CP_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  if (cp_mem->cp_MallocDone == FALSE) {
+    cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeWFtolerances", MSGCP_NO_MALLOC);
+    return(CP_NO_MALLOC);
+  }
+
+  cp_mem->cp_tol_type = CP_WF;
+
+  cp_mem->cp_user_efun = TRUE;
+  cp_mem->cp_efun = efun;
+  cp_mem->cp_e_data = NULL; /* will be set to user_data in InitialSetup */
+
   return(CP_SUCCESS);
 }
 
@@ -719,7 +818,7 @@ int CPodeReInit(void *cpode_mem,
  */
 
 int CPodeProjInit(void *cpode_mem, int proj_norm, 
-                  int cnstr_type, CPCnstrFn cfun, void *c_data, 
+                  int cnstr_type, CPCnstrFn cfun,
                   N_Vector ctol)
 {
   CPodeMem cp_mem;
@@ -771,7 +870,6 @@ int CPodeProjInit(void *cpode_mem, int proj_norm,
   cp_mem->cp_proj_norm  = proj_norm;
   cp_mem->cp_cnstr_type = cnstr_type;
   cp_mem->cp_cfun       = cfun;
-  cp_mem->cp_c_data     = c_data;
 
   /* Copy 1/ctol into memory */
   N_VScale(ONE, ctol, cp_mem->cp_ctol);
@@ -788,7 +886,7 @@ int CPodeProjInit(void *cpode_mem, int proj_norm,
  * CPodeProjDefine
  */
 
-int CPodeProjDefine(void *cpode_mem, CPProjFn pfun, void *p_data)
+int CPodeProjDefine(void *cpode_mem, CPProjFn pfun)
 {
   CPodeMem cp_mem;
 
@@ -799,7 +897,6 @@ int CPodeProjDefine(void *cpode_mem, CPProjFn pfun, void *p_data)
   cp_mem = (CPodeMem) cpode_mem;
 
   cp_mem->cp_pfun   = pfun;
-  cp_mem->cp_p_data = p_data;
 
   /* user-defined projection is now enabled */
   cp_mem->cp_proj_type = CP_PROJ_USER;
@@ -821,7 +918,7 @@ int CPodeProjDefine(void *cpode_mem, CPProjFn pfun, void *p_data)
  * a negative value otherwise.
  */
 
-int CPodeQuadInit(void *cpode_mem, CPQuadFn qfun, void *q_data, N_Vector q0)
+int CPodeQuadInit(void *cpode_mem, CPQuadFn qfun, N_Vector q0)
 {
   CPodeMem cp_mem;
   booleantype allocOK;
@@ -851,7 +948,6 @@ int CPodeQuadInit(void *cpode_mem, CPQuadFn qfun, void *q_data, N_Vector q0)
 
   /* Copy the input parameters into CPODES state */
   cp_mem->cp_qfun   = qfun;
-  cp_mem->cp_q_data = q_data;
 
   /* Initialize counters */
   cp_mem->cp_nqe   = 0;
@@ -864,11 +960,6 @@ int CPodeQuadInit(void *cpode_mem, CPQuadFn qfun, void *q_data, N_Vector q0)
   /* Quadrature initialization was successfull */
   return(CP_SUCCESS);
 }
-
-/*-----------------------------------------------------------------*/
-
-#define lrw1Q (cp_mem->cp_lrw1Q)
-#define liw1Q (cp_mem->cp_liw1Q)
 
 /*-----------------------------------------------------------------*/
 
@@ -885,7 +976,7 @@ int CPodeQuadInit(void *cpode_mem, CPQuadFn qfun, void *q_data, N_Vector q0)
  * a negative value otherwise.
  */
 
-int CPodeQuadReInit(void *cpode_mem, CPQuadFn qfun, void *q_data, N_Vector q0)
+int CPodeQuadReInit(void *cpode_mem, N_Vector q0)
 {
   CPodeMem cp_mem;
 
@@ -905,10 +996,6 @@ int CPodeQuadReInit(void *cpode_mem, CPQuadFn qfun, void *q_data, N_Vector q0)
   /* Initialize znQ[0] in the history array */
   N_VScale(ONE, q0, cp_mem->cp_znQ[0]);
 
-  /* Copy the input parameters into CPODES state */
-  cp_mem->cp_qfun   = qfun;
-  cp_mem->cp_q_data = q_data;
-
   /* Initialize counters */
   cp_mem->cp_nqe   = 0;
   cp_mem->cp_netfQ = 0;
@@ -920,90 +1007,25 @@ int CPodeQuadReInit(void *cpode_mem, CPQuadFn qfun, void *q_data, N_Vector q0)
   return(CP_SUCCESS);
 }
 
-/*-----------------------------------------------------------------*/
-
-/*
- * CPodeRootInit
- *
- * CPodeRootInit initializes a rootfinding problem to be solved
- * during the integration of the ODE system.  It loads the root
- * function pointer and the number of root functions, and allocates
- * workspace memory.  The return value is CP_SUCCESS = 0 if no errors
- * occurred, or a negative value otherwise.
- */
-
-int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data)
-{
-  CPodeMem cp_mem;
-  booleantype allocOK;
-  int i;
-
-  /* Check cpode_mem pointer */
-  if (cpode_mem == NULL) {
-    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeRootInit", MSGCP_NO_MEM);
-    return(CP_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  /* If called with nrtfn <= 0, then disable rootfinding and return */
-  if (nrtfn <= 0) {
-    cp_mem->cp_doRootfinding = FALSE;
-    return(CP_SUCCESS);
-  }
-
-  /* Check for legal input parameters */
-  if (gfun == NULL) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeRootInit", MSGCP_NULL_G);
-    return(CP_ILL_INPUT);
-  }
-
-  /* If rerunning CPodeRootInit() with a different number of root
-     functions (changing number of gfun components), then free
-     currently held memory resources */
-  if ( (cp_mem->cp_rootMallocDone) && (nrtfn != cp_mem->cp_nrtfn) ) {
-    cpRootFree(cp_mem);
-    cp_mem->cp_rootMallocDone = FALSE;
-  }
-
-  /* Allocate necessary memory and return */
-  if (!cp_mem->cp_rootMallocDone) {
-    allocOK = cpRootAlloc(cp_mem, nrtfn);
-    if (!allocOK) {
-      cpProcessError(cp_mem, CP_MEM_FAIL, "CPODES", "CPodeRootInit", MSGCP_MEM_FAIL);
-      return(CP_MEM_FAIL);
-    }
-    cp_mem->cp_rootMallocDone = TRUE;
-  }
-
-  /* Set variable values in CPODES memory block */
-  cp_mem->cp_nrtfn  = nrtfn;
-  cp_mem->cp_gfun   = gfun;
-  cp_mem->cp_g_data = g_data;
-
-  /* Set default values for rootdir (both directions) 
-     and for gactive (all active) */
-  for(i=0; i<nrtfn; i++) {
-    cp_mem->cp_rootdir[i] = 0;
-    cp_mem->cp_gactive[i] = TRUE;
-  }
-
-  /* Rootfinding is now enabled */
-  cp_mem->cp_doRootfinding = TRUE;
-
-  return(CP_SUCCESS);
-}
-
 /*
  * =================================================================
  * READIBILITY REPLACEMENTS
  * =================================================================
  */
 
+#define lmm_type       (cp_mem->cp_lmm_type)
+#define nls_type       (cp_mem->cp_nls_type)
+
+#define ode_type       (cp_mem->cp_ode_type)
 #define fi             (cp_mem->cp_fi)
 #define fe             (cp_mem->cp_fe)
-#define f_data         (cp_mem->cp_f_data)
+
+#define tol_type       (cp_mem->cp_tol_type)
+#define reltol         (cp_mem->cp_reltol)
+#define Sabstol        (cp_mem->cp_Sabstol)
+#define Vabstol        (cp_mem->cp_Vabstol)
 #define efun           (cp_mem->cp_efun)
-#define e_data         (cp_mem->cp_e_data)
+
 #define qmax           (cp_mem->cp_qmax)
 #define mxstep         (cp_mem->cp_mxstep)
 #define mxhnil         (cp_mem->cp_mxhnil)
@@ -1011,16 +1033,14 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data)
 #define hin            (cp_mem->cp_hin)
 #define hmin           (cp_mem->cp_hmin)
 #define hmax_inv       (cp_mem->cp_hmax_inv)
-#define istop          (cp_mem->cp_istop)
 #define tstop          (cp_mem->cp_tstop)
 #define tstopset       (cp_mem->cp_tstopset)
 #define maxncf         (cp_mem->cp_maxncf)
 #define maxnef         (cp_mem->cp_maxnef)
 #define nlscoef        (cp_mem->cp_nlscoef)
-#define tol_type       (cp_mem->cp_tol_type)
-#define reltol         (cp_mem->cp_reltol)
-#define Sabstol        (cp_mem->cp_Sabstol)
-#define Vabstol        (cp_mem->cp_Vabstol)
+
+#define user_data      (cp_mem->cp_user_data)
+#define e_data         (cp_mem->cp_e_data)
 
 #define uround         (cp_mem->cp_uround)
 #define zn             (cp_mem->cp_zn)
@@ -1074,9 +1094,7 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data)
 #define proj_type      (cp_mem->cp_proj_type)
 #define cnstr_type     (cp_mem->cp_cnstr_type)
 #define cfun           (cp_mem->cp_cfun)
-#define c_data         (cp_mem->cp_c_data)
 #define pfun           (cp_mem->cp_pfun)
-#define p_data         (cp_mem->cp_p_data)
 #define yC             (cp_mem->cp_yC)
 #define acorP          (cp_mem->cp_acorP)
 #define errP           (cp_mem->cp_errP)
@@ -1089,7 +1107,6 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data)
 
 #define quadr          (cp_mem->cp_quadr)
 #define qfun           (cp_mem->cp_qfun)
-#define q_data         (cp_mem->cp_q_data)
 #define errconQ        (cp_mem->cp_errconQ)
 #define tol_typeQ      (cp_mem->cp_tol_typeQ)
 #define reltolQ        (cp_mem->cp_reltolQ)
@@ -1106,24 +1123,14 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data)
 #define quadMallocDone (cp_mem->cp_quadMallocDone)
 
 #define doRootfinding  (cp_mem->cp_doRootfinding)
-#define nrtfn          (cp_mem->cp_nrtfn)
-#define gfun           (cp_mem->cp_gfun)
-#define g_data         (cp_mem->cp_g_data)
 #define tlo            (cp_mem->cp_tlo)
-#define thi            (cp_mem->cp_thi)
 #define tretlast       (cp_mem->cp_tretlast)
 #define toutc          (cp_mem->cp_toutc)
-#define trout          (cp_mem->cp_trout)
-#define ttol           (cp_mem->cp_ttol)
 #define taskc          (cp_mem->cp_taskc)
 #define irfnd          (cp_mem->cp_irfnd)
-#define nge            (cp_mem->cp_nge)
-#define glo            (cp_mem->cp_glo)
-#define ghi            (cp_mem->cp_ghi)
-#define grout          (cp_mem->cp_grout)
-#define gactive        (cp_mem->cp_gactive)
-#define iroots         (cp_mem->cp_iroots)
-#define rootdir        (cp_mem->cp_rootdir)
+
+#define lrw1Q          (cp_mem->cp_lrw1Q)
+#define liw1Q          (cp_mem->cp_liw1Q)
 
 /*-----------------------------------------------------------------*/
 
@@ -1138,14 +1145,12 @@ int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data)
  * The first time that CPode is called for a successfully initialized
  * problem, it computes a tentative initial step size h.
  *
- * CPode supports four modes, specified by mode: CP_NORMAL, CP_ONE_STEP,
- * CP_NORMAL_TSTOP, and CP_ONE_STEP_TSTOP.
+ * CPode supports two modes, specified by mode: CP_NORMAL and CP_ONE_STEP.
  * In the CP_NORMAL mode, the solver steps until it reaches or passes tout
  * and then interpolates to obtain y(tout).
  * In the CP_ONE_STEP mode, it takes one internal step and returns.
- * CP_NORMAL_TSTOP and CP_ONE_STEP_TSTOP are similar to CP_NORMAL and CP_ONE_STEP,
- * respectively, but the integration never proceeds past tstop (which
- * must have been defined through a call to CPodeSetStopTime).
+ * In either mode, if a tstop value is specified (through a call to 
+ * CPodeSetStopTime), the integration never proceeds past tstop.
  */
 
 int CPode(void *cpode_mem, realtype tout, realtype *tret,
@@ -1154,7 +1159,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
   CPodeMem cp_mem;
   long int nstloc;
   int retval, hflag, kflag, istate, ier, task, irfndp;
-  realtype troundoff, rh, nrm;
+  realtype troundoff, tout_hin, rh, nrm;
 
   /*
    * -------------------------------------
@@ -1196,29 +1201,13 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
   }
 
   /* Check for valid mode */
-  if ((mode != CP_NORMAL)       && 
-      (mode != CP_ONE_STEP)     &&
-      (mode != CP_NORMAL_TSTOP) &&
-      (mode != CP_ONE_STEP_TSTOP) ) {
+  if ((mode != CP_NORMAL) && (mode != CP_ONE_STEP) ) {
     cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPode", MSGCP_BAD_MODE);
     return(CP_ILL_INPUT);
   }
+  task = mode;
 
-  /* Split mode into task and istop */
-  if ((mode == CP_NORMAL_TSTOP) || (mode == CP_ONE_STEP_TSTOP)) {
-    if ( tstopset == FALSE ) {
-      cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPode", MSGCP_NO_TSTOP);
-      return(CP_ILL_INPUT);
-    }
-    istop = TRUE;
-  } else {
-    istop = FALSE;
-  }
-  if ((mode == CP_NORMAL) || (mode == CP_NORMAL_TSTOP)) {
-    task = CP_NORMAL; toutc = tout;
-  } else {
-    task = CP_ONE_STEP;
-  }
+  if (task == CP_NORMAL) toutc = tout;
   taskc = task;
 
   /*
@@ -1241,7 +1230,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
     
     /* In CP_EXPL mode, call fun at (t0, y0) to set zn[1] = f'(t0,y0) */
     if (ode_type == CP_EXPL) {
-      retval = fe(tn, zn[0], zn[1], f_data); 
+      retval = fe(tn, zn[0], zn[1], user_data); 
       nfe++;
       if (retval < 0) {
         cpProcessError(cp_mem, CP_ODEFUNC_FAIL, "CPODES", "CPode", MSGCP_ODEFUNC_FAILED, tn);
@@ -1255,7 +1244,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
 
     /* If computing any quadratures, call qfun at (t0,y0) to set znQ[1] = q'(t0,y0) */
     if (quadr) {
-      retval = qfun(tn, zn[0], znQ[1], q_data);
+      retval = qfun(tn, zn[0], znQ[1], user_data);
       nqe++;
       if (retval < 0) {
         cpProcessError(cp_mem, CP_QUADFUNC_FAIL, "CPODES", "CPode", MSGCP_QUADFUNC_FAILED, tn);
@@ -1274,7 +1263,9 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
       return(CP_ILL_INPUT);
     }
     if (h == ZERO) {
-      hflag = cpHin(cp_mem, tout);
+      tout_hin = tout;
+      if ( tstopset && (tout-tn)*(tout-tstop) > 0 ) tout_hin = tstop; 
+      hflag = cpHin(cp_mem, tout_hin);
       if (hflag != CP_SUCCESS) {
         istate = cpHandleFailure(cp_mem, hflag);
         return(istate);
@@ -1285,7 +1276,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
     if (ABS(h) < hmin) h *= hmin/ABS(h);
 
     /* Check for approach to tstop */
-    if (istop) {
+    if (tstopset) {
       if ( (tstop - tn)*h < ZERO ) {
         cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPode", MSGCP_BAD_TSTOP, tn);
         return(CP_ILL_INPUT);
@@ -1341,10 +1332,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
       
       retval = cpRcheck2(cp_mem);
 
-      if (retval == CLOSERT) {
-        cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "cpRcheck2", MSGCP_CLOSE_ROOTS, tlo);
-        return(CP_ILL_INPUT);
-      } else if (retval == CP_RTFUNC_FAIL) {
+      if (retval == CP_RTFUNC_FAIL) {
         cpProcessError(cp_mem, CP_RTFUNC_FAIL, "CPODES", "cpRcheck2", MSGCP_RTFUNC_FAILED, tlo);
         return(CP_RTFUNC_FAIL);
       } else if (retval == RTFOUND) {
@@ -1378,12 +1366,6 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
 
     } /* end of root stop check */
 
-    /* Test for tn past tstop */
-    if ( istop && ((tstop - tn)*h < ZERO) ) {
-      cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPode", MSGCP_BAD_TSTOP, tn);
-      return(CP_ILL_INPUT);
-    }
-
     /* In CP_NORMAL mode, test if tout was reached */
     if ( (task == CP_NORMAL) && ((tn-tout)*h >= ZERO) ) {
       tretlast = *tret = tout;
@@ -1403,7 +1385,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
     }
 
     /* Test for tn at tstop or near tstop */
-    if ( istop ) {
+    if ( tstopset ) {
 
       if ( ABS(tn - tstop) <= troundoff) {
         ier =  cpGetSolution(cp_mem, tstop, yout, ypout);
@@ -1412,6 +1394,7 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
           return(CP_ILL_INPUT);
         }
         tretlast = *tret = tstop;
+        tstopset = FALSE;
         return(CP_TSTOP_RETURN);
       }
       
@@ -1548,12 +1531,13 @@ int CPode(void *cpode_mem, realtype tout, realtype *tret,
     }
 
     /* Check if tn is at tstop or near tstop */
-    if ( istop ) {
+    if ( tstopset ) {
 
       troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
       if ( ABS(tn - tstop) <= troundoff) {
         (void) cpGetSolution(cp_mem, tstop, yout, ypout);
         tretlast = *tret = tstop;
+        tstopset = FALSE;
         istate = CP_TSTOP_RETURN;
         break;
       }
@@ -1842,7 +1826,7 @@ static booleantype cpCheckNvector(N_Vector tmpl)
  * of the real and integer work spaces allocated here.
  */
 
-static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl, int tol)
+static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl)
 {
   int i, j;
 
@@ -1889,21 +1873,6 @@ static booleantype cpAllocVectors(CPodeMem cp_mem, N_Vector tmpl, int tol)
   /* Update solver workspace lengths  */
   lrw += (qmax + 5)*lrw1;
   liw += (qmax + 5)*liw1;
-
-  if (tol == CP_SV) {
-    Vabstol = N_VClone(tmpl);
-    if (Vabstol == NULL) {
-      N_VDestroy(ewt);
-      N_VDestroy(acor);
-      N_VDestroy(tempv);
-      N_VDestroy(ftemp);
-      for (i=0; i <= qmax; i++) N_VDestroy(zn[i]);
-      return(FALSE);
-    }
-    lrw += lrw1;
-    liw += liw1;
-    cp_mem->cp_VabstolMallocDone = TRUE;
-  }
 
   /* Store the value of qmax used here */
   cp_mem->cp_qmax_alloc = qmax;
@@ -2126,81 +2095,6 @@ static void cpQuadFree(CPodeMem cp_mem)
   cp_mem->cp_VabstolQMallocDone = FALSE;
 }
 
-/*
- * cpRootAlloc allocates memory for the rootfinding algorithm.
- */
-
-static booleantype cpRootAlloc(CPodeMem cp_mem, int nrt)
-{
-  glo = NULL;
-  glo = (realtype *) malloc(nrt*sizeof(realtype));
-
-  ghi = NULL;
-  ghi = (realtype *) malloc(nrt*sizeof(realtype));
-  if (ghi == NULL) {
-    free(glo); glo = NULL;
-    return(FALSE);
-  }
-
-  grout = NULL;
-  grout = (realtype *) malloc(nrt*sizeof(realtype));
-  if (grout == NULL) {
-    free(glo); glo = NULL;
-    free(ghi); ghi = NULL;
-    return(FALSE);
-  }
-
-  iroots = NULL;
-  iroots = (int *) malloc(nrt*sizeof(int));
-  if (iroots == NULL) {
-    free(glo); glo = NULL; 
-    free(ghi); ghi = NULL;
-    free(grout); grout = NULL;
-    return(FALSE);
-  }
-
-  rootdir = NULL;
-  rootdir = (int *) malloc(nrt*sizeof(int));
-  if (rootdir == NULL) {
-    free(glo); glo = NULL; 
-    free(ghi); ghi = NULL;
-    free(grout); grout = NULL;
-    free(iroots); iroots = NULL;
-  }
-
-  gactive = NULL;
-  gactive = (booleantype *) malloc(nrt*sizeof(booleantype));
-  if (gactive == NULL) {
-    free(glo); glo = NULL; 
-    free(ghi); ghi = NULL;
-    free(grout); grout = NULL;
-    free(iroots); iroots = NULL;
-    free(rootdir); rootdir = NULL;
-  }
-
-  lrw += 3*nrt;
-  liw += 3*nrt;
-
-  return(TRUE);
-}
-
-/*
- * cpRootFree frees the memory allocated in cpRootAlloc.
- */
-
-static void cpRootFree(CPodeMem cp_mem)
-{
-  free(glo); glo = NULL;
-  free(ghi); ghi = NULL;
-  free(grout); grout = NULL;
-  free(gactive); gactive = NULL;
-  free(iroots); iroots = NULL;
-  free(rootdir); rootdir = NULL;
-
-  lrw -= 3 * nrtfn;
-  liw -= 3 * nrtfn;
-}
-
 /*  
  * cpInitialSetup
  *
@@ -2213,18 +2107,17 @@ static int cpInitialSetup(CPodeMem cp_mem)
 {
   int ier;
 
-  /* Did the user provide efun? */
-  if (tol_type != CP_WF) {
-    efun = cpEwtSet;
-    e_data = (void *)cp_mem;
-  } else {
-    if (efun == NULL) {
-      cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "cpInitialSetup", MSGCP_NO_EFUN);
-      return(CP_ILL_INPUT);
-    }
+  /* Did the user specify tolerances? */
+  if (tol_type == CP_NN) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "cpInitialSetup", MSGCP_NO_TOLS);
+    return(CP_ILL_INPUT);
   }
 
-  /* Evaluate error weights at initial time */
+  /* Set data for efun */
+  if (cp_mem->cp_user_efun) e_data = user_data;
+  else                      e_data = cp_mem;
+
+  /* Load error weights at initial time */
   ier = efun(zn[0], ewt, e_data);
   if (ier != 0) {
     if (tol_type == CP_WF) cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "cpInitialSetup", MSGCP_EWT_FAIL);
@@ -2243,8 +2136,7 @@ static int cpInitialSetup(CPodeMem cp_mem)
 
   if (!quadr) errconQ = FALSE;
 
-  /* Check if lsolve function exists (if needed)
-     and call linit function (if it exists) */
+  /* Check if lsolve function exists (if needed) and call linit function (if it exists) */
   if (nls_type == CP_NEWTON) {
     if (cp_mem->cp_lsolve == NULL) {
       cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "cpInitialSetup", MSGCP_LSOLVE_NULL);
@@ -2260,6 +2152,7 @@ static int cpInitialSetup(CPodeMem cp_mem)
   }
 
   /* Tests related to coordinate projection */
+
   if (proj_enabled) {
 
     switch (proj_type) {
@@ -2315,8 +2208,11 @@ static int cpInitialSetup(CPodeMem cp_mem)
  *
  * This routine computes a tentative initial step size h0. 
  * If tout is too close to tn (= t0), then cpHin returns CP_TOO_CLOSE
- * and h remains uninitialized. 
+ * and h remains uninitialized.
  *
+ * Note that here tout is either the value passed to CPode at the first
+ * call or the value of tstop (if tstop is enabled and it is closer to
+ * t0=tn than tout).
  */
 
 static int cpHin(CPodeMem cp_mem, realtype tout)
@@ -2549,14 +2445,14 @@ static int cpYppNorm(CPodeMem cp_mem, realtype hg, realtype *yppnorm)
   N_VLinearSum(hg, zn[1], ONE, zn[0], y);
 
   /* tempv <- fun(t+h, h*y'(t)+y(t)) */
-  retval = fe(tn+hg, y, tempv, f_data);
+  retval = fe(tn+hg, y, tempv, user_data);
   nfe++;
   if (retval < 0) return(CP_ODEFUNC_FAIL);
   if (retval > 0) return(ODEFUNC_RECVR);
 
   /* tempvQ <- qfun(t+h, h*y'(t)+y(t)) */
   if (quadr && errconQ) {
-    retval = qfun(tn+hg, y, tempvQ, q_data);
+    retval = qfun(tn+hg, y, tempvQ, user_data);
     nqe++;
     if (retval < 0) return(CP_QUADFUNC_FAIL);
     if (retval > 0) return(QUADFUNC_RECVR);
@@ -2870,7 +2766,7 @@ static int cpStep(CPodeMem cp_mem)
  *
  */
 
-static int cpGetSolution(void *cpode_mem, realtype t, N_Vector yret, N_Vector ypret)
+int cpGetSolution(void *cpode_mem, realtype t, N_Vector yret, N_Vector ypret)
 {
   realtype s, c, d;
   realtype tfuzz, tp, tn1;
@@ -2916,7 +2812,7 @@ static int cpGetSolution(void *cpode_mem, realtype t, N_Vector yret, N_Vector yp
  * This routine advances tn by the tentative step size h, and computes
  * the predicted array z_n(0), which is overwritten on zn.
  * The prediction of zn is done by repeated additions.
- * In TSTOP mode, it is possible for tn + h to be past tstop by roundoff,
+ * In tstop is enabled, it is possible for tn + h to be past tstop by roundoff,
  * and in that case, we reset tn (after incrementing by h) to tstop.
  */
 
@@ -2925,7 +2821,7 @@ static void cpPredict(CPodeMem cp_mem)
   int j, k;
   
   tn += h;
-  if (istop) {
+  if (tstopset) {
     if ((tn - tstop)*h > ZERO) tn = tstop;
   }
 
@@ -3050,7 +2946,7 @@ static int cpQuadNls(CPodeMem cp_mem, realtype saved_t, int *ncfPtr)
   int retval;
 
   /* Save quadrature correction in acorQ */
-  retval = qfun(tn, y, acorQ, q_data);
+  retval = qfun(tn, y, acorQ, user_data);
   nqe++;
 
   if (retval == 0) {
@@ -3355,21 +3251,26 @@ static void cpSetAdams(CPodeMem cp_mem)
   int i;
 
   if (q == 1) {
+
     l[0] = l[1] = tq[1] = tq[5] = ONE;
     tq[2] = TWO;
     tq[3] = TWELVE;
     tq[4] = nlscoef * tq[2];       /* = 0.1 * tq[2] */
-    return;
+
+  } else {
+  
+    hsum = cpAdamsStart(cp_mem, m);
+    
+    M[0] = cpAltSum(q-1, m, 1);
+    M[1] = cpAltSum(q-1, m, 2);
+    
+    cpAdamsFinish(cp_mem, m, M, hsum);
+
   }
-  
-  hsum = cpAdamsStart(cp_mem, m);
-  
-  M[0] = cpAltSum(q-1, m, 1);
-  M[1] = cpAltSum(q-1, m, 2);
-  
-  cpAdamsFinish(cp_mem, m, M, hsum);
 
   for(i=0; i<=q; i++) p[i] = l[i];
+
+  return;
 }
 
 /*
@@ -4305,422 +4206,6 @@ static int cpSLdet(CPodeMem cp_mem)
   
   return(kflag);
   
-}
-
-/* 
- * -----------------------------------------------------------------
- * Root finding functions 
- * -----------------------------------------------------------------
- */
-
-/* 
- * cpRcheck1
- *
- * This routine completes the initialization of rootfinding memory
- * information, and checks whether g has a zero both at and very near
- * the initial point of the IVP.
- *
- * The return value will be
- *    CV_RTFUNC_FAIL < 0 if the g function failed
- *    CP_SUCCESS     = 0 otherwise.
- */
-
-static int cpRcheck1(CPodeMem cp_mem)
-{
-  int i, retval;
-  realtype smallh, hratio;
-  booleantype zroot;
-
-  for (i = 0; i < nrtfn; i++) iroots[i] = 0;
-  tlo = tn;
-  ttol = (ABS(tn) + ABS(h))*uround*FUZZ_FACTOR;
-
-  /* Evaluate g at initial t and check for zero values. 
-     Note that cpRcheck1 is called at the first step
-     before scaling zn[1] and therefore, y'(t0)=zn[1]. */
-  retval = gfun(tlo, zn[0], zn[1], glo, g_data);
-  nge = 1;
-  if (retval != 0) return(CP_RTFUNC_FAIL);
-
-  zroot = FALSE;
-  for (i = 0; i < nrtfn; i++) {
-    if (ABS(glo[i]) == ZERO) {
-      zroot = TRUE;
-      gactive[i] = FALSE;
-    }
-  }
-  if (!zroot) return(CP_SUCCESS);
-
-  /* Some g_i is zero at t0; look at g at t0+(small increment). 
-     At the initial time and at order 1, we have:
-     y(t0+smallh) = zn[0] + (smallh/h) * zn[1]
-     y'(t0+smallh) = zn[1]
-  */
-  hratio = MAX(ttol/ABS(h), PT1);
-  smallh = hratio*h;
-  tlo += smallh;
-  N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
-  retval = gfun(tlo, y, zn[1], glo, g_data);
-  nge++;
-  if (retval != 0) return(CP_RTFUNC_FAIL);
-
-  /* We check now only the components of g which were exactly 0.0 at t0
-     to see if we can 'activate' them. */
-
-  for (i = 0; i < nrtfn; i++) {
-    if (!gactive[i] && ABS(glo[i]) != ZERO) {
-      gactive[i] = TRUE;
-    }
-  }
-
-  return(CP_SUCCESS);
-}
-
-/*
- * cpRcheck2
- *
- * This routine checks for exact zeros of g at the last root found,
- * if the last return was a root.  It then checks for a close
- * pair of zeros (an error condition), and for a new root at a
- * nearby point.  The left endpoint (tlo) of the search interval
- * is adjusted if necessary to assure that all g_i are nonzero
- * there, before returning to do a root search in the interval.
- *
- * On entry, tlo = tretlast is the last value of tret returned by
- * CPode.  This may be the previous tn, the previous tout value, or
- * the last root location.
- *
- * This routine returns an int equal to:
- *      CLOSERT = -2 if a close pair of zeros was found,
- *      RTFOUND =  1 if a new zero of g was found near tlo, or
- *      CP_SUCCESS    =  0 otherwise.
- */
-
-static int cpRcheck2(CPodeMem cp_mem)
-{
-  int i, retval;
-  realtype smallh, hratio;
-  booleantype zroot;
-
-  if (irfnd == 0) return(CP_SUCCESS);
-
-  (void) cpGetSolution(cp_mem, tlo, y, yp);
-  retval = gfun(tlo, y, yp, glo, g_data);
-  nge++;
-  if (retval != 0) return(CP_RTFUNC_FAIL);
-
-  zroot = FALSE;
-  for (i = 0; i < nrtfn; i++) iroots[i] = 0;
-  for (i = 0; i < nrtfn; i++) {
-    if (!gactive[i]) continue;
-    if (ABS(glo[i]) == ZERO) {
-      zroot = TRUE;
-      iroots[i] = 1;
-    }
-  }
-  if (!zroot) return(CP_SUCCESS);
-
-  /* One or more g_i has a zero at tlo.  Check g at tlo+smallh. */
-  ttol = (ABS(tn) + ABS(h))*uround*FUZZ_FACTOR;
-  smallh = (h > ZERO) ? ttol : -ttol;
-  tlo += smallh;
-  if ( (tlo - tn)*h >= ZERO) {
-    hratio = smallh/h;
-    N_VLinearSum(ONE, y, hratio, zn[1], y);
-  } else {
-    (void) cpGetSolution(cp_mem, tlo, y, yp);
-  }
-  retval = gfun(tlo, y, yp, glo, g_data);
-  nge++;
-  if (retval != 0) return(CP_RTFUNC_FAIL);
-
-  zroot = FALSE;
-  for (i = 0; i < nrtfn; i++) {
-    if (ABS(glo[i]) == ZERO) {
-      if (!gactive[i]) continue;
-      if (iroots[i] == 1) return(CLOSERT);
-      zroot = TRUE;
-      iroots[i] = 1;
-    }
-  }
-  if (zroot) return(RTFOUND);
-  return(CP_SUCCESS);
-
-}
-
-/*
- * cpRcheck3
- *
- * This routine interfaces to cpRootfind to look for a root of g
- * between tlo and either tn or tout, whichever comes first.
- * Only roots beyond tlo in the direction of integration are sought.
- *
- * This routine returns an int equal to:
- *      RTFOUND    = 1 if a root of g was found, or
- *      CP_SUCCESS = 0 otherwise.
- */
-
-static int cpRcheck3(CPodeMem cp_mem)
-{
-  int i, retval, ier;
-
-  /* Set thi = tn or tout, whichever comes first. */
-  if (taskc == CP_ONE_STEP) thi = tn;
-  if (taskc == CP_NORMAL) {
-    thi = ( (toutc - tn)*h >= ZERO) ? tn : toutc;
-  }
-
-  /* Get y and y' at thi. */
-  (void) cpGetSolution(cp_mem, thi, y, yp);
-
-  /* Set ghi = g(thi) and call cpRootfind to search (tlo,thi) for roots. */
-  retval = gfun(thi, y, yp, ghi, g_data);
-  nge++;
-  if (retval != 0) return(CP_RTFUNC_FAIL);
-
-  ttol = (ABS(tn) + ABS(h))*uround*FUZZ_FACTOR;
-  ier = cpRootfind(cp_mem);
-  for(i=0; i<nrtfn; i++) {
-    if(!gactive[i] && grout[i] != ZERO) gactive[i] = TRUE;
-  }
-  tlo = trout;
-  for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
-
-  /* If no root found, return CP_SUCCESS. */  
-  if (ier == CP_SUCCESS) return(CP_SUCCESS);
-
-  /* If a root was found, interpolate to get y(trout) and return.  */
-  (void) cpGetSolution(cp_mem, trout, y, yp);
-  return(RTFOUND);
-
-}
-
-/*
- * cpRootFind
- *
- * This routine solves for a root of g(t) between tlo and thi, if
- * one exists.  Only roots of odd multiplicity (i.e. with a change
- * of sign in one of the g_i), or exact zeros, are found.
- * Here the sign of tlo - thi is arbitrary, but if multiple roots
- * are found, the one closest to tlo is returned.
- *
- * The method used is the Illinois algorithm, a modified secant method.
- * Reference: Kathie L. Hiebert and Lawrence F. Shampine, Implicitly
- * Defined Output Points for Solutions of ODEs, Sandia National
- * Laboratory Report SAND80-0180, February 1980.
- *
- * This routine uses the following parameters for communication:
- *
- * nrtfn    = number of functions g_i, or number of components of
- *            the vector-valued function g(t).  Input only.
- *
- * gfun     = user-defined function for g(t).  Its form is
- *            (void) gfun(t, y, gt, g_data)
- *
- * gactive  = array specifying whether a component of g should
- *            or should not be monitored. gactive[i] is initially
- *            set to TRUE for all i=0,...,nrtfn-1, but it may be
- *            reset to FALSE if at the first step g[i] is 0.0
- *            both at the I.C. and at a small perturbation of them.
- *            gactive[i] is then set back on TRUE only after the 
- *            corresponding g function moves away from 0.0.
- *
- * rootdir  = array specifying the direction of zero-crossings.
- *            If rootdir[i] > 0, search for roots of g_i only if
- *            g_i is increasing; if rootdir[i] < 0, search for
- *            roots of g_i only if g_i is decreasing; otherwise
- *            always search for roots of g_i.
- *
- * nge      = cumulative counter for gfun calls.
- *
- * ttol     = a convergence tolerance for trout.  Input only.
- *            When a root at trout is found, it is located only to
- *            within a tolerance of ttol.  Typically, ttol should
- *            be set to a value on the order of
- *               100 * UROUND * max (ABS(tlo), ABS(thi))
- *            where UROUND is the unit roundoff of the machine.
- *
- * tlo, thi = endpoints of the interval in which roots are sought.
- *            On input, and must be distinct, but tlo - thi may
- *            be of either sign.  The direction of integration is
- *            assumed to be from tlo to thi.  On return, tlo and thi
- *            are the endpoints of the final relevant interval.
- *
- * glo, ghi = arrays of length nrtfn containing the vectors g(tlo)
- *            and g(thi) respectively.  Input and output.  On input,
- *            none of the glo[i] should be zero.
- *
- * trout    = root location, if a root was found, or thi if not.
- *            Output only.  If a root was found other than an exact
- *            zero of g, trout is the endpoint thi of the final
- *            interval bracketing the root, with size at most ttol.
- *
- * grout    = array of length nrtfn containing g(trout) on return.
- *
- * iroots   = int array of length nrtfn with root information.
- *            Output only.  If a root was found, iroots indicates
- *            which components g_i have a root at trout.  For
- *            i = 0, ..., nrtfn-1, iroots[i] = 1 if g_i has a root
- *            and g_i is increasing, iroots[i] = -1 if g_i has a
- *            root and g_i is decreasing, and iroots[i] = 0 if g_i
- *            has no roots or g_i varies in the direction opposite
- *            to that indicated by rootdir[i].
- *
- * This routine returns an int equal to:
- *      RTFOUND =  1 if a root of g was found, or
- *      CP_SUCCESS    =  0 otherwise.
- */
-
-static int cpRootfind(CPodeMem cp_mem)
-{
-  realtype alpha, tmid, gfrac, maxfrac, fracint, fracsub;
-  int i, retval, imax, side, sideprev;
-  booleantype zroot, sgnchg;
-
-  imax = 0;
-
-  /* First check for change in sign in ghi or for a zero in ghi. */
-  maxfrac = ZERO;
-  zroot = FALSE;
-  sgnchg = FALSE;
-  for (i = 0;  i < nrtfn; i++) {
-    if(!gactive[i]) continue;
-    if (ABS(ghi[i]) == ZERO) {
-      if(rootdir[i]*glo[i] <= ZERO) {
-        zroot = TRUE;
-      }
-    } else {
-      if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
-        gfrac = ABS(ghi[i]/(ghi[i] - glo[i]));
-        if (gfrac > maxfrac) {
-          sgnchg = TRUE;
-          maxfrac = gfrac;
-          imax = i;
-        }
-      }
-    }
-  }
-
-  /* If no sign change was found, reset trout and grout.  Then return
-     CP_SUCCESS if no zero was found, or set iroots and return RTFOUND.  */ 
-  if (!sgnchg) {
-    trout = thi;
-    for (i = 0; i < nrtfn; i++) grout[i] = ghi[i];
-    if (!zroot) return(CP_SUCCESS);
-    for (i = 0; i < nrtfn; i++) {
-      iroots[i] = 0;
-      if(!gactive[i]) continue;
-      if (ABS(ghi[i]) == ZERO) iroots[i] = glo[i] > 0 ? -1:1;
-    }
-    return(RTFOUND);
-  }
-
-  /* Initialize alpha to avoid compiler warning */
-  alpha = ONE;
-
-  /* A sign change was found.  Loop to locate nearest root. */
-
-  side = 0;  sideprev = -1;
-  loop {                                    /* Looping point */
-
-    /* Set weight alpha.
-       On the first two passes, set alpha = 1.  Thereafter, reset alpha
-       according to the side (low vs high) of the subinterval in which
-       the sign change was found in the previous two passes.
-       If the sides were opposite, set alpha = 1.
-       If the sides were the same, then double alpha (if high side),
-       or halve alpha (if low side).
-       The next guess tmid is the secant method value if alpha = 1, but
-       is closer to tlo if alpha < 1, and closer to thi if alpha > 1.    */
-
-    if (sideprev == side) {
-      alpha = (side == 2) ? alpha*TWO : alpha*HALF;
-    } else {
-      alpha = ONE;
-    }
-
-    /* Set next root approximation tmid and get g(tmid).
-       If tmid is too close to tlo or thi, adjust it inward,
-       by a fractional distance that is between 0.1 and 0.5.  */
-    tmid = thi - (thi - tlo)*ghi[imax]/(ghi[imax] - alpha*glo[imax]);
-    if (ABS(tmid - tlo) < HALF*ttol) {
-      fracint = ABS(thi - tlo)/ttol;
-      fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
-      tmid = tlo + fracsub*(thi - tlo);
-    }
-    if (ABS(thi - tmid) < HALF*ttol) {
-      fracint = ABS(thi - tlo)/ttol;
-      fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
-      tmid = thi - fracsub*(thi - tlo);
-    }
-
-    (void) cpGetSolution(cp_mem, tmid, y, yp);
-    retval = gfun(tmid, y, yp, grout, g_data);
-    nge++;
-    if (retval != 0) return(CP_RTFUNC_FAIL);
-
-    /* Check to see in which subinterval g changes sign, and reset imax.
-       Set side = 1 if sign change is on low side, or 2 if on high side.  */  
-    maxfrac = ZERO;
-    zroot = FALSE;
-    sgnchg = FALSE;
-    sideprev = side;
-    for (i = 0;  i < nrtfn; i++) {
-      if(!gactive[i]) continue;
-      if (ABS(grout[i]) == ZERO) {
-        if(rootdir[i]*glo[i] <= ZERO) {
-          zroot = TRUE;
-        }
-      } else {
-        if ( (glo[i]*grout[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
-          gfrac = ABS(grout[i]/(grout[i] - glo[i]));
-          if (gfrac > maxfrac) {
-            sgnchg = TRUE;
-            maxfrac = gfrac;
-            imax = i;
-          }
-        }
-      }
-    }
-    if (sgnchg) {
-      /* Sign change found in (tlo,tmid); replace thi with tmid. */
-      thi = tmid;
-      for (i = 0; i < nrtfn; i++) ghi[i] = grout[i];
-      side = 1;
-      /* Stop at root thi if converged; otherwise loop. */
-      if (ABS(thi - tlo) <= ttol) break;
-      continue;  /* Return to looping point. */
-    }
-
-    if (zroot) {
-      /* No sign change in (tlo,tmid), but g = 0 at tmid; return root tmid. */
-      thi = tmid;
-      for (i = 0; i < nrtfn; i++) ghi[i] = grout[i];
-      break;
-    }
-
-    /* No sign change in (tlo,tmid), and no zero at tmid.
-       Sign change must be in (tmid,thi).  Replace tlo with tmid. */
-    tlo = tmid;
-    for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
-    side = 2;
-    /* Stop at root thi if converged; otherwise loop back. */
-    if (ABS(thi - tlo) <= ttol) break;
-
-  } /* End of root-search loop */
-
-  /* Reset trout and grout, set iroots, and return RTFOUND. */
-  trout = thi;
-  for (i = 0; i < nrtfn; i++) {
-    grout[i] = ghi[i];
-    iroots[i] = 0;
-    if(!gactive[i]) continue;
-    if ( (ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
-      iroots[i] = glo[i] > 0 ? -1:1;
-    if ( (glo[i]*ghi[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) 
-      iroots[i] = glo[i] > 0 ? -1:1;
-  }
-  return(RTFOUND);
 }
 
 /* 

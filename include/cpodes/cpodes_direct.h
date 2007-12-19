@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -100,8 +100,8 @@ extern "C" {
  *
  * fy  is the vector f(t,y).
  *
- * jac_data is a pointer to user data - the same as the jac_data
- *     parameter passed to CPDlsSetJacFn.
+ * user_data is a pointer to user data - the same as the user_data
+ *     parameter passed to CPodeSetUserData.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated for
  * vectors of length N which can be used by a CPDlsDenseJacFn
@@ -132,8 +132,8 @@ extern "C" {
  * gm  is the scalar in the system Jacobian, proportional to 
  *     the step size h.
  *                                                                
- * jac_data is a pointer to user Jacobian data - the same as the    
- *     jdata parameter passed to CPDenseSetJacFn.                     
+ * user_data is a pointer to user data - the same as the user_data
+ *     parameter passed to CPodeSetUserData.
  *                                                                
  * Jac is the dense matrix (of type DenseMat) to be loaded by  
  *     an CPDenseJacImplFn routine with an approximation to the   
@@ -190,11 +190,11 @@ extern "C" {
   
 typedef int (*CPDlsDenseJacExplFn)(int N, realtype t,
 				   N_Vector y, N_Vector fy, 
-				   DlsMat Jac, void *jac_data,
+				   DlsMat Jac, void *user_data,
 				   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 typedef int (*CPDlsDenseJacImplFn)(int N, realtype t, realtype gm,
 				   N_Vector y, N_Vector yp, N_Vector r, 
-				   DlsMat Jac, void *jac_data,
+				   DlsMat Jac, void *user_data,
 				   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -222,6 +222,9 @@ typedef int (*CPDlsDenseJacImplFn)(int N, realtype t, realtype gm,
  *      namely the predicted value of y(t).
  *
  * fy is the vector f(t,y).
+ *
+ * user_data is a pointer to user data - the same as the user_data
+ *     parameter passed to CPodeSetUserData.
  *
  * Jac is the band matrix (of type DlsMat) that will be loaded
  * by a CPDlsBandJacFn with an approximation to the Jacobian matrix
@@ -258,9 +261,9 @@ typedef int (*CPDlsDenseJacImplFn)(int N, realtype t, realtype gm,
  * gm  is the scalar in the system Jacobian, proportional to 
  *     the step size h.
  *                                                                
- * jac_data  is a pointer to user Jacobian data - the same as the    
- *    jdata parameter passed to CPBandSetJacFn.                      
- *                                                                
+ * user_data is a pointer to user data - the same as the user_data
+ *     parameter passed to CPodeSetUserData.
+ *                      
  * J is the band matrix (of type BandMat) to be loaded by    
  *     with an approximation to the system Jacobian matrix
  *            J = dF/dy' + gamma*dF/dy 
@@ -328,12 +331,12 @@ typedef int (*CPDlsDenseJacImplFn)(int N, realtype t, realtype gm,
 
 typedef int (*CPDlsBandJacExplFn)(int N, int mupper, int mlower,
 				  realtype t, N_Vector y, N_Vector fy, 
-				  DlsMat Jac, void *jac_data,
+				  DlsMat Jac, void *user_data,
 				  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 typedef int (*CPDlsBandJacImplFn)(int N, int mupper, int mlower,
 				  realtype t, realtype gm, 
 				  N_Vector y, N_Vector yp, N_Vector r,
-				  DlsMat Jac, void *jac_data,
+				  DlsMat Jac, void *user_data,
 				  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -347,7 +350,7 @@ typedef int (*CPDlsBandJacImplFn)(int N, int mupper, int mlower,
 
 typedef int (*CPDlsDenseProjJacFn)(int Nc, int Ny, 
 				   realtype t, N_Vector y, N_Vector cy,
-				   DlsMat Jac, void *jac_data,
+				   DlsMat Jac, void *user_data,
 				   N_Vector tmp1, N_Vector tmp2); 
 
 
@@ -358,29 +361,46 @@ typedef int (*CPDlsDenseProjJacFn)(int Nc, int Ny,
  * =================================================================
  */
 
+
+SUNDIALS_EXPORT int CPDlsSetJacFn(void *cvode_mem, void *jac);
+
 /*
  * -----------------------------------------------------------------
- * Optional inputs to a CPDIRECT linear solver 
- * for implicit integration
+ * Optional inputs to the CPDIRECT linear solver
  * -----------------------------------------------------------------
  *
- * CPDlsSetJacFn specifies the Jacobian approximation routine to be
- * used. When using dense Jacobians, a user-supplied jac routine must 
- * be of type CPDlsDenseJacFn. When using banded Jacobians, a 
- * user-supplied jac routine must be of type CPDlsBandJacFn.
- * By default, a difference quotient approximation, supplied with this 
- * solver is used.
- * CPDlsSetJacFn also specifies a pointer to user data which is 
- * passed to the user's jac routine every time it is called.
+ * CPDlsSetDenseJacFnExpl specifies the Jacobian approximation
+ * function to be used for a direct dense linear solver on a
+ * problem in explicit form.
  *
- * The return value of CPDlsSetJacFn is one of:
+ * CPDlsSetDenseJacFnImpl specifies the Jacobian approximation
+ * function to be used for a direct dense linear solver on a
+ * problem in implicit form.
+ *
+ * CPDlsSetBandJacFnExpl specifies the Jacobian approximation
+ * function to be used for a direct band linear solver on a
+ * problem in explicit form.
+ *
+ * CPDlsSetBandJacFnImpl specifies the Jacobian approximation
+ * function to be used for a direct band linear solver on a
+ * problem in implicit form.
+ *
+ * By default, a difference quotient approximation, supplied with
+ * the solver is used.
+ *
+ * The return value is one of:
  *    CPDIRECT_SUCCESS   if successful
- *    CPDIRECT_MEM_NULL  if the CPODES memory was NULL
+ *    CPDIRECT_MEM_NULL  if the CPODE memory was NULL
  *    CPDIRECT_LMEM_NULL if the linear solver memory was NULL
+ *    CPDIRECT_ILL_INPUT if an input was illegal
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPDlsSetJacFn(void *cvode_mem, void *jac, void *jac_data);
+SUNDIALS_EXPORT int CPDlsSetDenseJacFnExpl(void *cpode_mem, CPDlsDenseJacExplFn jac);
+SUNDIALS_EXPORT int CPDlsSetDenseJacFnImpl(void *cpode_mem, CPDlsDenseJacImplFn jac);
+
+SUNDIALS_EXPORT int CPDlsSetBandJacFnExpl(void *cpode_mem, CPDlsBandJacExplFn jac);
+SUNDIALS_EXPORT int CPDlsSetBandJacFnImpl(void *cpode_mem, CPDlsBandJacImplFn jac);
 
 /*
  * -----------------------------------------------------------------
@@ -405,10 +425,10 @@ SUNDIALS_EXPORT int CPDlsSetJacFn(void *cvode_mem, void *jac, void *jac_data);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
-SUNDIALS_EXPORT int CPDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
-SUNDIALS_EXPORT int CPDlsGetNumFctEvals(void *cvode_mem, long int *nfevalsLS);
-SUNDIALS_EXPORT int CPDlsGetLastFlag(void *cvode_mem, int *flag);
+SUNDIALS_EXPORT int CPDlsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CPDlsGetNumJacEvals(void *cpode_mem, long int *njevals);
+SUNDIALS_EXPORT int CPDlsGetNumFctEvals(void *cpode_mem, long int *nfevalsLS);
+SUNDIALS_EXPORT int CPDlsGetLastFlag(void *cpode_mem, int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -426,7 +446,7 @@ SUNDIALS_EXPORT char *CPDlsGetReturnFlagName(int flag);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPDlsProjSetJacFn(void *cpode_mem, void *jacP, void *jacP_data);
+SUNDIALS_EXPORT int CPDlsProjSetDenseJacFn(void *cpode_mem, CPDlsDenseProjJacFn jacP);
 
 SUNDIALS_EXPORT int CPDlsProjGetNumJacEvals(void *cpode_mem, long int *njPevals);
 SUNDIALS_EXPORT int CPDlsProjGetNumFctEvals(void *cpode_mem, long int *ncevalsLS);

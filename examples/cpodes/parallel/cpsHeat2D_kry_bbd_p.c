@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:25 $
+ * $Revision: 1.2 $
+ * $Date: 2007-12-19 20:26:43 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -192,11 +192,17 @@ int main(int argc, char *argv[])
 
   /* Call CPodeCreate and CPodeMalloc to initialize solution */
 
-  mem = CPodeCreate(CP_IMPL, CP_BDF, CP_NEWTON);
+  mem = CPodeCreate(CP_BDF, CP_NEWTON);
   if(check_flag((void *)mem, "CPodeCreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = CPodeInit(mem, heatres, data, t0, uu, up, CP_SS, rtol, &atol);
-  if(check_flag(&ier, "CPodeInit", 1, thispe)) MPI_Abort(comm, 1);
+  ier = CPodeSetUserData(mem, data);
+  if(check_flag(&ier, "CPodeSetUserData", 1, thispe)) MPI_Abort(comm, 1);
+
+  ier = CPodeInitImpl(mem, heatres, t0, uu, up);
+  if(check_flag(&ier, "CPodeInitImpl", 1, thispe)) MPI_Abort(comm, 1);
+
+  ier = CPodeSStolerances(mem, rtol, atol);
+  if(check_flag(&ier, "CPodeSStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   mudq = MXSUB;
   mldq = MXSUB;
@@ -206,16 +212,16 @@ int main(int argc, char *argv[])
   /* Print problem description */
 
   if (thispe == 0 ) PrintHeader(Neq, rtol, atol);
-  
-  /* Call CPBBDPrecAlloc to initialize BBD preconditioner. */
-  P_data = CPBBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
-                          ZERO, reslocal, NULL);
-  if(check_flag((void *)P_data, "CPBBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
 
-  /* Call CPBBDSpgmr to specify the linear solver. */
-  ier = CPBBDSpgmr(mem, PREC_LEFT, 0, P_data);
-  if(check_flag(&ier, "CPBBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
-  
+  /* Call CPSpgmr to specify the linear solver. */
+  ier = CPSpgmr(mem, PREC_LEFT, 0);
+  if(check_flag(&ier, "CPSpgmr", 1, thispe)) MPI_Abort(comm, 1);
+
+  /* Call CPBBDPrecInit to initialize BBD preconditioner. */
+  ier = CPBBDPrecInit(mem, local_N, mudq, mldq, mukeep, mlkeep, 
+                      ZERO, reslocal, NULL);
+  if(check_flag(&ier, "CPBBDPrecAlloc", 1, thispe)) MPI_Abort(comm, 1);
+
   /* Print output heading (on processor 0 only) and initial solution. */
   if (thispe == 0) PrintCase(1, mudq, mukeep);
 
@@ -233,7 +239,6 @@ int main(int argc, char *argv[])
   if (thispe == 0) PrintFinalStats(mem);
   
   /* Free Memory */
-  CPBBDPrecFree(&P_data);
   CPodeFree(&mem);
   free(data);
   N_VDestroy_Parallel(id);

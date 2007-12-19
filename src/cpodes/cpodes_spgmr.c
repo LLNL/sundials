@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-08 01:07:06 $
+ * $Revision: 1.2 $
+ * $Date: 2007-12-19 20:26:43 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,7 +45,6 @@ static void cpSpgmrFree(CPodeMem cp_mem);
 #define gamma         (cp_mem->cp_gamma)
 #define gammap        (cp_mem->cp_gammap)   
 #define f             (cp_mem->cp_f)
-#define f_data        (cp_mem->cp_f_data)
 #define ewt           (cp_mem->cp_ewt)
 #define mnewt         (cp_mem->cp_mnewt)
 #define ropt          (cp_mem->cp_ropt)
@@ -66,6 +65,7 @@ static void cpSpgmrFree(CPodeMem cp_mem);
 #define fcur      (cpspils_mem->s_fcur)
 #define delta     (cpspils_mem->s_delta)
 #define deltar    (cpspils_mem->s_deltar)
+
 #define npe       (cpspils_mem->s_npe)
 #define nli       (cpspils_mem->s_nli)
 #define nps       (cpspils_mem->s_nps)
@@ -73,7 +73,9 @@ static void cpSpgmrFree(CPodeMem cp_mem);
 #define nstlpre   (cpspils_mem->s_nstlpre)
 #define njtimes   (cpspils_mem->s_njtimes)
 #define nfes      (cpspils_mem->s_nfes)
+
 #define spils_mem (cpspils_mem->s_spils_mem)
+
 #define last_flag (cpspils_mem->s_last_flag)
 
 /*
@@ -88,21 +90,7 @@ static void cpSpgmrFree(CPodeMem cp_mem);
  * respectively.  It allocates memory for a structure of type
  * CPSpilsMemRec and sets the cp_lmem field in (*cpode_mem) to the
  * address of this structure.  It sets lsetup_exists in (*cpode_mem),
- * and sets the following fields in the CPSpilsMemRec structure:
- *   s_pretype = pretype                                       
- *   s_gstype  = gstype                                       
- *   s_maxl    = MIN(N,CPSPILS_MAXL  if maxl <= 0             
- *             = maxl                 if maxl > 0              
- *   s_delt    = CPSPILS_DELT if delt == 0.0                     
- *             = delt         if delt != 0.0                     
- *   s_psetE   = NULL
- *   s_psetI   = NULL
- *   s_pslvE   = NULL                                       
- *   s_pslvI   = NULL                                       
- *   s_jtvE    = NULL
- *   s_jtvI    = NULL
- *   s_P_data  = NULL                                        
- *   s_j_data  = NULL
+ * and sets various fields in the CPSpilsMemRec structure.
  * Finally, CPSpgmr allocates memory for ytemp and x, and calls
  * SpgmrMalloc to allocate memory for the Spgmr solver.
  * -----------------------------------------------------------------
@@ -128,6 +116,13 @@ int CPSpgmr(void *cpode_mem, int pretype, int maxl)
     return(CPSPILS_ILL_INPUT);
   }
 
+  /* Check for legal pretype */ 
+  if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
+      (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
+    cpProcessError(cp_mem, CPSPILS_ILL_INPUT, "CPSPGMR", "CPSpgmr", MSGS_BAD_PRETYPE);
+    return(CPSPILS_ILL_INPUT);
+  }
+
   if (lfree != NULL) lfree(cp_mem);
 
   /* Set four main function fields in cp_mem */
@@ -138,7 +133,7 @@ int CPSpgmr(void *cpode_mem, int pretype, int maxl)
 
   /* Get memory for CPSpilsMemRec */
   cpspils_mem = NULL;
-  cpspils_mem = (CPSpilsMem) malloc(sizeof(CPSpilsMemRec));
+  cpspils_mem = (CPSpilsMem) malloc(sizeof(struct CPSpilsMemRec));
   if (cpspils_mem == NULL) {
     cpProcessError(cp_mem, CPSPILS_MEM_FAIL, "CPSPGMR", "CPSpgmr", MSGS_MEM_FAIL);
     return(CPSPILS_MEM_FAIL);
@@ -151,29 +146,27 @@ int CPSpgmr(void *cpode_mem, int pretype, int maxl)
   cpspils_mem->s_pretype    = pretype;
   mxl = cpspils_mem->s_maxl = (maxl <= 0) ? CPSPILS_MAXL : maxl;
 
+  /* Set defaults for Jacobian-related fileds */
+  cpspils_mem->s_jtimesDQ = TRUE;
+  cpspils_mem->s_jtvE     = NULL;
+  cpspils_mem->s_jtvI     = NULL;
+  cpspils_mem->s_j_data   = NULL;
+
+  /* Set defaults for preconditioner-related fields */
+  cpspils_mem->s_psetE  = NULL;
+  cpspils_mem->s_psetI  = NULL;
+  cpspils_mem->s_pslvE  = NULL;
+  cpspils_mem->s_pslvI  = NULL;
+  cpspils_mem->s_pfree  = NULL;
+  cpspils_mem->s_P_data = cp_mem->cp_user_data;
+
   /* Set default values for the rest of the Spgmr parameters */
   cpspils_mem->s_gstype     = MODIFIED_GS;
   cpspils_mem->s_delt       = CPSPILS_DELT;
 
-  cpspils_mem->s_psetE      = NULL;
-  cpspils_mem->s_psetI      = NULL;
-  cpspils_mem->s_pslvE      = NULL;
-  cpspils_mem->s_pslvI      = NULL;
-  cpspils_mem->s_jtvE       = NULL;
-  cpspils_mem->s_jtvI       = NULL;
-  cpspils_mem->s_P_data     = NULL;
-  cpspils_mem->s_j_data     = NULL;
-
   cpspils_mem->s_last_flag  = CPSPILS_SUCCESS;
 
   lsetup_exists = FALSE;
-
-  /* Check for legal pretype */ 
-  if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
-      (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    cpProcessError(cp_mem, CPSPILS_ILL_INPUT, "CPSPGMR", "CPSpgmr", MSGS_BAD_PRETYPE);
-    return(CPSPILS_ILL_INPUT);
-  }
 
   /* Alocate memory */
   spgmr_mem = NULL;
@@ -232,18 +225,21 @@ int CPSpgmr(void *cpode_mem, int pretype, int maxl)
 
 /* Additional readability Replacements */
 
-#define pretype (cpspils_mem->s_pretype)
-#define gstype  (cpspils_mem->s_gstype)
-#define delt    (cpspils_mem->s_delt)
-#define maxl    (cpspils_mem->s_maxl)
-#define psetE   (cpspils_mem->s_psetE)
-#define psetI   (cpspils_mem->s_psetI)
-#define pslvE   (cpspils_mem->s_pslvE)
-#define pslvI   (cpspils_mem->s_pslvI)
-#define jtvE    (cpspils_mem->s_jtvE)
-#define jtvI    (cpspils_mem->s_jtvI)
-#define P_data  (cpspils_mem->s_P_data)
-#define j_data  (cpspils_mem->s_j_data)
+#define pretype   (cpspils_mem->s_pretype)
+#define gstype    (cpspils_mem->s_gstype)
+#define delt      (cpspils_mem->s_delt)
+#define maxl      (cpspils_mem->s_maxl)
+
+#define psetE     (cpspils_mem->s_psetE)
+#define psetI     (cpspils_mem->s_psetI)
+#define pslvE     (cpspils_mem->s_pslvE)
+#define pslvI     (cpspils_mem->s_pslvI)
+#define P_data    (cpspils_mem->s_P_data)
+
+#define jtimesDQ  (cpspils_mem->s_jtimesDQ)
+#define jtvE      (cpspils_mem->s_jtvE)
+#define jtvI      (cpspils_mem->s_jtvI)
+#define j_data    (cpspils_mem->s_j_data)
 
 /*
  * -----------------------------------------------------------------
@@ -273,27 +269,35 @@ static int cpSpgmrInit(CPodeMem cp_mem)
    */
 
   if (ode_type == CP_EXPL) {
+
     if ((pretype != PREC_NONE) && (pslvE == NULL)) {
       cpProcessError(cp_mem, -1, "CPSPGMR", "CPSpgmrInit", MSGS_PSOLVE_REQ);
       last_flag = CPSPILS_ILL_INPUT;
       return(-1);
     }
     lsetup_exists = (pretype != PREC_NONE) && (psetE != NULL);
-    if (jtvE == NULL) {
+    if (jtimesDQ) {
       jtvE = cpSpilsDQjtvExpl;
       j_data = cp_mem;
+    } else {
+      j_data = cp_mem->cp_user_data;
     }
+
   } else {
+
     if ((pretype != PREC_NONE) && (pslvI == NULL)) {
       cpProcessError(cp_mem, -1, "CPSPGMR", "CPSpgmrInit", MSGS_PSOLVE_REQ);
       last_flag = CPSPILS_ILL_INPUT;
       return(-1);
     }
     lsetup_exists = (pretype != PREC_NONE) && (psetI != NULL);
-    if (jtvI == NULL) {
+    if (jtimesDQ) {
       jtvI = cpSpilsDQjtvImpl;
       j_data = cp_mem;
+    } else {
+      j_data = cp_mem->cp_user_data;
     }
+
   }
 
   last_flag = CPSPILS_SUCCESS;
@@ -511,6 +515,7 @@ static void cpSpgmrFree(CPodeMem cp_mem)
   N_VDestroy(x);
   N_VDestroy(ytemp);
   if (ode_type == CP_EXPL) N_VDestroy(yptemp);
+  if (cpspils_mem->s_pfree != NULL) (cpspils_mem->s_pfree)(cp_mem);
   free(cpspils_mem); cpspils_mem = NULL;
 }
 

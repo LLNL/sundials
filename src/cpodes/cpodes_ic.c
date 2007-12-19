@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-12-01 22:48:57 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-19 20:26:42 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -71,6 +71,7 @@ static void cpicFailFlag(CPodeMem, int flag);
  */
 
 #define ode_type       (cp_mem->cp_ode_type)
+#define tol_type       (cp_mem->cp_tol_type)
 #define tn             (cp_mem->cp_tn)
 #define zn             (cp_mem->cp_zn) 
 #define tol_type       (cp_mem->cp_tol_type)
@@ -91,9 +92,7 @@ static void cpicFailFlag(CPodeMem, int flag);
 #define proj_norm      (cp_mem->cp_proj_norm)
 #define cnstr_type     (cp_mem->cp_cnstr_type)
 #define pfun           (cp_mem->cp_pfun)
-#define p_data         (cp_mem->cp_p_data)
 #define cfun           (cp_mem->cp_cfun)
-#define c_data         (cp_mem->cp_c_data)
 
 #define prjcoef        (cp_mem->cp_prjcoef)
 #define yC             (cp_mem->cp_yC)
@@ -291,15 +290,11 @@ static int cpicInitialSetup(CPodeMem cp_mem)
     }
   }
 
-  /* Did the user provide efun? */
-  if (tol_type != CP_WF) {
-    efun = cpEwtSet;
-    e_data = (void *)cp_mem;
-  } else {
-    if (efun == NULL) {
-      cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeCalcIC", MSGCP_NO_EFUN);
-      return(CP_ILL_INPUT);
-    }
+  /* Did the user specify tolerances? */
+
+  if (tol_type == CP_NN) {
+    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeCalcIC", MSGCP_NO_TOLS);
+    return(CP_ILL_INPUT);
   }
 
   return(CP_SUCCESS);
@@ -329,7 +324,7 @@ static int cpicDoProjection(CPodeMem cp_mem)
   case CP_PROJ_INTERNAL:
 
     /* Evaluate constraints at initial time and with the provided yy0 */
-    retval = cfun(tn, yy0, ctemp, c_data);
+    retval = cfun(tn, yy0, ctemp, cp_mem->cp_user_data);
     if (retval < 0) return(CP_CNSTRFUNC_FAIL);
     if (retval > 0) return(CP_FIRST_CNSTRFUNC_ERR);
 
@@ -345,7 +340,7 @@ static int cpicDoProjection(CPodeMem cp_mem)
     acorP = tempv;
     
     /* Call the user projection function (with err=NULL) */
-    retval = pfun(tn, yy0, acorP, icprj_convcoef, NULL, p_data);
+    retval = pfun(tn, yy0, acorP, icprj_convcoef, NULL, cp_mem->cp_user_data);
     if (retval != 0) return(CP_PROJFUNC_FAIL);
 
     /* Update yy0 */
@@ -416,6 +411,10 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
   realtype ccon, pcon, crate, ratio;
   booleantype callSetup, jacCurrent, cOK;
   int retval, m, ircvr, flag;
+
+  /* Set data for efun */
+  if (cp_mem->cp_user_efun) e_data = cp_mem->cp_user_data;
+  else                      e_data = cp_mem;
 
   /* Evaluate ewt at yy0 */
   flag = efun(yy0, ewt, e_data);
@@ -489,7 +488,7 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
       N_VLinearSum(ONE, yy0, -ONE, acorP, yy0_new);
       
       /* evaluate constraints at yy0_new */
-      retval = cfun(tn, yy0_new, ctemp, c_data);
+      retval = cfun(tn, yy0_new, ctemp, cp_mem->cp_user_data);
       
       /* if successful, accept current acorP */
       if (retval == 0) {cOK = TRUE; break;}
@@ -564,7 +563,7 @@ static int cpicProjNonlinear(CPodeMem cp_mem)
 
       /* Otherwise, attempt to recover by re-evaluating the Jacobian */
       callSetup = TRUE;
-      retval = cfun(tn, yy0, ctemp, c_data);
+      retval = cfun(tn, yy0, ctemp, cp_mem->cp_user_data);
       continue;
 
     }
@@ -599,7 +598,7 @@ static int cpicImplComputeYp(CPodeMem cp_mem)
      and the initial guess yp0 */
 
   /*
-  retval = fi(tn, yy0, yp0, ftemp, f_data);
+  retval = fi(tn, yy0, yp0, ftemp, cp_mem->cp_user_data);
   if (retval < 0) return(CP_ODEFUNC_FAIL);
   if (retval > 0) return(CP_FIRST_ODEFUNC_ERR);
   */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-24 19:09:18 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-19 20:26:43 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,12 +20,6 @@
 #include "cpodes_private.h"
 #include "cpodes_spils_impl.h"
 
-/* Private constants */
-
-#define ZERO   RCONST(0.0)
-#define PT25   RCONST(0.25)
-#define ONE    RCONST(1.0)
-
 /* Algorithmic constants */
 
 #define MAX_ITERS  3  /* max. number of attempts to recover in DQ J*v */
@@ -41,7 +35,7 @@
 #define gamma     (cp_mem->cp_gamma)
 #define fe        (cp_mem->cp_fe)
 #define fi        (cp_mem->cp_fi)
-#define f_data    (cp_mem->cp_f_data)
+#define user_data (cp_mem->cp_user_data)
 #define ewt       (cp_mem->cp_ewt)
 #define lmem      (cp_mem->cp_lmem)
 
@@ -54,13 +48,20 @@
 #define ypcur     (cpspils_mem->s_ypcur)
 #define fcur      (cpspils_mem->s_fcur)
 #define delta     (cpspils_mem->s_delta)
+
 #define npe       (cpspils_mem->s_npe)
 #define nli       (cpspils_mem->s_nli)
 #define nps       (cpspils_mem->s_nps)
 #define ncfl      (cpspils_mem->s_ncfl)
 #define njtimes   (cpspils_mem->s_njtimes)
 #define nfes      (cpspils_mem->s_nfes)
+
 #define last_flag (cpspils_mem->s_last_flag)
+
+#define jtimesDQ  (cpspils_mem->s_jtimesDQ)
+#define jtvE      (cpspils_mem->s_jtvE)
+#define jtvI      (cpspils_mem->s_jtvI)
+#define j_data    (cpspils_mem->s_j_data)
 
 /*
  * -----------------------------------------------------------------
@@ -219,70 +220,128 @@ int CPSpilsSetDelt(void *cpode_mem, realtype delt)
 
 /*
  * -----------------------------------------------------------------
- * CPSpilsSetPrecSetupFn
+ * CPSpilsSetPrecFnExpl and CPSpilsSetPrecfnImpl
  * -----------------------------------------------------------------
  */
 
-int CPSpilsSetPreconditioner(void *cpode_mem, void *pset, void *psolve, void *P_data)
+
+int CPSpilsSetPrecFnExpl(void *cpode_mem,
+                         CPSpilsPrecSetupExplFn pset,
+                         CPSpilsPrecSolveExplFn psolve)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPSPILS", "CPSpilsSetPreconditioner", MSGS_CPMEM_NULL);
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPSPILS", "CPSpilsSetPrecFnExpl", MSGS_CPMEM_NULL);
     return(CPSPILS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPSPILS", "CPSpilsSetPreconditioner", MSGS_LMEM_NULL);
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPSPILS", "CPSpilsSetPrecFnExpl", MSGS_LMEM_NULL);
     return(CPSPILS_LMEM_NULL);
   }
   cpspils_mem = (CPSpilsMem) lmem;
 
-  if (ode_type == CP_EXPL) {
-    cpspils_mem->s_psetE = (CPSpilsPrecSetupExplFn) pset;
-    cpspils_mem->s_pslvE = (CPSpilsPrecSolveExplFn) psolve;
-  } else {
-    cpspils_mem->s_psetI = (CPSpilsPrecSetupImplFn) pset;
-    cpspils_mem->s_pslvI = (CPSpilsPrecSolveImplFn) psolve;
-  }
-  cpspils_mem->s_P_data = P_data;
+  cpspils_mem->s_psetE = pset;
+  cpspils_mem->s_pslvE = psolve;
 
   return(CPSPILS_SUCCESS);
 }
+
+
+int CPSpilsSetPrecFnImpl(void *cpode_mem,
+                         CPSpilsPrecSetupImplFn pset,
+                         CPSpilsPrecSolveImplFn psolve)
+{
+  CPodeMem cp_mem;
+  CPSpilsMem cpspils_mem;
+
+  /* Return immediately if cpode_mem is NULL */
+  if (cpode_mem == NULL) {
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPSPILS", "CPSpilsSetPrecFnImpl", MSGS_CPMEM_NULL);
+    return(CPSPILS_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  if (lmem == NULL) {
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPSPILS", "CPSpilsSetPrecFnImpl", MSGS_LMEM_NULL);
+    return(CPSPILS_LMEM_NULL);
+  }
+  cpspils_mem = (CPSpilsMem) lmem;
+
+  cpspils_mem->s_psetI = pset;
+  cpspils_mem->s_pslvI = psolve;
+
+  return(CPSPILS_SUCCESS);
+}
+
 
 /*
  * -----------------------------------------------------------------
- * CPSpilsSetJacTimesVecFn
+ * CPSpilsSetJacTimesVecFnExpl and CPSpilsSetJacTimesVecFnImpl
  * -----------------------------------------------------------------
  */
 
-int CPSpilsSetJacTimesVecFn(void *cpode_mem, void *jtimes, void *jac_data)
+int CPSpilsSetJacTimesVecFnExpl(void *cpode_mem, CPSpilsJacTimesVecExplFn jtimes)
 {
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPSPILS", "CPSpilsSetJacTimesVecFn", MSGS_CPMEM_NULL);
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPSPILS", "CPSpilsSetJacTimesVecFnExpl", MSGS_CPMEM_NULL);
     return(CPSPILS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPSPILS", "CPSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPSPILS", "CPSpilsSetJacTimesVecFnExpl", MSGS_LMEM_NULL);
     return(CPSPILS_LMEM_NULL);
   }
   cpspils_mem = (CPSpilsMem) lmem;
 
-  if (ode_type == CP_EXPL) cpspils_mem->s_jtvE = (CPSpilsJacTimesVecExplFn) jtimes;
-  else                     cpspils_mem->s_jtvI = (CPSpilsJacTimesVecImplFn) jtimes;
-  cpspils_mem->s_j_data = jac_data;
+  if (jtimes != NULL) {
+    jtimesDQ = FALSE;
+    cpspils_mem->s_jtvE = jtimes;
+  } else {
+    jtimesDQ = TRUE;
+  }
 
   return(CPSPILS_SUCCESS);
 }
+
+
+int CPSpilsSetJacTimesVecFnImpl(void *cpode_mem, CPSpilsJacTimesVecImplFn jtimes)
+{
+  CPodeMem cp_mem;
+  CPSpilsMem cpspils_mem;
+
+  /* Return immediately if cpode_mem is NULL */
+  if (cpode_mem == NULL) {
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPSPILS", "CPSpilsSetJacTimesVecFnImpl", MSGS_CPMEM_NULL);
+    return(CPSPILS_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  if (lmem == NULL) {
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPSPILS", "CPSpilsSetJacTimesVecFnImpl", MSGS_LMEM_NULL);
+    return(CPSPILS_LMEM_NULL);
+  }
+  cpspils_mem = (CPSpilsMem) lmem;
+
+  if (jtimes != NULL) {
+    jtimesDQ = FALSE;
+    cpspils_mem->s_jtvI = jtimes;
+  } else {
+    jtimesDQ = TRUE;
+  }
+
+  return(CPSPILS_SUCCESS);
+}
+
 
 /*
  * -----------------------------------------------------------------
@@ -561,6 +620,9 @@ char *CPSpilsGetReturnFlagName(int flag)
   case CPSPILS_MEM_FAIL:
     sprintf(name,"CPSPILS_MEM_FAIL");
     break;
+  case CPSPILS_PMEM_NULL:
+    sprintf(name,"CPSPILS_PMEM_NULL");
+    break;
   default:
     sprintf(name,"NONE");
   }
@@ -583,9 +645,6 @@ char *CPSpilsGetReturnFlagName(int flag)
 #define pslvE   (cpspils_mem->s_pslvE)
 #define pslvI   (cpspils_mem->s_pslvI)
 #define P_data  (cpspils_mem->s_P_data)
-#define jtvE    (cpspils_mem->s_jtvE)
-#define jtvI    (cpspils_mem->s_jtvI)
-#define j_data  (cpspils_mem->s_j_data)
 
 /*
  * -----------------------------------------------------------------
@@ -667,7 +726,7 @@ int cpSpilsPSolve(void *cpode_mem, N_Vector r, N_Vector z, int lr)
  */
 
 int cpSpilsDQjtvExpl(realtype t, N_Vector y, N_Vector fy, 
-                     N_Vector v, N_Vector Jv, void *jac_data, 
+                     N_Vector v, N_Vector Jv, void *data, 
                      N_Vector tmp)
 {
   CPodeMem cp_mem;
@@ -675,8 +734,8 @@ int cpSpilsDQjtvExpl(realtype t, N_Vector y, N_Vector fy,
   realtype sig, siginv;
   int iter, retval;
 
-  /* jac_data is cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
+  /* data is cpode_mem */
+  cp_mem = (CPodeMem) data;
   cpspils_mem = (CPSpilsMem) lmem;
 
   /* Initialize perturbation to 1/||v|| */
@@ -688,7 +747,7 @@ int cpSpilsDQjtvExpl(realtype t, N_Vector y, N_Vector fy,
     N_VLinearSum(sig, v, ONE, y, tmp);
 
     /* Set Jv = f(tn, y+sig*v) */
-    retval = fe(t, tmp, Jv, f_data); 
+    retval = fe(t, tmp, Jv, user_data); 
     nfes++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);
@@ -712,7 +771,7 @@ int cpSpilsDQjtvExpl(realtype t, N_Vector y, N_Vector fy,
  */
 int cpSpilsDQjtvImpl(realtype t, realtype gm, 
                      N_Vector y, N_Vector yp, N_Vector r,
-                     N_Vector v, N_Vector Jv, void *jac_data,
+                     N_Vector v, N_Vector Jv, void *data,
                      N_Vector tmp1, N_Vector tmp2)
 {
   CPodeMem cp_mem;
@@ -723,8 +782,8 @@ int cpSpilsDQjtvImpl(realtype t, realtype gm,
 
   realtype dqincfac;
 
-  /* jac_data is cp_mem */
-  cp_mem = (CPodeMem) jac_data;
+  /* data is cp_mem */
+  cp_mem = (CPodeMem) data;
   cpspils_mem = (CPSpilsMem) lmem;
 
   
@@ -754,7 +813,7 @@ int cpSpilsDQjtvImpl(realtype t, realtype gm,
     N_VLinearSum(sig, v, ONE, yp, yp_tmp);
     
     /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
-    retval = fi(t, y_tmp, yp_tmp, Jv, f_data);
+    retval = fi(t, y_tmp, yp_tmp, Jv, user_data);
     nfes++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);

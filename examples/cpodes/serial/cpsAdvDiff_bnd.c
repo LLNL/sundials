@@ -1,3 +1,14 @@
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.2 $
+ * $Date: 2007-12-19 20:26:43 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Simple advection-diffusion example
+ * -----------------------------------------------------------------
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -36,7 +47,7 @@ typedef struct {
 static void SetIC(N_Vector u, UserData data);
 static void PrintHeader(realtype reltol, realtype abstol, realtype umax);
 static void PrintOutput(realtype t, realtype umax, long int nst);
-static void PrintFinalStats(void *cvode_mem);
+static void PrintFinalStats(void *cpode_mem);
 
 /* Functions Called by the Solver */
 static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
@@ -55,13 +66,13 @@ int main(void)
   realtype dx, dy, reltol, abstol, t, tout, umax;
   N_Vector u, up;
   UserData data;
-  void *cvode_mem;
+  void *cpode_mem;
   int iout, flag;
   long int nst;
 
   u = NULL;
   data = NULL;
-  cvode_mem = NULL;
+  cpode_mem = NULL;
 
   u  = N_VNew_Serial(NEQ);
   up = N_VNew_Serial(NEQ);
@@ -78,27 +89,31 @@ int main(void)
 
   SetIC(u, data);
 
-  cvode_mem = CPodeCreate(CP_EXPL, CP_BDF, CP_NEWTON);
-  flag = CPodeInit(cvode_mem, (void *)f, data, T0, u, NULL, CP_SS, reltol, &abstol);
+  cpode_mem = CPodeCreate(CP_BDF, CP_NEWTON);
+  flag = CPodeSetUserData(cpode_mem, data);
+  flag = CPodeInitExpl(cpode_mem, f, T0, u);
+  flag = CPodeSStolerances(cpode_mem, reltol, abstol);
 
-  flag = CPBand(cvode_mem, NEQ, MY, MY);
-  flag = CPDlsSetJacFn(cvode_mem, (void *)Jac, data);
+  flag = CPBand(cpode_mem, NEQ, MY, MY);
+  flag = CPDlsSetBandJacFnExpl(cpode_mem, Jac);
 
   /* In loop over output points: call CPode, print results, test for errors */
   umax = N_VMaxNorm(u);
   PrintHeader(reltol, abstol, umax);
   for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    flag = CPode(cvode_mem, tout, &t, u, up, CP_NORMAL);
+    flag = CPode(cpode_mem, tout, &t, u, up, CP_NORMAL);
     umax = N_VMaxNorm(u);
-    flag = CPodeGetNumSteps(cvode_mem, &nst);
+    flag = CPodeGetNumSteps(cpode_mem, &nst);
     PrintOutput(t, umax, nst);
   }
 
-  PrintFinalStats(cvode_mem);
+  PrintFinalStats(cpode_mem);
 
   N_VDestroy_Serial(u);
-  CPodeFree(&cvode_mem);
+  N_VDestroy(up);
+  CPodeFree(&cpode_mem);
   free(data);
+
 
   return(0);
 }
@@ -239,20 +254,20 @@ static void PrintOutput(realtype t, realtype umax, long int nst)
 
 /* Get and print some final statistics */
 
-static void PrintFinalStats(void *cvode_mem)
+static void PrintFinalStats(void *cpode_mem)
 {
   int flag;
   long int nst, nfe, nsetups, netf, nni, ncfn, nje, nfeLS;
 
-  flag = CPodeGetNumSteps(cvode_mem, &nst);
-  flag = CPodeGetNumFctEvals(cvode_mem, &nfe);
-  flag = CPodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  flag = CPodeGetNumErrTestFails(cvode_mem, &netf);
-  flag = CPodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  flag = CPodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  flag = CPodeGetNumSteps(cpode_mem, &nst);
+  flag = CPodeGetNumFctEvals(cpode_mem, &nfe);
+  flag = CPodeGetNumLinSolvSetups(cpode_mem, &nsetups);
+  flag = CPodeGetNumErrTestFails(cpode_mem, &netf);
+  flag = CPodeGetNumNonlinSolvIters(cpode_mem, &nni);
+  flag = CPodeGetNumNonlinSolvConvFails(cpode_mem, &ncfn);
 
-  flag = CPDlsGetNumJacEvals(cvode_mem, &nje);
-  flag = CPDlsGetNumFctEvals(cvode_mem, &nfeLS);
+  flag = CPDlsGetNumJacEvals(cpode_mem, &nje);
+  flag = CPDlsGetNumFctEvals(cpode_mem, &nfeLS);
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",

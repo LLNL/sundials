@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -30,7 +30,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CPBBDPrecDataRec {
 
   /* passed by user to CPBBDPrecAlloc and used by PrecSetup/PrecSolve */
   int mudq, mldq, mukeep, mlkeep;
@@ -66,11 +66,12 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-#define MSGBBDP_CPMEM_NULL "Integrator memory is NULL."
-#define MSGBBDP_MEM_FAIL "A memory request failed."
-#define MSGBBDP_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBBDP_PDATA_NULL "BBDPrecData is NULL."
-#define MSGBBDP_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
+#define MSGBBD_CPMEM_NULL "Integrator memory is NULL."
+#define MSGBBD_LMEM_NULL   "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
+#define MSGBBD_MEM_FAIL "A memory request failed."
+#define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGBBD_PMEM_NULL   "BBD peconditioner memory is NULL. CPBBDPrecInit must be called."
+#define MSGBBD_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-20 14:33:17 $
+ * $Revision: 1.7 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +44,9 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Inputs to CPodeCreate, CPodeInit, CPodeReInit, and CPode.
+ * Inputs to CPodeCreate, 
+ *           CPodeProjInit, CPodeProjDefine,
+ *           CPode
  * -----------------------------------------------------------------
  * Symbolic constants for the lmm_type and nls_type inputs to 
  * CPodeCreate, the ode_type and tol_type inputs to CPodeInit and 
@@ -63,29 +65,6 @@ extern "C" {
  *    which requires the solution of linear systems. In the CP_NEWTON 
  *    case, the user also specifies a CPODES linear solver. 
  *    CP_NEWTON is recommended in case of stiff problems.
- *
- * ode_type: The ODE system can be given either in explicit form,
- *    y' = f(t,y) (in which case ode = CP_EXPL) or in implicit form
- *    (in which case ode = CP_IMPL).
- *
- * tol_type: This parameter specifies the relative and absolute
- *    tolerance types to be used. The CP_SS tolerance type means a
- *    scalar relative and absolute tolerance. The CP_SV tolerance type 
- *    means a scalar relative tolerance and a vector absolute tolerance 
- *    (a potentially different absolute tolerance for each vector 
- *    component). The CP_WF tolerance type means that the user provides 
- *    a function (of type CPEwtFn) to set the error weight vector.
- *
- * proj_type: If performing projection on the invariant manifold,
- *    this parameter specifies whether to use the internal algorithm
- *    or a user-provided projection function. The valid values are 
- *    CP_PROJ_USER and CP_PROJ_INERNAL.
- *    A value proj_type = CP_PROJ_USER indicates that a function to 
- *    perform the projection is supplied by the user.
- *    A value proj_type = CP_PROJ_INTERNAL indicates that the internal
- *    CPODES projection algorithm is to be used. In this case, the 
- *    user must specify the constraint function and a linear solver
- *    to be used.
  *
  * proj_norm: Type of the norm in which projection is to be performed.
  *    The valid values are CP_PROJ_L2NORM (in which case projection
@@ -126,19 +105,6 @@ extern "C" {
 /* nls_type */
 #define CP_FUNCTIONAL     1
 #define CP_NEWTON         2
-
-/* ode_type */
-#define CP_EXPL           1
-#define CP_IMPL           2
-
-/* tol_type */
-#define CP_SS             1
-#define CP_SV             2
-#define CP_WF             3
-
-/* proj_type */
-#define CP_PROJ_USER      1
-#define CP_PROJ_INTERNAL  2
 
 /* proj_norm */
 #define CP_PROJ_L2NORM    1
@@ -231,11 +197,11 @@ extern "C" {
  * Such a function takes as input the independent variable value t, 
  * and the dependent variable vector y.  It stores the result of 
  * f(t,y) in the vector fout.  The y and fout arguments are of type
- * N_Vector. (Allocation of memory for ydot is handled within CODES)
- * The f_data parameter is the same as the f_data parameter set by 
- * the user through the CPodeInit or CPodeReInit functions. This 
- * user-supplied pointer is passed to the user's fun function every 
- * time it is called.
+ * N_Vector. (Allocation of memory for fout is handled within CODES)
+ * The user_data parameter is the same as the one optionally set by 
+ * the user through the CPodeSetUserData function. This user-supplied
+ * pointer is passed to the user's CPRhsFn function every time it
+ * is called.
  *
  * A CPRhsFn should return 0 if successful, a negative value if
  * an unrecoverable error occured, and a positive value if a 
@@ -247,7 +213,7 @@ extern "C" {
  */
 
 typedef int (*CPRhsFn)(realtype t, N_Vector y,
-		       N_Vector fout, void *f_data);
+		       N_Vector fout, void *user_data);
 
 /*
  * ----------------------------------------------------------------
@@ -260,10 +226,11 @@ typedef int (*CPRhsFn)(realtype t, N_Vector y,
  * the dependent variable vector y, and the derivative (with     
  * respect to t) of the y vector, yp.  It stores the result of   
  * F(t,y,y') in the vector fout. The y, yp, and fout arguments are 
- * of type N_Vector. The f_data parameter is the pointer f_data 
- * passed by the user to the CPodeInit or CPodeReInit functions. 
- * This user-supplied pointer is passed to the user's fun function 
- * every time it is called.
+ * of type N_Vector. 
+ * The user_data parameter is the same as the one optionally set by 
+ * the user through the CPodeSetUserData function. This user-supplied
+ * pointer is passed to the user's CPResFn function every time it
+ * is called.
  *                                                                
  * A CPResFn function should return a value of 0 if successful, a 
  * positive value if a recoverable error occured (e.g. y has an 
@@ -275,7 +242,7 @@ typedef int (*CPRhsFn)(realtype t, N_Vector y,
  */
 
 typedef int (*CPResFn)(realtype t, N_Vector y, N_Vector yp,
-		       N_Vector fout, void *f_data);
+		       N_Vector fout, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -288,10 +255,9 @@ typedef int (*CPResFn)(realtype t, N_Vector y, N_Vector yp,
  * the dependent variable vector y.  It stores the result of c(t,y)
  * in the vector cout.  The y and cout arguments are of type
  * N_Vector. (Allocation of memory for cout is handled within CPODES)
- * The c_data parameter is the same as the c_data parameter set by 
- * the user through the CPodeProjDefineConstraints routine.
- * This user-supplied pointer is passed to the user's cfun function
- * every time it is called.
+ * The user_data parameter is the same as that set by the user 
+ * through the CPodeSetUserData function. This user-supplied pointer
+ * is passed to the user's cfun function every time it is called.
  *
  * A CPCnstrFn should return 0 if successful, a negative value if
  * an unrecoverable error occured, and a positive value if a 
@@ -303,7 +269,7 @@ typedef int (*CPResFn)(realtype t, N_Vector y, N_Vector yp,
  */
 
 typedef int (*CPCnstrFn)(realtype t, N_Vector y,
-			 N_Vector cout, void *c_data);
+			 N_Vector cout, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -351,7 +317,7 @@ typedef int (*CPCnstrFn)(realtype t, N_Vector y,
  */
 
 typedef int (*CPProjFn)(realtype t, N_Vector ycur, N_Vector corr,
-			realtype epsProj, N_Vector err, void *pdata);
+			realtype epsProj, N_Vector err, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -362,9 +328,9 @@ typedef int (*CPProjFn)(realtype t, N_Vector ycur, N_Vector corr,
  * It takes as input the value of the independent variable t and
  * the vector of states y and must store the result of fQ in qout.
  * (Allocation of memory for qout is handled by CPODES).
- * The q_data parameter is the same as the q_data parameter
- * set by the user through the CPodeQuadInit function and is
- * passed to the qfun function every time it is called.
+ * The user_data parameter is the same as that set by the user
+ * through the CPodeSetUser function and is passed to the qfun 
+ * function every time it is called.
  *
  * A CPQuadFn should return 0 if successful, a negative value if
  * an unrecoverable error occured, and a positive value if a 
@@ -376,7 +342,7 @@ typedef int (*CPProjFn)(realtype t, N_Vector ycur, N_Vector corr,
  */
 
 typedef int (*CPQuadFn)(realtype t, N_Vector y, 
-			N_Vector qout, void *q_data);
+			N_Vector qout, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -388,8 +354,8 @@ typedef int (*CPQuadFn)(realtype t, N_Vector y,
  * t, the dependent variable vector y, and its derivative yp=y'.
  * It stores the nrtfn values g_i(t,y,y') in the realtype array gout.
  * (Allocation of memory for gout is handled within CPODES.)
- * The g_data parameter is the same as that passed by the user
- * to the CPodeRootInit routine.  This user-supplied pointer is
+ * The user_data parameter is the same as that passed by the user
+ * to the CPodeSetUserData function.  This user-supplied pointer is
  * passed to the user's g function every time it is called.
  *
  * A CPRootFn should return 0 if successful or a non-zero value
@@ -398,7 +364,7 @@ typedef int (*CPQuadFn)(realtype t, N_Vector y,
  */
 
 typedef int (*CPRootFn)(realtype t, N_Vector y, N_Vector yp,
-			realtype *gout, void *g_data);
+			realtype *gout, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -415,15 +381,15 @@ typedef int (*CPRootFn)(realtype t, N_Vector y, N_Vector yp,
  * 
  *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
  *
- * The e_data parameter is the same as that passed by the user
- * to the CPodeSetEwtFn routine.  This user-supplied pointer is
+ * The user_data parameter is the same as that passed by the user
+ * to the CPodeSetUserData routine.  This user-supplied pointer is
  * passed to the user's e function every time it is called.
  * A CPEwtFn e must return 0 if the error weight vector has been
  * successfuly set and a non-zero value otherwise.
  * -----------------------------------------------------------------
  */
 
-typedef int (*CPEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
+typedef int (*CPEwtFn)(N_Vector y, N_Vector ewt, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -433,7 +399,7 @@ typedef int (*CPEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
  * CPErrHandlerFn.
  * The function eh takes as input the error code, the name of the
  * module reporting the error, the error message, and a pointer to
- * user data, the same as that passed to CPodeSetErrHandlerFn.
+ * user data, the same as that passed to CPodeSetUserData.
  * 
  * All error codes are negative, except CP_WARNING which indicates 
  * a warning (the solver continues).
@@ -444,7 +410,7 @@ typedef int (*CPEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
 
 typedef void (*CPErrHandlerFn)(int error_code, 
 			       const char *module, const char *function, 
-			       char *msg, void *eh_data); 
+			       char *msg, void *user_data); 
 
 /*
  * =================================================================
@@ -459,17 +425,14 @@ typedef void (*CPErrHandlerFn)(int error_code,
  * CPodeCreate creates an internal memory block for a problem to
  * be solved by CPODES.
  *
- * ode_type  - form in which the ODE system is provided.
- *             The legal values are CP_EXPL or CP_IMPL (see above).
- *
  * lmm_type  - type of linear multistep method to be used.
  *             The legal values are CP_ADAMS and CP_BDF (see above).
  *
  * nls_type  - type of iteration used to solve the nonlinear
  *             system that arises during each internal time step.
  *             The legal values are CP_FUNCTIONAL and CP_NEWTON
- *             for ode_type = CP_EXPL and only CP_NEWTON for
- *             ode_type = CP_IMPL.
+ *             but only the latter can be used with implicit
+ *             form differential equations.
  *
  * If successful, CPodeCreate returns a pointer to initialized
  * problem memory. This pointer should be passed to CPodeInit.
@@ -478,52 +441,32 @@ typedef void (*CPErrHandlerFn)(int error_code,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void *CPodeCreate(int ode_type, int lmm_type, int nls_type);
+SUNDIALS_EXPORT void *CPodeCreate(int lmm_type, int nls_type);
 
 /*
  * -----------------------------------------------------------------
- * Function : CPodeInit
+ * Functions : CPodeInitExpl and CPodeInitImpl
  * -----------------------------------------------------------------
- * CPodeInit allocates and initializes memory for a problem to be
- * solved by CPODES.
+ * The initialization functions CPodeInitExpl and CPodeInitImpl
+ * allocate and initialize memory for a problem to be solved by CPODES.
+ * CPodeInitExpl initializes a problem of the type
+ *    y' = f(t,y).
+ * CPodeInitImpl initializes a problem of the type
+ *    F(t,y,y') = 0.
+ *
+ * The input arguments to the initializatin functions are as follows:
  *
  * cpode_mem - pointer to CPODES memory returned by CPodeCreate.
  *
- * fun       - name of the C function defining the ODE system.
- *             Depending on the ODE type (see CPodeCreate), fun 
- *             should be of type CPRhsFn (ode_type=CP_EXPL) or of
- *             type CPResFn (ode_type=CP_IMPL).
- *
- * f_data    - pointer to user data that will be passed to the 
- *             fun function every time it is called.
+ * f         - name of the C function defining the ODE system.
+ *             For CPodeInitExpl, fun should be of type CPRhsFn,
+ *             while for CPodeInitImpl it should have type CPResFn.
  *
  * t0        - initial value of t.
  *
  * y0        - initial condition vector y(t0).
  *
  * yp0       - initial condition vector y'(t0).
- *
- * tol_type  - type of tolerances to be used. The legal values are:
- *             CP_SS (scalar relative and absolute tolerances),
- *             CP_SV (scalar relative tolerance and vector
- *                    absolute tolerance).
- *             CP_WF (indicates that the user will provide a
- *                    function to evaluate the error weights.
- *                    In this case, reltol and abstol are ignored.)
- *
- * reltol    - scalar relative tolerance scalar.
- *
- * abstol    - pointer to the absolute tolerance scalar or
- *             an N_Vector of absolute tolerances.
- *
- * The parameters tol_type, reltol, and abstol define a vector of
- * error weights, ewt, with components
- *   ewt[i] = 1/(reltol*abs(y[i]) + abstol)     if tol_type = CP_SS
- *   ewt[i] = 1/(reltol*abs(y[i]) + abstol[i])  if tol_type = CP_SV.
- * This vector is used in all error and convergence tests, which
- * use a weighted RMS norm on all error-like vectors v:
- *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),
- * where N is the problem dimension.
  *
  * Return flag:
  *  CP_SUCCESS if successful
@@ -533,14 +476,15 @@ SUNDIALS_EXPORT void *CPodeCreate(int ode_type, int lmm_type, int nls_type);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPodeInit(void *cpode_mem, 
-			      void *fun, void *f_data,
-			      realtype t0, N_Vector y0, N_Vector yp0,
-			      int tol_type, realtype reltol, void *abstol);
+SUNDIALS_EXPORT int CPodeInitExpl(void *cpode_mem, CPRhsFn f,
+                                  realtype t0, N_Vector y0);
+
+SUNDIALS_EXPORT int CPodeInitImpl(void *cpode_mem, CPResFn f,
+                                  realtype t0, N_Vector y0, N_Vector yp0);
 
 /*
  * -----------------------------------------------------------------
- * Function : CPodeReInit
+ * Functions: CPodeReInitExpl and CPodeReInitImpl
  * -----------------------------------------------------------------
  * CPodeReInit re-initializes CPODES for the solution of a problem,
  * where a prior call to CPodeInit has been made with the same
@@ -568,14 +512,56 @@ SUNDIALS_EXPORT int CPodeInit(void *cpode_mem,
  *                    called).
  *   CP_ILL_INPUT     indicating an input argument was illegal
  *                    (including an attempt to increase maxord).
- * In case of an error return, an error message is also printed.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPodeReInit(void *cpode_mem, 
-				void *fun, void *f_data,
-				realtype t0, N_Vector y0, N_Vector yp0,
-				int tol_type, realtype reltol, void *abstol);
+SUNDIALS_EXPORT int CPodeReInitExpl(void *cpode_mem,
+                                    realtype t0, N_Vector y0);
+
+SUNDIALS_EXPORT int CPodeReInitImpl(void *cpode_mem,
+                                    realtype t0, N_Vector y0, N_Vector yp0);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: CPodeSStolerances
+ *            CPodeSVtolerances
+ *            CPodeWFtolerances
+ * -----------------------------------------------------------------
+ *
+ * These functions specify the integration tolerances. One of them
+ * MUST be called before the first call to CPode.
+ *
+ * CPodeSStolerances specifies scalar relative and absolute tolerances.
+ * CPodeSVtolerances specifies scalar relative tolerance and a vector
+ *   absolute tolerance (a potentially different absolute tolerance 
+ *   for each vector component).
+ * CPodeWFtolerances specifies a user-provides function (of type CPEwtFn)
+ *   which will be called to set the error weight vector.
+ *
+ * The tolerances reltol and abstol define a vector of error weights,
+ * ewt, with components
+ *   ewt[i] = 1/(reltol*abs(y[i]) + abstol)      (in the SS case), or
+ *   ewt[i] = 1/(reltol*abs(y[i]) + abstol[i])   (in the SV case).
+ * This vector is used in all error and convergence tests, which
+ * use a weighted RMS norm on all error-like vectors v:
+ *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),
+ * where N is the problem dimension.
+ *
+ * The return value of these functions is equal to CP_SUCCESS = 0 if
+ * there were no errors; otherwise it is a negative int equal to:
+ *   CP_MEM_NULL      indicating cpode_mem was NULL (i.e.,
+ *                    CPodeCreate has not been called).
+ *   CP_NO_MALLOC     indicating that cpode_mem has not been
+ *                    allocated (i.e., CPodeInitExpl or CPodeInitImpl
+ *                    has not been called).
+ *   CP_ILL_INPUT     indicating an input argument was illegal
+ *                    (e.g. a negative tolerance)
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int CPodeSStolerances(void *cpode_mem, realtype reltol, realtype abstol);
+SUNDIALS_EXPORT int CPodeSVtolerances(void *cpode_mem, realtype reltol, N_Vector abstol);
+SUNDIALS_EXPORT int CPodeWFtolerances(void *cpode_mem, CPEwtFn efun);
 
 /*
  * -----------------------------------------------------------------
@@ -599,9 +585,6 @@ SUNDIALS_EXPORT int CPodeReInit(void *cpode_mem,
  * cfun       - name of the user-supplied function (type CPCnstrFn)
  *              defining the invariant manifold.
  * 
- * c_data     - pointer to user data that will be passed to the 
- *              cfun function every time it is called.
- *
  * ctol       - a vector of "absolute tolerances" for the constraints.
  *              In default operation, this vector is only used as
  *              a template for cloning other vectors. However, if 
@@ -623,8 +606,7 @@ SUNDIALS_EXPORT int CPodeReInit(void *cpode_mem,
  */
 
 SUNDIALS_EXPORT int CPodeProjInit(void *cpode_mem, int proj_norm, 
-				  int cnstr_type, CPCnstrFn cfun, void *c_data, 
-				  N_Vector ctol);
+				  int cnstr_type, CPCnstrFn cfun, N_Vector ctol);
 
 /*
  * -----------------------------------------------------------------
@@ -640,9 +622,6 @@ SUNDIALS_EXPORT int CPodeProjInit(void *cpode_mem, int proj_norm,
  * pfun       - name of the user-supplied function (type CPProjFn)
  *              which will perform the projection.
  * 
- * p_data     - pointer to user data that will be passed to the 
- *              pfun function every time it is called.
- *
  * The return value of CPodeProjDefine is CP_SUCCESS if there were 
  * no errors, or CP_MEM_NULL if the cpode_mem argument was NULL 
  * (i.e., CPodeCreate has not been called).
@@ -650,21 +629,18 @@ SUNDIALS_EXPORT int CPodeProjInit(void *cpode_mem, int proj_norm,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPodeProjDefine(void *cpode_mem, CPProjFn pfun, void *p_data);
+SUNDIALS_EXPORT int CPodeProjDefine(void *cpode_mem, CPProjFn pfun);
 
 /*
  * -----------------------------------------------------------------
  * Function : CPodeQuadInit and CPodeQuadReInit
  * -----------------------------------------------------------------
- * CVodeQuadInit allocates and initializes memory related to
+ * CPodeQuadInit allocates and initializes memory related to
  * quadrature integration.
  *
  * cpode_mem - pointer to CPODES memory returned by CPodeCreate
  *
  * qfun      - the user-provided integrand routine.
- *
- * q_data    - pointer to user data that will be passed to the 
- *             qfun function every time it is called.
  *
  * q0        - N_Vector with initial values for quadratures
  *             (typically q0 has all zero components).
@@ -682,8 +658,8 @@ SUNDIALS_EXPORT int CPodeProjDefine(void *cpode_mem, CPProjFn pfun, void *p_data
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPodeQuadInit(void *cpode_mem, CPQuadFn qfun, void *q_data, N_Vector q0);
-SUNDIALS_EXPORT int CPodeQuadReInit(void *cpode_mem, CPQuadFn qfun, void *q_data, N_Vector q0);
+SUNDIALS_EXPORT int CPodeQuadInit(void *cpode_mem, CPQuadFn qfun, N_Vector q0);
+SUNDIALS_EXPORT int CPodeQuadReInit(void *cpode_mem, N_Vector q0);
 
 /*
  * -----------------------------------------------------------------
@@ -700,9 +676,6 @@ SUNDIALS_EXPORT int CPodeQuadReInit(void *cpode_mem, CPQuadFn qfun, void *q_data
  * gfun      - name of user-supplied function, of type CPRootFn,
  *             defining the functions g_i whose roots are sought.
  *
- * g_data    - pointer to user data that will be passed to the 
- *             gfun function every time it is called.
- *
  * If a new problem is to be solved with a call to CPodeReInit,
  * where the new problem has no root functions but the prior one
  * did, then call CPodeRootInit with nrtfn = 0.
@@ -716,7 +689,7 @@ SUNDIALS_EXPORT int CPodeQuadReInit(void *cpode_mem, CPQuadFn qfun, void *q_data
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun, void *g_data);
+SUNDIALS_EXPORT int CPodeRootInit(void *cpode_mem, int nrtfn, CPRootFn gfun);
 
 /*
  * -----------------------------------------------------------------
@@ -797,12 +770,12 @@ SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
  *                         |
  * -----------------------------------------------------------------
  *                         |
- * CPodeSetEwtFn           | user-provided EwtSet function efun and 
- *                         | a pointer to user data that will be
- *                         | passed to the user's efun function
- *                         | every time efun is called.
- *                         | [internal]
+ * CPodeSetUserData        | a pointer to user data that will be
+ *                         | passed to all user-supplied functions
+ *                         | every time they are called.
  *                         | [NULL]
+ *                         |
+ * -----------------------------------------------------------------
  *                         |
  * CPodeSetMaxOrd          | maximum LMM order to be used by the
  *                         | solver.
@@ -903,12 +876,6 @@ SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
  *                         | [errconQ = FALSE]
  *                         | [no tolerances]
  *                         | 
- * -----------------------------------------------------------------
- *                         |
- * CPodeSetTolerances      | Changes the integration tolerances
- *                         | between calls to CPode.
- *                         | [set by CPodeInit/CPodeReInit]
- *                         |
  * ---------------------------------------------------------------- 
  *                         |
  * CPodeSetRootDirection   | Specifies the direction of zero
@@ -926,7 +893,8 @@ SUNDIALS_EXPORT int CPodeCalcIC(void *cpode_mem);
 SUNDIALS_EXPORT int CPodeSetErrHandlerFn(void *cpode_mem, CPErrHandlerFn ehfun, void *eh_data);
 SUNDIALS_EXPORT int CPodeSetErrFile(void *cpode_mem, FILE *errfp);
 
-SUNDIALS_EXPORT int CPodeSetEwtFn(void *cpode_mem, CPEwtFn efun, void *e_data);
+SUNDIALS_EXPORT int CPodeSetUserData(void *cpode_mem, void *user_data);
+
 SUNDIALS_EXPORT int CPodeSetMaxOrd(void *cpode_mem, int maxord);
 SUNDIALS_EXPORT int CPodeSetMaxNumSteps(void *cpode_mem, long int mxsteps);
 SUNDIALS_EXPORT int CPodeSetMaxHnilWarns(void *cpode_mem, int mxhnil);
@@ -949,9 +917,6 @@ SUNDIALS_EXPORT int CPodeSetProjNonlinConvCoef(void *cpode_mem, realtype prjcoef
 
 SUNDIALS_EXPORT int CPodeSetQuadErrCon(void *cpode_mem, booleantype errconQ, 
 				       int tol_typeQ, realtype reltolQ, void *abstolQ);
-
-SUNDIALS_EXPORT int CPodeSetTolerances(void *cpode_mem,
-				       int tol_type, realtype reltol, void *abstol);
 
 SUNDIALS_EXPORT int CPodeSetRootDirection(void *cpode_mem, int *rootdir);
 

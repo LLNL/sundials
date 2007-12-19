@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-19 20:26:43 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include <cpodes/cpodes_spils.h>
+#include "cpodes_private.h"
 
 /*
  * =================================================================
@@ -42,38 +43,13 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * CPSPILS solver constants
- * -----------------------------------------------------------------
- * CPSPILS_MAXL   : default value for the maximum Krylov
- *                  dimension
- *
- * CPSPILS_MSBPRE : maximum number of steps between
- *                  preconditioner evaluations
- *
- * CPSPILS_DGMAX  : maximum change in gamma between
- *                  preconditioner evaluations
- *
- * CPSPILS_DELT   : default value for factor by which the
- *                  tolerance on the nonlinear iteration is
- *                  multiplied to get a tolerance on the linear
- *                  iteration
- * -----------------------------------------------------------------
- */
-  
-#define CPSPILS_MAXL   5
-#define CPSPILS_MSBPRE 50
-#define CPSPILS_DGMAX  RCONST(0.2)
-#define CPSPILS_DELT   RCONST(0.05)
-
-/*
- * -----------------------------------------------------------------
  * Types : CPSpilsMemRec, CPSpilsMem
  * -----------------------------------------------------------------
  * The type CPSpilsMem is pointer to a CPSpilsMemRec.
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CPSpilsMemRec {
 
   int s_type;           /* type of scaled preconditioned iterative LS   */
 
@@ -100,23 +76,46 @@ typedef struct {
   N_Vector s_ypcur;     /* CPODES current y' vector in Newton Iteration */
   N_Vector s_fcur;      /* fcur = f(tn, ycur)                           */
 
+  void* s_spils_mem;    /* memory used by the generic solver             */
+
+  int s_last_flag;      /* last error flag returned by any function      */
+
+  /* Preconditioner computation
+   * (a) user-provided:
+   *     - P_data == user_data
+   *     - pfree == NULL (the user dealocates memory for user_data)
+   * (b) internal preconditioner module
+   *     - P_data == cpode_mem
+   *     - pfree == set by the prec. module and called in CPodeFree
+   */
+
   CPSpilsPrecSetupExplFn s_psetE; /* preconditioner setup (CP_EXPL case) */
   CPSpilsPrecSetupImplFn s_psetI; /* preconditioner setup (CP_IMPL case) */
 
   CPSpilsPrecSolveExplFn s_pslvE; /* preconditioner solve (CP_EXPL case) */
   CPSpilsPrecSolveImplFn s_pslvI; /* preconditioner solve (CP_IMPL case) */
 
+  void (*s_pfree)(CPodeMem cp_mem);
+
+  void *s_P_data;                 /* data passed to psolve and pset      */
+
+  /* Jacobian times vector compuation
+   * (a) jtimes function provided by the user:
+   *     - j_data == user_data
+   *     - jtimesDQ == FALSE
+   * (b) internal jtimes
+   *     - j_data == cpode_mem
+   *     - jtimesDQ == TRUE
+   */
+
+  booleantype s_jtimesDQ;
+
   CPSpilsJacTimesVecExplFn s_jtvE; /* Jac. times vec. (CP_EXPL case)     */
   CPSpilsJacTimesVecImplFn s_jtvI; /* Jac. times vec. (CP_EXPL case)     */
 
-  void *s_P_data;       /* data passed to psolve and pset                */
-  void *s_j_data;       /* data passed to jtv                            */
+  void *s_j_data;                  /* data passed to jtv                 */
 
-  void* s_spils_mem;    /* memory used by the generic solver             */
-
-  int s_last_flag;      /* last error flag returned by any function      */
-
-} CPSpilsMemRec, *CPSpilsMem;
+} *CPSpilsMem;
 
 /*
  * -----------------------------------------------------------------
@@ -130,11 +129,11 @@ int cpSpilsPSolve(void *cp_mem, N_Vector r, N_Vector z, int lr);
 
 /* Difference quotient approximations for Jac times vector */
 int cpSpilsDQjtvExpl(realtype t, N_Vector y, N_Vector fy, 
-                     N_Vector v, N_Vector Jv, void *jac_data, 
+                     N_Vector v, N_Vector Jv, void *data, 
                      N_Vector tmp); 
 int cpSpilsDQjtvImpl(realtype t, realtype gm, 
                      N_Vector y, N_Vector yp, N_Vector r,
-                     N_Vector v, N_Vector Jv, void *jac_data,
+                     N_Vector v, N_Vector Jv, void *data,
                      N_Vector tmp1, N_Vector tmp2);
 
 /*

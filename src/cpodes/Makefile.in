@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2007-01-23 20:05:02 $
+# $Revision: 1.6 $
+# $Date: 2007-12-19 20:26:42 $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -50,10 +50,8 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 LIB_REVISION = 0:0:0
 
 CPODES_LIB    = libsundials_cpodes.la
-CPODES_BL_LIB = libsundials_cpodes_bl.la
 
-
-CPODES_SRC_FILES = cpodes.c cpodes_io.c cpodes_ic.c cpodes_nls.c cpodes_proj.c \
+CPODES_SRC_FILES = cpodes.c cpodes_io.c cpodes_ic.c cpodes_nls.c cpodes_proj.c cpodes_root.c \
 	           cpodes_direct.c cpodes_dense.c cpodes_band.c \
 	           cpodes_spils.c cpodes_spgmr.c cpodes_spbcgs.c cpodes_sptfqmr.c \
 	           cpodes_bandpre.c cpodes_bbdpre.c
@@ -67,7 +65,6 @@ CPODES_BL_LIB_FILES = $(CPODES_BL_SRC_FILES:.c=.lo)
 
 SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_dense.lo \
-                   $(top_builddir)/src/sundials/sundials_lapack.lo \
                    $(top_builddir)/src/sundials/sundials_direct.lo \
                    $(top_builddir)/src/sundials/sundials_iterative.lo \
                    $(top_builddir)/src/sundials/sundials_math.lo \
@@ -75,6 +72,7 @@ SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_spgmr.lo \
                    $(top_builddir)/src/sundials/sundials_spbcgs.lo \
                    $(top_builddir)/src/sundials/sundials_sptfqmr.lo
+SHARED_BL_LIB_FILES = $(top_builddir)/src/sundials/sundials_lapack.lo
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
@@ -82,17 +80,19 @@ rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 # ----------------------------------------------------------------------------------------------------------------------
 
 all: $(CPODES_LIB)
+
+$(CPODES_LIB):
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make all_bl;                               \
+	  make lib_with_bl;                          \
+	else                                         \
+	  make lib_without_bl;                       \
 	fi
 
-all_bl: $(CPODES_BL_LIB)
-
-$(CPODES_LIB): shared $(CPODES_LIB_FILES)
+lib_without_bl: shared $(CPODES_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CPODES_LIB) $(CPODES_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
-$(CPODES_BL_LIB): shared $(CPODES_BL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CPODES_BL_LIB) $(CPODES_BL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+lib_with_bl: shared $(CPODES_LIB_FILES) $(CPODES_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CPODES_LIB) $(CPODES_LIB_FILES) $(CPODES_BL_LIB_FILES) $(SHARED_LIB_FILES) $(SHARED_BL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 
 install: $(CPODES_LIB)
 	$(mkinstalldirs) $(includedir)/cpodes
@@ -110,16 +110,11 @@ install: $(CPODES_LIB)
 	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_bbdpre.h  $(includedir)/cpodes/
 	$(INSTALL_HEADER) $(top_srcdir)/src/cpodes/cpodes_impl.h        $(includedir)/cpodes/
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
-	  make install_bl;                           \
+	  $(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_lapack.h  $(includedir)/cpodes/ ; \
 	fi
-
-install_bl: $(CPODES_BL_LIB)
-	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CPODES_BL_LIB) $(libdir)
-	$(INSTALL_HEADER) $(top_srcdir)/include/cpodes/cpodes_lapack.h  $(includedir)/cpodes/
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CPODES_LIB)
-	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CPODES_BL_LIB)
 	rm -f $(includedir)/cpodes/cpodes.h
 	rm -f $(includedir)/cpodes/cpodes_direct.h
 	rm -f $(includedir)/cpodes/cpodes_dense.h
@@ -141,7 +136,6 @@ shared:
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(CPODES_LIB)
-	$(LIBTOOL) --mode=clean rm -f $(CPODES_BL_LIB)
 	rm -f $(CPODES_LIB_FILES)
 	rm -f $(CPODES_BL_LIB_FILES)
 	rm -f $(CPODES_OBJ_FILES)
@@ -156,6 +150,8 @@ cpodes_nls.lo: $(srcdir)/cpodes_nls.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_nls.c
 cpodes_proj.lo: $(srcdir)/cpodes_proj.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_proj.c
+cpodes_root.lo: $(srcdir)/cpodes_root.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_root.c
 cpodes_ic.lo: $(srcdir)/cpodes_ic.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/cpodes_ic.c
 cpodes_io.lo: $(srcdir)/cpodes_io.c

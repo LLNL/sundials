@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-10-26 21:48:38 $
+ * $Revision: 1.5 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -82,7 +82,6 @@ static void cpdSCcomputeKD(CPodeMem cp_mem, N_Vector d);
 #define lmm_type       (cp_mem->cp_lmm_type)
 #define fe             (cp_mem->cp_fe)
 #define fi             (cp_mem->cp_fi)
-#define f_data         (cp_mem->cp_f_data)
 #define uround         (cp_mem->cp_uround)
 #define nst            (cp_mem->cp_nst)
 #define tn             (cp_mem->cp_tn)
@@ -112,19 +111,21 @@ static void cpdSCcomputeKD(CPodeMem cp_mem, N_Vector d);
 
 #define mtype          (cpdls_mem->d_type)
 #define n              (cpdls_mem->d_n)
+#define jacDQ          (cpdls_mem->d_jacDQ)
 #define jacE           (cpdls_mem->d_djacE)
 #define jacI           (cpdls_mem->d_djacI)
+#define J_data         (cpdls_mem->d_J_data)
 #define M              (cpdls_mem->d_M)
 #define savedJ         (cpdls_mem->d_savedJ)
 #define pivots         (cpdls_mem->d_pivots)
 #define nstlj          (cpdls_mem->d_nstlj)
 #define nje            (cpdls_mem->d_nje)
 #define nfeDQ          (cpdls_mem->d_nfeDQ)
-#define J_data         (cpdls_mem->d_J_data)
 #define last_flag      (cpdls_mem->d_last_flag)
 
 #define nc             (cpdlsP_mem->d_nc)
 #define ny             (cpdlsP_mem->d_ny)
+#define jacPDQ         (cpdlsP_mem->d_jacPDQ)
 #define jacP           (cpdlsP_mem->d_jacP)
 #define JP_data        (cpdlsP_mem->d_JP_data)
 #define ftype          (cpdlsP_mem->d_ftype)
@@ -206,6 +207,7 @@ int CPDense(void *cpode_mem, int N)
   mtype = SUNDIALS_DENSE;
 
   /* Set default Jacobian routine and Jacobian data */
+  jacDQ = TRUE;
   jacE = NULL;
   jacI = NULL;
   J_data = NULL;
@@ -395,6 +397,7 @@ int CPDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
   }
 
   /* Set default Jacobian routine and Jacobian data */
+  jacPDQ = TRUE;
   jacP = NULL;
   JP_data = NULL;
 
@@ -435,15 +438,31 @@ static int cpDenseInit(CPodeMem cp_mem)
   nje   = 0;
   nfeDQ = 0;
   nstlj = 0;
+
+  switch (ode_type) {
+
+  case CP_EXPL:
+
+    if (jacDQ) {
+      jacE = cpDlsDenseDQJacExpl;
+      J_data = cp_mem;
+    } else {
+      J_data = cp_mem->cp_user_data;
+    }
+
+    break;
+
+  case CP_IMPL:
   
-  if (ode_type == CP_EXPL && jacE == NULL) {
-    jacE = cpDlsDenseDQJacExpl;
-    J_data = cp_mem;
-  } 
-  
-  if (ode_type == CP_IMPL && jacI == NULL) {
-    jacI = cpDlsDenseDQJacImpl;
-    J_data = cp_mem;
+    if (jacDQ) {
+      jacI = cpDlsDenseDQJacImpl;
+      J_data = cp_mem;
+    } else {
+      J_data = cp_mem->cp_user_data;
+    }
+
+    break;
+
   }
 
   last_flag = CPDIRECT_SUCCESS;
@@ -620,10 +639,12 @@ static int cpDenseProjInit(CPodeMem cp_mem)
   nceDQ  = 0;
   nstljP = 0;
   
-  if (jacP == NULL) {
+  if (jacPDQ) {
     jacP = cpDlsDenseProjDQJac;
     JP_data = cp_mem;
-  }  
+  } else {
+    JP_data = cp_mem->cp_user_data;
+  }
 
   return(0);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-10-26 21:51:29 $
+ * $Revision: 1.8 $
+ * $Date: 2007-12-19 20:26:42 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -32,7 +32,7 @@ extern "C" {
 
 /*
  * Default values for algorithmic constants
- * ---------------------------------------------------------------
+ * ----------------------------------------
  *
  * Step size and number of steps
  *
@@ -70,6 +70,10 @@ extern "C" {
  *    PRJ_CRDOWN    constant used in the estimation of the convergence rate (crateP)
  *    PRJ_RDIV      declare divergence if ratio del/delp > PRJ_RDIV
  *    PRJ_MSBLS     max no. of steps between lsetupP calls
+ * 
+ * Other
+ *
+ *    FUZZ_FACTOR   factor used in defining an infinitesimal time interval
  */
 
 #define HMIN_DEFAULT     RCONST(0.0)
@@ -99,6 +103,34 @@ extern "C" {
 #define PRJ_RDIV      RCONST(2.0)
 #define PRJ_MSBLS     1
 
+#define FUZZ_FACTOR RCONST(100.0)
+
+/*
+ * Control constants for ODE type
+ * ------------------------------
+ */
+
+#define CP_EXPL  1
+#define CP_IMPL  2
+
+/*
+ * Control constants for tolerances
+ * --------------------------------
+ * The internal parameter tol_type specifies the types of relative
+ * and absolute tolerances to be used. The CP_SS tolerance type means a
+ * scalar relative and absolute tolerance. The CP_SV tolerance type 
+ * means a scalar relative tolerance and a vector absolute tolerance 
+ * (a potentially different absolute tolerance for each vector 
+ * component). The CP_WF tolerance type means that the user provides 
+ * a function (of type CPEwtFn) to set the error weight vector.
+ * The CP_NN value indicates that no tolerances were set.
+ */
+
+#define CP_NN  0
+#define CP_SS  1
+#define CP_SV  2
+#define CP_WF  3
+
 /* 
  * Control constants for communication between main integrator and
  * lower level functions in cpStep
@@ -127,6 +159,10 @@ extern "C" {
  *    CP_ERR_FAILURE,
  *    PREDICT_AGAIN
  * 
+ * cpRcheck* return values:
+ *    CP_RTFUNC_FAIL,
+ *    RTFOUND,
+ *    CP_SUCCESS
  */
 
 #define PREDICT_AGAIN    +3
@@ -142,9 +178,29 @@ extern "C" {
 #define PROJFUNC_RECVR   +113
 #define QUADFUNC_RECVR   +114
 
+#define RTFOUND          +1
+
+/*
+ * Control constants for projection type
+ * -------------------------------------
+ * If performing projection on the invariant manifold, the private
+ * parameter proj_type specifies whether to use the internal algorithm
+ * or a user-provided projection function. The valid values are 
+ * CP_PROJ_USER and CP_PROJ_INERNAL.
+ * A value proj_type = CP_PROJ_USER indicates that a function to 
+ * perform the projection is supplied by the user.
+ * A value proj_type = CP_PROJ_INTERNAL indicates that the internal
+ * CPODES projection algorithm is to be used. In this case, the 
+ * user must specify the constraint function and a linear solver
+ * to be used.
+ */
+
+#define CP_PROJ_USER      1
+#define CP_PROJ_INTERNAL  2
+
 /*
  * CPODES Private Constants
- * ---------------------------------------------------------------
+ * ------------------------
  */
   
 #define ZERO    RCONST(0.0)
@@ -189,6 +245,15 @@ void cpProcessError(CPodeMem cp_mem,
 void cpRestore(CPodeMem cp_mem, realtype saved_t);
 void cpRescale(CPodeMem cp_mem);
 
+/* Function evaluating solution at given time */
+int cpGetSolution(void *cpode_mem, realtype t, N_Vector yret, N_Vector ypret);
+
+/* Root finding functions */
+int cpRcheck1(CPodeMem cp_mem);
+int cpRcheck2(CPodeMem cp_mem);
+int cpRcheck3(CPodeMem cp_mem);
+void cpRootFree(CPodeMem cp_mem);
+
 /*
  * =================================================================
  *   M A C R O
@@ -231,12 +296,13 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_NO_MEM "cpode_mem = NULL illegal."
 #define MSGCP_CPMEM_FAIL "Allocation of cpode_mem failed."
 #define MSGCP_MEM_FAIL "A memory request failed."
-#define MSGCP_BAD_ODE  "Illegal value for ode. The legal values are CP_EXPL and CP_IMPL."
 #define MSGCP_BAD_LMM  "Illegal value for lmm_type. The legal values are CP_ADAMS and CP_BDF."
 #define MSGCP_BAD_NLS  "Illegal value for nls_type. The legal values are CP_FUNCTIONAL and CP_NEWTON."
-#define MSGCP_BAD_ODE_NLS  "Illegal combination ode_type=CP_IMPL nls_type=CP_FUNCTIONAL."
+#define MSGCP_BAD_ODE_NLS  "An implicit-form differential equation cannot be used with functinal iteration."
 #define MSGCP_BAD_ITOL "Illegal value for tol_type. The legal values are CP_SS, CP_SV, and CP_WF."
-#define MSGCP_NO_MALLOC "Attempt to call before CPodeInit."
+#define MSGCP_NO_MALLOC "Attempt to call before initializing the solver."
+#define MSGCP_MALLOC_DONE "Solver already initialized."
+#define MSGCP_BAD_ODE "Wrong reinitialization function call for the given differential equation type."
 #define MSGCP_BAD_PROJ "Illegal value for proj_type."
 #define MSGCP_BAD_NORM "Illegal value for proj_norm."
 #define MSGCP_BAD_CNSTR "Illegal value for cnstr_type."
@@ -276,7 +342,7 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_BAD_MODE "Illegal value for mode."
 #define MSGCP_BAD_H0 "h0 and tout - t0 inconsistent."
 #define MSGCP_BAD_TOUT "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration"
-#define MSGCP_NO_EFUN "tol_type = CP_WF but no error weight function was provided."
+#define MSGCP_NO_TOLS "No integration tolerances have been specified."
 #define MSGCP_NO_PFUN "proj_type = CP_PROJ_USER but no projection function was provided."
 #define MSGCP_NO_CFUN "proj_type = CP_PROJ_INTERNAL but no constraint function was provided."
 #define MSGCP_NO_TSTOP "mode = CP_NORMAL_TSTOP or mode = CP_ONE_STEP_TSTOP but tstop was not set."
@@ -297,7 +363,6 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_ODEFUNC_REPTD "At " MSG_TIME "repeated recoverable ODE function errors."
 #define MSGCP_ODEFUNC_FIRST "The ODE function failed at the first call."
 #define MSGCP_RTFUNC_FAILED "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
-#define MSGCP_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCP_BAD_TSTOP "tstop is behind current " MSG_TIME "in the direction of integration."
 #define MSGCP_NO_ROOT "Rootfinding was not initialized."
 
@@ -340,7 +405,7 @@ void cpRescale(CPodeMem cp_mem);
 #define MSGCP_IC_EWT_BAD "A component of ewt has become <= 0."
 #define MSGCP_IC_EWT_FAIL "The user-provided EwtSet function failed."
 #define MSGCP_IC_ODEFUNC_FIRST "The ODE function failed at the first call."
-#define MSGCP_IC_ODEFUNC_FAILED "The ODE funciton failed in an unrecoverable manner."
+#define MSGCP_IC_ODEFUNC_FAILED "The ODE function failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

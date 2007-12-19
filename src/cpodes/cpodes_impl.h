@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-10-26 21:51:29 $
+ * $Revision: 1.6 $
+ * $Date: 2007-12-19 20:26:42 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -57,17 +57,18 @@ typedef struct CPodeMemRec {
   int cp_ode_type;             /* ODE type: ode = CP_IMPL or CP_EXPL          */
   CPResFn cp_fi;               /* F(t,y'(t),y(t)) = 0                         */
   CPRhsFn cp_fe;               /* y' = f(t,y(t))                              */
-  void *cp_f_data;             /* user pointer passed to f                    */
+  void *cp_user_data;          /* data pointer passed to user functions       */
 
   int cp_lmm_type;             /* lmm_type = CP_ADAMS or CP_BDF               */
   int cp_nls_type;             /* nls_type = CP_FUNCTIONAL or CP_NEWTON       */
-  int cp_tol_type;             /* tol_type = CP_SS or CP_SV or CP_WF          */
+  int cp_tol_type;             /* tol_type = CP_SS or CP_SV or CP_WF or CP_NN */
 
   realtype cp_reltol;          /* relative tolerance                          */
   realtype cp_Sabstol;         /* scalar absolute tolerance                   */
   N_Vector cp_Vabstol;         /* vector absolute tolerance                   */
+  booleantype cp_user_efun;    /* TRUE if user sets efun                      */
   CPEwtFn cp_efun;             /* function to set ewt                         */
-  void *cp_e_data;             /* user pointer passed to efun                 */
+  void *cp_e_data;             /* data pointer passed to efun                 */
 
   /*-----------------------
     Nordsieck History Array 
@@ -76,7 +77,7 @@ typedef struct CPodeMemRec {
   /* 
    * Nordsieck array, of size N x (q+1).
    * zn[j] is a vector of length N (j=0,...,q)
-   * zn[j] = [1/factorial(j)] * h^j * (jth derivative of the interpolating polynomial)
+   * zn[j] = [1/factorial(j)] * h^j * (jth derivative of interpolating poly.)
    */
 
   N_Vector cp_zn[L_MAX];
@@ -139,11 +140,8 @@ typedef struct CPodeMemRec {
 
   int cp_proj_norm;            /* type of projection norm (L2 or WRMS)        */
   int cp_cnstr_type;           /* type of constraints (lin. or nonlin.)       */
-  CPCnstrFn cp_cfun;           /* 0  = c(t,y(t))                              */
-  void *cp_c_data;             /* user pointer passed to cfun                 */
-
+  CPCnstrFn cp_cfun;           /* constraint function c(t,y(t))               */
   CPProjFn cp_pfun;            /* function to perform projection              */
-  void *cp_p_data;             /* user pointer passed to pfun                 */
 
   realtype cp_prjcoef;         /* coefficient in projection convergence test  */
 
@@ -181,7 +179,6 @@ typedef struct CPodeMemRec {
   booleantype cp_quadr;        /* are we integrating quadratures?             */
 
   CPQuadFn cp_qfun;            /* function defining the integrand             */
-  void *cp_q_data;             /* user pointer passed to fQ                   */
   int cp_tol_typeQ;            /* tol_typeQ = CP_SS or CP_SV                  */
   booleantype cp_errconQ;      /* are quadratures included in error test?     */
 
@@ -212,9 +209,8 @@ typedef struct CPodeMemRec {
     Tstop information
     -----------------*/
 
-  booleantype cp_tstopset;
-  booleantype cp_istop;
-  realtype cp_tstop;
+  booleantype cp_tstopset;     /* is checking for tstop enabled?              */
+  realtype cp_tstop;           /* current value of tstop                      */
 
   /*------
     Limits 
@@ -326,7 +322,7 @@ typedef struct CPodeMemRec {
     -------------------------------------------*/
 
   CPErrHandlerFn cp_ehfun;     /* Error messages are handled by ehfun         */
-  void *cp_eh_data;            /* user pointer passed to ehfun                */
+  void *cp_eh_data;            /* data pointer passed to ehfun                */
   FILE *cp_errfp;              /* CPODES error messages are sent to errfp     */
 
   /*-------------------------
@@ -345,7 +341,6 @@ typedef struct CPodeMemRec {
   booleantype cp_doRootfinding;/* Is rootfinding enabled?                     */
   CPRootFn cp_gfun;            /* Function g for roots sought                 */
   int cp_nrtfn;                /* number of components of g                   */
-  void *cp_g_data;             /* pointer to user data for g                  */
   booleantype *cp_gactive;     /* flags for active/inactive g functions       */
   int *cp_iroots;              /* array for root information                  */
   int *cp_rootdir;             /* array specifying direction of zero-crossing */
@@ -357,7 +352,6 @@ typedef struct CPodeMemRec {
   realtype *cp_ghi;            /* saved array of g values at t = thi          */
   realtype *cp_grout;          /* array of g values at t = trout              */
   realtype cp_toutc;           /* copy of tout (if NORMAL mode)               */
-  realtype cp_ttol;            /* tolerance on root location                  */
   int cp_taskc;                /* copy of parameter task                      */
   int cp_irfnd;                /* flag showing whether last step had a root   */
   long int cp_nge;             /* counter for g evaluations                   */

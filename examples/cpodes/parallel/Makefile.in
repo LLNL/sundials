@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-10-25 20:03:25 $
+# $Revision: 1.2 $
+# $Date: 2007-12-19 20:26:43 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -58,7 +58,7 @@ SUNDIALS_LIBS = $(top_builddir)/src/cpodes/libsundials_cpodes.la $(top_builddir)
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
-EXAMPLES = cpsHat2D_kry_bbd_p
+EXAMPLES = cpsHeat2D_kry_bbd_p
 
 OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
 EXECS = ${EXAMPLES:=${EXE_EXT}}

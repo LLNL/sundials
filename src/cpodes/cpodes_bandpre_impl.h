@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -30,9 +30,9 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct {
+typedef struct CPBandPrecDataRec {
 
-  /* Data set by user in CPBandPrecAlloc */
+  /* Data set by user in CPBandPrecInit */
   int N;
   int ml, mu;
 
@@ -56,9 +56,10 @@ typedef struct {
  */
 
 #define MSGBP_CPMEM_NULL "Integrator memory is NULL."
+#define MSGBP_LMEM_NULL "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
 #define MSGBP_MEM_FAIL "A memory request failed."
 #define MSGBP_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBP_PDATA_NULL "BandPrecData is NULL."
+#define MSGBP_PMEM_NULL "Band preconditioner memory is NULL. CPBandPrecInit must be called."
 #define MSGBP_FUNC_FAILED "The ODE function failed in an unrecoverable manner."
 
 

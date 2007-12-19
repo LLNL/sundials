@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:05 $
+ * $Revision: 1.4 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -49,17 +49,15 @@
  *   cpode_mem = CPodeCreate(...);
  *   ier = CPodeMalloc(...);
  *   ...
- *   bp_data = CPBandPrecAlloc(cpode_mem, N, mu, ml);
+ *   flag = CPSptfqmr(cpode_mem, pretype, maxl);
+ *     -or-
+ *   flag = CPSpgmr(cpode_mem, pretype, maxl);
+ *     -or-
+ *   flag = CPSpbcg(cpode_mem, pretype, maxl);
  *   ...
- *   flag = CPBPSptfqmr(cpode_mem, pretype, maxl, bp_data);
- *     -or-
- *   flag = CPBPSpgmr(cpode_mem, pretype, maxl, bp_data);
- *     -or-
- *   flag = CPBPSpbcg(cpode_mem, pretype, maxl, bp_data);
+ *   flag = CPBandPrecInit(cpode_mem, N, mu, ml);
  *   ...
  *   flag = CPode(...);
- *   ...
- *   CPBandPrecFree(&bp_data);
  *   ...
  *   Free y0
  *   ...
@@ -70,8 +68,7 @@
  * (2) In the CPBandPrecAlloc call, the arguments N is the 
  *     problem dimension.
  * (3) In the CPBPSp* call, the user is free to specify
- *     the input pretype and the optional input maxl. The last
- *     argument must be the pointer returned by CPBandPrecAlloc.
+ *     the input pretype and the optional input maxl.
  * -----------------------------------------------------------------
  */
 
@@ -84,21 +81,15 @@ extern "C" {
 
 #include <sundials/sundials_nvector.h>
 
-/* CPBANDPRE return values */
-
-#define CPBANDPRE_SUCCESS        0
-#define CPBANDPRE_PDATA_NULL   -11
-#define CPBANDPRE_FUNC_UNRECVR -12
-
 /*
  * -----------------------------------------------------------------
- * Function : CPBandPrecAlloc
+ * Function : CPBandPrecInit
  * -----------------------------------------------------------------
- * CPBandPrecAlloc allocates and initializes a CPBandPrecData
- * structure to be passed to CPSp* (and subsequently used
- * by CPBandPrecSetup and CPBandPrecSolve).
+ * CPBandPrecInit allocates and initializes the BANDPRE preconditioner
+ * module. This functino must be called AFTER one of the SPILS linear
+ * solver modules has been attached to the CPODES integrator.
  *
- * The parameters of CPBandPrecAlloc are as follows:
+ * The parameters of CPBandPrecInit are as follows:
  *
  * cpode_mem is the pointer to CPODES memory returned by CPodeCreate.
  *
@@ -108,116 +99,21 @@ extern "C" {
  *
  * ml is the lower half bandwidth.
  *
- * CPBandPrecAlloc returns the storage pointer of type
- * CPBandPrecData, or NULL if the request for storage cannot be
- * satisfied.
+ * The return value of CPBandPrecInit is one of:
+ *   CPSPILS_SUCCESS if no errors occurred
+ *   CPSPILS_MEM_NULL if the integrator memory is NULL
+ *   CPSPILS_LMEM_NULL if the linear solver memory is NULL
+ *   CPSPILS_ILL_INPUT if an input has an illegal value
+ *   CPSPILS_MEM_FAIL if a memory allocation request failed
  *
  * NOTE: The band preconditioner assumes a serial implementation
- *       of the NVECTOR package. Therefore, CPBandPrecAlloc will
+ *       of the NVECTOR package. Therefore, CPBandPrecInit will
  *       first test for a compatible N_Vector internal
  *       representation by checking for required functions.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void *CPBandPrecAlloc(void *cpode_mem, int N, int mu, int ml);
-
-/*
- * -----------------------------------------------------------------
- * Function : CPBPSptfqmr
- * -----------------------------------------------------------------
- * CPBPSptfqmr links the CPBANDPPRE preconditioner to the CPSPTFQMR
- * linear solver. It performs the following actions:
- *  1) Calls the CPSPTFQMR specification routine and attaches the
- *     CPSPTFQMR linear solver to the integrator memory;
- *  2) Sets the preconditioner data structure for CPSPTFQMR
- *  3) Sets the preconditioner setup routine for CPSPTFQMR
- *  4) Sets the preconditioner solve routine for CPSPTFQMR
- *
- * Its first 3 arguments are the same as for CPSptfqmr (see
- * cpsptfqmr.h). The last argument is the pointer to the CPBANDPPRE
- * memory block returned by CPBandPrecAlloc. Note that the user need
- * not call CPSptfqmr.
- *
- * Possible return values are:
- *    CPSPILS_SUCCESS      if successful
- *    CPSPILS_MEM_NULL     if the CPODES memory was NULL
- *    CPSPILS_LMEM_NULL    if the CPSPILS memory was NULL
- *    CPSPILS_MEM_FAIL     if there was a memory allocation failure
- *    CPSPILS_ILL_INPUT    if a required vector operation is missing
- *    CPBANDPRE_PDATA_NULL if the bp_data was NULL
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int CPBPSptfqmr(void *cpode_mem, int pretype, int maxl, void *p_data);
-
-/*
- * -----------------------------------------------------------------
- * Function : CPBPSpbcg
- * -----------------------------------------------------------------
- * CPBPSpbcg links the CPBANDPPRE preconditioner to the CPSPBCG
- * linear solver. It performs the following actions:
- *  1) Calls the CPSPBCG specification routine and attaches the
- *     CPSPBCG linear solver to the integrator memory;
- *  2) Sets the preconditioner data structure for CPSPBCG
- *  3) Sets the preconditioner setup routine for CPSPBCG
- *  4) Sets the preconditioner solve routine for CPSPBCG
- *
- * Its first 3 arguments are the same as for CPSpbcg (see
- * cpspbcg.h). The last argument is the pointer to the CPBANDPPRE
- * memory block returned by CPBandPrecAlloc. Note that the user need
- * not call CPSpbcg.
- *
- * Possible return values are:
- *    CPSPILS_SUCCESS       if successful
- *    CPSPILS_MEM_NULL      if the CPODEs memory was NULL
- *    CPSPILS_LMEM_NULL     if the CPSPILS memory was NULL
- *    CPSPILS_MEM_FAIL      if there was a memory allocation failure
- *    CPSPILS_ILL_INPUT     if a required vector operation is missing
- *    CPBANDPRE_PDATA_NULL  if the bp_data was NULL
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int CPBPSpbcg(void *cpode_mem, int pretype, int maxl, void *p_data);
-
-/*
- * -----------------------------------------------------------------
- * Function : CPBPSpgmr
- * -----------------------------------------------------------------
- * CPBPSpgmr links the CPBANDPPRE preconditioner to the CPSPGMR
- * linear solver. It performs the following actions:
- *  1) Calls the CPSPGMR specification routine and attaches the
- *     CPSPGMR linear solver to the integrator memory;
- *  2) Sets the preconditioner data structure for CPSPGMR
- *  3) Sets the preconditioner setup routine for CPSPGMR
- *  4) Sets the preconditioner solve routine for CPSPGMR
- *
- * Its first 3 arguments are the same as for CPSpgmr (see
- * cpspgmr.h). The last argument is the pointer to the CPBANDPPRE
- * memory block returned by CPBandPrecAlloc. Note that the user need
- * not call CPSpgmr.
- *
- * Possible return values are:
- *    CPSPILS_SUCCESS       if successful
- *    CPSPILS_MEM_NULL      if the CPODES memory was NULL
- *    CPSPILS_LMEM_NULL     if the CPSPILS memory was NULL
- *    CPSPILS_MEM_FAIL      if there was a memory allocation failure
- *    CPSPILS_ILL_INPUT     if a required vector operation is missing
- *    CPBANDPRE_PDATA_NULL  if the bp_data was NULL
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT int CPBPSpgmr(void *cpode_mem, int pretype, int maxl, void *p_data);
-
-/*
- * -----------------------------------------------------------------
- * Function : CPBandPrecFree
- * -----------------------------------------------------------------
- * CPBandPrecFree frees the memory allocated by CPBandPrecAlloc
- * in the argument bp_data.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void CPBandPrecFree(void **bp_data);
+SUNDIALS_EXPORT int CPBandPrecInit(void *cpode_mem, int N, int mu, int ml);
 
 /*
  * -----------------------------------------------------------------
@@ -234,17 +130,9 @@ SUNDIALS_EXPORT void CPBandPrecFree(void **bp_data);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS);
-SUNDIALS_EXPORT int CPBandPrecGetNumFctEvals(void *bp_data, long int *nfevalsBP);
+SUNDIALS_EXPORT int CPBandPrecGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CPBandPrecGetNumFctEvals(void *cpode_mem, long int *nfevalsBP);
 
-/*
- * -----------------------------------------------------------------
- * The following function returns the name of the constant 
- * associated with a CPBANDPRE return flag
- * -----------------------------------------------------------------
- */
-  
-SUNDIALS_EXPORT char *CPBandPrecGetReturnFlagName(int flag);
 
 #ifdef __cplusplus
 }

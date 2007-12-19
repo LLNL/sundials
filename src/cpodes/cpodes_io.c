@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-06 20:33:24 $
+ * $Revision: 1.5 $
+ * $Date: 2007-12-19 20:26:42 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -78,6 +78,28 @@ int CPodeSetErrFile(void *cpode_mem, FILE *errfp)
   cp_mem = (CPodeMem) cpode_mem;
 
   cp_mem->cp_errfp = errfp;
+
+  return(CP_SUCCESS);
+}
+
+/* 
+ * CPodeSetUserData
+ *
+ * Specifies the data pointer for user-supplied functions
+ */
+
+int CPodeSetUserData(void *cpode_mem, void *user_data)
+{
+  CPodeMem cp_mem;
+
+  if (cpode_mem==NULL) {
+    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeSetUserData", MSGCP_NO_MEM);
+    return(CP_MEM_NULL);
+  }
+
+  cp_mem = (CPodeMem) cpode_mem;
+
+  cp_mem->cp_user_data = user_data;
 
   return(CP_SUCCESS);
 }
@@ -399,100 +421,6 @@ int CPodeSetNonlinConvCoef(void *cpode_mem, realtype nlscoef)
   cp_mem = (CPodeMem) cpode_mem;
 
   cp_mem->cp_nlscoef = nlscoef;
-
-  return(CP_SUCCESS);
-}
-
-/*
- * CPodeSetTolerances
- *
- * Changes the integration tolerances between calls to CPode().
- * Here, only CP_SS or CP_SV are allowed.
- */
-
-int CPodeSetTolerances(void *cpode_mem, 
-                       int tol_type, realtype reltol, void *abstol)
-{
-  CPodeMem cp_mem;
-  booleantype neg_abstol;
-
-  /* Check CPODES memory */
-  if (cpode_mem==NULL) {
-    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeSetTolerances", MSGCP_NO_MEM);
-    return(CP_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  /* Check if cpode_mem was allocated */
-  if (cp_mem->cp_MallocDone == FALSE) {
-    cpProcessError(cp_mem, CP_NO_MALLOC, "CPODES", "CPodeSetTolerances", MSGCP_NO_MALLOC);
-    return(CP_NO_MALLOC);
-  }
-
-  /* Check inputs for legal values */
-  if ( (tol_type != CP_SS) && (tol_type != CP_SV) ) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeSetTolerances", MSGCP_BAD_ITOL);
-    return(CP_ILL_INPUT);
-  }
-  if (abstol == NULL) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeSetTolerances", MSGCP_NULL_ABSTOL);
-    return(CP_ILL_INPUT);
-  }
-
-  /* Check positivity of tolerances */
-  if (reltol < ZERO) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeSetTolerances", MSGCP_BAD_RELTOL);
-    return(CP_ILL_INPUT);
-  }
-
-  if (tol_type == CP_SS)
-    neg_abstol = (*((realtype *)abstol) < ZERO);
-  else
-    neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
- 
-  if (neg_abstol) {
-    cpProcessError(cp_mem, CP_ILL_INPUT, "CPODES", "CPodeSetTolerances", MSGCP_BAD_ABSTOL);
-    return(CP_ILL_INPUT);
-  }
-
-  /* Copy tolerances into memory */
-  cp_mem->cp_tol_type = tol_type;
-  cp_mem->cp_reltol   = reltol;
-
-  if (tol_type == CP_SS) {
-    cp_mem->cp_Sabstol = *((realtype *)abstol);
-  } else {
-    if ( !(cp_mem->cp_VabstolMallocDone) ) {
-      cp_mem->cp_Vabstol = N_VClone(cp_mem->cp_ewt);
-      lrw += lrw1;
-      liw += liw1;
-      cp_mem->cp_VabstolMallocDone = TRUE;
-    }
-    N_VScale(ONE, (N_Vector)abstol, cp_mem->cp_Vabstol);
-  }
-
-  return(CP_SUCCESS);
-}
-
-/* 
- * CPodeSetEwtFn
- *
- * Specifies the user-provided function efun of type EwtSet 
- * and a data pointer for efun.
- */
-
-int CPodeSetEwtFn(void *cpode_mem, CPEwtFn efun, void *e_data)
-{
-  CPodeMem cp_mem;
-
-  if (cpode_mem==NULL) {
-    cpProcessError(NULL, CP_MEM_NULL, "CPODES", "CPodeSetEwtFn", MSGCP_NO_MEM);
-    return(CP_MEM_NULL);
-  }
-  cp_mem = (CPodeMem) cpode_mem;
-
-  cp_mem->cp_efun   = efun;
-  cp_mem->cp_e_data = e_data;
 
   return(CP_SUCCESS);
 }

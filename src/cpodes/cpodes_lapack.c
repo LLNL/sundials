@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-12-01 22:48:57 $
+ * $Revision: 1.4 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -106,7 +106,6 @@ static void cplSCcomputeKD(CPodeMem cp_mem, N_Vector d);
 #define lmm_type       (cp_mem->cp_lmm_type)
 #define fe             (cp_mem->cp_fe)
 #define fi             (cp_mem->cp_fi)
-#define f_data         (cp_mem->cp_f_data)
 #define uround         (cp_mem->cp_uround)
 #define nst            (cp_mem->cp_nst)
 #define tn             (cp_mem->cp_tn)
@@ -139,22 +138,24 @@ static void cplSCcomputeKD(CPodeMem cp_mem, N_Vector d);
 #define ml             (cpdls_mem->d_ml)
 #define mu             (cpdls_mem->d_mu)
 #define smu            (cpdls_mem->d_smu)
+#define jacDQ          (cpdls_mem->d_jacDQ)
 #define djacE          (cpdls_mem->d_djacE)
 #define djacI          (cpdls_mem->d_djacI)
 #define bjacE          (cpdls_mem->d_bjacE)
 #define bjacI          (cpdls_mem->d_bjacI)
+#define J_data         (cpdls_mem->d_J_data)
 #define M              (cpdls_mem->d_M)
 #define savedJ         (cpdls_mem->d_savedJ)
 #define pivots         (cpdls_mem->d_pivots)
 #define nstlj          (cpdls_mem->d_nstlj)
 #define nje            (cpdls_mem->d_nje)
 #define nfeDQ          (cpdls_mem->d_nfeDQ)
-#define J_data         (cpdls_mem->d_J_data)
 #define last_flag      (cpdls_mem->d_last_flag)
 
 #define ny             (cpdlsP_mem->d_ny)
 #define nc             (cpdlsP_mem->d_nc)
 #define nr             (cpdlsP_mem->d_nr)
+#define jacPDQ         (cpdlsP_mem->d_jacPDQ)
 #define djacP          (cpdlsP_mem->d_jacP)
 #define JP_data        (cpdlsP_mem->d_JP_data)
 #define ftype          (cpdlsP_mem->d_ftype)
@@ -238,6 +239,7 @@ int CPLapackDense(void *cpode_mem, int N)
   mtype = SUNDIALS_DENSE;
 
   /* Set default Jacobian routine and Jacobian data */
+  jacDQ = TRUE;
   djacE = NULL;
   djacI = NULL;
   J_data = NULL;
@@ -346,6 +348,7 @@ int CPLapackBand(void *cpode_mem, int N, int mupper, int mlower)
   mtype = SUNDIALS_BAND;
 
   /* Set default Jacobian routine and Jacobian data */
+  jacDQ = TRUE;
   bjacE = NULL;
   bjacI = NULL;
   J_data = NULL;
@@ -466,6 +469,7 @@ int CPLapackDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
   }
 
   /* Set default Jacobian routine and Jacobian data */
+  jacPDQ = TRUE;
   djacP = NULL;
   JP_data = NULL;
 
@@ -650,15 +654,31 @@ static int cpLapackDenseInit(CPodeMem cp_mem)
   nje   = 0;
   nfeDQ = 0;
   nstlj = 0;
+
+  switch (ode_type) {
   
-  if (ode_type == CP_EXPL && djacE == NULL) {
-    djacE = cpDlsDenseDQJacExpl;
-    J_data = cp_mem;
-  } 
+  case CP_EXPL:
+
+    if (jacDQ) {
+      djacE = cpDlsDenseDQJacExpl;
+      J_data = cp_mem;
+    } else {
+      J_data = cp_mem->cp_user_data;
+    }
+
+    break;
+
+  case CP_IMPL:
   
-  if (ode_type == CP_IMPL && djacI == NULL) {
-    djacI = cpDlsDenseDQJacImpl;
-    J_data = cp_mem;
+    if (jacDQ) {
+      djacI = cpDlsDenseDQJacImpl;
+      J_data = cp_mem;
+    } else {
+      J_data = cp_mem->cp_user_data;
+    }
+
+    break;
+
   }
 
   last_flag = CPDIRECT_SUCCESS;
@@ -825,14 +845,30 @@ static int cpLapackBandInit(CPodeMem cp_mem)
   nfeDQ = 0;
   nstlj = 0;
 
-  if (ode_type == CP_EXPL && bjacE == NULL) {
-    bjacE = cpDlsBandDQJacExpl;
-    J_data = cp_mem;
-  } 
+  switch (ode_type) {
+
+  case CP_EXPL:
+
+    if (jacDQ) {
+      bjacE = cpDlsBandDQJacExpl;
+      J_data = cp_mem;
+    }  else {
+      J_data = cp_mem->cp_user_data;
+    }
   
-  if (ode_type == CP_IMPL && bjacI == NULL) {
-    bjacI = cpDlsBandDQJacImpl;
-    J_data = cp_mem;
+    break;
+
+  case CP_IMPL:
+
+    if (jacDQ) {
+      bjacI = cpDlsBandDQJacImpl;
+      J_data = cp_mem;
+    } else {
+      J_data = cp_mem->cp_user_data;
+    }
+
+    break;
+
   }
 
   last_flag = CPDIRECT_SUCCESS;
@@ -1000,10 +1036,12 @@ static int cpLapackDenseProjInit(CPodeMem cp_mem)
   nceDQ  = 0;
   nstljP = 0;
   
-  if (djacP == NULL) {
+  if (jacPDQ) {
     djacP = cpDlsDenseProjDQJac;
     JP_data = cp_mem;
-  }  
+  } else {
+    JP_data = cp_mem->cp_user_data;
+  }
 
   return(0);
 }

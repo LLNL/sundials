@@ -1,3 +1,15 @@
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.2 $
+ * $Date: 2007-12-19 20:26:43 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * simple pendulum example
+ * -----------------------------------------------------------------
+ */
+
+
 #include <stdio.h>
 #include <math.h>
 
@@ -44,16 +56,17 @@ int main()
 
   /* Initialize solver */
   tol = TOL;
-  cpode_mem = CPodeCreate(CP_EXPL, CP_BDF, CP_NEWTON);  
+  cpode_mem = CPodeCreate(CP_BDF, CP_NEWTON);  
   yy0 = N_VNew_Serial(4);
   Ith(yy0,1) = 1.0;  /* x */
   Ith(yy0,2) = 0.0;  /* y */
   Ith(yy0,3) = 0.0;  /* xd */
   Ith(yy0,4) = 0.0;  /* yd */
-  flag = CPodeInit(cpode_mem, (void *)f, NULL, 0.0, yy0, NULL, CP_SS, tol, &tol);
+  flag = CPodeInitExpl(cpode_mem, f, 0.0, yy0);
+  flag = CPodeSStolerances(cpode_mem, tol, tol);
   flag = CPodeSetMaxNumSteps(cpode_mem, 50000);
   flag = CPodeSetStopTime(cpode_mem, tout);
-  flag = CPodeProjDefine(cpode_mem, proj, NULL);
+  flag = CPodeProjDefine(cpode_mem, proj);
   flag = CPDense(cpode_mem, 4);
 
   for (i=0;i<5;i++) {
@@ -65,6 +78,7 @@ int main()
   }
 
   N_VDestroy_Serial(yref);
+  N_VDestroy_Serial(yy0);
   CPodeFree(&cpode_mem);
 
   return(0);
@@ -89,7 +103,7 @@ void GetSol(void *cpode_mem, N_Vector yy0, realtype tol,
   yy = N_VNew_Serial(4);
   yp = N_VNew_Serial(4);
 
-  flag = CPodeReInit(cpode_mem, (void *)f, NULL, 0.0, yy0, NULL, CP_SS, tol, &tol);
+  flag = CPodeReInitExpl(cpode_mem, 0.0, yy0);
 
   flag = CPode(cpode_mem, tout, &t, yy, yp, CP_NORMAL_TSTOP);
 
@@ -144,9 +158,10 @@ void RefSol(realtype tout, N_Vector yref)
   Ith(yy,2) = 0.0;  /* thetad */
   tol = TOL_REF;
 
-  cpode_mem = CPodeCreate(CP_EXPL, CP_BDF, CP_NEWTON);  
+  cpode_mem = CPodeCreate(CP_BDF, CP_NEWTON);  
   flag = CPodeSetMaxNumSteps(cpode_mem, 100000);
-  flag = CPodeInit(cpode_mem, (void *)fref, NULL, 0.0, yy, yp, CP_SS, tol, &tol);
+  flag = CPodeInitExpl(cpode_mem, fref, 0.0, yy);
+  flag = CPodeSStolerances(cpode_mem, tol ,tol);
   flag = CPDense(cpode_mem, 2);
 
   flag = CPodeSetStopTime(cpode_mem, tout);

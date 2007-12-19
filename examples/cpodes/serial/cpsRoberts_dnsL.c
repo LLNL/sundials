@@ -1,3 +1,14 @@
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.2 $
+ * $Date: 2007-12-19 20:26:43 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Robertson's chemical kinetics problem.
+ * -----------------------------------------------------------------
+ */
+
 #include <stdio.h>
 
 #include <cpodes/cpodes.h>
@@ -8,8 +19,6 @@
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
 
 /* Problem Constants */
-
-#define ODE   CP_EXPL
 
 #define NEQ   3
 #define Y1    RCONST(1.0)
@@ -53,7 +62,6 @@ static void PrintFinalStats(void *cpode_mem);
 
 int main()
 {
-  void *fct, *jac;
   void *cpode_mem;
   N_Vector yy, yp, abstol;
   realtype reltol, t, tout;
@@ -76,19 +84,17 @@ int main()
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
-
-  if (ODE == CP_EXPL) {
-    fct = (void *)f;
-    jac = (void *)jacE;
-  } else {
-    f(T0, yy, yp, NULL);
-    fct = (void *)res;
-    jac = (void *)jacI;
-  }
-
   /* Initialize solver */
-  cpode_mem = CPodeCreate(ODE, CP_BDF, CP_NEWTON);  
-  flag = CPodeInit(cpode_mem, fct, NULL, T0, yy, yp, CP_SV, reltol, abstol);
+
+  cpode_mem = CPodeCreate(CP_BDF, CP_NEWTON);  
+
+  flag = CPodeInitExpl(cpode_mem, f, T0, yy);
+  /*
+    f(T0, yy, yp, NULL);
+    flag = CPodeInitImpl(cpode_mem, res, T0, yy, yp);
+  */
+
+  flag = CPodeSVtolerances(cpode_mem, reltol, abstol);
 
   /* Set initial step size */
   /*
@@ -100,13 +106,16 @@ int main()
   */
 
   /* Call CPodeRootInit to specify the root function g with 2 components */
-  flag = CPodeRootInit(cpode_mem, 2, g, NULL);
+  flag = CPodeRootInit(cpode_mem, 2, g);
 
   /* Call CPLapackDense to specify the CPLAPACK dense linear solver */
   flag = CPLapackDense(cpode_mem, NEQ);
 
   /* Set the Jacobian routine to jac (comment out for internal DQ) */
-  flag = CPDlsSetJacFn(cpode_mem, jac, NULL);
+  flag = CPDlsSetDenseJacFnExpl(cpode_mem, jacE);
+  /*
+    flag = CPDlsSetDenseJacFnImpl(cpode_mem, jacI);
+  */
 
   /* In loop, call CPode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */

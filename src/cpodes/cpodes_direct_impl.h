@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:08 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -53,13 +53,15 @@ typedef struct {
   int d_mu;               /* upper bandwidth of Jacobian                  */ 
   int d_smu;              /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
 
+  booleantype d_jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
+
   CPDlsDenseJacExplFn d_djacE; /* dense Jacobian routine (CP_EXPL)        */
   CPDlsDenseJacImplFn d_djacI; /* dense Jacobian routine (CP_IMPL)        */
 
   CPDlsBandJacExplFn d_bjacE;  /* band Jacobian routine (CP_EXPL)         */
   CPDlsBandJacImplFn d_bjacI;  /* band Jacobian routine (CP_IMPL)         */
 
-  void *d_J_data;         /* user data is passed to d_jac or d_jac        */
+  void *d_J_data;         /* data pointer passed to djac* or bjac*        */
 
   DlsMat d_M;             /* M = I - gamma * df/dy                        */
   DlsMat d_savedJ;        /* savedJ = old Jacobian                        */
@@ -92,8 +94,11 @@ typedef struct {
   int d_nc;                 /* number of constraints                       */
   int d_ny;                 /* number of states                            */
 
+  booleantype d_jacPDQ;     /* TRUE if using internal DQ Jacobian approx.  */
+
   CPDlsDenseProjJacFn d_jacP; /* Jacobian routine to be called             */
-  void *d_JP_data;          /* J_data is passed to jacP                    */
+
+  void *d_JP_data;          /* data pointer passed to jacP                 */
 
   int d_ftype;              /* factorization type (LU, QR, or SC)          */
   int d_pnorm;              /* projection norm (L2 or WRMS)                */
@@ -127,28 +132,28 @@ typedef struct {
 
 int cpDlsDenseDQJacExpl(int N, realtype t,
 			N_Vector y, N_Vector fy, 
-			DlsMat Jac, void *jac_data,
+			DlsMat Jac, void *data,
 			N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
 int cpDlsDenseDQJacImpl(int N, realtype t, realtype gm,
 			N_Vector y, N_Vector yp, N_Vector r, 
-			DlsMat Jac, void *jac_data,
+			DlsMat Jac, void *data,
 			N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
 		       realtype t, N_Vector y, N_Vector fy, 
-		       DlsMat Jac, void *jac_data,
+		       DlsMat Jac, void *data,
 		       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
 		       realtype t, realtype gm, 
 		       N_Vector y, N_Vector yp, N_Vector r,
-		       DlsMat Jac, void *jac_data,
+		       DlsMat Jac, void *data,
 		       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 int cpDlsDenseProjDQJac(int Nc, int Ny, realtype t,
 			N_Vector y, N_Vector cy, 
-			DlsMat Jac, void *jac_data,
+			DlsMat Jac, void *data,
 			N_Vector c_tmp1, N_Vector c_tmp2);
 
 /*

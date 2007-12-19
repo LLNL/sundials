@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-10-25 20:03:25 $
+# $Revision: 1.3 $
+# $Date: 2007-12-19 20:26:43 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -20,6 +20,7 @@ SET(CPODES_examples
   cpsNewtCrd_dns
   cpsPend_dns
   cpsRoberts_dns
+  cpsSlCrank_dns
   cpsVanDPol_non
   )
 
@@ -28,6 +29,7 @@ SET(CPODES_examples
 
 SET(CPODES_examples_BL
   cpsAdvDiff_bndL
+  cpsAkzoNob_dnsL
   cpsPend_dnsL
   cpsRoberts_dnsL
   )
@@ -37,11 +39,9 @@ SET(CPODES_examples_BL
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CPODES_LIB sundials_cpodes_static)
-  SET(CPODES_BL_LIB sundials_cpodes_bl_static)
   SET(NVECS_LIB sundials_nvecserial_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CPODES_LIB sundials_cpodes_shared)
-  SET(CPODES_BL_LIB sundials_cpodes_bl_shared)
   SET(NVECS_LIB sundials_nvecserial_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
@@ -67,7 +67,7 @@ IF(LAPACK_OK)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
   FOREACH(example ${CPODES_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.c)
-    TARGET_LINK_LIBRARIES(${example} ${CPODES_BL_LIB} ${CPODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+    TARGET_LINK_LIBRARIES(${example} ${CPODES_LIB} ${CPODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
     TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
     FILE(GLOB example_out ${example}.out*)
     IF(EXAMPLES_INSTALL)
@@ -86,11 +86,9 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_LIB "sundials_cpodes")
   LIST2STRING(CPODES_examples EXAMPLES)
   IF(LAPACK_OK)
-    SET(SOLVER_BL_LIB "sundials_cpodes_bl")
     LIST2STRING(CPODES_examples_BL EXAMPLES_BL)
   ELSE(LAPACK_OK)
     SET(EXAMPLES_BL "")
-    SET(SOLVER_BL_LIB "")
   ENDIF(LAPACK_OK)
 
   # Regardless of the platform we're on, we will generate and install 

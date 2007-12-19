@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:05 $
+ * $Revision: 1.4 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,17 +43,14 @@
  *   cpode_mem = CPodeCreate(...);
  *   ier = CPodeMalloc(...);
  *   ...
- *   bbd_data = CPBBDPrecAlloc(cpode_mem, Nlocal, mudq ,mldq,
- *                             mukeep, mlkeep, dqrely, gloc, cfn);
- *   flag = CPBBDSpgmr(cpode_mem, pretype, maxl, bbd_data);
+ *   flag = CPSpgmr(cpode_mem, pretype, maxl);
  *      -or-
- *   flag = CPBBDSpbcg(cpode_mem, pretype, maxl, bbd_data);
+ *   flag = CPSpbcg(cpode_mem, pretype, maxl);
  *      -or-
- *   flag = CPBBDSptfqmr(cpode_mem, pretype, maxl, bbd_data);
+ *   flag = CPSptfqmr(cpode_mem, pretype, maxl);
  *   ...
- *   ier = CPode(...);
- *   ...
- *   CPBBDPrecFree(&bbd_data);
+ *   flag = CPBBDPrecInit(cpode_mem, Nlocal, mudq ,mldq,
+ *                        mukeep, mlkeep, dqrely, gloc, cfn);
  *   ...                                                           
  *   CPodeFree(...);
  * 
@@ -86,17 +83,15 @@
  *    same on every processor.
  *
  * 3) The actual name of the user's f (or F) function is passed to
- *    CPodeMalloc, and the names of the user's gloc (or Gloc) and
- *    cfn functions are passed to CPBBDPrecAlloc.
+ *    CPodeInitExpl or CPodeInitImpl, respectively, and the names 
+ *    of the user's gloc (or Gloc) and cfn functions are passed to
+ *    CPBBDPrecInit.
  *
  * 4) The pointer to the user-defined data block f_data, which is
  *    set through CPodeSetFdata is also available to the user in
  *    gloc/Gloc and cfn.
  *
- * 5) For the CPSpgmr solver, the Gram-Schmidt type gstype,
- *    is left to the user to specify through CPSpgmrSetGStype.
- *
- * 6) Optional outputs specific to this module are available by
+ * 5) Optional outputs specific to this module are available by
  *    way of routines listed below. These include work space sizes
  *    and the cumulative number of gloc calls. The costs
  *    associated with this module also include nsetups banded LU
@@ -114,12 +109,6 @@ extern "C" {
 #endif
 
 #include <sundials/sundials_nvector.h>
-
-/* CPBBDPRE return values */
-
-#define CPBBDPRE_SUCCESS            0
-#define CPBBDPRE_PDATA_NULL       -11
-#define CPBBDPRE_FUNC_UNRECVR     -12
 
 /*
  * -----------------------------------------------------------------
@@ -172,11 +161,11 @@ extern "C" {
 
 typedef int (*CPBBDLocalRhsFn)(int Nlocal, realtype t, 
 			       N_Vector y,
-			       N_Vector gout, void *f_data);
+			       N_Vector gout, void *user_data);
 
 typedef int (*CPBBDLocalResFn)(int Nlocal, realtype t, 
 			       N_Vector y, N_Vector yp, 
-			       N_Vector gout, void *f_data);
+			       N_Vector gout, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -188,11 +177,11 @@ typedef int (*CPBBDLocalResFn)(int Nlocal, realtype t,
  *
  * This function takes as input the local vector size Nlocal,
  * the independent variable value t, the dependent variable
- * vector y, and a pointer to the user-defined data block f_data.
- * The f_data parameter is the same as that specified by the user
- * through the CPodeSetFdata routine. A CPBBDCommFn cfn is
+ * vector y, and a pointer to the user-defined data block user_data.
+ * The user_data parameter is the same as that specified by the user
+ * through the CPodeSetUserData routine. A CPBBDCommFn cfn is
  * expected to save communicated data in space defined within the
- * structure f_data. A CPBBDCommFn cfn does not have a return value.
+ * structure user_data. A CPBBDCommFn cfn does not have a return value.
  *
  * Each call to the CPBBDCommFn cfn is preceded by a call to the
  * CPRhsFn f (or CPResFn F) with the same (t, y, y') arguments 
@@ -209,135 +198,57 @@ typedef int (*CPBBDLocalResFn)(int Nlocal, realtype t,
  */
 
 typedef int (*CPBBDCommFn)(int Nlocal, realtype t, 
-			   N_Vector y, N_Vector yp, void *f_data);
+			   N_Vector y, N_Vector yp, void *user_data);
+
 
 /*
  * -----------------------------------------------------------------
- * Function : CPBBDPrecAlloc
+ * Function : CPBBDPrecInit
  * -----------------------------------------------------------------
- * CPBBDPrecAlloc allocates and initializes a CPBBDData structure
- * to be passed to CPSp* (and used by CPBBDPrecSetup and
- * CPBBDPrecSolve).
+ * CPBBDPrecInit allocates and initializes the BBD preconditioner.
  *
- * The parameters of CPBBDPrecAlloc are as follows:
+ * The parameters of CPBBDPrecInit are as follows:
  *
- * cpode_mem - pointer to the integrator memory.
+ * cpode_mem is the pointer to the integrator memory.
  *
- * Nlocal - length of the local vectors on the current processor.
+ * Nlocal is the length of the local block of the vectors y etc.
+ *        on the current processor.
  *
- * mudq, mldq - upper and lower half-bandwidths to be used in the
- *   difference quotient computation of the local Jacobian block.
+ * mudq, mldq are the upper and lower half-bandwidths to be used
+ *            in the difference quotient computation of the local
+ *            Jacobian block.
  *
- * mukeep, mlkeep - upper and lower half-bandwidths of the retained 
- *   banded approximation to the local Jacobian block.
+ * mukeep, mlkeep are the upper and lower half-bandwidths of the
+ *                retained banded approximation to the local Jacobian
+ *                block.
  *
- * dqrely - optional input. It is the relative increment in components 
- *   of y used in the difference quotient approximations. To specify 
- *   the default value (square root of the unitroundoff), pass 0.
+ * dqrely is an optional input. It is the relative increment
+ *        in components of y used in the difference quotient
+ *        approximations. To specify the default, pass 0.
+ *        The default is dqrely = sqrt(unit roundoff).
  *
- * gloc - name of the user-supplied function g(t,y) or G(t,y,y') that
- *   approximates f (respectively F) and whose local Jacobian blocks
- *   are to form the preconditioner.
+ * gloc is the name of the user-supplied function g(t,y) that
+ *      approximates f and whose local Jacobian blocks are
+ *      to form the preconditioner.
  *
- * cfn - name of the user-defined function that performs necessary 
- *   interprocess communication for the execution of gloc.
+ * cfn is the name of the user-defined function that performs
+ *     necessary interprocess communication for the
+ *     execution of gloc.
  *
- * CPBBDPrecAlloc returns the storage allocated (type *void), or NULL 
- * if the request for storage cannot be satisfied.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void *CPBBDPrecAlloc(void *cpode_mem, int Nlocal, 
-				     int mudq, int mldq, int mukeep, int mlkeep, 
-				     realtype dqrely,
-				     void *gloc, CPBBDCommFn cfn);
-
-/*
- * -----------------------------------------------------------------
- * Function : CPBBDSptfqmr
- * -----------------------------------------------------------------
- * CPBBDSptfqmr links the CPBBDPRE preconditioner to the CPSPTFQMR
- * linear solver. It performs the following actions:
- *  1) Calls the CPSPTFQMR specification routine and attaches the
- *     CPSPTFQMR linear solver to the integrator memory;
- *  2) Sets the preconditioner data structure for CPSPTFQMR
- *  3) Sets the preconditioner setup routine for CPSPTFQMR
- *  4) Sets the preconditioner solve routine for CPSPTFQMR
- *
- * Its first 3 arguments are the same as for CPSptfqmr (see
- * cpsptfqmr.h). The last argument is the pointer to the CPBBDPRE
- * memory block returned by CPBBDPrecAlloc. Note that the user need
- * not call CPSptfqmr.
- *
- * Possible return values are:
- *    CPSPILS_SUCCESS      if successful
- *    CPSPILS_MEM_NULL     if the CPODES memory was NULL
- *    CPSPILS_LMEM_NULL    if the CPSPILS memory was NULL
- *    CPSPILS_MEM_FAIL     if there was a memory allocation failure
- *    CPSPILS_ILL_INPUT    if a required vector operation is missing
- *    CPBBDPRE_PDATA_NULL  if the bbd_data was NULL
- * -----------------------------------------------------------------
- */
-  
-SUNDIALS_EXPORT int CPBBDSptfqmr(void *cpode_mem, int pretype, int maxl, void *bbd_data);
-  
-/*
- * -----------------------------------------------------------------
- * Function : CPBBDSpbcg
- * -----------------------------------------------------------------
- * CPBBDSpbcg links the CPBBDPRE preconditioner to the CPSPBCG
- * linear solver. It performs the following actions:
- *  1) Calls the CPSPBCG specification routine and attaches the
- *     CPSPBCG linear solver to the integrator memory;
- *  2) Sets the preconditioner data structure for CPSPBCG
- *  3) Sets the preconditioner setup routine for CPSPBCG
- *  4) Sets the preconditioner solve routine for CPSPBCG
- *
- * Its first 3 arguments are the same as for CPSpbcg (see
- * cpspbcg.h). The last argument is the pointer to the CPBBDPRE
- * memory block returned by CPBBDPrecAlloc. Note that the user need
- * not call CPSpbcg.
- *
- * Possible return values are:
- *    CPSPILS_SUCCESS      if successful
- *    CPSPILS_MEM_NULL     if the CPODES memory was NULL
- *    CPSPILS_LMEM_NULL    if the CPSPILS memory was NULL
- *    CPSPILS_MEM_FAIL     if there was a memory allocation failure
- *    CPSPILS_ILL_INPUT    if a required vector operation is missing
- *    CPBBDPRE_PDATA_NULL  if the bbd_data was NULL
- * -----------------------------------------------------------------
- */
-  
-SUNDIALS_EXPORT int CPBBDSpbcg(void *cpode_mem, int pretype, int maxl, void *bbd_data);
-  
-/*
- * -----------------------------------------------------------------
- * Function : CPBBDSpgmr
- * -----------------------------------------------------------------
- * CPBBDSpgmr links the CPBBDPRE preconditioner to the CPSPGMR
- * linear solver. It performs the following actions:
- *  1) Calls the CPSPGMR specification routine and attaches the
- *     CPSPGMR linear solver to the integrator memory;
- *  2) Sets the preconditioner data structure for CPSPGMR
- *  3) Sets the preconditioner setup routine for CPSPGMR
- *  4) Sets the preconditioner solve routine for CPSPGMR
- *
- * Its first 3 arguments are the same as for CPSpgmr (see
- * cpspgmr.h). The last argument is the pointer to the CPBBDPRE
- * memory block returned by CPBBDPrecAlloc. Note that the user need
- * not call CPSpgmr.
- *
- * Possible return values are:
- *    CPSPILS_SUCCESS      if successful
- *    CPSPILS_MEM_NULL     if the CPODES memory was NULL
- *    CPSPILS_LMEM_NULL    if the CPSPILS memory was NULL
- *    CPSPILS_MEM_FAIL     if there was a memory allocation failure
- *    CPSPILS_ILL_INPUT    if a required vector operation is missing
- *    CPBBDPRE_PDATA_NULL  if the bbd_data was NULL
+ * The return value of CPBBDPrecInit is one of:
+ *   CPSPILS_SUCCESS if no errors occurred
+ *   CPSPILS_MEM_NULL if the integrator memory is NULL
+ *   CPSPILS_LMEM_NULL if the linear solver memory is NULL
+ *   CPSPILS_ILL_INPUT if an input has an illegal value
+ *   CPSPILS_MEM_FAIL if a memory allocation request failed
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPBBDSpgmr(void *cpode_mem, int pretype, int maxl, void *bbd_data);
+SUNDIALS_EXPORT int CPBBDPrecInit(void *cpode_mem, int Nlocal, 
+                                  int mudq, int mldq, 
+                                  int mukeep, int mlkeep, 
+                                  realtype dqrely,
+                                  void *gloc, CPBBDCommFn cfn);
 
 /*
  * -----------------------------------------------------------------
@@ -348,32 +259,21 @@ SUNDIALS_EXPORT int CPBBDSpgmr(void *cpode_mem, int pretype, int maxl, void *bbd
  * CPSPBCG/CPBBDPRE or CPSPTFQMR/CPBBDPRE provided there is no change 
  * in Nlocal, mukeep, or mlkeep. After solving one problem, and after 
  * calling CPodeReInit to re-initialize the integrator for a subsequent 
- * problem, call CPBBDPrecReInit. Then call CPSpgmrSet* or CPSpbcgSet* 
- * or CPSptfqmrSet* functions if necessary for any changes to CPSPGMR, 
- * CPSPBCG, or CPSPTFQMR parameters, before calling CPode.
+ * problem, call CPBBDPrecReInit.
  *
- * The first argument to CPBBDPrecReInit must be the pointer pdata
- * that was returned by CPBBDPrecAlloc. All other arguments have
- * the same names and meanings as those of CPBBDPrecAlloc.
+ * All arguments have the same names and meanings as those
+ * of CPBBDPrecInit.
  *
- * The return value of CPBBDPrecReInit is CPBBDPRE_SUCCESS, indicating
- * success, or CPBBDPRE_PDATA_NULL if bbd_data was NULL.
+ * The return value of CPBBDPrecReInit is one of:
+ *   CPSPILS_SUCCESS if no errors occurred
+ *   CPSPILS_MEM_NULL if the integrator memory is NULL
+ *   CPSPILS_LMEM_NULL if the linear solver memory is NULL
+ *   CPSPILS_PMEM_NULL if the preconditioner memory is NULL
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPBBDPrecReInit(void *bbd_data, int mudq, int mldq,
-				    realtype dqrely, void *gloc, CPBBDCommFn cfn);
-
-/*
- * -----------------------------------------------------------------
- * Function : CPBBDPrecFree
- * -----------------------------------------------------------------
- * CPBBDPrecFree frees the memory block bbd_data allocated by the
- * call to CPBBDAlloc.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void CPBBDPrecFree(void **bbd_data);
+SUNDIALS_EXPORT int CPBBDPrecReInit(void *cpode_mem, int mudq, int mldq,
+				    realtype dqrely);
 
 /*
  * -----------------------------------------------------------------
@@ -384,22 +284,16 @@ SUNDIALS_EXPORT void CPBBDPrecFree(void **bbd_data);
  * CPBBDPrecGetNumGfnEvals returns the number of calls to gfn.
  *
  * The return value of CPBBDPrecGet* is one of:
- *    CPBBDPRE_SUCCESS    if successful
- *    CPBBDPRE_PDATA_NULL if the bbd_data memory was NULL
+ *   CPSPILS_SUCCESS if no errors occurred
+ *   CPSPILS_MEM_NULL if the integrator memory is NULL
+ *   CPSPILS_LMEM_NULL if the linear solver memory is NULL
+ *   CPSPILS_PMEM_NULL if the preconditioner memory is NULL
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CPBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwLS, long int *leniwLS);
-SUNDIALS_EXPORT int CPBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
+SUNDIALS_EXPORT int CPBBDPrecGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_EXPORT int CPBBDPrecGetNumGfnEvals(void *cpode_mem, long int *ngevalsBBDP);
 
-/*
- * -----------------------------------------------------------------
- * The following function returns the name of the constant 
- * associated with a CPBBDPRE return flag
- * -----------------------------------------------------------------
- */
-  
-SUNDIALS_EXPORT char *CPBBDPrecGetReturnFlagName(int flag);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-30 21:11:29 $
+ * $Revision: 1.4 $
+ * $Date: 2007-12-19 20:26:42 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -46,6 +46,8 @@ static int cpProjNonlinearIteration(CPodeMem cp_mem);
  * =================================================================
  */
 
+#define user_data      (cp_mem->cp_user_data)
+
 #define tn             (cp_mem->cp_tn)
 #define zn             (cp_mem->cp_zn) 
 #define y              (cp_mem->cp_y)
@@ -68,9 +70,7 @@ static int cpProjNonlinearIteration(CPodeMem cp_mem);
 #define proj_norm      (cp_mem->cp_proj_norm)
 #define cnstr_type     (cp_mem->cp_cnstr_type)
 #define pfun           (cp_mem->cp_pfun)
-#define p_data         (cp_mem->cp_p_data)
 #define cfun           (cp_mem->cp_cfun)
-#define c_data         (cp_mem->cp_c_data)
 
 #define yC             (cp_mem->cp_yC)
 #define acorP          (cp_mem->cp_acorP)
@@ -130,7 +130,7 @@ int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
   case CP_PROJ_INTERNAL:
 
     /* Evaluate constraints at current time and with the corrected y */
-    retval = cfun(tn, y, ctemp, c_data);
+    retval = cfun(tn, y, ctemp, user_data);
     nce++;
     if (retval < 0) {flag = CP_CNSTRFUNC_FAIL; break;}
     if (retval > 0) {flag = CNSTRFUNC_RECVR; break;}
@@ -187,7 +187,7 @@ int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
     N_VScale(ONE, acor, errP);
 
     /* Call the user projection function */
-    retval = pfun(tn, y, acorP, prjcoef, errP, p_data);
+    retval = pfun(tn, y, acorP, prjcoef, errP, user_data);
     nproj++;
     if (retval < 0) {flag = CP_PROJFUNC_FAIL; break;}
     if (retval > 0) {flag = PROJFUNC_RECVR; break;}
@@ -385,7 +385,7 @@ static int cpProjNonlinear(CPodeMem cp_mem)
      * reload the corrected y, recompute constraints, and reattempt loop */
     if ( (retval > 0) && lsetupP_exists && !callSetup ) {
       N_VScale(ONE, yC, y);
-      retval = cfun(tn, y, ctemp, c_data);
+      retval = cfun(tn, y, ctemp, user_data);
       nce++;
       if (retval < 0) return(CP_CNSTRFUNC_FAIL);
       if (retval > 0) return(CNSTRFUNC_RECVR);
@@ -501,7 +501,7 @@ static int cpProjNonlinearIteration(CPodeMem cp_mem)
     
     /* Save norm of correction, evaluate cfun, and loop again */
     delp = del;
-    retval = cfun(tn, y, ctemp, c_data);
+    retval = cfun(tn, y, ctemp, user_data);
     nce++;
     if (retval < 0) return(CP_CNSTRFUNC_FAIL);
     if (retval > 0) return(CNSTRFUNC_RECVR);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-12-01 22:48:57 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-19 20:26:42 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban  @ LLNL
  * -----------------------------------------------------------------
@@ -58,7 +58,7 @@ static int cpNewtonIterationImpl(CPodeMem cp_mem);
 
 #define fi             (cp_mem->cp_fi)      
 #define fe             (cp_mem->cp_fe)      
-#define f_data         (cp_mem->cp_f_data) 
+#define user_data      (cp_mem->cp_user_data) 
 
 #define zn             (cp_mem->cp_zn) 
 #define ewt            (cp_mem->cp_ewt)  
@@ -241,7 +241,7 @@ static int cpNlsFunctionalExpl(CPodeMem cp_mem)
   m = 0;
 
   /* Evaluate f at predicted y */
-  retval = fe(tn, zn[0], tempv, f_data);
+  retval = fe(tn, zn[0], tempv, user_data);
   nfe++;
   if (retval < 0) return(CP_ODEFUNC_FAIL);
   if (retval > 0) return(ODEFUNC_RECVR);
@@ -286,7 +286,7 @@ static int cpNlsFunctionalExpl(CPodeMem cp_mem)
     delp = del;
 
     /* Evaluate f again */
-    retval = fe(tn, y, tempv, f_data);
+    retval = fe(tn, y, tempv, user_data);
     nfe++;
     if (retval < 0) return(CP_ODEFUNC_FAIL);
     if (retval > 0) return(ODEFUNC_RECVR);
@@ -349,7 +349,7 @@ static int cpNlsNewtonExpl(CPodeMem cp_mem, int nflag)
   loop {
 
     /* Evaluate function at predicted y */
-    retval = fe(tn, zn[0], ftemp, f_data);
+    retval = fe(tn, zn[0], ftemp, user_data);
     nfe++; 
     if (retval < 0) return(CP_ODEFUNC_FAIL);
     if (retval > 0) return(ODEFUNC_RECVR);
@@ -514,7 +514,7 @@ static int cpNewtonIterationExpl(CPodeMem cp_mem)
     
     /* Save norm of correction, evaluate f, and loop again */
     delp = del;
-    retval = fe(tn, y, ftemp, f_data);
+    retval = fe(tn, y, ftemp, user_data);
     nfe++;
     if (retval < 0) return(CP_ODEFUNC_FAIL);
     if (retval > 0) return(ODEFUNC_RECVR);
@@ -576,7 +576,7 @@ static int cpNlsFunctionalImpl(CPodeMem cp_mem)
   /* Evaluate f at predicted y and y' */
   N_VScale(ONE, zn[0], y);
   N_VScale(ONE/h, zn[1], yp);
-  retval = fi(tn, y, yp, ftemp, f_data);
+  retval = fi(tn, y, yp, ftemp, user_data);
   nfe++;
   if (retval < 0) return(CP_ODEFUNC_FAIL);
   if (retval > 0) return(ODEFUNC_RECVR);
@@ -621,7 +621,7 @@ static int cpNlsFunctionalImpl(CPodeMem cp_mem)
     /* Update y' and evaluate f again */
     N_VLinearSum(ONE, y, -ONE, zn[0], yp);
     N_VLinearSum(ONE/gamma, yp, ONE/h, zn[1], yp);
-    retval = fi(tn, y, yp, ftemp, f_data);
+    retval = fi(tn, y, yp, ftemp, user_data);
     nfe++;
     if (retval < 0) return(CP_ODEFUNC_FAIL);
     if (retval > 0) return(ODEFUNC_RECVR);
@@ -692,7 +692,7 @@ static int cpNlsNewtonImpl(CPodeMem cp_mem, int nflag)
     N_VScale(ONE/h, zn[1], yp);
 
     /* Evaluate residual at predicted y and y' */
-    retval = fi(tn, zn[0], yp, ftemp, f_data);
+    retval = fi(tn, zn[0], yp, ftemp, user_data);
     nfe++; 
     if (retval < 0) return(CP_ODEFUNC_FAIL);
     if (retval > 0) return(ODEFUNC_RECVR);
@@ -791,7 +791,7 @@ static int cpNewtonIterationImpl(CPodeMem cp_mem)
     
     /* Save norm of correction, evaluate f, and loop again */
     delp = del;
-    retval = fi(tn, y, yp, ftemp, f_data);
+    retval = fi(tn, y, yp, ftemp, user_data);
     nfe++;
     if (retval < 0) return(CP_ODEFUNC_FAIL);
     if (retval > 0) return(ODEFUNC_RECVR);

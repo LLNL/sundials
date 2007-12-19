@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:25 $
+ * $Revision: 1.2 $
+ * $Date: 2007-12-19 20:26:43 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -137,16 +137,18 @@ int main()
 
   /* Initialize solver */
 
-  cpode_mem = CPodeCreate(CP_EXPL, CP_BDF, CP_NEWTON);  
-  flag = CPodeInit(cpode_mem, ffun1, data, t0, yy, yp, CP_SS, reltol, &abstol);
+  cpode_mem = CPodeCreate(CP_BDF, CP_NEWTON);  
+  flag = CPodeSetUserData(cpode_mem, data);
+  flag = CPodeInitExpl(cpode_mem, ffun1, t0, yy);
+  flag = CPodeSStolerances(cpode_mem, reltol, abstol);
   flag = CPDense(cpode_mem, Neq);
 
-  flag = CPodeRootInit(cpode_mem, 1, gfun, data);
+  flag = CPodeRootInit(cpode_mem, 1, gfun);
   flag = CPodeSetRootDirection(cpode_mem, rdir);
 
   /* Set-up the internal projection */
   
-  flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, data, ctols);
+  flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
   flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
   flag = CPDenseProj(cpode_mem, Nc, Neq, CPDIRECT_LU);
 
@@ -178,7 +180,7 @@ int main()
         /* Update velocities in yy */
         contact(yy, data);
         /* reinitialize CPODES solver */
-        flag = CPodeReInit(cpode_mem, ffun1, data, t, yy, yp, CP_SS, reltol, &abstol);
+        flag = CPodeReInitExpl(cpode_mem, t, yy);
       }
 
     } else {
@@ -192,7 +194,7 @@ int main()
   PrintFinalStats(cpode_mem);
 
   CPodeFree(&cpode_mem);
-    
+
   fclose(fout);
 
   /* --------------------------------
@@ -210,16 +212,18 @@ int main()
 
   /* Initialize solver */
 
-  cpode_mem = CPodeCreate(CP_EXPL, CP_BDF, CP_NEWTON);  
-  flag = CPodeInit(cpode_mem, ffun2, data, t0, yy, yp, CP_SS, reltol, &abstol);
+  cpode_mem = CPodeCreate(CP_BDF, CP_NEWTON);  
+  flag = CPodeSetUserData(cpode_mem, data);
+  flag = CPodeInitExpl(cpode_mem, ffun2, t0, yy);
+  flag = CPodeSStolerances(cpode_mem, reltol, abstol);
   flag = CPDense(cpode_mem, Neq);
 
-  flag = CPodeRootInit(cpode_mem, 1, gfun, data);
+  flag = CPodeRootInit(cpode_mem, 1, gfun);
   flag = CPodeSetRootDirection(cpode_mem, rdir);
 
   /* Set-up the internal projection */
   
-  flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, data, ctols);
+  flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
   flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
   flag = CPDenseProj(cpode_mem, Nc, Neq, CPDIRECT_LU);
 
@@ -251,7 +255,7 @@ int main()
         /* Update velocities in yy */
         contact(yy, data);
         /* reinitialize CPODES solver */
-        flag = CPodeReInit(cpode_mem, ffun2, data, t, yy, yp, CP_SS, reltol, &abstol);
+        flag = CPodeReInitExpl(cpode_mem, t, yy);
       }
 
     } else {

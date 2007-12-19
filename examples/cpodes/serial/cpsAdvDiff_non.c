@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:25 $
+ * $Revision: 1.2 $
+ * $Date: 2007-12-19 20:26:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -19,9 +19,6 @@
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_math.h>
 
-
-#define ODE CP_EXPL
-
 /* Problem Constants */
 
 #define ATOL RCONST(1.0e-6)   /* 1.0e-6 */
@@ -32,17 +29,17 @@
 #define TWO    RCONST(2.0)
 #define THIRTY RCONST(30.0)
 
-#define P2_MESHX      5
-#define P2_MESHY      5
-#define P2_NEQ        P2_MESHX*P2_MESHY
-#define P2_ALPH1      RCONST(1.0)
-#define P2_ALPH2      RCONST(1.0)
-#define P2_NOUT       5
-#define P2_ML         5
-#define P2_MU         0
-#define P2_T0         RCONST(0.0)
-#define P2_T1         RCONST(0.01)
-#define P2_TOUT_MULT  RCONST(10.0)
+#define MESHX      5
+#define MESHY      5
+#define NEQ        MESHX*MESHY
+#define ALPH1      RCONST(1.0)
+#define ALPH2      RCONST(1.0)
+#define NOUT       5
+#define ML         5
+#define MU         0
+#define T0         RCONST(0.0)
+#define T1         RCONST(0.01)
+#define TOUT_MULT  RCONST(10.0)
 
 /* Private Helper Functions */
 static realtype MaxError(N_Vector y, realtype t);
@@ -55,7 +52,6 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 int main()
 {
-  void *fct;
   void *cpode_mem;
   N_Vector y, yp;
   realtype reltol=RTOL, abstol=ATOL, t, tout, erm, hu;
@@ -65,25 +61,25 @@ int main()
   yp = NULL;
   cpode_mem = NULL;
 
-  y = N_VNew_Serial(P2_NEQ);
+  y = N_VNew_Serial(NEQ);
   N_VConst(ZERO, y);
   NV_Ith_S(y,0) = ONE;
 
-  yp = N_VNew_Serial(P2_NEQ);
+  yp = N_VNew_Serial(NEQ);
 
-  if (ODE == CP_EXPL) {
-    fct = (void *)f;
-  } else {
-    fct = (void *)res;
-    f(P2_T0, y, yp, NULL);
-  }
+  cpode_mem = CPodeCreate(CP_ADAMS, CP_FUNCTIONAL);      
+  
+  flag = CPodeInitExpl(cpode_mem, f, T0, y);
 
-  cpode_mem = CPodeCreate(ODE, CP_ADAMS, CP_FUNCTIONAL);      
-  /*  flag = CPodeSetInitStep(cpode_mem, 2.0e-9);*/
-  flag = CPodeInit(cpode_mem, fct, NULL, P2_T0, y, yp, CP_SS, reltol, &abstol);
+  /*
+  f(T0, y, yp, NULL);
+  flag = CPodeInitimpl(cpode_mem, res, T0, y, yp);
+  */
+  
+  flag = CPodeSStolerances(cpode_mem, reltol, abstol);
   
   printf("\n      t        max.err      qu     hu \n");
-  for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
+  for(iout=1, tout=T1; iout <= NOUT; iout++, tout*=TOUT_MULT) {
     flag = CPode(cpode_mem, tout, &t, y, yp, CP_NORMAL);
     if (flag != CP_SUCCESS) break;
     erm = MaxError(y, t);
@@ -101,14 +97,14 @@ int main()
   return 0;
 }
 
-static int res(realtype t, N_Vector y, N_Vector yp, N_Vector res, void *f_data)
+static int res(realtype t, N_Vector y, N_Vector yp, N_Vector res, void *user_data)
 {
-  f(t,y,res,f_data);
+  f(t,y,res,user_data);
   N_VLinearSum(1.0, yp, -1.0, res, res);
   return(0);
 }
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   long int i, j, k;
   realtype d, *ydata, *dydata;
@@ -123,12 +119,12 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
          i,j    i,j       i,j             i-1,j             i,j-1
   */
 
-  for (j=0; j < P2_MESHY; j++) {
-    for (i=0; i < P2_MESHX; i++) {
-      k = i + j * P2_MESHX;
+  for (j=0; j < MESHY; j++) {
+    for (i=0; i < MESHX; i++) {
+      k = i + j * MESHX;
       d = -TWO*ydata[k];
-      if (i != 0) d += P2_ALPH1 * ydata[k-1];
-      if (j != 0) d += P2_ALPH2 * ydata[k-P2_MESHX];
+      if (i != 0) d += ALPH1 * ydata[k-1];
+      if (j != 0) d += ALPH2 * ydata[k-MESHX];
       dydata[k] = d;
     }
   }
@@ -146,10 +142,10 @@ static realtype MaxError(N_Vector y, realtype t)
   ydata = NV_DATA_S(y);
   if (t <= THIRTY) ex = EXP(-TWO*t); 
   
-  for (j = 0; j < P2_MESHY; j++) {
+  for (j = 0; j < MESHY; j++) {
     ifact_inv = ONE;
-    for (i = 0; i < P2_MESHX; i++) {
-      k = i + j * P2_MESHX;
+    for (i = 0; i < MESHX; i++) {
+      k = i + j * MESHX;
       yt = RPowerI(t,i+j) * ex * ifact_inv * jfact_inv;
       er = ABS(ydata[k] - yt);
       if (er > maxError) maxError = er;

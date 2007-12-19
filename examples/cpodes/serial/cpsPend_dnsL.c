@@ -1,3 +1,15 @@
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.2 $
+ * $Date: 2007-12-19 20:26:43 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Simple pendulum example.
+ * -----------------------------------------------------------------
+ */
+
+
 #include <stdio.h>
 
 #include <cpodes/cpodes.h>
@@ -48,8 +60,9 @@ int main()
   Tout = Nout*1.0;
 
   /* Initialize solver */
-  cpode_mem = CPodeCreate(CP_EXPL, CP_BDF, CP_NEWTON);  
-  flag = CPodeInit(cpode_mem, (void *)f, NULL, 0.0, yy, yp, CP_SS, reltol, &abstol);
+  cpode_mem = CPodeCreate(CP_BDF, CP_NEWTON);  
+  flag = CPodeInitExpl(cpode_mem, f, 0.0, yy);
+  flag = CPodeSStolerances(cpode_mem, reltol, abstol);
   flag = CPodeSetMaxNumSteps(cpode_mem, 50000);
   flag = CPodeSetStopTime(cpode_mem, Tout);
   flag = CPLapackDense(cpode_mem, 4);
@@ -59,7 +72,7 @@ int main()
   Ith(ctols,1) = 1.0e-8;
   Ith(ctols,2) = 1.0e-8;
   Ith(ctols,3) = 1.0e-8;
-  flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, NULL, ctols);
+  flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
   flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
   flag = CPLapackDenseProj(cpode_mem, 3, 4, CPDIRECT_QRP);
  

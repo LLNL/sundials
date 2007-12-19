@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -38,6 +38,32 @@ extern "C" {
 #define CPSPILS_LMEM_NULL       -2
 #define CPSPILS_ILL_INPUT       -3
 #define CPSPILS_MEM_FAIL        -4
+#define CPSPILS_PMEM_NULL       -5
+
+/*
+ * -----------------------------------------------------------------
+ * CPSPILS solver constants
+ * -----------------------------------------------------------------
+ * CPSPILS_MAXL   : default value for the maximum Krylov
+ *                  dimension
+ *
+ * CPSPILS_MSBPRE : maximum number of steps between
+ *                  preconditioner evaluations
+ *
+ * CPSPILS_DGMAX  : maximum change in gamma between
+ *                  preconditioner evaluations
+ *
+ * CPSPILS_DELT   : default value for factor by which the
+ *                  tolerance on the nonlinear iteration is
+ *                  multiplied to get a tolerance on the linear
+ *                  iteration
+ * -----------------------------------------------------------------
+ */
+
+#define CPSPILS_MAXL   5
+#define CPSPILS_MSBPRE 50
+#define CPSPILS_DGMAX  RCONST(0.2)
+#define CPSPILS_DELT   RCONST(0.05)
 
 /*
  * =================================================================
@@ -113,8 +139,8 @@ extern "C" {
  *
  * gamma   is the scalar appearing in the Newton matrix.
  *
- * P_data  is a pointer to user data - the same as the P_data
- *         parameter passed to the CP*SetPreconditioner function.
+ * user_data  is a pointer to user data - the same as the user_data
+ *         parameter passed to the CPodeSetuserData function.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated
  *                      for N_Vectors which can be used by
@@ -145,11 +171,11 @@ extern "C" {
 
 typedef int (*CPSpilsPrecSetupExplFn)(realtype t, N_Vector y, N_Vector fy,
 				      booleantype jok, booleantype *jcurPtr,
-				      realtype gamma, void *P_data,
+				      realtype gamma, void *user_data,
 				      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 typedef int (*CPSpilsPrecSetupImplFn)(realtype t, N_Vector y, N_Vector yp, N_Vector r,
-				      realtype gamma, void *P_data,
+				      realtype gamma, void *user_data,
 				      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -191,8 +217,8 @@ typedef int (*CPSpilsPrecSetupImplFn)(realtype t, N_Vector y, N_Vector yp, N_Vec
  *        the left preconditioner P1 or right preconditioner
  *        P2: lr = 1 means use P1, and lr = 2 means use P2.
  *
- * P_data is a pointer to user data - the same as the P_data
- *        parameter passed to the CP*SetPreconditioner function.
+ * user_data is a pointer to user data - the same as the user_data
+ *        parameter passed to the CPodeSetUserData function.
  *
  * tmp    is a pointer to memory allocated for an N_Vector
  *        which can be used by PSolve for work space.
@@ -214,12 +240,12 @@ typedef int (*CPSpilsPrecSetupImplFn)(realtype t, N_Vector y, N_Vector yp, N_Vec
 typedef int (*CPSpilsPrecSolveExplFn)(realtype t, N_Vector y, N_Vector fy,
 				      N_Vector b, N_Vector x,
 				      realtype gamma, realtype delta,
-				      int lr, void *P_data, N_Vector tmp);
+				      int lr, void *user_data, N_Vector tmp);
 
 typedef int (*CPSpilsPrecSolveImplFn)(realtype t, N_Vector y, N_Vector yp, N_Vector r,
 				      N_Vector b, N_Vector x,
 				      realtype gamma, realtype delta, 
-				      void *P_data, N_Vector tmp);
+				      void *user_data, N_Vector tmp);
 
 /*
  * -----------------------------------------------------------------
@@ -248,8 +274,8 @@ typedef int (*CPSpilsPrecSolveImplFn)(realtype t, N_Vector y, N_Vector yp, N_Vec
  *
  *   fy       is the vector f(t,y).
  *
- *   jac_data is a pointer to user Jacobian data, the same as the
- *            jac_data parameter passed to the CP*SetJacTimesVecFn 
+ *   user_data is a pointer to user Jacobian data, the same as the
+ *            user_data parameter passed to the CPodeSetUserData
  *            function.
  *
  *   tmp      is a pointer to memory allocated for an N_Vector
@@ -263,12 +289,12 @@ typedef int (*CPSpilsPrecSolveImplFn)(realtype t, N_Vector y, N_Vector yp, N_Vec
  */
 
 typedef int (*CPSpilsJacTimesVecExplFn)(realtype t, N_Vector y, N_Vector fy, 
-					N_Vector v, N_Vector Jv, void *jac_data, 
+					N_Vector v, N_Vector Jv, void *user_data, 
 					N_Vector tmp);
 
 typedef int (*CPSpilsJacTimesVecImplFn)(realtype t, realtype gm, 
 					N_Vector y, N_Vector yp, N_Vector r,
-					N_Vector v, N_Vector Jv, void *jac_data,
+					N_Vector v, N_Vector Jv, void *user_data,
 					N_Vector tmp1, N_Vector tmp2);
 
 /*
@@ -304,15 +330,12 @@ typedef int (*CPSpilsJacTimesVecImplFn)(realtype t, realtype gm,
  *                tolerance on the linear iteration.
  *                Default value is 0.05.
  *
- * CPSpilsSetPreconditioner specifies the PrecSetup and PrecSolve functions.
- *                as well as a pointer to user preconditioner data.
- *                This pointer is passed to PrecSetup and PrecSolve
- *                every time these routines are called.
- *                Default is NULL for al three arguments.
+ * CPSpilsSetPrecFnExpl and CPSpilsSetPrecFnImpl specify the
+ *                PrecSetup and PrecSolve functions.
+ *                Default is NULL for both arguments.
  *
- * CPSpilsSetJacTimesVecFn specifies the jtimes function and a pointer to
- *                user Jacobian data. This pointer is passed to jtimes every 
- *                time the jtimes routine is called.
+ * CPSpilsSetJacTimesVecFnExpl and CPSpilsSetJacTimesVecFnImpl
+ *                specify the jtimes function.
  *                Default is to use an internal finite difference
  *                approximation routine.
  *
@@ -328,8 +351,18 @@ SUNDIALS_EXPORT int CPSpilsSetPrecType(void *cpode_mem, int pretype);
 SUNDIALS_EXPORT int CPSpilsSetGSType(void *cpode_mem, int gstype);
 SUNDIALS_EXPORT int CPSpilsSetMaxl(void *cpode_mem, int maxl);
 SUNDIALS_EXPORT int CPSpilsSetDelt(void *cpode_mem, realtype delt);
-SUNDIALS_EXPORT int CPSpilsSetPreconditioner(void *cpode_mem, void *pset, void *psolve, void *P_data);
-SUNDIALS_EXPORT int CPSpilsSetJacTimesVecFn(void *cpode_mem, void *jtimes, void *jac_data);
+
+SUNDIALS_EXPORT int CPSpilsSetPrecFnExpl(void *cpode_mem,
+                                         CPSpilsPrecSetupExplFn pset,
+                                         CPSpilsPrecSolveExplFn psolve);
+SUNDIALS_EXPORT int CPSpilsSetPrecFnImpl(void *cpode_mem,
+                                         CPSpilsPrecSetupImplFn pset,
+                                         CPSpilsPrecSolveImplFn psolve);
+
+SUNDIALS_EXPORT int CPSpilsSetJacTimesVecFnExpl(void *cpode_mem, 
+                                                CPSpilsJacTimesVecExplFn jtimes);
+SUNDIALS_EXPORT int CPSpilsSetJacTimesVecFnImpl(void *cpode_mem, 
+                                                CPSpilsJacTimesVecImplFn jtimes);
 
 /*
  * -----------------------------------------------------------------
@@ -352,7 +385,7 @@ SUNDIALS_EXPORT int CPSpilsSetJacTimesVecFn(void *cpode_mem, void *jtimes, void 
  *
  * CPSpilsGetNumJtimesEvals returns the number of calls to jtimes.
  *
- * CPSpilsGetNumRhsEvals returns the number of calls to the user
+ * CPSpilsGetNumFctEvals returns the number of calls to the user
  *                 f routine due to finite difference Jacobian
  *                 times vector evaluation.
  *

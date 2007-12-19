@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-01-29 17:35:23 $
+ * $Revision: 1.5 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,6 +33,7 @@
 
 #include "cpodes_bandpre_impl.h"
 #include "cpodes_private.h"
+#include "cpodes_spils_impl.h"
 
 /* 
  * =================================================================
@@ -71,6 +72,10 @@ static int cpBandPrecSolveImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
                                realtype gamma, realtype delta, 
                                void *bp_data, N_Vector tmp);
 
+/* Prototype for cpBandPrecFree */
+
+static void cpBandPrecFree(CPodeMem cp_mem);
+
 /* Difference quotient Jacobian calculation routines */
 
 static int cpBandPDQJacExpl(CPBandPrecData pdata, 
@@ -93,29 +98,38 @@ static int cpBandPDQJacImpl(CPBandPrecData pdata,
  * =================================================================
  */
 
-void *CPBandPrecAlloc(void *cpode_mem, int N, int mu, int ml)
+int CPBandPrecInit(void *cpode_mem, int N, int mu, int ml)
 {
   CPodeMem cp_mem;
+  CPSpilsMem cpspils_mem;
   CPBandPrecData pdata;
   int mup, mlp, storagemu;
+  int flag;
 
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, 0, "CPBANDPRE", "CPBandPrecAlloc", MSGBP_CPMEM_NULL);
-    return(NULL);
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPBANDPRE", "CPBandPrecInit", MSGBP_CPMEM_NULL);
+    return(CPSPILS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
+  /* Test if one of the SPILS linear solvers has been attached */
+  if (cp_mem->cp_lmem == NULL) {
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPBANDPRE", "CPBandPrecInit", MSGBP_LMEM_NULL);
+    return(CPSPILS_LMEM_NULL);
+  }
+  cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
+
   /* Test if the NVECTOR package is compatible with the BAND preconditioner */
-  if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    cpProcessError(cp_mem, 0, "CPBANDPRE", "CPBandPrecAlloc", MSGBP_BAD_NVECTOR);
-    return(NULL);
+    if(vec_tmpl->ops->nvgetarraypointer == NULL) {
+    cpProcessError(cp_mem, CPSPILS_ILL_INPUT, "CPBANDPRE", "CPBandPrecInit", MSGBP_BAD_NVECTOR);
+    return(CPSPILS_ILL_INPUT);
   }
 
   pdata = NULL;
   pdata = (CPBandPrecData) malloc(sizeof *pdata);  /* Allocate data memory */
   if (pdata == NULL) {
-    cpProcessError(cp_mem, 0, "CPBANDPRE", "CPBandPrecAlloc", MSGBP_MEM_FAIL);
-    return(NULL);
+    cpProcessError(cp_mem, CPSPILS_MEM_FAIL, "CPBANDPRE", "CPBandPrecInit", MSGBP_MEM_FAIL);
+    return(CPSPILS_MEM_FAIL);
   }
 
   /* Load pointers and bandwidths into pdata block. */
@@ -132,8 +146,8 @@ void *CPBandPrecAlloc(void *cpode_mem, int N, int mu, int ml)
   pdata->savedJ = NewBandMat(N, mup, mlp, mup);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
-    cpProcessError(cp_mem, 0, "CPBANDPRE", "CPBandPrecAlloc", MSGBP_MEM_FAIL);
-    return(NULL);
+    cpProcessError(cp_mem, CPSPILS_MEM_FAIL, "CPBANDPRE", "CPBandPrecInit", MSGBP_MEM_FAIL);
+    return(CPSPILS_MEM_FAIL);
   }
 
   /* Allocate memory for banded preconditioner. */
@@ -143,8 +157,8 @@ void *CPBandPrecAlloc(void *cpode_mem, int N, int mu, int ml)
   if (pdata->savedP == NULL) {
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cpProcessError(cp_mem, 0, "CPBANDPRE", "CPBandPrecAlloc", MSGBP_MEM_FAIL);
-    return(NULL);
+    cpProcessError(cp_mem, CPSPILS_MEM_FAIL, "CPBANDPRE", "CPBandPrecInit", MSGBP_MEM_FAIL);
+    return(CPSPILS_MEM_FAIL);
   }
 
   /* Allocate memory for pivot array. */
@@ -154,124 +168,53 @@ void *CPBandPrecAlloc(void *cpode_mem, int N, int mu, int ml)
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cpProcessError(cp_mem, 0, "CPBANDPRE", "CPBandPrecAlloc", MSGBP_MEM_FAIL);
-    return(NULL);
+    cpProcessError(cp_mem, CPSPILS_MEM_FAIL, "CPBANDPRE", "CPBandPrecInit", MSGBP_MEM_FAIL);
+    return(CPSPILS_MEM_FAIL);
   }
 
-  return((void *) pdata);
-}
+  /* Overwrite the P_data field in the SPILS memory */
+  cpspils_mem->s_P_data = pdata;
 
-int CPBPSptfqmr(void *cpode_mem, int pretype, int maxl, void *p_data)
-{
-  CPodeMem cp_mem;
-  int flag;
+  /* Attach the pfree function */
+  cpspils_mem->s_pfree = cpBandPrecFree;
 
-  flag = CPSptfqmr(cpode_mem, pretype, maxl);
-  if(flag != CPSPILS_SUCCESS) return(flag);
-  
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if ( p_data == NULL ) {
-    cpProcessError(cp_mem, CPBANDPRE_PDATA_NULL, "CPBANDPRE", "CPBPSptfqmr", MSGBP_PDATA_NULL);
-    return(CPBANDPRE_PDATA_NULL);
-  } 
-
+  /* Attach preconditioner solve and setup functions */
   switch (ode_type) {
   case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupExpl, (void *)cpBandPrecSolveExpl, p_data);
+    flag = CPSpilsSetPrecFnExpl(cpode_mem, cpBandPrecSetupExpl, cpBandPrecSolveExpl);
     break;
   case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupImpl, (void *)cpBandPrecSolveImpl, p_data);
+    flag = CPSpilsSetPrecFnImpl(cpode_mem, cpBandPrecSetupImpl, cpBandPrecSolveImpl);
     break;
   }
-  if(flag != CPSPILS_SUCCESS) return(flag);
 
-  return(CPSPILS_SUCCESS);
+  return(flag);
 }
 
-int CPBPSpbcg(void *cpode_mem, int pretype, int maxl, void *p_data)
+int CPBandPrecGetWorkSpace(void *cpode_mem, long int *lenrwBP, long int *leniwBP)
 {
   CPodeMem cp_mem;
-  int flag;
-
-  flag = CPSpbcg(cpode_mem, pretype, maxl);
-  if(flag != CPSPILS_SUCCESS) return(flag);
-
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if ( p_data == NULL ) {
-    cpProcessError(cp_mem, CPBANDPRE_PDATA_NULL, "CPBANDPRE", "CPBPSpbcg", MSGBP_PDATA_NULL);
-    return(CPBANDPRE_PDATA_NULL);
-  } 
-
-  switch (ode_type) {
-  case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupExpl, (void *)cpBandPrecSolveExpl, p_data);
-    break;
-  case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupImpl, (void *)cpBandPrecSolveImpl, p_data);
-    break;
-  }
-  if(flag != CPSPILS_SUCCESS) return(flag);
-
-  return(CPSPILS_SUCCESS);
-}
-
-int CPBPSpgmr(void *cpode_mem, int pretype, int maxl, void *p_data)
-{
-  CPodeMem cp_mem;
-  int flag;
-
-  flag = CPSpgmr(cpode_mem, pretype, maxl);
-  if(flag != CPSPILS_SUCCESS) return(flag);
-
-  cp_mem = (CPodeMem) cpode_mem;
-
-  if ( p_data == NULL ) {
-    cpProcessError(cp_mem, CPBANDPRE_PDATA_NULL, "CPBANDPRE", "CPBPSpgmr", MSGBP_PDATA_NULL);
-    return(CPBANDPRE_PDATA_NULL);
-  }
-
-  switch (ode_type) {
-  case CP_EXPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupExpl, (void *)cpBandPrecSolveExpl, p_data);
-    break;
-  case CP_IMPL:
-    flag = CPSpilsSetPreconditioner(cpode_mem, (void *)cpBandPrecSetupImpl, (void *)cpBandPrecSolveImpl, p_data);
-    break;
-  }
-  if(flag != CPSPILS_SUCCESS) return(flag);
-
-  return(CPSPILS_SUCCESS);
-}
-
-void CPBandPrecFree(void **bp_data)
-{
-  CPBandPrecData pdata;
-
-  if (*bp_data == NULL) return;
-
-  pdata = (CPBandPrecData) (*bp_data);
-  DestroyMat(pdata->savedJ);
-  DestroyMat(pdata->savedP);
-  DestroyArray(pdata->pivots);
-
-  free(*bp_data);
-  *bp_data = NULL;
-
-}
-
-int CPBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
-{
+  CPSpilsMem cpspils_mem;
   CPBandPrecData pdata;
   int N, ml, mu, smu;
 
-  if ( bp_data == NULL ) {
-    cpProcessError(NULL, CPBANDPRE_PDATA_NULL, "CPBANDPRE", "CPBandPrecGetWorkSpace", MSGBP_PDATA_NULL);
-    return(CPBANDPRE_PDATA_NULL);
-  } 
+  if (cpode_mem == NULL) {
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPBANDPRE", "CPBandPrecGetWorkSpace", MSGBP_CPMEM_NULL);
+    return(CPSPILS_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
 
-  pdata = (CPBandPrecData) bp_data;
+  if (cp_mem->cp_lmem == NULL) {
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPBANDPRE", "CPBandPrecGetWorkSpace", MSGBP_LMEM_NULL);
+    return(CPSPILS_LMEM_NULL);
+  }
+  cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
+
+  if (cpspils_mem->s_P_data == NULL) {
+    cpProcessError(cp_mem, CPSPILS_PMEM_NULL, "CPBANDPRE", "CPBandPrecGetWorkSpace", MSGBP_PMEM_NULL);
+    return(CPSPILS_PMEM_NULL);
+  } 
+  pdata = (CPBandPrecData) cpspils_mem->s_P_data;
 
   N   = pdata->N;
   mu  = pdata->mu;
@@ -281,52 +224,36 @@ int CPBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
   *leniwBP = pdata->N;
   *lenrwBP = N * ( 2*ml + smu + mu + 2 );
 
-  return(CPBANDPRE_SUCCESS);
+  return(CPSPILS_SUCCESS);
 }
 
-int CPBandPrecGetNumFctEvals(void *bp_data, long int *nfevalsBP)
+int CPBandPrecGetNumRhsEvals(void *cpode_mem, long int *nfevalsBP)
 {
+  CPodeMem cp_mem;
+  CPSpilsMem cpspils_mem;
   CPBandPrecData pdata;
 
-  if (bp_data == NULL) {
-    cpProcessError(NULL, CPBANDPRE_PDATA_NULL, "CPBANDPRE", "CPBandPrecGetNumFctEvals", MSGBP_PDATA_NULL);
-    return(CPBANDPRE_PDATA_NULL);
-  } 
+  if (cpode_mem == NULL) {
+    cpProcessError(NULL, CPSPILS_MEM_NULL, "CPBANDPRE", "CPBandPrecGetNumRhsEvals", MSGBP_CPMEM_NULL);
+    return(CPSPILS_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
 
-  pdata = (CPBandPrecData) bp_data;
+  if (cp_mem->cp_lmem == NULL) {
+    cpProcessError(cp_mem, CPSPILS_LMEM_NULL, "CPBANDPRE", "CPBandPrecGetNumRhsEvals", MSGBP_LMEM_NULL);
+    return(CPSPILS_LMEM_NULL);
+  }
+  cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
+
+  if (cpspils_mem->s_P_data == NULL) {
+    cpProcessError(cp_mem, CPSPILS_PMEM_NULL, "CPBANDPRE", "CPBandPrecGetNumRhsEvals", MSGBP_PMEM_NULL);
+    return(CPSPILS_PMEM_NULL);
+  } 
+  pdata = (CPBandPrecData) cpspils_mem->s_P_data;
 
   *nfevalsBP = pdata->nfeBP;
 
-  return(CPBANDPRE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CPBandPrecGetReturnFlagName
- * -----------------------------------------------------------------
- */
-
-char *CPBandPrecGetReturnFlagName(int flag)
-{
-  char *name;
-
-  name = (char *)malloc(30*sizeof(char));
-
-  switch(flag) {
-  case CPBANDPRE_SUCCESS:
-    sprintf(name,"CPBANDPRE_SUCCESS");
-    break;   
-  case CPBANDPRE_PDATA_NULL:
-    sprintf(name,"CPBANDPRE_PDATA_NULL");
-    break;
-  case CPBANDPRE_FUNC_UNRECVR:
-    sprintf(name,"CPBANDPRE_FUNC_UNRECVR");
-    break;
-  default:
-    sprintf(name,"NONE");
-  }
-
-  return(name);
+  return(CPSPILS_SUCCESS);
 }
 
 /* 
@@ -422,7 +349,7 @@ static int cpBandPrecSetupExpl(realtype t, N_Vector y, N_Vector fy,
 
     retval = cpBandPDQJacExpl(pdata, t, y, fy, tmp1, tmp2);
     if (retval < 0) {
-      cpProcessError(cp_mem, CPBANDPRE_FUNC_UNRECVR, "CPBANDPRE", "cpBandPrecSetupExpl", MSGBP_FUNC_FAILED);
+      cpProcessError(cp_mem, -1, "CPBANDPRE", "cpBandPrecSetupExpl", MSGBP_FUNC_FAILED);
       return(-1);
     }
     if (retval > 0) {
@@ -515,7 +442,7 @@ static int cpBandPrecSetupImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
   BandZero(savedJ);
   retval = cpBandPDQJacImpl(pdata, t, gamma, y, yp, r, tmp1, tmp2, tmp3);
   if (retval < 0) {
-    cpProcessError(cp_mem, CPBANDPRE_FUNC_UNRECVR, "CPBANDPRE", "cpBandPrecSetupImpl", MSGBP_FUNC_FAILED);
+    cpProcessError(cp_mem, -1, "CPBANDPRE", "cpBandPrecSetupImpl", MSGBP_FUNC_FAILED);
     return(-1);
   }
   if (retval > 0) {
@@ -573,18 +500,44 @@ static int cpBandPrecSolveImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
   return(0);
 }
 
+
+/*
+ * -----------------------------------------------------------------
+ * Function to free memory allocated by CPBandPrecInit
+ * -----------------------------------------------------------------
+ */
+
+static void cpBandPrecFree(CPodeMem cp_mem)
+{
+  CPSpilsMem cpspils_mem;
+  CPBandPrecData pdata;
+
+  if (cp_mem->cp_lmem == NULL) return;
+  cpspils_mem = (CPSpilsMem) cp_mem->cp_lmem;
+  
+  if (cpspils_mem->s_P_data == NULL) return;
+  pdata = (CPBandPrecData) cpspils_mem->s_P_data;
+
+  DestroyMat(savedJ);
+  DestroyMat(savedP);
+  DestroyArray(pivots);
+
+  free(pdata);
+  pdata = NULL;
+}
+
 /* 
  * =================================================================
  * DQ LOCAL JACOBIAN APROXIMATIONS
  * =================================================================
  */
 
-#define ewt    (cp_mem->cp_ewt)
-#define uround (cp_mem->cp_uround)
-#define h      (cp_mem->cp_h)
-#define fe     (cp_mem->cp_fe)
-#define fi     (cp_mem->cp_fi)
-#define f_data (cp_mem->cp_f_data)
+#define ewt       (cp_mem->cp_ewt)
+#define uround    (cp_mem->cp_uround)
+#define h         (cp_mem->cp_h)
+#define fe        (cp_mem->cp_fe)
+#define fi        (cp_mem->cp_fi)
+#define user_data (cp_mem->cp_user_data)
 
 /*
  * -----------------------------------------------------------------
@@ -642,7 +595,7 @@ static int cpBandPDQJacExpl(CPBandPrecData pdata,
 
     /* Evaluate f with incremented y. */
 
-    retval = fe(t, ytemp, ftemp, f_data);
+    retval = fe(t, ytemp, ftemp, user_data);
     nfeBP++;
     if (retval != 0) return(retval);
 
@@ -732,7 +685,7 @@ static int cpBandPDQJacImpl(CPBandPrecData pdata,
     }
 
     /* Call ODE fct. with incremented arguments. */
-    retval = fi(t, ytemp, yptemp, ftemp, f_data);
+    retval = fi(t, ytemp, yptemp, ftemp, user_data);
     nfeBP++;
     if (retval != 0) break;
 

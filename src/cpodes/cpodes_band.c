@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.3 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -55,7 +55,6 @@ static void cpBandFree(CPodeMem cp_mem);
 #define lmm_type       (cp_mem->cp_lmm_type)
 #define fe             (cp_mem->cp_fe)
 #define fi             (cp_mem->cp_fi)
-#define f_data         (cp_mem->cp_f_data)
 #define uround         (cp_mem->cp_uround)
 #define nst            (cp_mem->cp_nst)
 #define tn             (cp_mem->cp_tn)
@@ -75,6 +74,7 @@ static void cpBandFree(CPodeMem cp_mem);
 
 #define mtype          (cpdls_mem->d_type)
 #define n              (cpdls_mem->d_n)
+#define jacDQ          (cpdls_mem->d_jacDQ)
 #define jacE           (cpdls_mem->d_bjacE)
 #define jacI           (cpdls_mem->d_bjacI)
 #define M              (cpdls_mem->d_M)
@@ -158,6 +158,7 @@ int CPBand(void *cpode_mem, int N, int mupper, int mlower)
   mtype = SUNDIALS_BAND;
 
   /* Set default Jacobian routine and Jacobian data */
+  jacDQ = TRUE;
   jacE = NULL;
   jacI = NULL;
   J_data = NULL;
@@ -241,14 +242,28 @@ static int cpBandInit(CPodeMem cp_mem)
   nfeDQ = 0;
   nstlj = 0;
 
-  if (ode_type == CP_EXPL && jacE == NULL) {
-    jacE = cpDlsBandDQJacExpl;
-    J_data = cp_mem;
-  } 
+  switch (ode_type) {
+
+  case CP_EXPL:
+
+    if (jacDQ) {
+      jacE = cpDlsBandDQJacExpl;
+      J_data = cp_mem;
+    } else {
+      J_data = cp_mem->cp_user_data;
+    }
   
-  if (ode_type == CP_IMPL && jacI == NULL) {
-    jacI = cpDlsBandDQJacImpl;
-    J_data = cp_mem;
+    break;
+
+  case CP_IMPL:
+
+    if (jacDQ) {
+      jacI = cpDlsBandDQJacImpl;
+      J_data = cp_mem;
+    } else {
+      J_data = cp_mem->cp_user_data;
+    }
+
   }
 
   last_flag = CPDIRECT_SUCCESS;

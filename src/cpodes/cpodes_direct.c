@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-11-22 00:12:48 $
+ * $Revision: 1.2 $
+ * $Date: 2007-12-19 20:26:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -37,10 +37,6 @@
 /* Constant for DQ Jacobian approximation */
 #define MIN_INC_MULT RCONST(1000.0)
 
-#define ZERO         RCONST(0.0)
-#define ONE          RCONST(1.0)
-#define TWO          RCONST(2.0)
-
 /*
  * =================================================================
  * READIBILITY REPLACEMENTS
@@ -50,7 +46,7 @@
 #define ode_type       (cp_mem->cp_ode_type)
 #define fe             (cp_mem->cp_fe)
 #define fi             (cp_mem->cp_fi)
-#define f_data         (cp_mem->cp_f_data)
+#define user_data      (cp_mem->cp_user_data)
 #define uround         (cp_mem->cp_uround)
 #define nst            (cp_mem->cp_nst)
 #define tn             (cp_mem->cp_tn)
@@ -62,7 +58,6 @@
 #define lmem           (cp_mem->cp_lmem)
 
 #define cfun           (cp_mem->cp_cfun)
-#define c_data         (cp_mem->cp_c_data)
 #define lmemP          (cp_mem->cp_lmemP)
 
 #define mtype          (cpdls_mem->d_type)
@@ -70,6 +65,7 @@
 #define ml             (cpdls_mem->d_ml)
 #define mu             (cpdls_mem->d_mu)
 #define smu            (cpdls_mem->d_smu)
+#define jacDQ          (cpdls_mem->d_jacDQ)
 #define djacE          (cpdls_mem->d_djacE)
 #define djacI          (cpdls_mem->d_djacI)
 #define bjacE          (cpdls_mem->d_bjacE)
@@ -80,9 +76,9 @@
 #define nstlj          (cpdls_mem->d_nstlj)
 #define nje            (cpdls_mem->d_nje)
 #define nfeDQ          (cpdls_mem->d_nfeDQ)
-#define J_data         (cpdls_mem->d_J_data)
 #define last_flag      (cpdls_mem->d_last_flag)
 
+#define jacPDQ         (cpdlsP_mem->d_jacPDQ)
 #define djacP          (cpdlsP_mem->d_jacP)
 #define JP_data        (cpdlsP_mem->d_JP_data)
 #define njeP           (cpdlsP_mem->d_njeP)
@@ -93,47 +89,125 @@
  * EXPORTED FUNCTIONS FOR IMPLICIT INTEGRATION
  * =================================================================
  */
-              
+
 /*
- * CPDlsSetJacFn specifies the (dense or band) Jacobian function.
+ * The following 4 functions specify the user-provided Jacobian
+ * function for a direct (dense or band) linear solver. The proper
+ * function must be called depending on whether the ODE is given
+ * in explicit or implicit form and on the type (dense or band)
+ * of the linear solver.
  */
-int CPDlsSetJacFn(void *cpode_mem, void *jac, void *jac_data)
+         
+int CPDlsSetDenseJacFnExpl(void *cpode_mem, CPDlsDenseJacExplFn jac)
 {
   CPodeMem cp_mem;
   CPDlsMem cpdls_mem;
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsSetJacFn", MSGD_CPMEM_NULL);
+    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsSetDenseJacFnExpl", MSGD_CPMEM_NULL);
     return(CPDIRECT_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsSetJacFn", MSGD_LMEM_NULL);
+    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsSetDenseJacFnExpl", MSGD_LMEM_NULL);
     return(CPDIRECT_LMEM_NULL);
   }
   cpdls_mem = (CPDlsMem) lmem;
 
-  switch (ode_type) {
-
-  case CP_EXPL:
-    if (mtype == SUNDIALS_DENSE)
-      djacE = (CPDlsDenseJacExplFn) jac;
-    else if (mtype == SUNDIALS_BAND)
-      bjacE = (CPDlsBandJacExplFn) jac;
-    break;
-
-  case CP_IMPL:
-    if (mtype == SUNDIALS_DENSE)
-      djacI = (CPDlsDenseJacImplFn) jac;
-    else if (mtype == SUNDIALS_BAND)
-      bjacI = (CPDlsBandJacImplFn) jac;
-    break;    
-
+  if (jac != NULL) {
+    jacDQ = FALSE;
+    djacE = jac;
+  } else {
+    jacDQ = TRUE;
   }
 
-  J_data = jac_data;
+  return(CPDIRECT_SUCCESS);
+}
+
+int CPDlsSetDenseJacFnImpl(void *cpode_mem, CPDlsDenseJacImplFn jac)
+{
+  CPodeMem cp_mem;
+  CPDlsMem cpdls_mem;
+
+  /* Return immediately if cpode_mem is NULL */
+  if (cpode_mem == NULL) {
+    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsSetDenseJacFnImpl", MSGD_CPMEM_NULL);
+    return(CPDIRECT_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  if (lmem == NULL) {
+    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsSetDenseJacFnImpl", MSGD_LMEM_NULL);
+    return(CPDIRECT_LMEM_NULL);
+  }
+  cpdls_mem = (CPDlsMem) lmem;
+
+  if (jac != NULL) {
+    jacDQ = FALSE;
+    djacI = jac;
+  } else {
+    jacDQ = TRUE;
+  }
+
+  return(CPDIRECT_SUCCESS);
+}
+
+
+int CPDlsSetBandJacFnExpl(void *cpode_mem, CPDlsBandJacExplFn jac)
+{
+  CPodeMem cp_mem;
+  CPDlsMem cpdls_mem;
+
+  /* Return immediately if cpode_mem is NULL */
+  if (cpode_mem == NULL) {
+    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsSetBandJacFnExpl", MSGD_CPMEM_NULL);
+    return(CPDIRECT_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  if (lmem == NULL) {
+    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsSetBandJacFnExpl", MSGD_LMEM_NULL);
+    return(CPDIRECT_LMEM_NULL);
+  }
+  cpdls_mem = (CPDlsMem) lmem;
+
+  if (jac != NULL) {
+    jacDQ = FALSE;
+    bjacE = jac;
+  } else {
+    jacDQ = TRUE;
+  }
+
+  return(CPDIRECT_SUCCESS);
+}
+
+
+int CPDlsSetBandJacFnImpl(void *cpode_mem, CPDlsBandJacImplFn jac)
+{
+  CPodeMem cp_mem;
+  CPDlsMem cpdls_mem;
+
+  /* Return immediately if cpode_mem is NULL */
+  if (cpode_mem == NULL) {
+    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsSetBandJacFnImpl", MSGD_CPMEM_NULL);
+    return(CPDIRECT_MEM_NULL);
+  }
+  cp_mem = (CPodeMem) cpode_mem;
+
+  if (lmem == NULL) {
+    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsSetBandJacFnImpl", MSGD_LMEM_NULL);
+    return(CPDIRECT_LMEM_NULL);
+  }
+  cpdls_mem = (CPDlsMem) lmem;
+
+  if (jac != NULL) {
+    jacDQ = FALSE;
+    bjacI = jac;
+  } else {
+    jacDQ = TRUE;
+  }
 
   return(CPDIRECT_SUCCESS);
 }
@@ -142,6 +216,7 @@ int CPDlsSetJacFn(void *cpode_mem, void *jac, void *jac_data)
  * CPDlsGetWorkSpace returns the length of workspace allocated for the
  * CPDIRECT linear solver.
  */
+
 int CPDlsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CPodeMem cp_mem;
@@ -194,6 +269,7 @@ int CPDlsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS)
 /*
  * CPDlsGetNumJacEvals returns the number of Jacobian evaluations.
  */
+
 int CPDlsGetNumJacEvals(void *cpode_mem, long int *njevals)
 {
   CPodeMem cp_mem;
@@ -221,6 +297,7 @@ int CPDlsGetNumJacEvals(void *cpode_mem, long int *njevals)
  * CPDlsGetNumFctEvals returns the number of calls to the ODE function
  * needed for the DQ Jacobian approximation.
  */
+
 int CPDlsGetNumFctEvals(void *cpode_mem, long int *nfevalsLS)
 {
   CPodeMem cp_mem;
@@ -248,6 +325,7 @@ int CPDlsGetNumFctEvals(void *cpode_mem, long int *nfevalsLS)
  * CPDlsGetReturnFlagName returns the name associated with a CPDIRECT
  * return value.
  */
+
 char *CPDlsGetReturnFlagName(int flag)
 {
   char *name;
@@ -286,6 +364,7 @@ char *CPDlsGetReturnFlagName(int flag)
 /*
  * CPDlsGetLastFlag returns the last flag set in a CPDIRECT function.
  */
+
 int CPDlsGetLastFlag(void *cpode_mem, int *flag)
 {
   CPodeMem cp_mem;
@@ -316,28 +395,33 @@ int CPDlsGetLastFlag(void *cpode_mem, int *flag)
  */
 
 /*
- * CPDlsProjSetJacFn specifies the constraint Jacobian function.
+ * CPDlsProjSetDenseJacFn specifies the constraint Jacobian function.
  */
-int CPDlsProjSetJacFn(void *cpode_mem, void *jacP, void *jacP_data)
+
+int CPDlsProjSetDenseJacFn(void *cpode_mem, CPDlsDenseProjJacFn jacP)
 {
   CPodeMem cp_mem;
   CPDlsProjMem cpdlsP_mem;
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsProjSetJacFn", MSGD_CPMEM_NULL);
+    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsProjSetDenseJacFn", MSGD_CPMEM_NULL);
     return(CPDIRECT_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmemP == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsProjSetJacFn", MSGD_LMEM_NULL);
+    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsProjSetDenseJacFn", MSGD_LMEM_NULL);
     return(CPDIRECT_LMEM_NULL);
   }
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
-  djacP = (CPDlsDenseProjJacFn) jacP;
-  JP_data = jacP_data;
+  if (jacP != NULL) {
+    jacPDQ = FALSE;
+    djacP = (CPDlsDenseProjJacFn) jacP;
+  } else {
+    jacPDQ = TRUE;
+  }
 
   return(CPDIRECT_SUCCESS);
 }
@@ -345,6 +429,7 @@ int CPDlsProjSetJacFn(void *cpode_mem, void *jacP, void *jacP_data)
 /*
  * CPDlsProjGetNumJacEvals returns the number of constraint Jacobian evaluations
  */
+
 int CPDlsProjGetNumJacEvals(void *cpode_mem, long int *njPevals)
 {
   CPodeMem cp_mem;
@@ -372,6 +457,7 @@ int CPDlsProjGetNumJacEvals(void *cpode_mem, long int *njPevals)
  * CPDlsProjGetNumFctEvals returns the number of constraint function
  * evaluations for computing the DQ constraint Jacobian. 
  */
+
 int CPDlsProjGetNumFctEvals(void *cpode_mem, long int *ncevalsLS)
 {
   CPodeMem cp_mem;
@@ -418,7 +504,7 @@ int CPDlsProjGetNumFctEvals(void *cpode_mem, long int *ncevalsLS)
 
 int cpDlsDenseDQJacExpl(int N, realtype t,
                         N_Vector y, N_Vector fy, 
-                        DlsMat Jac, void *jac_data,
+                        DlsMat Jac, void *data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
@@ -430,8 +516,8 @@ int cpDlsDenseDQJacExpl(int N, realtype t,
   CPodeMem cp_mem;
   CPDlsMem cpdls_mem;
 
-  /* jac_data points to cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
+  /* data points to cpode_mem */
+  cp_mem = (CPodeMem) data;
   cpdls_mem = (CPDlsMem) lmem;
 
   /* Save pointer to the array in tmp2 */
@@ -461,7 +547,7 @@ int cpDlsDenseDQJacExpl(int N, realtype t,
     inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
 
-    retval = fe(t, y, ftemp, f_data);
+    retval = fe(t, y, ftemp, user_data);
     nfeDQ++;
     if (retval != 0) break;
     
@@ -493,9 +579,10 @@ int cpDlsDenseDQJacExpl(int N, realtype t,
  * done with a call to N_VLinearSum.
  * -----------------------------------------------------------------
  */ 
+
 int cpDlsDenseDQJacImpl(int N, realtype t, realtype gm,
                         N_Vector y, N_Vector yp, N_Vector r, 
-                        DlsMat Jac, void *jac_data,
+                        DlsMat Jac, void *data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype inc, inc_inv, yj, ypj, srur;
@@ -507,8 +594,8 @@ int cpDlsDenseDQJacImpl(int N, realtype t, realtype gm,
   CPodeMem cp_mem;
   CPDlsMem  cpdls_mem;
 
-  /* jac_data points to cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
+  /* data points to cpode_mem */
+  cp_mem = (CPodeMem) data;
   cpdls_mem = (CPDlsMem) lmem;
 
   /* Save pointer to the array in tmp2 */
@@ -545,7 +632,7 @@ int cpDlsDenseDQJacImpl(int N, realtype t, realtype gm,
     /* Increment y_j and yp_j, call res, and break on error return. */
     y_data[j]  += gamma*inc;
     yp_data[j] += inc;
-    retval = fi(t, y, yp, ftemp, f_data);
+    retval = fi(t, y, yp, ftemp, user_data);
     nfeDQ++;
     if (retval != 0) break;
 
@@ -587,7 +674,7 @@ int cpDlsDenseDQJacImpl(int N, realtype t, realtype gm,
 
 int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
                        realtype t, N_Vector y, N_Vector fy, 
-                       DlsMat Jac, void *jac_data,
+                       DlsMat Jac, void *data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   N_Vector ftemp, ytemp;
@@ -599,8 +686,8 @@ int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
   CPodeMem cp_mem;
   CPDlsMem cpdls_mem;
 
-  /* jac_dat points to cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
+  /* data points to cpode_mem */
+  cp_mem = (CPodeMem) data;
   cpdls_mem = (CPDlsMem) lmem;
 
   /* Rename work vectors for use as temporary values of y and f */
@@ -638,7 +725,7 @@ int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
 
     /* Evaluate f with incremented y */
 
-    retval = fe(tn, ytemp, ftemp, f_data);
+    retval = fe(tn, ytemp, ftemp, user_data);
     nfeDQ++;
     if (retval != 0) break;
 
@@ -667,7 +754,7 @@ int cpDlsBandDQJacExpl(int N, int mupper, int mlower,
 int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
                        realtype t, realtype gm, 
                        N_Vector y, N_Vector yp, N_Vector r,
-                       DlsMat Jac, void *jac_data,
+                       DlsMat Jac, void *data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   N_Vector ftemp, ytemp, yptemp;
@@ -680,8 +767,8 @@ int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
   CPodeMem cp_mem;
   CPDlsMem cpdls_mem;
 
-  /* jac_data points to cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
+  /* data points to cpode_mem */
+  cp_mem = (CPodeMem) data;
   cpdls_mem = (CPDlsMem) lmem;
 
   ftemp = tmp1; /* Rename work vector for use as the perturbed residual. */
@@ -729,7 +816,7 @@ int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
     }
 
     /* Call ODE fct. with incremented arguments. */
-    retval = fi(tn, ytemp, yptemp, ftemp, f_data);
+    retval = fi(tn, ytemp, yptemp, ftemp, user_data);
     nfeDQ++;
     if (retval != 0) break;
 
@@ -783,7 +870,7 @@ int cpDlsBandDQJacImpl(int N, int mupper, int mlower,
  */ 
 int cpDlsDenseProjDQJac(int Nc, int Ny, realtype t,
                         N_Vector y, N_Vector cy, 
-                        DlsMat Jac, void *jac_data,
+                        DlsMat Jac, void *data,
                         N_Vector c_tmp1, N_Vector c_tmp2)
 {
   realtype inc, inc_inv, yj, srur;
@@ -795,8 +882,8 @@ int cpDlsDenseProjDQJac(int Nc, int Ny, realtype t,
   CPodeMem cp_mem;
   CPDlsProjMem cpdlsP_mem;
 
-  /* jac_data points to cpode_mem */
-  cp_mem = (CPodeMem) jac_data;
+  /* data points to cpode_mem */
+  cp_mem = (CPodeMem) data;
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
   /* Rename work vectors for readibility */
@@ -826,7 +913,7 @@ int cpDlsDenseProjDQJac(int Nc, int Ny, realtype t,
 
     /* Increment y_j, call cfun, and break on error return. */
     y_data[j]  += inc;
-    retval = cfun(t, y, ctemp, c_data);
+    retval = cfun(t, y, ctemp, cp_mem->cp_user_data);
     nceDQ++;
     if (retval != 0) break;
 
