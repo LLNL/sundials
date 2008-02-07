@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-12-19 20:26:43 $
+ * $Revision: 1.3 $
+ * $Date: 2008-02-07 22:42:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -105,7 +105,7 @@ void GetSol(void *cpode_mem, N_Vector yy0, realtype tol,
 
   flag = CPodeReInitExpl(cpode_mem, 0.0, yy0);
 
-  flag = CPode(cpode_mem, tout, &t, yy, yp, CP_NORMAL_TSTOP);
+  flag = CPode(cpode_mem, tout, &t, yy, yp, CP_NORMAL);
 
   x  = Ith(yy,1);
   y  = Ith(yy,2);
@@ -165,7 +165,7 @@ void RefSol(realtype tout, N_Vector yref)
   flag = CPDense(cpode_mem, 2);
 
   flag = CPodeSetStopTime(cpode_mem, tout);
-  flag = CPode(cpode_mem, tout, &t, yy, yp, CP_NORMAL_TSTOP);
+  flag = CPode(cpode_mem, tout, &t, yy, yp, CP_NORMAL);
   th  = Ith(yy,1);
   thd = Ith(yy,2);
   Ith(yref,1) = cos(th);

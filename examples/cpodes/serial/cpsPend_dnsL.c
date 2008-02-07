@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-12-19 20:26:43 $
+ * $Revision: 1.3 $
+ * $Date: 2008-02-07 22:42:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -84,7 +84,7 @@ int main()
   t = 0.0;
   for(iout=1; iout<=Nout; iout++) {
     tout = iout*1.0;
-    flag = CPode(cpode_mem, tout, &t, yy, yp, CP_NORMAL_TSTOP);
+    flag = CPode(cpode_mem, tout, &t, yy, yp, CP_NORMAL);
     if (flag < 0) break;
 
     x  = Ith(yy,1);
