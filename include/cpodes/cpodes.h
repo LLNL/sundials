@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-12-19 20:26:42 $
+ * $Revision: 1.8 $
+ * $Date: 2008-02-07 22:46:52 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -91,10 +91,6 @@ extern "C" {
  *    interpolates in order to return an approximate value of y(tout). 
  *    The CP_ONE_STEP option tells the solver to just take one internal 
  *    step and return the solution at the point reached by that step. 
- *    The CP_NORMAL_TSTOP and CP_ONE_STEP_TSTOP modes are similar to 
- *    CP_NORMAL and CP_ONE_STEP, respectively, except that the 
- *    integration never proceeds past the value tstop (specified 
- *    through the routine CPodeSetStopTime).
  * -----------------------------------------------------------------
  */
 
@@ -117,8 +113,6 @@ extern "C" {
 /* mode */
 #define CP_NORMAL         1
 #define CP_ONE_STEP       2
-#define CP_NORMAL_TSTOP   3
-#define CP_ONE_STEP_TSTOP 4
 
 /*
  * ----------------------------------------
@@ -932,11 +926,12 @@ SUNDIALS_EXPORT int CPodeSetRootDirection(void *cpode_mem, int *rootdir);
  * takes one internal time step and returns in yout the value of
  * y at the new internal time. In this case, tout is used only
  * during the first call to CPode to determine the direction of
- * integration and the rough scale of the t variable.  If mode is
- * CP_NORMAL_TSTOP or CP_ONE_STEP_TSTOP, then CPode returns the
- * solution at tstop if that comes sooner than tout or the end of
- * the next internal step, respectively.  In any case,
- * the time reached by the solver is placed in (*tret). The
+ * integration and the rough scale of the t variable.  If tstop is
+ * enabled (through a call to CPodeSetStopTime), then CPode returns
+ * the solution at tstop. Once the integrator returns at a tstop
+ * time, any future testing for tstop is disabled (and can be 
+ * reenabled only though a new call to CPodeSetStopTime).
+ * The time reached by the solver is placed in (*tret). The
  * user is responsible for allocating the memory for this value.
  *
  * cpode_mem is the pointer to CPODE memory returned by
@@ -953,8 +948,7 @@ SUNDIALS_EXPORT int CPodeSetRootDirection(void *cpode_mem, int *rootdir);
  *
  * ypout is the computed derivative vector.
  *
- * mode  is CP_NORMAL, CP_ONE_STEP, CP_NORMAL_TSTOP, or 
- *       CP_ONE_STEP_TSTOP. These four modes are described above.
+ * mode  is CP_NORMAL or CP_ONE_STEP. These two modes are described above.
  *
  * Here is a brief description of each return value:
  *
