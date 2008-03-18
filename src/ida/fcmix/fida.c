@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-08-21 23:32:13 $
+ * $Revision: 1.9 $
+ * $Date: 2008-03-18 14:49:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -702,9 +702,9 @@ void FIDA_FREE(void)
 
   ida_mem = (IDAMem) IDA_idamem;
 
-  IDAFree(&IDA_idamem);
-
   free(ida_mem->ida_user_data); ida_mem->ida_user_data = NULL;
+
+  IDAFree(&IDA_idamem);
 
   /* Free F2C_IDA_vec */
   N_VSetArrayPointer(NULL, F2C_IDA_vec);
