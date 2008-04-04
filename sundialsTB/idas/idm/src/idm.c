@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2007-12-05 21:58:19 $
+ * $Revision: 1.16 $
+ * $Date: 2008-04-04 15:37:03 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2014,7 +2014,7 @@ static int IDM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
                            NqB, &rhs_s,
                            &errconQB, 
                            &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
-  goto error_return;
+  if (status != 0) goto error_return;
 
   /* 
    * ----------------------------------------
@@ -2648,7 +2648,6 @@ static int idmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB)
 
   int status, ida_status;
 
-
   bckPb = idmData->bckPb;
 
   ida_memB = IDAGetAdjIDABmem(ida_mem, indexB);
@@ -2728,6 +2727,7 @@ static int idmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB)
       
       if (quadrB) {
         status = IDAGetQuadB(ida_mem, indexB, &tretB, yQB);
+
         if (status != IDA_SUCCESS) goto error_return;
         GetData(yQB, &yQdata[itout*NqB], NqB);
       }
