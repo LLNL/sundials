@@ -24,7 +24,9 @@ The overall organization of the {\kinsol} package is shown in Figure
 {Overall structure diagram of the {\kinsol} package.
   Modules specific to {\kinsol} are distinguished by rounded boxes, while
   generic solver and auxiliary modules are in rectangular boxes.
-  Grayed boxes refer to the encompassing {\sundials} structure.}
+  Grayed boxes refer to the encompassing {\sundials} structure. Note that 
+  the Lapack-based linear solver modules {\kinlapdense} and {\kinlapband}
+  are not represented.}
 \label{f:kinorg}
 \end{figure}
 The central solver module, implemented in the files
@@ -36,21 +38,29 @@ linear systems that arise. For any given user problem, one of the linear system
 modules is specified, and is then invoked as needed.
 
 \index{KINSOL@{\kinsol} linear solvers!list of|(}
-At present, the package includes the following five {\kinsol} linear system
-modules:
-\begin{itemize}
-\item {\kindense}: LU factorization and backsolving with dense matrices;
-\item {\kinband}: LU factorization and backsolving with banded matrices;
+At present, the package includes the following seven {\kinsol} linear algebra
+modules, organized into two families. The {\em direct} familiy of linear
+solvers provides solvers for the direct solution of linear systems with
+dense or banded matrices and includes:
+\begin{itemize} 
+\item {\kindense}: LU factorization and backsolving with dense matrices (internal implementation); 
+\item {\kinband}: LU factorization and backsolving with banded matrices (internal implementation); 
+\item {\kinlapdense}: LU factorization and backsolving with dense matrices (interface to Blas/Lapack implementation); 
+\item {\kinlapband}: LU factorization and backsolving with banded matrices (interface to Blas/Lapack implementation); 
+\end{itemize}
+The {\em spils} family of linear solvers providess scaled preconditioned
+iterative linear solvers and includes:
+\begin{itemize} 
 \item {\kinspgmr}: scaled preconditioned GMRES method;
 \item {\kinspbcg}: scaled preconditioned Bi-CGStab method;
 \item {\kinsptfqmr}: scaled preconditioned TFQMR method.
 \end{itemize}
-This set of linear solver modules is intended to be expanded in the
+The set of linear solver modules distributed with {\kinsol} is intended to be expanded in the
 future as new algorithms are developed.
 \index{KINSOL@{\kinsol} linear solvers!list of|)}
 
-In the case of the direct methods {\kindense} and {\kinband}, the package includes
-an algorithm for the approximation of the Jacobian by difference quotients, but
+In the case of the direct methods {\kindense} and {\kinband} (and {\kinlapdense} and {\kinlapband}), 
+the package includes an algorithm for the approximation of the Jacobian by difference quotients, but
 the user also has the option of supplying the Jacobian (or an approximation to it)
 directly. In the case of the Krylov methods {\kinspgmr}, {\kinspbcg} and {\kinsptfqmr},
 the package includes an algorithm for the approximation by difference quotients of the
@@ -74,7 +84,8 @@ of the linear system method.
 
 These modules are also decomposed in another way.
 \index{generic linear solvers!use in {\kinsol}|(}
-Each of the modules {\kindense}, {\kinband}, {\kinspgmr}, {\kinspbcg}, and {\kinsptfqmr}
+With the exception of the modules interfacing to Lapack linear solvers,
+each of the modules {\kindense}, {\kinband}, {\kinspgmr}, {\kinspbcg}, and {\kinsptfqmr}
 is a set of interface routines built on top of a generic solver module,
 name {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.
 The interface deals with the use of these methods in the {\kinsol} context,

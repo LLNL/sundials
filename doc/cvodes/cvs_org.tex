@@ -26,7 +26,9 @@ of linear systems that arise in the case of a stiff system.
 \caption [Overall structure of the CVODES package]
 {Overall structure of the {\cvodes} package.
   Modules specific to {\cvodes} are distinguished by rounded boxes, while 
-  generic solver and auxiliary modules are in rectangular boxes.}
+  generic solver and auxiliary modules are in rectangular boxes. Note that 
+  the Lapack-based linear solver modules {\cvlapdense} and {\cvlapband}
+  are not represented.}
 \label{f:cvsorg}
 \end{figure}
 The central integration module, implemented in the files \id{cvodes.h},
@@ -63,23 +65,34 @@ the backward integration, and the backward integration of the adjoint equations.
 
 
 \index{CVODES@{\cvodes} linear solvers!list of|(} 
-At present, the package includes the following six {\cvodes} linear solver
-modules:
+At present, the package includes the following eight {\cvodes} linear algebra
+modules, organized into two families. The {\em direct} familiy of linear
+solvers provides solvers for the direct solution of linear systems with
+dense or banded matrices and includes:
 \begin{itemize} 
-\item {\cvdense}: LU factorization and backsolving with dense matrices; 
-\item {\cvband}: LU factorization and backsolving with banded matrices; 
-\item {\cvdiag}: an internally generated diagonal approximation to the 
-Jacobian; 
+\item {\cvdense}: LU factorization and backsolving with dense matrices (internal implementation); 
+\item {\cvband}: LU factorization and backsolving with banded matrices (internal implementation); 
+\item {\cvlapdense}: LU factorization and backsolving with dense matrices (interface to Blas/Lapack implementation); 
+\item {\cvlapband}: LU factorization and backsolving with banded matrices (interface to Blas/Lapack implementation); 
+\end{itemize}
+The {\em spils} family of linear solvers providess scaled preconditioned
+iterative linear solvers and includes:
+\begin{itemize} 
 \item {\cvspgmr}: scaled preconditioned GMRES method;
 \item {\cvspbcg}: scaled preconditioned Bi-CGStab method;
 \item {\cvsptfqmr}: scaled preconditioned TFQMR method.
 \end{itemize}
-This set of linear solver modules is intended to be expanded in the
+Additionally, {\cvode} includes:
+\begin{itemize}
+\item {\cvdiag}: an internally generated diagonal approximation to the 
+  Jacobian; 
+\end{itemize}
+The set of linear solver modules distributed with {\cvodes} is intended to be expanded in the
 future as new algorithms are developed.
 \index{CVODES@{\cvodes} linear solvers!list of|)} 
 
-In the case of the direct methods {\cvdense} and {\cvband}, the package includes
-an algorithm for the approximation of the Jacobian by difference
+In the case of the direct methods {\cvdense} and {\cvband} (and {\cvlapdense} and {\cvlapband}),
+the package includes an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
 (or an approximation to it) directly.  In the case of the Krylov iterative
 methods {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}, the package includes an algorithm
@@ -109,7 +122,8 @@ of the linear system method.
 
 These modules are also decomposed in another way.
 \index{generic linear solvers!use in {\cvodes}|(} 
-Each of the modules {\cvdense}, {\cvband}, {\cvspgmr}, {\cvspbcg}, and
+With the exception of {\cvdiag} and the modules interfacing to Lapack linear solvers,
+each of the modules {\cvdense}, {\cvband}, {\cvspgmr}, {\cvspbcg}, and
 {\cvsptfqmr} is a set of interface routines built on top of a generic solver
 module, named {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.
 The interfaces deal with the use of these methods in the {\cvodes} context, 

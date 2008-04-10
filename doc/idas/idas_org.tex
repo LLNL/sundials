@@ -23,7 +23,9 @@ The overall organization of the {\idas} package is shown in Figure
 \caption [Overall structure diagram of the {\idas} package]
 {Overall structure diagram of the {\idas} package.
   Modules specific to {\idas} are distinguished by rounded boxes, while 
-  generic solver and auxiliary modules are in square boxes.}
+  generic solver and auxiliary modules are in square boxes. Note that 
+  the Lapack-based linear solver modules {\idalapdense} and {\idalapband}
+  are not represented.}
 \label{f:idasorg}
 \end{figure}
 The central integration module, implemented in the files \id{idas.h},
@@ -36,22 +38,51 @@ method being used to solve the linear systems that arise.  For any
 given user problem, one of the linear system modules is specified, and
 is then invoked as needed during the integration. 
 
+In addition, if forward sensitivity analysis is turned on, the main module 
+will integrate the forward sensitivity equations simultaneously with the original
+IVP. The sensitivity variables may be included in the local error control
+mechanism of the main integrator.
+\index{forward sensitivity analysis!correction strategies}
+{\idas} provides two different strategies for dealing with the correction
+stage for the sensitivity variables: \Id{IDA\_SIMULTANEOUS} \Id{IDA\_STAGGERED}
+(see \S\ref{ss:fwd_sensi}).
+The {\idas} package includes an algorithm for the approximation of the
+sensitivity equations residuals by difference quotients, but the user has
+the option of supplying these residual functions directly.
+
+\index{adjoint sensitivity analysis!implementation in {\idas}|(}
+The adjoint sensitivity module provides the infrastructure needed for the 
+backward integration of any system of DAEs which depends on the solution 
+of the original IVP, in particular the adjoint system and any quadratures required
+in evaluating the gradient of the objective functional.  This module deals with
+the setup of the checkpoints, the interpolation of the forward solution during
+the backward integration, and the backward integration of the adjoint equations.
+\index{adjoint sensitivity analysis!implementation in {\idas}|)}
+
 \index{IDAS@{\idas} linear solvers!list of|(} 
-At present, the package includes the following five {\idas} linear system
-modules:
+At present, the package includes the following seven {\idas} linear algebra
+modules, organized into two families. The {\em direct} familiy of linear
+solvers provides solvers for the direct solution of linear systems with
+dense or banded matrices and includes:
 \begin{itemize} 
-\item {\idadense}: LU factorization and backsolving with dense matrices; 
-\item {\idaband}: LU factorization and backsolving with banded matrices; 
+\item {\idadense}: LU factorization and backsolving with dense matrices (internal implementation); 
+\item {\idaband}: LU factorization and backsolving with banded matrices (internal implementation); 
+\item {\idalapdense}: LU factorization and backsolving with dense matrices (interface to Blas/Lapack implementation); 
+\item {\idalapband}: LU factorization and backsolving with banded matrices (interface to Blas/Lapack implementation); 
+\end{itemize}
+The {\em spils} family of linear solvers providess scaled preconditioned
+iterative linear solvers and includes:
+\begin{itemize} 
 \item {\idaspgmr}: scaled preconditioned GMRES method;
 \item {\idaspbcg}: scaled preconditioned Bi-CGStab method;
 \item {\idasptfqmr}: scaled preconditioned TFQMR method.
 \end{itemize}
-This set of linear solver modules is intended to be expanded in the
+The set of linear solver modules distributed with {\idas} is intended to be expanded in the
 future as new algorithms are developed.
 \index{IDAS@{\idas} linear solvers!list of|)} 
 
-In the case of the direct methods {\idadense} and {\idaband}, the package includes
-an algorithm for the approximation of the Jacobian by difference
+In the case of the direct methods {\idadense} and {\idaband} (and {\idalapdense} and {\idalapband}), 
+the package includes an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
 (or an approximation to it) directly. In the case of the Krylov iterative methods
 {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}, the package includes an algorithm for
@@ -83,7 +114,8 @@ of the linear system method.
 
 These modules are also decomposed in another way.
 \index{generic linear solvers!use in {\idas}|(} 
-Each of the modules {\idadense}, {\idaband}, {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}
+With the exception of the modules interfacing to Lapack linear solvers,
+each of the modules {\idadense}, {\idaband}, {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}
 is a set of interface routines built on top of a generic solver module, 
 named {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.  
 The interfaces deal with the use of these methods in the {\idas} context, 
