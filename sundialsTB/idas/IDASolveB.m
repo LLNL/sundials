@@ -8,11 +8,11 @@ function [varargout] = IDASolveB(tout,itask)
 %   T value to a point at or beyond TOUT, then interpolates to T = TOUT and returns 
 %   YB(TOUT). If ITASK is 'OneStep', then the solver takes one internal time step 
 %   and returns in YB the solution at the new internal time. In this case, TOUT 
-%   is used only during the first call to CVodeB to determine the direction of 
+%   is used only during the first call to IDASolveB to determine the direction of 
 %   integration and the rough scale of the problem. In either case, the time 
 %   reached by the solver is returned in T. 
 %
-%   If quadratures were computed (see CVodeQuadInitB), CVodeB will return their
+%   If quadratures were computed (see IDAQuadInitB), IDASolveB will return their
 %   values at T in the vector YQB.
 %
 %   In ITASK =' Normal' mode, to obtain solutions at specific times T0,T1,...,TFINAL
@@ -22,7 +22,7 @@ function [varargout] = IDASolveB(tout,itask)
 %
 %   If more than one backward problem was defined, the return arguments are cell
 %   arrays, with T{IDXB}, YB{IDXB}, and YQB{IDXB} corresponding to the backward
-%   problem with index IDXB (as returned by CVodeInitB).
+%   problem with index IDXB (as returned by IDAInitB).
 %
 %   On return, STATUS is one of the following:
 %     0: IDASolveB succeeded.
@@ -39,15 +39,15 @@ function [varargout] = IDASolveB(tout,itask)
 %   -9:  The linear solver's setup routine failed in an unrecoverable manner.
 %  -10:  The linear solver's solve routine failed in an unrecoverable manner.
 %  -101: Illegal attempt to call before initializing adjoint sensitivity 
-%        (see IDAMalloc).
-%  -104: Illegal attempt to call before IDAMallocB.
+%        (see IDAInit).
+%  -104: Illegal attempt to call before IDAInitB.
 %  -108: Wrong value for TOUT.
 %
 %   See also IDASetOptions, IDAGetStatsB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2007/02/05 20:23:47 $
+% $Revision: 1.4 $Date: 2007/08/21 17:38:43 $
 
 mode = 21;
 
