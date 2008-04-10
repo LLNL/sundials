@@ -128,7 +128,7 @@ and \Id{SUNDIALS\_UNDERSCORE\_TWO}\\
 can be explicitly defined in the header file \id{sundials\_config.h}
 when configuring {\sundials} via the \id{--with-f77underscore}
 and \id{--with-f77case} options to override the default behavior if necessary
-(see Chapter \ref{s:install}). Either way, the names into which the dummy names
+(see Chapter \ref{c:install}). Either way, the names into which the dummy names
 are mapped are in upper or lower case and have up to two underscores appended.
 
 The user must also ensure that variables in the user {\F} code are
@@ -136,7 +136,7 @@ declared in a manner consistent with their counterparts in {\ida}.
 All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
 or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
 depending on whether {\ida} was built in single, double, or extended precision 
-(see Chapter \ref{s:install}). Moreover, some of the {\F} integer variables
+(see Chapter \ref{c:install}). Moreover, some of the {\F} integer variables
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
 {\C} type \id{long int}. These integer variables include: the array of
 integer optional outputs (\id{IOUT}), problem dimensions (\id{NEQ},

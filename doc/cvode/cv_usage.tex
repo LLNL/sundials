@@ -8,7 +8,7 @@ the user's main program, description of the {\cvode} user-callable
 functions, and user-supplied functions.  The final section describes
 the {\F}/{\C} interface module, which supports users with applications
 written in {\F}77.  The listings of the example programs in the
-companion document \cite{cvode2.4.0_ex} may also be helpful.  Those
+companion document \cite{cvode_ex} may also be helpful.  Those
 codes may be used as templates (with the removal of some lines involved
 in testing), and are included in the {\cvode} package.
 
@@ -30,7 +30,7 @@ separately in Chapter \ref{c:constants}.
 %%==============================================================================
 
 At this point, it is assumed that the installation of {\cvode},
-following the procedure described in Chapter \ref{s:install}, has
+following the procedure described in Chapter \ref{c:install}, has
 been completed successfully.
 
 Regardless of where the user's application program resides, its
@@ -52,7 +52,7 @@ the subdirectories
 The directories {\em libdir} and {\em incdir} are the install libray and include
 directories. For a default installation, these are {\em builddir}\id{/lib} and
 {\em builddir}\id{/include}, respectively, where {\em builddir} was defined in
-Chapter \ref{s:install}.
+Chapter \ref{c:install}.
 
 Note that an application cannot link to both the {\cvode} and {\cvodes} libraries
 because both contain user-callable functions with the same names (to ensure that {\cvodes}
@@ -129,7 +129,7 @@ which defined common fuunctions and which in turn includes a header file (\id{su
 which enumerates the kind of preconditioning and for the choices for the Gram-Schmidt process for {\spgmr}.
 
 Other headers may be needed, according as to the choice of preconditioner,
-etc. In one of the examples in \cite{cvode2.4.0_ex}, preconditioning is done
+etc. In one of the examples in \cite{cvode_ex}, preconditioning is done
 with a block-diagonal matrix. For this, the header \id{sundials\_smalldense.h} is included.
 
 %%==============================================================================
@@ -451,7 +451,7 @@ decays to zero, then pure relative error control on \id{y[i]} makes no sense
 noise level.  If the different components have different noise levels,
 then \id{abstol} should be a vector.  See the example \id{cvdenx} in the {\cvode}
 package, and the discussion of it in the {\cvode} Examples document
-\cite{cvode2.4.0_ex}.
+\cite{cvode_ex}.
 In that problem, the three components vary betwen 0 and 1, and have
 different noise levels; hence the \id{abstol} vector.  It is impossible to
 give any general advice on \id{abstol} values, because the appropriate noise

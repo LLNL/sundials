@@ -6,7 +6,7 @@ This chapter is concerned with the use of {\ida} for the integration of DAEs.
 The following sections treat the header files, the layout of the user's main
 program, description of the {\ida} user-callable functions, and 
 description of user-supplied functions. 
-The listings of the sample programs in the companion document \cite{ida2.4.0_ex} 
+The listings of the sample programs in the companion document \cite{ida_ex} 
 may also be helpful. Those codes may be used as templates (with the removal of
 some lines involved in testing), and are included in the {\ida} package.
 
@@ -29,7 +29,7 @@ separately in Chapter \ref{c:constants}.
 %%==============================================================================
 
 At this point, it is assumed that the installation of {\ida},
-following the procedure described in Chapter \ref{s:install}, has
+following the procedure described in Chapter \ref{c:install}, has
 been completed successfully.
 
 Regardless of where the user's application program resides, its
@@ -51,7 +51,7 @@ the subdirectories
 The directories {\em libdir} and {\em incdir} are the install libray and include
 directories. For a default installation, these are {\em instdir}\id{/lib} and
 {\em instdir}\id{/include}, respectively, where {\em instdir} is the directory
-where {\sundials} was installed (see Chapter \ref{s:install}).
+where {\sundials} was installed (see Chapter \ref{c:install}).
 
 %%===================================================================================
 \section{Data types}\label{s:types}
@@ -542,7 +542,7 @@ decays to zero, then pure relative error control on \id{y[i]} makes no sense
 noise level.  If the different components have different noise levels,
 then \id{abstol} should be a vector.  See the example \id{idadenx} in the
 {\ida} package, and the discussion of it in the {\ida} Examples document
-\cite{ida2.4.0_ex}.
+\cite{ida_ex}.
 In that problem, the three components vary betwen 0 and 1, and have
 different noise levels; hence the \id{abstol} vector.  It is impossible to
 give any general advice on \id{abstol} values, because the appropriate noise

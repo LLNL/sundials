@@ -123,7 +123,7 @@ To reduce the possibility of conflicts, the names of all header files have
 been changed by adding unique prefixes (\id{cvode\_} and \id{sundials\_}).
 When using the default installation procedure, the header files are exported
 under various subdirectories of the target \id{include} directory. For more
-details see Chapter \ref{s:install}.
+details see Chapter \ref{c:install}.
 
 \subsection*{Changes in v2.3.0}
 
@@ -177,7 +177,7 @@ accommodate both styles.
 There are different possible levels of usage of {\cvode}. The most
 casual user, with a small IVP problem only, can get by with reading
 \S\ref{ss:ivp_sol}, then Chapter \ref{s:simulation} through
-\S\ref{sss:cvode} only, and looking at examples in~\cite{cvode2.4.0_ex}.
+\S\ref{sss:cvode} only, and looking at examples in~\cite{cvode_ex}.
 In a different direction, a more expert user with an IVP problem may want
 to (a) use a package preconditioner (\S\ref{ss:preconds}), (b) supply
 his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
@@ -188,9 +188,6 @@ his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
 
 The structure of this document is as follows:
 \begin{itemize}
-\item
-  In Chapter \ref{s:install} we begin with instructions for the
-  installation of {\cvode}, within the structure of {\sundials}.
 \item
   In Chapter \ref{s:math}, we give short descriptions of the numerical
   methods implemented by {\cvode} for the solution of initial value
@@ -220,8 +217,10 @@ The structure of this document is as follows:
   Chapter \ref{s:gen_linsolv} describes in detail the generic linear
   solvers shared by all {\sundials} solvers.
 \item
-  Finally, Chapter \ref{c:constants} lists the constants used for input to
-  and output from {\cvode}.
+  Finally, in the appendices, we provide detailed instructions for the installation
+  of {\cvode}, within the structure of {\sundials} (Appendix \ref{c:install}), as well
+  as a list of all the constants used for input to and output from {\cvode} functions
+  (Appendix \ref{c:constants}).
 \end{itemize}
 
 Finally, the reader should be aware of the following notational conventions

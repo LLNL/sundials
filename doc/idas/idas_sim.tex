@@ -1,12 +1,12 @@
 %%===================================================================================
-\chapter{Using IDAS for C Applications}\label{s:simulation}
+\chapter{Using IDAS for IVP Solution}\label{s:simulation}
 %%===================================================================================
 
 This chapter is concerned with the use of {\idas} for the integration of DAEs.
 The following sections treat the header files, the layout of the user's main
 program, description of the {\idas} user-callable functions, and 
 description of user-supplied functions. 
-The listings of the sample programs in the companion document \cite{ida2.4.0_ex} 
+The listings of the sample programs in the companion document \cite{idas_ex} 
 may also be helpful. Those codes may be used as templates (with the removal of
 some lines involved in testing), and are included in the {\idas} package.
 
@@ -22,14 +22,14 @@ The preconditioner module {\idabbdpre} can only be used with {\nvecp}.
 
 {\idas} uses various constants for both input and output.  These are
 defined as needed in this chapter, but for convenience are also listed
-separately in Chapter \ref{c:constants}.
+separately in Appendix \ref{c:constants}.
 
 %%==============================================================================
 \section{Access to library and header files}\label{ss:file_access}
 %%==============================================================================
 
 At this point, it is assumed that the installation of {\idas},
-following the procedure described in Chapter \ref{s:install}, has
+following the procedure described in Chapter \ref{c:install}, has
 been completed successfully.
 
 Regardless of where the user's application program resides, its
@@ -51,7 +51,7 @@ the subdirectories
 The directories {\em libdir} and {\em incdir} are the install libray and include
 directories. For a default installation, these are {\em instdir}\id{/lib} and
 {\em instdir}\id{/include}, respectively, where {\em instdir} is the directory
-where {\sundials} was installed (see Chapter \ref{s:install}).
+where {\sundials} was installed (see Appendix \ref{c:install}).
 
 %%===================================================================================
 \section{Data types}\label{s:types}
@@ -543,7 +543,7 @@ decays to zero, then pure relative error control on \id{y[i]} makes no sense
 noise level.  If the different components have different noise levels,
 then \id{abstol} should be a vector.  See the example \id{idasdenx} in the
 {\idas} package, and the discussion of it in the {\idas} Examples document
-\cite{ida2.4.0_ex}.
+\cite{idas_ex}.
 In that problem, the three components vary betwen 0 and 1, and have
 different noise levels; hence the \id{abstol} vector.  It is impossible to
 give any general advice on \id{abstol} values, because the appropriate noise
@@ -4176,7 +4176,7 @@ the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
   at the point (\id{tt}, \id{yy}, \id{yp}).  Only nonzero elements need to be loaded
   into \id{Jac} because \id{Jac} is set to the zero matrix before the call
   to the Jacobian function. The type of \id{Jac} is \Id{DlsMat} 
-  (described below and in \S\ref{ss:dense}). 
+  (described below and in \S\ref{s:dls}). 
   
   The accessor macros \Id{DENSE\_ELEM} and \Id{DENSE\_COL} allow the user to
   read and write dense matrix elements without making explicit
@@ -4198,7 +4198,7 @@ the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
   starting from $0$, not $1$.  
 
   The \id{DlsMat} type and the accessor macros \id{DENSE\_ELEM} and 
-  \id{DENSE\_COL} are documented in \S\ref{ss:dense}.
+  \id{DENSE\_COL} are documented in \S\ref{s:dls}.
 
   If the user's \id{IDADlsDenseJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
@@ -4304,7 +4304,7 @@ the user may provide a function of type \ID{IDADlsBandJacFn} defined as follows:
   and columns starting from $0$, not $1$.  
 
   The \id{DlsMat} type and the accessor macros \id{BAND\_ELEM}, \id{BAND\_COL}, and
-  \id{BAND\_COL\_ELEM} are documented in \S\ref{ss:band}.
+  \id{BAND\_COL\_ELEM} are documented in \S\ref{s:dls}.
 
   If the user's \id{IDADlsBandJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
@@ -4523,24 +4523,6 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-foo
-
-
-
-
-
 %%
 %%===================================================================================
 \section{Integration of pure quadrature equations}
@@ -4603,8 +4585,6 @@ grayed out.
 \item\label{i:quad_optional_inputs}
   {\bf Set optional inputs for quadrature integration}
 
-%%  Call \id{IDASetQuadFdata} to specify user data required for the evaluation
-%%  of the quadrature equation right-hand side.
   Call \id{IDASetQuadErrCon} to indicate whether or not quadrature variables
   should be used in the step size control mechanism. If so, one of the 
   \id{IDAQuad*tolerances} functions  must be called to specify the integration 
@@ -5195,8 +5175,6 @@ must be of type \Id{IDAQuadRhsFn} defined as follows:
   \Id{IDA\_FIRST\_QRHS\_ERR}) or if a recoverable error is reported when \id{IDAQuadRhsFn}
   is called after an error test failure, while the linear multistep method order is
   equal to 1 (in which case {\idas} returns \Id{IDA\_UNREC\_QRHSFUNC\_ERR}).
-
-\bigskip TODO: Fix the last proposition.
 }
 
 

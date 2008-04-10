@@ -5,20 +5,29 @@
 {\idas} is part of a software family called {\sundials}: 
 SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}. 
 This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these
-with sensitivity analysis capabilities.
+with sensitivity analysis capabilities, {\cvodes} and {\idas}.
 
 {\idas} is a general purpose solver for the initial value problem for
 systems of differential-algebraic equations (DAEs).  The name IDAS
 stands for Implicit Differential-Algebraic solver with Sensitivity capabilities.
-{\idas} is based on {\daspk}~\cite{BHP:94,BHP:98}, but is written in ANSI-standard C
-rather than {\F}77.  Its most notable feature is that, in the
-solution of the underlying nonlinear system at each time step, it offers
-a choice of Newton/direct methods and a choice of Inexact Newton/Krylov
-(iterative) methods.  Thus {\idas} shares significant modules previously
-written within CASC at LLNL to support the ordinary differential
-equation (ODE) solvers {\cvode}~\cite{cvode2.4.0_ug,CoHi:96} and 
-{\pvode}~\cite{ByHi:98,ByHi:99}, and also the nonlinear system solver 
-{\kinsol}~\cite{kinsol2.4.0_ug}.
+{\idas} is an extension of the {\ida} solver within {\sundials}, itself 
+based on {\daspk}~\cite{BHP:94,BHP:98}; however, like all {\sundials} solvers,
+{\idas} is written in ANSI-standard C rather than {\F}77.  
+Its most notable features are that, 
+(1) in the solution of the underlying nonlinear system at each time step, it 
+offers a choice of Newton/direct methods and a choice of Inexact Newton/Krylov
+(iterative) methods;
+(2) it is written in a {\em data-independent} manner in that it acts
+on generic vectors without any assumptions on the underlying organization
+of the data; and
+(3) it provides a flexible, extensible framework for sensitivity analysis,
+using either {\em forward} or {\em adjoint} methods.
+Thus {\idas} shares significant modules previously written within CASC at LLNL to support
+the ordinary differential equation (ODE) solvers {\cvode}~\cite{cvode_ug,CoHi:96} and 
+{\pvode}~\cite{ByHi:98,ByHi:99}, 
+the DAE solver {\ida}~\cite{ida_ug} on which {\idas} is based,
+the sensitivity-enabled ODE solver {\cvodes}~\cite{cvodes_ug,SeHi:05}, 
+and also the nonlinear system solver {\kinsol}~\cite{kinsol_ug}.
 
 The Newton/Krylov methods in {\idas} are:
 the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
@@ -74,9 +83,6 @@ in extended {\F}.
 The structure of this document is as follows:
 \begin{itemize}
 \item
-  In Chapter \ref{s:install} we begin with instructions for the installation of 
-  {\idas}, within the structure of {\sundials}.
-\item
   In Chapter \ref{s:math}, we give short descriptions of the numerical 
   methods implemented by {\idas} for the solution of initial value problems
   for systems of DAEs, continue with an overview of the mathematical aspects 
@@ -125,7 +131,7 @@ The structure of this document is as follows:
   by all {\sundials} solvers.
 \item
   Finally, in the appendices, we provide detailed instructions for the installation
-  of {\idas}, within the structure of {\sundials} (Appendix \ref{s:install}), as well
+  of {\idas}, within the structure of {\sundials} (Appendix \ref{c:install}), as well
   as a list of all the constants used for input to and output from {\idas} functions
   (Appendix \ref{c:constants}).
 \end{itemize}

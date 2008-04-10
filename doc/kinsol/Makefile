@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2006-07-05 15:26:20 $
+# $Revision: 1.2 $
+# $Date: 2008-04-10 18:45:45 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -31,15 +31,11 @@ kin_linsolv.tex \
 kin_constants.tex
 
 UG_SHARED_FILES = \
-band.tex \
 install.tex \
-dense.tex \
+linsolv.tex \
 nvec_generic.tex \
 nvec_parallel.tex \
 nvec_serial.tex \
-spgmr.tex \
-spbcg.tex \
-sptfqmr.tex \
 sun_org.tex \
 types.tex \
 ug.tex \

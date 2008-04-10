@@ -154,7 +154,7 @@ To reduce the possibility of conflicts, the names of all header files have
 been changed by adding unique prefixes (\id{cvodes\_} and \id{sundials\_}).
 When using the default installation procedure, the header files are exported
 under various subdirectories of the target \id{include} directory. For more
-details see~\S\ref{s:install}.
+details see~\S\ref{c:install}.
 
 \subsection*{Changes in v2.3.0}
 
@@ -225,10 +225,10 @@ instructions, while others will refer mostly to the examples.
 There are different possible levels of usage of {\cvodes}. The most casual
 user, with an IVP problem only, can get by with reading \S\ref{ss:ivp_sol}, 
 then \S\ref{s:simulation} through \S\ref{sss:cvode} only, and looking at examples 
-in~\cite{cvodes2.3.0_ex}.
+in~\cite{cvodes_ex}.
 In addition, to solve a forward sensitivity problem the user should read 
 \S\ref{ss:fwd_sensi}, followed by \S\ref{s:forward} through 
-\S\ref{ss:sensi_get} only, and look at examples in~\cite{cvodes2.3.0_ex}.
+\S\ref{ss:sensi_get} only, and look at examples in~\cite{cvodes_ex}.
 
 In a different direction, a more advanced user with an IVP problem may want to 
 (a) use a package preconditioner (\S\ref{ss:preconds}), 
@@ -247,13 +247,10 @@ A user with an adjoint sensitivity problem needs to understand the IVP
 solution approach at the desired level and also go through 
 \S\ref{ss:adj_sensi} for a short mathematical description of the adjoint
 approach, \S\ref{s:adjoint} for the usage of the adjoint module in {\cvodes},
-and the examples in~\cite{cvodes2.3.0_ex}.
+and the examples in~\cite{cvodes_ex}.
 
 The structure of this document is as follows:
 \begin{itemize}
-\item
-  In Chapter \ref{s:install} we begin with instructions for the installation of 
-  {\cvodes}, within the structure of {\sundials}.
 \item
   In Chapter \ref{s:math}, we give short descriptions of the numerical 
   methods implemented by {\cvodes} for the solution of initial value problems
@@ -302,8 +299,10 @@ The structure of this document is as follows:
   Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers shared 
   by all {\sundials} solvers.
 \item
-  Finally, Chapter \ref{c:constants} lists the constants used for input to
-  and output from {\cvodes}.
+  Finally, in the appendices, we provide detailed instructions for the installation
+  of {\cvodes}, within the structure of {\sundials} (Appendix \ref{c:install}), as well
+  as a list of all the constants used for input to and output from {\cvodes} functions
+  (Appendix \ref{c:constants}).
 \end{itemize}
 
 Finally, the reader should be aware of the following notational conventions

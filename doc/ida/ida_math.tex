@@ -84,20 +84,35 @@ Here $J$ is some approximation to the system Jacobian
 \end{equation}
 where $\alpha = \alpha_{n,0}/h_n$.  The scalar $\alpha$ changes 
 whenever the step size or method order changes.
-%
-The linear systems are solved by one of five methods:
+
+For the solution of the linear systems within the Newton corrections, 
+{\ida} provides several choices, including the option of an user-supplied
+linear solver module. The linear solver modules distributed with {\sundials}
+are organized in two families, a {\em direct} family comprising direct linear 
+solvers for dense or banded matrices and a {\em spils} family comprising
+scaled preconditioned iterative (Krylov) linear solvers. 
+%%
+The methods offered through these modules are as follows:
 \begin{itemize}
-\item dense direct solver (serial version only),
-\item band direct solver (serial version only),
-\item diagonal approximate Jacobian solver,
-\item {\spgmr} = scaled preconditioned GMRES (Generalized Minimal Residual
-      method) with restarts allowed,
-\item {\spbcg} = scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
-      method), or
-\item {\sptfqmr} = scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
-      Residual method).
+\item dense direct solvers, using either an internal implementation or 
+  a Blas/Lapack implementation (serial version only),
+\item band direct solvers, using either an internal implementation or 
+  a Blas/Lapack implementation (serial version only),
+\item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
+  solver without restarts,
+\item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
+  method) solver, or
+\item {\sptfqmr}, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
+  Residual method) solver.
 \end{itemize}
-For the {\spgmr}, {\spbcg}, and {\sptfqmr} cases, preconditioning is allowed
+For large stiff systems, where direct methods are not feasible, the
+combination of a BDF integrator and any of the preconditioned Krylov
+methods ({\spgmr}, {\spbcg}, or {\sptfqmr}) yields a powerful tool
+because it combines established methods for stiff integration,
+nonlinear iteration, and Krylov (linear) iteration with a
+problem-specific treatment of the dominant source of stiffness, in the
+form of the user-supplied preconditioner matrix \cite{BrHi:89}. 
+For the {\em spils} linear solvers,  preconditioning is allowed
 only on the left (see \S\ref{s:preconditioning}).
 %%
 Note that the direct linear solvers (dense and band) can only be 

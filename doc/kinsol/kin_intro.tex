@@ -130,7 +130,7 @@ To reduce the possibility of conflicts, the names of all header files have
 been changed by adding unique prefixes (\id{kinsol\_} and \id{sundials\_}).
 When using the default installation procedure, the header files are exported
 under various subdirectories of the target \id{include} directory. For more
-details see~\S\ref{s:install}.
+details see~\S\ref{c:install}.
 
 \subsection*{Changes in v2.3.0}
 
@@ -174,7 +174,7 @@ organization is intended to accommodate both styles.
 There are different possible levels of usage of {\kinsol}. The most casual
 user, with a small nonlinear system, can get by with reading all of 
 Chapter~\ref{s:math}, then Chapter~\ref{c:usage} through \S\ref{sss:kinsol} only, and
-looking at examples in~\cite{kinsol2.4.0_ex}. In a different direction, a
+looking at examples in~\cite{kinsol_ex}. In a different direction, a
 more expert user with a nonlinear system may want to (a) use a package
 preconditioner (\S\ref{sss:kinbbdpre}), (b) supply his/her own Jacobian or
 preconditioner routines (\S\ref{ss:user_fct_sol}), (c) supply a new
@@ -183,9 +183,6 @@ linear solver module (\S\ref{ss:kinsol_org} and Chapter~\ref{s:gen_linsolv}).
 
 The structure of this document is as follows:
 \begin{itemize}
-\item
-  In Chapter \ref{s:install} we begin with instructions for the installation
-  of {\kinsol}, within the structure of {\sundials}.
 \item
   In Chapter \ref{s:math}, we provide short descriptions of the numerical
   methods implemented by {\kinsol} for the solution of nonlinear systems.
@@ -213,8 +210,10 @@ The structure of this document is as follows:
   Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers
   shared by all {\sundials} solvers.
 \item
-  Finally, Chapter \ref{c:constants} lists the constants used for input to
-  and output from {\kinsol}.
+  Finally, in the appendices, we provide detailed instructions for the installation
+  of {\kinsol}, within the structure of {\sundials} (Appendix \ref{c:install}), as well
+  as a list of all the constants used for input to and output from {\kinsol} functions
+  (Appendix \ref{c:constants}).
 \end{itemize}
 
 Finally, the reader should be aware of the following notational

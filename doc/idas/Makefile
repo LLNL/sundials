@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-08-10 20:23:29 $
+# $Revision: 1.3 $
+# $Date: 2008-04-10 18:45:44 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -33,15 +33,11 @@ idas_linsolv.tex \
 idas_constants.tex
 
 UG_SHARED_FILES = \
-band.tex \
 install.tex \
-dense.tex \
+linsolv.tex \
 nvec_generic.tex \
 nvec_parallel.tex \
 nvec_serial.tex \
-spgmr.tex \
-spbcg.tex \
-sptfqmr.tex \
 sun_org.tex \
 types.tex \
 ug.tex \

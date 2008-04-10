@@ -16,9 +16,9 @@ solution of the underlying nonlinear system at each time step, it offers
 a choice of Newton/direct methods and a choice of Inexact Newton/Krylov
 (iterative) methods.  Thus {\ida} shares significant modules previously
 written within CASC at LLNL to support the ordinary differential
-equation (ODE) solvers {\cvode}~\cite{cvode2.4.0_ug,CoHi:96} and 
+equation (ODE) solvers {\cvode}~\cite{cvode_ug,CoHi:96} and 
 {\pvode}~\cite{ByHi:98,ByHi:99}, and also the nonlinear system solver 
-{\kinsol}~\cite{kinsol2.4.0_ug}.
+{\kinsol}~\cite{kinsol_ug}.
 
 The Newton/Krylov methods in {\ida} are:
 the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
@@ -106,7 +106,7 @@ To reduce the possibility of conflicts, the names of all header files have
 been changed by adding unique prefixes (\id{ida\_} and \id{sundials\_}).
 When using the default installation procedure, the header files are exported
 under various subdirectories of the target \id{include} directory. For more
-details see~\S\ref{s:install}.
+details see~\S\ref{c:install}.
 
 \subsection*{Changes in v2.3.0}
 
@@ -158,9 +158,6 @@ redesigned and is now based on configure scripts.
 The structure of this document is as follows:
 \begin{itemize}
 \item
-  In Chapter \ref{s:install} we begin with instructions for the installation of 
-  {\ida}, within the structure of {\sundials}.
-\item
   In Chapter \ref{s:math}, we give short descriptions of the numerical 
   methods implemented by {\ida} for the solution of initial value problems
   for systems of DAEs.
@@ -187,8 +184,10 @@ The structure of this document is as follows:
   Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers shared 
   by all {\sundials} solvers.
 \item
-  Finally, Chapter \ref{c:constants} lists the constants used for input to
-  and output from {\ida}.
+  Finally, in the appendices, we provide detailed instructions for the installation
+  of {\ida}, within the structure of {\sundials} (Appendix \ref{c:install}), as well
+  as a list of all the constants used for input to and output from {\ida} functions
+  (Appendix \ref{c:constants}).
 \end{itemize}
 
 Finally, the reader should be aware of the following notational conventions

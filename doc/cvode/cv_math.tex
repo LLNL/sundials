@@ -71,17 +71,30 @@ in which
 The initial guess for the iteration is a predicted value $y^{n(0)}$
 computed explicitly from the available history data.
 \index{nonlinear system!definition|)}
-For the Newton corrections, {\cvode} provides a choice of six methods:
+
+For the solution of the linear systems within the Newton corrections, 
+{\cvode} provides several choices, including the option of an user-supplied
+linear solver module. The linear solver modules distributed with {\sundials}
+are organized in two families, a {\em direct} family comprising direct linear 
+solvers for dense or banded matrices and a {\em spils} family comprising
+scaled preconditioned iterative (Krylov) linear solvers. 
+%%
+In addition, {\cvode} also provides a linear solver module which only uses
+a diagonal approximation of the Jacobian matrix. 
+%%
+The methods offered through these modules are as follows:
 \begin{itemize}
-\item a dense direct solver (serial version only),
-\item a band direct solver (serial version only),
+\item dense direct solvers, using either an internal implementation or 
+  a Blas/Lapack implementation (serial version only),
+\item band direct solvers, using either an internal implementation or 
+  a Blas/Lapack implementation (serial version only),
 \item a diagonal approximate Jacobian solver,
-\item {\spgmr} = scaled preconditioned GMRES (Generalized Minimal Residual method)
-      without restarts,
-\item {\spbcg} = scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
-      method), or
-\item {\sptfqmr} = scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
-       Residual method).
+\item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
+  solver without restarts,
+\item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
+  method) solver, or
+\item {\sptfqmr}, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
+  Residual method) solver.
 \end{itemize}
 For large stiff systems, where direct methods are not feasible, the
 combination of a BDF integrator and any of the preconditioned Krylov

@@ -1,80 +1,113 @@
 The {\sundials} suite (or individual solvers) are distributed as compressed archives
-(\id{.tgz}). The name of the distribution archive is of the form {\em solver}\id{-x.y.z.tgz},
-where {\em solver} is one of: \id{sundials}, \id{cvode}, \id{cvodes}, \id{ida}, or \id{kinsol},
+(\id{.tar.gz}). The name of the distribution archive is of the form {\em solver}\id{-x.y.z.tar.gz},
+where {\em solver} is one of: \id{sundials}, \id{cvode}, \id{cvodes}, \id{ida}, \id{idas}, or \id{kinsol},
 and \id{x.y.z} represents the version number (of the {\sundials} suite or of the individual solver).
-
+%%
 To begin the installation, first uncompress and expand the sources, by issuing
 \begin{verbatim}
-   % tar xzf solver-x.y.z.tgz
+   % tar xzf solver-x.y.z.tar.gz
 \end{verbatim}
 This will extract source files under a directory {\em solver}\id{-x.y.z}.
 
+
+Starting with version \id{2.4.0} of {\sundials}, two installation methods are provided: in addition to the previous autotools-based
+method, {\sundials} now provides a method based on CMake. Before providing detailed explanations on the installation procedure
+for the two approaches, we begin with a few common observations:
+%%
+\begin{itemize}
+
+\item In the remainder of this chapter, we make the following distinctions:
+  \begin{description}
+  \item[{\em srcdir}] 
+    is the directory {\em solver}\id{-x.y.z} created above; i.e., the 
+    directory containing the {\sundials} sources.
+  \item[{\em builddir}]
+    is the (temporary) directory under which {\sundials} is built.
+  \item[{\em instdir}]
+    is the directory under which the {\sundials} exported header files
+    and libraries will be installed. Typically, header files are exported under a directory
+    {\em instdir}\id{/include} while libraries are installed under {\em instdir}\id{/lib},
+    with {\em instdir} specified at configuration time.
+  \end{description}
+
+\item For the CMake-based installation, in-source builds are prohibited; in other words, the build directory 
+  {\em builddir} can {\bf not} be the same as {\em srcdir} and such an attempt will lead to an error.
+  For autotools-based installation, in-source builds are allowed, although even in that case we
+  recommend to use a separate {\em builddir}. Indeed, this prevents ``polluting'' the source tree
+  and allows efficient builds for different configurations and/or options.
+
+\item {\warn} The installation directory {\em instdir} can {\bf not} be the same as
+  the source directory {\em srcdir}.
+
+\item By default, only the libraries and header files are exported to the installation directory {\em instdir}.
+  If enabled by the user (with the appropriate option to \id{configure} or toggle for CMake), the examples distributed
+  with {\sundials} will be built together with the solver libraries but the installation step will result in exporting
+  (by default in a subdirectory of the installation directory) the example sources and sample outputs together with 
+  automatically generated configuration files that reference the {\em installed} {\sundials} headers and libraries.
+  As such, these configuration files for the {\sundials} examples can be used as "templates" for your
+  own problems. The \id{configure} script will install makefiles. CMake installs \id{CMakeLists.txt} files and also 
+  (as an option available only under Unix/Linux) makefiles. Note that both installtion approaches also allow 
+  the option of building the {\sundials} examples without having to install them (this can be used as a
+  sanity check for the freshly built libraries).
+
+\item Even if generation of shared libraries is enabled, only static libraries are created for the FCMIX modules
+  (due to the use of fixed names for the Fortran user-provided subroutines, FCMIX shared libraries would result 
+  in "undefined symbol" errors at link time).
+
+\end{itemize}
+
+% ========================================================================================
+\section{Autotools-based installation}\label{s:autotool_inst}
+% ========================================================================================
+
 The installation procedure outlined below will work on commodity {\linux}/{\unix} 
 systems without modification. However, users are still encouraged to carefully read 
-the entire chapter before attempting to install the {\sundials} suite, in case
-non-default choices are desired for compilers, compilation options, or the like.
-In lieu of reading the option list below, the user may invoke the configuration
-script with the help flag to view a complete listing of available options, which
-may be done by issuing 
+this entire section before attempting to install the {\sundials} suite, in case
+non-default choices are desired for compilers, compilation options, installation location, etc.
+The user may invoke the configuration script with the help flag to view a complete listing 
+of available options, which may be done by issuing 
 \begin{verbatim}
    % ./configure --help 
 \end{verbatim}
-from within the directory created above.
+from within {\em srcdir}.
 
-In the remainder of this chapter, we make the following distinctions:
-\begin{itemize}
-
-\item {\em srcdir} 
-
-  is the directory {\em solver}\id{-x.y.z} created above; i.e., the 
-  directory containing the {\sundials} sources.
-
-\item {\em builddir}
-
-  is the directory under which {\sundials} is built; i.e., the directory
-  from within which the \id{configure} command is issued. Usually, this is the same as
-  {\em srcdir}.
-
-\item {\em instdir}
-
-  is the directory under which the {\sundials} exported header files
-  and libraries will be installed. Typically, header files are exported under a directory
-  {\em instdir}\id{/include} while libraries are installed under {\em instdir}\id{/lib},
-  with {\em instdir} specified with the \id{--prefix} flag to \id{configure}. 
-  See \S\ref{ss:configuration_options} for more details on the installation directories, 
-  including the special cases of the {\sundials} examples and the {\sundialsTB} toolbox.
-
-\end{itemize}
-{\noindent}{\warn}{\em Note}: The installation directory {\em instdir} should {\em not} be the same as
-the source directory {\em srcdir}.
 
 \vspace{0.2in}
 {\noindent}The installation steps for {\sundials} can be as simple as 
 \begin{verbatim}
-   % tar xzf solver-x.y.z.tgz
-   % cd solver-x.y.z
+   % cd path/to/srcdir
    % ./configure
    % make
    % make install
 \end{verbatim}
 in which case the {\sundials} header files and libraries are installed under \id{/usr/local/include}
-and \id{/usr/local/lib}, respectively. Note that, by default, neither the example programs nor the 
-{\sundialsTB} toolbox are built and installed.
-
-If disk space is a priority, then to delete all temporary files created by building {\sundials}, issue
+and \id{/usr/local/lib}, respectively. Note that, by default, the example programs are not
+built and installed.
+To delete all temporary files created by building {\sundials}, issue
 \begin{verbatim}
    % make clean
 \end{verbatim}
-
 To prepare the {\sundials} distribution for a new install (using, for example, different options and/or
 installation destinations), issue
 \begin{verbatim}
    % make distclean
 \end{verbatim}
 
+The above steps are for an ``in-source'' build. For an ``out-of-source'' build (recommended),
+the procedure is simply:
+\begin{verbatim}
+   % cd path/to/builddir
+   % path/to/srcdir/configure
+   % make
+   % make install
+\end{verbatim}
+Note that, in this case, \id{make clean} and \id{make distclean} are irrelevant. Indeed, if disk space
+is a priority, the entire {\em builddir} can be purged after the installation completes. For a new install,
+a new {\em builddir} directory can be created and used.
+
 %===============================================================================
 
-\section{Configuration options}\label{ss:configuration_options}
+\subsection{Configuration options}\label{ss:configuration_options}
 
 The installation procedure given above will generally work without modification;
 however, if the system includes multiple {\mpi} implementations, then certain
@@ -87,7 +120,7 @@ The remainder of this section provides explanations of available configure scrip
 options.
 
 
-\subsection*{General options}
+\subsubsection*{General options}
 
 %%
 %% General options
@@ -194,7 +227,7 @@ options.
 %% Fortran support
 %%
 
-\subsection*{Options for Fortran support}
+\subsubsection*{Options for Fortran support}
 
 \begin{config}
 
@@ -210,39 +243,12 @@ options.
 
 \end{config}
 
-\noindent The configuration script will attempt to automatically determine the
-function name mangling scheme required by the specified {\F} compiler, but the
-following two options may be used to override the default behavior.
-
-\begin{config}
-
-\item \id{--with-f77underscore=ARG}
-
-  This option pertains to the {\fcvode}, {\fkinsol}, {\fida}, and {\fnvector}
-  {\F}-{\C} interface modules and is used to specify the number of underscores to
-  append to function names so {\F} routines can properly link with the associated
-  {\sundials} libraries. Valid values for \id{ARG} are: \id{none}, \id{one}
-  and \id{two}.
-
-  Default: \id{ARG=one}
-
-\item \id{--with-f77case=ARG}
-
-  Use this option to specify whether the external names of the {\fcvode},
-  {\fkinsol}, {\fida}, and {\fnvector} {\F}-{\C} interface functions should be
-  lowercase or uppercase so {\F} routines can properly link with the associated
-  {\sundials} libraries. Valid values for \id{ARG} are: \id{lower} and \id{upper}.
-
-  Default: \id{ARG=lower}
-
-\end{config}
-
 
 %%
 %% Parallel options
 %%
 
-\subsection*{Options for MPI support}
+\subsubsection*{Options for MPI support}
 
 \noindent The following configuration options are only applicable to the parallel
 {\sundials} packages:
@@ -295,7 +301,7 @@ following two options may be used to override the default behavior.
 \end{config}
 
 
-\subsection*{Options for library support}
+\subsubsection*{Options for library support}
 %%
 %% Shared or Static Libraries
 %%
@@ -321,65 +327,31 @@ may be used to build shared libraries on supported platforms.
 \end{config}
 
 
-\subsection*{Options for Matlab support}
-%%
-%% Compilation of sundialsTB mex files
-%%
+\subsubsection*{Options for Blas/Lapack support}
 
-\noindent The following options are relevant only for configuring and building 
-the {\sundialsTB} Matlab toolbox:
+\noindent The configure script will attempt to automatically determine the
+proper libraries to be linked for support of the new Blas/Lapack linear solver module.
+If these are not found, or if Blas and/or Lapack libraries are installed in a
+non-standard location, the following options can be used:
 
 \begin{config}
 
-\item \id{--enable-sundialsTB}
+\item \id{--with-blas}
 
-  The {\sundialsTB} Matlab toolbox is {\em not} built by default. Use this option
-  to enable configuration and compilation of the \id{mex} files. Upon completion
-  of the \id{make} command, the following \id{mex} files will be created:
-  \begin{config}
-    \item {\em builddir}\id{/sundialsTB/cvodes/cvm/cvm.}{\em{mexext}}
-    \item {\em builddir}\id{/sundialsTB/idas/idm/idm.}{\em{mexext}}
-    \item {\em builddir}\id{/sundialsTB/kinsol/kim/kim.}{\em{mexext}}
-  \end{config}
-  where {\em mexext} is the platform-specific extension of \id{mex} files.
-  
-\item \id{--with-sundialsTB-instdir=STBINSTDIR}
+  Sepcify the Blas library.
 
-  Alternate location for the installed {\sundialsTB} toolbox (valid only if
-  {\sundialsTB} is enabled). As for the example programs, installation of {\sundialsTB} can 
-  be completely disabled by issuing \id{STBINSTDIR=no} (in case building the toolbox is desired 
-  but its installtion will be done manually afterwards). Otherwise, all required {\sundialsTB} 
-  files will be installed under the directory \id{STBINSTDIR/sundialsTB}.
+  Default: none
 
-  Default: \id{DIR=MATLAB/toolbox}  (see below for the definition of \id{MATLAB}).
+\item \id{--with-lapack}
 
-\item \id{--with-matlab=MATLAB}
-
-  This option can be used to specify the location of the Matlab executable. 
-  The default is to search the path.
-
-\item \id{--with-mexopts=ARG}
-
-  Specify the \id{mex} options file to be used.
-
-  Default: Standard Matlab \id{mex} options file.
-
-\item \id{--with-mexflags=ARG}
-
-  Specify the \id{mex} compiler flags to be used.
-
-  Default: \id{ARG=-O}
-
-\item \id{--with-mexldadd=ARG}
-
-  Specify additional \id{mex} linker flags.
+  Sepcify the Lapack library.
 
   Default: none
 
 \end{config}
 
 
-\subsection*{Environment variables}
+\subsubsection*{Environment variables}
 
 %%
 %% Environment variables
@@ -414,26 +386,25 @@ illustrations of these.
 %%===============================================================================
 
 
-\section{Configuration examples}
+\subsection{Configuration examples}
 
 The following examples are meant to help demonstrate proper usage of the configure options.
 
 
 To build {\sundials} using the default C and Fortran compilers,
-and default \id{mpicc} and \id{mpif77} parallel compilers, enable compilation of examples,
-build the Matlab \id{mex} files for {\sundialsTB}, and install it under 
-\id{/home/myname/matlab/sundialsTB}, use
+and default \id{mpicc} and \id{mpif77} parallel compilers, 
+enable compilation of examples,and install libraries, headers, and
+example sources under appropriate subdirectories of
+\id{/home/myname/sundials/}, use
 \begin{verbatim}
-   % configure --prefix=/home/myname/sundials --enable-examples \
-               --enable-sundialsTB --with-sundialsTB-instdir=/home/myname/matlab
+   % configure --prefix=/home/myname/sundials --enable-examples
 \end{verbatim}
 
 
 \noindent To disable installation of the examples, use:
 \begin{verbatim}
    % configure --prefix=/home/myname/sundials \
-               --enable-examples --with-examples-instdir=no \
-               --enable-sundialsTB --with-sundialsTB-instdir=/home/myname/matlab
+               --enable-examples --with-examples-instdir=no
 \end{verbatim}
 
 
@@ -454,135 +425,359 @@ of the corresponding {\mpi} compiler script. In addition, since the
 \id{--with-mpi-root} option is given, the compilation flags
 \id{-I/usr/apps/mpich/1.2.4/include} and \id{-L/usr/apps/mpich/1.2.4/lib} are passed
 to \id{gcc} when compiling the {\mpi}-enabled functions. 
-The \id{--disable-examples} option explicitly disables the examples (which means
-a {\F} compiler is not required).
 The \id{--with-mpi-libs} option is required so that the configure
 script can check if \id{gcc} can link with the appropriate {\mpi}
 library.
+The \id{--disable-lapack} option explicitly disables support for Blas/Lapack, while
+the \id{--disable-fcmix} explicitly disables building the FCMIX interfaces. Note that, 
+because of the last two options, no Fortran-related settings are checked for.
 \begin{verbatim}
-   % configure CC=gcc --disable-examples --with-mpicc=no \
+   % configure CC=gcc --with-mpicc=no \
                --with-mpi-root=/usr/apps/mpich/1.2.4 \
-               --with-mpi-libs=-lmpich
+               --with-mpi-libs=-lmpich \
+               --disable-lapack --disable-fcmix
+\end{verbatim}
+
+\noindent Finally, a minimal configuration and installation of {\sundials}
+in \id{/home/myname/sundials/} (serial only, no Fortran support, no examples)
+can be obtained with:
+\begin{verbatim}
+   % configure --prefix=/home/myname/sundials \
+               --disable-mpi --disable-lapack --disable-fcmix
 \end{verbatim}
 
 
 
 %%===============================================================================
-
-\section{Installed libraries and exported header files}
-
-Using the standard {\sundials} build system, the command
-\begin{verbatim}
-   % make install
-\end{verbatim}
-will install the libraries under {\em libdir} and the public header
-files under {\em includedir}. The default values for these directories are
-{\em instdir}\id{/lib} and {\em instdir}\id{/include},
-respectively, but can be changed using the configure script options
-\id{--prefix}, \id{--exec-prefix}, \id{--includedir} and \id{--libdir} (see
-\S\ref{ss:configuration_options}). For example, a global installation
-of {\sundials} on a {\sc *NIX} system could be accomplished using
-\begin{verbatim}
-   % configure --prefix=/opt/sundials-2.1.1
-\end{verbatim}
-Although all installed libraries reside under {\em libdir}, the public header files
-are further organized into subdirectories under {\em includedir}.
-
-The installed libraries and exported header files are listed for
-reference in Table~\ref{t:sundials_files}.  The file extension .{\em lib}
-is typically \id{.so} for shared libraries and \id{.a} for static libraries
-(see {\em Options for library support} for additional details).
-
-A typical user program need not explicitly include any of the shared
-{\sundials} header files from under the {\em includedir}\id{/sundials}
-directory since they are explicitly included by the appropriate solver
-header files ({\em e.g.}, \id{cvode\_dense.h} includes
-\id{sundials\_dense.h}). However, it is both legal and safe to do so
-({\em e.g.}, the functions declared in \id{sundials\_smalldense.h} 
-could be used in building a preconditioner).
-
-\begin{table}
-\centering
-\caption{
-  SUNDIALS libraries and header files (names are relative to {\em libdir}
-  for libraries and to {\em includedir} for header files)
-}\label{t:sundials_files}
-\medskip
-\begin{tabular}{|l|l|ll|} 
-\hline %% --------------------------------------------------
-{\shared} & Libraries    & n/a                               &                                 \\ 
-\cline{2-4}
-          & Header files & sundials/sundials\_types.h        & sundials/sundials\_math.h   \\
-          &              & sundials/sundials\_config.h       & sundias/sundials\_nvector.h\\
-          &              & sundials/sunials\_smalldense.h    & sundials/sundials\_dense.h   \\
-          &              & sundials/sundials\_iterative.h    & sundials/sundials\_band.h\\
-          &              & sundials/sundials\_spbcgs.h       & sundials/sundials\_sptfqmr.h\\
-          &              & sundials/sundials\_spgmr.h        &                        \\ 
-\hline %% --------------------------------------------------
-{\nvecs}  & Libraries    & libsundials\_nvecserial.{\em lib} & libsundials\_fnvecserial.a  \\ 
-\cline{2-4}
-          & Header files & nvector/nvector\_serial.h         &                       \\ 
-\hline %% --------------------------------------------------
-{\nvecp}  & Libraries    & libsundials\_nvecparallel.{\em lib} & libsundials\_fnvecparallel.a \\
-\cline{2-4}
-          & Header files & nvector/nvector\_parallel.h               &                    \\ 
-\hline %% --------------------------------------------------
-{\cvode}  & Libraries    & libsundials\_cvode.{\em lib}      & libsundials\_fcvode.a \\
-\cline{2-4}
-          & Header files & cvode/cvode.h                           &                       \\
-          &              & cvode/cvode\_dense.h              & cvode/cvode\_band.h   \\
-          &              & cvode/cvode\_diag.h               & cvode/cvode\_spils.h  \\
-          &              & cvode/cvode\_bandpre.h            & cvode/cvode\_bbdpre.h \\
-          &              & cvode/cvode\_spgmr.h              & cvode/cvode\_spbcgs.h \\
-          &              & cvode/cvode\_sptfqmr.h            & cvode/cvode\_impl.h   \\
-\hline %% --------------------------------------------------
-{\cvodes} & Libraries    & libsundials\_cvodes.{\em lib}     &                        \\
-\cline{2-4}
-          & Header files & cvodes/cvodes.h                   &               \\
-          &              & cvodes/cvodes\_dense.h            & cvodes/cvodes\_band.h   \\
-          &              & cvodes/cvodes\_diag.h             & cvodes/cvodes\_spils.h  \\
-          &              & cvodes/cvodes\_bandpre.h          & cvodes/cvodes\_bbdpre.h \\
-          &              & cvodes/cvodes\_spgmr.h            & cvodes/cvodes\_spbcgs.h \\
-          &              & cvodes/cvodes\_sptfqmr.h          & cvodes/cvodes\_impl.h   \\
-          &              & cvodes/cvodea\_impl.h             &                     \\
-\hline %% --------------------------------------------------
-{\ida}    & Libraries    & libsundials\_ida.{\em lib}        & libsundials\_fida.a \\
-\cline{2-4}
-          & Header files & ida/ida.h                             &                     \\
-          &              & ida/ida\_dense.h                  & ida/ida\_band.h     \\
-          &              & ida/ida\_spils.h                  & ida/ida\_spgmr.h    \\
-          &              & ida/ida\_spbcgs.h                 & ida/ida\_sptfqmr.h  \\
-          &              & ida/ida\_bbdpre.h                 & ida/ida\_impl.h     \\
-\hline %% --------------------------------------------------
-{\idas}    & Libraries    & libsundials\_idas.{\em lib}      & \\
-\cline{2-4}
-          & Header files & idas/idas.h                       &                     \\
-          &              & idas/idas\_dense.h                & idas/idas\_band.h     \\
-          &              & idas/idas\_spils.h                & idas/idas\_spgmr.h    \\
-          &              & idas/idas\_spbcgs.h               & idas/idas\_sptfqmr.h  \\
-          &              & idas/idas\_bbdpre.h               & idas/idas\_impl.h     \\
-\hline %% --------------------------------------------------
-{\kinsol} & Libraries    & libsundials\_kinsol.{\em lib}     & libsundials\_fkinsol.a \\
-\cline{2-4}
-          & Header files & kinsol/kinsol.h                          &                     \\
-          &              & kinsol/kinsol\_dense.h            & kinsol/kinsol\_band.h     \\
-          &              & kinsol/kinsol\_spils.h            & kinsol/kinsol\_spgmr.h    \\
-          &              & kinsol/kinsol\_spbcgs.h           & kinsol/kinsol\_sptfqmr.h  \\
-          &              & kinsol/kinsol\_bbdpre.h           & kinsol/kinsol\_impl.h     \\
-\hline %% --------------------------------------------------
-\end{tabular}
-\end{table}
-
+\section{CMake-based installation}\label{s:cmake_inst}
 %%===============================================================================
 
-\section{Building SUNDIALS without the configure script}\label{ss:no_config}
+Support for CMake-based installation has been added to {\sundials} primarily
+to provide a platform-independent build system. Like autotools, CMake can generate a 
+Unix Makefile. Unlike autotools, CMake can also create KDevelop, Visual Studio, and 
+(Apple) XCode project files from the same configuration file.
+In addition, CMake provides a GUI frontend and therefore the installation process 
+is more interactive than when using autotools.
 
-If the \id{configure} script cannot be used ({\em e.g.}, when building
-{\sundials} under Microsoft Windows without using Cygwin), or if the
-user prefers to own the build process ({\em e.g.}, when {\sundials} is
-incorporated into a larger project with its own build system), then
-the header and source files for a given module can be copied from the
-{\em srcdir} to some other location and compiled separately.
+The installation options are very similar to the options mentioned above (although 
+their default values may differ slightly).
+Practically, all configurations supported by the autotools-based installation approach
+are also possible with CMake, the only notable exception being cross-compilation which 
+is currently not implemented in the CMake approach.
+
+The {\sundials} build process requires CMake version \id{2.4.x} or higher and a working compiler. 
+On Unix-like operating systems, it also requires Make (and \id{curses}, including its development
+libraries, for the GUI frontend to CMake, \id{ccmake}), while on Windows it requires Visual Studio.
+While many Linux distributions offer CMake, the version included is probably out of date. 
+A lot of new CMake features have been added recently, and you should download the latest version 
+from {\tt http://www.cmake.org/HTML/Download.html}. Build instructions for cmake 
+(only necessary for Unix-like systems) can be found on the CMake website. 
+Once CMake is installed, Linux/Unix user will be able to use \id{ccmake}, while Windows user will 
+be able to use \id{CMakeSetup}.
+
+As noted above, when using CMake to configure, build and install {\sundials}, it is always
+required to use a separate build directory. While in-source builds are possible, they are
+explicitly prohibited by the {\sundials} CMake scripts (on of the reasons being that, unlike
+autotools, CMake does not provide a \id{make distclean} procedure and it is therefore
+difficult to clean-up the source tree after an in-source build).
+
+\subsection{Configuring, building, and installing on Unix-like systems}
+
+Use \id{ccmake} from the CMake installed location. \id{ccmake} is a Curses based GUI for CMake. 
+To run it go to the build directory and specify as an argument the build directory:
+\begin{verbatim}
+   % mkdir path/to/builddir
+   % cd path/to/builddir
+   % ccmake path/to/srcdir
+\end{verbatim}
+
+About \id{ccmake}:
+\begin{itemize}
+\item  Iterative process
+  \begin{itemize}
+  \item Select values, run configure (\id{c} key)
+  \item Set the settings, run configure, set the settings, run configure, etc. 
+  \end{itemize}
+\item Repeat until all values are set and the generate option is available (\id{g} key)
+\item Some variables (advanced variables) are not visible right away
+\item To see advanced varables, toggle to advanced mode (\id{t} key)
+\item To set a variable, move the cursor to the variable and press enter
+  \begin{itemize}
+  \item If it is a boolean (ON/OFF) it will flip the value
+  \item If it is string or file, it will allow editing of the string
+  \item For file and directories, the \id{<tab>} key can be used to complete 
+  \end{itemize}
+\item To search for a variable press \id{/} key, and to repeat the search, press the \id{n} key
+\end{itemize}
+
+CMake will now generate makefiles including all dependencies and all rules to build 
+{\sundials} on this system. You should not however try to move the build directory 
+to another location on this system or to another system.
+Once you have makefiles you should be able to just type: 
+\begin{verbatim}
+  % make
+\end{verbatim}
+To install {\sundials} in the installation directory specified at configuration time, simply run
+\begin{verbatim}
+  % make install
+\end{verbatim}
+
+\subsection{Configuring, building, and installing  on Windows}
+Use \id{CMakeSetup} from the CMake install location.
+Make sure to select the appropriate source and the build directory.
+Also, make sure to pick the appropriate generator (on Visual Studio 6, 
+pick the Visual Studio 6 generator). Some CMake versions will ask you 
+to select the generator the first time you press Configure instead of 
+having a drop-down menu in the main dialog. 
+
+About \id{CMakeSetup}:
+\begin{itemize}
+\item  Iterative process
+  \begin{itemize}
+  \item Select values, press the Configure button
+  \item Set the settings, run configure, set the settings, run configure, etc. 
+  \end{itemize}
+\item Repeat until all values are set and the OK button becomes available.
+\item Some variables (advanced variables) are not visible right away
+\item To see advanced varables, toggle to advanced mode ("Show Advanced Values" toggle).
+\item To set the value of a variable, click on that value.
+  \begin{itemize}
+  \item If it is boolean (ON/OFF), a drop-down menu will appear for changing the value.
+  \item If it is file or directory, an ellipsis button will appear ("...") on the far right of the entry. Clicking this button will bring up the file or directory selection dialog.
+  \item If it is a string, it will become an editable string. 
+  \end{itemize}
+\end{itemize}
+
+CMake will now create Visual Studio project files. You should now be able to 
+open the {\sundials} project (or workspace) file. Make sure to select the appropriate 
+build type (Debug, Release, ...). To build {\sundials}, simply build the \id{ALL\_BUILD} target.
+
+To install {\sundials}, simply run the \id{INSTALL} target within the build system.
+
+\subsection{Configuration options}
+
+A complete list of all available options for a CMake-based {\sundials}
+configuration is provide below. Note that the default values shown are for 
+a typical configuration on a Linux system and are provided as illustration only.
+Some of them will be different on different systems.
+
+\begin{description}
+\item[\id{BUILD\_CVODE}] - 
+  Build the CVODE library 
+  \\
+  Default: ON
+\item[\id{BUILD\_CVODES}] - 
+  Build the CVODES library 
+  \\
+  Default: ON
+\item[\id{BUILD\_IDA}] - 
+   Build the IDA library 
+  \\
+   Default: ON
+\item[\id{BUILD\_IDAS}] - 
+  Build the IDAS library 
+  \\
+  Default: ON
+\item[\id{BUILD\_KINSOL}] - 
+  Build the KINSOL library 
+  \\
+  Default: ON
+\item[\id{BUILD\_SHARED\_LIBS}] - 
+  Build shared libraries
+  \\
+  Default: OFF 
+\item[\id{BUILD\_STATIC\_LIBS}] - 
+  Build static libraries
+  \\
+  Default: ON 
+\item[\id{CMAKE\_BUILD\_TYPE}] -  
+  Choose the type of build, options are: 
+  None (CMAKE\_C\_FLAGS used) Debug Release RelWithDebInfo MinSizeRel
+  \\
+  Default:
+\item[\id{CMAKE\_C\_COMPILER}] - 
+  C compiler
+  \\
+  Default: /usr/bin/gcc 
+\item[\id{CMAKE\_C\_FLAGS}] -  
+  Flags for C compiler
+  \\
+  Default:
+\item[\id{CMAKE\_C\_FLAGS\_DEBUG}] -      
+  Flags used by the compiler during debug builds
+  \\
+  Default: -g 
+\item[\id{CMAKE\_C\_FLAGS\_MINSIZEREL}] -  
+  Flags used by the compiler during release minsize builds
+  \\
+  Default: -Os -DNDEBUG 
+\item[\id{CMAKE\_C\_FLAGS\_RELEASE}] -    
+  Flags used by the compiler during release builds
+  \\
+  Default: -O3 -DNDEBUG 
+\item[\id{CMAKE\_BACKWARDS\_COMPATIBILITY}] - 
+  For backwards compatibility, what version of CMake commands and
+  syntax should this version of CMake allow.
+  \\
+  Default: 2.4
+\item[\id{CMAKE\_Fortran\_COMPILER}] - 
+  Fortran compiler
+  \\
+  Default: /usr/bin/g77
+  \\
+  Note: Fortran support (and all related options) are triggered only if
+  either Fortran-C support is enabled (\id{FCMIX\_ENABLE} is ON) or
+  Blas/Lapack support is enabled (\id{LAPACK\_ENABLE} is ON).
+\item[\id{CMAKE\_Fortran\_FLAGS}] - 
+  Flags for Fortran compiler
+  \\
+  Default:
+\item[\id{CMAKE\_Fortran\_FLAGS\_DEBUG}] - 
+  Flags used by the compiler during debug builds
+  \\
+  Default:
+\item[\id{CMAKE\_Fortran\_FLAGS\_MINSIZEREL}] - 
+  Flags used by the compiler during release minsize builds
+  \\
+  Default:
+\item[\id{CMAKE\_Fortran\_FLAGS\_RELEASE}] - 
+  Flags used by the compiler during release builds
+  \\
+  Default:
+\item[\id{CMAKE\_INSTALL\_PREFIX}] -   
+  Install path prefix, prepended onto install directories
+  \\
+  Default: /usr/local 
+  \\
+  Note: The user must have write access to the location specified through
+  this option. Exported {\sundials} header files and libraries will be 
+  installed under subdirectories \id{include} and \id{lib} of 
+  \id{CMAKE\_INSTALL\_PREFIX}, respectively.
+\item[\id{EXAMPLES\_ENABLE}] -   
+  Build the {\sundials} examples
+  \\
+  Default: OFF
+  \\
+  Note: setting this option to ON will trigger additional options
+  related to how and where example programs will be installed.
+\item[\id{EXAMPLES\_GENERATE\_MAKEFILES}] - 
+  Create Makefiles for building the examples
+  \\
+  Default: ON
+  \\
+  Note: This option is triggered only if enabling the building and installing of
+  the example programs (i.e., both \id{EXAMPLES\_ENABLE} and \id{EXAMPLEs\_INSTALL}
+  are set to ON) and if configuration is done on a Unix-like system. If enabled,
+  makefiles for the compilation of the example programs (using the installed
+  {\sundials} libraries) will be automatically generated and exported to the directory
+  specified by \id{EXAMPLES\_INSTALL\_PATH}.
+\item[\id{EXAMPLES\_INSTALL}] - 
+  Install example files
+  \\
+  Default: ON
+  \\
+  Note: This option is triggered only if building the example programs
+  is enabled (\id{EXAMPLES\_ENABLE} ON). If the user requires
+  installation of example programs then the sources and sample output files
+  for all {\sundials} modules that are currently enabled will be exported to
+  the directory specified by \id{EXAMPLES\_INSTALL\_PATH}. A CMake configuration
+  script will also be automatically generated and exported to the same directory.
+  Additionally, if the configuration is done under a Unix-like system, an additional
+  option (\id{EXAMPLES\_GENERATE\_MAKEFILES}) will be triggered.
+\item[\id{EXAMPLES\_INSTALL\_PATH}] - 
+  Output directory for installing example files
+  \\
+  Default: /usr/local/examples
+  \\
+  Note: The actual default value for this option will an \id{examples}
+  subdirectory created under \id{CMAKE\_INSTALL\_PREFIX}.
+\item[\id{EXAMPLES\_USE\_STATIC\_LIBS}] - 
+  Link examples using the static libraries
+  \\
+  Default: OFF
+  \\
+  Note: This option is triggered only if building shared
+  libraries is enabled (\id{BUILD\_SHARED\_LIBS} is ON).
+\item[\id{FCMIX\_ENABLE}] - 
+  Enable Fortran-C support   
+  \\
+  Default: OFF 
+\item[\id{LAPACK\_ENABLE}] -  
+  Enable Lapack support
+  \\
+  Default: OFF
+  \\
+  Note: Setting this option to ON will trigger additional options
+  (\id{LAPACK\_LIBRARIES} and \id{LAPACK\_LINKER\_FLAGS}).
+\item[\id{LAPACK\_LIBRARIES}] - 
+  Lapack (and Blas) libraries
+  \\
+  Default: /usr/lib/liblapack.so;/usr/lib/libblas.so
+\item[\id{LAPACK\_LINKER\_FLAGS}] - 
+  Lapack (and Blas) required linker flags
+  \\
+  Default: -lg2c
+\item[\id{MPI\_ENABLE}] -  
+  Enable MPI support
+  \\
+  Default: OFF 
+  \\
+  Note: Setting this option to ON will trigger several additional options
+  related to MPI.
+\item[\id{MPI\_MPICC}] - 
+  \id{mpicc} program
+  \\
+  Default: /home/radu/apps/mpich1/gcc/bin/mpicc
+  \\
+  Note: This option is triggered only if using MPI compiler scripts
+  (\id{MPI\_USE\_MPISCRIPTS} is ON).
+\item[\id{MPI\_MPIF77}] - 
+  \id{mpif77} program
+  \\
+  Default: /home/radu/apps/mpich1/gcc/bin/mpif77
+  \\
+  Note: This option is triggered only if using MPI compiler scripts
+  (\id{MPI\_USE\_MPISCRIPTS} is ON) and Fortran-C support is enabled
+  (\id{FCMIx\_ENABLE} is ON).
+\item[\id{MPI\_INCLUDE\_PATH}] - 
+  Path to MPI header files
+  \\
+  Default: /home/radu/apps/mpich1/gcc/include
+  \\
+  Note: This option is triggered only if not using MPI compiler scripts
+  (\id{MPI\_USE\_MPISCRIPTS} is ON).
+\item[\id{MPI\_LIBRARIES}] - 
+  MPI libraries
+  \\
+  Default: /home/radu/apps/mpich1/gcc/lib/libmpich.a
+  \\
+  Note: This option is triggered only if not using MPI compiler scripts
+  (\id{MPI\_USE\_MPISCRIPTS} is ON).
+\item[\id{MPI\_USE\_MPISCRIPTS}] - 
+  Use MPI compiler scripts
+  \\
+  Default: ON
+\item[\id{SUNDIALS\_PRECISION}] -   
+  Precision used in {\sundials}, options are: double, single or extended
+  \\
+  Default: double 
+\item[\id{USE\_GENERIC\_MATH}] -   
+  Use generic (stdc) math libraries
+  \\
+  Default: ON 
+\end{description}
+
+
+%%===============================================================================
+\section{Manually building SUNDIALS}\label{ss:no_config}
+%%===============================================================================
+
+With the addition of CMake support, the installation of the {\sundials} package 
+on most any platform was greatly simplified. However, if for whatever reason,
+neither of the two procedures described above is convenient (for example for
+users who prefer to own the build process or otherwise incorporate {\sundials}
+or one of its solvers in a larger project with its own build system), we
+provide here a few directions on a completely manual installation.
 
 The following files are required to compile a {\sundials} solver module:
 \begin{itemize}
@@ -602,11 +797,34 @@ The following files are required to compile a {\sundials} solver module:
 {\em srcdir}\id{/include/nvector} and {\em srcdir}\id{/src/nvec\_par} 
 \item configuration header file \id{sundials\_config.h} (see below)
 \end{itemize}
-
+%%
 A sample header file that, appropriately modified, can be used as
 \id{sundials\_config.h} (otherwise created automatically by the
-\id{configure} script) is provided below. The various preprocessor
-macros defined within \id{sundials\_config.h} have the following uses:
+\id{configure} or CMake scripts) is provided below.
+
+\lstset{language=C,frame=ltrb,framesep=5pt,basicstyle=\normalsize,
+  commentstyle=\color{OliveGreen}, stringstyle=\color{CadetBlue},
+  showstringspaces=true}
+
+\begin{lstlisting}
+ /* SUNDIALS configuration header file */
+
+#define SUNDIALS_PACKAGE_VERSION "2.4.0"
+
+#define F77_FUNC(name,NAME) name ## _
+#define F77_FUNC_(name,NAME) name ## _
+
+#define SUNDIALS_DOUBLE_PRECISION 1
+
+#define SUNDIALS_USE_GENERIC_MATH 1
+
+#define SUNDIALS_MPI_COMM_F2C 1
+
+#define SUNDIALS_EXPORT
+\end{lstlisting}
+
+
+The various preprocessor macros defined within \id{sundials\_config.h} have the following uses:
 \begin{itemize}
 
 \item Precision of the {\sundials} \id{realtype} type\\ \\
@@ -658,60 +876,130 @@ macros defined within \id{sundials\_config.h} have the following uses:
   \id{MPI\_Fint} and the function \id{MPI\_Comm\_f2c}, and it is
   possible to use {\mpi} communicators other than
   \id{MPI\_COMM\_WORLD} with the {\F}-{\C} interface modules.
+
+\item Mark {\sundials} API functions for export/import.
+  When building shared {\sundials} libraries under Windows, use
+\begin{verbatim}
+  #define SUNDIALS_EXPORT __declspec(dllexport)
+\end{verbatim}
+  When linking to shared {\sundials} libraries under Windows, use
+\begin{verbatim}
+  #define SUNDIALS_EXPORT __declspec(dllimport)
+\end{verbatim}
+  In all other cases (other platforms or static libraries under Windows), 
+  the \id{SUNDIALS\_EXPORT} macro is empty.
+
 \end{itemize}
 
-\newpage
-\begin{lstlisting}
-/*
- * -----------------------------------------------------------------
- * Copyright (c) 2005, The Regents of the University of California.
- * Produced at the Lawrence Livermore National Laboratory.
- * All rights reserved.
- * For details, see the LICENSE file.
- *------------------------------------------------------------------
- * SUNDIALS configuration header file
- *------------------------------------------------------------------
- */
 
-/* Define SUNDIALS version number */
-#define SUNDIALS_PACKAGE_VERSION "2.3.0"
 
-/* FCMIX: Define Fortran name-mangling macro 
- * Depending on the inferred scheme, one of the following 
- * six macros will be defined:
- *     #define F77_FUNC(name,NAME) name
- *     #define F77_FUNC(name,NAME) name ## _
- *     #define F77_FUNC(name,NAME) name ## __
- *     #define F77_FUNC(name,NAME) NAME
- *     #define F77_FUNC(name,NAME) NAME ## _
- *     #define F77_FUNC(name,NAME) NAME ## __
- */
-#define F77_FUNC(name,NAME) name ## _
-#define F77_FUNC_(name,NAME) name ## _
 
-/* Define precision of SUNDIALS data type 'realtype' 
- * Depending on the precision level, one of the following 
- * three macros will be defined:
- *     #define SUNDIALS_SINGLE_PRECISION 1
- *     #define SUNDIALS_DOUBLE_PRECISION 1
- *     #define SUNDIALS_EXTENDED_PRECISION 1
- */
-#define SUNDIALS_DOUBLE_PRECISION 1
+%%===============================================================================
+\section{Installed libraries and exported header files}
+%%===============================================================================
 
-/* Use generic math functions 
- * If it was decided that generic math functions can be used, then
- *     #define SUNDIALS_USE_GENERIC_MATH 1
- * otherwise
- *     #define SUNDIALS_USE_GENERIC_MATH 0
- */
-#define SUNDIALS_USE_GENERIC_MATH 1
+Using the standard {\sundials} build system, the command
+\begin{verbatim}
+   % make install
+\end{verbatim}
+will install the libraries under {\em libdir} and the public header
+files under {\em includedir}. The default values for these directories are
+{\em instdir}\id{/lib} and {\em instdir}\id{/include},
+respectively, but can be changed using the configure script options
+\id{--prefix}, \id{--exec-prefix}, \id{--includedir} and \id{--libdir} 
+(see \S\ref{s:autotool_inst}) or the appropriate CMake options
+(see \S\ref{s:cmake_inst}). For example, a global installation
+of {\sundials} on a {\sc *NIX} system could be accomplished using
+\begin{verbatim}
+   % configure --prefix=/opt/sundials-2.1.1
+\end{verbatim}
+Although all installed libraries reside under {\em libdir}, the public header files
+are further organized into subdirectories under {\em includedir}.
 
-/* FNVECTOR: Allow user to specify different MPI communicator
- * If it was found that the MPI implementation supports MPI_Comm_f2c, then
- *      #define SUNDIALS_MPI_COMM_F2C 1
- * otherwise
- *      #define SUNDIALS_MPI_COMM_F2C 0
- */
-#define SUNDIALS_MPI_COMM_F2C 1
+The installed libraries and exported header files are listed for
+reference in Table~\ref{t:sundials_files}.  The file extension .{\em lib}
+is typically \id{.so} for shared libraries and \id{.a} for static libraries.
+Note that, in Table~\ref{t:sundials_files}, names are relative to {\em libdir}
+for libraries and to {\em includedir} for header files.
 
-\end{lstlisting}
+A typical user program need not explicitly include any of the shared
+{\sundials} header files from under the {\em includedir}\id{/sundials}
+directory since they are explicitly included by the appropriate solver
+header files ({\em e.g.}, \id{cvode\_dense.h} includes
+\id{sundials\_dense.h}). However, it is both legal and safe to do so
+({\em e.g.}, the functions declared in \id{sundials\_dense.h} 
+could be used in building a preconditioner).
+
+\begin{table}
+\centering
+\caption{{\sundials} libraries and header files}\label{t:sundials_files}
+\medskip
+\begin{tabular}{|l|l|ll|} 
+\hline %% --------------------------------------------------
+{\shared} & Libraries    & n/a                               &                                 \\ 
+\cline{2-4}
+          & Header files & sundials/sundials\_config.h       & sundials/sundials\_types.h\\
+          &              & sundials/sundials\_math.h         & \\
+          &              & sundials/sundials\_nvector.h      & sundials/sundials\_fnvector.h\\
+          &              & sundials/sundials\_direct.h       & sundials/sundials\_lapack.h   \\
+          &              & sundials/sundials\_dense.h        & sundials/sundials\_band.h\\
+          &              & sundials/sundials\_iterative.h    & sundials/sundials\_spgmr.h\\
+          &              & sundials/sundials\_spbcgs.h       & sundials/sundials\_sptfqmr.h\\
+\hline %% --------------------------------------------------
+{\nvecs}  & Libraries    & libsundials\_nvecserial.{\em lib} & libsundials\_fnvecserial.a  \\ 
+\cline{2-4}
+          & Header files & nvector/nvector\_serial.h         &                       \\ 
+\hline %% --------------------------------------------------
+{\nvecp}  & Libraries    & libsundials\_nvecparallel.{\em lib} & libsundials\_fnvecparallel.a \\
+\cline{2-4}
+          & Header files & nvector/nvector\_parallel.h       &                    \\ 
+\hline %% --------------------------------------------------
+{\cvode}  & Libraries    & libsundials\_cvode.{\em lib}      & libsundials\_fcvode.a \\
+\cline{2-4}
+          & Header files & cvode/cvode.h                     & cvode/cvode\_impl.h   \\
+          &              & cvode/cvode\_direct.h             & cvode/cvode\_lapack.h \\          
+          &              & cvode/cvode\_dense.h              & cvode/cvode\_band.h   \\
+          &              & cvode/cvode\_diag.h               & \\
+          &              & cvode/cvode\_spils.h              & cvode/cvode\_spgmr.h  \\
+          &              & cvode/cvode\_sptfqmr.h            & cvode/cvode\_spbcgs.h \\
+          &              & cvode/cvode\_bandpre.h            & cvode/cvode\_bbdpre.h \\
+\hline %% --------------------------------------------------
+{\cvodes} & Libraries    & libsundials\_cvodes.{\em lib}     &                        \\
+\cline{2-4}
+          & Header files & cvodes/cvodes.h                     & cvodes/cvodes\_impl.h   \\
+          &              & cvodes/cvodes\_direct.h             & cvodes/cvodes\_lapack.h \\          
+          &              & cvodes/cvodes\_dense.h              & cvodes/cvodes\_band.h   \\
+          &              & cvodes/cvodes\_diag.h               & \\
+          &              & cvodes/cvodes\_spils.h              & cvodes/cvodes\_spgmr.h  \\
+          &              & cvodes/cvodes\_sptfqmr.h            & cvodes/cvodes\_spbcgs.h \\
+          &              & cvodes/cvodes\_bandpre.h            & cvodes/cvodes\_bbdpre.h \\
+\hline %% --------------------------------------------------
+{\ida}    & Libraries    & libsundials\_ida.{\em lib}        & libsundials\_fida.a \\
+\cline{2-4}
+          & Header files & ida/ida.h                         & ida/ida\_impl.h     \\
+          &              & ida/ida\_direct.h                 & ida/ida\_lapack.h   \\
+          &              & ida/ida\_dense.h                  & ida/ida\_band.h     \\
+          &              & ida/ida\_spils.h                  & ida/ida\_spgmr.h    \\
+          &              & ida/ida\_spbcgs.h                 & ida/ida\_sptfqmr.h  \\
+          &              & ida/ida\_bbdpre.h                 &     \\
+\hline %% --------------------------------------------------
+{\idas}    & Libraries    & libsundials\_idas.{\em lib}      & \\
+\cline{2-4}
+          & Header files & idas/idas.h                         & idas/idas\_impl.h     \\
+          &              & idas/idas\_direct.h                 & idas/idas\_lapack.h   \\
+          &              & idas/idas\_dense.h                  & idas/idas\_band.h     \\
+          &              & idas/idas\_spils.h                  & idas/idas\_spgmr.h    \\
+          &              & idas/idas\_spbcgs.h                 & idas/idas\_sptfqmr.h  \\
+          &              & idas/idas\_bbdpre.h                 &     \\
+\hline %% --------------------------------------------------
+{\kinsol} & Libraries    & libsundials\_kinsol.{\em lib}     & libsundials\_fkinsol.a \\
+\cline{2-4}
+          & Header files & kinsol/kinsol.h                         & kinsol/kinsol\_impl.h     \\
+          &              & kinsol/kinsol\_direct.h                 & kinsol/kinsol\_lapack.h   \\
+          &              & kinsol/kinsol\_dense.h                  & kinsol/kinsol\_band.h     \\
+          &              & kinsol/kinsol\_spils.h                  & kinsol/kinsol\_spgmr.h    \\
+          &              & kinsol/kinsol\_spbcgs.h                 & kinsol/kinsol\_sptfqmr.h  \\
+          &              & kinsol/kinsol\_bbdpre.h                 &     \\
+\hline %% --------------------------------------------------
+\end{tabular}
+\end{table}

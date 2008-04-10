@@ -86,14 +86,30 @@ in which
 The initial guess for the iteration is a predicted value $y^{n(0)}$
 computed explicitly from the available history data.
 \index{nonlinear system!definition|)}
-For the Newton corrections, {\cvodes} provides a choice of six methods:
+
+For the solution of the linear systems within the Newton corrections, 
+{\cvodes} provides several choices, including the option of an user-supplied
+linear solver module. The linear solver modules distributed with {\sundials}
+are organized in two families, a {\em direct} family comprising direct linear 
+solvers for dense or banded matrices and a {\em spils} family comprising
+scaled preconditioned iterative (Krylov) linear solvers. 
+%%
+In addition, {\cvodes} also provides a linear solver module which only uses
+a diagonal approximation of the Jacobian matrix. 
+%%
+The methods offered through these modules are as follows:
 \begin{itemize}
-\item dense direct solver,
-\item band direct solver,
-\item diagonal approximate Jacobian solver,
-\item scaled preconditioned GMRES (Generalized Minimal Residual method) without restarts,
-\item scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable method), or
-\item scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal Residual method).
+\item dense direct solvers, using either an internal implementation or 
+  a Blas/Lapack implementation (serial version only),
+\item band direct solvers, using either an internal implementation or 
+  a Blas/Lapack implementation (serial version only),
+\item a diagonal approximate Jacobian solver,
+\item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
+      solver without restarts,
+\item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
+      method) solver, or
+\item {\sptfqmr}, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
+       Residual method) solver.
 \end{itemize}
 For large stiff systems, where direct methods are not feasible, the
 combination of a BDF integrator and any of the preconditioned Krylov
@@ -310,6 +326,273 @@ $y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
 calling program after each step.  There are also options to force
 {\cvodes} not to integrate past a given stopping point 
 $t = t_{\mbox{\scriptsize stop}}$.
+
+
+
+%------------------------
+\section{Preconditioning}\label{s:preconditioning}
+%------------------------
+
+\index{preconditioning!advice on|(}
+When using a Newton method to solve the nonlinear system (\ref{e:nonlinear}),
+{\cvodes} makes repeated use of a linear solver to solve linear systems of the form
+$M x = - r$, where $x$ is a correction vector and $r$ is a residual vector.
+If this linear system solve is done with one of the scaled preconditioned iterative 
+linear solvers, these solvers are rarely successful if used without preconditioning;
+it is generally necessary to precondition the system in order to obtain acceptable efficiency.  
+A system $A x = b$ can be preconditioned on the left, as $(P^{-1}A) x = P^{-1} b$;
+on the right, as $(A P^{-1}) P x = b$; or on both sides, as
+$(P_L^{-1} A P_R^{-1}) P_R x = P_L^{-1}b$.  The Krylov method is then
+applied to a system with the matrix $P^{-1}A$, or $AP^{-1}$, or
+$P_L^{-1} A P_R^{-1}$, instead of $A$.  In order to improve the
+convergence of the Krylov iteration, the preconditioner matrix $P$, or
+the product $P_L P_R$ in the last case, should in some sense
+approximate the system matrix $A$.  Yet at the same time, in order to
+be cost-effective, the matrix $P$, or matrices $P_L$ and $P_R$, should
+be reasonably efficient to evaluate and solve.  Finding a good point
+in this tradeoff between rapid convergence and low cost can be very
+difficult.  Good choices are often problem-dependent (for example, see
+\cite{BrHi:89} for an extensive study of preconditioners for
+reaction-transport systems).
+
+The {\cvodes} solver allow for preconditioning either
+side, or on both sides, although we know of no situation where
+preconditioning on both sides is clearly superior to
+preconditioning on one side only (with the product $P_L P_R$).
+Moreover, for a given preconditioner matrix, the merits of left vs. right
+preconditioning are unclear in general, and the user should experiment
+with both choices.  Performance will differ because the inverse of the
+left preconditioner is included in the linear system residual whose
+norm is being tested in the Krylov algorithm.  As a rule, however, if
+the preconditioner is the product of two matrices, we recommend that
+preconditioning be done either on the left only or the right only,
+rather than using one factor on each side. 
+
+Typical preconditioners used with {\cvodes} are based on
+approximations to the Newton iteration matrix of the systems involved;
+in other words, $P \approx I - \gamma J$, where $\gamma$ is a scalar proportional to the
+integration step size $h$ and $J$ is the system Jacobian, i.e. $J = \partial f / \partial y$.
+Because the Krylov iteration occurs within a Newton iteration and further
+also within a time integration, and since each of these iterations has
+its own test for convergence, the preconditioner may use a very crude
+approximation, as long as it captures the dominant numerical
+feature(s) of the system.  We have found that the combination of a
+preconditioner with the Newton-Krylov iteration, using even a fairly
+poor approximation to the Jacobian, can be surprisingly superior to
+using the same matrix without Krylov acceleration (i.e., a modified
+Newton iteration), as well as to using the Newton-Krylov method with
+no preconditioning.
+\index{preconditioning!advice on|)}
+
+
+%------------------------
+\section{BDF stability limit detection}\label{s:bdf_stab}
+%------------------------
+
+\index{stability limit detection}
+{\cvodes} includes an algorithm, {\stald} (STAbility Limit Detection),
+which provides protection against potentially unstable behavior of the 
+BDF multistep integration methods in certain situations, as described below.
+
+When the BDF option is selected, {\cvodes} uses Backward Differentiation 
+Formula methods of orders 1 to 5.  At order 1 or 2, the BDF
+method is A-stable, meaning that for any complex constant $\lambda$ in
+the open left half-plane the method is unconditionally stable (for
+any step size) for the standard scalar model problem ${\dot y} = \lambda y$.
+For an ODE system, this means that, roughly speaking, as long as all
+modes in the system are stable, the method is also stable for any
+choice of step size, at least in the sense of a local linear stability
+analysis.
+
+At orders 3 to 5, the BDF methods are not A-stable, although they are
+{\em stiffly stable}. In each case, in order for the method to be stable
+at step size $h$ on the scalar model problem, the product $h\lambda$ must
+lie within a {\em region of absolute stability}. 
+That region excludes a portion of the left half-plane that is concentrated 
+near the imaginary axis.  The size of that region of instability grows as the order
+increases from 3 to 5.  What this means is that, when running BDF at
+any of these orders, if an eigenvalue $\lambda$ of the system lies close
+enough to the imaginary axis, the step sizes $h$ for which the method is
+stable are limited (at least according to the linear stability theory)
+to a set that prevents $h\lambda$ from leaving the stability region.
+The meaning of {\em close enough} depends on the order.  
+At order 3, the unstable region is much narrower than at order 5, 
+so the potential for unstable behavior grows with order.
+
+System eigenvalues that are likely to run into this instability are
+ones that correspond to weakly damped oscillations.  A pure undamped
+oscillation corresponds to an eigenvalue on the imaginary axis.
+Problems with modes of that kind call for different considerations
+since the oscillation generally must be followed by the solver, but
+this requires step sizes ($h \sim 1/\nu$, where $\nu$ is the frequency) 
+that are stable for BDF anyway.  But for a weakly damped oscillatory mode,
+the oscillation in the solution is eventually damped to the noise level, 
+and at that time it is important that the solver not be restricted to step 
+sizes on the order of $1/\nu$.  It is in this situation that the new option may
+be of great value.
+
+In terms of partial differential equations, the typical problems for
+which the stability limit detection option is appropriate are
+ODE systems resulting from semi-discretized PDEs (i.e., PDEs
+discretized in space) with advection and diffusion, but with advection dominating
+over diffusion. Diffusion alone produces pure decay modes, while advection tends to
+produce undamped oscillatory modes.  A mix of the two with advection
+dominant will have weakly damped oscillatory modes.
+
+The {\stald} algorithm attempts to detect, in a direct
+manner, the presence of a stability region boundary that is limiting
+the step sizes in the presence of a weakly damped oscillation \cite{Hin:92}.
+The algorithm supplements (but differs greatly from) the existing
+algorithms in {\cvodes} for choosing step size and order based on
+estimated local truncation errors.  The {\stald} algorithm works directly
+with history data that is readily available in {\cvodes}.  If it concludes
+that the step size is in fact stability-limited, it dictates a
+reduction in the method order regardless of the outcome of the
+error-based algorithm.  The {\stald} algorithm has been tested in
+combination with the {\vode} solver on linear advection-dominated
+advection-diffusion problems \cite{Hin:95}, where it works well.  The
+implementation in {\cvodes} has been successfully tested on linear 
+and nonlinear advection-diffusion problems, among others.
+
+This stability limit detection option adds some computational overhead
+to the {\cvodes} solution.  (In timing tests, these overhead costs
+have ranged from 2\% to 7\% of the total, depending on the size and
+complexity of the problem, with lower relative costs for larger
+problems.)  Therefore, it should be activated only when there is
+reasonable expectation of modes in the user's system for which it is
+appropriate.  In particular, if a {\cvodes} solution with this option
+turned off appears to take an inordinately large number of steps for
+orders between 3 and 5 for no apparent reason in terms of the solution time scale,
+then there is a good chance that step sizes are being limited by
+stability, and that turning on the option will improve efficiency.
+
+%------------------------
+\section{Rootfinding}\label{ss:rootfinding}
+%------------------------
+
+\index{rootfinding}
+The {\cvodes} solver has been augmented to include a rootfinding
+feature.  This means that, while integrating the Initial Value Problem
+(\ref{e:ivp}), {\cvodes} can also find the roots of a set of user-defined
+functions $g_i(t,y)$ that depend both on $t$ and on the solution vector 
+$y = y(t)$.  The number of these root functions is arbitrary, and if
+more than one $g_i$ is found to have a root in any given interval, the
+various root locations are found and reported in the order that they
+occur on the $t$ axis, in the direction of integration.
+
+Generally, this rootfinding feature finds only roots of odd
+multiplicity, corresponding to changes in sign of $g_i(t,y(t))$,
+denoted $g_i(t)$ for short.  If a user root function has a root of
+even multiplicity (no sign change), it will probably be missed by
+{\cvodes}.  If such a root is desired, the user should reformulate the
+root function so that it changes sign at the desired root.
+
+The basic scheme used is to check for sign changes of any $g_i(t)$ over
+each time step taken, and then (when a sign change is found) to hone
+in on the root(s) with a modified secant method \cite{HeSh:80}.  
+In addition, each time $g$ is computed, {\cvodes} checks to see if 
+$g_i(t) = 0$ exactly, and if so it reports this as a root.  However,
+if an exact zero of any $g_i$ is found at a point $t$, {\cvodes}
+computes $g$ at $t + \delta$ for a small increment $\delta$, slightly
+further in the direction of integration, and if any $g_i(t + \delta)=0$ 
+also, {\cvodes} stops and reports an error.  This way, each time
+{\cvodes} takes a time step, it is guaranteed that the values of all
+$g_i$ are nonzero at some past value of $t$, beyond which a search for
+roots is to be done.
+
+At any given time in the course of the time-stepping, after suitable
+checking and adjusting has been done, {\cvodes} has an interval
+$(t_{lo},t_{hi}]$ in which roots of the $g_i(t)$ are to be sought, such
+that $t_{hi}$ is further ahead in the direction of integration, and
+all $g_i(t_{lo}) \neq 0$.  The endpoint $t_{hi}$ is either $t_n$,
+the end of the time step last taken, or the next requested output time
+$t_{\mbox{\scriptsize out}}$ if this comes sooner.  The endpoint
+$t_{lo}$ is either $t_{n-1}$, the last output time
+$t_{\mbox{\scriptsize out}}$ (if this occurred within the last
+step), or the last root location (if a root was just located within
+this step), possibly adjusted slightly toward $t_n$ if an exact zero
+was found.  The algorithm checks $g_i$ at $t_{hi}$ for zeros and for
+sign changes in $(t_{lo},t_{hi})$.  If no sign changes were found, then
+either a root is reported (if some $g_i(t_{hi}) = 0$) or we proceed to
+the next time interval (starting at $t_{hi}$).  If one or more sign
+changes were found, then a loop is entered to locate the root to
+within a rather tight tolerance, given by
+\[ \tau = 100 * U * (|t_n| + |h|)~~~ (U = \mbox{unit roundoff}) ~. \]
+Whenever sign changes are seen in two or more root functions, the one
+deemed most likely to have its root occur first is the one with the
+largest value of $|g_i(t_{hi})|/|g_i(t_{hi}) - g_i(t_{lo})|$,
+corresponding to the closest to $t_{lo}$ of the secant method values.
+At each pass through the loop, a new value $t_{mid}$ is set, strictly
+within the search interval, and the values of $g_i(t_{mid})$ are
+checked.  Then either $t_{lo}$ or $t_{hi}$ is reset to $t_{mid}$
+according to which subinterval is found to include the sign change.  If
+there is none in $(t_{lo},t_{mid})$ but some $g_i(t_{mid}) = 0$, then
+that root is reported.  The loop continues until 
+$|t_{hi}-t_{lo}| < \tau$, and then the reported root location is
+$t_{hi}$.
+
+In the loop to locate the root of $g_i(t)$, the formula for $t_{mid}$
+is
+\[ t_{mid} = t_{hi} - (t_{hi} - t_{lo})
+             g_i(t_{hi}) / [g_i(t_{hi}) - \alpha g_i(t_{lo})] ~, \] 
+where $\alpha$ is a weight parameter.  On the first two passes through
+the loop, $\alpha$ is set to $1$, making $t_{mid}$ the secant method
+value.  Thereafter, $\alpha$ is reset according to the side of the
+subinterval (low vs. high, i.e., toward $t_{lo}$ vs. toward $t_{hi}$)
+in which the sign change was found in the previous two passes.  If the
+two sides were opposite, $\alpha$ is set to 1.  If the two sides were
+the same, $\alpha$ is halved (if on the low side) or doubled (if on
+the high side).  The value of $t_{mid}$ is closer to $t_{lo}$ when
+$\alpha < 1$ and closer to $t_{hi}$ when $\alpha > 1$.  If the above
+value of $t_{mid}$ is within $\tau/2$ of $t_{lo}$ or $t_{hi}$, it is
+adjusted inward, such that its fractional distance from the endpoint
+(relative to the interval size) is between .1 and .5 (.5 being the
+midpoint), and the actual distance from the endpoint is at least
+$\tau/2$.
+
+
+%----------------------------------------
+\section{Pure quadrature integration}\label{s:quad}
+%----------------------------------------
+
+\index{quadrature integration}
+In many applications, and most notably during the backward integration phase
+of an adjoint sensitivity analysis run (see \S\ref{ss:adj_sensi}) it is of
+interest to compute integral quantities of the form
+\begin{equation}\label{e:QUAD}
+  z(t) = \int_{t_0}^t q(\tau, y(\tau), p) \, d\tau \, .
+\end{equation}
+The most effective approach to compute $z(t)$ is to extend the original problem
+with the additional ODEs (obtained by applying Leibnitz's differentiation rule):
+\begin{equation}
+  \dot z = q(t,y,p) \, , \quad z(t_0) = 0 \, .
+\end{equation}
+Note that this is equivalent to using a quadrature method based on the underlying
+linear multistep polynomial representation for $y(t)$.
+
+This can be done at the ``user level'' by simply exposing to {\cvodes} the extended 
+ODE system (\ref{e:ivp_p})+(\ref{e:QUAD}). However, in the context of an implicit 
+integration solver, this approach is not desirable since the nonlinear solver 
+module will require the Jacobian (or Jacobian-vector product) of this extended ODE.
+Moreover, since the additional states $z$ do not enter the right-hand side of
+the ODE (\ref{e:QUAD}) and therefore the right-hand side of the extended ODE system,
+it is much more efficient to treat the ODE system (\ref{e:QUAD})
+separately from the original system (\ref{e:ivp_p}) by ``taking out'' the additional
+states $z$ from the nonlinear system (\ref{e:nonlinear}) that must be solved in
+the correction step of the LMM. Instead, ``corrected'' values $z^n$ are computed
+explicitly as
+\begin{equation*}
+  z^n = - \frac{1}{\alpha_{n,0}} \left(
+    h_n \beta_{n,0} q(t_n, y_n, p) 
+    + h_n \sum_{i=1}^{K_2} \beta_{n,i} \dot z^{n-i}
+    + \sum_{i=1}^{K_1} \alpha_{n,i} z^{n-i}
+    \right) \, ,
+\end{equation*}
+once the new approximation $y^n$ is available.
+
+The quadrature variables $z$ can be optionally included in the error test, in 
+which case corresponding relative and absolute tolerances must be provided.
+
 
 %----------------------------------------
 \section{Forward sensitivity analysis}\label{ss:fwd_sensi}
@@ -549,6 +832,31 @@ Otherwise, the magnitude of $\rhomax$ and its sign (positive or
 negative) indicates whether this switching is done with regard to
 (centered or forward) finite differences, respectively.
 \index{forward sensitivity analysis!right hand side evaluation|)}
+
+
+\subsection{Quadratures depending on forward sensitivities}
+\index{quadrature integration!forward sensitivity analysis}
+If pure quadrature variables are also included in the problem definition
+(see \S\ref{s:quad}), {\cvodes} does {\em not} carry their sensitivities 
+automatically. Instead, we provide a more general feature through which
+integrals depending on both the states $y$ of (\ref{e:ivp_p}) and the
+state sensitivities $s_i$ of (\ref{e:sens_eqns}) can be evaluated. In other
+words, {\cvodes} provides support for computing integrals of the form:
+\begin{equation*}
+ \bar z(t) = \int_{t_0}^t \bar q(\tau, y(\tau), s_1(\tau), \ldots, s_{N_p}(\tau),p) \, d\tau \, .
+\end{equation*}
+
+If the sensitivities of the quadrature variables $z$ of (\ref{e:QUAD}) are
+desired these can then be computed by using:
+\begin{equation*}
+  \bar q_i = q_y s_i + q_{p_i} \, , \quad i = 1,\ldots,N_p \, ,
+\end{equation*}
+where $q_y$ and $q_p$ are the partial derivatives of the integrand function
+$q$ of (\ref{e:QUAD}).
+
+As with the quadrature variables $z$, the new variables $\bar z$ are also excluded
+from any nonlinear solver phase and ``corrected'' values $\bar z^n$ are obtained
+through explicit formulas. 
 \index{forward sensitivity analysis!mathematical background|)}
 
 %----------------------------------------
@@ -740,222 +1048,82 @@ discretized adjoint PDE system or the adjoint of the discretized PDE.
 \index{adjoint sensitivity analysis!implementation in {\cvodes}|)}
 \index{adjoint sensitivity analysis!mathematical background|)}
 
-%------------------------
-\section{Preconditioning}\label{s:preconditioning}
-%------------------------
-\index{preconditioning!advice on|(}
-When using a Newton method to solve the nonlinear system (\ref{e:nonlinear}),
-{\cvodes} makes repeated use of a linear solver to solve linear systems of the form
-$M x = - r$, where $x$ is a correction vector and $r$ is a residual vector.
-If this linear system solve is done with one of the scaled preconditioned iterative 
-linear solvers, these solvers are rarely successful if used without preconditioning;
-it is generally necessary to precondition the system in order to obtain acceptable efficiency.  
-A system $A x = b$ can be preconditioned on the left, as $(P^{-1}A) x = P^{-1} b$;
-on the right, as $(A P^{-1}) P x = b$; or on both sides, as
-$(P_L^{-1} A P_R^{-1}) P_R x = P_L^{-1}b$.  The Krylov method is then
-applied to a system with the matrix $P^{-1}A$, or $AP^{-1}$, or
-$P_L^{-1} A P_R^{-1}$, instead of $A$.  In order to improve the
-convergence of the Krylov iteration, the preconditioner matrix $P$, or
-the product $P_L P_R$ in the last case, should in some sense
-approximate the system matrix $A$.  Yet at the same time, in order to
-be cost-effective, the matrix $P$, or matrices $P_L$ and $P_R$, should
-be reasonably efficient to evaluate and solve.  Finding a good point
-in this tradeoff between rapid convergence and low cost can be very
-difficult.  Good choices are often problem-dependent (for example, see
-\cite{BrHi:89} for an extensive study of preconditioners for
-reaction-transport systems).
+%----------------------------------------
+\section{Second-order sensitivity analysis}\label{ss:hess_sensi}
+%----------------------------------------
+\index{second-order sensitivity analysis}
+In some applications (e.g., dynamically-constrained optimization) it may
+be desirable to compute second-order derivative information. Considering 
+the ODE problem (\ref{e:ivp_p}) and some model output functional 
+$g(y)$\footnote{For the sake of simplifity in presentation, we do not 
+include explicit dependencies of $g$ on time $t$ or parameters $p$.
+Moreover, we only consider the case in which the dependency of the 
+original ODE (\ref{e:ivp_p}) is through its initial conditions only.
+For details on the derivation in the general case, see~\cite{OzBa:05}.}
+then the Hessian $d^2g/dp^2$ can be obtained in a forward sensitivity
+analysis setting as
+\begin{equation}
+\frac{d^2 g}{d p^2} = \left(I_{N_p} \otimes g_y \right ) y_{pp} + y_p^T g_{yy} y_p
+\end{equation}
+where $\otimes$ is the Kronecker product. The second-order sensitivities are
+solution of the matrix ODE system:
+\begin{equation}
+  {\dot y}_{pp} = f_y y_{pp} + \left( I_n \otimes y_p^T \right) f_{yy} y_p \, , 
+  \quad y_{pp}(t_0) = \frac{\partial^2 y_0}{\partial p^2} \, ,
+\end{equation}
+where $y_p = [s_1 \cdots s_{N_p}]$ denotes the first-order sensitivity matrix, 
+solution of $N_p$ systems (\ref{e:sens_eqns}) and $y_{pp}$ is a third-order
+tensor.
 
-The {\cvodes} solver allow for preconditioning either
-side, or on both sides, although we know of no situation where
-preconditioning on both sides is clearly superior to
-preconditioning on one side only (with the product $P_L P_R$).
-Moreover, for a given preconditioner matrix, the merits of left vs. right
-preconditioning are unclear in general, and the user should experiment
-with both choices.  Performance will differ because the inverse of the
-left preconditioner is included in the linear system residual whose
-norm is being tested in the Krylov algorithm.  As a rule, however, if
-the preconditioner is the product of two matrices, we recommend that
-preconditioning be done either on the left only or the right only,
-rather than using one factor on each side. 
+It is easy to see that, except for situations in which the number of parameters
+$N_p$ is very small, the computational cost of this so-called {\em forward-over-forward} 
+approach is exorbitant as it requires the solution of $N_p + N_p^2$ additional
+ODE systems of the same dimension as (\ref{e:ivp_p}).
 
-Typical preconditioners used with {\cvodes} are based on
-approximations to the Newton iteration matrix of the systems involved;
-in other words, $P \approx I - \gamma J$, where $\gamma$ is a scalar proportional to the
-integration step size $h$ and $J$ is the system Jacobian, i.e. $J = \partial f / \partial y$.
-Because the Krylov iteration occurs within a Newton iteration and further
-also within a time integration, and since each of these iterations has
-its own test for convergence, the preconditioner may use a very crude
-approximation, as long as it captures the dominant numerical
-feature(s) of the system.  We have found that the combination of a
-preconditioner with the Newton-Krylov iteration, using even a fairly
-poor approximation to the Jacobian, can be surprisingly superior to
-using the same matrix without Krylov acceleration (i.e., a modified
-Newton iteration), as well as to using the Newton-Krylov method with
-no preconditioning.
-\index{preconditioning!advice on|)}
+A much more efficient alternative is to compute Hessian-vector products using
+a so-called {\em forward-over-adjoint} approach. This method is based on using
+the same ``trick'' as the one used in computing gradients of pointwise
+functionals with the adjoint method, namely applying a formal directional forward 
+derivation to one of the gradients of (\ref{e:dGdp}) or (\ref{e:dgdp}). With that,
+the cost of computing a full Hessian is roughly equivalent to the cost of computing the 
+gradient with FSA.
+However, Hessian-vector products can be cheaply computed with one additional adjoint solve.
+Indeed, it can be shown that given a model functional output 
+$G(p) = \int_{t_0}^{t_f} g(t,y) \, dt$ the product between its Hessian and some vector 
+$u$ can be computed as
+\begin{equation*}
+  \frac{\partial^2 G}{\partial p^2} u = 
+  \left[ \left(\lambda^T \otimes I_{N_p} \right) y_{pp}u + y_p^T \mu \right]_{t=t_0} \, ,
+\end{equation*}
+where $\lambda$ and $\mu$ are solutions of
+\begin{equation}
+  \begin{split}
+    &-\dot\mu = f_y^T\mu + \left(\lambda^T \otimes I_n \right) f_{yy} s \, ; \quad \mu(t_f) = 0 \\
+    &-\dot\lambda = f_y^T\lambda + g_y^T \, ; \quad \lambda(t_f) = 0 \\
+    &\dot s = f_y s + f_p u \, ; \quad s(t_0) = y_{0p} u
+  \end{split}
+\end{equation}
+In the above equation, $s$ is a linear combination of the columns of the
+sensitivity matrix $y_p$; in other words, $s = y_p \cdot u$. Note that, due to
+the linearity of the sensitivity equations (\ref{e:sens_eqns}), the cost of 
+performing forward sensitivity analysis for computing $s$ is that of
+computing sensitivities with respect to one single problem parameter.
+Therefore, the cost of computing the Hessian-vector product is roughly
+that of 2 forward and 2 backward integrations of a system of ODEs of the
+size of (\ref{e:ivp_p}).
+For more details, including the corresponding formulas for a pointwise model
+functional output, see~\cite{OzBa:05}.
 
+\bigskip
 
-%------------------------
-\section{BDF stability limit detection}\label{s:bdf_stab}
-%------------------------
-
-\index{Stability limit detection}
-{\cvodes} includes an algorithm, {\stald} (STAbility Limit Detection),
-which provides protection against potentially unstable behavior of the 
-BDF multistep integration methods in certain situations, as described below.
-
-When the BDF option is selected, {\cvodes} uses Backward Differentiation 
-Formula methods of orders 1 to 5.  At order 1 or 2, the BDF
-method is A-stable, meaning that for any complex constant $\lambda$ in
-the open left half-plane the method is unconditionally stable (for
-any step size) for the standard scalar model problem ${\dot y} = \lambda y$.
-For an ODE system, this means that, roughly speaking, as long as all
-modes in the system are stable, the method is also stable for any
-choice of step size, at least in the sense of a local linear stability
-analysis.
-
-At orders 3 to 5, the BDF methods are not A-stable, although they are
-{\em stiffly stable}. In each case, in order for the method to be stable
-at step size $h$ on the scalar model problem, the product $h\lambda$ must
-lie within a {\em region of absolute stability}. 
-That region excludes a portion of the left half-plane that is concentrated 
-near the imaginary axis.  The size of that region of instability grows as the order
-increases from 3 to 5.  What this means is that, when running BDF at
-any of these orders, if an eigenvalue $\lambda$ of the system lies close
-enough to the imaginary axis, the step sizes $h$ for which the method is
-stable are limited (at least according to the linear stability theory)
-to a set that prevents $h\lambda$ from leaving the stability region.
-The meaning of {\em close enough} depends on the order.  
-At order 3, the unstable region is much narrower than at order 5, 
-so the potential for unstable behavior grows with order.
-
-System eigenvalues that are likely to run into this instability are
-ones that correspond to weakly damped oscillations.  A pure undamped
-oscillation corresponds to an eigenvalue on the imaginary axis.
-Problems with modes of that kind call for different considerations
-since the oscillation generally must be followed by the solver, but
-this requires step sizes ($h \sim 1/\nu$, where $\nu$ is the frequency) 
-that are stable for BDF anyway.  But for a weakly damped oscillatory mode,
-the oscillation in the solution is eventually damped to the noise level, 
-and at that time it is important that the solver not be restricted to step 
-sizes on the order of $1/\nu$.  It is in this situation that the new option may
-be of great value.
-
-In terms of partial differential equations, the typical problems for
-which the stability limit detection option is appropriate are
-ODE systems resulting from semi-discretized PDEs (i.e., PDEs
-discretized in space) with advection and diffusion, but with advection dominating
-over diffusion. Diffusion alone produces pure decay modes, while advection tends to
-produce undamped oscillatory modes.  A mix of the two with advection
-dominant will have weakly damped oscillatory modes.
-
-The {\stald} algorithm attempts to detect, in a direct
-manner, the presence of a stability region boundary that is limiting
-the step sizes in the presence of a weakly damped oscillation \cite{Hin:92}.
-The algorithm supplements (but differs greatly from) the existing
-algorithms in {\cvodes} for choosing step size and order based on
-estimated local truncation errors.  The {\stald} algorithm works directly
-with history data that is readily available in {\cvodes}.  If it concludes
-that the step size is in fact stability-limited, it dictates a
-reduction in the method order regardless of the outcome of the
-error-based algorithm.  The {\stald} algorithm has been tested in
-combination with the {\vode} solver on linear advection-dominated
-advection-diffusion problems \cite{Hin:95}, where it works well.  The
-implementation in {\cvodes} has been successfully tested on linear 
-and nonlinear advection-diffusion problems, among others.
-
-This stability limit detection option adds some computational overhead
-to the {\cvodes} solution.  (In timing tests, these overhead costs
-have ranged from 2\% to 7\% of the total, depending on the size and
-complexity of the problem, with lower relative costs for larger
-problems.)  Therefore, it should be activated only when there is
-reasonable expectation of modes in the user's system for which it is
-appropriate.  In particular, if a {\cvodes} solution with this option
-turned off appears to take an inordinately large number of steps for
-orders between 3 and 5 for no apparent reason in terms of the solution time scale,
-then there is a good chance that step sizes are being limited by
-stability, and that turning on the option will improve efficiency.
-
-%------------------------
-\section{Rootfinding}\label{ss:rootfinding}
-%------------------------
-
-\index{Rootfinding}
-The {\cvodes} solver has been augmented to include a rootfinding
-feature.  This means that, while integrating the Initial Value Problem
-(\ref{e:ivp}), {\cvodes} can also find the roots of a set of user-defined
-functions $g_i(t,y)$ that depend both on $t$ and on the solution vector 
-$y = y(t)$.  The number of these root functions is arbitrary, and if
-more than one $g_i$ is found to have a root in any given interval, the
-various root locations are found and reported in the order that they
-occur on the $t$ axis, in the direction of integration.
-
-Generally, this rootfinding feature finds only roots of odd
-multiplicity, corresponding to changes in sign of $g_i(t,y(t))$,
-denoted $g_i(t)$ for short.  If a user root function has a root of
-even multiplicity (no sign change), it will probably be missed by
-{\cvodes}.  If such a root is desired, the user should reformulate the
-root function so that it changes sign at the desired root.
-
-The basic scheme used is to check for sign changes of any $g_i(t)$ over
-each time step taken, and then (when a sign change is found) to hone
-in on the root(s) with a modified secant method \cite{HeSh:80}.  
-In addition, each time $g$ is computed, {\cvodes} checks to see if 
-$g_i(t) = 0$ exactly, and if so it reports this as a root.  However,
-if an exact zero of any $g_i$ is found at a point $t$, {\cvodes}
-computes $g$ at $t + \delta$ for a small increment $\delta$, slightly
-further in the direction of integration, and if any $g_i(t + \delta)=0$ 
-also, {\cvodes} stops and reports an error.  This way, each time
-{\cvodes} takes a time step, it is guaranteed that the values of all
-$g_i$ are nonzero at some past value of $t$, beyond which a search for
-roots is to be done.
-
-At any given time in the course of the time-stepping, after suitable
-checking and adjusting has been done, {\cvodes} has an interval
-$(t_{lo},t_{hi}]$ in which roots of the $g_i(t)$ are to be sought, such
-that $t_{hi}$ is further ahead in the direction of integration, and
-all $g_i(t_{lo}) \neq 0$.  The endpoint $t_{hi}$ is either $t_n$,
-the end of the time step last taken, or the next requested output time
-$t_{\mbox{\scriptsize out}}$ if this comes sooner.  The endpoint
-$t_{lo}$ is either $t_{n-1}$, the last output time
-$t_{\mbox{\scriptsize out}}$ (if this occurred within the last
-step), or the last root location (if a root was just located within
-this step), possibly adjusted slightly toward $t_n$ if an exact zero
-was found.  The algorithm checks $g_i$ at $t_{hi}$ for zeros and for
-sign changes in $(t_{lo},t_{hi})$.  If no sign changes were found, then
-either a root is reported (if some $g_i(t_{hi}) = 0$) or we proceed to
-the next time interval (starting at $t_{hi}$).  If one or more sign
-changes were found, then a loop is entered to locate the root to
-within a rather tight tolerance, given by
-\[ \tau = 100 * U * (|t_n| + |h|)~~~ (U = \mbox{unit roundoff}) ~. \]
-Whenever sign changes are seen in two or more root functions, the one
-deemed most likely to have its root occur first is the one with the
-largest value of $|g_i(t_{hi})|/|g_i(t_{hi}) - g_i(t_{lo})|$,
-corresponding to the closest to $t_{lo}$ of the secant method values.
-At each pass through the loop, a new value $t_{mid}$ is set, strictly
-within the search interval, and the values of $g_i(t_{mid})$ are
-checked.  Then either $t_{lo}$ or $t_{hi}$ is reset to $t_{mid}$
-according to which subinterval is found to include the sign change.  If
-there is none in $(t_{lo},t_{mid})$ but some $g_i(t_{mid}) = 0$, then
-that root is reported.  The loop continues until 
-$|t_{hi}-t_{lo}| < \tau$, and then the reported root location is
-$t_{hi}$.
-
-In the loop to locate the root of $g_i(t)$, the formula for $t_{mid}$
-is
-\[ t_{mid} = t_{hi} - (t_{hi} - t_{lo})
-             g_i(t_{hi}) / [g_i(t_{hi}) - \alpha g_i(t_{lo})] ~, \] 
-where $\alpha$ is a weight parameter.  On the first two passes through
-the loop, $\alpha$ is set to $1$, making $t_{mid}$ the secant method
-value.  Thereafter, $\alpha$ is reset according to the side of the
-subinterval (low vs. high, i.e., toward $t_{lo}$ vs. toward $t_{hi}$)
-in which the sign change was found in the previous two passes.  If the
-two sides were opposite, $\alpha$ is set to 1.  If the two sides were
-the same, $\alpha$ is halved (if on the low side) or doubled (if on
-the high side).  The value of $t_{mid}$ is closer to $t_{lo}$ when
-$\alpha < 1$ and closer to $t_{hi}$ when $\alpha > 1$.  If the above
-value of $t_{mid}$ is within $\tau/2$ of $t_{lo}$ or $t_{hi}$, it is
-adjusted inward, such that its fractional distance from the endpoint
-(relative to the interval size) is between .1 and .5 (.5 being the
-midpoint), and the actual distance from the endpoint is at least
-$\tau/2$.
+\index{second-order sensitivity analysis!support in {\cvodes}|(}
+To allow the {\em foward-over-adjoint} approach described above, {\cvodes}
+provides support for:
+\begin{itemize}
+\item the integration of multiple backward problems depending on the same
+  underlying forward problem (\ref{e:ivp_p}), and
+\item the integration of backward problems and computation of backward quadraturea
+  depending on both the states $y$ and forward sensitivities (for this particular 
+  application, $s$) of the original problem (\ref{e:ivp_p}).
+\end{itemize}
+\index{second-order sensitivity analysis!support in {\cvodes}|)}

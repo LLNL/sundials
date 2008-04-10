@@ -16,12 +16,12 @@ can be augmented with some quadrature differential equations.
 
 {\idas} uses various constants for both input and output.  These are
 defined as needed in this chapter, but for convenience are also listed
-separately in Chapter \ref{c:constants}.
+separately in Appendix \ref{c:constants}.
 
 We begin with a brief overview, in the form of a skeleton user program.
 Following that are detailed descriptions of the interface to the
 various user-callable functions and of the user-supplied functions that were not already
-described in \S\ref{s:simulation}.
+described in Chapter \ref{s:simulation}.
 
 %%
 %%----------------------------------------------------------------------
@@ -268,11 +268,6 @@ The form of the call to this function is
      One of the parameters was invalid: \id{Nd} was not positive or \id{interpType}
      is not one of the \id{IDA\_POLYNOMIAL} or \id{IDA\_HERMITE}.
    \end{args}
-%%  If successful, \id{IDAAdjInit} returns a pointer of type \id{void *}. The user
-%%  does not need to access this memory block but must pass it to other adjoint module
-%%  user-callable functions. In case of failure (\id{ida\_mem} is \id{NULL}, an input
-%%  has an illegal value, or a memory request fails), \id{IDAAdjInit} prints an error
-%%  message to the standard output stream \id{stderr} and returns \id{NULL}.
 }
 {
   The user must set \id{Nd} so that all data needed for interpolation of the 
@@ -350,10 +345,6 @@ The call to this function has the form
     return an approximate value of $y($\id{tout}$)$ and $y'($\id{tout}$)$. 
     The \Id{IDA\_ONE\_STEP} option tells the solver to just take one internal step  
     and return the solution at the point reached by that step. 
-%%    The \Id{IDA\_NORMAL\_TSTOP} and \Id{IDA\_ONE\_STEP\_TSTOP} modes are     
-%%     similar to \id{IDA\_NORMAL} and \id{IDA\_ONE\_STEP}, respectively, except    
-%%     that the integration never proceeds past the value      
-%%     \id{tstop} (specified through the function \id{IDASetStopTime}).
   \item[ncheck] (\id{int *})
     the number of check points stored so far.
   \end{args}
@@ -411,11 +402,6 @@ The call to this function has the form
   so that, at the end of this first forward integration phase, interpolation information
   is already available from the last checkpoint forward. In particular,
   if no check points were necessary, there is no need for the second forward integration phase.
-
-%%   {\warn}Although it is legal to define a value for \id{tstop} and then call \id{IDASolveF}
-%%   in \id{IDA\_NORMAL\_TSTOP} or \id{IDA\_ONE\_STEP\_TSTOP} modes, 
-%%   after a return with \id{flag} $=$ \id{TSTOP\_RETURN}, the integration should not be 
-%%   continued (no \id{tstop} information is stored at checkpoints).
 
   {\warn}It is illegal to change the integration tolerances between consecutive calls
   to \id{IDASolveF}, as this information is not captured in the checkpoints data.
@@ -513,9 +499,6 @@ a wrapper for \id{IDAInit} and so all details given for \id{IDAReInit} in
   \item[\Id{IDA\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier, \id{yB0}, \id{ypB0} or 
     \id{resB} was \id{NULL}.
-%%  \item[\Id{IDA\_MEM\_NULL}] 
-%%    The {\idas} memory block for the backward problem was not initialized through 
-%%    a previous call to \id{IDACreateB}.
   \end{args}
 }
 {
@@ -574,9 +557,6 @@ differs from that of another.
     The parameter \id{which} represented an invalid identifier, \id{yB0}, \id{ypB0} or 
     \id{resB} was \id{NULL} or sensitivities has not been active during the forward
     integration.
-%%  \item[\Id{IDA\_MEM\_NULL}] 
-%%    The {\idas} memory block for the backward problem was not initialized through 
-%%    a previous call to \id{IDACreateB}.
   \end{args}
 }
 {
@@ -585,15 +565,6 @@ differs from that of another.
   
 }
 
-
-%% For the case when it is needed to solve several different backward problems 
-%% corresponding to the same original problem, {\idas} provides a mechanism 
-%% to reuse the existing checkpoints. The function \ID{IDAReInitB} reinitializes
-%% the {\idas} memory block for the backward problem, where a prior call to
-%% \Id{IDAInitB} has been made with the same problem size \id{NB}.
-%% \id{IDAReInitB} performs the same input checking and initializations that 
-%% \id{IDAInitB} does, but does no memory allocation, 
-%% assuming that the existing internal memory is sufficient for the new problem. 
 Note that \id{IDAReInitB} is essentially a wrapper for \id{IDAReInit}
 and so all details given for \id{IDAReInit} in \S\ref{sss:idareinit}
 apply.\index{reinitialization} Also \id{IDAReInitB} can be called to reinitialize
@@ -639,9 +610,6 @@ The call to the \id{IDAReInitB} function has the form
   \item[\Id{IDA\_BAD\_TB0}]
     The final time \id{tB0} is outside the interval over which the forward problem
     was solved.
-%%  \item[\Id{IDA\_NO\_MALLOC}] 
-%%    Memory space for the {\idas} memory block for the backward problem was not 
-%%    allocated through a previous call to \id{IDAInitB}.
   \item[\Id{IDA\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier, \id{yB0} or \id{ypB0}
     was \id{NULL}.
@@ -749,7 +717,6 @@ call to \id{IDAInitB} or \id{IDAInitBS}.
 \index{IDASS@{\idas} linear solvers!usage with adjoint module|(} 
 All linear solver modules in {\idas} provide additional specification functions 
 for backward problems.
-%%for the case in which Newton iteration is selected for the solution of the backward problem. 
 The initialization functions described in \S\ref{sss:lin_solv_init} cannot be directly used 
 since the optional user-defined Jacobian-related functions have different prototypes for the
 backward problem than for the forward problem (see \S\ref{ss:user_fct_adj}).
@@ -766,9 +733,6 @@ argument which must be the identifier of the backward problem.
   flag = IDASpbcgB(ida_mem, which, maxlB);
   flag = IDASptfqmrB(ida_mem, which, maxlB);
 \end{verbatim}
-%%  flag = IDADiagB(ida_mem);
-%%  flag = IDASpbcgB(ida_mem, which, pretypeB, maxlB);
-%%  flag = IDASptfqmrB(ida_mem, which, pretypeB, maxlB);
 
 Their return value \id{flag} (of type \id{int}) can have any of the return values 
 of their counterparts.
@@ -954,10 +918,6 @@ The call to this function has the form
   \end{args}
 }
 {
-%%  On return, \id{IDASolveB} returns a vector \id{yBout} and a corresponding 
-%%  independent variable value $t=$\id{*tBret}, such that \id{yBout} is the computed 
-%%  value of the solution of the backward problem.
-
   The return value \id{flag} (of type \id{int}) will be one of the following.
   For more details see \S\ref{sss:idasolve}.
   \begin{args}[IDA\_TOO\_MUCH\_WORK]
@@ -1066,11 +1026,6 @@ The optional input functions defined for the backward problem are:
   flag = IDASetIdB(ida_mem, which, idB);
   flag = IDASetConstraintsB(ida_mem, which, constraintsB);
 \end{verbatim}
-%%   flag = IDASetErrHandlerB(ida_mem, ehfunB, eh\_dataB);
-%%   flag = IDASetErrFileB(ida_mem, errfpB);
-%%   flag = IDASetIterTypeB(ida_mem, iterB);
-%%   flag = IDASetStabLimDetB(ida_mem, stldetB);
-%%   flag = IDASetInitStepB(ida_mem, which, hinB);
 Their return value \id{flag} (of type \id{int}) can have any of the return values 
 of their counterparts, but it can also be \Id{IDA\_NO\_ADJ} if \id{IDAAdjInit} 
 has not been called or \Id{IDA\_ILL\_INPUT} if \id{which} was an invalid identifier. 
@@ -1303,47 +1258,7 @@ problem through the following functions:
 
   {\warn}This option is available only with {\idaspgmr}.
 }
-%%
-%%
-%% \ucfunction{IDASpilsSetDeltB}
-%% {
-%%   flag = IDASpilsSetDeltB(idaadj\_mem, deltB);
-%% }
-%% {
-%%   The function \ID{IDASpilsSetDeltB} specifies the factor by
-%%   which the Krylov linear solver's convergence test constant is reduced
-%%   from the Newton iteration test constant.
-%% }
-%% {
-%%   \begin{args}[idaadj\_mem]
-%%   \item[idaadj\_mem] (\id{void *})
-%%     pointer to the {\idas} memory block.
-%%   \item[deltB] (\id{realtype})
-%%     the value of the convergence test constant reduction factor.
-%%   \end{args}
-%% }
-%% {
-%%   The return value \id{flag} (of type \id{int}) is one of:
-%%   \begin{args}[IDASPILS\_ADJMEM\_NULL]
-%%   \item[\Id{IDASPILS\_SUCCESS}] 
-%%     The optional value has been successfuly set.
-%%   \item[\Id{IDASPILS\_MEM\_NULL}]
-%%     The {\idas} solver memory block was not created through a call to \id{IDACreateB}.
-%%   \item[\Id{IDASPILS\_LMEM\_NULL}]
-%%     The {\idaspgmr} linear solver has not been initialized.
-%%   \item[\Id{IDASPILS\_ILL\_INPUT}]
-%%     The factor \id{deltB} is negative.  
-%%   \item[\Id{IDASPILS\_ADJMEM\_NULL}]
-%%     The \id{idaadj\_mem} argument was \id{NULL}.
-%%   \end{args}
-%% }
-%% {
-%%   The default value is $0.05$.
-%%   Passing a value \id{deltB}$ = 0.0$ also indicates using the default value.
-%% }
-%%
-%%
-%%
+
 \ucfunction{IDASpilsSetMaxlB}
 {
   flag = IDASpilsSetMaxlB(ida\_mem, which, maxlB);
@@ -1387,47 +1302,6 @@ problem through the following functions:
   {\warn}This option is available only for the {\idaspbcg} and {\idasptfqmr} linear solvers.
 
 }
-%%
-%%
-%% \ucfunction{IDASpilsSetPrecTypeB}
-%% {
-%%   flag = IDASpilsSetPrecTypeB(ida\_mem, pretypeB);
-%% }
-%% {
-%%   The function \ID{IDASpilsSetPrecTypeB} resets the type
-%%   of preconditioning to be used.
-%% }
-%% {
-%%   \begin{args}[ida\_mem]
-%%   \item[ida\_mem] (\id{void *})
-%%     pointer to the {\idas} memory block.
-%%   \item[pretypeB] (\id{int})
-%%     \index{pretypeB@\texttt{pretypeB}}
-%%     specifies the type of prconditioning and must be one of:
-%%     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
-%%   \end{args}
-%% }
-%% {
-%%   The return value \id{flag} (of type \id{int}) is one of:
-%%   \begin{args}[IDASPILS\_ADJMEM\_NULL]
-%%   \item[\Id{IDASPILS\_SUCCESS}] 
-%%     The optional value has been successfuly set.
-%%   \item[\Id{IDASPILS\_MEM\_NULL}]
-%%     The {\idas} solver memory block was not created through a call to \id{IDACreateB}.
-%%   \item[\Id{IDASPILS\_LMEM\_NULL}]
-%%     The {\idaspgmr} linear solver has not been initialized.
-%%   \item[\Id{IDASPILS\_ILL\_INPUT}]
-%%     The preconditioner type \id{pretype} is not valid.
-%%   \item[\Id{IDASPILS\_ADJMEM\_NULL}]
-%%     The \id{ida\_mem} argument was \id{NULL}.
-%%   \end{args}
-%% }
-%% {
-%%   The preconditioning type is initially specified in the call
-%%   to the linear solver specification function (see \S\ref{sss:lin_solv_b}). 
-%%   The call to \id{IDASpilsSetPrecTypeB} is needed only if \id{pretypeB} is being changed from its 
-%%   previous value.
-%% }
 \index{IDASPGMR@{\idaspgmr} linear solver!optional input|)}
 \index{IDASPBCG@{\idaspbcg} linear solver!optional input|)}
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!optional input|)}
@@ -1905,28 +1779,7 @@ return the data stored for interpolation purposes.
 {
   It is the user's responsibility to allocate space for \id{y}.
 }
-%%
-%% \subsubsection{Return flag name}
-%% %%
-%% The names of constants associated with {\idaa}-specific return values can
-%% be obtained by calling the following function:
-%% %%
-%% \ucfunction{IDAAdjGetReturnFlagName}
-%% {
-%%   name = IDAAdjGetReturnFlagName(flag);
-%% }
-%% {
-%%   The function \ID{IDAAdjGetReturnFlagName} returns the
-%%   name of the {\idaa} constant corresponding to \id{flag}.
-%% }
-%% {
-%%   The only argument, of type \id{int} is a return flag from a {\idaa} function.
-%% }
-%% {
-%%   The return value is a string containing the name of the corresponding constant.
-%% }
-%% {}
-%%
+
 %%-------------------------------------------------------------------------------------
 %%-------------------------------------------------------------------------------------
 \section{User-supplied functions for adjoint sensitivity analysis}
@@ -2231,9 +2084,6 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
 {
   This function computes the dense Jacobian of the backward problem (or an approximation
   to it). 
-%%   If the backward problem is the adjoint of the original IVP, then
-%%   this Jacobian is just the transpose of $J = \dfdyI$ with
-%%   a change in sign.
 }
 {
   \begin{args}[user\_dataB]
@@ -2279,8 +2129,8 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
   backward problem at the same time.
   Only nonzero elements need to be loaded into \id{JacB} as this matrix 
   is set to zero before the call to the Jacobian function. 
-  The type of \id{JacB} is \Id{DenseMat}. The user is referred to 
-  \S\ref{ss:djacFn} for details regarding accessing a \id{DenseMat} object.
+  The type of \id{JacB} is \Id{DlsMat}. The user is referred to 
+  \S\ref{ss:djacFn} for details regarding accessing a \id{DlsMat} object.
 
   {\warn}Before calling the user's \id{IDADlsDenseJacFnB}, {\idaa} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
@@ -2824,30 +2674,6 @@ call the following function:
   \end{args}
 }
 {}
-%%
-%%
-%% To deallocate the {\idabbdpre} preconditioner module memory used for the
-%% backward integration, make the following call:
-%% %%
-%% \ucfunction{IDABBDPrecFreeB}
-%% {
-%%   IDABBDPrecFreeB(ida\_mem);
-%% }
-%% {
-%%   The function \ID{IDABBDPrecFreeB} frees the memory allocated by
-%%   \id{IDABBDPrecInitB}.
-%% }
-%% {
-%%   The only argument passed to \id{IDABBDPrecFreeB} is the pointer to the {\idaa} 
-%%   memory block (of type \id{void *}).
-%% }
-%% {
-%%   The function \id{IDABBDPrecFreeB} has no return value.
-%% }
-%% {
-%%   The call to \id{IDABBDPrecFreeB} must preceed that to \id{IDAAdjFree}.
-%% }
-%%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-callable functions|)}
 %%
 For more details on {\idabbdpre} see \S\ref{sss:idabbdpre}.

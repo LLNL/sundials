@@ -41,15 +41,25 @@ A test for convergence is made before the iteration continues.
 \subsubsection*{Newton method variants}
 %%
 For solving the linear system given in step 2(a), {\kinsol} provides
-a choice of five methods:
-\begin{itemize}
-\item dense direct solver,
-\item band direct solver,
-\item scaled preconditioned GMRES (Generalized Minimal Residual method),
-\item scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable method), or
-\item scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal Residual method).
-\end{itemize}
+several choices, including the option of an user-supplied
+linear solver module. The linear solver modules distributed with {\sundials}
+are organized in two families, a {\em direct} family comprising direct linear 
+solvers for dense or banded matrices and a {\em spils} family comprising
+scaled preconditioned iterative (Krylov) linear solvers. 
 %%
+The methods offered through these modules are as follows:
+\begin{itemize}
+\item dense direct solvers, using either an internal implementation or 
+  a Blas/Lapack implementation (serial version only),
+\item band direct solvers, using either an internal implementation or 
+  a Blas/Lapack implementation (serial version only),
+\item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
+  solver without restarts,
+\item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
+  method) solver, or
+\item {\sptfqmr}, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
+  Residual method) solver.
+\end{itemize}
 When using one of the direct linear solvers, the linear system in 2(a) is 
 solved exactly thus resulting in a Modified Newton method (the Jacobian matrix 
 is normally outdated; see below\footnote{{\kinsol} allows the user to enforce 
