@@ -88,6 +88,21 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v2.6.0}
+
+Two new features were added in this release: (a) a new linear solver module,
+based on Blas and Lapack for both dense and banded matrices, and (b) option
+to specify which direction of zero-crossing is to be monitored while performing
+root-finding. 
+
+The user interface has been further refined. Some of the API changes involve:
+(a) a reorganization of all linear solver modules into two families (besides 
+the already present family of scaled preconditioned iterative linear solvers,
+the direct solvers, including the new Lapack-based ones were also organized 
+into a {\em direct} family); (b) maintaining a single pointer to user data,
+optionally specified through a \id{Set}-type function; (c) a general 
+streamlining of the preconditioner modules distributed with the solver.
+
 \subsection*{Changes in v2.5.0}
 
 The main changes in this release involve a rearrangement of the entire 

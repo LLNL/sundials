@@ -109,6 +109,38 @@ writing in C|)}
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v2.6.0}
+
+Two new features related to the integration of ODE IVP problems were added 
+in this release: (a) a new linear solver module, based on Blas and Lapack 
+for both dense and banded matrices, and (b) option to specify which direction 
+of zero-crossing is to be monitored while performing root-finding. 
+
+This version also includes several new features related to sensitivity analysis,
+among which: (a) support for integration of quadrature equations depending
+on both the states and forward sensitivity (and thus support for forward sensitivity
+analysis of quadrature equations), (b) support for simultaneous integration of 
+multiple backward problems based on the same underlying ODE (e.g., for use
+in an {\em forward-over-adjoint} method for computing second order derivative
+information), (c) support for backward integration of ODEs and quadratures 
+depending on both forward states and sensitivities (e.g., for use in computing 
+second order derivative information), and (d) support for reinitialization of 
+the adjoint module.
+
+The user interface has been further refined. Some of the API changes involve:
+(a) a reorganization of all linear solver modules into two families (besides 
+the already present family of scaled preconditioned iterative linear solvers,
+the direct solvers, including the new Lapack-based ones were also organized 
+into a {\em direct} family); (b) maintaining a single pointer to user data,
+optionally specified through a \id{Set}-type function; (c) a general 
+streamlining of the preconditioner modules distributed with the solver.
+Moreover, the prototypes of all functions related to integration of backward 
+problems were modified to support the simultaneous integration of multiple 
+problems. All backward problem defined by the user are internally managed
+through a linked list and identified in the user interface through a
+unique identifier.
+
+
 \subsection*{Changes in v2.5.0}
 
 The main changes in this release involve a rearrangement of the entire 
