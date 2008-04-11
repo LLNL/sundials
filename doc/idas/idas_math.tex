@@ -546,7 +546,7 @@ When performing forward sensitivity analysis, {\idas} carries out
 the time integration of the combined system, (\ref{e:DAE_p}) and
 (\ref{e:sens_eqns}), by viewing it as a DAE system of size
 $N(N_s+1)$, where $N_s$ is the number of model parameters $p_i$, with
-respect to the desired sensitivities ($N_s \le N_p$).
+respect to which sensitivities are desired ($N_s \le N_p$).
 However, major improvements in efficiency can be made by taking
 advantage of the special form of the sensitivity equations as
 linearizations of the original DAEs.  In particular, the original
@@ -1007,23 +1007,28 @@ the DAE problem (\ref{e:DAE_p}) and some model output functional
 $g(y)$\footnote{For the sake of simplifity in presentation, we do not 
 include explicit dependencies of $g$ on time $t$ or parameters $p$.
 Moreover, we only consider the case in which the dependency of the 
-original DAE (\ref{e:DAE_p}) is through its initial conditions only.
+original DAE (\ref{e:DAE_p}) on the parameters $p$ is through its initial conditions only.
 For details on the derivation in the general case, see~\cite{OzBa:05}.}
 then the Hessian $d^2g/dp^2$ can be obtained in a forward sensitivity
 analysis setting as
-\begin{equation}
-\frac{d^2 g}{d p^2} = \left(I_{N_p} \otimes g_y \right ) y_{pp} + y_p^T g_{yy} y_p
-\end{equation}
+\begin{equation*}
+\frac{d^2 g}{d p^2} = \left(g_y \otimes I_{N_p} \right ) y_{pp} + y_p^T g_{yy} y_p \, ,
+\end{equation*}
 where $\otimes$ is the Kronecker product. The second-order sensitivities are
 solution of the matrix DAE system:
-\begin{equation}
-  {\dot y}_{pp} = f_y y_{pp} + \left( I_n \otimes y_p^T \right) f_{yy} y_p \, , 
-  \quad y_{pp}(t_0) = \frac{\partial^2 y_0}{\partial p^2} \, ,
-\end{equation}
-where $y_p = [s_1 \cdots s_{N_p}]$ denotes the first-order sensitivity matrix, 
-solution of $N_p$ systems (\ref{e:sens_eqns}) and $y_{pp}$ is a third-order
-tensor.
-
+\begin{equation*}
+  \begin{split}
+  & \left( F_{\dot y} \otimes I_{N_p} \right) \cdot \dot y_{pp}  +
+  \left( F_y        \otimes I_{N_p} \right) \cdot y_{pp}       +
+  \left( I_N \otimes {\dot y}_p^T \right) \cdot \left( F_{\dot y \dot y} \dot y_p + F_{y \dot y} y_p \right) +
+  \left( I_N \otimes y_p^T        \right) \cdot \left( F_{y \dot y}      \dot y_p + F_{y y}      y_p \right) = 0 \\
+  & y_{pp}(t_0) = \frac{\partial^2 y_0}{\partial p^2} \, , \quad 
+  \dot y_{pp}(t_0) = \frac{\partial^2 \dot y_0}{\partial p^2} \, ,
+  \end{split}
+\end{equation*}
+where $y_p$ denotes the first-order sensitivity matrix, solution of $N_p$ 
+systems (\ref{e:sens_eqns}) and $y_{pp}$ is a third-order tensor.
+%%
 It is easy to see that, except for situations in which the number of parameters
 $N_p$ is very small, the computational cost of this so-called {\em forward-over-forward} 
 approach is exorbitant as it requires the solution of $N_p + N_p^2$ additional
@@ -1034,12 +1039,19 @@ a so-called {\em forward-over-adjoint} approach. This method is based on using
 the same ``trick'' as the one used in computing gradients of pointwise
 functionals with the adjoint method, namely applying a formal directional forward 
 derivation to the gradient of (\ref{e:dGdp}) (or the equivalent one for a pointwise 
-functional $g(T)$). With that, the cost of computing a full Hessian is roughly 
+functional $g(T, y(T))$). With that, the cost of computing a full Hessian is roughly 
 equivalent to the cost of computing the  gradient with FSA.
 However, Hessian-vector products can be cheaply computed with one additional adjoint solve.
-Indeed, it can be shown that given a model functional output 
-$G(p) = \int_{t_0}^{t_f} g(t,y) \, dt$ the product between its Hessian and some vector 
-$u$ can be computed as
+
+As an illustration\footnote{The derivation for the general DAE case is too
+involved for the purposes of this discussion.}, consider the ODE problem  
+\begin{equation*}
+{\dot y}  = f(t,\,y) \, , \quad y(t_0)  = y_0(p) \, ,
+\end{equation*}
+depending on some parameters $p$ through the initial conditions only and
+consider the model functional output $G(p) = \int_{t_0}^{t_f} g(t,y) \, dt$.
+It can be shown that the product between the Hessian of $G$ (with respect to the 
+parameters $p$) and some vector $u$ can be computed as
 \begin{equation*}
   \frac{\partial^2 G}{\partial p^2} u = 
   \left[ \left(\lambda^T \otimes I_{N_p} \right) y_{pp}u + y_p^T \mu \right]_{t=t_0} \, ,
@@ -1049,25 +1061,31 @@ where $\lambda$ and $\mu$ are solutions of
   \begin{split}
     &-\dot\mu = f_y^T\mu + \left(\lambda^T \otimes I_n \right) f_{yy} s \, ; \quad \mu(t_f) = 0 \\
     &-\dot\lambda = f_y^T\lambda + g_y^T \, ; \quad \lambda(t_f) = 0 \\
-    &\dot s = f_y s + f_p u \, ; \quad s(t_0) = y_{0p} u
+    &\dot s = f_y s \, ; \quad s(t_0) = y_{0p} u
   \end{split}
 \end{equation}
 In the above equation, $s$ is a linear combination of the columns of the
-sensitivity matrix $y_p$; in other words, $s = y_p \cdot u$. Note that, due to
-the linearity of the sensitivity equations (\ref{e:sens_eqns}), the cost of 
-performing forward sensitivity analysis for computing $s$ is that of
-computing sensitivities with respect to one single problem parameter.
-Therefore, the cost of computing the Hessian-vector product is roughly
-that of 2 forward and 2 backward integrations of a system of DAEs of the
-size of (\ref{e:DAE_p}).
+sensitivity matrix $y_p$, i.e.; $s = y_p u$. The {\em forward-over-adjoint} 
+approach hinges crucially on the fact that $s$ can be computed at the cost of 
+a forward sensitivity analysis with respect to a single parameter (the last 
+ODE problem above) which is possible due to the linearity of the forward
+sensitivity equations (\ref{e:sens_eqns}).
+
+Therefore (and this is also valid for the DAE case), the cost of computing the 
+Hessian-vector product is roughly that of 2 forward and 2 backward integrations 
+of a system of DAEs of size $N$.
 For more details, including the corresponding formulas for a pointwise model
-functional output, see~\cite{OzBa:05}.
+functional output, see the work by Ozyurt and Barton~\cite{OzBa:05} who discuss
+this problem for ODE initial value problems. As far as we know, there is no
+published equivalent work on DAE problems. However, the derivations given
+in~\cite{OzBa:05} for ODE problems can be extended to DAEs with some careful
+consideration given to the derivation of proper final conditions on the 
+adjoint systems, following the ideas presented in~\cite{CLPS:03}.
 
 \bigskip
 
 \index{second-order sensitivity analysis!support in {\idas}|(}
-To allow the {\em foward-over-adjoint} approach described above, {\idas}
-provides support for:
+To allow the {\em foward-over-adjoint} approach described above, {\idas} provides support for:
 \begin{itemize}
 \item the integration of multiple backward problems depending on the same
   underlying forward problem (\ref{e:DAE_p}), and
