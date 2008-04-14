@@ -208,7 +208,7 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
 \item
   {\bf Specify integration tolerances}
 
-  Call \id{IDASStolerances}\id{(...);} or \id{IDASvtolerances}\id{(...);}
+  Call \id{IDASStolerances}\id{(...);} or \id{IDASVtolerances}\id{(...);}
   to specify a scalar relative tolerance and scalar absolute tolerance or
   scalar relative tolerance and a vector of absolute tolerances, respectively.
   Alternatively, call \id{IDAWFtolerances} to specify a function which sets 
@@ -604,8 +604,9 @@ unsuccessful, because they involve some extra overhead cost.
 
 As previously explained, Newton iteration requires the solution of
 linear systems of the form (\ref{e:DAE_Newtoncorr}).  There are five {\idas} linear
-solvers currently available for this task: {\idadense}, {\idaband}, {\idaspgmr},
-{\idaspbcg}, and {\idasptfqmr}.
+solvers currently available for this task: {\idadense}, {\idaband}, 
+{\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}, with the first two providing
+a choice of either internal or Lapack implementations.
 
 The first two are direct solvers and derive their
 name from the type of approximation used for the Jacobian 
@@ -1093,10 +1094,6 @@ integration of the DAE.
     return approximate values of $y($\id{tout}$)$ and $y^\prime($\id{tout}$)$. 
     The \Id{IDA\_ONE\_STEP} option tells the solver to just take one internal step  
     and return the solution at the point reached by that step. 
-    The \Id{IDA\_NORMAL\_TSTOP} and \Id{IDA\_ONE\_STEP\_TSTOP} modes are     
-    similar to \id{IDA\_NORMAL} and \id{IDA\_ONE\_STEP}, respectively, except    
-    that the integration never proceeds past the value \id{tstop}, specified
-    through the function \id{IDASetStopTime} (see \S\ref{sss:optin_main}).
   \end{args}
 }
 {
@@ -1203,7 +1200,7 @@ so a test \id{flag} $<0$ will catch any error.
 \begin{tabular}{|l|l|l|}\hline
 {\bf Optional input} & {\bf Function name} & {\bf Default} \\
 \hline
-\multicolumn{3}{|c|}{\bf IDA main solver} \\
+\multicolumn{3}{|c|}{\bf IDAS main solver} \\
 \hline
 Error handler function & \id{IDASetErrHandlerFn} & internal fn. \\
 Pointer to an error file & \id{IDASetErrFile} & \id{stderr}  \\
@@ -1221,7 +1218,8 @@ Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
 Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{FALSE} \\
 Variable types (differential/algebraic) & \id{IDASetId} & \id{NULL} \\
 Inequality constraints on solution & \id{IDASetConstraints} & \id{NULL} \\
-%%Integration tolerances & \id{IDASetTolerances} & none \\
+Direction of zero-crossing & \id{IDASetRootDirection} & both \\
+Disable rootfinding warnings & \id{IDASetNoInactiveRootWarn} & none \\
 \hline
 \multicolumn{3}{|c|}{\bf IDA initial conditions calculation} \\
 \hline
@@ -1263,7 +1261,7 @@ effect for any later error message.
 \index{error messages!user-defined handler}
 \ucfunction{IDASetErrHandlerFn}
 {
-flag = IDASetErrHandlerFn(ida\_mem, ehfun);
+flag = IDASetErrHandlerFn(ida\_mem, ehfun, eh\_data);
 }
 {
   The function \ID{IDASetErrHandlerFn} specifies the optional user-defined function
@@ -1275,6 +1273,8 @@ flag = IDASetErrHandlerFn(ida\_mem, ehfun);
     pointer to the {\idas} memory block.
   \item[ehfun] (\id{IDAErrHandlerFn}) 
     is the {\C} error handler function (see \S\ref{ss:ehFn}).
+  \item[eh\_data] (\id{void *})
+    pointer to user data passed to \id{ehfun} every time it is called.
   \end{args}
 }
 {
@@ -1759,59 +1759,6 @@ flag = IDASetConstraints(ida\_mem, constraints);
   The presence of a non-\id{NULL} constraints vector that is not $0.0$ in
   all components will cause constraint checking to be performed.
 }
-%%
-%%\ucfunction{IDASetTolerances}
-%%{
-%%flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
-%%}
-%%{
-%%  The function \ID{IDASetTolerances} resets the integration tolerances.
-%%}
-%%{
-%%  \begin{args}[ida\_mem]
-%%  \item[ida\_mem] (\id{void *})
-%%    pointer to the {\idas} memory block.
-%%  \item[itol] (\id{int}) 
-%%    is either \ID{IDA\_SS} or \ID{IDA\_SV}, where \ID{itol}$=$\id{IDA\_SS} indicates
-%%    scalar relative error tolerance and scalar absolute error tolerance, while
-%%    \id{itol}$=$\id{IDA\_SV} indicates scalar relative error tolerance and vector
-%%    absolute error tolerance.  The latter choice is important when the absolute
-%%    error tolerance needs to be different for each component of the DAE. 
-%%  \item[reltol] (\id{realtype})
-%%    \index{tolerances}
-%%    is the relative error tolerance.
-%%  \item[abstol] (\id{void *})
-%%    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS},
-%%    \id{abstol} must be a pointer to a \id{realtype} variable. If
-%%    \id{itol} $ = $ \id{IDA\_SV}, \id{abstol} must be an \id{N\_Vector} variable.
-%%  \end{args}
-%%}
-%%{
-%%  The return value \id{flag} (of type \id{int}) is one of
-%%  \begin{args}[IDA\_ILL\_INPUT]
-%%  \item[\Id{IDA\_SUCCESS}] 
-%%    The tolerances have been successfully set.
-%%  \item[\Id{IDA\_MEM\_NULL}]
-%%    The \id{ida\_mem} pointer is \id{NULL}.
-%%  \item[\Id{IDA\_ILL\_INPUT}]
-%%    An input argument has an illegal value.
-%%  \end{args}
-%%}
-%%{
-%%  The integration tolerances are initially specified in the call
-%%  to \id{IDAInit} (see \S\ref{sss:idainit}). This function call
-%%  to \id{IDASetTolerances} is needed only if the tolerances are being changed
-%%  from their values between successive calls to \id{IDASolve}.
-%%
-%%  {\warn}It is the user's responsibility to provide compatible \id{itol} and
-%%  \id{abstol} arguments.
-%%
-%%  It is illegal to call \id{IDASetTolerances} before a call to
-%%  \id{IDAInit}.
-%%
-%%}
-%%
-%%
 \index{optional input!solver|)}
 
 %%
@@ -1820,7 +1767,7 @@ flag = IDASetConstraints(ida\_mem, constraints);
 %%
 \subsubsection{Initial condition calculation optional input functions}\label{sss:optin_iccalc}
 \index{optional input!initial condition calculation|(}
-
+%%
 The following functions can be called to set optional inputs to control the initial 
 condition calculations.
 %%
@@ -2037,7 +1984,7 @@ The \index{IDADENSE@{\idadense} linear solver!Jacobian approximation used by}
 the Jacobian matrix $J(t,y,y^\prime)$.  
 This function must be of type \id{IDADlsDenseJacFn}. 
 The user can supply his/her own dense Jacobian function, or use the default 
-difference quotient approximation function
+internal difference quotient approximation.
 \index{Jacobian approximation function!dense!difference quotient}
 that comes with the {\idadense} solver.
 To specify a user-supplied Jacobian function \id{djac}, {\idadense} provides 
@@ -2131,7 +2078,7 @@ specified through \id{IDASetUserData}.
   \end{args}
 }
 {
-  By default, {\idaband} uses the internal difference quotient function.
+  By default, {\idaband} uses an internal difference quotient function.
   If \id{NULL} is passed to \id{bjac}, this default function is used.
 
   The function type \id{IDADlsBandJacFn} is described in \S\ref{ss:bjacFn}.
@@ -2179,7 +2126,7 @@ without using global data in the program.
 The {\idaspils} solvers require a function to compute an approximation to the
 product between the Jacobian matrix $J(t,y)$ and a vector $v$.
 The user can supply his/her own Jacobian-times-vector approximation function, 
-or use the difference quotient function \Id{IDASpilsDQJtimes} 
+or use the default internal difference quotient function
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
 that comes with the {\idaspils} solvers.
 A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn}
@@ -2198,7 +2145,7 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
 }
 {
   The function \ID{IDASpilsSetPreconditioner} specifies the preconditioner
-  setup and solve functions and the pointer to user data.
+  setup and solve functions.
 }
 {
   \begin{args}[ida\_mem]
@@ -2236,7 +2183,7 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
 }
 {
   The function \ID{IDASpilsSetJacTimesFn} specifies the Jacobian-vector 
-  function to be used and the pointer to user data.
+  function to be used.
 }
 {
   \begin{args}[ida\_mem]
@@ -2258,8 +2205,7 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   \end{args}
 }
 {
-  By default, the {\idaspils} solvers use the difference quotient function 
-  \id{IDASpilsDQJtimes}.
+  By default, the {\idaspils} solvers use the difference quotient function. 
   If \id{NULL} is passed to \id{jtimes}, this default function is used.
 
   The function type \id{IDASpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
@@ -2414,13 +2360,14 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   The default value is \id{dqincfac} $=1.0$.
 }
 %%
-\ucfunction{IDASpbcgSetMaxl}
+\ucfunction{IDASpilsSetMaxl}
 {
-  flag = IDASpbcgSetMaxl(ida\_mem, maxl);
+  flag = IDASpilsSetMaxl(ida\_mem, maxl);
 }
 {
-  The function \ID{IDASpbcgSetMaxl} specifies maximum of the Krylov subspace
-  dimension for the Bi-CGStab\index{Bi-CGStab method} method.
+  The function \ID{IDASpilsSetMaxl} resets the maximum Krylov subspace
+  dimension for the Bi-CGStab\index{Bi-CGStab method} or TFQMR\index{TFQMR method} 
+  methods.
 }
 {
   \begin{args}[ida\_mem]
@@ -2442,8 +2389,10 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   \end{args}
 }
 {
-  The default value is 5.  Passing \id{maxl} $= 0$ also results in the
-  default value. 
+  The maximum subspace dimension is initially specified in the call
+  to the linear solver specification function (see \S\ref{sss:lin_solv_init}). 
+  This function call is needed only if \id{maxl} is being changed from its 
+  previous value.
 
   {\warn}This option is available only for the {\idaspbcg} and {\idasptfqmr} linear solvers.
 }
@@ -2452,6 +2401,83 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
 \index{IDASPBCG@{\idaspbcg} linear solver!optional input|)}
 \index{IDASPGMR@{\idaspgmr} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
+
+%%==============================================================================
+\subsubsection{Rootfinding optional input functions}\label{sss:optin_root}
+\index{optional input!rootfinding|(}
+%%
+The following functions can be called to set optional inputs to control the 
+rootfinding algorithm.
+%%
+\ucfunction{IDASetRootDirection}
+{
+flag = IDASetRootDirection(ida\_mem, rootdir);
+}
+{
+  The function \ID{IDASetRootDirection} specifies the direction of
+  zero-crossings to be monitored.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[rootdir] (\id{int *})
+    state array of length \id{nrtfn}, the number of root functions $g_i$, as specified
+    in the call to the function \id{IDARootInit}. A value of of $0$ indicates that
+    crossing in either direction should be reported. A value of $+1$ or $-1$ indicates 
+    that the solver should report only zero-crossings where the corresponding $g_i$ is
+    increasing or decreasing, respectively. 
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    rootfinding has not been activated through a call to \id{IDARootInit}.
+  \end{args}
+}
+{
+  The default behavior is to monitor for both zero-crossing directions.
+}
+%%
+%%
+\ucfunction{IDASetNoInactiveRootWarn}
+{
+flag = IDASetNoInactiveRootWarn(ida\_mem);
+}
+{
+  The function \ID{IDASetNoInactiveRootWarn} disables issuing a warning 
+  if some root function appears to be identically zero at the beginning of the integration.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  {\idas} will not report the initial conditions as a possible zero-crossing
+  (assuming that one or more components $g_i$ are zero at the initial time).
+  However, if it appears that some $g_i$ is identically zero at the initial
+  time (i.e., $g_i$ is zero at the iniital time and after the first step),
+  {\idas} will issue a warning which can be disabled with this optional input 
+  function.
+}
+%%
+\index{optional input!rootfinding|)}
 
 %%
 %%===================================================================================
@@ -2537,7 +2563,8 @@ of this section.
 \label{t:optional_output}
 \medskip
 \begin{tabular}{|p{\colAA}|p{\colBB}|}
-\hline {\bf Optional output} & {\bf Function name} \\
+\hline 
+{\bf Optional output} & {\bf Function name} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDA main solver} \\
 \hline
@@ -3305,7 +3332,7 @@ There are two optional output functions associated with rootfinding.
   \item[rootsfound] (\id{int *})
     array of length \id{nrtfn} with the indices of the user functions $g_i$ found
     to have a root.  For $i = 0,\ldots, $\id{nrtfn} $-1$,
-   \id{rootsfound}[$i$] $ = 1$ if $g_i$ has a root, and $ = 0$ if not.
+   \id{rootsfound}[$i$] $\ne 0$ if $g_i$ has a root, and $ = 0$ if not.
   \end{args}
 }
 {
@@ -3318,6 +3345,11 @@ There are two optional output functions associated with rootfinding.
   \end{args}
 }
 {
+  Note that, for the components $g_i$ for which a root was found,
+  the sign of \id{rootsfound}[$i$] indicates the direction of
+  zero-crossing. A value of $+1$ indicates that $g_i$ is increasing,
+  while a value of $-1$ indicates a decreasing $g_i$.
+
   {\warn}The user must allocate memory for the vector \id{rootsfound}.
 }
 %%
@@ -3359,14 +3391,10 @@ There are two optional output functions associated with rootfinding.
 \index{optional output!band linear solver|(}
 \index{IDADENSE@{\idadense} linear solver!optional output|(}
 \index{IDABAND@{\idaband} linear solver!optional output|(}
-The following optional outputs are available from the {\idadls} module:
+The following optional outputs are available from the {\idadls} modules:
 workspace requirements, number of calls to the Jacobian routine, number of 
 calls to the residual routine for finite-difference Jacobian approximation,
 and last return value from an {\idadls} function.
-Note that, where the name of an output would
-otherwise conflict with the name of an optional output from the main
-solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
-\id{lenrwLS}).
 %%
 %%
 \index{IDADENSE@{\idadense} linear solver!memory requirements} 
@@ -3378,8 +3406,8 @@ solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
   flag = IDADlsGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \ID{IDADlsGetWorkSpace} returns the sizes of
-  the {\idadense} real and integer workspaces.
+  The function \ID{IDADlsGetWorkSpace} returns the sizes of the real and
+  integer workspaces used by a {\idadls} linear solver ({\idadense} or {\idaband}). 
 }
 {
   \begin{args}[ida\_mem]
@@ -3505,7 +3533,7 @@ solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
   \end{args}
 }
 {
-  If the setup function failed (i.e., \id{IDASolve} returned
+  If the {\idadense} setup function failed (i.e., \id{IDASolve} returned
   \id{IDA\_LSETUP\_FAIL}), the value \id{flag} is equal to the column index
   (numbered from one) at which a zero diagonal element was encountered during
   the LU factorization of the (dense or band) Jacobian matrix.
@@ -3894,7 +3922,7 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
 %%
 \ucfunction{IDAReInit}
 {
-  flag = IDAReInit(ida\_mem, res, t0, y0, yp0);
+  flag = IDAReInit(ida\_mem, t0, y0, yp0);
 }
 {
   The function \id{IDAReInit} provides required problem specifications 
@@ -3904,9 +3932,6 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[res] (\Id{IDAResFn})
-    is the {\C} function which computes $F$. This function has the form 
-    \id{f(t, y, yp, r, user\_data)} (for full details see \S\ref{ss:user_fct_sim}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
@@ -3941,6 +3966,7 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
 %%===================================================================================
 
 The user-supplied functions consist of one function defining the DAE residual,
+(optionally) a function that handles error and warning messages, 
 (optionally) a function that provides the error weight vector,
 (optionally) a function that provides Jacobian-related information for the linear 
 solver (if Newton iteration is chosen), and (optionally) one or two functions 
@@ -3971,7 +3997,7 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
   \item[rr]
     is the output residual vector $F(t,y,y')$.
   \item[user\_data]
-    is a pointer to user data --- the same as the \Id{user\_data}      
+    is a pointer to user data, the same as the \Id{user\_data}      
     parameter passed to \id{IDASetUserData}.   
   \end{args}
 }
@@ -4000,7 +4026,7 @@ The function type \id{IDAErrHandlerFn} is defined as follows:
 {
   typedef void (*IDAErrHandlerFn)(&int error\_code,  \\
                                   &const char *module, const char *function, \\ 
-                                  &char *msg, void *user\_data); 
+                                  &char *msg, void *eh\_data); 
 }
 {
   This function processes error and warning messages from {\idas} and 
@@ -4016,9 +4042,9 @@ The function type \id{IDAErrHandlerFn} is defined as follows:
     is the name of the function in which the error occurred.
   \item[msg]
     is the error message.
-  \item[user\_data]
-    is a pointer to user data, the same as the \Id{user\_data}
-    parameter passed to \id{IDASetUserData}.   
+  \item[eh\_data]
+    is a pointer to user data, the same as the \Id{eh\_data}
+    parameter passed to \id{IDASetErrHandlerFn}.   
   \end{args}
 }
 {
@@ -4055,7 +4081,7 @@ The function type \id{IDAEwtFn} is defined as follows:
   \item[ewt]
     is the output vector containing the error weights.
   \item[user\_data]
-    is a pointer to user data --- the same as the \Id{user\_data}      
+    is a pointer to user data, the same as the \Id{user\_data}      
     parameter passed to \id{IDASetUserData}.   
   \end{args}
 }
@@ -4120,13 +4146,13 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
 \label{ss:djacFn}
 \index{Jacobian approximation function!dense!user-supplied|(}
 If the direct linear solver with dense treatment of the Jacobian is used (i.e. 
-\Id{IDADense} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
+\Id{IDADense} or \Id{IDALapackDense} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
 the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
 \usfunction{IDADlsDenseJacFn}
 {
   typedef int (*IDADlsDenseJacFn&)(long int Neq, realtype tt, realtype c\_j, \\
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
-                             &void *user\_data, DlsMat Jac, \\
+                             &DlsMat Jac, void *user\_data,  \\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
@@ -4149,11 +4175,11 @@ the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
     is the current value of $y'(t)$.
   \item[rr]
     is the current value of the residual vector $F(t,y,y')$.
+  \item[Jac]
+    is the output Jacobian matrix.  
   \item[user\_data]
     is a pointer to user data --- the same as the \id{user\_data}      
     parameter passed to \id{IDASetUserData}.   
-  \item[Jac]
-    is the output Jacobian matrix.  
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
@@ -4216,14 +4242,14 @@ the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
 \index{Jacobian approximation function!band!user-supplied|(}
 \index{half-bandwidths|(}
 If the direct linear solver with banded treatment of the Jacobian is used (i.e.
-\Id{IDABand} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
+\Id{IDABand} or \Id{IDALapackBand} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
 the user may provide a function of type \ID{IDADlsBandJacFn} defined as follows:
 \usfunction{IDADlsBandJacFn}
 {
- typedef int (*IDADlsBandJacFn)(&long int Neq, long int mupper, \\
-                             &long int mlower, realtype tt, \\ 
+ typedef int (*IDADlsBandJacFn)(&long int Neq, long int mupper, long int mlower, \\
+                             &realtype tt, realtype c\_j,\\ 
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
-                             &realtype c\_j, void *user\_data, DlsMat Jac,\\
+                             &DlsMat Jac, void *user\_data, \\
                              &N\_Vector tmp1, N\_Vector tmp2,N\_Vector tmp3);
 }
 {
@@ -4249,11 +4275,11 @@ the user may provide a function of type \ID{IDADlsBandJacFn} defined as follows:
   \item[c\_j]
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
+  \item[Jac]
+    is the output Jacobian matrix.  
   \item[user\_data]
     is a pointer to user data --- the same as the \id{user\_data}      
     parameter passed to \id{IDASetUserData}.   
-  \item[Jac]
-    is the output Jacobian matrix.  
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
@@ -4356,7 +4382,7 @@ of type \ID{IDASpilsJacTimesVecFn} in the following form:
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[user\_data]
-    is a pointer to user data --- the same as the \id{user\_data}      
+    is a pointer to user data, the same as the \id{user\_data}      
     parameter passed to \id{IDASetUserData}.   
   \item[tmp1]
   \item[tmp2]
@@ -4431,7 +4457,7 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
     To obtain the \id{N\_Vector} \id{ewt}, call \id{IDAGetErrWeights} 
     (see \S\ref{sss:optout_main}).
   \item[user\_data]
-    is a pointer to user data --- the same as the \id{user\_data}      
+    is a pointer to user data, the same as the \id{user\_data}      
     parameter passed to the function \id{IDASetUserData}.
   \item[tmp]
     is a pointer to memory allocated for a variable of type    
@@ -4484,7 +4510,7 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[user\_data]
-    is a pointer to user data --- the same as the \id{user\_data}      
+    is a pointer to user data, the same as the \id{user\_data}      
     parameter passed to the function \id{IDASetUserData}.
   \item[tmp1]
   \item[tmp2]
@@ -4725,18 +4751,21 @@ The call to the \id{IDAQuadReInit} function has the form:
 %%
 \ucfunction{IDAQuadFree}
 {
-  IDAQuadFree(ida\_mem);
+  IDAQuadFree(\&ida\_mem);
 }
 {
   The function \ID{IDAQuadFree} frees the memory allocated for quadrature integration.
 }
 {
-  The argument is the pointer to the {\idas} memory block (of type \id{void *}).
+  The argument is address of the pointer to the {\idas} memory block (of type \id{void *}).
 }
 {
   The function \id{IDAQuadFree} has no return value.
 }
-{}
+{
+  In general, \id{IDAQuadFree} need not be called by the user as it is
+  invoked automatically by \id{IDAFree}.
+}
 
 %%===================================================================================
 
@@ -4812,7 +4841,8 @@ $y$ in \id{y}. Solution quadratures can be obtained using the following function
 \index{optional output!interpolated quadratures}
 The function \Id{IDAGetQuadDky} computes the \id{k}-th derivatives of the interpolating 
 polynomials for the quadrature variables at time \id{t}.
-This function is called by \id{IDAGetQuad} with \id{k = 0}, but may also be called 
+This function is called by \id{IDAGetQuad} with \id{k = 0} and with the current
+time at which \id{IDASolve} has returned, but may also be called 
 directly by the user.
 %%
 \ucfunction{IDAGetQuadDky}
@@ -4868,7 +4898,7 @@ of quadrature equations.
 %%
 \ucfunction{IDASetQuadErrCon}
 {
- flag = IDASetQuadErrCon(ida\_mem, errconQ)
+ flag = IDASetQuadErrCon(ida\_mem, errconQ);
 }
 {
   The function \Id{IDASetQuadErrCon} specifies whether or not the
@@ -4930,7 +4960,7 @@ integration tolerances for quadrature variables.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDA\_MEM\_NULL]
+  \begin{args}[IDA\_ILL\_INPUT]
   \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{IDA\_NO\_QUAD}]
@@ -4964,7 +4994,7 @@ integration tolerances for quadrature variables.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDA\_MEM\_NULL]
+  \begin{args}[IDA\_ILL\_INPUT]
   \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{IDA\_NO\_QUAD}]
@@ -4976,8 +5006,6 @@ integration tolerances for quadrature variables.
   \end{args}
 }
 {}
-
-
 \index{optional input!quadrature integration|)}
 %%
 %%
@@ -5127,7 +5155,8 @@ performance information related to quadrature integration.
 
 \index{right-hand side function!quadrature equations}
 For integration of quadrature equations, the user must provide a function 
-that defines the right-hand side of the quadrature equations. This function
+that defines the right-hand side of the quadrature equations (in other words,
+the integrand function of the integral that must be evaluated). This function
 must be of type \Id{IDAQuadRhsFn} defined as follows:
 \usfunction{IDAQuadRhsFn}
 {
@@ -5176,16 +5205,6 @@ must be of type \Id{IDAQuadRhsFn} defined as follows:
   is called after an error test failure, while the linear multistep method order is
   equal to 1 (in which case {\idas} returns \Id{IDA\_UNREC\_QRHSFUNC\_ERR}).
 }
-
-
-
-
-
-
-
-
-
-
 
 
 %%===================================================================================
@@ -5325,7 +5344,7 @@ are then used by \id{Gres}, which is not expected to do any communication.
   \item[gval]
     is the output vector.
   \item[user\_data]
-    is a pointer to user data --- the same as the \Id{user\_data}      
+    is a pointer to user data, the same as the \Id{user\_data}      
     parameter passed to \id{IDASetUserData}.  
   \end{args}
 }
@@ -5444,19 +5463,15 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
      \end{tabular}
    }
 
-  to allocate memory and initialize internal preconditioner's data.
-%% and initialize a data structure \id{bbd\_data}, of type \id{void *}, to be 
-%% passed to any of the Krylov linear solvers. 
-  The last two
-  arguments of \id{IDABBDPrecAlloc} are the two user-supplied functions described
-  above.
+  to allocate memory and initialize the internal preconditioner data.
+  The last two arguments of \id{IDABBDPrecInit} are the two user-supplied 
+  functions described above.
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
   Note that the user should not overwrite the preconditioner data, setup function, 
-  or solve function through calls to {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr}
-  optional input functions.
+  or solve function through calls to {\idaspils} optional input functions.
 
 \item
   \textcolor{gray}{\bf Correct initial values}
@@ -5471,8 +5486,8 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   {\bf Get optional outputs}
 
   Additional optional outputs associated with {\idabbdpre} are available by 
-  way of two routines described below --
-  \id{IDABBDPreconGetWorkSpace} and \id{IDABBDPreconGetNumGfnEvals}.
+  way of two routines described below,
+  \id{IDABBDPrecGetWorkSpace} and \id{IDABBDPrecGetNumGfnEvals}.
 
 \item
   \textcolor{gray}{\bf Deallocate memory for solution vector}
@@ -5565,9 +5580,9 @@ the {\idabbdpre} preconditioner module are described next.
   For all four half-bandwidths, the values need not be the    
   same on every processor.
 }
-%%
-%%
-%%
+
+
+
 The {\idabbdpre} module also provides a reinitialization function to allow
 for a sequence of problems of the same size with {\idaspgmr}/{\idabbdpre},
 {\idaspbcg}/{\idabbdpre}, or {\idasptfqmr}/{\idabbdpre}, provided there is no
@@ -5578,9 +5593,11 @@ to change any of the following: the half-bandwidths \id{mudq} and \id{mldq}
 used in the difference-quotient Jacobian approximations, the relative increment 
 \id{dq\_rel\_yy}, or one of the user-supplied functions \id{Gres} and \id{Gcomm}.
 %%
+%%
+%%
 \ucfunction{IDABBDPrecReInit}
 {
-  flag = IDABBDPrecReInit(ida\_mem, mudq, mldq, dq\_rel\_yy, Gres, Gcomm);
+  flag = IDABBDPrecReInit(ida\_mem, mudq, mldq, dq\_rel\_yy);
 }
 {
   The function \ID{IDABBDPrecReInit} reinitializes the {\idabbdpre} preconditioner.
@@ -5598,12 +5615,6 @@ used in the difference-quotient Jacobian approximations, the relative increment
     approximations.  
     The default is \id{dq\_rel\_yy} $= \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dq\_rel\_yy} $= 0.0$.
-  \item[Gres] (\id{IDABBDLocalFn})
-    the {\C} function which computes the local residual approximation 
-    $G(t,y,y^\prime)$.
-  \item[Gcomm] (\id{IDABBDCommFn})
-    the optional {\C} function which performs all inter-process communication
-    required for the computation of $G(t,y,y^\prime)$.
   \end{args}
 }
 {
@@ -5618,7 +5629,6 @@ used in the difference-quotient Jacobian approximations, the relative increment
   \item[\Id{IDASPILS\_PMEM\_NULL}]
     The function \id{IDABBDPrecInit} was not previously called.
   \end{args}
-
 }
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or
@@ -5655,7 +5665,6 @@ the {\idabbdpre} module:
   \end{args}
 }
 {
-
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDASPILS\_PMEM\_NULL]
   \item[IDASPILS\_SUCCESS] 
@@ -5694,7 +5703,6 @@ the {\idabbdpre} module:
   \end{args}
 }
 {
-
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDASPILS\_PMEM\_NULL]
   \item[IDASPILS\_SUCCESS] 
