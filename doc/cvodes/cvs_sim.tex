@@ -676,7 +676,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{int})
     problem dimension.
   \end{args}
 }
@@ -738,11 +738,11 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{int})
     problem dimension.
-  \item[mupper] (\id{long int})
+  \item[mupper] (\id{int})
     upper half-bandwidth of the problem Jacobian (or of the approximation of it).
-  \item[mlower] (\id{long int})
+  \item[mlower] (\id{int})
     lower half-bandwidth of the problem Jacobian (or of the approximation of it).
   \end{args}
 }
@@ -3998,7 +3998,7 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
 %%
 \usfunction{CVDlsDenseJacFn}
 {
-  typedef (*CVDlsDenseJacFn)(&long int N, realtype t, \\
+  typedef (*CVDlsDenseJacFn)(&int N, realtype t, \\
                           &N\_Vector y, N\_Vector fy, \\
                           &DlsMat Jac, void *user\_data, \\
                           &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -4090,7 +4090,7 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
 %%
 \usfunction{CVDlsBandJacFn}
 {
- typedef int (*CVBandJacFn)(&long int N, long int mupper, long int mlower,\\
+ typedef int (*CVBandJacFn)(&int N, int mupper, int mlower,\\
                             &realtype t, N\_Vector y, N\_Vector fy, \\ 
                             &DlsMat Jac, void *user\_data, \\
                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -5170,11 +5170,11 @@ by calling the following function:
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{int})
     problem dimension.
-  \item[mu] (\id{long int})
+  \item[mu] (\id{int})
     upper half-bandwidth of the Jacobian approximation.
-  \item[ml] (\id{long int})
+  \item[ml] (\id{int})
     lower half-bandwidth of the Jacobian approximation.
   \end{args}
 }
@@ -5386,7 +5386,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 \usfunction{CVLocalFn}
 {
-  typedef int (*CVLocalFn)(&long int Nlocal, realtype t, N\_Vector y, \\
+  typedef int (*CVLocalFn)(&int Nlocal, realtype t, N\_Vector y, \\
                            &N\_Vector glocal, void *user\_data);
 }
 {
@@ -5425,7 +5425,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 \usfunction{CVCommFn}
 {
-  typedef int (*CVCommFn)(&long int Nlocal, realtype t,  \\
+  typedef int (*CVCommFn)(&int Nlocal, realtype t,  \\
                           &N\_Vector y, void *user\_data);
 }
 {
@@ -5573,15 +5573,15 @@ the {\cvbbdpre} preconditioner module are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[local\_N] (\id{long int})
+  \item[local\_N] (\id{int})
     local vector length.
-  \item[mudq] (\id{long int})
+  \item[mudq] (\id{int})
     upper half-bandwidth to be used in the difference quotient Jacobian approximation.
-  \item[mldq] (\id{long int})
+  \item[mldq] (\id{int})
     lower half-bandwidth to be used in the difference quotient Jacobian approximation.
-  \item[mukeep] (\id{long int})
+  \item[mukeep] (\id{int})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeep] (\id{long int})
+  \item[mlkeep] (\id{int})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dqrely] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
@@ -5651,9 +5651,9 @@ the corresponding \id{CVSp***Set***} functions, must also be made (in the proper
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[mudq] (\id{long int})
+  \item[mudq] (\id{int})
     upper half-bandwidth to be used in the difference quotient Jacobian approximation.
-  \item[mldq] (\id{long int})
+  \item[mldq] (\id{int})
     lower half-bandwidth to be used in the difference quotient Jacobian approximation.
   \item[dqrely] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
