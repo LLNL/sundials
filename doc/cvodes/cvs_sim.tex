@@ -349,8 +349,6 @@ is to be called only after the IVP solution is complete, as it frees the
 {
   If successful, \id{CVodeCreate} returns a pointer to the newly created 
   {\cvodes} memory block (of type \id{void *}).
-  If an error occurred, \id{CVodeCreate} prints an error message to \id{stderr}
-  and returns \id{NULL}.
 }
 {}
 %%
@@ -3939,8 +3937,7 @@ The function type \id{CVEwtFn} is defined as follows:
 }
 {
   A \id{CVEwtFn} function type must return $0$ if it successfuly set
-  the error weights and $-1$ otherwise. In case of failure, a message is printed
-  and the integration stops.
+  the error weights and $-1$ otherwise.
 }
 {
   Allocation of memory for \id{ewt} is handled within {\cvodes}.
@@ -4594,13 +4591,13 @@ The call to the \id{CVodeQuadReInit} function has the form:
 %%
 \ucfunction{CVodeQuadFree}
 {
-  CVodeQuadFree(\&cvode\_mem);
+  CVodeQuadFree(cvode\_mem);
 }
 {
   The function \ID{CVodeQuadFree} frees the memory allocated for quadrature integration.
 }
 {
-  The argument is the address of the pointer to the {\cvodes} memory block (of type \id{void *}).
+  The argument is the pointer to the {\cvodes} memory block (of type \id{void *}).
 }
 {
   The function \id{CVodeQuadFree} has no return value.

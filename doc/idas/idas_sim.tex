@@ -4087,8 +4087,7 @@ The function type \id{IDAEwtFn} is defined as follows:
 }
 {
   An \id{IDAEwtFn} function type must return $0$ if it successfuly set
-  the error weights and $-1$ otherwise. In case of failure, a message is printed
-  and the integration stops.
+  the error weights and $-1$ otherwise.
 }
 {
   Allocation of memory for \id{ewt} is handled within {\idas}.
@@ -4751,13 +4750,13 @@ The call to the \id{IDAQuadReInit} function has the form:
 %%
 \ucfunction{IDAQuadFree}
 {
-  IDAQuadFree(\&ida\_mem);
+  IDAQuadFree(ida\_mem);
 }
 {
   The function \ID{IDAQuadFree} frees the memory allocated for quadrature integration.
 }
 {
-  The argument is address of the pointer to the {\idas} memory block (of type \id{void *}).
+  The argument is the pointer to the {\idas} memory block (of type \id{void *}).
 }
 {
   The function \id{IDAQuadFree} has no return value.
@@ -4832,10 +4831,7 @@ $y$ in \id{y}. Solution quadratures can be obtained using the following function
     \id{yQ} is \id{NULL}.
   \end{args}
 }
-{
-  In case of an error return, an error message is also sent to the error handler
-  function.
-}
+{}
 %%
 %%
 \index{optional output!interpolated quadratures}
@@ -4883,9 +4879,7 @@ directly by the user.
     The time \id{t} is not in the allowed range.
   \end{args}
 }
-{
-  In case of an error return, an error message is also sent to the error handler function.
-}
+{}
 %%
 %%
 

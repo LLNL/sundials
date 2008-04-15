@@ -269,13 +269,10 @@ The form of the call to this routine is as follows:
       variables takes place at the same time for all sensitivity equations, but only after 
       the correction of the state variables has converged and the state variables 
       have passed the local error test; 
-%%     \item In the \ID{IDA\_STAGGERED1} approach, all corrections are done sequentially, first
-%%       for the state variables and then for the sensitivity variables, one parameter at
-%%       a time. If the sensitivity variables are not included in the error control, this 
-%%       approach is equivalent to \id{IDA\_STAGGERED}. Note that the \id{IDA\_STAGGERED1} approach 
-%%       can be used only if the user-provided sensitivity residual function is of type
-%%       \id{IDASensRhs1Fn} (see \S\ref{s:user_fct_fwd}).
     \end{itemize}
+  \item[resS] (\Id{IDASensResFn})
+    is the {\C} function which computes the residual of the sensitivity ODE. 
+    For full details see \S\ref{s:user_fct_fwd}.
   \item[yS0] (\id{N\_Vector *}) 
     a pointer to an array of \id{Ns} vectors containing the initial 
     values of the sensitivities of $y$.
@@ -299,6 +296,9 @@ The form of the call to this routine is as follows:
   \end{args}
 }
 {
+  Passing \id{resS}$=$\id{NULL} indicates using the default internal difference 
+  quotient sensitivity residual routine.
+
   If an error occured, \id{IDASensInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
 }
@@ -394,6 +394,9 @@ to \id{IDASensInit}), the user must call
   The function \id{IDASensFree} has no return value.
 }
 {
+  In general, \id{IDASensFree} need not be called by the user as it is
+  invoked automatically by \id{IDAFree}.
+
   After a call to \id{IDASensFree}, forward sensitivity computations can be reactivated
   only by calling again \id{IDASensInit}.
 }
@@ -568,27 +571,18 @@ See \S\ref{ss:idacalcic} for a list of possible return values.
 
 
 %%==============================================================================
-\subsection{IDASolve solver function}
+\subsection{IDAS solver function}
 %%==============================================================================
 %%
 Even if forward sensitivity analysis was enabled, the call to the main solver 
 function \id{IDASolve} is exactly the same as in \S\ref{sss:idasolve}. However, 
 in this case the return value \id{flag} can also be one of the following:
-\begin{args}[IDA\_FIRST\_SRHSFUNC\_FAIL]
+\begin{args}[IDA\_REP\_SRES\_ERR]
 \item[\Id{IDA\_SRES\_FAIL}]
   The sensitivity residual function failed in an unrecoverable manner.
 \item[\Id{IDA\_REP\_SRES\_ERR}]
   The user's residual function repeatedly returned a recoverable error flag, 
   but the solver was unable to recover.
-%% \item[\Id{IDA\_REPTD\_SRESFUNC\_ERR}]
-%%   Convergence tests occurred too many times due to repeated recoverable errors in
-%%   the sensitivity residual function. The \id{IDA\_REPTD\_RHSFUNC\_ERR} will also
-%%   be returned if the sensitivity residual function had repeated recoverable errors
-%%   during the estimation of an initial step size.
-%% \item[\Id{IDA\_UNREC\_SRESFUNC\_ERR}]
-%%   The sensitivity right-hand function had a recoverable error, but no recovery was possible.
-%%   This failure mode is rare, as it can occur only if the sensitivity residual function
-%%   fails recoverably after an error test failed while at order one.
 \end{args}
 
 %--------------------------
@@ -631,55 +625,12 @@ through one of the following functions:
     Forward sensitivity analysis was not initialized.
   \item[\Id{IDA\_BAD\_DKY}] 
     \id{yQ} is \id{NULL}.
-%%  \item[\Id{IDA\_BAD\_T}]
-%%    The time \id{t} is not in the allowed range.
   \end{args}
 }
 {
-  In case of an error return, an error message is also printed.  
+  Note that the argument \id{tret} is an output for this function. Its value will be
+  the same as that returned at the last \id{IDASolve} call.
 }
-%%
-%%
-%% \ucfunction{IDAGetSens1}
-%% {
-%%   flag = IDAGetSens1(ida\_mem, \&tret, is, yS);
-%% }
-%% {
-%%   The function \id{IDAGetSens1} returns the \id{is}-th sensitivity solution vectors 
-%%   after a successful return from \id{IDASolve}.
-%% }
-%% {
-%%   \begin{args}[ida\_mem]
-%%   \item[ida\_mem] (\id{void *})
-%%     pointer to the memory previously allocated by \id{IDAInit}.
-%%   \item[tret] (\id{realtype})
-%%     the time reached by the solver.
-%%   \item[is] (\id{int})
-%%     specifies which sensitivity should be computed.
-%%   \item[yS] (\id{N\_Vector})
-%%     the computed forward i-th sensitivity vectors of $y$.
-%%   \end{args}
-%% }
-%% {
-%%   The return value \id{flag} of \id{IDAGetSens1} is one of:
-%%   \begin{args}[IDA\_MEM\_NULL]
-%%   \item[\Id{IDA\_SUCCESS}] 
-%%     \id{IDAGetSens} was successful.
-%%   \item[\Id{IDA\_MEM\_NULL}] 
-%%     \id{ida\_mem} was \id{NULL}.
-%%   \item[\Id{IDA\_NO\_SENS}] 
-%%     Forward sensitivity analysis was not initialized.
-%%   \item[\Id{IDA\_BAD\_DKY}] 
-%%     \id{yQ} is \id{NULL}.
-%%   \item[\Id{IDA\_BAD\_DKY}] 
-%%     \id{is} is not one of the $1,2, \ldots, Ns$.
-%% %%  \item[\Id{IDA\_BAD\_T}]
-%% %%    The time \id{t} is not in the allowed range.
-%%   \end{args}
-%% }
-%% {
-%%   In case of an error return, an error message is also printed.  
-%% }
 %%
 %%
 \index{optional output!interpolated sensitivities}
@@ -727,9 +678,7 @@ directly by the user.
     The time \id{t} is not in the allowed range.
   \end{args}
 }
-{
-  In case of an error return, an error message is also printed.  
-}
+{}
 %%
 %%
 Forward sensitivity solution vectors can also be extracted separately for 
@@ -737,7 +686,7 @@ each parameter in turn through the functions \id{IDAGetSens1} and
 \id{IDAGetSensDky1}, defined as follows:
 \ucfunction{IDAGetSens1}
 {
-  flag = IDAGetSens1(ida\_mem, t, is, yS);
+  flag = IDAGetSens1(ida\_mem, \&tret, is, yS);
 }
 {
   The function \id{IDAGetSens1} returns the \id{is}-th sensitivity solution vector
@@ -747,10 +696,8 @@ each parameter in turn through the functions \id{IDAGetSens1} and
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{IDAInit}.
-  \item[t] (\id{realtype})
-    specifies the time at which sensitivity information is 
-    requested. The time \id{t} must fall within the interval defined by the last 
-    successful step taken by {\idas}.
+  \item[tret] (\id{realtype *})
+    the time reached by the solver.
   \item[is] (\id{int}) specifies which sensitivity vector is to be returned
     ($0\le$\id{is}$< N_s$).
   \item[yS] (\id{N\_Vector})
@@ -775,7 +722,8 @@ each parameter in turn through the functions \id{IDAGetSens1} and
   \end{args}
 }
 {
-  In case of an error return, an error message is also printed.  
+  Note that the argument \id{tret} is an output for this function. Its value will be
+  the same as that returned at the last \id{IDASolve} call.
 }
 %%
 %%
@@ -822,9 +770,7 @@ each parameter in turn through the functions \id{IDAGetSens1} and
     The time \id{t} is not in the allowed range.
   \end{args}
 }
-{
-  In case of an error return, an error message is also printed.  
-}
+{}
 %%
 %%
 
@@ -847,104 +793,13 @@ remainder of this section.
 \begin{tabular}{|l|l|l|}\hline
 {\bf Optional input} & {\bf Routine name} & {\bf Default} \\
 \hline
-%% Sensitivity residual fct. and data & \id{IDASetSensRhsFn} & internal DQ \\
-%% Sensitivity residual fct. and data & \id{IDASetSensRhs1Fn} & internal DQ \\
 Sensitivity scaling factors & \id{IDASetSensParams} & \id{NULL} \\
 DQ approximation method & \id{IDASetSensDQMethod} & 0.0 \\
 Error control strategy & \id{IDASetSensErrCon} & \id{FALSE} \\
-%% Sensitivity integration tolerances & \id{IDASetSensTolerances} & estimated \\
 Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
 \hline
 \end{tabular}
 \end{table}
-%%
-%%
-%% \ucfunction{IDASetSensRhsFn}
-%% {
-%%   flag = IDASetSensRhsFn(ida\_mem, fS, data);
-%% }
-%% {
-%%   The function \ID{IDASetSensRhsFn} specifies the user-supplied {\C} function
-%%   used to evaluate the sensitivity residuals (for all parameters at once)
-%%   and he user data block for use by the user-supplied sensitivity right-hand 
-%%   side function.
-%% }
-%% {
-%%   \begin{args}[ida\_mem]
-%%   \item[ida\_mem] (\id{void *})
-%%     pointer to the {\idas} memory block.
-%%   \item[fS] (\id{IDASensResFn})
-%%     user-defined sensitivity residual function.
-%%   \item[fS\_data] (\id{void *})
-%%     pointer to the user data.
-%%   \end{args}
-%% }
-%% {
-%%   The return value \id{flag} (of type \id{int}) is one of:
-%%   \begin{args}[IDA\_MEM\_NULL]
-%%   \item[\Id{IDA\_SUCCESS}] 
-%%     The optional value has been successfully set.
-%%   \item[\Id{IDA\_MEM\_NULL}]
-%%     The \id{ida\_mem} pointer is \id{NULL}.
-%%   \end{args}
-%% }
-%% {
-%%   {\warn}This type of function is not compatible
-%%   with the \id{IDA\_STAGGERED1} sensitivity solution method (argument \id{ism}
-%%   to \id{IDASensInit}). The compatibility test is performed at the first
-%%   step in \id{IDASolve}.
-
-%%   Passing \id{fS}$=$\id{NULL} indicates using the default internal difference 
-%%   quotient sensitivity residual routine.
-
-%%   The pointer \id{fS\_data} can be the same as the pointer \id{user\_data},
-%%   specified in a prior call to \id{IDASetFdata} (see \S\ref{sss:optin_main})
-%%   and passed to the user's residual function \id{f}.
-%% }
-%% %%
-%% %%
-%% \ucfunction{IDASetSensRhs1Fn}
-%% {
-%%   flag = IDASetSensRhs1Fn(ida\_mem, fS, data);
-%% }
-%% {
-%%   The function \ID{IDASetSensRhs1Fn} specifies the user-supplied {\C} function
-%%   used to evaluate the sensitivity residuals (one parameter at a time)
-%%   and he user data block for use by the user-supplied sensitivity right-hand 
-%%   side function.
-%% }
-%% {
-%%   \begin{args}[ida\_mem]
-%%   \item[ida\_mem] (\id{void *})
-%%     pointer to the {\idas} memory block.
-%%   \item[fS] (\id{IDASensRhs1Fn})
-%%     user-defined sensitivity residual function.
-%%   \item[fS\_data] (\id{void *})
-%%     pointer to the user data.
-%%   \end{args}
-%% }
-%% {
-%%   The return value \id{flag} (of type \id{int}) is one of:
-%%   \begin{args}[IDA\_MEM\_NULL]
-%%   \item[\Id{IDA\_SUCCESS}] 
-%%     The optional value has been successfully set.
-%%   \item[\Id{IDA\_MEM\_NULL}]
-%%     The \id{ida\_mem} pointer is \id{NULL}.
-%%   \end{args}
-%% }
-%% {
-%%   This type of sensitivity residual function {\em must} be used when
-%%   the \id{IDA\_STAGGERED1} sensitivity solution method is selected through
-%%   \id{IDASensInit}, but can also be used with the other two choices
-%%   (\id{IDA\_SIMULTANEOUS} and \id{IDA\_STAGGERED}).
-
-%%   Passing \id{fS}$=$\id{NULL} indicates using the default internal difference 
-%%   quotient sensitivity residual routine.
-
-%%   The pointer \id{fS\_data} can be the same as the pointer \id{user\_data},
-%%   specified in a prior call to \id{IDASetFdata} (see \S\ref{sss:optin_main})
-%%   and passed to the user's residual function \id{f}.
-%% }
 %%
 %%
 \ucfunction{IDASetSensParams}
@@ -1074,63 +929,6 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
 }
 %%
 %%
-%% \ucfunction{IDASetSensTolerances}
-%% {
-%%   flag = IDASetSensTolerances(ida\_mem, itolS, reltolS, abstolS);
-%% }
-%% {
-%%   The function \ID{IDASetSensTolerances} specifies the integration tolerances for
-%%   sensitivity variables.
-%% }
-%% {
-%%   \begin{args}[ida\_mem]
-%%   \item[ida\_mem] (\id{void *})
-%%     pointer to the {\idas} memory block.
-%%   \item[itolS]  (\id{int}) 
-%%     is one of \Id{IDA\_SS}, \Id{IDA\_SV}, or \ID{IDA\_EE}, where \Id{itolS} $=$ \id{IDA\_SS} indicates scalar relative error 
-%%     tolerance and scalar absolute error tolerance, while \id{itolS} $=$ \id{IDA\_SV} indicates scalar
-%%     relative error tolerance and vector absolute error tolerance.
-%%     If \id{itolS} $=$ \id{IDA\_EE}, the arguments \id{reltolS} and \id{abstolS} are ignored and
-%%     {\idas} will estimate tolerances for the sensitivity variables based on the state
-%%     tolerances and the scaling factors $\bar p$.
-%%   \item[reltolS] (\id{realtype})
-%%     \index{tolerances}
-%%     is the relative error tolerance.
-%%   \item[abstolS] (\id{void *})
-%%     is a pointer to the absolute error tolerance. 
-%%     If \id{itolS} $=$ \id{IDA\_SS}, then \id{abstolS} must be a pointer to an array
-%%     of \id{realtype} variables. 
-%%     If \id{itolS} $=$ \id{IDA\_SV}, then \id{abstolS} must be an array of \id{Ns}
-%%     variables of type  \id{N\_Vector}. In the latter case, \id{abstolS} should be
-%%     created and set in the same manner as the vectors of initial values for the
-%%     sensitivity variables (see \S\ref{s:forward_usage}).
-%%   \end{args}
-%% }
-%% {
-%%   The return value \id{flag} (of type \id{int}) is one of:
-%%   \begin{args}[IDA\_ILL\_INPUT]
-%%   \item[\Id{IDA\_SUCCESS}] 
-%%     The optional values have been successfully set.
-%%   \item[\Id{IDA\_MEM\_NULL}]
-%%     The \id{ida\_mem} pointer is \id{NULL}.
-%%   \item[\Id{IDA\_NO\_SENS}]
-%%     Forward sensitivity analysis was not initialized.
-%%   \item[\Id{IDA\_ILL\_INPUT}]
-%%      An input argument to \id{IDASetSensTolerances} has an illegal value.
-%%   \end{args}
-%% }
-%% {
-%%   The default behavior is for {\idas} to estimate appropriate integration 
-%%   tolerances for the sensitivity variables based on the state tolerances and
-%%   the scaling factors ${\bar p}$. See \S\ref{ss:fwd_sensi} for details.
-
-%%   {\warn}It is the user's responsibility to provide compatible \id{itolS} and
-%%   \id{abstolS} arguments.
-
-%%   This function must be preceeded by a call to \id{IDASensInit}.
-%% }
-%%
-%%
 \ucfunction{IDASetSensMaxNonlinIters}
 {
   flag = IDASetSensMaxNonlinIters(ida\_mem, maxcorS);
@@ -1189,8 +987,6 @@ No. of calls to lin. solv. setup routine for sens.& \id{IDAGetSensNumLinSolvSetu
 Error weight vector for sensitivity variables & \id{IDAGetSensErrWeights} \\
 No. of sens. nonlinear solver iterations& \id{IDAGetNumSensNonlinSolvIters} \\
 No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\ 
-%% No. of staggered nonlinear solver iterations& \id{IDAGetNumStgrSensNonlinSolvIters} \\
-%% No. of staggered convergence failures& \id{IDAGetNumStgrSensNonlinSolvConvFails} \\ 
 \hline
 \end{tabular}
 \end{table}
@@ -1409,12 +1205,12 @@ No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\
 }
 %%
 %%
-\ucfunction{IDAGetNumSensNonlinSolvIters}
+\ucfunction{IDAGetSensNumNonlinSolvIters}
 {
-  flag = IDAGetNumSensNonlinSolvIters(ida\_mem, \&nSniters);
+  flag = IDAGetSensNumNonlinSolvIters(ida\_mem, \&nSniters);
 }
 {
-  The function \ID{IDAGetNumSensNonlinSolvIters} returns the
+  The function \ID{IDAGetSensNumNonlinSolvIters} returns the
   number of nonlinear iterations performed for 
   sensitivity calculations.
 }
@@ -1443,12 +1239,12 @@ No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\
 }
 %%
 %%
-\ucfunction{IDAGetNumSensNonlinSolvConvFails}
+\ucfunction{IDAGetSensNumNonlinSolvConvFails}
 {
-  flag = IDAGetNumSensNonlinSolvConvFails(ida\_mem, \&nSncfails);
+  flag = IDAGetSensNumNonlinSolvConvFails(ida\_mem, \&nSncfails);
 }
 {
-  The function \ID{IDAGetNumSensNonlinSolvConvFails} returns the
+  The function \ID{IDAGetSensNumNonlinSolvConvFails} returns the
   number of nonlinear convergence failures that have occurred for
   sensitivity calculations.
 }
@@ -1508,75 +1304,9 @@ No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\
 }
 {}
 %%
-%%
-%% \ucfunction{IDAGetNumStgrSensNonlinSolvIters}
-%% {
-%%   flag = IDAGetNumStgrSensNonlinSolvIters(ida\_mem, nSTGR1niters);
-%% }
-%% {
-%%   The function \ID{IDAGetNumStgrSensNonlinSolvIters} returns the
-%%   number of nonlinear (functional or Newton) iterations performed for 
-%%   each sensitivity equation separately, in the \id{IDA\_STAGGERED1} case.
-%% }
-%% {
-%%   \begin{args}[ida\_mem]
-%%   \item[ida\_mem] (\id{void *})
-%%     pointer to the {\idas} memory block.
-%%   \item[nSTGR1niters] (\id{long int *})
-%%     an array (of dimension \id{Ns}) which will be set with the number of 
-%%     nonlinear iterations performed for each sensitivity system individually.
-%%   \end{args}
-%% }
-%% {
-%%   The return value \id{flag} (of type \id{int}) is one of:
-%%   \begin{args}[IDA\_MEM\_NULL]
-%%   \item[\Id{IDA\_SUCCESS}] 
-%%     The optional output value has been successfully set.
-%%   \item[\Id{IDA\_MEM\_NULL}]
-%%     The \id{ida\_mem} pointer is \id{NULL}.
-%%   \item[\Id{IDA\_NO\_SENS}]
-%%     Forward sensitivity analysis was not initialized.
-%%   \end{args}
-%% }
-%% {
-%%   {\warn}The user must allocate space for \id{nSTGR1niters}.
-}
-%%
-%%
-%% \ucfunction{IDAGetNumStgrSensNonlinSolvConvFails}
-%% {
-%%   flag = IDAGetNumStgrSensNonlinSolvConvFails(ida\_mem, nSTGR1ncfails);
-%% }
-%% {
-%%   The function \ID{IDAGetNumStgrSensNonlinSolvConvFails} returns the
-%%   number of nonlinear convergence failures that have occurred for
-%%   each sensitivity equation separately, in the \id{IDA\_STAGGERED1} case.
-%% }
-%% {
-%%   \begin{args}[ida\_mem]
-%%   \item[ida\_mem] (\id{void *})
-%%     pointer to the {\idas} memory block.
-%%   \item[nSTGR1ncfails] (\id{long int *})
-%%     an array (of dimension \id{Ns}) which will be set with the
-%%     number of nonlinear convergence failures for each sensitivity system individually.
-%%   \end{args}
-%% }
-%% {
-%%   The return value \id{flag} (of type \id{int}) is one of:
-%%   \begin{args}[IDA\_MEM\_NULL]
-%%   \item[\Id{IDA\_SUCCESS}] 
-%%     The optional output value has been successfully set.
-%%   \item[\Id{IDA\_MEM\_NULL}]
-%%     The \id{ida\_mem} pointer is \id{NULL}.
-%%   \item[\Id{IDA\_NO\_SENS}]
-%%     Forward sensitivity analysis was not initialized.
-%%   \end{args}
-%% }
-%% {
-%%   {\warn}The user must allocate space for \id{nSTGR1ncfails}.
-%% }
 \index{optional output!forward sensitivity|)}
 %%
+%%-------------------------------------------------------------------
 %%
 \subsubsection{Initial condition calculation optional output functions}
 \label{sss:sens_optout_iccalc}
@@ -1626,7 +1356,7 @@ call to \id{IDACalcIC}) can be obtained by calling the following function:
   (if not \id{NULL}).
 }
 %%
-
+%%
 %-------------------------------------------------------------------
 \section{User-supplied routines for forward sensitivity analysis}
 \label{s:user_fct_fwd}
@@ -1708,78 +1438,6 @@ of type \ID{IDASensResFn} defined by:
   equal to 1 (in which case {\idas} returns \Id{IDA\_UNREC\_SRHSFUNC\_ERR}).
 }
 
-%% \subsection{Sensitivity equations residual (one at a time)}
-  
-%% Alternatively, the user may provide the sensitivity residuals, one sensitivity
-%% parameter at a time, through a function of type \ID{IDASensRhs1Fn}. 
-%% Note that a sensitivity residual function of type \id{IDASensRhs1Fn} is compatible 
-%% with any valid value of the \id{IDASensInit} argument \id{ism}, and is 
-%% required if \id{ism}$=$\Id{IDA\_STAGGERED1}.
-%% The type \id{IDASensRhs1Fn} is defined by
-%% %%
-%% \usfunction{IDASensRhs1Fn}
-%% {
-%%   typedef int (*IDASensRhs1Fn)(&int Ns, realtype t, \\
-%%                               &N\_Vector y, N\_Vector ydot, \\ 
-%%                               &int iS, N\_Vector yS, N\_Vector ySdot, \\
-%%                               &void *fS\_data,  \\
-%%                               &N\_Vector tmp1, N\_Vector tmp2);
-%% }
-%% {
-%%   This function computes the sensitivity residual for one sensitivity
-%%   equation at a time.
-%%   It must compute the vector $(\dfdyI) s_i(t) + (\dfdpiI)$ for $i$=\id{iS} and 
-%%   store it in \id{ySdot}. 
-%% }
-%% {
-%%   \begin{args}[fS\_data]
-%%   \item[t]
-%%     is the current value of the independent variable.
-%%   \item[y]
-%%     is the current value of the state vector, $y(t)$.
-%%   \item[ydot]
-%%     is the current value of the residual of the state equations.
-%%   \item[iS]
-%%     is the index of the parameter for which the sensitivity right-hand
-%%     side must be computed.
-%%   \item[yS]
-%%     contains the current value of the \id{iS}-th sensitivity vector.
-%%   \item[ySdot]
-%%     is the output of \id{IDASensRhs1Fn}. On exit it must contain
-%%     the \id{iS}-th sensitivity residual vector.
-%%   \item[user\_data]
-%%     is a pointer to user data - the same as the \Id{fS\_data}      
-%%     parameter passed to \id{IDASetSensRhs1Fn}.
-%%   \item[tmp1]
-%%   \item[tmp2]
-%%     are \id{N\_Vector}s which can be used as temporary storage.
-%%   \end{args}
-%% }
-%% {
-%%   A \id{IDASensResFn} should return 0 if successful, a positive value if a recoverable
-%%   error occurred (in which case {\idas} will attempt to correct), or a negative 
-%%   value if it failed unrecoverably (in which case the integration is halted and
-%%   \Id{IDA\_SRHSFUNC\_FAIL} is returned).
-%% }
-%% {
-%%   Allocation of memory for \id{ySdot} is handled within {\idas}.
-
-%%   {\warn}For efficiency considerations, the residual function is not
-%%   evaluated at the converged solution of the nonlinear solver. Therefore, a
-%%   recoverable error in \id{IDASensRhs1Fn} at that point cannot be corrected (as it will 
-%%   occur when the residual function is called the first time during the 
-%%   following integration step and a successful step cannot be undone).
-
-%%   There are two situations in which recovery is not possible even if \id{IDASensRhs1Fn}
-%%   function returns a recoverable error flag. This include the situation when this
-%%   occurrs at the very first call to the \id{IDASensRhs1Fn} (in which case {\idas} returns
-%%   \Id{IDA\_FIRST\_SRHSFUNC\_ERR}) or if a recoverable error is reported when \id{IDASensRhs1Fn}
-%%   is called after an error test failure, while the linear multistep method order is
-%%   equal to 1 (in which case {\idas} returns \Id{IDA\_UNREC\_SRHSFUNC\_ERR}).
-%% }
-%%\index{residual function!forward sensitivity|)}
-%%\index{forward sensitivity analysis!residual evaluation|)}
-%%
 
 %%
 %%===================================================================================
@@ -2111,10 +1769,7 @@ quadratures can be obtained using one of the following functions:
     \id{yQS} is \id{NULL}.
   \end{args}
 }
-{
-  In case of an error return, an error message is also sent to the error handler
-  function.
-}
+{}
 %%
 %%
 \index{optional output!interpolated sensitivity-dependent quadratures}
@@ -2162,9 +1817,7 @@ directly by the user.
     The time \id{t} is not in the allowed range.
   \end{args}
 }
-{
-  In case of an error return, an error message is also sent to the error handler function.
-}
+{}
 %%
 %%
 Quadrature sensitivity solution vectors can also be extracted separately for 
@@ -2207,9 +1860,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
     \id{yQ} is \id{NULL}.
   \end{args}
 }
-{
-  In case of an error return, an error message is also printed.  
-}
+{}
 %%
 %%
 \ucfunction{IDAGetQuadSensDky1}
@@ -2258,9 +1909,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
     The time \id{t} is not in the allowed range.
   \end{args}
 }
-{
-  In case of an error return, an error message is also printed.  
-}
+{}
 %%
 %%
 
