@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2007-11-26 16:20:00 $
+ * $Revision: 1.18 $
+ * $Date: 2008-04-15 16:35:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -488,7 +488,7 @@ int CVodeSetRootDirection(void *cvode_mem, int *rootdir)
 
   nrt = cv_mem->cv_nrtfn;
   if (nrt==0) {
-    cvProcessError(NULL, CV_ILL_INPUT, "CVODES", "CVodeSetRootDirection", MSGCV_NO_ROOT);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetRootDirection", MSGCV_NO_ROOT);
     return(CV_ILL_INPUT);    
   }
 
