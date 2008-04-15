@@ -673,7 +673,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{int})
     problem dimension.
   \end{args}
 }
@@ -735,11 +735,11 @@ described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[N] (\id{long int})
+  \item[N] (\id{int})
     problem dimension.
-  \item[mupper] (\id{long int})
+  \item[mupper] (\id{int})
     upper half-bandwidth of the problem Jacobian (or of the approximation of it).
-  \item[mlower] (\id{long int})
+  \item[mlower] (\id{int})
     lower half-bandwidth of the problem Jacobian (or of the approximation of it).
   \end{args}
 }
@@ -4149,7 +4149,7 @@ If the direct linear solver with dense treatment of the Jacobian is used (i.e.
 the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
 \usfunction{IDADlsDenseJacFn}
 {
-  typedef int (*IDADlsDenseJacFn&)(long int Neq, realtype tt, realtype c\_j, \\
+  typedef int (*IDADlsDenseJacFn&)(int Neq, realtype tt, realtype c\_j, \\
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
                              &DlsMat Jac, void *user\_data,  \\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -4245,7 +4245,7 @@ If the direct linear solver with banded treatment of the Jacobian is used (i.e.
 the user may provide a function of type \ID{IDADlsBandJacFn} defined as follows:
 \usfunction{IDADlsBandJacFn}
 {
- typedef int (*IDADlsBandJacFn)(&long int Neq, long int mupper, long int mlower, \\
+ typedef int (*IDADlsBandJacFn)(&int Neq, int mupper, int mlower, \\
                              &realtype tt, realtype c\_j,\\ 
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
                              &DlsMat Jac, void *user\_data, \\
@@ -5317,7 +5317,7 @@ are then used by \id{Gres}, which is not expected to do any communication.
 %%
 \usfunction{IDABBDLocalFn}
 {
-  typedef int (*IDABBDLocalFn)(&long int Nlocal, realtype tt,  \\
+  typedef int (*IDABBDLocalFn)(&int Nlocal, realtype tt,  \\
                                 &N\_Vector yy, N\_Vector yp, N\_Vector gval, \\
                                 &void *user\_data);
 }
@@ -5357,7 +5357,7 @@ are then used by \id{Gres}, which is not expected to do any communication.
 %%
 \usfunction{IDABBDCommFn}
 {
-  typedef int (*IDABBDCommFn)(&long int Nlocal, realtype tt,  \\
+  typedef int (*IDABBDCommFn)(&int Nlocal, realtype tt,  \\
                                &N\_Vector yy, N\_Vector yp, void *user\_data);
 }
 {
@@ -5519,15 +5519,15 @@ the {\idabbdpre} preconditioner module are described next.
   \begin{args}[dq\_rel\_yy]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[Nlocal] (\id{long int})
+  \item[Nlocal] (\id{int})
     local vector dimension.
-  \item[mudq] (\id{long int})
+  \item[mudq] (\id{int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldq] (\id{long int})
+  \item[mldq] (\id{int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mukeep] (\id{long int})
+  \item[mukeep] (\id{int})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeep] (\id{long int})
+  \item[mlkeep] (\id{int})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dq\_rel\_yy] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
@@ -5600,9 +5600,9 @@ used in the difference-quotient Jacobian approximations, the relative increment
   \begin{args}[dq\_rel\_yy]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[mudq] (\id{long int})
+  \item[mudq] (\id{int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldq] (\id{long int})
+  \item[mldq] (\id{int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[dq\_rel\_yy] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
