@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2007-11-26 16:20:01 $
+ * $Revision: 1.23 $
+ * $Date: 2008-04-15 16:37:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -1547,14 +1547,14 @@ int IDAGetSensNumResEvals(void *ida_mem, long int *nrSevals)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetNumSensResEvals", MSG_NO_MEM);    
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGeSensNumResEvals", MSG_NO_MEM);    
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (sensi==FALSE) {
-    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetNumSensResEvals", MSG_NO_SENSI);
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNumResEvals", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
 
@@ -1593,14 +1593,14 @@ int IDAGetSensNumErrTestFails(void *ida_mem, long int *nSetfails)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetNumSensErrTestFails", MSG_NO_MEM);    
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetSensNumErrTestFails", MSG_NO_MEM);    
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (sensi==FALSE) {
-    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetNumSensErrTestFails", MSG_NO_SENSI);
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNumErrTestFails", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
 
@@ -1616,14 +1616,14 @@ int IDAGetSensNumLinSolvSetups(void *ida_mem, long int *nlinsetupsS)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetNumSensLinSolvSetups", MSG_NO_MEM);    
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetSensNumLinSolvSetups", MSG_NO_MEM);    
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (sensi==FALSE) {
-    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetNumSensLinSolvSetups", MSG_NO_SENSI);
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNumLinSolvSetups", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
 
@@ -1686,19 +1686,19 @@ int IDAGetSensStats(void *ida_mem, long int *nrSevals, long int *nrevalsS,
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumSensNonlinSolvIters(void *ida_mem, long int *nSniters)
+int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters)
 {
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetNumSensNonlinSolvIters", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetSensNumNonlinSolvIters", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (sensi==FALSE) {
-    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetNumSensNonlinSolvIters", MSG_NO_SENSI);
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNumNonlinSolvIters", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
 
@@ -1709,19 +1709,19 @@ int IDAGetNumSensNonlinSolvIters(void *ida_mem, long int *nSniters)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumSensNonlinSolvConvFails(void *ida_mem, long int *nSncfails)
+int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, long int *nSncfails)
 {
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetNumSensNonlinSolvConvFails", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetSensNumNonlinSolvConvFails", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (sensi==FALSE) {
-    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetNumSensNonlinSolvConvFails", MSG_NO_SENSI);
+    IDAProcessError(IDA_mem, IDA_NO_SENS, "IDAS", "IDAGetSensNumNonlinSolvConvFails", MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
 

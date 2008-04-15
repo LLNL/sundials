@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.24 $
+ * $Date: 2008-04-15 16:37:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1555,8 +1555,8 @@ SUNDIALS_EXPORT int IDAGetSensStats(void *ida_mem, long int *nresSevals,
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetNumSensNonlinSolvIters(void *ida_mem, long int *nSniters);
-SUNDIALS_EXPORT int IDAGetNumSensNonlinSolvConvFails(void *ida_mem, 
+SUNDIALS_EXPORT int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters);
+SUNDIALS_EXPORT int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, 
                                                      long int *nSncfails);
 SUNDIALS_EXPORT int IDAGetSensNonlinSolvStats(void *ida_mem, 
                                               long int *nSniters, 

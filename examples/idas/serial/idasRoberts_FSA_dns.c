@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:39 $
+ * $Revision: 1.2 $
+ * $Date: 2008-04-15 16:37:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Cosmin Petra and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -718,10 +718,10 @@ static void PrintFinalStats(void *ida_mem, booleantype sensi)
     check_flag(&flag, "IDAGetSensNumLinSolvSetups", 1);
     flag = IDAGetSensNumErrTestFails(ida_mem, &netfS);
     check_flag(&flag, "IDAGetSensNumErrTestFails", 1);
-    flag = IDAGetNumSensNonlinSolvIters(ida_mem, &nniS);
-    check_flag(&flag, "IDAGetNumSensNonlinSolvIters", 1);
-    flag = IDAGetNumSensNonlinSolvConvFails(ida_mem, &ncfnS);
-    check_flag(&flag, "IDAGetNumSensNonlinSolvConvFails", 1);
+    flag = IDAGetSensNumNonlinSolvIters(ida_mem, &nniS);
+    check_flag(&flag, "IDAGetSensNumNonlinSolvIters", 1);
+    flag = IDAGetSensNumNonlinSolvConvFails(ida_mem, &ncfnS);
+    check_flag(&flag, "IDAGetSensNumNonlinSolvConvFails", 1);
   }
 
   flag = IDADlsGetNumJacEvals(ida_mem, &nje);
