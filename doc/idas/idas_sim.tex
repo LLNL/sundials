@@ -541,9 +541,9 @@ decays to zero, then pure relative error control on \id{y[i]} makes no sense
 (and is overly costly) after \id{y[i]} is below some noise level.  Then
 \id{abstol} (if scalar) or \id{abstol[i]} (if a vector) needs to be set to that
 noise level.  If the different components have different noise levels,
-then \id{abstol} should be a vector.  See the example \id{idasdenx} in the
-{\idas} package, and the discussion of it in the {\idas} Examples document
-\cite{idas_ex}.
+then \id{abstol} should be a vector.  See the example \id{idaRoberts\_dns} in the
+{\idas} package, and the discussion of it in the {\ida} Examples document
+\cite{ida_ex}.
 In that problem, the three components vary betwen 0 and 1, and have
 different noise levels; hence the \id{abstol} vector.  It is impossible to
 give any general advice on \id{abstol} values, because the appropriate noise
@@ -1063,7 +1063,7 @@ for the given problem.
 
 \subsection{IDAS solver function}\label{sss:idasolve}
 %
-This is the central step in the solution process --- the call to perform the
+This is the central step in the solution process, the call to perform the
 integration of the DAE.
 %
 \ucfunction{IDASolve}
@@ -3620,7 +3620,7 @@ solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
   $10*N$ \id{realtype} words for {\idaspbcg},\\
   and $13*N$ \id{realtype} words for {\idasptfqmr}.
 
-  In a parallel setting, the above values are global --- summed over all processors.
+  In a parallel setting, the above values are global, summed over all processors.
 }
 %%
 %%
@@ -4125,7 +4125,7 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
   \item[gout]
     is the output array, of length \id{nrtfn}, with components $g_i(t,y,y')$.
   \item[user\_data]
-    is a pointer to user data --- the same as the \Id{user\_data}      
+    is a pointer to user data, the same as the \Id{user\_data}      
     parameter passed to \id{IDASetUserData}.   
   \end{args}
 }
@@ -4177,7 +4177,7 @@ the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
   \item[Jac]
     is the output Jacobian matrix.  
   \item[user\_data]
-    is a pointer to user data --- the same as the \id{user\_data}      
+    is a pointer to user data, the same as the \id{user\_data}      
     parameter passed to \id{IDASetUserData}.   
   \item[tmp1]
   \item[tmp2]
@@ -4277,7 +4277,7 @@ the user may provide a function of type \ID{IDADlsBandJacFn} defined as follows:
   \item[Jac]
     is the output Jacobian matrix.  
   \item[user\_data]
-    is a pointer to user data --- the same as the \id{user\_data}      
+    is a pointer to user data, the same as the \id{user\_data}      
     parameter passed to \id{IDASetUserData}.   
   \item[tmp1]
   \item[tmp2]
@@ -5376,7 +5376,7 @@ are then used by \id{Gres}, which is not expected to do any communication.
   \item[yp]
     is the derivative of the dependent variable. 
   \item[user\_data]
-    is a pointer to user data --- the same as the \Id{user\_data}      
+    is a pointer to user data, the same as the \Id{user\_data}      
     parameter passed to \id{IDASetUserData}.  
   \end{args}
 }

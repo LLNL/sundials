@@ -367,7 +367,7 @@ flag = CVodeInit(cvode\_mem, f, t0, y0);
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[f] (\Id{CVRhsFn})
     is the {\C} function which computes $f$ in the ODE. This function has the 
-    form \id{f(t, y, ydot, f\_data)} (for full details see \S\ref{ss:rhsFn}).
+    form \id{f(t, y, ydot, user\_data)} (for full details see \S\ref{ss:rhsFn}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
@@ -532,8 +532,8 @@ For many users, the appropriate choices for tolerance values in
 advice are relevant.
 
 (1) The scalar relative tolerance \id{reltol} is to be set to control relative
-errors.  So \id{reltol} = 1.0E-4 means that errors are controlled to .01\%.  We
-do not recommend using \id{reltol} larger than 1.0E-3.  On the other hand,
+errors.  So \id{reltol} $= 10^{-4}$ means that errors are controlled to .01\%.  
+We do not recommend using \id{reltol} larger than $10^{-3}$.  On the other hand,
 \id{reltol} should not be so small that it is comparable to the unit roundoff
 of the machine arithmetic (generally around 1.0E-15).
 
@@ -545,7 +545,7 @@ decays to zero, then pure relative error control on \id{y[i]} makes no sense
 (and is overly costly) after \id{y[i]} is below some noise level.  Then
 \id{abstol} (if scalar) or \id{abstol[i]} (if a vector) needs to be set to that
 noise level.  If the different components have different noise levels,
-then \id{abstol} should be a vector.  See the example \id{cvsdenx} in the
+then \id{abstol} should be a vector.  See the example \id{cvRoberts\_dns} in the
 {\cvode} package, and the discussion of it in the {\cvode} Examples document
 \cite{cvode_ex}.
 In that problem, the three components vary betwen 0 and 1, and have
@@ -559,7 +559,7 @@ because they control the error committed on each individual time step.
 The final (global) errors are some sort of accumulation of those
 per-step errors.  A good rule of thumb is to reduce the tolerances by a
 factor of .01 from the actual desired limits on errors.  So if you
-want .01\% accuracy (globally), a good choice is \id{reltol} = 1.0E-6.
+want .01\% accuracy (globally), a good choice is \id{reltol} $= 10^{-6}$.
 But in any case, it is a good idea to do a few experiments with
 the tolerances to see how the computed solution values vary as
 tolerances are reduced.
@@ -1171,7 +1171,7 @@ will catch all errors.
 \hline
 Error handler function & \id{CVodeSetErrHandlerFn} & internal fn. \\
 Pointer to an error file & \id{CVodeSetErrFile} & \id{stderr}  \\
-Data for right-hand side function & \id{CVodeSetFdata} & {\tt NULL} \\
+User data & \id{CVodeSetUserData} & {\tt NULL} \\
 Maximum order for BDF method & \id{CVodeSetMaxOrd} & 5 \\
 Maximum order for Adams method & \id{CVodeSetMaxOrd} & 12  \\
 Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & \id{CVodeSetMaxNumSteps} & 500 \\
@@ -3460,7 +3460,7 @@ return value from a linear solver function.
   $9*N$ \id{realtype} words for {\cvspbcg},\\
   and $11*N$ \id{realtype} words for {\cvsptfqmr}.
 
-  In a parallel setting, the above values are global --- summed over all processors.
+  In a parallel setting, the above values are global, summed over all processors.
 }
 %%
 %%
@@ -5376,10 +5376,10 @@ the right-hand side function $g(t,y) \approx f(t,y)$ and which is computed local
 and an optional function \id{cfn} (of type \id{CVCommFn}) which performs 
 all interprocess communication necessary to evaluate the approximate right-hand
 side $g$.  These are in addition to the user-supplied right-hand side function
-\id{f}.  Both functions take as input the same pointer \id{f\_data} that is passed
-by the user to \id{CVodeSetFdata} and that was passed to the user's function \id{f},
+\id{f}.  Both functions take as input the same pointer \id{user\_data} that is passed
+by the user to \id{CVodeSetUserData} and that was passed to the user's function \id{f},
 and neither function has a return value. The user is responsible for
-providing space (presumably within \id{f\_data}) for components of \id{y}
+providing space (presumably within \id{user\_data}) for components of \id{y}
 that are communicated between processes by \id{cfn}, and that are
 then used by \id{gloc}, which is not expected to do any communication.
 %%
@@ -5417,7 +5417,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 {
   This function assumes that all interprocess communication of data needed to 
   calculate \id{glocal} has already been done, and that this data is accessible within
-  \id{f\_data}.
+  \id{user\_data}.
 
   The case where $g$ is mathematically identical to $f$ is allowed.
 }
@@ -5453,7 +5453,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 }
 {
   The \id{cfn} function is expected to save communicated data in space defined
-  within the data structure \id{f\_data}. 
+  within the data structure \id{user\_data}. 
 
   Each call to the \id{cfn} function is preceded by a call to the right-hand side
   function \id{f} with the same (\id{t}, \id{y}) arguments.  Thus, \id{cfn} can omit 

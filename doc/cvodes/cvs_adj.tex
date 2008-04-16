@@ -415,7 +415,7 @@ and solution specifications, and allocate internal memory for the backward probl
 %%
 \ucfunction{CVodeCreateB}
 {
-  flag = CVodeCreateB(cvode\_mem, \&which);
+  flag = CVodeCreateB(cvode\_mem, lmmB, iterB, \&which);
 }
 {
   The function \ID{CVodeCreateB} instantiates a {\cvodes} solver object and specifies 
@@ -425,6 +425,12 @@ and solution specifications, and allocate internal memory for the backward probl
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeInit}.
+  \item[lmmB] (\id{int})
+    specifies the linear multistep method and may be one of two
+    possible values: \Id{CV\_ADAMS} or \Id{CV\_BDF}.     
+  \item[iterB] (\id{int})
+    specifies the type of nonlinear solver iteration and may be
+    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}. 
   \item[which] (\id{int})
     contains the identifier assigned by {\cvodes} for the newly created backward 
     problem. Any call to \id{CVode*B} functions requires such an identifier.
@@ -879,10 +885,13 @@ within the list managed by {\cvodes}.
 The optional input functions defined for the backward problem are:
 \begin{verbatim}
   flag = CVodeSetUserDataB(cvode_mem, which, user_dataB);
+  flag = CVodeSetIterTypeB(cvode_mem, which, iterB);
   flag = CVodeSetMaxOrdB(cvode_mem, which, maxordB);
   flag = CVodeSetMaxNumStepsB(cvode_mem, which, mxstepsB);
   flag = CVodeSetInitStepB(cvode_mem, which, hinB)
+  flag = CVodeSetMinStepB(cvode_mem, which, hminB);
   flag = CVodeSetMaxStepB(cvode_mem, which, hmaxB);
+  flag = CVodeSetStabLimDetB(cvode_mem, which, stldetB);
 \end{verbatim}
 Their return value \id{flag} (of type \id{int}) can have any of the return values 
 of their counterparts, but it can also be \Id{CV\_NO\_ADJ} if \id{CVodeAdjInit} 
