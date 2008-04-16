@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-07-30 18:46:24 $
+ * $Revision: 1.7 $
+ * $Date: 2008-04-16 21:18:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -301,9 +301,6 @@ extern "C" {
 #if defined(F77_FUNC)
 
 #define FIDA_BBDINIT    F77_FUNC(fidabbdinit, FIDABBDINIT)
-#define FIDA_BBDSPTFQMR F77_FUNC(fidabbdsptfqmr, FIDABBDSPTFQMR)
-#define FIDA_BBDSPBCG   F77_FUNC(fidabbdspbcg, FIDABBDSPBCG)
-#define FIDA_BBDSPGMR   F77_FUNC(fidabbdspgmr, FIDABBDSPGMR)
 #define FIDA_BBDREINIT  F77_FUNC(fidabbdreinit, FIDABBDREINIT)
 #define FIDA_BBDOPT     F77_FUNC(fidabbdopt, FIDABBDOPT)
 #define FIDA_GLOCFN     F77_FUNC(fidaglocfn, FIDAGLOCFN)
@@ -312,9 +309,6 @@ extern "C" {
 #else
 
 #define FIDA_BBDINIT    fidabbdinit_
-#define FIDA_BBDSPTFQMR fidabbdsptfqmr_
-#define FIDA_BBDSPBCG   fidabbdspbcg_
-#define FIDA_BBDSPGMR   fidabbdspgmr_
 #define FIDA_BBDREINIT  fidabbdreinit_
 #define FIDA_BBDOPT     fidabbdopt_
 #define FIDA_GLOCFN     fidaglocfn_
