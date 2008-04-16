@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2007-11-26 16:19:58 $
+ * $Revision: 1.22 $
+ * $Date: 2008-04-16 21:53:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -245,9 +245,9 @@ extern "C" {
 #define CV_NO_FWD              -102
 #define CV_NO_BCK              -103
 #define CV_BAD_TB0             -104
-#define CV_REIFWD_FAIL         -106
-#define CV_FWD_FAIL            -107
-#define CV_GETY_BADT           -108
+#define CV_REIFWD_FAIL         -105
+#define CV_FWD_FAIL            -106
+#define CV_GETY_BADT           -107
 
 /*
  * =================================================================
