@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.7 $
+ * $Date: 2008-04-16 21:53:53 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -940,7 +940,12 @@ int IDASpilsSetPreconditionerB(void *ida_mem, int which,
   /* ida_mem corresponding to 'which' problem. */
   ida_memB = (void *) IDAB_mem->IDA_mem;
 
-  
+  if ( IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, IDASPILS_LMEMB_NULL, "IDASSPILS", 
+                    "IDASpilsSetPreconditionerB", MSGS_LMEMB_NULL);
+    return(IDASPILS_ILL_INPUT);
+  }
+
   /* Get the IDASpilsMemB data. */
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
 
@@ -993,8 +998,15 @@ int IDASpilsSetJacTimesVecFnB(void *ida_mem, int which, IDASpilsJacTimesVecFnB j
   /* ida_mem corresponding to 'which' problem. */
   ida_memB = (void *) IDAB_mem->IDA_mem;
 
-  /* Call the corresponding Set* function for the backward problem. */
+  if ( IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDA_mem, IDASPILS_LMEMB_NULL, "IDASSPILS", 
+                    "IDASpilsSetJacTimesVecFnB", MSGS_LMEMB_NULL);
+    return(IDASPILS_ILL_INPUT);
+  }
+
   idaspilsB_mem = (IDASpilsMemB) IDAB_mem->ida_lmem;
+
+  /* Call the corresponding Set* function for the backward problem. */
 
   idaspilsB_mem->s_jtimesB   = jtvB;
 

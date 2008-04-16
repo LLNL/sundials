@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2008-04-15 16:37:36 $
+ * $Revision: 1.25 $
+ * $Date: 2008-04-16 21:53:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -130,13 +130,13 @@ extern "C" {
  * -----------------------------------------
  */
 
-#define IDA_NO_ADJ          -100
-#define IDA_BAD_TB0         -101
-#define IDA_REIFWD_FAIL     -102
-#define IDA_FWD_FAIL        -103
-#define IDA_GETY_BADT       -104
-#define IDA_NO_BCK          -105
-#define IDA_NO_FWD          -106
+#define IDA_NO_ADJ          -101
+#define IDA_NO_FWD          -102
+#define IDA_NO_BCK          -103
+#define IDA_BAD_TB0         -104
+#define IDA_REIFWD_FAIL     -105
+#define IDA_FWD_FAIL        -106
+#define IDA_GETY_BADT       -107
 
 /*
  * =================================================================

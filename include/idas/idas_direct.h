@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.7 $
+ * $Date: 2008-04-16 21:53:49 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -49,8 +49,7 @@ extern "C" {
 #define IDADIRECT_JACFUNC_RECVR    -6
 
 /* Return values for the adjoint module */
-#define IDADIRECT_NO_ADJ           -100
-#define IDADIRECT_ADJMEM_NULL      -101
+#define IDADIRECT_NO_ADJ           -101
 #define IDADIRECT_LMEMB_NULL       -102
 
 /*
