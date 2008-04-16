@@ -28,7 +28,7 @@ are as follows:
 \item Interface to the main {\ida} module
   \begin{itemize}
   \item \id{FIDAMALLOC}
-    interfaces to \id{IDACreate}, \id{IDAInit}, and \id{IDASStolerances}/\id{IDASVtolerances}.
+    interfaces to \id{IDACreate}, \id{IDASetUserData}, \id{IDAInit}, and \id{IDASStolerances}/\id{IDASVtolerances}.
   \item \id{FIDAREINIT}
     interfaces to \id{IDAReInit} and \id{IDASStolerances}/\id{IDASVtolerances}.
   \item \id{FIDASETIIN}, \id{FIDASETVIN}, and \id{FIDASETRIN}
@@ -55,18 +55,18 @@ are as follows:
   \begin{itemize}
   \item \id{FIDADENSE}
     interfaces to \id{IDADense}.
-  \item \id{FIDABAND}
-    interfaces to \id{IDABand}.
-  \item \id{FIDALAPACKDENSE}
-    interfaces to \id{IDALapackDense}.
-  \item \id{FIDALAPACKBAND}
-    interfaces to \id{IDALapackBand}.
   \item \id{FIDADENSESETJAC}
     interfaces to \id{IDADlsSetDenseJacFn}.
-  \item \id{FIDABANDSETJAC}
-    interfaces to \id{IDADlsSetBandJacFn}.
+  \item \id{FIDALAPACKDENSE}
+    interfaces to \id{IDALapackDense}.
   \item \id{FIDALAPACKDENSESETJAC}
     interfaces to \id{IDADlsSetDenseJacFn}.
+  \item \id{FIDABAND}
+    interfaces to \id{IDABand}.
+  \item \id{FIDABANDSETJAC}
+    interfaces to \id{IDADlsSetBandJacFn}.
+  \item \id{FIDALAPACKBAND}
+    interfaces to \id{IDALapackBand}.
   \item \id{FIDALAPACKBANDSETJAC}
     interfaces to \id{IDADlsSetBandJacFn}.
   \item \id{FIDASPGMR}
@@ -91,15 +91,18 @@ are as follows:
 \index{FIDA@{\fida} interface module!user-callable functions|)}
 
 \index{FIDA@{\fida} interface module!user-supplied functions}
-The user-supplied functions, each listed with the corresponding interface
+The user-supplied functions, each listed with the corresponding internal interface
 function which calls it (and its type within {\ida}), are as follows:
 \begin{center}
-\begin{tabular}{l|l|l}
-{\fida} routine ({\F})  &  {\fida} wrapper function ({\C}) & {\ida} function type \\\hline
+\begin{tabular}{l||l|l}
+\fida} routine      &  {\ida} function & {\ida} type of \\
+({\F}, user-supplied)  &  ({\C}, interface) & interface function \\ \hline\hline
 \id{FIDARESFUN} & \id{FIDAresfn}    & \id{IDAResFn} \\
 \id{FIDAEWT}    & \id{FIDAEwtSet}   & \id{IDAEwtFn} \\
 \id{FIDADJAC}   & \id{FIDADenseJac} & \id{IDADlsDenseJacFn} \\
+                & \id{FIDALapackDenseJac} & \id{IDADlsDenseJacFn} \\
 \id{FIDABJAC}   & \id{FIDABandJac}  & \id{IDADlsBandJacFn} \\
+                & \id{FIDALapackBandJac}  & \id{IDADlsBandJacFn} \\
 \id{FIDAPSOL}   & \id{FIDAPSol}     & \id{IDASpilsPrecSolveFn} \\
 \id{FIDAPSET}   & \id{FIDAPSet}     & \id{IDASpilsPrecSetupFn} \\
 \id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDASpilsJacTimesVecFn} \\
@@ -120,16 +123,8 @@ which are mapped to actual values by a series of definitions in the
 header files \id{fida.h}, \id{fidaroot.h}, and \id{fidabbd.h}.
 By default, those mapping definitions depend in turn on the {\C} macros
 \id{F77\_FUNC} and \id{F77\_FUNC\_} defined in the header file
-\id{sundials\_config.h} by \id{configure}. 
-However, the set of flags \\
-\Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},\\
-\Id{SUNDIALS\_UNDERSCORE\_NONE}, \Id{SUNDIALS\_UNDERSCORE\_ONE}, 
-and \Id{SUNDIALS\_UNDERSCORE\_TWO}\\
-can be explicitly defined in the header file \id{sundials\_config.h}
-when configuring {\sundials} via the \id{--with-f77underscore}
-and \id{--with-f77case} options to override the default behavior if necessary
-(see Chapter \ref{c:install}). Either way, the names into which the dummy names
-are mapped are in upper or lower case and have up to two underscores appended.
+\id{sundials\_config.h} and decided upon at configuration time
+(see Chapter \ref{c:install}).
 
 The user must also ensure that variables in the user {\F} code are
 declared in a manner consistent with their counterparts in {\ida}.
@@ -300,7 +295,7 @@ apply to {\nvecp}.
   The variable-order, variable-coefficient \id{BDF} method used by {\ida} involves
   the solution of linear systems related to the system Jacobian
   $J = \partial F / \partial y + \alpha \partial F / \partial y^\prime$.
-  See Eq. (\ref{e:DAE_Newtoncorr}).  {\ida} presently includes five choices for
+  See Eq. (\ref{e:DAE_Newtoncorr}).  {\ida} presently includes seven choices for
   the treatment of these systems, and the user of {\fida} must call a routine with
   a specific name to make the desired choice.
 
@@ -309,7 +304,8 @@ apply to {\nvecp}.
   {\s} {\bf Dense treatment of the linear system}
   \index{IDADENSE@{\idadense} linear solver!use in {\fida}}
   
-  The user must make the call:
+  To use the direct dense linear solver based on the internal {\ida}
+  implementation, the user must make the call:
   \index{FIDADENSE@\texttt{FIDADENSE}}
 \begin{verbatim}
       CALL FIDADENSE (NEQ, IER)
@@ -321,8 +317,9 @@ apply to {\nvecp}.
   where \id{NEQ} is the size of the DAE system, depending on whther the internal
   or a Lapack dense linear solver is to be used.
   The argument \id{IER} is an error return flag, which is $0$ 
-  for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal
-  input.  \index{Jacobian approximation function!dense!use in {\fida}}
+  for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal input.
+
+  \index{Jacobian approximation function!dense!use in {\fida}}
   As an option when using the {\dense} linear solver, the user may supply a
   routine that computes a dense approximation of the system Jacobian. If supplied,
   it must have the following form:
@@ -347,8 +344,8 @@ apply to {\nvecp}.
   roundoff, which can be obtained as the optional output \id{ROUT(6)},
   passed from the calling program to this routine using \id{COMMON}.
 
-  If the \id{FIDADJAC} routine is provided, then, 
-  following the call to \id{FIDADENSE} (or \id{FIDALAPACKDENSE}), the user must make the call:
+  If the \id{FIDADJAC} routine is provided, then, following the call to \id{FIDADENSE} 
+  (or \id{FIDALAPACKDENSE}), the user must make the call:
   \index{FIDADENSESETJAC@\texttt{FIDADENSESETJAC}}
 \begin{verbatim}
       CALL FIDADENSESETJAC (FLAG, IER)
@@ -357,7 +354,7 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FIDALAPACKDENSESETJAC (FLAG, IER)
 \end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian
+  respectively, with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian
   approximation.  The argument \id{IER} is an error return flag, which is $0$ 
   for success or non-zero if an error occurred.
   
@@ -699,7 +696,7 @@ apply to {\nvecp}.
   depending on changes in the inputs to it.
 
   In the case of the {\band} solver, for any change in the half-bandwidths,
-  call \id{FIDABAND} as described above.
+  call \id{FIDABAND} (or \id{FIDALAPACKBAND}) as described above.
 
   In the case of {\spgmr}, for a change of inputs other than \id{MAXL},
   make the call
@@ -944,6 +941,12 @@ The user-callable functions in {\fidaroot}, with the corresponding
   \item \id{FIDAROOTFREE} interfaces to \id{IDARootFree}.
 \end{itemize}
 %%
+Note that, at this time {\fidaroot} does not provide support to
+specify the direction of zero-crossing that is to be monitored. 
+Instead, all roots are considered. However, the actual direction
+of zero-crossing is reported (through the sign of the non-zero
+elements in the array \id{INFO} returned by \id{FIDAROTINFO}).
+
 In order to use the rootfinding feature of {\ida}, the following call must
 be made, after calling \id{FIDAMALLOC} but prior to calling \id{FIDASOLVE},
 to allocate and initialize memory for the \id{FIDAROOT} module:
@@ -979,8 +982,10 @@ The arguments are as follows: \id{NRTFN} is the number of root functions.
 \id{INFO} is an integer array of length \id{NRTFN} with root information.
 \id{IER} is a return completion flag; its values are $0$ for success, 
 negative if there was a memory failure.  The returned values of \id{INFO(i)}
-(\id{i}$ = 1,\ldots,$ \id{NRTFN}) are 0 or 1, such that \id{INFO(i)} $ = 1$
-if $g_{\id{i}}$ was found to have a root, and \id{INFO(i)} $ = 0$ otherwise.
+(\id{i}$ = 1,\ldots,$ \id{NRTFN}) are $0$ or $\pm 1$, such that 
+\id{INFO(i)} $ = +1$ if $g_{\id{i}}$ was found to have a root and $g_{\id{i}}$ is increasing,
+\id{INFO(i)} $ = -1$ if $g_{\id{i}}$ was found to have a root and $g_{\id{i}}$ is dereasing,
+and \id{INFO(i)} $ = 0$ otherwise.
 
 The total number of calls made to the root function \id{FIDAROOTFN},
 denoted \id{NGE}, can be obtained from \id{IOUT(12)}.
@@ -1128,12 +1133,9 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
 
 \item {\bf Memory deallocation}
 
-  To free the internal memory created by the call to \id{FIDABBDINIT}, before
-  calling \id{FIDAFREE}, the user must call
-  \index{FIDABBDFREE@\texttt{FIDABBDFREE}}
-\begin{verbatim}
-      CALL FIDABBDFREE
-\end{verbatim}
+  The memory allocated for the {\fidabbd} module is deallocated automatically
+  when invoking \id{FIDAFREE}.
+
 \index{FIDA@{\fida} interface module!interface to the {\idabbdpre} module|)}
 
 \item {\bf User-supplied routines}
