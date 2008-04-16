@@ -29,13 +29,14 @@ are as follows:
 \item Interface to the main {\cvode} module
   \begin{itemize}
   \item \id{FCVMALLOC}
-    interfaces to \id{CVodeCreate}, \id{CVodeSetFdata}, and \id{CVodeMalloc}.
+    interfaces to \id{CVodeCreate}, \id{CVodeSetUserData}, and \id{CVodeInit},
+    as well as one of \id{CVodeSStolerances} or \id{CVodeSVtolerances}.
   \item \id{FCVREINIT}  
     interfaces to \id{CVodeReInit}.
   \item \id{FCVSETIIN} and \id{FCVSETRIN}
     interface to \id{CVodeSet*} functions.
   \item \id{FCVEWTSET}    
-    interfaces to \id{CVodeSetEwtFn}.
+    interfaces to \id{CVodeWFtolerances}.
   \item \id{FCVODE}
     interfaces to \id{CVode}, \id{CVodeGet*} functions, and to the optional
     output functions for the selected linear solver module.
@@ -51,15 +52,23 @@ are as follows:
 \item Interface to the linear solver modules
   \begin{itemize}
   \item \id{FCVDIAG}    
-    interfaces to \id{CVDiag}
+    interfaces to \id{CVDiag}.
   \item \id{FCVDENSE}
     interfaces to \id{CVDense}.
   \item \id{FCVDENSESETJAC}
-    interfaces to \id{CVDenseSetJacFn}.
+    interfaces to \id{CVDlsSetDenseJacFn}.
+  \item \id{FCVLAPACKDENSE}
+    interfaces to \id{CVLapackDense}.
+  \item \id{FCVLAPACKDENSESETJAC}
+    interfaces to \id{CVDlsSetDenseJacFn}.
   \item \id{FCVBAND}
     interfaces to \id{CVBand}.
   \item \id{FCVBANDSETJAC}
-    interfaces to \id{CVBandSetJacFn}.
+    interfaces to \id{CVDlsSetBandJacFn}.
+  \item \id{FCVLAPACKBAND}
+    interfaces to \id{CVLapackBand}.
+  \item \id{FCVLAPACKBANDSETJAC}
+    interfaces to \id{CVDlsSetBandJacFn}.
   \item \id{FCVSPGMR}
     interfaces to \id{CVSpgmr} and {\spgmr} optional input functions.
   \item \id{FCVSPGMRREINIT} 
@@ -82,18 +91,21 @@ are as follows:
 \index{FCVODE@{\fcvode} interface module!user-callable functions|)}
 
 \index{FCVODE@{\fcvode} interface module!user-supplied functions}
-The user-supplied functions, each listed with the corresponding interface
-function which calls it (and its type within {\cvode}), are as follows:
+The user-supplied functions, each listed with the corresponding internal
+interface function which calls it (and its type within {\cvode}), are as follows:
 \begin{center}
-\begin{tabular}{l|l|l}
-{\fcvode} routine ({\F})  &  {\cvode} function ({\C}) & {\cvode} function type \\\hline
-\id{FCVFUN}    & \id{FCVf}        & \id{CVRhsFn} \\
-\id{FCVEWT}    & \id{FCVEwtSet}   & \id{CVEwtFn} \\
-\id{FCVDJAC}   & \id{FCVDenseJac} & \id{CVDenseJacFn} \\
-\id{FCVBJAC}   & \id{FCVBandJac}  & \id{CVBandJacFn} \\
-\id{FCVPSOL}   & \id{FCVPSol}     & \id{CVSpilsPrecSolveFn} \\
-\id{FCVPSET}   & \id{FCVPSet}     & \id{CVSpilsPrecSetupFn} \\
-\id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpilsJacTimesVecFn} \\
+\begin{tabular}{l||l|l}
+{\fcvode} routine      &  {\cvode} function & {\cvode} type of \\
+({\F}, user-supplied)  &  ({\C}, interface) & interface function \\ \hline\hline
+\id{FCVFUN}    & \id{FCVf}              & \id{CVRhsFn} \\
+\id{FCVEWT}    & \id{FCVEwtSet}         & \id{CVEwtFn} \\
+\id{FCVDJAC}   & \id{FCVDenseJac}       & \id{CVDlsDenseJacFn} \\
+               & \id{FCVLapackDenseJac} & \id{CVDlsDenseJacFn} \\
+\id{FCVBJAC}   & \id{FCVBandJac}        & \id{CVDlsBandJacFn} \\
+               & \id{FCVLapackBandJac}  & \id{CVDlsBandJacFn} \\
+\id{FCVPSOL}   & \id{FCVPSol}           & \id{CVSpilsPrecSolveFn} \\
+\id{FCVPSET}   & \id{FCVPSet}           & \id{CVSpilsPrecSetupFn} \\
+\id{FCVJTIMES} & \id{FCVJtimes}         & \id{CVSpilsJacTimesVecFn} \\
 \end{tabular}
 \end{center}
 In contrast to the case of direct use of {\cvode}, and of most {\F} ODE
@@ -110,15 +122,8 @@ the {\F} user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
 header files \id{fcvode.h}, \id{fcvroot.h}, \id{fcvbp.h}, and \id{fcvbbd.h}.
 By default, those mapping definitions depend in turn on the {\C} macro
-\id{F77\_FUNC} defined in the header file \id{sundials\_config.h} by \id{configure}. However,
-the set of flags \Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},
-\Id{SUNDIALS\_UNDERSCORE\_NONE}, \Id{SUNDIALS\_UNDERSCORE\_ONE}, and
-\Id{SUNDIALS\_UNDERSCORE\_TWO} can be explicitly defined in the header file
-\id{sundials\_config.h} when
-configuring {\sundials} via the options \id{--with-f77underscore} and
-\id{--with-f77case} to override the default behavior if necessary
-(see Chapter \ref{c:install}). Either way, the names into which the dummy names
-are mapped are in upper or lower case and have up to two underscores appended.
+\id{F77\_FUNC} defined in the header file \id{sundials\_config.h} and
+decided upon at configuration time (see Chapter \ref{c:install}).
 
 The user must also ensure that variables in the user {\F} code are
 declared in a manner consistent with their counterparts in {\cvode}.
@@ -300,7 +305,7 @@ apply to {\nvecp}.
   
   In the case of a stiff system, the implicit \id{BDF} method involves the solution
   of linear systems related to the Jacobian $J = \partial f / \partial y$
-  of the ODE system.  {\cvode} presently includes six choices for the treatment
+  of the ODE system.  {\cvode} presently includes eight choices for the treatment
   of these systems, and the user of {\fcvode} must call a routine with a
   specific name to make the desired choice.
 
@@ -325,15 +330,24 @@ apply to {\nvecp}.
   {\s} {\bf Dense treatment of the linear system}
   \index{CVDENSE@{\cvdense} linear solver!use in {\fcvode}}
   
-  The user must make the call:
+  To use the direct dense linear solver based on the internal {\cvode}
+  implementation, the user must make the call:
   \index{FCVDENSE@\texttt{FCVDENSE}}
 \begin{verbatim}
       CALL FCVDENSE(NEQ, IER)
 \end{verbatim}
   where \id{NEQ} is the size of the ODE system.
-  The argument \id{IER} is an error return flag which is $0$ 
-  for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal
-  input.  \index{Jacobian approximation function!dense!use in {\fcvode}}
+  The argument \id{IER} is an error return flag which is $0$ for success , 
+  $-1$ if a memory allocation failure occurred, or $-2$ for illegal input.
+
+  Alternatively, to use the Lapack-based direct dense linear solver, 
+  the user must make the call:
+\begin{verbatim}
+      CALL FCVLAPACKDENSE(NEQ, IER)
+\end{verbatim}
+  where the arguments have the exact same meanings as for \id{FCVDENSE}.
+
+  \index{Jacobian approximation function!dense!use in {\fcvode}}
   As an option when using the {\dense} linear solver, the user may supply a
   routine that computes a dense approximation of the system Jacobian 
   $J = \partial f / \partial y$. If supplied, it must have the following form:
@@ -365,8 +379,8 @@ apply to {\nvecp}.
   which can be obtained as the optional output \id{ROUT(6)}, passed from
   the calling program to this routine using either \id{RPAR} or a common block.
 
-  If the \id{FCVDJAC} routine is provided, then, 
-  following the call to \id{FCVDENSE}, the user must make the call:
+  If the \id{FCVDJAC} routine is provided, then, following the call to \id{FCVDENSE}, 
+  the user must make the call:
   \index{FCVDENSESETJAC@\texttt{FCVDENSESETJAC}}
 \begin{verbatim}
       CALL FCVDENSESETJAC (FLAG, IER)
@@ -374,7 +388,12 @@ apply to {\nvecp}.
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian
   approximation.  The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
-  
+  If using the Lapack-based direct dense linear solver, the use of a
+  Jacobian approximation supplied by the user is indicated through the call
+\begin{verbatim}
+      CALL FCVLAPACKDENSESETJAC (FLAG, IER)
+\end{verbatim}
+
   Optional outputs specific to the {\dense} case are listed in
   Table~\ref{t:fcvode_out}.
 
@@ -383,7 +402,8 @@ apply to {\nvecp}.
   {\s} {\bf Band treatment of the linear system}
   \index{CVBAND@{\cvband} linear solver!use in {\fcvode}}
   
-  The user must make the call:
+  To use the direct band linear solver based on the internal {\cvode}
+  implementation, the user must make the call:
   \index{FCVBAND@\texttt{FCVBAND}}
 \begin{verbatim}
       CALL FCVBAND (NEQ, MU, ML, IER)
@@ -393,6 +413,13 @@ apply to {\nvecp}.
   $0$ for success , $-1$ if a memory allocation failure occurred, or $-2$ 
   in case an input has an illegal value.     
   
+  Alternatively, to use the Lapack-based direct band linear solver, 
+  the user must make the call:
+\begin{verbatim}
+      CALL FCVLAPACKBAND(NEQ, MU, ML, IER)
+\end{verbatim}
+  where the arguments have the exact same meanings as for \id{FCVBAND}.
+
   \index{Jacobian approximation function!band!use in {\fcvode}}
   As an option when using the {\band} linear solver, the user may supply a
   routine that computes a band approximation of the system Jacobian 
@@ -439,7 +466,12 @@ apply to {\nvecp}.
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian approximation.
   The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
-  
+  If using the Lapack-based direct band linear solver, the use of a
+  Jacobian approximation supplied by the user is indicated through the call
+\begin{verbatim}
+      CALL FCVLAPACKNBANDSETJAC (FLAG, IER)
+\end{verbatim}
+
   Optional outputs specific to the {\band} case are listed in Table~\ref{t:fcvode_out}.
 
   %%-------------------------------------------------
@@ -702,7 +734,7 @@ apply to {\nvecp}.
   depending on changes in the inputs to it.
 
   In the case of the {\band} solver, for any change in the half-bandwidths,
-  call \id{FCVBAND} as described above.
+  call \id{FCVBAND} (or \id{FCVLAPACKBAND}) as described above.
 
   In the case of {\spgmr}, for a change of inputs other than \id{MAXL},
   make the call
@@ -835,21 +867,13 @@ and \S\ref{ss:optional_output}.
 11 &  \id{NOR}     & \id{CVodeGetNumStabLimOrderReds} \\ 
 12 &  \id{NGE}     & \id{CVodeGetNumGEvals} \\ 
 \hline
-\multicolumn{3}{|c|}{{\cvdense} linear solver}\\
+\multicolumn{3}{|c|}{{\cvdense}, {\cvband} linear solvers}\\
 \hline
-13 & \id{LENRWLS}  & \id{CVDenseGetWorkSpace} \\ 
-14 & \id{LENIWLS}  & \id{CVDenseGetWorkSpace} \\ 
-15 & \id{LS\_FLAG} & \id{CVDenseGetLastFlag} \\ 
-16 & \id{NFELS}    & \id{CVDenseGetNumRhsEvals} \\ 
-17 & \id{NJE}      & \id{CVDenseGetNumJacEvals} \\ 
-\hline
-\multicolumn{3}{|c|}{{\cvband} linear solver}\\
-\hline
-13 & \id{LENRWLS}  & \id{CVBandGetWorkSpace} \\ 
-14 & \id{LENIWLS}  & \id{CVBandGetWorkSpace} \\ 
-15 & \id{LS\_FLAG} & \id{CVBandGetLastFlag} \\ 
-16 & \id{NFELS}    & \id{CVBandGetNumRhsEvals} \\ 
-17 & \id{NJE}      & \id{CVBandGetNumJacEvals} \\ 
+13 & \id{LENRWLS}  & \id{CVDlsGetWorkSpace} \\ 
+14 & \id{LENIWLS}  & \id{CVDlsGetWorkSpace} \\ 
+15 & \id{LS\_FLAG} & \id{CVDlsGetLastFlag} \\ 
+16 & \id{NFELS}    & \id{CVDlsGetNumRhsEvals} \\ 
+17 & \id{NJE}      & \id{CVDlsGetNumJacEvals} \\ 
 \hline
 \multicolumn{3}{|c|}{{\cvdiag} linear solver}\\
 \hline
@@ -931,6 +955,12 @@ The user-callable functions in {\fcvroot}, with the corresponding
   \item \id{FCVROOTFREE} interfaces to \id{CVodeRootFree}.
 \end{itemize}
 %%
+Note that at this time, {\fcvroot} does not provide support to
+specify the direction of zero-crossing that is to be monitored. 
+Instead, all roots are considered. However, the actual direction
+of zero-crossing is reported (through the sign of the non-zero
+elements in the array \id{INFO} returned by \id{FCVROTINFO}).
+
 In order to use the rootfinding feature of {\cvode}, the following
 call must be made, after calling \id{FCVMALLOC} but prior to calling
 \id{FCVODE}, to allocate and initialize memory for the \id{FCVROOT} module:
@@ -965,8 +995,10 @@ The arguments are as follows: \id{NRTFN} is the number of root functions.
 \id{INFO} is an integer array of length \id{NRTFN} with root information.
 \id{IER} is a return completion flag; its values are $0$ for success, 
 negative if there was a memory failure.  The returned values of \id{INFO(i)}
-(\id{i}$ = 1,\ldots,$ \id{NRTFN}) are 0 or 1, such that \id{INFO(i)} $ = 1$
-if $g_{\id{i}}$ was found to have a root, and \id{INFO(i)} $ = 0$ otherwise.
+(\id{i}$ = 1,\ldots,$ \id{NRTFN}) are $0$ or $\pm 1$, such that 
+\id{INFO(i)} $ = +1$ if $g_{\id{i}}$ was found to have a root and $g_{\id{i}}$ is increasing,
+\id{INFO(i)} $ = -1$ if $g_{\id{i}}$ was found to have a root and $g_{\id{i}}$ is dereasing,
+and \id{INFO(i)} $ = 0$ otherwise.
 
 The total number of calls made to the root function \id{FCVROOTFN},
 denoted \id{NGE}, can be obtained from \id{IOUT(12)}.
@@ -987,26 +1019,20 @@ the following call:
 \section{Usage of the FCVBP interface to CVBANDPRE}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbandpre} module|(}
-
+%%
 The {\fcvbp} interface sub-module is a package of {\C} functions which,
 as part of the {\fcvode} interface module, support the use of the
 {\cvode} solver with the serial {\nvecs} module, and the combination of
 the {\cvbandpre} preconditioner module (see \S\ref{sss:cvbandpre}) with
 any of the Krylov iterative linear solvers.
 
-The user-callable functions in this package, with the corresponding
-{\cvode} and {\cvbandpre} functions, are as follows: 
+The two user-callable functions in this package, with the corresponding
+{\cvode} function around which they wrap, are:
 \begin{itemize}
 \item \id{FCVBPINIT}
-  interfaces to \id{CVBandPrecAlloc}.
-\item \id{FCVBPSPGMR}
-  interfaces to \id{CVBPSpgmr} and {\spgmr} optional input functions.
-\item \id{FCVBPREINIT}
-  interfaces to \id{CVBandPrecReInit}.
+  interfaces to \id{CVBandPrecInit}.
 \item \id{FCVBPOPT}
   interfaces to {\cvbandpre} optional output functions.
-\item \id{FCVBPFREE}
-  interfaces to \id{CVBandPrecFree}.
 \end{itemize}
 
 As with the rest of the {\fcvode} routines, the names of the user-supplied
@@ -1027,7 +1053,10 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 \item {\bf Linear solver specification}
 
-  To initialize the {\cvbandpre} preconditioner, make the following call:
+  First, specify one of the {\cvspils} iterative linear solvers, by calling
+  one of \id{FCVSPGMR}, \id{FCVSPBCG}, or \id{FCVSPTFQMR}.
+
+  Then, to initialize the {\cvbandpre} preconditioner, make the following call:
   \index{FCVBPINIT@\texttt{FCVBPINIT}}
 \begin{verbatim}
        CALL FCVBPINIT(NEQ, MU, ML, IER)
@@ -1038,36 +1067,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   that  is retained as an approximation of the Jacobian.
   \id{IER} is a return completion flag.  A value of $0$ indicates success, while 
   a value of $-1$ indicates that a memory failure occurred.
-  
-  To specify the {\spgmr} linear system solver and use the {\cvbandpre}
-  preconditioner, make the following call:
-  \index{FCVBPSPGMR@\texttt{FCVBPSPGMR}}
-\begin{verbatim}
-       CALL FCVBPSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
-\end{verbatim}
-  Its arguments are the same as those of \id{FCVSPGMR}
-  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
-  
-
-  To specify the {\spbcg} linear system solver and use the {\cvbandpre}
-  preconditioner, make the following call:
-  \index{FCVBPSPBCG@\texttt{FCVBPSPBCG}}
-\begin{verbatim}
-       CALL FCVBPSPBCG(IPRETYPE, MAXL, DELT, IER)
-\end{verbatim}
-  Its arguments are the same as those of \id{FCVSPBCG}
-  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
-  
-
-  To specify the {\spbcg} linear system solver and use the {\cvbandpre}
-  preconditioner, make the following call:
-  \index{FCVBPSPTFQMR@\texttt{FCVBPSPTFQMR}}
-\begin{verbatim}
-       CALL FCVBPSPTFQMR(IPRETYPE, MAXL, DELT, IER)
-\end{verbatim}
-  Its arguments are the same as those of \id{FCVSPTFQMR}
-  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
-  
+    
   Optionally, to specify that {\spgmr}, {\spbcg}, or {\sptfqmr} should use 
   the supplied \id{FCVJTIMES}, make the call
   \index{FCVSPILSSETJAC@\texttt{FCVSPILSSETJAC}}
@@ -1077,7 +1077,6 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   with \id{FLAG} $\neq 0$ 
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
   
-
 \item \textcolor{gray}{\bf Problem solution}
   
 \item {\bf {\cvbandpre} Optional outputs}
@@ -1098,15 +1097,12 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   
 \item {\bf Memory deallocation}
 
-  To free the internal memory created by the call to \id{FCVBPINIT}, before
-  calling \id{FCVFREE}, the user must make the call
-  \index{FCVBPFREE@\texttt{FCVBPFREE}}
-\begin{verbatim}
-      CALL FCVBPFREE
-\end{verbatim}
-\index{FCVODE@{\fcvode} interface module!interface to the {\cvbandpre} module|)}
+  To memory allocated for the {\fcvbp} module is deallocated automatically
+  when invoking \id{FCVFREE}.
 
 \end{Steps}
+%%
+\index{FCVODE@{\fcvode} interface module!interface to the {\cvbandpre} module|)}
 
 
 %%==============================================================================
@@ -1124,19 +1120,11 @@ The user-callable functions in this package, with the corresponding
 {\cvode} and {\cvbbdpre} functions, are as follows: 
 \begin{itemize}
 \item \id{FCVBBDINIT}
-  interfaces to \id{CVBBDPrecAlloc}.
-\item \id{FCVBBDSPGMR}
-  interfaces to \id{CVBBDSpgmr} and {\spgmr} optional input functions.
-\item \id{FCVBBDSPBCG}
-  interfaces to \id{CVBBDSpbcg} and {\spbcg} optional input functions.
-\item \id{FCVBBDSPTFQMR}
-  interfaces to \id{CVBBDSptfqmr} and {\sptfqmr} optional input functions.
+  interfaces to \id{CVBBDPrecInit}.
 \item \id{FCVBBDREINIT}
   interfaces to \id{CVBBDPrecReInit}.
 \item \id{FCVBBDOPT}
   interfaces to {\cvbbdpre} optional output functions.
-\item \id{FCVBBDFREE}
-  interfaces to \id{CVBBDPrecFree}.
 \end{itemize}
 
 In addition to the {\F} right-hand side function \id{FCVFUN}, the
@@ -1144,8 +1132,9 @@ user-supplied functions used by this package, are listed below,
 each with the corresponding interface function which calls it (and its
 type within {\cvbbdpre} or {\cvode}):
 \begin{center}
-\begin{tabular}{l|l|l}
-{\fcvbbd} routine ({\F})  &  {\cvode} function ({\C}) & {\cvode} function type \\\hline
+\begin{tabular}{l||l|l}
+{\fcvode} routine      &  {\cvode} function & {\cvode} type of \\
+({\F}, user-supplied)  &  ({\C}, interface) & interface function \\ \hline\hline
 \id{FCVLOCFN}  & \id{FCVgloc}     & \id{CVLocalFn} \\
 \id{FCVCOMMF}  & \id{FCVcfn}      & \id{CVCommFn} \\
 \id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpilsJacTimesVecFn} \\
@@ -1171,7 +1160,10 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 \item {\bf Linear solver specification}
 
-  To initialize the {\cvbbdpre} preconditioner, make the following call:
+  First, specify one of the {\cvspils} iterative linear solvers, by calling
+  one of \id{FCVSPGMR}, \id{FCVSPBCG}, or \id{FCVSPTFQMR}.
+
+  Then, to initialize the {\cvbbdpre} preconditioner, make the following call:
   \index{FCVBBDINIT@\texttt{FCVBBDINIT}}
 \begin{verbatim}
        CALL FCVBBDINIT(NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IER)
@@ -1191,36 +1183,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   \id{IER} is a return completion flag.  A value of $0$ indicates success, while
   a value of $-1$ indicates that a memory failure occurred or that an input had
   an illegal value.
-  
-  To specify the {\spgmr} linear system solver and use the {\cvbbdpre}
-  preconditioner, make the following call:
-  \index{FCVBBDSPGMR@\texttt{FCVBBDSPGMR}}
-\begin{verbatim}
-       CALL FCVBBDSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
-\end{verbatim}
-  Its arguments are the same as those of \id{FCVSPGMR}
-  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
-  
-  
-
-  To specify the {\spbcg} linear system solver and use the {\cvbbdpre}
-  preconditioner, make the following call:
-  \index{FCVBBDSPBCG@\texttt{FCVBBDSPBCG}}
-\begin{verbatim}
-       CALL FCVBBDSPBCG(IPRETYPE, MAXL, DELT, IER)
-\end{verbatim}
-  Its arguments are the same as those of \id{FCVSPBCG}
-  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
-  
-  To specify the {\sptfqmr} linear system solver and use the {\cvbbdpre}
-  preconditioner, make the following call:
-  \index{FCVBBDSPTFQMR@\texttt{FCVBBDSPTFQMR}}
-\begin{verbatim}
-       CALL FCVBBDSPTFQMR(IPRETYPE, MAXL, DELT, IER)
-\end{verbatim}
-  Its arguments are the same as those of \id{FCVSPTFQMR}
-  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
-  
+    
   Optionally, to specify that {\spgmr}, {\spbcg}, or {\sptfqmr} should use 
   the supplied \id{FCVJTIMES}, make the call
   \index{FCVSPILSSETJAC@\texttt{FCVSPILSSETJAC}}
@@ -1268,18 +1231,15 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   routine have the same names and meanings as those of \id{FCVBBDINIT}.
   If the value of \id{MU} or \id{ML} is being changed, then a call to
   \id{FCVBBDINIT} must be made.  Finally, if there is a change in any of the
-  linear solver inputs, then a call to \id{FCVBBDSPGMR}, \id{FCVBBDSPBCG}, or
-  \id{FCVBBDSPTFQMR} must be made; in this case the linear solver memory is
+  linear solver inputs, then a call to \id{FCVSPGMR}, \id{FCVSPBCG}, or
+  \id{FCVSPTFQMR} must also be made; in this case the linear solver memory is
   reallocated.
   
 \item {\bf Memory deallocation}
 
-  To free the internal memory created by the call to \id{FCVBBDINIT}, before
-  calling \id{FCVFREE}, the user must make the call
-  \index{FCVBBDFREE@\texttt{FCVBBDFREE}}
-\begin{verbatim}
-      CALL FCVBBDFREE
-\end{verbatim}
+  To memory allocated for the {\fcvbbd} module is deallocated automatically
+  when invoking \id{FCVFREE}.
+
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbbdpre} module|)}
 
 \item {\bf User-supplied routines}
