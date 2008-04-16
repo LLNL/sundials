@@ -23,9 +23,9 @@ The overall organization of the {\ida} package is shown in Figure
 \caption [Overall structure diagram of the {\ida} package]
 {Overall structure diagram of the {\ida} package.
   Modules specific to {\ida} are distinguished by rounded boxes, while 
-  generic solver and auxiliary modules are in square boxes. Note that 
-  the Lapack-based linear solver modules {\idalapdense} and {\idalapband}
-  are not represented.}
+  generic solver and auxiliary modules are in square boxes.
+  Note that the direct linear solvers using Lapack implementations are not 
+  explicitly represented.}
 \label{f:idaorg}
 \end{figure}
 The central integration module, implemented in the files \id{ida.h},
@@ -44,10 +44,10 @@ modules, organized into two families. The {\em direct} familiy of linear
 solvers provides solvers for the direct solution of linear systems with
 dense or banded matrices and includes:
 \begin{itemize} 
-\item {\idadense}: LU factorization and backsolving with dense matrices (internal implementation); 
-\item {\idaband}: LU factorization and backsolving with banded matrices (internal implementation); 
-\item {\idalapdense}: LU factorization and backsolving with dense matrices (interface to Blas/Lapack implementation); 
-\item {\idalapband}: LU factorization and backsolving with banded matrices (interface to Blas/Lapack implementation); 
+\item {\idadense}: LU factorization and backsolving with dense matrices
+  (using either an internal implementation or Blas/Lapack); 
+\item {\idaband}: LU factorization and backsolving with banded matrices
+  (using either an internal implementation or Blas/Lapack); 
 \end{itemize}
 The {\em spils} family of linear solvers providess scaled preconditioned
 iterative linear solvers and includes:
@@ -60,7 +60,7 @@ The set of linear solver modules distributed with {\ida} is intended to be expan
 future as new algorithms are developed.
 \index{IDA@{\ida} linear solvers!list of|)} 
 
-In the case of the direct methods {\idadense} and {\idaband} (and {\idalapdense} and {\idalapband}), 
+In the case of the direct methods {\idadense} and {\idaband}
 the package includes an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
 (or an approximation to it) directly. In the case of the Krylov iterative methods

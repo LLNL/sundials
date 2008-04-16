@@ -38,13 +38,13 @@ description of their meaning.
 \id{CV\_BDF}              & 2 & BDF linear multistep method. \\
 \id{CV\_FUNCTIONAL}       & 1 & Nonlinear system solution through functional iterations. \\
 \id{CV\_NEWTON}           & 2 & Nonlinear system solution through Newton iterations. \\
-\id{CV\_SS}               & 1 & Scalar relative tolerance, scalar absolute tolerance. \\
-\id{CV\_SV}               & 2 & Scalar relative tolerance, vector absolute tolerance. \\
-\id{CV\_EE}               & 2 & Estimated relative tolerance and absolute tolerance for sensitivity variables. \\
+%%\id{CV\_SS}               & 1 & Scalar relative tolerance, scalar absolute tolerance. \\
+%%\id{CV\_SV}               & 2 & Scalar relative tolerance, vector absolute tolerance. \\
+%%\id{CV\_EE}               & 2 & Estimated relative tolerance and absolute tolerance for sensitivity variables. \\
 \id{CV\_NORMAL}           & 1 & Solver returns at specified output time. \\
 \id{CV\_ONE\_STEP}        & 2 & Solver returns after each successful step. \\
-\id{CV\_NORMAL\_TSTOP}    & 3 & Solver returns at specified output time, but does not proceed past the specified stopping time. \\
-\id{CV\_ONE\_STEP\_TSTOP} & 4 & Solver returns after each successful step, but does not proceed past the specified stopping time. \\
+%%\id{CV\_NORMAL\_TSTOP}    & 3 & Solver returns at specified output time, but does not proceed past the specified stopping time. \\
+%%\id{CV\_ONE\_STEP\_TSTOP} & 4 & Solver returns after each successful step, but does not proceed past the specified stopping time. \\
 \id{CV\_SIMULTANEOUS}     & 1 & Simultaneous corrector forward sensitivity method. \\
 \id{CV\_STAGGERED}        & 2 & Staggered corrector forward sensitivity method. \\
 \id{CV\_STAGGERED1}       & 3 & Staggered (variant) corrector forward sensitivity method. \\
@@ -52,7 +52,7 @@ description of their meaning.
 \id{CV\_FORWARD}          & 2 & Forward difference quotient approximation ($1^{st}$ order) of the sensitivity RHS. \\
 %%
 \\\hline
-\multicolumn{3}{c}{\bf {\cvodea} adjoint solver module}\\
+\multicolumn{3}{c}{\bf {\cvodes} adjoint solver module}\\
 \hline\\
 %%
 \id{CV\_HERMITE} & 1 & Use Hermite interpolation. \\
@@ -118,7 +118,7 @@ description of their meaning.
 \id{CV\_UNREC\_SRHSFUNC\_ERR} & -45 & The sensitivity right-hand side function had a recoverable error, but no recovery is possible. \\
 
 \\\hline
-\multicolumn{3}{c}{\bf {\cvodea} adjoint solver module}\\
+\multicolumn{3}{c}{\bf {\cvodes} adjoint solver module}\\
 \hline\\
 
 \id{CV\_ADJMEM\_NULL} & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\

@@ -1596,7 +1596,7 @@ The fields in this structure have the following meanings:
 \subsubsection{Interpolation data}
 %%
 \index{optional output!interpolation data}
-Fo debugging purposes, {\cvodea} provides two extraction functions which 
+Fo debugging purposes, {\cvodes} provides two extraction functions which 
 return the data stored for interpolation purposes.
 %%
 \ucfunction{CVodeGetAdjDataPointHermite}
@@ -1742,9 +1742,9 @@ The user must provide a function of type \ID{CVRhsFnB} defined as follows:
   the user's \id{rhsB} function every time it is called and can be the same as the 
   \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{CVRhsFnB}, {\cvodea} needs to evaluate
+  {\warn}Before calling the user's \id{CVRhsFnB}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodea} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the righ-hand side function which will halt the integration and
   \id{CVodeB} will return \id{CV\_RHSFUNC\_FAIL}.
 }
@@ -1803,9 +1803,9 @@ The user must provide a function of type \ID{CVRhsFnBS} defined as follows:
   the user's \id{rhsBS} function every time it is called and can be the same as the 
   \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{CVRhsFnBS}, {\cvodea} needs to evaluate
+  {\warn}Before calling the user's \id{CVRhsFnBS}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodea} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the righ-hand side function which will halt the integration and
   \id{CVodeB} will return \id{CV\_RHSFUNC\_FAIL}.
 }
@@ -1863,9 +1863,9 @@ The user must provide a function of type \ID{CVQuadRhsFnB} defined by
   The \id{user\_dataB} pointer is passed to the user's \id{fQB} function every time 
   it is called and can be the same as the \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{CVQuadRhsFnB}, {\cvodea} needs to evaluate
+  {\warn}Before calling the user's \id{CVQuadRhsFnB}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodea} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the quadrature righ-hand side function which will halt the integration and
   \id{CVodeB} will return \id{CV\_QRHSFUNC\_FAIL}.
 }
@@ -1924,9 +1924,9 @@ The user must provide a function of type \ID{CVQuadRhsFnBS} defined by
   The \id{user\_dataB} pointer is passed to the user's \id{fQB} function every time 
   it is called and can be the same as the \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{CVQuadRhsFnBS}, {\cvodea} needs to evaluate
+  {\warn}Before calling the user's \id{CVQuadRhsFnBS}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodea} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the quadrature righ-hand side function which will halt the integration and
   \id{CVodeB} will return \id{CV\_QRHSFUNC\_FAIL}.
 }
@@ -1997,9 +1997,9 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
   The type of \id{JacB} is \Id{DlsMat}. The user is referred to 
   \S\ref{ss:djacFn} for details regarding accessing a \id{DlsMat} object.
 
-  {\warn}Before calling the user's \id{CVDlsDenseJacFnB}, {\cvodea} needs to evaluate
+  {\warn}Before calling the user's \id{CVDlsDenseJacFnB}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodea} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
   (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} on 
   \Id{CVDIRECT\_JACFUNC\_UNRECVR}).
@@ -2073,9 +2073,9 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
   a \id{BandMat} object and on the rest of the arguments passed to a function
   of type \id{CVDlsBandJacFnB} are given in \S\ref{ss:bjacFn}.
 
-  {\warn}Before calling the user's \id{CVDlsBandJacFnB}, {\cvodea} needs to evaluate
+  {\warn}Before calling the user's \id{CVDlsBandJacFnB}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodea} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
   (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvband} sets \id{last\_flag} on 
   \Id{CVDIRECT\_JACFUNC\_UNRECVR}).
@@ -2523,9 +2523,9 @@ The prototypes for these two functions are described below.
   calculate \id{gB} has already been done, and this data is accessible within
   \id{user\_dataB}.
 
-  {\warn}Before calling the user's \id{CVBBDLocalFnB}, {\cvodea} needs to evaluate
+  {\warn}Before calling the user's \id{CVBBDLocalFnB}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodea} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the preconditioner setup function which will halt the integration
   (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL}).
 }

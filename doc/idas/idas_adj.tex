@@ -749,7 +749,7 @@ Also, if \id{which} is not a valid identifier, the functions will return
 \label{sss:idacalcicB}
 %%---------------------------------------------------------------------
 
-{\idaa} provides support for calculation of consistent initial 
+{\idas} provides support for calculation of consistent initial 
 conditions for backward index-one problems of semi-implicit form through
 the functions \Id{IDACalcICB} and \Id{IDACalcICBS}. Calling them is 
 optional. It is only necessary when the initial conditions do not solve
@@ -1701,7 +1701,7 @@ The fields in this structure have the following meanings:
 \subsubsection{Interpolation data}
 %%
 \index{optional output!interpolation data}
-Fo debugging purposes, {\idaa} provides two extraction functions which 
+Fo debugging purposes, {\idas} provides two extraction functions which 
 return the data stored for interpolation purposes.
 %%
 \ucfunction{IDAGetAdjDataPointHermite}
@@ -1851,9 +1851,9 @@ The user must provide a function of type \ID{IDAResFnB} defined as follows:
   the user's \id{resB} function every time it is called and can be the same as the 
   \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{IDAResFnB}, {\idaa} needs to evaluate
+  {\warn}Before calling the user's \id{IDAResFnB}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
   failure in the righ-hand side function which will halt the integration and
   \id{IDASolveB} will return \id{IDA\_RESFUNC\_FAIL}.
 }
@@ -1920,9 +1920,9 @@ The user must provide a function of type \ID{IDAResFnBS} defined as follows:
   the user's \id{resBS} function every time it is called and can be the same as the 
   \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{IDAResFnBS}, {\idaa} needs to evaluate
+  {\warn}Before calling the user's \id{IDAResFnBS}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
   failure in the righ-hand side function which will halt the integration and
   \id{IDASolveB} will return \id{IDA\_RESFUNC\_FAIL}.
 }
@@ -1984,9 +1984,9 @@ The user must provide a function of type \ID{IDAQuadRhsFnB} defined by
   The \id{user\_dataB} pointer is passed to the user's \id{fQB} function every time 
   it is called and can be the same as the \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{IDAQuadRhsFnB}, {\idaa} needs to evaluate
+  {\warn}Before calling the user's \id{IDAQuadRhsFnB}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
   failure in the quadrature righ-hand side function which will halt the integration and
   \id{IDASolveB} will return \id{IDA\_QRHSFUNC\_FAIL}.
 }
@@ -2053,9 +2053,9 @@ The user must provide a function of type \ID{IDAQuadRhsFnBS} defined by
   The \id{user\_dataB} pointer is passed to the user's \id{fQB} function every time 
   it is called and can be the same as the \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{IDAQuadRhsFnBS}, {\idaa} needs to evaluate
+  {\warn}Before calling the user's \id{IDAQuadRhsFnBS}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
   failure in the quadrature righ-hand side function which will halt the integration and
   \id{IDASolveB} will return \id{IDA\_QRHSFUNC\_FAIL}.
 }
@@ -2134,9 +2134,9 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
   The type of \id{JacB} is \Id{DlsMat}. The user is referred to 
   \S\ref{ss:djacFn} for details regarding accessing a \id{DlsMat} object.
 
-  {\warn}Before calling the user's \id{IDADlsDenseJacFnB}, {\idaa} needs to evaluate
+  {\warn}Before calling the user's \id{IDADlsDenseJacFnB}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
   (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} on 
   \Id{IDADIRECT\_JACFUNC\_UNRECVR}).
@@ -2219,9 +2219,9 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
   a \id{BandMat} object and on the rest of the arguments passed to a function
   of type \id{IDADlsBandJacFnB} are given in \S\ref{ss:bjacFn}.
 
-  {\warn}Before calling the user's \id{IDADlsBandJacFnB}, {\idaa} needs to evaluate
+  {\warn}Before calling the user's \id{IDADlsBandJacFnB}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
   (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idaband} sets \id{last\_flag} on 
   \Id{IDADIRECT\_JACFUNC\_UNRECVR}).
@@ -2617,9 +2617,9 @@ The prototypes for these two functions are described below.
   calculate \id{gB} has already been done, and this data is accessible within
   \id{user\_dataB}.
 
-  {\warn}Before calling the user's \id{IDABBDLocalFnB}, {\idaa} needs to evaluate
+  {\warn}Before calling the user's \id{IDABBDLocalFnB}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idaa} triggers an unrecoverable
+  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
   failure in the preconditioner setup function which will halt the integration
   (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL}).
 }

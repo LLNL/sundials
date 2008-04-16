@@ -24,9 +24,9 @@ The overall organization of the {\kinsol} package is shown in Figure
 {Overall structure diagram of the {\kinsol} package.
   Modules specific to {\kinsol} are distinguished by rounded boxes, while
   generic solver and auxiliary modules are in rectangular boxes.
-  Grayed boxes refer to the encompassing {\sundials} structure. Note that 
-  the Lapack-based linear solver modules {\kinlapdense} and {\kinlapband}
-  are not represented.}
+  Grayed boxes refer to the encompassing {\sundials} structure.
+  Note that the direct linear solvers using Lapack implementations are not 
+  explicitly represented.}
 \label{f:kinorg}
 \end{figure}
 The central solver module, implemented in the files
@@ -43,10 +43,10 @@ modules, organized into two families. The {\em direct} familiy of linear
 solvers provides solvers for the direct solution of linear systems with
 dense or banded matrices and includes:
 \begin{itemize} 
-\item {\kindense}: LU factorization and backsolving with dense matrices (internal implementation); 
-\item {\kinband}: LU factorization and backsolving with banded matrices (internal implementation); 
-\item {\kinlapdense}: LU factorization and backsolving with dense matrices (interface to Blas/Lapack implementation); 
-\item {\kinlapband}: LU factorization and backsolving with banded matrices (interface to Blas/Lapack implementation); 
+\item {\kindense}: LU factorization and backsolving with dense matrices
+  (using either an internal implementation or Blas/Lapack); 
+\item {\kinband}: LU factorization and backsolving with banded matrices
+  (using either an internal implementation or Blas/Lapack); 
 \end{itemize}
 The {\em spils} family of linear solvers providess scaled preconditioned
 iterative linear solvers and includes:
@@ -59,7 +59,7 @@ The set of linear solver modules distributed with {\kinsol} is intended to be ex
 future as new algorithms are developed.
 \index{KINSOL@{\kinsol} linear solvers!list of|)}
 
-In the case of the direct methods {\kindense} and {\kinband} (and {\kinlapdense} and {\kinlapband}), 
+In the case of the direct methods {\kindense} and {\kinband}
 the package includes an algorithm for the approximation of the Jacobian by difference quotients, but
 the user also has the option of supplying the Jacobian (or an approximation to it)
 directly. In the case of the Krylov methods {\kinspgmr}, {\kinspbcg} and {\kinsptfqmr},

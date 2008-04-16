@@ -41,21 +41,21 @@ field \id{cv\_lmem} in the {\cvodes} memory block can be used to
 attach a linear solver-specific memory block.
 
 
-To be used during the backward integration with the {\cvodea} module,
+To be used during the backward integration with the {\cvodes} module,
 a linear solver module must also provide an additional user-callable
 specification function (like those described in
 \S\ref{sss:lin_solv_b}) which will attach the four functions to the
 {\cvodes} memory block for the backward integration. Note that this
 block (of type \id{struct CVodeMemRec}) is not directly accessible to
-the user, but rather is itself a field (\id{cvb\_mem}) in the
-{\cvodea} memory block.  The {\cvodea} memory block is a structure
-defined in the header file \id{cvodea\_impl.h}.  A pointer to such a
-structure is defined as the type \id{CVadjMem}.
+the user, but rather is itself a field in the
+{\cvodes} memory block.  The {\cvodes} memory block is a structure
+defined in the header file \id{cvodes\_impl.h}.  A pointer to such a
+structure is defined as the type \id{CVodeMem}.
 %%
 The specification function for backward integration should also return
-a negative value if the adjoint {\cvodea} memory block is \id{NULL}.
+a negative value if the adjoint {\cvodes} memory block is \id{NULL}.
 
-An additional field (\id{ca\_lmemB}) in the {\cvodea} memory block
+An additional field (\id{ca\_lmemB}) in the {\cvodes} memory block
 provides a hook-up for optionally attaching a linear solver-specific
 memory block.
 

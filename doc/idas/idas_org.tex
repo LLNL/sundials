@@ -23,9 +23,9 @@ The overall organization of the {\idas} package is shown in Figure
 \caption [Overall structure diagram of the {\idas} package]
 {Overall structure diagram of the {\idas} package.
   Modules specific to {\idas} are distinguished by rounded boxes, while 
-  generic solver and auxiliary modules are in square boxes. Note that 
-  the Lapack-based linear solver modules {\idalapdense} and {\idalapband}
-  are not represented.}
+  generic solver and auxiliary modules are in square boxes.
+  Note that the direct linear solvers using Lapack implementations are not 
+  explicitly represented.}
 \label{f:idasorg}
 \end{figure}
 The central integration module, implemented in the files \id{idas.h},
@@ -51,7 +51,7 @@ sensitivity equations residuals by difference quotients, but the user has
 the option of supplying these residual functions directly.
 
 \index{adjoint sensitivity analysis!implementation in {\idas}|(}
-The adjoint sensitivity module provides the infrastructure needed for the 
+The adjoint sensitivity module (file \id{idaa.c}) provides the infrastructure needed for the 
 backward integration of any system of DAEs which depends on the solution 
 of the original IVP, in particular the adjoint system and any quadratures required
 in evaluating the gradient of the objective functional.  This module deals with
@@ -65,10 +65,10 @@ modules, organized into two families. The {\em direct} familiy of linear
 solvers provides solvers for the direct solution of linear systems with
 dense or banded matrices and includes:
 \begin{itemize} 
-\item {\idadense}: LU factorization and backsolving with dense matrices (internal implementation); 
-\item {\idaband}: LU factorization and backsolving with banded matrices (internal implementation); 
-\item {\idalapdense}: LU factorization and backsolving with dense matrices (interface to Blas/Lapack implementation); 
-\item {\idalapband}: LU factorization and backsolving with banded matrices (interface to Blas/Lapack implementation); 
+\item {\idadense}: LU factorization and backsolving with dense matrices
+  (using either an internal implementation or Blas/Lapack); 
+\item {\idaband}: LU factorization and backsolving with banded matrices
+  (using either an internal implementation or Blas/Lapack); 
 \end{itemize}
 The {\em spils} family of linear solvers providess scaled preconditioned
 iterative linear solvers and includes:
@@ -81,7 +81,7 @@ The set of linear solver modules distributed with {\idas} is intended to be expa
 future as new algorithms are developed.
 \index{IDAS@{\idas} linear solvers!list of|)} 
 
-In the case of the direct methods {\idadense} and {\idaband} (and {\idalapdense} and {\idalapband}), 
+In the case of the direct methods {\idadense} and {\idaband}
 the package includes an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
 (or an approximation to it) directly. In the case of the Krylov iterative methods
