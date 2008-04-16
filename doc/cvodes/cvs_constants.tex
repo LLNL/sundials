@@ -38,13 +38,8 @@ description of their meaning.
 \id{CV\_BDF}              & 2 & BDF linear multistep method. \\
 \id{CV\_FUNCTIONAL}       & 1 & Nonlinear system solution through functional iterations. \\
 \id{CV\_NEWTON}           & 2 & Nonlinear system solution through Newton iterations. \\
-%%\id{CV\_SS}               & 1 & Scalar relative tolerance, scalar absolute tolerance. \\
-%%\id{CV\_SV}               & 2 & Scalar relative tolerance, vector absolute tolerance. \\
-%%\id{CV\_EE}               & 2 & Estimated relative tolerance and absolute tolerance for sensitivity variables. \\
 \id{CV\_NORMAL}           & 1 & Solver returns at specified output time. \\
 \id{CV\_ONE\_STEP}        & 2 & Solver returns after each successful step. \\
-%%\id{CV\_NORMAL\_TSTOP}    & 3 & Solver returns at specified output time, but does not proceed past the specified stopping time. \\
-%%\id{CV\_ONE\_STEP\_TSTOP} & 4 & Solver returns after each successful step, but does not proceed past the specified stopping time. \\
 \id{CV\_SIMULTANEOUS}     & 1 & Simultaneous corrector forward sensitivity method. \\
 \id{CV\_STAGGERED}        & 2 & Staggered corrector forward sensitivity method. \\
 \id{CV\_STAGGERED1}       & 3 & Staggered (variant) corrector forward sensitivity method. \\
@@ -110,55 +105,44 @@ description of their meaning.
 \id{CV\_FIRST\_QRHSFUNC\_ERR} & -32 & The quadrature right-hand side function failed at the first call. \\
 \id{CV\_REPTD\_QRHSFUNC\_ERR} & -33 & The quadrature ight-hand side function had repetead recoverable errors. \\
 \id{CV\_UNREC\_QRHSFUNC\_ERR} & -34 & The quadrature right-hand side function had a recoverable error, but no recovery is possible. \\
-\id{CV\_BAD\_IS}              & -40 & The sensitivity index is larger than the number of sensitivities computed.\\
-\id{CV\_NO\_SENS}             & -41 & Forward sensitivity integration was not activated. \\
-\id{CV\_SRHSFUNC\_FAIL}       & -42 & The sensitivity right-hand side function failed in an unrecoverable manner. \\
-\id{CV\_FIRST\_SRHSFUNC\_ERR} & -43 & The sensitivity right-hand side function failed at the first call. \\
-\id{CV\_REPTD\_SRHSFUNC\_ERR} & -44 & The sensitivity ight-hand side function had repetead recoverable errors. \\
-\id{CV\_UNREC\_SRHSFUNC\_ERR} & -45 & The sensitivity right-hand side function had a recoverable error, but no recovery is possible. \\
+\id{CV\_NO\_SENS}             & -40 & Forward sensitivity integration was not activated. \\
+\id{CV\_SRHSFUNC\_FAIL}       & -41 & The sensitivity right-hand side function failed in an unrecoverable manner. \\
+\id{CV\_FIRST\_SRHSFUNC\_ERR} & -42 & The sensitivity right-hand side function failed at the first call. \\
+\id{CV\_REPTD\_SRHSFUNC\_ERR} & -43 & The sensitivity ight-hand side function had repetead recoverable errors. \\
+\id{CV\_UNREC\_SRHSFUNC\_ERR} & -44 & The sensitivity right-hand side function had a recoverable error, but no recovery is possible. \\
+\id{CV\_BAD\_IS}              & -45 & The sensitivity index is larger than the number of sensitivities computed.\\
+\id{CV\_NO\_QUADSENS}          & -50 & Forward sensitivity integration was not activated. \\
+\id{CV\_QSRHSFUNC\_FAIL}       & -51 & The sensitivity right-hand side function failed in an unrecoverable manner. \\
+\id{CV\_FIRST\_QSRHSFUNC\_ERR} & -52 & The sensitivity right-hand side function failed at the first call. \\
+\id{CV\_REPTD\_QSRHSFUNC\_ERR} & -53 & The sensitivity ight-hand side function had repetead recoverable errors. \\
+\id{CV\_UNREC\_QSRHSFUNC\_ERR} & -54 & The sensitivity right-hand side function had a recoverable error, but no recovery is possible. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\cvodes} adjoint solver module}\\
 \hline\\
 
-\id{CV\_ADJMEM\_NULL} & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
-\id{CV\_BAD\_TB0}     & -103 & The final time for the adjoint problem is outside the interval over which the forward problem was solved.\\
-\id{CV\_BCKMEM\_NULL} & -104 & The \id{cvodes} memory for the backward problem was not created. \\
+\id{CV\_NO\_ADJ}      & -101 & Adjoint module was not initialized. \\
+\id{CV\_NO_FWD}       & -102 & The forward integration was not yet performed. \\
+\id{CV\_NO_BCK}       & -103 & No backward problem was specified. \\
+\id{CV\_BAD\_TB0}     & -104 & The final time for the adjoint problem is outside the interval over which the forward problem was solved.\\
 \id{CV\_REIFWD\_FAIL} & -105 & Reinitialization of the forward problem failed at the first checkpoint. \\
 \id{CV\_FWD\_FAIL}    & -106 & An error occured during the integration of the forward problem.\\
-\id{CV\_BAD\_ITASK}   & -107 & Wrong task for backward integration. \\
-\id{CV\_BAD\_TBOUT}   & -108 & The desired output time is outside the interval over which the forward problem was solved.\\
-\id{CV\_GETY\_BADT}   & -109 & Wrong time in interpolation function. \\
+\id{CV\_GETY\_BADT}   & -107 & Wrong time in interpolation function. \\
 
 \\\hline
-\multicolumn{3}{c}{\bf {\cvdense} linear solver module}\\
+\multicolumn{3}{c}{\bf {\cvdls} linear solver modules}\\
 \hline\\
 
-\id{CVDENSE\_SUCCESS}          &  0 & Successful function return. \\
-\id{CVDENSE\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
-\id{CVDENSE\_LMEM\_NULL}       & -2 & The {\cvdense} linear solver has not been initialized.\\
-\id{CVDENSE\_ILL\_INPUT}       & -3 & The {\cvdense} solver is not compatible with the current {\nvector} module.\\
-\id{CVDENSE\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
-\id{CVDENSE\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{CVDENSE\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+\id{CVDIRECT\_SUCCESS}          &  0 & Successful function return. \\
+\id{CVDIRECT\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVDIRECT\_LMEM\_NULL}       & -2 & The {\cvdense} linear solver has not been initialized.\\
+\id{CVDIRECT\_ILL\_INPUT}       & -3 & The {\cvdense} solver is not compatible with the current {\nvector} module.\\
+\id{CVDIRECT\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
+\id{CVDIRECT\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
+\id{CVDIRECT\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
 %%
-\id{CVDENSE\_ADJMEM\_NULL}     & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
-\id{CVDENSE\_LMEMB\_NULL}      & -102 & The {\cvdense} linear solver has not been initialized for the backward integration.\\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\cvband} linear solver module}\\
-\hline\\
-
-\id{CVBAND\_SUCCESS}          &  0 & Successful function return. \\
-\id{CVBAND\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
-\id{CVBAND\_LMEM\_NULL}       & -2 & The {\cvband} linear solver has not been initialized.\\
-\id{CVBAND\_ILL\_INPUT}       & -3 & The {\cvband} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
-\id{CVBAND\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
-\id{CVBAND\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{CVBAND\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
-%%
-\id{CVBAND\_ADJMEM\_NULL}     & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
-\id{CVBAND\_LMEMB\_NULL}      & -102 & The {\cvband} linear solver has not been initialized for the backward integration.\\
+\id{CVDIRECT\_NO\_ADJ}          & -101 & The combined forward-backward problem has not been initialized.\\
+\id{CVDIRECT\_LMEMB\_NULL}      & -102 & The linear solver was not initialized for the backward phase. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\cvdiag} linear solver module}\\
@@ -169,8 +153,11 @@ description of their meaning.
 \id{CVDIAG\_LMEM\_NULL}   & -2 & The {\cvdiag} linear solver has not been initialized.\\
 \id{CVDIAG\_ILL\_INPUT}   & -3 & The {\cvdiag} solver is not compatible with the current {\nvector} module.\\
 \id{CVDIAG\_MEM\_FAIL}    & -4 & A memory allocation request failed.\\
+\id{CVDIAG\_INV\_FAIL}    & -5 & A diagonal element of the Jacobian was 0. \\
+\id{CVDIAG\_RHSFUNC\_UNRECVR} & -5 & The right-hand side function failed in an unrecoverable manner. \\
+\id{CVDIAG\_RHSFUNC\_RECVR}   & -6 & The right-hand side function had a recoverable error. \\
 %%
-\id{CVDIAG\_ADJMEM\_NULL} & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
+\id{CVDIAG\_NO\_ADJ} & -101 & The combined forward-backward problem has not been initialized.\\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\cvspils} linear solver modules}\\
@@ -181,9 +168,10 @@ description of their meaning.
 \id{CVSPILS\_LMEM\_NULL}   & -2 & The linear solver has not been initialized.\\
 \id{CVSPILS\_ILL\_INPUT}   & -3 & The solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
 \id{CVSPILS\_MEM\_FAIL}    & -4 & A memory allocation request failed.\\
+\id{CVSPILS\_PMEM\_NULL}   & -5 & The preconditioner module has not been initialized. \\
 %%
-\id{CVSPILS\_ADJMEM\_NULL} & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
-\id{CVSPILS\_LMEMB\_NULL}  & -102 & The linear solver has not been initialized for the backward integration.\\
+\id{CVSPILS\_NO\_ADJ}      & -101 & The combined forward-backward problem has not been initialized.\\
+\id{CVSPILS\_LMEMB\_NULL}  & -102 & The linear solver was not initialized for the backward phase. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\
@@ -232,29 +220,6 @@ description of their meaning.
 \id{SPTFQMR\_ATIMES\_FAIL\_UNREC} & -2 & The Jacobian-times-vector function failed. \\
 \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
 \id{SPTFQMR\_PSET\_FAIL\_UNREC}   & -4 & The preconditioner setup function failed unrecoverably. \\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\cvbandpre} preconditioner module}\\
-\hline\\
-
-\id{CVBANDPRE\_SUCCESS}          &  0   & Successful function return. \\
-\id{CVBANDPRE\_PDATA\_NULL}      & -11  & The preconditioner module has not been initialized. \\
-\id{CVBANDPRE\_RHSFUNC\_UNRECVR} & -12  & The right-hand side function failed unrecoverably. \\
-%%
-\id{CVBANDPRE\_ADJMEM\_NULL}     & -111 & The \id{cvadj\_mem} argument was \id{NULL}. \\
-\id{CVBANDPRE\_MEM\_FAIL}        & -112 & A memory allocation failed.\\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\cvbbdpre} preconditioner module}\\
-\hline\\
-
-\id{CVBBDPRE\_SUCCESS}       &  0   & Successful function return. \\
-\id{CVBBDPRE\_PDATA\_NULL}   & -11  & The preconditioner module has not been initialized. \\
-\id{CVBBDPRE\_FUNC\_UNRECVR} & -12  & A user supplied function failed unrecoverably. \\
-%%
-\id{CVBBDPRE\_ADJMEM\_NULL}  & -111 & The \id{cvadj\_mem} argument was \id{NULL}. \\
-\id{CVBBDPRE\_PDATAB\_NULL}  & -112 & The {\cvbbdpre} preconditionr module has not been initialized for the backward integration.\\
-\id{CVBBDPRE\_MEM\_FAIL}     & -113 & A memory allocation failed.
 
 \end{supertabular*} 
 

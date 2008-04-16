@@ -12,7 +12,7 @@ description of their meaning.
 \newlength{\tcolone}
 \settowidth{\tcolone}{\id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}}
 \newlength{\tcoltwo}
-\settowidth{\tcoltwo}{-20}
+\settowidth{\tcoltwo}{-109}
 \newlength{\tcolthree}
 \setlength{\tcolthree}{\textwidth}
 \addtolength{\tcolthree}{-0.5in}
@@ -29,34 +29,31 @@ description of their meaning.
 \section{CVODE input constants}\label{s:cvode_in_constants}
 
 \begin{supertabular*}{\textwidth}{p{\tcolone}@{\hspace*{2mm}\extracolsep{\fill}}rp{\tcolthree}}
-
+%%
 \hline
 \multicolumn{3}{c}{\bf {\cvode} main solver module}\\
 \hline\\
-
+%%
 \id{CV\_ADAMS}            & 1 & Adams-Moulton linear multistep method. \\
 \id{CV\_BDF}              & 2 & BDF linear multistep method. \\
 \id{CV\_FUNCTIONAL}       & 1 & Nonlinear system solution through functional iterations. \\
 \id{CV\_NEWTON}           & 2 & Nonlinear system solution through Newton iterations. \\
-\id{CV\_SS}               & 1 & Scalar relative tolerance, scalar absolute tolerance. \\
-\id{CV\_SV}               & 2 & Scalar relative tolerance, vector absolute tolerance. \\
 \id{CV\_NORMAL}           & 1 & Solver returns at specified output time. \\
 \id{CV\_ONE\_STEP}        & 2 & Solver returns after each successful step. \\
-\id{CV\_NORMAL\_TSTOP}    & 3 & Solver returns at specified output time, but does not proceed past the specified stopping time. \\
-\id{CV\_ONE\_STEP\_TSTOP} & 4 & Solver returns after each successful step, but does not proceed past the specified stopping time. \\
-
+%%
 \\\hline
 \multicolumn{3}{c}{\bf Iterative linear solver module}\\
 \hline\\
-
+%%
 \id{PREC\_NONE} & 0 & No preconditioning \\
 \id{PREC\_LEFT} & 1 & Preconditioning on the left only. \\
 \id{PREC\_RIGHT} & 2 & Preconditioning on the right only. \\
 \id{PREC\_BOTH} & 3 & Preconditioning on both the left and the right. \\
 \id{MODIFIED\_GS} & 1 & Use modified Gram-Schmidt procedure. \\
-\id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure. \\
-
+\id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure.
+%%
 \end{supertabular*}
+
 
 %%-------------------------------------------------------------------------
 
@@ -93,48 +90,40 @@ description of their meaning.
 \id{CV\_TOO\_CLOSE}          & -27 & The output and initial times are too close to each other. \\
 
 \\\hline
-\multicolumn{3}{c}{\bf {\cvdense} linear solver module}\\
+\multicolumn{3}{c}{\bf {\cvdls} linear solver modules}\\
 \hline\\
 
-\id{CVDENSE\_SUCCESS}          &  0 & Successful function return. \\
-\id{CVDENSE\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
-\id{CVDENSE\_LMEM\_NULL}       & -2 & The {\cvdense} linear solver has not been initialized.\\
-\id{CVDENSE\_ILL\_INPUT}       & -3 & The {\cvdense} solver is not compatible with the current {\nvector} module.\\
-\id{CVDENSE\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
-\id{CVDENSE\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{CVDENSE\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\cvband} linear solver module}\\
-\hline\\
-
-\id{CVBAND\_SUCCESS}          &  0 & Successful function return. \\
-\id{CVBAND\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
-\id{CVBAND\_LMEM\_NULL}       & -2 & The {\cvband} linear solver has not been initialized.\\
-\id{CVBAND\_ILL\_INPUT}       & -3 & The {\cvband} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
-\id{CVBAND\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
-\id{CVBAND\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{CVBAND\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+\id{CVDIRECT\_SUCCESS}          &  0 & Successful function return. \\
+\id{CVDIRECT\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVDIRECT\_LMEM\_NULL}       & -2 & The {\cvdense} linear solver has not been initialized.\\
+\id{CVDIRECT\_ILL\_INPUT}       & -3 & The {\cvdense} solver is not compatible with the current {\nvector} module.\\
+\id{CVDIRECT\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
+\id{CVDIRECT\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
+\id{CVDIRECT\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\cvdiag} linear solver module}\\
 \hline\\
 
-\id{CVDIAG\_SUCCESS}    &  0 & Successful function return. \\
-\id{CVDIAG\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
-\id{CVDIAG\_LMEM\_NULL} & -2 & The {\cvdiag} linear solver has not been initialized.\\
-\id{CVDIAG\_ILL\_INPUT} & -3 & The {\cvdiag} solver is not compatible with the current {\nvector} module.\\
-\id{CVDIAG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{CVDIAG\_SUCCESS}      &  0 & Successful function return. \\
+\id{CVDIAG\_MEM\_NULL}    & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVDIAG\_LMEM\_NULL}   & -2 & The {\cvdiag} linear solver has not been initialized.\\
+\id{CVDIAG\_ILL\_INPUT}   & -3 & The {\cvdiag} solver is not compatible with the current {\nvector} module.\\
+\id{CVDIAG\_MEM\_FAIL}    & -4 & A memory allocation request failed.\\
+\id{CVDIAG\_INV\_FAIL}    & -5 & A diagonal element of the Jacobian was 0. \\
+\id{CVDIAG\_RHSFUNC\_UNRECVR} & -5 & The right-hand side function failed in an unrecoverable manner. \\
+\id{CVDIAG\_RHSFUNC\_RECVR}   & -6 & The right-hand side function had a recoverable error. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\cvspils} linear solver modules}\\
 \hline\\
 
-\id{CVSPILS\_SUCCESS}    &  0 & Successful function return. \\
-\id{CVSPILS\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
-\id{CVSPILS\_LMEM\_NULL} & -2 & The linear solver has not been initialized.\\
-\id{CVSPILS\_ILL\_INPUT} & -3 & The solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
-\id{CVSPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{CVSPILS\_SUCCESS}      &  0 & Successful function return. \\
+\id{CVSPILS\_MEM\_NULL}    & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVSPILS\_LMEM\_NULL}   & -2 & The linear solver has not been initialized.\\
+\id{CVSPILS\_ILL\_INPUT}   & -3 & The solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
+\id{CVSPILS\_MEM\_FAIL}    & -4 & A memory allocation request failed.\\
+\id{CVSPILS\_PMEM\_NULL}   & -5 & The preconditioner module has not been initialized. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\
@@ -183,22 +172,6 @@ description of their meaning.
 \id{SPTFQMR\_ATIMES\_FAIL\_UNREC} & -2 & The Jacobian-times-vector function failed. \\
 \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
 \id{SPTFQMR\_PSET\_FAIL\_UNREC}   & -4 & The preconditioner setup function failed unrecoverably. \\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\cvbandpre} preconditioner module}\\
-\hline\\
-
-\id{CVBANDPRE\_SUCCESS}          &  0  & Successful function return. \\
-\id{CVBANDPRE\_PDATA\_NULL}      & -11 & The preconditioner module has not been initialized. \\
-\id{CVBANDPRE\_RHSFUNC\_UNRECVR} & -12 & The right-hand side function failed unrecoverably. \\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\cvbbdpre} preconditioner module}\\
-\hline\\
-
-\id{CVBBDPRE\_SUCCESS}         &  0  & Successful function return. \\
-\id{CVBBDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
-\id{CVBBDPRE\_FUNC\_UNRECVR}   & -12 & A user supplied function failed unrecoverably.
 
 \end{supertabular*} 
 

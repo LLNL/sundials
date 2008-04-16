@@ -36,8 +36,6 @@ description of their meaning.
 
 \id{IDA\_NORMAL}           & 1 & Solver returns at specified output time. \\
 \id{IDA\_ONE\_STEP}        & 2 & Solver returns after each successful step. \\
-%%\id{IDA\_NORMAL\_TSTOP}    & 3 & Solver returns at specified output time, but does not proceed past the specified stopping time. \\
-%%\id{IDA\_ONE\_STEP\_TSTOP} & 4 & Solver returns after each successful step, but does not proceed past the specified stopping time. \\
 \id{IDA\_SIMULTANEOUS}     & 1 & Simultaneous corrector forward sensitivity method. \\
 \id{IDA\_STAGGERED}        & 2 & Staggered corrector forward sensitivity method. \\
 \id{IDA\_CENTERED}         & 1 & Central difference quotient approximation ($2^{nd}$ order) of the sensitivity RHS. \\
@@ -60,8 +58,6 @@ description of their meaning.
 
 \id{PREC\_NONE}  &  0 & No preconditioning \\
 \id{PREC\_LEFT}  &  1 & Preconditioning on the left. \\
-\id{PREC\_RIGHT} &  2 & Preconditioning on the right. \\
-\id{PREC\_BOTH}  &  3 & Preconditioning on both the left and the right. \\
 \id{MODIFIED\_GS}  & 1 & Use modified Gram-Schmidt procedure. \\
 \id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure. \\
 
@@ -116,16 +112,16 @@ description of their meaning.
 \id{IDA\_REP\_QSRHS\_ERR}    & -53 & The user-provided sensitivity-dependent quadrature right-hand side repeatedly returned a recoverable error flag, but the solver was unable to recover. \\
 
 \\\hline
-\multicolumn{3}{c}{\bf {\idaa} adjoint solver module}\\
+\multicolumn{3}{c}{\bf {\idas} adjoint solver module}\\
 \hline\\
 
-\id{IDA\_NO\_ADJ}            & -100 & The combined forward-backward problem has not been initialized.\\
-\id{IDA\_BAD\_TB0}           & -101 & The desired output for backward problem is outside the interval over which the forward problem was solved. \\
-\id{IDA\_REIFWD\_FAIL}       & -102 & No checkpoint is available for this hot start. \\
-\id{IDA\_FWD\_FAIL}          & -103 & \id{IDASolveB} failed because \id{IDASolve} was unable to store data between two consecutive checkpoints. \\
-\id{IDA\_GETY\_BADT}         & -104 & Wrong time in interpolation function. \\
-\id{IDA\_NO\_BCK}            & -105 & No backward problem was specified. \\
-\id{IDA\_NO\_FWD}            & -106 & \id{IDASolveF} has not been previously called. \\
+\id{IDA\_NO\_ADJ}            & -101 & The combined forward-backward problem has not been initialized.\\
+\id{IDA\_NO\_FWD}            & -102 & \id{IDASolveF} has not been previously called. \\
+\id{IDA\_NO\_BCK}            & -103 & No backward problem was specified. \\
+\id{IDA\_BAD\_TB0}           & -104 & The desired output for backward problem is outside the interval over which the forward problem was solved. \\
+\id{IDA\_REIFWD\_FAIL}       & -105 & No checkpoint is available for this hot start. \\
+\id{IDA\_FWD\_FAIL}          & -106 & \id{IDASolveB} failed because \id{IDASolve} was unable to store data between two consecutive checkpoints. \\
+\id{IDA\_GETY\_BADT}         & -107 & Wrong time in interpolation function. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\idadls} linear solver modules}\\
@@ -138,6 +134,9 @@ description of their meaning.
 \id{IDADIRECT\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 \id{IDADIRECT\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
 \id{IDADIRECT\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+%%
+\id{IDADIRECT\_NO\_ADJ}          & -101 & The combined forward-backward problem has not been initialized.\\
+\id{IDADIRECT\_LMEMB\_NULL}      & -102 & The linear solver was not initialized for the backward phase. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\idaspils} linear solver modules}\\
@@ -149,7 +148,10 @@ description of their meaning.
 \id{IDASPILS\_ILL\_INPUT} & -3 & The solver is not compatible with the current {\nvector} module.\\
 \id{IDASPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 \id{IDASPILS\_PMEM\_NULL} & -5 & The preconditioner module has not been initialized. \\
-\id{IDASPILS\_NO\_ADJ}    & -100 & The combined forward-backward problem has not been initialized.\\
+%%
+\id{IDASPILS\_NO\_ADJ}      & -101 & The combined forward-backward problem has not been initialized.\\
+\id{IDASPILS\_LMEMB\_NULL}  & -102 & The linear solver was not initialized for the backward phase. \\
+
 
 \\\hline
 \multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\

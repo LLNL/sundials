@@ -36,17 +36,16 @@ description of their meaning.
 
 \id{IDA\_NORMAL}           & 1 & Solver returns at specified output time. \\
 \id{IDA\_ONE\_STEP}        & 2 & Solver returns after each successful step. \\
-\id{IDA\_NORMAL\_TSTOP}    & 3 & Solver returns at specified output time, but does not proceed past the specified stopping time. \\
-\id{IDA\_ONE\_STEP\_TSTOP} & 4 & Solver returns after each successful step, but does not proceed past the specified stopping time. \\
 \id{IDA\_YA\_YDP\_INIT}    & 1 & Compute $y_a$ and $y^\prime_d$, given $y_d$.\\
 \id{IDA\_Y\_INIT}          & 2 & Compute $y$, given $y^\prime$.\\
+
 
 \\\hline
 \multicolumn{3}{c}{\bf Iterative linear solver module}\\
 \hline\\
 
-\id{PREC\_NONE} & 0 & No preconditioning \\
-\id{PREC\_LEFT} & 1 & Preconditioning on the left. \\
+\id{PREC\_NONE}  &  0 & No preconditioning \\
+\id{PREC\_LEFT}  &  1 & Preconditioning on the left. \\
 \id{MODIFIED\_GS}  & 1 & Use modified Gram-Schmidt procedure. \\
 \id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure. \\
 
@@ -64,26 +63,29 @@ description of their meaning.
 \id{IDA\_SUCCESS}         &  0  & Successful function return. \\
 \id{IDA\_TSTOP\_RETURN}   &  1  & \id{IDASolve} succeeded by reaching the specified stopping point. \\
 \id{IDA\_ROOT\_RETURN}    &  2  & \id{IDASolve} succeeded and found one or more roots. \\
-\id{IDA\_MEM\_NULL}       & -1  & The \id{ida\_mem} argument was \id{NULL}. \\
-\id{IDA\_ILL\_INPUT}      & -2  & One of the function inputs is illegal. \\
-\id{IDA\_NO\_MALLOC}      & -3  & The {\ida} memory was not allocated by a call to \id{IDAMalloc}. \\
-\id{IDA\_TOO\_MUCH\_WORK} & -4  & The solver took \id{mxstep} internal steps but could not reach tout.\\
-\id{IDA\_TOO\_MUCH\_ACC}  & -5  & The solver could not satisfy the accuracy demanded by the user for some internal step.\\
-\id{IDA\_ERR\_FAIL}       & -6  & Error test failures occurred too many times during one internal time step or minimum step size was reached. \\
-\id{IDA\_CONV\_FAIL}      & -7  & Convergence test failures occurred too many times during one internal time step or minimum step size was reached. \\
-\id{IDA\_LINIT\_FAIL}     & -8  & The linear solver's initialization function failed.  \\
-\id{IDA\_LSETUP\_FAIL}    & -9  & The linear solver's setup function failed in an unrecoverable manner. \\
-\id{IDA\_LSOLVE\_FAIL}    & -10 & The linear solver's solve function failed in an unrecoverable manner. \\
-\id{IDA\_RES\_FAIL}       & -11 & The user-provided residual function failed in an unrecoverable manner. \\
-\id{IDA\_CONSTR\_FAIL}    & -12 & The inequality constraints were violated and the solver was unable to recover. \\
-\id{IDA\_REP\_RES\_FAIL}  & -13 & The user-provided residual function repeatedly returned a recoverable error flag, but the solver was unable to recover. \\
-\id{IDA\_MEM\_FAIL}       & -14 & A memory allocation failed. \\
-\id{IDA\_BAD\_T}          & -15 & The time $t$ s outside the last step taken. \\
-\id{IDA\_BAD\_EWT}        & -16 & Zero value of some error weight component. \\
-\id{IDA\_FIRST\_RES\_FAIL}& -17 & The user-provided residual function failed recoverably on the first call. \\
-\id{IDA\_LINESEARCH\_FAIL}& -18 & The line search failed. \\
-\id{IDA\_NO\_RECOVERY}    & -19 & The residual function, linear solver setup function, or linear solver solve function had a recoverable failure, but \id{IDACalcIC} could not recover. \\
-\id{IDA\_RTFUNC\_FAIL}    & -20 & The rootfinding function failed in an unrecoverable manner. \\
+\id{IDA\_WARNING}         & 99  & \id{IDASolve} succeeded but an unusual situation occured. \\
+\id{IDA\_TOO\_MUCH\_WORK} & -1  & The solver took \id{mxstep} internal steps but could not reach tout.\\
+\id{IDA\_TOO\_MUCH\_ACC}  & -2  & The solver could not satisfy the accuracy demanded by the user for some internal step.\\
+\id{IDA\_ERR\_FAIL}       & -3  & Error test failures occurred too many times during one internal time step or minimum step size was reached. \\
+\id{IDA\_CONV\_FAIL}      & -4  & Convergence test failures occurred too many times during one internal time step or minimum step size was reached. \\
+\id{IDA\_LINIT\_FAIL}     & -5  & The linear solver's initialization function failed.  \\
+\id{IDA\_LSETUP\_FAIL}    & -6  & The linear solver's setup function failed in an unrecoverable manner. \\
+\id{IDA\_LSOLVE\_FAIL}    & -7  & The linear solver's solve function failed in an unrecoverable manner. \\
+\id{IDA\_RES\_FAIL}       & -8  & The user-provided residual function failed in an unrecoverable manner. \\
+\id{IDA\_REP\_RES\_FAIL}  & -9  & The user-provided residual function repeatedly returned a recoverable error flag, but the solver was unable to recover. \\
+\id{IDA\_RTFUNC\_FAIL}    & -10 & The rootfinding function failed in an unrecoverable manner. \\
+\id{IDA\_CONSTR\_FAIL}    & -11 & The inequality constraints were violated and the solver was unable to recover. \\
+\id{IDA\_FIRST\_RES\_FAIL}& -12 & The user-provided residual function failed recoverably on the first call. \\
+\id{IDA\_LINESEARCH\_FAIL}& -13 & The line search failed. \\
+\id{IDA\_NO\_RECOVERY}    & -14 & The residual function, linear solver setup function, or linear solver solve function had a recoverable failure, but \id{IDACalcIC} could not recover. \\
+\id{IDA\_MEM\_NULL}       & -20  & The \id{ida\_mem} argument was \id{NULL}. \\
+\id{IDA\_MEM\_FAIL}       & -21 & A memory allocation failed. \\
+\id{IDA\_ILL\_INPUT}      & -22 & One of the function inputs is illegal. \\
+\id{IDA\_NO\_MALLOC}      & -23 & The {\ida} memory was not allocated by a call to \id{IDAMalloc}. \\
+\id{IDA\_BAD\_EWT}        & -24 & Zero value of some error weight component. \\
+\id{IDA\_BAD\_K}          & -25 & The $k$-th derivative is not available. \\
+\id{IDA\_BAD\_T}          & -26 & The time $t$ s outside the last step taken. \\
+\id{IDA\_BAD\_DKY}        & -26 & The vector argument where derivative should be stored is \id{NULL}. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\idadls} linear solver modules}\\
@@ -155,5 +157,4 @@ description of their meaning.
 \id{SPTFQMR\_ATIMES\_FAIL\_UNREC} & -2 & The Jacobian-times-vector function failed. \\
 \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
 \id{SPTFQMR\_PSET\_FAIL\_UNREC}   & -4 & The preconditioner setup function failed unrecoverably. \\
-
 \end{supertabular*} 
