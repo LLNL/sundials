@@ -3,20 +3,38 @@
 %===================================================================================
 
 This report is intended to serve as a companion document to the User
-Documentation of {\ida} \cite{ida2.4.0_ug}.  It provides details, with
+Documentation of {\ida} \cite{ida_ug}.  It provides details, with
 listings, on the example programs supplied with the {\ida} distribution
 package.
 
 The {\ida} distribution contains examples of four types: serial
 {\C} examples, parallel {\C} examples, and serial and parallel {\F}
-examples.  The following lists summarize all of these examples.
+examples.  
+%%
+With the exception of `''demo''-type example files, the names of all the examples 
+distributed with {\sundials} are of the form \verb![slv][PbName]_[ls]_[prec]_[p]!, 
+where
+\begin{description}
+\item [{[slv]}] identifies the solver (for {\ida} examples this is \id{ida}, 
+  while for {\fida} examples, this is \id{fida});
+\item [{[PbName]}] identifies the problem;
+\item [{[ls]}] identifies the linear solver module used;
+\item [{[prec]}] indicates the {\ida} preconditioner module used
+  (only if applicable, for examples using one of the Krylov linear solver
+  and the {\idabbdpre} module, this will be \id{bbd});
+\item [{[p]}] indicates an example using the parallel vector module {\nvecp}.
+\end{description}
 
-The {\ida} distribution contains, in the \id{sundials/examples/ida/serial}
-directory, the following four serial examples (using the {\nvecs} module):
+\vspace{0.2in}\noindent
+The following lists summarize all examples distributed with {\ida}.
+
+\vspace{0.2in}\noindent
+The {\ida} distribution contains, in the {\em srcdir}\id{/examples/ida/serial}
+directory, the following six serial examples (using the {\nvecs} module):
 %%
 \begin{itemize}
 
-\item \id{idadenx}
+\item \id{idaRoberts\_dns}
   solves the Robertson chemical kinetics problem~\cite{Rob:66}, which consists
   of two differential equations and one algebraic constraint.  It also uses
   the rootfinding feature of {\ida}.
@@ -24,7 +42,7 @@ directory, the following four serial examples (using the {\nvecs} module):
   The problem is solved with the {\idadense} linear solver using
   a user-supplied Jacobian.
 
-\item \id{idabanx1}
+\item \id{idaHeat2D\_bnd}
   solves a 2-D heat equation, semidiscretized to a DAE on the unit square.
 
   This program solves the problem with the {\idaband} linear solver and
@@ -33,12 +51,12 @@ directory, the following four serial examples (using the {\nvecs} module):
   boundary, given incorrect values as input initial guesses. The constraint
   $u > 0.0$ is imposed for all components.
 
-\item \id{idakryx}
-  solves the same 2-D heat equation problem as \id{idabanx1}, with the Krylov
+\item \id{idaHeat2D\_kry}
+  solves the same 2-D heat equation problem as \id{idaHeat2D\_bnd}, with the Krylov
   linear solver {\idaspgmr}. The preconditioner uses only the diagonal elements
   of the Jacobian.
 
-\item \id{idabanx2}
+\item \id{idaFoodWeb\_bnd}
   solves a system of PDEs modelling a food web problem, with predator-prey
   interaction and diffusion, on the unit square in 2-D.
 
@@ -46,57 +64,66 @@ directory, the following four serial examples (using the {\nvecs} module):
   using the {\idaband} linear solver with the default difference-quotient 
   Jacobian approximation.
 
-\item \id{idakrydem\_lin}
-  solves the same problem as \id{idakryx}, with three Krylov linear solvers
+\item \id{idaSlCrank\_dns}
+  solves a system of index-2 DAEs, modeling a planar slider-crank mechanism.
+
+  The problem is obtained through a stabilized index reduction (Gear-Gupta-Leimkuhler)
+  starting from the index-3 DAE equations of motion derived using three generalized
+  coordinates and two algebraic position constraints.
+
+\item \id{idaKrylovDemo\_ls}
+  solves the same problem as \id{idaHeat2D\_kry}, with three Krylov linear solvers
   {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}.  The preconditioner uses only
   the diagonal elements of the Jacobian.
 
 \end{itemize}
 
-In the \id{sundials/examples/ida/parallel} directory, the {\ida} 
+\vspace{0.2in}\noindent
+In the {\em srcdir}\id{/examples/ida/parallel} directory, the {\ida} 
 distribution contains the following four parallel examples 
 (using the {\nvecp} module):
 %%
 \begin{itemize}
 
-\item \id{idakryx1\_p}
-  solves the same 2-D heat equation problem as \id{idakryx}, with {\idaspgmr}
+\item \id{idaHeat2D\_kry\_p}
+  solves the same 2-D heat equation problem as \id{idaHeat2D\_kry}, with {\idaspgmr}
   in parallel, and with a user-supplied diagonal preconditioner,
   
-\item \id{idakryx1\_bbd\_p}
-  solves the same problem as \id{idakryx1\_p}.
+\item \id{idaHeat2D\_kry\_bbd\_p}
+  solves the same problem as \id{idaHeat2D\_kry\_p}.
 
   This program solves the problem in parallel, using the Krylov linear solver
   {\idaspgmr} and the band-block diagonal preconditioner {\idabbdpre} with
   half-bandwidths equal to $1$.
 
-\item \id{idakryx2\_p}
-  solves the same food web problem as \id{idabanx2}, but with {\idaspgmr}
+\item \id{idaFoodWeb\_kry\_p}
+  solves the same food web problem as \id{idaFoodWeb\_bnd}, but with {\idaspgmr}
   and a user-supplied preconditioner.
   
   The preconditioner supplied to {\idaspgmr} is the block-diagonal part of 
   the Jacobian with $n_s \times n_s$ blocks arising from the reaction terms only
   ($n_s$ is the number of species in the model).
 
-\item \id{idakryx2\_bbd\_p}
-  solves the same food web problem as \id{idakryx2\_p}.
+\item \id{idaFoodWeb\_kry\_bbd\_p}
+  solves the same food web problem as \id{idaFoodWeb\_kry\_p}.
 
   This program solves the problem using {\idaspgmr} in parallel and the
   {\idabbdpre} preconditioner.
 
 \end{itemize}
 
+\vspace{0.2in}\noindent
 With the {\fida} module, in the two directories
-\id{sundials/examples/ida/fcmix\_serial} and
-\id{sundials/examples/ida/fcmix\_parallel}, are the following
+{\em srcdir}\id{/examples/ida/fcmix\_serial} and
+{\em srcdir}\id{/examples/ida/fcmix\_parallel}, are the following
 examples for the {\F}-{\C} interface:
 %
 \begin{itemize}
-\item \id{fidadenx} is a serial chemical kinetics example (\id{BDF}/{\dense})
-       with rootfinding, equivalent to \id{idadenx}.
+\item \id{fidaRoberts\_dns} is a serial chemical kinetics example (\id{BDF}/{\dense})
+       with rootfinding, equivalent to \id{idaRoberts\_dns}.
 
-\item \id{fidakryx\_bbd\_p} is a parallel example (\id{BDF}/{\spgmr}/{\idabbdpre})
-       equivalent to the example \id{idakryx1\_bbd\_p}.
+\item \id{fidaHeat2D\_kry\_bbd\_p} is a parallel example (\id{BDF}/{\spgmr}/{\idabbdpre})
+       equivalent to the example \id{idaHeat2D\_kry\_bbd\_p}.
 
 \end{itemize}
 
@@ -111,14 +138,14 @@ counters, such as numbers of steps or Newton iterations, may differ
 from one machine environment to another by as much as 10\% to 20\%.
 
 In the descriptions below, we make frequent references to the {\ida}
-User Document \cite{ida2.4.0_ug}.  All citations to specific sections
+User Document \cite{ida_ug}.  All citations to specific sections
 (e.g. \S\ref{s:types}) are references to parts of that User Document, unless
 explicitly stated otherwise.
 
 \vspace{0.2in}\noindent {\bf Note}. 
 The examples in the {\ida} distribution are written in such a way as
 to compile and run for any combination of configuration options during
-the installation of {\sundials} (see \ugref{s:install}). As a consequence,
+the installation of {\sundials} (see \ugref{c:install}). As a consequence,
 they contain portions of code that will not be typically present in a
 user program. For example, all example programs make use of the
 variable \id{SUNDIALS\_EXTENDED\_PRECISION} to test if the solver libraries

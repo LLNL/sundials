@@ -16,10 +16,10 @@ floating-point constants are appropriately modified; e.g. {\tt 0.5D-4} is
 changed to {\tt 0.5E-4}.
 
 
-\subsection{A serial example: fidadenx}\label{ss:fidadenx}
+\subsection{A serial example: fidaRoberts\_dns}\label{ss:fidaRoberts}
 
-The \id{fidadenx} example is a {\F} equivalent of the \id{idadenx} problem.
-The source program \id{fidadenx.f} is listed in Appendix~\ref{s:fidadenx_f}.
+The \id{fidaRoberts\_dns} example is a {\F} equivalent of the \id{idaRoberts\_dns} problem.
+The source program \id{fidaRoberts\_dns.f} is listed in Appendix~\ref{s:fidaRoberts_f}.
 
 The main program begins with declarations and initializations.  
 It calls the routines \id{FNVINITS}, \id{FIDAMALLOC}, \id{FIDAROOTINIT}, 
@@ -34,33 +34,33 @@ information from \id{FIDAROOTINFO}.  At the end, it prints a number of
 performance counters, and frees memory with calls to \id{FIDAROOTFREE}
 and \id{FIDAFREE}.
 
-In \id{fidadenx.f}, the \id{FIDARESFUN} routine is a straghtforward
-implementation of Eqns. (\ref{e:idadenx_DAE}).  In \id{FIDADJAC}, the 
+In \id{fidaRoberts\_dns.f}, the \id{FIDARESFUN} routine is a straghtforward
+implementation of Eqns. (\ref{e:idaRoberts_DAE}).  In \id{FIDADJAC}, the 
 $3 \times 3$ system Jacobian is supplied.  The \id{FIDAROOTFN} routine
 defines the two root functions, which are set to determine the points at which
 $y_1 = 10^{-4}$ or $y_3 = .01$.  The final two routines are for the
 printing of a header and of the final run statistics.
 
-The following is sample output from \id{fidadenx}.
+The following is sample output from \id{fidaRoberts\_dns}.
 The performance of {\fida} here is similar to that of {\ida} on
-the \id{idadenx} problem, with somewhat lower cost counters owing to
+the \id{idaRoberts\_dns} problem, with somewhat lower cost counters owing to
 the larger absolute error tolerances.
 
 %%
-\includeOutput{fidadenx}{../../examples/ida/fcmix_serial/fidadenx.out}
+\includeOutput{fidaRoberts\_dns}{../../examples/ida/fcmix_serial/fidaRoberts_dns.out}
 %%
 
 %-----------------------------------------------------------------------------------
 
-\subsection{A parallel example: fidakryx\_bbd\_p}\label{ss:fidakryx_bbd_p}
+\subsection{A parallel example: fidaHeat2D\_kry\_bbd\_p}\label{ss:fidaHeat2D_bbd_p}
 
-This example, \id{fidakryx\_bbd\_p}, is the {\F} equivalent of the
-\id{idakryx1\_bbd\_p} example.  The heat equation problem is described
-under the \id{idakryx} example above, but here it is solved in
+This example, \id{fidaHeat2D\_kry\_bbd\_p}, is the {\F} equivalent of the
+\id{idaHeat2D\_kry\_bbd\_p} example.  The heat equation problem is described
+under the \id{idaHeat2D\_kry} example above, but here it is solved in
 parallel, using the {\idabbdpre} (band-block-diagonal) preconditioner
 module.  The decomposition of the problem onto a processor array is
-identical to that in the \id{idakryx1\_p} example above.  The source file,
-\id{fidakryx\_bbd\_p.f}, is listed in Appendix~\ref{s:fidakryx_bbd_p}.
+identical to that in the \id{idaHeat2D\_kry\_p} example above.  The source file,
+\id{fidaHeat2D\_kry\_bbd\_p.f}, is listed in Appendix~\ref{s:fidaHeat2D_bbd_p}.
 
 The problem is solved twice --- once with half-bandwidths of 5 in the
 difference-quotient banded preconditioner blocks, and once with
@@ -93,13 +93,13 @@ to communicate boundary needed data from \id{U} to an extension of it called
 \id{UEXT}; and \id{FIDAGLOCFN}, to compute the residuals in terms of
 \id{UEXT} and \id{UP}.
 
-The following is a sample output from \id{fidakryx\_bbd\_p}, with a $10 \times 10$
+The following is a sample output from \id{fidaHeat2D\_kry\_bbd\_p}, with a $10 \times 10$
 mesh and \id{NPES} = 4 processors.  The performance is similar for the two
 solutions.  The second case requires more linear iterations, as expected, 
 but their cost is offset by the much cheaper preconditioner evaluations.
 
 %%
-\includeOutput{fidakryx\_bbd\_p}{../../examples/ida/fcmix_parallel/fidakryx_bbd_p.out}
+\includeOutput{fidaHeat2D\_kry\_bbd\_p}{../../examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.out}
 %%
 
 %-----------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2008-04-10 18:45:44 $
+# $Revision: 1.4 $
+# $Date: 2008-04-17 20:19:28 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -54,8 +54,7 @@ idas_examples.tex \
 idas_ex_intro.tex \
 idas_fwd_ex.tex \
 idas_adj_ex.tex \
-idas_ex_codes.tex \
-idas_ex_tests.tex
+idas_ex_codes.tex
 
 EX_SHARED_FILES = \
 ug.tex \

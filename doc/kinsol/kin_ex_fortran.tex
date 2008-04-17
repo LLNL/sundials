@@ -23,10 +23,10 @@ They solve the nonlinear system
   F(u) = 0 \, , \quad \text{where } f_i(u) = u_i^2 - i^2 \, , 1 \le i \le N \, . 
 \end{equation*}
 
-\subsection{A serial example: fkinkryx}\label{ss:fkinkryx}
+\subsection{A serial example: fkinDiagon\_kry}\label{ss:fkinDiagon_kry}
 
-The \id{fkinkryx} program, for which the source code is listed in
-Appendix~\ref{s:fkinkryx_f}, solves the above problem using the
+The \id{fkinDiagon\_kry} program, for which the source code is listed in
+Appendix~\ref{s:fkinDiagon_kry_f}, solves the above problem using the
 {\nvecs} module.
 
 The main program begins by calling \id{fnvinits} to initialize computations
@@ -67,23 +67,23 @@ the reciprocals of the Jacobian diagonal elements. The components of \id{pp} are
 then used in \id{fkpsol} to solve the preconditioner linear system $Px=v$
 through simple multiplications.
 
-The following is sample output from \id{fkinkryx}, using $N = 128$.
+The following is sample output from \id{fkinDiagon\_kry}, using $N = 128$.
 
-\includeOutput{fkinkryx}{../../examples/kinsol/fcmix_serial/fkinkryx.out}
+\includeOutput{fkinDiagon\_kry}{../../examples/kinsol/fcmix_serial/fkinDiagon_kry.out}
 
 %%----------------------------------------------------------------------------
 
-\subsection{A parallel example: fkinkryx\_p}\label{ss:fkinkryx_p}
+\subsection{A parallel example: fkinDiagon\_kry\_p}\label{ss:fkinDiagon_kry_p}
 
-The program \id{kindiapf}, listed in Appendix~\ref{s:fkinkryx_p_f}, is a
-straightforward modification of \id{fkinkryx} to use the {\mpi}-enabled
+The program \id{kindiapf}, listed in Appendix~\ref{s:fkinDiagon_kry_p_f}, is a
+straightforward modification of \id{fkinDiagon\_kry} to use the {\mpi}-enabled
 {\nvecp} module.
 
 After initialization of {\mpi}, the {\nvecp} module is initialized by calling
 \id{fnvinitp} with the default {\mpi} communicator \id{mpi\_comm\_world} and
 local and global vector sizes as its first three arguments.
 The problem set-up ({\kinsol} initialization, {\kinspgmr} specification) and
-solution steps are the same as in \id{fkinkryx}. 
+solution steps are the same as in \id{fkinDiagon\_kry}. 
 Upon successful return from \id{fkinsol}, the solution segment local to 
 the process with id equal to $0$ is printed to the screen.
 Finally, the {\kinsol} memory is released and the {\mpi} environent is
@@ -92,8 +92,8 @@ terminated.
 For this simple example, no inter-process communication is required to
 evaluate the nonlinear system function $f$ or the preconditioner. 
 As a consequence, the user-supplied routines \id{fkfun}, \id{fkpset}, and
-\id{fkpsol} are basically identical to those in \id{fkinkryx}.
+\id{fkpsol} are basically identical to those in \id{fkinDiagon\_kry}.
 
-Sample output from \id{fkinkryx\_p}, for $N=128$, follows.
+Sample output from \id{fkinDiagon\_kry\_p}, for $N=128$, follows.
 
-\includeOutput{fkinkryx\_p}{../../examples/kinsol/fcmix_parallel/fkinkryx_p.out}
+\includeOutput{fkinDiagon\_kry\_p}{../../examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out}
