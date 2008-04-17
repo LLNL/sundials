@@ -1,6 +1,7 @@
 Brusselator PDE -  DAE parallel example problem for IDA 
 
-Number of species ns: 2     Mesh dimensions: 82 x 82     Total system size: 13448
+Number of species ns: 2     Mesh dimensions: 82 x 82
+Total system size: 13448
 Subgrid dimensions: 41 x 41     Processor array: 2 x 2
 Tolerance parameters:  rtol = 1e-05   atol = 1e-05
 Linear solver: IDASPGMR     Max. Krylov dimension maxl: 16

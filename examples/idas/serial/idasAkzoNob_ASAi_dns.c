@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:38 $
+ * $Revision: 1.2 $
+ * $Date: 2008-04-17 20:12:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -370,19 +370,23 @@ static int resB(realtype tt,
   k2overK = k2/K;
 
   tmp1 = k1* y1to3 * y2tohalf; tmp2 = k3*y4*y4;
-  Ith(rrB,1) = 1 +  ypB1 - (EIGHT*tmp1 + k2overK*y5 + tmp2)*yB1 - (TWO*tmp1+tmp2)*yB2 + (FOUR*tmp1+k2overK*y5)*yB3 + k2overK*y5*(yB4-yB5) - TWO*tmp2*yB4 + Ks*y4*yB6;
+  Ith(rrB,1) = 1 +  ypB1 - (EIGHT*tmp1 + k2overK*y5 + tmp2)*yB1 
+    - (TWO*tmp1+tmp2)*yB2 + (FOUR*tmp1+k2overK*y5)*yB3 
+    + k2overK*y5*(yB4-yB5) - TWO*tmp2*yB4 + Ks*y4*yB6;
 
   tmp1 = k1 * y1*y1to3 * (y2tohalf/y2); tmp2 = k4 * y6*y6 * (y2tohalf/y2);
-  Ith(rrB,2) =     ypB2 - tmp1*yB1 - (QUARTER*tmp1 + QUARTER*tmp2 + klA)*yB2 + HALF*tmp1*yB3 + HALF*tmp2*yB5;
+  Ith(rrB,2) = ypB2 - tmp1*yB1 - (QUARTER*tmp1 + QUARTER*tmp2 + klA)*yB2 
+    + HALF*tmp1*yB3 + HALF*tmp2*yB5;
 
-  Ith(rrB,3) =     ypB3 + k2*y4*(yB1-yB3-yB4+yB5);
+  Ith(rrB,3) = ypB3 + k2*y4*(yB1-yB3-yB4+yB5);
 
   tmp1 = k3*y1*y4; tmp2 = k2*y3;
-  Ith(rrB,4) =     ypB4 + (tmp2-TWO*tmp1)*yB1 - TWO*tmp1*yB2 - tmp2*yB3 - (tmp2+FOUR*tmp1)*yB4 + tmp2*yB5 + Ks*y1*yB6;
+  Ith(rrB,4) = ypB4 + (tmp2-TWO*tmp1)*yB1 - TWO*tmp1*yB2 - tmp2*yB3 
+    - (tmp2+FOUR*tmp1)*yB4 + tmp2*yB5 + Ks*y1*yB6;
 
-  Ith(rrB,5) =     ypB5 - k2overK*y1*(yB1-yB3-yB4+yB5);
+  Ith(rrB,5) = ypB5 - k2overK*y1*(yB1-yB3-yB4+yB5);
 
-  Ith(rrB,6) =           k4*y6*y2tohalf*(2*yB5-yB2) - yB6;
+  Ith(rrB,6) = k4*y6*y2tohalf*(2*yB5-yB2) - yB6;
 
 
   return 0;

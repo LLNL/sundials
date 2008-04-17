@@ -237,11 +237,13 @@ int main(int argc, char *argv[])
   if(check_flag((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   uvS = N_VCloneVectorArray_Parallel(NS, uv);
-  if (check_flag((void *)uvS, "N_VCloneVectorArray_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if (check_flag((void *)uvS, "N_VCloneVectorArray_Parallel", 0, thispe)) 
+    MPI_Abort(comm, 1);
   for (is=0;is<NS;is++) N_VConst(ZERO, uvS[is]);
     
   uvpS = N_VCloneVectorArray_Parallel(NS, uv);
-  if (check_flag((void *)uvpS, "N_VCloneVectorArray_Parallel", 0, thispe))  MPI_Abort(comm, 1);
+  if (check_flag((void *)uvpS, "N_VCloneVectorArray_Parallel", 0, thispe))  
+    MPI_Abort(comm, 1);
   for (is=0;is<NS;is++) N_VConst(ZERO, uvpS[is]);
 
   SetInitialProfiles(uv, uvp, id, resid, data);
@@ -507,8 +509,8 @@ static void PrintHeader(int SystemSize, int maxl,
 {
   printf("\n Brusselator PDE -  DAE parallel example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
-  printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     Total system size: %d\n",SystemSize);
+  printf("     Mesh dimensions: %d x %d\n", MX, MY);
+  printf("Total system size: %d\n",SystemSize);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("     Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -1068,7 +1070,7 @@ static int reslocal(int Nlocal, realtype tt,
         dcxli = gridext[locce+is]             - gridext[locce+is-NUM_SPECIES];
         dcxui = gridext[locce+is+NUM_SPECIES] - gridext[locce+is];
         
-        resxy[is] = uvpxy[is]- eps[is]*( (dcxui-dcxli)/dx2 + (dcyui-dcyli)/dy2 ) - rates[is];
+        resxy[is] = uvpxy[is]-eps[is]*((dcxui-dcxli)/dx2+(dcyui-dcyli)/dy2)-rates[is];
       }
     }
   }

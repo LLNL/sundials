@@ -1,6 +1,7 @@
 BRUSSELATOR: chemically reacting system
 
-Number of species ns: 2     Mesh dimensions: 42 x 42     Total system size: 3528
+Number of species ns: 2     Mesh dimensions: 42 x 42
+Total system size: 3528
 Subgrid dimensions: 21 x 21     Processor array: 2 x 2
 Tolerance parameters:  rtol = 1e-05   atol = 1e-05
 Linear solver: IDASPGMR     Max. Krylov dimension maxl: 16

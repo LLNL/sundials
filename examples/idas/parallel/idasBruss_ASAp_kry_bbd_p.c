@@ -623,8 +623,8 @@ static void PrintHeader(int SystemSize, int maxl,
 {
   printf("\n BRUSSELATOR: chemically reacting system\n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
-  printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     Total system size: %d\n",SystemSize);
+  printf("     Mesh dimensions: %d x %d\n", MX, MY);
+  printf("Total system size: %d\n",SystemSize);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("     Processor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -1243,7 +1243,7 @@ static int reslocal(int Nlocal, realtype tt,
         dcxli = gridext[locce+is]             - gridext[locce+is-NUM_SPECIES];
         dcxui = gridext[locce+is+NUM_SPECIES] - gridext[locce+is];
         
-        resxy[is] = uvpxy[is]- eps[is]*( (dcxui-dcxli)/dx2 + (dcyui-dcyli)/dy2 ) - rates[is];
+        resxy[is] = uvpxy[is]-eps[is]*((dcxui-dcxli)/dx2+(dcyui-dcyli)/dy2)-rates[is];
       }
     }
   }
