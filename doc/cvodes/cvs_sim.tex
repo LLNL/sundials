@@ -212,7 +212,7 @@ steps marked with {\s} correspond to {\nvecs}.
   \id{CVodeInit} returns a flag, the value of which indicates either success or an illegal
   argument value.  See \S\ref{sss:cvodemalloc} for details.
   
-item
+\item
   {\bf Specify integration tolerances}
 
   Call \id{CVodeSStolerances}\id{(...);} or \id{CVodeSVtolerances}\id{(...);}
@@ -668,7 +668,8 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVDense(cvode\_mem, N);
 }
 {
-  The function \Id{CVDense} selects the {\cvdense} linear solver. 
+  The function \Id{CVDense} selects the {\cvdense} linear solver and indicates
+  the use of the internal direct dense linear algebra functions.
 
   The user's main program must include the \id{cvodes\_dense.h} header file.
 }
@@ -730,7 +731,8 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVBand(cvode\_mem, N, mupper, mlower);
 }
 {
-  The function \Id{CVBand} selects the {\cvband} linear solver. 
+  The function \Id{CVBand} selects the {\cvband} linear solver and indicates
+  the use of the internal direct band linear algebra functions.
 
   The user's main program must include the \id{cvodes\_band.h} header file.
 }
@@ -1760,7 +1762,7 @@ The \index{CVDENSE@{\cvdense} linear solver!Jacobian approximation used by}
 {\cvdense} solver needs a function to compute a dense approximation to
 the Jacobian matrix $J(t,y)$.  This function must be of type \id{CVDlsDenseJacFn}. 
 The user can supply his/her own dense Jacobian function, or use the default 
-internal difference quotient approximation.
+internal difference quotient approximation
 \index{Jacobian approximation function!dense!difference quotient}
 that comes with the {\cvdense} solver.
 To specify a user-supplied Jacobian function \id{djac}, {\cvdense} provides 
@@ -1813,7 +1815,7 @@ The \index{CVBAND@{\cvband} linear solver!Jacobian approximation used by}
 {\cvband} solver needs a function to compute a banded approximation to
 the Jacobian matrix $J(t,y)$.  This function must be of type \id{CVDlsBandJacFn}. 
 The user can supply his/her own banded Jacobian approximation function, 
-or use the default internal difference quotient approximation.
+or use the default internal difference quotient approximation
 \index{Jacobian approximation function!band!difference quotient}
 that comes with the {\cvband} solver.
 To specify a user-supplied Jacobian function \id{bjac}, 
@@ -1865,7 +1867,7 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
 \index{optional input!dense linear solver|)}
 
 %%==============================================================================
-\subsubsection{Iterative linear solvers optional input funcitons}\label{sss:optin_spils}
+\subsubsection{Iterative linear solvers optional input functions}\label{sss:optin_spils}
 %%==============================================================================
 \index{optional input!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
@@ -2292,7 +2294,7 @@ which are then described in detail in the remainder of this section.
 \vspace*{.2in}
 
 \newlength{\colAA}
-\settowidth{\colAA}{No. of residual calls for finite diff. Jacobian-vector evals.}
+\settowidth{\colAA}{No. of r.h.s. calls for finite diff. Jacobian-vector evals.}
 \newlength{\colBB}
 \settowidth{\colBB}{\id{CVodeGetNumNonlinSolvConvFails}}
 
@@ -3087,7 +3089,7 @@ There are two optional output functions associated with rootfinding.
 {}
 
 %%==============================================================================
-\subsubsection{Dense linear solver}\label{sss:optout_dense}
+\subsubsection{Direct linear solvers optional output functions}\label{sss:optout_dls}
 %%==============================================================================
 \index{optional output!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional output|(}
@@ -3266,7 +3268,7 @@ and last return value from a {\cvdls} function.
 
 
 %%==============================================================================
-\subsubsection{Diagonal linear solver}\label{sss:optout_diag}
+\subsubsection{Diagonal linear solver optional output functions}\label{sss:optout_diag}
 %%==============================================================================
 \index{optional output!diagonal linear solver|(}
 \index{CVDIAG@{\cvdiag} linear solver!optional output|(}
@@ -3404,7 +3406,7 @@ finite-difference Jacobian approximation, and last return value from a
 
 
 %%==============================================================================
-\subsubsection{SPILS linear solvers}\label{sss:optout_spils}
+\subsubsection{Iterative linear solvers optional output functions}\label{sss:optout_spils}
 %%==============================================================================
 \index{optional output!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|(} 
@@ -5604,7 +5606,7 @@ the {\cvbbdpre} preconditioner module are described next.
   \item[\Id{CVSPILS\_MEM\_FAIL}]
     A memory allocation request has failed.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
-    A {\cvspils} linear solver memory was not attached.
+    A {\cvspils} linear solver was not attached.
   \item[\Id{CVSPILS\_ILL\_INPUT}]
     The supplied vector implementation was not compatible with block band preconditioner.
   \end{args}

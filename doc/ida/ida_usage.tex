@@ -665,7 +665,8 @@ described separately in Chapter \ref{s:gen_linsolv}.
   flag = IDADense(ida\_mem, N);
 }
 {
-  The function \ID{IDADense} selects the {\idadense} linear solver. 
+  The function \ID{IDADense} selects the {\idadense} linear solver and 
+  indicates the use of the internal direct dense linear algebra functions.
 
   The user's main function must include the \id{ida\_dense.h} header file.
 }
@@ -727,7 +728,8 @@ described separately in Chapter \ref{s:gen_linsolv}.
   flag = IDABand(ida\_mem, N, mupper, mlower);
 }
 {
-  The function \ID{IDABand} selects the {\idaband} linear solver. 
+  The function \ID{IDABand} selects the {\idaband} linear solver and indicates
+  the use of the internal direct band linear algebra functions. 
 
   The user's main function must include the \id{ida\_band.h} header file.
 }
@@ -1984,7 +1986,7 @@ The \index{IDADENSE@{\idadense} linear solver!Jacobian approximation used by}
 the Jacobian matrix $J(t,y,y^\prime)$.  
 This function must be of type \id{IDADlsDenseJacFn}. 
 The user can supply his/her own dense Jacobian function, or use the default 
-internal difference quotient approximation.
+internal difference quotient approximation
 \index{Jacobian approximation function!dense!difference quotient}
 that comes with the {\idadense} solver.
 To specify a user-supplied Jacobian function \id{djac}, {\idadense} provides 
@@ -3386,7 +3388,7 @@ There are two optional output functions associated with rootfinding.
 %%==================================================================================
 %%
 
-\subsubsection{Direct linear solvers optional output functions}\label{sss:optout_dense}
+\subsubsection{Direct linear solvers optional output functions}\label{sss:optout_dls}
 \index{optional output!dense linear solver|(}
 \index{optional output!band linear solver|(}
 \index{IDADENSE@{\idadense} linear solver!optional output|(}
