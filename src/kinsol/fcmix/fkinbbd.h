@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.6 $
+ * $Date: 2008-04-18 17:23:05 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -264,9 +264,6 @@ extern "C" {
 #if defined(F77_FUNC)
 
 #define FKIN_BBDINIT    F77_FUNC(fkinbbdinit, FKINBBDINIT)
-#define FKIN_BBDSPTFQMR F77_FUNC(fkinbbdsptfqmr, FKINBBDSPTFQMR)
-#define FKIN_BBDSPBCG   F77_FUNC(fkinbbdspbcg, FKINBBDSPBCG)
-#define FKIN_BBDSPGMR   F77_FUNC(fkinbbdspgmr, FKINBBDSPGMR)
 #define FKIN_BBDOPT     F77_FUNC(fkinbbdopt, FKINBBDOPT)
 #define FK_COMMFN       F77_FUNC(fkcommfn, FKCOMMFN)
 #define FK_LOCFN        F77_FUNC(fklocfn, FKLOCFN)
@@ -274,9 +271,6 @@ extern "C" {
 #else
 
 #define FKIN_BBDINIT    fkinbbdinit_
-#define FKIN_BBDSPTFQMR fkinbbdsptfqmr_
-#define FKIN_BBDSPBCG   fkinbbdspbcg_
-#define FKIN_BBDSPGMR   fkinbbdspgmr_
 #define FKIN_BBDOPT     fkinbbdopt_
 #define FK_COMMFN       fkcommfn_
 #define FK_LOCFN        fklocfn_
@@ -291,9 +285,6 @@ extern "C" {
 
 void FKIN_BBDINIT(int *nlocal, int *mudq, int *mldq,
 		  int *mu, int *ml, int *ier);
-void FKIN_BBDSPTFQMR(int *maxl, int *ier);
-void FKIN_BBDSPBCG(int *maxl, int *ier);
-void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier);
 void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
 
 /*
