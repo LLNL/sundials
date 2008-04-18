@@ -39,6 +39,7 @@ tar ufv $tarfile $distrobase/config/FindMPI.cmake
 
 tar ufv $tarfile $distrobase/bin/sundials-config.in
 tar ufv $tarfile $distrobase/bin/fortran-update.in
+tar ufv $tarfile $distrobase/bin/makefile-update.in
 
 echo "   --- Add shared module to $tarfile"
 

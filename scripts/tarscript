@@ -171,7 +171,7 @@ cp sundials/LICENSE tmp_dir/
 cp sundials/README tmp_dir/ 
 cp sundials/INSTALL_NOTES tmp_dir/
 cp sundials/config.hin tmp_dir/
-cp sundials/configure-dev.ac tmp_dir/configure.ac
+cp sundials/configure.ac tmp_dir/configure.ac
 cp sundials/acinclude.m4 tmp_dir/
 cp sundials/Makefile.in tmp_dir/
 cp sundials/CMakeLists.txt tmp_dir/
