@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-12-19 20:26:42 $
+ * $Revision: 1.6 $
+ * $Date: 2008-04-18 19:42:39 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -175,16 +175,16 @@ int CPDense(void *cpode_mem, int N)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDENSE", "CPDense", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDENSE", "CPDense", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if (tempv->ops->nvgetarraypointer == NULL ||
       tempv->ops->nvsetarraypointer == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPDENSE", "CPDense", MSGD_BAD_NVECTOR);
-    return(CPDIRECT_ILL_INPUT);
+    cpProcessError(cp_mem, CPDLS_ILL_INPUT, "CPDENSE", "CPDense", MSGD_BAD_NVECTOR);
+    return(CPDLS_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(cp_mem);
@@ -199,8 +199,8 @@ int CPDense(void *cpode_mem, int N)
   cpdls_mem = NULL;
   cpdls_mem = (CPDlsMem) malloc(sizeof(CPDlsMemRec));
   if (cpdls_mem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
-    return(CPDIRECT_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -212,7 +212,7 @@ int CPDense(void *cpode_mem, int N)
   jacI = NULL;
   J_data = NULL;
 
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   lsetup_exists = TRUE;
 
   /* Set problem dimension */
@@ -225,32 +225,32 @@ int CPDense(void *cpode_mem, int N)
 
   M = NewDenseMat(N, N);
   if (M == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
     free(cpdls_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     free(cpdls_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
   if (ode_type == CP_EXPL) {
     savedJ = NewDenseMat(N, N);
     if (savedJ == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDense", MSGD_MEM_FAIL);
       DestroyMat(M);
       DestroyArray(pivots);
       free(cpdls_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = cpdls_mem;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /*
@@ -275,22 +275,22 @@ int CPDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDENSE", "CPDenseProj", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDENSE", "CPDenseProj", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if (tempv->ops->nvgetarraypointer == NULL ||
       tempv->ops->nvsetarraypointer == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPDENSE", "CPDenseProj", MSGD_BAD_NVECTOR);
-    return(CPDIRECT_ILL_INPUT);
+    cpProcessError(cp_mem, CPDLS_ILL_INPUT, "CPDENSE", "CPDenseProj", MSGD_BAD_NVECTOR);
+    return(CPDLS_ILL_INPUT);
   }
 
   /* Check if fact_type has a legal value */
-  if ( (fact_type != CPDIRECT_LU) && (fact_type != CPDIRECT_QR) && (fact_type != CPDIRECT_SC) ) {
-    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPDENSE", "CPDenseProj", MSGD_BAD_FACT);
-    return(CPDIRECT_ILL_INPUT);
+  if ( (fact_type != CPDLS_LU) && (fact_type != CPDLS_QR) && (fact_type != CPDLS_SC) ) {
+    cpProcessError(cp_mem, CPDLS_ILL_INPUT, "CPDENSE", "CPDenseProj", MSGD_BAD_FACT);
+    return(CPDLS_ILL_INPUT);
   }
 
   if (lfreeP !=NULL) lfreeP(cp_mem);
@@ -306,8 +306,8 @@ int CPDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
   cpdlsP_mem = NULL;
   cpdlsP_mem = (CPDlsProjMem) malloc(sizeof(CPDlsProjMemRec));
   if (cpdlsP_mem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
-    return(CPDIRECT_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
 
   lsetupP_exists = TRUE;
@@ -321,75 +321,75 @@ int CPDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
   /* Allocate memory for G and other work space */
   G = NewDenseMat(Ny, Nc);
   if (G == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
     free(cpdlsP_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
   savedG = NewDenseMat(Ny, Nc);
   if (savedG == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
     DestroyMat(G);
     free(cpdlsP_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
 
   /* Allocate additional work space, depending on factorization */
   switch(fact_type) {
 
-  case CPDIRECT_LU:
+  case CPDLS_LU:
     /* Allocate space for pivotsP and K */
     pivotsP = NewIntArray(Nc);
     if (pivotsP == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
     K = NewDenseMat(Ny-Nc, Ny-Nc);
     if (K == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
       DestroyArray(pivotsP);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
     break;
 
-  case CPDIRECT_QR:
+  case CPDLS_QR:
     /* Allocate space for beta */
     beta = NewRealArray(Nc);
     if (beta == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);      
+      return(CPDLS_MEM_FAIL);      
     }
     /* If projecting in WRMS norm, allocate space for K=Q^T*D^(-1)*Q */
     if (pnorm == CP_PROJ_ERRNORM) {
       K = NewDenseMat(Nc, Nc);
       if (K == NULL) {
-        cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+        cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
         DestroyArray(beta);
       DestroyMat(savedG);
         DestroyMat(G);
         free(cpdlsP_mem);
-        return(CPDIRECT_MEM_FAIL);
+        return(CPDLS_MEM_FAIL);
       }
     }
     break;
 
-  case CPDIRECT_SC:
+  case CPDLS_SC:
     /* Allocate space for K = G * D^(-1) * G^T */
     K = NewDenseMat(Nc, Nc);
     if (K == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPDENSE", "CPDenseProj", MSGD_MEM_FAIL);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
 
     break;
@@ -411,7 +411,7 @@ int CPDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
   /* Attach linear solver memory to integrator memory */
   lmemP = cpdlsP_mem;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /* 
@@ -465,7 +465,7 @@ static int cpDenseInit(CPodeMem cp_mem)
 
   }
 
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   return(0);
 }
 
@@ -517,12 +517,12 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
       retval = jacE(n, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
       nje++;
       if (retval < 0) {
-        cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPDENSE", "cpDenseSetup", MSGD_JACFUNC_FAILED);
-        last_flag = CPDIRECT_JACFUNC_UNRECVR;
+        cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPDENSE", "cpDenseSetup", MSGD_JACFUNC_FAILED);
+        last_flag = CPDLS_JACFUNC_UNRECVR;
         return(-1);
       }
       if (retval > 0) {
-        last_flag = CPDIRECT_JACFUNC_RECVR;
+        last_flag = CPDLS_JACFUNC_RECVR;
         return(1);
       }
       DenseCopy(M, savedJ);
@@ -541,12 +541,12 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
     retval = jacI(n, tn, gamma, yP, ypP, fctP, M, J_data, tmp1, tmp2, tmp3);
     nje++;
     if (retval < 0) {
-      cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPDENSE", "cpDenseSetup", MSGD_JACFUNC_FAILED);
-      last_flag = CPDIRECT_JACFUNC_UNRECVR;
+      cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPDENSE", "cpDenseSetup", MSGD_JACFUNC_FAILED);
+      last_flag = CPDLS_JACFUNC_UNRECVR;
       return(-1);
     }
     if (retval > 0) {
-      last_flag = CPDIRECT_JACFUNC_RECVR;
+      last_flag = CPDLS_JACFUNC_RECVR;
       return(1);
     }
   
@@ -589,7 +589,7 @@ static int cpDenseSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
     N_VScale(TWO/(ONE + gamrat), b, b);
   }
   
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   return(0);
 }
 
@@ -680,7 +680,7 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
   retval = jacP(nc, ny, tn, y, cy, G, JP_data, c_tmp1, c_tmp2);
   njeP++;
   if (retval < 0) {
-    cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPDENSE", "cpDenseProjSetup", MSGD_JACFUNC_FAILED);
+    cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPDENSE", "cpDenseProjSetup", MSGD_JACFUNC_FAILED);
     return(-1);
   } else if (retval > 0) {
     return(1);
@@ -692,7 +692,7 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
   /* Factorize G, depending on ftype */
   switch (ftype) {
 
-  case CPDIRECT_LU:
+  case CPDLS_LU:
 
     /* 
      * LU factorization of G^T
@@ -744,7 +744,7 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
 
     break;
 
-  case CPDIRECT_QR:
+  case CPDLS_QR:
 
     /* 
      * Thin QR factorization of G^T
@@ -772,7 +772,7 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
 
     break;
 
-  case CPDIRECT_SC:
+  case CPDLS_SC:
 
     /* 
      * Build K = G*D^(-1)*G^T
@@ -832,7 +832,7 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
   /* Solve the linear system, depending on ftype */
   switch (ftype) {
 
-  case CPDIRECT_LU:
+  case CPDLS_LU:
 
     /* 
      * Solve L*U1*alpha = bd
@@ -925,7 +925,7 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
 
     break;
 
-  case CPDIRECT_QR:
+  case CPDLS_QR:
 
     /* 
      * Solve R^T*alpha = bd using fwd. subst. (row version)
@@ -953,7 +953,7 @@ static int cpDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
 
     break;
 
-  case CPDIRECT_SC:
+  case CPDLS_SC:
 
     /* 
      * Solve K*xi = bd, using the Cholesky decomposition available in K.
@@ -1027,15 +1027,15 @@ static void cpDenseProjFree(CPodeMem cp_mem)
   DestroyMat(G);
   DestroyMat(savedG);
   switch (ftype) {
-  case CPDIRECT_LU:
+  case CPDLS_LU:
     DestroyArray(pivotsP);
     DestroyMat(K);
     break;
-  case CPDIRECT_QR:
+  case CPDLS_QR:
     DestroyArray(beta);
     if (pnorm == CP_PROJ_ERRNORM) DestroyMat(K);
     break;
-  case CPDIRECT_SC:
+  case CPDLS_SC:
     DestroyMat(K);
     break;
   }

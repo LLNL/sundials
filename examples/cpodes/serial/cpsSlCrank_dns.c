@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-12-19 20:26:43 $
+ * $Revision: 1.2 $
+ * $Date: 2008-04-18 19:42:43 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
    * dense direct linear algebra module with user-provided
    * constraint Jacobian function */
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
-  flag = CPDenseProj(cpode_mem, 2*NC, 2*NS, CPDIRECT_QR);
+  flag = CPDenseProj(cpode_mem, 2*NC, 2*NS, CPDLS_QR);
   flag = CPDlsProjSetDenseJacFn(cpode_mem, cjac);
 
   /* In loop, call CPode, print results, and test for error. */

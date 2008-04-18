@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:38 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,10 +42,10 @@ extern "C" {
  * N is the size of the ODE system.
  *
  * The return value of KINLapackDense is one of:
- *    KINDIRECT_SUCCESS   if successful
- *    KINDIRECT_MEM_NULL  if the KINSOL memory was NULL
- *    KINDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    KINDIRECT_ILL_INPUT if a required vector operation is missing
+ *    KINDLS_SUCCESS   if successful
+ *    KINDLS_MEM_NULL  if the KINSOL memory was NULL
+ *    KINDLS_MEM_FAIL  if there was a memory allocation failure
+ *    KINDLS_ILL_INPUT if a required vector operation is missing
  * -----------------------------------------------------------------
  */
 
@@ -67,10 +67,10 @@ SUNDIALS_EXPORT int KINLapackDense(void *kinmem, int N);
  * mlower is the lower bandwidth of the band Jacobian approximation.
  *
  * The return value of KINLapackBand is one of:
- *    KINDIRECT_SUCCESS   if successful
- *    KINDIRECT_MEM_NULL  if the KINSOL memory was NULL
- *    KINDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    KINDIRECT_ILL_INPUT if a required vector operation is missing
+ *    KINDLS_SUCCESS   if successful
+ *    KINDLS_MEM_NULL  if the KINSOL memory was NULL
+ *    KINDLS_MEM_FAIL  if there was a memory allocation failure
+ *    KINDLS_ILL_INPUT if a required vector operation is missing
  *                        or if a bandwidth has an illegal value.
  * -----------------------------------------------------------------
  */

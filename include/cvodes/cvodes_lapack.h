@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-03-22 18:05:50 $
+ * $Revision: 1.6 $
+ * $Date: 2008-04-18 19:42:37 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -37,10 +37,10 @@ extern "C" {
  * N is the size of the ODE system.
  *
  * The return value of CVLapackDense is one of:
- *    CVDIRECT_SUCCESS   if successful
- *    CVDIRECT_MEM_NULL  if the CVODES memory was NULL
- *    CVDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    CVDIRECT_ILL_INPUT if a required vector operation is missing
+ *    CVDLS_SUCCESS   if successful
+ *    CVDLS_MEM_NULL  if the CVODES memory was NULL
+ *    CVDLS_MEM_FAIL  if there was a memory allocation failure
+ *    CVDLS_ILL_INPUT if a required vector operation is missing
  * -----------------------------------------------------------------
  */
 
@@ -63,10 +63,10 @@ SUNDIALS_EXPORT int CVLapackDense(void *cvode_mem, int N);
  * mlower is the lower bandwidth of the band Jacobian approximation.
  *
  * The return value of CVLapackBand is one of:
- *    CVDIRECT_SUCCESS   if successful
- *    CVDIRECT_MEM_NULL  if the CVODES memory was NULL
- *    CVDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    CVDIRECT_ILL_INPUT if a required vector operation is missing or
+ *    CVDLS_SUCCESS   if successful
+ *    CVDLS_MEM_NULL  if the CVODES memory was NULL
+ *    CVDLS_MEM_FAIL  if there was a memory allocation failure
+ *    CVDLS_ILL_INPUT if a required vector operation is missing or
  *                       if a bandwidth has an illegal value.
  * -----------------------------------------------------------------
  */

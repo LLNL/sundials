@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.6 $
+ * $Date: 2008-04-18 19:42:41 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,12 +10,12 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * Implementation header file for the IDADIRECT linear solvers.
+ * Implementation header file for the IDADLS linear solvers.
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDALAPACK_IMPL_H
-#define _IDALAPACK_IMPL_H
+#ifndef _IDADLS_IMPL_H
+#define _IDADLS_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

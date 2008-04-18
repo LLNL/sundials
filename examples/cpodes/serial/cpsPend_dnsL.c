@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2008-02-07 22:42:58 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -74,7 +74,7 @@ int main()
   Ith(ctols,3) = 1.0e-8;
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
   flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
-  flag = CPLapackDenseProj(cpode_mem, 3, 4, CPDIRECT_QRP);
+  flag = CPLapackDenseProj(cpode_mem, 3, 4, CPDLS_QRP);
  
   /* COMPUTE CONSISTENT INITIAL CONDITIONS */
   flag = CPodeCalcIC(cpode_mem);

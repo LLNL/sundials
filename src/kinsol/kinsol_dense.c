@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-11-26 16:20:01 $
+ * $Revision: 1.9 $
+ * $Date: 2008-04-18 19:42:42 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -122,16 +122,16 @@ int KINDense(void *kinmem, int N)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINDENSE", "KINDense", MSGD_KINMEM_NULL);
-    return(KINDIRECT_MEM_NULL);
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINDENSE", "KINDense", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL ||
       vec_tmpl->ops->nvsetarraypointer == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_ILL_INPUT, "KINDENSE", "KINDense", MSGD_BAD_NVECTOR);
-    return(KINDIRECT_ILL_INPUT);
+    KINProcessError(kin_mem, KINDLS_ILL_INPUT, "KINDENSE", "KINDense", MSGD_BAD_NVECTOR);
+    return(KINDLS_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(kin_mem);
@@ -146,8 +146,8 @@ int KINDense(void *kinmem, int N)
   kindls_mem = NULL;
   kindls_mem = (KINDlsMem) malloc(sizeof(struct KINDlsMemRec));
   if (kindls_mem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINDENSE", "KINDense", MSGD_MEM_FAIL);
-    return(KINDIRECT_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINDENSE", "KINDense", MSGD_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -157,7 +157,7 @@ int KINDense(void *kinmem, int N)
   jacDQ  = TRUE;
   djac   = NULL;
   J_data = NULL;
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
 
   setupNonNull = TRUE;
 
@@ -169,18 +169,18 @@ int KINDense(void *kinmem, int N)
   J = NULL;
   J = NewDenseMat(N, N);
   if (J == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINDENSE", "KINDense", MSGD_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINDENSE", "KINDense", MSGD_MEM_FAIL);
     free(kindls_mem); kindls_mem = NULL;
-    return(KINDIRECT_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   pivots = NULL;
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINDENSE", "KINDense", MSGD_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINDENSE", "KINDense", MSGD_MEM_FAIL);
     DestroyMat(J);
     free(kindls_mem); kindls_mem = NULL;
-    return(KINDIRECT_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   /* This is a direct linear solver */
@@ -189,7 +189,7 @@ int KINDense(void *kinmem, int N)
   /* Attach linear solver memory to integrator memory */
   lmem = kindls_mem;
 
-  return(KINDIRECT_SUCCESS);
+  return(KINDLS_SUCCESS);
 }
 
 /* 
@@ -223,7 +223,7 @@ static int kinDenseInit(KINMem kin_mem)
     J_data = kin_mem->kin_user_data;
   }
 
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
   return(0);
 }
 
@@ -303,7 +303,7 @@ static int kinDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *res_n
   N_VProd(b, fscale, b);
   sfdotJp = N_VDotProd(fval, b);
 
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
 
   return(0);
 }

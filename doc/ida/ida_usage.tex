@@ -680,14 +680,14 @@ described separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDADIRECT\_ILL\_INPUT]
-  \item[\Id{IDADIRECT\_SUCCESS}] 
+  \begin{args}[IDADLS\_ILL\_INPUT]
+  \item[\Id{IDADLS\_SUCCESS}] 
     The {\idadense} initialization was successful.
-  \item[\Id{IDADIRECT\_MEM\_NULL}]
+  \item[\Id{IDADLS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDADIRECT\_ILL\_INPUT}]
+  \item[\Id{IDADLS\_ILL\_INPUT}]
     The {\idadense} solver is not compatible with the current {\nvector} module.
-  \item[\Id{IDADIRECT\_MEM\_FAIL}]
+  \item[\Id{IDADLS\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -2017,12 +2017,12 @@ The pointer \id{user\_data} may be specified through \id{IDASetUserData}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDADIRECT\_LMEM\_NULL]
-  \item[\Id{IDADIRECT\_SUCCESS}] 
+  \begin{args}[IDADLS\_LMEM\_NULL]
+  \item[\Id{IDADLS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDADIRECT\_MEM\_NULL}]
+  \item[\Id{IDADLS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDADIRECT\_LMEM\_NULL}]
+  \item[\Id{IDADLS\_LMEM\_NULL}]
     The {\idadense} linear solver has not been initialized.
   \end{args}
 }
@@ -2070,12 +2070,12 @@ specified through \id{IDASetUserData}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDADIRECT\_LMEM\_NULL]
-  \item[\Id{IDADIRECT\_SUCCESS}] 
+  \begin{args}[IDADLS\_LMEM\_NULL]
+  \item[\Id{IDADLS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDADIRECT\_MEM\_NULL}]
+  \item[\Id{IDADLS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDADIRECT\_LMEM\_NULL}]
+  \item[\Id{IDADLS\_LMEM\_NULL}]
     The {\idaband} linear solver has not been initialized.
   \end{args}
 }
@@ -3423,12 +3423,12 @@ and last return value from an {\idadls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDADIRECT\_LMEM\_NULL]
-  \item[IDADIRECT\_SUCCESS] 
+  \begin{args}[IDADLS\_LMEM\_NULL]
+  \item[IDADLS\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDADIRECT\_MEM\_NULL}]
+  \item[\Id{IDADLS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDADIRECT\_LMEM\_NULL}]
+  \item[\Id{IDADLS\_LMEM\_NULL}]
     The {\idadls} linear solver has not been initialized.
   \end{args}
 }
@@ -3462,12 +3462,12 @@ and last return value from an {\idadls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDADIRECT\_LMEM\_NULL]
-  \item[IDADIRECT\_SUCCESS] 
+  \begin{args}[IDADLS\_LMEM\_NULL]
+  \item[IDADLS\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDADIRECT\_MEM\_NULL}]
+  \item[\Id{IDADLS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDADIRECT\_LMEM\_NULL}]
+  \item[\Id{IDADLS\_LMEM\_NULL}]
     The {\idadense} linear solver has not been initialized.
   \end{args}
 }
@@ -3493,12 +3493,12 @@ and last return value from an {\idadls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDADIRECT\_LMEM\_NULL]
-  \item[IDADIRECT\_SUCCESS] 
+  \begin{args}[IDADLS\_LMEM\_NULL]
+  \item[IDADLS\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDADIRECT\_MEM\_NULL}]
+  \item[\Id{IDADLS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDADIRECT\_LMEM\_NULL}]
+  \item[\Id{IDADLS\_LMEM\_NULL}]
     The {\idadense} linear solver has not been initialized.
   \end{args}
 }
@@ -3525,12 +3525,12 @@ and last return value from an {\idadls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDADIRECT\_LMEM\_NULL]
-  \item[\Id{IDADIRECT\_SUCCESS}] 
+  \begin{args}[IDADLS\_LMEM\_NULL]
+  \item[\Id{IDADLS\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{IDADIRECT\_MEM\_NULL}]
+  \item[\Id{IDADLS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDADIRECT\_LMEM\_NULL}]
+  \item[\Id{IDADLS\_LMEM\_NULL}]
     The {\idadense} linear solver has not been initialized.
   \end{args}
 }

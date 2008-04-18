@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.8 $
+ * $Date: 2008-04-18 19:42:40 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,12 +10,12 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * Common implementation header file for the CVSDIRECT linear solvers.
+ * Common implementation header file for the CVDLS linear solvers.
  * -----------------------------------------------------------------
  */
 
-#ifndef _CVSDIRECT_IMPL_H
-#define _CVSDIRECT_IMPL_H
+#ifndef _CVSDLS_IMPL_H
+#define _CVSDLS_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -31,7 +31,7 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * CVSDIRECT solver constants
+ * CVDLS solver constants
  * -----------------------------------------------------------------
  * CVD_MSBJ   maximum number of steps between Jacobian evaluations
  * CVD_DGMAX  maximum change in gamma between Jacobian evaluations
@@ -112,7 +112,7 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
  * -----------------------------------------------------------------
  * Types : CVDlsMemRecB, CVDlsMemB       
  * -----------------------------------------------------------------
- * A CVSDIRECT linear solver's specification function attaches such
+ * A CVDLS linear solver's specification function attaches such
  * a structure to the lmemB filed of CVodeBMem
  * -----------------------------------------------------------------
  */

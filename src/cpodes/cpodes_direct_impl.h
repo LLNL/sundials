@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-12-19 20:26:42 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:39 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,12 +10,12 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * Common implementation header file for the CPDIRECT linear solvers.
+ * Common implementation header file for the CPDLS linear solvers.
  * -----------------------------------------------------------------
  */
 
-#ifndef _CPDIRECT_IMPL_H
-#define _CPDIRECT_IMPL_H
+#ifndef _CPDLS_IMPL_H
+#define _CPDLS_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -25,7 +25,7 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * CPDIRECT solver constants
+ * CPDLS solver constants
  * -----------------------------------------------------------------
  * CPD_MSBJ   maximum number of steps between Jacobian evaluations
  * CPD_DGMAX  maximum change in gamma between Jacobian evaluations

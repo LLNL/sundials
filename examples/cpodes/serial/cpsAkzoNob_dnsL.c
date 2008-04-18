@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-12-19 20:26:43 $
+ * $Revision: 1.2 $
+ * $Date: 2008-04-18 19:42:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
   flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
-  flag = CPLapackDenseProj(cpode_mem, 1, N, CPDIRECT_QRP);
+  flag = CPLapackDenseProj(cpode_mem, 1, N, CPDLS_QRP);
 
   /* Integrate to TF */
 

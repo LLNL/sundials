@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:39 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,7 +10,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the implementation file for the CVDIRECT linear solvers
+ * This is the implementation file for the CVDLS linear solvers
  * -----------------------------------------------------------------
  */
 
@@ -88,14 +88,14 @@ int CVDlsSetDenseJacFn(void *cvode_mem, CVDlsDenseJacFn jac)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVDIRECT", "CVDlsSetDenseJacFn", MSGD_CVMEM_NULL);
-    return(CVDIRECT_MEM_NULL);
+    CVProcessError(NULL, CVDLS_MEM_NULL, "CVDLS", "CVDlsSetDenseJacFn", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_LMEM_NULL, "CVDIRECT", "CVDlsSetDenseJacFn", MSGD_LMEM_NULL);
-    return(CVDIRECT_LMEM_NULL);
+    CVProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsSetDenseJacFn", MSGD_LMEM_NULL);
+    return(CVDLS_LMEM_NULL);
   }
   cvdls_mem = (CVDlsMem) lmem;
 
@@ -106,7 +106,7 @@ int CVDlsSetDenseJacFn(void *cvode_mem, CVDlsDenseJacFn jac)
     jacDQ = TRUE;
   }
 
-  return(CVDIRECT_SUCCESS);
+  return(CVDLS_SUCCESS);
 }
 
 /*
@@ -119,14 +119,14 @@ int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVDIRECT", "CVDlsSetBandJacFn", MSGD_CVMEM_NULL);
-    return(CVDIRECT_MEM_NULL);
+    CVProcessError(NULL, CVDLS_MEM_NULL, "CVDLS", "CVDlsSetBandJacFn", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_LMEM_NULL, "CVDIRECT", "CVDlsSetBandJacFn", MSGD_LMEM_NULL);
-    return(CVDIRECT_LMEM_NULL);
+    CVProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsSetBandJacFn", MSGD_LMEM_NULL);
+    return(CVDLS_LMEM_NULL);
   }
   cvdls_mem = (CVDlsMem) lmem;
 
@@ -137,12 +137,12 @@ int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac)
     jacDQ = TRUE;
   }
 
-  return(CVDIRECT_SUCCESS);
+  return(CVDLS_SUCCESS);
 }
 
 /*
  * CVDlsGetWorkSpace returns the length of workspace allocated for the
- * CVDIRECT linear solver.
+ * CVDLS linear solver.
  */
 int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 {
@@ -151,14 +151,14 @@ int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVDIRECT", "CVDlsGetWorkSpace", MSGD_CVMEM_NULL);
-    return(CVDIRECT_MEM_NULL);
+    CVProcessError(NULL, CVDLS_MEM_NULL, "CVDLS", "CVDlsGetWorkSpace", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_LMEM_NULL, "CVDIRECT", "CVDlsGetWorkSpace", MSGD_LMEM_NULL);
-    return(CVDIRECT_LMEM_NULL);
+    CVProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsGetWorkSpace", MSGD_LMEM_NULL);
+    return(CVDLS_LMEM_NULL);
   }
   cvdls_mem = (CVDlsMem) lmem;
 
@@ -170,7 +170,7 @@ int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
     *leniwLS = n;
   }
 
-  return(CVDIRECT_SUCCESS);
+  return(CVDLS_SUCCESS);
 }
 
 /*
@@ -183,20 +183,20 @@ int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVDIRECT", "CVDlsGetNumJacEvals", MSGD_CVMEM_NULL);
-    return(CVDIRECT_MEM_NULL);
+    CVProcessError(NULL, CVDLS_MEM_NULL, "CVDLS", "CVDlsGetNumJacEvals", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_LMEM_NULL, "CVDIRECT", "CVDlsGetNumJacEvals", MSGD_LMEM_NULL);
-    return(CVDIRECT_LMEM_NULL);
+    CVProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsGetNumJacEvals", MSGD_LMEM_NULL);
+    return(CVDLS_LMEM_NULL);
   }
   cvdls_mem = (CVDlsMem) lmem;
 
   *njevals = nje;
 
-  return(CVDIRECT_SUCCESS);
+  return(CVDLS_SUCCESS);
 }
 
 /*
@@ -210,24 +210,24 @@ int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVDIRECT", "CVDlsGetNumRhsEvals", MSGD_CVMEM_NULL);
-    return(CVDIRECT_MEM_NULL);
+    CVProcessError(NULL, CVDLS_MEM_NULL, "CVDLS", "CVDlsGetNumRhsEvals", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_LMEM_NULL, "CVDIRECT", "CVDlsGetNumRhsEvals", MSGD_LMEM_NULL);
-    return(CVDIRECT_LMEM_NULL);
+    CVProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsGetNumRhsEvals", MSGD_LMEM_NULL);
+    return(CVDLS_LMEM_NULL);
   }
   cvdls_mem = (CVDlsMem) lmem;
 
   *nfevalsLS = nfeDQ;
 
-  return(CVDIRECT_SUCCESS);
+  return(CVDLS_SUCCESS);
 }
 
 /*
- * CVDlsGetReturnFlagName returns the name associated with a CVDIRECT
+ * CVDlsGetReturnFlagName returns the name associated with a CVDLS
  * return value.
  */
 char *CVDlsGetReturnFlagName(int flag)
@@ -237,26 +237,26 @@ char *CVDlsGetReturnFlagName(int flag)
   name = (char *)malloc(30*sizeof(char));
 
   switch(flag) {
-  case CVDIRECT_SUCCESS:
-    sprintf(name,"CVDIRECT_SUCCESS");
+  case CVDLS_SUCCESS:
+    sprintf(name,"CVDLS_SUCCESS");
     break;   
-  case CVDIRECT_MEM_NULL:
-    sprintf(name,"CVDIRECT_MEM_NULL");
+  case CVDLS_MEM_NULL:
+    sprintf(name,"CVDLS_MEM_NULL");
     break;
-  case CVDIRECT_LMEM_NULL:
-    sprintf(name,"CVDIRECT_LMEM_NULL");
+  case CVDLS_LMEM_NULL:
+    sprintf(name,"CVDLS_LMEM_NULL");
     break;
-  case CVDIRECT_ILL_INPUT:
-    sprintf(name,"CVDIRECT_ILL_INPUT");
+  case CVDLS_ILL_INPUT:
+    sprintf(name,"CVDLS_ILL_INPUT");
     break;
-  case CVDIRECT_MEM_FAIL:
-    sprintf(name,"CVDIRECT_MEM_FAIL");
+  case CVDLS_MEM_FAIL:
+    sprintf(name,"CVDLS_MEM_FAIL");
     break;
-  case CVDIRECT_JACFUNC_UNRECVR:
-    sprintf(name,"CVDIRECT_JACFUNC_UNRECVR");
+  case CVDLS_JACFUNC_UNRECVR:
+    sprintf(name,"CVDLS_JACFUNC_UNRECVR");
     break;
-  case CVDIRECT_JACFUNC_RECVR:
-    sprintf(name,"CVDIRECT_JACFUNC_RECVR");
+  case CVDLS_JACFUNC_RECVR:
+    sprintf(name,"CVDLS_JACFUNC_RECVR");
     break;
   default:
     sprintf(name,"NONE");
@@ -266,7 +266,7 @@ char *CVDlsGetReturnFlagName(int flag)
 }
 
 /*
- * CVDlsGetLastFlag returns the last flag set in a CVDIRECT function.
+ * CVDlsGetLastFlag returns the last flag set in a CVDLS function.
  */
 int CVDlsGetLastFlag(void *cvode_mem, int *flag)
 {
@@ -275,20 +275,20 @@ int CVDlsGetLastFlag(void *cvode_mem, int *flag)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVDIRECT", "CVDlsGetLastFlag", MSGD_CVMEM_NULL);
-    return(CVDIRECT_MEM_NULL);
+    CVProcessError(NULL, CVDLS_MEM_NULL, "CVDLS", "CVDlsGetLastFlag", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_LMEM_NULL, "CVDIRECT", "CVDlsGetLastFlag", MSGD_LMEM_NULL);
-    return(CVDIRECT_LMEM_NULL);
+    CVProcessError(cv_mem, CVDLS_LMEM_NULL, "CVDLS", "CVDlsGetLastFlag", MSGD_LMEM_NULL);
+    return(CVDLS_LMEM_NULL);
   }
   cvdls_mem = (CVDlsMem) lmem;
 
   *flag = last_flag;
 
-  return(CVDIRECT_SUCCESS);
+  return(CVDLS_SUCCESS);
 }
 
 /* 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:43 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,7 +10,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the implementation file for the KINDIRECT linear solvers
+ * This is the implementation file for the KINDLS linear solvers
  * -----------------------------------------------------------------
  */
 
@@ -106,14 +106,14 @@ int KINDlsSetDenseJacFn(void *kinmem, KINDlsDenseJacFn jac)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINDIRECT", "KINDlsSetDenseJacFn", MSGD_KINMEM_NULL);
-    return(KINDIRECT_MEM_NULL);
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS", "KINDlsSetDenseJacFn", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_LMEM_NULL, "KINDIRECT", "KINDlsSetDenseJacFn", MSGD_LMEM_NULL);
-    return(KINDIRECT_LMEM_NULL);
+    KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS", "KINDlsSetDenseJacFn", MSGD_LMEM_NULL);
+    return(KINDLS_LMEM_NULL);
   }
   kindls_mem = (KINDlsMem) lmem;
 
@@ -124,7 +124,7 @@ int KINDlsSetDenseJacFn(void *kinmem, KINDlsDenseJacFn jac)
     jacDQ = TRUE;
   }
 
-  return(KINDIRECT_SUCCESS);
+  return(KINDLS_SUCCESS);
 }
 
 int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac)
@@ -134,14 +134,14 @@ int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINDIRECT", "KINDlsSetBandJacFn", MSGD_KINMEM_NULL);
-    return(KINDIRECT_MEM_NULL);
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS", "KINDlsSetBandJacFn", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_LMEM_NULL, "KINDIRECT", "KINDlsSetBandJacFn", MSGD_LMEM_NULL);
-    return(KINDIRECT_LMEM_NULL);
+    KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS", "KINDlsSetBandJacFn", MSGD_LMEM_NULL);
+    return(KINDLS_LMEM_NULL);
   }
   kindls_mem = (KINDlsMem) lmem;
 
@@ -152,7 +152,7 @@ int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac)
     jacDQ = TRUE;
   }
 
-  return(KINDIRECT_SUCCESS);
+  return(KINDLS_SUCCESS);
 }
 
 /*
@@ -168,14 +168,14 @@ int KINDlsGetWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINDIRECT", "KINBandGetWorkSpace", MSGD_KINMEM_NULL);
-    return(KINDIRECT_MEM_NULL);
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS", "KINBandGetWorkSpace", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_LMEM_NULL, "KINDIRECT", "KINBandGetWorkSpace", MSGD_LMEM_NULL);
-    return(KINDIRECT_LMEM_NULL);
+    KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS", "KINBandGetWorkSpace", MSGD_LMEM_NULL);
+    return(KINDLS_LMEM_NULL);
   }
   kindls_mem = (KINDlsMem) lmem;
 
@@ -187,7 +187,7 @@ int KINDlsGetWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS)
     *leniwLS = n;
   }
 
-  return(KINDIRECT_SUCCESS);
+  return(KINDLS_SUCCESS);
 }
 
 /*
@@ -203,20 +203,20 @@ int KINDlsGetNumJacEvals(void *kinmem, long int *njevals)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINDIRECT", "KINDlsGetNumJacEvals", MSGD_KINMEM_NULL);
-    return(KINDIRECT_MEM_NULL);
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS", "KINDlsGetNumJacEvals", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_LMEM_NULL, "KINDIRECT", "KINDlsGetNumJacEvals", MSGD_LMEM_NULL);
-    return(KINDIRECT_LMEM_NULL);
+    KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS", "KINDlsGetNumJacEvals", MSGD_LMEM_NULL);
+    return(KINDLS_LMEM_NULL);
   }
   kindls_mem = (KINDlsMem) lmem;
 
   *njevals = nje;
 
-  return(KINDIRECT_SUCCESS);
+  return(KINDLS_SUCCESS);
 }
 
 /*
@@ -232,20 +232,20 @@ int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevalsLS)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINDIRECT", "KINDlsGetNumFuncEvals", MSGD_KINMEM_NULL);
-    return(KINDIRECT_MEM_NULL);
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS", "KINDlsGetNumFuncEvals", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_LMEM_NULL, "KINDIRECT", "KINDlsGetNumGuncEvals", MSGD_LMEM_NULL);
-    return(KINDIRECT_LMEM_NULL);
+    KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS", "KINDlsGetNumGuncEvals", MSGD_LMEM_NULL);
+    return(KINDLS_LMEM_NULL);
   }
   kindls_mem = (KINDlsMem) lmem;
 
   *nfevalsLS = nfeDQ;
 
-  return(KINDIRECT_SUCCESS);
+  return(KINDLS_SUCCESS);
 }
 
 /*
@@ -261,20 +261,20 @@ int KINDlsGetLastFlag(void *kinmem, int *flag)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINDIRECT", "KINDlsGetLastFlag", MSGD_KINMEM_NULL);
-    return(KINDIRECT_MEM_NULL);
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINDLS", "KINDlsGetLastFlag", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_LMEM_NULL, "KINDIRECT", "KINDlsGetLastFlag", MSGD_LMEM_NULL);
-    return(KINDIRECT_LMEM_NULL);
+    KINProcessError(kin_mem, KINDLS_LMEM_NULL, "KINDLS", "KINDlsGetLastFlag", MSGD_LMEM_NULL);
+    return(KINDLS_LMEM_NULL);
   }
   kindls_mem = (KINDlsMem) lmem;
 
   *flag = last_flag;
 
-  return(KINDIRECT_SUCCESS);
+  return(KINDLS_SUCCESS);
 }
 
 /*
@@ -290,20 +290,20 @@ char *KINDlsGetReturnFlagName(int flag)
   name = (char *)malloc(30*sizeof(char));
 
   switch(flag) {
-  case KINDIRECT_SUCCESS:
-    sprintf(name, "KINDIRECT_SUCCESS");
+  case KINDLS_SUCCESS:
+    sprintf(name, "KINDLS_SUCCESS");
     break;
-  case KINDIRECT_MEM_NULL:
-    sprintf(name, "KINDIRECT_MEM_NULL");
+  case KINDLS_MEM_NULL:
+    sprintf(name, "KINDLS_MEM_NULL");
     break;
-  case KINDIRECT_LMEM_NULL:
-    sprintf(name, "KINDIRECT_LMEM_NULL");
+  case KINDLS_LMEM_NULL:
+    sprintf(name, "KINDLS_LMEM_NULL");
     break;
-  case KINDIRECT_ILL_INPUT:
-    sprintf(name, "KINDIRECT_ILL_INPUT");
+  case KINDLS_ILL_INPUT:
+    sprintf(name, "KINDLS_ILL_INPUT");
     break;
-  case KINDIRECT_MEM_FAIL:
-    sprintf(name, "KINDIRECT_MEM_FAIL");
+  case KINDLS_MEM_FAIL:
+    sprintf(name, "KINDLS_MEM_FAIL");
     break;
   default:
     sprintf(name, "NONE");

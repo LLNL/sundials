@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -40,10 +40,10 @@ extern "C" {
  * mlower - lower bandwidth of the band Jacobian
  *
  * The return value of KINBand is one of:
- *    KINDIRECT_SUCCESS   if successful
- *    KINDIRECT_MEM_NULL  if the kinsol memory was NULL
- *    KINDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    KINDIRECT_ILL_INPUT if a required vector operation is missing
+ *    KINDLS_SUCCESS   if successful
+ *    KINDLS_MEM_NULL  if the kinsol memory was NULL
+ *    KINDLS_MEM_FAIL  if there was a memory allocation failure
+ *    KINDLS_ILL_INPUT if a required vector operation is missing
  *                        or if a bandwidth has an illegal value.
  * -----------------------------------------------------------------
  */

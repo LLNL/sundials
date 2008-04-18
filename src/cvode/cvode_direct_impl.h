@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.5 $
+ * $Date: 2008-04-18 19:42:39 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,12 +10,12 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * Common implementation header file for the CVDIRECT linear solvers.
+ * Common implementation header file for the CVDLS linear solvers.
  * -----------------------------------------------------------------
  */
 
-#ifndef _CVDIRECT_IMPL_H
-#define _CVDIRECT_IMPL_H
+#ifndef _CVDLS_IMPL_H
+#define _CVDLS_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -25,7 +25,7 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * CVDIRECT solver constants
+ * CVDLS solver constants
  * -----------------------------------------------------------------
  * CVD_MSBJ   maximum number of steps between Jacobian evaluations
  * CVD_DGMAX  maximum change in gamma between Jacobian evaluations

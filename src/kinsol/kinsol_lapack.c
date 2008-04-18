@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-11-26 16:20:01 $
+ * $Revision: 1.7 $
+ * $Date: 2008-04-18 19:42:43 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -134,16 +134,16 @@ int KINLapackDense(void *kinmem, int N)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINLAPACK", "KINLapackDense", MSGD_KINMEM_NULL);
-    return(KINDIRECT_MEM_NULL);
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINLAPACK", "KINLapackDense", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL ||
       vec_tmpl->ops->nvsetarraypointer == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_ILL_INPUT, "KINLAPACK", "KINLapackDense", MSGD_BAD_NVECTOR);
-    return(KINDIRECT_ILL_INPUT);
+    KINProcessError(kin_mem, KINDLS_ILL_INPUT, "KINLAPACK", "KINLapackDense", MSGD_BAD_NVECTOR);
+    return(KINDLS_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(kin_mem);
@@ -158,8 +158,8 @@ int KINLapackDense(void *kinmem, int N)
   kindls_mem = NULL;
   kindls_mem = (KINDlsMem) malloc(sizeof(struct KINDlsMemRec));
   if (kindls_mem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINLAPACK", "KINLapackDense", MSGD_MEM_FAIL);
-    return(KINDIRECT_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackDense", MSGD_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -170,7 +170,7 @@ int KINLapackDense(void *kinmem, int N)
   djac   = NULL;
   J_data = NULL;
 
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
 
   setupNonNull = TRUE;
 
@@ -182,18 +182,18 @@ int KINLapackDense(void *kinmem, int N)
   J = NULL;
   J = NewDenseMat(N, N);
   if (J == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINLAPACK", "KINLapackDense", MSGD_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackDense", MSGD_MEM_FAIL);
     free(kindls_mem); kindls_mem = NULL;
-    return(KINDIRECT_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   pivots = NULL;
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINLAPACK", "KINLapackDense", MSGD_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackDense", MSGD_MEM_FAIL);
     DestroyMat(J);
     free(kindls_mem); kindls_mem = NULL;
-    return(KINDIRECT_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   /* This is a direct linear solver */
@@ -202,7 +202,7 @@ int KINLapackDense(void *kinmem, int N)
   /* Attach linear solver memory to integrator memory */
   lmem = kindls_mem;
 
-  return(KINDIRECT_SUCCESS);
+  return(KINDLS_SUCCESS);
 }
 
 /*
@@ -220,8 +220,8 @@ int KINLapackDense(void *kinmem, int N)
  * in (*kinmem) to be TRUE, mu to be mupper, ml to be mlower, and 
  * the bjac field to kinDlsBandDQJac
  * Finally, it allocates memory for M, pivots, and (if needed) savedJ.  
- * The KINLapackBand return value is KINDIRECT_SUCCESS = 0, 
- * KINDIRECT_MEM_FAIL = -1, or KINDIRECT_ILL_INPUT = -2.
+ * The KINLapackBand return value is KINDLS_SUCCESS = 0, 
+ * KINDLS_MEM_FAIL = -1, or KINDLS_ILL_INPUT = -2.
  *
  * NOTE: The KINLAPACK linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, KINLapackBand will first 
@@ -237,15 +237,15 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINLAPACK", "KINLapackBand", MSGD_KINMEM_NULL);
-    return(KINDIRECT_MEM_NULL);
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINLAPACK", "KINLapackBand", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_ILL_INPUT, "KINLAPACK", "KINLapackBand", MSGD_BAD_NVECTOR);
-    return(KINDIRECT_ILL_INPUT);
+    KINProcessError(kin_mem, KINDLS_ILL_INPUT, "KINLAPACK", "KINLapackBand", MSGD_BAD_NVECTOR);
+    return(KINDLS_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(kin_mem);
@@ -260,8 +260,8 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
   kindls_mem = NULL;
   kindls_mem = (KINDlsMem) malloc(sizeof(struct KINDlsMemRec));
   if (kindls_mem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
-    return(KINDIRECT_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
   
   /* Set matrix type */
@@ -272,7 +272,7 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
   bjac   = NULL;
   J_data = NULL;
 
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
 
   setupNonNull = TRUE;
   
@@ -285,8 +285,8 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
-    return(KINDIRECT_ILL_INPUT);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
+    return(KINDLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
@@ -296,18 +296,18 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
   J = NULL;
   J = NewBandMat(N, mu, ml, smu);
   if (J == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
     free(kindls_mem); kindls_mem = NULL;
-    return(KINDIRECT_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   pivots = NULL;
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
     DestroyMat(J);
     free(kindls_mem); kindls_mem = NULL;
-    return(KINDIRECT_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   /* This is a direct linear solver */
@@ -316,7 +316,7 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
   /* Attach linear solver memory to integrator memory */
   lmem = kindls_mem;
 
-  return(KINDIRECT_SUCCESS);
+  return(KINDLS_SUCCESS);
 }
 
 
@@ -351,7 +351,7 @@ static int kinLapackDenseInit(KINMem kin_mem)
     J_data = kin_mem->kin_user_data;
   }
 
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
   return(0);
 }
 
@@ -428,7 +428,7 @@ static int kinLapackDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype 
   N_VProd(b, fscale, b);
   sfdotJp = N_VDotProd(fval, b);
 
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
 
   return(0);
 }
@@ -484,7 +484,7 @@ static int kinLapackBandInit(KINMem kin_mem)
     J_data = kin_mem->kin_user_data;
   }
 
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
   return(0);
 }
 
@@ -565,7 +565,7 @@ static int kinLapackBandSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *
   N_VProd(b, fscale, b);
   sfdotJp = N_VDotProd(fval, b);
 
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
 
   return(0);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-03-22 18:05:50 $
+ * $Revision: 1.7 $
+ * $Date: 2008-04-18 19:42:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,10 +43,10 @@ extern "C" {
  *        approximation.
  *
  * The return value of CVBand is one of:
- *    CVDIRECT_SUCCESS   if successful
- *    CVDIRECT_MEM_NULL  if the cvode memory was NULL
- *    CVDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    CVDIRECT_ILL_INPUT if a required vector operation is missing or
+ *    CVDLS_SUCCESS   if successful
+ *    CVDLS_MEM_NULL  if the cvode memory was NULL
+ *    CVDLS_MEM_FAIL  if there was a memory allocation failure
+ *    CVDLS_ILL_INPUT if a required vector operation is missing or
  *                     if a bandwidth has an illegal value.
  * -----------------------------------------------------------------
  */

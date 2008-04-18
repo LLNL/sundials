@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-12-19 20:26:42 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:39 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -127,15 +127,15 @@ int CPBand(void *cpode_mem, int N, int mupper, int mlower)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPBAND", "CPBand", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPBAND", "CPBand", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (tempv->ops->nvgetarraypointer == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPBAND", "CPBand", MSGD_BAD_NVECTOR);
-    return(CPDIRECT_ILL_INPUT);
+    cpProcessError(cp_mem, CPDLS_ILL_INPUT, "CPBAND", "CPBand", MSGD_BAD_NVECTOR);
+    return(CPDLS_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(cp_mem);
@@ -150,8 +150,8 @@ int CPBand(void *cpode_mem, int N, int mupper, int mlower)
   cpdls_mem = NULL;
   cpdls_mem = (CPDlsMem) malloc(sizeof(CPDlsMemRec));
   if (cpdls_mem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
-    return(CPDIRECT_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -163,7 +163,7 @@ int CPBand(void *cpode_mem, int N, int mupper, int mlower)
   jacI = NULL;
   J_data = NULL;
 
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   lsetup_exists = TRUE;
   
   /* Load problem dimension */
@@ -175,8 +175,8 @@ int CPBand(void *cpode_mem, int N, int mupper, int mlower)
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPBAND", "CPBand", MSGD_BAD_SIZES);
-    return(CPDIRECT_ILL_INPUT);
+    cpProcessError(cp_mem, CPDLS_ILL_INPUT, "CPBAND", "CPBand", MSGD_BAD_SIZES);
+    return(CPDLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
@@ -189,32 +189,32 @@ int CPBand(void *cpode_mem, int N, int mupper, int mlower)
 
   M = NewBandMat(N, mu, ml, smu);
   if (M == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
     free(cpdls_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }  
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     free(cpdls_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
   if (ode_type == CP_EXPL) {
     savedJ = NewBandMat(N, mu, ml, mu);
     if (savedJ == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPBAND", "CPBand", MSGD_MEM_FAIL);
       DestroyMat(M);
       DestroyArray(pivots);
       free(cpdls_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = cpdls_mem;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /* 
@@ -266,7 +266,7 @@ static int cpBandInit(CPodeMem cp_mem)
 
   }
 
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   return(0);
 }
 
@@ -324,11 +324,11 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
       if (retval == 0) {
         BandCopy(M, savedJ, mu, ml);
       }else if (retval < 0) {
-        cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPBAND", "CPBandSetup", MSGD_JACFUNC_FAILED);
-        last_flag = CPDIRECT_JACFUNC_UNRECVR;
+        cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPBAND", "CPBandSetup", MSGD_JACFUNC_FAILED);
+        last_flag = CPDLS_JACFUNC_UNRECVR;
         return(-1);
       }else if (retval > 0) {
-        last_flag = CPDIRECT_JACFUNC_RECVR;
+        last_flag = CPDLS_JACFUNC_RECVR;
         return(1);
       }
 
@@ -345,11 +345,11 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
     BandZero(M);
     retval = jacI(n, mu, ml, tn, gamma, yP, ypP, fctP, M, J_data, tmp1, tmp2, tmp3);
     if (retval < 0) {
-      cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPBAND", "CPBandSetup", MSGD_JACFUNC_FAILED);
-      last_flag = CPDIRECT_JACFUNC_UNRECVR;
+      cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPBAND", "CPBandSetup", MSGD_JACFUNC_FAILED);
+      last_flag = CPDLS_JACFUNC_UNRECVR;
       return(-1);
     } else if (retval > 0) {
-      last_flag = CPDIRECT_JACFUNC_RECVR;
+      last_flag = CPDLS_JACFUNC_RECVR;
       return(+1);
     }
 
@@ -392,7 +392,7 @@ static int cpBandSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
     N_VScale(TWO/(ONE + gamrat), b, b);
   }
 
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   return(0);
 }
 

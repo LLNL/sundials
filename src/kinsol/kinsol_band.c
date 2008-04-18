@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-11-26 16:20:01 $
+ * $Revision: 1.8 $
+ * $Date: 2008-04-18 19:42:42 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -123,15 +123,15 @@ int KINBand(void *kinmem, int N, int mupper, int mlower)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINDIRECT_MEM_NULL, "KINBAND", "KINBand", MSGD_KINMEM_NULL);
-    return(KINDIRECT_MEM_NULL);
+    KINProcessError(NULL, KINDLS_MEM_NULL, "KINBAND", "KINBand", MSGD_KINMEM_NULL);
+    return(KINDLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_ILL_INPUT, "KINBAND", "KINBand", MSGD_BAD_NVECTOR);
-    return(KINDIRECT_ILL_INPUT);
+    KINProcessError(kin_mem, KINDLS_ILL_INPUT, "KINBAND", "KINBand", MSGD_BAD_NVECTOR);
+    return(KINDLS_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(kin_mem);
@@ -146,8 +146,8 @@ int KINBand(void *kinmem, int N, int mupper, int mlower)
   kindls_mem = NULL;
   kindls_mem = (KINDlsMem) malloc(sizeof(struct KINDlsMemRec));
   if (kindls_mem == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
-    return(KINDIRECT_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -157,7 +157,7 @@ int KINBand(void *kinmem, int N, int mupper, int mlower)
   jacDQ  = TRUE;
   bjac   = NULL;
   J_data = NULL;
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
 
   setupNonNull = TRUE;
   
@@ -170,8 +170,8 @@ int KINBand(void *kinmem, int N, int mupper, int mlower)
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
-    return(KINDIRECT_ILL_INPUT);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
+    return(KINDLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
@@ -181,18 +181,18 @@ int KINBand(void *kinmem, int N, int mupper, int mlower)
   J = NULL;
   J = NewBandMat(N, mu, ml, smu);
   if (J == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
     free(kindls_mem); kindls_mem = NULL;
-    return(KINDIRECT_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   pivots = NULL;
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    KINProcessError(kin_mem, KINDIRECT_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
+    KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
     DestroyMat(J);
     free(kindls_mem); kindls_mem = NULL;
-    return(KINDIRECT_MEM_FAIL);
+    return(KINDLS_MEM_FAIL);
   }
 
   /* This is a direct linear solver */
@@ -201,7 +201,7 @@ int KINBand(void *kinmem, int N, int mupper, int mlower)
   /* Attach linear solver memory to integrator memory */
   lmem = kindls_mem;
 
-  return(KINDIRECT_SUCCESS);
+  return(KINDLS_SUCCESS);
 }
 
 /* 
@@ -235,7 +235,7 @@ static int kinBandInit(KINMem kin_mem)
     J_data = kin_mem->kin_user_data;
   }
 
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
   return(0);
 }
 
@@ -319,7 +319,7 @@ static int kinBandsolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *res_no
   N_VProd(b, fscale, b);
   sfdotJp = N_VDotProd(fval, b);
 
-  last_flag = KINDIRECT_SUCCESS;
+  last_flag = KINDLS_SUCCESS;
 
   return(0);
 }

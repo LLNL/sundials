@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.5 $
+ * $Date: 2008-04-18 19:42:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -39,9 +39,9 @@ extern "C" {
  * mlower is the lower bandwidth of the banded Jacobian matrix.   
  *                                                                
  * The return values of IDABand are:                              
- *     IDABAND_SUCCESS   = 0  if successful                            
- *     IDABAND_LMEM_FAIL = -1 if there was a memory allocation failure 
- *     IDABAND_ILL_INPUT = -2 if the input was illegal or NVECTOR bad. 
+ *     IDADLS_SUCCESS   = 0  if successful                            
+ *     IDADLS_LMEM_FAIL = -1 if there was a memory allocation failure 
+ *     IDADLS_ILL_INPUT = -2 if the input was illegal or NVECTOR bad. 
  *                                                                
  * NOTE: The band linear solver assumes a serial implementation   
  *       of the NVECTOR package. Therefore, IDABand will first

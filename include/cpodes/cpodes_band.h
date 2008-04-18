@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:05 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:35 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,10 +43,10 @@ extern "C" {
  *        approximation.
  *
  * The return value of CPBand is one of:
- *    CPDIRECT_SUCCESS   if successful
- *    CPDIRECT_MEM_NULL  if the CPODES memory was NULL
- *    CPDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    CPDIRECT_ILL_INPUT if a required vector operation is missing
+ *    CPDLS_SUCCESS   if successful
+ *    CPDLS_MEM_NULL  if the CPODES memory was NULL
+ *    CPDLS_MEM_FAIL  if there was a memory allocation failure
+ *    CPDLS_ILL_INPUT if a required vector operation is missing
  *                       or if a bandwidth has an illegal value.
  * -----------------------------------------------------------------
  */

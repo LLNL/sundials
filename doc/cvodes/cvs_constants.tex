@@ -133,16 +133,16 @@ description of their meaning.
 \multicolumn{3}{c}{\bf {\cvdls} linear solver modules}\\
 \hline\\
 
-\id{CVDIRECT\_SUCCESS}          &  0 & Successful function return. \\
-\id{CVDIRECT\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
-\id{CVDIRECT\_LMEM\_NULL}       & -2 & The {\cvdense} linear solver has not been initialized.\\
-\id{CVDIRECT\_ILL\_INPUT}       & -3 & The {\cvdense} solver is not compatible with the current {\nvector} module.\\
-\id{CVDIRECT\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
-\id{CVDIRECT\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{CVDIRECT\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+\id{CVDLS\_SUCCESS}          &  0 & Successful function return. \\
+\id{CVDLS\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVDLS\_LMEM\_NULL}       & -2 & The {\cvdls} linear solver has not been initialized.\\
+\id{CVDLS\_ILL\_INPUT}       & -3 & The {\cvdls} solver is not compatible with the current {\nvector} module.\\
+\id{CVDLS\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
+\id{CVDLS\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
+\id{CVDLS\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
 %%
-\id{CVDIRECT\_NO\_ADJ}          & -101 & The combined forward-backward problem has not been initialized.\\
-\id{CVDIRECT\_LMEMB\_NULL}      & -102 & The linear solver was not initialized for the backward phase. \\
+\id{CVDLS\_NO\_ADJ}          & -101 & The combined forward-backward problem has not been initialized.\\
+\id{CVDLS\_LMEMB\_NULL}      & -102 & The linear solver was not initialized for the backward phase. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\cvdiag} linear solver module}\\
@@ -165,8 +165,8 @@ description of their meaning.
 
 \id{CVSPILS\_SUCCESS}      &  0 & Successful function return. \\
 \id{CVSPILS\_MEM\_NULL}    & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
-\id{CVSPILS\_LMEM\_NULL}   & -2 & The linear solver has not been initialized.\\
-\id{CVSPILS\_ILL\_INPUT}   & -3 & The solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
+\id{CVSPILS\_LMEM\_NULL}   & -2 & The {\cvspils} linear solver has not been initialized.\\
+\id{CVSPILS\_ILL\_INPUT}   & -3 & The {\cvspils} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
 \id{CVSPILS\_MEM\_FAIL}    & -4 & A memory allocation request failed.\\
 \id{CVSPILS\_PMEM\_NULL}   & -5 & The preconditioner module has not been initialized. \\
 %%

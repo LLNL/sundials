@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.6 $
+ * $Date: 2008-04-18 19:42:37 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -14,8 +14,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDADIRECT_H
-#define _IDADIRECT_H
+#ifndef _IDADLS_H
+#define _IDADLS_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -32,20 +32,20 @@ extern "C" {
 
 /* 
  * -----------------------------------------------------------------
- * IDADIRECT return values 
+ * IDADLS return values 
  * -----------------------------------------------------------------
  */
 
-#define IDADIRECT_SUCCESS           0
-#define IDADIRECT_MEM_NULL         -1
-#define IDADIRECT_LMEM_NULL        -2
-#define IDADIRECT_ILL_INPUT        -3
-#define IDADIRECT_MEM_FAIL         -4
+#define IDADLS_SUCCESS           0
+#define IDADLS_MEM_NULL         -1
+#define IDADLS_LMEM_NULL        -2
+#define IDADLS_ILL_INPUT        -3
+#define IDADLS_MEM_FAIL         -4
 
 /* Additional last_flag values */
 
-#define IDADIRECT_JACFUNC_UNRECVR  -5
-#define IDADIRECT_JACFUNC_RECVR    -6
+#define IDADLS_JACFUNC_UNRECVR  -5
+#define IDADLS_JACFUNC_RECVR    -6
 
 /*
  * =================================================================
@@ -235,7 +235,7 @@ typedef int (*IDADlsBandJacFn)(int N, int mupper, int mlower,
 
 /*
  * -----------------------------------------------------------------
- * Optional inputs to the IDADIRECT linear solver
+ * Optional inputs to the IDADLS linear solver
  * -----------------------------------------------------------------
  * IDADlsSetDenseJacFn specifies the dense Jacobian approximation
  * routine to be used for a direct dense linear solver.
@@ -247,9 +247,9 @@ typedef int (*IDADlsBandJacFn)(int N, int mupper, int mlower,
  * the solver is used.
  *
  * The return value is one of:
- *    IDADIRECT_SUCCESS   if successful
- *    IDADIRECT_MEM_NULL  if the IDA memory was NULL
- *    IDADIRECT_LMEM_NULL if the linear solver memory was NULL
+ *    IDADLS_SUCCESS   if successful
+ *    IDADLS_MEM_NULL  if the IDA memory was NULL
+ *    IDADLS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -258,7 +258,7 @@ SUNDIALS_EXPORT int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac);
 
 /*
  * -----------------------------------------------------------------
- * Optional outputs from the IDADIRECT linear solver
+ * Optional outputs from the IDADLS linear solver
  * -----------------------------------------------------------------
  *
  * IDADlsGetWorkSpace   returns the real and integer workspace used
@@ -269,12 +269,12 @@ SUNDIALS_EXPORT int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac);
  *                      f routine due to finite difference Jacobian
  *                      evaluation.
  * IDADlsGetLastFlag    returns the last error flag set by any of
- *                      the IDADIRECT interface functions.
+ *                      the IDADLS interface functions.
  *
  * The return value of IDADlsGet* is one of:
- *    IDADIRECT_SUCCESS   if successful
- *    IDADIRECT_MEM_NULL  if the IDA memory was NULL
- *    IDADIRECT_LMEM_NULL if the linear solver memory was NULL
+ *    IDADLS_SUCCESS   if successful
+ *    IDADLS_MEM_NULL  if the IDA memory was NULL
+ *    IDADLS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -286,7 +286,7 @@ SUNDIALS_EXPORT int IDADlsGetLastFlag(void *ida_mem, int *flag);
 /*
  * -----------------------------------------------------------------
  * The following function returns the name of the constant 
- * associated with a IDADIRECT return flag
+ * associated with a IDADLS return flag
  * -----------------------------------------------------------------
  */
 

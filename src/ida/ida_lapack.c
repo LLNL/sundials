@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-11-26 16:20:00 $
+ * $Revision: 1.8 $
+ * $Date: 2008-04-18 19:42:41 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -140,16 +140,16 @@ int IDALapackDense(void *ida_mem, int N)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDALAPACK", "IDALapackDense", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDALAPACK", "IDALapackDense", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the LAPACK solver */
   if (tempv->ops->nvgetarraypointer == NULL ||
       tempv->ops->nvsetarraypointer == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDALAPACK", "IDALapackDense", MSGD_BAD_NVECTOR);
-    return(IDADIRECT_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDADLS_ILL_INPUT, "IDALAPACK", "IDALapackDense", MSGD_BAD_NVECTOR);
+    return(IDADLS_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(IDA_mem);
@@ -165,8 +165,8 @@ int IDALapackDense(void *ida_mem, int N)
   idadls_mem = NULL;
   idadls_mem = (IDADlsMem) malloc(sizeof(struct IDADlsMemRec));
   if (idadls_mem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGD_MEM_FAIL);
-    return(IDADIRECT_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGD_MEM_FAIL);
+    return(IDADLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -177,7 +177,7 @@ int IDALapackDense(void *ida_mem, int N)
   djac   = NULL;
   J_data = NULL;
 
-  last_flag = IDADIRECT_SUCCESS;
+  last_flag = IDADLS_SUCCESS;
   setupNonNull = TRUE;
 
   /* Set problem dimension */
@@ -189,22 +189,22 @@ int IDALapackDense(void *ida_mem, int N)
 
   JJ = NewDenseMat(N, N);
   if (JJ == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGD_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGD_MEM_FAIL);
     free(idadls_mem);
-    return(IDADIRECT_MEM_FAIL);
+    return(IDADLS_MEM_FAIL);
   }
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGD_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGD_MEM_FAIL);
     DestroyMat(JJ);
     free(idadls_mem);
-    return(IDADIRECT_MEM_FAIL);
+    return(IDADLS_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = idadls_mem;
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -222,8 +222,8 @@ int IDALapackDense(void *ida_mem, int N)
  * in (*ida_mem) to be TRUE, mu to be mupper, ml to be mlower, and 
  * the jacE and jacI field to NULL.
  * Finally, it allocates memory for M and pivots.
- * The IDALapackBand return value is IDADIRECT_SUCCESS = 0, 
- * IDADIRECT_MEM_FAIL = -1, or IDADIRECT_ILL_INPUT = -2.
+ * The IDALapackBand return value is IDADLS_SUCCESS = 0, 
+ * IDADLS_MEM_FAIL = -1, or IDADLS_ILL_INPUT = -2.
  *
  * NOTE: The IDALAPACK linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, IDALapackBand will first 
@@ -239,15 +239,15 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDALAPACK", "IDALapackBand", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDALAPACK", "IDALapackBand", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (tempv->ops->nvgetarraypointer == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDALAPACK", "IDALapackBand", MSGD_BAD_NVECTOR);
-    return(IDADIRECT_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDADLS_ILL_INPUT, "IDALAPACK", "IDALapackBand", MSGD_BAD_NVECTOR);
+    return(IDADLS_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(IDA_mem);
@@ -263,8 +263,8 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
   idadls_mem = NULL;
   idadls_mem = (IDADlsMem) malloc(sizeof(struct IDADlsMemRec));
   if (idadls_mem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGD_MEM_FAIL);
-    return(IDADIRECT_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGD_MEM_FAIL);
+    return(IDADLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -275,7 +275,7 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
   bjac   = NULL;
   J_data = NULL;
 
-  last_flag = IDADIRECT_SUCCESS;
+  last_flag = IDADLS_SUCCESS;
   setupNonNull = TRUE;
   
   /* Load problem dimension */
@@ -287,8 +287,8 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDALAPACK", "IDALapackBand", MSGD_BAD_SIZES);
-    return(IDADIRECT_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDADLS_ILL_INPUT, "IDALAPACK", "IDALapackBand", MSGD_BAD_SIZES);
+    return(IDADLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
@@ -300,22 +300,22 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
 
   JJ = NewBandMat(N, mu, ml, smu);
   if (JJ == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGD_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGD_MEM_FAIL);
     free(idadls_mem);
-    return(IDADIRECT_MEM_FAIL);
+    return(IDADLS_MEM_FAIL);
   }  
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGD_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGD_MEM_FAIL);
     DestroyMat(JJ);
     free(idadls_mem);
-    return(IDADIRECT_MEM_FAIL);
+    return(IDADLS_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = idadls_mem;
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /* 
@@ -344,7 +344,7 @@ static int idaLapackDenseInit(IDAMem IDA_mem)
     J_data = IDA_mem->ida_user_data;
   }
 
-  last_flag = IDADIRECT_SUCCESS;
+  last_flag = IDADLS_SUCCESS;
   return(0);
 }
 
@@ -366,11 +366,11 @@ static int idaLapackDenseSetup(IDAMem IDA_mem,
   nje++;
   retval = djac(n, tn, cj, yP, ypP, fctP, JJ, J_data, tmp1, tmp2, tmp3);
   if (retval < 0) {
-    IDAProcessError(IDA_mem, IDADIRECT_JACFUNC_UNRECVR, "IDALAPACK", "idaLapackDenseSetup", MSGD_JACFUNC_FAILED);
-    last_flag = IDADIRECT_JACFUNC_UNRECVR;
+    IDAProcessError(IDA_mem, IDADLS_JACFUNC_UNRECVR, "IDALAPACK", "idaLapackDenseSetup", MSGD_JACFUNC_FAILED);
+    last_flag = IDADLS_JACFUNC_UNRECVR;
     return(-1);
   } else if (retval > 0) {
-    last_flag = IDADIRECT_JACFUNC_RECVR;
+    last_flag = IDADLS_JACFUNC_RECVR;
     return(1);
   }
   
@@ -407,7 +407,7 @@ static int idaLapackDenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
     dscal_f77(&n, &fact, bd, &one); 
   }
 
-  last_flag = IDADIRECT_SUCCESS;
+  last_flag = IDADLS_SUCCESS;
   return(0);
 }
 
@@ -454,7 +454,7 @@ static int idaLapackBandInit(IDAMem IDA_mem)
     J_data = IDA_mem->ida_user_data;
   }
 
-  last_flag = IDADIRECT_SUCCESS;
+  last_flag = IDADLS_SUCCESS;
   return(0);
 }
 
@@ -476,11 +476,11 @@ static int idaLapackBandSetup(IDAMem IDA_mem,
   nje++;
   retval = bjac(n, mu, ml, tn, cj, yP, ypP, fctP, JJ, J_data, tmp1, tmp2, tmp3);
   if (retval < 0) {
-    IDAProcessError(IDA_mem, IDADIRECT_JACFUNC_UNRECVR, "IDALAPACK", "idaLapackBandSetup", MSGD_JACFUNC_FAILED);
-    last_flag = IDADIRECT_JACFUNC_UNRECVR;
+    IDAProcessError(IDA_mem, IDADLS_JACFUNC_UNRECVR, "IDALAPACK", "idaLapackBandSetup", MSGD_JACFUNC_FAILED);
+    last_flag = IDADLS_JACFUNC_UNRECVR;
     return(-1);
   } else if (retval > 0) {
-    last_flag = IDADIRECT_JACFUNC_RECVR;
+    last_flag = IDADLS_JACFUNC_RECVR;
     return(+1);
   }
   
@@ -518,7 +518,7 @@ static int idaLapackBandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
     dscal_f77(&n, &fact, bd, &one); 
   }
 
-  last_flag = IDADIRECT_SUCCESS;
+  last_flag = IDADLS_SUCCESS;
   return(0);
 }
 

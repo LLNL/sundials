@@ -683,14 +683,14 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVDIRECT\_ILL\_INPUT]
-  \item[\Id{CVDIRECT\_SUCCESS}] 
+  \begin{args}[CVDLS\_ILL\_INPUT]
+  \item[\Id{CVDLS\_SUCCESS}] 
     The {\cvdense} initialization was successful.
-  \item[\Id{CVDIRECT\_MEM\_NULL}]
+  \item[\Id{CVDLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDIRECT\_ILL\_INPUT}]
+  \item[\Id{CVDLS\_ILL\_INPUT}]
     The {\cvdense} solver is not compatible with the current {\nvector} module.
-  \item[\Id{CVDIRECT\_MEM\_FAIL}]
+  \item[\Id{CVDLS\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -750,16 +750,16 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVDIRECT\_ILL\_INPUT]
-  \item[\Id{CVDIRECT\_SUCCESS}] 
+  \begin{args}[CVDLS\_ILL\_INPUT]
+  \item[\Id{CVDLS\_SUCCESS}] 
     The {\cvband} initialization was successful.
-  \item[\Id{CVDIRECT\_MEM\_NULL}]
+  \item[\Id{CVDLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDIRECT\_ILL\_INPUT}]
+  \item[\Id{CVDLS\_ILL\_INPUT}]
     The {\cvband} solver is not compatible with the current {\nvector} module, or
     one of the Jacobian half-bandwidths is outside of its valid range
     ($0 \ldots$ \id{N}$-1$).
-  \item[\Id{CVDIRECT\_MEM\_FAIL}]
+  \item[\Id{CVDLS\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -1793,12 +1793,12 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDIRECT\_LMEM\_NULL]
-  \item[\Id{CVDIRECT\_SUCCESS}] 
+  \begin{args}[CVDLS\_LMEM\_NULL]
+  \item[\Id{CVDLS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVDIRECT\_MEM\_NULL}]
+  \item[\Id{CVDLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDIRECT\_LMEM\_NULL}]
+  \item[\Id{CVDLS\_LMEM\_NULL}]
     The {\cvdense} linear solver has not been initialized.
   \end{args}
 }
@@ -1846,12 +1846,12 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDIRECT\_LMEM\_NULL]
-  \item[\Id{CVDIRECT\_SUCCESS}] 
+  \begin{args}[CVDLS\_LMEM\_NULL]
+  \item[\Id{CVDLS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVDIRECT\_MEM\_NULL}]
+  \item[\Id{CVDLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDIRECT\_LMEM\_NULL}]
+  \item[\Id{CVDLS\_LMEM\_NULL}]
     The {\cvband} linear solver has not been initialized.
   \end{args}
 }
@@ -3125,12 +3125,12 @@ and last return value from a {\cvdls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDIRECT\_LMEM\_NULL]
-  \item[\Id{CVDIRECT\_SUCCESS}] 
+  \begin{args}[CVDLS\_LMEM\_NULL]
+  \item[\Id{CVDLS\_SUCCESS}] 
     The optional output values have been successfully set.
-  \item[\Id{CVDIRECT\_MEM\_NULL}]
+  \item[\Id{CVDLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDIRECT\_LMEM\_NULL}]
+  \item[\Id{CVDLS\_LMEM\_NULL}]
     The {\cvdls} linear solver has not been initialized.
   \end{args}
 }
@@ -3165,12 +3165,12 @@ and last return value from a {\cvdls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDIRECT\_LMEM\_NULL]
-  \item[\Id{CVDIRECT\_SUCCESS}] 
+  \begin{args}[CVDLS\_LMEM\_NULL]
+  \item[\Id{CVDLS\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVDIRECT\_MEM\_NULL}]
+  \item[\Id{CVDLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDIRECT\_LMEM\_NULL}]
+  \item[\Id{CVDLS\_LMEM\_NULL}]
     The {\cvdls} linear solver has not been initialized.
   \end{args}
 }
@@ -3196,12 +3196,12 @@ and last return value from a {\cvdls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDIRECT\_LMEM\_NULL]
-  \item[\Id{CVDIRECT\_SUCCESS}] 
+  \begin{args}[CVDLS\_LMEM\_NULL]
+  \item[\Id{CVDLS\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVDIRECT\_MEM\_NULL}]
+  \item[\Id{CVDLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDIRECT\_LMEM\_NULL}]
+  \item[\Id{CVDLS\_LMEM\_NULL}]
     The {\cvdls} linear solver has not been initialized.
   \end{args}
 }
@@ -3229,12 +3229,12 @@ and last return value from a {\cvdls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDIRECT\_LMEM\_NULL]
-  \item[\Id{CVDIRECT\_SUCCESS}] 
+  \begin{args}[CVDLS\_LMEM\_NULL]
+  \item[\Id{CVDLS\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CVDIRECT\_MEM\_NULL}]
+  \item[\Id{CVDLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDIRECT\_LMEM\_NULL}]
+  \item[\Id{CVDLS\_LMEM\_NULL}]
     The {\cvdls} linear solver has not been initialized.
   \end{args}
 }
@@ -4036,10 +4036,10 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
 {
   A \id{CVDlsDenseJacFn} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\cvodes} will attempt to correct, while {\cvdense} sets
-  \id{last\_flag} on \Id{CVDIRECT\_JACFUNC\_RECVR}), or a negative 
+  \id{last\_flag} on \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{CVode}
   returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} on 
-  \Id{CVDIRECT\_JACFUNC\_UNRECVR}).
+  \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied dense Jacobian function must load the \id{N} by \id{N}
@@ -4131,10 +4131,10 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
 {
   A \id{CVDlsBandJacFn} function should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\cvodes} will attempt to correct, while {\cvband} sets
-  \id{last\_flag} on \Id{CVDIRECT\_JACFUNC\_RECVR}), or a negative 
+  \id{last\_flag} on \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{CVode}
   returns \Id{CV\_LSETUP\_FAIL} and {\cvband} sets \id{last\_flag} on 
-  \Id{CVDIRECT\_JACFUNC\_UNRECVR}).
+  \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{Jac}

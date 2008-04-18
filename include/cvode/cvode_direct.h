@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.5 $
+ * $Date: 2008-04-18 19:42:36 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -14,8 +14,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _CVDIRECT_H
-#define _CVDIRECT_H
+#ifndef _CVDLS_H
+#define _CVDLS_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -32,20 +32,20 @@ extern "C" {
 
 /* 
  * -----------------------------------------------------------------
- * CVDIRECT return values 
+ * CVDLS return values 
  * -----------------------------------------------------------------
  */
 
-#define CVDIRECT_SUCCESS           0
-#define CVDIRECT_MEM_NULL         -1
-#define CVDIRECT_LMEM_NULL        -2
-#define CVDIRECT_ILL_INPUT        -3
-#define CVDIRECT_MEM_FAIL         -4
+#define CVDLS_SUCCESS           0
+#define CVDLS_MEM_NULL         -1
+#define CVDLS_LMEM_NULL        -2
+#define CVDLS_ILL_INPUT        -3
+#define CVDLS_MEM_FAIL         -4
 
 /* Additional last_flag values */
 
-#define CVDIRECT_JACFUNC_UNRECVR  -5
-#define CVDIRECT_JACFUNC_RECVR    -6
+#define CVDLS_JACFUNC_UNRECVR  -5
+#define CVDLS_JACFUNC_RECVR    -6
 
 /*
  * =================================================================
@@ -219,7 +219,7 @@ typedef int (*CVDlsBandJacFn)(int N, int mupper, int mlower,
 
 /*
  * -----------------------------------------------------------------
- * Optional inputs to the CVDIRECT linear solver
+ * Optional inputs to the CVDLS linear solver
  * -----------------------------------------------------------------
  *
  * CVDlsSetDenseJacFn specifies the dense Jacobian approximation
@@ -232,9 +232,9 @@ typedef int (*CVDlsBandJacFn)(int N, int mupper, int mlower,
  * the solver is used.
  *
  * The return value is one of:
- *    CVDIRECT_SUCCESS   if successful
- *    CVDIRECT_MEM_NULL  if the CVODE memory was NULL
- *    CVDIRECT_LMEM_NULL if the linear solver memory was NULL
+ *    CVDLS_SUCCESS   if successful
+ *    CVDLS_MEM_NULL  if the CVODE memory was NULL
+ *    CVDLS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -243,7 +243,7 @@ SUNDIALS_EXPORT int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac);
 
 /*
  * -----------------------------------------------------------------
- * Optional outputs from the CVDIRECT linear solver
+ * Optional outputs from the CVDLS linear solver
  * -----------------------------------------------------------------
  *
  * CVDlsGetWorkSpace   returns the real and integer workspace used
@@ -254,12 +254,12 @@ SUNDIALS_EXPORT int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac);
  *                     f routine due to finite difference Jacobian
  *                     evaluation.
  * CVDlsGetLastFlag    returns the last error flag set by any of
- *                     the CVDIRECT interface functions.
+ *                     the CVDLS interface functions.
  *
  * The return value of CVDlsGet* is one of:
- *    CVDIRECT_SUCCESS   if successful
- *    CVDIRECT_MEM_NULL  if the CVODE memory was NULL
- *    CVDIRECT_LMEM_NULL if the linear solver memory was NULL
+ *    CVDLS_SUCCESS   if successful
+ *    CVDLS_MEM_NULL  if the CVODE memory was NULL
+ *    CVDLS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -271,7 +271,7 @@ SUNDIALS_EXPORT int CVDlsGetLastFlag(void *cvode_mem, int *flag);
 /*
  * -----------------------------------------------------------------
  * The following function returns the name of the constant 
- * associated with a CVDIRECT return flag
+ * associated with a CVDLS return flag
  * -----------------------------------------------------------------
  */
 

@@ -1,10 +1,10 @@
 These generic linear solver modules in {\sundials} are organized in
-two families of solvers, the {\em direct} family which includes direct
+two families of solvers, the {\em dls} family which includes direct
 linear solvers appropriate for sequential computations, and the {\em spils}
 family which includes scaled preconditioned iterative (Krylov) linear solvers.
 The solvers in a given family shared common data structures and functions.
 
-The {\em direct} family contains the following two generic linear solvers:
+The {\em dls} family contains the following two generic linear solvers:
 \begin{itemize}
 \item The {\dense} package, a linear solver for dense matrices either specified 
   through a matrix type (defined below) or as simple arrays.
@@ -37,7 +37,7 @@ the {\sundials} solvers and one of the {\em spils} linear solvers.
 
 
 % ====================================================================================
-\section{The DIRECT modules: DENSE and BAND}\label{s:dls}
+\section{The DLS modules: DENSE and BAND}\label{s:dls}
 % ====================================================================================
 
 \index{generic linear solvers!DENSE@{\dense}}
@@ -87,7 +87,7 @@ The files listed above for either module can be extracted  from the {\sundials}
 \index{BAND@{\band} generic linear solver!type \id{DlsMat}|(}
 The type \ID{DlsMat}, defined in \id{sundials\_direct.h} is a pointer to a 
 structure defining a generic matrix, and is used with all linear solvers in 
-the {\em direct} family:
+the {\em dls} family:
 \begin{verbatim}
 typedef struct _DlsMat {
   int type;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.7 $
+ * $Date: 2008-04-18 19:42:40 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -145,16 +145,16 @@ int CVLapackDense(void *cvode_mem, int N)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVLAPACK", "CVLapackDense", MSGD_CVMEM_NULL);
-    return(CVDIRECT_MEM_NULL);
+    CVProcessError(NULL, CVDLS_MEM_NULL, "CVLAPACK", "CVLapackDense", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the LAPACK solver */
   if (tempv->ops->nvgetarraypointer == NULL ||
       tempv->ops->nvsetarraypointer == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVLAPACK", "CVLapackDense", MSGD_BAD_NVECTOR);
-    return(CVDIRECT_ILL_INPUT);
+    CVProcessError(cv_mem, CVDLS_ILL_INPUT, "CVLAPACK", "CVLapackDense", MSGD_BAD_NVECTOR);
+    return(CVDLS_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(cv_mem);
@@ -169,8 +169,8 @@ int CVLapackDense(void *cvode_mem, int N)
   cvdls_mem = NULL;
   cvdls_mem = (CVDlsMem) malloc(sizeof(struct CVDlsMemRec));
   if (cvdls_mem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
-    return(CVDIRECT_MEM_FAIL);
+    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -181,7 +181,7 @@ int CVLapackDense(void *cvode_mem, int N)
   djac   = NULL;
   J_data = NULL;
 
-  last_flag = CVDIRECT_SUCCESS;
+  last_flag = CVDLS_SUCCESS;
   setupNonNull = TRUE;
 
   /* Set problem dimension */
@@ -194,30 +194,30 @@ int CVLapackDense(void *cvode_mem, int N)
 
   M = NewDenseMat(N, N);
   if (M == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
+    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
     free(cvdls_mem);
-    return(CVDIRECT_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
+    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     free(cvdls_mem);
-    return(CVDIRECT_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
   savedJ = NewDenseMat(N, N);
   if (savedJ == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
+    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyArray(pivots);
     free(cvdls_mem);
-    return(CVDIRECT_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = cvdls_mem;
 
-  return(CVDIRECT_SUCCESS);
+  return(CVDLS_SUCCESS);
 }
 
 /*
@@ -235,8 +235,8 @@ int CVLapackDense(void *cvode_mem, int N)
  * in (*cvode_mem) to be TRUE, mu to be mupper, ml to be mlower, and 
  * the jacE and jacI field to NULL.
  * Finally, it allocates memory for M, pivots, and (if needed) savedJ.  
- * The CVLapackBand return value is CVDIRECT_SUCCESS = 0, 
- * CVDIRECT_MEM_FAIL = -1, or CVDIRECT_ILL_INPUT = -2.
+ * The CVLapackBand return value is CVDLS_SUCCESS = 0, 
+ * CVDLS_MEM_FAIL = -1, or CVDLS_ILL_INPUT = -2.
  *
  * NOTE: The CVLAPACK linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, CVLapackBand will first 
@@ -252,15 +252,15 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDIRECT_MEM_NULL, "CVLAPACK", "CVLapackBand", MSGD_CVMEM_NULL);
-    return(CVDIRECT_MEM_NULL);
+    CVProcessError(NULL, CVDLS_MEM_NULL, "CVLAPACK", "CVLapackBand", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (tempv->ops->nvgetarraypointer == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVLAPACK", "CVLapackBand", MSGD_BAD_NVECTOR);
-    return(CVDIRECT_ILL_INPUT);
+    CVProcessError(cv_mem, CVDLS_ILL_INPUT, "CVLAPACK", "CVLapackBand", MSGD_BAD_NVECTOR);
+    return(CVDLS_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(cv_mem);
@@ -275,8 +275,8 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   cvdls_mem = NULL;
   cvdls_mem = (CVDlsMem) malloc(sizeof(struct CVDlsMemRec));
   if (cvdls_mem == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
-    return(CVDIRECT_MEM_FAIL);
+    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -287,7 +287,7 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   bjac   = NULL;
   J_data = NULL;
 
-  last_flag = CVDIRECT_SUCCESS;
+  last_flag = CVDLS_SUCCESS;
   setupNonNull = TRUE;
   
   /* Load problem dimension */
@@ -299,8 +299,8 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    CVProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVLAPACK", "CVLapackBand", MSGD_BAD_SIZES);
-    return(CVDIRECT_ILL_INPUT);
+    CVProcessError(cv_mem, CVDLS_ILL_INPUT, "CVLAPACK", "CVLapackBand", MSGD_BAD_SIZES);
+    return(CVDLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
@@ -313,30 +313,30 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
 
   M = NewBandMat(N, mu, ml, smu);
   if (M == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
+    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
     free(cvdls_mem);
-    return(CVDIRECT_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }  
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
+    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     free(cvdls_mem);
-    return(CVDIRECT_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
   savedJ = NewBandMat(N, mu, ml, smu);
   if (savedJ == NULL) {
-    CVProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
+    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyArray(pivots);
     free(cvdls_mem);
-    return(CVDIRECT_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = cvdls_mem;
 
-  return(CVDIRECT_SUCCESS);
+  return(CVDLS_SUCCESS);
 }
 
 /* 
@@ -367,7 +367,7 @@ static int cvLapackDenseInit(CVodeMem cv_mem)
     J_data = cv_mem->cv_user_data;
   }
   
-  last_flag = CVDIRECT_SUCCESS;
+  last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -414,11 +414,11 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
     if (retval == 0) {
       dcopy_f77(&(M->ldata), M->data, &one, savedJ->data, &one);
     } else if (retval < 0) {
-      CVProcessError(cv_mem, CVDIRECT_JACFUNC_UNRECVR, "CVLAPACK", "cvLapackDenseSetup", MSGD_JACFUNC_FAILED);
-      last_flag = CVDIRECT_JACFUNC_UNRECVR;
+      CVProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVLAPACK", "cvLapackDenseSetup", MSGD_JACFUNC_FAILED);
+      last_flag = CVDLS_JACFUNC_UNRECVR;
       return(-1);
     } else if (retval > 0) {
-      last_flag = CVDIRECT_JACFUNC_RECVR;
+      last_flag = CVDLS_JACFUNC_RECVR;
       return(1);
     }
     
@@ -464,7 +464,7 @@ static int cvLapackDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     dscal_f77(&n, &fact, bd, &one); 
   }
   
-  last_flag = CVDIRECT_SUCCESS;
+  last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -512,7 +512,7 @@ static int cvLapackBandInit(CVodeMem cv_mem)
     J_data = cv_mem->cv_user_data;
   }
   
-  last_flag = CVDIRECT_SUCCESS;
+  last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -559,11 +559,11 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
     if (retval == 0) {
       dcopy_f77(&(M->ldata), M->data, &one, savedJ->data, &one);
     } else if (retval < 0) {
-      CVProcessError(cv_mem, CVDIRECT_JACFUNC_UNRECVR, "CVLAPACK", "cvLapackBandSetup", MSGD_JACFUNC_FAILED);
-      last_flag = CVDIRECT_JACFUNC_UNRECVR;
+      CVProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVLAPACK", "cvLapackBandSetup", MSGD_JACFUNC_FAILED);
+      last_flag = CVDLS_JACFUNC_UNRECVR;
       return(-1);
     } else if (retval > 0) {
-      last_flag = CVDIRECT_JACFUNC_RECVR;
+      last_flag = CVDLS_JACFUNC_RECVR;
       return(1);
     }
     
@@ -610,7 +610,7 @@ static int cvLapackBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     dscal_f77(&n, &fact, bd, &one); 
   }
 
-  last_flag = CVDIRECT_SUCCESS;
+  last_flag = CVDLS_SUCCESS;
   return(0);
 }
 

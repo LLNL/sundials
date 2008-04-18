@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:36 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,10 +43,10 @@ extern "C" {
  * N is the size of the ODE system.
  *
  * The return value of CPLapackDense is one of:
- *    CPDIRECT_SUCCESS   if successful
- *    CPDIRECT_MEM_NULL  if the CPODES memory was NULL
- *    CPDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    CPDIRECT_ILL_INPUT if a required vector operation is missing
+ *    CPDLS_SUCCESS   if successful
+ *    CPDLS_MEM_NULL  if the CPODES memory was NULL
+ *    CPDLS_MEM_FAIL  if there was a memory allocation failure
+ *    CPDLS_ILL_INPUT if a required vector operation is missing
  * -----------------------------------------------------------------
  */
 
@@ -69,10 +69,10 @@ SUNDIALS_EXPORT int CPLapackDense(void *cpode_mem, int N);
  * mlower is the lower bandwidth of the band Jacobian approximation.
  *
  * The return value of CPLapackBand is one of:
- *    CPDIRECT_SUCCESS   if successful
- *    CPDIRECT_MEM_NULL  if the CPODES memory was NULL
- *    CPDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    CPDIRECT_ILL_INPUT if a required vector operation is missing or
+ *    CPDLS_SUCCESS   if successful
+ *    CPDLS_MEM_NULL  if the CPODES memory was NULL
+ *    CPDLS_MEM_FAIL  if there was a memory allocation failure
+ *    CPDLS_ILL_INPUT if a required vector operation is missing or
  *                       if a bandwidth has an illegal value.
  * -----------------------------------------------------------------
  */
@@ -91,14 +91,14 @@ SUNDIALS_EXPORT int CPLapackBand(void *cpode_mem, int N, int mupper, int mlower)
  * Nc         the number of constraints
  * Ny         the number of states (size of the ODE system).
  * fact_type  the type of factorization used for the constraint
- *            Jacobian G. Legal values are CPDIRECT_LU, CPDIRECT_QR,
- *            and CPDIRECT_SC.
+ *            Jacobian G. Legal values are CPDLS_LU, CPDLS_QR,
+ *            and CPDLS_SC.
  *
  * The return value of CPLapackDenseProj is one of:
- *    CPDIRECT_SUCCESS   if successful
- *    CPDIRECT_MEM_NULL  if the CPODES memory was NULL
- *    CPDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    CPDIRECT_ILL_INPUT if a required vector operation is missing
+ *    CPDLS_SUCCESS   if successful
+ *    CPDLS_MEM_NULL  if the CPODES memory was NULL
+ *    CPDLS_MEM_FAIL  if there was a memory allocation failure
+ *    CPDLS_ILL_INPUT if a required vector operation is missing
  * -----------------------------------------------------------------
  */
 

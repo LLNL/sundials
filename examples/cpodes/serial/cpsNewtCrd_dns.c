@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-12-19 20:26:43 $
+ * $Revision: 1.3 $
+ * $Date: 2008-04-18 19:42:43 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -150,7 +150,7 @@ int main()
   
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
   flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
-  flag = CPDenseProj(cpode_mem, Nc, Neq, CPDIRECT_LU);
+  flag = CPDenseProj(cpode_mem, Nc, Neq, CPDLS_LU);
 
   /* Integrate in ONE_STEP mode, while monitoring events */
 
@@ -225,7 +225,7 @@ int main()
   
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
   flag = CPodeSetProjTestCnstr(cpode_mem, TRUE);
-  flag = CPDenseProj(cpode_mem, Nc, Neq, CPDIRECT_LU);
+  flag = CPDenseProj(cpode_mem, Nc, Neq, CPDLS_LU);
 
   /* Integrate in ONE_STEP mode, while monitoring events */
 

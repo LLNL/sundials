@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:05 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:35 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,10 +43,10 @@ extern "C" {
  * N is the size of the ODE system.
  *
  * The return value of CPDense is one of:
- *    CPDIRECT_SUCCESS   if successful
- *    CPDIRECT_MEM_NULL  if the CPODES memory was NULL
- *    CPDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    CPDIRECT_ILL_INPUT if a required vector operation is missing
+ *    CPDLS_SUCCESS   if successful
+ *    CPDLS_MEM_NULL  if the CPODES memory was NULL
+ *    CPDLS_MEM_FAIL  if there was a memory allocation failure
+ *    CPDLS_ILL_INPUT if a required vector operation is missing
  * -----------------------------------------------------------------
  */
 
@@ -64,13 +64,13 @@ SUNDIALS_EXPORT int CPDense(void *cpode_mem, int N);
  * Nc         the number of constraints
  * Ny         the number of states (size of the ODE system).
  * fact_type  the type of factorization used for the constraint
- *            Jcobian G. Legal values are CPDIRECT_LU and CPDIRECT_LQ.
+ *            Jcobian G. Legal values are CPDLS_LU and CPDLS_LQ.
  *
  * The return value of CPDense is one of:
- *    CPDIRECT_SUCCESS   if successful
- *    CPDIRECT_MEM_NULL  if the CPODES memory was NULL
- *    CPDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    CPDIRECT_ILL_INPUT if a required vector operation is missing
+ *    CPDLS_SUCCESS   if successful
+ *    CPDLS_MEM_NULL  if the CPODES memory was NULL
+ *    CPDLS_MEM_FAIL  if there was a memory allocation failure
+ *    CPDLS_ILL_INPUT if a required vector operation is missing
  * -----------------------------------------------------------------
  */
 

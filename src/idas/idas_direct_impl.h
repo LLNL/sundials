@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.6 $
+ * $Date: 2008-04-18 19:42:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,12 +10,12 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * Implementation header file for the IDASDIRECT linear solvers.
+ * Implementation header file for the IDADLS linear solvers.
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDALAPACK_IMPL_H
-#define _IDALAPACK_IMPL_H
+#ifndef _IDASDLS_IMPL_H
+#define _IDASDLS_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -96,7 +96,7 @@ int idaDlsBandDQJac(int N, int mupper, int mlower,
  * -----------------------------------------------------------------
  * Types : IDADlsMemRecB, IDADlsMemB       
  * -----------------------------------------------------------------
- * An IDASDIRECT linear solver's specification function attaches such
+ * An IDADLS linear solver's specification function attaches such
  * a structure to the lmemB filed of IDABMem
  * -----------------------------------------------------------------
  */

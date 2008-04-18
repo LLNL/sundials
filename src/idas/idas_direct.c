@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.6 $
+ * $Date: 2008-04-18 19:42:42 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,7 +10,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the implementation file for an IDASDIRECT linear solver.
+ * This is the implementation file for an IDASDLS linear solver.
  * -----------------------------------------------------------------
  */
 
@@ -111,14 +111,14 @@ int IDADlsSetDenseJacFn(void *ida_mem, IDADlsDenseJacFn jac)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsSetDenseJacFn", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS", "IDADlsSetDenseJacFn", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsSetDenseJacFn", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsSetDenseJacFn", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
@@ -129,7 +129,7 @@ int IDADlsSetDenseJacFn(void *ida_mem, IDADlsDenseJacFn jac)
     jacDQ = TRUE;
   }
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -142,14 +142,14 @@ int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsSetBandJacFn", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS", "IDADlsSetBandJacFn", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsSetBandJacFn", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsSetBandJacFn", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
@@ -160,7 +160,7 @@ int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac)
     jacDQ = TRUE;
   }
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -174,14 +174,14 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsGetWorkSpace", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS", "IDADlsGetWorkSpace", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsGetWorkSpace", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsGetWorkSpace", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
@@ -193,7 +193,7 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
     *leniwLS = n;
   }
     
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -206,20 +206,20 @@ int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsGetNumJacEvals", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS", "IDADlsGetNumJacEvals", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsGetNumJacEvals", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsGetNumJacEvals", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
   *njevals = nje;
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -233,20 +233,20 @@ int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsGetNumFctEvals", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS", "IDADlsGetNumFctEvals", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsGetNumFctEvals", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsGetNumFctEvals", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
   *nrevalsLS = nreDQ;
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -260,26 +260,26 @@ char *IDADlsGetReturnFlagName(int flag)
   name = (char *)malloc(30*sizeof(char));
 
   switch(flag) {
-  case IDADIRECT_SUCCESS:
-    sprintf(name,"IDADIRECT_SUCCESS");
+  case IDADLS_SUCCESS:
+    sprintf(name,"IDADLS_SUCCESS");
     break;   
-  case IDADIRECT_MEM_NULL:
-    sprintf(name,"IDADIRECT_MEM_NULL");
+  case IDADLS_MEM_NULL:
+    sprintf(name,"IDADLS_MEM_NULL");
     break;
-  case IDADIRECT_LMEM_NULL:
-    sprintf(name,"IDADIRECT_LMEM_NULL");
+  case IDADLS_LMEM_NULL:
+    sprintf(name,"IDADLS_LMEM_NULL");
     break;
-  case IDADIRECT_ILL_INPUT:
-    sprintf(name,"IDADIRECT_ILL_INPUT");
+  case IDADLS_ILL_INPUT:
+    sprintf(name,"IDADLS_ILL_INPUT");
     break;
-  case IDADIRECT_MEM_FAIL:
-    sprintf(name,"IDADIRECT_MEM_FAIL");
+  case IDADLS_MEM_FAIL:
+    sprintf(name,"IDADLS_MEM_FAIL");
     break;
-  case IDADIRECT_JACFUNC_UNRECVR:
-    sprintf(name,"IDADIRECT_JACFUNC_UNRECVR");
+  case IDADLS_JACFUNC_UNRECVR:
+    sprintf(name,"IDADLS_JACFUNC_UNRECVR");
     break;
-  case IDADIRECT_JACFUNC_RECVR:
-    sprintf(name,"IDADIRECT_JACFUNC_RECVR");
+  case IDADLS_JACFUNC_RECVR:
+    sprintf(name,"IDADLS_JACFUNC_RECVR");
     break;
   default:
     sprintf(name,"NONE");
@@ -298,20 +298,20 @@ int IDADlsGetLastFlag(void *ida_mem, int *flag)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsGetLastFlag", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS", "IDADlsGetLastFlag", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDASDIRECT", "IDADlsGetLastFlag", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDASDLS", "IDADlsGetLastFlag", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
   *flag = last_flag;
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /* 
@@ -593,22 +593,22 @@ int IDADlsSetDenseJacFnB(void *ida_mem, int which, IDADlsDenseJacFnB jacB)
   
   /* Is ida_mem allright? */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsSetDenseJacFnB", MSGD_CAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS", "IDADlsSetDenseJacFnB", MSGD_CAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == FALSE) {
-    IDAProcessError(IDA_mem, IDADIRECT_NO_ADJ, "IDASDIRECT", "IDADlsSetDenseJacFnB",  MSGD_NO_ADJ);
-    return(IDADIRECT_NO_ADJ);
+    IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASDLS", "IDADlsSetDenseJacFnB",  MSGD_NO_ADJ);
+    return(IDADLS_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
-    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDASDIRECT", "IDADlsSetDenseJacFnB", MSGD_BAD_WHICH);
-    return(IDADIRECT_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDADLS_ILL_INPUT, "IDASDLS", "IDADlsSetDenseJacFnB", MSGD_BAD_WHICH);
+    return(IDADLS_ILL_INPUT);
   }
 
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
@@ -623,9 +623,9 @@ int IDADlsSetDenseJacFnB(void *ida_mem, int which, IDADlsDenseJacFnB jacB)
   ida_memB = (void*) IDAB_mem->IDA_mem;
 
   if (IDAB_mem->ida_lmem == NULL) {
-    IDAProcessError(IDAB_mem->IDA_mem, IDADIRECT_LMEMB_NULL, 
-                    "IDASDIRECT", "IDADlsSetDenseJacFnB", MSGD_LMEMB_NULL);
-    return(IDADIRECT_LMEMB_NULL);
+    IDAProcessError(IDAB_mem->IDA_mem, IDADLS_LMEMB_NULL, 
+                    "IDASDLS", "IDADlsSetDenseJacFnB", MSGD_LMEMB_NULL);
+    return(IDADLS_LMEMB_NULL);
   }
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
@@ -651,22 +651,22 @@ int IDADlsSetBandJacFnB(void *ida_mem, int which, IDADlsBandJacFnB jacB)
   
   /* Is ida_mem allright? */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDASDIRECT", "IDADlsSetBandJacFnB", MSGD_CAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDASDLS", "IDADlsSetBandJacFnB", MSGD_CAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == FALSE) {
-    IDAProcessError(IDA_mem, IDADIRECT_NO_ADJ, "IDASDIRECT", "IDADlsSetBandJacFnB",  MSGD_NO_ADJ);
-    return(IDADIRECT_NO_ADJ);
+    IDAProcessError(IDA_mem, IDADLS_NO_ADJ, "IDASDLS", "IDADlsSetBandJacFnB",  MSGD_NO_ADJ);
+    return(IDADLS_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
-    IDAProcessError(IDA_mem, IDADIRECT_ILL_INPUT, "IDASDIRECT", "IDADlsSetBandJacFnB", MSGD_BAD_WHICH);
-    return(IDADIRECT_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDADLS_ILL_INPUT, "IDASDLS", "IDADlsSetBandJacFnB", MSGD_BAD_WHICH);
+    return(IDADLS_ILL_INPUT);
   }
 
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
@@ -681,9 +681,9 @@ int IDADlsSetBandJacFnB(void *ida_mem, int which, IDADlsBandJacFnB jacB)
   ida_memB = (void*) IDAB_mem->IDA_mem;
 
   if (IDAB_mem->ida_lmem == NULL) {
-    IDAProcessError(IDAB_mem->IDA_mem, IDADIRECT_LMEMB_NULL, 
-                    "IDASDIRECT", "IDADlsSetBandJacFnB", MSGD_LMEMB_NULL);
-    return(IDADIRECT_LMEMB_NULL);
+    IDAProcessError(IDAB_mem->IDA_mem, IDADLS_LMEMB_NULL, 
+                    "IDASDLS", "IDADlsSetBandJacFnB", MSGD_LMEMB_NULL);
+    return(IDADLS_LMEMB_NULL);
   }
   idadlsB_mem = (IDADlsMemB) IDAB_mem->ida_lmem;
 
@@ -736,7 +736,7 @@ static int idaDlsDenseJacBWrapper(int NeqB, realtype tt, realtype c_jB,
   if (noInterp == FALSE) {
     flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS) {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDIRECT", "idaDlsDenseJacWrapper", MSGD_BAD_T);
+      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDLS", "idaDlsDenseJacWrapper", MSGD_BAD_T);
       return(-1);
     }
   }
@@ -783,7 +783,7 @@ static int idaDlsBandJacBWrapper(int NeqB, int mupperB, int mlowerB,
   if (noInterp == FALSE) {
     flag = IDAADJ_mem->ia_getY(IDA_mem, tt, yyTmp, ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS) {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDIRECT", "idaDlsBandJacWrapper", MSGD_BAD_T);
+      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASDLS", "idaDlsBandJacWrapper", MSGD_BAD_T);
       return(-1);
     }
   }

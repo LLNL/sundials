@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.5 $
+ * $Date: 2008-04-18 19:42:38 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -14,8 +14,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _KINDIRECT_H
-#define _KINDIRECT_H
+#ifndef _KINDLS_H
+#define _KINDLS_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -32,20 +32,20 @@ extern "C" {
 
 /* 
  * -----------------------------------------------------------------
- * KINDIRECT return values 
+ * KINDLS return values 
  * -----------------------------------------------------------------
  */
 
-#define KINDIRECT_SUCCESS           0
-#define KINDIRECT_MEM_NULL         -1
-#define KINDIRECT_LMEM_NULL        -2
-#define KINDIRECT_ILL_INPUT        -3
-#define KINDIRECT_MEM_FAIL         -4
+#define KINDLS_SUCCESS           0
+#define KINDLS_MEM_NULL         -1
+#define KINDLS_LMEM_NULL        -2
+#define KINDLS_ILL_INPUT        -3
+#define KINDLS_MEM_FAIL         -4
 
 /* Additional last_flag values */
 
-#define KINDIRECT_JACFUNC_UNRECVR  -5
-#define KINDIRECT_JACFUNC_RECVR    -6
+#define KINDLS_JACFUNC_UNRECVR  -5
+#define KINDLS_JACFUNC_RECVR    -6
 
 /*
  * =================================================================
@@ -203,7 +203,7 @@ typedef int (*KINDlsBandJacFn)(int N, int mupper, int mlower,
 
 /*
  * -----------------------------------------------------------------
- * Optional inputs to the KINDIRECT linear solver
+ * Optional inputs to the KINDLS linear solver
  * -----------------------------------------------------------------
  *
  * KINDlsSetDenseJacFn specifies the dense Jacobian approximation
@@ -216,9 +216,9 @@ typedef int (*KINDlsBandJacFn)(int N, int mupper, int mlower,
  * the solver is used.
  *
  * The return value is one of:
- *    KINDIRECT_SUCCESS   if successful
- *    KINDIRECT_MEM_NULL  if the KINSOL memory was NULL
- *    KINDIRECT_LMEM_NULL if the linear solver memory was NULL
+ *    KINDLS_SUCCESS   if successful
+ *    KINDLS_MEM_NULL  if the KINSOL memory was NULL
+ *    KINDLS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -227,25 +227,25 @@ SUNDIALS_EXPORT int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac);
 
 /*
  * -----------------------------------------------------------------
- * Optional outputs from a KINDIRECT linear solver
+ * Optional outputs from a KINDLS linear solver
  * -----------------------------------------------------------------
  *
  * KINDlsGetWorkSpace    returns the real and integer workspace used
- *                       by the KINDIRECT linear solver.
+ *                       by the KINDLS linear solver.
  * KINDlsGetNumJacEvals  returns the number of calls made to the
  *                       Jacobian evaluation routine.
  * KINDlsGetNumFuncEvals returns the number of calls to the user's F
  *                       routine due to finite difference Jacobian
  *                       evaluation.
  * KINDlsGetLastFlag     returns the last error flag set by any of
- *                       the KINDIRECT interface functions.
+ *                       the KINDLS interface functions.
  * KINDlsGetReturnFlagName returns the name of the constant
- *                       associated with a KINDIRECT return flag
+ *                       associated with a KINDLS return flag
  *
  * The return value of KINDlsGet* is one of:
- *    KINDIRECT_SUCCESS   if successful
- *    KINDIRECT_MEM_NULL  if the KINSOL memory was NULL
- *    KINDIRECT_LMEM_NULL if the linear solver memory was NULL
+ *    KINDLS_SUCCESS   if successful
+ *    KINDLS_MEM_NULL  if the KINSOL memory was NULL
+ *    KINDLS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 

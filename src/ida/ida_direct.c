@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.5 $
+ * $Date: 2008-04-18 19:42:41 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,7 +10,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the implementation file for an IDADIRECT linear solver.
+ * This is the implementation file for an IDADLS linear solver.
  * -----------------------------------------------------------------
  */
 
@@ -93,14 +93,14 @@ int IDADlsSetDenseJacFn(void *ida_mem, IDADlsDenseJacFn jac)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsSetDenseJacFn", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS", "IDADlsSetDenseJacFn", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsSetDenseJacFn", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS", "IDADlsSetDenseJacFn", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
@@ -111,7 +111,7 @@ int IDADlsSetDenseJacFn(void *ida_mem, IDADlsDenseJacFn jac)
     jacDQ = TRUE;
   }
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -124,14 +124,14 @@ int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsSetBandJacFn", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS", "IDADlsSetBandJacFn", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsSetBandJacFn", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS", "IDADlsSetBandJacFn", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
@@ -142,7 +142,7 @@ int IDADlsSetBandJacFn(void *ida_mem, IDADlsBandJacFn jac)
     jacDQ = TRUE;
   }
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -156,14 +156,14 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsGetWorkSpace", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS", "IDADlsGetWorkSpace", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsGetWorkSpace", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS", "IDADlsGetWorkSpace", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
@@ -175,7 +175,7 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
     *leniwLS = n;
   }
     
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -188,20 +188,20 @@ int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsGetNumJacEvals", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS", "IDADlsGetNumJacEvals", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsGetNumJacEvals", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS", "IDADlsGetNumJacEvals", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
   *njevals = nje;
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -215,20 +215,20 @@ int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsGetNumFctEvals", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS", "IDADlsGetNumFctEvals", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsGetNumFctEvals", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS", "IDADlsGetNumFctEvals", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
   *nrevalsLS = nreDQ;
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /*
@@ -242,26 +242,26 @@ char *IDADlsGetReturnFlagName(int flag)
   name = (char *)malloc(30*sizeof(char));
 
   switch(flag) {
-  case IDADIRECT_SUCCESS:
-    sprintf(name,"IDADIRECT_SUCCESS");
+  case IDADLS_SUCCESS:
+    sprintf(name,"IDADLS_SUCCESS");
     break;   
-  case IDADIRECT_MEM_NULL:
-    sprintf(name,"IDADIRECT_MEM_NULL");
+  case IDADLS_MEM_NULL:
+    sprintf(name,"IDADLS_MEM_NULL");
     break;
-  case IDADIRECT_LMEM_NULL:
-    sprintf(name,"IDADIRECT_LMEM_NULL");
+  case IDADLS_LMEM_NULL:
+    sprintf(name,"IDADLS_LMEM_NULL");
     break;
-  case IDADIRECT_ILL_INPUT:
-    sprintf(name,"IDADIRECT_ILL_INPUT");
+  case IDADLS_ILL_INPUT:
+    sprintf(name,"IDADLS_ILL_INPUT");
     break;
-  case IDADIRECT_MEM_FAIL:
-    sprintf(name,"IDADIRECT_MEM_FAIL");
+  case IDADLS_MEM_FAIL:
+    sprintf(name,"IDADLS_MEM_FAIL");
     break;
-  case IDADIRECT_JACFUNC_UNRECVR:
-    sprintf(name,"IDADIRECT_JACFUNC_UNRECVR");
+  case IDADLS_JACFUNC_UNRECVR:
+    sprintf(name,"IDADLS_JACFUNC_UNRECVR");
     break;
-  case IDADIRECT_JACFUNC_RECVR:
-    sprintf(name,"IDADIRECT_JACFUNC_RECVR");
+  case IDADLS_JACFUNC_RECVR:
+    sprintf(name,"IDADLS_JACFUNC_RECVR");
     break;
   default:
     sprintf(name,"NONE");
@@ -280,20 +280,20 @@ int IDADlsGetLastFlag(void *ida_mem, int *flag)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDADIRECT_MEM_NULL, "IDADIRECT", "IDADlsGetLastFlag", MSGD_IDAMEM_NULL);
-    return(IDADIRECT_MEM_NULL);
+    IDAProcessError(NULL, IDADLS_MEM_NULL, "IDADLS", "IDADlsGetLastFlag", MSGD_IDAMEM_NULL);
+    return(IDADLS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    IDAProcessError(IDA_mem, IDADIRECT_LMEM_NULL, "IDADIRECT", "IDADlsGetLastFlag", MSGD_LMEM_NULL);
-    return(IDADIRECT_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADLS_LMEM_NULL, "IDADLS", "IDADlsGetLastFlag", MSGD_LMEM_NULL);
+    return(IDADLS_LMEM_NULL);
   }
   idadls_mem = (IDADlsMem) lmem;
 
   *flag = last_flag;
 
-  return(IDADIRECT_SUCCESS);
+  return(IDADLS_SUCCESS);
 }
 
 /* 

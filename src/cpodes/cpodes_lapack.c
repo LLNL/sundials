@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-12-19 20:26:42 $
+ * $Revision: 1.5 $
+ * $Date: 2008-04-18 19:42:39 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -207,16 +207,16 @@ int CPLapackDense(void *cpode_mem, int N)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPLAPACK", "CPLapackDense", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPLAPACK", "CPLapackDense", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Test if the NVECTOR package is compatible with the LAPACK solver */
   if (tempv->ops->nvgetarraypointer == NULL ||
       tempv->ops->nvsetarraypointer == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPLAPACK", "CPLapackDense", MSGD_BAD_NVECTOR);
-    return(CPDIRECT_ILL_INPUT);
+    cpProcessError(cp_mem, CPDLS_ILL_INPUT, "CPLAPACK", "CPLapackDense", MSGD_BAD_NVECTOR);
+    return(CPDLS_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(cp_mem);
@@ -231,8 +231,8 @@ int CPLapackDense(void *cpode_mem, int N)
   cpdls_mem = NULL;
   cpdls_mem = (CPDlsMem) malloc(sizeof(CPDlsMemRec));
   if (cpdls_mem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDense", MSGD_MEM_FAIL);
-    return(CPDIRECT_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDense", MSGD_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -244,7 +244,7 @@ int CPLapackDense(void *cpode_mem, int N)
   djacI = NULL;
   J_data = NULL;
 
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   lsetup_exists = TRUE;
 
   /* Set problem dimension */
@@ -257,32 +257,32 @@ int CPLapackDense(void *cpode_mem, int N)
 
   M = NewDenseMat(N, N);
   if (M == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDense", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDense", MSGD_MEM_FAIL);
     free(cpdls_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDense", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     free(cpdls_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
   if (ode_type == CP_EXPL) {
     savedJ = NewDenseMat(N, N);
     if (savedJ == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDense", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDense", MSGD_MEM_FAIL);
       DestroyMat(M);
       DestroyArray(pivots);
       free(cpdls_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = cpdls_mem;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /*
@@ -300,8 +300,8 @@ int CPLapackDense(void *cpode_mem, int N)
  * in (*cpode_mem) to be TRUE, mu to be mupper, ml to be mlower, and 
  * the jacE and jacI field to NULL.
  * Finally, it allocates memory for M, pivots, and (if needed) savedJ.  
- * The CPLapackBand return value is CPDIRECT_SUCCESS = 0, 
- * CPDIRECT_MEM_FAIL = -1, or CPDIRECT_ILL_INPUT = -2.
+ * The CPLapackBand return value is CPDLS_SUCCESS = 0, 
+ * CPDLS_MEM_FAIL = -1, or CPDLS_ILL_INPUT = -2.
  *
  * NOTE: The CPLAPACK linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, CPLapackBand will first 
@@ -317,15 +317,15 @@ int CPLapackBand(void *cpode_mem, int N, int mupper, int mlower)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPLAPACK", "CPLapackBand", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPLAPACK", "CPLapackBand", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (tempv->ops->nvgetarraypointer == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPLAPACK", "CPLapackBand", MSGD_BAD_NVECTOR);
-    return(CPDIRECT_ILL_INPUT);
+    cpProcessError(cp_mem, CPDLS_ILL_INPUT, "CPLAPACK", "CPLapackBand", MSGD_BAD_NVECTOR);
+    return(CPDLS_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(cp_mem);
@@ -340,8 +340,8 @@ int CPLapackBand(void *cpode_mem, int N, int mupper, int mlower)
   cpdls_mem = NULL;
   cpdls_mem = (CPDlsMem) malloc(sizeof(CPDlsMemRec));
   if (cpdls_mem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackBand", MSGD_MEM_FAIL);
-    return(CPDIRECT_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackBand", MSGD_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -353,7 +353,7 @@ int CPLapackBand(void *cpode_mem, int N, int mupper, int mlower)
   bjacI = NULL;
   J_data = NULL;
 
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   lsetup_exists = TRUE;
   
   /* Load problem dimension */
@@ -365,8 +365,8 @@ int CPLapackBand(void *cpode_mem, int N, int mupper, int mlower)
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPLAPACK", "CPLapackBand", MSGD_BAD_SIZES);
-    return(CPDIRECT_ILL_INPUT);
+    cpProcessError(cp_mem, CPDLS_ILL_INPUT, "CPLAPACK", "CPLapackBand", MSGD_BAD_SIZES);
+    return(CPDLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
@@ -379,32 +379,32 @@ int CPLapackBand(void *cpode_mem, int N, int mupper, int mlower)
 
   M = NewBandMat(N, mu, ml, smu);
   if (M == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackBand", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackBand", MSGD_MEM_FAIL);
     free(cpdls_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }  
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackBand", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     free(cpdls_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
   if (ode_type == CP_EXPL) {
     savedJ = NewBandMat(N, mu, ml, smu);
     if (savedJ == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackBand", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackBand", MSGD_MEM_FAIL);
       DestroyMat(M);
       DestroyArray(pivots);
       free(cpdls_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = cpdls_mem;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /*
@@ -430,25 +430,25 @@ int CPLapackDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPLAPACK", "CPLapackDenseProj", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPLAPACK", "CPLapackDenseProj", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   /* Test if the NVECTOR package is compatible with the LAPACK solver */
   if (tempv->ops->nvgetarraypointer == NULL ||
       tempv->ops->nvsetarraypointer == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPLAPACK", "CPLapackDenseProj", MSGD_BAD_NVECTOR);
-    return(CPDIRECT_ILL_INPUT);
+    cpProcessError(cp_mem, CPDLS_ILL_INPUT, "CPLAPACK", "CPLapackDenseProj", MSGD_BAD_NVECTOR);
+    return(CPDLS_ILL_INPUT);
   }
 
   /* Check if fact_type has a legal value */
-  if ( (fact_type != CPDIRECT_LU) && 
-       (fact_type != CPDIRECT_QR) && 
-       (fact_type != CPDIRECT_SC) &&
-       (fact_type != CPDIRECT_QRP) ) {
-    cpProcessError(cp_mem, CPDIRECT_ILL_INPUT, "CPLAPACK", "CPLapackDenseProj", MSGD_BAD_FACT);
-    return(CPDIRECT_ILL_INPUT);
+  if ( (fact_type != CPDLS_LU) && 
+       (fact_type != CPDLS_QR) && 
+       (fact_type != CPDLS_SC) &&
+       (fact_type != CPDLS_QRP) ) {
+    cpProcessError(cp_mem, CPDLS_ILL_INPUT, "CPLAPACK", "CPLapackDenseProj", MSGD_BAD_FACT);
+    return(CPDLS_ILL_INPUT);
   }
 
   if (lfreeP !=NULL) lfreeP(cp_mem);
@@ -464,8 +464,8 @@ int CPLapackDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
   cpdlsP_mem = NULL;
   cpdlsP_mem = (CPDlsProjMem) malloc(sizeof(CPDlsProjMemRec));
   if (cpdlsP_mem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
-    return(CPDIRECT_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
 
   /* Set default Jacobian routine and Jacobian data */
@@ -485,51 +485,51 @@ int CPLapackDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
   /* Allocate memory for G */
   G = NewDenseMat(Ny, Nc);
   if (G == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
     free(cpdlsP_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
   savedG = NewDenseMat(Ny, Nc);
   if (savedG == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+    cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
     DestroyMat(G);
     free(cpdlsP_mem);
-    return(CPDIRECT_MEM_FAIL);
+    return(CPDLS_MEM_FAIL);
   }
 
   /* Allocate additional work space, depending on factorization */
   switch(fact_type) {
 
-  case CPDIRECT_LU:
+  case CPDLS_LU:
     /* Allocate space for pivotsP and K */
     pivotsP = NewIntArray(Nc);
     if (pivotsP == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
     K = NewDenseMat(Ny-Nc, Ny-Nc);
     if (K == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
       DestroyArray(pivotsP);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
     break;
 
-  case CPDIRECT_QR:
+  case CPDLS_QR:
     /* Allocate space for beta */
     beta = NewRealArray(Nc);
     if (beta == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);      
+      return(CPDLS_MEM_FAIL);      
     }
     /* Find optimal length of work array */
     dgeqrf_f77(&Ny, &Nc, G->data, &Ny, beta, &tmp, &mone, &ier);
@@ -537,47 +537,47 @@ int CPLapackDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
     len_wrk = (int)tmp;
     wrk = NewRealArray(len_wrk);
     if (wrk == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
       DestroyArray(beta);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);      
+      return(CPDLS_MEM_FAIL);      
     }
     /* If projecting in WRMS norm, allocate space for K=Q^T*D^(-1)*Q */
     if (pnorm == CP_PROJ_ERRNORM) {
       K = NewDenseMat(Nc, Nc);
       if (K == NULL) {
-        cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+        cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
         DestroyArray(wrk);
         DestroyArray(beta);
         DestroyMat(savedG);
         DestroyMat(G);
         free(cpdlsP_mem);
-        return(CPDIRECT_MEM_FAIL);
+        return(CPDLS_MEM_FAIL);
       }
     }
     break;
 
-  case CPDIRECT_QRP:
+  case CPDLS_QRP:
     /* Allocate space for pivotsP */
     pivotsP = NewIntArray(Nc);
     if (pivotsP == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
     /* Allocate space for beta */
     beta = NewRealArray(Nc);
     if (beta == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
       DestroyArray(pivotsP);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);      
+      return(CPDLS_MEM_FAIL);      
     }
     /* Find optimal length of work array */
     dgeqp3_f77(&Ny, &Nc, G->data, &Ny, pivotsP, beta, &tmp, &mone, &ier);
@@ -585,39 +585,39 @@ int CPLapackDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
     len_wrk = (int)tmp;
     wrk = NewRealArray(len_wrk);
     if (wrk == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
       DestroyArray(beta);
       DestroyArray(pivotsP);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);      
+      return(CPDLS_MEM_FAIL);      
     }
     /* If projecting in WRMS norm, allocate space for K=Q^T*D^(-1)*Q */
     if (pnorm == CP_PROJ_ERRNORM) {
       K = NewDenseMat(Nc, Nc);
       if (K == NULL) {
-        cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+        cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
         DestroyArray(wrk);
         DestroyArray(beta);
         DestroyArray(pivotsP);
         DestroyMat(savedG);
         DestroyMat(G);
         free(cpdlsP_mem);
-        return(CPDIRECT_MEM_FAIL);
+        return(CPDLS_MEM_FAIL);
       }
     }
     break;
 
-  case CPDIRECT_SC:
+  case CPDLS_SC:
     /* Allocate space for K = G * D^(-1) * G^T */
     K = NewDenseMat(Nc, Nc);
     if (K == NULL) {
-      cpProcessError(cp_mem, CPDIRECT_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
+      cpProcessError(cp_mem, CPDLS_MEM_FAIL, "CPLAPACK", "CPLapackDenseProj", MSGD_MEM_FAIL);
       DestroyMat(savedG);
       DestroyMat(G);
       free(cpdlsP_mem);
-      return(CPDIRECT_MEM_FAIL);
+      return(CPDLS_MEM_FAIL);
     }
 
     break;
@@ -632,7 +632,7 @@ int CPLapackDenseProj(void *cpode_mem, int Nc, int Ny, int fact_type)
   /* Attach linear solver memory to integrator memory */
   lmemP = cpdlsP_mem;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /* 
@@ -681,7 +681,7 @@ static int cpLapackDenseInit(CPodeMem cp_mem)
 
   }
 
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   return(0);
 }
 
@@ -733,11 +733,11 @@ static int cpLapackDenseSetup(CPodeMem cp_mem, int convfail,
       if (retval == 0) {
         dcopy_f77(&(M->ldata), M->data, &one, savedJ->data, &one);
       } else if (retval < 0) {
-        cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPLAPACK", "cpLapackDenseSetup", MSGD_JACFUNC_FAILED);
-        last_flag = CPDIRECT_JACFUNC_UNRECVR;
+        cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPLAPACK", "cpLapackDenseSetup", MSGD_JACFUNC_FAILED);
+        last_flag = CPDLS_JACFUNC_UNRECVR;
         return(-1);
       } else if (retval > 0) {
-        last_flag = CPDIRECT_JACFUNC_RECVR;
+        last_flag = CPDLS_JACFUNC_RECVR;
         return(1);
       }
 
@@ -760,11 +760,11 @@ static int cpLapackDenseSetup(CPodeMem cp_mem, int convfail,
     if (retval == 0) {
       break;
     } else if (retval < 0) {
-      cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPLAPACK", "cpLapackDenseSetup", MSGD_JACFUNC_FAILED);
-      last_flag = CPDIRECT_JACFUNC_UNRECVR;
+      cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPLAPACK", "cpLapackDenseSetup", MSGD_JACFUNC_FAILED);
+      last_flag = CPDLS_JACFUNC_UNRECVR;
       return(-1);
     } else if (retval > 0) {
-      last_flag = CPDIRECT_JACFUNC_RECVR;
+      last_flag = CPDLS_JACFUNC_RECVR;
       return(1);
     }
   
@@ -805,7 +805,7 @@ static int cpLapackDenseSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
     dscal_f77(&n, &fact, bd, &one); 
   }
   
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   return(0);
 }
 
@@ -871,7 +871,7 @@ static int cpLapackBandInit(CPodeMem cp_mem)
 
   }
 
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   return(0);
 }
 
@@ -923,11 +923,11 @@ static int cpLapackBandSetup(CPodeMem cp_mem, int convfail,
       if (retval == 0) {
         dcopy_f77(&(M->ldata), M->data, &one, savedJ->data, &one);
       } else if (retval < 0) {
-        cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPLAPACK", "cpLapackBandSetup", MSGD_JACFUNC_FAILED);
-        last_flag = CPDIRECT_JACFUNC_UNRECVR;
+        cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPLAPACK", "cpLapackBandSetup", MSGD_JACFUNC_FAILED);
+        last_flag = CPDLS_JACFUNC_UNRECVR;
         return(-1);
       } else if (retval > 0) {
-        last_flag = CPDIRECT_JACFUNC_RECVR;
+        last_flag = CPDLS_JACFUNC_RECVR;
         return(1);
       }
 
@@ -950,11 +950,11 @@ static int cpLapackBandSetup(CPodeMem cp_mem, int convfail,
     if (retval == 0) {
       break;
     } else if (retval < 0) {
-      cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPLAPACK", "cpLapackBandSetup", MSGD_JACFUNC_FAILED);
-      last_flag = CPDIRECT_JACFUNC_UNRECVR;
+      cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPLAPACK", "cpLapackBandSetup", MSGD_JACFUNC_FAILED);
+      last_flag = CPDLS_JACFUNC_UNRECVR;
       return(-1);
     } else if (retval > 0) {
-      last_flag = CPDIRECT_JACFUNC_RECVR;
+      last_flag = CPDLS_JACFUNC_RECVR;
       return(+1);
     }
 
@@ -996,7 +996,7 @@ static int cpLapackBandSolve(CPodeMem cp_mem, N_Vector b, N_Vector weight,
     dscal_f77(&n, &fact, bd, &one); 
   }
 
-  last_flag = CPDIRECT_SUCCESS;
+  last_flag = CPDLS_SUCCESS;
   return(0);
 }
 
@@ -1071,7 +1071,7 @@ static int cpLapackDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
   retval = djacP(nc, ny, tn, y, cy, G, JP_data, c_tmp1, c_tmp2);
   njeP++;
   if (retval < 0) {
-    cpProcessError(cp_mem, CPDIRECT_JACFUNC_UNRECVR, "CPLAPACK", "cpLapackDenseProjSetup", MSGD_JACFUNC_FAILED);
+    cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPLAPACK", "cpLapackDenseProjSetup", MSGD_JACFUNC_FAILED);
     return(-1);
   } else if (retval > 0) {
     return(1);
@@ -1083,7 +1083,7 @@ static int cpLapackDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
   /* Factorize G, depending on ftype */
   switch (ftype) {
 
-  case CPDIRECT_LU:
+  case CPDLS_LU:
 
     /* 
      * LU factorization of G^T with partial pivoting
@@ -1128,7 +1128,7 @@ static int cpLapackDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
 
     break;
 
-  case CPDIRECT_QR:
+  case CPDLS_QR:
 
     /* 
      * QR factorization of G^T: G^T = Q*R
@@ -1151,7 +1151,7 @@ static int cpLapackDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
 
     break;
 
-  case CPDIRECT_QRP:
+  case CPDLS_QRP:
 
     /* 
      * QR with pivoting factorization of G^T: G^T * P = Q * R.
@@ -1189,7 +1189,7 @@ static int cpLapackDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
 
     break;
 
-  case CPDIRECT_SC:
+  case CPDLS_SC:
 
     /* 
      * Build K = G*D^(-1)*G^T
@@ -1243,7 +1243,7 @@ static int cpLapackDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
   /* Solve the linear system, depending on ftype */
   switch (ftype) {
 
-  case CPDIRECT_LU:
+  case CPDLS_LU:
 
     /* Solve L*U1*alpha = bd
      *   (a) solve L*beta = bd using fwd. subst.
@@ -1317,7 +1317,7 @@ static int cpLapackDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
 
     break;
 
-  case CPDIRECT_QR:
+  case CPDLS_QR:
 
     /* 
      * Solve R^T*alpha = bd using fwd. subst. (row version)
@@ -1352,7 +1352,7 @@ static int cpLapackDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
     break;    
 
 
-  case CPDIRECT_QRP:
+  case CPDLS_QRP:
 
     /* Compute P^T * b, where P is encoded into pivotsP.
      * If pivotsP[j] = k, then, for the factorization, the j-th column of G^T*P 
@@ -1420,7 +1420,7 @@ static int cpLapackDenseProjSolve(CPodeMem cp_mem, N_Vector b, N_Vector x,
     break;    
 
 
-  case CPDIRECT_SC:
+  case CPDLS_SC:
 
     /* 
      * Solve K*xi = bd, using the Cholesky decomposition available in K.
@@ -1479,22 +1479,22 @@ static void cpLapackDenseProjFree(CPodeMem cp_mem)
   DestroyMat(G);
   DestroyMat(savedG);
   switch (ftype) {
-  case CPDIRECT_LU:
+  case CPDLS_LU:
     DestroyArray(pivotsP);
     DestroyMat(K);
     break;
-  case CPDIRECT_QR:
+  case CPDLS_QR:
     DestroyArray(wrk);
     DestroyArray(beta);
     if (pnorm == CP_PROJ_ERRNORM) DestroyMat(K);
     break;
-  case CPDIRECT_QRP:
+  case CPDLS_QRP:
     DestroyArray(wrk);
     DestroyArray(beta);
     DestroyArray(pivotsP);
     if (pnorm == CP_PROJ_ERRNORM) DestroyMat(K);
     break;
-  case CPDIRECT_SC:
+  case CPDLS_SC:
     DestroyMat(K);
     break;
   }

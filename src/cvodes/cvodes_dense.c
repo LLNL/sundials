@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.12 $
+ * $Date: 2008-04-18 19:42:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -113,16 +113,16 @@ int CVDense(void *cvode_mem, int N)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVDIRECT_MEM_NULL, "CVSDENSE", "CVDense", MSGD_CVMEM_NULL);
-    return(CVDIRECT_MEM_NULL);
+    cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDENSE", "CVDense", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL ||
       vec_tmpl->ops->nvsetarraypointer == NULL) {
-    cvProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSDENSE", "CVDense", MSGD_BAD_NVECTOR);
-    return(CVDIRECT_ILL_INPUT);
+    cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVSDENSE", "CVDense", MSGD_BAD_NVECTOR);
+    return(CVDLS_ILL_INPUT);
   }
 
   if (lfree !=NULL) lfree(cv_mem);
@@ -137,8 +137,8 @@ int CVDense(void *cvode_mem, int N)
   cvdls_mem = NULL;
   cvdls_mem = (CVDlsMem) malloc(sizeof(struct CVDlsMemRec));
   if (cvdls_mem == NULL) {
-    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
-    return(CVDIRECT_MEM_FAIL);
+    cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
 
   /* Set matrix type */
@@ -149,7 +149,7 @@ int CVDense(void *cvode_mem, int N)
   jac = NULL;
   J_data = NULL;
 
-  last_flag = CVDIRECT_SUCCESS;
+  last_flag = CVDLS_SUCCESS;
 
   setupNonNull = TRUE;
 
@@ -161,32 +161,32 @@ int CVDense(void *cvode_mem, int N)
   M = NULL;
   M = NewDenseMat(N, N);
   if (M == NULL) {
-    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
     free(cvdls_mem); cvdls_mem = NULL;
-    return(CVDIRECT_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
   savedJ = NULL;
   savedJ = NewDenseMat(N, N);
   if (savedJ == NULL) {
-    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     free(cvdls_mem); cvdls_mem = NULL;
-    return(CVDIRECT_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
   pivots = NULL;
   pivots = NewIntArray(N);
   if (pivots == NULL) {
-    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSDENSE", "CVDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyMat(savedJ);
     free(cvdls_mem); cvdls_mem = NULL;
-    return(CVDIRECT_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
 
   /* Attach linear solver memory to integrator memory */
   lmem = cvdls_mem;
 
-  return(CVDIRECT_SUCCESS);
+  return(CVDLS_SUCCESS);
 }
 
 /*
@@ -216,7 +216,7 @@ static int cvDenseInit(CVodeMem cv_mem)
     J_data = cv_mem->cv_user_data;
   }
 
-  last_flag = CVDIRECT_SUCCESS;
+  last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -268,12 +268,12 @@ static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
     retval = jac(n, tn, ypred, fpred, M, J_data, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
-      cvProcessError(cv_mem, CVDIRECT_JACFUNC_UNRECVR, "CVSDENSE", "cvDenseSetup", MSGD_JACFUNC_FAILED);
-      last_flag = CVDIRECT_JACFUNC_UNRECVR;
+      cvProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVSDENSE", "cvDenseSetup", MSGD_JACFUNC_FAILED);
+      last_flag = CVDLS_JACFUNC_UNRECVR;
       return(-1);
     }
     if (retval > 0) {
-      last_flag = CVDIRECT_JACFUNC_RECVR;
+      last_flag = CVDLS_JACFUNC_RECVR;
       return(1);
     }
 
@@ -320,7 +320,7 @@ static int cvDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     N_VScale(TWO/(ONE + gamrat), b, b);
   }
   
-  last_flag = CVDIRECT_SUCCESS;
+  last_flag = CVDLS_SUCCESS;
   return(0);
 }
 
@@ -368,22 +368,22 @@ int CVDenseB(void *cvode_mem, int which, int nB)
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVDIRECT_MEM_NULL, "CVSDENSE", "CVDenseB", MSGD_CVMEM_NULL);
-    return(CVDIRECT_MEM_NULL);
+    cvProcessError(NULL, CVDLS_MEM_NULL, "CVSDENSE", "CVDenseB", MSGD_CVMEM_NULL);
+    return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CVDIRECT_NO_ADJ, "CVSDENSE", "CVDenseB", MSGD_NO_ADJ);
-    return(CVDIRECT_NO_ADJ);
+    cvProcessError(cv_mem, CVDLS_NO_ADJ, "CVSDENSE", "CVDenseB", MSGD_NO_ADJ);
+    return(CVDLS_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CVDIRECT_ILL_INPUT, "CVSDENSE", "CVDenseB", MSGD_BAD_WHICH);
-    return(CVDIRECT_ILL_INPUT);
+    cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVSDENSE", "CVDenseB", MSGD_BAD_WHICH);
+    return(CVDLS_ILL_INPUT);
   }
 
   /* Find the CVodeBMem entry in the linked list corresponding to which */
@@ -398,8 +398,8 @@ int CVDenseB(void *cvode_mem, int which, int nB)
   /* Get memory for CVDlsMemRecB */
   cvdlsB_mem = (CVDlsMemB) malloc(sizeof(struct CVDlsMemRecB));
   if (cvdlsB_mem == NULL) {
-    cvProcessError(cv_mem, CVDIRECT_MEM_FAIL, "CVSDENSE", "CVDenseB", MSGD_MEM_FAIL);
-    return(CVDIRECT_MEM_FAIL);
+    cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSDENSE", "CVDenseB", MSGD_MEM_FAIL);
+    return(CVDLS_MEM_FAIL);
   }
 
   /* set matrix type */
@@ -414,7 +414,7 @@ int CVDenseB(void *cvode_mem, int which, int nB)
 
   flag = CVDense(cvodeB_mem, nB);
 
-  if (flag != CVDIRECT_SUCCESS) {
+  if (flag != CVDLS_SUCCESS) {
     free(cvdlsB_mem);
     cvdlsB_mem = NULL;
   }

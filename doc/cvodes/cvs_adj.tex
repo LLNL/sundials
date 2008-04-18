@@ -736,10 +736,10 @@ of their counterparts.
 If the \id{cvode\_mem} argument was \id{NULL}, \id{flag} will be
 %%
 If the \id{cvode\_mem} argument was \id{NULL}, 
-\id{flag} will be \id{CVDIRECT\_MEM\_NULL}, \id{CVDIAG\_MEM\_NULL}, or \id{CVSPILS\_MEM\_NULL}. 
+\id{flag} will be \id{CVDLS\_MEM\_NULL}, \id{CVDIAG\_MEM\_NULL}, or \id{CVSPILS\_MEM\_NULL}. 
 %%
 Also, if \id{which} is not a valid identifier, the functions will return 
-\id{CVDIRECT\_ILL\_INPUT}, \id{CVDIAG\_ILL\_INPUT}, or \id{CVSPILS\_ILL\_INPUT}.
+\id{CVDLS\_ILL\_INPUT}, \id{CVDIAG\_ILL\_INPUT}, or \id{CVSPILS\_ILL\_INPUT}.
 
 
 %%---------------------------------------------------------------------
@@ -926,17 +926,17 @@ problem through the following function:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVDIRECT\_ILL\_INPUT]
-  \item[\Id{CVDIRECT\_SUCCESS}] 
+  \begin{args}[CVDLS\_ILL\_INPUT]
+  \item[\Id{CVDLS\_SUCCESS}] 
     \id{CVDlsSetDenseJacFnB} succeeded.
-  \item[\Id{CVDIRECT\_MEM\_NULL}]
+  \item[\Id{CVDLS\_MEM\_NULL}]
     The \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CVDIRECT\_NO\_ADJ}]
+  \item[\Id{CVDLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CVDIRECT\_LMEM\_NULL}]
+  \item[\Id{CVDLS\_LMEM\_NULL}]
     The linear solver has not been initialized through a call to \id{CVDenseB}
     or \id{CVLapackDenseB}.
-  \item[\Id{CVDIRECT\_ILL\_INPUT}]
+  \item[\Id{CVDLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
@@ -974,17 +974,17 @@ problem through the following function:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVDIRECT\_ILL\_INPUT]
-  \item[\Id{CVDIRECT\_SUCCESS}] 
+  \begin{args}[CVDLS\_ILL\_INPUT]
+  \item[\Id{CVDLS\_SUCCESS}] 
     \id{CVDlsSetBandJacFnB} succeeded.
-  \item[\Id{CVDIRECT\_MEM\_NULL}]
+  \item[\Id{CVDLS\_MEM\_NULL}]
     The \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CVDIRECT\_NO\_ADJ}]
+  \item[\Id{CVDLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CVDIRECT\_LMEM\_NULL}]
+  \item[\Id{CVDLS\_LMEM\_NULL}]
     The linear solver has not been initialized through a call to \id{CVBandB}
     or \id{CVLapackBandB}.
-  \item[\Id{CVDIRECT\_ILL\_INPUT}]
+  \item[\Id{CVDLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
@@ -1981,10 +1981,10 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
 {
   A \id{CVDlsDenseJacFnB} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\cvodes} will attempt to correct, while {\cvdense} sets
-  \id{last\_flag} on \Id{CVDIRECT\_JACFUNC\_RECVR}), or a negative 
+  \id{last\_flag} on \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{CVodeB}
   returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} on 
-  \Id{CVDIRECT\_JACFUNC\_UNRECVR}).
+  \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied dense Jacobian function must load the \id{NeqB} by \id{NeqB}
@@ -2002,7 +2002,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
   If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
   (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} on 
-  \Id{CVDIRECT\_JACFUNC\_UNRECVR}).
+  \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 
 %%-------------------------------------------------------------------------------------
@@ -2056,10 +2056,10 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
 {
   A \id{CVDlsBandJacFnB} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\cvodes} will attempt to correct, while {\cvband} sets
-  \id{last\_flag} on \Id{CVDIRECT\_JACFUNC\_RECVR}), or a negative 
+  \id{last\_flag} on \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{CVodeB}
   returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} on 
-  \Id{CVDIRECT\_JACFUNC\_UNRECVR}).
+  \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{JacB}
@@ -2078,7 +2078,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
   If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
   (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvband} sets \id{last\_flag} on 
-  \Id{CVDIRECT\_JACFUNC\_UNRECVR}).
+  \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 
 %%-------------------------------------------------------------------------------------

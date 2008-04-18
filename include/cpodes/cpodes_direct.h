@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-12-19 20:26:42 $
+ * $Revision: 1.4 $
+ * $Date: 2008-04-18 19:42:35 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -14,8 +14,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _CPDIRECT_H
-#define _CPDIRECT_H
+#ifndef _CPDLS_H
+#define _CPDLS_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -32,45 +32,45 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * CPDIRECT input constants
+ * CPDLS input constants
  * -----------------------------------------------------------------
  * fact_type: is the type of constraint Jacobian factorization used
  *   for the projection. For independent constraints (i.e. Jacobian
  *   with full row rank) any of the following three options can be
  *   used (although their computational cost varies, depending on 
  *   the number of states and constraints)
- *      CPDIRECT_LU:  use LU decomposition of G^T.
- *      CPDIRECT_QR:  use QR decomposition of G^T
- *      CPDIRECT_SC:  use Schur complement
+ *      CPDLS_LU:  use LU decomposition of G^T.
+ *      CPDLS_QR:  use QR decomposition of G^T
+ *      CPDLS_SC:  use Schur complement
  * If it is known (or suspected) that some constraints are redundant,
  * the following option should be used:
- *      CPDIRECT_QRP: use QR with column pivoting on G^T.  
+ *      CPDLS_QRP: use QR with column pivoting on G^T.  
  * -----------------------------------------------------------------
  */
 
 /* fact_type */
 
-#define CPDIRECT_LU   1
-#define CPDIRECT_QR   2
-#define CPDIRECT_SC   3
-#define CPDIRECT_QRP  4
+#define CPDLS_LU   1
+#define CPDLS_QR   2
+#define CPDLS_SC   3
+#define CPDLS_QRP  4
 
 /* 
  * -----------------------------------------------------------------
- * CPDIRECT return values 
+ * CPDLS return values 
  * -----------------------------------------------------------------
  */
 
-#define CPDIRECT_SUCCESS           0
-#define CPDIRECT_MEM_NULL         -1
-#define CPDIRECT_LMEM_NULL        -2
-#define CPDIRECT_ILL_INPUT        -3
-#define CPDIRECT_MEM_FAIL         -4
+#define CPDLS_SUCCESS           0
+#define CPDLS_MEM_NULL         -1
+#define CPDLS_LMEM_NULL        -2
+#define CPDLS_ILL_INPUT        -3
+#define CPDLS_MEM_FAIL         -4
 
 /* Additional last_flag values */
 
-#define CPDIRECT_JACFUNC_UNRECVR  -5
-#define CPDIRECT_JACFUNC_RECVR    -6
+#define CPDLS_JACFUNC_UNRECVR  -5
+#define CPDLS_JACFUNC_RECVR    -6
 
 /*
  * =================================================================
@@ -366,7 +366,7 @@ SUNDIALS_EXPORT int CPDlsSetJacFn(void *cvode_mem, void *jac);
 
 /*
  * -----------------------------------------------------------------
- * Optional inputs to the CPDIRECT linear solver
+ * Optional inputs to the CPDLS linear solver
  * -----------------------------------------------------------------
  *
  * CPDlsSetDenseJacFnExpl specifies the Jacobian approximation
@@ -389,10 +389,10 @@ SUNDIALS_EXPORT int CPDlsSetJacFn(void *cvode_mem, void *jac);
  * the solver is used.
  *
  * The return value is one of:
- *    CPDIRECT_SUCCESS   if successful
- *    CPDIRECT_MEM_NULL  if the CPODE memory was NULL
- *    CPDIRECT_LMEM_NULL if the linear solver memory was NULL
- *    CPDIRECT_ILL_INPUT if an input was illegal
+ *    CPDLS_SUCCESS   if successful
+ *    CPDLS_MEM_NULL  if the CPODE memory was NULL
+ *    CPDLS_LMEM_NULL if the linear solver memory was NULL
+ *    CPDLS_ILL_INPUT if an input was illegal
  * -----------------------------------------------------------------
  */
 
@@ -404,7 +404,7 @@ SUNDIALS_EXPORT int CPDlsSetBandJacFnImpl(void *cpode_mem, CPDlsBandJacImplFn ja
 
 /*
  * -----------------------------------------------------------------
- * Optional outputs from a CPDIRECT linear solver
+ * Optional outputs from a CPDLS linear solver
  * for implicit integration
  * -----------------------------------------------------------------
  *
@@ -416,12 +416,12 @@ SUNDIALS_EXPORT int CPDlsSetBandJacFnImpl(void *cpode_mem, CPDlsBandJacImplFn ja
  *                     f routine due to finite difference Jacobian
  *                     evaluation.
  * CPDlsGetLastFlag    returns the last error flag set by any of
- *                     the CPDIRECT interface functions.
+ *                     the CPDLS interface functions.
  *
  * The return value of CPDlsGet* is one of:
- *    CPDIRECT_SUCCESS   if successful
- *    CPDIRECT_MEM_NULL  if the CPODES memory was NULL
- *    CPDIRECT_LMEM_NULL if the linear solver memory was NULL
+ *    CPDLS_SUCCESS   if successful
+ *    CPDLS_MEM_NULL  if the CPODES memory was NULL
+ *    CPDLS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -433,7 +433,7 @@ SUNDIALS_EXPORT int CPDlsGetLastFlag(void *cpode_mem, int *flag);
 /*
  * -----------------------------------------------------------------
  * The following function returns the name of the constant 
- * associated with a CPDIRECT return flag
+ * associated with a CPDLS return flag
  * -----------------------------------------------------------------
  */
 
@@ -441,7 +441,7 @@ SUNDIALS_EXPORT char *CPDlsGetReturnFlagName(int flag);
 
 /*
  * -----------------------------------------------------------------
- * Optional I/O functions for a CPDIRECT linear solver
+ * Optional I/O functions for a CPDLS linear solver
  * for projection
  * -----------------------------------------------------------------
  */

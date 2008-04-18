@@ -85,13 +85,13 @@ description of their meaning.
 \multicolumn{3}{c}{\bf {\kindls} linear solver module}\\
 \hline\\
 
-\id{KINDIRECT\_SUCCESS}    &  0 & Successful function return. \\
-\id{KINDIRECT\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
-\id{KINDIRECT\_LMEM\_NULL} & -2 & The {\kindense} linear solver has not been initialized.\\
-\id{KINDIRECT\_ILL\_INPUT} & -3 & The {\kindense} solver is not compatible with the current {\nvector} module.\\
-\id{KINDIRECT\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\id{KINDIRECT\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{KINDIRECT\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+\id{KINDLS\_SUCCESS}    &  0 & Successful function return. \\
+\id{KINDLS\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
+\id{KINDLS\_LMEM\_NULL} & -2 & The {\kindls} linear solver has not been initialized.\\
+\id{KINDLS\_ILL\_INPUT} & -3 & The {\kindls} solver is not compatible with the current {\nvector} module.\\
+\id{KINDLS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{KINDLS\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
+\id{KINDLS\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\kinspils} linear solver modules}\\
@@ -99,10 +99,10 @@ description of their meaning.
 
 \id{KINSPILS\_SUCCESS}    &  0 & Successful function return. \\
 \id{KINSPILS\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
-\id{KINSPILS\_LMEM\_NULL} & -2 & The linear solver has not been initialized.\\
-\id{KINSPILS\_ILL\_INPUT} & -3 & The solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
+\id{KINSPILS\_LMEM\_NULL} & -2 & The {\kinspils} linear solver has not been initialized.\\
+\id{KINSPILS\_ILL\_INPUT} & -3 & The {\kinspils} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
 \id{KINSPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\id{KINSPILS\_PMEM\_NULL}   & -5 & The preconditioner module has not been initialized. \\
+\id{KINSPILS\_PMEM\_NULL} & -5 & The preconditioner module has not been initialized. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\

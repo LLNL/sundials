@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 17:43:10 $
+ * $Revision: 1.5 $
+ * $Date: 2008-04-18 19:42:43 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,12 +10,12 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * Common implementation header file for the KINDIRECT linear solvers.
+ * Common implementation header file for the KINDLS linear solvers.
  * -----------------------------------------------------------------
  */
 
-#ifndef _KINDIRECT_IMPL_H
-#define _KINDIRECT_IMPL_H
+#ifndef _KINDLS_IMPL_H
+#define _KINDLS_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -29,7 +29,7 @@ extern "C" {
  * Types: KINDlsMemRec, KINDlsMem                             
  * -----------------------------------------------------------------
  * The type KINDlsMem is pointer to a KINDlsMemRec.
- * This structure contains KINDIRECT solver-specific data. 
+ * This structure contains KINDLS solver-specific data. 
  * -----------------------------------------------------------------
  */
 

@@ -738,10 +738,10 @@ second argument, \id{which}, the identifier of the backward problem.
 Their return value \id{flag} (of type \id{int}) can have any of the return values of their counterparts.
 %%
 If the \id{ida\_mem} argument was \id{NULL}, 
-\id{flag} will be \id{IDADIRECT\_MEM\_NULL} or \id{IDASPILS\_MEM\_NULL}. 
+\id{flag} will be \id{IDADLS\_MEM\_NULL} or \id{IDASPILS\_MEM\_NULL}. 
 %%
 Also, if \id{which} is not a valid identifier, the functions will return 
-\id{IDADIRECT\_ILL\_INPUT} or \id{IDASPILS\_ILL\_INPUT}.
+\id{IDADLS\_ILL\_INPUT} or \id{IDASPILS\_ILL\_INPUT}.
 
 
 %%---------------------------------------------------------------------
@@ -1060,17 +1060,17 @@ problem through the following function:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDADIRECT\_ILL\_INPUT]
-  \item[\Id{IDADIRECT\_SUCCESS}] 
+  \begin{args}[IDADLS\_ILL\_INPUT]
+  \item[\Id{IDADLS\_SUCCESS}] 
     \id{IDADlsSetDenseJacFnB} succeeded.
-  \item[\Id{IDADIRECT\_MEM\_NULL}]
+  \item[\Id{IDADLS\_MEM\_NULL}]
     The \id{ida\_mem} was \id{NULL}.
-  \item[\Id{IDADIRECT\_NO\_ADJ}]
+  \item[\Id{IDADLS\_NO\_ADJ}]
     The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDADIRECT\_LMEM\_NULL}]
+  \item[\Id{IDADLS\_LMEM\_NULL}]
     The linear solver has not been initialized through a call to \id{IDADenseB}
     or \id{IDALapackDenseB}.
-  \item[\Id{IDADIRECT\_ILL\_INPUT}]
+  \item[\Id{IDADLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
@@ -1108,17 +1108,17 @@ problem through the following function:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDADIRECT\_ILL\_INPUT]
-  \item[\Id{IDADIRECT\_SUCCESS}] 
+  \begin{args}[IDADLS\_ILL\_INPUT]
+  \item[\Id{IDADLS\_SUCCESS}] 
     \id{IDADlsSetBandJacFnB} succeeded.
-  \item[\Id{IDADIRECT\_MEM\_NULL}]
+  \item[\Id{IDADLS\_MEM\_NULL}]
     The \id{ida\_mem} was \id{NULL}.
-  \item[\Id{IDADIRECT\_NO\_ADJ}]
+  \item[\Id{IDADLS\_NO\_ADJ}]
     The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDADIRECT\_LMEM\_NULL}]
+  \item[\Id{IDADLS\_LMEM\_NULL}]
     The linear solver has not been initialized through a call to \id{IDABandB} or
     \id{IDALapackBandB}.
-  \item[\Id{IDADIRECT\_ILL\_INPUT}]
+  \item[\Id{IDADLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
@@ -2118,10 +2118,10 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
 {
   A \id{IDADlsDenseJacFnB} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\idas} will attempt to correct, while {\idadense} sets
-  \id{last\_flag} on \Id{IDADIRECT\_JACFUNC\_RECVR}), or a negative 
+  \id{last\_flag} on \Id{IDADLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{IDASolveB}
   returns \Id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} on 
-  \Id{IDADIRECT\_JACFUNC\_UNRECVR}).
+  \Id{IDADLS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied dense Jacobian function must load the \id{NeqB} by \id{NeqB}
@@ -2139,7 +2139,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
   If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
   (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} on 
-  \Id{IDADIRECT\_JACFUNC\_UNRECVR}).
+  \Id{IDADLS\_JACFUNC\_UNRECVR}).
 }
 
 %%-------------------------------------------------------------------------------------
@@ -2202,10 +2202,10 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
 {
   A \id{IDADlsBandJacFnB} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\idas} will attempt to correct, while {\idaband} sets
-  \id{last\_flag} on \Id{IDADIRECT\_JACFUNC\_RECVR}), or a negative 
+  \id{last\_flag} on \Id{IDADLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{IDASolveB}
   returns \Id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} on 
-  \Id{IDADIRECT\_JACFUNC\_UNRECVR}).
+  \Id{IDADLS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{JacB}
@@ -2224,7 +2224,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
   If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
   (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idaband} sets \id{last\_flag} on 
-  \Id{IDADIRECT\_JACFUNC\_UNRECVR}).
+  \Id{IDADLS\_JACFUNC\_UNRECVR}).
 }
 
 %%-------------------------------------------------------------------------------------

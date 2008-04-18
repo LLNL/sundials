@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:28:58 $
+ * $Revision: 1.7 $
+ * $Date: 2008-04-18 19:42:37 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -13,16 +13,16 @@
  * Common header file for the direct linear solvers in CVODES.
  *
  * Part I contains type definitions and function prototypes for 
- * using a CVDIRECT linear solver on forward problems (IVP 
+ * using a CVDLS linear solver on forward problems (IVP 
  * integration and/or FSA)
  *
  * Part II contains type definitions and function prototypes for 
- * using a CVDIRECT linear solver on adjoint (backward) problems
+ * using a CVDLS linear solver on adjoint (backward) problems
  * -----------------------------------------------------------------
  */
 
-#ifndef _CVSDIRECT_H
-#define _CVSDIRECT_H
+#ifndef _CVSDLS_H
+#define _CVSDLS_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -43,21 +43,21 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#define CVDIRECT_SUCCESS           0
-#define CVDIRECT_MEM_NULL         -1
-#define CVDIRECT_LMEM_NULL        -2
-#define CVDIRECT_ILL_INPUT        -3
-#define CVDIRECT_MEM_FAIL         -4
+#define CVDLS_SUCCESS           0
+#define CVDLS_MEM_NULL         -1
+#define CVDLS_LMEM_NULL        -2
+#define CVDLS_ILL_INPUT        -3
+#define CVDLS_MEM_FAIL         -4
 
 /* Additional last_flag values */
 
-#define CVDIRECT_JACFUNC_UNRECVR  -5
-#define CVDIRECT_JACFUNC_RECVR    -6
+#define CVDLS_JACFUNC_UNRECVR  -5
+#define CVDLS_JACFUNC_RECVR    -6
 
 /* Return values for the adjoint module */
 
-#define CVDIRECT_NO_ADJ           -101
-#define CVDIRECT_LMEMB_NULL       -102
+#define CVDLS_NO_ADJ           -101
+#define CVDLS_LMEMB_NULL       -102
 
 /*
  * =================================================================
@@ -237,7 +237,7 @@ typedef int (*CVDlsBandJacFn)(int N, int mupper, int mlower,
 
 /*
  * -----------------------------------------------------------------
- * Optional inputs to the CVDIRECT linear solver
+ * Optional inputs to the CVDLS linear solver
  * -----------------------------------------------------------------
  *
  * CVDlsSetDenseJacFn specifies the dense Jacobian approximation
@@ -250,9 +250,9 @@ typedef int (*CVDlsBandJacFn)(int N, int mupper, int mlower,
  * the solver is used.
  *
  * The return value is one of:
- *    CVDIRECT_SUCCESS   if successful
- *    CVDIRECT_MEM_NULL  if the CVODE memory was NULL
- *    CVDIRECT_LMEM_NULL if the linear solver memory was NULL
+ *    CVDLS_SUCCESS   if successful
+ *    CVDLS_MEM_NULL  if the CVODE memory was NULL
+ *    CVDLS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
@@ -275,9 +275,9 @@ SUNDIALS_EXPORT int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac);
  *                     the CVSDIRECT interface functions.
  *
  * The return value of CVDlsGet* is one of:
- *    CVDIRECT_SUCCESS   if successful
- *    CVDIRECT_MEM_NULL  if the CVODES memory was NULL
- *    CVDIRECT_LMEM_NULL if the linear solver memory was NULL
+ *    CVDLS_SUCCESS   if successful
+ *    CVDLS_MEM_NULL  if the CVODES memory was NULL
+ *    CVDLS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 

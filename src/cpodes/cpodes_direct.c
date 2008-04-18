@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-12-19 20:26:42 $
+ * $Revision: 1.3 $
+ * $Date: 2008-04-18 19:42:39 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,7 +10,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the implementation file for the CPDIRECT linear solvers
+ * This is the implementation file for the CPDLS linear solvers
  * -----------------------------------------------------------------
  */
 
@@ -105,14 +105,14 @@ int CPDlsSetDenseJacFnExpl(void *cpode_mem, CPDlsDenseJacExplFn jac)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsSetDenseJacFnExpl", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsSetDenseJacFnExpl", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsSetDenseJacFnExpl", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsSetDenseJacFnExpl", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdls_mem = (CPDlsMem) lmem;
 
@@ -123,7 +123,7 @@ int CPDlsSetDenseJacFnExpl(void *cpode_mem, CPDlsDenseJacExplFn jac)
     jacDQ = TRUE;
   }
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 int CPDlsSetDenseJacFnImpl(void *cpode_mem, CPDlsDenseJacImplFn jac)
@@ -133,14 +133,14 @@ int CPDlsSetDenseJacFnImpl(void *cpode_mem, CPDlsDenseJacImplFn jac)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsSetDenseJacFnImpl", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsSetDenseJacFnImpl", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsSetDenseJacFnImpl", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsSetDenseJacFnImpl", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdls_mem = (CPDlsMem) lmem;
 
@@ -151,7 +151,7 @@ int CPDlsSetDenseJacFnImpl(void *cpode_mem, CPDlsDenseJacImplFn jac)
     jacDQ = TRUE;
   }
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 
@@ -162,14 +162,14 @@ int CPDlsSetBandJacFnExpl(void *cpode_mem, CPDlsBandJacExplFn jac)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsSetBandJacFnExpl", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsSetBandJacFnExpl", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsSetBandJacFnExpl", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsSetBandJacFnExpl", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdls_mem = (CPDlsMem) lmem;
 
@@ -180,7 +180,7 @@ int CPDlsSetBandJacFnExpl(void *cpode_mem, CPDlsBandJacExplFn jac)
     jacDQ = TRUE;
   }
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 
@@ -191,14 +191,14 @@ int CPDlsSetBandJacFnImpl(void *cpode_mem, CPDlsBandJacImplFn jac)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsSetBandJacFnImpl", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsSetBandJacFnImpl", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsSetBandJacFnImpl", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsSetBandJacFnImpl", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdls_mem = (CPDlsMem) lmem;
 
@@ -209,12 +209,12 @@ int CPDlsSetBandJacFnImpl(void *cpode_mem, CPDlsBandJacImplFn jac)
     jacDQ = TRUE;
   }
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /*
  * CPDlsGetWorkSpace returns the length of workspace allocated for the
- * CPDIRECT linear solver.
+ * CPDLS linear solver.
  */
 
 int CPDlsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS)
@@ -224,14 +224,14 @@ int CPDlsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsGetWorkSpace", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsGetWorkSpace", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsGetWorkSpace", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsGetWorkSpace", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdls_mem = (CPDlsMem) lmem;
 
@@ -263,7 +263,7 @@ int CPDlsGetWorkSpace(void *cpode_mem, long int *lenrwLS, long int *leniwLS)
 
   }
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /*
@@ -277,20 +277,20 @@ int CPDlsGetNumJacEvals(void *cpode_mem, long int *njevals)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsGetNumJacEvals", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsGetNumJacEvals", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsGetNumJacEvals", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsGetNumJacEvals", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdls_mem = (CPDlsMem) lmem;
 
   *njevals = nje;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /*
@@ -305,24 +305,24 @@ int CPDlsGetNumFctEvals(void *cpode_mem, long int *nfevalsLS)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsGetNumRhsEvals", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsGetNumRhsEvals", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsGetNumRhsEvals", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsGetNumRhsEvals", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdls_mem = (CPDlsMem) lmem;
 
   *nfevalsLS = nfeDQ;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /*
- * CPDlsGetReturnFlagName returns the name associated with a CPDIRECT
+ * CPDlsGetReturnFlagName returns the name associated with a CPDLS
  * return value.
  */
 
@@ -333,26 +333,26 @@ char *CPDlsGetReturnFlagName(int flag)
   name = (char *)malloc(30*sizeof(char));
 
   switch(flag) {
-  case CPDIRECT_SUCCESS:
-    sprintf(name,"CPDIRECT_SUCCESS");
+  case CPDLS_SUCCESS:
+    sprintf(name,"CPDLS_SUCCESS");
     break;   
-  case CPDIRECT_MEM_NULL:
-    sprintf(name,"CPDIRECT_MEM_NULL");
+  case CPDLS_MEM_NULL:
+    sprintf(name,"CPDLS_MEM_NULL");
     break;
-  case CPDIRECT_LMEM_NULL:
-    sprintf(name,"CPDIRECT_LMEM_NULL");
+  case CPDLS_LMEM_NULL:
+    sprintf(name,"CPDLS_LMEM_NULL");
     break;
-  case CPDIRECT_ILL_INPUT:
-    sprintf(name,"CPDIRECT_ILL_INPUT");
+  case CPDLS_ILL_INPUT:
+    sprintf(name,"CPDLS_ILL_INPUT");
     break;
-  case CPDIRECT_MEM_FAIL:
-    sprintf(name,"CPDIRECT_MEM_FAIL");
+  case CPDLS_MEM_FAIL:
+    sprintf(name,"CPDLS_MEM_FAIL");
     break;
-  case CPDIRECT_JACFUNC_UNRECVR:
-    sprintf(name,"CPDIRECT_JACFUNC_UNRECVR");
+  case CPDLS_JACFUNC_UNRECVR:
+    sprintf(name,"CPDLS_JACFUNC_UNRECVR");
     break;
-  case CPDIRECT_JACFUNC_RECVR:
-    sprintf(name,"CPDIRECT_JACFUNC_RECVR");
+  case CPDLS_JACFUNC_RECVR:
+    sprintf(name,"CPDLS_JACFUNC_RECVR");
     break;
   default:
     sprintf(name,"NONE");
@@ -362,7 +362,7 @@ char *CPDlsGetReturnFlagName(int flag)
 }
 
 /*
- * CPDlsGetLastFlag returns the last flag set in a CPDIRECT function.
+ * CPDlsGetLastFlag returns the last flag set in a CPDLS function.
  */
 
 int CPDlsGetLastFlag(void *cpode_mem, int *flag)
@@ -372,20 +372,20 @@ int CPDlsGetLastFlag(void *cpode_mem, int *flag)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsGetLastFlag", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsGetLastFlag", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmem == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsGetLastFlag", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsGetLastFlag", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdls_mem = (CPDlsMem) lmem;
 
   *flag = last_flag;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /* 
@@ -405,14 +405,14 @@ int CPDlsProjSetDenseJacFn(void *cpode_mem, CPDlsDenseProjJacFn jacP)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsProjSetDenseJacFn", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsProjSetDenseJacFn", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmemP == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsProjSetDenseJacFn", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsProjSetDenseJacFn", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
@@ -423,7 +423,7 @@ int CPDlsProjSetDenseJacFn(void *cpode_mem, CPDlsDenseProjJacFn jacP)
     jacPDQ = TRUE;
   }
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /*
@@ -437,20 +437,20 @@ int CPDlsProjGetNumJacEvals(void *cpode_mem, long int *njPevals)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsProjGetNumJacEvals", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsProjGetNumJacEvals", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmemP == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsProjGetNumJacEvals", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsProjGetNumJacEvals", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
   *njPevals = njeP;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /*
@@ -465,20 +465,20 @@ int CPDlsProjGetNumFctEvals(void *cpode_mem, long int *ncevalsLS)
 
   /* Return immediately if cpode_mem is NULL */
   if (cpode_mem == NULL) {
-    cpProcessError(NULL, CPDIRECT_MEM_NULL, "CPDIRECT", "CPDlsProjGetNumFctEvals", MSGD_CPMEM_NULL);
-    return(CPDIRECT_MEM_NULL);
+    cpProcessError(NULL, CPDLS_MEM_NULL, "CPDLS", "CPDlsProjGetNumFctEvals", MSGD_CPMEM_NULL);
+    return(CPDLS_MEM_NULL);
   }
   cp_mem = (CPodeMem) cpode_mem;
 
   if (lmemP == NULL) {
-    cpProcessError(cp_mem, CPDIRECT_LMEM_NULL, "CPDIRECT", "CPDlsProjGetNumFctEvals", MSGD_LMEM_NULL);
-    return(CPDIRECT_LMEM_NULL);
+    cpProcessError(cp_mem, CPDLS_LMEM_NULL, "CPDLS", "CPDlsProjGetNumFctEvals", MSGD_LMEM_NULL);
+    return(CPDLS_LMEM_NULL);
   }
   cpdlsP_mem = (CPDlsProjMem) lmemP;
 
   *ncevalsLS = nceDQ;
 
-  return(CPDIRECT_SUCCESS);
+  return(CPDLS_SUCCESS);
 }
 
 /* 

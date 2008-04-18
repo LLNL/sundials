@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.6 $
+ * $Date: 2008-04-18 19:42:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -37,9 +37,9 @@ extern "C" {
  * Neq  is the problem size                                       
  *                                                                
  * IDADense returns:                                              
- *     IDADIRECT_SUCCESS   = 0  if successful                              
- *     IDADIRECT_LMEM_FAIL = -1 if there was a memory allocation failure   
- *     IDADIRECT_ILL_INPUT = -2 if NVECTOR found incompatible           
+ *     IDADLS_SUCCESS   = 0  if successful                              
+ *     IDADLS_LMEM_FAIL = -1 if there was a memory allocation failure   
+ *     IDADLS_ILL_INPUT = -2 if NVECTOR found incompatible           
  *                                                                
  * NOTE: The dense linear solver assumes a serial implementation  
  *       of the NVECTOR package. Therefore, IDADense will first

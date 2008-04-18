@@ -451,14 +451,14 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDIRECT\_ILL\_INPUT]
-  \item[\Id{KINDIRECT\_SUCCESS}] 
+  \begin{args}[KINDLS\_ILL\_INPUT]
+  \item[\Id{KINDLS\_SUCCESS}] 
     The {\kindense} initialization was successful.
-  \item[\Id{KINDIRECT\_MEM\_NULL}]
+  \item[\Id{KINDLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDIRECT\_ILL\_INPUT}]
+  \item[\Id{KINDLS\_ILL\_INPUT}]
     The {\kindense} solver is not compatible with the current {\nvector} module.
-  \item[\Id{KINDIRECT\_MEM\_FAIL}]
+  \item[\Id{KINDLS\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -519,16 +519,16 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDIRECT\_ILL\_INPUT]
-  \item[\Id{KINDIRECT\_SUCCESS}] 
+  \begin{args}[KINDLS\_ILL\_INPUT]
+  \item[\Id{KINDLS\_SUCCESS}] 
     The {\kinband} initialization was successful.
-  \item[\Id{KINDIRECT\_MEM\_NULL}]
+  \item[\Id{KINDLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDIRECT\_ILL\_INPUT}]
+  \item[\Id{KINDLS\_ILL\_INPUT}]
     The {\kinband} solver is not compatible with the current {\nvector} module, or
     one of the Jacobian half-bandwidths is outside its valid range
     ($0 \ldots$ \id{N}$-1$).
-  \item[\Id{KINDIRECT\_MEM\_FAIL}]
+  \item[\Id{KINDLS\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -1844,12 +1844,12 @@ specified through \id{KINSetUserData}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDIRECT\_LMEM\_NULL]
-  \item[\Id{KINDIRECT\_SUCCESS}] 
+  \begin{args}[KINDLS\_LMEM\_NULL]
+  \item[\Id{KINDLS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{KINDIRECT\_MEM\_NULL}]
+  \item[\Id{KINDLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDIRECT\_LMEM\_NULL}]
+  \item[\Id{KINDLS\_LMEM\_NULL}]
     The {\kindense} linear solver has not been initialized.
   \end{args}
 }
@@ -1896,12 +1896,12 @@ specified through \id{KINSetUserData}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDIRECT\_LMEM\_NULL]
-  \item[\Id{KINDIRECT\_SUCCESS}] 
+  \begin{args}[KINDLS\_LMEM\_NULL]
+  \item[\Id{KINDLS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{KINDIRECT\_MEM\_NULL}]
+  \item[\Id{KINDLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDIRECT\_LMEM\_NULL}]
+  \item[\Id{KINDLS\_LMEM\_NULL}]
     The {\kinband} linear solver has not been initialized.
   \end{args}
 }
@@ -2399,12 +2399,12 @@ and last return value from a {\kindls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDIRECT\_LMEM\_NULL]
-  \item[\Id{KINDIRECT\_SUCCESS}] 
+  \begin{args}[KINDLS\_LMEM\_NULL]
+  \item[\Id{KINDLS\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{KINDIRECT\_MEM\_NULL}]
+  \item[\Id{KINDLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDIRECT\_LMEM\_NULL}]
+  \item[\Id{KINDLS\_LMEM\_NULL}]
     The {\kindense} linear solver has not been initialized.
   \end{args}
 }
@@ -2438,12 +2438,12 @@ and last return value from a {\kindls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDIRECT\_LMEM\_NULL]
-  \item[\Id{KINDIRECT\_SUCCESS}] 
+  \begin{args}[KINDLS\_LMEM\_NULL]
+  \item[\Id{KINDLS\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{KINDIRECT\_MEM\_NULL}]
+  \item[\Id{KINDLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDIRECT\_LMEM\_NULL}]
+  \item[\Id{KINDLS\_LMEM\_NULL}]
     The {\kindense} linear solver has not been initialized.
   \end{args}
 }
@@ -2469,12 +2469,12 @@ and last return value from a {\kindls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDIRECT\_LMEM\_NULL]
-  \item[\Id{KINDIRECT\_SUCCESS}] 
+  \begin{args}[KINDLS\_LMEM\_NULL]
+  \item[\Id{KINDLS\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{KINDIRECT\_MEM\_NULL}]
+  \item[\Id{KINDLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDIRECT\_LMEM\_NULL}]
+  \item[\Id{KINDLS\_LMEM\_NULL}]
     The {\kindense} linear solver has not been initialized.
   \end{args}
 }
@@ -2502,12 +2502,12 @@ and last return value from a {\kindls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDIRECT\_LMEM\_NULL]
-  \item[\Id{KINDIRECT\_SUCCESS}] 
+  \begin{args}[KINDLS\_LMEM\_NULL]
+  \item[\Id{KINDLS\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{KINDIRECT\_MEM\_NULL}]
+  \item[\Id{KINDLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDIRECT\_LMEM\_NULL}]
+  \item[\Id{KINDLS\_LMEM\_NULL}]
     The {\kindense} linear solver has not been initialized.
   \end{args}
 }

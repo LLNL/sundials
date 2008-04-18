@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.5 $
+ * $Date: 2008-04-18 19:42:38 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -37,10 +37,10 @@ extern "C" {
  * N is the size of the DAE system.
  *
  * The return value of IDALapackDense is one of:
- *    IDADIRECT_SUCCESS   if successful
- *    IDADIRECT_MEM_NULL  if the IDAS memory was NULL
- *    IDADIRECT_MEM_FAIL  if there was a memory allocation failure
- *    IDADIRECT_ILL_INPUT if a required vector operation is missing
+ *    IDADLS_SUCCESS   if successful
+ *    IDADLS_MEM_NULL  if the IDAS memory was NULL
+ *    IDADLS_MEM_FAIL  if there was a memory allocation failure
+ *    IDADLS_ILL_INPUT if a required vector operation is missing
  * -----------------------------------------------------------------
  */
 
@@ -63,10 +63,10 @@ SUNDIALS_EXPORT int IDALapackDense(void *ida_mem, int N);
  * mlower is the lower bandwidth of the band Jacobian approximation.
  *
  * The return value of IDALapackBand is one of:
- *    IDADIRECT_SUCCESS   if successful
- *    IDADIRECT_MEM_NULL  if the IDAS memory was NULL
- *    IDADIRECT_MEM_FAIL  if there was a memory allocation failure
- *    IDADIRECT_ILL_INPUT if a required vector operation is missing
+ *    IDADLS_SUCCESS   if successful
+ *    IDADLS_MEM_NULL  if the IDAS memory was NULL
+ *    IDADLS_MEM_FAIL  if there was a memory allocation failure
+ *    IDADLS_ILL_INPUT if a required vector operation is missing
  *                        or if a bandwidth has an illegal value.
  * -----------------------------------------------------------------
  */

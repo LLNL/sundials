@@ -127,16 +127,16 @@ description of their meaning.
 \multicolumn{3}{c}{\bf {\idadls} linear solver modules}\\
 \hline\\
 
-\id{IDADIRECT\_SUCCESS}    &  0 & Successful function return. \\
-\id{IDADIRECT\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
-\id{IDADIRECT\_LMEM\_NULL} & -2 & The {\idadls} linear solver has not been initialized.\\
-\id{IDADIRECT\_ILL\_INPUT} & -3 & The {\idadls} solver is not compatible with the current {\nvector} module.\\
-\id{IDADIRECT\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\id{IDADIRECT\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{IDADIRECT\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
+\id{IDADLS\_SUCCESS}    &  0 & Successful function return. \\
+\id{IDADLS\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
+\id{IDADLS\_LMEM\_NULL} & -2 & The {\idadls} linear solver has not been initialized.\\
+\id{IDADLS\_ILL\_INPUT} & -3 & The {\idadls} solver is not compatible with the current {\nvector} module.\\
+\id{IDADLS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{IDADLS\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
+\id{IDADLS\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
 %%
-\id{IDADIRECT\_NO\_ADJ}          & -101 & The combined forward-backward problem has not been initialized.\\
-\id{IDADIRECT\_LMEMB\_NULL}      & -102 & The linear solver was not initialized for the backward phase. \\
+\id{IDADLS\_NO\_ADJ}          & -101 & The combined forward-backward problem has not been initialized.\\
+\id{IDADLS\_LMEMB\_NULL}      & -102 & The linear solver was not initialized for the backward phase. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\idaspils} linear solver modules}\\
@@ -144,8 +144,8 @@ description of their meaning.
 
 \id{IDASPILS\_SUCCESS}    &  0 & Successful function return. \\
 \id{IDASPILS\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
-\id{IDASPILS\_LMEM\_NULL} & -2 & The linear solver has not been initialized.\\
-\id{IDASPILS\_ILL\_INPUT} & -3 & The solver is not compatible with the current {\nvector} module.\\
+\id{IDASPILS\_LMEM\_NULL} & -2 & The {\idaspils} linear solver has not been initialized.\\
+\id{IDASPILS\_ILL\_INPUT} & -3 & The {\idaspils} solver is not compatible with the current {\nvector} module.\\
 \id{IDASPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 \id{IDASPILS\_PMEM\_NULL} & -5 & The preconditioner module has not been initialized. \\
 %%

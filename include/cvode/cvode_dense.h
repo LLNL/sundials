@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:06 $
+ * $Revision: 1.5 $
+ * $Date: 2008-04-18 19:42:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -38,10 +38,10 @@ extern "C" {
  * N is the size of the ODE system.
  *
  * The return value of CVDense is one of:
- *    CVDIRECT_SUCCESS   if successful
- *    CVDIRECT_MEM_NULL  if the cvode memory was NULL
- *    CVDIRECT_MEM_FAIL  if there was a memory allocation failure
- *    CVDIRECT_ILL_INPUT if a required vector operation is missing
+ *    CVDLS_SUCCESS   if successful
+ *    CVDLS_MEM_NULL  if the cvode memory was NULL
+ *    CVDLS_MEM_FAIL  if there was a memory allocation failure
+ *    CVDLS_ILL_INPUT if a required vector operation is missing
  * -----------------------------------------------------------------
  */
 
