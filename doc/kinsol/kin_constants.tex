@@ -64,6 +64,7 @@ description of their meaning.
 \id{KIN\_SUCCESS}               &  0  & Successful function return. \\
 \id{KIN\_INITIAL\_GUESS\_OK}    &  1  & The initial user-supplied guess already satisfies the stopping criterion. \\
 \id{KIN\_STEP\_LT\_STPTOL}      &  2  & The stopping tolerance on scaled step length was satisfied. \\
+\id{KIN\_WARNING}               & 99  & A non-fatal warning. the solver will continue. \\
 \id{KIN\_MEM\_NULL}             & -1  & The \id{kin\_mem} argument was \id{NULL}. \\
 \id{KIN\_ILL\_INPUT}            & -2  & One of the function inputs is illegal. \\
 \id{KIN\_NO\_MALLOC}            & -3  & The {\kinsol} memory was not allocated by a call to \id{KINMalloc}. \\
@@ -81,25 +82,16 @@ description of their meaning.
 \id{KIN\_REPTD\_SYSFUNC\_ERR}   & -15 & The system function had repeated recoverable errors. \\
 
 \\\hline
-\multicolumn{3}{c}{\bf {\kindense} linear solver module}\\
+\multicolumn{3}{c}{\bf {\kindls} linear solver module}\\
 \hline\\
 
-\id{KINDENSE\_SUCCESS}    &  0 & Successful function return. \\
-\id{KINDENSE\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
-\id{KINDENSE\_LMEM\_NULL} & -2 & The {\kindense} linear solver has not been initialized.\\
-\id{KINDENSE\_ILL\_INPUT} & -3 & The {\kindense} solver is not compatible with the current {\nvector} module.\\
-\id{KINDENSE\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\kinband} linear solver module}\\
-\hline\\
-
-\id{KINBAND\_SUCCESS}    &  0 & Successful function return. \\
-\id{KINBAND\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
-\id{KINBAND\_LMEM\_NULL} & -2 & The {\kinband} linear solver has not been initialized.\\
-\id{KINBAND\_ILL\_INPUT} & -3 & The {\kinband} solver is not compatible with the
-                        current {\nvector} module, or an input value was illegal.\\
-\id{KINBAND\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{KINDIRECT\_SUCCESS}    &  0 & Successful function return. \\
+\id{KINDIRECT\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
+\id{KINDIRECT\_LMEM\_NULL} & -2 & The {\kindense} linear solver has not been initialized.\\
+\id{KINDIRECT\_ILL\_INPUT} & -3 & The {\kindense} solver is not compatible with the current {\nvector} module.\\
+\id{KINDIRECT\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{KINDIRECT\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
+\id{KINDIRECT\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\kinspils} linear solver modules}\\
@@ -110,6 +102,7 @@ description of their meaning.
 \id{KINSPILS\_LMEM\_NULL} & -2 & The linear solver has not been initialized.\\
 \id{KINSPILS\_ILL\_INPUT} & -3 & The solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
 \id{KINSPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{KINSPILS\_PMEM\_NULL}   & -5 & The preconditioner module has not been initialized. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\
@@ -149,13 +142,6 @@ description of their meaning.
 \id{SPTFQMR\_MEM\_NULL}          & -1 & The {\sptfqmr} memory is \id{NULL}\\
 \id{SPTFQMR\_ATIMES\_FAIL}       & -2 & The Jacobian tims vector function failed. \\
 \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\kinbbdpre} preconditioner module}\\
-\hline\\
-
-\id{KINBBDPRE\_SUCCESS}         &  0 & Successful function return. \\
-\id{KINBBDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
 
 
 \end{supertabular*} 
