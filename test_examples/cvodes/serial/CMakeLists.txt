@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-10-26 16:36:34 $
+# $Revision: 1.2 $
+# $Date: 2008-04-20 02:51:33 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -21,7 +21,6 @@ SET(cvodes_examples
   cvsdiscx
   cvsfwdswitchx
   cvsicx
-  cvtestroot
   )
 
 # Specify libraries to link against (through the target that was used to 
