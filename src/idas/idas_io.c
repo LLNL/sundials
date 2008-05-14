@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2008-04-15 16:37:36 $
+ * $Revision: 1.24 $
+ * $Date: 2008-05-14 22:51:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -121,6 +121,8 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetMaxOrd", MSG_BAD_MAXORD);
     return(IDA_ILL_INPUT);
   }  
+
+  if (maxord > MAXORD_DEFAULT) maxord = MAXORD_DEFAULT;
 
   IDA_mem->ida_maxord = maxord;
 
@@ -242,7 +244,7 @@ int IDASetNonlinConvCoef(void *ida_mem, realtype epcon)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (epcon < ZERO) {
+  if (epcon <= ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetNonlinConvCoef", MSG_NEG_EPCON);
     return(IDA_ILL_INPUT);
   }
@@ -492,7 +494,7 @@ int IDASetNonlinConvCoefIC(void *ida_mem, realtype epiccon)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (epiccon < ZERO) {
+  if (epiccon <= ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetNonlinConvCoefIC", MSG_BAD_EPICCON);
     return(IDA_ILL_INPUT);
   }
@@ -515,7 +517,7 @@ int IDASetMaxNumStepsIC(void *ida_mem, int maxnh)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (maxnh < 0) {
+  if (maxnh <= 0) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetMaxNumStepsIC", MSG_BAD_MAXNH);
     return(IDA_ILL_INPUT);
   }
@@ -538,7 +540,7 @@ int IDASetMaxNumJacsIC(void *ida_mem, int maxnj)
 
   IDA_mem = (IDAMem) ida_mem;
 
-   if (maxnj < 0) {
+   if (maxnj <= 0) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetMaxNumJacsIC", MSG_BAD_MAXNJ);
     return(IDA_ILL_INPUT);
   } 
@@ -561,7 +563,7 @@ int IDASetMaxNumItersIC(void *ida_mem, int maxnit)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (maxnit < 0) {
+  if (maxnit <= 0) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetMaxNumItersIC", MSG_BAD_MAXNIT);
     return(IDA_ILL_INPUT);
   }
@@ -602,7 +604,7 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (steptol < ZERO) {
+  if (steptol <= ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetStepToleranceIC", MSG_BAD_STEPTOL);
     return(IDA_ILL_INPUT);
   }
