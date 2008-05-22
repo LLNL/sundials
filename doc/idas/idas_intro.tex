@@ -7,7 +7,7 @@ SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}
 This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these
 with sensitivity analysis capabilities, {\cvodes} and {\idas}.
 
-{\idas} is a general purpose solver for the initial value problem for
+{\idas} is a general purpose solver for the initial value problem (IVP) for
 systems of differential-algebraic equations (DAEs).  The name IDAS
 stands for Implicit Differential-Algebraic solver with Sensitivity capabilities.
 {\idas} is an extension of the {\ida} solver within {\sundials}, itself 
@@ -22,12 +22,12 @@ on generic vectors without any assumptions on the underlying organization
 of the data; and
 (3) it provides a flexible, extensible framework for sensitivity analysis,
 using either {\em forward} or {\em adjoint} methods.
-Thus {\idas} shares significant modules previously written within CASC at LLNL to support
-the ordinary differential equation (ODE) solvers {\cvode}~\cite{cvode_ug,CoHi:96} and 
-{\pvode}~\cite{ByHi:98,ByHi:99}, 
-the DAE solver {\ida}~\cite{ida_ug} on which {\idas} is based,
-the sensitivity-enabled ODE solver {\cvodes}~\cite{cvodes_ug,SeHi:05}, 
-and also the nonlinear system solver {\kinsol}~\cite{kinsol_ug}.
+Thus {\idas} shares significant modules previously written within CASC
+at LLNL to support the ordinary differential equation (ODE) solvers
+{\cvode}~\cite{cvode_ug,CoHi:96} and {\pvode}~\cite{ByHi:98,ByHi:99},
+the DAE solver {\ida}~\cite{ida_ug} on which {\idas} is based, the
+sensitivity-enabled ODE solver {\cvodes}~\cite{cvodes_ug,SeHi:05}, and
+also the nonlinear system solver {\kinsol}~\cite{kinsol_ug}.
 
 The Newton/Krylov methods in {\idas} are:
 the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
@@ -78,17 +78,15 @@ in extended {\F}.
 \index{IDAS@{\idas}!motivation for writing in C|)}
 
 
-
-
 The structure of this document is as follows:
 \begin{itemize}
 \item
   In Chapter \ref{s:math}, we give short descriptions of the numerical 
   methods implemented by {\idas} for the solution of initial value problems
-  for systems of DAEs, continue with an overview of the mathematical aspects 
-  of sensitivity analysis, both forward (\S\ref{ss:fwd_sensi}) and adjoint
-  (\S\ref{ss:adj_sensi}), and conclude with short descriptions of preconditioning
-  (\S\ref{s:preconditioning}) and rootfinding (\S\ref{s:rootfinding}).
+  for systems of DAEs, continue with short descriptions of preconditioning
+  (\S\ref{s:preconditioning}) and rootfinding (\S\ref{s:rootfinding}), and
+  then give an overview of the mathematical aspects of sensitivity analysis,
+  both forward (\S\ref{ss:fwd_sensi}) and adjoint (\S\ref{ss:adj_sensi}).
 \item
   The following chapter describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\idas}
@@ -131,8 +129,9 @@ The structure of this document is as follows:
   by all {\sundials} solvers.
 \item
   Finally, in the appendices, we provide detailed instructions for the installation
-  of {\idas}, within the structure of {\sundials} (Appendix \ref{c:install}), as well
-  as a list of all the constants used for input to and output from {\idas} functions
+  of {\idas}, within the structure of {\sundials} (Appendix \ref{c:install}), as
+  well as a list of all the constants used for input to and output from {\idas}
+  functions
   (Appendix \ref{c:constants}).
 \end{itemize}
 
@@ -141,3 +140,5 @@ in this user guide:  program listings and identifiers (such as \id{IDAInit})
 within textual explanations appear in typewriter type style; 
 fields in {\C} structures (such as {\em content}) appear in italics;
 and packages or modules, such as {\idadense}, are written in all capitals. 
+Usage and installation instructions that constitute important warnings
+are marked with a triangular symbol {\warn} in the margin.
