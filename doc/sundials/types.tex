@@ -38,8 +38,9 @@ to handle floating-point constants is precision-independent except for
 any calls to precision-specific standard math library
 functions.  (Our example programs use both \id{realtype} and
 \id{RCONST}.)  Users can, however, use the type \id{double}, \id{float}, or
-\id{long double} in their code (assuming the typedef for \id{realtype} matches
-this choice).  Thus, a previously existing piece of ANSI {\C} code can use
-{\sundials} without modifying the code to use \id{realtype}, so long
-as the {\sundials} libraries use the correct precision (for details see
+\id{long double} in their code (assuming that this usage is consistent
+with the typedef for \id{realtype}).  Thus, a previously existing
+piece of ANSI {\C} code can use {\sundials} without modifying the code
+to use \id{realtype}, so long as the {\sundials} libraries use the
+correct precision (for details see
 \S\ref{ss:configuration_options}).
