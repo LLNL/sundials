@@ -58,7 +58,7 @@ linear systems during the integration, in combination with certain
 tricks involving the step size (which is set artificially for this
 calculation).
 For problems that do not fall into either of these categories, the
-user is responsible for passing consistent values or risk failure in
+user is responsible for passing consistent values, or risks failure in
 the numerical integration.
 
 % Integration method and nonlinear system
@@ -373,7 +373,7 @@ reaction-transport systems).
 Typical preconditioners used with {\idas} are based on approximations to the Newton 
 iteration matrix of the systems involved; in other words, 
 $P \approx \frac{\partial F}{\partial y} + \alpha\frac{\partial F}{\partial \dot y}$,
-where $\alpha$ is a scalar inverse proportional to the integration step size $h$.
+where $\alpha$ is a scalar inversely proportional to the integration step size $h$.
 Because the Krylov iteration occurs within a Newton iteration and further
 also within a time integration, and since each of these iterations has
 its own test for convergence, the preconditioner may use a very crude
@@ -394,15 +394,15 @@ no preconditioning.
 The {\idas} solver has been augmented to include a rootfinding
 feature.  This means that, while integrating the Initial Value Problem
 (\ref{e:DAE}), {\idas} can also find the roots of a set of user-defined
-functions $g_i(t,y,y')$ that depend on $t$, the solution vector 
-$y = y(t)$, and its $t-$derivative $y'(t)$.  The number of these root
+functions $g_i(t,y,\dot{y})$ that depend on $t$, the solution vector 
+$y = y(t)$, and its $t-$derivative $\dot{y}(t)$.  The number of these root
 functions is arbitrary, and if more than one $g_i$ is found to have a
 root in any given interval, the various root locations are found and
 reported in the order that they occur on the $t$ axis, in the
 direction of integration.
 
 Generally, this rootfinding feature finds only roots of odd
-multiplicity, corresponding to changes in sign of $g_i(t,y(t),y'(t))$,
+multiplicity, corresponding to changes in sign of $g_i(t,y(t),\dot{y}(t))$,
 denoted $g_i(t)$ for short.  If a user root function has a root of
 even multiplicity (no sign change), it will probably be missed by
 {\idas}.  If such a root is desired, the user should reformulate the
