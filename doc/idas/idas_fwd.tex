@@ -167,7 +167,7 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   
   {\p} \id{N\_VSetArrayPointer\_Parallel(yS0\_i, yS0[i]);}
 
-  The initial conditions for sensitivities \id{ypS0} of $y'$ are set similarly.  
+  The initial conditions for sensitivities \id{ypS0} of $\dot{y}$ are set similarly.  
 
 \item
   {\bf Activate sensitivity calculations}
@@ -278,7 +278,7 @@ The form of the call to this routine is as follows:
     values of the sensitivities of $y$.
   \item[ypS0] (\id{N\_Vector *}) 
     a pointer to an array of \id{Ns} vectors containing the initial 
-    values of the sensitivities of $y'$.
+    values of the sensitivities of $\dot{y}$.
   \end{args}
 }
 {
@@ -347,7 +347,7 @@ The call to the \id{IDASensReInit} function has the form:
     initial values of the sensitivities of $y$.
   \item[ypS0] (\id{N\_Vector *}) 
     a pointer to an array of \id{Ns} variables of type \id{N\_Vector} containing the 
-    initial values of the sensitivities of $y'$.
+    initial values of the sensitivities of $\dot{y}$.
   \end{args}
 }
 {
@@ -589,11 +589,12 @@ in this case the return value \id{flag} can also be one of the following:
 
 \subsection{Forward sensitivity extraction functions}\label{ss:sensi_get}
 
-If forward sensitivity computations have been initialized by a call to \id{IDASensInit},
-or reinitialized by a call to \id{IDASensReInit}, then {\idas} computes both a solution
-and sensitivities at time \id{t}. However, \id{IDASolve} will still return only the solutions
-$y$ and $y'$ in \id{y}, respectively in \id{y'}. Solution sensitivities can be obtained 
-through one of the following functions:
+If forward sensitivity computations have been initialized by a call to
+\id{IDASensInit}, or reinitialized by a call to \id{IDASensReInit},
+then {\idas} computes both a solution and sensitivities at time
+\id{t}. However, \id{IDASolve} will still return only the solutions
+$y$ and $\dot{y}$ in \id{yret} and \id{ypret}, respectively.  Solution
+sensitivities can be obtained through one of the following functions:
 %%
 %%
 \ucfunction{IDAGetSens}
@@ -1392,7 +1393,7 @@ of type \ID{IDASensResFn} defined by:
 }
 {
   This function computes the sensitivity residual for all sensitivity
-  equations. It must compute the vectors $(\dFdyI)s_i(t) + (\dFdypI) s'_i(t) + (\dFdpiI)$ 
+  equations. It must compute the vectors $(\dFdyI)s_i(t) + (\dFdypI) \dot{s}_i(t) + (\dFdpiI)$ 
   and store them in \id{resvalS[i]}. 
 }
 {
@@ -1402,11 +1403,11 @@ of type \ID{IDASensResFn} defined by:
   \item[yy]
     is the current value of the state vector, $y(t)$.
   \item[yp]
-    is the current value of the $y'(t)$.
+    is the current value of the $\dot{y}(t)$.
   \item[yS]
     contains the current values of the sensitivities of $y$.
   \item[ypS]
-    contains the current values of the sensitivities of $y'$.
+    contains the current values of the sensitivities of $\dot{y}$.
   \item[resvalS]
     contains the output sensitivities vectors.
   \item[user\_data]
@@ -1729,7 +1730,7 @@ case the return value \id{flag} can also be one of the following:
 If sensitivity-dependent quadratures have been initialized by a call to \id{IDAQuadSensInit},
 or reinitialized by a call to \id{IDAQuadSensReInit}, then {\idas} computes both a solution,
 sensitivites and quadratures depending on sensitivities at time \id{t}. However, 
-\id{IDASolve} will still return only the solutions $y$ and $y'$. Sensitivity-dependent 
+\id{IDASolve} will still return only the solutions $y$ and $\dot{y}$. Sensitivity-dependent 
 quadratures can be obtained using one of the following functions:
 %%
 %%
@@ -2252,13 +2253,13 @@ must be of type \Id{IDAQuadSensRhsFn} defined as follows:
   \item[yy]
     is the current value of the dependent variable vector, $y(t)$.
   \item[yp]
-    is the current value of the dependent variable vector, $y'(t)$.
+    is the current value of the dependent variable vector, $\dot{y}(t)$.
   \item[yyS] 
     is an array of \id{Ns} variables of type \id{N\_Vector} containing the
     dependent sensitivity vectors $s_i$.
   \item[ypS] 
     is an array of \id{Ns} variables of type \id{N\_Vector} containing the
-    dependent sensitivity vectors $s'_i$.
+    dependent sensitivity vectors $\dot{s}_i$.
   \item[rrQ]
     is the current value quadrature right-hand side.
   \item[rhsvalQS]

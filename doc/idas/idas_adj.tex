@@ -333,7 +333,7 @@ The call to this function has the form
   \item[yret] (\id{N\_Vector})
     the computed solution vector $y$.
   \item[ypret] (\id{N\_Vector})
-    the computed solution vector $y'$.
+    the computed solution vector $\dot{y}$.
   \item[itask] (\id{int})
     \index{itask@\texttt{itask}}
     \index{output mode}
@@ -341,7 +341,7 @@ The call to this function has the form
     The \Id{IDA\_NORMAL} task is to have the solver take internal steps until   
     it has reached or just passed the user-specified \id{tout}
     parameter. The solver then interpolates in order to   
-    return an approximate value of $y($\id{tout}$)$ and $y'($\id{tout}$)$. 
+    return an approximate value of $y($\id{tout}$)$ and $\dot{y}($\id{tout}$)$. 
     The \Id{IDA\_ONE\_STEP} option tells the solver to just take one internal step  
     and return the solution at the point reached by that step. 
   \item[ncheck] (\id{int *})
@@ -351,7 +351,7 @@ The call to this function has the form
 {
   On return, \id{IDASolveF} returns vectors \id{yret}, \id{ypret} and a corresponding 
   independent variable value $t=$\id{*tret}, such that \id{yret} is the computed 
-  value of $y(t)$ and \id{ypret} the value of $y'(t)$. Additionally, it returns 
+  value of $y(t)$ and \id{ypret} the value of $\dot{y}(t)$. Additionally, it returns 
   in \id{ncheck} the number of checkpoints saved.
   The return value \id{flag} (of type \id{int}) will be one of the following.
   For more details see \S\ref{sss:idasolve}.
@@ -758,7 +758,7 @@ the adjoint system.
 The above functions provide the same functionality for backward problem as 
 \id{IDACalcIC} with parameter \id{icopt} =  \id{IDA\_YA\_YDP\_INIT} 
 provides for forward problem (see \S\ref{ss:idacalcic}): compute the 
-algebraic components of $yB$ and differential  components of $yB'$, given 
+algebraic components of $yB$ and differential  components of $\dot{y}B$, given 
 the differential components of $yB$.  They require that the \id{IDASetIdB}
 was previously called to specify the differential and algebraic components.               
 
@@ -807,7 +807,7 @@ also needs forward sensitivities at final time $tB0$.
   will trap all \id{IDACalcICB} failures.
 
   Note that \id{IDACalcICB} will correct the values $yB(tB_0)$ and 
-  $yB^\prime(tB_0)$ which were specified in the previous call to \id{IDAInitB} 
+  $\dot{y}B(tB_0)$ which were specified in the previous call to \id{IDAInitB} 
   or \id{IDAReInitB}. To obtain the corrected values, call 
   \id{IDAGetconsistentICB} (see \S\ref{sss:optout_iccalcB}).
 }
@@ -869,7 +869,7 @@ user must call the following function to correct the initial conditions:
   will trap all \id{IDACalcICBS} failures.
 
   Note that \id{IDACalcICBS} will correct the values $yB(tB_0)$ and 
-  $yB^\prime(tB_0)$ which were specified in the previous call to \id{IDAInitBS} 
+  $\dot{y}B(tB_0)$ which were specified in the previous call to \id{IDAInitBS} 
   or \id{IDAReInitBS}. To obtain the corrected values, call 
   \id{IDAGetconsistentICB} (see \S\ref{sss:optout_iccalcB}).
 }
@@ -2073,7 +2073,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{IDADlsDenseJacFnB}
 {
-  typedef int (*IDADlsDenseJacFnB)(&int NeqB, realtype tt, realtype c\_jB\\
+  typedef int (*IDADlsDenseJacFnB)(&int NeqB, realtype tt, realtype cjB, \\
                                &N\_Vector yy, N\_Vector yp, \\
                                &N\_Vector yyB, N\_Vector ypB, \\
                                &N\_Vector resvalB, \\
@@ -2091,7 +2091,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
     is the backward problem size (number of equations).
   \item[tt]
     is the current value of the independent variable.
-  \item[c\_jB]
+  \item[cjB]
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[yy]
@@ -2154,7 +2154,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
 \usfunction{IDADlsBandJacFnB}
 {
  typedef int (*IDADlsBandJacFnB)(&int NeqB, int mupperB, int mlowerB,\\
-                             &realtype tt, realtype c\_jB\\
+                             &realtype tt, realtype cjB, \\
                              &N\_Vector yy, N\_Vector yp, \\
                              &N\_Vector yyB, N\_Vector ypB, \\
                              &N\_Vector resvalB, DlsMat JacB, \\
@@ -2175,7 +2175,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
     are the lower and upper half-bandwidth of the Jacobian.
   \item[tt]
     is the current value of the independent variable.
-  \item[c\_jB]
+  \item[cjB]
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[yy]
@@ -2241,7 +2241,7 @@ the user may provide a function of type \ID{IDASpilsJacTimesVecFnB} in the follo
                                        &N\_Vector yyB, N\_Vector yyB, \\
                                        &N\_Vector resvalB, \\
                                        &N\_Vector vB, N\_Vector JvB, \\
-                                       &realtype c\_jB, void *user\_dataB, \\
+                                       &realtype cjB, void *user\_dataB, \\
                                        &N\_Vector tmp1B, N\_Vector tmp2B);
 }
 {
@@ -2266,7 +2266,7 @@ the user may provide a function of type \ID{IDASpilsJacTimesVecFnB} in the follo
     is the vector by which the Jacobian must be multiplied to the right.
   \item[JvB]
       is the output vector computed.
-  \item[c\_j]
+  \item[cjB]
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[user\_dataB]
@@ -2313,7 +2313,7 @@ This function must be of type \ID{IDASpilsPrecSolveFnB} defined by
                                      &N\_Vector yB, N\_Vector ypB, \\
                                      &N\_Vector resvalB, \\
                                      &N\_Vector rvecB, N\_Vector zvecB, \\
-                                     &realtype c\_jB, realtype deltaB, \\
+                                     &realtype cjB, realtype deltaB, \\
                                      &void *user\_dataB, N\_Vector tmpB);
 }
 {
@@ -2337,7 +2337,7 @@ This function must be of type \ID{IDASpilsPrecSolveFnB} defined by
     is the right-hand side vector $r$ of the linear system to be solved.
   \item[zvecB]
     is the output vector computed.
-  \item[c\_jB]
+  \item[cjB]
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[deltaB]
@@ -2375,7 +2375,7 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFnB} defined by
                                      &N\_Vector yy, N\_Vector yp,  \\
                                      &N\_Vector yB, N\_Vector ypB, \\ 
                                      &N\_Vector resvalB, \\
-                                     &realtype c\_jB, void *user\_dataB,\\
+                                     &realtype cjB, void *user\_dataB,\\
                                      &N\_Vector tmp1B, N\_Vector tmp2B, \\
                                      &N\_Vector tmp3B);
 }
@@ -2398,7 +2398,7 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFnB} defined by
     is the current value of the dependent variable vector.
   \item[resvalB]
     is the current value of the residual of the backward problem.
-  \item[c\_jB]
+  \item[cjB]
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[user\_dataB]
@@ -2422,7 +2422,7 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFnB} defined by
 %%
 %%-------------------------------------------------------------------
 %%-------------------------------------------------------------------
-\section{Using the band-block-diagonal preconditioner IDABBDPRE for backward problems}
+\section{Using the band-block-diagonal preconditioner for backward problems}
 %%-------------------------------------------------------------------
 %%-------------------------------------------------------------------
 %%
