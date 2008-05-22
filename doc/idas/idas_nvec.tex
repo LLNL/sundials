@@ -25,18 +25,20 @@ of {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr}), the {\idabbdpre}
 preconditioner module, and the {\idas} adjoint sensitivity
 module (denoted here with {\idaa}).
 
-There is one subtlety in the {\idaspils} column hidden by the table, explained
-here for the case of the {\idaspgmr} module). 
-The \id{N\_VDotProd} function is called both within the 
-implementation file \id{ida\_spgmr.c} for the {\idaspgmr} solver and within
-the implementation files \id{sundials\_spgmr.c} and \id{sundials\_iterative.c} for the generic
-{\spgmr} solver upon which the {\idaspgmr} solver is implemented. Also, although
-\id{N\_VDiv} and \id{N\_VProd} are not called within the implementation file
-\id{ida\_spgmr.c}, they are called within the implementation file
-\id{sundials\_spgmr.c} and so are required by the {\idaspgmr} solver module.
-This issue does not arise for the direct {\idas} linear solvers because
-the generic {\dense} and {\band} solvers (used in the implementation of
-{\idadense} and {\idaband}) do not make calls to any vector functions.
+There is one subtlety in the {\idaspils} column hidden by the table.
+In what follows \id{SOL} stands for \id{GMR}, \id{BCG}, or \id{TFQMR},
+and \id{sol} stands for \id{gmr}, \id{bcgs}, or \id{tfqmr}.
+The \id{N\_VDotProd} function is called both within the implementation
+file \id{ida\_spsol.c} for the \id{IDASPSOL} solver and within the
+implementation files \id{sundials\_spsol.c} (and in \id{sundials\_iterative.c}
+in the \id{GMR} case), for the generic \id{SPSOL} solver.
+Also, although \id{N\_VDiv} and \id{N\_VProd} are not called within
+the implementation file \id{ida\_spsol.c}, they are called within the
+implementation file \id{sundials\_spsol.c} and so are required by the
+\id{IDASPSOL} solver module.  This issue does not arise for the direct
+{\idas} linear solvers because the generic {\dense} and {\band}
+solvers (used in the implementation of {\idadense} and {\idaband}) do
+not make calls to any vector functions.
 
 \begin{table}[htb]
 \centering
