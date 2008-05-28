@@ -1011,7 +1011,7 @@ for the given problem.
   All failure return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{IDACalcIC} failures.
 
-  Note that \id{IDACalcIC} will correct the values $y(t_0)$ and $\dot{y}(t_0)$
+  Note that \id{IDACalcIC} will correct the values of $y(t_0)$ and $\dot{y}(t_0)$
   which were specified in the previous call to \id{IDAInit} or \id{IDAReInit}.
   To obtain the corrected values, call \id{IDAGetconsistentIC} (see \S\ref{sss:optout_iccalc}).
 }
@@ -4191,12 +4191,13 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
 \subsection{Jacobian information (direct method with dense Jacobian)}
 \label{ss:djacFn}
 \index{Jacobian approximation function!dense!user-supplied|(}
-If the direct linear solver with dense treatment of the Jacobian is used (i.e. 
-\Id{IDADense} or \Id{IDALapackDense} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
-the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
+If the direct linear solver with dense treatment of the Jacobian is
+used (i.e. either \Id{IDADense} or \Id{IDALapackDense} is called in
+Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), the user may
+provide a function of type \ID{IDADlsDenseJacFn} defined by
 \usfunction{IDADlsDenseJacFn}
 {
-  typedef int (*IDADlsDenseJacFn&)(int Neq, realtype tt, realtype cj, \\
+  typedef int (*IDADlsDenseJac&Fn)(int Neq, realtype tt, realtype cj, \\
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
                              &DlsMat Jac, void *user\_data,  \\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -4288,12 +4289,13 @@ the user may provide a function of type \ID{IDADlsDenseJacFn} defined by
 \label{ss:bjacFn}
 \index{Jacobian approximation function!band!user-supplied|(}
 \index{half-bandwidths|(}
-If the direct linear solver with banded treatment of the Jacobian is used (i.e.
-\Id{IDABand} or \Id{IDALapackBand} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
-the user may provide a function of type \ID{IDADlsBandJacFn} defined as follows:
+If the direct linear solver with banded treatment of the Jacobian is
+used (i.e. either \Id{IDABand} or \Id{IDALapackBand} is called in Step
+\ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), the user may provide a
+function of type \ID{IDADlsBandJacFn} defined as follows:
 \usfunction{IDADlsBandJacFn}
 {
- typedef int (*IDADlsBandJacFn)(&int Neq, int mupper, int mlower, \\
+ typedef int (*IDADlsBandJacFn&)(int Neq, int mupper, int mlower, \\
                              &realtype tt, realtype cj,\\ 
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
                              &DlsMat Jac, void *user\_data, \\
