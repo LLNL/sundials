@@ -1,7 +1,9 @@
-The {\sundials} suite (or individual solvers) are distributed as compressed archives
-(\id{.tar.gz}). The name of the distribution archive is of the form {\em solver}\id{-x.y.z.tar.gz},
-where {\em solver} is one of: \id{sundials}, \id{cvode}, \id{cvodes}, \id{ida}, \id{idas}, or \id{kinsol},
-and \id{x.y.z} represents the version number (of the {\sundials} suite or of the individual solver).
+The {\sundials} suite (or individual solvers) are distributed as
+compressed archives (\id{.tar.gz}). The name of the distribution
+archive is of the form {\em solver}\id{-x.y.z.tar.gz}, where {\em
+solver} is one of: \id{sundials}, \id{cvode}, \id{cvodes}, \id{ida},
+\id{idas}, or \id{kinsol}, and \id{x.y.z} represents the version number
+(of the {\sundials} suite or of the individual solver).
 %%
 To begin the installation, first uncompress and expand the sources, by issuing
 \begin{verbatim}
@@ -30,29 +32,38 @@ for the two approaches, we begin with a few common observations:
     with {\em instdir} specified at configuration time.
   \end{description}
 
-\item For the CMake-based installation, in-source builds are prohibited; in other words, the build directory 
-  {\em builddir} can {\bf not} be the same as {\em srcdir} and such an attempt will lead to an error.
-  For autotools-based installation, in-source builds are allowed, although even in that case we
-  recommend to use a separate {\em builddir}. Indeed, this prevents ``polluting'' the source tree
-  and allows efficient builds for different configurations and/or options.
+\item For the CMake-based installation, in-source builds are prohibited; in other words, the
+  build directory {\em builddir} can {\bf not} be the same as {\em srcdir}
+  and such an attempt will lead to an error.  For autotools-based
+  installation, in-source builds are allowed, although even in that
+  case we recommend using a separate {\em builddir}. Indeed, this
+  prevents ``polluting'' the source tree and allows efficient builds
+  for different configurations and/or options.
 
 \item {\warn} The installation directory {\em instdir} can {\bf not} be the same as
   the source directory {\em srcdir}.
 
-\item By default, only the libraries and header files are exported to the installation directory {\em instdir}.
-  If enabled by the user (with the appropriate option to \id{configure} or toggle for CMake), the examples distributed
-  with {\sundials} will be built together with the solver libraries but the installation step will result in exporting
-  (by default in a subdirectory of the installation directory) the example sources and sample outputs together with 
-  automatically generated configuration files that reference the {\em installed} {\sundials} headers and libraries.
-  As such, these configuration files for the {\sundials} examples can be used as "templates" for your
-  own problems. The \id{configure} script will install makefiles. CMake installs \id{CMakeLists.txt} files and also 
-  (as an option available only under Unix/Linux) makefiles. Note that both installtion approaches also allow 
-  the option of building the {\sundials} examples without having to install them (this can be used as a
-  sanity check for the freshly built libraries).
+\item By default, only the libraries and header files are exported to the installation
+  directory {\em instdir}.  If enabled by the user (with the
+  appropriate option to \id{configure} or toggle for CMake), the
+  examples distributed with {\sundials} will be built together with
+  the solver libraries but the installation step will result in
+  exporting (by default in a subdirectory of the installation
+  directory) the example sources and sample outputs together with
+  automatically generated configuration files that reference the {\em
+  installed} {\sundials} headers and libraries.  As such, these
+  configuration files for the {\sundials} examples can be used as
+  "templates" for your own problems. The \id{configure} script will
+  install makefiles. CMake installs \id{CMakeLists.txt} files and also
+  (as an option available only under Unix/Linux) makefiles. Note that
+  both installation approaches also allow the option of building the
+  {\sundials} examples without having to install them.  (This can be
+  used as a sanity check for the freshly built libraries.)
 
-\item Even if generation of shared libraries is enabled, only static libraries are created for the FCMIX modules
-  (due to the use of fixed names for the Fortran user-provided subroutines, FCMIX shared libraries would result 
-  in "undefined symbol" errors at link time).
+\item Even if generation of shared libraries is enabled, only static libraries are created
+  for the FCMIX modules.  (Because of the use of fixed names for the Fortran
+  user-provided subroutines, FCMIX shared libraries would result in
+  "undefined symbol" errors at link time.)
 
 \end{itemize}
 
@@ -63,32 +74,34 @@ for the two approaches, we begin with a few common observations:
 The installation procedure outlined below will work on commodity {\linux}/{\unix} 
 systems without modification. However, users are still encouraged to carefully read 
 this entire section before attempting to install the {\sundials} suite, in case
-non-default choices are desired for compilers, compilation options, installation location, etc.
-The user may invoke the configuration script with the help flag to view a complete listing 
-of available options, which may be done by issuing 
+non-default choices are desired for compilers, compilation options,
+installation location, etc.  The user may invoke the configuration
+script with the help flag to view a complete listing of available
+options, by issuing the command
 \begin{verbatim}
    % ./configure --help 
 \end{verbatim}
 from within {\em srcdir}.
 
-
 \vspace{0.2in}
-{\noindent}The installation steps for {\sundials} can be as simple as 
+{\noindent}The installation steps for {\sundials} can be as simple as
+the following: 
 \begin{verbatim}
-   % cd path/to/srcdir
+   % cd .../srcdir
    % ./configure
    % make
    % make install
 \end{verbatim}
-in which case the {\sundials} header files and libraries are installed under \id{/usr/local/include}
-and \id{/usr/local/lib}, respectively. Note that, by default, the example programs are not
+in which case the {\sundials} header files and libraries are installed
+under \id{/usr/local/include} and \id{/usr/local/lib},
+respectively. Note that, by default, the example programs are not
 built and installed.
 To delete all temporary files created by building {\sundials}, issue
 \begin{verbatim}
    % make clean
 \end{verbatim}
-To prepare the {\sundials} distribution for a new install (using, for example, different options and/or
-installation destinations), issue
+To prepare the {\sundials} distribution for a new install (using, for example,
+different options and/or installation destinations), issue
 \begin{verbatim}
    % make distclean
 \end{verbatim}
@@ -96,14 +109,15 @@ installation destinations), issue
 The above steps are for an ``in-source'' build. For an ``out-of-source'' build (recommended),
 the procedure is simply:
 \begin{verbatim}
-   % cd path/to/builddir
-   % path/to/srcdir/configure
+   % cd .../builddir
+   % .../srcdir/configure
    % make
    % make install
 \end{verbatim}
-Note that, in this case, \id{make clean} and \id{make distclean} are irrelevant. Indeed, if disk space
-is a priority, the entire {\em builddir} can be purged after the installation completes. For a new install,
-a new {\em builddir} directory can be created and used.
+Note that, in this case, \id{make clean} and \id{make distclean} are
+irrelevant. Indeed, if disk space is a priority, the entire {\em
+builddir} can be purged after the installation completes. For a new
+install, a new {\em builddir} directory can be created and used.
 
 %===============================================================================
 
@@ -157,7 +171,7 @@ options.
   Although each existing solver module is built by default, support for a
   given solver can be explicitly disabled using this option. 
   The valid values for {\em solver} are: \id{cvode}, \id{cvodes}, 
-  \id{ida}, and \id{kinsol}.
+  \id{ida}, \id{idas}, and \id{kinsol}.
 
 \item \id{--enable-examples}
   
@@ -177,7 +191,7 @@ options.
 \item \id{--with-examples-instdir=EXINSTDIR}
 
   Alternate location for example executables and sample output files (valid only if
-  examples are enabled). Note that installtion of example files can be completely disabled
+  examples are enabled). Note that installation of example files can be completely disabled
   by issuing \id{EXINSTDIR=no} (in case building the examples is desired only as a test of
   the {\sundials} libraries).
 
@@ -208,9 +222,9 @@ options.
   By default, {\sundials} will define a real number (internally referred to as
   \id{realtype}) to be a double-precision floating-point numeric data type
   (\id{double} {\C}-type); however, this option may be used to build {\sundials}
-  with \id{realtype} alternatively defined as a single-precision floating-point
+  with \id{realtype} defined instead as a single-precision floating-point
   numeric data type (\id{float} {\C}-type) if \id{ARG=single}, or as a
-  \id{long double} {\C}-type if \\ \id{ARG=extended}.
+  \id{long double} {\C}-type if \id{ARG=extended}.
 
   Default: \id{ARG=double}
 
@@ -338,13 +352,13 @@ non-standard location, the following options can be used:
 
 \item \id{--with-blas}
 
-  Sepcify the Blas library.
+  Specify the Blas library.
 
   Default: none
 
 \item \id{--with-lapack}
 
-  Sepcify the Lapack library.
+  Specify the Lapack library.
 
   Default: none
 
@@ -456,39 +470,43 @@ Support for CMake-based installation has been added to {\sundials} primarily
 to provide a platform-independent build system. Like autotools, CMake can generate a 
 Unix Makefile. Unlike autotools, CMake can also create KDevelop, Visual Studio, and 
 (Apple) XCode project files from the same configuration file.
-In addition, CMake provides a GUI frontend and therefore the installation process 
+In addition, CMake provides a GUI front end and therefore the installation process 
 is more interactive than when using autotools.
 
 The installation options are very similar to the options mentioned above (although 
 their default values may differ slightly).
 Practically, all configurations supported by the autotools-based installation approach
-are also possible with CMake, the only notable exception being cross-compilation which 
+are also possible with CMake, the only notable exception being cross-compilation, which 
 is currently not implemented in the CMake approach.
 
-The {\sundials} build process requires CMake version \id{2.4.x} or higher and a working compiler. 
-On Unix-like operating systems, it also requires Make (and \id{curses}, including its development
-libraries, for the GUI frontend to CMake, \id{ccmake}), while on Windows it requires Visual Studio.
-While many Linux distributions offer CMake, the version included is probably out of date. 
-A lot of new CMake features have been added recently, and you should download the latest version 
-from {\tt http://www.cmake.org/HTML/Download.html}. Build instructions for cmake 
-(only necessary for Unix-like systems) can be found on the CMake website. 
-Once CMake is installed, Linux/Unix user will be able to use \id{ccmake}, while Windows user will 
-be able to use \id{CMakeSetup}.
+The {\sundials} build process requires CMake version \id{2.4.x} or
+higher and a working compiler.  On Unix-like operating systems, it
+also requires Make (and \id{curses}, including its development libraries,
+for the GUI front end to CMake, \id{ccmake}), while on Windows it
+requires Visual Studio.  While many Linux distributions offer CMake,
+the version included is probably out of date.  Many new CMake
+features have been added recently, and you should download the latest
+version from {\tt http://www.cmake.org/HTML/Download.html}.  Build
+instructions for Cmake (only necessary for Unix-like systems) can be
+found on the CMake website.  Once CMake is installed, Linux/Unix user
+will be able to use \id{ccmake}, while Windows user will be able to
+use \id{CMakeSetup}.
 
 As noted above, when using CMake to configure, build and install {\sundials}, it is always
 required to use a separate build directory. While in-source builds are possible, they are
-explicitly prohibited by the {\sundials} CMake scripts (on of the reasons being that, unlike
+explicitly prohibited by the {\sundials} CMake scripts (one of the reasons being that, unlike
 autotools, CMake does not provide a \id{make distclean} procedure and it is therefore
 difficult to clean-up the source tree after an in-source build).
 
 \subsection{Configuring, building, and installing on Unix-like systems}
 
-Use \id{ccmake} from the CMake installed location. \id{ccmake} is a Curses based GUI for CMake. 
-To run it go to the build directory and specify as an argument the build directory:
+Use \id{ccmake} from the CMake installed location. \id{ccmake} is a
+Curses based GUI for CMake.  To run it go to the build directory and
+specify as an argument the build directory:
 \begin{verbatim}
-   % mkdir path/to/builddir
-   % cd path/to/builddir
-   % ccmake path/to/srcdir
+   % mkdir .../builddir
+   % cd .../builddir
+   % ccmake .../srcdir
 \end{verbatim}
 
 About \id{ccmake}:
@@ -507,11 +525,12 @@ About \id{ccmake}:
   \item If it is string or file, it will allow editing of the string
   \item For file and directories, the \id{<tab>} key can be used to complete 
   \end{itemize}
-\item To search for a variable press \id{/} key, and to repeat the search, press the \id{n} key
+\item To search for a variable press \id{/} key, and to repeat the search, press the
+\id{n} key
 \end{itemize}
 
 CMake will now generate makefiles including all dependencies and all rules to build 
-{\sundials} on this system. You should not however try to move the build directory 
+{\sundials} on this system. You should not, however, try to move the build directory 
 to another location on this system or to another system.
 Once you have makefiles you should be able to just type: 
 \begin{verbatim}
@@ -543,16 +562,16 @@ About \id{CMakeSetup}:
 \item To set the value of a variable, click on that value.
   \begin{itemize}
   \item If it is boolean (ON/OFF), a drop-down menu will appear for changing the value.
-  \item If it is file or directory, an ellipsis button will appear ("...") on the far right of the entry. Clicking this button will bring up the file or directory selection dialog.
+  \item If it is file or directory, an ellipsis button will appear ("...") on the far right
+  of the entry. Clicking this button will bring up the file or directory selection dialog.
   \item If it is a string, it will become an editable string. 
   \end{itemize}
 \end{itemize}
 
 CMake will now create Visual Studio project files. You should now be able to 
 open the {\sundials} project (or workspace) file. Make sure to select the appropriate 
-build type (Debug, Release, ...). To build {\sundials}, simply build the \id{ALL\_BUILD} target.
-
-To install {\sundials}, simply run the \id{INSTALL} target within the build system.
+build type (Debug, Release, ...). To build {\sundials}, simply build the \id{ALL\_BUILD}
+target. To install {\sundials}, simply run the \id{INSTALL} target within the build system.
 
 \subsection{Configuration options}
 
@@ -773,11 +792,11 @@ Some of them will be different on different systems.
 %%===============================================================================
 
 With the addition of CMake support, the installation of the {\sundials} package 
-on most any platform was greatly simplified. However, if for whatever reason,
+on almost any platform was greatly simplified. However, if for whatever reason,
 neither of the two procedures described above is convenient (for example for
 users who prefer to own the build process or otherwise incorporate {\sundials}
 or one of its solvers in a larger project with its own build system), we
-provide here a few directions on a completely manual installation.
+provide here a few directions for a completely manual installation.
 
 The following files are required to compile a {\sundials} solver module:
 \begin{itemize}
@@ -824,11 +843,13 @@ A sample header file that, appropriately modified, can be used as
 \end{lstlisting}
 
 
-The various preprocessor macros defined within \id{sundials\_config.h} have the following uses:
+The various preprocessor macros defined within \id{sundials\_config.h}
+have the following uses:
 \begin{itemize}
 
 \item Precision of the {\sundials} \id{realtype} type\\ \\
-  Only one of the macros \id{SUNDIALS\_SINGLE\_PRECISION}, \id{SUNDIALS\_DOUBLE\_PRECISION} and \\
+  Only one of the macros \id{SUNDIALS\_SINGLE\_PRECISION},
+  \id{SUNDIALS\_DOUBLE\_PRECISION} and \\
   \id{SUNDIALS\_EXTENDED\_PRECISION} should be defined to indicate if the {\sundials}
   \id{realtype} type is an alias for \id{float}, \id{double}, or \id{long double},
   respectively.
@@ -851,12 +872,12 @@ The various preprocessor macros defined within \id{sundials\_config.h} have the 
 
 \item {\F} name-mangling scheme\\ \\
   The macros given below are used to transform the {\C}-language
-  function names defined in the {\F}-{\C} inteface modules in a manner
+  function names defined in the {\F}-{\C} interface modules in a manner
   consistent with the preferred {\F} compiler, thus allowing native
   {\C} functions to be called from within a {\F} subroutine. The
-  name-mangling scheme is specified by appropriately
-  defining the parameterized macros (using the stringization operator,
-  \id{\#\#}, if necessary)
+  name-mangling scheme is specified by appropriately defining
+  the following parameterized macros (using the stringization operator,
+  \id{\#\#}, if necessary):
   \begin{itemize}
   \item \id{F77\_FUNC(name,NAME)}
   \item \id{F77\_FUNC\_(name,NAME)}
