@@ -1,8 +1,8 @@
 These generic linear solver modules in {\sundials} are organized in
-two families of solvers, the {\em dls} family which includes direct
-linear solvers appropriate for sequential computations, and the {\em spils}
-family which includes scaled preconditioned iterative (Krylov) linear solvers.
-The solvers in a given family shared common data structures and functions.
+two families of solvers, the {\em dls} family, which includes direct
+linear solvers appropriate for sequential computations; and the {\em spils}
+family, which includes scaled preconditioned iterative (Krylov) linear solvers.
+The solvers in each family share common data structures and functions.
 
 The {\em dls} family contains the following two generic linear solvers:
 \begin{itemize}
@@ -29,7 +29,7 @@ usable completely independently of {\sundials}.
 For the sake of space, the functions for the \id{dense} and \id{band} modules
 that work with a matrix type and the functions in the {\spgmr}, {\spbcg}, and {\sptfqmr}
 modules are only summarized briefly, since they are less likely to be of direct use
-in connection with a {\sundials} solver.  The functions for dense matrices 
+in connection with a {\sundials} solver.  However, the functions for dense matrices 
 treated as simple arrays are fully described, because we expect that they will be 
 useful in the implementation of preconditioners used with the combination of one of
 the {\sundials} solvers and one of the {\em spils} linear solvers.
@@ -42,8 +42,8 @@ the {\sundials} solvers and one of the {\em spils} linear solvers.
 
 \index{generic linear solvers!DENSE@{\dense}}
 \index{generic linear solvers!BAND@{\band}}
-Relative to the {\sundials} {\em srcdir}, the files comprising the
-{\dense} generic linear solver are as follows:
+The files comprising the {\dense} generic linear solver, and their locations
+in the {\sundials} {\em srcdir}, are as follows:
 \begin{itemize}
 \item header files (located in {\em srcdir}\id{/include/sundials})\\
   \id{sundials\_direct.h} \id{sundials\_dense.h} \\
@@ -51,7 +51,7 @@ Relative to the {\sundials} {\em srcdir}, the files comprising the
 \item source files (located in {\em srcdir}\id{/src/sundials})\\
   \id{sundials\_direct.c} \id{sundials\_dense.c} \id{sundials\_math.c}
 \end{itemize}
-while the files comprising the {\band} generic linear solver are as follows:
+The files comprising the {\band} generic linear solver are as follows:
 \begin{itemize}
 \item header files (located in {\em srcdir}\id{/include/sundials})\\
   \id{sundials\_direct.h} \id{sundials\_band.h} \\
@@ -61,7 +61,8 @@ while the files comprising the {\band} generic linear solver are as follows:
 \end{itemize}
 %%
 Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
-are relevant to the {\dense} package by itself (see \S\ref{ss:no_config} for details):
+are relevant to the {\dense} and {\band} packages by themselves (see
+\S\ref{ss:no_config} for details):
 \begin{itemize}
 \item (required) definition of the precision of the {\sundials} type \id{realtype}. 
   One of the following lines must be present:\\
@@ -152,7 +153,7 @@ allowed.
     band in the j-th column) to \id{s\_mu}$+$\id{ml} (to access the lowest element     
     within the band in the j-th column). Indices from $0$ to \id{s\_mu}$-$\id{mu}$-1$ give 
     access to extra storage elements required by the LU decomposition function.
-    Finally, \id{cols[j][i-j+smu]} is the $(i,j)$-th element, $j-$\id{mu} $\le i \le j+$\id{ml}. 
+    Finally, \id{cols[j][i-j+s\_mu]} is the $(i,j)$-th element, $j-$\id{mu} $\le i \le j+$\id{ml}. 
 \end{description}
 %%
 %%
@@ -168,7 +169,12 @@ allowed.
 \end{figure}
 %%
 %%
-The macros below  allow a user to efficiently access individual matrix           
+
+% ------------------------------------------------------------------------------
+\subsection{Accessor macros for the DLS modules}
+% ------------------------------------------------------------------------------
+
+The macros below allow a user to efficiently access individual matrix           
 elements without writing out explicit data structure           
 references and without knowing too much about the underlying   
 element storage. The only storage assumption needed is that    
@@ -231,9 +237,9 @@ access to data in the \id{DlsMat} type:
 \subsection{Functions in the DENSE module}\label{ss:dense}
 % ------------------------------------------------------------------------------
 
-The {\dense} module defines two sets of functions with corresponding names:
-the first set contains functions (with names starting with a capital letter)
-that act on dense matrices of type \id{DlsMat}; the second set contains functions
+The {\dense} module defines two sets of functions with corresponding names.
+The first set contains functions (with names starting with a capital letter)
+that act on dense matrices of type \id{DlsMat}.  The second set contains functions
 (with names starting with a lower case letter) that act on matrices represented 
 as simple arrays.
 
@@ -248,7 +254,7 @@ in the {\dense} package.  For full details, see the header files
 \item \id{NewIntArray}: allocation of an array of \id{int} for use
   as pivots with \id{DenseGETRF}/\id{DenseGETRS};
 \item \id{NewRealArray}: allocation of an array of \id{realtype} for use
-  as right-hand side with \id{DenseGETRF}/\id{DenseGETRS};
+  as right-hand side with \id{DenseGETRS};
 \item \id{DestroyArray}: free memory for an array;
 \item \id{DenseGETRF}: LU factorization with partial pivoting;
 \item \id{DenseGETRS}: solution of $Ax = b$ using LU factorization (for square matrices $A$);
@@ -354,9 +360,9 @@ The following functions for small dense matrices are available in the
 \subsection{Functions in the BAND module}\label{ss:band}
 % ------------------------------------------------------------------------------
 
-The {\band} module defines two sets of functions with corresponding names:
-the first set contains functions (with names starting with a capital letter)
-that act on band matrices of type \id{DlsMat}; the second set contains functions
+The {\band} module defines two sets of functions with corresponding names.
+The first set contains functions (with names starting with a capital letter)
+that act on band matrices of type \id{DlsMat}.  The second set contains functions
 (with names starting with a lower case letter) that act on matrices represented 
 as simple arrays.
 
@@ -369,9 +375,9 @@ in the {\band} package.  For full details, see the header files
 \item \id{DestroyMatrix}: free memory for a \id{DlsMat} matrix;
 \item \id{PrintMat}: print a \id{DlsMat} matrix to standard output.
 \item \id{NewIntArray}: allocation of an array of \id{int} for use
-  as pivots with \id{DenseGETRF}/\id{DenseGETRS};
+  as pivots with \id{BandGBRF}/\id{BandGBRS};
 \item \id{NewRealArray}: allocation of an array of \id{realtype} for use
-  as right-hand side with \id{BandGETRF}/\id{BandGETRS};
+  as right-hand side with \id{BandGBRS};
 \item \id{DestroyArray}: free memory for an array;
 \item \id{BandGBTRF}: LU factorization with partial pivoting;
 \item \id{BandGBTRS}: solution of $Ax = b$ using LU factorization;
@@ -464,10 +470,10 @@ functions that support {\spgmr}, as well as the other Krylov solvers in {\sundia
 ({\spbcg} and {\sptfqmr}).
 For full details, including usage instructions, see the header
 files \id{sundials\_spgmr.h} and \id{sundials\_iterative.h}.
-\index{SPGMR@{\spgmr} generic linear solver!description of|)}
 
-Relative to the {\sundials} {\em srcdir}, the files comprising the
-{\spgmr} generic linear solver are as follows:
+\index{SPGMR@{\spgmr} generic linear solver!description of|)}
+The files comprising the {\spgmr} generic linear solver, and their locations
+in the {\sundials} {\em srcdir}, are as follows:
 \begin{itemize}
 \item header files (located in {\em srcdir}\id{/include/sundials})\\
   \id{sundials\_spgmr.h} \id{sundials\_iterative.h} \id{sundials\_nvector.h} \\
@@ -535,7 +541,8 @@ For full details, including usage instructions, see the file \id{sundials\_spbcg
 \index{SPBCG@{\spbcg} generic linear solver!description of|)}
 
 The files needed to use the {\spbcg} module by itself are the same as for the
-{\spgmr} module, with \id{sundials\_spbcgs.(h,c)} replacing \id{sundials\_spgmr.(h,c)}.
+{\spgmr} module, but with \id{sundials\_spbcgs.(h,c)} in place of
+\id{sundials\_spgmr.(h,c)}.
 
 \index{SPBCG@{\spbcg} generic linear solver!functions|(}
 The following functions are available in the {\spbcg} package:  
@@ -560,7 +567,8 @@ For full details, including usage instructions, see the file \id{sundials\_sptfq
 \index{SPTFQMR@{\sptfqmr} generic linear solver!description of|)}
 
 The files needed to use the {\sptfqmr} module by itself are the same as for the
-{\spgmr} module, with \id{sundials\_sptfqmr.(h,c)} replacing \id{sundials\_spgmr.(h,c)}.
+{\spgmr} module, but with \id{sundials\_sptfqmr.(h,c)} in place of
+\id{sundials\_spgmr.(h,c)}.
 
 \index{SPTFQMR@{\sptfqmr} generic linear solver!functions|(}
 The following functions are available in the {\sptfqmr} package:  
