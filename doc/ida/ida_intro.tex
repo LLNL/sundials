@@ -7,14 +7,18 @@ SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}
 This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these
 with sensitivity analysis capabilities.
 
-{\ida} is a general purpose solver for the initial value problem for
+{\ida} is a general purpose solver for the initial value problem (IVP) for
 systems of differential-algebraic equations (DAEs).  The name IDA
 stands for Implicit Differential-Algebraic solver.  {\ida} is based on
 {\daspk}~\cite{BHP:94,BHP:98}, but is written in ANSI-standard C
-rather than {\F}77.  Its most notable feature is that, in the
-solution of the underlying nonlinear system at each time step, it offers
-a choice of Newton/direct methods and a choice of Inexact Newton/Krylov
-(iterative) methods.  Thus {\ida} shares significant modules previously
+rather than {\F}77.  Its most notable features are that,
+(1) in the solution of the underlying nonlinear system at each time
+step, it offers a choice of Newton/direct methods and a choice of
+Inexact Newton/Krylov (iterative) methods; and
+(2) it is written in a {\em data-independent} manner in that it acts
+on generic vectors without any assumptions on the underlying organization
+of the data.
+Thus {\ida} shares significant modules previously
 written within CASC at LLNL to support the ordinary differential
 equation (ODE) solvers {\cvode}~\cite{cvode_ug,CoHi:96} and 
 {\pvode}~\cite{ByHi:98,ByHi:99}, and also the nonlinear system solver 
@@ -176,7 +180,8 @@ The structure of this document is as follows:
 \item
   In Chapter \ref{s:math}, we give short descriptions of the numerical 
   methods implemented by {\ida} for the solution of initial value problems
-  for systems of DAEs.
+  for systems of DAEs, along with short descriptions of preconditioning
+  (\S\ref{s:preconditioning}) and rootfinding (\S\ref{ss:rootfinding}).
 \item
   The following chapter describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\ida}
@@ -211,8 +216,8 @@ in this user guide:  program listings and identifiers (such as \id{IDAInit})
 within textual explanations appear in typewriter type style; 
 fields in {\C} structures (such as {\em content}) appear in italics;
 and packages or modules, such as {\idadense}, are written in all capitals. 
-In the Index, page numbers that appear in bold indicate the main reference
-for that entry.
+Usage and installation instructions that constitute important warnings
+are marked with a triangular symbol {\warn} in the margin.
 
 \paragraph{Acknowledgments.}
 We wish to acknowledge the contributions to previous versions of the
