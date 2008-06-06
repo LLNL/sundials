@@ -62,12 +62,12 @@ in extended {\F}.
 Two new features were added in this release: (a) a new linear solver module,
 based on Blas and Lapack for both dense and banded matrices, and (b) option
 to specify which direction of zero-crossing is to be monitored while performing
-root-finding. 
+rootfinding. 
 
 The user interface has been further refined. Some of the API changes involve:
 (a) a reorganization of all linear solver modules into two families (besides 
 the already present family of scaled preconditioned iterative linear solvers,
-the direct solvers, including the new Lapack-based ones were also organized 
+the direct solvers, including the new Lapack-based ones, were also organized 
 into a {\em direct} family); (b) maintaining a single pointer to user data,
 optionally specified through a \id{Set}-type function; (c) a general 
 streamlining of the band-block-diagonal preconditioner module distributed 
@@ -80,14 +80,14 @@ The main changes in this release involve a rearrangement of the entire
 level, the main impact is in the mechanism of including {\sundials} header
 files which must now include the relative path (e.g. \id{\#include <cvode/cvode.h>}).
 Additional changes were made to the build system: all exported header files are
-now installed in separate subdirectories of the instaltion {\em include} directory.
+now installed in separate subdirectories of the installation {\em include} directory.
 
-A bug was fixed in the internal difference-quotient dense and banded Jacobian approximations,
-related to the estimation of the perturbation (which could have lead to a failure
-of the linear solver when zero components with sufficiently small absolute tolerances
-were present).
+A bug was fixed in the internal difference-quotient dense and banded
+Jacobian approximations, related to the estimation of the perturbation
+(which could have led to a failure of the linear solver when zero
+components with sufficiently small absolute tolerances were present).
 
-The user interface to the consistent initial conditions calculations has been modified. 
+The user interface to the consistent initial conditions calculations was modified. 
 The \id{IDACalcIC} arguments \id{t0}, \id{yy0}, and \id{yp0} were removed and 
 a new function, \id{IDAGetconsistentIC} is provided (see \S\ref{ss:idacalcic} and 
 \S\ref{sss:optout_iccalc} for details).
