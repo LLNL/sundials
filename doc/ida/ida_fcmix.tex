@@ -28,7 +28,8 @@ are as follows:
 \item Interface to the main {\ida} module
   \begin{itemize}
   \item \id{FIDAMALLOC}
-    interfaces to \id{IDACreate}, \id{IDASetUserData}, \id{IDAInit}, and \id{IDASStolerances}/\id{IDASVtolerances}.
+    interfaces to \id{IDACreate}, \id{IDASetUserData}, \id{IDAInit},
+    \id{IDASStolerances}, and \id{IDASVtolerances}.
   \item \id{FIDAREINIT}
     interfaces to \id{IDAReInit} and \id{IDASStolerances}/\id{IDASVtolerances}.
   \item \id{FIDASETIIN}, \id{FIDASETVIN}, and \id{FIDASETRIN}
@@ -373,7 +374,7 @@ apply to {\nvecp}.
 \end{verbatim}
   or
 \begin{verbatim}
-      CALL FIDALAPACK (NEQ, MU, ML, IER)
+      CALL FIDALAPACKBAND (NEQ, MU, ML, IER)
 \end{verbatim}
   depending on whther the internal
   or a Lapack dense linear solver is to be used.
@@ -695,8 +696,8 @@ apply to {\nvecp}.
   to reinitialize the linear solver last used may or may not be needed,
   depending on changes in the inputs to it.
 
-  In the case of the {\band} solver, for any change in the half-bandwidths,
-  call \id{FIDABAND} (or \id{FIDALAPACKBAND}) as described above.
+  In the case of the {\band} solver, for any change in the half-bandwidth
+  parameters, call \id{FIDABAND} (or \id{FIDALAPACKBAND}) as described above.
 
   In the case of {\spgmr}, for a change of inputs other than \id{MAXL},
   make the call
@@ -1131,10 +1132,10 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   then a call to \id{FIDABBDSPGMR}, \id{FIDABBDSPBCG}, or \id{FIDASPTFQMR}
   must be made; in this case the linear solver memory is reallocated.
 
-\item {\bf Memory deallocation}
+\item \textcolor{gray}{\bf Memory deallocation}
 
-  The memory allocated for the {\fidabbd} module is deallocated automatically
-  when invoking \id{FIDAFREE}.
+  (The memory allocated for the {\fidabbd} module is deallocated automatically
+  by \id{FIDAFREE}.)
 
 \index{FIDA@{\fida} interface module!interface to the {\idabbdpre} module|)}
 
