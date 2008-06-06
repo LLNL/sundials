@@ -101,11 +101,11 @@ The type definition of \id{lsetup} is
      is the predicted $y$ vector for the current {\ida} internal step.
   
    \item[ypp]
-     is the predicted $y^\prime$ vector for the current {\ida} internal step.
+     is the predicted $\dot{y}$ vector for the current {\ida} internal step.
   
    \item[resp]
      is the value of the residual function at \id{yyp} and \id{ypp}, i.e.
-     $F(t_n, y_{pred}, y_{pred}^\prime)$.
+     $F(t_n, y_{pred}, \dot{y}_{pred})$.
   
    \item[vtemp1] 
    \item[vtemp2]
@@ -133,7 +133,7 @@ The type definition of \id{lsolve} is
 {
   The routine \id{lsolve} must solve the linear equation $M x = b$, where         
   $M$ is some approximation to
-  $J = \partial F / \partial y + c_j \partial F / \partial y^\prime$  
+  $J = \partial F / \partial y + cj ~ \partial F / \partial \dot{y}$  
   (see Eqn. (\ref{e:DAE_Jacobian})), and the right-hand side vector $b$ is input. 
 }
 {
@@ -149,9 +149,9 @@ The type definition of \id{lsolve} is
   \item[ycur]
     is a vector that contains the solver's current approximation to $y(t_n)$.
   \item[ypcur]
-    is a vector that contains the solver's current approximation to $y^\prime(t_n)$.
+    is a vector that contains the solver's current approximation to $\dot{y}(t_n)$.
   \item[rescur]
-    is a vector that contains $F(t_n,y_{cur},y_{cur}^\prime)$. 
+    is a vector that contains $F(t_n,y_{cur},\dot{y}_{cur})$. 
   \end{args}
 }
 {
