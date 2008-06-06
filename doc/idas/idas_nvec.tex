@@ -36,7 +36,7 @@ files \id{sundials\_spgmr.c} and \id{sundials\_iterative.c} for the generic
 \id{sundials\_spgmr.c}, and so are required by the {\idaspgmr} solver module.
 Analogous statements apply to the {\idaspbcg} and {\idasptfqmr} modules,
 except that they do not use \id{sundials\_iterative.c}.
-This issue does not arise for the direct {\ida} linear solvers because
+This issue does not arise for the direct {\idas} linear solvers because
 the generic {\dense} and {\band} solvers (used in the implementation of
 {\idadense} and {\idaband}) do not make calls to any vector functions.
 
