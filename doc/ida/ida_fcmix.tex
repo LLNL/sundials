@@ -156,8 +156,8 @@ function called by an interface function.
 The usage of {\fida} for rootfinding, and usage of {\fida} with
 preconditioner modules, are each described in later sections.
 
-Steps marked with {\s} in the instructions below apply to the serial
-{\nvector} implementation ({\nvecs}) only, while those marked with {\p}
+Steps marked {\s} in the instructions below apply to the serial
+{\nvector} implementation ({\nvecs}) only, while those marked {\p}
 apply to {\nvecp}.
 
 \index{User main program!FIDA@{\fida} usage}
@@ -171,9 +171,9 @@ apply to {\nvecp}.
       SUBROUTINE FIDARESFUN (T, Y, YP, R, IPAR, RPAR, IER)
       DIMENSION Y(*), YP(*), R(*), IPAR(*), RPAR(*)
 \end{verbatim}
-  It must set the \id{R} array to $F(t,y,y')$, the residual function of the DAE
+  It must set the \id{R} array to $F(t,y,\dot{y})$, the residual function of the DAE
   system, as a function of \id{T} $ = t$ and the arrays \id{Y} $ = y$ and
-  \id{YP} $ = y'$.  
+  \id{YP} $ = \dot{y}$.  
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
   It should return \id{IER} = 0 if it was successful,
@@ -234,7 +234,7 @@ apply to {\nvecp}.
     \begin{args}[IATOL]
     \item[T0] is the initial value of $t$.
     \item[Y0] is an array of initial conditions for $y$.
-    \item[YP0] is an array of initial conditions for $y'$.
+    \item[YP0] is an array of initial conditions for $\dot{y}$.
     \item[IATOL] specifies the type for absolute tolerance \id{ATOL}:
       $1$ for scalar or $2$ for array. If \id{IATOL}$=3$, the arguments
       \id{RTOL} and \id{ATOL} are ignored and the user is expected to
@@ -294,7 +294,7 @@ apply to {\nvecp}.
   
   The variable-order, variable-coefficient \id{BDF} method used by {\ida} involves
   the solution of linear systems related to the system Jacobian
-  $J = \partial F / \partial y + \alpha \partial F / \partial y^\prime$.
+  $J = \partial F / \partial y + \alpha \partial F / \partial \dot{y}$.
   See Eq. (\ref{e:DAE_Newtoncorr}).  {\ida} presently includes seven choices for
   the treatment of these systems, and the user of {\fida} must call a routine with
   a specific name to make the desired choice.
@@ -334,7 +334,7 @@ apply to {\nvecp}.
   The vectors \id{WK1}, \id{WK2}, and \id{WK3} of length \id{NEQ} are provided
   as work space for use in \id{FIDADJAC}.
   The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
-  current values of $t$, $y$, $y'$, $F(t,y,y')$, and $\alpha$, respectively.
+  current values of $t$, $y$, $\dot{y}$, $F(t,y,\dot{y})$, and $\alpha$, respectively.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
   
@@ -394,13 +394,13 @@ apply to {\nvecp}.
      &          IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   This routine must load the \id{MDIM} by \id{NEQ} array \id{BJAC} with the
-  Jacobian matrix at the current $(t, y, y')$ in band form.  Store in
+  Jacobian matrix at the current $(t, y, \dot{y})$ in band form.  Store in
   \id{BJAC}$(k,j)$ the Jacobian element $J_{i,j}$ with $k = i - j + $\id{MU}$ + 1$
   ($k = 1 \cdots $\id{ML} + \id{MU} + 1) and $j = 1 \cdots N$. The vectors
   \id{WK1}, \id{WK2}, and \id{WK3} of length \id{NEQ} are provided as work space
   for use in \id{FIDABJAC}.
   The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
-  current values of $t$, $y$, $y'$, $F(t,y,y')$, and $\alpha$, respectively.
+  current values of $t$, $y$, $\dot{y}$, $F(t,y,\dot{y})$, and $\alpha$, respectively.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
 
@@ -543,7 +543,7 @@ apply to {\nvecp}.
   \index{Jacobian approximation function!Jacobian times vector!use in {\fida}}
   As an option when using any of the Krylov iterative solvers, the user may
   supply a routine that computes the product of the system Jacobian
-  $J = \partial F / \partial y + \alpha \partial F / \partial y^\prime$
+  $J = \partial F / \partial y + \alpha \partial F / \partial \dot{y}$
   and a given vector $v$.  If supplied, it must have the following form:
   \index{FIDAJTIMES@\texttt{FIDAJTIMES}}
 \begin{verbatim}
@@ -558,7 +558,7 @@ apply to {\nvecp}.
   The vectors \id{W1K} and \id{WK2}, of length \id{NEQ}, are
   provided as work space for use in \id{FIDAJTIMES}.
   The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
-  current values of $t$, $y$, $y'$, $F(t,y,y')$, and $\alpha$, respectively.
+  current values of $t$, $y$, $\dot{y}$, $F(t,y,\dot{y})$, and $\alpha$, respectively.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
 
@@ -581,7 +581,7 @@ apply to {\nvecp}.
   is input, and store the solution $z$ in \id{ZV}. Here $P$ is the left 
   preconditioner if \id{LR=1} and the right preconditioner if \id{LR=2}.
   The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
-  current values of $t$, $y$, $y'$, $F(t,y,y')$, and $\alpha$, respectively.
+  current values of $t$, $y$, $\dot{y}$, $F(t,y,\dot{y})$, and $\alpha$, respectively.
   On return, set \id{IER = 0} if \id{FIDAPSOL} was successful, set \id{IER}
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
@@ -609,7 +609,7 @@ apply to {\nvecp}.
   It must perform any evaluation of Jacobian-related data and preprocessing needed
   for the solution of the preconditioner linear systems by \id{FIDAPSOL}.
   The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
-  current values of $t$, $y$, $y'$, $F(t,y,y')$, and $\alpha$, respectively.
+  current values of $t$, $y$, $\dot{y}$, $F(t,y,\dot{y})$, and $\alpha$, respectively.
   On return, set \id{IER = 0} if \id{FIDAPSET} was successful, set \id{IER}
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
@@ -628,13 +628,13 @@ apply to {\nvecp}.
 
 \item {\bf Correct initial values}
 
-  Optionally, to correct the initial values $y$ and/or $y'$, make the call
+  Optionally, to correct the initial values $y$ and/or $\dot{y}$, make the call
 \begin{verbatim}
       CALL FIDACALCIC (ICOPT, TOUT1, IER)
 \end{verbatim}
   (See \S\ref{ss:ivp_sol} for details.)  The arguments are as follows:
   \id{ICOPT} is 1 for initializing the algebraic components of $y$ and
-  differential components of $y'$, or 2 for initializing all of $y$.
+  differential components of $\dot{y}$, or 2 for initializing all of $y$.
   \id{IER} is an error return flag, which is 0 for success, or negative
   for a failure (see \id{IDACalcIC} return values).
 
@@ -649,7 +649,7 @@ apply to {\nvecp}.
   \id{TOUT} specifies the next value of $t$ at which a solution is desired (input).
   \id{T} is the value of $t$ reached by the solver on output.
   \id{Y} is an array containing the computed solution vector $y$ on output.
-  \id{YP} is an array containing the computed solution vector $y'$ on output.
+  \id{YP} is an array containing the computed solution vector $\dot{y}$ on output.
   \id{ITASK} is a task indicator and should be set to $1$ for normal mode 
   (overshoot \id{TOUT} and interpolate), to $2$ for one-step mode 
   (return after each internal step taken), to $3$ for normal mode with
@@ -664,7 +664,7 @@ apply to {\nvecp}.
 \item {\bf Additional solution output}
 
   After a successful return from \id{FIDASOLVE}, the routine \id{FIDAGETSOL} may
-  be called to get interpolated values of $y$ and $y'$ for any value of $t$ in
+  be called to get interpolated values of $y$ and $\dot{y}$ for any value of $t$ in
   the last internal step taken by {\ida}.
   \index{FIDAGETSOL@\texttt{FIDAGETSOL}}
 \begin{verbatim}
@@ -672,7 +672,7 @@ apply to {\nvecp}.
 \end{verbatim}
   where
   \id{T} is the input value of $t$ at which solution derivative is desired, and
-  \id{Y} and \id{YP} are arrays containing the computed vectors $y$ and $y'$
+  \id{Y} and \id{YP} are arrays containing the computed vectors $y$ and $\dot{y}$
   on return.  The value \id{T} must lie between \id{TCUR-HLAST} and \id{TCUR}.
   The return flag \id{IER} is set to $0$ upon successful return, or to a
   negative value to indicate an illegal input.
@@ -965,8 +965,8 @@ define the following routine:
       DIMENSION Y(*), YP(*), G(*), IPAR(*), RPAR(*)
 \end{verbatim}
 It must set the \id{G} array, of length \id{NRTFN}, with components
-$g_i(t,y,y')$, as a function of \id{T} $= t$ and the arrays \id{Y} $= y$
-and \id{YP} $= y'$.
+$g_i(t,y,\dot{y})$, as a function of \id{T} $= t$ and the arrays \id{Y} $= y$
+and \id{YP} $= \dot{y}$.
 The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
 and are the same as those passed to \id{FIDAMALLOC}.
 Set \id{IER} on 0 if successful, or on a non-zero value if an error occurred.
@@ -1106,7 +1106,7 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   \id{LENRWBBD} is the length of real preconditioner work space, in \id{realtype}
   words.  \id{LENIWBBD} is the length of integer preconditioner work space, in
   integer words.  Both of these sizes are local to the current processor.
-  \id{NGEBBD} is the number of $G(t,y,y')$ evaluations (calls to \id{FIDALOCFN})
+  \id{NGEBBD} is the number of $G(t,y,\dot{y})$ evaluations (calls to \id{FIDALOCFN})
   so far.
   
 \item {\bf Problem reinitialization}
@@ -1147,10 +1147,10 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
       SUBROUTINE FIDAGLOCFN (NLOC, T, YLOC, YPLOC, GLOC, IPAR, RPAR, IER)
       DIMENSION YLOC(*), YPLOC(*), GLOC(*), IPAR(*), RPAR(*)
 \end{verbatim}
-  This routine is to evaluate the function $G(t,y,y')$ approximating $F$
+  This routine is to evaluate the function $G(t,y,\dot{y})$ approximating $F$
   (possibly identical to $F$), in terms of \id{T} $ = t$, and the arrays
   \id{YLOC} and \id{YPLOC} (of length \id{NLOC}), which are the sub-vectors
-  of $y$ and $y'$ local to this processor.  The resulting (local) sub-vector
+  of $y$ and $\dot{y}$ local to this processor.  The resulting (local) sub-vector
   is to be stored in the array \id{GLOC}.  \id{IER} is a return flag that
   should be set to 0 if successful, to 1 (for a recoverable error), or to
   -1 (for a non-recoverable error).
