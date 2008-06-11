@@ -4070,9 +4070,9 @@ provide a function of type \ID{IDAErrHandlerFn} to process any such messages.
 The function type \id{IDAErrHandlerFn} is defined as follows:
 \usfunction{IDAErrHandlerFn}
 {
-  typedef void (*IDAErrHandlerFn)(&int error\_code,  \\
-                                  &const char *module, const char *function, \\ 
-                                  &char *msg, void *eh\_data); 
+  typedef void (*IDAErrHandlerFn)(&int error\_code, const char *module,\\
+                                  &const char *function, char *msg,\\
+                                  &void *eh\_data); 
 }
 {
   This function processes error and warning messages from {\idas} and 
