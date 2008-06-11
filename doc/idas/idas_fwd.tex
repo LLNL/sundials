@@ -35,8 +35,8 @@ steps in the order indicated, unless otherwise noted.
 For the sake of brevity, we defer many of the details to the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
 implementation used; where this is not the case, usage specifications are given for the
-two implementations provided with {\idas}: steps marked with {\p} correspond to 
-{\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
+two implementations provided with {\idas}: steps marked {\p} correspond to 
+{\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 Differences between the user main program in \S\ref{ss:skeleton_sim} and
 the one below start only at step (\ref{i:fwd_start}).
 
@@ -184,6 +184,12 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   sensitivities.
 
 \item
+  \textcolor{gray}{\bf Correct initial values}
+
+\item
+  \textcolor{gray}{\bf Specify rootfinding problem}
+
+\item
   \textcolor{gray}{\bf Advance solution in time}
 
 \item
@@ -271,7 +277,7 @@ The form of the call to this routine is as follows:
       have passed the local error test; 
     \end{itemize}
   \item[resS] (\Id{IDASensResFn})
-    is the {\C} function which computes the residual of the sensitivity ODE. 
+    is the {\C} function which computes the residual of the sensitivity DAE. 
     For full details see \S\ref{s:user_fct_fwd}.
   \item[yS0] (\id{N\_Vector *}) 
     a pointer to an array of \id{Ns} vectors containing the initial 
@@ -523,8 +529,9 @@ the call to \id{IDASensInit}.
   flag = IDAEEtolerances(ida\_mem);
 }
 {
-  When this function is used, {\idas} will estimate tolerances for sensitivity variables based on the 
-  tolerances supplied for states variables and the scaling factors $\bar p$.
+  When this function is used, {\idas} will estimate tolerances for sensitivity
+  variables based on the tolerances supplied for states variables and the
+  scaling factors $\bar p$.
 }
 {
   \begin{args}[ida\_mem]
@@ -554,7 +561,7 @@ the call to \id{IDASensInit}.
 variables of a DAE system. When used for initial conditions calculation of the 
 forward sensitivities, \id{IDACalcIC} must be preceded by successful calls to  
 \id{IDASensInit} (or \id{IDASensReInit}) and should precede the call(s) to 
-\id{IDASolve}. Anyhow, more restrictions apply for initial conditions
+\id{IDASolve}.  For restrictions that apply for initial conditions
 calculation of the state variables, see \S\ref{ss:idacalcic}.
 
 Calling \id{IDACalcIC} is optional. It is only necessary when the  
@@ -674,7 +681,7 @@ directly by the user.
   \item[\Id{IDA\_BAD\_DKY}] 
     One of the vectors \id{dkyS} is \id{NULL}.
   \item[\Id{IDA\_BAD\_K}]
-    \id{k} is not in the range $0, 1, ..., kused$.
+    \id{k} is not in the range $0, 1, ..., klast$.
   \item[\Id{IDA\_BAD\_T}] 
     The time \id{t} is not in the allowed range.
   \end{args}
@@ -786,7 +793,7 @@ optional input functions in {\idas} which are described in detail in the
 remainder of this section. 
 %%
 %%
-\begin{table}
+\begin{table}[b]
 \centering
 \caption{Forward sensitivity optional inputs}
 \label{t:optional_input_fwd}
@@ -973,7 +980,7 @@ related to forward sensitivity computations are listed in Table~\ref{t:optional_
 and described in detail in the remainder of this section.
 %%
 %%
-\begin{table}
+\begin{table}[b]
 \centering
 \caption{Forward sensitivity optional outputs}
 \label{t:optional_output_fwd}
@@ -1391,8 +1398,8 @@ of type \ID{IDASensResFn} defined by:
                               &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
-  This function computes the sensitivity residual for all sensitivity
-  equations. It must compute the vectors $(\dFdyI)s_i(t) + (\dFdypI) \dot{s}_i(t) + (\dFdpiI)$ 
+  This function computes the sensitivity residual for all sensitivity equations.
+  It must compute the vectors $(\dFdyI)s_i(t) + (\dFdypI) \dot{s}_i(t) + (\dFdpiI)$ 
   and store them in \id{resvalS[i]}. 
 }
 {
@@ -1418,7 +1425,7 @@ of type \ID{IDASensResFn} defined by:
   \end{args}
 }
 {
-  A \id{IDASensResFn} should return 0 if successful, a positive value if a recoverable
+  An \id{IDASensResFn} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\idas} will attempt to correct), or a negative 
   value if it failed unrecoverably (in which case the integration is halted and
   \Id{IDA\_SRES\_FAIL} is returned).
@@ -1812,7 +1819,7 @@ directly by the user.
   \item[\Id{IDA\_BAD\_DKY}] 
     The vector \id{dkyQ} is \id{NULL}.
   \item[\Id{IDA\_BAD\_K}]
-    \id{k} is not in the range $0, 1, ..., kused$.
+    \id{k} is not in the range $0, 1, ..., klast$.
   \item[\Id{IDA\_BAD\_T}] 
     The time \id{t} is not in the allowed range.
   \end{args}
@@ -1904,7 +1911,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
   \item[\Id{IDA\_BAD\_IS}]
     The index \id{is} is not in the allowed range.
   \item[\Id{IDA\_BAD\_K}] 
-    \id{k} is not in the range $0, 1, ..., kused$.
+    \id{k} is not in the range $0, 1, ..., klast$.
   \item[\Id{IDA\_BAD\_T}] 
     The time \id{t} is not in the allowed range.
   \end{args}
@@ -2047,7 +2054,7 @@ integration tolerances for quadrature variables.
 
 \ucfunction{IDAQuadSensEEtolerances}
 {
-  flag = IDAQuadSensEEtolerances(ida\_mem, reltolQS, abstolQS);
+  flag = IDAQuadSensEEtolerances(ida\_mem);
 }
 {
   The function \ID{IDAQuadSensEEtolerances} specifies that the tolerances for
@@ -2272,7 +2279,7 @@ must be of type \Id{IDAQuadSensRhsFn} defined as follows:
   \end{args}
 }
 {
-  A \id{IDAQuadSensRhsFn} should return 0 if successful, a positive value if a recoverable
+  An \id{IDAQuadSensRhsFn} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\idas} will attempt to correct), or a negative 
   value if it failed unrecoverably (in which case the integration is halted and
   \Id{IDA\_QRHS\_FAIL} is returned).

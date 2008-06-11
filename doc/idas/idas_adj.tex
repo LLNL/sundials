@@ -38,8 +38,8 @@ unless otherwise noted. For the sake of brevity, we defer many of the details to
 the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
 implementation used; where this is not the case, usage specifications are given for the
-two implementations provided with {\idas}: steps marked with {\p} correspond to 
-{\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
+two implementations provided with {\idas}: steps marked {\p} correspond to 
+{\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 
 \index{User main program!Adjoint sensitivity analysis}
 \begin{Steps}
@@ -753,7 +753,7 @@ Also, if \id{which} is not a valid identifier, the functions will return
 {\idas} provides support for calculation of consistent initial 
 conditions for backward index-one problems of semi-implicit form through
 the functions \Id{IDACalcICB} and \Id{IDACalcICBS}. Calling them is 
-optional. It is only necessary when the initial conditions do not solve
+optional. It is only necessary when the initial conditions do not satisfy
 the adjoint system. 
 
 The above functions provide the same functionality for backward problem as 
@@ -783,7 +783,7 @@ also needs forward sensitivities at final time $tB0$.
     is the identifier of the backward problem.
   \item[tout1] (\id{realtype})
     is the first value of $t$ at which a solution will be requested (from
-    \id{IDASolveB}).This value is needed here to determine the direction of
+    \id{IDASolveB}).This value is needed here only to determine the direction of
     integration and rough scale in the independent variable $t$.   
   \item[y0] (\id{N\_Vector})
     the forward solution at final time $tB0$.
@@ -807,7 +807,7 @@ also needs forward sensitivities at final time $tB0$.
   All failure return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{IDACalcICB} failures.
 
-  Note that \id{IDACalcICB} will correct the values $yB(tB_0)$ and 
+  Note that \id{IDACalcICB} will correct the values of $yB(tB_0)$ and 
   $\dot{y}B(tB_0)$ which were specified in the previous call to \id{IDAInitB} 
   or \id{IDAReInitB}. To obtain the corrected values, call 
   \id{IDAGetconsistentICB} (see \S\ref{sss:optout_iccalcB}).
@@ -836,7 +836,7 @@ user must call the following function to correct the initial conditions:
     is the identifier of the backward problem.
   \item[tout1] (\id{realtype})
     is the first value of $t$ at which a solution will be requested (from
-    \id{IDASolveB}).This value is needed here to determine the direction of
+    \id{IDASolveB}).This value is needed here only to determine the direction of
     integration and rough scale in the independent variable $t$.   
   \item[y0] (\id{N\_Vector})
     the forward solution at final time $tB0$.
@@ -1055,7 +1055,7 @@ problem through the following function:
     pointer to the {\idas} memory returned by \id{IDAInit}.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
-  \item[djacB] (\id{IDADlsDenseJacFnB})
+  \item[jacB] (\id{IDADlsDenseJacFnB})
     user-defined dense Jacobian approximation function.
   \end{args}
 }
@@ -1759,7 +1759,7 @@ return the data stored for interpolation purposes.
     index of the intepolation data point.
   \item[t] (\id{realtype *})
   \item[order] (\id{int})
-  \item[yd] (\id{N\_Vector})
+  \item[y] (\id{N\_Vector})
     time, method order, and solution of the forward problem 
     stored for interpolation purposes at the \id{which} data point.
   \end{args}
@@ -2271,7 +2271,7 @@ the user may provide a function of type \ID{IDASpilsJacTimesVecFnB} in the follo
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[user\_dataB]
-    is a pointer to user data - the same as the \id{user\_dataB}      
+    is a pointer to user data --- the same as the \id{user\_dataB}      
     parameter passed to \id{IDASetUserDataB}.
   \item[tmp1B]
   \item[tmp2B]
@@ -2403,7 +2403,7 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFnB} defined by
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[user\_dataB]
-    is a pointer to user data - the same as the \id{user\_dataB}
+    is a pointer to user data --- the same as the \id{user\_dataB}
     parameter passed to the function \id{IDASetUserDataB}.
   \item[tmp1B]
   \item[tmp2B]
@@ -2565,9 +2565,9 @@ For more details on {\idabbdpre} see \S\ref{sss:idabbdpre}.
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-supplied functions|(}
 To use the {\idabbdpre} module, the user must supply one or two functions which the
-module calls to construct the preconditioner: a required function \id{glocB} 
+module calls to construct the preconditioner: a required function \id{GresB}
 (of type \id{IDABBDLocalFnB}) which approximates the residual of the backward
-problem and which is computed locally, and an optional function \id{cfnB} 
+problem and which is computed locally, and an optional function \id{GcommB}
 (of type \id{IDABBDCommFnB}) which performs all interprocess communication necessary 
 to evaluate this approximate residual (see \S\ref{sss:idabbdpre}).
 The prototypes for these two functions are described below.
@@ -2582,7 +2582,7 @@ The prototypes for these two functions are described below.
   &void *user\_dataB);
 }
 {
-  This function loads the vector \id{gB}, an approximation to the
+  This \id{GresB} function loads the vector \id{gB}, an approximation to the
   residual of the backward problem, as a function of \id{t}, \id{y}, \id{yp}, 
   and \id{yB} and \id{ypB}.  
 }
@@ -2603,7 +2603,7 @@ The prototypes for these two functions are described below.
   \item[gB]
     is the output vector.
   \item[user\_dataB]
-    is a pointer to user data - the same as the \Id{user\_dataB}      
+    is a pointer to user data --- the same as the \Id{user\_dataB}      
     parameter passed to \id{IDASetUserDataB}.  
   \end{args}
 }
@@ -2614,7 +2614,7 @@ The prototypes for these two functions are described below.
   \id{IDASolveB} returns \Id{IDA\_LSETUP\_FAIL}). 
 }
 {
-  This routine assumes that all interprocess communication of data needed to 
+  This routine must assume that all interprocess communication of data needed to 
   calculate \id{gB} has already been done, and this data is accessible within
   \id{user\_dataB}.
 
@@ -2634,7 +2634,7 @@ The prototypes for these two functions are described below.
                            &void *user\_dataB);
 }
 {
-  This function performs all interprocess communications necessary 
+  This \id{GcommB} function performs all interprocess communications necessary 
   for the execution of the \id{GresB} function above, using the input 
   vectors \id{y}, \id{yp}, \id{yB} and \id{ypB}.
 }
@@ -2653,7 +2653,7 @@ The prototypes for these two functions are described below.
   \item[ypB]
     is the current value of the dependent derivatice variable vector.
   \item[user\_dataB]
-    is a pointer to user data - the same as the \Id{user\_dataB}
+    is a pointer to user data --- the same as the \Id{user\_dataB}
     parameter passed to \id{IDASetUserDataB}.
   \end{args}
 }
