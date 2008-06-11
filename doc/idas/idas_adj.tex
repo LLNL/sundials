@@ -869,7 +869,7 @@ user must call the following function to correct the initial conditions:
   All failure return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{IDACalcICBS} failures.
 
-  Note that \id{IDACalcICBS} will correct the values $yB(tB_0)$ and 
+  Note that \id{IDACalcICBS} will correct the values of $yB(tB_0)$ and 
   $\dot{y}B(tB_0)$ which were specified in the previous call to \id{IDAInitBS} 
   or \id{IDAReInitBS}. To obtain the corrected values, call 
   \id{IDAGetconsistentICB} (see \S\ref{sss:optout_iccalcB}).
