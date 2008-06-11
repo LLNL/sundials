@@ -258,8 +258,8 @@ The form of the call to this routine is as follows:
     the number of sensitivities to be computed.
   \item[ism] (\id{int})
     \index{forward sensitivity analysis!correction strategies}
-    a flag used to select the sensitivity solution method and can 
-    be \id{IDA\_SIMULTANEOUS} or \id{IDA\_STAGGERED}:
+    a flag used to select the sensitivity solution method.  Its value can 
+    be either \id{IDA\_SIMULTANEOUS} or \id{IDA\_STAGGERED}:
     \begin{itemize}
     \item In the \ID{IDA\_SIMULTANEOUS} approach, the state and sensitivity variables are
       corrected at the same time. If \id{IDA\_NEWTON} was selected as the nonlinear system 
@@ -340,8 +340,8 @@ The call to the \id{IDASensReInit} function has the form:
 
   \item[ism] (\id{int})
     \index{forward sensitivity analysis!correction strategies}
-    a flag used to select the sensitivity solution method and can 
-    be \id{IDA\_SIMULTANEOUS} or \id{IDA\_STAGGERED}.
+    a flag used to select the sensitivity solution method.  Its value can 
+    be either \id{IDA\_SIMULTANEOUS} or \id{IDA\_STAGGERED}.
   \item[yS0] (\id{N\_Vector *}) 
     a pointer to an array of \id{Ns} variables of type \id{N\_Vector} containing the 
     initial values of the sensitivities of $y$.
@@ -470,7 +470,7 @@ the call to \id{IDASensInit}.
     The {\idas} memory block was not initialized through a previous call to
     \id{IDACreate}.
   \item[\Id{IDA\_NO\_SENS}] 
-    The allocation function for sensitivities \id{IDASensInit} has not been called.
+    The sensitivity allocation function \id{IDASensInit} has not been called.
   \item[\Id{IDA\_ILL\_INPUT}] 
     One of the input tolerances was negative.
   \end{args}
@@ -506,7 +506,7 @@ the call to \id{IDASensInit}.
     The {\idas} memory block was not initialized through a previous call to
     \id{IDACreate}.
   \item[\Id{IDA\_NO\_SENS}] 
-    The allocation function for sensitivities \id{IDASensInit} has not been called.
+    The sensitivity allocation function \id{IDASensInit} has not been called.
   \item[\Id{IDA\_ILL\_INPUT}] 
     The relative error tolerance was negative or the absolute tolerance
     had a negative component.
@@ -1127,10 +1127,9 @@ No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\
   \end{args}
 }
 {
-  This counter is incremented only if Newton iteration has been used and if
-  \id{ism}$=$\id{IDA\_STAGGERED} sensitivity
-  solution method has been specified in the call to \id{IDASensInit}
-  (see \S\ref{ss:sensi_init}).
+  This counter is incremented only if Newton iteration has been used and
+  staggered sensitivity solution method (\id{ism}$=$\id{IDA\_STAGGERED})
+  was specified in the call to \id{IDASensInit} (see \S\ref{ss:sensi_init}).
 }
 %%
 %%
@@ -1235,7 +1234,7 @@ No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\
   \end{args}
 }
 {
-  This counter is incremented only if the \id{ism} was \id{IDA\_STAGGERED}
+  This counter is incremented only if \id{ism} was \id{IDA\_STAGGERED}
   in the call to \id{IDASensInit} (see \S\ref{ss:sensi_init}).
 }
 %%
@@ -1269,7 +1268,7 @@ No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\
   \end{args}
 }
 {
-  This counter is incremented only if the \id{ism} was \id{IDA\_STAGGERED}
+  This counter is incremented only if \id{ism} was \id{IDA\_STAGGERED}
   in the call to \id{IDASensInit} (see \S\ref{ss:sensi_init}).
 }
 %%
@@ -2051,9 +2050,9 @@ integration tolerances for quadrature variables.
   flag = IDAQuadSensEEtolerances(ida\_mem, reltolQS, abstolQS);
 }
 {
-  The function \ID{IDAQuadSensEEtolerances} specifies that tolerances for
-  sensitivity-dependent quadratures should be estimated from those provided for the 
-  pure quadrature variables. 
+  The function \ID{IDAQuadSensEEtolerances} specifies that the tolerances for
+  the sensitivity-dependent quadratures should be estimated from those provided
+  for the pure quadrature variables. 
 }
 {
   \begin{args}[ida\_mem]
@@ -2289,12 +2288,13 @@ must be of type \Id{IDAQuadSensRhsFn} defined as follows:
   implementations provided with {\idas} do not perform any consistency checks with respect 
   to their \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
 
-  There are two situations in which recovery is not possible even if \id{IDAQuadSensRhsFn}
-  function returns a recoverable error flag. This include the situation when this
-  occurrs at the very first call to the \id{IDAQuadSensRhsFn} (in which case {\idas} returns
-  \Id{IDA\_FIRST\_QRHS\_ERR}) or if a recoverable error is reported when \id{IDAQuadSensRhsFn}
-  is called after an error test failure, while the linear multistep method order is
-  equal to 1 (in which case {\idas} returns \Id{IDA\_UNREC\_QRHSFUNC\_ERR}).
+  There are two situations in which recovery is not possible even if
+  \id{IDAQuadSensRhsFn} function returns a recoverable error flag.  One is when
+  this occurs at the very first call to the \id{IDAQuadSensRhsFn} (in which case
+  {\idas} returns \Id{IDA\_FIRST\_QRHS\_ERR}).  The other is when a recoverable
+  error is reported by \id{IDAQuadSensRhsFn} after an error test failure, while the
+  linear multistep method order is equal to 1 (in which case {\idas} returns
+  \Id{IDA\_UNREC\_QRHSFUNC\_ERR}).
 }
 
 
