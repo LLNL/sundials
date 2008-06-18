@@ -4049,11 +4049,11 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
 }
 {
   An \id{IDAResFn} function type should return a value of $0$ if successful, 
-  a positive value if a recoverable error occured (e.g. \id{yy} has an illegal
-  value), or a negative value if a nonrecoverable error occured. 
+  a positive value if a recoverable error occurred (e.g. \id{yy} has an illegal
+  value), or a negative value if a nonrecoverable error occurred. 
 
   In the latter case, the integrator halts. 
-  If a recoverable error occured, the integrator will attempt to correct and retry.
+  If a recoverable error occurred, the integrator will attempt to correct and retry.
 }
 {
   Allocation of memory for \id{yp} is handled within {\idas}.
@@ -4178,7 +4178,7 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
 }
 {
   An \id{IDARootFn} should return 0 if successful or a non-zero value if
-  an error occured (in which case the integration is halted and \id{IDASolve} returns
+  an error occurred (in which case the integration is halted and \id{IDASolve} returns
   \Id{IDA\_RTFUNC\_FAIL}).
 }
 {
@@ -4237,8 +4237,8 @@ provide a function of type \ID{IDADlsDenseJacFn} defined by
 }
 {
   An \id{IDADlsDenseJacFn} function type should return $0$ if successful,
-  a positive value if a recoverable error occured, or a negative value
-  if a nonrecoverable error occured. 
+  a positive value if a recoverable error occurred, or a negative value
+  if a nonrecoverable error occurred. 
 
   In the case of a recoverable eror return, 
   the integrator will attempt to recover by reducing the stepsize,
@@ -4339,8 +4339,8 @@ function of type \ID{IDADlsBandJacFn} defined as follows:
 }
 {
   A \id{IDADlsBandJacFn} function type should return $0$ if successful,
-  a positive value if a recoverable error occured, or a negative value
-  if a nonrecoverable error occured. 
+  a positive value if a recoverable error occurred, or a negative value
+  if a nonrecoverable error occurred. 
 
   In the case of a recoverable eror return, 
   the integrator will attempt to recover by reducing the stepsize,
@@ -4744,7 +4744,7 @@ flag = IDAQuadInit(ida\_mem, rhsQ, yQ0);
   \end{args}
 }
 {
-  If an error occured, \id{IDAQuadInit} also sends an error message to the
+  If an error occurred, \id{IDAQuadInit} also sends an error message to the
   error handler function.
 }
 %%
@@ -4798,7 +4798,7 @@ call to the \id{IDAQuadReInit} function has the following form:
   \end{args}
 }
 {
-  If an error occured, \id{IDAQuadReInit} also sends an error message to the
+  If an error occurred, \id{IDAQuadReInit} also sends an error message to the
   error handler function.
 }
 %%
