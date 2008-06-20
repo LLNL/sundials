@@ -11,7 +11,7 @@ forward sensitivity analysis the user only has to insert a few more calls
 into the main program and (optionally) define an additional routine which
 computes the residuals for sensitivity systems (\ref{e:sens_eqns}). 
 The only departure from this philosophy is due to the \id{IDAResFn} type definition
-(\S\ref{ss:user_fct_sim}). Without changing the definition of this type, the
+(\S\ref{ss:resFn}). Without changing the definition of this type, the
 only way to pass values of the problem parameters to the DAE residual
 function is to require the user data structure \id{user\_data} to contain a pointer
 to the array of real parameters $p$.
@@ -81,12 +81,12 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 
     \item Number of sensitivities (required)
 
-      Set \id{Ns}, the number of parameters with respect to which sensitivities
+      Set \id{Ns} $= N_s$, the number of parameters with respect to which sensitivities
       are to be computed.
   
     \item Problem parameters (optional)
 
-      If {\idas} will evaluate the residuals of the sensitivity 
+      If {\idas} is to evaluate the residuals of the sensitivity 
       systems, set \id{p}, an array of \id{Np} real parameters upon which the IVP 
       depends. Only parameters with respect to which sensitivities are (potentially) 
       desired need to be included. 
@@ -98,27 +98,28 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 
     \item Parameter list (optional)
 
-      If {\idas} will evaluate the sensitivity residuals,
-      set \id{plist}, an array of \id{Ns} integer flags to specify the 
+      If {\idas} is to evaluate the sensitivity residuals,
+      set \id{plist}, an array of \id{Ns} integers to specify the 
       parameters \id{p} with respect to which solution sensitivities are to be computed.
-      If sensitivities with respect to the $j$-th problem parameter are desired, set
-      ${\text{plist}}_i = j$, for some $i=0,\ldots,N_s-1$.
+      If sensitivities with respect to the $j$-th parameter \id{p[j]}
+      ($0 \leq $ \id{j} $<$ \id{Np}) are desired, set
+      ${\text{plist}}_i = j$, for some $i=0,\ldots, N_s-1$.
 
       If \id{plist} is not specified, {\idas} will compute sensitivities with respect
-      to the first \id{Ns} parameters; i.e., ${\text{plist}}_i = i$, $i=0,\ldots,N_s-1$.
+      to the first \id{Ns} parameters; i.e., ${\text{plist}}_i = i ~~ (i=0,\ldots,N_s-1)$.
 
       If the user provides a function to evaluate the sensitivity residuals,
       \id{plist} need not be specified.
 
     \item Parameter scaling factors (optional)
 
-      If {\idas} estimates tolerances for the sensitivity solution vectors (based
-      on tolerances for the state solution vector) or if {\idas} will evaluate 
+      If {\idas} is to estimate tolerances for the sensitivity solution vectors (based
+      on tolerances for the state solution vector) or if {\idas} is to evaluate 
       the residuals of the sensitivity systems using the internal difference-quotient
       function, the results will be more accurate if order of magnitude information is provided.
 
       Set \id{pbar}, an array of \id{Ns} positive scaling factors. Typically,
-      if $p_i \ne 0$, the value ${\bar p}_{\text{plist}_i} = |p_i|$ can be used.
+      if $p_i \ne 0$, the value ${\bar p}_i = |p_{\text{plist}_i}|$ can be used.
 
       If \id{pbar} is not specified, {\idas} will use ${\bar p}_i = 1.0$.
 
@@ -134,31 +135,34 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 \item
   {\bf Set sensitivity initial conditions}
 
-  To set the sensitivities vectors \id{yS0} and \id{ypS0} to initial values
+  To set the sensitivities vectors \id{yS0} and \id{ypS0} to initial values,
   use functions defined by a particular {\nvector} implementation. 
 
-  For example, for sensitivities vector \id{yS0}, set the \id{Ns} vectors 
-  \id{yS0[i]} of \id{N} initial values for sensitivities (for $i=0,\ldots,Ns-1$). 
+  For sensitivity vectors \id{yS0}, set the \id{Ns} $N-$vectors 
+  \id{yS0[i]} of initial values for sensitivities (for $i=0,\ldots,$\id{Ns}$-1$). 
 
   First, create an array of \id{Ns} vectors by making the call
 
-  {\s} \id{yS0 = N\_VNewVectorArray\_Serial(Ns, N);}
+  {\s} \id{yS0 = N\_VCloneVectorArray\_Serial(Ns, y0);}
 
-  {\p} \id{yS0 = N\_VNewVectorArray\_Parallel(Ns, N);}
+  {\p} \id{yS0 = N\_VCloneVectorArray\_Parallel(Ns, y0);}
 
-  and, for each $i=1,\ldots,$\id{Ns}, load initial values for the $i$-th sensitivity 
+  and, for each $i=0,\ldots,$\id{Ns}$-1$, load initial values for the $i$-th sensitivity 
   vector into the structure defined by:
 
   {\s} \id{NV\_DATA\_S(yS0[i])}
 
   {\p} \id{NV\_DATA\_P(yS0[i])}
 
-  If the initial values for the sensitivity variables are already available in
-  \id{realtype} arrays, create an array of \id{Ns} ``empty'' vectors by making the call
+  Here the argument \id{y0} serves only to provide the \id{N\_Vector} type for cloning.
 
-  {\s} \id{yS0 = N\_VNewVectorArrayEmpty\_Serial(Ns, N);}
+  Alternatively, if the initial values for the sensitivity variables are already
+  available in \id{realtype} arrays, create an array of \id{Ns} ``empty'' vectors
+  by making the call
 
-  {\p} \id{yS0 = N\_VNewVectorArrayEmpty\_Parallel(Ns, N);}
+  {\s} \id{yS0 = N\_VCloneEmptyVectorArray\_Serial(Ns, y0);}
+
+  {\p} \id{yS0 = N\_VCloneEmptyVectorArray\_Parallel(Ns, y0);}
 
   and then attach the \id{realtype} array \id{yS0\_i} containing the initial values of the
   $i$-th sensitivity vector using
@@ -167,7 +171,10 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   
   {\p} \id{N\_VSetArrayPointer\_Parallel(yS0\_i, yS0[i]);}
 
-  The initial conditions for sensitivities \id{ypS0} of $\dot{y}$ are set similarly.  
+  for $i = 0,\cdots$ \id{Ns} $-1$.
+
+  The initial conditions for the sensitivity derivatives \id{ypS0} of $\dot{y}$
+  are set similarly.
 
 \item
   {\bf Activate sensitivity calculations}
@@ -177,11 +184,17 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   to sensitivity calculations (see \S\ref{ss:sensi_init}).
 
 \item
+  {\bf Set sensitivity tolerances}
+
+  Call \id{IDASensSStolerances}, \id{IDASensSVtolerances}, or \id{IDAEEtolerances}.
+  See \S\ref{sss:idafwdtolerances}.
+
+\item
   {\bf Set sensitivity analysis optional inputs}
 
   Call \id{IDASetSens*} routines to change from their default values any
   optional inputs that control the behavior of {\idas} in computing forward 
-  sensitivities.
+  sensitivities.  See \S\ref{ss:sens_optional_input}.
 
 \item
   \textcolor{gray}{\bf Correct initial values}
@@ -198,9 +211,9 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
   After each successful return from \id{IDASolve}, the solution of the
   original IVP is available in the \id{y} argument of \id{IDASolve},
   while the sensitivity solution can be extracted into \id{yS} and \id{ypS}
-  (which can be the same as \id{yS0}, respectively \id{ypS0}) by calling 
+  (which can be the same as \id{yS0} and \id{ypS0}, respectively) by calling 
   one of the following routines: \Id{IDAGetSens}, \Id{IDAGetSens1}, 
-  \Id{IDAGetSensDky1} or \Id{IDAGetSensDky1} (see \S\ref{ss:sensi_get}).
+  \Id{IDAGetSensDky} or \Id{IDAGetSensDky1} (see \S\ref{ss:sensi_get}).
 %%  \id{flag = }\Id{IDAGetSens}\id{(ida\_mem, t, yS, ypS);}
 
 \item
@@ -218,8 +231,9 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 
   and similarly for \id{ypS0}.
 
-  If \id{yS} (or \id{ypS}) were created from \id{realtype} arrays \id{yS\_i}, it is the
-  user's responsibility to also free the space for the arrays \id{yS\_i}.
+  If \id{yS} was created from \id{realtype} arrays \id{yS\_i}, it is the
+  user's responsibility to also free the space for the arrays \id{yS\_i},
+  and likewise for \id{ypS}.
 
 \item
   {\bf Free user data structure}
@@ -237,7 +251,7 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 %-------------------------------------------------------------------------------
 
 This section describes the {\idas} functions, additional to those presented
-in \S\ref{ss:idas_fct_sim}, that are called by the user to setup and solve
+in \S\ref{ss:idas_fct_sim}, that are called by the user to set up and solve
 a forward sensitivity problem.
 
 \subsection{Forward sensitivity initialization and deallocation functions}
@@ -305,23 +319,24 @@ The form of the call to this routine is as follows:
   Passing \id{resS}$=$\id{NULL} indicates using the default internal difference 
   quotient sensitivity residual routine.
 
-  If an error occured, \id{IDASensInit} also prints an error message to the
+  If an error occurred, \id{IDASensInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
 }
 %%
 \index{memory requirements!IDAS@{\idas} solver}
 In terms of the problem size $N$, number of sensitivity vectors $N_s$, and maximum method 
-order \id{maxord}, the size of the real workspace is increased by:
+order \id{maxord}, the size of the real workspace is increased as follows:
 \begin{itemize}
 \item Base value: \id{lenrw} $=$ \id{lenrw} $+$ (\id{maxord+5})$N_s N$
-\item With \id{itolS = IDA\_SV} (see \id{IDASetSensTolerances}): 
+\item With \id{IDASensSVtolerances}: 
   \id{lenrw} $=$ \id{lenrw} $+ N_s N$ 
 \end{itemize}
-the size of the integer workspace is increased by:
+the size of the integer workspace is increased as follows:
 \begin{itemize}
-\item Base value: \id{leniw} $=$ \id{leniw} $+$ (\id{maxord+5})$N_s N$
-\item With \id{itolS = IDA\_SV}: \id{leniw} $=$ \id{leniw} $+ N_s N$ 
+\item Base value: \id{leniw} $=$ \id{leniw} $+$ (\id{maxord+5})$N_s N_i$
+\item With \id{IDASensSVtolerances}: \id{leniw} $=$ \id{leniw} $+ N_s N_i$, 
 \end{itemize}
+where $N_i$ is the number of integer words in one \id{N\_Vector}.
 
 The routine \ID{IDASensReInit}, useful during the solution of a sequence of problems of 
 same size, reinitializes the sensitivity-related internal memory 
@@ -377,7 +392,7 @@ The call to the \id{IDASensReInit} function has the form:
   All arguments of \id{IDASensReInit} are the same as those of
   \id{IDASensInit}.
 
-  If an error occured, \id{IDASensReInit} also prints an error message to the
+  If an error occurred, \id{IDASensReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
 }
 %%
@@ -404,7 +419,7 @@ to \id{IDASensInit}), the user must call
   invoked automatically by \id{IDAFree}.
 
   After a call to \id{IDASensFree}, forward sensitivity computations can be reactivated
-  only by calling again \id{IDASensInit}.
+  only by calling \id{IDASensInit} again.
 }
 %%
 %%
@@ -463,7 +478,7 @@ the call to \id{IDASensInit}.
   \item[reltolS] (\id{realtype})
     is the scalar relative error tolerance.
   \item[abstolS] (\id{realtype*})
-    is a pointer to an array containing the scalar absolute 
+    is a pointer to an array of length \id{Ns} containing the scalar absolute 
     error tolerances.
   \end{args}
 }
@@ -484,7 +499,7 @@ the call to \id{IDASensInit}.
 {}
 %%
 %%
-\ucfunction{IDASVtolerances}
+\ucfunction{IDASensSVtolerances}
 {
   flag = IDASensSVtolerances(ida\_mem, reltolS, abstolS);
 }
@@ -543,7 +558,7 @@ the call to \id{IDASensInit}.
   The return flag \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[IDA\_ILL\_INPUT]
   \item[\Id{IDA\_SUCCESS}]
-    The call to \id{IDAWFtolerances} was successful.
+    The call to \id{IDAEEtolerances} was successful.
   \item[\Id{IDA\_MEM\_NULL}] 
     The {\idas} memory block was not initialized through a previous call to
     \id{IDACreate}.
@@ -565,7 +580,7 @@ forward sensitivities, \id{IDACalcIC} must be preceded by successful calls to
 calculation of the state variables, see \S\ref{ss:idacalcic}.
 
 Calling \id{IDACalcIC} is optional. It is only necessary when the  
-initial conditions do not solve sensitivity systems. Even if forward 
+initial conditions do not satisfy the sensitivity systems. Even if forward 
 sensitivity analysis was enabled, the call to the initial conditions
 calculation function \id{IDACalcIC} is exactly the same as for state 
 variables.
@@ -619,7 +634,7 @@ sensitivities can be obtained through one of the following functions:
   \item[tret] (\id{realtype})
     the time reached by the solver.
   \item[yS] (\id{N\_Vector *})
-    the computed forward sensitivity vectors of $y$.
+    the array of computed forward sensitivity vectors of $y$.
   \end{args}
 }
 {
@@ -632,7 +647,7 @@ sensitivities can be obtained through one of the following functions:
   \item[\Id{IDA\_NO\_SENS}] 
     Forward sensitivity analysis was not initialized.
   \item[\Id{IDA\_BAD\_DKY}] 
-    \id{yQ} is \id{NULL}.
+    \id{yS} is \id{NULL}.
   \end{args}
 }
 {
@@ -675,7 +690,7 @@ directly by the user.
   \item[\Id{IDA\_SUCCESS}] 
     \id{IDAGetSensDky} succeeded.
   \item[\Id{IDA\_MEM\_NULL}] 
-    The pointer to \id{ida\_mem} was \id{NULL}.
+    \id{ida\_mem} was \id{NULL}.
   \item[\Id{IDA\_NO\_SENS}] 
     Forward sensitivity analysis was not initialized.
   \item[\Id{IDA\_BAD\_DKY}] 
@@ -724,7 +739,7 @@ each parameter in turn through the functions \id{IDAGetSens1} and
   \item[\Id{IDA\_BAD\_IS}]
     The index \id{is} is not in the allowed range.
   \item[\Id{IDA\_BAD\_DKY}] 
-    \id{yQ} is \id{NULL}.
+    \id{yS} is \id{NULL}.
   \item[\Id{IDA\_BAD\_T}] 
     The time \id{t} is not in the allowed range.
   \end{args}
@@ -765,7 +780,7 @@ each parameter in turn through the functions \id{IDAGetSens1} and
   \item[\Id{IDA\_SUCCESS}] 
     \id{IDAGetQuadDky1} succeeded.
   \item[\Id{IDA\_MEM\_NULL}] 
-    The pointer to \id{ida\_mem} was \id{NULL}.
+    \id{ida\_mem} was \id{NULL}.
   \item[\Id{IDA\_NO\_SENS}] 
     Forward sensitivity analysis was not initialized.
   \item[\Id{IDA\_BAD\_DKY}] 
@@ -773,7 +788,7 @@ each parameter in turn through the functions \id{IDAGetSens1} and
   \item[\Id{IDA\_BAD\_IS}]
     The index \id{is} is not in the allowed range.
   \item[\Id{IDA\_BAD\_K}] 
-    \id{k} is not in the range $0, 1, ..., q_u$.
+    \id{k} is not in the range $0, 1, ..., klast$.
   \item[\Id{IDA\_BAD\_T}] 
     The time \id{t} is not in the allowed range.
   \end{args}
@@ -802,7 +817,7 @@ remainder of this section.
 {\bf Optional input} & {\bf Routine name} & {\bf Default} \\
 \hline
 Sensitivity scaling factors & \id{IDASetSensParams} & \id{NULL} \\
-DQ approximation method & \id{IDASetSensDQMethod} & 0.0 \\
+DQ approximation method & \id{IDASetSensDQMethod} & centered,0.0 \\
 Error control strategy & \id{IDASetSensErrCon} & \id{FALSE} \\
 Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
 \hline
@@ -823,18 +838,18 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[p] (\id{realtype *})
-    a pointer to the array of real problem parameters used to evaluate $f(t,y,p)$.
+    a pointer to the array of real problem parameters used to evaluate $F(t,y,\dot{y},p)$.
     If non-\id{NULL}, \id{p} must point to a field in the user's data structure
-    \id{user\_data} passed to the righ-hand side function.
+    \id{user\_data} passed to the user's residual function.
     (See \S\ref{s:forward_usage}).
   \item[pbar] (\id{realtype *})
     an array of \id{Ns} positive scaling factors. If non-\id{NULL}, \id{pbar} must
     have all its components $> 0.0$.
     (See \S\ref{s:forward_usage}).
   \item[plist] (\id{int *}) 
-    an array of \id{Ns} non-negative flags to specify which parameters to use in
-    estimating the sensitivity equations. If non-\id{NULL}, \id{plist} must
-    have all components $\ge 0$.
+    an array of \id{Ns} non-negative indices to specify which components of
+    \id{p} to use in estimating the sensitivity equations.
+    If non-\id{NULL}, \id{plist} must have all components $\ge 0$.
     (See \S\ref{s:forward_usage}).
   \end{args}
 }
@@ -852,7 +867,7 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \end{args}
 }
 {
-  {\warn}This function must be preceeded by a call to \id{IDASensInit}.
+  {\warn}This function must be preceded by a call to \id{IDASensInit}.
 }
 %%
 %%
@@ -870,7 +885,7 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[DQtype] (\id{int})
-    specifies the difference quotient type and can be one of \ID{IDA\_CENTERED}
+    specifies the difference quotient type and can be either \ID{IDA\_CENTERED}
     or \ID{IDA\_FORWARD}.
   \item[DQrhomax] (\id{realtype})
     positive value of the selection parameter used in deciding switching between a simultaneous
@@ -891,9 +906,9 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
 {
   If \id{DQrhomax} $= 0.0$, then no switching is performed. The approximation is done simultaneously
   using either centered or forward finite differences, depending on the value of \id{DQtype}. 
-  For values of \id{DQrhomax} $\ge 1.0$ the simultaneous approximation is used whenever the 
+  For values of \id{DQrhomax} $\ge 1.0$, the simultaneous approximation is used whenever the 
   estimated finite difference perturbations for states and parameters are within a factor of
-  \id{DQrhomax} and the separate approximation is used otherwise. Note that a value 
+  \id{DQrhomax}, and the separate approximation is used otherwise. Note that a value 
   \id{DQrhomax} $< 1.0$ will effectively disable switching.   
   See \S\ref{ss:fwd_sensi} for more details.
 
@@ -950,7 +965,7 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[maxcorS] (\id{int})
-    maximum number of nonlinear solver iterations allowed per step.
+    maximum number of nonlinear solver iterations allowed per step $( > 0)$.
   \end{args}
 }
 {
@@ -991,10 +1006,12 @@ and described in detail in the remainder of this section.
 No. of calls to sensitivity residual function & \id{IDAGetSensNumResEvals} \\
 No. of calls to residual function for sensitivity& \id{IDAGetNumResEvalsSens} \\
 No. of sensitivity local error test failures & \id{IDAGetSensNumErrTestFails} \\
-No. of calls to lin. solv. setup routine for sens.& \id{IDAGetSensNumLinSolvSetups} \\
+No. of calls to lin. solv. setup routine for sens. & \id{IDAGetSensNumLinSolvSetups} \\
+Sensitivity-related statistics as a group & \id{IDAGetSensStats} \\
 Error weight vector for sensitivity variables & \id{IDAGetSensErrWeights} \\
-No. of sens. nonlinear solver iterations& \id{IDAGetNumSensNonlinSolvIters} \\
-No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\ 
+No. of sens. nonlinear solver iterations& \id{IDAGetSensNumNonlinSolvIters} \\
+No. of sens. convergence failures& \id{IDAGetSensNumNonlinSolvConvFails} \\ 
+Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 \hline
 \end{tabular}
 \end{table}
@@ -1027,14 +1044,7 @@ No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\
     Forward sensitivity analysis was not initialized.
   \end{args}
 }
-{
-  In order to accommodate any of the three possible sensitivity solution methods,
-  the default internal 
-  finite difference quotient functions evaluate the sensitivity residuals 
-  one at a time. Therefore, \id{nfSevals} will always be a multiple of the
-  number of sensitivity parameters (the same as the case in which the user supplies
-  a routine of type \id{IDASensRhs1Fn}).
-}
+{}
 %%
 %%
 \ucfunction{IDAGetNumResEvalsSens}
@@ -1051,7 +1061,7 @@ No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[nfevalsS] (\id{long int})
-    number of calls to the user residual function.
+    number of calls to the user residual function for sensitivity residuals.
   \end{args}
 }
 {
@@ -1077,7 +1087,7 @@ No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\
 }
 {
   The function \ID{IDAGetSensNumErrTestFails} returns the number of local
-  error test failures for the sensitivity variables that have occured.
+  error test failures for the sensitivity variables that have occurred.
 }
 {
   \begin{args}[ida\_mem]
@@ -1184,9 +1194,9 @@ No. of sens. convergence failures& \id{IDAGetNumSensNonlinSolvConvFails} \\
   flag = IDAGetSensErrWeights(ida\_mem, eSweight);
 }
 {
-  The function \ID{IDAGetSensErrWeights} returns the sensitivity error weights at the
-  current time. These are the reciprocals of the $W_i$ of (\ref{e:errwt}) for the
-  sensitivity variables.
+  The function \ID{IDAGetSensErrWeights} returns the sensitivity error weight
+  vectors at the current time. These are the reciprocals of the $W_i$ of
+  (\ref{e:errwt}) for the sensitivity variables.
 }
 {
   \begin{args}[ida\_mem]
@@ -1393,7 +1403,7 @@ of type \ID{IDASensResFn} defined by:
 {
   typedef int (*IDASensResFn)(&int Ns, realtype t, \\
                               &N\_Vector yy, N\_Vector yp, \\ 
-                              &N\_Vector *yyS, N\_Vector *ypS, \\
+                              &N\_Vector *yS, N\_Vector *ypS, \\
                               &N\_Vector *resvalS, void *user\_data,  \\
                               &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
@@ -1411,11 +1421,11 @@ of type \ID{IDASensResFn} defined by:
   \item[yp]
     is the current value of the $\dot{y}(t)$.
   \item[yS]
-    contains the current values of the sensitivities of $y$.
+    contains the current values of the sensitivities $s_i$.
   \item[ypS]
-    contains the current values of the sensitivities of $\dot{y}$.
+    contains the current values of the sensitivity derivatives $\dot{s}_i$.
   \item[resvalS]
-    contains the output sensitivities vectors.
+    contains the output sensitivity residual vectors.
   \item[user\_data]
     is a pointer to user data.
   \item[tmp1]
@@ -1431,18 +1441,12 @@ of type \ID{IDASensResFn} defined by:
   \Id{IDA\_SRES\_FAIL} is returned).
 }
 {
-  {\warn}For efficiency considerations, the residual function is not
-  evaluated at the converged solution of the nonlinear solver. Therefore, a
-  recoverable error in \id{IDASensResFn} at that point cannot be corrected (as it will 
-  occur when the residual function is called the first time during the 
-  following integration step and a successful step cannot be undone).
-
   There are two situations in which recovery is not possible even if \id{IDASensResFn}
-  function returns a recoverable error flag. This include the situation when this
-  occurrs at the very first call to the \id{IDASensResFn} (in which case {\idas} returns
-  \Id{IDA\_FIRST\_SRHSFUNC\_ERR}) or if a recoverable error is reported when \id{IDASensResFn}
-  is called after an error test failure, while the linear multistep method order is
-  equal to 1 (in which case {\idas} returns \Id{IDA\_UNREC\_SRHSFUNC\_ERR}).
+  function returns a recoverable error flag.  One is when this
+  occurs at the very first call to the \id{IDASensResFn} (in which case {\idas} returns
+  \Id{IDA\_FIRST\_SRHSFUNC\_ERR}).  The other is when a recoverable error is reported
+  by \id{IDASensResFn} after an error test failure, while the linear multistep method order
+  is equal to 1 (in which case {\idas} returns \Id{IDA\_UNREC\_SRHSFUNC\_ERR}).
 }
 
 
@@ -1549,7 +1553,7 @@ this situation. Steps that are unchanged from the skeleton program presented in
   \textcolor{gray}{\bf Extract sensitivity solution}
 
 \item
-  {\bf Get sensitivities-dependent quadrature optional outputs}
+  {\bf Get sensitivity-dependent quadrature optional outputs}
 
   Call \id{IDAGetQuadSens*} functions to obtain optional output related to
   the integration of sensitivity-dependent quadratures.
@@ -1572,9 +1576,10 @@ this situation. Steps that are unchanged from the skeleton program presented in
   
 \end{Steps}
 %%
-\id{IDAQuadSensInit} (step \ref{i:quad_sens_init} above) can be called and quadrature-related 
-optional inputs (step \ref{i:quad_sens_optional_input} above) can be set, anywhere 
-between steps \ref{i:quad_sens_sens_def} and \ref{i:quad_sens_ida_solve}.
+Note: \id{IDAQuadSensInit} (step \ref{i:quad_sens_init} above) can be called and
+quadrature-related optional inputs (step \ref{i:quad_sens_optional_input} above)
+can be set, anywhere between steps \ref{i:quad_sens_sens_def} and
+\ref{i:quad_sens_ida_solve}.
 
 %%===================================================================================
 
@@ -1623,10 +1628,10 @@ flag = IDAQuadSensInit(ida\_mem, rhsQS, yQS0);
 }
 {
  
- {\warn} Before calling \id{IDAQuadSensInit}, the user must enable the sensitivites
-  by calling \id{IDASensInit}
+ {\warn}Before calling \id{IDAQuadSensInit}, the user must enable the sensitivites
+  by calling \\ \id{IDASensInit}.
 
-  If an error occured, \id{IDAQuadSensInit} also sends an error message to the
+  If an error occurred, \id{IDAQuadSensInit} also sends an error message to the
   error handler function.
 }
 %%
@@ -1684,7 +1689,7 @@ The call to the \id{IDAQuadSensReInit} function has the form:
   \end{args}
 }
 {
-  If an error occured, \id{IDAQuadSensReInit} also sends an error message to the
+  If an error occurred, \id{IDAQuadSensReInit} also sends an error message to the
   error handler function.
 }
 %%
@@ -1734,31 +1739,31 @@ case the return value \id{flag} can also be one of the following:
 \subsection{Sensitivity-dependent quadrature extraction functions}\label{ss:quad_sens_get}
 
 If sensitivity-dependent quadratures have been initialized by a call to \id{IDAQuadSensInit},
-or reinitialized by a call to \id{IDAQuadSensReInit}, then {\idas} computes both a solution,
-sensitivites and quadratures depending on sensitivities at time \id{t}. However, 
+or reinitialized by a call to \id{IDAQuadSensReInit}, then {\idas} computes a solution,
+sensitivities, and quadratures depending on sensitivities at time \id{t}. However, 
 \id{IDASolve} will still return only the solutions $y$ and $\dot{y}$. Sensitivity-dependent 
 quadratures can be obtained using one of the following functions:
 %%
 %%
 \ucfunction{IDAGetQuadSens}
 {
-  flag = IDAGetQuadSens(ida\_mem, \&t, yQS);
+  flag = IDAGetQuadSens(ida\_mem, \&tret, yQS);
 }
 {
-  The function \id{IDAGetQuadSens} returns the quadrature sensitivities
+  The function \id{IDAGetQuadSens} returns the quadrature sensitivity
   solution vectors after a successful return from \id{IDASolve}.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{IDAInit}.
-  \item[t] (\id{realtype})
+  \item[tret] (\id{realtype})
     the time reached by the solver.
 %    the time at which quadrature information is 
 %    requested. The time \id{t} must fall within the interval defined by the last 
 %    successful step taken by {\idas}.
   \item[yQS] (\id{N\_Vector *})
-    the computed solution vectors.
+    array of \id{Ns} computed sensitivity-dependent quadrature vectors.
   \end{args}
 }
 {
@@ -1773,7 +1778,7 @@ quadratures can be obtained using one of the following functions:
   \item[\Id{IDA\_NO\_QUADSENS}] 
     Quadratures depending on the sensitivities were not activated.
   \item[IDA\_BAD\_DKY] 
-    \id{yQS} is \id{NULL}.
+    One of the \id{yQS[i]} is \id{NULL}.
   \end{args}
 }
 {}
@@ -1802,7 +1807,8 @@ directly by the user.
     interval defined by the last successful step taken by {\idas}.
   \item[\id{k}] (\id{int}) order of the requested derivative.
   \item[\id{dkyQS}] (\id{N\_Vector *})
-    the vector containing the derivatives. This vector must be allocated by the user. 
+    array of \id{Ns} vectors containing the derivatives. This vector
+    array must be allocated by the user. 
   \end{args}
 }
 {
@@ -1817,7 +1823,7 @@ directly by the user.
   \item[\Id{IDA\_NO\_QUADSENS}] 
     Quadratures depending on the sensitivities were not activated.
   \item[\Id{IDA\_BAD\_DKY}] 
-    The vector \id{dkyQ} is \id{NULL}.
+    One of the vectors \id{dkyQS[i]} is \id{NULL}.
   \item[\Id{IDA\_BAD\_K}]
     \id{k} is not in the range $0, 1, ..., klast$.
   \item[\Id{IDA\_BAD\_T}] 
@@ -1832,7 +1838,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
 \id{IDAGetQuadSensDky1}, defined as follows:
 \ucfunction{IDAGetQuadSens1}
 {
-  flag = IDAQuadGetSens1(ida\_mem, \&t, is, yQS);
+  flag = IDAGetQuadSens1(ida\_mem, \&tret, is, yQS);
 }
 {
   The function \id{IDAGetQuadSens1} returns the \id{is}-th sensitivity 
@@ -1842,7 +1848,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{IDAInit}.
-  \item[t] (\id{realtype})
+  \item[tret] (\id{realtype})
     the time reached by the solver.
   \item[is] (\id{int}) specifies which sensitivity vector is to be returned
     ($0\le$\id{is}$< N_s$).
@@ -1864,7 +1870,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
   \item[\Id{IDA\_BAD\_IS}]
     The index \id{is} is not in the allowed range.
   \item[\Id{IDA\_BAD\_DKY}] 
-    \id{yQ} is \id{NULL}.
+    \id{yQS} is \id{NULL}.
   \end{args}
 }
 {}
@@ -1907,7 +1913,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
   \item[\Id{IDA\_NO\_QUADSENS}] 
     Quadratures depending on the sensitivities were not activated.
   \item[\Id{IDA\_BAD\_DKY}] 
-    One of the vectors \id{dkyS} is \id{NULL}.
+    \id{dkyQS} is \id{NULL}.
   \item[\Id{IDA\_BAD\_IS}]
     The index \id{is} is not in the allowed range.
   \item[\Id{IDA\_BAD\_K}] 
@@ -1937,8 +1943,8 @@ of sensitivity-dependent quadrature equations.
 {
   The function \Id{IDASetQuadSensErrCon} specifies whether or not the
   quadrature variables should be used in the step size control
-  mechanism. If so, the user must call \id{IDAQuadSensSStolerances} or
-  \id{IDAQuadSensSVtolerances} to specify the 
+  mechanism. If so, the user must call one of \id{IDAQuadSensSStolerances},
+  \id{IDAQuadSensSVtolerances}, or \id{IDAQuadSensEEtolerances}, to specify the 
   integration tolerances for the quadrature variables.  
 }
 {
@@ -1991,7 +1997,7 @@ integration tolerances for quadrature variables.
     \index{tolerances}
     is the scalar relative error tolerance.
   \item[abstolQS] (\id{realtype*})
-    is a pointer to an array containing the scalar absolute 
+    is a pointer to an array containing the \id{Ns} scalar absolute 
     error tolerances.
   \end{args}
 }
@@ -2173,7 +2179,7 @@ performance information related to quadrature integration.
   \begin{args}[eQSweight]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
-  \item[eQSweight] (\id{N\_Vector})
+  \item[eQSweight] (\id{N\_Vector *})
     quadrature error weights at the current time.
   \end{args}
 }
@@ -2210,7 +2216,7 @@ performance information related to quadrature integration.
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[nrhsQSevals] (\id{long int})
-    number of calls to the user's \id{resQS} function.
+    number of calls to the user's \id{rhsQS} function.
   \item[nQSetfails] (\id{long int})
     number of error test failures due to quadrature variables.
   \end{args}
@@ -2238,8 +2244,11 @@ performance information related to quadrature integration.
 
 \index{right-hand side function!sensitivity-dependent quadrature equations}
 For integration of quadrature equations, the user must provide a function 
-that defines the right-hand side of the quadrature equations. This function
-must be of type \Id{IDAQuadSensRhsFn} defined as follows:
+that defines the right-hand side of the sensitivity quadrature equations.  
+For sensitivities of quadratures (\ref{e:QUAD}) with integrands $q$, the right-hand
+side functions are given by
+$\bar q_i = (\partial q / \partial y) s_i + \partial q / \partial p_i$.
+This user function must be of type \Id{IDAQuadSensRhsFn}, defined as follows:
 \usfunction{IDAQuadSensRhsFn}
 {
   typedef int (*IDAQuadSensRhsFn)(&Ns, realtype t, N\_Vector yy, N\_Vector yp,\\
@@ -2267,9 +2276,9 @@ must be of type \Id{IDAQuadSensRhsFn} defined as follows:
     is an array of \id{Ns} variables of type \id{N\_Vector} containing the
     dependent sensitivity vectors $\dot{s}_i$.
   \item[rrQ]
-    is the current value quadrature right-hand side.
+    is the current value of the quadrature right-hand side $q$.
   \item[rhsvalQS]
-    contains the output vectors.
+    contains the \id{Ns} output vectors.
   \item[user\_data]
     is the \Id{user\_data} pointer passed to \id{IDASetUserData}.   
   \item[tmp1]
@@ -2337,7 +2346,7 @@ sensitivity variables. Moreover, even if there are no convergence failures in
 the solution of the sensitivity system, {\idas} may trigger a call to the
 linear solver's setup routine which typically involves reevaluation of Jacobian
 information (Jacobian approximation in the case of {\idadense} and {\idaband}, or
-preconditioner data in the case of {\idaspgmr}). The new Jacobian information
+preconditioner data in the case of the Krylov solvers). The new Jacobian information
 will be used by subsequent calls to the nonlinear solver for the state equations
 and, in this way, potentially affect the step size selection.
 
@@ -2345,7 +2354,7 @@ When using the simultaneous corrector method it is not possible to decide whethe
 nonlinear solver convergence failures or calls to the linear solver setup routine
 have been triggered by convergence problems due to the state or the sensitivity 
 equations.
-When using one of the staggered corrector method however, these situations can be 
+When using one of the staggered corrector methods, however, these situations can be 
 identified by carefully monitoring the diagnostic information provided through 
 optional outputs. If there are no convergence
 failures in the sensitivity nonlinear solver, and none
@@ -2362,9 +2371,9 @@ of the sensitivity variables, if any, would be in the direction of increasing th
 step size and therefore reducing the total number of steps. The argument for this
 is that the presence of the sensitivity variables in the convergence test of the
 nonlinear solver can only lead to additional iterations (and therefore a smaller
-final correction), or to additional calls to the linear solver setup routine
+iteration error), or to additional calls to the linear solver setup routine
 (and therefore more up-to-date Jacobian information), both of which will lead
 to larger steps being taken by {\idas}. However, this is true only locally.
 Overall, a larger integration step taken at a given time may lead to 
-step size reductions at later times (due to either nonlinear solver convergence
-failures or error test failures).
+step size reductions at later times, due to either nonlinear solver convergence
+failures or error test failures.
