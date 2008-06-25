@@ -945,7 +945,7 @@ Jacobian-related data at each checkpoint, a reevaluation of the iteration matrix
 is forced before each checkpoint. At the end of this stage, we are left with $N_c$ 
 checkpoints, including one at $t_0$.
 During the backward integration stage, the adjoint variables are integrated
-backwards from one checkpoint to the previous one.
+backwards from $T$ to $t_0$, going from one checkpoint to the previous one.
 The backward integration from checkpoint $i+1$ to checkpoint $i$ is preceded
 by a forward integration from $i$ to $i+1$ during which the $N_d$ vectors 
 $y$ (and, if necessary ${\dot y}$) are generated and stored in memory for 
