@@ -34,11 +34,13 @@ program) as an application of {\idas}. The user program is to have these
 steps in the order indicated, unless otherwise noted.
 For the sake of brevity, we defer many of the details to the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
-implementation used; where this is not the case, usage specifications are given for the
-two implementations provided with {\idas}: steps marked {\p} correspond to 
+implementation used; where this is not the case, usage specifications are given for
+the two implementations provided with {\idas}: steps marked {\p} correspond to 
 {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 Differences between the user main program in \S\ref{ss:skeleton_sim} and
 the one below start only at step (\ref{i:fwd_start}).
+Steps that are unchanged from the skeleton program presented in
+\S\ref{ss:skeleton_sim} are grayed out.
 
 First, note that no additional header files need be included for forward sensitivity 
 analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
@@ -1708,7 +1710,11 @@ The call to the \id{IDAQuadSensReInit} function has the form:
 {
   The function \id{IDAQuadSensFree} has no return value.
 }
-{}
+{
+  In general, \id{IDAQuadSensFree} need not be called by the user as it is
+  called automatically by \id{IDAFree}.
+}
+
 
 %%===================================================================================
 
