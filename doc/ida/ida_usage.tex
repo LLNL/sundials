@@ -402,7 +402,7 @@ memory block created and allocated by the first two calls.
 }
 {
   The function \ID{IDAFree} frees the pointer allocated by
-  a previous call to \id{IDAInit}.
+  a previous call to \id{IDACreate}.
 }
 {
   The argument is the pointer to the {\ida} memory block (of type \id{void *}).
@@ -813,7 +813,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{IDA\_SPGMR\_MAXL}$=5$.
+    default value \id{IDA\_SPILS\_MAXL}$=5$.
   \end{args}
 }
 {
@@ -849,7 +849,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{IDA\_SPBCG\_MAXL}$=5$.
+    default value \id{IDA\_SPILS\_MAXL}$=5$.
   \end{args}
 }
 {
@@ -885,7 +885,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{IDA\_SPTFQMR\_MAXL}$=5$.
+    default value \id{IDA\_SPILS\_MAXL}$=5$.
   \end{args}
 }
 {
@@ -2201,6 +2201,8 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   to the linear solver specification function (see \S\ref{sss:lin_solv_init}). 
   This function call is needed only if \id{maxl} is being changed from its 
   previous value.
+
+  An input value \id{maxl} $\leq 0$ will result in the default value, 5.
 
   {\warn}This option is available only for the {\idaspbcg} and {\idasptfqmr} linear solvers.
 }
@@ -4400,7 +4402,10 @@ function of type \ID{IDADlsBandJacFn} defined as follows:
 If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr} is
 selected (\id{IDASp*} is called in step \ref{i:lin_solver} of
 \S\ref{ss:skeleton_sim}), the user may provide a function
-of type \ID{IDASpilsJacTimesVecFn} in the following form:
+of type \ID{IDASpilsJacTimesVecFn}, described below,
+to compute matrix-vector products $Jv$. If such a function is not supplied,
+the default is a difference quotient approximation to these products.
+%
 \usfunction{IDASpilsJacTimesVecFn}
 {
   typedef int (*IDASpilsJacTimesVecFn)(&realtype tt, N\_Vector yy, \\
@@ -4427,7 +4432,7 @@ of type \ID{IDASpilsJacTimesVecFn} in the following form:
   \item[v]
     is the vector by which the Jacobian must be multiplied to the right.
   \item[Jv]
-      is the output vector computed.
+      is the computed output vector.
   \item[cj]
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
@@ -4494,7 +4499,7 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
   \item[rvec]
     is the right-hand side vector $r$ of the linear system to be solved.
   \item[zvec]
-    is the output vector computed.
+    is the computed output vector.
   \item[cj]
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
