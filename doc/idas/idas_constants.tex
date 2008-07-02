@@ -96,8 +96,8 @@ description of their meaning.
 \id{IDA\_NO\_MALLOC}      & -23 & The {\idas} memory was not allocated by a call to \id{IDAMalloc}. \\
 \id{IDA\_BAD\_EWT}        & -24 & Zero value of some error weight component. \\
 \id{IDA\_BAD\_K}          & -25 & The $k$-th derivative is not available. \\
-\id{IDA\_BAD\_T}          & -26 & The time $t$ s outside the last step taken. \\
-\id{IDA\_BAD\_DKY}        & -26 & The vector argument where derivative should be stored is \id{NULL}. \\
+\id{IDA\_BAD\_T}          & -26 & The time $t$ is outside the last step taken. \\
+\id{IDA\_BAD\_DKY}        & -27 & The vector argument where derivative should be stored is \id{NULL}. \\
 \id{IDA\_NO\_QUAD}           & -30 & Quadratures were not initialized. \\
 \id{IDA\_QRHS\_FAIL}         & -31 & The user-provided right-hand side function for quadratures failed in an unrecoverable manner.\\
 \id{IDA\_FIRST\_QRHS\_ERR}   & -32 & The user-provided right-hand side function for quadratures failed in an unrecoverable manner on the first call.\\
