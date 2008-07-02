@@ -1948,10 +1948,10 @@ of sensitivity-dependent quadrature equations.
 }
 {
   The function \Id{IDASetQuadSensErrCon} specifies whether or not the
-  quadrature variables should be used in the step size control
-  mechanism. If so, the user must call one of \id{IDAQuadSensSStolerances},
-  \id{IDAQuadSensSVtolerances}, or \id{IDAQuadSensEEtolerances}, to specify the 
-  integration tolerances for the quadrature variables.  
+  quadrature variables are to be used in the local error control mechanism.
+  If they are, the user must specify the error tolerances for the quadrature
+  variables by calling \id{IDAQuadSensSStolerances},
+  \id{IDAQuadSensSVtolerances}, or \id{IDAQuadSensEEtolerances}. 
 }
 {
   \begin{args}[errconQS]
