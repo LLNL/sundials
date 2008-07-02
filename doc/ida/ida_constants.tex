@@ -36,8 +36,8 @@ description of their meaning.
 
 \id{IDA\_NORMAL}           & 1 & Solver returns at specified output time. \\
 \id{IDA\_ONE\_STEP}        & 2 & Solver returns after each successful step. \\
-\id{IDA\_YA\_YDP\_INIT}    & 1 & Compute $y_a$ and $y^\prime_d$, given $y_d$.\\
-\id{IDA\_Y\_INIT}          & 2 & Compute $y$, given $y^\prime$.\\
+\id{IDA\_YA\_YDP\_INIT}    & 1 & Compute $y_a$ and $\dot{y}_d$, given $y_d$.\\
+\id{IDA\_Y\_INIT}          & 2 & Compute $y$, given $\dot{y}$.\\
 
 
 \\\hline
@@ -63,7 +63,7 @@ description of their meaning.
 \id{IDA\_SUCCESS}         &  0  & Successful function return. \\
 \id{IDA\_TSTOP\_RETURN}   &  1  & \id{IDASolve} succeeded by reaching the specified stopping point. \\
 \id{IDA\_ROOT\_RETURN}    &  2  & \id{IDASolve} succeeded and found one or more roots. \\
-\id{IDA\_WARNING}         & 99  & \id{IDASolve} succeeded but an unusual situation occured. \\
+\id{IDA\_WARNING}         & 99  & \id{IDASolve} succeeded but an unusual situation occurred. \\
 \id{IDA\_TOO\_MUCH\_WORK} & -1  & The solver took \id{mxstep} internal steps but could not reach tout.\\
 \id{IDA\_TOO\_MUCH\_ACC}  & -2  & The solver could not satisfy the accuracy demanded by the user for some internal step.\\
 \id{IDA\_ERR\_FAIL}       & -3  & Error test failures occurred too many times during one internal time step or minimum step size was reached. \\
@@ -84,8 +84,8 @@ description of their meaning.
 \id{IDA\_NO\_MALLOC}      & -23 & The {\ida} memory was not allocated by a call to \id{IDAMalloc}. \\
 \id{IDA\_BAD\_EWT}        & -24 & Zero value of some error weight component. \\
 \id{IDA\_BAD\_K}          & -25 & The $k$-th derivative is not available. \\
-\id{IDA\_BAD\_T}          & -26 & The time $t$ s outside the last step taken. \\
-\id{IDA\_BAD\_DKY}        & -26 & The vector argument where derivative should be stored is \id{NULL}. \\
+\id{IDA\_BAD\_T}          & -26 & The time $t$ is outside the last step taken. \\
+\id{IDA\_BAD\_DKY}        & -27 & The vector argument where derivative should be stored is \id{NULL}. \\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\idadls} linear solver modules}\\
