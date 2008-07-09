@@ -614,7 +614,7 @@ The {\em solution sensitivity} with respect to the model parameter
 $p_i$ is defined as the vector 
 $s_i (t) = {\partial y(t)}/{\partial p_i}$
 and satisfies the following {\em forward sensitivity equations}
-(or in short {\em sensitivity equations}):
+(or {\em sensitivity equations} for short):
 \begin{equation}\label{e:sens_eqns}
 {{\dot s}_i}  = \frac{\partial f}{\partial y} s_i + \frac{\partial f}{\partial p_i} \, ,
 \quad s_i(t_0)  = \frac{\partial y_{0}(p)}{\partial p_i} \, ,
@@ -652,20 +652,22 @@ ${\hat y} = [y, s_1, \ldots , s_{N_s}]$.
 
 \item {\em Staggered Direct}
 
-  In this approach \cite{CaSt:85}, the nonlinear system (\ref{e:nonlinear}) is first
-  solved and, once an acceptable numerical solution is obtained, the sensitivity 
-  variables at the new step are found by directly solving (\ref{e:sens_eqns}) 
-  after the (BDF or Adams) discretization is used to eliminate ${\dot s}_i$. 
-  Although the system matrix of the above linear system is based on exactly the same
-  information as the matrix $M$ in (\ref{e:Newtonmat}), it must be updated and
-  factored at every step of the integration, in contrast to $M$ which is updated
-  only occasionally.  For problems with many parameters (relative to the problem
-  size), the staggered direct method can outperform the methods described
-  below~\cite{LPZ:99}.
-  However, the computational cost associated with matrix updates and factorizations 
-  makes this method unattractive for problems with many more states than parameters
-  (such as those arising from semidiscretization of PDEs) and is therefore not 
-  implemented in {\cvodes}.
+  In this approach \cite{CaSt:85}, the nonlinear system
+  (\ref{e:nonlinear}) is first solved and, once an acceptable
+  numerical solution is obtained, the sensitivity variables at the new
+  step are found by directly solving (\ref{e:sens_eqns}) after the
+  (BDF or Adams) discretization is used to eliminate ${\dot s}_i$.
+  Although the system matrix of the above linear system is based on
+  exactly the same information as the matrix $M$ in
+  (\ref{e:Newtonmat}), it must be updated and factored at every step
+  of the integration, in contrast to an evalutaion of $M$ which is
+  updated only occasionally.  For problems with many parameters
+  (relative to the problem size), the staggered direct method can
+  outperform the methods described below~\cite{LPZ:99}.  However, the
+  computational cost associated with matrix updates and factorizations
+  makes this method unattractive for problems with many more states
+  than parameters (such as those arising from semidiscretization of
+  PDEs) and is therefore not implemented in {\cvodes}.
   
 \item {\em Simultaneous Corrector}
 
@@ -698,7 +700,7 @@ ${\hat y} = [y, s_1, \ldots , s_{N_s}]$.
   \end{equation*}
   $M$ is defined as in (\ref{e:Newtonmat}), and 
   $J_i = ({\partial}/{\partial y})\left[ (\dfdyI) s_i + (\dfdpiI) \right]$.
-  It can be shown that 2-step quadratic convergence can be attained by using
+  It can be shown that 2-step quadratic convergence can be retained by using
   only the block-diagonal portion of ${\hat M}$ in the corrector equation
   (\ref{e:Newton_sim}). This results in a decoupling that allows the reuse of 
   $M$ without additional matrix factorizations. However, the products
@@ -795,7 +797,7 @@ sensitivity vector $s_i$.
 Using central finite differences as an example, the two terms 
 $({\partial f}/{\partial y}) s_i$ 
 and ${\partial f}/{\partial p_i}$ in the right-hand side of (\ref{e:sens_eqns}) 
-can be evaluated separately:
+can be evaluated either separately:
 \begin{gather}
   \frac{\partial f}{\partial y} s_i \approx \frac{f(t, y+\sigma_y s_i, p)-
     f(t, y-\sigma_y s_i, p)}{2\,\sigma_y} \, , \label{e:fd2} \\
@@ -804,7 +806,7 @@ can be evaluated separately:
   \sigma_i = |{\bar p}_i| \sqrt{\max( \mbox{\sc rtol} , U)} \, , \quad
   \sigma_y = \frac{1}{\max(1/\sigma_i, \|s_i\|_{\mbox{\scriptsize WRMS}}/|{\bar p}_i|)} \, , \nonumber
 \end{gather}
-simultaneously:
+or simultaneously:
 \begin{gather}
   \frac{\partial f}{\partial y} s_i + \frac{\partial f}{\partial p_i} \approx
   \frac{f(t, y+\sigma s_i, p + \sigma e_i) -
@@ -812,18 +814,21 @@ simultaneously:
   \sigma = \min(\sigma_i, \sigma_y) \, , \nonumber
 \end{gather}
 or by adaptively switching between (\ref{e:fd2})+(\ref{e:fd2}') and (\ref{e:dd2}), 
-depending on the relative size of the estimated finite difference 
-increments $\sigma_i$ and $\sigma_y$.
+depending on the relative size of the finite difference increments
+$\sigma_i$ and $\sigma_y$.  In the adaptive scheme, if
+$\rho = \max(\sigma_i/\sigma_y,\sigma_y/\sigma_i)$, we use separate
+evaluations if $\rho > \rhomax$ (an input value), and simultaneous
+evaluations otherwise.
 
-These procedures for choosing the perturbations ($\delta_i$,
-$\delta_y$, $\delta$) and switching ($\rhomax$) between
-finite difference and directional derivative formulas have also been implemented 
-for first-order formulas.
-Forward finite differences can be applied to $({\partial f}/{\partial y}) s_i$ and
-${\partial f}/{\partial p_i}$ separately, or the single directional derivative formula
+These procedures for choosing the perturbations ($\sigma_i$, $\sigma_y$, $\sigma$)
+and switching between finite difference and directional derivative
+formulas have also been implemented for one-sided difference formulas.
+Forward finite differences can be applied to $({\partial f}/{\partial y}) s_i$
+and ${\partial f}/{\partial p_i}$ separately, or the single directional
+derivative formula
 \begin{equation*}
 \dfdy s_i + \dfdpi \approx
-\frac{f(t, y+\delta s_i, p + \delta e_i) - f(t, y, p)}{\delta}
+\frac{f(t, y+\sigma s_i, p + \sigma e_i) - f(t, y, p)}{\sigma}
 \end{equation*}
 can be used.
 In {\cvodes}, the default value of $\rhomax=0$ indicates the use of
@@ -847,12 +852,12 @@ words, {\cvodes} provides support for computing integrals of the form:
 \end{equation*}
 
 If the sensitivities of the quadrature variables $z$ of (\ref{e:QUAD}) are
-desired these can then be computed by using:
+desired, these can then be computed by using:
 \begin{equation*}
   \bar q_i = q_y s_i + q_{p_i} \, , \quad i = 1,\ldots,N_p \, ,
 \end{equation*}
-where $q_y$ and $q_p$ are the partial derivatives of the integrand function
-$q$ of (\ref{e:QUAD}).
+as integrands for $\bar{z}$, where $q_y$ and $q_p$ are the partial derivatives
+of the integrand function $q$ of (\ref{e:QUAD}).
 
 As with the quadrature variables $z$, the new variables $\bar z$ are also excluded
 from any nonlinear solver phase and ``corrected'' values $\bar z^n$ are obtained
@@ -874,10 +879,10 @@ $s_i$, but rather the gradients with respect to model parameters of a relatively
 few derived functionals of the solution. In other words, if $y(t)$ is the solution
 of (\ref{e:ivp_p}), we wish to evaluate the gradient ${dG}/{dp}$ of
 \begin{equation}\label{e:G}
-G(p) = \int_{t_0}^{t_\mb{f}} g(t, y, p) dt \, ,
+G(p) = \int_{t_0}^T g(t, y, p) dt \, ,
 \end{equation}
-or, alternatively, the gradient ${dg}/{dp}$ of the function $g(t, x, p)$ 
-at time $t_\mb{f}$. 
+or, alternatively, the gradient ${dg}/{dp}$ of the function $g(t, y, p)$ 
+at the final time $T$. 
 The function $g$ must be smooth enough that $\partial g / \partial y$ 
 and $\partial g / \partial p$ exist and are bounded. 
 
@@ -887,63 +892,63 @@ For details on the derivation see \cite{CLPS:03}.
 Introducing a Lagrange multiplier $\lambda$, we form the augmented
 objective function
 \begin{equation}
-I(p) = G(p) - \int_{t_0}^{t_1} \lambda^* 
+I(p) = G(p) - \int_{t_0}^T \lambda^* 
 \left( {\dot y} - f(t,y,p)\right) dt \, ,
 \end{equation}
 where $*$ denotes the conjugate transpose. The gradient of $G$ with respect
 to $p$ is
 \begin{equation}
   \frac{dG}{dp} = \frac{dI}{dp} 
-=\int_{t_0}^{t_1}(g_p + g_y s)dt - \int_{t_0}^{t_1} 
+=\int_{t_0}^T(g_p + g_y s)dt - \int_{t_0}^T 
 \lambda^* \left( {\dot s} - f_y s - f_p \right)dt \, ,
 \end{equation}
-where subscripts on functions such as $f$ or $g$ are used to denote partial 
+where subscripts on functions $f$ or $g$ are used to denote partial 
 derivatives and $s = [s_1,\ldots,s_{N_s}]$ is the matrix of solution sensitivities.
-Applying integration by parts to the term $\lambda^* {\dot s}$ and selecting
-$\lambda$ such that
+Applying integration by parts to the term $\lambda^* {\dot s}$, and by requiring
+that $\lambda$ satisfy
 \begin{equation}\label{e:adj_eqns}
 \begin{split}
 &{\dot\lambda} = -\left( \dfdy \right)^* \lambda - 
 \left( \frac{\partial g}{\partial y} \right)^* \\
-&\lambda(t_1) = 0 \, ,
+&\lambda(T) = 0 \, ,
 \end{split}
 \end{equation}
 the gradient of $G$ with respect to $p$ is nothing but
 \begin{equation}\label{e:dGdp}
 \frac{dG}{dp} = \lambda^*(t_0) s(t_0) + 
-\int_{t_0}^{t_1} \left( g_p + \lambda^* f_p \right) dt \, .
+\int_{t_0}^T \left( g_p + \lambda^* f_p \right) dt \, .
 \end{equation}
-The gradient of $g(t_1,y,p)$ with respect to $p$ can be then obtained
+The gradient of $g(T,y,p)$ with respect to $p$ can be then obtained
 by using the Leibnitz differentiation rule. Indeed, from (\ref{e:G}),
 \begin{equation*}
-\frac{dg}{dp}(t_1) = \frac{d}{dt_1}\frac{dG}{dp}
+\frac{dg}{dp}(T) = \frac{d}{dT}\frac{dG}{dp}
 \end{equation*}
-and therefore, taking into account that $dG/dp$ in (\ref{e:dGdp}) depends on $t_1$
-both through the upper integration limit and through $\lambda$ and that
-$\lambda(t_1) = 0$, 
+and therefore, taking into account that $dG/dp$ in (\ref{e:dGdp}) depends on $T$
+both through the upper integration limit and through $\lambda$, and that
+$\lambda(T) = 0$, 
 \begin{equation}\label{e:dgdp}
-\frac{dg}{dp}(t_1) = \mu^*(t_0) s(t_0) + g_p(t_1) +
-\int_{t_0}^{t_1} \mu^* f_p dt \, ,
+\frac{dg}{dp}(T) = \mu^*(t_0) s(t_0) + g_p(T) +
+\int_{t_0}^T \mu^* f_p dt \, ,
 \end{equation}
 where $\mu$ is the sensitivity of $\lambda$ with respect to the final integration 
-limit and thus satisfies the following equation, obtained by taking the total
-derivative with respect to $t_1$ of (\ref{e:adj_eqns}):
+limit $T$.  Thus $\mu$ satisfies the following equation, obtained by taking the
+total derivative with respect to $T$ of (\ref{e:adj_eqns}):
 \begin{equation}\label{e:adj1_eqns}
 \begin{split}
 &{\dot\mu} = -\left( \dfdy \right)^* \mu \\ 
-&\mu(t_1) = \left( \frac{\partial g}{\partial y} \right)^*_{t=t_1} \, .
+&\mu(T) = \left( \frac{\partial g}{\partial y} \right)^*_{t=T} \, .
 \end{split}
 \end{equation}
-The final condition on $\mu(t_1)$ follows from 
-$(\partial\lambda/\partial t) + (\partial\lambda/\partial t_1) = 0$ at $t_1$, and
-therefore, $\mu(t_1) = -{\dot\lambda}(t_1)$. 
+The final condition on $\mu(T)$ follows from 
+$(\partial\lambda/\partial t) + (\partial\lambda/\partial T) = 0$ at $T$, and
+therefore, $\mu(T) = -{\dot\lambda}(T)$. 
 
 The first thing to notice about the adjoint system (\ref{e:adj_eqns}) is that there
 is no explicit specification of the parameters $p$; this implies that, once the
 solution $\lambda$ is found, the formula (\ref{e:dGdp}) can then be used to find
 the gradient of $G$ with respect to any of the parameters $p$. The same holds true
 for the system (\ref{e:adj1_eqns}) and the formula (\ref{e:dgdp}) for gradients of
-$g(t_1,y,p)$.  The second important remark is that the adjoint systems
+$g(T,y,p)$.  The second important remark is that the adjoint systems
 (\ref{e:adj_eqns}) and (\ref{e:adj1_eqns}) are terminal value problems which depend
 on the solution $y(t)$ of the original IVP (\ref{e:ivp_p}). Therefore, a procedure
 is needed for providing the states $y$ obtained during a forward integration phase
@@ -979,7 +984,7 @@ of memory requirements for adjoint sensitivity analysis. To begin with, based on
 the problem size $N$ and the available memory, the user decides on the number
 $N_d$ of data pairs ($y$, ${\dot y}$) if cubic Hermite interpolation is selected, 
 or on the number $N_d$ of $y$ vectors in the case of variable-degree polynomial
-interpolation that can be kept in memory for the purpose of interpolation. 
+interpolation, that can be kept in memory for the purpose of interpolation. 
 Then, during the first forward integration stage, after
 every $N_d$ integration steps a checkpoint is formed by saving enough information
 (either in memory or on disk) to allow for a hot restart, that is a restart
@@ -988,9 +993,9 @@ Jacobian-related data at each checkpoint, a reevaluation of the iteration matrix
 is forced before each checkpoint. At the end of this stage, we are left with $N_c$ 
 checkpoints, including one at $t_0$.
 During the backward integration stage, the adjoint variables are integrated
-from $t_1$ to $t_0$ going from one checkpoint to the previous one.
+from $T$ to $t_0$ going from one checkpoint to the previous one.
 The backward integration from checkpoint $i+1$ to checkpoint $i$ is preceded
-by a forward integration from $i$ to $i+1$ during which $N_d$ the vectors 
+by a forward integration from $i$ to $i+1$ during which the $N_d$ vectors 
 $y$ (and, if necessary ${\dot y}$) are generated and stored in memory for 
 interpolation\footnote{The degree of the 
 interpolation polynomial is always that of the current BDF order for the forward
@@ -1054,13 +1059,13 @@ discretized adjoint PDE system or the adjoint of the discretized PDE.
 \index{second-order sensitivity analysis}
 In some applications (e.g., dynamically-constrained optimization) it may
 be desirable to compute second-order derivative information. Considering 
-the ODE problem (\ref{e:ivp_p}) and some model output functional 
-$g(y)$\footnote{For the sake of simplifity in presentation, we do not 
+the ODE problem (\ref{e:ivp_p}) and some model output
+functional,\footnote{For the sake of simplifity in presentation, we do not 
 include explicit dependencies of $g$ on time $t$ or parameters $p$.
-Moreover, we only consider the case in which the dependency of the 
-original ODE (\ref{e:ivp_p}) on the parameters $p$ is through its initial conditions only.
+Moreover, we only consider the case in which the dependency of the original
+ODE (\ref{e:ivp_p}) on the parameters $p$ is through its initial conditions only.
 For details on the derivation in the general case, see~\cite{OzBa:05}.}
-then the Hessian $d^2g/dp^2$ can be obtained in a forward sensitivity
+$g(y)$ then the Hessian $d^2g/dp^2$ can be obtained in a forward sensitivity
 analysis setting as
 \begin{equation*}
 \frac{d^2 g}{d p^2} = \left(g_y \otimes I_{N_p} \right ) y_{pp} + y_p^T g_{yy} y_p \, ,
@@ -1074,8 +1079,8 @@ solution of the matrix ODE system:
     & y_{pp}(t_0) = \frac{\partial^2 y_0}{\partial p^2} \, ,
   \end{split}
 \end{equation*}
-where $y_p$ is the first-order sensitivity matrix, solution of $N_p$ 
-systems (\ref{e:sens_eqns}) and $y_{pp}$ is a third-order tensor.
+where $y_p$ is the first-order sensitivity matrix, the solution of $N_p$ 
+systems (\ref{e:sens_eqns}), and $y_{pp}$ is a third-order tensor.
 %%
 It is easy to see that, except for situations in which the number of parameters
 $N_p$ is very small, the computational cost of this so-called {\em forward-over-forward} 
@@ -1087,9 +1092,9 @@ a so-called {\em forward-over-adjoint} approach. This method is based on using
 the same ``trick'' as the one used in computing gradients of pointwise
 functionals with the adjoint method, namely applying a formal directional forward 
 derivation to one of the gradients of (\ref{e:dGdp}) or (\ref{e:dgdp}). With that,
-the cost of computing a full Hessian is roughly equivalent to the cost of computing the 
-gradient with FSA.
-However, Hessian-vector products can be cheaply computed with one additional adjoint solve.
+the cost of computing a full Hessian is roughly equivalent to the cost of computing
+the gradient with forward sensitivity analysis.  However,
+Hessian-vector products can be cheaply computed with one additional adjoint solve.
 Consider for example, $G(p) = \int_{t_0}^{t_f} g(t,y) \, dt$.
 It can be shown that the product between the Hessian of $G$ (with respect to the 
 parameters $p$) and some vector $u$ can be computed as
@@ -1105,15 +1110,15 @@ where $\lambda$, $\mu$, and $s$ are solutions of
     &\dot s = f_y s\, ; \quad s(t_0) = y_{0p} u
   \end{split}
 \end{equation}
-In the above equation, $s$ is a linear combination of the columns of the
-sensitivity matrix $y_p$, i.e.; $s = y_p u$. The {\em forward-over-adjoint} 
+In the above equation, $s = y_p u$ is a linear combination of the columns of the
+sensitivity matrix $y_p$.  The {\em forward-over-adjoint} 
 approach hinges crucially on the fact that $s$ can be computed at the cost of 
 a forward sensitivity analysis with respect to a single parameter (the last 
 ODE problem above) which is possible due to the linearity of the forward
 sensitivity equations (\ref{e:sens_eqns}).
 
 Therefore, the cost of computing the Hessian-vector product is roughly
-that of 2 forward and 2 backward integrations of a system of ODEs of size $N$.
+that of two forward and two backward integrations of a system of ODEs of size $N$.
 For more details, including the corresponding formulas for a pointwise model
 functional output, see~\cite{OzBa:05}.
 
@@ -1125,7 +1130,7 @@ provides support for:
 \begin{itemize}
 \item the integration of multiple backward problems depending on the same
   underlying forward problem (\ref{e:ivp_p}), and
-\item the integration of backward problems and computation of backward quadraturea
+\item the integration of backward problems and computation of backward quadratures
   depending on both the states $y$ and forward sensitivities (for this particular 
   application, $s$) of the original problem (\ref{e:ivp_p}).
 \end{itemize}
