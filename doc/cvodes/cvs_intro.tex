@@ -113,30 +113,30 @@ writing in C|)}
 
 Two new features related to the integration of ODE IVP problems were added 
 in this release: (a) a new linear solver module, based on Blas and Lapack 
-for both dense and banded matrices, and (b) option to specify which direction 
-of zero-crossing is to be monitored while performing root-finding. 
+for both dense and banded matrices, and (b) an option to specify which direction 
+of zero-crossing is to be monitored while performing rootfinding. 
 
 This version also includes several new features related to sensitivity analysis,
-among which: (a) support for integration of quadrature equations depending
+among which are: (a) support for integration of quadrature equations depending
 on both the states and forward sensitivity (and thus support for forward sensitivity
 analysis of quadrature equations), (b) support for simultaneous integration of 
 multiple backward problems based on the same underlying ODE (e.g., for use
 in an {\em forward-over-adjoint} method for computing second order derivative
 information), (c) support for backward integration of ODEs and quadratures 
 depending on both forward states and sensitivities (e.g., for use in computing 
-second order derivative information), and (d) support for reinitialization of 
+second-order derivative information), and (d) support for reinitialization of 
 the adjoint module.
 
 The user interface has been further refined. Some of the API changes involve:
 (a) a reorganization of all linear solver modules into two families (besides 
-the already present family of scaled preconditioned iterative linear solvers,
-the direct solvers, including the new Lapack-based ones were also organized 
+the existing family of scaled preconditioned iterative linear solvers,
+the direct solvers, including the new Lapack-based ones, were also organized 
 into a {\em direct} family); (b) maintaining a single pointer to user data,
 optionally specified through a \id{Set}-type function; (c) a general 
 streamlining of the preconditioner modules distributed with the solver.
 Moreover, the prototypes of all functions related to integration of backward 
 problems were modified to support the simultaneous integration of multiple 
-problems. All backward problem defined by the user are internally managed
+problems. All backward problems defined by the user are internally managed
 through a linked list and identified in the user interface through a
 unique identifier.
 
@@ -205,7 +205,7 @@ systems has been further improved to make it more robust.
 \subsection*{Changes in v2.1.2}
 
 A bug was fixed in the \id{CVode} function that was potentially
-leading to erroneous behaviour of the root finding procedure on the 
+leading to erroneous behaviour of the rootfinding procedure on the 
 integration first step.
 
 \subsection*{Changes in v2.1.1}
@@ -286,10 +286,11 @@ The structure of this document is as follows:
 \item
   In Chapter \ref{s:math}, we give short descriptions of the numerical 
   methods implemented by {\cvodes} for the solution of initial value problems
-  for systems of ODEs, continue with an overview of the mathematical aspects 
-  of sensitivity analysis, both forward (\S\ref{ss:fwd_sensi}) and adjoint
-  (\S\ref{ss:adj_sensi}), and conclude with a description of stability limit
-  detection (\S\ref{s:bdf_stab}).
+  for systems of ODEs, continue with short descriptions of preconditioning
+  (\S\ref{s:preconditioning}), stability limit detection (\S\ref{s:bdf_stab}),
+  and rootfinding (\S\ref{ss:rootfinding}), and conclude with an overview of the
+  mathematical aspects of sensitivity analysis, both forward (\S\ref{ss:fwd_sensi})
+  and adjoint (\S\ref{ss:adj_sensi}).
 \item
   The following chapter describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\cvodes}
@@ -341,6 +342,6 @@ Finally, the reader should be aware of the following notational conventions
 in this user guide:  Program listings and identifiers (such as \id{CVodeInit}) 
 within textual explanations appear in typewriter type style; 
 fields in {\C} structures (such as {\em content}) appear in italics;
-and packages or modules, such as {\cvdense}, are written in all capitals. 
-In the Index, page numbers that appear in bold indicate the main reference
-for that entry.
+and packages or modules, such as {\cvdense}, are written in all capitals.
+Usage and installation instructions that constitute important warnings
+are marked with a triangular symbol {\warn} in the margin.
