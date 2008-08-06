@@ -1397,7 +1397,7 @@ flag = IDASetMaxOrd(ida\_mem, maxord);
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDA\_ILL\_INPUT}]
-    The specified value \id{maxord} is $<= 0$, or larger than 
+    The input value \id{maxord} is $\leq 0$, or larger than 
     its previous value.
   \end{args}
 }
@@ -1423,7 +1423,7 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[mxsteps] (\id{long int})
-    maximum allowed number of steps ($> 0$).
+    maximum allowed number of steps.
   \end{args}
 }
 {
@@ -1433,12 +1433,12 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
     The optional value has been successfully set.
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}]
-    Parameter \id{mxsteps} is non-positive.
   \end{args}
 }
 {
   Passing \id{mxsteps} $= 0$ results in {\idas} using the default value ($500$).
+
+  Passing \id{mxsteps} $< 0$ disables the test (\it{not recommended}).
 }
 %%
 %%
