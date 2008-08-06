@@ -325,8 +325,8 @@ skipped for a casual use of {\ida}. In any case, refer to
 On an error, each user-callable function returns a negative value and
 sends an error message to the error handler routine, which prints the
 message on \id{stderr} by default. However, the user can set a file
-as error output or can provide his own error handler function ( see
-\S\ref{sss:optin_main} ).
+as error output or can provide his own error handler function (see
+\S\ref{sss:optin_main}).
 
 \subsection{IDA initialization and deallocation functions}
 \label{sss:idainit}
@@ -599,11 +599,11 @@ be changed to zero or a tiny positive number in a temporary variable
 (not in the input \id{yy} vector) for the purposes of computing $F(t,y,\dot{y})$.
 
 (4) {\ida} provides the option of enforcing positivity or non-negativity
-on components.  But these constraint options should only be exercised if
-the use of absolute tolerances to control the computed values is
-unsuccessful, because they involve some extra overhead cost.
-
-
+on components.  Also, such constraints can be enforced by use of the
+recoverable error return feature in the user-supplied residual function.
+However, because these options involve some extra overhead cost, they
+should only be exercised if the use of absolute tolerances to control
+the computed values is unsuccessful.
 %%
 %%==================================================================================
 %%
@@ -1397,7 +1397,7 @@ flag = IDASetMaxOrd(ida\_mem, maxord);
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDA\_ILL\_INPUT}]
-    The specified value \id{maxord} is $<= 0$, or larger than 
+    The input value \id{maxord} is $\leq 0$, or larger than 
     its previous value.
   \end{args}
 }
@@ -1423,7 +1423,7 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[mxsteps] (\id{long int})
-    maximum allowed number of steps ($>0$).
+    maximum allowed number of steps.
   \end{args}
 }
 {
@@ -1433,12 +1433,12 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
     The optional value has been successfully set.
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}]
-    Parameter \id{mxsteps} is non-positive.
   \end{args}
 }
 {
-  Passing \id{mxsteps}$=0$ results in {\ida} using the default value ($500$).
+  Passing \id{mxsteps} $= 0$ results in {\ida} using the default value ($500$).
+
+  Passing \id{mxsteps} $< 0$ disables the test (\it{not recommended}).
 }
 %%
 %%
@@ -2494,7 +2494,7 @@ flag = IDASetNoInactiveRootWarn(ida\_mem);
   {\ida} will not report the initial conditions as a possible zero-crossing
   (assuming that one or more components $g_i$ are zero at the initial time).
   However, if it appears that some $g_i$ is identically zero at the initial
-  time (i.e., $g_i$ is zero at the iniital time and after the first step),
+  time (i.e., $g_i$ is zero at the initial time and after the first step),
   {\ida} will issue a warning which can be disabled with this optional input 
   function.
 }
@@ -3552,7 +3552,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 %%
 \ucfunction{IDADlsGetLastFlag}
 {
-  flag = IDADlsGetLastFlag(ida\_mem, \&flag);
+  flag = IDADlsGetLastFlag(ida\_mem, \&lsflag);
 }
 {
   The function \ID{IDADlsGetLastFlag} returns the
@@ -3562,7 +3562,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[flag] (\id{int})
+  \item[lsflag] (\id{int})
     the value of the last return flag from an {\idadls} function.
   \end{args}
 }
@@ -3579,26 +3579,26 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   If the {\idadense} setup function failed (i.e., \id{IDASolve} returned
-  \id{IDA\_LSETUP\_FAIL}), the value \id{flag} is equal to the column index
+  \id{IDA\_LSETUP\_FAIL}), the value \id{lsflag} is equal to the column index
   (numbered from one) at which a zero diagonal element was encountered during
   the LU factorization of the (dense or band) Jacobian matrix.
-  For all other failures, the value of \id{flag} is negative.
+  For all other failures, the value of \id{lsflag} is negative.
 }
 %%
 \ucfunction{IDADlsGetReturnFlagName}
 {
-  name = IDADlsGetReturnFlagName(flag);
+  name = IDADlsGetReturnFlagName(lsflag);
 }
 {
   The function \ID{IDADlsGetReturnFlagName} returns the
-  name of the {\idadls} constant corresponding to \id{flag}.
+  name of the {\idadls} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{int} is a return flag from an {\idadls} function.
+  The only argument, of type \id{int}, is a return flag from an {\idadls} function.
 }
 {
   The return value is a string containing the name of the corresponding
-  constant.  If $1 \leq $ \id{flag} $ \leq N$ (LU factorization failed), this
+  constant.  If $1 \leq $ \id{lsflag} $ \leq N$ (LU factorization failed), this
   function returns ``NONE''.
 }
 {}
@@ -3861,7 +3861,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 %%
 \ucfunction{IDASpilsGetLastFlag}
 {
-  flag = IDASpilsGetLastFlag(ida\_mem, \&flag);
+  flag = IDASpilsGetLastFlag(ida\_mem, \&lsflag);
 }
 {
   The function \ID{IDASpilsGetLastFlag} returns the
@@ -3871,7 +3871,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[flag] (\id{int})
+  \item[lsflag] (\id{int})
     the value of the last return flag from an {\idaspils} function.
   \end{args}
 }
@@ -3888,11 +3888,11 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   If the {\idaspils} setup function failed (\id{IDASolve} 
-  returned \id{IDA\_LSETUP\_FAIL}), \id{flag} will be \id{SPGMR\_PSET\_FAIL\_UNREC},
+  returned \id{IDA\_LSETUP\_FAIL}), \id{lsflag} will be \id{SPGMR\_PSET\_FAIL\_UNREC},
   \id{SPBCG\_PSET\_FAIL\_UNREC}, or \id{SPTFQMR\_PSET\_FAIL\_UNREC}.
 
   If the {\idaspgmr} solve function failed (\id{IDASolve} returned 
-  \id{IDA\_LSOLVE\_FAIL}), \id{flag} contains the error return flag from
+  \id{IDA\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
   \id{SpgmrSolve} and will be one of:
   \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
   \id{SPGMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
@@ -3904,7 +3904,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   be singular during the QR solve phase.
 
   If the {\idaspbcg} solve function failed (\id{IDASolve} returned 
-  \id{IDA\_LSOLVE\_FAIL}), \id{flag} contains the error return flag from
+  \id{IDA\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
   \id{SpbcgSolve} and will be one of:
   \id{SPBCG\_MEM\_NULL}, indicating that the {\spbcg} memory is \id{NULL};
   \id{SPBCG\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
@@ -3913,7 +3913,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   function \id{psolve} failed unrecoverably.
 
   If the {\idasptfqmr} solve function failed (\id{IDASolve} returned 
-  \id{IDA\_LSOLVE\_FAIL}), \id{flag} contains the error flag from
+  \id{IDA\_LSOLVE\_FAIL}), \id{lsflag} contains the error flag from
   \id{SptfqmrSolve} and will be one of:
   \id{SPTFQMR\_MEM\_NULL}, indicating that the {\sptfqmr} memory is \id{NULL};
   \id{SPTFQMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in 
@@ -3926,14 +3926,14 @@ the name of an optional output from the main solver, a suffix \id{LS}
 %%
 \ucfunction{IDASpilsGetReturnFlagName}
 {
-  name = IDASpilsGetReturnFlagName(flag);
+  name = IDASpilsGetReturnFlagName(lsflag);
 }
 {
   The function \ID{IDASpilsGetReturnFlagName} returns the
-  name of the {\idaspils} constant corresponding to \id{flag}.
+  name of the {\idaspils} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{int} is a return flag from an {\idaspils} function.
+  The only argument, of type \id{int}, is a return flag from an {\idaspils} function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
@@ -4053,11 +4053,17 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
   An \id{IDAResFn} function type should return a value of $0$ if successful, 
   a positive value if a recoverable error occurred (e.g. \id{yy} has an illegal
   value), or a negative value if a nonrecoverable error occurred. 
-
-  In the latter case, the integrator halts. 
+  In the last case, the integrator halts. 
   If a recoverable error occurred, the integrator will attempt to correct and retry.
 }
 {
+  A recoverable failure error return from the \id{IDAResFn} is typically used to
+  flag a value of the dependent variable \id{y} that is ``illegal'' in
+  some way (e.g., negative where only a non-negative value is physically
+  meaningful).  If such a return is made, {\ida} will attempt to recover
+  (possibly repeating the Newton iteration, or reducing the step size)
+  in order to avoid this recoverable error return.
+
   Allocation of memory for \id{yp} is handled within {\ida}.
 }
 %%
