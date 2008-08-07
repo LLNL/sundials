@@ -1443,14 +1443,11 @@ of type \ID{IDASensResFn} defined by:
   \Id{IDA\_SRES\_FAIL} is returned).
 }
 {
-  There are two situations in which recovery is not possible even if \id{IDASensResFn}
-  function returns a recoverable error flag.  One is when this
-  occurs at the very first call to the \id{IDASensResFn} (in which case {\idas} returns
-  \Id{IDA\_FIRST\_SRHSFUNC\_ERR}).  The other is when a recoverable error is reported
-  by \id{IDASensResFn} after an error test failure, while the linear multistep method order
-  is equal to 1 (in which case {\idas} returns \Id{IDA\_UNREC\_SRHSFUNC\_ERR}).
+  There is one situation in which recovery is not possible even if
+  \id{IDASensResFn} function returns a recoverable error flag.  That is
+  when this occurs at the very first call to the \id{IDASensResFn}, in
+  which case {\idas} returns \Id{IDA\_FIRST\_RES\_FAIL}.
 }
-
 
 %%
 %%===================================================================================
@@ -2310,13 +2307,10 @@ This user function must be of type \Id{IDAQuadSensRhsFn}, defined as follows:
   implementations provided with {\idas} do not perform any consistency checks with respect 
   to their \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
 
-  There are two situations in which recovery is not possible even if
-  \id{IDAQuadSensRhsFn} function returns a recoverable error flag.  One is when
-  this occurs at the very first call to the \id{IDAQuadSensRhsFn} (in which case
-  {\idas} returns \Id{IDA\_FIRST\_QRHS\_ERR}).  The other is when a recoverable
-  error is reported by \id{IDAQuadSensRhsFn} after an error test failure, while the
-  linear multistep method order is equal to 1 (in which case {\idas} returns
-  \Id{IDA\_UNREC\_QRHSFUNC\_ERR}).
+  There is one situation in which recovery is not possible even if
+  \id{IDAQuadSensRhsFn} function returns a recoverable error flag.  That is when
+  this occurs at the very first call to the \id{IDAQuadSensRhsFn}, in which case
+  {\idas} returns \Id{IDA\_FIRST\_QRHS\_ERR}).
 }
 
 
