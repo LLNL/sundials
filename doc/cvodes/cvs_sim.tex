@@ -30,7 +30,7 @@ separately in Appendix \ref{c:constants}.
 %%==============================================================================
 
 At this point, it is assumed that the installation of {\cvodes},
-following the procedure described in Chapter \ref{c:install}, has
+following the procedure described in Appendix \ref{c:install}, has
 been completed successfully.
 
 Regardless of where the user's application program resides, its
@@ -49,8 +49,8 @@ the subdirectories
 \item {\em incdir}\id{/include/sundials}
 \item {\em incdir}\id{/include/nvector}
 \end{itemize}
-The directories {\em libdir} and {\em incdir} are the install libray and include
-directories. For a default installation, these are {\em instdir}\id{/lib} and
+The directories {\em libdir} and {\em incdir} are the install library and include
+directories, resp.  For a default installation, these are {\em instdir}\id{/lib} and
 {\em instdir}\id{/include}, respectively, where {\em instdir} is the directory
 where {\sundials} was installed (see Appendix \ref{c:install}).
 
@@ -125,10 +125,12 @@ with {\cvodes} are:
   which is used with the scaled, preconditioned TFQMR Krylov solver {\sptfqmr};
 \end{itemize}
 
-The header files for the dense and banded linear solvers (both internal and Lapack) include 
-\id{cvodes\_direct.h} which defines common functions and which in turn includes a header file
-(\id{sundials\_direct.h}) which defines the matrix type for these direct linear solvers
-(\id{DlsMat}), as well as various functions and macros acting on such matrices.
+The header files for the dense and banded linear solvers (both
+internal and Lapack) include the file \id{cvodes\_direct.h}, which
+defines common functions.  This in turn includes a file
+(\id{sundials\_direct.h}) which defines the matrix type for these
+direct linear solvers (\id{DlsMat}), as well as various functions and
+macros acting on such matrices.
 
 The header files for the Krylov iterative solvers include \id{cvodes\_spils.h}
 which defines common functions and which in turn includes a header file (\id{sundials\_iterative.h})
@@ -143,8 +145,8 @@ The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP. Some steps are independent
 of the {\nvector} implementation used; where this is not the case,
 usage specifications are given for the two implementations provided
-with {\cvodes}: steps marked with {\p} correspond to {\nvecp}, while
-steps marked with {\s} correspond to {\nvecs}.
+with {\cvodes}: steps marked {\p} correspond to {\nvecp}, while
+steps marked {\s} correspond to {\nvecs}.
 \index{User main program!IVP solution}
 \begin{Steps}
   
@@ -168,8 +170,8 @@ steps marked with {\s} correspond to {\nvecs}.
 \item
   {\bf Set vector of initial values}
  
-  To set the vector \id{y0} of initial values, use the appropriate functions defined by a
-  particular {\nvector} implementation.  If a \id{realtype} array \id{ydata}
+  To set the vector \id{y0} of initial values, use the appropriate functions defined
+  by the particular {\nvector} implementation.  If a \id{realtype} array \id{ydata}
   containing the initial values of $y$ already exists, then make the call:
 
   {\s} \id{y0 = N\_VMake\_Serial(N, ydata);}
@@ -215,9 +217,9 @@ steps marked with {\s} correspond to {\nvecs}.
 \item
   {\bf Specify integration tolerances}
 
-  Call \id{CVodeSStolerances}\id{(...);} or \id{CVodeSVtolerances}\id{(...);}
-  to specify a scalar relative tolerance and scalar absolute tolerance or
-  scalar relative tolerance and a vector of absolute tolerances, respectively.
+  Call \id{CVodeSStolerances}\id{(...)} or \id{CVodeSVtolerances}\id{(...)}
+  to specify either a scalar relative tolerance and scalar absolute tolerance, or
+  a scalar relative tolerance and a vector of absolute tolerances, respectively.
   Alternatively, call \id{CVodeWFtolerances} to specify a function which sets 
   directly the weights used in evaluating WRMS vector norms.
   See \S\ref{sss:cvtolerances} for details.
@@ -264,14 +266,15 @@ steps marked with {\s} correspond to {\nvecs}.
 
   Optionally, call \id{CVodeRootInit} to initialize a rootfinding problem
   to be solved during the integration of the ODE system.
-  See \S\ref{ss:cvrootinit} for details.
+  See \S\ref{ss:cvrootinit}, and see \S\ref{sss:optin_root} for
+  relevant optional input calls.
 
 \item
   {\bf Advance solution in time}
 
   For each point at which output is desired, call
-  \id{ier = }\Id{CVode}\id{(cvode\_mem, tout, yout, \&tret, itask);}
-  Set \Id{itask} to specify the return mode.
+  \id{ier = }\Id{CVode}\id{(cvode\_mem, tout, yout, \&tret, itask)}.
+  Here \Id{itask} specifies the return mode.
   The vector \id{y} (which can be the same as
   the vector \id{y0} above) will contain $y(t)$.
   See \S\ref{sss:cvode} for details.
@@ -316,6 +319,12 @@ optional inputs/outputs or restarting, and those paragraphs may be
 skipped for a casual use of {\cvodes}. In any case, refer to
 \S\ref{ss:skeleton_sim} for the correct order of these calls.
 
+On an error, each user-callable function returns a negative value and
+sends an error message to the error handler routine, which prints the
+message on \id{stderr} by default. However, the user can set a file
+as error output or can provide his own error handler function (see
+\S\ref{sss:optin_main}).
+
 %%==============================================================================
 \subsection{CVODES initialization and deallocation functions}
 \label{sss:cvodemalloc}
@@ -348,7 +357,7 @@ is to be called only after the IVP solution is complete, as it frees the
 }
 {
   If successful, \id{CVodeCreate} returns a pointer to the newly created 
-  {\cvodes} memory block (of type \id{void *}).
+  {\cvodes} memory block (of type \id{void *}).  Otherwise, it returns \id{NULL}.
 }
 {}
 %%
@@ -366,8 +375,9 @@ flag = CVodeInit(cvode\_mem, f, t0, y0);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[f] (\Id{CVRhsFn})
-    is the {\C} function which computes $f$ in the ODE. This function has the 
-    form \id{f(t, y, ydot, user\_data)} (for full details see \S\ref{ss:rhsFn}).
+    is the {\C} function which computes the right-hand side function $f$ in the ODE.
+    This function has the form \id{f(t, y, ydot, user\_data)} (for full details see
+    \S\ref{ss:rhsFn}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
@@ -400,7 +410,7 @@ flag = CVodeInit(cvode\_mem, f, t0, y0);
 }
 {
   The function \Id{CVodeFree} frees the memory allocated by
-  a previous call to \id{CVodeInit}.
+  a previous call to \id{CVodeCreate}.
 }
 {
   The argument is the pointer to the {\cvodes} memory block (of type \id{void *}).
@@ -415,8 +425,8 @@ flag = CVodeInit(cvode\_mem, f, t0, y0);
 \subsection{CVODES tolerance specification functions}\label{sss:cvtolerances}
 %%==============================================================================
 %%
-One of the following three functions must be called to specify the
-integration tolerances (or directly the weigths used in evaluating WRMS vector norms).
+One of the following three functions must be called to specify the integration
+tolerances (or directly specify the weights used in evaluating WRMS vector norms).
 Note that this call must be made after the call to \id{CVodeInit}.
 %%
 \ucfunction{CVodeSStolerances}
@@ -545,8 +555,8 @@ decays to zero, then pure relative error control on \id{y[i]} makes no sense
 (and is overly costly) after \id{y[i]} is below some noise level.  Then
 \id{abstol} (if scalar) or \id{abstol[i]} (if a vector) needs to be set to that
 noise level.  If the different components have different noise levels,
-then \id{abstol} should be a vector.  See the example \id{cvRoberts\_dns} in the
-{\cvode} package, and the discussion of it in the {\cvode} Examples document
+then \id{abstol} should be a vector.  See the example \id{cvsRoberts\_dns} in the
+{\cvodes} package, and the discussion of it in the {\cvode} Examples document
 \cite{cvode_ex}.
 In that problem, the three components vary betwen 0 and 1, and have
 different noise levels; hence the \id{abstol} vector.  It is impossible to
@@ -595,6 +605,12 @@ there is a square root or log of it), then the offending value should
 be changed to zero or a tiny positive number in a temporary variable
 (not in the input \id{y} vector) for the purposes of computing $f(t,y)$.
 
+(4) Positivity and non-negativity constraints on components can be
+enforced by use of the recoverable error return feature in the
+user-supplied right-hand side function.  However, because this option
+involves some extra overhead cost, it should only be exercised if the
+use of absolute tolerances to control the computed values is
+unsuccessful.
 
 %%
 %%==============================================================================
@@ -604,26 +620,24 @@ be changed to zero or a tiny positive number in a temporary variable
 As previously explained, Newton iteration requires the solution of
 linear systems of the form (\ref{e:Newton}).  There are six {\cvodes} linear
 solvers currently available for this task: {\cvdense}, {\cvband}, {\cvdiag},
-{\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}, with the first two providing
-a choice of either internal or Lapack implementations.
+{\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}.
 
-The first two are direct solvers and derive their
-name from the type of approximation used for the Jacobian 
-$J = \partial{f}/\partial{y}$;
+The first two linear solvers are direct and derive their names from the
+type of approximation used for the Jacobian $J = \partial{f}/\partial{y}$;
 {\cvdense} and {\cvband} work with dense and banded approximations to $J$,
 respectively. The {\sundials} suite includes both internal implementations of
 these two linear solvers and interfaces to Lapack implementations.
-Together, these linear solvers are refered to as {\cvdls} (from direct
-linear solvers).
+Together, these linear solvers are referred to as {\cvdls} (from Direct
+Linear Solvers).
 
 The {\cvdiag} linear solver is also a direct linear solver, but it
-only uses a diagonal approximatin to $J$.
+only uses a diagonal approximation to $J$.
 
 The last three {\cvodes} linear solvers, {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr},
 are Krylov iterative solvers, which use scaled preconditioned GMRES, scaled
 preconditioned Bi-CGStab, and scaled preconditioned TFQMR, respectively.
-Together, they are refered to as {\cvspils} (from scaled preconditioned 
-iterative linear solvers).
+Together, they are referred to as {\cvspils} (from Scaled Preconditioned 
+Iterative Linear Solvers).
 
 With any of the Krylov methods, preconditioning can be done on the left only, 
 on the right only, on both the left and the right, or not at all. 
@@ -695,7 +709,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \end{args}
 }
 {
-  The {\cvdense} linear solver may not be compatible with a particular
+  The {\cvdense} linear solver may not be compatible with the particular
   implementation of the {\nvector} module. 
   Of the two {\nvector} modules provided with {\sundials}, only {\nvecs} is 
   compatible.
@@ -764,7 +778,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \end{args}
 }
 {
-  The {\cvband} linear solver may not be compatible with a particular
+  The {\cvband} linear solver may not be compatible with the particular
   implementation of the {\nvector} module. Of the two {\nvector} modules 
   provided with {\sundials}, only {\nvecs} is compatible.
   The half-bandwidths are to be set such that the nonzero locations $(i,j)$ in the
@@ -1008,7 +1022,7 @@ algorithm, call the following function:
   \item[CV\_MEM\_FAIL]
     A memory allocation failed.
   \item[CV\_ILL\_INPUT]
-    The function \id{g} is \id{NULL}, but \id{nrtfn}$>0$.
+    The function \id{g} is \id{NULL}, but \id{nrtfn} $ > 0$.
   \end{args}
 }
 {
@@ -1022,8 +1036,12 @@ algorithm, call the following function:
 \subsection{CVODE solver function}\label{sss:cvode}
 %%==============================================================================
 
-This is the central step in the solution process - the call to
-perform the integration of the IVP.
+This is the central step in the solution process --- the call to
+perform the integration of the IVP.  One of the input arguments (\id{itask})
+specifies one of two modes as to where {\cvodes} is to return a solution.
+But these modes are modified if the user has set a stop time (with
+\id{CVodeSetStopTime}) or requested rootfinding.
+
 %
 \ucfunction{CVode}
 {
@@ -1055,7 +1073,7 @@ perform the integration of the IVP.
   \end{args}
 }
 {
-  On return, \id{CVode} returns a vector \id{yout} and a corresponding 
+  \id{CVode} returns a vector \id{yout} and a corresponding 
   independent variable value $t=$\id{*tret}, such that \id{yout} is the computed 
   value of $y(t)$.
 
@@ -1076,12 +1094,12 @@ perform the integration of the IVP.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} argument was \id{NULL}.
   \item[\Id{CV\_NO\_MALLOC}]
-    The {\cvodes} memory was not allocated by a call to \id{CVodeMalloc}.
+    The {\cvodes} memory was not allocated by a call to \id{CVodeInit}.
   \item[\Id{CV\_ILL\_INPUT}]
     One of the inputs to \id{CVode} is illegal. This includes the situation where
     a root of one of the root functions was found both at a point $t$ and also
     very near $t$.  It also includes the situation 
-    where a component of the error weight vector becomes negative during internal 
+    where a component of the error weight vector becomes zero during internal 
     time-stepping. The \id{CV\_ILL\_INPUT} flag will also be returned if the linear 
     solver initialization function (called by the user after calling 
     \id{CVodeCreate}) failed to set the linear solver-specific \id{lsolve} field
@@ -1091,7 +1109,7 @@ perform the integration of the IVP.
     The initial time $t_0$ and the final time $t_{out}$ are too close to each 
     other and the user did not specify an initial step size.
   \item[\Id{CV\_TOO\_MUCH\_WORK}] 
-    The solver took \id{mxstep} internal steps but still could not reach tout. 
+    The solver took \id{mxstep} internal steps but still could not reach \id{tout}. 
     The default value for \id{mxstep} is \id{MXSTEP\_DEFAULT = 500}.
   \item[\Id{CV\_TOO\_MUCH\_ACC}] 
     The solver could not satisfy the accuracy demanded by the user for some 
@@ -1113,8 +1131,8 @@ perform the integration of the IVP.
   \item[\Id{CV\_FIRST\_RHSFUNC\_FAIL}] 
     The right-hand side function had a recoverable error at the first call.
   \item[\Id{CV\_REPTD\_RHSFUNC\_ERR}]
-    Convergence tests occurred too many times due to repeated recoverable errors in
-    the right-hand side function. The \id{CV\_REPTD\_RHSFUNC\_ERR} will also
+    Convergence test failures occurred too many times due to repeated recoverable errors in
+    the right-hand side function. This flag will also
     be returned if the right-hand side function had repeated recoverable errors
     during the estimation of an initial step size.
   \item[\Id{CV\_UNREC\_RHSFUNC\_ERR}]
@@ -1126,11 +1144,11 @@ perform the integration of the IVP.
   \end{args} 
 }
 {
-  The vector \id{yout} can occupy the same space as the \id{y0} vector of 
-  initial conditions that was passed to \id{CVodeMalloc}. 
+  The vector \id{yout} can occupy the same space as the vector \id{y0} of 
+  initial conditions that was passed to \id{CVodeInit}. 
 
-  In the \id{CV\_ONE\_STEP} mode, \id{tout} is only used on the first call
-  to get the direction and a rough scale of the independent variable.
+  In the \id{CV\_ONE\_STEP} mode, \id{tout} is used only on the first call,
+  and only to get the direction and a rough scale of the independent variable.
 
   All failure return values are negative and so the test \id{ier < 0}
   will trap all \id{CVode} failures.
@@ -1147,16 +1165,16 @@ perform the integration of the IVP.
 \subsection{Optional input functions}\label{ss:optional_input}
 %%==============================================================================
 
-{\cvodes} provides an extensive set of functions that can be used to change
-from their default values various optional input parameters that control the
-behavior of the {\cvodes} solver. 
+There are numerous optional input parameters that control the behavior
+of the {\cvodes} solver.  {\cvodes} provides functions that can be used to change
+these optional input parameters from their default values. 
 Table \ref{t:optional_input} lists all optional input functions in {\cvodes} which 
 are then described in detail in the remainder of this section, begining with those
 for the main {\cvodes} solver and continuing with those for the linear solver
 modules. Note that the diagonal linear solver module has no optional inputs.
 For the most casual use of {\cvodes}, the reader can skip to \S\ref{ss:user_fct_sim}.
 
-We note that, on error return, all of the optional input functions send an
+We note that, on an error return, all of the optional input functions send an
 error message to the error handler function. \index{error messages}
 We also note that all error return values are negative, so the test \id{flag < 0}
 will catch all errors.
@@ -1171,8 +1189,8 @@ will catch all errors.
 \hline
 \multicolumn{3}{|c|}{\bf CVODES main solver} \\
 \hline
-Error handler function & \id{CVodeSetErrHandlerFn} & internal fn. \\
 Pointer to an error file & \id{CVodeSetErrFile} & \id{stderr}  \\
+Error handler function & \id{CVodeSetErrHandlerFn} & internal fn. \\
 User data & \id{CVodeSetUserData} & {\tt NULL} \\
 Maximum order for BDF method & \id{CVodeSetMaxOrd} & 5 \\
 Maximum order for Adams method & \id{CVodeSetMaxOrd} & 12  \\
@@ -1216,10 +1234,49 @@ Maximum Krylov subspace size${}^{(b)}$ & \id{CVSpilsSetMaxl} & 5 \\
 %%==============================================================================
 \index{optional input!solver|(}
 
-The calls listed here can be executed in any order. \\
-However, if \id{CVodeSetErrHandlerFn}
-or \id{CVodeSetErrFile} are to be called, that call should be first, in order to take 
-effect for any later error message.
+The calls listed here can be executed in any order.
+However, if either of the functions \id{CVodeSetErrFile} or
+\id{CVodeSetErrHandlerFn} is to be called, that call should be first,
+in order to take effect for any later error message.
+
+%%
+\index{error messages!redirecting}
+\ucfunction{CVodeSetErrFile}
+{
+flag = CVodeSetErrFile(cvode\_mem, errfp);
+}
+{
+  The function \Id{CVodeSetErrFile} specifies a pointer to the file
+  where all {\cvodes} messages should be directed when the default
+  {\cvodes} error handler function is used.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[errfp] (\id{FILE *})
+    pointer to output file.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The default value for \id{errfp} is \id{stderr}. 
+
+  Passing a value of \id{NULL} disables all future error message output
+  (except for the case in which the {\cvodes} memory pointer is \id{NULL}).
+  This use of \Id{CVodeSetErrFile} is strongly discouraged.
+
+  {\warn}If \id{CVodeSetErrFile} is to be called, it should be called before any
+  other optional input functions, in order to take effect for any later error message.
+}
 %%
 \index{error messages!user-defined handler}
 \ucfunction{CVodeSetErrHandlerFn}
@@ -1250,48 +1307,8 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
   \end{args}
 }
 {
-  The default internal error handler function directs error messages to the
-  file specified by the file pointer \id{errfp} (see \id{CVodeSetErrFile} below).
-
   Error messages indicating that the {\cvodes} solver memory is \id{NULL} will 
   always be directed to \id{stderr}.
-}
-%%
-\index{error messages!redirecting}
-\ucfunction{CVodeSetErrFile}
-{
-flag = CVodeSetErrFile(cvode\_mem, errfp);
-}
-{
-  The function \Id{CVodeSetErrFile} specifies a pointer to the file
-  where all {\cvodes} messages should be directed in case the default
-  {\cvodes} error handler function is used.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[errfp] (\id{FILE *})
-    pointer to output file.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CV\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{
-  The default value for \id{errfp} is \id{stderr}. 
-
-  Passing a value of \id{NULL} disables all future error message output
-  (except for the case in which the {\cvodes} memory pointer is \id{NULL}).
-
-  {\warn}If \id{CVodeSetErrFile} is to be called, it should be called before any
-  other optional input functions, in order to take effect for any later error message.
 }
 %%
 %%
@@ -1339,7 +1356,7 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[maxord] (\id{int})
-    value of the maximum method order.
+    value of the maximum method order.  This must be positive.
   \end{args}
 }
 {
@@ -1350,7 +1367,7 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CV\_ILL\_INPUT}]
-    The specified value \id{maxord} is negative or larger than 
+    The specified value \id{maxord} is $\leq 0$, or larger than 
     its previous value.
   \end{args}
 }
@@ -1361,6 +1378,8 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
   Since \Id{maxord} affects the memory requirements
   for the internal {\cvodes} memory block, its value
   cannot be increased past its previous value.
+
+  An input value greater than the default will result in the default value.
 }
 %%
 %%
@@ -1388,12 +1407,12 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
     The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CV\_ILL\_INPUT}]
-    \id{mxsteps} is non-positive.
   \end{args}
 }
 {
-   Passing \id{mxsteps}$=0$ results in {\cvodes} using the default value ($500$).
+   Passing \id{mxsteps} $= 0$ results in {\cvodes} using the default value ($500$).
+
+   Passing \id{mxsteps} $< 0$ disables the test (\it{not recommended}).
 }
 %%
 %%
@@ -1410,7 +1429,7 @@ flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[mxhnil] (\id{int})
-    maximum number of warning messages
+    maximum number of warning messages $( > 0)$.
   \end{args}
 }
 {
@@ -1477,7 +1496,8 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[hin] (\id{realtype})
-    value of the initial step size.
+    value of the initial step size to be attempted.
+    Pass $0.0$ to use the default value.
   \end{args}
 }
 {
@@ -1510,7 +1530,7 @@ flag = CVodeSetMinStep(cvode\_mem, hmin);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[hmin] (\id{realtype})
-    minimum absolute value of the step size.
+    minimum absolute value of the step size $( \geq 0.0 )$.
   \end{args}
 }
 {
@@ -1542,7 +1562,7 @@ flag = CVodeSetMaxStep(cvode\_mem, hmax);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[hmax] (\id{realtype})
-    maximum absolute value of the step size.
+    maximum absolute value of the step size $( \geq 0.0 )$.
   \end{args}
 }
 {
@@ -1557,7 +1577,7 @@ flag = CVodeSetMaxStep(cvode\_mem, hmax);
   \end{args}
 }
 {
-  Pass \id{hmax}$=0$ to obtain the default value $\infty$.
+  Pass \id{hmax} $ = 0.0$ to obtain the default value $\infty$.
 }
 \index{step size bounds|)}
 %%
@@ -1586,6 +1606,8 @@ flag = CVodeSetStopTime(cvode\_mem, tstop);
     The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_ILL\_INPUT}] 
+    The value of \id{tstop} is beyond the current $t$ value, $t_n$.
   \end{args}
 }
 {
@@ -1606,7 +1628,7 @@ flag = CVodeSetMaxErrTestFails(cvode\_mem, maxnef);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[maxnef] (\id{int})
-    maximum number of error test failures allowed on one step.
+    maximum number of error test failures allowed on one step $( > 0)$.
   \end{args}
 }
 {
@@ -1636,7 +1658,7 @@ flag = CVodeSetMaxNonlinIters(cvode\_mem, maxcor);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[maxcor] (\id{int})
-    maximum number of nonlinear solver iterations allowed per step.
+    maximum number of nonlinear solver iterations allowed per step $( > 0)$.
   \end{args}
 }
 {
@@ -1668,7 +1690,7 @@ flag = CVodeSetMaxConvFails(cvode\_mem, maxncf);
     pointer to the {\cvodes} memory block.
   \item[maxncf] (\id{int})
     maximum number of allowable nonlinear solver convergence failures
-    per step.
+    per step $( > 0)$.
   \end{args}
 }
 {
@@ -1698,7 +1720,7 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[nlscoef] (\id{realtype})
-    coefficient in nonlinear convergence test.
+    coefficient in nonlinear convergence test $( > 0.0)$.
   \end{args}
 }
 {
@@ -1768,7 +1790,7 @@ that comes with the {\cvdense} solver.
 To specify a user-supplied Jacobian function \id{djac}, {\cvdense} provides 
 the function \id{CVDlsSetDenseJacFn}.
 The {\cvdense} solver passes the pointer \id{user\_data} 
-to its dense Jacobian function. This allows the user to
+to the dense Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  
@@ -1821,7 +1843,7 @@ that comes with the {\cvband} solver.
 To specify a user-supplied Jacobian function \id{bjac}, 
 {\cvband} provides the function \id{CVDlsSetBandJacFn}.
 The {\cvband} solver passes the pointer \id{user\_data}
-to its banded Jacobian approximation function. This allows the user to
+to the banded Jacobian approximation function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  
@@ -1931,6 +1953,7 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
     pointer to the {\cvodes} memory block.
   \item[psetup] (\id{CVSpilsPrecSetupFn})
     user-defined preconditioner setup function.
+    Pass \id{NULL} if no setup is to be done.
   \item[psolve] (\id{CVSpilsPrecSolveFn})
     user-defined preconditioner solve function.
   \end{args}
@@ -1939,7 +1962,7 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVSPILS\_LMEM\_NULL]
   \item[\Id{CVSPILS\_SUCCESS}] 
-    The optional value has been successfully set.
+    The optional values have been successfully set.
   \item[\Id{CVSPILS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
@@ -2058,7 +2081,7 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
     The {\cvspils} linear solver has not been initialized.
   \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The Gram-Schmidt orthogonalization type \id{gstype} is not valid.
+    The value of \id{gstype} is not valid.
   \end{args}
 }
 {
@@ -2081,7 +2104,7 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[delt] (\id{realtype})
+  \item[delt] (\id{realtype}) linear convergence safety factor $( > 0.0)$.
 
   \end{args}
 }
@@ -2125,11 +2148,13 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVSPILS\_LMEM\_NULL]
   \item[\Id{CVSPILS\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVSPILS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
     The {\cvspils} linear solver has not been initialized.
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
+    The current linear solver is SPGMR.  
   \end{args}
 }
 {
@@ -2137,6 +2162,8 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   to the linear solver specification function (see \S\ref{sss:lin_solv_init}). 
   This function call is needed only if \id{maxl} is being changed from its 
   previous value.
+
+  An input value \id{maxl} $\leq 0$ will result in the default value, 5.
 
   {\warn}This option is available only for the {\cvspbcg} and {\cvsptfqmr} linear solvers.
 }
@@ -2159,7 +2186,7 @@ flag = CVodeSetRootDirection(cvode\_mem, rootdir);
 }
 {
   The function \ID{CVodeSetRootDirection} specifies the direction of
-  zero-crossings to be monitored.
+  zero-crossings to be located and returned.
 }
 {
   \begin{args}[cvode\_mem]
@@ -2167,17 +2194,17 @@ flag = CVodeSetRootDirection(cvode\_mem, rootdir);
     pointer to the {\cvodes} memory block.
   \item[rootdir] (\id{int *})
     state array of length \id{nrtfn}, the number of root functions $g_i$, as specified
-    in the call to the function \id{CVodeRootInit}. A value of of $0$ indicates that
-    crossing in either direction should be reported. A value of $+1$ or $-1$ indicates 
-    that the solver should report only zero-crossings where the corresponding $g_i$ is
-    increasing or decreasing, respectively. 
+    in the call to the function \id{CVodeRootInit}.  A value of $0$ for
+    \id{rootdir[i]} indicates that crossing in either direction for $g_i$ 
+    should be reported.  A value of $+1$ or $-1$ indicates that the solver should
+    report only zero-crossings where $g_i$ is increasing or decreasing, respectively. 
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CV\_ILL\_INPUT}]
@@ -2207,7 +2234,7 @@ flag = CVodeSetNoInactiveRootWarn(cvode\_mem);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CV\_MEM\_NULL]
   \item[\Id{CV\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2216,7 +2243,7 @@ flag = CVodeSetNoInactiveRootWarn(cvode\_mem);
   {\cvodes} will not report the initial conditions as a possible zero-crossing
   (assuming that one or more components $g_i$ are zero at the initial time).
   However, if it appears that some $g_i$ is identically zero at the initial
-  time (i.e., $g_i$ is zero at the iniital time and after the first step),
+  time (i.e., $g_i$ is zero at the initial time and after the first step),
   {\cvodes} will issue a warning which can be disabled with this optional input 
   function.
 }
@@ -2245,7 +2272,8 @@ The call to the \id{CVodeGetDky} function has the following form:
   \id{y} at time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$
   \id{t} $\le t_n$, $t_n$ denotes the current internal time reached, and $h_u$
   is the  last internal step size successfully used by the solver.  The 
-  user may request \id{k} $= 0, 1, ..., q_u$, where $q_u$ is the current order. 
+  user may request \id{k} $= 0, 1, \ldots, q_u$, where $q_u$ is the current order
+  (optional output \id{qlast}).
 }
 {
   \begin{args}[cvode\_mem]
@@ -2265,7 +2293,7 @@ The call to the \id{CVodeGetDky} function has the following form:
   \item[\Id{CV\_SUCCESS}]
     \id{CVodeGetDky} succeeded.
   \item[\Id{CV\_BAD\_K}] 
-    \id{k} is not in the range $0, 1, ..., q_u$.
+    \id{k} is not in the range $0, 1, \ldots, q_u$.
   \item[\Id{CV\_BAD\_T}] 
     \id{t} is not in the interval $[t_n - h_u , t_n]$.
   \item[\Id{CV\_BAD\_DKY}] 
@@ -2290,6 +2318,25 @@ The call to the \id{CVodeGetDky} function has the following form:
 solver performance information.
 Table \ref{t:optional_output} lists all optional output functions in {\cvodes},
 which are then described in detail in the remainder of this section.
+
+Some of the optional outputs, especially the various counters, can be
+very useful in determining how successful the {\cvodes} solver is in
+doing its job.  For example, the counters \id{nsteps} and \id{nfevals}
+provide a rough measure of the overall cost of a given run, and can be
+compared among runs with differing input options to suggest which set
+of options is most efficient.  The ratio \id{nniters/nsteps} measures
+the performance of the Newton iteration in solving the nonlinear
+systems at each time step; typical values for this range from 1.1 to
+1.8.  The ratio \id{njevals/nniters} (in the case of a direct linear
+solver), and the ratio \id{npevals/nniters} (in the case of an
+iterative linear solver) measure the overall degree of nonlinearity
+in these systems, and also the quality of the approximate Jacobian or
+preconditioner being used.  Thus, for example, \id{njevals/nniters}
+can indicate if a user-supplied Jacobian is inaccurate, if this ratio
+is larger than for the case of the corresponding internal Jacobian.
+The ratio \id{nliters/nniters} measures the performance of the Krylov
+iterative linear solver, and thus (indirectly) the quality of the
+preconditioner.
 
 \vspace*{.2in}
 
@@ -2415,7 +2462,7 @@ These optional output functions are described next.
   given by the following:
   \begin{itemize}
   \item base value: \id{lenrw} $= 96 + ($\id{maxord+5}$)*N_r + 3*$\id{nrtfn};
-  \item if \id{itol = CV\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N_r$;
+  \item using \id{CVodeSVtolerances}: \id{lenrw} $=$ \id{lenrw} $+ N_r$;
   \end{itemize}
   where $N_r$ is the number of real words in one \id{N\_Vector} ($\approx N$).
 
@@ -2423,13 +2470,13 @@ These optional output functions are described next.
   and \id{long int} words) is given by:
   \begin{itemize}
   \item base value: \id{leniw} $= 40 + ($\id{maxord+5}$)*N_i ~ + ~ $\id{nrtfn};  
-  \item if \id{itol = CV\_SV}: \id{leniw} $=$ \id{leniw} $+ N_i$;
+  \item using \id{CVodeSVtolerances}: \id{leniw} $=$ \id{leniw} $+ N_i$;
   \end{itemize}
   where $N_i$ is the number of integer words in one \id{N\_Vector}
   (= 1 for {\nvecs} and 2*\id{npes} for {\nvecp} and \id{npes} processors).
 
-  For the default value of \id{maxord}, with no rootfinding, and with
-  \id{itol} $\neq$ \id{CV\_SV}, these lengths are given roughly by:
+  For the default value of \id{maxord}, no rootfinding, and without
+  using \id{CVodeSVtolerances}, these lengths are given roughly by:
   \begin{itemize}
   \item For the Adams method: \id{lenrw} $= 96 + 17N$ and \id{leniw} $= 57$ 
   \item For the BDF method: \id{lenrw} $= 96 + 10N$ and \id{leniw} $= 50$ 
@@ -2850,11 +2897,14 @@ These optional output functions are described next.
 {
   {\warn}The user must allocate memory for \id{ele}.
 
+  The values returned in \id{ele} are valid only if \id{CVode} returned
+  a non-negative value.
+
   The \id{ele} vector, togther with the \id{eweight} vector from
   \id{CVodeGetErrWeights}, can be used to determine how the various
   components of the system contributed to the estimated local error
   test.  Specifically, that error test uses the RMS norm of a vector
-  whose components are the products of the components of the two vectors.
+  whose components are the products of the components of these two vectors.
   Thus, for example, if there were recent error test failures, the components
   causing the failures are those with largest values for the products,
   denoted loosely as \id{eweight[i]*ele[i]}.
@@ -3036,10 +3086,9 @@ There are two optional output functions associated with rootfinding.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[rootsfound] (\id{int *})
-    an \id{int} array of length \id{nrtfn} showing the indices
-    of the user functions $g_i$ found to have a root.  For
-    $i=0,\ldots,$\id{nrtfn}$-1$, \id{rootsfound}[$i$]$\ne 0$ if $g_i$
-    has a root, and $0$ if not.
+    array of length \id{nrtfn} with the indices of the user functions $g_i$
+    found to have a root.  For $i=0,\ldots,$\id{nrtfn}$-1$,
+    \id{rootsfound}[$i$]$\ne 0$ if $g_i$ has a root, and $= 0$ if not.
   \end{args}
 }
 {
@@ -3099,6 +3148,9 @@ The following optional outputs are available from the {\cvdls} modules:
 workspace requirements, number of calls to the Jacobian routine, number of 
 calls to the right-hand side routine for finite-difference Jacobian approximation,
 and last return value from a {\cvdls} function.
+Note that, where the name of an output would otherwise conflict with
+the name of an optional output from the main solver, a suffix \id{LS}
+(for Linear Solver) has been added here (e.g. \id{lenrwLS}).
 %%
 %%
 \index{CVDENSE@{\cvdense} linear solver!memory requirements}
@@ -3139,7 +3191,7 @@ and last return value from a {\cvdls} function.
   the actual size of the real workspace is $2N^2$ \id{realtype} words, 
   and the actual size of the integer workspace is $N$ integer words.
   %%
-  For the {\cvband} linear solver, in terms of the problem size $N$ 
+  For the {\cvband} linear solver, in terms of $N$ 
   and Jacobian half-bandwidths, the actual size of the real workspace is
   $(2$ \id{mupper}$+ 3$ \id{mlower}$+ 2)\, N$ \id{realtype} words,
   and the actual size of the integer workspace is $N$ integer words.
@@ -3240,25 +3292,29 @@ and last return value from a {\cvdls} function.
 }
 {
   If the {\cvdense} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
-  then the value of \id{lsflag} corresponds to the column index (numbered from one)
-  of a diagonal element with value zero that was encountered during the LU
-  factorization of the dense Jacobian matrix.
+  then the value of \id{lsflag} is equal to the column index (numbered from one)
+  at which a zero diagonal element was encountered during the LU
+  factorization of the (dense or banded) Jacobian matrix.  For all other
+  failures, \id{lsflag} is negative.
 }
 %%
 %%
 \ucfunction{CVDlsGetReturnFlagName}
 {
-  name = CVDlsGetReturnFlagName(flag);
+  name = CVDlsGetReturnFlagName(lsflag);
 }
 {
   The function \ID{CVDlsGetReturnFlagName} returns the
-  name of the {\cvdls} constant corresponding to \id{flag}.
+  name of the {\cvdls} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{int} is a return flag from a {\cvdls} function.
+  The only argument, of type \id{int}, is a return flag from a {\cvdls} function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
+
+  If $1 \leq $ \id{lsflag} $ \leq N$ (LU factorization failed), this routine
+  returns ``NONE''.
 }
 {}
 \index{CVDENSE@{\cvdense} linear solver!optional output|)}
@@ -3276,6 +3332,9 @@ The following optional outputs are available from the {\cvdiag} module:
 workspace requirements, number of calls to the right-hand side routine for 
 finite-difference Jacobian approximation, and last return value from a 
 {\cvdiag} function.
+Note that, where the name of an output would otherwise conflict with
+the name of an optional output from the main solver, a suffix \id{LS}
+(for Linear Solver) has been added here (e.g.  \id{lenrwLS}).
 %%
 %%
 \index{CVDIAG@{\cvdiag} linear solver!memory requirements} 
@@ -3388,14 +3447,14 @@ finite-difference Jacobian approximation, and last return value from a
 %%
 \ucfunction{CVDiagGetReturnFlagName}
 {
-  name = CVDiagGetReturnFlagName(flag);
+  name = CVDiagGetReturnFlagName(lsflag);
 }
 {
   The function \ID{CVDiagGetReturnFlagName} returns the
-  name of the {\cvdiag} constant corresponding to \id{flag}.
+  name of the {\cvdiag} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{int} is a return flag from a {\cvdiag} function.
+  The only argument, of type \id{int}, is a return flag from a {\cvdiag} function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
@@ -3419,6 +3478,9 @@ setup and solve routines, number of calls to the Jacobian-vector
 product routine, number of calls to the right-hand side routine for
 finite-difference Jacobian-vector product approximation, and last
 return value from a linear solver function.
+Note that, where the name of an output would otherwise conflict with
+the name of an optional output from the main solver, a suffix \id{LS}
+(for Linear Solver) has been added here (e.g.  \id{lenrwLS}).
 %%
 %%
 \index{CVSPGMR@{\cvspgmr} linear solver!memory requirements} 
@@ -3665,7 +3727,7 @@ return value from a linear solver function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[flag] (\id{int})
+  \item[lsflag] (\id{int})
     the value of the last return flag from a {\cvspils} function.
   \end{args}
 }
@@ -3690,7 +3752,7 @@ return value from a linear solver function.
   \id{SpgmrSolve} and will be one of:
   \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
   \id{SPGMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
-  Jacobian-times-vector function;
+  $J*v$ function;
   \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably;
   \id{SPGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure; 
@@ -3702,7 +3764,7 @@ return value from a linear solver function.
   \id{SpbcgSolve} and will be one of:
   \id{SPBCG\_MEM\_NULL}, indicating that the {\spbcg} memory is \id{NULL};
   \id{SPBCG\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
-  Jacobian-times-vector function; or
+  $J*v$ function; or
   \id{SPBCG\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably.
 
@@ -3711,7 +3773,7 @@ return value from a linear solver function.
   \id{SptfqmrSolve} and will be one of:
   \id{SPTFQMR\_MEM\_NULL}, indicating that the {\sptfqmr} memory is \id{NULL};
   \id{SPTFQMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
-  Jacobian-times-vector function; or
+  $J*v$ function; or
   \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably.
 }
@@ -3719,14 +3781,14 @@ return value from a linear solver function.
 %%
 \ucfunction{CVSpilsGetReturnFlagName}
 {
-  name = CVSpilsGetReturnFlagName(flag);
+  name = CVSpilsGetReturnFlagName(lsflag);
 }
 {
   The function \ID{CVSpilsGetReturnFlagName} returns the
-  name of the {\cvspils} constant corresponding to \id{flag}.
+  name of the {\cvspils} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{int} is a return flag from a {\cvspils} function.
+  The only argument, of type \id{int}, is a return flag from a {\cvspils} function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
@@ -3743,10 +3805,10 @@ return value from a linear solver function.
 \index{reinitialization}
 
 The function \Id{CVodeReInit} reinitializes the main {\cvodes} solver for
-the solution of a problem, where a prior call to \Id{CVodeMalloc} has
+the solution of a problem, where a prior call to \Id{CVodeInit}
 been made. The new problem must have the same size as the previous one.
 \id{CVodeReInit} performs the same input checking and initializations 
-that \id{CVodeMalloc} does, but does no memory allocation as it assumes that the 
+that \id{CVodeInit} does, but does no memory allocation as it assumes that the 
 existing internal memory is sufficient for the new problem.             
                                                                  
 The use of \id{CVodeReInit} requires that the maximum method order, denoted by 
@@ -3789,7 +3851,7 @@ appropriate \id{CV*Set*} calls, as described in \S\ref{sss:lin_solv_init}
     previous call to \id{CVodeCreate}.
   \item[\Id{CV\_NO\_MALLOC}] 
     Memory space for the {\cvodes} memory block was not allocated through a 
-    previous call to \id{CVodeMalloc}.
+    previous call to \id{CVodeInit}.
   \item[\Id{CV\_ILL\_INPUT}] 
     An input argument to \id{CVodeReInit} has an illegal value.
   \end{args}
@@ -3847,24 +3909,34 @@ The user must provide a function of type \Id{CVRhsFn} defined as follows:
 {
   Allocation of memory for \id{ydot} is handled within {\cvodes}.
 
-  {\warn}For efficiency considerations, the right-hand side function is not
-  evaluated at the converged solution of the nonlinear solver. Therefore, a
-  recoverable error in \id{CVRhsFn} at that point cannot be corrected (as it will 
-  occur when the right-hand side function is called the first time during the 
-  following integration step and a successful step cannot be undone). 
-  However, if the use program also includes quadrature integration, the state variables
-  can be checked for legality in the call to \id{CVQuadRhsFn} which is called at the 
-  converged solution of the nonlinear system and therefore {\cvodes} can be flagged to 
-  attempt to recover from such a situation. Also, if sensitivity analysis is performed
-  with one of the staggered methods, the ODE right-hand side function is called at
-  the converged solution of the nonlinear system and a recoverable error at that point
-  will be captured and {\cvodes} will try to correct it.
+  A recoverable failure error return from the \id{CVRhsFn} is typically used to
+  flag a value of the dependent variable \id{y} that is ``illegal'' in
+  some way (e.g., negative where only a non-negative value is physically
+  meaningful).  If such a return is made, {\cvodes} will attempt to recover
+  (possibly repeating the Newton iteration, or reducing the step size)
+  in order to avoid this recoverable error return.
 
-  There are two other situations in which recovery is not possible even if the right-hand
-  side function returns a recoverable error flag. This include the situation when this
-  occurrs at the very first call to the \id{CVRhsFn} (in which case {\cvodes} returns
-  \Id{CV\_FIRST\_RHSFUNC\_ERR}) or if a recoverable error is reported when \id{CVRhsFn}
-  is called after an error test failure, while the linear multistep method order is
+  For efficiency reasons, the right-hand side function is not evaluated
+  at the converged solution of the nonlinear solver. Therefore, in general, a
+  recoverable error in that converged value cannot be corrected.  (It may be
+  detected when the right-hand side function is called the first time during
+  the following integration step, but a successful step cannot be undone.) 
+  However, if the user program also includes quadrature integration, the
+  state variables can be checked for legality in the call to
+  \id{CVQuadRhsFn}, which is called at the converged solution of the
+  nonlinear system, and therefore {\cvodes} can be flagged to attempt
+  to recover from such a situation. Also, if sensitivity analysis is
+  performed with one of the staggered methods, the ODE right-hand side
+  function is called at the converged solution of the nonlinear system,
+  and a recoverable error at that point can be flagged, and {\cvodes}
+  will then try to correct it.
+
+  There are two other situations in which recovery is not possible
+  even if the right-hand side function returns a recoverable error flag.
+  One is when this occurs at the very first call to the \id{CVRhsFn}
+  (in which case {\cvodes} returns \Id{CV\_FIRST\_RHSFUNC\_ERR}).
+  The other is when a recoverable error is reported by \id{CVRhsFn}
+  after an error test failure, while the linear multistep method order is
   equal to 1 (in which case {\cvodes} returns \Id{CV\_UNREC\_RHSFUNC\_ERR}).
 }
 
@@ -3879,9 +3951,9 @@ provide a function of type \ID{CVErrHandlerFn} to process any such messages.
 The function type \id{CVErrHandlerFn} is defined as follows:
 \usfunction{CVErrHandlerFn}
 {
-  typedef void (*CVErrHandlerFn)(&int error\_code,  \\
-                                 &const char *module, const char *function, \\ 
-                                 &char *msg, void *eh\_data); 
+  typedef void (*CVErrHandlerFn)(&int error\_code, const char *module,\\
+                                 &const char *function, char *msg,\\
+                                 &void *eh\_data);
 }
 {
   This function processes error and warning messages from {\cvodes} and 
@@ -3918,6 +3990,7 @@ As an alternative to providing the relative and absolute tolerances, the user ma
 provide a function of type \Id{CVEwtFn} to compute a vector \id{ewt} containing the
 weights in the WRMS norm 
 $\|\ v \|_{\mbox{\scriptsize WRMS}} = \sqrt{(1/N)\sum_1^N (W_i \cdot v_i)^2}$.
+These weights will be used in place of those defined by Eq. (\ref{e:errwt}).
 The function type \id{CVEwtFn} is defined as follows:
 \usfunction{CVEwtFn}
 {
@@ -3929,7 +4002,8 @@ The function type \id{CVEwtFn} is defined as follows:
 {
   \begin{args}[user\_data]
   \item[y]
-    is the value of the vector for which the WRMS norm must be computed.
+    is the value of the dependent variable vector at which the weight
+    vector is to be computed.
   \item[ewt]
     is the output vector containing the error weights.
   \item[user\_data]
@@ -3938,7 +4012,7 @@ The function type \id{CVEwtFn} is defined as follows:
   \end{args}
 }
 {
-  A \id{CVEwtFn} function type must return $0$ if it successfuly set
+  A \id{CVEwtFn} function type must return $0$ if it successfully set
   the error weights and $-1$ otherwise.
 }
 {
@@ -3980,7 +4054,7 @@ the user must supply a {\C} function of type \Id{CVRootFn}, defined as follows:
 }
 {
   A \id{CVRootFn} should return 0 if successful or a non-zero value if
-  an error occured (in which case the integration is halted and \id{CVode} returns
+  an error occurred (in which case the integration is halted and \id{CVode} returns
   \Id{CV\_RTFUNC\_FAIL}).
 }
 {
@@ -4000,10 +4074,9 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
 %%
 \usfunction{CVDlsDenseJacFn}
 {
-  typedef (*CVDlsDenseJacFn)(&int N, realtype t, \\
-                          &N\_Vector y, N\_Vector fy, \\
-                          &DlsMat Jac, void *user\_data, \\
-                          &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+  typedef (*CVDlsDenseJacFn)(&int N, realtype t, N\_Vector y, N\_Vector fy,\\
+                             &DlsMat Jac, void *user\_data,\\
+                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the dense Jacobian $J = \partial f / \partial y$ 
@@ -4043,7 +4116,7 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
 }
 {
   A user-supplied dense Jacobian function must load the \id{N} by \id{N}
-  dense matrix \id{Jac} with an approximation to the Jacobian matrix $J$
+  dense matrix \id{Jac} with an approximation to the Jacobian matrix $J(t,y)$
   at the point (\id{t}, \id{y}).  Only nonzero elements need to be loaded
   into \id{Jac} because \id{Jac} is set to the zero matrix before the call
   to the Jacobian function. The type of \id{Jac} is \Id{DlsMat}. 
@@ -4189,7 +4262,10 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
 If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr}
 is selected (\id{CVSp*} is called in step \ref{i:lin_solver} of
 \S\ref{ss:skeleton_sim}), the user may provide a function of type
-\Id{CVSpilsJacTimesVecFn} in the following form:
+\Id{CVSpilsJacTimesVecFn} in the following form,
+to compute matrix-vector products $Jv$. If such a function is not supplied,
+the default is a difference quotient approximation to these products.
+
 \usfunction{CVSpilsJacTimesVecFn}
 {
   typedef int (*CVSpilsJacTimesVecFn)&(N\_Vector v, N\_Vector Jv, \\
@@ -4245,7 +4321,10 @@ is selected (\id{CVSp*} is called in step \ref{i:lin_solver} of
 
 If preconditioning is used, then the user must provide a {\C} function to
 solve the linear system $Pz = r$, where $P$ may be either a left or
-right preconditioner matrix.
+right preconditioner matrix.  Here $P$ should approximate (at least crudely)
+the Newton matrix $M = I - \gamma J$, where $J = \partial f/ \partial y$.
+If preconditioning is done on both sides, the product of the two preconditioner
+matrices should approximate $M$.
 This function must be of type \Id{CVSpilsPrecSolveFn}, defined as follows:
 %%
 %%
@@ -4279,7 +4358,7 @@ This function must be of type \Id{CVSpilsPrecSolveFn}, defined as follows:
     vector $Res = r - P z$ of the system should be made less than 
     \id{delta} in the weighted $l_2$ norm,     
     i.e., $\sqrt{\sum_i (Res_i \cdot ewt_i)^2 } < $ \id{delta}.
-    To obtain the \id{N\_Vector} \id{ewt} call \id{CVodeGetErrWeights} 
+    To obtain the \id{N\_Vector} \id{ewt}, call \id{CVodeGetErrWeights} 
     (see \S\ref{sss:optout_main}).
   \item[lr]
     is an input flag indicating whether the preconditioner solve
@@ -4351,7 +4430,7 @@ user-supplied {\C} function of type \Id{CVSpilsPrecSetupFn}, defined as follows:
     to \id{FALSE} if Jacobian data was not           
     recomputed, but saved data was still reused.
   \item[gamma]
-    is the scalar $\gamma$ appearing in the Newton matrix $M = I - \gamma P$.
+    is the scalar $\gamma$ appearing in the Newton matrix $M = I - \gamma J$.
   \item[user\_data]
     is a pointer to user data, the same as the \id{user\_data}      
     parameter passed to the function \id{CVodeSetUserData}.
@@ -4396,14 +4475,16 @@ user-supplied {\C} function of type \Id{CVSpilsPrecSetupFn}, defined as follows:
 \section{Integration of pure quadrature equations}
 %%===================================================================================
 %%
-
-If the system of ODEs contains {\em pure quadratures}, it is more efficient
-to treat them separately by excluding them from the nonlinear solution stage. 
-To do this, begin by excluding the quadrature variables from the vector \id{y}
-and the quadrature equations from within \id{f}. The following is an overview of 
-the sequence of calls in a user's main program in this situation. Steps that are
-unchanged from the skeleton program presented in \S\ref{ss:skeleton_sim} are 
-grayed out.
+{\cvodes} allows the ODE system to include {\em pure quadratures}.  In
+this case, it is more efficient to treat the quadratures separately by
+excluding them from the nonlinear solution stage.  To do this, begin
+by excluding the quadrature variables from the vector \id{y} and
+excluding the quadrature equations from within \id{res}.  Thus a
+separate vector \id{yQ} of quadrature variables is to satisfy
+$(d/dt)$\id{yQ} = $f_Q(t,y)$.  The following is an overview of the
+sequence of calls in a user's main program in this situation. Steps
+that are unchanged from the skeleton program presented in
+\S\ref{ss:skeleton_sim} are grayed out.
 
 \index{User main program!integration of quadratures}
 \begin{Steps}
@@ -4532,29 +4613,29 @@ flag = CVodeQuadInit(cvode\_mem, fQ, yQ0);
   \end{args}
 }
 {
-  If an error occured, \id{CVodeQuadInit} also sends an error message to the
+  If an error occurred, \id{CVodeQuadInit} also sends an error message to the
   error handler function.
 }
 %%
 \index{memory requirements!CVODES@{\cvodes} solver}
 In terms of the number of quadrature variables $N_q$ and maximum method order \id{maxord},
-the size of the real workspace is increased by:
+the size of the real workspace is increased as follows:
 \begin{itemize}
 \item Base value: \id{lenrw} $=$ \id{lenrw} $+$ (\id{maxord+5})$N_q$
-\item With \id{itolQ = CV\_SV} (see \id{CVodeSetQuadErrCon}): \id{lenrw} $=$ \id{lenrw} $+ N_q$ 
+\item If using \id{CVodeSVtolerances} (see \id{CVodeSetQuadErrCon}): \id{lenrw} $=$ \id{lenrw} $+ N_q$ 
 \end{itemize}
-the size of the integer workspace is increased by:
+the size of the integer workspace is increased as follows:
 \begin{itemize}
 \item Base value: \id{leniw} $=$ \id{leniw} $+$ (\id{maxord+5})$N_q$
-\item With \id{itolQ = CV\_SV}: \id{leniw} $=$ \id{leniw} $+ N_q$ 
+\item If using \id{CVodeSVtolerances}: \id{leniw} $=$ \id{leniw} $+ N_q$ 
 \end{itemize}
 
 The function \id{CVodeQuadReInit}, useful during the solution of a sequence of problems of 
-same size, reinitializes the quadrature related internal memory 
+same size, reinitializes the quadrature-related internal memory 
 and must follow a call to \Id{CVodeQuadInit} (and maybe a call to \id{CVodeReInit}). 
 The number \id{Nq} of quadratures is assumed to be unchanged from the prior call to 
 \id{CVodeQuadInit}.
-The call to the \id{CVodeQuadReInit} function has the form:
+The call to the \id{CVodeQuadReInit} function has the following form:
 %%
 \ucfunction{CVodeQuadReInit}
 {
@@ -4585,7 +4666,7 @@ The call to the \id{CVodeQuadReInit} function has the form:
   \end{args}
 }
 {
-  If an error occured, \id{CVodeQuadReInit} also sends an error message to the
+  If an error occurred, \id{CVodeQuadReInit} also sends an error message to the
   error handler function.
 }
 %%
@@ -4622,8 +4703,8 @@ case the return value \id{flag} can also be one of the following:
 \item[\Id{CV\_FIRST\_QRHSFUNC\_FAIL}]
   The quadrature right-hand side function failed at the first call.
 \item[\Id{CV\_REPTD\_QRHSFUNC\_ERR}]
-  Convergence tests occurred too many times due to repeated recoverable errors in
-  the quadrature right-hand side function. The \id{CV\_REPTD\_RHSFUNC\_ERR} will also
+  Convergence test failures occurred too many times due to repeated recoverable errors in
+  the quadrature right-hand side function. This value will also
   be returned if the quadrature right-hand side function had repeated recoverable errors
   during the estimation of an initial step size (assuming the quadrature
   variables are included in the error tests).
@@ -4640,7 +4721,7 @@ case the return value \id{flag} can also be one of the following:
 If quadrature integration has been initialized by a call to \id{CVodeQuadInit},
 or reinitialized by a call to \id{CVodeQuadReInit}, then {\cvodes} computes both a solution
 and quadratures at time \id{t}. However, \id{CVode} will still return only the solution
-$y$ in \id{y}. Solution quadratures can be obtained using the following function:
+$y$ in \id{yout}. Solution quadratures can be obtained using the following function:
 %%
 %%
 \ucfunction{CVodeGetQuad}
@@ -4703,7 +4784,8 @@ directly by the user.
     the time at which quadrature information is 
     requested. The time \id{t} must fall within the interval defined by the last 
     successful step taken by {\cvodes}.
-  \item[\id{k}] (\id{int}) order of the requested derivative.
+  \item[\id{k}] (\id{int}) order of the requested derivative.  This
+    must be $\leq$ \id{qlast}. 
   \item[\id{dkyQ}] (\id{N\_Vector})
     the vector containing the derivative. This vector must be allocated by the user. 
   \end{args}
@@ -4720,7 +4802,7 @@ directly by the user.
   \item[\Id{CV\_BAD\_DKY}] 
     The vector \id{dkyQ} is \id{NULL}.
   \item[\Id{CV\_BAD\_K}]
-    \id{k} is not in the range $0, 1, ..., q_u$.
+    \id{k} is not in the range $0, 1, \ldots,$ \id{qlast}.
   \item[\Id{CV\_BAD\_T}] 
     The time \id{t} is not in the allowed range.
   \end{args}
@@ -4745,9 +4827,9 @@ of quadrature equations.
 }
 {
   The function \Id{CVodeSetQuadErrCon} specifies whether or not the
-  quadrature variables should be used in the step size control
-  mechanism. If so, the user must call \id{CVodeQuadSStolerances} or
-  \id{CVodeQuadSVtolerances} to specify the 
+  quadrature variables are to be used in the step size control mechanism
+  within {\cvodes}.  If they are, the user must call \id{CVodeQuadSStolerances}
+  or \id{CVodeQuadSVtolerances} to specify the 
   integration tolerances for the quadrature variables.  
 }
 {
@@ -5040,11 +5122,11 @@ must be of type \Id{CVQuadRhsFn} defined as follows:
   \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
 
   There are two situations in which recovery is not possible even if \id{CVQuadRhsFn}
-  function returns a recoverable error flag. This include the situation when this
-  occurrs at the very first call to the \id{CVQuadRhsFn} (in which case {\cvodes} returns
-  \Id{CV\_FIRST\_QRHSFUNC\_ERR}) or if a recoverable error is reported when \id{CVQuadRhsFn}
-  is called after an error test failure, while the linear multistep method order is
-  equal to 1 (in which case {\cvodes} returns \Id{CV\_UNREC\_QRHSFUNC\_ERR}).
+  function returns a recoverable error flag.  One is when this occurs at the
+  very first call to the \id{CVQuadRhsFn} (in which case {\cvodes} returns
+  \Id{CV\_FIRST\_QRHSFUNC\_ERR}).  The other is when a recoverable error is reported
+  by \id{CVQuadRhsFn} after an error test failure, while the linear multistep method
+  order is equal to 1 (in which case {\cvodes} returns \Id{CV\_UNREC\_QRHSFUNC\_ERR}).
 }
 
 
@@ -5130,8 +5212,8 @@ program presented in \S\ref{ss:skeleton_sim} are grayed out.
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
-  Note that the user should not overwrite the preconditioner data, setup function, 
-  or solve function through calls to \id{CVSp*} optional input functions.
+  Note that the user should not overwrite the preconditioner setup function
+  or solve function through calls to \id{CVSpilsSet**} optional input functions.
 
 \item
   \textcolor{gray}{\bf Advance solution in time}
@@ -5141,7 +5223,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed out.
 
   Additional optional outputs associated with {\cvbandpre} are available by 
   way of two routines described below,
-  \id{CVBandPrecGetWorkSpace} and \id{CVBandPrecGetNumGfnEvals}.
+  \id{CVBandPrecGetWorkSpace} and \id{CVBandPrecGetNumRhsEvals}.
 
 \item
   \textcolor{gray}{\bf Deallocate memory for solution vector}
@@ -5184,7 +5266,7 @@ by calling the following function:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[CVSPILS\_SUCCESS]
-    The call to \id{CVBandPrecInit} was successfull.
+    The call to \id{CVBandPrecInit} was successful.
   \item[\id{CVSPILS\_MEM\_NULL}] 
     The \id{cvode\_mem} pointer was \id{NULL}.
   \item[\Id{CVSPILS\_MEM\_FAIL}]
@@ -5246,7 +5328,7 @@ the {\cvbandpre} module:
   and the actual size of the integer workspace is $N$ integer words.
 
   The workspaces referred to here exist in addition to those given by the
-  corresponding \id{CVSp***GetWorkSpace} function.
+  corresponding function \id{CVSpils***GetWorkSpace}.
 }
 %%
 %%
@@ -5279,7 +5361,7 @@ the {\cvbandpre} module:
 }
 {
 The counter \id{nfevalsBP} is distinct from the counter \id{nfevalsLS}
-returned by the corresponding \id{CVSp***GetNumRhsEvals} function, and
+returned by the corresponding function \id{CVSpils***GetNumRhsEvals}, and
 also from \id{nfevals}, returned by \id{CVodeGetNumRhsEvals}.
 The total number of right-hand side function evaluations is the
 sum of all three of these counters.
@@ -5352,7 +5434,7 @@ upper and lower half-bandwidths \id{mudq} and \id{mldq} defined as
 the number of non-zero diagonals above and below the main diagonal,
 respectively. The difference quotient approximation is computed using
 \id{mudq} $+$ \id{mldq} $+ 2$ evaluations of $g_m$, but only a matrix
-of bandwidth \id{mu} $+$ \id{ml} $+ 1$ is retained. 
+of bandwidth \id{mukeep} $+$ \id{mlkeep} $+ 1$ is retained. 
 Neither pair of parameters need be the true half-bandwidths of the Jacobian of the
 local block of $g$, if smaller values provide a more efficient
 preconditioner. The solution of the complete linear system
@@ -5379,11 +5461,11 @@ and an optional function \id{cfn} (of type \id{CVCommFn}) which performs
 all interprocess communication necessary to evaluate the approximate right-hand
 side $g$.  These are in addition to the user-supplied right-hand side function
 \id{f}.  Both functions take as input the same pointer \id{user\_data} that is passed
-by the user to \id{CVodeSetUserData} and that was passed to the user's function \id{f},
-and neither function has a return value. The user is responsible for
-providing space (presumably within \id{user\_data}) for components of \id{y}
-that are communicated between processes by \id{cfn}, and that are
-then used by \id{gloc}, which is not expected to do any communication.
+by the user to \id{CVodeSetUserData} and that was passed to the user's function \id{f}.
+The user is responsible for providing space (presumably within \id{user\_data})
+for components of \id{y} that are communicated between processes by \id{cfn}, and
+that are then used by \id{gloc}, which should not do any communication.
+
 %%
 %%
 \usfunction{CVLocalFn}
@@ -5392,7 +5474,7 @@ then used by \id{gloc}, which is not expected to do any communication.
                            &N\_Vector glocal, void *user\_data);
 }
 {
-  This function computes $g(t,y)$. It loads the vector
+  This \id{gloc} function computes $g(t,y)$. It loads the vector
   \id{glocal} as a function of \id{t} and \id{y}.  
 }
 {
@@ -5417,7 +5499,7 @@ then used by \id{gloc}, which is not expected to do any communication.
   \id{CVode} returns \Id{CV\_LSETUP\_FAIL}). 
 }
 {
-  This function assumes that all interprocess communication of data needed to 
+  This function must assume that all interprocess communication of data needed to 
   calculate \id{glocal} has already been done, and that this data is accessible within
   \id{user\_data}.
 
@@ -5431,7 +5513,7 @@ then used by \id{gloc}, which is not expected to do any communication.
                           &N\_Vector y, void *user\_data);
 }
 {
-  This function performs all interprocess communication necessary 
+  This \id{cfn} function performs all interprocess communication necessary 
   for the execution of the \id{gloc} function above, using the input vector \id{y}.
 }
 {
@@ -5460,7 +5542,7 @@ then used by \id{gloc}, which is not expected to do any communication.
   Each call to the \id{cfn} function is preceded by a call to the right-hand side
   function \id{f} with the same (\id{t}, \id{y}) arguments.  Thus, \id{cfn} can omit 
   any communication done by \id{f} if relevant to the evaluation of \id{glocal}.  
-  If all necessary comunication was done in \id{f}, then \id{cfn = NULL}
+  If all necessary communication was done in \id{f}, then \id{cfn = NULL}
   can be passed in the call to \id{CVBBDPrecInit} (see below).
 }
 %%
@@ -5527,7 +5609,7 @@ unchanged from the skeleton program presented in \S\ref{ss:skeleton_sim} are gra
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
-  Note that the user should not overwrite the preconditioner data, setup function, 
+  Note that the user should not overwrite the preconditioner setup function 
   or solve function through calls to {\cvspils} optional input functions.
 
 \item
@@ -5556,7 +5638,7 @@ unchanged from the skeleton program presented in \S\ref{ss:skeleton_sim} are gra
 %%
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-callable functions|(}
 %%
-The user-callable functions that initialize ((step \ref{i:bbdpre_init} above) or re-initialize
+The user-callable functions that initialize (step \ref{i:bbdpre_init} above) or re-initialize
 the {\cvbbdpre} preconditioner module are described next.
 %%
 \index{half-bandwidths}
@@ -5588,7 +5670,7 @@ the {\cvbbdpre} preconditioner module are described next.
   \item[dqrely] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
     approximations.  The default is \id{dqrely}$ = \sqrt{\text{unit roundoff}}$,
-    which can be specified by passing \id{dqrely = 0.0}.
+    which can be specified by passing \id{dqrely} $= 0.0$.
   \item[gloc] (\id{CVLocalFn})
     the {\C} function which computes the approximation $g(t,y) \approx f(t,y)$. 
   \item[cfn] (\id{CVCommFn})
@@ -5600,7 +5682,7 @@ the {\cvbbdpre} preconditioner module are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[CVSPILS\_SUCCESS]
-    The call to \id{CVBBDPrecInit} was successfull.
+    The call to \id{CVBBDPrecInit} was successful.
   \item[\id{CVSPILS\_MEM\_NULL}] 
     The \id{cvode\_mem} pointer was \id{NULL}.
   \item[\Id{CVSPILS\_MEM\_FAIL}]
@@ -5614,7 +5696,7 @@ the {\cvbbdpre} preconditioner module are described next.
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} to be used in the 
   difference quotient calculation of the approximate Jacobian is negative or 
-  exceeds the value \id{local\_N}$-1$, it is replaced with 0 or
+  exceeds the value \id{local\_N}$-1$, it is replaced by 0 or
   \id{local\_N}$-1$ accordingly.
 
   The half-bandwidths \id{mudq} and \id{mldq} need not be the true 
@@ -5626,7 +5708,7 @@ the {\cvbbdpre} preconditioner module are described next.
   to reduce storage and computational costs further.            
 
   For all four half-bandwidths, the values need not be the    
-  same for every process.
+  same on every processor.
 }
 
 
@@ -5640,7 +5722,7 @@ can be made to change any of the following: the half-bandwidths \id{mudq} and
 increment \id{dqrely}, or one of the user-supplied functions \id{gloc} and \id{cfn}.
 If there is a change in any of the linear solver inputs, an additional call
 to \id{CVSpgmr}, \id{CVSpbcg}, or \id{CVSptfqmr}, and/or one or more of
-the corresponding \id{CVSp***Set***} functions, must also be made (in the proper order).
+the corresponding \id{CVSpils***Set***} functions, must also be made (in the proper order).
 
 \ucfunction{CVBBDPrecReInit}
 {
@@ -5660,14 +5742,14 @@ the corresponding \id{CVSp***Set***} functions, must also be made (in the proper
   \item[dqrely] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
     approximations.  The default is \id{dqrely} $= \sqrt{\text{unit roundoff}}$,
-    which can be specified by passing \id{dqrely = 0.0}.
+    which can be specified by passing \id{dqrely} $= 0.0$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVSPILS\_PMEM\_NULL]
   \item[CVSPILS\_SUCCESS]
-    The call to \id{CVBBDPrecReInit} was successfull.
+    The call to \id{CVBBDPrecReInit} was successful.
   \item[\id{CVSPILS\_MEM\_NULL}] 
     The \id{cvode\_mem} pointer was \id{NULL}.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
@@ -5678,7 +5760,7 @@ the corresponding \id{CVSp***Set***} functions, must also be made (in the proper
 }
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or
-  exceeds the value \id{local\_N}$-1$, it is replaced with 0 or
+  exceeds the value \id{local\_N}$-1$, it is replaced by 0 or
   \id{local\_N}$-1$ accordingly.
 }
 %%
@@ -5713,7 +5795,7 @@ the {\cvbbdpre} module:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVSPILS\_PMEM\_NULL]
   \item[CVSPILS\_SUCCESS] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\id{CVSPILS\_MEM\_NULL}] 
     The \id{cvode\_mem} pointer was \id{NULL}.
   \item[\Id{CVSPILS\_PMEM\_NULL}]
@@ -5730,7 +5812,7 @@ the {\cvbbdpre} module:
   \id{local\_N} integer words.  These values are local to each process.
 
   The workspaces referred to here exist in addition to those given by the
-  corresponding \id{CVSp***GetWorkSpace} function.
+  corresponding function \id{CVSpils***GetWorkSpace}.
 }
 %%
 %%
@@ -5756,7 +5838,7 @@ the {\cvbbdpre} module:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVSPILS\_PMEM\_NULL]
   \item[CVSPILS\_SUCCESS] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\id{CVSPILS\_MEM\_NULL}] 
     The \id{cvode\_mem} pointer was \id{NULL}.
   \item[\Id{CVSPILS\_PMEM\_NULL}]
