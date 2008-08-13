@@ -4057,13 +4057,27 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
   If a recoverable error occurred, the integrator will attempt to correct and retry.
 }
 {
-
   A recoverable failure error return from the \id{IDAResFn} is typically used to
   flag a value of the dependent variable \id{y} that is ``illegal'' in
   some way (e.g., negative where only a non-negative value is physically
   meaningful).  If such a return is made, {\idas} will attempt to recover
   (possibly repeating the Newton iteration, or reducing the step size)
   in order to avoid this recoverable error return.
+
+  For efficiency reasons, the DAE residual function is not evaluated
+  at the converged solution of the nonlinear solver. Therefore, in general, a
+  recoverable error in that converged value cannot be corrected.  (It may be
+  detected when the right-hand side function is called the first time during
+  the following integration step, but a successful step cannot be undone.) 
+  However, if the user program also includes quadrature integration, the
+  state variables can be checked for legality in the call to
+  \id{IDAQuadRhsFn}, which is called at the converged solution of the
+  nonlinear system, and therefore {\idas} can be flagged to attempt
+  to recover from such a situation. Also, if sensitivity analysis is
+  performed with the staggered method, the DAE residual
+  function is called at the converged solution of the nonlinear system,
+  and a recoverable error at that point can be flagged, and {\idas}
+  will then try to correct it.
 
   Allocation of memory for \id{yp} is handled within {\idas}.
 }
@@ -5529,7 +5543,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
-  Note that the user should not overwrite the preconditioner data, setup function, 
+  Note that the user should not overwrite the preconditioner setup function
   or solve function through calls to {\idaspils} optional input functions.
 
 \item
