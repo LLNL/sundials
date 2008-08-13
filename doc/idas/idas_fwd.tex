@@ -531,8 +531,8 @@ the call to \id{IDASensInit}.
   \item[\Id{IDA\_NO\_SENS}] 
     The sensitivity allocation function \id{IDASensInit} has not been called.
   \item[\Id{IDA\_ILL\_INPUT}] 
-    The relative error tolerance was negative or the absolute tolerance
-    had a negative component.
+    The relative error tolerance was negative or one of the absolute tolerance
+    vectors had a negative component.
   \end{args}
 }
 {
@@ -634,9 +634,9 @@ sensitivities can be obtained through one of the following functions:
   \item[ida\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{IDAInit}.
   \item[tret] (\id{realtype})
-    the time reached by the solver.
+    the time reached by the solver (output).
   \item[yS] (\id{N\_Vector *})
-    the array of computed forward sensitivity vectors of $y$.
+    the array of \id{Ns} computed forward sensitivity vectors.
   \end{args}
 }
 {
@@ -682,8 +682,8 @@ directly by the user.
     successful step taken by {\idas}.
   \item[k] (\id{int}) order of derivatives.
   \item[dkyS] (\id{N\_Vector *})
-    the vectors containing the derivatives. The space for \id{dkyS} must be allocated by 
-    the user. 
+    array of \id{Ns} vectors containing the derivatives on output. The space for
+    \id{dkyS} must be allocated by the user. 
   \end{args}
 }
 {
@@ -695,8 +695,8 @@ directly by the user.
     \id{ida\_mem} was \id{NULL}.
   \item[\Id{IDA\_NO\_SENS}] 
     Forward sensitivity analysis was not initialized.
-  \item[\Id{IDA\_BAD\_DKY}] 
-    One of the vectors \id{dkyS} is \id{NULL}.
+  \item[\Id{IDA\_BAD\_DKY}]
+    \id{dkyS} or one of the vectors \id{dkyS[i]} is \id{NULL}.
   \item[\Id{IDA\_BAD\_K}]
     \id{k} is not in the range $0, 1, ..., klast$.
   \item[\Id{IDA\_BAD\_T}] 
@@ -722,7 +722,7 @@ each parameter in turn through the functions \id{IDAGetSens1} and
   \item[ida\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{IDAInit}.
   \item[tret] (\id{realtype *})
-    the time reached by the solver.
+    the time reached by the solver (output).
   \item[is] (\id{int}) specifies which sensitivity vector is to be returned
     ($0\le$\id{is}$< N_s$).
   \item[yS] (\id{N\_Vector})
@@ -772,8 +772,8 @@ each parameter in turn through the functions \id{IDAGetSens1} and
   \item[is] (\id{int}) specifies the sensitivity derivative vector to be returned
     ($0\le$\id{is}$< N_s$).
   \item[dkyS] (\id{N\_Vector})
-    the vector containing the derivative. The space for \id{dkyS} must be allocated by 
-    the user. 
+    the vector containing the derivative on output. The space for \id{dkyS} must be
+    allocated by the user. 
   \end{args}
 }
 {
@@ -786,7 +786,7 @@ each parameter in turn through the functions \id{IDAGetSens1} and
   \item[\Id{IDA\_NO\_SENS}] 
     Forward sensitivity analysis was not initialized.
   \item[\Id{IDA\_BAD\_DKY}] 
-    One of the vectors \id{dkyS} is \id{NULL}.
+    \id{dkyS} is \id{NULL}.
   \item[\Id{IDA\_BAD\_IS}]
     The index \id{is} is not in the allowed range.
   \item[\Id{IDA\_BAD\_K}] 
@@ -1155,8 +1155,8 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 \ucfunction{IDAGetSensStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
-    flag = IDAGetSensStats(&ida\_mem, \&nfSevals, \&nfevalsS, \\
-                             &\&nSetfails, \&nlinsetupsS);
+    flag = IDAGetSensStats(&ida\_mem, \&nfSevals, \&nfevalsS, \&nSetfails,\\
+                             &\&nlinsetupsS);
   \end{tabular}
 }
 {
@@ -1636,15 +1636,15 @@ flag = IDAQuadSensInit(ida\_mem, rhsQS, yQS0);
 %%
 \index{memory requirements!IDAS@{\idas} solver}
 In terms of the number of quadrature variables $N_q$ and maximum method order \id{maxord},
-the size of the real workspace is increased by:
+the size of the real workspace is increased as follows:
 \begin{itemize}
 \item Base value: \id{lenrw} $=$ \id{lenrw} $+$ (\id{maxord+5})$N_q$
-\item if \id{IDAQuadSensSVtolerances} is called: \id{lenrw} $=$ \id{lenrw} $+ N_q N_s$ 
+\item If \id{IDAQuadSensSVtolerances} is called: \id{lenrw} $=$ \id{lenrw} $+ N_q N_s$ 
 \end{itemize}
-and the size of the integer workspace is increased by:
+and the size of the integer workspace is increased as follows:
 \begin{itemize}
 \item Base value: \id{leniw} $=$ \id{leniw} $+$ (\id{maxord+5})$N_q$
-\item if \id{IDAQuadSensSVtolerances} is called: \id{leniw} $=$ \id{leniw} $+ N_q N_s$ 
+\item If \id{IDAQuadSensSVtolerances} is called: \id{leniw} $=$ \id{leniw} $+ N_q N_s$ 
 \end{itemize}
 
 The function \id{IDAQuadSensReInit}, useful during the solution of a sequence 
@@ -1761,7 +1761,7 @@ quadratures can be obtained using one of the following functions:
   \item[ida\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{IDAInit}.
   \item[tret] (\id{realtype})
-    the time reached by the solver.
+    the time reached by the solver (output).
 %    the time at which quadrature information is 
 %    requested. The time \id{t} must fall within the interval defined by the last 
 %    successful step taken by {\idas}.
@@ -1820,7 +1820,7 @@ directly by the user.
   \item[\Id{IDA\_SUCCESS}]
     \id{IDAGetQuadSensDky} succeeded.
   \item[\Id{IDA\_MEM\_NULL}]
-    The pointer to \id{ida\_mem} was \id{NULL}.
+    \id{ida\_mem} was \id{NULL}.
   \item[IDA\_NO\_SENS]
     Sensitivities were not activated.
   \item[\Id{IDA\_NO\_QUADSENS}] 
@@ -1852,7 +1852,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
   \item[ida\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{IDAInit}.
   \item[tret] (\id{realtype})
-    the time reached by the solver.
+    the time reached by the solver (output).
   \item[is] (\id{int}) specifies which sensitivity vector is to be returned
     ($0\le$\id{is}$< N_s$).
   \item[yQS] (\id{N\_Vector})
@@ -1910,7 +1910,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
   \item[\Id{IDA\_SUCCESS}] 
     \id{IDAGetQuadDky1} succeeded.
   \item[\Id{IDA\_MEM\_NULL}] 
-    The pointer to \id{ida\_mem} was \id{NULL}.
+    \id{ida\_mem} was \id{NULL}.
   \item[\Id{IDA\_NO\_SENS}] 
     Forward sensitivity analysis was not initialized.
   \item[\Id{IDA\_NO\_QUADSENS}] 
@@ -2183,7 +2183,7 @@ performance information related to quadrature integration.
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[eQSweight] (\id{N\_Vector *})
-    quadrature error weights at the current time.
+    array of quadrature error weight vectors at the current time.
   \end{args}
 }
 {
