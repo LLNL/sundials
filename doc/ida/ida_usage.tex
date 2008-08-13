@@ -3887,8 +3887,8 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \end{args}
 }
 {
-  If the {\idaspils} setup function failed (\id{IDASolve} 
-  returned \id{IDA\_LSETUP\_FAIL}), \id{lsflag} will be \id{SPGMR\_PSET\_FAIL\_UNREC},
+  If the {\idaspils} setup function failed (\id{IDASolve} returned
+  \id{IDA\_LSETUP\_FAIL}), \id{lsflag} will be \id{SPGMR\_PSET\_FAIL\_UNREC},
   \id{SPBCG\_PSET\_FAIL\_UNREC}, or \id{SPTFQMR\_PSET\_FAIL\_UNREC}.
 
   If the {\idaspgmr} solve function failed (\id{IDASolve} returned 
@@ -4078,8 +4078,8 @@ provide a function of type \ID{IDAErrHandlerFn} to process any such messages.
 The function type \id{IDAErrHandlerFn} is defined as follows:
 \usfunction{IDAErrHandlerFn}
 {
-  typedef void (*IDAErrHandlerFn)(&int error\_code, const char *module, \\
-                                  &const char *function, char *msg, \\
+  typedef void (*IDAErrHandlerFn)(&int error\_code, const char *module,\\
+                                  &const char *function, char *msg,\\
                                   &void *eh\_data);
 }
 {
@@ -4873,7 +4873,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
-  Note that the user should not overwrite the preconditioner data, setup function, 
+  Note that the user should not overwrite the preconditioner setup function
   or solve function through calls to {\idaspils} optional input functions.
 
 \item
