@@ -1726,7 +1726,7 @@ case the return value \id{flag} can also be one of the following:
 \item[\Id{IDA\_FIRST\_QSRHS\_ERR}]
   The sensitivity quadrature right-hand side function failed at the first call.
 \item[\Id{IDA\_REP\_QSRHS\_ERR}]
-  Convergence tests occurred too many times due to repeated recoverable errors in
+  Convergence test failures occurred too many times due to repeated recoverable errors in
   the quadrature right-hand side function. The \id{IDA\_REP\_RES\_ERR} will also
   be returned if the quadrature right-hand side function had repeated recoverable errors
   during the estimation of an initial step size (assuming the sensitivity quadrature
@@ -2246,10 +2246,10 @@ performance information related to quadrature integration.
 \label{ss:user_fct_quad_sens}
 
 \index{right-hand side function!sensitivity-dependent quadrature equations}
-For integration of quadrature equations, the user must provide a function 
-that defines the right-hand side of the sensitivity quadrature equations.  
-For sensitivities of quadratures (\ref{e:QUAD}) with integrands $q$, the right-hand
-side functions are given by
+For the integration of sensitivity-dependent quadrature equations, the user must provide
+a function that defines the right-hand side of the sensitivity quadrature equations.  
+For sensitivities of quadratures (\ref{e:QUAD}) with integrands $q$, the appropriate
+right-hand side functions are given by
 $\bar q_i = (\partial q / \partial y) s_i + \partial q / \partial p_i$.
 This user function must be of type \Id{IDAQuadSensRhsFn}, defined as follows:
 \usfunction{IDAQuadSensRhsFn}
@@ -2310,7 +2310,7 @@ This user function must be of type \Id{IDAQuadSensRhsFn}, defined as follows:
   There is one situation in which recovery is not possible even if
   \id{IDAQuadSensRhsFn} function returns a recoverable error flag.  That is when
   this occurs at the very first call to the \id{IDAQuadSensRhsFn}, in which case
-  {\idas} returns \Id{IDA\_FIRST\_QRHS\_ERR}).
+  {\idas} returns \Id{IDA\_FIRST\_QSRHS\_ERR}).
 }
 
 
