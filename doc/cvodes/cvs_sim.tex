@@ -499,7 +499,7 @@ Note that this call must be made after the call to \id{CVodeInit}.
 }
 {
   This choice of tolerances is important when the absolute error tolerance needs to
-  be different for each component of the ODE. 
+  be different for each component of the state vector $y$. 
 }
 %%
 %%
@@ -4726,7 +4726,7 @@ $y$ in \id{yout}. Solution quadratures can be obtained using the following funct
 %%
 \ucfunction{CVodeGetQuad}
 {
-  flag = CVodeGetQuad(cvode\_mem, \&t, yQ);
+  flag = CVodeGetQuad(cvode\_mem, \&tret, yQ);
 }
 {
   The function \id{CVodeGetQuad} returns the quadrature solution vector after a
@@ -4736,8 +4736,8 @@ $y$ in \id{yout}. Solution quadratures can be obtained using the following funct
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{CVodeInit}.
-  \item[t] (\id{realtype})
-    the time reached by the solver.
+  \item[tret] (\id{realtype})
+    the time reached by the solver (output).
   \item[yQ] (\id{N\_Vector})
     the computed quadrature vector.
   \end{args}
