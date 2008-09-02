@@ -38,14 +38,16 @@ unless otherwise noted. For the sake of brevity, we defer many of the details to
 the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
 implementation used; where this is not the case, usage specifications are given for the
-two implementations provided with {\cvodes}: steps marked with {\p} correspond to 
-{\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
+two implementations provided with {\cvodes}: steps marked {\p} correspond to 
+{\nvecp}, while steps marked {\s} correspond to {\nvecs}.
+Steps that are unchanged from the skeleton program presented in
+\S\ref{ss:skeleton_sim} are grayed out.
 
 \index{User main program!Adjoint sensitivity analysis}
 \begin{Steps}
 
 \item
-  {\bf Include necessary header files}
+  \textcolor{gray}{\bf Include necessary header files}
   
   The \id{cvodes.h} header file also defines additional types, constants, and
   function prototypes for the adjoint sensitivity module user-callable functions.
@@ -87,7 +89,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   {\bf Allocate space for the adjoint computation}
 
   Call \Id{CVodeAdjInit}\id{()} to allocate memory for the 
-  combined forward-backward problem (see \S\ref{sss:cvadjinit} for more details).
+  combined forward-backward problem (see \S\ref{sss:cvadjinit} for details).
   This call requires \id{Nd}, the number of steps between two consecutive checkpoints.
   \Id{CVodeAdjInit} also specifies the type of interpolation used 
   (see \S\ref{ss:checkpointing}).
@@ -99,8 +101,8 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   function \id{CVode}, either in \Id{CV\_NORMAL} mode to the time 
   \id{tout} or in \Id{CV\_ONE\_STEP} mode inside a loop (if intermediate
   solutions of the forward problem are desired (see \S\ref{sss:cvsolvef})).
-  The final value of \id{tret}, denoted \id{tfinal}, is then
-  the maximum allowable value for the endpoint $t_1$.
+  The final value of \id{tret} is then the maximum allowable value for the
+  endpoint $T$ of the backward problem.
 
   \vspace{0.2in}\centerline{\bf Backward problem(s)}
 
@@ -111,32 +113,38 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
    {\p} set \id{NB} and \id{NBlocal}
 
 \item
+  {\bf Set final values for the backward problem}
+
+  Set the endpoint time \id{tB0} $= T$ and the corresponding vector \id{yB0}
+  at which the backward problem starts.
+
+\item
   {\bf Create the backward problem}
 
   Call \Id{CVodeCreateB}, a wrapper for \id{CVodeCreate}, to
-  create the {\cvodes} memory block the new backward problem. Unlike \id{CVodeCreate}, 
-  the function \id{CVodeCreateB} does not return a pointer to the newly created 
-  memory block (see \S\ref{sss:cvinitb}). Instead, this pointer is attached to 
-  the internal adjoint memory  block (created by \id{CVodeAdjInit} and returns an identifier 
-  that user must later specify in any actions on the newly created 
-  backward problem.
+  create the {\cvodes} memory block for the new backward problem. Unlike
+  \id{CVodeCreate}, the function \id{CVodeCreateB} does not return a pointer to
+  the newly created memory block (see \S\ref{sss:cvinitb}). Instead, this pointer
+  is attached to the internal adjoint memory  block (created by \id{CVodeAdjInit})
+  and returns an identifier called \id{which} that the user must later specify
+  in any actions on the newly created backward problem.
 
 \item
   {\bf Allocate memory for the backward problem}
 
-  Call \Id{CVodeInitB} or \Id{CVodeInitBS} (when the backward problem depends on the
-  forward sensitivities). The two function are actually wrappers for \id{CVodeInit} 
-  and allocate internal memory, specify problem and initialize {\cvodes} 
+  Call \Id{CVodeInitB} (or \Id{CVodeInitBS}, when the backward problem depends on the
+  forward sensitivities). The two functions are actually wrappers for \id{CVodeInit} 
+  and allocate internal memory, specify problem data, and initialize {\cvodes} 
   at \id{tB0} for the backward problem (see \S\ref{sss:cvinitb}).
 
 \item 
   {\bf Specify integration tolerances for backward problem}
   
-  Call \id{CVodeSStolerancesB}\id{(...);} or \id{CVodeSVtolerancesB}\id{(...);}
+  Call \id{CVodeSStolerancesB}\id{(...)} or \id{CVodeSVtolerancesB}\id{(...)}
   to specify a scalar relative tolerance and scalar absolute tolerance or
   scalar relative tolerance and a vector of absolute tolerances, respectively.
-  The functions are wrappers for \id{CVodeSStolerances}\id{(...);} and
-  \id{CVodeSVtolerances}\id{(...);} but they require an extra argument \id{which},
+  The functions are wrappers for \id{CVodeSStolerances} and
+  \id{CVodeSVtolerances}, but they require an extra argument \id{which},
   the identifier of the backward problem returned by \id{CVodeCreateB}.
   See \S\ref{sss:cvtolerances_b} for more information.
 
@@ -157,8 +165,9 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   Initialize the linear solver module 
   for the backward problem by calling the appropriate wrapper
   function: \id{CVDenseB}, \id{CVBandB}, \id{CVLapackDenseB}, \id{CVLapackBandB},
-  \id{CVDiagB}, \id{CVodeSpgmrB}, \id{CVodeSpbcgB}, or \id{CVodeSptfqmr} (see \S\ref{sss:lin_solv_b}). 
-  Note that it is not required to use the same linear solver module for both the forward 
+  \id{CVDiagB}, \id{CVodeSpgmrB}, \id{CVodeSpbcgB}, or \id{CVodeSptfqmrB}
+  (see \S\ref{sss:lin_solv_b}).  Note that
+  it is not required to use the same linear solver module for both the forward 
   and the backward problems; for example, the forward problem could be solved
   with the {\cvdense} linear solver and the backward problem with {\cvspgmr}.
 
@@ -167,8 +176,8 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 
   If additional quadrature equations must be evaluated, 
   call \id{CVodeQuadInitB} or \id{CVodeQuadInitBS} (if quadrature depends also on the
-  forward sensitivities as shown in \S\ref{sss:cvquadinitb}. These functions are
-  wrapper around \id{CVodeQuadInit} and can be used to initialize and allocate 
+  forward sensitivities) as shown in \S\ref{sss:cvquadinitb}. These functions are
+  wrappers around \id{CVodeQuadInit} and can be used to initialize and allocate 
   memory for quadrature integration. Optionally, call \id{CVodeSetQuad*B} functions 
   to change from their default values optional inputs that control the integration 
   of quadratures during the backward phase.
@@ -180,14 +189,14 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   function \id{CVode}, to integrate the backward problem from \id{tB0}
   (see \S\ref{sss:cvsolveb}). This function can be called either in \id{CV\_NORMAL}
   or \id{CV\_ONE\_STEP} mode. Typically, \id{CVodeB} will be called in \id{CV\_NORMAL}
-  mode with an end time equal to the initial time of the forward problem.
+  mode with an end time equal to the initial time $t_0$ of the forward problem.
 
 \item \label{i:back_end}
   {\bf Extract quadrature variables}
 
   If applicable, call \Id{CVodeGetQuadB}, a wrapper around \id{CVodeGetQuad},
   to extract the values of the quadrature variables at the time returned
-  by the last call to \id{CVodeB}.
+  by the last call to \id{CVodeB}. See \S\ref{sss:quad_get_b}.
 
 \item
   {\bf Deallocate memory}
@@ -195,9 +204,9 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   Upon completion of the backward integration, call all necessary deallocation
   functions. These include appropriate destructors for the vectors 
   \id{y} and \id{yB}, a call to \id{CVodeFree} to free the {\cvodes} memory block 
-  for the forward problem, and a call to \id{CVodeAdjFree} (see \S\ref{sss:cvadjinit}) to free 
-  the memory allocated for the combined problem. 
-  Note that \id{CVodeAdjFree} also deallocates the {\cvodes} memory for the backward problems.
+  for the forward problem.  If additional forward integration(s) are to be done
+  for this problem, a call to \id{CVodeAdjFree} (see \S\ref{sss:cvadjinit}) may be
+  made to free and deallocate memory allocated for the backward problems. 
 
 \item
   \textcolor{gray}{\bf Finalize MPI}
@@ -212,6 +221,11 @@ integration. Note that if steps (\ref{i:back_start})-(\ref{i:back_end}) are not 
 a program with the above structure will have the same functionality as one described in
 \S\ref{ss:skeleton_sim} for integration of ODEs, albeit with some overhead due to 
 the checkpointing scheme.
+
+If there are multiple backward problems associated with the same forward problem,
+repeat steps (\ref{i:back_start})-(\ref{i:back_end}) above for each successive
+backward problem.  In the process, each call to \id{CVodeCreateB} creates a new
+value of the identifier \id{which}.
 
 %%
 %%-------------------------------------------------------------------------------
@@ -239,13 +253,14 @@ The form of the call to this function is
 {
   The function \ID{CVodeAdjInit} updates {\cvodes} memory block by allocating 
   the internal memory needed for backward integration.
-  Space is allocated for the $N_d$ interpolation data points and a linked 
+  Space is allocated for the \id{Nd} $= N_d$ interpolation data points, and a linked 
   list of checkpoints is initialized.
 }
 {
   \begin{args}[interpType]
   \item[cvode\_mem] (\id{void *}) 
-    is the {\cvodes} memory block returned by a previous call to \id{CVodeCreate}.
+    is the pointer to the {\cvodes} memory block returned by a previous call to
+    \id{CVodeCreate}.
   \item[Nd] (\id{long int}) 
     is the number of integration steps between two consecutive checkpoints.
   \item[interpType] (\id{int})
@@ -273,7 +288,7 @@ The form of the call to this function is
   forward problem solution between two checkpoints fits in memory. \id{CVodeAdjInit}
   attempts to allocate space for $(2$\id{Nd}$+3)$ variables of type \id{N\_Vector}.
 
-  If an error occured, \id{CVodeAdjInit} also sends an error to the
+  If an error occurred, \id{CVodeAdjInit} also sends a message to the
   error handler function.
 }
 %%
@@ -287,16 +302,18 @@ The form of the call to this function is
   allocated by a previous call to \id{CVodeAdjInit}.
 }
 {
-  The only argument is  is the {\cvodes} memory block returned by a previous call 
+  The only argument is the {\cvodes} memory block pointer returned by a previous call 
   to \id{CVodeCreate}.
 }
 {
   The function \id{CVodeAdjFree} has no return value.
 }
 {
-  This function frees all memory allocated by \id{CVodeAdjInit}. This includes workspace memory, 
-  the linked list of checkpoints, memory for the interpolation data, as well as the {\cvodes} memory 
-  for the backward integration phase.
+  This function frees all memory allocated by \id{CVodeAdjInit}. This
+  includes workspace memory, the linked list of checkpoints, memory
+  for the interpolation data, as well as the {\cvodes} memory for the
+  backward integration phase.  In general, \id{CVodeAdjFree} need not be
+  called by the user, as it is invoked automatically by \id{CVodeFree}.
 }
 %%
 %%
@@ -316,7 +333,7 @@ The call to this function has the form
 %%
 \ucfunction{CVodeF}
 {
-  flag = CVodeF(cvode\_mem, tout, yret, tret, itask, ncheck);
+  flag = CVodeF(cvode\_mem, tout, yret, tret, itask, \&ncheck);
 }
 {
   The function \ID{CVodeF} integrates the forward problem over an interval in $t$
@@ -342,8 +359,8 @@ The call to this function has the form
     return an approximate value of $y($\id{tout}$)$. 
     The \Id{CV\_ONE\_STEP} option tells the solver to just take one internal step  
     and return the solution at the point reached by that step. 
-  \item[ncheck] (\id{int *})
-    the number of check points stored so far.
+  \item[ncheck] (\id{int})
+    the number of checkpoints stored so far.
   \end{args}
 }
 {
@@ -362,7 +379,7 @@ The call to this function has the form
   \item[\Id{CV\_ILL\_INPUT}]
     One of the inputs to \id{CVodeF} is illegal.
   \item[\Id{CV\_TOO\_MUCH\_WORK}] 
-    The solver took \id{mxstep} internal steps but could not reach tout. 
+    The solver took \id{mxstep} internal steps but could not reach \id{tout}. 
   \item[\Id{CV\_TOO\_MUCH\_ACC}] 
     The solver could not satisfy the accuracy demanded by the user for some 
     internal step.
@@ -397,10 +414,10 @@ The call to this function has the form
   In addition, \id{CVodeF} also stores interpolation data between consecutive checkpoints
   so that, at the end of this first forward integration phase, interpolation information
   is already available from the last checkpoint forward. In particular,
-  if no check points were necessary, there is no need for the second forward integration phase.
+  if no checkpoints were necessary, there is no need for the second forward integration phase.
 
   {\warn}It is illegal to change the integration tolerances between consecutive calls
-  to \id{CVodeF}, as this information is not captured in the checkpoints data.
+  to \id{CVodeF}, as this information is not captured in the checkpoint data.
 }  
 
 %%---------------------------------------------------------------------
@@ -424,7 +441,7 @@ and solution specifications, and allocate internal memory for the backward probl
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block returned by \id{CVodeInit}.
+    pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[lmmB] (\id{int})
     specifies the linear multistep method and may be one of two
     possible values: \Id{CV\_ADAMS} or \Id{CV\_BDF}.     
@@ -437,7 +454,7 @@ and solution specifications, and allocate internal memory for the backward probl
   \end{args}
 }
 {
-   The return \id{flag} (of type \id{int}) is one of:
+   The return value \id{flag} (of type \id{int}) is one of:
    \begin{args}[CV\_MEM\_FAIL]
    \item[\Id{CV\_SUCCESS}]
      The call to \id{CVodeCreateB} was successful.
@@ -452,10 +469,15 @@ and solution specifications, and allocate internal memory for the backward probl
 {}
 %%
 %%
-The function \id{CVodeInitB} is essentially a call to \id{CVodeInit} with some 
-particularization for backward integration as described below. It is essentially 
-a wrapper for \id{CVodeInit} and so all details given for \id{CVodeReInit} in 
-\S\ref{sss:cvreinit} apply.
+
+There are two initialization functions for the backward problem -- one for
+the case when the backward problem does not depend on the forward
+sensitivities, and one for the case when it does.  These two functions
+are described next.
+
+The function \id{CVodeInitB} initializes the backward problem when it does
+not depend on the forward sensitivities.  It is essentially a wrapper for 
+\id{CVodeInit} with some particularization for backward integration, as described below.
 
 \ucfunction{CVodeInitB}
 {
@@ -468,22 +490,23 @@ a wrapper for \id{CVodeInit} and so all details given for \id{CVodeReInit} in
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block returned by \id{CVodeInit}.
+    pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[rhsB] (\Id{CVRhsFnB})
     is the {\C} function which computes $fB$, the right-hand side of the 
     backward ODE problem. This function has the form 
-    \id{rhsB(t, y, yB, yBdot, user\_dataB)} (for full details see \S\ref{ss:user_fct_adj}).
+    \id{rhsB(t, y, yB, yBdot, user\_dataB)} (for full details see \S\ref{ss:ODErhs_b}).
   \item[tB0] (\id{realtype})
-    specifies the endpoint where final conditions are provided for the 
-    backward problem.
+    specifies the endpoint $T$ where final conditions are provided for the 
+    backward problem, normally equal to the endpoint of the forward integration.
+
   \item[yB0] (\id{N\_Vector})
     is the final value of the backward problem. 
   \end{args}
 }
 {
-  The return \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeInitB} was successful.
@@ -497,7 +520,7 @@ a wrapper for \id{CVodeInit} and so all details given for \id{CVodeReInit} in
     The final time \id{tB0} was outside the interval over which the forward problem
     was solved.
   \item[\Id{CV\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier, 
+    The parameter \id{which} represented an invalid identifier, or either
     \id{yB0} or \id{rhsB} was \id{NULL}.
   \end{args}
 }
@@ -506,9 +529,10 @@ a wrapper for \id{CVodeInit} and so all details given for \id{CVodeReInit} in
   \id{CVodeAdjFree}.
 }
 
-For the case when backward problem also depends on the forward sensitivities, user
-must call \id{CVodeInitBS} instead of \id{CVodeInitB}. Only the third argument of each function
-differs from that of another.
+For the case when backward problem also depends on the forward
+sensitivities, user must call \id{CVodeInitBS} instead of \id{CVodeInitB}.
+Only the third argument of each function differs between these two
+functions.
 
 \ucfunction{CVodeInitBS}
 {
@@ -521,23 +545,23 @@ differs from that of another.
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block returned by \id{CVodeInit}.
+    pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[rhsBS] (\Id{CVRhsFnBS})
     is the {\C} function which computes $fB$, the right-hand side of the 
     backward ODE problem. This function has the form 
     \id{rhsBS(t, y, yS, yB, yBdot, user\_dataB)} 
-    (for full details see \S\ref{ss:user_fct_adj}).
+    (for full details see \S\ref{ss:ODErhs_bs}).
   \item[tB0] (\id{realtype})
-    specifies the endpoint where final conditions are provided for the 
+    specifies the endpoint $T$ where final conditions are provided for the 
     backward problem.
   \item[yB0] (\id{N\_Vector})
     is the final value of the backward problem. 
   \end{args}
 }
 {
-  The return \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeInitB} was successful.
@@ -552,8 +576,8 @@ differs from that of another.
     was solved.
   \item[\Id{CV\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier, 
-    or \id{yB0} or \id{rhsB} was \id{NULL},
-    or sensitivities has not been active during the forward integration.
+    either \id{yB0} or \id{rhsBS} was \id{NULL},
+    or sensitivities were not active during the forward integration.
   \end{args}
 }
 {
@@ -561,12 +585,13 @@ differs from that of another.
   \id{CVodeAdjFree}.  
 }
 
-Note that \id{CVodeReInitB} is essentially a wrapper for \id{CVodeReInit}
-and so all details given for \id{CVodeReInit} in \S\ref{sss:cvreinit}
-apply.\index{reinitialization} Also note that \id{CVodeReInitB} can be called to reinitialize
-the backward problem, even it has been initialized with the sensitivity-dependent version
-routine \id{CVodeInitBS}.
-
+The function \id{CVodeReInitB} reinitializes {\cvodes} for the solution of a series
+of backward problems, each identified by a value of the parameter \id{which}.
+\id{CVodeReInitB} is essentially a wrapper for \id{CVodeReInit}, and so
+all details given for \id{CVodeReInit} in \S\ref{sss:cvreinit}
+apply.\index{reinitialization}  Also note that \id{CVodeReInitB} can be called to
+reinitialize the backward problem even it has been initialized with the
+sensitivity-dependent version \id{CVodeInitBS}.
 The call to the \id{CVodeReInitB} function has the form
 %%
 %%
@@ -580,11 +605,11 @@ The call to the \id{CVodeReInitB} function has the form
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to {\cvodes} memory block returned by \id{CVodeInit}.
+    pointer to {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[tB0] (\id{realtype})
-    specifies the endpoint where final conditions are provided for the 
+    specifies the endpoint $T$ where final conditions are provided for the 
     backward problem.
   \item[yB0] (\id{N\_Vector})
     is the final value of the backward problem. 
@@ -598,14 +623,14 @@ The call to the \id{CVodeReInitB} function has the form
   \item[\Id{CV\_NO\_MALLOC}]
     The function \id{CVodeInit} has not been previously called.
   \item[\Id{CV\_MEM\_NULL}] 
-    The \id{cvode\_mem} memory block was \id{NULL}.
+    The \id{cvode\_mem} memory block pointer was \id{NULL}.
   \item[\Id{CV\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CV\_BAD\_TB0}]
     The final time \id{tB0} is outside the interval over which the forward problem
     was solved.
   \item[\Id{CV\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier, or else 
+    The parameter \id{which} represented an invalid identifier, or
     \id{yB0} was \id{NULL}.
   \end{args}
 }
@@ -642,7 +667,7 @@ call to \id{CVodeInitB} or \id{CVodeInitBS}.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeSStolerancesB} was successful.
@@ -681,7 +706,7 @@ call to \id{CVodeInitB} or \id{CVodeInitBS}.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeSVtolerancesB} was successful.
@@ -699,7 +724,7 @@ call to \id{CVodeInitB} or \id{CVodeInitBS}.
 }
 {
   This choice of tolerances is important when the absolute error tolerance needs to
-  be different for each component of the ODE. 
+  be different for each component of the state vector $y$.
 }
 %%
 
@@ -709,12 +734,12 @@ call to \id{CVodeInitB} or \id{CVodeInitBS}.
 %%---------------------------------------------------------------------
 
 \index{CVODES@{\cvodes} linear solvers!usage with adjoint module|(} 
-All linear solver modules in {\cvodes} provide additional specification functions 
-for backward problems.
-The initialization functions described in \S\ref{sss:lin_solv_init} cannot be directly used 
-since the optional user-defined Jacobian-related functions have different prototypes for the
-backward problem than for the forward problem (see \S\ref{ss:user_fct_adj}).
-\index{CVODES@{\cvodes} linear solvers!usage with adjoint module|)} 
+All linear solver modules in {\cvodes} available for forward problems
+provide additional specification functions for backward problems.
+The initialization functions described in \S\ref{sss:lin_solv_init} cannot be
+directly used since the optional user-defined Jacobian-related functions have
+different prototypes for the backward problem than for the forward problem
+(see \S\ref{ss:user_fct_adj}).\index{CVODES@{\cvodes} linear solvers!usage with adjoint module|)} 
 
 The following wrapper functions can be used to initialize one of the linear
 solver modules for the backward problem. Their arguments are identical to those
@@ -726,9 +751,9 @@ second argument, \id{which}, the identifier of the backward problem.
   flag = CVLapackDenseB(cvode_mem, which, nB);
   flag = CVLapackBandB(cvode_mem, which, nB, mupperB, mlowerB);
   flag = CVDiagB(cvode_mem, which);
-  flag = CVSpgmrB(cvode_mem, which, maxlB);
-  flag = CVSpbcgB(cvode_mem, which, maxlB);
-  flag = CVSptfqmrB(cvode_mem, which, maxlB);
+  flag = CVSpgmrB(cvode_mem, which, pretypeB, maxlB);
+  flag = CVSpbcgB(cvode_mem, which, pretypeB, maxlB);
+  flag = CVSptfqmrB(cvode_mem, which, pretypeB, maxlB);
 \end{verbatim}
 
 Their return value \id{flag} (of type \id{int}) can have any of the return values 
@@ -770,15 +795,15 @@ The call to this function has the form
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory returned by \id{CVodeInit}.
+    pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
   \item[tBout] (\id{realtype})
     the next time at which a computed solution is desired.
   \item[itaskB] (\id{int})
     \index{output mode}
     a flag indicating the job of the solver for the next step. 
     The \Id{CV\_NORMAL} task is to have the solver take internal steps until   
-    it has reached or just passed the user specified \id{tBout}
-    parameter. The solver then interpolates in order to   
+    it has reached or just passed the user-specified value \id{tBout}.
+    The solver then interpolates in order to   
     return an approximate value of $yB($\id{tBout}$)$. 
     The \Id{CV\_ONE\_STEP} option tells the solver to just take one internal step  
     and return the solution at the point reached by that step. 
@@ -817,7 +842,7 @@ The call to this function has the form
   \item[\Id{CV\_SOLVE\_FAIL}] 
     The linear solver's solve function failed in an unrecoverable manner.
   \item[\Id{CV\_BCKMEM\_NULL}]
-    The solver memory for the backward problem was not created through
+    The solver memory for the backward problem was not created with
     a call to \id{CVodeCreateB}.
   \item[\Id{CV\_BAD\_TBOUT}]
     The desired output time \id{tBout} is outside the interval over which the 
@@ -826,7 +851,7 @@ The call to this function has the form
     Reinitialization of the forward problem failed at the first checkpoint
     (corresponding to the initial time of the forward problem).
   \item[\Id{CV\_FWD\_FAIL}]
-    An error occured during the integration of the forward problem.
+    An error occurred during the integration of the forward problem.
   \end{args} 
 }
 {
@@ -837,8 +862,8 @@ The call to this function has the form
 %%-------------------------------------------------------------------------------
 \subsection{Adjoint sensitivity optional input}
 
-User can disable anytime during the integration of the forward problem the 
-checkpointing of the forward sensitivities by calling the following function:
+At any time during the integration of the forward problem, the user can disable
+the checkpointing of the forward sensitivities by calling the following function:
 
 \ucfunction{CVodeAdjSetNoSensi}
 {
@@ -855,7 +880,7 @@ checkpointing of the forward sensitivities by calling the following function:
   \end{args}
 }
 {
-  The return \id{flag} (of type \id{int}) is one of:
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_FAIL]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeCreateB} was successful.
@@ -879,7 +904,7 @@ checkpointing of the forward sensitivities by calling the following function:
 
 The adjoint module in {\cvodes} provides wrappers for most of the optional 
 input functions defined in \S\ref{sss:optin_main}. The only difference is 
-that the user must specifies the identifier \id{which} of the backward problem 
+that the user must specify the identifier \id{which} of the backward problem 
 within the list managed by {\cvodes}. 
 
 The optional input functions defined for the backward problem are:
@@ -895,7 +920,7 @@ The optional input functions defined for the backward problem are:
 \end{verbatim}
 Their return value \id{flag} (of type \id{int}) can have any of the return values 
 of their counterparts, but it can also be \Id{CV\_NO\_ADJ} if \id{CVodeAdjInit} 
-has not been called or \Id{CV\_ILL\_INPUT} if \id{which} was an invalid identifier. 
+has not been called, or \Id{CV\_ILL\_INPUT} if \id{which} was an invalid identifier. 
 
 \index{optional input!backward solver|)}
 
@@ -917,10 +942,10 @@ problem through the following function:
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory returned by \id{CVodeInit}.
+    pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
-  \item[djacB] (\id{CVDlsDenseJacFnB})
+  \item[jacB] (\id{CVDlsDenseJacFnB})
     user-defined dense Jacobian approximation function.
   \end{args}
 }
@@ -930,18 +955,18 @@ problem through the following function:
   \item[\Id{CVDLS\_SUCCESS}] 
     \id{CVDlsSetDenseJacFnB} succeeded.
   \item[\Id{CVDLS\_MEM\_NULL}]
-    The \id{cvode\_mem} was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CVDLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CVDLS\_LMEM\_NULL}]
-    The linear solver has not been initialized through a call to \id{CVDenseB}
+    The linear solver has not been initialized with a call to \id{CVDenseB}
     or \id{CVLapackDenseB}.
   \item[\Id{CVDLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The function type \id{CVDlsDenseJacFnB} is described in \S\ref{ss:user_fct_adj}.
+  The function type \id{CVDlsDenseJacFnB} is described in \S\ref{ss:densejac_b}.
 }
 \index{CVDENSE@{\cvdense} linear solver!optional input|)}
 \index{optional input!dense linear solver|)}
@@ -965,7 +990,7 @@ problem through the following function:
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory returned by \id{CVodeInit}.
+    pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[jacB] (\id{CVDlsBandJacFnB})
@@ -978,18 +1003,18 @@ problem through the following function:
   \item[\Id{CVDLS\_SUCCESS}] 
     \id{CVDlsSetBandJacFnB} succeeded.
   \item[\Id{CVDLS\_MEM\_NULL}]
-    The \id{cvode\_mem} was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CVDLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CVDLS\_LMEM\_NULL}]
-    The linear solver has not been initialized through a call to \id{CVBandB}
+    The linear solver has not been initialized with a call to \id{CVBandB}
     or \id{CVLapackBandB}.
   \item[\Id{CVDLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The function type \id{CVDlsBandJacFnB} is described in \S\ref{ss:user_fct_adj}.
+  The function type \id{CVDlsBandJacFnB} is described in \S\ref{ss:bandjac_b}.
 }
 \index{CVBAND@{\cvband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
@@ -1027,9 +1052,9 @@ problem through the following functions:
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[\Id{CVSPILS\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} memory block was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
     The {\cvspils} linear solver has not been initialized.
   \item[\Id{CVSPILS\_NO\_ADJ}]
@@ -1040,7 +1065,9 @@ problem through the following functions:
 }
 {
    The function types \id{CVSpilsPrecSolveFnB} and \id{CVSpilsPrecSetupFnB} are
-   described in \S\ref{ss:user_fct_adj}.
+   described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, resp.
+   The \id{psetupB} argument may be \id{NULL} if no setup operation is involved
+   in the preconditioner.
 }
 %%
 \index{preconditioning!user-supplied|)}
@@ -1068,9 +1095,9 @@ problem through the following functions:
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[\Id{CVSPILS\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} memory block was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
     The {\cvspils} linear solver has not been initialized.
   \item[\Id{CVSPILS\_NO\_ADJ}]
@@ -1080,7 +1107,7 @@ problem through the following functions:
   \end{args}
 }
 {
-  The function type \id{CVSpilsJacTimesVecFnB} is described in \S\ref{ss:user_fct_adj}.
+  The function type \id{CVSpilsJacTimesVecFnB} is described in \S\ref{ss:jtimesv_b}.
 }
 %%
 %%
@@ -1110,16 +1137,16 @@ problem through the following functions:
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[\Id{CVSPILS\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} memory block was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
     The {\cvspils} linear solver has not been initialized.
   \item[\Id{CVSPILS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier or the 
-    Gram-Schmidt orthogonalization type \id{gstypeB} is not valid.
+    The parameter \id{which} represented an invalid identifier, or the 
+    value of \id{gstypeB} was not valid.
   \end{args}
 }
 {
@@ -1151,22 +1178,22 @@ problem through the following functions:
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[\Id{CVSPILS\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} memory block was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
     The {\cvspils} linear solver has not been initialized.
   \item[\Id{CVSPILS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier or 
+    The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
   The maximum subspace dimension is initially specified in the call
   to \id{CVodeSpbcgB} or \id{CVodeSptfqmrB}.
-  The call to \id{CVodeSpilsSetMaxlB} is needed only if \id{maxl} is being changed from its 
-  previous value.
+  The call to \id{CVodeSpilsSetMaxlB} is needed only if \id{maxlB} is being changed
+  from its previous value.
 
   {\warn}This option is available only for the {\cvspbcg} and {\cvsptfqmr} linear solvers.
 
@@ -1188,22 +1215,23 @@ problem through the following functions:
   \item[which] (\id{int})
     the identifier of the backward problem.
   \item[deltB] (\id{realtype})
-    the value of the convergence test constant reduction factor.
+    value of the convergence test constant reduction factor ($\geq 0.0$).
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[\Id{CVSPILS\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} memory block was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
     The {\cvspils} linear solver has not been initialized.
   \item[\Id{CVSPILS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier or 
+    The parameter \id{which} represented an invalid identifier, or
+    \id{deltB} was negative.
   \end{args}
 }
 {
@@ -1235,22 +1263,23 @@ problem through the following functions:
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[\Id{CVSPILS\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} memory block was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
     The {\cvspils} linear solver has not been initialized.
   \item[\Id{CVSPILS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier or 
+    The parameter \id{which} represented an invalid identifier, or
+    the value of \id{pretypeB} was not valid.
   \end{args}
 }
 {
   The preconditioning type is initially specified in the call
   to the linear solver specification function (see \S\ref{sss:lin_solv_b}). 
-  The call to \id{CVSpilsSetPrecTypeB} is needed only if \id{pretypeB} is being changed from its 
-  previous value.
+  The call to \id{CVSpilsSetPrecTypeB} is needed only if \id{pretypeB} is being
+  changed from its previous value.
 }
 %%
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|)}
@@ -1262,12 +1291,12 @@ problem through the following functions:
 \subsection{Optional output functions for the backward problem}\label{ss:optional_output_b}
 \index{optional output!backward solver|(}
 %%
-The user of the adjoint module in {\cvodes} has access to any of the optional output 
-functions described in \S\ref{ss:optional_output}, both for the main solver and for
-the linear solver modules. The first argument of these \id{CVodeGet*} and \id{CVode*Get*}
-functions is the {\cvodes} memory block for the backward problem. In order to call any of these
-functions, the user must first call the following function to obtain a pointer to
-this memory block:
+The user of the adjoint module in {\cvodes} has access to any of the optional
+output functions described in \S\ref{ss:optional_output}, both for the main solver
+and for the linear solver modules. The first argument of these \id{CVodeGet*} and
+\id{CVode*Get*} functions is the pointer to the {\cvodes} memory block for the
+backward problem. In order to call any of these functions, the user must first 
+call the following function to obtain this pointer.
 %%
 \ucfunction{CVodeGetAdjCVodeBmem}
 {
@@ -1280,7 +1309,7 @@ this memory block:
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block created by using \id{CVodeCreate}.
+    pointer to the {\cvodes} memory block created by \id{CVodeCreate}.
   \item[which] (\id{int})
     the identifier of the backward problem.
   \end{args}
@@ -1291,6 +1320,10 @@ this memory block:
 }
 {
   {\warn}The user should not modify in any way \id{cvode\_memB}.
+
+  Optional output calls should pass \id{cvode\_memB} as the first argument;
+  for example, to get the number of integration steps:
+  \id{flag = CVodeGetNumSteps(cvodes\_memB, \&nsteps)}.
 }
 \index{optional output!backward solver|)}
 
@@ -1300,17 +1333,19 @@ this memory block:
 %%---------------------------------------------------------------------
 
 Not only the backward problem but also the backward quadrature equations 
-may or may not depend on the forward sensitivities. While one of the 
+may or may not depend on the forward sensitivities.  Accordingly, either 
 \id{CVodeQuadInitB} or \id{CVodeQuadInitBS} should be used to allocate internal 
-memory and to initialize backward quadratures, the same function should be 
-called for any other operation (extraction, optional input/output, 
-reinitialization, deallocation).
+memory and to initialize backward quadratures.  For any other operation 
+(extraction, optional input/output, reinitialization, deallocation),
+the same function is callable regardless of whether or not the quadratures
+are sensitivity-dependent.
 
 \subsubsection{Backward quadrature initialization functions}
 \label{sss:cvquadinitb}
 
 The function \id{CVodeQuadInitB} initializes and allocates memory for the backward
-integration of quadrature equations. It has the following form:
+integration of quadrature equations that do not depend on forward sensitivities.
+It has the following form:
 %%
 %%
 \ucfunction{CVodeQuadInitB}
@@ -1342,7 +1377,7 @@ flag = CVodeQuadInitB(cvode\_mem, which, rhsQB, yQB0);
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeQuadInitB} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
-    The \id{cvode\_mem} memory block was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CV\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CV\_MEM\_FAIL}] 
@@ -1355,14 +1390,13 @@ flag = CVodeQuadInitB(cvode\_mem, which, rhsQB, yQB0);
 %%
 %%
 
-
 The function \id{CVodeQuadInitBS} initializes and allocates memory for the backward
-integration of quadrature equations that dependes on the forward sensitivites.
+integration of quadrature equations that depends on the forward sensitivities.
 %%
 %%
 \ucfunction{CVodeQuadInitBS}
 {
-flag = CVodeQuadInitB(cvode\_mem, which, rhsQBS, yQBS0);
+flag = CVodeQuadInitBS(cvode\_mem, which, rhsQBS, yQBS0);
 }
 {
   The function \ID{CVodeQuadInitBS} provides required problem specifications,
@@ -1374,10 +1408,10 @@ flag = CVodeQuadInitB(cvode\_mem, which, rhsQBS, yQBS0);
     pointer to the {\cvodes} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[rhsQB] (\Id{CVQuadRhsFnBS})
+  \item[rhsQBS] (\Id{CVQuadRhsFnBS})
     is the {\C} function which computes $fQBS$, the right-hand side of the 
     backward quadrature equations. This function has the form 
-    \id{rhsQB(t, y, yS, yB, qBdot, user\_dataB)} 
+    \id{rhsQBS(t, y, yS, yB, qBdot, user\_dataB)} 
     (see \S\ref{sss:rhs_quad_sens_B}).
   \item[yQBS0] (\id{N\_Vector})
     is the value of the sensitivity-dependent quadrature variables at \id{tB0}.
@@ -1389,7 +1423,7 @@ flag = CVodeQuadInitB(cvode\_mem, which, rhsQBS, yQBS0);
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeQuadInitBS} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
-    The \id{cvode\_mem} memory block was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CV\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CV\_MEM\_FAIL}] 
@@ -1426,9 +1460,9 @@ re-initialized by calling
   The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
-    The call to \id{CVodeReInitB} was successful.
+    The call to \id{CVodeQuadReInitB} was successful.
  \item[\Id{CV\_MEM\_NULL}] 
-    The \id{cvode\_mem} memory block was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CV\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CV\_MEM\_FAIL}] 
@@ -1441,8 +1475,8 @@ re-initialized by calling
   \end{args}
 }
 {
-  \id{CVodeQuadReInitB} can be used not only after a call to \id{CVodeQuadInitB} but
-  also to \id{CVodeQuadInitBS}.
+  The function \id{CVodeQuadReInitB} can be called after a call to either
+  \id{CVodeQuadInitB} or \id{CVodeQuadInitBS}.
 }
 
 \subsubsection{Backward quadrature extraction function}
@@ -1454,7 +1488,7 @@ of \id{CVodeB}, {\cvodes} provides a wrapper for the function \ID{CVodeGetQuad}
 %%
 \ucfunction{CVodeGetQuadB}
 {
-  flag = CVodeGetQuadB(cvode\_mem, which, \&t, yQB);
+  flag = CVodeGetQuadB(cvode\_mem, which, \&tret, yQB);
 }
 {
   The function \id{CVodeGetQuadB} returns the quadrature solution vector after
@@ -1464,8 +1498,8 @@ of \id{CVodeB}, {\cvodes} provides a wrapper for the function \ID{CVodeGetQuad}
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory.
-  \item[t] (\id{realtype})
-    the time reached by the solver.
+  \item[tret] (\id{realtype})
+    the time reached by the solver (output).
   \item[yQB] (\id{N\_Vector})
     the computed quadrature vector.
   \end{args}
@@ -1497,12 +1531,12 @@ of \id{CVodeB}, {\cvodes} provides a wrapper for the function \ID{CVodeGetQuad}
 Optional values controlling the backward integration of quadrature equations can be 
 changed from their default values through calls to one of the following functions 
 which are wrappers for the corresponding optional input functions defined in 
-\S\ref{ss:quad_optional_input}. The user must specifies  the identifier \id{which} 
+\S\ref{ss:quad_optional_input}. The user must specify  the identifier \id{which} 
 of the backward problem for which the optional values are specified.
 
 \begin{verbatim}
   flag = CVodeSetQuadErrConB(cvode_mem, which, errconQ);
-  flag = CVodeQuadSVtolerancesB(cvode_mem, which, reltolQ, abstolQ);
+  flag = CVodeQuadSStolerancesB(cvode_mem, which, reltolQ, abstolQ);
   flag = CVodeQuadSVtolerancesB(cvode_mem, which, reltolQ, abstolQ);
 \end{verbatim}
 Their return value \id{flag} (of type \id{int}) can have any of the return values 
@@ -1510,170 +1544,13 @@ of its counterparts, but it can also be \Id{CV\_NO\_ADJ} if the function
 \id{CVodeAdjInit} has not been previously called or \Id{CV\_ILL\_INPUT} if the
 parameter \id{which} was an invalid identifier.
 
-Access to optional outputs related to backward quadrature integration can be obtained
-by calling the corresponding \id{CVodeGetQuad*} functions 
-(see \S\ref{ss:quad_optional_output}). 
-A pointer to the {\cvodes} memory block for the backward problem, required as the first 
+Access to optional outputs related to backward quadrature integration can be 
+obtained by calling the corresponding \id{CVodeGetQuad*} functions 
+(see \S\ref{ss:quad_optional_output}).  A pointer \id{cvode\_memB} to the 
+{\cvodes} memory block for the backward problem, required as the first 
 argument of these functions, can be obtained through a call to the functions 
 \id{CVodeGetAdjCVodeBmem} (see \S\ref{ss:optional_output_b}).
 
-
-
-%%---------------------------------------------------------------------
-\subsection{Optional output from the adjoint module}
-%%---------------------------------------------------------------------
-\subsubsection{Checkpoint information function}
-\index{optional output!checkpoint information}
-For debugging purposes, {\cvodes} provides a function \ID{CVodeGetAdjCheckPointsInfo} which
-returns partial information from the linked list of checkpoints generated by
-\id{CVodeF}. The call to this function has the form:
-%%
-%%
-\ucfunction{CVodeGetAdjCheckPointsInfo}
-{
-  flag = CVodeGetAdjCheckPointsInfo(cvode\_mem, ckpnt);
-}
-{
-  The function \ID{CVodeGetAdjCheckPointsInfo} returns a structure array
-  with checkpoint information.
-}
-{  
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory returned by \id{CVodeInit}.
-  \item[ckpnt] (\id{CVadjCheckPointRec *})
-    an array of \id{ncheck}+1 structures with checkpoint information, where
-    \id{ncheck} is the numebr of checkpoints returned by \id{CVodeF}.
-  \end{args}
-}
-{
-  The return value \id{flag} of \id{CVodeGetAdjCheckPointsInfo} is one of:
-  \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
-    \id{CVodeGetAdjCheckPointsInfo} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
-    \id{cvode\_mem} is \id{NULL}.
-  \item[\Id{CV\_NO\_ADJ}]
-    The function \id{CVodeAdjInit} has not been previously called.
-  \end{args}
-}
-{
-  {\warn}The user must allocate space for ckpnt (ncheck+1 structures).
-}
-%%
-%%
-The type \Id{CVadjCheckPointRec} is defined in the header file \id{cvodes.h}:
-\begin{verbatim}
-     typedef struct {
-       void *my_addr;
-       void *next_addr;
-       realtype t0;
-       realtype t1;
-       long int nstep;
-       int order;
-       realtype step;
-     } CVadjCheckPointRec;
-\end{verbatim}
-%%
-The fields in this structure have the following meanings:
-\begin{args}[next\_addr]
-\item[my\_addr]
-  Address of current checkpoint.
-\item[next\_addr]
-  Address of next checkpoint.
-\item[t0]
-\item[t1]
-  Time interval between current and next checkpoint.
-\item[nstep]
-  Step number at which the current checkpoint was saved.
-\item[order]
-  Linear multistep method order at the current checkpoint.
-\item[step]
-  Integration stepsize at current checkpoint.
-\end{args}
-%%
-%%
-\subsubsection{Interpolation data}
-%%
-\index{optional output!interpolation data}
-Fo debugging purposes, {\cvodes} provides two extraction functions which 
-return the data stored for interpolation purposes.
-%%
-\ucfunction{CVodeGetAdjDataPointHermite}
-{
-  int = CVodeGetAdjDataPointHermite(cvode\_mem, which, \&t, y, yd);
-}
-{
-  The function \ID{CVodeGetAdjDataPointHermite} returns the
-  time and two vectors associated with the \id{which} interpolation data point.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[which] (\id{int})
-    index of the intepolation data point.
-  \item[t] (\id{realtype *})
-  \item[y] (\id{N\_Vector})
-  \item[yd] (\id{N\_Vector})
-    time, solution, and solution derivative for the forward problem 
-    stored for interpolation purposes at the \id{which} data point.
-  \end{args}
-}
-{
-  The return value \id{flag} is one of:
-  \begin{args}[CV\_ILL\_INPUT]
-  \item[\Id{CV\_SUCCESS}] 
-    \id{CVodeGetAdjDataPointHermite} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
-    \id{cvode\_mem} is \id{NULL}.
-  \item[\Id{CV\_NO\_ADJ}]
-    The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CV\_ILL\_INPUT}]
-    The interpolation type was not cubic Hermite.
-  \end{args}
-}
-{
-  It is the user's responsibility to allocate space for \id{y} and \id{yd}.
-}
-%%
-\ucfunction{CVodeGetAdjDataPointPolynomial}
-{
-  int = CVodeGetAdjDataPointPolynomial(cvode\_mem, which, \&t, order, y);
-}
-{
-  The function \ID{CVodeGetAdjDataPointPolynomial} returns the
-  time and two vectors associated with the \id{which} interpolation data point.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[which] (\id{int})
-    index of the intepolation data point.
-  \item[t] (\id{realtype *})
-  \item[order] (\id{int})
-  \item[yd] (\id{N\_Vector})
-    time, method order, and solution of the forward problem 
-    stored for interpolation purposes at the \id{which} data point.
-  \end{args}
-}
-{
-  The return value \id{flag} is one of:
-  \begin{args}[CV\_ILL\_INPUT]
-  \item[\Id{CV\_SUCCESS}] 
-    \id{CVodeGetAdjDataPointHermite} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
-    \id{cvode\_mem} is \id{NULL}.
-  \item[\Id{CV\_NO\_ADJ}]
-    The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CV\_ILL\_INPUT}]
-    The interpolation type was not variable-order polynomial.
-  \end{args}
-}
-{
-  It is the user's responsibility to allocate space for \id{y}.
-}
 
 %%-------------------------------------------------------------------------------------
 %%-------------------------------------------------------------------------------------
@@ -1691,20 +1568,20 @@ that define the preconditioner (if one of the {\cvspils} solvers is
 selected) for the backward problem.
 Type definitions for all these user-supplied functions are given below.
 
-\subsection{ODE right-hand side for the backward problem}
+\subsection{ODE right-hand side for the backward problem}\label{ss:ODErhs_b}
 \index{adjoint sensitivity analysis!right-hand side evaluation}
 \index{right-hand side function!backward problem}
 
-The user must provide a function of type \ID{CVRhsFnB} defined as follows:
+If the backward problem does not depend on the forward sensitivities,
+the user must provide a \id{rhsB} function of type \ID{CVRhsFnB} defined as follows:
 \usfunction{CVRhsFnB}
 {
   typedef int (*CVRhsFnB)(&realtype t, N\_Vector y, \\
-  &N\_Vector yB, N\_Vector yBdot, \\
-  &void *user\_dataB);
+                          &N\_Vector yB, N\_Vector yBdot, void *user\_dataB);
 }
 {
-  This function evaluates the right-hand side of the backward problem ODE system.
-  This could be (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}).
+  This function evaluates the right-hand side $f_B(t,y,y_B)$ of the backward problem
+  ODE system.  This could be either (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}).
 }
 {
   \begin{args}[user\_dataB]
@@ -1713,9 +1590,9 @@ The user must provide a function of type \ID{CVRhsFnB} defined as follows:
   \item[y]
     is the current value of the forward solution vector.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[yBdot]
-    is the output vector containing the right-hand side of the backward ODE problem.
+    is the output vector containing the right-hand side $f_B$ of the backward ODE problem.
   \item[user\_dataB]
     is a pointer to user data, same as passed to \id{CVodeSetUserDataB}.
   \end{args}
@@ -1742,27 +1619,27 @@ The user must provide a function of type \ID{CVRhsFnB} defined as follows:
   the user's \id{rhsB} function every time it is called and can be the same as the 
   \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{CVRhsFnB}, {\cvodes} needs to evaluate
+  {\warn}Before calling the user's \id{rhsB} function, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
-  failure in the righ-hand side function which will halt the integration and
+  If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
+  failure in the right-hand side function which will halt the integration and
   \id{CVodeB} will return \id{CV\_RHSFUNC\_FAIL}.
 }
 
-\subsection{ODE right-hand side for the backward problem depending on the forward sensitivities}
+\subsection{ODE right-hand side for the backward problem depending on the forward sensitivities}\label{ss:ODErhs_bs}
 \index{adjoint sensitivity analysis!right-hand side evaluation}
 \index{right-hand side function!backward problem}
 
-The user must provide a function of type \ID{CVRhsFnBS} defined as follows:
+If the backward problem does depend on the forward sensitivities,
+the user must provide a \id{rhsBS} function of type \ID{CVRhsFnBS} defined as follows:
 \usfunction{CVRhsFnBS}
 {
   typedef int (*CVRhsFnBS)(&realtype t, N\_Vector y, N\_Vector *yS, \\
-  &N\_Vector yB, N\_Vector yBdot, \\
-  &void *user\_dataB);
+                           &N\_Vector yB, N\_Vector yBdot, void *user\_dataB);
 }
 {
-  This function evaluates the right-hand side of the backward problem ODE system.
-  This could be (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}).
+  This function evaluates the right-hand side $f_B(t, y, y_B, s)$ of the backward problem 
+  ODE system.  This could be either (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}).
 }
 {
   \begin{args}[user\_dataB]
@@ -1774,9 +1651,9 @@ The user must provide a function of type \ID{CVRhsFnBS} defined as follows:
     a pointer to an array of \id{Ns} vectors containing the sensitivities of 
     the forward solution.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[yBdot]
-    is the output vector containing the right-hand side of the backward ODE problem.
+    is the output vector containing the right-hand side $f_B$ of the backward ODE problem.
   \item[user\_dataB]
     is a pointer to user data, same as passed to \id{CVodeSetUserDataB}.
   \end{args}
@@ -1790,9 +1667,9 @@ The user must provide a function of type \ID{CVRhsFnBS} defined as follows:
 {
   Allocation of memory for \id{qBdot} is handled within {\cvodes}.
 
-  The \id{y}, \id{yB}, and \id{yBdot} arguments are all 
-  of type \id{N\_Vector}, but \id{yB} and \id{yBdot} typically have 
-  different internal representations from \id{y}.. It is the user's 
+  The \id{y}, \id{yB}, and \id{yBdot} arguments are all of type \id{N\_Vector}, 
+  but \id{yB} and \id{yBdot} typically have different internal representations 
+  from \id{y}.  Likewise for each \id{yS[i]}.  It is the user's 
   responsibility to access the vector data consistently (including the use of the 
   correct accessor macros from each {\nvector} implementation). For the sake of 
   computational efficiency, the vector functions in the two {\nvector} implementations 
@@ -1803,10 +1680,10 @@ The user must provide a function of type \ID{CVRhsFnBS} defined as follows:
   the user's \id{rhsBS} function every time it is called and can be the same as the 
   \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{CVRhsFnBS}, {\cvodes} needs to evaluate
+  {\warn}Before calling the user's \id{rhsBS} function, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
-  failure in the righ-hand side function which will halt the integration and
+  If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
+  failure in the right-hand side function which will halt the integration and
   \id{CVodeB} will return \id{CV\_RHSFUNC\_FAIL}.
 }
 
@@ -1816,12 +1693,11 @@ The user must provide a function of type \ID{CVRhsFnBS} defined as follows:
 \index{right-hand side function!quadrature backward problem}
 \index{adjoint sensitivity analysis!quadrature evaluation}
 \label{sss:rhs_quad_B}
-The user must provide a function of type \ID{CVQuadRhsFnB} defined by
+The user must provide an \id{fQB} function of type \ID{CVQuadRhsFnB} defined by
 \usfunction{CVQuadRhsFnB}
 {
-  typedef int (*CVQuadRhsFnB)(&realtype t, N\_Vector y, \\
-  &N\_Vector yB, N\_Vector qBdot, \\
-  &void *user\_dataB);
+  typedef int (*CVQuadRhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
+                              &N\_Vector qBdot, void *user\_dataB);
 }
 {
   This function computes the quadrature equation right-hand side for the
@@ -1834,10 +1710,10 @@ The user must provide a function of type \ID{CVQuadRhsFnB} defined by
   \item[y]
     is the current value of the forward solution vector.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[qBdot]
-    is the output vector containing the right-hand side of the backward quadrature
-    equations.
+    is the output vector containing the right-hand side \id{fQB} of the backward
+    quadrature equations.
   \item[user\_dataB]
     is a pointer to user data, same as passed to \id{CVodeSetUserDataB}.
   \end{args}
@@ -1851,9 +1727,8 @@ The user must provide a function of type \ID{CVQuadRhsFnB} defined by
 {
   Allocation of memory for \id{rhsvalBQ} is handled within {\cvodes}.
 
-  The \id{y}, \id{yB}, and \id{qBdot} arguments are all 
-  of type \id{N\_Vector}, but they typically all have 
-  different internal representations. It is the user's 
+  The \id{y}, \id{yB}, and \id{qBdot} arguments are all of type \id{N\_Vector},
+  but they typically do not all have the same representation. It is the user's 
   responsibility to access the vector data consistently (including the use of the 
   correct accessor macros from each {\nvector} implementation). For the sake of 
   computational efficiency, the vector functions in the two {\nvector} implementations 
@@ -1863,10 +1738,10 @@ The user must provide a function of type \ID{CVQuadRhsFnB} defined by
   The \id{user\_dataB} pointer is passed to the user's \id{fQB} function every time 
   it is called and can be the same as the \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{CVQuadRhsFnB}, {\cvodes} needs to evaluate
+  {\warn}Before calling the user's \id{fQB} function, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
-  failure in the quadrature righ-hand side function which will halt the integration and
+  If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
+  failure in the quadrature right-hand side function which will halt the integration and
   \id{CVodeB} will return \id{CV\_QRHSFUNC\_FAIL}.
 }
 
@@ -1874,7 +1749,7 @@ The user must provide a function of type \ID{CVQuadRhsFnB} defined by
 \index{right-hand side function!sensitivity-dependent quadrature backward problem}
 \index{adjoint sensitivity analysis!sensitivity-dependent quadrature evaluation}
 \label{sss:rhs_quad_sens_B}
-The user must provide a function of type \ID{CVQuadRhsFnBS} defined by
+The user must provide an \id{fQBS} function of type \ID{CVQuadRhsFnBS} defined by
 \usfunction{CVQuadRhsFnBS}
 {
   typedef int (*CVQuadRhsFnBS)(&realtype t, N\_Vector y, N\_Vector *yS, \\
@@ -1895,10 +1770,10 @@ The user must provide a function of type \ID{CVQuadRhsFnBS} defined by
     a pointer to an array of \id{Ns} vectors containing the sensitivities of 
     the forward solution.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[qBdot]
-    is the output vector containing the right-hand side of the backward quadrature
-    equations.
+    is the output vector containing the right-hand side \id{fQBS} of the backward
+    quadrature equations.
   \item[user\_dataB]
     is a pointer to user data, same as passed to \id{CVodeSetUserDataB}.
   \end{args}
@@ -1910,31 +1785,31 @@ The user must provide a function of type \ID{CVQuadRhsFnBS} defined by
   \id{CVodeB} returns \Id{CV\_QRHSFUNC\_FAIL}).
 }
 {
-  Allocation of memory for \id{rhsvalQS} is handled within {\cvodes}.
+  Allocation of memory for \id{qBdot} is handled within {\cvodes}.
 
-  The \id{y}, \id{yS}, and \id{qBdot} arguments are all 
-  of type \id{N\_Vector}, but they typically all have 
-  different internal representations. It is the user's 
+  The \id{y}, \id{yS}, and \id{qBdot} arguments are all of type \id{N\_Vector},
+  but they typically do not all have the same internal representation.
+  Likewise for each \id{yS[i]}.  It is the user's 
   responsibility to access the vector data consistently (including the use of the 
   correct accessor macros from each {\nvector} implementation). For the sake of 
   computational efficiency, the vector functions in the two {\nvector} implementations 
   provided with {\cvodes} do not perform any consistency checks with repsect to their 
   \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
 
-  The \id{user\_dataB} pointer is passed to the user's \id{fQB} function every time 
+  The \id{user\_dataB} pointer is passed to the user's \id{fQBS} function every time 
   it is called and can be the same as the \id{user\_data} pointer used for the forward problem.
 
-  {\warn}Before calling the user's \id{CVQuadRhsFnBS}, {\cvodes} needs to evaluate
+  {\warn}Before calling the user's \id{fQBS} function, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
-  failure in the quadrature righ-hand side function which will halt the integration and
+  If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
+  failure in the quadrature right-hand side function which will halt the integration and
   \id{CVodeB} will return \id{CV\_QRHSFUNC\_FAIL}.
 }
 
 
 %%-------------------------------------------------------------------------------------
 \subsection{Jacobian information for the backward problem 
-  (direct method with dense Jacobian)}
+  (direct method with dense Jacobian)}\label{ss:densejac_b}
   
 If the direct linear solver with dense treatment of the Jacobian is selected
 for the backward problem (i.e. \Id{CVDenseB} or \Id{CVLapackDenseB} is called in step \ref{i:lin_solverB} 
@@ -1944,12 +1819,11 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{CVDlsDenseJacFnB}
 {
-  typedef int (*CVDlsDenseJacFnB)(&int NeqB, realtype t, \\
-  &N\_Vector y, \\
-  &N\_Vector yB, N\_Vector fyB, \\
-  &DlsMat JacB, void *user\_dataB, \\
-  &N\_Vector tmp1B, N\_Vector tmp2B, \\
-  &N\_Vector tmp3B);
+  typedef int (*CVDlsDenseJacFnB)(&int NeqB, realtype t, N\_Vector y, \\
+                                 &N\_Vector yB, N\_Vector fyB, \\
+                                 &DlsMat JacB, void *user\_dataB, \\
+                                 &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                                 &N\_Vector tmp3B);
 }
 {
   This function computes the dense Jacobian of the backward problem (or an approximation
@@ -1964,13 +1838,13 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
   \item[y]
     is the current value of the forward solution vector.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[fyB]
-    is the current value of the dependent derivative variable vector.
+    is the current value of the backward right-hand side function $f_B$.
   \item[JacB]
-    is the output dense Jacobian matrix.
+    is the output approximate dense Jacobian matrix.
   \item[user\_dataB]
-    is a pointer to user data - the same as the parameter passed to \id{CVodeSetUserDataB}. 
+    is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}. 
   \item[tmp1B]
   \item[tmp2B]
   \item[tmp3B]
@@ -1981,9 +1855,9 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
 {
   A \id{CVDlsDenseJacFnB} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\cvodes} will attempt to correct, while {\cvdense} sets
-  \id{last\_flag} on \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
+  \id{last\_flag} to \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{CVodeB}
-  returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} on 
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} to 
   \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 {
@@ -1999,15 +1873,15 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
 
   {\warn}Before calling the user's \id{CVDlsDenseJacFnB}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
+  If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
-  (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} on 
+  (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} to 
   \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 
 %%-------------------------------------------------------------------------------------
 \subsection{Jacobian information for the backward problem
-  (direct method with banded Jacobian)}
+  (direct method with banded Jacobian)}\label{ss:bandjac_b}
 \index{Jacobian approximation function!band!user-supplied (backward)}
 If the direct linear solver with banded treatment of the Jacobian is selected
 for the backward problem (i.e. \Id{CVBandB} or \Id{CVLapackBandB} is called in step \ref{i:lin_solverB} 
@@ -2039,13 +1913,13 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
   \item[y]
     is the current value of the forward solution vector.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[fyB]
-    is the current value of the dependent derivative variable vector.
+    is the current value of the backward right-hand side function $f_B$.
   \item[JacB]
-    is the output band Jacobian matrix. 
+    is the output approximate band Jacobian matrix. 
   \item[user\_dataB]
-    is a pointer to user data - the same as the parameter passed to \id{CVodeSetUserDataB}. 
+    is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}. 
   \item[tmp1B]
   \item[tmp2B]
   \item[tmp3B]
@@ -2056,33 +1930,34 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
 {
   A \id{CVDlsBandJacFnB} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\cvodes} will attempt to correct, while {\cvband} sets
-  \id{last\_flag} on \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
+  \id{last\_flag} to \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{CVodeB}
-  returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} on 
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} to 
   \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{JacB}
-  (of type \Id{BandMat}) with the elements of the Jacobian at the
+  (of type \Id{DlsMat}) with the elements of the Jacobian at the
   point (\id{t},\id{y},\id{yB}), where \id{y} is the solution
   of the original IVP at time \id{tt} and \id{yB} is the solution of the
   backward problem at the same time.  
   Only nonzero elements need to be loaded into
   \id{JacB} because \id{JacB} is preset to zero before the call to the
   Jacobian function. More details on the accessor macros provided for
-  a \id{BandMat} object and on the rest of the arguments passed to a function
+  a \id{DlsMat} object and on the rest of the arguments passed to a function
   of type \id{CVDlsBandJacFnB} are given in \S\ref{ss:bjacFn}.
 
   {\warn}Before calling the user's \id{CVDlsBandJacFnB}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
+  If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
-  (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvband} sets \id{last\_flag} on 
+  (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvband} sets \id{last\_flag} to
   \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
 
 %%-------------------------------------------------------------------------------------
-\subsection{Jacobian information for the backward problem (matrix-vector product)}
+\subsection{Jacobian information for the backward problem
+ (matrix-vector product)}\label{ss:jtimesv_b}
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
 If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr}
 is selected (\id{CVodeSp*B} is called in step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), 
@@ -2090,31 +1965,31 @@ the user may provide a function of type \ID{CVSpilsJacTimesVecFnB} in the follow
 %%
 \usfunction{CVSpilsJacTimesVecFnB}
 {
-  typedef int (*CVSpilsJacTimesVecFnB)(&N\_Vector vB, N\_Vector JvB, realtype t, \\
-  &N\_Vector y, N\_Vector yB, N\_Vector fyB,\\
-  &void *user\_dataB, N\_Vector tmpB);
+  typedef int (*CVSpilsJacTimesVecFnB)(&N\_Vector vB, N\_Vector JvB, \\
+                                       &realtype t, N\_Vector y, N\_Vector yB,\\
+                                       &N\_Vector fyB, void *user\_dataB,\\
+                                       &N\_Vector tmpB);
 }
 {
-  This function computes the action of the Jacobian on a given vector \id{vB} for
-  the backward problem (or an approximation to it).
+  This function computes the action of the Jacobian \id{JB} for
+  the backward problem on a given vector \id{vB}.
 }
 {
   \begin{args}[user\_dataB]
   \item[vB]
     is the vector by which the Jacobian must be multiplied to the right.
   \item[JvB]
-    is the output vector computed.
+    is the computed output vector \id{JB*vB}.
   \item[t]
     is the current value of the independent variable.
   \item[y]
     is the current value of the forward solution vector.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[fyB]
-    is the current value of the dependent derivative variable vector.
+    is the current value of the backward right-hand side function $f_B$.
   \item[user\_dataB]
-    is a pointer to user data - the same as the \id{user\_dataB}      
-    parameter passed to \id{CVodeSetUserDataB}.
+    is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}.
   \item[tmpB]
     is a pointer to memory allocated for a variable of type \id{N\_Vector} which
     can be used by \id{CVSpilsJacTimesVecFn} as temporary storage or work space.
@@ -2127,7 +2002,7 @@ the user may provide a function of type \ID{CVSpilsJacTimesVecFnB} in the follow
 }
 {
   A user-supplied Jacobian-vector product function must load the vector \id{JvB}
-  with the result of the product between the Jacobian of the backward problem 
+  with the product of the Jacobian of the backward problem 
   at the point (\id{t},\id{y}, \id{yB}) and the vector \id{vB}. 
   Here, \id{y} is the solution of the original IVP at time \id{t} and 
   \id{yB} is the solution of the backward problem at the same time.  
@@ -2138,7 +2013,8 @@ the user may provide a function of type \ID{CVSpilsJacTimesVecFnB} in the follow
 }
 
 %%-------------------------------------------------------------------------------------
-\subsection{Preconditioning for the backward problem (linear system solution)}
+\subsection{Preconditioning for the backward problem
+ (linear system solution)}\label{ss:psolve_b}
 \index{preconditioning!user-supplied}
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner solve function}
 \index{CVSPBCG@{\cvspbcg} linear solver!preconditioner solve function}
@@ -2146,6 +2022,10 @@ the user may provide a function of type \ID{CVSpilsJacTimesVecFnB} in the follow
 If preconditioning is used during integration of the backward problem, 
 then the user must provide a {\C} function to solve the linear system 
 $Pz = r$, where $P$ may be either a left or a right preconditioner matrix.
+Here $P$ should approximate (at least crudely) the Newton matrix 
+$M_B = I - \gamma_B J_B$, where $J_B = \partial f_B/ \partial y_B$.  If
+preconditioning is done on both sides, the product of the two
+preconditioner matrices should approximate $M_B$.
 This function must be of type \ID{CVSpilsPrecSolveFnB} defined by
 %%
 \usfunction{CVSpilsPrecSolveFnB}
@@ -2166,21 +2046,21 @@ This function must be of type \ID{CVSpilsPrecSolveFnB} defined by
   \item[y]
     is the current value of the forward solution vector.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[fyB]
-    is the current value of the dependent derivative variable vector.
+    is the current value of the backward right-hand side function $f_B$.
   \item[rvecB]
     is the right-hand side vector $r$ of the linear system to be solved.
   \item[zvecB]
-    is the output vector computed.
+    is the computed output vector.
   \item[gammaB]
-    is the scalar appearing in the Newton matrix.
+    is the scalar appearing in the Newton matrix, $M_B = I - \gamma_B J_B$.
   \item[deltaB]
     is an input tolerance to be used if an iterative method 
     is employed in the solution.
   \item[user\_dataB]
     is a pointer to user data --- the same as the \id{user\_dataB}      
-    parameter passed to the function \id{CVodeSetUserDataB}.
+    parameter passed to \id{CVodeSetUserDataB}.
   \item[tmpB]
     is a pointer to memory allocated for a variable of type    
     \id{N\_Vector} which can be used for work space.
@@ -2195,7 +2075,8 @@ This function must be of type \ID{CVSpilsPrecSolveFnB} defined by
 {}
 
 %%-------------------------------------------------------------------------------------
-\subsection{Preconditioning for the backward problem (Jacobian data)}
+\subsection{Preconditioning for the backward problem
+ (Jacobian data)}\label{ss:psetup_b}
 \index{preconditioning!user-supplied}
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner setup function}
 \index{CVSPBCG@{\cvspbcg} linear solver!preconditioner setup function}
@@ -2206,9 +2087,9 @@ user-supplied {\C} function of type \ID{CVSpilsPrecSetupFnB} defined by
 %%
 \usfunction{CVSpilsPrecSetupFnB}
 {
-  typedef int (*CVSpilsPrecSetupFnB)(&realtype t, N\_Vector y, \\
+  typedef int (*CVSpilsPrecSetupFn&B)(realtype t, N\_Vector y, \\
                                      &N\_Vector yB, N\_Vector fyB, \\ 
-                                     &booleantype jokB, booleantype *jcurPtrB, \\
+                                     &booleantype jokB, booleantype *jcurPtrB,\\
                                      &realtype gammaB, void *user\_dataB,\\
                                      &N\_Vector tmp1B, N\_Vector tmp2B, \\
                                      &N\_Vector tmp3B);
@@ -2225,9 +2106,9 @@ user-supplied {\C} function of type \ID{CVSpilsPrecSetupFnB} defined by
   \item[y]
     is the current value of the forward solution vector.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[fyB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward right-hand side function $f_B$.
   \item[jokB]
     is an input flag indicating whether Jacobian-related
     data needs to be recomputed (\id{jokB}=\id{FALSE}) or information saved 
@@ -2238,8 +2119,8 @@ user-supplied {\C} function of type \ID{CVSpilsPrecSetupFnB} defined by
   \item[gammaB]
     is the scalar appearing in the Newton matrix.
   \item[user\_dataB]
-    is a pointer to user data - the same as the \id{user\_dataB}
-    parameter passed to the function \id{CVodeSetUserDataB}.
+    is a pointer to user data --- the same as the \id{user\_dataB}
+    parameter passed to \id{CVodeSetUserDataB}.
   \item[tmp1B]
   \item[tmp2B]
   \item[tmp3B]
@@ -2266,9 +2147,10 @@ user-supplied {\C} function of type \ID{CVSpilsPrecSetupFnB} defined by
 
 As on the forward integration phase, the efficiency of Krylov iterative methods 
 for the solution of linear systems can be greatly enhanced through preconditioning.
-Both preconditioner modules provided with {\sundials}, the banded
-preconditioner {\cvbandpre} and the band-block-diagonal preconditioner module {\cvbbdpre},
-provide interface functions through which they can be used on the backward integration phase.
+Both preconditioner modules provided with {\sundials}, the serial banded
+preconditioner {\cvbandpre} and the parallel band-block-diagonal preconditioner
+module {\cvbbdpre}, provide interface functions through which they can be used 
+on the backward integration phase.
 
 
 %%-------------------------------------------------------------------
@@ -2278,8 +2160,9 @@ provide interface functions through which they can be used on the backward integ
 \index{CVBANDPRE@{\cvbandpre} preconditioner!usage with adjoint module|(}
 The adjoint module in {\cvodes} offers an interface to the banded 
 preconditioner module {\cvbandpre} described in section \S\ref{sss:cvbandpre}.
-This preconditioner provides a band matrix preconditioner based on difference
-quotients of the backward problem right-hand side function \id{fB}. It generates
+This preconditioner, usable only in a serial setting, provides a band matrix 
+preconditioner based on difference quotients of the backward problem right-hand 
+side function \id{fB}.  It generates
 a banded approximation to the Jacobian with $m_{lB}$ sub-diagonals and $m_{uB}$
 super-diagonals to be used with one of the Krylov linear solvers.
 
@@ -2298,6 +2181,8 @@ to the {\cvbandpre} module initialization function must be made.
 {
   The function \ID{CVBandPrecInitB} initializes and allocates
   memory for the {\cvbandpre} preconditioner for the backward problem.
+  It creates, allocates, and stores (internally in the {\cvodes} 
+  solver block) a pointer to the newly created {\cvbandpre} memory block.
 }
 {
   \begin{args}[cvode\_mem]
@@ -2314,9 +2199,6 @@ to the {\cvbandpre} module initialization function must be made.
   \end{args}
 }
 {
-  If successful, \id{CVBandPrecInit} creates, allocates, and stores (internally
-  in the {\cvodes} solver block) a pointer to the newly created 
-  {\cvbandpre} memory block.
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[\Id{CVSPILS\_SUCCESS}]
@@ -2351,28 +2233,29 @@ block being a band matrix and can be used with one of the Krylov linear solvers
 and with the parallel vector module {\nvecp}.
 
 In order to use the {\cvbbdpre} module in the solution of the backward problem,
-the user must define one or two additional functions, described at the end of this section. 
+the user must define one or two additional functions, described at the
+end of this section.
 
-\subsection{Usage of CVBBDPRE for the backward problem}
+\subsubsection{Initialization of CVBBDPRE}
 %%
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-callable functions|(}
 The {\cvbbdpre} module is initialized by calling the following function,
-{\em after} one of the {\cvspils} linear solvers has been specified,
+{\em after} one of the {\cvspils} linear solvers has been specified
 by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
 %%
 %%
 \ucfunction{CVBBDPrecInitB}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
-    flag = CVBBDPrecInitB(&cvode\_mem, int which, NlocalB, \\
-                           &mudqB, mldqB, \\
-                           &mukeepB, mlkeepB, \\
-                           &dqrelyB, glocB, gcommB);
+    flag = CVBBDPrecInitB(&cvode\_mem, int which, NlocalB, mudqB, mldqB,\\
+                          &mukeepB, mlkeepB, dqrelyB, glocB, gcommB);
   \end{tabular}
 }
 {
   The function \ID{CVBBDPrecInitB} initializes and allocates
   memory for the {\cvbbdpre} preconditioner for the backward problem.
+  It creates, allocates, and stores (internally in the {\cvodes} solver
+  block) a pointer to the newly created {\cvbbdpre} memory block.
 }
 {
   \begin{args}[cvode\_mem]
@@ -2395,17 +2278,14 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
     approximations.  The default is \id{dqrelyB}$ = \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dqrely}$ = 0.0$.
   \item[glocB] (\id{CVBBDLocalFnB})
-    the {\C} function which computes the approximation $g_B(t,y,y_B)$ 
-    to the right-hand side of the backward problem. 
+    the {\C} function which computes the function $g_B(t,y,y_B)$ approximating
+    the right-hand side of the backward problem. 
   \item[gcommB] (\id{CVBBDCommFnB})
     the optional {\C} function which performs all interprocess communication required for
     the computation of $g_B$.
   \end{args}
 }
 {
-  If successful, \id{CVodeBBDPrecInitB} creates, allocates, and stores (internally
-  in the {\cvodes} solver block) a pointer to the newly created 
-  {\cvbbdpre} memory block.
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[\Id{CVSPILS\_SUCCESS}]
@@ -2423,8 +2303,9 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
 {}
 %%
 %%
-To reinitialize the {\cvbbdpre} preconditioner module for the backward problem
-call the following function:
+To reinitialize the {\cvbbdpre} preconditioner module for the backward problem,
+possibly with changes in \id{mudqB}, \id{mldqB}, or \id{dqrelyB}, call the following 
+function:
 %%
 \ucfunction{CVBBDPrecReInitB}
 {
@@ -2437,7 +2318,7 @@ call the following function:
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block returned by \id{CVodeInit}.
+    pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     the identifier of the backward problem.
   \item[mudqB] (\id{int})
@@ -2471,7 +2352,7 @@ call the following function:
 %%
 For more details on {\cvbbdpre} see \S\ref{sss:cvbbdpre}.
 
-\subsection{User-supplied functions for CVBBDPRE}
+\subsubsection{User-supplied functions for CVBBDPRE}
 %%
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-supplied functions|(}
 To use the {\cvbbdpre} module, the user must supply one or two functions which the
@@ -2485,14 +2366,12 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{CVBBDLocalFnB}
 {
-  typedef int (*CVBBDLocalFnB)(&int NlocalB, realtype t,  \\
-  &N\_Vector y, N\_Vector yB, \\
-  &N\_Vector gB, \\
-  &void *user\_dataB);
+  typedef int (*CVBBDLocalFnB)(&int NlocalB, realtype t, N\_Vector y,\\
+                               &N\_Vector yB, N\_Vector gB, void *user\_dataB);
 }
 {
-  This function loads the vector \id{gB}, an approximation to the
-  right-hand side of the backward problem, as a function of \id{t}, \id{y},
+  This \id{glocB} function loads the vector \id{gB}, an approximation to the
+  right-hand side $f_B$ of the backward problem, as a function of \id{t}, \id{y},
   and \id{yB}.
 }
 {
@@ -2504,11 +2383,11 @@ The prototypes for these two functions are described below.
   \item[y]
     is the current value of the forward solution vector.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[gB]
-    is the output vector.
+    is the output vector, $g_B(t, y, y_B)$.
   \item[user\_dataB]
-    is a pointer to user data - the same as the \Id{user\_dataB}      
+    is a pointer to user data --- the same as the \Id{user\_dataB}      
     parameter passed to \id{CVodeSetUserDataB}.  
   \end{args}
 }
@@ -2519,13 +2398,13 @@ The prototypes for these two functions are described below.
   \id{CVodeB} returns \Id{CV\_LSETUP\_FAIL}). 
 }
 {
-  This routine assumes that all interprocess communication of data needed to 
+  This routine must assume that all interprocess communication of data needed to 
   calculate \id{gB} has already been done, and this data is accessible within
   \id{user\_dataB}.
 
   {\warn}Before calling the user's \id{CVBBDLocalFnB}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\cvodes} triggers an unrecoverable
+  If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the preconditioner setup function which will halt the integration
   (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL}).
 }
@@ -2533,12 +2412,11 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{CVBBDCommFnB}
 {
-  typedef int (*CVBBDCommFnB)(&int NlocalB, realtype t,  \\
-                           &N\_Vector y, N\_Vector yB, \\
-                           &void *user\_dataB);
+  typedef int (*CVBBDCommFnB)(&int NlocalB, realtype t, N\_Vector y,\\
+                              &N\_Vector yB, void *user\_dataB);
 }
 {
-  This function performs all interprocess communications necessary 
+  This \id{gcommB} function must perform all interprocess communications necessary 
   for the execution of the \id{glocB} function above, using the input 
   vectors \id{y} and \id{yB}.
 }
@@ -2551,9 +2429,9 @@ The prototypes for these two functions are described below.
   \item[y]
     is the current value of the forward solution vector.
   \item[yB]
-    is the current value of the dependent variable vector.
+    is the current value of the backward dependent variable vector.
   \item[user\_dataB]
-    is a pointer to user data - the same as the \Id{user\_dataB}
+    is a pointer to user data --- the same as the \Id{user\_dataB}
     parameter passed to \id{CVodeSetUserDataB}.
   \end{args}
 }
@@ -2570,7 +2448,7 @@ The prototypes for these two functions are described below.
   Each call to the \id{gcommB} function is preceded by a call to the function that 
   evaluates the right-hand side of the backward problem with the same \id{t}, \id{y}, 
   and \id{yB}, arguments. If there is no additional communication needed, then 
-  pass \id{gcommB} $=$ \id{NULL} to \id{CVBBDPrecInitB}.
+  pass \id{gcommB = NULL} to \id{CVBBDPrecInitB}.
 }
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-supplied functions|)}
 %%
