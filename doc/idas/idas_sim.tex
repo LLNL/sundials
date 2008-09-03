@@ -492,7 +492,7 @@ the call to \id{IDAInit}.
 }
 {
   This choice of tolerances is important when the absolute error tolerance needs to
-  be different for each component of the DAE. 
+  be different for each component of the state vector $y$. 
 }
 %%
 %%
@@ -2103,7 +2103,7 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
 {
   The function \ID{IDASpilsSetEpsLin} specifies the factor by
   which the Krylov linear solver's convergence test constant is reduced
-  from the Newton iteration test constant. (See \S\ref{s:math}).
+  from the Newton iteration test constant. (See \S\ref{ss:ivp_sol}).
 }
 {
   \begin{args}[ida\_mem]
@@ -2140,8 +2140,8 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
 {
   The function \ID{IDASpilsSetIncrementFactor} specifies a factor in the 
   increments to $y$ used in the difference quotient approximations 
-  to the Jacobian-vector products.  (See \S\ref{s:math}).  The increment
-  used to approximate $Jv$ will be $\sigma = $\id{dqincfac}$/\|v\|$.
+  to the Jacobian-vector products.  (See \S\ref{ss:ivp_sol}).  The increment
+  used to approximate $Jv$ will be $\sigma = $ \id{dqincfac}$/\|v\|$.
 }
 {
   \begin{args}[dqincfac]
@@ -4884,7 +4884,7 @@ $y$ in \id{y}. Solution quadratures can be obtained using the following function
 %%
 \ucfunction{IDAGetQuad}
 {
-  flag = IDAGetQuad(ida\_mem, \&t, yQ);
+  flag = IDAGetQuad(ida\_mem, \&tret, yQ);
 }
 {
   The function \id{IDAGetQuad} returns the quadrature solution vector after a
@@ -4894,8 +4894,8 @@ $y$ in \id{y}. Solution quadratures can be obtained using the following function
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{IDAInit}.
-  \item[t] (\id{realtype})
-    the time reached by the solver.
+  \item[tret] (\id{realtype})
+    the time reached by the solver (output).
   \item[yQ] (\id{N\_Vector})
     the computed quadrature vector.
   \end{args}
