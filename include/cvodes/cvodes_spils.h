@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2007-11-26 16:19:58 $
+ * $Revision: 1.11 $
+ * $Date: 2008-09-03 20:24:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,7 +63,7 @@ extern "C" {
  * CVSPILS_DGMAX  : maximum change in gamma between
  *                  preconditioner evaluations
  *
- * CVSPILS_DELT   : default value for factor by which the
+ * CVSPILS_EPLIN  : default value for factor by which the
  *                  tolerance on the nonlinear iteration is
  *                  multiplied to get a tolerance on the linear
  *                  iteration
@@ -73,7 +73,7 @@ extern "C" {
 #define CVSPILS_MAXL   5
 #define CVSPILS_MSBPRE 50
 #define CVSPILS_DGMAX  RCONST(0.2)
-#define CVSPILS_DELT   RCONST(0.05)
+#define CVSPILS_EPLIN  RCONST(0.05)
 
 /* 
  * -----------------------------------------------------------------
@@ -291,7 +291,7 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  *                from the value previously set.
  *                An input value <= 0, gives the default value.
  *
- * CVSpilsSetDelt specifies the factor by which the tolerance on
+ * CVSpilsSetEpsLin specifies the factor by which the tolerance on
  *                the nonlinear iteration is multiplied to get a
  *                tolerance on the linear iteration.
  *                Default value is 0.05.
@@ -313,7 +313,7 @@ typedef int (*CVSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
 SUNDIALS_EXPORT int CVSpilsSetPrecType(void *cvode_mem, int pretype);
 SUNDIALS_EXPORT int CVSpilsSetGSType(void *cvode_mem, int gstype);
 SUNDIALS_EXPORT int CVSpilsSetMaxl(void *cvode_mem, int maxl);
-SUNDIALS_EXPORT int CVSpilsSetDelt(void *cvode_mem, realtype delt);
+SUNDIALS_EXPORT int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac);
 SUNDIALS_EXPORT int CVSpilsSetPreconditioner(void *cvode_mem,
                                              CVSpilsPrecSetupFn pset, 
 					     CVSpilsPrecSolveFn psolve);
@@ -434,7 +434,7 @@ typedef int (*CVSpilsJacTimesVecFnB)(N_Vector vB, N_Vector JvB, realtype t,
 
 SUNDIALS_EXPORT int CVSpilsSetPrecTypeB(void *cvode_mem, int which, int pretypeB);
 SUNDIALS_EXPORT int CVSpilsSetGSTypeB(void *cvode_mem, int which, int gstypeB);
-SUNDIALS_EXPORT int CVSpilsSetDeltB(void *cvode_mem, int which, realtype deltB);
+SUNDIALS_EXPORT int CVSpilsSetEpslinB(void *cvode_mem, int which, realtype eplifacB);
 SUNDIALS_EXPORT int CVSpilsSetMaxlB(void *cvode_mem, int which, int maxlB);
 SUNDIALS_EXPORT int CVSpilsSetPreconditionerB(void *cvode_mem, int which, 
                                               CVSpilsPrecSetupFnB psetB,
