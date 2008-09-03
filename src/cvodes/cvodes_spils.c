@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-11-26 16:20:00 $
+ * $Revision: 1.10 $
+ * $Date: 2008-09-03 20:26:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -236,35 +236,35 @@ int CVSpilsSetMaxl(void *cvode_mem, int maxl)
 
 /*
  * -----------------------------------------------------------------
- * CVSpilsSetDelt
+ * CVSpilsSetEpsLin
  * -----------------------------------------------------------------
  */
 
-int CVSpilsSetDelt(void *cvode_mem, realtype delt)
+int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", "CVSpilsSetDelt", MSGS_CVMEM_NULL);
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", "CVSpilsSetEpsLin", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetDelt", MSGS_LMEM_NULL);
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetEpsLin", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
   cvspils_mem = (CVSpilsMem) lmem;
 
-  /* Check for legal delt */
-  if(delt < ZERO) {
-    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPILS", "CVSpilsSetDelt", MSGS_BAD_DELT);
+  /* Check for legal eplifac */
+  if(eplifac < ZERO) {
+    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPILS", "CVSpilsSetEpsLin", MSGS_BAD_EPLIN);
     return(CVSPILS_ILL_INPUT);
   }
 
-  cvspils_mem->s_delt = (delt == ZERO) ? CVSPILS_DELT : delt;
+  cvspils_mem->s_eplifac = (eplifac == ZERO) ? CVSPILS_EPLIN : eplifac;
 
   return(CVSPILS_SUCCESS);
 }
@@ -637,7 +637,7 @@ char *CVSpilsGetReturnFlagName(int flag)
 /* Additional readability Replacements */
 
 #define pretype (cvspils_mem->s_pretype)
-#define delt    (cvspils_mem->s_delt)
+#define eplifac (cvspils_mem->s_eplifac)
 #define maxl    (cvspils_mem->s_maxl)
 #define psolve  (cvspils_mem->s_psolve)
 #define P_data  (cvspils_mem->s_P_data)
@@ -859,7 +859,7 @@ int CVSpilsSetGSTypeB(void *cvode_mem, int which, int gstypeB)
   return(flag);
 }
 
-int CVSpilsSetDeltB(void *cvode_mem, int which, realtype deltB)
+int CVSpilsSetEpsLinB(void *cvode_mem, int which, realtype eplifacB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -869,21 +869,21 @@ int CVSpilsSetDeltB(void *cvode_mem, int which, realtype deltB)
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", "CVSpilsSetDeltB", MSGS_CVMEM_NULL);
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", "CVSpilsSetEpsLinB", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == FALSE) {
-    cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSPILS", "CVSpilsSetDeltB", MSGS_NO_ADJ);
+    cvProcessError(cv_mem, CVSPILS_NO_ADJ, "CVSPILS", "CVSpilsSetEpsLinB", MSGS_NO_ADJ);
     return(CVSPILS_NO_ADJ);
   } 
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPILS", "CVSpilsSetDeltB", MSGS_BAD_WHICH);
+    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPILS", "CVSpilsSetEpsLinB", MSGS_BAD_WHICH);
     return(CVSPILS_ILL_INPUT);
   }
 
@@ -896,7 +896,7 @@ int CVSpilsSetDeltB(void *cvode_mem, int which, realtype deltB)
 
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
 
-  flag = CVSpilsSetDelt(cvodeB_mem,deltB);
+  flag = CVSpilsSetEpsLin(cvodeB_mem,eplifacB);
 
   return(flag);
 }

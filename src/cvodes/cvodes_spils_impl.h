@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.8 $
+ * $Date: 2008-09-03 20:26:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -58,7 +58,7 @@ typedef struct CVSpilsMemRec {
   int  s_pretype;       /* type of preconditioning                      */
   int  s_gstype;        /* type of Gram-Schmidt orthogonalization       */
   realtype s_sqrtN;     /* sqrt(N)                                      */
-  realtype s_delt;      /* delt = user specified or DELT_DEFAULT        */
+  realtype s_eplifac;   /* eplifac = user specified or EPLIN_DEFAULT    */
   realtype s_deltar;    /* deltar = delt * tq4                          */
   realtype s_delta;     /* delta = deltar * sqrtN                       */
   int  s_maxl;          /* maxl = maximum dimension of the Krylov space */
@@ -164,7 +164,7 @@ typedef struct CVSpilsMemRecB {
 #define MSGS_PSOLVE_REQ  "pretype != PREC_NONE, but PSOLVE = NULL is illegal."
 #define MSGS_LMEM_NULL   "Linear solver memory is NULL."
 #define MSGS_BAD_GSTYPE  "Illegal value for gstype. Legal values are MODIFIED_GS and CLASSICAL_GS."
-#define MSGS_BAD_DELT    "delt < 0 illegal."
+#define MSGS_BAD_EPLIN    "eplifac < 0 illegal."
   
 #define MSGS_PSET_FAILED   "The preconditioner setup routine failed in an unrecoverable manner."
 #define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
