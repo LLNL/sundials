@@ -1219,7 +1219,7 @@ Band Jacobian function & \id{CVDlsSetBandJacFn} & DQ\\
 Preconditioner functions & \id{CVSpilsSetPreconditioner} & NULL, NULL \\
 Jacobian-times-vector function & \id{CVSpilsSetJacTimesVecFn} & DQ \\
 Preconditioning type & \id{CVSpilsSetPrecType} & none \\
-Ratio between linear and nonlinear tolerances & \id{CVSpilsSetDelt} & 0.05 \\
+Ratio between linear and nonlinear tolerances & \id{CVSpilsSetEpsLin} & 0.05 \\
 Type of Gram-Schmidt orthogonalization${}^{(a)}$ & \id{CVSpilsSetGSType} & classical GS \\
 Maximum Krylov subspace size${}^{(b)}$ & \id{CVSpilsSetMaxl} & 5 \\
 \hline
@@ -2091,12 +2091,12 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
 }
 %%
 %%
-\ucfunction{CVSpilsSetDelt}
+\ucfunction{CVSpilsSetEpsLin}
 {
-  flag = CVSpilsSetDelt(cvode\_mem, delt);
+  flag = CVSpilsSetEpsLin(cvode\_mem, eplifac);
 }
 {
-  The function \ID{CVSpilsSetDelt} specifies the factor by
+  The function \ID{CVSpilsSetEpsLin} specifies the factor by
   which the Krylov linear solver's convergence test constant is reduced
   from the Newton iteration test constant.
 }
@@ -2104,7 +2104,7 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[delt] (\id{realtype}) linear convergence safety factor $( > 0.0)$.
+  \item[eplifac] (\id{realtype}) linear convergence safety factor $( \geq 0.0)$.
 
   \end{args}
 }
@@ -2118,13 +2118,13 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   \item[\Id{CVSPILS\_LMEM\_NULL}]
     The {\cvspils} linear solver has not been initialized.
   \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The factor \id{delt} is negative.  
+    The factor \id{eplifac} is negative.  
   \end{args}
 }
 {
   The default value is $0.05$.
 
-  Passing a value \id{delt}$ = 0.0$ also indicates using the default value.
+  Passing a value \id{eplifac}$ = 0.0$ also indicates using the default value.
 }
 %%
 \ucfunction{CVSpilsSetMaxl}

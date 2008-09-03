@@ -1199,12 +1199,12 @@ problem through the following functions:
 
 }
 %%
-\ucfunction{CVSpilsSetDeltB}
+\ucfunction{CVSpilsSetEpsLinB}
 {
-  flag = CVSpilsSetDeltB(cvode\_mem, which, deltB);
+  flag = CVSpilsSetEpsLinB(cvode\_mem, which, eplifacB);
 }
 {
-  The function \ID{CVSpilsSetDeltB} specifies the factor by
+  The function \ID{CVSpilsSetEpsLinB} specifies the factor by
   which the Krylov linear solver's convergence test constant is reduced
   from the Newton iteration test constant.
 }
@@ -1214,7 +1214,7 @@ problem through the following functions:
     pointer to the {\cvodes} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[deltB] (\id{realtype})
+  \item[eplifacB] (\id{realtype})
     value of the convergence test constant reduction factor ($\geq 0.0$).
   \end{args}
 }
@@ -1231,12 +1231,12 @@ problem through the following functions:
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CVSPILS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier, or
-    \id{deltB} was negative.
+    \id{eplifacB} was negative.
   \end{args}
 }
 {
   The default value is $0.05$.
-  Passing a value \id{deltB}$ = 0.0$ also indicates using the default value.
+  Passing a value \id{eplifacB}$ = 0.0$ also indicates using the default value.
 }
 %%
 \ucfunction{CVSpilsSetPrecTypeB}
