@@ -133,7 +133,7 @@ Steps that are unchanged from the skeleton program presented in
 \item
   {\bf Allocate memory for the backward problem}
 
-  Call \Id{IDAInitB} or \Id{IDAInitBS} (when the backward problem depends on the
+  Call \Id{IDAInitB} (or \Id{IDAInitBS}, when the backward problem depends on the
   forward sensitivities). The two functions are actually wrappers for \id{IDAInit} 
   and allocate internal memory, specify problem data, and initialize {\idas} 
   at \id{tB0} for the backward problem (see \S\ref{sss:idainitb}).
@@ -468,9 +468,14 @@ and solution specifications, and allocate internal memory for the backward probl
 {}
 %%
 %%
-The function \id{IDAInitB} is essentially wrapper for \id{IDAInit} with
-some particularization for backward integration as described below.
+There are two initialization functions for the backward problem -- one for
+the case when the backward problem does not depend on the forward
+sensitivities, and one for the case when it does.  These two functions
+are described next.
 
+The function \id{IDAInitB} initializes the backward problem when it does not
+depend on the forward sensitivities.  It is essentially wrapper for \id{IDAInit}
+with some particularization for backward integration, as described below.
 
 \ucfunction{IDAInitB}
 {
@@ -522,7 +527,6 @@ some particularization for backward integration as described below.
 {
   The memory allocated by \id{IDAInitB} is deallocated by the function 
   \id{IDAAdjFree}.
-  
 }
 
 For the case when backward problem also depends on the forward sensitivities, user
@@ -923,7 +927,7 @@ The call to this function has the form
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory returned by \id{IDAInit}.
+    pointer to the {\idas} memory returned by \id{IDACreate}.
   \item[tBout] (\id{realtype})
     the next time at which a computed solution is desired.
   \item[itaskB] (\id{int})
@@ -1071,7 +1075,7 @@ problem through the following function:
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory returned by \id{IDAInit}.
+    pointer to the {\idas} memory returned by \id{IDACreate}.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[jacB] (\id{IDADlsDenseJacFnB})
@@ -1119,7 +1123,7 @@ problem through the following function:
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory returned by \id{IDAInit}.
+    pointer to the {\idas} memory returned by \id{IDACreate}.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[jacB] (\id{IDADlsBandJacFnB})
@@ -1284,7 +1288,8 @@ problem through the following functions:
 
   {\warn}This option is available only with {\idaspgmr}.
 }
-
+%%
+%%
 \ucfunction{IDASpilsSetMaxlB}
 {
   flag = IDASpilsSetMaxlB(ida\_mem, which, maxlB);
@@ -1321,13 +1326,51 @@ problem through the following functions:
 }
 {
   The maximum subspace dimension is initially specified in the call
-  to \id{IDASpbcgB} or \id{IDASptfqmrB}.
-  The call to \id{IDASpilsSetMaxlB} is needed only if \id{maxl} is being changed from its 
-  previous value.
+  to \id{IDASpbcgB} or \id{IDASptfqmrB}.  The call to \id{IDASpilsSetMaxlB}
+  is needed only if \id{maxlB} is being changed from its previous value.
 
   {\warn}This option is available only for the {\idaspbcg} and {\idasptfqmr} linear solvers.
-
 }
+%%
+%%
+\ucfunction{IDASpilsSetEpsLinB}
+{
+  flag = IDASpilsSetEpsLinB(ida\_mem, eplifacB);
+}
+{
+  The function \ID{IDASpilsSetEpsLinB} specifies the factor by
+  which the Krylov linear solver's convergence test constant is reduced
+  from the Newton iteration test constant. (See \S\ref{ss:ivp_sol}).
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[eplifacB] (\id{realtype})
+    linear convergence safety factor ($>= 0.0$).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPILS\_ILL\_INPUT]
+  \item[\Id{IDASPILS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDASPILS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPILS\_LMEM\_NULL}]
+    The {\idaspils} linear solver has not been initialized.
+  \item[\Id{IDASPILS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDASPILS\_ILL\_INPUT}]
+    The value of \id{eplifacB} is negative.
+  \end{args}
+}
+{
+  The default value is $0.05$.
+
+  Passing a value \id{eplifacB}$ = 0.0$ also indicates using the default value.
+}
+
 \index{IDASPGMR@{\idaspgmr} linear solver!optional input|)}
 \index{IDASPBCG@{\idaspbcg} linear solver!optional input|)}
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!optional input|)}
@@ -1360,7 +1403,7 @@ function to obtain this pointer:
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block created by using \id{IDACreate}.
+    pointer to the {\idas} memory block created by \id{IDACreate}.
   \item[which] (\id{int})
     the identifier of the backward problem.
   \end{args}
@@ -1491,7 +1534,7 @@ flag = IDAQuadInitB(ida\_mem, which, rhsQB, yQB0);
 %%
 
 The function \id{IDAQuadInitBS} initializes and allocates memory for the backward
-integration of quadrature equations that depend on the forward sensitivites.
+integration of quadrature equations that depend on the forward sensitivities.
 %%
 %%
 \ucfunction{IDAQuadInitBS}
@@ -1588,7 +1631,7 @@ of \id{IDASolveB}, {\idas} provides a wrapper for the function \ID{IDAGetQuad}
 %%
 \ucfunction{IDAGetQuadB}
 {
-  flag = IDAGetQuadB(ida\_mem, which, \&t, yQB);
+  flag = IDAGetQuadB(ida\_mem, which, \&tret, yQB);
 }
 {
   The function \id{IDAGetQuadB} returns the quadrature solution vector after
@@ -1598,8 +1641,8 @@ of \id{IDASolveB}, {\idas} provides a wrapper for the function \ID{IDAGetQuad}
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\idas} memory.
-  \item[t] (\id{realtype})
-    the time reached by the solver.
+  \item[tret] (\id{realtype})
+    the time reached by the solver (output).
   \item[yQB] (\id{N\_Vector})
     the computed quadrature vector.
   \end{args}
@@ -1727,7 +1770,7 @@ The user must provide a \id{resB} function of type \ID{IDAResFnB} defined as fol
 
   {\warn}Before calling the user's \id{resB} function, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
+  If an error occurs in the interpolation, {\idas} triggers an unrecoverable
   failure in the residual function which will halt the integration and
   \id{IDASolveB} will return \id{IDA\_RESFUNC\_FAIL}.
 }
@@ -1797,7 +1840,7 @@ The user must provide a \id{resBS} function of type \ID{IDAResFnBS} defined as f
 
   {\warn}Before calling the user's \id{resBS} function, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
+  If an error occurs in the interpolation, {\idas} triggers an unrecoverable
   failure in the residual function which will halt the integration and
   \id{IDASolveB} will return \id{IDA\_RESFUNC\_FAIL}.
 }
@@ -1861,7 +1904,7 @@ The user must provide an \id{fQB} function of type \ID{IDAQuadRhsFnB} defined by
 
   {\warn}Before calling the user's \id{fQB} function, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
+  If an error occurs in the interpolation, {\idas} triggers an unrecoverable
   failure in the quadrature right-hand side function which will halt the integration and
   \id{IDASolveB} will return \id{IDA\_QRHSFUNC\_FAIL}.
 }
@@ -1931,7 +1974,7 @@ The user must provide an \id{fQBS} function of type \ID{IDAQuadRhsFnBS} defined 
 
   {\warn}Before calling the user's \id{fQBS} function, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration.
-  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
+  If an error occurs in the interpolation, {\idas} triggers an unrecoverable
   failure in the quadrature right-hand side function which will halt the integration and
   \id{IDASolveB} will return \id{IDA\_QRHSFUNC\_FAIL}.
 }
@@ -2012,7 +2055,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
 
   {\warn}Before calling the user's \id{IDADlsDenseJacFnB}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
+  If an error occurs in the interpolation, {\idas} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
   (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} to 
   \Id{IDADLS\_JACFUNC\_UNRECVR}).
@@ -2097,7 +2140,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
 
   {\warn}Before calling the user's \id{IDADlsBandJacFnB}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
+  If an error occurs in the interpolation, {\idas} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
   (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idaband} sets \id{last\_flag} to
   \Id{IDADLS\_JACFUNC\_UNRECVR}).
@@ -2162,7 +2205,7 @@ the user may provide a function of type \ID{IDASpilsJacTimesVecFnB} in the follo
 }
 {
   A user-supplied Jacobian-vector product function must load the vector \id{JvB}
-  with the result of the product between the Jacobian of the backward problem 
+  with the product of the Jacobian of the backward problem 
   at the point (\id{t},\id{y}, \id{yB}) and the vector \id{vB}. 
   Here, \id{y} is the solution of the original IVP at time \id{t} and 
   \id{yB} is the solution of the backward problem at the same time.  
@@ -2404,7 +2447,7 @@ following function:
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block returned by \id{IDAInit}.
+    pointer to the {\idas} memory block returned by \id{IDACreate}.
   \item[which] (\id{int})
     the identifier of the backward problem.
   \item[mudqB] (\id{int})
@@ -2496,7 +2539,7 @@ The prototypes for these two functions are described below.
 
   {\warn}Before calling the user's \id{IDABBDLocalFnB}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
-  If an error occurrs in the interpolation, {\idas} triggers an unrecoverable
+  If an error occurs in the interpolation, {\idas} triggers an unrecoverable
   failure in the preconditioner setup function which will halt the integration
   (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL}).
 }
