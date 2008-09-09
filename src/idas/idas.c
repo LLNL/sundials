@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2007-11-26 16:20:00 $
+ * $Revision: 1.33 $
+ * $Date: 2008-09-09 19:44:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3947,7 +3947,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
       return(IDA_QRHS_FAIL);
     } else if (retval > 0) {
       IDAProcessError(IDA_mem, IDA_FIRST_QSRHS_ERR, "IDAS", "IDAInitialSetup", MSG_QSRHSFUNC_FIRST);
-      return(IDA_FIRST_QRHS_ERR);
+      return(IDA_FIRST_QSRHS_ERR);
     }
 
     /* If using the internal DQ functions, we must have access to fQ
