@@ -620,8 +620,9 @@ the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
   flag = CVodeEEtolerances(cvode\_mem);
 }
 {
-  When this function is used, {\cvodes} will estimate tolerances for sensitivity variables based on the 
-  tolerances supplied for states variables and the scaling factors $\bar p$.
+  When \ID{CVodeEEtolerances} is called, {\cvodes} will estimate tolerances for
+  sensitivity variables based on the tolerances supplied for states variables
+  and the scaling factors $\bar p$.
 }
 {
   \begin{args}[cvode\_mem]
@@ -686,7 +687,7 @@ following functions:
   flag = CVodeGetSens(cvode\_mem, \&tret, yS);
 }
 {
-  The function \id{CVodeGetSens} returns the sensitivity solution vectors after a
+  The function \ID{CVodeGetSens} returns the sensitivity solution vectors after a
   successful return from \id{CVode}.
 }
 {
@@ -728,7 +729,7 @@ directly by the user.
   flag = CVodeGetSensDky(cvode\_mem, t, k, dkyS);
 }
 {
-  The function \id{CVodeGetSensDky} returns derivatives of the sensitivity solution 
+  The function \ID{CVodeGetSensDky} returns derivatives of the sensitivity solution 
   vectors after a successful return from \id{CVode}.
 }
 {
@@ -773,7 +774,7 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
   flag = CVodeGetSens1(cvode\_mem, \&tret, is, yS);
 }
 {
-  The function \id{CVodeGetSens1} returns the \id{is}-th sensitivity solution vector
+  The function \ID{CVodeGetSens1} returns the \id{is}-th sensitivity solution vector
   after a successful return from \id{CVode}.
 }
 {
@@ -816,7 +817,7 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
   flag = CVodeGetSensDky1(cvode\_mem, t, k, is, dkyS);
 }
 {
-  The function \id{CVodeGetSensDky1} returns the \id{k}-th derivative of the 
+  The function \ID{CVodeGetSensDky1} returns the \id{k}-th derivative of the 
   \id{is}-th sensitivity solution vector after a successful return from \id{CVode}.
 }
 {
@@ -1757,7 +1758,7 @@ The form of the call to this function is as follows:
 flag = CVodeQuadSensInit(cvode\_mem, rhsQS, yQS0);
 }
 {
-  The function \Id{CVodeQuadSensInit} provides required problem specifications,
+  The function \ID{CVodeQuadSensInit} provides required problem specifications,
   allocates internal memory, and initializes quadrature integration.
 }
 {
@@ -1822,7 +1823,7 @@ The call to the \id{CVodeQuadSensReInit} function has the form:
   flag = CVodeQuadSensReInit(cvode\_mem, yQS0);
 }
 {
-  The function \id{CVodeQuadSensReInit} provides required problem specifications 
+  The function \ID{CVodeQuadSensReInit} provides required problem specifications 
   and reinitializes the sensitivity-dependent quadrature integration.
 }
 {
@@ -1913,7 +1914,7 @@ one of the following functions:
   flag = CVodeGetQuadSens(cvode\_mem, \&tret, yQS);
 }
 {
-  The function \id{CVodeGetQuadSens} returns the quadrature sensitivities
+  The function \ID{CVodeGetQuadSens} returns the quadrature sensitivities
   solution vectors after a successful return from \id{CVode}.
 }
 {
@@ -1955,7 +1956,7 @@ directly by the user.
   flag = CVodeGetQuadSensDky(cvode\_mem, t, k, dkyQS);
 }
 {
-  The function \id{CVodeGetQuadSensDky} returns derivatives of the quadrature sensitivities 
+  The function \ID{CVodeGetQuadSensDky} returns derivatives of the quadrature sensitivities 
   solution vectors after a successful return from \id{CVode}.
 }
 {
@@ -2001,7 +2002,7 @@ each parameter in turn through the functions \id{CVodeGetQuadSens1} and
   flag = CVodeGetQuadSens1(cvode\_mem, \&tret, is, yQS);
 }
 {
-  The function \id{CVodeGetQuadSens1} returns the \id{is}-th sensitivity 
+  The function \ID{CVodeGetQuadSens1} returns the \id{is}-th sensitivity 
   of quadratures after a successful return from \id{CVode}.
 }
 {
@@ -2041,7 +2042,7 @@ each parameter in turn through the functions \id{CVodeGetQuadSens1} and
   flag = CVodeGetQuadSensDky1(cvode\_mem, t, k, is, dkyQS);
 }
 {
-  The function \id{CVodeGetQuadSensDky1} returns the \id{k}-th derivative of the 
+  The function \ID{CVodeGetQuadSensDky1} returns the \id{k}-th derivative of the 
   \id{is}-th sensitivity solution vector after a successful 
   return from \id{CVode}.
 }
@@ -2101,7 +2102,7 @@ of sensitivity-dependent quadrature equations.
  flag = CVodeSetQuadSensErrCon(cvode\_mem, errconQS)
 }
 {
-  The function \Id{CVodeSetQuadSensErrCon} specifies whether or not the
+  The function \ID{CVodeSetQuadSensErrCon} specifies whether or not the
   quadrature variables are to be used in the step size control
   mechanism. If they are, the user must call one of the functions
   \id{CVodeQuadSensSStolerances}, \id{CVodeQuadSensSVtolerances}, or
@@ -2273,7 +2274,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadSensNumRhsEvals(cvode\_mem, \&nrhsQSevals);
 }
 {
-  The function \Id{CVodeGetQuadSensNumRhsEvals} returns the 
+  The function \ID{CVodeGetQuadSensNumRhsEvals} returns the 
   number of calls made to the user's quadrature right-hand side function.
 }
 {
@@ -2303,7 +2304,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadSensNumErrTestFails(cvode\_mem, \&nQSetfails);
 }
 {
-  The function \Id{CVodeGetQuadSensNumErrTestFails} returns the
+  The function \ID{CVodeGetQuadSensNumErrTestFails} returns the
   number of local error test failures due to quadrature variables.
 }
 {
@@ -2333,7 +2334,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadSensErrWeights(cvode\_mem, eQSweight);
 }
 {
-  The function \Id{CVodeGetQuadSensErrWeights} returns the quadrature error weights 
+  The function \ID{CVodeGetQuadSensErrWeights} returns the quadrature error weights 
   at the current time.
 }
 {
@@ -2369,7 +2370,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadSensStats(cvode\_mem, \&nrhsQSevals, \&nQSetfails);
 }
 {
-  The function \Id{CVodeGetQuadSensStats} returns the {\cvodes} integrator statistics
+  The function \ID{CVodeGetQuadSensStats} returns the {\cvodes} integrator statistics
   as a group.
 }
 {

@@ -339,7 +339,7 @@ is to be called only after the IVP solution is complete, as it frees the
   cvode\_mem = CVodeCreate(lmm, iter);
 }
 {
-  The function \Id{CVodeCreate} instantiates a {\cvodes} solver object and
+  The function \ID{CVodeCreate} instantiates a {\cvodes} solver object and
   specifies the solution method.
 }
 {
@@ -367,7 +367,7 @@ is to be called only after the IVP solution is complete, as it frees the
 flag = CVodeInit(cvode\_mem, f, t0, y0);
 }
 {
-  The function \Id{CVodeInit} provides required problem and solution
+  The function \ID{CVodeInit} provides required problem and solution
   specifications, allocates internal memory, and initializes {\cvodes}.
 }
 {
@@ -409,7 +409,7 @@ flag = CVodeInit(cvode\_mem, f, t0, y0);
   CVodeFree(\&cvode\_mem);
 }
 {
-  The function \Id{CVodeFree} frees the memory allocated by
+  The function \ID{CVodeFree} frees the memory allocated by
   a previous call to \id{CVodeCreate}.
 }
 {
@@ -682,7 +682,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVDense(cvode\_mem, N);
 }
 {
-  The function \Id{CVDense} selects the {\cvdense} linear solver and indicates
+  The function \ID{CVDense} selects the {\cvdense} linear solver and indicates
   the use of the internal direct dense linear algebra functions.
 
   The user's main program must include the \id{cvodes\_dense.h} header file.
@@ -745,7 +745,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVBand(cvode\_mem, N, mupper, mlower);
 }
 {
-  The function \Id{CVBand} selects the {\cvband} linear solver and indicates
+  The function \ID{CVBand} selects the {\cvband} linear solver and indicates
   the use of the internal direct band linear algebra functions.
 
   The user's main program must include the \id{cvodes\_band.h} header file.
@@ -815,7 +815,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVDiag(cvode\_mem);
 }
 {
-  The function \Id{CVDiag} selects the {\cvdiag} linear solver. 
+  The function \ID{CVDiag} selects the {\cvdiag} linear solver. 
 
   The user's main function must include the \id{cvodes\_diag.h} header file.
 }
@@ -854,7 +854,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVSpgmr(cvode\_mem, pretype, maxl);
 }
 {
-  The function \Id{CVSpgmr} selects the {\cvspgmr} linear solver. 
+  The function \ID{CVSpgmr} selects the {\cvspgmr} linear solver. 
 
   The user's main function must include the \id{cvodes\_spgmr.h} header file.
 }
@@ -899,7 +899,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVSpbcg(cvode\_mem, pretype, maxl);
 }
 {
-  The function \Id{CVSpbcg} selects the {\cvspbcg} linear solver. 
+  The function \ID{CVSpbcg} selects the {\cvspbcg} linear solver. 
 
   The user's main function must include the \id{cvodes\_spbcgs.h} header file.
 }
@@ -945,7 +945,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVSptfqmr(cvode\_mem, pretype, maxl);
 }
 {
-  The function \Id{CVSptfqmr} selects the {\cvsptfqmr} linear solver. 
+  The function \ID{CVSptfqmr} selects the {\cvsptfqmr} linear solver. 
 
   The user's main function must include the \id{cvodes\_sptfqmr.h} header file.
 }
@@ -998,7 +998,7 @@ algorithm, call the following function:
   flag = CVodeRootInit(cvode\_mem, nrtfn, g);
 }
 {
-  The function \Id{CVodeRootInit} specifies that the roots of a set of
+  The function \ID{CVodeRootInit} specifies that the roots of a set of
   functions $g_i(t,y)$ are to be found while the IVP is being solved.
 }
 {
@@ -1048,7 +1048,7 @@ But these modes are modified if the user has set a stop time (with
   flag = CVode(cvode\_mem, tout, yout, tret, itask);
 }
 {
-  The function \Id{CVode} integrates the ODE over an interval in $t$.
+  The function \ID{CVode} integrates the ODE over an interval in $t$.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1246,7 +1246,7 @@ in order to take effect for any later error message.
 flag = CVodeSetErrFile(cvode\_mem, errfp);
 }
 {
-  The function \Id{CVodeSetErrFile} specifies a pointer to the file
+  The function \ID{CVodeSetErrFile} specifies a pointer to the file
   where all {\cvodes} messages should be directed when the default
   {\cvodes} error handler function is used.
 }
@@ -1348,7 +1348,7 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
 flag = CVodeSetMaxOrder(cvode\_mem, maxord);
 }
 {
-  The function \Id{CVodeSetMaxOrder} specifies the maximum order of the 
+  The function \ID{CVodeSetMaxOrder} specifies the maximum order of the 
   linear multistep method.
 }
 {
@@ -1388,7 +1388,7 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
 flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 }
 {
-  The function \Id{CVodeSetMaxNumSteps} specifies the maximum number
+  The function \ID{CVodeSetMaxNumSteps} specifies the maximum number
   of steps to be taken by the solver in its attempt to reach 
   the next output time.
 }
@@ -1421,7 +1421,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
 }
 {
-  The function \Id{CVodeSetMaxHnilWarns} specifies the maximum number of
+  The function \ID{CVodeSetMaxHnilWarns} specifies the maximum number of
   messages issued by the solver warning that $t+h=t$ on the next internal step.
 }
 {
@@ -1453,7 +1453,7 @@ flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
 flag = CVodeSetstabLimDet(cvode\_mem, stldet);
 }
 {
-  The function \Id{CVodeSetStabLimDet} indicates if
+  The function \ID{CVodeSetStabLimDet} indicates if
   the BDF stability limit detection algorithm should be used. See \S\ref{s:bdf_stab}
   for further details.
 }
@@ -1489,7 +1489,7 @@ flag = CVodeSetstabLimDet(cvode\_mem, stldet);
 flag = CVodeSetInitStep(cvode\_mem, hin);
 }
 {
-  The function \Id{CVodeSetInitStep} specifies the initial step size.
+  The function \ID{CVodeSetInitStep} specifies the initial step size.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1522,7 +1522,7 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
 flag = CVodeSetMinStep(cvode\_mem, hmin);
 }
 {
-  The function \Id{CVodeSetMinStep} specifies a lower bound on the magnitude
+  The function \ID{CVodeSetMinStep} specifies a lower bound on the magnitude
   of the step size.
 }
 {
@@ -1554,7 +1554,7 @@ flag = CVodeSetMinStep(cvode\_mem, hmin);
 flag = CVodeSetMaxStep(cvode\_mem, hmax);
 }
 {
-  The function \Id{CVodeSetMaxStep} specifies an upper bound on the magnitude
+  The function \ID{CVodeSetMaxStep} specifies an upper bound on the magnitude
   of the step size.
 }
 {
@@ -1587,7 +1587,7 @@ flag = CVodeSetMaxStep(cvode\_mem, hmax);
 flag = CVodeSetStopTime(cvode\_mem, tstop);
 }
 {
-  The function \Id{CVodeSetStopTime} specifies the value of the
+  The function \ID{CVodeSetStopTime} specifies the value of the
   independent variable $t$ past which the solution is not to proceed.
 }
 {
@@ -1620,7 +1620,7 @@ flag = CVodeSetStopTime(cvode\_mem, tstop);
 flag = CVodeSetMaxErrTestFails(cvode\_mem, maxnef);
 }
 {
-  The function \Id{CVodeSetMaxErrTestFails} specifies the
+  The function \ID{CVodeSetMaxErrTestFails} specifies the
   maximum number of error test failures permitted in attempting one step.
 }
 {
@@ -1650,7 +1650,7 @@ flag = CVodeSetMaxErrTestFails(cvode\_mem, maxnef);
 flag = CVodeSetMaxNonlinIters(cvode\_mem, maxcor);
 }
 {
-  The function \Id{CVodeSetMaxNonlinIters} specifies the maximum
+  The function \ID{CVodeSetMaxNonlinIters} specifies the maximum
   number of nonlinear solver iterations permitted per step.
 }
 {
@@ -1680,7 +1680,7 @@ flag = CVodeSetMaxNonlinIters(cvode\_mem, maxcor);
 flag = CVodeSetMaxConvFails(cvode\_mem, maxncf);
 }
 {
-  The function \Id{CVodeSetMaxConvFails} specifies the
+  The function \ID{CVodeSetMaxConvFails} specifies the
   maximum number of nonlinear solver convergence failures permitted during
   one step.
 }
@@ -1712,7 +1712,7 @@ flag = CVodeSetMaxConvFails(cvode\_mem, maxncf);
 flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
 }
 {
-  The function \Id{CVodeSetNonlinConvCoef} specifies the safety factor used
+  The function \ID{CVodeSetNonlinConvCoef} specifies the safety factor used
   in the nonlinear convergence test (see \S\ref{ss:ivp_sol}).
 }
 {
@@ -1741,7 +1741,7 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
 flag = CVodeSetIterType(cvode\_mem, iter);
 }
 {
-  The function \Id{CVodeSetIterType} resets the nonlinear solver
+  The function \ID{CVodeSetIterType} resets the nonlinear solver
   iteration type to \Id{iter}.
 }
 {
@@ -1802,7 +1802,7 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
   flag = CVDlsSetDenseJacFn(cvode\_mem, djac);
 }
 {
-  The function \Id{CVDlsSetDenseJacFn} specifies the dense Jacobian
+  The function \ID{CVDlsSetDenseJacFn} specifies the dense Jacobian
   approximation function to be used.
 }
 {
@@ -1855,7 +1855,7 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
   flag = CVDlsSetBandJacFn(cvode\_mem, bjac);
 }
 {
-  The function \Id{CVDlsSetBandJacFn} specifies the banded Jacobian
+  The function \ID{CVDlsSetBandJacFn} specifies the banded Jacobian
   approximation function to be used.
 }
 {
@@ -2132,7 +2132,7 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
   flag = CVSpilsSetMaxl(cv\_mem, maxl);
 }
 {
-  The function \Id{CVSpilsSetMaxl} resets the maximum Krylov subspace
+  The function \ID{CVSpilsSetMaxl} resets the maximum Krylov subspace
   dimension for the Bi-CGStab\index{Bi-CGStab method} or TFQMR\index{TFQMR method} 
   methods.
 }
@@ -2268,7 +2268,7 @@ The call to the \id{CVodeGetDky} function has the following form:
   flag = CVodeGetDky(cvode\_mem, t, k, dky);
 }
 {
-  The function \Id{CVodeGetDky} computes the \id{k}-th derivative of the function
+  The function \ID{CVodeGetDky} computes the \id{k}-th derivative of the function
   \id{y} at time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$
   \id{t} $\le t_n$, $t_n$ denotes the current internal time reached, and $h_u$
   is the  last internal step size successfully used by the solver.  The 
@@ -2432,7 +2432,7 @@ These optional output functions are described next.
   flag = CVodeGetWorkSpace(cvode\_mem, \&lenrw, \&leniw);
 }
 {
-  The function \Id{CVodeGetWorkSpace} returns the
+  The function \ID{CVodeGetWorkSpace} returns the
   {\cvodes} real and integer workspace sizes.
 }
 {
@@ -2492,7 +2492,7 @@ These optional output functions are described next.
   flag = CVodeGetNumSteps(cvode\_mem, \&nsteps);
 }
 {
-  The function \Id{CVodeGetNumSteps} returns the cumulative number of internal 
+  The function \ID{CVodeGetNumSteps} returns the cumulative number of internal 
   steps taken by the solver (total so far).
 }
 {
@@ -2520,7 +2520,7 @@ These optional output functions are described next.
   flag = CVodeGetNumRhsEvals(cvode\_mem, \&nfevals);
 }
 {
-  The function \Id{CVodeGetNumRhsEvals} returns the 
+  The function \ID{CVodeGetNumRhsEvals} returns the 
   number of calls to the user's right-hand side function.
 }
 {
@@ -2552,7 +2552,7 @@ These optional output functions are described next.
   flag = CVodeGetNumLinSolvSetups(cvode\_mem, \&nlinsetups);
 }
 {
-  The function \Id{CVodeGetNumLinSolvSetups} returns the
+  The function \ID{CVodeGetNumLinSolvSetups} returns the
   number of calls made to the linear solver's setup function.
 }
 {
@@ -2580,7 +2580,7 @@ These optional output functions are described next.
   flag = CVodeGetNumErrTestFails(cvode\_mem, \&netfails);
 }
 {
-  The function \Id{CVodeGetNumErrTestFails} returns the
+  The function \ID{CVodeGetNumErrTestFails} returns the
   number of local error test failures that have occurred.
 }
 {
@@ -2608,7 +2608,7 @@ These optional output functions are described next.
   flag = CVodeGetLastOrder(cvode\_mem, \&qlast);
 }
 {
-  The function \Id{CVodeGetLastOrder} returns the
+  The function \ID{CVodeGetLastOrder} returns the
   integration method order used during the last internal step.
 }
 {
@@ -2636,7 +2636,7 @@ These optional output functions are described next.
   flag = CVodeGetCurrentOrder(cvode\_mem, \&qcur);
 }
 {
-  The function \Id{CVodeGetCurrentOrder} returns the
+  The function \ID{CVodeGetCurrentOrder} returns the
   integration method order to be used on the next internal step.
 }
 {
@@ -2664,7 +2664,7 @@ These optional output functions are described next.
   flag = CVodeGetLastStep(cvode\_mem, \&hlast);
 }
 {
-  The function \Id{CVodeGetLastStep} returns the
+  The function \ID{CVodeGetLastStep} returns the
   integration step size taken on the last internal step.
 }
 {
@@ -2692,7 +2692,7 @@ These optional output functions are described next.
   flag = CVodeGetCurrentStep(cvode\_mem, \&hcur);
 }
 {
-  The function \Id{CVodeGetCurrentStep} returns the
+  The function \ID{CVodeGetCurrentStep} returns the
   integration step size to be attempted on the next internal step.
 }
 {
@@ -2720,7 +2720,7 @@ These optional output functions are described next.
   flag = CVodeGetActualInitStep(cvode\_mem, \&hinused);
 }
 {
-  The function \Id{CVodeGetActualInitStep} returns the
+  The function \ID{CVodeGetActualInitStep} returns the
   value of the integration step size used on the first step.
 }
 {
@@ -2754,7 +2754,7 @@ These optional output functions are described next.
   flag = CVodeGetCurrentTime(cvode\_mem, \&tcur);
 }
 {
-  The function \Id{CVodeGetCurrentTime} returns the
+  The function \ID{CVodeGetCurrentTime} returns the
   current internal time reached by the solver.
 }
 {
@@ -2782,7 +2782,7 @@ These optional output functions are described next.
   flag = CVodeGetNumStabLimOrderReds(cvode\_mem, \&nslred);
 }
 {
-  The function \Id{CVodeGetNumStabLimOrderReds} returns the
+  The function \ID{CVodeGetNumStabLimOrderReds} returns the
   number of order reductions dictated by the BDF stability limit 
   detection algorithm (see \S\ref{s:bdf_stab}).
 }
@@ -2814,7 +2814,7 @@ These optional output functions are described next.
   flag = CVodeGetTolScaleFactor(cvode\_mem, \&tolsfac);
 }
 {
-  The function \Id{CVodeGetTolScaleFactor} returns a
+  The function \ID{CVodeGetTolScaleFactor} returns a
   suggested factor by which the user's tolerances 
   should be scaled when too much accuracy has been 
   requested for some internal step.
@@ -2844,7 +2844,7 @@ These optional output functions are described next.
   flag = CVodeGetErrWeights(cvode\_mem, eweight);
 }
 {
-  The function \Id{CVodeGetErrWeights} returns the solution error weights at
+  The function \ID{CVodeGetErrWeights} returns the solution error weights at
   the current time. These are the reciprocals of the $W_i$ given by (\ref{e:errwt}).
 }
 {
@@ -2874,7 +2874,7 @@ These optional output functions are described next.
   flag = CVodeGetEstLocalErrors(cvode\_mem, ele);
 }
 {
-  The function \Id{CVodeGetEstLocalErrors} returns the
+  The function \ID{CVodeGetEstLocalErrors} returns the
   vector of estimated local errors.
 }
 {
@@ -2920,7 +2920,7 @@ These optional output functions are described next.
   \end{tabular}
 }
 {
-  The function \Id{CVodeGetIntegratorStats} returns the {\cvodes} integrator
+  The function \ID{CVodeGetIntegratorStats} returns the {\cvodes} integrator
   statistics as a group.
 }
 {
@@ -2966,7 +2966,7 @@ These optional output functions are described next.
   flag = CVodeGetNumNonlinSolvIters(cvode\_mem, \&nniters);
 }
 {
-  The function \Id{CVodeGetNumNonlinSolvIters} returns the
+  The function \ID{CVodeGetNumNonlinSolvIters} returns the
   number of nonlinear (functional or Newton) iterations performed. 
 }
 {
@@ -2994,7 +2994,7 @@ These optional output functions are described next.
   flag = CVodeGetNumNonlinSolvConvFails(cvode\_mem, \&nncfails);
 }
 {
-  The function \Id{CVodeGetNumNonlinSolvConvFails} returns the
+  The function \ID{CVodeGetNumNonlinSolvConvFails} returns the
   number of nonlinear convergence failures that have occurred.
 }
 {
@@ -3022,7 +3022,7 @@ These optional output functions are described next.
   flag = CVodeGetNonlinSolvStats(cvode\_mem, \&nniters, \&nncfails);
 }
 {
-  The function \Id{CVodeGetNonlinSolvStats} returns the
+  The function \ID{CVodeGetNonlinSolvStats} returns the
   {\cvodes} nonlinear solver statistics as a group.
 }
 {
@@ -3078,7 +3078,7 @@ There are two optional output functions associated with rootfinding.
   flag = CVodeGetRootInfo(cvode\_mem, rootsfound);
 }
 {
-  The function \Id{CVodeGetRootInfo} returns an array showing which 
+  The function \ID{CVodeGetRootInfo} returns an array showing which 
   functions were found to have a root.
 }
 {
@@ -3115,7 +3115,7 @@ There are two optional output functions associated with rootfinding.
   flag = CVodeGetNumGEvals(cvode\_mem, \&ngevals);
 }
 {
-  The function \Id{CVodeGetNumGEvals} returns the cumulative
+  The function \ID{CVodeGetNumGEvals} returns the cumulative
   number of calls made to the user-supplied root function $g$.
 }
 {
@@ -3162,7 +3162,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   flag = CVDlsGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \Id{CVDlsGetWorkSpace} returns the sizes of the real and
+  The function \ID{CVDlsGetWorkSpace} returns the sizes of the real and
   integer workspaces used by a {\cvdls} linear solver ({\cvdense} or {\cvband}).
 }
 {
@@ -3203,7 +3203,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   flag = CVDlsGetNumJacEvals(cvode\_mem, \&njevals);
 }
 {
-  The function \Id{CVDlsGetNumJacEvals} returns the
+  The function \ID{CVDlsGetNumJacEvals} returns the
   number of calls made to the {\cvdls} (dense or band) 
   Jacobian approximation function.
 }
@@ -3234,7 +3234,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   flag = CVDlsGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
-  The function \Id{CVDlsGetNumRhsEvals} returns the
+  The function \ID{CVDlsGetNumRhsEvals} returns the
   number of calls made to the user-supplied right-hand side function due to the 
   finite difference (dense or band) Jacobian approximation.
 }
@@ -3268,7 +3268,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   flag = CVDlsGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
-  The function \Id{CVDlsGetLastFlag} returns the
+  The function \ID{CVDlsGetLastFlag} returns the
   last return value from a {\cvdls} routine. 
 }
 {
@@ -3344,7 +3344,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   flag = CVDiagGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \Id{CVDiagGetWorkSpace} returns the
+  The function \ID{CVDiagGetWorkSpace} returns the
   {\cvdiag} real and integer workspace sizes.
 }
 {
@@ -3379,7 +3379,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   flag = CVDiagGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
-  The function \Id{CVDiagGetNumRhsEvals} returns the
+  The function \ID{CVDiagGetNumRhsEvals} returns the
   number of calls made to the user-supplied right-hand side function due to the 
   finite difference Jacobian approximation.
 }
@@ -3414,7 +3414,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   flag = CVDiagGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
-  The function \Id{CVDiagGetLastFlag} returns the
+  The function \ID{CVDiagGetLastFlag} returns the
   last return value from a {\cvdiag} routine. 
 }
 {
@@ -4586,7 +4586,7 @@ The form of the call to this function is as follows:
 flag = CVodeQuadInit(cvode\_mem, fQ, yQ0);
 }
 {
-  The function \Id{CVodeQuadInit} provides required problem specifications,
+  The function \ID{CVodeQuadInit} provides required problem specifications,
   allocates internal memory, and initializes quadrature integration.
 }
 {
@@ -4642,7 +4642,7 @@ The call to the \id{CVodeQuadReInit} function has the following form:
   flag = CVodeQuadReInit(cvode\_mem, yQ0);
 }
 {
-  The function \id{CVodeQuadReInit} provides required problem specifications 
+  The function \ID{CVodeQuadReInit} provides required problem specifications 
   and reinitializes the quadrature integration.
 }
 {
@@ -4729,7 +4729,7 @@ $y$ in \id{yout}. Solution quadratures can be obtained using the following funct
   flag = CVodeGetQuad(cvode\_mem, \&tret, yQ);
 }
 {
-  The function \id{CVodeGetQuad} returns the quadrature solution vector after a
+  The function \ID{CVodeGetQuad} returns the quadrature solution vector after a
   successful return from \id{CVode}.
 }
 {
@@ -4773,7 +4773,7 @@ directly by the user.
   flag = CVodeGetQuadDky(cvode\_mem, t, k, dkyQ);
 }
 {
-  The function \id{CVodeGetQuadDky} returns derivatives of the quadrature solution 
+  The function \ID{CVodeGetQuadDky} returns derivatives of the quadrature solution 
   vector after a successful return from \id{CVode}.
 }
 {
@@ -4826,7 +4826,7 @@ of quadrature equations.
  flag = CVodeSetQuadErrCon(cvode\_mem, errconQ);
 }
 {
-  The function \Id{CVodeSetQuadErrCon} specifies whether or not the
+  The function \ID{CVodeSetQuadErrCon} specifies whether or not the
   quadrature variables are to be used in the step size control mechanism
   within {\cvodes}.  If they are, the user must call \id{CVodeQuadSStolerances}
   or \id{CVodeQuadSVtolerances} to specify the 
@@ -4948,7 +4948,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadNumRhsEvals(cvode\_mem, \&nfQevals);
 }
 {
-  The function \Id{CVodeGetQuadNumRhsEvals} returns the 
+  The function \ID{CVodeGetQuadNumRhsEvals} returns the 
   number of calls made to the user's quadrature right-hand side function.
 }
 {
@@ -4978,7 +4978,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadNumErrTestFails(cvode\_mem, \&nQetfails);
 }
 {
-  The function \Id{CVodeGetQuadNumErrTestFails} returns the
+  The function \ID{CVodeGetQuadNumErrTestFails} returns the
   number of local error test failures due to quadrature variables.
 }
 {
@@ -5008,7 +5008,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadErrWeights(cvode\_mem, eQweight);
 }
 {
-  The function \Id{CVodeGetQuadErrWeights} returns the quadrature error weights 
+  The function \ID{CVodeGetQuadErrWeights} returns the quadrature error weights 
   at the current time.
 }
 {
@@ -5044,7 +5044,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadStats(cvode\_mem, \&nfQevals, \&nQetfails);
 }
 {
-  The function \Id{CVodeGetQuadStats} returns the {\cvodes} integrator statistics
+  The function \ID{CVodeGetQuadStats} returns the {\cvodes} integrator statistics
   as a group.
 }
 {
@@ -5247,7 +5247,7 @@ by calling the following function:
   flag = CVBandPrecInit(cvode\_mem, N, mu, ml);
 }
 {
-  The function \Id{CVBandPrecAlloc} initializes and allocates (internal)
+  The function \ID{CVBandPrecAlloc} initializes and allocates (internal)
   memory for the {\cvbandpre} preconditioner.
 }
 {
@@ -5298,7 +5298,7 @@ the {\cvbandpre} module:
   flag = CVBandPrecGetWorkSpace(cvode\_mem, \&lenrwBP, \&leniwBP);
 }
 {
-  The function \Id{CVBandPrecGetWorkSpace} returns the sizes of
+  The function \ID{CVBandPrecGetWorkSpace} returns the sizes of
   the {\cvbandpre} real and integer workspaces.
 }
 {
@@ -5337,7 +5337,7 @@ the {\cvbandpre} module:
   flag = CVBandPrecGetNumRhsEvals(cvode\_mem, \&nfevalsBP);
 }
 {
-  The function \Id{CVBandPrecGetNumRhsEvals} returns the
+  The function \ID{CVBandPrecGetNumRhsEvals} returns the
   number of calls made to the user-supplied right-hand side function for
   finite difference banded Jacobian approximation used within
   the preconditioner setup function.
@@ -5650,7 +5650,7 @@ the {\cvbbdpre} preconditioner module are described next.
    \end{tabular}
 }
 {
-  The function \Id{CVBBDPrecInit} initializes and allocates (internal)
+  The function \ID{CVBBDPrecInit} initializes and allocates (internal)
   memory for the {\cvbbdpre} preconditioner.
 }
 {
@@ -5729,7 +5729,7 @@ the corresponding \id{CVSpils***Set***} functions, must also be made (in the pro
   flag = CVBBDPrecReInit(cvode\_mem, mudq, mldq, dqrely);
 }
 {
-  The function \Id{CVBBDPrecReInit} re-initializes the {\cvbbdpre} preconditioner.
+  The function \ID{CVBBDPrecReInit} re-initializes the {\cvbbdpre} preconditioner.
 }
 {
   \begin{args}[cvode\_mem]
@@ -5778,7 +5778,7 @@ the {\cvbbdpre} module:
   flag = CVBBDPrecGetWorkSpace(cvode\_mem, \&lenrwBBDP, \&leniwBBDP);
 }
 {
-  The function \Id{CVBBDPrecGetWorkSpace} returns the local
+  The function \ID{CVBBDPrecGetWorkSpace} returns the local
   {\cvbbdpre} real and integer workspace sizes.
 }
 {
@@ -5821,7 +5821,7 @@ the {\cvbbdpre} module:
   flag = CVBBDPrecGetNumGfnEvals(cvode\_mem, \&ngevalsBBDP);
 }
 {
-  The function \Id{CVBBDPrecGetNumGfnEvals} returns the
+  The function \ID{CVBBDPrecGetNumGfnEvals} returns the
   number of calls made to the user-supplied \id{gloc} function due to the 
   finite difference approximation of the Jacobian blocks used within
   the preconditioner setup function.
