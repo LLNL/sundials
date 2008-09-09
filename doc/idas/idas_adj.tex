@@ -601,7 +601,7 @@ The call to the \id{IDAReInitB} function has the form
   flag = IDAReInitB(ida\_mem, which, tB0, yB0, ypB0)
 }
 {
-  The function \id{IDAReInitB} reinitializes {\idas} the backward problem.
+  The function \ID{IDAReInitB} reinitializes {\idas} the backward problem.
 }
 {
   \begin{args}[ida\_mem]
@@ -1634,7 +1634,7 @@ re-initialized by calling
   flag = IDAQuadReInitB(ida\_mem, which, yQB0);
 }
 {
-  The function \id{IDAQuadReInitB} re-initializes the backward quadrature integration.
+  The function \ID{IDAQuadReInitB} re-initializes the backward quadrature integration.
 }
 {
   \begin{args}[ida\_mem]
@@ -1681,7 +1681,7 @@ of \id{IDASolveB}, {\idas} provides a wrapper for the function \ID{IDAGetQuad}
   flag = IDAGetQuadB(ida\_mem, which, \&tret, yQB);
 }
 {
-  The function \id{IDAGetQuadB} returns the quadrature solution vector after
+  The function \ID{IDAGetQuadB} returns the quadrature solution vector after
   a successful return from \id{IDASolveB}.
 }
 {

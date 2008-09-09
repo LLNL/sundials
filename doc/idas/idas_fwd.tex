@@ -546,9 +546,9 @@ the call to \id{IDASensInit}.
   flag = IDAEEtolerances(ida\_mem);
 }
 {
-  When this function is used, {\idas} will estimate tolerances for sensitivity
-  variables based on the tolerances supplied for states variables and the
-  scaling factors $\bar p$.
+  When \ID{IDAEEtolerances} is called, {\idas} will estimate tolerances for
+  sensitivity variables based on the tolerances supplied for states variables
+  and the scaling factors $\bar p$.
 }
 {
   \begin{args}[ida\_mem]
@@ -626,7 +626,7 @@ sensitivities can be obtained through one of the following functions:
   flag = IDAGetSens(ida\_mem, \&tret, yS);
 }
 {
-  The function \id{IDAGetSens} returns the sensitivity solution vectors after a
+  The function \ID{IDAGetSens} returns the sensitivity solution vectors after a
   successful return from \id{IDASolve}.
 }
 {
@@ -669,7 +669,7 @@ directly by the user.
   flag = IDAGetSensDky(ida\_mem, t, k, dkyS);
 }
 {
-  The function \id{IDAGetSensDky} returns derivatives of the sensitivity solution 
+  The function \ID{IDAGetSensDky} returns derivatives of the sensitivity solution 
   vectors after a successful return from \id{IDASolve}.
 }
 {
@@ -714,7 +714,7 @@ each parameter in turn through the functions \id{IDAGetSens1} and
   flag = IDAGetSens1(ida\_mem, \&tret, is, yS);
 }
 {
-  The function \id{IDAGetSens1} returns the \id{is}-th sensitivity solution vector
+  The function \ID{IDAGetSens1} returns the \id{is}-th sensitivity solution vector
   after a successful return from \id{IDASolve}.
 }
 {
@@ -757,7 +757,7 @@ each parameter in turn through the functions \id{IDAGetSens1} and
   flag = IDAGetSensDky1(ida\_mem, t, k, is, dkyS);
 }
 {
-  The function \id{IDAGetSensDky1} returns the \id{k}-th derivative of the 
+  The function \ID{IDAGetSensDky1} returns the \id{k}-th derivative of the 
   \id{is}-th sensitivity solution vector after a successful return from \id{IDASolve}.
 }
 {
@@ -1594,7 +1594,7 @@ The form of the call to this function is as follows:
 flag = IDAQuadSensInit(ida\_mem, rhsQS, yQS0);
 }
 {
-  The function \Id{IDAQuadSensInit} provides required problem specifications,
+  The function \ID{IDAQuadSensInit} provides required problem specifications,
   allocates internal memory, and initializes quadrature integration.
 }
 {
@@ -1659,7 +1659,7 @@ The call to the \id{IDAQuadSensReInit} function has the form:
   flag = IDAQuadSensReInit(ida\_mem, yQS0);
 }
 {
-  The function \id{IDAQuadSensReInit} provides required problem specifications 
+  The function \ID{IDAQuadSensReInit} provides required problem specifications 
   and reinitializes the sensitivity-dependent quadrature integration.
 }
 {
@@ -1753,7 +1753,7 @@ quadratures can be obtained using one of the following functions:
   flag = IDAGetQuadSens(ida\_mem, \&tret, yQS);
 }
 {
-  The function \id{IDAGetQuadSens} returns the quadrature sensitivity
+  The function \ID{IDAGetQuadSens} returns the quadrature sensitivity
   solution vectors after a successful return from \id{IDASolve}.
 }
 {
@@ -1798,7 +1798,7 @@ directly by the user.
   flag = IDAGetQuadSensDky(ida\_mem, t, k, dkyQS);
 }
 {
-  The function \id{IDAGetQuadSensDky} returns derivatives of the quadrature sensitivities 
+  The function \ID{IDAGetQuadSensDky} returns derivatives of the quadrature sensitivities 
   solution vectors after a successful return from \id{IDASolve}.
 }
 {
@@ -1844,7 +1844,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
   flag = IDAGetQuadSens1(ida\_mem, \&tret, is, yQS);
 }
 {
-  The function \id{IDAGetQuadSens1} returns the \id{is}-th sensitivity 
+  The function \ID{IDAGetQuadSens1} returns the \id{is}-th sensitivity 
   of quadratures after a successful return from \id{IDASolve}.
 }
 {
@@ -1884,7 +1884,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
   flag = IDAGetQuadSensDky1(ida\_mem, t, k, is, dkyQS);
 }
 {
-  The function \id{IDAGetQuadSensDky1} returns the \id{k}-th derivative of the 
+  The function \ID{IDAGetQuadSensDky1} returns the \id{k}-th derivative of the 
   \id{is}-th sensitivity solution vector after a successful 
   return from \id{IDASolve}.
 }
@@ -1944,7 +1944,7 @@ of sensitivity-dependent quadrature equations.
  flag = IDASetQuadSensErrCon(ida\_mem, errconQS)
 }
 {
-  The function \Id{IDASetQuadSensErrCon} specifies whether or not the
+  The function \ID{IDASetQuadSensErrCon} specifies whether or not the
   quadrature variables are to be used in the local error control mechanism.
   If they are, the user must specify the error tolerances for the quadrature
   variables by calling \id{IDAQuadSensSStolerances},
@@ -2115,7 +2115,7 @@ performance information related to quadrature integration.
   flag = IDAGetQuadSensNumRhsEvals(ida\_mem, \&nrhsQSevals);
 }
 {
-  The function \Id{IDAGetQuadSensNumRhsEvals} returns the 
+  The function \ID{IDAGetQuadSensNumRhsEvals} returns the 
   number of calls made to the user's quadrature right-hand side function.
 }
 {
@@ -2145,7 +2145,7 @@ performance information related to quadrature integration.
   flag = IDAGetQuadSensNumErrTestFails(ida\_mem, \&nQSetfails);
 }
 {
-  The function \Id{IDAGetQuadSensNumErrTestFails} returns the
+  The function \ID{IDAGetQuadSensNumErrTestFails} returns the
   number of local error test failures due to quadrature variables.
 }
 {
@@ -2175,7 +2175,7 @@ performance information related to quadrature integration.
   flag = IDAGetQuadSensErrWeights(ida\_mem, eQSweight);
 }
 {
-  The function \Id{IDAGetQuadSensErrWeights} returns the quadrature error weights 
+  The function \ID{IDAGetQuadSensErrWeights} returns the quadrature error weights 
   at the current time.
 }
 {
@@ -2211,7 +2211,7 @@ performance information related to quadrature integration.
   flag = IDAGetQuadSensStats(ida\_mem, \&nrhsQSevals, \&nQSetfails);
 }
 {
-  The function \Id{IDAGetQuadSensStats} returns the {\idas} integrator statistics
+  The function \ID{IDAGetQuadSensStats} returns the {\idas} integrator statistics
   as a group.
 }
 {

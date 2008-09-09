@@ -1,4 +1,4 @@
-%%===================================================================================
+%===================================================================================
 \chapter{Using IDAS for IVP Solution}\label{s:simulation}
 %%===================================================================================
 
@@ -3973,7 +3973,7 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
   flag = IDAReInit(ida\_mem, t0, y0, yp0);
 }
 {
-  The function \id{IDAReInit} provides required problem specifications 
+  The function \ID{IDAReInit} provides required problem specifications 
   and reinitializes {\idas}.
 }
 {
@@ -4744,7 +4744,7 @@ The form of the call to this function is as follows:
 flag = IDAQuadInit(ida\_mem, rhsQ, yQ0);
 }
 {
-  The function \Id{IDAQuadInit} provides required problem specifications,
+  The function \ID{IDAQuadInit} provides required problem specifications,
   allocates internal memory, and initializes quadrature integration.
 }
 {
@@ -4801,7 +4801,7 @@ call to the \id{IDAQuadReInit} function has the following form:
   flag = IDAQuadReInit(ida\_mem, yQ0);
 }
 {
-  The function \id{IDAQuadReInit} provides required problem specifications 
+  The function \ID{IDAQuadReInit} provides required problem specifications 
   and reinitializes the quadrature integration.
 }
 {
@@ -4887,7 +4887,7 @@ $y$ in \id{y}. Solution quadratures can be obtained using the following function
   flag = IDAGetQuad(ida\_mem, \&tret, yQ);
 }
 {
-  The function \id{IDAGetQuad} returns the quadrature solution vector after a
+  The function \ID{IDAGetQuad} returns the quadrature solution vector after a
   successful return from \id{IDASolve}.
 }
 {
@@ -4928,7 +4928,7 @@ directly by the user.
   flag = IDAGetQuadDky(ida\_mem, t, k, dkyQ);
 }
 {
-  The function \id{IDAGetQuadDky} returns derivatives of the quadrature solution 
+  The function \ID{IDAGetQuadDky} returns derivatives of the quadrature solution 
   vector after a successful return from \id{IDASolve}.
 }
 {
@@ -4978,7 +4978,7 @@ of quadrature equations.
  flag = IDASetQuadErrCon(ida\_mem, errconQ);
 }
 {
-  The function \Id{IDASetQuadErrCon} specifies whether or not the
+  The function \ID{IDASetQuadErrCon} specifies whether or not the
   quadrature variables are to be used in the step size control mechanism
   within {\idas}.  If they are, the user must call either \id{IDAQuadSStolerances}
   or \id{IDAQuadSVtolerances} to specify the 
@@ -5100,7 +5100,7 @@ performance information related to quadrature integration.
   flag = IDAGetQuadNumRhsEvals(ida\_mem, \&nrhsQevals);
 }
 {
-  The function \Id{IDAGetQuadNumRhsEvals} returns the 
+  The function \ID{IDAGetQuadNumRhsEvals} returns the 
   number of calls made to the user's quadrature right-hand side function.
 }
 {
@@ -5130,7 +5130,7 @@ performance information related to quadrature integration.
   flag = IDAGetQuadNumErrTestFails(ida\_mem, \&nQetfails);
 }
 {
-  The function \Id{IDAGetQuadNumErrTestFails} returns the
+  The function \ID{IDAGetQuadNumErrTestFails} returns the
   number of local error test failures due to quadrature variables.
 }
 {
@@ -5160,7 +5160,7 @@ performance information related to quadrature integration.
   flag = IDAGetQuadErrWeights(ida\_mem, eQweight);
 }
 {
-  The function \Id{IDAGetQuadErrWeights} returns the quadrature error weights 
+  The function \ID{IDAGetQuadErrWeights} returns the quadrature error weights 
   at the current time.
 }
 {
@@ -5196,7 +5196,7 @@ performance information related to quadrature integration.
   flag = IDAGetQuadStats(ida\_mem, \&nrhsQevals, \&nQetfails);
 }
 {
-  The function \Id{IDAGetQuadStats} returns the {\idas} integrator statistics
+  The function \ID{IDAGetQuadStats} returns the {\idas} integrator statistics
   as a group.
 }
 {
