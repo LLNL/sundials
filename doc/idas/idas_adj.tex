@@ -335,7 +335,7 @@ The call to this function has the form
 %%
 \ucfunction{IDASolveF}
 {
-  flag = IDASolveF(ida\_mem, tout, tret, yret, ypret, itask, \&ncheck);
+  flag = IDASolveF(ida\_mem, tout, \&tret, yret, ypret, itask, \&ncheck);
 }
 {
   The function \ID{IDASolveF} integrates the forward problem over an interval in $t$
@@ -347,8 +347,8 @@ The call to this function has the form
     pointer to the {\idas} memory block.
   \item[tout] (\id{realtype})
     the next time at which a computed solution is desired.
-  \item[tret] (\id{realtype *})
-    the time reached by the solver.
+  \item[tret] (\id{realtype})
+    the time reached by the solver (output).
   \item[yret] (\id{N\_Vector})
     the computed solution vector $y$.
   \item[ypret] (\id{N\_Vector})
@@ -369,7 +369,7 @@ The call to this function has the form
 }
 {
   On return, \id{IDASolveF} returns vectors \id{yret}, \id{ypret} and a corresponding 
-  independent variable value $t=$\id{*tret}, such that \id{yret} is the computed 
+  independent variable value $t=$ \id{tret}, such that \id{yret} is the computed 
   value of $y(t)$ and \id{ypret} the value of $\dot{y}(t)$. Additionally, it returns 
   in \id{ncheck} the number of checkpoints saved.
   The return value \id{flag} (of type \id{int}) will be one of the following.
@@ -908,14 +908,17 @@ The function \ID{IDASolveB} performs the integration of the backward problem.
 It is essentially a wrapper for the {\idas} main integration function 
 \id{IDASolve} and, in the case in which checkpoints were needed, it evolves 
 the solution of the backward problem through a sequence of forward-backward 
-integrations between consecutive checkpoints. 
-The first run integrates the original IVP forward in time and
+integration pairs between consecutive checkpoints. 
+In each pair, the first run integrates the original IVP forward in time and
 stores interpolation data; the second run integrates the backward problem 
 backward in time and performs the required interpolation to provide
 the solution of the IVP to the backward problem.
 
-The call to this function has the form
-%%
+The function \id{IDASolveB} does not return the solution \id{yB}
+itself.  To obtain that, call the function \id{IDAGetB}, which is
+also described below.
+
+The call to \id{IDASolveB} has the form
 %%
 \ucfunction{IDASolveB}
 {
@@ -990,6 +993,50 @@ The call to this function has the form
   All failure return values are negative and therefore a test \id{flag}$< 0$
   will trap all \id{IDASolveB} failures.
 }
+%%
+%%
+To obtain the solution \id{yB} to the backward problem, call the function
+\id{IDAGetB} as follows:
+%%
+\ucfunction{IDAGetB}
+{
+  flag = IDAGetB(ida\_mem, which, \&tret, yB, ypB);
+}
+{
+  The function \ID{IDAGetB} provides the solution \id{yB} of the backward DAE
+  problem.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory returned by \id{IDACreate}.
+  \item[which] (\id{int})
+    the identifier of the backward pproblem.
+  \item[tret] (\id{realtype})
+    the time reached by the solver (output).
+  \item[yB] (\id{N\_Vector})
+    the backward solution at time \id{tret}.
+  \item[ypB] (\id{N\_Vector})
+    the backward derivative solution at time \id{tret}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) will be one of the following.
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
+    \id{IDAGetB} was successful.
+  \item[\Id{IDA\_MEM\_NULL}] 
+    \id{ida\_mem} is \id{NULL}.
+  \item[\Id{IDA\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+   \item[\Id{IDA\_ILL\_INPUT}]
+    The parameter \id{which} is an invalid identifier.
+  \end{args} 
+}
+{
+  {\warn} The user must allocate space for \id{yB} and \id{ypB}.
+}
+
 
 %%-------------------------------------------------------------------------------
 \subsection{Adjoint sensitivity optional input}
@@ -1647,6 +1694,7 @@ of \id{IDASolveB}, {\idas} provides a wrapper for the function \ID{IDAGetQuad}
     the computed quadrature vector.
   \end{args}
 }
+  {\warn} The user must allocate space for \id{yQB}.
 {
   The return value \id{flag} of \id{IDAGetQuadB} is one of:
   \begin{args}[IDA\_ILL\_INPUT]
