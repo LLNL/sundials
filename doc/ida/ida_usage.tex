@@ -1077,7 +1077,7 @@ But these modes are modified if the user has set a stop time (with
 %
 \ucfunction{IDASolve}
 {
-  flag = IDASolve(ida\_mem, tout, tret, yret, ypret, itask);
+  flag = IDASolve(ida\_mem, tout, \&tret, yret, ypret, itask);
 }
 {
   The function \ID{IDASolve} integrates the DAE over an interval in $t$.
@@ -1088,8 +1088,8 @@ But these modes are modified if the user has set a stop time (with
     pointer to the {\ida} memory block.
   \item[tout] (\id{realtype})
     the next time at which a computed solution is desired.
-  \item[tret] (\id{realtype *})
-    the time reached by the solver.
+  \item[tret] (\id{realtype})
+    the time reached by the solver (output).
   \item[yret] (\id{N\_Vector})
     the computed solution vector $y$.
   \item[ypret] (\id{N\_Vector})
@@ -1107,10 +1107,10 @@ But these modes are modified if the user has set a stop time (with
 }
 {
   \id{IDASolve} returns vectors \id{yret} and \id{ypret} and a
-  corresponding  independent variable value $t=$\id{*tret}, such that (\id{yret},
+  corresponding  independent variable value $t =$ \id{tret}, such that (\id{yret},
   \id{ypret}) are the computed values of ($y(t)$, $\dot{y}(t)$).
 
-  In \id{IDA\_NORMAL} mode with no errors, \id{*tret} will be equal to \id{tout} 
+  In \id{IDA\_NORMAL} mode with no errors, \id{tret} will be equal to \id{tout} 
   and \id{yret} = $y($\id{tout}$)$, \id{ypret} = $\dot{y}($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:
