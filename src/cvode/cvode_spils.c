@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.5 $
+ * $Date: 2008-09-10 22:39:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -186,35 +186,35 @@ int CVSpilsSetMaxl(void *cvode_mem, int maxl)
 
 /*
  * -----------------------------------------------------------------
- * CVSpilsSetDelt
+ * CVSpilsSetEpsLin
  * -----------------------------------------------------------------
  */
 
-int CVSpilsSetDelt(void *cvode_mem, realtype delt)
+int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", "CVSpilsSetDelt", MSGS_CVMEM_NULL);
+    CVProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", "CVSpilsSetEpsLin", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    CVProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetDelt", MSGS_LMEM_NULL);
+    CVProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", "CVSpilsSetEpsLin", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
   cvspils_mem = (CVSpilsMem) lmem;
 
-  /* Check for legal delt */
-  if(delt < ZERO) {
-    CVProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPILS", "CVSpilsSetDelt", MSGS_BAD_DELT);
+  /* Check for legal eplifac */
+  if(eplifac < ZERO) {
+    CVProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPILS", "CVSpilsSetEpsLin", MSGS_BAD_EPLIN);
     return(CVSPILS_ILL_INPUT);
   }
 
-  cvspils_mem->s_delt = (delt == ZERO) ? CVSPILS_DELT : delt;
+  cvspils_mem->s_eplifac = (eplifac == ZERO) ? CVSPILS_EPLIN : eplifac;
 
   return(CVSPILS_SUCCESS);
 }
@@ -581,7 +581,7 @@ char *CVSpilsGetReturnFlagName(int flag)
 /* Additional readability Replacements */
 
 #define pretype (cvspils_mem->s_pretype)
-#define delt    (cvspils_mem->s_delt)
+#define eplifac (cvspils_mem->s_eplifac)
 #define maxl    (cvspils_mem->s_maxl)
 #define psolve  (cvspils_mem->s_psolve)
 #define P_data  (cvspils_mem->s_P_data)

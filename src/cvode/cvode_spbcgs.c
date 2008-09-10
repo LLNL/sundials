@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.8 $
+ * $Date: 2008-09-10 22:39:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -158,7 +158,7 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
   cvspils_mem->s_P_data = cv_mem->cv_user_data;
 
   /* Set default values for the rest of the Spbcg parameters */
-  cvspils_mem->s_delt = CVSPILS_DELT;
+  cvspils_mem->s_eplifac = CVSPILS_EPLIN;
 
   cvspils_mem->s_last_flag = CVSPILS_SUCCESS;
 
@@ -217,7 +217,7 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
 /* Additional readability replacements */
 
 #define pretype (cvspils_mem->s_pretype)
-#define delt    (cvspils_mem->s_delt)
+#define eplifac (cvspils_mem->s_eplifac)
 #define maxl    (cvspils_mem->s_maxl)
 #define psolve  (cvspils_mem->s_psolve)
 #define pset    (cvspils_mem->s_pset)
@@ -363,7 +363,7 @@ static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   spbcg_mem = (SpbcgMem) spils_mem;
 
   /* Test norm(b); if small, return x = 0 or x = b */
-  deltar = delt * tq[4]; 
+  deltar = eplifac * tq[4]; 
 
   bnorm = N_VWrmsNorm(b, weight);
   if (bnorm <= deltar) {
