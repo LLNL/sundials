@@ -869,16 +869,16 @@ To obtain the solution \id{yB} to the backward problem, call the function
 %%
 \ucfunction{CVodeGetB}
 {
-  flag = CVodeGetB(ida\_mem, which, \&tret, yB);
+  flag = CVodeGetB(cvode\_mem, which, \&tret, yB);
 }
 {
   The function \ID{CVodeGetB} provides the solution \id{yB} of the backward ODE
   problem.
 }
 {
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory returned by \id{CVodeCreate}.
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     the identifier of the backward problem.
   \item[tret] (\id{realtype})
@@ -893,7 +893,7 @@ To obtain the solution \id{yB} to the backward problem, call the function
   \item[\Id{CV\_SUCCESS}] 
     \id{CVodeGetB} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
-    \id{ida\_mem} is \id{NULL}.
+    \id{cvode\_mem} is \id{NULL}.
   \item[\Id{CV\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
    \item[\Id{CV\_ILL\_INPUT}]
