@@ -1045,7 +1045,7 @@ But these modes are modified if the user has set a stop time (with
 %
 \ucfunction{CVode}
 {
-  flag = CVode(cvode\_mem, tout, yout, tret, itask);
+  flag = CVode(cvode\_mem, tout, yout, \&tret, itask);
 }
 {
   The function \ID{CVode} integrates the ODE over an interval in $t$.
@@ -1058,8 +1058,8 @@ But these modes are modified if the user has set a stop time (with
     the next time at which a computed solution is desired.
   \item[yout] (\id{N\_Vector})
     the computed solution vector.
-  \item[tret] (\id{realtype *})
-    the time reached by the solver.
+  \item[tret] (\id{realtype})
+    the time reached by the solver (output).
   \item[itask] (\id{int})
     \index{itask@\texttt{itask}|textbf}
     \index{output mode}
@@ -1074,10 +1074,10 @@ But these modes are modified if the user has set a stop time (with
 }
 {
   \id{CVode} returns a vector \id{yout} and a corresponding 
-  independent variable value $t=$\id{*tret}, such that \id{yout} is the computed 
+  independent variable value $t =$ \id{tret}, such that \id{yout} is the computed 
   value of $y(t)$.
 
-  In \id{CV\_NORMAL} mode (with no errors), \id{*tret} will be equal to \id{tout} 
+  In \id{CV\_NORMAL} mode (with no errors), \id{tret} will be equal to \id{tout} 
   and \id{yout} = $y($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:

@@ -333,7 +333,7 @@ The call to this function has the form
 %%
 \ucfunction{CVodeF}
 {
-  flag = CVodeF(cvode\_mem, tout, yret, tret, itask, \&ncheck);
+  flag = CVodeF(cvode\_mem, tout, yret, \&tret, itask, \&ncheck);
 }
 {
   The function \ID{CVodeF} integrates the forward problem over an interval in $t$
@@ -347,8 +347,8 @@ The call to this function has the form
     the next time at which a computed solution is desired.
   \item[yret] (\id{N\_Vector})
     the computed solution vector $y$.
-  \item[tret] (\id{realtype *})
-    the time reached by the solver.
+  \item[tret] (\id{realtype})
+    the time reached by the solver (output).
   \item[itask] (\id{int})
     \index{itask@\texttt{itask}}
     \index{output mode}
@@ -365,8 +365,8 @@ The call to this function has the form
 }
 {
   On return, \id{CVodeF} returns the vector \id{yret} and a corresponding 
-  independent variable value $t=$\id{*tret}, such that \id{yret} is the computed 
-  value of $y(t)$.. Additionally, it returns in \id{ncheck} the number of checkpoints saved.
+  independent variable value $t =$ \id{tret}, such that \id{yret} is the computed 
+  value of $y(t)$. Additionally, it returns in \id{ncheck} the number of checkpoints saved.
   The return value \id{flag} (of type \id{int}) will be one of the following.
   For more details see \S\ref{sss:cvode}.
   \begin{args}[CV\_TOO\_MUCH\_WORK]
@@ -459,7 +459,7 @@ and solution specifications, and allocate internal memory for the backward probl
    \item[\Id{CV\_SUCCESS}]
      The call to \id{CVodeCreateB} was successful.
    \item[\Id{CV\_MEM\_NULL}]
-     The \id{cvode\_mem} was \id{NULL}.
+     \id{cvode\_mem} was \id{NULL}.
    \item[\Id{CV\_NO\_ADJ}]
      The function \id{CVodeAdjInit} has not been previously called.
    \item[\Id{CV\_MEM\_FAIL}]
@@ -513,7 +513,7 @@ not depend on the forward sensitivities.  It is essentially a wrapper for
   \item[\Id{CV\_NO\_MALLOC}]
     The function \id{CVodeInit} has not been previously called.
   \item[\Id{CV\_MEM\_NULL}]
-    The \id{cvode\_mem} was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CV\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CV\_BAD\_TB0}]
@@ -568,7 +568,7 @@ functions.
   \item[\Id{CV\_NO\_MALLOC}]
     The function \id{CVodeInit} has not been previously called.
   \item[\Id{CV\_MEM\_NULL}]
-    The \id{cvode\_mem} was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CV\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CV\_BAD\_TB0}]
@@ -776,13 +776,17 @@ The function \ID{CVodeB} performs the integration of the backward problem.
 It is essentially a wrapper for the {\cvodes} main integration function 
 \id{CVode} and, in the case in which checkpoints were needed, it evolves 
 the solution of the backward problem through a sequence of forward-backward 
-integrations between consecutive checkpoints. 
-The first run integrates the original IVP forward in time and
+integration pairs between consecutive checkpoints. 
+The first run of each pair integrates the original IVP forward in time and
 stores interpolation data; the second run integrates the backward problem 
 backward in time and performs the required interpolation to provide
 the solution of the IVP to the backward problem.
 
-The call to this function has the form
+The function \id{CVodeB} does not return the solution \id{yB} itself.
+To obtain that, call the function \id{CVodeGetB}, which is also
+described below.
+
+The call to \id{CVodeB} has the form
 %%
 %%
 \ucfunction{CVodeB}
@@ -816,7 +820,7 @@ The call to this function has the form
   \item[\Id{CV\_SUCCESS}]
     \id{CVodeB} succeeded.
   \item[\Id{CV\_MEM\_NULL}]
-    The \id{cvode\_mem} was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CV\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CV\_NO\_BCK}]
@@ -858,6 +862,48 @@ The call to this function has the form
   All failure return values are negative and therefore a test \id{flag}$< 0$
   will trap all \id{CVodeB} failures.
 }
+%%
+%%
+To obtain the solution \id{yB} to the backward problem, call the function
+\id{CVodeGetB} as follows:
+%%
+\ucfunction{CVodeGetB}
+{
+  flag = CVodeGetB(ida\_mem, which, \&tret, yB);
+}
+{
+  The function \ID{CVodeGetB} provides the solution \id{yB} of the backward ODE
+  problem.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory returned by \id{CVodeCreate}.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[tret] (\id{realtype})
+    the time reached by the solver (output).
+  \item[yB] (\id{N\_Vector})
+    the backward solution at time \id{tret}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) will be one of the following.
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
+    \id{CVodeGetB} was successful.
+  \item[\Id{CV\_MEM\_NULL}] 
+    \id{ida\_mem} is \id{NULL}.
+  \item[\Id{CV\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+   \item[\Id{CV\_ILL\_INPUT}]
+    The parameter \id{which} is an invalid identifier.
+  \end{args} 
+}
+{
+  {\warn} The user must allocate space for \id{yB}.
+}
+
 
 %%-------------------------------------------------------------------------------
 \subsection{Adjoint sensitivity optional input}
@@ -885,7 +931,7 @@ the checkpointing of the forward sensitivities by calling the following function
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeCreateB} was successful.
   \item[\Id{CV\_MEM\_NULL}]
-    The \id{cvode\_mem} was \id{NULL}.
+    \id{cvode\_mem} was \id{NULL}.
   \item[\Id{CV\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \end{args}
