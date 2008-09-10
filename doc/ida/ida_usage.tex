@@ -1107,7 +1107,7 @@ But these modes are modified if the user has set a stop time (with
 }
 {
   \id{IDASolve} returns vectors \id{yret} and \id{ypret} and a
-  corresponding  independent variable value $t =$ \id{tret}, such that (\id{yret},
+  corresponding independent variable value $t =$ \id{tret}, such that (\id{yret},
   \id{ypret}) are the computed values of ($y(t)$, $\dot{y}(t)$).
 
   In \id{IDA\_NORMAL} mode with no errors, \id{tret} will be equal to \id{tout} 
@@ -3973,7 +3973,7 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
   flag = IDAReInit(ida\_mem, t0, y0, yp0);
 }
 {
-  The function \id{IDAReInit} provides required problem specifications 
+  The function \ID{IDAReInit} provides required problem specifications 
   and reinitializes {\ida}.
 }
 {
