@@ -350,21 +350,21 @@ the preconditioner is the product of two matrices, we recommend that
 preconditioning be done either on the left only or the right only,
 rather than using one factor on each side. 
 
-Typical preconditioners used with {\cvode} are based on
-approximations to the Newton iteration matrix of the systems involved;
-in other words, $P \approx I - \gamma J$, where $\gamma$ is a scalar proportional to the
-integration step size $h$ and $J$ is the system Jacobian, i.e. $J = \partial f / \partial y$.
-Because the Krylov iteration occurs within a Newton iteration and further
-also within a time integration, and since each of these iterations has
-its own test for convergence, the preconditioner may use a very crude
+Typical preconditioners used with {\cvode} are based on approximations
+to the system Jacobian, $J = \partial f / \partial y$.  Since the
+Newton iteration matrix involved is $M = I - \gamma J$, any
+approximation $\bar{J}$ to $J$ yields a matrix that is of potential
+use as a preconditioner, namely $P = I - \gamma \bar{J}$.  Because the
+Krylov iteration occurs within a Newton iteration and further also
+within a time integration, and since each of these iterations has its
+own test for convergence, the preconditioner may use a very crude
 approximation, as long as it captures the dominant numerical
 feature(s) of the system.  We have found that the combination of a
 preconditioner with the Newton-Krylov iteration, using even a fairly
 poor approximation to the Jacobian, can be surprisingly superior to
 using the same matrix without Krylov acceleration (i.e., a modified
 Newton iteration), as well as to using the Newton-Krylov method with
-no preconditioning.
-\index{preconditioning!advice on|)}
+no preconditioning.  \index{preconditioning!advice on|)}
 
 %------------------------
 \section{BDF stability limit detection}\label{s:bdf_stab}
