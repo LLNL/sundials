@@ -91,16 +91,16 @@ in extended {\F}.
 \subsection*{Changes in v2.6.0}
 
 Two new features were added in this release: (a) a new linear solver module,
-based on Blas and Lapack for both dense and banded matrices, and (b) option
+based on Blas and Lapack for both dense and banded matrices, and (b) an option
 to specify which direction of zero-crossing is to be monitored while performing
-root-finding. 
+rootfinding. 
 
 The user interface has been further refined. Some of the API changes involve:
 (a) a reorganization of all linear solver modules into two families (besides 
-the already present family of scaled preconditioned iterative linear solvers,
-the direct solvers, including the new Lapack-based ones were also organized 
+the existing family of scaled preconditioned iterative linear solvers,
+the direct solvers, including the new Lapack-based ones, were also organized 
 into a {\em direct} family); (b) maintaining a single pointer to user data,
-optionally specified through a \id{Set}-type function; (c) a general 
+optionally specified through a \id{Set}-type function; and (c) a general 
 streamlining of the preconditioner modules distributed with the solver.
 
 \subsection*{Changes in v2.5.0}
@@ -206,7 +206,9 @@ The structure of this document is as follows:
 \item
   In Chapter \ref{s:math}, we give short descriptions of the numerical
   methods implemented by {\cvode} for the solution of initial value
-  problems for systems of ODEs.
+  problems for systems of ODEs, and continue with short descriptions of
+  preconditioning (\S\ref{s:preconditioning}), stability limit detection
+  (\S\ref{s:bdf_stab}), and rootfinding (\S\ref{ss:rootfinding}).
 \item
   The following chapter describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\cvode}
@@ -243,11 +245,11 @@ in this user guide:  program listings and identifiers (such as \id{CVodeInit})
 within textual explanations appear in typewriter type style; 
 fields in {\C} structures (such as {\em content}) appear in italics;
 and packages or modules, such as {\cvdense}, are written in all capitals. 
-In the Index, page numbers that appear in bold indicate the main reference
-for that entry.
+Usage and installation instructions that constitute important warnings
+are marked with a triangular symbol {\warn} in the margin.
 
 \paragraph{Acknowledgments.}
 We wish to acknowledge the contributions to previous versions of the
-{\cvode} and {\pvode} codes and user guides of Scott D. Cohen~\cite{CoHi:94}
+{\cvode} and {\pvode} codes and their user guides by Scott D. Cohen~\cite{CoHi:94}
 and George D. Byrne~\cite{ByHi:98}.
 
