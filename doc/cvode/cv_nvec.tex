@@ -25,14 +25,16 @@ of {\cvspgmr}, {\cvspbcg}, or {\cvsptfqmr}), the {\cvbandpre} and
 {\cvbbdpre} preconditioner modules, and the {\fcvode} module.
 
 There is one subtlety in the {\cvspils} column hidden by the table, explained
-here for the case of the {\cvspgmr} module). 
-The dot product function \id{N\_VDotProd} is called both within the 
-implementation file \id{cvode\_spgmr.c} for the {\cvspgmr} solver and within 
-the implementation files \id{sundials\_spgmr.c} and \id{sundials\_iterative.c} 
-for the generic {\spgmr} solver upon which the {\cvspgmr} solver is implemented. 
-Also, although \id{N\_VDiv} and \id{N\_VProd} are not called within the implementation file
+here for the case of the {\cvspgmr} module. 
+The \id{N\_VDotProd} function is called both within the interface file
+\id{cvode\_spgmr.c} and within the implementation
+files \id{sundials\_spgmr.c} and \id{sundials\_iterative.c} for the generic
+{\spgmr} solver upon which the {\cvspgmr} solver is built.  Also, although
+\id{N\_VDiv} and \id{N\_VProd} are not called within the interface file
 \id{cvode\_spgmr.c}, they are called within the implementation file
-\id{sundials\_spgmr.c} and so are required by the {\cvspgmr} solver module.
+\id{sundials\_spgmr.c}, and so are required by the {\cvspgmr} solver module.
+Analogous statements apply to the {\cvspbcg} and {\cvsptfqmr} modules,
+except that they do not use \id{sundials\_iterative.c}.
 This issue does not arise for the other 
 three {\cvode} linear solvers because the generic {\dense} and {\band} solvers 
 (used in the implementation of {\cvdense} and {\cvband}) do not make calls to 
