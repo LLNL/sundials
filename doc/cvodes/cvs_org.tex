@@ -96,11 +96,11 @@ the package includes an algorithm for the approximation of the Jacobian by diffe
 quotients, but the user also has the option of supplying the Jacobian
 (or an approximation to it) directly.  In the case of the Krylov iterative
 methods {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}, the package includes an algorithm
-for the approximation of the product between the Jacobian matrix and a vector of
-appropriate length by difference quotients. Again, the user has the option of
+for the approximation by difference quotients of the product between the Jacobian
+matrix and a vector of appropriate length. Again, the user has the option of
 providing a routine for this operation.
 For the Krylov methods, \index{preconditioning!setup and solve phases}
-the preconditioner must be supplied by the user in two parts: 
+the preconditioner must be supplied by the user, in two phases: 
 setup (preprocessing of Jacobian data) and solve.
 While\index{preconditioning!advice on} there is no default choice of
 preconditioner analogous to the difference-quotient approximation
