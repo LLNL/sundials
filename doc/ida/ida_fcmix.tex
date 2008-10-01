@@ -125,14 +125,14 @@ header files \id{fida.h}, \id{fidaroot.h}, and \id{fidabbd.h}.
 By default, those mapping definitions depend in turn on the {\C} macros
 \id{F77\_FUNC} and \id{F77\_FUNC\_} defined in the header file
 \id{sundials\_config.h} and decided upon at configuration time
-(see Chapter \ref{c:install}).
+(see Appendix \ref{c:install}).
 
 The user must also ensure that variables in the user {\F} code are
 declared in a manner consistent with their counterparts in {\ida}.
 All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
 or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
 depending on whether {\ida} was built in single, double, or extended precision 
-(see Chapter \ref{c:install}). Moreover, some of the {\F} integer variables
+(see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
 {\C} type \id{long int}. These integer variables include: the array of
 integer optional outputs (\id{IOUT}), problem dimensions (\id{NEQ},
@@ -190,7 +190,7 @@ apply to {\nvecp}.
       CALL FNVINITS (KEY, NEQ, IER)
 \end{verbatim}
   where 
-  \id{KEY} is the solver id (\id{KEY}=1 for {\ida}),
+  \id{KEY} is the solver id (\id{KEY} = 2 for {\ida}),
   \id{NEQ} is the size of vectors, and
   \id{IER} is a return flag, which is set to $0$ on success and $-1$ 
   if a failure occurred.
@@ -201,7 +201,7 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FNVINITP (COMM, KEY, NLOCAL, NGLOBAL, IER)
 \end{verbatim}
-  in which the arguments are: \id{COMM} = {\mpi} communicator, \id{KEY} = 1,
+  in which the arguments are: \id{COMM} = {\mpi} communicator, \id{KEY} = 2,
   \id{NLOCAL} = the local size of all vectors on this processor, and
   \id{NGLOBAL} = the system size (and the global size of vectors, equal to the
   sum of all values of \id{NLOCAL}). The return flag \id{IER} is
@@ -580,7 +580,7 @@ apply to {\nvecp}.
 \end{verbatim}
   It must solve the preconditioner linear system $Pz = r$, where $r =$ \id{RV} 
   is input, and store the solution $z$ in \id{ZV}. Here $P$ is the left 
-  preconditioner if \id{LR=1} and the right preconditioner if \id{LR=2}.
+  preconditioner.
   The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
   current values of $t$, $y$, $\dot{y}$, $F(t,y,\dot{y})$, and $\alpha$, respectively.
   On return, set \id{IER = 0} if \id{FIDAPSOL} was successful, set \id{IER}
@@ -995,7 +995,7 @@ If the {\fida}/{\ida} memory block is reinitialized to solve a
 different problem via a call to \id{FIDAREINIT}, then the counter
 \id{NGE} is reset to zero.
 
-To free the memory resources allocated by a prior call to \id{FIDAROOTINIT} make
+To free the memory resources allocated by a prior call to \id{FIDAROOTINIT}, make
 the following call:
 \begin{verbatim}
       CALL FIDAROOTFREE
