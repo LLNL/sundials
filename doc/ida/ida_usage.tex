@@ -4064,6 +4064,12 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
   (possibly repeating the Newton iteration, or reducing the step size)
   in order to avoid this recoverable error return.
 
+  For efficiency reasons, the DAE residual function is not evaluated
+  at the converged solution of the nonlinear solver. Therefore, in general, a
+  recoverable error in that converged value cannot be corrected.  (It may be
+  detected when the right-hand side function is called the first time during
+  the following integration step, but a successful step cannot be undone.) 
+
   Allocation of memory for \id{yp} is handled within {\ida}.
 }
 %%
