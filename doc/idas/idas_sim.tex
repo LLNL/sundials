@@ -54,6 +54,11 @@ these are {\em instdir}\id{/lib} and {\em instdir}\id{/include},
 respectively, where {\em instdir} is the directory where {\sundials}
 was installed (see Appendix \ref{c:install}).
 
+Note that an application cannot link to both the {\ida} and {\idas} libraries
+because both contain user-callable functions with the same names (to ensure that {\idas}
+is backward compatible with {\ida}). Therefore, applications that contain both
+DAE problems and DAEs with sensitivity analysis, should use {\idas}.
+
 %%===================================================================================
 \section{Data types}\label{s:types}
 %%===================================================================================
