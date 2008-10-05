@@ -123,14 +123,14 @@ which are mapped to actual values by a series of definitions in the
 header files \id{fcvode.h}, \id{fcvroot.h}, \id{fcvbp.h}, and \id{fcvbbd.h}.
 By default, those mapping definitions depend in turn on the {\C} macro
 \id{F77\_FUNC} defined in the header file \id{sundials\_config.h} and
-decided upon at configuration time (see Chapter \ref{c:install}).
+decided upon at configuration time (see Appendix \ref{c:install}).
 
 The user must also ensure that variables in the user {\F} code are
 declared in a manner consistent with their counterparts in {\cvode}.
 All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
 or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
 depending on whether {\cvode} was built in single, double, or extended precision 
-(see Chapter \ref{c:install}). Moreover, some of the {\F} integer variables
+(see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
 {\C} type \id{long int}. These integer variables include: the array
 of integer optional outputs (\id{IOUT}), problem dimensions (\id{NEQ},
@@ -156,8 +156,8 @@ function called by an interface function.
 The usage of {\fcvode} for rootfinding and with preconditioner modules is
 described in later subsections.
 
-Steps marked with {\s} in the instructions below apply to the serial
-{\nvector} implementation ({\nvecs}) only, while those marked with {\p}
+Steps marked {\s} in the instructions below apply to the serial
+{\nvector} implementation ({\nvecs}) only, while those marked {\p}
 apply to {\nvecp}.
 
 \index{User main program!FCVODE@{\fcvode} usage}
@@ -526,7 +526,7 @@ apply to {\nvecp}.
   {\s}{\p} {\bf SPTFQMR treatment of the linear systems}
   \index{CVSPTFQMR@{\cvsptfqmr} linear solver!use in {\fcvode}}
   
-  For the Scaled Preconditioned Transpose-Reee Quasi-Minimal Residual solution 
+  For the Scaled Preconditioned Transpose-Free Quasi-Minimal Residual solution 
   of the linear systems, the user must make the call
   \index{FCVSPTFQMR@\texttt{FCVSPTFQMR}}
 \begin{verbatim}
@@ -698,8 +698,9 @@ apply to {\nvecp}.
 \item {\bf Additional solution output}
 %%====================
 
-  To obtain a derivative of the solution, of order up to the current method
-  order, make the following call:
+  After a successful return from \id{FCVODE}, the routine \id{FCVDKY} may be
+  used to obtain a derivative of the solution, of order up to the current method
+  order, at any $t$ within the last step taken.  For this, make the following call:
   \index{FCVDKY@\texttt{FCVDKY}}
 \begin{verbatim}
       CALL FCVDKY(T, K, DKY, IER)
@@ -733,8 +734,8 @@ apply to {\nvecp}.
   to reinitialize the linear solver last used may or may not be needed,
   depending on changes in the inputs to it.
 
-  In the case of the {\band} solver, for any change in the half-bandwidths,
-  call \id{FCVBAND} (or \id{FCVLAPACKBAND}) as described above.
+  In the case of the {\band} solver, for any change in the half-bandwidth
+  parameters, call \id{FCVBAND} (or \id{FCVLAPACKBAND}) as described above.
 
   In the case of {\spgmr}, for a change of inputs other than \id{MAXL},
   make the call
@@ -1007,7 +1008,7 @@ If the {\fcvode}/{\cvode} memory block is reinitialized to solve a
 different problem via a call to \id{FCVREINIT}, then the counter
 \id{NGE} is reset to zero.
 
-To free the memory resources allocated by a prior call to \id{FCVROOTINIT} make
+To free the memory resources allocated by a prior call to \id{FCVROOTINIT}, make
 the following call:
 \begin{verbatim}
       CALL FCVROOTFREE
@@ -1095,10 +1096,10 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   integer words. \id{NFEBP} is the number of $f(t,y)$ evaluations (calls to
   \id{FCVFUN}) for difference-quotient banded Jacobian approximations.
   
-\item {\bf Memory deallocation}
+\item \textcolor{gray}{\bf Memory deallocation}
 
-  The memory allocated for the {\fcvbp} module is deallocated automatically
-  when invoking \id{FCVFREE}.
+  (The memory allocated for the {\fcvbp} module is deallocated automatically
+  by \id{FCVFREE}.)
 
 \end{Steps}
 %%
@@ -1235,10 +1236,10 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   \id{FCVSPTFQMR} must also be made; in this case the linear solver memory is
   reallocated.
   
-\item {\bf Memory deallocation}
+\item \textcolor{gray}{\bf Memory deallocation}
 
-  The memory allocated for the {\fcvbbd} module is deallocated automatically
-  when invoking \id{FCVFREE}.
+  (The memory allocated for the {\fcvbbd} module is deallocated automatically
+  by \id{FCVFREE}.)
 
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbbdpre} module|)}
 
