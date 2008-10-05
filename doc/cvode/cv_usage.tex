@@ -3,13 +3,17 @@
 %%===================================================================================
 
 This chapter is concerned with the use of {\cvode} for the solution of
-initial value problems (IVPs).  The following sections treat the header
-files and the layout of the user's main program, and provide descriptions
-of the {\cvode} user-callable functions and user-supplied functions.
+initial value problems (IVPs) in a C language setting.  The following
+sections treat the header files and the layout of the user's main
+program, and provide descriptions of the {\cvode} user-callable
+functions and user-supplied functions.
 
 The listings of the sample programs in the companion document \cite{cvode_ex} 
 may also be helpful.  Those codes may be used as templates (with the removal
 of some lines used in testing) and are included in the {\cvode} package.
+
+Users with applications written in {\F}77 should see Chapter \ref{s:fcmix},
+which describes the {\F}/{\C} interface module, which supports
 
 The user should be aware that not all linear solver modules are compatible 
 with all {\nvector} implementations. 
@@ -77,7 +81,7 @@ which defines the types \id{realtype} and \id{booleantype}
 and the constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file
-(see \S\ref{s:nvector} for details).
+(see Chapter \ref{s:nvector} for details).
 For the two {\nvector} implementations that are included in the {\cvode} package,
 the corresponding header files are:
 %%
@@ -4570,7 +4574,7 @@ by calling the following function:
   flag = CVBandPrecInit(cvode\_mem, N, mu, ml);
 }
 {
-  The function \ID{CVBandPrecAlloc} initializes and allocates (internal)
+  The function \ID{CVBandPrecInit} initializes and allocates (internal)
   memory for the {\cvbandpre} preconditioner.
 }
 {
