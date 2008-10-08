@@ -1132,15 +1132,18 @@ But these modes are modified if the user has set a stop time (with
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} argument was \id{NULL}.
   \item[\Id{IDA\_ILL\_INPUT}]
-    One of the inputs to \id{IDASolve} is illegal. This includes the situation where
-    a root of one of the root functions was found both at a point $t$ and also
-    very near $t$.  It also includes the situation when a 
-    component of the error weight vector becomes zero during internal 
-    time-stepping. The \id{IDA\_ILL\_INPUT} flag will also be returned if the
-    linear  solver function initialization (called by the user after calling 
-    \id{IDACreate}) failed to set the linear solver-specific \id{lsolve} field
-    in \id{ida\_mem}. 
-    In any case, the user should see the printed error message for more details.
+    One of the inputs to \id{IDASolve} was illegal, or some other input to the
+    solver was either illegal or missing.
+    The latter category includes the following situations:
+    (a) The tolerances have not been set.
+    (b) A component of the error weight vector became zero during internal 
+    time-stepping.
+    (c) The linear solver initialization function (called by the user after calling
+    \id{IDACreate}) failed to set the linear solver-specific \id{lsolve} field in
+    \id{ida\_mem}.
+    (d) A root of one of the root functions was found both at a point $t$ and also
+    very near $t$.
+    In any case, the user should see the printed error message for details.
   \item[\Id{IDA\_TOO\_MUCH\_WORK}] 
     The solver took \id{mxstep} internal steps but could not reach \id{tout}. 
     The default value for \id{mxstep} is \id{MXSTEP\_DEFAULT = 500}.
