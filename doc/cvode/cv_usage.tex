@@ -1095,14 +1095,17 @@ But these modes are modified if the user has set a stop time (with
   \item[\Id{CV\_NO\_MALLOC}]
     The {\cvode} memory was not allocated by a call to \id{CVodeInit}.
   \item[\Id{CV\_ILL\_INPUT}]
-    One of the inputs to \id{CVode} is illegal. This includes the situation where
-    a root of one of the root functions was found both at a point $t$ and also
-    very near $t$.  It also includes the situation 
-    where a component of the error weight vector becomes zero during internal 
-    time-stepping. The \id{CV\_ILL\_INPUT} flag will also be returned if the linear 
-    solver initialization function (called by the user after calling 
-    \id{CVodeCreate}) failed to set the linear solver-specific \id{lsolve} field
-    in \id{cvode\_mem}.
+    One of the inputs to \id{CVode} was illegal, or some other input the solver was
+    either illegal or missing.
+    The latter category includes the following situations:
+    (a) The tolerances have not been set.
+    (b) A component of the error weight vector became zero during internal 
+    time-stepping.
+    (c) The linear solver initialization function (called by the user after calling
+    \id{CVodeCreate}) failed to set the linear solver-specific \id{lsolve} field in
+    \id{cvode\_mem}.
+    (d) A root of one of the root functions was found both at a point $t$ and also
+    very near $t$.
     In any case, the user should see the error message for details.
   \item[\Id{CV\_TOO\_CLOSE}]
     The initial time $t_0$ and the final time $t_{out}$ are too close to each 
