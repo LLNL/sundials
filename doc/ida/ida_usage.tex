@@ -2,13 +2,17 @@
 \chapter{Using IDA for C Applications}\label{s:simulation}
 %%===================================================================================
 
-This chapter is concerned with the use of {\ida} for the integration of DAEs.
-The following sections treat the header files, the layout of the user's main
-program, description of the {\ida} user-callable functions, and 
-description of user-supplied functions. 
+This chapter is concerned with the use of {\ida} for the integration
+of DAEs in a C language setting.  The following sections treat the header files,
+the layout of the user's main program, description of the {\ida} user-callable
+functions, and description of user-supplied functions.
+
 The listings of the sample programs in the companion document \cite{ida_ex} 
 may also be helpful. Those codes may be used as templates (with the removal of
 some lines involved in testing), and are included in the {\ida} package.
+
+Users with applications written in {\F}77 should see Chapter \ref{s:fcmix},
+which describes the {\F}/{\C} interface module.
 
 The user should be aware that not all linear solver modules are compatible 
 with all {\nvector} implementations. 
@@ -914,7 +918,7 @@ initial conditions do not satisfy the given system.  Thus if
 \id{y0} and \id{yp0} are known to satisfy $F(t_0, y_0, \dot{y}_0) = 0$, 
 then a call to \id{IDACalcIC} is generally {\em not} necessary.
 
-A call to \id{IDACalcIC} must be preceded by successful calls to  
+A call to the function \id{IDACalcIC} must be preceded by successful calls to  
 \id{IDACreate} and \id{IDAInit} (or \id{IDAReInit}), and by a 
 successful call to the linear system solver specification function.  
 The call to \id{IDACalcIC} should precede the call(s) to \id{IDASolve}  
