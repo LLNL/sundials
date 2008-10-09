@@ -462,9 +462,9 @@ The call to the \id{CVodeSensReInit} function has the form:
   error handler function.
 
   {\warn}The value of the input argument \id{ism} must be compatible with
-  the type of the sensitivity ODE right-hand side function. In other words,
+  the type of the sensitivity ODE right-hand side function.  Thus
   if the sensitivity module was initialized using \id{CVodeSensInit}, then
-  it is illegal to pass \id{ism}=\id{CV\_STAGGERED1} to \id{CVodeSensReInit}.
+  it is illegal to pass \id{ism} = \id{CV\_STAGGERED1} to \id{CVodeSensReInit}.
 }
 %%
 %%
@@ -1718,8 +1718,8 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \item
   {\bf Get sensitivity-dependent quadrature optional outputs}
 
-  Call \id{CVodeGetQuadSens*} functions to obtain optional output related to
-  the integration of sensitivity-dependent quadratures.
+  Call \id{CVodeGetQuadSens*} functions to obtain desired optional output related
+  to the integration of sensitivity-dependent quadratures.
   See \S\ref{ss:quad_sens_optional_output} for details.
 
 \item
@@ -1812,7 +1812,7 @@ and the size of the integer workspace is increased as follows:
 \end{itemize}
 
 The function \id{CVodeQuadSensReInit}, useful during the solution of a sequence 
-of problems of same size, reinitializes the quadrature related internal memory 
+of problems of same size, reinitializes quadrature-related internal memory 
 and must follow a call to \Id{CVodeQuadSensInit}. The number \id{Nq} of 
 quadratures as well as the number \id{Ns} of sensitivities are assumed to be 
 unchanged from the prior call to \id{CVodeQuadSensInit}.
@@ -1945,7 +1945,7 @@ one of the following functions:
 {}
 %%
 %%
-\index{optional output!interpolated sensitivity-dependent quadratures}
+\index{optional output!interpolated sensitivity-dep. quadratures}
 The function \Id{CVodeGetQuadSensDky} computes the \id{k}-th derivatives of the interpolating 
 polynomials for the sensitivity-dependent quadrature variables at time \id{t}.
 This function is called by \id{CVodeGetQuadSens} with \id{k = 0}, but may also be called 
@@ -2225,9 +2225,9 @@ integration tolerances for quadrature variables.
   flag = CVodeQuadSensEEtolerances(cvode\_mem);
 }
 {
-  The function \ID{CVodeQuadSensEEtolerances} specifies that the tolerances for
-  the sensitivity-dependent quadratures should be estimated from those provided for
-  the pure quadrature variables. 
+  A call to the function \ID{CVodeQuadSensEEtolerances} specifies that the
+  tolerances for the sensitivity-dependent quadratures should be estimated from
+  those provided for the pure quadrature variables. 
 }
 {
   \begin{args}[cvode\_mem]
@@ -2415,7 +2415,7 @@ This user function must be of type \Id{CVodeQuadSensRhsFn} defined as follows:
 
 \usfunction{CVodeQuadSensRhsFn}
 {
-  typedef int (*CVodeQuadSensRhsFn)(&Ns, realtype t, N\_Vector y, N\_Vector yS,\\
+  typedef int (*CVodeQuadSensRhsFn)(&Ns,realtype t, N\_Vector y, N\_Vector yS,\\
                              &N\_Vector yQdot, N\_Vector *rhsvalQS, \\
                              &void *user\_data, N\_Vector tmp1, \\
                              &N\_Vector tmp2)

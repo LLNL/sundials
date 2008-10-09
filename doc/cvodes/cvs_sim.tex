@@ -1096,8 +1096,8 @@ But these modes are modified if the user has set a stop time (with
   \item[\Id{CV\_NO\_MALLOC}]
     The {\cvodes} memory was not allocated by a call to \id{CVodeInit}.
   \item[\Id{CV\_ILL\_INPUT}]
-    One of the inputs to \id{CVode} was illegal, or some other input the solver was
-    either illegal or missing.
+    One of the inputs to \id{CVode} was illegal, or some other input to the
+    solver was either illegal or missing.
     The latter category includes the following situations:
     (a) The tolerances have not been set.
     (b) A component of the error weight vector became zero during internal 
@@ -2808,7 +2808,7 @@ These optional output functions are described next.
 }
 {
   If the stability limit detection algorithm was not initialized
-  through a call to \id{CVodeSetStabLimDet}, then \id{nslred}=0.
+  (\id{CVodeSetStabLimDet} was not called), then \id{nslred} = 0.
 }
 %%
 %%
@@ -5250,8 +5250,8 @@ by calling the following function:
   flag = CVBandPrecInit(cvode\_mem, N, mu, ml);
 }
 {
-  The function \ID{CVBandPrecInit} initializes and allocates (internal)
-  memory for the {\cvbandpre} preconditioner.
+  The function \ID{CVBandPrecInit} initializes the {\cvbandpre} preconditioner
+  and allocates required (internal) memory for it.
 }
 {
   \begin{args}[cvode\_mem]
