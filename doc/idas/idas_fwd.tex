@@ -1787,7 +1787,7 @@ quadratures can be obtained using one of the following functions:
 {}
 %%
 %%
-\index{optional output!interpolated sensitivity-dependent quadratures}
+\index{optional output!interpolated sensitivity-dep. quadratures}
 The function \Id{IDAGetQuadSensDky} computes the \id{k}-th derivatives of the interpolating 
 polynomials for the sensitivity-dependent quadrature variables at time \id{t}.
 This function is called by \id{IDAGetQuadSens} with \id{k = 0}, but may also be called 
@@ -2201,7 +2201,7 @@ performance information related to quadrature integration.
   {\warn}The user must allocate memory for \id{eQSweight}.
 
   If quadratures were not included in the error control mechanism (through a 
-  call to \id{IDASetQuadSensErrCon} with \id{errconQS = TRUE}), 
+  call to \id{IDASetQuadSensErrCon} with \id{errconQS=TRUE}), 
   \id{IDAGetQuadSensErrWeights} does not set the \id{eQSweight} vector.
 }
 %%
