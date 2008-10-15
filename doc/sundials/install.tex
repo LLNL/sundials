@@ -87,7 +87,7 @@ from within {\em srcdir}.
 {\noindent}The installation steps for {\sundials} can be as simple as
 the following: 
 \begin{verbatim}
-   % cd .../srcdir
+   % cd (...)/srcdir
    % ./configure
    % make
    % make install
@@ -109,8 +109,8 @@ different options and/or installation destinations), issue
 The above steps are for an ``in-source'' build. For an ``out-of-source'' build (recommended),
 the procedure is simply:
 \begin{verbatim}
-   % cd .../builddir
-   % .../srcdir/configure
+   % cd (...)/builddir
+   % (...)/srcdir/configure
    % make
    % make install
 \end{verbatim}
@@ -504,9 +504,9 @@ Use \id{ccmake} from the CMake installed location. \id{ccmake} is a
 Curses based GUI for CMake.  To run it go to the build directory and
 specify as an argument the build directory:
 \begin{verbatim}
-   % mkdir .../builddir
-   % cd .../builddir
-   % ccmake .../srcdir
+   % mkdir (...)/builddir
+   % cd (...)/builddir
+   % ccmake (...)/srcdir
 \end{verbatim}
 
 About \id{ccmake}:
