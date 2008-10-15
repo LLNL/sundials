@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2007-11-26 16:20:00 $
+ * $Revision: 1.14 $
+ * $Date: 2008-10-15 22:04:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -463,16 +463,16 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 
 /* IDASet* / IDAGet* error messages */
 
-#define MSG_NEG_MAXORD     "maxord<=0 illegal."
+#define MSG_NEG_MAXORD     "maxord <= 0 illegal."
 #define MSG_BAD_MAXORD     "Illegal attempt to increase maximum order."
 #define MSG_NEG_HMAX       "hmax < 0 illegal."
-#define MSG_NEG_EPCON      "epcon < 0.0 illegal."
+#define MSG_NEG_EPCON      "epcon <= 0.0 illegal."
 #define MSG_BAD_CONSTR     "Illegal values in constraints vector."
-#define MSG_BAD_EPICCON    "epiccon < 0.0 illegal."
-#define MSG_BAD_MAXNH      "maxnh < 0 illegal."
-#define MSG_BAD_MAXNJ      "maxnj < 0 illegal."
-#define MSG_BAD_MAXNIT     "maxnit < 0 illegal."
-#define MSG_BAD_STEPTOL    "steptol < 0.0 illegal."
+#define MSG_BAD_EPICCON    "epiccon <= 0.0 illegal."
+#define MSG_BAD_MAXNH      "maxnh <= 0 illegal."
+#define MSG_BAD_MAXNJ      "maxnj <= 0 illegal."
+#define MSG_BAD_MAXNIT     "maxnit <= 0 illegal."
+#define MSG_BAD_STEPTOL    "steptol <= 0.0 illegal."
 
 #define MSG_TOO_LATE       "IDAGetConsistentIC can only be called before IDASolve."
 
