@@ -67,7 +67,7 @@ the package includes an algorithm for the approximation by difference quotients 
 product between the Jacobian matrix and a vector of appropriate length. Again, the user
 has the option of providing a routine for this operation.
 For the Krylov methods, \index{preconditioning!setup and solve phases}
-the preconditioning must be supplied by the user, in twho phases:
+the preconditioning must be supplied by the user, in two phases:
 setup (preprocessing of Jacobian data) and solve.
 
 \index{KINSOL@{\kinsol} linear solvers!implementation details|(}
@@ -109,6 +109,4 @@ user.  There is no global data in the {\kinsol} package, and so in this
 respect it is reentrant. State information specific to the linear
 solver is saved in a separate structure, a pointer to which resides in
 the {\kinsol} memory structure. The reentrancy of {\kinsol} was motivated
-by the anticipated multicomputer extension, but is also essential
-in a uniprocessor setting where two or more different problems are solved by
-intermixed calls to the package from one user program.
+by the anticipated multi-computer extension.
