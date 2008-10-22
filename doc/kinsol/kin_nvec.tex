@@ -24,19 +24,20 @@ usage within each of the four {\kinsol} linear solvers ({\kinspils}
 stands for any of {\kinspgmr}, {\kinspbcg}, or {\kinsptfqmr}),
 the {\kinbbdpre} preconditioner module, and the {\fkinsol} module.
 
-There is one subtlety in the {\kinspils} column hidden by the table
-explained here for the case of the {\kinspgmr} module. The dot product
-function \id{N\_VDotProd} is called both within the 
-implementation file \id{kinsol\_spgmr.c} for the {\kinspgmr} solver and within 
-the implementation files \id{sundials\_spgmr.c} and \id{sundials\_iterative.c}
-for the generic {\spgmr} solver upon which the {\kinspgmr} solver is implemented.
-Also, although \id{N\_VDiv} is not called within the
-implementation file \id{kinsol\_spgmr.c}, it is called within the
-implementation file \id{sundials\_spgmr.c} and so is required by the
-{\kinspgmr} solver module. This issue does not arise for the other two
-{\kinsol} linear solvers because the generic {\dense} and {\band} solvers
-(used in the implementation of {\kindense} and {\kinband}) do not make calls
-to any vector functions.
+There is one subtlety in the {\kinspils} column hidden by the table, explained
+here for the case of the {\kinspgmr} module. 
+The \id{N\_VDotProd} function is called both within the interface file
+\id{kinsol\_spgmr.c} and within the implementation
+files \id{sundials\_spgmr.c} and \id{sundials\_iterative.c} for the generic
+{\spgmr} solver upon which the {\kinspgmr} solver is built.  Also, although
+\id{N\_VDiv} and \id{N\_VProd} are not called within the interface file
+\id{kinsol\_spgmr.c}, they are called within the implementation file
+\id{sundials\_spgmr.c}, and so are required by the {\kinspgmr} solver module.
+Analogous statements apply to the {\kinspbcg} and {\kinsptfqmr} modules,
+except that they do not use \id{sundials\_iterative.c}.
+This issue does not arise for the direct {\kinsol} linear solvers because
+the generic {\dense} and {\band} solvers (used in the implementation of
+{\kindense} and {\kinband}) do not make calls to any vector functions.
 
 At this point, we should emphasize that the {\kinsol} user does not need to know 
 anything about the usage of vector functions by the {\kinsol} code modules in order 
