@@ -41,7 +41,7 @@ A test for convergence is made before the iteration continues.
 \subsubsection*{Newton method variants}
 %%
 For solving the linear system given in step 2(a), {\kinsol} provides
-several choices, including the option of an user-supplied
+several choices, including the option of a user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
 are organized in two families, a {\em direct} family comprising direct linear 
 solvers for dense or banded matrices and a {\em spils} family comprising
@@ -61,20 +61,20 @@ The methods offered through these modules are as follows:
   Residual method) solver.
 \end{itemize}
 When using one of the direct linear solvers, the linear system in 2(a) is 
-solved exactly thus resulting in a Modified Newton method (the Jacobian matrix 
-is normally outdated; see below\footnote{{\kinsol} allows the user to enforce 
+solved exactly, thus resulting in a Modified Newton method (the Jacobian matrix 
+is normally out of date; see below\footnote{{\kinsol} allows the user to enforce 
 a Jacobian evaluation at each iteration thus allowing for an Exact Newton iteration.}). 
 %%
 Note that the direct linear solvers (dense and band) can only be used with 
 serial vector representations.
 
-On the other hand, using any of the iterative linear solvers (GMRES, Bi-CGStab, or TFQMR), 
-the linear system in 2(a) is solved only approximately thus resulting in an Inexact Newton  
-method.
-In the latter case, right preconditioning is available if the preconditioning setup and 
-solve routines are supplied by the user, in which case the iterative method is applied 
-to the linear systems $(JP^{-1})(P\delta) = -F$, where $P$ denotes the right preconditioning 
-matrix.
+On the other hand, when using any of the iterative linear solvers
+(GMRES, Bi-CGStab, or TFQMR), the linear system in 2(a) is solved only
+approximately, thus resulting in an Inexact Newton method.  Here right
+preconditioning is available by way of the preconditioning setup and
+solve routines supplied by the user, in which case the iterative
+method is applied to the linear systems $(JP^{-1})(P\delta) = -F$,
+where $P$ denotes the right preconditioning matrix.
 
 %% JACOBIAN UPDATE STRATEGY
 
@@ -155,17 +155,17 @@ Although backtracking in itself guarantees that the step is not too small,
 {\kinsol} secondly relaxes $\lambda$ to satisfy the so-called $\beta$-condition
 (equivalent to Wolfe's curvature condition):
 \[
-F(u_n + \lambda\delta_n) \ge F(u_n) + \beta \nabla F(u_n) \lambda\delta_n \,
+F(u_n + \lambda\delta_n) \ge F(u_n) + \beta \nabla F(u_n) \lambda\delta_n \, ,
 \]
-where $beta = 0.9$. During this second phase, $\lambda$ is allowed to
+where $\beta = 0.9$. During this second phase, $\lambda$ is allowed to
 vary in the interval $[\lambda_{min} , \lambda_{max}]$ where
 \[
 \lambda_{min} =  \frac{\mbox{\sc steptol}}{\| \bar\delta_n\|_{\infty}} \, , \quad
-\bar\delta_n^j = \frac{\delta_n^j}{1/D_u^j + |u^j|}
+\bar\delta_n^j = \frac{\delta_n^j}{1/D_u^j + |u^j|} \, ,
 \]
 and $\lambda_{max}$ corresponds to the maximum feasible step size at the
 current iteration (typically $\lambda_{max} = \mbox{\sc stepmax} / \|\delta_n\|_{D_u}$).
-In the above expressions, $v^j$ indicates the $j$th component of a vector $v$.
+In the above expressions, $v^j$ denotes the $j$th component of a vector $v$.
 
 For more details, the reader is referred to \cite{DeSc:96}.
 
@@ -178,7 +178,8 @@ both of the nonlinear residual and the step length.  For the
 former, the Newton iteration must pass a stopping test
 \[ \|F(u_n)\|_{D_F,\infty} < \mbox{\sc ftol} \, , \]
 where {\sc ftol} is an input scalar tolerance with a default value
-of $U^{1/3}$. For the latter, the Newton method will terminate
+of $U^{1/3}$.  Here $U$ is the machine unit roundoff.
+For the latter, the Newton method will terminate
 when the maximum scaled step is below a given tolerance
 \[ \|\lambda\delta_n\|_{D_u,\infty} < \mbox{\sc steptol} \, , \]
 where {\sc steptol} is an input scalar tolerance with a default
@@ -197,22 +198,21 @@ $u^i \leq 0$, where $u^i$ is the $i$th component of $u$.  Any such
 constraint, or no constraint, may be imposed on each component.
 {\kinsol} will reduce step lengths in order to ensure that no
 constraint is violated.  Specifically, if a new Newton iterate
-will violate a constraint, the maximum (over all $i$) step length
-along the Newton direction that will satisfy all constraints is
-found and $\delta_n$ in Step 2(b) is scaled to take a step of that
-length.
+will violate a constraint, the maximum step length along
+the Newton direction that will satisfy all constraints is found,
+and $\delta_n$ in Step 2(b) is scaled to take a step of that length.
 
 %% MODIFIED NEWTON SPECIFIC
 
 \subsubsection*{Residual monitoring for Modified Newton method}
 %%
-When using a Modified Newton method (i.e.; when a direct linear solver is 
-used), in addition to the strategy described below for the update of the Jacobian 
+When using a Modified Newton method (i.e. when a direct linear solver is 
+used), in addition to the strategy described above for the update of the Jacobian 
 matrix, {\kinsol} also provides an optional nonlinear residual monitoring
 scheme to control when the system Jacobian is updated. Specifically, a Jacobian 
 update will also occur when \id{mbsetsub}$=5$ nonlinear iterations have passed 
-since the last update and 
-\[ \|D_{u}F(u_n)\|_2 > \omega \|D_{u}F(u_m)\|_2 \, , \]
+since the last update and
+\[ \|D_{F}F(u_n)\|_2 > \omega \|D_{F}F(u_m)\|_2 \, , \]
 where $u_n$ is the current iterate and $u_m$ is the iterate at the last Jacobian
 update. The scalar $\omega$ is given by
 \begin{equation}
@@ -220,7 +220,7 @@ update. The scalar $\omega$ is given by
 \end{equation}
 with $\beta$ defined as
 \begin{equation}
-\beta = \frac{\| D_{u}F(u_n) \|_2}{\mbox{{\sc ftol}}} \, ,
+\beta = \frac{\| D_{F}F(u_n) \|_2}{\mbox{{\sc ftol}}} \, ,
 \end{equation}
 where {\sc ftol} is the input scalar tolerance discussed before.
 Optionally, a constant value $\omega_{const}$ can be used for the parameter $\omega$.
@@ -235,7 +235,7 @@ value $\omega_{const}$, and the threshold \id{mbsetsub}.
 
 \subsubsection*{Stopping criteria for iterative linear solvers}
 %%
-When using an Inexact Newton method (i.e.; when an iterative linear solver is 
+When using an Inexact Newton method (i.e. when an iterative linear solver is 
 used), the convergence of the overall nonlinear solver is intimately coupled
 with the accuracy with which the linear solver in 2(a) above is solved.
 {\kinsol} provides three options for stopping criteria for the linear system 
@@ -281,9 +281,8 @@ approximation
 \end{equation}
 The increments $\sigma_j$ are given by
 \begin{equation}\label{e:sigmaDQ_direct}
-  \sigma_j = \sqrt{U} \; \max\left\{ |u^j| , 1/D_u^j \right\} \, ,
+  \sigma_j = \sqrt{U} \; \max\left\{ |u^j| , 1/D_u^j \right\} \, .
 \end{equation}
-where $U$ is the unit roundoff.
 %%
 In the dense case, this scheme requires $N$ evaluations of $F$, 
 one for each column of $J$.  In the band case, the columns of 
@@ -295,7 +294,7 @@ only as matrix-vector products $Jv$.  If a routine for $Jv$ is
 not supplied, these products are approximated by directional
 difference quotients as
 \begin{equation}\label{e:JvDQ}
-J(u) v \approx [F(u+\sigma v) - F(u)]/\sigma \,
+J(u) v \approx [F(u+\sigma v) - F(u)]/\sigma \, ,
 \end{equation}
 where $u$ is the current approximation to a root of
 (\ref{nonlinear_system}), and $\sigma$ is a scalar. The choice of
@@ -306,9 +305,9 @@ $\sigma$ is taken from \cite{BrSa:90} and is given by
 \end{equation}
 where $u_{typ}$ is a vector of typical values for the absolute
 values of the solution (and can be taken to be inverses of the
-scale factors given for $u$ as described below), and $U$ is unit
-roundoff. Convergence of the Newton method is maintained as long
-as the value of $\sigma$ remains appropriately small as shown in~\cite{Bro:87}.
+scale factors given for $u$ as described below).
+Convergence of the Newton method is maintained as long as the
+value of $\sigma$ remains appropriately small, as shown in~\cite{Bro:87}.
 
 
 
