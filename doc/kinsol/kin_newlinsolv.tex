@@ -39,7 +39,7 @@ To facilitate data exchange between the four interface functions, the
 field \id{kin\_lmem} in the {\kinsol} memory block can be used to attach
 a linear solver-specific memory block.
 
-These four routines that interface between {\kinsol} and the linear solver module
+These four routines, which interface between {\kinsol} and the linear solver module,
 necessarily have fixed call sequences.  Thus, a user wishing to implement another 
 linear solver within the {\kinsol} package must adhere to this set of interfaces.
 The following is a complete description of the call list for each of
