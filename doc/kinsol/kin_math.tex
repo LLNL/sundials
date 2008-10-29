@@ -212,15 +212,15 @@ matrix, {\kinsol} also provides an optional nonlinear residual monitoring
 scheme to control when the system Jacobian is updated. Specifically, a Jacobian 
 update will also occur when \id{mbsetsub}$=5$ nonlinear iterations have passed 
 since the last update and
-\[ \|D_{F}F(u_n)\|_2 > \omega \|D_{F}F(u_m)\|_2 \, , \]
+\[ \|F(u_n)\|_{D_F} > \omega \|F(u_m)\|_{D_F} \, , \]
 where $u_n$ is the current iterate and $u_m$ is the iterate at the last Jacobian
 update. The scalar $\omega$ is given by
 \begin{equation}
-\omega = \min \left (\omega_{min} \, e^{\max \left ( 0 , \beta - 1 \right )} , \omega_{max}\right ) \, ,
+\omega = \min \left (\omega_{min} \, e^{\max \left ( 0 , \rho - 1 \right )} , \omega_{max}\right ) \, ,
 \end{equation}
-with $\beta$ defined as
+with $\rho$ defined as
 \begin{equation}
-\beta = \frac{\| D_{F}F(u_n) \|_2}{\mbox{{\sc ftol}}} \, ,
+\rho = \frac{\|F(u_n) \|_{D_F}}{\mbox{{\sc ftol}}} \, ,
 \end{equation}
 where {\sc ftol} is the input scalar tolerance discussed before.
 Optionally, a constant value $\omega_{const}$ can be used for the parameter $\omega$.
