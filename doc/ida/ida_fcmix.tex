@@ -291,6 +291,13 @@ apply to {\nvecp}.
   The argument \id{IER} is an error return flag, which is $0$ 
   for success or non-zero if an error occurred.
 
+%%====================
+\item\label{i:fida_opt_input}{\bf Set optional inputs} 
+%%====================
+
+  Call \id{FIDASETIIN}, \id{FIDASETRIN}, and/or \id{FIDASETVIN} to set desired
+  optional inputs, if any.  See \S\ref{fida_opt_inout} for details.
+
 \item\label{i:fida_lin_solv_spec} {\bf Linear solver specification} 
   
   The variable-order, variable-coefficient \id{BDF} method used by {\ida} involves
@@ -738,7 +745,7 @@ apply to {\nvecp}.
 \index{FIDA@{\fida} interface module!usage|)}
 
 %%==============================================================================
-\section{FIDA optional input and output}
+\section{FIDA optional input and output}\label{fida_opt_inout}
 %%==============================================================================
 \index{FIDA@{\fida} interface module!optional input and output}
 
@@ -1065,6 +1072,8 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
 \item \textcolor{gray}{\bf {\nvector} module initialization}
 
 \item \textcolor{gray}{\bf Problem specification}
+
+\item \textcolor{gray}{\bf Set optional inputs}
 
 \item \textcolor{gray}{\bf Iterative linear solver specification}
 
