@@ -300,6 +300,13 @@ apply to {\nvecp}.
   for success or non-zero if an error occurred.
 
 %%====================
+\item\label{i:fcv_opt_input}{\bf Set optional inputs} 
+%%====================
+
+  Call \id{FCVINSETIIN} and/or \id{FCVINSETRIN} to set desired optional inputs,
+  if any.  See \S\ref{fcv_opt_inout} for details.
+
+%%====================
 \item\label{i:fcvode_lin_solv_spec} {\bf Linear solver specification} 
 %%====================
   
@@ -780,7 +787,7 @@ apply to {\nvecp}.
 
 
 %%==============================================================================
-\section{FCVODE optional input and output}
+\section{FCVODE optional input and output}\label{fcv_opt_inout}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!optional input and output}
 
@@ -1052,6 +1059,8 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 \item \textcolor{gray}{\bf Problem specification}
 
+\item \textcolor{gray}{\bf Set optional inputs}
+
 \item {\bf Linear solver specification}
 
   First, specify one of the {\cvspils} iterative linear solvers, by calling
@@ -1158,6 +1167,8 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \item \textcolor{gray}{\bf {\nvector} module initialization}
 
 \item \textcolor{gray}{\bf Problem specification}
+
+\item \textcolor{gray}{\bf Set optional inputs}
 
 \item {\bf Linear solver specification}
 
