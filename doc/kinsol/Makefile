@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2008-04-10 18:45:45 $
+# $Revision: 1.3 $
+# $Date: 2008-11-17 21:07:13 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -24,6 +24,7 @@ kin_intro.tex \
 kin_install.tex \
 kin_math.tex \
 kin_use.tex \
+kin_fcmix.tex \
 kin_nvec.tex \
 kin_org.tex \
 kin_newlinsolv.tex \
