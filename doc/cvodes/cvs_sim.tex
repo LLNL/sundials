@@ -137,6 +137,13 @@ which defines common functions and which in turn includes a header file (\id{sun
 which enumerates the kind of preconditioning and (for the {\spgmr} solver only) 
 the choices for the Gram-Schmidt process.
 
+Other headers may be needed, according to the choice of
+preconditioner, etc.  For example, in the \id{cvDiurnal\_kry\_p}
+example (see \cite{cvode_ex}), preconditioning is done with a
+block-diagonal matrix. For this, even though the {\cvspgmr} linear
+solver is used, the header \id{sundials\_dense.h} is included for
+access to the underlying generic dense linear solver.
+
 %%===================================================================================
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
 %%===================================================================================
@@ -153,7 +160,7 @@ steps marked {\s} correspond to {\nvecs}.
 \item 
   {\bf {\p} Initialize MPI}
 
-  Call \id{MPI\_Init(\&argc, \&argv);} to initialize {\mpi} if used by
+  Call \id{MPI\_Init(\&argc, \&argv)} to initialize {\mpi} if used by
   the user's program. Here \id{argc} and \id{argv} are the command line
   argument counter and array received by \id{main}, respectively.
   
@@ -198,7 +205,7 @@ steps marked {\s} correspond to {\nvecs}.
 \item\label{i:cvode_create} 
   {\bf Create {\cvodes} object}
 
-  Call \id{cvode\_mem = }\id{CVodeCreate}\id{(lmm, iter);} 
+  Call \id{cvode\_mem = }\id{CVodeCreate}\id{(lmm, iter)} 
   to create the {\cvodes} memory block and to specify the solution method
   (linear multistep method and nonlinear solver iteration type).
   \id{CVodeCreate} returns a pointer to the {\cvodes} memory structure.
@@ -207,7 +214,7 @@ steps marked {\s} correspond to {\nvecs}.
 \item\label{i:cvode_malloc} 
   {\bf Initialize {\cvodes} solver}
 
-  Call \id{CVodeInit}\id{(...);} 
+  Call \id{CVodeInit}\id{(...)} 
   to provide required problem specifications,
   allocate internal memory for {\cvodes}, 
   and initialize {\cvodes}.
@@ -298,12 +305,12 @@ steps marked {\s} correspond to {\nvecs}.
 \item
   {\bf Free solver memory}
 
-  Call \Id{CVodeFree}\id{(\&cvode\_mem);} to free the memory allocated for {\cvodes}.
+  Call \Id{CVodeFree}\id{(\&cvode\_mem)} to free the memory allocated for {\cvodes}.
   
 \item 
   {\bf {\p} Finalize MPI}
 
-  Call \id{MPI\_Finalize();} to terminate MPI.
+  Call \id{MPI\_Finalize()} to terminate MPI.
   
 \end{Steps}
 
@@ -448,7 +455,7 @@ Note that this call must be made after the call to \id{CVodeInit}.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeSStolerances} was successful.
@@ -483,7 +490,7 @@ Note that this call must be made after the call to \id{CVodeInit}.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeSVtolerances} was successful.
@@ -522,7 +529,7 @@ Note that this call must be made after the call to \id{CVodeInit}.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeWFtolerances} was successful.
@@ -730,7 +737,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The input arguments are identical to those of \id{CVDense}.
 }
 {
-  The values of the return flag \id{flag} (of type \id{int}) are identical
+  The values of the returned \id{flag} (of type \id{int}) are identical
   to those of \id{CVDense}.
 }
 {}
@@ -800,7 +807,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The input arguments are identical to those of \id{CVBand}.
 }
 {
-  The values of the return flag \id{flag} (of type \id{int}) are identical
+  The values of the returned \id{flag} (of type \id{int}) are identical
   to those of \id{CVBand}.
 }
 {}
@@ -3845,7 +3852,7 @@ appropriate \id{CV*Set*} calls, as described in \S\ref{sss:lin_solv_init}
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_NO\_MALLOC]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeReInit} was successful.
@@ -3982,6 +3989,8 @@ The function type \id{CVErrHandlerFn} is defined as follows:
 }
 {
   \id{error\_code} is negative for errors and positive (\Id{CV\_WARNING}) for warnings.
+  If a function that returns a pointer to memory encounters an
+  error, it sets \id{error\_code} to 0.
 }
 
 %%==============================================================================
