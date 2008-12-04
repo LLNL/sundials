@@ -132,6 +132,13 @@ The header files for the Krylov iterative solvers include \id{idas\_spils.h}
 which defines common functions and which in turn includes a header file (\id{sundials\_iterative.h})
 which enumerates the kind of preconditioning and (for the {\spgmr} solver only) the choices for the Gram-Schmidt process.
 
+Other headers may be needed, according to the choice of
+preconditioner, etc.  For example, in the \id{idaFoodWeb\_kry\_p}
+example (see \cite{ida_ex}), preconditioning is done with a
+block-diagonal matrix. For this, even though the {\idaspgmr} linear
+solver is used, the header \id{sundials\_dense.h} is included for
+access to the underlying generic dense linear solver.
+
 %%===================================================================================
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
 %%===================================================================================
@@ -148,7 +155,7 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 \item 
   {\bf {\p} Initialize MPI}
 
-  Call \id{MPI\_Init(\&argc, \&argv);} to initialize MPI if used by
+  Call \id{MPI\_Init(\&argc, \&argv)} to initialize MPI if used by
   the user's program, aside from the internal use in {\nvecp}.  
   Here \id{argc} and \id{argv} are the command line argument 
   counter and array received by \id{main}.
@@ -197,7 +204,7 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 \item\label{i:ida_create} 
   {\bf Create {\idas} object}
 
-  Call \id{ida\_mem = }\id{IDACreate}\id{();} 
+  Call \id{ida\_mem = }\id{IDACreate}\id{()} 
   to create the {\idas} memory block.
   \id{IDACreate} returns a pointer to the {\idas} memory structure.
   See \S\ref{sss:idainit} for details.
@@ -207,8 +214,8 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 \item\label{i:ida_init} 
   {\bf Initialize {\idas} solver}
 
-  Call \id{IDAInit}\id{(...);} 
-  to provide required problem specifications (residual function, initial time, and initial conditions),
+  Call \id{IDAInit}\id{(...)} to provide required problem
+  specifications (residual function, initial time, and initial conditions),
   allocate internal memory for {\idas}, and initialize {\idas}.
   \id{IDAInit} returns an error flag to indicate success or an illegal argument
   value.  See \S\ref{sss:idainit} for details.
@@ -216,7 +223,7 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 \item
   {\bf Specify integration tolerances}
 
-  Call \id{IDASStolerances}\id{(...);} or \id{IDASVtolerances}\id{(...);}
+  Call \id{IDASStolerances}\id{(...)} or \id{IDASVtolerances}\id{(...)}
   to specify, respectively, a scalar relative tolerance and scalar
   absolute tolerance, or a scalar relative tolerance and a vector of
   absolute tolerances.  Alternatively, call \id{IDAWFtolerances} to
@@ -278,7 +285,7 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
   {\bf Advance solution in time}
 
   For each point at which output is desired, call
-  \id{flag = }\Id{IDASolve}\id{(ida\_mem, tout, \&tret, yret, ypret, itask);}
+  \id{flag = }\Id{IDASolve}\id{(ida\_mem, tout, \&tret, yret, ypret, itask)}.
   Here \id{itask} specifies the return mode.  The vector \id{yret}
   (which can be the same as the vector \id{y0} above) will contain $y(t)$,
   while the vector \id{ypret} will contain $\dot{y}(t)$.
@@ -306,12 +313,12 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 \item
   {\bf Free solver memory}
 
-  \Id{IDAFree}\id{(\&ida\_mem);} to free the memory allocated for {\idas}.
+  \Id{IDAFree}\id{(\&ida\_mem)} to free the memory allocated for {\idas}.
   
 \item 
   {\bf {\p} Finalize MPI}
   
-  Call \id{MPI\_Finalize();} to terminate MPI.
+  Call \id{MPI\_Finalize()} to terminate MPI.
 
 \end{Steps}
 
@@ -382,7 +389,7 @@ memory block created and allocated by the first two calls.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[IDA\_ILL\_INPUT]
   \item[\Id{IDA\_SUCCESS}]
     The call to \id{IDAInit} was successful.
@@ -446,7 +453,7 @@ the call to \id{IDAInit}.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[IDA\_ILL\_INPUT]
   \item[\Id{IDA\_SUCCESS}]
     The call to \id{IDASStolerances} was successful.
@@ -481,7 +488,7 @@ the call to \id{IDAInit}.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[IDA\_ILL\_INPUT]
   \item[\Id{IDA\_SUCCESS}]
     The call to \id{IDASVtolerances} was successful.
@@ -520,7 +527,7 @@ the call to \id{IDAInit}.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[IDA\_ILL\_INPUT]
   \item[\Id{IDA\_SUCCESS}]
     The call to \id{IDAWFtolerances} was successful.
@@ -724,7 +731,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The input arguments are identical to those of \id{IDADense}.
 }
 {
-  The values of the return flag \id{flag} (of type \id{int}) are identical
+  The values of the returned \id{flag} (of type \id{int}) are identical
   to those of \id{IDADense}.
 }
 {}
@@ -794,7 +801,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The input arguments are identical to those of \id{IDABand}.
 }
 {
-  The values of the return flag \id{flag} (of type \id{int}) are identical
+  The values of the returned \id{flag} (of type \id{int}) are identical
   to those of \id{IDABand}.
 }
 {}
@@ -3997,7 +4004,7 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
   \end{args}
 }
 {
-  The return flag \id{flag} (of type \id{int}) will be one of the following:
+  The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[IDA\_NO\_MALLOC]
   \item[\Id{IDA\_SUCCESS}]
     The call to \id{IDAReInit} was successful.
@@ -4129,8 +4136,8 @@ The function type \id{IDAErrHandlerFn} is defined as follows:
 }
 {
   \id{error\_code} is negative for errors and positive (\Id{IDA\_WARNING}) for warnings.
-  If a function returning a pointer to memory (e.g. \id{IDABBDPrecAlloc}) encounters an
-  error, it sets \id{error\_code} to 0 before returning \id{NULL}.
+  If a function that returns a pointer to memory encounters an
+  error, it sets \id{error\_code} to 0.
 }
 %%
 %%--------------
