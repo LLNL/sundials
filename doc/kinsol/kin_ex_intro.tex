@@ -11,7 +11,7 @@ The {\kinsol} distribution contains examples of four types: serial
 {\C} examples, parallel {\C} examples, and serial and parallel {\F}
 examples.
 %%
-With the exception of `''demo''-type example files, the names of all the examples 
+With the exception of ''demo''-type example files, the names of all the examples 
 distributed with {\sundials} are of the form \verb![slv][PbName]_[ls]_[prec]_[p]!, 
 where
 \begin{description}
@@ -20,7 +20,7 @@ where
 \item [{[PbName]}] identifies the problem;
 \item [{[ls]}] identifies the linear solver module used;
 \item [{[prec]}] indicates the {\kinsol} preconditioner module used
-  (only if applicable, for examples using one of the Krylov linear solver
+  (only if applicable, for examples using a Krylov linear solver
   and the {\kinbbdpre} module, this will be \id{bbd});
 \item [{[p]}] indicates an example using the parallel vector module {\nvecp}.
 \end{description}
@@ -49,11 +49,12 @@ following serial examples (using the {\nvecs} module):
   This program solves the problem with the {\kindense} linear solver
   and a user-supplied Jacobian routine.
 \item \id{kinFoodWeb\_kry}
-  solves a nonlinear system that arises from a system of partial
-  differential equations describing a six-species food web population
-  model, with predator-prey interation and diffusion on the unit
-  square in two dimensions.
+  solves a food web model.
   \newline
+  This is a nonlinear system that arises from a system of partial
+  differential equations describing a six-species food web population
+  model, with predator-prey interaction and diffusion on the unit
+  square in two dimensions.
   This program solves the problem with the {\kinspgmr} linear solver
   and a user-supplied preconditioner. The preconditioner is a
   block-diagonal matrix based on the partial derivatives of the
@@ -78,8 +79,8 @@ the following parallel examples (using the {\nvecp} module):
 \vspace{0.2in}\noindent
 With the {\fkinsol} module, in the directories 
 {\em srcdir}\id{/examples/kinsol/fcmix\_serial} and
-{\em srcdir}\id{/examples/kinsol/fcmix\_parallel}, are the following examples for
-the {\F}-{\C} interface:
+{\em srcdir}\id{/examples/kinsol/fcmix\_parallel}, respectively, are the
+following examples for the {\F}-{\C} interface:
 \begin{itemize}
 \item \id{fkinDiagon\_kry}
   is a serial example, which solves a nonlinear system of the form
@@ -106,7 +107,7 @@ explicitly stated otherwise.
 \vspace{0.2in}\noindent {\bf Note}. 
 The examples in the {\kinsol} distribution are written in such a way as
 to compile and run for any combination of configuration options used during
-the installation of {\sundials} (see \S\ref{c:install}). As a consequence,
+the installation of {\sundials} (see Appendix \ref{c:install}). As a consequence,
 they contain portions of code that will not be typically present in a
 user program. For example, all {\C} example programs make use of the
 variable \id{SUNDIALS\_EXTENDED\_PRECISION} to test if the solver libraries

@@ -3,15 +3,15 @@
 %===================================================================================
 
 The {\F} example problem programs supplied with the {\kinsol}
-package are all written in standard F77 Fortran and use double-precision
+package are all written in standard F77 Fortran and use double precision
 arithmetic. However, when the {\F} examples are built, the source code is
 automatically modified according to the configure options supplied by the
 user and the system type. Integer variables are declared as {\tt INTEGER*}{\em n},
 where {\em n} denotes the number of bytes in the corresponding {\C} type
 ({\tt long int} or {\tt int}). Floating-point variable declarations remain
-unchanged if double-precision is used, but are changed to {\tt REAL*}{\em n},
+unchanged if double precision is used, but are changed to {\tt REAL*}{\em n},
 where {\em n} denotes the number of bytes in the {\sundials} type {\tt realtype},
-if using single-precision. Also, if using single-precision, declarations of
+if using single precision. Also, if using single precision, declarations of
 floating-point constants are appropriately modified, e.g. {\tt 0.5D-4} is
 changed to {\tt 0.5E-4}.
 
@@ -25,9 +25,9 @@ They solve the nonlinear system
 
 \subsection{A serial example: fkinDiagon\_kry}\label{ss:fkinDiagon_kry}
 
-The \id{fkinDiagon\_kry} program, for which the source code is listed in
-Appendix~\ref{s:fkinDiagon_kry_f}, solves the above problem using the
-{\nvecs} module.
+The \id{fkinDiagon\_kry} program, for which the source code is listed
+in Appendix~\ref{s:fkinDiagon_kry_f} of this document, solves the
+above problem using the {\nvecs} module.
 
 The main program begins by calling \id{fnvinits} to initialize computations
 with the {\nvecs} module. Next, the array \id{uu} is set to contain
@@ -40,7 +40,7 @@ The {\kinsol} solver is initialized and memory for it is allocated by
 calling \id{fkinmalloc}, which also specifies the \id{iout} and \id{rout}
 arrays which are used to store integer and real outputs, respectively
 (see Table~\ref{t:fkinsol_out}). Also,
-various integer, real and vector parameters are specified by calling the
+various integer, real, and vector parameters are specified by calling the
 \id{fkinsetiin}, \id{fkinsetrin}, and \id{fkinsetvin} subroutines,
 respectively. In particular, the maximum number of 
 iterations between calls to the preconditioner setup routine (\id{msbpre} $=5$),
@@ -56,7 +56,6 @@ preconditioner by  calling the \id{fkinspilssetprec} routine
 with a first argument equal to $1$. The solution of the
 nonlinear system is obtained after a successful return from \id{fkinsol}, which
 is then printed to unit 6 (stdout).
-
 Finally, memory allocated for the {\kinsol} solver is released by
 calling \id{fkinfree}.
 
@@ -75,17 +74,20 @@ The following is sample output from \id{fkinDiagon\_kry}, using $N = 128$.
 
 \subsection{A parallel example: fkinDiagon\_kry\_p}\label{ss:fkinDiagon_kry_p}
 
-The program \id{kindiapf}, listed in Appendix~\ref{s:fkinDiagon_kry_p_f}, is a
-straightforward modification of \id{fkinDiagon\_kry} to use the {\mpi}-enabled
-{\nvecp} module.
+The program \id{fkinDiagon\_kry\_p}, listed in Appendix~\ref{s:fkinDiagon_kry_p_f}
+of this document, is a straightforward modification of \id{fkinDiagon\_kry}
+to use the {\mpi}-enabled {\nvecp} module.
 
 After initialization of {\mpi}, the {\nvecp} module is initialized by calling
 \id{fnvinitp} with the default {\mpi} communicator \id{mpi\_comm\_world} and
-local and global vector sizes as its first three arguments.
-The problem set-up ({\kinsol} initialization, {\kinspgmr} specification) and
-solution steps are the same as in \id{fkinDiagon\_kry}. 
+the local and global vector sizes as its first three arguments.
+The rank of the local process, \id{mype}, is used in both the initial guess
+and the system function, inasmuch as the global and local indices to
+the vector \id{u} are related by the equation \id{iglobal = ilocal + mype*nlocal}.
+In other respects, the problem setup ({\kinsol} initialization, {\kinspgmr} specification)
+and solution steps are the same as in \id{fkinDiagon\_kry}. 
 Upon successful return from \id{fkinsol}, the solution segment local to 
-the process with id equal to $0$ is printed to the screen.
+the process with id equal to $0$ is printed to unit 6.
 Finally, the {\kinsol} memory is released and the {\mpi} environent is
 terminated. 
 
