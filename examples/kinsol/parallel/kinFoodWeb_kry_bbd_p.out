@@ -11,8 +11,8 @@ Processor array is 2 X 2
 Flag globalstrategy = 0 (0 = None, 1 = Linesearch)
 Linear solver is SPGMR with maxl = 20, maxlrst = 2
 Preconditioning uses band-block-diagonal matrix from KINBBDPRE
-  Difference quotient half-bandwidths are mudq = 11, mldq = 11
-  Retained band block half-bandwidths are mukeep = 6, mlkeep = 6
+  Difference quotient half-bandwidths: mudq = 11, mldq = 11
+  Retained band block half-bandwidths: mukeep = 6, mlkeep = 6
 Tolerance parameters:  fnormtol = 1e-07   scsteptol = 1e-13
 
 Initial profile of concentration

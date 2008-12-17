@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:40 $
+ * $Revision: 1.2 $
+ * $Date: 2008-12-17 19:40:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -219,7 +219,8 @@ int main(int argc, char *argv[])
 
   if (npes != NPEX*NPEY) {
     if (my_pe == 0)
-      printf("\nMPI_ERROR(0): npes=%d is not equal to NPEX*NPEY=%d\n", npes, NPEX*NPEY);
+      printf("\nMPI_ERROR(0): npes=%d is not equal to NPEX*NPEY=%d\n", npes,
+             NPEX*NPEY);
     return(1);
   }
 
@@ -242,9 +243,11 @@ int main(int argc, char *argv[])
   sc = N_VNew_Parallel(comm, Nlocal, NEQ);
   if (check_flag((void *)sc, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   data->rates = N_VNew_Parallel(comm, Nlocal, NEQ);
-  if (check_flag((void *)data->rates, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag((void *)data->rates, "N_VNew_Parallel", 0, my_pe))
+      MPI_Abort(comm, 1);
   constraints = N_VNew_Parallel(comm, Nlocal, NEQ);
-  if (check_flag((void *)constraints, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag((void *)constraints, "N_VNew_Parallel", 0, my_pe))
+      MPI_Abort(comm, 1);
   N_VConst(ZERO, constraints);
   
   SetInitialProfiles(cc, sc);
@@ -691,7 +694,6 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
                         realtype fnormtol, realtype scsteptol)
 {
     printf("\nPredator-prey test problem--  KINSol (parallel-BBD version)\n\n");
-    
     printf("Mesh dimensions = %d X %d\n", MX, MY);
     printf("Number of species = %d\n", NUM_SPECIES);
     printf("Total system size = %d\n\n", NEQ);
@@ -702,9 +704,9 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
     printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
            maxl, maxlrst);
     printf("Preconditioning uses band-block-diagonal matrix from KINBBDPRE\n");
-    printf("  Difference quotient half-bandwidths are mudq = %d, mldq = %d\n",
+    printf("  Difference quotient half-bandwidths: mudq = %d, mldq = %d\n",
 	   mudq, mldq);
-    printf("  Retained band block half-bandwidths are mukeep = %d, mlkeep = %d\n",
+    printf("  Retained band block half-bandwidths: mukeep = %d, mlkeep = %d\n",
 	   mukeep, mlkeep);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
     printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",
@@ -719,11 +721,11 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 
     printf("\nInitial profile of concentration\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("At all mesh points:  %Lg %Lg %Lg   %Lg %Lg %Lg\n", PREYIN,PREYIN,PREYIN,
-           PREDIN,PREDIN,PREDIN);
+    printf("At all mesh points:  %Lg %Lg %Lg   %Lg %Lg %Lg\n",
+           PREYIN,PREYIN,PREYIN, PREDIN,PREDIN,PREDIN);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("At all mesh points:  %lg %lg %lg   %lg %lg %lg\n", PREYIN,PREYIN,PREYIN,
-           PREDIN,PREDIN,PREDIN);
+    printf("At all mesh points:  %lg %lg %lg   %lg %lg %lg\n",
+           PREYIN,PREYIN,PREYIN, PREDIN,PREDIN,PREDIN);
 #else
     printf("At all mesh points:  %g %g %g   %g %g %g\n", PREYIN,PREYIN,PREYIN,
            PREDIN,PREDIN,PREDIN);
