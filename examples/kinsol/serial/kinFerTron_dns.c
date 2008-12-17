@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:41 $
+ * $Revision: 1.2 $
+ * $Date: 2008-12-17 19:38:48 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -87,7 +87,8 @@ static int func(N_Vector u, N_Vector f, void *user_data);
 static void SetInitialGuess1(N_Vector u, UserData data);
 static void SetInitialGuess2(N_Vector u, UserData data);
 static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset);
-static void PrintHeader(int globalstrategy, realtype fnormtol, realtype scsteptol);
+static void PrintHeader(int globalstrategy, realtype fnormtol,
+                        realtype scsteptol);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
 static int check_flag(void *flagvalue, char *funcname, int opt);
@@ -392,7 +393,8 @@ static void SetInitialGuess2(N_Vector u, UserData data)
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(int globalstrategy, realtype fnormtol, realtype scsteptol)
+static void PrintHeader(int globalstrategy, realtype fnormtol,
+                        realtype scsteptol)
 {
   printf("\nFerraris and Tronconi test problem\n");
   printf("Tolerance parameters:\n");

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:41 $
+ * $Revision: 1.2 $
+ * $Date: 2008-12-17 19:38:49 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -211,8 +211,7 @@ int main(void)
 
   fnormtol=FTOL; scsteptol=STOL;
 
-  /* Call KINCreate/KINInit to initialize KINSOL: 
-     nvSpec is the nvSpec pointer used in the serial version
+  /* Call KINCreate/KINInit to initialize KINSOL.
      A pointer to KINSOL problem memory is returned and stored in kmem. */
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
@@ -235,7 +234,7 @@ int main(void)
   N_VDestroy_Serial(constraints);
 
   /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
-     routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
+     routines PrecSetupBD and PrecSolveBD. */
   maxl = 15; 
   maxlrst = 2;
   flag = KINSpgmr(kmem, maxl);
