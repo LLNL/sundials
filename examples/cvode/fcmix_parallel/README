@@ -1,8 +1,8 @@
 List of parallel CVODE FCMIX examples
 
-  fcvAdvDiff_non_p     : diagonal ODE example - non-stiff case (ADAMS/FUNCTIONAL)
-  fcvDiurnal_kry_bbd_p : diagonal ODE example - stiff case (BDF/SPGMR/FCVBBD)
-  fcvDiurnal_kry_p     : diagonal ODE example - stiff case (BDF/SPGMR)
+  fcvDiag_non_p     : diagonal ODE example - non-stiff case (ADAMS/FUNCTIONAL)
+  fcvDiag_kry_bbd_p : diagonal ODE example - stiff case (BDF/SPGMR/FCVBBD)
+  fcvDiag_kry_p     : diagonal ODE example - stiff case (BDF/SPGMR)
 
 Sample results:
 

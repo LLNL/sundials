@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2007-10-25 20:03:27 $
+# $Revision: 1.9 $
+# $Date: 2008-12-23 21:51:26 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -60,9 +60,9 @@ fortran-update = ${SHELL} ${top_builddir}/bin/fortran-update.sh
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
-EXAMPLES = fcvAdvDiff_non_p \
-	   fcvDiurnal_kry_bbd_p \
-	   fcvDiurnal_kry_p
+EXAMPLES = fcvDiag_non_p \
+	   fcvDiag_kry_bbd_p \
+	   fcvDiag_kry_p
 
 OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
 EXECS = ${EXAMPLES:=${EXE_EXT}}
