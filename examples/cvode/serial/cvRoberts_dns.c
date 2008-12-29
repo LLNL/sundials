@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:29 $
+ * $Revision: 1.2 $
+ * $Date: 2008-12-29 22:21:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -32,8 +32,8 @@
 
 /* Header files with a description of contents used */
 
-#include <cvode/cvode.h>             /* prototypes for CVODE fcts. and consts. */
-#include <nvector/nvector_serial.h>  /* serial N_Vector types, fcts., and macros */
+#include <cvode/cvode.h>             /* prototypes for CVODE fcts., consts. */
+#include <nvector/nvector_serial.h>  /* serial N_Vector types, fcts., macros */
 #include <cvode/cvode_dense.h>       /* prototype for CVDense */
 #include <sundials/sundials_dense.h> /* definitions DlsMat DENSE_ELEM */
 #include <sundials/sundials_types.h> /* definition of type realtype */
@@ -187,8 +187,9 @@ int main()
   /* Print some final statistics */
   PrintFinalStats(cvode_mem);
 
-  /* Free y vector */
+  /* Free y and abstol vectors */
   N_VDestroy_Serial(y);
+  N_VDestroy_Serial(abstol);
 
   /* Free integrator memory */
   CVodeFree(&cvode_mem);

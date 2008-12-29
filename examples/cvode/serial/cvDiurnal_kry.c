@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:29 $
+ * $Revision: 1.2 $
+ * $Date: 2008-12-29 22:21:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -37,11 +37,11 @@
 #include <math.h>
 
 #include <cvode/cvode.h>              /* main integrator header file */
-#include <cvode/cvode_spgmr.h>        /* prototypes & constants for CVSPGMR solver */
-#include <nvector/nvector_serial.h>   /* serial N_Vector types, fct. and macros */
-#include <sundials/sundials_dense.h>  /* use generic DENSE solver in preconditioning */
+#include <cvode/cvode_spgmr.h>        /* prototypes & constants for CVSPGMR */
+#include <nvector/nvector_serial.h>   /* serial N_Vector types, fct., macros */
+#include <sundials/sundials_dense.h>  /* use generic dense solver in precond. */
 #include <sundials/sundials_types.h>  /* definition of realtype */
-#include <sundials/sundials_math.h>   /* contains the macros ABS, SQR, and EXP */
+#include <sundials/sundials_math.h>   /* contains the macros ABS, SQR, EXP */
 
 /* Problem Constants */
 
