@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2007-10-25 20:03:26 $
+# $Revision: 1.4 $
+# $Date: 2008-12-29 21:44:31 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -15,9 +15,9 @@
 # Add variable FCVODE_examples with the names of the parallel CVODE examples
 
 SET(FCVODE_examples
-  fcvAdvDiff_non_p
-  fcvDiurnal_kry_bbd_p
-  fcvDiurnal_kry_p
+  fcvDiag_non_p
+  fcvDiag_kry_bbd_p
+  fcvDiag_kry_p
   )
 
 # Check whether we use MPI compiler scripts.
