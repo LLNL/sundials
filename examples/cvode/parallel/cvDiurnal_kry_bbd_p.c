@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:28 $
+ * $Revision: 1.2 $
+ * $Date: 2008-12-29 22:22:57 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -56,9 +56,9 @@
 #include <math.h>
 
 #include <cvode/cvode.h>              /* prototypes for CVODE fcts. */
-#include <cvode/cvode_spgmr.h>        /* prototypes and constants for CVSPGMR solver */
+#include <cvode/cvode_spgmr.h>        /* prototypes and constants for CVSPGMR */
 #include <cvode/cvode_bbdpre.h>       /* prototypes for CVBBDPRE module */
-#include <nvector/nvector_parallel.h> /* definition N_Vector and macro NV_DATA_P */
+#include <nvector/nvector_parallel.h> /* def. of N_Vector, macro NV_DATA_P */
 #include <sundials/sundials_types.h>  /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>   /* definition of macros SQR and EXP */
 
