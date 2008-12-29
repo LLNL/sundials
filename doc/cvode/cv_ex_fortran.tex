@@ -3,15 +3,15 @@
 %===================================================================================
 
 The {\F} example problem programs supplied with the {\cvode}
-package are all written in standard {\F}77 and use double-precision
+package are all written in standard {\F}77 and use double precision
 arithmetic. However, when the {\F} examples are built, the source code is
 automatically modified according to the configure options supplied by the
 user and the system type. Integer variables are declared as {\tt INTEGER*}{\em n},
 where {\em n} denotes the number of bytes in the corresponding {\C} type
 ({\tt long int} or {\tt int}). Floating-point variable declarations remain
-unchanged if double-precision is used, but are changed to {\tt REAL*}{\em n},
+unchanged if double precision is used, but are changed to {\tt REAL*}{\em n},
 where {\em n} denotes the number of bytes in the {\sundials} type {\tt realtype},
-if using single-precision. Also, if using single-precision, then declarations of
+if using single precision. Also, if using single precision, then declarations of
 floating-point constants are appropriately modified; e.g. {\tt 0.5D-4} is
 changed to {\tt 0.5E-4}.
 
@@ -19,13 +19,14 @@ changed to {\tt 0.5E-4}.
 \subsection{A serial example: fcvDiurnal\_kry}\label{ss:fcvDiurnal} 
 The \id{fcvDiurnal\_kry} example is a {\F} equivalent of the \id{cvDiurnal\_kry} problem.
 (In fact, it was derived from an earlier {\F} example program for VODPK.)
-The source program \id{fcvDiurnal\_kry.f} is listed in Appendix \ref{s:fcvDiurnal_f}.
+The source program \id{fcvDiurnal\_kry.f} is listed in Appendix \ref{s:fcvDiurnal_f}
+in this document.
 
 The main program begins with a call to \id{INITKX}, which sets problem
 parameters, loads these into arrays \id{IPAR} and \id{RPAR} for use by other
-routines, and loads \id{Y} with its initial values.  It calls \id{FNVINITS},
-\id{FCVMALLOC}, \id{FCVSPGMR}, \id{FCVSPGMRSETPSET}, and \id{FCVSPGMRSETPSOL} to
-initialize the {\nvecs} module, the main solver memory, and the {\cvspgmr} module,
+routines, and loads \id{Y} (here called \id{U0}) with its initial values.
+\id{Main} calls \id{FNVINITS}, \id{FCVMALLOC}, \id{FCVSPGMR}, and \id{FCVSPILSSETPREC},
+to initialize the {\nvecs} module, the main solver memory, and the {\cvspgmr} module,
 and to specify user-supplied preconditioner setup and solve routines.
 It calls \id{FCVODE} in a loop over \id{TOUT} values, with printing of
 selected solution values and performance data (from the \id{IOUT}  and \id{ROUT}
@@ -39,7 +40,9 @@ block-diagonal part of the Jacobian, $J_{bd}$, is computed (and copied to
 \id{JOK} = 1.  In both cases, the preconditioner matrix $P$ is formed from 
 $J_{bd}$ and its $2 \times 2$ blocks are LU-factored.  In \id{FCVPSOL},
 the solution of a linear system $Px = z$ is solved by doing backsolve
-operations on the blocks.  The remainder of \id{fcvDiurnal\_kry.f} consists of
+operations on the blocks.  Subordinate routines are used to isolate
+these evaluation, factorization, and backsolve operations.
+The remainder of \id{fcvDiurnal\_kry.f} consists of
 routines from LINPACK and the BLAS needed for matrix and vector operations.
 
 The following is sample output from \id{fcvDiurnal\_kry}, using a $10 \times 10$ mesh.
@@ -52,9 +55,9 @@ the \id{cvDiurnal\_kry} problem, as expected.
 
 %-----------------------------------------------------------------------------------
 
-\subsection{A parallel example: fcvDiurnal\_kry\_bbd\_p}\label{ss:fcvDiurnal_bbd_p}
+\subsection{A parallel example: fcvDiag\_kry\_bbd\_p}\label{ss:fcvDiag_bbd_p}
 
-This example, \id{fcvDiurnal\_kry\_bbd\_p}, uses a simple diagonal ODE system to illustrate
+This example, \id{fcvDiag\_kry\_bbd\_p}, uses a simple diagonal ODE system to illustrate
 the use of {\fcvode} in a parallel setting.  The system is
 \begin{equation} \label{diagode}
 \dot{y}_i = - \alpha ~i~ y_i ~~~ (i = 1,\ldots, N)
@@ -67,10 +70,11 @@ Since the system Jacobian is diagonal, the half-bandwidths specified
 are all zero.  The problem is solved twice --- with preconditioning on
 the left, then on the right.
 
-The source file, \id{fcvDiurnal\_kry\_bbd\_p.f}, is listed in Appendix \ref{s:fcvDiurnal_bbd_p_f}.
-It begins with MPI calls to initialize MPI and to get the number of processors
-and local processor index.  The linear solver specification is done with
-calls to \id{FCVBBDINIT} and \id{FCVBBDSPGMR}.  In a loop over \id{TOUT}
+The source file, \id{fcvDiag\_kry\_bbd\_p.f}, is listed in Appendix
+\ref{s:fcvDiag_bbd_p_f} in this document. It begins with MPI calls to initialize
+MPI and to get the number of processors and local processor index.
+Following the call to \id{FCVMALLOC}, the linear solver specification is done with
+calls to \id{FCVSPGMR} and \id{FCVBBDINIT}.  In a loop over \id{TOUT}
 values, it calls \id{FCVODE} and prints the step and $f$ evaluation counters.
 After that, it computes and prints the maximum global error, and all the
 relevant performance counters.  Those specific to {\cvbbdpre} are obtained
@@ -81,11 +85,11 @@ Notice that in the \id{FCVFUN} routine, the local processor index \id{MYPE}
 and the local vector size \id{NLOCAL} are used to form the global index
 values needed to evaluate the right-hand side of Eq. (\ref{diagode}).
 
-The following is a sample output from \id{fcvDiurnal\_kry\_bbd\_p}, with \id{NPES} = 4.
+The following is a sample output from \id{fcvDiag\_kry\_bbd\_p}, with \id{NPES} = 4.
 As expected, the performance is identical for left vs right preconditioning.
 
 %%
-\includeOutput{fcvDiurnal\_kry\_bbd\_p}{../../examples/cvode/fcmix_parallel/fcvDiurnal_kry_bbd_p.out}
+\includeOutput{fcvDiag\_kry\_bbd\_p}{../../examples/cvode/fcmix_parallel/fcvDiag_kry_bbd_p.out}
 %%
 
 %-----------------------------------------------------------------------------------
