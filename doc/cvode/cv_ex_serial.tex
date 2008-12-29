@@ -26,8 +26,9 @@ While integrating the system, we also use the rootfinding
 feature to find the points at which $y_1 = 10^{-4}$ or at which
 $y_3 = 0.01$.
 
-For the source, listed in Appendix \ref{s:cvRoberts_c}, we give a rather detailed
-explanation of the parts of the program and their interaction with {\cvode}.
+For the source, listed in Appendix \ref{s:cvRoberts_c} in this document,
+we give a rather detailed explanation of the parts of the program and
+their interaction with {\cvode}.
 
 Following the initial comment block, this program has a number
 of \id{\#include} lines, which allow access to useful items in {\cvode}
@@ -50,7 +51,7 @@ We have explicitly included \id{sundials\_dense.h}, but this is not necessary be
 it is included by \id{cvode\_dense.h}.
 
 This program includes two user-defined accessor macros, \id{Ith} and
-\id{IJth} that are useful in writing the problem functions in a form
+\id{IJth}, that are useful in writing the problem functions in a form
 closely matching the mathematical description of the ODE system,
 i.e. with components numbered from 1 instead of from 0.  The \id{Ith}
 macro is used to access components of a vector of type \id{N\_Vector}
@@ -88,13 +89,13 @@ Its return value is a pointer to that memory block for this
 problem.  In the case of failure, the return value is \id{NULL}.  This
 pointer must be passed in the remaining calls to {\cvode} functions.
 
-The call to \id{CVodeMalloc} allocates the solver memory block.
+The call to \id{CVodeInit} allocates and initializes the solver memory block.
 Its arguments include the name of the {\C} function \id{f} defining the
 right-hand side function $f(t,y)$, and the initial values of $t$ and $y$.
-The argument \id{CV\_ SV} specifies a vector of absolute tolerances, and this 
-is followed by the value of the relative tolerance \id{reltol} and the absolute 
-tolerance vector \id{abstol}.
-See \ugref{sss:cvodemalloc} for full details of this call.
+The call to \id{CVodeSVtolerances} specifies a vector of absolute tolerances,
+and includes the value of the relative tolerance \id{reltol} and the absolute 
+tolerance vector \id{abstol}.  See \ugref{sss:cvodemalloc} and
+\ugref{sss:cvtolerances} for full details of these calls.
 
 The call to \id{CVodeRootInit} specifies that a rootfinding problem
 is to be solved along with the integration of the ODE system, that the
@@ -104,7 +105,7 @@ $y_3 - 0.01$, respectively.
 See \ugref{ss:cvrootinit} for a detailed description of this call.
 
 The calls to \id{CVDense} (see \ugref{sss:lin_solv_init}) and 
-\id{CVDenseSetJacFn} (see \ugref{ss:optional_input}) specify the {\cvdense}
+\id{CVDlsSetDenseJacFn} (see \ugref{ss:optional_input}) specify the {\cvdense}
 linear solver with an analytic Jacobian supplied by the user-supplied function
 \id{Jac}.
 
@@ -140,9 +141,9 @@ Specifically, these are: the cumulative number of steps (\id{nst}),
 the number of \id{f} evaluations (\id{nfe}) (excluding those for
 difference-quotient Jacobian evaluations),
 the number of matrix factorizations (\id{nsetups}),
-the number of \id{f} evaluations for Jacobian evaluations (\id{nfeD}
+the number of \id{f} evaluations for Jacobian evaluations (\id{nfeLS}
 = 0 here),
-the number of Jacobian evaluations (\id{njeD}),
+the number of Jacobian evaluations (\id{nje}),
 the number of nonlinear (Newton) iterations (\id{nni}),
 the number of nonlinear convergence failures (\id{ncfn}),
 the number of local error test failures (\id{netf}), and
@@ -208,7 +209,7 @@ If we set $u_{(j-1)+(i-1)*\id{MY}} = v_{ij}$, so that the ODE system is
 $\dot{u} = f(u)$, then the system Jacobian $J = \partial f / \partial u$ is
 a band matrix with upper and lower half-bandwidths both equal to \id{MY}.
 In the example, we take \id{MX} $= 10$ and \id{MY} $= 5$.
-The source is listed in Appendix \ref{s:cvAdvDiff_c}.
+The source is listed in Appendix \ref{s:cvAdvDiff_c} in this document.
 
 The \id{cvAdvDiff\_bnd.c} program includes files \id{cvode\_band.h} and
 \id{sundials\_band.h} in order to use the {\cvband} linear solver. The \id{cvode\_band.h}
@@ -238,24 +239,21 @@ access.
 The type \id{UserData} is a pointer to a structure containing problem
 data used in the \id{f} and \id{Jac} functions.  This structure is
 allocated and initialized at the beginning of \id{main}. The pointer
-to it, called \id{data}, is passed to both \id{CVodeSetFData} and
-\id{CVBandSetJacFn}, and as a result it will be passed back to the
-\id{f} and \id{Jac} functions each time they are called.  (If
-appropriate, two different data structures could be defined and passed
-to \id{f} and \id{Jac}.)  The use of the \id{data} pointer eliminates
-the need for global program data.
+to it, called \id{data}, is passed to \id{CVodeSetUserData}, and as a
+result it will be passed back to the \id{f} and \id{Jac} functions
+each time they are called.  The use of the \id{data} pointer
+eliminates the need for global program data.
 
-The \id{main} program is straightforward.  The \id{CVodeCreate} call
-specifies the \id{CV\_BDF} method with a \id{CV\_NEWTON} iteration. In the
-\id{CVodeMalloc} call, the parameter \id{SS} indicates scalar relative
-and absolute tolerances, and pointers \id{\&reltol} and \id{\&abstol} to
-these values are passed.  
+The \id{main} program is straightforward.  The \id{CVodeCreate} call specifies
+the \id{CV\_BDF} method with a \id{CV\_NEWTON} iteration. Following the
+\id{CVodeInit} call, the call to \id{CVodeSStolerances} indicates scalar
+relative and absolute tolerances, and values \id{reltol} and \id{abstol} are passed.
 The call to \id{CVBand} (see \ugref{sss:lin_solv_init}) specifies the {\cvband}
 linear solver, and specifies that both half-bandwidths of the Jacobian
 are equal to \id{MY}.  
-The call to \id{CVBandSetJacFn} (see \ugref{ss:optional_input}) specifies
-that a user-supplied Jacobian function \id{Jac} is to be used and that a
-pointer to \id{data} shold be passed to \id{Jac} every time it is called.
+The call to \id{CVDlsSetBandJacFn} (see \ugref{ss:optional_input}) specifies
+that a user-supplied Jacobian function \id{Jac} is to be used.
+
 The actual solution of the problem is performed by
 the call to \id{CVode} within the loop over the output times \id{tout}.
 The max-norm of the solution vector (from a call to \id{N\_VMaxNorm}) and
@@ -264,16 +262,19 @@ printed at each output time. Finally, the calls to \id{PrintFinalStats},
 \id{N\_VDestroy}, and \id{CVodeFree} print statistics and free problem memory.
 
 Following the \id{main} program in the \id{cvAdvDiff\_bnd.c} file are definitions of
-five functions: \id{f}, \id{Jac}, \id{SetIC}, \id{PrintFinalStats}, and
-\id{check\_flag}.   The last three functions are called only from within the
-\id{cvAdvDiff\_bnd.c} file.  The \id{SetIC} function sets the initial dependent variable
-vector; \id{PrintFinalStats} gets and prints statistics at the end of the run;
+five functions: \id{f}, \id{Jac}, \id{SetIC}, \id{PrintHeader}, \id{PrintOutput},
+\id{PrintFinalStats}, and \id{check\_flag}.   The last five functions are called
+only from within the \id{cvAdvDiff\_bnd.c} file.
+The \id{SetIC} function sets the initial dependent variable vector;
+\id{PrintHeader} prints the heading of the output page;
+\id{PrintOutput} prints a line of solution output;
+\id{PrintFinalStats} gets and prints statistics at the end of the run;
 and \id{check\_flag} aids in checking return values.  The statistics
 printed include counters such as the total number of steps (\id{nst}), 
 \id{f} evaluations (excluding those for Jaobian evaluations) (\id{nfe}),
 LU decompositions (\id{nsetups}), \id{f} evaluations for
-difference-quotient Jacobians (\id{nfeB} = 0 here),
-Jacobian evaluations (\id{njeB}), and nonlinear iterations (\id{nni}).
+difference-quotient Jacobians (\id{nfeLS} = 0 here),
+Jacobian evaluations (\id{nje}), and nonlinear iterations (\id{nni}).
 These optional outputs are described in \ugref{ss:optional_output}.
 Note that \id{PrintFinalStats} is suitable for general use in applications
 of {\cvode} to any problem with a banded Jacobian.
@@ -284,7 +285,7 @@ The constant coefficients $(\Delta x)^{-2}$, $.5(2 \Delta x)^{-1}$, and
 $(\Delta y)^{-2}$ are computed only once at the beginning of \id{main}, 
 and stored in the locations \id{data->hdcoef}, \id{data->hacoef}, and
 \id{data->vdcoef}, respectively.   When \id{f} receives the \id{data}
-pointer (renamed \id{f\_data} here), it pulls out these values from storage
+pointer (renamed \id{user\_data} here), it pulls out these values from storage
 in the local variables \id{hordc}, \id{horac}, and \id{verdc}.  It then
 uses these to construct the diffusion and advection terms, which are
 combined to form \id{udot}.  Note the extra lines setting out-of-bounds
@@ -392,30 +393,33 @@ The inclusion of \id{sundials\_math.h} is done to access the \id{SQR}
 macro for the square of a \id{realtype} number.
 
 The \id{main} program calls \id{CVodeCreate} specifying the \id{CV\_BDF} method
-and \id{CV\_NEWTON} iteration, and then calls \id{CVodeMalloc} with scalar
-tolerances.   
+and \id{CV\_NEWTON} iteration, and then calls \id{CVodeInit}, and
+\id{CVodeSetSStolerances} specifies the scalar tolerances.
 It calls  \id{CVSpgmr} (see \ugref{sss:lin_solv_init}) to specify the {\cvspgmr} 
-linear solver with left preconditioning, and the default value (indicated by a zero argument)
-for \id{maxl}.  The Gram-Schmidt orthogonalization is set to \id{MODIFIED\_GS}
+linear solver with left preconditioning, and the default value (indicated by a
+zero argument) for \id{maxl}.
+The call to \id{CVSpilsSetJacTimesVecFn} specifies a user-supplied function
+for Jacobian-vector products.
+The Gram-Schmidt orthogonalization is set to \id{MODIFIED\_GS}
 through the function \id{CVSpilsSetGSType}.  Next, user-supplied preconditioner
-setup and solve functions, \id{Precond} and \id{PSolve}, as well as the 
-\id{data} pointer passed to \id{Precond} and \id{PSolve} whenever these are called,
-See \ugref{ss:optional_input} for details on the \id{CVSpilsSetPreconditioner} function.
+setup and solve functions, \id{Precond} and \id{PSolve}, are specified.
+See \ugref{ss:optional_input} for details on the \id{CVSpilsSetPreconditioner}
+function.
 
-Then for a sequence of \id{tout} values, \id{CVode} is called in the
+For a sequence of \id{tout} values, \id{CVode} is called in the
 \id{CV\_NORMAL} mode, sampled output is printed, and the return value is
 tested for error conditions.  After that, \id{PrintFinalStats} is called
 to get and print final statistics, and memory is freed by calls to
 \id{N\_VDestroy}, \id{FreeUserData}, and \id{CVodeFree}.  The printed
 statistics include various counters, such as the total numbers of steps
 (\id{nst}), of \id{f} evaluations (excluding those for $Jv$ product
-evaluations) (\id{nfe}), of \id{f} evaluations for $Jv$ evaluations (\id{nfel}),
+evaluations) (\id{nfe}), of \id{f} evaluations for $Jv$ evaluations (\id{nfeLS}),
 of nonlinear iterations (\id{nni}), of linear (Krylov) iterations (\id{nli}),
 of preconditioner setups (\id{nsetups}), of preconditioner evaluations
 (\id{npe}), and of preconditioner solves (\id{nps}), among others.  
 Also printed are the lengths of the problem-dependent real and integer
 workspaces used by the main integrator \id{CVode}, denoted \id{lenrw} and
-\id{leniw}, and those used by {\cvspgmr}, denoted \id{llrw} and \id{lliw}.
+\id{leniw}, and those used by {\cvspgmr}, denoted \id{lenrwLS} and \id{leniwLS}.
 All of these optional outputs are described in \ugref{ss:optional_output}.
 The \id{PrintFinalStats} function is suitable for general use in applications
 of {\cvode} to any problem with the {\spgmr} linear solver.
@@ -448,7 +452,7 @@ of \id{jcur}, i.e. \id{*jcurPtr}, to \id{TRUE} when $J_{bd}$ is re-evaluated,
 and \id{FALSE} otherwise, to inform {\cvspgmr} of the status of Jacobian data.
 
 We need to take a brief detour to explain one last important aspect of
-the \id{cvDiurnal\_kry.c} program.  The generic {\dense} solver contains two
+this program.  The generic {\dense} solver contains two
 sets of functions: one for ``large'' matrices and one for ``small''
 matrices.  The large dense functions work with the type \id{DenseMat},
 while the small dense functions work with \id{realtype **} as the
@@ -457,10 +461,11 @@ type \id{DenseMat} for the $N \times N$ dense Jacobian and Newton
 matrices, and calls the large matrix functions.  But to avoid the
 extra layer of function calls, \id{cvDiurnal\_kry.c} uses the small dense
 functions for all operations on the $2 \times 2$ preconditioner blocks.  
-Thus it includes \id{sundials\_smalldense.h}, and calls the small dense matrix
-functions \id{denalloc}, \id{dencopy}, \id{denscale}, \id{denaddI}, 
-\id{denfree}, \id{denfreepiv}, \id{denGETRF}, and \id{denGETRS}.  The macro
-\id{IJth} defined near the top of the file is used to access
+Thus it includes \id{sundials\_smalldense.h} (by way of \id{sundials\_dense.h}),
+and calls the small dense matrix functions \id{denalloc}, \id{dencopy},
+\id{denscale}, \id{denaddI}, \id{denfree}, \id{denfreepiv}, \id{denGETRF},
+and \id{denGETRS}.
+The macro \id{IJth} defined near the top of the file is used to access
 individual elements in each preconditioner block, numbered from $1$.
 The small dense functions are available for {\cvode} user programs
 generally, and are documented in \ugref{ss:dense}.
