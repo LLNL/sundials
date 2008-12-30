@@ -19,31 +19,31 @@ serial and parallel examples of adjoint sensitivity analysis (ASA):
 
     & Serial examples & Parallel examples \\ \hline
 
-    IVP & \id{cvsAdvDiff\_bnd}     \id{cvsAdvDiff\_bndL}    & \id{cvsAdvDiff\_non\_p}      \\
-    {}  & \id{cvsDirectDemo\_ls}   \id{cvsDiurnal\_kry\_bp} & \id{cvsDiurnal\_kry\_bbd\_p} \\
-    {}  & \id{cvsDiurnal\_kry}     \id{cvsKrylovDemo\_ls}   & \id{cvsDiurnal\_kry\_p}      \\
-    {}  & \id{cvsKrylovDemo\_prec} \id{cvsRoberts\_dns}     & {}                           \\
-    {}  & \id{cvsRoberts\_dnsL}    \id{cvsRoberts\_dns\_uw} & {}                           \\
+    IVP & \id{cvsRoberts\_dns}     \id{cvsRoberts\_dnsL}    & \id{cvsAdvDiff\_non\_p}      \\
+    {}  & \id{cvsRoberts\_dns\_uw} \id{cvsAdvDiff\_bnd}     & \id{cvsDiurnal\_kry\_p}      \\
+    {}  & \id{cvsAdvDiff\_bndL}    \id{cvsDiurnal\_kry}     & \id{cvsDiurnal\_kry\_bbd\_p} \\
+    {}  & \id{cvsDiurnal\_kry\_bp} \id{cvsDirectDemo\_ls}   & {}                           \\
+    {}  & \id{cvsKrylovDemo\_ls}   \id{cvsKrylovDemo\_prec} & {}                           \\
     \hline
     
-    FSA & \id{cvsAdvDiff\_FSA\_non} \id{cvsDiurnal\_FSA\_kry} & \id{cvsAdvDiff\_FSA\_non\_p} \\
-    {}  & \id{cvsRoberts\_FSA\_dns}                           & \id{cvsDiurnal\_FSA\_kry\_p} \\
+    FSA & \id{cvsRoberts\_FSA\_dns} \id{cvsAdvDiff\_FSA\_non} & \id{cvsAdvDiff\_FSA\_non\_p} \\
+    {}  & \id{cvsDiurnal\_FSA\_kry}                           & \id{cvsDiurnal\_FSA\_kry\_p} \\
     \hline
     
-    ASA & \id{cvsAdvDiff\_ASAi\_bnd} \id{cvsFoodWeb\_ASAi\_kry} & \id{cvsAdvDiff\_ASAp\_non\_p}      \\
-    {}  & \id{cvsFoodWeb\_ASAp\_kry} \id{cvsHessian\_ASA\_FSA}  & \id{cvsAtmDisp\_ASAi\_kry\_bbd\_p} \\
-    {}  & \id{cvsRoberts\_ASAi\_dns}                            & {}                                 \\
+    ASA & \id{cvsRoberts\_ASAi\_dns} \id{cvsAdvDiff\_ASAi\_bnd} & \id{cvsAdvDiff\_ASAp\_non\_p}      \\
+    {}  & \id{cvsFoodWeb\_ASAi\_kry} \id{cvsFoodWeb\_ASAp\_kry} & \id{cvsAtmDisp\_ASAi\_kry\_bbd\_p} \\
+    {}  & \id{cvsHessian\_ASA\_FSA}                             & {}                                 \\
     \hline
 
   \end{tabular}
 \end{center}
 
 \vspace{0.2in}\noindent
-With the exception of `''demo''-type example files, the names of all the examples 
+With the exception of ''demo''-type example files, the names of all the examples 
 distributed with {\sundials} are of the form \verb![slv][PbName]_[SA]_[ls]_[prec]_[p]!, 
 where
 \begin{description}
-\item [{[slv]}] identifies the solver (for {\cvodes} examples this is \id{cvs});, 
+\item [{[slv]}] identifies the solver (for {\cvodes} examples this is \id{cvs});
 \item [{[PbName]}] identifies the problem;
 \item [{[SA]}] identifies sensitivity analysis examples. This filed can be one
   of: \id{FSA} for forward sensitivity examples, \id{ASAi} for adjoint sensitivity
@@ -54,7 +54,7 @@ where
   that no linear solver was used);
 \item [{[prec]}] indicates the {\cvodes} preconditioner module used, 
   \id{bp} for {\cvbandpre} or \id{bbd} for {\cvbbdpre} 
-  (only if applicable, for examples using one of the Krylov linear solver);
+  (only if applicable, for examples using a Krylov linear solver);
 \item [{[p]}] indicates an example using the parallel vector module {\nvecp}.
 \end{description}
 
@@ -130,7 +130,7 @@ following serial examples (using the {\nvecs} module):
   solves the same problem as \id{cvsDiurnal\_kry}, with the BDF method, but with
   three Krylov linear solvers: {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}.
 \item \id{cvsKrylovDemo\_prec}
-  is a demonstration program for {\cvodes} with the Krylov linear solver.
+  is a demonstration program with the GMRES linear solver.
   \newline
   This program solves a stiff ODE system that arises from a system     
   of partial differential equations.  The PDE system is a six-species
@@ -154,7 +154,7 @@ following serial examples (using the {\nvecs} module):
 %% FSA examples
 
 \item \id{cvsRoberts\_FSA\_dns}
-  solves a 3-species chemical kinetics problem (from \id{cvsRoberts\_dns}).
+  solves a 3-species kinetics problem (from \id{cvsRoberts\_dns}).
   \newline
   {\cvodes} computes both its solution and solution sensitivities with respect
   to the three reaction rate constants appearing in the model. 
@@ -162,6 +162,13 @@ following serial examples (using the {\nvecs} module):
   iteration with the {\cvdense} linear solver, and a user-supplied    
   Jacobian routine. It also uses the user-supplied error
   weight function feature of {\cvodes}.
+\item \id{cvsAdvDiff\_FSA\_non}
+  solves the semi-discrete form of an advection-diffusion equation in 1-D.
+  \newline
+  {\cvodes} computes both its solution and solution sensitivities with respect
+  to the advection and diffusion coefficients.
+  This program solves the problem with the option for nonstiff systems,
+  i.e. Adams method and functional iteration.
 \item \id{cvsDiurnal\_FSA\_kry}
   solves the semi-discrete form of a two-species diurnal kinetics
   advection-diffusion PDE system in 2-D space (from \id{cvsDiurnal\_kry}).
@@ -171,18 +178,11 @@ following serial examples (using the {\nvecs} module):
   The problem is solved with the BDF/GMRES method (i.e. using the {\cvspgmr}
   linear solver) and the block-diagonal part of the  
   Newton matrix as a left preconditioner.
-\item \id{cvsAdvDiff\_FSA\_non}
-  solves the semi-discrete form of an advection-diffusion equation in 1-D.
-  \newline
-  {\cvodes} computes both its solution and solution sensitivities with respect
-  to the advection and diffusion coefficients.
-  This program solves the problem with the option for nonstiff systems,
-  i.e. Adams method and functional iteration.
 
 %% ASA examples
 
 \item \id{cvsRoberts\_ASAi\_dns}
-  solves a 3-species chemical kinetics problem (from \id{cvsRoberts\_dns}).
+  solves a 3-species kinetics problem (from \id{cvsRoberts\_dns}).
   \newline
   The adjoint capability of {\cvodes} is used to compute gradients
   of a functional of the solution with respect to the three
@@ -231,30 +231,30 @@ following serial examples (using the {\nvecs} module):
 
 \vspace{0.2in}\noindent 
 Supplied in the {\em srcdir}\id{/examples/cvodes/parallel} directory are
-the following six parallel examples (using the {\nvecp} module):
+the following seven parallel examples (using the {\nvecp} module):
 
 \begin{itemize}
 
 %% IVP integration examples
 
 \item \id{cvsAdvDiff\_non\_p}
-  solves the semi-discrete form of an advection-diffusion equation in 1-D.
+  solves the semi-discrete form of a 1-D advection-diffusion equation.
   \newline
   This program solves the problem with the option for nonstiff systems,
   i.e. Adams method and functional iteration.
 \item \id{cvsDiurnal\_kry\_p}
-  is the parallel implementation of \id{cvsDiurnal\_kry}.
+  is a parallel implementation of \id{cvsDiurnal\_kry}.
 \item \id{cvsDiurnal\_kry\_bbd\_p}
-  solves the same problem as \id{cvsDiurnal\_kry\_p}, with the BDF/GMRES method 
-  and a block-diagonal matrix with banded blocks as a preconditioner, 
+  solves the same problem as \id{cvsDiurnal\_kry\_p}, with BDF and the GMRES linear
+  solver, using a block-diagonal matrix with banded blocks as a preconditioner, 
   generated by difference quotients, using the module {\cvbbdpre}.
 
 %% FSA examples
 
 \item \id{cvsAdvDiff\_FSA\_non\_p}
-  is the parallel version of \id{cvsAdvDiff\_FSA\_non}.
+  is a parallel version of \id{cvsAdvDiff\_FSA\_non}.
 \item \id{cvsDiurnal\_FSA\_kry\_p}
-  is the parallel version of \id{cvsDiurnal\_FSA\_kry}.
+  is a parallel version of \id{cvsDiurnal\_FSA\_kry}.
 %% ASA examples
 
 \item \id{cvsAdvDiff\_ASAp\_non\_p}
@@ -285,14 +285,14 @@ the following six parallel examples (using the {\nvecp} module):
 In the following sections, we give detailed descriptions of some (but
 not all) of the sensitivity analysis examples. We do not discuss the 
 examples for IVP integration; for those, the interested reader should consult
-the {\cvode} Examples document~\cite{cvode_ex}. Any {\cvode} problem
+the {\cvode} Examples document~\cite{cvode_ex}. Any {\cvode} program
 will work with {\cvodes} with only two modifications: (1) the main program
 should include the header file \id{cvodes.h} instead of \id{cvode.h}, and
 (2) the loader command must reference
 {\em builddir}\id{/lib/libsundials\_cvodes.}{\em lib} instead of
 {\em builddir}\id{/lib/libsundials\_cvode.}{\em lib}.
 
-The Appendices contain complete listings
+The Appendices here contain complete listings
 of the examples described below.  We also give our output files for
 each of these examples, but users should be cautioned that their
 results may differ slightly from these.  Differences in solution
@@ -312,12 +312,12 @@ explicitly stated otherwise.
 \vspace{0.2in}\noindent {\bf Note}
 The examples in the {\cvodes} distribution were written in such a way as
 to compile and run for any combination of configuration options during
-the installation of {\sundials} (see \ugref{c:install}). As a consequence,
+the installation of {\sundials} (see Appendix \ref{c:install}). As a consequence,
 they contain portions of code that will not typically be present in a
 user program. For example, all example programs make use of the
 variables \id{SUNDIALS\_EXTENDED\_PRECISION} and \id{SUNDIALS\_DOUBLE\_PRECISION}
 to test if the solver libraries
-were built in extended- or double-precision and use the appropriate conversion 
+were built in extended or double precision, and use the appropriate conversion 
 specifiers in \id{printf} functions. Similarly, all forward sensitivity
 examples can be run with or without sensitivity computations enabled and,
 in the former case, with various combinations of methods and error control 
