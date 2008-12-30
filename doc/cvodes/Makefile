@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2008-04-10 18:45:40 $
+# $Revision: 1.3 $
+# $Date: 2008-12-30 22:46:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -52,8 +52,8 @@ processHTML
 EX_FILES = \
 cvs_examples.tex \
 cvs_ex_intro.tex \
-cvs_fwd_ex.tex \
-cvs_adj_ex.tex \
+cvs_ex_fwd.tex \
+cvs_ex_adj.tex \
 cvs_ex_codes.tex \
 cvs_ex_tests.tex   
 
