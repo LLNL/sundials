@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:32 $
+ * $Revision: 1.2 $
+ * $Date: 2008-12-31 00:04:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -294,7 +294,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
  */
 
 /* 
- * Process and verify arguments to cvsfwdnonx.
+ * Process and verify arguments.
  */
 
 static void ProcessArgs(int argc, char *argv[], 
