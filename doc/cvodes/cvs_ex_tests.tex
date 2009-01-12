@@ -10,7 +10,7 @@ integration and forward sensitivity analysis for
 an ODE system generated from the following 2-species diurnal
 kinetics advection-diffusion PDE system in 2 space dimensions.
 This work was reported in \cite{SeHi:05}.
-The PDE takes the form:
+The PDE is a modification of that described in \cite{Wit:96}, and takes the form:
 \begin{equation*}
   \frac{dc_i}{dt} = K_h \frac{d^2c_i}{dx^2} + v \frac{dc_i}{dx} 
   + K_v \frac{d^2c_i}{dz^2}
@@ -56,9 +56,9 @@ the computation of forward sensitivities with respect to the diffusion coefficie
 $K_h$ and $K_v$ using the staggered corrector method without and with 
 error control on the sensitivity variables (columns STG and
 STG\_FULL, respectively). 
-Speedup results for a global problem size of
-$N = 2 N_x N_y = 2 \cdot 1600 \cdot 400 = 1280000$ 
-shown in Fig.~\ref{f:pvfktTest} and listed below.
+Run times for a global problem size of
+$N = 2 N_x N_y = 2 \cdot 1600 \cdot 400 = 1,280,000$ 
+are shown in Fig.~\ref{f:pvfktTest} and listed below.
 
 \begin{center}
   \begin{tabular}{cccc}\hline
@@ -80,10 +80,11 @@ carrying sensitivities) using fewer processes.
 The departure from the ideal line of slope $-1$ is explained by the 
 interplay of several conflicting processes. On one hand, when increasing the 
 number of processes, the preconditioner quality decreases, as it incorporates 
-a smaller and smaller fraction of the Jacobian and the cost of interprocess 
+a smaller and smaller fraction of the Jacobian, and the cost of interprocess 
 communication increases. On the other hand, decreasing the number of processes
 leads to an increase in the cost of the preconditioner setup phase and to a larger
-local problem size which can lead to a point where a node starts memory paging to disk.
+local problem size which can lead to a point where a node starts memory-paging
+to disk.
 %%
 %%
 \begin{figure}
@@ -91,10 +92,9 @@ local problem size which can lead to a point where a node starts memory paging t
   {\centerline{\epsfig{file=pvfktTest.eps,width=0.5\textwidth}}}
   \caption[Speedup results on a sensitivity problem]
   {Speedup results for the integration of the state equations only
-    (solid line and column 'STATES'), staggered sensitivity analysis without
-    error control on the sensitivity variables (dashed line and column 'STG'),
-    and staggered sensitivity analysis with full error control (dotted line and
-    column 'STG\_FULL')}
+    (solid line), staggered sensitivity analysis without
+    error control on the sensitivity variables (dashed line),
+    and staggered sensitivity analysis with full error control (dotted line)}
   \label{f:pvfktTest}
 \end{figure}
 
