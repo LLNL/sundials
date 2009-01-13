@@ -174,9 +174,9 @@ to compile and run for any combination of configuration options during
 the installation of {\sundials} (see Appendix \ref{c:install}). As a consequence,
 they contain portions of code that will not be typically present in a
 user program. For example, all {\C} example programs make use of the
-variable \id{SUNDIALS\_EXTENDED\_PRECISION} to test if the solver libraries
-were built in extended precision and use the appropriate conversion 
-specifiers in \id{printf} functions. Similarly, the {\F} examples in
-{\fcvode} are automatically pre-processed to generate source code that
-corresponds to the manner in which the {\cvode} libraries were built
-(see \ref{s:ex_fortran} in this document for more details).
+variables \id{SUNDIALS\_EXTENDED\_PRECISION} and \id{SUNDIALS\_DOUBLE\_PRECISION}
+to test if the solver libraries were built in extended or double precision,
+and use the appropriate conversion specifiers in \id{printf} functions.
+Similarly, the {\F} examples in {\fcvode} are automatically pre-processed to
+generate source code that corresponds to the manner in which the {\cvode}
+libraries were built (see \ref{s:ex_fortran} in this document for more details).
