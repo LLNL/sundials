@@ -7,7 +7,7 @@
 This example, due to Robertson~\cite{Rob:66}, is a model of a three-species 
 chemical kinetics system written in DAE form. Differential equations are given 
 for species $y_1$ and $y_2$ while an algebraic equation determines $y_3$. The 
-equations for the system concentrations $y_i(t)$ are:
+equations for the species concentrations $y_i(t)$ are:
 \begin{equation}\label{e:idaRoberts_DAE}
 \begin{cases}
   y^\prime_1 &= -.04 y_1 + 10^4 y_2 y_3   \\
@@ -22,8 +22,9 @@ While integrating the system, the program also use the rootfinding
 feature to find the points at which $y_1 = 10^{-4}$ or at which
 $y_3 = 0.01$.
 
-For the source, listed in Appendix~\ref{s:idaRoberts_c}, we give a rather detailed
-explanation of the parts of the program and their interaction with {\ida}.
+For the source, listed in Appendix~\ref{s:idaRoberts_c} in this document,
+we give a rather detailed explanation of the parts of the program and
+their interaction with {\ida}.
 
 Following the initial comment block, this program has a number
 of \id{\#include} lines, which allow access to useful items in {\ida}
@@ -40,9 +41,9 @@ implementation of the {\nvector} module and includes definitions of the
 \id{N\_Vector} type, a macro to access vector components, and prototypes 
 for the serial implementation specific machine environment memory allocation
 and freeing functions.
-Finally, note that \id{ida\_dense.h} also includes the \id{sundials\_dense.h} file which 
-provides the definition of the dense matrix type \id{DenseMat} and a macro for 
-accessing matrix elements.
+Finally, note that \id{ida\_dense.h} also includes the \id{sundials\_dense.h}
+file which provides the definition of the dense matrix type \id{DenseMat}
+and a macro for accessing matrix elements.
 
 This program includes the user-defined accessor macro
 \id{IJth} that is useful in writing the problem functions in a form
@@ -53,16 +54,17 @@ type \id{DenseMat}. It is defined using the {\dense} accessor macro
 \id{DENSE\_ELEM} which numbers matrix rows and columns starting with
 0. The macro \id{DENSE\_ELEM} is fully described in \ugref{ss:djacFn}.
 
-The program prologue ends with prototypes of the two user-supplied functions 
-that are called by {\ida} and the prototype of the private function
-\id{check\_flag} which is used to test the return flag from the {\ida}
+The program prologue ends with prototypes of the three user-supplied functions 
+that are called by {\ida} and the prototypes of five private functions.
+Of the latter, the four \id{Print***} functions perform printing
+operations, and  \id{check\_flag} tests the return flag from the {\ida}
 user-callable functions.
 
 After various declarations, the \id{main} program begins by
 allocating memory for the \id{yy}, \id{yp}, and \id{avtol} vectors using
 \id{N\_VNew\_Serial} with a length argument of \id{NEQ} ($= 3$). The
 lines following that load the initial values of the dependendent
-variable vectors into \id{yy} and \id{yp} and set the realtive tolerance 
+variable vectors into \id{yy} and \id{yp}, and set the relative tolerance 
 \id{rtol} and absolute tolerance vector \id{avtol}. Serial \id{N\_Vector} 
 values are set by first accessing the pointer to their underlying data using
 the macro \id{NV\_DATA\_S} defined by {\nvecs} in \id{nvector\_serial.h}.
@@ -78,13 +80,14 @@ The return value of this function is a pointer to the memory block for this
 problem.  In the case of failure, the return value is \id{NULL}.  This
 pointer must be passed in the remaining calls to {\ida} functions.
 
-The call to \id{IDAMalloc} allocates the solver memory block.
+The call to \id{IDAInit} allocates the solver memory block.
 Its arguments include the name of the {\C} function \id{resrob} defining the
 residual function $F(t,y,y')$, and the initial values of $t$, $y$, and $y'$.
-The argument \id{IDA\_SV} specifies a vector of absolute tolerances, and
-this is followed by the address of the relative tolerance \id{rtol}
-and the absolute tolerance vector \id{avtol}.
-See \ugref{sss:idainit} for full details of this call.
+The call to \id{IDASVtolerances} specifies a vector of absolute tolerances, and
+this call includes the relative tolerance \id{rtol} and the absolute tolerance
+vector \id{avtol}.  See \ugref{sss:idainit} and \ugref{sss:idatolerances}
+for full details of these calls.  (The \id{avtol} vector is then freed,
+because {\ida} keeps a separate copy of it.)
 
 The call to \id{IDARootInit} specifies that a rootfinding problem
 is to be solved along with the integration of the DAE system, that the
@@ -94,7 +97,7 @@ $y_3 - 0.01$, respectively.
 See \ugref{ss:idarootinit} for a detailed description of this call.
 
 The calls to \id{IDADense} (see \ugref{sss:lin_solv_init}) and 
-\id{IDADenseSetJacFn} (see \ugref{sss:optin_dls}) specify the {\idadense}
+\id{IDADlsSetDenseJacFn} (see \ugref{sss:optin_dls}) specify the {\idadense}
 linear solver with an analytic Jacobian supplied by the user-supplied function
 \id{jacrob}.
 
@@ -108,7 +111,7 @@ and $y'$(\id{tout}) into \id{yy} and \id{yp}, respectively, with
 However, if \id{IDASolve} finds a root before reaching the next value
 of \id{tout}, it returns \id{IDA\_ROOT\_RETURN} and stores the root
 location in \id{tret} and the solution there in \id{yy} and \id{yp}.  In
-either case, the program prints \id{t} (= \id{tret}) and \id{yy}, and
+either case, the program prints $t$ (= \id{tret}) and \id{yy}, and
 also the cumulative number of steps taken so far, and the current
 method order and step size.
 In the case of a root, the program calls \id{IDAGetRootInfo} to get a
@@ -126,7 +129,7 @@ print several relevant statistical quantities, such as the total
 number of steps, the number of residual and Jacobian evaluations, and
 the number of error test and convergence test failures.  It then calls
 \id{IDAFree} to free the {\ida} memory block and \id{N\_VDestroy\_Serial}
-to free the vectors \id{yy}, \id{yp}, and \id{avtol}.
+to free the vectors \id{yy} and \id{yp}.
 
 The function \id{PrintFinalStats} used here is actually suitable for
 general use in applications of {\ida} to any problem with a dense
@@ -243,17 +246,18 @@ equations, all coupled.
 For this example, we take $p = 1, s = 2$, and $L = 20$.
 The Jacobian is banded, with half-bandwidths \id{mu = ml} $= sL = 40$.
 
-The \id{idaFoodWeb\_bnd.c} program (listed in Appendix~\ref{s:idaFoodWeb_c})
+The \id{idaFoodWeb\_bnd.c} program, listed in Appendix~\ref{s:idaFoodWeb_c}
+in this document,
 includes the file \id{ida\_band.h} in order to use the {\idaband} linear solver. 
 This file contains the prototype for the \id{IDABand} routine,
-the definition for the band matrix type \id{BandMat}, and the
+the definition for the band matrix type \id{DlsMat (type=2)}, and the
 \id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
 elements. See \ugref{ss:band}.
 The main {\ida} header file \id{ida.h} is included for the prototypes of the
 solver user-callable functions and {\ida} constants, while the file
 \id{nvector\_serial.h} is included for the definition of the serial
-\id{N\_Vector} type.  The header file \id{sundials\_smalldense.h} is included for the
-\id{denalloc} function used in allocating memory for the user data structure.
+\id{N\_Vector} type.  The header file \id{sundials\_dense.h} is included for the
+\id{newDenseMat} function used in allocating memory for the user data structure.
 
 The include lines at the top of the file are followed by definitions of
 problem constants which include the $x$ and $y$ mesh dimensions, \id{MX} and
@@ -272,13 +276,14 @@ with index \id{is} $= 0$, x-index \id{ix} $= i$, and y-index \id{jy} $= j$.
 The type \id{UserData} is a pointer to a structure containing problem
 data used in the \id{resweb} function.  This structure is
 allocated and initialized at the beginning of \id{main}. The pointer
-to it, called \id{webdata}, is then passed to \id{IDASetRData} and as a result 
+to it, called \id{webdata}, is then passed to \id{IDASetUserData} and as a result 
 it will be passed back to the \id{resweb} function each time it is called.
 
 The \id{main} program is straightforward and very similar to that for \id{idaRoberts\_dns}.
 The differences come from the use of the {\idaband} linear solver and from the
 use of the consistent initial conditions algorithm in {\ida} to correct the initial
-values. \id{IDACalcIC} is called with the option \id{IDA\_YA\_YDP\_INIT}, meaning
+values. The call to \id{IDABand} includes the half-bandwidths \id{ml} and \id{mu}.
+\id{IDACalcIC} is called with the option \id{IDA\_YA\_YDP\_INIT}, meaning
 that {\ida} is to compute the algebraic components of $y$ and differential  
 components of $y'$, given the differential components of $y$.  
 This option requires that the \id{N\_Vector} \id{id} be set through a call to 
@@ -350,22 +355,23 @@ consists of the values $u(x_j,y_k,t)$ grouped first by $x$, and then
 by $y$.  Each discrete boundary condition becomes an algebraic equation
 within the DAE system.
 
-The source for this example is listed in Appendix~\ref{s:idaHeat2D_c}.
-In this case, \id{ida\_spgmr.h} is included for the definitions of
+The source for this example is listed in Appendix~\ref{s:idaHeat2D_c} in this
+document. In this case, \id{ida\_spgmr.h} is included for the definitions of
 constants and function prototypes associated with the {\spgmr} method.
 
 After various initializations (including a vector of constraints with
-all components set to $1$ imposing all solution components to be
+all components set to $1$, imposing all solution components to be
 non-negative), the main program creates and initializes the {\ida}
 memory block and then attaches the {\idaspgmr} linear solver using the
 default \id{MODIFIED\_GS} Gram-Scmidt orthogonalization algorithm.
 
 The user-supplied preconditioner setup and solve functions, \id{PsetupHeat}
 and \id{PsolveHeat}, and the pointer to user data (\id{data}) are specified
-through a call to \id{IDASpilsSetPreconditioner}.
+in a call to \id{IDASpilsSetPreconditioner}.
 %%
 In a loop over the desired output times, \id{IDASolve} is called in \id{IDA\_NORMAL}
 mode and the maximum solution norm is printed.
+Following this, three more counters are printed.
 
 The \id{main} program then re-initializes the {\ida} solver and the
 {\idaspgmr} linear solver and solves the problem again, this time
