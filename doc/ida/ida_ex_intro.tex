@@ -11,7 +11,7 @@ The {\ida} distribution contains examples of four types: serial
 {\C} examples, parallel {\C} examples, and serial and parallel {\F}
 examples.  
 %%
-With the exception of `''demo''-type example files, the names of all the examples 
+With the exception of ''demo''-type example files, the names of all the examples 
 distributed with {\sundials} are of the form \verb![slv][PbName]_[ls]_[prec]_[p]!, 
 where
 \begin{description}
@@ -20,7 +20,7 @@ where
 \item [{[PbName]}] identifies the problem;
 \item [{[ls]}] identifies the linear solver module used;
 \item [{[prec]}] indicates the {\ida} preconditioner module used
-  (only if applicable, for examples using one of the Krylov linear solver
+  (if applicable --- for examples using a Krylov linear solver
   and the {\idabbdpre} module, this will be \id{bbd});
 \item [{[p]}] indicates an example using the parallel vector module {\nvecp}.
 \end{description}
@@ -92,9 +92,8 @@ distribution contains the following four parallel examples
 \item \id{idaHeat2D\_kry\_bbd\_p}
   solves the same problem as \id{idaHeat2D\_kry\_p}.
 
-  This program solves the problem in parallel, using the Krylov linear solver
-  {\idaspgmr} and the band-block diagonal preconditioner {\idabbdpre} with
-  half-bandwidths equal to $1$.
+  This program  uses the Krylov linear solver {\idaspgmr} in parallel, and the
+  band-block-diagonal preconditioner {\idabbdpre} with half-bandwidths equal to $1$.
 
 \item \id{idaFoodWeb\_kry\_p}
   solves the same food web problem as \id{idaFoodWeb\_bnd}, but with {\idaspgmr}
@@ -102,7 +101,7 @@ distribution contains the following four parallel examples
   
   The preconditioner supplied to {\idaspgmr} is the block-diagonal part of 
   the Jacobian with $n_s \times n_s$ blocks arising from the reaction terms only
-  ($n_s$ is the number of species in the model).
+  ($n_s =$ number of species).
 
 \item \id{idaFoodWeb\_kry\_bbd\_p}
   solves the same food web problem as \id{idaFoodWeb\_kry\_p}.
@@ -113,16 +112,16 @@ distribution contains the following four parallel examples
 \end{itemize}
 
 \vspace{0.2in}\noindent
-With the {\fida} module, in the two directories
+Within the {\fida} module, in the two directories
 {\em srcdir}\id{/examples/ida/fcmix\_serial} and
 {\em srcdir}\id{/examples/ida/fcmix\_parallel}, are the following
 examples for the {\F}-{\C} interface:
 %
 \begin{itemize}
-\item \id{fidaRoberts\_dns} is a serial chemical kinetics example (\id{BDF}/{\dense})
+\item \id{fidaRoberts\_dns} is a serial chemical kinetics example ({\dense})
        with rootfinding, equivalent to \id{idaRoberts\_dns}.
 
-\item \id{fidaHeat2D\_kry\_bbd\_p} is a parallel example (\id{BDF}/{\spgmr}/{\idabbdpre})
+\item \id{fidaHeat2D\_kry\_bbd\_p} is a parallel example ({\spgmr}/{\idabbdpre})
        equivalent to the example \id{idaHeat2D\_kry\_bbd\_p}.
 
 \end{itemize}
@@ -139,18 +138,19 @@ from one machine environment to another by as much as 10\% to 20\%.
 
 In the descriptions below, we make frequent references to the {\ida}
 User Document \cite{ida_ug}.  All citations to specific sections
-(e.g. \S\ref{s:types}) are references to parts of that User Document, unless
+(e.g. \ugref{s:types}) are references to parts of that User Document, unless
 explicitly stated otherwise.
 
 \vspace{0.2in}\noindent {\bf Note}. 
 The examples in the {\ida} distribution are written in such a way as
-to compile and run for any combination of configuration options during
-the installation of {\sundials} (see \ugref{c:install}). As a consequence,
+to compile and run for any combination of configuration options during the
+installation of {\sundials} (see Appendix \ref{c:install}). As a consequence,
 they contain portions of code that will not be typically present in a
 user program. For example, all example programs make use of the
-variable \id{SUNDIALS\_EXTENDED\_PRECISION} to test if the solver libraries
-were built in extended precision and use the appropriate conversion 
-specifiers in \id{printf} functions.  Similarly, the {\F} examples in
-{\fida} are automatically pre-processed to generate source code that
-corresponds to the manner in which the {\ida} libraries were built
-(see \ugref{s:ex_fortran} in this document for more details).
+variables \id{SUNDIALS\_EXTENDED\_PRECISION} and \id{SUNDIALS\_DOUBLE\_PRECISION}
+to test if the solver libraries were built in extended or double precision,
+and use the appropriate conversion specifiers in \id{printf} functions.
+Similarly, the {\F} examples in {\fida} are automatically
+pre-processed to generate source code that corresponds to the manner
+in which the {\ida} libraries were built (see \S\ref{s:ex_fortran} in
+this document for more details).
