@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:32 $
+ * $Revision: 1.2 $
+ * $Date: 2009-01-14 19:55:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,8 +63,8 @@
 
 /* Accessor macros */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component i= 1..NEQ */
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* (i,j)-th matrix component i,j = 1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component, i=1..NEQ */
+#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* (i,j)-th matrix el., i,j=1..NEQ */
 
 /* Problem Constants */
 
@@ -538,7 +538,8 @@ static int JacB(int NB, realtype t,
 
   /* Load JB */
   IJth(JB,1,1) = p1;     IJth(JB,1,2) = -p1; 
-  IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2; IJth(JB,2,3) = RCONST(-2.0)*p3*y2;
+  IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2;
+                         IJth(JB,2,3) = RCONST(-2.0)*p3*y2;
   IJth(JB,3,1) = -p2*y2; IJth(JB,3,2) = p2*y2;
 
   return(0);
