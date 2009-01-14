@@ -22,8 +22,8 @@ separately in Appendix \ref{c:constants}.
 
 We begin with a brief overview, in the form of a skeleton user program.
 Following that are detailed descriptions of the interface to the
-various user-callable routines and of the user-supplied routines that were not already
-described in Chapter \ref{s:simulation}.
+various user-callable routines and of the user-supplied routines that were not
+already described in Chapter \ref{s:simulation}.
 
 %-------------------------------------------------
 \section{A skeleton of the user's main program}\label{s:forward_usage}
@@ -176,7 +176,7 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 \item
   {\bf Activate sensitivity calculations}
 
-  Call \id{flag = }\Id{CVodeSensInit}\id{(\ldots);} to activate forward 
+  Call \id{flag = }\Id{CVodeSensInit} or \Id{CVodeSensInit1} to activate forward 
   sensitivity computations and allocate internal memory for {\cvodes} related 
   to sensitivity calculations (see \S\ref{ss:sensi_malloc}).
 
@@ -322,7 +322,7 @@ The form of the call to each of these routines is as follows:
 %%
 \ucfunction{CVodeSensInit1}
 {
-  flag = CVodeSensInit(cvode\_mem, Ns, ism, fS1, yS0);
+  flag = CVodeSensInit1(cvode\_mem, Ns, ism, fS1, yS0);
 }
 {
   The routine \ID{CVodeSensInit1} activates forward sensitivity computations and
@@ -615,12 +615,12 @@ the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
 }
 %%
 %%
-\ucfunction{CVodeEEtolerances}
+\ucfunction{CVodeSensEEtolerances}
 {
-  flag = CVodeEEtolerances(cvode\_mem);
+  flag = CVodeSensEEtolerances(cvode\_mem);
 }
 {
-  When \ID{CVodeEEtolerances} is called, {\cvodes} will estimate tolerances for
+  When \ID{CVodeSensEEtolerances} is called, {\cvodes} will estimate tolerances for
   sensitivity variables based on the tolerances supplied for states variables
   and the scaling factors $\bar p$.
 }
@@ -634,7 +634,7 @@ the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
   The return flag \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
-    The call to \id{CVodeEEtolerances} was successful.
+    The call to \id{CVodeSensEEtolerances} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
     The {\cvodes} memory block was not initialized through a previous call to
     \id{CVodeCreate}.
