@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:31 $
+ * $Revision: 1.2 $
+ * $Date: 2009-01-14 19:53:47 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -71,7 +71,7 @@
 
 #include <cvodes/cvodes.h>            /* main CVODES header file */
 #include <cvodes/cvodes_spgmr.h>      /* defs. for CVSPGMR fcts. and constants */
-#include <nvector/nvector_parallel.h> /* defs of paralel NVECTOR fcts. and macros */
+#include <nvector/nvector_parallel.h> /* defs of par. NVECTOR fcts. and macros */
 #include <sundials/sundials_dense.h>  /* generic DENSE solver used in prec. */
 #include <sundials/sundials_math.h>   /* contains macros SQR and EXP */
 #include <sundials/sundials_types.h>  /* def. of realtype */
@@ -298,7 +298,8 @@ int main(int argc, char *argv[])
     for (is=0; is<NS; is++) pbar[is] = data->p[plist[is]]; 
 
     uS = N_VCloneVectorArray_Parallel(NS, u);
-    if (check_flag((void *)uS, "N_VCloneVectorArray_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+    if (check_flag((void *)uS, "N_VCloneVectorArray_Parallel", 0, my_pe))
+                                                          MPI_Abort(comm, 1);
     for (is = 0; is < NS; is++)
       N_VConst(ZERO,uS[is]);
 
