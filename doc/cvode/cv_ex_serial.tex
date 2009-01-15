@@ -45,8 +45,8 @@ implementation of the {\nvector} module and includes definitions of the
 \id{N\_Vector} type, a macro to access vector components, and prototypes 
 for the serial implementation specific machine environment memory allocation
 and freeing functions.
-The \id{sundials\_dense.h} file provides the definition of the dense
-matrix type \id{DenseMat} and a macro for accessing matrix elements.
+The \id{sundials\_dense.h} file provides the definition of the dense matrix type
+\id{DlsMat (type=1)} and a macro for accessing matrix elements.
 We have explicitly included \id{sundials\_dense.h}, but this is not necessary because 
 it is included by \id{cvode\_dense.h}.
 
@@ -58,7 +58,7 @@ macro is used to access components of a vector of type \id{N\_Vector}
 with a serial implementation.  It is defined using the {\nvecs}
 accessor macro \id{NV\_Ith\_S} which numbers components starting with
 0. The \id{IJth} macro is used to access elements of a dense matrix of
-type \id{DenseMat}. It is defined using the {\dense} accessor macro
+type \id{DlsMat}. It is defined using the {\dense} accessor macro
 \id{DENSE\_ELEM} which numbers matrix rows and columns starting with
 0. 
 The macro \id{NV\_Ith\_S} is fully described in \ugref{ss:nvec_ser}.
@@ -162,10 +162,10 @@ of the \id{g} function.
 The function \id{Jac} sets the nonzero elements of the Jacobian as a
 dense matrix.  (Zero elements need not be set because \id{J} is preset
 to zero.)  It uses the user-defined macro \id{IJth} to reference the
-elements of a dense matrix of type \id{DenseMat}.  Here the problem
+elements of a dense matrix of type \id{DlsMat}.  Here the problem
 size is small, so we need not worry about the inefficiency of using
 \id{NV\_Ith\_S} and \id{DENSE\_ELEM} to access \id{N\_Vector} and
-\id{DenseMat} elements.  Note that in this example, \id{Jac}
+\id{DlsMat} elements.  Note that in this example, \id{Jac}
 only accesses the \id{y} and \id{J} arguments.  See \ugref{ss:djacFn}
 for a detailed description of the dense \id{Jac} function.
 
@@ -214,7 +214,7 @@ The source is listed in Appendix \ref{s:cvAdvDiff_c} in this document.
 The \id{cvAdvDiff\_bnd.c} program includes files \id{cvode\_band.h} and
 \id{sundials\_band.h} in order to use the {\cvband} linear solver. The \id{cvode\_band.h}
 file contains the prototype for the \id{CVBand} routine. The \id{sundials\_band.h}
-file contains the definition for band matrix type \id{BandMat} and the
+file contains the definition for band matrix type \id{DlsMat (type=2)} and the
 \id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
 elements (see \ugref{ss:band}).
 We have explicitly included \id{sundials\_band.h}, but this is not necessary because
@@ -454,17 +454,16 @@ and \id{FALSE} otherwise, to inform {\cvspgmr} of the status of Jacobian data.
 We need to take a brief detour to explain one last important aspect of
 this program.  The generic {\dense} solver contains two
 sets of functions: one for ``large'' matrices and one for ``small''
-matrices.  The large dense functions work with the type \id{DenseMat},
+matrices.  The large dense functions work with the type \id{DlsMat (type=1)},
 while the small dense functions work with \id{realtype **} as the
 underlying dense matrix types.  The {\cvdense} linear solver uses the
-type \id{DenseMat} for the $N \times N$ dense Jacobian and Newton
+type \id{DlsMat} for the $N \times N$ dense Jacobian and Newton
 matrices, and calls the large matrix functions.  But to avoid the
 extra layer of function calls, \id{cvDiurnal\_kry.c} uses the small dense
 functions for all operations on the $2 \times 2$ preconditioner blocks.  
 Thus it includes \id{sundials\_smalldense.h} (by way of \id{sundials\_dense.h}),
-and calls the small dense matrix functions \id{denalloc}, \id{dencopy},
-\id{denscale}, \id{denaddI}, \id{denfree}, \id{denfreepiv}, \id{denGETRF},
-and \id{denGETRS}.
+and calls the small dense matrix functions \id{newDenseMat}, \id{newIntArray},
+\id{denseCopy}, \id{denseScale}, \id{denseAddI}, \id{denseGETRF}, and \id{denseGETRS}.
 The macro \id{IJth} defined near the top of the file is used to access
 individual elements in each preconditioner block, numbered from $1$.
 The small dense functions are available for {\cvode} user programs
