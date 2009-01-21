@@ -11,15 +11,16 @@ where {\em n} denotes the number of bytes in the corresponding {\C} type
 ({\tt long int} or {\tt int}). Floating-point variable declarations remain
 unchanged if double precision is used, but are changed to {\tt REAL*}{\em n},
 where {\em n} denotes the number of bytes in the {\sundials} type {\tt realtype},
-if using single-precision. Also, if using single-precision, then declarations of
+if using single precision. Also, if using single precision, then declarations of
 floating-point constants are appropriately modified; e.g. {\tt 0.5D-4} is
 changed to {\tt 0.5E-4}.
 
 
 \subsection{A serial example: fidaRoberts\_dns}\label{ss:fidaRoberts}
 
-The \id{fidaRoberts\_dns} example is a {\F} equivalent of the \id{idaRoberts\_dns} problem.
-The source program \id{fidaRoberts\_dns.f} is listed in Appendix~\ref{s:fidaRoberts_f}.
+The \id{fidaRoberts\_dns} example is a {\F} equivalent of the
+\id{idaRoberts\_dns} example.  The source program \id{fidaRoberts\_dns.f}
+is listed in Appendix~\ref{s:fidaRoberts_f} in this document.
 
 The main program begins with declarations and initializations.  
 It calls the routines \id{FNVINITS}, \id{FIDAMALLOC}, \id{FIDAROOTINIT}, 
@@ -38,8 +39,8 @@ In \id{fidaRoberts\_dns.f}, the \id{FIDARESFUN} routine is a straghtforward
 implementation of Eqns. (\ref{e:idaRoberts_DAE}).  In \id{FIDADJAC}, the 
 $3 \times 3$ system Jacobian is supplied.  The \id{FIDAROOTFN} routine
 defines the two root functions, which are set to determine the points at which
-$y_1 = 10^{-4}$ or $y_3 = .01$.  The final two routines are for the
-printing of a header and of the final run statistics.
+$y_1 = 10^{-4}$ or $y_3 = .01$.  The final two routines are for
+printing a header and the final run statistics.
 
 The following is sample output from \id{fidaRoberts\_dns}.
 The performance of {\fida} here is similar to that of {\ida} on
@@ -54,13 +55,14 @@ the larger absolute error tolerances.
 
 \subsection{A parallel example: fidaHeat2D\_kry\_bbd\_p}\label{ss:fidaHeat2D_bbd_p}
 
-This example, \id{fidaHeat2D\_kry\_bbd\_p}, is the {\F} equivalent of the
-\id{idaHeat2D\_kry\_bbd\_p} example.  The heat equation problem is described
+This example, \id{fidaHeat2D\_kry\_bbd\_p}, is the {\F} equivalent of
+\id{idaHeat2D\_kry\_bbd\_p}.  The heat equation problem is described
 under the \id{idaHeat2D\_kry} example above, but here it is solved in
 parallel, using the {\idabbdpre} (band-block-diagonal) preconditioner
 module.  The decomposition of the problem onto a processor array is
 identical to that in the \id{idaHeat2D\_kry\_p} example above.  The source file,
-\id{fidaHeat2D\_kry\_bbd\_p.f}, is listed in Appendix~\ref{s:fidaHeat2D_bbd_p}.
+\id{fidaHeat2D\_kry\_bbd\_p.f}, is listed in Appendix~\ref{s:fidaHeat2D_bbd_p}
+in this document.
 
 The problem is solved twice --- once with half-bandwidths of 5 in the
 difference-quotient banded preconditioner blocks, and once with
@@ -77,19 +79,20 @@ vector, respectively).  A call to \id{FIDASETIIN} and two calls to
 \id{FIDASETVIN} are made to suppress error control on the algebraic
 variables, and to supply the \id{ID} array and constraints array (making
 the computed solution non-negative).  The call to \id{FIDAMALLOC}
-initializes the {\fida} main memory, and the calls to \id{FIDABBDINIT}
-and \id{FIDABBDSPGMR} initialize the {\fidabbd} module.
+initializes the {\fida} main memory, and the calls to \id{FIDASPGMR} and
+\id{FIDABBDINIT} and initialize the {\fidabbd} module.
 
 In the first loop over \id{TOUT} values, the main program calls \id{FIDASOLVE}
 and prints the max-norm of the solution and selected counters.  When finished,
 it calls \id{PRNTFINALSTATS} to print a few more counters.
 
-The second solution is initialized by a second call to \id{SETINITPROFILE},
-and calls to \id{FIDAREINIT} and \id{FIDABBDREINIT}.  After completing the
-second solution, the program frees memory and terminates MPI.
+The second solution is initialized by resetting \id{mudq} and \id{mldq},
+followed by a second call to \id{SETINITPROFILE}, and by calls to \id{FIDAREINIT} 
+and \id{FIDABBDREINIT}.  After completing the second solution, the
+program frees memory and terminates MPI.
 
 The \id{FIDARESFUN} routine simply calls two other routines: \id{FIDACOMMFN},
-to communicate boundary needed data from \id{U} to an extension of it called
+to communicate needed boundary data from \id{U} to an extension of it called
 \id{UEXT}; and \id{FIDAGLOCFN}, to compute the residuals in terms of
 \id{UEXT} and \id{UP}.
 
