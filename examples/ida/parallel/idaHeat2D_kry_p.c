@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:35 $
+ * $Revision: 1.2 $
+ * $Date: 2009-01-21 21:49:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -164,9 +164,9 @@ int main(int argc, char *argv[])
   /* Allocate and initialize the data structure and N-vectors. */
 
   data = (UserData) malloc(sizeof *data);
-  data->pp = NULL;
   if(check_flag((void *)data, "malloc", 2, thispe)) 
     MPI_Abort(comm, 1);
+  data->pp = NULL;
 
   uu = N_VNew_Parallel(comm, local_N, Neq);
   if(check_flag((void *)uu, "N_VNew_Parallel", 0, thispe)) 
