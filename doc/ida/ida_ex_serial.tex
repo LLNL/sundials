@@ -42,7 +42,7 @@ implementation of the {\nvector} module and includes definitions of the
 for the serial implementation specific machine environment memory allocation
 and freeing functions.
 Finally, note that \id{ida\_dense.h} also includes the \id{sundials\_dense.h}
-file which provides the definition of the dense matrix type \id{DenseMat}
+file, which provides the definition of the dense matrix type \id{DlsMat (type=1)}
 and a macro for accessing matrix elements.
 
 This program includes the user-defined accessor macro
@@ -50,7 +50,7 @@ This program includes the user-defined accessor macro
 closely matching the mathematical description of the DAE system,
 i.e. with components numbered from 1 instead of from 0.
 The \id{IJth} macro is used to access elements of a dense matrix of
-type \id{DenseMat}. It is defined using the {\dense} accessor macro
+type \id{DlsMat}. It is defined using the {\dense} accessor macro
 \id{DENSE\_ELEM} which numbers matrix rows and columns starting with
 0. The macro \id{DENSE\_ELEM} is fully described in \ugref{ss:djacFn}.
 
