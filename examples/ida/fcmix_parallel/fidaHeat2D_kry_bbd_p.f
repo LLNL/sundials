@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.1 $
-c     $Date: 2007-10-25 20:03:34 $
+c     $Revision: 1.2 $
+c     $Date: 2009-01-21 21:52:44 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -211,8 +211,6 @@ c Reinitialize variables and data for second problem
 c
       mudq = 1
       mldq = 1
-      jysub = thispe/npex
-      ixsub = thispe-jysub*npex
 c
       call setinitprofile(uu, up, id, res, constr, ipar, rpar)
 c
