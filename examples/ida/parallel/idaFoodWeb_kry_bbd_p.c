@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:35 $
+ * $Revision: 1.2 $
+ * $Date: 2009-01-21 21:51:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -478,7 +478,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       cxy = IJ_Vptr(cc,ix,jy); 
       idxy = IJ_Vptr(id,ix,jy); 
       for (is = 0; is < NUM_SPECIES; is++) {
-	if (is < np) { cxy[is] = RCONST(10.0) + (realtype)(is+1)*xyfactor; idxy[is] = ONE; }
+	if (is < np)
+           {cxy[is] = RCONST(10.0)+(realtype)(is+1)*xyfactor; idxy[is] = ONE;}
         else { cxy[is] = 1.0e5; idxy[is] = ZERO; }
       }
     }
