@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:36 $
+ * $Revision: 1.2 $
+ * $Date: 2009-01-21 21:46:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -34,6 +34,7 @@
 #include <ida/ida_dense.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
 
 /* Problem Constants */
 
