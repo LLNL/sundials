@@ -42,6 +42,13 @@ directory, the following six serial examples (using the {\nvecs} module):
   The problem is solved with the {\idadense} linear solver using
   a user-supplied Jacobian.
 
+\item \id{idaSlCrank\_dns}
+  solves a system of index-2 DAEs, modeling a planar slider-crank mechanism.
+
+  The problem is obtained through a stabilized index reduction (Gear-Gupta-Leimkuhler)
+  starting from the index-3 DAE equations of motion derived using three generalized
+  coordinates and two algebraic position constraints.
+
 \item \id{idaHeat2D\_bnd}
   solves a 2-D heat equation, semidiscretized to a DAE on the unit square.
 
@@ -63,13 +70,6 @@ directory, the following six serial examples (using the {\nvecs} module):
   The PDEs are discretized in space to a system of DAEs which are solved
   using the {\idaband} linear solver with the default difference-quotient 
   Jacobian approximation.
-
-\item \id{idaSlCrank\_dns}
-  solves a system of index-2 DAEs, modeling a planar slider-crank mechanism.
-
-  The problem is obtained through a stabilized index reduction (Gear-Gupta-Leimkuhler)
-  starting from the index-3 DAE equations of motion derived using three generalized
-  coordinates and two algebraic position constraints.
 
 \item \id{idaKrylovDemo\_ls}
   solves the same problem as \id{idaHeat2D\_kry}, with three Krylov linear solvers
