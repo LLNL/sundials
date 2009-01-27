@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2008-04-17 20:19:28 $
+# $Revision: 1.5 $
+# $Date: 2009-01-27 23:08:40 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -52,8 +52,8 @@ processHTML
 EX_FILES = \
 idas_examples.tex \
 idas_ex_intro.tex \
-idas_fwd_ex.tex \
-idas_adj_ex.tex \
+idas_ex_fwd.tex \
+idas_ex_adj.tex \
 idas_ex_codes.tex
 
 EX_SHARED_FILES = \
