@@ -152,15 +152,13 @@ static void ReactRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesx
                      UserData data);
 
 /* Prototypes for private functions */
-static void InitUserData(UserData data, int thispe, int npes, 
-                         MPI_Comm comm);
+static void InitUserData(UserData data, int thispe, int npes, MPI_Comm comm);
 
 static void SetInitialProfiles(N_Vector uv, N_Vector uvp, N_Vector id,
                                N_Vector resid, UserData data);
 
 static void PrintHeader(int SystemSize, int maxl, 
-                        int mudq, int mldq, 
-                        int mukeep, int mlkeep,
+                        int mudq, int mldq, int mukeep, int mlkeep,
                         realtype rtol, realtype atol);
 
 static void PrintOutput(void *mem, N_Vector uv, realtype time,
@@ -1138,8 +1136,8 @@ static void ReactRates(realtype xx, realtype yy, realtype *uvval, realtype *rate
   rates[1] += B*uvval[0];
 }
 
-/* Integrate over the spatial domain. Each process computes the integral on his
-   grid. After that processes call MPI_REDUCE to compute the sum of the local values.*/
+/* Integrate over the spatial domain. Each process computes the integral on its
+   grid. Then processes call MPI_REDUCE to compute sum of the local values. */
 static int integr(MPI_Comm comm, N_Vector uv, void *user_data, realtype *intval)
 {
   int ix, jy;
@@ -1165,10 +1163,7 @@ static int integr(MPI_Comm comm, N_Vector uv, void *user_data, realtype *intval)
   buf[0] = *intval;
 
   /* Sum local values and get the result on all processors. */
-  retval = MPI_Allreduce(buf, buf+1, 1, 
-                      MPI_DOUBLE,
-                      MPI_SUM, 
-                      comm);
+  retval = MPI_Allreduce(buf, buf+1, 1, MPI_DOUBLE, MPI_SUM, comm);
 
   *intval = buf[1];
   return(0);
