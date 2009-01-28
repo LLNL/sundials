@@ -10,20 +10,23 @@ package.
 The {\idas} distribution contains examples of the following types: 
 serial and parallel examples of Initial Value Problem (IVP) integration, 
 serial and parallel examples of forward sensitivity analysis (FSA), and 
-serial and parallel examples of adjoint sensitivity analysis (ASA):
+serial and parallel examples of adjoint sensitivity analysis (ASA).
+The names of all the examples are given in the following table.
 
 \newlength{\colone}
 \settowidth{\colone}{em*3}
 \begin{center}
   \begin{tabular}{|p{\colone}|l|l|} \hline
 
-    IVP & \id{idasAkzoNob\_dns} \id{idasFoodWeb\_bnd}   & \id{idasBruss\_kry\_bbd\_p}   \\
-    {}  & \id{idasHeat2D\_bnd} \id{idasHeat2D\_kry}     & \id{idasFoodWeb\_kry\_bbd\_p} \\
-    {}  & \id{idasKrylovDemo\_ls}                       & \id{idasFoodWeb\_kry\_p}      \\
-    {}  & \id{idasRoberts\_dns}                         & \id{idasHeat2D\_kry\_bbd\_p}  \\
-    {}  & \id{idasSlCrank\_dns}                         & \id{idasHeat2D\_kry\_p}       \\
+    & Serial examples & Parallel examples \\ \hline
+
+    IVP & \id{idasRoberts\_dns} \id{idasAkzoNob\_dns} & \id{idasHeat2D\_kry\_p}      \\
+    {}  & \id{idasSlCrank\_dns}                       & \id{idasHeat2D\_kry\_bbd\_p} \\
+    {}  & \id{idasHeat2D\_bnd} \id{idasHeat2D\_kry}   & \id{idasFoodWeb\_kry\_p}     \\
+    {}  & \id{idasFoodWeb\_bnd}                       & \id{idasFoodWeb\_kry\_bbd\_p} \\
+    {}  & \id{idasKrylovDemo\_ls}                     & \id{idasBruss\_kry\_bbd\_p}   \\
     \hline
-    
+
     FSA & \id{idasRoberts\_FSA\_dns} & \id{idasBruss\_FSA\_kry\_bbd\_p} \\
     {}  & \id{idasSlCrank\_FSA\_dns} & \id{idasHeat2D\_FSA\_kry\_bbd\_p} \\
     \hline
@@ -36,25 +39,25 @@ serial and parallel examples of adjoint sensitivity analysis (ASA):
 \end{center}
 
 \vspace{0.2in}\noindent
-With the exception of `''demo''-type example files, the names of all the examples 
+With the exception of ''demo''-type example files, the names of all the examples 
 distributed with {\sundials} are of the form \verb![slv][PbName]_[SA]_[ls]_[prec]_[p]!, 
 where
 \begin{description}
-\item [{[slv]}] identifies the solver (for {\idas} examples this is \id{idas});, 
+\item [{[slv]}] identifies the solver (for {\idas} examples this is \id{idas});
 \item [{[PbName]}] identifies the problem;
-\item [{[SA]}] identifies sensitivity analysis examples. This filed can be one
+\item [{[SA]}] identifies sensitivity analysis examples. This field can be one
   of: \id{FSA} for forward sensitivity examples, \id{ASAi} for adjoint sensitivity
   examples using an integral-form model output, or \id{ASAp} for adjoint sensitivity
   examples using an pointwise model output;
 \item [{[ls]}] identifies the linear solver module used;
 \item [{[prec]}] indicates the {\idas} preconditioner module used
-  (only if applicable, for examples using one of the Krylov linear solver
+  (if applicable --- for examples using a Krylov linear solver
   and the {\idabbdpre} module, this will be \id{bbd});
 \item [{[p]}] indicates an example using the parallel vector module {\nvecp}.
 \end{description}
 
 \vspace{0.2in}\noindent
-The examples listed in the table above, are briefly described next.
+The examples are briefly described next.
 Note that the {\idas} distribution includes all of the {\ida} {\C}
 examples (denoted here as examples for IVP integration). More details on
 these can be found in the {\ida} Example Program document~\cite{ida_ex}.
@@ -85,8 +88,6 @@ following serial examples (using the {\nvecs} module):
   The problem originates from Akzo Nobel Central research in Arnhern,
   The Netherlands, and describes a chemical process in which two
   species are mixed, while carbon dioxide is continuously added.
-
-  (See http://pitagora.dm.uniba.it/~testset/report/chemakzo.pdf)
 
   The problem is solved with the {\idadense} linear solver using the
   default difference quotient dense Jacobian approximation.
@@ -127,20 +128,20 @@ following serial examples (using the {\nvecs} module):
 
 %% FSA examples
 
-\item \id{idasRobert\_FSA\_dns}
-  solves a 3-species chemical kinetics problem (\id{idasRoberts\_dns}).
+\item \id{idasRoberts\_FSA\_dns}
+  solves the same kinetics problem as in \id{idasRoberts\_dns}.
   \newline
-  {\idas} computes both its solution and solution sensitivities with respect
+  {\idas} also computes both its solution and solution sensitivities with respect
   to the three reaction rate constants appearing in the model. 
-  This program solves the problem with {\idadense} linear solver, and a 
+  This program solves the problem with the {\idadense} linear solver, and a 
   user-supplied Jacobian routine.
 
 \item \id{idasSlCrank\_FSA\_dns}
   solves a system of index-2 DAEs, modeling a planar slider-crank mechanism.
 
   This example computes both its solution and solution sensitivities with respect
-  to the problem parameters $k$ (spring constant) and $c$ (damper constant) 
-  and then uses them to evaluate the gradient of the cummulative kinetic energy
+  to the problem parameters $k$ (spring constant) and $c$ (damper constant), 
+  and then uses them to evaluate the gradient of the cumulative kinetic energy
   of the system.
 
 %% ASA examples
@@ -153,9 +154,9 @@ following serial examples (using the {\nvecs} module):
   concentration of the first species.
 
 \item \id{idasRoberts\_ASAi\_dns}
-  solves a 3-species chemical kinetics problem (\id{idasRoberts\_dns}).
+  solves the same kinetics problem as in \id{idasRoberts\_dns}.
   \newline
-  The adjoint capability of {\idas} is used to compute gradients
+  Here the adjoint capability of {\idas} is used to compute gradients
   of a functional of the solution with respect to the three
   reaction rate constants appearing in the model.
   This program solves both the forward and backward problems with the 
@@ -189,8 +190,8 @@ the following parallel examples (using the {\nvecp} module):
 \item \id{idasHeat2D\_kry\_bbd\_p}
   solves the same problem as \id{idasHeat2D\_kry\_p}.
 
-  This program solves the problem in parallel, using the {\idaspgmr} linear solver
-  and the band-block diagonal preconditioner {\idabbdpre} with half-bandwidths 
+  This program uses the {\idaspgmr} linear solver in parallel,
+  and the band-block-diagonal preconditioner {\idabbdpre} with half-bandwidths 
   equal to $1$.
 
 \item \id{idasFoodWeb\_kry\_p}
@@ -199,7 +200,7 @@ the following parallel examples (using the {\nvecp} module):
   
   The preconditioner supplied to {\idaspgmr} is the block-diagonal part of 
   the Jacobian with $n_s \times n_s$ blocks arising from the reaction terms only
-  ($n_s$ is the number of species in the model).
+  ($n_s =$ number of species).
 
 \item \id{idasFoodWeb\_kry\_bbd\_p}
   solves the same food web problem as \id{idasFoodWeb\_kry\_p}.
@@ -222,13 +223,13 @@ the following parallel examples (using the {\nvecp} module):
 \item \id{idasBruss\_FSA\_kry\_bbd\_p}
   solves the Brusselator problem with the forward sensitivity capability in {\idas}
   used to compute solution sensitivities with respect to two of the problem 
-  parameters and then the gradient of a model output functional written as
+  parameters, and then the gradient of a model output functional, written as
   the final time value of the spatial integral of the first PDE component.
 
 \item \id{idasHeat2D\_FSA\_kry\_bbd\_p}
-  solves the same problem as \id{idaHeat2D\_kry\_p} with forward sensitivity enabled 
-  to compute the solution sensitivity with respect to two coefficients of the
-  original PDE.
+  solves the same problem as \id{idaHeat2D\_kry\_p}, but using the {\idabbdpre}
+  preconditioner, and with forward sensitivity enabled to compute the solution
+  sensitivity with respect to two coefficients of the original PDE.
   
 %% ASA examples
 
@@ -261,10 +262,6 @@ values may differ within the tolerances, and differences in cumulative
 counters, such as numbers of steps or Newton iterations, may differ
 from one machine environment to another by as much as 10\% to 20\%.
 
-The final section of this report describes a set of tests done with
-{\idas} in a parallel environment (using {\nvecp}) on a modification of
-the \id{cvskryx\_p} example.
-
 In the descriptions below, we make frequent references to the {\idas}
 User Guide~\cite{idas_ug}.  All citations to specific sections
 (e.g. \S\ref{s:types}) are references to parts of that user guide, unless
@@ -278,7 +275,7 @@ they contain portions of code that will not typically be present in a
 user program. For example, all example programs make use of the
 variables \id{SUNDIALS\_EXTENDED\_PRECISION} and \id{SUNDIALS\_DOUBLE\_PRECISION}
 to test if the solver libraries
-were built in extended- or double-precision and use the appropriate conversion 
+were built in extended or double precision, and use the appropriate conversion 
 specifiers in \id{printf} functions. Similarly, all forward sensitivity
 examples can be run with or without sensitivity computations enabled and,
 in the former case, with various combinations of methods and error control 
