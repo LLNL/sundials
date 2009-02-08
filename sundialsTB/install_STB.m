@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.21 $Date: 2007/10/26 16:30:47 $
+% $Revision: 1.22 $Date: 2007/12/05 21:58:17 $
 
 % MEX compiler command
 % --------------------
@@ -221,6 +221,7 @@ fid = fopen('foo.c', 'w');
 fprintf(fid,'#include "mex.h"\n');
 fprintf(fid,'void mexFunction(int nlhs,mxArray *plhs[],int nrhs,const mxArray *prhs[])\n');
 fprintf(fid,'{return;}\n');
+fclose(fid);
 
 % Run mexcompiler on foo.c
 mex_cmd = sprintf('%s foo.c', mexcompiler);
