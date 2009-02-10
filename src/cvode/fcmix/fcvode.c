@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.7 $
+ * $Date: 2009-02-10 04:24:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -323,7 +323,7 @@ void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
   *ier = CVSpilsSetGSType(CV_cvodemem, *gstype);
   if (*ier != CVSPILS_SUCCESS) return;
 
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
+  *ier = CVSpilsSetEpsLin(CV_cvodemem, *delt);
   if (*ier != CVSPILS_SUCCESS) return;
 
   CV_ls = CV_LS_SPGMR;
@@ -342,7 +342,7 @@ void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
   *ier = CVSpbcg(CV_cvodemem, *pretype, *maxl);
   if (*ier != CVSPILS_SUCCESS) return;
 
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
+  *ier = CVSpilsSetEpsLin(CV_cvodemem, *delt);
   if (*ier != CVSPILS_SUCCESS) return;
 
   CV_ls = CV_LS_SPBCG;
@@ -361,7 +361,7 @@ void FCV_SPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier)
   *ier = CVSptfqmr(CV_cvodemem, *pretype, *maxl);
   if (*ier != CVSPILS_SUCCESS) return;
 
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
+  *ier = CVSpilsSetEpsLin(CV_cvodemem, *delt);
   if (*ier != CVSPILS_SUCCESS) return;
 
   CV_ls = CV_LS_SPTFQMR;
@@ -383,7 +383,7 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
   *ier = CVSpilsSetGSType(CV_cvodemem, *gstype);
   if (*ier != CVSPILS_SUCCESS) return;
 
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
+  *ier = CVSpilsSetEpsLin(CV_cvodemem, *delt);
   if (*ier != CVSPILS_SUCCESS) return;
 
   CV_ls = CV_LS_SPGMR;
@@ -405,7 +405,7 @@ void FCV_SPBCGREINIT(int *pretype, int *maxl, realtype *delt, int *ier)
   *ier = CVSpilsSetMaxl(CV_cvodemem, *maxl);
   if (*ier != CVSPILS_SUCCESS) return;
 
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
+  *ier = CVSpilsSetEpsLin(CV_cvodemem, *delt);
   if (*ier != CVSPILS_SUCCESS) return;
 
   CV_ls = CV_LS_SPBCG;
@@ -427,7 +427,7 @@ void FCV_SPTFQMRREINIT(int *pretype, int *maxl, realtype *delt, int *ier)
   *ier = CVSpilsSetMaxl(CV_cvodemem, *maxl);
   if (*ier != CVSPILS_SUCCESS) return;
 
-  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
+  *ier = CVSpilsSetEpsLin(CV_cvodemem, *delt);
   if (*ier != CVSPILS_SUCCESS) return;
 
   CV_ls = CV_LS_SPTFQMR;
