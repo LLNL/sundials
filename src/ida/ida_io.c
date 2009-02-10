@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2008-10-15 22:04:21 $
+ * $Revision: 1.14 $
+ * $Date: 2009-02-10 04:15:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -20,6 +20,8 @@
 #include <stdlib.h>
 
 #include "ida_impl.h"
+
+#include <sundials/sundials_math.h>
 
 #define ZERO    RCONST(0.0)
 #define HALF    RCONST(0.5)
