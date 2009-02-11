@@ -106,21 +106,20 @@ The \id{idasBruss\_FSA\_kry\_bbd\_p} program solves the two-species time-depende
 PDE known as the Brusselator problem, using the {\idaspgmr} linear solver and the
 {\idabbdpre} preconditioner.
 
-The PDEs are as follows:
+With subscripts on $u$ and $v$ denoting partial derivatives, the PDEs
+are as follows:
 \begin{equation*}
 \begin{split}
-  &\partial u / \partial t = \epsilon_1 (\partial^2 u / \partial x^2
-                              + \partial^2 u / \partial y^2)
+  &\partial u / \partial t = \epsilon_1 (u_{xx} + u_{yy})
                               + u^2 v - (B + 1) u + A \\
-  &\partial v / \partial t = \epsilon_2 (\partial^2 v / \partial x^2
-                              + \partial^2 v / \partial y^2)
-                              - u^2 v - B  u
+  &\partial v / \partial t = \epsilon_2 (v_{xx} + v_{yy})
+                              - u^2 v + B  u
 \end{split}
 \end{equation*}
-on the unit square in $(x,y)$ and for $0 \leq t \leq t_f = 1$.  The constants
-involved are $\epsilon_1 = \epsilon_2 = 0.002$, $A = 1$, and $B = 3.4$.
-The boundary conditions are Neumann (zero derivatives).  The initial conditions
-are given by:
+on the unit square in $(x,y)$, and for $0 \leq t \leq t_f = 1$.
+The constants involved are $\epsilon_1 = \epsilon_2 = 0.002$, $A = 1$,
+and $B = 3.4$.  The boundary conditions are Neumann (zero derivatives).
+The initial conditions are given by:
 \begin{equation*}
 \begin{split}
   &u = 1 - 0.5 \cos(\pi y) \\
@@ -135,12 +134,12 @@ The system is actually implemented on submeshes, processor by processor.
 
 Here the forward sensitivity capability in {\idas} is used to compute
 solution sensitivities with respect the two parameters $\epsilon_i$.
-From those, we compute the corresponding sensitivities of the
-of the final spatial average of $u$,
+From those, we compute the corresponding sensitivities of the final spatial
+average of $u$,
 \begin{equation*}
   g = \int \int u(x,y,t_f) ~dx~dy
 \end{equation*}
-by means of a spatial integration:
+by means of a spatial integration of the sensitivities:
 \begin{equation*}
   dg/d\epsilon_i = \int \int \partial u(x,y,t_f) / \partial \epsilon_i~dx~dy ~.
 \end{equation*}
