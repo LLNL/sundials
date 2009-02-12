@@ -32,8 +32,6 @@
  *
  * The PDEs are discretized by central differencing on a MX by MY
  * mesh, and so the system size Neq is the product MX*MY*NUM_SPECIES. 
- * Dirichlet B.C. gives algebraic equations on the boundary and 
- * differential equations in the interior of the domain mesh.
  * The system is actually implemented on submeshes, processor by 
  * processor, with an MXSUB by MYSUB mesh on each of NPEX * NPEY 
  * processors.
@@ -44,7 +42,7 @@
  *                   g(t) = -----  | u(x,y,t) ,
  *                          |L^2|  /
  *                               Omega 
- * with respect to initial conidtions u0 and v0 is also computed.
+ * with respect to initial conditions u0 and v0 is also computed.
  * Given the perturbations du0 and dv0 in the IC, the sensitivity of
  * of g at final time tf is
  *             1    /
@@ -53,7 +51,7 @@
  *                Omega 
  * where lambda and mu are the solutions of the adjoint PDEs:
  *
- *  dl/dt = - eps(l  + l) - 2(uv -B-1)l + (2uv-B)m  
+ *  dl/dt = - eps(l  + l) - (2uv - B - 1)l + (2uv - B)m  
  *                 xx   yy
  *                                          domain Omega = [0,L]X[0,L]
  *  dm/dt = - eps(m  + m) - u^2 l + u^2 m

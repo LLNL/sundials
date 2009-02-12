@@ -20,11 +20,11 @@
  * Brusselator PDE and models a chemically reacting system.
  *
  *                  
- *  du/dt = eps1(u  + u) + u^2 v -(B+1)u + A  
- *               xx   yy
+ *  du/dt = eps1(u  + u  ) + u^2 v -(B+1)u + A  
+ *                xx   yy
  *                                              domain [0,L]X[0,L]
- *  dv/dt = eps2(v  + v) - u^2 v + Bu
- *               xx   yy
+ *  dv/dt = eps2(v  + v  ) - u^2 v + Bu
+ *                xx   yy
  *
  *  B.C. Neumann
  *  I.C  u(x,y,t0) = u0(x,y) =  1  - 0.5*cos(pi*y/L) 
@@ -32,8 +32,6 @@
  *
  * The PDEs are discretized by central differencing on a MX by MY
  * mesh, and so the system size Neq is the product MX*MY*NUM_SPECIES. 
- * Dirichlet B.C. gives algebraic equations on the boundary and 
- * differential equations in the interior of the domain mesh.
  * The system is actually implemented on submeshes, processor by 
  * processor, with an MXSUB by MYSUB mesh on each of NPEX * NPEY 
  * processors.

@@ -32,8 +32,6 @@
  *
  * The PDEs are discretized by central differencing on a MX by MY
  * mesh, and so the system size Neq is the product MX*MY*NUM_SPECIES. 
- * Dirichlet B.C. gives algebraic equations on the boundary and 
- * differential equations in the interior of the domain mesh.
  * The system is actually implemented on submeshes, processor by 
  * processor, with an MXSUB by MYSUB mesh on each of NPEX * NPEY 
  * processors.
