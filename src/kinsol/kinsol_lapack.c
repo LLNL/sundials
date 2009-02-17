@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2008-04-18 19:42:43 $
+ * $Revision: 1.8 $
+ * $Date: 2009-02-17 02:42:29 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -372,6 +372,7 @@ static int kinLapackDenseSetup(KINMem kin_mem)
   kindls_mem = (KINDlsMem) lmem;
  
   nje++;
+  SetToZero(J); 
   retval = djac(n, uu, fval, J, J_data, vtemp1, vtemp2);
   if (retval != 0) {
     last_flag = -1;
@@ -509,6 +510,7 @@ static int kinLapackBandSetup(KINMem kin_mem)
   kindls_mem = (KINDlsMem) lmem;
 
   nje++;
+  SetToZero(J); 
   retval = bjac(n, mu, ml, uu, fval, J, J_data, vtemp1, vtemp2);
   if (retval != 0) {
     last_flag = -1;

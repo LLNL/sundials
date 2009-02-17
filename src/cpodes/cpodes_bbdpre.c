@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-12-19 20:26:42 $
+ * $Revision: 1.5 $
+ * $Date: 2009-02-17 02:43:45 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -438,8 +438,6 @@ static int cpBBDPrecSetupExpl(realtype t, N_Vector y, N_Vector fy,
 
     /* Otherwise call cpBBDDQJacExpl for new J value */
     *jcurPtr = TRUE;
-    BandZero(savedJ);
-
     retval = cpBBDDQJacExpl(pdata, t, y, tmp1, tmp2, tmp3);
     if (retval < 0) {
       cpProcessError(cp_mem, -1, "CPBBDPRE", "cpBBDPrecSetup", MSGBBD_FUNC_FAILED);
@@ -455,7 +453,7 @@ static int cpBBDPrecSetupExpl(realtype t, N_Vector y, N_Vector fy,
   
   /* Scale and add I to get P = I - gamma*J */
   BandScale(-gamma, savedP);
-  BandAddI(savedP);
+  AddIdentity(savedP);
  
   /* Do LU factorization of P in place */
   ier = BandGBTRF(savedP, pivots);
@@ -558,7 +556,6 @@ static int cpBBDPrecSetupImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
   cp_mem = (CPodeMem) pdata->cpode_mem;
 
   /* Call cpBBDDQJacImpl for a new Jacobian calculation and store in savedP. */
-  BandZero(savedP);
   retval = cpBBDDQJacImpl(pdata, t, gamma, y, yp,
                           tmp1, tmp2, tmp3, pdata->tmp4);
   if (retval < 0) {

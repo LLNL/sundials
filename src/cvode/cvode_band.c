@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2008-04-18 19:42:39 $
+ * $Revision: 1.10 $
+ * $Date: 2009-02-17 02:42:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -274,7 +274,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nje++;
     nstlj = nst;
     *jcurPtr = TRUE;
-    BandZero(M); 
+    SetToZero(M); 
 
     retval = jac(n, mu, ml, tn, ypred, fpred, M, J_data, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
@@ -293,7 +293,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   
   /* Scale and add I to get M = I - gamma*J */
   BandScale(-gamma, M);
-  BandAddI(M);
+  AddIdentity(M);
 
   /* Do LU factorization of M */
   ier = BandGBTRF(M, pivots);

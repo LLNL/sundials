@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:10 $
+ * $Revision: 1.3 $
+ * $Date: 2009-02-17 02:42:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,6 +20,9 @@
 
 #include <sundials/sundials_direct.h>
 #include <sundials/sundials_math.h>
+
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
 
 DlsMat NewDenseMat(int M, int N)
 {
@@ -218,6 +221,59 @@ void destroyArray(void *v)
   free(v); 
   v = NULL;
 }
+
+
+void AddIdentity(DlsMat A)
+{
+  int i;
+
+  switch (A->type) {
+
+  case SUNDIALS_DENSE:
+    for (i=0; i<A->N; i++) A->cols[i][i] += ONE;
+    break;
+
+  case SUNDIALS_BAND:
+    for (i=0; i<A->M; i++) A->cols[i][A->s_mu] += ONE;
+    break;
+
+  }
+
+}
+
+
+void SetToZero(DlsMat A)
+{
+  int i, j, colSize;
+  realtype *col_j;
+
+  switch (A->type) {
+
+  case SUNDIALS_DENSE:
+    
+    for (j=0; j<A->N; j++) {
+      col_j = A->cols[j];
+      for (i=0; i<A->M; i++)
+        col_j[i] = ZERO;
+    }
+
+    break;
+
+  case SUNDIALS_BAND:
+
+    colSize = A->mu + A->ml + 1;
+    for (j=0; j<A->M; j++) {
+      col_j = A->cols[j] + A->s_mu - A->mu;
+      for (i=0; i<colSize; i++)
+        col_j[i] = ZERO;
+    }
+
+    break;
+
+  }
+
+}
+
 
 void PrintMat(DlsMat A)
 {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2008-04-18 19:42:42 $
+ * $Revision: 1.10 $
+ * $Date: 2009-02-17 02:42:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -245,7 +245,7 @@ static int kinDenseSetup(KINMem kin_mem)
   kindls_mem = (KINDlsMem) lmem;
  
   nje++;
-  DenseZero(J); 
+  SetToZero(J); 
   retval = djac(n, uu, fval, J, J_data, vtemp1, vtemp2);
   if (retval != 0) {
     last_flag = -1;

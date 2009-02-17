@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.3 $
+ * $Date: 2009-02-17 02:39:26 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -265,6 +265,30 @@ SUNDIALS_EXPORT void DestroyArray(void *p);
 
 /*
  * -----------------------------------------------------------------
+ * Function : AddIdentity
+ * -----------------------------------------------------------------
+ * AddIdentity adds 1.0 to the main diagonal (A_ii, i=1,2,...,N-1) of
+ * the M-by-N matrix A (M>= N) and stores the result back in A.
+ * AddIdentity is typically used with square matrices.
+ * AddIdentity does not check for M >= N and therefore a segmentation
+ * fault will occur if M < N!
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void AddIdentity(DlsMat A);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SetToZero
+ * -----------------------------------------------------------------
+ * SetToZero sets all the elements of the M-by-N matrix A to 0.0.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void SetToZero(DlsMat A);
+
+/*
+ * -----------------------------------------------------------------
  * Functions: PrintMat
  * -----------------------------------------------------------------
  * This function prints the M-by-N (dense or band) matrix A to
@@ -276,6 +300,7 @@ SUNDIALS_EXPORT void DestroyArray(void *p);
  */
 
 SUNDIALS_EXPORT void PrintMat(DlsMat A);
+
 
 /*
  * ==================================================================
@@ -289,6 +314,7 @@ SUNDIALS_EXPORT void destroyMat(realtype **a);
 SUNDIALS_EXPORT int *newIntArray(int n);
 SUNDIALS_EXPORT realtype *newRealArray(int m);
 SUNDIALS_EXPORT void destroyArray(void *v);
+
 
 #ifdef __cplusplus
 }

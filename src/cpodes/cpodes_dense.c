@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2008-04-18 19:42:39 $
+ * $Revision: 1.7 $
+ * $Date: 2009-02-17 02:43:45 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -513,7 +513,6 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
     } else {
       nstlj = nst;
       *jcurPtr = TRUE;
-      DenseZero(M);
       retval = jacE(n, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
       nje++;
       if (retval < 0) {
@@ -530,14 +529,13 @@ static int cpDenseSetup(CPodeMem cp_mem, int convfail,
   
     /* Scale and add I to get M = I - gamma*J */
     DenseScale(-gamma, M);
-    DenseAddI(M);
+    AddIdentity(M);
 
     break;
 
   case CP_IMPL:
 
-    /* Initialize Jacobian to 0 and call Jacobian function */
-    DenseZero(M);
+    /* Call Jacobian function */
     retval = jacI(n, tn, gamma, yP, ypP, fctP, M, J_data, tmp1, tmp2, tmp3);
     nje++;
     if (retval < 0) {
@@ -672,11 +670,7 @@ static int cpDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
 
   g_mat = G->cols;
 
-  /* 
-   * Initialize Jacobian matrix to 0 and call Jacobian function 
-   * G will contain the Jacobian transposed. 
-   */
-  DenseZero(G);
+  /* Call Jacobian function (G will contain the Jacobian transposed). */
   retval = jacP(nc, ny, tn, y, cy, G, JP_data, c_tmp1, c_tmp2);
   njeP++;
   if (retval < 0) {

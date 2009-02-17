@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.6 $
+ * $Date: 2009-02-17 02:42:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,11 +42,6 @@ void BandGBTRS(DlsMat A, int *p, realtype *b)
   bandGBTRS(A->cols, A->M, A->s_mu, A->ml, p, b);
 }
 
-void BandZero(DlsMat A)
-{
-  bandZero(A->cols, A->M, A->mu, A->ml, A->s_mu);
-}
-
 void BandCopy(DlsMat A, DlsMat B, int copymu, int copyml)
 {
   bandCopy(A->cols, B->cols, A->M, A->s_mu, B->s_mu, copymu, copyml);
@@ -55,11 +50,6 @@ void BandCopy(DlsMat A, DlsMat B, int copymu, int copyml)
 void BandScale(realtype c, DlsMat A)
 {
   bandScale(c, A->cols, A->M, A->mu, A->ml, A->s_mu);
-}
-
-void BandAddI(DlsMat A)
-{
-  bandAddI(A->cols, A->M, A->s_mu);
 }
 
 /*
@@ -206,19 +196,6 @@ void bandGBTRS(realtype **a, int n, int smu, int ml, int *p, realtype *b)
   }
 }
 
-void bandZero(realtype **a, int n, int mu, int ml, int smu)
-{
-  int i, j, colSize;
-  realtype *col_j;
-
-  colSize = mu + ml + 1;
-  for (j=0; j < n; j++) {
-    col_j = a[j]+smu-mu;
-    for (i=0; i < colSize; i++)
-      col_j[i] = ZERO;
-  }
-}
-
 void bandCopy(realtype **a, realtype **b, int n, int a_smu, int b_smu, 
               int copymu, int copyml)
 {
@@ -249,11 +226,10 @@ void bandScale(realtype c, realtype **a, int n, int mu, int ml, int smu)
   }
 }
 
-void bandAddI(realtype **a, int n, int smu)
+void bandAddIdentity(realtype **a, int n, int smu)
 {
   int j;
  
   for(j=0; j < n; j++)
     a[j][smu] += ONE;
 }
-

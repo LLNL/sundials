@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.5 $
+ * $Date: 2009-02-17 02:39:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -101,22 +101,6 @@ SUNDIALS_EXPORT void bandGBTRS(realtype **a, int n, int smu, int ml, int *p, rea
 
 /*
  * -----------------------------------------------------------------
- * Function : BandZero
- * -----------------------------------------------------------------
- * Usage : BandZero(A);
- * -----------------------------------------------------------------
- * A(i,j) <- 0.0,    j-(A->mu) <= i <= j+(A->ml).
- *
- * BandZero is a wrapper around bandZero which accesses the data of
- * the DlsMat A (i.e. the field cols)
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void BandZero(DlsMat A);
-SUNDIALS_EXPORT void bandZero(realtype **a, int n, int mu, int ml, int smu);
-
-/*
- * -----------------------------------------------------------------
  * Function : BandCopy
  * -----------------------------------------------------------------
  * Usage : BandCopy(A, B, copymu, copyml);
@@ -153,19 +137,14 @@ SUNDIALS_EXPORT void bandScale(realtype c, realtype **a, int n, int mu, int ml, 
 
 /*
  * -----------------------------------------------------------------
- * Function : BandAddI
+ * Function: bandAddIdentity
  * -----------------------------------------------------------------
- * Usage : BandAddI(A);
- * -----------------------------------------------------------------
- * A(j,j) <- A(j,j)+1.0,   0 <= j <= (A->size)-1.
- *
- * BandAddI is a wrapper around bandAddI which performs the actual
- * work by accessing the data in the DlsMat A (i.e. the field cols)
+ * bandAddIdentity adds the identity matrix to the n-by-n matrix
+ * stored in the realtype** arrays.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void BandAddI(DlsMat A);
-SUNDIALS_EXPORT void bandAddI(realtype **a, int n, int smu);
+SUNDIALS_EXPORT void bandAddIdentity(realtype **a, int n, int smu);
 
 #ifdef __cplusplus
 }

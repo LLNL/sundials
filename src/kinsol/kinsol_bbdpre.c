@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.6 $
+ * $Date: 2009-02-17 02:42:29 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -354,7 +354,7 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
 
   /* call KBBDDQJac for a new jacobian and store in PP */
 
-  BandZero(PP);
+  SetToZero(PP);
   retval = KBBDDQJac(pdata, uu, uscale, vtemp1, vtemp2, vtemp3);
   if (retval != 0) {
     KINProcessError(kin_mem, -1, "KINBBDPRE", "KINBBDPrecSetup", MSGBBD_FUNC_FAILED);

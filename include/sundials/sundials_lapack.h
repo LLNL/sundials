@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-12-12 18:13:22 $
+ * $Revision: 1.6 $
+ * $Date: 2009-02-17 02:39:26 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,38 +21,6 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <sundials/sundials_direct.h>
-
-/*
- * ==================================================================
- * Exported functions
- * ==================================================================
- */
-
-/*
- * -----------------------------------------------------------------
- * Functions: LapackDenseZero and LapackBandZero
- * -----------------------------------------------------------------
- * These functions set all the elements of the M-by-N matrix A to 0.0.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void LapackDenseZero(DlsMat A);
-SUNDIALS_EXPORT void LapackBandZero(DlsMat A);
-  
-/*
- * -----------------------------------------------------------------
- * Functions: LapackDenseAddI and LapackBandAddI
- * -----------------------------------------------------------------
- * These functions add 1.0 to the main diagonal (A_ii, i=1,2,...,N-1)
- * of the M-by-N matrix A (M>= N) and stores the result back in A.
- * They are typically used with square matrices.
- * -----------------------------------------------------------------
- */
-  
-SUNDIALS_EXPORT void LapackDenseAddI(DlsMat A);
-SUNDIALS_EXPORT void LapackBandAddI(DlsMat A);
 
 /*
  * ==================================================================

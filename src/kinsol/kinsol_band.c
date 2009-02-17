@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2008-04-18 19:42:42 $
+ * $Revision: 1.9 $
+ * $Date: 2009-02-17 02:42:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -261,7 +261,7 @@ static int kinBandSetup(KINMem kin_mem)
   kindls_mem = (KINDlsMem) lmem;
 
   nje++;
-  BandZero(J); 
+  SetToZero(J); 
   retval = bjac(n, mu, ml, uu, fval, J, J_data, vtemp1, vtemp2);
   if (retval != 0) {
     last_flag = -1;

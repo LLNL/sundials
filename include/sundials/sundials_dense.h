@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.7 $
+ * $Date: 2009-02-17 02:39:26 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -139,20 +139,6 @@ SUNDIALS_EXPORT int denseORMQR(realtype **a, int m, int n, realtype *beta,
 
 /*
  * -----------------------------------------------------------------
- * Function : DenseZero
- * -----------------------------------------------------------------
- * DenseZero sets all the elements of the M-by-N matrix A to 0.0.
- *
- * DenseZero is a wrapper around denseZero which accesses the data of
- * the DlsMat A (i.e. the field cols)
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void DenseZero(DlsMat A);
-SUNDIALS_EXPORT void denseZero(realtype **a, int m, int n);
-
-/*
- * -----------------------------------------------------------------
  * Function : DenseCopy
  * -----------------------------------------------------------------
  * DenseCopy copies the contents of the M-by-N matrix A into the
@@ -182,23 +168,17 @@ SUNDIALS_EXPORT void denseCopy(realtype **a, realtype **b, int m, int n);
 SUNDIALS_EXPORT void DenseScale(realtype c, DlsMat A);
 SUNDIALS_EXPORT void denseScale(realtype c, realtype **a, int m, int n);
 
+
 /*
  * -----------------------------------------------------------------
- * Function : DenseAddI
+ * Function: denseAddIdentity
  * -----------------------------------------------------------------
- * DenseAddI adds 1.0 to the main diagonal (A_ii, i=1,2,...,N-1) of
- * the M-by-N matrix A (M>= N) and stores the result back in A.
- * DenseAddI is typically used with square matrices.
- * DenseAddI does not check for M >= N and therefore a segmentation
- * fault will occur if M < N!
- *
- * DenseAddI is a wrapper around denseAddI which performs the actual
- * work by accessing the data in the DlsMat A (i.e. the field cols)
+ * denseAddIdentity adds the identity matrix to the n-by-n matrix
+ * stored in the realtype** arrays.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void DenseAddI(DlsMat A);
-SUNDIALS_EXPORT void denseAddI(realtype **a, int n);
+SUNDIALS_EXPORT void denseAddIdentity(realtype **a, int n);
 
 #ifdef __cplusplus
 }

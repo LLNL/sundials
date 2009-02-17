@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-12-19 20:26:42 $
+ * $Revision: 1.6 $
+ * $Date: 2009-02-17 02:43:45 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -345,8 +345,6 @@ static int cpBandPrecSetupExpl(realtype t, N_Vector y, N_Vector fy,
 
     /* If jok = FALSE, call cpBandPDQJac for new J value. */
     *jcurPtr = TRUE;
-    BandZero(savedJ);
-
     retval = cpBandPDQJacExpl(pdata, t, y, fy, tmp1, tmp2);
     if (retval < 0) {
       cpProcessError(cp_mem, -1, "CPBANDPRE", "cpBandPrecSetupExpl", MSGBP_FUNC_FAILED);
@@ -362,7 +360,7 @@ static int cpBandPrecSetupExpl(realtype t, N_Vector y, N_Vector fy,
   
   /* Scale and add I to get savedP = I - gamma*J. */
   BandScale(-gamma, savedP);
-  BandAddI(savedP);
+  AddIdentity(savedP);
  
   /* Do LU factorization of matrix. */
   ier = BandGBTRF(savedP, pivots);
@@ -439,7 +437,6 @@ static int cpBandPrecSetupImpl(realtype t, N_Vector y, N_Vector yp, N_Vector r,
 
   cp_mem = (CPodeMem) pdata->cpode_mem;
 
-  BandZero(savedJ);
   retval = cpBandPDQJacImpl(pdata, t, gamma, y, yp, r, tmp1, tmp2, tmp3);
   if (retval < 0) {
     cpProcessError(cp_mem, -1, "CPBANDPRE", "cpBandPrecSetupImpl", MSGBP_FUNC_FAILED);

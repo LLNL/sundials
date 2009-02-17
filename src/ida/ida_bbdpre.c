@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-06-08 14:14:04 $
+ * $Revision: 1.8 $
+ * $Date: 2009-02-17 02:42:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -360,7 +360,7 @@ static int IDABBDPrecSetup(realtype tt,
   IDA_mem = (IDAMem) pdata->ida_mem;
 
   /* Call IBBDDQJac for a new Jacobian calculation and store in PP. */
-  BandZero(PP);
+  SetToZero(PP);
   retval = IBBDDQJac(pdata, tt, c_j, yy, yp,
                      tempv1, tempv2, tempv3, tempv4);
   if (retval < 0) {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2008-04-18 19:42:39 $
+ * $Revision: 1.5 $
+ * $Date: 2009-02-17 02:43:45 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -319,7 +319,6 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
       nstlj = nst;
       *jcurPtr = TRUE;
 
-      BandZero(M);
       retval = jacE(n, mu, ml, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
       if (retval == 0) {
         BandCopy(M, savedJ, mu, ml);
@@ -336,13 +335,13 @@ static int cpBandSetup(CPodeMem cp_mem, int convfail,
   
     /* Scale and add I to get M = I - gamma*J */
     BandScale(-gamma, M);
-    BandAddI(M);
+    AddIdentity(M);
 
     break;
 
   case CP_IMPL:
 
-    BandZero(M);
+    nje++;
     retval = jacI(n, mu, ml, tn, gamma, yP, ypP, fctP, M, J_data, tmp1, tmp2, tmp3);
     if (retval < 0) {
       cpProcessError(cp_mem, CPDLS_JACFUNC_UNRECVR, "CPBAND", "CPBandSetup", MSGD_JACFUNC_FAILED);

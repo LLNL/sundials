@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2008-04-18 19:42:40 $
+ * $Revision: 1.11 $
+ * $Date: 2009-02-17 02:42:29 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -407,7 +407,8 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
     nje++;
     nstlj = nst;
     *jcurPtr = TRUE;
-    
+    SetToZero(M);
+
     retval = djac(n, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
     if (retval == 0) {
       dcopy_f77(&(M->ldata), M->data, &one, savedJ->data, &one);
@@ -427,7 +428,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
   dscal_f77(&(M->ldata), &fact, M->data, &one);
   
   /* Add identity to get M = I - gamma*J*/
-  LapackDenseAddI(M);
+  AddIdentity(M);
 
   /* Do LU factorization of M */
   dgetrf_f77(&n, &n, M->data, &(M->ldim), pivots, &ier);
@@ -552,7 +553,8 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
     nje++;
     nstlj = nst;
     *jcurPtr = TRUE;
-    
+    SetToZero(M); 
+
     retval = bjac(n, mu, ml, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
     if (retval == 0) {
       dcopy_f77(&(M->ldata), M->data, &one, savedJ->data, &one);
@@ -572,7 +574,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   dscal_f77(&(M->ldata), &fact, M->data, &one);
   
   /* Add identity to get M = I - gamma*J*/
-  LapackBandAddI(M);
+  AddIdentity(M);
   
   /* Do LU factorization of M */
   dgbtrf_f77(&n, &n, &ml, &mu, M->data, &(M->ldim), pivots, &ier);

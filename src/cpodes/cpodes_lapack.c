@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2008-04-18 19:42:39 $
+ * $Revision: 1.6 $
+ * $Date: 2009-02-17 02:43:45 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -748,7 +748,7 @@ static int cpLapackDenseSetup(CPodeMem cp_mem, int convfail,
     dscal_f77(&(M->ldata), &fact, M->data, &one);
 
     /* Add identity to get M = I - gamma*J*/
-    LapackDenseAddI(M);
+    AddIdentity(M);
 
     break;
 
@@ -938,7 +938,7 @@ static int cpLapackBandSetup(CPodeMem cp_mem, int convfail,
     dscal_f77(&(M->ldata), &fact, M->data, &one);
 
     /* Add identity to get M = I - gamma*J*/
-    LapackBandAddI(M);
+    AddIdentity(M);
 
     break;
 
@@ -1113,7 +1113,7 @@ static int cpLapackDenseProjSetup(CPodeMem cp_mem, N_Vector y, N_Vector cy,
      */
     if (pnorm == CP_PROJ_L2NORM) {
       dsyrk_f77("L", "N", &nd, &nc, &coef_1, (G->data + nc), &ny, &coef_0, K->data, &nd, 1, 1);
-      LapackDenseAddI(K);
+      AddIdentity(K);
     } else {
       cplLUcomputeKD(cp_mem, s_tmp1);
     }

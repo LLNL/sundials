@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.8 $
+ * $Date: 2009-02-17 02:42:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -366,7 +366,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     /* Otherwise call CVBBDDQJac for new J value */
     *jcurPtr = TRUE;
-    BandZero(savedJ);
+    SetToZero(savedJ);
 
     retval = CVBBDDQJac(pdata, t, y, tmp1, tmp2, tmp3);
     if (retval < 0) {
@@ -383,7 +383,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   
   /* Scale and add I to get P = I - gamma*J */
   BandScale(-gamma, savedP);
-  BandAddI(savedP);
+  AddIdentity(savedP);
  
   /* Do LU factorization of P in place */
   ier = BandGBTRF(savedP, pivots);

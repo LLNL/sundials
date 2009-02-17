@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2008-04-18 19:42:41 $
+ * $Revision: 1.9 $
+ * $Date: 2009-02-17 02:42:29 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -364,6 +364,7 @@ static int idaLapackDenseSetup(IDAMem IDA_mem,
 
   /* Call Jacobian function */
   nje++;
+  SetToZero(JJ);
   retval = djac(n, tn, cj, yP, ypP, fctP, JJ, J_data, tmp1, tmp2, tmp3);
   if (retval < 0) {
     IDAProcessError(IDA_mem, IDADLS_JACFUNC_UNRECVR, "IDALAPACK", "idaLapackDenseSetup", MSGD_JACFUNC_FAILED);
@@ -474,6 +475,7 @@ static int idaLapackBandSetup(IDAMem IDA_mem,
 
   /* Call Jacobian function */
   nje++;
+  SetToZero(JJ);
   retval = bjac(n, mu, ml, tn, cj, yP, ypP, fctP, JJ, J_data, tmp1, tmp2, tmp3);
   if (retval < 0) {
     IDAProcessError(IDA_mem, IDADLS_JACFUNC_UNRECVR, "IDALAPACK", "idaLapackBandSetup", MSGD_JACFUNC_FAILED);

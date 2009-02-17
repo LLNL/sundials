@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.7 $
+ * $Date: 2009-02-17 02:42:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -305,7 +305,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     /* If jok = FALSE, call CVBandPDQJac for new J value. */
     *jcurPtr = TRUE;
-    BandZero(savedJ);
+    SetToZero(savedJ);
 
     retval = CVBandPDQJac(pdata, t, y, fy, tmp1, tmp2);
     if (retval < 0) {
@@ -322,7 +322,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   
   /* Scale and add I to get savedP = I - gamma*J. */
   BandScale(-gamma, savedP);
-  BandAddI(savedP);
+  AddIdentity(savedP);
  
   /* Do LU factorization of matrix. */
   retval = BandGBTRF(savedP, pivots);

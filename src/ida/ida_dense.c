@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2008-04-18 19:42:41 $
+ * $Revision: 1.11 $
+ * $Date: 2009-02-17 02:42:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -234,7 +234,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   nje++;
 
   /* Zero out JJ; call Jacobian routine jac; return if it failed. */
-  DenseZero(JJ);
+  SetToZero(JJ);
   retval = djac(neq, tn, cj, yyp, ypp, rrp, JJ, jacdata, 
                 tmp1, tmp2, tmp3);
   if (retval < 0) {

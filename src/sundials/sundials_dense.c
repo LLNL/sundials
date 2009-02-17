@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-11-22 00:12:51 $
+ * $Revision: 1.6 $
+ * $Date: 2009-02-17 02:42:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -62,11 +62,6 @@ int DenseORMQR(DlsMat A, realtype *beta, realtype *vn, realtype *vm, realtype *w
   return(denseORMQR(A->cols, A->M, A->N, beta, vn, vm, wrk));
 }
 
-void DenseZero(DlsMat A)
-{
-  denseZero(A->cols, A->M, A->N);
-}
-
 void DenseCopy(DlsMat A, DlsMat B)
 {
   denseCopy(A->cols, B->cols, A->M, A->N);
@@ -75,11 +70,6 @@ void DenseCopy(DlsMat A, DlsMat B)
 void DenseScale(realtype c, DlsMat A)
 {
   denseScale(c, A->cols, A->M, A->N);
-}
-
-void DenseAddI(DlsMat A)
-{
-  denseAddI(A->cols, A->N);
 }
 
 int denseGETRF(realtype **a, int m, int n, int *p)
@@ -349,18 +339,6 @@ int denseORMQR(realtype **a, int m, int n, realtype *beta,
   return(0);
 }
 
-void denseZero(realtype **a, int m, int n)
-{
-  int i, j;
-  realtype *col_j;
-
-  for (j=0; j < n; j++) {
-    col_j = a[j];
-    for (i=0; i < m; i++)
-      col_j[i] =  ZERO;
-  }
-}
-
 void denseCopy(realtype **a, realtype **b, int m, int n)
 {
   int i, j;
@@ -387,10 +365,9 @@ void denseScale(realtype c, realtype **a, int m, int n)
   }
 }
 
-void denseAddI(realtype **a, int n)
+void denseAddIdentity(realtype **a, int n)
 {
   int i;
   
   for (i=0; i < n; i++) a[i][i] += ONE;
 }
-
