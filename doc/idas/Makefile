@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2009-01-27 23:08:40 $
+# $Revision: 1.6 $
+# $Date: 2009-02-17 03:09:41 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -109,7 +109,7 @@ ug_html: ug
 	cp ${SHARED_DOC}/buttons/$${i} idas_guide/ ;\
 	done
 	@cp ${SHARED_DOC}/l2h_styles.css idas_guide/idas_guide.css
-	processHTML idas_guide
+	./processHTML idas_guide
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -118,6 +118,8 @@ copy_ug:
 
 idas_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
 	texi2dvi ${QUIET} idas_guide.tex
+
+
 
 idas_guide.ps: idas_guide.dvi
 	dvips ${QUIET} -Ppdf idas_guide
@@ -136,7 +138,7 @@ ex_html: ex
 	cp ${SHARED_DOC}/buttons/$${i} idas_examples/ ;\
 	done
 	@cp ${SHARED_DOC}/l2h_styles.css idas_examples/idas_examples.css
-	processHTML idas_examples
+	./processHTML idas_examples
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2008-11-17 21:07:13 $
+# $Revision: 1.4 $
+# $Date: 2009-02-17 03:09:41 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -108,7 +108,7 @@ ug_html: ug
 	cp ${SHARED_DOC}/buttons/$${i} kin_guide/ ;\
 	done
 	@cp ${SHARED_DOC}/l2h_styles.css kin_guide/kin_guide.css
-	processHTML kin_guide
+	./processHTML kin_guide
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -135,7 +135,7 @@ ex_html: ex
 	cp ${SHARED_DOC}/buttons/$${i} kin_examples/ ;\
 	done
 	@cp ${SHARED_DOC}/l2h_styles.css kin_examples/kin_examples.css
-	processHTML kin_examples
+	./processHTML kin_examples
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \

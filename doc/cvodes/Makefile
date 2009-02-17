@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2008-12-30 22:46:00 $
+# $Revision: 1.4 $
+# $Date: 2009-02-17 03:09:41 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -109,7 +109,7 @@ ug_html: ug
 	cp ${SHARED_DOC}/buttons/$${i} cvs_guide/ ;\
 	done
 	@cp ${SHARED_DOC}/l2h_styles.css cvs_guide/cvs_guide.css
-	processHTML cvs_guide
+	./processHTML cvs_guide
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -136,7 +136,7 @@ ex_html: ex
 	cp ${SHARED_DOC}/buttons/$${i} cvs_examples/ ;\
 	done
 	@cp ${SHARED_DOC}/l2h_styles.css cvs_examples/cvs_examples.css
-	processHTML cvs_examples
+	./processHTML cvs_examples
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \

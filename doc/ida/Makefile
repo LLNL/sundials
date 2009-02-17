@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2008-04-10 18:45:42 $
+# $Revision: 1.3 $
+# $Date: 2009-02-17 03:09:41 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -108,7 +108,7 @@ ug_html: ug
 	cp ${SHARED_DOC}/buttons/$${i} ida_guide/ ;\
 	done
 	@cp ${SHARED_DOC}/l2h_styles.css ida_guide/ida_guide.css
-	processHTML ida_guide
+	./processHTML ida_guide
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -135,7 +135,7 @@ ex_html: ex
 	cp ${SHARED_DOC}/buttons/$${i} ida_examples/ ;\
 	done
 	@cp ${SHARED_DOC}/l2h_styles.css ida_examples/ida_examples.css
-	processHTML ida_examples
+	./processHTML ida_examples
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \
