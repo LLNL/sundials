@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2007-12-19 20:34:01 $
+# $Revision: 1.12 $
+# $Date: 2009-02-17 02:52:53 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -47,13 +47,10 @@ top_srcdir = $(srcdir)/../..
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 
 SHARED_SRC_FILES = sundials_direct.c sundials_band.c sundials_dense.c sundials_iterative.c sundials_math.c sundials_nvector.c sundials_spgmr.c sundials_spbcgs.c sundials_sptfqmr.c
-SHARED_BL_SRC_FILES = sundials_lapack.c
 
 SHARED_OBJ_FILES = $(SHARED_SRC_FILES:.c=.o)
-SHARED_BL_OBJ_FILES = $(SHARED_BL_SRC_FILES:.c=.o)
 
 SHARED_LIB_FILES = $(SHARED_SRC_FILES:.c=.lo)
-SHARED_BL_LIB_FILES = $(SHARED_BL_SRC_FILES:.c=.lo)
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
@@ -70,7 +67,7 @@ all:
 
 lib_without_bl: $(SHARED_LIB_FILES)
 
-lib_with_bl: $(SHARED_LIB_FILES) $(SHARED_BL_LIB_FILES)
+lib_with_bl: $(SHARED_LIB_FILES)
 
 install:
 	$(mkinstalldirs)  $(includedir)/sundials
@@ -108,9 +105,7 @@ uninstall:
 
 clean:
 	rm -f $(SHARED_LIB_FILES)
-	rm -f $(SHARED_BL_LIB_FILES)
 	rm -f $(SHARED_OBJ_FILES)
-	rm -f $(SHARED_BL_OBJ_FILES)
 	rm -rf .libs
 
 distclean: clean
@@ -123,8 +118,6 @@ sundials_band.lo: $(srcdir)/sundials_band.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_band.c
 sundials_dense.lo: $(srcdir)/sundials_dense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_dense.c
-sundials_lapack.lo: $(srcdir)/sundials_lapack.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_lapack.c
 sundials_iterative.lo: $(srcdir)/sundials_iterative.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_iterative.c
 sundials_spgmr.lo: $(srcdir)/sundials_spgmr.c

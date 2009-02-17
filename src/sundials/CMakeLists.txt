@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2007-12-19 20:34:01 $
+# $Revision: 1.4 $
+# $Date: 2009-02-17 02:52:53 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -38,8 +38,8 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 INSTALL(FILES ${sundials_HEADERS} DESTINATION include/sundials)
 
 # If Blas/Lapack support was enabled, install the Lapack interface headers
-IF(LAPACK_OK)
+IF(LAPACK_FOUND)
   SET(sundials_BL_HEADERS sundials_lapack.h)
   ADD_PREFIX(${sundials_SOURCE_DIR}/include/sundials/ sundials_BL_HEADERS)
   INSTALL(FILES ${sundials_BL_HEADERS} DESTINATION include/sundials)
-ENDIF(LAPACK_OK)
+ENDIF(LAPACK_FOUND)
