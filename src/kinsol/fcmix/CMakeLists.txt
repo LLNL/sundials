@@ -10,11 +10,11 @@ SET(fkinsol_SOURCES
   fkinsol.c
   )
 
-IF(LAPACK_OK)
+IF(LAPACK_FOUND)
   SET(fkinsol_BL_SOURCES fkinlapack.c fkinlapdense.c fkinlapband.c)
-ELSE(LAPACK_OK)
+ELSE(LAPACK_FOUND)
   SET(fkinsol_BL_SOURCES "")
-ENDIF(LAPACK_OK)
+ENDIF(LAPACK_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files (both for fkinsol and kinsol)
@@ -37,3 +37,6 @@ SET_TARGET_PROPERTIES(sundials_fkinsol_static
 
 # Install the FKINSOL library
 INSTALL(TARGETS sundials_fkinsol_static DESTINATION lib)
+
+#
+MESSAGE(STATUS "Added KINSOL FCMIX module")

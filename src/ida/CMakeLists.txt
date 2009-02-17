@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2007-12-19 20:34:01 $
+# $Revision: 1.4 $
+# $Date: 2009-02-17 02:58:48 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -62,17 +62,14 @@ SET(ida_HEADERS
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/ida/ ida_HEADERS)
 
 # If Blas/Lapack support was enabled, set-up additional file lists
-IF(LAPACK_OK)
+IF(LAPACK_FOUND)
   SET(ida_BL_SOURCES ida_lapack.c)
-  SET(shared_BL_SOURCES sundials_lapack.c)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_BL_SOURCES)
   SET(ida_BL_HEADERS ida_lapack.h)
   ADD_PREFIX(${sundials_SOURCE_DIR}/include/ida/ ida_BL_HEADERS)
-ELSE(LAPACK_OK)
+ELSE(LAPACK_FOUND)
   SET(ida_BL_SOURCES "")
-  SET(shared_BL_SOURCES "")
   SET(ida_BL_HEADERS "")
-ENDIF(LAPACK_OK)
+ENDIF(LAPACK_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files.
@@ -87,8 +84,7 @@ IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static IDA library
   ADD_LIBRARY(sundials_ida_static STATIC 
-    ${ida_SOURCES}    ${ida_BL_SOURCES} 
-    ${shared_SOURCES} ${shared_BL_SOURCES})
+    ${ida_SOURCES}  ${ida_BL_SOURCES}  ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_ida_static
@@ -104,8 +100,7 @@ IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the IDA library
   ADD_LIBRARY(sundials_ida_shared SHARED
-    ${ida_SOURCES}    ${ida_BL_SOURCES} 
-    ${shared_SOURCES} ${shared_BL_SOURCES})
+    ${ida_SOURCES}  ${ida_BL_SOURCES} ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_ida_shared
@@ -126,3 +121,5 @@ INSTALL(FILES ${ida_HEADERS} ${ida_BL_HEADERS} DESTINATION include/ida)
 # Install the IDA implementation header file
 INSTALL(FILES ida_impl.h DESTINATION include/ida)
 
+#
+MESSAGE(STATUS "Added IDA module")

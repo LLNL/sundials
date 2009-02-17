@@ -13,11 +13,11 @@ SET(fcvode_SOURCES
   fcvroot.c
   )
 
-IF(LAPACK_OK)
+IF(LAPACK_FOUND)
   SET(fcvode_BL_SOURCES fcvlapack.c fcvlapband.c fcvlapdense.c)
-ELSE(LAPACK_OK)
+ELSE(LAPACK_FOUND)
   SET(fcvode_BL_SOURCES "")
-ENDIF(LAPACK_OK)
+ENDIF(LAPACK_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files (both for fcvode and cvode)
@@ -41,3 +41,5 @@ SET_TARGET_PROPERTIES(sundials_fcvode_static
 # Install the FCVODE library
 INSTALL(TARGETS sundials_fcvode_static DESTINATION lib)
 
+#
+MESSAGE(STATUS "Added CVODE FCMIX module")

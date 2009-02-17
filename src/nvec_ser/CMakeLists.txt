@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-02-01 16:42:07 $
+# $Revision: 1.3 $
+# $Date: 2009-02-17 02:58:48 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -16,10 +16,13 @@ INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_SERIAL\n\")")
 # Add variable nvecserial_SOURCES with the sources for the NVECSERIAL lib
 SET(nvecserial_SOURCES nvector_serial.c)
 
+# Add variable shared_SOURCES with the common SUNDIALS sources which will
+# also be included in the NVECSERIAL library
+SET(shared_SOURCES sundials_math.c)
+ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+
 # Add variable nvecserial_HEADERS with the exported NVECSERIAL header files
 SET(nvecserial_HEADERS nvector_serial.h)
-
-# Add prefix with complete path to the NVECSERIAL header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nvecserial_HEADERS)
 
 # Add source directory to include directories
@@ -28,46 +31,36 @@ INCLUDE_DIRECTORIES(.)
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
-# Build the static library
+# Rules for building and installing the static library:
+#  - Add the build target for the NVECSERIAL library
+#  - Set the library name and make sure it is not deleted
+#  - Install the NVECSERIAL library
 IF(BUILD_STATIC_LIBS)
-
-  # Add the build target for the NVECSERIAL library
-  ADD_LIBRARY(sundials_nvecserial_static STATIC ${nvecserial_SOURCES})
-  
-  # Set the library name and make sure it is not deleted
+  ADD_LIBRARY(sundials_nvecserial_static STATIC ${nvecserial_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_nvecserial_static
     PROPERTIES OUTPUT_NAME sundials_nvecserial CLEAN_DIRECT_OUTPUT 1)
-
-  # Install the NVECSERIAL library
   INSTALL(TARGETS sundials_nvecserial_static DESTINATION lib)
-
 ENDIF(BUILD_STATIC_LIBS)
 
-# Build the shared library
+# Rules for building and installing the shared library:
+#  - Add the build target for the NVECSERIAL library
+#  - Set the library name and make sure it is not deleted
+#  - Set VERSION and SOVERSION for shared libraries
+#  - Install the NVECSERIAL library
 IF(BUILD_SHARED_LIBS)
-
-  # Add the build target for the NVECSERIAL library
-  ADD_LIBRARY(sundials_nvecserial_shared SHARED ${nvecserial_SOURCES})
-  
-  # Set the library name and make sure it is not deleted
+  ADD_LIBRARY(sundials_nvecserial_shared SHARED ${nvecserial_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_nvecserial_shared
     PROPERTIES OUTPUT_NAME sundials_nvecserial CLEAN_DIRECT_OUTPUT 1)
-
-  # Set VERSION and SOVERSION for shared libraries
   SET_TARGET_PROPERTIES(sundials_nvecserial_shared
     PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
-  
-  # Install the NVECSERIAL library
   INSTALL(TARGETS sundials_nvecserial_shared DESTINATION lib)
-
 ENDIF(BUILD_SHARED_LIBS)
-
 
 # Install the NVECSERIAL header files
 INSTALL(FILES ${nvecserial_HEADERS} DESTINATION include/nvector)
 
 # If FCMIX is enabled, build and install the FNVECSERIAL library
-IF(FCMIX_OK)
+IF(FCMIX_ENABLE AND F77_FOUND)
   SET(fnvecserial_SOURCES fnvector_serial.c)
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fnvecserial_static STATIC ${fnvecserial_SOURCES})
@@ -83,4 +76,7 @@ IF(FCMIX_OK)
       PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
     INSTALL(TARGETS sundials_fnvecserial_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
-ENDIF(FCMIX_OK)
+ENDIF(FCMIX_ENABLE AND F77_FOUND)
+
+#
+MESSAGE(STATUS "Added NVECTOR_SERIAL module")

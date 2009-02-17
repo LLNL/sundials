@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2007-10-25 20:03:34 $
+# $Revision: 1.9 $
+# $Date: 2009-02-17 02:58:47 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,6 +43,8 @@ MPIF77_LNKR  = @MPIF77_LNKR@
 MPI_LIB_DIR  = @MPI_LIB_DIR@
 MPI_LIBS     = @MPI_LIBS@
 
+BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+
 OBJ_EXT = @OBJEXT@
 EXE_EXT = @EXEEXT@
 
@@ -71,7 +73,7 @@ all:
 	@for i in ${EXAMPLES} ; do \
 	  ${fortran-update} ${srcdir} $${i}.f ; \
 	  ${LIBTOOL} --mode=compile ${MPIF77} ${MPI_FLAGS} -I${MPI_INC_DIR} ${FFLAGS} -c ${builddir}/$${i}-updated.f ; \
-	  ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${MPI_FLAGS} ${F77_LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F77_LIBS} ; \
+	  ${LIBTOOL} --mode=link ${MPIF77_LNKR} -o ${builddir}/$${i}${EXE_EXT} ${builddir}/$${i}-updated${OBJ_EXT} ${MPI_FLAGS} ${F77_LDFLAGS} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${F77_LIBS} $(BLAS_LAPACK_LIBS) ; \
 	done
 
 install:

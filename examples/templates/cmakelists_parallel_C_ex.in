@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-10-25 20:03:42 $
+# $Revision: 1.2 $
+# $Date: 2009-02-17 02:58:47 $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -11,18 +11,23 @@
 # -----------------------------------------------------------------
 # CMakeLists.txt for @SOLVER@ parallel examples
 #
-# This file is generated from a template using the following 
-# substitution variables:
-#    SOLVER         SUNDIALS solver name
-#    EXAMPLES       list of examples
-#    includedir     path to SUNDIALS header files
-#    libdir         path to SUNDIALS libraries
-#    SOLVER_LIB     name of the SUNDIALS solver's library
-#    LIBS           additional libraries
+# This file is generated from a template using  various variables
+# set at configuration time. It can be used as a template for
+# other user CMakeLists configuration files.
 #
-# NOTE: this currently works only if using MPI compiler scripts
-#       (e.g. mpicc). A more general version would have to 
-#       attempt finding MPI...
+# Note: if the solver was successfully configured with Blas/Lapack
+# support, the Blas/Lapack libraries are specified through the 
+# variable LAPACK_LIBRARIES. Otherwise, this variable should contain
+# an empty string or LAPACK_LIBRARIES-NOTFOUND. If this variable 
+# contains a valid library entry, we add it to each example traget
+# whether they use the Lapack module or not. This is done in order
+# to address the case in which the SUNDIALS libraries are shared 
+# objects. In that case, the solver library references Lapack 
+# symbols which must be always resolved by linking against the
+# Blas/Lapack libraries. If only static SUNDIALS libraries have 
+# been built, it is not required to link the Blas/Lapack libraries
+# for examples that do not use that module...
+#
 # -----------------------------------------------------------------
 
 # Specify project name
@@ -62,8 +67,17 @@ FIND_LIBRARY(SUNDIALS_NVEC_LIB
 # Set additional libraries
 SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
+# Set Blas/Lapack libraries
+SET(LAPACK_LIBRARIES @BLAS_LAPACK_LIBS@ CACHE STRING "Lapack libraries")
+
+# List of all libraries
+SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_EXTRA_LIB})
+IF(LAPACK_LIBRARIES)
+  SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${LAPACK_LIBRARIES}")
+ENDIF(LAPACK_LIBRARIES)
+
 # Build each example one by one
 FOREACH(example ${examples})
   ADD_EXECUTABLE(${example} ${example}.c)
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_EXTRA_LIB})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 ENDFOREACH(example ${examples})

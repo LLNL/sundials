@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2007-12-19 20:26:42 $
+# $Revision: 1.3 $
+# $Date: 2009-02-17 02:58:47 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -67,17 +67,14 @@ SET(cpodes_HEADERS
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/cpodes/ cpodes_HEADERS)
 
 # If Blas/Lapack support was enabled, set-up additional file lists
-IF(LAPACK_OK)
+IF(LAPACK_FOUND)
   SET(cpodes_BL_SOURCES cpodes_lapack.c)
-  SET(shared_BL_SOURCES sundials_lapack.c)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_BL_SOURCES)
   SET(cpodes_BL_HEADERS cpodes_lapack.h)
   ADD_PREFIX(${sundials_SOURCE_DIR}/include/cpodes/ cpodes_BL_HEADERS)
-ELSE(LAPACK_OK)
+ELSE(LAPACK_FOUND)
   SET(cpodes_BL_SOURCES "")
-  SET(shared_BL_SOURCES "")
   SET(cpodes_BL_HEADERS "")
-ENDIF(LAPACK_OK)
+ENDIF(LAPACK_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files.
@@ -92,8 +89,7 @@ IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static CPODES library
   ADD_LIBRARY(sundials_cpodes_static STATIC
-    ${cpodes_SOURCES} ${cpodes_BL_SOURCES} 
-    ${shared_SOURCES} ${shared_BL_SOURCES})
+    ${cpodes_SOURCES} ${cpodes_BL_SOURCES} ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cpodes_static
@@ -109,8 +105,7 @@ IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the CPODES library
   ADD_LIBRARY(sundials_cpodes_shared SHARED
-    ${cpodes_SOURCES} ${cpodes_BL_SOURCES} 
-    ${shared_SOURCES} ${shared_BL_SOURCES})
+    ${cpodes_SOURCES} ${cpodes_BL_SOURCES} ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cpodes_shared
@@ -130,3 +125,6 @@ INSTALL(FILES ${cpodes_HEADERS} ${cpodes_BL_HEADERS} DESTINATION include/cpodes)
 
 # Install the CPODES implementation header file
 INSTALL(FILES cpodes_impl.h DESTINATION include/cpodes)
+
+#
+MESSAGE(STATUS "Added CPODES module")

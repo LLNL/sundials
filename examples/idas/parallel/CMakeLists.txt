@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2007-10-25 20:03:37 $
+# $Revision: 1.5 $
+# $Date: 2009-02-17 02:58:47 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -29,13 +29,13 @@ SET(IDAS_examples
 # If yes, then change the C compiler to the MPICC script.
 # If not, then add the MPI include directory for MPI headers.
 
-IF(MPI_USE_MPISCRIPTS)
+IF(MPI_MPICC)
   # use MPI_MPICC as the compiler
   SET(CMAKE_C_COMPILER ${MPI_MPICC})
-ELSE(MPI_USE_MPISCRIPTS)
+ELSE(MPI_MPICC)
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_USE_MPISCRIPTS)
+ENDIF(MPI_MPICC)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -48,19 +48,23 @@ ELSE(LINK_LIBRARY_TYPE MATCHES "static")
   SET(NVECP_LIB sundials_nvecparallel_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
+# Set-up linker flags and link libraries
+
+SET(SUNDIALS_LIBS ${IDAS_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+IF(LAPACK_FOUND)
+  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
+  SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${LAPACK_LIBRARIES}")
+ENDIF(LAPACK_FOUND)
+
 # Add the build and install targets for each IDAS example
 
 FOREACH(example ${IDAS_examples})
-  # add build target for example
   ADD_EXECUTABLE(${example} ${example}.c)
-  # link to the sundials libraries
-  TARGET_LINK_LIBRARIES(${example} ${IDAS_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
-  # if needed, link to the MPI libraries
-  IF(NOT MPI_USE_MPISCRIPTS)
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  ENDIF(NOT MPI_USE_MPISCRIPTS)
+  ENDIF(NOT MPI_MPICC)
   IF(EXAMPLES_INSTALL)
-    # install example files
     INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/parallel)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${IDAS_examples})
@@ -92,26 +96,23 @@ IF(EXAMPLES_INSTALL)
     DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/parallel 
     )
 
-  # On UNIX-type platforms, we have the option of generating and instaling
-  # a makefile for building the examples. This makefile can then be used
-  # as a template for the user's own programs.
+  # On UNIX-type platforms, we also  generate and install a makefile for 
+  # building the examples. This makefile can then be used as a template 
+  # for the user's own programs.
 
-  IF(EXAMPLES_GENERATE_MAKEFILES)
-
+  IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/idas/parallel/Makefile_ex
       @ONLY
       )
-
     # install the configured Makefile_ex as Makefile
     INSTALL(
       FILES ${PROJECT_BINARY_DIR}/examples/idas/parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/parallel
       RENAME Makefile
       )
-
-  ENDIF(EXAMPLES_GENERATE_MAKEFILES)
+  ENDIF(UNIX)
 
 ENDIF(EXAMPLES_INSTALL)

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2007-10-25 20:03:42 $
+# $Revision: 1.2 $
+# $Date: 2009-02-17 02:58:47 $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -11,29 +11,22 @@
 # -----------------------------------------------------------------
 # Makefile for @SOLVER@ parallel examples
 #
-# This file is generated from a template using the following 
-# substitution variables:
-#    prefix
-#    exec_prefix
-#    includedir
-#    libdir
+# This file is generated from a template using various variables
+# set at configuration time. It can be used as a template for
+# other user Makefiles.
 #
-#    CPP
-#    CPPFLAGS
-#    CC
-#    CFLAGS
-#    LDFLAGS
-#    LIBS
-#    MPICC
-#    MPI_INC_DIR
-#    MPI_LIB_DIR
-#    MPI_LIBS
-#    MPI_FLAGS
-#
-#    SOLVER         SUNDIALS solver name
-#    EXAMPLES       list of examples
-#    SOLVER_LIB     name of the SUNDIALS solver's library
-#
+# Note: if the solver was successfully configured with Blas/Lapack
+# support, the Blas/Lapack libraries are specified through the 
+# variable LIBRARIES_BL. Otherwise, this variable should contain
+# an empty string. We include LIBRARIES_BL in the link line for
+# all examples, even the parallel ones which obviously cannot 
+# use the Lapack linear solver modules simply to address the case 
+# in which the SUNDIALS libraries are shared objects. In that case, 
+# the solver library references Lapack  symbols which must be 
+# always resolved by linking against the Blas/Lapack libraries. 
+# If only static SUNDIALS libraries have been built, it is not 
+# required to link the Blas/Lapack libraries for the parallel 
+# examples...
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
@@ -57,6 +50,7 @@ MPI_FLAGS   = @MPI_FLAGS@
 
 INCLUDES = -I${includedir} -I${MPI_INC_DIR}
 LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparallel ${LIBS}
+LIBRARIES_BL = @BLAS_LAPACK_LIBS@
 
 EXAMPLES = @EXAMPLES@
 
@@ -73,8 +67,8 @@ OBJECTS = ${EXAMPLES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${MPICC} -o $${i} $${i}.o ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS}" ; \
-	  ${MPICC} -o $${i} $${i}.o ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ; \
+	  echo "${MPICC} -o $${i} $${i}.o ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL}" ; \
+	  ${MPICC} -o $${i} $${i}.o ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBRARIES_BL}; \
 	done
 
 clean:

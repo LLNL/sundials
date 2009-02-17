@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2007-12-19 20:33:59 $
+# $Revision: 1.5 $
+# $Date: 2009-02-17 02:58:47 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -41,18 +41,20 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 SET(FIDA_LIB sundials_fida_static)
 
+# Set-up linker flags and link libraries
+
+SET(SUNDIALS_LIBS ${FIDA_LIB} ${IDA_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+IF(LAPACK_FOUND)
+  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
+  SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${LAPACK_LIBRARIES}")
+ENDIF(LAPACK_FOUND)
+
 # Add the build and install targets for each FIDA example
 
 FOREACH(example ${FIDA_examples})
-  # add build target for example
   ADD_EXECUTABLE(${example} ${example}.f)
-  # link to the sundials libraries
-  TARGET_LINK_LIBRARIES(${example} 
-    ${FIDA_LIB} ${IDA_LIB}
-    ${FNVECS_LIB} ${NVECS_LIB}
-    ${EXTRA_LINK_LIBS})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(EXAMPLES_INSTALL)
-    # install example source and output files
     INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${FIDA_examples})
@@ -60,20 +62,15 @@ ENDFOREACH(example ${FIDA_examples})
 # If Lapack support is enabled, add the build and install targets for
 # the examples using Lapack
 
-IF(LAPACK_OK)
-  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
+IF(LAPACK_FOUND)
   FOREACH(example ${FIDA_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.f)
-    TARGET_LINK_LIBRARIES(${example} 
-      ${FIDA_LIB} ${IDA_LIB}
-      ${FNVECS_LIB} ${NVECS_LIB}
-      ${EXTRA_LINK_LIBS})
-    TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial)
     ENDIF(EXAMPLES_INSTALL)
   ENDFOREACH(example ${FIDA_examples_BL})
-ENDIF(LAPACK_OK)
+ENDIF(LAPACK_FOUND)
 
 IF(EXAMPLES_INSTALL)
 
@@ -85,11 +82,11 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_LIB "sundials_ida")
   SET(SOLVER_FLIB "sundials_fida")
   LIST2STRING(FIDA_examples EXAMPLES)
-  IF(LAPACK_OK)
+  IF(LAPACK_FOUND)
     LIST2STRING(FIDA_examples_BL EXAMPLES_BL)
-  ELSE(LAPACK_OK)
+  ELSE(LAPACK_FOUND)
     SET(EXAMPLES_BL "")
-  ENDIF(LAPACK_OK)
+  ENDIF(LAPACK_FOUND)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
@@ -108,26 +105,23 @@ IF(EXAMPLES_INSTALL)
     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial 
     )
 
-  # On UNIX-type platforms, we have the option of generating and instaling
-  # a makefile for building the examples. This makefile can then be used
-  # as a template for the user's own programs.
+  # On UNIX-type platforms, we also  generate and install a makefile for 
+  # building the examples. This makefile can then be used as a template 
+  # for the user's own programs.
 
-  IF(EXAMPLES_GENERATE_MAKEFILES)
-
+  IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_F77_ex.in
       ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/Makefile_ex
       @ONLY
       )
-
     # install the configured Makefile_ex as Makefile
     INSTALL(
       FILES ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/Makefile_ex 
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial 
       RENAME Makefile
       )
-
-  ENDIF(EXAMPLES_GENERATE_MAKEFILES)
+  ENDIF(UNIX)
 
 ENDIF(EXAMPLES_INSTALL)

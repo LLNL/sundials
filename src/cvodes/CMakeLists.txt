@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2007-12-19 20:34:00 $
+# $Revision: 1.4 $
+# $Date: 2009-02-17 02:58:47 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -67,17 +67,14 @@ SET(cvodes_HEADERS
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvodes/ cvodes_HEADERS)
 
 # If Blas/Lapack support was enabled, set-up additional file lists
-IF(LAPACK_OK)
+IF(LAPACK_FOUND)
   SET(cvodes_BL_SOURCES cvodes_lapack.c)
-  SET(shared_BL_SOURCES sundials_lapack.c)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_BL_SOURCES)
   SET(cvodes_BL_HEADERS cvodes_lapack.h)
   ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvodes/ cvodes_BL_HEADERS)
-ELSE(LAPACK_OK)
+ELSE(LAPACK_FOUND)
   SET(cvodes_BL_SOURCES "")
-  SET(shared_BL_SOURCES "")
   SET(cvodes_BL_HEADERS "")
-ENDIF(LAPACK_OK)
+ENDIF(LAPACK_FOUND)
 
 
 # Add source directories to include directories for access to
@@ -93,8 +90,7 @@ IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static CVODES library
   ADD_LIBRARY(sundials_cvodes_static STATIC 
-    ${cvodes_SOURCES}  ${cvodes_BL_SOURCES}
-    ${shared_SOURCES}  ${shared_BL_SOURCES})
+    ${cvodes_SOURCES}  ${cvodes_BL_SOURCES}  ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvodes_static
@@ -110,8 +106,7 @@ IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the CVODES library
   ADD_LIBRARY(sundials_cvodes_shared SHARED 
-    ${cvodes_SOURCES}  ${cvodes_BL_SOURCES}
-    ${shared_SOURCES}  ${shared_BL_SOURCES})
+    ${cvodes_SOURCES}  ${cvodes_BL_SOURCES}  ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvodes_shared
@@ -132,3 +127,5 @@ INSTALL(FILES ${cvodes_HEADERS}  ${cvodes_BL_HEADERS} DESTINATION include/cvodes
 # Install the CVODES implementation header file
 INSTALL(FILES cvodes_impl.h DESTINATION include/cvodes)
 
+#
+MESSAGE(STATUS "Added CVODES module")

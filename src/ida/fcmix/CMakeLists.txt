@@ -12,11 +12,11 @@ SET(fida_SOURCES
   fidaroot.c
   )
 
-IF(LAPACK_OK)
+IF(LAPACK_FOUND)
   SET(fida_BL_SOURCES fidalapack.c fidalapdense.c fidalapband.c)
-ELSE(LAPACK_OK)
+ELSE(LAPACK_FOUND)
   SET(fida_BL_SOURCES "")
-ENDIF(LAPACK_OK)
+ENDIF(LAPACK_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files (both for fida and ida)
@@ -39,3 +39,5 @@ SET_TARGET_PROPERTIES(sundials_fida_static
 
 # Install the FIDA library
 INSTALL(TARGETS sundials_fida_static DESTINATION lib)
+#
+MESSAGE(STATUS "Added IDA FCMIX module")

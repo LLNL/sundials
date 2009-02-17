@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2007-12-19 20:34:01 $
+# $Revision: 1.4 $
+# $Date: 2009-02-17 02:58:48 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -61,17 +61,14 @@ SET(kinsol_HEADERS
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_HEADERS)
 
 # If Blas/Lapack support was enabled, set-up additional file lists
-IF(LAPACK_OK)
+IF(LAPACK_FOUND)
   SET(kinsol_BL_SOURCES kinsol_lapack.c)
-  SET(shared_BL_SOURCES sundials_lapack.c)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_BL_SOURCES)
   SET(kinsol_BL_HEADERS kinsol_lapack.h)
   ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_BL_HEADERS)
-ELSE(LAPACK_OK)
+ELSE(LAPACK_FOUND)
   SET(kinsol_BL_SOURCES "")
-  SET(shared_BL_SOURCES "")
   SET(kinsol_BL_HEADERS "")
-ENDIF(LAPACK_OK)
+ENDIF(LAPACK_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files.
@@ -86,8 +83,7 @@ IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static KINSOL library
   ADD_LIBRARY(sundials_kinsol_static STATIC
-    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} 
-    ${shared_SOURCES} ${shared_BL_SOURCES})
+    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_kinsol_static
@@ -103,8 +99,7 @@ IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the KINSOL library
   ADD_LIBRARY(sundials_kinsol_shared SHARED
-    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} 
-    ${shared_SOURCES} ${shared_BL_SOURCES})
+    ${kinsol_SOURCES} ${kinsol_BL_SOURCES} ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_kinsol_shared
@@ -124,3 +119,6 @@ INSTALL(FILES ${kinsol_HEADERS} ${kinsol_BL_HEADERS} DESTINATION include/kinsol)
 
 # Install the KINSOL implementation header file
 INSTALL(FILES kinsol_impl.h DESTINATION include/kinsol)
+
+#
+MESSAGE(STATUS "Added KINSOL module")
