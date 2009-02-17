@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.51 $
-# $Date: 2007-12-19 20:33:58 $
+# $Revision: 1.52 $
+# $Date: 2009-02-17 03:11:47 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -90,10 +90,15 @@ AC_DISABLE_SHARED
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
+# Do we build shared libraries?
+# (enable_shared is set by the function AC_ENABLE_SHARED in libtool.m4)
+SHARED_LIBS="${enable_shared}"
+
 # Print a few more lines for configure --help
 SUNDIALS_MORE_HELP
 
 # Substitute variables
+AC_SUBST(SHARED_LIBS)
 AC_SUBST(MPICC)
 AC_SUBST(MPIF77)
 AC_SUBST(MPI_INC_DIR)
@@ -120,12 +125,6 @@ AC_SUBST(BLAS_LAPACK_LIBS)
 AC_SUBST(MPIF77_LNKR)
 AC_SUBST(OBJEXT)
 AC_SUBST(EXEEXT)
-AC_SUBST(MATLAB_CMD)
-AC_SUBST(MATLAB_CMD_FLAGS)
-AC_SUBST(MEXEXT)
-AC_SUBST(MEXOPTS)
-AC_SUBST(MEXFLAGS)
-AC_SUBST(MEXLDADD)
 AC_SUBST(SLV_MODULES)
 AC_SUBST(EXS_MODULES)
 AC_SUBST(EXS_INSTDIR)
