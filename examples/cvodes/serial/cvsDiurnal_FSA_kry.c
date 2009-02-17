@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:32 $
+ * $Revision: 1.2 $
+ * $Date: 2009-02-17 02:48:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -515,7 +515,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
-      denseAddI(P[jx][jz], NUM_SPECIES);
+      denseAddIdentity(P[jx][jz], NUM_SPECIES);
       ier = denseGETRF(P[jx][jz], NUM_SPECIES, NUM_SPECIES, pivot[jx][jz]);
       if (ier != 0) return(1);
     }

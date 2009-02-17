@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:32 $
+ * $Revision: 1.2 $
+ * $Date: 2009-02-17 02:48:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -486,7 +486,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   /* Add identity matrix and do LU decompositions on blocks. */
 
    for (ig = 0; ig < ngrp; ig++) {
-     denseAddI(P[ig], mp);
+     denseAddIdentity(P[ig], mp);
      ier = denseGETRF(P[ig], mp, mp, pivot[ig]);
      if (ier != 0) return(1);
    }
@@ -691,7 +691,7 @@ static int PrecondB(realtype t, N_Vector c,
   /* Add identity matrix and do LU decompositions on blocks. */
 
    for (ig = 0; ig < ngrp; ig++) {
-     denseAddI(P[ig], mp);
+     denseAddIdentity(P[ig], mp);
      ier = denseGETRF(P[ig], mp, mp, pivot[ig]);
      if (ier != 0) return(1);
    }

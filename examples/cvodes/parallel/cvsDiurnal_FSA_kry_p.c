@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-01-14 19:53:47 $
+ * $Revision: 1.3 $
+ * $Date: 2009-02-17 02:48:46 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -492,7 +492,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* Add identity matrix and do LU decompositions on blocks in place */
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      denseAddI(P[lx][ly], NVARS);
+      denseAddIdentity(P[lx][ly], NVARS);
       ier = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
       if (ier != 0) return(1);
     }

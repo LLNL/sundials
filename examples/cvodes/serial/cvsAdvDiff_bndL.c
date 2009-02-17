@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:32 $
+ * $Revision: 1.2 $
+ * $Date: 2009-02-17 02:48:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -259,9 +259,6 @@ static int Jac(int N, int mu, int ml,
   horac = data->hacoef;
   verdc = data->vdcoef;
 
-  /* Initialize Jacobian to 0 */
-  LapackBandZero(J);
-  
   /* set non-zero Jacobian entries */
   for (j=1; j <= MY; j++) {
     for (i=1; i <= MX; i++) {
