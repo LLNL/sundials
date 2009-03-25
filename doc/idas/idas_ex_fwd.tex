@@ -13,82 +13,137 @@ and a parallel one (\id{idasBruss\_FSA\_kry\_bbd\_p}) are provided in the follow
 two subsections.  For details on the other examples, the reader is
 directed to the comments in their source files.
 
+
+
 %--------------------------------------------------------------------
 \subsection{A serial dense example: idasSlCrank\_FSA\_dns}
 \label{ss:idasSlCrank_FSA_dns}
+To illustrate the use of {\idas} in a forward sensitivity analysis (FSA) problem, using
+the serial vector representation, we present in this section a problem from
+multibody system dynamics. Besides introducing the FSA capabilities of {\idas},
+this example also illustrates the proper treatment of such problems within {\ida} and {\idas}
+(a stabilized index reduction is required). 
 
-The \id{idasSlCrank\_FSA\_dns} program solves a system of index-2 DAEs, modeling a
-planar slider-crank mechanism.  The problem is obtained through a stabilized index
-reduction (Gear-Gupta-Leimkuhler) starting from the index-3 DAE equations of motion
-derived using three generalized coordinates and two algebraic position constraints.
+The multibody system considered here consists of two bodies (crank and connecting rod) with 
+a translational-spring-damper (TSDA) and a constant force acting on the connecting rod. 
+%%
+\begin{figure}
+  {\centerline{\epsfig{file=figs_slcrank/slider_crank.eps,width=\textwidth}}}
+  \caption{Slider-crank mechanism modeled with 3 generalized coordinates.}
+  \label{f:sl_crank}
+\end{figure}
+%%
+The system has a single degree of freedom. It is modeled with the 3 generalized coordinates
+indicated in Fig.~\ref{f:sl_crank} (crank angle, angle of the connecting rod, and horizontal
+position of the translational joint) and therefore has 2 constraints.
+%%
+The local reference frame on the crank is positioned at the revolute joint on the ground. 
+The crank has length $a$, mass $m_1$, and intertia (with respect to the local frame) $J_1$.
+The local reference frame on the conncting rod is positioned at the translational joint. 
+The connecting rod has length $2$, mass $m_2$, and inertia $J_2$.
+The TSDA has spring constant $k$, damping constant $c$, and free length $l_0$.
+A constant horizontal force $F$ acts on the connecting rod.
 
-The dependent variables are: three generalized coordinates --- crank
-angle $q$, connecting bar angle $p$, and slider location $x$; their
-speeds --- $v_q$, $v_p$, $v_x$; and four multipliers
-$\lambda_1, \lambda_2, \mu_1, \mu_2$.
-
-The equations of the system are as follows:
-\begin{equation*}
+The equations of motion can be written as
+\begin{equation}
+  \begin{split}
+    M(y) \ddot y &= Q(y,\dot y) - \Phi_y^T(y) \lambda \\
+    \Phi(y)     &= 0 ~,
+  \end{split}
+\end{equation}
+where $y \in R^3$ is the vector of generalized coordinates, $M(y)$ is the generalized mass
+matrix, and $Q$ is a vector of generalized applied forces. $\Phi(y) \in R^2$ represents the
+(algebraic) position-level constraints and $\Phi_y$ is its Jacobian with respect to $y$.
+$\lambda \in R^2$ are Lagrange multipliers corresponding to the constraint forces.
+%%
+For its solution with {\idas}, the above index-3 DAE is reformulated as a stabilized 
+index-2 DAE (Gear-Gupta-Leimkhuler formulation) by introducing 2 additional Lagrange 
+multipliers $\mu$ and appending the velocity constraints.
+Converting to 1st order differential equations, we obtain:
+\begin{equation}\label{e:GGLform}
 \begin{split}
-  &dq/dt = v_q - a \sin(q) \mu_1 + a \cos(q) \mu_2 \\
-  &dp/dt = v_p - \sin(p) \mu_1 + \cos(p) \mu_2 \\
-  &dx/dt = v_x - \mu_1 \\
-  &J_1 dv_q/dt = F_q - a \sin(q) \lambda_1 + a \cos(q) \lambda_2 \\
-  &J_2 dv_p/dt = F_p - \sin(p) \lambda_1 + \cos(p) \lambda_2 \\
-  &m_2 dv_x/dt = F_x - \lambda_1 \\
-  &x = \cos(p) + a \cos(q) \\
-  &0 = \sin(p) + a \sin(q) \\
-  &v_x = -a \sin(q) v_q - \sin(p) v_p \\
-  &0 = a \cos(q) v_q + \cos(p) v_p
+  \dot y &= v - \Phi_y^T(y) \mu  \\
+  M(y) \dot v &= Q(y,v) - \Phi_y^T(y) \lambda \\
+  \Phi(y)     &= 0 \\
+  \Phi_y(y) v &= 0 ~,
 \end{split}
-\end{equation*}
-Here $a = 0.5$ is the half-length of the crank, $J_1 = 1$ is the moment of
-inertia of the crank, $J_2 = 2$ is the moment of inertial of the connecting rod,
-and $m_2 = 1$ is the mass of the connecting rod.  The force terms are given by:
-\begin{equation*}
-\begin{split}
-  &F_q = - (f/l) a [\sin(p-q)/2 + x \sin(q)]/2 \\
-  &F_p = - (f/l) [ x \sin(p) - a \sin(p-q)/2]/2 - F_e \sin(p) \\
-  &F_x = (f/l) [\cos(p)/2 - x + a \cos(q)/2 ] + F_e ~~~~ \mbox{where}  \\
-  &\ell^2 = x^2 - x [\cos(p) + a\cos(q)] + (1 + a^2)/4 + a \cos(p-q)/2 \\
-  &2 \ell {\ell}' = 2 x v_x - v_x [\cos(p) + a\cos(q)] + x [\sin(p)v_p + a\sin(q)v_q]
-                   - a \sin(p-q) (v_p-v_q)/2 \\
-  &f = k (\ell - \ell_0) + c {\ell}'
-\end{split}
-\end{equation*}
-Here $F_e = 1$ is a constant external force, $k = 1$ is the spring constant,
-$c = 1$ is the damper constant, and $\ell_0 = 1$ is the spring free length.
-The time interval is $0 \leq t \leq t_f = 10$.  The initial conditions (at $t = 0$)
+\end{equation}
+where $v = \dot q$ are the generalized velocities.
+
+For the mechanical system under consideration, the position constraints can be written as
+\begin{equation}
+  \Phi(y) = \begin{bmatrix}
+    y_3 - a \cos(y_1) - a \cos(y_2) \\
+    a \sin(y_1) + \sin(y_2)
+  \end{bmatrix}
+\end{equation}
+while the generalized force takes the form
+%%
+\begin{equation}
+  Q(y, v) = \begin{bmatrix}
+    - (f/\ell) a [\sin(y_2-y_1)/2 + y_3 \sin(y_1)]/2 \\
+    - (f/\ell) [ y_3 \sin(y_2) - a \sin(y_2-y_1)/2]/2 - F \sin(y_2) \\
+    (f/\ell) [\cos(y_2)/2 - y_3 + a \cos(y_1)/2 ] + F
+  \end{bmatrix} ~,
+\end{equation}
+where
+\begin{equation}
+  \begin{split}
+    f = & k (\ell - \ell_0) + c {\ell}' \\
+    \ell^2 = & y_3^2 - y_3 [\cos(y_2) + a \cos(y_1)] + (1 + a^2)/4 + a \cos(y_2-y_1)/2 \\
+    2 \ell {\ell}' = & 2 y_3 v_3 - v_3 [\cos(y_2) + a \cos(y_1)] + y_3 [\sin(y_2)v_2 + a\sin(y_1)v_1] \\
+    & - a \sin(y_2-y_1) (v_2-v_1)/2 ~.
+  \end{split}
+\end{equation}
+The generalized mass matrix is diagonal : $M = diag \{J_1, J_2, m_2\}$.
+
+
+The system (\ref{e:GGLform}) is solved with {\idas} using a state vector
+$Y = [y, v, \lambda, \mu] \in R^{10}$.   The initial conditions (at $t = 0$)
 are set to consistent values, given as follows:
 \begin{equation*}
-\begin{split}
-  &q = \pi/2 \\
-  &p = \arcsin(-a) \\
-  &x = \cos(p) \\
-  &v_q = v_p = v_x = 0 \\
-  &\lambda_1 = \lambda_2 = \mu_1 = \mu_2 = 0 \\
-  &dq/dt = dp/dt = dx/dt = 0 \\
-  &dv_q/dt = \left[F_q\right]_{t=0} / J_1 \\
-  &dv_p/dt = \left[F_p\right]_{t=0} / J_2 \\
-  &dv_x/dt = \left[F_x\right]_{t=0} / m_2 \\
-  &d\lambda_1/dt = d\lambda_2/dt = d\mu_1/dt = d\mu_2/dt = 0
-\end{split}
+  \begin{split}
+    &y_1 = \pi/2 \\
+    &y_2 = \arcsin(-a) \\
+    &y_3 = \cos(y_2) \\
+    &v_1 = v_2 = v_3 = 0 \\
+    &\lambda_1 = \lambda_2 = \mu_1 = \mu_2 = 0 \\
+    &dy_1/dt = dy_2/dt = dy_3/dt = 0 \\
+    &dv_1/dt = \left[Q_1\right]_{t=0} / J_1 \\
+    &dv_2/dt = \left[Q_2\right]_{t=0} / J_2 \\
+    &dv_3/dt = \left[Q_3\right]_{t=0} / m_2 \\
+    &d\lambda_1/dt = d\lambda_2/dt = d\mu_1/dt = d\mu_2/dt = 0 ~.
+  \end{split}
 \end{equation*}
+The problem is solved with a relative tolerance of $10^{-6}$ and a (scalar) absolute tolerance
+of $10^{-7}$. Note that the algebraic variables $\lambda$ and $\mu$ are excluded from the error
+test (by specifying them through \id{IDASetId} and invoking \id{IDASetSuppressAlg}).
 
-In addition to solving the DAE system, the program uses {\idas} to compute
-the time-average of the kinetic energy, as a quadrature:
 
-\begin{equation*}
-\begin{split}
-  &G = \int_0^{t_f} g(t,y) \\
-  &g(t,y) = (1/2)[J_1 (v_q)^2 - a^2 (v_q)^2/8 + J_2 (v_p)^2 + m_2 (v_x)^2 ]
-\end{split}
-\end{equation*}
+\begin{figure}
+  {\centerline{\epsfig{file=figs_slcrank/x2sensi.eps,width=\textwidth}}}
+  \caption{Sensitivities of the solution component $y_3$ with respect to the TSDA parameters.}
+  \label{f:x2sensi}
+\end{figure}
+%%
+The two parameters of the TSDA, $k$ and $c$, are considered in a forward
+sensitivity analysis of this model. Solution sensitivities with respect
+to those parameters are computed and then used to estimate the gradient
+of the integrated kinetic energy of the system,
+\begin{equation}
+  G = \int_{t_0}^{t_f} \left(    
+    \frac{1}{2} J_1 \dot y_1^2 + \frac{1}{2} J_2 \dot y_3^2 + \frac{1}{2} m_1 a^2 \dot y_1^2 + \frac{1}{2} m_2 \dot y_2^2
+  \right) \, dt \, ,
+\end{equation}
+which is then compared against that approximated with (backward, forward, and central) finite differences.
+%%
+The sensitivity residuals are evaluated using the {\idas} internal finite-difference approximation.
+Computation of the gradient of the integral in $G$ takes advantage of the {\idas} feature for computing
+sensitivities of pure quadrature equations.
 
-This program uses the Forward Sensitivity Analysis capabilities of {\idas}
-to compute the sensitivities $dG/dk$ and $dG/dc$ with respect to the
-parameters $k$ and $c$.
-
+Figure \ref{f:x2sensi} shows the sensitivities of the horizontal position of the translational joint 
+($y_3$) with respect to the TSDA parameters $k$ and $c$, superimposed over the solution itself.
+ 
 
 The following output is generated by \id{idasSlCrank\_FSA\_dns} when computing
 sensitivities with the \id{IDA\_SIMULTANEOUS} method and full error
