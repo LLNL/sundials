@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2009-02-17 03:11:47 $
+# $Revision: 1.9 $
+# $Date: 2009-03-25 18:32:37 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -654,14 +654,8 @@ IF(EXAMPLES_ENABLE)
   
   IF(BUILD_CVODES)	
     ADD_SUBDIRECTORY(examples/cvodes/serial)
-    IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/test_examples/cvodes/serial")
-      ADD_SUBDIRECTORY(test_examples/cvodes/serial)
-    ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/test_examples/cvodes/serial")
     IF(MPIC_FOUND)
       ADD_SUBDIRECTORY(examples/cvodes/parallel)
-      IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/test_examples/cvodes/parallel")
-        ADD_SUBDIRECTORY(test_examples/cvodes/parallel)
-      ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/test_examples/cvodes/parallel")
     ENDIF(MPIC_FOUND)
   ENDIF(BUILD_CVODES)
   
