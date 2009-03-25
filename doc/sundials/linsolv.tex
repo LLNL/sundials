@@ -256,12 +256,16 @@ in the {\dense} package.  For full details, see the header files
 \item \id{NewRealArray}: allocation of an array of \id{realtype} for use
   as right-hand side with \id{DenseGETRS};
 \item \id{DestroyArray}: free memory for an array;
-\item \id{DenseGETRF}: LU factorization with partial pivoting;
-\item \id{DenseGETRS}: solution of $Ax = b$ using LU factorization (for square matrices $A$);
-\item \id{DenseZero}: load a matrix with zeros;
+\item \id{SetToZero}: load a matrix with zeros;
+\item \id{AddIdentity}: increment a square matrix by the identity matrix;
 \item \id{DenseCopy}: copy one matrix to another;
 \item \id{DenseScale}: scale a matrix by a scalar;
-\item \id{DenseAddI}: increment a square matrix by the identity matrix;
+\item \id{DenseGETRF}: LU factorization with partial pivoting;
+\item \id{DenseGETRS}: solution of $Ax = b$ using LU factorization (for square matrices $A$);
+\item \id{DensePOTRF}: Cholesky factorization of a real symmetric positive matrix;
+\item \id{DensePOTRS}: solution of $Ax = b$ using the Cholesky factorization of $A$;
+\item \id{DenseGEQRF}: QR factorization of an $m \times n$ matrix, with $m \ge n$;
+\item \id{DenseORMQR}: compute the product $w = Qv$, with $Q$ calculated using \id{DenseGEQRF};
 \end{itemize}
 \index{DENSE@{\dense} generic linear solver!functions!large matrix|)}
 
@@ -298,6 +302,18 @@ The following functions for small dense matrices are available in the
 
 \item \ID{destroyArray}
   \par \id{destroyArray(p)} frees the array \id{p} allocated by \id{newIntArray} or \id{newRealArray};
+
+\item \ID{denseCopy}
+  \par \id{denseCopy(a,b,m,n)} copies the \id{m} by \id{n} dense matrix \id{a} into the
+  \id{m} by \id{n} dense matrix \id{b};
+
+\item \ID{denseScale}
+  \par \id{denseScale(c,a,m,n)} scales every element in the \id{m} by \id{n} dense
+  matrix \id{a} by the scalar \id{c};
+
+\item \ID{denseAddIdentity}
+  \par \id{denseAddIdentity(a,n)} increments the {\em square} \id{n} by \id{n} dense matrix 
+  \id{a} by the identity matrix $I_n$;
 
 \item \ID{denseGETRF}
   \par \id{denseGETRF(a,m,n,p)} factors the \id{m} by \id{n} dense matrix \id{a},
@@ -336,21 +352,30 @@ The following functions for small dense matrices are available in the
   and the pivot array \id{p} has been set by a successful call to 
   \id{denseGETRF(a,n,n,p)}. The solution $x$ is written into the \id{b} array.
 
-\item \ID{denseZero}
-  \par \id{denseZero(a,m,n)} sets all the elements of the \id{m} by \id{n} dense matrix
-  \id{a} to be $0.0$;
+\item \ID{densePOTRF}
+  \par \id{densePOTRF(a,m)} calculates the Cholesky decomposition of the \id{m} by \id{m}
+  dense matrix \id{a}, assumed to be symmetric positive definite. Only the lower triangle
+  of \id{a} is accessed and overwritten with the Cholesky factor.
 
-\item \ID{denseCopy}
-  \par \id{denseCopy(a,b,m,n)} copies the \id{m} by \id{n} dense matrix \id{a} into the
-  \id{m} by \id{n} dense matrix \id{b};
+\item \ID{densePOTRS}
+  \par \id{densePOTRS(a,m,b)} solves the \id{m} by \id{m} linear system $ax = b$.
+  It assumes that the Cholesky factorization of \id{a} has been calculated in the
+  lower triangular part of \id{a} by a successful call to \id{densePOTRF(a,m)}.
 
-\item \ID{denseScale}
-  \par \id{denseScale(c,a,m,n)} scales every element in the \id{m} by \id{n} dense
-  matrix \id{a} by \id{c};
+\item \ID{denseGEQRF}
+  \par \id{denseGEQRF(a,m,n,beta,wrk)} calculates the QR decomposition of the \id{m} by \id{n}
+  matrix \id{a} (\id{m} $\ge$ \id{n}) using Householder reflections. On exit, the elements
+  on and above the diagonal of \id{a} contain the \id{n} by \id{n} upper triangular matrix \id{R};
+  the elements below the diagonal, with the array \id{beta}, represent the orthogonal matrix \id{Q}
+  as a product of elementary reflectors. The real array \id{wrk}, of length \id{m}, must be provided
+  as temporary workspace.
 
-\item \ID{denseAddI}
-  \par \id{denseAddI(a,n)} increments the {\em square} \id{n} by \id{n} dense matrix 
-  \id{a} by the identity matrix $I_n$;
+\item \ID{denseORMQR}
+  \par \id{denseORMQR(a,m,n,beta,v,w,wrk)} calculates the product $w = Qv$ for a given vector
+  \id{v} of length \id{n}, where the orthogonal matrix $Q$ is encoded in the \id{m} by \id{n}
+  matrix \id{a} and the vector \id{beta} of length \id{n}, after a successful call to
+  \id{denseGEQRF(a,m,n,beta,wrk)}. The real array \id{wrk}, of length \id{m}, must be provided
+  as temporary workspace.
 
 \end{itemize}
 \index{DENSE@{\dense} generic linear solver!functions!small matrix|)}
@@ -379,12 +404,12 @@ in the {\band} package.  For full details, see the header files
 \item \id{NewRealArray}: allocation of an array of \id{realtype} for use
   as right-hand side with \id{BandGBRS};
 \item \id{DestroyArray}: free memory for an array;
-\item \id{BandGBTRF}: LU factorization with partial pivoting;
-\item \id{BandGBTRS}: solution of $Ax = b$ using LU factorization;
-\item \id{BandZero}: load a matrix with zeros;
+\item \id{SetToZero}: load a matrix with zeros;
+\item \id{AddIdentity}: increment a square matrix by the identity matrix;
 \item \id{BandCopy}: copy one matrix to another;
 \item \id{BandScale}: scale a matrix by a scalar;
-\item \id{BandAddI}: increment a matrix by the identity matrix;
+\item \id{BandGBTRF}: LU factorization with partial pivoting;
+\item \id{BandGBTRS}: solution of $Ax = b$ using LU factorization;
 \end{itemize}
 \index{BAND@{\band} generic linear solver!functions|)}
 
@@ -413,6 +438,18 @@ The following functions for small band matrices are available in the
 \item \ID{destroyArray}
   \par \id{destroyArray(p)} frees the array \id{p} allocated by \id{newIntArray} or \id{newRealArray};
 
+\item \ID{bandCopy}
+  \par \id{bandCopy(a,b,n,a\_smu, b\_smu,copymu, copyml)} copies the \id{n} by \id{n} band 
+  matrix \id{a} into the \id{n} by \id{n} band matrix \id{b};
+
+\item \ID{bandScale}
+  \par \id{bandScale(c,a,n,mu,ml,smu)} scales every element in the \id{n} by \id{n} band
+  matrix \id{a} by \id{c};
+
+\item \ID{bandAddIdentity}
+  \par \id{bandAddIdentity(a,n,smu)} increments the \id{n} by \id{n} band matrix \id{a} by the
+  identity matrix;
+
 \item \ID{bandGETRF}
   \par \id{bandGETRF(a,n,mu,ml,smu,p)} factors the \id{n} by \id{n} band matrix \id{a},
   using Gaussian elimination with row pivoting. 
@@ -424,22 +461,6 @@ The following functions for small band matrices are available in the
   It assumes that \id{a} (of size \id{n} $\times$ \id{n}) has been LU-factored 
   and the pivot array \id{p} has been set by a successful call to 
   \id{bandGETRF(a,n,mu,ml,smu,p)}. The solution $x$ is written into the \id{b} array.
-
-\item \ID{bandZero}
-  \par \id{bandZero(a,n,mu,ml,smu)} sets all the elements of the \id{n} by \id{n} band matrix
-  \id{a} to be $0.0$;
-
-\item \ID{bandCopy}
-  \par \id{bandCopy(a,b,n,a\_smu, b\_smu,copymu, copyml)} copies the \id{n} by \id{n} band 
-  matrix \id{a} into the \id{n} by \id{n} band matrix \id{b};
-
-\item \ID{bandScale}
-  \par \id{bandScale(c,a,n,mu,ml,smu)} scales every element in the \id{n} by \id{n} band
-  matrix \id{a} by \id{c};
-
-\item \ID{bandAddI}
-  \par \id{bandAddI(a,n,smu)} increments the \id{n} by \id{n} band matrix \id{a} by the
-  identity matrix;
 
 \end{itemize}
 \index{BAND@{\band} generic linear solver!functions!small matrix|)}
