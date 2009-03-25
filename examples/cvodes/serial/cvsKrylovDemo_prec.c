@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-02-17 02:48:46 $
+ * $Revision: 1.3 $
+ * $Date: 2009-03-25 23:30:21 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -276,8 +276,8 @@ int main()
         flag = CVSpilsSetGSType(cvode_mem, gstype);
         if(check_flag(&flag, "CVSpilsSetGSType", 1)) return(1);
 
-        flag = CVSpilsSetDelt(cvode_mem, DELT);
-        if(check_flag(&flag, "CVSpilsSetDelt", 1)) return(1);
+        flag = CVSpilsSetEpsLin(cvode_mem, DELT);
+        if(check_flag(&flag, "CVSpilsSetEpsLin", 1)) return(1);
 
         flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
         if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
