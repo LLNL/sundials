@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2009-02-17 02:58:47 $
+# $Revision: 1.8 $
+# $Date: 2009-03-25 23:10:50 $
 # -----------------------------------------------------------------
 # Programmer: Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -80,7 +80,7 @@ rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
 
 all: $(CPODES_LIB)
 
-$(CPODES_LIB):
+$(CPODES_LIB): shared $(CPODES_LIB_FILES)
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
 	  make lib_with_bl;                          \
 	else                                         \

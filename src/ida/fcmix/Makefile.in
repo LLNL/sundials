@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2007-12-19 20:34:01 $
+# $Revision: 1.8 $
+# $Date: 2009-03-25 23:10:50 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -64,7 +64,7 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 
 all: $(FIDA_LIB)
 
-$(FIDA_LIB):
+$(FIDA_LIB): $(FIDA_LIB_FILES)
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
 	  make lib_with_bl;                          \
 	else                                         \
