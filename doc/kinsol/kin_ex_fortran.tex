@@ -25,9 +25,7 @@ They solve the nonlinear system
 
 \subsection{A serial example: fkinDiagon\_kry}\label{ss:fkinDiagon_kry}
 
-The \id{fkinDiagon\_kry} program, for which the source code is listed
-in Appendix~\ref{s:fkinDiagon_kry_f} of this document, solves the
-above problem using the {\nvecs} module.
+The \id{fkinDiagon\_kry} program solves the above problem using the {\nvecs} module.
 
 The main program begins by calling \id{fnvinits} to initialize computations
 with the {\nvecs} module. Next, the array \id{uu} is set to contain
@@ -74,9 +72,8 @@ The following is sample output from \id{fkinDiagon\_kry}, using $N = 128$.
 
 \subsection{A parallel example: fkinDiagon\_kry\_p}\label{ss:fkinDiagon_kry_p}
 
-The program \id{fkinDiagon\_kry\_p}, listed in Appendix~\ref{s:fkinDiagon_kry_p_f}
-of this document, is a straightforward modification of \id{fkinDiagon\_kry}
-to use the {\mpi}-enabled {\nvecp} module.
+The program \id{fkinDiagon\_kry\_p} is a straightforward modification of 
+\id{fkinDiagon\_kry} to use the {\mpi}-enabled {\nvecp} module.
 
 After initialization of {\mpi}, the {\nvecp} module is initialized by calling
 \id{fnvinitp} with the default {\mpi} communicator \id{mpi\_comm\_world} and

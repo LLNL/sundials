@@ -252,12 +252,10 @@ should include the header file \id{idas.h} instead of \id{ida.h}, and
 {\em builddir}\id{/lib/libsundials\_idas.}{\em lib} instead of
 {\em builddir}\id{/lib/libsundials\_ida.}{\em lib}.
 
-The Appendices contain complete listings
-of the examples described below.  We also give our output files for
-each of these examples, but users should be cautioned that their
-results may differ slightly from these.  Differences in solution
-values may differ within the tolerances, and differences in cumulative
-counters, such as numbers of steps or Newton iterations, may differ
+We also give our output files for each of thes examples described below,
+but users should be cautioned that their results may differ slightly from these.
+Differences in solution values may differ within the tolerances, and differences
+in cumulative counters, such as numbers of steps or Newton iterations, may differ
 from one machine environment to another by as much as 10\% to 20\%.
 
 In the descriptions below, we make frequent references to the {\idas}
@@ -268,8 +266,8 @@ explicitly stated otherwise.
 \vspace{0.2in}\noindent {\bf Note}
 The examples in the {\idas} distribution were written in such a way as
 to compile and run for any combination of configuration options during
-the installation of {\sundials} (see \ugref{c:install}). As a consequence,
-they contain portions of code that will not typically be present in a
+the installation of {\sundials} (see Appendix \ugref{c:install} in the User Guide).
+As a consequence, they contain portions of code that will not typically be present in a
 user program. For example, all example programs make use of the
 variables \id{SUNDIALS\_EXTENDED\_PRECISION} and \id{SUNDIALS\_DOUBLE\_PRECISION}
 to test if the solver libraries

@@ -71,10 +71,8 @@ and
   \end{split}
 \end{equation}
 
-The source file for this problem, \id{cvsAdvDiff\_FSA\_non.c}, is listed in 
-Appendix \ref{s:cvsAdvDiff_FSA_non_c} in this document.  It uses the Adams
-(non-stiff) integration formula and functional iteration.  This problem is
-unrealistically simple\footnote{Increasing the number of grid points to better
+This problem uses the Adams (non-stiff) integration formula and functional iteration.
+It is unrealistically simple\footnote{Increasing the number of grid points to better
 resolve the PDE spatially will lead to a stiffer ODE for which the Adams integration
 formula will not be suitable.},
 but serves to illustrate use of the forward sensitivity capabilities in {\cvodes}.
@@ -188,8 +186,6 @@ The sensitivity systems that are solved together with (\ref{e:cvsRoberts_FSA_dns
   \end{split}
 \end{equation}
 
-The source code for this example is listed in Appendix \ref{s:cvsRoberts_FSA_dns_c}
-in this document.
 The main program is described below with emphasis on the sensitivity related components. 
 These explanations, together with those given for the code \id{cvRoberts\_dns}
 in~\cite{cvode_ex}, will also provide the user with a template for instrumenting 
@@ -329,8 +325,6 @@ a test problem (derived from \id{cvDiurnal\_kry\_p}) that solves the
 semi-discrete form of a two-species diurnal kinetics advection-diffusion PDE 
 system in 2-D space, for which we also compute solution sensitivities with respect to 
 problem parameters ($q_1$ and $q_2$) that appear in the kinetic rate terms.
-The source code for this example is listed in Appendix \ref{s:cvsDiurnal_FSA_kry_p_c}
-in this document.
 
 The PDE system is
 %%

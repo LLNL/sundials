@@ -7,7 +7,6 @@
 As an example of using {\ida} with the parallel MPI {\nvecp} module and the Krylov 
 linear solver {\idaspgmr} with user-defined preconditioner, we provide the example
 \id{idaHeat2D\_kry\_p} which solves the same 2-D heat PDE problem as \id{idaHeat2D\_kry}. 
-The source is listed in Appendix~\ref{s:idaHeat2D_p_c} in this document.
 
 In the parallel setting, we can think of the processors as being laid out
 in a grid of size \id{NPEX} $\times$ \id{NPEY}, with each processor computing
@@ -64,8 +63,7 @@ Sample output from \id{idaHeat2D\_kry\_p} follows.
 In this example, we solve the same food web problem as with
 \id{idaFoodWeb\_bnd}, but in parallel and with the {\idaspgmr} linear solver and
 using the {\idabbdpre} module, which generates and uses a band-block-diagonal 
-preconditioner.  The source is listed in Appendix~\ref{s:idaFoodWeb_bbd_p_c}
-in this document.
+preconditioner.
 
 As with \id{idaHeat2D\_kry\_p}, we use a \id{NPEX} $\times$ \id{NPEY} processor grid, with
 an \id{MXSUB} $\times$ \id{MYSUB} submesh on each processor.  Again, the residual

@@ -19,8 +19,7 @@ changed to {\tt 0.5E-4}.
 \subsection{A serial example: fidaRoberts\_dns}\label{ss:fidaRoberts}
 
 The \id{fidaRoberts\_dns} example is a {\F} equivalent of the
-\id{idaRoberts\_dns} example.  The source program \id{fidaRoberts\_dns.f}
-is listed in Appendix~\ref{s:fidaRoberts_f} in this document.
+\id{idaRoberts\_dns} example.
 
 The main program begins with declarations and initializations.  
 It calls the routines \id{FNVINITS}, \id{FIDAMALLOC}, \id{FIDAROOTINIT}, 
@@ -60,9 +59,7 @@ This example, \id{fidaHeat2D\_kry\_bbd\_p}, is the {\F} equivalent of
 under the \id{idaHeat2D\_kry} example above, but here it is solved in
 parallel, using the {\idabbdpre} (band-block-diagonal) preconditioner
 module.  The decomposition of the problem onto a processor array is
-identical to that in the \id{idaHeat2D\_kry\_p} example above.  The source file,
-\id{fidaHeat2D\_kry\_bbd\_p.f}, is listed in Appendix~\ref{s:fidaHeat2D_bbd_p}
-in this document.
+identical to that in the \id{idaHeat2D\_kry\_p} example above.
 
 The problem is solved twice --- once with half-bandwidths of 5 in the
 difference-quotient banded preconditioner blocks, and once with

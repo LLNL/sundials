@@ -22,8 +22,7 @@ While integrating the system, the program also use the rootfinding
 feature to find the points at which $y_1 = 10^{-4}$ or at which
 $y_3 = 0.01$.
 
-For the source, listed in Appendix~\ref{s:idaRoberts_c} in this document,
-we give a rather detailed explanation of the parts of the program and
+We give a rather detailed explanation of the parts of the program and
 their interaction with {\ida}.
 
 Following the initial comment block, this program has a number
@@ -246,9 +245,8 @@ equations, all coupled.
 For this example, we take $p = 1, s = 2$, and $L = 20$.
 The Jacobian is banded, with half-bandwidths \id{mu = ml} $= sL = 40$.
 
-The \id{idaFoodWeb\_bnd.c} program, listed in Appendix~\ref{s:idaFoodWeb_c}
-in this document,
-includes the file \id{ida\_band.h} in order to use the {\idaband} linear solver. 
+The \id{idaFoodWeb\_bnd.c} program includes the file \id{ida\_band.h} in order
+to use the {\idaband} linear solver. 
 This file contains the prototype for the \id{IDABand} routine,
 the definition for the band matrix type \id{DlsMat (type=2)}, and the
 \id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
@@ -355,8 +353,7 @@ consists of the values $u(x_j,y_k,t)$ grouped first by $x$, and then
 by $y$.  Each discrete boundary condition becomes an algebraic equation
 within the DAE system.
 
-The source for this example is listed in Appendix~\ref{s:idaHeat2D_c} in this
-document. In this case, \id{ida\_spgmr.h} is included for the definitions of
+In this case, \id{ida\_spgmr.h} is included for the definitions of
 constants and function prototypes associated with the {\spgmr} method.
 
 After various initializations (including a vector of constraints with

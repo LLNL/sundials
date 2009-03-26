@@ -19,8 +19,6 @@ changed to {\tt 0.5E-4}.
 \subsection{A serial example: fcvDiurnal\_kry}\label{ss:fcvDiurnal} 
 The \id{fcvDiurnal\_kry} example is a {\F} equivalent of the \id{cvDiurnal\_kry} problem.
 (In fact, it was derived from an earlier {\F} example program for VODPK.)
-The source program \id{fcvDiurnal\_kry.f} is listed in Appendix \ref{s:fcvDiurnal_f}
-in this document.
 
 The main program begins with a call to \id{INITKX}, which sets problem
 parameters, loads these into arrays \id{IPAR} and \id{RPAR} for use by other
@@ -70,8 +68,7 @@ Since the system Jacobian is diagonal, the half-bandwidths specified
 are all zero.  The problem is solved twice --- with preconditioning on
 the left, then on the right.
 
-The source file, \id{fcvDiag\_kry\_bbd\_p.f}, is listed in Appendix
-\ref{s:fcvDiag_bbd_p_f} in this document. It begins with MPI calls to initialize
+The source file for this problem begins with MPI calls to initialize
 MPI and to get the number of processors and local processor index.
 Following the call to \id{FCVMALLOC}, the linear solver specification is done with
 calls to \id{FCVSPGMR} and \id{FCVBBDINIT}.  In a loop over \id{TOUT}

@@ -41,11 +41,9 @@ vector to its right-hand neighbor, and acquire the first component of that
 neighbor's block. If the processor is the first ($0$th) or last processor,
 then communication to the left or right (respectively) is not required.
 
-The source file for this problem, \id{cvAdvDiff\_non\_p.c}, is listed
-in Appendix \ref{s:cvAdvDiff_p_c} in this document.  It uses the Adams
-(non-stiff) integration formula and functional iteration.  This
-problem is unrealistically simple, but serves to illustrate use of the
-parallel version of CVODE.
+This problem uses the Adams (non-stiff) integration formula and functional
+iteration.  It is unrealistically simple, but serves to illustrate
+use of the parallel version of CVODE.
 
 The \id{cvAdvDiff\_non\_p.c} file begins with \id{\#include} declarations for
 various required header files, including lines for
@@ -144,8 +142,6 @@ edge of the processor is similar. If this is the last processor in a
 particular direction, then message passing and receiving are bypassed
 for that direction.
 
-The code listing for this example is given in Appendix \ref{s:cvDiurnal_p_c}
-in this document.
 The purpose of this code is to provide a more realistic example than
 that in \id{cvAdvDiff\_non\_p}, and to provide a template for a stiff ODE system
 arising from a PDE system. The solution method is BDF with Newton
@@ -191,8 +187,7 @@ costs for preconditioning, we supply the values \id{mukeep} = \id{mlkeep} = 2
 (= \id{NVARS}) as the half-bandwidths of the retained band matrix blocks.
 This means that the Jacobian elements are computed with a difference quotient
 scheme using the true bandwidth of the block, but only a narrow band matrix
-(bandwidth 5) is kept as the preconditioner.  The source is listed in
-Appendix \ref{s:cvDiurnal_bbd_p_c} in this document. 
+(bandwidth 5) is kept as the preconditioner.
 
 As in \id{cvDiurnal\_kry\_p.c}, the \id{f} routine in \id{cvDiurnal\_kry\_bbd\_p.c} simply calls a
 communication routine, \id{fucomm}, and then a strictly computational routine,

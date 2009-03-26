@@ -64,8 +64,6 @@ equation:
   \end{split}
 \end{equation}
 
-The source code for this example is listed in Appendix \ref{s:cvsRoberts_ASAi_dns_c}
-in this document.
 The main program and the user-defined routines are described below, 
 with emphasis on the aspects particular to adjoint sensitivity calculations.
 
@@ -261,9 +259,7 @@ due to a $\delta$-function perturbation $\delta u_0(x) = \delta(x-x^*)$ in the
 initial conditions.  Therefore, $\mu(t_0,x)$ completely describes $\delta g(t_f)$
 for any perturbation $\delta u_0$.
 
-The source code for this example is listed in Appendix
-\ref{s:cvsAdvDiff_ASAp_non_p_c} in this document.  Both the forward
-and the backward problems are solved with the option for nonstiff systems,
+Both the forward and the backward problems are solved with the option for nonstiff systems,
 i.e. using the Adams method with functional iteration for the solution of
 the nonlinear systems. The overall structure of the \id{main} function is very
 similar to that of the code \id{cvsRoberts\_ASAi\_dns} discussed previously with 
@@ -392,9 +388,6 @@ and (\ref{e:cvsAtmDisp_ASAi_kry_bbd_p_dGdp}) are simply approximated by their
 Riemann sums, while the time integrals are resolved by appending pure quadrature
 equations to the systems of ODEs.
 
-The code for this example is listed in Appendix \ref{s:cvsAtmDisp_ASAi_kry_bbd_p_c}
-in this document.
-(To obtain the 3-D version, add a line \id{\#define~USE3D} at the top of \id{main}.)  
 We use BDF with the {\cvspgmr} linear solver and the {\cvbbdpre} preconditioner for
 both the forward and the backward integration phases. The value of $G$ is computed
 on the forward phase as a quadrature, while the components of the gradient $dG/dp$
