@@ -15,11 +15,47 @@ problem, which consists of six nonlinear DAEs.  The system has index 1.
 The problem originates from Akzo Nobel Central research in Arnhern,
 The Netherlands, and describes a chemical process in which two species
 are mixed, while carbon dioxide is continuously added.
+
+The problem is of the form
+\begin{equation}\label{e:DAEan}
+\begin{split}
+  y' &= f(y, z) \\
+  0  &= g(y, z) 
+\end{split}
+\end{equation}
+with $y \in R^5$ and $z \in R$. The function $f$ is defined by
+\begin{equation*}
+  f(y, z) = \begin{bmatrix}
+    -2r_1           &+r_2 &-r_3 &-r_4  &                &        \\
+    -\frac{1}{2}r_1 &     &     &-r_4  &-\frac{1}{2}r_5 &+F_{in} \\
+    r_1             &-r_2 &+r_3 &      &                &        \\
+                    &-r_2 &+r_3 &-2r_4 &                &        \\
+                    &r_2  &-r_3 &      &+r_5            &        
+  \end{bmatrix}
+\end{equation*}
+where the $r_i$ and $F_{in}$ are auxiliary variables, given by
+\begin{equation*}
+  \begin{split}
+    r_1 & = k_1 y_1^4 y_2^{1/2} \\
+    r_2 & = k_2 y_3 y_4 \\
+    r_3 & = \frac{k_2}{K} y_1 y_5 \\
+    r_4 & = k_3 y_1 y_4^{1/2} \\
+    r_5 & = k_4 z^2 y_2^{1/2} \\
+    F_{in} & = klA \left( \frac{p(CO_2)}{H} - y_2 \right) ~.
+  \end{split}
+\end{equation*}
+The function $g$ in the algebraic equation is defined by
+\begin{equation*}
+  g(y, z) = K_s y_1 y_4 - z ~.
+\end{equation*}
+It is clear from the fact that the Jacobian $\partial g / \partial z$ is non-singular
+that the DAE (\ref{e:DAEan}) has (differentiation) index 1. 
 See http://pitagora.dm.uniba.it/$\sim$testset/report/chemakzo.pdf for details.
+
 
 The problem is solved with the {\idadense} linear solver using the
 default difference quotient dense Jacobian approximation.
-
+%%
 The adjoint capability of {\idas} is used to compute gradients with
 respect to the initial conditions of the integral
 \begin{equation*}

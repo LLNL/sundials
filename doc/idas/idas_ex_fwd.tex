@@ -45,12 +45,12 @@ The TSDA has spring constant $k$, damping constant $c$, and free length $l_0$.
 A constant horizontal force $F$ acts on the connecting rod.
 
 The equations of motion can be written as
-\begin{equation}
+\begin{equation*}
   \begin{split}
     M(y) \ddot y &= Q(y,\dot y) - \Phi_y^T(y) \lambda \\
     \Phi(y)     &= 0 ~,
   \end{split}
-\end{equation}
+\end{equation*}
 where $y \in R^3$ is the vector of generalized coordinates, $M(y)$ is the generalized mass
 matrix, and $Q$ is a vector of generalized applied forces. $\Phi(y) \in R^2$ represents the
 (algebraic) position-level constraints and $\Phi_y$ is its Jacobian with respect to $y$.
@@ -71,30 +71,30 @@ Converting to 1st order differential equations, we obtain:
 where $v = \dot q$ are the generalized velocities.
 
 For the mechanical system under consideration, the position constraints can be written as
-\begin{equation}
+\begin{equation*}
   \Phi(y) = \begin{bmatrix}
     y_3 - a \cos(y_1) - a \cos(y_2) \\
     a \sin(y_1) + \sin(y_2)
   \end{bmatrix}
-\end{equation}
+\end{equation*}
 while the generalized force takes the form
 %%
-\begin{equation}
+\begin{equation*}
   Q(y, v) = \begin{bmatrix}
     - (f/\ell) a [\sin(y_2-y_1)/2 + y_3 \sin(y_1)]/2 \\
     - (f/\ell) [ y_3 \sin(y_2) - a \sin(y_2-y_1)/2]/2 - F \sin(y_2) \\
     (f/\ell) [\cos(y_2)/2 - y_3 + a \cos(y_1)/2 ] + F
   \end{bmatrix} ~,
-\end{equation}
+\end{equation*}
 where
-\begin{equation}
+\begin{equation*}
   \begin{split}
     f = & k (\ell - \ell_0) + c {\ell}' \\
     \ell^2 = & y_3^2 - y_3 [\cos(y_2) + a \cos(y_1)] + (1 + a^2)/4 + a \cos(y_2-y_1)/2 \\
     2 \ell {\ell}' = & 2 y_3 v_3 - v_3 [\cos(y_2) + a \cos(y_1)] + y_3 [\sin(y_2)v_2 + a\sin(y_1)v_1] \\
     & - a \sin(y_2-y_1) (v_2-v_1)/2 ~.
   \end{split}
-\end{equation}
+\end{equation*}
 The generalized mass matrix is diagonal : $M = diag \{J_1, J_2, m_2\}$.
 
 
