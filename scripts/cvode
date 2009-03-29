@@ -126,10 +126,10 @@ tar ufv $tarfile $distrobase/examples/cvode/parallel/cvDiurnal_kry_p.out
 tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/README
 tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/Makefile.in
 tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvAdvDiff_non_p.f
-tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvAdvDiff_non_p.out
-tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiurnal_kry_bbd_p.f
-tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiurnal_kry_bbd_p.out
-tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiurnal_kry_p.f
-tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiurnal_kry_p.out
+tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_non_p.f
+tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_non_p.out
+tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_bbd_p.f
+tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_bbd_p.out
+tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.f
+tar ufv $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.out
 

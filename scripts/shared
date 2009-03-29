@@ -31,9 +31,14 @@ tar ufv $tarfile $distrobase/config/mod_fortran.m4
 tar ufv $tarfile $distrobase/config/cust_general.m4
 
 tar ufv $tarfile $distrobase/config/CheckFortranFunctionExists.cmake
-tar ufv $tarfile $distrobase/config/FindBLAS.cmake
+tar ufv $tarfile $distrobase/config/SundialsFortran.cmake
+tar ufv $tarfile $distrobase/config/SundialsLapack.cmake
+tar ufv $tarfile $distrobase/config/SundialsMPIC.cmake
+tar ufv $tarfile $distrobase/config/SundialsMPIF.cmake
 tar ufv $tarfile $distrobase/config/FindLAPACK.cmake
+tar ufv $tarfile $distrobase/config/FindBLAS.cmake
 tar ufv $tarfile $distrobase/config/FindMPI.cmake
+
 
 #tar ufv $tarfile $distrobase/config/sundials.spec
 
@@ -68,7 +73,6 @@ tar ufv $tarfile $distrobase/src/sundials/sundials_nvector.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_dense.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_direct.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_band.c
-tar ufv $tarfile $distrobase/src/sundials/sundials_lapack.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_spgmr.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_spbcgs.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_sptfqmr.c

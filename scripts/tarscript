@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # File tarscript: Script to build SUNDIALS tar-files.
 # Author: Radu Serban @ LLNL
@@ -200,75 +200,10 @@ cd -
 
 if [ $do_sundials = "T" ]; then
     cp -r sundials/sundialsTB tmp_dir/
-
-    cp -r sundials/include/cvode tmp_dir/include/
-    cp -r sundials/src/cvode tmp_dir/src/
-    cp -r sundials/doc/cvode tmp_dir/doc/
-    cp -r sundials/examples/cvode tmp_dir/examples/
-    if [ $doc = "T" ]; then
-        echo -e "--- CVODE documentation"
-        cd tmp_dir/doc/cvode
-        make QUIET=-q purge
-        make QUIET=-q ug_pdf
-        make QUIET=-q ex_pdf
-        cd - 
-    fi
-
-    cp -r sundials/include/cvodes tmp_dir/include/
-    cp -r sundials/src/cvodes tmp_dir/src/
-    cp -r sundials/doc/cvodes tmp_dir/doc/
-    cp -r sundials/examples/cvodes tmp_dir/examples/
-    if [ $doc = "T" ]; then
-        echo -e "--- CVODES documentation"
-        cd tmp_dir/doc/cvodes
-        make QUIET=-q purge
-        make QUIET=-q ug_pdf
-        make QUIET=-q ex_pdf
-        cd -
-    fi
-
-    cp -r sundials/include/ida tmp_dir/include/
-    cp -r sundials/src/ida tmp_dir/src/
-    cp -r sundials/doc/ida tmp_dir/doc/
-    cp -r sundials/examples/ida tmp_dir/examples/
-    if [ $doc = "T" ]; then
-        echo -e "--- IDA documentation"
-        cd tmp_dir/doc/ida
-        make QUIET=-q purge
-        make QUIET=-q ug_pdf
-        make QUIET=-q ex_pdf
-        cd -
-    fi
-
-    cp -r sundials/include/idas tmp_dir/include/
-    cp -r sundials/src/idas tmp_dir/src/
-    cp -r sundials/doc/idas tmp_dir/doc/
-    cp -r sundials/examples/idas tmp_dir/examples/
-    if [ $doc = "T" ]; then
-        echo -e "--- IDAS documentation"
-        cd tmp_dir/doc/idas
-        make QUIET=-q purge
-        make QUIET=-q ug_pdf
-#        make QUIET=-q ex_pdf
-        cd -
-    fi
-
-    cp -r sundials/include/kinsol tmp_dir/include/
-    cp -r sundials/src/kinsol tmp_dir/src/
-    cp -r sundials/doc/kinsol tmp_dir/doc/
-    cp -r sundials/examples/kinsol tmp_dir/examples/
-    if [ $doc = "T" ]; then
-        echo -e "--- KINSOL documentation"
-        cd tmp_dir/doc/kinsol
-        make QUIET=-q purge
-        make QUIET=-q ug_pdf
-        make QUIET=-q ex_pdf
-        cd -
-    fi
-
+    cp -r sundials/sundialsTB/doc tmp_dir/doc/sundialsTB
 fi
 
-if [ $do_cvode = "T" ];  then
+if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
     cp -r sundials/include/cvode tmp_dir/include/
     cp -r sundials/src/cvode tmp_dir/src/
     cp -r sundials/doc/cvode tmp_dir/doc/
@@ -283,7 +218,7 @@ if [ $do_cvode = "T" ];  then
     fi
 fi
 
-if [ $do_cvodes = "T" ]; then
+if [ $do_sundials = "T" -o $do_cvodes = "T" ]; then
     cp -r sundials/include/cvodes tmp_dir/include/
     cp -r sundials/src/cvodes tmp_dir/src/
     cp -r sundials/doc/cvodes tmp_dir/doc/
@@ -298,7 +233,7 @@ if [ $do_cvodes = "T" ]; then
     fi
 fi
 
-if [ $do_ida = "T" ];    then
+if [ $do_sundials = "T" -o $do_ida = "T" ]; then
     cp -r sundials/include/ida tmp_dir/include/
     cp -r sundials/src/ida tmp_dir/src/
     cp -r sundials/doc/ida tmp_dir/doc/
@@ -313,7 +248,7 @@ if [ $do_ida = "T" ];    then
     fi
 fi
 
-if [ $do_idas = "T" ];    then
+if [ $do_sundials = "T" -o $do_idas = "T" ]; then
     cp -r sundials/include/idas tmp_dir/include/
     cp -r sundials/src/idas tmp_dir/src/
     cp -r sundials/doc/idas tmp_dir/doc/
@@ -323,12 +258,12 @@ if [ $do_idas = "T" ];    then
         cd tmp_dir/doc/idas
         make QUIET=-q purge
         make QUIET=-q ug_pdf
-#        make QUIET=-q ex_pdf
+        make QUIET=-q ex_pdf
         cd -
     fi
 fi
 
-if [ $do_kinsol = "T" ]; then
+if [ $do_sundials = "T" -o $do_kinsol = "T" ]; then
     cp -r sundials/include/kinsol tmp_dir/include/
     cp -r sundials/src/kinsol tmp_dir/src/
     cp -r sundials/doc/kinsol tmp_dir/doc/
@@ -342,6 +277,7 @@ if [ $do_kinsol = "T" ]; then
         cd -
     fi
 fi
+
 
 
 #---------------------------

@@ -7,14 +7,13 @@ doc=$3
 echo "   --- Add sundialsTB files to $tarfile"
 
 if [ $doc = "T" ]; then
-tar ufv $tarfile $distrobase/sundialsTB/doc/sundialsTB.pdf
-#tar ufv $tarfile $distrobase/sundialsTB/doc/sundialsTB.ps
+tar ufv $tarfile $distrobase/doc/sundialsTB/sundialsTB.pdf
 fi
 
 tar ufv $tarfile $distrobase/sundialsTB/README
 tar ufv $tarfile $distrobase/sundialsTB/LICENSE
-tar ufv $tarfile $distrobase/sundialsTB/Makefile.in
 
+tar ufv $tarfile $distrobase/sundialsTB/Contents.m
 tar ufv $tarfile $distrobase/sundialsTB/install_STB.m
 tar ufv $tarfile $distrobase/sundialsTB/startup_STB.in
 
