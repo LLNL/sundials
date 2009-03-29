@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-05-07 21:19:56 $
+ * $Revision: 1.7 $
+ * $Date: 2009-03-29 23:28:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -249,7 +249,8 @@ void *KINCreate(void)
   kin_mem->kin_eta_gamma        = POINT9;     /* default for KIN_ETACHOICE2  */
   kin_mem->kin_MallocDone       = FALSE;
   kin_mem->kin_setupNonNull     = FALSE;
-  kin_mem->kin_omega            = ZERO;       /* default to using min / max  */
+  kin_mem->kin_eval_omega       = TRUE;
+  kin_mem->kin_omega            = ZERO;       /* default to using min/max    */
   kin_mem->kin_omega_min        = OMEGA_MIN;
   kin_mem->kin_omega_max        = OMEGA_MAX;
 
@@ -414,6 +415,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 #define msbset_sub       (kin_mem->kin_msbset_sub)
 #define nnilset_sub      (kin_mem->kin_nnilset_sub)
 #define update_fnorm_sub (kin_mem->kin_update_fnorm_sub)
+#define eval_omega       (kin_mem->kin_eval_omega)
 #define omega            (kin_mem->kin_omega)
 #define omega_min        (kin_mem->kin_omega_min)
 #define omega_max        (kin_mem->kin_omega_max)
@@ -500,6 +502,13 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
 
   if (inexact_ls && !noMinEps) epsmin = POINT01 * fnormtol;
 
+
+  /* if omega is zero at this point, make sure it will be evaluated
+     at each iteration based on the provided min/max bounds and the
+     current function norm. */
+  if (omega == ZERO) eval_omega = TRUE;
+  else               eval_omega = FALSE;
+ 
   loop{
 
     retry_nni = FALSE;
@@ -1560,8 +1569,8 @@ static int KINStop(KINMem kin_mem, int strategy, booleantype maxStepTaken, int s
 
       nnilset_sub = nni;
 
-      /* If OMEGA is still zero at this point, estimate it */
-      if (omega == ZERO)
+      /* If indicated, estimate new OMEGA value */
+      if (eval_omega)
         omega = MIN(omega_min*EXP(MAX(ZERO,(fnorm/fnormtol)-ONE)), omega_max);
 
       /* Check if making satisfactory progress */

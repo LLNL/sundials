@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.7 $
+ * $Date: 2009-03-29 23:28:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -184,11 +184,12 @@ typedef struct KINMemRec {
   realtype kin_sJpnorm;   /* value of L2-norm of fscale*(J(u)*pp)              */
 
   realtype kin_fnorm_sub; /* value of L2-norm of fscale*fval (subinterval)     */
+  booleantype kin_eval_omega; /* flag indicating that omega must be evaluated. */
   realtype kin_omega;     /* constant value for real scalar used in test to
 			     determine if reduction of norm of nonlinear
-			     residual is sufficient. a value of zero indicates
-			     that omega should be estimated from omega_min and
-			     omega_max.                                         */
+			     residual is sufficient. Unless a valid constant 
+                             value is specified by the user, omega is estimated
+                             from omega_min and omega_max at each iteration.    */
   realtype kin_omega_min; /* lower bound on omega                               */
   realtype kin_omega_max; /* upper bound on omega                               */
   
