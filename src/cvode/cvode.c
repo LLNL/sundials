@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.20 $
+ * $Date: 2009-04-01 23:52:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -2044,7 +2044,7 @@ static int CVStep(CVodeMem cv_mem)
   /*  Finally, we rescale the acor array to be the 
       estimated local error vector. */
 
-  N_VScale(ONE/tq[2], acor, acor);
+  N_VScale(tq[2], acor, acor);
   return(CV_SUCCESS);
       
 }
@@ -2278,6 +2278,16 @@ static void CVPredict(CVodeMem cv_mem)
  * This routine is a high level routine which calls CVSetAdams or
  * CVSetBDF to set the polynomial l, the test quantity array tq, 
  * and the related variables  rl1, gamma, and gamrat.
+ *
+ * The array tq is loaded with constants used in the control of estimated
+ * local errors and in the nonlinear convergence test.  Specifically, while
+ * running at order q, the components of tq are as follows:
+ *   tq[1] = a coefficient used to get the est. local error at order q-1
+ *   tq[2] = a coefficient used to get the est. local error at order q
+ *   tq[3] = a coefficient used to get the est. local error at order q+1
+ *   tq[4] = constant used in nonlinear iteration convergence test
+ *   tq[5] = coefficient used to get the order q+2 derivative vector used in
+ *           the est. local error at order q+1
  */
 
 static void CVSet(CVodeMem cv_mem)
@@ -2320,9 +2330,9 @@ static void CVSetAdams(CVodeMem cv_mem)
   
   if (q == 1) {
     l[0] = l[1] = tq[1] = tq[5] = ONE;
-    tq[2] = TWO;
-    tq[3] = TWELVE;
-    tq[4] = nlscoef * tq[2];       /* = 0.1 * tq[2] */
+    tq[2] = HALF;
+    tq[3] = ONE/TWELVE;
+    tq[4] = nlscoef / tq[2];       /* = 0.1 / tq[2] */
     return;
   }
   
@@ -2352,7 +2362,7 @@ static realtype CVAdamsStart(CVodeMem cv_mem, realtype m[])
   for (j=1; j < q; j++) {
     if ((j==q-1) && (qwait == 1)) {
       sum = CVAltSum(q-2, m, 2);
-      tq[1] = m[q-2] / (q * sum);
+      tq[1] = q * sum / m[q-2];
     }
     xi_inv = h / hsum;
     for (i=j; i >= 1; i--) m[i] += m[i-1] * xi_inv;
@@ -2380,16 +2390,16 @@ static void CVAdamsFinish(CVodeMem cv_mem, realtype m[], realtype M[], realtype 
   xi = hsum / h;
   xi_inv = ONE / xi;
   
-  tq[2] = xi * M[0] / M[1];
+  tq[2] = M[1] * M0_inv / xi;
   tq[5] = xi / l[q];
 
   if (qwait == 1) {
     for (i=q; i >= 1; i--) m[i] += m[i-1] * xi_inv;
     M[2] = CVAltSum(q, m, 2);
-    tq[3] = L * M[0] / M[2];
+    tq[3] = M[2] * M0_inv / L;
   }
 
-  tq[4] = nlscoef * tq[2];
+  tq[4] = nlscoef / tq[2];
 }
 
 /*  
@@ -2477,26 +2487,26 @@ static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
                        realtype alpha0_hat, realtype xi_inv, realtype xistar_inv)
 {
   realtype A1, A2, A3, A4, A5, A6;
-  realtype C, CPrime, CPrimePrime;
+  realtype C, Cpinv, Cppinv;
   
   A1 = ONE - alpha0_hat + alpha0;
   A2 = ONE + q * A1;
-  tq[2] = ABS(alpha0 * (A2 / A1));
-  tq[5] = ABS((A2) / (l[q] * xi_inv/xistar_inv));
+  tq[2] = ABS(A1 / (alpha0 * A2));
+  tq[5] = ABS(A2 * xistar_inv / (l[q] * xi_inv));
   if (qwait == 1) {
     C = xistar_inv / l[q];
     A3 = alpha0 + ONE / q;
     A4 = alpha0_hat + xi_inv;
-    CPrime = A3 / (ONE - A4 + A3);
-    tq[1] = ABS(CPrime / C);
+    Cpinv = (ONE - A4 + A3) / A3;
+    tq[1] = ABS(C * Cpinv);
     hsum += tau[q];
     xi_inv = h / hsum;
     A5 = alpha0 - (ONE / (q+1));
     A6 = alpha0_hat - xi_inv;
-    CPrimePrime = A2 / (ONE - A6 + A5);
-    tq[3] = ABS(CPrimePrime * xi_inv * (q+2) * A5);
+    Cppinv = (ONE - A6 + A5) / A2;
+    tq[3] = ABS(Cppinv / (xi_inv * (q+2) * A5));
   }
-  tq[4] = nlscoef * tq[2];
+  tq[4] = nlscoef / tq[2];
 }
 
 /*
@@ -2889,7 +2899,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   realtype dsm;
   int retval;
   
-  dsm = acnrm / tq[2];
+  dsm = acnrm * tq[2];
 
   /* If est. local error norm dsm passes test, return CV_SUCCESS */  
   *dsmPtr = dsm; 
@@ -3067,7 +3077,7 @@ static realtype CVComputeEtaqm1(CVodeMem cv_mem)
   
   etaqm1 = ZERO;
   if (q > 1) {
-    ddn = N_VWrmsNorm(zn[q], ewt) / tq[1];
+    ddn = N_VWrmsNorm(zn[q], ewt) * tq[1];
     etaqm1 = ONE/(RPowerR(BIAS1*ddn, ONE/q) + ADDON);
   }
   return(etaqm1);
@@ -3086,9 +3096,10 @@ static realtype CVComputeEtaqp1(CVodeMem cv_mem)
   
   etaqp1 = ZERO;
   if (q != qmax) {
+    if (saved_tq5 == ZERO) return(etaqp1);
     cquot = (tq[5] / saved_tq5) * RPowerI(h/tau[2], L);
     N_VLinearSum(-cquot, zn[qmax], ONE, acor, tempv);
-    dup = N_VWrmsNorm(tempv, ewt) /tq[3];
+    dup = N_VWrmsNorm(tempv, ewt) * tq[3];
     etaqp1 = ONE / (RPowerR(BIAS3*dup, ONE/(L+1)) + ADDON);
   }
   return(etaqp1);
@@ -3235,7 +3246,7 @@ void CVBDFStab(CVodeMem cv_mem)
       { for (i = 5; i >= 2; i--) ssdat[i][k] = ssdat[i-1][k]; }
     factorial = 1;
     for (i = 1; i <= q-1; i++) factorial *= i;
-    sq = factorial*q*(q+1)*acnrm/tq[5];
+    sq = factorial*q*(q+1)*acnrm/MAX(tq[5],TINY);
     sqm1 = factorial*q*N_VWrmsNorm(zn[q], ewt);
     sqm2 = factorial*N_VWrmsNorm(zn[q-1], ewt);
     ssdat[1][1] = sqm2*sqm2;
