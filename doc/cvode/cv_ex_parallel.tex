@@ -142,8 +142,8 @@ edge of the processor is similar. If this is the last processor in a
 particular direction, then message passing and receiving are bypassed
 for that direction.
 
-The purpose of this code is to provide a more realistic example than
-that in \id{cvAdvDiff\_non\_p}, and to provide a template for a stiff ODE system
+This code is intended to provide a more realistic example than that in
+\id{cvAdvDiff\_non\_p}, and to provide a template for a stiff ODE system
 arising from a PDE system. The solution method is BDF with Newton
 iteration and {\spgmr}. The left preconditioner is the block-diagonal
 part of the Newton matrix, with $2 \times 2$ blocks, and the
