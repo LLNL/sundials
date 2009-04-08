@@ -382,6 +382,9 @@ The source term $S$ is parameterized as a piecewise constant function and yieldi
 $N$ parameters in the problem. The nominal values of the source parameters correspond
 to two Gaussian sources.
 
+The source code as supplied runs the 2-D problem.  To obtain the 3-D version,
+add a line \id{\#define~USE3D} at the top of \id{main}.
+
 The adjoint PDE (\ref{e:cvsAtmDisp_ASAi_kry_bbd_p_ADJ}) is discretized to a system of
 ODEs in a similar fashion.  The space integrals in (\ref{e:cvsAtmDisp_ASAi_kry_bbd_p_G})
 and (\ref{e:cvsAtmDisp_ASAi_kry_bbd_p_dGdp}) are simply approximated by their
