@@ -5,13 +5,13 @@
 For all the {\idas} examples, either of the two sensitivity method options,
 \id{IDA\_SIMULTANEOUS} or \id{IDA\_STAGGERED}, can be used, 
 and sensitivities may be included in the error test or not 
-(\id{errconS} set on \id{TRUE} or \id{FALSE}, respectively, in the
+(\id{errconS} set to \id{TRUE} or \id{FALSE}, respectively, in the
 call to \id{IDASetSensErrCon}).
 
-Abbreviated descriptions of one serial example (\id{idasSlCrank\_FSA\_dns})
-and a parallel one (\id{idasBruss\_FSA\_kry\_bbd\_p}) are provided in the following
-two subsections.  For details on the other examples, the reader is
-directed to the comments in their source files.
+Descriptions of one serial example (\id{idasSlCrank\_FSA\_dns}) and
+one parallel example (\id{idasBruss\_FSA\_kry\_bbd\_p}) are provided
+in the following two subsections.  For details on the other examples,
+the reader is directed to the comments in their source files.
 
 
 
@@ -24,25 +24,26 @@ multibody system dynamics. Besides introducing the FSA capabilities of {\idas},
 this example also illustrates the proper treatment of such problems within {\ida} and {\idas}
 (a stabilized index reduction is required). 
 
-The multibody system considered here consists of two bodies (crank and connecting rod) with 
-a translational-spring-damper (TSDA) and a constant force acting on the connecting rod. 
+The multibody system considered here consists of two bodies (crank and connecting
+rod) with a translational-spring-damper (TSDA) and a constant force acting on the
+connecting rod.  The system has a single degree of freedom. It is modeled with the
+three generalized coordinates indicated in Fig.~\ref{f:sl_crank}
+(crank angle, angle of the connecting rod, and horizontal position of the
+translational joint) and therefore has two constraints. The local reference
+frame on the crank is positioned at the revolute joint on the ground. 
+The crank has length $a$, mass $m_1$, and moment of inertia $J_1$ (with respect to
+the local frame).
+The local reference frame on the connecting rod is positioned at the translational joint. 
+The connecting rod has length $2$, mass $m_2$, and moment of inertia $J_2$.
+The TSDA has spring constant $k$, damping constant $c$, and free length $l_0$.
+A constant horizontal force $F$ acts on the connecting rod.
 %%
-\begin{figure}
+\begin{figure}[h]
   {\centerline{\epsfig{file=figs_slcrank/slider_crank.eps,width=\textwidth}}}
-  \caption{Slider-crank mechanism modeled with 3 generalized coordinates.}
+  \caption{Slider-crank mechanism modeled with three generalized coordinates.}
   \label{f:sl_crank}
 \end{figure}
 %%
-The system has a single degree of freedom. It is modeled with the 3 generalized coordinates
-indicated in Fig.~\ref{f:sl_crank} (crank angle, angle of the connecting rod, and horizontal
-position of the translational joint) and therefore has 2 constraints.
-%%
-The local reference frame on the crank is positioned at the revolute joint on the ground. 
-The crank has length $a$, mass $m_1$, and intertia (with respect to the local frame) $J_1$.
-The local reference frame on the conncting rod is positioned at the translational joint. 
-The connecting rod has length $2$, mass $m_2$, and inertia $J_2$.
-The TSDA has spring constant $k$, damping constant $c$, and free length $l_0$.
-A constant horizontal force $F$ acts on the connecting rod.
 
 The equations of motion can be written as
 \begin{equation*}
@@ -57,9 +58,9 @@ matrix, and $Q$ is a vector of generalized applied forces. $\Phi(y) \in R^2$ rep
 $\lambda \in R^2$ are Lagrange multipliers corresponding to the constraint forces.
 %%
 For its solution with {\idas}, the above index-3 DAE is reformulated as a stabilized 
-index-2 DAE (Gear-Gupta-Leimkhuler formulation) by introducing 2 additional Lagrange 
+index-2 DAE (Gear-Gupta-Leimkhuler formulation) by introducing two additional Lagrange 
 multipliers $\mu$ and appending the velocity constraints.
-Converting to 1st order differential equations, we obtain:
+Converting to first order differential equations, we obtain:
 \begin{equation}\label{e:GGLform}
 \begin{split}
   \dot y &= v - \Phi_y^T(y) \mu  \\
@@ -97,6 +98,10 @@ where
 \end{equation*}
 The generalized mass matrix is diagonal : $M = diag \{J_1, J_2, m_2\}$.
 
+In the case treated here, $a = .5$, $J_1 = J_2 = 1$, $m_1 = m_2 = 1$,
+$F = 1$, $k = 1$, $c = 1$, and $\ell_0 = 1$. The final time is $t_f = 10$.
+Also, this program actually orders the generalized coordinates as $(y_1, y_3, y_2)$,
+which are denoted in the various routines as $q$, $x$, and $p$, respectively.
 
 The system (\ref{e:GGLform}) is solved with {\idas} using a state vector
 $Y = [y, v, \lambda, \mu] \in R^{10}$.   The initial conditions (at $t = 0$)
@@ -115,35 +120,35 @@ are set to consistent values, given as follows:
     &d\lambda_1/dt = d\lambda_2/dt = d\mu_1/dt = d\mu_2/dt = 0 ~.
   \end{split}
 \end{equation*}
-The problem is solved with a relative tolerance of $10^{-6}$ and a (scalar) absolute tolerance
-of $10^{-7}$. Note that the algebraic variables $\lambda$ and $\mu$ are excluded from the error
-test (by specifying them through \id{IDASetId} and invoking \id{IDASetSuppressAlg}).
+The problem is solved with a relative tolerance of $10^{-6}$ and a (scalar) absolute
+tolerance of $10^{-7}$. Note that the algebraic variables $\lambda$ and $\mu$ are
+excluded from the error test (by specifying them through \id{IDASetId} and invoking
+\id{IDASetSuppressAlg}).
 
-
-\begin{figure}
-  {\centerline{\epsfig{file=figs_slcrank/x2sensi.eps,width=\textwidth}}}
-  \caption{Sensitivities of the solution component $y_3$ with respect to the TSDA parameters.}
-  \label{f:x2sensi}
-\end{figure}
-%%
 The two parameters of the TSDA, $k$ and $c$, are considered in a forward
 sensitivity analysis of this model. Solution sensitivities with respect
 to those parameters are computed and then used to estimate the gradient
 of the integrated kinetic energy of the system,
 \begin{equation}
   G = \int_{t_0}^{t_f} \left(    
-    \frac{1}{2} J_1 \dot y_1^2 + \frac{1}{2} J_2 \dot y_3^2 + \frac{1}{2} m_1 a^2 \dot y_1^2 + \frac{1}{2} m_2 \dot y_2^2
-  \right) \, dt \, ,
+    \frac{1}{2} J_1 \dot y_1^2 + \frac{1}{2} J_2 \dot y_2^2 + \frac{1}{2} m_1 a^2 \dot y_1^2
+          + \frac{1}{2} m_2 \dot y_3^2 \right) \, dt \, .
 \end{equation}
-which is then compared against that approximated with (backward, forward, and central) finite differences.
-%%
-The sensitivity residuals are evaluated using the {\idas} internal finite-difference approximation.
-Computation of the gradient of the integral in $G$ takes advantage of the {\idas} feature for computing
-sensitivities of pure quadrature equations.
+These are is then compared against gradients approximated with (backward, forward, and central)
+finite differences.  The sensitivity residuals are evaluated using the {\idas} internal
+finite-difference approximation.  Computation of the gradient of the integral in $G$ takes
+advantage of the {\idas} feature for computing sensitivities of pure quadrature equations.
 
-Figure \ref{f:x2sensi} shows the sensitivities of the horizontal position of the translational joint 
-($y_3$) with respect to the TSDA parameters $k$ and $c$, superimposed over the solution itself.
- 
+Figure \ref{f:x2sensi} shows the sensitivities of the horizontal position of the
+translational joint ($y_3$) with respect to the TSDA parameters $k$ and $c$,
+superimposed over the solution itself.
+%%
+\begin{figure}[h]
+  {\centerline{\epsfig{file=figs_slcrank/x2sensi.eps,width=\textwidth}}}
+  \caption{Sensitivities of the solution component $y_3$ with respect to the TSDA parameters.}
+  \label{f:x2sensi}
+\end{figure}
+%%
 
 The following output is generated by \id{idasSlCrank\_FSA\_dns} when computing
 sensitivities with the \id{IDA\_SIMULTANEOUS} method and full error
