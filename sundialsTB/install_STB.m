@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.22 $Date: 2007/12/05 21:58:17 $
+% $Revision: 1.23 $Date: 2009/02/08 20:51:44 $
 
 % MEX compiler command
 % --------------------
@@ -871,17 +871,28 @@ idm_files = {
             };
 
 idm_ftypes = {
-    fullfile('idas','function_types','IDAResFn.m')
-    fullfile('idas','function_types','IDARootFn.m')
-    fullfile('idas','function_types','IDADenseJacFn.m')
     fullfile('idas','function_types','IDABandJacFn.m')
-    fullfile('idas','function_types','IDAJacTimesVecFn.m')
+    fullfile('idas','function_types','IDABandJacFnB.m')
+    fullfile('idas','function_types','IDADenseJacFn.m')
+    fullfile('idas','function_types','IDADenseJacFnB.m')
     fullfile('idas','function_types','IDAGcommFn.m')
+    fullfile('idas','function_types','IDAGcommFnB.m')
     fullfile('idas','function_types','IDAGlocalFn.m')
-    fullfile('idas','function_types','IDAPrecSetupFn.m')
-    fullfile('idas','function_types','IDAPrecSolveFn.m')
+    fullfile('idas','function_types','IDAGlocalFnB.m')
+    fullfile('idas','function_types','IDAJacTimesVecFn.m')
+    fullfile('idas','function_types','IDAJacTimesVecFnB.m')
     fullfile('idas','function_types','IDAMonitorFn.m')
-%
+    fullfile('idas','function_types','IDAMonitorFnB.m')
+    fullfile('idas','function_types','IDAPrecSetupFn.m')
+    fullfile('idas','function_types','IDAPrecSetupFnB.m')
+    fullfile('idas','function_types','IDAPrecSolveFn.m')
+    fullfile('idas','function_types','IDAPrecSolveFnB.m')
+    fullfile('idas','function_types','IDAQuadRhsFn.m')
+    fullfile('idas','function_types','IDAQuadRhsFnB.m')
+    fullfile('idas','function_types','IDAResFn.m')
+    fullfile('idas','function_types','IDAResFnB.m')
+    fullfile('idas','function_types','IDARootFn.m')
+    fullfile('idas','function_types','IDASensResFn.m')
              };
 
 idm_exs = {
