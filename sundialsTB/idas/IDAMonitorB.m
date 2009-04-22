@@ -43,7 +43,7 @@ function [new_data] = IDAMonitorB(call, idxB, T, Y, YQ, data)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:51:32 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:42 $
 
 
 if (nargin ~= 6) 
@@ -349,7 +349,7 @@ data.y = 0;
 function [] = graphical_init(n, hfg, npg, stats, cntr, ...
                              t, h, q, nst, nfe, nni, netf, ncfn)
 
-fig_name = 'CVODES run statistics';
+fig_name = 'IDAS run statistics';
 
 % If this is a parallel job, look for the MPI rank in the global
 % workspace and append it to the figure name
@@ -490,7 +490,7 @@ end
 
 function [] = text_init(n,hft,stats,cntr,t,h,q,nst,nfe,nni,netf,ncfn)
 
-fig_name = 'CVODES run statistics';
+fig_name = 'IDAS run statistics';
 
 % If this is a parallel job, look for the MPI rank in the global
 % workspace and append it to the figure name
@@ -590,7 +590,7 @@ drawnow
 
 function [] = sol_init(n, hfs, nps, sol, N, t, y)
 
-fig_name = 'CVODES solution';
+fig_name = 'IDAS solution';
 
 % If this is a parallel job, look for the MPI rank in the global
 % workspace and append it to the figure name
