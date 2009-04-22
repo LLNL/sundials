@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2008-04-18 19:42:43 $
+ * $Revision: 1.5 $
+ * $Date: 2009-04-22 03:28:43 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -355,7 +355,7 @@ int kinDlsDenseDQJac(int N,
   realtype *tmp2_data, *u_data, *uscale_data;
   N_Vector ftemp, jthCol;
   long int j;
-  int retval;
+  int retval = 0;
 
   KINMem kin_mem;
   KINDlsMem  kindls_mem;
@@ -390,7 +390,8 @@ int kinDlsDenseDQJac(int N,
     u_data[j] += inc;
 
     retval = func(u, ftemp, user_data);
-    if (retval != 0) return(-1); 
+    nfeDQ++;
+    if (retval != 0) break; 
 
     u_data[j] = ujsaved;
 
@@ -402,10 +403,7 @@ int kinDlsDenseDQJac(int N,
   /* Restore original array pointer in tmp2 */
   N_VSetArrayPointer(tmp2_data, tmp2);
 
-  /* Increment counter nfeDQ */
-  nfeDQ += N;
-
-  return(0);
+  return(retval);
 }
 
 /*
