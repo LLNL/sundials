@@ -1693,7 +1693,7 @@ flag = IDASetSuppressAlg(ida\_mem, suppressalg);
   \begin{args}[suppressalg]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[suppresslag] (\id{booleantype})
+  \item[suppressalg] (\id{booleantype})
     indicates whether to suppress (\id{TRUE}) or not
     (\id{FALSE}) the algebraic variables in the local error test.
   \end{args}
@@ -1710,8 +1710,13 @@ flag = IDASetSuppressAlg(ida\_mem, suppressalg);
 {
   The default value is \id{FALSE}.
 
-  If \id{suppresslag}$=$\id{TRUE} is selected, then the \id{id} vector
+  If \id{suppressalg}$=$\id{TRUE} is selected, then the \id{id} vector
   must be set (through \id{IDASetId}) to specify the algebraic components.
+
+  In general, the use of this option (with \id{suppressalg = TRUE}) is
+  {\em discouraged} when solving DAE systems of index 1, whereas it is
+  generally {\em encouraged} for systems of index 2 or more.
+
 }
 %%
 %%
