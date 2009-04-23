@@ -57,7 +57,7 @@ bookmarks=true]
 
 %----- UCRL number, date, versions
 \newcommand{\STBucrl}{UCRL-SM-212121}
-\newcommand{\STBrelease}{v2.5.0}
+\newcommand{\STBrelease}{v2.4.0}
 
 %----- LLNL disclaimer
 \newcommand{\disclaimer}{%
@@ -68,24 +68,23 @@ bookmarks=true]
 {\bf DISCLAIMER}
 \end{center}
 \noindent
-This document was prepared as an account of work sponsored by an agency of the
-United States Government.  Neither the United States Government nor the University
-of California nor any of their employees, makes any warranty, express or implied,
-or assumes any legal liability or responsibility for the accuracy, completeness,
-or usefulness of any information, apparatus, product, or process disclosed, or
-represents that its use would not infringe privately owned rights. Reference
-herein to any specific commercial product, process, or service by trade name,
-trademark, manufacturer, or otherwise, does not necessarily constitute or imply
-its endorsement, recommendation, or favoring by the United States Government
-or the University of California.  The views and opinions of authors expressed
-herein do not necessarily state or reflect those of the United States Government
-or the University of California, and shall not be used for advertising or
-product endorsement purposes.
+This document was prepared as an account of work sponsored by an agency of 
+the United States government. Neither the United States government nor 
+Lawrence Livermore National Security, LLC, nor any of their employees makes 
+any warranty, expressed or implied, or assumes any legal liability or responsibility 
+for the accuracy, completeness, or usefulness of any information, apparatus, product, 
+or process disclosed, or represents that its use would not infringe privately owned rights. 
+Reference herein to any specific commercial product, process, or service by trade name, 
+trademark, manufacturer, or otherwise does not necessarily constitute or imply its endorsement, 
+recommendation, or favoring by the United States government or Lawrence Livermore National 
+Security, LLC. The views and opinions of authors expressed herein do not necessarily state
+or reflect those of the United States government or Lawrence Livermore National Security, LLC, 
+and shall not be used for advertising or product endorsement purposes.
 
 \vskip2\baselineskip
-This research was supported under the auspices of the U.S. Department of Energy by
-the University of California, Lawrence Livermore National Laboratory under
-contract No.  W-7405-Eng-48.
+\noindent
+This work was performed under the auspices of the U.S. Department of Energy by Lawrence 
+Livermore National Laboratory under Contract DE-AC52-07NA27344.
 \vfill
 \begin{center}
 Approved for public release; further dissemination unlimited
@@ -197,31 +196,23 @@ The following steps are required to install and setup {\sundialsTB}:
 
 \subsection{Compilation and installation of sundialsTB}
 
-As of version 2.3.0, {\sundialsTB} is distributed only with the complete {\sundials} package
-and, on *nix systems (or under cygwin in Windows), the {\matlab} toolbox can be configured,
-built, and installed using the main {\sundials} configure script. For details see the
-{\sundials} file {\tt INSTALL\_NOTES}. 
+As of version 2.3.0, {\sundialsTB} is distributed only with the complete {\sundials} package.
 
-For systems that do not support configure scripts (or if the configure script fails to
-configure {\sundialsTB}), we provide a {\matlab} script ({\tt install\_STB.m}) which can be used
-to build and install {\sundialsTB} from within {\matlab}. In the sequel, we assume that the 
-{\sundials} package was unpacked under the directory {\em srcdir}. The {\sundialsTB} files are 
-therefore in {\em srcdir}{\tt /sundialsTB}. 
+In the sequel, we assume that the {\sundials} package was unpacked under the directory {\em srcdir}.
+The {\sundialsTB} files are therefore in {\em srcdir}{\tt /sundialsTB}. 
 
-To facilitate the compilation of {\sundialsTB} on platforms that do not have
-a make system, we rely on {\matlab}'s mex command. Compilation of {\sundialsTB}
-is done by running from under {\matlab} the {\tt install\_STB.m} script which is
-present in the {\sundialsTB} top directory.
+Compilation and installation of the {\sundialsTB} toolbox is done by running the {\matlab} script 
+{\tt install\_STB.m} which is present in the {\sundialsTB} top directory.
 
 \begin{enumerate}
 
-\item Launch matlab in sundialsTB
+\item Launch {\matlab} in sundialsTB
 \begin{verbatim}
     % cd srcdir/sundialsTB
     % matlab
 \end{verbatim}
 
-\item Run the install\_STB matlab script
+\item Run the {\matlab} script install\_STB 
 
      Note that parallel support will be compiled into the MEX files only if
      \$LAMHOME is defined {\bf and}
@@ -278,12 +269,12 @@ the file {\tt ~/matlab/startup.m} to run {\tt startup\_STB.m}.
 
 \subsection{Testing the installation}
 
-If everything went fine, you should now be able to try one of the {\cvodes}, IDAS,
-or KINSOL examples (in matlab, type 'help cvodes', 'help idas', or 'help kinsol' 
-to see a list of all examples available). For example, cd to the {\cvodes} serial 
+If everything went fine, you should now be able to try one of the {\cvodes}, {\idas},
+or {\kinsol} examples (in {\matlab}, type 'help cvodes', 'help idas', or 'help kinsol' 
+to see a list of all examples available). For example, go to the {\cvodes} serial 
 example directory:
 \begin{verbatim}
      % cd instdir/sundialsTB/cvode/examples_ser
 \end{verbatim}
-and then launch matlab and execute cvdx.
+and then launch {\matlab} and execute mcvsRoberts\_dns.
 

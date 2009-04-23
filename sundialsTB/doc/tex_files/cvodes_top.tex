@@ -7,12 +7,13 @@ and adjoint).
 
 The interface consists of several user-callable functions. In addition, the user must provide
 several required and optional user-supplied functions which define the problem to be solved.
-The user-callable functions and the types of user-supplied functions are listed in
-Tables \ref{t:cvodes_fct_ivp}, \ref{t:cvodes_fct_fsa}, and \ref{t:cvodes_fct_asa} for IVP solution,
-forward sensitivity analysis (FSA), and  adjoint sensitivity analysis (ASA), respectively.
+The user-callable functions are listed in Tables \ref{t:cvodes_fct_ivp}, \ref{t:cvodes_fct_fsa},
+and \ref{t:cvodes_fct_asa} for IVP solution, forward sensitivity analysis (FSA), and  adjoint 
+sensitivity analysis (ASA), respectively.
 For completness, some functions appear in more than one table. 
+The types of user-supplied functions are listed in Table \ref{t:cvodes_fct_types}.
 %
-All these functions are fully documented later in this section.
+All these functions are fully documented later in this section. 
 For more in depth details, consult also the {\cvodes} user guide~\cite{cvodes_ug}.
 
 To illustrate the use of the {\cvodes} {\matlab} interface, several example problems are provided

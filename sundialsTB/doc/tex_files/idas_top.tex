@@ -7,9 +7,14 @@ and adjoint).
 
 The interface consists of 9 user-callable functions. The user must provide
 several required and optional user-supplied functions which define the problem to be solved.
-The user-callable functions and the types of user-supplied functions are listed in
-Table \ref{t:idas_fct} and fully documented later in this section.
-For more in depth details, consult also the {\idas} user guide~\cite{ida_ug}.
+The user-callable functions are listed in Tables \ref{t:idas_fct_ivp}, \ref{t:idas_fct_fsa},
+and \ref{t:idas_fct_asa} for IVP solution, forward sensitivity analysis (FSA), and  adjoint 
+sensitivity analysis (ASA), respectively.
+For completness, some functions appear in more than one table. 
+The types of user-supplied functions are listed in Table \ref{t:idas_fct_types}.
+%
+All these functions are fully documented later in this section.
+For more in depth details, consult also the {\idas} user guide~\cite{idas_ug}.
 
 To illustrate the use of the {\idas} {\matlab} interface, several example problems are provided
 with {\sundialsTB}, both for serial and parallel computations. Most of them are {\matlab} translations of example
@@ -132,10 +137,10 @@ problems provided with {\idas}.
 \begin{tabular}{|c||r|l|r|}
   \hline
   \multirow{12}{*}{\begin{sideways} Forward problems \end{sideways}}
-  &  IDARhsFn         &  residual function & \pageref{p:IDARhsFn} \\
+  &  IDARhsFn         &  residual function & \pageref{p:IDAResFn} \\
   &  IDARootFn        &  root-finding function  & \pageref{p:IDARootFn} \\
   &  IDAQuadRhsFn     &  quadrature RHS function & \pageref{p:IDAQuadRhsFn} \\
-  &  IDASensRhsFn     &  sensitivity RHS function & \pageref{p:IDASensRhsFn} \\
+  &  IDASensRhsFn     &  sensitivity RHS function & \pageref{p:IDASensResFn} \\
   &  IDADenseJacFn    &  dense Jacobian function & \pageref{p:IDADenseJacFn} \\
   &  IDABandJacFn     &  banded Jacobian function & \pageref{p:IDABandJacFn} \\
   &  IDAJacTimesVecFn &  Jacobian times vector function & \pageref{p:IDAJacTimesVecFn} \\
@@ -146,7 +151,7 @@ problems provided with {\idas}.
   &  IDAMonitorFn     &  monitoring function & \pageref{p:IDAMonitorFn} \\
   \hline
   \multirow{10}{*}{\begin{sideways} Backward problems \end{sideways}}
-  &  IDARhsFnB        &  residual function & \pageref{p:IDARhsFnB} \\
+  &  IDARhsFnB        &  residual function & \pageref{p:IDAResFnB} \\
   &  IDAQuadRhsFnB    &  quadrature RHS function & \pageref{p:IDAQuadRhsFnB} \\
   &  IDADenseJacFnB   &  dense Jacobian function & \pageref{p:IDADenseJacFnB} \\
   &  IDABandJacFnB    &  banded Jacobian function & \pageref{p:IDABandJacFnB} \\
