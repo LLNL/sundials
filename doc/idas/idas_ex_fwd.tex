@@ -25,17 +25,16 @@ this example also illustrates the proper treatment of such problems within {\ida
 (a stabilized index reduction is required). 
 
 The multibody system considered here consists of two bodies (crank and connecting
-rod) with a translational-spring-damper (TSDA) and a constant force acting on the
+rod) with a translational-spring-damper (TSD) and a constant force acting on the
 connecting rod.  The system has a single degree of freedom. It is modeled with the
 three generalized coordinates indicated in Fig.~\ref{f:sl_crank}
-(crank angle, angle of the connecting rod, and horizontal position of the
-translational joint) and therefore has two constraints. The local reference
-frame on the crank is positioned at the revolute joint on the ground. 
-The crank has length $a$, mass $m_1$, and moment of inertia $J_1$ (with respect to
-the local frame).
-The local reference frame on the connecting rod is positioned at the translational joint. 
-The connecting rod has length $2$, mass $m_2$, and moment of inertia $J_2$.
-The TSDA has spring constant $k$, damping constant $c$, and free length $l_0$.
+(crank angle, horizontal position of the translational joint, and angle of the connecting rod)
+and therefore has two constraints. The local reference frame on the crank is positioned at 
+the revolute joint on the ground.  The crank has length $a$, mass $m_1$, and moment of 
+inertia $J_1$ (with respect to the local frame).  The local reference frame on the connecting 
+rod is positioned at the translational joint.  The connecting rod has length $2$, mass $m_2$, 
+and moment of inertia $J_2$.
+The TSD has spring constant $k$, damping constant $c$, and free length $l_0$.
 A constant horizontal force $F$ acts on the connecting rod.
 %%
 \begin{figure}[h]
@@ -69,39 +68,37 @@ Converting to first order differential equations, we obtain:
   \Phi_y(y) v &= 0 ~,
 \end{split}
 \end{equation}
-where $v = \dot q$ are the generalized velocities.
+where $v = \dot y$ are the generalized velocities.
 
 For the mechanical system under consideration, the position constraints can be written as
 \begin{equation*}
   \Phi(y) = \begin{bmatrix}
-    y_3 - a \cos(y_1) - a \cos(y_2) \\
-    a \sin(y_1) + \sin(y_2)
+    y_2 - a \cos(y_1) - a \cos(y_3) \\
+    a \sin(y_1) + \sin(y_3)
   \end{bmatrix}
 \end{equation*}
 while the generalized force takes the form
 %%
 \begin{equation*}
   Q(y, v) = \begin{bmatrix}
-    - (f/\ell) a [\sin(y_2-y_1)/2 + y_3 \sin(y_1)]/2 \\
-    - (f/\ell) [ y_3 \sin(y_2) - a \sin(y_2-y_1)/2]/2 - F \sin(y_2) \\
-    (f/\ell) [\cos(y_2)/2 - y_3 + a \cos(y_1)/2 ] + F
+    - (f/\ell) a [\sin(y_3-y_1)/2 + y_2 \sin(y_1)]/2 \\
+    (f/\ell) [\cos(y_3)/2 - y_2 + a \cos(y_1)/2 ] + F \\
+    - (f/\ell) [ y_2 \sin(y_3) - a \sin(y_3-y_1)/2]/2 - F \sin(y_3)
   \end{bmatrix} ~,
 \end{equation*}
 where
 \begin{equation*}
   \begin{split}
     f = & k (\ell - \ell_0) + c {\ell}' \\
-    \ell^2 = & y_3^2 - y_3 [\cos(y_2) + a \cos(y_1)] + (1 + a^2)/4 + a \cos(y_2-y_1)/2 \\
-    2 \ell {\ell}' = & 2 y_3 v_3 - v_3 [\cos(y_2) + a \cos(y_1)] + y_3 [\sin(y_2)v_2 + a\sin(y_1)v_1] \\
-    & - a \sin(y_2-y_1) (v_2-v_1)/2 ~.
+    \ell^2 = & y_2^2 - y_2 [\cos(y_3) + a \cos(y_1)] + (1 + a^2)/4 + a \cos(y_3-y_1)/2 \\
+    2 \ell {\ell}' = & 2 y_2 v_2 - v_2 [\cos(y_3) + a \cos(y_1)] + y_2 [\sin(y_3)v_3 + a\sin(y_1)v_1] \\
+    & - a \sin(y_3-y_1) (v_3-v_1)/2 ~.
   \end{split}
 \end{equation*}
-The generalized mass matrix is diagonal : $M = diag \{J_1, J_2, m_2\}$.
+The generalized mass matrix is diagonal : $M = diag \{J_1, m_2, J_2\}$.
 
 In the case treated here, $a = .5$, $J_1 = J_2 = 1$, $m_1 = m_2 = 1$,
 $F = 1$, $k = 1$, $c = 1$, and $\ell_0 = 1$. The final time is $t_f = 10$.
-Also, this program actually orders the generalized coordinates as $(y_1, y_3, y_2)$,
-which are denoted in the various routines as $q$, $x$, and $p$, respectively.
 
 The system (\ref{e:GGLform}) is solved with {\idas} using a state vector
 $Y = [y, v, \lambda, \mu] \in R^{10}$.   The initial conditions (at $t = 0$)
@@ -109,14 +106,14 @@ are set to consistent values, given as follows:
 \begin{equation*}
   \begin{split}
     &y_1 = \pi/2 \\
-    &y_2 = \arcsin(-a) \\
-    &y_3 = \cos(y_2) \\
+    &y_3 = \arcsin(-a) \\
+    &y_2 = \cos(y_3) \\
     &v_1 = v_2 = v_3 = 0 \\
     &\lambda_1 = \lambda_2 = \mu_1 = \mu_2 = 0 \\
     &dy_1/dt = dy_2/dt = dy_3/dt = 0 \\
     &dv_1/dt = \left[Q_1\right]_{t=0} / J_1 \\
-    &dv_2/dt = \left[Q_2\right]_{t=0} / J_2 \\
-    &dv_3/dt = \left[Q_3\right]_{t=0} / m_2 \\
+    &dv_2/dt = \left[Q_2\right]_{t=0} / m_2 \\
+    &dv_3/dt = \left[Q_3\right]_{t=0} / J_2 \\
     &d\lambda_1/dt = d\lambda_2/dt = d\mu_1/dt = d\mu_2/dt = 0 ~.
   \end{split}
 \end{equation*}
@@ -125,34 +122,32 @@ tolerance of $10^{-7}$. Note that the algebraic variables $\lambda$ and $\mu$ ar
 excluded from the error test (by specifying them through \id{IDASetId} and invoking
 \id{IDASetSuppressAlg}).
 
-The two parameters of the TSDA, $k$ and $c$, are considered in a forward
+The two parameters of the TSD, $k$ and $c$, are considered in a forward
 sensitivity analysis of this model. Solution sensitivities with respect
 to those parameters are computed and then used to estimate the gradient
 of the integrated kinetic energy of the system,
 \begin{equation}
   G = \int_{t_0}^{t_f} \left(    
-    \frac{1}{2} J_1 \dot y_1^2 + \frac{1}{2} J_2 \dot y_2^2 + \frac{1}{2} m_1 a^2 \dot y_1^2
-          + \frac{1}{2} m_2 \dot y_3^2 \right) \, dt \, .
+    \frac{1}{2} J_1 \dot y_1^2 + \frac{1}{2} m_2 \dot y_2^2 + \frac{1}{2} J_2 \dot y_3^2 \right) \, dt \, .
 \end{equation}
-These are is then compared against gradients approximated with (backward, forward, and central)
+This is then compared against gradient approximations based on (backward, forward, and central)
 finite differences.  The sensitivity residuals are evaluated using the {\idas} internal
 finite-difference approximation.  Computation of the gradient of the integral in $G$ takes
 advantage of the {\idas} feature for computing sensitivities of pure quadrature equations.
 
 Figure \ref{f:x2sensi} shows the sensitivities of the horizontal position of the
-translational joint ($y_3$) with respect to the TSDA parameters $k$ and $c$,
+translational joint ($y_2$) with respect to the TSD parameters $k$ and $c$,
 superimposed over the solution itself.
 %%
 \begin{figure}[h]
   {\centerline{\epsfig{file=figs_slcrank/x2sensi.eps,width=\textwidth}}}
-  \caption{Sensitivities of the solution component $y_3$ with respect to the TSDA parameters.}
+  \caption{Sensitivities of the solution component $y_2$ with respect to the TSD parameters.}
   \label{f:x2sensi}
 \end{figure}
 %%
 
 The following output is generated by \id{idasSlCrank\_FSA\_dns} when computing
-sensitivities with the \id{IDA\_SIMULTANEOUS} method and full error
-control (\id{idasSlCrank\_FSA\_dns -sensi sim t}):
+sensitivities with the \id{IDA\_SIMULTANEOUS} method and full error control:
 
 \includeOutput{idasSlCrank\_FSA\_dns}{../../examples/idas/serial/idasSlCrank_FSA_dns.out}
 
