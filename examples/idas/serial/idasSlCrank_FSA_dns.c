@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:39 $
+ * $Revision: 1.2 $
+ * $Date: 2009-04-26 23:28:31 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -17,10 +17,9 @@
  * IDAS also computes sensitivities with respect to the problem 
  * parameters k (spring constant) and c (damper constant) of the 
  * kinetic energy:
- *   E = int_t0^tend g(t,y,p) dt, 
+ *   G = int_t0^tend g(t,y,p) dt, 
  * where
- *   g(t,y,p) = 0.5*J1*v1^2 + 0.5*J2*v3^2 + 
- *              0.5*m1*a^2/4*v1^2 + 0.5*m2*v2^2
+ *   g(t,y,p) = 0.5*J1*v1^2 + 0.5*J2*v3^2 + 0.5*m2*v2^2
  *              
  * -----------------------------------------------------------------
  */
@@ -43,9 +42,7 @@
 #define NP     2
 
 #define TBEGIN  RCONST(0.0)
-#define TEND    RCONST(5.000)
-
-#define NOUT  40
+#define TEND    RCONST(10.000)
 
 #define RTOLF   RCONST(1.0e-06)
 #define ATOLF   RCONST(1.0e-07)
@@ -457,11 +454,11 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
   J2 = data->J2;
   a  = data->a;
 
-  J1hat = J1 - HALF*QUARTER*a*a*m1;
+  v1 = Ith(yy,4);
+  v2 = Ith(yy,5);
+  v3 = Ith(yy,6);
 
-  v1 = Ith(yy,4); v2 = Ith(yy,5); v3 = Ith(yy,6);
-
-  Ith(qdot,1) = HALF*(J1hat*v1*v1 + m2*v2*v2 + J2*v3*v3);
+  Ith(qdot,1) = HALF*(J1*v1*v1 + m2*v2*v2 + J2*v3*v3);
 
   return(0);
 }
@@ -482,22 +479,22 @@ static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp,
   J2 = data->J2;
   a  = data->a;
 
-  J1hat = J1 - HALF*QUARTER*a*a*m1;
-
-  v1 = Ith(yy,4); v2 = Ith(yy,5); v3 = Ith(yy,6);
+  v1 = Ith(yy,4);
+  v2 = Ith(yy,5);
+  v3 = Ith(yy,6);
   
   /* Sensitivities of v. */
   s1 = Ith(yyS[0],4);
   s2 = Ith(yyS[0],5);
   s3 = Ith(yyS[0],6);
 
-  Ith(rhsQS[0], 1) = J1hat*v1*s1 + m2*v2*s2 + J2*v3*s3;
+  Ith(rhsQS[0], 1) = J1*v1*s1 + m2*v2*s2 + J2*v3*s3;
 
   s1 = Ith(yyS[1],4);
   s2 = Ith(yyS[1],5);
   s3 = Ith(yyS[1],6);
 
-  Ith(rhsQS[1], 1) = J1hat*v1*s1 + m2*v2*s2 + J2*v3*s3;
+  Ith(rhsQS[1], 1) = J1*v1*s1 + m2*v2*s2 + J2*v3*s3;
 
   return(0);
 }
