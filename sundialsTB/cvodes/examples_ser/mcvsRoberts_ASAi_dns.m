@@ -19,26 +19,31 @@ function mcvsRoberts_ASAi_dns()
 %   and p3 of the following quantity:
 %     G = int_t0^t1 y3(t) dt
 %   is computed using ASA.
-%          
-%   The gradient dG/dp is obtained as:
-%     dG/dp = int_t0^t1 (g_p - lambda^T f_p ) dt - lambda^T(t0)*y0_p
-%           = - xi^T(t0) - lambda^T(t0)*y0_p
+% 
+%   Writing the original ODE as:
+%     dy/dt = f(y,p)
+%     y(t0) = y0(p)
+%   then the gradient with respect to the parameters p of
+%     G(p) = int_t0^t1 g(y,p) dt
+%   is obtained as:
+%     dG/dp = int_t0^t1 (g_p + lambda^T f_p ) dt + lambda^T(t0)*y0_p
+%           = -xi^T(t0) + lambda^T(t0)*y0_p
 %   where lambda and xi are solutions of:
 %     d(lambda)/dt = - (f_y)^T * lambda - (g_y)^T
 %     lambda(t1) = 0
 %   and
-%     d(xi)/dt = - (f_p)^T * lambda + (g_p)^T
+%     d(xi)/dt = (g_p)^T + (f_p)^T * lambda
 %     xi(t1) = 0
 %   
-%   During the backward integration, CVODES also evaluates G as
-%     G = - phi(t0)
+%   During the forward integration, CVODES also evaluates G as
+%     G = q(t1)
 %   where
-%     d(phi)/dt = g(t,y,p)
-%     phi(t1) = 0
+%     dq/dt = g(t,y,p)
+%     q(t0) = 0
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/08/21 23:09:18 $
+% $Revision: 1.2 $Date: 2007/10/26 16:30:48 $
 
 
 % ----------------------------------------
@@ -143,7 +148,7 @@ fprintf('(%d steps)\n',sB.nst);
 
 fprintf('tB1:        %12.4e\n',tB1);
 fprintf('dG/dp:      %12.4e  %12.4e  %12.4e\n',...
-        -qB(1),-qB(2),-qB(3));
+        -qB(1)+yB(1), -qB(2)+yB(2), -qB(3)+yB(3));
 fprintf('lambda(t0): %12.4e  %12.4e  %12.4e\n',...
         yB(1),yB(2),yB(3));
 
