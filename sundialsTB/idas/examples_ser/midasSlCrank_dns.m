@@ -14,7 +14,7 @@ function midasSlCrank_dns
 %
 % For its solution with IDAS, the resulting index-3 DAE is reformulated
 % as a stabilized index-2 DAE (Gear-Gupta-Leimkhuler formulation) by 
-% introducing 2 additinal Lagrange multipliers and appending the
+% introducing 2 additional Lagrange multipliers and appending the
 % velocity constraints.
 %
 %  |                                  |
@@ -46,7 +46,7 @@ function midasSlCrank_dns
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/08/21 23:09:18 $
+% $Revision: 1.2 $Date: 2007/10/26 16:30:48 $
 
 % Problem data
 data.a = 0.5;
@@ -181,7 +181,7 @@ J1 = data.J1;
 m2 = data.m2;
 J2 = data.J2;
 
-q = pi/3.0;    
+q = pi/2.0;    
 p = -asin(a*sin(q));
 x = cos(p) + a*cos(q);
 

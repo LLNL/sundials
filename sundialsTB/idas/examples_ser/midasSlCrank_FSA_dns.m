@@ -7,7 +7,7 @@ function midasSlCrank_FSA_dns
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/08/21 23:09:18 $
+% $Revision: 1.2 $Date: 2007/10/26 16:30:48 $
 
 
 % Problem data
@@ -108,7 +108,6 @@ set(gca,'XLim',[t0 tf]);
 box on
 grid on
 
-save foo.mat time  solution sensitivity1 sensitivity2
 
 % ====================================================================================
 % Consistent IC
@@ -122,8 +121,8 @@ m2 = data.m2;
 J2 = data.J2;
 
 q = pi/2.0;    
-p = asin(-a);
-x = cos(p);
+p = -asin(a*sin(q));
+x = cos(p) + a*cos(q);
 
 yy = zeros(10,1);
 yp = zeros(10,1);
