@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-04-26 23:28:31 $
+ * $Revision: 1.3 $
+ * $Date: 2009-04-29 20:40:07 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -313,7 +313,7 @@ static int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *use
 static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
 {
   realtype v1, v2, v3;
-  realtype m1, J1, J1hat, m2, J2, a;
+  realtype m1, J1, m2, J2, a;
   UserData data;
   
   data = (UserData) user_data;
