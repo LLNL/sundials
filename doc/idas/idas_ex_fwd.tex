@@ -95,9 +95,9 @@ where
     & - a \sin(y_3-y_1) (v_3-v_1)/2 ~.
   \end{split}
 \end{equation*}
-The generalized mass matrix is diagonal : $M = diag \{J_1, m_2, J_2\}$.
+The generalized mass matrix is diagonal: $M = diag \{J_1, m_2, J_2\}$.
 
-In the case treated here, $a = .5$, $J_1 = J_2 = 1$, $m_1 = m_2 = 1$,
+In the case treated here, $a = .5$, $J_1 = 1$, $J_2 = 2$, $m_1 = m_2 = 1$,
 $F = 1$, $k = 1$, $c = 1$, and $\ell_0 = 1$. The final time is $t_f = 10$.
 
 The system (\ref{e:GGLform}) is solved with {\idas} using a state vector
@@ -106,8 +106,8 @@ are set to consistent values, given as follows:
 \begin{equation*}
   \begin{split}
     &y_1 = \pi/2 \\
-    &y_3 = \arcsin(-a) \\
     &y_2 = \cos(y_3) \\
+    &y_3 = \arcsin(-a) \\
     &v_1 = v_2 = v_3 = 0 \\
     &\lambda_1 = \lambda_2 = \mu_1 = \mu_2 = 0 \\
     &dy_1/dt = dy_2/dt = dy_3/dt = 0 \\
