@@ -21,7 +21,7 @@ Constraints and id not used.
 4.0000e+05   4.9389e-03   1.9852e-08   9.9506e-01 | 339  3   1.6788e+04
 4.0000e+06   5.1683e-04   2.0684e-09   9.9948e-01 | 444  4   2.1755e+05
 2.0793e+07   1.0000e-04   4.0004e-10   9.9990e-01 | 495  4   1.0146e+06
-    rootsfound[] =   1   0
+    rootsfound[] =  -1   0
 4.0000e+07   5.2036e-05   2.0816e-10   9.9995e-01 | 506  5   2.5503e+06
 4.0000e+08   5.2103e-06   2.0841e-11   9.9999e-01 | 541  4   2.3847e+07
 4.0000e+09   5.2125e-07   2.0850e-12   1.0000e-00 | 569  4   3.9351e+08
@@ -35,4 +35,4 @@ Number of Jacobian evaluations     = 79
 Number of nonlinear iterations     = 832
 Number of error test failures      = 14
 Number of nonlinear conv. failures = 0
-Number of root fn. evaluations     = 617
+Number of root fn. evaluations     = 624
