@@ -6,7 +6,7 @@
 
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
-<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, IDAS, KINSOL">
 <meta name="keywords" content="ODE, DAE, sensitivity">
 <meta name="keywords" content="differential, algebraic">
 <link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
@@ -73,10 +73,10 @@ supportoff = new Image();       supportoff.src = "graphics/support_button.png";
 
 <p>
 <a href="description/description.html#descr_sundials"><b>SUNDIALS</b></a> <b>(<font color="#ff0000">SU</font>ite of <font color="#ff0000">N</font>onlinear and <font color="#ff0000">DI</font>fferential/<font color="#ff0000">AL</font>gebraic equation <font color="#ff0000">S</font>olvers)</b>
-consists of the following four solvers:
+consists of the following five solvers:
 <br><br>
 <table style="margin-left:10px;" cellspacing="0" cellpadding="0">
-<colgroup width=70>
+<colgroup width=80>
 <colgroup>
 <tr>
 <td><a href="description/description.html#descr_cvode"><B>CVODE</B></a></td>
@@ -91,12 +91,18 @@ consists of the following four solvers:
 <td>solves initial value problems for differential-algebraic equation (DAE) systems.</td>
 </tr>
 <tr>
+<td><a href="description/description.html#descr_idas"><B>IDAS</B></a></td>
+<td>solves DAE systems and includes sensitivity analysis capabilities (forward and adjoint).</td>
+</tr>
+<tr>
 <td><a href="description/description.html#descr_kinsol"><B>KINSOL</B></a></td>
 <td>solves nonlinear algebraic systems.</td>
 </tr>
 </table>
 <br>
-In addition, SUNDIALS provides a Matlab interface to CVODES and KINSOL,
+
+
+In addition, SUNDIALS provides a Matlab interface to CVODES, IDAS, and KINSOL,
 <a href="description/description.html#descr_stb"><B>sundialsTB</B></a>.
 </p>
 
@@ -118,8 +124,8 @@ In addition, SUNDIALS provides a Matlab interface to CVODES and KINSOL,
     <colgroup width=150>
     <colgroup align="left">
     <tr>   
-      <td> 06 Nov. 2006</td>
-      <td><b>New release (v.2.3.0)</b>
+      <td> 11 May 2009</td>
+      <td><b>New release (v.2.4.0)</b>
       [<a href="download/download.html">Download</a> | <a href="download/whatsnew.html">What's new?</a>]</td>
     </tr>
     </table>
@@ -128,6 +134,10 @@ In addition, SUNDIALS provides a Matlab interface to CVODES and KINSOL,
     <table id="ann_table" style="display:none;" bgcolor="#e5e4d9" width="100%" cellpadding=5 cellspacing=0>
     <colgroup width=150>
     <colgroup align="left">
+    <tr>   
+      <td>06 Nov. 2006</td>
+      <td><b>New release (v.2.3.0)</b>
+    </tr>
     <tr>   
       <td>27 Mar. 2006</td>
       <td><b>New release (v.2.2.0)</b>
@@ -138,7 +148,7 @@ In addition, SUNDIALS provides a Matlab interface to CVODES and KINSOL,
     </tr>
 
     <tr>   
-      <td>19 May. 2005</td>
+      <td>19 May 2005</td>
       <td><b>New release (v.2.1.1)</b></td>
     </tr>
     <tr>
@@ -195,40 +205,38 @@ In addition, SUNDIALS provides a Matlab interface to CVODES and KINSOL,
 
 
 <!-- <div class="frame"> -->
+<!--
 <p>
 <center>
 <img src="img/timeline.png" alt="Time line" border=0 align="middle">
 </center>
 </p>
+-->
 <!-- </div> -->
 
 
-<h1>Team</h1>
+<h1>Contact</h1>
 <div class="frame">
-<table border="0" cellpadding="0" cellspacing="0">
-<colgroup width=240>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+<colgroup width=270>
 <colgroup align="left">
 <tr>
-  <td>
-  Peter Brown, Aaron Collier, Keith Grant, <br>Alan Hindmarsh, Steven Lee, <br>Radu Serban, Carol Woodward
-  </td>
-  <td>
-  <a href="http://www.llnl.gov/casc/nsde/" target="_top">Nonlinear Solvers and Differential Equations Project</a><br>
-  <a href="http://www.llnl.gov/casc" target="_top">Center for Applied Scientific Computing</a><br>
-  <a href="http://www.llnl.gov" target="_top">Lawrence Livermore National Laboratory</a>
-  </td>
+  <td>Radu Serban <A HREF="mailto:radu@llnl.gov">radu@llnl.gov</A></td>
+  <td><a href="http://www.llnl.gov/casc/nsde/" target="_top">Nonlinear Solvers and Differential Equations Project</a></td>
+</tr>
+<tr>
+  <td>Carol Woodward <A HREF="mailto:cswoodward@llnl.gov">cswoodward@llnl.gov</A></td>
+  <td><a href="http://www.llnl.gov/casc" target="_top">Center for Applied Scientific Computing</a></td>
+</tr>
+<tr>
+  <td>Alan Hindmarsh <A HREF="mailto:alanh@llnl.gov">alanh@llnl.gov</A></td>
+  <td><a href="http://www.llnl.gov" target="_top">Lawrence Livermore National Laboratory</a></td>
 </tr>
 </table>
+
 <br>
-We acknowledge past contributions of: Scott Cohen, Dan Reynolds, Dan Shumaker, and Allan Taylor.
-</div>
-
-
-<div id="contact">
-For further information, contact<BR>
-Radu Serban <A HREF="mailto:radu@llnl.gov">radu@llnl.gov</A>, (925) 424-4852<BR>
-Carol Woodward <A HREF="mailto:cswoodward@llnl.gov">cswoodward@llnl.gov</A>, (925) 424-6013<BR>
-Alan Hindmarsh <A HREF="mailto:alanh@llnl.gov">alanh@llnl.gov</A>, (925) 422-4276<BR>
+We acknowledge past contributions of: Peter Brown, Scott Cohen, Aaron Collier, Keith Grant, Steven Lee, Dan Reynolds, Dan Shumaker, and Allan Taylor.
 </div>
 
 

@@ -6,7 +6,7 @@
 
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
-<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, IDAS, KINSOL">
 <meta name="keywords" content="ODE, DAE, sensitivity">
 <meta name="keywords" content="differential, algebraic">
 <link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
@@ -79,7 +79,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
 <p class="links">
 [
-<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_idas">IDAS</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
 ]<br>
 [
 <A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
@@ -92,6 +92,25 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <h1>CVODE</h1>
 <div class="frame">
 <UL>
+
+<LI class="title">What's new in v2.6.0?
+<LI> New features
+   <UL class="second">
+   <LI> new linear solver module, based on Blas and Lapack for both dense and banded matrices.
+   <LI> option to specify which direction of zero-crossing is to be monitored while performing
+     rootfinding.
+   </UL>
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> reorganization of all linear solver modules into two families (besides 
+     the existing family of scaled preconditioned iterative linear solvers,
+     the direct solvers, including the new Lapack-based ones, were also organized 
+     into a <tt>direct</tt> family).
+   <LI> maintaining a single pointer to user data, optionally specified through a <tt>Set</tt>-type
+     function.
+   <LI> general streamlining of the preconditioner modules distributed with the solver.
+   </UL>
+
 
 <LI class="title">What's new in v2.5.0?
 <LI> Bug fixes
@@ -317,7 +336,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <A HREF="#top">Top</A>
 ]<br>
 [
-<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_idas">IDAS</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
 ]<br>
 [
 <A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
@@ -330,6 +349,34 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <H1>CVODES</H1>
 <div class="frame">
 <UL>
+<LI class="title">What's new in v2.6.0?
+<LI> New features
+   <UL class="second">
+   <LI> new linear solver module, based on Blas and Lapack for both dense and banded matrices.
+   <LI> option to specify which direction of zero-crossing is to be monitored while performing
+     rootfinding.
+   <LI> support for integration of quadrature equations depending on both the states and 
+     forward sensitivity (and thus support for forward sensitivity analysis of quadrature equations).
+   <LI> support for simultaneous integration of multiple backward problems based on the same 
+     underlying ODE (e.g., for use in an <tt>forward-over-adjoint</tt> method for computing second 
+     order derivative information).
+   <LI> support for backward integration of ODEs and quadratures depending on both forward 
+     states and sensitivities (e.g., for use in computing second-order derivative information).
+   <LI> support for reinitialization of the adjoint module.
+   </UL>
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> reorganization of all linear solver modules into two families (besides 
+     the existing family of scaled preconditioned iterative linear solvers,
+     the direct solvers, including the new Lapack-based ones, were also organized 
+     into a <tt>direct</tt> family).
+   <LI> maintaining a single pointer to user data, optionally specified through a <tt>Set</tt>-type
+     function.
+   <LI> general streamlining of the preconditioner modules distributed with the solver.
+   <LI> the prototypes of all functions related to integration of backward problems were modified 
+     to support the simultaneous integration of multiple problems.
+   </UL>
+
 <LI class="title">What's new in v2.5.0?
 <LI> Bug fixes
    <UL class="second">
@@ -596,7 +643,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <A HREF="#top">Top</A>
 ]<br>
 [
-<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_idas">IDAS</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
 ]<br>
 [
 <A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
@@ -609,6 +656,24 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <H1>IDA</H1>
 <div class="frame">
 <UL>
+<LI class="title">What's new in v2.6.0?
+<LI> New features
+   <UL class="second">
+   <LI> new linear solver module, based on Blas and Lapack for both dense and banded matrices.
+   <LI> option to specify which direction of zero-crossing is to be monitored while performing
+     rootfinding.
+   </UL>
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> reorganization of all linear solver modules into two families (besides 
+     the existing family of scaled preconditioned iterative linear solvers,
+     the direct solvers, including the new Lapack-based ones, were also organized 
+     into a <tt>direct</tt> family).
+   <LI> maintaining a single pointer to user data, optionally specified through a <tt>Set</tt>-type
+     function.
+   <LI> general streamlining of the preconditioner modules distributed with the solver.
+   </UL>
+
 <LI class="title">What's new in v2.5.0?
 <LI> Bug fixes
    <UL class="second">
@@ -807,7 +872,34 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <A HREF="#top">Top</A>
 ]<br>
 [
-<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_idas">IDAS</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
+]<br>
+[
+<A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
+]
+</p>
+
+<!-- ******************************************************************************* -->
+
+<A NAME="whatsnew_idas"></A>
+<H1>IDAS</H1>
+<div class="frame">
+<UL>
+
+<LI class="title">What's new in v1.0.0?
+<LI> Initial release.
+
+</UL>
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<A HREF="#top">Top</A>
+]<br>
+[
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_idas">IDAS</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
 ]<br>
 [
 <A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
@@ -820,6 +912,22 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <H1>KINSOL</H1>
 <div class="frame">
 <UL>
+
+<LI class="title">What's new in v2.6.0?
+<LI> New features
+   <UL class="second">
+   <LI> new linear solver module, based on Blas and Lapack for both dense and banded matrices.
+   </UL>
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> reorganization of all linear solver modules into two families (besides 
+     the existing family of scaled preconditioned iterative linear solvers,
+     the direct solvers, including the new Lapack-based ones, were also organized 
+     into a <tt>direct</tt> family).
+   <LI> maintaining a single pointer to user data, optionally specified through a <tt>Set</tt>-type
+     function.
+   <LI> general streamlining of the band-block-diagonal preconditioner module distributed with the solver.
+   </UL>
 
 <LI class="title">What's new in v2.5.0?
 <LI> Changes related to the build system
@@ -1040,7 +1148,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <A HREF="#top">Top</A>
 ]<br>
 [
-<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_idas">IDAS</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
 ]<br>
 [
 <A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
@@ -1054,6 +1162,20 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <div class="frame">
 <UL>
 
+<LI class="title">What's new in v2.4.0?
+
+<LI> New Features
+  <UL class="second">
+  <LI> the Matlab interface to IDAS was extended to provide sensitivity analysis capabilities.
+  </UL>
+
+<LI> Changes to user interface
+  <UL class="second">
+  <LI> the API for adjoint sensitivity analysis (cvodes and idas) was modified to support
+    simultaneous integration of multiple backward problems.
+  </UL>
+  
+
 <LI class="title">What's new in v2.3.0?
 
 <LI> New features
@@ -1066,7 +1188,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   </UL>
 <LI> Bug fixes
   <UL class="second">
-  <LI> the installtion script install_STB.m was modified to increase
+  <LI> the installation script install_STB.m was modified to increase
   robustness on various platforms (related to path and file names).
   </UL>
 <LI> Changes to user interface
@@ -1091,7 +1213,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <LI> Bug fixes
   <UL class="second">
   <LI> (cvodes) fixed bug in interface to quadrature integration which was causing
-    a segmentatin violation when monitoring was turned on.
+    a segmentation violation when monitoring was turned on.
   </UL>
 
 <LI> Changes to user interface
@@ -1114,7 +1236,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <A HREF="#top">Top</A>
 ]<br>
 [
-<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_idas">IDAS</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
 ]<br>
 [
 <A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
@@ -1127,6 +1249,24 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <H1>SHARED</H1>
 <div class="frame">
 <UL>
+
+<LI class="title">What's new in v2.4.0?
+<LI> New features
+   <UL class="second">
+   <LI> new linear solver module, based on Blas and Lapack for both dense and banded matrices.
+   </UL>
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> reorganization of all linear solver modules into two families (besides 
+     the existing family of scaled preconditioned iterative linear solvers,
+     the direct solvers, including the new Lapack-based ones, were also organized 
+     into a <tt>direct</tt> family).
+   </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> provide <tt>CMake</tt>-based build option, in addition to that based on <tt>autotools</tt>.
+   </UL>
+</LI>
 
 <LI class="title">What's new in v2.3.0?
 
@@ -1253,7 +1393,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <A HREF="#top">Top</A>
 ]<br>
 [
-<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_idas">IDAS</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
 ]<br>
 [
 <A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
@@ -1266,6 +1406,9 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <H1>NVECTOR_SERIAL</H1>
 <div class="frame">
 <UL>
+
+<LI class="title">What's new in v2.4.0?
+<LI> No changes
 
 <LI class="title">What's new in v2.3.0?
 <LI> Changes related to the build system
@@ -1316,7 +1459,7 @@ routine is problematic on some platforms)
 <A HREF="#top">Top</A>
 ]<br>
 [
-<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_idas">IDAS</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
 ]<br>
 [
 <A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
@@ -1329,6 +1472,9 @@ routine is problematic on some platforms)
 <H1>NVECTOR_PARALLEL</H1>
 <div class="frame">
 <UL>
+
+<LI class="title">What's new in v2.4.0?
+<LI> No changes
 
 <LI class="title">What's new in v2.3.0?
 <LI> Changes related to the build system
@@ -1382,7 +1528,7 @@ routine is problematic on some platforms)
 <A HREF="#top">Top</A>
 ]<br>
 [
-<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_idas">IDAS</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>::<A HREF="#whatsnew_stb">sundialsTB</A>
 ]<br>
 [
 <A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
