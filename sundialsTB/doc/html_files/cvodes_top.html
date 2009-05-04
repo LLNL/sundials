@@ -77,35 +77,46 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
 
 <h1>CVODES Functions</h1>
 <div class="frame">
-<table width="600">
-<colgroup width=120>
+<table width="480">
 <colgroup width=120>
 <colgroup width=120>
 <colgroup width=120>
 <colgroup width=120>
 <tr>
-<td><a href="cvodes/CVodeSetOptions.html" title="cvodes">CVodeSetOptions</a></td>  
-<td><a href="cvodes/CVodeMalloc.html" title="cvodes">CVodeMalloc</a></td>  
-<td><a href="cvodes/CVodeReInit.html" title="cvodes">CVodeReInit</a></td>  
 <td><a href="cvodes/CVode.html" title="cvodes">CVode</a></td>  
-<td><a href="cvodes/CVodeSensToggleOff.html" title="cvodes">CVodeSensToggleOff</a></td>  
-<td><a href="cvodes/CVodeMonitor.html" title="cvodes">CVodeMonitor</a></td>  
-</tr>
-<td><a href="cvodes/CVodeSetFSAOptions.html" title="cvodes">CVodeSetFSAOptions</a></td>  
-<td><a href="cvodes/CVodeSensMalloc.html" title="cvodes">CVodeSensMalloc</a></td>  
-<td><a href="cvodes/CVodeSensReInit.html" title="cvodes">CVodeSensReInit</a></td>  
-<td><a href="cvodes/CVodeGetStats.html" title="cvodes">CVodeGetStats</a></td>  
-<td><a href="cvodes/CVodeGet.html" title="cvodes">CVodeGet</a></td>  
-<td><a href="cvodes/CVodeFree.html" title="cvodes">CVodeFree</a></td>
-<tr>
-</tr>
-<tr>
-<td><a href="cvodes/CVadjMalloc.html" title="cvodes">CVadjMalloc</a></td>  
-<td><a href="cvodes/CVodeMallocB.html" title="cvodes">CVodeMallocB</a></td>  
-<td><a href="cvodes/CVodeReInitB.html" title="cvodes">CVodeReInitB</a></td>  
+<td><a href="cvodes/CVodeAdjInit.html" title="cvodes">CVodeAdjInit</a></td>  
+<td><a href="cvodes/CVodeAdjReInit.html" title="cvodes">CVodeAdjReInit</a></td>  
 <td><a href="cvodes/CVodeB.html" title="cvodes">CVodeB</a></td>  
+</tr>
+<tr>
+<td><a href="cvodes/CVodeFree.html" title="cvodes">CVodeFree</a></td>
+<td><a href="cvodes/CVodeGet.html" title="cvodes">CVodeGet</a></td>  
+<td><a href="cvodes/CVodeGetStats.html" title="cvodes">CVodeGetStats</a></td>  
 <td><a href="cvodes/CVodeGetStatsB.html" title="cvodes">CVodeGetStatsB</a></td>  
-<td></td>
+</tr>
+<tr>
+<td><a href="cvodes/CVodeInit.html" title="cvodes">CVodeInit</a></td>  
+<td><a href="cvodes/CVodeInitB.html" title="cvodes">CVodeInitB</a></td>  
+<td><a href="cvodes/CVodeMonitor.html" title="cvodes">CVodeMonitor</a></td>  
+<td><a href="cvodes/CVodeMonitorB.html" title="cvodes">CVodeMonitorB</a></td>  
+</tr>
+<tr>
+<td><a href="cvodes/CVodeQuadInit.html" title="cvodes">CVodeQuadInit</a></td>  
+<td><a href="cvodes/CVodeQuadInitB.html" title="cvodes">CVodeQuadInitB</a></td>  
+<td><a href="cvodes/CVodeQuadReInit.html" title="cvodes">CVodeQuadReInit</a></td>
+<td><a href="cvodes/CVodeQuadReInitB.html" title="cvodes">CVodeQuadReInitB</a></td>
+</tr>
+<tr>
+<td><a href="cvodes/CVodeQuadSetOptions.html" title="cvodes">CVodeQuadSetOptions</a></td>  
+<td><a href="cvodes/CVodeReInit.html" title="cvodes">CVodeReInit</a></td>  
+<td><a href="cvodes/CVodeReInitB.html" title="cvodes">CVodeReInitB</a></td>  
+<td><a href="cvodes/CVodeSensInit.html" title="cvodes">CVodeSensInit</a></td>  
+</tr>
+<tr>
+<td><a href="cvodes/CVodeSensReInit.html" title="cvodes">CVodeSensReInit</a></td>  
+<td><a href="cvodes/CVodeSensSetOptions.html" title="cvodes">CVodeSensSetOptions</a></td>  
+<td><a href="cvodes/CVodeSensToggleOff.html" title="cvodes">CVodeSensToggleOff</a></td>  
+<td><a href="cvodes/CVodeSetOptions.html" title="cvodes">CVodeSetOptions</a></td>  
 </tr>
 </table>
 </div>
@@ -117,25 +128,39 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
 <colgroup width=120>
 <colgroup width=120>
 <colgroup width=120>
-<tr> 
-<td><a href="cvodes/CVRhsFn.html" title="cvodes">CVRhsFn</a></td>  
+<tr>
 <td><a href="cvodes/CVBandJacFn.html" title="cvodes">CVBandJacFn</a></td>  
-<td><a href="cvodes/CVRootFn.html" title="cvodes">CVRootFn</a></td>  
+<td><a href="cvodes/CVBandJacFnB.html" title="cvodes">CVBandJacFnB</a></td>  
+<td><a href="cvodes/CVDenseJacFn.html" title="cvodes">CVDenseJacFn</a></td>  
+<td><a href="cvodes/CVDenseJacFnB.html" title="cvodes">CVDenseJacFnB</a></td>  
+</tr>
+<tr> 
 <td><a href="cvodes/CVGcommFn.html" title="cvodes">CVGcommFn</a></td>  
-</tr> 
+<td><a href="cvodes/CVGcommFnB.html" title="cvodes">CVGcommFnB</a></td>  
+<td><a href="cvodes/CVGlocalFn.html" title="cvodes">CVGlocalFn</a></td>  
+<td><a href="cvodes/CVGlocalFnB.html" title="cvodes">CVGlocalFnB</a></td>  
+</tr>
+<tr>
+<td><a href="cvodes/CVJacTimesVecFn.html" title="cvodes">CVJacTimesVecFn</a></td>  
+<td><a href="cvodes/CVJacTimesVecFnB.html" title="cvodes">CVJacTimesVecFnB</a></td>  
+<td><a href="cvodes/CVMonitorFn.html" title="cvodes">CVMonitorFn</a></td>  
+<td><a href="cvodes/CVMonitorFnB.html" title="cvodes">CVMonitorFnB</a></td>  
+</tr>
+<tr>
+<td><a href="cvodes/CVPrecSetupFn.html" title="cvodes">CVPrecSetupFn</a></td>  
+<td><a href="cvodes/CVPrecSetupFnB.html" title="cvodes">CVPrecSetupFnB</a></td> 
+<td><a href="cvodes/CVPrecSolveFn.html" title="cvodes">CVPrecSolveFn</a></td> 
+<td><a href="cvodes/CVPrecSolveFnB.html" title="cvodes">CVPrecSolveFnB</a></td> 
+</tr>
 <tr>
 <td><a href="cvodes/CVQuadRhsFn.html" title="cvodes">CVQuadRhsFn</a></td>  
-<td><a href="cvodes/CVDenseJacFn.html" title="cvodes">CVDenseJacFn</a></td>  
-<td><a href="cvodes/CVPrecSetupFn.html" title="cvodes">CVPrecSetupFn</a></td>  
-<td><a href="cvodes/CVGlocalFn.html" title="cvodes">CVGlocalFn</a></td>  
-<td></td>
-</tr> 
+<td><a href="cvodes/CVQuadRhsFnB.html" title="cvodes">CVQuadRhsFnB</a></td>  
+<td><a href="cvodes/CVRhsFn.html" title="cvodes">CVRhsFn</a></td>  
+<td><a href="cvodes/CVRhsFnB.html" title="cvodes">CVRhsFnB</a></td>  
+</tr>
 <tr>
+<td><a href="cvodes/CVRootFn.html" title="cvodes">CVRootFn</a></td>  
 <td><a href="cvodes/CVSensRhsFn.html" title="cvodes">CVSensRhsFn</a></td>  
-<td><a href="cvodes/CVJacTimesVecFn.html" title="cvodes">CVJacTimesVecFn</a></td>  
-<td><a href="cvodes/CVPrecSolveFn.html" title="cvodes">CVPrecSolveFn</a></td> 
-<td><a href="cvodes/CVMonitorFn.html" title="cvodes">CVMonitorFn</a></td>  
-<td></td>
 </tr> 
 </table>
 </div>        
@@ -143,140 +168,85 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
 <h1>CVODES Serial Example Problems</h1>
 <div class="frame">
 <table>
-<colgroup width="60">
-<colgroup width="280">
-<colgroup width="30" align="center">
+<colgroup width="150">
 <colgroup align="left">
 <tr>
-  <td><strong>Driver</strong></td>
-  <td><strong>Supporting functions</strong></td>
-  <td></td>
+  <td><strong>Example</strong></td>
   <td><strong>Description</strong></td>
 </tr>
 <tr>
-  <td><a href="cvodes/examples_ser/cvdx.html">cvdx</a></td>
-  <td>
-    <a href="cvodes/examples_ser/cvdx_f.html">cvdx_f</a>,
-    <a href="cvodes/examples_ser/cvdx_J.html">cvdx_J</a>
-  </td>
-  <td></td>
-  <td>chemical kinetics problem</td>
-</tr>
-<tr>
-  <td><a href="cvodes/examples_ser/cvfdx.html">cvfdx</a></td>
-  <td>
-    <a href="cvodes/examples_ser/cvdx_f.html">cvdx_f</a>,
-    <a href="cvodes/examples_ser/cvdx_J.html">cvdx_J</a>
-    <a href="cvodes/examples_ser/cvdx_fS.html">cvdx_fS</a>
-  </td>
-  <td><a href="cvfdx.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
-  <td>forward sensitivity example for cvdx</td>
-</tr>
-<tr>
-  <td><a href="cvodes/examples_ser/cvadx.html">cvadx</a></td>
-  <td>
-    <a href="cvodes/examples_ser/cvdx_f.html">cvdx_f</a>, 
-    <a href="cvodes/examples_ser/cvdx_fB.html">cvdx_fB</a>, 
-    <a href="cvodes/examples_ser/cvdx_q.html">cvdx_q</a>,
-    <a href="cvodes/examples_ser/cvdx_qB.html">cvdx_qB</a>, 
-    <a href="cvodes/examples_ser/cvdx_J.html">cvdx_J</a>,
-    <a href="cvodes/examples_ser/cvdx_JB.html">cvdx_JB</a>
-  </td>
-  <td><a href="cvadx.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
-  <td>adjoint sensitivity example for cvdx</td>
-</tr>
-<tr>
-  <td><a href="cvodes/examples_ser/cvbx.html">cvbx</a></td>
-  <td>
-    <a href="cvodes/examples_ser/cvbx_f.html">cvbx_f</a>, 
-    <a href="cvodes/examples_ser/cvbx_q.html">cvbx_q</a>,
-    <a href="cvodes/examples_ser/cvbx_J.html">cvbx_J</a>
-  </td>
-  <td></td>
+  <td><a href="cvodes/examples_ser/mcvsAdvDiff_bnd.m">mcvsAdvDiff_bnd</a></td>
   <td>2D advection-diffusion problem</td>
 </tr>
+<tr>
+  <td><a href="cvodes/examples_ser/mcvsDiscRHS_dns.m">mcvsDiscRHS_dns</a></td>
+  <td>simple example illustrating integration over discontinuities in the right-hand side</td>
 </tr>
 <tr>
-  <td><a href="cvodes/examples_ser/cvkx.html">cvkx</a></td>
-  <td>
-    <a href="cvodes/examples_ser/cvkx_f.html">cvkx_f</a>, 
-    <a href="cvodes/examples_ser/cvkx_pset.html">cvkx_pset</a>,
-    <a href="cvodes/examples_ser/cvkx_psol.html">cvkx_psol</a>
-  </td>
-  <td><a href="cvkx.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
+  <td><a href="cvodes/examples_ser/mcvsDiscSOL_dns.m">mcvsDiscSOL_dns</a></td>
+  <td>simple example illustrating integration over discontinuities in the solution</td>
+</tr>
+<tr>
+  <td><a href="cvodes/examples_ser/mcvsDiurnal_kry.m">mcvsDiurnal_kry</a></td>
   <td>2D diurnal kinetics problem</td>
-</td>
 </tr>
 <tr>
-  <td><a href="cvodes/examples_ser/cvkxb.html">cvkxb</a></td>
-  <td>
-    <a href="cvodes/examples_ser/cvkx_f.html">cvkx_f</a>
-  </td>
-  <td></td>
-  <td>2D diurnal kinetics problem (BandPre preconditioner module) </td>
-</td>
+  <td><a href="cvodes/examples_ser/mcvsHessian_FSA_ASA.m">mcvsHessian_FSA_ASA</a></td>
+  <td>simple example for computing 2nd order sensitivities (forward-over-adjoint method)</td>
 </tr>
 <tr>
-  <td><a href="cvodes/examples_ser/pleiades.html">pleiades</a></td>
-  <td>
-    <a href="cvodes/examples_ser/pleiades_f.html">pleiades_f</a>
-  </td>
-  <td><a href="pleiades.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
+  <td><a href="cvodes/examples_ser/mcvsOzone_FSA_dns.m">mcvsOzone_FSA_dns</a></td>
+  <td>Ozone depletion chemical mechanism</td>
+</tr>
+<tr>
+  <td><a href="cvodes/examples_ser/mcvsPleiades_non.m">mcvsPleiades_non</a></td>
   <td>celestial mechanics problem</td>
-</td>
 </tr>
 <tr>
-  <td><a href="cvodes/examples_ser/vdp.html">vdp</a></td>
-  <td>
-    <a href="cvodes/examples_ser/vdp_f.html">vdp_f</a>,
-    <a href="cvodes/examples_ser/vdp_J.html">vdp_J</a>
-  </td>
-  <td><a href="vdp.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
-  <td>van der Pol problem</td>
-</td>
+  <td><a href="cvodes/examples_ser/mcvsPollut_FSA_dns.m">mcvsPollut_FSA_dns</a></td>
+  <td>air pollution model</td>
 </tr>
-</table> 
+<tr>
+  <td><a href="cvodes/examples_ser/mcvsRoberts_ASAi_dns.m">mcvsRoberts_ASAi_dns</a></td>
+  <td>adjoint sensitivity analysis (integral functional) for the Robertson chemical mechanism</td>
+</tr>
+<tr>
+  <td><a href="cvodes/examples_ser/mcvsRoberts_FSA_dns.m">mcvsRoberts_FSA_dns</a></td>
+  <td>forward sensitivity analysis for the Robertson chemical mechanism</td>
+</tr>
+<tr>
+  <td><a href="cvodes/examples_ser/mcvsRoberts_dns.m">mcvsRoberts_dns</a></td>
+  <td>Robertson chemical kinetics problem</td>
+</tr>
+<tr>
+  <td><a href="cvodes/examples_ser/mcvsVanDPol_dns.m">mcvsVanDPol_dns</a></td>
+  <td>van der Pol problem</td>
+</tr>
+</table>
 </div>
 
 <h1>CVODES Parallel Example Problems</h1>
 <div class="frame">
 <table>
-<colgroup width="60">
-<colgroup width="280">
-<colgroup width="30" align="center">
+<colgroup width="150">
 <colgroup align="left">
 <tr>
-  <td><strong>Driver</strong></td>
-  <td><strong>Supporting functions</strong></td>
-  <td></td>
+  <td><strong>Example</strong></td>
   <td><strong>Description</strong></td>
 </tr>
 <tr>
-  <td><a href="cvodes/examples_par/pvnx.html">pvnx</a></td>
-  <td>
-    <a href="cvodes/examples_par/pvnx_f.html">pvnx_f</a>
-  </td>
-  <td><a href="pvnx.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
-  <td>diagonal ODE example</td>
+  <td><a href="cvodes/examples_par/mcvsDecoupl_non_p.html">mcvsDecoupl_non_p</a></td>
+  <td>simple test for a set of decoupled ODEs</td>
 </td>
 </tr>
 <tr>
-  <td><a href="cvodes/examples_par/pvfnx.html">pvfnx</a></td>
-  <td>
-    <a href="cvodes/examples_par/pvfnx_f.html">pvfnx_f</a>
-  </td>
-  <td></td>
-  <td>FSA for a 1D advection-diffusion problem</td>
+  <td><a href="cvodes/examples_par/mcvsAtmDisp_kry_bbd_p.html">mcvsAtmDisp_kry_bbd_p</a></td>
+  <td>3D advection-diffusion PDE with distributed source</td>
 </td>
 </tr>
 <tr>
-  <td><a href="cvodes/examples_par/pvkx.html">pvkx</a></td>
-  <td>
-    <a href="cvodes/examples_par/pvkx_f.html">pvkx_f</a>,
-    <a href="cvodes/examples_par/pvkx_fl.html">pvkx_fl</a>
-  </td>
-  <td><a href="pvkx.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
-  <td>3D advection-diffusion with distributed source</td>
+  <td><a href="cvodes/examples_par/mcvsAdvDiff_FSA_non_p.html">mcvsAdvDiff_FSA_non_p</a></td>
+  <td>forward sensitivity analysis for a 1D advection-diffusion problem</td>
 </td>
 </tr>
 </table>

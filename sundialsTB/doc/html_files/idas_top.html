@@ -77,32 +77,52 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>IDAS
 
 <h1>IDAS Functions</h1>
 <div class="frame">
-<table width="600">
-<colgroup width=120>
+<table width="480">
 <colgroup width=120>
 <colgroup width=120>
 <colgroup width=120>
 <colgroup width=120>
 <tr>
-<td><a href="idas/IDASetOptions.html" title="idas">IDASetOptions</a></td>  
-<td><a href="idas/IDAMalloc.html" title="idas">IDAMalloc</a></td>  
-<td><a href="idas/IDASolve.html" title="idas">IDASolve</a></td>  
+<td><a href="idas/IDAAdjInit.html" title="idas">IDAAdjInit</a></td>  
+<td><a href="idas/IDAAdjReInit.html" title="idas">IDAAdjReInit</a></td>  
+<td><a href="idas/IDACalcIC.html" title="idas">IDACalcIC</a></td>  
+<td><a href="idas/IDACalcICB.html" title="idas">IDACalcICB</a></td>  
+</tr>
+<tr>
 <td><a href="idas/IDAFree.html" title="idas">IDAFree</a></td>  
-<td><a href="idas/IDAMonitor.html" title="idas">IDAMonitor</a></td>  
-</tr>
-<!-- <td><a href="idas/IDASetFSAOptions.html" title="idas">IDASetFSAOptions</a></td>   -->
-<!-- <td><a href="idas/IDASensMalloc.html" title="idas">IDASensMalloc</a></td>   -->
+<td><a href="idas/IDAGet.html" title="idas">IDAGet</a></td>  
 <td><a href="idas/IDAGetStats.html" title="idas">IDAGetStats</a></td>  
-<!-- <td><a href="idas/IDAGet.html" title="idas">IDAGet</a></td>   -->
-<td></td>
-<tr>
+<td><a href="idas/IDAGetStatsB.html" title="idas">IDAGetStatsB</a></td>  
 </tr>
 <tr>
-<!-- <td><a href="idas/IDAadjMalloc.html" title="idas">IDAadjMalloc</a></td>   -->
-<!-- <td><a href="idas/IDAMallocB.html" title="idas">IDAMallocB</a></td>   -->
-<!-- <td><a href="idas/IDASolveB.html" title="idas">IDASolveB</a></td>   -->
-<!-- <td><a href="idas/IDAGetStatsB.html" title="idas">IDAGetStatsB</a></td>  -->
-<td></td>
+<td><a href="idas/IDAInit.html" title="idas">IDAInit</a></td>  
+<td><a href="idas/IDAInitB.html" title="idas">IDAInitB</a></td>  
+<td><a href="idas/IDAMonitor.html" title="idas">IDAMonitor</a></td>  
+<td><a href="idas/IDAMonitorB.html" title="idas">IDAMonitorB</a></td>  
+</tr>
+<tr>
+<td><a href="idas/IDAQuadInit.html" title="idas">IDAQuadInit</a></td>  
+<td><a href="idas/IDAQuadInitB.html" title="idas">IDAQuadInitB</a></td>  
+<td><a href="idas/IDAQuadReInit.html" title="idas">IDAQuadReInit</a></td>  
+<td><a href="idas/IDAQuadReInitB.html" title="idas">IDAQuadReInitB</a></td>  
+</tr>
+<tr>
+<td><a href="idas/IDAQuadSetOptions.html" title="idas">IDAQuadSetOptions</a></td>  
+<td><a href="idas/IDAReInit.html" title="idas">IDAReInit</a></td>  
+<td><a href="idas/IDAReInitB.html" title="idas">IDAReInitB</a></td>  
+<td><a href="idas/IDASensInit.html" title="idas">IDASensInit</a></td>  
+</tr>
+<tr>
+<td><a href="idas/IDASensReInit.html" title="idas">IDASensReInit</a></td>  
+<td><a href="idas/IDASensSetOptions.html" title="idas">IDASensSetOptions</a></td>  
+<td><a href="idas/IDASensToggleOff.html" title="idas">IDASensToggleOff</a></td>  
+<td><a href="idas/IDASet.html" title="idas">IDASet</a></td>  
+</tr>
+<tr>
+<td><a href="idas/IDASetB.html" title="idas">IDASetB</a></td>  
+<td><a href="idas/IDASetOptions.html" title="idas">IDASetOptions</a></td>  
+<td><a href="idas/IDASolve.html" title="idas">IDASolve</a></td>  
+<td><a href="idas/IDASolveB.html" title="idas">IDASolveB</a></td>  
 </tr>
 </table>
 </div>
@@ -114,85 +134,101 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>IDAS
 <colgroup width=120>
 <colgroup width=120>
 <colgroup width=120>
-<tr> 
-<td><a href="idas/IDAResFn.html" title="idas">IDAResFn</a></td>  
-<td><a href="idas/IDABandJacFn.html" title="idas">IDABandJacFn</a></td>  
-<td><a href="idas/IDARootFn.html" title="idas">IDARootFn</a></td>  
-<td><a href="idas/IDAGcommFn.html" title="idas">IDAGcommFn</a></td>  
-</tr> 
 <tr>
-<!-- <td><a href="idas/IDAQuadRhsFn.html" title="idas">IDAQuadRhsFn</a></td>   -->
-<td><a href="idas/IDADenseJacFn.html" title="idas">IDADenseJacFn</a></td>  
-<td><a href="idas/IDAPrecSetupFn.html" title="idas">IDAPrecSetupFn</a></td>  
-<td><a href="idas/IDAGlocalFn.html" title="idas">IDAGlocalFn</a></td>  
-<td></td>
-</tr> 
+<td><a href="idas/IDABandJacFn.m" title="idas">IDABandJacFn</a></td>  
+<td><a href="idas/IDABandJacFnB.m" title="idas">IDABandJacFnB</a></td>  
+<td><a href="idas/IDADenseJacFn.m" title="idas">IDADenseJacFn</a></td>  
+<td><a href="idas/IDADenseJacFnB.m" title="idas">IDADenseJacFnB</a></td>  
+</tr>
 <tr>
-<!-- <td><a href="idas/IDASensResFn.html" title="idas">IDASensResFn</a></td>   -->
-<td><a href="idas/IDAJacTimesVecFn.html" title="idas">IDAJacTimesVecFn</a></td>  
-<td><a href="idas/IDAPrecSolveFn.html" title="idas">IDAPrecSolveFn</a></td> 
-<td><a href="idas/IDAMonitorFn.html" title="idas">IDAMonitorFn</a></td>  
+<td><a href="idas/IDAGcommFn.m" title="idas">IDAGcommFn</a></td>  
+<td><a href="idas/IDAGcommFnB.m" title="idas">IDAGcommFnB</a></td>  
+<td><a href="idas/IDAGlocalFn.m" title="idas">IDAGlocalFn</a></td>  
+<td><a href="idas/IDAGlocalFnB.m" title="idas">IDAGlocalFnB</a></td>  
+</tr>
+<tr>
+<td><a href="idas/IDAJacTimesVecFn.m" title="idas">IDAJacTimesVecFn</a></td>  
+<td><a href="idas/IDAJacTimesVecFnB.m" title="idas">IDAJacTimesVecFnB</a></td>  
+<td><a href="idas/IDAMonitorFn.m" title="idas">IDAMonitorFn</a></td>  
+<td><a href="idas/IDAMonitorFnB.m" title="idas">IDAMonitorFnB</a></td>  
+</tr>
+<tr>
+<td><a href="idas/IDAPrecSetupFn.m" title="idas">IDAPrecSetupFn</a></td>  
+<td><a href="idas/IDAPrecSetupFnB.m" title="idas">IDAPrecSetupFnB</a></td>  
+<td><a href="idas/IDAPrecSolveFn.m" title="idas">IDAPrecSolveFn</a></td>  
+<td><a href="idas/IDAPrecSolveFnB.m" title="idas">IDAPrecSolveFnB</a></td>  
+</tr>
+<tr>
+<td><a href="idas/IDAQuadRhsFn.m" title="idas">IDAQuadRhsFn</a></td>  
+<td><a href="idas/IDAQuadRhsFnB.m" title="idas">IDAQuadRhsFnB</a></td>  
+<td><a href="idas/IDAResFn.m" title="idas">IDAResFn</a></td>  
+<td><a href="idas/IDAResFnB.m" title="idas">IDAResFnB</a></td>  
+</tr>
+<tr>
+<td><a href="idas/IDARootFn.m" title="idas">IDARootFn</a></td>  
+<td><a href="idas/IDASensResFn.m" title="idas">IDASensResFn</a></td>  
 <td></td>
-</tr> 
+<td></td>
+</tr>
 </table>
 </div>        
 
 <h1>IDAS Serial Example Problems</h1>
 <div class="frame">
 <table>
-<colgroup width="60">
-<colgroup width="280">
-<colgroup width="30" align="center">
+<colgroup width="150">
 <colgroup align="left">
 <tr>
-  <td><strong>Driver</strong></td>
-  <td><strong>Supporting functions</strong></td>
-  <td></td>
+  <td><strong>Example</strong></td>
   <td><strong>Description</strong></td>
 </tr>
 <tr>
-  <td><a href="idas/examples_ser/idadenx.html">idadenx</a></td>
-  <td>
-    <a href="idas/examples_ser/idadenx_f.html">idadenx_f</a>,
-    <a href="idas/examples_ser/idadenx_g.html">idadenx_g</a>,
-    <a href="idas/examples_ser/idadenx_J.html">idadenx_J</a>
-  </td>
-  <td></td>
-  <td>chemical kinetics problem</td>
+  <td><a href="idas/examples_ser/midasBruss_ASA_dns.html">midasBruss_ASA_dns</a></td>
+  <td>adjoint sensitivity analysis for the Brusselator example</td>
 </tr>
 <tr>
-  <td><a href="idas/examples_ser/idabanx.html">idabanx</a></td>
-  <td>
-    <a href="idas/examples_ser/idabanx_f.html">idabanx_f</a>, 
-    <a href="idas/examples_ser/idabanx_q.html">idabanx_ic</a>,
-  </td>
-  <td></td>
-  <td>1D heat problem</td>
+  <td><a href="idas/examples_ser/midasBruss_dns.html">midasBruss_dns</a></td>
+  <td>Brusselator example</td>
 </tr>
+<tr>
+  <td><a href="idas/examples_ser/midasHeat2D_bnd.html">midasHeat2D_bnd</a></td>
+  <td>2D heat PDE example</td>
+</tr>
+<tr>
+  <td><a href="idas/examples_ser/midasPendI1_dns.html">midasPendI1_dns</a></td>
+  <td>simple pendulum example (index 1 formulation)</td>
+</tr>
+<tr>
+  <td><a href="idas/examples_ser/midasPendI2_dns.html">midasPendI2_dns</a></td>
+  <td>simple pendulum example (index 2 formulation)</td>
+</tr>
+<tr>
+  <td><a href="idas/examples_ser/midasReInit_dns.html">midasReInit_dns</a></td>
+  <td>illustraion of the IDAS reinitialization feature</td>
+</tr>
+<tr>
+  <td><a href="idas/examples_ser/midasRoberts_ASAi_dns.html">midasRoberts_ASAi_dns</a></td>
+  <td>adjoint sensitivity analysis (integral functional) for the Robertson example</td>
+</tr>
+<tr>
+  <td><a href="idas/examples_ser/midasRoberts_dns.html">midasRoberts_dns</a></td>
+  <td>Robertson chemical kinetics example</td>
+</tr>
+<tr>
+  <td><a href="idas/examples_ser/midasSlCrank_FSA_dns.html">midasSlCrank_FSA_dns</a></td>
+  <td>forward sensitivity analysis for the slider-crank example</td>
+</tr>
+<tr>
+  <td><a href="idas/examples_ser/midasSlCrank_dns.html">midasSlCrank_dns</a></td>
+  <td>slider-crank mechanical example (index-2 formulation)</td>
 </tr>
 </table> 
-</div>
-
-<h1>IDAS Parallel Example Problems</h1>
-<div class="frame">
-<table>
-<colgroup width="60">
-<colgroup width="280">
-<colgroup width="30" align="center">
-<colgroup align="left">
-<tr>
-  <td><strong>Driver</strong></td>
-  <td><strong>Supporting functions</strong></td>
-  <td></td>
-  <td><strong>Description</strong></td>
-</tr>
-</table>
 </div>
 
 
 <div id="contact">
 For further information, contact <br> 
-Radu Serban <a href="mailto:radu@llnl.gov">radu@llnl.gov</a>, (925) 424-4852 <br> 
+Radu Serban <a href="mailto:radu@llnl.gov">radu@llnl.gov</a><br> 
 </div>
 
 
