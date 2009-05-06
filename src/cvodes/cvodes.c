@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2009-04-01 23:53:40 $
+ * $Revision: 1.29 $
+ * $Date: 2009-05-06 21:49:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -8002,7 +8002,7 @@ static int cvSLdet(CVodeMem cv_mem)
  * the initial point of the IVP.
  *
  * This routine returns an int equal to:
- *  CV_RTFUNC_FAIL = -12  if the g function failed
+ *  CV_RTFUNC_FAIL = -12  if the g function failed, or
  *  CV_SUCCESS     =   0  otherwise.
  */
 
@@ -8066,9 +8066,10 @@ static int cvRcheck1(CVodeMem cv_mem)
  * the last root location.
  *
  * This routine returns an int equal to:
- *      CLOSERT = -2 if a close pair of zeros was found,
- *      RTFOUND =  1 if a new zero of g was found near tlo, or
- *      CV_SUCCESS    =  0 otherwise.
+ *      CV_RTFUNC_FAIL = -12 if the g function failed, or
+ *      CLOSERT        =  3  if a close pair of zeros was found, or
+ *      RTFOUND        =  1  if a new zero of g was found near tlo, or
+ *      CV_SUCCESS     =  0  otherwise.
  */
 
 static int cvRcheck2(CVodeMem cv_mem)
@@ -8131,8 +8132,9 @@ static int cvRcheck2(CVodeMem cv_mem)
  * Only roots beyond tlo in the direction of integration are sought.
  *
  * This routine returns an int equal to:
- *      RTFOUND =  1 if a root of g was found, or
- *      CV_SUCCESS    =  0 otherwise.
+ *      CV_RTFUNC_FAIL = -12 if the g function failed, or
+ *      RTFOUND        =  1  if a root of g was found, or
+ *      CV_SUCCESS     =  0  otherwise.
  */
 
 static int cvRcheck3(CVodeMem cv_mem)
@@ -8161,6 +8163,7 @@ static int cvRcheck3(CVodeMem cv_mem)
 
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
   ier = cvRootFind(cv_mem);
+  if (ier == CV_RTFUNC_FAIL) return(CV_RTFUNC_FAIL);
   for(i=0; i<nrtfn; i++) {
     if(!gactive[i] && grout[i] != ZERO) gactive[i] = TRUE;
   }
@@ -8248,8 +8251,9 @@ static int cvRcheck3(CVodeMem cv_mem)
  *            to that indicated by rootdir[i].
  *
  * This routine returns an int equal to:
- *      RTFOUND =  1 if a root of g was found, or
- *      CV_SUCCESS    =  0 otherwise.
+ *      CV_RTFUNC_FAIL = -12 if the g function failed, or
+ *      RTFOUND        =  1  if a root of g was found, or
+ *      CV_SUCCESS     =  0  otherwise.
  */
 
 static int cvRootFind(CVodeMem cv_mem)
