@@ -57,8 +57,8 @@ matrix, and $Q$ is a vector of generalized applied forces. $\Phi(y) \in R^2$ rep
 $\lambda \in R^2$ are Lagrange multipliers corresponding to the constraint forces.
 %%
 For its solution with {\idas}, the above index-3 DAE is reformulated as a stabilized 
-index-2 DAE (Gear-Gupta-Leimkhuler formulation,  \cite{GGL:85}) by introducing two additional Lagrange 
-multipliers $\mu$ and appending the velocity constraints.
+index-2 DAE (Gear-Gupta-Leimkuhler formulation, \cite{GGL:85}) by introducing two
+additional Lagrange multipliers $\mu$ and appending the velocity constraints.
 Converting to first order differential equations, we obtain:
 \begin{equation}\label{e:GGLform}
 \begin{split}
@@ -106,8 +106,8 @@ are set to consistent values, given as follows:
 \begin{equation*}
   \begin{split}
     &y_1 = \pi/2 \\
-    &y_2 = \cos(y_3) \\
     &y_3 = \arcsin(-a) \\
+    &y_2 = \cos(y_3) \\
     &v_1 = v_2 = v_3 = 0 \\
     &\lambda_1 = \lambda_2 = \mu_1 = \mu_2 = 0 \\
     &dy_1/dt = dy_2/dt = dy_3/dt = 0 \\
