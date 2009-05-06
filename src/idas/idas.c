@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2008-09-09 19:44:49 $
+ * $Revision: 1.34 $
+ * $Date: 2009-05-06 22:13:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -6376,7 +6376,7 @@ static realtype IDAQuadSensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
  * the initial point of the IVP.
  *
  * This routine returns an int equal to:
- *  IDA_RTFUNC_FAIL < 0  if the g function failed
+ *  IDA_RTFUNC_FAIL < 0  if the g function failed, or
  *  IDA_SUCCESS     = 0  otherwise.
  */
 
@@ -6441,7 +6441,8 @@ static int IDARcheck1(IDAMem IDA_mem)
  * or the last root location.
  *
  * This routine returns an int equal to:
- *     CLOSERT     (>0) if a close pair of zeros was found,
+ *     IDA_RTFUNC_FAIL (<0) if the g function failed, or
+ *     CLOSERT     (>0) if a close pair of zeros was found, or
  *     RTFOUND     (>0) if a new zero of g was found near tlo, or
  *     IDA_SUCCESS (=0) otherwise.
  */
@@ -6506,6 +6507,7 @@ static int IDARcheck2(IDAMem IDA_mem)
  * Only roots beyond tlo in the direction of integration are sought.
  *
  * This routine returns an int equal to:
+ *     IDA_RTFUNC_FAIL (<0) if the g function failed, or
  *     RTFOUND     (>0) if a root of g was found, or
  *     IDA_SUCCESS (=0) otherwise.
  */
@@ -6531,6 +6533,7 @@ static int IDARcheck3(IDAMem IDA_mem)
 
   ttol = (ABS(tn) + ABS(hh))*uround*HUNDRED;
   ier = IDARootfind(IDA_mem);
+  if (ier == IDA_RTFUNC_FAIL) return(IDA_RTFUNC_FAIL);
   for(i=0; i<nrtfn; i++) {
     if(!gactive[i] && grout[i] != ZERO) gactive[i] = TRUE;
   }
@@ -6618,6 +6621,7 @@ static int IDARcheck3(IDAMem IDA_mem)
  *            to that indicated by rootdir[i].
  *
  * This routine returns an int equal to:
+ *      IDA_RTFUNC_FAIL (<0) if the g function failed, or
  *      RTFOUND = 1 if a root of g was found, or
  *      IDA_SUCCESS = 0 otherwise.
  *
