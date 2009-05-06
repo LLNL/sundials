@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2009-04-01 23:52:03 $
+ * $Revision: 1.21 $
+ * $Date: 2009-05-06 21:46:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -123,7 +123,7 @@
  *    CV_SUCCESS
  *    CV_RTFUNC_FAIL,
  *    RTFOUND
- * CVRootFind return values:
+ * CVRootfind return values:
  *    CV_SUCCESS
  *    CV_RTFUNC_FAIL,
  *    RTFOUND
@@ -3607,7 +3607,7 @@ static int CVsldet(CVodeMem cv_mem)
  * the initial point of the IVP.
  *
  * This routine returns an int equal to:
- *  CV_RTFUNC_FAIL = -12  if the g function failed
+ *  CV_RTFUNC_FAIL = -12  if the g function failed, or
  *  CV_SUCCESS     =   0  otherwise.
  */
 
@@ -3672,9 +3672,10 @@ static int CVRcheck1(CVodeMem cv_mem)
  * the last root location.
  *
  * This routine returns an int equal to:
- *      CLOSERT = -2 if a close pair of zeros was found,
- *      RTFOUND =  1 if a new zero of g was found near tlo, or
- *      CV_SUCCESS    =  0 otherwise.
+ *      CV_RTFUNC_FAIL = -12 if the g function failed, or
+ *      CLOSERT        =  3  if a close pair of zeros was found, or
+ *      RTFOUND        =  1  if a new zero of g was found near tlo, or
+ *      CV_SUCCESS     =  0  otherwise.
  */
 
 static int CVRcheck2(CVodeMem cv_mem)
@@ -3737,8 +3738,9 @@ static int CVRcheck2(CVodeMem cv_mem)
  * Only roots beyond tlo in the direction of integration are sought.
  *
  * This routine returns an int equal to:
- *      RTFOUND =  1 if a root of g was found, or
- *      CV_SUCCESS    =  0 otherwise.
+ *      CV_RTFUNC_FAIL = -12 if the g function failed, or
+ *      RTFOUND        =  1  if a root of g was found, or
+ *      CV_SUCCESS     =  0  otherwise.
  */
 
 static int CVRcheck3(CVodeMem cv_mem)
@@ -3767,6 +3769,7 @@ static int CVRcheck3(CVodeMem cv_mem)
 
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
   ier = CVRootfind(cv_mem);
+  if (ier == CV_RTFUNC_FAIL) return(CV_RTFUNC_FAIL);
   for(i=0; i<nrtfn; i++) {
     if(!gactive[i] && grout[i] != ZERO) gactive[i] = TRUE;
   }
@@ -3783,7 +3786,7 @@ static int CVRcheck3(CVodeMem cv_mem)
 }
 
 /*
- * CVRootFind
+ * CVRootfind
  *
  * This routine solves for a root of g(t) between tlo and thi, if
  * one exists.  Only roots of odd multiplicity (i.e. with a change
@@ -3854,8 +3857,9 @@ static int CVRcheck3(CVodeMem cv_mem)
  *            to that indicated by rootdir[i].
  *
  * This routine returns an int equal to:
- *      RTFOUND =  1 if a root of g was found, or
- *      CV_SUCCESS    =  0 otherwise.
+ *      CV_RTFUNC_FAIL = -12 if the g function failed, or
+ *      RTFOUND        =  1  if a root of g was found, or
+ *      CV_SUCCESS     =  0  otherwise.
  */
 
 static int CVRootfind(CVodeMem cv_mem)
