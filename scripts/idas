@@ -10,7 +10,7 @@ if [ $doc = "T" ]; then
 #tar ufv $tarfile $distrobase/doc/idas/idas_guide.ps
 tar ufv $tarfile $distrobase/doc/idas/idas_guide.pdf
 #tar ufv $tarfile $distrobase/doc/idas/idas_examples.ps
-#tar ufv $tarfile $distrobase/doc/idas/idas_examples.pdf
+tar ufv $tarfile $distrobase/doc/idas/idas_examples.pdf
 fi
 
 tar ufv $tarfile $distrobase/include/idas/idas.h
