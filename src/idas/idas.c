@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2009-05-06 22:13:07 $
+ * $Revision: 1.35 $
+ * $Date: 2009-09-02 22:19:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -110,6 +110,8 @@
  *       IDAReset
  *   Function called after a successful step
  *       IDACompleteStep
+ *   Get solution
+ *       IDAGetSolution
  *   Norm functions
  *       IDAWrmsNorm
  *       IDASensWrmsNorm
@@ -2540,9 +2542,6 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
  * variable t, and stores the results in the vector dky.  It uses the current
  * independent variable value, tn, and the method order last used, kused.
  * 
- * If kused = 0 (no step has been taken), or if t = tn, then the order used
- * here is taken to be 1, giving yret = phi[0], ypret = phi[1]/psi[0].
- * 
  * The return values are:
  *   IDA_SUCCESS  if t is legal, or
  *   IDA_BAD_T    if t is not within the interval of the last step taken.
@@ -4860,7 +4859,6 @@ static int IDAStep(IDAMem IDA_mem)
  * The return values are:
  *   IDA_SUCCESS  if t is legal, or
  *   IDA_BAD_T    if t is not within the interval of the last step taken.
- *
  */
 
 int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
