@@ -2569,8 +2569,10 @@ The call to the \id{IDAGetDky} function has the following form:
     The \id{ida\_mem} argument was \id{NULL}.
   \item[\Id{IDA\_BAD\_T}] 
     \id{t} is not in the interval $[t_n - h_u , t_n]$.
-  \item[\Id{IDA\_BAD\_DKY}] 
+  \item[\Id{IDA\_BAD\_K}]
     \id{k} is not one of $\{0, 1, \ldots, klast\}$.
+  \item[\Id{IDA\_BAD\_DKY}]
+    \id{dky} is \id{NULL}.
   \end{args}
 
 }
