@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-11-26 16:19:58 $
+ * $Revision: 1.13 $
+ * $Date: 2009-09-02 22:15:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -67,30 +67,31 @@ extern "C" {
 
 #define IDA_WARNING          99
 
-#define IDA_MEM_NULL        -1
-#define IDA_ILL_INPUT       -2
-#define IDA_NO_MALLOC       -3
-#define IDA_TOO_MUCH_WORK   -4
-#define IDA_TOO_MUCH_ACC    -5
-#define IDA_ERR_FAIL        -6
-#define IDA_CONV_FAIL       -7
-#define IDA_LINIT_FAIL      -8
-#define IDA_LSETUP_FAIL     -9
-#define IDA_LSOLVE_FAIL     -10
-#define IDA_RES_FAIL        -11
-#define IDA_CONSTR_FAIL     -12
-#define IDA_REP_RES_ERR     -13
+#define IDA_TOO_MUCH_WORK   -1
+#define IDA_TOO_MUCH_ACC    -2
+#define IDA_ERR_FAIL        -3
+#define IDA_CONV_FAIL       -4
 
-#define IDA_MEM_FAIL        -14
+#define IDA_LINIT_FAIL      -5
+#define IDA_LSETUP_FAIL     -6
+#define IDA_LSOLVE_FAIL     -7
+#define IDA_RES_FAIL        -8
+#define IDA_REP_RES_ERR     -9
+#define IDA_RTFUNC_FAIL     -10
+#define IDA_CONSTR_FAIL     -11
 
-#define IDA_BAD_T           -15
+#define IDA_FIRST_RES_FAIL  -12
+#define IDA_LINESEARCH_FAIL -13
+#define IDA_NO_RECOVERY     -14
 
-#define IDA_BAD_EWT         -16
-#define IDA_FIRST_RES_FAIL  -17
-#define IDA_LINESEARCH_FAIL -18
-#define IDA_NO_RECOVERY     -19
-
-#define IDA_RTFUNC_FAIL     -20
+#define IDA_MEM_NULL        -20
+#define IDA_MEM_FAIL        -21
+#define IDA_ILL_INPUT       -22
+#define IDA_NO_MALLOC       -23
+#define IDA_BAD_EWT         -24
+#define IDA_BAD_K           -25
+#define IDA_BAD_T           -26
+#define IDA_BAD_DKY         -27
 
 /*
  * ----------------------------------------------------------------
@@ -773,30 +774,23 @@ SUNDIALS_EXPORT int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
 /*
  * ----------------------------------------------------------------
- * Function: IDAGetSolution                                       
+ * Function: IDAGetDky                                     
  * ----------------------------------------------------------------
- *                                                                
- * This routine evaluates y(t) and y'(t) as the value and         
- * derivative of the interpolating polynomial at the independent  
- * variable t, and stores the results in the vectors yret and     
- * ypret.  It uses the current independent variable value, tn,    
- * and the method order last used, kused. This function is        
- * called by IDASolve with t = tout, t = tn, or t = tstop.        
- *                                                                
- * If kused = 0 (no step has been taken), or if t = tn, then the  
- * order used here is taken to be 1, giving yret = phi[0],        
- * ypret = phi[1]/psi[0].                                         
- *                                                                
+ *
+ * This routine computes the k-th derivative of the interpolating
+ * polynomial at the time t and stores the result in the vector dky.
+ *
  * The return values are:                                         
  *   IDA_SUCCESS:  succeess.                                  
  *   IDA_BAD_T:    t is not in the interval [tn-hu,tn].                   
- *   IDA_MEM_NULL: The ida_mem argument was NULL.     
+ *   IDA_MEM_NULL: The ida_mem argument was NULL.
+ *   IDA_BAD_DKY  if the dky vector is NULL.
+ *   IDA_BAD_K    if the requested k is not in the range 0,1,...,order used 
  *                                                                
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetSolution(void *ida_mem, realtype t, 
-				   N_Vector yret, N_Vector ypret);
+SUNDIALS_EXPORT int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky);
 
 /* ----------------------------------------------------------------
  * Integrator optional output extraction functions                
