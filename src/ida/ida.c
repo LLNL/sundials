@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2009-05-06 22:12:11 $
+ * $Revision: 1.23 $
+ * $Date: 2009-09-02 22:10:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -24,7 +24,7 @@
  *   Main solver function
  *       IDASolve
  *   Interpolated output and extraction functions
- *       IDAGetSolution
+ *       IDAGetDky
  *   Deallocation functions
  *       IDAFree
  *
@@ -59,6 +59,8 @@
  *       IDAReset
  *   Function called after a successful step
  *       IDACompleteStep
+ *   Get solution
+ *       IDAGetSolution
  *   Norm functions
  *       IDAWrmsNorm
  *   Functions for rootfinding
@@ -240,6 +242,10 @@ static void IDAReset(IDAMem IDA_mem);
 /* Function called after a successful step */
 
 static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1);
+
+/* Function called to evaluate the solutions y(t) and y'(t) at t */
+
+int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret);
 
 /* Stopping tests and failure handling */
 
@@ -1296,7 +1302,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
           }
         }
         if ((IDA_mem->ida_mxgnull > 0) && inactive_roots) {
-          IDAProcessError(IDA_mem, IDA_WARNING, "IDAS", "IDASolve", MSG_INACTIVE_ROOTS);
+          IDAProcessError(IDA_mem, IDA_WARNING, "IDA", "IDASolve", MSG_INACTIVE_ROOTS);
         }
       }
 
@@ -1319,63 +1325,114 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
  */
 
 /* 
- * IDAGetSolution
+ * IDAGetDky
  *
- * This routine evaluates y(t) and y'(t) as the value and derivative of 
- * the interpolating polynomial at the independent variable t, and stores
- * the results in the vectors yret and ypret.  It uses the current
+ * This routine evaluates the k-th derivative of y(t) as the value of 
+ * the k-th derivative of the interpolating polynomial at the independent 
+ * variable t, and stores the results in the vector dky.  It uses the current
  * independent variable value, tn, and the method order last used, kused.
- * This function is called by IDASolve with t = tout, t = tn, or t = tstop.
- * 
- * If kused = 0 (no step has been taken), or if t = tn, then the order used
- * here is taken to be 1, giving yret = phi[0], ypret = phi[1]/psi[0].
  * 
  * The return values are:
  *   IDA_SUCCESS  if t is legal, or
  *   IDA_BAD_T    if t is not within the interval of the last step taken.
+ *   IDA_BAD_DKY  if the dky vector is NULL.
+ *   IDA_BAD_K    if the requested k is not in the range 0,1,...,order used 
+ *
  */
 
-int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
+int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
 {
   IDAMem IDA_mem;
-  realtype tfuzz, tp, delt, c, d, gam;
-  int j, kord;
+  realtype tfuzz, tp, delt, psij_1;
+  int i, j;
+  realtype cjk  [MXORDP1];
+  realtype cjk_1[MXORDP1];
 
+  /* Check ida_mem */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetSolution", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetDky", MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem; 
 
+  if (dky == NULL) {
+    IDAProcessError(IDA_mem, IDA_BAD_DKY, "IDA", "IDAGetDky", MSG_NULL_DKY);
+    return(IDA_BAD_DKY);
+  }
+  
+  if ((k < 0) || (k > kused)) {
+    IDAProcessError(IDA_mem, IDA_BAD_K, "IDA", "IDAGetDky", MSG_BAD_K);
+    return(IDA_BAD_K);
+  }
+
   /* Check t for legality.  Here tn - hused is t_{n-1}. */
- 
+
   tfuzz = HUNDRED * uround * (ABS(tn) + ABS(hh));
   if (hh < ZERO) tfuzz = - tfuzz;
   tp = tn - hused - tfuzz;
   if ((t - tp)*hh < ZERO) {
-    IDAProcessError(IDA_mem, IDA_BAD_T, "IDA", "IDAGetSolution", MSG_BAD_T, t, tn-hused, tn);
+    IDAProcessError(IDA_mem, IDA_BAD_T, "IDA", "IDAGetDky", MSG_BAD_T, t, tn-hused, tn);
     return(IDA_BAD_T);
   }
 
-  /* Initialize yret = phi[0], ypret = 0, and kord = (kused or 1). */
-
-  N_VScale (ONE, phi[0], yret);
-  N_VConst (ZERO, ypret);
-  kord = kused; 
-  if (kused == 0) kord = 1;
-
- /* Accumulate multiples of columns phi[j] into yret and ypret. */
-
-  delt = t - tn;
-  c = ONE; d = ZERO;
-  gam = delt/psi[0];
-  for (j=1; j <= kord; j++) {
-    d = d*gam + c/psi[j-1];
-    c = c*gam;
-    gam = (delt + psi[j-1])/psi[j];
-    N_VLinearSum(ONE,  yret, c, phi[j],  yret);
-    N_VLinearSum(ONE, ypret, d, phi[j], ypret);
+  /* Initialize the c_j^(k) and c_k^(k-1) */
+  for(i=0; i<MXORDP1; i++) {
+    cjk  [i] = 0;
+    cjk_1[i] = 0;
   }
+
+  delt = t-tn;
+
+  for(i=0; i<=k; i++) {
+
+    /* The below reccurence is used to compute the k-th derivative of the solution:
+       c_j^(k) = ( k * c_{j-1}^(k-1) + c_{j-1}^{k} (Delta+psi_{j-1}) ) / psi_j
+       
+       Translated in indexes notation:
+       cjk[j] = ( k*cjk_1[j-1] + cjk[j-1]*(delt+psi[j-2]) ) / psi[j-1]
+
+       For k=0, j=1: c_1 = c_0^(-1) + (delt+psi[-1]) / psi[0]
+
+       In order to be able to deal with k=0 in the same way as for k>0, the
+       following conventions were adopted:
+         - c_0(t) = 1 , c_0^(-1)(t)=0 
+         - psij_1 stands for psi[-1]=0 when j=1 
+                         for psi[j-2]  when j>1
+    */
+    if(i==0) {
+
+      cjk[i] = 1;
+      psij_1 = 0;
+    }else {
+      /*                                                i       i-1          1
+        c_i^(i) can be always updated since c_i^(i) = -----  --------  ... -----
+                                                      psi_j  psi_{j-1}     psi_1
+      */
+      cjk[i] = cjk[i-1]*i/psi[i-1];
+      psij_1 = psi[i-1];
+    }
+
+    /* update c_j^(i) */
+
+    /*j does not need to go till kused */
+    for(j=i+1; j<=kused-k+i; j++) {
+
+      cjk[j] = ( i* cjk_1[j-1] + cjk[j-1] * (delt + psij_1) ) / psi[j-1];      
+      psij_1 = psi[j-1];
+    }
+
+    /* save existing c_j^(i)'s */
+    for(j=i+1; j<=kused-k+i; j++) cjk_1[j] = cjk[j];
+  }
+
+  /* Compute sum (c_j(t) * phi(t)) */
+
+  N_VConst(ZERO, dky);
+  for(j=k; j<=kused; j++)
+  {
+    N_VLinearSum(ONE, dky, cjk[j], phi[j], dky);
+  }
+
   return(IDA_SUCCESS);
 }
 
@@ -2767,6 +2824,73 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
   for (j= kused-1; j>=0; j--)
     N_VLinearSum(ONE, phi[j], ONE, phi[j+1], phi[j]);
 
+}
+
+/* 
+ * -----------------------------------------------------------------
+ * Interpolated output
+ * -----------------------------------------------------------------
+ */
+
+/* 
+ * IDAGetSolution
+ *
+ * This routine evaluates y(t) and y'(t) as the value and derivative of 
+ * the interpolating polynomial at the independent variable t, and stores
+ * the results in the vectors yret and ypret.  It uses the current
+ * independent variable value, tn, and the method order last used, kused.
+ * This function is called by IDASolve with t = tout, t = tn, or t = tstop.
+ * 
+ * If kused = 0 (no step has been taken), or if t = tn, then the order used
+ * here is taken to be 1, giving yret = phi[0], ypret = phi[1]/psi[0].
+ * 
+ * The return values are:
+ *   IDA_SUCCESS  if t is legal, or
+ *   IDA_BAD_T    if t is not within the interval of the last step taken.
+ */
+
+int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
+{
+  IDAMem IDA_mem;
+  realtype tfuzz, tp, delt, c, d, gam;
+  int j, kord;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetSolution", MSG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem; 
+
+  /* Check t for legality.  Here tn - hused is t_{n-1}. */
+ 
+  tfuzz = HUNDRED * uround * (ABS(tn) + ABS(hh));
+  if (hh < ZERO) tfuzz = - tfuzz;
+  tp = tn - hused - tfuzz;
+  if ((t - tp)*hh < ZERO) {
+    IDAProcessError(IDA_mem, IDA_BAD_T, "IDA", "IDAGetSolution", MSG_BAD_T, t, tn-hused, tn);
+    return(IDA_BAD_T);
+  }
+
+  /* Initialize yret = phi[0], ypret = 0, and kord = (kused or 1). */
+
+  N_VScale (ONE, phi[0], yret);
+  N_VConst (ZERO, ypret);
+  kord = kused; 
+  if (kused == 0) kord = 1;
+
+  /* Accumulate multiples of columns phi[j] into yret and ypret. */
+
+  delt = t - tn;
+  c = ONE; d = ZERO;
+  gam = delt/psi[0];
+  for (j=1; j <= kord; j++) {
+    d = d*gam + c/psi[j-1];
+    c = c*gam;
+    gam = (delt + psi[j-1])/psi[j];
+    N_VLinearSum(ONE,  yret, c, phi[j],  yret);
+    N_VLinearSum(ONE, ypret, d, phi[j], ypret);
+  }
+  return(IDA_SUCCESS);
 }
 
 /* 
