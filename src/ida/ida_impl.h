@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2008-10-15 22:04:21 $
+ * $Revision: 1.15 $
+ * $Date: 2009-09-09 22:25:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -446,6 +446,8 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_EWT_NOW_BAD    "At " MSG_TIME "some ewt component has become <= 0.0."
 #define MSG_TOO_MUCH_ACC   "At " MSG_TIME "too much accuracy requested."
 
+#define MSG_BAD_K          "Illegal value for k."
+#define MSG_NULL_DKY       "dky = NULL illegal."
 #define MSG_BAD_T          "Illegal value for t." MSG_TIME_INT
 #define MSG_BAD_TOUT       "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration."
 
