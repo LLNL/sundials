@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:36 $
+ * $Revision: 1.2 $
+ * $Date: 2009-09-30 23:25:59 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -53,6 +53,7 @@ int ressc(realtype tres, N_Vector yy, N_Vector yp,
 void setIC(N_Vector yy, N_Vector yp, UserData data);
 void force(N_Vector yy, realtype *Q, UserData data);
 
+static void PrintHeader(realtype rtol, realtype atol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
 static void PrintFinalStats(void *mem);
 
@@ -119,6 +120,8 @@ int main(void)
 
   /* Call IDADense and set up the linear solver. */
   flag = IDADense(mem, NEQ);
+
+  PrintHeader(rtol, atol, yy);
 
   /* In loop, call IDASolve, print results, and test for error. */
 
@@ -282,6 +285,26 @@ int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
   rval[9] = -a*c1*qd - c2*pd;
 
   return(0);
+}
+
+static void PrintHeader(realtype rtol, realtype atol, N_Vector y)
+{
+  printf("\nidaSlCrank_dns: Slider-Crank DAE serial example problem for IDAS\n");
+  printf("Linear solver: IDADENSE, Jacobian is computed by IDAS.\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n",
+         rtol, atol);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("Tolerance parameters:  rtol = %lg   atol = %lg\n",
+         rtol, atol);
+#else
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n",
+         rtol, atol);
+#endif
+  printf("-----------------------------------------------------------------------\n");
+  printf("  t            y1          y2           y3");
+  printf("      | nst  k      h\n");
+  printf("-----------------------------------------------------------------------\n");
 }
 
 static void PrintOutput(void *mem, realtype t, N_Vector y)

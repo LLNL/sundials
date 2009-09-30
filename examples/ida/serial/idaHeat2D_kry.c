@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:36 $
+ * $Revision: 1.2 $
+ * $Date: 2009-09-30 23:25:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -320,7 +320,7 @@ int resHeat(realtype tt,
 }
 
 /*
- * PsetupHeat: setup for diagonal preconditioner for idakryx.   
+ * PsetupHeat: setup for diagonal preconditioner for idaHeat2D_kry.   
  *                                                                 
  * The optional user-supplied functions PsetupHeat and          
  * PsolveHeat together must define the left preconditoner        
@@ -447,7 +447,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 static void PrintHeader(realtype rtol, realtype atol)
 {
-  printf("\nidakryx: Heat equation, serial example problem for IDA \n");
+  printf("\nidaHeat2D_kry: Heat equation, serial example problem for IDA \n");
   printf("         Discretized heat equation on 2D unit square. \n");
   printf("         Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");

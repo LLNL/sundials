@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:36 $
+ * $Revision: 1.2 $
+ * $Date: 2009-09-30 23:25:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -296,7 +296,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 static void PrintHeader(realtype rtol, realtype atol)
 {
-  printf("idabanx1: Heat equation, serial example problem for IDA\n");
+  printf("\nidaHeat2D_bnd: Heat equation, serial example problem for IDA\n");
   printf("          Discretized heat equation on 2D unit square.\n");
   printf("          Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");

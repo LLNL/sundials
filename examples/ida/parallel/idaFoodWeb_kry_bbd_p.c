@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-01-21 21:51:18 $
+ * $Revision: 1.3 $
+ * $Date: 2009-09-30 23:28:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -511,7 +511,7 @@ static void PrintHeader(int SystemSize, int maxl,
                         int mukeep, int mlkeep,
                         realtype rtol, realtype atol)
 {
-  printf("\nidakryx2_bbd_p: Predator-prey DAE parallel example problem for IDA \n\n");
+  printf("\nidaFoodWeb_kry_bbd_p: Predator-prey DAE parallel example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
   printf("     Total system size: %d\n",SystemSize);

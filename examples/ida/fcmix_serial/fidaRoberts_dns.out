@@ -1,5 +1,5 @@
 
-fidadenx: Robertson kinetics DAE serial exampleproblem for IDA
+fidaRoberts_dns: Robertson kinetics DAE serial exampleproblem for IDA
           Three equation chemicalkinetics problem.
 
 Tolerance parameters:  rtol = 0.10E-03   atol =  0.10E-05 0.10E-09 0.10E-05
@@ -17,7 +17,7 @@ Initial conditions y0 = ( 0.10E+01 0.00E+00 0.00E+00)
 0.4000E+06   0.4939E-02   0.1985E-07   0.9951E+00  324  5  0.2770E+05
 0.4000E+07   0.5176E-03   0.2072E-08   0.9995E+00  355  4  0.3979E+06
 0.2075E+08   0.1000E-03   0.4000E-09   0.9999E+00  374  4  0.1592E+07
-     Above is a root, INFO() =   1  0
+     Above is a root, INFO() =  -1  0
 0.4000E+08   0.5191E-04   0.2076E-09   0.9999E+00  380  3  0.6366E+07
 0.4000E+09   0.5882E-05   0.2353E-10   0.1000E+01  394  1  0.9167E+08
 0.4000E+10   0.7054E-06   0.2822E-11   0.1000E+01  402  1  0.1467E+10

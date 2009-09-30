@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:35 $
+ * $Revision: 1.2 $
+ * $Date: 2009-09-30 23:28:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -559,7 +559,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
 static void PrintHeader(int SystemSize, int maxl, 
                         realtype rtol, realtype atol)
 {
-  printf("\nidakryx2_p: Predator-prey DAE parallel example problem for IDA \n\n");
+  printf("\nidaFoodWeb_kry_p: Predator-prey DAE parallel example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
   printf("     Total system size: %d\n",SystemSize);

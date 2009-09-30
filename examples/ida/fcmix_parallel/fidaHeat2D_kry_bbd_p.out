@@ -1,5 +1,5 @@
 
-fidakryx_bbd_p: Heat equation, parallel example problem for FIDA
+fidaHeat2D_kry_bbd_p: Heat equation, parallel example problem for FIDA
                 Discretized heat equation on 2D unit square.
                 Zero boundary conditions, polynomial conditions.
                 Mesh dimensions: 10 x 10         Total system size: 100

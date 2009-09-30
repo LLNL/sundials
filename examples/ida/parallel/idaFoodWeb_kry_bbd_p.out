@@ -1,5 +1,5 @@
 
-idakryx2_bbd_p: Predator-prey DAE parallel example problem
+idaFoodWeb_kry_bbd_p: Predator-prey DAE parallel example problem
 
 Number of species ns: 2
 Mesh dimensions:      20 x 20

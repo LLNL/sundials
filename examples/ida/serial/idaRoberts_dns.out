@@ -1,5 +1,5 @@
 
-idadenx: Robertson kinetics DAE serial example problem for IDA
+idaRoberts_dns: Robertson kinetics DAE serial example problem for IDA
          Three equation chemical kinetics problem.
 
 Linear solver: IDADENSE, with user-supplied Jacobian.
