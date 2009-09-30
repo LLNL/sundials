@@ -1,7 +1,7 @@
-      program fkinkryx
+      program fkinDiagon_kry
 c     ----------------------------------------------------------------
-c     $Revision: 1.1 $
-c     $Date: 2007-10-25 20:03:40 $
+c     $Revision: 1.2 $
+c     $Date: 2009-09-30 23:41:32 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -79,7 +79,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinspilssetprec(1, ier)
 
       write(6,1240)
- 1240 format('Example program fkinkryx:'//' This fkinsol example code',
+ 1240 format('Example program fkinDiagon_kry:'//' This FKINSOL example',
      1       ' solves a 128 eqn diagonal algebraic system.'/
      2       ' Its purpose is to demonstrate the use of the Fortran',
      3       ' interface'/' in a serial environment.'///

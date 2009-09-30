@@ -1,6 +1,6 @@
-Example program fkinkryx:
+Example program fkinDiagon_kry:
 
- This fkinsol example code solves a 128 eqn diagonal algebraic system.
+ This FKINSOL example solves a 128 eqn diagonal algebraic system.
  Its purpose is to demonstrate the use of the Fortran interface
  in a serial environment.
 

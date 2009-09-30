@@ -1,7 +1,7 @@
-      program fkinkryx_p
+      program fkinDiagon_kry_p
 c     ----------------------------------------------------------------
-c     $Revision: 1.1 $
-c     $Date: 2007-10-25 20:03:40 $
+c     $Revision: 1.2 $
+c     $Date: 2009-09-30 23:42:12 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -18,7 +18,7 @@ c
 c      No scaling is done.
 c      An approximate diagonal preconditioner is used.
 c
-c      Execution command: mpirun -np 4 fkindiagon_kry_p
+c      Execution command: mpirun -np 4 fkinDiagon_kry_p
 c     ----------------------------------------------------------------
 c
       implicit none
@@ -121,8 +121,8 @@ c     number of this process.
       call fkinspilssetprec(1, ier)
       
       if (mype .eq. 0) write(6,1240)
- 1240 format('Example program fkinkryx_p:'//
-     1       ' This fkinsol example code',
+ 1240 format('Example program fkinDiagon_kry_p:'//
+     1       ' This FKINSOL example',
      2       ' solves a 128 eqn diagonal algebraic system.'/
      3       ' Its purpose is to demonstrate the use of the Fortran',
      4       ' interface'/' in a parallel environment.')
