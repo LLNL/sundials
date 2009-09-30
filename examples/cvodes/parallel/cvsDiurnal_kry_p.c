@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-02-17 02:48:46 $
+ * $Revision: 1.3 $
+ * $Date: 2009-09-30 23:22:04 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -43,8 +43,8 @@
  *
  * This version uses MPI for user routines.
  * 
- * Execution: mpirun -np N cvkryx_p   with N = NPEX*NPEY (see
- * constants below).
+ * Execution: mpirun -np N cvsDiurnal_kry_p   with N = NPEX*NPEY
+ * (see constants below).
  * -----------------------------------------------------------------
  */
 
