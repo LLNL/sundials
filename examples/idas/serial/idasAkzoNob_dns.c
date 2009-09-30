@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:38 $
+ * $Revision: 1.2 $
+ * $Date: 2009-09-30 23:33:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -263,7 +263,7 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
 
 static void PrintHeader(realtype rtol, realtype avtol, N_Vector y)
 {
-  printf("\nidasAkzoNobel: Akzo Nobel chemical kinetics DAE serial example problem for IDAS\n");
+  printf("\nidasAkzoNob_dns: Akzo Nobel chemical kinetics DAE serial example problem for IDAS\n");
   printf("Linear solver: IDADENSE, Jacobian is computed by IDAS.\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n",

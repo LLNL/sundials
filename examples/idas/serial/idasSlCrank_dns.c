@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2009-04-29 20:40:07 $
+ * $Revision: 1.4 $
+ * $Date: 2009-09-30 23:33:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -334,7 +334,7 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
 
 static void PrintHeader(realtype rtol, realtype avtol, N_Vector y)
 {
-  printf("\nidasSliderCrank: Slider-Crank DAE serial example problem for IDAS\n");
+  printf("\nidasSlCrank_dns: Slider-Crank DAE serial example problem for IDAS\n");
   printf("Linear solver: IDADENSE, Jacobian is computed by IDAS.\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n",

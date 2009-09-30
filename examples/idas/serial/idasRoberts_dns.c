@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:39 $
+ * $Revision: 1.2 $
+ * $Date: 2009-09-30 23:33:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -263,7 +263,7 @@ static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
   atval  = NV_DATA_S(avtol);
   yval  = NV_DATA_S(y);
 
-  printf("\nidasRobertson: Robertson kinetics DAE serial example problem for IDA.\n");
+  printf("\nidasRoberts_dns: Robertson kinetics DAE serial example problem for IDA.\n");
   printf("               Three equation chemical kinetics problem.\n\n");
   printf("Linear solver: IDADENSE, with user-supplied Jacobian.\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:39 $
+ * $Revision: 1.2 $
+ * $Date: 2009-09-30 23:33:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -463,11 +463,11 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 static void PrintHeader(realtype rtol, realtype atol, int linsolver)
 {
-  printf("\nidasKrylovDemo: Heat equation, serial example problem for IDA\n");
-  printf("                  Discretized heat equation on 2D unit square.\n");
-  printf("                  Zero boundary conditions,");
+  printf("\nidasKrylovDemo_ls: Heat equation, serial example problem for IDA\n");
+  printf("                   Discretized heat equation on 2D unit square.\n");
+  printf("                   Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
-  printf("                  Mesh dimensions: %d x %d", MGRID, MGRID);
+  printf("                   Mesh dimensions: %d x %d", MGRID, MGRID);
   printf("       Total system size: %d\n\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
