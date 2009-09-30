@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2008-12-17 19:40:08 $
+ * $Revision: 1.3 $
+ * $Date: 2009-09-30 23:40:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -76,10 +76,10 @@
  *    Computation, Vol. 31 (May 1989), pp. 40-91. (Presents a
  *    description of the time-dependent version of this
  *    test problem.)
- * -----------------------------------------------------------------
- *  Run command line: mpirun -np N -machinefile machines kinkryx_bbd_p
+ * --------------------------------------------------------------------------
+ *  Run command line: mpirun -np N -machinefile machines kinFoodWeb_kry_bbd_p
  *  where N = NPEX * NPEY is the number of processors.
- * -----------------------------------------------------------------
+ * --------------------------------------------------------------------------
  */
 
 #include <stdio.h>
