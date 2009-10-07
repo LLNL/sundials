@@ -43,8 +43,8 @@ are as follows:
   \item \id{FIDASOLVE}
     interfaces to \id{IDASolve}, \id{IDAGet*} functions, and to the optional
     output functions for the selected linear solver module.
-  \item \id{FIDAGETSOL}
-    interfaces to \id{IDAGetSolution}.
+  \item \id{FIDAGETDKY}
+    interfaces to \id{IDAGetDky}.
   \item \id{FIDAGETERRWEIGHTS}
     interfaces to \id{IDAGetErrWeights}.
   \item \id{FIDAGETESTLOCALERR}
@@ -671,17 +671,21 @@ apply to {\nvecp}.
   
 \item {\bf Additional solution output}
 
-  After a successful return from \id{FIDASOLVE}, the routine \id{FIDAGETSOL} may
-  be called to get interpolated values of $y$ and $\dot{y}$ for any value of $t$ in
-  the last internal step taken by {\ida}.
-  \index{FIDAGETSOL@\texttt{FIDAGETSOL}}
+  After a successful return from \id{FIDASOLVE}, the routine \id{FIDAGETDKY} may
+  be called to get interpolated values of $y$ or any derivative $d^k y/dt^k$
+  for $k$ not exceeding the current method order, and for any value of $t$ in
+  the last internal step taken by {\ida}.  The call is as follows:
+  \index{FIDAGETDKY@\texttt{FIDAGETDKY}}
 \begin{verbatim}
-      CALL FIDAGETSOL (T, Y, YP, IER)
+      CALL FIDAGETDKY (T, K, DKY, IER)
 \end{verbatim}
   where
-  \id{T} is the input value of $t$ at which solution derivative is desired, and
-  \id{Y} and \id{YP} are arrays containing the computed vectors $y$ and $\dot{y}$
-  on return.  The value \id{T} must lie between \id{TCUR-HLAST} and \id{TCUR}.
+  \id{T} is the input value of $t$ at which solution derivative is desired,
+  \id{K} is the derivative order, and
+  \id{DKY} is an array containing the computed vector $y^{(K)}(t)$ on return.
+  The value of \id{T} must lie between \id{TCUR - HLAST} and \id{TCUR}.
+  The value of \id{K} must satisfy $0 \leq K \leq $\id{QLAST}. (See the
+  optional outputs for \id{TCUR}, \id{HLAST}, and \id{QLAST}.)
   The return flag \id{IER} is set to $0$ upon successful return, or to a
   negative value to indicate an illegal input.
   
