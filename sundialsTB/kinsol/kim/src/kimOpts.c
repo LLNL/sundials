@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-12-05 21:58:20 $
+ * $Revision: 1.5 $
+ * $Date: 2009-11-25 23:12:03 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -126,9 +126,9 @@ int get_SolverOptions(const mxArray *options,
       kimErrHandler(-999, "KINSOL", "KINInit", "Cannot parse EtaForm.", NULL);
       return(-1);
     }
-    if(strcmp(bufval,"Type1"))         *etachoice = KIN_ETACHOICE1;
-    else if(strcmp(bufval,"Type2"))    *etachoice = KIN_ETACHOICE2;
-    else if(strcmp(bufval,"Constant")) *etachoice = KIN_ETACONSTANT;
+    if(!strcmp(bufval,"Type1"))         *etachoice = KIN_ETACHOICE1;
+    else if(!strcmp(bufval,"Type2"))    *etachoice = KIN_ETACHOICE2;
+    else if(!strcmp(bufval,"Constant")) *etachoice = KIN_ETACONSTANT;
     else {
       kimErrHandler(-999, "KINSOL", "KINInit", "EtaForm has an illegal value.", NULL);
       return(-1);
