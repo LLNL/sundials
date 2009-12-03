@@ -1145,7 +1145,12 @@ flag = KINSetUserData(kin\_mem, user\_data);
   \end{args}
 }
 {
-  The default value for \id{user\_data} is \id{NULL}.
+  If specified, the pointer to \id{user\_data} is passed to all user-supplied 
+  functions that have it as an argument. Otherwise, a \id{NULL} pointer is passed.
+
+  If \id{user\_data} is needed in user preconditioner functions, the call to
+  \id{KINSetUserData} must be made {\it before} the call to specify the
+  linear solver.
 }
 %%
 %%
