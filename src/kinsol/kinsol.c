@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2009-03-29 23:28:01 $
+ * $Revision: 1.8 $
+ * $Date: 2010-01-20 23:28:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -551,7 +551,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
       sflag = KINLineSearch(kin_mem, &fnormp, &f1normp, &maxStepTaken);
 
       /* if sysfunc failed unrecoverably, stop */
-      if (sflag == KIN_SYSFUNC_FAIL) {
+      if ((sflag == KIN_SYSFUNC_FAIL) || (sflag == KIN_REPTD_SYSFUNC_ERR)) {
         ret = sflag;
         break;
       }
@@ -1056,7 +1056,9 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       stepl = pnorm;
       if (printfl > 0)
         KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", "KINFullNewton", INFO_PNORM, pnorm);
-      if (pnorm <= scsteptol) return(STEP_TOO_SMALL);
+      if (pnorm <= scsteptol) {
+        N_VLinearSum(ONE, uu, ONE, pp, unew);
+        return(STEP_TOO_SMALL);}
     }
   }
  
@@ -1205,7 +1207,9 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       rlmax = ONE;
       stepl = pnorm;
       if (printfl > 0) KINPrintInfo(kin_mem, PRNT_PNORM1, "KINSOL", "KINLineSearch", INFO_PNORM1, pnorm);
-      if (pnorm <= scsteptol) return(STEP_TOO_SMALL);
+      if (pnorm <= scsteptol) {
+        N_VLinearSum(ONE, uu, ONE, pp, unew);
+        return(STEP_TOO_SMALL);}
     }
   }
 
@@ -1294,10 +1298,8 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       } else {                         /* real cubic */
         rltmp = (-rl_b + RSqrt(disc)) / (THREE * rl_a);
       }
-
-      if (rltmp > (HALF * rl)) rltmp = HALF * rl;
-
     }
+      if (rltmp > (HALF * rl)) rltmp = HALF * rl;
 
     /* Set new rl (do not allow a reduction by a factor larger than 10) */
 
