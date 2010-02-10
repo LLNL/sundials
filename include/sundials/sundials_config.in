@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-12-19 20:34:00 $
+ * $Revision: 1.5 $
+ * $Date: 2010-02-10 22:36:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,9 +45,7 @@
 
 /* Use generic math functions 
  * If it was decided that generic math functions can be used, then
- *     #define SUNDIALS_USE_GENERIC_MATH 1
- * otherwise
- *     #define SUNDIALS_USE_GENERIC_MATH 0
+ *     #define SUNDIALS_USE_GENERIC_MATH
  */
 @GENERIC_MATH_LIB@
 
