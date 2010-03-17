@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.4 $
+ * $Date: 2010-03-17 21:01:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -128,7 +128,7 @@ int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
-  yy_data = yp_data = rr_data = ewtdata = user_data = zdata = v1data = NULL;
+  yy_data = yp_data = rr_data = ewtdata = zdata = v1data = NULL;
 
   /* NOTE: The user-supplied routine should set ier to an
      appropriate value, but we preset the value to zero
