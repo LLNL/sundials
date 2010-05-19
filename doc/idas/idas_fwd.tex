@@ -1404,7 +1404,7 @@ of type \ID{IDASensResFn} defined by:
 \usfunction{IDASensResFn}
 {
   typedef int (*IDASensResFn)(&int Ns, realtype t, \\
-                              &N\_Vector yy, N\_Vector yp, \\ 
+                              &N\_Vector yy, N\_Vector yp, N\_Vector resval, \\ 
                               &N\_Vector *yS, N\_Vector *ypS, \\
                               &N\_Vector *resvalS, void *user\_data,  \\
                               &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -1421,7 +1421,9 @@ of type \ID{IDASensResFn} defined by:
   \item[yy]
     is the current value of the state vector, $y(t)$.
   \item[yp]
-    is the current value of the $\dot{y}(t)$.
+    is the current value of $\dot{y}(t)$.
+  \item[resval]
+    contains the current value $F$ of the original DAE residual.
   \item[yS]
     contains the current values of the sensitivities $s_i$.
   \item[ypS]
