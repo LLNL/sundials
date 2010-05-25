@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.8 $
+ * $Date: 2010-05-25 22:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -443,7 +443,8 @@ static void CVDiagFree(CVodeMem cv_mem)
   N_VDestroy(M);
   N_VDestroy(bit);
   N_VDestroy(bitcomp);
-  free(cvdiag_mem); cvdiag_mem = NULL;
+  free(cvdiag_mem);
+  cv_mem->cv_lmem = NULL;
 }
 
 

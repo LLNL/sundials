@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2008-09-03 20:26:21 $
+ * $Revision: 1.12 $
+ * $Date: 2010-05-25 22:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -467,7 +467,8 @@ static void CVSpgmrFree(CVodeMem cv_mem)
 
   if (cvspils_mem->s_pfree != NULL) (cvspils_mem->s_pfree)(cv_mem);
 
-  free(cvspils_mem); cvspils_mem = NULL;
+  free(cvspils_mem);
+  cv_mem->cv_lmem = NULL;
 }
 
 
