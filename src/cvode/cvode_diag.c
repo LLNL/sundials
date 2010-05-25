@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.5 $
+ * $Date: 2010-05-25 22:21:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -432,5 +432,6 @@ static void CVDiagFree(CVodeMem cv_mem)
   N_VDestroy(M);
   N_VDestroy(bit);
   N_VDestroy(bitcomp);
-  free(cvdiag_mem); cvdiag_mem = NULL;
+  free(cvdiag_mem);
+  cv_mem->cv_lmem = NULL;
 }

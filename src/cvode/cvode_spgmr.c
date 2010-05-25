@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2008-09-10 22:39:03 $
+ * $Revision: 1.9 $
+ * $Date: 2010-05-25 22:21:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -456,6 +456,7 @@ static void CVSpgmrFree(CVodeMem cv_mem)
 
   if (cvspils_mem->s_pfree != NULL) (cvspils_mem->s_pfree)(cv_mem);
 
-  free(cvspils_mem); cvspils_mem = NULL;
+  free(cvspils_mem);
+  cv_mem->cv_lmem = NULL;
 }
 
