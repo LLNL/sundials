@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.11 $
+ * $Date: 2010-05-25 20:54:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -335,6 +335,7 @@ static void cvDenseFree(CVodeMem cv_mem)
   DestroyMat(M);
   DestroyMat(savedJ);
   DestroyArray(pivots);
-  free(cvdls_mem); cvdls_mem = NULL;
+  free(cvdls_mem);
+  cv_mem->cv_lmem = NULL;
 }
 
