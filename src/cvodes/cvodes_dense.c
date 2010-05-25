@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.14 $
+ * $Date: 2010-05-25 21:42:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -341,7 +341,8 @@ static void cvDenseFree(CVodeMem cv_mem)
   DestroyMat(M);
   DestroyMat(savedJ);
   DestroyArray(pivots);
-  free(cvdls_mem); cvdls_mem = NULL;
+  free(cvdls_mem);
+  cv_mem->cv_lmem = NULL;
 }
 
 /* 
