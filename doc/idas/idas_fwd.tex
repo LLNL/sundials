@@ -188,7 +188,7 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 \item
   {\bf Set sensitivity tolerances}
 
-  Call \id{IDASensSStolerances}, \id{IDASensSVtolerances}, or \id{IDAEEtolerances}.
+  Call \id{IDASensSStolerances}, \id{IDASensSVtolerances}, or \id{IDASensEEtolerances}.
   See \S\ref{sss:idafwdtolerances}.
 
 \item
@@ -541,12 +541,12 @@ the call to \id{IDASensInit}.
 }
 %%
 %%
-\ucfunction{IDAEEtolerances}
+\ucfunction{IDASensEEtolerances}
 {
-  flag = IDAEEtolerances(ida\_mem);
+  flag = IDASensEEtolerances(ida\_mem);
 }
 {
-  When \ID{IDAEEtolerances} is called, {\idas} will estimate tolerances for
+  When \ID{IDASensEEtolerances} is called, {\idas} will estimate tolerances for
   sensitivity variables based on the tolerances supplied for states variables
   and the scaling factors $\bar p$.
 }
@@ -560,7 +560,7 @@ the call to \id{IDASensInit}.
   The return flag \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[IDA\_ILL\_INPUT]
   \item[\Id{IDA\_SUCCESS}]
-    The call to \id{IDAEEtolerances} was successful.
+    The call to \id{IDASensEEtolerances} was successful.
   \item[\Id{IDA\_MEM\_NULL}] 
     The {\idas} memory block was not initialized through a previous call to
     \id{IDACreate}.
