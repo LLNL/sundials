@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:29 $
+ * $Revision: 1.2 $
+ * $Date: 2010-09-08 22:09:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -361,7 +361,7 @@ static int Problem2(void)
   cvode_mem = NULL;
 
   y = N_VNew_Serial(P2_NEQ);
-  if(check_flag((void *)y, "N_VNew", 0)) return(1);
+  if(check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
 
   PrintIntro2();
 
