@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.3 $
+ * $Date: 2010-09-30 20:26:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -30,7 +30,7 @@
 
 /***************************************************************************/
 
-void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
+void FCV_BPINIT(int *N, int *mu, int *ml, int *ier)
 {
   /* 
      Call CVBandPrecInit to initialize the CVBANDPRE module:
