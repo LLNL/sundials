@@ -1,5 +1,5 @@
-%% This is a shared SUNDIALS TEX file with description of
-%% the serial nvector implementation
+%% This is a shared SUNDIALS TEX file with a description of the
+%% serial nvector implementation
 %%
 
 The serial implementation of the {\nvector} module provided with {\sundials},
@@ -36,8 +36,9 @@ vector. The suffix \id{\_S} in the names denotes serial version.
   
   \verb|#define NV_CONTENT_S(v) ( (N_VectorContent_Serial)(v->content) )|
   
-\item \ID{NV\_OWN\_DATA\_S}, \ID{NV\_DATA\_S}, \ID{NV\_LENGTH\_S}                                 
-                                                            
+\item \ID{NV\_OWN\_DATA\_S}, \ID{NV\_DATA\_S}, \ID{NV\_LENGTH\_S}
+
+
   These macros give individual access to the parts of    
   the content of a serial \id{N\_Vector}.                        
                                                                
@@ -130,8 +131,8 @@ user-callable routines:
 
 \item \ID{N\_VCloneEmptyVectorArray\_Serial}
 
- This function creates (by cloning) an array of \id{count} serial vectors, each with an empty (\id{NULL})
- data array.
+ This function creates (by cloning) an array of \id{count} serial vectors, each with an
+ empty (\id{NULL}) data array.
 
  
 
@@ -141,8 +142,9 @@ user-callable routines:
 
 \item \ID{N\_VDestroyVectorArray\_Serial}
 
- This function frees memory allocated for the array of \id{count} variables of type \id{N\_Vector}
- created with \id{N\_VCloneVectorArray\_Serial} or with \id{N\_VCloneEmptyVectorArray\_Serial}.
+ This function frees memory allocated for the array of \id{count} variables of type
+ \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Serial} or with
+ \id{N\_VCloneEmptyVectorArray\_Serial}.
 
  
 
