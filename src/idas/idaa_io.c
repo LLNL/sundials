@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-07-05 19:20:58 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 22:41:48 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -555,7 +555,7 @@ int IDAGetAdjCheckPointsInfo(void *ida_mem, IDAadjCheckPointRec *ckpnt)
  * IDA_SUCCESS otherwise.
  *
  */
-int IDAGetAdjDataPointHermite(void *ida_mem, long int which,
+int IDAGetAdjDataPointHermite(void *ida_mem, int which,
                               realtype *t, N_Vector yy, N_Vector yd)
 
 {
@@ -606,7 +606,7 @@ int IDAGetAdjDataPointHermite(void *ida_mem, long int which,
  */
 
 
-int IDAGetAdjDataPointPolynomial(void *ida_mem, long int which,
+int IDAGetAdjDataPointPolynomial(void *ida_mem, int which,
                                  realtype *t, int *order, N_Vector y)
 {
   IDAMem IDA_mem;
