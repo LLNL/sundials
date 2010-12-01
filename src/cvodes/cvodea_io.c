@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-06-05 20:55:57 $
+ * $Revision: 1.10 $
+ * $Date: 2010-12-01 22:33:22 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -589,7 +589,7 @@ int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointRec *ckpnt)
  * at the 'which' data point. Cubic Hermite interpolation.
  */
 
-int CVodeGetAdjDataPointHermite(void *cvode_mem, long int which, 
+int CVodeGetAdjDataPointHermite(void *cvode_mem, int which, 
                                 realtype *t, N_Vector y, N_Vector yd)
 {
   CVodeMem cv_mem;
@@ -638,7 +638,7 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, long int which,
  * at the 'which' data point. Polynomial interpolation.
  */
 
-int CVodeGetAdjDataPointPolynomial(void *cvode_mem, long int which, 
+int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which, 
                                    realtype *t, int *order, N_Vector y)
 {
   CVodeMem cv_mem;
