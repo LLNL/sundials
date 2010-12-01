@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2008-04-18 19:42:38 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:15:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -49,7 +49,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDADense(void *ida_mem, int Neq); 
+SUNDIALS_EXPORT int IDADense(void *ida_mem, long int Neq); 
 
 /*
  * -----------------------------------------------------------------
@@ -60,7 +60,7 @@ SUNDIALS_EXPORT int IDADense(void *ida_mem, int Neq);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDADenseB(void *ida_mem, int which, int NeqB);
+SUNDIALS_EXPORT int IDADenseB(void *ida_mem, int which, long int NeqB);
   
 #ifdef __cplusplus
 }

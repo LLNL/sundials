@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-11-26 16:19:58 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:10:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -110,7 +110,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, int N, int mu, int ml);
+SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, long int N, long int mu, long int ml);
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.9 $
+ * $Date: 2010-12-01 22:21:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -69,16 +69,16 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
  * -----------------------------------------------------------------
  */
 
-int CVBBDPrecInit(void *cvode_mem, int Nlocal, 
-                   int mudq, int mldq,
-                   int mukeep, int mlkeep, 
+int CVBBDPrecInit(void *cvode_mem, long int Nlocal, 
+                   long int mudq, long int mldq,
+                   long int mukeep, long int mlkeep, 
                    realtype dqrely, 
                    CVLocalFn gloc, CVCommFn cfn)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
-  int muk, mlk, storage_mu;
+  long int muk, mlk, storage_mu;
   int flag;
 
   if (cvode_mem == NULL) {
@@ -137,10 +137,10 @@ int CVBBDPrecInit(void *cvode_mem, int Nlocal,
     CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBBDPRE", "CVBBDPrecInit", MSGBBD_MEM_FAIL);
     return(CVSPILS_MEM_FAIL);
   }
-  /* Allocate memory for pivots */
-  pdata->pivots = NULL;
-  pdata->pivots = NewIntArray(Nlocal);
-  if (pdata->savedJ == NULL) {
+  /* Allocate memory for lpivots */
+  pdata->lpivots = NULL;
+  pdata->lpivots = NewLintArray(Nlocal);
+  if (pdata->lpivots == NULL) {
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -173,13 +173,13 @@ int CVBBDPrecInit(void *cvode_mem, int Nlocal,
 
 
 int CVBBDPrecReInit(void *cvode_mem, 
-                    int mudq, int mldq, 
+                    long int mudq, long int mldq, 
                     realtype dqrely)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
-  int Nlocal;
+  long int Nlocal;
 
   if (cvode_mem == NULL) {
     CVProcessError(NULL, CVSPILS_MEM_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBD_MEM_NULL);
@@ -276,18 +276,18 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP)
 
 /* Readability Replacements */
 
-#define Nlocal (pdata->n_local)
-#define mudq   (pdata->mudq)
-#define mldq   (pdata->mldq)
-#define mukeep (pdata->mukeep)
-#define mlkeep (pdata->mlkeep)
-#define dqrely (pdata->dqrely)
-#define gloc   (pdata->gloc)
-#define cfn    (pdata->cfn)
-#define savedJ (pdata->savedJ)
-#define savedP (pdata->savedP)
-#define pivots (pdata->pivots)
-#define nge    (pdata->nge)
+#define Nlocal  (pdata->n_local)
+#define mudq    (pdata->mudq)
+#define mldq    (pdata->mldq)
+#define mukeep  (pdata->mukeep)
+#define mlkeep  (pdata->mlkeep)
+#define dqrely  (pdata->dqrely)
+#define gloc    (pdata->gloc)
+#define cfn     (pdata->cfn)
+#define savedJ  (pdata->savedJ)
+#define savedP  (pdata->savedP)
+#define lpivots (pdata->lpivots)
+#define nge     (pdata->nge)
 
 /*
  * -----------------------------------------------------------------
@@ -347,7 +347,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
                           realtype gamma, void *bbd_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  int ier;
+  long int ier;
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
   int retval;
@@ -386,7 +386,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   AddIdentity(savedP);
  
   /* Do LU factorization of P in place */
-  ier = BandGBTRF(savedP, pivots);
+  ier = BandGBTRF(savedP, lpivots);
  
   /* Return 0 if the LU was complete; otherwise return 1 */
   if (ier > 0) return(1);
@@ -430,7 +430,7 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   
   zd = N_VGetArrayPointer(z);
 
-  BandGBTRS(savedP, pivots, zd);
+  BandGBTRS(savedP, lpivots, zd);
 
   return(0);
 }
@@ -449,7 +449,7 @@ static void CVBBDPrecFree(CVodeMem cv_mem)
 
   DestroyMat(savedJ);
   DestroyMat(savedP);
-  DestroyArray(pivots);
+  DestroyArray(lpivots);
 
   free(pdata);
   pdata = NULL;
@@ -483,7 +483,7 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 {
   CVodeMem cv_mem;
   realtype gnorm, minInc, inc, inc_inv;
-  int group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
   int retval;
 

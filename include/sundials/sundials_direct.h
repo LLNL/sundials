@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2009-02-17 02:39:26 $
+ * $Revision: 1.4 $
+ * $Date: 2010-12-01 22:17:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -113,14 +113,14 @@ extern "C" {
 
 typedef struct _DlsMat {
   int type;
-  int M;
-  int N;
-  int ldim;
-  int mu;
-  int ml;
-  int s_mu;
+  long int M;
+  long int N;
+  long int ldim;
+  long int mu;
+  long int ml;
+  long int s_mu;
   realtype *data;
-  int ldata;
+  long int ldata;
   realtype **cols;
 } *DlsMat;
 
@@ -194,7 +194,7 @@ typedef struct _DlsMat {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT DlsMat NewDenseMat(int M, int N);
+SUNDIALS_EXPORT DlsMat NewDenseMat(long int M, long int N);
 
 /*
  * -----------------------------------------------------------------
@@ -216,7 +216,7 @@ SUNDIALS_EXPORT DlsMat NewDenseMat(int M, int N);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT DlsMat NewBandMat(int N, int mu, int ml, int smu);
+SUNDIALS_EXPORT DlsMat NewBandMat(long int N, long int mu, long int ml, long int smu);
 
 /*
  * -----------------------------------------------------------------
@@ -230,15 +230,15 @@ SUNDIALS_EXPORT void DestroyMat(DlsMat A);
 
 /*
  * -----------------------------------------------------------------
- * Function: NewIntArray
+ * Function: NewLintArray
  * -----------------------------------------------------------------
- * NewIntArray allocates memory an array of N integers and returns
+ * NewLintArray allocates memory an array of N long int's and returns
  * the pointer to the memory it allocates. If the request for
  * memory storage cannot be satisfied, it returns NULL.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int *NewIntArray(int N);
+SUNDIALS_EXPORT long int *NewLintArray(long int N);
 
 /*
  * -----------------------------------------------------------------
@@ -250,13 +250,13 @@ SUNDIALS_EXPORT int *NewIntArray(int N);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype *NewRealArray(int N);
+SUNDIALS_EXPORT realtype *NewRealArray(long int N);
 
 /*
  * -----------------------------------------------------------------
  * Function: DestroyArray
  * -----------------------------------------------------------------
- * DestroyArray frees memory allocated by NewIntArray or by
+ * DestroyArray frees memory allocated by NewLintArray or by
  * NewRealArray.
  * -----------------------------------------------------------------
  */
@@ -308,11 +308,11 @@ SUNDIALS_EXPORT void PrintMat(DlsMat A);
  * ==================================================================
  */
 
-SUNDIALS_EXPORT realtype **newDenseMat(int m, int n);
-SUNDIALS_EXPORT realtype **newBandMat(int n, int smu, int ml);
+SUNDIALS_EXPORT realtype **newDenseMat(long int m, long int n);
+SUNDIALS_EXPORT realtype **newBandMat(long int n, long int smu, long int ml);
 SUNDIALS_EXPORT void destroyMat(realtype **a);
-SUNDIALS_EXPORT int *newIntArray(int n);
-SUNDIALS_EXPORT realtype *newRealArray(int m);
+SUNDIALS_EXPORT long int *newLintArray(long int n);
+SUNDIALS_EXPORT realtype *newRealArray(long int m);
 SUNDIALS_EXPORT void destroyArray(void *v);
 
 

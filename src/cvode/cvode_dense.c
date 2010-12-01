@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2010-05-25 20:54:48 $
+ * $Revision: 1.12 $
+ * $Date: 2010-12-01 22:21:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -67,7 +67,7 @@ static void cvDenseFree(CVodeMem cv_mem);
 #define jacDQ     (cvdls_mem->d_jacDQ)
 #define jac       (cvdls_mem->d_djac)
 #define M         (cvdls_mem->d_M)
-#define pivots    (cvdls_mem->d_pivots)
+#define lpivots   (cvdls_mem->d_lpivots)
 #define savedJ    (cvdls_mem->d_savedJ)
 #define nstlj     (cvdls_mem->d_nstlj)
 #define nje       (cvdls_mem->d_nje)
@@ -88,7 +88,7 @@ static void cvDenseFree(CVodeMem cv_mem);
  * CVDlsMemRec and sets the cv_lmem field in (*cvode_mem) to the
  * address of this structure.  It sets setupNonNull in (*cvode_mem) to
  * TRUE, and the d_jac field to the default cvDlsDenseDQJac.
- * Finally, it allocates memory for M, savedJ, and pivots.
+ * Finally, it allocates memory for M, savedJ, and lpivots.
  * The return value is SUCCESS = 0, or LMEM_FAIL = -1.
  *
  * NOTE: The dense linear solver assumes a serial implementation
@@ -99,7 +99,7 @@ static void cvDenseFree(CVodeMem cv_mem);
  * -----------------------------------------------------------------
  */
 
-int CVDense(void *cvode_mem, int N)
+int CVDense(void *cvode_mem, long int N)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -166,9 +166,9 @@ int CVDense(void *cvode_mem, int N)
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
-  pivots = NULL;
-  pivots = NewIntArray(N);
-  if (pivots == NULL) {
+  lpivots = NULL;
+  lpivots = NewLintArray(N);
+  if (lpivots == NULL) {
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVDENSE", "CVDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyMat(savedJ);
@@ -280,7 +280,7 @@ static int cvDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   AddIdentity(M);
 
   /* Do LU factorization of M */
-  ier = DenseGETRF(M, pivots); 
+  ier = DenseGETRF(M, lpivots); 
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   last_flag = ier;
@@ -307,7 +307,7 @@ static int cvDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   
   bd = N_VGetArrayPointer(b);
 
-  DenseGETRS(M, pivots, bd);
+  DenseGETRS(M, lpivots, bd);
 
   /* If CV_BDF, scale the correction to account for change in gamma */
   if ((lmm == CV_BDF) && (gamrat != ONE)) {
@@ -334,7 +334,7 @@ static void cvDenseFree(CVodeMem cv_mem)
   
   DestroyMat(M);
   DestroyMat(savedJ);
-  DestroyArray(pivots);
+  DestroyArray(lpivots);
   free(cvdls_mem);
   cv_mem->cv_lmem = NULL;
 }

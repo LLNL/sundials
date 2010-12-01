@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2008-04-18 19:42:38 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:16:17 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -109,7 +109,7 @@ extern "C" {
  */
   
   
-typedef int (*KINDlsDenseJacFn)(int N,
+typedef int (*KINDlsDenseJacFn)(long int N,
 				N_Vector u, N_Vector fu, 
 				DlsMat J, void *user_data,
 				N_Vector tmp1, N_Vector tmp2);
@@ -190,7 +190,7 @@ typedef int (*KINDlsDenseJacFn)(int N,
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINDlsBandJacFn)(int N, int mupper, int mlower,
+typedef int (*KINDlsBandJacFn)(long int N, long int mupper, long int mlower,
 			       N_Vector u, N_Vector fu, 
 			       DlsMat J, void *user_data,
 			       N_Vector tmp1, N_Vector tmp2);
@@ -252,8 +252,8 @@ SUNDIALS_EXPORT int KINDlsSetBandJacFn(void *kinmem, KINDlsBandJacFn jac);
 SUNDIALS_EXPORT int KINDlsGetWorkSpace(void *kinmem, long int *lenrwB, long int *leniwB);
 SUNDIALS_EXPORT int KINDlsGetNumJacEvals(void *kinmem, long int *njevalsB);
 SUNDIALS_EXPORT int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevalsB);
-SUNDIALS_EXPORT int KINDlsGetLastFlag(void *kinmem, int *flag);
-SUNDIALS_EXPORT char *KINDlsGetReturnFlagName(int flag);
+SUNDIALS_EXPORT int KINDlsGetLastFlag(void *kinmem, long int *flag);
+SUNDIALS_EXPORT char *KINDlsGetReturnFlagName(long int flag);
 
 #ifdef __cplusplus
 }

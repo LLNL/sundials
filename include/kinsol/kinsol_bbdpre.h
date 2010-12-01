@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:16:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -136,7 +136,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINCommFn)(int Nlocal, N_Vector u, void *user_data);
+typedef int (*KINCommFn)(long int Nlocal, N_Vector u, void *user_data);
 
 /*
  * -----------------------------------------------------------------
@@ -162,7 +162,7 @@ typedef int (*KINCommFn)(int Nlocal, N_Vector u, void *user_data);
  * -----------------------------------------------------------------
  */
 
-typedef int (*KINLocalFn)(int Nlocal, N_Vector uu,
+typedef int (*KINLocalFn)(long int Nlocal, N_Vector uu,
                           N_Vector gval, void *user_data);
 
 /*
@@ -207,9 +207,9 @@ typedef int (*KINLocalFn)(int Nlocal, N_Vector uu,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, int Nlocal, 
-                                   int mudq, int mldq,
-                                   int mukeep, int mlkeep,
+SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, long int Nlocal, 
+                                   long int mudq, long int mldq,
+                                   long int mukeep, long int mlkeep,
                                    realtype dq_rel_uu, 
                                    KINLocalFn gloc, KINCommFn gcomm);
 

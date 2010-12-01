@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2008-04-18 19:42:37 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:14:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -50,7 +50,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDABand(void *ida_mem, int Neq, int mupper, int mlower);
+SUNDIALS_EXPORT int IDABand(void *ida_mem, long int Neq, long int mupper, long int mlower);
 
 #ifdef __cplusplus
 }

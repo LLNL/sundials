@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2008-04-18 19:42:39 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:19:48 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,11 +47,11 @@ typedef struct CVDlsMemRec {
 
   int d_type;             /* SUNDIALS_DENSE or SUNDIALS_BAND              */
 
-  int d_n;                /* problem dimension                            */
+  long int d_n;           /* problem dimension                            */
 
-  int d_ml;               /* lower bandwidth of Jacobian                  */
-  int d_mu;               /* upper bandwidth of Jacobian                  */ 
-  int d_smu;              /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
+  long int d_ml;          /* lower bandwidth of Jacobian                  */
+  long int d_mu;          /* upper bandwidth of Jacobian                  */ 
+  long int d_smu;         /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
 
   booleantype d_jacDQ;    /* TRUE if using internal DQ Jacobian approx.   */
   CVDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
@@ -61,15 +61,16 @@ typedef struct CVDlsMemRec {
   DlsMat d_M;             /* M = I - gamma * df/dy                        */
   DlsMat d_savedJ;        /* savedJ = old Jacobian                        */
 
-  int *d_pivots;          /* pivots = pivot array for PM = LU             */
-  
+  int *d_pivots;          /* pivots = int pivot array for PM = LU         */
+  long int *d_lpivots;    /* lpivots = long int pivot array for PM = LU   */
+
   long int  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
 
   long int d_nje;         /* nje = no. of calls to jac                    */
 
   long int d_nfeDQ;       /* no. of calls to f due to DQ Jacobian approx. */
 
-  int d_last_flag;        /* last error return flag                       */
+  long int d_last_flag;   /* last error return flag                       */
   
 } *CVDlsMem;
 
@@ -79,12 +80,12 @@ typedef struct CVDlsMemRec {
  * -----------------------------------------------------------------
  */
 
-int cvDlsDenseDQJac(int N, realtype t,
+int cvDlsDenseDQJac(long int N, realtype t,
 		    N_Vector y, N_Vector fy, 
 		    DlsMat Jac, void *data,
 		    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
-int cvDlsBandDQJac(int N, int mupper, int mlower,
+int cvDlsBandDQJac(long int N, long int mupper, long int mlower,
 		   realtype t, N_Vector y, N_Vector fy, 
 		   DlsMat Jac, void *data,
 		   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);

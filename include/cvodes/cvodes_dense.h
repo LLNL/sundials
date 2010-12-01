@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2008-04-18 19:42:36 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-01 22:13:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +44,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVDense(void *cvode_mem, int N);
+SUNDIALS_EXPORT int CVDense(void *cvode_mem, long int N);
 
 /*
  * -----------------------------------------------------------------
@@ -55,7 +55,7 @@ SUNDIALS_EXPORT int CVDense(void *cvode_mem, int N);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVDenseB(void *cvode_mem, int which, int nB);
+SUNDIALS_EXPORT int CVDenseB(void *cvode_mem, int which, long int nB);
 
 #ifdef __cplusplus
 }

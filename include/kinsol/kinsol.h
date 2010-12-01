@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-12-05 23:37:17 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:16:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -741,7 +741,7 @@ SUNDIALS_EXPORT int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails);
 SUNDIALS_EXPORT int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
 SUNDIALS_EXPORT int KINGetFuncNorm(void *kinmem, realtype *fnorm);
 SUNDIALS_EXPORT int KINGetStepLength(void *kinmem, realtype *steplength);
-SUNDIALS_EXPORT char *KINGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *KINGetReturnFlagName(long int flag);
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2008-09-10 22:39:03 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:19:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -92,7 +92,7 @@ typedef struct CVSpilsMemRec {
   CVSpilsJacTimesVecFn s_jtimes;
   void *s_j_data;
 
-  int s_last_flag;      /* last error flag returned by any function     */
+  long int s_last_flag; /* last error flag returned by any function     */
 
 } *CVSpilsMem;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2008-04-18 19:42:36 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:10:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -52,7 +52,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBand(void *cvode_mem, int N, int mupper, int mlower);
+SUNDIALS_EXPORT int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower);
 
 #ifdef __cplusplus
 }

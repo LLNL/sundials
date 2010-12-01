@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2010-05-25 22:21:07 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:21:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -215,7 +215,7 @@ int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
  * -----------------------------------------------------------------
  */
 
-int CVDiagGetLastFlag(void *cvode_mem, int *flag)
+int CVDiagGetLastFlag(void *cvode_mem, long int *flag)
 {
   CVodeMem cv_mem;
   CVDiagMem cvdiag_mem;
@@ -244,7 +244,7 @@ int CVDiagGetLastFlag(void *cvode_mem, int *flag)
  * -----------------------------------------------------------------
  */
 
-char *CVDiagGetReturnFlagName(int flag)
+char *CVDiagGetReturnFlagName(long int flag)
 {
   char *name;
 

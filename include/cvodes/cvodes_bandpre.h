@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-11-26 16:19:58 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-01 22:13:10 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -128,7 +128,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, int N, int mu, int ml);
+SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, long int N, long int mu, long int ml);
 
 /*
  * -----------------------------------------------------------------
@@ -170,7 +170,7 @@ SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsB
  */
 
 SUNDIALS_EXPORT int CVBandPrecInitB(void *cvode_mem, int which,
-                                    int nB, int muB, int mlB);
+                                    long int nB, long int muB, long int mlB);
 
 #ifdef __cplusplus
 }

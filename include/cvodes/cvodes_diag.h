@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-03-22 18:05:50 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:13:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -104,7 +104,7 @@ SUNDIALS_EXPORT int CVDiag(void *cvode_mem);
 
 SUNDIALS_EXPORT int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 SUNDIALS_EXPORT int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
-SUNDIALS_EXPORT int CVDiagGetLastFlag(void *cvode_mem, int *flag);
+SUNDIALS_EXPORT int CVDiagGetLastFlag(void *cvode_mem, long int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -113,7 +113,7 @@ SUNDIALS_EXPORT int CVDiagGetLastFlag(void *cvode_mem, int *flag);
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT char *CVDiagGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *CVDiagGetReturnFlagName(long int flag);
 
 /* 
  * -----------------------------------------------------------------

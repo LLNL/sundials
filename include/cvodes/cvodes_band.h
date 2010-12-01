@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2008-04-18 19:42:36 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-01 22:13:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,7 +51,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBand(void *cvode_mem, int N, int mupper, int mlower);
+SUNDIALS_EXPORT int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower);
 
 /*
  * -----------------------------------------------------------------
@@ -63,7 +63,7 @@ SUNDIALS_EXPORT int CVBand(void *cvode_mem, int N, int mupper, int mlower);
  */
 
 SUNDIALS_EXPORT int CVBandB(void *cvode_mem, int which,
-                            int nB, int mupperB, int mlowerB);
+                            long int nB, long int mupperB, long int mlowerB);
   
 #ifdef __cplusplus
 }

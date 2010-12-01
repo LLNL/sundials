@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2008-04-18 19:42:37 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-01 22:13:10 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -137,7 +137,7 @@ extern "C" {
  */
   
   
-typedef int (*CVDlsDenseJacFn)(int N, realtype t,
+typedef int (*CVDlsDenseJacFn)(long int N, realtype t,
 			       N_Vector y, N_Vector fy, 
 			       DlsMat Jac, void *user_data,
 			       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -224,7 +224,7 @@ typedef int (*CVDlsDenseJacFn)(int N, realtype t,
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVDlsBandJacFn)(int N, int mupper, int mlower,
+typedef int (*CVDlsBandJacFn)(long int N, long int mupper, long int mlower,
 			      realtype t, N_Vector y, N_Vector fy, 
 			      DlsMat Jac, void *user_data,
 			      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -284,7 +284,7 @@ SUNDIALS_EXPORT int CVDlsSetBandJacFn(void *cvode_mem, CVDlsBandJacFn jac);
 SUNDIALS_EXPORT int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 SUNDIALS_EXPORT int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
 SUNDIALS_EXPORT int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
-SUNDIALS_EXPORT int CVDlsGetLastFlag(void *cvode_mem, int *flag);
+SUNDIALS_EXPORT int CVDlsGetLastFlag(void *cvode_mem, long int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -293,7 +293,7 @@ SUNDIALS_EXPORT int CVDlsGetLastFlag(void *cvode_mem, int *flag);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT char *CVDlsGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *CVDlsGetReturnFlagName(long int flag);
 
 /*
  * =================================================================
@@ -316,7 +316,7 @@ SUNDIALS_EXPORT char *CVDlsGetReturnFlagName(int flag);
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVDlsDenseJacFnB)(int nB, realtype t,
+typedef int (*CVDlsDenseJacFnB)(long int nB, realtype t,
 				N_Vector y, 
 				N_Vector yB, N_Vector fyB,
 				DlsMat JB, void *user_dataB, 
@@ -331,9 +331,8 @@ typedef int (*CVDlsDenseJacFnB)(int nB, realtype t,
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVDlsBandJacFnB)(int nB, int mupperB, int mlowerB,
-			       realtype t, 
-			       N_Vector y,
+typedef int (*CVDlsBandJacFnB)(long int nB, long int mupperB, long int mlowerB,
+			       realtype t, N_Vector y,
 			       N_Vector yB, N_Vector fyB,
 			       DlsMat JB, void *user_dataB, 
 			       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);

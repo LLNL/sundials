@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2009-09-02 22:15:09 $
+ * $Revision: 1.14 $
+ * $Date: 2010-12-01 22:14:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -917,7 +917,7 @@ SUNDIALS_EXPORT int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT char *IDAGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
 
 /*
  * ----------------------------------------------------------------

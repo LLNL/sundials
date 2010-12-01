@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2007-11-26 16:19:58 $
+ * $Revision: 1.13 $
+ * $Date: 2010-12-01 22:10:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -769,7 +769,7 @@ SUNDIALS_EXPORT int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT char *CVodeGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *CVodeGetReturnFlagName(long int flag);
 
 /*
  * -----------------------------------------------------------------

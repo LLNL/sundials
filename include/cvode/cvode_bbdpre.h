@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-11-26 16:19:58 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-01 22:10:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -134,7 +134,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVLocalFn)(int Nlocal, realtype t, N_Vector y,
+typedef int (*CVLocalFn)(long int Nlocal, realtype t, N_Vector y,
                          N_Vector g, void *user_data);
 
 /*
@@ -165,7 +165,7 @@ typedef int (*CVLocalFn)(int Nlocal, realtype t, N_Vector y,
  * -----------------------------------------------------------------
  */
 
-typedef int (*CVCommFn)(int Nlocal, realtype t, N_Vector y,
+typedef int (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
                         void *user_data);
 
 /*
@@ -211,9 +211,9 @@ typedef int (*CVCommFn)(int Nlocal, realtype t, N_Vector y,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, int Nlocal, 
-                                  int mudq, int mldq, 
-                                  int mukeep, int mlkeep, 
+SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, long int Nlocal, 
+                                  long int mudq, long int mldq, 
+                                  long int mukeep, long int mlkeep, 
                                   realtype dqrely,
                                   CVLocalFn gloc, CVCommFn cfn);
 
@@ -239,7 +239,7 @@ SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, int Nlocal,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem, int mudq, int mldq,
+SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem, long int mudq, long int mldq,
 				    realtype dqrely);
 
 /*

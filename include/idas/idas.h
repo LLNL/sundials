@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2008-04-16 21:53:48 $
+ * $Revision: 1.26 $
+ * $Date: 2010-12-01 22:15:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -124,6 +124,7 @@ extern "C" {
 #define IDA_QSRHS_FAIL      -51
 #define IDA_FIRST_QSRHS_ERR -52
 #define IDA_REP_QSRHS_ERR   -53
+
 /*
  * -----------------------------------------
  * IDAA return flags
@@ -1650,7 +1651,7 @@ SUNDIALS_EXPORT int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT char *IDAGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
 
 /*
  * ----------------------------------------------------------------
@@ -2072,10 +2073,10 @@ SUNDIALS_EXPORT int IDAGetAdjCheckPointsInfo(void *ida_mem,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAGetAdjDataPointHermite(void *ida_mem, long int which,
+SUNDIALS_EXPORT int IDAGetAdjDataPointHermite(void *ida_mem, int which,
                                               realtype *t, N_Vector yy, N_Vector yd);
 
-SUNDIALS_EXPORT int IDAGetAdjDataPointPolynomial(void *ida_mem, long int which,
+SUNDIALS_EXPORT int IDAGetAdjDataPointPolynomial(void *ida_mem, int which,
                                                  realtype *t, int *order, 
                                                  N_Vector y);
   

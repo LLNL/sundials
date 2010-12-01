@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2010-05-25 21:51:26 $
+ * $Revision: 1.12 $
+ * $Date: 2010-12-01 22:21:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -71,7 +71,7 @@ static void cvBandFree(CVodeMem cv_mem);
 #define mu         (cvdls_mem->d_mu)
 #define ml         (cvdls_mem->d_ml)
 #define smu        (cvdls_mem->d_smu)
-#define pivots     (cvdls_mem->d_pivots)
+#define lpivots    (cvdls_mem->d_lpivots)
 #define savedJ     (cvdls_mem->d_savedJ)
 #define nstlj      (cvdls_mem->d_nstlj)
 #define nje        (cvdls_mem->d_nje)
@@ -104,7 +104,7 @@ static void cvBandFree(CVodeMem cv_mem);
  * -----------------------------------------------------------------
  */
                   
-int CVBand(void *cvode_mem, int N, int mupper, int mlower)
+int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -182,9 +182,9 @@ int CVBand(void *cvode_mem, int N, int mupper, int mlower)
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
-  pivots = NULL;
-  pivots = NewIntArray(N);
-  if (pivots == NULL) {
+  lpivots = NULL;
+  lpivots = NewLintArray(N);
+  if (lpivots == NULL) {
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVBAND", "CVBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyMat(savedJ);
@@ -248,7 +248,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  int ier;
+  long int ier;
   CVDlsMem cvdls_mem;
   int retval;
 
@@ -296,7 +296,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   AddIdentity(M);
 
   /* Do LU factorization of M */
-  ier = BandGBTRF(M, pivots);
+  ier = BandGBTRF(M, lpivots);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   if (ier > 0) {
@@ -326,7 +326,7 @@ static int cvBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   bd = N_VGetArrayPointer(b);
 
-  BandGBTRS(M, pivots, bd);
+  BandGBTRS(M, lpivots, bd);
 
   /* If CV_BDF, scale the correction to account for change in gamma */
   if ((lmm == CV_BDF) && (gamrat != ONE)) {
@@ -353,7 +353,7 @@ static void cvBandFree(CVodeMem cv_mem)
 
   DestroyMat(M);
   DestroyMat(savedJ);
-  DestroyArray(pivots);
+  DestroyArray(lpivots);
   free(cvdls_mem);
   cv_mem->cv_lmem = NULL;
 }

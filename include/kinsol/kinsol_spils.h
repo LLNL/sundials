@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:16:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -308,8 +308,8 @@ SUNDIALS_EXPORT int KINSpilsGetNumLinIters(void *kinmem, long int *nliters);
 SUNDIALS_EXPORT int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails);
 SUNDIALS_EXPORT int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals);
 SUNDIALS_EXPORT int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevalsS); 
-SUNDIALS_EXPORT int KINSpilsGetLastFlag(void *kinmem, int *flag);
-SUNDIALS_EXPORT char *KINSpilsGetReturnFlagName(int flag);
+SUNDIALS_EXPORT int KINSpilsGetLastFlag(void *kinmem, long int *flag);
+SUNDIALS_EXPORT char *KINSpilsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

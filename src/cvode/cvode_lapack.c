@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.9 $
+ * $Date: 2010-12-01 22:21:04 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -185,14 +185,14 @@ int CVLapackDense(void *cvode_mem, int N)
   setupNonNull = TRUE;
 
   /* Set problem dimension */
-  n = N;
+  n = (long int) N;
 
   /* Allocate memory for M, pivot array, and (if needed) savedJ */
   M = NULL;
   pivots = NULL;
   savedJ = NULL;
 
-  M = NewDenseMat(N, N);
+  M = NewDenseMat(n, n);
   if (M == NULL) {
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
     free(cvdls_mem);
@@ -205,7 +205,7 @@ int CVLapackDense(void *cvode_mem, int N)
     free(cvdls_mem);
     return(CVDLS_MEM_FAIL);
   }
-  savedJ = NewDenseMat(N, N);
+  savedJ = NewDenseMat(n, n);
   if (savedJ == NULL) {
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
     DestroyMat(M);
@@ -291,27 +291,27 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   setupNonNull = TRUE;
   
   /* Load problem dimension */
-  n = N;
+  n = (long int) N;
 
   /* Load half-bandwiths in cvdls_mem */
-  ml = mlower;
-  mu = mupper;
+  ml = (long int) mlower;
+  mu = (long int) mupper;
 
   /* Test ml and mu for legality */
-  if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
+  if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {
     CVProcessError(cv_mem, CVDLS_ILL_INPUT, "CVLAPACK", "CVLapackBand", MSGD_BAD_SIZES);
     return(CVDLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  smu = MIN(N-1, mu + ml);
+  smu = MIN(n-1, mu + ml);
 
   /* Allocate memory for M, savedJ, and pivot arrays */
   M = NULL;
   pivots = NULL;
   savedJ = NULL;
 
-  M = NewBandMat(N, mu, ml, smu);
+  M = NewBandMat(n, mu, ml, smu);
   if (M == NULL) {
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
     free(cvdls_mem);
@@ -324,7 +324,7 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
     free(cvdls_mem);
     return(CVDLS_MEM_FAIL);
   }
-  savedJ = NewBandMat(N, mu, ml, smu);
+  savedJ = NewBandMat(n, mu, ml, smu);
   if (savedJ == NULL) {
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
     DestroyMat(M);
@@ -387,8 +387,10 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
   realtype dgamma, fact;
   booleantype jbad, jok;
   int ier, retval, one = 1;
+  int intn;
 
   cvdls_mem = (CVDlsMem) lmem;
+  intn = (int) n;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = ABS((gamma/gammap) - ONE);
@@ -401,7 +403,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
     
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    dcopy_f77(&(savedJ->ldata), savedJ->data, &one, M->data, &one);
+    dcopyf77(&intn, savedJ->data, &one, M->data, &one);
     
   } else {
     
@@ -413,7 +415,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
 
     retval = djac(n, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
     if (retval == 0) {
-      dcopy_f77(&(M->ldata), M->data, &one, savedJ->data, &one);
+      dcopy_f77(&intn, M->data, &one, savedJ->data, &one);
     } else if (retval < 0) {
       CVProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVLAPACK", "cvLapackDenseSetup", MSGD_JACFUNC_FAILED);
       last_flag = CVDLS_JACFUNC_UNRECVR;
@@ -427,16 +429,16 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
 
   /* Scale J by - gamma */
   fact = -gamma;
-  dscal_f77(&(M->ldata), &fact, M->data, &one);
+  dscal_f77(&intn, &fact, M->data, &one);
   
   /* Add identity to get M = I - gamma*J*/
   AddIdentity(M);
 
   /* Do LU factorization of M */
-  dgetrf_f77(&n, &n, M->data, &(M->ldim), pivots, &ier);
+  dgetrf_f77(&intn, &intn, M->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -451,18 +453,20 @@ static int cvLapackDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   CVDlsMem cvdls_mem;
   realtype *bd, fact;
   int ier, one = 1;
+  int intn;
 
   cvdls_mem = (CVDlsMem) lmem;
-  
+  intn = (int) n;
+
   bd = N_VGetArrayPointer(b);
 
-  dgetrs_f77("N", &n, &one, M->data, &(M->ldim), pivots, bd, &n, &ier, 1); 
+  dgetrs_f77("N", &intn, &one, M->data, &intn, pivots, bd, &intn, &ier, 1); 
   if (ier > 0) return(1);
 
   /* For BDF, scale the correction to account for change in gamma */
   if ((lmm == CV_BDF) && (gamrat != ONE)) {
     fact = TWO/(ONE + gamrat);
-    dscal_f77(&n, &fact, bd, &one); 
+    dscal_f77(&intn, &fact, bd, &one); 
   }
   
   last_flag = CVDLS_SUCCESS;
@@ -533,8 +537,12 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   realtype dgamma, fact;
   booleantype jbad, jok;
   int ier, retval, one = 1;
+  int intn, iml, imu;
 
   cvdls_mem = (CVDlsMem) lmem;
+  intn = (int) n;
+  iml = (int) ml;
+  imu = (int) mu;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = ABS((gamma/gammap) - ONE);
@@ -547,7 +555,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
     
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    dcopy_f77(&(savedJ->ldata), savedJ->data, &one, M->data, &one);
+    dcopy_f77(&intn, savedJ->data, &one, M->data, &one);
     
   } else {
     
@@ -559,7 +567,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
 
     retval = bjac(n, mu, ml, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
     if (retval == 0) {
-      dcopy_f77(&(M->ldata), M->data, &one, savedJ->data, &one);
+      dcopy_f77(&intn, M->data, &one, savedJ->data, &one);
     } else if (retval < 0) {
       CVProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVLAPACK", "cvLapackBandSetup", MSGD_JACFUNC_FAILED);
       last_flag = CVDLS_JACFUNC_UNRECVR;
@@ -573,16 +581,16 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   
   /* Scale J by - gamma */
   fact = -gamma;
-  dscal_f77(&(M->ldata), &fact, M->data, &one);
+  dscal_f77(&intn, &fact, M->data, &one);
   
   /* Add identity to get M = I - gamma*J*/
   AddIdentity(M);
   
   /* Do LU factorization of M */
-  dgbtrf_f77(&n, &n, &ml, &mu, M->data, &(M->ldim), pivots, &ier);
+  dgbtrf_f77(&intn, &intn, &iml, &imu, M->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 
@@ -598,18 +606,22 @@ static int cvLapackBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   CVDlsMem cvdls_mem;
   realtype *bd, fact;
   int ier, one = 1;
+  int intn, iml, imu;
 
   cvdls_mem = (CVDlsMem) lmem;
+  intn = (int) n;
+  iml = (int) ml;
+  imu = (int) mu;
 
   bd = N_VGetArrayPointer(b);
 
-  dgbtrs_f77("N", &n, &ml, &mu, &one, M->data, &(M->ldim), pivots, bd, &n, &ier, 1);
+  dgbtrs_f77("N", &intn, &iml, &imu, &one, M->data, &intn, pivots, bd, &intn, &ier, 1);
   if (ier > 0) return(1);
 
   /* For BDF, scale the correction to account for change in gamma */
   if ((lmm == CV_BDF) && (gamrat != ONE)) {
     fact = TWO/(ONE + gamrat);
-    dscal_f77(&n, &fact, bd, &one); 
+    dscal_f77(&intn, &fact, bd, &one); 
   }
 
   last_flag = CVDLS_SUCCESS;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2008-04-16 21:53:06 $
+ * $Revision: 1.23 $
+ * $Date: 2010-12-01 22:13:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1533,7 +1533,7 @@ SUNDIALS_EXPORT int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT char *CVodeGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *CVodeGetReturnFlagName(long int flag);
 
 /*
  * -----------------------------------------------------------------
@@ -1944,10 +1944,10 @@ SUNDIALS_EXPORT int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointR
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVodeGetAdjDataPointHermite(void *cvode_mem, long int which,
+SUNDIALS_EXPORT int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
                                                 realtype *t, N_Vector y, N_Vector yd);
   
-SUNDIALS_EXPORT int CVodeGetAdjDataPointPolynomial(void *cvode_mem, long int which,
+SUNDIALS_EXPORT int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
                                                    realtype *t, int *order, N_Vector y);
 
 /*

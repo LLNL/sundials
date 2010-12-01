@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2008-04-18 19:42:39 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-01 22:21:04 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -230,7 +230,7 @@ int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
  * CVDlsGetReturnFlagName returns the name associated with a CVDLS
  * return value.
  */
-char *CVDlsGetReturnFlagName(int flag)
+char *CVDlsGetReturnFlagName(long int flag)
 {
   char *name;
 
@@ -268,7 +268,7 @@ char *CVDlsGetReturnFlagName(int flag)
 /*
  * CVDlsGetLastFlag returns the last flag set in a CVDLS function.
  */
-int CVDlsGetLastFlag(void *cvode_mem, int *flag)
+int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
 {
   CVodeMem cv_mem;
   CVDlsMem cvdls_mem;
@@ -312,7 +312,7 @@ int CVDlsGetLastFlag(void *cvode_mem, int *flag)
  * -----------------------------------------------------------------
  */ 
 
-int cvDlsDenseDQJac(int N, realtype t,
+int cvDlsDenseDQJac(long int N, realtype t,
                     N_Vector y, N_Vector fy, 
                     DlsMat Jac, void *data,
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -320,7 +320,7 @@ int cvDlsDenseDQJac(int N, realtype t,
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
   realtype *tmp2_data, *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
-  int j;
+  long int j;
   int retval = 0;
 
   CVodeMem cv_mem;
@@ -388,7 +388,7 @@ int cvDlsDenseDQJac(int N, realtype t,
  * -----------------------------------------------------------------
  */
 
-int cvDlsBandDQJac(int N, int mupper, int mlower,
+int cvDlsBandDQJac(long int N, long int mupper, long int mlower,
                    realtype t, N_Vector y, N_Vector fy, 
                    DlsMat Jac, void *data,
                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -396,7 +396,7 @@ int cvDlsBandDQJac(int N, int mupper, int mlower,
   N_Vector ftemp, ytemp;
   realtype fnorm, minInc, inc, inc_inv, srur;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
-  int group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   int retval = 0;
 
   CVodeMem cv_mem;

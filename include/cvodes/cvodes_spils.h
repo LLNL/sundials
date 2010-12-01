@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2008-09-03 20:24:48 $
+ * $Revision: 1.12 $
+ * $Date: 2010-12-01 22:13:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -362,7 +362,7 @@ SUNDIALS_EXPORT int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);
 SUNDIALS_EXPORT int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
 SUNDIALS_EXPORT int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
 SUNDIALS_EXPORT int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
-SUNDIALS_EXPORT int CVSpilsGetLastFlag(void *cvode_mem, int *flag);
+SUNDIALS_EXPORT int CVSpilsGetLastFlag(void *cvode_mem, long int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -371,7 +371,7 @@ SUNDIALS_EXPORT int CVSpilsGetLastFlag(void *cvode_mem, int *flag);
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT char *CVSpilsGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *CVSpilsGetReturnFlagName(long int flag);
 
 
 /* 

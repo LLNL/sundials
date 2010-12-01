@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 17:41:05 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:19:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -35,7 +35,7 @@ typedef struct CVBBDPrecDataRec {
 
   /* passed by user to CVBBDPrecAlloc and used by PrecSetup/PrecSolve */
 
-  int mudq, mldq, mukeep, mlkeep;
+  long int mudq, mldq, mukeep, mlkeep;
   realtype dqrely;
   CVLocalFn gloc;
   CVCommFn cfn;
@@ -44,11 +44,11 @@ typedef struct CVBBDPrecDataRec {
 
   DlsMat savedJ;
   DlsMat savedP;
-  int *pivots;
+  long int *lpivots;
 
   /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
 
-  int n_local;
+  long int n_local;
 
   /* available for optional output */
 

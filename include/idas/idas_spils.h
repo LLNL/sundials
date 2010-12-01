@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2008-04-16 21:53:49 $
+ * $Revision: 1.12 $
+ * $Date: 2010-12-01 22:15:15 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -315,7 +315,7 @@ SUNDIALS_EXPORT int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters);
 SUNDIALS_EXPORT int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails);
 SUNDIALS_EXPORT int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals);
 SUNDIALS_EXPORT int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS); 
-SUNDIALS_EXPORT int IDASpilsGetLastFlag(void *ida_mem, int *flag);
+SUNDIALS_EXPORT int IDASpilsGetLastFlag(void *ida_mem, long int *flag);
 
 
 /*
@@ -325,7 +325,7 @@ SUNDIALS_EXPORT int IDASpilsGetLastFlag(void *ida_mem, int *flag);
  * -----------------------------------------------------------------
  */
   
-SUNDIALS_EXPORT char *IDASpilsGetReturnFlagName(int flag);
+SUNDIALS_EXPORT char *IDASpilsGetReturnFlagName(long int flag);
 
 
 /* 

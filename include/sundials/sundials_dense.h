@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2009-02-17 02:39:26 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-01 22:17:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -73,11 +73,11 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int DenseGETRF(DlsMat A, int *p);
-SUNDIALS_EXPORT void DenseGETRS(DlsMat A, int *p, realtype *b);
+SUNDIALS_EXPORT long int DenseGETRF(DlsMat A, long int *p);
+SUNDIALS_EXPORT void DenseGETRS(DlsMat A, long int *p, realtype *b);
 
-SUNDIALS_EXPORT int denseGETRF(realtype **a, int m, int n, int *p);
-SUNDIALS_EXPORT void denseGETRS(realtype **a, int n, int *p, realtype *b);
+SUNDIALS_EXPORT long int denseGETRF(realtype **a, long int m, long int n, long int *p);
+SUNDIALS_EXPORT void denseGETRS(realtype **a, long int n, long int *p, realtype *b);
 
 /*
  * -----------------------------------------------------------------
@@ -97,11 +97,11 @@ SUNDIALS_EXPORT void denseGETRS(realtype **a, int n, int *p, realtype *b);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int DensePOTRF(DlsMat A);
+SUNDIALS_EXPORT long int DensePOTRF(DlsMat A);
 SUNDIALS_EXPORT void DensePOTRS(DlsMat A, realtype *b);
 
-SUNDIALS_EXPORT int densePOTRF(realtype **a, int m);
-SUNDIALS_EXPORT void densePOTRS(realtype **a, int m, realtype *b);
+SUNDIALS_EXPORT long int densePOTRF(realtype **a, long int m);
+SUNDIALS_EXPORT void densePOTRS(realtype **a, long int m, realtype *b);
 
 /*
  * -----------------------------------------------------------------
@@ -133,8 +133,8 @@ SUNDIALS_EXPORT int DenseGEQRF(DlsMat A, realtype *beta, realtype *wrk);
 SUNDIALS_EXPORT int DenseORMQR(DlsMat A, realtype *beta, realtype *vn, realtype *vm, 
 			       realtype *wrk);
 
-SUNDIALS_EXPORT int denseGEQRF(realtype **a, int m, int n, realtype *beta, realtype *v);
-SUNDIALS_EXPORT int denseORMQR(realtype **a, int m, int n, realtype *beta,
+SUNDIALS_EXPORT int denseGEQRF(realtype **a, long int m, long int n, realtype *beta, realtype *v);
+SUNDIALS_EXPORT int denseORMQR(realtype **a, long int m, long int n, realtype *beta,
 			       realtype *v, realtype *w, realtype *wrk);
 
 /*
@@ -150,7 +150,7 @@ SUNDIALS_EXPORT int denseORMQR(realtype **a, int m, int n, realtype *beta,
  */
 
 SUNDIALS_EXPORT void DenseCopy(DlsMat A, DlsMat B);
-SUNDIALS_EXPORT void denseCopy(realtype **a, realtype **b, int m, int n);
+SUNDIALS_EXPORT void denseCopy(realtype **a, realtype **b, long int m, long int n);
 
 /*
  * -----------------------------------------------------------------
@@ -166,7 +166,7 @@ SUNDIALS_EXPORT void denseCopy(realtype **a, realtype **b, int m, int n);
  */
 
 SUNDIALS_EXPORT void DenseScale(realtype c, DlsMat A);
-SUNDIALS_EXPORT void denseScale(realtype c, realtype **a, int m, int n);
+SUNDIALS_EXPORT void denseScale(realtype c, realtype **a, long int m, long int n);
 
 
 /*
@@ -178,7 +178,7 @@ SUNDIALS_EXPORT void denseScale(realtype c, realtype **a, int m, int n);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void denseAddIdentity(realtype **a, int n);
+SUNDIALS_EXPORT void denseAddIdentity(realtype **a, long int n);
 
 #ifdef __cplusplus
 }
