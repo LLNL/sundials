@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-08-21 23:31:21 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:45:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-extern void FK_BJAC(int*, int*, int*, int*,
+extern void FK_BJAC(long int*, long int*, long int*, long int*,
                     realtype*, realtype*,
                     realtype*,
                     realtype*, realtype*, int*);
@@ -72,13 +72,13 @@ void FKIN_BANDSETJAC(int *flag, int *ier)
  * ----------------------------------------------------------------
  */
 
-int FKINBandJac(int N, int mupper, int mlower,
+int FKINBandJac(long int N, long int mupper, long int mlower,
                 N_Vector uu, N_Vector fval, 
                 DlsMat J, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;
-  int eband;
+  long int eband;
   int ier;
 
   /* Initialize all pointers to NULL */

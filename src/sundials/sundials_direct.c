@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.4 $
+ * $Date: 2010-12-01 22:46:56 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,10 +24,10 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
-DlsMat NewDenseMat(int M, int N)
+DlsMat NewDenseMat(long int M, long int N)
 {
   DlsMat A;
-  int j;
+  long int j;
 
   if ( (M <= 0) || (N <= 0) ) return(NULL);
 
@@ -59,9 +59,9 @@ DlsMat NewDenseMat(int M, int N)
   return(A);
 }
 
-realtype **newDenseMat(int m, int n)
+realtype **newDenseMat(long int m, long int n)
 {
-  int j;
+  long int j;
   realtype **a;
 
   if ( (n <= 0) || (m <= 0) ) return(NULL);
@@ -83,10 +83,10 @@ realtype **newDenseMat(int m, int n)
 }
 
 
-DlsMat NewBandMat(int N, int mu, int ml, int smu)
+DlsMat NewBandMat(long int N, long int mu, long int ml, long int smu)
 {
   DlsMat A;
-  int j, colSize;
+  long int j, colSize;
 
   if (N <= 0) return(NULL);
   
@@ -125,10 +125,10 @@ DlsMat NewBandMat(int N, int mu, int ml, int smu)
   return(A);
 }
 
-realtype **newBandMat(int n, int smu, int ml)
+realtype **newBandMat(long int n, long int smu, long int ml)
 {
   realtype **a;
-  int j, colSize;
+  long int j, colSize;
 
   if (n <= 0) return(NULL);
 
@@ -186,7 +186,31 @@ int *newIntArray(int n)
   return(v);
 }
 
-realtype *NewRealArray(int N)
+long int *NewLintArray(long int N)
+{
+  long int *vec;
+
+  if (N <= 0) return(NULL);
+
+  vec = NULL;
+  vec = (long int *) malloc(N * sizeof(long int));
+
+  return(vec);
+}
+
+long int *newLintArray(long int n)
+{
+  long int *v;
+
+  if (n <= 0) return(NULL);
+
+  v = NULL;
+  v = (long int *) malloc(n * sizeof(long int));
+
+  return(v);
+}
+
+realtype *NewRealArray(long int N)
 {
   realtype *vec;
 
@@ -198,7 +222,7 @@ realtype *NewRealArray(int N)
   return(vec);
 }
 
-realtype *newRealArray(int m)
+realtype *newRealArray(long int m)
 {
   realtype *v;
 
@@ -225,7 +249,7 @@ void destroyArray(void *v)
 
 void AddIdentity(DlsMat A)
 {
-  int i;
+  long int i;
 
   switch (A->type) {
 
@@ -244,7 +268,7 @@ void AddIdentity(DlsMat A)
 
 void SetToZero(DlsMat A)
 {
-  int i, j, colSize;
+  long int i, j, colSize;
   realtype *col_j;
 
   switch (A->type) {
@@ -277,7 +301,7 @@ void SetToZero(DlsMat A)
 
 void PrintMat(DlsMat A)
 {
-  int i, j, start, finish;
+  long int i, j, start, finish;
   realtype **a;
 
   switch (A->type) {

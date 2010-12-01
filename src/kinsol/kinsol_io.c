@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-12-05 23:37:19 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-01 22:43:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -937,7 +937,7 @@ int KINGetStepLength(void *kinmem, realtype *steplength)
  * -----------------------------------------------------------------
  */
 
-char *KINGetReturnFlagName(int flag)
+char *KINGetReturnFlagName(long int flag)
 {
   char *name;
 

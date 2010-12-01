@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-12-12 18:13:22 $
+ * $Revision: 1.9 $
+ * $Date: 2010-12-01 22:27:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -664,10 +664,10 @@ extern "C" {
 
   void FCV_DIAG(int *ier);
 
-  void FCV_DENSE(int *neq, int *ier);
+  void FCV_DENSE(long int *neq, int *ier);
   void FCV_DENSESETJAC(int *flag, int *ier);
 
-  void FCV_BAND(int *neq, int *mupper, int *mlower, int *ier);
+  void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
   void FCV_BANDSETJAC(int *flag, int *ier);
 
   void FCV_LAPACKDENSE(int *neq, int *ier);
@@ -701,21 +701,21 @@ extern "C" {
   
   int FCVf(realtype t, N_Vector y, N_Vector ydot, void *user_data);
   
-  int FCVDenseJac(int N, realtype t, 
+  int FCVDenseJac(long int N, realtype t, 
                   N_Vector y, N_Vector fy, 
                   DlsMat J, void *user_data,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FCVBandJac(int N, int mupper, int mlower,
+  int FCVBandJac(long int N, long int mupper, long int mlower,
                  realtype t, N_Vector y, N_Vector fy,
                  DlsMat J, void *user_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
-  int FCVLapackDenseJac(int N, realtype t,
+  int FCVLapackDenseJac(long int N, realtype t,
                         N_Vector y, N_Vector fy, 
                         DlsMat Jac, void *user_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-  int FCVLapackBandJac(int N, int mupper, int mlower,
+  int FCVLapackBandJac(long int N, long int mupper, long int mlower,
                        realtype t, N_Vector y, N_Vector fy, 
                        DlsMat Jac, void *user_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);

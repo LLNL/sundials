@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:46:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -32,17 +32,17 @@
  * -----------------------------------------------------
  */
 
-int BandGBTRF(DlsMat A, int *p)
+long int BandGBTRF(DlsMat A, long int *p)
 {
   return(bandGBTRF(A->cols, A->M, A->mu, A->ml, A->s_mu, p));
 }
 
-void BandGBTRS(DlsMat A, int *p, realtype *b)
+void BandGBTRS(DlsMat A, long int *p, realtype *b)
 {
   bandGBTRS(A->cols, A->M, A->s_mu, A->ml, p, b);
 }
 
-void BandCopy(DlsMat A, DlsMat B, int copymu, int copyml)
+void BandCopy(DlsMat A, DlsMat B, long int copymu, long int copyml)
 {
   bandCopy(A->cols, B->cols, A->M, A->s_mu, B->s_mu, copymu, copyml);
 }
@@ -58,10 +58,10 @@ void BandScale(realtype c, DlsMat A)
  * -----------------------------------------------------
  */
 
-int bandGBTRF(realtype **a, int n, int mu, int ml, int smu, int *p)
+long int bandGBTRF(realtype **a, long int n, long int mu, long int ml, long int smu, long int *p)
 {
-  int c, r, num_rows;
-  int i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
+  long int c, r, num_rows;
+  long int i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
   realtype *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
   realtype max, temp, mult, a_kj;
   booleantype swap;
@@ -164,9 +164,9 @@ int bandGBTRF(realtype **a, int n, int mu, int ml, int smu, int *p)
   return(0);
 }
 
-void bandGBTRS(realtype **a, int n, int smu, int ml, int *p, realtype *b)
+void bandGBTRS(realtype **a, long int n, long int smu, long int ml, long int *p, realtype *b)
 {
-  int k, l, i, first_row_k, last_row_k;
+  long int k, l, i, first_row_k, last_row_k;
   realtype mult, *diag_k;
   
   /* Solve Ly = Pb, store solution y in b */
@@ -196,10 +196,10 @@ void bandGBTRS(realtype **a, int n, int smu, int ml, int *p, realtype *b)
   }
 }
 
-void bandCopy(realtype **a, realtype **b, int n, int a_smu, int b_smu, 
-              int copymu, int copyml)
+void bandCopy(realtype **a, realtype **b, long int n, long int a_smu, long int b_smu, 
+              long int copymu, long int copyml)
 {
-  int i, j, copySize;
+  long int i, j, copySize;
   realtype *a_col_j, *b_col_j;
 
   copySize = copymu + copyml + 1;
@@ -212,9 +212,9 @@ void bandCopy(realtype **a, realtype **b, int n, int a_smu, int b_smu,
   }
 }
 
-void bandScale(realtype c, realtype **a, int n, int mu, int ml, int smu)
+void bandScale(realtype c, realtype **a, long int n, long int mu, long int ml, long int smu)
 {
-  int i, j, colSize;
+  long int i, j, colSize;
   realtype *col_j;
 
   colSize = mu + ml + 1;
@@ -226,9 +226,9 @@ void bandScale(realtype c, realtype **a, int n, int mu, int ml, int smu)
   }
 }
 
-void bandAddIdentity(realtype **a, int n, int smu)
+void bandAddIdentity(realtype **a, long int n, long int smu)
 {
-  int j;
+  long int j;
  
   for(j=0; j < n; j++)
     a[j][smu] += ONE;

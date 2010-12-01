@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-01 22:45:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -208,7 +208,7 @@ void FKIN_SETVIN(char key_name[], realtype *vval, int *ier, int key_len)
  * ----------------------------------------------------------------
  */
 
-void FKIN_DENSE(int *neq, int *ier)
+void FKIN_DENSE(long int *neq, int *ier)
 {
   *ier = KINDense(KIN_kinmem, *neq);
   KIN_ls = KIN_LS_DENSE;
@@ -220,7 +220,7 @@ void FKIN_DENSE(int *neq, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_BAND(int *neq, int *mupper, int *mlower, int *ier)
+void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 {
   *ier = KINBand(KIN_kinmem, *neq, *mupper, *mlower);
   KIN_ls = KIN_LS_BAND;
@@ -273,6 +273,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
               realtype *uscale , realtype *fscale, int *ier)
 
 {
+  int lsflag;
   N_Vector uuvec, uscalevec, fscalevec;
 
   *ier = 0;
@@ -326,14 +327,14 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   case KIN_LS_LAPACKDENSE:
   case KIN_LS_LAPACKBAND:
     KINDlsGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
-    KINDlsGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);        /* LSTF */
+    KINDlsGetLastFlag(KIN_kinmem, &KIN_iout[8]);                /* LSTF */
     KINDlsGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
     KINDlsGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);            /* NJE */    
   case KIN_LS_SPTFQMR:
   case KIN_LS_SPBCG:
   case KIN_LS_SPGMR:
     KINSpilsGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
-    KINSpilsGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);        /* LSTF */
+    KINSpilsGetLastFlag(KIN_kinmem, &KIN_iout[8]);                /* LSTF */
     KINSpilsGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
     KINSpilsGetNumJtimesEvals(KIN_kinmem, &KIN_iout[10]);         /* NJE */
     KINSpilsGetNumPrecEvals(KIN_kinmem, &KIN_iout[11]);           /* NPE */

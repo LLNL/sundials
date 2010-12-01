@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:27:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-  extern void FCV_BJAC(int*, int*, int*, int*,           /* N, MU, ML, EBAND */
+  extern void FCV_BJAC(long int*, long int*, long int*, long int*,    /* N,MU,ML,EBAND */
                        realtype*, realtype*, realtype*,  /* T, Y, FY         */
                        realtype*,                        /* LBJAC            */
                        realtype*,                        /* H                */
@@ -65,17 +65,17 @@ void FCV_LAPACKBANDSETJAC(int *flag, int *ier)
 /***************************************************************************/
 
 /* The C function FCVLapackBandJac interfaces between CVODE and a 
- * Fortran subroutine FCVLBJAC for the solution of a linear system using
+ * Fortran subroutine FCVBJAC for the solution of a linear system using
  * Lapack with band Jacobian approximation.
- * Addresses of arguments are passed to FCVLBJAC, using the macro 
- * LAPACK_BAND_COL and the routine N_VGetArrayPointer from NVECTOR.
+ * Addresses of arguments are passed to FCVBJAC, using the macro 
+ * BAND_COL and the routine N_VGetArrayPointer from NVECTOR.
  * The address passed for J is that of the element in column 0 with row 
  * index -mupper.  An extended bandwith equal to (J->smu) + mlower + 1 is
  * passed as the column dimension of the corresponding array.
  * Auxiliary data is assumed to be communicated by Common. 
  */
 
-int FCVLapackBandJac(int N, int mupper, int mlower,
+int FCVLapackBandJac(long int N, long int mupper, long int mlower,
                      realtype t, N_Vector y, N_Vector fy, 
                      DlsMat J, void *user_data,
                      N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -83,7 +83,7 @@ int FCVLapackBandJac(int N, int mupper, int mlower,
   int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
-  int eband;
+  long int eband;
   FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);

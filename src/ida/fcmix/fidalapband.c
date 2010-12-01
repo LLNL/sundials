@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-08-21 23:32:13 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:37:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-  extern void FIDA_BJAC(int*, int*, int*, int*,
+  extern void FIDA_BJAC(long int*, long int*, long int*, long int*,
                         realtype*, realtype*, realtype*, realtype*,
                         realtype*, realtype*, realtype*, realtype*,
                         long int*, realtype*,
@@ -63,7 +63,7 @@ void FIDA_BANDSETJAC(int *flag, int *ier)
 
 /*************************************************/
 
-int FIDALapackBandJac(int N, int mupper, int mlower,
+int FIDALapackBandJac(long int N, long int mupper, long int mlower,
                       realtype t, realtype c_j, 
                       N_Vector yy, N_Vector yp, N_Vector rr,
                       DlsMat J, void *user_data,
@@ -71,7 +71,7 @@ int FIDALapackBandJac(int N, int mupper, int mlower,
 {
   realtype *yy_data, *yp_data, *rr_data, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
   realtype h;
-  int eband;
+  long int eband;
   int ier;
   FIDAUserData IDA_userdata;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:27:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -37,12 +37,12 @@
 extern "C" {
 #endif
 
-  extern void FCV_GLOCFN(int*,                             /* NLOC          */
+  extern void FCV_GLOCFN(long int*,                        /* NLOC          */
                          realtype*, realtype*, realtype*,  /* T, YLOC, GLOC */
                          long int*, realtype*,             /* IPAR, RPAR    */
                          int *ier);                        /* IER           */
 
-  extern void FCV_COMMFN(int*,                             /* NLOC          */
+  extern void FCV_COMMFN(long int*,                        /* NLOC          */
                          realtype*, realtype*,             /* T, Y          */
                          long int*, realtype*,             /* IPAR, RPAR    */
                          int *ier);                        /* IER           */
@@ -53,7 +53,7 @@ extern "C" {
 
 /***************************************************************************/
 
-void FCV_BBDINIT(int *Nloc, int *mudq, int *mldq, int *mu, int *ml, 
+void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq, long int *mu, long int *ml, 
                  realtype* dqrely, int *ier)
 {
 
@@ -75,7 +75,7 @@ void FCV_BBDINIT(int *Nloc, int *mudq, int *mldq, int *mu, int *ml,
 
 /***************************************************************************/
 
-void FCV_BBDREINIT(int *Nloc, int *mudq, int *mldq, realtype* dqrely, int *ier)
+void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq, realtype* dqrely, int *ier)
 {
   /* 
      First call CVReInitBBD to re-initialize CVBBDPRE module:
@@ -93,7 +93,7 @@ void FCV_BBDREINIT(int *Nloc, int *mudq, int *mldq, realtype* dqrely, int *ier)
 /* C function FCVgloc to interface between CVBBDPRE module and a Fortran 
    subroutine FCVLOCFN. */
 
-int FCVgloc(int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *user_data)
+int FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *user_data)
 {
   int ier;
   realtype *yloc_data, *gloc_data;
@@ -115,7 +115,7 @@ int FCVgloc(int Nloc, realtype t, N_Vector yloc, N_Vector gloc, void *user_data)
 /* C function FCVcfn to interface between CVBBDPRE module and a Fortran 
    subroutine FCVCOMMF. */
 
-int FCVcfn(int Nloc, realtype t, N_Vector y, void *user_data)
+int FCVcfn(long int Nloc, realtype t, N_Vector y, void *user_data)
 {
   int ier;
   realtype *yloc;

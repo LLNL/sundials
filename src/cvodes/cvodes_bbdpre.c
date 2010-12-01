@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.14 $
+ * $Date: 2010-12-01 22:30:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -49,9 +49,9 @@ static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 static void cvBBDPrecFree(CVodeMem cv_mem);
 
 /* Wrapper functions for adjoint code */
-static int cvGlocWrapper(int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
+static int cvGlocWrapper(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
                          void *cvadj_mem);
-static int cvCfnWrapper(int NlocalB, realtype t, N_Vector yB, void *cvadj_mem);
+static int cvCfnWrapper(long int NlocalB, realtype t, N_Vector yB, void *cvadj_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int cvBBDDQJac(CVBBDPrecData pdata, realtype t, 
@@ -80,16 +80,16 @@ static void CVBBDPrecFreeB(CVodeBMem cvB_mem);
  * -----------------------------------------------------------------
  */
 
-int CVBBDPrecInit(void *cvode_mem, int Nlocal, 
-                  int mudq, int mldq,
-                  int mukeep, int mlkeep, 
+int CVBBDPrecInit(void *cvode_mem, long int Nlocal, 
+                  long int mudq, long int mldq,
+                  long int mukeep, long int mlkeep, 
                   realtype dqrely, 
                   CVLocalFn gloc, CVCommFn cfn)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
-  int muk, mlk, storage_mu;
+  long int muk, mlk, storage_mu;
   int flag;
 
   if (cvode_mem == NULL) {
@@ -148,10 +148,10 @@ int CVBBDPrecInit(void *cvode_mem, int Nlocal,
     cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBBDPRE", "CVBBDPrecInit", MSGBBD_MEM_FAIL);
     return(CVSPILS_MEM_FAIL);
   }
-  /* Allocate memory for pivots */
-  pdata->pivots = NULL;
-  pdata->pivots = NewIntArray(Nlocal);
-  if (pdata->savedJ == NULL) {
+  /* Allocate memory for lpivots */
+  pdata->lpivots = NULL;
+  pdata->lpivots = NewLintArray(Nlocal);
+  if (pdata->lpivots == NULL) {
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -184,13 +184,13 @@ int CVBBDPrecInit(void *cvode_mem, int Nlocal,
 
 
 int CVBBDPrecReInit(void *cvode_mem, 
-                    int mudq, int mldq, 
+                    long int mudq, long int mldq, 
                     realtype dqrely)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBBDPrecData pdata;
-  int Nlocal;
+  long int Nlocal;
 
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBD_MEM_NULL);
@@ -287,18 +287,18 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP)
 
 /* Readability Replacements */
 
-#define Nlocal (pdata->n_local)
-#define mudq   (pdata->mudq)
-#define mldq   (pdata->mldq)
-#define mukeep (pdata->mukeep)
-#define mlkeep (pdata->mlkeep)
-#define dqrely (pdata->dqrely)
-#define gloc   (pdata->gloc)
-#define cfn    (pdata->cfn)
-#define savedJ (pdata->savedJ)
-#define savedP (pdata->savedP)
-#define pivots (pdata->pivots)
-#define nge    (pdata->nge)
+#define Nlocal  (pdata->n_local)
+#define mudq    (pdata->mudq)
+#define mldq    (pdata->mldq)
+#define mukeep  (pdata->mukeep)
+#define mlkeep  (pdata->mlkeep)
+#define dqrely  (pdata->dqrely)
+#define gloc    (pdata->gloc)
+#define cfn     (pdata->cfn)
+#define savedJ  (pdata->savedJ)
+#define savedP  (pdata->savedP)
+#define lpivots (pdata->lpivots)
+#define nge     (pdata->nge)
 
 /*
  * -----------------------------------------------------------------
@@ -360,7 +360,8 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 {
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
-  int ier, retval;
+  int retval;
+  long int ier;
 
   pdata = (CVBBDPrecData) bbd_data;
 
@@ -396,7 +397,7 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   AddIdentity(savedP);
  
   /* Do LU factorization of P in place */
-  ier = BandGBTRF(savedP, pivots);
+  ier = BandGBTRF(savedP, lpivots);
  
   /* Return 0 if the LU was complete; otherwise return 1 */
   if (ier > 0) return(1);
@@ -440,7 +441,7 @@ static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   
   zd = N_VGetArrayPointer(z);
 
-  BandGBTRS(savedP, pivots, zd);
+  BandGBTRS(savedP, lpivots, zd);
 
   return(0);
 }
@@ -459,7 +460,7 @@ static void cvBBDPrecFree(CVodeMem cv_mem)
 
   DestroyMat(savedJ);
   DestroyMat(savedP);
-  DestroyArray(pivots);
+  DestroyArray(lpivots);
 
   free(pdata);
   pdata = NULL;
@@ -494,7 +495,7 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
 {
   CVodeMem cv_mem;
   realtype gnorm, minInc, inc, inc_inv;
-  int group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
   int retval;
 
@@ -585,9 +586,9 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t,
  * Wrappers for the backward phase around the corresponding CVODES functions
  */
 
-int CVBBDPrecInitB(void *cvode_mem, int which, int NlocalB, 
-                   int mudqB, int mldqB, 
-                   int mukeepB, int mlkeepB, 
+int CVBBDPrecInitB(void *cvode_mem, int which, long int NlocalB, 
+                   long int mudqB, long int mldqB,
+                   long int mukeepB, long int mlkeepB, 
                    realtype dqrelyB,
                    CVLocalFnB glocB, CVCommFnB cfnB)
 {
@@ -657,7 +658,7 @@ int CVBBDPrecInitB(void *cvode_mem, int which, int NlocalB,
 }
 
 int CVBBDPrecReInitB(void *cvode_mem, int which, 
-                     int mudqB, int mldqB,
+                     long int mudqB, long int mldqB,
                      realtype dqrelyB)
 {
   CVodeMem cv_mem;
@@ -715,7 +716,7 @@ static void CVBBDPrecFreeB(CVodeBMem cvB_mem)
  * provided by the user.
  */
 
-static int cvGlocWrapper(int NlocalB, realtype t, N_Vector yB, N_Vector gB, void *cvode_mem)
+static int cvGlocWrapper(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, void *cvode_mem)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -751,7 +752,7 @@ static int cvGlocWrapper(int NlocalB, realtype t, N_Vector yB, N_Vector gB, void
  * provided by the user.
  */
 
-static int cvCfnWrapper(int NlocalB, realtype t, N_Vector yB, void *cvode_mem)
+static int cvCfnWrapper(long int NlocalB, realtype t, N_Vector yB, void *cvode_mem)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;

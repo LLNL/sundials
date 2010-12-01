@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.13 $
+ * $Date: 2010-12-01 22:39:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -78,7 +78,7 @@ static void IDADenseFreeB(IDABMem IDAB_mem);
 #define jacDQ        (idadls_mem->d_jacDQ)
 #define djac         (idadls_mem->d_djac)
 #define JJ           (idadls_mem->d_J)
-#define pivots       (idadls_mem->d_pivots)
+#define lpivots      (idadls_mem->d_lpivots)
 #define nje          (idadls_mem->d_nje)
 #define nreDQ        (idadls_mem->d_nreDQ)
 #define jacdata      (idadls_mem->d_J_data)
@@ -101,7 +101,7 @@ static void IDADenseFreeB(IDABMem IDAB_mem);
  * and sets the d_jac field to be:
  *   (1) the input parameter djac, if djac != NULL, or                
  *   (2) IDADenseDQJac, if djac == NULL.                             
- * Finally, it allocates memory for JJ and pivots.
+ * Finally, it allocates memory for JJ and lpivots.
  * The return value is IDADLS_SUCCESS = 0, IDADLS_LMEM_FAIL = -1,
  * or IDADLS_ILL_INPUT = -2.
  *
@@ -113,7 +113,7 @@ static void IDADenseFreeB(IDABMem IDAB_mem);
  * -----------------------------------------------------------------
  */
 
-int IDADense(void *ida_mem, int Neq)
+int IDADense(void *ida_mem, long int Neq)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -174,9 +174,9 @@ int IDADense(void *ida_mem, int Neq)
     return(IDADLS_MEM_FAIL);
   }
 
-  pivots = NULL;
-  pivots = NewIntArray(Neq);
-  if (pivots == NULL) {
+  lpivots = NULL;
+  lpivots = NewLintArray(Neq);
+  if (lpivots == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDASDENSE", "IDADense", MSGD_MEM_FAIL);
     DestroyMat(JJ);
     free(idadls_mem); idadls_mem = NULL;
@@ -260,7 +260,7 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   }
 
   /* Do LU factorization of JJ; return success or fail flag. */
-  retfac = DenseGETRF(JJ, pivots);
+  retfac = DenseGETRF(JJ, lpivots);
 
   if (retfac != 0) {
     last_flag = retfac;
@@ -286,7 +286,7 @@ static int IDADenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   
   bd = N_VGetArrayPointer(b);
 
-  DenseGETRS(JJ, pivots, bd);
+  DenseGETRS(JJ, lpivots, bd);
 
   /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
@@ -306,7 +306,7 @@ static int IDADenseFree(IDAMem IDA_mem)
   idadls_mem = (IDADlsMem) lmem;
   
   DestroyMat(JJ);
-  DestroyArray(pivots);
+  DestroyArray(lpivots);
   free(lmem); lmem = NULL;
 
   return(0);
@@ -324,7 +324,7 @@ static int IDADenseFree(IDAMem IDA_mem)
  * IDADenseB is a wrapper around IDADense.
  */
 
-int IDADenseB(void *ida_mem, int which, int NeqB)
+int IDADenseB(void *ida_mem, int which, long int NeqB)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;

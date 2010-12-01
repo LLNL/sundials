@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:46:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -32,17 +32,17 @@
  * -----------------------------------------------------
  */
 
-int DenseGETRF(DlsMat A, int *p)
+long int DenseGETRF(DlsMat A, long int *p)
 {
   return(denseGETRF(A->cols, A->M, A->N, p));
 }
 
-void DenseGETRS(DlsMat A, int *p, realtype *b)
+void DenseGETRS(DlsMat A, long int *p, realtype *b)
 {
   denseGETRS(A->cols, A->N, p, b);
 }
 
-int DensePOTRF(DlsMat A)
+long int DensePOTRF(DlsMat A)
 {
   return(densePOTRF(A->cols, A->M));
 }
@@ -72,9 +72,9 @@ void DenseScale(realtype c, DlsMat A)
   denseScale(c, A->cols, A->M, A->N);
 }
 
-int denseGETRF(realtype **a, int m, int n, int *p)
+long int denseGETRF(realtype **a, long int m, long int n, long int *p)
 {
-  int i, j, k, l;
+  long int i, j, k, l;
   realtype *col_j, *col_k;
   realtype temp, mult, a_kj;
 
@@ -135,9 +135,9 @@ int denseGETRF(realtype **a, int m, int n, int *p)
   return(0);
 }
 
-void denseGETRS(realtype **a, int n, int *p, realtype *b)
+void denseGETRS(realtype **a, long int n, long int *p, realtype *b)
 {
-  int i, k, pk;
+  long int i, k, pk;
   realtype *col_k, tmp;
 
   /* Permute b, based on pivot information in p */
@@ -172,11 +172,11 @@ void denseGETRS(realtype **a, int n, int *p, realtype *b)
  * Only the lower triangle of A is accessed and it is overwritten with
  * the lower triangle of C.
  */
-int densePOTRF(realtype **a, int m)
+long int densePOTRF(realtype **a, long int m)
 {
   realtype *a_col_j, *a_col_k;
   realtype a_diag;
-  int i, j, k;
+  long int i, j, k;
 
   for (j=0; j<m; j++) {
 
@@ -192,7 +192,7 @@ int densePOTRF(realtype **a, int m)
     }
 
     a_diag = a_col_j[j];
-    if (a_diag <= ZERO) return(j);
+    if (a_diag <= ZERO) return(j+1);
     a_diag = RSqrt(a_diag);
 
     for(i=j; i<m; i++) a_col_j[i] /= a_diag;
@@ -207,10 +207,10 @@ int densePOTRF(realtype **a, int m)
  * obtained with denPOTRF.; A = C*C^T, C lower triangular
  *
  */
-void densePOTRS(realtype **a, int m, realtype *b)
+void densePOTRS(realtype **a, long int m, realtype *b)
 {
   realtype *col_j, *col_i;
-  int i, j;
+  long int i, j;
 
   /* Solve C y = b, forward substitution - column version.
      Store solution y in b */
@@ -248,11 +248,11 @@ void densePOTRS(realtype **a, int m, realtype *b)
  *
  */
 
-int denseGEQRF(realtype **a, int m, int n, realtype *beta, realtype *v)
+int denseGEQRF(realtype **a, long int m, long int n, realtype *beta, realtype *v)
 {
   realtype ajj, s, mu, v1, v1_2;
   realtype *col_j, *col_k;
-  int i, j, k;
+  long int i, j, k;
 
   /* For each column...*/
   for(j=0; j<n; j++) {
@@ -309,11 +309,11 @@ int denseGEQRF(realtype **a, int m, int n, realtype *beta, realtype *v)
  *
  * v (of length m) must be provided as workspace.
  */
-int denseORMQR(realtype **a, int m, int n, realtype *beta,
+int denseORMQR(realtype **a, long int m, long int n, realtype *beta,
                realtype *vn, realtype *vm, realtype *v)
 {
   realtype *col_j, s;
-  int i, j;
+  long int i, j;
 
   /* Initialize vm */
   for(i=0; i<n; i++) vm[i] = vn[i];
@@ -339,9 +339,9 @@ int denseORMQR(realtype **a, int m, int n, realtype *beta,
   return(0);
 }
 
-void denseCopy(realtype **a, realtype **b, int m, int n)
+void denseCopy(realtype **a, realtype **b, long int m, long int n)
 {
-  int i, j;
+  long int i, j;
   realtype *a_col_j, *b_col_j;
 
   for (j=0; j < n; j++) {
@@ -353,9 +353,9 @@ void denseCopy(realtype **a, realtype **b, int m, int n)
 
 }
 
-void denseScale(realtype c, realtype **a, int m, int n)
+void denseScale(realtype c, realtype **a, long int m, long int n)
 {
-  int i, j;
+  long int i, j;
   realtype *col_j;
 
   for (j=0; j < n; j++) {
@@ -365,9 +365,9 @@ void denseScale(realtype c, realtype **a, int m, int n)
   }
 }
 
-void denseAddIdentity(realtype **a, int n)
+void denseAddIdentity(realtype **a, long int n)
 {
-  int i;
+  long int i;
   
   for (i=0; i < n; i++) a[i][i] += ONE;
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2008-04-18 19:42:43 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:43:33 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -37,11 +37,11 @@ typedef struct KINDlsMemRec {
 
   int d_type;              /* SUNDIALS_DENSE or SUNDIALS_BAND              */
 
-  int d_n;                 /* problem dimension                            */
+  long int d_n;            /* problem dimension                            */
 
-  int d_ml;                /* lower bandwidth of Jacobian                  */
-  int d_mu;                /* upper bandwidth of Jacobian                  */ 
-  int d_smu;               /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
+  long int d_ml;           /* lower bandwidth of Jacobian                  */
+  long int d_mu;           /* upper bandwidth of Jacobian                  */ 
+  long int d_smu;          /* upper bandwith of M = MIN(N-1,d_mu+d_ml)     */
 
   booleantype d_jacDQ;     /* TRUE if using internal DQ Jacobian approx.   */
   KINDlsDenseJacFn d_djac; /* dense Jacobian routine to be called          */
@@ -50,13 +50,14 @@ typedef struct KINDlsMemRec {
     
   DlsMat d_J;              /* problem Jacobian                             */
     
-  int *d_pivots;           /* pivot array for PM = LU                      */
+  int *d_pivots;           /* int pivot array for PM = LU                  */
+  long int *d_lpivots;     /* long int pivot array for PM = LU             */
     
   long int d_nje;          /* no. of calls to jac                          */
     
   long int d_nfeDQ;        /* no. of calls to F due to DQ Jacobian approx. */
     
-  int d_last_flag;         /* last error return flag                       */
+  long int d_last_flag;    /* last error return flag                       */
     
 } *KINDlsMem;
 
@@ -67,12 +68,12 @@ typedef struct KINDlsMemRec {
  * -----------------------------------------------------------------
  */
 
-int kinDlsDenseDQJac(int N,
+int kinDlsDenseDQJac(long int N,
 		     N_Vector u, N_Vector fu,
 		     DlsMat Jac, void *data,
 		     N_Vector tmp1, N_Vector tmp2);
 
-int kinDlsBandDQJac(int N, int mupper, int mlower,
+int kinDlsBandDQJac(long int N, long int mupper, long int mlower,
 		    N_Vector u, N_Vector fu,
 		    DlsMat Jac, void *data,
 		    N_Vector tmp1, N_Vector tmp2);

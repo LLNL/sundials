@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-30 17:43:09 $
+ * $Revision: 1.4 $
+ * $Date: 2010-12-01 22:43:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -36,7 +36,7 @@ typedef struct KBBDPrecDataRec {
 
   /* passed by user to KINBBDPrecAlloc, used by pset/psolve functions */
 
-  int mudq, mldq, mukeep, mlkeep;
+  long int mudq, mldq, mukeep, mlkeep;
   KINLocalFn gloc;
   KINCommFn gcomm;
 
@@ -51,11 +51,11 @@ typedef struct KBBDPrecDataRec {
   /* set by KINBBDPrecSetup and used by KINBBDPrecSolve */
 
   DlsMat PP;
-  int *pivots;
+  long int *lpivots;
 
   /* set by KINBBDPrecAlloc and used by KINBBDPrecSetup */
 
-  int n_local;
+  long int n_local;
 
   /* available for optional output */
 

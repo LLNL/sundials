@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2008-09-03 20:26:21 $
+ * $Revision: 1.11 $
+ * $Date: 2010-12-01 22:30:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -560,7 +560,7 @@ int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
  * -----------------------------------------------------------------
  */
 
-int CVSpilsGetLastFlag(void *cvode_mem, int *flag)
+int CVSpilsGetLastFlag(void *cvode_mem, long int *flag)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -589,7 +589,7 @@ int CVSpilsGetLastFlag(void *cvode_mem, int *flag)
  * -----------------------------------------------------------------
  */
 
-char *CVSpilsGetReturnFlagName(int flag)
+char *CVSpilsGetReturnFlagName(long int flag)
 {
   char *name;
 

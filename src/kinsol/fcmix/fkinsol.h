@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-12-12 18:13:22 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-01 22:45:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -495,10 +495,10 @@ void FKIN_SETIIN(char key_name[], long int *ival, int *ier, int key_len);
 void FKIN_SETRIN(char key_name[], realtype *rval, int *ier, int key_len);
 void FKIN_SETVIN(char key_name[], realtype *vval, int *ier, int key_len);
 
-void FKIN_DENSE(int *neq, int *ier);
+void FKIN_DENSE(long int *neq, int *ier);
 void FKIN_DENSESETJAC(int *flag, int *ier);
 
-void FKIN_BAND(int *neq, int *mupper, int *mlower, int *ier);
+void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
 void FKIN_BANDSETJAC(int *flag, int *ier);
 
 void FKIN_LAPACKDENSE(int *neq, int *ier);
@@ -526,22 +526,22 @@ void FKIN_FREE(void);
 
 int FKINfunc(N_Vector uu, N_Vector fval, void *user_data);
 
-int FKINDenseJac(int N, 
+int FKINDenseJac(long int N,
                  N_Vector uu, N_Vector fval,
                  DlsMat J, void *user_data, 
                  N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINBandJac(int N, int mupper, int mlower,
+int FKINBandJac(long int N, long int mupper, long int mlower,
                 N_Vector uu, N_Vector fval, 
                 DlsMat J, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINLapackDenseJac(int N, 
+int FKINLapackDenseJac(long int N,
                        N_Vector uu, N_Vector fval,
                        DlsMat J, void *user_data, 
                        N_Vector vtemp1, N_Vector vtemp2);
 
-int FKINLapackBandJac(int N, int mupper, int mlower,
+int FKINLapackBandJac(long int N, long int mupper, long int mlower,
                       N_Vector uu, N_Vector fval, 
                       DlsMat J, void *user_data,
                       N_Vector vtemp1, N_Vector vtemp2);

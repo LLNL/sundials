@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2007-12-12 18:13:22 $
+ * $Revision: 1.9 $
+ * $Date: 2010-12-01 22:37:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -60,7 +60,7 @@
  *
  *   FIDASOLVE  interfaces to IDASolve, IDAGet*, and IDA*Get*
  *
- *   FIDAGETSOL  interfaces to IDAGetSolution
+ *   FIDAGETDKY  interfaces to IDAGetDky
  *
  *   FIDAGETERRWEIGHTS  interfaces to IDAGetErrWeights
  *
@@ -493,14 +493,14 @@
  *
  * -----------------------------------------------------------------------------
  *
- * (9) Getting current solution: FIDAGETSOL
+ * (9) Getting current solution derivative: FIDAGETDKY
  * To obtain interpolated values of y and y' for any value of t in the last
  * internal step taken by IDA, make the following call:
- *       CALL FIDAGETSOL(T, YRET, YPRET, IER)
+ *       CALL FIDAGETDKY(T, K, DKY, IER)
  * The arguments are:
- * T   = value of t at which solution is desired, in [TCUR-HU,TCUR].
- * Y   = array containing interpolated y
- * YP  = array containing the derivative of the computed solution, y'(tret)
+ * T   = value of t at which solution is desired, in [TCUR - HU,TCUR].
+ * K   = order of derivative requested.
+ * DKY = array containing computed K-th derivative of the solution y.
  * IER = return flag: = 0 for success, < 0 for illegal argument.
  *
  * -----------------------------------------------------------------------------
@@ -560,7 +560,7 @@ extern "C" {
 #define FIDA_PSOL           SUNDIALS_F77_FUNC(fidapsol, FIDAPSOL)
 #define FIDA_JTIMES         SUNDIALS_F77_FUNC(fidajtimes, FIDAJTIMES)
 #define FIDA_EWT            SUNDIALS_F77_FUNC(fidaewt, FIDAEWT)
-#define FIDA_GETSOL         SUNDIALS_F77_FUNC(fidagetsol, FIDAGETSOL)
+#define FIDA_GETDKY         SUNDIALS_F77_FUNC(fidagetdky, FIDAGETDKY)
 #define FIDA_GETERRWEIGHTS  SUNDIALS_F77_FUNC(fidageterrweights, FIDAGETERRWEIGHTS)
 #define FIDA_GETESTLOCALERR SUNDIALS_F77_FUNC(fidagetestlocalerr, FIDAGETESTLOCALERR)
 
@@ -598,7 +598,7 @@ extern "C" {
 #define FIDA_PSOL           fidapsol_
 #define FIDA_JTIMES         fidajtimes_
 #define FIDA_EWT            fidaewt_
-#define FIDA_GETSOL         fidagetsol_
+#define FIDA_GETDKY         fidagetdky_
 #define FIDA_GETERRWEIGHTS  fidageterrweights_
 #define FIDA_GETESTLOCALERR fidagetestlocalerr_
 
@@ -631,9 +631,9 @@ void FIDA_SETVIN(char key_name[], realtype *vval, int *ier, int key_len);
 void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier);
 void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier);
 
-void FIDA_DENSE(int *neq, int *ier);
+void FIDA_DENSE(long int *neq, int *ier);
 void FIDA_DENSESETJAC(int *flag, int *ier);
-void FIDA_BAND(int *neq, int *mupper, int *mlower, int *ier);
+void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
 void FIDA_BANDSETJAC(int *flag, int *ier);
 
 void FIDA_LAPACKDENSE(int *neq, int *ier);
@@ -656,7 +656,7 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
                 realtype *ypret, int *itask, int *ier);
 void FIDA_FREE(void);
 void FIDA_EWTSET(int *flag, int *ier);
-void FIDA_GETSOL(realtype *t, realtype *yret, realtype *ypret, int *ier);
+void FIDA_GETDKY(realtype *t, int *k, realtype *dky, int *ier);
 void FIDA_GETERRWEIGHTS(realtype *eweight, int *ier);
 void FIDA_GETESTLOCALERR(realtype *ele, int *ier);
 
@@ -664,16 +664,27 @@ void FIDA_GETESTLOCALERR(realtype *ele, int *ier);
 
 int FIDAresfn(realtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data);
 
-int FIDADenseJac(int N, realtype t, realtype c_j, 
+int FIDADenseJac(long int N, realtype t, realtype c_j, 
                  N_Vector yy, N_Vector yp, N_Vector rr,
                  DlsMat Jac, void *user_data,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int FIDABandJac(int N, int mupper, int mlower,
+int FIDABandJac(long int N, long int mupper, long int mlower,
                 realtype t, realtype c_j, 
                 N_Vector yy, N_Vector yp, N_Vector rr,
                 DlsMat Jac, void *user_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+
+int FIDALapackDenseJac(long int N, realtype t, realtype c_j, 
+                       N_Vector yy, N_Vector yp, N_Vector rr,
+                       DlsMat Jac, void *user_data,
+                       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+
+int FIDALapackBandJac(long int N, long int mupper, long int mlower,
+                      realtype t, realtype c_j, 
+                      N_Vector yy, N_Vector yp, N_Vector rr,
+                      DlsMat J, void *user_data,
+                      N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
                N_Vector v, N_Vector Jv,

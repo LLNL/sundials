@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.11 $
+ * $Date: 2010-12-01 22:43:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -80,7 +80,7 @@ static void kinDenseFree(KINMem kin_mem);
 #define jacDQ          (kindls_mem->d_jacDQ)
 #define djac           (kindls_mem->d_djac)
 #define J              (kindls_mem->d_J)
-#define pivots         (kindls_mem->d_pivots)
+#define lpivots        (kindls_mem->d_lpivots)
 #define nje            (kindls_mem->d_nje)
 #define nfeDQ          (kindls_mem->d_nfeDQ)
 #define J_data         (kindls_mem->d_J_data)
@@ -105,7 +105,7 @@ static void kinDenseFree(KINMem kin_mem);
  * the kin_lmem field in *kinmem to the address of this structure.  
  * It sets setupNonNull in *kinmem to TRUE, and the djac field to the 
  * default kinDlsDenseDQJac.
- * Finally, it allocates memory for J and pivots.
+ * Finally, it allocates memory for J and lpivots.
  *
  * NOTE: The dense linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, KINDense will first 
@@ -115,7 +115,7 @@ static void kinDenseFree(KINMem kin_mem);
  * -----------------------------------------------------------------
  */
 
-int KINDense(void *kinmem, int N)
+int KINDense(void *kinmem, long int N)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;
@@ -174,9 +174,9 @@ int KINDense(void *kinmem, int N)
     return(KINDLS_MEM_FAIL);
   }
 
-  pivots = NULL;
-  pivots = NewIntArray(N);
-  if (pivots == NULL) {
+  lpivots = NULL;
+  lpivots = NewLintArray(N);
+  if (lpivots == NULL) {
     KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINDENSE", "KINDense", MSGD_MEM_FAIL);
     DestroyMat(J);
     free(kindls_mem); kindls_mem = NULL;
@@ -239,8 +239,8 @@ static int kinDenseInit(KINMem kin_mem)
 static int kinDenseSetup(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
-  long int ier;
   int retval;
+  long int ier;
 
   kindls_mem = (KINDlsMem) lmem;
  
@@ -253,7 +253,7 @@ static int kinDenseSetup(KINMem kin_mem)
   }
 
   /* Do LU factorization of J */
-  ier = DenseGETRF(J, pivots); 
+  ier = DenseGETRF(J, lpivots); 
 
   /* Return 0 if the LU was complete; otherwise return -1 */
   last_flag = ier;
@@ -286,7 +286,7 @@ static int kinDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *res_n
 
   /* Back-solve and get solution in x */
   
-  DenseGETRS(J, pivots, xd);
+  DenseGETRS(J, lpivots, xd);
 
   /* Compute the terms Jpnorm and sfdotJp for use in the global strategy
      routines and in KINForcingTerm. Both of these terms are subsequently
@@ -323,7 +323,7 @@ static void kinDenseFree(KINMem kin_mem)
   kindls_mem = (KINDlsMem) lmem;
   
   DestroyMat(J);
-  DestroyArray(pivots);
+  DestroyArray(lpivots);
   free(kindls_mem); kindls_mem = NULL;
 }
 

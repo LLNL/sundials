@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-01 22:43:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -407,7 +407,7 @@ int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevalsS)
  * -----------------------------------------------------------------
  */
 
-int KINSpilsGetLastFlag(void *kinmem, int *flag)
+int KINSpilsGetLastFlag(void *kinmem, long int *flag)
 {
   KINMem kin_mem;
   KINSpilsMem kinspils_mem;
@@ -437,7 +437,7 @@ int KINSpilsGetLastFlag(void *kinmem, int *flag)
  * -----------------------------------------------------------------
  */
 
-char *KINSpilsGetReturnFlagName(int flag)
+char *KINSpilsGetReturnFlagName(long int flag)
 {
   char *name;
 

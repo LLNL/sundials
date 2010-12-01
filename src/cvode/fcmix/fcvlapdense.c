@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:27:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -30,7 +30,7 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_DJAC(int*,                             /* N          */
+  extern void FCV_DJAC(long int*,                        /* N          */
                        realtype*, realtype*, realtype*,  /* T, Y, FY   */
                        realtype*,                        /* LDJAC      */
                        realtype*,                        /* H          */ 
@@ -58,14 +58,14 @@ void FCV_LAPACKDENSESETJAC(int *flag, int *ier)
 /***************************************************************************/
 
 /* The C function FCVLapackDenseJac interfaces between CVODE and a 
- * Fortran subroutine FCVLDJAC for solution of a linear system using 
+ * Fortran subroutine FCVDJAC for solution of a linear system using 
  * Lapack with dense Jacobian approximation.
- * Addresses of arguments are passed to FCVLDJAC, using the macro 
- * LAPACK_DENSE_COL and the routine N_VGetArrayPointer from NVECTOR.
+ * Addresses of arguments are passed to FCVDJAC, using the macro 
+ * DENSE_COL and the routine N_VGetArrayPointer from NVECTOR.
  * Auxiliary data is assumed to be communicated by Common. 
  */
 
-int FCVLapackDenseJac(int N, realtype t,
+int FCVLapackDenseJac(long int N, realtype t,
                       N_Vector y, N_Vector fy, 
                       DlsMat J, void *user_data,
                       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.11 $
+ * $Date: 2010-12-01 22:30:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -76,12 +76,12 @@ static int cvBandPrecDQJac(CVBandPrecData pdata,
  *       by checking that the function N_VGetArrayPointer exists.
  * -----------------------------------------------------------------
  */
-int CVBandPrecInit(void *cvode_mem, int N, int mu, int ml)
+int CVBandPrecInit(void *cvode_mem, long int N, long int mu, long int ml)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBandPrecData pdata;
-  int mup, mlp, storagemu;
+  long int mup, mlp, storagemu;
   int flag;
 
   if (cvode_mem == NULL) {
@@ -141,9 +141,9 @@ int CVBandPrecInit(void *cvode_mem, int N, int mu, int ml)
   }
 
   /* Allocate memory for pivot array. */
-  pdata->pivots = NULL;
-  pdata->pivots = NewIntArray(N);
-  if (pdata->savedJ == NULL) {
+  pdata->lpivots = NULL;
+  pdata->lpivots = NewLintArray(N);
+  if (pdata->lpivots == NULL) {
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -168,7 +168,7 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP, long int *leniwBP
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
   CVBandPrecData pdata;
-  int N, ml, mu, smu;
+  long int N, ml, mu, smu;
 
   
   if (cvode_mem == NULL) {
@@ -231,13 +231,13 @@ int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
 
 /* Readability Replacements */
 
-#define N      (pdata->N)
-#define mu     (pdata->mu)
-#define ml     (pdata->ml)
-#define pivots (pdata->pivots)
-#define savedJ (pdata->savedJ)
-#define savedP (pdata->savedP)
-#define nfeBP  (pdata->nfeBP)
+#define N       (pdata->N)
+#define mu      (pdata->mu)
+#define ml      (pdata->ml)
+#define lpivots (pdata->lpivots)
+#define savedJ  (pdata->savedJ)
+#define savedP  (pdata->savedP)
+#define nfeBP   (pdata->nfeBP)
 
 /*
  * -----------------------------------------------------------------
@@ -295,8 +295,9 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   CVBandPrecData pdata;
   CVodeMem cv_mem;
   int retval;
+  long int ier;
 
-  /* Assume matrix and pivots have already been allocated. */
+  /* Assume matrix and lpivots have already been allocated. */
   pdata = (CVBandPrecData) bp_data;
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
@@ -331,10 +332,10 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   AddIdentity(savedP);
  
   /* Do LU factorization of matrix. */
-  retval = BandGBTRF(savedP, pivots);
+  ier = BandGBTRF(savedP, lpivots);
  
   /* Return 0 if the LU was complete; otherwise return 1. */
-  if (retval > 0) return(1);
+  if (ier > 0) return(1);
   return(0);
 }
 
@@ -366,7 +367,7 @@ static int cvBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
   CVBandPrecData pdata;
   realtype *zd;
 
-  /* Assume matrix and pivots have already been allocated. */
+  /* Assume matrix and lpivots have already been allocated. */
   pdata = (CVBandPrecData) bp_data;
 
   /* Copy r to z. */
@@ -375,7 +376,7 @@ static int cvBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
   /* Do band backsolve on the vector z. */
   zd = N_VGetArrayPointer(z);
 
-  BandGBTRS(savedP, pivots, zd);
+  BandGBTRS(savedP, lpivots, zd);
 
   return(0);
 }
@@ -394,7 +395,7 @@ static void cvBandPrecFree(CVodeMem cv_mem)
 
   DestroyMat(savedJ);
   DestroyMat(savedP);
-  DestroyArray(pivots);
+  DestroyArray(lpivots);
 
   free(pdata);
   pdata = NULL;
@@ -426,7 +427,7 @@ static int cvBandPrecDQJac(CVBandPrecData pdata,
 {
   CVodeMem cv_mem;
   realtype fnorm, minInc, inc, inc_inv, srur;
-  int group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
   int retval;
 
@@ -498,7 +499,7 @@ static int cvBandPrecDQJac(CVBandPrecData pdata,
  * CVODES functions
  */
 
-int CVBandPrecInitB(void *cvode_mem, int which, int nB, int muB, int mlB)
+int CVBandPrecInitB(void *cvode_mem, int which, long int nB, long int muB, long int mlB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2008-04-16 21:53:53 $
+ * $Revision: 1.9 $
+ * $Date: 2010-12-01 22:39:18 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -77,7 +77,7 @@ typedef struct IDASpilsMemRec {
 
   void *s_spils_mem;   /* memory used by the generic solver            */
 
-  int s_last_flag;     /* last error return flag                       */
+  long int s_last_flag; /* last error return flag                      */
 
   /* Preconditioner computation
    * (a) user-provided:

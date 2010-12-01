@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.10 $
+ * $Date: 2010-12-01 22:30:42 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -35,14 +35,14 @@ typedef struct CVBandPrecDataRec {
 
   /* Data set by user in CVBandPrecInit */
 
-  int N;
-  int ml, mu;
+  long int N;
+  long int ml, mu;
 
   /* Data set by CVBandPrecSetup */
 
   DlsMat savedJ;
   DlsMat savedP;
-  int *pivots;
+  long int *lpivots;
 
   /* Rhs calls */
 

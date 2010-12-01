@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-07-05 19:10:36 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:39:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -38,7 +38,7 @@ typedef struct IBBDPrecDataRec {
   /* passed by user to IDABBDPrecAlloc and used by
      IDABBDPrecSetup/IDABBDPrecSolve functions */
 
-  int mudq, mldq, mukeep, mlkeep;
+  long int mudq, mldq, mukeep, mlkeep;
   realtype rel_yy;
   IDABBDLocalFn glocal;
   IDABBDCommFn gcomm;
@@ -50,11 +50,11 @@ typedef struct IBBDPrecDataRec {
   /* set by IDABBDPrecon and used by IDABBDPrecSolve */
 
   DlsMat PP;
-  int *pivots;
+  long int *lpivots;
 
   /* set by IDABBDPrecAlloc and used by IDABBDPrecSetup */
 
-  int n_local;
+  long int n_local;
 
   /* available for optional output */
 

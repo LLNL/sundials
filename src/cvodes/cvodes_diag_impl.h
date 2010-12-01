@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-03-22 18:05:51 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-01 22:30:42 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -34,8 +34,7 @@ extern "C" {
 
 typedef struct {
 
-  realtype di_gammasv; /* gammasv = gamma at the last call to setup */
-  /* or solve                                  */
+  realtype di_gammasv; /* gammasv = gamma at the last call to setup or solve */
 
   N_Vector di_M;       /* M = (I - gamma J)^{-1} , gamma = h / l1   */
 
@@ -46,7 +45,7 @@ typedef struct {
   long int di_nfeDI;   /* no. of calls to f due to difference 
 			  quotient diagonal Jacobian approximation  */
 
-  int di_last_flag;    /* last error return flag                    */
+  long int di_last_flag; /* last error return flag                  */
 
 } CVDiagMemRec, *CVDiagMem;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2008-04-18 19:42:41 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:35:26 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -41,11 +41,11 @@ typedef struct IDADlsMemRec {
 
   int d_type;               /* Type of Jacobians (DENSE or BAND)             */
 
-  int d_n;                  /* problem dimension                             */
+  long int d_n;             /* problem dimension                             */
 
-  int d_ml;                 /* b_ml = lower bandwidth of savedJ              */
-  int d_mu;                 /* b_mu = upper bandwidth of savedJ              */ 
-  int d_smu;                /* upper bandwith of M = MIN(N-1,b_mu+b_ml)      */
+  long int d_ml;            /* b_ml = lower bandwidth of savedJ              */
+  long int d_mu;            /* b_mu = upper bandwidth of savedJ              */ 
+  long int d_smu;           /* upper bandwith of M = MIN(N-1,b_mu+b_ml)      */
 
   booleantype d_jacDQ;      /* TRUE if using internal DQ Jacobian approx.    */
   IDADlsDenseJacFn d_djac;  /* dense Jacobian routine to be called           */
@@ -53,13 +53,15 @@ typedef struct IDADlsMemRec {
   void *d_J_data;           /* J_data is passed to djac or bjac              */
 
   DlsMat d_J;               /* J = dF/dy + cj*dF/dy'                         */
-  int *d_pivots;            /* pivots = pivot array for PM = LU              */
+
+  int *d_pivots;            /* pivots = int pivot array for PM = LU          */
+  long int *d_lpivots;      /* lpivots = long int pivot array for PM = LU    */
   
   long int d_nje;           /* nje = no. of calls to jac                     */
 
   long int d_nreDQ;         /* no. of calls to res due to DQ Jacobian approx.*/
 
-  int d_last_flag;          /* last error return flag                        */
+  long int d_last_flag;     /* last error return flag                        */
   
 } *IDADlsMem;
 
@@ -69,12 +71,12 @@ typedef struct IDADlsMemRec {
  * -----------------------------------------------------------------
  */
   
-int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
+int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
 		     N_Vector yy, N_Vector yp, N_Vector rr, 
 		     DlsMat Jac, void *data,
 		     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   
-int idaDlsBandDQJac(int N, int mupper, int mlower,
+int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
 		    realtype tt, realtype c_j, 
 		    N_Vector yy, N_Vector yp, N_Vector rr,
 		    DlsMat Jac, void *data,

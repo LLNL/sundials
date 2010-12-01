@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2008-03-18 14:49:29 $
+ * $Revision: 1.10 $
+ * $Date: 2010-12-01 22:37:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -456,7 +456,7 @@ void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs,
 
 /*************************************************/
 
-void FIDA_DENSE(int *neq, int *ier)
+void FIDA_DENSE(long int *neq, int *ier)
 {
 
   *ier = 0;
@@ -470,7 +470,7 @@ void FIDA_DENSE(int *neq, int *ier)
 
 /*************************************************/
 
-void FIDA_BAND(int *neq, int *mupper, int *mlower, int *ier)
+void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 {
 
   *ier = 0;
@@ -574,6 +574,7 @@ void FIDA_SPGMRREINIT(int *gstype, int *maxrs, realtype *eplifac,
 void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
 		realtype *ypret, int *itask, int *ier)
 {
+  int klast, kcur;
 
   *ier = 0;
 
@@ -598,12 +599,14 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
                         &IDA_iout[3],           /* NRE */
                         &IDA_iout[7],           /* NSETUPS */
                         &IDA_iout[4],           /* NETF */
-                        (int *) &IDA_iout[8],   /* KLAST */
-                        (int *) &IDA_iout[9],   /* KCUR */
+                        &klast,                 /* KLAST */
+                        &kcur,                  /* KCUR */
                         &IDA_rout[0],           /* HINUSED */
                         &IDA_rout[1],           /* HLAST */
                         &IDA_rout[2],           /* HCUR */
                         &IDA_rout[3]);          /* TCUR */
+  IDA_iout[8] = (long int) klast;
+  IDA_iout[9] = (long int) kcur;
   IDAGetNonlinSolvStats(IDA_idamem,
                         &IDA_iout[6],           /* NNI */
                         &IDA_iout[5]);          /* NCFN */
@@ -622,21 +625,21 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
   case IDA_LS_LAPACKDENSE:
   case IDA_LS_LAPACKBAND:
     IDADlsGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
-    IDADlsGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);           /* LSTF */
+    IDADlsGetLastFlag(IDA_idamem, &IDA_iout[14]);                   /* LSTF */
     IDADlsGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
     IDADlsGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                /* NJE */
     break;
   case IDA_LS_SPGMR:
   case IDA_LS_SPBCG:
   case IDA_LS_SPTFQMR:
-    IDASpilsGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
-    IDASpilsGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);           /* LSTF */
-    IDASpilsGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
-    IDASpilsGetNumJtimesEvals(IDA_idamem, &IDA_iout[16]);             /* NJE */
-    IDASpilsGetNumPrecEvals(IDA_idamem, &IDA_iout[17]);               /* NPE */
-    IDASpilsGetNumPrecSolves(IDA_idamem, &IDA_iout[18]);              /* NPS */
-    IDASpilsGetNumLinIters(IDA_idamem, &IDA_iout[19]);                /* NLI */
-    IDASpilsGetNumConvFails(IDA_idamem, &IDA_iout[20]);               /* NCFL */
+    IDASpilsGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]); /* LENRWLS, LENIWLS */
+    IDASpilsGetLastFlag(IDA_idamem, &IDA_iout[14]);                 /* LSTF */
+    IDASpilsGetNumResEvals(IDA_idamem, &IDA_iout[15]);              /* NRE */
+    IDASpilsGetNumJtimesEvals(IDA_idamem, &IDA_iout[16]);           /* NJE */
+    IDASpilsGetNumPrecEvals(IDA_idamem, &IDA_iout[17]);             /* NPE */
+    IDASpilsGetNumPrecSolves(IDA_idamem, &IDA_iout[18]);            /* NPS */
+    IDASpilsGetNumLinIters(IDA_idamem, &IDA_iout[19]);              /* NLI */
+    IDASpilsGetNumConvFails(IDA_idamem, &IDA_iout[20]);             /* NCFL */
     break;
   }
 
@@ -646,18 +649,16 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
 
 /*************************************************/
 
-void FIDA_GETSOL(realtype *t, realtype *yret, realtype *ypret, int *ier)
+void FIDA_GETDKY(realtype *t, int *k, realtype *dky, int *ier)
 {
   /* Attach user data to vectors */
-  N_VSetArrayPointer(yret, F2C_IDA_vec);
-  N_VSetArrayPointer(ypret, F2C_IDA_ypvec);
+  N_VSetArrayPointer(dky, F2C_IDA_vec);
 
   *ier = 0;
-  *ier = IDAGetSolution(IDA_idamem, *t, F2C_IDA_vec, F2C_IDA_ypvec);
+  *ier = IDAGetDky(IDA_idamem, *t, *k, F2C_IDA_vec);
 
   /* Reset data pointers */
   N_VSetArrayPointer(NULL, F2C_IDA_vec);
-  N_VSetArrayPointer(NULL, F2C_IDA_ypvec);
 
   return;
 }

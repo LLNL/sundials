@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2008-05-15 19:21:23 $
+ * $Revision: 1.26 $
+ * $Date: 2010-12-01 22:39:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -1761,7 +1761,7 @@ int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncf
  */
 
 
-char *IDAGetReturnFlagName(int flag)
+char *IDAGetReturnFlagName(long int flag)
 {
   char *name;
 

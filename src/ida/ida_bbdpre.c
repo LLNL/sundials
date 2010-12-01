@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.9 $
+ * $Date: 2010-12-01 22:35:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -79,9 +79,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
  * -----------------------------------------------------------------
  */
 
-int IDABBDPrecInit(void *ida_mem, int Nlocal, 
-                   int mudq, int mldq, 
-                   int mukeep, int mlkeep, 
+int IDABBDPrecInit(void *ida_mem, long int Nlocal, 
+                   long int mudq, long int mldq, 
+                   long int mukeep, long int mlkeep, 
                    realtype dq_rel_yy, 
                    IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
@@ -89,7 +89,7 @@ int IDABBDPrecInit(void *ida_mem, int Nlocal,
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
   N_Vector tempv4;
-  int muk, mlk, storage_mu;
+  long int muk, mlk, storage_mu;
   int flag;
 
   if (ida_mem == NULL) {
@@ -142,10 +142,10 @@ int IDABBDPrecInit(void *ida_mem, int Nlocal,
     return(IDASPILS_MEM_FAIL); 
   }
 
-  /* Allocate memory for pivots. */
-  pdata->pivots = NULL;
-  pdata->pivots = NewIntArray(Nlocal);
-  if (pdata->PP == NULL) {
+  /* Allocate memory for lpivots. */
+  pdata->lpivots = NULL;
+  pdata->lpivots = NewLintArray(Nlocal);
+  if (pdata->lpivots == NULL) {
     DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDABBDPRE", "IDABBDPrecInit", MSGBBD_MEM_FAIL);
@@ -157,7 +157,7 @@ int IDABBDPrecInit(void *ida_mem, int Nlocal,
   tempv4 = N_VClone(vec_tmpl); 
   if (tempv4 == NULL){
     DestroyMat(pdata->PP);
-    DestroyArray(pdata->pivots);
+    DestroyArray(pdata->lpivots);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDABBDPRE", "IDABBDPrecInit", MSGBBD_MEM_FAIL);
     return(IDASPILS_MEM_FAIL);
@@ -188,13 +188,13 @@ int IDABBDPrecInit(void *ida_mem, int Nlocal,
 }
 
 int IDABBDPrecReInit(void *ida_mem,
-		     int mudq, int mldq, 
+		     long int mudq, long int mldq, 
 		     realtype dq_rel_yy)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
   IBBDPrecData pdata;
-  int Nlocal;
+  long int Nlocal;
 
 
   if (ida_mem == NULL) {
@@ -293,18 +293,18 @@ int IDABBDPrecGetNumGfnEvals(void *ida_mem, long int *ngevalsBBDP)
 
 /* Readability Replacements */
 
-#define Nlocal (pdata->n_local)
-#define mudq   (pdata->mudq)
-#define mldq   (pdata->mldq)
-#define mukeep (pdata->mukeep)
-#define mlkeep (pdata->mlkeep)
-#define glocal (pdata->glocal)
-#define gcomm  (pdata->gcomm)
-#define pivots (pdata->pivots)
-#define PP     (pdata->PP)
-#define tempv4 (pdata->tempv4)
-#define nge    (pdata->nge)
-#define rel_yy (pdata->rel_yy)
+#define Nlocal  (pdata->n_local)
+#define mudq    (pdata->mudq)
+#define mldq    (pdata->mldq)
+#define mukeep  (pdata->mukeep)
+#define mlkeep  (pdata->mlkeep)
+#define glocal  (pdata->glocal)
+#define gcomm   (pdata->gcomm)
+#define lpivots (pdata->lpivots)
+#define PP      (pdata->PP)
+#define tempv4  (pdata->tempv4)
+#define nge     (pdata->nge)
+#define rel_yy  (pdata->rel_yy)
 
 /*
  * -----------------------------------------------------------------
@@ -351,7 +351,8 @@ static int IDABBDPrecSetup(realtype tt,
                            realtype c_j, void *bbd_data,
                            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  int ier, retval;
+  int retval;
+  long int ier;
   IBBDPrecData pdata;
   IDAMem IDA_mem;
 
@@ -372,7 +373,7 @@ static int IDABBDPrecSetup(realtype tt,
   } 
  
   /* Do LU factorization of preconditioner block in place (in PP). */
-  ier = BandGBTRF(PP, pivots);
+  ier = BandGBTRF(PP, lpivots);
 
   /* Return 0 if the LU was complete, or +1 otherwise. */
   if (ier > 0) return(+1);
@@ -417,7 +418,7 @@ static int IDABBDPrecSolve(realtype tt,
 
   zd = N_VGetArrayPointer(zvec);
 
-  BandGBTRS(PP, pivots, zd);
+  BandGBTRS(PP, lpivots, zd);
 
   return(0);
 }
@@ -436,7 +437,7 @@ static void IDABBDPrecFree(IDAMem IDA_mem)
   pdata = (IBBDPrecData) idaspils_mem->s_pdata;
 
   DestroyMat(PP);
-  DestroyArray(pivots);
+  DestroyArray(lpivots);
   N_VDestroy(tempv4);
 
   free(pdata);
@@ -477,7 +478,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   IDAMem IDA_mem;
   realtype inc, inc_inv;
   int  retval;
-  int group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
   realtype *cnsdata = NULL, *ewtdata;
   realtype *col_j, conj, yj, ypj, ewtj;

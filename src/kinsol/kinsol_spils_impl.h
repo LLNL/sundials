@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-01 22:43:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -84,9 +84,9 @@ typedef struct KINSpilsMemRec {
 
   /* miscellaneous */
 
-  void *s_spils_mem;  /* pointer to generic linear solver memory block         */
+  void *s_spils_mem;    /* pointer to generic linear solver memory block       */
 
-  int s_last_flag;    /* last flag returned                                    */
+  long int s_last_flag; /* last flag returned                                  */
 
 
    /* Preconditioner computation

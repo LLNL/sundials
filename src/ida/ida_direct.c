@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2008-04-18 19:42:41 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:35:26 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -235,7 +235,7 @@ int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
  * IDADlsGetReturnFlagName returns the name associated with a IDALAPACK
  * return value.
  */
-char *IDADlsGetReturnFlagName(int flag)
+char *IDADlsGetReturnFlagName(long int flag)
 {
   char *name;
 
@@ -273,7 +273,7 @@ char *IDADlsGetReturnFlagName(int flag)
 /*
  * IDADlsGetLastFlag returns the last flag set in a IDALAPACK function.
  */
-int IDADlsGetLastFlag(void *ida_mem, int *flag)
+int IDADlsGetLastFlag(void *ida_mem, long int *flag)
 {
   IDAMem IDA_mem;
   IDADlsMem idadls_mem;
@@ -316,7 +316,7 @@ int IDADlsGetLastFlag(void *ida_mem, int *flag)
  * done with a call to N_VLinearSum.
  * -----------------------------------------------------------------
  */ 
-int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
+int idaDlsDenseDQJac(long int N, realtype tt, realtype c_j,
                      N_Vector yy, N_Vector yp, N_Vector rr, 
                      DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -324,7 +324,7 @@ int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
   realtype inc, inc_inv, yj, ypj, srur, conj;
   realtype *tmp2_data, *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
-  int j;
+  long int j;
   int retval = 0;
 
   IDAMem IDA_mem;
@@ -415,7 +415,7 @@ int idaDlsDenseDQJac(int N, realtype tt, realtype c_j,
  * by the res routine, if any.
  */
 
-int idaDlsBandDQJac(int N, int mupper, int mlower,
+int idaDlsBandDQJac(long int N, long int mupper, long int mlower,
                     realtype tt, realtype c_j, 
                     N_Vector yy, N_Vector yp, N_Vector rr,
                     DlsMat Jac, void *data,
@@ -424,10 +424,8 @@ int idaDlsBandDQJac(int N, int mupper, int mlower,
   realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
   realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   realtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
-  int group;
-  
   N_Vector rtemp, ytemp, yptemp;
-  int i, j, i1, i2, width, ngroups;
+  long int i, j, i1, i2, width, ngroups, group;
   int retval = 0;
 
   IDAMem IDA_mem;

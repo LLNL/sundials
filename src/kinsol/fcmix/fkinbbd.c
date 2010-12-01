@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:01 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-01 22:45:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -48,8 +48,8 @@
 extern "C" {
 #endif
 
-extern void FK_LOCFN(int*, realtype*, realtype*, int*);
-extern void FK_COMMFN(int*, realtype*, int*);
+extern void FK_LOCFN(long int*, realtype*, realtype*, int*);
+extern void FK_COMMFN(long int*, realtype*, int*);
 
 #ifdef __cplusplus
 }
@@ -61,8 +61,8 @@ extern void FK_COMMFN(int*, realtype*, int*);
  * ----------------------------------------------------------------
  */
 
-void FKIN_BBDINIT(int *nlocal, int *mudq, int *mldq,
-		  int *mu, int *ml, int *ier)
+void FKIN_BBDINIT(long int *nlocal, long int *mudq, long int *mldq,
+		  long int *mu, long int *ml, int *ier)
 {
   *ier = KINBBDPrecInit(KIN_kinmem, *nlocal, *mudq, *mldq,
                         *mu, *ml, ZERO, FKINgloc, FKINgcomm);
@@ -79,7 +79,7 @@ void FKIN_BBDINIT(int *nlocal, int *mudq, int *mldq,
  * ----------------------------------------------------------------
  */
 
-int FKINgloc(int Nloc, N_Vector uu, N_Vector gval, void *user_data)
+int FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *user_data)
 {
   realtype *uloc, *gloc;
   int ier;
@@ -105,7 +105,7 @@ int FKINgloc(int Nloc, N_Vector uu, N_Vector gval, void *user_data)
  * ----------------------------------------------------------------
  */
 
-int FKINgcomm(int Nloc, N_Vector uu, void *user_data)
+int FKINgcomm(long int Nloc, N_Vector uu, void *user_data)
 {
   realtype *uloc;
   int ier;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2008-04-18 17:23:05 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:45:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -283,8 +283,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-void FKIN_BBDINIT(int *nlocal, int *mudq, int *mldq,
-		  int *mu, int *ml, int *ier);
+void FKIN_BBDINIT(long int *nlocal, long int *mudq, long int *mldq,
+		  long int *mu, long int *ml, int *ier);
 void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
 
 /*
@@ -293,8 +293,8 @@ void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
  * -----------------------------------------------------------------
  */
 
-int FKINgloc(int Nloc, N_Vector uu, N_Vector gval, void *user_data);
-int FKINgcomm(int Nloc, N_Vector uu, void *user_data);
+int FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *user_data);
+int FKINgcomm(long int Nloc, N_Vector uu, void *user_data);
 
 #ifdef __cplusplus
 }

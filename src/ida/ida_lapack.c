@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.10 $
+ * $Date: 2010-12-01 22:35:26 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -181,13 +181,13 @@ int IDALapackDense(void *ida_mem, int N)
   setupNonNull = TRUE;
 
   /* Set problem dimension */
-  n = N;
+  n = (long int) N;
 
   /* Allocate memory for JJ and pivot array */
   JJ = NULL;
   pivots = NULL;
 
-  JJ = NewDenseMat(N, N);
+  JJ = NewDenseMat(n, n);
   if (JJ == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDALAPACK", "IDALapackDense", MSGD_MEM_FAIL);
     free(idadls_mem);
@@ -279,26 +279,26 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
   setupNonNull = TRUE;
   
   /* Load problem dimension */
-  n = N;
+  n = (long int) N;
 
   /* Load half-bandwiths in idadls_mem */
-  ml = mlower;
-  mu = mupper;
+  ml = (long int) mlower;
+  mu = (long int) mupper;
 
   /* Test ml and mu for legality */
-  if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
+  if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {
     IDAProcessError(IDA_mem, IDADLS_ILL_INPUT, "IDALAPACK", "IDALapackBand", MSGD_BAD_SIZES);
     return(IDADLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  smu = MIN(N-1, mu + ml);
+  smu = MIN(n-1, mu + ml);
 
   /* Allocate memory for JJ and pivot arrays */
   JJ = NULL;
   pivots = NULL;
 
-  JJ = NewBandMat(N, mu, ml, smu);
+  JJ = NewBandMat(n, mu, ml, smu);
   if (JJ == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDALAPACK", "IDALapackBand", MSGD_MEM_FAIL);
     free(idadls_mem);
@@ -359,8 +359,10 @@ static int idaLapackDenseSetup(IDAMem IDA_mem,
 {
   IDADlsMem idadls_mem;
   int ier, retval;
+  int intn;
 
   idadls_mem = (IDADlsMem) lmem;
+  intn = (int) n;
 
   /* Call Jacobian function */
   nje++;
@@ -376,10 +378,10 @@ static int idaLapackDenseSetup(IDAMem IDA_mem,
   }
   
   /* Do LU factorization of M */
-  dgetrf_f77(&n, &n, JJ->data, &(JJ->ldim), pivots, &ier);
+  dgetrf_f77(&intn, &intn, JJ->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 }
@@ -394,18 +396,20 @@ static int idaLapackDenseSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   IDADlsMem idadls_mem;
   realtype *bd, fact;
   int ier, one = 1;
+  int intn;
 
   idadls_mem = (IDADlsMem) lmem;
-  
+  intn = (int) n;
+
   bd = N_VGetArrayPointer(b);
 
-  dgetrs_f77("N", &n, &one, JJ->data, &(JJ->ldim), pivots, bd, &n, &ier, 1); 
+  dgetrs_f77("N", &intn, &one, JJ->data, &intn, pivots, bd, &intn, &ier, 1); 
   if (ier > 0) return(1);
 
   /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) {
     fact = TWO/(ONE + cjratio);
-    dscal_f77(&n, &fact, bd, &one); 
+    dscal_f77(&intn, &fact, bd, &one); 
   }
 
   last_flag = IDADLS_SUCCESS;
@@ -470,8 +474,12 @@ static int idaLapackBandSetup(IDAMem IDA_mem,
 {
   IDADlsMem idadls_mem;
   int ier, retval;
+  int intn, iml, imu;
 
   idadls_mem = (IDADlsMem) lmem;
+  intn = (int) n;
+  iml = (int) ml;
+  imu = (int) mu;
 
   /* Call Jacobian function */
   nje++;
@@ -487,10 +495,10 @@ static int idaLapackBandSetup(IDAMem IDA_mem,
   }
   
   /* Do LU factorization of M */
-  dgbtrf_f77(&n, &n, &ml, &mu, JJ->data, &(JJ->ldim), pivots, &ier);
+  dgbtrf_f77(&intn, &intn, &iml, &imu, JJ->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
-  last_flag = ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(1);
   return(0);
 
@@ -506,18 +514,22 @@ static int idaLapackBandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   IDADlsMem idadls_mem;
   realtype *bd, fact;
   int ier, one = 1;
+  int intn, iml, imu;
 
   idadls_mem = (IDADlsMem) lmem;
+  intn = (int) n;
+  iml = (int) ml;
+  imu = (int) mu;
 
   bd = N_VGetArrayPointer(b);
 
-  dgbtrs_f77("N", &n, &ml, &mu, &one, JJ->data, &(JJ->ldim), pivots, bd, &n, &ier, 1);
+  dgbtrs_f77("N", &intn, &iml, &imu, &one, JJ->data, &intn, pivots, bd, &intn, &ier, 1);
   if (ier > 0) return(1);
 
   /* For BDF, scale the correction to account for change in cj */
   if (cjratio != ONE) {
     fact = TWO/(ONE + cjratio);
-    dscal_f77(&n, &fact, bd, &one); 
+    dscal_f77(&intn, &fact, bd, &one); 
   }
 
   last_flag = IDADLS_SUCCESS;

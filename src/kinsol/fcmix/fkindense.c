@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-08-21 23:31:21 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:45:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-extern void FK_DJAC(int*, realtype*, realtype*, realtype*,
+extern void FK_DJAC(long int*, realtype*, realtype*, realtype*,
 		    realtype*, realtype*, int*);
 
 #ifdef __cplusplus
@@ -70,7 +70,7 @@ void FKIN_DENSESETJAC(int *flag, int *ier)
  * ----------------------------------------------------------------
  */
 
-int FKINDenseJac(int N, N_Vector uu, N_Vector fval,
+int FKINDenseJac(long int N, N_Vector uu, N_Vector fval,
 		 DlsMat J, void *user_data, N_Vector vtemp1, N_Vector vtemp2)
 {
   realtype *uu_data, *fval_data, *jacdata, *v1_data, *v2_data;

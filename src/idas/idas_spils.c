@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2008-04-16 21:53:53 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-01 22:39:19 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -490,7 +490,7 @@ int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
   return(IDASPILS_SUCCESS);
 }
 
-int IDASpilsGetLastFlag(void *ida_mem, int *flag)
+int IDASpilsGetLastFlag(void *ida_mem, long int *flag)
 {
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
@@ -513,7 +513,7 @@ int IDASpilsGetLastFlag(void *ida_mem, int *flag)
   return(IDASPILS_SUCCESS);
 }
 
-char *IDASpilsGetReturnFlagName(int flag)
+char *IDASpilsGetReturnFlagName(long int flag)
 {
   char *name;
 

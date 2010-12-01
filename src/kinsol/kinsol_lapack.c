@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.9 $
+ * $Date: 2010-12-01 22:43:33 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -175,12 +175,12 @@ int KINLapackDense(void *kinmem, int N)
   setupNonNull = TRUE;
 
   /* Set problem dimension */
-  n = N;
+  n = (long int) N;
 
   /* Allocate memory for J and pivot array */
   
   J = NULL;
-  J = NewDenseMat(N, N);
+  J = NewDenseMat(n, n);
   if (J == NULL) {
     KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackDense", MSGD_MEM_FAIL);
     free(kindls_mem); kindls_mem = NULL;
@@ -277,24 +277,24 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
   setupNonNull = TRUE;
   
   /* Load problem dimension */
-  n = N;
+  n = (long int) N;
 
-  /* Load half-bandwiths in kindls_mem */
-  ml = mlower;
-  mu = mupper;
+  /* Load half-bandwidths in kindls_mem */
+  ml = (long int) mlower;
+  mu = (long int) mupper;
 
   /* Test ml and mu for legality */
-  if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
+  if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {
     KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
     return(KINDLS_ILL_INPUT);
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  smu = MIN(N-1, mu + ml);
+  smu = MIN(n-1, mu + ml);
 
   /* Allocate memory for J and pivot array */
   J = NULL;
-  J = NewBandMat(N, mu, ml, smu);
+  J = NewBandMat(n, mu, ml, smu);
   if (J == NULL) {
     KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
     free(kindls_mem); kindls_mem = NULL;
@@ -368,9 +368,12 @@ static int kinLapackDenseSetup(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
   int ier, retval;
+  int intn;
 
   kindls_mem = (KINDlsMem) lmem;
- 
+
+  intn = (int) n;
+
   nje++;
   SetToZero(J); 
   retval = djac(n, uu, fval, J, J_data, vtemp1, vtemp2);
@@ -380,10 +383,10 @@ static int kinLapackDenseSetup(KINMem kin_mem)
   }
 
   /* Do LU factorization of J */
-  dgetrf_f77(&n, &n, J->data, &(J->ldim), pivots, &ier);
+  dgetrf_f77(&intn, &intn, J->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return -1 */
-  last_flag = ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(-1);
 
   return(0);
@@ -403,15 +406,18 @@ static int kinLapackDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype 
   KINDlsMem kindls_mem;
   realtype *xd;
   int ier, one = 1;
+  int intn;
 
   kindls_mem = (KINDlsMem) lmem;
+
+  intn = (int) n;
 
   /* Copy the right-hand side into x */
   N_VScale(ONE, b, x);
   xd = N_VGetArrayPointer(x);
 
   /* Back-solve and get solution in x */
-  dgetrs_f77("N", &n, &one, J->data, &(J->ldim), pivots, xd, &n, &ier, 1); 
+  dgetrs_f77("N", &intn, &one, J->data, &intn, pivots, xd, &intn, &ier, 1); 
   if (ier > 0) return(-1);
 
   /* Compute the terms Jpnorm and sfdotJp for use in the global strategy
@@ -506,8 +512,13 @@ static int kinLapackBandSetup(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
   int ier, retval;
+  int intn, iml, imu;
 
   kindls_mem = (KINDlsMem) lmem;
+
+  intn = (int) n;
+  iml = (int) ml;
+  imu = (int) mu;
 
   nje++;
   SetToZero(J); 
@@ -518,10 +529,10 @@ static int kinLapackBandSetup(KINMem kin_mem)
   }
   
   /* Do LU factorization of J */
-  dgbtrf_f77(&n, &n, &ml, &mu, J->data, &(J->ldim), pivots, &ier);
+  dgbtrf_f77(&intn, &intn, &iml, &imu, J->data, &intn, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return -1 */
-  last_flag = ier;
+  last_flag = (long int) ier;
   if (ier > 0) return(-1);
 
   return(0);
@@ -541,15 +552,20 @@ static int kinLapackBandSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *
   KINDlsMem kindls_mem;
   realtype *xd;
   int ier, one = 1;
+  int intn, iml, imu;
 
   kindls_mem = (KINDlsMem) lmem;
+
+  intn = (int) n;
+  iml = (int) ml;
+  imu = (int) mu;
 
   /* Copy the right-hand side into x */
   N_VScale(ONE, b, x);
   xd = N_VGetArrayPointer(x);
 
   /* Back-solve and get solution in x */
-  dgbtrs_f77("N", &n, &ml, &mu, &one, J->data, &(J->ldim), pivots, xd, &n, &ier, 1);
+  dgbtrs_f77("N", &intn, &iml, &imu, &one, J->data, &intn, pivots, xd, &intn, &ier, 1);
   if (ier > 0) return(-1);
 
   /* Compute the terms Jpnorm and sfdotJp for use in the global strategy

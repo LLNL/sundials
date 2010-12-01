@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2009-04-22 03:28:43 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-01 22:43:33 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -254,7 +254,7 @@ int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevalsLS)
  * -----------------------------------------------------------------
  */
 
-int KINDlsGetLastFlag(void *kinmem, int *flag)
+int KINDlsGetLastFlag(void *kinmem, long int *flag)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;
@@ -283,7 +283,7 @@ int KINDlsGetLastFlag(void *kinmem, int *flag)
  * -----------------------------------------------------------------
  */
 
-char *KINDlsGetReturnFlagName(int flag)
+char *KINDlsGetReturnFlagName(long int flag)
 {
   char *name;
 
@@ -346,7 +346,7 @@ char *KINDlsGetReturnFlagName(int flag)
  * -----------------------------------------------------------------
  */
 
-int kinDlsDenseDQJac(int N,
+int kinDlsDenseDQJac(long int N,
                      N_Vector u, N_Vector fu,
                      DlsMat Jac, void *data,
                      N_Vector tmp1, N_Vector tmp2)
@@ -354,8 +354,8 @@ int kinDlsDenseDQJac(int N,
   realtype inc, inc_inv, ujsaved, ujscale, sign;
   realtype *tmp2_data, *u_data, *uscale_data;
   N_Vector ftemp, jthCol;
-  long int j;
   int retval = 0;
+  long int j;
 
   KINMem kin_mem;
   KINDlsMem  kindls_mem;
@@ -423,16 +423,16 @@ int kinDlsDenseDQJac(int N,
  * -----------------------------------------------------------------
  */
 
-int kinDlsBandDQJac(int N, int mupper, int mlower,
+int kinDlsBandDQJac(long int N, long int mupper, long int mlower,
                     N_Vector u, N_Vector fu,
                     DlsMat Jac, void *data,
                     N_Vector tmp1, N_Vector tmp2)
 {
   realtype inc, inc_inv;
   N_Vector futemp, utemp;
+  int retval;
   long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *fu_data, *futemp_data, *u_data, *utemp_data, *uscale_data;
-  int retval;
 
   KINMem kin_mem;
   KINDlsMem kindls_mem;

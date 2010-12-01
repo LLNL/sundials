@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.7 $
+ * $Date: 2010-12-01 22:43:33 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -88,9 +88,9 @@ static int KBBDDQJac(KBBDPrecData pdata,
  *-----------------------------------------------------------------
  */
 
-int KINBBDPrecInit(void *kinmem, int Nlocal, 
-                   int mudq, int mldq,
-                   int mukeep, int mlkeep,
+int KINBBDPrecInit(void *kinmem, long int Nlocal, 
+                   long int mudq, long int mldq,
+                   long int mukeep, long int mlkeep,
                    realtype dq_rel_uu, 
                    KINLocalFn gloc, KINCommFn gcomm)
 {
@@ -98,7 +98,7 @@ int KINBBDPrecInit(void *kinmem, int Nlocal,
   KINSpilsMem kinspils_mem;
   KINMem kin_mem;
   N_Vector vtemp3;
-  int muk, mlk, storage_mu;
+  long int muk, mlk, storage_mu;
   int flag;
 
   pdata = NULL;
@@ -154,11 +154,11 @@ int KINBBDPrecInit(void *kinmem, int Nlocal,
     return(KINSPILS_MEM_FAIL);
   }
 
-  /* allocate memory for pivots */
+  /* allocate memory for lpivots */
 
-  pdata->pivots = NULL;
-  pdata->pivots = NewIntArray(Nlocal);
-  if (pdata->pivots == NULL) {
+  pdata->lpivots = NULL;
+  pdata->lpivots = NewLintArray(Nlocal);
+  if (pdata->lpivots == NULL) {
     DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE", "KINBBDPrecInit", MSGBBD_MEM_FAIL);
@@ -170,7 +170,7 @@ int KINBBDPrecInit(void *kinmem, int Nlocal,
   vtemp3 = NULL;
   vtemp3 = N_VClone(kin_mem->kin_vtemp1);
   if (vtemp3 == NULL) {
-    DestroyArray(pdata->pivots);
+    DestroyArray(pdata->lpivots);
     DestroyMat(pdata->PP);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE", "KINBBDPrecInit", MSGBBD_MEM_FAIL);
@@ -288,18 +288,18 @@ int KINBBDPrecGetNumGfnEvals(void *kinmem, long int *ngevalsBBDP)
  *-----------------------------------------------------------------
  */
 
-#define Nlocal (pdata->n_local)
-#define mudq   (pdata->mudq)
-#define mldq   (pdata->mldq)
-#define mukeep (pdata->mukeep)
-#define mlkeep (pdata->mlkeep)
-#define gloc   (pdata->gloc)
-#define gcomm  (pdata->gcomm)
-#define pivots (pdata->pivots)
-#define PP     (pdata->PP)
-#define vtemp3 (pdata->vtemp3)
-#define nge    (pdata->nge)
-#define rel_uu (pdata->rel_uu)
+#define Nlocal  (pdata->n_local)
+#define mudq    (pdata->mudq)
+#define mldq    (pdata->mldq)
+#define mukeep  (pdata->mukeep)
+#define mlkeep  (pdata->mlkeep)
+#define gloc    (pdata->gloc)
+#define gcomm   (pdata->gcomm)
+#define lpivots (pdata->lpivots)
+#define PP      (pdata->PP)
+#define vtemp3  (pdata->vtemp3)
+#define nge     (pdata->nge)
+#define rel_uu  (pdata->rel_uu)
 
 /*
  *-----------------------------------------------------------------
@@ -346,7 +346,8 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
 {
   KBBDPrecData pdata;
   KINMem kin_mem;
-  int ier, retval;
+  int retval;
+  long int ier;
 
   pdata = (KBBDPrecData) bbd_data;
 
@@ -365,7 +366,7 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
 
   /* do LU factorization of P in place (in PP) */
 
-  ier = BandGBTRF(PP, pivots);
+  ier = BandGBTRF(PP, lpivots);
 
   /* return 0 if the LU was complete, else return 1 */
 
@@ -419,7 +420,7 @@ static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
   /* do the backsolve and return */
 
   vd = N_VGetArrayPointer(vv);
-  BandGBTRS(PP, pivots, vd);
+  BandGBTRS(PP, lpivots, vd);
 
   return(0);
 }
@@ -438,7 +439,7 @@ static void KINBBDPrecFree(KINMem kin_mem)
 
   N_VDestroy(vtemp3);
   DestroyMat(PP);
-  DestroyArray(pivots);
+  DestroyArray(lpivots);
 
   free(pdata);
   pdata = NULL;
@@ -469,7 +470,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
                      N_Vector gu, N_Vector gtemp, N_Vector utemp)
 {
   realtype inc, inc_inv;
-  int group, i, j, width, ngroups, i1, i2;
+  long int group, i, j, width, ngroups, i1, i2;
   KINMem kin_mem;
   realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
   int retval;

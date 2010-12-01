@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2009-09-30 23:21:08 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-01 22:52:20 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -130,7 +130,7 @@ typedef struct {
 
   /* For preconditioner */
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  int *pivot[MXSUB][MYSUB];
+  long int *pivot[MXSUB][MYSUB];
 
 } *UserData;
 
@@ -317,7 +317,7 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
     for (ly = 0; ly < MYSUB; ly++) {
       (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
       (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->pivot)[lx][ly] = newIntArray(NVARS);
+      (data->pivot)[lx][ly] = newLintArray(NVARS);
     }
   }
 }
@@ -818,7 +818,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
-  int nvmxsub, *(*pivot)[MYSUB], ier, offset;
+  int nvmxsub, ier, offset;
+  long int *(*pivot)[MYSUB];
   int lx, ly, jx, jy, isubx, isuby;
   realtype *udata, **a, **j;
   UserData data;
@@ -906,7 +907,8 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype **(*P)[MYSUB];
-  int nvmxsub, *(*pivot)[MYSUB];
+  int nvmxsub;
+  long int *(*pivot)[MYSUB];
   int lx, ly;
   realtype *zdata, *v;
   UserData data;

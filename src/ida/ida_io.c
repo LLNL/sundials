@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2009-02-10 04:15:36 $
+ * $Revision: 1.15 $
+ * $Date: 2010-12-01 22:35:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -1066,7 +1066,7 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 
 /*-----------------------------------------------------------------*/
 
-char *IDAGetReturnFlagName(int flag)
+char *IDAGetReturnFlagName(long int flag)
 {
   char *name;
 

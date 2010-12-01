@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2008-04-15 16:35:33 $
+ * $Revision: 1.19 $
+ * $Date: 2010-12-01 22:30:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1738,7 +1738,7 @@ int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
 
 /*-----------------------------------------------------------------*/
 
-char *CVodeGetReturnFlagName(int flag)
+char *CVodeGetReturnFlagName(long int flag)
 {
   char *name;
 

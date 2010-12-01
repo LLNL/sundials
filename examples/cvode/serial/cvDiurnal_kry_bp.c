@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:29 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 22:51:32 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -120,7 +120,7 @@ typedef struct {
 
 static void InitUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy);
-static void PrintIntro(int mu, int ml);
+static void PrintIntro(long int mu, long int ml);
 static void PrintOutput(void *cvode_mem, N_Vector u, realtype t);
 static void PrintFinalStats(void *cvode_mem);
 
@@ -143,7 +143,8 @@ int main()
   N_Vector u;
   UserData data;
   void *cvode_mem;
-  int flag, ml, mu, iout, jpre;
+  int flag, iout, jpre;
+  long int ml, mu;
 
   u = NULL;
   data = NULL;
@@ -285,7 +286,7 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
   }
 }
 
-static void PrintIntro(int mu, int ml)
+static void PrintIntro(long int mu, long int ml)
 {
   printf("2-species diurnal advection-diffusion problem, %d by %d mesh\n",
          MX, MY);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2009-02-10 04:24:45 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-01 22:27:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -273,7 +273,7 @@ void FCV_SETRIN(char key_name[], realtype *rval, int *ier, int key_len)
 
 /***************************************************************************/
 
-void FCV_DENSE(int *neq, int *ier)
+void FCV_DENSE(long int *neq, int *ier)
 {
   /* neq  is the problem size */
 
@@ -284,7 +284,7 @@ void FCV_DENSE(int *neq, int *ier)
 
 /***************************************************************************/
 
-void FCV_BAND(int *neq, int *mupper, int *mlower, int *ier)
+void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 {
   /* 
      neq        is the problem size
@@ -445,6 +445,8 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                                           3 = CV_NORMAL_TSTOP, 4 = CV_ONE_STEP_TSTOP) 
   */
 
+  int qu, qcur;
+
   N_VSetArrayPointer(y, F2C_CVODE_vec);
 
   *ier = CVode(CV_cvodemem, *tout, F2C_CVODE_vec, t, *itask);
@@ -460,12 +462,14 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                           &CV_iout[3],                    /* NFE     */ 
                           &CV_iout[7],                    /* NSETUPS */ 
                           &CV_iout[4],                    /* NETF    */ 
-                          (int *) &CV_iout[8],            /* QU      */
-                          (int *) &CV_iout[9],            /* QCUR    */
+                          qu,                             /* QU      */
+                          qcur,                           /* QCUR    */
                           &CV_rout[0],                    /* H0U     */
                           &CV_rout[1],                    /* HU      */ 
                           &CV_rout[2],                    /* HCUR    */ 
                           &CV_rout[3]);                   /* TCUR    */ 
+  CV_iout[8] = (long int) qu;
+  CV_iout[9] = (long int) qcur;
   CVodeGetTolScaleFactor(CV_cvodemem, 
                          &CV_rout[4]);                    /* TOLSFAC */
   CVodeGetNonlinSolvStats(CV_cvodemem,
@@ -483,20 +487,20 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   case CV_LS_LAPACKDENSE:
   case CV_LS_LAPACKBAND:
     CVDlsGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LENRWLS,LENIWLS */
-    CVDlsGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);          /* LSTF */
+    CVDlsGetLastFlag(CV_cvodemem, &CV_iout[14]);                  /* LSTF */
     CVDlsGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFELS */
     CVDlsGetNumJacEvals(CV_cvodemem, &CV_iout[16]);               /* NJE */
     break;
   case CV_LS_DIAG:
     CVDiagGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LENRWLS,LENIWLS */
-    CVDiagGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);         /* LSTF */
+    CVDiagGetLastFlag(CV_cvodemem, &CV_iout[14]);                 /* LSTF */
     CVDiagGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFELS */
     break;
   case CV_LS_SPGMR:
   case CV_LS_SPBCG:
   case CV_LS_SPTFQMR:
     CVSpilsGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]); /* LENRWLS,LENIWLS */
-    CVSpilsGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);        /* LSTF */
+    CVSpilsGetLastFlag(CV_cvodemem, &CV_iout[14]);                /* LSTF */
     CVSpilsGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);             /* NFELS */
     CVSpilsGetNumJtimesEvals(CV_cvodemem, &CV_iout[16]);          /* NJTV */
     CVSpilsGetNumPrecEvals(CV_cvodemem, &CV_iout[17]);            /* NPE */

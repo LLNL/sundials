@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2009-02-17 02:42:29 $
+ * $Revision: 1.10 $
+ * $Date: 2010-12-01 22:43:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -80,7 +80,7 @@ static void kinBandFree(KINMem kin_mem);
 #define jacDQ          (kindls_mem->d_jacDQ)
 #define bjac           (kindls_mem->d_bjac)
 #define J              (kindls_mem->d_J)
-#define pivots         (kindls_mem->d_pivots)
+#define lpivots        (kindls_mem->d_lpivots)
 #define nje            (kindls_mem->d_nje)
 #define nfeDQ          (kindls_mem->d_nfeDQ)
 #define J_data         (kindls_mem->d_J_data)
@@ -116,7 +116,7 @@ static void kinBandFree(KINMem kin_mem);
  * -----------------------------------------------------------------
  */
                   
-int KINBand(void *kinmem, int N, int mupper, int mlower)
+int KINBand(void *kinmem, long int N, long int mupper, long int mlower)
 {
   KINMem kin_mem;
   KINDlsMem kindls_mem;
@@ -186,9 +186,9 @@ int KINBand(void *kinmem, int N, int mupper, int mlower)
     return(KINDLS_MEM_FAIL);
   }
 
-  pivots = NULL;
-  pivots = NewIntArray(N);
-  if (pivots == NULL) {
+  lpivots = NULL;
+  lpivots = NewLintArray(N);
+  if (lpivots == NULL) {
     KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
     DestroyMat(J);
     free(kindls_mem); kindls_mem = NULL;
@@ -255,8 +255,8 @@ static int kinBandInit(KINMem kin_mem)
 static int kinBandSetup(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
-  long int ier;
   int retval;
+  long int ier;
 
   kindls_mem = (KINDlsMem) lmem;
 
@@ -269,7 +269,7 @@ static int kinBandSetup(KINMem kin_mem)
   }
   
   /* Do LU factorization of J */
-  ier = BandGBTRF(J, pivots);
+  ier = BandGBTRF(J, lpivots);
 
   /* Return 0 if the LU was complete; otherwise return -1 */
   last_flag = ier;
@@ -302,7 +302,7 @@ static int kinBandsolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *res_no
 
   /* Back-solve and get solution in x */
 
-  BandGBTRS(J, pivots, xd);
+  BandGBTRS(J, lpivots, xd);
 
   /* Compute the terms Jpnorm and sfdotJp for use in the global strategy
      routines and in KINForcingTerm. Both of these terms are subsequently
@@ -339,7 +339,7 @@ static void kinBandFree(KINMem kin_mem)
   kindls_mem = (KINDlsMem) lmem;
 
   DestroyMat(J);
-  DestroyArray(pivots);
+  DestroyArray(lpivots);
   free(kindls_mem); kindls_mem = NULL;
 }
 
