@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-02-17 02:48:46 $
+ * $Revision: 1.3 $
+ * $Date: 2010-12-01 22:57:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -91,7 +91,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(int N, int mu, int ml,
+static int Jac(long int N, long int mu, long int ml,
                realtype t, N_Vector u, N_Vector fu, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -235,7 +235,7 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(int N, int mu, int ml,
+static int Jac(long int N, long int mu, long int ml,
                realtype t, N_Vector u, N_Vector fu, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:37 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 23:06:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -165,7 +165,7 @@ typedef struct {
     rhs[NUM_SPECIES], cext[(MXSUB+2)*(MYSUB+2)*NUM_SPECIES];
   MPI_Comm comm;
   N_Vector rates;
-  int n_local;
+  long int n_local;
 } *UserData;
 
 /* Prototypes for functions called by the IDA Solver. */
@@ -174,11 +174,11 @@ static int resweb(realtype tt,
                   N_Vector cc, N_Vector cp, N_Vector rr, 
                   void *user_data);
 
-static int reslocal(int Nlocal, realtype tt, 
+static int reslocal(long int Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector res, 
                     void *user_data);
 
-static int rescomm(int Nlocal, realtype tt,
+static int rescomm(long int Nlocal, realtype tt,
                    N_Vector cc, N_Vector cp, 
                    void *user_data);
 
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem;
   UserData webdata;
-  int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
+  long int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   int thispe, npes, maxl, iout, retval;
@@ -510,7 +510,7 @@ static void PrintHeader(int SystemSize, int maxl,
                         int mukeep, int mlkeep,
                         realtype rtol, realtype atol)
 {
-  printf("\nidasFoodWeb_bbd_p: Predator-prey DAE parallel example problem for IDA \n\n");
+  printf("\nidasFoodWeb_kry_bbd_p: Predator-prey DAE parallel example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
   printf("     Total system size: %d\n",SystemSize);
@@ -709,7 +709,7 @@ static int resweb(realtype tt,
 {
   int retval;
   UserData webdata;
-  int Nlocal;
+  long int Nlocal;
   
   webdata = (UserData) user_data;
   
@@ -734,7 +734,7 @@ static int resweb(realtype tt,
  * and receive-waiting, in routines BRecvPost, BSend, BRecvWait.         
  */
 
-static int rescomm(int Nlocal, realtype tt, 
+static int rescomm(long int Nlocal, realtype tt, 
                    N_Vector cc, N_Vector cp,
                    void *user_data)
 {
@@ -957,7 +957,7 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
  * for use by the preconditioner setup routine.                          
  */
 
-static int reslocal(int Nlocal, realtype tt, 
+static int reslocal(long int Nlocal, realtype tt, 
                     N_Vector cc, N_Vector cp, N_Vector rr,
                     void *user_data)
 {

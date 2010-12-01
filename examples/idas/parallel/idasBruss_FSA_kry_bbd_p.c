@@ -115,7 +115,7 @@ typedef struct {
   realtype rhs[NUM_SPECIES];
   MPI_Comm comm;
   realtype rates[2];
-  int n_local;
+  long int n_local;
 } *UserData;
 
 /* Prototypes for functions called by the IDA Solver. */
@@ -123,11 +123,11 @@ static int res(realtype tt,
                N_Vector uv, N_Vector uvp, N_Vector rr, 
                void *user_data);
 
-static int reslocal(int Nlocal, realtype tt, 
+static int reslocal(long int Nlocal, realtype tt, 
                     N_Vector uv, N_Vector uvp, N_Vector res, 
                     void *user_data);
 
-static int rescomm(int Nlocal, realtype tt,
+static int rescomm(long int Nlocal, realtype tt,
                    N_Vector uv, N_Vector uvp, 
                    void *user_data);
 
@@ -156,7 +156,8 @@ static void SetInitialProfiles(N_Vector uv, N_Vector uvp, N_Vector id,
                                N_Vector resid, UserData data);
 
 static void PrintHeader(int SystemSize, int maxl, 
-                        int mudq, int mldq, int mukeep, int mlkeep,
+                        long int mudq, long int mldq,
+                        long int mukeep, long int mlkeep,
                         realtype rtol, realtype atol);
 
 static void PrintOutput(void *mem, N_Vector uv, realtype time,
@@ -180,7 +181,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem;
   UserData data;
-  int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
+  long int SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
   N_Vector uv, uvp, resid, id, *uvS, *uvpS;
   int thispe, npes, maxl, iout, retval;
@@ -499,8 +500,8 @@ static void SetInitialProfiles(N_Vector uv, N_Vector uvp, N_Vector id,
  */
 
 static void PrintHeader(int SystemSize, int maxl, 
-                        int mudq, int mldq, 
-                        int mukeep, int mlkeep,
+                        long int mudq, long int mldq, 
+                        long int mukeep, long int mlkeep,
                         realtype rtol, realtype atol)
 {
   printf("\n Brusselator PDE -  DAE parallel example problem for IDA \n\n");
@@ -737,7 +738,7 @@ static int res(realtype tt,
 {
   int retval;
   UserData data;
-  int Nlocal;
+  long int Nlocal;
   
   data = (UserData) user_data;
   
@@ -761,7 +762,7 @@ static int res(realtype tt,
  * The message-passing uses blocking sends, non-blocking receives,
  * and receive-waiting, in routines BRecvPost, BSend, BRecvWait.         
  */
-static int rescomm(int Nlocal, realtype tt, 
+static int rescomm(long int Nlocal, realtype tt, 
                    N_Vector uv, N_Vector uvp,
                    void *user_data)
 {
@@ -975,7 +976,7 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
  * for use by the preconditioner setup routine.                          
  */
 
-static int reslocal(int Nlocal, realtype tt, 
+static int reslocal(long int Nlocal, realtype tt, 
                     N_Vector uv, N_Vector uvp, N_Vector rr,
                     void *user_data)
 {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:32 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 22:57:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -125,12 +125,12 @@ static void PrintErrInfo(int nerr);
 /* Functions Called by the Solver */
 
 static int f1(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac1(int N, realtype tn,
+static int Jac1(long int N, realtype tn,
                 N_Vector y, N_Vector fy, 
                 DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac2(int N, int mu, int ml, 
+static int Jac2(long int N, long int mu, long int ml, 
                 realtype tn, N_Vector y, N_Vector fy, 
                 DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -330,7 +330,7 @@ static int f1(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 } 
 
-static int Jac1(int N, realtype tn,
+static int Jac1(long int N, realtype tn,
                 N_Vector y, N_Vector fy, 
                 DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -540,7 +540,7 @@ static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 }
 
-static int Jac2(int N, int mu, int ml, 
+static int Jac2(long int N, long int mu, long int ml, 
                 realtype tn, N_Vector y, N_Vector fy, 
                 DlsMat J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)

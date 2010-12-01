@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-09-30 23:33:29 $
+ * $Revision: 1.3 $
+ * $Date: 2010-12-01 23:05:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -55,7 +55,7 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp,
 static int grob(realtype t, N_Vector yy, N_Vector yp,
                 realtype *gout, void *user_data);
 
-int jacrob(int Neq, realtype tt,  realtype cj, 
+int jacrob(long int Neq, realtype tt,  realtype cj, 
            N_Vector yy, N_Vector yp, N_Vector resvec,
            DlsMat JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
@@ -224,7 +224,7 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
  * Define the Jacobian function. 
  */
 
-int jacrob(int Neq, realtype tt,  realtype cj, 
+int jacrob(long int Neq, realtype tt,  realtype cj, 
            N_Vector yy, N_Vector yp, N_Vector resvec,
            DlsMat JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)

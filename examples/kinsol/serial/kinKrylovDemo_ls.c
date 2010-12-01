@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:41 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 23:08:49 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -143,7 +143,7 @@
 
 typedef struct {
   realtype **P[MX][MY];
-  int *pivot[MX][MY];
+  long int *pivot[MX][MY];
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
@@ -493,7 +493,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
                        N_Vector ftem)
 {
   realtype **Pxy, *vxy;
-  int *piv, jx, jy;
+  long int *piv, jx, jy;
   UserData data;
   
   data = (UserData)user_data;
@@ -575,7 +575,7 @@ static UserData AllocUserData(void)
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = newIntArray(NUM_SPECIES);
+      (data->pivot)[jx][jy] = newLintArray(NUM_SPECIES);
     }
   }
   acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);

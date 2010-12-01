@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:38 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 23:06:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -70,7 +70,7 @@
 typedef struct {  
   realtype p[2];
   int thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
-  int n_local;
+  long int n_local;
   realtype dx, dy, coeffx, coeffy, coeffxy;
   realtype uext[(MXSUB+2)*(MYSUB+2)];
   MPI_Comm comm;
@@ -81,10 +81,10 @@ typedef struct {
 static int heatres(realtype tres, 
                    N_Vector uu, N_Vector up, N_Vector res, 
                    void *user_data);
-static int rescomm(int Nlocal, realtype tt, 
+static int rescomm(long int Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, 
                    void *user_data);
-static int reslocal(int Nlocal, realtype tres, 
+static int reslocal(long int Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data);
 static int BSend(MPI_Comm comm, int thispe, int ixsub,
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   void *mem;
   UserData data;
   int thispe, iout, ier, npes;
-  int Neq, local_N, mudq, mldq, mukeep, mlkeep;
+  long int Neq, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
@@ -374,7 +374,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
 {
   int retval;
   UserData data;
-  int Nlocal;
+  long int Nlocal;
   
   data = (UserData) user_data;
   
@@ -395,7 +395,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
  * communication of data in u needed to calculate G.                 
  */
 
-static int rescomm(int Nlocal, realtype tt, 
+static int rescomm(long int Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, void *user_data)
 {
   UserData data;
@@ -432,7 +432,7 @@ static int rescomm(int Nlocal, realtype tt,
  *  has already been done, and that this data is in the work array uext.  
  */
 
-static int reslocal(int Nlocal, realtype tres, 
+static int reslocal(long int Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data)
 {
@@ -751,7 +751,7 @@ static void PrintHeader(int Neq, realtype rtol, realtype atol,
                         int mudq, int mukeep,
                         booleantype sensi, int sensi_meth, int err_con)
 {
-    printf("idasHeat2DFSA_bbd_p: Heat equation, parallel example problem for IDA\n");
+    printf("\nidasHeat2D_FSA_kry_bbd_p: Heat equation, parallel example problem for IDA\n");
     printf("                     Discretized heat equation on 2D unit square.\n");
     printf("                     Zero boundary conditions, polynomial initial conditions.\n");
     printf("                     Mesh dimensions: %d x %d ; ", MX, MY);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-02-17 02:48:46 $
+ * $Revision: 1.3 $
+ * $Date: 2010-12-01 22:57:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -127,7 +127,7 @@
 typedef struct {
   realtype *p;
   realtype **P[MX][MZ], **Jbd[MX][MZ];
-  int *pivot[MX][MZ];
+  long int *pivot[MX][MZ];
   realtype q4, om, dx, dz, hdco, haco, vdco;
 } *UserData;
 
@@ -434,7 +434,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 {
   realtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
   realtype **(*P)[MZ], **(*Jbd)[MZ];
-  int *(*pivot)[MZ];
+  long int *(*pivot)[MZ];
   int ier, jx, jz;
   realtype *ydata, **a, **j;
   UserData data;
@@ -534,7 +534,7 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype **(*P)[MZ];
-  int *(*pivot)[MZ];
+  long int *(*pivot)[MZ];
   int jx, jz;
   realtype *zdata, *v;
   UserData data;
@@ -635,7 +635,7 @@ static UserData AllocUserData(void)
     for (jz=0; jz < MZ; jz++) {
       (data->P)[jx][jz] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
       (data->Jbd)[jx][jz] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jz] = newIntArray(NUM_SPECIES);
+      (data->pivot)[jx][jz] = newLintArray(NUM_SPECIES);
     }
   }
 

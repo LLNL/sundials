@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2009-09-30 23:25:59 $
+ * $Revision: 1.4 $
+ * $Date: 2010-12-01 23:02:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -56,7 +56,7 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp,
 static int grob(realtype t, N_Vector yy, N_Vector yp,
                 realtype *gout, void *user_data);
 
-int jacrob(int Neq, realtype tt,  realtype cj, 
+int jacrob(long int Neq, realtype tt,  realtype cj, 
            N_Vector yy, N_Vector yp, N_Vector resvec,
            DlsMat JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
@@ -119,11 +119,12 @@ int main(void)
 
   PrintHeader(rtol, avtol, yy);
 
-  /* Call IDACreate and IDAMalloc to initialize IDA memory */
+  /* Call IDACreate and IDAInit to initialize IDA memory */
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
   retval = IDAInit(mem, resrob, t0, yy, yp);
   if(check_flag(&retval, "IDAInit", 1)) return(1);
+  /* Call IDASVtolerances to set tolerances */
   retval = IDASVtolerances(mem, rtol, avtol);
   if(check_flag(&retval, "IDASVtolerances", 1)) return(1);
 
@@ -225,7 +226,7 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
  * Define the Jacobian function. 
  */
 
-int jacrob(int Neq, realtype tt,  realtype cj, 
+int jacrob(long int Neq, realtype tt,  realtype cj, 
            N_Vector yy, N_Vector yp, N_Vector resvec,
            DlsMat JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)

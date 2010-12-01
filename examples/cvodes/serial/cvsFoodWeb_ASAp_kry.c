@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-02-17 02:48:46 $
+ * $Revision: 1.3 $
+ * $Date: 2010-12-01 22:57:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -138,7 +138,7 @@
 
 typedef struct {
   realtype **P[NGRP];
-  int *pivot[NGRP];
+  long int *pivot[NGRP];
   int ns, mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
@@ -419,9 +419,10 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype ***P;
-  int **pivot, ier;
+  long int **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp, flag;
+  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, flag;
+  long int mp;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
@@ -512,7 +513,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype   ***P;
-  int **pivot;
+  long int **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
@@ -621,7 +622,7 @@ static int PrecondB(realtype t, N_Vector c,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   realtype ***P;
-  int **pivot, ier;
+  long int **pivot, ier;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp, flag;
   realtype uround, fac, r, r0, save, srur;
@@ -711,8 +712,9 @@ static int PSolveB(realtype t, N_Vector c,
                    int lr, void *user_data, N_Vector vtemp)
 {
   realtype ***P;
-  int **pivot;
-  int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
+  long int **pivot;
+  int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx;
+  long int mp;
   WebData wdata;
 
   wdata = (WebData) user_data;
@@ -760,13 +762,14 @@ static int PSolveB(realtype t, N_Vector c,
 
 static WebData AllocUserData(void)
 {
-  int i, ngrp = NGRP, ns = NS;
+  int i, ngrp = NGRP;
+  long int ns = NS;
   WebData wdata;
 
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
     (wdata->P)[i] = newDenseMat(ns, ns);
-    (wdata->pivot)[i] = newIntArray(ns);
+    (wdata->pivot)[i] = newLintArray(ns);
   }
   wdata->rewt = N_VNew_Serial(NEQ);
   return(wdata);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:39 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 23:05:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
@@ -101,7 +101,7 @@ typedef struct {
 
 static int res(realtype t, N_Vector yy, N_Vector yp, 
                N_Vector resval, void *user_data);
-static int Jac(int Neq, realtype t, realtype cj, 
+static int Jac(long int Neq, realtype t, realtype cj, 
                N_Vector yy, N_Vector yp, N_Vector resvec, 
                DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -114,7 +114,7 @@ static int resB(realtype tt,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 void *user_dataB);
 
-static int JacB(int NeqB, realtype tt, realtype cjB,
+static int JacB(long int NeqB, realtype tt, realtype cjB,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB, 
                 DlsMat JacB, void *user_data,
@@ -511,7 +511,7 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
  * Jacobian routine. Compute J(t,y). 
 */
 
-static int Jac(int N, realtype t, realtype cj,
+static int Jac(long int Neq, realtype t, realtype cj,
                N_Vector yy, N_Vector yp, N_Vector resvec, 
                DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -619,7 +619,7 @@ static int resB(realtype tt,
 }
 
 /*Jacobian for backward problem. */
-static int JacB(int NeqB, realtype tt, realtype cj,
+static int JacB(long int NeqB, realtype tt, realtype cj,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB, 
                 DlsMat JB, void *user_data,

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-09-30 23:28:00 $
+ * $Revision: 1.3 $
+ * $Date: 2010-12-01 23:03:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -66,7 +66,7 @@
 
 typedef struct {  
   int thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
-  int n_local;
+  long int n_local;
   realtype dx, dy, coeffx, coeffy, coeffxy;
   realtype uext[(MXSUB+2)*(MYSUB+2)];
   MPI_Comm comm;
@@ -78,11 +78,11 @@ static int heatres(realtype tres,
                    N_Vector uu, N_Vector up, N_Vector res, 
                    void *user_data);
 
-static int rescomm(int Nlocal, realtype tt, 
+static int rescomm(long int Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, 
                    void *user_data);
 
-static int reslocal(int Nlocal, realtype tres, 
+static int reslocal(long int Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data);
 
@@ -105,7 +105,7 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
 
-static void PrintHeader(int Neq, realtype rtol, realtype atol);
+static void PrintHeader(long int Neq, realtype rtol, realtype atol);
 
 static void PrintCase(int case_number, int mudq, int mukeep);
 
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   void *mem;
   UserData data;
   int thispe, iout, ier, npes;
-  int Neq, local_N, mudq, mldq, mukeep, mlkeep;
+  long int Neq, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
@@ -332,7 +332,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
 {
   int retval;
   UserData data;
-  int Nlocal;
+  long int Nlocal;
   
   data = (UserData) user_data;
   
@@ -353,7 +353,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
  * communication of data in u needed to calculate G.                 
  */
 
-static int rescomm(int Nlocal, realtype tt, 
+static int rescomm(long int Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, void *user_data)
 {
   UserData data;
@@ -390,7 +390,7 @@ static int rescomm(int Nlocal, realtype tt,
  *  has already been done, and that this data is in the work array uext.  
  */
 
-static int reslocal(int Nlocal, realtype tres, 
+static int reslocal(long int Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
                     void *user_data)
 {
@@ -697,7 +697,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * and table heading
  */
 
-static void PrintHeader(int Neq, realtype rtol, realtype atol)
+static void PrintHeader(long int Neq, realtype rtol, realtype atol)
 {
     printf("\nidaHeat2D_kry_bbd_p: Heat equation, parallel example problem for IDA\n");
     printf("                Discretized heat equation on 2D unit square.\n");

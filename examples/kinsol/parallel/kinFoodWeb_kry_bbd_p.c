@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2009-09-30 23:40:46 $
+ * $Revision: 1.4 $
+ * $Date: 2010-12-01 23:09:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -140,14 +140,15 @@
 #define IJ_Vptr(vv,i,j)   (&NV_Ith_P(vv, i*NUM_SPECIES + j*NSMXSUB))
 
 /* Type : UserData 
-   contains preconditioner blocks, pivot arrays, and problem constants */
+   contains problem constants and extended array */
 
 typedef struct {
   realtype **acoef, *bcoef;
   N_Vector rates;
   realtype *cox, *coy;
   realtype ax, ay, dx, dy;
-  int Nlocal, mx, my, ns, np;
+  long int Nlocal;
+  int mx, my, ns, np;
   realtype cext[NUM_SPECIES * (MXSUB+2)*(MYSUB+2)];
   int my_pe, isubx, isuby, nsmxsub, nsmxsub2;
   MPI_Comm comm;
@@ -157,19 +158,19 @@ typedef struct {
 
 static int func(N_Vector cc, N_Vector fval, void *user_data);
 
-static int ccomm(int Nlocal, N_Vector cc, void *data);
+static int ccomm(long int Nlocal, N_Vector cc, void *data);
 
-static int func_local(int Nlocal, N_Vector cc, N_Vector fval, void *user_data);
+static int func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *user_data);
 
 /* Private Helper Functions */
 
 static UserData AllocUserData(void);
-static void InitUserData(int my_pe, int Nlocal, MPI_Comm comm, UserData data);
+static void InitUserData(int my_pe, long int Nlocal, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        int mudq, int mldq,
-			int mukeep, int mlkeep,
+                        long int mudq, long int mldq,
+			long int mukeep, long int mlkeep,
                         realtype fnormtol, realtype scsteptol);
 static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc);
 static void PrintFinalStats(void *kmem);
@@ -201,10 +202,10 @@ int main(int argc, char *argv[])
   UserData data;
   N_Vector cc, sc, constraints;
   int globalstrategy;
-  int Nlocal;
+  long int Nlocal;
   realtype fnormtol, scsteptol, dq_rel_uu;
   int flag, maxl, maxlrst;
-  int mudq, mldq, mukeep, mlkeep;
+  long int mudq, mldq, mukeep, mlkeep;
   int my_pe, npes, npelast = NPEX*NPEY-1;
 
   data = NULL;
@@ -352,7 +353,7 @@ int main(int argc, char *argv[])
  * between processors of data needed to calculate f. 
  */
 
-static int ccomm(int Nlocal, N_Vector cc, void *userdata)
+static int ccomm(long int Nlocal, N_Vector cc, void *userdata)
 {
 
   realtype *cdata, *cext, buffer[2*NUM_SPECIES*MYSUB];
@@ -387,7 +388,7 @@ static int ccomm(int Nlocal, N_Vector cc, void *userdata)
  * System function for predator-prey system - calculation part 
  */
 
-static int func_local(int Nlocal, N_Vector cc, N_Vector fval, void *user_data)
+static int func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *user_data)
 {
   realtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
   realtype *cext, dely, delx, *cdata;
@@ -579,7 +580,7 @@ static UserData AllocUserData(void)
  * Load problem constants in data 
  */
 
-static void InitUserData(int my_pe, int Nlocal, MPI_Comm comm, UserData data)
+static void InitUserData(int my_pe, long int Nlocal, MPI_Comm comm, UserData data)
 {
   int i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
@@ -689,8 +690,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
  */
 
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        int mudq, int mldq,
-			int mukeep, int mlkeep,
+                        long int mudq, long int mldq,
+			long int mukeep, long int mlkeep,
                         realtype fnormtol, realtype scsteptol)
 {
     printf("\nPredator-prey test problem--  KINSol (parallel-BBD version)\n\n");

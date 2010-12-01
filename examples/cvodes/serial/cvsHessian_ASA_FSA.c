@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:32 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 22:57:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -89,7 +89,8 @@ int main(int argc, char *argv[])
 
   void *cvode_mem;
 
-  int Neq, Np;
+  long int Neq, Np2;
+  int Np;
 
   realtype t0, tf;
 
@@ -122,6 +123,7 @@ int main(int argc, char *argv[])
 
   Neq = 3;
   Np  = 2;
+  Np2 = 2*Np;
 
   t0 = 0.0;
   tf = 2.0;
@@ -214,13 +216,13 @@ int main(int argc, char *argv[])
   yB1 = N_VNew_Serial(2*Neq);
   N_VConst(ZERO, yB1);
 
-  yQB1 = N_VNew_Serial(2*Np);
+  yQB1 = N_VNew_Serial(Np2);
   N_VConst(ZERO, yQB1);
 
   yB2 = N_VNew_Serial(2*Neq);
   N_VConst(ZERO, yB1);
 
-  yQB2 = N_VNew_Serial(2*Np);
+  yQB2 = N_VNew_Serial(Np2);
   N_VConst(ZERO, yQB2);
 
   /* Create and initialize backward problems (one for each column of the Hessian) */

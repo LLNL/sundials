@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:31 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 23:00:48 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
   realtype abstol, reltol, t, tout;
   N_Vector u;
   int iout, my_pe, npes, flag, jpre;
-  int neq, local_N, mudq, mldq, mukeep, mlkeep;
+  long int neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
 
   data = NULL;

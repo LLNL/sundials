@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:37 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 23:06:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -157,7 +157,8 @@
 /* Type: UserData.  Contains problem constants, preconditioner data, etc. */
 
 typedef struct {
-  int ns, np, thispe, npes, ixsub, jysub, npex, npey;
+  long int ns;
+  int np, thispe, npes, ixsub, jysub, npex, npey;
   int mxsub, mysub, nsmxsub, nsmxsub2;
   realtype dx, dy, **acoef;
   realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES],
@@ -165,7 +166,7 @@ typedef struct {
   MPI_Comm comm;
   N_Vector rates;
   realtype **PP[MXSUB][MYSUB];
-  int *pivot[MXSUB][MYSUB];
+  long int *pivot[MXSUB][MYSUB];
   N_Vector ewt;
   void *ida_mem;
 } *UserData;
@@ -211,8 +212,8 @@ static realtype dotprod(int size, realtype *x1, realtype *x2);
 
 /* Prototypes for private Helper Functions. */
 
-static UserData AllocUserData(MPI_Comm comm, int local_N, 
-                              int SystemSize);
+static UserData AllocUserData(MPI_Comm comm, long int local_N, 
+                              long int SystemSize);
 
 static void InitUserData(UserData webdata, int thispe, int npes, 
                          MPI_Comm comm);
@@ -222,7 +223,7 @@ static void FreeUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector scrtch, UserData webdata);
 
-static void PrintHeader(int SystemSize, int maxl, 
+static void PrintHeader(long int SystemSize, int maxl, 
                         realtype rtol, realtype atol);
 
 static void PrintOutput(void *mem, N_Vector cc, realtype time,
@@ -243,7 +244,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem;
   UserData webdata;
-  int SystemSize, local_N;
+  long int SystemSize, local_N;
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   int thispe, npes, maxl, iout, flag;
@@ -393,7 +394,7 @@ int main(int argc, char *argv[])
  * AllocUserData: Allocate memory for data structure of type UserData.   
  */
 
-static UserData AllocUserData(MPI_Comm comm, int local_N, int SystemSize)
+static UserData AllocUserData(MPI_Comm comm, long int local_N, long int SystemSize)
 {
   int ix, jy;
   UserData webdata;
@@ -405,7 +406,7 @@ static UserData AllocUserData(MPI_Comm comm, int local_N, int SystemSize)
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
       (webdata->PP)[ix][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (webdata->pivot)[ix][jy] = newIntArray(NUM_SPECIES);
+      (webdata->pivot)[ix][jy] = newLintArray(NUM_SPECIES);
     }
   }
   
@@ -556,10 +557,10 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(int SystemSize, int maxl, 
+static void PrintHeader(long int SystemSize, int maxl, 
                         realtype rtol, realtype atol)
 {
-  printf("\nidasFoodWeb_p: Predator-prey DAE parallel example problem for IDA \n\n");
+  printf("\nidasFoodWeb_kry_p: Predator-prey DAE parallel example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
   printf("     Total system size: %d\n",SystemSize);
@@ -1203,7 +1204,7 @@ static int PSolvebd(realtype tt, N_Vector cc,
                  void *user_data, N_Vector tempv)
 {
   realtype **Pxy, *zxy;
-  int *pivot, ix, jy;
+  long int *pivot, ix, jy;
   UserData webdata;
 
   webdata = (UserData)user_data;

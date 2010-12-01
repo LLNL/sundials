@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-02-17 02:48:46 $
+ * $Revision: 1.3 $
+ * $Date: 2010-12-01 22:57:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -126,7 +126,7 @@
 
 typedef struct {
   realtype **P[MX][MY], **Jbd[MX][MY];
-  int *pivot[MX][MY];
+  long int *pivot[MX][MY];
   realtype q4, om, dx, dy, hdco, haco, vdco;
 } *UserData;
 
@@ -320,7 +320,7 @@ static UserData AllocUserData(void)
     for (jy=0; jy < MY; jy++) {
       (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
       (data->Jbd)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = newIntArray(NUM_SPECIES);
+      (data->pivot)[jx][jy] = newLintArray(NUM_SPECIES);
     }
   }
 
@@ -620,7 +620,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MY], **(*Jbd)[MY];
-  int *(*pivot)[MY], ier;
+  long int *(*pivot)[MY], ier;
   int jx, jy;
   realtype *udata, **a, **j;
   UserData data;
@@ -708,7 +708,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   int lr, void *user_data, N_Vector vtemp)
 {
   realtype **(*P)[MY];
-  int *(*pivot)[MY];
+  long int *(*pivot)[MY];
   int jx, jy;
   realtype *zdata, *v;
   UserData data;

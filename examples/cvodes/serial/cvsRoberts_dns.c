@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:33 $
+ * $Revision: 1.2 $
+ * $Date: 2010-12-01 22:58:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -79,7 +79,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
-static int Jac(int N, realtype t,
+static int Jac(long int N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -239,7 +239,7 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(int N, realtype t,
+static int Jac(long int N, realtype t,
                N_Vector y, N_Vector fy, DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2009-01-14 19:55:22 $
+ * $Revision: 1.3 $
+ * $Date: 2010-12-01 22:58:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -101,7 +101,7 @@ typedef struct {
 /* Prototypes of user-supplied functions */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(int N, realtype t,
+static int Jac(long int N, realtype t,
                N_Vector y, N_Vector fy, 
                DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -110,7 +110,7 @@ static int ewt(N_Vector y, N_Vector w, void *user_data);
 
 static int fB(realtype t, N_Vector y, 
               N_Vector yB, N_Vector yBdot, void *user_dataB);
-static int JacB(int NB, realtype t,
+static int JacB(long int NB, realtype t,
                 N_Vector y, N_Vector yB, N_Vector fyB,
                 DlsMat JB, void *user_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
@@ -424,7 +424,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Jacobian routine. Compute J(t,y). 
 */
 
-static int Jac(int N, realtype t,
+static int Jac(long int N, realtype t,
                N_Vector y, N_Vector fy, 
                DlsMat J, void *user_data, 
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -519,7 +519,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
  * JacB routine. Compute JB(t,y,yB). 
 */
 
-static int JacB(int NB, realtype t,
+static int JacB(long int NB, realtype t,
                 N_Vector y, N_Vector yB, N_Vector fyB,
                 DlsMat JB, void *user_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
