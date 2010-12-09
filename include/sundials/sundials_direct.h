@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2010-12-01 22:17:18 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-09 19:40:13 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -230,6 +230,18 @@ SUNDIALS_EXPORT void DestroyMat(DlsMat A);
 
 /*
  * -----------------------------------------------------------------
+ * Function: NewIntArray
+ * -----------------------------------------------------------------
+ * NewIntArray allocates memory an array of N int's and returns
+ * the pointer to the memory it allocates. If the request for
+ * memory storage cannot be satisfied, it returns NULL.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int *NewIntArray(int N);
+
+/*
+ * -----------------------------------------------------------------
  * Function: NewLintArray
  * -----------------------------------------------------------------
  * NewLintArray allocates memory an array of N long int's and returns
@@ -256,8 +268,8 @@ SUNDIALS_EXPORT realtype *NewRealArray(long int N);
  * -----------------------------------------------------------------
  * Function: DestroyArray
  * -----------------------------------------------------------------
- * DestroyArray frees memory allocated by NewLintArray or by
- * NewRealArray.
+ * DestroyArray frees memory allocated by NewIntArray, NewLintArray,
+ * or NewRealArray.
  * -----------------------------------------------------------------
  */
 
@@ -311,6 +323,7 @@ SUNDIALS_EXPORT void PrintMat(DlsMat A);
 SUNDIALS_EXPORT realtype **newDenseMat(long int m, long int n);
 SUNDIALS_EXPORT realtype **newBandMat(long int n, long int smu, long int ml);
 SUNDIALS_EXPORT void destroyMat(realtype **a);
+SUNDIALS_EXPORT long int *newIntArray(long int n);
 SUNDIALS_EXPORT long int *newLintArray(long int n);
 SUNDIALS_EXPORT realtype *newRealArray(long int m);
 SUNDIALS_EXPORT void destroyArray(void *v);
