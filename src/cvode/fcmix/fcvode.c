@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2010-12-01 22:27:37 $
+ * $Revision: 1.9 $
+ * $Date: 2010-12-09 19:36:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -462,8 +462,8 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                           &CV_iout[3],                    /* NFE     */ 
                           &CV_iout[7],                    /* NSETUPS */ 
                           &CV_iout[4],                    /* NETF    */ 
-                          qu,                             /* QU      */
-                          qcur,                           /* QCUR    */
+                          &qu,                            /* QU      */
+                          &qcur,                          /* QCUR    */
                           &CV_rout[0],                    /* H0U     */
                           &CV_rout[1],                    /* HU      */ 
                           &CV_rout[2],                    /* HCUR    */ 
