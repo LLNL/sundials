@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2010-12-01 22:21:04 $
+ * $Revision: 1.10 $
+ * $Date: 2010-12-09 19:37:10 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -403,7 +403,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
     
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    dcopyf77(&intn, savedJ->data, &one, M->data, &one);
+    dcopy_f77(&intn, savedJ->data, &one, M->data, &one);
     
   } else {
     
