@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2010-12-09 19:37:10 $
+ * $Revision: 1.11 $
+ * $Date: 2010-12-10 00:15:53 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -366,7 +366,7 @@ static int cvLapackDenseInit(CVodeMem cv_mem)
   } else {
     J_data = cv_mem->cv_user_data;
   }
-  
+
   last_flag = CVDLS_SUCCESS;
   return(0);
 }
@@ -387,10 +387,11 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
   realtype dgamma, fact;
   booleantype jbad, jok;
   int ier, retval, one = 1;
-  int intn;
+  int intn, lenmat;
 
   cvdls_mem = (CVDlsMem) lmem;
   intn = (int) n;
+  lenmat = M->ldata ;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = ABS((gamma/gammap) - ONE);
@@ -403,7 +404,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
     
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    dcopy_f77(&intn, savedJ->data, &one, M->data, &one);
+    dcopy_f77(&lenmat, savedJ->data, &one, M->data, &one);
     
   } else {
     
@@ -414,8 +415,9 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
     SetToZero(M);
 
     retval = djac(n, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
+
     if (retval == 0) {
-      dcopy_f77(&intn, M->data, &one, savedJ->data, &one);
+      dcopy_f77(&lenmat, M->data, &one, savedJ->data, &one);
     } else if (retval < 0) {
       CVProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVLAPACK", "cvLapackDenseSetup", MSGD_JACFUNC_FAILED);
       last_flag = CVDLS_JACFUNC_UNRECVR;
@@ -429,7 +431,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
 
   /* Scale J by - gamma */
   fact = -gamma;
-  dscal_f77(&intn, &fact, M->data, &one);
+  dscal_f77(&lenmat, &fact, M->data, &one);
   
   /* Add identity to get M = I - gamma*J*/
   AddIdentity(M);
@@ -461,6 +463,7 @@ static int cvLapackDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   bd = N_VGetArrayPointer(b);
 
   dgetrs_f77("N", &intn, &one, M->data, &intn, pivots, bd, &intn, &ier, 1); 
+
   if (ier > 0) return(1);
 
   /* For BDF, scale the correction to account for change in gamma */
@@ -537,12 +540,13 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   realtype dgamma, fact;
   booleantype jbad, jok;
   int ier, retval, one = 1;
-  int intn, iml, imu;
+  int intn, iml, imu, lenmat;
 
   cvdls_mem = (CVDlsMem) lmem;
   intn = (int) n;
   iml = (int) ml;
   imu = (int) mu;
+  lenmat = M->ldata;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = ABS((gamma/gammap) - ONE);
@@ -555,7 +559,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
     
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    dcopy_f77(&intn, savedJ->data, &one, M->data, &one);
+    dcopy_f77(&lenmat, savedJ->data, &one, M->data, &one);
     
   } else {
     
@@ -567,7 +571,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
 
     retval = bjac(n, mu, ml, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
     if (retval == 0) {
-      dcopy_f77(&intn, M->data, &one, savedJ->data, &one);
+      dcopy_f77(&lenmat, M->data, &one, savedJ->data, &one);
     } else if (retval < 0) {
       CVProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVLAPACK", "cvLapackBandSetup", MSGD_JACFUNC_FAILED);
       last_flag = CVDLS_JACFUNC_UNRECVR;
@@ -581,7 +585,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   
   /* Scale J by - gamma */
   fact = -gamma;
-  dscal_f77(&intn, &fact, M->data, &one);
+  dscal_f77(&lenmat, &fact, M->data, &one);
   
   /* Add identity to get M = I - gamma*J*/
   AddIdentity(M);
