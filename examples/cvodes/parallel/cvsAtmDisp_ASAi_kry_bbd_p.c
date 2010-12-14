@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2010-12-01 23:00:48 $
+ * $Revision: 1.3 $
+ * $Date: 2010-12-14 22:15:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -144,7 +144,7 @@ typedef struct {
   /* Parallel stuff */
   MPI_Comm comm;       /* MPI communicator */
   int myId;            /* process id */ 
-  long int npes;       /* total number of processes */
+  int npes;            /* total number of processes */
   int num_procs[DIM];  /* number of processes in each direction */
   int nbr_left[DIM];   /* MPI ID of "left" neighbor */
   int nbr_right[DIM];  /* MPI ID of "right" neighbor */
@@ -188,7 +188,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
  *------------------------------------------------------------------
  */
 
-static void SetData(ProblemData d, MPI_Comm comm, long int npes, int myId,
+static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
                     long int *neq, long int *l_neq);
 static void SetSource(ProblemData d);
 static void f_comm(long int Nlocal, realtype t, N_Vector y, void *user_data);
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
   ProblemData d;
 
   MPI_Comm comm;
-  long int npes, npes_needed;
+  int npes, npes_needed;
   int myId;
  
   long int neq, l_neq;
@@ -400,7 +400,7 @@ int main(int argc, char *argv[])
  *------------------------------------------------------------------
  */
 
-static void SetData(ProblemData d, MPI_Comm comm, long int npes, int myId,
+static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
                     long int *neq, long int *l_neq)
 {
   int n[DIM], nd[DIM];
