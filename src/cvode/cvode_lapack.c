@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2010-12-10 00:15:53 $
+ * $Revision: 1.12 $
+ * $Date: 2010-12-14 23:46:24 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -540,13 +540,14 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   realtype dgamma, fact;
   booleantype jbad, jok;
   int ier, retval, one = 1;
-  int intn, iml, imu, lenmat;
+  int intn, iml, imu, lenmat, ldmat;
 
   cvdls_mem = (CVDlsMem) lmem;
   intn = (int) n;
   iml = (int) ml;
   imu = (int) mu;
   lenmat = M->ldata;
+  ldmat = M->ldim;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = ABS((gamma/gammap) - ONE);
@@ -591,7 +592,7 @@ static int cvLapackBandSetup(CVodeMem cv_mem, int convfail,
   AddIdentity(M);
   
   /* Do LU factorization of M */
-  dgbtrf_f77(&intn, &intn, &iml, &imu, M->data, &intn, pivots, &ier);
+  dgbtrf_f77(&intn, &intn, &iml, &imu, M->data, &ldmat, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   last_flag = (long int) ier;
@@ -610,16 +611,17 @@ static int cvLapackBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   CVDlsMem cvdls_mem;
   realtype *bd, fact;
   int ier, one = 1;
-  int intn, iml, imu;
+  int intn, iml, imu, ldmat;
 
   cvdls_mem = (CVDlsMem) lmem;
   intn = (int) n;
   iml = (int) ml;
   imu = (int) mu;
+  ldmat = M->ldim;
 
   bd = N_VGetArrayPointer(b);
 
-  dgbtrs_f77("N", &intn, &iml, &imu, &one, M->data, &intn, pivots, bd, &intn, &ier, 1);
+  dgbtrs_f77("N", &intn, &iml, &imu, &one, M->data, &ldmat, pivots, bd, &intn, &ier, 1);
   if (ier > 0) return(1);
 
   /* For BDF, scale the correction to account for change in gamma */
