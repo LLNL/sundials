@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2010-12-01 22:35:26 $
+ * $Revision: 1.11 $
+ * $Date: 2010-12-15 00:07:06 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -474,12 +474,13 @@ static int idaLapackBandSetup(IDAMem IDA_mem,
 {
   IDADlsMem idadls_mem;
   int ier, retval;
-  int intn, iml, imu;
+  int intn, iml, imu, ldmat;
 
   idadls_mem = (IDADlsMem) lmem;
   intn = (int) n;
   iml = (int) ml;
   imu = (int) mu;
+  ldmat = JJ->ldim;
 
   /* Call Jacobian function */
   nje++;
@@ -495,7 +496,7 @@ static int idaLapackBandSetup(IDAMem IDA_mem,
   }
   
   /* Do LU factorization of M */
-  dgbtrf_f77(&intn, &intn, &iml, &imu, JJ->data, &intn, pivots, &ier);
+  dgbtrf_f77(&intn, &intn, &iml, &imu, JJ->data, &ldmat, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   last_flag = (long int) ier;
@@ -514,16 +515,17 @@ static int idaLapackBandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   IDADlsMem idadls_mem;
   realtype *bd, fact;
   int ier, one = 1;
-  int intn, iml, imu;
+  int intn, iml, imu, ldmat;
 
   idadls_mem = (IDADlsMem) lmem;
   intn = (int) n;
   iml = (int) ml;
   imu = (int) mu;
+  ldmat = JJ->ldim;
 
   bd = N_VGetArrayPointer(b);
 
-  dgbtrs_f77("N", &intn, &iml, &imu, &one, JJ->data, &intn, pivots, bd, &intn, &ier, 1);
+  dgbtrs_f77("N", &intn, &iml, &imu, &one, JJ->data, &ldmat, pivots, bd, &intn, &ier, 1);
   if (ier > 0) return(1);
 
   /* For BDF, scale the correction to account for change in cj */
