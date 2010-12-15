@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2009-03-25 18:32:37 $
+# $Revision: 1.10 $
+# $Date: 2010-12-15 22:28:16 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -233,7 +233,7 @@ IF(UNIX)
     # executables will be linked against -lm 
     SET(EXTRA_LINK_LIBS -lm)
     # prepare substitution variable GENERIC_MATH_LIB for sundials_config.h
-    SET(GENERIC_MATH_LIB "#define SUNDIALS_USE_GENERIC_MATH 1")
+    SET(GENERIC_MATH_LIB "#define SUNDIALS_USE_GENERIC_MATH")
   ENDIF(USE_GENERIC_MATH)
 ENDIF(UNIX)
 

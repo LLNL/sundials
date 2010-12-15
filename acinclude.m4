@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.57 $
-# $Date: 2009-03-25 18:32:37 $
+# $Revision: 1.58 $
+# $Date: 2010-12-15 22:28:17 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -538,13 +538,13 @@ if test "X${MATH_FABS_OK}" = "Xno" || test "X${MATH_POW_OK}" = "Xno" || test "X$
   # If all generic math routines are available, then set SUNDIALS_USE_GENERIC_MATH flag
   # for use by sundials_math.c file (preprocessor macros)
   AC_DEFINE([SUNDIALS_USE_GENERIC_MATH],[1],[])
-  GENERIC_MATH_LIB="#define SUNDIALS_USE_GENERIC_MATH 1"
+  GENERIC_MATH_LIB="#define SUNDIALS_USE_GENERIC_MATH"
 # If found all precision-specific routines, then set SUNDIALS_USE_GENERIC_MATH only if
 # building SUNDIALS libraries with double-precision
 else
   if test "X${FLOAT_TYPE}" = "Xdouble"; then
     AC_DEFINE([SUNDIALS_USE_GENERIC_MATH],[1],[])
-    GENERIC_MATH_LIB="#define SUNDIALS_USE_GENERIC_MATH 1"
+    GENERIC_MATH_LIB="#define SUNDIALS_USE_GENERIC_MATH"
   else
     AC_DEFINE([SUNDIALS_USE_GENERIC_MATH],[0],[])
   fi
