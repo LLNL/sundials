@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:29:00 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-15 19:40:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -107,12 +107,12 @@ extern "C" {
 
 /* Definitions of interface function names */
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
 
-#define FIDA_ROOTINIT F77_FUNC(fidarootinit, FIDAROOTINIT)
-#define FIDA_ROOTINFO F77_FUNC(fidarootinfo, FIDAROOTINFO)
-#define FIDA_ROOTFREE F77_FUNC(fidarootfree, FIDAROOTFREE)
-#define FIDA_ROOTFN   F77_FUNC(fidarootfn, FIDAROOTFN)
+#define FIDA_ROOTINIT SUNDIALS_F77_FUNC(fidarootinit, FIDAROOTINIT)
+#define FIDA_ROOTINFO SUNDIALS_F77_FUNC(fidarootinfo, FIDAROOTINFO)
+#define FIDA_ROOTFREE SUNDIALS_F77_FUNC(fidarootfree, FIDAROOTFREE)
+#define FIDA_ROOTFN   SUNDIALS_F77_FUNC(fidarootfn, FIDAROOTFN)
 
 #else
 

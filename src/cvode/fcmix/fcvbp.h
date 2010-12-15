@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2007-04-27 18:56:27 $
+ * $Revision: 1.4 $
+ * $Date: 2010-12-15 19:40:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -224,13 +224,13 @@ extern "C" {
 
 /* Definitions of interface function names */
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
 
-#define FCV_BPINIT    F77_FUNC(fcvbpinit, FCVBPINIT)
-#define FCV_BPSPTFQMR F77_FUNC(fcvbpsptfqmr, FCVBPSPTFQMR)
-#define FCV_BPSPBCG   F77_FUNC(fcvbpspbcg, FCVBPSPBCG)
-#define FCV_BPSPGMR   F77_FUNC(fcvbpspgmr, FCVBPSPGMR)
-#define FCV_BPOPT     F77_FUNC(fcvbpopt, FCVBPOPT)
+#define FCV_BPINIT    SUNDIALS_F77_FUNC(fcvbpinit, FCVBPINIT)
+#define FCV_BPSPTFQMR SUNDIALS_F77_FUNC(fcvbpsptfqmr, FCVBPSPTFQMR)
+#define FCV_BPSPBCG   SUNDIALS_F77_FUNC(fcvbpspbcg, FCVBPSPBCG)
+#define FCV_BPSPGMR   SUNDIALS_F77_FUNC(fcvbpspgmr, FCVBPSPGMR)
+#define FCV_BPOPT     SUNDIALS_F77_FUNC(fcvbpopt, FCVBPOPT)
 
 #else
 

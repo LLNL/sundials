@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2010-12-01 22:27:37 $
+ * $Revision: 1.9 $
+ * $Date: 2010-12-15 19:40:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -287,16 +287,16 @@ extern "C" {
 
 /* Definitions of interface function names */
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
 
-#define FCV_BBDINIT    F77_FUNC(fcvbbdinit, FCVBBDINIT)
-#define FCV_BBDSPTFQMR F77_FUNC(fcvbbdsptfqmr, FCVBBDSPTFQMR)
-#define FCV_BBDSPBCG   F77_FUNC(fcvbbdspbcg, FCVBBDSPBCG)
-#define FCV_BBDSPGMR   F77_FUNC(fcvbbdspgmr, FCVBBDSPGMR)
-#define FCV_BBDREINIT  F77_FUNC(fcvbbdreinit, FCVBBDREINIT)
-#define FCV_BBDOPT     F77_FUNC(fcvbbdopt, FCVBBDOPT)
-#define FCV_GLOCFN     F77_FUNC(fcvglocfn, FCVGLOCFN)
-#define FCV_COMMFN     F77_FUNC(fcvcommfn, FCVCOMMFN)
+#define FCV_BBDINIT    SUNDIALS_F77_FUNC(fcvbbdinit, FCVBBDINIT)
+#define FCV_BBDSPTFQMR SUNDIALS_F77_FUNC(fcvbbdsptfqmr, FCVBBDSPTFQMR)
+#define FCV_BBDSPBCG   SUNDIALS_F77_FUNC(fcvbbdspbcg, FCVBBDSPBCG)
+#define FCV_BBDSPGMR   SUNDIALS_F77_FUNC(fcvbbdspgmr, FCVBBDSPGMR)
+#define FCV_BBDREINIT  SUNDIALS_F77_FUNC(fcvbbdreinit, FCVBBDREINIT)
+#define FCV_BBDOPT     SUNDIALS_F77_FUNC(fcvbbdopt, FCVBBDOPT)
+#define FCV_GLOCFN     SUNDIALS_F77_FUNC(fcvglocfn, FCVGLOCFN)
+#define FCV_COMMFN     SUNDIALS_F77_FUNC(fcvcommfn, FCVCOMMFN)
 
 #else
 

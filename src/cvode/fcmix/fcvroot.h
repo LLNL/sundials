@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-04-30 19:28:59 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-15 19:40:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -106,12 +106,12 @@ extern "C" {
 
 /* Definitions of interface function names */
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
 
-#define FCV_ROOTINIT F77_FUNC(fcvrootinit, FCVROOTINIT)
-#define FCV_ROOTINFO F77_FUNC(fcvrootinfo, FCVROOTINFO)
-#define FCV_ROOTFREE F77_FUNC(fcvrootfree, FCVROOTFREE)
-#define FCV_ROOTFN   F77_FUNC(fcvrootfn, FCVROOTFN)
+#define FCV_ROOTINIT SUNDIALS_F77_FUNC(fcvrootinit, FCVROOTINIT)
+#define FCV_ROOTINFO SUNDIALS_F77_FUNC(fcvrootinfo, FCVROOTINFO)
+#define FCV_ROOTFREE SUNDIALS_F77_FUNC(fcvrootfree, FCVROOTFREE)
+#define FCV_ROOTFN   SUNDIALS_F77_FUNC(fcvrootfn, FCVROOTFN)
 
 #else
 

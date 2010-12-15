@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2010-12-01 22:45:33 $
+ * $Revision: 1.8 $
+ * $Date: 2010-12-15 19:40:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -261,12 +261,12 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
 
-#define FKIN_BBDINIT    F77_FUNC(fkinbbdinit, FKINBBDINIT)
-#define FKIN_BBDOPT     F77_FUNC(fkinbbdopt, FKINBBDOPT)
-#define FK_COMMFN       F77_FUNC(fkcommfn, FKCOMMFN)
-#define FK_LOCFN        F77_FUNC(fklocfn, FKLOCFN)
+#define FKIN_BBDINIT    SUNDIALS_F77_FUNC(fkinbbdinit, FKINBBDINIT)
+#define FKIN_BBDOPT     SUNDIALS_F77_FUNC(fkinbbdopt, FKINBBDOPT)
+#define FK_COMMFN       SUNDIALS_F77_FUNC(fkcommfn, FKCOMMFN)
+#define FK_LOCFN        SUNDIALS_F77_FUNC(fklocfn, FKLOCFN)
 
 #else
 

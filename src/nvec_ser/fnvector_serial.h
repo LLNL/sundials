@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-11-29 00:05:09 $
+ * $Revision: 1.4 $
+ * $Date: 2010-12-15 19:40:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -26,17 +26,21 @@ extern "C" {
 #include <nvector/nvector_serial.h>  
 #include <sundials/sundials_fnvector.h>
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
+#define FNV_INITS    SUNDIALS_F77_FUNC(fnvinits, FNVINITS)
+#else
+#define FNV_INITS    fnvinits_
+#endif
 
-#define FNV_INITS    F77_FUNC(fnvinits, FNVINITS)
-#define FNV_INITS_Q  F77_FUNC_(fnvinits_q, FNVINITS_Q)
-#define FNV_INITS_S  F77_FUNC_(fnvinits_s, FNVINITS_S)
-#define FNV_INITS_B  F77_FUNC_(fnvinits_b, FNVINITS_B)
-#define FNV_INITS_QB F77_FUNC_(fnvinits_qb, FNVINITS_QB)
+#if defined(SUNDIALS_F77_FUNC_)
+
+#define FNV_INITS_Q  SUNDIALS_F77_FUNC_(fnvinits_q, FNVINITS_Q)
+#define FNV_INITS_S  SUNDIALS_F77_FUNC_(fnvinits_s, FNVINITS_S)
+#define FNV_INITS_B  SUNDIALS_F77_FUNC_(fnvinits_b, FNVINITS_B)
+#define FNV_INITS_QB SUNDIALS_F77_FUNC_(fnvinits_qb, FNVINITS_QB)
 
 #else
 
-#define FNV_INITS    fnvinits_
 #define FNV_INITS_Q  fnvinits_q_
 #define FNV_INITS_S  fnvinits_s_
 #define FNV_INITS_B  fnvinits_b_

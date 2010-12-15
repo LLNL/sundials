@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2010-12-01 22:37:20 $
+ * $Revision: 1.9 $
+ * $Date: 2010-12-15 19:40:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -298,13 +298,13 @@ extern "C" {
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 
-#if defined(F77_FUNC)
+#if defined(SUNDIALS_F77_FUNC)
 
-#define FIDA_BBDINIT    F77_FUNC(fidabbdinit, FIDABBDINIT)
-#define FIDA_BBDREINIT  F77_FUNC(fidabbdreinit, FIDABBDREINIT)
-#define FIDA_BBDOPT     F77_FUNC(fidabbdopt, FIDABBDOPT)
-#define FIDA_GLOCFN     F77_FUNC(fidaglocfn, FIDAGLOCFN)
-#define FIDA_COMMFN     F77_FUNC(fidacommfn, FIDACOMMFN)
+#define FIDA_BBDINIT    SUNDIALS_F77_FUNC(fidabbdinit, FIDABBDINIT)
+#define FIDA_BBDREINIT  SUNDIALS_F77_FUNC(fidabbdreinit, FIDABBDREINIT)
+#define FIDA_BBDOPT     SUNDIALS_F77_FUNC(fidabbdopt, FIDABBDOPT)
+#define FIDA_GLOCFN     SUNDIALS_F77_FUNC(fidaglocfn, FIDAGLOCFN)
+#define FIDA_COMMFN     SUNDIALS_F77_FUNC(fidacommfn, FIDACOMMFN)
 
 #else
 
