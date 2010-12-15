@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2010-12-01 22:43:33 $
+ * $Revision: 1.10 $
+ * $Date: 2010-12-15 00:16:29 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -512,13 +512,14 @@ static int kinLapackBandSetup(KINMem kin_mem)
 {
   KINDlsMem kindls_mem;
   int ier, retval;
-  int intn, iml, imu;
+  int intn, iml, imu, ldmat;
 
   kindls_mem = (KINDlsMem) lmem;
 
   intn = (int) n;
   iml = (int) ml;
   imu = (int) mu;
+  ldmat = J->ldim;
 
   nje++;
   SetToZero(J); 
@@ -529,7 +530,7 @@ static int kinLapackBandSetup(KINMem kin_mem)
   }
   
   /* Do LU factorization of J */
-  dgbtrf_f77(&intn, &intn, &iml, &imu, J->data, &intn, pivots, &ier);
+  dgbtrf_f77(&intn, &intn, &iml, &imu, J->data, &ldmat, pivots, &ier);
 
   /* Return 0 if the LU was complete; otherwise return -1 */
   last_flag = (long int) ier;
@@ -552,20 +553,21 @@ static int kinLapackBandSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *
   KINDlsMem kindls_mem;
   realtype *xd;
   int ier, one = 1;
-  int intn, iml, imu;
+  int intn, iml, imu, ldmat;
 
   kindls_mem = (KINDlsMem) lmem;
 
   intn = (int) n;
   iml = (int) ml;
   imu = (int) mu;
+  ldmat = J->ldim;
 
   /* Copy the right-hand side into x */
   N_VScale(ONE, b, x);
   xd = N_VGetArrayPointer(x);
 
   /* Back-solve and get solution in x */
-  dgbtrs_f77("N", &intn, &iml, &imu, &one, J->data, &intn, pivots, xd, &intn, &ier, 1);
+  dgbtrs_f77("N", &intn, &iml, &imu, &one, J->data, &ldmat, pivots, xd, &intn, &ier, 1);
   if (ier > 0) return(-1);
 
   /* Compute the terms Jpnorm and sfdotJp for use in the global strategy
