@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2010-12-14 23:46:24 $
+ * $Revision: 1.13 $
+ * $Date: 2010-12-22 22:24:22 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -128,7 +128,7 @@ static void cvLapackBandFree(CVodeMem cv_mem);
  * (*cvode_mem) to the address of this structure.  It sets setupNonNull 
  * in (*cvode_mem) to TRUE, and the d_jac field to the default 
  * cvDlsDenseDQJac. Finally, it allocates memory for M, pivots, and 
- * (if needed) savedJ.
+ * savedJ.
  * The return value is SUCCESS = 0, or LMEM_FAIL = -1.
  *
  * NOTE: The dense linear solver assumes a serial implementation
@@ -187,7 +187,7 @@ int CVLapackDense(void *cvode_mem, int N)
   /* Set problem dimension */
   n = (long int) N;
 
-  /* Allocate memory for M, pivot array, and (if needed) savedJ */
+  /* Allocate memory for M, pivot array, and savedJ */
   M = NULL;
   pivots = NULL;
   savedJ = NULL;
@@ -234,7 +234,7 @@ int CVLapackDense(void *cvode_mem, int N)
  * (*cvode_mem) to the address of this structure.  It sets setupNonNull 
  * in (*cvode_mem) to be TRUE, mu to be mupper, ml to be mlower, and 
  * the jacE and jacI field to NULL.
- * Finally, it allocates memory for M, pivots, and (if needed) savedJ.  
+ * Finally, it allocates memory for M, pivots, and savedJ.  
  * The CVLapackBand return value is CVDLS_SUCCESS = 0, 
  * CVDLS_MEM_FAIL = -1, or CVDLS_ILL_INPUT = -2.
  *
@@ -306,7 +306,7 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   /* Set extended upper half-bandwith for M (required for pivoting) */
   smu = MIN(n-1, mu + ml);
 
-  /* Allocate memory for M, savedJ, and pivot arrays */
+  /* Allocate memory for M, pivot array, and savedJ */
   M = NULL;
   pivots = NULL;
   savedJ = NULL;
