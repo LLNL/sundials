@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2010-12-09 19:40:13 $
+ * $Revision: 1.6 $
+ * $Date: 2010-12-22 22:18:49 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -323,7 +323,7 @@ SUNDIALS_EXPORT void PrintMat(DlsMat A);
 SUNDIALS_EXPORT realtype **newDenseMat(long int m, long int n);
 SUNDIALS_EXPORT realtype **newBandMat(long int n, long int smu, long int ml);
 SUNDIALS_EXPORT void destroyMat(realtype **a);
-SUNDIALS_EXPORT long int *newIntArray(long int n);
+SUNDIALS_EXPORT int *newIntArray(int n);
 SUNDIALS_EXPORT long int *newLintArray(long int n);
 SUNDIALS_EXPORT realtype *newRealArray(long int m);
 SUNDIALS_EXPORT void destroyArray(void *v);
