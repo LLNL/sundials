@@ -1,4 +1,4 @@
-idasHeat2D_bbd_p: Heat equation, parallel example problem for IDA
+idasHeat2D_kry_bbd_p: Heat equation, parallel example problem for IDA
                   Discretized heat equation on 2D unit square.
                   Zero boundary conditions, polynomial initial conditions.
                   Mesh dimensions: 10 x 10        Total system size: 100

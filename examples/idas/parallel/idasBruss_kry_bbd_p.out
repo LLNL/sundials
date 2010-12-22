@@ -1,4 +1,4 @@
-idasBrusselator_p: Brusselator DAE parallel example problem for IDAS 
+idasBruss_kry_bbd_p: Brusselator DAE parallel example problem for IDAS 
 
 Number of species ns: 2     Mesh dimensions: 42 x 42     Total system size: 3528
 Subgrid dimensions: 21 x 21     Processor array: 2 x 2

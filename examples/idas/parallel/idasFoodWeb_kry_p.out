@@ -1,4 +1,4 @@
-idasFoodWeb_p: Predator-prey DAE parallel example problem for IDA 
+idasFoodWeb_kry_p: Predator-prey DAE parallel example problem for IDA 
 
 Number of species ns: 2     Mesh dimensions: 20 x 20     Total system size: 800
 Subgrid dimensions: 10 x 10     Processor array: 2 x 2
