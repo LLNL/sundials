@@ -1,40 +1,100 @@
-Forward integration ... ( nst = 142, ncheck = 1 )
+-------------------
+Forward integration
+-------------------
 
-     y:      2.2732e-01   1.3534e-01   3.1472e-02
-     G:      5.3088e-01
+ncheck = 1
+
+     y:      2.2732e-01   1.3534e-01   3.1472e-02     G:      5.3088e-01
 
      yS1:   -1.6714e-01   0.0000e+00   0.0000e+00
      yS2:    2.1339e-01   0.0000e+00  -1.0885e-01
 
+   dG/dp:   -1.2838e-01   1.8037e-02
+
+Final Statistics for forward pb.
+--------------------------------
+ Number steps:   142
+
+ Function evaluations:
+  f:          165
+  fQ:         147
+  fS:         165
+  fQS:        147
+ Error test failures:
+  netf:         1
+  netfQ:        0
+  netfS:        0
+  netfQS:       1
+ Linear solver setups:
+  nsetups:     27
+  nsetupsS:     0
+ Nonlinear iterations:
+  nni:        161
+  nniS:         0
+ Convergence failures:
+  ncfn:         0
+  ncfnS:        0
+
+---------------------------------------------
 Backward integration ... (2 adjoint problems)
+---------------------------------------------
 
-Gradient (1):   -1.2838e-01   1.8036e-02
-         (2):   -1.2838e-01   1.8036e-02
+   dG/dp:   -1.2838e-01   1.8036e-02   (from backward pb. 1)
+            -1.2838e-01   1.8036e-02   (from backward pb. 2)
 
-Hessian
+   H = d2G/dp2:
         (1)            (2)
     1.5628e-01    -7.8678e-02
    -7.8678e-02     1.1093e-01
 
-Finite Difference tests ... (del_p = 0.01)
+Final Statistics for backward pb. 1
+-----------------------------------
+ Number steps:   100
 
-p1+  y:     2.2566e-01   1.3534e-01   3.1472e-02
-     G:     5.2960e-01
-p1-  y:     2.2900e-01   1.3534e-01   3.1472e-02
-     G:     5.3217e-01
+ Function evaluations:
+  f:          127
+  fQ:         108
+ Error test failures:
+  netf:         1
+  netfQ:        4
+ Linear solver setups:
+  nsetups:     22
+ Nonlinear iterations:
+  nni:        123
+ Convergence failures:
+  ncfn:         0
 
-grad(1):   -1.2760e-01 (fwd)
-           -1.2916e-01 (bck)
-           -1.2838e-01 (cntr)
-H(1,1):     1.5605e-01
+Final Statistics for backward pb. 2
+-----------------------------------
+ Number steps:    85
 
-p2+  y:     2.2943e-01   1.3534e-01   3.0399e-02
-     G:     5.3106e-01
-p2-  y:     2.2516e-01   1.3534e-01   3.2577e-02
-     G:     5.3070e-01
+ Function evaluations:
+  f:          109
+  fQ:          92
+ Error test failures:
+  netf:         1
+  netfQ:        3
+ Linear solver setups:
+  nsetups:     18
+ Nonlinear iterations:
+  nni:        105
+ Convergence failures:
+  ncfn:         0
 
-grad(2):    1.8476e-02 (fwd)
-            1.7580e-02 (bck)
-            1.8028e-02 (cntr)
-H(2,2):     8.9593e-02
+-----------------------
+Finite Difference tests
+-----------------------
 
+del_p = 0.01
+
+p1+  y:     2.2566e-01   1.3534e-01   3.1472e-02     G:     5.2960e-01
+p1-  y:     2.2900e-01   1.3534e-01   3.1472e-02     G:     5.3217e-01
+p2+  y:     2.2943e-01   1.3534e-01   3.0399e-02     G:     5.3106e-01
+p2-  y:     2.2516e-01   1.3534e-01   3.2577e-02     G:     5.3070e-01
+
+   dG/dp:   -1.2760e-01   1.8475e-02   (fwd FD)
+            -1.2916e-01   1.7581e-02   (bck FD)
+            -1.2838e-01   1.8028e-02   (cntr FD)
+
+  H(1,1):    1.5590e-01
+  H(2,2):    8.9446e-02
