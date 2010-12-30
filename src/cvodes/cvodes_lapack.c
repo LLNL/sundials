@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2010-12-14 23:57:50 $
+ * $Revision: 1.14 $
+ * $Date: 2010-12-30 01:00:49 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -385,10 +385,11 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
   realtype dgamma, fact;
   booleantype jbad, jok;
   int ier, retval, one = 1;
-  int intn;
+  int intn, lenmat;
 
   cvdls_mem = (CVDlsMem) lmem;
   intn = (int) n;
+  lenmat = M->ldata;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = ABS((gamma/gammap) - ONE);
@@ -401,7 +402,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
     
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
-    dcopy_f77(&intn, savedJ->data, &one, M->data, &one);
+    dcopy_f77(&lenmat, savedJ->data, &one, M->data, &one);
     
   } else {
     
@@ -413,7 +414,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
 
     retval = djac(n, tn, yP, fctP, M, J_data, tmp1, tmp2, tmp3);
     if (retval == 0) {
-      dcopy_f77(&intn, M->data, &one, savedJ->data, &one);
+      dcopy_f77(&lenmat, M->data, &one, savedJ->data, &one);
     } else if (retval < 0) {
       cvProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVSLAPACK", "cvLapackDenseSetup", MSGD_JACFUNC_FAILED);
       last_flag = CVDLS_JACFUNC_UNRECVR;
@@ -427,7 +428,7 @@ static int cvLapackDenseSetup(CVodeMem cv_mem, int convfail,
 
   /* Scale J by - gamma */
   fact = -gamma;
-  dscal_f77(&intn, &fact, M->data, &one);
+  dscal_f77(&lenmat, &fact, M->data, &one);
   
   /* Add identity to get M = I - gamma*J*/
   AddIdentity(M);
