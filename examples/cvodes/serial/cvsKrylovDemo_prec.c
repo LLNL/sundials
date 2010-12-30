@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2010-12-01 22:58:00 $
+ * $Revision: 1.5 $
+ * $Date: 2010-12-30 00:22:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -448,7 +448,7 @@ static void CInit(N_Vector c, WebData wdata)
 
 static void PrintIntro(void)
 {
-  printf("\n\nDemonstration program for CVODE - CVSPGMR linear solver\n\n");
+  printf("\n\nDemonstration program for CVODES - CVSPGMR linear solver\n\n");
   printf("Food web problem with ns species, ns = %d\n", NS);
   printf("Predator-prey interaction and diffusion on a 2-D square\n\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
