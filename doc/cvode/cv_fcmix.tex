@@ -132,12 +132,16 @@ or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
 depending on whether {\cvode} was built in single, double, or extended precision 
 (see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-{\C} type \id{long int}. These integer variables include: the array
-of integer optional outputs (\id{IOUT}), problem dimensions (\id{NEQ},
-\id{NLOCAL}, \id{NGLOBAL}), Jacobian half-bandwidths (\id{MU}, \id{ML},
-etc.), as well as the array of user integer data, \id{IPAR}.
-This is particularly important when using {\cvode} and the {\fcvode} package 
-on 64-bit architectures.
+{\C} type \id{long int}.  These integer variables include:
+the optional input (\id{IVAL}), the problem size and bandwidth parameters
+(\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
+the array of integer optional outputs (\id{IOUT}),
+and the user array of integer data (\id{IPAR}).
+EXCEPTION: In the case that Lapack linear solvers are to be used, the
+input arguments to \id{FCVLAPACKDENSE} or \id{FCVLAPACKBAND} (\id{NEQ},
+\id{ML}, and \id{MU}) must be declared to be consistent with {\C} type \id{int}.
+This type consistency is particularly important when using {\cvode} and the
+{\fcvode} package on 64-bit architectures.
 
 
 %%==============================================================================
@@ -210,6 +214,8 @@ apply to {\nvecp}.
   size of all vectors, equal to the sum of all values of \id{NLOCAL}).
   The return flag \id{IER} is set to $0$ on a successful return and to $-1$
   otherwise.
+  NOTE: The integers \id{NEQ}, \id{NLOCAL}, and \id{NGLOBAL} should be
+  declared so as to match {\C} type \id{long int}.
 
   {\warn}If the header file \id{sundials\_config.h} defines
   \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
@@ -264,8 +270,8 @@ apply to {\nvecp}.
     and $-1$ otherwise. See printed message for details in case of failure.
   }
   {
-    The user intger data array \id{IPAR} must be declared as \id{INTEGER*4} or 
-    \id{INTEGER*8} according to the {\C} type \id{long int}.
+    The user integer data arrays \id{IOUT} and \id{IPAR} must be declared as
+    \id{INTEGER*4} or \id{INTEGER*8} according to the {\C} type \id{long int}.
 
     Modifications to the user data arrays \id{IPAR} and \id{RPAR} inside a 
     user-provided routine will be propagated to all subsequent calls to
@@ -352,7 +358,8 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVLAPACKDENSE(NEQ, IER)
 \end{verbatim}
-  where the arguments have the exact same meanings as for \id{FCVDENSE}.
+  where the arguments have the same meanings as for \id{FCVDENSE}, except
+  that here \id{NEQ} must be declared so as to match {\C} type \id{int}.
 
   \index{Jacobian approximation function!dense!use in {\fcvode}}
   As an option when using the {\dense} linear solver, the user may supply a
@@ -377,6 +384,8 @@ apply to {\nvecp}.
   a positive value if a recoverable error occurred (in which case {\cvode} will 
   attempt to correct), or a negative value if \id{FCVDJAC} failed unrecoverably 
   (in which case the integration is halted).
+  NOTE: The argument \id{NEQ} has a type consistent with {\C} type \id{long int}
+  even in the case when the Lapack dense solver is to be used.
 
   If the user's \id{FCVDJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -425,7 +434,9 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVLAPACKBAND(NEQ, MU, ML, IER)
 \end{verbatim}
-  where the arguments have the exact same meanings as for \id{FCVBAND}.
+  where the arguments have the same meanings as for \id{FCVBAND}, except
+  that here \id{NEQ}, \id{MU}, and \id{ML} must be declared so as to match
+  {\C} type \id{int}.
 
   \index{Jacobian approximation function!band!use in {\fcvode}}
   As an option when using the {\band} linear solver, the user may supply a
@@ -455,6 +466,9 @@ apply to {\nvecp}.
   a positive value if a recoverable error occurred (in which case {\cvode} will 
   attempt to correct), or a negative value if \id{FCVBJAC} failed unrecoverably 
   (in which case the integration is halted).
+  NOTE: The arguments \id{NEQ}, \id{MU}, \id{ML}, and \id{MDIM} have a type
+  consistent with {\C} type \id{long int} even in the case when the Lapack band
+  solver is to be used.
 
   If the user's \id{FCVBJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -656,8 +670,8 @@ apply to {\nvecp}.
   The arguments \id{WORK1}, \id{WORK2}, \id{WORK3} are work arrays of length 
   \id{NEQ} for use by this routine.
 
-  {\warn}If the user calls \id{FCVSPILSSETPREC} the routine \id{FCVPSET} must
-  be provided, even if it is not needed and must return \id{IER=0}.
+  {\warn}If the user calls \id{FCVSPILSSETPREC}, the routine \id{FCVPSET} must
+  be provided, even if it is not needed, and it must return \id{IER=0}.
 
   {\bf Notes} 
   \begin{itemize}
@@ -805,6 +819,9 @@ where \id{KEY} is a quoted string indicating which optoinal input is set
 \id{RVAL} is the real input value to be used, and
 \id{IER} is an integer return flag which is set to $0$ on success and 
 a negative value if a failure occurred.
+\id{IVAL} should be declared so as to match {\C} type \id{long int}.
+The integer \id{IVAL} should be declared in a manner consistent with {\C}
+type \id{long int}.
 
 The optional outputs from the {\cvode} solver are accessed not through
 individual functions, but rather through a pair of arrays, \Id{IOUT}

@@ -697,7 +697,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[N] (\id{int})
+  \item[N] (\id{long int})
     problem dimension.
   \end{args}
 }
@@ -733,13 +733,21 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The user's main function must include the \id{cvode\_lapack.h} header file.
 }
 {
-  The input arguments are identical to those of \id{CVDense}.
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[N] (\id{int})
+    problem dimension.
+  \end{args}
 }
 {
   The values of the returned \id{flag} (of type \id{int}) are identical
   to those of \id{CVDense}.
 }
-{}
+{
+  Note that \id{N} is restricted to be of type \id{int} here, because
+  of the corresponding type restriction in the Lapack solvers.
+}
 %%
 %%
 \index{CVODE@{\cvode} linear solvers!CVBAND@{\cvband}}
@@ -760,11 +768,11 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[N] (\id{int})
+  \item[N] (\id{long int})
     problem dimension.
-  \item[mupper] (\id{int})
+  \item[mupper] (\id{long int})
     upper half-bandwidth of the problem Jacobian (or of the approximation of it).
-  \item[mlower] (\id{int})
+  \item[mlower] (\id{long int})
     lower half-bandwidth of the problem Jacobian (or of the approximation of it).
   \end{args}
 }
@@ -803,7 +811,8 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The user's main function must include the \id{cvode\_lapack.h} header file.
 }
 {
-  The input arguments are identical to those of \id{CVBand}.
+  The input arguments are identical to those of \id{CVBand}, except
+  that \id{N}, \id{mupper}, and \id{mlower} are of type \id{int} here.
 }
 {
   The values of the returned \id{flag} (of type \id{int}) are identical
@@ -3284,7 +3293,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lsflag] (\id{int})
+  \item[lsflag] (\id{long int})
     the value of the last return flag from a {\cvdls} function.
   \end{args}
 }
@@ -3317,7 +3326,8 @@ the name of an optional output from the main solver, a suffix \id{LS}
   name of the {\cvdls} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{int}, is a return flag from a {\cvdls} function.
+  The only argument, of type \id{long int}, is a return flag from a {\cvdls}
+  function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
@@ -3430,7 +3440,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lsflag] (\id{int})
+  \item[lsflag] (\id{long int})
     the value of the last return flag from a {\cvdiag} function.
   \end{args}
 }
@@ -3463,7 +3473,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   name of the {\cvdiag} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{int}, is a return flag from a {\cvdiag} function.
+  The only argument, of type \id{long int}, is a return flag from a {\cvdiag} function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
@@ -3736,7 +3746,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lsflag] (\id{int})
+  \item[lsflag] (\id{long int})
     the value of the last return flag from a {\cvspils} function.
   \end{args}
 }
@@ -3797,7 +3807,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   name of the {\cvspils} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{int}, is a return flag from a {\cvspils} function.
+  The only argument, of type \id{long int}, is a return flag from a {\cvspils} function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
@@ -4076,7 +4086,7 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
 %%
 \usfunction{CVDlsDenseJacFn}
 {
-  typedef (*CVDlsDenseJacFn)(&int N, realtype t, N\_Vector y, N\_Vector fy,\\
+  typedef (*CVDlsDenseJacFn)(&long int N, realtype t, N\_Vector y, N\_Vector fy,\\
                              &DlsMat Jac, void *user\_data,\\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
@@ -4151,6 +4161,9 @@ the user may provide a function of type \Id{CVDlsDenseJacFn} defined by:
   To obtain these, use the \id{CVodeGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  For the sake of uniformity, the argument \id{N} is of type \id{long int},
+  even in the case that the Lapack dense solver is to be used.
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
 
@@ -4167,7 +4180,7 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
 %%
 \usfunction{CVDlsBandJacFn}
 {
- typedef int (*CVBandJacFn)(&int N, int mupper, int mlower,\\
+ typedef int (*CVBandJacFn)(&long int N, long int mupper, long int mlower,\\
                             &realtype t, N\_Vector y, N\_Vector fy, \\ 
                             &DlsMat Jac, void *user\_data, \\
                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -4252,6 +4265,9 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
   step size, the error weights, etc. To obtain these, use the \id{CVodeGet*}
   functions described in \S\ref{sss:optout_main}. The unit roundoff can be
   accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  For the sake of uniformity, the arguments \id{N}, \id{mlower}, and \id{mupper} are
+  of type \id{long int}, even in the case that the Lapack band solver is to be used.
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
