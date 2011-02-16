@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2010-12-15 00:16:29 $
+ * $Revision: 1.11 $
+ * $Date: 2011-02-16 22:43:28 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -286,6 +286,7 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {
     KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINLAPACK", "KINLapackBand", MSGD_MEM_FAIL);
+    free(kindls_mem); kindls_mem = NULL;
     return(KINDLS_ILL_INPUT);
   }
 
