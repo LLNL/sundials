@@ -253,7 +253,7 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 %-------------------------------------------------------------------------------
 
 This section describes the {\idas} functions, in addition to those presented
-in \S\ref{ss:idas_fct_sim}, that are called by the user to set up and solve
+in \S\ref{ss:callable_fct_sim}, that are called by the user to set up and solve
 a forward sensitivity problem.
 
 \subsection{Forward sensitivity initialization and deallocation functions}
@@ -537,7 +537,7 @@ the call to \id{IDASensInit}.
 }
 {
   This choice of tolerances is important when the absolute error tolerance needs to
-  be different for each component of the DAE. 
+  be different for each component of any vector \id{yS[i]}. 
 }
 %%
 %%
@@ -1782,8 +1782,8 @@ quadratures can be obtained using one of the following functions:
     Sensitivities were not activated.
   \item[\Id{IDA\_NO\_QUADSENS}] 
     Quadratures depending on the sensitivities were not activated.
-  \item[IDA\_BAD\_DKY] 
-    One of the \id{yQS[i]} is \id{NULL}.
+  \item[IDA\_BAD\_DKY]
+    \id{yQS} or one of the \id{yQS[i]} is \id{NULL}.
   \end{args}
 }
 {}
@@ -1828,7 +1828,7 @@ directly by the user.
   \item[\Id{IDA\_NO\_QUADSENS}] 
     Quadratures depending on the sensitivities were not activated.
   \item[\Id{IDA\_BAD\_DKY}] 
-    One of the vectors \id{dkyQS[i]} is \id{NULL}.
+    \id{dkyQS} or one of the vectors \id{dkyQS[i]} is \id{NULL}.
   \item[\Id{IDA\_BAD\_K}]
     \id{k} is not in the range $0, 1, ..., klast$.
   \item[\Id{IDA\_BAD\_T}] 
@@ -2256,10 +2256,10 @@ $\bar q_i = (\partial q / \partial y) s_i + \partial q / \partial p_i$.
 This user function must be of type \Id{IDAQuadSensRhsFn}, defined as follows:
 \usfunction{IDAQuadSensRhsFn}
 {
-  typedef int (*IDAQuadSensRhsFn)(&Ns, realtype t, N\_Vector yy, N\_Vector yp,\\
-                             &N\_Vector *yyS, N\_Vector *ypS, \\
-                             &N\_Vector rrQ, N\_Vector *rhsvalQS, \\
-                             &void *user\_data, N\_Vector tmp1, \\
+  typedef int (*IDAQuadSensRhsFn)(&int Ns, realtype t, N\_Vector yy,\\
+                             &N\_Vector yp, N\_Vector *yyS, N\_Vector *ypS,\\
+                             &N\_Vector rrQ, N\_Vector *rhsvalQS,\\
+                             &void *user\_data, N\_Vector tmp1,\\
                              &N\_Vector tmp2, N\_Vector tmp3)
 }
 {
@@ -2268,6 +2268,8 @@ This user function must be of type \Id{IDAQuadSensRhsFn}, defined as follows:
 }
 {
   \begin{args}[user\_data]
+  \item[Ns]
+    is the number of sensitivity vectors.
   \item[t]
     is the current value of the independent variable.
   \item[yy]

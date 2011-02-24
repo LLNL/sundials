@@ -1865,7 +1865,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{CVDlsDenseJacFnB}
 {
-  typedef int (*CVDlsDenseJacFnB)(&int NeqB, realtype t, N\_Vector y, \\
+  typedef int (*CVDlsDenseJacFnB)(&long int NeqB, realtype t, N\_Vector y, \\
                                  &N\_Vector yB, N\_Vector fyB, \\
                                  &DlsMat JacB, void *user\_dataB, \\
                                  &N\_Vector tmp1B, N\_Vector tmp2B, \\
@@ -1930,13 +1930,15 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
   (direct method with banded Jacobian)}\label{ss:bandjac_b}
 \index{Jacobian approximation function!band!user-supplied (backward)}
 If the direct linear solver with banded treatment of the Jacobian is selected
-for the backward problem (i.e. \Id{CVBandB} or \Id{CVLapackBandB} is called in step \ref{i:lin_solverB} 
-of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSetBandJacFnB}
-(see \S\ref{ss:optional_input_b}), a function the following type:
+for the backward problem (i.e. \Id{CVBandB} or \Id{CVLapackBandB} is called in
+step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), the user may provide,
+through a call to \id{CVDlsSetBandJacFnB} (see \S\ref{ss:optional_input_b}),
+a function the following type:
 %%
 \usfunction{CVDlsBandJacFnB}
 {
- typedef int (*CVDlsBandJacFnB)(&int NeqB, int mupperB, int mlowerB,\\
+ typedef int (*CVDlsBandJacFnB)(&long int NeqB,\\
+                             &long int mupperB, long int mlowerB,\\
                              &realtype t, N\_Vector y \\
                              &N\_Vector yB, N\_Vector fyB, \\
                              &DlsMat JacB, void *user\_dataB, \\
@@ -2293,7 +2295,7 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
 \ucfunction{CVBBDPrecInitB}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
-    flag = CVBBDPrecInitB(&cvode\_mem, int which, NlocalB, mudqB, mldqB,\\
+    flag = CVBBDPrecInitB(&cvode\_mem, which, NlocalB, mudqB, mldqB,\\
                           &mukeepB, mlkeepB, dqrelyB, glocB, gcommB);
   \end{tabular}
 }
@@ -2309,15 +2311,15 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
     pointer to the {\cvodes} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[NlocalB] (\id{int})
+  \item[NlocalB] (\id{long int})
     local vector dimension for the backward problem.
-  \item[mudqB] (\id{int})
+  \item[mudqB] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldqB] (\id{int})
+  \item[mldqB] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mukeepB] (\id{int})
+  \item[mukeepB] (\id{long int})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeepB] (\id{int})
+  \item[mlkeepB] (\id{long int})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dqrelyB] (\id{realtype})
     the relative increment in components of \id{yB} used in the difference quotient
@@ -2367,9 +2369,9 @@ function:
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[mudqB] (\id{int})
+  \item[mudqB] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldqB] (\id{int})
+  \item[mldqB] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[dqrelyB] (\id{realtype})
     the relative increment in components of \id{yB} used in the difference quotient
@@ -2412,7 +2414,7 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{CVBBDLocalFnB}
 {
-  typedef int (*CVBBDLocalFnB)(&int NlocalB, realtype t, N\_Vector y,\\
+  typedef int (*CVBBDLocalFnB)(&long int NlocalB, realtype t, N\_Vector y,\\
                                &N\_Vector yB, N\_Vector gB, void *user\_dataB);
 }
 {
@@ -2458,7 +2460,7 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{CVBBDCommFnB}
 {
-  typedef int (*CVBBDCommFnB)(&int NlocalB, realtype t, N\_Vector y,\\
+  typedef int (*CVBBDCommFnB)(&long int NlocalB, realtype t, N\_Vector y,\\
                               &N\_Vector yB, void *user\_dataB);
 }
 {

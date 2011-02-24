@@ -6,7 +6,7 @@ This chapter is concerned with the use of {\kinsol} for the solution
 of nonlinear systems. The following subsections treat the header
 files, the layout of the user's main program, description of the
 {\kinsol} user-callable routines, and user-supplied functions.
-The listings of the sample programs in the companion document
+The sample programs described in the companion document
 \cite{kinsol_ex} may also be helpful.  Those codes may be used as
 templates (with the removal of some lines involved in testing), and
 are included in the {\kinsol} package.
@@ -139,9 +139,9 @@ block-diagonal matrix. For this, even though the {\kinspgmr} linear
 solver is used, the header \id{sundials\_dense.h} is included for
 access to the underlying generic dense linear solver.
 
-%-------------------------------------------------
+%--------------------------------------------------------------------
 \section{A skeleton of the user's main program}\label{s:skeleton_sol}
-%-------------------------------------------------
+%--------------------------------------------------------------------
 
 The following is a skeleton of the user's main program (or calling
 program) for the solution of a nonlinear problem. 
@@ -165,13 +165,13 @@ provided with {\kinsol}: Steps marked {\p} correspond to
 \item
   {\bf Set problem dimensions}
 
-  {\s} Set \id{N}, the problem size $N$.
+  {\s} Set \id{N}, the problem size $N$ (of type \id{int}).
 
-  {\p} Set \id{Nlocal}, the local vector length (the sub-vector
-  length for this process); \id{N}, the global vector length (the
-  problem size $N$, and the sum of all the values of \id{Nlocal});
-  and the active set of processes.
-  
+  {\p} Set \id{Nlocal} (of type \id{int}), the local vector length (the
+  sub-vector length for this process). Set \id{N} (of type \id{int}), the global
+  vector length (the problem size $N$, and the sum of all the values of \id{Nlocal}).
+  Set the active set of processes.
+
 \item
   {\bf Set vector with initial guess}
  
@@ -454,13 +454,13 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{KINDense} selects the {\kindense} linear solver and indicates
   the use of the internal direct dense linear algebra functions. 
 
-  The user's main function must include the \id{kinsol\_dense.h} header file.
+  The user's main program must include the \id{kinsol\_dense.h} header file.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[N] (\id{int})
+  \item[N] (\id{long int})
     problem dimension.
   \end{args}
 }
@@ -493,16 +493,24 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{KINLapackDense} selects the {\kindense} linear solver and 
   indicates the use of Lapack functions. 
 
-  The user's main function must include the \id{kinsol\_lapack.h} header file.
+  The user's main program must include the \id{kinsol\_lapack.h} header file.
 }
 {
-  The input arguments are identical to those of \id{KINDense}.
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[N] (\id{int})
+    problem dimension.
+  \end{args}
 }
 {
   The values of the returned \id{flag} (of type \id{int}) are identical
   to those of \id{KINDense}.
 }
-{}
+{
+  Note that \id{N} is restricted to be of type \id{int} here, because
+  of the corresponding type restriction in the Lapack solvers.
+}
 %%
 %%
 %%
@@ -518,17 +526,17 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{KINBand} selects the {\kinband} linear solver and indicates
   the use of the internal direct band linear algebra functions.
 
-  The user's main function must include the \id{kinsol\_band.h} header file.
+  The user's main program must include the \id{kinsol\_band.h} header file.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[N] (\id{int})
+  \item[N] (\id{long int})
     problem dimension.
-  \item[mupper] (\id{int})
+  \item[mupper] (\id{long int})
     upper half-bandwidth of the problem Jacobian (or of the approximation of it).
-  \item[mlower] (\id{int})
+  \item[mlower] (\id{long int})
     lower half-bandwidth of the problem Jacobian (or of the approximation of it).
   \end{args}
 }
@@ -563,16 +571,20 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{KINLapackBand} selects the {\kinband} linear solver and
   indicates the use of Lapack functions. 
 
-  The user's main function must include the \id{kinsol\_lapack.h} header file.
+  The user's main program must include the \id{kinsol\_lapack.h} header file.
 }
 {
-  The input arguments are identical to those of \id{KINBand}.
+  The input arguments are identical to those of \id{KINBand}, except
+  that \id{N}, \id{mupper}, and \id{mlower} are of type \id{int} here.
 }
 {
   The values of the returned \id{flag} (of type \id{int}) are identical
   to those of \id{KINBand}.
 }
-{}
+{
+  Note that \id{N}, \id{mupper}, and \id{mlower} are restricted to be of type \id{int}
+  here, because of the corresponding type restriction in the Lapack solvers.
+}
 %%
 %%
 %%
@@ -585,7 +597,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{KINSpgmr} selects the {\kinspgmr} linear solver.
 
-  The user's main function must include the \id{kinsol\_spgmr.h} header file.
+  The user's main program must include the \id{kinsol\_spgmr.h} header file.
 }
 {
   \begin{args}[kin\_mem]
@@ -622,7 +634,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{KINSpbcg} selects the {\kinspbcg} linear solver.
 
-  The user's main function must include the \id{kinsol\_spbcgs.h} header file.
+  The user's main program must include the \id{kinsol\_spbcgs.h} header file.
 }
 {
   \begin{args}[kin\_mem]
@@ -659,7 +671,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{KINSptfqmr} selects the {\kinsptfqmr} linear solver.
 
-  The user's main function must include the \id{kinsol\_sptfqmr.h} header file.
+  The user's main program must include the \id{kinsol\_sptfqmr.h} header file.
 }
 {
   \begin{args}[kin\_mem]
@@ -2478,7 +2490,7 @@ and last return value from a {\kindls} function.
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[lsflag] (\id{int})
+  \item[lsflag] (\id{long int})
     the value of the last return flag from a {\kindense} function.
   \end{args}
 }
@@ -2765,7 +2777,7 @@ return value from a linear solver function.
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[lsflag] (\id{int})
+  \item[lsflag] (\id{long int})
     the value of the last return flag from a {\kinspils} function.
   \end{args}
 }
@@ -2960,8 +2972,9 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
 \ID{KINDlsDenseJacFn} defined by
 \usfunction{KINDlsDenseJacFn}
 {
-  typedef int (*KINDlsDense&JacFn)(int N, N\_Vector u, N\_Vector fu, DlsMat J, \\
-                           &void *user\_data, N\_Vector tmp1, N\_Vector tmp2);
+  typedef int (*KINDlsDenseJacFn)(&long int N, N\_Vector u, N\_Vector fu,\\
+                                  &DlsMat J, void *user\_data,\\ 
+                                  &N\_Vector tmp1, N\_Vector tmp2);
 }
 {
   This function computes the dense Jacobian $J(u)$ 
@@ -3025,6 +3038,9 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
   list. To obtain these, use the \id{KINGet*} functions described in
   \S\ref{sss:output_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  For the sake of uniformity, the argument \id{N} is of type \id{long int},
+  even in the case that the Lapack dense solver is to be used.
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
 
@@ -3040,10 +3056,10 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
 \ID{KINDlsBandJacFn} defined by:
 \usfunction{KINDlsBandJacFn}
 {
- typedef int (*KINDlsBandJacFn)(&int N, int mupper, int mlower, \\
-                             &N\_Vector u, N\_Vector fu, \\
-                             &DlsMat J, void *user\_data, \\
-                             &N\_Vector tmp1, N\_Vector tmp2);
+ typedef int (*KINDlsBandJacFn)(&long int N, long int mupper,\\
+                                &long int mlower, N\_Vector u, N\_Vector fu,\\
+                                &DlsMat J, void *user\_data,\\
+                                &N\_Vector tmp1, N\_Vector tmp2);
 }
 {
   This function computes the banded Jacobian $J(u)$ 
@@ -3116,6 +3132,9 @@ of \S\ref{s:skeleton_sol}), the user may provide a function of type
   it may need to access quantities not in the call list. To obtain these, use the
   \id{KINGet*} functions described in \S\ref{sss:output_main}. The unit roundoff
   can be accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  For the sake of uniformity, the arguments \id{N}, \id{mlower}, and \id{mupper} are
+  of type \id{long int}, even in the case that the Lapack band solver is to be used.
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
@@ -3373,7 +3392,7 @@ then used by \id{Gloc}, which should not do any communication.
 %%
 \usfunction{KINLocalFn}
 {
-  typedef void (*KINLocalFn)(&int Nlocal, N\_Vector u, \\
+  typedef void (*KINLocalFn)(&long int Nlocal, N\_Vector u, \\
                              &N\_Vector gval, void *user\_data);
 }
 {
@@ -3409,7 +3428,7 @@ then used by \id{Gloc}, which should not do any communication.
 %%
 \usfunction{KINCommFn}
 {
-  typedef void (*KINCommFn)(int Nlocal, N\_Vector u, void *user\_data);
+  typedef void (*KINCommFn)(long int Nlocal, N\_Vector u, void *user\_data);
 }
 {
   This \id{Gcomm} function performs all interprocess communications necessary 
@@ -3557,15 +3576,15 @@ is described in more detail below.
   \begin{args}[dq\_rel\_u]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[Nlocal] (\id{int})
+  \item[Nlocal] (\id{long int})
     local vector length.
-  \item[mudq] (\id{int})
+  \item[mudq] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldq] (\id{int})
+  \item[mldq] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mukeep] (\id{int})
+  \item[mukeep] (\id{long int})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeep] (\id{int})
+  \item[mlkeep] (\id{long int})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dq\_rel\_u] (\id{realtype})
     the relative increment in components of \id{u} used in the difference quotient

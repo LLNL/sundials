@@ -240,7 +240,7 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 %-------------------------------------------------------------------------------
 
 This section describes the {\cvodes} functions, in addition to those presented
-in \S\ref{ss:cvodes_fct_sim}, that are called by the user to setup and solve
+in \S\ref{ss:callable_fct_sim}, that are called by the user to setup and solve
 a forward sensitivity problem.
 
 \subsection{Forward sensitivity initialization and deallocation functions}
@@ -611,7 +611,7 @@ the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
 }
 {
   This choice of tolerances is important when the absolute error tolerance needs to
-  be different for each component of the ODE. 
+  be different for each component of any vector \id{yS[i]}. 
 }
 %%
 %%
@@ -1765,7 +1765,7 @@ flag = CVodeQuadSensInit(cvode\_mem, rhsQS, yQS0);
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
-  \item[rhsQS] (\Id{CVodeQuadSensRhsFn})
+  \item[rhsQS] (\Id{CVQuadSensRhsFn})
     is the {\C} function which computes $f_{QS}$, the right-hand side of the 
     sensitivity-dependent quadrature equations
     %This function has the form  \id{fQS(t, yy, yp, yyS, ypS, rhsQ, rhsQSuser\_data)} 
@@ -2411,14 +2411,14 @@ user must provide a function that defines the right-hand side of those
 quadrature equations.  For the sensitivities of quadratures (\ref{e:QUAD}) with
 integrand $q$, the appropriate right-hand side functions are given by:
 $\bar{q}_i = q_y s_i + q_{p_i}$.
-This user function must be of type \Id{CVodeQuadSensRhsFn} defined as follows:
+This user function must be of type \Id{CVQuadSensRhsFn} defined as follows:
 
-\usfunction{CVodeQuadSensRhsFn}
+\usfunction{CVQuadSensRhsFn}
 {
-  typedef int (*CVodeQuadSensRhsFn)(&Ns,realtype t, N\_Vector y, N\_Vector yS,\\
-                             &N\_Vector yQdot, N\_Vector *rhsvalQS, \\
-                             &void *user\_data, N\_Vector tmp1, \\
-                             &N\_Vector tmp2)
+  typedef int (*CVQuadSensRhsFn)(&int Ns, realtype t, N\_Vector y,\\
+                             &N\_Vector yS, N\_Vector yQdot,\\
+                             &N\_Vector *rhsvalQS, void *user\_data,\\
+                             &N\_Vector tmp1, N\_Vector tmp2)
 }
 {
   This function computes the sensitivity quadrature equation right-hand side for a given value
@@ -2426,6 +2426,8 @@ This user function must be of type \Id{CVodeQuadSensRhsFn} defined as follows:
 }
 {
   \begin{args}[user\_data]
+  \item[Ns]
+    is the number of sensitivity vectors.
   \item[t]
     is the current value of the independent variable.
   \item[y]
@@ -2445,7 +2447,7 @@ This user function must be of type \Id{CVodeQuadSensRhsFn} defined as follows:
   \end{args}
 }
 {
-  A \id{CVodeQuadSensRhsFn} should return 0 if successful, a positive value if a recoverable
+  A \id{CVQuadSensRhsFn} should return 0 if successful, a positive value if a recoverable
   error occurred (in which case {\cvodes} will attempt to correct), or a negative 
   value if it failed unrecoverably (in which case the integration is halted and
   \Id{CV\_QRHS\_FAIL} is returned).
@@ -2463,10 +2465,10 @@ This user function must be of type \Id{CVodeQuadSensRhsFn} defined as follows:
   arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
 
   There are two situations in which recovery is not possible even if
-  \id{CVodeQuadSensRhsFn} function returns a recoverable error flag.
-  One is when this occurs at the very first call to the \id{CVodeQuadSensRhsFn}
+  \id{CVQuadSensRhsFn} function returns a recoverable error flag.
+  One is when this occurs at the very first call to the \id{CVQuadSensRhsFn}
   (in which case {\cvodes} returns \Id{CV\_FIRST\_QSRHSFUNC\_ERR}).
-  The other is when a recoverable error is reported by \id{CVodeQuadSensRhsFn}
+  The other is when a recoverable error is reported by \id{CVQuadSensRhsFn}
   after an error test failure, while the linear multistep method order is equal
   to 1 (in which case {\cvodes} returns \Id{CV\_UNREC\_QSRHSFUNC\_ERR}).
 }

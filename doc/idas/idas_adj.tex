@@ -2040,12 +2040,12 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{IDADlsDenseJacFnB}
 {
-  typedef int (*IDADlsDenseJacFnB)(&int NeqB, realtype tt, realtype cjB, \\
-                               &N\_Vector yy, N\_Vector yp, \\
-                               &N\_Vector yyB, N\_Vector ypB, \\
-                               &N\_Vector resvalB, \\
-                               &DlsMat JacB, void *user\_dataB, \\
-                               &N\_Vector tmp1B, N\_Vector tmp2B, \\
+  typedef int (*IDADlsDenseJacFnB)(&long int NeqB, realtype tt,\\
+                               &realtype cjB, N\_Vector yy, N\_Vector yp,\\
+                               &N\_Vector yyB, N\_Vector ypB,\\
+                               &N\_Vector resvalB,\\
+                               &DlsMat JacB, void *user\_dataB,\\
+                               &N\_Vector tmp1B, N\_Vector tmp2B,\\
                                &N\_Vector tmp3B);
 }
 {
@@ -2120,14 +2120,15 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
 %%
 \usfunction{IDADlsBandJacFnB}
 {
- typedef int (*IDADlsBandJacFnB)(&int NeqB, int mupperB, int mlowerB,\\
-                             &realtype tt, realtype cjB, \\
-                             &N\_Vector yy, N\_Vector yp, \\
-                             &N\_Vector yyB, N\_Vector ypB, \\
-                             &N\_Vector resvalB, DlsMat JacB, \\
-                             &void *user\_dataB, \\
-                             &N\_Vector tmp1B, N\_Vector tmp2B, \\
-                             &N\_Vector tmp3B);
+ typedef int (*IDADlsBandJacFnB)(&long int NeqB,\\
+                                 &long int mupperB, long int mlowerB,\\
+                                 &realtype tt, realtype cjB,\\
+                                 &N\_Vector yy, N\_Vector yp,\\
+                                 &N\_Vector yyB, N\_Vector ypB,\\
+                                 &N\_Vector resvalB, DlsMat JacB,\\
+                                 &void *user\_dataB,\\
+                                 &N\_Vector tmp1B, N\_Vector tmp2B,\\
+                                 &N\_Vector tmp3B);
 }
 {
   This function computes the banded Jacobian of the backward problem
@@ -2423,7 +2424,7 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
 \ucfunction{IDABBDPrecInitB}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
-    flag = IDABBDPrecInitB(&ida\_mem, int which, NlocalB, mudqB, mldqB, \\
+    flag = IDABBDPrecInitB(&ida\_mem, which, NlocalB, mudqB, mldqB,\\
                            &mukeepB, mlkeepB, dqrelyB, GresB, GcommB);
   \end{tabular}
 }
@@ -2437,15 +2438,15 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
     pointer to the {\idas} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[NlocalB] (\id{int})
+  \item[NlocalB] (\id{long int})
     local vector dimension for the backward problem.
-  \item[mudqB] (\id{int})
+  \item[mudqB] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldqB] (\id{int})
+  \item[mldqB] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mukeepB] (\id{int})
+  \item[mukeepB] (\id{long int})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeepB] (\id{int})
+  \item[mlkeepB] (\id{long int})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dqrelyB] (\id{realtype})
     the relative increment in components of \id{yB} used in the difference quotient
@@ -2498,9 +2499,9 @@ following function:
     pointer to the {\idas} memory block returned by \id{IDACreate}.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[mudqB] (\id{int})
+  \item[mudqB] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldqB] (\id{int})
+  \item[mldqB] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[dqrelyB] (\id{realtype})
     the relative increment in components of \id{yB} used in the difference quotient
@@ -2543,7 +2544,7 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{IDABBDLocalFnB}
 {
-  typedef int (*IDABBDLocalFnB)(&int NlocalB, realtype t,  \\
+  typedef int (*IDABBDLocalFnB)(&long int NlocalB, realtype t,  \\
                                 &N\_Vector y, N\_Vector yp, \\
                                 &N\_Vector yB, N\_Vector ypB, \\
                                 &N\_Vector gB, void *user\_dataB);
@@ -2595,7 +2596,7 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{IDABBDCommFnB}
 {
-  typedef int (*IDABBDCommFnB)(&int NlocalB, realtype t,  \\
+  typedef int (*IDABBDCommFnB)(&long int NlocalB, realtype t,  \\
                            &N\_Vector y, N\_Vector yp, \\
                            &N\_Vector yB, N\_Vector ypB, \\
                            &void *user\_dataB);

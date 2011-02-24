@@ -114,10 +114,14 @@ or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
 depending on whether {\kinsol} was built in single, double or extended precision 
 (see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-{\C} type \id{long int}. These integer variables include: the array
-of integer optional inputs and outputs (\id{IOUT}), problem dimensions (\id{NEQ},
-\id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU} and \id{ML}).
-This is particularly important when using
+{\C} type \id{long int}. These integer variables include:
+the optional input (\id{IVAL}), the problem size and bandwidth parameters
+(\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
+and the array of integer optional outputs (\id{IOUT}).
+EXCEPTION: In the case that Lapack linear solvers are to be used, the
+input arguments to \id{FKINLAPACKDENSE} or \id{FKINLAPACKBAND} (\id{NEQ},
+\id{ML}, and \id{MU}) must be declared to be consistent with {\C} type \id{int}.
+This type consistency is particularly important when using
 {\kinsol} and the {\fkinsol} package on 64-bit architectures.
 
 %%==============================================================================
@@ -186,6 +190,9 @@ apply to {\nvecp}.
   size of all vectors, equal to the sum of all values of \id{NLOCAL}).
   The return flag \id{IER} is set to $0$ on a successful return and to $-1$
   otherwise.
+
+  NOTE: The integers \id{NEQ}, \id{NLOCAL}, and \id{NGLOBAL} should be
+  declared so as to match {\C} type \id{long int}.
 
   {\warn}If the header file \id{sundials\_config.h} defines
   \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
@@ -266,7 +273,8 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FKINLAPACKDENSE(NEQ, IER)
 \end{verbatim}
-  where the arguments have the exact same meanings as for \id{FKINDENSE}.
+  where the arguments have the same meanings as for \id{FKINDENSE}, except
+  that here \id{NEQ} must be declared so as to match {\C} type \id{int}.
 
   \index{Jacobian approximation function!dense!use in {\fkinsol}}
   As an option when using the {\dense} linear solver, the user may supply a
@@ -281,12 +289,14 @@ apply to {\nvecp}.
   It must compute the Jacobian and store it columnwise in \id{DJAC}.
   The input arguments \id{U} and \id{FVAL} contain the current
   values of $u$ and $F(u)$, respectively.
-  The vectors \id{WK1} and \id{WK2}
-  of length \id{NEQ} are provided as work space for use in \id{FKDJAC}.
+  The vectors \id{WK1} and \id{WK2},
+  of length \id{NEQ}, are provided as work space for use in \id{FKDJAC}.
   \id{IER} is an error return flag which should be set to $0$ if successful,
   a positive value if a recoverable error occurred (in which case {\kinsol}
   will attempt to correct), or a negative value if \id{FKDJAC} failed
   unrecoverably (in which case the solution process is halted).
+  NOTE: The argument \id{NEQ} has a type consistent with {\C} type \id{long int}
+  even in the case when the Lapack dense solver is to be used.
 
   If the \id{FKDJAC} routine is provided, then, 
   following the call to \id{FKINDENSE}, the user must make the call:
@@ -327,7 +337,9 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FKINLAPACKBAND(NEQ, MU, ML, IER)
 \end{verbatim}
-  where the arguments have the exact same meanings as for \id{FKINBAND}.
+  where the arguments have the same meanings as for \id{FKINBAND}, except
+  that here \id{NEQ}, \id{MU}, and \id{ML} must be declared so as to match
+  {\C} type \id{int}.
 
   \index{Jacobian approximation function!band!use in {\fkinsol}}
   As an option when using the {\band} linear solver, the user may supply a
@@ -353,6 +365,9 @@ apply to {\nvecp}.
   a positive value if a recoverable error occurred (in which case {\kinsol} will
   attempt to correct), or a negative value if \id{FKBJAC} failed unrecoverably
   (in which case the solution process is halted).
+  NOTE: The arguments \id{NEQ}, \id{MU}, \id{ML}, and \id{MDIM} have a type
+  consistent with {\C} type \id{long int} even in the case when the Lapack band
+  solver is to be used.
 
   If the \id{FKBJAC} routine is provided, then, following the call to \id{FKINBAND},
   the user must make the call:
@@ -583,6 +598,8 @@ where \id{KEY} is a quoted string indicating which optional input is set
 \id{RVAL} is the real input value to be used, and
 \id{IER} is an integer return flag which is set to $0$ on success and
 a negative value if a failure occurred.
+The integer \id{IVAL} should be declared in a manner consistent with {\C}
+type \id{long int}.
 
 The optional outputs from the {\kinsol} solver are accessed not through
 individual functions, but rather through a pair of arrays, \Id{IOUT}

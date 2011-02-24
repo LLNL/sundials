@@ -7,7 +7,7 @@ of DAEs in a C language setting.  The following sections treat the header files,
 the layout of the user's main program, description of the {\ida} user-callable
 functions, and description of user-supplied functions.
 
-The listings of the sample programs in the companion document \cite{ida_ex} 
+The sample programs described in the companion document \cite{ida_ex} 
 may also be helpful. Those codes may be used as templates (with the removal of
 some lines involved in testing), and are included in the {\ida} package.
 
@@ -322,8 +322,7 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 \end{Steps}
 
 %%===================================================================================
-\section{User-callable functions}
-\label{ss:ida_fct_sim}
+\section{User-callable functions}\label{ss:callable_fct_sim}
 %%===================================================================================
 
 This section describes the {\ida} functions that are called by the
@@ -503,7 +502,7 @@ the call to \id{IDAInit}.
 }
 {
   This choice of tolerances is important when the absolute error tolerance needs to
-  be different for each component of the DAE. 
+  be different for each component of the state vector $y$. 
 }
 %%
 %%
@@ -685,13 +684,13 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{IDADense} selects the {\idadense} linear solver and indicates
   the use of the internal direct dense linear algebra functions. 
 
-  The user's main function must include the \id{ida\_dense.h} header file.
+  The user's main program must include the \id{ida\_dense.h} header file.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[N] (\id{int})
+  \item[N] (\id{long int})
     problem dimension.
   \end{args}
 }
@@ -724,16 +723,24 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{IDALapackDense} selects the {\idadense} linear solver and 
   indicates the use of Lapack functions. 
 
-  The user's main function must include the \id{ida\_lapack.h} header file.
+  The user's main program must include the \id{ida\_lapack.h} header file.
 }
 {
-  The input arguments are identical to those of \id{IDADense}.
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[N] (\id{int})
+    problem dimension.
+  \end{args}
 }
 {
   The values of the returned \id{flag} (of type \id{int}) are identical
   to those of \id{IDADense}.
 }
-{}
+{
+  Note that \id{N} is restricted to be of type \id{int} here, because
+  of the corresponding type restriction in the Lapack solvers.
+}
 %%
 %%
 \index{IDA@{\ida} linear solvers!IDABAND@{\idaband}}
@@ -748,17 +755,17 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{IDABand} selects the {\idaband} linear solver and indicates
   the use of the internal direct band linear algebra functions.
 
-  The user's main function must include the \id{ida\_band.h} header file.
+  The user's main program must include the \id{ida\_band.h} header file.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[N] (\id{int})
+  \item[N] (\id{long int})
     problem dimension.
-  \item[mupper] (\id{int})
+  \item[mupper] (\id{long int})
     upper half-bandwidth of the problem Jacobian (or of the approximation of it).
-  \item[mlower] (\id{int})
+  \item[mlower] (\id{long int})
     lower half-bandwidth of the problem Jacobian (or of the approximation of it).
   \end{args}
 }
@@ -794,16 +801,20 @@ described separately in Chapter \ref{s:gen_linsolv}.
   The function \ID{IDALapackBand} selects the {\idaband} linear solver and
   indicates the use of Lapack functions. 
 
-  The user's main function must include the \id{ida\_lapack.h} header file.
+  The user's main program must include the \id{ida\_lapack.h} header file.
 }
 {
-  The input arguments are identical to those of \id{IDABand}.
+  The input arguments are identical to those of \id{IDABand}, except
+  that \id{N}, \id{mupper}, and \id{mlower} are of type \id{int} here.
 }
 {
   The values of the returned \id{flag} (of type \id{int}) are identical
   to those of \id{IDABand}.
 }
-{}
+{
+  Note that \id{N}, \id{mupper}, and \id{mlower} are restricted to be of type \id{int}
+  here, because of the corresponding type restriction in the Lapack solvers.
+}
 %%
 %%
 \index{IDA@{\ida} linear solvers!IDASPGMR@{\idaspgmr}}
@@ -815,7 +826,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDASpgmr} selects the {\idaspgmr} linear solver. 
 
-  The user's main function must include the \id{ida\_spgmr.h} header file.
+  The user's main program must include the \id{ida\_spgmr.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -851,7 +862,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDASpbcg} selects the {\idaspbcg} linear solver. 
 
-  The user's main function must include the \id{ida\_spbcgs.h} header file.
+  The user's main program must include the \id{ida\_spbcgs.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -887,7 +898,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDASptfqmr} selects the {\idasptfqmr} linear solver. 
 
-  The user's main function must include the \id{ida\_sptfqmr.h} header file.
+  The user's main program must include the \id{ida\_sptfqmr.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -2163,8 +2174,8 @@ Jacobian-times-vector function \id{jtimes} each time it is called.
 {
   The function \ID{IDASpilsSetIncrementFactor} specifies a factor in the 
   increments to $y$ used in the difference quotient approximations 
-  to the Jacobian-vector products.  (See \S\ref{s:math}).  The increment
-  used to approximate $Jv$ will be $\sigma = $\id{dqincfac}$/\|v\|$.
+  to the Jacobian-vector products.  (See Chapter \ref{s:math}).  The increment
+  used to approximate $Jv$ will be $\sigma = $ \id{dqincfac}$/\|v\|$.
 }
 {
   \begin{args}[dqincfac]
@@ -3296,7 +3307,7 @@ These optional output functions are described next.
   name of the {\ida} constant corresponding to \id{flag}.
 }
 {
-  The only argument, of type \id{int} is a return flag from an {\ida} function.
+  The only argument, of type \id{int}, is a return flag from an {\ida} function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
@@ -3587,7 +3598,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lsflag] (\id{int})
+  \item[lsflag] (\id{long int})
     the value of the last return flag from an {\idadls} function.
   \end{args}
 }
@@ -3619,7 +3630,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   name of the {\idadls} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{int}, is a return flag from an {\idadls} function.
+  The only argument, of type \id{long int}, is a return flag from an {\idadls} function.
 }
 {
   The return value is a string containing the name of the corresponding
@@ -3896,7 +3907,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lsflag] (\id{int})
+  \item[lsflag] (\id{long int})
     the value of the last return flag from an {\idaspils} function.
   \end{args}
 }
@@ -3958,7 +3969,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   name of the {\idaspils} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{int}, is a return flag from an {\idaspils} function.
+  The only argument, of type \id{long int}, is a return flag from an {\idaspils} function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
@@ -4236,7 +4247,7 @@ Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), the user may
 provide a function of type \ID{IDADlsDenseJacFn} defined by
 \usfunction{IDADlsDenseJacFn}
 {
-  typedef int (*IDADlsDenseJac&Fn)(int Neq, realtype tt, realtype cj, \\
+  typedef int (*IDADlsDenseJac&Fn)(long int Neq, realtype tt, realtype cj,\\
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
                              &DlsMat Jac, void *user\_data,  \\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -4319,6 +4330,8 @@ provide a function of type \ID{IDADlsDenseJacFn} defined by
   described in \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
+  For the sake of uniformity, the argument \id{Neq} is of type \id{long int},
+  even in the case that the Lapack dense solver is to be used.
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
 %%
@@ -4334,8 +4347,8 @@ used (i.e. either \Id{IDABand} or \Id{IDALapackBand} is called in Step
 function of type \ID{IDADlsBandJacFn} defined as follows:
 \usfunction{IDADlsBandJacFn}
 {
- typedef int (*IDADlsBandJacFn&)(int Neq, int mupper, int mlower, \\
-                             &realtype tt, realtype cj,\\ 
+ typedef int (*IDADlsBandJacFn&)(long int Neq, long int mupper,\\
+                             &long int mlower, realtype tt, realtype cj,\\ 
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
                              &DlsMat Jac, void *user\_data, \\
                              &N\_Vector tmp1, N\_Vector tmp2,N\_Vector tmp3);
@@ -4349,9 +4362,9 @@ function of type \ID{IDADlsBandJacFn} defined as follows:
   \begin{args}[user\_data]
   \item[Neq]
     is the problem size.
-  \item[mlower]
   \item[mupper]
-    are the lower and upper half bandwidth of the Jacobian.
+  \item[mlower]
+    are the upper and lower half bandwidth of the Jacobian.
   \item[tt]
     is the current value of the independent variable.
   \item[yy]
@@ -4427,6 +4440,8 @@ function of type \ID{IDADlsBandJacFn} defined as follows:
   described in \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
+  For the sake of uniformity, the arguments \id{Neq}, \id{mlower}, and \id{mupper} are
+  of type \id{long int}, even in the case that the Lapack band solver is to be used.
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
@@ -4757,7 +4772,7 @@ then used by \id{Gres}, which should not do any communication.
 %%
 \usfunction{IDABBDLocalFn}
 {
-  typedef int (*IDABBDLocalFn)(&int Nlocal, realtype tt,  \\
+  typedef int (*IDABBDLocalFn)(&long int Nlocal, realtype tt,  \\
                                 &N\_Vector yy, N\_Vector yp, N\_Vector gval, \\
                                 &void *user\_data);
 }
@@ -4797,7 +4812,7 @@ then used by \id{Gres}, which should not do any communication.
 %%
 \usfunction{IDABBDCommFn}
 {
-  typedef int (*IDABBDCommFn)(&int Nlocal, realtype tt,  \\
+  typedef int (*IDABBDCommFn)(&long int Nlocal, realtype tt,  \\
                                &N\_Vector yy, N\_Vector yp, void *user\_data);
 }
 {
@@ -4960,15 +4975,15 @@ described next.
   \begin{args}[dq\_rel\_yy]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[Nlocal] (\id{int})
+  \item[Nlocal] (\id{long int})
     local vector dimension.
-  \item[mudq] (\id{int})
+  \item[mudq] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldq] (\id{int})
+  \item[mldq] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mukeep] (\id{int})
+  \item[mukeep] (\id{long int})
     upper half-bandwidth of the retained banded approximate Jacobian block.
-  \item[mlkeep] (\id{int})
+  \item[mlkeep] (\id{long int})
     lower half-bandwidth of the retained banded approximate Jacobian block.
   \item[dq\_rel\_yy] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
@@ -5041,9 +5056,9 @@ used in the difference-quotient Jacobian approximations, the relative increment
   \begin{args}[dq\_rel\_yy]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[mudq] (\id{int})
+  \item[mudq] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[mldq] (\id{int})
+  \item[mldq] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[dq\_rel\_yy] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient

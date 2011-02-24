@@ -134,12 +134,16 @@ or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
 depending on whether {\ida} was built in single, double, or extended precision 
 (see Appendix \ref{c:install}). Moreover, some of the {\F} integer variables
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-{\C} type \id{long int}. These integer variables include: the array of
-integer optional outputs (\id{IOUT}), problem dimensions (\id{NEQ},
-\id{NLOCAL}, \id{NGLOBAL}), Jacobian half-bandwidths (\id{MU}, \id{ML}, etc.),
-as well as the array of user integer data, \id{IPAR}.
-This is particularly important when using {\ida} and the {\fida}
-package on 64-bit architectures.
+{\C} type \id{long int}. These integer variables include:
+the optional input (\id{IVAL}), the problem size and bandwidth parameters
+(\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
+the array of integer optional outputs (\id{IOUT}),
+and the user array of integer data (\id{IPAR}).
+EXCEPTION: In the case that Lapack linear solvers are to be used, the
+input arguments to \id{FIDALAPACKDENSE} or \id{FIDALAPACKBAND} (\id{NEQ},
+\id{ML}, and \id{MU}) must be declared to be consistent with {\C} type \id{int}.
+This type consistency is particularly important when using {\ida} and the
+{\fida} package on 64-bit architectures.
 
 %%==============================================================================
 \section{Usage of the FIDA interface module}\label{ss:fida_usage}
@@ -207,6 +211,9 @@ apply to {\nvecp}.
   sum of all values of \id{NLOCAL}). The return flag \id{IER} is
   set to $0$ on a successful return and to $-1$ otherwise.
 
+  NOTE: The integers \id{NEQ}, \id{NLOCAL}, and \id{NGLOBAL} should be
+  declared so as to match {\C} type \id{long int}.
+
   {\warn}If the header file \id{sundials\_config.h} defines
   \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
   implementation used to build {\sundials} includes the
@@ -256,8 +263,8 @@ apply to {\nvecp}.
     and $-1$ otherwise. See printed message for details in case of failure.
   }
   {
-    The user intger data array \id{IPAR} must be declared as \id{INTEGER*4} or 
-    \id{INTEGER*8} according to the {\C} type \id{long int}.
+    The user integer data arrays \id{IOUT} and \id{IPAR} must be declared as
+    \id{INTEGER*4} or \id{INTEGER*8} according to the {\C} type \id{long int}.
 
     Modifications to the user data arrays \id{IPAR} and \id{RPAR} inside a 
     user-provided routine will be propagated to all subsequent calls to
@@ -322,10 +329,12 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FIDALAPACKDENSE (NEQ, IER)
 \end{verbatim}
-  where \id{NEQ} is the size of the DAE system, depending on whther the internal
+  where \id{NEQ} is the size of the DAE system, depending on whether the internal
   or a Lapack dense linear solver is to be used.
   The argument \id{IER} is an error return flag, which is $0$ 
   for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal input.
+  In the case of \id{FIDALAPACKDENSE}, \id{NEQ} must be declared so as to match
+  {\C} type \id{int}.
 
   \index{Jacobian approximation function!dense!use in {\fida}}
   As an option when using the {\dense} linear solver, the user may supply a
@@ -345,7 +354,9 @@ apply to {\nvecp}.
   current values of $t$, $y$, $\dot{y}$, $F(t,y,\dot{y})$, and $\alpha$, respectively.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
-  
+  NOTE: The argument \id{NEQ} has a type consistent with {\C} type \id{long int}
+  even in the case when the Lapack dense solver is to be used.
+
   If the user's \id{FIDADJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
   in the calculation of suitable increments.  It may also need the unit
@@ -383,13 +394,14 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FIDALAPACKBAND (NEQ, MU, ML, IER)
 \end{verbatim}
-  depending on whther the internal
-  or a Lapack dense linear solver is to be used.
+  depending on whether the internal or a Lapack band linear solver is to be used.
   The arguments are: \id{MU}, the upper half-bandwidth; \id{ML}, 
   the lower half-bandwidth; and \id{IER}, an error return flag, which is  
   $0$ for success , $-1$ if a memory allocation failure occurred, or $-2$ 
   in case an input has an illegal value.     
-  
+  In the case of \id{FIDALAPACKBAND}, the arguments \id{NEQ}, \id{MU}, and \id{ML}
+  must be declared so as to match {\C} type \id{int}.
+
   \index{Jacobian approximation function!band!use in {\fida}}
   As an option when using the {\band} linear solver, the user may supply a
   routine that computes a band approximation of the system Jacobian. If supplied,
@@ -411,6 +423,9 @@ apply to {\nvecp}.
   current values of $t$, $y$, $\dot{y}$, $F(t,y,\dot{y})$, and $\alpha$, respectively.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
+  NOTE: The arguments \id{NEQ}, \id{MU}, \id{ML}, and \id{MDIM} have a type
+  consistent with {\C} type \id{long int} even in the case when the Lapack band
+  solver is to be used.
 
   If the user's \id{FIDABJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -431,7 +446,7 @@ apply to {\nvecp}.
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian
   approximation.  The argument \id{IER} is an error return flag, which is $0$ 
   for success or non-zero if an error occurred.
-  
+
   Optional outputs specific to the {\band} case are listed in
   Table~\ref{t:fida_out}.
 
@@ -630,9 +645,8 @@ apply to {\nvecp}.
   roundoff, which can be obtained as the optional output \id{ROUT(6)},
   passed from the calling program to this routine using \id{COMMON}.
 
-  {\warn} If the user calls \id{FIDASPILSSETPREC},
-  the subroutine \id{FIDAPSET} must be provided, even if it is not needed and
-  must return \id{IER=0}.
+  {\warn} If the user calls \id{FIDASPILSSETPREC}, the subroutine \id{FIDAPSET}
+  must be provided, even if it is not needed, and it must return \id{IER = 0}.
 
 \item {\bf Correct initial values}
 
@@ -769,6 +783,7 @@ where \id{KEY} is a quoted string indicating which optoinal input is set
 \id{VVAL} is the input real array, and
 \id{IER} is an integer return flag which is set to $0$ on success and
 a negative value if a failure occurred.
+\id{IVAL} should be declared so as to match {\C} type \id{long int}.
 
 When using \id{FIDASETVIN} to specify the variable types (\id{KEY = 'ID\_VEC'})
 the components in the array \id{VVAL} must be $1.0$ to indicate a differential 
@@ -1187,8 +1202,8 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   \id{IER} is a return flag that should be set to 0 if successful, to 1
   (for a recoverable error), or to -1 (for a non-recoverable error).
 
-  {\warn}The subroutine \id{FIDACOMMFN} must be supplied even if it is empty and it must
-  return \id{IER=0}.
+  {\warn}The subroutine \id{FIDACOMMFN} must be supplied even if it is empty,
+  and it must return \id{IER = 0}.
 
   \index{FIDAJTIMES@\texttt{FIDAJTIMES}}
   Optionally, the user can supply a routine \id{FIDAJTIMES} for the evaluation of
