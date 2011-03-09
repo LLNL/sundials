@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2010-01-20 23:28:50 $
+ * $Revision: 1.9 $
+ * $Date: 2011-03-09 23:19:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -1752,6 +1752,9 @@ void KINPrintInfo(KINMem kin_mem,
     switch(ret) {
     case KIN_SUCCESS:
       sprintf(retstr, "KIN_SUCCESS");
+      break;
+    case KIN_SYSFUNC_FAIL:
+      sprintf(retstr, "KIN_SYSFUNC_FAIL");
       break;
     case KIN_STEP_LT_STPTOL:
       sprintf(retstr, "KIN_STEP_LT_STPTOL");
