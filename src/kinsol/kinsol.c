@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2011-03-09 23:19:44 $
+ * $Revision: 1.10 $
+ * $Date: 2011-03-10 00:41:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -62,6 +62,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
+
 #include <math.h>
 
 #include "kinsol_impl.h"
@@ -210,6 +212,9 @@ void *KINCreate(void)
     KINProcessError(kin_mem, 0, "KINSOL", "KINCreate", MSG_MEM_FAIL);
     return(NULL);
   }
+
+  /* Zero out kin_mem */
+  memset(kin_mem, 0, sizeof(struct KINMemRec));
 
   /* set uround (unit roundoff) */
 

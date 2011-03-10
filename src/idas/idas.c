@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2009-09-02 22:19:58 $
+ * $Revision: 1.36 $
+ * $Date: 2011-03-10 00:41:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -144,6 +144,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 
 #include "idas_impl.h"
 #include <sundials/sundials_math.h>
@@ -441,6 +442,9 @@ void *IDACreate(void)
     IDAProcessError(NULL, 0, "IDAS", "IDACreate", MSG_MEM_FAIL);
     return (NULL);
   }
+
+  /* Zero out ida_mem */
+  memset(IDA_mem, 0, sizeof(struct IDAMemRec));
 
   /* Set unit roundoff in IDA_mem */
   IDA_mem->ida_uround = UNIT_ROUNDOFF;

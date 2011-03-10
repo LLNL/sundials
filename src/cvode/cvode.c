@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2009-05-06 21:46:54 $
+ * $Revision: 1.22 $
+ * $Date: 2011-03-10 00:41:36 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 
 #include "cvode_impl.h"
 #include <sundials/sundials_math.h>
@@ -344,6 +345,9 @@ void *CVodeCreate(int lmm, int iter)
     CVProcessError(NULL, 0, "CVODE", "CVodeCreate", MSGCV_CVMEM_FAIL);
     return(NULL);
   }
+
+  /* Zero out cv_mem */
+  memset(cv_mem, 0, sizeof(struct CVodeMemRec));
 
   maxord = (lmm == CV_ADAMS) ? ADAMS_Q_MAX : BDF_Q_MAX;
 
