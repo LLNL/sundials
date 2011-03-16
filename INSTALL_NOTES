@@ -1,5 +1,5 @@
                      SUNDIALS Installation Instructions
-                        Release 2.4.0, January 2008  
+                        Release 2.7.0, March 2011  
 
 
 These are generic installation instructions. For complete installation instructions, 
@@ -15,9 +15,9 @@ Contents:
     B.3. Compilers and Options
        B.3.1. General options
        B.3.2. Options for Fortran support
-       B.3.3. Options for MPI support
-       B.3.4. Options for library support
-       B.3.5. Options for Matlab support
+       B.3.3. Options for Blas/Lapack support
+       B.3.4. Options for MPI support
+       B.3.5. Options for library support
        B.3.6. Environment variables
     B.4. Configuration examples
 [C] CMake-based installation
@@ -345,7 +345,7 @@ B.3.1. General options
 B.3.2. Options for Fortran support
 ----------------------------------
 
---disable-f77
+--disable-fcmix
 
   Using this option will disable all F77 support. The fcvode, fida, fkinsol and
   fnvector modules will not be built regardless of availability.
