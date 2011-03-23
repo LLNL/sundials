@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2010-12-01 22:43:33 $
+ * $Revision: 1.11 $
+ * $Date: 2011-03-23 23:37:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -171,6 +171,7 @@ int KINBand(void *kinmem, long int N, long int mupper, long int mlower)
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
     KINProcessError(kin_mem, KINDLS_MEM_FAIL, "KINBAND", "KINBand", MSGD_MEM_FAIL);
+    free(kindls_mem); kindls_mem = NULL;
     return(KINDLS_ILL_INPUT);
   }
 
