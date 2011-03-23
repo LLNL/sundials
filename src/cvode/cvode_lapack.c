@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2010-12-22 22:24:22 $
+ * $Revision: 1.14 $
+ * $Date: 2011-03-23 22:27:43 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -300,6 +300,7 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {
     CVProcessError(cv_mem, CVDLS_ILL_INPUT, "CVLAPACK", "CVLapackBand", MSGD_BAD_SIZES);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_ILL_INPUT);
   }
 
@@ -314,14 +315,14 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   M = NewBandMat(n, mu, ml, smu);
   if (M == NULL) {
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }  
   pivots = NewIntArray(N);
   if (pivots == NULL) {
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
     DestroyMat(M);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
   savedJ = NewBandMat(n, mu, ml, smu);
@@ -329,7 +330,7 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyArray(pivots);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
 

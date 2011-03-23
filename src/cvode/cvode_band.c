@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2010-12-01 22:21:04 $
+ * $Revision: 1.13 $
+ * $Date: 2011-03-23 22:27:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -160,6 +160,7 @@ int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
     CVProcessError(cv_mem, CVDLS_ILL_INPUT, "CVBAND", "CVBand", MSGD_BAD_SIZES);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_ILL_INPUT);
   }
 
