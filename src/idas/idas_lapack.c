@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2010-12-15 00:11:30 $
+ * $Revision: 1.12 $
+ * $Date: 2011-03-23 23:25:35 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -190,14 +190,14 @@ int IDALapackDense(void *ida_mem, int N)
   JJ = NewDenseMat(n, n);
   if (JJ == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDASLAPACK", "IDALapackDense", MSGD_MEM_FAIL);
-    free(idadls_mem);
+    free(idadls_mem); idadls_mem = NULL;
     return(IDADLS_MEM_FAIL);
   }
   pivots = NewIntArray(N);
   if (pivots == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDASLAPACK", "IDALapackDense", MSGD_MEM_FAIL);
     DestroyMat(JJ);
-    free(idadls_mem);
+    free(idadls_mem); idadls_mem = NULL;
     return(IDADLS_MEM_FAIL);
   }
 
@@ -288,6 +288,7 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {
     IDAProcessError(IDA_mem, IDADLS_ILL_INPUT, "IDASLAPACK", "IDALapackBand", MSGD_BAD_SIZES);
+    free(idadls_mem); idadls_mem = NULL;
     return(IDADLS_ILL_INPUT);
   }
 
@@ -301,14 +302,14 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
   JJ = NewBandMat(n, mu, ml, smu);
   if (JJ == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDASLAPACK", "IDALapackBand", MSGD_MEM_FAIL);
-    free(idadls_mem);
+    free(idadls_mem); idadls_mem = NULL;
     return(IDADLS_MEM_FAIL);
   }  
   pivots = NewIntArray(N);
   if (pivots == NULL) {
     IDAProcessError(IDA_mem, IDADLS_MEM_FAIL, "IDASLAPACK", "IDALapackBand", MSGD_MEM_FAIL);
     DestroyMat(JJ);
-    free(idadls_mem);
+    free(idadls_mem); idadls_mem = NULL;
     return(IDADLS_MEM_FAIL);
   }
 
