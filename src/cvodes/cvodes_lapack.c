@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2010-12-30 01:00:49 $
+ * $Revision: 1.15 $
+ * $Date: 2011-03-23 22:58:46 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -193,14 +193,14 @@ int CVLapackDense(void *cvode_mem, int N)
   M = NewDenseMat(n, n);
   if (M == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
   pivots = NewIntArray(N);
   if (pivots == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
     DestroyMat(M);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
   savedJ = NewDenseMat(n, n);
@@ -208,7 +208,7 @@ int CVLapackDense(void *cvode_mem, int N)
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyArray(pivots);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
 
@@ -298,6 +298,7 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= n) || (mu >= n)) {
     cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVSLAPACK", "CVLapackBand", MSGD_BAD_SIZES);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_ILL_INPUT);
   }
 
@@ -312,14 +313,14 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
   M = NewBandMat(n, mu, ml, smu);
   if (M == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }  
   pivots = NewIntArray(N);
   if (pivots == NULL) {
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
     DestroyMat(M);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
   savedJ = NewBandMat(n, mu, ml, smu);
@@ -327,7 +328,7 @@ int CVLapackBand(void *cvode_mem, int N, int mupper, int mlower)
     cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSLAPACK", "CVLapackBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyArray(pivots);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
 

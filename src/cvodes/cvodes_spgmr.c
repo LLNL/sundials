@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2010-05-25 22:28:59 $
+ * $Revision: 1.13 $
+ * $Date: 2011-03-23 22:58:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -182,6 +182,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
     cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPGMR", "CVSpgmr", MSGS_BAD_PRETYPE);
+    free(cvspils_mem); cvspils_mem = NULL;
     return(CVSPILS_ILL_INPUT);
   }
 
