@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2011-03-23 22:27:43 $
+ * $Revision: 1.15 $
+ * $Date: 2011-03-23 22:45:54 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -195,14 +195,14 @@ int CVLapackDense(void *cvode_mem, int N)
   M = NewDenseMat(n, n);
   if (M == NULL) {
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
   pivots = NewIntArray(N);
   if (pivots == NULL) {
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
     DestroyMat(M);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
   savedJ = NewDenseMat(n, n);
@@ -210,7 +210,7 @@ int CVLapackDense(void *cvode_mem, int N)
     CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVLAPACK", "CVLapackDense", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyArray(pivots);
-    free(cvdls_mem);
+    free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
 
