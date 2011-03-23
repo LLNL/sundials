@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2010-12-01 22:35:26 $
+ * $Revision: 1.13 $
+ * $Date: 2011-03-23 20:44:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -16,7 +16,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <ida/ida_dense.h>
 #include "ida_direct_impl.h"

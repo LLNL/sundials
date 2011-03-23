@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2010-12-01 22:35:26 $
+ * $Revision: 1.10 $
+ * $Date: 2011-03-23 20:44:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,7 +23,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "ida_impl.h"
 #include "ida_spils_impl.h"
