@@ -27,7 +27,10 @@ must point to the linear solver's functions are \id{cv\_linit},
 Note that of the four interface routines, only the \id{lsolve} routine
 is required.  The \id{lfree} routine must be provided only if the solver
 specification routine makes any memory allocation.
-%%
+The linear solver specification function must also set the value of
+the field \id{cv\_setupNonNull} in the {\cvode} memory block --- to
+\id{TRUE} if \id{lsetup} is used, or \id{FALSE} otherwise.
+
 For consistency with the existing {\cvode} linear solver modules, we
 recommend that the return value of the specification function be 0 for
 a successful return or a negative value if an error occurs (the
@@ -38,6 +41,7 @@ allocation fails, etc.)
 To facilitate data exchange between the four interface functions, the
 field \id{cv\_lmem} in the {\cvode} memory block can be used to attach
 a linear solver-specific memory block.
+That memory should be allocated in the linear solver specification function.
 
 These four routines that interface between {\cvode} and the linear solver module
 necessarily have fixed call sequences.  Thus, a user wishing to implement another 
