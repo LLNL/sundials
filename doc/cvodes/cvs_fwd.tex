@@ -1583,7 +1583,7 @@ The type \id{CVSensRhs1Fn} is defined by
     is the current value of the right-hand side of the state equations.
   \item[iS]
     is the index of the parameter for which the sensitivity right-hand
-    side must be computed $(i \leq$ \id{iS} $ < $ \id{Ns}).
+    side must be computed $(0 \leq$ \id{iS} $ < $ \id{Ns}).
   \item[yS]
     contains the current value of the \id{iS}-th sensitivity vector.
   \item[ySdot]
@@ -1594,7 +1594,7 @@ The type \id{CVSensRhs1Fn} is defined by
     parameter passed to \id{CVodeSetUserData}.
   \item[tmp1]
   \item[tmp2]
-    are \id{N\_Vector}s which can be used as temporary storage.
+    are \id{N\_Vector}s  of length $N$ which can be used as temporary storage.
   \end{args}
 }
 {
