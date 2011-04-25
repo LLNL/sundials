@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2011-03-10 00:41:46 $
+ * $Revision: 1.31 $
+ * $Date: 2011-04-25 19:54:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -5835,11 +5835,14 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
   tq[2] = ABS(A1 / (alpha0 * A2));
   tq[5] = ABS(A2 * xistar_inv / (l[q] * xi_inv));
   if (qwait == 1) {
-    C = xistar_inv / l[q];
-    A3 = alpha0 + ONE / q;
-    A4 = alpha0_hat + xi_inv;
-    Cpinv = (ONE - A4 + A3) / A3;
-    tq[1] = ABS(C * Cpinv);
+    if (q > 1) {
+      C = xistar_inv / l[q];
+      A3 = alpha0 + ONE / q;
+      A4 = alpha0_hat + xi_inv;
+      Cpinv = (ONE - A4 + A3) / A3;
+      tq[1] = ABS(C * Cpinv);
+    }
+    else tq[1] = ONE;
     hsum += tau[q];
     xi_inv = h / hsum;
     A5 = alpha0 - (ONE / (q+1));
