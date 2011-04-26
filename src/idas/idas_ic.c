@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-07-27 23:52:53 $
+ * $Revision: 1.6 $
+ * $Date: 2011-04-26 22:51:51 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1158,6 +1158,9 @@ static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
   realtype f1norm, fnormp, f1normp, slpi, minlam;
   realtype lambda, ratio;
   
+  /* Set work space pointer. */
+  dtemp = phi[3];
+
   f1norm = (*fnorm)*(*fnorm)*HALF;
   
   /* Initialize local variables. */
