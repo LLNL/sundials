@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2008-05-14 22:51:35 $
+ * $Revision: 1.23 $
+ * $Date: 2011-04-27 20:39:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -209,7 +209,7 @@ typedef struct IDAMemRec {
     Quadrature Sensitivity Related Vectors 
     --------------------------------------*/
 
-  N_Vector *ida_phiQS[MXORDP1];/* Nordsieck arrays for quadr. sensitivities   */
+  N_Vector *ida_phiQS[MXORDP1];/* Mod. div. diffs. for quadr. sensitivities   */
   N_Vector *ida_ewtQS;         /* error weight vectors for sensitivities      */
 
   N_Vector *ida_eeQS;          /* cumulative quadr.sensi.corrections          */
@@ -487,13 +487,13 @@ struct CkpntMemRec {
   realtype ck_t0;
   realtype ck_t1;
     
-  /* Nordsieck History Array */
+  /* Modified divided difference array */
   N_Vector ck_phi[MXORDP1];
 
   /* Do we need to carry quadratures? */
   booleantype ck_quadr;
 
-  /* Nordsieck History Array for quadratures */
+  /* Modified divided difference array for quadratures */
   N_Vector ck_phiQ[MXORDP1];
     
   /* Do we need to carry sensitivities? */
@@ -502,13 +502,13 @@ struct CkpntMemRec {
   /* number of sensitivities */
   int ck_Ns;
 
-  /* Nordsieck History Array for sensitivities */
+  /* Modified divided difference array for sensitivities */
   N_Vector *ck_phiS[MXORDP1];
 
   /* Do we need to carry quadrature sensitivities? */
   booleantype ck_quadr_sensi;
 
-  /* Nordsieck History Array for quadrature sensitivities */
+  /* Modified divided difference array for quadrature sensitivities */
   N_Vector *ck_phiQS[MXORDP1];
 
 
