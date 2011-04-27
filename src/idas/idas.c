@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2011-03-10 00:41:56 $
+ * $Revision: 1.37 $
+ * $Date: 2011-04-27 18:34:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -6136,7 +6136,7 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
       enorm = IDASensWrmsNormUpdate(IDA_mem, enorm, tempvS, ewtS, suppressalg);
     }
 
-    if(errconQS) {
+    if (errconQS) {
       for (is=0; is<Ns; is++)
         N_VLinearSum(ONE, eeQS[is], -ONE, phiQS[kk+1][is], tempvQS[is]);
       enorm = IDAQuadSensWrmsNormUpdate(IDA_mem, enorm, tempvQS, ewtQS);
@@ -6184,20 +6184,20 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
     
   } /* end of phase if block */
   
-  /* Save ee for possible order increase on next step */
+  /* Save ee etc. for possible order increase on next step */
   
   if (kused < maxord) {
 
     N_VScale(ONE, ee, phi[kused+1]);
 
-    if (errconQ)
+    if (quadr)
       N_VScale(ONE, eeQ, phiQ[kused+1]);
 
-    if (errconS)
+    if (sensi)
       for (is=0; is<Ns; is++)
         N_VScale(ONE, eeS[is], phiS[kused+1][is]);
 
-    if (errconQS)
+    if (quadr_sensi)
       for (is=0; is<Ns; is++)
         N_VScale(ONE, eeQS[is], phiQS[kused+1][is]);
   }
