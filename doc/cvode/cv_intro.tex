@@ -88,6 +88,27 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v2.7.0}
+
+One significant design change was made with this release: The problem
+size and its relatives, bandwidth parameters, related internal indices,
+pivot arrays, and the optional output \id{lsflag} have all been
+changed from type \id{int} to type \id{long int}, except for the
+problem size and bandwidths in user calls to routines specifying
+BLAS/LAPACK routines for the dense/band linear solvers.  The function
+\id{NewIntArray} is replaced by a pair \id{NewIntArray}/\id{NewLintArray},
+for \id{int} and \id{long int} arrays, respectively.
+
+A large number of minor errors have been fixed.  Among these are the following:
+In \id{CVSetTqBDF}, the logic was changed to avoid a divide by zero.
+After the solver memory is created, it is set to zero before being filled.
+In each linear solver interface function, the \id{**Free} function now
+includes a line setting to NULL the main memory pointer to the linear
+solver memory.
+In the installation files, we modified the treatment of the macro
+SUNDIALS\_USE\_GENERIC\_MATH, so that the parameter GENERIC\_MATH\_LIB is
+either defined (with no value) or not defined.
+
 \subsection*{Changes in v2.6.0}
 
 Two new features were added in this release: (a) a new linear solver module,
