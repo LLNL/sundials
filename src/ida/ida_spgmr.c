@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-11-26 16:20:00 $
+ * $Revision: 1.7 $
+ * $Date: 2011-05-25 20:20:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -461,6 +461,7 @@ static int IDASpgmrFree(IDAMem IDA_mem)
   idaspils_mem = (IDASpilsMem) lmem;
   
   N_VDestroy(ytemp);
+  N_VDestroy(yptemp);
   N_VDestroy(xx);
 
   spgmr_mem = (SpgmrMem) spils_mem;
