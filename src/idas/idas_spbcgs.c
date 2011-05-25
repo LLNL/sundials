@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2007-11-26 16:20:01 $
+ * $Revision: 1.8 $
+ * $Date: 2011-05-25 20:46:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -474,6 +474,7 @@ static int IDASpbcgFree(IDAMem IDA_mem)
   idaspils_mem = (IDASpilsMem) lmem;
 
   N_VDestroy(ytemp);
+  N_VDestroy(yptemp);
   N_VDestroy(xx);
 
   spbcg_mem = (SpbcgMem)spils_mem;
