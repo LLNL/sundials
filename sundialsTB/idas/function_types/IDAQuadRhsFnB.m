@@ -5,7 +5,7 @@
 %   or as
 %        FUNCTION [YQBD, FLAG, NEW_DATA] = QFUNB(T, YY, YP, YYB, YPB, DATA)
 %   depending on whether a user data structure DATA was specified in
-%   IDAMalloc. In either case, it must return the vector YQBD
+%   IDAInit. In either case, it must return the vector YQBD
 %   corresponding to fQB(t,yy,yp,yyB,ypB), the integrand for the integral to be 
 %   evaluated on the backward phase.
 %
@@ -17,4 +17,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:48:45 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:44 $

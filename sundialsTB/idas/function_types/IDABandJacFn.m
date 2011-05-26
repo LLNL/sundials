@@ -5,7 +5,7 @@
 %   and must return a matrix J corresponding to the banded Jacobian
 %   (df/dyy + cj*df/dyp).
 %   The input argument RR contains the current value of f(t,yy,yp).
-%   If a user data structure DATA was specified in IDAMalloc, then
+%   If a user data structure DATA was specified in IDAInit, then
 %   BJACFUN must be defined as
 %        FUNCTION [J, FLAG, NEW_DATA] = BJACFUN(T, YY, YP, RR, CJ, DATA)
 %   If the local modifications to the user data structure are needed in
@@ -29,4 +29,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/11 18:48:45 $
+% $Revision: 1.3 $Date: 2007/08/21 17:38:43 $

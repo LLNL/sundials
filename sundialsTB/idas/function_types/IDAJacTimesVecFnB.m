@@ -5,7 +5,7 @@
 %   or as
 %        FUNCTION [JVB,FLAG,NEW_DATA] = JTVFUNB(T,YY,YP,YYB,YPB,RRB,VB,CJB,DATA)
 %   depending on whether a user data structure DATA was specified in
-%   IDAMalloc. In either case, it must return the vector JVB, the
+%   IDAInit. In either case, it must return the vector JVB, the
 %   product of the Jacobian (dfB/dyyB + cj * dfB/dypB) and a vector
 %   vB. The input argument RRB contains the current value of f(t,yy,yp,yyB,ypB).
 %
@@ -20,4 +20,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:48:45 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:44 $

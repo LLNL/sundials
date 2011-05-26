@@ -1,7 +1,7 @@
 function status = IDAInit(fct,t0,yy0,yp0,options)
-%IDAMalloc allocates and initializes memory for IDAS.
+%IDAInit allocates and initializes memory for IDAS.
 %
-%   Usage: IDAMalloc ( DAEFUN, T0, YY0, YP0 [, OPTIONS ] ) 
+%   Usage: IDAInit ( DAEFUN, T0, YY0, YP0 [, OPTIONS ] ) 
 %
 %   DAEFUN   is a function defining the DAE residual: f(t,yy,yp).
 %            This function must return a vector containing the current 
@@ -16,7 +16,7 @@ function status = IDAInit(fct,t0,yy0,yp0,options)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/08/21 17:38:42 $
+% $Revision: 1.3 $Date: 2007/12/05 21:58:18 $
 
 mode = 1;
 

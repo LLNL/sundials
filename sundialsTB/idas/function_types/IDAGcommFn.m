@@ -5,7 +5,7 @@
 %   and can be used to perform all interprocess communication necessary
 %   to evaluate the approximate residual function for the BBDPre
 %   preconditioner module.
-%   If a user data structure DATA was specified in IDAMalloc, then
+%   If a user data structure DATA was specified in IDAInit, then
 %   GCOMFUN must be defined as
 %        FUNCTION [FLAG, NEW_DATA] = GCOMFUN(T, YY, YP, DATA)
 %   If the local modifications to the user data structure are needed 
@@ -31,4 +31,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/11 18:48:45 $
+% $Revision: 1.3 $Date: 2007/08/21 17:38:44 $

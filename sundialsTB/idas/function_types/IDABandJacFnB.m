@@ -5,7 +5,7 @@
 %   or as
 %        FUNCTION [JB,FLAG,NEW_DATA] = BJACFUNB(T,YY,YP,YYB,YPB,RRB,CJB)
 %   depending on whether a user data structure DATA was specified in
-%   IDAMalloc. In either case, it must return the matrix JB, the
+%   IDAInit. In either case, it must return the matrix JB, the
 %   Jacobian (dfB/dyyB + cjB*dfB/dypB)of fB(t,y,yB). The input argument
 %   RRB contains the current value of f(t,yy,yp,yyB,ypB).
 %
@@ -24,4 +24,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:48:45 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:44 $

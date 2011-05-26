@@ -4,11 +4,11 @@ function [status, varargout] = IDACalcICB(tout,icmeth)
 %   Usage: STATUS = IDACalcICB ( TOUTB, ICMETHB )
 %          [STATUS, YY0B, YP0B] = IDACalcIC ( TOUTB, ICMETHB )
 %
-%  See also: IDASetOptions, IDAMallocB, IDAReInitB
+%  See also: IDASetOptions, IDAInitB, IDAReInitB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2007/02/05 20:23:46 $
+% $Revision: 1.4 $Date: 2007/08/21 17:38:42 $
 
 mode = 26;
 

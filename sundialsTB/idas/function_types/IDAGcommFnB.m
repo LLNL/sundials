@@ -5,7 +5,7 @@
 %   or as
 %        FUNCTION [FLAG, NEW_DATA] = GCOMFUNB(T, YY, YP, YYB, YPB, DATA)
 %   depending on whether a user data structure DATA was specified in
-%   IDAMalloc. 
+%   IDAInit. 
 %
 %   The function GCOMFUNB must set FLAG=0 if successful, FLAG<0 if an
 %   unrecoverable failure occurred, or FLAG>0 if a recoverable error
@@ -25,4 +25,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:48:45 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:44 $

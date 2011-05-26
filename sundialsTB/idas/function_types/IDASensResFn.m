@@ -3,7 +3,7 @@
 %   The function DAESFUN must be defined as 
 %        FUNCTION [RS, FLAG] = DAESFUN(T,YY,YP,YYS,YPS)
 %   and must return a matrix RS corresponding to fS(t,yy,yp,yyS,ypS).
-%   If a user data structure DATA was specified in IDAMalloc, then
+%   If a user data structure DATA was specified in IDAInit, then
 %   DAESFUN must be defined as
 %        FUNCTION [RS, FLAG, NEW_DATA] = DAESFUN(T,YY,YP,YYS,YPS,DATA)
 %   If the local modifications to the user data structure are needed in
@@ -23,4 +23,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/17 16:49:50 $
+% $Revision: 1.2 $Date: 2007/05/11 18:48:45 $

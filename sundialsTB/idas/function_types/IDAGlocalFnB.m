@@ -5,7 +5,7 @@
 %   or as
 %        FUNCTION [GLOCB, FLAG, NEW_DATA] = GLOCFUNB(T,YY,YP,YYB,YPB,DATA)
 %   depending on whether a user data structure DATA was specified in
-%   IDAMalloc. In either case, it must return the vector GLOCB
+%   IDAInit. In either case, it must return the vector GLOCB
 %   corresponding to an approximation to fB(t,yy,yp,yyB,ypB).
 %
 %   The function GLOCFUNB must set FLAG=0 if successful, FLAG<0 if an
@@ -20,4 +20,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2007/05/11 18:48:45 $
+% $Revision: 1.2 $Date: 2007/08/21 17:38:44 $

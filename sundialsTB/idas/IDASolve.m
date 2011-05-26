@@ -32,7 +32,7 @@ function [varargout] = IDASolve(tout,itask)
 %     0: IDASolve succeeded and no roots were found.
 %     1: IDASolve succeded and returned at tstop.
 %     2: IDASolve succeeded, and found one or more roots. 
-%    -1: Illegal attempt to call before IDAMalloc
+%    -1: Illegal attempt to call before IDAInit
 %    -2: One of the inputs to IDASolve is illegal. This includes the situation 
 %        when a component of the error weight vectors becomes < 0 during internal 
 %        time-stepping.
@@ -53,7 +53,7 @@ function [varargout] = IDASolve(tout,itask)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2007/02/05 20:23:47 $
+% $Revision: 1.4 $Date: 2007/08/21 17:38:43 $
 
 
 mode = 20;

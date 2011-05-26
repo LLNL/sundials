@@ -3,7 +3,7 @@
 %   The function ROOTFUN must be defined as 
 %        FUNCTION [G, FLAG] = ROOTFUN(T,YY,YP)
 %   and must return a vector G corresponding to g(t,yy,yp).
-%   If a user data structure DATA was specified in IDAMalloc, then
+%   If a user data structure DATA was specified in IDAInit, then
 %   ROOTFUN must be defined as
 %        FUNCTION [G, FLAG, NEW_DATA] = ROOTFUN(T,YY,YP,DATA)
 %   If the local modifications to the user data structure are needed in
@@ -23,4 +23,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/17 16:49:50 $
+% $Revision: 1.2 $Date: 2007/05/11 18:48:45 $

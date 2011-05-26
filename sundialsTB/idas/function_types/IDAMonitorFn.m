@@ -12,7 +12,7 @@
 %   o CALL indicates the phase during the integration process at which
 %     MONFUN is called:
 %     CALL=1 : MONFUN was called at the initial time; this can be either 
-%              after IDAMalloc or after IDAReInit.
+%              after IDAInit or after IDAReInit.
 %              (typically, MONFUN should perform its own initialization)
 %     CALL=2 : MONFUN was called right before a solver reinitializtion.
 %              (typically, MONFUN should decide whether to initialize
@@ -64,4 +64,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/11 18:48:45 $
+% $Revision: 1.3 $Date: 2007/08/21 17:38:44 $
