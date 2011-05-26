@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2008-04-04 15:37:03 $
+ * $Revision: 1.17 $
+ * $Date: 2011-05-26 00:14:21 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -560,7 +560,7 @@ void idmErrHandler(int error_code,
 
 /* IDM_Initialization
  *
- * action = 0   -> IDACreate + IDAMalloc
+ * action = 0   -> IDACreate + IDAInit
  * action = 1   -> IDAReInit
  *
  * prhs contains:
@@ -1134,7 +1134,7 @@ static int IDM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
 
 /* IDM_SensInitialization
- * action = 0 -> IDASensMalloc
+ * action = 0 -> IDASensInit
  * action = 1 -> IDASensReInit
  *
  * prhs contains:
