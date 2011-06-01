@@ -27,12 +27,13 @@ function [varargout] = CVodeB(tout,itask)
 %   On return, STATUS is one of the following:
 %     0: successful CVodeB return.
 %     1: CVodeB succeded and return at a tstop value (internally set).
+%    -1: an error occurred (see printed message).
 %
 %   See also CVodeSetOptions, CVodeGetStatsB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.6 $Date: 2007/05/11 18:51:31 $
+% $Revision: 1.7 $Date: 2007/08/21 17:42:38 $
 
 mode = 21;
 
