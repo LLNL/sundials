@@ -31,14 +31,14 @@ function [varargout] = CVode(tout, itask)
 %   On return, STATUS is one of the following:
 %     0: successful CVode return.
 %     1: CVode succeded and returned at tstop.
-%     2: CVode succeeded and found one or more roots. 
-%
+%     2: CVode succeeded and found one or more roots.
+%    -1: an error occurred (see printed message).
 %
 %   See also CVodeSetOptions, CVodeGetStats
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.6 $Date: 2007/05/11 18:51:31 $
+% $Revision: 1.7 $Date: 2007/05/16 17:12:56 $
 
 mode = 20;
 
