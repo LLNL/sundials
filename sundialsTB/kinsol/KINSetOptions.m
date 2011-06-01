@@ -25,7 +25,7 @@ function options = KINSetOptions(varargin)
 %UserData - User data passed unmodified to all functions [ empty ]
 %   If UserData is not empty, all user provided functions will be
 %   passed the problem data as their last input argument. For example,
-%   the SYS function must be defined as YD = ODEFUN(T,Y,DATA). 
+%   the SYS function must be defined as FY = SYSFUN(Y,DATA). 
 %
 %MaxNumIter - maximum number of nonlinear iterations [ scalar | {200} ]
 %   Specifies the maximum number of iterations that the nonlinar solver is allowed
@@ -177,7 +177,7 @@ function options = KINSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/03/15 19:31:28 $
+% $Revision: 1.5 $Date: 2007/12/05 21:58:19 $
 
 % Based on Matlab's ODESET function
 
