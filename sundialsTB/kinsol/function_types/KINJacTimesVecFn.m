@@ -7,7 +7,7 @@
 %   the iterate has been updated in the interim. JV must be update
 %   or reevaluated, if appropriate, unless NEW_Y=false. This flag must
 %   be reset by the user.
-%   If a user data structure DATA was specified in KINMalloc, then
+%   If a user data structure DATA was specified in KINInit, then
 %   JTVFUN must be defined as
 %        FUNCTION [JV, NEW_Y, FLAG, NEW_DATA] = JTVFUN(Y, V, NEW_Y, DATA)
 %   If the local modifications to the user data structure are needed in
@@ -26,4 +26,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:28 $
+% $Revision: 1.2 $Date: 2007/05/11 18:48:46 $

@@ -24,7 +24,7 @@
 %   and FSCALE are the scaling vectors for solution and system function,
 %   respectively (as passed to KINSol)
 %
-%   If a user data structure DATA was specified in KINMalloc, then
+%   If a user data structure DATA was specified in KINInit, then
 %   PSETFUN must be defined as
 %        FUNCTION [FLAG, NEW_DATA] = PSETFUN(Y, YSCALE, FY, FSCALE, DATA)
 %   If the local modifications to the user data structure are needed in
@@ -45,4 +45,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:28 $
+% $Revision: 1.2 $Date: 2007/05/11 18:48:46 $

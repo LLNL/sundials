@@ -5,7 +5,7 @@
 %   and must return a vector G corresponding to an approximation to f(y)
 %   which will be used in the BBDPRE preconditioner module. The case where
 %   G is mathematically identical to F is allowed.
-%   If a user data structure DATA was specified in KINMalloc, then
+%   If a user data structure DATA was specified in KINInit, then
 %   GLOCFUN must be defined as
 %        FUNCTION [G, FLAG, NEW_DATA] = GLOCFUN(Y, DATA)
 %   If the local modifications to the user data structure are needed 
@@ -25,4 +25,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:28 $
+% $Revision: 1.2 $Date: 2007/05/11 18:48:46 $
