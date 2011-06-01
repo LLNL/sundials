@@ -32,28 +32,13 @@ function [varargout] = IDASolve(tout,itask)
 %     0: IDASolve succeeded and no roots were found.
 %     1: IDASolve succeded and returned at tstop.
 %     2: IDASolve succeeded, and found one or more roots. 
-%    -1: Illegal attempt to call before IDAInit
-%    -2: One of the inputs to IDASolve is illegal. This includes the situation 
-%        when a component of the error weight vectors becomes < 0 during internal 
-%        time-stepping.
-%    -4: The solver took mxstep internal steps but could not reach TOUT. The 
-%        default value for mxstep is 500.
-%    -5: The solver could not satisfy the accuracy demanded by the user for some 
-%        internal step.
-%    -6: Error test failures occurred too many times (MXNEF = 7) during one internal 
-%        time step 
-%        or occurred with |h| = hmin.
-%    -7: Convergence test failures occurred too many times (MXNCF = 10) during one 
-%        internal time step or occurred with |h| = hmin.
-%    -9: The linear solver's setup routine failed in an unrecoverable manner.
-%   -10: The linear solver's solve routine failed in an unrecoverable manner.
-%
+%    -1: An error occurred (see printed message).
 %
 %   See also IDASetOptions, IDAGetStats
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2007/08/21 17:38:43 $
+% $Revision: 1.5 $Date: 2011/05/26 00:05:36 $
 
 
 mode = 20;

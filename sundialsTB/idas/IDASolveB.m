@@ -27,27 +27,13 @@ function [varargout] = IDASolveB(tout,itask)
 %   On return, STATUS is one of the following:
 %     0: IDASolveB succeeded.
 %     1: IDASolveB succeded and return at a tstop value (internally set).
-%    -2: One of the inputs to IDASolveB is illegal.
-%    -4: The solver took mxstep internal steps but could not reach TOUT. 
-%        The default value for mxstep is 500.
-%   -5:  The solver could not satisfy the accuracy demanded by the user for 
-%        some internal step.
-%   -6:  Error test failures occurred too many times (MXNEF = 7) during one 
-%        internal time step or occurred with |h| = hmin.
-%   -7:  Convergence test failures occurred too many times (MXNCF = 10) during 
-%        one internal time step or occurred with |h| = hmin.
-%   -9:  The linear solver's setup routine failed in an unrecoverable manner.
-%  -10:  The linear solver's solve routine failed in an unrecoverable manner.
-%  -101: Illegal attempt to call before initializing adjoint sensitivity 
-%        (see IDAInit).
-%  -104: Illegal attempt to call before IDAInitB.
-%  -108: Wrong value for TOUT.
+%    -1: An error occurred (see printed message).
 %
 %   See also IDASetOptions, IDAGetStatsB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2007, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2007/08/21 17:38:43 $
+% $Revision: 1.5 $Date: 2008/04/10 18:47:59 $
 
 mode = 21;
 
