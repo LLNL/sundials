@@ -5,7 +5,7 @@
 %   and must return a vector JV corresponding to the product of the 
 %   Jacobian of f(t,y) with the vector v.
 %   The input argument FY contains the current value of f(t,y).
-%   If a user data structure DATA was specified in CVodeMalloc, then
+%   If a user data structure DATA was specified in CVodeInit, then
 %   JTVFUN must be defined as
 %        FUNCTION [JV, FLAG, NEW_DATA] = JTVFUN(T,Y,FY,V,DATA)
 %   If the local modifications to the user data structure are needed in
@@ -25,4 +25,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/07 19:08:40 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:33 $

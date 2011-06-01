@@ -3,7 +3,7 @@
 %   The function ODEFUN must be defined as 
 %        FUNCTION [YD, FLAG] = ODEFUN(T,Y)
 %   and must return a vector YD corresponding to f(t,y).
-%   If a user data structure DATA was specified in CVodeMalloc, then
+%   If a user data structure DATA was specified in CVodeInit, then
 %   ODEFUN must be defined as
 %        FUNCTION [YD, FLAG, NEW_DATA] = ODEFUN(T,Y,DATA)
 %   If the local modifications to the user data structure are needed 
@@ -21,4 +21,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/02/13 23:01:20 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:33 $

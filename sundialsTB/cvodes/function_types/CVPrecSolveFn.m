@@ -14,7 +14,7 @@
 %   to a negative value, in which case the integration will be halted.
 %   The input argument FY contains the current value of f(t,y).
 %
-%   If a user data structure DATA was specified in CVodeMalloc, then
+%   If a user data structure DATA was specified in CVodeInit, then
 %   PSOLFUN must be defined as
 %        FUNCTION [Z, FLAG, NEW_DATA] = PSOLFUN(T,Y,FY,R,DATA)
 %   If the local modifications to the user data structure are needed in
@@ -32,4 +32,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/07 19:08:40 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:33 $

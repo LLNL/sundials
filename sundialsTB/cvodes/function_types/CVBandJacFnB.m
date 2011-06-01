@@ -5,7 +5,7 @@
 %   or as
 %        FUNCTION [JB, FLAG, NEW_DATA] = BJACFUNB(T, Y, YB, FYB, DATA)
 %   depending on whether a user data structure DATA was specified in
-%   CVodeMalloc. In either case, it must return the matrix JB, the
+%   CVodeInit. In either case, it must return the matrix JB, the
 %   Jacobian of fB(t,y,yB), with respect to yB. The input argument
 %   FYB contains the current value of f(t,y,yB).
 %
@@ -24,4 +24,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:24 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:33 $

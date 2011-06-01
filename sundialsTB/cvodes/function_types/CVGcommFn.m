@@ -5,7 +5,7 @@
 %   and can be used to perform all interprocess communication necessary
 %   to evaluate the approximate right-hand side function for the BBDPre
 %   preconditioner module.
-%   If a user data structure DATA was specified in CVodeMalloc, then
+%   If a user data structure DATA was specified in CVodeInit, then
 %   GCOMFUN must be defined as
 %        FUNCTION [FLAG, NEW_DATA] = GCOMFUN(T, Y, DATA)
 %   If the local modifications to the user data structure are needed 
@@ -31,4 +31,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:25 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:33 $

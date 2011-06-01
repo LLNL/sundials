@@ -1,4 +1,4 @@
-%CVPrecSetupFnB - type for user provided preconditioner setup function for backward problems.
+CVPrecSetupFnB - type for user provided preconditioner setup function for backward problems.
 %
 %   The user-supplied preconditioner setup function PSETFUN and
 %   the user-supplied preconditioner solve function PSOLFUN
@@ -39,7 +39,7 @@
 %   or as
 %        FUNCTION [JCURB, FLAG, NEW_DATA] = PSETFUNB(T,Y,YB,FYB,JOK,GAMMAB,DATA)
 %   depending on whether a user data structure DATA was specified in
-%   CVodeMalloc. In either case, it must return the flags JCURB and FLAG.
+%   CVodeInit. In either case, it must return the flags JCURB and FLAG.
 %
 %   See also CVPrecSolveFnB, CVodeSetOptions
 %
@@ -50,4 +50,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/07 19:08:40 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:33 $

@@ -4,7 +4,7 @@
 %        FUNCTION [J, FLAG] = DJACFUN(T, Y, FY)
 %   and must return a matrix J corresponding to the Jacobian of f(t,y).
 %   The input argument FY contains the current value of f(t,y).
-%   If a user data structure DATA was specified in CVodeMalloc, then
+%   If a user data structure DATA was specified in CVodeInit, then
 %   DJACFUN must be defined as
 %        FUNCTION [J, FLAG, NEW_DATA] = DJACFUN(T, Y, FY, DATA)
 %   If the local modifications to the user data structure are needed in
@@ -24,4 +24,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/03/15 19:31:24 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:33 $

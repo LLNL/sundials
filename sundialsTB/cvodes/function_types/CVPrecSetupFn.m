@@ -47,7 +47,7 @@
 %   it means that Jacobian data, if saved from the previous PSETFUN call
 %   can be reused (with the current value of GAMMA).
 %
-%   If a user data structure DATA was specified in CVodeMalloc, then
+%   If a user data structure DATA was specified in CVodeInit, then
 %   PSETFUN must be defined as
 %        FUNCTION [JCUR, FLAG, NEW_DATA] = PSETFUN(T,Y,FY,JOK,GAMMA,DATA)
 %   If the local modifications to the user data structure are needed in
@@ -65,4 +65,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/07/07 19:08:40 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:33 $

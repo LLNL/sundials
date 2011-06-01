@@ -4,7 +4,7 @@
 %        FUNCTION [YQD, FLAG] = ODEQFUN(T,Y)
 %   and must return a vector YQD corresponding to fQ(t,y), the integrand
 %   for the integral to be evaluated.
-%   If a user data structure DATA was specified in CVodeMalloc, then
+%   If a user data structure DATA was specified in CVodeInit, then
 %   ODEQFUN must be defined as
 %        FUNCTION [YQD, FLAG, NEW_DATA] = ODEQFUN(T,Y,DATA)
 %   If the local modifications to the user data structure are needed in
@@ -21,4 +21,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date: 2006/02/13 23:01:20 $
+% $Revision: 1.2 $Date: 2007/05/11 18:51:33 $
