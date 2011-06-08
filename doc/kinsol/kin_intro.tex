@@ -109,9 +109,9 @@ Three major logic bugs were fixed -- involving updating the solution
 vector, updating the linesearch parameter, and a missing error return.
 Two minor errors were fixed -- involving setting \id{etachoice} in the
 Matlab/{\kinsol} interface, and a missing error case in \id{KINPrintInfo}.
-In each linear solver interface function, the \id{**Free} function now
-includes a line setting to NULL the main memory pointer to the linear
-solver memory.
+In each linear solver interface function, the linear solver memory is
+freed on an error return, and the \id{**Free} function now includes a
+line setting to NULL the main memory pointer to the linear solver memory.
 In the installation files, we modified the treatment of the macro
 SUNDIALS\_USE\_GENERIC\_MATH, so that the parameter GENERIC\_MATH\_LIB is
 either defined (with no value) or not defined.

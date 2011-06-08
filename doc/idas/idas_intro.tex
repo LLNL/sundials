@@ -96,9 +96,9 @@ A missing vector pointer setting was added in \id{IDASensLineSrch}.
 In \id{IDACompleteStep}, conditionals around lines loading a new column of three
 auxiliary divided difference arrays, for a possible order increase, were fixed.
 After the solver memory is created, it is set to zero before being filled.
-In each linear solver interface function, the \id{**Free} function now
-includes a line setting to NULL the main memory pointer to the linear
-solver memory.
+In each linear solver interface function, the linear solver memory is
+freed on an error return, and the \id{**Free} function now includes a
+line setting to NULL the main memory pointer to the linear solver memory.
 A memory leak was fixed in two of the \id{IDASp***Free} functions.
 In the installation files, we modified the treatment of the macro
 SUNDIALS\_USE\_GENERIC\_MATH, so that the parameter GENERIC\_MATH\_LIB is

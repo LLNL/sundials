@@ -72,9 +72,9 @@ A large number of minor errors have been fixed.  Among these are the following:
 After the solver memory is created, it is set to zero before being filled.
 To be consistent with IDAS, IDA uses the function \id{IDAGetDky} for
 optional output retrieval.
-In each linear solver interface function, the \id{**Free} function now
-includes a line setting to NULL the main memory pointer to the linear
-solver memory.
+In each linear solver interface function, the linear solver memory is
+freed on an error return, and the \id{**Free} function now includes a
+line setting to NULL the main memory pointer to the linear solver memory.
 A memory leak was fixed in two of the \id{IDASp***Free} functions.
 In the installation files, we modified the treatment of the macro
 SUNDIALS\_USE\_GENERIC\_MATH, so that the parameter GENERIC\_MATH\_LIB is
