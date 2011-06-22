@@ -1639,12 +1639,6 @@ this situation. Steps that are unchanged from the skeleton program presented in
 
 \item
   \textcolor{gray}{\bf Set problem dimensions}
-
-%%   {\s} Set \id{N} to the problem size $N$ (excluding quadrature variables),
-%%   and \id{Nqs} to the number of quadrature variables.
-
-%%   {\p} Set \id{Nlocal} to the local vector length (excluding quadrature variables),
-%%   and \id{Nqslocal} to the local number of quadrature variables.
   
 \item
   \textcolor{gray}{\bf Set vectors of initial values}
@@ -1691,8 +1685,6 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \item\label{i:quad_sens_optional_input}
   {\bf Set optional inputs for sensitivity-dependent quadrature integration}
 
-%%  Call \id{CVodeSetQuadFdata} to specify user data required for the evaluation
-%%  of the quadrature equation right-hand side.
   Call \id{CVodeSetQuadSensErrCon} to indicate whether or not quadrature variables
   should be used in the step size control mechanism. If so, one of the 
   \id{CVodeQuadSens*tolerances} functions  must be called to specify the integration 
@@ -1768,7 +1760,6 @@ flag = CVodeQuadSensInit(cvode\_mem, rhsQS, yQS0);
   \item[rhsQS] (\Id{CVQuadSensRhsFn})
     is the {\C} function which computes $f_{QS}$, the right-hand side of the 
     sensitivity-dependent quadrature equations
-    %This function has the form  \id{fQS(t, yy, yp, yyS, ypS, rhsQ, rhsQSuser\_data)} 
     (for full details see \S\ref{ss:user_fct_quad_sens}).
   \item[yQS0] (\id{N\_Vector *})
     contains the initial values of sensitivity-dependent quadratures.
