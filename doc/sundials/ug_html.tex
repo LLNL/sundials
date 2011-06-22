@@ -11,8 +11,6 @@
 \definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
 
 %----- Define the warning sign
-%%\newcommand{\warn}{\textcolor{red}{\large\bf [!~]}}
-%%\newcommand{\warn}{\textcolor{red}{\fbox{\large\bf [!~]}}}
 \newcommand{\warn}{\begin{rawhtml}<img src="warning.png">&nbsp;&nbsp;\end{rawhtml}}
 
 %----- VERSIONS AND UCRL NUMBERS OF SUNDIALS CODES
@@ -219,15 +217,6 @@
 %%---------------------------------
 %% Steps used in skeleton programs
 %%---------------------------------
-%% \newcounter{Stepsctr}
-%% \newenvironment{Steps}
-%% {\setcounter{Stepsctr}{0}
-%%   \begin{list}{\arabic{Stepsctr}. }{
-%%       \usecounter{Stepsctr}
-%%       \setlength{\parsep}{0.5em}
-%%       \setlength{\labelsep}{0em}
-%%       \settowidth{\labelwidth}{99.}}}
-%%   {\end{list}}
 \newenvironment{Steps}{\begin{enumerate}}{\end{enumerate}}
 
 %%----------------------------------

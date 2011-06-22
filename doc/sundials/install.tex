@@ -11,10 +11,11 @@ To begin the installation, first uncompress and expand the sources, by issuing
 \end{verbatim}
 This will extract source files under a directory {\em solver}\id{-x.y.z}.
 
-
-Starting with version \id{2.4.0} of {\sundials}, two installation methods are provided: in addition to the previous autotools-based
-method, {\sundials} now provides a method based on CMake. Before providing detailed explanations on the installation procedure
-for the two approaches, we begin with a few common observations:
+Starting with version \id{2.4.0} of {\sundials}, two installation
+methods are provided: in addition to the previous autotools-based
+method, {\sundials} now provides a method based on CMake. Before
+providing detailed explanations on the installation procedure for the
+two approaches, we begin with a few common observations:
 %%
 \begin{itemize}
 
@@ -60,9 +61,9 @@ for the two approaches, we begin with a few common observations:
   {\sundials} examples without having to install them.  (This can be
   used as a sanity check for the freshly built libraries.)
 
-\item Even if generation of shared libraries is enabled, only static libraries are created
-  for the FCMIX modules.  (Because of the use of fixed names for the Fortran
-  user-provided subroutines, FCMIX shared libraries would result in
+\item Even if generation of shared libraries is enabled, only static libraries
+  are created for the FCMIX modules.  (Because of the use of fixed names for
+  the Fortran user-provided subroutines, FCMIX shared libraries would result in
   "undefined symbol" errors at link time.)
 
 \end{itemize}

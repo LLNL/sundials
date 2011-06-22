@@ -499,16 +499,17 @@ with {\sundials}.
 % ------------------------------------------------------------------------------
 
 \index{generic linear solvers!SPGMR@{\spgmr}}
-\index{SPGMR@{\spgmr} generic linear solver!description of|(} 
-The {\spgmr} package, in the files \id{sundials\_spgmr.h} and \id{sundials\_spgmr.c}, includes an
-implementation of the scaled preconditioned GMRES\index{GMRES method} method.  
-A separate code module, implemented in \id{sundials\_iterative.(h,c)}, contains auxiliary
-functions that support {\spgmr}, as well as the other Krylov solvers in {\sundials}
-({\spbcg} and {\sptfqmr}).
+\index{SPGMR@{\spgmr} generic linear solver!description of|(}
+The {\spgmr} package, in the files \id{sundials\_spgmr.h} and
+\id{sundials\_spgmr.c}, includes an implementation of the scaled
+preconditioned GMRES\index{GMRES method} method.  A separate code
+module, implemented in \id{sundials\_iterative.(h,c)}, contains
+auxiliary functions that support {\spgmr}, as well as the other Krylov
+solvers in {\sundials} ({\spbcg} and {\sptfqmr}).
 For full details, including usage instructions, see the header
 files \id{sundials\_spgmr.h} and \id{sundials\_iterative.h}.
-
 \index{SPGMR@{\spgmr} generic linear solver!description of|)}
+
 The files comprising the {\spgmr} generic linear solver, and their locations
 in the {\sundials} {\em srcdir}, are as follows:
 \begin{itemize}
@@ -571,9 +572,10 @@ The following functions are available in the support package
 % ------------------------------------------------------------------------------
 
 \index{generic linear solvers!SPBCG@{\spbcg}}
-\index{SPBCG@{\spbcg} generic linear solver!description of|(} 
-The {\spbcg} package, in the files \id{sundials\_spbcgs.h} and \id{sundials\_spbcgs.c}, includes an
-implementation of the scaled preconditioned Bi-CGStab\index{Bi-CGStab method} method.  
+\index{SPBCG@{\spbcg} generic linear solver!description of|(}
+The {\spbcg} package, in the files \id{sundials\_spbcgs.h} and
+\id{sundials\_spbcgs.c}, includes an implementation of the scaled
+preconditioned Bi-CGStab\index{Bi-CGStab method} method.
 For full details, including usage instructions, see the file \id{sundials\_spbcgs.h}.
 \index{SPBCG@{\spbcg} generic linear solver!description of|)}
 
@@ -597,10 +599,11 @@ The following functions are available in the {\spbcg} package:
 % ------------------------------------------------------------------------------
 
 \index{generic linear solvers!SPTFQMR@{\sptfqmr}}
-\index{SPTFQMR@{\sptfqmr} generic linear solver!description of|(} 
-The {\sptfqmr} package, in the files \id{sundials\_sptfqmr.h} and \id{sundials\_sptfqmr.c}, includes an
-implementation of the scaled preconditioned TFQMR\index{TFQMR method} method.  
-For full details, including usage instructions, see the file \id{sundials\_sptfqmr.h}.
+\index{SPTFQMR@{\sptfqmr} generic linear solver!description of|(}
+The {\sptfqmr} package, in the files \id{sundials\_sptfqmr.h} and
+\id{sundials\_sptfqmr.c}, includes an implementation of the scaled
+preconditioned TFQMR\index{TFQMR method} method.  For full details,
+including usage instructions, see the file \id{sundials\_sptfqmr.h}.
 \index{SPTFQMR@{\sptfqmr} generic linear solver!description of|)}
 
 The files needed to use the {\sptfqmr} module by itself are the same as for the

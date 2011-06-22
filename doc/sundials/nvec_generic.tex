@@ -82,27 +82,23 @@ void N_VScale(realtype c, N_Vector x, N_Vector z)
 Table \ref{t:nvecops} contains a complete list of all vector operations defined
 by the generic {\nvector} module.
 
-
-
-Finally, note that the generic {\nvector} module defines the functions \ID{N\_VCloneVectorArray}
-and \ID{N\_VCloneEmptyVectorArray}.  Both functions create (by cloning) an array of \id{count}
-variables of type \id{N\_Vector}, each of the same type as an existing \id{N\_Vector}. Their
-prototypes are
+Finally, note that the generic {\nvector} module defines the functions
+\ID{N\_VCloneVectorArray} and \ID{N\_VCloneEmptyVectorArray}.  Both functions
+create (by cloning) an array of \id{count} variables of type \id{N\_Vector}, each
+of the same type as an existing \id{N\_Vector}. Their prototypes are
 \begin{verbatim}
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
 N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w);
 \end{verbatim}
-and their definitions are based on the implementation-specific \id{N\_VClone} and \id{N\_VCloneEmpty}
-operations, respectively.
+and their definitions are based on the implementation-specific \id{N\_VClone} and
+\id{N\_VCloneEmpty} operations, respectively.
 
-An array of variables of type \id{N\_Vector} can be destroyed by calling \ID{N\_VDestroyVectorArray},
-whose prototype is
+An array of variables of type \id{N\_Vector} can be destroyed by
+calling \ID{N\_VDestroyVectorArray}, whose prototype is
 \begin{verbatim}
 void N_VDestroyVectorArray(N_Vector *vs, int count);
 \end{verbatim}
 and whose definition is based on the implementation-specific \id{N\_VDestroy} operation.
-
-
 
 
 A particular implementation of the {\nvector} module must:
