@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.3 $
+ * $Date: 2011-06-23 00:17:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -52,7 +52,7 @@
  * and making three calls.  The user-supplied routines are:
  *   atimes(A_data, x, y) to compute y = A x, given x,
  * and
- *   psolve(P_data, x, y, lr) to solve P1 x = y or P2 x = y for x,
+ *   psolve(P_data, y, x, lr) to solve P1 x = y or P2 x = y for x,
  *                            given y.
  * The three user calls are:
  *   mem  = SptfqmrMalloc(lmax, vec_tmpl);

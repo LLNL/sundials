@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-11-29 00:05:07 $
+ * $Revision: 1.3 $
+ * $Date: 2011-06-23 00:17:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -52,7 +52,7 @@
  * and making three calls.  The user-supplied routines are
  *    atimes (A_data, x, y) to compute y = A x, given x,
  * and
- *    psolve (P_data, x, y, lr)
+ *    psolve (P_data, y, x, lr)
  *                to solve P1 x = y or P2 x = y for x, given y.
  * The three user calls are:
  *    mem  = SpgmrMalloc(lmax, vec_tmpl);
@@ -63,7 +63,7 @@
  *    SpgmrFree(mem);
  *           to free the memory created by SpgmrMalloc.
  * Complete details for specifying atimes and psolve and for the
- * usage calls are given in the paragraphs below and in iterative.h.
+ * usage calls are given below and in sundials_iterative.h.
  * -----------------------------------------------------------------
  */
 
@@ -177,13 +177,13 @@ SUNDIALS_EXPORT SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl);
  * function.
  *
  * pretype is the type of preconditioning to be used. Its
- * legal possible values are enumerated in iterativ.h. These
+ * legal values are enumerated in sundials_iterative.h. These
  * values are PREC_NONE=0, PREC_LEFT=1, PREC_RIGHT=2, and
  * PREC_BOTH=3.
  *
  * gstype is the type of Gram-Schmidt orthogonalization to be
- * used. Its legal values are enumerated in iterativ.h. These
- * values are MODIFIED_GS=0 and CLASSICAL_GS=1.
+ * used. Its legal values are enumerated in sundials_iterative.h.
+ * These values are MODIFIED_GS=0 and CLASSICAL_GS=1.
  *
  * delta is the tolerance on the L2 norm of the scaled,
  * preconditioned residual. On return with value SPGMR_SUCCESS,
@@ -205,12 +205,12 @@ SUNDIALS_EXPORT SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl);
  *
  * atimes is the user-supplied function which performs the
  * operation of multiplying A by a given vector. Its description
- * is given in iterative.h.
+ * is given in sundials_iterative.h.
  *
  * psolve is the user-supplied function which solves a
  * preconditioner system Pz = r, where P is P1 or P2. Its full
- * description is  given in iterativ.h. The psolve function will
- * not be called if pretype is NONE; in that case, the user
+ * description is given in sundials_iterative.h. The psolve function
+ * will not be called if pretype is NONE; in that case, the user
  * should pass NULL for psolve.
  *
  * res_norm is a pointer to the L2 norm of the scaled,
