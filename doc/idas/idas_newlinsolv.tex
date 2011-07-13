@@ -156,6 +156,7 @@ The type definition of \id{lsolve} is
   $M$ is some approximation to
   $J = \partial F / \partial y + cj ~ \partial F / \partial \dot{y}$  
   (see Eqn. (\ref{e:DAE_Jacobian})), and the right-hand side vector $b$ is input. 
+  Here $cj$ is available as \id{IDA\_mem->ida\_cj}.
 }
 {
   \begin{args}[IDA\_mem]
