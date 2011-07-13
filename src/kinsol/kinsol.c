@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2011-03-10 00:41:58 $
+ * $Revision: 1.11 $
+ * $Date: 2011-07-13 22:29:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -91,6 +91,7 @@
 #define TWO       RCONST(2.0)
 #define THREE     RCONST(3.0)
 #define FIVE      RCONST(5.0)
+#define TWELVE    RCONST(12.0)
 #define POINT1    RCONST(0.1)
 #define POINT01   RCONST(0.01)
 #define POINT99   RCONST(0.99)
@@ -1496,7 +1497,7 @@ static int KINConstraint(KINMem kin_mem)
 
 static int KINStop(KINMem kin_mem, int strategy, booleantype maxStepTaken, int sflag)
 {
-  realtype fmax, rlength;
+  realtype fmax, rlength, omexp;
   N_Vector delta;
 
   /* Check for too small a step */
@@ -1577,9 +1578,10 @@ static int KINStop(KINMem kin_mem, int strategy, booleantype maxStepTaken, int s
       nnilset_sub = nni;
 
       /* If indicated, estimate new OMEGA value */
-      if (eval_omega)
-        omega = MIN(omega_min*EXP(MAX(ZERO,(fnorm/fnormtol)-ONE)), omega_max);
-
+      if (eval_omega) {
+        omexp = MAX(ZERO,(fnorm/fnormtol)-ONE);
+        omega = (omexp > TWELVE)? omega_max : MIN(omega_min*EXP(omexp), omega_max);
+      }   
       /* Check if making satisfactory progress */
 
       if (fnorm > omega*fnorm_sub) {
