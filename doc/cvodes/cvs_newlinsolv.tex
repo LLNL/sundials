@@ -183,6 +183,7 @@ The type definition of \id{lsolve} is
   The function \id{lsolve} must solve the linear equation $M x = b$, where         
   $M$ is some approximation to $I - \gamma J$, $J = (\dfdyI)(t_n, y_{cur})$
   (see Eq.(\ref{e:Newtonmat})), and the right-hand side vector $b$ is input. 
+  Here $\gamma$ is available as \id{cv\_mem->cv\_gamma}.
 }
 {
   \begin{args}[cv\_mem]
