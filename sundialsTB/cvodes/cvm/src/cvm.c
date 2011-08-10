@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2007-12-05 21:58:18 $
+ * $Revision: 1.23 $
+ * $Date: 2011-08-10 23:35:39 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3069,7 +3069,7 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     mxSetField(mxS_root, 0, "nge", mxCreateScalarDouble((double)nge));
 
-    rootsfound = (int *) malloc(nge*sizeof(int));
+    rootsfound = (int *) malloc(Ng*sizeof(int));
     status = CVodeGetRootInfo(cvode_mem, rootsfound);
     if (status != CV_SUCCESS) goto error_return;
     mxS_rootsfound = mxCreateDoubleMatrix(Ng,1,mxREAL);
@@ -3077,6 +3077,7 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     for (i=0;i<Ng;i++)
       tmp[i] = (double)rootsfound[i];
     mxSetField(mxS_root, 0, "roots", mxS_rootsfound);
+    free(rootsfound);
 
   } else {
 
