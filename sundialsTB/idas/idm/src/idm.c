@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2011-05-26 00:14:21 $
+ * $Revision: 1.18 $
+ * $Date: 2011-08-10 23:36:53 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2964,7 +2964,7 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     mxSetField(mxS_root, 0, "nge", mxCreateScalarDouble((double)nge));
 
-    rootsfound = (int *) malloc(nge*sizeof(int));
+    rootsfound = (int *) malloc(Ng*sizeof(int));
     status = IDAGetRootInfo(ida_mem, rootsfound);
     if (status != IDA_SUCCESS) goto error_return;
     mxS_rootsfound = mxCreateDoubleMatrix(Ng,1,mxREAL);
@@ -2972,6 +2972,7 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     for (i=0;i<Ng;i++)
       tmp[i] = (double)rootsfound[i];
     mxSetField(mxS_root, 0, "roots", mxS_rootsfound);
+    free(rootsfound);
 
   } else {
 
