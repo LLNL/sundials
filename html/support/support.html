@@ -26,6 +26,7 @@ supporton = new Image();        supporton.src = "../graphics/support_buttonH.png
 supportoff = new Image();       supportoff.src = "../graphics/support_button.png";
 //-->
 </script>
+
 <script src="../sunjs.js" type="text/javascript" language="javascript1.2"></script>
 
 </head>
@@ -40,6 +41,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <tr valign="top">
   <td height="60" background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
   <td width="116"><img SRC="../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+
   <td width="720"><img SRC="../graphics/head_support_top_right.png" height="60" width="720" border="0"></td>
   <td background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
   </tr>
@@ -49,6 +51,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <td width="116">
     <a href="../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../graphics/home_button.png" border="0" name="home"></a><br>
     <a href="../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../graphics/description_button.png" border="0" name="description"></a><br>
+
     <a href="../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../graphics/documentation_button.png" border="0" name="documentation"></a><br>
     <a href="../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../graphics/download_button.png" border="0" name="download"></a><br>
     <a href="support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../graphics/support_button.png" border="0" name="support"></a><br>
@@ -76,17 +79,9 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <tr><td colspan="2">
 If you encounter problems while building and/or using one of the SUNDIALS solvers:<br>
 </td></tr>
-
 <tr><td><b>&nbsp;&nbsp;1.</b></td><td>check the FAQ and consult the external Sundials Wiki.</td></tr>
 <tr><td><b>&nbsp;&nbsp;2.</b></td><td>browse the sundials-users mailing list archive.</td>
 <tr><td><b>&nbsp;&nbsp;3.</b></td><td>subscribe and post to the mailing list.</td>
-<!--
-<tr><td><a href="#faq"><b>&nbsp;&nbsp;1.</b></a></td><td>check the FAQ and consult the Usage Notes section.</td></tr>
-<tr><td><a href="#patches"><b>&nbsp;&nbsp;2.</b></a></td><td>verify whether this is a known issue and a patch is provided.</td>
-<tr><td><a href="#mail"><b>&nbsp;&nbsp;3.</b></a></td><td>browse the sundials-users mailing list archive.</td>
-<tr><td><a href="#mail"><b>&nbsp;&nbsp;4.</b></a></td><td>subscribe and post to the mailing list.</td>
-<tr><td><a href="#bugs"><b>&nbsp;&nbsp;5.</b></a></td><td>report a bug through Bugzilla.</td></tr>
--->
 </table>
 
 <br><br>
@@ -97,7 +92,7 @@ If you encounter problems while building and/or using one of the SUNDIALS solver
 Answers to some of the most common user questions, as well as several tips on installing and using SUNDIALS 
 can be found in the <a href="faq.html"><b>Frequently Asked Questions</b></a> section.
 <br><br>
-Some lenghtier discussions of various issues are available on the <a href="http://sundials.wikidot.com/"><b>Sundials Wiki</b></a>
+Some lengthier discussions of various issues are available on the <a href="http://sundials.wikidot.com/"><b>Sundials Wiki</b></a>
 (external link). Topics currently covered include: integration return and output times,
 controlling unphysical solutions and integrating over discontinuities, and
 switching on/off forward sensitivity computations.
@@ -116,12 +111,13 @@ Workarounds and patches for known bugs in SUNDIALS can be found in the <a href="
 
 <div class="frame">
 
-<FORM METHOD=POST ACTION="../cgi/handleform.cgi">
+<FORM METHOD="post" ACTION="../../../../cgi/casc/sundials/cgi_dir/handleform.cgi">
 We maintain two mailing lists, one (sundials-announce) reserved for announcements 
-of new releases, the other (sundals-users) devoted to user-developer and user-user 
+of new releases, the other (sundials-users) devoted to user-developer and user-user 
 interaction. Previous posts to the sundials-user mailing list are 
-<a HREF="mailArchive/maillist.html"><b>archived</b></a> and available for browsing.
+<a HREF="http://sundials.2283335.n4.nabble.com/"><b>archived</b></a> and available for browsing.
 <br><br>
+
 To subscribe to one or both mailing lists, use the following form:
 <br><br>
 
@@ -133,6 +129,7 @@ To subscribe to one or both mailing lists, use the following form:
  <INPUT TYPE="checkbox" NAME="sundials-announce" VALUE="sundials-announce"><b>sundials-announce (sundials-announce@llnl.gov)</b>
  <div style="margin-left: 30px">
  Low-volume, moderated list for announcements of new SUNDIALS releases.<br>
+
  It cannot be posted to by users.
  </div>
 </td>
@@ -144,6 +141,7 @@ To subscribe to one or both mailing lists, use the following form:
  <INPUT TYPE="checkbox" NAME="sundials-users" VALUE="sundials-users"><b>sundials-users (sundials-users@llnl.gov)</b>
  <div style="margin-left: 30px">
  Unmoderated discussion group for user-user and user-developer discussions.<br>
+
  It can be posted to by any member of the list.
  </div>
 </td>
@@ -171,6 +169,7 @@ To subscribe to one or both mailing lists, use the following form:
 </table>
 
 <br>
+
 <center>
 <INPUT TYPE="submit" NAME="subscribe" VALUE="Submit" CLASS="button">
 <INPUT TYPE="reset" VALUE="Clear Form" CLASS="button">
@@ -183,31 +182,10 @@ To subscribe to one or both mailing lists, use the following form:
 
 </div>
 
-<!--
-<a name="bugs"></a>
-<h1>Bugzilla Bug Tracking</h1>
-
-<div class="frame">
-SUNDIALS uses a system called Bugzilla to keep track of bugs. 
-Bugzilla is easy to use and makes it easy to see how your bug has progressed, 
-and when it is resolved.
-<br><br>
-To report a bug, you first must 
-<a href="http://www-casc.llnl.gov/bugs/createaccount.cgi" target="_blank"><b>create a Bugzilla account</b></a> 
-(link will open in new window). 
-This is easy and only requires a valid email address. Once you create your account, a password 
-will be mailed to the email address you specified. You only need to create an account once, 
-and you can use it from then on out to report as many bugs as you can find.
-<br><br>
-Once you receive the password, you can 
-<a href="http://www-casc.llnl.gov/bugs/enter_bug.cgi?product=SUNDIALS" target="_blank">
-<b>enter a new bug report</b></a> (new window).
-</div>
--->
-
 <!-- ******************************************************************************** -->
 <div id="contact">
 For further information, contact<BR>
+
 Radu Serban <A HREF="mailto:radu@llnl.gov">radu@llnl.gov</A><BR>
 Carol Woodward <A HREF="mailto:cswoodward@llnl.gov">cswoodward@llnl.gov</A><BR>
 Alan Hindmarsh <A HREF="mailto:alanh@llnl.gov">alanh@llnl.gov</A><BR>
