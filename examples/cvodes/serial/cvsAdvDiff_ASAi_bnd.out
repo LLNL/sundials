@@ -5,6 +5,8 @@ Allocate global memory
 
 Forward integration
 
+ncheck = 3
+
 Create and allocate CVODES memory for backward run
 
 Backward integration

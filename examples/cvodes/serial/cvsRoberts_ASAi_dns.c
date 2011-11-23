@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2010-12-01 22:58:00 $
+ * $Revision: 1.4 $
+ * $Date: 2011-11-23 23:53:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -238,6 +238,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeGetNumSteps", 1)) return(1);
 
   printf("done ( nst = %ld )\n",nst);
+  printf("\nncheck = %d\n\n", ncheck);
 
   flag = CVodeGetQuad(cvode_mem, &time, q);
   if (check_flag(&flag, "CVodeGetQuad", 1)) return(1);

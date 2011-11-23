@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2010-12-01 22:57:59 $
+ * $Revision: 1.4 $
+ * $Date: 2011-11-23 23:53:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -285,6 +285,9 @@ int main(int argc, char *argv[])
   printf("\nForward integration\n");
   flag = CVodeF(cvode_mem, TOUT, c, &t, CV_NORMAL, &ncheck);
   if(check_flag(&flag, "CVodeF", 1)) return(1);
+
+  printf("\nncheck = %d\n", ncheck);
+
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %Lf \n\n", 
