@@ -809,8 +809,8 @@ The call to \id{CVodeB} has the form
     it has reached or just passed the user-specified value \id{tBout}.
     The solver then interpolates in order to   
     return an approximate value of $yB($\id{tBout}$)$. 
-    The \Id{CV\_ONE\_STEP} option tells the solver to just take one internal step  
-    and return the solution at the point reached by that step. 
+    The \Id{CV\_ONE\_STEP} option tells the solver to take just one internal step in
+    the direction of \id{tBout} and return. 
   \end{args}
 }
 {
@@ -861,6 +861,11 @@ The call to \id{CVodeB} has the form
 {
   All failure return values are negative and therefore a test \id{flag}$< 0$
   will trap all \id{CVodeB} failures.
+
+  In the case of multiple checkpoints and multiple backward problems, a given
+  call to \id{CVodeB} in \id{CV\_ONE\_STEP} mode may not advance every problem
+  one step, depending on the relative locations of the current times reached.
+  But repeated calls will eventually advance all problems to \id{tBout}.
 }
 %%
 %%
