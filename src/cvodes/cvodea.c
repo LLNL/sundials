@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2007-11-26 16:19:59 $
+ * $Revision: 1.24 $
+ * $Date: 2011-11-24 00:10:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1242,7 +1242,6 @@ int CVodeQuadSVtolerancesB(void *cvode_mem, int which, realtype reltolQB, N_Vect
  * of all backward problems that were defined.
  * When necessary, it performs a forward integration between two 
  * consecutive check points to update interpolation data.
- * itask can be CV_NORMAL or CV_ONE_STEP only.
  *
  * On a successful return, CVodeB returns either CV_SUCCESS
  * (in ONE_STEP mode or if tBout was reached in NORMAL mode)
@@ -1252,6 +1251,9 @@ int CVodeQuadSVtolerancesB(void *cvode_mem, int which, realtype reltolQB, N_Vect
  * NOTE that CVodeB DOES NOT return the solution for the backward
  * problem(s). Use CVodeGetB to extract the solution at tBret
  * for any given backward problem.
+ *
+ * If there are multiple backward problems and multiple checkpoints,
+ * CVodeB may not succeed in get all problems to take one step.
  */
 
 int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
@@ -1261,7 +1263,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
   CVodeBMem cvB_mem, tmp_cvB_mem;
   CkpntMem ck_mem;
   int sign, flag;
-  realtype tBret, tBn, hB, troundoff;
+  realtype tfuzz, tBret, tBn;
   booleantype gotCheckpoint, isActive, reachedTBout;
   
   /* Check if cvode_mem exists */
@@ -1298,6 +1300,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
 
   /* If this is the first call, loop over all backward problems and
    *   - check that tB0 is valid
+   *   - check that tBout is ahead of tB0 in the backward direction
    *   - check whether we need to interpolate forward sensitivities
    */
 
@@ -1308,12 +1311,21 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
     while(tmp_cvB_mem != NULL) {
 
       tBn = tmp_cvB_mem->cv_mem->cv_tn;
+
       if ( (sign*(tBn-tinitial) < ZERO) || (sign*(tfinal-tBn) < ZERO) ) {
-        cvProcessError(cv_mem, CV_BAD_TB0, "CVODEA", "CVodeB", MSGCV_BAD_TB0, tmp_cvB_mem->cv_index);
+        cvProcessError(cv_mem, CV_BAD_TB0, "CVODEA", "CVodeB", MSGCV_BAD_TB0,
+                       tmp_cvB_mem->cv_index);
         return(CV_BAD_TB0);
       }
 
-      if ( tmp_cvB_mem->cv_f_withSensi || tmp_cvB_mem->cv_fQ_withSensi ) IMinterpSensi = TRUE;
+      if (sign*(tBn-tBout) <= ZERO) {
+        cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeB", MSGCV_BAD_TBOUT,
+                       tmp_cvB_mem->cv_index);
+        return(CV_ILL_INPUT);
+      }
+
+      if ( tmp_cvB_mem->cv_f_withSensi || tmp_cvB_mem->cv_fQ_withSensi )
+          IMinterpSensi = TRUE;
 
       tmp_cvB_mem = tmp_cvB_mem->cv_next;
 
@@ -1337,7 +1349,8 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
   /* Check if tBout is legal */
 
   if ( (sign*(tBout-tinitial) < ZERO) || (sign*(tfinal-tBout) < ZERO) ) {
-    if ( ABS(tBout-tinitial) < HUNDRED*uround ) {
+    tfuzz = HUNDRED*uround*(ABS(tinitial) + ABS(tfinal));
+    if ( (sign*(tBout-tinitial) < ZERO) && (ABS(tBout-tinitial) < tfuzz) ) {
       tBout = tinitial;
     } else {
       cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeB", MSGCV_BAD_TBOUT);
@@ -1346,24 +1359,29 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
   }
 
   /* Loop through the check points and stop as soon as a backward
-   * problem has its tn value larger than the current check point's
-   * t0_ value (taking into account the direction of integration) */
+   * problem has its tn value behind the current check point's t0_
+   * value (in the backward direction) */
 
   ck_mem = ca_mem->ck_mem;
 
   gotCheckpoint = FALSE;
 
   loop {
-    
+
     tmp_cvB_mem = cvB_mem;
     while(tmp_cvB_mem != NULL) {
       tBn = tmp_cvB_mem->cv_mem->cv_tn;
-      hB  = tmp_cvB_mem->cv_mem->cv_hu;
-      troundoff = HUNDRED*uround*(ABS(tBn) + ABS(hB));
-      if ( sign * (tBn-t0_) > troundoff ) {
+
+      if ( sign*(tBn-t0_) > ZERO ) {
         gotCheckpoint = TRUE;
         break;
       }
+
+      if ( (itaskB==CV_NORMAL) && (tBn == t0_) && (sign*(tBout-t0_) >= ZERO) ) {
+        gotCheckpoint = TRUE;
+        break;
+      }
+
       tmp_cvB_mem = tmp_cvB_mem->cv_next;
     }
 
@@ -1374,7 +1392,8 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
     ck_mem = next_;
   }
 
-  /* Loop while propagating backward problems */
+  /* Starting with the current checkpoint from above, loop over checkpoints
+     while propagating backward problems */
 
   loop {
 
@@ -1382,10 +1401,8 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
        This is the 2nd forward integration pass */
 
     if (ck_mem != ckpntData) {
-
       flag = CVAdataStore(cv_mem, ck_mem);
       if (flag != CV_SUCCESS) break;
-
     }
 
     /* Loop through all backward problems and, if needed,
@@ -1394,16 +1411,16 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
     tmp_cvB_mem = cvB_mem;
     while (tmp_cvB_mem != NULL) {
 
-      /* Decide if current backward problem is "active" */
+      /* Decide if current backward problem is "active" in this checkpoint */
 
       isActive = TRUE;
 
       tBn = tmp_cvB_mem->cv_mem->cv_tn;
-      hB  = tmp_cvB_mem->cv_mem->cv_hu;
-      troundoff = HUNDRED*uround*(ABS(tBn) + ABS(hB));
 
-      if ( sign * (tBn - t0_)   < troundoff ) isActive = FALSE;
-      if ( sign * (tBn - tBout) < troundoff ) isActive = FALSE;
+      if ( (tBn == t0_) && (sign*(tBout-t0_) < ZERO ) ) isActive = FALSE;
+      if ( (tBn == t0_) && (itaskB==CV_ONE_STEP) ) isActive = FALSE;
+
+      if ( sign * (tBn - t0_) < ZERO ) isActive = FALSE;
 
       if ( isActive ) {
 
@@ -1415,17 +1432,15 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
         CVodeSetStopTime(tmp_cvB_mem->cv_mem, t0_);
         flag = CVode(tmp_cvB_mem->cv_mem, tBout, tmp_cvB_mem->cv_y, &tBret, itaskB);
 
-        /* If an error occured, exit while loop */
-        if (flag < 0) break;
-
         /* Set the time at which we will report solution and/or quadratures */
         tmp_cvB_mem->cv_tout = tBret;
 
-      } else {
+        /* If an error occurred, exit while loop */
+        if (flag < 0) break;
 
+      } else {
         flag = CV_SUCCESS;
         tmp_cvB_mem->cv_tout = tBn;
-
       }
 
       /* Move to next backward problem */
@@ -1433,14 +1448,15 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
       tmp_cvB_mem = tmp_cvB_mem->cv_next;
     }
 
-    /* If an error occured, return now */
+    /* If an error occurred, return now */
 
     if (flag <0) {
-      cvProcessError(cv_mem, flag, "CVODEA", "CVodeB", MSGCV_BACK_ERROR, tmp_cvB_mem->cv_index);
+      cvProcessError(cv_mem, flag, "CVODEA", "CVodeB", MSGCV_BACK_ERROR,
+                     tmp_cvB_mem->cv_index);
       return(flag);
     }
 
-    /* If in CV_ONE_STEP mode, return now (flag=CV_SUCCESS or flag=CV_TSTOP_RETURN) */
+    /* If in CV_ONE_STEP mode, return now (flag = CV_SUCCESS) */
 
     if (itaskB == CV_ONE_STEP) break;
 
@@ -1450,7 +1466,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
 
     tmp_cvB_mem = cvB_mem;
     while(tmp_cvB_mem != NULL) {
-      if ( sign*(tmp_cvB_mem->cv_tout - tBout) > 0 ) {
+      if ( sign*(tmp_cvB_mem->cv_tout - tBout) > ZERO ) {
         reachedTBout = FALSE;
         break;
       }
@@ -1467,7 +1483,6 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
 
   return(flag);
 }
-
 
 
 int CVodeGetB(void *cvode_mem, int which, realtype *tret, N_Vector yB)
@@ -2009,7 +2024,7 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
   DtpntMem *dt_mem;
   realtype t;
   long int i;
-  int flag;
+  int flag, sign;
 
   ca_mem = cv_mem->cv_adj_mem;
   dt_mem = ca_mem->dt_mem;
@@ -2028,6 +2043,9 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
     CVodeSetStopTime(cv_mem, ca_mem->ca_tstopCVodeF);
   }
 
+  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
+
+
   /* Run CVode to set following structures in dt_mem[i] */
   i = 1;
   do {
@@ -2039,7 +2057,7 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
     IMstore(cv_mem, dt_mem[i]);
     i++;
 
-  } while (t<t1_);
+  } while ( sign*(t1_ - t) > ZERO );
 
 
   IMnewData = TRUE;     /* New data is now available    */
@@ -2962,6 +2980,3 @@ static int CVArhsQ(realtype t, N_Vector yB,
 
   return(retval);
 }
-
-
-
