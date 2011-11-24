@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2011-04-25 19:54:00 $
+ * $Revision: 1.32 $
+ * $Date: 2011-11-24 00:00:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3042,6 +3042,12 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     
     nstloc++;
 
+    /* If tstop is set and was reached, reset tn = tstop */
+    if ( tstopset ) {
+      troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
+      if ( ABS(tn - tstop) <= troundoff) tn = tstop;
+    }
+
     /* Check for root in last step taken. */    
     if (nrtfn > 0) {
       
@@ -3088,7 +3094,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       break;
     }
 
-    /* Check if tn is at tstop or near tstop */
+    /* Check if tn is at tstop */
     if ( tstopset ) {
 
       troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
