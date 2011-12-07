@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2011-11-24 00:10:40 $
+ * $Revision: 1.25 $
+ * $Date: 2011-12-07 23:12:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1243,17 +1243,15 @@ int CVodeQuadSVtolerancesB(void *cvode_mem, int which, realtype reltolQB, N_Vect
  * When necessary, it performs a forward integration between two 
  * consecutive check points to update interpolation data.
  *
- * On a successful return, CVodeB returns either CV_SUCCESS
- * (in ONE_STEP mode or if tBout was reached in NORMAL mode)
- * unless the return time happens to be a checkpoint, in which
- * case it returns CV_TSTOP_RETURN)
+ * On a successful return, CVodeB returns CV_SUCCESS.
  *
  * NOTE that CVodeB DOES NOT return the solution for the backward
  * problem(s). Use CVodeGetB to extract the solution at tBret
  * for any given backward problem.
  *
- * If there are multiple backward problems and multiple checkpoints,
- * CVodeB may not succeed in get all problems to take one step.
+ * If there are multiple backward problems and multiple check points,
+ * CVodeB may not succeed in getting all problems to take one step
+ * when called in ONE_STEP mode.
  */
 
 int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
@@ -1392,7 +1390,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
     ck_mem = next_;
   }
 
-  /* Starting with the current checkpoint from above, loop over checkpoints
+  /* Starting with the current check point from above, loop over check points
      while propagating backward problems */
 
   loop {
@@ -1411,7 +1409,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
     tmp_cvB_mem = cvB_mem;
     while (tmp_cvB_mem != NULL) {
 
-      /* Decide if current backward problem is "active" in this checkpoint */
+      /* Decide if current backward problem is "active" in this check point */
 
       isActive = TRUE;
 
