@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2011-04-27 18:34:55 $
+ * $Revision: 1.38 $
+ * $Date: 2011-12-07 23:18:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2480,6 +2480,12 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     }
     
     nstloc++;
+
+    /* If tstop is set and was reached, reset tn = tstop */
+    if (tstopset) {
+      troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
+      if (ABS(tn - tstop) <= troundoff) tn = tstop;
+    }
 
     /* After successful step, check for stop conditions; continue or break. */
 
