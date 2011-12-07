@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2007-11-26 16:20:00 $
+ * $Revision: 1.15 $
+ * $Date: 2011-12-07 23:28:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1412,14 +1412,15 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
  * the adjoint variables and any existing quadrature variables
  * at tinitial.
  *
- * On a successful return, IDASolveB returns either IDA_SUCCESS
- * (in ONE_STEP mode or if tBout was reached in NORMAL mode)
- * unless the return time happens to be a checkpoint, in which
- * case it returns IDA_TSTOP_RETURN)
+ * On a successful return, IDASolveB returns IDA_SUCCESS.
  *
  * NOTE that IDASolveB DOES NOT return the solution for the 
  * backward problem(s). Use IDAGetB to extract the solution 
  * for any given backward problem.
+ *
+ * If there are multiple backward problems and multiple check points,
+ * IDASolveB may not succeed in getting all problems to take one step
+ * when called in ONE_STEP mode.
  */
 
 int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
@@ -1429,7 +1430,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
   CkpntMem ck_mem;
   IDABMem IDAB_mem, tmp_IDAB_mem;
   int flag, sign;
-  realtype tBret, tBn, hB, troundoff;
+  realtype tfuzz, tBret, tBn;
   booleantype gotCkpnt, reachedTBout, isActive;
 
   /* Is the mem OK? */
@@ -1461,6 +1462,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
 
   /* If this is the first call, loop over all backward problems and
    *   - check that tB0 is valid
+   *   - check that tBout is ahead of tB0 in the backward direction
    *   - check whether we need to interpolate forward sensitivities
    */
   if (IDAADJ_mem->ia_firstIDABcall) {
@@ -1471,10 +1473,17 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
     while (tmp_IDAB_mem != NULL) {
 
       tBn = tmp_IDAB_mem->IDA_mem->ida_tn;
+
       if ( (sign*(tBn-tinitial) < ZERO) || (sign*(tfinal-tBn) < ZERO) ) {
         IDAProcessError(IDA_mem, IDA_BAD_TB0, "IDAA", "IDASolveB", 
                         MSGAM_BAD_TB0, tmp_IDAB_mem->ida_index);
         return(IDA_BAD_TB0);
+      }
+
+      if (sign*(tBn-tBout) <= ZERO) {
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASolveB", MSGAM_BAD_TBOUT,
+                       tmp_IDAB_mem->ida_index);
+        return(IDA_ILL_INPUT);
       }
 
       if ( tmp_IDAB_mem->ida_res_withSensi || 
@@ -1500,7 +1509,8 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
 
   /* Check if tBout is legal */
   if ( (sign*(tBout-tinitial) < ZERO) || (sign*(tfinal-tBout) < ZERO) ) {
-    if ( ABS(tBout-tinitial) < HUNDRED*uround ) {
+    tfuzz = HUNDRED*uround*(ABS(tinitial) + ABS(tfinal));
+    if ( (sign*(tBout-tinitial) < ZERO) && (ABS(tBout-tinitial) < tfuzz) ) {
       tBout = tinitial;
     } else {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASolveB", MSGAM_BAD_TBOUT);
@@ -1509,8 +1519,8 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
   }
 
   /* Loop through the check points and stop as soon as a backward
-   * problem has its tn value larger than the current check point's
-   * t0_ value (taking into account the direction of integration) */
+   * problem has its tn value behind the current check point's t0_
+   * value (in the backward direction) */
 
   ck_mem = IDAADJ_mem->ck_mem;
 
@@ -1520,12 +1530,17 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
     tmp_IDAB_mem = IDAB_mem;
     while(tmp_IDAB_mem != NULL) {
       tBn = tmp_IDAB_mem->IDA_mem->ida_tn;
-      hB  = tmp_IDAB_mem->IDA_mem->ida_hused;
-      troundoff = HUNDRED*uround*(ABS(tBn) + ABS(hB));
-      if ( sign * (tBn-t0_) > troundoff ) {
+
+      if ( sign*(tBn-t0_) > ZERO ) {
         gotCkpnt = TRUE;
         break;
       }
+
+      if ( (itaskB == IDA_NORMAL) && (tBn == t0_) && (sign*(tBout-t0_) >= ZERO) ) {
+        gotCkpnt = TRUE;
+        break;
+      }
+
       tmp_IDAB_mem = tmp_IDAB_mem->ida_next;
     }
 
@@ -1547,21 +1562,20 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
       if (flag != IDA_SUCCESS) break;
     }
 
-    /* Loop through all backward problems and, if needed,
-     * propagate their solution towards tBout */
+    /* Starting with the current check point from above, loop over check points
+       while propagating backward problems */
 
     tmp_IDAB_mem = IDAB_mem;
     while (tmp_IDAB_mem != NULL) {
 
-      /* Decide if current backward problem is "active" */
+      /* Decide if current backward problem is "active" in this check point */
       isActive = TRUE;
 
       tBn = tmp_IDAB_mem->IDA_mem->ida_tn;
-      hB  = tmp_IDAB_mem->IDA_mem->ida_hused;
-      troundoff = HUNDRED*uround*(ABS(tBn) + ABS(hB));
 
-      if ( sign * (tBn - t0_)   < troundoff ) isActive = FALSE;
-      if ( sign * (tBn - tBout) < troundoff ) isActive = FALSE;
+      if ( (tBn == t0_) && (sign*(tBout-t0_) < ZERO ) ) isActive = FALSE;
+      if ( (tBn == t0_) && (itaskB == IDA_ONE_STEP) ) isActive = FALSE;
+      if ( sign*(tBn - t0_) < ZERO ) isActive = FALSE;
 
       if ( isActive ) {
         /* Store the address of current backward problem memory 
@@ -1574,11 +1588,12 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
                         tmp_IDAB_mem->ida_yy, tmp_IDAB_mem->ida_yp, 
                         itaskB);
 
-        /* If an error occured, exit while loop */
-        if (flag < 0) break;
-
         /* Set the time at which we will report solution and/or quadratures */
         tmp_IDAB_mem->ida_tout = tBret;
+
+        /* If an error occurred, exit while loop */
+        if (flag < 0) break;
+
       } else {
 
         flag = IDA_SUCCESS;
@@ -1589,14 +1604,14 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
       tmp_IDAB_mem = tmp_IDAB_mem->ida_next;
     } /* End of while: iteration through backward problems. */
     
-    /* If an error occured, return now */
+    /* If an error occurred, return now */
     if (flag <0) {
       IDAProcessError(IDA_mem, flag, "IDAA", "IDASolveB",
                       MSGAM_BACK_ERROR, tmp_IDAB_mem->ida_index);
       return(flag);
     }
 
-    /* If in IDA_ONE_STEP mode, return flag=IDA_SUCCESS or flag=IDA_TSTOP_RETURN */
+    /* If in IDA_ONE_STEP mode, return now (flag = IDA_SUCCESS) */
     if (itaskB == IDA_ONE_STEP) break;
 
     /* If all backward problems have succesfully reached tBout, return now */
@@ -1604,7 +1619,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
 
     tmp_IDAB_mem = IDAB_mem;
     while(tmp_IDAB_mem != NULL) {
-      if ( sign*(tmp_IDAB_mem->ida_tout - tBout) > 0 ) {
+      if ( sign*(tmp_IDAB_mem->ida_tout - tBout) > ZERO ) {
         reachedTBout = FALSE;
         break;
       }
@@ -1620,6 +1635,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
 
   return(flag);
 }
+
 
 /*
  * IDAGetB
@@ -2083,7 +2099,7 @@ static int IDAAdataStore(IDAMem IDA_mem, CkpntMem ck_mem)
   DtpntMem *dt_mem;
   realtype t;
   long int i;
-  int flag;
+  int flag, sign;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
   dt_mem = IDAADJ_mem->dt_mem;
@@ -2102,6 +2118,8 @@ static int IDAAdataStore(IDAMem IDA_mem, CkpntMem ck_mem)
     IDASetStopTime(IDA_mem, IDAADJ_mem->ia_tstopIDAF);
   }
 
+  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
+
   /* Run IDASolve in IDA_ONE_STEP mode to set following structures in dt_mem[i]. */
   i = 1;
   do {
@@ -2113,7 +2131,7 @@ static int IDAAdataStore(IDAMem IDA_mem, CkpntMem ck_mem)
     IDAADJ_mem->ia_storePnt(IDA_mem, dt_mem[i]);
 
     i++;
-  } while (t<t1_);
+  } while ( sign*(t1_ - t) > ZERO );
 
   /* New data is now available. */
   ckpntData = ck_mem;
