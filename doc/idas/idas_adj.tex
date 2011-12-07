@@ -20,8 +20,8 @@ separately in Appendix \ref{c:constants}.
 
 We begin with a brief overview, in the form of a skeleton user program.
 Following that are detailed descriptions of the interface to the
-various user-callable functions and of the user-supplied functions that were not already
-described in Chapter \ref{s:simulation}.
+various user-callable functions and of the user-supplied functions that were
+not already described in Chapter \ref{s:simulation}.
 
 %%
 %%----------------------------------------------------------------------
@@ -361,7 +361,7 @@ The call to this function has the form
     it has reached or just passed the user-specified \id{tout}
     parameter. The solver then interpolates in order to   
     return an approximate value of $y($\id{tout}$)$ and $\dot{y}($\id{tout}$)$. 
-    The \Id{IDA\_ONE\_STEP} option tells the solver to just take one internal step  
+    The \Id{IDA\_ONE\_STEP} option tells the solver to take just one internal step  
     and return the solution at the point reached by that step. 
   \item[ncheck] (\id{int})
     the number of checkpoints stored so far.
@@ -940,8 +940,8 @@ The call to \id{IDASolveB} has the form
     it has reached or just passed the user-specified value \id{tBout}.
     The solver then interpolates in order to   
     return an approximate value of $yB($\id{tBout}$)$. 
-    The \Id{IDA\_ONE\_STEP} option tells the solver to just take one internal step  
-    and return the solution at the point reached by that step. 
+    The \Id{IDA\_ONE\_STEP} option tells the solver to take just one internal
+    step in the direction of \id{tBout} and return. 
   \end{args}
 }
 {
@@ -992,6 +992,11 @@ The call to \id{IDASolveB} has the form
 {
   All failure return values are negative and therefore a test \id{flag}$< 0$
   will trap all \id{IDASolveB} failures.
+
+  In the case of multiple checkpoints and multiple backward problems, a given
+  call to \id{IDASolveB} in \id{IDA\_ONE\_STEP} mode may not advance every problem
+  one step, depending on the relative locations of the current times reached.
+  But repeated calls will eventually advance all problems to \id{tBout}.
 }
 %%
 %%
