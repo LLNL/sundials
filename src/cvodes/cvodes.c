@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2011-11-24 00:00:08 $
+ * $Revision: 1.33 $
+ * $Date: 2011-12-07 21:52:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3094,7 +3094,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       break;
     }
 
-    /* Check if tn is at tstop */
+    /* Check if tn is at tstop, or about to pass tstop */
     if ( tstopset ) {
 
       troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
