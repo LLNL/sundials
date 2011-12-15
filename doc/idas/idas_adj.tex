@@ -364,14 +364,15 @@ The call to this function has the form
     The \Id{IDA\_ONE\_STEP} option tells the solver to take just one internal step  
     and return the solution at the point reached by that step. 
   \item[ncheck] (\id{int})
-    the number of checkpoints stored so far.
+    the number of (internal) checkpoints stored so far.
   \end{args}
 }
 {
   On return, \id{IDASolveF} returns vectors \id{yret}, \id{ypret} and a corresponding 
-  independent variable value $t=$ \id{tret}, such that \id{yret} is the computed 
+  independent variable value $t =$ \id{tret}, such that \id{yret} is the computed 
   value of $y(t)$ and \id{ypret} the value of $\dot{y}(t)$. Additionally, it returns 
-  in \id{ncheck} the number of checkpoints saved.
+  in \id{ncheck} the number of internal checkpoints saved; the total number of
+  checkpoint intervals is \id{ncheck}$ + 1$.
   The return value \id{flag} (of type \id{int}) will be one of the following.
   For more details see \S\ref{sss:idasolve}.
   \begin{args}[IDA\_TOO\_MUCH\_WORK]
