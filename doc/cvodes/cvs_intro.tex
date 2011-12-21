@@ -120,6 +120,9 @@ BLAS/LAPACK routines for the dense/band linear solvers.  The function
 \id{NewIntArray} is replaced by a pair \id{NewIntArray}/\id{NewLintArray},
 for \id{int} and \id{long int} arrays, respectively.
 
+Errors in the logic for the integration of backward problems were
+identified and fixed.
+
 A large number of minor errors have been fixed.  Among these are the following:
 In \id{CVSetTqBDF}, the logic was changed to avoid a divide by zero.
 After the solver memory is created, it is set to zero before being filled.
