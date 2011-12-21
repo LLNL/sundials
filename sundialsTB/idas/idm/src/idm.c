@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2011-08-10 23:36:53 $
+ * $Revision: 1.19 $
+ * $Date: 2011-12-21 22:56:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -949,7 +949,7 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   idmData->errMsg = errmsg;
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[0] = mxCreateScalarDouble((double)status);
@@ -1117,7 +1117,7 @@ static int IDM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   quadr = TRUE;
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[0] = mxCreateScalarDouble((double)status);
@@ -1365,7 +1365,7 @@ static int IDM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
 
   fsa = TRUE;
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[0] = mxCreateScalarDouble((double)status);
@@ -1468,7 +1468,7 @@ static int IDM_AdjInitialization(int action, int nlhs, mxArray *plhs[], int nrhs
 
   asa = TRUE;
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[0] = mxCreateScalarDouble((double)status);
@@ -1875,7 +1875,7 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   if (monB) mxW_IDAMonitorB(0, idxB, tB0, NULL, NULL, bckPb);
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[i_status] = mxCreateScalarDouble((double)status);
@@ -2068,7 +2068,7 @@ static int IDM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
 
   quadrB = TRUE;
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[0] = mxCreateScalarDouble((double)status);
@@ -2130,7 +2130,7 @@ static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   plhs[2] = mxCreateDoubleMatrix(N,1,mxREAL);
   GetData(yp, mxGetPr(plhs[2]), N);
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[0] = mxCreateScalarDouble((double)status);
@@ -3107,7 +3107,7 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   
   mxSetField(plhs[0], 0, "FSAInfo", mxS_fsa);
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[1] = mxCreateScalarDouble((double)status);
@@ -3328,7 +3328,7 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   mxSetField(plhs[0], 0, "LSInfo", mxS_ls);
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[1] = mxCreateScalarDouble((double)status);
@@ -3378,7 +3378,7 @@ static int IDM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (status != IDA_SUCCESS) goto error_return;
   }
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[0] = mxCreateScalarDouble((double)status);
@@ -3457,7 +3457,10 @@ static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     ckpnt = (IDAadjCheckPointRec *) malloc ( (Nc+1)*sizeof(IDAadjCheckPointRec));
     status = IDAGetAdjCheckPointsInfo(ida_mem, ckpnt);
-    if (status != IDA_SUCCESS) goto error_return;
+    if (status != IDA_SUCCESS) {
+      free(ckpnt);
+      goto error_return;
+    }
     nfields = sizeof(fnames_ckpnt)/sizeof(*fnames_ckpnt);
     plhs[0] = mxCreateStructMatrix(Nc+1, 1, nfields, fnames_ckpnt);
     for (i=0; i<=Nc; i++) {
@@ -3469,12 +3472,12 @@ static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       mxSetField(plhs[0], i, "order", mxCreateScalarDouble((double)(ckpnt[Nc-i].order)));
       mxSetField(plhs[0], i, "step",  mxCreateScalarDouble((double)(ckpnt[Nc-i].step)));
     }
-
+    free(ckpnt);
     break;
 
   }
 
-  /* Successfull return */
+  /* Successful return */
 
   status = 0;
   plhs[1] = mxCreateScalarDouble((double)status);
