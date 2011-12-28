@@ -104,11 +104,12 @@ BLAS/LAPACK routines for the dense/band linear solvers.  The function
 \id{NewIntArray} is replaced by a pair \id{NewIntArray}/\id{NewLintArray},
 for \id{int} and \id{long int} arrays, respectively.
 
-A large number of errors have been fixed.  Among these are the following:
+A large number of errors have been fixed.
 Three major logic bugs were fixed -- involving updating the solution
 vector, updating the linesearch parameter, and a missing error return.
-Two minor errors were fixed -- involving setting \id{etachoice} in the
-Matlab/{\kinsol} interface, and a missing error case in \id{KINPrintInfo}.
+Three minor errors were fixed -- involving setting \id{etachoice} in the
+Matlab/{\kinsol} interface, a missing error case in \id{KINPrintInfo},
+and avoiding an exponential overflow in the evaluation of \id{omega}.
 In each linear solver interface function, the linear solver memory is
 freed on an error return, and the \id{**Free} function now includes a
 line setting to NULL the main memory pointer to the linear solver memory.
