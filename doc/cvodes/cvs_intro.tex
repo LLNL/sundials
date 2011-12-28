@@ -118,7 +118,9 @@ changed from type \id{int} to type \id{long int}, except for the
 problem size and bandwidths in user calls to routines specifying
 BLAS/LAPACK routines for the dense/band linear solvers.  The function
 \id{NewIntArray} is replaced by a pair \id{NewIntArray}/\id{NewLintArray},
-for \id{int} and \id{long int} arrays, respectively.
+for \id{int} and \id{long int} arrays, respectively.  In a minor
+change to the user interface, the type of the index \id{which} in
+CVODES was changed from \id{long int} to \id{int}.
 
 Errors in the logic for the integration of backward problems were
 identified and fixed.
