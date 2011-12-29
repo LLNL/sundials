@@ -1,5 +1,5 @@
                               CVODE
-                    Release 2.6.0, January 2008
+                    Release 2.7.0, January 2012
                  Alan C. Hindmarsh and Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -56,11 +56,11 @@ chapter in the CVODE User Guide.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.4.0," 
-    LLLNL technical report UCRL-SM-208108, November 2004.
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.7.0," 
+    LLNL technical report UCRL-SM-208108, December 2011.
 
-[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v2.4.0," 
-    LLNL technical report UCRL-SM-208110, November 2004.
+[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v2.7.0," 
+    LLNL technical report UCRL-SM-208110, December 2011.
 
 [3] S.D. Cohen and A.C. Hindmarsh, "CVODE, a Stiff/nonstiff ODE Solver in C,"
     Computers in Physics, 10(2), pp. 138-143, 1996.
@@ -74,7 +74,8 @@ C. References
 D. Releases
 -----------
 
-v. 2.6.0       - Jan. 2008
+v. 2.7.0       - Jan. 2012
+v. 2.6.0       - May  2009
 v. 2.5.0       - Nov. 2006
 v. 2.4.0       - Mar. 2006
 v. 2.3.0       - Apr. 2005
@@ -82,7 +83,7 @@ v. 2.2.2       - Mar. 2005
 v. 2.2.1       - Jan. 2005
 v. 2.2.0       - Dec. 2004
 v. 2.0         - Jul. 2002 (first SUNDIALS release)
-v. 1.0         - Mar. 2002 (CVODE/PVODE -> combined)
+v. 1.0         - Mar. 2002 (CVODE and PVODE combined)
 v. 1.0 (PVODE) - Jul. 1997 (date written)
 v. 1.0 (CVODE) - Sep. 1994 (date written)
 
@@ -90,8 +91,31 @@ v. 1.0 (CVODE) - Sep. 1994 (date written)
 E. Revision History
 -------------------
 
-v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (Jan. 2008)
----------------------------------------------------------
+v. 2.6.0 (May 2009) ---> v. 2.7.0 (Jan. 2012)
+---------------------------------------------
+
+- Bug fixes
+   - in CVSetTqBDF, the logic was changed to avoid a divide by zero.
+   - after the solver memory is created, it is set to zero before being filled.
+   - in each linear solver interface function, the linear solver memory is
+     freed on an error return, and the **Free function now includes a line
+     setting to NULL the main memory pointer to the linear solver memory.
+
+- Changes to user interface
+   - One significant design change was made with this release: The problem
+     size and its relatives, bandwidth parameters, related internal indices,
+     pivot arrays, and the optional output lsflag, have all been
+     changed from type int to type long int, except for the
+     problem size and bandwidths in user calls to routines specifying
+     BLAS/LAPACK routines for the dense/band linear solvers.  The function
+     NewIntArray is replaced by a pair NewIntArray/NewLintArray,
+     for int and long int arrays, respectively.
+   - in the installation files, we modified the treatment of the macro
+     SUNDIALS_USE_GENERIC_MATH, so that the parameter GENERIC_MATH_LIB
+     is either defined (with no value) or not defined.
+
+v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (May 2009)
+---------------------------------------------
 
 - New features
    - added a new linear solver module based on Blas + Lapack for
@@ -106,6 +130,9 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (Jan. 2008)
      evaluations of the root functions after reinitialization of the
      solver right after a return at a root.
    - in the initial step size calculation, restrict h based on tstop.
+   - modified the setting and use of the tq[] array.  Now tq[i] (i = 1,2,3)
+     are defined to be the reciprocals of what they were before.  This
+     eliminates a rare crash that can occur with xistar_inv = 0.
 
 - Changes to user interface
    - renamed all **Malloc functions to **Init
@@ -121,7 +148,7 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (Jan. 2008)
    - removed CV_NORMAL_TSTOP and CV_ONE_STEP_TSTOP named constants for the
      itask argument to CVode. A tstop value is now both set and activated
      through CVodeSetStopTime. Once tstop is reached it is also deactivated.
-     A new value can be then spcified by calling again CVodeSetStopTime.
+     A new value can be then specified by calling again CVodeSetStopTime.
    - common functionality for all direct linear solvers (dense, band, and
      the new Lapack solver) has been collected into the DLS (Direct Linear
      Solver) module, similar to the SPILS module for the iterative linear 
@@ -139,11 +166,13 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (Jan. 2008)
      to attach one of the SPILS linear solvers (instead use one of
      CVSpgmr, CVSpbcg, or CVSptfqmr). Moreover, there is no need to call
      a memory deallocation function for the preconditioner module.
+   - changed names CVSpilsSetDelt and delt to CVSpilsSetEpsLin and eplifac.
+   - added the error return CV_RTFUNC_FAIL.
    - changes corresponding to the above were made to the FCMIX interface.
 
 
 v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Nov. 2006)
----------------------------------------------------------
+----------------------------------------------
 
 - Bug fixes
    - added a roundoff factor when testing whether tn was just returned
@@ -161,7 +190,7 @@ v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Nov. 2006)
    - all included header files use relative paths from ${includedir}
 
 v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (Mar. 2006)
----------------------------------------------------------
+----------------------------------------------
 
 - New features
    - added CVSPBCG interface module to allow CVODE to interface with the

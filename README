@@ -1,7 +1,7 @@
                             SUNDIALS 
     SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
-                   Release 2.4.0, January 2008
-                  Alan Hindmarsh and Radu Serban
+                   Release 2.5.0, January 2012
+            Alan Hindmarsh, Radu Serban, Carol Woodward
            Center for Applied Scientific Computing, LLNL
 
 
@@ -52,5 +52,6 @@ Release history
 | May 2005 |   2.1.1  |  2.3.0   |  2.3.0   |  2.3.0   |          |  2.3.0   |
 | Mar 2006 |   2.2.0  |  2.4.0   |  2.4.0   |  2.4.0   |          |  2.4.0   |
 | Nov 2006 |   2.3.0  |  2.5.0   |  2.5.0   |  2.5.0   |          |  2.5.0   |
-| Jan 2008 |   2.4.0  |  2.6.0   |  2.6.0   |  2.6.0   |  1.0.0   |  2.6.0   |
+| May 2009 |   2.4.0  |  2.6.0   |  2.6.0   |  2.6.0   |  1.0.0   |  2.6.0   |
+| Jan 2012 |   2.5.0  |  2.7.0   |  2.7.0   |  2.7.0   |  1.1.0   |  2.7.0   |
 +----------+----------+----------+----------+----------+---------------------+

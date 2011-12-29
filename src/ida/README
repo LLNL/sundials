@@ -1,5 +1,5 @@
                                IDA
-                    Release 2.6.0, January 2008
+                    Release 2.7.0, January 2012
                  Alan C. Hindmarsh and Radu Serban 
             Center for Applied Scientific Computing, LLNL
 
@@ -61,11 +61,11 @@ chapter in the IDA User Guide.
 C. References
 -------------
 
-[1] A. C. Hindmarsh, R. Serban, and A. Collier, "User Documentation for IDA v2.4.0," 
-    LLNL technical report UCRL-SM-208112, November 2004.
+[1] A. C. Hindmarsh, R. Serban, and A. Collier, "User Documentation for IDA v2.7.0," 
+    LLNL technical report UCRL-SM-208112, December 2011.
 
-[2] A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v2.4.0," 
-    LLNL technical report UCRL-SM-208113, November 2004.
+[2] A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v2.7.0," 
+    LLNL technical report UCRL-SM-208113, December 2011.
 
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
@@ -84,7 +84,8 @@ C. References
 D. Releases
 -----------
 
-v. 2.6.0   - Jan. 2008
+v. 2.6.0   - Jan. 2012
+v. 2.6.0   - May  2009
 v. 2.5.0   - Nov. 2006
 v. 2.4.0   - Mar. 2006
 v. 2.3.0   - Apr. 2005
@@ -98,8 +99,34 @@ v. 1.0     - Feb. 1999 (date written)
 E. Revision History
 -------------------
 
-v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (Jan. 2008)
----------------------------------------------------------
+v. 2.6.0 (May 2009) ---> v. 2.7.0 (Jan. 2012)
+---------------------------------------------
+
+- Bug fixes
+   - after the solver memory is created, it is set to zero before being filled.
+   - to be consistent with IDAS, IDA uses the function IDAGetDky for
+     optional output retrieval.
+   - in each linear solver interface function, the linear solver memory is
+     freed on an error return, and the **Free function now includes a
+     line setting to NULL the main memory pointer to the linear solver memory.
+   - a memory leak was fixed in two of the IDASp***Free functions.
+
+- Changes to user interface
+   - One significant design change was made with this release: The problem
+     size and its relatives, bandwidth parameters, related internal indices,
+     pivot arrays, and the optional output lsflag, have all been
+     changed from type int to type long int, except for the
+     problem size and bandwidths in user calls to routines specifying
+     BLAS/LAPACK routines for the dense/band linear solvers.  The function
+     NewIntArray is replaced by a pair NewIntArray/NewLintArray,
+     for int and long int arrays, respectively.
+   - in the installation files, we modified the treatment of the macro
+     SUNDIALS_USE_GENERIC_MATH, so that the parameter GENERIC_MATH_LIB
+     is either defined (with no value) or not defined.
+
+
+v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (May 2009)
+---------------------------------------------
 
 - New features
    - added a new linear solver module based on Blas + Lapack for
@@ -128,7 +155,7 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (Jan. 2008)
    - removed IDA_NORMAL_TSTOP and IDA_ONE_STEP_TSTOP named constants for the
      itask argument to IDASolve. A tstop value is now both set and activated
      through IDASetStopTime. Once tstop is reached it is also deactivated.
-     A new value can be then spcified by calling again IDASetStopTime.
+     A new value can be then specified by calling again IDASetStopTime.
    - common functionality for all direct linear solvers (dense, band, and
      the new Lapack solver) has been collected into the DLS (Direct Linear
      Solver) module, similar to the SPILS module for the iterative linear 
@@ -146,10 +173,12 @@ v. 2.5.0 (Nov. 2006) ---> v. 2.6.0 (Jan. 2008)
      linear solvers (instead use one of IDASpgmr, IDASpbcg, or IDASptfqmr).
      Moreover, there is no need to call a memory deallocation function for
      the preconditioner module.
+   - minor changes to legality requirements for real optional inputs.
+   - added the error return IDA_RTFUNC_FAIL.
    - changes corresponding to the above were made to the FCMIX interface.
 
 v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Oct. 2006)
----------------------------------------------------------
+----------------------------------------------
 
 - Bug fixes
    - fixed wrong logic in final stopping tests: now we check if
@@ -177,7 +206,7 @@ v. 2.4.0 (Mar. 2006) ---> v. 2.5.0 (Oct. 2006)
      initial conditions.
 
 v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (Mar. 2006)
----------------------------------------------------------
+----------------------------------------------
 
 - New features
    - added IDASPBCG interface module to allow IDA to interface with the

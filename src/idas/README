@@ -1,5 +1,5 @@
                                IDAS
-                    Release 1.0.0, January 2008
+                    Release 1.1.0, January 2012
                            Radu Serban 
               Center for Applied Scientific Computing, LLNL
 
@@ -57,11 +57,11 @@ chapter in the IDAS User Guide.
 C. References
 -------------
 
-[1] R. Serban and C. Petra,  "User Documentation for IDAS v1.0.0," 
-    LLNL technical report UCRL-SM-234051, August 2007.
+[1] R. Serban and C. Petra,  "User Documentation for IDAS v1.1.0," 
+    LLNL technical report UCRL-SM-234051, December 2011.
 
-[2] R. Serban, "Example Programs for IDAS v1.0.0," 
-    LLNL technical report UCRL-SM-000000, Month Year.
+[2] R. Serban, "Example Programs for IDAS v1.1.0," 
+    LLNL technical report LLNL-TR-437091, December 2011.
 
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
@@ -72,9 +72,41 @@ C. References
 D. Releases
 -----------
 
-v. 1.0.0   - Jan. 2008
+v. 1.1.0   - Jan. 2012
+v. 1.0.0   - May  2009
 
 
 E. Revision History
 -------------------
 
+v. 1.6.0 (May 2009) ---> v. 1.1.0 (Jan. 2012)
+---------------------------------------------
+
+- Bug fixes
+   - errors in the logic for the integration of backward problems were
+     identified and fixed.
+   - a missing vector pointer setting was added in IDASensLineSrch.
+   - in IDACompleteStep, conditionals around lines loading a new column of three
+     auxiliary divided difference arrays, for a possible order increase, were fixed.
+   - after the solver memory is created, it is set to zero before being filled.
+   - to be consistent with IDAS, IDA uses the function IDAGetDky for
+     optional output retrieval.
+   - in each linear solver interface function, the linear solver memory is
+     freed on an error return, and the **Free function now includes a
+     line setting to NULL the main memory pointer to the linear solver memory.
+   - a memory leak was fixed in two of the IDASp***Free functions.
+
+- Changes to user interface
+   - One significant design change was made with this release: The problem
+     size and its relatives, bandwidth parameters, related internal indices,
+     pivot arrays, and the optional output lsflag, have all been
+     changed from type int to type long int, except for the
+     problem size and bandwidths in user calls to routines specifying
+     BLAS/LAPACK routines for the dense/band linear solvers.  The function
+     NewIntArray is replaced by a pair NewIntArray/NewLintArray,
+     for int and long int arrays, respectively.
+   - in a minor change to the user interface, the type of the index
+     which in IDAS was changed from long int to int.
+   - in the installation files, we modified the treatment of the macro
+     SUNDIALS_USE_GENERIC_MATH, so that the parameter GENERIC_MATH_LIB
+     is either defined (with no value) or not defined.
