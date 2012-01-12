@@ -1,6 +1,6 @@
                          sundialsTB
                 A MATLAB interface to SUNDIALS
-                   Release 2.4.0, *** 2007
+                   Release 2.5.0, Jan. 2012
 
                         Radu Serban
          Center for Applied Scientific Computing, LLNL
@@ -21,7 +21,7 @@ The distribution file also contains a user guide, as well as several examples.
 An HTML version of the documentation is available on the SUNDIALS website 
 (www.llnl.gov/CASC/sundials)
 
-sundialsTB v. 2.4.0 requires SUNDIALS v 2.4.0 and, optionally (for parallel 
+sundialsTB v. 2.5.0 requires SUNDIALS v 2.5.0 and, optionally (for parallel 
 support), MPITB with LAM 7.1.1 for MPI-2 features.
 
 SUNDIALS: http://www.llnl.gov/CASC/sundials
@@ -124,7 +124,7 @@ C. References
 -------------
 
 [1] R. Serban, "sundialsTB, a MATLAB Interface to SUNDIALS", 
-    LLLNL technical report UCRL-SM-212121, May 2005.
+    LLNL technical report UCRL-SM-212121, May 2005.
 
 [2] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
@@ -135,7 +135,8 @@ C. References
 D. Releases
 -----------
 
-v. 2.4.0 - ***. 2007
+v. 2.5.0 - Jan. 2012
+v. 2.4.0 - May  2009
 v. 2.3.0 - Nov. 2006
 v. 2.2.0 - Mar. 2006
 v. 2.1.1 - May. 2005 (first sundialsTB release)
@@ -143,10 +144,42 @@ v. 2.1.1 - May. 2005 (first sundialsTB release)
 E. Revision History
 -------------------
 
-v. 2.3.0 (Nov. 2006) ---> v. 2.4.0 (***. 2007)
+v. 2.4.0 (May 2009) ---> v. 2.5.0 (Jan. 2012)
 ---------------------------------------------------------
 
-- 
+- Minor bug fixes:
+  - in kimOpts.c, fixed lines setting etachoice.
+  - in cvm.c and idm.c, fixed size of rootsfound array; added lines to free
+    rootsfound and ckpnt arrays when done using each.
+
+- Minor fixes to documentation
+
+v. 2.3.0 (Nov. 2006) ---> v. 2.4.0 (May 2009)
+---------------------------------------------------------
+
+- New features
+  - Updated IDAS monitoring functionality.
+  - Added functionality to reinitialize adjoint module.
+  - Added functions to allow changing optional inputs during integration.
+  - Added option to disable error message output.
+
+- Bug fixes
+  - Minor fixes to installation files.
+  - Bug fix in argument order in IDAS dense and band Jacobian interfaces.
+  - Fixed bug in CVODES reinitialization.
+  - Fixed a bug in initialization of backward quadratures in IDAS.
+
+- Changes to user interface
+  - Updated interfaces to linear solvers corresponding to DLS/SPILS split.
+  - Added several missing wrapper functions.
+  - Changed CVODES API to require LMM and ITER.
+  - Added return flags to all interface functions.
+
+-Other
+  - Added CVODES examples showing integration over a discontinuity.
+  - Added two KINSOL examples.
+  - Relocated user function type files to function_types subdirectories.
+  - Reorganized IDAS files to expose Sensitivity Analysis abilities.
 
 v. 2.2.0 (Mar. 2006) ---> v. 2.3.0 (Nov. 2006)
 ---------------------------------------------------------
