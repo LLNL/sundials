@@ -26,6 +26,7 @@ supporton = new Image();        supporton.src = "../graphics/support_buttonH.png
 supportoff = new Image();       supportoff.src = "../graphics/support_button.png";
 //-->
 </script>
+
 <script src="../sunjs.js" type="text/javascript" language="javascript1.2"></script>
 
 </head>
@@ -40,6 +41,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
   <tr valign="top">
   <td height="60" background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+
   <td width="116"><img SRC="../graphics/head_top_left.png" height="60" width="116" border="0"></td>
   <td width="720"><img SRC="../graphics/head_description_top_right.png" height="60" width="720" border="0"></td>
   <td background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
@@ -49,6 +51,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <td height="127" background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
   <td width="116">
     <a href="../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../graphics/home_button.png" border="0" name="home"></a><br>
+
     <a href="description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../graphics/description_button.png" border="0" name="description"></a><br>
     <a href="../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../graphics/documentation_button.png" border="0" name="documentation"></a><br>
     <a href="../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../graphics/download_button.png" border="0" name="download"></a><br>
@@ -58,6 +61,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
       <img SRC="../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
       <img SRC="../graphics/line_tr.gif" height="7" width="720" border="0"></td>
   <td background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+
   </tr>
 
   <tr valign="top">
@@ -68,6 +72,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
 
   <td width="720" bgcolor="#ffffff">
+
   <div id="content">   
 
 <!-- Start content for this page -->
@@ -77,6 +82,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <p class="links">
 [
 <A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_idas">IDAS</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
+
 ]
 </p>
 
@@ -120,6 +126,7 @@ versions of the codes.
 </center>
 -->
 <br>
+
 </div>
 
 <!-- ---------------------- -->
@@ -128,6 +135,7 @@ versions of the codes.
 [ <A HREF="#top">Top</A> ]<BR>
 [
 <A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_idas">IDAS</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
+
 ]
 </p>
 
@@ -152,19 +160,19 @@ For this, CVODE offers the choice of either <I>functional iteration</I>,
 suitable only for nonstiff systems, and various versions of <I>Newton iteration</I>.
 In the cases of a direct linear solver (dense or banded), the Newton 
 iteration is a Modified Newton iteration, in
-that the Jacobian is fixed (and usually out of date). When using
-SPGMR as the linear solver, the iteration is an Inexact Newton iteration,
+that the Jacobian is fixed (and usually out of date). When using a Krylov
+method as the linear solver, the iteration is an Inexact Newton iteration,
 using the current Jacobian (through matrix-free products), in 
 which the linear residual is nonzero but controlled.
 <br><br>
 When used in conjunction with the serial NVECTOR module,
-CVODE provides both direct
-(dense and band) solvers and a preconditioned Krylov (iterative)
-solver. In the parallel version (CVODE used with a parallel 
-NVECTOR module) only the Krylov solver is available.  
-An approximate diagonal Jacobian option is available with both versions.  
+CVODE provides both direct (dense and band) solvers and three
+preconditioned Krylov (iterative) solvers (GMRES, Bi-CGStab, and TFQMR).
+In the parallel version (CVODE used with a parallel
+NVECTOR module) only the Krylov linear solvers are available.
+An approximate diagonal Jacobian option is also available with both versions.  
 For the serial version, there is a banded preconditioner module called 
-CVBANDPRE for use with the Krylov solver, while for the 
+CVBANDPRE for use with the Krylov solvers, while for the 
 parallel version there is a preconditioner module called 
 CVBBDPRE which provides a band-block-diagonal preconditioner.
 <br><br>
@@ -186,6 +194,7 @@ are in Fortran.
 <p class="links">
 [ <A HREF="#top">Top</A> ]<BR>
 [
+
 <A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_idas">IDAS</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
 ]
 </p>
@@ -228,6 +237,7 @@ explicitly. Instead, for each output functional of interest,
 an additional system, adjoint to the original one, is formed and solved.
 The solution of the adjoint system can then be used to evaluate the gradient of the
 output functional with respect to any set of model parameters.
+
 <br><br>
 The FSA module in CVODES implements a simultaneous 
 corrector method as well as two flavors of staggered corrector methods -- for the case when sensitivity right hand
@@ -252,6 +262,7 @@ solutions during the backward integration.
 [ <A HREF="#top">Top</A> ]<BR>
 [
 <A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_idas">IDAS</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
+
 ]
 </p>
 
@@ -271,18 +282,24 @@ BDF, in fixed-leading-coefficient form. The method order varying between 1 and 5
 The solution of the resulting nonlinear system is accomplished with some form of 
 Newton iteration.
 In the cases of a direct linear solver (dense or banded), the nonlinear 
-iteration is a Modified Newton iteration, in
-that the Jacobian is fixed (and usually out of date). When using
-SPGMR as the linear solver, the iteration is an Inexact Newton iteration,
+iteration is a Modified Newton iteration, in that the Jacobian is fixed
+(and usually out of date). When using any of the Krylov methods as the
+linear solver, the iteration is an Inexact Newton iteration,
 using the current Jacobian (through matrix-free products), in 
-which the linear residual is nonzero but controlled.<br><br>
-With the serial version of NVECTOR, IDA provides
-both direct (dense and band) solvers and a preconditioned Krylov (iterative) solver. 
-In the parallel version (IDA used with a parallel 
-NVECTOR module) only the Krylov solver is available.  
-In addition to the basic IDASPGMR solver, the IDA 
-package also contains a preconditioner module called IDABBDPRE, 
-which provides a band-block-diagonal preconditioner for use with the parallel version.
+which the linear residual is nonzero but controlled.
+<br><br>
+With the serial version of NVECTOR, IDA provides both direct (dense and band)
+solvers and three preconditioned Krylov (iterative) solvers (GMRES, Bi-CGStab, and TFQMR). 
+In the parallel version (IDA used with a parallel NVECTOR module)
+only the Krylov solvers are available.
+In addition to the basic Krylov method modules, the IDA 
+package also contains a preconditioner module called IDABBDPRE, which provides
+a band-block-diagonal preconditioner for use with the parallel version.
+<br><br>
+For use with Fortran applications, a set of Fortran/C interface routines,
+called FIDA, is also supplied.  These are written in C, 
+but assume that the user calling program and all user-supplied routines 
+are in Fortran.
 <!--
 <br><br>
 <center>
@@ -299,6 +316,7 @@ which provides a band-block-diagonal preconditioner for use with the parallel ve
 [ <A HREF="#top">Top</A> ]<BR>
 [
 <A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_idas">IDAS</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
+
 ]
 </p>
 
@@ -315,6 +333,7 @@ is a package for the solution of differential-algebraic equation
 IDAS is a superset of IDA and hence all options available
 to IDA (with the exception of the FIDA interface module)
 are also available for IDAS.
+
 <br><br>
 Depending on the number of model parameters and the
 number of functional outputs, one of two sensitivity methods
@@ -351,9 +370,11 @@ solutions during the backward integration.
 <!-- ------------------------------------ -->
 
 <p class="links">
+
 [ <A HREF="#top">Top</A> ]<BR>
 [
 <A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_idas">IDAS</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
+
 ]
 </p>
 
@@ -363,17 +384,21 @@ solutions during the backward integration.
 <h1>Description of KINSOL</h1>
 <div class="frame">
 <font color="#ff0000"><B>KINSOL</B></font>
-is a solver for nonlinear algebraic systems  based on Newton-Krylov solver technology.
+is a solver for nonlinear algebraic systems based on Newton-Krylov solver technology.
 It is newly rewritten in the C language, based on the previous Fortran package 
 NKSOL of Brown and Saad.  
 <br><br>
-KINSOL employs the <I>Inexact Newton</I> method. As this code module is 
-anticipated for use on large systems, at this time, only iterative methods are provided 
-to solve the resulting linear systems. The linear iterative method currently implemented 
-is one of the class of Krylov methods, GMRES, provided through the SPGMR 
-module common to all SUNDIALS codes.
+KINSOL employs the <I>Inexact Newton</I> method. As this solver is intended
+mainly for use on large systems, three iterative methods are provided 
+to solve the resulting linear systems -- GMRES, Bi-CGStab, and TFQMR.
+These are Krylov methods, and are implemented with scaling and preconditioning,
+in modules that are common to all of the SUNDIALS codes.
 <br><br>
-In addition to the basic linear solver KINSPGMR, this package also includes 
+For the sake of convenience to users with smaller systems, KINSOL also
+includes direct (dense and band) linear solvers for the linear systems.
+In this case the nonlinear iteration is a <I>Modified Newton</I> method.
+<br><br>
+In addition to the basic Krylov method modules, the KINSOL package includes 
 a module called KINBBDPRE, which provides a band-block-diagonal preconditioner 
 for the parallel version.
 <br><br>
@@ -394,6 +419,7 @@ the user calling program and all user-supplied routines are in Fortran.
 <p class="links">
 [ <A HREF="#top">Top</A> ]<BR>
 [
+
 <A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_idas">IDAS</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
 ]
 </p>
@@ -404,13 +430,14 @@ the user calling program and all user-supplied routines are in Fortran.
 <h1>Description of sundialsTB</h1>
 <div class="frame">
 <font color="#ff0000"><B>sundialsTB</B></font>
-is a collection of Matlab functions which provide interfaces to the SUNDIALS solvers.
-Currently, sundialsTB provides interfaces to CVODES and KINSOL.
+is a collection of Matlab functions which provide interfaces to the
+SUNDIALS solvers CVODES, IDAS, and KINSOL.
 <br><br>
 The core of each Matlab interface in sundialsTB is a single <tt>mex</tt> 
 file which interfaces to the various user-callable functions for that solver.
 However, this <tt>mex</tt> file should not be called directly, but rather through the 
 user-callable functions provided for each Matlab interface.
+
 </div>
 
 <!-- ----------------------------------------- -->
@@ -419,6 +446,7 @@ user-callable functions provided for each Matlab interface.
 [ <A HREF="#top">Top</A> ]<BR>
 [
 <A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_idas">IDAS</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
+
 ]
 </p>
 
@@ -431,6 +459,7 @@ user-callable functions provided for each Matlab interface.
 
   <tr valign="top">
   <td height="17" background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+
   <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
   <td width="720"><img SRC="../graphics/line_br.gif" height="17" width="720" border="0"></td>
   <td background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
