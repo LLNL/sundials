@@ -168,7 +168,7 @@ solver inputs in {\sundialsTB} are specified through a single function; e.g.
 {\tt CvodeSetOptions} for {\cvodes} (a similar function is used to specify optional
 inputs for forward sensitivity analysis). However, unlike the ODE solvers in {\matlab}, we
 have kept the more flexible {\sundials} model in which a separate ``solve'' function 
-({\tt CVodeSolve} for {\cvodes}) must be called to return the solution at a desired 
+({\tt CVode} for {\cvodes}) must be called to return the solution at a desired 
 output time. Solver statistics, as well as optional outputs (such as
 solution and solution derivatives at additional times) can be obtained at any time
 with calls to separate functions ({\tt CVodeGetStats} and {\tt CVodeGet} for {\cvodes}).
