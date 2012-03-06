@@ -1,5 +1,5 @@
                                IDAS
-                    Release 1.1.0, January 2012
+                    Release 1.1.0, March 2012
                            Radu Serban 
               Center for Applied Scientific Computing, LLNL
 
@@ -72,14 +72,14 @@ C. References
 D. Releases
 -----------
 
-v. 1.1.0   - Jan. 2012
+v. 1.1.0   - Mar. 2012
 v. 1.0.0   - May  2009
 
 
 E. Revision History
 -------------------
 
-v. 1.6.0 (May 2009) ---> v. 1.1.0 (Jan. 2012)
+v. 1.6.0 (May 2009) ---> v. 1.1.0 (Mar. 2012)
 ---------------------------------------------
 
 - Bug fixes
@@ -89,12 +89,12 @@ v. 1.6.0 (May 2009) ---> v. 1.1.0 (Jan. 2012)
    - in IDACompleteStep, conditionals around lines loading a new column of three
      auxiliary divided difference arrays, for a possible order increase, were fixed.
    - after the solver memory is created, it is set to zero before being filled.
-   - to be consistent with IDAS, IDA uses the function IDAGetDky for
-     optional output retrieval.
    - in each linear solver interface function, the linear solver memory is
      freed on an error return, and the **Free function now includes a
      line setting to NULL the main memory pointer to the linear solver memory.
    - a memory leak was fixed in two of the IDASp***Free functions.
+   - in rootfinding functions IDARcheck1/IDARcheck2, when an exact zero is found,
+     the array glo at the left endpoint is adjusted instead of shifting tlo.
 
 - Changes to user interface
    - One significant design change was made with this release: The problem
