@@ -1,5 +1,5 @@
                              KINSOL
-                   Release 2.7.0, January 2012
+                   Release 2.7.0, March 2012
            Aaron Collier, Alan C. Hindmarsh, and Radu Serban
              Center for Applied Scientific Computing, LLNL
 
@@ -82,7 +82,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.7.0   - May  2012
+v. 2.7.0   - Mar. 2012
 v. 2.6.0   - May  2009
 v. 2.5.0   - Nov. 2006
 v. 2.4.0   - Mar. 2006
@@ -97,7 +97,7 @@ v. 1.0     - Aug. 1998 (date written)
 E. Revision History
 -------------------
 
-v. 2.6.0 (May 2009) ---> v. 2.7.0 (Jan. 2012)
+v. 2.6.0 (May 2009) ---> v. 2.7.0 (Mar. 2012)
 ---------------------------------------------
 
 - Bug fixes

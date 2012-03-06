@@ -1,5 +1,5 @@
                      NVECTOR_SERIAL
-               Release 2.5.0, January 2012
+               Release 2.5.0, March 2012
 
 
 Serial implementation of the NVECTOR module for SUNDIALS. 
@@ -37,7 +37,7 @@ C. References
 -------------
 
 [1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.7.0," 
-    LLLNL technical report UCRL-MA-208108, December 2011.
+    LLNL technical report UCRL-MA-208108, December 2011.
 
 [2] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.7.0," 
     LLNL technical report UCRL-MA-208111, December 2011.
@@ -56,7 +56,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.5.0 - Jan. 2012
+v. 2.5.0 - Mar. 2012
 v. 2.4.0 - May  2009
 v. 2.3.0 - Nov. 2006
 v. 2.2.0 - Mar. 2006
@@ -71,7 +71,7 @@ v. 1.0   - Jul. 2002 (first SUNDIALS release)
 E. Revision History
 -------------------
 
-v. 2.4.0 (May 2009) ---> v. 2.5.0 (Jan. 2012)
+v. 2.4.0 (May 2009) ---> v. 2.5.0 (Mar. 2012)
 ---------------------------------------------
 
 - Bug fix:
