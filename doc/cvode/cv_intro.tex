@@ -105,6 +105,9 @@ After the solver memory is created, it is set to zero before being filled.
 In each linear solver interface function, the linear solver memory is
 freed on an error return, and the \id{**Free} function now includes a
 line setting to NULL the main memory pointer to the linear solver memory.
+In the rootfinding functions \id{CVRcheck1}/\id{CVRcheck2}, when an exact
+zero is found, the array \id{glo} of $g$ values at the left endpoint is
+adjusted, instead of shifting the $t$ location \id{tlo} slightly.
 In the installation files, we modified the treatment of the macro
 SUNDIALS\_USE\_GENERIC\_MATH, so that the parameter GENERIC\_MATH\_LIB is
 either defined (with no value) or not defined.
