@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2011-04-25 19:53:25 $
+ * $Revision: 1.24 $
+ * $Date: 2012-03-06 21:58:36 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -3621,7 +3621,7 @@ static int CVsldet(CVodeMem cv_mem)
 static int CVRcheck1(CVodeMem cv_mem)
 {
   int i, retval;
-  realtype smallh, hratio;
+  realtype smallh, hratio, tplus;
   booleantype zroot;
 
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
@@ -3645,22 +3645,20 @@ static int CVRcheck1(CVodeMem cv_mem)
   /* Some g_i is zero at t0; look at g at t0+(small increment). */
   hratio = MAX(ttol/ABS(h), TENTH);
   smallh = hratio*h;
-  tlo += smallh;
+  tplus = tlo + smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
-  retval = gfun(tlo, y, glo, user_data);
+  retval = gfun(tplus, y, ghi, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
   /* We check now only the components of g which were exactly 0.0 at t0
    * to see if we can 'activate' them. */
-
   for (i = 0; i < nrtfn; i++) {
-    if (!gactive[i] && ABS(glo[i]) != ZERO) {
+    if (!gactive[i] && ABS(ghi[i]) != ZERO) {
       gactive[i] = TRUE;
-
+      glo[i] = ghi[i];
     }
   }
-
   return(CV_SUCCESS);
 }
 
@@ -3668,9 +3666,9 @@ static int CVRcheck1(CVodeMem cv_mem)
  * CVRcheck2
  *
  * This routine checks for exact zeros of g at the last root found,
- * if the last return was a root.  It then checks for a close
- * pair of zeros (an error condition), and for a new root at a
- * nearby point.  The left endpoint (tlo) of the search interval
+ * if the last return was a root.  It then checks for a close pair of
+ * zeros (an error condition), and for a new root at a nearby point.
+ * The array glo = g(tlo) at the left endpoint of the search interval
  * is adjusted if necessary to assure that all g_i are nonzero
  * there, before returning to do a root search in the interval.
  *
@@ -3688,7 +3686,7 @@ static int CVRcheck1(CVodeMem cv_mem)
 static int CVRcheck2(CVodeMem cv_mem)
 {
   int i, retval;
-  realtype smallh, hratio;
+  realtype smallh, hratio, tplus;
   booleantype zroot;
 
   if (irfnd == 0) return(CV_SUCCESS);
@@ -3712,29 +3710,32 @@ static int CVRcheck2(CVodeMem cv_mem)
   /* One or more g_i has a zero at tlo.  Check g at tlo+smallh. */
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
   smallh = (h > ZERO) ? ttol : -ttol;
-  tlo += smallh;
-  if ( (tlo - tn)*h >= ZERO) {
+  tplus = tlo + smallh;
+  if ( (tplus - tn)*h >= ZERO) {
     hratio = smallh/h;
     N_VLinearSum(ONE, y, hratio, zn[1], y);
   } else {
-    (void) CVodeGetDky(cv_mem, tlo, 0, y);
+    (void) CVodeGetDky(cv_mem, tplus, 0, y);
   }
-  retval = gfun(tlo, y, glo, user_data);
+  retval = gfun(tplus, y, ghi, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
+  /* Check for close roots (error return), for a new zero at tlo+smallh,
+  and for a g_i that changed from zero to nonzero. */
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
-    if (ABS(glo[i]) == ZERO) {
+    if (ABS(ghi[i]) == ZERO) {
       if (!gactive[i]) continue;
       if (iroots[i] == 1) return(CLOSERT);
       zroot = TRUE;
       iroots[i] = 1;
+    } else {
+      if (iroots[i] == 1) glo[i] = ghi[i];
     }
   }
   if (zroot) return(RTFOUND);
   return(CV_SUCCESS);
-
 }
 
 /*
