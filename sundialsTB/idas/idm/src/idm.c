@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2011-12-21 22:56:29 $
+ * $Revision: 1.20 $
+ * $Date: 2012-03-06 23:21:23 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -952,14 +952,14 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
   /* Successful return */
 
   status = 0;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
@@ -1120,14 +1120,14 @@ static int IDM_QuadInitialization(int action, int nlhs, mxArray *plhs[], int nrh
   /* Successful return */
 
   status = 0;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
@@ -1368,14 +1368,14 @@ static int IDM_SensInitialization(int action, int nlhs, mxArray *plhs[], int nrh
   /* Successful return */
 
   status = 0;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
@@ -1396,14 +1396,14 @@ static int IDM_SensToggleOff(int nlhs, mxArray *plhs[], int nrhs, const mxArray 
   status = IDASensToggleOff(ida_mem);
   if (status != IDA_SUCCESS) {
     status = -1;
-    plhs[0] = mxCreateScalarDouble((double)status);
+    plhs[0] = mxCreateDoubleScalar((double)status);
     return(-1);
   }
 
   fsa = FALSE;
 
   status = 0;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(0);
 }
 
@@ -1471,14 +1471,14 @@ static int IDM_AdjInitialization(int action, int nlhs, mxArray *plhs[], int nrhs
   /* Successful return */
 
   status = 0;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
@@ -1705,7 +1705,7 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
     /* Return idxB */
 
-    plhs[0] = mxCreateScalarDouble((double)idxB);
+    plhs[0] = mxCreateDoubleScalar((double)idxB);
 
     indexB = idxB;
 
@@ -1878,14 +1878,14 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
   /* Successful return */
 
   status = 0;
-  plhs[i_status] = mxCreateScalarDouble((double)status);
+  plhs[i_status] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[i_status] = mxCreateScalarDouble((double)status);
+  plhs[i_status] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
@@ -2071,14 +2071,14 @@ static int IDM_QuadInitializationB(int action, int nlhs, mxArray *plhs[], int nr
   /* Successful return */
 
   status = 0;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
@@ -2118,7 +2118,7 @@ static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   if (status < 0) goto error_return;
 
   /* IDACalcIC return flag */
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
 
   if (nlhs == 1) return(0);
 
@@ -2133,17 +2133,17 @@ static int IDM_CalcIC(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   /* Successful return */
 
   status = 0;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   if (nlhs > 1) {
-    plhs[1] = mxCreateScalarDouble((double)status);
-    plhs[2] = mxCreateScalarDouble((double)status);
+    plhs[1] = mxCreateDoubleScalar((double)status);
+    plhs[2] = mxCreateDoubleScalar((double)status);
   }
   return(-1);
 
@@ -2465,14 +2465,14 @@ static int IDM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   /* IDASolve return flag (only non-negative values make it here) */
 
-  plhs[0] = mxCreateScalarDouble((double)ida_status);
+  plhs[0] = mxCreateDoubleScalar((double)ida_status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   plhs[1] = mxCreateDoubleMatrix(0,0,mxREAL);
   plhs[2] = mxCreateDoubleMatrix(0,0,mxREAL);
   if (quadr) {
@@ -2625,7 +2625,7 @@ static int IDM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   plhs[1] = mxCreateDoubleMatrix(0,0,mxREAL);
   plhs[2] = mxCreateDoubleMatrix(0,0,mxREAL);
   if (quadrB) {
@@ -2800,12 +2800,12 @@ static int idmSolveB_one(mxArray *plhs[], int NtoutB, double *toutB, int itaskB)
 
   /* IDASolve return flag (only non-negative values make it here) */
 
-  plhs[0] = mxCreateScalarDouble((double)ida_status);
+  plhs[0] = mxCreateDoubleScalar((double)ida_status);
   return(0);
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   plhs[1] = mxCreateDoubleMatrix(0,0,mxREAL);
   plhs[2] = mxCreateDoubleMatrix(0,0,mxREAL);
   if (quadrB) {
@@ -2827,12 +2827,12 @@ static int idmSolveB_more(mxArray *plhs[], int NtoutB, double *toutB, int itaskB
                 "Integration of multiple backward problems is not yet implemented.", NULL);
   goto error_return;
 
-  plhs[0] = mxCreateScalarDouble((double)ida_status);
+  plhs[0] = mxCreateDoubleScalar((double)ida_status);
   return(0);
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   /*
   plhs[1] = mxCreateDoubleMatrix(0,0,mxREAL);
   plhs[2] = mxCreateDoubleMatrix(0,0,mxREAL);
@@ -2938,18 +2938,18 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   nfields = sizeof(fnames_intgr)/sizeof(*fnames_intgr);
   plhs[0] = mxCreateStructMatrix(1, 1, nfields, fnames_intgr);
  
-  mxSetField(plhs[0], 0, "nst",     mxCreateScalarDouble((double)nst));
-  mxSetField(plhs[0], 0, "nfe",     mxCreateScalarDouble((double)nfe));
-  mxSetField(plhs[0], 0, "nsetups", mxCreateScalarDouble((double)nsetups));
-  mxSetField(plhs[0], 0, "netf",    mxCreateScalarDouble((double)netf));
-  mxSetField(plhs[0], 0, "nni",     mxCreateScalarDouble((double)nni));
-  mxSetField(plhs[0], 0, "ncfn",    mxCreateScalarDouble((double)ncfn));
-  mxSetField(plhs[0], 0, "qlast",   mxCreateScalarDouble((double)qlast));
-  mxSetField(plhs[0], 0, "qcur",    mxCreateScalarDouble((double)qcur));
-  mxSetField(plhs[0], 0, "h0used",  mxCreateScalarDouble(h0used));
-  mxSetField(plhs[0], 0, "hlast",   mxCreateScalarDouble(hlast));
-  mxSetField(plhs[0], 0, "hcur",    mxCreateScalarDouble(hcur));
-  mxSetField(plhs[0], 0, "tcur",    mxCreateScalarDouble(tcur));
+  mxSetField(plhs[0], 0, "nst",     mxCreateDoubleScalar((double)nst));
+  mxSetField(plhs[0], 0, "nfe",     mxCreateDoubleScalar((double)nfe));
+  mxSetField(plhs[0], 0, "nsetups", mxCreateDoubleScalar((double)nsetups));
+  mxSetField(plhs[0], 0, "netf",    mxCreateDoubleScalar((double)netf));
+  mxSetField(plhs[0], 0, "nni",     mxCreateDoubleScalar((double)nni));
+  mxSetField(plhs[0], 0, "ncfn",    mxCreateDoubleScalar((double)ncfn));
+  mxSetField(plhs[0], 0, "qlast",   mxCreateDoubleScalar((double)qlast));
+  mxSetField(plhs[0], 0, "qcur",    mxCreateDoubleScalar((double)qcur));
+  mxSetField(plhs[0], 0, "h0used",  mxCreateDoubleScalar(h0used));
+  mxSetField(plhs[0], 0, "hlast",   mxCreateDoubleScalar(hlast));
+  mxSetField(plhs[0], 0, "hcur",    mxCreateDoubleScalar(hcur));
+  mxSetField(plhs[0], 0, "tcur",    mxCreateDoubleScalar(tcur));
 
 
   /* Root Finding Statistics */
@@ -2962,7 +2962,7 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     nfields = sizeof(fnames_root)/sizeof(*fnames_root);
     mxS_root = mxCreateStructMatrix(1, 1, nfields, fnames_root);
 
-    mxSetField(mxS_root, 0, "nge", mxCreateScalarDouble((double)nge));
+    mxSetField(mxS_root, 0, "nge", mxCreateDoubleScalar((double)nge));
 
     rootsfound = (int *) malloc(Ng*sizeof(int));
     status = IDAGetRootInfo(ida_mem, rootsfound);
@@ -2992,8 +2992,8 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     nfields = sizeof(fnames_quad)/sizeof(*fnames_quad);
     mxS_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
 
-    mxSetField(mxS_quad, 0, "nfQe",  mxCreateScalarDouble((double)nfQe));
-    mxSetField(mxS_quad, 0, "netfQ", mxCreateScalarDouble((double)netfQ));
+    mxSetField(mxS_quad, 0, "nfQe",  mxCreateDoubleScalar((double)nfQe));
+    mxSetField(mxS_quad, 0, "netfQ", mxCreateDoubleScalar((double)netfQ));
 
   } else {
 
@@ -3018,8 +3018,8 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
     
     mxSetField(mxS_ls, 0, "name", mxCreateString("Dense"));
-    mxSetField(mxS_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
-    mxSetField(mxS_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
+    mxSetField(mxS_ls, 0, "njeD", mxCreateDoubleScalar((double)njeD));
+    mxSetField(mxS_ls, 0, "nfeD", mxCreateDoubleScalar((double)nfeD));
     
     break;
 
@@ -3034,8 +3034,8 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
  
     mxSetField(mxS_ls, 0, "name", mxCreateString("Band"));
-    mxSetField(mxS_ls, 0, "njeB", mxCreateScalarDouble((double)njeB));
-    mxSetField(mxS_ls, 0, "nfeB", mxCreateScalarDouble((double)nfeB));
+    mxSetField(mxS_ls, 0, "njeB", mxCreateDoubleScalar((double)njeB));
+    mxSetField(mxS_ls, 0, "nfeB", mxCreateDoubleScalar((double)nfeB));
       
     break;
 
@@ -3066,12 +3066,12 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     else
       mxSetField(mxS_ls, 0, "name",  mxCreateString("TFQMR"));
 
-    mxSetField(mxS_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
-    mxSetField(mxS_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
-    mxSetField(mxS_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
-    mxSetField(mxS_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
-    mxSetField(mxS_ls, 0, "njeSG", mxCreateScalarDouble((double)njeSG));
-    mxSetField(mxS_ls, 0, "nfeSG", mxCreateScalarDouble((double)nfeSG));
+    mxSetField(mxS_ls, 0, "nli",   mxCreateDoubleScalar((double)nli));
+    mxSetField(mxS_ls, 0, "npe",   mxCreateDoubleScalar((double)npe));
+    mxSetField(mxS_ls, 0, "nps",   mxCreateDoubleScalar((double)nps));
+    mxSetField(mxS_ls, 0, "ncfl",  mxCreateDoubleScalar((double)ncfl));
+    mxSetField(mxS_ls, 0, "njeSG", mxCreateDoubleScalar((double)njeSG));
+    mxSetField(mxS_ls, 0, "nfeSG", mxCreateDoubleScalar((double)nfeSG));
     
     break;
     
@@ -3092,12 +3092,12 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     nfields = sizeof(fnames_sens)/sizeof(*fnames_sens);
     mxS_fsa = mxCreateStructMatrix(1, 1, nfields, fnames_sens);
     
-    mxSetField(mxS_fsa, 0, "nrSe",     mxCreateScalarDouble((double)nrSe));
-    mxSetField(mxS_fsa, 0, "nfeS",     mxCreateScalarDouble((double)nfeS));
-    mxSetField(mxS_fsa, 0, "nsetupsS", mxCreateScalarDouble((double)nsetupsS));
-    mxSetField(mxS_fsa, 0, "netfS",    mxCreateScalarDouble((double)netfS));
-    mxSetField(mxS_fsa, 0, "nniS",     mxCreateScalarDouble((double)nniS));
-    mxSetField(mxS_fsa, 0, "ncfnS",    mxCreateScalarDouble((double)ncfnS));
+    mxSetField(mxS_fsa, 0, "nrSe",     mxCreateDoubleScalar((double)nrSe));
+    mxSetField(mxS_fsa, 0, "nfeS",     mxCreateDoubleScalar((double)nfeS));
+    mxSetField(mxS_fsa, 0, "nsetupsS", mxCreateDoubleScalar((double)nsetupsS));
+    mxSetField(mxS_fsa, 0, "netfS",    mxCreateDoubleScalar((double)netfS));
+    mxSetField(mxS_fsa, 0, "nniS",     mxCreateDoubleScalar((double)nniS));
+    mxSetField(mxS_fsa, 0, "ncfnS",    mxCreateDoubleScalar((double)ncfnS));
     
   } else {
 
@@ -3110,14 +3110,14 @@ static int IDM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   /* Successful return */
 
   status = 0;
-  plhs[1] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[1] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
@@ -3218,18 +3218,18 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   nfields = sizeof(fnames_intgr)/sizeof(*fnames_intgr);
   plhs[0] = mxCreateStructMatrix(1, 1, nfields, fnames_intgr);
 
-  mxSetField(plhs[0], 0, "nst",     mxCreateScalarDouble((double)nst));
-  mxSetField(plhs[0], 0, "nfe",     mxCreateScalarDouble((double)nfe));
-  mxSetField(plhs[0], 0, "nsetups", mxCreateScalarDouble((double)nsetups));
-  mxSetField(plhs[0], 0, "netf",    mxCreateScalarDouble((double)netf));
-  mxSetField(plhs[0], 0, "nni",     mxCreateScalarDouble((double)nni));
-  mxSetField(plhs[0], 0, "ncfn",    mxCreateScalarDouble((double)ncfn));
-  mxSetField(plhs[0], 0, "qlast",   mxCreateScalarDouble((double)qlast));
-  mxSetField(plhs[0], 0, "qcur",    mxCreateScalarDouble((double)qcur));
-  mxSetField(plhs[0], 0, "h0used",  mxCreateScalarDouble(h0used));
-  mxSetField(plhs[0], 0, "hlast",   mxCreateScalarDouble(hlast));
-  mxSetField(plhs[0], 0, "hcur",    mxCreateScalarDouble(hcur));
-  mxSetField(plhs[0], 0, "tcur",    mxCreateScalarDouble(tcur));
+  mxSetField(plhs[0], 0, "nst",     mxCreateDoubleScalar((double)nst));
+  mxSetField(plhs[0], 0, "nfe",     mxCreateDoubleScalar((double)nfe));
+  mxSetField(plhs[0], 0, "nsetups", mxCreateDoubleScalar((double)nsetups));
+  mxSetField(plhs[0], 0, "netf",    mxCreateDoubleScalar((double)netf));
+  mxSetField(plhs[0], 0, "nni",     mxCreateDoubleScalar((double)nni));
+  mxSetField(plhs[0], 0, "ncfn",    mxCreateDoubleScalar((double)ncfn));
+  mxSetField(plhs[0], 0, "qlast",   mxCreateDoubleScalar((double)qlast));
+  mxSetField(plhs[0], 0, "qcur",    mxCreateDoubleScalar((double)qcur));
+  mxSetField(plhs[0], 0, "h0used",  mxCreateDoubleScalar(h0used));
+  mxSetField(plhs[0], 0, "hlast",   mxCreateDoubleScalar(hlast));
+  mxSetField(plhs[0], 0, "hcur",    mxCreateDoubleScalar(hcur));
+  mxSetField(plhs[0], 0, "tcur",    mxCreateDoubleScalar(tcur));
 
 
   /* Quadrature Statistics */
@@ -3242,8 +3242,8 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     nfields = sizeof(fnames_quad)/sizeof(*fnames_quad);
     mxS_quad = mxCreateStructMatrix(1, 1, nfields, fnames_quad);
 
-    mxSetField(mxS_quad, 0, "nfQe",  mxCreateScalarDouble((double)nfQe));
-    mxSetField(mxS_quad, 0, "netfQ", mxCreateScalarDouble((double)netfQ));
+    mxSetField(mxS_quad, 0, "nfQe",  mxCreateDoubleScalar((double)nfQe));
+    mxSetField(mxS_quad, 0, "netfQ", mxCreateDoubleScalar((double)netfQ));
 
   } else {
 
@@ -3268,8 +3268,8 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
 
     mxSetField(mxS_ls, 0, "name", mxCreateString("Dense"));
-    mxSetField(mxS_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
-    mxSetField(mxS_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
+    mxSetField(mxS_ls, 0, "njeD", mxCreateDoubleScalar((double)njeD));
+    mxSetField(mxS_ls, 0, "nfeD", mxCreateDoubleScalar((double)nfeD));
     
     break;
 
@@ -3284,8 +3284,8 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     mxS_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
  
     mxSetField(mxS_ls, 0, "name", mxCreateString("Band"));
-    mxSetField(mxS_ls, 0, "njeB", mxCreateScalarDouble((double)njeB));
-    mxSetField(mxS_ls, 0, "nfeB", mxCreateScalarDouble((double)nfeB));
+    mxSetField(mxS_ls, 0, "njeB", mxCreateDoubleScalar((double)njeB));
+    mxSetField(mxS_ls, 0, "nfeB", mxCreateDoubleScalar((double)nfeB));
       
     break;
 
@@ -3316,12 +3316,12 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     else
       mxSetField(mxS_ls, 0, "name",  mxCreateString("TFQMR"));
 
-    mxSetField(mxS_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
-    mxSetField(mxS_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
-    mxSetField(mxS_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
-    mxSetField(mxS_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
-    mxSetField(mxS_ls, 0, "njeSG", mxCreateScalarDouble((double)njeSG));
-    mxSetField(mxS_ls, 0, "nfeSG", mxCreateScalarDouble((double)nfeSG));
+    mxSetField(mxS_ls, 0, "nli",   mxCreateDoubleScalar((double)nli));
+    mxSetField(mxS_ls, 0, "npe",   mxCreateDoubleScalar((double)npe));
+    mxSetField(mxS_ls, 0, "nps",   mxCreateDoubleScalar((double)nps));
+    mxSetField(mxS_ls, 0, "ncfl",  mxCreateDoubleScalar((double)ncfl));
+    mxSetField(mxS_ls, 0, "njeSG", mxCreateDoubleScalar((double)njeSG));
+    mxSetField(mxS_ls, 0, "nfeSG", mxCreateDoubleScalar((double)nfeSG));
     
     break;
   }
@@ -3331,14 +3331,14 @@ static int IDM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   /* Successful return */
 
   status = 0;
-  plhs[1] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[1] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
@@ -3381,14 +3381,14 @@ static int IDM_Set(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   /* Successful return */
 
   status = 0;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
@@ -3466,11 +3466,11 @@ static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     for (i=0; i<=Nc; i++) {
       this = (double *)(ckpnt[Nc-i].my_addr);
       next = (double *)(ckpnt[Nc-i].next_addr);
-      mxSetField(plhs[0], i, "t0",    mxCreateScalarDouble((double)(ckpnt[Nc-i].t0)));
-      mxSetField(plhs[0], i, "t1",    mxCreateScalarDouble((double)(ckpnt[Nc-i].t1)));
-      mxSetField(plhs[0], i, "nstep", mxCreateScalarDouble((double)(ckpnt[Nc-i].nstep)));
-      mxSetField(plhs[0], i, "order", mxCreateScalarDouble((double)(ckpnt[Nc-i].order)));
-      mxSetField(plhs[0], i, "step",  mxCreateScalarDouble((double)(ckpnt[Nc-i].step)));
+      mxSetField(plhs[0], i, "t0",    mxCreateDoubleScalar((double)(ckpnt[Nc-i].t0)));
+      mxSetField(plhs[0], i, "t1",    mxCreateDoubleScalar((double)(ckpnt[Nc-i].t1)));
+      mxSetField(plhs[0], i, "nstep", mxCreateDoubleScalar((double)(ckpnt[Nc-i].nstep)));
+      mxSetField(plhs[0], i, "order", mxCreateDoubleScalar((double)(ckpnt[Nc-i].order)));
+      mxSetField(plhs[0], i, "step",  mxCreateDoubleScalar((double)(ckpnt[Nc-i].step)));
     }
     free(ckpnt);
     break;
@@ -3480,14 +3480,14 @@ static int IDM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   /* Successful return */
 
   status = 0;
-  plhs[1] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[1] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleScalar((double)status);
   return(-1);
 }
 

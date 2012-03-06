@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2007-12-05 21:58:20 $
+ * $Revision: 1.7 $
+ * $Date: 2012-03-06 23:21:24 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -260,8 +260,8 @@ void kimInfoHandler(const char *module, const char *function,
   sprintf(my_msg,"[%s] %s\n  %s\n",module,function,msg);
 
   /* action=1 -> append */
-  mx_in[0] = mxCreateScalarDouble(1);
-  mx_in[1] = mxCreateScalarDouble((double)kimData->fig_handle);
+  mx_in[0] = mxCreateDoubleScalar(1);
+  mx_in[1] = mxCreateDoubleScalar((double)kimData->fig_handle);
   mx_in[2] = mxCreateString(my_msg);
 
   mexCallMATLAB(0,NULL,3,mx_in,"kim_info");
@@ -387,9 +387,9 @@ static int KIM_Initialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray
     status = KINSetInfoHandlerFn(kin_mem, kimInfoHandler, NULL);
     if (status != KIN_SUCCESS) goto error_return;
     /* Initialize the output window and store the figure handle */
-    mx_in[0] = mxCreateScalarDouble(0); /* action=0, initialize */
-    mx_in[1] = mxCreateScalarDouble(0); /* ignored */
-    mx_in[2] = mxCreateScalarDouble(0); /* ignored */
+    mx_in[0] = mxCreateDoubleScalar(0); /* action=0, initialize */
+    mx_in[1] = mxCreateDoubleScalar(0); /* ignored */
+    mx_in[2] = mxCreateDoubleScalar(0); /* ignored */
     mexCallMATLAB(1,mx_out,3,mx_in,"kim_info");
     kimData->fig_handle = (int)*mxGetPr(mx_out[0]);
   }
@@ -550,14 +550,14 @@ static int KIM_Initialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray
   /* Successfull return */
 
   status = 0;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(0);
   
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
@@ -625,12 +625,12 @@ static int KIM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   N_VDestroy(fscale);
 
   /* KINSOL return flag (only non-negative values make it here) */
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   return(0);
 
  error_return:
   status = -1;
-  plhs[0] = mxCreateScalarDouble((double)status);
+  plhs[0] = mxCreateDoubleScalar((double)status);
   plhs[1] = mxCreateDoubleMatrix(0,0,mxREAL);
   if (yscale != NULL) N_VDestroy(yscale);
   if (fscale != NULL) N_VDestroy(fscale);
@@ -698,12 +698,12 @@ static int KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   nfields = sizeof(fnames_solver)/sizeof(*fnames_solver);
   plhs[0] = mxCreateStructMatrix(1, 1, nfields, fnames_solver);
  
-  mxSetField(plhs[0], 0, "nfe",   mxCreateScalarDouble((double)nfe));
-  mxSetField(plhs[0], 0, "nni",   mxCreateScalarDouble((double)nni));
-  mxSetField(plhs[0], 0, "nbcf",  mxCreateScalarDouble((double)nbcf));
-  mxSetField(plhs[0], 0, "nbops", mxCreateScalarDouble((double)nbops));
-  mxSetField(plhs[0], 0, "fnorm", mxCreateScalarDouble(fnorm));
-  mxSetField(plhs[0], 0, "step",  mxCreateScalarDouble(step));
+  mxSetField(plhs[0], 0, "nfe",   mxCreateDoubleScalar((double)nfe));
+  mxSetField(plhs[0], 0, "nni",   mxCreateDoubleScalar((double)nni));
+  mxSetField(plhs[0], 0, "nbcf",  mxCreateDoubleScalar((double)nbcf));
+  mxSetField(plhs[0], 0, "nbops", mxCreateDoubleScalar((double)nbops));
+  mxSetField(plhs[0], 0, "fnorm", mxCreateDoubleScalar(fnorm));
+  mxSetField(plhs[0], 0, "step",  mxCreateDoubleScalar(step));
 
   /* Linear Solver Statistics */
 
@@ -720,8 +720,8 @@ static int KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_dense);
 
     mxSetField(mx_ls, 0, "name", mxCreateString("Dense"));
-    mxSetField(mx_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
-    mxSetField(mx_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
+    mxSetField(mx_ls, 0, "njeD", mxCreateDoubleScalar((double)njeD));
+    mxSetField(mx_ls, 0, "nfeD", mxCreateDoubleScalar((double)nfeD));
     
     break;
 
@@ -736,8 +736,8 @@ static int KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_band);
 
     mxSetField(mx_ls, 0, "name", mxCreateString("Band"));
-    mxSetField(mx_ls, 0, "njeD", mxCreateScalarDouble((double)njeD));
-    mxSetField(mx_ls, 0, "nfeD", mxCreateScalarDouble((double)nfeD));
+    mxSetField(mx_ls, 0, "njeD", mxCreateDoubleScalar((double)njeD));
+    mxSetField(mx_ls, 0, "nfeD", mxCreateDoubleScalar((double)nfeD));
     
     break;
 
@@ -764,10 +764,10 @@ static int KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     else
       mxSetField(mx_ls, 0, "name",  mxCreateString("TFQMR"));
 
-    mxSetField(mx_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
-    mxSetField(mx_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
-    mxSetField(mx_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
-    mxSetField(mx_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
+    mxSetField(mx_ls, 0, "nli",   mxCreateDoubleScalar((double)nli));
+    mxSetField(mx_ls, 0, "npe",   mxCreateDoubleScalar((double)npe));
+    mxSetField(mx_ls, 0, "nps",   mxCreateDoubleScalar((double)nps));
+    mxSetField(mx_ls, 0, "ncfl",  mxCreateDoubleScalar((double)ncfl));
     
     break;
 
@@ -778,14 +778,14 @@ static int KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   /* Successfull return */
 
   status = 0;
-  plhs[1] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleScalar((double)status);
   return(0);
 
   /* Error return */
 
  error_return:
   status = -1;
-  plhs[1] = mxCreateScalarDouble((double)status);
+  plhs[1] = mxCreateDoubleScalar((double)status);
   return(-1);
 
 }
