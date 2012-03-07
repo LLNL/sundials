@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-09 23:56:25 $
+ * $Revision: 1.3 $
+ * $Date: 2012-03-07 21:41:19 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -56,10 +56,10 @@ void InitVectors()
 
 }
 
-N_Vector NewVector(int n)
+N_Vector NewVector(long int n)
 {
   N_Vector v;
-  int nlocal, nglobal;
+  long int nlocal, nglobal;
 
   if (sundials_VecType == 1) {
 
@@ -69,7 +69,7 @@ N_Vector NewVector(int n)
 
     nlocal = n;
     MPI_Allreduce(&nlocal, &nglobal, 1, MPI_INT, MPI_SUM, sundials_comm);
-    v = N_VNew_Parallel(sundials_comm, (long int)nlocal, (long int)nglobal);
+    v = N_VNew_Parallel(sundials_comm, nlocal, nglobal);
 
   }
 

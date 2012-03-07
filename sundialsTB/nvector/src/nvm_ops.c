@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-09 23:56:25 $
+ * $Revision: 1.3 $
+ * $Date: 2012-03-07 21:41:19 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,10 +17,10 @@
 #include <stdlib.h>
 #include "nvm.h"
 
-void PutData(N_Vector v, double *data, int n)
+void PutData(N_Vector v, double *data, long int n)
 {
   double *vdata;
-  int i;
+  long int i;
 
   vdata = N_VGetArrayPointer(v);
 
@@ -30,10 +30,10 @@ void PutData(N_Vector v, double *data, int n)
 }
 
 
-void GetData(N_Vector v, double *data, int n)
+void GetData(N_Vector v, double *data, long int n)
 {
   double *vdata;
-  int i;
+  long int i;
 
   vdata = N_VGetArrayPointer(v);
 

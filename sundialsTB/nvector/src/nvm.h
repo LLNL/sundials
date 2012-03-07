@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-09 23:56:25 $
+ * $Revision: 1.3 $
+ * $Date: 2012-03-07 21:41:19 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,10 +31,10 @@ extern "C" {
    */
   
   void InitVectors();
-  N_Vector NewVector(int n);
+  N_Vector NewVector(long int n);
 
-  void PutData(N_Vector v, double *data, int n);
-  void GetData(N_Vector v, double *data, int n);
+  void PutData(N_Vector v, double *data, long int n);
+  void GetData(N_Vector v, double *data, long int n);
 
 #ifdef __cplusplus
 }

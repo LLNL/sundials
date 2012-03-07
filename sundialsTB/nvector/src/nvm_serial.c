@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-10-09 23:56:25 $
+ * $Revision: 1.3 $
+ * $Date: 2012-03-07 21:41:19 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,9 +21,9 @@
 void InitVectors()
 {}
 
-N_Vector NewVector(int n)
+N_Vector NewVector(long int n)
 {
   N_Vector v;
-  v = N_VNew_Serial((long int)n);
+  v = N_VNew_Serial(n);
   return(v);
 }
