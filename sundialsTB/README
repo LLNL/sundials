@@ -1,6 +1,6 @@
                          sundialsTB
                 A MATLAB interface to SUNDIALS
-                   Release 2.5.0, Jan. 2012
+                   Release 2.5.0, March 2012
 
                         Radu Serban
          Center for Applied Scientific Computing, LLNL
@@ -135,7 +135,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.5.0 - Jan. 2012
+v. 2.5.0 - Mar. 2012
 v. 2.4.0 - May  2009
 v. 2.3.0 - Nov. 2006
 v. 2.2.0 - Mar. 2006
@@ -144,13 +144,17 @@ v. 2.1.1 - May. 2005 (first sundialsTB release)
 E. Revision History
 -------------------
 
-v. 2.4.0 (May 2009) ---> v. 2.5.0 (Jan. 2012)
+v. 2.4.0 (May 2009) ---> v. 2.5.0 (Mar. 2012)
 ---------------------------------------------------------
 
 - Minor bug fixes:
   - in kimOpts.c, fixed lines setting etachoice.
   - in cvm.c and idm.c, fixed size of rootsfound array; added lines to free
     rootsfound and ckpnt arrays when done using each.
+  - in all .c files, changed mxCreateScalarDouble to mxCreateDoubleScalar.
+  - in all .c files, changed problem sizes, bandwidths, etc. from type int
+    to type long int.
+
 
 - Minor fixes to documentation
 
