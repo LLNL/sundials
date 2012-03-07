@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2007-12-05 21:58:20 $
+ * $Revision: 1.5 $
+ * $Date: 2012-03-07 21:50:32 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -57,7 +57,7 @@ typedef struct kimInterfaceData_ {
 
   void *kin_mem;        /* KINSOL solver memory */
 
-  int n;                /* problem dimension */
+  long int n;           /* problem dimension */
 
   N_Vector Y;           /* solution vector */
 
@@ -108,14 +108,14 @@ int mxW_KINSys(N_Vector y, N_Vector fy, void *user_data );
 
 /* Dense direct linear solver */
 
-int mxW_KINDenseJac(int N,
+int mxW_KINDenseJac(long int N,
                     N_Vector y, N_Vector fy, 
                     DlsMat J, void *user_data,
                     N_Vector tmp1, N_Vector tmp2);
 
 /* Band direct linear solver */
 
-int mxW_KINBandJac(int N, int mupper, int mlower,
+int mxW_KINBandJac(long int N, long int mupper, long int mlower,
                    N_Vector u, N_Vector fu, 
                    DlsMat J, void *user_data,
                    N_Vector tmp1, N_Vector tmp2);
@@ -136,8 +136,8 @@ int mxW_KINSpilsPsol(N_Vector y, N_Vector yscale,
 
 /* BBD Preconditioner */
 
-int mxW_KINGloc(int Nlocal, N_Vector y, N_Vector gval, void *user_data);
-int mxW_KINGcom(int Nlocal, N_Vector y, void *user_data);
+int mxW_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *user_data);
+int mxW_KINGcom(long int Nlocal, N_Vector y, void *user_data);
 
 /*
  * ---------------------------------------------------------------------------------
@@ -155,8 +155,8 @@ int get_SolverOptions(const mxArray *options,
                       booleantype *noInitSetup, booleantype *noMinEps);
 
 int get_LinSolvOptions(const mxArray *options,
-                       int *mupper, int *mlower,
-                       int *mudq, int *mldq, double *dqrely,
+                       long int *mupper, long int *mlower,
+                       long int *mudq, long int *mldq, double *dqrely,
                        int *ptype, int *maxrs, int *maxl);
 
 #ifdef __cplusplus

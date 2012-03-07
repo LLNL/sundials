@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2012-03-06 23:21:23 $
+ * $Revision: 1.10 $
+ * $Date: 2012-03-07 21:49:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -169,7 +169,7 @@ int mxW_IDAGfct(realtype t, N_Vector yy, N_Vector yp,
   return(ret);
 }
 
-int mxW_IDADenseJac(int Neq, realtype tt, realtype c_j, 
+int mxW_IDADenseJac(long int Neq, realtype tt, realtype c_j, 
                     N_Vector yy, N_Vector yp, N_Vector rr,
                     DlsMat Jac, void *user_data, 
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -222,7 +222,7 @@ int mxW_IDADenseJac(int Neq, realtype tt, realtype c_j,
   return(ret);
 }
 
-int mxW_IDABandJac(int Neq, int mupper, int mlower, 
+int mxW_IDABandJac(long int Neq, long int mupper, long int mlower, 
                    realtype tt, realtype c_j, 
                    N_Vector yy, N_Vector yp, N_Vector rr, 
                    DlsMat Jac, void *user_data,
@@ -230,7 +230,8 @@ int mxW_IDABandJac(int Neq, int mupper, int mlower,
 {
   idmPbData fwdPb;
   double *J_data;
-  int eband, i, ret;
+  long int eband, i;
+  int ret;
   mxArray *mx_in[7], *mx_out[3];
 
   /* Extract global interface data from user-data */
@@ -434,7 +435,7 @@ int mxW_IDASpilsPsol(realtype tt,
  * ----------------------------
  */
 
-int mxW_IDABBDgloc(int Nlocal, realtype tt,
+int mxW_IDABBDgloc(long int Nlocal, realtype tt,
                    N_Vector yy, N_Vector yp, N_Vector gval,
                    void *user_data)
 {
@@ -476,7 +477,7 @@ int mxW_IDABBDgloc(int Nlocal, realtype tt,
   return(ret);
 }
 
-int mxW_IDABBDgcom(int Nlocal, realtype tt,
+int mxW_IDABBDgcom(long int Nlocal, realtype tt,
                    N_Vector yy, N_Vector yp,
                    void *user_data)
 {
@@ -842,7 +843,7 @@ int mxW_IDAQuadFctBS(realtype tt,
   return(ret);
 }
 
-int mxW_IDADenseJacB(int NeqB,
+int mxW_IDADenseJacB(long int NeqB,
                      realtype tt, realtype c_jB,
                      N_Vector yy, N_Vector yp,
                      N_Vector yyB, N_Vector ypB, N_Vector rrB,
@@ -903,7 +904,7 @@ int mxW_IDADenseJacB(int NeqB,
   return(ret);
 }
 
-int mxW_IDABandJacB(int NeqB, int mupperB, int mlowerB, 
+int mxW_IDABandJacB(long int NeqB, long int mupperB, long int mlowerB, 
                     realtype tt, realtype c_jB, 
                     N_Vector yy, N_Vector yp,
                     N_Vector yyB, N_Vector ypB, N_Vector rrB,
@@ -913,7 +914,8 @@ int mxW_IDABandJacB(int NeqB, int mupperB, int mlowerB,
   idmPbData fwdPb, bckPb;
   double *JB_data;
   mxArray *mx_in[9], *mx_out[3];
-  int ebandB, i, ret;
+  long int ebandB, i;
+  int ret;
 
   /* Extract global interface data from user-data */
   bckPb = (idmPbData) user_dataB;
@@ -1143,7 +1145,7 @@ int mxW_IDASpilsPsolB(realtype tt,
 
 }
 
-int mxW_IDABBDglocB(int NlocalB, realtype tt,
+int mxW_IDABBDglocB(long int NlocalB, realtype tt,
                     N_Vector yy, N_Vector yp, 
                     N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                     void *user_dataB)
@@ -1194,7 +1196,7 @@ int mxW_IDABBDglocB(int NlocalB, realtype tt,
   return(ret);
 }
 
-int mxW_IDABBDgcomB(int NlocalB, realtype tt,
+int mxW_IDABBDgcomB(long int NlocalB, realtype tt,
                     N_Vector yy, N_Vector yp,
                     N_Vector yyB, N_Vector ypB,
                     void *user_dataB)

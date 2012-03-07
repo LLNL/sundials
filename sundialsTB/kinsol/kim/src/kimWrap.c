@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-12-05 21:58:20 $
+ * $Revision: 1.6 $
+ * $Date: 2012-03-07 21:50:32 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -70,7 +70,7 @@ int mxW_KINSys(N_Vector y, N_Vector fy, void *user_data )
   return(ret);
 }
 
-int mxW_KINDenseJac(int Neq,
+int mxW_KINDenseJac(long int Neq,
                     N_Vector y, N_Vector fy, 
                     DlsMat J, void *user_data,
                     N_Vector tmp1, N_Vector tmp2)
@@ -115,7 +115,7 @@ int mxW_KINDenseJac(int Neq,
 }
 
 
-int mxW_KINBandJac(int Neq, int mupper, int mlower,
+int mxW_KINBandJac(long int Neq, long int mupper, long int mlower,
                    N_Vector y, N_Vector fy, 
                    DlsMat J, void *user_data,
                    N_Vector tmp1, N_Vector tmp2)
@@ -123,7 +123,8 @@ int mxW_KINBandJac(int Neq, int mupper, int mlower,
   kimInterfaceData kimData;
   double *J_data;
   mxArray *mx_in[4], *mx_out[3];
-  int eband, i, ret;
+  long int eband, i;
+  int ret;
 
   /* Extract global interface data from user-data */
   kimData = (kimInterfaceData) user_data;
@@ -302,7 +303,7 @@ int mxW_KINSpilsPsol(N_Vector y, N_Vector yscale,
   return(ret);
 }
 
-int mxW_KINGloc(int Nlocal, N_Vector y, N_Vector gval, void *user_data)
+int mxW_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *user_data)
 {
   kimInterfaceData kimData;
   mxArray *mx_in[3], *mx_out[3];
@@ -338,7 +339,7 @@ int mxW_KINGloc(int Nlocal, N_Vector y, N_Vector gval, void *user_data)
   return(ret);
 }
 
-int mxW_KINGcom(int Nlocal, N_Vector y, void *user_data)
+int mxW_KINGcom(long int Nlocal, N_Vector y, void *user_data)
 {
   kimInterfaceData kimData;
   mxArray *mx_in[5], *mx_out[2];

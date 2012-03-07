@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2009-11-25 23:12:03 $
+ * $Revision: 1.6 $
+ * $Date: 2012-03-07 21:50:32 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -60,7 +60,8 @@ int get_SolverOptions(const mxArray *options,
 {
   mxArray *opt;
   char *bufval;
-  int i, buflen, status, m, n;
+  int buflen, status;
+  long int i, m, n;
   double *tmp;
 
   /* Set default values (pass 0 values. KINSOL does the rest) */
@@ -235,8 +236,8 @@ int get_SolverOptions(const mxArray *options,
 
 
 int get_LinSolvOptions(const mxArray *options,
-                       int *mupper, int *mlower,
-                       int *mudq, int *mldq, double *dqrely,
+                       long int *mupper, long int *mlower,
+                       long int *mudq, long int *mldq, double *dqrely,
                        int *ptype, int *maxrs, int *maxl)
 {
   mxArray *opt;
@@ -298,11 +299,11 @@ int get_LinSolvOptions(const mxArray *options,
 
     opt = mxGetField(options,0,"UpperBwidth");
     if ( !mxIsEmpty(opt) )
-      *mupper = (int)*mxGetPr(opt);
+      *mupper = (long int)*mxGetPr(opt);
     
     opt = mxGetField(options,0,"LowerBwidth");
     if ( !mxIsEmpty(opt) )
-      *mlower = (int)*mxGetPr(opt);
+      *mlower = (long int)*mxGetPr(opt);
 
   }
   
@@ -388,19 +389,19 @@ int get_LinSolvOptions(const mxArray *options,
 
       opt = mxGetField(options,0,"UpperBwidth");
       if ( !mxIsEmpty(opt) )
-        *mupper = (int)*mxGetPr(opt);
+        *mupper = (long int)*mxGetPr(opt);
     
       opt = mxGetField(options,0,"LowerBwidth");
       if ( !mxIsEmpty(opt) )
-        *mlower = (int)*mxGetPr(opt);
+        *mlower = (long int)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"UpperBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mudq = (int)*mxGetPr(opt);
+        *mudq = (long int)*mxGetPr(opt);
 
       opt = mxGetField(options,0,"LowerBwidthDQ");
       if ( !mxIsEmpty(opt) )
-        *mldq = (int)*mxGetPr(opt);
+        *mldq = (long int)*mxGetPr(opt);
       
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) {

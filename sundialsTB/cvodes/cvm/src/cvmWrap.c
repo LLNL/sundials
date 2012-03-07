@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2012-03-06 23:21:21 $
+ * $Revision: 1.12 $
+ * $Date: 2012-03-07 21:44:21 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -158,7 +158,7 @@ int mxW_CVodeGfct(realtype t, N_Vector y, double *g, void *user_data)
 }
 
 
-int mxW_CVodeDenseJac(int Neq, realtype t,
+int mxW_CVodeDenseJac(long int Neq, realtype t,
                       N_Vector y, N_Vector fy, 
                       DlsMat J, void *user_data,
                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -207,14 +207,15 @@ int mxW_CVodeDenseJac(int Neq, realtype t,
   return(ret);
 }
 
-int mxW_CVodeBandJac(int Neq, int mupper, int mlower, realtype t,
+int mxW_CVodeBandJac(long int Neq, long int mupper, long int mlower, realtype t,
                      N_Vector y, N_Vector fy, 
                      DlsMat J, void *user_data,
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   cvmPbData fwdPb;
   double *J_data;
-  int eband, i, ret;
+  long int eband, i;
+  int ret;
   mxArray *mx_in[5], *mx_out[3];
 
   /* Extract global interface data from user-data */
@@ -404,7 +405,7 @@ int mxW_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
  * ----------------------------
  */
 
-int mxW_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y,
+int mxW_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
                      N_Vector g, void *user_data)
 {
   cvmPbData fwdPb;
@@ -442,7 +443,7 @@ int mxW_CVodeBBDgloc(int Nlocal, realtype t, N_Vector y,
   return(ret);
 }
 
-int mxW_CVodeBBDgcom(int Nlocal, realtype t, N_Vector y, void *user_data)
+int mxW_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y, void *user_data)
 {
   cvmPbData fwdPb;
   mxArray *mx_in[4], *mx_out[2];
@@ -753,7 +754,7 @@ int mxW_CVodeQUADfctBS(realtype t, N_Vector y,  N_Vector *yS,
 
 
 
-int mxW_CVodeDenseJacB(int NeqB, realtype t,
+int mxW_CVodeDenseJacB(long int NeqB, realtype t,
                        N_Vector y, N_Vector yB, N_Vector fyB,
                        DlsMat JB, void *user_dataB, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -805,7 +806,7 @@ int mxW_CVodeDenseJacB(int NeqB, realtype t,
 }
 
 
-int mxW_CVodeBandJacB(int NeqB, int mupperB, int mlowerB, realtype t, 
+int mxW_CVodeBandJacB(long int NeqB, long int mupperB, long int mlowerB, realtype t, 
                        N_Vector y, N_Vector yB, N_Vector fyB,
                        DlsMat JB, void *user_dataB, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -813,7 +814,8 @@ int mxW_CVodeBandJacB(int NeqB, int mupperB, int mlowerB, realtype t,
   cvmPbData fwdPb, bckPb;
   double *JB_data;
   mxArray *mx_in[6], *mx_out[3];
-  int ebandB, i, ret;
+  long int ebandB, i;
+  int ret;
 
   /* Extract global interface data from user-data */
   bckPb = (cvmPbData) user_dataB;
@@ -1017,7 +1019,7 @@ int mxW_CVodeSpilsPsolB(realtype t, N_Vector y,
 
 }
 
-int mxW_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y,
+int mxW_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y,
                        N_Vector yB, N_Vector gB, void *user_dataB)
 {
   cvmPbData fwdPb, bckPb;
@@ -1060,7 +1062,7 @@ int mxW_CVodeBBDglocB(int NlocalB, realtype t, N_Vector y,
   return(ret);
 }
 
-int mxW_CVodeBBDgcomB(int NlocalB, realtype t, N_Vector y, 
+int mxW_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y, 
                        N_Vector yB, void *user_dataB)
 {
   cvmPbData fwdPb, bckPb;

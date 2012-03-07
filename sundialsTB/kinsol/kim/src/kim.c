@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2012-03-06 23:21:24 $
+ * $Revision: 1.8 $
+ * $Date: 2012-03-07 21:50:32 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -311,7 +311,7 @@ static int KIM_Initialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray
   N_Vector NVconstraints;
 
   int ptype;
-  int mudq, mldq, mupper, mlower;
+  long int mudq, mldq, mupper, mlower;
   int maxl, maxrs;
   double dqrely;
 
@@ -336,7 +336,7 @@ static int KIM_Initialization(int nlhs, mxArray *plhs[], int nrhs, const mxArray
   
   /* Problem dimension */
 
-  N = (int) mxGetScalar(prhs[1]);
+  N = (long int) mxGetScalar(prhs[1]);
 
   /* Solver Options (may be empty) */
 

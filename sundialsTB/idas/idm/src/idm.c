@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2012-03-06 23:21:23 $
+ * $Revision: 1.21 $
+ * $Date: 2012-03-07 21:49:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -596,9 +596,9 @@ static int IDM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   booleantype suppress;
 
-  int mupper, mlower;
+  long int mupper, mlower;
   int gstype, maxl;
-  int mudq, mldq;
+  long int mudq, mldq;
   double dqrely;
 
   double *id, *cnstr;
@@ -1524,9 +1524,9 @@ static int IDM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   booleantype suppressB;
 
-  int mupperB, mlowerB;
+  long int mupperB, mlowerB;
   int gstypeB, maxlB;
-  int mudqB, mldqB;
+  long int mudqB, mldqB;
   double dqrelyB;
 
   double *idB, *cnstrB;

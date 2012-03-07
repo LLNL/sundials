@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2007-12-05 21:58:19 $
+ * $Revision: 1.10 $
+ * $Date: 2012-03-07 21:49:18 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -60,12 +60,12 @@ enum {PM_NONE, PM_BBDPRE};
 typedef struct idmPbData_ {
 
 
-  int n;             /* problem dimension */
+  long int n;        /* problem dimension */
   N_Vector YY;       /* solution vector */
   N_Vector YP;       /* derivative of solution vector */
 
   booleantype Quadr; /* integrate quadratures? */
-  int nq;            /* number of quadratures */
+  long int nq;       /* number of quadratures */
   N_Vector YQ;       /* quadratures vector */
 
   booleantype Fsa;   /* integrate sensitivities? */
@@ -168,13 +168,13 @@ int mxW_IDASensRes(int Nsens, realtype tres,
                    void *user_data,
                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-int mxW_IDADenseJac(int Neq, 
+int mxW_IDADenseJac(long int Neq, 
                     realtype tt, realtype c_j, 
                     N_Vector yy, N_Vector yp, N_Vector rr,
                     DlsMat Jac, void *user_data, 
                     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-int mxW_IDABandJac(int Neq, int mupper, int mlower, 
+int mxW_IDABandJac(long int Neq, long int mupper, long int mlower, 
                    realtype tt, realtype c_j, 
                    N_Vector yy, N_Vector yp, N_Vector rr, 
                    DlsMat Jac, void *user_data,
@@ -196,10 +196,10 @@ int mxW_IDASpilsPsol(realtype tt,
                      realtype c_j, realtype delta, void *user_data,
                      N_Vector tmp);
 
-int mxW_IDABBDgloc(int Nlocal, realtype tt,
+int mxW_IDABBDgloc(long int Nlocal, realtype tt,
                    N_Vector yy, N_Vector yp, N_Vector gval,
                    void *user_data);
-int mxW_IDABBDgcom(int Nlocal, realtype tt,
+int mxW_IDABBDgcom(long int Nlocal, realtype tt,
                    N_Vector yy, N_Vector yp,
                    void *user_data);
 
@@ -231,14 +231,14 @@ int mxW_IDAQuadFctBS(realtype t,
                      N_Vector ypQB,
                      void *user_dataB);
 
-int mxW_IDADenseJacB(int NeqB, 
+int mxW_IDADenseJacB(long int NeqB, 
                      realtype tt, realtype c_jB,
                      N_Vector yy, N_Vector yp,
                      N_Vector yyB, N_Vector ypB, N_Vector rrB,
                      DlsMat JacB, void *user_dataB, 
                      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
-int mxW_IDABandJacB(int NeqB, int mupperB, int mlowerB, 
+int mxW_IDABandJacB(long int NeqB, long int mupperB, long int mlowerB, 
                     realtype tt, realtype c_jB, 
                     N_Vector yy, N_Vector yp,
                     N_Vector yyB, N_Vector ypB, N_Vector rrB,
@@ -264,11 +264,11 @@ int mxW_IDASpilsPsolB(realtype tt,
                       realtype c_jB, realtype deltaB,
                       void *user_dataB, N_Vector tmpB);
 
-int mxW_IDABBDglocB(int NlocalB, realtype tt,
+int mxW_IDABBDglocB(long int NlocalB, realtype tt,
                     N_Vector yy, N_Vector yp, 
                     N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                     void *user_dataB);
-int mxW_IDABBDgcomB(int NlocalB, realtype tt,
+int mxW_IDABBDgcomB(long int NlocalB, realtype tt,
                     N_Vector yy, N_Vector yp,
                     N_Vector yyB, N_Vector ypB,
                     void *user_dataB);
@@ -296,12 +296,12 @@ int get_IntgrOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
                      booleantype *res_s);
 
 int get_LinSolvOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
-                       int *mupper, int *mlower,
-                       int *mudq, int *mldq, double *dqrely,
+                       long int *mupper, long int *mlower,
+                       long int *mudq, long int *mldq, double *dqrely,
                        int *gstype, int *maxl);
 
 int get_QuadOptions(const mxArray *options, idmPbData thisPb, booleantype fwd,
-                    int Nq, booleantype *rhs_s,
+                    long int Nq, booleantype *rhs_s,
                     booleantype *errconQ,
                     int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ);
 

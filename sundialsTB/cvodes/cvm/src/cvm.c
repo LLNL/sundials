@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2012-03-06 23:21:21 $
+ * $Revision: 1.26 $
+ * $Date: 2012-03-07 21:48:00 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -570,9 +570,9 @@ static int CVM_Initialization(int action, int nlhs, mxArray *plhs[], int nrhs, c
 
   booleantype rhs_s; /* ignored */
 
-  int mupper, mlower;
+  long int mupper, mlower;
   int ptype, gstype, maxl;
-  int mudq, mldq;
+  long int mudq, mldq;
   double dqrely;
 
   char *bufval;
@@ -1515,9 +1515,9 @@ static int CVM_InitializationB(int action, int nlhs, mxArray *plhs[], int nrhs, 
 
   booleantype rhs_s;
 
-  int mupperB, mlowerB;
+  long int mupperB, mlowerB;
   int ptypeB, gstypeB, maxlB;
-  int mudqB, mldqB;
+  long int mudqB, mldqB;
   double dqrelyB;
 
   booleantype found_bck;
