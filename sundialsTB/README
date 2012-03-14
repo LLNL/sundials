@@ -18,8 +18,6 @@ However, this mex file should not be called directly, but rather through
 the user-callable functions provided for each MATLAB interface.
 
 The distribution file also contains a user guide, as well as several examples. 
-An HTML version of the documentation is available on the SUNDIALS website 
-(www.llnl.gov/CASC/sundials)
 
 sundialsTB v. 2.5.0 requires SUNDIALS v 2.5.0 and, optionally (for parallel 
 support), MPITB with LAM 7.1.1 for MPI-2 features.
@@ -33,8 +31,7 @@ A. Documentation
 ----------------
 
 /sundialsTB/doc contains a PDF file for the sundialsTB User Guide.
-An HTML version of the user guide is available on the SUNDIALS web site at
-http://www.llnl.gov/CASC/sundials/documentation/stb_guide/sundialsTB.html
+
 
 B. Installation
 ---------------
