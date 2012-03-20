@@ -1,4 +1,4 @@
-CVPrecSetupFnB - type for user provided preconditioner setup function for backward problems.
+%CVPrecSetupFnB - type for user provided preconditioner setup function for backward problems.
 %
 %   The user-supplied preconditioner setup function PSETFUN and
 %   the user-supplied preconditioner solve function PSOLFUN
@@ -50,4 +50,4 @@ CVPrecSetupFnB - type for user provided preconditioner setup function for backwa
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2007/05/11 18:51:33 $
+% $Revision: 1.3 $Date: 2011/06/01 20:44:05 $
