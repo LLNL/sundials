@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2009-02-17 03:09:41 $
+# $Revision: 1.7 $
+# $Date: 2012-04-26 00:06:12 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -41,13 +41,13 @@ nvec_serial.tex \
 sun_org.tex \
 types.tex \
 ug.tex \
-ug_html.tex \
+#ug_html.tex \
 biblio.bib \
 bandmat.eps \
 sunorg1.eps \
 sunorg2.eps \
 doc_logo.eps \
-processHTML
+#processHTML
 
 EX_FILES = \
 idas_examples.tex \
@@ -58,21 +58,21 @@ idas_ex_codes.tex
 
 EX_SHARED_FILES = \
 ug.tex \
-ug_html.tex \
+#ug_html.tex \
 biblio.bib \
-processHTML
+#processHTML
 
-HTML_BUTTONS =\
-back.png \
-contents.png \
-index.png \
-next.png \
-next_g.png \
-prev.png \
-prev_g.png \
-up.png \
-up_g.png \
-warning.png
+#HTML_BUTTONS =\
+#back.png \
+#contents.png \
+#index.png \
+#next.png \
+#next_g.png \
+#prev.png \
+#prev_g.png \
+#up.png \
+#up_g.png \
+#warning.png
 
 #-------------------------------------------------------------------------------
 
@@ -86,15 +86,16 @@ all:
 	@echo "  make purge  - remove temporary files + PS + PDF files"
 	@echo ""
 
-install: ug_pdf ex_pdf ug_html ex_html
-	rm -rf $(HTML_DIR)/idas_guide
-	rm -rf $(HTML_DIR)/idas_examples
-	cp idas_guide.ps $(HTML_DIR)
+install: ug_pdf ex_pdf
+#install: ug_pdf ex_pdf ug_html ex_html
+#	rm -rf $(HTML_DIR)/idas_guide
+#	rm -rf $(HTML_DIR)/idas_examples
+#	cp idas_guide.ps $(HTML_DIR)
 	cp idas_guide.pdf $(HTML_DIR)
-	cp -r idas_guide $(HTML_DIR)
-	cp idas_examples.ps $(HTML_DIR)
+#	cp -r idas_guide $(HTML_DIR)
+#	cp idas_examples.ps $(HTML_DIR)
 	cp idas_examples.pdf $(HTML_DIR)
-	cp -r idas_examples $(HTML_DIR)
+#	cp -r idas_examples $(HTML_DIR)
 
 #-------------------------------------------------------------------------------
 
@@ -102,14 +103,14 @@ ug: 	copy_ug idas_guide.aux
 
 ug_pdf: ug idas_guide.ps
 
-ug_html: ug
-	cp ug_html.tex ug.tex
-	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -show_section_numbers -short_index -local_icons -white -notransparent idas_guide.tex
-	@for i in ${HTML_BUTTONS} ; do \
-	cp ${SHARED_DOC}/buttons/$${i} idas_guide/ ;\
-	done
-	@cp ${SHARED_DOC}/l2h_styles.css idas_guide/idas_guide.css
-	./processHTML idas_guide
+#ug_html: ug
+#	cp ug_html.tex ug.tex
+#	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -show_section_numbers -short_index -local_icons -white -notransparent idas_guide.tex
+#	@for i in ${HTML_BUTTONS} ; do \
+#	cp ${SHARED_DOC}/buttons/$${i} idas_guide/ ;\
+#	done
+#	@cp ${SHARED_DOC}/l2h_styles.css idas_guide/idas_guide.css
+#	./processHTML idas_guide
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -131,14 +132,14 @@ ex:	ug copy_ex idas_examples.aux
 
 ex_pdf: ex idas_examples.ps
 
-ex_html: ex
-	cp ug_html.tex ug.tex
-	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -show_section_numbers -local_icons -white -notransparent idas_examples.tex
-	@for i in ${HTML_BUTTONS} ; do \
-	cp ${SHARED_DOC}/buttons/$${i} idas_examples/ ;\
-	done
-	@cp ${SHARED_DOC}/l2h_styles.css idas_examples/idas_examples.css
-	./processHTML idas_examples
+#ex_html: ex
+#	cp ug_html.tex ug.tex
+#	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -show_section_numbers -local_icons -white -notransparent idas_examples.tex
+#	@for i in ${HTML_BUTTONS} ; do \
+#	cp ${SHARED_DOC}/buttons/$${i} idas_examples/ ;\
+#	done
+#	@cp ${SHARED_DOC}/l2h_styles.css idas_examples/idas_examples.css
+#	./processHTML idas_examples
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \

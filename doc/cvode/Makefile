@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2009-02-17 03:09:41 $
+# $Revision: 1.4 $
+# $Date: 2012-04-26 00:05:57 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -40,13 +40,13 @@ nvec_serial.tex \
 sun_org.tex \
 types.tex \
 ug.tex \
-ug_html.tex \
+#ug_html.tex \
 biblio.bib \
 bandmat.eps \
 sunorg1.eps \
 sunorg2.eps \
 doc_logo.eps \
-processHTML
+#processHTML
 
 EX_FILES = \
 cv_examples.tex \
@@ -59,21 +59,21 @@ cv_ex_tests.tex
 
 EX_SHARED_FILES = \
 ug.tex \
-ug_html.tex \
+#ug_html.tex \
 biblio.bib \
-processHTML
+#processHTML
 
-HTML_BUTTONS =\
-back.png \
-contents.png \
-index.png \
-next.png \
-next_g.png \
-prev.png \
-prev_g.png \
-up.png \
-up_g.png \
-warning.png
+#HTML_BUTTONS =\
+#back.png \
+#contents.png \
+#index.png \
+#next.png \
+#next_g.png \
+#prev.png \
+#prev_g.png \
+#up.png \
+#up_g.png \
+#warning.png
 
 #-------------------------------------------------------------------------------
 
@@ -87,15 +87,16 @@ all:
 	@echo "  make purge  - remove temporary files + PS + PDF files"
 	@echo ""
 
-install: ug_pdf ex_pdf ug_html ex_html
-	rm -rf $(HTML_DIR)/cv_guide
-	rm -rf $(HTML_DIR)/cv_examples
-	cp cv_guide.ps $(HTML_DIR)
+install: ug_pdf ex_pdf
+#install: ug_pdf ex_pdf ug_html ex_html
+#	rm -rf $(HTML_DIR)/cv_guide
+#	rm -rf $(HTML_DIR)/cv_examples
+#	cp cv_guide.ps $(HTML_DIR)
 	cp cv_guide.pdf $(HTML_DIR)
-	cp -r cv_guide $(HTML_DIR)
-	cp cv_examples.ps $(HTML_DIR)
+#	cp -r cv_guide $(HTML_DIR)
+#	cp cv_examples.ps $(HTML_DIR)
 	cp cv_examples.pdf $(HTML_DIR)
-	cp -r cv_examples $(HTML_DIR)
+#	cp -r cv_examples $(HTML_DIR)
 
 #-------------------------------------------------------------------------------
 
@@ -103,14 +104,14 @@ ug: 	copy_ug cv_guide.aux
 
 ug_pdf: ug cv_guide.ps
 
-ug_html: ug
-	cp ug_html.tex ug.tex
-	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -show_section_numbers -local_icons -white -notransparent cv_guide.tex
-	@for i in ${HTML_BUTTONS} ; do \
-	cp ${SHARED_DOC}/buttons/$${i} cv_guide/ ;\
-	done
-	@cp ${SHARED_DOC}/l2h_styles.css cv_guide/cv_guide.css
-	./processHTML cv_guide
+#ug_html: ug
+#	cp ug_html.tex ug.tex
+#	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -show_section_numbers -local_icons -white -notransparent cv_guide.tex
+#	@for i in ${HTML_BUTTONS} ; do \
+#	cp ${SHARED_DOC}/buttons/$${i} cv_guide/ ;\
+#	done
+#	@cp ${SHARED_DOC}/l2h_styles.css cv_guide/cv_guide.css
+#	./processHTML cv_guide
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -130,14 +131,14 @@ ex:	ug copy_ex cv_examples.aux
 
 ex_pdf: ex cv_examples.ps
 
-ex_html: ex
-	cp ug_html.tex ug.tex
-	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -show_section_numbers -local_icons -white -notransparent cv_examples.tex
-	@for i in ${HTML_BUTTONS} ; do \
-	cp ${SHARED_DOC}/buttons/$${i} cv_examples/ ;\
-	done
-	@cp ${SHARED_DOC}/l2h_styles.css cv_examples/cv_examples.css
-	./processHTML cv_examples
+#ex_html: ex
+#	cp ug_html.tex ug.tex
+#	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -show_section_numbers -local_icons -white -notransparent cv_examples.tex
+#	@for i in ${HTML_BUTTONS} ; do \
+#	cp ${SHARED_DOC}/buttons/$${i} cv_examples/ ;\
+#	done
+#	@cp ${SHARED_DOC}/l2h_styles.css cv_examples/cv_examples.css
+#	./processHTML cv_examples
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \
