@@ -1,24 +1,27 @@
-The texdoc.m script assumes use of the m2html package freely available at:
-http://www.artefact.tk/software/matlab/m2html/
+     Instructions for Generating sundialsTB.ps and sundialsTB.pdf
 
-To get started, the easiest thing is to download the package and install 
-it in a matlab directory.
+The texdoc.m script assumes use of the m2html package, which is freely
+available at: http://www.artefact.tk/software/matlab/m2html/
 
-Then add two subdirectories in the m2html/templates directory titled:
-latex
-sundialsTB
+To get started, download the package (m2html.zip) and install it (with
+unzip) in a matlab directory.
 
-Copy the files from 
-sundials/sundialsTB/doc/tex_files/stb_template
-into the m2html/templates/latex subdirectory
+Then, in the matlab directory, make two subdirectories in the
+m2html/templates directory titled: 'latex' and 'sundialsTB'.
 
-Copy the files from 
-sundials/sundialsTB/doc/html_files/stb_template
-into the m2html/templates/sundialsTB subdirectory
+Next, copy the files from sundials/sundialsTB/doc/tex_files/stb_template/
+into the m2html/templates/latex subdirectory.
 
-To run texdoc.m, start Matlab and at the Matlab prompt, add the m2html
-location to the Matlab path by executing:
->> addpath ~\matlab\m2html
-or with a similar specification of the location of the m2html package.
+Similarly, copy the files from sundials/sundialsTB/doc/html_files/stb_template/
+into the m2html/templates/sundialsTB subdirectory.
 
-At this point, you should be able to execute texdoc.m
+Finally, to run texdoc.m, start Matlab in the directory sundials/sundialsTB/doc.
+At the Matlab prompt, add the m2html location to the Matlab path by executing:
+>> addpath ~/matlab/m2html
+or by doing a similar specification of the location of the m2html package.
+Then (within Matlab) type 'texdoc' to execute texdoc.m.
+
+This results in files sundialsTB.ps and sundialsTB.pdf in the directory
+sundials/sundialsTB/doc.  It also generates a working directory tex/ there,
+with various auxiliary files.
+
