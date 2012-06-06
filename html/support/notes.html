@@ -6,7 +6,7 @@
 
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
-<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, IDAS, KINSOL">
 <meta name="keywords" content="ODE, DAE, sensitivity">
 <meta name="keywords" content="differential, algebraic">
 <link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
@@ -26,6 +26,7 @@ supporton = new Image();        supporton.src = "../graphics/support_buttonH.png
 supportoff = new Image();       supportoff.src = "../graphics/support_button.png";
 //-->
 </script>
+
 <script src="../sunjs.js" type="text/javascript" language="javascript1.2"></script>
 
 </head>
@@ -40,6 +41,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <tr valign="top">
   <td height="60" background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
   <td width="116"><img SRC="../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+
   <td width="720"><img SRC="../graphics/head_support_top_right.png" height="60" width="720" border="0"></td>
   <td background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
   </tr>
@@ -49,6 +51,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <td width="116">
     <a href="../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../graphics/home_button.png" border="0" name="home"></a><br>
     <a href="../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../graphics/description_button.png" border="0" name="description"></a><br>
+
     <a href="../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../graphics/documentation_button.png" border="0" name="documentation"></a><br>
     <a href="../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../graphics/download_button.png" border="0" name="download"></a><br>
     <a href="support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../graphics/support_button.png" border="0" name="support"></a><br>
@@ -84,6 +87,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
 <li>
   <a href="#tout"><b>On the integration return and output times</b></a>
+
   <ul>
   <li><a href="#toutA">A) Definitions</a></li>
   <li><a href="#toutB">B) Dense output</a></li>
@@ -93,6 +97,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
 <li>
   <a href="#disc"><b>On controlling unphysical solutions and integrating over discontinuities</b></a>
+
   <ul>
   <li><a href="#discA">A) Definitions</a></li>
   <li><a href="#discB">B) Treatment</a></li>
@@ -102,6 +107,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
 <li>
   <a href="#switch"><b>On switching on/off forward sensitivity computations</b></a>
+
 </li>
 
 </ul>
@@ -116,20 +122,22 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
 <div class="frame">
 <br>
-All SUNDIALS integrators (CVODE, CVODES, IDA) can be used in one of two main modes: 
+All SUNDIALS integrators (CVODE, CVODES, IDA, IDAS) can be used in one of two main modes: 
 <i>normal</i> and <i>one step</i>. Before defining the various relevant terms and 
 describing the behavior and use of the integrators in each case, note that,
 internally, the SUNDIALS integrators work <b>independently</b> of this
 return mode. Indeed, regardless of the output mode, the method order and step size
 are chosen at any given time based solely on accuracy and solver performance
 criteria. 
+
 <i>The only difference is in the time at which control is passed back to the calling program.</i>
 Optionally, the user can specify a time past which the integration is never to proceed 
 (i.e.; no evaluations of any user-supplied functions will ever be made beyond this time).
 Note that, in this case, when approaching this barrier, the integration step size may 
 be reduced to enforce this condition.
 <br><br>
-Although we will only use CVODE as an example, this note applies equally to CVODES and IDA.
+Although we will only use CVODE as an example, this note applies
+equally to CVODES, IDA, and IDAS.
 For clarity, we will assume that the integration proceeds towards larger times.
 
 <br><br>
@@ -141,6 +149,7 @@ The following names will be used in the sequel:
 <table style="margin-left:10px;">
 <tr>
   <td><b>tout</b></td>
+
   <td>
   The next time at which a computed solution is desired;
   tout is passed as an <i>input</i> to <tt>CVode</tt>.
@@ -152,6 +161,7 @@ The following names will be used in the sequel:
   The time at which the solver returned control to the caling program;
   tret is an <i>output</i> from <tt>CVode</tt>.
   </td>
+
 </tr>
 <tr>
   <td><b>tstop</b></td> 
@@ -163,6 +173,7 @@ The following names will be used in the sequel:
 <tr>
   <td><b>tn</b></tn>
   <td>
+
   The time internally reached by the solver;
   tn is usually not "seen" by the user, but it can be obtained from
   <tt>CVodeGetCurrentTime</tt>.
@@ -171,10 +182,13 @@ The following names will be used in the sequel:
 </table>
 
 <br>
-The main solver function can therefore be called in one of the following modes (specified
-through the <tt>itask</tt> input argument to <tt>CVode</tt>):
+The main solver function can therefore be called in one of the following four modes,
+specified through a combination of the <tt>itask</tt> input argument
+to <tt>CVode</tt> and the presence or absence of a call to <tt>CVodeSetStopTime</tt>:
+
 <table style="margin-left:10px;">
 <tr style="vertical-align:top;">
+
   <td><b>NORMAL</b></td>
   <td>
   The solver takes internal steps until it has reached or just passed tout.
@@ -185,6 +199,7 @@ through the <tt>itask</tt> input argument to <tt>CVode</tt>):
 <tr style="vertical-align:top;">
   <td><b>ONE_STEP</b></td>
   <td>
+
   The solver takes one internal step and returns the solution at the point reached 
   by that step.<br>
   In this case, tret=tn.
@@ -196,6 +211,7 @@ through the <tt>itask</tt> input argument to <tt>CVode</tt>):
   Same as NORMAL mode, except that the integration never proceeds past the value tstop.<br>
   In this case, tret=tstop (or tret=tout if tout < tstop).
   </td>
+
 </tr>
 <tr style="vertical-align:top;">
   <td><b>ONE_STEP_TSTOP</b></td>
@@ -206,8 +222,9 @@ through the <tt>itask</tt> input argument to <tt>CVode</tt>):
 </tr>
 </table>
 Note that, in <i>one step</i> mode (ONE_STEP or ONE_STEP_TSTOP) the value tout is used <b>only</b>
+
 on the first call to <tt>CVode</tt>, to obtain the direction of integration (relative to the 
-initial time specified in <tt>CVodeMalloc</tt>) and the rough time scale (used in estimating an
+initial time specified in <tt>CVodeInit</tt>) and the rough time scale (used in estimating an
 initial step size).
 
 <br><br>
@@ -219,21 +236,22 @@ at which the solver computes the solution. Instead of enforcing a minimum step s
 but <b>inefficient</b> as this would effectively result in locally "over-solving" the ODE system
 (in that the step size may smaller than that required for the specified tolerances) &#151; all
 SUNDIALS integrators provide dense output functions: <tt>CVodeGetDky</tt> in CVODE and CVODES,
-and <tt>IDAGetSolution</tt> in IDA. After a successful return from the solver function, the
+and <tt>IDAGetDky</tt> in IDA and IDAS. After a successful return from the solver function, the
 dense output functions return the interpolated solution at any time t such that 
 tn - hu <= t <= tn, where hu is the last internal step size. In <i>one step</i> mode, the time
 t can therefore be anywhere between the last two return times from the main solver function.
+
 <br><br>
-Note that, unlike <tt>IDAGetsolution</tt>, the CVODE / CVODES function <tt>CVodeGetDky</tt> can
-also return the k-th derivative of the solution at time t, where k must be at most the current
-method order (obtainable from <tt>CVodeGetCurrentOrder</tt>). To obtain the interpolated solution, 
-use k=0.
+Note that both <tt>CVodeGetDky</tt> and <tt>IDAGetDky</tt> can also return the k-th
+derivative of the solution at time t, where k must be at most thecurrent method order
+(obtainable from <tt>CVodeGetCurrentOrder</tt> or <tt>IDAGetCurrentOrder</tt>).
+To obtain the interpolated solution, use k=0.
 <br><br>
 If the solution is desired at equally-spaced times (e.g., for plotting purposes), rather than
 calling the solver function in <i>one step</i> mode and then call the dense output function, it 
 is more convenient (and may be more efficient) to call the solver function in <i>normal</i> mode,
 within a loop with successive tout values equal to the desired output times. 
-Note that, if tout < tn (i.e., the solver has internally reached a time beyond the requasted tout), 
+Note that, if tout < tn (i.e., the solver has internally reached a time beyond the requested tout), 
 <tt>CVode</tt> will simply call the dense output function itself and then return.
 
 <br><br>
@@ -260,9 +278,9 @@ indicate actual values of the return times tret.
 
 <div class="frame">
 <br>
-Although we use ODEs (and CVODE / CVODES) as examples in this section, this note applies 
-equally to the case of DAEs (and IDA). DAE-specific issues (such as enforcing consistency 
-when restarting IDA) are explicitly highlighted.
+Although we use ODEs (and CVODE/CVODES) as examples in this section, this note applies 
+equally to the case of DAEs (and IDA/IDAS). DAE-specific issues (such as enforcing consistency 
+when restarting IDA/IDAS) are explicitly highlighted.
 
 <br><br>
 <a name="discA"></a>
@@ -270,6 +288,7 @@ when restarting IDA) are explicitly highlighted.
 <br><br>
 
 First of all, to put things in context and lay blame where it's due, recall the chain
+
 <br><br>
 <center>physical phenomenon &rarr; mathematical model &rarr; numerical solution</center>
 <br>
@@ -287,6 +306,7 @@ Secondly, let's define the two problems under discussion (from the
 perspective of the above comment).
 
 <br><br>
+
 <h3>A1) Unphysical solution components</h3>
 <br><br>
 
@@ -309,7 +329,7 @@ conditions, which could introduce discontinuities in the ODE right-hand
 side function and thus we may end up in the territory covered by the
 next problem.
 <br><br>
-The CVODE cvdenx problem is an example of unphysical solutions introduced
+The CVODE cvRoberts_dns problem is an example of unphysical solutions introduced
 by the numerical computation. This problem models three chemical
 reactions and the 3 concentrations would always be positive (and less
 than or equal to 1) if the system of ODEs were solved exactly. However,
@@ -318,6 +338,7 @@ possible to obtain small negative values for y1 and y3 or even
 completely unrealistic results!
 
 <br><br>
+
 <h3>A2) Discontinuities in the RHS function</h3>
 <br><br>
 
@@ -346,6 +367,7 @@ the altitude z becomes 0 an additional reaction force needs to be introduced
 into the model (the ground reaction force). Since the time at which the 
 airplane touches ground cannot be known in advance, this is an 
 <i>implicitly-defined discontinuity</i> (the condition in this case being z=0).
+
 </li>
 </ol>
 
@@ -365,6 +387,7 @@ y passed as an (input only) argument to the RHS or RES functions!
 
 <br><br>
 <h3>B1) Unphysical solution components</h3>
+
 <br><br>
 
 Note that, if unphysical components appear in the numerical solution, the amount by
@@ -395,6 +418,7 @@ medium. Then the internal values carried by the solver are unaffected.
 Remember that a small negative value in y returned by CVODE, with magnitude comparable 
 to abstol or less, is equivalent to zero as far as the computation is concerned.</li>
 <li>
+
 The user's RHS function should <b>never</b> change a negative value in the solution 
 vector y to a non-negative value, as a "solution" to this problem. This can cause 
 instability. If the RHS routine cannot tolerate a zero or negative value (e.g. because
@@ -404,7 +428,7 @@ vector) for the purposes of computing f(t,y).
 </li>
 </ol>
 
-In addition, IDA provides the option of enforcing positivity or non-negativity
+In addition, IDA and IDAS provide the option of enforcing positivity or non-negativity
 on components (specified through IDASetConstraints). 
 But these constraint options should only be exercised if the use of absolute 
 tolerances to control the computed values is unsuccessful, because they involve 
@@ -417,6 +441,7 @@ some extra overhead cost.
 If the jumps at the discontinuities are relatively small, simply keep them in the 
 RHS function, and let the integrator respond to them (possibly taking smaller steps 
 through each point of discontinuity).
+
 <br><br>
 If the jumps are large, it is more efficient to stop at the point of
 discontinuity and restart the integrator. The following steps must
@@ -440,7 +465,7 @@ make that location a stopping time by calling CVodeSetStopTime(cvode_mem, tdisc)
 <br><br>
 To stop when the location of the discontinuity is determined by the solution 
 (implicitly-defined discontinuity), use the rootfinding feature (available 
-both in CVODE/CVODES and IDA). In other words, the location of the discontinuity 
+both in CVODE/CVODES and IDA/IDAS). In other words, the location of the discontinuity 
 is the zero of some function g of the solution (i.e.,g(tdisc, y(tdisc))=0). 
 Note that, in this situation, you cannot use CVodeSetStopTime 
 to prevent the discontinuity from being "seen" during this integration
@@ -450,6 +475,7 @@ implicitly the RHS) on both sides of tdisc. Therefore, during this
 phase only, you need to have a <b>smooth extension</b> over the
 discontinuity so that the step across it and the subsequent rootfinding
 can be done efficiently.
+
 </li>
 <li>
 Incorporate the discontinuity
@@ -473,6 +499,7 @@ function CVodeReInit ensures that the solvers restart at order 1 and begin
 building up a fresh solution history.
 <br><br>
 If using IDA, you must ensure that a solution (y,y') <b>consistent</b>
+
 with the DAE is&nbsp; passed to IDAReInit. Therefore, you may need to first 
 call IDACalcIC.
 </li>
@@ -489,15 +516,16 @@ Integrate from the point of discontinuity
 The examples below illustrate the proper treatment of the above problems.
 
 <br><br>
+
 <h3>C1) Unphysical solution components</h3>
 <br><br>
 
-The example <tt><b>cvsnegsolx</b></tt>
-[ <a href="samples/cvsnegsolx.c.html" onclick="window.open('samples/cvsnegsolx.c.html', 'popup', 'width=600,height=800,scrollbars=yes,menubar=yes');return false">view</a> | <a href="samples/cvsdiscx.c">download</a> ]
-is a modification of the CVODES <tt>cvsdenx</tt> example and it illustrates the use 
+The example code <tt><b>cvnegsol</b></tt>
+[ <a href="samples/cvnegsol.c">download</a> ]
+is a modification of the CVODE <tt>cvRoberts_dns</tt> example and it illustrates the use 
 of the RHS function return value to control unphysical negative concentrations.
 Note that, to make possible negative solution components, the absolute tolerances had to be 
-loosened a bit from their values in cvsdenx (indeed, as mentioned before, tighter tolerances
+loosened a bit from their values in cvsRoberts_dns (indeed, as mentioned before, tighter tolerances
 will often ensure that the numerical solution does not introduce unphysical values that
 the mathematical model would otherwise not generate).
 The 3-reaction chemical kinetics mechanism is solved twice, once ignoring the negative
@@ -506,6 +534,7 @@ indicating a <i>recoverable error</i>. The evolution of the concentration of the
 at the end of the simulation interval is shown in the following figure, the red curve corresponding to
 the case in which negative concentrations are not controlled and the blue curve
 corresponding to the case in which negative concentrations are intercepted in the RHS function.
+
 <center>
 <img src="samples/negsol.png">
 </center>
@@ -514,9 +543,10 @@ corresponding to the case in which negative concentrations are intercepted in th
 <h3>C2) Discontinuities in the solution or RHS function</h3>
 <br><br>
 
-The example <tt><b>cvsdiscx</b></tt>
-[ <a href="samples/cvsdiscx.c.html" onclick="window.open('samples/cvsdiscx.c.html', 'popup', 'width=600,height=800,scrollbars=yes,menubar=yes');return false">view</a> | <a href="samples/cvsdiscx.c">download</a> ]
+The example code <tt><b>cvdisc</b></tt>
+[ <a href="samples/cvdisc.c">download</a> ]
 solves a simple 1D problem and integrates it over the two different types of discontinuities:
+
 <ol>
 <li> 
 Discontinuity in solution
@@ -540,6 +570,7 @@ the solution obtained by letting the solver step over the discontinuity without
 reinitialization. The differences between the two solutions are of the order of the absolute
 tolerances. However, the first solution is more correct (note the negative curvature of the
 red curve right after the discontinuity).
+
 <center>
 <img src="samples/disc2.png">
 </center>
@@ -562,14 +593,17 @@ underlying ODE system may be required in between evaluations of the sensitivitie
 To turn off sensitivity calculations (without deallocating any sensitivity-related memory 
 or resetting any of the optional inputs, so that sensitivties can later be reactivated)
 it is most efficient to use <tt>CVodeSensToggleOff</tt>. 
+
 <br><br>
-The example code <tt><b>cvsfwdswitchx</b></tt>
-[ <a href="samples/cvsfwdswitchx.c.html" onclick="window.open('samples/cvsfwdswitchx.c.html', 'popup', 'width=600,height=800,scrollbars=yes');return false">view</a> | <a href="samples/cvsfwdswitchx.c">download</a> ]
-(a modification of the CVODES example <tt>cvsfwddenx</tt>) demonstrates this.
+The example code <tt><b>cvsfswitch</b></tt>
+[ <a href="samples/cvsfswitch.c">download</a> ]
+(a modification of the CVODES example <tt>cvsRoberts_FSA_dns</tt>) demonstrates this.
 <br><br>
-Recall that sensitivity calculations are enabled by <tt>CVodeSensMalloc</tt> and <tt>CVodeSensReInit</tt>
-and are disabled by <tt>CVodeSensFree</tt> (after calling this one, they can be re-enabled <b>only</b> by 
-calling <tt>CVodeSensMalloc</tt>) and <tt>CVodeSensToggleOff</tt>.
+Recall that sensitivity calculations are enabled by <tt>CVodeSensInit</tt> or <tt>CVodeSensInit1</tt>,
+and by <tt>CVodeSensReInit</tt> (which assumes no change in the RHS function <tt>fS</tt>),
+and are disabled by <tt>CVodeSensFree</tt> and <tt>CVodeSensToggleOff</tt>.
+(After calling <tt>CVodeSensFree</tt>, they can be re-enabled <b>only</b> by 
+calling <tt>CVodeSensInit</tt> or <tt>CVodeSensInit1</tt>.)
 
 </div> <!-- END FRAME -->
 
@@ -586,6 +620,7 @@ calling <tt>CVodeSensMalloc</tt>) and <tt>CVodeSensToggleOff</tt>.
   <tr valign="top">
   <td height="17" background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
   <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+
   <td width="720"><img SRC="../graphics/line_br.gif" height="17" width="720" border="0"></td>
   <td background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
   </tr>
