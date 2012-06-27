@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2012-03-06 21:58:52 $
+ * $Revision: 1.26 $
+ * $Date: 2012-06-27 22:41:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -3162,7 +3162,7 @@ static int IDARcheck3(IDAMem IDA_mem)
  *            where UROUND is the unit roundoff of the machine.
  *
  * tlo, thi = endpoints of the interval in which roots are sought.
- *            On input, and must be distinct, but tlo - thi may
+ *            On input, these must be distinct, but tlo - thi may
  *            be of either sign.  The direction of integration is
  *            assumed to be from tlo to thi.  On return, tlo and thi
  *            are the endpoints of the final relevant interval.
@@ -3233,7 +3233,8 @@ static int IDARootfind(IDAMem IDA_mem)
     for (i = 0; i < nrtfn; i++) {
       iroots[i] = 0;
       if(!gactive[i]) continue;
-      if (ABS(ghi[i]) == ZERO) iroots[i] = glo[i] > 0 ? -1:1;
+      if ( (ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) )
+        iroots[i] = glo[i] > 0 ? -1:1;
     }
     return(RTFOUND);
   }

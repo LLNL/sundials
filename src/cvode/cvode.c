@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2012-03-06 21:58:36 $
+ * $Revision: 1.25 $
+ * $Date: 2012-06-27 22:41:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -3839,7 +3839,7 @@ static int CVRcheck3(CVodeMem cv_mem)
  *            where UROUND is the unit roundoff of the machine.
  *
  * tlo, thi = endpoints of the interval in which roots are sought.
- *            On input, and must be distinct, but tlo - thi may
+ *            On input, these must be distinct, but tlo - thi may
  *            be of either sign.  The direction of integration is
  *            assumed to be from tlo to thi.  On return, tlo and thi
  *            are the endpoints of the final relevant interval.
@@ -3909,7 +3909,8 @@ static int CVRootfind(CVodeMem cv_mem)
     for (i = 0; i < nrtfn; i++) {
       iroots[i] = 0;
       if(!gactive[i]) continue;
-      if (ABS(ghi[i]) == ZERO) iroots[i] = glo[i] > 0 ? -1:1;
+      if ( (ABS(ghi[i]) == ZERO) && (rootdir[i]*glo[i] <= ZERO) )
+        iroots[i] = glo[i] > 0 ? -1:1;
     }
     return(RTFOUND);
   }
