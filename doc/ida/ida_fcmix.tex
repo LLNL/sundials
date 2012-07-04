@@ -1048,12 +1048,6 @@ The user-callable functions in this package, with the corresponding
 \begin{itemize}
 \item \id{FIDABBDINIT}
   interfaces to \id{IDABBDPrecAlloc}.
-\item \id{FIDABBDSPGMR}
-  interfaces to \id{IDABBDSpgmr} and {\spgmr} optional input functions.
-\item \id{FIDABBDSPBCG}
-  interfaces to \id{IDABBDSpbcg} and {\spbcg} optional input functions.
-\item \id{FIDABBDSPTFQMR}
-  interfaces to \id{IDABBDSptfqmr} and {\sptfqmr} optional input functions.
 \item \id{FIDABBDREINIT}
   interfaces to \id{IDABBDPrecReInit}.
 \item \id{FIDABBDOPT}
@@ -1157,7 +1151,7 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   routine have the same names and meanings as those of \id{FIDABBDINIT}.
   If the value of \id{MU} or \id{ML} is being changed, then a call to
   \id{FIDABBDINIT} must be made.  Finally, if \id{MAXL} is being  changed,
-  then a call to \id{FIDABBDSPGMR}, \id{FIDABBDSPBCG}, or \id{FIDASPTFQMR}
+  then a call to \id{FIDASPGMR}, \id{FIDASPBCG}, or \id{FIDASPTFQMR}
   must be made; in this case the linear solver memory is reallocated.
 
 \item \textcolor{gray}{\bf Memory deallocation}
