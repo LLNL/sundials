@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2010-12-15 19:40:08 $
+ * $Revision: 1.10 $
+ * $Date: 2012-07-04 21:33:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -35,9 +35,6 @@
  * The user-callable functions in this package, with the corresponding
  * IDA and IDABBDPRE functions, are as follows: 
  *   FIDABBDININT   interfaces to IDABBDPrecInit
- *   FIDABBDSPGMR   interfaces to IDABBDSpgmr and IDASpilsSet*
- *   FIDABBDSPBCG   interfaces to IDABBDSpbcg and IDASpilsSet*
- *   FIDABBDSPTFQMR interfaces to IDABBDSptfqmr and IDASpilsSet*
  *   FIDABBDREINIT  interfaces to IDABBDPrecReInit
  *   FIDABBDOPT     accesses optional outputs
  *   FIDABBDFREE    interfaces to IDABBDPrecFree
@@ -202,7 +199,7 @@
  * The return flag IER is 0 if successful, and nonzero otherwise.
  *
  * (4.3) Attach one of the 3 SPILS linear solvers. Make one of the 
- * following calls (see fida.h) for more details.
+ * following calls (see fida.h for more details).
  *       CALL FIDASPGMR(MAXL, IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
  *       CALL FIDASPBCG(MAXL, EPLIFAC, DQINCFAC, IER)
  *       CALL FIDASPTFQMR(MAXL, EPLIFAC, DQINCFAC, IER)
