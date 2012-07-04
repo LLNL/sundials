@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2010-12-15 19:40:08 $
+ * $Revision: 1.10 $
+ * $Date: 2012-07-04 21:31:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -36,9 +36,6 @@
  * The user-callable functions in this package, with the corresponding
  * CVODE and CVBBDPRE functions, are as follows: 
  *   FCVBBDININT   interfaces to CVBBDPrecInit
- *   FCVBBDSPTFQMR interfaces to CVBBDSptfqmr
- *   FCVBBDSPBCG   interfaces to CVBBDSpbcg
- *   FCVBBDPSGMR   interfaces to CVBBDSpgmr
  *   FCVBBDREINIT  interfaces to CVBBDPrecReInit
  *   FCVBBDOPT     accesses optional outputs
  * 
@@ -170,7 +167,7 @@
  *          See printed message for details in case of failure.
  * 
  * (4.3) Attach one of the 3 SPILS linear solvers. Make one of the 
- * following calls (see fcvode.h) for more details.
+ * following calls (see fcvode.h for more details).
  *       CALL FCVSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
  *       CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)
  *       CALL FCVSPTFQMR(IPRETYPE, MAXL, DELT, IER)
@@ -193,7 +190,6 @@
  *             (optional). 0.0 indicates the default, sqrt(unit roundoff).
  * IER       = return completion flag: IER=0: success, IER<0: an error occurred
  *
- *       CALL FCVBBDSPTFQMR(IPRETYPE, MAXL, DELT, IER)
  * (4.5) To specify whether the Krylov linear solver (GMRES, Bi-CGSTAB, or TFQMR)
  * should use the supplied FCVJTIMES or the internal finite difference approximation, 
  * make the call
@@ -290,9 +286,6 @@ extern "C" {
 #if defined(SUNDIALS_F77_FUNC)
 
 #define FCV_BBDINIT    SUNDIALS_F77_FUNC(fcvbbdinit, FCVBBDINIT)
-#define FCV_BBDSPTFQMR SUNDIALS_F77_FUNC(fcvbbdsptfqmr, FCVBBDSPTFQMR)
-#define FCV_BBDSPBCG   SUNDIALS_F77_FUNC(fcvbbdspbcg, FCVBBDSPBCG)
-#define FCV_BBDSPGMR   SUNDIALS_F77_FUNC(fcvbbdspgmr, FCVBBDSPGMR)
 #define FCV_BBDREINIT  SUNDIALS_F77_FUNC(fcvbbdreinit, FCVBBDREINIT)
 #define FCV_BBDOPT     SUNDIALS_F77_FUNC(fcvbbdopt, FCVBBDOPT)
 #define FCV_GLOCFN     SUNDIALS_F77_FUNC(fcvglocfn, FCVGLOCFN)
@@ -301,9 +294,6 @@ extern "C" {
 #else
 
 #define FCV_BBDINIT    fcvbbdinit_
-#define FCV_BBDSPTFQMR fcvbbdsptfqmr_
-#define FCV_BBDSPBCG   fcvbbdspbcg_
-#define FCV_BBDSPGMR   fcvbbdspgmr_
 #define FCV_BBDREINIT  fcvbbdreinit_
 #define FCV_BBDOPT     fcvbbdopt_
 #define FCV_GLOCFN     fcvglocfn_

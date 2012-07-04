@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2010-12-15 19:40:08 $
+ * $Revision: 1.5 $
+ * $Date: 2012-07-04 21:31:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -32,9 +32,6 @@
  * The user-callable functions in this package, with the corresponding
  * CVODE and CVBBDPRE functions, are as follows: 
  *   FCVBPINIT    interfaces to CVBandPrecInit
- *   FCVBPSPTFQMR interfaces to CVBPSptfqmr
- *   FCVBPSPBCG   interfaces to CVBPSpbcg
- *   FCVBPSPGMR   interfaces to CVBPSpgmr
  *   FCVBPOPT     accesses optional outputs
  * 
  * In addition to the Fortran right-hand side function FCVFUN, the
@@ -121,7 +118,7 @@
  *
  * (3.4A) To specify the SPGMR linear solver with the CVBANDPRE preconditioner,
  * make the following call
- *       CALL FCVBPSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+ *       CALL FCVSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
  * The arguments are:
  * IPRETYPE  = preconditioner type: 
  *            0 = none
@@ -135,7 +132,7 @@
  *
  * (3.4B) To specify the SPBCG linear solver with the CVBANDPRE preconditioner,
  * make the following call
- *       CALL FCVBPSPBCG(IPRETYPE, MAXL, DELT, IER)
+ *       CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)
  * The arguments are:
  * IPRETYPE  = preconditioner type: 
  *            0 = none
@@ -148,7 +145,7 @@
  *
  * (3.4C) To specify the SPTFQMR linear solver with the CVBANDPRE preconditioner,
  * make the following call
- *       CALL FCVBPSPTFQMR(IPRETYPE, MAXL, DELT, IER)
+ *       CALL FCVSPTFQMR(IPRETYPE, MAXL, DELT, IER)
  * The arguments are:
  * IPRETYPE  = preconditioner type: 
  *            0 = none
@@ -227,26 +224,17 @@ extern "C" {
 #if defined(SUNDIALS_F77_FUNC)
 
 #define FCV_BPINIT    SUNDIALS_F77_FUNC(fcvbpinit, FCVBPINIT)
-#define FCV_BPSPTFQMR SUNDIALS_F77_FUNC(fcvbpsptfqmr, FCVBPSPTFQMR)
-#define FCV_BPSPBCG   SUNDIALS_F77_FUNC(fcvbpspbcg, FCVBPSPBCG)
-#define FCV_BPSPGMR   SUNDIALS_F77_FUNC(fcvbpspgmr, FCVBPSPGMR)
 #define FCV_BPOPT     SUNDIALS_F77_FUNC(fcvbpopt, FCVBPOPT)
 
 #else
 
 #define FCV_BPINIT    fcvbpinit_
-#define FCV_BPSPTFQMR fcvbpsptfqmr_
-#define FCV_BPSPBCG   fcvbpspbcg_
-#define FCV_BPSPGMR   fcvbpspgmr_
 #define FCV_BPOPT     fcvbpopt_
 
 #endif
 
 /* Prototypes of exported function */
 void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier);
-void FCV_BPSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
-void FCV_BPSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
-void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
 void FCV_BPOPT(long int *lenrwbp, long int *leniwbp, long int *nfebp);
 
 #ifdef __cplusplus
