@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2012-06-27 22:41:42 $
+ * $Revision: 1.36 $
+ * $Date: 2012-07-04 22:36:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1972,7 +1972,7 @@ int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
     cv_mem->cv_fQSDQ = FALSE;
     cv_mem->cv_fQS = fQS;
 
-    cv_mem->cv_fS_data = cv_mem->cv_user_data;
+    cv_mem->cv_fQS_data = cv_mem->cv_user_data;
 
   }
 
