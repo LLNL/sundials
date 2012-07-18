@@ -45,7 +45,7 @@ Backward integration ... (2 adjoint problems)
    H = d2G/dp2:
         (1)            (2)
     1.5628e-01    -7.8678e-02
-   -7.8678e-02     1.1093e-01
+   -7.8678e-02     8.9814e-02
 
 Final Statistics for backward pb. 1
 -----------------------------------
@@ -66,18 +66,18 @@ Final Statistics for backward pb. 1
 
 Final Statistics for backward pb. 2
 -----------------------------------
- Number steps:    85
+ Number steps:    89
 
  Function evaluations:
-  f:          109
-  fQ:          92
+  f:          112
+  fQ:          95
  Error test failures:
   netf:         1
-  netfQ:        3
+  netfQ:        2
  Linear solver setups:
-  nsetups:     18
+  nsetups:     21
  Nonlinear iterations:
-  nni:        105
+  nni:        108
  Convergence failures:
   ncfn:         0
 
