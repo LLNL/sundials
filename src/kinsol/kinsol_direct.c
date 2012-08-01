@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2010-12-01 22:43:33 $
+ * $Revision: 1.7 $
+ * $Date: 2012-08-01 18:34:14 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -463,7 +463,7 @@ int kinDlsBandDQJac(long int N, long int mupper, long int mlower,
     
     /* Increment all utemp components in group */
     for(j=group-1; j < N; j+=width) {
-      inc = sqrt_relfunc*MAX(ABS(u_data[j]), ABS(uscale_data[j]));
+      inc = sqrt_relfunc*MAX(ABS(u_data[j]), ONE/ABS(uscale_data[j]));
       utemp_data[j] += inc;
     }
 
@@ -475,7 +475,7 @@ int kinDlsBandDQJac(long int N, long int mupper, long int mlower,
     for (j=group-1; j < N; j+=width) {
       utemp_data[j] = u_data[j];
       col_j = BAND_COL(Jac,j);
-      inc = sqrt_relfunc*MAX(ABS(u_data[j]), ABS(uscale_data[j]));
+      inc = sqrt_relfunc*MAX(ABS(u_data[j]), ONE/ABS(uscale_data[j]));
       inc_inv = ONE/inc;
       i1 = MAX(0, j-mupper);
       i2 = MIN(j+mlower, N-1);
