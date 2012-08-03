@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.10 $
-# $Date: 2010-12-15 22:28:16 $
+# $Revision: 1.11 $
+# $Date: 2012-08-03 19:57:32 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -28,9 +28,9 @@ PROJECT(sundials C)
 
 SET(PACKAGE_BUGREPORT "radu@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 2.4.0")
+SET(PACKAGE_STRING "SUNDIALS 2.5.0")
 SET(PACKAGE_TARNAME "sundials")
-SET(PACKAGE_VERSION "2.4.0")
+SET(PACKAGE_VERSION "2.5.0")
 
 # Prohibit in-source build
 
@@ -187,7 +187,7 @@ ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cpodes")
 # ----------------------------------------------------------------
 
 OPTION(BUILD_STATIC_LIBS "Build static libraries" ON)
-OPTION(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+OPTION(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
 # Prepare substitution variable SUNDIALS_EXPORT for sundials_config.h
 # When building shared SUNDIALS libraries under Windows, use
