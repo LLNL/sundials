@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2010-12-15 22:45:17 $
+ * $Revision: 1.7 $
+ * $Date: 2012-08-03 19:57:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -15,7 +15,7 @@
  */
 
 /* Define SUNDIALS version number */
-#define SUNDIALS_PACKAGE_VERSION "@PACKAGE_VERSION@"
+#define SUNDIALS_PACKAGE_VERSION @PACKAGE_VERSION@
 
 /* FCMIX: Define Fortran name-mangling macro for C identifiers.
  * Depending on the inferred scheme, one of the following six
