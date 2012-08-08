@@ -11,11 +11,10 @@ To begin the installation, first uncompress and expand the sources, by issuing
 \end{verbatim}
 This will extract source files under a directory {\em solver}\id{-x.y.z}.
 
-Starting with version \id{2.4.0} of {\sundials}, two installation
-methods are provided: in addition to the previous autotools-based
-method, {\sundials} now provides a method based on CMake. Before
-providing detailed explanations on the installation procedure for the
-two approaches, we begin with a few common observations:
+Starting with version \id{2.4.0} of {\sundials}, two installation methods
+are provided: a method based on CMake, and a method based on autotools.
+Before providing detailed explanations on the installation procedure
+for the two approaches, we begin with a few common observations:
 %%
 \begin{itemize}
 
@@ -68,400 +67,6 @@ two approaches, we begin with a few common observations:
 
 \end{itemize}
 
-% ========================================================================================
-\section{Autotools-based installation}\label{s:autotool_inst}
-% ========================================================================================
-
-The installation procedure outlined below will work on commodity {\linux}/{\unix} 
-systems without modification. However, users are still encouraged to carefully read 
-this entire section before attempting to install the {\sundials} suite, in case
-non-default choices are desired for compilers, compilation options,
-installation location, etc.  The user may invoke the configuration
-script with the help flag to view a complete listing of available
-options, by issuing the command
-\begin{verbatim}
-   % ./configure --help 
-\end{verbatim}
-from within {\em srcdir}.
-
-\vspace{0.2in}
-{\noindent}The installation steps for {\sundials} can be as simple as
-the following: 
-\begin{verbatim}
-   % cd (...)/srcdir
-   % ./configure
-   % make
-   % make install
-\end{verbatim}
-in which case the {\sundials} header files and libraries are installed
-under \id{/usr/local/include} and \id{/usr/local/lib},
-respectively. Note that, by default, the example programs are not
-built and installed.
-To delete all temporary files created by building {\sundials}, issue
-\begin{verbatim}
-   % make clean
-\end{verbatim}
-To prepare the {\sundials} distribution for a new install (using, for example,
-different options and/or installation destinations), issue
-\begin{verbatim}
-   % make distclean
-\end{verbatim}
-
-The above steps are for an ``in-source'' build. For an ``out-of-source'' build (recommended),
-the procedure is simply:
-\begin{verbatim}
-   % cd (...)/builddir
-   % (...)/srcdir/configure
-   % make
-   % make install
-\end{verbatim}
-Note that, in this case, \id{make clean} and \id{make distclean} are
-irrelevant. Indeed, if disk space is a priority, the entire {\em
-builddir} can be purged after the installation completes. For a new
-install, a new {\em builddir} directory can be created and used.
-
-%===============================================================================
-
-\subsection{Configuration options}\label{ss:configuration_options}
-
-The installation procedure given above will generally work without modification;
-however, if the system includes multiple {\mpi} implementations, then certain
-configure script-related options may be used to indicate which {\mpi}
-implementation should be used. Also, if the user wants to use non-default
-language compilers, then, again, the necessary shell environment variables must
-be appropriately redefined.
-%%
-The remainder of this section provides explanations of available configure script
-options.
-
-
-\subsubsection*{General options}
-
-%%
-%% General options
-%%
-
-\begin{config}
-  
-\item \id{--prefix=PREFIX}
-  
-  Location for architecture-independent files.
-  
-  Default: \id{PREFIX=}{/usr/local}
-  
-\item \id{--exec-prefix=EPREFIX}
-
-  Location for architecture-dependent files.
-  
-  Default: \id{EPREFIX=}{/usr/local}
-
-\item \id{--includedir=DIR}
-  
-  Alternate location for installation of header files.
-  
-  Default: \id{DIR=PREFIX/include}
-  
-\item \id{--libdir=DIR}
-  
-  Alternate location for installation of libraries.
-  
-  Default: \id{DIR=EPREFIX/lib}
-
-\item \id{--disable-}{\em solver}
-
-  Although each existing solver module is built by default, support for a
-  given solver can be explicitly disabled using this option. 
-  The valid values for {\em solver} are: \id{cvode}, \id{cvodes}, 
-  \id{ida}, \id{idas}, and \id{kinsol}.
-
-\item \id{--enable-examples}
-  
-  Available example programs are {\em not} built by default. Use this option
-  to enable compilation of all pertinent example programs. Upon completion of 
-  the \id{make} command, the example executables will be created under solver-specific
-  subdirectories of {\em builddir}\id{/examples}:
-  \begin{config}
-  \item {\em builddir}\id{/examples/}{\em solver}\id{/serial} : serial {\C} examples
-  \item {\em builddir}\id{/examples/}{\em solver}\id{/parallel} : parallel {\C} examples
-  \item {\em builddir}\id{/examples/}{\em solver}\id{/fcmix\_serial} : serial {\F} examples
-  \item {\em builddir}\id{/examples/}{\em solver}\id{/fcmix\_parallel} : parallel {\F} examples
-  \end{config}  
-  {\em Note}: Some of these subdirectories may not exist depending upon the
-  solver and/or the configuration options given.
-
-\item \id{--with-examples-instdir=EXINSTDIR}
-
-  Alternate location for example executables and sample output files (valid only if
-  examples are enabled). Note that installation of example files can be completely disabled
-  by issuing \id{EXINSTDIR=no} (in case building the examples is desired only as a test of
-  the {\sundials} libraries).
-
-  Default: \id{DIR=EPREFIX/examples}
-
-\item \id{--with-cppflags=ARG}
-
-  Specify additional {\C} preprocessor flags 
-  (e.g., \id{ARG=-I<include\_dir>} if necessary header files are located in
-   nonstandard locations).
-
-\item \id{--with-cflags=ARG}
-
-  Specify additional {\C} compilation flags.
-
-\item \id{--with-ldflags=ARG}
-
-  Specify additional linker flags (e.g., \id{ARG=-L<lib\_dir>} if
-  required libraries are located in nonstandard locations).
-
-\item \id{--with-libs=ARG}
-
-  Specify additional libraries to be used (e.g., \id{ARG=-l<foo>} to
-  link with the library named \id{libfoo.a} or \id{libfoo.so}).
-
-\item \id{--with-precision=ARG}
-
-  By default, {\sundials} will define a real number (internally referred to as
-  \id{realtype}) to be a double-precision floating-point numeric data type
-  (\id{double} {\C}-type); however, this option may be used to build {\sundials}
-  with \id{realtype} defined instead as a single-precision floating-point
-  numeric data type (\id{float} {\C}-type) if \id{ARG=single}, or as a
-  \id{long double} {\C}-type if \id{ARG=extended}.
-
-  Default: \id{ARG=double}
-
-  {\warn}Users should {\em not} build {\sundials} with support for
-  single-precision floating-point arithmetic on 32- or 64-bit systems.
-  This will almost certainly result in unreliable numerical solutions.
-  The configuration option \id{--with-precision=single} is intended for
-  systems on which single-precision arithmetic involves at least 14 decimal
-  digits.
-
-\end{config}
-
-%%
-%% Fortran support
-%%
-
-\subsubsection*{Options for Fortran support}
-
-\begin{config}
-
-\item \id{--disable-fcmix}
-
-  Using this option will disable all {\F} support. The {\fcvode},
-  {\fkinsol}, {\fida}, and {\fnvector} modules will not be built,
-  regardless of availability.
-
-\item \id{--with-fflags=ARG}
-
-  Specify additional {\F} compilation flags.
-
-\end{config}
-
-
-%%
-%% Parallel options
-%%
-
-\subsubsection*{Options for MPI support}
-
-\noindent The following configuration options are only applicable to the parallel
-{\sundials} packages:
-
-\begin{config}
-  
-\item \id{--disable-mpi}
-
-  Using this option will completely disable {\mpi} support.
-
-\item \id{--with-mpicc=ARG}
-\item \id{--with-mpif77=ARG}
-
-  By default, the configuration utility script will use the {\mpi} compiler
-  scripts named \id{mpicc} and \id{mpif77} to compile the parallelized
-  {\sundials} subroutines; however, for reasons of compatibility, different
-  executable names may be specified via the above options. Also, \id{ARG=no}
-  can be used to disable the use of {\mpi} compiler scripts, thus causing
-  the serial {\C} and {\F} compilers to be used to compile the parallelized
-  {\sundials} functions and examples.
-
-\item \id{--with-mpi-root=MPIDIR}
-
-  This option may be used to specify which {\mpi} implementation should be used.
-  The {\sundials} configuration script will automatically check under the
-  subdirectories \id{MPIDIR/include} and \id{MPIDIR/lib} for the necessary
-  header files and libraries. The subdirectory \id{MPIDIR/bin} will also be
-  searched for the {\C} and {\F} {\mpi} compiler scripts, unless the user uses
-  \id{--with-mpicc=no} or \id{--with-mpif77=no}.
-
-\item \id{--with-mpi-incdir=INCDIR}
-\item \id{--with-mpi-libdir=LIBDIR}
-\item \id{--with-mpi-libs=LIBS}
-
-  These options may be used if the user would prefer not to use a preexisting
-  {\mpi} compiler script, but instead would rather use a serial complier and
-  provide the flags necessary to compile the {\mpi}-aware subroutines in
-  {\sundials}.
-
-  Often an {\mpi} implementation will have unique library names and so it may
-  be necessary to specify the appropriate libraries to use (e.g.,
-  \id{LIBS=-lmpich}).
-
-  Default: \id{INCDIR=MPIDIR/include} and \id{LIBDIR=MPIDIR/lib}
-
-\item \id{--with-mpi-flags=ARG}
-
-  Specify additional {\mpi}-specific flags.
-
-\end{config}
-
-
-\subsubsection*{Options for library support}
-%%
-%% Shared or Static Libraries
-%%
-
-\noindent By default, only static libraries are built, but the following option
-may be used to build shared libraries on supported platforms.
-
-\begin{config}
-
-\item \id{--enable-shared}
-
-  Using this particular option will result in both static and shared versions of
-  the available {\sundials} libraries being built if the system supports shared
-  libraries. To build only shared libraries also specify \id{--disable-static}.
-
-  {\em Note}: The {\fcvode}, {\fkinsol}, and {\fida} libraries can only be built as
-  static libraries because they contain references to externally defined symbols,
-  namely user-supplied {\F} subroutines.  Although the {\F} interfaces to the serial
-  and parallel implementations of the supplied {\nvector} module do not contain any
-  unresolvable external symbols, the libraries are still built as static libraries
-  for the purpose of consistency.
-
-\end{config}
-
-
-\subsubsection*{Options for Blas/Lapack support}
-
-\noindent The configure script will attempt to automatically determine the
-proper libraries to be linked for support of the new Blas/Lapack linear solver module.
-If these are not found, or if Blas and/or Lapack libraries are installed in a
-non-standard location, the following options can be used:
-
-\begin{config}
-
-\item \id{--with-blas=BLASDIR}
-
-  Specify the Blas library.
-
-  Default: none
-
-\item \id{--with-lapack=LAPACKDIR}
-
-  Specify the Lapack library.
-
-  Default: none
-
-\end{config}
-
-
-\subsubsection*{Environment variables}
-
-%%
-%% Environment variables
-%%
-
-\noindent The following environment variables can be locally (re)defined for use 
-during the configuration of {\sundials}. See the next section for
-illustrations of these.
-
-\begin{config}
-
-\item \id{CC}
-
-\item \id{F77}
-
-  Since the configuration script uses the first {\C} and {\F} compilers found in
-  the current executable search path, then each relevant shell variable (\id{CC}
-  and \id{F77}) must be locally (re)defined in order to use a different compiler. 
-  For example, to use \id{xcc} (executable name of chosen compiler) as the {\C}
-  language compiler, use \id{CC=xcc} in the configure step.
-
-\item \id{CFLAGS}
-
-\item \id{FFLAGS}
-
-  Use these environment variables to override the default {\C} and {\F}
-  compilation flags.
-
-\end{config}
-
-
-%%===============================================================================
-
-
-\subsection{Configuration examples}
-
-The following examples are meant to help demonstrate proper usage of the configure options.
-
-
-To build {\sundials} using the default C and Fortran compilers,
-and default \id{mpicc} and \id{mpif77} parallel compilers, 
-enable compilation of examples,and install libraries, headers, and
-example sources under appropriate subdirectories of
-\id{/home/myname/sundials/}, use
-\begin{verbatim}
-   % configure --prefix=/home/myname/sundials --enable-examples
-\end{verbatim}
-
-
-\noindent To disable installation of the examples, use:
-\begin{verbatim}
-   % configure --prefix=/home/myname/sundials \
-               --enable-examples --with-examples-instdir=no
-\end{verbatim}
-
-
-\noindent The following example builds {\sundials} using \id{gcc} as the serial {\C}
-compiler, \id{g77} as the serial {\F} compiler, \id{mpicc} as the parallel {\C}
-compiler, \id{mpif77} as the parallel {\F} compiler, and appends the \id{-g3}
-compilaton flag to the list of default flags:
-\begin{verbatim}
-   % configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \
-               --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \ 
-               --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
-\end{verbatim}
-
-
-\noindent The next example again builds {\sundials} using \id{gcc} as the serial
-{\C} compiler, but the \id{--with-mpicc=no} option explicitly disables the use
-of the corresponding {\mpi} compiler script. In addition, since the 
-\id{--with-mpi-root} option is given, the compilation flags
-\id{-I/usr/apps/mpich/1.2.4/include} and \id{-L/usr/apps/mpich/1.2.4/lib} are passed
-to \id{gcc} when compiling the {\mpi}-enabled functions. 
-The \id{--with-mpi-libs} option is required so that the configure
-script can check if \id{gcc} can link with the appropriate {\mpi}
-library.
-The \id{--disable-lapack} option explicitly disables support for Blas/Lapack, while
-the \id{--disable-fcmix} explicitly disables building the FCMIX interfaces. Note that, 
-because of the last two options, no Fortran-related settings are checked for.
-\begin{verbatim}
-   % configure CC=gcc --with-mpicc=no \
-               --with-mpi-root=/usr/apps/mpich/1.2.4 \
-               --with-mpi-libs=-lmpich \
-               --disable-lapack --disable-fcmix
-\end{verbatim}
-
-\noindent Finally, a minimal configuration and installation of {\sundials}
-in \id{/home/myname/sundials/} (serial only, no Fortran support, no examples)
-can be obtained with:
-\begin{verbatim}
-   % configure --prefix=/home/myname/sundials \
-               --disable-mpi --disable-lapack --disable-fcmix
-\end{verbatim}
-
-
 
 %%===============================================================================
 \section{CMake-based installation}\label{s:cmake_inst}
@@ -488,7 +93,7 @@ requires Visual Studio.  While many Linux distributions offer CMake,
 the version included is probably out of date.  Many new CMake
 features have been added recently, and you should download the latest
 version from {\tt http://www.cmake.org/HTML/Download.html}.  Build
-instructions for Cmake (only necessary for Unix-like systems) can be
+instructions for CMake (only necessary for Unix-like systems) can be
 found on the CMake website.  Once CMake is installed, Linux/Unix user
 will be able to use \id{ccmake}, while Windows user will be able to
 use \id{CMakeSetup}.
@@ -788,6 +393,400 @@ Some of them will be different on different systems.
 \end{description}
 
 
+% ========================================================================================
+\section{Autotools-based installation}\label{s:autotool_inst}
+% ========================================================================================
+
+The installation procedure outlined below will work on commodity {\linux}/{\unix} 
+systems without modification. However, users are still encouraged to carefully read 
+this entire section before attempting to install the {\sundials} suite, in case
+non-default choices are desired for compilers, compilation options,
+installation location, etc.  The user may invoke the configuration
+script with the help flag to view a complete listing of available
+options, by issuing the command
+\begin{verbatim}
+   % ./configure --help 
+\end{verbatim}
+from within {\em srcdir}.
+
+\vspace{0.2in}
+{\noindent}The installation steps for {\sundials} can be as simple as
+the following: 
+\begin{verbatim}
+   % cd (...)/srcdir
+   % ./configure
+   % make
+   % make install
+\end{verbatim}
+in which case the {\sundials} header files and libraries are installed
+under \id{/usr/local/include} and \id{/usr/local/lib},
+respectively. Note that, by default, the example programs are not
+built and installed.
+To delete all temporary files created by building {\sundials}, issue
+\begin{verbatim}
+   % make clean
+\end{verbatim}
+To prepare the {\sundials} distribution for a new install (using, for example,
+different options and/or installation destinations), issue
+\begin{verbatim}
+   % make distclean
+\end{verbatim}
+
+The above steps are for an ``in-source'' build. For an ``out-of-source'' build (recommended),
+the procedure is simply:
+\begin{verbatim}
+   % cd (...)/builddir
+   % (...)/srcdir/configure
+   % make
+   % make install
+\end{verbatim}
+Note that, in this case, \id{make clean} and \id{make distclean} are
+irrelevant. Indeed, if disk space is a priority, the entire {\em
+builddir} can be purged after the installation completes. For a new
+install, a new {\em builddir} directory can be created and used.
+
+%===============================================================================
+
+\subsection{Configuration options}\label{ss:configuration_options}
+
+The installation procedure given above will generally work without modification;
+however, if the system includes multiple {\mpi} implementations, then certain
+configure script-related options may be used to indicate which {\mpi}
+implementation should be used. Also, if the user wants to use non-default
+language compilers, then, again, the necessary shell environment variables must
+be appropriately redefined.
+%%
+The remainder of this section provides explanations of available configure script
+options.
+
+
+\subsubsection*{General options}
+
+%%
+%% General options
+%%
+
+\begin{config}
+  
+\item \id{--prefix=PREFIX}
+  
+  Location for architecture-independent files.
+  
+  Default: \id{PREFIX=}{/usr/local}
+  
+\item \id{--exec-prefix=EPREFIX}
+
+  Location for architecture-dependent files.
+  
+  Default: \id{EPREFIX=}{/usr/local}
+
+\item \id{--includedir=DIR}
+  
+  Alternate location for installation of header files.
+  
+  Default: \id{DIR=PREFIX/include}
+  
+\item \id{--libdir=DIR}
+  
+  Alternate location for installation of libraries.
+  
+  Default: \id{DIR=EPREFIX/lib}
+
+\item \id{--disable-}{\em solver}
+
+  Although each existing solver module is built by default, support for a
+  given solver can be explicitly disabled using this option. 
+  The valid values for {\em solver} are: \id{cvode}, \id{cvodes}, 
+  \id{ida}, \id{idas}, and \id{kinsol}.
+
+\item \id{--enable-examples}
+  
+  Available example programs are {\em not} built by default. Use this option
+  to enable compilation of all pertinent example programs. Upon completion of 
+  the \id{make} command, the example executables will be created under solver-specific
+  subdirectories of {\em builddir}\id{/examples}:
+  \begin{config}
+  \item {\em builddir}\id{/examples/}{\em solver}\id{/serial} : serial {\C} examples
+  \item {\em builddir}\id{/examples/}{\em solver}\id{/parallel} : parallel {\C} examples
+  \item {\em builddir}\id{/examples/}{\em solver}\id{/fcmix\_serial} : serial {\F} examples
+  \item {\em builddir}\id{/examples/}{\em solver}\id{/fcmix\_parallel} : parallel {\F} examples
+  \end{config}  
+  {\em Note}: Some of these subdirectories may not exist depending upon the
+  solver and/or the configuration options given.
+
+\item \id{--with-examples-instdir=EXINSTDIR}
+
+  Alternate location for example executables and sample output files (valid only if
+  examples are enabled). Note that installation of example files can be completely disabled
+  by issuing \id{EXINSTDIR=no} (in case building the examples is desired only as a test of
+  the {\sundials} libraries).
+
+  Default: \id{DIR=EPREFIX/examples}
+
+\item \id{--with-cppflags=ARG}
+
+  Specify additional {\C} preprocessor flags 
+  (e.g., \id{ARG=-I<include\_dir>} if necessary header files are located in
+   nonstandard locations).
+
+\item \id{--with-cflags=ARG}
+
+  Specify additional {\C} compilation flags.
+
+\item \id{--with-ldflags=ARG}
+
+  Specify additional linker flags (e.g., \id{ARG=-L<lib\_dir>} if
+  required libraries are located in nonstandard locations).
+
+\item \id{--with-libs=ARG}
+
+  Specify additional libraries to be used (e.g., \id{ARG=-l<foo>} to
+  link with the library named \id{libfoo.a} or \id{libfoo.so}).
+
+\item \id{--with-precision=ARG}
+
+  By default, {\sundials} will define a real number (internally referred to as
+  \id{realtype}) to be a double-precision floating-point numeric data type
+  (\id{double} {\C}-type); however, this option may be used to build {\sundials}
+  with \id{realtype} defined instead as a single-precision floating-point
+  numeric data type (\id{float} {\C}-type) if \id{ARG=single}, or as a
+  \id{long double} {\C}-type if \id{ARG=extended}.
+
+  Default: \id{ARG=double}
+
+  {\warn}Users should {\em not} build {\sundials} with support for
+  single-precision floating-point arithmetic on 32-bit systems.
+  This will almost certainly result in unreliable numerical solutions.
+  The configuration option \id{--with-precision=single} is intended for
+  systems on which single-precision arithmetic involves at least 14 decimal
+  digits.
+
+\end{config}
+
+%%
+%% Fortran support
+%%
+
+\subsubsection*{Options for Fortran support}
+
+\begin{config}
+
+\item \id{--disable-fcmix}
+
+  Using this option will disable all {\F} support. The {\fcvode},
+  {\fkinsol}, {\fida}, and {\fnvector} modules will not be built,
+  regardless of availability.
+
+\item \id{--with-fflags=ARG}
+
+  Specify additional {\F} compilation flags.
+
+\end{config}
+
+
+%%
+%% Parallel options
+%%
+
+\subsubsection*{Options for MPI support}
+
+\noindent The following configuration options are only applicable to the parallel
+{\sundials} packages:
+
+\begin{config}
+  
+\item \id{--disable-mpi}
+
+  Using this option will completely disable {\mpi} support.
+
+\item \id{--with-mpicc=ARG}
+\item \id{--with-mpif77=ARG}
+
+  By default, the configuration utility script will use the {\mpi} compiler
+  scripts named \id{mpicc} and \id{mpif77} to compile the parallelized
+  {\sundials} subroutines; however, for reasons of compatibility, different
+  executable names may be specified via the above options. Also, \id{ARG=no}
+  can be used to disable the use of {\mpi} compiler scripts, thus causing
+  the serial {\C} and {\F} compilers to be used to compile the parallelized
+  {\sundials} functions and examples.
+
+\item \id{--with-mpi-root=MPIDIR}
+
+  This option may be used to specify which {\mpi} implementation should be used.
+  The {\sundials} configuration script will automatically check under the
+  subdirectories \id{MPIDIR/include} and \id{MPIDIR/lib} for the necessary
+  header files and libraries. The subdirectory \id{MPIDIR/bin} will also be
+  searched for the {\C} and {\F} {\mpi} compiler scripts, unless the user uses
+  \id{--with-mpicc=no} or \id{--with-mpif77=no}.
+
+\item \id{--with-mpi-incdir=INCDIR}
+\item \id{--with-mpi-libdir=LIBDIR}
+\item \id{--with-mpi-libs=LIBS}
+
+  These options may be used if the user would prefer not to use a preexisting
+  {\mpi} compiler script, but instead would rather use a serial complier and
+  provide the flags necessary to compile the {\mpi}-aware subroutines in
+  {\sundials}.
+
+  Often an {\mpi} implementation will have unique library names and so it may
+  be necessary to specify the appropriate libraries to use (e.g.,
+  \id{LIBS=-lmpich}).
+
+  Default: \id{INCDIR=MPIDIR/include} and \id{LIBDIR=MPIDIR/lib}
+
+\item \id{--with-mpi-flags=ARG}
+
+  Specify additional {\mpi}-specific flags.
+
+\end{config}
+
+
+\subsubsection*{Options for library support}
+%%
+%% Shared or Static Libraries
+%%
+
+\noindent By default, only static libraries are built, but the following option
+may be used to build shared libraries on supported platforms.
+
+\begin{config}
+
+\item \id{--enable-shared}
+
+  Using this particular option will result in both static and shared versions of
+  the available {\sundials} libraries being built if the system supports shared
+  libraries. To build only shared libraries also specify \id{--disable-static}.
+
+  {\em Note}: The {\fcvode}, {\fkinsol}, and {\fida} libraries can only be built as
+  static libraries because they contain references to externally defined symbols,
+  namely user-supplied {\F} subroutines.  Although the {\F} interfaces to the serial
+  and parallel implementations of the supplied {\nvector} module do not contain any
+  unresolvable external symbols, the libraries are still built as static libraries
+  for the purpose of consistency.
+
+\end{config}
+
+
+\subsubsection*{Options for Blas/Lapack support}
+
+\noindent The configure script will attempt to automatically determine the
+proper libraries to be linked for support of the new Blas/Lapack linear solver module.
+If these are not found, or if Blas and/or Lapack libraries are installed in a
+non-standard location, the following options can be used:
+
+\begin{config}
+
+\item \id{--with-blas=BLASDIR}
+
+  Specify the Blas library.
+
+  Default: none
+
+\item \id{--with-lapack=LAPACKDIR}
+
+  Specify the Lapack library.
+
+  Default: none
+
+\end{config}
+
+
+\subsubsection*{Environment variables}
+
+%%
+%% Environment variables
+%%
+
+\noindent The following environment variables can be locally (re)defined for use 
+during the configuration of {\sundials}. See the next section for
+illustrations of these.
+
+\begin{config}
+
+\item \id{CC}
+
+\item \id{F77}
+
+  Since the configuration script uses the first {\C} and {\F} compilers found in
+  the current executable search path, then each relevant shell variable (\id{CC}
+  and \id{F77}) must be locally (re)defined in order to use a different compiler. 
+  For example, to use \id{xcc} (executable name of chosen compiler) as the {\C}
+  language compiler, use \id{CC=xcc} in the configure step.
+
+\item \id{CFLAGS}
+
+\item \id{FFLAGS}
+
+  Use these environment variables to override the default {\C} and {\F}
+  compilation flags.
+
+\end{config}
+
+
+%%===============================================================================
+
+
+\subsection{Configuration examples}
+
+The following examples are meant to help demonstrate proper usage of the configure options.
+
+
+To build {\sundials} using the default C and Fortran compilers,
+and default \id{mpicc} and \id{mpif77} parallel compilers, 
+enable compilation of examples,and install libraries, headers, and
+example sources under appropriate subdirectories of
+\id{/home/myname/sundials/}, use
+\begin{verbatim}
+   % configure --prefix=/home/myname/sundials --enable-examples
+\end{verbatim}
+
+
+\noindent To disable installation of the examples, use:
+\begin{verbatim}
+   % configure --prefix=/home/myname/sundials \
+               --enable-examples --with-examples-instdir=no
+\end{verbatim}
+
+
+\noindent The following example builds {\sundials} using \id{gcc} as the serial {\C}
+compiler, \id{g77} as the serial {\F} compiler, \id{mpicc} as the parallel {\C}
+compiler, \id{mpif77} as the parallel {\F} compiler, and appends the \id{-g3}
+compilaton flag to the list of default flags:
+\begin{verbatim}
+   % configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \
+               --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \ 
+               --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
+\end{verbatim}
+
+
+\noindent The next example again builds {\sundials} using \id{gcc} as the serial
+{\C} compiler, but the \id{--with-mpicc=no} option explicitly disables the use
+of the corresponding {\mpi} compiler script. In addition, since the 
+\id{--with-mpi-root} option is given, the compilation flags
+\id{-I/usr/apps/mpich/1.2.4/include} and \id{-L/usr/apps/mpich/1.2.4/lib} are passed
+to \id{gcc} when compiling the {\mpi}-enabled functions. 
+The \id{--with-mpi-libs} option is required so that the configure
+script can check if \id{gcc} can link with the appropriate {\mpi}
+library.
+The \id{--disable-lapack} option explicitly disables support for Blas/Lapack, while
+the \id{--disable-fcmix} explicitly disables building the FCMIX interfaces. Note that, 
+because of the last two options, no Fortran-related settings are checked for.
+\begin{verbatim}
+   % configure CC=gcc --with-mpicc=no \
+               --with-mpi-root=/usr/apps/mpich/1.2.4 \
+               --with-mpi-libs=-lmpich \
+               --disable-lapack --disable-fcmix
+\end{verbatim}
+
+\noindent Finally, a minimal configuration and installation of {\sundials}
+in \id{/home/myname/sundials/} (serial only, no Fortran support, no examples)
+can be obtained with:
+\begin{verbatim}
+   % configure --prefix=/home/myname/sundials \
+               --disable-mpi --disable-lapack --disable-fcmix
+\end{verbatim}
+
+
 %%===============================================================================
 \section{Manually building SUNDIALS}\label{ss:no_config}
 %%===============================================================================
@@ -912,8 +911,6 @@ have the following uses:
   the \id{SUNDIALS\_EXPORT} macro is empty.
 
 \end{itemize}
-
-
 
 
 %%===============================================================================
