@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2012-08-03 19:57:32 $
+# $Revision: 1.12 $
+# $Date: 2012-08-08 22:14:51 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -26,7 +26,7 @@ PROJECT(sundials C)
 
 # Set some variables with info on the SUNDIALS project
 
-SET(PACKAGE_BUGREPORT "radu@llnl.gov")
+SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
 SET(PACKAGE_STRING "SUNDIALS 2.5.0")
 SET(PACKAGE_TARNAME "sundials")
