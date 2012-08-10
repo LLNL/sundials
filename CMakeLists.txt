@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2012-08-08 22:14:51 $
+# $Revision: 1.13 $
+# $Date: 2012-08-10 20:34:10 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -19,6 +19,11 @@
 # Require a fairly recent cmake version
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.2)
+
+# Set CMake policy to allow examples to build
+if(COMMAND cmake_policy)
+  cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
 
 # Project SUNDIALS (initially only C supported)
 
