@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2011-03-23 23:16:14 $
+ * $Revision: 1.13 $
+ * $Date: 2012-08-16 00:10:45 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -293,7 +293,7 @@ int IDALapackBand(void *ida_mem, int N, int mupper, int mlower)
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  smu = MIN(n-1, mu + ml);
+  smu = mu + ml;
 
   /* Allocate memory for JJ and pivot arrays */
   JJ = NULL;

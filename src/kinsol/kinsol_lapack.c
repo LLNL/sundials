@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2011-02-16 22:43:28 $
+ * $Revision: 1.12 $
+ * $Date: 2012-08-16 00:10:49 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -291,7 +291,7 @@ int KINLapackBand(void *kinmem, int N, int mupper, int mlower)
   }
 
   /* Set extended upper half-bandwith for M (required for pivoting) */
-  smu = MIN(n-1, mu + ml);
+  smu = mu + ml;
 
   /* Allocate memory for J and pivot array */
   J = NULL;
