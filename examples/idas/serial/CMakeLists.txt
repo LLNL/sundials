@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.10 $
-# $Date: 2009-02-17 02:58:47 $
+# $Revision: 1.11 $
+# $Date: 2012-08-28 23:23:49 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -58,6 +58,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${IDAS_examples})
   ADD_EXECUTABLE(${example} ${example}.c)
+  ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)

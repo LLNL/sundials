@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2009-02-17 02:58:47 $
+# $Revision: 1.7 $
+# $Date: 2012-08-28 23:23:47 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -52,6 +52,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${IDA_examples})
   ADD_EXECUTABLE(${example} ${example}.c)
+  ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)

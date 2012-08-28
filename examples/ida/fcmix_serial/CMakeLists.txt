@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2009-02-17 02:58:47 $
+# $Revision: 1.6 $
+# $Date: 2012-08-28 23:23:44 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -53,6 +53,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${FIDA_examples})
   ADD_EXECUTABLE(${example} ${example}.f)
+  ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial)

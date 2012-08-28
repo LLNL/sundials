@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2012-08-10 20:34:10 $
+# $Revision: 1.14 $
+# $Date: 2012-08-28 23:23:27 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -592,6 +592,7 @@ ENDIF(BUILD_CPODES)
 # variables needed in generating them from templates.
 
 IF(EXAMPLES_ENABLE)
+  ENABLE_TESTING()
 
   IF(EXAMPLES_INSTALL)
     SET(SHELL "sh")
