@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2011-03-23 23:37:59 $
+ * $Revision: 1.12 $
+ * $Date: 2012-09-12 22:39:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -247,9 +247,8 @@ static int kinBandInit(KINMem kin_mem)
  * This routine does the setup operations for the band linear solver.
  * It makes a decision whether or not to call the Jacobian evaluation
  * routine based on various state variables, and if not it uses the 
- * saved copy.  In any case, it constructs the Newton matrix 
- * M = I - gamma*J, updates counters, and calls the band LU 
- * factorization routine.
+ * saved copy.  In any case, it constructs the Newton matrix J,
+ * updates counters, and calls the band LU factorization routine.
  * -----------------------------------------------------------------
  */
 
