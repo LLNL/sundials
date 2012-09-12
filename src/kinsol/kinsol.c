@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2012-09-06 00:44:11 $
+ * $Revision: 1.13 $
+ * $Date: 2012-09-12 22:35:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -1585,7 +1585,7 @@ static int KINStop(KINMem kin_mem, int strategy, booleantype maxStepTaken, int s
       /* Check if making satisfactory progress */
 
       if (fnorm > omega*fnorm_sub) {
-        /* Insuficient progress */
+        /* Insufficient progress */
 	if (setupNonNull && !jacCurrent) {
           /* If the Jacobian is out of date, update it and retry */
 	  sthrsh = TWO;
