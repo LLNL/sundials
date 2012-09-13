@@ -270,7 +270,7 @@ The form of the call to this function is
   \end{args}
 }
 {
-   The return value \id{flag} of \id{CVodeAdjInit} is one of:
+   The return value \id{flag} (of type \id{int}) is one of:
    \begin{args}[CV\_ILL\_INPUT]
    \item[\Id{CV\_SUCCESS}] 
      \id{CVodeAdjInit} was successful.
@@ -290,6 +290,46 @@ The form of the call to this function is
 
   If an error occurred, \id{CVodeAdjInit} also sends a message to the
   error handler function.
+}
+%%
+%%
+\ucfunction{CVodeAdjReInit}
+{
+  flag = CVodeAdjReInit(cvode\_mem);
+}
+{
+  The function \ID{CVodeAdjReInit} reinitializes the {\cvodes} memory
+  block for ASA, assuming that the number of steps between check
+  points and the type of interpolation remain unchanged.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *}) 
+    is the pointer to the {\cvodes} memory block returned by a previous call to
+    \id{CVodeCreate}.
+  \end{args}
+}
+{
+   The return value \id{flag} (of type \id{int}) is one of:
+   \begin{args}[CV\_MEM\_NULL]
+   \item[\Id{CV\_SUCCESS}] 
+     \id{CVodeAdjReInit} was successful.
+   \item[CV\_MEM\_NULL] 
+     \id{cvode\_mem} was NULL.
+   \item[\Id{CV\_NO\_ADJ}]
+     The function \id{CVodeAdjInit} was not previously called.
+   \end{args}
+}
+{
+  The list of check points (and associated memory) is deleted.
+
+  The list of backward problems is kept. However, new backward problems can 
+  be added to this list by calling \id{CVodeCreateB}. If a new list of backward
+  problems is also needed, then free the adjoint memory (by calling
+  \id{CVodeAdjFree}) and reinitialize ASA with \id{CVodeAdjInit}.
+
+  The {\cvodes} memory for the forward and backward problems can be reinitialized
+  separately by calling \id{CVodeReInit} and \id{CVodeReInitB}, respectively.
 }
 %%
 %%
