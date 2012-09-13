@@ -270,7 +270,7 @@ The form of the call to this function is
   \end{args}
 }
 {
-   The return value \id{flag} of \id{IDAAdjInit} is one of:
+   The return value \id{flag} (of type \id{int}) is one of:
    \begin{args}[IDA\_ILL\_INPUT]
    \item[\Id{IDA\_SUCCESS}] 
      \id{IDAAdjInit} was successful.
@@ -291,6 +291,49 @@ The form of the call to this function is
   If an error occurred, \id{IDAAdjInit} also sends a message to the
   error handler function.
 }
+%%
+%%
+\ucfunction{IDAAdjReInit}
+{
+  flag = IDAAdjReInit(ida\_mem);
+}
+{
+  The function \ID{IDAAdjReInit} reinitializes the {\idas} memory
+  block for ASA, assuming that the number of steps between check
+  points and the type of interpolation remain unchanged.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    is the pointer to the {\idas} memory block returned by a previous call to
+    \id{IDACreate}.
+  \end{args}
+}
+{
+   The return value \id{flag} (of type \id{int}) is one of:
+   \begin{args}[IDA\_MEM\_NULL]
+   \item[\Id{IDA\_SUCCESS}] 
+     \id{IDAAdjReInit} was successful.
+   \item[IDA\_MEM\_NULL] 
+     \id{ida\_mem} was NULL.
+   \item[\Id{IDA\_NO\_ADJ}]
+     The function \id{IDAAdjInit} was not previously called.
+   \end{args}
+}
+{
+  The list of check points (and associated memory) is deleted.
+
+  The list of backward problems is kept. However, new backward problems can 
+  be added to this list by calling \id{IDACreateB}. If a new list of backward
+  problems is also needed, then free the adjoint memory (by calling
+  \id{IDAAdjFree}) and reinitialize ASA with \id{IDAAdjInit}.
+
+  The {\idas} memory for the forward and backward problems can be reinitialized
+  separately by calling \id{IDAReInit} and \id{IDAReInitB}, respectively.
+}
+
+
+
 %%
 %%
 \ucfunction{IDAAdjFree}
