@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2012-08-28 23:23:34 $
+# $Revision: 1.6 $
+# $Date: 2012-09-18 23:01:33 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -57,7 +57,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${CPODES_examples})
   ADD_EXECUTABLE(${example} ${example}.c)
-  ADD_TEST(${example} ${example})
+  ADD_TEST(${example} ${TESTRUNNER} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   FILE(GLOB example_out ${example}.out*)
   IF(EXAMPLES_INSTALL)

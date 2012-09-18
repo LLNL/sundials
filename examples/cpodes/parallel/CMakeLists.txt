@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2012-08-28 23:23:33 $
+# $Revision: 1.4 $
+# $Date: 2012-09-18 23:01:32 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -53,7 +53,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${CPODES_examples})
   ADD_EXECUTABLE(${example} ${example}.c)
-  ADD_TEST(${example} ${example})
+  ADD_TEST(${example} ${TESTRUNNER} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})

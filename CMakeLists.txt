@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2012-08-28 23:23:27 $
+# $Revision: 1.15 $
+# $Date: 2012-09-18 23:01:28 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -593,6 +593,7 @@ ENDIF(BUILD_CPODES)
 
 IF(EXAMPLES_ENABLE)
   ENABLE_TESTING()
+  FIND_PROGRAM(TESTRUNNER testRunner PATHS test)
 
   IF(EXAMPLES_INSTALL)
     SET(SHELL "sh")

@@ -1,0 +1,95 @@
+#! /usr/bin/env python
+
+import os, subprocess, sys
+
+def main():
+    if len(sys.argv) != 2:
+        error("testRunner expects 1 argument, " + str(len(sys.argv)) + " given.")
+
+    testName = sys.argv[1]
+    testDir = os.path.dirname(sys.argv[0])
+    outDir = os.path.join(testDir, "output")
+    answersDir = os.path.join(testDir, "answers")
+    outPath = os.path.join(outDir, testName)
+    answerPath = os.path.join(answersDir, testName)
+
+    if not os.path.exists(outDir):
+        os.makedirs(outDir)
+    elif not os.path.isdir(outDir):
+        error("Output directory exists but is not a directory, it must be deleted.", outDir)
+
+    args = getArgs(testName, testDir)
+
+    with open(outPath, 'w') as outFile:
+        if args != "":
+            testCommand = testName + " " + args
+        else:
+            testCommand = testName
+        process = subprocess.Popen(testCommand, stdout=outFile, stderr=outFile)
+        process.wait()
+        if process.returncode != 0:
+            error("Exited with error code " + process.returncode + ".", testName)
+        if not os.path.exists(answerPath):
+            error("Answer file did not exist.", answerPath)
+        if not os.path.isfile(answerPath):
+            error("Answer file existed but was not a file.", answerPath)
+        compare(outPath, answerPath)
+
+    print "Test passed."
+    sys.exit(0)
+
+def compare(outPath, answerPath):
+    #Note: This functions strips all lines of leading and trailing whitespace and blank lines.  Then it
+    #      compares each line against the answer file.  This will need to be rewritten to handle differences
+    #      in floating point numbers.
+    outLines = stripLines(open(outPath, 'r').readlines())
+    answerLines = stripLines(open(answerPath, 'r').readlines())
+    diffCount = 0
+
+    if len(outLines) != len(answerLines):
+        error("Line count is not equal (blank lines ignored):\n" + str(len(outLines)) + ":" + outPath + "\n" + str(len(answerLines)) + ":" + answerPath)
+
+    for i, outLine in enumerate(outLines):
+        if outLine != answerLines[i]:
+            diffCount != 1
+            print "Output: " + outLine + "\nAnswer: " + answerLine + "\n\n"
+    if diffCount != 0:
+        error(diffCount + " line differences found.", sys.argv[1])
+
+def error(message, path=""):
+    if path:
+        print "Error: " + path + ": " + message
+    else:
+        print "Error: " + message
+    sys.exit(1)
+
+def stripLines(lines):
+    strippedLines = []
+    for line in lines:
+        strippedLine = line.strip()
+        if strippedLine != "":
+            strippedLines.append(strippedLine)
+    return strippedLines
+
+def getArgs(testName, testDir):
+    argsPath = os.path.join(testDir, "testArgs")
+    loweredTestName = testName.lower()
+    args = ""
+
+    if os.path.exists(argsPath):
+        lines = stripLines(open(argsPath, 'r').readlines())
+        for line in lines:
+            if line.startswith('#'):
+                continue
+            argPair = line.split(':', 1)
+            currName = argPair[0].strip().lower()
+            currArgs = argPair[1].strip()
+            if currName == loweredTestName:
+                if args != "":
+                    error(testName + " has more than one argument line found. Remove the incorrect line from the test argument file.", argsPath)
+                args = currArgs
+
+    return args
+
+if __name__ == "__main__":
+    main()
