@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+# Author: Chris White (white238@llnl.gov)
+
 import os, subprocess, sys
 
 def main():
