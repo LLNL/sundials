@@ -22,7 +22,8 @@ def main():
 
     args = getArgs(testName, testDir)
 
-    with open(outPath, 'w') as outFile:
+    outFile = open(outPath, 'w')
+    try:
         if args != "":
             testCommand = testName + " " + args
         else:
@@ -36,6 +37,8 @@ def main():
         if not os.path.isfile(answerPath):
             error("Answer file existed but was not a file.", answerPath)
         compare(outPath, answerPath)
+    finally:
+        outFile.close()
 
     print "Test passed."
     sys.exit(0)
