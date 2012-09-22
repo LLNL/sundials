@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-11-26 16:20:01 $
+ * $Revision: 1.6 $
+ * $Date: 2012-09-22 00:21:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -79,6 +79,7 @@ static void KINSpbcgFree(KINMem kin_mem);
 #define vtemp1       (kin_mem->kin_vtemp1)
 #define vec_tmpl     (kin_mem->kin_vtemp1)
 #define vtemp2       (kin_mem->kin_vtemp2)
+#define strategy     (kin_mem->kin_globalstrategy)
 
 #define pretype   (kinspils_mem->s_pretype)
 #define nli       (kinspils_mem->s_nli)
@@ -263,7 +264,13 @@ static int KINSpbcgInit(KINMem kin_mem)
     J_data = user_data;
   }
 
-  /*  Set maxl in the SPBCG memory in case it was changed by the user */
+  if ( (strategy == KIN_PICARD) && jtimesDQ ) {
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSpgmrInit", 
+		    MSG_NOL_FAIL);
+    return(KIN_ILL_INPUT);
+  }
+
+ /*  Set maxl in the SPBCG memory in case it was changed by the user */
   spbcg_mem->l_max  = maxl;
 
   last_flag = KINSPILS_SUCCESS;

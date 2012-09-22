@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2009-03-29 23:28:01 $
+ * $Revision: 1.8 $
+ * $Date: 2012-09-22 00:21:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -66,7 +66,8 @@ typedef struct KINMemRec {
   realtype kin_fnormtol;       /* stopping tolerance on L2-norm of function
 				  value                                        */
   realtype kin_scsteptol;      /* scaled step length tolerance                 */
-  int kin_globalstrategy;      /* choices are KIN_NONE and KIN_LINESEARCH      */
+  int kin_globalstrategy;      /* choices are KIN_NONE, KIN_LINESEARCH
+				  KIN_PICARD and KIN_FP                        */
   int kin_printfl;             /* level of verbosity of output                 */
   long int kin_mxiter;         /* maximum number of nonlinear iterations       */
   long int kin_msbset;         /* maximum number of nonlinear iterations that
@@ -143,6 +144,17 @@ typedef struct KINMemRec {
   N_Vector kin_constraints; /* constraints vector                              */ 
   N_Vector kin_vtemp1;      /* scratch vector #1                               */
   N_Vector kin_vtemp2;      /* scratch vector #2                               */
+
+  /* space requirements for AA, Broyden and NLEN */ 
+  N_Vector kin_fold_aa;	    /* vector needed for AA, Broyden, and NLEN */
+  N_Vector kin_gold_aa;	    /* vector needed for AA, Broyden, and NLEN */
+  N_Vector *kin_df_aa;	    /* vector array needed for AA, Broyden, and NLEN */
+  N_Vector *kin_dg_aa;	    /* vector array needed for AA, Broyden and NLEN */
+  N_Vector *kin_q_aa;	    /* vector array needed for AA */
+  N_Vector *kin_qtmp_aa;    /* vector array needed for AA */
+  long int kin_m_aa;	    /* parameter for AA, Broyden or NLEN */
+  booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
+  booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
 
   /* space requirements for vector storage */ 
 
@@ -379,6 +391,8 @@ void KINInfoHandler(const char *module, const char *function,
 #define MSG_BAD_MXNBCF         "mxbcf < 0 illegal."
 #define MSG_BAD_CONSTRAINTS    "Illegal values in constraints vector."
 #define MSG_BAD_OMEGA          "scalars < 0 illegal."
+#define MSG_BAD_MAA            "maa < 0 illegal."
+#define MSG_ZERO_MAA           "maa = 0 illegal."
 
 #define MSG_LSOLV_NO_MEM       "The linear solver memory pointer is NULL."
 #define MSG_UU_NULL            "uu = NULL illegal."
@@ -400,6 +414,7 @@ void KINInfoHandler(const char *module, const char *function,
 #define MSG_MAXITER_REACHED     "The maximum number of iterations was reached before convergence."
 #define MSG_MXNEWT_5X_EXCEEDED  "Five consecutive steps have been taken that satisfy a scaled step length test."
 #define MSG_SYSFUNC_REPTD       "Unable to correct repeated recoverable system function errors."
+#define MSG_NOL_FAIL            "Unable to find user's Linear Jacobian, which is required for the KIN_PICARD Strategy"
 
 /*
  * =================================================================

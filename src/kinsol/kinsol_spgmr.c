@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2007-11-26 16:20:01 $
+ * $Revision: 1.6 $
+ * $Date: 2012-09-22 00:21:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -80,6 +80,7 @@ static void KINSpgmrFree(KINMem kin_mem);
 #define vtemp1         (kin_mem->kin_vtemp1)
 #define vec_tmpl       (kin_mem->kin_vtemp1)
 #define vtemp2         (kin_mem->kin_vtemp2)
+#define strategy       (kin_mem->kin_globalstrategy)
 
 #define pretype   (kinspils_mem->s_pretype)
 #define gstype    (kinspils_mem->s_gstype)
@@ -261,6 +262,12 @@ static int KINSpgmrInit(KINMem kin_mem)
     J_data = kin_mem;
   } else {
     J_data = user_data;
+  }
+
+  if ( (strategy == KIN_PICARD) && jtimesDQ ) {
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSpgmrInit", 
+		    MSG_NOL_FAIL);
+    return(KIN_ILL_INPUT);
   }
 
   last_flag = KINSPILS_SUCCESS;

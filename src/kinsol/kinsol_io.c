@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2010-12-01 22:43:33 $
+ * $Revision: 1.9 $
+ * $Date: 2012-09-22 00:21:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -179,6 +179,58 @@ int KINSetUserData(void *kinmem, void *user_data)
 
   kin_mem = (KINMem) kinmem;
   kin_mem->kin_user_data = user_data;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetMAA
+ * -----------------------------------------------------------------
+ */
+
+int KINSetMAA(void *kinmem, long int maa, booleantype aamem )
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetMAA", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  if (maa < 0) {
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMAA", MSG_BAD_MAA);
+    return(KIN_ILL_INPUT);
+  }
+  else if (maa == 0 && !aamem ) {
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMAA", MSG_ZERO_MAA);
+    return(KIN_ILL_INPUT);
+  }
+
+  kin_mem = (KINMem) kinmem;
+  kin_mem->kin_m_aa = maa;
+  kin_mem->kin_aamem_aa = aamem;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetAAStopCrit
+ * -----------------------------------------------------------------
+ */
+
+int KINSetAAStopCrit(void *kinmem, booleantype setstop)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetAAStopCrit", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+  kin_mem->kin_setstop_aa = setstop;
 
   return(KIN_SUCCESS);
 }

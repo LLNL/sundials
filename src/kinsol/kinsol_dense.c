@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2010-12-01 22:43:33 $
+ * $Revision: 1.12 $
+ * $Date: 2012-09-22 00:21:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -71,6 +71,7 @@ static void kinDenseFree(KINMem kin_mem);
 #define vtemp1         (kin_mem->kin_vtemp1)
 #define vec_tmpl       (kin_mem->kin_vtemp1)
 #define vtemp2         (kin_mem->kin_vtemp2)
+#define strategy       (kin_mem->kin_globalstrategy)
 
 #define mtype          (kindls_mem->d_type)
 #define n              (kindls_mem->d_n)
@@ -221,6 +222,12 @@ static int kinDenseInit(KINMem kin_mem)
     J_data = kin_mem;
   } else {
     J_data = kin_mem->kin_user_data;
+  }
+  
+  if ( (strategy == KIN_PICARD) && jacDQ ) {
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSpgmrInit", 
+		    MSG_NOL_FAIL);
+    return(KIN_ILL_INPUT);
   }
 
   last_flag = KINDLS_SUCCESS;
