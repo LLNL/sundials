@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2010-12-01 22:16:17 $
+ * $Revision: 1.8 $
+ * $Date: 2012-09-22 00:20:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -128,6 +128,8 @@ extern "C" {
   
 #define KIN_NONE       0
 #define KIN_LINESEARCH 1
+#define KIN_PICARD     2
+#define KIN_FP         3
 
 /*
  * =================================================================
