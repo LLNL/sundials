@@ -1,2 +1,5 @@
 #<example name>:<command line arguments>
 cvsAdvDiff_FSA_non:-sensi stg t
+cvsDiurnal_FSA_kry:-sensi sim t
+cvsRoberts_FSA_dns:-sensi stg1 t
+idasRoberts_FSA_dns:-sensi stg t
