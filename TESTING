@@ -30,4 +30,5 @@ TODO:
 	with different levels of precision per test that will be read from the test/testArgs
 	-floating point numbers to 4 digits
 	-integers to 10%
+*Change argument file to allow multiple runs of the example with different arguments
 	
