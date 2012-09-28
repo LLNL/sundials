@@ -1,0 +1,13 @@
+
+[CVODE ERROR]  CVodeInit
+  A memory request failed.
+
+Dense example problem:
+
+ Robertson kinetics, NEQ =  3
+
+
+
+
+
+ SUNDIALS_ERROR: FCVMALLOC returned IER =    -1

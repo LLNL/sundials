@@ -1,0 +1,8 @@
+
+[IDA ERROR]  IDAInit
+  A memory request failed.
+
+
+
+
+ SUNDIALS_ERROR: FIDAMALLOC returned IER =    -1

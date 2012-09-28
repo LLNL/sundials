@@ -1,0 +1,12 @@
+
+[CVODE ERROR]  CVodeInit
+  A memory request failed.
+
+Krylov example problem:
+
+ Kinetics-transport, NEQ =  200
+
+
+
+
+ SUNDIALS_ERROR: FCVMALLOC returned IER =    -1

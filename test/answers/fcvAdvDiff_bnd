@@ -1,0 +1,13 @@
+
+[CVODE ERROR]  CVodeInit
+  A memory request failed.
+
+Band example problem:
+
+ Advection-diffusion, NEQ = 50
+
+
+
+
+
+ SUNDIALS_ERROR: FCVMALLOC returned IER =    -1
