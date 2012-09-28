@@ -1,4 +1,4 @@
 
-Usage: idasRoberts_FSA_dns [-nosensi] [-sensi sensi_meth err_con]
+Usage: ./idasRoberts_FSA_dns [-nosensi] [-sensi sensi_meth err_con]
          sensi_meth = sim or stg
          err_con    = t or f

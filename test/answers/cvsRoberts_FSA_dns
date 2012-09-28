@@ -1,4 +1,4 @@
 
-Usage: cvsRoberts_FSA_dns [-nosensi] [-sensi sensi_meth err_con]
+Usage: ./cvsRoberts_FSA_dns [-nosensi] [-sensi sensi_meth err_con]
          sensi_meth = sim, stg, or stg1
          err_con    = t or f
