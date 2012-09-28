@@ -25,13 +25,14 @@ def main():
     outFile = open(outPath, 'w')
     try:
         if args != "":
-            testCommand = testName + " " + args
+            testCommand = "./" + testName + " " + args
         else:
-            testCommand = testName
+            testCommand = "./" + testName
+        testCommand = testCommand.split(" ")
         process = subprocess.Popen(testCommand, stdout=outFile, stderr=outFile)
         process.wait()
         if process.returncode != 0:
-            error("Exited with error code " + process.returncode + ".", testName)
+            error("Exited with error code " + str(process.returncode) + ".", testName)
         if not os.path.exists(answerPath):
             error("Answer file did not exist.", answerPath)
         if not os.path.isfile(answerPath):
@@ -56,7 +57,7 @@ def compare(outPath, answerPath):
 
     for i, outLine in enumerate(outLines):
         answerLine = answerLines[i]
-        if compareLines(outLine, answerLine):
+        if not compareLines(outLine, answerLine):
             diffCount != 1
             print "Difference:\n  Output: " + outLine + "\n  Answer: " + answerLine + "\n\n"
     if diffCount != 0:
