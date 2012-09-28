@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2012-09-22 00:21:54 $
+ * $Revision: 1.15 $
+ * $Date: 2012-09-28 17:22:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -2395,7 +2395,6 @@ static int AndersenAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   int i_pt, i, j, lAA, imap, jmap;
   int *ipt_map;
   realtype alfa;
-  realtype stepnorm; /*DH*/
   
   ipt_map = (int *) malloc(maa * sizeof(int));
   i_pt = iter-1 - ((iter-1)/maa)*maa;
@@ -2405,15 +2404,6 @@ static int AndersenAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
     N_VLinearSum(ONE, gval, -1.0, gold, dg[i_pt]);
     /* compute df_new = fval - fval_old */
     N_VLinearSum(ONE, fv, -1.0, fold, df[i_pt]);
-    stepnorm=KINScSNorm(kin_mem, df[i_pt], fscale);
-
-    /* DH: exit AA if \delta f is too small to factor.  this avoids a divide by tiny number error 
-       if (stepnorm < 1e-5)
-       {
-       printf("exiting bc step size difference too small \n");
-       return 0;
-       
-       }*/
   }
     
   N_VScale(ONE, gval, gold);
