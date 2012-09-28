@@ -2,7 +2,7 @@
 
 # Author: Chris White (white238@llnl.gov)
 
-import os, subprocess, sys
+import exceptions, os, subprocess, sys
 
 def main():
     if len(sys.argv) != 2:
@@ -55,11 +55,65 @@ def compare(outPath, answerPath):
         error("Line count is not equal (blank lines ignored):\n" + str(len(outLines)) + ":" + outPath + "\n" + str(len(answerLines)) + ":" + answerPath)
 
     for i, outLine in enumerate(outLines):
-        if outLine != answerLines[i]:
+        answerLine = answerLines[i]
+        if compareLines(outLine, answerLine):
             diffCount != 1
-            print "Output: " + outLine + "\nAnswer: " + answerLine + "\n\n"
+            print "Difference:\n  Output: " + outLine + "\n  Answer: " + answerLine + "\n\n"
     if diffCount != 0:
         error(diffCount + " line differences found.", sys.argv[1])
+
+def compareLines(outLine, answerLine):
+    outTokens = tokenizeLine(outLine)
+    answerTokens = tokenizeLine(answerLine)
+    if len(outTokens) != len(answerTokens):
+        return False
+    for i, outValue in enumerate(outTokens):
+        answerValue = answerTokens[i]
+        outIsInt, outInt = isInt(outValue)
+        if outIsInt:
+            answerIsInt, answerInt = isInt(answerValue)
+            if not answerIsInt or (outInt != answerInt):
+                return False
+        else:
+            outIsFloat, outFloat = isFloat(outValue)
+            if outIsFloat:
+                answerIsFloat, answerFloat = isFloat(answerValue)
+                if not answerIsFloat or (outFloat != answerFloat):
+                    return False
+            elif outValue != answerValue:
+                return False
+    return True
+
+def isInt(value):
+    try:
+        return True, int(value)
+    except exceptions.ValueError:
+        return False, 0
+
+def isFloat(value):
+    try:
+        return True, float(value)
+    except exceptions.ValueError:
+        return False, 0
+
+tokenDelimiters = ['\t', ' ', '=']
+
+def tokenizeLine(line):
+    tokens = []
+    currLine = line
+    while(currLine != ""):
+        tokenEnd = 1
+        length = len(currLine)
+        while (tokenEnd < length):
+            if currLine[tokenEnd] in tokenDelimiters:
+                break
+            tokenEnd += 1
+        tokens.append(currLine[0:tokenEnd])
+        currLine = currLine[tokenEnd:]
+        if (currLine != ""):
+            tokens.append(currLine[0:1])
+            currLine = currLine[1:]
+    return tokens
 
 def error(message, path=""):
     if path:
