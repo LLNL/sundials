@@ -7,63 +7,95 @@ import exceptions, os, subprocess, sys
 def main():
     if len(sys.argv) != 2:
         error("testRunner expects 1 argument, " + str(len(sys.argv)) + " given.")
+        sys.exit(1)
 
     testName = sys.argv[1]
     testDir = os.path.dirname(sys.argv[0])
     outDir = os.path.join(testDir, "output")
     answersDir = os.path.join(testDir, "answers")
-    outPath = os.path.join(outDir, testName)
-    answerPath = os.path.join(answersDir, testName)
 
     if not os.path.exists(outDir):
         os.makedirs(outDir)
     elif not os.path.isdir(outDir):
         error("Output directory exists but is not a directory, it must be deleted.", outDir)
+        sys.exit(1)
 
-    args = getArgs(testName, testDir)
-
-    outFile = open(outPath, 'w')
-    try:
-        if args != "":
-            testCommand = "./" + testName + " " + args
+    testInfos = getInfo(testName, testDir)
+    success = True
+    for testInfo in testInfos:
+        if testInfo.arguments != "":
+            testCommand = "./" + testName + " " + testInfo.arguments
+            answerFileName = testName + "_" + testInfo.arguments.replace(" ", "_")
         else:
             testCommand = "./" + testName
-        testCommand = testCommand.split(" ")
-        process = subprocess.Popen(testCommand, stdout=outFile, stderr=outFile)
-        process.wait()
-        if process.returncode != 0:
-            error("Exited with error code " + str(process.returncode) + ".", testName)
-        if not os.path.exists(answerPath):
-            error("Answer file did not exist.", answerPath)
-        if not os.path.isfile(answerPath):
-            error("Answer file existed but was not a file.", answerPath)
-        compare(outPath, answerPath)
-    finally:
-        outFile.close()
+            answerFileName = testName
 
+        outPath = os.path.join(outDir, answerFileName)
+        answerPath = os.path.join(answersDir, answerFileName)
+
+        print "Starting test..."
+        print "  Floating Point Precision = " + str(testInfo.floatPrecision)
+        print "  Integer Precision = " + str(testInfo.integerPercentage)
+        print "  Command = " + testCommand
+        print "  Answer File = " + answerPath
+        print "  Output File = " + outPath + "\n"
+
+        outFile = open(outPath, 'w')
+        try:
+            testCommand = testCommand.split(" ")
+            process = subprocess.Popen(testCommand, stdout=outFile, stderr=outFile)
+            process.wait()
+            if process.returncode != 0:
+                error("Exited with error code " + str(process.returncode) + ".", testName)
+                success = False
+            if not os.path.exists(answerPath):
+                error("Answer file did not exist.", answerPath)
+                success = False
+            if not os.path.isfile(answerPath):
+                error("Answer file existed but was not a file.", answerPath)
+                success = False
+            if not compare(outPath, answerPath, testInfo):
+                success = False
+        finally:
+            outFile.close()
+
+    if not success:
+        print "Test failed."
+        sys.exit(1)
     print "Test passed."
     sys.exit(0)
 
-def compare(outPath, answerPath):
+def compare(outPath, answerPath, testInfo):
     #Note: This functions strips all lines of leading and trailing whitespace and blank lines.  Then it
-    #      compares each line against the answer file.  This will need to be rewritten to handle differences
-    #      in floating point numbers.
-    outLines = stripLines(open(outPath, 'r').readlines())
-    answerLines = stripLines(open(answerPath, 'r').readlines())
+    #      compares the output against the checked in answer file. It allows fuzziness in floating points
+    #      and integers, as described in the testInfo file.
+    outFile = open(outPath, 'r')
+    try:
+        outLines = stripLines(outFile.readlines())
+    finally:
+        outFile.close()
+    answerFile = open(answerPath, 'r')
+    try:
+        answerLines = stripLines(answerFile.readlines())
+    finally:
+        answerFile.close()
     diffCount = 0
 
     if len(outLines) != len(answerLines):
         error("Line count is not equal (blank lines ignored):\n" + str(len(outLines)) + ":" + outPath + "\n" + str(len(answerLines)) + ":" + answerPath)
+        return False
 
     for i, outLine in enumerate(outLines):
         answerLine = answerLines[i]
-        if not compareLines(outLine, answerLine):
-            diffCount != 1
+        if not compareLines(outLine, answerLine, testInfo):
+            diffCount += 1
             print "Difference:\n  Output: " + outLine + "\n  Answer: " + answerLine + "\n\n"
     if diffCount != 0:
-        error(diffCount + " line differences found.", sys.argv[1])
+        error(str(diffCount) + " line differences found.", sys.argv[1])
+        return False
+    return True
 
-def compareLines(outLine, answerLine):
+def compareLines(outLine, answerLine, testInfo):
     outTokens = tokenizeLine(outLine)
     answerTokens = tokenizeLine(answerLine)
     if len(outTokens) != len(answerTokens):
@@ -73,15 +105,18 @@ def compareLines(outLine, answerLine):
         outIsInt, outInt = isInt(outValue)
         if outIsInt:
             answerIsInt, answerInt = isInt(answerValue)
-            if not answerIsInt or (outInt != answerInt):
+            if answerIsInt and not intCompare(answerInt, outInt, testInfo.integerPercentage):
+                print "DEBUG: int"
                 return False
         else:
             outIsFloat, outFloat = isFloat(outValue)
             if outIsFloat:
                 answerIsFloat, answerFloat = isFloat(answerValue)
-                if not answerIsFloat or (outFloat != answerFloat):
+                if answerIsFloat and not floatCompare(answerFloat, outFloat, testInfo.floatPrecision):
+                    print "DEBUG: float"
                     return False
             elif outValue != answerValue:
+                print "DEBUG: str"
                 return False
     return True
 
@@ -91,11 +126,30 @@ def isInt(value):
     except exceptions.ValueError:
         return False, 0
 
+def intCompare(answer, value, percentage):
+    if answer == value:
+        return True
+    if percentage != 0:
+        percentageOff = abs(int(100 - (float(value)/float(answer) * 100)))
+        if percentageOff <= percentage:
+            return True
+    print "Error: Integer difference found:\n  Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(percentage) + "%"
+    return False
+
 def isFloat(value):
     try:
         return True, float(value)
     except exceptions.ValueError:
         return False, 0
+
+def floatCompare(answer, value, precision):
+    if precision == 0:
+        if answer == value:
+            return True
+    elif round(answer, precision) == round(value, precision):
+        return True
+    print "Error: Floating point difference found:\n Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(precision) + " decimals"
+    return False
 
 tokenDelimiters = ['\t', ' ', '=']
 
@@ -121,7 +175,6 @@ def error(message, path=""):
         print "Error: " + path + ": " + message
     else:
         print "Error: " + message
-    sys.exit(1)
 
 def stripLines(lines):
     strippedLines = []
@@ -131,25 +184,35 @@ def stripLines(lines):
             strippedLines.append(strippedLine)
     return strippedLines
 
-def getArgs(testName, testDir):
-    argsPath = os.path.join(testDir, "testArgs")
-    loweredTestName = testName.lower()
-    args = ""
+class TestInfo(object):
+    def __init__(self, floatPrecision, integerPercentage, arguments):
+        self.floatPrecision = floatPrecision
+        self.integerPercentage = integerPercentage
+        self.arguments = arguments
 
-    if os.path.exists(argsPath):
-        lines = stripLines(open(argsPath, 'r').readlines())
+def getInfo(testName, testDir):
+    infoPath = os.path.join(testDir, "testInfo")
+    loweredTestName = testName.lower()
+    testInfos = []
+
+    if os.path.exists(infoPath):
+        infoFile = open(infoPath, 'r')
+        try:
+            lines = stripLines(infoFile.readlines())
+        finally:
+            infoFile.close()
+
         for line in lines:
             if line.startswith('#'):
                 continue
-            argPair = line.split(':', 1)
-            currName = argPair[0].strip().lower()
-            currArgs = argPair[1].strip()
-            if currName == loweredTestName:
-                if args != "":
-                    error(testName + " has more than one argument line found. Remove the incorrect line from the test argument file.", argsPath)
-                args = currArgs
+            lineInfo = line.split(':', 3)
+            if lineInfo[0].strip().lower() == loweredTestName:
+                testInfos.append(TestInfo(int(lineInfo[1].strip()), int(lineInfo[2].strip()), lineInfo[3].strip()))
 
-    return args
+    if len(testInfos) == 0:
+        #Note: If no info found in testInfo file then run test without arguments and do default comparisions
+        testInfos.append(TestInfo(4,10,""))
+    return testInfos
 
 if __name__ == "__main__":
     main()
