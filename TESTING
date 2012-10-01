@@ -22,13 +22,7 @@ fails you may need to look at "<build directory>/Testing/Temporary/LastTest.log"
 the an output file created by CMake and saves all of the console output which "make test"
 hides from you.
 
-If a test needs command line arguments they are read in from test/testArgs.  The format is
+If a test needs command line arguments or a different level of precision for integers
+or floating point comparison, they are read in from test/testInfo.  The format is
 explained in that file.
-
-TODO:
-*Implement a better comparison in testRunner that has the ability to compare test output
-	with different levels of precision per test that will be read from the test/testArgs
-	-floating point numbers to 4 digits
-	-integers to 10%
-*Change argument file to allow multiple runs of the example with different arguments
 	
