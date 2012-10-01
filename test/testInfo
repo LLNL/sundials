@@ -1,0 +1,11 @@
+#<example name>:<floating point precision (decimal points)>:<integer percentage allowance>:<command line arguments>
+# Default:
+#  Floating point precision = 4 decimals
+#  Integer percentage allowance = 10%
+# Note: You can run the same test with different arguments by adding multiple lines
+cvsAdvDiff_FSA_non:4:10:-sensi stg t
+cvsAdvDiff_FSA_non:4:10:-sensi sim t
+cvsDiurnal_FSA_kry:4:10:-sensi stg t
+cvsDiurnal_FSA_kry:4:10:-sensi sim t
+cvsRoberts_FSA_dns:4:10:-sensi stg1 t
+idasRoberts_FSA_dns:4:10:-sensi stg t
