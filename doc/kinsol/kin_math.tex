@@ -2,12 +2,22 @@
 \chapter{Mathematical Considerations}\label{s:math}
 %===================================================================================
 
-{\kinsol} solves nonlinear algebraic systems in real $N$-space,
+{\kinsol} solves nonlinear algebraic systems in real $N$-space.  
+
+Using Newton's method or the Picard iteration, one can solve
 \index{nonlinear system!definition}
 \begin{equation}\label{nonlinear_system}
   F(u) = 0 \, , \quad F:\mbox{\bf R}^N \rightarrow \mbox{\bf R}^N \, ,
 \end{equation}
 given an initial guess $u_0$.
+Using a fixed-point iteration, the convergence of which can be improved with Anderson 
+acceleration, one can solve
+\index{fixed-point system!definition}
+\begin{equation}\label{fixed-point_system}
+  G(u) = u \, , \quad G:\mbox{\bf R}^N \rightarrow \mbox{\bf R}^N \, ,
+\end{equation}
+given an initial guess $u_0$.
+
 
 %% NEWTON ITERATION
 
@@ -309,6 +319,124 @@ scale factors given for $u$ as described below).
 Convergence of the Newton method is maintained as long as the
 value of $\sigma$ remains appropriately small, as shown in~\cite{Bro:87}.
 
+%%
+%% FIXED POINT ITERATION
+
+\subsubsection*{Basic Fixed Point iteration}
+%%
+The basic fixed-point iteration scheme, implemented in {\kinsol} is given by:
+
+\vspace{1ex}
+\index{Fixed-point iteration!definition}
+\begin{enumerate}
+   \item Set $u_0 = $ an initial guess
+   \item For $n = 0, 1, 2,...$ until convergence do:
+      \begin{itemize}
+          \item[(a)] Set $u_{n+1} = G(u_n)$.
+          \item[(b)] Test for convergence.
+      \end{itemize}
+\end{enumerate}
+Here, $u_n$ is the $n$th iterate to $u$.
+At each stage in the iteration process, function $G$ is applied to the current 
+iterate to produce a new iterate, $u_{n+1}$.
+A test for convergence is made before the iteration continues.
+
+
+%% PICARD ITERATION
+
+The Picard iteration, as implemented in {\kinsol}, is given by:
+
+\vspace{1ex}
+\index{Picard iteration!definition}
+\begin{enumerate}
+   \item Set $u_0 = $ an initial guess
+   \item For $n = 0, 1, 2,...$ until convergence do:
+      \begin{itemize}
+          \item[(a)] Set $u_{n+1} = u_n - L^{-1}N(u_n)$.
+          \item[(b)] Test $F(u_{n+1})$ for convergence.
+      \end{itemize}
+\end{enumerate}
+Here, $u_n$ is the $n$th iterate to $u$, and we consider a special form of the 
+nonlinear function, $F$ such that
+$F(u) = Lu - N(u)$, where $L$ is a linear, nonsingular matrix and $N$ is nonlinear.
+Within each iteration, the Picard step is computed then added to $u_n$ to produce 
+the new iterate.  Next, the nonlinear residual
+function is evaluated at the new iterate, and convergence is checked.
+Noting that $L^{-1}Nu = u - L^{-1}F(u)$, the above iteration can be written in the same form
+as a Newton iteration except that here, $L$ is in the role of the Jacobian.
+Within {\kinsol}, however, we leave this in a fixed-point form as above. 
+For more information, see p. 182 of \cite{Ortega-Rheinbolt00}.
+
+
+%% ANDERSON ACCELERATION
+
+\subsubsection*{Anderson Acceleration}
+%%
+The Picard and fixed point methods can be significantly accelerated using 
+Anderson's method \cite{Anderson65, Walker-Ni09, Fang-Saad09, LWWY11}.
+Anderson acceleration can be formulated as follows:
+
+\vspace{1ex}
+\index{Anderson acceleration!definition}
+\begin{enumerate}
+   \item Set $u_0 = $ an initial guess and $m \ge 1$
+   \item Set $u_1 = G(u_0)$ 
+   \item For $n = 0, 1, 2,...$ until convergence do:
+      \begin{itemize}
+          \item[(a)] Set $m_n = \min\{m,n\}$
+          \item[(b)] Set $F_{n} = (f_{n-m_n}, \ldots, f_n)$, where $f_i=G(u_i)-u_i$
+          \item[(c)] Determine $\alpha^{(n)} = (\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})$ that solves 
+	$\min_\alpha  \| F_n \alpha \|_2$ such that $\sum_{i=0}^{m_n} \alpha_i = 1$
+          \item[(d)] Set $u_{n+1} = \sum_{i=0}^{m_n} \alpha_i^{(n)} G(u_{n-m_k+i})$
+          \item[(e)] Test for convergence
+      \end{itemize}
+\end{enumerate}
+
+It has been implemented in {\kinsol} by turning the constrained linear least-squares problem in Step (c) into an unconstrained one leading to the algorithm given below:
+
+\vspace{1ex}
+\index{Anderson acceleration UA!definition}
+\begin{enumerate}
+   \item Set $u_0 = $ an initial guess and $m \ge 1$
+   \item Set $u_1 = G(u_0)$ 
+   \item For $n = 0, 1, 2,...$ until convergence do:
+      \begin{itemize}
+          \item[(a)] Set $m_n = \min\{m,n\}$
+          \item[(b)] Set $\Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_n)$, where $\Delta f_i = f_{i+1} - f_i$ and $f_i=G(u_i)-u_i$
+          \item[(c)] Determine $\gamma^{(n)} = (\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})$ that solves 
+	$\min_\gamma  \| f_n - \Delta F_n \gamma \|_2$ 
+          \item[(d)] Set $u_{n+1} = G(u_n)-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g(u_{n-m_k+i})$ with $\Delta g_i = G(u_{i+1}) - G(u_i)$
+          \item[(e)] Test for convergence
+      \end{itemize}
+\end{enumerate}
+
+The least-squares problem in (c) is solved by applying a QR factorization to $\Delta F_n = Q_n R_n$ and solving $R_n \gamma = Q_n^T f_n$.
+
+
+\subsubsection*{Fixed-point - Anderson Acceleration Stopping Criterion}
+
+The default stopping criterion is 
+\[ \|G(u_n) - u\|_{D_F,\infty} < \mbox{\sc gtol} \, , \]
+where $D_F$ is a user-defined diagonal identity matrix that can be the identity 
+or a scaling matrix that is chosen so that the components of $D_F (G(u)-u)$ have 
+roughly the same order of magnitude.
+It is also possible for the user to set the stopping criterion via the user 
+supplied problem-defining function and calling \ID{KINSetAAStopCrit}.  
+Note that when using Anderson acceleration, 
+convergence is checked after teh acceleration is applied.
+
+
+\subsubsection*{Picard - Anderson Acceleration Stopping Criterion}
+
+The default stopping criterion is 
+\[ \|F(u_n)_{D_F,\infty} < \mbox{\sc ftol} \, , \]
+where $D_F$ is a user-defined diagonal identity matrix that can be the identity 
+or a scaling matrix that is chosen so that the components of $D_F F(u)$ have 
+roughly the same order of magnitude.
+It is also possible for the user to set the stopping criterion via the user 
+supplied problem-defining function and calling \ID{KINSetAAStopCrit}.  
+Note that when using Anderson acceleration, 
+convergence is checked after the acceleration is applied.
 
 
 

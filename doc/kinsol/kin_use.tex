@@ -721,8 +721,11 @@ the nonlinear algebraic system.
     but which upon return contains an approximate solution of
     the nonlinear system $F(u) = 0$.
   \item[strategy] (\id{int})
-    globalization strategy applied to the Newton method.
-    It must be one of \ID{KIN\_NONE} or \ID{KIN\_LINESEARCH}.
+    strategy used to solve the nonlinear system. It must be of the following: \\
+    \ID{KIN\_NONE}  basic Newton iteration \\
+    \ID{KIN\_LINESEARCH} Newton with globalization \\
+    \ID{KIN\_FP} fixed point iteration with Anderson Acceleration \\
+    \ID{KIN\_PICARD} Picard iteration with Anderson Acceleration \\
   \item[u\_scale] (\id{N\_Vector})
     vector containing diagonal elements of scaling matrix $D_u$ for vector \id{u}
     chosen so that the components of $D_u \cdot$\id{u}
@@ -732,7 +735,8 @@ the nonlinear algebraic system.
     vector containing diagonal elements of scaling matrix $D_F$ for $F(u)$ chosen 
     so that the components of $D_F \cdot F($\id{u}$)$ 
     (as a matrix multiplication) all have roughly the same magnitude when 
-    \id{u} is not too near a root of $F(u)$.
+    \id{u} is not too near a root of $F(u)$. In the case of a fixed point
+    iteration, consider $F(u) = G(u) - u$.
   \end{args}
 }
 {
@@ -1791,6 +1795,79 @@ flag = KINSetSysFunc(kin\_mem, func);
   The option of changing the system function is provided for a user who wishes 
   to solve several problems of the same size but with different functions.
 }
+%%
+%%
+\ucfunction{KINSetMAA}
+{
+flag = KINSetMAA(kin\_mem, maa, setaamem);
+}
+{
+  The function \ID{KINSetMAA} specifies the size of the subspace used with
+  Anderson acceleration.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[maa] (\id{long int})
+    subspace size for various methods.
+  \item[setaamem] (\id{booleantype})
+    needs to be TRUE or 1 when using Anderson Acceleration, FALSE or 0 for the
+    other methods
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[KIN\_ILL\_INPUT]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The argument \id{maa} was negative or zero.
+  \end{args}
+}
+{
+  This function sets the subspace size, which needs to be $> -1$ for Anderson Acceleration.
+  It enables additional memory allocation necessary for Anderson Acceleration.
+}
+%%
+%%
+%%
+\ucfunction{KINSetAAStopCrit}
+{
+flag = KINSetAAStopCrit(kin\_mem, setstop);
+}
+{
+  The function \ID{KINSetAAStopCrit} allows the user to define a 
+  stopping criterion through the user-provided function that evaluates 
+  the nonlinear system function $F(u)$ or $G(u)$.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[setstop] (\id{booleantype})
+    parameter indicates that user will supply stopping criterion.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[KIN\_ILL\_INPUT]
+  \item[\Id{KIN\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  This function will allow the user to set a different stopping criterion for
+  Picard with or without Anderson Acceleration.
+  The vector to be tested needs to be provided in the function defined by
+  \ID{KINSetSysFunc}. 
+}
+%%
+%%
 %%
 \index{optional input!solver|)}
 
@@ -2858,12 +2935,19 @@ The user must provide a function of type \ID{KINSysFn} defined as follows:
   typedef void (*KINSysFn)(N\_Vector u, N\_Vector fval, void *user\_data);
 }
 {
-  This function computes $F(u)$ for a given value of the vector $u$.
+  This function computes $F(u)$ (or $G(u)$ for fixed-point iteration and Anderson 
+  acceleration) for a given value of the vector $u$.
 }
 {
   \begin{args}[user\_data]
   \item[u]
-    is the current value of the variable vector, $u$.
+    is the current value of the variable vector, $u$. For fixed point and Picard
+    iterations, it is possible to use a 
+    different stopping criterion than the default test, by returning the 
+    value that should be tested in $u$ and calling \ID{KINSetAAStopCrit}. 
+    The stopping criterion is then
+    $\| u \|_{D_F,\infty} < {\sc FTOL}$, 
+    where $D_F$ should be a suitable scaling matrix or the identity matrix.
   \item[fval]
     is the output vector $F(u)$.
   \item[user\_data]
