@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2012-04-26 00:06:14 $
+# $Revision: 1.6 $
+# $Date: 2012-10-29 21:39:55 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -40,12 +40,12 @@ nvec_serial.tex \
 sun_org.tex \
 types.tex \
 ug.tex \
-#ug_html.tex \
 biblio.bib \
 bandmat.eps \
 sunorg1.eps \
 sunorg2.eps \
 doc_logo.eps \
+#ug_html.tex \
 #processHTML
 
 EX_FILES = \
@@ -57,8 +57,8 @@ kin_ex_codes.tex
 
 EX_SHARED_FILES = \
 ug.tex \
-#ug_html.tex \
 biblio.bib \
+#ug_html.tex \
 #processHTML
 
 #HTML_BUTTONS =\
@@ -116,7 +116,11 @@ copy_ug:
 	done
 
 kin_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2dvi ${QUIET} kin_guide.tex
+	latex ${QUIET} kin_guide.tex
+	bibtex ${QUIET} kin_guide
+	latex ${QUIET} kin_guide.tex
+	latex ${QUIET} kin_guide.tex
+#	texi2dvi ${QUIET} kin_guide.tex
 
 kin_guide.ps: kin_guide.dvi
 	dvips ${QUIET} -Ppdf kin_guide
@@ -143,7 +147,11 @@ copy_ex:
 	done
 
 kin_examples.aux: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2dvi ${QUIET} kin_examples.tex
+	latex ${QUIET} kin_examples.tex
+	bibtex ${QUIET} kin_examples
+	latex ${QUIET} kin_examples.tex
+	latex ${QUIET} kin_examples.tex
+#	texi2dvi ${QUIET} kin_examples.tex
 
 kin_examples.ps: kin_examples.dvi
 	dvips ${QUIET} -Ppdf kin_examples
