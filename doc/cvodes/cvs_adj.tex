@@ -1412,7 +1412,7 @@ call the following function to obtain this pointer.
   {\cvodes} memory for the backward problem.
 }
 {
-  {\warn}The user should not modify in any way \id{cvode\_memB}.
+  {\warn}The user should not modify \id{cvode\_memB} in any way.
 
   Optional output calls should pass \id{cvode\_memB} as the first argument;
   for example, to get the number of integration steps:
@@ -1420,6 +1420,43 @@ call the following function to obtain this pointer.
 }
 \index{optional output!backward solver|)}
 
+To get values of the {\it forward} solution during a backward integration,
+use the following function.  The input value of \id{t} would typically be
+equal to that at which the backward solution has just been obtained with
+\id{CVodeGetB}.  In any case, it must be within the last checkpoint interval
+used by \id{CVodeB}.
+
+\ucfunction{CVodeGetAdjY}
+{
+  flag = CVodeGetAdjY(cvode\_mem, t, y);
+}
+{
+  The function \ID{CVodeGetAdjY} returns the interpolated value of
+  the forward solution $y$ during a backward integration.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block created by \id{CVodeCreate}.
+  \item[t] (\id{realtype})
+    value of the independent variable at which $y$ is desired (input).
+  \item[y] (\id{N\_Vector}) forward solution $y(t)$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+ \begin{args}[CV\_GETY\_BADT]
+  \item[\Id{CV\_SUCCESS}] 
+    \id{CVodeGetAdjY} was successful. 
+  \item[\Id{CV\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CV\_GETY\_BADT}]
+    The value of \id{t} was outside the current checkpoint interval.
+  \end{args}
+}
+{
+  {\warn} The user must allocate space for \id{y}.
+}
 
 %%---------------------------------------------------------------------
 \subsection{Backward integration of quadrature equations}
