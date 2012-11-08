@@ -116,7 +116,7 @@ setting the integration tolerances for the quadrature variables, and finally
 including the quadrature variable in the error test.
 
 Allocation for the memory block of the combined forward-backward
-problem is acomplished through the call to \id{CVadjInit} which
+problem is accomplished through the call to \id{CVadjInit} which
 specifies \id{STEPS = 150}, the number of steps between two
 checkpoints, and specifies cubic Hermite interpolation.
 
@@ -151,17 +151,22 @@ in the error test.
 Quadrature computation is initialized by calling \id{CVodeQuadInitB}
 which specifies the right-hand side of the quadrature equations as \id{fQB}.
 
-The actual solution of the backward problem is acomplished through the call to
-\id{CVodeB}. If successful, \id{CVodeB} returns the solution of the backward 
-problem at time \id{T0} in the vector \id{yB}. The values of the quadrature
-variables at time \id{T0} are loaded in \id{qB} by calling the extraction
-routine \id{CVodeGetQuadB}. The values for $G$ and its gradient are printed next.
+The actual solution of the backward problem is accomplished through
+two calls to \id{CVodeB} --- one for intermediate output at $t = 40$,
+and one for the final time \id{T0} $= 0$.  At each point, the backward
+solution \id{yB} ($ = \lambda$) is obtained with a call to \id{CVodeGetB} and the
+forward solution with a call to \id{CVodeGetAdjY}.  The values of the
+quadrature variables $\xi$ at time \id{T0} are loaded in \id{qB} by calling
+the extraction routine \id{CVodeGetQuadB}. The negative of \id{qB}
+gives the gradient $\partial G / \partial p$.
 
-The main program continues with a call to \id{CVodeReInitB} and
-\id{CVodeQuadReInitB} to re-initialize the 
+The main program then carries out a second backward problem.
+It calls to \id{CVodeReInitB} and \id{CVodeQuadReInitB} to re-initialize the 
 backward memory block for a new adjoint computation with a different final 
-time (\id{TB2} $= 50$), followed by a second call to \id{CVodeB} and, upon successful
-return, reporting of the new values for $G$ and its gradient.
+time (\id{TB2} $= 50$).  This is followed by two calls to \id{CVodeB},
+one for intermediate output at $t = 40$ and one for the final values at
+$t = 0$.  Finally, the gradient $\partial G / \partial p$ of the second
+function $G$ is printed.
 
 The main program ends by freeing previously allocated memory by calling 
 \id{CVodeFree} (for the {\cvodes} memory for the forward problem), \id{CVadjFree} 
