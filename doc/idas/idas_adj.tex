@@ -1509,7 +1509,7 @@ function to obtain this pointer:
   {\idas} memory for the backward problem.
 }
 {
-  {\warn}The user should not modify in any way \id{ida\_memB}.
+  {\warn}The user should not modify \id{ida\_memB} in any way.
 
   Optional output calls should pass \id{ida\_memB} as the first argument;
   thus, for example, to get the number of integration steps:
@@ -1517,6 +1517,45 @@ function to obtain this pointer:
 }
 \index{optional output!backward solver|)}
 
+
+To get values of the {\it forward} solution during a backward integration,
+use the following function.  The input value of \id{t} would typically be
+equal to that at which the backward solution has just been obtained with
+\id{IDAGetB}.  In any case, it must be within the last checkpoint interval
+used by \id{IDASolveB}.
+
+\ucfunction{IDAGetAdjY}
+{
+  flag = IDAGetAdjY(ida\_mem, t, y, yp);
+}
+{
+  The function \ID{IDAGetAdjY} returns the interpolated value of the
+ forward solution $y$ and its derivative during a backward integration.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block created by \id{IDACreate}.
+  \item[t] (\id{realtype})
+    value of the independent variable at which $y$ is desired (input).
+  \item[y] (\id{N\_Vector}) forward solution $y(t)$.
+  \item[yp] (\id{N\_Vector}) forward solution derivative $\dot{y}(t)$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+ \begin{args}[IDA\_GETY\_BADT]
+  \item[\Id{IDA\_SUCCESS}] 
+    \id{IDAGetAdjY} was successful. 
+  \item[\Id{IDA\_MEM\_NULL}]
+    \id{ida\_mem} was \id{NULL}.
+  \item[\Id{IDA\_GETY\_BADT}]
+    The value of \id{t} was outside the current checkpoint interval.
+  \end{args}
+}
+{
+  {\warn} The user must allocate space for \id{y} and \id{yp}.
+}
 
 %%
 \subsubsection{Initial condition calculation optional output function}
