@@ -37,7 +37,7 @@ For additional information on a particular solver, see the README file
 in the solver directory (e.g. src/cvode/README).
 
 
-Release history
+Release history:
 
 +----------+-----------------------------------------------------------------+
 |          | SUNDIALS |                        Solver version                |
