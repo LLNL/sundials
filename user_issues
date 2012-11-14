@@ -1,0 +1,75 @@
+Unresolved User Complaints as of 11/14/12
+
+* Jourdan, 3/29/10. Problems with FCVODE -- related to N type.
+  May be OK now, or may still be a problem on 64-bit machines.
+
+* Peter Brown, 5/25/10 and 3/23/11.  With IDA + Matlab, errors in monitor
+  function (no yp).  He has found and fixed these himself.
+  Also says SundialsTB/IDA (V2.4) does not have monitor function in 1-step
+  mode, but did in V2.3.
+
+* Allu, 6/25/10.  IDACalcIC failed; has question.  Most likely user error.
+  Waiting for response to my questions.
+
+* Platz, 7/26/10. Unable to compile in 64-bit mode.
+
+* Romanenko, 8/4/10.  Remove static variables in CVODES and IDAS to allow
+  multithreading.  (Radu says much more is needed.)
+
+* Amrit, 9/9/10.  Bug suspected in IDASensWrmsNormUpdate -- ewtS not
+  initialized.  Bug disputed.  Awaiting response to my request for more
+  data (5/19/11, resent 8/3/11).
+
+* Fort, 10/3/10.  Unable to install Fortran library under Windows7.
+
+* Teranishi, 11/23/10.  Wants option to not search for library links.
+
+* John T.G., 2/8/11.  Seg fault in CVodeMonitor -- incompatible w. Matlab.
+
+* Escobar, 2/13/11. Unable to install CVODE on Windows7, 64-bit machine.
+
+* Andersson, 2/23/11.  Suspects bug in CVODES/IDAS checkpointing scheme.
+  Says it is not solved with fix reported 11/23/11.  Awaiting more info from him.
+
+* Kandula, 3/8/11.  Getting different results from KINSOL in C vs C++ for
+  the same problem.  Awaiting response to request to do more debugging.
+
+* Pitt-Francis, 4/14/11.  Wants Package Version number as an accessible
+  constant at compile time.
+
+* Washington, 8/3/11.  In IDAS+Matlab, there is no Matlab interface to get ypS.
+
+* Kaira, 9/1/11.  Failure of code that combines Sundials and Boost.
+
+* Goebbert, 11/3/11.  On web-page (and elsewhere), note that none of the
+  solvers are thread-safe (?).
+
+* Abraham, 11/3/11. Would like CVODES to provide adjoint state values at
+  specified times, without doing any sensitivity analysis.  Awaiting more input.
+  May be partly resolved with use of (newly found) CVodeGetAdjY.
+
+* Er, 7/11/12. Failure to install under Windows/Cmake.
+
+* Singer, 8/12/12.  In CVODES, there is no user dense/band Jacobian option
+  (JacBS) with yS as an input argument (as in fBS).
+
+* Stickel, 8/20/12.  Provides fixes to Makefile.in files to make use of the
+  DESTDIR option in auto-tools installation.  Fixed already?
+
+* Andersson, 9/15/12. Proposes a different way to organize the support for
+  second-order sensitivity analysis.
+
+* Bogle, 10/5/12. Claims typo on config/SundialsMPIC.cmake.
+
+* Ollivier, 10/8/12. cvRoberts_dns failed to load without BLAS/LAPACK.
+
+* Nsing, 10/9/12. How to preserve CVODE forward state during ASA.
+
+* Bogle, 10/9/12. Question re preconditioners based on Domain Decomposition.
+
+* Puech, 10/18/12. Question on libraries to specify.
+
+* Stickel, 10/19/12. KINSOL failed to stop on a negative ier return from user F.
+
+* Barnard, 10/31/12. Question on relative speeds of LAPACK vs CVDense/CVBand.
+
