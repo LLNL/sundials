@@ -4,7 +4,6 @@
             Alan Hindmarsh, Radu Serban, Carol Woodward
            Center for Applied Scientific Computing, LLNL
 
-
 The family of solvers referred to as SUNDIALS consists of the following solvers:
  CVODE  - for integration of ordinary differential equation systems (ODEs)
           CVODE treats stiff and nonstiff ODE systems of the form
