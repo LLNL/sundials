@@ -1,10 +1,10 @@
 To Do List for SUNDIALS, as of 11/16/12
 
 Develop a set of unit tests for the vector kernel operations.  This 
-set of tests should be somethign a user could employ to verify 
-their own vector kernel is correct.  (Of course, ours shoudl pass these
+set of tests should be something a user could employ to verify 
+their own vector kernel is correct.  (Of course, ours should pass these
 tests!)
 
 Make build system handling of examples consistent.  Right now, distclean
 does not remove compiled examples.  Also, the install builds an examples
-directory, but the executabels are not copied there.
+directory, but the executables are not copied there.
