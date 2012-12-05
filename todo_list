@@ -8,3 +8,8 @@ tests!)
 Make build system handling of examples consistent.  Right now, distclean
 does not remove compiled examples.  Also, the install builds an examples
 directory, but the executables are not copied there.
+
+Verify output of examples used in new testing system are indeed correct.
+As part of this we probably should tighten absolute tolerances on Krylov
+example codes as there is a good bit of variation on consecutive parallel runs
+and even between systems.  Maybe try abstol = 10^-6?
