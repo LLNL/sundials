@@ -1,4 +1,4 @@
-Unresolved User Complaints as of 11/14/12
+Unresolved User Complaints as of 12/5/12
 
 * Jourdan, 3/29/10. Problems with FCVODE -- related to N type.
   May be OK now, or may still be a problem on 64-bit machines.
@@ -72,4 +72,17 @@ Unresolved User Complaints as of 11/14/12
 * Stickel, 10/19/12. KINSOL failed to stop on a negative ier return from user F.
 
 * Barnard, 10/31/12. Question on relative speeds of LAPACK vs CVDense/CVBand.
+
+* Margolis, 11/17/12. Claims CVode gave ewt <= 0 return even though all abstol > 0.
+
+* Kharche, 11/19/12. Claims CVODE gives solution with wrong sign.
+
+* Nakhimovski, 11/26/12. Claims our CMake files need changes to build Sundials
+  under Windows 7 with Visual Studio.
+
+* Nakhimovski, 11/26/12. Asks for guidelines on KINSOL tolerance inputs.
+
+* Andersson, 12/4/12.  Bad choice of names for IDACalcICB arguments yB0, ypB0.
+
+* Todorovski, 12/5/12. Asks for suggestions on CVODE/Java integration.
 
