@@ -62,6 +62,7 @@ Unresolved User Complaints as of 12/5/12
 * Bogle, 10/5/12. Claims typo on config/SundialsMPIC.cmake.
 
 * Ollivier, 10/8/12. cvRoberts_dns failed to load without BLAS/LAPACK.
+  Must be a bug somewhere in build files.
 
 * Nsing, 10/9/12. How to preserve CVODE forward state during ASA.
 
