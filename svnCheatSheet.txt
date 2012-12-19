@@ -1,0 +1,101 @@
+
+               Cheat Sheet for SVN - 19 December 2012
+
+
+1 . For the initial checkout of entire SUNDIALS, do
+     'svn checkout file:///usr/casc/sundials/svnrepo/trunk sundials'
+
+2.  svn checkout sundials/...
+     Checkout any part of current sundials repository.
+     Rename existing directory or SVN files to avoid an overwrite.
+     Existing files with non-SVN names will remain unaffected.
+
+3.  svn diff file
+     Do this at any point to get the differences between the local file
+     and the SVN repository version.  Lines marked "-" and "+" show
+     old and new versions, resp.
+
+4.  svn diff -r 3740:3746 user_issues
+     show differences of version 3740 compared with version 3746 of file user_issues
+
+5.  svn diff -r 3740:3746 examples
+     show all the differences (between revision 3740 and 3746) in examples directory
+
+6.  svn diff -r 3740:3746 .
+     Use '.' to to show difference in current directory
+
+7.  svn diff -c 3746 user_issues
+     Show changes made to file: user_issues for specific commit
+
+8.  svn status 
+     Gives listing of new files (denoted with ?), modified files (M), and deleted files (D).
+     New files or deleted files must be added or removed using the add and delete commands.
+     Files that have been added, but not yet commited, are denoted with an 'A'.
+
+9.  After modifying a file or files, do: svn commit file  OR
+     svn commit file1 file2 ...  to renew it in SVN.  Do this within
+     the subdirectory containing the file or files.  Alternatively, do
+     svn commit sundials/.../file (one file at a time) from top level.
+     This gives an emacs window in which to enter comments on the revision.
+     Enter comments, then do 'Ctrl-S Ctrl-C' to exit.
+
+     You will notice that when you commit a file the revision of the repo is incremented.
+     But your local copy is NOT. So when you commit, you should follow up with an
+     svn update which will simply update the revision of your local copy.
+
+     The typical commit procedure is:
+      1) update your local copy to ensure you have the latest changes from the repository
+      2) test your changes for desired results (and to ensure all still works)
+      3) commit your changes
+      4) update your local copy to 'update' your local revision number 
+
+10.  svn log file
+     Gives a revision history on file.
+
+11.  svn info
+     Show revision of local working copy along with the repository
+     root to which you are connected.
+
+12.  svn info file:///usr/casc/sundials/svnrepo/trunk
+     Shows revision of trunk project in repository
+
+13.  svn list -v
+      Verbose list of contents of svn directory showing commit revision
+      and owner and date.
+
+14.  svn list -v file:///usr/casc/sundials/svnrepo/trunk
+      List contents of sundials project in repository
+
+15.  svn add file_or_dir_name
+      When you add a new file or directory to a project that has been checked out
+      you must tell Subversion to include that file or directory in its version control.
+      After adding to version control, the addition can be commited to repository.
+
+16.  svn delete file_or_dir_name
+      Remove a file or directory from versioning. Must still commit to reflect the deletetion
+      in the repository. Note: previous revisions will retain the file or directory. 
+
+17.  For documents, enter into SVN:
+     (a) the source files (*.tex) needed, and
+     (b) the *.eps files for figures required.
+     Do not enter the .ps or .pdf files.  But in local directory, keep the
+     *.pdf files for use in the website and for making tar-files for
+     distribution, as called for by the tar-script.
+     When replacing a figure .eps file, remove the old one, then add the
+     new one, to avoid creation of a large diff file. (Best to always keep the old - 
+     if you don't want the file treated as a text file - then file can be marked as
+     binary to avoid merges and diffs).
+
+18.  svn update OR svn update sundials/...
+     Do this each time I do a new development or testing in my local space,
+     to update all local files that are out of date.  If old versions are
+     needed, do a copy first.  This does NOT get files that were newly
+     added to the structure.  Updated files are listed with a label U.
+     NOTE: If present local copy clashes with repository (older) version,
+     'svn update' will produce a changed version (marked C) with clashes
+     delimited by <<<<< and >>>>> lines. To be safe, rename the file and do
+     a fresh update of it.
+
+19. svn rename file_or_dir_name
+      Renames file or directory. Commit will update the next revision in the repository
+      with the new file name. The previous revision will retain the old file name.
