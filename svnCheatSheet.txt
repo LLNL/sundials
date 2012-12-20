@@ -47,7 +47,7 @@
       1) update your local copy to ensure you have the latest changes from the repository
       2) test your changes for desired results (and to ensure all still works)
       3) commit your changes
-      4) update your local copy to 'update' your local revision number 
+      4) do 'svn update' at the top level to 'update' your local revision number 
 
 10.  svn log file
      Gives a revision history on file.
