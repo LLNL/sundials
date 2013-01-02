@@ -13,3 +13,10 @@ Verify output of examples used in new testing system are indeed correct.
 As part of this we probably should tighten absolute tolerances on Krylov
 example codes as there is a good bit of variation on consecutive parallel runs
 and even between systems.  Maybe try abstol = 10^-6?
+
+(CSW, 1/2/13)  
+Provide better guidance as to exactly what the from of the Jacobian is
+for use adding a new linear solver.  Math considerations in IDA indicates
+teh Jacobian is dF/dy + alpha dF/dydot.  But, alpha is not defined and
+cj is teh variable in the IDA structures that the user needs for this.
+CVODE likely also has similar disconect but I did nto check this.  
