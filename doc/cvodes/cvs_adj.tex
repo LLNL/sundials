@@ -1021,7 +1021,7 @@ has not been called, or \Id{CV\_ILL\_INPUT} if \id{which} was an invalid identif
 \index{optional input!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional input|(}
 Optional inputs for the {\cvdense} linear solver module can be set for the backward
-problem through the following function:
+problem through the following two functions:
 %%
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \ucfunction{CVDlsSetDenseJacFnB}
@@ -1063,13 +1063,55 @@ problem through the following function:
 }
 \index{CVDENSE@{\cvdense} linear solver!optional input|)}
 \index{optional input!dense linear solver|)}
+%%
+\index{Jacobian approximation function!dense!user-supplied (backward)}
+\ucfunction{CVDlsSetDenseJacFnBS}
+{
+  flag = CVDlsSetDenseJacFnBS(cvode\_mem, which, jacBS);
+}
+{
+  The function \ID{CVDlsSetDenseJacFnBS} specifies the dense Jacobian
+  approximation function to be used for the backward problem, in the
+  case where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem.
+  \item[jacBS] (\id{CVDlsDenseJacFnBS})
+    user-defined dense Jacobian approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVDLS\_ILL\_INPUT]
+  \item[\Id{CVDLS\_SUCCESS}] 
+    \id{CVDlsSetDenseJacFnBS} succeeded.
+  \item[\Id{CVDLS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVDLS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVDLS\_LMEM\_NULL}]
+    The linear solver has not been initialized with a call to \id{CVDenseB}
+    or \id{CVLapackDenseB}.
+  \item[\Id{CVDLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{CVDlsDenseJacFnBS} is described in \S\ref{ss:densejac_b}.
+}
+\index{CVDENSE@{\cvdense} linear solver!optional input|)}
+\index{optional input!dense linear solver|)}
 
 
 \subsubsection{Band linear solver}
 \index{optional input!band linear solver|(}
 \index{CVBAND@{\cvband} linear solver!optional input|(}
 Optional inputs for the {\cvband} linear solver module can be set for the backward
-problem through the following function:
+problem through the following two functions:
 %%
 \index{Jacobian approximation function!band!user-supplied (backward)}
 \ucfunction{CVDlsSetBandJacFnB}
@@ -1111,6 +1153,49 @@ problem through the following function:
 }
 \index{CVBAND@{\cvband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
+%%
+\index{Jacobian approximation function!band!user-supplied (backward)}
+\ucfunction{CVDlsSetBandJacFnBS}
+{
+  flag = CVDlsSetBandJacFnBS(cvode\_mem, which, jacBS);
+}
+{
+  The function \ID{CVDlsSetBandJacFnBS} specifies the banded Jacobian
+  approximation function to be used for the backward problem, in the
+  case where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem.
+  \item[jacBS] (\id{CVDlsBandJacFnBS})
+    user-defined banded Jacobian approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVDLS\_ILL\_INPUT]
+  \item[\Id{CVDLS\_SUCCESS}] 
+    \id{CVDlsSetBandJacFnBS} succeeded.
+  \item[\Id{CVDLS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVDLS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVDLS\_LMEM\_NULL}]
+    The linear solver has not been initialized with a call to \id{CVBandB}
+    or \id{CVLapackBandB}.
+  \item[\Id{CVDLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{CVDlsBandJacFnBS} is described in \S\ref{ss:bandjac_b}.
+}
+\index{CVBAND@{\cvband} linear solver!optional input|)}
+\index{optional input!band linear solver|)}
+
 
 \subsubsection{SPILS linear solvers}
 \index{optional input!iterative linear solver|(}
@@ -1942,9 +2027,10 @@ The user must provide an \id{fQBS} function of type \ID{CVQuadRhsFnBS} defined b
   (direct method with dense Jacobian)}\label{ss:densejac_b}
   
 If the direct linear solver with dense treatment of the Jacobian is selected
-for the backward problem (i.e. \Id{CVDenseB} or \Id{CVLapackDenseB} is called in step \ref{i:lin_solverB} 
-of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSetDenseJacFnB}
-(see \S\ref{ss:optional_input_b}), a function of the following type:
+for the backward problem (i.e. \Id{CVDenseB} or \Id{CVLapackDenseB} is called in 
+step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), the user may provide, 
+through a call to \id{CVDlsSetDenseJacFnB} or \id{CVDlsSetDenseJacFnBS}
+(see \S\ref{ss:optional_input_b}), a function of one of the following two types:
 %%
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{CVDlsDenseJacFnB}
@@ -2008,6 +2094,73 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
   (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} to 
   \Id{CVDLS\_JACFUNC\_UNRECVR}).
 }
+%%
+\index{Jacobian approximation function!dense!user-supplied (backward)}
+\usfunction{CVDlsDenseJacFnBS}
+{
+  typedef int (*CVDlsDenseJacFnBS)(&long int NeqB, realtype t, N\_Vector y, \\
+                                 &N\_Vector *yS, N\_Vector yB, N\_Vector fyB, \\
+                                 &DlsMat JacB, void *user\_dataB, \\
+                                 &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                                 &N\_Vector tmp3B);
+}
+{
+  This function computes the dense Jacobian of the backward problem (or an
+  approximation to it), in the case where the backward problem depends on the
+  forward sensitivities.
+}
+{
+  \begin{args}[user\_dataB]
+  \item[NeqB]
+    is the backward problem size (number of equations).
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yS]
+    a pointer to an array of \id{Ns} vectors containing the sensitivities
+    of the forward solution.
+  \item[yB]
+    is the current value of the backward dependent variable vector.
+  \item[fyB]
+    is the current value of the backward right-hand side function $f_B$.
+  \item[JacB]
+    is the output approximate dense Jacobian matrix.
+  \item[user\_dataB]
+    is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}. 
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated  for variables of type \id{N\_Vector} which 
+    can be used by \id{CVDlsDenseJacFnB} as temporary storage or work space.    
+  \end{args}
+}
+{
+  A \id{CVDlsDenseJacFnBS} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvodes} will attempt to correct, while {\cvdense} sets
+  \id{last\_flag} to \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted, \id{CVodeB}
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} to 
+  \Id{CVDLS\_JACFUNC\_UNRECVR}).
+}
+{
+  A user-supplied dense Jacobian function must load the \id{NeqB} by \id{NeqB}
+  dense matrix \id{JacB} with an approximation to the Jacobian matrix at the point 
+  (\id{t},\id{y},\id{yS},\id{yB}), where \id{y} is the solution of the original
+  IVP at time \id{tt}, \id{yS} is the vector of forward sensitivities at time \id{tt},
+  and \id{yB} is the solution of the backward problem at the same time.
+  Only nonzero elements need to be loaded into \id{JacB} as this matrix 
+  is set to zero before the call to the Jacobian function. 
+  The type of \id{JacB} is \Id{DlsMat}. The user is referred to 
+  \S\ref{ss:djacFn} for details regarding accessing a \id{DlsMat} object.
+
+  {\warn}Before calling the user's \id{CVDlsDenseJacFnB}, {\cvodes} needs to evaluate
+  (through interpolation) the values of the states from the forward integration. 
+  If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
+  failure in the Jacobian function which will halt the integration
+  (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} to 
+  \Id{CVDLS\_JACFUNC\_UNRECVR}).
+}
 
 %%-------------------------------------------------------------------------------------
 \subsection{Jacobian information for the backward problem
@@ -2016,14 +2169,14 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDlsSe
 If the direct linear solver with banded treatment of the Jacobian is selected
 for the backward problem (i.e. \Id{CVBandB} or \Id{CVLapackBandB} is called in
 step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), the user may provide,
-through a call to \id{CVDlsSetBandJacFnB} (see \S\ref{ss:optional_input_b}),
-a function the following type:
+through a call to \id{CVDlsSetBandJacFnB} or \id{CVDlsSetBandJacFnBS}
+(see \S\ref{ss:optional_input_b}), a function of one of the following two types:
 %%
 \usfunction{CVDlsBandJacFnB}
 {
  typedef int (*CVDlsBandJacFnB)(&long int NeqB,\\
                              &long int mupperB, long int mlowerB,\\
-                             &realtype t, N\_Vector y \\
+                             &realtype t, N\_Vector y, \\
                              &N\_Vector yB, N\_Vector fyB, \\
                              &DlsMat JacB, void *user\_dataB, \\
                              &N\_Vector tmp1B, N\_Vector tmp2B, \\
@@ -2080,6 +2233,79 @@ a function the following type:
   of type \id{CVDlsBandJacFnB} are given in \S\ref{ss:bjacFn}.
 
   {\warn}Before calling the user's \id{CVDlsBandJacFnB}, {\cvodes} needs to evaluate
+  (through interpolation) the values of the states from the forward integration. 
+  If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
+  failure in the Jacobian function which will halt the integration
+  (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvband} sets \id{last\_flag} to
+  \Id{CVDLS\_JACFUNC\_UNRECVR}).
+}
+%%
+\usfunction{CVDlsBandJacFnBS}
+{
+ typedef int (*CVDlsBandJacFnBS)(&long int NeqB,\\
+                             &long int mupperB, long int mlowerB,\\
+                             &realtype t, N\_Vector y, N\_Vector *yS,\\
+                             &N\_Vector yB, N\_Vector fyB, \\
+                             &DlsMat JacB, void *user\_dataB, \\
+                             &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                             &N\_Vector tmp3B);
+}
+{
+  This function computes the banded Jacobian of the backward problem
+  (or a banded approximation to it), in the case where the backward problem
+  depends on the forward sensitivities.
+}
+{
+  \begin{args}[user\_dataB]
+  \item[NeqB]
+    is the backward problem size.
+  \item[mlowerB]
+  \item[mupperB]
+    are the lower and upper half-bandwidth of the Jacobian.
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yS]
+    a pointer to an array of \id{Ns} vectors containing the sensitivities
+    of the forward solution.
+  \item[yB]
+    is the current value of the backward dependent variable vector.
+  \item[fyB]
+    is the current value of the backward right-hand side function $f_B$.
+  \item[JacB]
+    is the output approximate band Jacobian matrix. 
+  \item[user\_dataB]
+    is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}. 
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated  for variables of type \id{N\_Vector} which 
+    can be used by \id{CVDlsBandJacFnB} as temporary storage or work space.    
+  \end{args}
+}
+{
+  A \id{CVDlsBandJacFnBS} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvodes} will attempt to correct, while {\cvband} sets
+  \id{last\_flag} to \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted, \id{CVodeB}
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} to 
+  \Id{CVDLS\_JACFUNC\_UNRECVR}).
+}
+{
+  A user-supplied band Jacobian function must load the band matrix \id{JacB}
+  (of type \Id{DlsMat}) with the elements of the Jacobian at the
+  point (\id{t},\id{y},\id{yS},\id{yB}), where \id{y} is the solution
+  of the original IVP at time \id{tt}, \id{yS} is the vector of forward
+  sensitivities at time \id{tt}, and \id{yB} is the solution of the
+  backward problem at the same time.  
+  Only nonzero elements need to be loaded into
+  \id{JacB} because \id{JacB} is preset to zero before the call to the
+  Jacobian function. More details on the accessor macros provided for
+  a \id{DlsMat} object and on the rest of the arguments passed to a function
+  of type \id{CVDlsBandJacFnBS} are given in \S\ref{ss:bjacFn}.
+
+  {\warn}Before calling the user's \id{CVDlsBandJacFnBS}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
   If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
