@@ -40,12 +40,12 @@ nvec_serial.tex \
 sun_org.tex \
 types.tex \
 ug.tex \
-#ug_html.tex \
 biblio.bib \
 bandmat.eps \
 sunorg1.eps \
 sunorg2.eps \
 doc_logo.eps \
+#ug_html.tex \
 #processHTML
 
 EX_FILES = \
@@ -57,8 +57,8 @@ ida_ex_codes.tex
 
 EX_SHARED_FILES = \
 ug.tex \
-#ug_html.tex \
 biblio.bib \
+#ug_html.tex \
 #processHTML
 
 #HTML_BUTTONS =\
