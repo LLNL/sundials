@@ -123,7 +123,9 @@ typedef struct CVDlsMemRecB {
   int d_typeB;
 
   CVDlsDenseJacFnB d_djacB;
+  CVDlsDenseJacFnBS d_djacBS;
   CVDlsBandJacFnB d_bjacB;
+  CVDlsBandJacFnBS d_bjacBS;
 
 } *CVDlsMemB;
 
