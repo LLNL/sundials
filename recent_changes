@@ -1,0 +1,80 @@
+Modifications to SUNDIALS after 22 March 2012 Release - as of 9 January 2013
+
+Note: Some of these modifications are actually accessible by the
+public by way of updates to the website after 3/22/12.
+
+
+1. In top level README file, changed release date from January to March 2012.
+
+2. In top level file Makefile.in, changed top_builddir = @top_builddir@
+   to top_builddir = @builddir@ to correct installation failures.
+
+3. Updated top-level file configure.ac with new version number.
+
+4.(a) Added file /sundialsTB/doc/html_files/stb_template/graph.tpl
+      from Radu's template directory.
+  (b) Added directory /sundialsTB/doc/tex_files/stb_template, and added to it
+      files graph.tpl, m2tex.tex, master.tpl, mdir.tpl, mfile.tpl, todo.tpl
+      (from Radu's directory), for use in making sundialsTB.ps.
+  (c) Added file /sundialsTB/doc/README_texdoc, with instructions on using m2html
+      and supplied templates to generate sundialsTB.ps.
+  (d) Added file /doc/texi2dvi, as it no longer seems to be in the casc
+      LaTex install.
+
+5. In each file /doc/<solver>/Makefile, commented out lines generating
+   html files, and cp of .ps files to html/.
+
+6. Files /html/main.html, /html/documentation/documentation.html,
+   /html/download/download.html, /html/support/support.html modified
+   by Laura Schulz for 3/22/12 release.
+
+7. File /html/download/whatsnew.html modified by ACH for 3/22/12 release.
+
+8. In file /html/support/notes.html, changed 3 example names, removed
+   links to html sources, corrected related text.
+
+9. In files cvode.c, cvodes.c, ida.c, idas.c, corrected minor bug in
+   **Rootfind, where input rootdir was ignored. (From bug report by T. Bourke.)
+
+10.(a) In files /src/cvode/fcmix/{fcvbp.h, fcvbbd.h} removed/corrected
+       lines mentioning obsolete names FCVBPSP*** and FCVBBDSP**.
+   (b) In file /src/ida/fcmix/fidabbd.h, femoved comment lines mentioning
+       obsolete names FIDABBDSP***.
+   (c) In file /doc/ida/ida_fcmix.tex, removed/corrected lines
+       mentioning obsolete names FIDABBDSP***.
+
+11. In file cvodes.c, corrected line in CVodeQuadSensInit:
+    cv_mem->cv_fQS_data = ... (missing Q).
+
+12. In CVODES example cvsHessian_ASA_FSA.c, and output cvsHessian_ASA_FSA.out,
+    corrected error (y3 -> y2) in fB2, 3rd term of Ith(yBdot,6).  (From bug
+    report by N. Singer.)
+
+13. In KINSOL file kinsol_direct.c, function kinDlsBandDQJac, change
+    ABS(uscale_data[j])  to   ONE/ABS(uscale_data[j]) in 2 places setting inc.
+
+14. In doc file install.tex, (a) swapped A.1 (autotools) and A.2 (CMake);
+    (b) corrected warning about single prec. use: 32-bit systems.
+
+15. In 5 files ***_lapack.c, changed smu = MIN(N-1,mu+ml) to smu = mu+ml
+    to correct illegal input error for DGBTRF/DGBTRS.
+
+16. In KINSOL, function KINStop, corrected two return values to make
+    u = uu and F = fval values consistent.
+
+17. In CVODES and IDAS User Guides, Section 6.2.1,added paragraphs on
+    CVodeAdjReInit and IDAAdjReInit, respectively.
+
+18. (a) In CVODES and IDAS User Guides, Section 6.2.9,added paragraphs on
+    CVodeGetAdjY and IDAGetAdjY resp.
+    (b) In CVODES example cvsRoberts_ASAi_dns, revised output to include
+    use of CVodeGetAdjY. In CVODES Examples document, revised Sec. 3.1 to
+    describe new output.
+
+19. In CVODES, added an option in the ASA case with dense or banded Jacobian:
+    With a call to CVDlsSetDenseJacFnBS or CVDlsSetBandJacFnBS, the user
+    can specify a user-supplied Jacobian function of type CVDls***JacFnBS,
+    for the case where the backward problem depends on the forward
+    sensitivities.  (The IDAS analog will be added later.)
+
+    
