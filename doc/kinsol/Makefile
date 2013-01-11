@@ -116,11 +116,7 @@ copy_ug:
 	done
 
 kin_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
-	latex ${QUIET} kin_guide.tex
-	bibtex ${QUIET} kin_guide
-	latex ${QUIET} kin_guide.tex
-	latex ${QUIET} kin_guide.tex
-#	texi2dvi ${QUIET} kin_guide.tex
+	texi2dvi ${QUIET} kin_guide.tex
 
 kin_guide.ps: kin_guide.dvi
 	dvips ${QUIET} -Ppdf kin_guide
@@ -147,11 +143,7 @@ copy_ex:
 	done
 
 kin_examples.aux: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
-	latex ${QUIET} kin_examples.tex
-	bibtex ${QUIET} kin_examples
-	latex ${QUIET} kin_examples.tex
-	latex ${QUIET} kin_examples.tex
-#	texi2dvi ${QUIET} kin_examples.tex
+	texi2dvi ${QUIET} kin_examples.tex
 
 kin_examples.ps: kin_examples.dvi
 	dvips ${QUIET} -Ppdf kin_examples
