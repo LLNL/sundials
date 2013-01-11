@@ -211,9 +211,9 @@ if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
     if [ $doc = "T" ]; then
         echo -e "--- CVODE documentation"
         cd tmp_dir/doc/cvode
-        make QUIET=-q purge
-        make QUIET=-q ug_pdf
-        make QUIET=-q ex_pdf
+        make QUIET= purge
+        make QUIET= ug_pdf
+        make QUIET= ex_pdf
         cd - 
     fi
 fi
@@ -226,9 +226,9 @@ if [ $do_sundials = "T" -o $do_cvodes = "T" ]; then
     if [ $doc = "T" ]; then
         echo -e "--- CVODES documentation"
         cd tmp_dir/doc/cvodes
-        make QUIET=-q purge
-        make QUIET=-q ug_pdf
-        make QUIET=-q ex_pdf
+        make QUIET= purge
+        make QUIET= ug_pdf
+        make QUIET= ex_pdf
         cd -
     fi
 fi
@@ -241,9 +241,9 @@ if [ $do_sundials = "T" -o $do_ida = "T" ]; then
     if [ $doc = "T" ]; then
         echo -e "--- IDA documentation"
         cd tmp_dir/doc/ida
-        make QUIET=-q purge
-        make QUIET=-q ug_pdf
-        make QUIET=-q ex_pdf
+        make QUIET= purge
+        make QUIET= ug_pdf
+        make QUIET= ex_pdf
         cd -
     fi
 fi
@@ -256,9 +256,9 @@ if [ $do_sundials = "T" -o $do_idas = "T" ]; then
     if [ $doc = "T" ]; then
         echo -e "--- IDAS documentation"
         cd tmp_dir/doc/idas
-        make QUIET=-q purge
-        make QUIET=-q ug_pdf
-        make QUIET=-q ex_pdf
+        make QUIET= purge
+        make QUIET= ug_pdf
+        make QUIET= ex_pdf
         cd -
     fi
 fi
@@ -271,9 +271,9 @@ if [ $do_sundials = "T" -o $do_kinsol = "T" ]; then
     if [ $doc = "T" ]; then
         echo -e "--- KINSOL documentation"
         cd tmp_dir/doc/kinsol
-        make QUIET=-q purge
-        make QUIET=-q ug_pdf
-        make QUIET=-q ex_pdf
+        make QUIET= purge
+        make QUIET= ug_pdf
+        make QUIET= ex_pdf
         cd -
     fi
 fi
@@ -383,7 +383,7 @@ fi
 
 rm -rf $distrobase
 
-du -h *.tar.gz
+#du -h *.tar.gz
 
 exit 1
 
