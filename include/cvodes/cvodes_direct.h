@@ -381,8 +381,8 @@ typedef int (*CVDlsBandJacFnBS)(long int nB, long int mupperB, long int mlowerB,
  * -----------------------------------------------------------------
  * CVDlsSetDenseJacFnB and CVDlsSetBandJacFnB specify the dense and
  * band Jacobian functions, respectively, to be used by a
- * CVSDIRECT linear solver for the bacward integration phase, when
- * the backward problem does not depend on sensitivities.
+ * CVSDIRECT linear solver for the backward integration phase, when
+ * the backward problem does not depend on forward sensitivities.
  * CVDlsSetDenseJacFnBS and CVDlsSetBandJacFnBS specify the Jacobian
  * functions when the backward problem does depend on sensitivities.
  * -----------------------------------------------------------------
