@@ -333,6 +333,24 @@ typedef int (*IDADlsDenseJacFnB)(long int NeqB, realtype tt, realtype c_jB,
 
 /*
  * -----------------------------------------------------------------
+ * Type: IDADlsDenseJacFnBS
+ * -----------------------------------------------------------------
+ * A dense Jacobian approximation function JacBS for the adjoint
+ * (backward) problem, sensitivity-dependent case, must have the
+ *  prototype given below. 
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*IDADlsDenseJacFnBS)(long int NeqB, realtype tt, realtype c_jB, 
+				 N_Vector yy, N_Vector yp,
+				 N_Vector *yS, N_Vector *ypS,
+				 N_Vector yyB, N_Vector ypB, N_Vector rrB,
+				 DlsMat JacB, void *user_dataB, 
+				 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+
+
+/*
+ * -----------------------------------------------------------------
  * Type : IDADlsBandJacFnB
  * -----------------------------------------------------------------
  * A band Jacobian approximation function JacB for the adjoint 
@@ -349,22 +367,46 @@ typedef int (*IDADlsBandJacFnB)(long int NeqB, long int mupperB, long int mlower
   
 /*
  * -----------------------------------------------------------------
+ * Type : IDADlsBandJacFnBS
+ * -----------------------------------------------------------------
+ * A band Jacobian approximation function JacBS for the adjoint 
+ * (backward) problem, sensitivity-dependent case, must have the
+ *  prototype given below. 
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*IDADlsBandJacFnBS)(long int NeqB, long int mupperB, long int mlowerB, 
+				realtype tt, realtype c_jB, 
+				N_Vector yy, N_Vector yp,
+				N_Vector *yS, N_Vector *ypS,
+				N_Vector yyB, N_Vector ypB, N_Vector rrB,
+				DlsMat JacB, void *user_dataB,
+				N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+  
+/*
+ * -----------------------------------------------------------------
  * EXPORTED FUNCTIONS 
  * -----------------------------------------------------------------
  */
 
 /*
- * -----------------------------------------------------------------
- * Functions: IDADlsSetJacFnB
- * -----------------------------------------------------------------
+ * --------------------------------------------------------------------
+ * Functions: IDADlsSet*JacFnB and IDADlsSet*JacFnBS
+ * --------------------------------------------------------------------
  * IDADlsSetDenseJacFnB and IDADlsSetBandJacFnB specify the dense
- * and band, respectively, Jacobian functions to be used by a
- * IDASDIRECT linear solver for the bacward integration phase.
- * -----------------------------------------------------------------
+ * and band Jacobian functions, respectively, to be used by a
+ * IDASDIRECT linear solver for the backward integration phase, when
+ * the backward problem does not depend on forward sensitivities.
+ * IDADlsSetDenseJacFnBS and IDADlsSetBandJacFnBS specify the Jacobian
+ * functions when the backward problem does depend on sensitivities.
+ * --------------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT int IDADlsSetDenseJacFnB(void *ida_mem, int which, IDADlsDenseJacFnB jacB);
+SUNDIALS_EXPORT int IDADlsSetDenseJacFnBS(void *ida_mem, int which, IDADlsDenseJacFnBS jacBS);
+
 SUNDIALS_EXPORT int IDADlsSetBandJacFnB(void *idaa_mem, int which, IDADlsBandJacFnB jacB);
+SUNDIALS_EXPORT int IDADlsSetBandJacFnBS(void *idaa_mem, int which, IDADlsBandJacFnBS jacBS);
 
 
 #ifdef __cplusplus
