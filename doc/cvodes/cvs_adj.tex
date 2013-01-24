@@ -2132,7 +2132,7 @@ through a call to \id{CVDlsSetDenseJacFnB} or \id{CVDlsSetDenseJacFnBS}
   \item[tmp2B]
   \item[tmp3B]
     are pointers to memory allocated  for variables of type \id{N\_Vector} which 
-    can be used by \id{CVDlsDenseJacFnB} as temporary storage or work space.    
+    can be used by \id{CVDlsDenseJacFnBS} as temporary storage or work space.    
   \end{args}
 }
 {
@@ -2154,7 +2154,7 @@ through a call to \id{CVDlsSetDenseJacFnB} or \id{CVDlsSetDenseJacFnBS}
   The type of \id{JacB} is \Id{DlsMat}. The user is referred to 
   \S\ref{ss:djacFn} for details regarding accessing a \id{DlsMat} object.
 
-  {\warn}Before calling the user's \id{CVDlsDenseJacFnB}, {\cvodes} needs to evaluate
+  {\warn}Before calling the user's \id{CVDlsDenseJacFnBS}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
   If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
