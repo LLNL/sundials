@@ -108,7 +108,9 @@ typedef struct IDADlsMemRecB {
   int d_typeB;
 
   IDADlsDenseJacFnB d_djacB;
-  IDADlsBandJacFnB  d_bjacB;
+  IDADlsDenseJacFnBS d_djacBS;
+  IDADlsBandJacFnB d_bjacB;
+  IDADlsBandJacFnBS d_bjacBS;
 
 } *IDADlsMemB;
 
