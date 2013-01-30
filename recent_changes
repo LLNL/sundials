@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 9 January 2013
+Modifications to SUNDIALS after 22 March 2012 Release - as of 30 January 2013
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -75,6 +75,15 @@ public by way of updates to the website after 3/22/12.
     With a call to CVDlsSetDenseJacFnBS or CVDlsSetBandJacFnBS, the user
     can specify a user-supplied Jacobian function of type CVDls***JacFnBS,
     for the case where the backward problem depends on the forward
-    sensitivities.  (The IDAS analog will be added later.)
+    sensitivities.
 
-    
+20. In each doc/***, fixed bug in Makefile: in each shared-file list, moved
+    commented lines to bottom of list.  (Fixes item 5 above.)
+
+21. Added option in IDAS corresponding to CVODES addition above:
+    In IDAS, added an option in the ASA case with dense or banded Jacobian:
+    With a call to IDADlsSetDenseJacFnBS or IDADlsSetBandJacFnBS, the user
+    can specify a user-supplied Jacobian function of type IDADls***JacFnBS,
+    for the case where the backward problem depends on the forward
+    sensitivities.
+
