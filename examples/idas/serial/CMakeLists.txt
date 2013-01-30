@@ -15,6 +15,7 @@
 # Add variable IDAS_examples with the names of the serial IDAS examples
 
 SET(IDAS_examples
+  idasRoberts_sps
   idasAkzoNob_ASAi_dns
   idasAkzoNob_dns
   idasFoodWeb_bnd

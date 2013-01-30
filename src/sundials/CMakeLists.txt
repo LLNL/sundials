@@ -25,6 +25,7 @@ SET(sundials_HEADERS
   sundials_math.h
   sundials_nvector.h
   sundials_fnvector.h
+  sundials_sparse.h
   sundials_spbcgs.h
   sundials_spgmr.h
   sundials_sptfqmr.h

@@ -23,10 +23,12 @@ SET(idas_SOURCES
   idas_direct.c
   idas_band.c
   idas_dense.c
+  idas_sparse.c
   idas_spils.c
   idas_spbcgs.c
   idas_spgmr.c
   idas_sptfqmr.c
+  idas_superlumt.c
   idas_bbdpre.c
   )
 
@@ -39,6 +41,7 @@ SET(shared_SOURCES
   sundials_band.c
   sundials_dense.c
   sundials_iterative.c
+  sundials_sparse.c
   sundials_spbcgs.c
   sundials_spgmr.c
   sundials_sptfqmr.c
@@ -54,10 +57,12 @@ SET(idas_HEADERS
   idas_dense.h
   idas_direct.h
   idas.h
+  idas_sparse.h
   idas_spbcgs.h
   idas_spgmr.h
   idas_spils.h
   idas_sptfqmr.h
+  idas_superlumt.h
   )
 
 # Add prefix with complete path to the IDAS header files
