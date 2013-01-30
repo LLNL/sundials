@@ -1157,7 +1157,7 @@ has not been called, or \Id{IDA\_ILL\_INPUT} if \id{which} was an invalid identi
 \index{optional input!dense linear solver|(}
 \index{IDADENSE@{\idadense} linear solver!optional input|(}
 Optional inputs for the {\idadense} linear solver module can be set for the backward
-problem through the following function:
+problem through the following two functions:
 %%
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \ucfunction{IDADlsSetDenseJacFnB}
@@ -1197,6 +1197,49 @@ problem through the following function:
 {
   The function type \id{IDADlsDenseJacFnB} is described in \S\ref{ss:densejac_b}.
 }
+
+\index{IDADENSE@{\idadense} linear solver!optional input|)}
+\index{optional input!dense linear solver|)}
+
+\index{Jacobian approximation function!dense!user-supplied (backward)}
+\ucfunction{IDADlsSetDenseJacFnBS}
+{
+  flag = IDADlsSetDenseJacFnBS(ida\_mem, which, jacBS);
+}
+{
+  The function \ID{IDADlsSetDenseJacFnBS} specifies the dense Jacobian
+  approximation function to be used for the backward problem, in the case
+  where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory returned by \id{IDACreate}.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem.
+  \item[jacBS] (\id{IDADlsDenseJacFnBS})
+    user-defined dense Jacobian approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDADLS\_ILL\_INPUT]
+  \item[\Id{IDADLS\_SUCCESS}] 
+    \id{IDADlsSetDenseJacFnBS} succeeded.
+  \item[\Id{IDADLS\_MEM\_NULL}]
+    The \id{ida\_mem} was \id{NULL}.
+  \item[\Id{IDADLS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDADLS\_LMEM\_NULL}]
+    The linear solver has not been initialized with a call to \id{IDADenseB}
+    or \id{IDALapackDenseB}.
+  \item[\Id{IDADLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{IDADlsDenseJacFnBS} is described in \S\ref{ss:densejac_b}.
+}
 \index{IDADENSE@{\idadense} linear solver!optional input|)}
 \index{optional input!dense linear solver|)}
 
@@ -1205,7 +1248,7 @@ problem through the following function:
 \index{optional input!band linear solver|(}
 \index{IDABAND@{\idaband} linear solver!optional input|(}
 Optional inputs for the {\idaband} linear solver module can be set for the backward
-problem through the following function:
+problem through the following two functions:
 %%
 \index{Jacobian approximation function!band!user-supplied (backward)}
 \ucfunction{IDADlsSetBandJacFnB}
@@ -1247,6 +1290,49 @@ problem through the following function:
 }
 \index{IDABAND@{\idaband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
+
+\index{Jacobian approximation function!band!user-supplied (backward)}
+\ucfunction{IDADlsSetBandJacFnBS}
+{
+  flag = IDADlsSetBandJacFnBS(ida\_mem, which, jacBS);
+}
+{
+  The function \ID{IDADlsSetBandJacFnBS} specifies the banded Jacobian
+  approximation function to be used for the backward problem, in the case
+  where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory returned by \id{IDACreate}.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem.
+  \item[jacBS] (\id{IDADlsBandJacFnBS})
+    user-defined banded Jacobian approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDADLS\_ILL\_INPUT]
+  \item[\Id{IDADLS\_SUCCESS}] 
+    \id{IDADlsSetBandJacFnBS} succeeded.
+  \item[\Id{IDADLS\_MEM\_NULL}]
+    The \id{ida\_mem} was \id{NULL}.
+  \item[\Id{IDADLS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDADLS\_LMEM\_NULL}]
+    The linear solver has not been initialized with a call to \id{IDABandB} or
+    \id{IDALapackBandB}.
+  \item[\Id{IDADLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{IDADlsBandJacFnBS} is described in \S\ref{ss:bandjac_b}.
+}
+\index{IDABAND@{\idaband} linear solver!optional input|)}
+\index{optional input!band linear solver|)}
+
 
 \subsubsection{SPILS linear solvers}
 \index{optional input!iterative linear solver|(}
@@ -1939,8 +2025,8 @@ The user must provide a \id{resBS} function of type \ID{IDAResFnBS} defined as f
     a pointer to an array of \id{Ns} vectors containing the sensitivities of 
     the forward solution.
   \item[ypS]
-    a pointer to an array of \id{Ns} vectors containing the sensitivities of 
-    the forward derivative solution.
+    a pointer to an array of \id{Ns} vectors containing the derivatives of 
+    the forward sensitivities.
   \item[yB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
@@ -2121,9 +2207,10 @@ The user must provide an \id{fQBS} function of type \ID{IDAQuadRhsFnBS} defined 
   (direct method with dense Jacobian)}\label{ss:densejac_b}
   
 If the direct linear solver with dense treatment of the Jacobian is selected
-for the backward problem (i.e. \Id{IDADenseB} or \Id{IDALapackDenseB} is called in step \ref{i:lin_solverB} 
-of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsSetDenseJacFnB}
-(see \S\ref{ss:optional_input_b}), a function of the following type:
+for the backward problem (i.e. \Id{IDADenseB} or \Id{IDALapackDenseB} is called
+in step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), the user may provide,
+through a call to \id{IDADlsSetDenseJacFnB} or \id{IDADlsSetDenseJacFnBS}
+(see \S\ref{ss:optional_input_b}), a function of one of the following two types:
 %%
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{IDADlsDenseJacFnB}
@@ -2197,14 +2284,97 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
   \Id{IDADLS\_JACFUNC\_UNRECVR}).
 }
 
+\index{Jacobian approximation function!dense!user-supplied (backward)}
+\usfunction{IDADlsDenseJacFnBS}
+{
+  typedef int (*IDADlsDenseJacFnBS)(&long int NeqB, realtype tt,\\
+                               &realtype cjB, N\_Vector yy, N\_Vector yp,\\
+                               &N\_Vector *yS, N\_Vector *ypS,\\
+                               &N\_Vector yyB, N\_Vector ypB,\\
+                               &N\_Vector resvalB,\\
+                               &DlsMat JacB, void *user\_dataB,\\
+                               &N\_Vector tmp1B, N\_Vector tmp2B,\\
+                               &N\_Vector tmp3B);
+}
+{
+  This function computes the dense Jacobian of the backward problem (or an
+  approximation to it), in the case where the backward problem depends on the
+  forward sensitivities.
+}
+{
+  \begin{args}[user\_dataB]
+  \item[NeqB]
+    is the backward problem size (number of equations).
+  \item[tt]
+    is the current value of the independent variable.
+  \item[cjB]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
+  \item[yy]
+    is the current value of the forward solution vector.
+  \item[yp]
+    is the current value of the forward derivative solution vector.
+  \item[yS]
+    a pointer to an array of \id{Ns} vectors containing the sensitivities
+    of the forward solution.
+  \item[ypS]
+    a pointer to an array of \id{Ns} vectors containing the derivatives
+    of the forward solution sensitivities.
+  \item[yyB]
+    is the current value of the backward dependent variable vector.
+  \item[ypB]
+    is the current value of the backward dependent derivative vector.
+  \item[resvalB]
+    is the current value of the residual for the backward problem.
+  \item[JacB]
+    is the output approximate dense Jacobian matrix.
+  \item[user\_dataB]
+    is a pointer to user data --- the parameter passed to \id{IDASetUserDataB}. 
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated  for variables of type \id{N\_Vector} which 
+    can be used by \id{IDADlsDenseJacFnBS} as temporary storage or work space.    
+  \end{args}
+}
+{
+  An \id{IDADlsDenseJacFnBS} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\idas} will attempt to correct, while {\idadense} sets
+  \id{last\_flag} to \Id{IDADLS\_JACFUNC\_RECVR}), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted, \id{IDASolveB}
+  returns \Id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} to 
+  \Id{IDADLS\_JACFUNC\_UNRECVR}).
+}
+{
+  A user-supplied dense Jacobian function must load the \id{NeqB} by \id{NeqB}
+  dense matrix \id{JacB} with an approximation to the Jacobian matrix
+  at the point (\id{tt},\id{yy},\id{yS},\id{yyB}), where \id{yy} is the solution
+  of the original IVP at time \id{tt}, \id{yS} is the array of forward sensitivities
+  at time \id{tt}, and \id{yyB} is the solution of the backward problem at the same time.
+  Only nonzero elements need to be loaded into \id{JacB} as this matrix 
+  is set to zero before the call to the Jacobian function. 
+  The type of \id{JacB} is \Id{DlsMat}. The user is referred to 
+  \S\ref{ss:djacFn} for details regarding accessing a \id{DlsMat} object.
+
+  {\warn}Before calling the user's \id{IDADlsDenseJacFnBS}, {\idas} needs to evaluate
+  (through interpolation) the values of the states from the forward integration. 
+  If an error occurs in the interpolation, {\idas} triggers an unrecoverable
+  failure in the Jacobian function which will halt the integration
+  (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} to 
+  \Id{IDADLS\_JACFUNC\_UNRECVR}).
+}
+
+
 %%-------------------------------------------------------------------------------------
 \subsection{Jacobian information for the backward problem
   (direct method with banded Jacobian)}\label{ss:bandjac_b}
 \index{Jacobian approximation function!band!user-supplied (backward)}
 If the direct linear solver with banded treatment of the Jacobian is selected
-for the backward problem (i.e. \Id{IDABandB} or \Id{IDALapackBandB} is called in step \ref{i:lin_solverB} 
-of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsSetBandJacFnB}
-(see \S\ref{ss:optional_input_b}), a function the following type:
+for the backward problem (i.e. \Id{IDABandB} or \Id{IDALapackBandB} is called in
+step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), the user may provide,
+through a call to \id{IDADlsSetBandJacFnB} or \id{IDADlsSetBandJacFnBS}
+(see \S\ref{ss:optional_input_b}), a function of one of the following
+two types:
 %%
 \usfunction{IDADlsBandJacFnB}
 {
@@ -2282,6 +2452,93 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{IDADlsS
   (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idaband} sets \id{last\_flag} to
   \Id{IDADLS\_JACFUNC\_UNRECVR}).
 }
+
+\usfunction{IDADlsBandJacFnBS}
+{
+ typedef int (*IDADlsBandJacFnBS)(&long int NeqB,\\
+                                 &long int mupperB, long int mlowerB,\\
+                                 &realtype tt, realtype cjB,\\
+                                 &N\_Vector yy, N\_Vector yp,\\
+                                 &N\_Vector *yS, N\_Vector *ypS,\\
+                                 &N\_Vector yyB, N\_Vector ypB,\\
+                                 &N\_Vector resvalB, DlsMat JacB,\\
+                                 &void *user\_dataB,\\
+                                 &N\_Vector tmp1B, N\_Vector tmp2B,\\
+                                 &N\_Vector tmp3B);
+}
+{
+  This function computes the banded Jacobian of the backward problem
+  (or a banded approximation to it), in the case where the backward problem
+  depends on the forward sensitivities.
+}
+{
+  \begin{args}[user\_dataB]
+  \item[NeqB]
+    is the backward problem size.
+  \item[mlowerB]
+  \item[mupperB]
+    are the lower and upper half-bandwidth of the Jacobian.
+  \item[tt]
+    is the current value of the independent variable.
+  \item[cjB]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
+  \item[yy]
+    is the current value of the forward solution vector.
+  \item[yp]
+    is the current value of the forward derivative solution vector.
+  \item[yS]
+    a pointer to an array of \id{Ns} vectors containing the sensitivities
+    of the forward solution.
+  \item[ypS]
+    a pointer to an array of \id{Ns} vectors containing the derivatives of the
+    forward sensitivities.
+  \item[yyB]
+    is the current value of the backward dependent variable vector.
+  \item[ypB]
+    is the current value of the backward dependent derivative vector.
+  \item[resvalB]
+    is the current value of the residual for the backward problem.
+  \item[JacB]
+    is the output approximate band Jacobian matrix. 
+  \item[user\_dataB]
+    is a pointer to user data --- the parameter passed to \id{IDASetUserDataB}. 
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated  for variables of type \id{N\_Vector} which 
+    can be used by \id{IDADlsBandJacFnBS} as temporary storage or work space.    
+  \end{args}
+}
+{
+  An \id{IDADlsBandJacFnBS} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\idas} will attempt to correct, while {\idaband} sets
+  \id{last\_flag} to \Id{IDADLS\_JACFUNC\_RECVR}), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted, \id{IDASolveB}
+  returns \Id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} to
+  \Id{IDADLS\_JACFUNC\_UNRECVR}).
+}
+{
+  A user-supplied band Jacobian function must load the band matrix \id{JacB}
+  (of type \Id{DlsMat}) with the elements of the Jacobian at the
+  point (\id{tt},\id{yy},\id{yS},\id{yyB}), where \id{yy} is the solution
+  of the original IVP at time \id{tt}, \id{yS} is the array of forward
+  sensitivities at time \id{tt}, and \id{yyB} is the solution of the
+  backward problem at the same time.  
+  Only nonzero elements need to be loaded into
+  \id{JacB} because \id{JacB} is preset to zero before the call to the
+  Jacobian function. More details on the accessor macros provided for
+  a \id{DlsMat} object and on the rest of the arguments passed to a function
+  of type \id{IDADlsBandJacFnBS} are given in \S\ref{ss:bjacFn}.
+
+  {\warn}Before calling the user's \id{IDADlsBandJacFnBS}, {\idas} needs to evaluate
+  (through interpolation) the values of the states from the forward integration. 
+  If an error occurs in the interpolation, {\idas} triggers an unrecoverable
+  failure in the Jacobian function which will halt the integration
+  (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idaband} sets \id{last\_flag} to
+  \Id{IDADLS\_JACFUNC\_UNRECVR}).
+}
+
 
 %%-------------------------------------------------------------------------------------
 \subsection{Jacobian information for the backward problem
