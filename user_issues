@@ -1,4 +1,4 @@
-Unresolved User Complaints as of 12/5/12
+Unresolved User Complaints as of 30 Jan. 2013
 
 * Jourdan, 3/29/10. Problems with FCVODE -- related to N type.
   May be OK now, or may still be a problem on 64-bit machines.
@@ -48,7 +48,7 @@ Unresolved User Complaints as of 12/5/12
   specified times, without doing any sensitivity analysis.  Awaiting more input.
   May be partly resolved with use of (newly found) CVodeGetAdjY.
 
-* Er, 7/11/12. Failure to install under Windows/Cmake.
+* Er, 7/14/12. Failure to install under Windows/Cmake.
 
 * Singer, 8/12/12.  In CVODES, there is no user dense/band Jacobian option
   (JacBS) with yS as an input argument (as in fBS).
@@ -62,7 +62,8 @@ Unresolved User Complaints as of 12/5/12
 * Bogle, 10/5/12. Claims typo on config/SundialsMPIC.cmake.
 
 * Ollivier, 10/8/12. cvRoberts_dns failed to load without BLAS/LAPACK.
-  Must be a bug somewhere in build files.
+  Bug in build files: By default, they add links to BLAS/LAPACK (if found).
+  Will change the default.
 
 * Nsing, 10/9/12. How to preserve CVODE forward state during ASA.
 
@@ -74,7 +75,7 @@ Unresolved User Complaints as of 12/5/12
 
 * Barnard, 10/31/12. Question on relative speeds of LAPACK vs CVDense/CVBand.
 
-* Margolis, 11/17/12. Claims CVode gave ewt <= 0 return even though all abstol > 0.
+* Margolis, 11/17/12. Claims CVode gave ewt<=0 return even though all abstol>0.
 
 * Kharche, 11/19/12. Claims CVODE gives solution with wrong sign.
 
@@ -86,4 +87,11 @@ Unresolved User Complaints as of 12/5/12
 * Andersson, 12/4/12.  Bad choice of names for IDACalcICB arguments yB0, ypB0.
 
 * Todorovski, 12/5/12. Asks for suggestions on CVODE/Java integration.
+
+* Reynolds, 12/6/12. Pointed out inconsistent argument list for FCVODE routines
+  FCV_SETIIN and FCV_SETRIN vs FKINSOL analogs.  The former have a 4th argument,
+  key_len, which is unnecessary (and never documented).
+
+* Malengier, 1/8/13.  Minor bug in CVODE etc. rootfinding: if root interval
+  size is below tolerance on entering rootsearch loop, a bad t value can result.
 
