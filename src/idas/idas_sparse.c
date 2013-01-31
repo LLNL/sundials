@@ -43,11 +43,15 @@
  * =================================================================
  */
 
-static int idaSlsSetSparseJacBWrapper(realtype tt, realtype c_jB,
-		    N_Vector yyB, N_Vector ypB, N_Vector rBr, 
-		    void *ida_mem,
-   		    int *m, int *n, int *nnz, double *a, int *asub, int *xa,
-		    N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+static int idaSlsSparseJacBWrapper(realtype tt, realtype c_jB,
+		            N_Vector yyB, N_Vector ypB, N_Vector rBr, 
+		            SlsMat JacMat, void *ida_mem,
+			    N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+
+static int idaSlsSparseJacBSWrapper(realtype tt, realtype c_jB,
+			      N_Vector yyB, N_Vector ypB, N_Vector rBr, 
+			      SlsMat JacMat, void *ida_mem,
+			      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 /* 
  * =================================================================
@@ -245,7 +249,65 @@ int IDASlsSetSparseJacFnB(void *ida_mem, int which, IDASlsSparseJacFnB jacB)
   idaslsB_mem->s_djacB = jacB;
 
   if (jacB != NULL) {
-    flag = IDASlsSetSparseJacFn(ida_memB, idaSlsSetSparseJacBWrapper);
+    flag = IDASlsSetSparseJacFn(ida_memB, idaSlsSparseJacBWrapper);
+  } else {
+    flag = IDASlsSetSparseJacFn(ida_memB, NULL);
+  }
+
+  return(flag);
+}
+
+int IDASlsSetSparseJacFnBS(void *ida_mem, int which, IDASlsSparseJacFnBS jacBS)
+{
+  IDAMem IDA_mem;
+  IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
+  IDASlsMemB idaslsB_mem;
+  void *ida_memB;
+  int flag;
+  
+  /* Is ida_mem allright? */
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDASLS_MEM_NULL, "IDASDLS", "IDASlsSetSparseJacFnBS", MSGSP_CAMEM_NULL);
+    return(IDASLS_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == FALSE) {
+    IDAProcessError(IDA_mem, IDASLS_NO_ADJ, "IDASSLS", "IDASlsSetSparseJacFnBS",  MSGSP_NO_ADJ);
+    return(IDASLS_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Check the value of which */
+  if ( which >= IDAADJ_mem->ia_nbckpbs ) {
+    IDAProcessError(IDA_mem, IDASLS_ILL_INPUT, "IDASSLS", "IDASlsSetSparseJacFnBS", MSGSP_BAD_WHICH);
+    return(IDASLS_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL) {
+    if( which == IDAB_mem->ida_index ) break;
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+
+  /* Get the IDAMem corresponding to this backward problem. */
+  ida_memB = (void*) IDAB_mem->IDA_mem;
+
+  if (IDAB_mem->ida_lmem == NULL) {
+    IDAProcessError(IDAB_mem->IDA_mem, IDASLS_LMEMB_NULL, 
+                    "IDASSLS", "IDASlsSetSparseJacFnBS", MSGSP_LMEMB_NULL);
+    return(IDASLS_LMEMB_NULL);
+  }
+  idaslsB_mem = (IDASlsMemB) IDAB_mem->ida_lmem;
+
+  idaslsB_mem->s_djacBS = jacBS;
+
+  if (jacBS != NULL) {
+    flag = IDASlsSetSparseJacFn(ida_memB, idaSlsSparseJacBSWrapper);
   } else {
     flag = IDASlsSetSparseJacFn(ida_memB, NULL);
   }
@@ -260,17 +322,16 @@ int IDASlsSetSparseJacFnB(void *ida_mem, int which, IDASlsSparseJacFnB jacB)
  */
 
 /*
- * idaSlsSetSparseJacBWrapper
+ * idaSlsSparseJacBWrapper
  *
- * This routine interfaces to the IDASlsSetSparseJacFnB routine provided 
+ * This routine interfaces to the IDASlsSparseJacFnB routine provided 
  * by the user. idaSlsSparseJacBWrapper is of type IDASlsSparseJacFn.
  * NOTE: data actually contains ida_mem
  */
 
-static int idaSlsSetSparseJacBWrapper(realtype tt, realtype c_jB,
+static int idaSlsSparseJacBWrapper(realtype tt, realtype c_jB,
                        N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                       void *ida_mem, 
-		       int *m, int *n, int *nnz, double *a, int *asub, int *xa,
+  		       SlsMat JacMat, void *ida_mem, 
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   IDAadjMem IDAADJ_mem;
@@ -294,7 +355,7 @@ static int idaSlsSetSparseJacBWrapper(realtype tt, realtype c_jB,
 			       IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS) {
       IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASSLS",
-		      "idaSlsSparseJacWrapper", MSGSP_BAD_T);
+		      "idaSlsSparseJacBWrapper", MSGSP_BAD_T);
       return(-1);
     }
   }
@@ -303,8 +364,61 @@ static int idaSlsSetSparseJacBWrapper(realtype tt, realtype c_jB,
   flag = idaslsB_mem->s_djacB(tt, c_jB, 
                               IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, 
                               yyB, ypB, rrB, 
-                              IDAB_mem->ida_user_data,
-			      m, n, nnz, a, asub, xa,
+                              JacMat, IDAB_mem->ida_user_data,
+                              tmp1B, tmp2B, tmp3B);
+  return(flag);
+}
+
+/*
+ * idaSlsSparseJacBSWrapper
+ *
+ * This routine interfaces to the IDASlsSparseJacFnBS routine provided 
+ * by the user. idaSlsSparseJacBSWrapper is of type IDASlsSparseJacFn.
+ * NOTE: data actually contains ida_mem
+ */
+
+static int idaSlsSparseJacBSWrapper(realtype tt, realtype c_jB,
+                       N_Vector yyB, N_Vector ypB, N_Vector rrB,
+  		       SlsMat JacMat, void *ida_mem, 
+                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+{
+  IDAadjMem IDAADJ_mem;
+  IDAMem IDA_mem;
+  IDABMem IDAB_mem;
+  IDASlsMemB idaslsB_mem;
+  int flag;
+
+  IDA_mem = (IDAMem) ida_mem;
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Get current backward problem. */
+  IDAB_mem = IDAADJ_mem->ia_bckpbCrt;
+  
+  /* Get linear solver's data for this backward problem. */
+  idaslsB_mem = (IDASlsMemB) IDAB_mem->ida_lmem;
+
+  /* Forward solution from interpolation */
+  if (IDAADJ_mem->ia_noInterp == FALSE) {
+    if (IDAADJ_mem->ia_interpSensi)
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, 
+				 IDAADJ_mem->ia_ypTmp,
+				 IDAADJ_mem->ia_yySTmp,IDAADJ_mem->ia_yySTmp);
+    else
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, 
+			       IDAADJ_mem->ia_ypTmp, NULL, NULL);
+    if (flag != IDA_SUCCESS) {
+      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASSLS",
+		      "idaSlsSparseJacBSWrapper", MSGSP_BAD_T);
+      return(-1);
+    }
+  }
+
+  /* Call user's adjoint sparse djacB routine */
+  flag = idaslsB_mem->s_djacBS(tt, c_jB, 
+                              IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, 
+			      IDAADJ_mem->ia_yySTmp, IDAADJ_mem->ia_ypSTmp,
+			      yyB, ypB, rrB, 
+                              JacMat, IDAB_mem->ida_user_data,
                               tmp1B, tmp2B, tmp3B);
   return(flag);
 }

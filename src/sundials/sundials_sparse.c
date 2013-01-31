@@ -24,10 +24,10 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
-SlsMat NewSparseMat(long int M, long int N, long int NNZ)
+SlsMat NewSparseMat(int M, int N, int NNZ)
 {
   SlsMat A;
-  long int j;
+  int j;
 
   if ( (M <= 0) || (N <= 0) ) return(NULL);
 
@@ -40,13 +40,13 @@ SlsMat NewSparseMat(long int M, long int N, long int NNZ)
     free(A); A = NULL;
     return(NULL);
   }
-  A->rowvals = (long int *) malloc(NNZ * sizeof(long int));
+  A->rowvals = (int *) malloc(NNZ * sizeof(int));
   if (A->rowvals == NULL) {
     free(A->data); A->data = NULL;
     free(A); A = NULL;
     return(NULL);
   }
-  A->colptrs = (long int *) malloc((N+1) * sizeof(long int));
+  A->colptrs = (int *) malloc((N+1) * sizeof(int));
   if (A->colptrs == NULL) {
     free(A->rowvals);
     free(A->data); A->data = NULL;
@@ -74,7 +74,7 @@ void DestroySparseMat(SlsMat A)
 
 void SlsSetToZero(SlsMat A)
 {
-  long int i;
+  int i;
 
   for (i=0; i<A->NNZ; i++) {
     A->data[i] = ZERO;
@@ -91,8 +91,8 @@ void SlsSetToZero(SlsMat A)
 
 void PrintSparseMat(SlsMat A)
 {
-  long int i,j, M, N, NNZ;
-  long int *colptrs;
+  int i,j, M, N, NNZ;
+  int *colptrs;
 
   colptrs = A->colptrs;
   M = A->M;
@@ -101,18 +101,19 @@ void PrintSparseMat(SlsMat A)
 
   printf("\n");
   
-  printf("%ld by %ld NNZ: %ld \n", M, N, NNZ);
+  printf("%d by %d NNZ: %d \n", M, N, NNZ);
   for (j=0; j < A->N; j++) {
-    printf("  col %ld : locations %ld to %ld\n", j, colptrs[j], colptrs[j+1]-1);
+    printf("  col %d : locations %d to %d\n", j, colptrs[j], colptrs[j+1]-1);
     for (i = colptrs[j]; i < colptrs[j+1]; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-      printf("%ld  %12Lg  ", A->rowvals[i], A->data[i]);
+      printf("%d  %12Lg  ", A->rowvals[i], A->data[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%ld  %12lg  ", A->rowvals[i], A->data[i]);
+      printf("%d  %12lg  ", A->rowvals[i], A->data[i]);
 #else
-      printf("%ld  %12g  ", A->rowvals[i], A->data[i]);
+      printf("%d  %12g  ", A->rowvals[i], A->data[i]);
 #endif
     }
+    printf("\n");
   }
   printf("\n");
     

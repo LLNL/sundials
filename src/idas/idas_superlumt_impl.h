@@ -35,8 +35,8 @@ typedef struct SLUMTDataRec {
  
   /* Structure for SuperLUMT-specific data */
  
-  SuperMatrix s_A, s_AC, s_L, s_U, s_B;
-  Gstat_t Gstat;
+  SuperMatrix *s_A, *s_AC, *s_L, *s_U, *s_B;
+  Gstat_t *Gstat;
   int *perm_r, *perm_c;
   int num_threads; 
   double diag_pivot_thresh; 

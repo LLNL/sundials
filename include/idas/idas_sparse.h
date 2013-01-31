@@ -21,6 +21,7 @@
 extern "C" {
 #endif
 
+#include <sundials/sundials_sparse.h>
 #include <sundials/sundials_nvector.h>
 
 /*
@@ -85,24 +86,22 @@ extern "C" {
  *                                                                
  * f   is the residual vector F(tt,yy,yp).                     
  *                                                                
- * user_data is a pointer to user Jacobian data - the same as the    
- *     user_data parameter passed to IDASetRdata.                     
- *                                                                
- * m (int *) is the number of rows in the Jacobian matrix
- *
- * n (int *) is the number of columns in the Jacobian matrix
- * 
- * nnz (int *) is the number of nonzero entries in the Jacobian matrix
- *
- * a (double *) are the nonzero entries of the Jacobian stored in
+ * JacMat is the compressed sparse column matrix (of type SlsMat)
+ *     to be loaded by an IDASlsSparseJacFn routine with an approximation
+ *     to the system Jacobian matrix
+ *            J = dF/dy' + gamma*dF/dy                            
+ *     at the given point (t,y,y'), where the ODE system is    
+ *     given by F(t,y,y') = 0.
+ *     Note that JacMat is NOT preset to zero!
+ *     Matrix data is for the nonzero entries of the Jacobian are stored in
  *     compressed column format.  Row indices of entries in 
- *     column j are stored in asub[xa[j]] through asub[xa[j+i]-1]
+ *     column j are stored in J->data[colptrs[j]] 
+ *     through J->data[colptrs[j+i]-1]
  *     and corresponding numerical values of the Jacobian are stored 
  *     in the same entries of a.
  * 
- * asub (int *) are the row indices of each nonzero entry
- *
- * xa (int *) are the column pointers
+ * user_data is a pointer to user Jacobian data - the same as the    
+ *     user_data parameter passed to IDASetRdata.                     
  *                                                                
  * tmp1, tmp2, tmp3 are pointers to memory allocated for          
  *     N_Vectors which can be used by an IDASparseJacFn routine 
@@ -129,8 +128,8 @@ extern "C" {
   
   
 typedef int (*IDASlsSparseJacFn)(realtype t, realtype c_j,
-		     N_Vector y, N_Vector yp, N_Vector r, void *user_data,
-		     int *m, int *n, int *nnz, double *a, int *asub, int *xa,
+		     N_Vector y, N_Vector yp, N_Vector r, 
+		     SlsMat JacMat, void *user_data,
 		     N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -210,9 +209,27 @@ SUNDIALS_EXPORT char *IDASlsGetReturnFlagName(long int flag);
 typedef int (*IDASlsSparseJacFnB)(realtype tt, realtype c_jB, 
 	      	     N_Vector yy, N_Vector yp,
 		     N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-		     void *user_dataB, 
-		     int *m, int *n, int *nnz, double *a, int *asub, int *xa, 
+		     SlsMat JacMatB, void *user_dataB, 
 		     N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Type: IDASlsSparseJacFnBS
+ * -----------------------------------------------------------------
+ * A dense Jacobian approximation function JacBS for the adjoint
+ * (backward) problem, sensitivity-dependent case, must have the
+ *  prototype given below. 
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*IDASlsSparseJacFnBS)(realtype tt, realtype c_jB, 
+	      	     N_Vector yy, N_Vector yp,
+		     N_Vector *yS, N_Vector *ypS,
+		     N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+		     SlsMat JacMatB, void *user_dataB, 
+		     N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+
 
 /*
  * -----------------------------------------------------------------
@@ -222,15 +239,20 @@ typedef int (*IDASlsSparseJacFnB)(realtype tt, realtype c_jB,
 
 /*
  * -----------------------------------------------------------------
- * Functions: IDASlsSetSparseJacFnB
+ * Functions: IDASlsSetSparseJacFnB and IDASlsSetSparseJacFnBS
  * -----------------------------------------------------------------
  * IDASlsSetSparseJacFnB specifies the sparse Jacobian functions to 
- * be used by a IDASSPARSE linear solver for the backward integration phase.
+ * be used by a IDASSPARSE linear solver for the backward integration phase
+ * when the backward problem does not depend on forward sensitivities.
+ * IDASlsSetSparseJacFnBS specifies the Jacobian
+ * functions when the backward problem does depend on sensitivities.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT int IDASlsSetSparseJacFnB(void *ida_mem, int which, 
 					  IDASlsSparseJacFnB jacB);
+SUNDIALS_EXPORT int IDASlsSetSparseJacFnBS(void *ida_mem, int which, 
+					  IDASlsSparseJacFnBS jacBS);
 
 
 #ifdef __cplusplus

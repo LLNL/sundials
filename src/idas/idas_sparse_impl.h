@@ -55,15 +55,7 @@ typedef struct IDASlsMemRec {
 
   int s_first_factorize;    /* flag telling whether the first 
 			       factorization needs to happen */
-  int s_m;
-  int s_n;
-  int s_nnz;
-
-  realtype *s_a;
-
-  int *s_asub;
-
-  int *s_xa;
+  SlsMat s_JacMat;          /* J = dF/dy + cj*dF/dy' */
 
   void *s_solver_data;      /* structure for solver-specific data */
   
@@ -95,6 +87,7 @@ typedef struct IDASlsMemRec {
 typedef struct IDASlsMemRecB {
 
   IDASlsSparseJacFnB s_djacB;
+  IDASlsSparseJacFnBS s_djacBS;
 
 } *IDASlsMemB;
 

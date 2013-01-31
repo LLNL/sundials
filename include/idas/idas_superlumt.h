@@ -21,6 +21,9 @@
 extern "C" {
 #endif
 
+#include <idas/idas_sparse.h>
+#include <sundials/sundials_sparse.h>
+
 /*
  * -----------------------------------------------------------------
  * Function : IDASuperLUMT
@@ -32,8 +35,6 @@ extern "C" {
  *     IDACreate.             
  *
  * num_threads is the number of threads that SuperLUMT should invoke     
- *                                                                
- * Neq  is the problem size                                       
  *                                                                
  * IDASuperLUMT returns:                                              
  *     IDASLU_SUCCESS   = 0  if successful                              

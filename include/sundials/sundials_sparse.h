@@ -58,12 +58,12 @@ extern "C" {
  */
 
 typedef struct _SlsMat {
-  long int M;
-  long int N;
-  long int NNZ;
+  int M;
+  int N;
+  int NNZ;
   realtype *data;
-  long int *rowvals;
-  long int *colptrs;
+  int *rowvals;
+  int *colptrs;
 } *SlsMat;
 
 /*
@@ -84,7 +84,7 @@ typedef struct _SlsMat {
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT SlsMat NewSparseMat(long int M, long int N, long int NNZ);
+  SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ);
 
 /*
  * -----------------------------------------------------------------
