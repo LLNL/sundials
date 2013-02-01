@@ -1,10 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2010-12-01 23:05:10 $
+ * $Revision: $
+ * $Date: $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Carol Woodward @ LLNL  (based on idasRoberts_dns.c)
  * -----------------------------------------------------------------
  * This simple example problem for IDA, due to Robertson, 
  * is from chemical kinetics, and consists of the following three 
