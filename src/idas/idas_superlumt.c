@@ -91,7 +91,7 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int m, int n, int nnz)
   SLUMTData slumt_data;
   int *perm_c, *perm_r;
   int flag;
-  int nrhs;
+  int nrhs, panel_size, relax;
   double *bd;
   SuperMatrix *B;
 
@@ -176,18 +176,27 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int m, int n, int nnz)
   slumt_data->num_threads = num_threads;
   slumt_data->diag_pivot_thresh = 1.0;
 
+  /* Allocate structures for SuperLU */
+  slumt_data->Gstat = (Gstat_t *)malloc(sizeof(Gstat_t));
+  slumt_data->s_A = (SuperMatrix *)malloc(sizeof(SuperMatrix));
+  slumt_data->s_AC = (SuperMatrix *)malloc(sizeof(SuperMatrix));
+  slumt_data->s_L = (SuperMatrix *)malloc(sizeof(SuperMatrix));
+  slumt_data->s_U = (SuperMatrix *)malloc(sizeof(SuperMatrix));
+  slumt_data->superlumt_options = (superlumt_options_t *)malloc(sizeof(superlumt_options_t));
 
-  /* Allocate structures for matrices */
-  slumt_data->Gstat = (Gstat_t *)malloc(sizeof(Gstat_t *));
-  slumt_data->s_A = (SuperMatrix *)malloc(sizeof(SuperMatrix *));
-  slumt_data->s_AC = (SuperMatrix *)malloc(sizeof(SuperMatrix *));
-  slumt_data->s_L = (SuperMatrix *)malloc(sizeof(SuperMatrix *));
-  slumt_data->s_U = (SuperMatrix *)malloc(sizeof(SuperMatrix *));
+  dCreate_CompCol_Matrix(slumt_data->s_A, idasls_mem->s_JacMat->M, idasls_mem->s_JacMat->N, 
+			 idasls_mem->s_JacMat->NNZ, idasls_mem->s_JacMat->data, 
+			 idasls_mem->s_JacMat->rowvals, idasls_mem->s_JacMat->colptrs, 
+			 SLU_NC, SLU_D, SLU_GE);
+
+  panel_size = sp_ienv(1);
+  relax = sp_ienv(2);
+  StatAlloc(idasls_mem->s_JacMat->N, num_threads, panel_size, relax, slumt_data->Gstat);
   
   /* Create RHS matrix */
   nrhs = 1;
   bd = NULL;
-  B = (SuperMatrix *)malloc(sizeof(SuperMatrix *));
+  B = (SuperMatrix *)malloc(sizeof(SuperMatrix));
   dCreate_Dense_Matrix(B, m, nrhs, bd, m, 
 		       SLU_DN, SLU_D, SLU_GE);
   slumt_data->s_B = B;
@@ -213,10 +222,9 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int m, int n, int nnz)
 
 static int IDASuperLUMTInit(IDAMem IDA_mem)
 {
-  int retval, panel_size, relax, num_threads, n;
+  int retval, num_threads, n;
   IDASlsMem idasls_mem;
   SLUMTData slumt_data;
-  Gstat_t *Gstat;
 
   idasls_mem = (IDASlsMem)IDA_mem->ida_lmem;
   slumt_data = (SLUMTData) idasls_mem->s_solver_data;
@@ -227,18 +235,11 @@ static int IDASuperLUMTInit(IDAMem IDA_mem)
   /* ------------------------------------------------------------
      Allocate storage and initialize statistics variables. 
      ------------------------------------------------------------*/
-  panel_size = sp_ienv(1);
-  relax = sp_ienv(2);
-
   n = idasls_mem->s_JacMat->N;
   num_threads = slumt_data->num_threads;
 
-  Gstat = slumt_data->Gstat;
-  StatAlloc(n, num_threads, panel_size, relax, Gstat);
-  StatInit(n, num_threads, Gstat);
+  StatInit(n, num_threads, slumt_data->Gstat);
 
-  //  slumt_data->Gstat = Gstat;
- 
   idasls_mem->s_last_flag = 0;
   return(0);
 }
@@ -271,7 +272,7 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   IDASlsSparseJacFn jaceval;
   SuperMatrix *A, *AC, *L, *U;
   Gstat_t *Gstat;
-  superlumt_options_t superlumt_options;
+  superlumt_options_t *superlumt_options;
   SLUMTData slumt_data;
   SlsMat JacMat;
   void *jacdata;
@@ -333,9 +334,6 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
     last_flag = IDASLS_JACFUNC_RECVR;
     return(+1);
   }
-  dCreate_CompCol_Matrix(A, JacMat->M, JacMat->N, JacMat->NNZ, 
-			 JacMat->data, JacMat->rowvals, JacMat->colptrs, 
-			 SLU_NC, SLU_D, SLU_GE);
 
   if (first_factorize) {
     /* ------------------------------------------------------------
@@ -364,12 +362,12 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
      ------------------------------------------------------------*/
   pdgstrf_init(nprocs, fact, trans, refact, panel_size, relax,
 	       diag_pivot_thresh, usepr, drop_tol, perm_c, perm_r,
-	       work, lwork, A, AC, &superlumt_options, Gstat);
+	       work, lwork, A, AC, superlumt_options, Gstat);
   /* ------------------------------------------------------------
      Compute the LU factorization of A.
      The following routine will create nprocs threads.
      ------------------------------------------------------------*/
-  pdgstrf(&superlumt_options, AC, perm_r, L, U, Gstat, &info);
+  pdgstrf(superlumt_options, AC, perm_r, L, U, Gstat, &info);
     
   if (info != 0) {
     last_flag = info;
@@ -377,10 +375,7 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   }
   last_flag = IDASLS_SUCCESS;
 
-  /* CSW: Do I need to have these ???
-  Destroy_CompCol_Matrix(A);
-  Destroy_CompCol_Matrix(AC);
-  */
+  //  Destroy_CompCol_Matrix(AC);
 
   return(0);
 }
@@ -448,21 +443,32 @@ static int IDASuperLUMTFree(IDAMem IDA_mem)
 
   slumt_data = (SLUMTData) idasls_mem->s_solver_data;
 
-  pxgstrf_finalize(&(slumt_data->superlumt_options), 
-		   (slumt_data->s_AC) );
+  pxgstrf_finalize(slumt_data->superlumt_options, slumt_data->s_AC);
 
   free(slumt_data->perm_r);
   free(slumt_data->perm_c);
+  free(slumt_data->superlumt_options);
   if ( lwork >= 0 ) {
     Destroy_SuperNode_SCP( (slumt_data->s_L) );
     Destroy_CompCol_NCP( (slumt_data->s_U) );
   } 
   StatFree( (slumt_data->Gstat) );
 
+  Destroy_SuperMatrix_Store(slumt_data->s_B);
+  Destroy_CompCol_Matrix(slumt_data->s_A);
+  free(slumt_data->s_B);
+  free(slumt_data->s_A);
+  free(slumt_data->s_AC);
+  free(slumt_data->s_L);
+  free(slumt_data->s_U);
+
   if (idasls_mem->s_JacMat) DestroySparseMat(idasls_mem->s_JacMat);
 
-  free(slumt_data); slumt_data = NULL;
-  free(IDA_mem->ida_lmem); IDA_mem->ida_lmem = NULL;
+  free(slumt_data); 
+  slumt_data = NULL;
+ 
+  free(IDA_mem->ida_lmem); 
+  IDA_mem->ida_lmem = NULL;
 
   return(IDASLS_SUCCESS);
 }

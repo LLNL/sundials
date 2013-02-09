@@ -65,9 +65,12 @@ SlsMat NewSparseMat(int M, int N, int NNZ)
 
 void DestroySparseMat(SlsMat A)
 {
-  free(A->data);  A->data = NULL;
-  free(A->rowvals);
-  free(A->colptrs);
+  if (A->data) free(A->data);  
+  A->data = NULL;
+  if (A->rowvals) free(A->rowvals);
+  A->rowvals = NULL;
+  if (A->colptrs) free(A->colptrs);
+  A->colptrs = NULL;
   free(A); A = NULL;
 }
 

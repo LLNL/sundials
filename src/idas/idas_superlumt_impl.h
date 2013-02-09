@@ -23,7 +23,7 @@ extern "C" {
 
 #ifndef _SLUMT_H
 #define _SLUMT_H
-#include "/home/carol/SuperLU_MT_2.0/SRC/pdsp_defs.h"
+#include "/g/g16/carol/OEISU/SuperLU_MT_2.0/SRC/pdsp_defs.h"
 #endif
 /*
  * -----------------------------------------------------------------
@@ -40,7 +40,7 @@ typedef struct SLUMTDataRec {
   int *perm_r, *perm_c;
   int num_threads; 
   double diag_pivot_thresh; 
-  superlumt_options_t superlumt_options;
+  superlumt_options_t *superlumt_options;
  
 } *SLUMTData;
  
