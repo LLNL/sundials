@@ -259,7 +259,7 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 			     N_Vector rrp, N_Vector tmp1, N_Vector tmp2,
 			     N_Vector tmp3)
 {
-  int retval, last_flag, first_factorize, info;
+  int retval, last_flag, info;
   int nprocs, panel_size, relax, permc_spec, lwork;
   int *perm_r, *perm_c;
   long int retfac;
@@ -285,7 +285,6 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   slumt_data = (SLUMTData) idasls_mem->s_solver_data;
 
   last_flag = idasls_mem->s_last_flag;
-  first_factorize = idasls_mem->s_first_factorize;
   jaceval = idasls_mem->s_jaceval;
   jacdata = idasls_mem->s_jacdata;
   JacMat = idasls_mem->s_JacMat;
@@ -335,7 +334,7 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
     return(+1);
   }
 
-  if (first_factorize) {
+  if (idasls_mem->s_first_factorize) {
     /* ------------------------------------------------------------
        Get column permutation vector perm_c[], according to permc_spec:
        permc_spec = 3: approximate minimum degree for unsymmetric matrices
@@ -344,7 +343,7 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
     get_perm_c(permc_spec, A, perm_c);
  
     refact= NO;
-    first_factorize = 0;
+    idasls_mem->s_first_factorize = 0;
   }
   else {
     /* ------------------------------------------------------------
@@ -374,8 +373,6 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
     return(+1);
   }
   last_flag = IDASLS_SUCCESS;
-
-  //  Destroy_CompCol_Matrix(AC);
 
   return(0);
 }
@@ -453,16 +450,20 @@ static int IDASuperLUMTFree(IDAMem IDA_mem)
     Destroy_CompCol_NCP( (slumt_data->s_U) );
   } 
   StatFree( (slumt_data->Gstat) );
-
+  free(slumt_data->Gstat);
+  
   Destroy_SuperMatrix_Store(slumt_data->s_B);
-  Destroy_CompCol_Matrix(slumt_data->s_A);
+  SUPERLU_FREE(slumt_data->s_A->Store);
+  if (idasls_mem->s_JacMat) {
+    DestroySparseMat(idasls_mem->s_JacMat);
+    idasls_mem->s_JacMat = NULL;
+  }
+
   free(slumt_data->s_B);
   free(slumt_data->s_A);
   free(slumt_data->s_AC);
   free(slumt_data->s_L);
   free(slumt_data->s_U);
-
-  if (idasls_mem->s_JacMat) DestroySparseMat(idasls_mem->s_JacMat);
 
   free(slumt_data); 
   slumt_data = NULL;
