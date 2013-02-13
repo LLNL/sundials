@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 30 January 2013
+Modifications to SUNDIALS after 22 March 2012 Release - as of 13 February 2013
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -87,3 +87,7 @@ public by way of updates to the website after 3/22/12.
     for the case where the backward problem depends on the forward
     sensitivities.
 
+22. After discussion with Dan R., changed optional input routines in FKINSOL,
+    FCVODE, and FIDA:  Removed 4th argument (key_length) from **SET*IN functions,
+    and hardcoded key string lengths into all strncmp tests.  Corrected bug
+    (missing line *ier = 0) in FKINSET_VIN.
