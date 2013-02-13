@@ -64,9 +64,35 @@ c * * * * * * * * * * * * * * * * * * * * * *
       endif
 
       call fkinsetiin('MAX_SETUPS', msbpre, ier)
+      if (ier .ne. 0) then
+         write(6,1231) ier
+ 1231    format('SUNDIALS_ERROR: FKINSETIIN returned IER = ', i5)
+         call fkinfree
+         stop
+      endif
+
       call fkinsetrin('FNORM_TOL', fnormtol, ier)
+      if (ier .ne. 0) then
+         write(6,1232) ier
+ 1232    format('SUNDIALS_ERROR: FKINSETRIN returned IER = ', i5)
+         call fkinfree
+         stop
+      endif
+
       call fkinsetrin('SSTEP_TOL', scsteptol, ier)
+      if (ier .ne. 0) then
+         write(6,1232) ier
+         call fkinfree
+         stop
+      endif
+
       call fkinsetvin('CONSTR_VEC', constr, ier)
+      if (ier .ne. 0) then
+         write(6,1233) ier
+ 1233    format('SUNDIALS_ERROR: FKINSETVIN returned IER = ', i5)
+         call fkinfree
+         stop
+      endif
 
       call fkinspgmr(maxl, maxlrst, ier)
       if (ier .ne. 0) then
