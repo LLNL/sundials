@@ -227,21 +227,21 @@ void FCV_REINIT(realtype *t0, realtype *y0,
 
 /***************************************************************************/
 
-void FCV_SETIIN(char key_name[], long int *ival, int *ier, int key_len)
+void FCV_SETIIN(char key_name[], long int *ival, int *ier)
 {
-  if (!strncmp(key_name,"MAX_ORD", (size_t)key_len)) 
+  if (!strncmp(key_name,"MAX_ORD",7))
     *ier = CVodeSetMaxOrd(CV_cvodemem, (int) *ival);
-  else if (!strncmp(key_name,"MAX_NSTEPS", (size_t)key_len)) 
+  else if (!strncmp(key_name,"MAX_NSTEPS",10))
     *ier = CVodeSetMaxNumSteps(CV_cvodemem, (int) *ival);
-  else if (!strncmp(key_name,"MAX_ERRFAIL", (size_t)key_len)) 
+  else if (!strncmp(key_name,"MAX_ERRFAIL",11))
     *ier = CVodeSetMaxErrTestFails(CV_cvodemem, (int) *ival);
-  else if (!strncmp(key_name,"MAX_NITERS", (size_t)key_len)) 
+  else if (!strncmp(key_name,"MAX_NITERS",10))
     *ier = CVodeSetMaxNonlinIters(CV_cvodemem, (int) *ival);
-  else if (!strncmp(key_name,"MAX_CONVFAIL", (size_t)key_len)) 
+  else if (!strncmp(key_name,"MAX_CONVFAIL",12))
     *ier = CVodeSetMaxConvFails(CV_cvodemem, (int) *ival);
-  else if (!strncmp(key_name,"HNIL_WARNS", (size_t)key_len)) 
+  else if (!strncmp(key_name,"HNIL_WARNS",10))
     *ier = CVodeSetMaxHnilWarns(CV_cvodemem, (int) *ival);
-  else if (!strncmp(key_name,"STAB_LIM", (size_t)key_len)) 
+  else if (!strncmp(key_name,"STAB_LIM",8))
     *ier = CVodeSetStabLimDet(CV_cvodemem, (int) *ival);
   else {
     *ier = -99;
@@ -252,17 +252,17 @@ void FCV_SETIIN(char key_name[], long int *ival, int *ier, int key_len)
 
 /***************************************************************************/
 
-void FCV_SETRIN(char key_name[], realtype *rval, int *ier, int key_len)
+void FCV_SETRIN(char key_name[], realtype *rval, int *ier)
 {
-  if (!strncmp(key_name,"INIT_STEP", (size_t)key_len)) 
+  if (!strncmp(key_name,"INIT_STEP",9))
     *ier = CVodeSetInitStep(CV_cvodemem, *rval);
-  else if (!strncmp(key_name,"MAX_STEP", (size_t)key_len)) 
+  else if (!strncmp(key_name,"MAX_STEP",8))
     *ier = CVodeSetMaxStep(CV_cvodemem, *rval);
-  else if (!strncmp(key_name,"MIN_STEP", (size_t)key_len)) 
+  else if (!strncmp(key_name,"MIN_STEP",8))
     *ier = CVodeSetMinStep(CV_cvodemem, *rval);
-  else if (!strncmp(key_name,"STOP_TIME", (size_t)key_len)) 
+  else if (!strncmp(key_name,"STOP_TIME",9))
     *ier = CVodeSetStopTime(CV_cvodemem, *rval);
-  else if (!strncmp(key_name,"NLCONV_COEF", (size_t)key_len)) 
+  else if (!strncmp(key_name,"NLCONV_COEF",11))
     *ier = CVodeSetNonlinConvCoef(CV_cvodemem, *rval);
   else {
     *ier = -99;

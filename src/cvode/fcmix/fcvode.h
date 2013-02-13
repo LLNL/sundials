@@ -656,9 +656,9 @@ extern "C" {
                   int *iatol, realtype *rtol, realtype *atol,
                   int *ier);
 
-  void FCV_SETIIN(char key_name[], long int *ival, int *ier, int key_len);
+  void FCV_SETIIN(char key_name[], long int *ival, int *ier);
 
-  void FCV_SETRIN(char key_name[], realtype *rval, int *ier, int key_len);
+  void FCV_SETRIN(char key_name[], realtype *rval, int *ier);
 
   void FCV_EWTSET(int *flag, int *ier);
 
