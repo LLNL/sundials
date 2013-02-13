@@ -118,23 +118,23 @@ void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKIN_SETIIN(char key_name[], long int *ival, int *ier, int key_len)
+void FKIN_SETIIN(char key_name[], long int *ival, int *ier)
 {
-  if (!strncmp(key_name,"PRNT_LEVEL", (size_t)key_len)) 
+  if (!strncmp(key_name,"PRNT_LEVEL",10))
     *ier = KINSetPrintLevel(KIN_kinmem, (int) *ival);
-  else if (!strncmp(key_name,"MAX_NITERS", (size_t)key_len)) 
+  else if (!strncmp(key_name,"MAX_NITERS",10))
     *ier = KINSetNumMaxIters(KIN_kinmem, (int) *ival);
-  else if (!strncmp(key_name,"ETA_FORM", (size_t)key_len)) 
+  else if (!strncmp(key_name,"ETA_FORM",8))
     *ier = KINSetEtaForm(KIN_kinmem, (int) *ival);
-  else if (!strncmp(key_name,"MAX_SETUPS", (size_t)key_len)) 
+  else if (!strncmp(key_name,"MAX_SETUPS",10))
     *ier = KINSetMaxSetupCalls(KIN_kinmem, (int) *ival);
-  else if (!strncmp(key_name,"MAX_SP_SETUPS", (size_t)key_len)) 
+  else if (!strncmp(key_name,"MAX_SP_SETUPS",13))
     *ier = KINSetMaxSubSetupCalls(KIN_kinmem, (int) *ival);
-  else if (!strncmp(key_name,"NO_INIT_SETUP", (size_t)key_len)) 
+  else if (!strncmp(key_name,"NO_INIT_SETUP",13))
     *ier = KINSetNoInitSetup(KIN_kinmem, (int) *ival);
-  else if (!strncmp(key_name,"NO_MIN_EPS", (size_t)key_len)) 
+  else if (!strncmp(key_name,"NO_MIN_EPS",10))
     *ier = KINSetNoMinEps(KIN_kinmem, (int) *ival);
-  else if (!strncmp(key_name,"NO_RES_MON", (size_t)key_len)) 
+  else if (!strncmp(key_name,"NO_RES_MON",10))
     *ier = KINSetNoResMon(KIN_kinmem, (int) *ival);
   else {
     *ier = -99;
@@ -149,24 +149,24 @@ void FKIN_SETIIN(char key_name[], long int *ival, int *ier, int key_len)
  * ----------------------------------------------------------------
  */
 
-void FKIN_SETRIN(char key_name[], realtype *rval, int *ier, int key_len)
+void FKIN_SETRIN(char key_name[], realtype *rval, int *ier)
 {
 
-  if (!strncmp(key_name,"FNORM_TOL", (size_t)key_len)) 
+  if (!strncmp(key_name,"FNORM_TOL",9))
     *ier = KINSetFuncNormTol(KIN_kinmem, *rval);
-  else if (!strncmp(key_name,"SSTEP_TOL", (size_t)key_len)) 
+  else if (!strncmp(key_name,"SSTEP_TOL",9))
     *ier = KINSetScaledStepTol(KIN_kinmem, *rval);
-  else if (!strncmp(key_name,"MAX_STEP", (size_t)key_len)) 
+  else if (!strncmp(key_name,"MAX_STEP",8))
     *ier = KINSetMaxNewtonStep(KIN_kinmem, *rval);
-  else if (!strncmp(key_name,"RERR_FUNC", (size_t)key_len)) 
+  else if (!strncmp(key_name,"RERR_FUNC",9))
     *ier = KINSetRelErrFunc(KIN_kinmem, *rval);
-  else if (!strncmp(key_name,"ETA_CONST", (size_t)key_len)) 
+  else if (!strncmp(key_name,"ETA_CONST",9))
     *ier = KINSetEtaConstValue(KIN_kinmem, *rval);
-  else if (!strncmp(key_name,"ETA_PARAMS", (size_t)key_len)) 
+  else if (!strncmp(key_name,"ETA_PARAMS",10))
     *ier = KINSetEtaParams(KIN_kinmem, rval[0], rval[1]);
-  else if (!strncmp(key_name,"RMON_CONST", (size_t)key_len)) 
+  else if (!strncmp(key_name,"RMON_CONST",10))
     *ier = KINSetResMonConstValue(KIN_kinmem, *rval);
-  else if (!strncmp(key_name,"RMON_PARAMS", (size_t)key_len)) 
+  else if (!strncmp(key_name,"RMON_PARAMS",11))
     *ier = KINSetResMonParams(KIN_kinmem, rval[0], rval[1]);
   else {
     *ier = -99;
@@ -181,17 +181,18 @@ void FKIN_SETRIN(char key_name[], realtype *rval, int *ier, int key_len)
  * ----------------------------------------------------------------
  */
 
-void FKIN_SETVIN(char key_name[], realtype *vval, int *ier, int key_len)
+void FKIN_SETVIN(char key_name[], realtype *vval, int *ier)
 {
   N_Vector Vec;
 
-  if (!strncmp(key_name,"CONSTR_VEC", (size_t)key_len)) {
+  if (!strncmp(key_name,"CONSTR_VEC",10)) {
     Vec = NULL;
     Vec = N_VCloneEmpty(F2C_KINSOL_vec);
     if (Vec == NULL) {
       *ier = -1;
       return;
     }
+    *ier = 0;
     N_VSetArrayPointer(vval, Vec);
     KINSetConstraints(KIN_kinmem, Vec);
     N_VDestroy(Vec);
