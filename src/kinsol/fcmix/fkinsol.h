@@ -491,9 +491,9 @@ extern "C" {
 
 void FKIN_MALLOC(long int *iout, realtype *rout, int *ier);
 
-void FKIN_SETIIN(char key_name[], long int *ival, int *ier, int key_len);
-void FKIN_SETRIN(char key_name[], realtype *rval, int *ier, int key_len);
-void FKIN_SETVIN(char key_name[], realtype *vval, int *ier, int key_len);
+void FKIN_SETIIN(char key_name[], long int *ival, int *ier);
+void FKIN_SETRIN(char key_name[], realtype *rval, int *ier);
+void FKIN_SETVIN(char key_name[], realtype *vval, int *ier);
 
 void FKIN_DENSE(long int *neq, int *ier);
 void FKIN_DENSESETJAC(int *flag, int *ier);
