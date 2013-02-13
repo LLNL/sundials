@@ -240,8 +240,8 @@ apply to {\nvecp}.
 \item\label{i:fkinsol_opt_input}{\bf Set optional inputs} 
 %%====================
 
-  Call \id{FKINSETIIN} and/or \id{FKINSETRIN} to set desired optional inputs,
-  if any.  See \S\ref{fkin_opt_inout} for details.
+  Call \id{FKINSETIIN}, \id{FKINSETRIN}, and/or \id{FKINSETVIN}, to set desired 
+  optional inputs, if any.  See \S\ref{fkin_opt_inout} for details.
 
 %%====================
 \item\label{i:fkinsol_lin_solv_spec}{\bf Linear solver specification} 
@@ -585,19 +585,25 @@ apply to {\nvecp}.
 \index{FKINSOL@{\fkinsol} interface module!optional input and output}
 
 In order to keep the number of user-callable {\fkinsol} interface routines to
-a minimum, optional inputs to the {\kinsol} solver are passed through only two
-routines: \Id{FKINSETIIN} for integer optional inputs and \ID{FKINSETRIN}
-for real optional inputs. These functions should be called as follows:
+a minimum, optional inputs to the {\kinsol} solver are passed through only three
+routines: \Id{FKINSETIIN} for integer optional inputs, \ID{FKINSETRIN} for real
+optional inputs, and \ID{FKINSETVIN} for real vector (array) optional inputs.
+These functions should be called as follows:
 \begin{verbatim}
       CALL FKINSETIIN (KEY, IVAL, IER)
       CALL FKINSETRIN (KEY, RVAL, IER)
+      CALL FKINSETVIN (KEY, VVAL, IER)
 \end{verbatim}
-where \id{KEY} is a quoted string indicating which optional input is set
-(see Table \ref{t:fkinsol_in}),
-\id{IVAL} is the integer input value to the used,
+where \id{KEY} is a quoted string indicating which optional input is set,
+\id{IVAL} is the integer input value to be used,
 \id{RVAL} is the real input value to be used, and
+\id{VVAL} is the input real array to be used.
 \id{IER} is an integer return flag which is set to $0$ on success and
 a negative value if a failure occurred.
+For the legal values of \id{KEY} in calls to \ID{FKINSETIIN} and \ID{FKINSETRIN},
+see Table \ref{t:fkinsol_in}.  The one legal value of \id{KEY} for \ID{FKINSETVIN}
+is \id{CONSTR\_VEC}, for providing the array of inequality constraints to be
+imposed on the solution, if any.
 The integer \id{IVAL} should be declared in a manner consistent with {\C}
 type \id{long int}.
 
