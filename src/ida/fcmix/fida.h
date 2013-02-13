@@ -622,11 +622,11 @@ void FIDA_REINIT(realtype *t0, realtype *yy0, realtype *yp0,
                  int *iatol, realtype *rtol, realtype *atol,
                  int *ier);
 
-void FIDA_SETIIN(char key_name[], long int *ival, int *ier, int key_len);
+void FIDA_SETIIN(char key_name[], long int *ival, int *ier);
 
-void FIDA_SETRIN(char key_name[], realtype *rval, int *ier, int key_len);
+void FIDA_SETRIN(char key_name[], realtype *rval, int *ier);
 
-void FIDA_SETVIN(char key_name[], realtype *vval, int *ier, int key_len);
+void FIDA_SETVIN(char key_name[], realtype *vval, int *ier);
 
 void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier);
 void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier);
