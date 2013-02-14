@@ -8325,6 +8325,9 @@ static int cvRootFind(CVodeMem cv_mem)
   side = 0;  sideprev = -1;
   loop {                                    /* Looping point */
 
+    /* If interval size is already less than tolerance ttol, break. */
+      if (ABS(thi - tlo) <= ttol) break;
+
     /* Set weight alpha.
        On the first two passes, set alpha = 1.  Thereafter, reset alpha
        according to the side (low vs high) of the subinterval in which
