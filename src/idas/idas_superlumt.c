@@ -350,6 +350,7 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
        Re-initialize statistics variables 
        ------------------------------------------------------------*/
     StatInit(JacMat->N, nprocs, Gstat);
+    Destroy_CompCol_Permuted(AC);
     refact= YES;
   }
 
