@@ -91,3 +91,8 @@ public by way of updates to the website after 3/22/12.
     FCVODE, and FIDA:  Removed 4th argument (key_length) from **SET*IN functions,
     and hardcoded key string lengths into all strncmp tests.  Corrected bug
     (missing line *ier = 0) in FKINSET_VIN.
+
+23, In CVODE/CVODES/IDA/IDAS function **Rootfind, added line to break out
+    of root-search loop if initial interval size is below tolerance ttol.
+    In KINSOL User Guide, added missing description of FKINSETVIN.
+
