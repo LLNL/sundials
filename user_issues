@@ -84,3 +84,7 @@ Unresolved User Complaints as of 20 Feb. 2013
 * Andersson, 12/4/12.  Bad choice of names for IDACalcICB arguments yB0, ypB0.
 
 * Todorovski, 12/5/12. Asks for suggestions on CVODE/Java integration.
+
+* Papamarkou, 1/13/13. MEX compilation warning.  Radu says ***ProcessError()
+  has a bug in all but CVODES.
+
