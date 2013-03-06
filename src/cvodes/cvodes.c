@@ -165,7 +165,7 @@
  *      cvRcheck1
  *      cvRcheck2         
  *      cvRcheck3
- *      cvRootFind  
+ *      cvRootfind  
  *
  *   Functions for combined norms
  *      cvQuadUpdateNorm
@@ -220,19 +220,19 @@
  * =================================================================
  */
 
-#define ZERO   RCONST(0.0)
-#define TINY   RCONST(1.0e-10)
-#define TENTH  RCONST(0.1)
-#define POINT2 RCONST(0.2)
-#define FOURTH RCONST(0.25)
-#define HALF   RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define TWO    RCONST(2.0)
-#define THREE  RCONST(3.0)
-#define FOUR   RCONST(4.0)
-#define FIVE   RCONST(5.0)
-#define TWELVE RCONST(12.0)
-#define HUN    RCONST(100.0)
+#define ZERO    RCONST(0.0)
+#define TINY    RCONST(1.0e-10)
+#define PT1     RCONST(0.1)
+#define POINT2  RCONST(0.2)
+#define FOURTH  RCONST(0.25)
+#define HALF    RCONST(0.5)
+#define ONE     RCONST(1.0)
+#define TWO     RCONST(2.0)
+#define THREE   RCONST(3.0)
+#define FOUR    RCONST(4.0)
+#define FIVE    RCONST(5.0)
+#define TWELVE  RCONST(12.0)
+#define HUNDRED RCONST(100.0)
 
 /* 
  * =================================================================
@@ -318,7 +318,7 @@
  *    CV_SUCCESS,
  *    CV_RTFUNC_FAIL,
  *    RTFOUND
- * cvRootFind return values:
+ * cvRootfind return values:
  *    CV_SUCCESS,
  *    CV_RTFUNC_FAIL,
  *    RTFOUND
@@ -574,7 +574,7 @@ static int cvSLdet(CVodeMem cv_mem);
 static int cvRcheck1(CVodeMem cv_mem);
 static int cvRcheck2(CVodeMem cv_mem);
 static int cvRcheck3(CVodeMem cv_mem);
-static int cvRootFind(CVodeMem cv_mem);
+static int cvRootfind(CVodeMem cv_mem);
 
 /* Function for combined norms */
 
@@ -7863,7 +7863,7 @@ static int cvSLdet(CVodeMem cv_mem)
       
     rr = -qco[5][3]/qco[4][3];
       
-    if (rr < TINY || rr > HUN) {
+    if (rr < TINY || rr > HUNDRED) {
       kflag = -5;   
       return(kflag);
     }
@@ -8015,8 +8015,8 @@ static int cvSLdet(CVodeMem cv_mem)
  * the initial point of the IVP.
  *
  * This routine returns an int equal to:
- *  CV_RTFUNC_FAIL = -12  if the g function failed, or
- *  CV_SUCCESS     =   0  otherwise.
+ *  CV_RTFUNC_FAIL < 0 if the g function failed, or
+ *  CV_SUCCESS     = 0 otherwise.
  */
 
 static int cvRcheck1(CVodeMem cv_mem)
@@ -8027,13 +8027,13 @@ static int cvRcheck1(CVodeMem cv_mem)
 
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   tlo = tn;
-  ttol = (ABS(tn) + ABS(h))*uround*HUN;
+  ttol = (ABS(tn) + ABS(h))*uround*HUNDRED;
 
   /* Evaluate g at initial t and check for zero values. */
   retval = gfun(tlo, zn[0], glo, user_data);
   nge = 1;
   if (retval != 0) return(CV_RTFUNC_FAIL);
-  
+
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
     if (ABS(glo[i]) == ZERO) {
@@ -8044,7 +8044,7 @@ static int cvRcheck1(CVodeMem cv_mem)
   if (!zroot) return(CV_SUCCESS);
 
   /* Some g_i is zero at t0; look at g at t0+(small increment). */
-  hratio = MAX(ttol/ABS(h), TENTH);
+  hratio = MAX(ttol/ABS(h), PT1);
   smallh = hratio*h;
   tplus = tlo + smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
@@ -8054,7 +8054,6 @@ static int cvRcheck1(CVodeMem cv_mem)
 
   /* We check now only the components of g which were exactly 0.0 at t0
    * to see if we can 'activate' them. */
-
   for (i = 0; i < nrtfn; i++) {
     if (!gactive[i] && ABS(ghi[i]) != ZERO) {
       gactive[i] = TRUE;
@@ -8075,14 +8074,14 @@ static int cvRcheck1(CVodeMem cv_mem)
  * there, before returning to do a root search in the interval.
  *
  * On entry, tlo = tretlast is the last value of tret returned by
- * CVode.  This may be the previous tn, the previous tout value, or
- * the last root location.
+ * CVode.  This may be the previous tn, the previous tout value,
+ * or the last root location.
  *
  * This routine returns an int equal to:
- *      CV_RTFUNC_FAIL = -12 if the g function failed, or
- *      CLOSERT        =  3  if a close pair of zeros was found, or
- *      RTFOUND        =  1  if a new zero of g was found near tlo, or
- *      CV_SUCCESS     =  0  otherwise.
+ *     CV_RTFUNC_FAIL  < 0 if the g function failed, or
+ *     CLOSERT         = 3 if a close pair of zeros was found, or
+ *     RTFOUND         = 1 if a new zero of g was found near tlo, or
+ *     CV_SUCCESS      = 0 otherwise.
  */
 
 static int cvRcheck2(CVodeMem cv_mem)
@@ -8110,7 +8109,7 @@ static int cvRcheck2(CVodeMem cv_mem)
   if (!zroot) return(CV_SUCCESS);
 
   /* One or more g_i has a zero at tlo.  Check g at tlo+smallh. */
-  ttol = (ABS(tn) + ABS(h))*uround*HUN;
+  ttol = (ABS(tn) + ABS(h))*uround*HUNDRED;
   smallh = (h > ZERO) ? ttol : -ttol;
   tplus = tlo + smallh;
   if ( (tplus - tn)*h >= ZERO) {
@@ -8127,8 +8126,8 @@ static int cvRcheck2(CVodeMem cv_mem)
   and for a g_i that changed from zero to nonzero. */
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
+    if (!gactive[i]) continue;
     if (ABS(ghi[i]) == ZERO) {
-      if (!gactive[i]) continue;
       if (iroots[i] == 1) return(CLOSERT);
       zroot = TRUE;
       iroots[i] = 1;
@@ -8143,19 +8142,19 @@ static int cvRcheck2(CVodeMem cv_mem)
 /*
  * cvRcheck3
  *
- * This routine interfaces to cvRootFind to look for a root of g
+ * This routine interfaces to cvRootfind to look for a root of g
  * between tlo and either tn or tout, whichever comes first.
  * Only roots beyond tlo in the direction of integration are sought.
  *
  * This routine returns an int equal to:
- *      CV_RTFUNC_FAIL = -12 if the g function failed, or
- *      RTFOUND        =  1  if a root of g was found, or
- *      CV_SUCCESS     =  0  otherwise.
+ *     CV_RTFUNC_FAIL  < 0 if the g function failed, or
+ *     RTFOUND         = 1 if a root of g was found, or
+ *     CV_SUCCESS      = 0 otherwise.
  */
 
 static int cvRcheck3(CVodeMem cv_mem)
 {
-  int i, retval, ier;
+  int i, ier, retval;
 
   /* Set thi = tn or tout, whichever comes first; set y = y(thi). */
   if (taskc == CV_ONE_STEP) {
@@ -8172,13 +8171,13 @@ static int cvRcheck3(CVodeMem cv_mem)
     }
   }
 
-  /* Set ghi = g(thi) and call cvRootFind to search (tlo,thi) for roots. */
+  /* Set ghi = g(thi) and call cvRootfind to search (tlo,thi) for roots. */
   retval = gfun(thi, y, ghi, user_data);
   nge++;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
-  ttol = (ABS(tn) + ABS(h))*uround*HUN;
-  ier = cvRootFind(cv_mem);
+  ttol = (ABS(tn) + ABS(h))*uround*HUNDRED;
+  ier = cvRootfind(cv_mem);
   if (ier == CV_RTFUNC_FAIL) return(CV_RTFUNC_FAIL);
   for(i=0; i<nrtfn; i++) {
     if(!gactive[i] && grout[i] != ZERO) gactive[i] = TRUE;
@@ -8192,11 +8191,10 @@ static int cvRcheck3(CVodeMem cv_mem)
   /* If a root was found, interpolate to get y(trout) and return.  */
   (void) CVodeGetDky(cv_mem, trout, 0, y);
   return(RTFOUND);
-
 }
 
 /*
- * cvRootFind
+ * cvRootfind
  *
  * This routine solves for a root of g(t) between tlo and thi, if
  * one exists.  Only roots of odd multiplicity (i.e. with a change
@@ -8267,14 +8265,14 @@ static int cvRcheck3(CVodeMem cv_mem)
  *            to that indicated by rootdir[i].
  *
  * This routine returns an int equal to:
- *      CV_RTFUNC_FAIL = -12 if the g function failed, or
- *      RTFOUND        =  1  if a root of g was found, or
- *      CV_SUCCESS     =  0  otherwise.
+ *      CV_RTFUNC_FAIL  < 0 if the g function failed, or
+ *      RTFOUND         = 1 if a root of g was found, or
+ *      CV_SUCCESS      = 0 otherwise.
  */
 
-static int cvRootFind(CVodeMem cv_mem)
+static int cvRootfind(CVodeMem cv_mem)
 {
-  realtype alpha, tmid, gfrac, maxfrac, fracint, fracsub;
+  realtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
   int i, retval, imax, side, sideprev;
   booleantype zroot, sgnchg;
 
@@ -8317,8 +8315,8 @@ static int cvRootFind(CVodeMem cv_mem)
     return(RTFOUND);
   }
 
-  /* Initialize alpha to avoid compiler warning */
-  alpha = ONE;
+  /* Initialize alph to avoid compiler warning */
+  alph = ONE;
 
   /* A sign change was found.  Loop to locate nearest root. */
 
@@ -8328,34 +8326,34 @@ static int cvRootFind(CVodeMem cv_mem)
     /* If interval size is already less than tolerance ttol, break. */
       if (ABS(thi - tlo) <= ttol) break;
 
-    /* Set weight alpha.
-       On the first two passes, set alpha = 1.  Thereafter, reset alpha
+    /* Set weight alph.
+       On the first two passes, set alph = 1.  Thereafter, reset alph
        according to the side (low vs high) of the subinterval in which
        the sign change was found in the previous two passes.
-       If the sides were opposite, set alpha = 1.
-       If the sides were the same, then double alpha (if high side),
-       or halve alpha (if low side).
-       The next guess tmid is the secant method value if alpha = 1, but
-       is closer to tlo if alpha < 1, and closer to thi if alpha > 1.    */
+       If the sides were opposite, set alph = 1.
+       If the sides were the same, then double alph (if high side),
+       or halve alph (if low side).
+       The next guess tmid is the secant method value if alph = 1, but
+       is closer to tlo if alph < 1, and closer to thi if alph > 1.    */
 
     if (sideprev == side) {
-      alpha = (side == 2) ? alpha*TWO : alpha*HALF;
+      alph = (side == 2) ? alph*TWO : alph*HALF;
     } else {
-      alpha = ONE;
+      alph = ONE;
     }
 
     /* Set next root approximation tmid and get g(tmid).
        If tmid is too close to tlo or thi, adjust it inward,
        by a fractional distance that is between 0.1 and 0.5.  */
-    tmid = thi - (thi - tlo)*ghi[imax]/(ghi[imax] - alpha*glo[imax]);
+    tmid = thi - (thi - tlo)*ghi[imax]/(ghi[imax] - alph*glo[imax]);
     if (ABS(tmid - tlo) < HALF*ttol) {
       fracint = ABS(thi - tlo)/ttol;
-      fracsub = (fracint > FIVE) ? TENTH : HALF/fracint;
+      fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
       tmid = tlo + fracsub*(thi - tlo);
     }
     if (ABS(thi - tmid) < HALF*ttol) {
       fracint = ABS(thi - tlo)/ttol;
-      fracsub = (fracint > FIVE) ? TENTH : HALF/fracint;
+      fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
       tmid = thi - fracsub*(thi - tlo);
     }
 
@@ -8373,9 +8371,7 @@ static int cvRootFind(CVodeMem cv_mem)
     for (i = 0;  i < nrtfn; i++) {
       if(!gactive[i]) continue;
       if (ABS(grout[i]) == ZERO) {
-        if(rootdir[i]*glo[i] <= ZERO) {
-          zroot = TRUE;
-        }
+        if(rootdir[i]*glo[i] <= ZERO) zroot = TRUE;
       } else {
         if ( (glo[i]*grout[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
           gfrac = ABS(grout[i]/(grout[i] - glo[i]));

@@ -2941,8 +2941,8 @@ realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
  * the initial point of the IVP.
  *
  * This routine returns an int equal to:
- *  IDA_RTFUNC_FAIL < 0  if the g function failed, or
- *  IDA_SUCCESS     = 0  otherwise.
+ *  IDA_RTFUNC_FAIL < 0 if the g function failed, or
+ *  IDA_SUCCESS     = 0 otherwise.
  */
 
 static int IDARcheck1(IDAMem IDA_mem)
@@ -2986,7 +2986,6 @@ static int IDARcheck1(IDAMem IDA_mem)
       glo[i] = ghi[i];
     }
   }
-
   return(IDA_SUCCESS);
 }
 
@@ -3005,10 +3004,10 @@ static int IDARcheck1(IDAMem IDA_mem)
  * or the last root location.
  *
  * This routine returns an int equal to:
- *     IDA_RTFUNC_FAIL (<0) if the g function failed, or
- *     CLOSERT     (>0) if a close pair of zeros was found, or
- *     RTFOUND     (>0) if a new zero of g was found near tlo, or
- *     IDA_SUCCESS (=0) otherwise.
+ *     IDA_RTFUNC_FAIL < 0 if the g function failed, or
+ *     CLOSERT         = 3 if a close pair of zeros was found, or
+ *     RTFOUND         = 1 if a new zero of g was found near tlo, or
+ *     IDA_SUCCESS     = 0 otherwise.
  */
 
 static int IDARcheck2(IDAMem IDA_mem)
@@ -3074,9 +3073,9 @@ static int IDARcheck2(IDAMem IDA_mem)
  * Only roots beyond tlo in the direction of integration are sought.
  *
  * This routine returns an int equal to:
- *     IDA_RTFUNC_FAIL (<0) if the g function failed, or
- *     RTFOUND     (>0) if a root of g was found, or
- *     IDA_SUCCESS (=0) otherwise.
+ *     IDA_RTFUNC_FAIL < 0 if the g function failed, or
+ *     RTFOUND         = 1 if a root of g was found, or
+ *     IDA_SUCCESS     = 0 otherwise.
  */
 
 static int IDARcheck3(IDAMem IDA_mem)
@@ -3113,7 +3112,6 @@ static int IDARcheck3(IDAMem IDA_mem)
   /* If a root was found, interpolate to get y(trout) and return.  */
   (void) IDAGetSolution(IDA_mem, trout, yy, yp);
   return(RTFOUND);
-
 }
 
 /*
@@ -3125,7 +3123,7 @@ static int IDARcheck3(IDAMem IDA_mem)
  * Here the sign of tlo - thi is arbitrary, but if multiple roots
  * are found, the one closest to tlo is returned.
  *
- *  The method used is the Illinois algorithm, a modified secant method.
+ * The method used is the Illinois algorithm, a modified secant method.
  * Reference: Kathie L. Hiebert and Lawrence F. Shampine, Implicitly
  * Defined Output Points for Solutions of ODEs, Sandia National
  * Laboratory Report SAND80-0180, February 1980.
@@ -3136,7 +3134,7 @@ static int IDARcheck3(IDAMem IDA_mem)
  *            the vector-valued function g(t).  Input only.
  *
  * gfun     = user-defined function for g(t).  Its form is
- *           (void) gfun(t, y, yp, gt, user_data)
+ *            (void) gfun(t, y, yp, gt, user_data)
  *
  * rootdir  = in array specifying the direction of zero-crossings.
  *            If rootdir[i] > 0, search for roots of g_i only if
@@ -3158,7 +3156,7 @@ static int IDARcheck3(IDAMem IDA_mem)
  *            When a root at trout is found, it is located only to
  *            within a tolerance of ttol.  Typically, ttol should
  *            be set to a value on the order of
- *              100 * UROUND * max (ABS(tlo), ABS(thi))
+ *               100 * UROUND * max (ABS(tlo), ABS(thi))
  *            where UROUND is the unit roundoff of the machine.
  *
  * tlo, thi = endpoints of the interval in which roots are sought.
@@ -3188,9 +3186,9 @@ static int IDARcheck3(IDAMem IDA_mem)
  *            to that indicated by rootdir[i].
  *
  * This routine returns an int equal to:
- *      IDA_RTFUNC_FAIL (<0) if the g function failed, or
- *      RTFOUND = 1 if a root of g was found, or
- *      IDA_SUCCESS = 0 otherwise.
+ *      IDA_RTFUNC_FAIL < 0 if the g function failed, or
+ *      RTFOUND         = 1 if a root of g was found, or
+ *      IDA_SUCCESS     = 0 otherwise.
  *
  */
 
@@ -3295,9 +3293,7 @@ static int IDARootfind(IDAMem IDA_mem)
     for (i = 0;  i < nrtfn; i++) {
       if(!gactive[i]) continue;
       if (ABS(grout[i]) == ZERO) {
-        if(rootdir[i]*glo[i] <= ZERO) {
-          zroot = TRUE;
-        }
+        if(rootdir[i]*glo[i] <= ZERO) zroot = TRUE;
       } else {
         if ( (glo[i]*grout[i] < ZERO) && (rootdir[i]*glo[i] <= ZERO) ) {
           gfrac = ABS(grout[i]/(grout[i] - glo[i]));
@@ -3316,7 +3312,7 @@ static int IDARootfind(IDAMem IDA_mem)
       side = 1;
       /* Stop at root thi if converged; otherwise loop. */
       if (ABS(thi - tlo) <= ttol) break;
-    continue;  /* Return to looping point. */
+      continue;  /* Return to looping point. */
     }
 
     if (zroot) {
