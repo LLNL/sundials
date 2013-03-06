@@ -3352,11 +3352,11 @@ static int IDARootfind(IDAMem IDA_mem)
  * =================================================================
  */
 
-/* 
- * IDAProcessError is a high level error handling function
- * - if ida_mem==NULL it prints the error message to stderr
- * - otherwise, it sets-up and calls the error hadling function 
- *   pointed to by ida_ehfun
+/*
+ * IDAProcessError is a high level error handling function.
+ * - If ida_mem==NULL it prints the error message to stderr.
+ * - Otherwise, it sets up and calls the error handling function 
+ *   pointed to by ida_ehfun.
  */
 
 #define ehfun   (IDA_mem->ida_ehfun)
@@ -3374,32 +3374,25 @@ void IDAProcessError(IDAMem IDA_mem,
 
   va_start(ap, msgfmt);
 
-  if (IDA_mem == NULL) {    /* We write to stderr */
+  /* Compose the message */
 
+  vsprintf(msg, msgfmt, ap);
+
+  if (IDA_mem == NULL) {    /* We write to stderr */
 #ifndef NO_FPRINTF_OUTPUT
     fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
-    fprintf(stderr, msgfmt);
+    fprintf(stderr, msg);
     fprintf(stderr, "\n\n");
 #endif
 
   } else {                 /* We can call ehfun */
-
-    /* Compose the message */
-
-    vsprintf(msg, msgfmt, ap);
-
-    /* Call ehfun */
-
     ehfun(error_code, module, fname, msg, eh_data);
-
   }
 
   /* Finalize argument processing */
-  
   va_end(ap);
 
   return;
-
 }
 
 /* IDAErrHandler is the default error handling function.
