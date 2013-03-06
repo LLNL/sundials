@@ -8928,11 +8928,11 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
  * -----------------------------------------------------------------
  */
 
-/* 
- * cvProcessError is a high level error handling function
- * - if cv_mem==NULL it prints the error message to stderr
- * - otherwise, it sets-up and calls the error hadling function 
- *   pointed to by cv_ehfun
+/*
+ * cvProcessError is a high level error handling function.
+ * - If cv_mem==NULL it prints the error message to stderr.
+ * - Otherwise, it sets up and calls the error handling function 
+ *   pointed to by cv_ehfun.
  */
 
 #define ehfun    (cv_mem->cv_ehfun)
@@ -8955,7 +8955,6 @@ void cvProcessError(CVodeMem cv_mem,
   vsprintf(msg, msgfmt, ap);
 
   if (cv_mem == NULL) {    /* We write to stderr */
-
 #ifndef NO_FPRINTF_OUTPUT
     fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
     fprintf(stderr, msg);
@@ -8963,19 +8962,13 @@ void cvProcessError(CVodeMem cv_mem,
 #endif
 
   } else {                 /* We can call ehfun */
-
-    /* Call ehfun */
-
     ehfun(error_code, module, fname, msg, eh_data);
-
   }
 
   /* Finalize argument processing */
-  
   va_end(ap);
 
   return;
-
 }
 
 /* 
