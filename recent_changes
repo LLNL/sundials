@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 13 February 2013
+Modifications to SUNDIALS after 22 March 2012 Release - as of 6 March 2013
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -92,7 +92,14 @@ public by way of updates to the website after 3/22/12.
     and hardcoded key string lengths into all strncmp tests.  Corrected bug
     (missing line *ier = 0) in FKINSET_VIN.
 
-23, In CVODE/CVODES/IDA/IDAS function **Rootfind, added line to break out
+23. In CVODE/CVODES/IDA/IDAS function **Rootfind, added line to break out
     of root-search loop if initial interval size is below tolerance ttol.
     In KINSOL User Guide, added missing description of FKINSETVIN.
+
+24. In CVODE/CVODES/IDA/IDAS main source file, made cosmetic changes in
+    rootfinder functions to minimize differences across the solver suite.
+
+25. In CVODE/IDA/IDAS main source file, made fix to **ProcessError function
+    as given by Radu 1/31/13: vsprintf call moved to top, msg arg. in fprintf.
+    Cosmetic changes and typo fixes made to these and CVODES file cvodes.c.
 
