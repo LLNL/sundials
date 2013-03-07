@@ -2068,13 +2068,13 @@ void KINInfoHandler(const char *module, const char *function,
  * =================================================================
  */
 
-/* 
+/*
  * KINProcessError 
  *
- * Thi is a high level error handling function
- * - if cv_mem==NULL it prints the error message to stderr
- * - otherwise, it sets-up and calls the error hadling function 
- *   pointed to by cv_ehfun
+ * KINProcessError is a high level error handling function.
+ * - If cv_mem==NULL it prints the error message to stderr.
+ * - Otherwise, it sets up and calls the error handling function 
+ *   pointed to by cv_ehfun.
  */
 
 #define ehfun    (kin_mem->kin_ehfun)
@@ -2092,32 +2092,25 @@ void KINProcessError(KINMem kin_mem,
 
   va_start(ap, msgfmt);
 
-  if (kin_mem == NULL) {    /* We write to stderr */
+  /* Compose the message */
 
+  vsprintf(msg, msgfmt, ap);
+
+  if (kin_mem == NULL) {    /* We write to stderr */
 #ifndef NO_FPRINTF_OUTPUT
     fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
-    /* CSW   fprintf(stderr, msgfmt);*/
+    fprintf(stderr, msg);
     fprintf(stderr, "\n\n");
 #endif
 
   } else {                 /* We can call ehfun */
-
-    /* Compose the message */
-
-    vsprintf(msg, msgfmt, ap);
-
-    /* Call ehfun */
-
     ehfun(error_code, module, fname, msg, eh_data);
-
   }
 
   /* Finalize argument processing */
-  
   va_end(ap);
 
   return;
-
 }
 
 /* 
