@@ -7183,8 +7183,7 @@ void IDAProcessError(IDAMem IDA_mem,
   if (IDA_mem == NULL) {    /* We write to stderr */
 #ifndef NO_FPRINTF_OUTPUT
     fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
-    fprintf(stderr, msg);
-    fprintf(stderr, "\n\n");
+    fprintf(stderr, "%s\n\n", msg);
 #endif
 
   } else {                 /* We can call ehfun */
