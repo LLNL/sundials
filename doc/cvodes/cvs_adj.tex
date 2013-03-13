@@ -113,7 +113,7 @@ Steps that are unchanged from the skeleton program presented in
    {\p} set \id{NB} and \id{NBlocal}
 
 \item
-  {\bf Set final values for the backward problem}
+  {\bf Set initial values for the backward problem}
 
   Set the endpoint time \id{tB0} $= T$ and the corresponding vector \id{yB0}
   at which the backward problem starts.
@@ -542,9 +542,8 @@ not depend on the forward sensitivities.  It is essentially a wrapper for
   \item[tB0] (\id{realtype})
     specifies the endpoint $T$ where final conditions are provided for the 
     backward problem, normally equal to the endpoint of the forward integration.
-
   \item[yB0] (\id{N\_Vector})
-    is the final value of the backward problem. 
+    is the initial value (at $t =$ \id{tB0}) of the backward solution. 
   \end{args}
 }
 {
@@ -599,7 +598,7 @@ functions.
     specifies the endpoint $T$ where final conditions are provided for the 
     backward problem.
   \item[yB0] (\id{N\_Vector})
-    is the final value of the backward problem. 
+    is the initial value (at $t =$ \id{tB0}) of the backward solution.
   \end{args}
 }
 {
@@ -654,7 +653,7 @@ The call to the \id{CVodeReInitB} function has the form
     specifies the endpoint $T$ where final conditions are provided for the 
     backward problem.
   \item[yB0] (\id{N\_Vector})
-    is the final value of the backward problem. 
+    is the initial value (at $t =$ \id{tB0}) of the backward solution.
   \end{args}
 }
 {
