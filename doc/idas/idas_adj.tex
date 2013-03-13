@@ -510,8 +510,7 @@ and solution specifications, and allocate internal memory for the backward probl
    \end{args}
 }
 {}
-%%
-%%
+
 There are two initialization functions for the backward problem -- one for
 the case when the backward problem does not depend on the forward
 sensitivities, and one for the case when it does.  These two functions
@@ -544,9 +543,9 @@ with some particularization for backward integration, as described below.
     specifies the endpoint $T$ where final conditions are provided for the backward
     problem, normally equal to the endpoint of the forward integration.
   \item[yB0] (\id{N\_Vector})
-    is the final value (at $t =$ \id{tB0}) of the backward problem. 
+    is the initial value (at $t =$ \id{tB0}) of the backward solution.
   \item[ypB0] (\id{N\_Vector})
-    is the final derivative value (at $t =$ \id{tB0}) of the backward problem. 
+    is the initial derivative value (at $t =$ \id{tB0}) of the backward solution.
   \end{args}
 }
 {
@@ -600,9 +599,9 @@ function differs between these functions.
     specifies the endpoint $T$ where final conditions are provided for the 
     backward problem.
   \item[yB0] (\id{N\_Vector})
-    is the final value of the backward problem. 
+    is the initial value (at $t =$ \id{tB0}) of the backward solution. 
   \item[ypB0] (\id{N\_Vector})
-    is the derivative final value of the backward problem. 
+    is the initial derivative value (at $t =$ \id{tB0}) of the backward solution. 
   \end{args}
 }
 {
@@ -657,9 +656,9 @@ The call to the \id{IDAReInitB} function has the form
     specifies the endpoint $T$ where final conditions are provided for the 
     backward problem.
   \item[yB0] (\id{N\_Vector})
-    is the final value of the backward problem. 
+    is the initial value (at $t =$ \id{tB0}) of the backward solution. 
   \item[ypB0] (\id{N\_Vector})
-    is the derivative final value of the backward problem. 
+    is the initial derivative value (at $t =$ \id{tB0}) of the backward solution. 
   \end{args}
 }
 {
@@ -828,15 +827,15 @@ The above functions provide the same functionality for backward problems as
 provides for forward problems (see \S\ref{ss:idacalcic}): compute the 
 algebraic components of $yB$ and differential  components of $\dot{y}B$, given 
 the differential components of $yB$.  They require that the \id{IDASetIdB}
-was previously called to specify the differential and algebraic components.               
+was previously called to specify the differential and algebraic components.
 
 
-Both functions require forward solutions at final time \id{tB0}. \id{IDACalcICBS} 
-also needs forward sensitivities at final time \id{tB0}.
+Both functions require forward solutions at the final time \id{tB0}.
+\id{IDACalcICBS} also needs forward sensitivities at the final time \id{tB0}.
 
 \ucfunction{IDACalcICB}
 {
-  flag = IDACalcICB(ida\_mem, which, tBout1, N\_Vector yB0, N\_Vector ypB0);
+  flag = IDACalcICB(ida\_mem, which, tBout1, N\_Vector yfin, N\_Vector ypfin);
 }
 {
   The function \ID{IDACalcICB} corrects the initial values \id{yB0} and \id{ypB0} at
@@ -852,10 +851,10 @@ also needs forward sensitivities at final time \id{tB0}.
     is the first value of $t$ at which a solution will be requested (from
     \id{IDASolveB}). This value is needed here only to determine the direction of
     integration and rough scale in the independent variable $t$.   
-  \item[yB0] (\id{N\_Vector})
-    the forward solution at final time \id{tB0}.
-  \item[ypB0] (\id{N\_Vector})
-    the forward derivative solution at final time \id{tB0}.
+  \item[yfin] (\id{N\_Vector})
+    the forward solution at the final time \id{tB0}.
+  \item[ypfin] (\id{N\_Vector})
+    the forward solution derivative at the final time \id{tB0}.
   \end{args}
 }
 {
@@ -868,7 +867,7 @@ also needs forward sensitivities at final time \id{tB0}.
     \id{IDAAdjInit} has not been previously called.
   \item[\id{IDA\_ILL\_INPUT}]
     Parameter \id{which} represented an invalid identifier.
-  \end{args} 
+  \end{args}
 }
 {
   All failure return values are negative and therefore a test \id{flag} $< 0$
@@ -886,8 +885,8 @@ user must call the following function to correct the initial conditions:
 \ucfunction{IDACalcICBS}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
-  flag = IDACalcICBS(&ida\_mem, which, tBout1, N\_Vector yB0, N\_Vector ypB0, \\
-                     &N\_Vector yS0, N\_Vector ypS0);
+  flag = IDACalcICBS(&ida\_mem, which, tBout1, N\_Vector yfin, N\_Vector ypfin, \\
+                     &N\_Vector ySfin, N\_Vector ypSfin);
   \end{tabular}
 }
 {
@@ -904,16 +903,16 @@ user must call the following function to correct the initial conditions:
     is the first value of $t$ at which a solution will be requested (from
     \id{IDASolveB}).This value is needed here only to determine the direction of
     integration and rough scale in the independent variable $t$.   
-  \item[yB0] (\id{N\_Vector})
-    the forward solution at final time \id{tB0}.
-  \item[ypB0] (\id{N\_Vector})
-    the forward derivative solution at final time \id{tB0}.
-  \item[yS]  (\id{N\_Vector *})
-    a pointer to an array of \id{Ns} vectors containing the sensitivities of 
-    the forward solution at final time \id{tB0}.
-  \item[ypS]  (\id{N\_Vector *})
-    a pointer to an array of \id{Ns} vectors containing the sensitivities of 
-    the forward derivative solution at final time \id{tB0}.
+  \item[yfin] (\id{N\_Vector})
+    the forward solution at the final time \id{tB0}.
+  \item[ypfin] (\id{N\_Vector})
+    the forward solution derivative at the final time \id{tB0}.
+  \item[ySfin]  (\id{N\_Vector *})
+    a pointer to an array of \id{Ns} vectors containing the sensitivities of
+    the forward solution at the final time \id{tB0}.
+  \item[ypSfin]  (\id{N\_Vector *})
+    a pointer to an array of \id{Ns} vectors containing the derivatives of
+    the forward solution sensitivities at the final time \id{tB0}.
 
   \end{args}
 }
@@ -1066,7 +1065,7 @@ To obtain the solution \id{yB} to the backward problem, call the function
   \item[yB] (\id{N\_Vector})
     the backward solution at time \id{tret}.
   \item[ypB] (\id{N\_Vector})
-    the backward derivative solution at time \id{tret}.
+    the backward solution derivative at time \id{tret}.
   \end{args}
 }
 {
@@ -1957,7 +1956,7 @@ The user must provide a \id{resB} function of type \ID{IDAResFnB} defined as fol
   \item[y]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
@@ -2020,7 +2019,7 @@ The user must provide a \id{resBS} function of type \ID{IDAResFnBS} defined as f
   \item[y]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yS]
     a pointer to an array of \id{Ns} vectors containing the sensitivities of 
     the forward solution.
@@ -2091,7 +2090,7 @@ The user must provide an \id{fQB} function of type \ID{IDAQuadRhsFnB} defined by
   \item[y]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
@@ -2154,13 +2153,13 @@ The user must provide an \id{fQBS} function of type \ID{IDAQuadRhsFnBS} defined 
   \item[y]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yS]
     a pointer to an array of \id{Ns} vectors containing the sensitivities of 
     the forward solution.
   \item[ypS]
-    a pointer to an array of \id{Ns} vectors containing the sensitivities of 
-    the forward derivative solution.
+    a pointer to an array of \id{Ns} vectors containing the derivatives of 
+    the forward sensitivities.
   \item[yB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
@@ -2239,7 +2238,7 @@ through a call to \id{IDADlsSetDenseJacFnB} or \id{IDADlsSetDenseJacFnBS}
   \item[yy]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yyB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
@@ -2313,7 +2312,7 @@ through a call to \id{IDADlsSetDenseJacFnB} or \id{IDADlsSetDenseJacFnBS}
   \item[yy]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yS]
     a pointer to an array of \id{Ns} vectors containing the sensitivities
     of the forward solution.
@@ -2407,7 +2406,7 @@ two types:
   \item[yy]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yyB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
@@ -2486,7 +2485,7 @@ two types:
   \item[yy]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yS]
     a pointer to an array of \id{Ns} vectors containing the sensitivities
     of the forward solution.
@@ -2569,7 +2568,7 @@ the user may provide a function of type \ID{IDASpilsJacTimesVecFnB} in the follo
   \item[yy]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
@@ -2641,7 +2640,7 @@ This function must be of type \ID{IDASpilsPrecSolveFnB} defined by
   \item[yy]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
@@ -2908,7 +2907,7 @@ The prototypes for these two functions are described below.
   \item[y]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
@@ -2960,7 +2959,7 @@ The prototypes for these two functions are described below.
   \item[y]
     is the current value of the forward solution vector.
   \item[yp]
-    is the current value of the forward derivative solution vector.
+    is the current value of the forward solution derivative vector.
   \item[yB]
     is the current value of the backward dependent variable vector.
   \item[ypB]
