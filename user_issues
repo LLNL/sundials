@@ -1,4 +1,4 @@
-Unresolved User Complaints as of 20 Feb. 2013
+Unresolved User Complaints as of 13 March 2013
 
 * Jourdan, 3/29/10. Problems with FCVODE -- related to N type.
   May be OK now, or may still be a problem on 64-bit machines.
@@ -53,6 +53,9 @@ Unresolved User Complaints as of 20 Feb. 2013
 * Stickel, 8/20/12.  Provides fixes to Makefile.in files to make use of the
   DESTDIR option in auto-tools installation.  Fixed already?
 
+* Andersson, 9/12/12. Requesting a feature in CVODES/IDAS to toggle on/off
+  sensitivity components, without memory reallocation.
+
 * Andersson, 9/15/12. Proposes a different way to organize the support for
   second-order sensitivity analysis.
 
@@ -81,10 +84,7 @@ Unresolved User Complaints as of 20 Feb. 2013
 
 * Nakhimovski, 11/26/12. Asks for guidelines on KINSOL tolerance inputs.
 
-* Andersson, 12/4/12.  Bad choice of names for IDACalcICB arguments yB0, ypB0.
-
 * Todorovski, 12/5/12. Asks for suggestions on CVODE/Java integration.
 
-* Papamarkou, 1/13/13. MEX compilation warning.  Radu says ***ProcessError()
-  has a bug in all but CVODES.
+* Leconte, 3/13/13.  CMake fails under Microsoft Visual C++ 2010 Express,
 
