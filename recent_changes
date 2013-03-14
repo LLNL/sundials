@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 6 March 2013
+Modifications to SUNDIALS after 22 March 2012 Release - as of 13 March 2013
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -102,4 +102,9 @@ public by way of updates to the website after 3/22/12.
 25. In CVODE/IDA/IDAS main source file, made fix to **ProcessError function
     as given by Radu 1/31/13: vsprintf call moved to top, msg arg. in fprintf.
     Cosmetic changes and typo fixes made to these and CVODES file cvodes.c.
+
+26. In response to a complaint from Joel Andersson (12/4/12), changed misleading
+    names yB0, ypB0, etc. in IDAS User Guide for IDACalcICB & IDACalcICBS.
+    Also fixed incorrect or poorly worded argument descriptions for y, yp, etc.
+    throughout IDAS and CVODES User Guides (ASA chapter).
 
