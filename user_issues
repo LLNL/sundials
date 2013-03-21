@@ -86,5 +86,10 @@ Unresolved User Complaints as of 13 March 2013
 
 * Todorovski, 12/5/12. Asks for suggestions on CVODE/Java integration.
 
+* Leal, 3/6/13. CMake build error with debian package due to fprintfs and
+  build option "-Werror=format-security -Wall".
+  NOTE: Fix suggested in email. This same issue/fix has been addressed by Radu via
+  email on 1/31/13: CVODES Warning With MEX Compilation of SBPD Toolbox in Matlab
+
 * Leconte, 3/13/13.  CMake fails under Microsoft Visual C++ 2010 Express,
 
