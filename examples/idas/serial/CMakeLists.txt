@@ -10,12 +10,14 @@
 # For details, see the LICENSE file.
 # ---------------------------------------------------------------
 # CMakeLists.txt file for IDAS serial examples
+#
+# LEBanks 3/25/2013
+#    Added SuperLU logic.
 
 
 # Add variable IDAS_examples with the names of the serial IDAS examples
 
 SET(IDAS_examples
-  idasRoberts_sps
   idasAkzoNob_ASAi_dns
   idasAkzoNob_dns
   idasFoodWeb_bnd
@@ -34,6 +36,10 @@ SET(IDAS_examples
 # that use Lapack
 
 SET(IDAS_examples_BL
+  )
+  
+SET(IDAS_examples_SUPERLU
+  idasRoberts_sps
   )
 
 # Specify libraries to link against (through the target that was used to 
@@ -55,6 +61,10 @@ IF(LAPACK_FOUND)
   SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${LAPACK_LIBRARIES}")
 ENDIF(LAPACK_FOUND)
 
+IF(SUPERLU_FOUND)
+  SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${SUPERLU_LIBRARIES}")
+ENDIF(SUPERLU_FOUND)
+
 # Add the build and install targets for each IDAS example
 
 FOREACH(example ${IDAS_examples})
@@ -68,7 +78,6 @@ ENDFOREACH(example ${IDAS_examples})
 
 # If Lapack support is enabled, add the build and install targets for
 # the examples using Lapack
-
 IF(LAPACK_FOUND)
   FOREACH(example ${IDAS_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.c)
@@ -78,6 +87,18 @@ IF(LAPACK_FOUND)
     ENDIF(EXAMPLES_INSTALL)
   ENDFOREACH(example ${IDAS_examples_BL})
 ENDIF(LAPACK_FOUND)
+
+# If SuperLU support is enabled, add the build and install targets for
+# the examples using SuperLU
+IF(SUPERLU_FOUND)
+  FOREACH(example ${IDAS_examples_SUPERLU})
+    ADD_EXECUTABLE(${example} ${example}.c)
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    IF(EXAMPLES_INSTALL)
+      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+    ENDIF(EXAMPLES_INSTALL)
+  ENDFOREACH(example ${IDAS_examples_SUPERLU})
+ENDIF(SUPERLU_FOUND)
 
 IF(EXAMPLES_INSTALL)
 
@@ -93,6 +114,11 @@ IF(EXAMPLES_INSTALL)
   ELSE(LAPACK_FOUND)
     SET(EXAMPLES_BL "")
   ENDIF(LAPACK_FOUND)
+  IF(SUPERLU_FOUND)
+    LIST2STRING(IDAS_examples_SUPERLU EXAMPLES_SUPERLU)
+  ELSE(SUPERLU_FOUND)
+    SET(EXAMPLES_SUPERLU "")
+  ENDIF(SUPERLU_FOUND)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

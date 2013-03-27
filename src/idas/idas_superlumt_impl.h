@@ -23,7 +23,7 @@ extern "C" {
 
 #ifndef _SLUMT_H
 #define _SLUMT_H
-#include "/g/g16/carol/OEISU/SuperLU_MT_2.0/SRC/pdsp_defs.h"
+#include "pdsp_defs.h"
 #endif
 /*
  * -----------------------------------------------------------------

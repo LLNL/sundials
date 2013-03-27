@@ -28,7 +28,6 @@ SET(idas_SOURCES
   idas_spbcgs.c
   idas_spgmr.c
   idas_sptfqmr.c
-  idas_superlumt.c
   idas_bbdpre.c
   )
 
@@ -78,6 +77,15 @@ ELSE(LAPACK_FOUND)
   SET(idas_BL_HEADERS "")
 ENDIF(LAPACK_FOUND)
 
+IF(SUPERLU_FOUND)
+  SET(idas_SLU_SOURCES idas_superlumt.c)
+  SET(idas_SLU_HEADERS idas_superlumt.h)
+  ADD_PREFIX(${sundials_SOURCE_DIR}/include/idas/ idas_SLU_HEADERS)
+ELSE(SUPERLU_FOUND)
+  SET(idas_SLU_SOURCES "")
+  SET(idas_SLU_HEADERS "")
+ENDIF(SUPERLU_FOUND)
+
 # Add source directories to include directories for access to
 # implementation only header files.
 INCLUDE_DIRECTORIES(.)
@@ -91,7 +99,7 @@ IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static IDAS library
   ADD_LIBRARY(sundials_idas_static STATIC 
-    ${idas_SOURCES} ${idas_BL_SOURCES}  ${shared_SOURCES})
+    ${idas_SOURCES} ${idas_BL_SOURCES} ${idas_SLU_SOURCES}  ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_idas_static
@@ -107,7 +115,7 @@ IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the IDAS library
   ADD_LIBRARY(sundials_idas_shared SHARED 
-    ${idas_SOURCES}  ${idas_BL_SOURCES}  ${shared_SOURCES})
+    ${idas_SOURCES}  ${idas_BL_SOURCES} ${idas_SLU_SOURCES} ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_idas_shared
@@ -123,7 +131,7 @@ IF(BUILD_SHARED_LIBS)
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the IDAS header files
-INSTALL(FILES ${idas_HEADERS} ${idas_BL_HEADERS} DESTINATION include/idas)
+INSTALL(FILES ${idas_HEADERS} ${idas_BL_HEADERS} ${idas_SLU_HEADERS} DESTINATION include/idas)
 
 # Install the IDAS implementation header file
 INSTALL(FILES idas_impl.h DESTINATION include/idas)
