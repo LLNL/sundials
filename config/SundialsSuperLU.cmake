@@ -13,13 +13,18 @@
 #    - loosely based on SundialsLapack.cmake
 # 
 
+#print_warning("SundilasSuperLU.cmake 1 SUPERLU_FOUND" "${SUPERLU_FOUND}")
 SET(SUPERLU_FOUND FALSE)
+#print_warning("SundilasSuperLU.cmake 2 SUPERLU_FOUND" "${SUPERLU_FOUND}")
 
 # set SUPERLU_LIBRARIES
 include(FindSUPERLU)
 # If we have the SUPERLU libraries, test them
+#print_warning("SundilasSuperLU.cmake 3: SUPERLU_LIBRARIES" "${SUPERLU_LIBRARIES}")
+#print_warning("SundilasSuperLU.cmake 4: SUPERLU_BLAS_LIBRARIES" "${SUPERLU_BLAS_LIBRARIES}")
 if(SUPERLU_LIBRARIES)
-  PRINT_WARNING("SundialsSuperLU.cmake SUPERLU_LIBRARIES" "${SUPERLU_LIBRARIES}")
+  #print_warning("SundilasSuperLU.cmake 5 SUPERLU_FOUND" "${SUPERLU_FOUND}")
+  #PRINT_WARNING("SundialsSuperLU.cmake 6 SUPERLU_LIBRARIES" "${SUPERLU_LIBRARIES}")
   message(STATUS "Looking for SUPERLU libraries... OK")
   # Create the SuperLUTest directory
   set(SuperLUTest_DIR ${PROJECT_BINARY_DIR}/SuperLUTest)
@@ -51,12 +56,16 @@ if(SUPERLU_LIBRARIES)
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${SuperLUTest_DIR}/CMakeFiles)
   # Process test result
+#PRINT_WARNING("LTEST_OK" "${LTEST_OK}")
   if(LTEST_OK)
+#PRINT_WARNING("x SundialsSuperLU.cmake SUPERLU_LIBRARIES" "${SUPERLU_LIBRARIES}")
     message(STATUS "Checking if SuperLU works... OK")
     set(SUPERLU_FOUND TRUE)
+    #print_warning("SUPERLU_FOUND" "${SUPERLU_FOUND}")
   else(LTEST_OK)
     message(STATUS "Checking if SuperLU works... FAILED")
   endif(LTEST_OK)
 else(SUPERLU_LIBRARIES)
+#PRINT_WARNING("y SundialsSuperLU.cmake SUPERLU_LIBRARIES" "${SUPERLU_LIBRARIES}")
   message(STATUS "Looking for SUPERLU libraries... FAILED")
 endif(SUPERLU_LIBRARIES)
