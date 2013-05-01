@@ -527,8 +527,8 @@ IF(SUPERLU_ENABLE)
   ENDIF(SUPERLU_FOUND)
 
   IF(SUPERLU_LIBRARIES AND NOT SUPERLU_FOUND)
-    PRINT_WARNING("SuperLU not functional"
-      "SuperLU support will not be provided")
+    PRINT_WARNING("SuperLU not functional - support will not be provided"
+      "Double check spelling specified libraries (search is case sensitive)")
   ENDIF(SUPERLU_LIBRARIES AND NOT SUPERLU_FOUND)
 
 ELSE(SUPERLU_ENABLE)
