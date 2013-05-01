@@ -116,3 +116,7 @@ public by way of updates to the website after 3/22/12.
     In cvodes.c, corrected the name passed to cvProcessError by cvInitialSetup
     (was CVode).
 
+28. Fixed minor errors (all in comments) reported by S. Ledru 3/30/13, in
+    cvDiurnal_kry_p.c, cvsDiurnal_kry_p.c, cvode_bandpre.h, cvode_bbdpre.h,
+    cvode.c, cvodes_bandpre.h, cvodes_bbdpre.h, ida.h, ida_bbdpre.h, ida_direct.h,
+    ida.c, idas_direct.h.
