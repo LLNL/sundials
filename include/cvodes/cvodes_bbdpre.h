@@ -66,7 +66,7 @@ extern "C" {
  *   Set y0
  *   ...
  *   cvode_mem = CVodeCreate(...);
- *   ier = CVodeMalloc(...);
+ *   ier = CVodeInit(...);
  *   ...
  *   flag = CVSpgmr(cvode_mem, pretype, maxl);
  *      -or-

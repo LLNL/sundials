@@ -59,7 +59,7 @@ extern "C" {
  *
  * Usage:
  *   The following is a summary of the usage of this module.
- *   Details of the calls to CVodeCreate, CVodeMalloc, CVSp*,
+ *   Details of the calls to CVodeCreate, CVodeInit, CVSp*,
  *   and CVode are available in the User Guide.
  *   To use these routines, the sequence of calls in the user
  *   main program should be as follows:
@@ -70,7 +70,7 @@ extern "C" {
  *   Set y0
  *   ...
  *   cvode_mem = CVodeCreate(...);
- *   ier = CVodeMalloc(...);
+ *   ier = CVodeInit(...);
  *   ...
  *   flag = CVSptfqmr(cvode_mem, pretype, maxl);
  *     -or-
