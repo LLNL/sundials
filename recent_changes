@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 13 March 2013
+Modifications to SUNDIALS after 22 March 2012 Release - as of 1 May 2013
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -107,4 +107,12 @@ public by way of updates to the website after 3/22/12.
     names yB0, ypB0, etc. in IDAS User Guide for IDACalcICB & IDACalcICBS.
     Also fixed incorrect or poorly worded argument descriptions for y, yp, etc.
     throughout IDAS and CVODES User Guides (ASA chapter).
+
+27. On seeing that many CVODE and CVODES private functions that should be
+    identical are not, made changes to correct this: Changed 48 CVODE private
+    function names from CV** to cv**.  Made numerous minor cosmetic changes
+    in cvode.c  and cvodes.c to make private functions match as much as
+    possible.  Fixed minor comment errors in cvode.c, cvodes.c, cvodes_impl.h.
+    In cvodes.c, corrected the name passed to cvProcessError by cvInitialSetup
+    (was CVode).
 
