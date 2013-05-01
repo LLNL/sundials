@@ -505,7 +505,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
  * IDAReInit re-initializes IDA's memory for a problem, assuming
  * it has already beeen allocated in a prior IDAInit call.
  * All problem specification inputs are checked for errors.
- * The problem size Neq is assumed to be unchaged since the call
+ * The problem size Neq is assumed to be unchanged since the call
  * to IDAInit, and the maximum order maxord must not be larger.
  * If any error occurs during reinitialization, it is reported to
  * the error handler function.
