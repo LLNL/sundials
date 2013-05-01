@@ -107,7 +107,7 @@ extern "C" {
  * respect to t) of the yy vector, yp.  It stores the result of   
  * F(t,y,y') in the vector rr. The yy, yp, and rr arguments are of 
  * type N_Vector. The user_data parameter is the pointer user_data 
- * passed by the user to the IDASetRdata routine. This user-supplied 
+ * passed by the user to the IDASetUserData routine. This user-supplied 
  * pointer is passed to the user's res function every time it is called, 
  * to provide access in res to user data.                                    
  *                                                                
@@ -133,7 +133,7 @@ typedef int (*IDAResFn)(realtype tt, N_Vector yy, N_Vector yp,
  * It stores the nrtfn values g_i(t,y,y') in the realtype array gout.
  * (Allocation of memory for gout is handled within IDA.)
  * The user_data parameter is the same as that passed by the user
- * to the IDASetRdata routine.  This user-supplied pointer is
+ * to the IDASetUserData routine.  This user-supplied pointer is
  * passed to the user's g function every time it is called.
  *
  * An IDARootFn should return 0 if successful or a non-zero value
@@ -160,7 +160,7 @@ typedef int (*IDARootFn)(realtype t, N_Vector y, N_Vector yp,
  *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
  *
  * The user_data parameter is the same as that passed by the user
- * to the IDASetRdata routine.  This user-supplied pointer is
+ * to the IDASetUserData routine.  This user-supplied pointer is
  * passed to the user's e function every time it is called.
  * An IDAEwtFn e must return 0 if the error weight vector has been
  * successfuly set and a non-zero value otherwise.
@@ -177,7 +177,7 @@ typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *user_data);
  * IDAErrHandlerFn.
  * The function eh takes as input the error code, the name of the
  * module reporting the error, the error message, and a pointer to
- * user data, the same as that passed to IDASetRdata.
+ * user data, the same as that passed to IDASetUserData.
  * 
  * All error codes are negative, except IDA_WARNING which indicates 
  * a warning (the solver continues).

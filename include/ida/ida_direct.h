@@ -78,7 +78,7 @@ extern "C" {
  *     the inverse of the step size h.
  *                                                                
  * user_data is a pointer to user Jacobian data - the same as the    
- *     user_data parameter passed to IDASetRdata.                     
+ *     user_data parameter passed to IDASetUserData.                     
  *                                                                
  * Jac is the dense matrix (of type DlsMat) to be loaded by  
  *     an IDADlsDenseJacFn routine with an approximation to the   
@@ -164,7 +164,7 @@ typedef int (*IDADlsDenseJacFn)(long int N, realtype t, realtype c_j,
  * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *                                                                
  * user_data  is a pointer to user Jacobian data - the same as the    
- *    user_data parameter passed to IDASetRdata.                      
+ *    user_data parameter passed to IDASetUserData.                      
  *                                                                
  * Jac is the band matrix (of type BandMat) to be loaded by    
  *     an IDADlsBandJacFn routine with an approximation to the    

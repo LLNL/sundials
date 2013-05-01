@@ -129,7 +129,7 @@ extern "C" {
  * space defined by the user, and made available to the
  * preconditioner function for the problem. The user_data
  * parameter is the same as that passed by the user to the
- * IDASetRdata routine.
+ * IDASetUserdata routine.
  *
  * An IDABBDLocalFn Gres is to return an int, defined in the same
  * way as for the residual function: 0 (success), +1 or -1 (fail).
