@@ -95,7 +95,7 @@
 #define MX           (NPEX*MXSUB)   /* MX = number of x mesh points */
 #define MY           (NPEY*MYSUB)   /* MY = number of y mesh points */
                                     /* Spatial mesh is MX by MY */
-/* CVodeMalloc Constants */
+/* CVodeInit Constants */
 
 #define RTOL    RCONST(1.0e-5)    /* scalar relative tolerance */
 #define FLOOR   RCONST(100.0)     /* value of C1 or C2 at which tolerances */
