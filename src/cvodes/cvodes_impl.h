@@ -591,7 +591,7 @@ struct CVodeBMemRec {
   /* Index of this backward problem */
   int cv_index;
 
-  /* Time at which the backward problem is intialized */
+  /* Time at which the backward problem is initialized */
   realtype cv_t0;
   
   /* CVODES memory for this backward problem */
