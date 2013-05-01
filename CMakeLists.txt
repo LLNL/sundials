@@ -297,7 +297,7 @@ ENDIF(NOT MPI_ENABLE)
 # Enable examples?
 # -------------------------------------------------------------
 
-OPTION(EXAMPLES_ENABLE "Build the SUNDIALS examples" OFF)
+OPTION(EXAMPLES_ENABLE "Build the SUNDIALS examples" ON)
 
 IF(EXAMPLES_ENABLE)
 
