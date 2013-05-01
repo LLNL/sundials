@@ -405,17 +405,17 @@ typedef struct CVodeMemRec {
 
 /* Prototype of internal ewtSet function */
 
-int CVEwtSet(N_Vector ycur, N_Vector weight, void *data);
+int cvEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
 /* High level error handler */
 
-void CVProcessError(CVodeMem cv_mem, 
+void cvProcessError(CVodeMem cv_mem, 
 		    int error_code, const char *module, const char *fname, 
 		    const char *msgfmt, ...);
 
-/* Prototype of internal errHandler function */
+/* Prototype of internal ErrHandler function */
 
-void CVErrHandler(int error_code, const char *module, const char *function, 
+void cvErrHandler(int error_code, const char *module, const char *function, 
 		  char *msg, void *data);
 
 /*

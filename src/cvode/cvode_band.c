@@ -111,14 +111,14 @@ int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVDLS_MEM_NULL, "CVBAND", "CVBand", MSGD_CVMEM_NULL);
+    cvProcessError(NULL, CVDLS_MEM_NULL, "CVBAND", "CVBand", MSGD_CVMEM_NULL);
     return(CVDLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
-    CVProcessError(cv_mem, CVDLS_ILL_INPUT, "CVBAND", "CVBand", MSGD_BAD_NVECTOR);
+    cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVBAND", "CVBand", MSGD_BAD_NVECTOR);
     return(CVDLS_ILL_INPUT);
   }
 
@@ -134,7 +134,7 @@ int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
   cvdls_mem = NULL;
   cvdls_mem = (CVDlsMem) malloc(sizeof(struct CVDlsMemRec));
   if (cvdls_mem == NULL) {
-    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVBAND", "CVBand", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVBAND", "CVBand", MSGD_MEM_FAIL);
     return(CVDLS_MEM_FAIL);
   }
 
@@ -159,7 +159,7 @@ int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    CVProcessError(cv_mem, CVDLS_ILL_INPUT, "CVBAND", "CVBand", MSGD_BAD_SIZES);
+    cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVBAND", "CVBand", MSGD_BAD_SIZES);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_ILL_INPUT);
   }
@@ -171,14 +171,14 @@ int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
   M = NULL;
   M = NewBandMat(N, mu, ml, smu);
   if (M == NULL) {
-    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVBAND", "CVBand", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVBAND", "CVBand", MSGD_MEM_FAIL);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
   }
   savedJ = NULL;
   savedJ = NewBandMat(N, mu, ml, mu);
   if (savedJ == NULL) {
-    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVBAND", "CVBand", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVBAND", "CVBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     free(cvdls_mem); cvdls_mem = NULL;
     return(CVDLS_MEM_FAIL);
@@ -186,7 +186,7 @@ int CVBand(void *cvode_mem, long int N, long int mupper, long int mlower)
   lpivots = NULL;
   lpivots = NewLintArray(N);
   if (lpivots == NULL) {
-    CVProcessError(cv_mem, CVDLS_MEM_FAIL, "CVBAND", "CVBand", MSGD_MEM_FAIL);
+    cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVBAND", "CVBand", MSGD_MEM_FAIL);
     DestroyMat(M);
     DestroyMat(savedJ);
     free(cvdls_mem); cvdls_mem = NULL;
@@ -279,7 +279,7 @@ static int cvBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
     retval = jac(n, mu, ml, tn, ypred, fpred, M, J_data, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
-      CVProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVBAND", "cvBandSetup", MSGD_JACFUNC_FAILED);
+      cvProcessError(cv_mem, CVDLS_JACFUNC_UNRECVR, "CVBAND", "cvBandSetup", MSGD_JACFUNC_FAILED);
       last_flag = CVDLS_JACFUNC_UNRECVR;
       return(-1);
     }
