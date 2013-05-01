@@ -55,7 +55,7 @@
 #define HUNDRED RCONST(100.0)   /* real 100.0   */
 
 /*=================================================================*/
-/*             CVODE Routine-Specific Constants                   */
+/*             CVODE Routine-Specific Constants                    */
 /*=================================================================*/
 
 /* 
