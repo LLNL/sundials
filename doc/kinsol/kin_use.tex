@@ -2932,7 +2932,7 @@ use in any of the Krylov iterative algorithms.
 The user must provide a function of type \ID{KINSysFn} defined as follows:
 \usfunction{KINSysFn}
 {
-  typedef void (*KINSysFn)(N\_Vector u, N\_Vector fval, void *user\_data);
+  typedef int (*KINSysFn)(N\_Vector u, N\_Vector fval, void *user\_data);
 }
 {
   This function computes $F(u)$ (or $G(u)$ for fixed-point iteration and Anderson 
