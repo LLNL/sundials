@@ -1,4 +1,4 @@
-Unresolved User Complaints as of 24 April 2013
+Unresolved User Complaints as of 29 May 2013
 
 * Jourdan, 3/29/10. Problems with FCVODE -- related to N type.
   May be OK now, or may still be a problem on 64-bit machines.
@@ -65,13 +65,7 @@ Unresolved User Complaints as of 24 April 2013
   Bug in build files: By default, they add links to BLAS/LAPACK (if found).
   Will change the default.
 
-* Nsing, 10/9/12. How to preserve CVODE forward state during ASA.
-
-* Bogle, 10/9/12. Question re preconditioners based on Domain Decomposition.
-
 * Puech, 10/18/12. Question on libraries to specify.
-
-* Stickel, 10/19/12. KINSOL failed to stop on a negative ier return from user F.
 
 * Barnard, 10/31/12. Question on relative speeds of LAPACK vs CVDense/CVBand.
 
@@ -102,4 +96,5 @@ Unresolved User Complaints as of 24 April 2013
 * Miller, 4/23/13.  Wants to call KINSol repeatedly after one call to
   KINCreate/KINInit.  This now fails because of a bad mxnewtstep value.
 
+* Combourieu, 5/7/13. Trouble with installation under ubuntu/Kdevelop4.
 
