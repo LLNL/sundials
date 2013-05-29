@@ -46,7 +46,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fnvinits(3, neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
- 1220    format('SUNDIALS_ERROR: FNVINITS returned IER = ', i2)
+ 1220    format('SUNDIALS_ERROR: FNVINITS returned IER = ', i4)
          stop
       endif
 
@@ -59,14 +59,14 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinmalloc(iout, rout, ier)
       if (ier .ne. 0) then
          write(6,1230) ier
- 1230    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ', i2)
+ 1230    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ', i4)
          stop
       endif
 
       call fkinsetiin('MAX_SETUPS', msbpre, ier)
       if (ier .ne. 0) then
          write(6,1231) ier
- 1231    format('SUNDIALS_ERROR: FKINSETIIN returned IER = ', i5)
+ 1231    format('SUNDIALS_ERROR: FKINSETIIN returned IER = ', i4)
          call fkinfree
          stop
       endif
@@ -74,7 +74,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinsetrin('FNORM_TOL', fnormtol, ier)
       if (ier .ne. 0) then
          write(6,1232) ier
- 1232    format('SUNDIALS_ERROR: FKINSETRIN returned IER = ', i5)
+ 1232    format('SUNDIALS_ERROR: FKINSETRIN returned IER = ', i4)
          call fkinfree
          stop
       endif
@@ -89,7 +89,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinsetvin('CONSTR_VEC', constr, ier)
       if (ier .ne. 0) then
          write(6,1233) ier
- 1233    format('SUNDIALS_ERROR: FKINSETVIN returned IER = ', i5)
+ 1233    format('SUNDIALS_ERROR: FKINSETVIN returned IER = ', i4)
          call fkinfree
          stop
       endif
@@ -97,7 +97,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinspgmr(maxl, maxlrst, ier)
       if (ier .ne. 0) then
          write(6,1235) ier
- 1235    format('SUNDIALS_ERROR: FKINSPGMR returned IER = ', i2)
+ 1235    format('SUNDIALS_ERROR: FKINSPGMR returned IER = ', i4)
          call fkinfree
          stop
       endif
@@ -114,14 +114,14 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then
          write(6,1242) ier, iout(9)
- 1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ', i2, /,
-     1          '                Linear Solver returned IER = ', i2)
+ 1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ', i4, /,
+     1          '                Linear Solver returned IER = ', i4)
          call fkinfree
          stop
       endif
 
       write(6,1245) ier
- 1245 format(/' FKINSOL return code is ', i3)
+ 1245 format(/' FKINSOL return code is ', i4)
 
       write(6,1246)
  1246 format(//' The resultant values of uu are:'/)
