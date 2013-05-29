@@ -89,7 +89,10 @@
      It must set the FVAL array to f(u), the system function, as a
      function of the array UU = u. Here UU and FVAL are arrays representing
      vectors, which are distributed vectors in the parallel case.
-     IER is a return flag (currently not used).
+     IER is a return flag, which should be 0 if FKFUN was successful.
+     Return IER > 0 if a recoverable error occurred (and KINSOL is to try
+     to recover).  Return IER < 0 if an unrecoverable error occurred.
+     
 
  (2s) Optional user-supplied dense Jacobian approximation routine: FKDJAC
   
@@ -134,6 +137,7 @@
      if successful, or a nonzero IER otherwise.
 
  (5) Initialization:  FNVINITS/FNVINITP and FKINMALLOC
+
 
  (5.1s) To initialize the serial machine environment, the user must make
         the following call:

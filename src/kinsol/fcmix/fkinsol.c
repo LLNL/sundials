@@ -392,5 +392,5 @@ int FKINfunc(N_Vector uu, N_Vector fval, void *user_data)
 
   FK_FUN(udata, fdata, &ier);
 
-  return(0);
+  return(ier);
 }
