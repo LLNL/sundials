@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 1 May 2013
+Modifications to SUNDIALS after 22 March 2012 Release - as of 29 May 2013
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -116,7 +116,14 @@ public by way of updates to the website after 3/22/12.
     In cvodes.c, corrected the name passed to cvProcessError by cvInitialSetup
     (was CVode).
 
-28. Fixed minor errors (all in comments) reported by S. Ledru 3/30/13, in
+28. Fixed minor errors (all in comments) reported by S. Ledru 3/18/13, in
     cvDiurnal_kry_p.c, cvsDiurnal_kry_p.c, cvode_bandpre.h, cvode_bbdpre.h,
     cvode.c, cvodes_bandpre.h, cvodes_bbdpre.h, ida.h, ida_bbdpre.h, ida_direct.h,
     ida.c, idas_direct.h.
+
+29. In FKINSOL module, fixed return value (= ier) in FKINfunc (file fkinsol.c),
+    and fixed corresponding description of FKFUN in fkinsol.h.  Also changed
+    void to int in "typedef void (*KINSysFn)..." in User Guide (file kin_use.tex).
+    In examples fkinDiagon_kry.f and fkinDiagon_kry_p.,f, changed format specs i2
+    to i4 in writes of error return values.
+
