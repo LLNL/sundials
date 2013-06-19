@@ -1,4 +1,4 @@
-Unresolved User Complaints as of 29 May 2013
+Unresolved User Complaints as of 19 June 2013
 
 * Jourdan, 3/29/10. Problems with FCVODE -- related to N type.
   May be OK now, or may still be a problem on 64-bit machines.
@@ -89,12 +89,6 @@ Unresolved User Complaints as of 29 May 2013
 
 * Ledru, 3/30/13.  Offers Sundials extensions with 3 RK methods, plus other
   corrections.
-
-* Fredriksson, 4/3/13.  Wants to add ability to handle root functions that
-  are identically zero for an interval in time; asks our opinion.
-
-* Miller, 4/23/13.  Wants to call KINSol repeatedly after one call to
-  KINCreate/KINInit.  This now fails because of a bad mxnewtstep value.
 
 * Combourieu, 5/7/13. Trouble with installation under ubuntu/Kdevelop4.
 
