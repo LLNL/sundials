@@ -99,6 +99,7 @@ typedef struct KINMemRec {
 				       algorithm)                              */
 
   realtype kin_mxnewtstep;     /* maximum allowable scaled step length         */
+  realtype kin_mxnstepin;      /* input (or preset) value for mxnewtstep       */
   realtype kin_sqrt_relfunc;   /* relative error bound for func(u)             */
   realtype kin_stepl;          /* scaled length of current step                */
   realtype kin_stepmul;        /* step scaling factor                          */

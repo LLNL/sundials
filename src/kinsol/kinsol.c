@@ -270,7 +270,7 @@ void *KINCreate(void)
   kin_mem->kin_mxnbcf           = MXNBCF_DEFAULT;
   kin_mem->kin_sthrsh           = TWO;
   kin_mem->kin_noMinEps         = FALSE;
-  kin_mem->kin_mxnewtstep       = ZERO;
+  kin_mem->kin_mxnstepin        = ZERO;
   kin_mem->kin_sqrt_relfunc     = RSqrt(uround);
   kin_mem->kin_scsteptol        = RPowerR(uround,TWOTHIRDS);
   kin_mem->kin_fnormtol         = RPowerR(uround,ONETHIRD);
@@ -397,6 +397,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 #define egamma           (kin_mem->kin_eta_gamma)
 #define noMinEps         (kin_mem->kin_noMinEps)
 #define mxnewtstep       (kin_mem->kin_mxnewtstep)
+#define mxnstepin        (kin_mem->kin_mxnstepin)
 #define mxnbcf           (kin_mem->kin_mxnbcf)
 #define relfunc          (kin_mem->kin_sqrt_relfunc)
 #define fnormtol         (kin_mem->kin_fnormtol)
@@ -1080,10 +1081,9 @@ static int KINSolInit(KINMem kin_mem)
 
   /* calculate the default value for mxnewtstep (maximum Newton step) */
 
-  if (mxnewtstep == ZERO)
-    mxnewtstep = THOUSAND * N_VWL2Norm(uu, uscale);
+  if (mxnstepin == ZERO) mxnewtstep = THOUSAND * N_VWL2Norm(uu, uscale);
+  else                   mxnewtstep = mxnstepin;
   if (mxnewtstep < ONE) mxnewtstep = ONE;
-
 
   /* additional set-up for inexact linear solvers */
 
