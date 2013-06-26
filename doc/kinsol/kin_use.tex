@@ -885,9 +885,9 @@ Pointer to an info file & \id{KINSetInfoFile} & \id{stdout} \\
 Data for problem-defining function & \id{KINSetUserData} & \id{NULL} \\
 Verbosity level of output & \id{KINSetPrintLevel} & 0 \\
 Max. number of nonlinear iterations & \id{KINSetNumMaxIters} & 200 \\
-No initial preconditioner setup & \id{KINSetNoInitSetup} & \id{FALSE} \\
+No initial matrix setup & \id{KINSetNoInitSetup} & \id{FALSE} \\
 No residual monitoring${}^{*}$ & \id{KINSetNoResMon} & \id{FALSE} \\
-Max. iterations without prec. setup & \id{KINSetMaxSetupCalls} & 10 \\
+Max. iterations without matrix setup & \id{KINSetMaxSetupCalls} & 10 \\
 Max. iterations without residual check${}^{*}$ & \id{KINSetMaxSubSetupCalls} & 5 \\
 Form of $\eta$ coefficient & \id{KINSetEtaForm} &  \id{KIN\_ETACHOICE1}\\
 Constant value of $\eta$ & \id{KINSetEtaConstValue} &  0.1 \\
@@ -1208,15 +1208,15 @@ flag = KINSetNoInitSetup(kin\_mem, noInitSetup);
 }
 {
   The function \ID{KINSetNoInitSetup} specifies whether an initial call
-  to the preconditioner setup function should be made or not.
+  to the preconditioner or Jacobian setup function should be made or not.
 }
 {
   \begin{args}[noInitSeti[]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[noInitSetup] (\id{booleantype})
-    flag controlling whether an initial call to the preconditioner setup
-    function is made (pass \id{FALSE}) or not made (pass \id{TRUE}).
+    flag controlling whether an initial call to the preconditioner or Jacobian
+    setup function is made (pass \id{FALSE}) or not made (pass \id{TRUE}).
   \end{args}
 }
 {
@@ -1230,10 +1230,10 @@ flag = KINSetNoInitSetup(kin\_mem, noInitSetup);
 }
 {
   The default value for \id{noInitSetup} is \id{FALSE}, meaning that an initial call
-  to the preconditioner setup function will be made.
+  to the preconditioner or Jacobian setup function will be made.
 
-  A call to this function is useful when solving a sequence of problems,
-  in which the final preconditioner value from problem is to be used initially
+  A call to this function is useful when solving a sequence of problems, in which
+  the final preconditioner or Jacobian value from one problem is to be used initially
   for the next problem. 
 }
 %%
@@ -1281,7 +1281,7 @@ flag = KINSetMaxSetupCalls(kin\_mem, msbset);
 {
   The function \ID{KINSetMaxSetupCalls} specifies the maximum number of 
   nonlinear iterations that can be performed between calls to the 
-  preconditioner setup function.
+  preconditioner or Jacobian setup function.
 }
 {
   \begin{args}[kin\_mem]
@@ -1289,7 +1289,7 @@ flag = KINSetMaxSetupCalls(kin\_mem, msbset);
     pointer to the {\kinsol} memory block.
   \item[msbset] (\id{long int})
     maximum number of nonlinear iterations without a call to the
-    preconditioner setup function.  Pass 0 to indicate the default.
+    preconditioner or Jacobian setup function.  Pass 0 to indicate the default.
   \end{args}
 }
 {
