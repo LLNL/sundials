@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2012-09-22 00:21:54 $
+ * $Revision: $
+ * $Date: $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -99,7 +99,7 @@ typedef struct KINMemRec {
 				       algorithm)                              */
 
   realtype kin_mxnewtstep;     /* maximum allowable scaled step length         */
-  realtype kin_mxnstepin;      /* input (or preset) value for mxnewtstep       */
+  realtype kin_mxnstepin;      /* input (or preset) value for mxnewtstep       */  
   realtype kin_sqrt_relfunc;   /* relative error bound for func(u)             */
   realtype kin_stepl;          /* scaled length of current step                */
   realtype kin_stepmul;        /* step scaling factor                          */
@@ -153,6 +153,8 @@ typedef struct KINMemRec {
   N_Vector *kin_dg_aa;	    /* vector array needed for AA, Broyden and NLEN */
   N_Vector *kin_q_aa;	    /* vector array needed for AA */
   N_Vector *kin_qtmp_aa;    /* vector array needed for AA */
+  realtype *kin_gamma_aa;   /* array of size maa used in AA */
+  realtype *kin_R_aa;       /* array of size maa*maa used in AA */
   long int kin_m_aa;	    /* parameter for AA, Broyden or NLEN */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */

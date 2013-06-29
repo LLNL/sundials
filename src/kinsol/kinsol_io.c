@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2012-09-22 00:21:54 $
+ * $Revision: $
+ * $Date: $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -957,7 +957,7 @@ int KINGetFuncNorm(void *kinmem, realtype *funcnorm)
   }
 
   kin_mem = (KINMem) kinmem;
-  *funcnorm = fnorm;
+  *funcnorm = kin_mem->kin_fnorm;
 
   return(KIN_SUCCESS);
 }
