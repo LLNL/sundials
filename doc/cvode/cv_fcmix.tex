@@ -1235,7 +1235,8 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \begin{verbatim}
        CALL FCVBBDOPT(LENRWBBD, LENIWBBD, NGEBBD)
 \end{verbatim}
-  The arguments returned are as follows.
+  The arguments should be consistent with {\C} type \id{long int}.  Their
+  returned values are as follows:
   \id{LENRWBBD} is the length of real preconditioner work space, in \id{realtype}
   words. \id{LENIWBBD} is the length of integer preconditioner work space, in
   integer words.  These sizes are local to the current processor.
