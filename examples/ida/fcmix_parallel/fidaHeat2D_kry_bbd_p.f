@@ -439,8 +439,8 @@ c The following declaration specification should match C type long int.
       integer reserr
       double precision tres, u(*), up(*), res(*)
 c
-      integer*4 i, lx, ly, offsetu, offsetue, locu, locue
-      integer*4 ixbegin, ixend, jybegin, jyend, mxsub2
+      integer i, lx, ly, offsetu, offsetue, locu, locue
+      integer ixbegin, ixend, jybegin, jyend, mxsub2
       double precision termx, termy, termctr
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
