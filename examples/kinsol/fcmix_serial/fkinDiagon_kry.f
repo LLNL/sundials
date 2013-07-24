@@ -21,11 +21,11 @@ c     ----------------------------------------------------------------
 c
       implicit none
 
-      integer ier, globalstrat, maxl, maxlrst
-      integer*4 PROBSIZE
+      integer PROBSIZE
       parameter(PROBSIZE=128)
-      integer*4 neq, i, msbpre
-      integer*4 iout(15)
+c The following declaration specification should match C type long int.
+      integer*4 neq, iout(15), msbpre
+      integer ier, globalstrat, maxl, maxlrst, i
       double precision pp, fnormtol, scsteptol
       double precision rout(2), uu(PROBSIZE), scale(PROBSIZE)
       double precision constr(PROBSIZE)
@@ -151,8 +151,9 @@ c     function of the following form.
 
       implicit none
 
-      integer ier
-      integer*4 neq, i
+      integer ier, i
+c The following declaration specification should match C type long int.
+      integer*4 neq
       double precision fval(*), uu(*)
 
       common /psize/ neq
@@ -172,13 +173,14 @@ c     The routine kpreco is the preconditioner setup routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine fkpset(udata, uscale, fdata, fscale, 
-     1                  vtemp1, vtemp2, ier)
+      subroutine fkpset(udata, uscale, fdata, fscale, vtemp1, vtemp2,
+     1                  ier)
 
       implicit none
 
-      integer ier
-      integer*4 neq, i
+      integer ier, i
+c The following declaration specification should match C type long int.
+      integer*4 neq
       double precision pp
       double precision udata(*), uscale(*), fdata(*), fscale(*)
       double precision vtemp1(*), vtemp2(*)
@@ -200,13 +202,13 @@ c     The routine kpsol is the preconditioner solve routine. It must have
 c     that specific name be used in order that the c code can find and link
 c     to it.  The argument list must also be as illustrated below:
       
-      subroutine fkpsol(udata, uscale, fdata, fscale, 
-     1                  vv, ftem, ier)
+      subroutine fkpsol(udata, uscale, fdata, fscale, vv, ftem, ier)
 
       implicit none
 
-      integer ier
-      integer*4 neq, i
+      integer ier, i
+c The following declaration specification should match C type long int.
+      integer*4 neq
       double precision pp
       double precision udata(*), uscale(*), fdata(*), fscale(*)
       double precision vv(*), ftem(*)
