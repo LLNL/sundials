@@ -36,23 +36,24 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
 c
-      integer*4 mudq, mldq, mukeep, mlkeep
-      integer*4 iout(25), ipar
+c The following declaration specification should match C type long int.
+      integer*4 mudq, mldq, mukeep, mlkeep, iout(25), ipar
       double precision rout(10), rpar
       integer nout, ier
       parameter (nout = 11)
       integer npes, inopt, maxl, gstype, maxrs, itask, iatol
+      integer nlocalg
+      parameter (nlocalg = mxsubg*mysubg)
       double precision t0, t1, tout, tret, dqrely, eplifac, dqincfac
       double precision atol, rtol
       double precision constr(nlocalg), uu(nlocalg), up(nlocalg)
@@ -61,7 +62,7 @@ c
       data atol/1.0d-3/, rtol/0.0d0/
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
 c Initialize variables
@@ -273,25 +274,26 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub, ipar(*)
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy, rpar(*)
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
 c
-      integer*4 i, iloc, j, jloc, offset, loc
-      integer*4 ixbegin, ixend, jybegin, jyend
+c The following declaration specification should match C type long int.
+      integer*4 ipar(*)
+      integer i, iloc, j, jloc, offset, loc
+      integer ixbegin, ixend, jybegin, jyend
       integer reserr
       double precision xfact, yfact
       double precision uu(*), up(*), id(*), res(*), constr(*)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
 c Initialize variables
@@ -350,23 +352,24 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub, ipar(*)
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy, rpar(*)
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
 c
+c The following declaration specification should match C type long int.
+      integer*4 ipar(*)
       integer reserr
       double precision tres
       double precision u(*), up(*), res(*)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
       call fidacommfn(nlocal, tres, u, up, ipar, rpar, reserr)
@@ -384,18 +387,18 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub, ipar(*)
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy, rpar(*)
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
 c
-      integer*4 nloc
+c The following declaration specification should match C type long int.
+      integer*4 nloc, ipar(*)
       integer reserr
       double precision tres, u(*), up(*)
 c
@@ -403,7 +406,7 @@ c
       double precision buffer(2*mysub)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
       call brecvpost(request, mxsub, mysub, buffer)
@@ -421,18 +424,18 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub, ipar(*)
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy, rpar(*)
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
 c
-      integer*4 nloc
+c The following declaration specification should match C type long int.
+      integer*4 nloc, ipar(*)
       integer reserr
       double precision tres, u(*), up(*), res(*)
 c
@@ -441,7 +444,7 @@ c
       double precision termx, termy, termctr
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
       mxsub2 = mxsub+2
@@ -499,25 +502,24 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
 c
-      integer*4 dsizex, dsizey
+      integer dsizex, dsizey
       double precision uarray(*)
 c
       integer ier, offsetu
       double precision bufleft(mysub), bufright(mysub)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
       if (jysub .ne. 0) then
@@ -560,26 +562,24 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
 c
-      integer*4 dsizex, dsizey
+      integer dsizex, dsizey
       integer request(*)
       double precision buffer(*)
-c
       integer ier
-      integer*4 offsetue
+      integer offsetue
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
       if (jysub .ne. 0) then
@@ -618,26 +618,24 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
 c
       integer request(*)
-      integer*4 dsizex
+      integer dsizex
       double precision buffer(*)
-c
-      integer*4 ly, dsizex2, offsetue
+      integer ly, dsizex2, offsetue
       integer ier, status(mpi_status_size)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
       dsizex2 = dsizex+2
@@ -675,22 +673,22 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c  local variables
 c
+c The following declaration specification should match C type long int.
       integer*4 iout(*), lenrwbbd, leniwbbd, ngebbd
       double precision tret, umax, u(*), rout(*)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
       call maxnorm(u, umax)
@@ -716,23 +714,21 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
 c
-      integer*4 i
-      integer ier
+      integer i, ier
       double precision temp, unorm, u(*)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
       temp = 0.0d0
@@ -755,12 +751,11 @@ c
 c
 c global variables
 c
-      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
-      integer thispe
-      integer mxsubg, mysubg, nlocalg
+c The following declaration specification should match C type long int.
+      integer*4 nlocal, neq
+      integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
+      integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
-      parameter (nlocalg = mxsubg*mysubg)
       double precision dx, dy, coeffx, coeffy, coeffxy
       double precision uext((mxsubg+2)*(mysubg+2))
 c
@@ -769,7 +764,7 @@ c
       double precision rtol, atol
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
-     &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
+     &              nlocal, neq, mx, my, mxsub, mysub, npex, npey,
      &              ixsub, jysub, thispe
 c
       write(*,30) mx, my, neq, mxsub, mysub, npex, npey, rtol, atol
@@ -797,6 +792,7 @@ c
 c
 c local variables
 c
+c The following declaration specification should match C type long int.
       integer*4 mudq, mukeep
       integer num
 c
@@ -819,6 +815,7 @@ c
 c
 c local variables
 c
+c The following declaration specification should match C type long int.
       integer*4 iout(*)
 c
       write(*,32) iout(5), iout(6), iout(21)
