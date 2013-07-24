@@ -25,18 +25,19 @@ c
 
       include "mpif.h"
 
+      integer localsize
+      parameter(localsize=32)
+      integer baseadd, i, ii
       integer ier, size, globalstrat, rank, mype, npes
       integer maxl, maxlrst
-      integer*4 localsize
-      parameter(localsize=32)
-      integer*4 neq, nlocal, msbpre, baseadd, i, ii
-      integer*4 iout(15)
+c The following declaration specification should match C type long int.
+      integer*4 neq, nlocal, iout(15), msbpre
       double precision rout(2)
       double precision pp, fnormtol, scsteptol
       double precision uu(localsize), scale(localsize)
       double precision constr(localsize)
 
-      common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
+      common /pcom/ pp(localsize), nlocal, mype, npes, baseadd
 
       nlocal = localsize
       neq = 4 * nlocal
@@ -173,13 +174,15 @@ c     function with the following name and form.
 
       implicit none
 
-      integer mype, npes, ier
-      integer*4 baseadd, nlocal, i, localsize
+c The following declaration specification should match C type long int.
+      integer*4 nlocal
+      integer ier, mype, npes, baseadd, i
+      integer localsize
       parameter(localsize=32)
       double precision pp
       double precision fval(*), uu(*)
 
-      common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
+      common /pcom/ pp(localsize), nlocal, mype, npes, baseadd
 
       do 10 i = 1, nlocal
  10      fval(i) = uu(i) * uu(i) - (i + baseadd) * (i + baseadd)
@@ -198,15 +201,16 @@ c     to it.  The argument list must also be as illustrated below:
 
       implicit none
 
-      integer ier, mype, npes
-      integer*4 localsize
+c The following declaration specification should match C type long int.
+      integer*4 nlocal
+      integer ier, mype, npes, baseadd, i
+      integer localsize
       parameter(localsize=32)
-      integer*4 baseadd, nlocal, i
       double precision pp
       double precision udata(*), uscale(*), fdata(*), fscale(*)
       double precision vtemp1(*), vtemp2(*)
 
-      common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
+      common /pcom/ pp(localsize), nlocal, mype, npes, baseadd
 
       do 10 i = 1, nlocal
  10      pp(i) = 0.5d0 / (udata(i)+ 5.0d0)
@@ -227,15 +231,16 @@ c     to it.  The argument list must also be as illustrated below:
 
       implicit none
 
-      integer ier, mype, npes
-      integer*4 baseadd, nlocal, i
-      integer*4 localsize
+c The following declaration specification should match C type long int.
+      integer*4 nlocal
+      integer ier, mype, npes, baseadd, i
+      integer localsize
       parameter(localsize=32)
       double precision udata(*), uscale(*), fdata(*), fscale(*)
       double precision vv(*), ftem(*)
       double precision pp
 
-      common /pcom/ pp(localsize), mype, npes, baseadd, nlocal
+      common /pcom/ pp(localsize), nlocal, mype, npes, baseadd
 
       do 10 i = 1, nlocal
  10      vv(i) = vv(i) * pp(i)
