@@ -165,12 +165,13 @@ provided with {\kinsol}: Steps marked {\p} correspond to
 \item
   {\bf Set problem dimensions}
 
-  {\s} Set \id{N}, the problem size $N$ (of type \id{int}).
+  {\s} Set \id{N}, the problem size $N$.
 
-  {\p} Set \id{Nlocal} (of type \id{int}), the local vector length (the
-  sub-vector length for this process). Set \id{N} (of type \id{int}), the global
-  vector length (the problem size $N$, and the sum of all the values of \id{Nlocal}).
-  Set the active set of processes.
+  {\p} Set \id{Nlocal}, the local vector length (the sub-vector length for this process).
+  Set \id{N}, the global vector length (the problem size $N$, and the sum of all the
+  values of \id{Nlocal}).  Set the active set of processes.
+
+  Note: The variables \id{N} and \id{Nlocal} should be of type \id{long int}.
 
 \item
   {\bf Set vector with initial guess}
