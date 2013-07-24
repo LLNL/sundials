@@ -25,25 +25,26 @@ C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
-      INTEGER*4 MX, MY, NEQ
+      INTEGER MX, MY, MXMY
       PARAMETER (MX=10, MY=5)
-      PARAMETER (NEQ=MX*MY)
+      PARAMETER (MXMY=MX*MY)
 C     
       DOUBLE PRECISION XMAX, YMAX
       DATA XMAX/2.0D0/, YMAX/1.0D0/
 C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE
       INTEGER IER, METH, ITMETH, IATOL, ITASK, JOUT
-      INTEGER*4 IOUT(25), IPAR(2)
-      INTEGER*4 MU, ML
+C The following declaration specification should match C type long int.
+      INTEGER*4 NEQ, IOUT(25), IPAR(2), MU, ML
       DOUBLE PRECISION RTOL, ATOL, T0, T, TOUT, DTOUT, UNORM 
-      DOUBLE PRECISION U(NEQ), ROUT(10), RPAR(5)
+      DOUBLE PRECISION U(MXMY), ROUT(10), RPAR(5)
 C
       DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
      1     LNJE/17/
 C
       CALL INITBX(XMAX, YMAX, MX, MY, U, IPAR, RPAR)
-C     
+C
+      NEQ = MX*MY
       T0 = 0.0D0
       METH = 2
       ITMETH = 2
@@ -129,10 +130,12 @@ C     ----------------------------------------------------------------
 C Load IPAR and RPAR with problem constants and U0 with initial values
       IMPLICIT NONE
 C
-      INTEGER*4 MX, MY, IPAR(*)
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
+      INTEGER MX, MY
       DOUBLE PRECISION XMAX, YMAX, U0(MY,MX), RPAR(*)
 C
-      INTEGER*4 I, J
+      INTEGER I, J
       DOUBLE PRECISION DX, DY, X, Y, HDCOEF, HACOEF, VDCOEF
 C
 C Problem constants
@@ -167,7 +170,7 @@ C
 C Compute max-norm of array U
       IMPLICIT NONE
 C
-      INTEGER*4 I, N
+      INTEGER I, N
       DOUBLE PRECISION U(*), UNORM, TEMP
 C
       TEMP = 0.0D0
@@ -185,13 +188,15 @@ C Right-hand side routine
       IMPLICIT NONE
 C
       DOUBLE PRECISION T, U(*), UDOT(*), RPAR(*)
-      INTEGER*4 IPAR(*), IER
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
+      INTEGER IER
 C
-      INTEGER*4 I, MX, IOFF, MY, J, IJ
+      INTEGER I, MX, IOFF, MY, J, IJ
       DOUBLE PRECISION UIJ, UDN, UUP, ULT, URT, HDIFF, HADV, VDIFF
       DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF
 C
-C Exract constants from IPAR and RPAR
+C Extract constants from IPAR and RPAR
       MX     = IPAR(1)
       MY     = IPAR(2)
       DX     = RPAR(1)
@@ -237,16 +242,17 @@ C     ----------------------------------------------------------------
 C Load banded Jacobian
       IMPLICIT NONE
 C
-      INTEGER N, MU, ML, MDIM
-      INTEGER*4 IPAR(*), IER
+C The following declaration specification should match C type long int.
+      INTEGER*4 N, MU, ML, MDIM, IPAR(*)
+      INTEGER IER
       DOUBLE PRECISION T, U(*), FU(*), BJAC(MDIM,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)
 C
-      INTEGER*4 MBAND, MX, MY
-      INTEGER*4 I, J, K, IOFF, MU1, MU2
+      INTEGER MBAND, MX, MY
+      INTEGER I, J, K, IOFF, MU1, MU2
       DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF
 C
-C Exract constants from IPAR and RPAR
+C Extract constants from IPAR and RPAR
       MX     = IPAR(1)
       MY     = IPAR(2)
       DX     = RPAR(1)

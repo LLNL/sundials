@@ -35,8 +35,10 @@ C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE, LNGE
       INTEGER METH, ITMETH, ITOL, ITASK, JOUT, NOUT, IERROOT
       INTEGER INFO(2)
-      INTEGER*4 IOUT(25), IPAR
-      INTEGER NEQ
+C The following declaration specification should match C type long int.
+      INTEGER*4 NEQ, IOUT(25), IPAR
+C The following declaration specification should match C type int.
+      INTEGER*4 NEQL
       DOUBLE PRECISION RTOL, T, T0, TOUT
       DOUBLE PRECISION Y(3), ATOL(3), ROUT(10), RPAR
 C
@@ -44,6 +46,7 @@ C
      1     LNGE/12/, LNJE/17/
 C
       NEQ = 3
+      NEQL = NEQ
       T0 = 0.0D0
       Y(1) = 1.0D0
       Y(2) = 0.0D0
@@ -89,7 +92,7 @@ C
          STOP
       ENDIF
 C
-      CALL FCVLAPACKDENSE(NEQ, IER)
+      CALL FCVLAPACKDENSE(NEQL, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
  40     FORMAT(///' SUNDIALS_ERROR: FCVLAPACKDENSE returned IER = ', I5)
@@ -169,7 +172,9 @@ C     ----------------------------------------------------------------
 C Fortran routine for right-hand side function.
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*), IER
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
+      INTEGER IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       YDOT(1) = -0.04D0 * Y(1) + 1.0D4 * Y(2) * Y(3)
@@ -188,7 +193,9 @@ C Fortran routine for root finding
       IMPLICIT NONE
 C
       DOUBLE PRECISION T, Y(*), G(*), RPAR(*)
-      INTEGER*4 IPAR(*), IER
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
+      INTEGER IER
 C
       G(1) = Y(1) - 1.0D-4
       G(2) = Y(3) - 1.0D-2
@@ -205,8 +212,9 @@ C     ----------------------------------------------------------------
 C Fortran routine for dense user-supplied Jacobian.
       IMPLICIT NONE
 C
-      INTEGER N, IER
-      INTEGER*4 IPAR(*)
+C The following declaration specification should match C type long int.
+      INTEGER*4 N, IPAR(*)
+      INTEGER IER
       DOUBLE PRECISION T, Y(*), FY(*), JAC(N,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)
 C

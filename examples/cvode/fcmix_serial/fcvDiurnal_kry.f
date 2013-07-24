@@ -36,18 +36,18 @@ C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
-      INTEGER*4 MX, MY, NEQ
+      INTEGER MX, MY
       PARAMETER (MX=10, MY=10)
-      PARAMETER (NEQ=2*MX*MY)
-      INTEGER*4 LENIPAR, LENRPAR
+      INTEGER LENIPAR, LENRPAR
       PARAMETER (LENIPAR=6+2*MX*MY, LENRPAR=12+8*MX*MY)
 C
       INTEGER METH,ITMETH,IATOL,ITASK,IER,LNCFL,LNPS
       INTEGER LNST,LNFE,LNSETUP,LNNI,LNCF,LQ,LH,LNPE,LNLI,LNETF
       INTEGER JOUT,JPRETYPE,IGSTYPE,MAXL
-      INTEGER*4 IOUT(25),IPAR(LENIPAR)
-      INTEGER*4 NST,NFE,NPSET,NPE,NPS,NNI,NETF
-      INTEGER*4 NLI,NCFN,NCFL
+C The following declaration specification should match C type long int.
+      INTEGER*4 NEQ, IOUT(25), IPAR(LENIPAR)
+      INTEGER NST,NFE,NPSET,NPE,NPS,NNI,NETF
+      INTEGER NLI,NCFN,NCFL
       DOUBLE PRECISION ATOL,AVDIM,T,TOUT,TWOHR,RTOL,FLOOR,DELT
       DOUBLE PRECISION U(2,MX,MY),ROUT(10),RPAR(LENRPAR)
 C
@@ -61,6 +61,7 @@ C     Load problem constants into IPAR, RPAR, and set initial values
       CALL INITKX(MX, MY, U, IPAR, RPAR)
 C
 C     Set other input arguments.
+      NEQ = 2*MX*MY
       T = 0.0D0
       METH = 2
       ITMETH = 2
@@ -163,10 +164,12 @@ C     Routine to set problem constants and initial values
 C
       IMPLICIT NONE
 C
-      INTEGER*4 MX, MY, IPAR(*)
+      INTEGER MX, MY
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
       DOUBLE PRECISION RPAR(*)
 C
-      INTEGER*4 MM, JY, JX, P_IPP, P_BD, P_P
+      INTEGER MM, JY, JX, P_IPP, P_BD, P_P
       DOUBLE PRECISION U0
       DIMENSION U0(2,MX,MY)
       DOUBLE PRECISION Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY, HDCO
@@ -242,10 +245,12 @@ C
       IMPLICIT NONE
 C
       DOUBLE PRECISION T, U(2,*), UDOT(2,*), RPAR(*)
-      INTEGER*4 IPAR(*), IER
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
+      INTEGER IER
 C
       INTEGER ILEFT, IRIGHT
-      INTEGER*4 JX, JY, MX, MY, MM, IBLOK0, IBLOK, IDN, IUP
+      INTEGER JX, JY, MX, MY, MM, IBLOK0, IBLOK, IDN, IUP
       DOUBLE PRECISION Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY, HDCO
       DOUBLE PRECISION VDCO, HACO
       DOUBLE PRECISION C1, C2, C1DN, C2DN, C1UP, C2UP, C1LT, C2LT
@@ -347,10 +352,11 @@ C
 C
       INTEGER IER, JOK, JCUR
       DOUBLE PRECISION T, U(2,*), FU(*), GAMMA, H
+C The following declaration specification should match C type long int.
       INTEGER*4 IPAR(*)
       DOUBLE PRECISION RPAR(*), V1(*), V2(*), V3(*)
 C
-      INTEGER*4 MX, MY, MM, P_IPP, P_BD, P_P
+      INTEGER MX, MY, MM, P_IPP, P_BD, P_P
       DOUBLE PRECISION Q1, Q2, Q3, Q4, C3, DY, HDCO, VDCO
 C
       IER = 0
@@ -408,12 +414,13 @@ C
       IMPLICIT NONE
 C
       INTEGER IER, LR
+C The following declaration specification should match C type long int.
       INTEGER*4 IPAR(*)
       DOUBLE PRECISION T, U(*), FU(*), R(*), Z(2,*)
       DOUBLE PRECISION GAMMA, DELTA, RPAR(*)
       DOUBLE PRECISION VTEMP(*)
 C
-      INTEGER*4 MM, P_IPP, P_P
+      INTEGER MM, P_IPP, P_P
 C
       IER = 0
 C
@@ -442,11 +449,11 @@ C     Routine to compute diagonal Jacobian blocks
 C
       IMPLICIT NONE
 C
-      INTEGER*4 MX, MY, MM
+      INTEGER MX, MY, MM
       DOUBLE PRECISION U(2,*), BD(2,2,MM)
       DOUBLE PRECISION Q1, Q2, Q3, Q4, C3, DY, HDCO, VDCO
 C
-      INTEGER*4 JY, JX, IBLOK, IBLOK0
+      INTEGER JY, JX, IBLOK, IBLOK0
       DOUBLE PRECISION C1, C2, CYDN, CYUP, DIAG, YDN, YUP
 C
       DO JY = 1, MY
@@ -478,10 +485,10 @@ C
       IMPLICIT NONE
 C
       INTEGER IER
-      INTEGER*4 MM, IPP(2,MM)
+      INTEGER MM, IPP(2,MM)
       DOUBLE PRECISION P(2,2,MM)
 C
-      INTEGER*4 I
+      INTEGER I
 C
 C     Add identity matrix and do LU decompositions on blocks, in place.
       DO I = 1, MM
@@ -501,10 +508,10 @@ C     Routine for backsolve
 C
       IMPLICIT NONE
 C
-      INTEGER*4 MM, IPP(2,MM)
+      INTEGER MM, IPP(2,MM)
       DOUBLE PRECISION P(2,2,MM), Z(2,MM)
 C      
-      INTEGER*4 I
+      INTEGER I
 C
       DO I = 1, MM
          CALL DGESL(P(1,1,I), 2, 2, IPP(1,I), Z(1,I), 0)

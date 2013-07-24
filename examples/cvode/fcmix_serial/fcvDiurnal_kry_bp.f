@@ -32,18 +32,18 @@ C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
-      INTEGER*4 MX, MY, NEQ
+      INTEGER MX, MY
       PARAMETER (MX=10, MY=10)
-      PARAMETER (NEQ=2*MX*MY)
 C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNPE, LNLI, LNPS
       INTEGER LNCFL, LH, LQ, METH, ITMETH, IATOL, ITASK
       INTEGER LNETF, IER, MAXL, JPRETYPE, IGSTYPE, JOUT
       INTEGER LLENRW, LLENIW, LLENRWLS, LLENIWLS
-      INTEGER*4 IOUT(25), IPAR(4)
-      INTEGER*4 NST, NFE, NPSET, NPE, NPS, NNI
-      INTEGER*4 NLI, NCFN, NCFL, NETF, MU, ML
-      INTEGER*4 LENRW, LENIW, LENRWLS, LENIWLS, LENRWBP, LENIWBP, NFEBP
+C The following declaration specification should match C type long int.
+      INTEGER*4 NEQ, IOUT(25), IPAR(4)
+      INTEGER NST, NFE, NPSET, NPE, NPS, NNI
+      INTEGER NLI, NCFN, NCFL, NETF, MU, ML
+      INTEGER LENRW, LENIW, LENRWLS, LENIWLS, LENRWBP, LENIWBP, NFEBP
       DOUBLE PRECISION ATOL, AVDIM, DELT, FLOOR, RTOL, T, TOUT, TWOHR
       DOUBLE PRECISION ROUT(10), U(2,MX,MY), RPAR(12)
 C
@@ -58,6 +58,7 @@ C Load IPAR, RPAR, and initial values
       CALL INITKX(MX, MY, U, IPAR, RPAR)
 C
 C     Set other input arguments.
+      NEQ = 2*MX*MY
       T = 0.0D0
       METH = 2
       ITMETH = 2
@@ -181,10 +182,12 @@ C Routine to set problem constants and initial values
 C
       IMPLICIT NONE
 C
-      INTEGER*4 MX, MY, IPAR(*)
+      INTEGER MX, MY
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
       DOUBLE PRECISION RPAR(*)
 C
-      INTEGER*4 MM, JY, JX, NEQ
+      INTEGER MM, JY, JX, NEQ
       DOUBLE PRECISION U0
       DIMENSION U0(2,MX,MY)
       DOUBLE PRECISION Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY, HDCO
@@ -250,11 +253,13 @@ C     ----------------------------------------------------------------
 C     Routine for right-hand side function f
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*), IER
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
+      INTEGER IER
       DOUBLE PRECISION T, U(2,*), UDOT(2,*), RPAR(*)
 C
       INTEGER ILEFT, IRIGHT
-      INTEGER*4 MX, MY, MM, JY, JX, IBLOK0, IDN, IUP, IBLOK
+      INTEGER MX, MY, MM, JY, JX, IBLOK0, IDN, IUP, IBLOK
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3, A4, OM, C3, DY, HDCO, VDCO, HACO
       DOUBLE PRECISION C1, C2, C1DN, C2DN, C1UP, C2UP, C1LT, C2LT
       DOUBLE PRECISION C1RT, C2RT, CYDN, CYUP, HORD1, HORD2, HORAD1
