@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 19 June 2013
+Modifications to SUNDIALS after 22 March 2012 Release - as of 24 July 2013
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -133,4 +133,10 @@ public by way of updates to the website after 3/22/12.
     member, mxnstepin, is the input (or preset to 0) value of mxnewtstep.
     KINSetMaxNewtonStep sets mxnstepin (if non-negative).  KINSolInit sets
     mxnewtstep to either the default or user's input according to mxnstepin.
+
+31. In all FCVODE, FIDA, FKINSOL examples, revised integer declarations so that
+    those which must match a C type (long int or int) have INTEGER*4 and a
+    comment about the type match.  All others are just INTEGER.  In the
+    corresponding user guides, added (or corrected) notes about the type
+    of N and Nlocal, and of arguments to FCVBPOPT and *BBDOPT.
 
