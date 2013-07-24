@@ -803,7 +803,8 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
 \begin{verbatim}
       CALL FKINBBDOPT (LENRBBD, LENIBBD, NGEBBD)
 \end{verbatim}
-  The arguments returned are as follows.
+  The arguments should be consistent with {\C} type \id{long int}.  Their
+  returned values are as follows:
   \id{LENRBBD} is the length of real preconditioner work space, in \id{realtype}
   words. \id{LENIBBD} is the length of integer preconditioner work space, in
   integer words. These sizes are local to the current process.
