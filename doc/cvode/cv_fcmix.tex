@@ -1116,7 +1116,8 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \begin{verbatim}
        CALL FCVBPOPT(LENRWBP, LENIWBP, NFEBP)
 \end{verbatim}
-  The arguments returned are as follows.
+  The arguments should be consistent with {\C} type \id{long int}.  Their
+  returned values are as follows:
   \id{LENRWBP} is the length of real preconditioner work space, in \id{realtype}
   words. \id{LENIWBP} is the length of integer preconditioner work space, in
   integer words. \id{NFEBP} is the number of $f(t,y)$ evaluations (calls to
