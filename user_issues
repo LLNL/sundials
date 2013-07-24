@@ -1,4 +1,4 @@
-Unresolved User Complaints as of 19 June 2013
+Unresolved User Complaints as of 24 July 2013
 
 * Jourdan, 3/29/10. Problems with FCVODE -- related to N type.
   May be OK now, or may still be a problem on 64-bit machines.
@@ -91,4 +91,10 @@ Unresolved User Complaints as of 19 June 2013
   corrections.
 
 * Combourieu, 5/7/13. Trouble with installation under ubuntu/Kdevelop4.
+
+* Klinke, 7/15/13. Matlab example mcvsDiscSOL_dns failed with a diagnostic
+  about CVodeSetMaxOrd, which is not supposed to be called there.
+
+* Combourieu, 7/19/13. Says CVODE solution changes significantly when tout
+  spacing is reduced.
 
