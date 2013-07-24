@@ -24,13 +24,12 @@ c
 c
       implicit none
 c
+c The following declaration specification should match C type long int.
+      integer*4 neq, iout(25), ipar
       integer ier, ierroot, info(2)
-      integer*4 iout(25), ipar
       double precision rout(10), rpar
-c
       integer iatol, nout, jout, itask
-      integer nst, kused, hused
-      integer*4 neq, i
+      integer nst, kused, hused, i
       double precision t0, t1, rtol, tout, tret
       double precision y(3), yp(3), atol(3)
 c
@@ -154,8 +153,9 @@ c
 c
       implicit none
 c
-      integer reserr
+c The following declaration specification should match C type long int.
       integer*4 ipar(*)
+      integer reserr
       double precision tres, rpar(*)
       double precision y(*), yp(*), res(*)
 c
@@ -176,8 +176,8 @@ c
 c
       implicit none
 c
-      integer*4 neq
-      integer*4 ipar(*)
+c The following declaration specification should match C type long int.
+      integer*4 neq, ipar(*)
       integer djacerr
       double precision t, h, cj, rpar(*)
       double precision y(*), yp(*), r(*), ewt(*), jac(neq,neq)
@@ -204,7 +204,9 @@ c
 c Fortran routine for rootfinding
       implicit none
 c
-      INTEGER*4 ipar(*), ier
+c The following declaration specification should match C type long int.
+      integer*4 ipar(*)
+      integer ier
       double precision t, y(*), yp(*), g(*), rpar(*)
 c
       g(1) = y(1) - 1.0d-4
@@ -221,7 +223,7 @@ c
 c
       implicit none
 c
-      integer*4 i
+      integer i
       double precision rtol, atol(*), y(*)
 c
       write(6,60) rtol, (atol(i), i = 1,3), (y(i), i = 1,3)
@@ -243,6 +245,7 @@ c
 c
       implicit none
 c
+c The following declaration specification should match C type long int.
       integer*4 iout(25)
       integer nst, reseval, jaceval, nni, ncf, netf, nge
 c
