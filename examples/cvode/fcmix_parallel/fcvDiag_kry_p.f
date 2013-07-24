@@ -13,15 +13,15 @@ C
 C
       INCLUDE "mpif.h"
 C
-      INTEGER*4 NLOCAL
+C The following declaration specification should match C type long int.
+      INTEGER*4 NLOCAL, NEQ, IOUT(25), IPAR(2)
       PARAMETER (NLOCAL=10)
 C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE, LNLI, LNPS
       INTEGER LNCFL, NOUT, MYPE, NPES, IER, METH, ITMETH, IATOL
       INTEGER ITASK, IPRE, IGS, JOUT
-      INTEGER*4 IOUT(25), IPAR(2)
-      INTEGER*4 NEQ, I, NST, NFE, NPSET, NPE, NPS, NNI, NLI
-      INTEGER*4 NCFL, NETF, NCFN
+      INTEGER I, NST, NFE, NPSET, NPE, NPS, NNI, NLI
+      INTEGER NCFL, NETF, NCFN
       DOUBLE PRECISION Y(1024), ROUT(10), RPAR(1)
       DOUBLE PRECISION ATOL, DTOUT, T, ALPHA, RTOL, TOUT, ERMAX, ERRI
       DOUBLE PRECISION GERMAX, AVDIM
@@ -278,10 +278,10 @@ C
 C     Routine for right-hand side function f
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*), IER
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
+      INTEGER IER, I, MYPE, NLOCAL
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
-C
-      INTEGER*4 I, MYPE, NLOCAL
       DOUBLE PRECISION ALPHA
 C
       NLOCAL = IPAR(1)
@@ -309,13 +309,12 @@ C     The vector r is copied to z, and the inverse of P (restricted to the
 C     local vector segment) is applied to the vector z.
       IMPLICIT NONE
 C
-      INTEGER IER, LR
+C The following declaration specification should match C type long int.
       INTEGER*4 IPAR(*)
+      INTEGER IER, LR, I, MYPE, NLOCAL, ISTART, IBASE 
       DOUBLE PRECISION T, Y(*), FY(*), R(*), Z(*)
       DOUBLE PRECISION GAMMA, DELTA, RPAR(*)
       DOUBLE PRECISION VTEMP(*)
-C
-      INTEGER*4 I, MYPE, NLOCAL, ISTART, IBASE
       DOUBLE PRECISION PSUBI, ALPHA
 C
       NLOCAL = IPAR(1)
@@ -340,7 +339,7 @@ C     ------------------------------------------------------------------------
 C
       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, H,
      &                   IPAR, RPAR, V1, V2, V3, IER)
-C     Empty function. Not needed for the preconditioner, but required
-C     by the  FCVODE module.
+C     Empty subroutine. Not needed for the preconditioner, but required
+C     by the FCVODE module.
       RETURN
       END

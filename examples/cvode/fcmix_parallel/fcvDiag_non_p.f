@@ -11,13 +11,13 @@ C
 C
       INCLUDE "mpif.h"
 C
-      INTEGER*4 NLOCAL
+C The following declaration specification should match C type long int.
+      INTEGER*4 NLOCAL, NEQ, IOUT(25), IPAR(2)
       PARAMETER (NLOCAL=2)
 C
       INTEGER IER, MYPE, NPES, NOUT, LNST, LNFE, LNNI, LNCF, LNETF
       INTEGER METH, ITMETH, IATOL, ITASK, JOUT
-      INTEGER*4 NEQ, I, NST, NFE, NNI, NCFN, NETF
-      INTEGER*4 IOUT(25), IPAR(2)
+      INTEGER I, NST, NFE, NNI, NCFN, NETF
       DOUBLE PRECISION Y(128), ROUT(10), RPAR(1)
       DOUBLE PRECISION ATOL, RTOL, DTOUT, T, ALPHA, TOUT
       DOUBLE PRECISION ERMAX, ERRI, GERMAX
@@ -170,11 +170,10 @@ C     Routine for right-hand side function f
 C
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*), IER
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
+      INTEGER IER, MYPE, NLOCAL, I
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
-C
-      INTEGER MYPE
-      INTEGER*4 NLOCAL, I
       DOUBLE PRECISION ALPHA
 C
       NLOCAL = IPAR(1)

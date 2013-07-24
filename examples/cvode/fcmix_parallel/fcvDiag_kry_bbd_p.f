@@ -13,17 +13,19 @@ C     Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
 C
       INCLUDE "mpif.h"
 C
-      INTEGER*4 NLOCAL
+C The following declaration specification should match C type long int.
+      INTEGER*4 NLOCAL, NEQ, IOUT(25), IPAR(2), MUDQ, MLDQ, MU, ML
       PARAMETER (NLOCAL=10)   
 C
       INTEGER NOUT, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE
       INTEGER LNLI, LNPS, LNCFL, MYPE, IER, NPES, METH, ITMETH
       INTEGER LLENRW, LLENIW, LLENRWLS, LLENIWLS
       INTEGER IATOL, ITASK, IPRE, IGS, JOUT
-      INTEGER*4 IOUT(25), IPAR(2)
-      INTEGER*4 NEQ, I, MUDQ, MLDQ, MU, ML, NETF
-      INTEGER*4 NST, NFE, NPSET, NPE, NPS, NNI, NLI, NCFN, NCFL, NGEBBD
-      INTEGER*4 LENRW, LENIW, LENRWLS, LENIWLS, LENRWBBD, LENIWBBD
+      INTEGER I, NETF
+C The following declaration specification should match C type long int.
+      INTEGER*4 LENRWBBD, LENIWBBD, NGEBBD
+      INTEGER NST, NFE, NPSET, NPE, NPS, NNI, NLI, NCFN, NCFL
+      INTEGER LENRW, LENIW, LENRWLS, LENIWLS
       DOUBLE PRECISION Y(1024), ROUT(10), RPAR(1)
       DOUBLE PRECISION ALPHA, TOUT, ERMAX, AVDIM
       DOUBLE PRECISION ATOL, ERRI, RTOL, GERMAX, DTOUT, T
@@ -264,11 +266,10 @@ C
 C     Routine for right-hand side function f
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*), IER
+C The following declaration specification should match C type long int.
+      INTEGER*4 IPAR(*)
+      INTEGER IER, MYPE, I, NLOCAL
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
-C
-      INTEGER MYPE
-      INTEGER*4 I, NLOCAL
       DOUBLE PRECISION ALPHA
 C     
       NLOCAL = IPAR(1)
@@ -290,7 +291,9 @@ C
 C     Routine to define local approximate function g, here the same as f. 
       IMPLICIT NONE
 C
-      INTEGER*4 NLOC, IPAR(*), IER
+C The following declaration specification should match C type long int.
+      INTEGER*4 NLOC, IPAR(*)
+      INTEGER IER
       DOUBLE PRECISION T, YLOC(*), GLOC(*), RPAR(*)
 C     
       CALL FCVFUN(T, YLOC, GLOC, IPAR, RPAR, IER)
