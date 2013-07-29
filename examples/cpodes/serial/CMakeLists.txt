@@ -57,7 +57,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${CPODES_examples})
   ADD_EXECUTABLE(${example} ${example}.c)
-  ADD_TEST(${example} ${TESTRUNNER} ${example})
+  #ADD_TEST(${example} ${TESTRUNNER} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   FILE(GLOB example_out ${example}.out*)
   IF(EXAMPLES_INSTALL)
