@@ -19,4 +19,10 @@ Provide better guidance as to exactly what the from of the Jacobian is
 for use adding a new linear solver.  Math considerations in IDA indicates
 teh Jacobian is dF/dy + alpha dF/dydot.  But, alpha is not defined and
 cj is teh variable in the IDA structures that the user needs for this.
-CVODE likely also has similar disconect but I did nto check this.  
+CVODE likely also has similar disconect but I did nto check this.
+
+(LEB, 7/30/13)
+When running tests (i.e. testRunner) the 'output' directory is build
+within the source tree - don't want anything in source tree.  The output
+should be built in the 'Testing' directory relative to the directory in
+which 'make test' is run.
