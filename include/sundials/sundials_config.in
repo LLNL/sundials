@@ -63,7 +63,7 @@
  * otherwise
  *     #define SUNDIALS_SUPERLU 0
  */
-@SUPERLU_MACRO@
+/* @SUPERLU_MACRO@ */
 
 /* FNVECTOR: Allow user to specify different MPI communicator
  * If it was found that the MPI implementation supports MPI_Comm_f2c, then
