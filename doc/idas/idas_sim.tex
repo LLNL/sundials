@@ -564,15 +564,15 @@ noise level.  If the different components have different noise levels,
 then \id{abstol} should be a vector.  See the example \id{idasRoberts\_dns} in the
 {\idas} package, and the discussion of it in the {\idas} Examples document
 \cite{idas_ex}.
-In that problem, the three components vary betwen 0 and 1, and have
+In that problem, the three components vary between 0 and 1, and have
 different noise levels; hence the \id{abstol} vector.  It is impossible to
 give any general advice on \id{abstol} values, because the appropriate noise
 levels are completely problem-dependent.  The user or modeler hopefully has
 some idea as to what those noise levels are.
 
-(3) Finally, it is important to pick all the tolerance values conservately,
+(3) Finally, it is important to pick all the tolerance values conservatively,
 because they control the error committed on each individual time step.
-The final (global) errors are some sort of accumulation of those
+The final (global) errors are a sort of accumulation of those
 per-step errors.  A good rule of thumb is to reduce the tolerances by a
 factor of .01 from the actual desired limits on errors.  So if you
 want .01\% accuracy (globally), a good choice is \id{reltol}$=10^{-6}$.
