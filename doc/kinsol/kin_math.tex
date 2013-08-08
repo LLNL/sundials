@@ -423,13 +423,13 @@ roughly the same order of magnitude.
 It is also possible for the user to set the stopping criterion via the user 
 supplied problem-defining function and calling \ID{KINSetAAStopCrit}.  
 Note that when using Anderson acceleration, 
-convergence is checked after teh acceleration is applied.
+convergence is checked after the acceleration is applied.
 
 
 \subsubsection*{Picard - Anderson Acceleration Stopping Criterion}
 
 The default stopping criterion is 
-\[ \|F(u_n)_{D_F,\infty} < \mbox{\sc ftol} \, , \]
+\[ \|F(u_n)\|_{D_F,\infty} < \mbox{\sc ftol} \, , \]
 where $D_F$ is a user-defined diagonal identity matrix that can be the identity 
 or a scaling matrix that is chosen so that the components of $D_F F(u)$ have 
 roughly the same order of magnitude.
