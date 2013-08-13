@@ -458,7 +458,7 @@ int main(int argc, char *argv[])
 
   printf("Free memory\n\n");
 
-  IDAFree(ida_mem);
+  IDAFree(&ida_mem);
   N_VDestroy_Serial(yy);
   N_VDestroy_Serial(yp);
   N_VDestroy_Serial(q);
