@@ -341,7 +341,8 @@ flag = KINInit(kin\_mem, func, tmpl);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block returned by \id{KINCreate}.
   \item[func] (\Id{KINSysFn})
-    is the {\C} function which computes the system function $F$ in the nonlinear
+    is the {\C} function which computes the system function $F$ 
+    (or $G(u)$ for fixed-point iteration and Anderson acceleration) in the nonlinear
     problem.  This function has the form \id{func(u, fval, user\_data)}. 
     (For full details see \S\ref{ss:sysFn}.)
   \item[tmpl] (\id{N\_Vector})
@@ -1777,7 +1778,8 @@ flag = KINSetSysFunc(kin\_mem, func);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[func] (\id{KINSysFn})
-    user-supplied function that evaluates $F(u)$.
+    user-supplied function that evaluates $F(u)$ (or $G(u)$ for fixed-point 
+    iteration and Anderson acceleration).
   \end{args}
 }
 {
