@@ -114,7 +114,7 @@ vectors of the same type as \id{u}.
 The use of the dense linear solver is specified by calling \id{KINDense} which
 also specifies the problem size \id{NEQ}.
 
-The main program proceeds by solving the nonlinear system six times, using 
+The main program proceeds by solving the nonlinear system eight times, using 
 each of the two initial guesses \id{u1} and \id{u2} (which are first copied
 into the vector \id{u} using \id{N\_VScale\_Serial} from
 the {\nvecs} module), with and without globalization through line search
