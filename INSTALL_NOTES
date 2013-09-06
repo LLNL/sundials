@@ -30,9 +30,9 @@ A. Preliminaries
 
 The SUNDIALS suite (or an individual solver) is distributed as a compressed archive
 (.tar.gz). The name of the distribution archive is of the form 'solver'-x.y.z.tar.gz,
-where 'solver' is one of: 'sundials', 'cvode', 'cvodes', 'ida', 'idas', or 'kinsol',
-and x.y.z represents the version number (of the SUNDIALS suite or of the individual 
-solver).
+where 'solver' is one of: 'sundials', 'arkode', 'cvode', 'cvodes', 'ida', 'idas', or 
+'kinsol', and x.y.z represents the version number (of the SUNDIALS suite or of the 
+individual solver).
 
 To begin the installation, first uncompress and expand the sources, by issuing
 
@@ -105,6 +105,17 @@ NVECTOR_SERIAL module
 NVECTOR_PARALLEL module
   libraries:    libsundials_nvecparallel.{a,so} libsundials_fnvecparallel.a
   header files: nvector/nvector_parallel.h
+
+
+ARKODE module
+  libraries:    libsundials_arkode.{a,so} libsundials_farkode.a
+  header files: arkode/arkode.h          arkode/arkode_lapack.h
+                arkode/arkode_band.h     arkode/arkode_pcg.h
+                arkode/arkode_bandpre.h  arkode/arkode_spbcgs.h
+                arkode/arkode_bbdpre.h   arkode/arkode_spfgmr.h
+                arkode/arkode_dense.h    arkode/arkode_spgmr.h
+                arkode/arkode_direct.h   arkode/arkode_spils.h
+                arkode/arkode_impl.h     arkode/arkode_sptfqmr.h
 
 
 CVODE module
@@ -285,7 +296,7 @@ B.3.1. General options
 
   Although each existing solver module is built by default, support for a
   given solver can be explicitly disabled using this option. 
-  The valid values for solver are: cvode, cvodes, 
+  The valid values for solver are: arkode, cvode, cvodes, 
   ida, and kinsol.
 
 --enable-examples

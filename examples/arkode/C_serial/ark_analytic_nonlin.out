@@ -1,0 +1,24 @@
+
+Analytical ODE test problem:
+   reltol = 1.0e-06
+   abstol = 1.0e-10
+
+        t           u
+   ---------------------
+    1.000000    0.916462
+    2.000000    1.608963
+    3.000000    2.139624
+    4.000000    2.564868
+    5.000000    2.917914
+    6.000000    3.218505
+    7.000000    3.481550
+    8.000000    3.713361
+    9.000000    3.922139
+   10.000000    4.111104
+   ---------------------
+
+Final Solver Statistics:
+   Internal solver steps = 97 (attempted = 97)
+   Total RHS evals:  Fe = 586,  Fi = 0
+   Total number of error test failures = 0
+

@@ -1,0 +1,128 @@
+# -----------------------------------------------------------------
+# $Revision: 1.8 $
+# $Date: 2007-01-29 17:36:28 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for parallel grid NVECTOR module
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+@SET_MAKE@
+
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+MPICC       = @MPICC@
+MPI_INC_DIR = @MPI_INC_DIR@
+MPI_LIB_DIR = @MPI_LIB_DIR@
+MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
+CPPFLAGS    = @CPPFLAGS@
+CFLAGS      = @CFLAGS@
+LDFLAGS     = @LDFLAGS@
+LIBS        = @LIBS@
+
+FCMIX_ENABLED = @FCMIX_ENABLED@
+
+top_srcdir = $(srcdir)/../..
+
+INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include -I$(MPI_INC_DIR)
+
+LIB_REVISION = 0:2:0
+
+NVECPARGRID_LIB       = libsundials_nvecparallelgrid.la
+NVECPARGRID_LIB_FILES = nvector_parallel_grid.lo
+
+FNVECPARGRID_LIB       = libsundials_fnvecparallelgrid.la
+FNVECPARGRID_LIB_FILES = fnvector_parallel_grid.lo
+
+SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_math.lo
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
+
+all: $(NVECPARGRID_LIB) $(FNVECPARGRID_LIB)
+
+$(NVECPARGRID_LIB): shared $(NVECPARGRID_LIB_FILES)
+	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) $(MPI_FLAGS) -o $(NVECPARGRID_LIB) $(NVECPARGRID_LIB_FILES) $(SHARED_LIB_FILES) $(LDFLAGS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) -rpath $(libdir) -version-info $(LIB_REVISION)
+
+$(FNVECPARGRID_LIB): $(FNVECPARGRID_LIB_FILES)
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                                                                    \
+	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECPARGRID_LIB} ${FNVECPARGRID_LIB_FILES} ${SHARED_LIB_FILES} ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -version-info ${LIB_REVISION}" ; \
+	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECPARGRID_LIB} ${FNVECPARGRID_LIB_FILES} ${SHARED_LIB_FILES} ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -version-info ${LIB_REVISION} ;        \
+	 fi
+
+install: $(NVECPARGRID_LIB) $(FNVECPARGRID_LIB)
+	$(mkinstalldirs) $(includedir)/nvector
+	$(mkinstalldirs) $(libdir)
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECPARGRID_LIB) $(libdir)
+	$(INSTALL_HEADER) $(top_srcdir)/include/nvector/nvector_parallel_grid.h $(includedir)/nvector/
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                    \
+	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECPARGRID_LIB} ${libdir}" ; \
+	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECPARGRID_LIB} ${libdir} ;        \
+	 fi
+
+uninstall:
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECPARGRID_LIB)
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                             \
+	   echo "${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECPARGRID_LIB}" ; \
+	   ${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECPARGRID_LIB} ;        \
+	 fi
+	rm -f $(includedir)/nvector/nvector_parallel_grid.h
+	$(rminstalldirs) ${includedir}/nvector
+
+shared:
+	@cd ${top_builddir}/src/sundials ; \
+	 ${MAKE} ;                         \
+	 cd ${abs_builddir}
+
+clean:
+	$(LIBTOOL) --mode=clean rm -f $(NVECPARGRID_LIB)
+	rm -f $(NVECPARGRID_LIB_FILES)
+	rm -f nvector_parallel_grid.o
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then               \
+	   echo "${LIBTOOL} --mode=clean rm -f ${FNVECPARGRID_LIB}" ; \
+	   ${LIBTOOL} --mode=clean rm -f ${FNVECPARGRID_LIB} ;        \
+	   echo "rm -f ${FNVECPARGRID_LIB_FILES}" ;                   \
+	   rm -f ${FNVECPARGRID_LIB_FILES} ;                          \
+	   echo "rm -f fnvector_parallel_grid.o" ;                     \
+	   rm -f fnvector_parallel_grid.o ;                            \
+	 fi
+
+distclean: clean
+	rm -f Makefile
+
+nvector_parallel_grid.lo: $(srcdir)/nvector_parallel_grid.c
+	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/nvector_parallel_grid.c
+fnvector_parallel_grid.lo: $(srcdir)/fnvector_parallel_grid.c
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                    \
+	   echo "${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} ${MPI_FLAGS} $(INCLUDES) ${CFLAGS} -c ${srcdir}/fnvector_parallel_grid.c" ; \
+	   ${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} ${MPI_FLAGS} $(INCLUDES) ${CFLAGS} -c ${srcdir}/fnvector_parallel_grid.c ;        \
+	 fi
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

@@ -23,7 +23,7 @@ function print_usage
     echo "Usage: tarscript [-hs] [module]"
     echo "   -h       : help"
     echo "   -s       : short (no documentation)"
-    echo "   module   : all, sundials, cvode, cvodes, ida, idas, kinsol"
+    echo "   module   : all, sundials, arkode, cvode, cvodes, ida, idas, kinsol"
     echo ""
     echo "Notes: If the module is not specified, all tarballs are created."
     echo "       This script must be executed from within its directory." 
@@ -85,6 +85,7 @@ module=$1
 # Test module 
 #------------
 do_sundials=F
+do_arkode=F
 do_cvode=F
 do_cvodes=F
 do_ida=F
@@ -94,6 +95,7 @@ do_kinsol=F
 if [ -z $module ]; then
     module="all"
     do_sundials=T
+    do_arkode=T
     do_cvode=T
     do_cvodes=T
     do_ida=T
@@ -103,6 +105,7 @@ else
     case $module in
         all) 
             do_sundials=T
+            do_arkode=T
             do_cvode=T
             do_cvodes=T
             do_ida=T
@@ -111,6 +114,9 @@ else
             ;;
         sundials)
             do_sundials=T
+            ;;
+        arkode)
+            do_arkode=T
             ;;
         cvode)
             do_cvode=T
@@ -201,6 +207,21 @@ cd -
 if [ $do_sundials = "T" ]; then
     cp -r sundials/sundialsTB tmp_dir/
     cp -r sundials/sundialsTB/doc tmp_dir/doc/sundialsTB
+fi
+
+if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
+    cp -r sundials/include/arkode tmp_dir/include/
+    cp -r sundials/src/arkode tmp_dir/src/
+    cp -r sundials/doc/arkode tmp_dir/doc/
+    cp -r sundials/examples/arkode tmp_dir/examples/
+    if [ $doc = "T" ]; then
+        echo -e "--- ARKODE documentation"
+        cd tmp_dir/doc/arkode
+        make QUIET= purge
+        make QUIET= ug_pdf
+        make QUIET= ex_pdf
+        cd - 
+    fi
 fi
 
 if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
@@ -298,12 +319,27 @@ if [ $do_sundials = "T" ]; then
     
     tarfile=$filename".tar"
     $scriptdir/shared $tarfile $distrobase
+    $scriptdir/arkode $tarfile $distrobase $doc
     $scriptdir/cvode $tarfile $distrobase $doc
     $scriptdir/cvodes $tarfile $distrobase $doc
     $scriptdir/ida $tarfile $distrobase $doc
     $scriptdir/idas $tarfile $distrobase $doc
     $scriptdir/kinsol $tarfile $distrobase $doc
     $scriptdir/stb $tarfile $distrobase $doc
+    gzip $tarfile
+fi
+
+# ARKODE
+if [ $do_arkode = "T" ]; then
+    echo -e "\n--- Generate ARKODE tarball ---"
+    
+    mv $distrobase arkode-$ARK_VER
+    distrobase="arkode-"$ARK_VER
+    filename="arkode-"$ARK_VER
+    
+    tarfile=$filename".tar"
+    $scriptdir/shared $tarfile $distrobase
+    $scriptdir/arkode $tarfile $distrobase $doc
     gzip $tarfile
 fi
 

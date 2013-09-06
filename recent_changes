@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 24 July 2013
+Modifications to SUNDIALS after 22 March 2012 Release - as of 29 May 2013
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -140,3 +140,8 @@ public by way of updates to the website after 3/22/12.
     corresponding user guides, added (or corrected) notes about the type
     of N and Nlocal, and of arguments to FCVBPOPT and *BBDOPT.
 
+32. Added ARKODE solver to SUNDIALS, including additional PCG and FGMRES 
+    Krylov solvers and CMAKE-based build system support for C++ and Fortran90
+    example programs.  Also added a new parallel N_Vector kernel, corresponding 
+    to a multi-dimensional Cartesian grid with an arbitrary number of ghost zones
+    defined at each Cartesian face.

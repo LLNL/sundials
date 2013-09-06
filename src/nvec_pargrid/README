@@ -1,0 +1,81 @@
+                  NVECTOR_PARALLEL_GRID
+                Release 2.5.0, March 2012
+
+
+MPI parallel implementation of the NVECTOR module for SUNDIALS, for
+multi-dimensional regular grids with optional ghost zones at each face. 
+
+NVECTOR_PARALLEL_GRID defines the content field of N_Vector to be a
+structure containing the global length of the vector, arrays
+containing the total and active array lengths along each dimension, an
+array containing the offset from the start of any dimension to that 
+dimension's active data, a pointer to the beginning of a contiguous
+local data array, an MPI communicator, and a boolean flag indicating
+ownership of the data array, and a boolean flag indicating whether the
+array uses Fortran (first-index-fastest) or C (last-index-fastest)
+ordering.  
+
+NVECTOR_PARALLEL_GRID defines several macros to provide access to the 
+content of a parallel grid N_Vector, several constructors for
+variables of type N_Vector, a constructor for an array of variables of
+type N_Vector, and destructors for N_Vector and N_Vector array.
+
+NVECTOR_PARALLEL_GRID provides implementations for all vector
+operations defined by the generic NVECTOR module in the table of
+operations. 
+
+
+A. Documentation
+----------------
+
+The MPI parallel grid NVECTOR implementation is fully described in the
+user documentation for any of the SUNDIALS solvers [1-5]. A PDF file
+for the user guide for a particular solver is available in the
+solver's subdirectory under doc/. 
+
+
+B. Installation
+---------------
+
+For basic installation instructions see /sundials/INSTALL_NOTES. 
+For complete installation instructions see any of the user guides.
+
+
+C. References
+-------------
+
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.7.0," 
+    LLNL technical report UCRL-MA-208108, December 2011.
+
+[2] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.7.0," 
+    LLNL technical report UCRL-MA-208111, December 2011.
+
+[3] A. C. Hindmarsh and R. Serban, "User Documentation for IDA v2.7.0," 
+    LLNL technical report UCRL-MA-208112, December 2011.
+
+[4] R. Serban and C. Petra,  "User Documentation for IDAS v1.1.0," 
+    LLNL technical report UCRL-SM-234051, December 2011.
+
+[5] A. M. Collier, A. C. Hindmarsh, R. Serban,and C. S. Woodward, "User 
+    Documentation for KINSOL v2.7.0," LLNL technical report UCRL-MA-208116, 
+    December 2011.
+
+
+D. Releases
+-----------
+
+v. 2.5.0 - Mar. 2012
+v. 2.4.0 - May  2009
+v. 2.3.0 - Nov. 2006
+v. 2.2.0 - Mar. 2006
+v. 2.1.1 - May  2005
+v. 2.1.0 - Apr. 2005
+v. 2.0.2 - Mar. 2005
+v. 2.0.1 - Jan. 2005
+v. 2.0   - Dec. 2004
+v. 1.0   - Jul. 2002 (first SUNDIALS release)
+
+
+E. Revision History
+-------------------
+

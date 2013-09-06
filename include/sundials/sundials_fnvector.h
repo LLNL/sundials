@@ -33,6 +33,7 @@ extern "C" {
 #define FCMIX_CVODE   1
 #define FCMIX_IDA     2
 #define FCMIX_KINSOL  3
+#define FCMIX_ARKODE  4
 
 #ifdef __cplusplus
 }

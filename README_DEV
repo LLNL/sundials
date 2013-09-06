@@ -73,6 +73,10 @@ SUNDIALS VERSION HISTORY
 Note: there was no library versioning before sundials-2.2.0
 
 
+ARKODE
+RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
+1.0.0     2.6.0               2:0:0           2.0.0
+
 CVODE
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
 2.4.0     2.2.0               0:0:0           0.0.0

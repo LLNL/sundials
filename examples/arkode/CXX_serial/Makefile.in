@@ -1,0 +1,137 @@
+# -----------------------------------------------------------------
+# $Revision: 1.12 $
+# $Date: 2009-02-17 02:58:47 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for ARKODE C++ serial examples
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+srcdir       = @srcdir@
+top_builddir = @top_builddir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL      = @INSTALL@
+INSTALL_PROG = @INSTALL_PROGRAM@
+INSTALL_FILE = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+SHARED_LIBS  = @SHARED_LIBS@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CXX      = @CXX@
+CXXFLAGS = @CXXFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+LAPACK_ENABLED = @LAPACK_ENABLED@
+BLAS_LAPACK_LIBS = @BLAS_LAPACK_LIBS@
+
+OBJ_EXT = @OBJEXT@
+EXE_EXT = @EXEEXT@
+
+EXS_INSTDIR = @EXS_INSTDIR@
+
+top_srcdir = $(srcdir)/../../..
+
+SUNDIALS_INCS = -I$(top_srcdir)/include -I$(top_builddir)/include
+
+SUNDIALS_LIBS = $(top_builddir)/src/arkode/libsundials_arkode.la            \
+	        $(top_builddir)/src/nvec_ser/libsundials_nvecserial.la
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
+
+EXAMPLES = ark_analytic_sys
+EXAMPLES_BL = 
+EXTRAFILES = plot_sol.py
+
+OBJECTS = ${EXAMPLES:=${OBJ_EXT}}
+OBJECTS_BL = ${EXAMPLES_BL:=${OBJ_EXT}}
+EXECS = ${EXAMPLES:=${EXE_EXT}}
+EXECS_BL = ${EXAMPLES_BL:=${EXE_EXT}}
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+all:
+	@for i in ${EXAMPLES} ; do \
+	  $(LIBTOOL) --mode=compile $(CXX) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/$${i}.cpp -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(CXX) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}${OBJ_EXT} $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS) ; \
+	done
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	for i in ${EXAMPLES_BL} ; do \
+	  $(LIBTOOL) --mode=compile $(CXX) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/$${i}.cpp -o $${i}${OBJ_EXT} ; \
+	  $(LIBTOOL) --mode=link $(CXX) -o $(builddir)/$${i}$(EXE_EXT) $(builddir)/$${i}${OBJ_EXT} $(CFLAGS) $(LDFLAGS) $(SUNDIALS_LIBS) $(LIBS) $(BLAS_LAPACK_LIBS) ; \
+	done ; \
+	fi
+
+install:
+	$(mkinstalldirs) $(EXS_INSTDIR)/arkode/CXX_serial
+	$(INSTALL_FILE) Makefile_ex $(EXS_INSTDIR)/arkode/CXX_serial/Makefile
+	$(INSTALL_FILE) $(top_srcdir)/examples/arkode/CXX_serial/README $(EXS_INSTDIR)/arkode/CXX_serial/
+	for i in ${EXAMPLES} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/arkode/CXX_serial/$${i}.cpp $(EXS_INSTDIR)/arkode/CXX_serial/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/arkode/CXX_serial/$${i}.out $(EXS_INSTDIR)/arkode/CXX_serial/ ; \
+	done
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	for i in ${EXAMPLES_BL} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/arkode/CXX_serial/$${i}.cpp $(EXS_INSTDIR)/arkode/CXX_serial/ ; \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/arkode/CXX_serial/$${i}.out $(EXS_INSTDIR)/arkode/CXX_serial/ ; \
+	done ; \
+	fi
+	for i in ${EXTRAFILES} ; do \
+	  $(INSTALL_FILE) $(top_srcdir)/examples/arkode/CXX_serial/$${i} $(EXS_INSTDIR)/arkode/CXX_serial/ ; \
+	done
+
+uninstall:
+	rm -f $(EXS_INSTDIR)/arkode/CXX_serial/Makefile
+	rm -f $(EXS_INSTDIR)/arkode/CXX_serial/README
+	for i in ${EXAMPLES} ; do \
+	  rm -f $(EXS_INSTDIR)/arkode/CXX_serial/$${i}.cpp ; \
+	  rm -f $(EXS_INSTDIR)/arkode/CXX_serial/$${i}.out ; \
+	done
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	for i in ${EXAMPLES_BL} ; do \
+	  rm -f $(EXS_INSTDIR)/arkode/CXX_serial/$${i}.cpp ; \
+	  rm -f $(EXS_INSTDIR)/arkode/CXX_serial/$${i}.out ; \
+	done ; \
+	fi
+	for i in ${EXTRAFILES} ; do \
+	  rm -f $(EXS_INSTDIR)/arkode/CXX_serial/$${i} ; \
+	done
+	$(rminstalldirs) $(EXS_INSTDIR)/arkode/CXX_serial
+	$(rminstalldirs) $(EXS_INSTDIR)/arkode
+
+clean:
+	rm -rf .libs
+	rm -f *.lo *.o
+	rm -f ${OBJECTS} ${OBJECTS_BL}
+	rm -f $(EXECS) $(EXECS_BL)
+
+distclean: clean
+	rm -f Makefile
+	rm -f Makefile_ex
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                 \
+	${SHELL} ./config.status --recheck ; \
+	cd ${abs_builddir}

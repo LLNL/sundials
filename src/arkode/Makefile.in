@@ -1,0 +1,183 @@
+# -----------------------------------------------------------------
+# $Revision: 1.12 $
+# $Date: 2009-03-25 23:10:50 $
+# -----------------------------------------------------------------
+# Programmer(s): Radu Serban and Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2002, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for ARKODE module
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+@SET_MAKE@
+
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+LAPACK_ENABLED = @LAPACK_ENABLED@
+
+top_srcdir = $(srcdir)/../..
+
+INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
+
+LIB_REVISION = 1:0:0
+
+ARKODE_LIB    = libsundials_arkode.la
+
+ARKODE_SRC_FILES = arkode.c arkode_band.c arkode_bandpre.c arkode_bbdpre.c arkode_butcher.c arkode_dense.c arkode_direct.c arkode_io.c arkode_pcg.c arkode_spbcgs.c arkode_spfgmr.c arkode_spgmr.c arkode_spils.c arkode_sptfqmr.c
+ARKODE_BL_SRC_FILES = arkode_lapack.c
+
+ARKODE_OBJ_FILES = $(ARKODE_SRC_FILES:.c=.o)
+ARKODE_BL_OBJ_FILES = $(ARKODE_BL_SRC_FILES:.c=.o)
+
+ARKODE_LIB_FILES = $(ARKODE_SRC_FILES:.c=.lo)
+ARKODE_BL_LIB_FILES = $(ARKODE_BL_SRC_FILES:.c=.lo)
+
+SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
+                   $(top_builddir)/src/sundials/sundials_dense.lo \
+                   $(top_builddir)/src/sundials/sundials_direct.lo \
+                   $(top_builddir)/src/sundials/sundials_iterative.lo \
+                   $(top_builddir)/src/sundials/sundials_pcg.lo \
+                   $(top_builddir)/src/sundials/sundials_spfgmr.lo \
+                   $(top_builddir)/src/sundials/sundials_spgmr.lo \
+                   $(top_builddir)/src/sundials/sundials_spbcgs.lo \
+                   $(top_builddir)/src/sundials/sundials_sptfqmr.lo \
+                   $(top_builddir)/src/sundials/sundials_math.lo \
+                   $(top_builddir)/src/sundials/sundials_nvector.lo
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+rminstalldirs = $(SHELL) $(top_srcdir)/config/rminstalldirs
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+all: $(ARKODE_LIB)
+
+$(ARKODE_LIB): shared $(ARKODE_LIB_FILES)
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  make lib_with_bl;                          \
+	else                                         \
+	  make lib_without_bl;                       \
+	fi
+
+lib_without_bl: shared $(ARKODE_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(ARKODE_LIB) $(ARKODE_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+
+lib_with_bl: shared $(ARKODE_LIB_FILES) $(ARKODE_BL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(ARKODE_LIB) $(ARKODE_LIB_FILES)  $(ARKODE_BL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
+
+install: $(ARKODE_LIB)
+	$(mkinstalldirs) $(includedir)/arkode
+	$(mkinstalldirs) $(libdir)
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(ARKODE_LIB) $(libdir)
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode.h         $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_band.h    $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_bandpre.h $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_bbdpre.h  $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_dense.h   $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_direct.h  $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_pcg.h     $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_spbcgs.h  $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_spfgmr.h  $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_spgmr.h   $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_spils.h   $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_sptfqmr.h $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/src/arkode/arkode_impl.h        $(includedir)/arkode/
+	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
+	  $(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_lapack.h  $(includedir)/arkode/ ; \
+	fi
+
+uninstall:
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(ARKODE_LIB)
+	rm -f $(includedir)/arkode/arkode.h
+	rm -f $(includedir)/arkode/arkode_band.h
+	rm -f $(includedir)/arkode/arkode_bandpre.h
+	rm -f $(includedir)/arkode/arkode_bbdpre.h
+	rm -f $(includedir)/arkode/arkode_dense.h
+	rm -f $(includedir)/arkode/arkode_direct.h
+	rm -f $(includedir)/arkode/arkode_lapack.h
+	rm -f $(includedir)/arkode/arkode_pcg.h
+	rm -f $(includedir)/arkode/arkode_spbcgs.h
+	rm -f $(includedir)/arkode/arkode_spfgmr.h
+	rm -f $(includedir)/arkode/arkode_spgmr.h
+	rm -f $(includedir)/arkode/arkode_spils.h
+	rm -f $(includedir)/arkode/arkode_sptfqmr.h
+	rm -f $(includedir)/arkode/arkode_impl.h
+	$(rminstalldirs) $(includedir)/arkode
+
+shared:
+	@cd ${top_builddir}/src/sundials ; \
+	${MAKE} ;                         \
+	cd ${abs_builddir}
+
+clean:
+	$(LIBTOOL) --mode=clean rm -f $(ARKODE_LIB)
+	rm -f $(ARKODE_LIB_FILES)
+	rm -f $(ARKODE_BL_LIB_FILES)
+	rm -f $(ARKODE_OBJ_FILES)
+	rm -f $(ARKODE_BL_OBJ_FILES)
+
+distclean: clean
+	rm -f Makefile
+
+arkode.lo: $(srcdir)/arkode.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode.c
+arkode_band.lo: $(srcdir)/arkode_band.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_band.c
+arkode_bandpre.lo: $(srcdir)/arkode_bandpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_bandpre.c
+arkode_bbdpre.lo: $(srcdir)/arkode_bbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_bbdpre.c
+arkode_butcher.lo: $(srcdir)/arkode_butcher.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_butcher.c
+arkode_dense.lo: $(srcdir)/arkode_dense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_dense.c
+arkode_direct.lo: $(srcdir)/arkode_direct.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_direct.c
+arkode_io.lo: $(srcdir)/arkode_io.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_io.c
+arkode_lapack.lo: $(srcdir)/arkode_lapack.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_lapack.c
+arkode_pcg.lo: $(srcdir)/arkode_pcg.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_pcg.c
+arkode_spbcgs.lo: $(srcdir)/arkode_spbcgs.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_spbcgs.c
+arkode_spfgmr.lo: $(srcdir)/arkode_spfgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_spfgmr.c
+arkode_spgmr.lo: $(srcdir)/arkode_spgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_spgmr.c
+arkode_spils.lo: $(srcdir)/arkode_spils.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_spils.c
+arkode_sptfqmr.lo: $(srcdir)/arkode_sptfqmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_sptfqmr.c
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

@@ -4,14 +4,14 @@
 
 
 The family of solvers referred to as SUNDIALS consists of solvers 
-CVODE (ODE), CVODES (ODE with sensitivity analysis capabilities),
-IDA (DAE), IDAS (DAE with sensitivity analysis capabilities), and
-KINSOL (for nonlinear algebraic systems).
+ARKODE (ODE), CVODE (ODE), CVODES (ODE with sensitivity analysis 
+capabilities), IDA (DAE), IDAS (DAE with sensitivity analysis 
+capabilities), and KINSOL (for nonlinear algebraic systems).
 
 The various solvers of this family share many subordinate modules contained
 in this module:
 - generic NVECTOR module
-- generic linear solver modules (band, dense, lapack, spgmr, bcg, tfqmr)
+- generic linear solver modules (band, dense, lapack, pcg, spfgmr, spgmr, spbcg, sptfqmr)
 - definitions of SUNDIALS types (realtype, booleantype)
 - common math functions (RpowerI, RPowerR, RSqrt, RAbs,...)
 

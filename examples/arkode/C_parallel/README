@@ -1,0 +1,16 @@
+List of parallel ARKODE C examples
+
+  ark_diurnal_kry_bbd_p : 2-D 2-species diurnal advection-diffusion with BBD preconditioner
+  ark_diurnal_kry_p     : 2-D 2-species diurnal advection-diffusion
+
+Sample results:
+
+  SUNDIALS was built with the following options:
+
+  ./configure CC=mpicc F77=mpif90 CFLAGS="-O3" FFLAGS="-O3" --enable-examples
+
+  System Architecture: x86_64
+  Processor Type: Intel Xeon E5462
+  Operating System: Ubuntu 12.0.4 LTS
+  C/Fortran Compilers: gcc/gfortran v4.6.3
+  MPI: MPICH2 v1.4.1

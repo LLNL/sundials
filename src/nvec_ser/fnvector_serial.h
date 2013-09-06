@@ -64,6 +64,8 @@ extern N_Vector F2C_IDA_vecQB;
 
 extern N_Vector F2C_KINSOL_vec;
 
+extern N_Vector F2C_ARKODE_vec;
+
 /* 
  * Prototypes of exported functions 
  *

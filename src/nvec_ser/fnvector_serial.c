@@ -37,6 +37,8 @@ N_Vector F2C_IDA_vecQB;
 
 N_Vector F2C_KINSOL_vec;
 
+N_Vector F2C_ARKODE_vec;
+
 /* Fortran callable interfaces */
 
 void FNV_INITS(int *code, long int *N, int *ier)
@@ -58,6 +60,11 @@ void FNV_INITS(int *code, long int *N, int *ier)
     F2C_KINSOL_vec = NULL;
     F2C_KINSOL_vec = N_VNewEmpty_Serial(*N);
     if (F2C_KINSOL_vec == NULL) *ier = -1;
+    break;
+  case FCMIX_ARKODE:
+    F2C_ARKODE_vec = NULL;
+    F2C_ARKODE_vec = N_VNewEmpty_Serial(*N);
+    if (F2C_ARKODE_vec == NULL) *ier = -1;
     break;
   default:
     *ier = -1;

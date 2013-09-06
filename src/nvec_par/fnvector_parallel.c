@@ -37,6 +37,8 @@ N_Vector F2C_IDA_vecQB;
 
 N_Vector F2C_KINSOL_vec;
 
+N_Vector F2C_ARKODE_vec;
+
 #ifndef SUNDIALS_MPI_COMM_F2C
 #define MPI_Fint int
 #endif
@@ -70,6 +72,11 @@ void FNV_INITP(MPI_Fint *comm, int *code, long int *L, long int *N, int *ier)
     F2C_KINSOL_vec = NULL;
     F2C_KINSOL_vec = N_VNewEmpty_Parallel(F2C_comm, *L, *N);
     if (F2C_KINSOL_vec == NULL) *ier = -1;
+    break;
+  case FCMIX_ARKODE:
+    F2C_ARKODE_vec = NULL;
+    F2C_ARKODE_vec = N_VNewEmpty_Parallel(F2C_comm, *L, *N);
+    if (F2C_ARKODE_vec == NULL) *ier = -1;
     break;
   default:
     *ier = -1;
