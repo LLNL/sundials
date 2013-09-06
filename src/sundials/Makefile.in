@@ -46,7 +46,7 @@ top_srcdir = $(srcdir)/../..
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
 
-SHARED_SRC_FILES = sundials_direct.c sundials_band.c sundials_dense.c sundials_iterative.c sundials_math.c sundials_nvector.c sundials_spgmr.c sundials_spbcgs.c sundials_sptfqmr.c
+SHARED_SRC_FILES = sundials_direct.c sundials_band.c sundials_dense.c sundials_iterative.c sundials_math.c sundials_nvector.c sundials_pcg.c sundials_spfgmr.c sundials_spgmr.c sundials_spbcgs.c sundials_sptfqmr.c
 
 SHARED_OBJ_FILES = $(SHARED_SRC_FILES:.c=.o)
 
@@ -75,6 +75,8 @@ install:
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_band.h       $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_dense.h      $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_iterative.h  $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_pcg.h        $(includedir)/sundials/
+	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spfgmr.h     $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spgmr.h      $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_spbcgs.h     $(includedir)/sundials/
 	$(INSTALL_HEADER) $(top_srcdir)/include/sundials/sundials_sptfqmr.h    $(includedir)/sundials/
@@ -93,6 +95,8 @@ uninstall:
 	rm -f $(includedir)/sundials/sundials_dense.h
 	rm -f $(includedir)/sundials/sundials_lapack.h
 	rm -f $(includedir)/sundials/sundials_iterative.h
+	rm -f $(includedir)/sundials/sundials_pcg.h
+	rm -f $(includedir)/sundials/sundials_spfgmr.h
 	rm -f $(includedir)/sundials/sundials_spgmr.h
 	rm -f $(includedir)/sundials/sundials_spbcgs.h
 	rm -f $(includedir)/sundials/sundials_sptfqmr.h
@@ -120,6 +124,10 @@ sundials_dense.lo: $(srcdir)/sundials_dense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_dense.c
 sundials_iterative.lo: $(srcdir)/sundials_iterative.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_iterative.c
+sundials_pcg.lo: $(srcdir)/sundials_pcg.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_pcg.c
+sundials_spfgmr.lo: $(srcdir)/sundials_spfgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_spfgmr.c
 sundials_spgmr.lo: $(srcdir)/sundials_spgmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/sundials_spgmr.c
 sundials_spbcgs.lo: $(srcdir)/sundials_spbcgs.c
