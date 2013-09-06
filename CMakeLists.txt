@@ -56,6 +56,9 @@ MARK_AS_ADVANCED(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
+SET(arkodelib_VERSION "1.0.0")
+SET(arkodelib_SOVERSION "1")
+
 SET(cvodelib_VERSION "1.0.0")
 SET(cvodelib_SOVERSION "1")
 
@@ -147,6 +150,12 @@ ENDMACRO(LIST2STRING)
 
 # For each SUNDIALS solver available (i.e. for which we have the
 # sources), give the user the option of enabling/disabling it.
+
+IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/arkode")
+  OPTION(BUILD_ARKODE  "Build the ARKODE library"  ON)
+ELSE(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/arkode")
+  SET(BUILD_ARKODE OFF)
+ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/arkode")
 
 IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cvode")
   OPTION(BUILD_CVODE  "Build the CVODE library"  ON)
@@ -249,11 +258,37 @@ ENDIF(UNIX)
 # FCMIX support is an option only if at least one solver that 
 # provides such an interface is built.
 
-IF(BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
+IF(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
   SHOW_VARIABLE(FCMIX_ENABLE BOOL "Enable Fortran-C support" OFF)
-ELSE(BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
+ELSE(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
   HIDE_VARIABLE(FCMIX_ENABLE)
-ENDIF(BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
+ENDIF(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL)
+
+# -------------------------------------------------------------
+# Enable Fortran90 support?
+# -------------------------------------------------------------
+
+# F90 support is an option only if ARKode is built and 
+# examples are enabled
+
+IF(BUILD_ARKODE AND EXAMPLES_ENABLE)
+  SHOW_VARIABLE(F90_ENABLE BOOL "Enable Fortran90 ARKode examples" OFF)
+ELSE(BUILD_ARKODE AND EXAMPLES_ENABLE)
+  HIDE_VARIABLE(F90_ENABLE)
+ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
+
+# -------------------------------------------------------------
+# Enable C++ support?
+# -------------------------------------------------------------
+
+# C++ support is an option only if ARKode is built and 
+# examples are enabled
+
+IF(BUILD_ARKODE AND EXAMPLES_ENABLE)
+  SHOW_VARIABLE(CXX_ENABLE BOOL "Enable C++ ARKode examples" OFF)
+ELSE(BUILD_ARKODE AND EXAMPLES_ENABLE)
+  HIDE_VARIABLE(CXX_ENABLE)
+ENDIF(BUILD_ARKODE AND EXAMPLES_ENABLE)
 
 # -------------------------------------------------------------
 # Enable BLAS/LAPACK support?
@@ -290,7 +325,9 @@ IF(NOT MPI_ENABLE)
   HIDE_VARIABLE(MPI_LIBRARIES)
   HIDE_VARIABLE(MPI_EXTRA_LIBRARIES)
   HIDE_VARIABLE(MPI_MPICC)
+  HIDE_VARIABLE(MPI_MPICXX)
   HIDE_VARIABLE(MPI_MPIF77)
+  HIDE_VARIABLE(MPI_MPIF90)
 ENDIF(NOT MPI_ENABLE)
 
 # -------------------------------------------------------------
@@ -367,6 +404,34 @@ IF(FCMIX_ENABLE OR LAPACK_ENABLE)
       "FCMIX support will not be provided")
   ENDIF(NOT F77_FOUND AND FCMIX_ENABLE)
 ENDIF(FCMIX_ENABLE OR LAPACK_ENABLE)
+
+# -------------------------------------------------------------
+# A Fortran90 compiler is needed if:
+# (a) F90 is enabled, and
+# (b) ARKODE examples are enabled
+# -------------------------------------------------------------
+
+IF(F90_ENABLE AND BUILD_ARKODE)
+  INCLUDE(SundialsFortran90)
+  IF(NOT F90_FOUND AND F90_ENABLE)
+    PRINT_WARNING("Fortran90 compiler not functional"
+      "F90 support will not be provided")
+  ENDIF(NOT F90_FOUND AND F90_ENABLE)
+ENDIF(F90_ENABLE AND BUILD_ARKODE)
+
+# -------------------------------------------------------------
+# A C++ compiler is needed if:
+# (a) C++ is enabled, and
+# (b) ARKODE examples are enabled
+# -------------------------------------------------------------
+
+IF(CXX_ENABLE AND BUILD_ARKODE)
+  INCLUDE(SundialsCXX)
+  IF(NOT CXX_FOUND AND CXX_ENABLE)
+    PRINT_WARNING("C++ compiler not functional"
+      "C++ support will not be provided")
+  ENDIF(NOT CXX_FOUND AND CXX_ENABLE)
+ENDIF(CXX_ENABLE AND BUILD_ARKODE)
 
 # -------------------------------------------------------------
 # Check if we need an alternate way of specifying the Fortran
@@ -557,7 +622,21 @@ IF(MPI_ENABLE)
   IF(MPIC_FOUND AND FCMIX_ENABLE)
     INCLUDE(SundialsMPIF)
   ENDIF(MPIC_FOUND AND FCMIX_ENABLE)
+  IF(MPIC_FOUND AND CXX_ENABLE)
+    INCLUDE(SundialsMPICXX)
+  ENDIF(MPIC_FOUND AND CXX_ENABLE)
+  IF(MPIC_FOUND AND F90_ENABLE)
+    INCLUDE(SundialsMPIF90)
+  ENDIF(MPIC_FOUND AND F90_ENABLE)
 ENDIF(MPI_ENABLE)
+
+# -------------------------------------------------------------
+# If using MPI with C++, disable C++ extensions (for known wrappers)
+# -------------------------------------------------------------
+
+# IF(MPICXX_FOUND)
+#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
+# ENDIF(MPICXX_FOUND)
 
 # -------------------------------------------------------------
 # Configure the header file sundials_config.h
@@ -588,7 +667,18 @@ ADD_SUBDIRECTORY(src/sundials)
 ADD_SUBDIRECTORY(src/nvec_ser)
 IF(MPIC_FOUND)
   ADD_SUBDIRECTORY(src/nvec_par)
+  ADD_SUBDIRECTORY(src/nvec_spcpar)
+  ADD_SUBDIRECTORY(src/nvec_pargrid)
 ENDIF(MPIC_FOUND)
+
+# ARKODE library
+
+IF(BUILD_ARKODE)	
+  ADD_SUBDIRECTORY(src/arkode)
+  IF(FCMIX_ENABLE AND F77_FOUND)
+    ADD_SUBDIRECTORY(src/arkode/fcmix)
+  ENDIF(FCMIX_ENABLE AND F77_FOUND)
+ENDIF(BUILD_ARKODE)
 
 # CVODE library
 
@@ -660,6 +750,13 @@ IF(EXAMPLES_ENABLE)
     SET(CFLAGS "${CMAKE_C_FLAGS_RELEASE}")
     SET(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
     LIST2STRING(EXTRA_LINK_LIBS LIBS)
+    IF(CXX_FOUND)
+      SET(CXX "${CMAKE_CXX_COMPILER}")
+      SET(CXX_LNKR "${CMAKE_CXX_COMPILER}")
+      SET(CXXFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
+      SET(CXX_LDFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
+      LIST2STRING(EXTRA_LINK_LIBS CXX_LIBS)
+    ENDIF(CXX_FOUND)
     IF(F77_FOUND)
       SET(F77 "${CMAKE_Fortran_COMPILER}")
       SET(F77_LNKR "${CMAKE_Fortran_COMPILER}")
@@ -667,6 +764,13 @@ IF(EXAMPLES_ENABLE)
       SET(F77_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
       LIST2STRING(EXTRA_LINK_LIBS F77_LIBS)
     ENDIF(F77_FOUND)
+    IF(F90_FOUND)
+      SET(F90 "${CMAKE_Fortran_COMPILER}")
+      SET(F90_LNKR "${CMAKE_Fortran_COMPILER}")
+      SET(F90FLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
+      SET(F90_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
+      LIST2STRING(EXTRA_LINK_LIBS F90_LIBS)
+    ENDIF(F90_FOUND)
     IF(SUPERLU_FOUND)
       LIST2STRING(SUPERLU_LIBRARIES SUPERLU_LIBS)
       SET(SUPERLU_LIBS "${SUPERLU_LINKER_FLAGS} ${SUPERLU_LIBS}")
@@ -689,6 +793,14 @@ IF(EXAMPLES_ENABLE)
         LIST2STRING(MPI_LIBRARIES MPI_LIBS)
       ENDIF(MPI_MPICC)
     ENDIF(MPIC_FOUND)
+    IF(MPICXX_FOUND)
+      IF(MPI_MPICXX)
+        SET(MPICXX "${MPI_MPICXX}")
+      ELSE(MPI_MPICXX)
+        SET(MPICXX "${CMAKE_CXX_COMPILER}")
+        LIST2STRING(MPI_LIBRARIES MPI_LIBS)
+      ENDIF(MPI_MPICXX)
+    ENDIF(MPICXX_FOUND)
     IF(MPIF_FOUND)
       IF(MPI_MPIF77)
         SET(MPIF77 "${MPI_MPIF77}")
@@ -701,8 +813,43 @@ IF(EXAMPLES_ENABLE)
         LIST2STRING(MPI_LIBRARIES MPI_LIBS)
       ENDIF(MPI_MPIF77)
     ENDIF(MPIF_FOUND)
+    IF(MPIF90_FOUND)
+      IF(MPI_MPIF90)
+        SET(MPIF90 "${MPI_MPIF90}")
+        SET(MPIF90_LNKR "${MPI_MPIF90}")
+      ELSE(MPI_MPIF90)
+        SET(MPIF90 "${CMAKE_Fortran_COMPILER}")
+        SET(MPIF90_LNKR "${CMAKE_Fortran_COMPILER}")
+        LIST2STRING(MPI_LIBRARIES MPI_LIBS)
+      ENDIF(MPI_MPIF90)
+    ENDIF(MPIF90_FOUND)
   ENDIF(EXAMPLES_INSTALL)
 
+  IF(BUILD_ARKODE)
+    ADD_SUBDIRECTORY(examples/arkode/C_serial)
+    IF(CXX_ENABLE AND CXX_FOUND)
+      ADD_SUBDIRECTORY(examples/arkode/CXX_serial)
+    ENDIF(CXX_ENABLE AND CXX_FOUND)
+    IF(FCMIX_ENABLE AND F77_FOUND)
+      ADD_SUBDIRECTORY(examples/arkode/F77_serial)
+    ENDIF(FCMIX_ENABLE AND F77_FOUND)
+    IF(F90_ENABLE AND F90_FOUND)
+      ADD_SUBDIRECTORY(examples/arkode/F90_serial)
+    ENDIF(F90_ENABLE AND F90_FOUND)
+    IF(MPIC_FOUND)
+      ADD_SUBDIRECTORY(examples/arkode/C_parallel)
+    ENDIF(MPIC_FOUND)
+    IF(MPICXX_FOUND)
+      ADD_SUBDIRECTORY(examples/arkode/CXX_parallel)
+    ENDIF(MPICXX_FOUND)
+    IF(MPIF_FOUND)
+      ADD_SUBDIRECTORY(examples/arkode/F77_parallel)
+    ENDIF(MPIF_FOUND)
+    IF(MPIF90_FOUND)
+      ADD_SUBDIRECTORY(examples/arkode/F90_parallel)
+    ENDIF(MPIF90_FOUND)
+  ENDIF(BUILD_ARKODE)
+  
   IF(BUILD_CVODE)
     ADD_SUBDIRECTORY(examples/cvode/serial)
     IF(FCMIX_ENABLE AND F77_FOUND)

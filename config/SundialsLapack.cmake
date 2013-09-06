@@ -31,9 +31,11 @@ if(NOT LAPACK_LIBRARIES)
 endif(NOT LAPACK_LIBRARIES)
 # If using a GNU C compiler, it is quite likely we'll want LAPACK_LINKER_FLAGS
 # to include -lg2c (if not already present)
-if(CMAKE_COMPILER_IS_GNUCC AND NOT LAPACK_LINKER_FLAGS MATCHES "g2c")
-  set(LAPACK_LINKER_FLAGS "${LAPACK_LINKER_FLAGS} -lg2c")
-endif(CMAKE_COMPILER_IS_GNUCC AND NOT LAPACK_LINKER_FLAGS MATCHES "g2c")
+## DRR -- this is no longer true, since modern GNUCC installations use 
+## gfortran and no longer require the g2c library; I've commented this out
+#if(CMAKE_COMPILER_IS_GNUCC AND NOT LAPACK_LINKER_FLAGS MATCHES "g2c")
+#  set(LAPACK_LINKER_FLAGS "${LAPACK_LINKER_FLAGS} -lg2c")
+#endif(CMAKE_COMPILER_IS_GNUCC AND NOT LAPACK_LINKER_FLAGS MATCHES "g2c")
 # If we have the LAPACK libraries, test them
 if(LAPACK_LIBRARIES)
   message(STATUS "Looking for LAPACK libraries... OK")
