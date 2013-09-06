@@ -253,9 +253,9 @@ void N_VPrint_Serial(N_Vector x)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("%11.8Lg\n", xd[i]);
+    printf("%35.32Lg\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("%11.8lg\n", xd[i]);
+    printf("%19.16lg\n", xd[i]);
 #else
     printf("%11.8g\n", xd[i]);
 #endif
