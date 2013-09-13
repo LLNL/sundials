@@ -1026,7 +1026,7 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
   if (ark_mem->ark_nst == 0) {
 
     /* Temporarily set ark_h and perform initial integrator setup */
-    ark_mem->ark_h = fabs(tout - ark_mem->ark_tn);
+    ark_mem->ark_h = ABS(tout - ark_mem->ark_tn);
     if (ark_mem->ark_h == ZERO)  ark_mem->ark_h = ONE;
     ier = arkInitialSetup(ark_mem);
     if (ier!= ARK_SUCCESS) return(ier);
@@ -1045,7 +1045,7 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
     }
     if (ark_mem->ark_h == ZERO) {
       /* Again, temporarily set ark_h for estimating an optimal value */
-      ark_mem->ark_h = fabs(tout - ark_mem->ark_tn);
+      ark_mem->ark_h = ABS(tout - ark_mem->ark_tn);
       if (ark_mem->ark_h == ZERO)  ark_mem->ark_h = ONE;
       /* Estimate the first step size */
       tout_hin = tout;
