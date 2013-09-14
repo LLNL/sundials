@@ -766,6 +766,7 @@ booleantype N_VInvTest_Serial(N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
+  booleantype no_zero_found;
 
   xd = zd = NULL;
 
@@ -773,12 +774,15 @@ booleantype N_VInvTest_Serial(N_Vector x, N_Vector z)
   xd = NV_DATA_S(x);
   zd = NV_DATA_S(z);
 
+  no_zero_found = TRUE;
   for (i = 0; i < N; i++) {
-    if (xd[i] == ZERO) return(FALSE);
-    zd[i] = ONE/xd[i];
+    if (xd[i] == ZERO) 
+      no_zero_found = FALSE;
+    else
+      zd[i] = ONE/xd[i];
   }
 
-  return(TRUE);
+  return no_zero_found;
 }
 
 booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m)
