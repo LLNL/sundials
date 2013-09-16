@@ -331,6 +331,41 @@ IF(NOT MPI_ENABLE)
 ENDIF(NOT MPI_ENABLE)
 
 # -------------------------------------------------------------
+# Enable OpenMP support?
+# -------------------------------------------------------------
+
+OPTION(OPENMP_ENABLE "Enable OpenMP support" OFF)
+
+IF(OPENMP_ENABLE)
+  FIND_PACKAGE(OpenMP)
+  IF(OPENMP_FOUND)
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    # Use C flags for linker as well.
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
+  ELSE()
+    message(STATUS "Disabling OpenMP support, could not determine compiler flags")
+  endif()
+ENDIF(OPENMP_ENABLE)
+
+# -------------------------------------------------------------
+# Enable Pthread support?
+# -------------------------------------------------------------
+
+OPTION(PTHREAD_ENABLE "Enable Pthreads support" OFF)
+
+IF(PTHREAD_ENABLE)
+  FIND_PACKAGE(Threads)
+  IF(CMAKE_USE_PTHREADS_INIT)
+    message(STATUS "Using Pthreads")
+    SET(PTHREADS_FOUND TRUE)
+    # SGS    
+  ELSE()
+    message(STATUS "Disabling Pthreads support, could not determine compiler flags")
+  endif()
+ENDIF(PTHREAD_ENABLE)
+
+# -------------------------------------------------------------
 # Enable examples?
 # -------------------------------------------------------------
 
@@ -671,6 +706,14 @@ IF(MPIC_FOUND)
   ADD_SUBDIRECTORY(src/nvec_pargrid)
 ENDIF(MPIC_FOUND)
 
+IF(OPENMP_FOUND)
+  ADD_SUBDIRECTORY(src/nvec_openmp)	
+ENDIF(OPENMP_FOUND)
+
+IF(PTHREADS_FOUND)
+  ADD_SUBDIRECTORY(src/nvec_pthreads)	
+ENDIF(PTHREADS_FOUND)
+
 # ARKODE library
 
 IF(BUILD_ARKODE)	
@@ -909,6 +952,9 @@ IF(EXAMPLES_ENABLE)
       ADD_SUBDIRECTORY(examples/cpodes/parallel)
     ENDIF(MPIC_FOUND)
   ENDIF(BUILD_CPODES)
+
+  # Always add the nvector examples
+  ADD_SUBDIRECTORY(examples/nvector)
   
 ENDIF(EXAMPLES_ENABLE)
 
