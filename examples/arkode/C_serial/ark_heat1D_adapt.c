@@ -12,21 +12,20 @@
     u(0,x) =  0
  Dirichlet boundary conditions, i.e. 
     u_t(t,0) = u_t(t,1) = 0,
- and a point-source heating term,
-    f = 1 for x=0.5.
+ and a heating term of the form
+    f = 2*exp(-200*(x-0.25)*(x-0.25))
+        - exp(-400*(x-0.7)*(x-0.7))
+        + exp(-500*(x-0.4)*(x-0.4))
+        - 2*exp(-600*(x-0.55)*(x-0.55));
  
  The spatial derivatives are computed using a three-point 
  centered stencil (second order for a uniform mesh).  The data
- is initially univormly distributed over N points in the interval
+ is initially uniformly distributed over N points in the interval
  [0, 1], but as the simulation proceeds the mesh is adapted.
 
- This program solves the problem with either an ERK or DIRK
- method.  For the DIRK method, we use a Newton iteration with 
- the PCG linear solver, and a user-supplied Jacobian-vector 
- product routine.
-
- 100 outputs are printed at equal intervals, and run statistics 
- are printed at the end.
+ This program solves the problem with a DIRK method, solved with 
+ a Newton iteration and PCG linear solver, with a user-supplied 
+ Jacobian-vector product routine.
 ---------------------------------------------------------------*/
 
 /* Header files */
@@ -63,7 +62,6 @@ int main() {
   /* general problem parameters */
   realtype T0 = RCONST(0.0);   /* initial time */
   realtype Tf = RCONST(1.0);   /* final time */
-  int Nt = 50;                 /* total number of output times */
   realtype rtol = 1.e-3;       /* relative tolerance */
   realtype atol = 1.e-10;      /* absolute tolerance */
   realtype hscale = 1.0;       /* time step change factor on resizes */
@@ -72,7 +70,8 @@ int main() {
   long int N = 21;             /* initial spatial mesh size */
   realtype refine = 3.e-3;     /* adaptivity refinement tolerance */
   realtype k = 0.5;            /* heat conductivity */
-  long int i, nst, nst_cur=0, nli, nli_tot=0;
+  long int i, nni, nni_cur=0, nni_tot=0, nli, nli_tot=0;
+  int iout=0;
 
   /* general problem variables */
   int flag;                    /* reusable error-checking flag */
@@ -95,16 +94,31 @@ int main() {
   printf("  initial N = %li\n", udata->N);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(N);            /* Create serial vector for solution */
+  y = N_VNew_Serial(N);       /* Create initial serial vector for solution */
   if (check_flag((void *) y, "N_VNew_Serial", 0)) return 1;
-  N_VConst(0.0, y);                /* Set initial conditions */
-  arkode_mem = ARKodeCreate();     /* Create the solver memory */
+  N_VConst(0.0, y);           /* Set initial conditions */
+
+  /* output mesh to disk */
+  FILE *XFID=fopen("heat_mesh.txt","w");
+
+  /* output initial mesh to disk */
+  for (i=0; i<udata->N; i++)  fprintf(XFID," %.16e", udata->x[i]);
+  fprintf(XFID,"\n");
+
+  /* Open output stream for results, access data array */
+  FILE *UFID=fopen("heat1D.txt","w");
+
+  /* output initial condition to disk */
+  data = N_VGetArrayPointer(y);
+  for (i=0; i<udata->N; i++)  fprintf(UFID," %.16e", data[i]);
+  fprintf(UFID,"\n");
+
+
+  /* Create the solver memory */
+  arkode_mem = ARKodeCreate();
   if (check_flag((void *) arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ARKodeInit to initialize the integrator memory and specify the
-     hand-side side function in y'=f(t,y), the inital time T0, and
-     the initial dependent variable vector y.  Note: since this
-     problem is fully implicit, we set f_E to NULL and f_I to f. */
+  /* Initialize the integrator memory */
   flag = ARKodeInit(arkode_mem, NULL, f, T0, y);
   if (check_flag(&flag, "ARKodeInit", 1)) return 1;
 
@@ -115,57 +129,56 @@ int main() {
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return 1;
   flag = ARKodeSStolerances(arkode_mem, rtol, atol);      /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
+  flag = ARKodeSetAdaptivityMethod(arkode_mem, 2, 1, 0, NULL);  /* Set adaptivity method */
+  if (check_flag(&flag, "ARKodeSetAdaptivityMethod", 1)) return 1;
+  flag = ARKodeSetPredictorMethod(arkode_mem, 0);     /* Set predictor method */
+  if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) return 1;
 
   /* Linear solver specification */
-  flag = ARKPcg(arkode_mem, 0, N);                        /* Specify the PCG solver */
+  flag = ARKPcg(arkode_mem, 0, N);
   if (check_flag(&flag, "ARKPcg", 1)) return 1;
-  flag = ARKSpilsSetJacTimesVecFn(arkode_mem, Jac);       /* Set the Jacobian routine */
+  flag = ARKSpilsSetJacTimesVecFn(arkode_mem, Jac);
   if (check_flag(&flag, "ARKSpilsSetJacTimesVecFn", 1)) return 1;
-
-  /* output mesh to disk */
-  FILE *XFID=fopen("heat_mesh.txt","w");
-
-  /* output initial mesh to disk */
-  for (i=0; i<udata->N; i++)  fprintf(XFID," %.16e", udata->x[i]);
-  fprintf(XFID,"\n");
-
-
-  /* Open output stream for results, access data array */
-  FILE *UFID=fopen("heat1D.txt","w");
-
-  /* output initial condition to disk */
-  data = N_VGetArrayPointer(y);
-  for (i=0; i<udata->N; i++)  fprintf(UFID," %.16e", data[i]);
-  fprintf(UFID,"\n");
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
      prints results.  Stops when the final time has been reached */
   realtype t = T0;
-  realtype dTout = (Tf-T0)/Nt;
-  realtype tout = T0;
-  printf("        t      ||u||_rms    N    steps\n");
-  printf("   ------------------------------------\n");
-  printf("  %10.6f  %10.6f    %li     %i\n", 
-	 t, sqrt(N_VDotProd(y,y)/udata->N), udata->N, 0);
-  int iout;
+  realtype olddt=0.0, newdt=0.0;
+  printf("  iout          dt_old                 dt_new               ||u||_rms       N   NNI  NLI\n");
+  printf(" ----------------------------------------------------------------------------------------\n");
+  printf(" %4i  %19.15e  %19.15e  %19.15e  %li   %2i  %3i\n", 
+	 iout, olddt, newdt, sqrt(N_VDotProd(y,y)/udata->N), udata->N, 0, 0);
   realtype *xnew=NULL;
   long int Nnew;
-  for (iout=0; iout<Nt; iout++) {
+  while (t < Tf) {
 
-    tout += dTout;                                              /* set next output time*/
-    tout = (tout > Tf) ? Tf : tout;
+    /* "set" routines */
+    flag = ARKodeSetStopTime(arkode_mem, Tf);
+    if (check_flag(&flag, "ARKodeSetStopTime", 1)) return 1;
+    flag = ARKodeSetInitStep(arkode_mem, newdt);
+    if (check_flag(&flag, "ARKodeSetInitStep", 1)) return 1;
 
-    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);         /* call integrator */
-    if (check_flag(&flag, "ARKode", 1)) break;
-    flag = ARKodeGetNumSteps(arkode_mem, &nst);
-    check_flag(&flag, "ARKodeGetNumSteps", 1);
-    printf("  %10.6f  %10.6f    %li     %li\n",                   /* print solution stats */
-	   t, sqrt(N_VDotProd(y,y)/udata->N), udata->N, nst-nst_cur);
-    nst_cur = nst;
-    if (flag < 0) {                                             /* unsuccessful solve: break */
-      fprintf(stderr,"Solver failure, stopping integration\n");
-      break;
-    }
+    /* call integrator */
+    flag = ARKode(arkode_mem, Tf, y, &t, ARK_ONE_STEP);
+    if (check_flag(&flag, "ARKode", 1)) return 1;
+
+    /* "get" routines */
+    flag = ARKodeGetLastStep(arkode_mem, &olddt);
+    if (check_flag(&flag, "ARKodeGetLastStep", 1)) return 1;
+    flag = ARKodeGetCurrentStep(arkode_mem, &newdt);
+    if (check_flag(&flag, "ARKodeGetCurrentStep", 1)) return 1;
+    flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+    if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) return 1;
+    flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
+    if (check_flag(&flag, "ARKSpilsGetNumLinIters", 1)) return 1;
+
+    /* print current solution stats */
+    iout++;
+    printf(" %4i  %19.15e  %19.15e  %19.15e  %li   %2li  %3li\n", 
+	   iout, olddt, newdt, sqrt(N_VDotProd(y,y)/udata->N), udata->N, nni-nni_cur, nli);
+    nni_cur = nni;
+    nni_tot = nni;
+    nli_tot += nli;
 
     /* output results and current mesh to disk */
     data = N_VGetArrayPointer(y);
@@ -174,22 +187,17 @@ int main() {
     for (i=0; i<udata->N; i++)  fprintf(XFID," %.16e", udata->x[i]);
     fprintf(XFID,"\n");
 
-    /* accumulate total linear iterations for this step */
-    flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
-    check_flag(&flag, "ARKSpilsGetNumLinIters", 1);
-    nli_tot += nli;
-
     /* adapt the spatial mesh */
     xnew = adapt_mesh(y, &Nnew, udata);
-    if (check_flag(xnew, "ark_adapt", 0)) break;
+    if (check_flag(xnew, "ark_adapt", 0)) return 1;
 
     /* create N_Vector of new length */
     y2 = N_VNew_Serial(Nnew);
-    if (check_flag((void *) y2, "N_VNew_Serial", 0)) break;
+    if (check_flag((void *) y2, "N_VNew_Serial", 0)) return 1;
     
     /* project solution onto new mesh */
     flag = project(udata->N, udata->x, y, Nnew, xnew, y2);
-    if (check_flag(&flag, "project", 1)) break;
+    if (check_flag(&flag, "project", 1)) return 1;
 
     /* delete old vector, old mesh */
     N_VDestroy_Serial(y);
@@ -206,57 +214,34 @@ int main() {
     y2 = yt;
 
     /* call ARKodeResize to notify integrator of change in mesh */
-    flag = ARKodeResize(arkode_mem, y, hscale, tout, NULL, NULL);
-    if (check_flag(&flag, "ARKodeResize", 1)) break;
+    flag = ARKodeResize(arkode_mem, y, hscale, t, NULL, NULL);
+    if (check_flag(&flag, "ARKodeResize", 1)) return 1;
 
     /* destroy and re-allocate linear solver memory */
     flag = ARKPcg(arkode_mem, 0, udata->N);
-    if (check_flag(&flag, "ARKPcg", 1)) break;
+    if (check_flag(&flag, "ARKPcg", 1)) return 1;
     flag = ARKSpilsSetJacTimesVecFn(arkode_mem, Jac);
-    if (check_flag(&flag, "ARKSpilsSetJacTimesVecFn", 1)) break;
+    if (check_flag(&flag, "ARKSpilsSetJacTimesVecFn", 1)) return 1;
 
   }
-  printf("   ------------------------------------\n");
-  fclose(UFID);
-  fclose(XFID);
+  printf(" ----------------------------------------------------------------------------------------\n");
 
-  /* Print some final statistics */
-  long int nst_a, nfe, nfi, nsetups, nJv, nlcf, nni, ncfn, netf;
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
-  flag = ARKSpilsGetNumJtimesEvals(arkode_mem, &nJv);
-  check_flag(&flag, "ARKSpilsGetNumJtimesEvals", 1);
-  flag = ARKSpilsGetNumConvFails(arkode_mem, &nlcf);
-  check_flag(&flag, "ARKSpilsGetNumConvFails", 1);
+  /* Free integrator memory */
+  ARKodeFree(&arkode_mem);
 
-  printf("\nFinal Solver Statistics:\n");
-  printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
-  printf("   Total linear solver setups = %li\n", nsetups);
-  printf("   Total linear iterations = %li\n", nli);
-  printf("   Total number of Jacobian-vector products = %li\n", nJv);
-  printf("   Total number of linear solver convergence failures = %li\n", nlcf);
-  printf("   Total number of Newton iterations = %li\n", nni);
-  printf("   Total number of nonlinear solver convergence failures = %li\n", ncfn);
-  printf("   Total number of error test failures = %li\n", netf);
+  /* print some final statistics */
+  printf(" Final solver statistics:\n");
+  printf("   Total number of time steps = %i\n", iout);
+  printf("   Total nonlinear iterations = %li\n", nni_tot);
+  printf("   Total linear iterations    = %li\n\n", nli_tot);
 
   /* Clean up and return with successful completion */
+  fclose(UFID);
+  fclose(XFID);
   N_VDestroy_Serial(y);        /* Free vectors */
   free(udata->x);              /* Free user data */
   free(udata);   
-  ARKodeFree(&arkode_mem);     /* Free integrator memory */
+
   return 0;
 }
 

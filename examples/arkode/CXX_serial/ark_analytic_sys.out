@@ -19,12 +19,12 @@ Analytical ODE test problem:
    --------------------------------------
 
 Final Solver Statistics:
-   Internal solver steps = 78 (attempted = 82)
-   Total RHS evals:  Fe = 0,  Fi = 1478
-   Total linear solver setups = 25
+   Internal solver steps = 84 (attempted = 90)
+   Total RHS evals:  Fe = 0,  Fi = 1616
+   Total linear solver setups = 34
    Total RHS evals for setting up the linear system = 0
-   Total number of Jacobian evaluations = 9
-   Total number of Newton iterations = 1071
-   Total number of linear solver convergence failures = 4
+   Total number of Jacobian evaluations = 14
+   Total number of Newton iterations = 1180
+   Total number of linear solver convergence failures = 6
    Total number of error test failures = 0
 
