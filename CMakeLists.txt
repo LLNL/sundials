@@ -338,14 +338,9 @@ OPTION(OPENMP_ENABLE "Enable OpenMP support" OFF)
 
 IF(OPENMP_ENABLE)
   FIND_PACKAGE(OpenMP)
-  IF(OPENMP_FOUND)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    # Use C flags for linker as well.
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-  ELSE()
+  IF(NOT OPENMP_FOUND)
     message(STATUS "Disabling OpenMP support, could not determine compiler flags")
-  endif()
+  ENDIF(NOT OPENMP_FOUND)
 ENDIF(OPENMP_ENABLE)
 
 # -------------------------------------------------------------
@@ -953,8 +948,20 @@ IF(EXAMPLES_ENABLE)
     ENDIF(MPIC_FOUND)
   ENDIF(BUILD_CPODES)
 
-  # Always add the nvector examples
-  ADD_SUBDIRECTORY(examples/nvector)
+  # Always add the nvector sieral examples
+  ADD_SUBDIRECTORY(examples/nvector/serial)
+
+  IF(MPIC_FOUND)
+      ADD_SUBDIRECTORY(examples/nvector/parallel)
+  ENDIF(MPIC_FOUND)
+
+  IF(PTHREADS_FOUND)
+      ADD_SUBDIRECTORY(examples/nvector/pthreads)
+  ENDIF(PTHREADS_FOUND)
+
+  IF(OPENMP_FOUND)
+      ADD_SUBDIRECTORY(examples/nvector/openmp)
+  ENDIF(OPENMP_FOUND)
   
 ENDIF(EXAMPLES_ENABLE)
 

@@ -17,16 +17,8 @@ SET(nvector_serial_examples
   test_nvector_serial
 )
 
-IF(OPENMP_FOUND)
-  LIST(APPEND nvector_serial_examples test_nvector_openmp)
-ENDIF(OPENMP_FOUND)
-
-IF(PTHREADS_FOUND)
-  LIST(APPEND nvector_serial_examples test_nvector_pthreads)
-ENDIF(PTHREADS_FOUND)
-
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(.)
+INCLUDE_DIRECTORIES(. ..)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -46,56 +38,19 @@ SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 # Add the build and install targets for each nvector example
 
 FOREACH(example ${nvector_serial_examples})
-  ADD_EXECUTABLE(${example} ${example}.c test_nvector.c)
+  ADD_EXECUTABLE(${example} ${example}.c ../test_nvector.c)
   ADD_TEST(${example} ${TESTRUNNER} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
-  # Only include the OpenMP and Pthreads libraries when examples that use them.
-  IF(LINK_LIBRARY_TYPE MATCHES "static")
-
-    IF(OPENMP_FOUND)
-      IF("${example}" MATCHES ".*openmp.*")
-        TARGET_LINK_LIBRARIES(${example} ${CMAKE_THREAD_LIBS_INIT})
-        TARGET_LINK_LIBRARIES(${example} sundials_nvecopenmp_static)
-      ENDIF("${example}" MATCHES ".*openmp.*")
-    ENDIF(OPENMP_FOUND)
-
-    IF(PTHREADS_FOUND)
-      IF("${example}" MATCHES ".*pthreads.*")
-        TARGET_LINK_LIBRARIES(${example} ${CMAKE_THREAD_LIBS_INIT})
-        TARGET_LINK_LIBRARIES(${example} sundials_nvecpthreads_static)
-      ENDIF("${example}" MATCHES ".*pthreads.*")
-    ENDIF(PTHREADS_FOUND)
-
-  ELSE(LINK_LIBRARY_TYPE MATCHES "static")
-
-    IF(OPENMP_FOUND)
-      IF("${example}" MATCHES ".*openmp.*")
-        message(STATUS "Using Openmp for example ${example}")
-        TARGET_LINK_LIBRARIES(${example} ${CMAKE_THREAD_LIBS_INIT})
-        TARGET_LINK_LIBRARIES(${example} sundials_nvecopenmp_shared)
-      ENDIF("${example}" MATCHES ".*openmp.*")
-    ENDIF(OPENMP_FOUND)
-
-    IF(PTHREADS_FOUND)
-      IF("${example}" MATCHES ".*pthreads.*")
-        message(STATUS "Using Pthreads for example ${example}")
-        TARGET_LINK_LIBRARIES(${example} ${CMAKE_THREAD_LIBS_INIT})
-        TARGET_LINK_LIBRARIES(${example} sundials_nvecpthreads_shared)
-      ENDIF("${example}" MATCHES ".*pthreads.*")
-    ENDIF(PTHREADS_FOUND)
-
-  ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
-
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector)
+    INSTALL(FILES ${example}.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${nvector_serial_examples})
 
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector)
+  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "CVODE")
@@ -109,14 +64,14 @@ IF(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
       ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/CMakeLists.txt
+      ${PROJECT_BINARY_DIR}/examples/nvector/serial/CMakeLists.txt
       @ONLY
       )
 
   # install CMakelists.txt
   INSTALL(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector
+    FILES ${PROJECT_BINARY_DIR}/examples/nvector/serial/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for 
@@ -127,13 +82,13 @@ IF(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/Makefile_ex
+      ${PROJECT_BINARY_DIR}/examples/nvector/serial/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/Makefile_ex 
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector
+      FILES ${PROJECT_BINARY_DIR}/examples/nvector/serial/Makefile_ex 
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial
       RENAME Makefile
       )
   ENDIF(UNIX)

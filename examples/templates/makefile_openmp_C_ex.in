@@ -1,0 +1,73 @@
+# -----------------------------------------------------------------
+# $Revision: 1.3 $
+# $Date: 2009-02-17 02:58:47 $
+# -----------------------------------------------------------------
+# Programmer: Steven Smith @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2013, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# -----------------------------------------------------------------
+# Makefile for @SOLVER@ pthreads examples.
+#
+# This file is generated from a template using various variables
+# set at configuration time. It can be used as a template for
+# other user Makefiles.
+#
+# Note: if the solver was successfully configured with Blas/Lapack
+# support, the Blas/Lapack libraries are specified through the 
+# variable LIBRARIES_BL. Otherwise, this variable should contain
+# an empty string. We include LIBRARIES_BL in the link line for
+# all examples, whether they use the Lapack module or not, to
+# address the case in which the SUNDIALS libraries are shared 
+# objects. In that case, the solver library references Lapack 
+# symbols which must be always resolved by linking against the
+# Blas/Lapack libraries. If only static SUNDIALS libraries have 
+# been built, it is not required to link the Blas/Lapack libraries
+# for examples that do not use that module...
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@ @OpenMP_C_FLAGS@
+LDFLAGS  = @LDFLAGS@ @OpenMP_C_FLAGS@
+LIBS     = @LIBS@
+
+INCLUDES = -I${includedir}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecserial ${LIBS}
+LIBRARIES_BL = @BLAS_LAPACK_LIBS@
+
+EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
+
+OBJECTS = ${EXAMPLES:=.o}
+
+# -----------------------------------------------------------------------------------------
+
+.SUFFIXES : .o .c
+
+.c.o :
+	${CC} ${CPPFLAGS} ${CFLAGS} ${INCLUDES} -c $<
+
+# -----------------------------------------------------------------------------------------
+
+all: ${OBJECTS}
+	@for i in ${EXAMPLES} ; do \
+	  echo "${CC} -o $${i} $${i}.o ${CFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL}" ; \
+	  ${CC} -o $${i} $${i}.o ${CFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL}; \
+	done
+
+clean:
+	rm -f ${OBJECTS}
+	rm -f ${EXAMPLES}
+
+# -----------------------------------------------------------------------------------------
+
