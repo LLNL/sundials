@@ -1,5 +1,8 @@
 
-Running with vector length 10000 
+Running with vector length 1000 
+ 
+
+Running with number of threads 2 
  
     PASSED test -- N_VSetArrayPointer 
     N_VSetArrayPointer Time:  0.000000000000000e+00 

@@ -65,7 +65,7 @@ static void VScaleBy_openMP(realtype a, N_Vector x);
  * Function to create a new empty vector 
  */
 
-N_Vector N_VNewEmpty_openMP(long int length)
+N_Vector N_VNewEmpty_openMP(long int length, int num_threads)
 {
   N_Vector v;
   N_Vector_Ops ops;
@@ -113,6 +113,7 @@ N_Vector N_VNewEmpty_openMP(long int length)
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
   content->length   = length;
+  content->num_threads = num_threads;
   content->own_data = FALSE;
   content->data     = NULL;
 
@@ -127,13 +128,13 @@ N_Vector N_VNewEmpty_openMP(long int length)
  * Function to create a new vector 
  */
 
-N_Vector N_VNew_openMP(long int length)
+N_Vector N_VNew_openMP(long int length, int num_threads)
 {
   N_Vector v;
   realtype *data;
 
   v = NULL;
-  v = N_VNewEmpty_openMP(length);
+  v = N_VNewEmpty_openMP(length, num_threads);
   if (v == NULL) return(NULL);
 
   /* Create data */
@@ -157,12 +158,12 @@ N_Vector N_VNew_openMP(long int length)
  * Function to create a vector with user data component 
  */
 
-N_Vector N_VMake_openMP(long int length, realtype *v_data)
+N_Vector N_VMake_openMP(long int length, realtype *v_data, int num_threads)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_openMP(length);
+  v = N_VNewEmpty_openMP(length, num_threads);
   if (v == NULL) return(NULL);
 
   if (length > 0) {
@@ -331,6 +332,7 @@ N_Vector N_VCloneEmpty_openMP(N_Vector w)
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
   content->length   = NV_LENGTH_OMP(w);
+  content->num_threads   = NV_NUM_THREADS_OMP(w);
   content->own_data = FALSE;
   content->data     = NULL;
 
@@ -514,7 +516,8 @@ void N_VLinearSum_openMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   yd = NV_DATA_OMP(y);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,a,b,xd,yd,zd) schedule(static) 
+#pragma omp parallel for default(none) private(i) shared(N,a,b,xd,yd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+(b*yd[i]);
 
@@ -536,7 +539,8 @@ void N_VConst_openMP(realtype c, N_Vector z)
   N  = NV_LENGTH_OMP(z);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,c,zd) schedule(static) 
+#pragma omp parallel for default(none) private(i) shared(N,c,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(z))
   for (i = 0; i < N; i++) zd[i] = c;
 
   return;
@@ -559,7 +563,8 @@ void N_VProd_openMP(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_OMP(y);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,xd,yd,zd) schedule(static) 
+#pragma omp parallel for default(none) private(i) shared(N,xd,yd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = xd[i]*yd[i];
 
@@ -583,7 +588,8 @@ void N_VDiv_openMP(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_OMP(y);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,xd,yd,zd) schedule(static) 
+#pragma omp parallel for default(none) private(i) shared(N,xd,yd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = xd[i]/yd[i];
 
@@ -616,7 +622,8 @@ void N_VScale_openMP(realtype c, N_Vector x, N_Vector z)
     xd = NV_DATA_OMP(x);
     zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,c,xd,zd) schedule(static) 
+#pragma omp parallel for default(none) private(i) shared(N,c,xd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
     for (i = 0; i < N; i++) 
       zd[i] = c*xd[i];
   }
@@ -640,7 +647,7 @@ void N_VAbs_openMP(N_Vector x, N_Vector z)
   xd = NV_DATA_OMP(x);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = ABS(xd[i]);
 
@@ -663,7 +670,8 @@ void N_VInv_openMP(N_Vector x, N_Vector z)
   xd = NV_DATA_OMP(x);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,xd,zd) schedule(static) 
+#pragma omp parallel for default(none) private(i) shared(N,xd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = ONE/xd[i];
 
@@ -686,7 +694,8 @@ void N_VAddConst_openMP(N_Vector x, realtype b, N_Vector z)
   xd = NV_DATA_OMP(x);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,b,xd,zd) schedule(static) 
+#pragma omp parallel for default(none) private(i) shared(N,b,xd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) 
     zd[i] = xd[i]+b;
 
@@ -711,7 +720,7 @@ realtype N_VDotProd_openMP(N_Vector x, N_Vector y)
   yd = NV_DATA_OMP(y);
 
 #pragma omp parallel for default(none) private(i) shared(N,xd,yd) \
-  reduction(+:sum) schedule(static)
+  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
     sum += xd[i]*yd[i];
   }
@@ -735,7 +744,8 @@ realtype N_VMaxNorm_openMP(N_Vector x)
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
 
-#pragma omp parallel default(none) private(i,tmax) shared(N,max,xd) 
+#pragma omp parallel default(none) private(i,tmax) shared(N,max,xd) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   {
     tmax = ZERO;
 #pragma omp for schedule(static)
@@ -769,7 +779,7 @@ realtype N_VWrmsNorm_openMP(N_Vector x, N_Vector w)
   wd = NV_DATA_OMP(w);
 
 #pragma omp parallel for default(none) private(i) shared(N,xd,wd) \
-  reduction(+:sum) schedule(static)
+  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
     sum += SQR(xd[i]*wd[i]);
   }
@@ -796,7 +806,7 @@ realtype N_VWrmsNormMask_openMP(N_Vector x, N_Vector w, N_Vector id)
   idd = NV_DATA_OMP(id);
 
 #pragma omp parallel for default(none) private(i) shared(N,xd,wd,idd) \
-  reduction(+:sum) schedule(static)
+  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
     if (idd[i] > ZERO) {
       sum += SQR(xd[i]*wd[i]);
@@ -824,7 +834,8 @@ realtype N_VMin_openMP(N_Vector x)
 
   min = xd[0];
 
-#pragma omp parallel default(none) private(i,tmin) shared(N,min,xd)
+#pragma omp parallel default(none) private(i,tmin) shared(N,min,xd) \
+            num_threads(NV_NUM_THREADS_OMP(x))
   {
     tmin = xd[0];
 #pragma omp for schedule(static)
@@ -860,7 +871,7 @@ realtype N_VWL2Norm_openMP(N_Vector x, N_Vector w)
   wd = NV_DATA_OMP(w);
 
 #pragma omp parallel for default(none) private(i) shared(N,xd,wd) \
-  reduction(+:sum) schedule(static)
+  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
     sum += SQR(xd[i]*wd[i]);
   }
@@ -883,9 +894,9 @@ realtype N_VL1Norm_openMP(N_Vector x)
 
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
-  
+
 #pragma omp parallel for default(none) private(i) shared(N,xd) \
-  reduction(+:sum) schedule(static)
+  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i<N; i++)  
     sum += ABS(xd[i]);
 
@@ -908,7 +919,8 @@ void N_VCompare_openMP(realtype c, N_Vector x, N_Vector z)
   xd = NV_DATA_OMP(x);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,c,xd,zd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,c,xd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
     zd[i] = (ABS(xd[i]) >= c) ? ONE : ZERO;
   }
@@ -934,7 +946,8 @@ booleantype N_VInvTest_openMP(N_Vector x, N_Vector z)
 
   val = ZERO;
 
-#pragma omp parallel for default(none) private(i) shared(N,val,xd,zd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,val,xd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
     if (xd[i] == ZERO) 
       val = ONE;
@@ -968,7 +981,8 @@ booleantype N_VConstrMask_openMP(N_Vector c, N_Vector x, N_Vector m)
 
   temp = ONE;
 
-#pragma omp parallel for default(none) private(i) shared(N,xd,cd,md,temp) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,xd,cd,md,temp) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++) {
     md[i] = ZERO;
     if (cd[i] == ZERO) continue;
@@ -1003,7 +1017,8 @@ realtype N_VMinQuotient_openMP(N_Vector num, N_Vector denom)
 
   min = BIG_REAL;
 
-#pragma omp parallel default(none) private(i,tmin,val) shared(N,min,nd,dd)
+#pragma omp parallel default(none) private(i,tmin,val) shared(N,min,nd,dd) \
+   num_threads(NV_NUM_THREADS_OMP(num))
   {
     tmin = BIG_REAL;
 #pragma omp for schedule(static)
@@ -1046,7 +1061,8 @@ static void VCopy_openMP(N_Vector x, N_Vector z)
   xd = NV_DATA_OMP(x);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,xd,zd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,xd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = xd[i]; 
 
@@ -1070,7 +1086,8 @@ static void VSum_openMP(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_OMP(y);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,xd,yd,zd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,xd,yd,zd) schedule(static) \
+ num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = xd[i]+yd[i];
 
@@ -1094,7 +1111,8 @@ static void VDiff_openMP(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_OMP(y);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,xd,yd,zd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,xd,yd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = xd[i]-yd[i];
 
@@ -1117,7 +1135,8 @@ static void VNeg_openMP(N_Vector x, N_Vector z)
   xd = NV_DATA_OMP(x);
   zd = NV_DATA_OMP(z);
   
-#pragma omp parallel for default(none) private(i) shared(N,xd,zd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,xd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = -xd[i];
 
@@ -1141,7 +1160,8 @@ static void VScaleSum_openMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_OMP(y);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,c,xd,yd,zd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,c,xd,yd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = c*(xd[i]+yd[i]);
 
@@ -1165,7 +1185,8 @@ static void VScaleDiff_openMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_OMP(y);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,c,xd,yd,zd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,c,xd,yd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = c*(xd[i]-yd[i]);
 
@@ -1189,7 +1210,8 @@ static void VLin1_openMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_OMP(y);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,a,xd,yd,zd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,a,xd,yd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+yd[i];
 
@@ -1213,7 +1235,8 @@ static void VLin2_openMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_OMP(y);
   zd = NV_DATA_OMP(z);
 
-#pragma omp parallel for default(none) private(i) shared(N,a,xd,yd,zd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,a,xd,yd,zd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])-yd[i];
 
@@ -1237,20 +1260,23 @@ static void Vaxpy_openMP(realtype a, N_Vector x, N_Vector y)
   yd = NV_DATA_OMP(y);
 
   if (a == ONE) {
-#pragma omp parallel for default(none) private(i) shared(N,xd,yd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,xd,yd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
     for (i = 0; i < N; i++)
       yd[i] += xd[i];
     return;
   }
 
   if (a == -ONE) {
-#pragma omp parallel for default(none) private(i) shared(N,xd,yd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,xd,yd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
     for (i = 0; i < N; i++)
       yd[i] -= xd[i];
     return;
   }    
 
-#pragma omp parallel for default(none) private(i) shared(N,a,xd,yd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,a,xd,yd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     yd[i] += a*xd[i];
 
@@ -1272,7 +1298,8 @@ static void VScaleBy_openMP(realtype a, N_Vector x)
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
 
-#pragma omp parallel for default(none) private(i) shared(N,a,xd) schedule(static)
+#pragma omp parallel for default(none) private(i) shared(N,a,xd) schedule(static) \
+   num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
     xd[i] *= a;
 

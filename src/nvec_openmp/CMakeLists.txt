@@ -31,6 +31,13 @@ INCLUDE_DIRECTORIES(.)
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
+IF(OPENMP_FOUND)
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  # Use C flags for linker as well.
+  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
+ENDIF(OPENMP_FOUND)
+
 # Rules for building and installing the static library:
 #  - Add the build target for the NVECOPENMP library
 #  - Set the library name and make sure it is not deleted

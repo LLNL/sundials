@@ -32,10 +32,11 @@ int main(int argc, char *argv[])
   int      fails = 0;            /* counter for test failures */
   long int veclen;               /* vector length             */
   N_Vector W, X, Y, Z;           /* test vectors              */
+  int      num_threads;
 
   /* check input and set vector length */
-  if (argc < 2){
-    printf("ERROR: ONE (1) Input required: vector length \n");
+  if (argc < 3){
+    printf("ERROR: two arguments required: <vector length> <number of threads> \n");
     return(-1);
   }
 
@@ -45,13 +46,20 @@ int main(int argc, char *argv[])
     return(-1); 
   }
 
+  num_threads = atoi(argv[2]);
+  if (num_threads <= 0) {
+    printf("ERROR: numbber of threads must be a positive integer \n");
+    return(-1); 
+  }
+
   printf("\nRunning with vector length %ld \n \n", veclen);
+  printf("\nRunning with number of threads %d \n \n", num_threads);
 
   /* Create vectors */
-  W = N_VNewEmpty_openMP(veclen);
-  X = N_VNew_openMP(veclen);
-  Y = N_VNew_openMP(veclen);
-  Z = N_VNew_openMP(veclen);
+  W = N_VNewEmpty_openMP(veclen, num_threads);
+  X = N_VNew_openMP(veclen, num_threads);
+  Y = N_VNew_openMP(veclen, num_threads);
+  Z = N_VNew_openMP(veclen, num_threads);
   
   /* NVector Tests */
   fails += Test_N_VSetArrayPointer(W, veclen, 0);

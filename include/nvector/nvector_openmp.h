@@ -74,6 +74,7 @@ struct _N_VectorContent_openMP {
   long int length;
   booleantype own_data;
   realtype *data;
+  int num_threads;
 };
 
 typedef struct _N_VectorContent_openMP *N_VectorContent_openMP;
@@ -131,6 +132,8 @@ typedef struct _N_VectorContent_openMP *N_VectorContent_openMP;
 
 #define NV_LENGTH_OMP(v)   ( NV_CONTENT_OMP(v)->length )
 
+#define NV_NUM_THREADS_OMP(v)   ( NV_CONTENT_OMP(v)->num_threads )
+
 #define NV_OWN_DATA_OMP(v) ( NV_CONTENT_OMP(v)->own_data )
 
 #define NV_DATA_OMP(v)     ( NV_CONTENT_OMP(v)->data )
@@ -163,7 +166,7 @@ typedef struct _N_VectorContent_openMP *N_VectorContent_openMP;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_openMP(long int vec_length);
+SUNDIALS_EXPORT N_Vector N_VNew_openMP(long int vec_length, int num_threads);
 
 /*
  * -----------------------------------------------------------------
@@ -174,7 +177,7 @@ SUNDIALS_EXPORT N_Vector N_VNew_openMP(long int vec_length);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_openMP(long int vec_length);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_openMP(long int vec_length, int num_threads);
 
 /*
  * -----------------------------------------------------------------
@@ -185,7 +188,7 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_openMP(long int vec_length);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VMake_openMP(long int vec_length, realtype *v_data);
+SUNDIALS_EXPORT N_Vector N_VMake_openMP(long int vec_length, realtype *v_data, int num_threads);
 
 /*
  * -----------------------------------------------------------------
