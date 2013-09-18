@@ -49,6 +49,11 @@
  */
 @GENERIC_MATH_LIB@
 
+/* Use POSIX timers if available.
+ *     #define SUNDIALS_HAVE_POSIX_TIMERS
+ */
+@SUNDIALS_HAVE_POSIX_TIMERS@
+
 /* Blas/Lapack available
  * If working libraries for Blas/lapack support were found, then
  *     #define SUNDIALS_BLAS_LAPACK 1

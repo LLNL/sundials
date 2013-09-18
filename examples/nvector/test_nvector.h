@@ -49,6 +49,8 @@ extern "C" {
   int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M, 
 			 long int local_length, int myid);
   int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM, long int local_length, int myid);
+
+  void SetTiming(int onoff);
   
 #ifdef __cplusplus
 }

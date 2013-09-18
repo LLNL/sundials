@@ -32,10 +32,12 @@ int main(int argc, char *argv[])
   int      fails = 0;  /* counter for test failures  */
   long int veclen;     /* vector length              */
   N_Vector W, X, Y, Z; /* test vectors               */
+  int      print_timing;
+
 
   /* check input and set vector length */
-  if (argc < 2){
-    printf("ERROR: ONE (1) Input required: vector length \n");
+  if (argc < 3){
+    printf("ERROR: ONE (1) Input required: vector length, print timing \n");
     return(-1);
   }
 
@@ -44,6 +46,10 @@ int main(int argc, char *argv[])
     printf("ERROR: length of vector must be a positive integer \n");
     return(-1); 
   }
+
+  print_timing = atoi(argv[2]);
+  SetTiming(print_timing);
+
 
   printf("\nRunning with vector length %ld \n \n", veclen);
 

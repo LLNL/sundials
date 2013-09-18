@@ -1,3 +1,6 @@
+
+Running with 1 threads and vector length 10000 
+ 
     PASSED test -- N_VSetArrayPointer 
  
     PASSED test -- N_VGetArrayPointer 
@@ -92,5 +95,5 @@
  
     PASSED test -- N_VClone 
  
-SUCCESS: NVector module passed all tests, Proc 0 
+SUCCESS: NVector module passed all tests 
  

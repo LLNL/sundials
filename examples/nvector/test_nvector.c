@@ -24,15 +24,18 @@
  * -----------------------------------------------------------------
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <unistd.h>
-
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+
 #include <math.h> /* include isnan */
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef SUNDIALS_HAVE_POSIX_TIMERS 
+#include <time.h>
+#include <unistd.h>
+#endif
 
 /* define constatnts */
 #define NEG_TWO  RCONST(-2.0)
@@ -50,6 +53,14 @@
 static double get_time();
 static int check_ans(realtype ans, N_Vector X, long int local_length);
 
+int print_time = 0;
+
+void SetTiming(int onoff)
+{
+   print_time = onoff;
+}
+
+#define PRINT_TIME(format, time) if(print_time) printf(format, time)
 
 /* ----------------------------------------------------------------------
  * N_VCloneVectorArray Test
@@ -98,7 +109,7 @@ int Test_N_VCloneVectorArray(int count, N_Vector W, long int local_length, int m
   
   if (myid == 0) {
     printf("    PASSED test -- N_VCloneVectorArray \n");
-    printf("    N_VCloneVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VCloneVectorArray Time: %22.15e \n \n", stop_time - start_time);
   }
 
   return(0);
@@ -148,7 +159,7 @@ int Test_N_VCloneEmptyVectorArray(int count, N_Vector W, int myid)
   
   if (myid == 0) {
     printf("    PASSED test -- N_VCloneEmptyVectorArray \n");
-    printf("    N_VCloneEmptyVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VCloneEmptyVectorArray Time: %22.15e \n \n", stop_time - start_time);
   }
 
   return(0);
@@ -189,7 +200,7 @@ int Test_N_VCloneEmpty(N_Vector W, int myid)
 
   if (myid == 0) {
     printf("    PASSED test -- N_VCloneEmpty \n");
-    printf("    N_VCloneEmpty Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VCloneEmpty Time: %22.15e \n \n", stop_time - start_time);
   }
 
   return(0);
@@ -242,7 +253,7 @@ int Test_N_VClone(N_Vector W, long int local_length, int myid)
 
   if (myid == 0) {
     printf("    PASSED test -- N_VClone \n");
-    printf("    N_VClone Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VClone Time: %22.15e \n \n", stop_time - start_time);
   }
 
   return(0);
@@ -286,7 +297,7 @@ int Test_N_VGetArrayPointer(N_Vector W, long int local_length, int myid)
 
   if (myid == 0) {
     printf("    PASSED test -- N_VGetArrayPointer \n");
-    printf("    N_VGetArrayPointer Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VGetArrayPointer Time: %22.15e \n \n", stop_time - start_time);
   }
   
   return(0);
@@ -333,7 +344,7 @@ int Test_N_VSetArrayPointer(N_Vector W, long int local_length, int myid)
 
   if (myid == 0) {
     printf("    PASSED test -- N_VSetArrayPointer \n");
-    printf("    N_VSetArrayPointer Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VSetArrayPointer Time: %22.15e \n \n", stop_time - start_time);
   }
   
   return(0);
@@ -373,12 +384,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 1a, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 1a \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   /*
@@ -403,12 +414,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 1b, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 1b \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   /*
@@ -433,12 +444,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 1c, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 1c \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   /*
@@ -463,12 +474,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 2a, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 2a \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   /*
@@ -493,12 +504,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 2b, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 2b \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   /* 
@@ -523,12 +534,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 2c, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 2c \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   /* 
@@ -554,12 +565,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 3, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 3 \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   /* 
@@ -585,12 +596,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 4a, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 4a \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   /* 
@@ -616,12 +627,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 4b, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 4b \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   /* 
@@ -647,12 +658,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 5a, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 5a \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /* 
@@ -678,12 +689,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 5b, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 5b \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /* 
@@ -709,12 +720,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 6a, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 6a \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /* 
@@ -740,12 +751,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 6b, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 6b \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /* 
@@ -771,12 +782,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 7, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 7 \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /* 
@@ -802,12 +813,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 8, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 8 \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /* 
@@ -833,12 +844,12 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSum Case 9, Proc %d \n", myid);
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VLinearSum Case 9 \n");
-    printf("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VLinearSum Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -871,12 +882,12 @@ int Test_N_VConst(N_Vector X, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VConst, Proc %d \n", myid);
-    printf("    N_VConst Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VConst Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VConst \n");
-    printf("    N_VConst Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VConst Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -913,12 +924,12 @@ int Test_N_VProd(N_Vector X, N_Vector Y, N_Vector Z, long int local_length, int 
 
   if (failure) {
     printf(">>> FAILED test -- N_VProd, Proc %d \n", myid);
-    printf("    N_VProd Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VProd Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VProd \n");
-    printf("    N_VProd Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VProd Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -955,12 +966,12 @@ int Test_N_VDiv(N_Vector X, N_Vector Y, N_Vector Z, long int local_length, int m
 
   if (failure) {
     printf(">>> FAILED test -- N_VDiv, Proc %d \n", myid);
-    printf("    N_VDiv Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VDiv Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VDiv \n");
-    printf("    N_VDiv Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VDiv Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -998,12 +1009,12 @@ int Test_N_VScale(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VScale Case 1, Proc %d \n", myid);
-    printf("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VScale Case 1 \n");
-    printf("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /* 
@@ -1028,12 +1039,12 @@ int Test_N_VScale(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VScale Case 2, Proc %d \n", myid);
-    printf("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VScale Case 2 \n");
-    printf("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /* 
@@ -1058,12 +1069,12 @@ int Test_N_VScale(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VScale Case 3, Proc %d \n", myid);
-    printf("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VScale Case 3 \n");
-    printf("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /* 
@@ -1088,12 +1099,12 @@ int Test_N_VScale(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VScale Case 4, Proc %d \n", myid);
-    printf("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VScale Case 4 \n");
-    printf("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VScale Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -1128,12 +1139,12 @@ int Test_N_VAbs(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VAbs, Proc %d \n", myid);
-    printf("    N_VAbs Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VAbs Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VAbs \n");
-    printf("    N_VAbs Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VAbs Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -1168,12 +1179,12 @@ int Test_N_VInv(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VInv, Proc %d \n", myid);
-    printf("    N_VInv Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VInv Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VInv \n");
-    printf("    N_VInv Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VInv Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   return(fails);
@@ -1208,12 +1219,12 @@ int Test_N_VAddConst(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VAddConst, Proc %d \n", myid);
-    printf("    N_VAddConst Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VAddConst Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VAddConst \n");
-    printf("    N_VAddConst Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VAddConst Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -1250,12 +1261,12 @@ int Test_N_VDotProd(N_Vector X, N_Vector Y,
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProd, Proc %d \n", myid);
-    printf("    N_VDotProd Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VDotProd Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VAddConst \n");
-    printf("    N_VDotProd Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VDotProd Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   return(fails);
@@ -1290,12 +1301,12 @@ int Test_N_VMaxNorm(N_Vector X, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VMaxNorm, Proc %d \n", myid);
-    printf("    N_VMaxNorm Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VMaxNorm Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VMaxNorm \n");
-    printf("    N_VMaxNorm Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VMaxNorm Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -1331,12 +1342,12 @@ int Test_N_VWrmsNorm(N_Vector X, N_Vector W, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VWrmsNorm, Proc %d \n", myid);
-    printf("    N_VWrmsNorm Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VWrmsNorm Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VWrmsNorm \n");
-    printf("    N_VWrmsNorm Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VWrmsNorm Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   return(fails);
@@ -1379,12 +1390,12 @@ int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
     
   if (failure) {
     printf(">>> FAILED test -- N_VWrmsNormMask Case 1, Proc %d \n", myid);
-    printf("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VWrmsNormMask Case 1 \n");
-    printf("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /* 
@@ -1410,12 +1421,12 @@ int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
     
   if (failure) {
     printf(">>> FAILED test -- N_VWrmsNormMask Case 2, Proc %d \n", myid);
-    printf("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VWrmsNormMask Case 2 \n");
-    printf("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   return(fails);
@@ -1450,12 +1461,12 @@ int Test_N_VMin(N_Vector X, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VMin, Proc %d \n", myid);
-    printf("    N_VMin Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VMin Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VMin \n");
-    printf("    N_VMin Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VMin Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -1492,12 +1503,12 @@ int Test_N_VWL2Norm(N_Vector X, N_Vector W,
 
   if (failure) {
     printf(">>> FAILED test -- N_VWL2Norm, Proc %d \n", myid);
-    printf("    N_VWL2Norm Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VWL2Norm Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VWL2Norm \n");
-    printf("    N_VWL2Norm Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VWL2Norm Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   return(fails);
@@ -1532,12 +1543,12 @@ int Test_N_VL1Norm(N_Vector X, long int local_length,
 
   if (failure) {
     printf(">>> FAILED test -- N_VL1Norm, Proc %d \n", myid);
-    printf("    N_VL1Norm Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VL1Norm Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VL1Norm \n");
-    printf("    N_VL1Norm Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VL1Norm Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -1618,12 +1629,12 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VCompare, Proc %d \n", myid);
-    printf("    N_VCompare Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VCompare Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VCompare \n");
-    printf("    N_VCompare Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VCompare Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   return(fails);
@@ -1668,12 +1679,12 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   if (failure || !test) {
     printf(">>> FAILED test -- N_VInvTest Case 1, Proc %d \n", myid);
-    printf("    N_VInvTest Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VInvTest Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VInvTest Case 1 \n");
-    printf("    N_VInvTest Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VInvTest Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /*
@@ -1713,12 +1724,12 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   if (failure || test) {
     printf(">>> FAILED test -- N_VInvTest Case 2, Proc %d \n", myid);
-    printf("    N_VInvTest Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VInvTest Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VInvTest Case 2 \n");
-    printf("    N_VInvTest Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VInvTest Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -1809,12 +1820,12 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
 
   if (failure || !test) {
     printf(">>> FAILED test -- N_VConstrMask Case 1, Proc %d \n", myid);
-    printf("    N_VConstrMask Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VConstrMask Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VConstrMask Case 1 \n");
-    printf("    N_VConstrMask Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VConstrMask Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   /*
@@ -1881,12 +1892,12 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
   
   if (failure || test) {
     printf(">>> FAILED test -- N_VConstrMask Case 2, Proc %d \n", myid);
-    printf("    N_VConstrMask Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VConstrMask Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VConstrMask Case 2 \n");
-    printf("    N_VConstrMask Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VConstrMask Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -1928,12 +1939,12 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
   
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotient Case 1, Proc %d \n", myid);
-    printf("    N_VMinQuotient Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VMinQuotient Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VMinQuotient Case 1 \n");
-    printf("    N_VMinQuotient Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VMinQuotient Time: %22.15e \n \n", stop_time - start_time);
   }    
   
   /*
@@ -1958,12 +1969,12 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotient Case 2, Proc %d \n", myid);
-    printf("    N_VMinQuotient Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VMinQuotient Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
     printf("    PASSED test -- N_VMinQuotient Case 2 \n");
-    printf("    N_VMinQuotient Time: %22.15e \n \n", stop_time - start_time);
+    PRINT_TIME("    N_VMinQuotient Time: %22.15e \n \n", stop_time - start_time);
   }    
 
   return(fails);
@@ -1980,11 +1991,8 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
  * --------------------------------------------------------------------*/
 static double get_time()
 {
+#ifdef SUNDIALS_HAVE_POSIX_TIMERS 
   struct timespec spec;  
-/* SGS : This should be fixed in some way.  Can CMAKE determine if the 
-   clock is available? */
-/* #ifdef _POSIX_TIMERS */
-#if 0
   clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
   double time = (double)spec.tv_sec + ((double)(spec.tv_nsec) / 1E9);
 #else

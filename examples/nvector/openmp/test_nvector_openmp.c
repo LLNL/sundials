@@ -33,10 +33,11 @@ int main(int argc, char *argv[])
   long int veclen;               /* vector length             */
   N_Vector W, X, Y, Z;           /* test vectors              */
   int      num_threads;
+  int      print_timing;
 
   /* check input and set vector length */
-  if (argc < 3){
-    printf("ERROR: two arguments required: <vector length> <number of threads> \n");
+  if (argc < 4){
+    printf("ERROR: two arguments required: <vector length> <number of threads> <print timing>\n");
     return(-1);
   }
 
@@ -51,6 +52,9 @@ int main(int argc, char *argv[])
     printf("ERROR: numbber of threads must be a positive integer \n");
     return(-1); 
   }
+
+  print_timing = atoi(argv[3]);
+  SetTiming(print_timing);
 
   printf("\nRunning with vector length %ld \n \n", veclen);
   printf("\nRunning with number of threads %d \n \n", num_threads);

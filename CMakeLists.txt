@@ -251,6 +251,21 @@ IF(UNIX)
   ENDIF(USE_GENERIC_MATH)
 ENDIF(UNIX)
 
+## clock-monotonic, see if we need to link with rt
+include(CheckSymbolExists)
+set(CMAKE_REQUIRED_LIBRARIES_SAVE ${CMAKE_REQUIRED_LIBRARIES})
+set(CMAKE_REQUIRED_LIBRARIES rt)
+CHECK_SYMBOL_EXISTS(_POSIX_TIMERS "unistd.h;time.h" SUNDIALS_POSIX_TIMERS)
+set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES_SAVE})
+if(SUNDIALS_POSIX_TIMERS)
+  find_library(SUNDIALS_RT_LIBRARY NAMES rt)
+  mark_as_advanced(SUNDIALS_RT_LIBRARY)
+  if(SUNDIALS_RT_LIBRARY)
+    SET(SUNDIALS_HAVE_POSIX_TIMERS "#define SUNDIALS_HAVE_POSIX_TIMERS")
+    set(EXTRA_LINK_LIBS ${EXTRA_LINK_LIBS} ${SUNDIALS_RT_LIBRARY})
+  endif()
+endif()
+
 # -------------------------------------------------------------
 # Enable Fortran support?
 # -------------------------------------------------------------

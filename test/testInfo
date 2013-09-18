@@ -9,17 +9,17 @@ cvsDiurnal_FSA_kry:4:10:-sensi stg t
 cvsDiurnal_FSA_kry:4:10:-sensi sim t
 cvsRoberts_FSA_dns:4:10:-sensi stg1 t
 idasRoberts_FSA_dns:4:10:-sensi stg t
-test_nvector_serial:4:10:1000
-test_nvector_serial:4:10:10000
-test_nvector_openmp:4:10:1000 1
-test_nvector_openmp:4:10:10000 1
-test_nvector_openmp:4:10:1000 2
-test_nvector_openmp:4:10:10000 2
-test_nvector_openmp:4:10:1000 4
-test_nvector_openmp:4:10:10000 4
-test_nvector_pthreads:4:10:1000 1
-test_nvector_pthreads:4:10:10000 1
-test_nvector_pthreads:4:10:1000 2
-test_nvector_pthreads:4:10:10000 2
-test_nvector_pthreads:4:10:1000 4
-test_nvector_pthreads:4:10:10000 4
+test_nvector_serial:4:10:1000 0
+test_nvector_serial:4:10:10000 0
+test_nvector_openmp:4:10:1000 1 0
+test_nvector_openmp:4:10:10000 1 0
+test_nvector_openmp:4:10:1000 2 0
+test_nvector_openmp:4:10:10000 2 0
+test_nvector_openmp:4:10:1000 4 0
+test_nvector_openmp:4:10:10000 4 0
+test_nvector_pthreads:4:10:1000 1 0
+test_nvector_pthreads:4:10:10000 1 0
+test_nvector_pthreads:4:10:1000 2 0
+test_nvector_pthreads:4:10:10000 2 0
+test_nvector_pthreads:4:10:1000 4 0
+test_nvector_pthreads:4:10:10000 4 0
