@@ -58,9 +58,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <time.h>
-#include <sys/times.h>
-#include <sys/time.h>
 #include <limits.h>
 
 #include <cpodes/cpodes.h>
