@@ -56,10 +56,10 @@ int main(int argc, char *argv[])
   printf("\nRunning with number of threads %d \n \n", num_threads);
 
   /* Create vectors */
-  W = N_VNewEmpty_openMP(veclen, num_threads);
-  X = N_VNew_openMP(veclen, num_threads);
-  Y = N_VNew_openMP(veclen, num_threads);
-  Z = N_VNew_openMP(veclen, num_threads);
+  W = N_VNewEmpty_OpenMP(veclen, num_threads);
+  X = N_VNew_OpenMP(veclen, num_threads);
+  Y = N_VNew_OpenMP(veclen, num_threads);
+  Z = N_VNew_OpenMP(veclen, num_threads);
   
   /* NVector Tests */
   fails += Test_N_VSetArrayPointer(W, veclen, 0);
@@ -89,10 +89,10 @@ int main(int argc, char *argv[])
   fails += Test_N_VClone(X, veclen, 0);
 
   /* Free vectors */
-  N_VDestroy_openMP(W);
-  N_VDestroy_openMP(X);
-  N_VDestroy_openMP(Y);
-  N_VDestroy_openMP(Z);
+  N_VDestroy_OpenMP(W);
+  N_VDestroy_OpenMP(X);
+  N_VDestroy_OpenMP(Y);
+  N_VDestroy_OpenMP(Z);
 
   /* Print results */
   if (fails) {

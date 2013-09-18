@@ -38,6 +38,8 @@ linsolv.tex \
 nvec_generic.tex \
 nvec_parallel.tex \
 nvec_serial.tex \
+nvec_openmp.tex \
+nvec_pthreads.tex \
 sun_org.tex \
 types.tex \
 ug.tex \

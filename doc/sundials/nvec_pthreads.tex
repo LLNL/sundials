@@ -1,0 +1,198 @@
+%% This is a shared SUNDIALS TEX file with a description of the
+%% Pthreads nvector implementation
+%%
+
+The Pthreads implementation of the {\nvector} module provided with {\sundials},
+{\nvecpthreads}, defines the {\em content} field of \id{N\_Vector} to be a structure 
+containing the length of the vector, a pointer to the beginning of a contiguous 
+data array, and a boolean flag {\em own\_data} which specifies the ownership 
+of {\em data}.  Operations on the vector are threaded using POSIX threads 
+(Pthreads), the number of threads used is based on the supplied argument in 
+the vector constructor.
+%%
+\begin{verbatim} 
+struct _N_VectorContent_Pthreads {
+  long int length;
+  booleantype own_data;
+  realtype *data;
+  int num_threads;
+};
+\end{verbatim}
+%%
+%%--------------------------------------------
+%%
+The following five macros are provided to access the content of an {\nvecpthreads}
+vector. The suffix \id{\_PT} in the names denotes Pthreads version.
+%%
+\begin{itemize}
+
+\item \ID{NV\_CONTENT\_PT}                             
+    
+  This routine gives access to the contents of the Pthreads
+  vector \id{N\_Vector}.
+  
+  The assignment \id{v\_cont} $=$ \id{NV\_CONTENT\_PT(v)} sets           
+  \id{v\_cont} to be a pointer to the Pthreads \id{N\_Vector} content  
+  structure.                                             
+                                                            
+  Implementation: 
+  
+  \verb|#define NV_CONTENT_PT(v) ( (N_VectorContent_Pthreads)(v->content) )|
+  
+\item \ID{NV\_OWN\_DATA\_PT}, \ID{NV\_DATA\_PT}, \ID{NV\_LENGTH\_PT}
+
+
+  These macros give individual access to the parts of    
+  the content of a Pthreads \id{N\_Vector}.                        
+                                                               
+  The assignment \id{v\_data = NV\_DATA\_PT(v)} sets \id{v\_data} to be     
+  a pointer to the first component of the data for the \id{N\_Vector} \id{v}. 
+  The assignment \id{NV\_DATA\_PT(v) = v\_data} sets the component array of \id{v} to     
+  be \id{v\_data} by storing the pointer \id{v\_data}.                   
+  
+  The assignment \id{v\_len = NV\_LENGTH\_PT(v)} sets \id{v\_len} to be     
+  the length of \id{v}. On the other hand, the call \id{NV\_LENGTH\_PT(v) = len\_v} 
+  sets the length of \id{v} to be \id{len\_v}.
+                                                            
+  Implementation: 
+  
+  \verb|#define NV_OWN_DATA_PT(v) ( NV_CONTENT_PT(v)->own_data )|
+
+  \verb|#define NV_DATA_PT(v) ( NV_CONTENT_PT(v)->data )|
+  
+  \verb|#define NV_LENGTH_PT(v) ( NV_CONTENT_PT(v)->length )|
+
+  \verb|#define NV_NUM_THREADS_PT(v) ( NV_CONTENT_PT(v)->num_threads )|
+
+\item \ID{NV\_Ith\_PT}                                               
+                                                            
+  This macro gives access to the individual components of the data
+  array of an \id{N\_Vector}.
+
+  The assignment \id{r = NV\_Ith\_PT(v,i)} sets \id{r} to be the value of 
+  the \id{i}-th component of \id{v}. The assignment \id{NV\_Ith\_PT(v,i) = r}   
+  sets the value of the \id{i}-th component of \id{v} to be \id{r}.        
+  
+  Here $i$ ranges from $0$ to $n-1$ for a vector of length $n$.
+
+  Implementation:
+
+  \verb|#define NV_Ith_PT(v,i) ( NV_DATA_PT(v)[i] )|
+
+\end{itemize}
+%%
+%%----------------------------------------------
+%%
+The {\nvecpthreads} module defines Pthreads implementations of all vector operations listed 
+in Table \ref{t:nvecops}. Their names are obtained from those in Table \ref{t:nvecops} by
+appending the suffix \id{\_Pthreads}. The module {\nvecpthreads} provides the following additional
+user-callable routines:
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item \ID{N\_VNew\_Pthreads}
+
+  This function creates and allocates memory for a Pthreads \id{N\_Vector}.
+  Arguments are the vector length and number of threads.
+
+  
+
+  \verb|N_Vector N_VNew_Pthreads(long int vec_length, int num_threads);|
+
+%%--------------------------------------
+
+\item \ID{N\_VNewEmpty\_Pthreads}
+
+  This function creates a new Pthreads \id{N\_Vector} with an empty (\id{NULL}) data array.
+
+  
+
+  \verb|N_Vector N_VNewEmpty_Pthreads(long int vec_length, int num_threads);|
+
+%%--------------------------------------
+
+\item \ID{N\_VMake\_Pthreads}
+
+ This function creates and allocates memory for a Pthreads vector
+ with user-provided data array.
+
+ 
+
+ \verb|N_Vector N_VMake_Pthreads(long int vec_length, realtype *v_data, int num_threads);|
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneVectorArray\_Pthreads}
+
+ This function creates (by cloning) an array of \id{count} Pthreads vectors.
+
+ 
+
+ \verb|N_Vector *N_VCloneVectorArray_Pthreads(int count, N_Vector w);|
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneEmptyVectorArray\_Pthreads}
+
+ This function creates (by cloning) an array of \id{count} Pthreads vectors, each with an
+ empty (\id{NULL}) data array.
+
+ 
+
+ \verb|N_Vector *N_VCloneEmptyVectorArray_Pthreads(int count, N_Vector w);|
+
+%%--------------------------------------
+
+\item \ID{N\_VDestroyVectorArray\_Pthreads}
+
+ This function frees memory allocated for the array of \id{count} variables of type
+ \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Pthreads} or with
+ \id{N\_VCloneEmptyVectorArray\_Pthreads}.
+
+ 
+
+ \verb|void N_VDestroyVectorArray_Pthreads(N_Vector *vs, int count);|
+
+%%--------------------------------------
+
+\item \ID{N\_VPrint\_Pthreads}
+
+ This function prints the content of a Pthreads vector to \id{stdout}.
+
+ 
+ 
+ \verb|void N_VPrint_Pthreads(N_Vector v);|
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+\paragraph{\bf Notes}                                                      
+           
+\begin{itemize}
+                                        
+\item
+  When looping over the components of an \id{N\_Vector} \id{v}, it is     
+  more efficient to first obtain the component array via       
+  \id{v\_data = NV\_DATA\_PT(v)} and then access \id{v\_data[i]} within the     
+  loop than it is to use \id{NV\_Ith\_PT(v,i)} within the loop.        
+
+\item
+  {\warn}\id{N\_VNewEmpty\_Pthreads}, \id{N\_VMake\_Pthreads}, 
+  and \id{N\_VCloneEmptyVectorArray\_Pthreads} set the field 
+  {\em own\_data} $=$ \id{FALSE}. 
+  \id{N\_VDestroy\_Pthreads} and \id{N\_VDestroyVectorArray\_Pthreads}
+  will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
+  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  deallocate the {\em data} pointer.
+                                     
+\item
+  {\warn}To maximize efficiency, vector operations in the {\nvecpthreads} implementation
+  that have more than one \id{N\_Vector} argument do not check for
+  consistent internal representation of these vectors. It is the user's 
+  responsibility to ensure that such routines are called with \id{N\_Vector}
+  arguments that were all created with the same internal representations.
+
+\end{itemize}

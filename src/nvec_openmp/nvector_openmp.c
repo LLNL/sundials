@@ -15,7 +15,7 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * This is the implementation file for an openMP implementation
+ * This is the implementation file for an OpenMP implementation
  * of the NVECTOR module.
  * -----------------------------------------------------------------
  */
@@ -35,25 +35,25 @@
 
 /* Private function prototypes */
 /* z=x */
-static void VCopy_openMP(N_Vector x, N_Vector z);
+static void VCopy_OpenMP(N_Vector x, N_Vector z);
 /* z=x+y */
-static void VSum_openMP(N_Vector x, N_Vector y, N_Vector z);
+static void VSum_OpenMP(N_Vector x, N_Vector y, N_Vector z);
 /* z=x-y */
-static void VDiff_openMP(N_Vector x, N_Vector y, N_Vector z);
+static void VDiff_OpenMP(N_Vector x, N_Vector y, N_Vector z);
 /* z=-x */
-static void VNeg_openMP(N_Vector x, N_Vector z);
+static void VNeg_OpenMP(N_Vector x, N_Vector z);
 /* z=c(x+y) */
-static void VScaleSum_openMP(realtype c, N_Vector x, N_Vector y, N_Vector z);
+static void VScaleSum_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z);
 /* z=c(x-y) */
-static void VScaleDiff_openMP(realtype c, N_Vector x, N_Vector y, N_Vector z); 
+static void VScaleDiff_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z); 
 /* z=ax+y */
-static void VLin1_openMP(realtype a, N_Vector x, N_Vector y, N_Vector z);
+static void VLin1_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax-y */
-static void VLin2_openMP(realtype a, N_Vector x, N_Vector y, N_Vector z);
+static void VLin2_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z);
 /* y <- ax+y */
-static void Vaxpy_openMP(realtype a, N_Vector x, N_Vector y);
+static void Vaxpy_OpenMP(realtype a, N_Vector x, N_Vector y);
 /* x <- ax */
-static void VScaleBy_openMP(realtype a, N_Vector x);
+static void VScaleBy_OpenMP(realtype a, N_Vector x);
 
 /*
  * -----------------------------------------------------------------
@@ -65,11 +65,11 @@ static void VScaleBy_openMP(realtype a, N_Vector x);
  * Function to create a new empty vector 
  */
 
-N_Vector N_VNewEmpty_openMP(long int length, int num_threads)
+N_Vector N_VNewEmpty_OpenMP(long int length, int num_threads)
 {
   N_Vector v;
   N_Vector_Ops ops;
-  N_VectorContent_openMP content;
+  N_VectorContent_OpenMP content;
 
   /* Create vector */
   v = NULL;
@@ -81,35 +81,35 @@ N_Vector N_VNewEmpty_openMP(long int length, int num_threads)
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
-  ops->nvclone           = N_VClone_openMP;
-  ops->nvcloneempty      = N_VCloneEmpty_openMP;
-  ops->nvdestroy         = N_VDestroy_openMP;
-  ops->nvspace           = N_VSpace_openMP;
-  ops->nvgetarraypointer = N_VGetArrayPointer_openMP;
-  ops->nvsetarraypointer = N_VSetArrayPointer_openMP;
-  ops->nvlinearsum       = N_VLinearSum_openMP;
-  ops->nvconst           = N_VConst_openMP;
-  ops->nvprod            = N_VProd_openMP;
-  ops->nvdiv             = N_VDiv_openMP;
-  ops->nvscale           = N_VScale_openMP;
-  ops->nvabs             = N_VAbs_openMP;
-  ops->nvinv             = N_VInv_openMP;
-  ops->nvaddconst        = N_VAddConst_openMP;
-  ops->nvdotprod         = N_VDotProd_openMP;
-  ops->nvmaxnorm         = N_VMaxNorm_openMP;
-  ops->nvwrmsnormmask    = N_VWrmsNormMask_openMP;
-  ops->nvwrmsnorm        = N_VWrmsNorm_openMP;
-  ops->nvmin             = N_VMin_openMP;
-  ops->nvwl2norm         = N_VWL2Norm_openMP;
-  ops->nvl1norm          = N_VL1Norm_openMP;
-  ops->nvcompare         = N_VCompare_openMP;
-  ops->nvinvtest         = N_VInvTest_openMP;
-  ops->nvconstrmask      = N_VConstrMask_openMP;
-  ops->nvminquotient     = N_VMinQuotient_openMP;
+  ops->nvclone           = N_VClone_OpenMP;
+  ops->nvcloneempty      = N_VCloneEmpty_OpenMP;
+  ops->nvdestroy         = N_VDestroy_OpenMP;
+  ops->nvspace           = N_VSpace_OpenMP;
+  ops->nvgetarraypointer = N_VGetArrayPointer_OpenMP;
+  ops->nvsetarraypointer = N_VSetArrayPointer_OpenMP;
+  ops->nvlinearsum       = N_VLinearSum_OpenMP;
+  ops->nvconst           = N_VConst_OpenMP;
+  ops->nvprod            = N_VProd_OpenMP;
+  ops->nvdiv             = N_VDiv_OpenMP;
+  ops->nvscale           = N_VScale_OpenMP;
+  ops->nvabs             = N_VAbs_OpenMP;
+  ops->nvinv             = N_VInv_OpenMP;
+  ops->nvaddconst        = N_VAddConst_OpenMP;
+  ops->nvdotprod         = N_VDotProd_OpenMP;
+  ops->nvmaxnorm         = N_VMaxNorm_OpenMP;
+  ops->nvwrmsnormmask    = N_VWrmsNormMask_OpenMP;
+  ops->nvwrmsnorm        = N_VWrmsNorm_OpenMP;
+  ops->nvmin             = N_VMin_OpenMP;
+  ops->nvwl2norm         = N_VWL2Norm_OpenMP;
+  ops->nvl1norm          = N_VL1Norm_OpenMP;
+  ops->nvcompare         = N_VCompare_OpenMP;
+  ops->nvinvtest         = N_VInvTest_OpenMP;
+  ops->nvconstrmask      = N_VConstrMask_OpenMP;
+  ops->nvminquotient     = N_VMinQuotient_OpenMP;
 
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_openMP) malloc(sizeof(struct _N_VectorContent_openMP));
+  content = (N_VectorContent_OpenMP) malloc(sizeof(struct _N_VectorContent_OpenMP));
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
   content->length   = length;
@@ -128,13 +128,13 @@ N_Vector N_VNewEmpty_openMP(long int length, int num_threads)
  * Function to create a new vector 
  */
 
-N_Vector N_VNew_openMP(long int length, int num_threads)
+N_Vector N_VNew_OpenMP(long int length, int num_threads)
 {
   N_Vector v;
   realtype *data;
 
   v = NULL;
-  v = N_VNewEmpty_openMP(length, num_threads);
+  v = N_VNewEmpty_OpenMP(length, num_threads);
   if (v == NULL) return(NULL);
 
   /* Create data */
@@ -143,7 +143,7 @@ N_Vector N_VNew_openMP(long int length, int num_threads)
     /* Allocate memory */
     data = NULL;
     data = (realtype *) malloc(length * sizeof(realtype));
-    if(data == NULL) { N_VDestroy_openMP(v); return(NULL); }
+    if(data == NULL) { N_VDestroy_OpenMP(v); return(NULL); }
 
     /* Attach data */
     NV_OWN_DATA_OMP(v) = TRUE;
@@ -158,12 +158,12 @@ N_Vector N_VNew_openMP(long int length, int num_threads)
  * Function to create a vector with user data component 
  */
 
-N_Vector N_VMake_openMP(long int length, realtype *v_data, int num_threads)
+N_Vector N_VMake_OpenMP(long int length, realtype *v_data, int num_threads)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_openMP(length, num_threads);
+  v = N_VNewEmpty_OpenMP(length, num_threads);
   if (v == NULL) return(NULL);
 
   if (length > 0) {
@@ -179,7 +179,7 @@ N_Vector N_VMake_openMP(long int length, realtype *v_data, int num_threads)
  * Function to create an array of new vectors. 
  */
 
-N_Vector *N_VCloneVectorArray_openMP(int count, N_Vector w)
+N_Vector *N_VCloneVectorArray_OpenMP(int count, N_Vector w)
 {
   N_Vector *vs;
   int j;
@@ -192,9 +192,9 @@ N_Vector *N_VCloneVectorArray_openMP(int count, N_Vector w)
 
   for (j = 0; j < count; j++) {
     vs[j] = NULL;
-    vs[j] = N_VClone_openMP(w);
+    vs[j] = N_VClone_OpenMP(w);
     if (vs[j] == NULL) {
-      N_VDestroyVectorArray_openMP(vs, j-1);
+      N_VDestroyVectorArray_OpenMP(vs, j-1);
       return(NULL);
     }
   }
@@ -206,7 +206,7 @@ N_Vector *N_VCloneVectorArray_openMP(int count, N_Vector w)
  * Function to create an array of new vectors with NULL data array. 
  */
 
-N_Vector *N_VCloneVectorArrayEmpty_openMP(int count, N_Vector w)
+N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
 {
   N_Vector *vs;
   int j;
@@ -219,9 +219,9 @@ N_Vector *N_VCloneVectorArrayEmpty_openMP(int count, N_Vector w)
 
   for (j = 0; j < count; j++) {
     vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_openMP(w);
+    vs[j] = N_VCloneEmpty_OpenMP(w);
     if (vs[j] == NULL) {
-      N_VDestroyVectorArray_openMP(vs, j-1);
+      N_VDestroyVectorArray_OpenMP(vs, j-1);
       return(NULL);
     }
   }
@@ -230,14 +230,14 @@ N_Vector *N_VCloneVectorArrayEmpty_openMP(int count, N_Vector w)
 }
 
 /* ----------------------------------------------------------------------------
- * Function to free an array created with N_VCloneVectorArray_openMP
+ * Function to free an array created with N_VCloneVectorArray_OpenMP
  */
 
-void N_VDestroyVectorArray_openMP(N_Vector *vs, int count)
+void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count)
 {
   int j;
 
-  for (j = 0; j < count; j++) N_VDestroy_openMP(vs[j]);
+  for (j = 0; j < count; j++) N_VDestroy_OpenMP(vs[j]);
 
   free(vs); vs = NULL;
 
@@ -248,7 +248,7 @@ void N_VDestroyVectorArray_openMP(N_Vector *vs, int count)
  * Function to print a vector 
  */
  
-void N_VPrint_openMP(N_Vector x)
+void N_VPrint_OpenMP(N_Vector x)
 {
   long int i, N;
   realtype *xd;
@@ -282,11 +282,11 @@ void N_VPrint_openMP(N_Vector x)
  * Create new vector from existing vector without attaching data
  */
 
-N_Vector N_VCloneEmpty_openMP(N_Vector w)
+N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
 {
   N_Vector v;
   N_Vector_Ops ops;
-  N_VectorContent_openMP content;
+  N_VectorContent_OpenMP content;
 
   if (w == NULL) return(NULL);
 
@@ -328,7 +328,7 @@ N_Vector N_VCloneEmpty_openMP(N_Vector w)
 
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_openMP) malloc(sizeof(struct _N_VectorContent_openMP));
+  content = (N_VectorContent_OpenMP) malloc(sizeof(struct _N_VectorContent_OpenMP));
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
   content->length   = NV_LENGTH_OMP(w);
@@ -348,14 +348,14 @@ N_Vector N_VCloneEmpty_openMP(N_Vector w)
  * Create new vector from existing vector and attach data
  */
 
-N_Vector N_VClone_openMP(N_Vector w)
+N_Vector N_VClone_OpenMP(N_Vector w)
 {
   N_Vector v;
   realtype *data;
   long int length;
 
   v = NULL;
-  v = N_VCloneEmpty_openMP(w);
+  v = N_VCloneEmpty_OpenMP(w);
   if (v == NULL) return(NULL);
 
   length = NV_LENGTH_OMP(w);
@@ -366,7 +366,7 @@ N_Vector N_VClone_openMP(N_Vector w)
     /* Allocate memory */
     data = NULL;
     data = (realtype *) malloc(length * sizeof(realtype));
-    if(data == NULL) { N_VDestroy_openMP(v); return(NULL); }
+    if(data == NULL) { N_VDestroy_OpenMP(v); return(NULL); }
 
     /* Attach data */
     NV_OWN_DATA_OMP(v) = TRUE;
@@ -382,7 +382,7 @@ N_Vector N_VClone_openMP(N_Vector w)
  * Destroy vector and free vector memory
  */
 
-void N_VDestroy_openMP(N_Vector v)
+void N_VDestroy_OpenMP(N_Vector v)
 {
   if (NV_OWN_DATA_OMP(v) == TRUE) {
     free(NV_DATA_OMP(v));
@@ -400,7 +400,7 @@ void N_VDestroy_openMP(N_Vector v)
  * Get storage requirement for N_Vector
  */
 
-void N_VSpace_openMP(N_Vector v, long int *lrw, long int *liw)
+void N_VSpace_OpenMP(N_Vector v, long int *lrw, long int *liw)
 {
   *lrw = NV_LENGTH_OMP(v);
   *liw = 1;
@@ -413,7 +413,7 @@ void N_VSpace_openMP(N_Vector v, long int *lrw, long int *liw)
  * Get vector data pointer
  */
 
-realtype *N_VGetArrayPointer_openMP(N_Vector v)
+realtype *N_VGetArrayPointer_OpenMP(N_Vector v)
 {
   return((realtype *) NV_DATA_OMP(v));
 }
@@ -423,7 +423,7 @@ realtype *N_VGetArrayPointer_openMP(N_Vector v)
  * Set vector data pointer
  */
 
-void N_VSetArrayPointer_openMP(realtype *v_data, N_Vector v)
+void N_VSetArrayPointer_OpenMP(realtype *v_data, N_Vector v)
 {
   if (NV_LENGTH_OMP(v) > 0) NV_DATA_OMP(v) = v_data;
 
@@ -435,7 +435,7 @@ void N_VSetArrayPointer_openMP(realtype *v_data, N_Vector v)
  * Compute linear combination z[i] = a*x[i]+b*y[i]
  */
 
-void N_VLinearSum_openMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
+void N_VLinearSum_OpenMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
   long int i, N;
   realtype c, *xd, *yd, *zd;
@@ -445,19 +445,19 @@ void N_VLinearSum_openMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   xd = yd = zd = NULL;
 
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
-    Vaxpy_openMP(a,x,y);
+    Vaxpy_OpenMP(a,x,y);
     return;
   }
 
   if ((a == ONE) && (z == x)) {    /* BLAS usage: axpy x <- by+x */
-    Vaxpy_openMP(b,y,x);
+    Vaxpy_OpenMP(b,y,x);
     return;
   }
 
   /* Case: a == b == 1.0 */
 
   if ((a == ONE) && (b == ONE)) {
-    VSum_openMP(x, y, z);
+    VSum_OpenMP(x, y, z);
     return;
   }
 
@@ -466,7 +466,7 @@ void N_VLinearSum_openMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VDiff_openMP(v2, v1, z);
+    VDiff_OpenMP(v2, v1, z);
     return;
   }
 
@@ -477,7 +477,7 @@ void N_VLinearSum_openMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
     c  = test ? b : a;
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VLin1_openMP(c, v1, v2, z);
+    VLin1_OpenMP(c, v1, v2, z);
     return;
   }
 
@@ -487,7 +487,7 @@ void N_VLinearSum_openMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
     c = test ? b : a;
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VLin2_openMP(c, v1, v2, z);
+    VLin2_OpenMP(c, v1, v2, z);
     return;
   }
 
@@ -495,14 +495,14 @@ void N_VLinearSum_openMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   /* catches case both a and b are 0.0 - user should have called N_VConst */
 
   if (a == b) {
-    VScaleSum_openMP(a, x, y, z);
+    VScaleSum_OpenMP(a, x, y, z);
     return;
   }
 
   /* Case: a == -b */
 
   if (a == -b) {
-    VScaleDiff_openMP(a, x, y, z);
+    VScaleDiff_OpenMP(a, x, y, z);
     return;
   }
 
@@ -529,7 +529,7 @@ void N_VLinearSum_openMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
  * Assigns constant value to all vector elements, z[i] = c
  */
 
-void N_VConst_openMP(realtype c, N_Vector z)
+void N_VConst_OpenMP(realtype c, N_Vector z)
 {
   long int i, N;
   realtype *zd;
@@ -551,7 +551,7 @@ void N_VConst_openMP(realtype c, N_Vector z)
  * Compute componentwise product z[i] = x[i]*y[i]
  */
 
-void N_VProd_openMP(N_Vector x, N_Vector y, N_Vector z)
+void N_VProd_OpenMP(N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
   realtype *xd, *yd, *zd;
@@ -576,7 +576,7 @@ void N_VProd_openMP(N_Vector x, N_Vector y, N_Vector z)
  * Compute componentwise division z[i] = x[i]/y[i]
  */
 
-void N_VDiv_openMP(N_Vector x, N_Vector y, N_Vector z)
+void N_VDiv_OpenMP(N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
   realtype *xd, *yd, *zd;
@@ -601,7 +601,7 @@ void N_VDiv_openMP(N_Vector x, N_Vector y, N_Vector z)
  * Compute scaler multiplication z[i] = c*x[i]
  */
 
-void N_VScale_openMP(realtype c, N_Vector x, N_Vector z)
+void N_VScale_OpenMP(realtype c, N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
@@ -609,14 +609,14 @@ void N_VScale_openMP(realtype c, N_Vector x, N_Vector z)
   xd = zd = NULL;
 
   if (z == x) {  /* BLAS usage: scale x <- cx */
-    VScaleBy_openMP(c, x);
+    VScaleBy_OpenMP(c, x);
     return;
   }
 
   if (c == ONE) {
-    VCopy_openMP(x, z);
+    VCopy_OpenMP(x, z);
   } else if (c == -ONE) {
-    VNeg_openMP(x, z);
+    VNeg_OpenMP(x, z);
   } else {
     N  = NV_LENGTH_OMP(x);
     xd = NV_DATA_OMP(x);
@@ -636,7 +636,7 @@ void N_VScale_openMP(realtype c, N_Vector x, N_Vector z)
  * Compute absolute value of vector components z[i] = ABS(x[i])
  */
 
-void N_VAbs_openMP(N_Vector x, N_Vector z)
+void N_VAbs_OpenMP(N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
@@ -659,7 +659,7 @@ void N_VAbs_openMP(N_Vector x, N_Vector z)
  * Compute componentwise inverse z[i] = 1 / x[i]
  */
 
-void N_VInv_openMP(N_Vector x, N_Vector z)
+void N_VInv_OpenMP(N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
@@ -683,7 +683,7 @@ void N_VInv_openMP(N_Vector x, N_Vector z)
  * Compute componentwise addition of a scaler to a vector z[i] = x[i] + b
  */
 
-void N_VAddConst_openMP(N_Vector x, realtype b, N_Vector z)
+void N_VAddConst_OpenMP(N_Vector x, realtype b, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
@@ -707,7 +707,7 @@ void N_VAddConst_openMP(N_Vector x, realtype b, N_Vector z)
  * Computes the dot product of two vectors, a = sum(x[i]*y[i])
  */
 
-realtype N_VDotProd_openMP(N_Vector x, N_Vector y)
+realtype N_VDotProd_OpenMP(N_Vector x, N_Vector y)
 {
   long int i, N;
   realtype sum, *xd, *yd;
@@ -733,7 +733,7 @@ realtype N_VDotProd_openMP(N_Vector x, N_Vector y)
  * Computes max norm of a vector 
  */
 
-realtype N_VMaxNorm_openMP(N_Vector x)
+realtype N_VMaxNorm_OpenMP(N_Vector x)
 {
   long int i, N;
   realtype tmax, max, *xd;
@@ -766,7 +766,7 @@ realtype N_VMaxNorm_openMP(N_Vector x)
  * Computes weighted root mean square norm of a vector 
  */
 
-realtype N_VWrmsNorm_openMP(N_Vector x, N_Vector w)
+realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w)
 {
   long int i, N;
   realtype sum, *xd, *wd;
@@ -792,7 +792,7 @@ realtype N_VWrmsNorm_openMP(N_Vector x, N_Vector w)
  * Computes weighted root mean square norm of a masked vector 
  */
 
-realtype N_VWrmsNormMask_openMP(N_Vector x, N_Vector w, N_Vector id)
+realtype N_VWrmsNormMask_OpenMP(N_Vector x, N_Vector w, N_Vector id)
 {
   long int i, N;
   realtype sum, *xd, *wd, *idd;
@@ -821,7 +821,7 @@ realtype N_VWrmsNormMask_openMP(N_Vector x, N_Vector w, N_Vector id)
  * Finds the minimun component of a vector 
  */
 
-realtype N_VMin_openMP(N_Vector x)
+realtype N_VMin_OpenMP(N_Vector x)
 {
   long int i, N;
   realtype min, *xd;
@@ -858,7 +858,7 @@ realtype N_VMin_openMP(N_Vector x)
  * Computes weighted L2 norm of a vector
  */
 
-realtype N_VWL2Norm_openMP(N_Vector x, N_Vector w)
+realtype N_VWL2Norm_OpenMP(N_Vector x, N_Vector w)
 {
   long int i, N;
   realtype sum, *xd, *wd;
@@ -884,7 +884,7 @@ realtype N_VWL2Norm_openMP(N_Vector x, N_Vector w)
  * Computes L1 norm of a vector
  */
 
-realtype N_VL1Norm_openMP(N_Vector x)
+realtype N_VL1Norm_OpenMP(N_Vector x)
 {
   long int i, N;
   realtype sum, *xd;
@@ -908,7 +908,7 @@ realtype N_VL1Norm_openMP(N_Vector x)
  * Compare vector component values to a scaler   
  */
 
-void N_VCompare_openMP(realtype c, N_Vector x, N_Vector z)
+void N_VCompare_OpenMP(realtype c, N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
@@ -933,7 +933,7 @@ void N_VCompare_openMP(realtype c, N_Vector x, N_Vector z)
  * Compute componentwise inverse z[i] = ONE/x[i] and checks if x[i] == ZERO
  */
 
-booleantype N_VInvTest_openMP(N_Vector x, N_Vector z)
+booleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd, val, gval;
@@ -966,7 +966,7 @@ booleantype N_VInvTest_openMP(N_Vector x, N_Vector z)
  * Compute constraint mask of a vector 
  */
 
-booleantype N_VConstrMask_openMP(N_Vector c, N_Vector x, N_Vector m)
+booleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x, N_Vector m)
 {
   long int i, N;
   realtype temp;
@@ -1004,7 +1004,7 @@ booleantype N_VConstrMask_openMP(N_Vector c, N_Vector x, N_Vector m)
  * Compute minimum componentwise quotient 
  */
 
-realtype N_VMinQuotient_openMP(N_Vector num, N_Vector denom)
+realtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom)
 {
   long int i, N;
   realtype *nd, *dd, min, tmin, val;
@@ -1050,7 +1050,7 @@ realtype N_VMinQuotient_openMP(N_Vector num, N_Vector denom)
  * Copy vector components into a second vector   
  */
 
-static void VCopy_openMP(N_Vector x, N_Vector z)
+static void VCopy_OpenMP(N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
@@ -1074,7 +1074,7 @@ static void VCopy_openMP(N_Vector x, N_Vector z)
  * Compute vector sum    
  */
 
-static void VSum_openMP(N_Vector x, N_Vector y, N_Vector z)
+static void VSum_OpenMP(N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
   realtype *xd, *yd, *zd;
@@ -1099,7 +1099,7 @@ static void VSum_openMP(N_Vector x, N_Vector y, N_Vector z)
  * Compute vector difference   
  */
 
-static void VDiff_openMP(N_Vector x, N_Vector y, N_Vector z)
+static void VDiff_OpenMP(N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
   realtype *xd, *yd, *zd;
@@ -1124,7 +1124,7 @@ static void VDiff_openMP(N_Vector x, N_Vector y, N_Vector z)
  * Compute the negative of a vector   
  */
 
-static void VNeg_openMP(N_Vector x, N_Vector z)
+static void VNeg_OpenMP(N_Vector x, N_Vector z)
 {
   long int i, N;
   realtype *xd, *zd;
@@ -1148,7 +1148,7 @@ static void VNeg_openMP(N_Vector x, N_Vector z)
  * Compute scaled vector sum    
  */
 
-static void VScaleSum_openMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
+static void VScaleSum_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
   realtype *xd, *yd, *zd;
@@ -1173,7 +1173,7 @@ static void VScaleSum_openMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
  * Compute scaled vector difference
  */
 
-static void VScaleDiff_openMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
+static void VScaleDiff_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
   realtype *xd, *yd, *zd;
@@ -1198,7 +1198,7 @@ static void VScaleDiff_openMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
  * Compute vector sum z[i] = a*x[i]+y[i]    
  */
 
-static void VLin1_openMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
+static void VLin1_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
   realtype *xd, *yd, *zd;
@@ -1223,7 +1223,7 @@ static void VLin1_openMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
  * Compute vector difference z[i] = a*x[i]-y[i]    
  */
 
-static void VLin2_openMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
+static void VLin2_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
   realtype *xd, *yd, *zd;
@@ -1248,7 +1248,7 @@ static void VLin2_openMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
  * Compute special cases of linear sum
  */
 
-static void Vaxpy_openMP(realtype a, N_Vector x, N_Vector y)
+static void Vaxpy_OpenMP(realtype a, N_Vector x, N_Vector y)
 {
   long int i, N;
   realtype *xd, *yd;
@@ -1288,7 +1288,7 @@ static void Vaxpy_openMP(realtype a, N_Vector x, N_Vector y)
  * Compute scaled vector x[i] = a*x[i]    
  */
 
-static void VScaleBy_openMP(realtype a, N_Vector x)
+static void VScaleBy_OpenMP(realtype a, N_Vector x)
 {
   long int i, N;
   realtype *xd;

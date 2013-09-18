@@ -74,9 +74,9 @@ extern "C" {
 
 struct _N_VectorContent_Pthreads {
   long int length;
-  int num_threads;
   booleantype own_data;
   realtype *data;
+  int num_threads;
 };
 
 typedef struct _N_VectorContent_Pthreads *N_VectorContent_Pthreads;

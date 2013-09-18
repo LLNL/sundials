@@ -1,0 +1,196 @@
+%% This is a shared SUNDIALS TEX file with a description of the
+%% OpenMP nvector implementation
+%%
+
+The OpenMP implementation of the {\nvector} module provided with {\sundials},
+{\nvecopenmp}, defines the {\em content} field of \id{N\_Vector} to be a structure 
+containing the length of the vector, a pointer to the beginning of a contiguous 
+data array, and a boolean flag {\em own\_data} which specifies the ownership 
+of {\em data}.  Operations on the vector are threaded using OpenMP, 
+the number of threads used is based on the supplied argument in 
+the vector constructor.
+%%
+\begin{verbatim} 
+struct _N_VectorContent_OpenMP {
+  long int length;
+  booleantype own_data;
+  realtype *data;
+  int num_threads;
+};
+\end{verbatim}
+%%
+%%--------------------------------------------
+%%
+The following five macros are provided to access the content of an {\nvecopenmp}
+vector. The suffix \id{\_OMP} in the names denotes OpenMP version.
+%%
+\begin{itemize}
+
+\item \ID{NV\_CONTENT\_OMP}                             
+    
+  This routine gives access to the contents of the OpenMP
+  vector \id{N\_Vector}.
+  
+  The assignment \id{v\_cont} $=$ \id{NV\_CONTENT\_OMP(v)} sets           
+  \id{v\_cont} to be a pointer to the OpenMP \id{N\_Vector} content  
+  structure.                                             
+                                                            
+  Implementation: 
+  
+  \verb|#define NV_CONTENT_OMP(v) ( (N_VectorContent_OpenMP)(v->content) )|
+  
+\item \ID{NV\_OWN\_DATA\_OMP}, \ID{NV\_DATA\_OMP}, \ID{NV\_LENGTH\_OMP}
+
+
+  These macros give individual access to the parts of    
+  the content of a OpenMP \id{N\_Vector}.                        
+                                                               
+  The assignment \id{v\_data = NV\_DATA\_OMP(v)} sets \id{v\_data} to be     
+  a pointer to the first component of the data for the \id{N\_Vector} \id{v}. 
+  The assignment \id{NV\_DATA\_OMP(v) = v\_data} sets the component array of \id{v} to     
+  be \id{v\_data} by storing the pointer \id{v\_data}.                   
+  
+  The assignment \id{v\_len = NV\_LENGTH\_OMP(v)} sets \id{v\_len} to be     
+  the length of \id{v}. On the other hand, the call \id{NV\_LENGTH\_OMP(v) = len\_v} 
+  sets the length of \id{v} to be \id{len\_v}.
+                                                            
+  Implementation: 
+  
+  \verb|#define NV_OWN_DATA_OMP(v) ( NV_CONTENT_OMP(v)->own_data )|
+
+  \verb|#define NV_DATA_OMP(v) ( NV_CONTENT_OMP(v)->data )|
+  
+  \verb|#define NV_LENGTH_OMP(v) ( NV_CONTENT_OMP(v)->length )|
+
+  \verb|#define NV_NUM_THREADS_OMP(v) ( NV_CONTENT_OMP(v)->num_threads )|
+
+\item \ID{NV\_Ith\_OMP}                                               
+                                                            
+  This macro gives access to the individual components of the data
+  array of an \id{N\_Vector}.
+
+  The assignment \id{r = NV\_Ith\_OMP(v,i)} sets \id{r} to be the value of 
+  the \id{i}-th component of \id{v}. The assignment \id{NV\_Ith\_OMP(v,i) = r}   
+  sets the value of the \id{i}-th component of \id{v} to be \id{r}.        
+  
+  Here $i$ ranges from $0$ to $n-1$ for a vector of length $n$.
+
+  Implementation:
+
+  \verb|#define NV_Ith_OMP(v,i) ( NV_DATA_OMP(v)[i] )|
+
+\end{itemize}
+%%
+%%----------------------------------------------
+%%
+The {\nvecopenmp} module defines OpenMP implementations of all vector operations listed 
+in Table \ref{t:nvecops}. Their names are obtained from those in Table \ref{t:nvecops} by
+appending the suffix \id{\_OpenMP}. The module {\nvecopenmp} provides the following additional
+user-callable routines:
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item \ID{N\_VNew\_OpenMP}
+
+  This function creates and allocates memory for a OpenMP \id{N\_Vector}.
+  Arguments are the vector length and number of threads.
+
+  \verb|N_Vector N_VNew_OpenMP(long int vec_length, int num_threads);|
+
+%%--------------------------------------
+
+\item \ID{N\_VNewEmpty\_OpenMP}
+
+  This function creates a new OpenMP \id{N\_Vector} with an empty (\id{NULL}) data array.
+
+  
+
+  \verb|N_Vector N_VNewEmpty_OpenMP(long int vec_length, int num_threads);|
+
+%%--------------------------------------
+
+\item \ID{N\_VMake\_OpenMP}
+
+ This function creates and allocates memory for a OpenMP vector
+ with user-provided data array.
+
+ 
+
+ \verb|N_Vector N_VMake_OpenMP(long int vec_length, realtype *v_data, int num_threads);|
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneVectorArray\_OpenMP}
+
+ This function creates (by cloning) an array of \id{count} OpenMP vectors.
+
+ 
+
+ \verb|N_Vector *N_VCloneVectorArray_OpenMP(int count, N_Vector w);|
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneEmptyVectorArray\_OpenMP}
+
+ This function creates (by cloning) an array of \id{count} OpenMP vectors, each with an
+ empty (\id{NULL}) data array.
+
+ 
+
+ \verb|N_Vector *N_VCloneEmptyVectorArray_OpenMP(int count, N_Vector w);|
+
+%%--------------------------------------
+
+\item \ID{N\_VDestroyVectorArray\_OpenMP}
+
+ This function frees memory allocated for the array of \id{count} variables of type
+ \id{N\_Vector} created with \id{N\_VCloneVectorArray\_OpenMP} or with
+ \id{N\_VCloneEmptyVectorArray\_OpenMP}.
+
+ 
+
+ \verb|void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count);|
+
+%%--------------------------------------
+
+\item \ID{N\_VPrint\_OpenMP}
+
+ This function prints the content of a OpenMP vector to \id{stdout}.
+
+ 
+ 
+ \verb|void N_VPrint_OpenMP(N_Vector v);|
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+\paragraph{\bf Notes}                                                      
+           
+\begin{itemize}
+                                        
+\item
+  When looping over the components of an \id{N\_Vector} \id{v}, it is     
+  more efficient to first obtain the component array via       
+  \id{v\_data = NV\_DATA\_OMP(v)} and then access \id{v\_data[i]} within the     
+  loop than it is to use \id{NV\_Ith\_OMP(v,i)} within the loop.        
+
+\item
+  {\warn}\id{N\_VNewEmpty\_OpenMP}, \id{N\_VMake\_OpenMP}, 
+  and \id{N\_VCloneEmptyVectorArray\_OpenMP} set the field 
+  {\em own\_data} $=$ \id{FALSE}. 
+  \id{N\_VDestroy\_OpenMP} and \id{N\_VDestroyVectorArray\_OpenMP}
+  will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
+  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  deallocate the {\em data} pointer.
+                                     
+\item
+  {\warn}To maximize efficiency, vector operations in the {\nvecopenmp} implementation
+  that have more than one \id{N\_Vector} argument do not check for
+  consistent internal representation of these vectors. It is the user's 
+  responsibility to ensure that such routines are called with \id{N\_Vector}
+  arguments that were all created with the same internal representations.
+
+\end{itemize}
