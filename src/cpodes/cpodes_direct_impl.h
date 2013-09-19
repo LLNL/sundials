@@ -66,7 +66,7 @@ typedef struct {
   DlsMat d_M;             /* M = I - gamma * df/dy                        */
   DlsMat d_savedJ;        /* savedJ = old Jacobian                        */
 
-  int *d_pivots;          /* pivots = pivot array for PM = LU             */
+  long *d_pivots;         /* pivots = pivot array for PM = LU             */
   
   long int  d_nstlj;      /* nstlj = nst at last Jacobian eval.           */
 

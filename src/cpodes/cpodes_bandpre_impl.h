@@ -39,7 +39,7 @@ typedef struct CPBandPrecDataRec {
   /* Data set by CPBandPrecSetup */
   DlsMat savedJ;
   DlsMat savedP;
-  int *pivots;
+  long int *pivots;
 
   /* Function evaluations for DQ Jacobian approximation */
   long int nfeBP;
