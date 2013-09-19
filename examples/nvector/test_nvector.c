@@ -55,11 +55,6 @@ static int check_ans(realtype ans, N_Vector X, long int local_length);
 
 int print_time = 0;
 
-void SetTiming(int onoff)
-{
-   print_time = onoff;
-}
-
 #define PRINT_TIME(format, time) if(print_time) printf(format, time)
 
 /* ----------------------------------------------------------------------
@@ -1707,7 +1702,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, long int local_length, int myid)
 
   start_time = get_time();
   test = N_VInvTest(X, Z);
-  start_time = get_time();
+  stop_time = get_time();
 
   /* check return vector */
   for(i=0; i < local_length; i++){
@@ -1813,7 +1808,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
 
   start_time = get_time(); 
   test = N_VConstrMask(C, X, M);
-  start_time = get_time();
+  stop_time = get_time();
 
   /* M should be vector of 0 */
   failure = check_ans(ZERO, M, local_length);
@@ -1875,7 +1870,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
 
   start_time = get_time();  
   test = N_VConstrMask(C, X, M);
-  start_time = get_time();
+  stop_time = get_time();
 
   /* check mask vector */
   for(i=0; i < local_length; i++){
@@ -1985,6 +1980,24 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
  * Private functions
  * ====================================================================*/
 
+#ifdef SUNDIALS_HAVE_POSIX_TIMERS 
+time_t base_time_tv_sec = 0; /* Base time; makes time values returned
+				by get_time easier to read when
+				printed since they will be zero
+				based.
+			     */
+#endif
+
+void SetTiming(int onoff)
+{
+   print_time = onoff;
+
+#ifdef SUNDIALS_HAVE_POSIX_TIMERS 
+  struct timespec spec;  
+  clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
+  base_time_tv_sec = spec.tv_sec;
+#endif
+}
 
 /* ----------------------------------------------------------------------
  * Timer
@@ -1994,7 +2007,7 @@ static double get_time()
 #ifdef SUNDIALS_HAVE_POSIX_TIMERS 
   struct timespec spec;  
   clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
-  double time = (double)spec.tv_sec + ((double)(spec.tv_nsec) / 1E9);
+  double time = (double)(spec.tv_sec - base_time_tv_sec) + ((double)(spec.tv_nsec) / 1E9);
 #else
   double time = 0;
 #endif
