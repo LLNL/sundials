@@ -57,6 +57,10 @@ int main()
   int flag;                      /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
+  FILE *UFID;
+  realtype t, tout;
+  int iout;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* set up the initial conditions, tolerances, initial time step size */
   realtype u0 = RCONST(1.0);
@@ -65,13 +69,6 @@ int main()
   realtype reltol = 1.e-4;
   realtype abstol = 1.e-11;
   realtype h0 = 1.e-4 * reltol;
-
-  FILE *UFID;
-  
-  realtype t;
-  realtype tout;
-  int iout;
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* Initial problem output */
   printf("\nRobertson ODE test problem:\n");

@@ -1010,13 +1010,9 @@ int ARKSpilsPSolve(void *arkode_mem, N_Vector r, N_Vector z, int lr)
 ---------------------------------------------------------------*/
 int ARKSpilsMtimes(void *arkode_mem, N_Vector v, N_Vector z)
 {
-  ARKodeMem       ark_mem;
-  ARKSpilsMassMem arkspils_mem;
+  ARKodeMem ark_mem;
   int retval;
-
   ark_mem = (ARKodeMem) arkode_mem;
-  arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
-
   retval = ark_mem->ark_mtimes(v, z, ark_mem->ark_tn, 
 			       ark_mem->ark_mtimes_data);
   ark_mem->ark_mass_mult++;

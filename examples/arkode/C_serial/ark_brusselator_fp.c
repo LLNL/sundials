@@ -74,20 +74,16 @@ int main()
   int fp_m = 3;                  /* dimension of acceleration subspace */
   int maxcor = 10;               /* maximum # of nonlinear iterations/step */
   realtype a, b, ep, u0, v0, w0;
+  realtype rdata[3];
 
   /* general problem variables */
   int flag;                      /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
-
   FILE *UFID;
-
-  realtype t;
-  realtype tout;
+  realtype t, tout;
   int iout;
-
   long int nst, nst_a, nfe, nfi, nni, ncfn, netf;
-
 
   /* set up the test problem according to the desired test */
   if (test == 1) {
@@ -120,7 +116,9 @@ int main()
   printf("    reltol = %.1e,  abstol = %.1e\n\n",reltol,abstol);
 
   /* Initialize data structures */
-  
+  rdata[0] = a;    /* set user data  */
+  rdata[1] = b;
+  rdata[2] = ep;
   y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = u0;               /* Set initial conditions */
@@ -136,13 +134,7 @@ int main()
   if (check_flag(&flag, "ARKodeInit", 1)) return 1;
 
   /* Set routines */
-  {
-     realtype rdata[3]; /* set user data  */
-     rdata[0] = a;
-     rdata[1] = b;
-     rdata[2] = ep;   
-     flag = ARKodeSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
-  }
+  flag = ARKodeSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) return 1;
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;

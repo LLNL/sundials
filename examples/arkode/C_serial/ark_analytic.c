@@ -58,13 +58,10 @@ int main()
   int flag;                       /* reusable error-checking flag */
   N_Vector y = NULL;              /* empty vector for storing solution */
   void *arkode_mem = NULL;        /* empty ARKode memory structure */
-
   FILE *UFID;
-  realtype t;
-  realtype tout;
-
+  realtype t, tout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
-  
+
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
   printf("    lamda = %g\n",    lamda);

@@ -582,9 +582,8 @@ static int arkMassBandMultiply(N_Vector v, N_Vector Mv,
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
   realtype *vdata=NULL, *Mvdata=NULL;
-  long int ml, mu, N, M;
+  long int ml, mu, N, M, i, is, ie, j;
   DlsMat A;
-  long int i, is, ie, j;
 
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {

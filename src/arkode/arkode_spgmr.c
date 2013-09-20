@@ -609,7 +609,7 @@ static int ARKMassSpgmrSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
-  /* Call pset routine and possibly reset jcur */
+  /* Call pset routine */
   retval = arkspils_mem->s_pset(ark_mem->ark_tn, 
 				arkspils_mem->s_P_data, 
 				vtemp1, vtemp2, vtemp3);
@@ -650,7 +650,8 @@ static int ARKMassSpgmrSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 static int ARKMassSpgmrSolve(ARKodeMem ark_mem, N_Vector b, 
 			     N_Vector weight)
 {
-  realtype bnorm, res_norm;
+  /* realtype bnorm, res_norm; */
+  realtype res_norm;
   ARKSpilsMassMem arkspils_mem;
   SpgmrMem spgmr_mem;
   int nli_inc, nps_inc, retval;
@@ -660,7 +661,7 @@ static int ARKMassSpgmrSolve(ARKodeMem ark_mem, N_Vector b,
 
   /* Test norm(b); if small, return x = 0 or x = b */
   arkspils_mem->s_deltar = arkspils_mem->s_eplifac * ark_mem->ark_eLTE; 
-  bnorm = N_VWrmsNorm(b, weight);
+  /* bnorm = N_VWrmsNorm(b, weight); */
   /* if (bnorm <= arkspils_mem->s_deltar)  */
   /*   return(0); */
 

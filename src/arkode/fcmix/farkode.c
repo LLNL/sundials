@@ -64,7 +64,6 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
 		 long int *iout, realtype *rout, 
 		 long int *ipar, realtype *rpar, int *ier)
 {
-  int lmm, iter;
   N_Vector Vatol;
   FARKUserData ARK_userdata;
 

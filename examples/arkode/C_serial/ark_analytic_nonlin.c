@@ -46,11 +46,8 @@ int main()
   int flag;                      /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
-
   FILE *UFID;
-
-  realtype t;
-  realtype tout;
+  realtype t, tout;
   long int nst, nst_a, nfe, nfi, netf;
 
   /* Initial problem output */

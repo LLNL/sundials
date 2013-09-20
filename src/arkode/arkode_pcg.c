@@ -596,10 +596,7 @@ static int ARKMassPcgInit(ARKodeMem ark_mem)
  This routine does the setup operations for the Pcg linear 
  solver. It makes a decision as to whether or not to signal for 
  reevaluation of Jacobian data in the pset routine, based on 
- various state variables, then it calls pset. If we signal for 
- reevaluation, then we reset jcur = *jcurPtr to TRUE, regardless 
- of the pset output. In any case, if jcur == TRUE, we increment 
- npe and save nst in nstlpre.
+ various state variables, then it calls pset.
 ---------------------------------------------------------------*/
 static int ARKMassPcgSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			   N_Vector vtemp2, N_Vector vtemp3)
@@ -609,7 +606,7 @@ static int ARKMassPcgSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
-  /* Call pset routine and possibly reset jcur */
+  /* Call pset routine */
   retval = arkspils_mem->s_pset(ark_mem->ark_tn, 
 				arkspils_mem->s_P_data, 
 				vtemp1, vtemp2, vtemp3);

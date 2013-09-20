@@ -82,12 +82,10 @@ int main()
   int flag;                      /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
-
+  realtype rdata[3];
   FILE *UFID;
-
-  realtype t;
-  realtype tout;
-  int iout;	
+  realtype t, tout;
+  int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* set up the test problem according to the desired test */
@@ -121,7 +119,9 @@ int main()
   printf("    reltol = %.1e,  abstol = %.1e\n\n",reltol,abstol);
 
   /* Initialize data structures */
-  
+  rdata[0] = a;     /* set user data  */
+  rdata[1] = b;
+  rdata[2] = ep;
   y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = u0;               /* Set initial conditions */
@@ -138,13 +138,7 @@ int main()
   if (check_flag(&flag, "ARKodeInit", 1)) return 1;
 
   /* Set routines */
-  {
-     realtype rdata[3]; /* set user data  */
-     rdata[0] = a;
-     rdata[1] = b;
-     rdata[2] = ep;   
-     flag = ARKodeSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
-  }
+  flag = ARKodeSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) return 1;
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
@@ -169,7 +163,6 @@ int main()
   tout = T0+dTout;
   printf("        t           u           v           w\n");
   printf("   -------------------------------------------\n");
-
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */

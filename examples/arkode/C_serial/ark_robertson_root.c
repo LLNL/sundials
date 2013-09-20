@@ -57,10 +57,14 @@ int main()
   realtype TMult = RCONST(10.0); /* output time multiplication factor */
   int Nt = 12;                   /* total number of output times */
   long int NEQ = 3;              /* number of dependent vars. */
+  realtype reltol;
   int rootsfound[2];
   long int nst, nst_a, nfe, nfi, nsetups;
   long int nje, nfeLS, nni, ncfn, netf, nge;
   int flag, rtflag;              /* reusable error-checking flags */
+  FILE *UFID;
+  realtype t, tout;
+  int iout;
 
   /* general problem variables */
   N_Vector y = NULL;             /* empty vector for storing solution */
@@ -72,14 +76,6 @@ int main()
   realtype v0 = RCONST(0.0);
   realtype w0 = RCONST(0.0);
 
-  realtype reltol = RCONST(1.0e-4);
-
-  FILE *UFID;
-
-  realtype t;
-  realtype tout;
-  int iout=0;
-  
   /* Initial problem output */
   printf("\nRobertson ODE test problem (with rootfinding):\n");
   printf("    initial conditions:  u0 = %g,  v0 = %g,  w0 = %g\n",u0,v0,w0);
@@ -103,6 +99,7 @@ int main()
   if (check_flag(&flag, "ARKodeInit", 1)) return 1;
 
   /* Set tolerances */
+  reltol = RCONST(1.0e-4);
   NV_Ith_S(atols,0) = RCONST(1.0e-8);
   NV_Ith_S(atols,1) = RCONST(1.0e-11);
   NV_Ith_S(atols,2) = RCONST(1.0e-8);
@@ -145,6 +142,7 @@ int main()
   printf("  %12.5e  %12.5e  %12.5e  %12.5e\n",
       t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
   tout = T1;
+  iout = 0;
   while(1) {
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);     /* call integrator */

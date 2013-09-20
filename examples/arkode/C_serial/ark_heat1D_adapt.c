@@ -79,13 +79,9 @@ int main() {
   N_Vector y2 = NULL;          /* empty vector for storing solution */
   N_Vector yt = NULL;          /* empty vector for swapping */
   void *arkode_mem = NULL;     /* empty ARKode memory structure */
-
-  FILE *XFID;
-  FILE *UFID;
-
-  realtype t;
-  realtype olddt=0.0, newdt=0.0;
-  realtype *xnew=NULL;
+  FILE *XFID, *UFID;
+  realtype t, olddt, newdt;
+  realtype *xnew = NULL;
   long int Nnew;
 
   /* allocate and fill initial udata structure */
@@ -151,10 +147,13 @@ int main() {
   /* Main time-stepping loop: calls ARKode to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
+  olddt = 0.0;
+  newdt = 0.0;
   printf("  iout          dt_old                 dt_new               ||u||_rms       N   NNI  NLI\n");
   printf(" ----------------------------------------------------------------------------------------\n");
   printf(" %4i  %19.15e  %19.15e  %19.15e  %li   %2i  %3i\n", 
 	 iout, olddt, newdt, sqrt(N_VDotProd(y,y)/udata->N), udata->N, 0, 0);
+  Nnew;
   while (t < Tf) {
 
     /* "set" routines */
@@ -257,21 +256,20 @@ int main() {
 /* f routine to compute the ODE RHS function f(t,y). */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
+  N_VConst(0.0, ydot);                      /* Initialize ydot to zero */
   UserData udata = (UserData) user_data;    /* access problem data */
   long int N  = udata->N;                   /* set variable shortcuts */
   realtype k  = udata->k;
   realtype *x = udata->x;
-  realtype *Y = N_VGetArrayPointer(y);      /* access data arrays */
-  realtype *Ydot = N_VGetArrayPointer(ydot);
-
-  /* iterate over domain, computing all equations */
+  realtype *Y=NULL, *Ydot=NULL;
   realtype dxL, dxR;
   long int i;
-
-  N_VConst(0.0, ydot);                      /* Initialize ydot to zero */
+  Y = N_VGetArrayPointer(y);      /* access data arrays */
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
+  Ydot = N_VGetArrayPointer(ydot);
   if (check_flag((void *) Ydot, "N_VGetArrayPointer", 0)) return 1;
 
+  /* iterate over domain, computing all equations */
   Ydot[0] = 0.0;                 /* left boundary condition */
   for (i=1; i<N-1; i++) {        /* interior */
     dxL = x[i]-x[i-1];
@@ -297,17 +295,17 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y, 
 	       N_Vector fy, void *user_data, N_Vector tmp)
 {
+  N_VConst(0.0, Jv);                         /* initialize Jv product to zero */
   UserData udata = (UserData) user_data;     /* variable shortcuts */
   long int N  = udata->N;
   realtype k  = udata->k;
   realtype *x = udata->x;
-  realtype *V = N_VGetArrayPointer(v);       /* access data arrays */
-  realtype *JV = N_VGetArrayPointer(Jv);
+  realtype *V=NULL, *JV=NULL;
   realtype dxL, dxR;
   long int i;
-
-  N_VConst(0.0, Jv);                         /* initialize Jv product to zero */
+  V = N_VGetArrayPointer(v);       /* access data arrays */
   if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;
+  JV = N_VGetArrayPointer(Jv);
   if (check_flag((void *) JV, "N_VGetArrayPointer", 0)) return 1;
 
   /* iterate over domain, computing all Jacobian-vector products */
@@ -339,22 +337,18 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 realtype * adapt_mesh(N_Vector y, long int *Nnew, UserData udata)
 {
   int i, j;
+  int *marks=NULL, *xold=NULL, *Y=NULL, *xnew=NULL;
+  realtype ydd;
+  long int num_refine, N_new;
 
   /* Access current solution and mesh arrays */
-  realtype *Y;
-  realtype *xold = udata->x;
-
-  /* create marking array */
-  int *marks = calloc(udata->N-1, sizeof(int));
-
-  realtype ydd;
-  long int num_refine = 0;
-  long int N_new;
-  realtype *xnew;
-
+  xold = udata->x;
   Y = N_VGetArrayPointer(y);
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return NULL;
-  
+
+  /* create marking array */
+  marks = calloc(udata->N-1, sizeof(int));
+
   /* /\* perform marking:  */
   /*     0 -> leave alone */
   /*     1 -> refine */
@@ -385,12 +379,14 @@ realtype * adapt_mesh(N_Vector y, long int *Nnew, UserData udata)
   }
 
   /* allocate new mesh */
+  num_refine = 0;
   for (i=0; i<udata->N-1; i++) 
     if (marks[i] == 1)   num_refine++;
   N_new = udata->N + num_refine;
   *Nnew = N_new;            /* Store new array length */
   xnew = malloc((N_new) * sizeof(realtype));
   
+
   /* fill new mesh */
   xnew[0] = udata->x[0];    /* store endpoints */
   xnew[N_new-1] = udata->x[udata->N-1];
@@ -436,18 +432,18 @@ realtype * adapt_mesh(N_Vector y, long int *Nnew, UserData udata)
 static int project(long int Nold, realtype *xold, N_Vector yold, 
 		   long int Nnew, realtype *xnew, N_Vector ynew)
 {
+  int iv, i, j;
+  realtype *Yold=NULL, *Ynew=NULL;
+
   /* Access data arrays */
-  realtype *Yold = N_VGetArrayPointer(yold);    /* access data arrays */
-  realtype *Ynew = N_VGetArrayPointer(ynew);
-
-  int iv=0;
-  int i, j;
-
+  Yold = N_VGetArrayPointer(yold);    /* access data arrays */
   if (check_flag((void *) Yold, "N_VGetArrayPointer", 0)) return 1;
+  Ynew = N_VGetArrayPointer(ynew);
   if (check_flag((void *) Ynew, "N_VGetArrayPointer", 0)) return 1;
- 
+
   /* loop over new mesh, finding corresponding interval within old mesh, 
      and perform piecewise linear interpolation from yold to ynew */
+  iv=0;
   for (i=0; i<Nnew; i++) {
     
     /* find old interval, start with previous value since sorted */

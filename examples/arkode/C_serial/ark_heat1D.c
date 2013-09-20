@@ -71,16 +71,10 @@ int main() {
   int flag;                 /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
   void *arkode_mem = NULL;        /* empty ARKode memory structure */
-
-  FILE *FID;
-  FILE *UFID;
-
-  realtype t;
-  realtype dTout;
-  realtype tout;
+  FILE *FID, *UFID;
+  realtype t, dTout, tout;
   int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf;
-
 
   /* allocate and fill udata structure */
   udata = (UserData) malloc(sizeof(*udata));
@@ -142,7 +136,6 @@ int main() {
   printf("        t      ||u||_rms\n");
   printf("   -------------------------\n");
   printf("  %10.6f  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));
-
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);         /* call integrator */
@@ -214,20 +207,20 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   long int N  = udata->N;                   /* set variable shortcuts */
   realtype k  = udata->k;
   realtype dx = udata->dx;
-  realtype *Y = N_VGetArrayPointer(y);      /* access data arrays */
-  realtype *Ydot = N_VGetArrayPointer(ydot);
+  realtype *Y=NULL, *Ydot=NULL;
+  realtype c1, c2;
+  long int i, isource;
 
-  /* iterate over domain, computing all equations */
-  realtype c1 = k/dx/dx;
-  realtype c2 = -RCONST(2.0)*k/dx/dx;
-  long int i;
-  long int isource = N/2;
-
+  Y = N_VGetArrayPointer(y);      /* access data arrays */
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
+  Ydot = N_VGetArrayPointer(ydot);
   if (check_flag((void *) Ydot, "N_VGetArrayPointer", 0)) return 1;
-
   N_VConst(0.0, ydot);                      /* Initialize ydot to zero */
 
+  /* iterate over domain, computing all equations */
+  c1 = k/dx/dx;
+  c2 = -RCONST(2.0)*k/dx/dx;
+  isource = N/2;
   Ydot[0] = 0.0;                 /* left boundary condition */
   for (i=1; i<N-1; i++)
     Ydot[i] = c1*Y[i-1] + c2*Y[i] + c1*Y[i+1];
@@ -245,19 +238,19 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   long int N  = udata->N;
   realtype k  = udata->k;
   realtype dx = udata->dx;
-  realtype *V = N_VGetArrayPointer(v);       /* access data arrays */
-  realtype *JV = N_VGetArrayPointer(Jv);
-
-  /* iterate over domain, computing all Jacobian-vector products */
-  realtype c1 = k/dx/dx;
-  realtype c2 = -RCONST(2.0)*k/dx/dx;
+  realtype *V=NULL, *JV=NULL;
+  realtype c1, c2;
   long int i;
 
+  V = N_VGetArrayPointer(v);       /* access data arrays */
   if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;
+  JV = N_VGetArrayPointer(Jv);
   if (check_flag((void *) JV, "N_VGetArrayPointer", 0)) return 1;
-
   N_VConst(0.0, Jv);                         /* initialize Jv product to zero */
 
+  /* iterate over domain, computing all Jacobian-vector products */
+  c1 = k/dx/dx;
+  c2 = -RCONST(2.0)*k/dx/dx;
   JV[0] = 0.0;
   for (i=1; i<N-1; i++)
     JV[i] = c1*V[i-1] + c2*V[i] + c1*V[i+1];
