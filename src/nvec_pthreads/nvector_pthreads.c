@@ -3163,8 +3163,15 @@ static void N_VInitThreadData(Pthreads_Data *thread_data)
 {
   thread_data->start = -1;
   thread_data->end   = -1; 
+
+#if __STDC_VERSION__ >= 199901L
   thread_data->c1 = NAN;
   thread_data->c2 = NAN;
+#else
+  thread_data->c1 = ZERO;
+  thread_data->c2 = ZERO;
+#endif
+
   thread_data->v1 = NULL;
   thread_data->v2 = NULL;
   thread_data->v3 = NULL;

@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef SUNDIALS_HAVE_POSIX_TIMERS 
+#if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 #include <time.h>
 #include <unistd.h>
 #endif
@@ -47,7 +47,12 @@
 #define TWO      RCONST(2.0)
 
 /* NAN and floating point "equality" check, failure update macro */
+#if __STDC_VERSION__ >= 199901L
 #define FNEQ(a,b) (isnan(a) ? 1 : ( ABS((a)-(b))/ABS(b) > 1.0e-15 ))
+#else
+#define FNEQ(a,b) (( ABS((a)-(b))/ABS(b) > 1.0e-15 ))
+#endif
+
 
 /* private functions */
 static double get_time();
@@ -1979,7 +1984,7 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
  * Private functions
  * ====================================================================*/
 
-#ifdef SUNDIALS_HAVE_POSIX_TIMERS 
+#if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 time_t base_time_tv_sec = 0; /* Base time; makes time values returned
 				by get_time easier to read when
 				printed since they will be zero
@@ -1991,7 +1996,7 @@ void SetTiming(int onoff)
 {
    print_time = onoff;
 
-#ifdef SUNDIALS_HAVE_POSIX_TIMERS 
+#if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
   struct timespec spec;  
   clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
   base_time_tv_sec = spec.tv_sec;
@@ -2003,7 +2008,7 @@ void SetTiming(int onoff)
  * --------------------------------------------------------------------*/
 static double get_time()
 {
-#ifdef SUNDIALS_HAVE_POSIX_TIMERS 
+#if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
   struct timespec spec;  
   clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
   double time = (double)(spec.tv_sec - base_time_tv_sec) + ((double)(spec.tv_nsec) / 1E9);

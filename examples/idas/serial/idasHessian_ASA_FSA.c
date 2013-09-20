@@ -269,10 +269,12 @@ int main(int argc, char *argv[])
   flag = IDASolveB(ida_mem, ti, IDA_NORMAL);
 
   flag = IDAGetB(ida_mem, indexB1, &time, yyB1, ypB1);
-  //flag = IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB1), &nst);
-  //printf("at time=%g \tpb 1 Num steps:%d\n", time, nst); 
-  //flag = IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB2), &nst);
-  //printf("at time=%g \tpb 2 Num steps:%d\n\n", time, nst); 
+  /* 
+     flag = IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB1), &nst);
+     printf("at time=%g \tpb 1 Num steps:%d\n", time, nst); 
+     flag = IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB2), &nst);
+     printf("at time=%g \tpb 2 Num steps:%d\n\n", time, nst); 
+  */
 
   flag = IDAGetQuadB(ida_mem, indexB1, &time, qB1);
   flag = IDAGetQuadB(ida_mem, indexB2, &time, qB2);

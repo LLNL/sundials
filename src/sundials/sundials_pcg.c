@@ -176,7 +176,7 @@ int PcgSolve(PcgMem mem, void *A_data, N_Vector x, N_Vector b,
     rz_old = rz;
     rz = N_VDotProd(r, z);
     
-    // Calculate beta = <r,z> / <r_old,z_old>
+    /* Calculate beta = <r,z> / <r_old,z_old> */
     beta = rz / rz_old;
 
     /* Update p = z + beta*p */

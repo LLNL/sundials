@@ -631,38 +631,48 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
       /* Set kinetic rate terms. */
 
-      //rkin1 = -Q1*C3 * c1 - Q2 * c1*c2 + q4coef * c2  + TWO*C3*q3;
-      //rkin2 =  Q1*C3 * c1 - Q2 * c1*c2 - q4coef * c2;
+      /* 
+	 rkin1 = -Q1*C3 * c1 - Q2 * c1*c2 + q4coef * c2  + TWO*C3*q3;
+         rkin2 =  Q1*C3 * c1 - Q2 * c1*c2 - q4coef * c2; 
+      */
 
       Jv1 += -(Q1*C3 + Q2*c2) * v1  +  (q4coef - Q2*c1) * v2;
       Jv2 +=  (Q1*C3 - Q2*c2) * v1  -  (q4coef + Q2*c1) * v2;
 
       /* Set vertical diffusion terms. */
 
-      //vertd1 = -(cyup+cydn) * c1 + cyup * c1up + cydn * c1dn;
-      //vertd2 = -(cyup+cydn) * c2 + cyup * c2up + cydn * c2dn;
+      /* 
+	 vertd1 = -(cyup+cydn) * c1 + cyup * c1up + cydn * c1dn;
+	 vertd2 = -(cyup+cydn) * c2 + cyup * c2up + cydn * c2dn;
+      */
 
       Jv1 += -(cyup+cydn) * v1  +  cyup * v1up  +  cydn * v1dn;
       Jv2 += -(cyup+cydn) * v2  +  cyup * v2up  +  cydn * v2dn;
 
       /* Set horizontal diffusion and advection terms. */
 
-      //hord1 = hordco*(c1rt - TWO*c1 + c1lt);
-      //hord2 = hordco*(c2rt - TWO*c2 + c2lt);
+      /* 
+	 hord1 = hordco*(c1rt - TWO*c1 + c1lt);
+	 hord2 = hordco*(c2rt - TWO*c2 + c2lt);
+      */
 
       Jv1 += hordco*(v1rt - TWO*v1 + v1lt);
       Jv2 += hordco*(v2rt - TWO*v2 + v2lt);
 
-      //horad1 = horaco*(c1rt - c1lt);
-      //horad2 = horaco*(c2rt - c2lt);
+      /* 
+	 horad1 = horaco*(c1rt - c1lt);
+	 horad2 = horaco*(c2rt - c2lt);
+      */
 
       Jv1 += horaco*(v1rt - v1lt);
       Jv2 += horaco*(v2rt - v2lt);
 
       /* Load two components of J*v */
 
-      //IJKth(dudata, 1, jx, jy) = vertd1 + hord1 + horad1 + rkin1; 
-      //IJKth(dudata, 2, jx, jy) = vertd2 + hord2 + horad2 + rkin2;
+      /* 
+	 IJKth(dudata, 1, jx, jy) = vertd1 + hord1 + horad1 + rkin1; 
+	 IJKth(dudata, 2, jx, jy) = vertd2 + hord2 + horad2 + rkin2;
+      */
 
       IJKth(Jvdata, 1, jx, jy) = Jv1;
       IJKth(Jvdata, 2, jx, jy) = Jv2;
