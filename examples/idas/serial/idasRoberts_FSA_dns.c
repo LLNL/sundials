@@ -123,6 +123,8 @@ int main(int argc, char *argv[])
   booleantype sensi, err_con;
   int sensi_meth;
 
+  N_Vector yQ, *yQS;
+
   ida_mem = NULL;
   data    = NULL;
   y       =  NULL;
@@ -243,7 +245,6 @@ int main(int argc, char *argv[])
   /*----------------------------------------------------------
    *               Q U A D R A T U R E S
    * ---------------------------------------------------------*/
-  N_Vector yQ, *yQS;
   yQ = N_VNew_Serial(2);
 
   Ith(yQ,1) = 0;

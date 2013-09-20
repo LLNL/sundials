@@ -554,6 +554,9 @@ static int arkMassDenseMultiply(N_Vector v, N_Vector Mv,
   /* extract the DlsMassMem structure from the user_data pointer */
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
+  realtype *vdata=NULL, *Mvdata=NULL;
+  realtype *Mcol_j;
+  long int i, j;
 
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
@@ -568,15 +571,12 @@ static int arkMassDenseMultiply(N_Vector v, N_Vector Mv,
   N_VConst(0.0, Mv);
 
   /* access the vector arrays (since they must be serial vectors) */
-  realtype *vdata=NULL, *Mvdata=NULL;
   vdata = N_VGetArrayPointer(v);
   Mvdata = N_VGetArrayPointer(Mv);
   if (vdata == NULL || Mvdata == NULL)
     return(1);
 
   /* perform matrix-vector product and return */
-  realtype *Mcol_j;
-  long int i, j;
   for (j=0; j<arkdls_mem->d_M->N; j++) {
     Mcol_j = arkdls_mem->d_M->cols[j];
     for (i=0; i<arkdls_mem->d_M->M; i++) 

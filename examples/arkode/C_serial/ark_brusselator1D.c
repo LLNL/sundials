@@ -102,6 +102,21 @@ int main()
   N_Vector vmask = NULL;
   N_Vector wmask = NULL;
   void *arkode_mem = NULL;      /* empty ARKode memory structure */
+  FILE *FID=NULL;
+  FILE *UFID=NULL;
+  FILE *VFID=NULL;
+  FILE *WFID=NULL;
+
+  realtype pi = RCONST(4.0)*atan(RCONST(1.0));
+
+  realtype t;
+  realtype dTout;
+  realtype tout;
+  realtype u, v, w;
+
+  int iout;
+
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
@@ -141,7 +156,6 @@ int main()
   if (check_flag((void *)wmask, "N_VNew_Serial", 0)) return 1;
 
   /* Set initial conditions into y */
-  realtype pi = RCONST(4.0)*atan(RCONST(1.0));
   for (i=0; i<N; i++) {
     data[IDX(i,0)] =  a  + RCONST(0.1)*sin(pi*i*udata->dx);  /* u */
     data[IDX(i,1)] = b/a + RCONST(0.1)*sin(pi*i*udata->dx);  /* v */
@@ -188,14 +202,14 @@ int main()
   if (check_flag(&flag, "ARKDlsSetBandJacFn", 1)) return 1;
 
   /* output spatial mesh to disk */
-  FILE *FID = fopen("bruss_mesh.txt","w");
+  FID = fopen("bruss_mesh.txt","w");
   for (i=0; i<N; i++)  fprintf(FID,"  %.16e\n", udata->dx*i);
   fclose(FID);
 
   /* Open output streams for results, access data array */
-  FILE *UFID=fopen("bruss_u.txt","w");
-  FILE *VFID=fopen("bruss_v.txt","w");
-  FILE *WFID=fopen("bruss_w.txt","w");
+  UFID=fopen("bruss_u.txt","w");
+  VFID=fopen("bruss_v.txt","w");
+  WFID=fopen("bruss_w.txt","w");
   data = N_VGetArrayPointer(y);
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
 
@@ -209,13 +223,12 @@ int main()
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
      prints results.  Stops when the final time has been reached */
-  realtype t = T0;
-  realtype dTout = (Tf-T0)/Nt;
-  realtype tout = T0+dTout;
-  realtype u, v, w;
+  t = T0;
+  dTout = (Tf-T0)/Nt;
+  tout = T0+dTout;
   printf("        t      ||u||_rms   ||v||_rms   ||w||_rms\n");
   printf("   ----------------------------------------------\n");
-  int iout;
+
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);    /* call integrator */
@@ -249,7 +262,7 @@ int main()
   fclose(WFID);
 
   /* Print some final statistics */
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
@@ -296,7 +309,6 @@ int main()
 /* f routine to compute the ODE RHS function f(t,y). */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  N_VConst(0.0, ydot);                        /* initialize ydot to zero */
   UserData udata = (UserData) user_data;      /* access problem data */
   long int N  = udata->N;                     /* set variable shortcuts */
   realtype a  = udata->a;
@@ -307,16 +319,21 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype dw = udata->dw;
   realtype dx = udata->dx;
   realtype *Ydata = N_VGetArrayPointer(y);     /* access data arrays */
-  if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
-  realtype *dYdata = N_VGetArrayPointer(ydot);
-  if (check_flag((void *)dYdata, "N_VGetArrayPointer", 0)) return 1;
+  realtype *dYdata;
 
-  /* iterate over domain, computing all equations */
   realtype uconst = du/dx/dx;
   realtype vconst = dv/dx/dx;
   realtype wconst = dw/dx/dx;
   realtype u, ul, ur, v, vl, vr, w, wl, wr;
   long int i;
+
+  N_VConst(0.0, ydot);                        /* initialize ydot to zero */
+
+  if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
+  dYdata = N_VGetArrayPointer(ydot);
+  if (check_flag((void *)dYdata, "N_VGetArrayPointer", 0)) return 1;
+
+  /* iterate over domain, computing all equations */
   for (i=1; i<N-1; i++) {
     /* set shortcuts */
     u = Ydata[IDX(i,0)];  ul = Ydata[IDX(i-1,0)];  ur = Ydata[IDX(i+1,0)];
@@ -346,8 +363,9 @@ static int Jac(long int M, long int mu, long int ml,
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  SetToZero(J);                              /* Initialize Jacobian to zero */
   UserData udata = (UserData) user_data;     /* access problem data */
+
+  SetToZero(J);                              /* Initialize Jacobian to zero */
 
   /* Fill in the Laplace matrix */
   LaplaceMatrix(RCONST(1.0), J, udata);

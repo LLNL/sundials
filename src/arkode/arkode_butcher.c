@@ -607,32 +607,35 @@ int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p,
     break;
 
   case(13):    /* TRBDF2-ESDIRK */
-    *s = 3;
-    *q = 3;
-    *p = 2;
+	  {
+		  realtype one = RCONST(1.0);
+		  realtype two = RCONST(2.0);
+		  realtype three = RCONST(3.0);
+		  realtype four = RCONST(4.0);
+		  realtype six = RCONST(6.0);
+		  realtype sqrt2 = RSqrt(two);
 
-    realtype one = RCONST(1.0);
-    realtype two = RCONST(2.0);
-    realtype three = RCONST(3.0);
-    realtype four = RCONST(4.0);
-    realtype six = RCONST(6.0);
-    realtype sqrt2 = RSqrt(two);
-    ARK_A(A,1,0) = (two-sqrt2)/two;
-    ARK_A(A,1,1) = (two-sqrt2)/two;
-    ARK_A(A,2,0) = sqrt2/four;
-    ARK_A(A,2,1) = sqrt2/four;
-    ARK_A(A,2,2) = (two-sqrt2)/two;
+		  *s = 3;
+		  *q = 3;
+		  *p = 2;
 
-    b[0] = (one-sqrt2/four)/three;
-    b[1] = (three*sqrt2/four+one)/three;
-    b[2] = (two-sqrt2)/six;
+		  ARK_A(A,1,0) = (two-sqrt2)/two;
+		  ARK_A(A,1,1) = (two-sqrt2)/two;
+		  ARK_A(A,2,0) = sqrt2/four;
+		  ARK_A(A,2,1) = sqrt2/four;
+		  ARK_A(A,2,2) = (two-sqrt2)/two;
 
-    b2[0] = sqrt2/four;
-    b2[1] = sqrt2/four;
-    b2[2] = (two-sqrt2)/two;
+		  b[0] = (one-sqrt2/four)/three;
+		  b[1] = (three*sqrt2/four+one)/three;
+		  b[2] = (two-sqrt2)/six;
 
-    c[1] = two-sqrt2;
-    c[2] = one;
+		  b2[0] = sqrt2/four;
+		  b2[1] = sqrt2/four;
+		  b2[2] = (two-sqrt2)/two;
+
+		  c[1] = two-sqrt2;
+		  c[2] = one;
+	  }
     break;
 
   case(14):    /* Kvaerno(4,2,3)-ESDIRK */

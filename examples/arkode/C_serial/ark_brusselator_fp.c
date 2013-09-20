@@ -80,6 +80,15 @@ int main()
   N_Vector y = NULL;             /* empty vector for storing solution */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
 
+  FILE *UFID;
+
+  realtype t;
+  realtype tout;
+  int iout;
+
+  long int nst, nst_a, nfe, nfi, nni, ncfn, netf;
+
+
   /* set up the test problem according to the desired test */
   if (test == 1) {
     u0 = RCONST(3.9);
@@ -111,7 +120,7 @@ int main()
   printf("    reltol = %.1e,  abstol = %.1e\n\n",reltol,abstol);
 
   /* Initialize data structures */
-  realtype rdata[3] = {a, b, ep};   /* set user data  */
+  
   y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = u0;               /* Set initial conditions */
@@ -127,7 +136,10 @@ int main()
   if (check_flag(&flag, "ARKodeInit", 1)) return 1;
 
   /* Set routines */
-  flag = ARKodeSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
+  {
+	  realtype rdata[3] = {a, b, ep};   /* set user data  */
+      flag = ARKodeSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
+  }
   if (check_flag(&flag, "ARKodeSetUserData", 1)) return 1;
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
@@ -137,7 +149,7 @@ int main()
   if (check_flag(&flag, "ARKodeSetMaxNonlinIters", 1)) return 1;
 
   /* Open output stream for results, output comment line */
-  FILE *UFID = fopen("solution.txt","w");
+  UFID = fopen("solution.txt","w");
   fprintf(UFID,"# t u v w\n");
 
   /* output initial condition to disk */
@@ -146,11 +158,10 @@ int main()
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
      prints results.  Stops when the final time has been reached */
-  realtype t = T0;
-  realtype tout = T0+dTout;
+  t = T0;
+  tout = T0+dTout;
   printf("        t           u           v           w\n");
   printf("   ----------------------------------------------\n");
-  int iout;
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */
@@ -171,7 +182,6 @@ int main()
   fclose(UFID);
 
   /* Print some final statistics */
-  long int nst, nst_a, nfe, nfi, nni, ncfn, netf;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);

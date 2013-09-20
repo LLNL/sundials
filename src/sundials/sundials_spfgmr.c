@@ -335,9 +335,10 @@ int SpfgmrSolve(SpfgmrMem mem, void *A_data, N_Vector x,
  ---------------------------------------------------------------*/
 void SpfgmrFree(SpfgmrMem mem)
 {
+  int i;
+
   if (mem == NULL) return;
 
-  int i;
   for (i=0; i<=mem->l_max; i++) {
     free(mem->Hes[i]); 
     mem->Hes[i] = NULL;

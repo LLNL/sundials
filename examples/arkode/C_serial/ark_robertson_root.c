@@ -72,6 +72,14 @@ int main()
   realtype v0 = RCONST(0.0);
   realtype w0 = RCONST(0.0);
 
+  realtype reltol = RCONST(1.0e-4);
+
+  FILE *UFID;
+
+  realtype t;
+  realtype tout;
+  int iout=0;
+  
   /* Initial problem output */
   printf("\nRobertson ODE test problem (with rootfinding):\n");
   printf("    initial conditions:  u0 = %g,  v0 = %g,  w0 = %g\n",u0,v0,w0);
@@ -95,7 +103,6 @@ int main()
   if (check_flag(&flag, "ARKodeInit", 1)) return 1;
 
   /* Set tolerances */
-  realtype reltol = RCONST(1.0e-4);
   NV_Ith_S(atols,0) = RCONST(1.0e-8);
   NV_Ith_S(atols,1) = RCONST(1.0e-11);
   NV_Ith_S(atols,2) = RCONST(1.0e-8);
@@ -123,7 +130,7 @@ int main()
   if (check_flag(&flag, "ARKDlsSetDenseJacFn", 1)) return 1;
 
   /* Open output stream for results, output comment line */
-  FILE *UFID = fopen("solution.txt","w");
+  UFID = fopen("solution.txt","w");
   fprintf(UFID,"# t u v w\n");
 
   /* output initial condition to disk */
@@ -132,13 +139,12 @@ int main()
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
      prints results.  Stops when the final time has been reached */
-  realtype t = T0;
+  t = T0;
   printf("        t             u             v             w\n");
   printf("   -----------------------------------------------------\n");
   printf("  %12.5e  %12.5e  %12.5e  %12.5e\n",
       t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
-  realtype tout = T1;
-  int iout=0;
+  tout = T1;
   while(1) {
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);     /* call integrator */
