@@ -269,7 +269,7 @@ static void PrintHeader(realtype rtol, realtype avtol, N_Vector y)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n",
          rtol, avtol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters:  rtol = %lg   atol = %lg\n",
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n",
          rtol, avtol);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n",
@@ -301,7 +301,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   printf("%8.2Le %8.2Le %8.2Le %8.2Le %8.2Le %8.2Le %8.2Le | %3ld  %1d %8.2Le\n", 
          t, yval[0], yval[1], yval[2], yval[3], yval[4], yval[5], nst, kused, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("%8.2le %8.2le %8.2le %8.2le %8.2le %8.2le %8.2le | %3ld  %1d %8.2le\n", 
+  printf("%8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e | %3ld  %1d %8.2e\n", 
          t, yval[0], yval[1], yval[2], yval[3], yval[4], yval[5], nst, kused, hused);
 #else
   printf("%8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e | %3ld  %1d %8.2e\n", 

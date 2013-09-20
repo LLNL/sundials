@@ -459,12 +459,12 @@ static void PrintIntro(void)
          DPREY, DPRED);
   printf("Rate parameter alpha = %.2Lg\n\n", ALPH);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Matrix parameters: a = %.2lg   e = %.2lg   g = %.2lg\n",
+  printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n",
          AA, EE, GG);
-  printf("b parameter = %.2lg\n", BB);
-  printf("Diffusion coefficients: Dprey = %.2lg   Dpred = %.2lg\n",
+  printf("b parameter = %.2g\n", BB);
+  printf("Diffusion coefficients: Dprey = %.2g   Dpred = %.2g\n",
          DPREY, DPRED);
-  printf("Rate parameter alpha = %.2lg\n\n", ALPH);
+  printf("Rate parameter alpha = %.2g\n\n", ALPH);
 #else
   printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n",
          AA, EE, GG);
@@ -479,7 +479,7 @@ static void PrintIntro(void)
   printf("Tolerances: reltol = %.2Lg, abstol = %.2Lg \n\n",
          RTOL, ATOL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerances: reltol = %.2lg, abstol = %.2lg \n\n",
+  printf("Tolerances: reltol = %.2g, abstol = %.2g \n\n",
          RTOL, ATOL);
 #else
   printf("Tolerances: reltol = %.2g, abstol = %.2g \n\n",
@@ -518,7 +518,7 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("c values at t = %Lg:\n\n", t);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("c values at t = %lg:\n\n", t);
+  printf("c values at t = %g:\n\n", t);
 #else
   printf("c values at t = %g:\n\n", t);
 #endif
@@ -529,7 +529,7 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
         printf("%-10.6Lg", cdata[(i-1) + jx*ns + jy*mxns]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-        printf("%-10.6lg", cdata[(i-1) + jx*ns + jy*mxns]);
+        printf("%-10.6g", cdata[(i-1) + jx*ns + jy*mxns]);
 #else
         printf("%-10.6g", cdata[(i-1) + jx*ns + jy*mxns]);
 #endif
@@ -561,8 +561,8 @@ static void PrintOutput(void *cvode_mem, realtype t)
   printf("t = %10.2Le  nst = %ld  nfe = %ld  nni = %ld", t, nst, nfe, nni);
   printf("  qu = %d  hu = %11.2Le\n\n", qu, hu);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("t = %10.2le  nst = %ld  nfe = %ld  nni = %ld", t, nst, nfe, nni);
-  printf("  qu = %d  hu = %11.2le\n\n", qu, hu);
+  printf("t = %10.2e  nst = %ld  nfe = %ld  nni = %ld", t, nst, nfe, nni);
+  printf("  qu = %d  hu = %11.2e\n\n", qu, hu);
 #else
   printf("t = %10.2e  nst = %ld  nfe = %ld  nni = %ld", t, nst, nfe, nni);
   printf("  qu = %d  hu = %11.2e\n\n", qu, hu);

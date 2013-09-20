@@ -295,7 +295,7 @@ static void PrintHeader(realtype rtol, realtype atol, N_Vector y)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n",
          rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters:  rtol = %lg   atol = %lg\n",
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n",
          rtol, atol);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n",
@@ -320,7 +320,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   flag = IDAGetNumSteps(mem, &nst);
   flag = IDAGetLastStep(mem, &hused);
 
-  printf("%10.4le %12.4le %12.4le %12.4le %3ld  %1d %12.4le\n", 
+  printf("%10.4e %12.4e %12.4e %12.4e %3ld  %1d %12.4e\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 }
 

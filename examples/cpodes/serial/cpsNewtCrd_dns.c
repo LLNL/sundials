@@ -166,7 +166,7 @@ int main()
     vx1 = NV_Ith_S(yy,2);   vx2 = NV_Ith_S(yy,6);
     vy1 = NV_Ith_S(yy,3);   vy2 = NV_Ith_S(yy,7);
 
-    fprintf(fout, "%lf    %14.10lf  %14.10lf   %14.10lf  %14.10lf   %14.10lf  %14.10lf   %14.10lf  %14.10lf",
+    fprintf(fout, "%f    %14.10f  %14.10f   %14.10f  %14.10f   %14.10f  %14.10f   %14.10f  %14.10f",
             t, x1, y1, x2, y2, vx1, vy1, vx2, vy2);
 
     if (flag == CP_ROOT_RETURN) {
@@ -241,7 +241,7 @@ int main()
     vx1 = NV_Ith_S(yy,2);   vx2 = NV_Ith_S(yy,6);
     vy1 = NV_Ith_S(yy,3);   vy2 = NV_Ith_S(yy,7);
 
-    fprintf(fout, "%lf    %14.10lf  %14.10lf   %14.10lf  %14.10lf   %14.10lf  %14.10lf   %14.10lf  %14.10lf",
+    fprintf(fout, "%f    %14.10f  %14.10f   %14.10f  %14.10f   %14.10f  %14.10f   %14.10f  %14.10f",
             t, x1, y1, x2, y2, vx1, vy1, vx2, vy2);
 
     if (flag == CP_ROOT_RETURN) {

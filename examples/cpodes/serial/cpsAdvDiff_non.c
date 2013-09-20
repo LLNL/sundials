@@ -85,7 +85,7 @@ int main()
     erm = MaxError(y, t);
     flag = CPodeGetLastOrder(cpode_mem, &qu);
     flag = CPodeGetLastStep(cpode_mem, &hu);
-    printf("%10.3f  %12.4le   %2d   %12.4le\n", t, erm, qu, hu);
+    printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
   }
   
   PrintFinalStats(cpode_mem);

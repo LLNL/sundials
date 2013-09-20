@@ -399,7 +399,7 @@ static void PrintHeader(realtype fnormtol, realtype scsteptol)
   printf("  fnormtol  = %10.6Lg\n  scsteptol = %10.6Lg\n",
          fnormtol, scsteptol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("  fnormtol  = %10.6lg\n  scsteptol = %10.6lg\n",
+  printf("  fnormtol  = %10.6g\n  scsteptol = %10.6g\n",
          fnormtol, scsteptol);
 #else
   printf("  fnormtol  = %10.6g\n  scsteptol = %10.6g\n",
@@ -416,7 +416,7 @@ static void PrintOutput(N_Vector u)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %8.6Lg  %8.6Lg\n", Ith(u,1), Ith(u,2));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf(" %8.6lg  %8.6lg\n", Ith(u,1), Ith(u,2));
+    printf(" %8.6g  %8.6g\n", Ith(u,1), Ith(u,2));
 #else
     printf(" %8.6g  %8.6g\n", Ith(u,1), Ith(u,2));
 #endif

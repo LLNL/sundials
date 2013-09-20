@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("G:          %12.4Le \n",Ith(q,1));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("G:          %12.4le \n",Ith(q,1));
+  printf("G:          %12.4e \n",Ith(q,1));
 #else
   printf("G:          %12.4e \n",Ith(q,1));
 #endif
@@ -637,7 +637,7 @@ static void PrintHead(realtype tB0)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Backward integration from tB0 = %12.4Le\n\n",tB0);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Backward integration from tB0 = %12.4le\n\n",tB0);
+  printf("Backward integration from tB0 = %12.4e\n\n",tB0);
 #else
   printf("Backward integration from tB0 = %12.4e\n\n",tB0);
 #endif
@@ -658,11 +658,11 @@ static void PrintOutput1(realtype time, realtype t, N_Vector y, N_Vector yB)
   printf("y(t):       %12.4Le %12.4Le %12.4Le\n", 
          Ith(y,1), Ith(y,2), Ith(y,3));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("returned t: %12.4le\n",time);
-  printf("tout:       %12.4le\n",t);
-  printf("lambda(t):  %12.4le %12.4le %12.4le\n", 
+  printf("returned t: %12.4e\n",time);
+  printf("tout:       %12.4e\n",t);
+  printf("lambda(t):  %12.4e %12.4e %12.4e\n", 
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("y(t):       %12.4le %12.4le %12.4le\n", 
+  printf("y(t):       %12.4e %12.4e %12.4e\n", 
          Ith(y,1), Ith(y,2), Ith(y,3));
 #else
   printf("returned t: %12.4e\n",time);
@@ -691,12 +691,12 @@ static void PrintOutput(realtype tfinal, N_Vector y, N_Vector yB, N_Vector qB)
   printf("dG/dp:      %12.4Le %12.4Le %12.4Le\n", 
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("returned t: %12.4le\n",tfinal);
-  printf("lambda(t0): %12.4le %12.4le %12.4le\n", 
+  printf("returned t: %12.4e\n",tfinal);
+  printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("y(t0):      %12.4le %12.4le %12.4le\n", 
+  printf("y(t0):      %12.4e %12.4e %12.4e\n", 
          Ith(y,1), Ith(y,2), Ith(y,3));
-  printf("dG/dp:      %12.4le %12.4le %12.4le\n", 
+  printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
 #else
   printf("returned t: %12.4e\n",tfinal);

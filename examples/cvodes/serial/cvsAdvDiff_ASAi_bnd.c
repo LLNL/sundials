@@ -506,7 +506,7 @@ static void PrintOutput(N_Vector uB, UserData data)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("  lambda max = %Le\n", uBmax);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("  lambda max = %le\n", uBmax);
+  printf("  lambda max = %e\n", uBmax);
 #else
   printf("  lambda max = %e\n", uBmax);
 #endif
@@ -514,7 +514,7 @@ static void PrintOutput(N_Vector uB, UserData data)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("  x = %Le\n  y = %Le\n", x, y);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("  x = %le\n  y = %le\n", x, y);
+  printf("  x = %e\n  y = %e\n", x, y);
 #else
   printf("  x = %e\n  y = %e\n", x, y);
 #endif

@@ -314,7 +314,7 @@ void PrintMat(DlsMat A)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
         printf("%12Lg  ", DENSE_ELEM(A,i,j));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-        printf("%12lg  ", DENSE_ELEM(A,i,j));
+        printf("%12g  ", DENSE_ELEM(A,i,j));
 #else
         printf("%12g  ", DENSE_ELEM(A,i,j));
 #endif
@@ -337,7 +337,7 @@ void PrintMat(DlsMat A)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
         printf("%12Lg  ", a[j][i-j+A->s_mu]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-        printf("%12lg  ", a[j][i-j+A->s_mu]);
+        printf("%12g  ", a[j][i-j+A->s_mu]);
 #else
         printf("%12g  ", a[j][i-j+A->s_mu]);
 #endif

@@ -239,8 +239,8 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
   printf("\n2-D Advection-Diffusion Equation\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
   printf("Total system size = %d\n", NEQ);
-  printf("Tolerance parameters: reltol = %lg   abstol = %lg\n\n", reltol, abstol);
-  printf("At t = %lg      max.norm(u) =%14.6le \n", T0, umax);
+  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
+  printf("At t = %g      max.norm(u) =%14.6e \n", T0, umax);
 
   return;
 }
@@ -248,7 +248,7 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
 /* Print current value */
 static void PrintOutput(realtype t, realtype umax, long int nst)
 {
-  printf("At t = %4.2f   max.norm(u) =%14.6le   nst = %4ld\n", t, umax, nst);
+  printf("At t = %4.2f   max.norm(u) =%14.6e   nst = %4ld\n", t, umax, nst);
   return;
 }
 

@@ -410,11 +410,11 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
   printf("c2 (bot.left/middle/top rt.) = %12.3Le  %12.3Le  %12.3Le\n\n",
          IJKth(udata,2,0,0), IJKth(udata,2,mxh,myh), IJKth(udata,2,mx1,my1));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("t = %.2le   no. steps = %ld   order = %d   stepsize = %.2le\n",
+  printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",
          t, nst, qu, hu);
-  printf("c1 (bot.left/middle/top rt.) = %12.3le  %12.3le  %12.3le\n",
+  printf("c1 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n",
          IJKth(udata,1,0,0), IJKth(udata,1,mxh,myh), IJKth(udata,1,mx1,my1));
-  printf("c2 (bot.left/middle/top rt.) = %12.3le  %12.3le  %12.3le\n\n",
+  printf("c2 (bot.left/middle/top rt.) = %12.3e  %12.3e  %12.3e\n\n",
          IJKth(udata,2,0,0), IJKth(udata,2,mxh,myh), IJKth(udata,2,mx1,my1));
 #else
   printf("t = %.2e   no. steps = %ld   order = %d   stepsize = %.2e\n",

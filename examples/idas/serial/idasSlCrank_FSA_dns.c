@@ -185,7 +185,7 @@ int main(void)
   
   IDAGetQuadSens(mem, &tret, qS);
   printf("-------------F O R W A R D------------------\n");
-  printf("   dG/dp:  %12.4le %12.4le\n", Ith(qS[0],1), Ith(qS[1],1));
+  printf("   dG/dp:  %12.4e %12.4e\n", Ith(qS[0],1), Ith(qS[1],1));
   printf("--------------------------------------------\n\n");
 
   IDAFree(&mem);
@@ -281,15 +281,15 @@ int main(void)
   printf("\n\n   Checking using Finite Differences \n\n");
 
   printf("---------------BACKWARD------------------\n");
-  printf("   dG/dp:  %12.4le %12.4le\n", (G-Gm[0])/dp, (G-Gm[1])/dp);
+  printf("   dG/dp:  %12.4e %12.4e\n", (G-Gm[0])/dp, (G-Gm[1])/dp);
   printf("-----------------------------------------\n\n");
 
   printf("---------------FORWARD-------------------\n");
-  printf("   dG/dp:  %12.4le %12.4le\n", (Gp[0]-G)/dp, (Gp[1]-G)/dp);
+  printf("   dG/dp:  %12.4e %12.4e\n", (Gp[0]-G)/dp, (Gp[1]-G)/dp);
   printf("-----------------------------------------\n\n");
 
   printf("--------------CENTERED-------------------\n");
-  printf("   dG/dp:  %12.4le %12.4le\n", (Gp[0]-Gm[0])/(TWO*dp) ,(Gp[1]-Gm[1])/(TWO*dp));
+  printf("   dG/dp:  %12.4e %12.4e\n", (Gp[0]-Gm[0])/(TWO*dp) ,(Gp[1]-Gm[1])/(TWO*dp));
   printf("-----------------------------------------\n\n");
 
 

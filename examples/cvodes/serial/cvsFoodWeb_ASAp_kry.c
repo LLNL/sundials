@@ -1228,7 +1228,7 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("  mu max = %Le\n",cmax);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("  mu max = %le\n",cmax);
+    printf("  mu max = %e\n",cmax);
 #else
     printf("  mu max = %e\n",cmax);
 #endif
@@ -1236,7 +1236,7 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("  x = %Le\n  y = %Le\n", x, y);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("  x = %le\n  y = %le\n", x, y);
+    printf("  x = %e\n  y = %e\n", x, y);
 #else
     printf("  x = %e\n  y = %e\n", x, y);
 #endif

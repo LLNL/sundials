@@ -454,7 +454,7 @@ static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol)
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION) 
-  printf("Tolerance parameters:  rtol = %lg   atol = %lg\n", rtol, atol);
+  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
@@ -495,10 +495,10 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
   for (i=1;i<NUM_SPECIES;i++)
     printf("         %12.4Le %12.4Le   |\n",c_bl[i],c_tr[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION) 
-  printf("%8.2le %12.4le %12.4le   | %3ld  %1d %12.4le\n", 
+  printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n", 
          t, c_bl[0], c_tr[1], nst, kused, hused);
   for (i=1;i<NUM_SPECIES;i++)
-    printf("         %12.4le %12.4le   |\n",c_bl[i],c_tr[i]);
+    printf("         %12.4e %12.4e   |\n",c_bl[i],c_tr[i]);
 #else
   printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n", 
          t, c_bl[0], c_tr[1], nst, kused, hused);

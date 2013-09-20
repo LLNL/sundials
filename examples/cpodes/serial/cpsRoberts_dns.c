@@ -113,7 +113,7 @@ int main()
   iout = 0;  tout = T1;
   while(1) {
     flag = CPode(cpode_mem, tout, &t, yy, yp, CP_NORMAL);
-    printf("At t = %0.4le      y =%14.6le  %14.6le  %14.6le\n", 
+    printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", 
            t, Ith(yy,1), Ith(yy,2), Ith(yy,3));
 
     if (flag < 0) break;

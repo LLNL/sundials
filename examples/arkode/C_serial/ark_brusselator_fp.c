@@ -137,8 +137,11 @@ int main()
 
   /* Set routines */
   {
-	  realtype rdata[3] = {a, b, ep};   /* set user data  */
-      flag = ARKodeSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
+     realtype rdata[3]; /* set user data  */
+     rdata[0] = a;
+     rdata[1] = b;
+     rdata[2] = ep;   
+     flag = ARKodeSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
   }
   if (check_flag(&flag, "ARKodeSetUserData", 1)) return 1;
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */

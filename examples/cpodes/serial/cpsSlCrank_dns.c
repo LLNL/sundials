@@ -471,7 +471,7 @@ static void PrintOutput(void *mem, FILE *fout, realtype t, N_Vector y)
 
   yval  = NV_DATA_S(y);
 
-  fprintf(fout, "%10.4le %12.4le %12.4le %12.4le\n",
+  fprintf(fout, "%10.4e %12.4e %12.4e %12.4e\n",
           t, yval[0], yval[1], yval[2]);
 }
 

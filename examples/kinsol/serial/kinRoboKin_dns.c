@@ -357,7 +357,7 @@ static void PrintOutput(N_Vector y)
     printf(" %10.6Lg   %10.6Lg   %10.6Lg\n", 
            Ith(y,i+NVAR), Ith(y,i), Ith(y,i+2*NVAR));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf(" %10.6lg   %10.6lg   %10.6lg\n", 
+    printf(" %10.6g   %10.6g   %10.6g\n", 
            Ith(y,i+NVAR), Ith(y,i), Ith(y,i+2*NVAR));
 #else
     printf(" %10.6g   %10.6g   %10.6g\n", 

@@ -78,7 +78,7 @@ int main()
     if (flag != CP_SUCCESS)  break;
     flag = CPodeGetLastOrder(cpode_mem, &qu);
     flag = CPodeGetLastStep(cpode_mem, &hu);    
-    printf("%10.5f    %12.5le   %12.5le   %2d    %6.4le\n", t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
+    printf("%10.5f    %12.5e   %12.5e   %2d    %6.4e\n", t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
   }
   
   PrintFinalStats(cpode_mem);
