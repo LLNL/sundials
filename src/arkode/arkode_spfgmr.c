@@ -604,8 +604,6 @@ static int ARKMassSpfgmrInit(ARKodeMem ark_mem)
 static int ARKMassSpfgmrSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			      N_Vector vtemp2, N_Vector vtemp3)
 {
-  booleantype jbad, jok;
-  realtype dgamma;
   int  retval;
   ARKSpilsMassMem arkspils_mem;
 

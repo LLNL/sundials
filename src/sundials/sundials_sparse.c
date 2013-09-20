@@ -27,7 +27,6 @@
 SlsMat NewSparseMat(int M, int N, int NNZ)
 {
   SlsMat A;
-  int j;
 
   if ( (M <= 0) || (N <= 0) ) return(NULL);
 

@@ -2778,7 +2778,7 @@ int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dkyQ)
 int IDAGetSens(void *ida_mem, realtype *ptret, N_Vector *yySout)
 {
   IDAMem IDA_mem;
-  int is, ierr;
+  int is, ierr=0;
 
   /* Check ida_mem */
   if (ida_mem == NULL) {
@@ -2817,7 +2817,7 @@ int IDAGetSens(void *ida_mem, realtype *ptret, N_Vector *yySout)
  */
 int IDAGetSensDky(void *ida_mem, realtype t, int k, N_Vector *dkySout)
 {
-  int is, ier;
+  int is, ier=0;
   IDAMem IDA_mem;
 
   /* Check all inputs for legality */
@@ -2984,7 +2984,7 @@ int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS)
 int IDAGetQuadSens(void *ida_mem, realtype *ptret, N_Vector *yyQSout)
 {
   IDAMem IDA_mem;
-  int is, ierr;
+  int is, ierr=0;
 
   /* Check ida_mem */
   if (ida_mem == NULL) {
@@ -3023,7 +3023,7 @@ int IDAGetQuadSens(void *ida_mem, realtype *ptret, N_Vector *yyQSout)
  */
 int IDAGetQuadSensDky(void *ida_mem, realtype t, int k, N_Vector *dkyQSout)
 {
-  int is, ier;
+  int is, ier=0;
   IDAMem IDA_mem;
 
   /* Check all inputs for legality */

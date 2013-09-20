@@ -323,7 +323,7 @@ static int cpSpgmrSetup(CPodeMem cp_mem, int convfail,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  int  retval;
+  int  retval=0;
   CPSpilsMem cpspils_mem;
 
   cpspils_mem = (CPSpilsMem) lmem;

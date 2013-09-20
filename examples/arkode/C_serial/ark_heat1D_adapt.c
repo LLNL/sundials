@@ -330,7 +330,7 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
    The return for this function is a pointer to the new mesh. */
 realtype * adapt_mesh(N_Vector y, long int *Nnew, UserData udata)
 {
-  int i, j, k;
+  int i, j;
 
   /* Access current solution and mesh arrays */
   realtype *Y = N_VGetArrayPointer(y);

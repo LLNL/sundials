@@ -495,7 +495,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 int KINSol(void *kinmem, N_Vector u, int strategy_in,  
            N_Vector u_scale, N_Vector f_scale)
 {
-  realtype fnormp, f1normp, epsmin, fmax;
+  realtype fnormp, f1normp, epsmin, fmax=ZERO;
   KINMem kin_mem;
   int ret, sflag;
   booleantype maxStepTaken;
@@ -2173,12 +2173,8 @@ static int KINPicardAA(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   
   int ircvr, retval;
   realtype fmax;
-  realtype* utmp, *vtmp;
-  N_Vector delta, ppneg;
-    
   realtype pnorm, ratio;
   booleantype fOK;
-  realtype *ad_unew, *ad_uu, *ad_pp, *ad_fval;
     
   *maxStepTaken = FALSE;
   pnorm = N_VWL2Norm(pp, uscale);

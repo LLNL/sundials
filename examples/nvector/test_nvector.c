@@ -67,7 +67,6 @@ int Test_N_VCloneVectorArray(int count, N_Vector W, long int local_length, int m
   int      i, failure;
   double   start_time, stop_time;
   N_Vector *vs;
-  realtype *Vdata;
   
   /* clone array of vectors */
   start_time = get_time(); 

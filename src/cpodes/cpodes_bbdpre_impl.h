@@ -45,7 +45,7 @@ typedef struct CPBBDPrecDataRec {
   /* set by CPBBDPrecSetup and used by CPBBDPrecSolve */
   DlsMat savedJ;
   DlsMat savedP;
-  int *pivots;
+  long int *pivots;
 
   /* set by CPBBDPrecAlloc and used by CPBBDPrecSetup */
   int n_local;

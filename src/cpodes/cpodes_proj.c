@@ -122,7 +122,7 @@ static int cpProjNonlinearIteration(CPodeMem cp_mem);
 
 int cpDoProjection(CPodeMem cp_mem, realtype saved_t, int *npfPtr)
 {
-  int flag, retval;
+  int flag=0, retval;
   realtype cnorm;
 
   switch (proj_type) {

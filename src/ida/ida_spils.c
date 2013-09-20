@@ -588,7 +588,7 @@ int IDASpilsDQJtimes(realtype tt,
   IDAMem IDA_mem;
   IDASpilsMem idaspils_mem;
   N_Vector y_tmp, yp_tmp;
-  realtype sig, siginv;
+  realtype sig=ZERO, siginv;
   int iter, retval;
 
   /* data is ida_mem */

@@ -2218,7 +2218,7 @@ static int cpInitialSetup(CPodeMem cp_mem)
 static int cpHin(CPodeMem cp_mem, realtype tout)
 {
   int sign, retval;
-  realtype hlb, hub, hg, h0;
+  realtype hlb, hub, hg, h0=ZERO;
   realtype tdiff, tdist, tround;
 
   /* If tout is too close to tn, give up */

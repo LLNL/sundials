@@ -2666,7 +2666,6 @@ static int arkResizeFPData(ARKodeMem ark_mem, ARKVecResizeFn resize,
 ---------------------------------------------------------------*/
 static void arkFreeFPData(ARKodeMem ark_mem)
 {
-  long int i;
   long int maa = ark_mem->ark_fp_m;
 
   /* free ark_fp_fval if needed */
@@ -3440,6 +3439,8 @@ static int arkStep(ARKodeMem ark_mem)
 {
   realtype saved_t, dsm;
   int retval, ncf, nef, is, nflag, kflag, eflag;
+
+  kflag=0;
   
   saved_t = ark_mem->ark_tn;
   ncf = nef = 0;

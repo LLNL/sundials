@@ -223,7 +223,6 @@ static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
   realtype a  = rdata[0];                     /* access data entries */
-  realtype b  = rdata[1];
   realtype u = NV_Ith_S(y,0);                 /* access solution values */
   realtype v = NV_Ith_S(y,1);
   realtype w = NV_Ith_S(y,2);

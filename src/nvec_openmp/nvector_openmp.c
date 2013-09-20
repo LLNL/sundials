@@ -936,7 +936,7 @@ void N_VCompare_OpenMP(realtype c, N_Vector x, N_Vector z)
 booleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z)
 {
   long int i, N;
-  realtype *xd, *zd, val, gval;
+  realtype *xd, *zd, val;
 
   xd = zd = NULL;
 

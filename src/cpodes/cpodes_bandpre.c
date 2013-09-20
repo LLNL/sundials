@@ -104,7 +104,7 @@ int CPBandPrecInit(void *cpode_mem, int N, int mu, int ml)
   CPSpilsMem cpspils_mem;
   CPBandPrecData pdata;
   int mup, mlp, storagemu;
-  int flag;
+  int flag=0;
 
   if (cpode_mem == NULL) {
     cpProcessError(NULL, CPSPILS_MEM_NULL, "CPBANDPRE", "CPBandPrecInit", MSGBP_CPMEM_NULL);

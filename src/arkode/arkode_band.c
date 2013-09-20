@@ -202,8 +202,8 @@ static int arkBandSetup(ARKodeMem ark_mem, int convfail,
 			N_Vector vtemp2, N_Vector vtemp3)
 {
   booleantype jbad, jok;
-  realtype dgamma, *Acol_j, *Mcol_j;
-  long int i, j, colSize, ier, ml, mu, N, M, is, ie;
+  realtype dgamma;
+  long int i, j, ier, ml, mu, N, M, is, ie;
   DlsMat A, Mass;
   ARKDlsMem arkdls_mem;
   ARKDlsMassMem arkdls_mass_mem;
@@ -497,8 +497,6 @@ static int arkMassBandInit(ARKodeMem ark_mem)
 static int arkMassBandSetup(ARKodeMem ark_mem, N_Vector vtemp1, 
 			    N_Vector vtemp2, N_Vector vtemp3)
 {
-  booleantype jbad, jok;
-  realtype dgamma;
   long int ier;
   ARKDlsMassMem arkdls_mem;
   int retval;

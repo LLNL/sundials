@@ -1260,7 +1260,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
   CVadjMem ca_mem;
   CVodeBMem cvB_mem, tmp_cvB_mem;
   CkpntMem ck_mem;
-  int sign, flag;
+  int sign, flag=0;
   realtype tfuzz, tBret, tBn;
   booleantype gotCheckpoint, isActive, reachedTBout;
   
@@ -2520,7 +2520,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
   realtype factor1, factor2, factor3;
 
   N_Vector y0, yd0, y1, yd1;
-  N_Vector *yS0, *ySd0, *yS1, *ySd1;
+  N_Vector *yS0=NULL, *ySd0=NULL, *yS1, *ySd1;
 
   int flag, is, NS;
   long int indx;

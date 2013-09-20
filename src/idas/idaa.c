@@ -1429,7 +1429,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
   IDAadjMem IDAADJ_mem;
   CkpntMem ck_mem;
   IDABMem IDAB_mem, tmp_IDAB_mem;
-  int flag, sign;
+  int flag=0, sign;
   realtype tfuzz, tBret, tBn;
   booleantype gotCkpnt, reachedTBout, isActive;
 
@@ -2484,7 +2484,7 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
   realtype factor1, factor2, factor3;
 
   N_Vector y0, yd0, y1, yd1;
-  N_Vector *yS0, *ySd0, *yS1, *ySd1;
+  N_Vector *yS0=NULL, *ySd0=NULL, *yS1, *ySd1;
 
   int flag, is, NS;
   long int indx;

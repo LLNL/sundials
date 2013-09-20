@@ -109,7 +109,7 @@ int CPBBDPrecInit(void *cpode_mem, int Nlocal,
   CPBBDPrecData pdata;
   N_Vector tmp4;
   int muk, mlk, storage_mu;
-  int flag;
+  int flag=0;
 
   if (cpode_mem == NULL) {
     cpProcessError(NULL, CPSPILS_MEM_NULL, "CPBBDPRE", "CPBBDPrecInit", MSGBBD_CPMEM_NULL);
@@ -184,7 +184,7 @@ int CPBBDPrecInit(void *cpode_mem, int Nlocal,
 
   /* Allocate memory for pivots */
   pdata->pivots = NULL;
-  pdata->pivots = NewIntArray(Nlocal);
+  pdata->pivots = NewLintArray(Nlocal);
   if (pdata->savedJ == NULL) {
     DestroyMat(pdata->savedP);
     DestroyMat(pdata->savedJ);

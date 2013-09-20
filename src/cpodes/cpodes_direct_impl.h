@@ -109,7 +109,7 @@ typedef struct {
   int d_nr;                 /* no. of independent constraints (QRP)        */
 
   DlsMat d_K;               /* K matrix (s.p.d., form depends on ftype)    */
-  int *d_pivotsP;           /* pivotsP = pivot array (for ftype LU)        */
+  long int *d_pivotsP;           /* pivotsP = pivot array (for ftype LU)        */
 
   realtype *d_beta;         /* beta array (for ftype QR)                   */
 

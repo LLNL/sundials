@@ -290,7 +290,7 @@ static void PrintIntro(long int mu, long int ml)
 {
   printf("2-species diurnal advection-diffusion problem, %d by %d mesh\n",
          MX, MY);
-  printf("SPGMR solver; band preconditioner; mu = %d, ml = %d\n\n",
+  printf("SPGMR solver; band preconditioner; mu = %ld, ml = %ld\n\n",
          mu, ml);
 
   return;

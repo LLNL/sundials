@@ -777,7 +777,7 @@ int cpSpilsDQjtvImpl(realtype t, realtype gm,
   CPodeMem cp_mem;
   CPSpilsMem cpspils_mem;
   N_Vector y_tmp, yp_tmp;
-  realtype sig, siginv;
+  realtype sig=ZERO, siginv;
   int iter, retval;
 
   realtype dqincfac;
