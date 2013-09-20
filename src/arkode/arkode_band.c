@@ -581,6 +581,10 @@ static int arkMassBandMultiply(N_Vector v, N_Vector Mv,
   /* extract the DlsMassMem structure from the user_data pointer */
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
+  realtype *vdata=NULL, *Mvdata=NULL;
+  long int ml, mu, N, M;
+  DlsMat A;
+  long int i, is, ie, j;
 
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
@@ -595,19 +599,17 @@ static int arkMassBandMultiply(N_Vector v, N_Vector Mv,
   N_VConst(0.0, Mv);
 
   /* access the vector arrays (since they must be serial vectors) */
-  realtype *vdata=NULL, *Mvdata=NULL;
   vdata = N_VGetArrayPointer(v);
   Mvdata = N_VGetArrayPointer(Mv);
   if (vdata == NULL || Mvdata == NULL)
     return(1);
 
   /* perform matrix-vector product and return */
-  long int ml = arkdls_mem->d_M->ml;
-  long int mu = arkdls_mem->d_M->mu;
-  long int N = arkdls_mem->d_M->N;
-  long int M = arkdls_mem->d_M->M;
-  DlsMat A = arkdls_mem->d_M;
-  long int i, is, ie, j;
+  ml = arkdls_mem->d_M->ml;
+  mu = arkdls_mem->d_M->mu;
+  N = arkdls_mem->d_M->N;
+  M = arkdls_mem->d_M->M;
+  A = arkdls_mem->d_M;
   for (j=0; j<N; j++) {                /* loop over columns */
     is = (0 > j-mu) ? 0 : j-mu;        /* colum nonzero bounds */
     ie = (M-1 < j+ml) ? M-1 : j+ml;
