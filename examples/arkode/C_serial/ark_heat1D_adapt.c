@@ -337,8 +337,8 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 realtype * adapt_mesh(N_Vector y, long int *Nnew, UserData udata)
 {
   int i, j;
-  int *marks=NULL, *xold=NULL, *Y=NULL, *xnew=NULL;
-  realtype ydd;
+  int *marks=NULL;
+  realtype ydd, *xold=NULL, *Y=NULL, *xnew=NULL;
   long int num_refine, N_new;
 
   /* Access current solution and mesh arrays */
