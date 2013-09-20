@@ -324,7 +324,6 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   uconst = du/dx/dx;
   vconst = dv/dx/dx;
   wconst = dw/dx/dx;
-  u, ul, ur, v, vl, vr, w, wl, wr;
   for (i=1; i<N-1; i++) {
     /* set shortcuts */
     u = Ydata[IDX(i,0)];  ul = Ydata[IDX(i-1,0)];  ur = Ydata[IDX(i+1,0)];

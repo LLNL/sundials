@@ -153,7 +153,6 @@ int main() {
   printf(" ----------------------------------------------------------------------------------------\n");
   printf(" %4i  %19.15e  %19.15e  %19.15e  %li   %2i  %3i\n", 
 	 iout, olddt, newdt, sqrt(N_VDotProd(y,y)/udata->N), udata->N, 0, 0);
-  Nnew;
   while (t < Tf) {
 
     /* "set" routines */
@@ -256,7 +255,6 @@ int main() {
 /* f routine to compute the ODE RHS function f(t,y). */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  N_VConst(0.0, ydot);                      /* Initialize ydot to zero */
   UserData udata = (UserData) user_data;    /* access problem data */
   long int N  = udata->N;                   /* set variable shortcuts */
   realtype k  = udata->k;
@@ -268,6 +266,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
   Ydot = N_VGetArrayPointer(ydot);
   if (check_flag((void *) Ydot, "N_VGetArrayPointer", 0)) return 1;
+  N_VConst(0.0, ydot);                      /* Initialize ydot to zero */
 
   /* iterate over domain, computing all equations */
   Ydot[0] = 0.0;                 /* left boundary condition */
@@ -295,7 +294,6 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y, 
 	       N_Vector fy, void *user_data, N_Vector tmp)
 {
-  N_VConst(0.0, Jv);                         /* initialize Jv product to zero */
   UserData udata = (UserData) user_data;     /* variable shortcuts */
   long int N  = udata->N;
   realtype k  = udata->k;
@@ -307,6 +305,7 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;
   JV = N_VGetArrayPointer(Jv);
   if (check_flag((void *) JV, "N_VGetArrayPointer", 0)) return 1;
+  N_VConst(0.0, Jv);               /* initialize Jv product to zero */
 
   /* iterate over domain, computing all Jacobian-vector products */
   JV[0] = 0.0;

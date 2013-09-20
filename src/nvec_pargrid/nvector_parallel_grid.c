@@ -224,6 +224,7 @@ N_Vector N_VNew_Parallel_Grid(MPI_Comm comm,
 {
   N_Vector v;
   realtype *data;
+  long int i, local_length;
 
   v = NULL;
   v = N_VNewEmpty_Parallel_Grid(comm, dims, dim_length, dim_alength, 
@@ -231,8 +232,7 @@ N_Vector N_VNew_Parallel_Grid(MPI_Comm comm,
   if (v == NULL) return(NULL);
 
   /* Compute total local length */
-  long int i;
-  long int local_length = (dims == 0) ? 0 : 1;
+  local_length = (dims == 0) ? 0 : 1;
   for (i=0; i<dims; i++)  local_length *= dim_length[i];
 
   /* Create data */
@@ -358,24 +358,23 @@ void N_VDestroyVectorArray_Parallel_Grid(N_Vector *vs, int count)
 
 void N_VPrint_Parallel_Grid(N_Vector x)
 {
+  long int i, i0, i1, i2, i3, i4, i5;
+  long int dims, N[MAX_DIMS], n[MAX_DIMS], o[MAX_DIMS];
+  booleantype Forder;
+  realtype *xd = NULL;
+
   /* get array dimensions */
-  long int i;
-  long int dims = NV_DIMS_PG(x);
-  booleantype Forder = NV_FORDER_PG(x);
-  long int N[MAX_DIMS];
+  Forder = NV_FORDER_PG(x);
+  dims = NV_DIMS_PG(x);
   for (i=0; i<MAX_DIMS; i++)  N[i] = NV_ARRAYLEN_PG(x,i);
-  long int n[MAX_DIMS];
   for (i=0; i<MAX_DIMS; i++)  n[i] = NV_ACTIVELEN_PG(x,i);
-  long int o[MAX_DIMS];
   for (i=0; i<MAX_DIMS; i++)  o[i] = NV_OFFSET_PG(x,i);
 
   /* access array data */
-  realtype *xd = NULL;
   xd = NV_DATA_PG(x);
 
   /* iterate over the vector and output, depending on dimensionality 
      and data ordering */
-  long int i0, i1, i2, i3, i4, i5;
   if (dims == 1) 
     for (i0=o[0]; i0<o[0]+n[0]; i0++) 
       printf("%li : %"DOUT"\n", i0-o[0], xd[i0]);
@@ -489,22 +488,22 @@ void N_VPrint_Parallel_Grid(N_Vector x)
 
 void N_VPrintAll_Parallel_Grid(N_Vector x)
 {
+  long int i, i0, i1, i2, i3, i4, i5;
+  long int dims, N[MAX_DIMS], o[MAX_DIMS];
+  booleantype Forder;
+  realtype *xd = NULL;
+
   /* get array dimensions */
-  long int i;
-  long int dims = NV_DIMS_PG(x);
-  booleantype Forder = NV_FORDER_PG(x);
-  long int N[MAX_DIMS];
+  dims = NV_DIMS_PG(x);
+  Forder = NV_FORDER_PG(x);
   for (i=0; i<MAX_DIMS; i++)  N[i] = NV_ARRAYLEN_PG(x,i);
-  long int o[MAX_DIMS];
   for (i=0; i<MAX_DIMS; i++)  o[i] = NV_OFFSET_PG(x,i);
 
   /* access array data */
-  realtype *xd = NULL;
   xd = NV_DATA_PG(x);
 
   /* iterate over the vector and output, depending on dimensionality 
      and data ordering */
-  long int i0, i1, i2, i3, i4, i5;
   if (dims == 1) 
     for (i0=0; i0<N[0]; i0++) 
       printf("%li : %"DOUT"\n", i0-o[0], xd[i0]);
@@ -620,6 +619,7 @@ void N_VPrintAll_Parallel_Grid(N_Vector x)
 
 N_Vector N_VCloneEmpty_Parallel_Grid(N_Vector w)
 {
+  int i;
   N_Vector v;
   N_Vector_Ops ops;
   N_VectorContent_Parallel_Grid content;
@@ -669,7 +669,6 @@ N_Vector N_VCloneEmpty_Parallel_Grid(N_Vector w)
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
   /* Attach lengths and communicator */
-  int i;
   content->dims          = NV_DIMS_PG(w);
   content->global_length = NV_GLOBLENGTH_PG(w);
   content->comm          = NV_COMM_PG(w);
@@ -860,11 +859,11 @@ void N_VLinearSum_Parallel_Grid(realtype a, N_Vector x, realtype b,
 
 void N_VConst_Parallel_Grid(realtype c, N_Vector z)
 {
+  long int i, N;
   realtype *zd = NV_DATA_PG(z);
-  long int N = NV_DATALEN_PG(z);
 
   /* set all entries of z to the constant (including grid zones) */
-  long int i;
+  N = NV_DATALEN_PG(z);
   for (i=0; i<N; i++)  zd[i] = c;
 
   return;
@@ -873,6 +872,8 @@ void N_VConst_Parallel_Grid(realtype c, N_Vector z)
 void N_VProd_Parallel_Grid(N_Vector x, N_Vector y, N_Vector z)
 {
   realtype *xd, *yd, *zd;
+  long int i, N;
+;
   xd = yd = zd = NULL;
 
   /* check for compatibility */
@@ -886,13 +887,12 @@ void N_VProd_Parallel_Grid(N_Vector x, N_Vector y, N_Vector z)
   }
 
   /* access data arrays, length */
-  long int N = NV_DATALEN_PG(x);
+  N = NV_DATALEN_PG(x);
   xd = NV_DATA_PG(x);
   yd = NV_DATA_PG(y);
   zd = NV_DATA_PG(z);
 
   /* perform product (even on grid zones) */
-  long int i;
   for (i=0; i<N; i++)  zd[i] = xd[i]*yd[i];
 
   return;
@@ -901,6 +901,7 @@ void N_VProd_Parallel_Grid(N_Vector x, N_Vector y, N_Vector z)
 void N_VDiv_Parallel_Grid(N_Vector x, N_Vector y, N_Vector z)
 {
   realtype *xd, *yd, *zd;
+  long int i0, i1, i2, i3, i4, i5, i;
   xd = yd = zd = NULL;
 
   /* check for compatibility */
@@ -919,7 +920,6 @@ void N_VDiv_Parallel_Grid(N_Vector x, N_Vector y, N_Vector z)
   zd = NV_DATA_PG(z);
 
   /* perform division on domain interior */
-  long int i0, i1, i2, i3, i4, i5, i;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       zd[i] = xd[i]/yd[i];
@@ -989,6 +989,7 @@ void N_VAbs_Parallel_Grid(N_Vector x, N_Vector z)
 void N_VInv_Parallel_Grid(N_Vector x, N_Vector z)
 {
   realtype *xd, *zd;
+  long int i0, i1, i2, i3, i4, i5, i;
   xd = zd = NULL;
 
   /* check for compatibility */
@@ -1002,7 +1003,6 @@ void N_VInv_Parallel_Grid(N_Vector x, N_Vector z)
   zd = NV_DATA_PG(z);
 
   /* perform inversion on domain interior */
-  long int i0, i1, i2, i3, i4, i5, i;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       zd[i] = ONE/xd[i];
@@ -1043,6 +1043,7 @@ realtype N_VDotProd_Parallel_Grid(N_Vector x, N_Vector y)
 {
   realtype sum, *xd, *yd, gsum;
   MPI_Comm comm;
+  long int i0, i1, i2, i3, i4, i5, i;
   xd = yd = NULL;
 
   /* check for compatibility */
@@ -1056,7 +1057,6 @@ realtype N_VDotProd_Parallel_Grid(N_Vector x, N_Vector y)
   yd = NV_DATA_PG(y);
 
   /* perform dot product on domain interior */
-  long int i0, i1, i2, i3, i4, i5, i;
   sum = ZERO;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
@@ -1079,6 +1079,7 @@ realtype N_VDotProd_Parallel_Grid(N_Vector x, N_Vector y)
 
 realtype N_VMaxNorm_Parallel_Grid(N_Vector x)
 {
+  long int i0, i1, i2, i3, i4, i5, i;
   realtype max, *xd, gmax;
   MPI_Comm comm;
   xd = NULL;
@@ -1087,7 +1088,6 @@ realtype N_VMaxNorm_Parallel_Grid(N_Vector x)
   xd = NV_DATA_PG(x);
 
   /* perform max norm on domain interior */
-  long int i0, i1, i2, i3, i4, i5, i;
   max = ZERO;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
@@ -1110,6 +1110,7 @@ realtype N_VMaxNorm_Parallel_Grid(N_Vector x)
 
 realtype N_VWrmsNorm_Parallel_Grid(N_Vector x, N_Vector w)
 {
+  long int i0, i1, i2, i3, i4, i5, i;
   realtype sum, *xd, *wd, gsum, prodi;
   MPI_Comm comm;
   xd = wd = NULL;
@@ -1125,7 +1126,6 @@ realtype N_VWrmsNorm_Parallel_Grid(N_Vector x, N_Vector w)
   wd = NV_DATA_PG(w);
 
   /* perform wrms norm on domain interior */
-  long int i0, i1, i2, i3, i4, i5, i;
   sum = ZERO;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
@@ -1150,6 +1150,7 @@ realtype N_VWrmsNorm_Parallel_Grid(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
 {
+  long int i0, i1, i2, i3, i4, i5, i;
   realtype sum, prodi, *xd, *wd, *idd, gsum;
   MPI_Comm comm;
   xd = wd = idd = NULL;
@@ -1170,7 +1171,6 @@ realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
   idd = NV_DATA_PG(id);
 
   /* perform masked wrms norm on domain interior */
-  long int i0, i1, i2, i3, i4, i5, i;
   sum = ZERO;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
@@ -1199,6 +1199,7 @@ realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
 
 realtype N_VMin_Parallel_Grid(N_Vector x)
 {
+  long int i0, i1, i2, i3, i4, i5, i;
   realtype gmin;
   MPI_Comm comm;
   realtype *xd = NULL;
@@ -1213,7 +1214,6 @@ realtype N_VMin_Parallel_Grid(N_Vector x)
     min = xd[0];
 
     /* iterate over active values to compute minimum */
-    long int i0, i1, i2, i3, i4, i5, i;
     if (NV_FORDER_PG(x)) {
       NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
 	if (xd[i] < min)  min = xd[i];
@@ -1237,6 +1237,7 @@ realtype N_VMin_Parallel_Grid(N_Vector x)
 
 realtype N_VWL2Norm_Parallel_Grid(N_Vector x, N_Vector w)
 {
+  long int i0, i1, i2, i3, i4, i5, i;
   realtype prodi, *xd, *wd, gsum;
   MPI_Comm comm;
   realtype sum = ZERO;
@@ -1253,7 +1254,6 @@ realtype N_VWL2Norm_Parallel_Grid(N_Vector x, N_Vector w)
   wd = NV_DATA_PG(w);
   
   /* iterate over active values to compute norm */
-  long int i0, i1, i2, i3, i4, i5, i;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       prodi = xd[i]*wd[i];
@@ -1277,6 +1277,7 @@ realtype N_VWL2Norm_Parallel_Grid(N_Vector x, N_Vector w)
 
 realtype N_VL1Norm_Parallel_Grid(N_Vector x)
 {
+  long int i0, i1, i2, i3, i4, i5, i;
   realtype gsum;
   MPI_Comm comm;
   realtype sum = ZERO;
@@ -1286,7 +1287,6 @@ realtype N_VL1Norm_Parallel_Grid(N_Vector x)
   xd = NV_DATA_PG(x);
 
   /* iterate over active values to compute norm */
-  long int i0, i1, i2, i3, i4, i5, i;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       sum += ABS(xd[i]);
@@ -1308,6 +1308,7 @@ realtype N_VL1Norm_Parallel_Grid(N_Vector x)
 
 void N_VCompare_Parallel_Grid(realtype c, N_Vector x, N_Vector z)
 {
+  long int N, i;
   realtype *xd, *zd;
   xd = zd = NULL;
 
@@ -1322,7 +1323,6 @@ void N_VCompare_Parallel_Grid(realtype c, N_Vector x, N_Vector z)
   zd = NV_DATA_PG(z);
 
   /* perform operation on full domain (including grids) */
-  long int N, i;
   N = NV_DATALEN_PG(x);
   for (i=0; i<N; i++) 
     zd[i] = (ABS(xd[i]) >= c) ? ONE : ZERO;
@@ -1332,6 +1332,7 @@ void N_VCompare_Parallel_Grid(realtype c, N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_Parallel_Grid(N_Vector x, N_Vector z)
 {
+  long int i0, i1, i2, i3, i4, i5, i;
   realtype *xd, *zd, val, gval;
   MPI_Comm comm;
   xd = zd = NULL;
@@ -1347,7 +1348,6 @@ booleantype N_VInvTest_Parallel_Grid(N_Vector x, N_Vector z)
   zd = NV_DATA_PG(z);
 
   /* perform test on domain interior */
-  long int i0, i1, i2, i3, i4, i5, i;
   val = ONE;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
@@ -1379,6 +1379,7 @@ booleantype N_VInvTest_Parallel_Grid(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m)
 {
+  long int i0, i1, i2, i3, i4, i5, i;
   realtype temp;
   realtype *cd, *xd, *md;
   MPI_Comm comm;
@@ -1401,7 +1402,6 @@ booleantype N_VConstrMask_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m)
 
 
   /* perform operation on domain interior */
-  long int i0, i1, i2, i3, i4, i5, i;
   temp = ONE;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
@@ -1441,6 +1441,7 @@ booleantype N_VConstrMask_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m)
 
 realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
 {
+  long int i0, i1, i2, i3, i4, i5, i;
   booleantype notEvenOnce;
   realtype *nd, *dd, min;
   MPI_Comm comm;
@@ -1457,7 +1458,6 @@ realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
   dd = NV_DATA_PG(denom);
 
   /* perform operation on domain interior */
-  long int i0, i1, i2, i3, i4, i5, i;
   notEvenOnce = TRUE;
   min = BIG_REAL;
   if (NV_FORDER_PG(num)) {
