@@ -139,6 +139,10 @@ typedef struct KINMemRec {
   N_Vector kin_fval;        /* vector containing result of nonlinear system
 			       function evaluated at a given iterate
 			       (fval = func(uu))                               */
+  N_Vector kin_gval;        /* vector containing result of the fixed point 
+			       function evaluated at a given iterate; 
+			       used in KIN_PICARD strategy only.
+			       (gval = uu - L^{-1}fval(uu))                    */
   N_Vector kin_uscale;      /* iterate scaling vector                          */
   N_Vector kin_fscale;      /* fval scaling vector                             */
   N_Vector kin_pp;          /* incremental change vector (pp = unew-uu)        */
@@ -404,6 +408,7 @@ void KINInfoHandler(const char *module, const char *function,
 #define MSG_USCALE_NONPOSITIVE "uscale has nonpositive elements."
 #define MSG_BAD_FSCALE         "fscale = NULL illegal."
 #define MSG_FSCALE_NONPOSITIVE "fscale has nonpositive elements."
+#define MSG_CONSTRAINTS_NOTOK  "Constraints not allowed with fixed point or Picard iterations"
 #define MSG_INITIAL_CNSTRNT    "Initial guess does NOT meet constraints."
 #define MSG_LINIT_FAIL         "The linear solver's init routine failed."
 
