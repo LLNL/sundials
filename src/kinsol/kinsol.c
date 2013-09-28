@@ -3,8 +3,8 @@
  * $Revision: $
  * $Date: $
  * -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
- *                Aaron Collier @ LLNL
+ * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, Carol Woodward,
+ *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -178,14 +178,13 @@ static int  KINFullNewton(KINMem kin_mem, realtype *fnormp,
                           realtype *f1normp, booleantype *maxStepTaken);
 static int  KINLineSearch(KINMem kin_mem, realtype *fnormp, 
                           realtype *f1normp, booleantype *maxStepTaken);
-static int  KINPicardAA(KINMem kin_mem, realtype *fnormp, 
-			realtype *f1normp, int iter, realtype *R, 
-			realtype *gamma, realtype *fmax, 
-			booleantype *maxStepTaken);
+static int  KINPicardAA(KINMem kin_mem, long int *iter, realtype *R, 
+			realtype *gamma, realtype *fmax);
 static int  KINFP(KINMem kin_mem, long int *iter, realtype *R, 
 		  realtype *gamma, realtype *fmax);
 
 static int  KINLinSolDrv(KINMem kinmem);
+static int  KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vector fval1);
 static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale);
 static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u);
 static int KINStop(KINMem kin_mem, booleantype maxStepTaken, 
@@ -537,6 +536,12 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
       KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSol", MSG_UU_NULL);
       return(KIN_ILL_INPUT);
     }
+
+    if (kin_mem->kin_constraintsSet != FALSE) {
+      KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSol", MSG_CONSTRAINTS_NOTOK);
+      return(KIN_ILL_INPUT);
+    }
+
     if (printfl > 0)
       KINPrintInfo(kin_mem, PRNT_TOL, "KINSOL", "KINSol", INFO_TOL, scsteptol, fnormtol);
 
@@ -579,6 +584,19 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
   if (omega == ZERO) eval_omega = TRUE;
   else               eval_omega = FALSE;
  
+
+  /* CSW:  
+     Call fixed point solver for Picard method if requested.  Note that this should probably
+     be forked off to a part of an FPSOL solver instead of kinsol in the future. */
+  if ( strategy == KIN_PICARD ) {
+
+    kin_mem->kin_gval = N_VClone(unew);
+    lrw += lrw1;
+    ret = KINPicardAA(kin_mem, &nni, kin_mem->kin_R_aa, kin_mem->kin_gamma_aa, &fmax);
+
+    return(ret);
+  }
+
 
   loop{
 
@@ -640,26 +658,6 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
 
     }
 
-    else if (strategy == KIN_PICARD) {
-      
-      /* call KINLinSolDrv to calculate the (approximate) Newton step, pp */ 
-      ret = KINLinSolDrv(kin_mem);
-      if (ret != KIN_SUCCESS) break;
-      
-      sflag = 0;
-      
-      /* Add Picard Step to uu (current iterate) */
-      sflag = KINPicardAA(kin_mem, &fnormp, &f1normp, nni, kin_mem->kin_R_aa, 
-			  kin_mem->kin_gamma_aa, &fmax, &maxStepTaken); 
-        
-      /* if sysfunc failed unrecoverably, stop */
-      if ((sflag == KIN_SYSFUNC_FAIL) || (sflag == KIN_REPTD_SYSFUNC_ERR)) {
-	ret = sflag;
-	break;
-      }
-
-    }  /* End strategy == KIN_PICARD section */
-   
     if ( (strategy != KIN_PICARD) && (strategy != KIN_FP) ) {
       
       /* evaluate eta by calling the forcing term routine */
@@ -674,12 +672,6 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
 	retry_nni = TRUE;
 	goto repeat_nni;
       }
-    }
-
-    else {
-      ret = PicardStop(kin_mem, maxStepTaken, sflag, fmax);
-      fnorm = fmax;
-
     }
 
     /* update uu after the iteration */
@@ -816,7 +808,7 @@ static booleantype KINCheckNvector(N_Vector tmpl)
 
 static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 {
-  /* allocate unew, fval, pp, vtemp1 and vtemp2 */
+  /* allocate unew, fval, pp, vtemp1 and vtemp2. */  
   /* allocate df, dg, q, for Andersen Acceleration, Broyden and EN */
  
   unew = N_VClone(tmpl);
@@ -968,6 +960,9 @@ static void KINFreeVectors(KINMem kin_mem)
   if (vtemp1 != NULL) N_VDestroy(vtemp1);
   if (vtemp2 != NULL) N_VDestroy(vtemp2);
 
+  if ( (kin_mem->kin_globalstrategy == KIN_PICARD) && (kin_mem->kin_gval != NULL) ) 
+    N_VDestroy(kin_mem->kin_gval);
+
   if ( ((strategy == KIN_PICARD) || (strategy == KIN_FP)) && (maa > 0) ) {
     free(kin_mem->kin_R_aa);
     free(kin_mem->kin_gamma_aa);
@@ -1064,6 +1059,12 @@ static int KINSolInit(KINMem kin_mem)
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_FSCALE_NONPOSITIVE);
     return(KIN_ILL_INPUT);
   }
+
+  if ( (constraints != NULL) && ( (strategy == KIN_PICARD) || (strategy == KIN_FP) ) ) {
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSolInit", MSG_CONSTRAINTS_NOTOK);
+    return(KIN_ILL_INPUT);
+  }
+    
 
   /* set the constraints flag */
 
@@ -2162,129 +2163,142 @@ void KINErrHandler(int error_code, const char *module,
 /*
  * KINPicardAA
  *
- * This routine is the main driver for the Picard iteration with 
- * Anderson Acceleration.
+ * This routine is the main driver for the Picard iteration with acclerated fixed point. 
  */
 
-static int KINPicardAA(KINMem kin_mem, realtype *fnormp, realtype *f1normp, 
-		       int iter, realtype *R, realtype *gamma, 
-		       realtype *fmaxptr, booleantype *maxStepTaken)
+static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *gamma, 
+		       realtype *fmaxptr)
 {
-  
-  int ircvr, retval;
-  realtype fmax;
-  realtype pnorm, ratio;
   booleantype fOK;
-    
-  *maxStepTaken = FALSE;
-  pnorm = N_VWL2Norm(pp, uscale);
-  ratio = ONE;
-  if (pnorm > mxnewtstep) {
-    ratio = mxnewtstep / pnorm;
-    N_VScale(ratio, pp, pp);
-    pnorm = mxnewtstep;
-  }
+  int retval, ret; 
+  long int iter;
+  realtype fmax;
+  N_Vector delta, gval;
   
-  if (printfl > 0)
-    KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", "KINFullNewton", 
-		 INFO_PNORM, pnorm);
-  
-  /* If constraints are active, then constrain the step accordingly */
-  
-  stepl = pnorm;
-  stepmul = ONE;
-  if (constraintsSet) {
-    retval = KINConstraint(kin_mem);
-    if (retval == CONSTR_VIOLATED) {
-      /* Apply stepmul set in KINConstraint */
-      ratio *= stepmul;
-      N_VScale(stepmul, pp, pp);
-      
-      
-      pnorm *= stepmul;
-      stepl = pnorm;
-      if (printfl > 0)
-	KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", "KINFullNewton", 
-		     INFO_PNORM, pnorm);
-    }
-  }
-  
-  
-  
-  /* Attempt (at most MAX_RECVR times) to evaluate function at the new 
-     iterate */
-  
+  delta = kin_mem->kin_vtemp1;
+  gval = kin_mem->kin_gval;
+  ret = CONTINUE_ITERATIONS;
   fOK = TRUE;
-  if (maa==0) {
-    for (ircvr = 1; ircvr <= MAX_RECVR; ircvr++) {
-      
-      /* compute the iterate unew = uu + pp */
-      
-      N_VLinearSum(ONE, uu, ONE, pp, unew);
-      /* evaluate func(unew) and its norm, and return */
-      retval = func(unew, fval, user_data); nfe++;
-      fmax=KINScFNorm(kin_mem, fval, fscale);
-      
-      /* if func was successful, accept pp */
-      if (retval == 0) {fOK = TRUE; break;} 
-        
-      /* if func failed unrecoverably, give up */
-      else if (retval < 0) return(KIN_SYSFUNC_FAIL);  
-      /* func failed recoverably; cut step in half and try again */
-      ratio *= HALF;
-      N_VScale(HALF, pp, pp);
-      pnorm *= HALF;
-      stepl = pnorm;   
+  fmax = fnormtol + ONE;
+  iter = 0;
+
+  N_VConst(ZERO, gval);
+
+  while (ret == CONTINUE_ITERATIONS) {
+
+    iter++;
+
+    /* evaluate g = uu - L^{-1}func(u) and return if failed.  
+       For Picard, assume that the fval vecctor has been filled 
+       with an eval of the nonlinear residual prior to this call. */
+    retval = KINPicardFcnEval(kin_mem, gval, uu, fval);
+
+    if (retval < 0) {
+      fOK = FALSE;
+      ret = KIN_SYSFUNC_FAIL;
+      break;
     }
-  }
-  else {   
-    N_VLinearSum(ONE, uu, ONE, pp, unew);
-    fOK=TRUE;
-  }
 
-  *fmaxptr = fmax;
+    if (maa == 0) { 
+      N_VScale(ONE, gval, unew);
+    }
+    else {  /* use Anderson, if desired */
+      N_VScale(ONE, uu, unew);
+      AndersenAcc(kin_mem, gval, delta, unew, uu, (int)(iter-1), R, gamma);
+    }
 
-  if ( (fmax <= fnormtol) && maa==0 ) {
-    N_VScale(ONE, unew, unew);
-    return(KIN_SUCCESS);
-  }
-  
-  if (maa == 0) {
-    N_VScale(ONE, unew, unew);
-  }
-  else {     
-    
-    AndersenAcc(kin_mem, unew, pp, unew, uu, iter-1, R, gamma);
-    
-    /* DH: added test for convergence after AA */
+    /* Fill the Newton residual based on the new solution iterate */
     retval = func(unew, fval, user_data); nfe++;
-    fmax=KINScFNorm(kin_mem, fval, fscale);
-    *fmaxptr = fmax;
+    fmax = KINScFNorm(kin_mem, fval, fscale); /* measure  || F(x) || */
+
+    if (printfl > 1) 
+      KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINPicardAA", INFO_FMAX, fmax);
     
-    if (fmax <= fnormtol) {
+    fnorm = fmax;
+    *fmaxptr = fmax;
+
+    /* print the current iter, fnorm, and nfe values if printfl > 0 */
+    if (printfl>0)
+      KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINPicardAA", INFO_NNI, iter, nfe, fnorm);
+
+    /* Check if the maximum number of iterations is reached */
+    if (iter >= mxiter) {
+      ret = KIN_MAXITER_REACHED;
+    }
+    if (fmax <= fnormtol) { 
+      ret = KIN_SUCCESS;
+    }
+    
+    if (ret == CONTINUE_ITERATIONS) { 
+      /* Only update solution if taking a next iteration.  */
+      N_VScale(ONE, unew, uu);
+    }
+
+    fflush(errfp);
+    
+  }  /* end of loop; return */
+
+  *iterp = iter;
+
+  if (printfl > 0)
+    KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", "KINPicardAA", INFO_RETVAL, ret);
+
+  return(ret); 
+}
+
+/*
+ * KINPicardFcnEval
+ *
+ * This routine evaluates the Picard fixed point function
+ * using the linear solver, gval = u - L^{-1}F(u).
+ * The function assumes the user has defined L either through
+ * a user-supplied matvec if using a SPILS solver or through
+ * a supplied matrix if using a dense solver.  This assumption is
+ * tested by a check on the strategy and the requisite functionality
+ * within the linear solve routines.
+ *
+ * This routine fills gval = uu - L^{-1}F(uu) given uu and fval = F(uu).
+ */ 
+
+static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vector fval1)
+{
+  int retval;
+
+  if ((nni - nnilset) >= msbset) {
+    sthrsh = TWO;
+    update_fnorm_sub = TRUE;
+  }
+
+  loop{
+
+    jacCurrent = FALSE;
+
+    if ((sthrsh > ONEPT5) && setupNonNull) {
+      retval = lsetup(kin_mem);
+      jacCurrent = TRUE;
+      nnilset = nni;
+      nnilset_sub = nni;
+      if (retval != 0) return(KIN_LSETUP_FAIL);
+    }
+
+    /* call the generic 'lsolve' routine to solve the system Lx = fval
+       Note that we are using gval to hold x. */
+    retval = lsolve(kin_mem, gval, fval1, &res_norm);
+
+    if (retval == 0) {
+      /* Update gval = uval - gval since gval = L^{-1}F(uu)  */
+      N_VLinearSum(ONE, uval, -ONE, gval, gval);
       return(KIN_SUCCESS);
     }
+    else if (retval < 0)                      return(KIN_LSOLVE_FAIL);
+    else if ((!setupNonNull) || (jacCurrent)) return(KIN_LINSOLV_NO_RECOVERY);
+
+    /* loop back only if the linear solver setup is in use
+       and matrix information is not current */
+
+    sthrsh = TWO;
   }
-  
-  if (!fOK) return(KIN_REPTD_SYSFUNC_ERR);
-  
-  /* Evaluate function norms */
-  
-  *fnormp = N_VWL2Norm(fval,fscale);
-  *f1normp = HALF * (*fnormp) * (*fnormp);
-  
-  sfdotJp *= ratio;
-  sJpnorm *= ratio;
-  
-  /* scale sfdotJp and sJpnorm by ratio for later use in KINForcingTerm */
-  
-  if (printfl > 1) 
-    KINPrintInfo(kin_mem, PRNT_FNORM, "KINSOL", "KINPicard", 
-		 INFO_FNORM, *fnormp);
-  
-  /* return(KIN_SUCCESS); */
-  return(CONTINUE_ITERATIONS);
-  
+
 }
 
 
