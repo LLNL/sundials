@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
  * $Revision: 1.1 $
- * $Date: 2007-10-25 20:03:41 $
+ * $Date: 2013-09-27 20:16:30 $
  * -----------------------------------------------------------------
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer(s): Carol Woodward @ LLNL
  * -----------------------------------------------------------------
  * This example solves a 2D elliptic PDE
  *
@@ -12,9 +12,12 @@
  * subject to homogeneous Dirichelt boundary conditions.
  * The PDE is discretized on a uniform NX+2 by NY+2 grid with
  * central differencing, and with boundary values eliminated,
- * leaving an system of size NEQ = NX*NY.
- * The nonlinear system is solved by KINSOL using the BAND linear
- * solver.
+ * leaving a system of size NEQ = NX*NY.
+ * The nonlinear system is solved by KINSOL using the Picard
+ * iteration and the BAND linear solver.
+ *
+ * This file is strongly based on the kinLaplace_bnd.c file 
+ * developed by Radu Serban.
  * -----------------------------------------------------------------
  */
 
@@ -32,6 +35,8 @@
 
 #define NX   31             /* no. of points in x direction */
 #define NY   31             /* no. of points in y direction */
+//#define NX   3             /* no. of points in x direction */
+//#define NY   3             /* no. of points in y direction */
 #define NEQ  NX*NY          /* problem dimension */
 
 #define SKIP 3              /* no. of points skipped for printing */
@@ -56,6 +61,9 @@
 /* Private functions */
 
 static int func(N_Vector u, N_Vector f, void *user_data);
+static int jac(long int N, long int mu, long int ml, 
+	       N_Vector u, N_Vector f, DlsMat J, void *user_data,
+	       N_Vector tmp1, N_Vector tmp2);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
 static int check_flag(void *flagvalue, char *funcname, int opt);
@@ -70,7 +78,7 @@ int main()
 {
   realtype fnormtol, fnorm;
   N_Vector y, scale;
-  int mset, msubset, flag;
+  int flag;
   void *kmem;
 
   y = scale = NULL;
@@ -83,8 +91,9 @@ int main()
   printf("\n2D elliptic PDE on unit square\n");
   printf("   d^2 u / dx^2 + d^2 u / dy^2 = u^3 - u + 2.0\n");
   printf(" + homogeneous Dirichlet boundary conditions\n\n");
-  printf("Solution method: Modified Newton with band linear solver\n");
-  printf("Problem size: %2ld x %2ld = %4ld\n", (long int) NX, (long int) NY, (long int) NEQ);
+  printf("Solution method: Anderson accelerated Picard iteration with band linear solver.\n");
+  printf("Problem size: %2ld x %2ld = %4ld\n", 
+	 (long int) NX, (long int) NY, (long int) NEQ);
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -96,14 +105,18 @@ int main()
   scale = N_VNew_Serial(NEQ);
   if (check_flag((void *)scale, "N_VNew_Serial", 0)) return(1);
 
-  /* -----------------------------------------
-   * Initialize and allocate memory for KINSOL
-   * ----------------------------------------- */
+  /* ----------------------------------------------------------------------------------
+   * Initialize and allocate memory for KINSOL, set parametrs for Anderson acceleration
+   * ---------------------------------------------------------------------------------- */
 
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
 
   /* y is used as a template */
+
+  /* Use acceleration with up to 3 prior residuals */
+  flag = KINSetMAA(kmem, 3, TRUE);
+  if (check_flag(&flag, "KINSetMAA", 1)) return(1);
 
   flag = KINInit(kmem, func, y);
   if (check_flag(&flag, "KINInit", 1)) return(1);
@@ -124,27 +137,15 @@ int main()
 
   flag = KINBand(kmem, NEQ, NX, NX);
   if (check_flag(&flag, "KINBand", 1)) return(1);
-
-  /* ------------------------------
-   * Parameters for Modified Newton
-   * ------------------------------ */
-
-  /* Force a Jacobian re-evaluation every mset iterations */
-  mset = 100;
-  flag = KINSetMaxSetupCalls(kmem, mset);
-  if (check_flag(&flag, "KINSetMaxSetupCalls", 1)) return(1);
-
-  /* Every msubset iterations, test if a Jacobian evaluation
-     is necessary */
-  msubset = 1;
-  flag = KINSetMaxSubSetupCalls(kmem, msubset);
-  if (check_flag(&flag, "KINSetMaxSubSetupCalls", 1)) return(1);
+  flag = KINDlsSetBandJacFn(kmem, jac);
+  if (check_flag(&flag, "KINDlsBandJacFn", 1)) return(1);
 
   /* -------------
    * Initial guess 
    * ------------- */
 
   N_VConst_Serial(ZERO, y);
+  IJth(NV_DATA_S(y), 2, 2) = ONE;
 
   /* ----------------------------
    * Call KINSol to solve problem 
@@ -156,7 +157,7 @@ int main()
   /* Call main solver */
   flag = KINSol(kmem,           /* KINSol memory block */
                 y,              /* initial guess on input; solution vector */
-                KIN_LINESEARCH, /* global strategy choice */
+                KIN_PICARD,     /* global stragegy choice */
                 scale,          /* scaling vector, for the variable cc */
                 scale);         /* scaling vector for function values fval */
   if (check_flag(&flag, "KINSol", 1)) return(1);
@@ -248,6 +249,58 @@ static int func(N_Vector u, N_Vector f, void *user_data)
 }
 
 /* 
+ * Jacobian function 
+ */
+
+static int jac(long int N, long int mu, long int ml, 
+	       N_Vector u, N_Vector f, 
+	       DlsMat J, void *user_data,
+	       N_Vector tmp1, N_Vector tmp2)
+{
+  realtype dx, dy;
+  realtype hdc, vdc;
+  realtype *kthCol;
+
+  int i, j, k;
+
+  dx = ONE/(NX+1);  
+  dy = ONE/(NY+1);
+  hdc = ONE/(dx*dx);
+  vdc = ONE/(dy*dy);
+
+  /*
+     The components of f(t,u) which depend on u_{i,j} are
+     f_{i,j}, f_{i-1,j}, f_{i+1,j}, f_{i,j+1}, and f_{i,j-1}.
+     Thus, a column of the Jacobian will contain an entry from
+     each of these equations exception the ones on the boundary.
+
+     f_{i,j}   = hdc*(u_{i-1,j}  -2u_{i,j}  +u_{i+1,j})   + vdc*(u_{i,j-1}  -2u_{i,j}  +u_{i,j+1})
+     f_{i-1,j} = hdc*(u_{i-2,j}  -2u_{i-1,j}+u_{i,j})     + vdc*(u_{i-1,j-1}-2u_{i-1,j}+u_{i-1,j+1})
+     f_{i+1,j} = hdc*(u_{i,j}    -2u_{i+1,j}+u_{i+2,j})   + vdc*(u_{i+1,j-1}-2u_{i+1,j}+u_{i+1,j+1})
+     f_{i,j-1} = hdc*(u_{i-1,j-1}-2u_{i,j-1}+u_{i+1,j-1}) + vdc*(u_{i,j-2}  -2u_{i,j-1}+u_{i,j})
+     f_{i,j+1} = hdc*(u_{i-1,j+1}-2u_{i,j+1}+u_{i+1,j+1}) + vdc*(u_{i,j}    -2u_{i,j+1}+u_{i,j+2})
+
+  */
+
+  for (j=0; j <= NY-1; j++) {
+    for (i=0; i <= NX-1; i++) {
+
+      /* Evaluate diffusion coefficients */
+
+      k = i + j*NX;
+      kthCol = BAND_COL(J, k);
+      BAND_COL_ELEM(kthCol,k,k) = -2.0*hdc - 2.0*vdc;
+      if ( i != (NX-1) ) BAND_COL_ELEM(kthCol,k+1,k) = hdc;
+      if ( i != 0 )      BAND_COL_ELEM(kthCol,k-1,k) = hdc;
+      if ( j != (NY-1) ) BAND_COL_ELEM(kthCol,k+NX,k) = vdc;
+      if ( j != 0 )      BAND_COL_ELEM(kthCol,k-NX,k) = vdc;
+    }
+  }
+
+  return(0);
+}
+
+/* 
  * Print solution at selected points
  */
 
@@ -268,7 +321,7 @@ static void PrintOutput(N_Vector u)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
       printf("%-8.5Lf ", x);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%-8.5f ", x);
+      printf("%-8.5lf ", x);
 #else
       printf("%-8.5f ", x);
 #endif
@@ -280,7 +333,7 @@ static void PrintOutput(N_Vector u)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
       printf("%-8.5Lf    ", y);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%-8.5f    ", y);
+      printf("%-8.5lf    ", y);
 #else
       printf("%-8.5f    ", y);
 #endif
@@ -288,7 +341,7 @@ static void PrintOutput(N_Vector u)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
       printf("%-8.5Lf ", IJth(udata,i,j));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%-8.5f ", IJth(udata,i,j));
+      printf("%-8.5lf ", IJth(udata,i,j));
 #else
       printf("%-8.5f ", IJth(udata,i,j));
 #endif
@@ -304,8 +357,7 @@ static void PrintOutput(N_Vector u)
 static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe, nje, nfeD;
-  long int lenrw, leniw, lenrwB, leniwB;
-  long int nbcfails, nbacktr;
+  long int lenrwB, leniwB;
   int flag;
   
   /* Main solver statistics */
@@ -314,18 +366,6 @@ static void PrintFinalStats(void *kmem)
   check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
-
-  /* Linesearch statistics */
-
-  flag = KINGetNumBetaCondFails(kmem, &nbcfails);
-  check_flag(&flag, "KINGetNumBetacondFails", 1);
-  flag = KINGetNumBacktrackOps(kmem, &nbacktr);
-  check_flag(&flag, "KINGetNumBacktrackOps", 1);
-
-  /* Main solver workspace size */
-
-  flag = KINGetWorkSpace(kmem, &lenrw, &leniw);
-  check_flag(&flag, "KINGetWorkSpace", 1);
 
   /* Band linear solver statistics */
 
@@ -341,10 +381,8 @@ static void PrintFinalStats(void *kmem)
 
   printf("\nFinal Statistics.. \n\n");
   printf("nni      = %6ld    nfe     = %6ld \n", nni, nfe);
-  printf("nbcfails = %6ld    nbacktr = %6ld \n", nbcfails, nbacktr);
   printf("nje      = %6ld    nfeB    = %6ld \n", nje, nfeD);
   printf("\n");
-  printf("lenrw    = %6ld    leniw   = %6ld \n", lenrw, leniw);
   printf("lenrwB   = %6ld    leniwB  = %6ld \n", lenrwB, leniwB);
   
 }

@@ -19,6 +19,7 @@ SET(KINSOL_examples
   kinFoodWeb_kry
   kinKrylovDemo_ls
   kinLaplace_bnd
+  kinLaplace_picard_bnd
   kinRoboKin_dns
   )
 
