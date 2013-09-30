@@ -1,10 +1,11 @@
 List of serial KINSOL examples
 
-  kinFerTron_dns:   Ferraris-Tronconi example (DENSE)
-  kinFoodWeb_kry:   2-D food web system, block-diagonal preconditioner
-  kinKrylovDemo_ls: demonstration program with 3 Krylov solvers
-  kinLaplace_bnd:   2-D elliptic PDE (BAND)
-  kinRoboKin_dns:   Robot kinematics problem (DENSE)
+  kinFerTron_dns:          Ferraris-Tronconi example (DENSE)
+  kinFoodWeb_kry:          2-D food web system, block-diagonal preconditioner
+  kinKrylovDemo_ls:        demonstration program with 3 Krylov solvers
+  kinLaplace_bnd:          2-D elliptic PDE (BAND)
+  kinLaplace_picard_bnd:   2-D elliptic PDE (Accelerated Picard solver, BAND)
+  kinRoboKin_dns:          Robot kinematics problem (DENSE)
 
 Sample result:
 
