@@ -432,13 +432,12 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 #define uscale           (kin_mem->kin_uscale)
 #define fscale           (kin_mem->kin_fscale)
 #define sJpnorm          (kin_mem->kin_sJpnorm)
-#define sfdotJp          (kin_mem->kin_sfdotJp)
+#define sFdotJp          (kin_mem->kin_sFdotJp)
 #define unew             (kin_mem->kin_unew)
 #define pp               (kin_mem->kin_pp)
 #define vtemp1           (kin_mem->kin_vtemp1)
 #define vtemp2           (kin_mem->kin_vtemp2)
 #define eps              (kin_mem->kin_eps)
-#define res_norm         (kin_mem->kin_res_norm)
 #define liw1             (kin_mem->kin_liw1)
 #define lrw1             (kin_mem->kin_lrw1)
 
@@ -1232,7 +1231,7 @@ static int KINLinSolDrv(KINMem kin_mem)
 
     /* call the generic 'lsolve' routine to solve the system Jx = b */
 
-    retval = lsolve(kin_mem, x, b, &res_norm);
+    retval = lsolve(kin_mem, x, b, &sJpnorm, &sFdotJp);
 
     if (retval == 0)                          return(KIN_SUCCESS);
     else if (retval < 0)                      return(KIN_LSOLVE_FAIL);
@@ -1329,9 +1328,9 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   *fnormp = N_VWL2Norm(fval,fscale);
   *f1normp = HALF * (*fnormp) * (*fnormp);
 
-  /* scale sfdotJp and sJpnorm by ratio for later use in KINForcingTerm */
+  /* scale sFdotJp and sJpnorm by ratio for later use in KINForcingTerm */
 
-  sfdotJp *= ratio;
+  sFdotJp *= ratio;
   sJpnorm *= ratio;
  
   if (printfl > 1) 
@@ -1484,7 +1483,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
   /* Estimate the line search value rl (lambda) to satisfy both ALPHA and BETA conditions */
 
-  slpi = sfdotJp * ratio;
+  slpi = sFdotJp * ratio;
   rlength = KINScSNorm(kin_mem, pp, uu);
   rlmin = scsteptol / rlength;
   rl = ONE;
@@ -1661,9 +1660,9 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   if (printfl > 1)
     KINPrintInfo(kin_mem, PRNT_ADJ, "KINSOL", "KINLineSearch", INFO_ADJ, nbktrk_l);
 
-  /* scale sfdotJp and sJpnorm by rl * ratio for later use in KINForcingTerm */
+  /* scale sFdotJp and sJpnorm by rl * ratio for later use in KINForcingTerm */
 
-  sfdotJp = sfdotJp * rl * ratio;
+  sFdotJp = sFdotJp * rl * ratio;
   sJpnorm = sJpnorm * rl * ratio;
 
   if ((rl * pnorm) > (POINT99 * mxnewtstep)) *maxStepTaken = TRUE;
@@ -1877,7 +1876,7 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
 
     /* compute the norm of f + Jp , scaled L2 norm */
 
-    linmodel_norm = RSqrt((fnorm * fnorm) + (TWO * sfdotJp) + (sJpnorm * sJpnorm));
+    linmodel_norm = RSqrt((fnorm * fnorm) + (TWO * sFdotJp) + (sJpnorm * sJpnorm));
 
     /* form the safeguarded for choice #1 */ 
 
@@ -2283,7 +2282,7 @@ static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vect
 
     /* call the generic 'lsolve' routine to solve the system Lx = fval
        Note that we are using gval to hold x. */
-    retval = lsolve(kin_mem, gval, fval1, &res_norm);
+    retval = lsolve(kin_mem, gval, fval1, &sJpnorm, &sFdotJp);
 
     if (retval == 0) {
       /* Update gval = uval - gval since gval = L^{-1}F(uu)  */

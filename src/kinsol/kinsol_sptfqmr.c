@@ -45,7 +45,7 @@
 static int KINSptfqmrInit(KINMem kin_mem);
 static int KINSptfqmrSetup(KINMem kin_mem);
 static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx,
-			   N_Vector bb, realtype *res_norm);
+			   N_Vector bb, realtype *sJpnorm, realtype *sFdotJp);
 static void KINSptfqmrFree(KINMem kin_mem);
 
 /*
@@ -71,8 +71,6 @@ static void KINSptfqmrFree(KINMem kin_mem);
 #define fscale       (kin_mem->kin_fscale)
 #define sqrt_relfunc (kin_mem->kin_sqrt_relfunc)
 #define eps          (kin_mem->kin_eps)
-#define sJpnorm      (kin_mem->kin_sJpnorm)
-#define sfdotJp      (kin_mem->kin_sfdotJp)
 #define errfp        (kin_mem->kin_errfp)
 #define infofp       (kin_mem->kin_infofp)
 #define setupNonNull (kin_mem->kin_setupNonNull)
@@ -323,11 +321,12 @@ static int KINSptfqmrSetup(KINMem kin_mem)
  */
 
 static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, 
-			   realtype *res_norm)
+			   realtype *sJpnorm, realtype *sFdotJp)
 {
   KINSpilsMem kinspils_mem;
   SptfqmrMem sptfqmr_mem;
   int ret, nli_inc, nps_inc;
+  realtype res_norm;
   
   kinspils_mem = (KINSpilsMem) lmem;
   sptfqmr_mem = (SptfqmrMem) spils_mem;
@@ -344,7 +343,7 @@ static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
 
   ret = SptfqmrSolve(sptfqmr_mem, kin_mem, xx, bb, pretype, eps,
 		     kin_mem, fscale, fscale, KINSpilsAtimes,
-		     KINSpilsPSolve, res_norm, &nli_inc, &nps_inc);
+		     KINSpilsPSolve, &res_norm, &nli_inc, &nps_inc);
 
   /* increment counters nli, nps, and ncfl 
      (nni is updated in the KINSol main iteration loop) */
@@ -357,53 +356,58 @@ static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
 
   if (ret != 0) ncfl++;
 
-  /* Compute the terms sJpnorm and sfdotJp for use in the global strategy
-     routines and in KINForcingTerm. Both of these terms are subsequently
-     corrected if the step is reduced by constraints or the line search.
-
-     sJpnorm is the norm of the scaled product (scaled by fscale) of
-     the current Jacobian matrix J and the step vector p.
-
-     sfdotJp is the dot product of the scaled f vector and the scaled
-     vector J*p, where the scaling uses fscale. */
-
-  ret = KINSpilsAtimes(kin_mem, xx, bb);
-  if (ret == 0)     ret = SPTFQMR_SUCCESS;
-  else if (ret > 0) ret = SPTFQMR_ATIMES_FAIL_REC;
-  else if (ret < 0) ret = SPTFQMR_ATIMES_FAIL_UNREC;
-
-  sJpnorm = N_VWL2Norm(bb,fscale);
-  N_VProd(bb, fscale, bb);
-  N_VProd(bb, fscale, bb);
-  sfdotJp = N_VDotProd(fval, bb);
-
-  if (printfl > 2) 
-    KINPrintInfo(kin_mem, PRNT_EPS, "KINSPTFQMR", "KINSptfqmrSolve", INFO_EPS, *res_norm, eps);
-
-  /* Interpret return value from SptfqmrSolve */
-
   last_flag = ret;
 
-  switch(ret) {
+  if ( (ret != 0) && (ret != SPTFQMR_RES_REDUCED) ) {
 
-  case SPTFQMR_SUCCESS:
-  case SPTFQMR_RES_REDUCED:
-    return(0);
-    break;
-  case SPTFQMR_PSOLVE_FAIL_REC:
-    return(1);
-    break;
-  case SPTFQMR_ATIMES_FAIL_REC:
-    return(1);
-    break;
-  case SPTFQMR_CONV_FAIL:
-  case SPTFQMR_MEM_NULL:
-  case SPTFQMR_ATIMES_FAIL_UNREC:
-  case SPTFQMR_PSOLVE_FAIL_UNREC:
-    return(-1);
-    break;
+    /* Handle all failure returns from SptfqmrSolve */
+
+    switch(ret) {
+    case SPTFQMR_PSOLVE_FAIL_REC:
+    case SPTFQMR_ATIMES_FAIL_REC:
+      return(1);
+      break;
+    case SPTFQMR_CONV_FAIL:
+    case SPTFQMR_MEM_NULL:
+    case SPTFQMR_ATIMES_FAIL_UNREC:
+    case SPTFQMR_PSOLVE_FAIL_UNREC:
+      return(-1);
+      break;
+    }
+
   }
 
+  /*  SptfqmrSolve returned either SPTFQMR_SUCCESS or SPTFQMR_RES_REDUCED.
+
+     Compute the terms sJpnorm and sFdotJp for use in the linesearch
+     routine and in KINForcingTerm.  Both of these terms are subsequently
+     corrected if the step is reduced by constraints or the linesearch.
+
+     sJpnorm is the norm of the scaled product (scaled by fscale) of the
+     current Jacobian matrix J and the step vector p (= solution vector xx).
+
+     sFdotJp is the dot product of the scaled f vector and the scaled
+     vector J*p, where the scaling uses fscale.                            */
+
+  ret = KINSpilsAtimes(kin_mem, xx, bb);
+  if (ret > 0) {
+    last_flag = SPTFQMR_ATIMES_FAIL_REC;
+    return(1);
+  }      
+  else if (ret < 0) {
+    last_flag = SPTFQMR_ATIMES_FAIL_UNREC;
+    return(-1);
+  }
+
+  *sJpnorm = N_VWL2Norm(bb, fscale);
+  N_VProd(bb, fscale, bb);
+  N_VProd(bb, fscale, bb);
+  *sFdotJp = N_VDotProd(fval, bb);
+
+  if (printfl > 2) KINPrintInfo(kin_mem, PRNT_EPS, "KINSPTFQMR",
+                     "KINSptfqmrSolve", INFO_EPS, res_norm, eps);
+
+  last_flag = SPTFQMR_SUCCESS;
   return(0);
 
 }

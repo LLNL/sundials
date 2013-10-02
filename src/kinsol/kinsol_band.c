@@ -39,7 +39,7 @@
 static int kinBandInit(KINMem kin_mem);
 static int kinBandSetup(KINMem kin_mem);
 static int kinBandsolve(KINMem kin_mem, N_Vector x, N_Vector b,
-                        realtype *res_norm);
+                        realtype *sJpnorm, realtype *sFdotJp);
 static void kinBandFree(KINMem kin_mem);
 
 /*
@@ -63,8 +63,6 @@ static void kinBandFree(KINMem kin_mem);
 #define uscale         (kin_mem->kin_uscale)
 #define fscale         (kin_mem->kin_fscale)
 #define sqrt_relfunc   (kin_mem->kin_sqrt_relfunc)
-#define sJpnorm        (kin_mem->kin_sJpnorm)
-#define sfdotJp        (kin_mem->kin_sfdotJp)
 #define errfp          (kin_mem->kin_errfp)
 #define infofp         (kin_mem->kin_infofp)
 #define setupNonNull   (kin_mem->kin_setupNonNull)
@@ -293,10 +291,12 @@ static int kinBandSetup(KINMem kin_mem)
  * -----------------------------------------------------------------
  * This routine handles the solve operation for the band linear solver
  * by calling the band backsolve routine.  The return value is 0.
+ * The argument *sJpnorm is ignored.
  * -----------------------------------------------------------------
  */
 
-static int kinBandsolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *res_norm)
+static int kinBandsolve(KINMem kin_mem, N_Vector x, N_Vector b,
+                        realtype *sJpnorm, realtype *sFdotJp)
 {
   KINDlsMem kindls_mem;
   realtype *xd;
@@ -313,23 +313,18 @@ static int kinBandsolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *res_no
 
   BandGBTRS(J, lpivots, xd);
 
-  /* Compute the terms Jpnorm and sfdotJp for use in the global strategy
-     routines and in KINForcingTerm. Both of these terms are subsequently
-     corrected if the step is reduced by constraints or the line search.
-     
-     sJpnorm is the norm of the scaled product (scaled by fscale) of
-     the current Jacobian matrix J and the step vector p.
+  /* Compute the term sFdotJp for use in the linesearch routine.
+     This term is subsequently corrected if the step is reduced by
+     constraints or the linesearch.
 
-     sfdotJp is the dot product of the scaled f vector and the scaled
-     vector J*p, where the scaling uses fscale. */
+     sFdotJp is the dot product of the scaled f vector and the scaled
+     vector J*p, where the scaling uses fscale.                            */
 
-  sJpnorm = N_VWL2Norm(b,fscale);
   N_VProd(b, fscale, b);
   N_VProd(b, fscale, b);
-  sfdotJp = N_VDotProd(fval, b);
+  *sFdotJp = N_VDotProd(fval, b);
 
   last_flag = KINDLS_SUCCESS;
-
   return(0);
 }
 
