@@ -1,9 +1,10 @@
 /*---------------------------------------------------------------
- $Revision: 1.0 $
- $Date:  $
------------------------------------------------------------------ 
  Programmer(s): Daniel R. Reynolds @ SMU
------------------------------------------------------------------
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
  This is the header file for the ARKBANDPRE module, which
  provides a banded difference quotient Jacobian-based
  preconditioner and solver routines for use with ARKSPGMR,
@@ -63,7 +64,7 @@
      problem dimension.
  (3) In the ARKBPSp* call, the user is free to specify
      the input pretype and the optional input maxl.
----------------------------------------------------------------*/
+ --------------------------------------------------------------*/
 
 #ifndef _ARKBANDPRE_H
 #define _ARKBANDPRE_H

@@ -1,17 +1,11 @@
 # ---------------------------------------------------------------
-# $Revision: 1.0 $
-# $Date: $
-# ---------------------------------------------------------------
 # Programmer:  Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
-# Copyright (c) 2013, The Regents of the University of California.
-# Produced at the Lawrence Livermore National Laboratory.
+# Copyright (c) 2013, Southern Methodist University.
 # All rights reserved.
 # For details, see the LICENSE file.
 # ---------------------------------------------------------------
 # MPI-C++ tests for SUNDIALS CMake-based configuration.
-#
-# 
 
 set(MPICXX_FOUND FALSE)
 

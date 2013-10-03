@@ -1,6 +1,9 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2007-10-25 20:03:27 $
+C     Programmer(s): Daniel R. Reynolds @ SMU
+C     ----------------------------------------------------------------
+C     Copyright (c) 2013, Southern Methodist University.
+C     All rights reserved.
+C     For details, see the LICENSE file.
 C     ----------------------------------------------------------------
 C     FARKODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 

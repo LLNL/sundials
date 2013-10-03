@@ -1,6 +1,12 @@
 #!/usr/bin/env python
+# ----------------------------------------------------------------
+# Programmer(s):  Daniel R. Reynolds @ SMU
+# ----------------------------------------------------------------
+# Copyright (c) 2013, Southern Methodist University.
+# All rights reserved.
+# For details, see the LICENSE file.
+# ----------------------------------------------------------------
 # matplotlib-based plotting script for ODE examples
-# Daniel R. Reynolds, reynolds@smu.edu
 
 # imports
 import sys

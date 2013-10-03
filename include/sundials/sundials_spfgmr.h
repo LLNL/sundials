@@ -1,8 +1,9 @@
 /* -----------------------------------------------------------------
- $Revision: 0.1 $
- $Date:  $
- ------------------------------------------------------------------- 
  Programmer(s): Daniel R. Reynolds and Hilari C. Tiedeman @ SMU
+ -------------------------------------------------------------------
+ Copyright (c) 2011, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
  -------------------------------------------------------------------
  This is the header file for the implementation of SPFGMR Krylov
  iterative linear solver.  The SPFGMR algorithm is based on the

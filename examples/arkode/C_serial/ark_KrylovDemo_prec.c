@@ -1,92 +1,90 @@
-/* -----------------------------------------------------------------
- * $Revision: $
- * $Date: $
- * -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
- *
- * Modeled off of example by: Scott D. Cohen, Alan C. Hindmarsh and
- *                            Radu Serban @ LLNL
- * --------------------------------------------------------------------
- * Demonstration program for ARKODE - Krylov linear solver.
- * ODE system from ns-species interaction PDE in 2 dimensions.
- * 
- * This program solves a stiff ODE system that arises from a system
- * of partial differential equations. The PDE system is a food web
- * population model, with predator-prey interaction and diffusion on
- * the unit square in two dimensions. The dependent variable vector is:
- *
- *        1   2        ns
- *  c = (c , c , ..., c  )
- *
- * and the PDEs are as follows:
- *
- *    i               i      i
- *  dc /dt  =  d(i)*(c    + c   )  +  f (x,y,c)  (i=1,...,ns)
- *                    xx     yy        i   
- *
- * where
- *
- *                 i          ns         j
- *  f (x,y,c)  =  c *(b(i) + sum a(i,j)*c )
- *   i                       j=1                                         
- *                                                                       
- * The number of species is ns = 2*np, with the first np being prey
- * and the last np being predators. The coefficients a(i,j), b(i),
- * d(i) are:
- *
- *  a(i,i) = -a  (all i)
- *  a(i,j) = -g  (i <= np, j > np)
- *  a(i,j) =  e  (i > np, j <= np)
- *  b(i) =  b*(1 + alpha*x*y)  (i <= np)
- *  b(i) = -b*(1 + alpha*x*y)  (i > np)
- *  d(i) = Dprey  (i <= np)
- *  d(i) = Dpred  (i > np)
- *
- * The spatial domain is the unit square. The final time is 10.
- * The boundary conditions are: normal derivative = 0.
- * A polynomial in x and y is used to set the initial conditions.
- *
- * The PDEs are discretized by central differencing on an MX by MY mesh.
- *
- * The resulting ODE system is stiff.
- *
- * The ODE system is solved using Newton iteration and the ARKSPGMR
- * linear solver (scaled preconditioned GMRES).
- *
- * The preconditioner matrix used is the product of two matrices:
- * (1) A matrix, only defined implicitly, based on a fixed number
- * of Gauss-Seidel iterations using the diffusion terms only.
- * (2) A block-diagonal matrix based on the partial derivatives
- * of the interaction terms f only, using block-grouping (computing
- * only a subset of the ns by ns blocks).
- *
- * Four different runs are made for this problem.
- * The product preconditoner is applied on the left and on the
- * right. In each case, both the modified and classical Gram-Schmidt
- * options are tested.
- * In the series of runs, ARKodeInit and ARKSpgmr are called only
- * for the first run, whereas ARKodeReInit, ARKSpilsSetPrecType and
- * ARKSpilsSetGSType are called for each of the remaining three runs.
- *
- * A problem description, performance statistics at selected output
- * times, and final statistics are written to standard output.
- * On the first run, solution values are also printed at output
- * times. Error and warning messages are written to standard error,
- * but there should be no such messages.
- *
- * Note: This program requires the dense linear solver functions
- * newDenseMat, newLintArray, denseAddIdentity, denseGETRF, denseGETRS, 
- * destroyMat and destroyArray.
- *
- * Note: This program assumes the sequential implementation for the
- * type N_Vector and uses the NV_DATA_S macro to gain access to the
- * contiguous array of components of an N_Vector.
- * --------------------------------------------------------------------
- * Reference: Peter N. Brown and Alan C. Hindmarsh, Reduced Storage
- * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
- * (1989), pp. 40-91.  Also available as Lawrence Livermore National
- * Laboratory Report UCRL-95088, Rev. 1, June 1987.
- * -----------------------------------------------------------------*/
+/*-----------------------------------------------------------------
+ Programmer(s): Daniel R. Reynolds @ SMU
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ --------------------------------------------------------------------
+ Demonstration program for ARKODE - Krylov linear solver.
+ ODE system from ns-species interaction PDE in 2 dimensions.
+ 
+ This program solves a stiff ODE system that arises from a system
+ of partial differential equations. The PDE system is a food web
+ population model, with predator-prey interaction and diffusion on
+ the unit square in two dimensions. The dependent variable vector is:
+
+        1   2        ns
+  c = (c , c , ..., c  )
+
+ and the PDEs are as follows:
+
+    i               i      i
+  dc /dt  =  d(i)*(c    + c   )  +  f (x,y,c)  (i=1,...,ns)
+                    xx     yy        i   
+
+ where
+
+                 i          ns         j
+  f (x,y,c)  =  c *(b(i) + sum a(i,j)*c )
+   i                       j=1                                         
+                                                                       
+ The number of species is ns = 2*np, with the first np being prey
+ and the last np being predators. The coefficients a(i,j), b(i),
+ d(i) are:
+
+  a(i,i) = -a  (all i)
+  a(i,j) = -g  (i <= np, j > np)
+  a(i,j) =  e  (i > np, j <= np)
+  b(i) =  b*(1 + alpha*x*y)  (i <= np)
+  b(i) = -b*(1 + alpha*x*y)  (i > np)
+  d(i) = Dprey  (i <= np)
+  d(i) = Dpred  (i > np)
+
+ The spatial domain is the unit square. The final time is 10.
+ The boundary conditions are: normal derivative = 0.
+ A polynomial in x and y is used to set the initial conditions.
+
+ The PDEs are discretized by central differencing on an MX by MY mesh.
+
+ The resulting ODE system is stiff.
+
+ The ODE system is solved using Newton iteration and the ARKSPGMR
+ linear solver (scaled preconditioned GMRES).
+
+ The preconditioner matrix used is the product of two matrices:
+ (1) A matrix, only defined implicitly, based on a fixed number
+ of Gauss-Seidel iterations using the diffusion terms only.
+ (2) A block-diagonal matrix based on the partial derivatives
+ of the interaction terms f only, using block-grouping (computing
+ only a subset of the ns by ns blocks).
+
+ Four different runs are made for this problem.
+ The product preconditoner is applied on the left and on the
+ right. In each case, both the modified and classical Gram-Schmidt
+ options are tested.
+ In the series of runs, ARKodeInit and ARKSpgmr are called only
+ for the first run, whereas ARKodeReInit, ARKSpilsSetPrecType and
+ ARKSpilsSetGSType are called for each of the remaining three runs.
+
+ A problem description, performance statistics at selected output
+ times, and final statistics are written to standard output.
+ On the first run, solution values are also printed at output
+ times. Error and warning messages are written to standard error,
+ but there should be no such messages.
+
+ Note: This program requires the dense linear solver functions
+ newDenseMat, newLintArray, denseAddIdentity, denseGETRF, denseGETRS, 
+ destroyMat and destroyArray.
+
+ Note: This program assumes the sequential implementation for the
+ type N_Vector and uses the NV_DATA_S macro to gain access to the
+ contiguous array of components of an N_Vector.
+ --------------------------------------------------------------------
+ Reference: Peter N. Brown and Alan C. Hindmarsh, Reduced Storage
+ Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
+ (1989), pp. 40-91.  Also available as Lawrence Livermore National
+ Laboratory Report UCRL-95088, Rev. 1, June 1987.
+ -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>

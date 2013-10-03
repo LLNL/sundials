@@ -1,12 +1,13 @@
 /*---------------------------------------------------------------
-  $Revision: 1.0 $
-  $Date: $
- ---------------------------------------------------------------- 
-  Programmer(s): Daniel R. Reynolds @ SMU
+ Programmer(s): Daniel R. Reynolds @ SMU
  ----------------------------------------------------------------
-  The FARKROOT module contains the routines necessary to use
-  the rootfinding feature of the ARKODE module and to interface
-  with the user-supplied Fortran subroutine.
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
+ The FARKROOT module contains the routines necessary to use
+ the rootfinding feature of the ARKODE module and to interface
+ with the user-supplied Fortran subroutine.
  --------------------------------------------------------------*/
 
 #include <stdio.h>

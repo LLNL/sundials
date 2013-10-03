@@ -1,14 +1,15 @@
 /*---------------------------------------------------------------
- $Revision: 1.0 $
- $Date:  $
------------------------------------------------------------------ 
  Programmer(s): Daniel R. Reynolds @ SMU
------------------------------------------------------------------
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
  This file contains implementations of routines for a
  band-block-diagonal preconditioner, i.e. a block-diagonal
  matrix with banded blocks, for use with ARKODE, a ARKSPILS 
  linear solver, and the parallel implementation of NVECTOR.
----------------------------------------------------------------*/
+ --------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>

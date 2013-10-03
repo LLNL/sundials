@@ -1,8 +1,11 @@
+% ----------------------------------------------------------------
+% Programmer(s): Daniel R. Reynolds @ SMU
+% ----------------------------------------------------------------
+% Copyright (c) 2012, Southern Methodist University.
+% All rights reserved.
+% For details, see the LICENSE file.
+% ----------------------------------------------------------------
 % Matlab script to load/plot 1D brusselator results
-%
-% Daniel R. Reynolds
-% SMU Mathematics
-% April 2012
 
 clear
 

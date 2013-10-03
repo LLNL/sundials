@@ -1,12 +1,13 @@
 /*---------------------------------------------------------------
- $Revision: 1.0 $
- $Date:  $
------------------------------------------------------------------ 
  Programmer(s): Daniel R. Reynolds @ SMU
------------------------------------------------------------------
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
  This is the common header file for the Scaled, Preconditioned
  Iterative Linear Solvers in ARKODE.
----------------------------------------------------------------*/
+ --------------------------------------------------------------*/
 
 #ifndef _ARKSPILS_H
 #define _ARKSPILS_H

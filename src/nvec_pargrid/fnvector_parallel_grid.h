@@ -1,20 +1,14 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: $
- * $Date: $
- * ----------------------------------------------------------------- 
- * Programmer(s): Daniel R. Reynolds @ SMU
- * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
- * Produced at the Lawrence Livermore National Laboratory.
- * All rights reserved.
- * For details, see the LICENSE file.
- * -----------------------------------------------------------------
- * This file (companion of nvector_parallel_grid.h) contains the
- * definitions needed for the initialization of parallel grid
- * vector operations in Fortran.
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ Programmer(s): Daniel R. Reynolds @ SMU
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ -----------------------------------------------------------------
+ This file (companion of nvector_parallel_grid.h) contains the
+ definitions needed for the initialization of parallel grid
+ vector operations in Fortran.
+ ---------------------------------------------------------------*/
 
 #ifndef _FNVECTOR_PARALLEL_GRID_H
 #define _FNVECTOR_PARALLEL_GRID_H

@@ -1,12 +1,13 @@
 /*---------------------------------------------------------------
- $Revision: 1.0 $
- $Date:  $
------------------------------------------------------------------ 
  Programmer(s): Daniel R. Reynolds @ SMU
------------------------------------------------------------------
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
  This is the header file for the ARKODE scaled preconditioned 
  FGMRES linear solver, ARKSPFGMR.
----------------------------------------------------------------*/
+ --------------------------------------------------------------*/
 
 #ifndef _ARKSPFGMR_H
 #define _ARKSPFGMR_H

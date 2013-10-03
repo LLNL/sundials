@@ -1,11 +1,7 @@
 # ---------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2009-02-17 02:58:48 $
+# Programmer:  Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
-# ---------------------------------------------------------------
-# Copyright (c) 2007, The Regents of the University of California.
-# Produced at the Lawrence Livermore National Laboratory.
+# Copyright (c) 2013, Southern Methodist University.
 # All rights reserved.
 # For details, see the LICENSE file.
 # ---------------------------------------------------------------

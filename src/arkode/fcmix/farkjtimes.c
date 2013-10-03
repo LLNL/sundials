@@ -1,13 +1,14 @@
 /*---------------------------------------------------------------
-  $Revision: 1.0 $
-  $Date: $
- ---------------------------------------------------------------- 
-  Programmer(s): Daniel R. Reynolds @ SMU
+ Programmer(s): Daniel R. Reynolds @ SMU
  ----------------------------------------------------------------
-  The C function FARKJtimes is to interface between the ARKSP* 
-  modules and the user-supplied Jacobian-vector product routine
-  FARKJTIMES. Note the use of the generic name FARK_JTIMES in
-  the code below.
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
+ The C function FARKJtimes is to interface between the ARKSP* 
+ modules and the user-supplied Jacobian-vector product routine
+ FARKJTIMES. Note the use of the generic name FARK_JTIMES in
+ the code below.
  --------------------------------------------------------------*/
 
 #include <stdio.h>

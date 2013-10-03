@@ -1,15 +1,16 @@
 /*---------------------------------------------------------------
-  $Revision: 1.0 $
-  $Date: $
- ---------------------------------------------------------------- 
-  Programmer(s): Daniel R. Reynolds @ SMU
+ Programmer(s): Daniel R. Reynolds @ SMU
  ----------------------------------------------------------------
-  This is the implementation file for the Fortran interface to
-  the ARKODE package.  See farkode.h for usage.
-  NOTE: some routines are necessarily stored elsewhere to avoid
-  linking problems.  Therefore, see also farkpreco.c, farkpsol.c,
-  farkjtimes.c, farkadapt.c and farkexpstab.c for all the 
-  available options.
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
+ This is the implementation file for the Fortran interface to
+ the ARKODE package.  See farkode.h for usage.
+ NOTE: some routines are necessarily stored elsewhere to avoid
+ linking problems.  Therefore, see also farkpreco.c, farkpsol.c,
+ farkjtimes.c, farkadapt.c and farkexpstab.c for all the 
+ available options.
  --------------------------------------------------------------*/
 
 #include <stdio.h>

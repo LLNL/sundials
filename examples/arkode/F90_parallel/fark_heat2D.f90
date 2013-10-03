@@ -1,12 +1,13 @@
 !-----------------------------------------------------------------
-! $Revision: $
-! $Date: $
-!-----------------------------------------------------------------
 ! Programmer(s): Daniel R. Reynolds @ SMU
+!-----------------------------------------------------------------
+! Copyright (c) 2013, Southern Methodist University.
+! All rights reserved.
+! For details, see the LICENSE file.
 !-----------------------------------------------------------------
 ! Example problem:
 ! 
-!  The following test simulates a simple anisotropic 2D heat 
+! The following test simulates a simple anisotropic 2D heat 
 ! equation,
 !    u_t = kx*u_xx + ky*u_yy + h,
 ! for t in [0, 10], (x,y) in [0, 1]^2, with initial conditions

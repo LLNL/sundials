@@ -1,14 +1,10 @@
 # ---------------------------------------------------------------
-# $Revision: 1.0 $
-# $Date: $
-# ---------------------------------------------------------------
 # Programmer:  Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
-# Copyright (c) 2007, The Regents of the University of California.
-# Produced at the Lawrence Livermore National Laboratory.
+# Copyright (c) 2013, Southern Methodist University.
 # All rights reserved.
 # For details, see the LICENSE file.
-# ---------------------------------------------------------------
+# -----------------------------------------------------------------
 # CMakeLists.txt file for ARKODE parallel C examples
 
 

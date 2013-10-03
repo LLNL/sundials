@@ -1,10 +1,11 @@
 /*---------------------------------------------------------------
-  $Revision: 1.0 $
-  $Date: $
- ---------------------------------------------------------------- 
-  Programmer(s): Daniel R. Reynolds @ SMU
+ Programmer(s): Daniel R. Reynolds @ SMU
  ----------------------------------------------------------------
-  Fortran/C interface routines for ARKODE/ARKLAPACK
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
+ Fortran/C interface routines for ARKODE/ARKLAPACK
  --------------------------------------------------------------*/
 
 #include <stdio.h>

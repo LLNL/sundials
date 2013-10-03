@@ -1,14 +1,15 @@
 /*---------------------------------------------------------------
-  $Revision: 1.0 $
-  $Date: $
- ---------------------------------------------------------------- 
-  Programmer(s): Daniel R. Reynolds @ SMU
+ Programmer(s): Daniel R. Reynolds @ SMU
  ----------------------------------------------------------------
-  This module contains the routines necessary to interface with 
-  the ARKBBDPRE module and user-supplied Fortran routines.
-  The routines here call the generically named routines and 
-  providea standard interface to the C code of the ARKBBDPRE 
-  package.
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
+ This module contains the routines necessary to interface with 
+ the ARKBBDPRE module and user-supplied Fortran routines.
+ The routines here call the generically named routines and 
+ providea standard interface to the C code of the ARKBBDPRE 
+ package.
  --------------------------------------------------------------*/
 
 #include <stdio.h>

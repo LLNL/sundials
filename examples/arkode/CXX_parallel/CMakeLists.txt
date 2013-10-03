@@ -1,14 +1,10 @@
 # ---------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2012-09-18 23:01:36 $
+# Programmer:  Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
-# ---------------------------------------------------------------
-# Copyright (c) 2007, The Regents of the University of California.
-# Produced at the Lawrence Livermore National Laboratory.
+# Copyright (c) 2013, Southern Methodist University.
 # All rights reserved.
 # For details, see the LICENSE file.
-# ---------------------------------------------------------------
+# -----------------------------------------------------------------
 # CMakeLists.txt file for ARKODE C++ parallel examples
 
 

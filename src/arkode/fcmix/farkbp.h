@@ -1,11 +1,12 @@
 /*---------------------------------------------------------------
-  $Revision: 1.0 $
-  $Date: $
- ---------------------------------------------------------------- 
-  Programmer(s): Daniel R. Reynolds @ SMU
+ Programmer(s): Daniel R. Reynolds @ SMU
  ----------------------------------------------------------------
-  This is the Fortran interface include file for the BAND
-  preconditioner (ARKBANDPRE).
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
+ This is the Fortran interface include file for the BAND
+ preconditioner (ARKBANDPRE).
  --------------------------------------------------------------*/
 
 /*===============================================================

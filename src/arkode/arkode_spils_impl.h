@@ -1,12 +1,13 @@
 /*---------------------------------------------------------------
- $Revision: 1.0 $
- $Date:  $
------------------------------------------------------------------ 
  Programmer(s): Daniel R. Reynolds @ SMU
------------------------------------------------------------------
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
  Common implementation header file for the scaled, preconditioned
  linear solver modules.
----------------------------------------------------------------*/
+ --------------------------------------------------------------*/
 
 #ifndef _ARKSPILS_IMPL_H
 #define _ARKSPILS_IMPL_H

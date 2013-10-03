@@ -1,13 +1,14 @@
 /*---------------------------------------------------------------
- $Revision: 1.0 $
- $Date:  $
------------------------------------------------------------------ 
  Programmer(s): Daniel R. Reynolds @ SMU
------------------------------------------------------------------
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
  This file contains implementations of the banded difference
  quotient Jacobian-based preconditioner and solver routines for
  use with the ARKSPILS linear solvers..
----------------------------------------------------------------*/
+ --------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>

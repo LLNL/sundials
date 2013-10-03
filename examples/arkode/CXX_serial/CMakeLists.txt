@@ -1,14 +1,10 @@
 # ---------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2012-09-18 23:01:37 $
+# Programmer:  Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
-# ---------------------------------------------------------------
-# Copyright (c) 2007, The Regents of the University of California.
-# Produced at the Lawrence Livermore National Laboratory.
+# Copyright (c) 2013, Southern Methodist University.
 # All rights reserved.
 # For details, see the LICENSE file.
-# ---------------------------------------------------------------
+# -----------------------------------------------------------------
 # CMakeLists.txt file for ARKODE serial examples
 
 # Add variable ARKODE_examples with the names of the serial ARKODE examples

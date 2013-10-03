@@ -1,14 +1,10 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2007-01-29 17:36:28 $
+# Programmer(s): Daniel R. Reynolds @ SMU
 # -----------------------------------------------------------------
-# Programmer(s): Radu Serban and Aaron Collier @ LLNL
-# -----------------------------------------------------------------
-# Copyright (c) 2002, The Regents of the University of California.
-# Produced at the Lawrence Livermore National Laboratory.
+# Copyright (c) 2013, Southern Methodist University.
 # All rights reserved.
 # For details, see the LICENSE file.
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------
 # Makefile for parallel grid NVECTOR module
 #
 # @configure_input@

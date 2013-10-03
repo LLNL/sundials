@@ -1,49 +1,43 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: $
- * $Date: $
- * ----------------------------------------------------------------- 
- * Programmer(s): Daniel R. Reynolds @ SMU
- * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
- * Produced at the Lawrence Livermore National Laboratory.
- * All rights reserved.
- * For details, see the LICENSE file.
- * -----------------------------------------------------------------
- * This is the main header file for the MPI-enabled implementation
- * of the grid NVECTOR module.
- *
- * Part I contains declarations specific to the parallel grid
- * implementation of the supplied NVECTOR module.
- *
- * Part II defines accessor macros that allow the user to efficiently
- * use the type N_Vector without making explicit references to the
- * underlying data structure.
- *
- * Part III contains the prototype for the constructor
- * N_VNew_Parallel_Grid as well as implementation-specific prototypes
- * for various useful vector operations.
- *
- * Notes:
- *
- *   - The definition of the generic N_Vector structure can be
- *     found in the header file sundials_nvector.h.
- *
- *   - The definition of the type realtype can be found in the
- *     header file sundials_types.h, and it may be changed (at the 
- *     configuration stage) according to the user's needs. 
- *     The sundials_types.h file also contains the definition
- *     for the type booleantype.
- *
- *   - N_Vector arguments to arithmetic vector operations need not
- *     be distinct. For example, the following call:
- *
- *        N_VLinearSum_Parallel_Grid(a,x,b,y,y);
- *
- *     (which stores the result of the operation a*x+b*y in y)
- *     is legal.
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ Programmer(s): Daniel R. Reynolds @ SMU
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ -----------------------------------------------------------------
+ This is the main header file for the MPI-enabled implementation
+ of the grid NVECTOR module.
+ 
+  Part I contains declarations specific to the parallel grid
+  implementation of the supplied NVECTOR module.
+ 
+ Part II defines accessor macros that allow the user to efficiently
+ use the type N_Vector without making explicit references to the
+ underlying data structure.
+ 
+ Part III contains the prototype for the constructor
+ N_VNew_Parallel_Grid as well as implementation-specific prototypes
+ for various useful vector operations.
+ 
+ Notes:
+ 
+   - The definition of the generic N_Vector structure can be
+     found in the header file sundials_nvector.h.
+ 
+   - The definition of the type realtype can be found in the
+     header file sundials_types.h, and it may be changed (at the 
+     configuration stage) according to the user's needs. 
+     The sundials_types.h file also contains the definition
+     for the type booleantype.
+ 
+   - N_Vector arguments to arithmetic vector operations need not
+     be distinct. For example, the following call:
+ 
+        N_VLinearSum_Parallel_Grid(a,x,b,y,y);
+ 
+     (which stores the result of the operation a*x+b*y in y)
+     is legal.
+ ---------------------------------------------------------------*/
 
 #ifndef _NVECTOR_PARALLEL_GRID_H
 #define _NVECTOR_PARALLEL_GRID_H

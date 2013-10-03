@@ -1,9 +1,10 @@
 /*---------------------------------------------------------------
- $Revision: 1.0 $
- $Date:  $
------------------------------------------------------------------ 
  Programmer(s): Daniel R. Reynolds @ SMU
------------------------------------------------------------------
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
  This is the header file for the ARKBBDPRE module, for a
  band-block-diagonal preconditioner, i.e. a block-diagonal
  matrix with banded blocks, for use with ARKSPGMR, ARKSPBCG, 
@@ -95,7 +96,7 @@
     backsolve calls, where nlinsetups and npsolves are
     integrator/ARKSPGMR/ARKSPBCG/ARKSPTFQMR/ARKSPFGMR/ARKPCG 
     optional outputs.
----------------------------------------------------------------*/
+ --------------------------------------------------------------*/
 
 #ifndef _ARKBBDPRE_H
 #define _ARKBBDPRE_H

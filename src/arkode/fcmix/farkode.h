@@ -1,11 +1,12 @@
 /*---------------------------------------------------------------
-  $Revision: 1.0 $
-  $Date: $
- ---------------------------------------------------------------- 
-  Programmer(s): Daniel R. Reynolds @ SMU
+ Programmer(s): Daniel R. Reynolds @ SMU
  ----------------------------------------------------------------
-  This is the header file for FARKODE, the Fortran interface to
-  the ARKODE package.                                            
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
+ This is the header file for FARKODE, the Fortran interface to
+ the ARKODE package.                                            
  --------------------------------------------------------------*/
 
 /*===============================================================

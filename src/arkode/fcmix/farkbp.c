@@ -1,13 +1,14 @@
 /*---------------------------------------------------------------
-  $Revision: 1.0 $
-  $Date: $
- ---------------------------------------------------------------- 
-  Programmer(s): Daniel R. Reynolds @ SMU
+ Programmer(s): Daniel R. Reynolds @ SMU
  ----------------------------------------------------------------
-  This module contains the routines necessary to interface with 
-  the ARKBANDPRE module and user-supplied Fortran routines. The 
-  routines here call the generically named routines and provide 
-  a standard interface to the C code of the ARKBANDPRE package.
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
+ This module contains the routines necessary to interface with 
+ the ARKBANDPRE module and user-supplied Fortran routines. The 
+ routines here call the generically named routines and provide 
+ a standard interface to the C code of the ARKBANDPRE package.
  --------------------------------------------------------------*/
 
 #include <stdio.h>

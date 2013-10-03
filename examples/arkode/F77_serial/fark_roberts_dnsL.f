@@ -1,6 +1,9 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.0 $
-C     $Date: $
+C     Programmer(s): Daniel R. Reynolds @ SMU
+C     ----------------------------------------------------------------
+C     Copyright (c) 2013, Southern Methodist University.
+C     All rights reserved.
+C     For details, see the LICENSE file.
 C     ----------------------------------------------------------------
 C     FARKODE Example Problem: Robertson kinetics, Lapack linear solver
 C                             with dense user Jacobian.

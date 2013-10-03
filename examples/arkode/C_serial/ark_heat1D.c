@@ -1,9 +1,10 @@
 /*---------------------------------------------------------------
- $Revision: $
- $Date: $
------------------------------------------------------------------
  Programmer(s): Daniel R. Reynolds @ SMU
------------------------------------------------------------------
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
  Example problem:
  
  The following test simulates a simple 1D heat equation,

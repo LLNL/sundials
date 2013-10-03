@@ -1,11 +1,9 @@
 /*-----------------------------------------------------------------
- $Revision: 1.0 $
- $Date: $
- -----------------------------------------------------------------
- Programmer(s): 
-  CVODE version: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
-                 Radu Serban  @ LLNL
-  ARKODE version: Daniel R. Reynolds @ SMU
+ Programmer(s): Daniel R. Reynolds @ SMU
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
  -----------------------------------------------------------------
  Example problem:
 

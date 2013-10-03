@@ -1,22 +1,23 @@
-/* -----------------------------------------------------------------
- * $Revision: $
- * $Date: $
- * -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
- * -----------------------------------------------------------------
- * Example problem:
- * 
- * The following is a simple example problem with analytical 
- * solution,
- *     dy/dt = (t+1)*exp(-y)
- * for t in the interval [0.0, 10.0], with initial condition: y=0. 
- * This has analytical solution 
- *      y(t) = log(0.5*t^2 + t + 1)
- * 
- * This program solves the problem with the ERK method.
- * Output is printed every 1.0 units of time (10 total).
- * Run statistics (optional outputs) are printed at the end.
- * -----------------------------------------------------------------*/
+/*-----------------------------------------------------------------
+ Programmer(s): Daniel R. Reynolds @ SMU
+ -----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
+ Example problem:
+ 
+ The following is a simple example problem with analytical 
+ solution,
+     dy/dt = (t+1)*exp(-y)
+ for t in the interval [0.0, 10.0], with initial condition: y=0. 
+ This has analytical solution 
+      y(t) = log(0.5*t^2 + t + 1)
+ 
+ This program solves the problem with the ERK method.
+ Output is printed every 1.0 units of time (10 total).
+ Run statistics (optional outputs) are printed at the end.
+ -----------------------------------------------------------------*/
 
 /* Header files */
 #include <stdio.h>

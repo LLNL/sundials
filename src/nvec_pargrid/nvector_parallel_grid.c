@@ -1,19 +1,13 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: $
- * $Date: $
- * -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
- * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
- * Produced at the Lawrence Livermore National Laboratory.
- * All rights reserved.
- * For details, see the LICENSE file.
- * -----------------------------------------------------------------
- * This is the implementation file for a grid parallel MPI 
- * implementation of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ Programmer(s): Daniel R. Reynolds @ SMU
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ -----------------------------------------------------------------
+ This is the implementation file for a grid parallel MPI 
+ implementation of the NVECTOR package.
+ ---------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>

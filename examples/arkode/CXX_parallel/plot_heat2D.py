@@ -1,6 +1,13 @@
 #!/usr/bin/env python
+# ----------------------------------------------------------------
+# Programmer(s):  Daniel R. Reynolds @ SMU
+# ----------------------------------------------------------------
+# Copyright (c) 2013, Southern Methodist University.
+# All rights reserved.
+# For details, see the LICENSE file.
+# ----------------------------------------------------------------
 # matplotlib-based plotting script for heat2D.cpp example
-# Daniel R. Reynolds, reynolds@smu.edu
+# ----------------------------------------------------------------
 
 # imports
 import sys

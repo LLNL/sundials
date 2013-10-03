@@ -1,12 +1,13 @@
 /*---------------------------------------------------------------
- $Revision: 1.0 $
- $Date:  $
------------------------------------------------------------------ 
  Programmer(s): Daniel R. Reynolds @ SMU
------------------------------------------------------------------
+ ----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
  This is the header file for the ARKODE scaled preconditioned 
  TFQMR linear solver, ARKSPTFQMR.
----------------------------------------------------------------*/
+ --------------------------------------------------------------*/
 
 #ifndef _ARKSPTFQMR_H
 #define _ARKSPTFQMR_H

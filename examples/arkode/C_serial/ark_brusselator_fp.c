@@ -1,49 +1,50 @@
-/* -----------------------------------------------------------------
- * $Revision: $
- * $Date: $
- * -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
- * -----------------------------------------------------------------
- * Example problem:
- * 
- * The following test simulates a brusselator problem from chemical 
- * kinetics.  This is an ODE system with 3 components, Y = [u,v,w], 
- * satisfying the equations,
- *    du/dt = a - (w+1)*u + v*u^2
- *    dv/dt = w*u - v*u^2
- *    dw/dt = (b-w)/ep - w*u
- * for t in the interval [0.0, 10.0], with initial conditions 
- * Y0 = [u0,v0,w0]. 
- * 
- * We have 3 different testing scenarios:
- *
- * Test 1:  u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
- *    Here, all three components exhibit a rapid transient change 
- *    during the first 0.2 time units, followed by a slow and 
- *    smooth evolution.
- *
- * Test 2:  u0=1.2,  v0=3.1,  w0=3,  a=1,  b=3.5,  ep=5.0e-6
- *    Here, w experiences a fast initial transient, jumping 0.5 
- *    within a few steps.  All values proceed smoothly until 
- *    around t=6.5, when both u and v undergo a sharp transition, 
- *    with u increaseing from around 0.5 to 5 and v decreasing 
- *    from around 6 to 1 in less than 0.5 time units.  After this
- *    transition, both u and v continue to evolve somewhat 
- *    rapidly for another 1.4 time units, and finish off smoothly.
- *
- * Test 3:  u0=3,  v0=3,  w0=3.5,  a=0.5,  b=3,  ep=5.0e-4
- *    Here, all components undergo very rapid initial transients 
- *    during the first 0.3 time units, and all then proceed very 
- *    smoothly for the remainder of the simulation.
- *
- * This file is hard-coded to use test 3.
- * 
- * This program solves the problem with the ARK method, using an
- * accelerated fixed-point iteration for the nonlinear solver.
- *
- * 100 outputs are printed at equal intervals, and run statistics 
- * are printed at the end.
- * -----------------------------------------------------------------*/
+/*-----------------------------------------------------------------
+ Programmer(s): Daniel R. Reynolds @ SMU
+ -----------------------------------------------------------------
+ Copyright (c) 2013, Southern Methodist University.
+ All rights reserved.
+ For details, see the LICENSE file.
+ ----------------------------------------------------------------
+ Example problem:
+ 
+ The following test simulates a brusselator problem from chemical 
+ kinetics.  This is an ODE system with 3 components, Y = [u,v,w], 
+ satisfying the equations,
+    du/dt = a - (w+1)*u + v*u^2
+    dv/dt = w*u - v*u^2
+    dw/dt = (b-w)/ep - w*u
+ for t in the interval [0.0, 10.0], with initial conditions 
+ Y0 = [u0,v0,w0]. 
+ 
+ We have 3 different testing scenarios:
+
+ Test 1:  u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
+    Here, all three components exhibit a rapid transient change 
+    during the first 0.2 time units, followed by a slow and 
+    smooth evolution.
+
+ Test 2:  u0=1.2,  v0=3.1,  w0=3,  a=1,  b=3.5,  ep=5.0e-6
+    Here, w experiences a fast initial transient, jumping 0.5 
+    within a few steps.  All values proceed smoothly until 
+    around t=6.5, when both u and v undergo a sharp transition, 
+    with u increaseing from around 0.5 to 5 and v decreasing 
+    from around 6 to 1 in less than 0.5 time units.  After this
+    transition, both u and v continue to evolve somewhat 
+    rapidly for another 1.4 time units, and finish off smoothly.
+
+ Test 3:  u0=3,  v0=3,  w0=3.5,  a=0.5,  b=3,  ep=5.0e-4
+    Here, all components undergo very rapid initial transients 
+    during the first 0.3 time units, and all then proceed very 
+    smoothly for the remainder of the simulation.
+
+ This file is hard-coded to use test 3.
+ 
+ This program solves the problem with the ARK method, using an
+ accelerated fixed-point iteration for the nonlinear solver.
+
+ 100 outputs are printed at equal intervals, and run statistics 
+ are printed at the end.
+ -----------------------------------------------------------------*/
 
 /* Header files */
 #include <stdio.h>
