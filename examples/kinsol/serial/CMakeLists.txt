@@ -20,6 +20,7 @@ SET(KINSOL_examples
   kinKrylovDemo_ls
   kinLaplace_bnd
   kinLaplace_picard_bnd
+  kinRoberts_fp
   kinRoboKin_dns
   )
 
