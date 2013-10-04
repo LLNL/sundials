@@ -5,6 +5,7 @@ List of serial KINSOL examples
   kinKrylovDemo_ls:        demonstration program with 3 Krylov solvers
   kinLaplace_bnd:          2-D elliptic PDE (BAND)
   kinLaplace_picard_bnd:   2-D elliptic PDE (Accelerated Picard solver, BAND)
+  kinRoberts_fp:           3-eqn chemical kinetics, accelerated fixed point
   kinRoboKin_dns:          Robot kinematics problem (DENSE)
 
 Sample result:
