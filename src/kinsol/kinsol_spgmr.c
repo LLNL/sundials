@@ -356,7 +356,6 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
     KINPrintInfo(kin_mem, PRNT_NLI, "KINSPGMR", "KINSpgmrSolve", INFO_NLI, nli_inc);
 
   if (ret != 0) ncfl++;
-
   last_flag = ret;
 
   if ( (ret != 0) && (ret != SPGMR_RES_REDUCED) ) {
@@ -378,7 +377,6 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
       return(-1);
       break;
     }
-
   }
 
   /*  SpgmrSolve returned either SPGMR_SUCCESS or SPGMR_RES_REDUCED.
@@ -411,9 +409,7 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   if (printfl > 2) KINPrintInfo(kin_mem, PRNT_EPS, "KINSPGMR",
                      "KINSpgmrSolve", INFO_EPS, res_norm, eps);
 
-  last_flag = SPGMR_SUCCESS;
   return(0);
- 
 }
 
 /*

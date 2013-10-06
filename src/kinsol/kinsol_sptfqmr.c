@@ -355,7 +355,6 @@ static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
     KINPrintInfo(kin_mem, PRNT_NLI, "KINSPTFQMR", "KINSptfqmrSolve", INFO_NLI, nli_inc);
 
   if (ret != 0) ncfl++;
-
   last_flag = ret;
 
   if ( (ret != 0) && (ret != SPTFQMR_RES_REDUCED) ) {
@@ -374,7 +373,6 @@ static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
       return(-1);
       break;
     }
-
   }
 
   /*  SptfqmrSolve returned either SPTFQMR_SUCCESS or SPTFQMR_RES_REDUCED.
@@ -407,9 +405,7 @@ static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   if (printfl > 2) KINPrintInfo(kin_mem, PRNT_EPS, "KINSPTFQMR",
                      "KINSptfqmrSolve", INFO_EPS, res_norm, eps);
 
-  last_flag = SPTFQMR_SUCCESS;
   return(0);
-
 }
 
 /*

@@ -358,7 +358,6 @@ static int KINSpbcgSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
     KINPrintInfo(kin_mem, PRNT_NLI, "KINSPBCG", "KINSpbcgSolve", INFO_NLI, nli_inc);
 
   if (ret != 0) ncfl++;
-
   last_flag = ret;
 
   if ( (ret != 0) && (ret != SPBCG_RES_REDUCED) ) {
@@ -377,7 +376,6 @@ static int KINSpbcgSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
       return(-1);
       break;
     }
-
   }
 
   /*  SpbcgSolve returned either SPBCG_SUCCESS or SPBCG_RES_REDUCED.
@@ -410,9 +408,7 @@ static int KINSpbcgSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   if (printfl > 2) KINPrintInfo(kin_mem, PRNT_EPS, "KINSPBCG",
                      "KINSpbcgSolve", INFO_EPS, res_norm, eps);
 
-  last_flag = SPBCG_SUCCESS;
   return(0);
-
 }
 
 /*
