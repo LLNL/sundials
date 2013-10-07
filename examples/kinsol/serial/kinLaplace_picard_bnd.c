@@ -35,8 +35,8 @@
 
 #define NX   31             /* no. of points in x direction */
 #define NY   31             /* no. of points in y direction */
-//#define NX   3             /* no. of points in x direction */
-//#define NY   3             /* no. of points in y direction */
+/* #define NX   3 */             /* no. of points in x direction */
+/* #define NY   3 */            /* no. of points in y direction */
 #define NEQ  NX*NY          /* problem dimension */
 
 #define SKIP 3              /* no. of points skipped for printing */
@@ -321,7 +321,7 @@ static void PrintOutput(N_Vector u)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
       printf("%-8.5Lf ", x);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%-8.5lf ", x);
+      printf("%-8.5f ", x);
 #else
       printf("%-8.5f ", x);
 #endif
@@ -333,7 +333,7 @@ static void PrintOutput(N_Vector u)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
       printf("%-8.5Lf    ", y);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%-8.5lf    ", y);
+      printf("%-8.5f    ", y);
 #else
       printf("%-8.5f    ", y);
 #endif
@@ -341,7 +341,7 @@ static void PrintOutput(N_Vector u)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
       printf("%-8.5Lf ", IJth(udata,i,j));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-      printf("%-8.5lf ", IJth(udata,i,j));
+      printf("%-8.5f ", IJth(udata,i,j));
 #else
       printf("%-8.5f ", IJth(udata,i,j));
 #endif
