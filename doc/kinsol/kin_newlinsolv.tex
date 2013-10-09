@@ -109,8 +109,12 @@ The type definition of \id{lsetup} is
 }
 {
   The job of \id{lsetup} is to prepare the linear solver for subsequent 
-  calls to \id{lsolve}, in the solution of systems $J x = b$, where         
-  $J$ is the Jacobian $J = \partial F / \partial u$.
+  calls to \id{lsolve}, in the solution of linear systems $A x = b$.
+  The exact nature of this system depends on the input \id{strategy} to
+  \id{KINSol}.  In the cases \id{strategy} = \id{KIN\_NONE} or
+  \id{KIN\_LINESEARCH}, $A$ is the Jacobian $J = \partial F / \partial u$.
+  If \id{strategy} = \id{KIN\_PICARD}, $A$ is the approximate Jacobian matrix $L$.
+  If \id{strategy} = \id{KIN\_FP}, linear systems do not arise.
 
   The \id{lsetup} function may call a user-supplied function, or a function
   within the linear solver module, to compute Jacobian-related data
@@ -153,9 +157,10 @@ The type definition of \id{lsolve} is
                 &realtype *sJpnorm, realtype *sFdotJp);
 }
 {
-  The \id{lsolve} function must solve the linear system $J x = b$, where $J$ is
-  the Jacobian $J = \partial F / \partial u$, evaluated at the current iterate,
-  and the right-hand side vector $b$ is input. 
+  The \id{lsolve} function must solve the linear system $A x = b$, where $A$ is
+  either the Jacobian $J = \partial F / \partial u$ (evaluated at the current
+  iterate), or the approximate Jacobian $L$ in the case of Picard iteration.
+  The right-hand side vector $b$ is input. 
 }
 {
   \begin{args}[N\_Vector]
@@ -223,15 +228,18 @@ following the computation of the solution vector \id{x}, in which
 The values \id{sFdotJp} and \id{sFdotJp} need not be set in all cases,
 and so for maximum efficiency, the \id{lsolve} function could do these
 calculations conditionally, depending on the value of the input \id{strategy}
-to \id{KINSol}.  Specifically, \id{sFdotJp} must be computed in an
-iterative linear solver if \id{strategy} is either \id{KIN\_NONE} or
-\id{KIN\_LINESEARCH}, and the Stopping Criterion Forcing Term is Choice 1
-(the default). (See \id{KINSetEtaForm}.)  And \id{sFdotJp} must be computed
-if either  (a) \id{strategy} is \id{KIN\_LINESEARCH}, or (b) \id{lsolve}
-is an iterative linear solver and the Stopping Criterion Forcing Term
-is Choice 1 (the default).  The values of \id{strategy} and \id{etachoice}
-are available from the \id{kin\_mem} fields \id{kin\_global\_strategy}
-and \id{kin\_etaflag}, respectively.
+to \id{KINSol}, and the choice (given by \id{etachoice}) of Forcing Term
+in the Krylov iteration stopping test (see \id{KINSetEtaForm}).
+The precise conditions are as follows:  First, if \id{strategy} is
+either \id{KIN\_PICARD} or \id{KIN\_FP}, neither of these quantities
+need to be computed.  In the other cases, if the linear solver is iterative
+and \id{etachoice} = \id{KIN\_ETACHOICE1} (the default) then both
+\id{sFdotJp} and \id{sFdotJp} must be set.  If \id{strategy} is
+\id{KIN\_LINESEARCH}, then \id{sFdotJp} must be set, regardless of
+the linear solver type.
+
+The values of \id{strategy} and \id{etachoice} are available from the fields
+\id{kin\_global\_strategy} and \id{kin\_etaflag} (respectively) in \id{kin\_mem}.
 
 %------------------------------------------------------------------------------
 
