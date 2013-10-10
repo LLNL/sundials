@@ -6,10 +6,10 @@ doc=$3
 
 echo "   --- Add arkode module to $tarfile"
 
-if [ $doc = "T" ]; then
-tar ufv $tarfile $distrobase/doc/arkode/ark_guide.pdf
-tar ufv $tarfile $distrobase/doc/arkode/ark_examples.pdf
-fi
+#if [ $doc = "T" ]; then
+#tar ufv $tarfile $distrobase/doc/arkode/ark_guide.pdf
+#tar ufv $tarfile $distrobase/doc/arkode/ark_examples.pdf
+#fi
 
 tar ufv $tarfile $distrobase/include/arkode/arkode.h
 tar ufv $tarfile $distrobase/include/arkode/arkode_band.h
@@ -73,46 +73,84 @@ tar ufv $tarfile $distrobase/src/arkode/fcmix/farkroot.h
 
 echo "   --- Add arkode examples to $tarfile"
 
-tar ufv $tarfile $distrobase/examples/arkode/serial/README
-tar ufv $tarfile $distrobase/examples/arkode/serial/Makefile.in
-tar ufv $tarfile $distrobase/examples/arkode/serial/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_analytic.c
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_analytic.out
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_analytic_nonlin.c
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_analytic_nonlin.out
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_analytic_sys.c
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_analytic_sys.out
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_brusselator.c
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_brusselator.out
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_brusselator1D.c
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_brusselator1D.out
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_heat1D.c
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_heat1D.out
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_robertson.c
-tar ufv $tarfile $distrobase/examples/arkode/serial/ark_robertson.out
-tar ufv $tarfile $distrobase/examples/arkode/serial/input_analytic.txt
-tar ufv $tarfile $distrobase/examples/arkode/serial/input_analytic_nonlin.txt
-tar ufv $tarfile $distrobase/examples/arkode/serial/input_analytic_sys.txt
-tar ufv $tarfile $distrobase/examples/arkode/serial/input_brusselator.txt
-tar ufv $tarfile $distrobase/examples/arkode/serial/input_brusselator1D.txt
-tar ufv $tarfile $distrobase/examples/arkode/serial/input_heat1D.txt
-tar ufv $tarfile $distrobase/examples/arkode/serial/plot_sol.py
-tar ufv $tarfile $distrobase/examples/arkode/serial/plot_sol_log.py
-tar ufv $tarfile $distrobase/examples/arkode/serial/plot_brusselator1D.py
-tar ufv $tarfile $distrobase/examples/arkode/serial/plot_heat1D.py
-tar ufv $tarfile $distrobase/examples/arkode/serial/bruss_plots.m
+tar ufv $tarfile $distrobase/examples/arkode/CXX_parallel/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/arkode/CXX_parallel/Makefile.in
+tar ufv $tarfile $distrobase/examples/arkode/CXX_parallel/README
+tar ufv $tarfile $distrobase/examples/arkode/CXX_parallel/ark_heat2D.cpp
+tar ufv $tarfile $distrobase/examples/arkode/CXX_parallel/ark_heat2D.out
+tar ufv $tarfile $distrobase/examples/arkode/CXX_parallel/plot_heat2D.py
 
-tar ufv $tarfile $distrobase/examples/arkode/fcmix_serial/README
-tar ufv $tarfile $distrobase/examples/arkode/fcmix_serial/Makefile.in
-tar ufv $tarfile $distrobase/examples/arkode/fcmix_serial/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/arkode/fcmix_serial/ark_bruss.f90
-tar ufv $tarfile $distrobase/examples/arkode/fcmix_serial/ark_bruss.ou
+tar ufv $tarfile $distrobase/examples/arkode/CXX_serial/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/arkode/CXX_serial/Makefile.in
+tar ufv $tarfile $distrobase/examples/arkode/CXX_serial/README
+tar ufv $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.cpp
+tar ufv $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.out
+tar ufv $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py
 
-tar ufv $tarfile $distrobase/examples/arkode/parallel/README
-tar ufv $tarfile $distrobase/examples/arkode/parallel/Makefile.in
-tar ufv $tarfile $distrobase/examples/arkode/parallel/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/arkode/parallel/ark_heat2D.cpp
-tar ufv $tarfile $distrobase/examples/arkode/parallel/ark_heat2D.out
-tar ufv $tarfile $distrobase/examples/arkode/parallel/input_heat2D.txt
-tar ufv $tarfile $distrobase/examples/arkode/parallel/plot_heat2D.py
+tar ufv $tarfile $distrobase/examples/arkode/C_parallel/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/arkode/C_parallel/Makefile.in
+tar ufv $tarfile $distrobase/examples/arkode/C_parallel/README
+tar ufv $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_bbd_p.c
+tar ufv $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_bbd_p.out
+tar ufv $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_p.c
+tar ufv $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_p.out
 
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/Makefile.in
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/README
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.c
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.out
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_analytic.c
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_analytic.out
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin.c
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin.out
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.c
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.out
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.c
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.out
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_fp.c
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_fp.out
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.c
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.out
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.c
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.out
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.c
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.out
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.c
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.out
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/bruss_plots.m
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/plot_brusselator1D.py
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D.py
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D_adapt.py
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/plot_sol.py
+tar ufv $tarfile $distrobase/examples/arkode/C_serial/plot_sol_log.py
+
+tar ufv $tarfile $distrobase/examples/arkode/F77_parallel/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/arkode/F77_parallel/Makefile.in
+tar ufv $tarfile $distrobase/examples/arkode/F77_parallel/README
+tar ufv $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_kry_bbd_p.f
+tar ufv $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_kry_bbd_p.out
+tar ufv $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_non_p.f
+tar ufv $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_non_p.out
+
+tar ufv $tarfile $distrobase/examples/arkode/F77_serial/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/arkode/F77_serial/Makefile.in
+tar ufv $tarfile $distrobase/examples/arkode/F77_serial/README
+tar ufv $tarfile $distrobase/examples/arkode/F77_serial/fark_diurnal_kry_bp.f
+tar ufv $tarfile $distrobase/examples/arkode/F77_serial/fark_diurnal_kry_bp.out
+tar ufv $tarfile $distrobase/examples/arkode/F77_serial/fark_roberts_dnsL.f
+tar ufv $tarfile $distrobase/examples/arkode/F77_serial/fark_roberts_dnsL.out
+
+tar ufv $tarfile $distrobase/examples/arkode/F90_parallel/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/arkode/F90_parallel/Makefile.in
+tar ufv $tarfile $distrobase/examples/arkode/F90_parallel/README
+tar ufv $tarfile $distrobase/examples/arkode/F90_parallel/fark_heat2D.f90
+tar ufv $tarfile $distrobase/examples/arkode/F90_parallel/fark_heat2D.out
+tar ufv $tarfile $distrobase/examples/arkode/F90_parallel/plot_heat2D.py
+
+tar ufv $tarfile $distrobase/examples/arkode/F90_serial/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/arkode/F90_serial/Makefile.in
+tar ufv $tarfile $distrobase/examples/arkode/F90_serial/README
+tar ufv $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss.f90
+tar ufv $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss.out
+tar ufv $tarfile $distrobase/examples/arkode/F90_serial/plot_sol.py
