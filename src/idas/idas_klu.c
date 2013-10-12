@@ -195,7 +195,12 @@ static int IDAKLUInit(IDAMem IDA_mem)
      ------------------------------------------------------------*/
   n = idasls_mem->s_JacMat->N;
 
-  klu_defaults(&(klu_data->s_Common));
+  retval = klu_defaults(&(klu_data->s_Common));
+  if (retval == 0) {
+    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLUInit", 
+		    MSGSP_PACKAGE_FAIL);
+    return(IDASLS_PACKAGE_FAIL);
+  }
 
   /* Use the COLAMD ordering, although this should get changed to a user option */
   klu_data->s_Common.ordering = 1;
@@ -219,7 +224,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 		       N_Vector rrp, N_Vector tmp1, N_Vector tmp2,
 		       N_Vector tmp3)
 {
-  int retval, last_flag, info;
+  int retval, last_flag;
   realtype tn, cj;
   IDASlsMem idasls_mem;
   IDASlsSparseJacFn jaceval;
@@ -268,6 +273,11 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
        ------------------------------------------------------------*/ 
     klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->colptrs, JacMat->rowvals, 
 				     &(klu_data->s_Common));
+    if (klu_data->s_Symbolic == NULL) {
+      IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLUSetup", 
+		      MSGSP_PACKAGE_FAIL);
+      return(IDASLS_PACKAGE_FAIL);
+    }
 
     idasls_mem->s_first_factorize = 0;
   }
@@ -278,10 +288,13 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, JacMat->data, 
 				   klu_data->s_Symbolic, &(klu_data->s_Common));
 
-  if (info != 0) {
-    last_flag = info;
-    return(+1);
+  if (klu_data->s_Numeric == NULL) {
+    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLUSetup", 
+		    MSGSP_PACKAGE_FAIL);
+    return(IDASLS_PACKAGE_FAIL);
   }
+
+
   last_flag = IDASLS_SUCCESS;
 
   return(0);
@@ -329,7 +342,6 @@ static int IDAKLUSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
 static int IDAKLUFree(IDAMem IDA_mem)
 {
-  int lwork = 0;
   IDASlsMem idasls_mem;
   KLUData klu_data;
   
@@ -338,6 +350,8 @@ static int IDAKLUFree(IDAMem IDA_mem)
 
   klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
   klu_free_symbolic(&(klu_data->s_Symbolic), &(klu_data->s_Common));
+
+  free(klu_data->s_Symbolic);
 
   if (idasls_mem->s_JacMat) {
     DestroySparseMat(idasls_mem->s_JacMat);

@@ -42,11 +42,12 @@ extern "C" {
 #define IDASLS_ILL_INPUT        -3
 #define IDASLS_MEM_FAIL         -4
 #define IDASLS_JAC_NOSET        -5
+#define IDASLS_PACKAGE_FAIL     -6
 
 /* Additional last_flag values */
 
-#define IDASLS_JACFUNC_UNRECVR  -6
-#define IDASLS_JACFUNC_RECVR    -7
+#define IDASLS_JACFUNC_UNRECVR  -7
+#define IDASLS_JACFUNC_RECVR    -8
 
 /* Return values for the adjoint module */
 #define IDASLS_NO_ADJ           -101

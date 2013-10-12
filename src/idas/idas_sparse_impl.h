@@ -104,6 +104,7 @@ typedef struct IDASlsMemRecB {
 #define MSGSP_LMEM_NULL "Linear solver memory is NULL."
 #define MSGSP_JAC_NOSET "Jacobian evaluation function has not been set."
 #define MSGSP_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
+#define MSGSP_PACKAGE_FAIL "A call to an external package failed."
 
 #define MSGSP_CAMEM_NULL "idaadj_mem = NULL illegal."
 #define MSGSP_LMEMB_NULL "Linear solver memory is NULL for the backward integration."

@@ -103,7 +103,7 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int m, int n, int nnz)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  /* Test if the NVECTOR package is compatible with the DENSE solver */
+  /* Test if the NVECTOR package is compatible with the Direct solver */
   if(IDA_mem->ida_tempv1->ops->nvgetarraypointer == NULL ||
      IDA_mem->ida_tempv1->ops->nvsetarraypointer == NULL) {
     IDAProcessError(IDA_mem, IDASLS_ILL_INPUT, "IDASSLS", "IDASuperLUMT", 
@@ -263,7 +263,7 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   int nprocs, panel_size, relax, permc_spec, lwork;
   int *perm_r, *perm_c;
   long int retfac;
-  double tn, cj;
+  realtype tn, cj;
   double diag_pivot_thresh, drop_tol;
   fact_t fact;
   trans_t trans;
@@ -557,7 +557,7 @@ int IDASuperLUMTB(void *ida_mem, int num_threads, int which, int m, int n,
 }
 
 /*
- * IDADSuperLUMTFreeB frees the linear solver's memory for that backward problem passed 
+ * IDASuperLUMTFreeB frees the linear solver's memory for that backward problem passed 
  * as argument. 
  */
 
