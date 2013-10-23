@@ -32,13 +32,17 @@ tar ufv $tarfile $distrobase/config/cust_general.m4
 
 tar ufv $tarfile $distrobase/config/CheckFortranFunctionExists.cmake
 tar ufv $tarfile $distrobase/config/SundialsFortran.cmake
+tar ufv $tarfile $distrobase/config/SundialsFortran90.cmake
+tar ufv $tarfile $distrobase/config/SundialsCXX.cmake
 tar ufv $tarfile $distrobase/config/SundialsLapack.cmake
+tar ufv $tarfile $distrobase/config/SundialsSuperLU.cmake
 tar ufv $tarfile $distrobase/config/SundialsMPIC.cmake
+tar ufv $tarfile $distrobase/config/SundialsMPICXX.cmake
 tar ufv $tarfile $distrobase/config/SundialsMPIF.cmake
 tar ufv $tarfile $distrobase/config/FindLAPACK.cmake
 tar ufv $tarfile $distrobase/config/FindBLAS.cmake
 tar ufv $tarfile $distrobase/config/FindMPI.cmake
-
+tar ufv $tarfile $distrobase/config/FindSUPERLU.cmake
 
 #tar ufv $tarfile $distrobase/config/sundials.spec
 
@@ -55,6 +59,7 @@ tar ufv $tarfile $distrobase/include/sundials/sundials_nvector.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_fnvector.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_dense.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_direct.h
+tar ufv $tarfile $distrobase/include/sundials/sundials_sparse.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_band.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_lapack.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_spgmr.h
@@ -64,6 +69,8 @@ tar ufv $tarfile $distrobase/include/sundials/sundials_iterative.h
 
 tar ufv $tarfile $distrobase/include/nvector/nvector_serial.h
 tar ufv $tarfile $distrobase/include/nvector/nvector_parallel.h
+tar ufv $tarfile $distrobase/include/nvector/nvector_pthreads.h
+tar ufv $tarfile $distrobase/include/nvector/nvector_openmp.h
 
 tar ufv $tarfile $distrobase/src/sundials/README
 tar ufv $tarfile $distrobase/src/sundials/Makefile.in
@@ -72,6 +79,7 @@ tar ufv $tarfile $distrobase/src/sundials/sundials_math.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_nvector.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_dense.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_direct.c
+tar ufv $tarfile $distrobase/src/sundials/sundials_sparse.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_band.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_spgmr.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_spbcgs.c
@@ -96,13 +104,46 @@ tar ufv $tarfile $distrobase/src/nvec_par/fnvector_parallel.h
 tar ufv $tarfile $distrobase/src/nvec_par/nvector_parallel.c
 tar ufv $tarfile $distrobase/src/nvec_par/fnvector_parallel.c
 
+echo "   --- Add nvecopenmp module to $tarfile"
+
+tar ufv $tarfile $distrobase/src/nvec_openmp/README
+tar ufv $tarfile $distrobase/src/nvec_openmp/CMakeLists.txt
+tar ufv $tarfile $distrobase/src/nvec_openmp/nvector_openmp.c
+
+echo "   --- Add nvecpthreads module to $tarfile"
+
+tar ufv $tarfile $distrobase/src/nvec_pthreads/README
+tar ufv $tarfile $distrobase/src/nvec_pthreads/CMakeLists.txt
+tar ufv $tarfile $distrobase/src/nvec_pthreads/nvector_pthreads.c
+
+echo "   --- Add nvector examples to $tarfile"
+
+tar ufv $tarfile $distrobase/examples/nvector/serial/test_nvector_serial.c
+tar ufv $tarfile $distrobase/examples/nvector/serial/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/nvector/parallel/test_nvector_mpi.c
+tar ufv $tarfile $distrobase/examples/nvector/parallel/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/nvector/openmp/test_nvector_openmp.c
+tar ufv $tarfile $distrobase/examples/nvector/openmp/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/nvector/pthreads/test_nvector_pthreads.c
+tar ufv $tarfile $distrobase/examples/nvector/pthreads/CMakeLists.txt
+tar ufv $tarfile $distrobase/examples/nvector/test_nvector.c
+tar ufv $tarfile $distrobase/examples/nvector/test_nvector.h
+
 echo "   --- Add directory with example Makefile templates to $tarfile"
 
 tar ufv $tarfile $distrobase/examples/templates/cmakelists_parallel_C_ex.in
 tar ufv $tarfile $distrobase/examples/templates/cmakelists_parallel_F77_ex.in
+tar ufv $tarfile $distrobase/examples/templates/cmakelists_parallel_CXX_ex.in
 tar ufv $tarfile $distrobase/examples/templates/cmakelists_serial_C_ex.in
 tar ufv $tarfile $distrobase/examples/templates/cmakelists_serial_F77_ex.in
+tar ufv $tarfile $distrobase/examples/templates/cmakelists_serial_CXX_ex.in
+tar ufv $tarfile $distrobase/examples/templates/cmakelists_openmp_C_ex.in
+tar ufv $tarfile $distrobase/examples/templates/cmakelists_pthreads_C_ex.in
 tar ufv $tarfile $distrobase/examples/templates/makefile_parallel_C_ex.in
 tar ufv $tarfile $distrobase/examples/templates/makefile_parallel_F77_ex.in
+tar ufv $tarfile $distrobase/examples/templates/makefile_parallel_CXX_ex.in
 tar ufv $tarfile $distrobase/examples/templates/makefile_serial_C_ex.in
 tar ufv $tarfile $distrobase/examples/templates/makefile_serial_F77_ex.in
+tar ufv $tarfile $distrobase/examples/templates/makefile_serial_CXX_ex.in
+tar ufv $tarfile $distrobase/examples/templates/makefile_openmp_C_ex.in
+tar ufv $tarfile $distrobase/examples/templates/makefile_pthreads_C_ex.in
