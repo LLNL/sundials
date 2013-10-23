@@ -17,12 +17,14 @@ tar ufv $tarfile $distrobase/include/idas/idas.h
 tar ufv $tarfile $distrobase/include/idas/idas_direct.h
 tar ufv $tarfile $distrobase/include/idas/idas_dense.h
 tar ufv $tarfile $distrobase/include/idas/idas_band.h
+tar ufv $tarfile $distrobase/include/idas/idas_sparse.h
 tar ufv $tarfile $distrobase/include/idas/idas_lapack.h
 tar ufv $tarfile $distrobase/include/idas/idas_spgmr.h
 tar ufv $tarfile $distrobase/include/idas/idas_spbcgs.h
 tar ufv $tarfile $distrobase/include/idas/idas_sptfqmr.h
 tar ufv $tarfile $distrobase/include/idas/idas_spils.h
 tar ufv $tarfile $distrobase/include/idas/idas_bbdpre.h
+tar ufv $tarfile $distrobase/include/idas/idas_superlumt.h
 
 tar ufv $tarfile $distrobase/src/idas/LICENSE
 tar ufv $tarfile $distrobase/src/idas/README
@@ -36,6 +38,7 @@ tar ufv $tarfile $distrobase/src/idas/idaa_io.c
 tar ufv $tarfile $distrobase/src/idas/idas_ic.c
 tar ufv $tarfile $distrobase/src/idas/idas_direct.c
 tar ufv $tarfile $distrobase/src/idas/idas_dense.c
+tar ufv $tarfile $distrobase/src/idas/idas_sparse.c
 tar ufv $tarfile $distrobase/src/idas/idas_band.c
 tar ufv $tarfile $distrobase/src/idas/idas_lapack.c
 tar ufv $tarfile $distrobase/src/idas/idas_spils.c
@@ -45,6 +48,7 @@ tar ufv $tarfile $distrobase/src/idas/idas_sptfqmr.c
 tar ufv $tarfile $distrobase/src/idas/idas_bbdpre.c
 tar ufv $tarfile $distrobase/src/idas/idas_impl.h
 tar ufv $tarfile $distrobase/src/idas/idas_direct_impl.h
+tar ufv $tarfile $distrobase/src/idas/idas_sparse_impl.h
 tar ufv $tarfile $distrobase/src/idas/idas_spils_impl.h
 tar ufv $tarfile $distrobase/src/idas/idas_bbdpre_impl.h
 
@@ -69,6 +73,7 @@ tar ufv $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls.c
 tar ufv $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls.out
 tar ufv $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.c
 tar ufv $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.out
+tar ufv $tarfile $distrobase/examples/idas/serial/idasRoberts_sps.c
 tar ufv $tarfile $distrobase/examples/idas/serial/idasRoberts_dns.c
 tar ufv $tarfile $distrobase/examples/idas/serial/idasRoberts_dns.out
 tar ufv $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns.c

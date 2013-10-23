@@ -75,8 +75,12 @@ tar ufv $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.c
 tar ufv $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.out
 tar ufv $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.c
 tar ufv $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.out
 tar ufv $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.c
 tar ufv $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.out
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.c
+tar ufv $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.out
 
 tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/README
 tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/Makefile.in

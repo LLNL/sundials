@@ -63,8 +63,10 @@ tar ufv $tarfile $distrobase/include/sundials/sundials_sparse.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_band.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_lapack.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_spgmr.h
+tar ufv $tarfile $distrobase/include/sundials/sundials_spfgmr.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_spbcgs.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_sptfqmr.h
+tar ufv $tarfile $distrobase/include/sundials/sundials_pcg.h
 tar ufv $tarfile $distrobase/include/sundials/sundials_iterative.h
 
 tar ufv $tarfile $distrobase/include/nvector/nvector_serial.h
@@ -82,8 +84,10 @@ tar ufv $tarfile $distrobase/src/sundials/sundials_direct.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_sparse.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_band.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_spgmr.c
+tar ufv $tarfile $distrobase/src/sundials/sundials_spfgmr.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_spbcgs.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_sptfqmr.c
+tar ufv $tarfile $distrobase/src/sundials/sundials_pcg.c
 tar ufv $tarfile $distrobase/src/sundials/sundials_iterative.c
 
 echo "   --- Add nvecser module to $tarfile"
