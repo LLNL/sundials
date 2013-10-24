@@ -84,6 +84,7 @@ typedef struct ARKDlsMassMemRec {
   void *d_M_data;            /* user data is passed to djac or bjac        */
 
   DlsMat d_M;                /* mass matrix structure                      */
+  DlsMat d_M_lu;             /* mass matrix structure for LU decomposition */
 
   int *d_pivots;             /* pivots = int pivot array for PM = LU       */
   long int *d_lpivots;       /* lpivots = long int pivot array for PM = LU */

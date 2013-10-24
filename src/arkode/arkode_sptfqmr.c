@@ -499,7 +499,7 @@ int ARKMassSptfqmr(void *arkode_mem, int pretype, int maxl,
   arkspils_mem->s_P_data = ark_mem->ark_user_data;
 
   /* Set default values for the rest of the Sptfqmr parameters */
-  arkspils_mem->s_eplifac = ARKSPILS_EPLIN;
+  arkspils_mem->s_eplifac   = ARKSPILS_EPLIN;
   arkspils_mem->s_last_flag = ARKSPILS_SUCCESS;
 
   /* Disable call to msetup in ARKode solver (for now) */
@@ -569,12 +569,11 @@ static int ARKMassSptfqmrInit(ARKodeMem ark_mem)
 {
   ARKSpilsMassMem arkspils_mem;
   SptfqmrMem sptfqmr_mem;
-
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
   sptfqmr_mem = (SptfqmrMem) arkspils_mem->s_spils_mem;
 
   /* Initialize counters */
-  arkspils_mem->s_npe = arkspils_mem->s_nli = 0;
+  arkspils_mem->s_npe = arkspils_mem->s_nli  = 0;
   arkspils_mem->s_nps = arkspils_mem->s_ncfl = 0;
 
   /* Check for legal combination pretype - psolve */
@@ -610,7 +609,6 @@ static int ARKMassSptfqmrSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 {
   int  retval;
   ARKSpilsMassMem arkspils_mem;
-
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
   /* Call pset routine */
@@ -653,22 +651,17 @@ static int ARKMassSptfqmrSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 static int ARKMassSptfqmrSolve(ARKodeMem ark_mem, N_Vector b, 
 			       N_Vector weight)
 {
-  realtype bnorm, res_norm;
+  realtype res_norm;
   ARKSpilsMassMem arkspils_mem;
   SptfqmrMem sptfqmr_mem;
   int nli_inc, nps_inc, retval;
-  
+
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
   sptfqmr_mem = (SptfqmrMem) arkspils_mem->s_spils_mem;
 
-  /* Test norm(b); if small, return x = 0 */
-  arkspils_mem->s_deltar = arkspils_mem->s_eplifac * ark_mem->ark_eLTE; 
-  bnorm = N_VWrmsNorm(b, weight);
-  if (bnorm <= arkspils_mem->s_deltar) 
-    return(0);
-
   /* Set inputs delta and initial guess x = 0 to SptfqmrSolve */  
-  arkspils_mem->s_delta = arkspils_mem->s_deltar * arkspils_mem->s_sqrtN;
+  arkspils_mem->s_deltar = arkspils_mem->s_eplifac * ark_mem->ark_eLTE; 
+  arkspils_mem->s_delta  = arkspils_mem->s_deltar * arkspils_mem->s_sqrtN;
   N_VConst(ZERO, arkspils_mem->s_x);
   
   /* Call SptfqmrSolve and copy x to b */
@@ -731,7 +724,6 @@ static void ARKMassSptfqmrFree(ARKodeMem ark_mem)
 {
   ARKSpilsMassMem arkspils_mem;
   SptfqmrMem sptfqmr_mem;
-   
   arkspils_mem = (ARKSpilsMassMem) ark_mem->ark_mass_mem;
 
   N_VDestroy(arkspils_mem->s_ytemp);

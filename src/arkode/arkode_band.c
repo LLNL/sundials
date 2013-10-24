@@ -445,11 +445,19 @@ int ARKMassBand(void *arkode_mem, long int N, long int mupper,
   /* Set extended upper half-bandwith for M (required for pivoting) */
   arkdls_mem->d_smu = MIN(N-1, arkdls_mem->d_mu + arkdls_mem->d_ml);
 
-  /* Allocate memory for M and pivot arrays */
+  /* Allocate memory for M, M_lu, and pivot arrays */
   arkdls_mem->d_M = NULL;
-  arkdls_mem->d_M = NewBandMat(N, arkdls_mem->d_mu, arkdls_mem->d_ml, arkdls_mem->d_smu);
+  arkdls_mem->d_M = NewBandMat(N, arkdls_mem->d_mu, arkdls_mem->d_ml, arkdls_mem->d_mu);
   if (arkdls_mem->d_M == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKBAND", "ARKMassBand", MSGD_MEM_FAIL);
+    free(arkdls_mem); arkdls_mem = NULL;
+    return(ARKDLS_MEM_FAIL);
+  }
+  arkdls_mem->d_M_lu = NULL;
+  arkdls_mem->d_M_lu = NewBandMat(N, arkdls_mem->d_mu, arkdls_mem->d_ml, arkdls_mem->d_smu);
+  if (arkdls_mem->d_M_lu == NULL) {
+    arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKBAND", "ARKMassBand", MSGD_MEM_FAIL);
+    DestroyMat(arkdls_mem->d_M);
     free(arkdls_mem); arkdls_mem = NULL;
     return(ARKDLS_MEM_FAIL);
   }
@@ -458,6 +466,7 @@ int ARKMassBand(void *arkode_mem, long int N, long int mupper,
   if (arkdls_mem->d_lpivots == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKBAND", "ARKMassBand", MSGD_MEM_FAIL);
     DestroyMat(arkdls_mem->d_M);
+    DestroyMat(arkdls_mem->d_M_lu);
     free(arkdls_mem); arkdls_mem = NULL;
     return(ARKDLS_MEM_FAIL);
   }
@@ -521,8 +530,11 @@ static int arkMassBandSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     return(1);
   }
 
+  /* Copy M into M_lu for LU decomposition */
+  BandCopy(arkdls_mem->d_M, arkdls_mem->d_M_lu, arkdls_mem->d_mu, arkdls_mem->d_ml);
+
   /* Do LU factorization of M */
-  ier = BandGBTRF(arkdls_mem->d_M, arkdls_mem->d_lpivots);
+  ier = BandGBTRF(arkdls_mem->d_M_lu, arkdls_mem->d_lpivots);
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   if (ier > 0) {
@@ -548,7 +560,7 @@ static int arkMassBandSolve(ARKodeMem ark_mem, N_Vector b,
   realtype *bd;
   arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
   bd = N_VGetArrayPointer(b);
-  BandGBTRS(arkdls_mem->d_M, arkdls_mem->d_lpivots, bd);
+  BandGBTRS(arkdls_mem->d_M_lu, arkdls_mem->d_lpivots, bd);
   arkdls_mem->d_last_flag = ARKDLS_SUCCESS;
   return(0);
 }
@@ -566,6 +578,7 @@ static void arkMassBandFree(ARKodeMem ark_mem)
   arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
 
   DestroyMat(arkdls_mem->d_M);
+  DestroyMat(arkdls_mem->d_M_lu);
   DestroyArray(arkdls_mem->d_lpivots);
   free(arkdls_mem);
   ark_mem->ark_mass_mem = NULL;

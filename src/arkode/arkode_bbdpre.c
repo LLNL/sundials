@@ -482,7 +482,8 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   gtemp_data =  N_VGetArrayPointer(gtemp);
 
   /* Set minimum increment based on uround and norm of g */
-  gnorm = N_VWrmsNorm(gy, ark_mem->ark_ewt);
+  /* gnorm = N_VWrmsNorm(gy, ark_mem->ark_ewt); */
+  gnorm = N_VWrmsNorm(gy, ark_mem->ark_rwt);
   minInc = (gnorm != ZERO) ? (MIN_INC_MULT * ABS(ark_mem->ark_h) * 
 			      ark_mem->ark_uround * pdata->n_local * gnorm) : ONE;
 

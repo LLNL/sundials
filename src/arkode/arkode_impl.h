@@ -211,12 +211,20 @@ typedef struct ARKodeMemRec {
   int          ark_itol;       /* itol = ARK_SS (scalar, default), 
                                          ARK_SV (vector),
                                          ARK_WF (user weight function)  */
+  int          ark_ritol;      /* itol = ARK_SS (scalar, default), 
+                                         ARK_SV (vector),
+                                         ARK_WF (user weight function)  */
   realtype     ark_reltol;     /* relative tolerance                    */
-  realtype     ark_Sabstol;    /* scalar absolute tolerance             */
-  N_Vector     ark_Vabstol;    /* vector absolute tolerance             */
+  realtype     ark_Sabstol;    /* scalar absolute solution tolerance    */
+  N_Vector     ark_Vabstol;    /* vector absolute solution tolerance    */
+  realtype     ark_SRabstol;   /* scalar absolute residual tolerance    */
+  N_Vector     ark_VRabstol;   /* vector absolute residual tolerance    */
   booleantype  ark_user_efun;  /* TRUE if user sets efun                */
   ARKEwtFn     ark_efun;       /* function to set ewt                   */
   void        *ark_e_data;     /* user pointer passed to efun           */
+  booleantype  ark_user_rfun;  /* TRUE if user sets rfun                */
+  ARKRwtFn     ark_rfun;       /* function to set rwt                   */
+  void        *ark_r_data;     /* user pointer passed to rfun           */
   booleantype  ark_linear;     /* TRUE if implicit problem is linear    */
   booleantype  ark_explicit;   /* TRUE if implicit problem is disabled  */
   booleantype  ark_implicit;   /* TRUE if explicit problem is disabled  */
@@ -231,6 +239,8 @@ typedef struct ARKodeMemRec {
     other vectors of length N 
     -------------------------*/
   N_Vector ark_ewt;     /* error weight vector                               */
+  N_Vector ark_rwt;     /* residual weight vector                            */
+  booleantype ark_rwt_is_ewt;     /* TRUE if rwt is a pointer to ewt         */
   N_Vector ark_y;       /* y is used as temporary storage by the solver
 			   The memory is provided by the user to ARKode
 			   where the vector is named yout.                   */
@@ -431,6 +441,7 @@ typedef struct ARKodeMemRec {
   booleantype ark_setupNonNull; /* does ark_lsetup do anything?               */
   booleantype ark_MassSetupNonNull; /* does ark_msetup do anything?           */
   booleantype ark_VabstolMallocDone;
+  booleantype ark_VRabstolMallocDone;
   booleantype ark_MallocDone;  
   booleantype ark_resized;      /* denotes first step after ARKodeResize      */
   booleantype ark_firststage;   /* denotes first stage in simulation          */
@@ -649,6 +660,9 @@ typedef struct ARKodeMemRec {
 /* Prototype of internal ewtSet function */
 int arkEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
+/* Prototype of internal rwtSet function */
+int arkRwtSet(N_Vector ycur, N_Vector weight, void *data);
+
 /* Prototype of internal errHandler function */
 void arkErrHandler(int error_code, const char *module, 
 		   const char *function, char *msg, void *data);
@@ -707,6 +721,8 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define MSGARK_BAD_RELTOL    "reltol < 0 illegal."
 #define MSGARK_BAD_ABSTOL    "abstol has negative component(s) (illegal)."
 #define MSGARK_NULL_ABSTOL   "abstol = NULL illegal."
+#define MSGARK_BAD_RABSTOL   "rabstol has negative component(s) (illegal)."
+#define MSGARK_NULL_RABSTOL  "rabstol = NULL illegal."
 #define MSGARK_NULL_Y0       "y0 = NULL illegal."
 #define MSGARK_NULL_F        "Must specify at least one of fe, fi (both NULL)."
 #define MSGARK_NULL_G        "g = NULL illegal."
@@ -722,11 +738,15 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define MSGARK_TRET_NULL      "tret = NULL illegal."
 #define MSGARK_BAD_EWT        "Initial ewt has component(s) equal to zero (illegal)."
 #define MSGARK_EWT_NOW_BAD    "At " MSG_TIME ", a component of ewt has become <= 0."
+#define MSGARK_BAD_RWT        "Initial rwt has component(s) equal to zero (illegal)."
+#define MSGARK_RWT_NOW_BAD    "At " MSG_TIME ", a component of rwt has become <= 0."
 #define MSGARK_BAD_ITASK      "Illegal value for itask."
 #define MSGARK_BAD_H0         "h0 and tout - t0 inconsistent."
 #define MSGARK_BAD_TOUT       "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration"
 #define MSGARK_EWT_FAIL       "The user-provide EwtSet function failed."
 #define MSGARK_EWT_NOW_FAIL   "At " MSG_TIME ", the user-provide EwtSet function failed."
+#define MSGARK_RWT_FAIL       "The user-provide RwtSet function failed."
+#define MSGARK_RWT_NOW_FAIL   "At " MSG_TIME ", the user-provide RwtSet function failed."
 #define MSGARK_LINIT_FAIL     "The linear solver's init routine failed."
 #define MSGARK_LFREE_FAIL     "The linear solver's free routine failed."
 #define MSGARK_HNIL_DONE      "The above warning has been issued mxhnil times and will not be issued again for this problem."
@@ -752,6 +772,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define MSGARK_RESIZE_FAIL    "Error in user-supplied resize() function."
 #define MSGARK_MASSINIT_FAIL  "The mass matrix solver's init routine failed."
 #define MSGARK_MASSSOLVE_NULL "The mass matrix solver's solve routine is NULL."
+#define MSGARK_MASSSOLVE_FAIL "The mass matrix solver failed."
 #define MSGARK_MASSFREE_FAIL  "The mass matrixsolver's free routine failed."
 
 #ifdef __cplusplus

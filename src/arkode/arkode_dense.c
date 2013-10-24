@@ -417,12 +417,21 @@ int ARKMassDense(void *arkode_mem, long int N, ARKDlsDenseMassFn dmass)
   /* Set problem dimension */
   arkdls_mem->d_n = N;
 
-  /* Allocate memory for M and pivot array */
+  /* Allocate memory for M, M_lu, and pivot array */
   arkdls_mem->d_M = NULL;
   arkdls_mem->d_M = NewDenseMat(N, N);
   if (arkdls_mem->d_M == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDENSE", 
 		    "ARKMassDense", MSGD_MEM_FAIL);
+    free(arkdls_mem); arkdls_mem = NULL;
+    return(ARKDLS_MEM_FAIL);
+  }
+  arkdls_mem->d_M_lu = NULL;
+  arkdls_mem->d_M_lu = NewDenseMat(N, N);
+  if (arkdls_mem->d_M_lu == NULL) {
+    arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDENSE", 
+		    "ARKMassDense", MSGD_MEM_FAIL);
+    DestroyMat(arkdls_mem->d_M);
     free(arkdls_mem); arkdls_mem = NULL;
     return(ARKDLS_MEM_FAIL);
   }
@@ -432,6 +441,7 @@ int ARKMassDense(void *arkode_mem, long int N, ARKDlsDenseMassFn dmass)
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDENSE", 
 		    "ARKMassDense", MSGD_MEM_FAIL);
     DestroyMat(arkdls_mem->d_M);
+    DestroyMat(arkdls_mem->d_M_lu);
     free(arkdls_mem); arkdls_mem = NULL;
     return(ARKDLS_MEM_FAIL);
   }
@@ -496,8 +506,11 @@ static int arkMassDenseSetup(ARKodeMem ark_mem, N_Vector vtemp1,
     return(1);
   }
 
-  /* Do LU factorization of M */
-  ier = DenseGETRF(arkdls_mem->d_M, arkdls_mem->d_lpivots); 
+  /* Copy M into M_lu for LU decomposition */
+  DenseCopy(arkdls_mem->d_M, arkdls_mem->d_M_lu);
+
+  /* Do LU factorization of M_lu */
+  ier = DenseGETRF(arkdls_mem->d_M_lu, arkdls_mem->d_lpivots); 
 
   /* Return 0 if the LU was complete; otherwise return 1 */
   arkdls_mem->d_last_flag = ier;
@@ -520,7 +533,7 @@ static int arkMassDenseSolve(ARKodeMem ark_mem, N_Vector b,
   realtype *bd;
   arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
   bd = N_VGetArrayPointer(b);
-  DenseGETRS(arkdls_mem->d_M, arkdls_mem->d_lpivots, bd);
+  DenseGETRS(arkdls_mem->d_M_lu, arkdls_mem->d_lpivots, bd);
   arkdls_mem->d_last_flag = ARKDLS_SUCCESS;
   return(0);
 }
@@ -539,6 +552,7 @@ static void arkMassDenseFree(ARKodeMem ark_mem)
   arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
   
   DestroyMat(arkdls_mem->d_M);
+  DestroyMat(arkdls_mem->d_M_lu);
   DestroyArray(arkdls_mem->d_lpivots);
   free(arkdls_mem);
   ark_mem->ark_mass_mem = NULL;
