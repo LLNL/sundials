@@ -39,6 +39,7 @@ tar ufv $tarfile $distrobase/config/SundialsSuperLU.cmake
 tar ufv $tarfile $distrobase/config/SundialsMPIC.cmake
 tar ufv $tarfile $distrobase/config/SundialsMPICXX.cmake
 tar ufv $tarfile $distrobase/config/SundialsMPIF.cmake
+tar ufv $tarfile $distrobase/config/SundialsMPIF90.cmake
 tar ufv $tarfile $distrobase/config/FindLAPACK.cmake
 tar ufv $tarfile $distrobase/config/FindBLAS.cmake
 tar ufv $tarfile $distrobase/config/FindMPI.cmake
