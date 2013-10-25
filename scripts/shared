@@ -72,8 +72,6 @@ tar ufv $tarfile $distrobase/include/sundials/sundials_iterative.h
 
 tar ufv $tarfile $distrobase/include/nvector/nvector_serial.h
 tar ufv $tarfile $distrobase/include/nvector/nvector_parallel.h
-tar ufv $tarfile $distrobase/include/nvector/nvector_spcparallel.h
-tar ufv $tarfile $distrobase/include/nvector/nvector_parallel_grid.h
 tar ufv $tarfile $distrobase/include/nvector/nvector_pthreads.h
 tar ufv $tarfile $distrobase/include/nvector/nvector_openmp.h
 
@@ -110,24 +108,6 @@ tar ufv $tarfile $distrobase/src/nvec_par/CMakeLists.txt
 tar ufv $tarfile $distrobase/src/nvec_par/fnvector_parallel.h
 tar ufv $tarfile $distrobase/src/nvec_par/nvector_parallel.c
 tar ufv $tarfile $distrobase/src/nvec_par/fnvector_parallel.c
-
-echo "   --- Add nvecpargrid module to $tarfile"
-
-tar ufv $tarfile $distrobase/src/nvec_pargrid/README
-tar ufv $tarfile $distrobase/src/nvec_pargrid/Makefile.in
-tar ufv $tarfile $distrobase/src/nvec_pargrid/CMakeLists.txt
-tar ufv $tarfile $distrobase/src/nvec_pargrid/fnvector_parallel_grid.h
-tar ufv $tarfile $distrobase/src/nvec_pargrid/nvector_parallel_grid.c
-tar ufv $tarfile $distrobase/src/nvec_pargrid/fnvector_parallel_grid.c
-
-echo "   --- Add nvec_spcpar module to $tarfile"
-
-tar ufv $tarfile $distrobase/src/nvec_spcpar/README
-tar ufv $tarfile $distrobase/src/nvec_spcpar/Makefile.in
-tar ufv $tarfile $distrobase/src/nvec_spcpar/CMakeLists.txt
-tar ufv $tarfile $distrobase/src/nvec_spcpar/fnvector_spcparallel.h
-tar ufv $tarfile $distrobase/src/nvec_spcpar/nvector_spcparallel.c
-tar ufv $tarfile $distrobase/src/nvec_spcpar/fnvector_spcparallel.c
 
 echo "   --- Add nvecopenmp module to $tarfile"
 

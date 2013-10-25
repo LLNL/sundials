@@ -193,8 +193,6 @@ cp -r sundials/src/nvec_ser tmp_dir/src/
 cp -r sundials/src/nvec_par tmp_dir/src/
 cp -r sundials/src/nvec_openmp tmp_dir/src/
 cp -r sundials/src/nvec_pthreads tmp_dir/src/
-cp -r sundials/src/nvec_pargrid tmp_dir/src/
-cp -r sundials/src/nvec_spcpar tmp_dir/src/
 
 cp -r sundials/doc/sundials tmp_dir/doc/
 

@@ -712,8 +712,6 @@ ADD_SUBDIRECTORY(src/sundials)
 ADD_SUBDIRECTORY(src/nvec_ser)
 IF(MPIC_FOUND)
   ADD_SUBDIRECTORY(src/nvec_par)
-  ADD_SUBDIRECTORY(src/nvec_spcpar)
-  ADD_SUBDIRECTORY(src/nvec_pargrid)
 ENDIF(MPIC_FOUND)
 
 IF(OPENMP_FOUND)
