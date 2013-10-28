@@ -76,6 +76,7 @@ tar ufv $tarfile $distrobase/include/nvector/nvector_pthreads.h
 tar ufv $tarfile $distrobase/include/nvector/nvector_openmp.h
 
 tar ufv $tarfile $distrobase/src/sundials/README
+tar ufv $tarfile $distrobase/src/sundials/LICENSE
 tar ufv $tarfile $distrobase/src/sundials/Makefile.in
 tar ufv $tarfile $distrobase/src/sundials/CMakeLists.txt
 tar ufv $tarfile $distrobase/src/sundials/sundials_math.c
