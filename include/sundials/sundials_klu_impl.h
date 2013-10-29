@@ -6,16 +6,20 @@
  * Programmer(s): Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2013, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
- * Implementation header file for the IDAS KLU linear solver.
+ * Implementation header file for the Sundials interface to 
+ * the KLU linear solver.
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDASKLU_IMPL_H
-#define _IDASKLU_IMPL_H
+#ifndef _SUNKLU_IMPL_H
+#define _SUNKLU_IMPL_H
 
 #ifndef _S_KLU_H
 #define _S_KLU_H

@@ -17,11 +17,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sundials/sundials_math.h>
-
 #include "idas_impl.h"
 #include "idas_sparse_impl.h"
-#include "idas_klu_impl.h"
+#include "sundials/sundials_klu_impl.h"
+#include "sundials/sundials_math.h"
 
 /* Constants */
 
@@ -66,11 +65,7 @@ static void IDAKLUFreeB(IDABMem IDAB_mem);
  * IDAKLUSolve, NULL, and IDAKLUFree, respectively.
  * It allocates memory for a structure of type IDAkluMemRec and sets
  * the ida_lmem field in (*IDA_mem) to the address of this structure.
- * It sets setupNonNull in (*IDA_mem) to TRUE, sets the d_jdata field
- * in the IDAkluMemRec structure to be the input parameter jdata,
- * and sets the d_jac field to be:
- *   (1) the input parameter djac, if djac != NULL, or                
- *   (2) throws an error, if djac == NULL.                             
+ * It sets setupNonNull in (*IDA_mem) to TRUE.
  * Finally, it allocates memory for KLU.
  * The return value is IDASLS_SUCCESS = 0, IDASLS_LMEM_FAIL = -1,
  * or IDASLS_ILL_INPUT = -2.
@@ -153,8 +148,15 @@ int IDAKLU(void *ida_mem, int n, int nnz)
   klu_data->s_Numeric = (klu_numeric *)malloc(sizeof(klu_numeric));
 
   /* Set default parameters for KLU */
-  klu_defaults(&klu_data->s_Common);
+  flag = klu_defaults(&klu_data->s_Common);
+  if (flag == 0) {
+    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLU", 
+		    MSGSP_PACKAGE_FAIL);
+    return(IDASLS_PACKAGE_FAIL);
+  }
+
   /* Set ordering as COLAMD.  The default is AMD, ordering 0. */
+  /* This should get changed to a user option */
   klu_data->s_Common.ordering = 1;
 
   /* Attach linear solver memory to the integrator memory */
@@ -194,16 +196,6 @@ static int IDAKLUInit(IDAMem IDA_mem)
      Allocate storage and initialize statistics variables. 
      ------------------------------------------------------------*/
   n = idasls_mem->s_JacMat->N;
-
-  retval = klu_defaults(&(klu_data->s_Common));
-  if (retval == 0) {
-    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLUInit", 
-		    MSGSP_PACKAGE_FAIL);
-    return(IDASLS_PACKAGE_FAIL);
-  }
-
-  /* Use the COLAMD ordering, although this should get changed to a user option */
-  klu_data->s_Common.ordering = 1;
 
   idasls_mem->s_last_flag = 0;
   return(0);
@@ -359,10 +351,7 @@ static int IDAKLUFree(IDAMem IDA_mem)
   }
 
   free(klu_data); 
-  klu_data = NULL;
- 
   free(IDA_mem->ida_lmem); 
-  IDA_mem->ida_lmem = NULL;
 
   return(IDASLS_SUCCESS);
 }
