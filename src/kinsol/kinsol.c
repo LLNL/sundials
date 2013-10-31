@@ -184,7 +184,8 @@ static int  KINFP(KINMem kin_mem, long int *iter, realtype *R,
 		  realtype *gamma, realtype *fmax);
 
 static int  KINLinSolDrv(KINMem kinmem);
-static int  KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vector fval1);
+static int  KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, 
+			     N_Vector fval1);
 static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale);
 static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u);
 static int KINStop(KINMem kin_mem, booleantype maxStepTaken, 
@@ -1131,13 +1132,7 @@ static int KINSolInit(KINMem kin_mem)
   nfe = nnilset = nnilset_sub = nni = nbcf = nbktrk = 0;
 
   /* see if the initial guess uu satisfies the nonlinear system */
-  if ( strategy == KIN_PICARD ) {
-    N_VScale(ONE, uu, vtemp1);
-    retval = func(vtemp1, fval, user_data); nfe++;
-  }
-  else {
-    retval = func(uu, fval, user_data); nfe++;
-  }
+  retval = func(uu, fval, user_data); nfe++;
 
   if (retval < 0) {
     KINProcessError(kin_mem, KIN_SYSFUNC_FAIL, "KINSOL", "KINSolInit", 
@@ -2187,12 +2182,19 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
 
     iter++;
 
+    /* Update the forcing term for the inexact linear solves */
+    if (inexact_ls) {
+      eps = (eta + uround) * fnorm;
+      if(!noMinEps) eps = MAX(epsmin, eps);
+    }
+
     /* evaluate g = uu - L^{-1}func(u) and return if failed.  
        For Picard, assume that the fval vecctor has been filled 
        with an eval of the nonlinear residual prior to this call. */
     retval = KINPicardFcnEval(kin_mem, gval, uu, fval);
-
-    if (retval < 0) {
+    if (retval == 0) {
+      fOK = TRUE;
+    } else if (retval < 0) {
       fOK = FALSE;
       ret = KIN_SYSFUNC_FAIL;
       break;
@@ -2208,13 +2210,23 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
 
     /* Fill the Newton residual based on the new solution iterate */
     retval = func(unew, fval, user_data); nfe++;
-    fmax = KINScFNorm(kin_mem, fval, fscale); /* measure  || F(x) || */
+    if (retval == 0) {
+      fOK = TRUE;
+    }
+    else if (retval < 0) {
+      ret = KIN_SYSFUNC_FAIL;
+      break;
+    }
 
-    if (printfl > 1) 
-      KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINPicardAA", INFO_FMAX, fmax);
-    
+    /* Evaluate function norms */
+    *fnormp = N_VWL2Norm(fval,fscale);
+    *f1normp = HALF * (*fnormp) * (*fnormp);
+    fmax = KINScFNorm(kin_mem, fval, fscale); /* measure  || F(x) ||_max */
     fnorm = fmax;
     *fmaxptr = fmax;
+    
+    if (printfl > 1) 
+      KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINPicardAA", INFO_FMAX, fmax);
 
     /* print the current iter, fnorm, and nfe values if printfl > 0 */
     if (printfl>0)
@@ -2231,6 +2243,8 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
     if (ret == CONTINUE_ITERATIONS) { 
       /* Only update solution if taking a next iteration.  */
       N_VScale(ONE, unew, uu);
+      /* evaluate eta by calling the forcing term routine */
+      if (callForcingTerm) KINForcingTerm(kin_mem, fnormp);
     }
 
     fflush(errfp);
