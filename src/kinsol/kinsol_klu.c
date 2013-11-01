@@ -282,18 +282,35 @@ static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
   KINSlsMem kinsls_mem;
   KLUData klu_data;
   SlsMat JacMat;
-  realtype *bd;
+  realtype *xd;
   
   kinsls_mem = (KINSlsMem) kin_mem->kin_lmem;
   JacMat = kinsls_mem->s_JacMat;
 
   klu_data = (KLUData) kinsls_mem->s_solver_data;
 
-  bd = N_VGetArrayPointer(b);
+  /* Copy the right-hand side into x */
+  N_VScale(ONE, b, x);
+  xd = N_VGetArrayPointer(x);
 
   /* Call KLU to solve the linear system */
-  klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, bd, 
+  klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, xd, 
 	    &(klu_data->s_Common));
+
+  /* Compute the term sFdotJp for use in the linesearch routine.
+     This term is subsequently corrected if the step is reduced by
+     constraints or the linesearch.
+
+     sFdotJp is the dot product of the scaled f vector and the scaled
+     vector J*p, where the scaling uses fscale.                            */
+
+  /* CSW: The liens below mimic those in kinsol_dense.c but seem wrong.
+     Need to check with Alan and likely will need a matvec for matrices in 
+     CSC format.  */
+
+  N_VProd(b, fscale, b);
+  N_VProd(b, fscale, b);
+  *sFdotJp = N_VDotProd(fval, b);
 
   kinsls_mem->s_last_flag = KINSLS_SUCCESS;
   return(KINSLS_SUCCESS);
