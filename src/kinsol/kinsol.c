@@ -2166,7 +2166,7 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
   booleantype fOK;
   int retval, ret; 
   long int iter;
-  realtype fmax;
+  realtype fmax, epsmin, fnormp;
   N_Vector delta, gval;
   
   delta = kin_mem->kin_vtemp1;
@@ -2175,8 +2175,13 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
   fOK = TRUE;
   fmax = fnormtol + ONE;
   iter = 0;
+  epsmin = ZERO;
+  fnormp = -ONE;
 
   N_VConst(ZERO, gval);
+
+  /* if eps is to be bounded from below, set the bound */
+  if (inexact_ls && !noMinEps) epsmin = POINT01 * fnormtol;
 
   while (ret == CONTINUE_ITERATIONS) {
 
@@ -2219,8 +2224,7 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
     }
 
     /* Evaluate function norms */
-    *fnormp = N_VWL2Norm(fval,fscale);
-    *f1normp = HALF * (*fnormp) * (*fnormp);
+    fnormp = N_VWL2Norm(fval,fscale);
     fmax = KINScFNorm(kin_mem, fval, fscale); /* measure  || F(x) ||_max */
     fnorm = fmax;
     *fmaxptr = fmax;
