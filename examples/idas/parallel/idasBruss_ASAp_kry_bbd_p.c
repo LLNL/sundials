@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
   PrintOutput(mem, uv, tret, data, comm);
 
   /* Print each PE's portion of the solution in a separate file. */
-  //PrintSol(mem, uv, uvp, data, comm);
+  /* PrintSol(mem, uv, uvp, data, comm); */
 
   /* On PE 0, print final set of statistics. */  
   if (thispe == 0)  {
@@ -749,7 +749,7 @@ static void PrintSol(void* mem, N_Vector uv, N_Vector uvp,
                (i)*NUM_SPECIES + (j)*NSMXSUB*npex);
         
       uvxy  = IJ_Vptr(uv, ix, jy);
-      //uvxy = (&NV_Ith_P(uv, (i)*NUM_SPECIES + (j)*NSMXSUB*npex ));
+      /* uvxy = (&NV_Ith_P(uv, (i)*NUM_SPECIES + (j)*NSMXSUB*npex )); */
       fprintf(fout, "%g\n%g\n", uvxy[0], uvxy[1]);
     }
   }    
@@ -1432,7 +1432,7 @@ static int resBlocal(long int Nlocal, realtype tt,
         rrBxy[is] = uvpBxy[is] + eps[is]*( (dcxui-dcxli)/dx2 + (dcyui-dcyli)/dy2 );
       }
 
-      //now add rates
+      /* now add rates */
       rrBxy[0] += (uvBxy[0]-uvBxy[1])*(2*uvxy[0]*uvxy[1] - B) - uvBxy[0]; 
       rrBxy[1] += uvxy[0]*uvxy[0]*(uvBxy[0]-uvBxy[1]);
     }

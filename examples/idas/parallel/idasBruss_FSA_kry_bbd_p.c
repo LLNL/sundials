@@ -1155,7 +1155,7 @@ static int integr(MPI_Comm comm, N_Vector uv, void *user_data, realtype *intval)
 
   for (jy=1; jy<mysub; jy++)
     for (ix=1; ix<mxsub; ix++) 
-      //consider only u
+       /* consider only u */
       *intval += uvdata[ix*NUM_SPECIES + jy*NSMXSUB];
   *intval *= (dx*dy);
 

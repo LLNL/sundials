@@ -16,12 +16,9 @@ IF(MSVC)
   SET(PRE lib)
 ENDIF(MSVC)
 
-if (KLU_LIBRARIES)
-    #print_warning("FindKLU.cmake KLU_LIBRARIES" "${KLU_LIBRARIES}")
-    get_filename_component(KLU_LIBRARY_DIR ${KLU_LIBRARIES} PATH)
-    #print_warning("FindKLU.cmake KLU_LIBRARY_DIR" "${KLU_LIBRARY_DIR}")
-    
-else (KLU_LIBRARIES)
+if (KLU_LIBRARY)
+    get_filename_component(KLU_LIBRARY_DIR ${KLU_LIBRARY} PATH)
+else (KLU_LIBRARY)
     # SGS TODO Assumption here that all of SparseSuite is in the same dir
     # SGS TODO Not sure why this is convoluted.
     set(KLU_LIBRARY_NAME klu)
@@ -33,10 +30,16 @@ else (KLU_LIBRARIES)
         NAMES lib${KLU_LIBRARY_NAME}.so lib${KLU_LIBRARY_NAME}.a
         PATHS ${temp_KLU_LIBRARY_DIR}
         )
-    
-    FIND_LIBRARY( KLU_LIBRARIES ${PRE}klu${POST} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)
 
-    # AMD
+    mark_as_advanced(KLU_LIBRARY)
+
+    FIND_LIBRARY( KLU_LIBRARY ${PRE}klu${POST} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)
+endif (KLU_LIBRARY)
+
+
+if (AMD_LIBRARY)
+    get_filename_component(AMD_LIBRARY_DIR ${AMD_LIBRARY} PATH)
+else (AMD_LIBRARY)
     set(AMD_LIBRARY_NAME amd)
 
     # find library path using potential names for static and/or shared libs
@@ -47,9 +50,15 @@ else (KLU_LIBRARIES)
         PATHS ${temp_AMD_LIBRARY_DIR}
         )
     
-    FIND_LIBRARY( AMD_LIBRARIES ${PRE}amd${POST} ${AMD_LIBRARY_DIR} NO_DEFAULT_PATH)
+    FIND_LIBRARY( AMD_LIBRARY ${PRE}amd${POST} ${AMD_LIBRARY_DIR} NO_DEFAULT_PATH)
 
-    # COLAMD
+    mark_as_advanced(AMD_LIBRARY)
+    mark_as_advanced(AMD_LIBRARY_DIR)
+endif (AMD_LIBRARY)
+
+if (COLAMD_LIBRARY)
+    get_filename_component(COLAMD_LIBRARY_DIR ${COLAMD_LIBRARY} PATH)
+else (COLAMD_LIBRARY)
     set(COLAMD_LIBRARY_NAME colamd)
     
     # find library path using potential names for static and/or shared libs
@@ -60,10 +69,15 @@ else (KLU_LIBRARIES)
         PATHS ${temp_COLAMD_LIBRARY_DIR}
         )
     
-    FIND_LIBRARY( COLAMD_LIBRARIES ${PRE}colamd${POST} ${COLAMD_LIBRARY_DIR} NO_DEFAULT_PATH)
+    FIND_LIBRARY( COLAMD_LIBRARY ${PRE}colamd${POST} ${COLAMD_LIBRARY_DIR} NO_DEFAULT_PATH)
 
+    mark_as_advanced(COLAMD_LIBRARY)
+    mark_as_advanced(COLAMD_LIBRARY_DIR)
+endif (COLAMD_LIBRARY)
 
-    # BTF
+if (BTF_LIBRARY)
+    get_filename_component(BTF_LIBRARY_DIR ${BTF_LIBRARY} PATH)
+else (BTF_LIBRARY)
     set(BTF_LIBRARY_NAME btf)
     
     # find library path using potential names for static and/or shared libs
@@ -74,16 +88,11 @@ else (KLU_LIBRARIES)
         PATHS ${temp_BTF_LIBRARY_DIR}
         )
     
-    FIND_LIBRARY( BTF_LIBRARIES ${PRE}btf${POST} ${BTF_LIBRARY_DIR} NO_DEFAULT_PATH)
+    FIND_LIBRARY( BTF_LIBRARY ${PRE}btf${POST} ${BTF_LIBRARY_DIR} NO_DEFAULT_PATH)
 
-    LIST(APPEND KLU_LIBRARIES ${AMD_LIBRARIES})
-    LIST(APPEND KLU_LIBRARIES ${COLAMD_LIBRARIES})
-    LIST(APPEND KLU_LIBRARIES ${BTF_LIBRARIES})
-    
-    mark_as_advanced(KLU_LIBRARIES)
-    
-endif (KLU_LIBRARIES)
+    mark_as_advanced(BTF_LIBRARY)
+    mark_as_advanced(BTF_LIBRARY_DIR)
 
-# add to KLU_LIBRARIES
-set(KLU_LIBRARIES ${KLU_LIBRARIES})
+endif (BTF_LIBRARY)
 
+set(KLU_LIBRARIES ${KLU_LIBRARY} ${AMD_LIBRARY} ${COLAMD_LIBRARY} ${BTF_LIBRARY})
