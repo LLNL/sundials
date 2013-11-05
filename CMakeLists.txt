@@ -330,6 +330,17 @@ IF(NOT SUPERLU_ENABLE)
 ENDIF(NOT SUPERLU_ENABLE)
 
 # -------------------------------------------------------------
+# Enable KLU support?
+# -------------------------------------------------------------
+
+OPTION(KLU_ENABLE "Enable KLU support" OFF)
+
+IF(NOT KLU_ENABLE)
+  HIDE_VARIABLE(KLU_LIBRARY_DIR)
+  HIDE_VARIABLE(KLU_INCLUDE_DIR)
+ENDIF(NOT KLU_ENABLE)
+
+# -------------------------------------------------------------
 # Enable MPI support?
 # -------------------------------------------------------------
 
@@ -648,6 +659,37 @@ ELSE(SUPERLU_ENABLE)
   HIDE_VARIABLE(SUPERLU_LIBRARY_DIR)
 
 ENDIF(SUPERLU_ENABLE)
+
+# -------------------------------------------------------------
+# Find (and test) the KLU libraries
+# -------------------------------------------------------------
+
+# If KLU is requested, first try to find the appropriate libraries to
+# link against them.
+
+# Macro to be inserted in sundials_config.h 
+SET(KLU_MACRO "#define SUNDIALS_KLU 0")
+
+IF(KLU_ENABLE)
+
+  SHOW_VARIABLE(KLU_INCLUDE_DIR STRING "KLU include directory"
+    "${KLU_INCLUDE_DIR}") 
+  SHOW_VARIABLE(KLU_LIBRARY_DIR STRING
+    "Klu library directory" "${KLU_LIBRARY_DIR}")
+
+  INCLUDE(SundialsKLU)
+
+  IF(KLU_FOUND) 
+    SET(KLU_MACRO "#define SUNDIALS_KLU 1")
+    INCLUDE_DIRECTORIES(${KLU_INCLUDE_DIR})
+  ENDIF(KLU_FOUND)
+
+  IF(KLU_LIBRARIES AND NOT KLU_FOUND) 
+    PRINT_WARNING("KLU not functional - support will not be provided" 
+      "Double check spelling specified libraries (search is case sensitive)")
+  ENDIF(KLU_LIBRARIES AND NOT KLU_FOUND)
+
+ENDIF(KLU_ENABLE)
 
 # -------------------------------------------------------------
 # Decide how to compile MPI codes.

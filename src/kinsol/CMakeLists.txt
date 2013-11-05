@@ -27,6 +27,10 @@ SET(kinsol_SOURCES
   kinsol_bbdpre.c
   )
 
+IF(KLU_FOUND)
+    LIST(APPEND kinsol_SOURCES kinsol_klu.c)
+ENDIF()
+
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the KINSOL library
 SET(shared_SOURCES

@@ -42,6 +42,10 @@ SET(IDAS_examples_SUPERLU
   idasRoberts_sps
   )
 
+SET(IDAS_examples_KLU
+  idasRoberts_klu
+  )
+
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 
@@ -100,6 +104,20 @@ IF(SUPERLU_FOUND)
   ENDFOREACH(example ${IDAS_examples_SUPERLU})
 ENDIF(SUPERLU_FOUND)
 
+# If KLU support is enabled, add the build and install targets for
+# the examples using KLU
+IF(KLU_FOUND)
+  SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${KLU_LIBRARIES}")
+
+  FOREACH(example ${IDAS_examples_KLU})
+    ADD_EXECUTABLE(${example} ${example}.c)
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    IF(EXAMPLES_INSTALL)
+      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+    ENDIF(EXAMPLES_INSTALL)
+  ENDFOREACH(example ${IDAS_examples_KLU})
+ENDIF(KLU_FOUND)
+
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -109,16 +127,25 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "IDAS")
   SET(SOLVER_LIB "sundials_idas")
   LIST2STRING(IDAS_examples EXAMPLES)
+
   IF(LAPACK_FOUND)
     LIST2STRING(IDAS_examples_BL EXAMPLES_BL)
   ELSE(LAPACK_FOUND)
     SET(EXAMPLES_BL "")
   ENDIF(LAPACK_FOUND)
+
+  # SGS TODO what are these used for?  Don't seem to be reference anywhere
   IF(SUPERLU_FOUND)
     LIST2STRING(IDAS_examples_SUPERLU EXAMPLES_SUPERLU)
   ELSE(SUPERLU_FOUND)
     SET(EXAMPLES_SUPERLU "")
   ENDIF(SUPERLU_FOUND)
+
+  IF(KLU_FOUND)
+    LIST2STRING(IDAS_examples_KLU EXAMPLES_KLU)
+  ELSE(KLU_FOUND)
+    SET(EXAMPLES_KLU "")
+  ENDIF(KLU_FOUND)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

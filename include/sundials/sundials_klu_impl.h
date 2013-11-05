@@ -23,7 +23,7 @@
 
 #ifndef _S_KLU_H
 #define _S_KLU_H
-#include "/home/carol/KLU/KLU/Include/klu.h"
+#include "klu.h"
 #endif
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
