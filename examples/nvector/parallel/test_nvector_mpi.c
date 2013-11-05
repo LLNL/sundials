@@ -92,7 +92,9 @@ int main(int argc, char *argv[])
   if (fails) {
     printf("FAIL: NVector module failed %i tests, Proc %d \n \n", fails, myid);
   } else {
-    printf("SUCCESS: NVector module passed all tests, Proc %d \n \n",myid);
+     if(myid == 0) {
+	printf("SUCCESS: NVector module passed all tests, Proc %d \n \n",myid);
+     }
   }
   
   MPI_Finalize();
