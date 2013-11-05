@@ -56,6 +56,10 @@ IF(LAPACK_FOUND)
   SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${LAPACK_LIBRARIES}")
 ENDIF(LAPACK_FOUND)
 
+IF(KLU_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
+ENDIF(KLU_FOUND)
+
 # Add the build and install targets for each IDAS example
 
 FOREACH(example_tuple ${IDAS_examples})

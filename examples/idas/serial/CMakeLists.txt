@@ -69,6 +69,10 @@ IF(SUPERLU_FOUND)
   SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${SUPERLU_LIBRARIES}")
 ENDIF(SUPERLU_FOUND)
 
+IF(KLU_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
+ENDIF(KLU_FOUND)
+
 # Add the build and install targets for each IDAS example
 
 FOREACH(example ${IDAS_examples})
@@ -107,10 +111,9 @@ ENDIF(SUPERLU_FOUND)
 # If KLU support is enabled, add the build and install targets for
 # the examples using KLU
 IF(KLU_FOUND)
-  SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${KLU_LIBRARIES}")
-
   FOREACH(example ${IDAS_examples_KLU})
     ADD_EXECUTABLE(${example} ${example}.c)
+    ADD_TEST(${example} ${TESTRUNNER} ${example})
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)

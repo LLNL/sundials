@@ -31,6 +31,10 @@ SET(idas_SOURCES
   idas_bbdpre.c
   )
 
+IF(KLU_FOUND)
+    LIST(APPEND idas_SOURCES idas_klu.c)
+ENDIF()
+
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the IDAS library
 SET(shared_SOURCES

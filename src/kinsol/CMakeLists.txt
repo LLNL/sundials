@@ -40,6 +40,7 @@ SET(shared_SOURCES
   sundials_band.c
   sundials_dense.c
   sundials_iterative.c
+  sundials_sparse.c
   sundials_spbcgs.c
   sundials_spgmr.c
   sundials_sptfqmr.c

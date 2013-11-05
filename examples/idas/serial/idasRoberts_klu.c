@@ -288,9 +288,9 @@ static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
   printf("Initial conditions y0 = (%Lg %Lg %Lg)\n",
          yval[0], yval[1], yval[2]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters:  rtol = %lg   atol = %lg %lg %lg \n",
+  printf("Tolerance parameters:  rtol = %g   atol = %g %g %g \n",
          rtol, atval[0],atval[1],atval[2]);
-  printf("Initial conditions y0 = (%lg %lg %lg)\n",
+  printf("Initial conditions y0 = (%g %g %g)\n",
          yval[0], yval[1], yval[2]);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g %g %g \n",
@@ -328,7 +328,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   printf("%10.4Le %12.4Le %12.4Le %12.4Le | %3ld  %1d %12.4Le\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("%10.4le %12.4le %12.4le %12.4le | %3ld  %1d %12.4le\n", 
+  printf("%10.4e %12.4e %12.4e %12.4e | %3ld  %d %12.4e\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #else
   printf("%10.4e %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n", 
@@ -363,8 +363,10 @@ static void PrintFinalStats(void *mem)
   check_flag(&retval, "IDAGetNumErrTestFails", 1);
   retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_flag(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  //  retval = IDASlsGetNumResEvals(mem, &nreLS);
-  //  check_flag(&retval, "IDASlsGetNumResEvals", 1);
+  /*  
+      retval = IDASlsGetNumResEvals(mem, &nreLS);
+      check_flag(&retval, "IDASlsGetNumResEvals", 1);
+  */
   nreLS = 0;
   retval = IDAGetNumGEvals(mem, &nge);
   check_flag(&retval, "IDAGetNumGEvals", 1);
