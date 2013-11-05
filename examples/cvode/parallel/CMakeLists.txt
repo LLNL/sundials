@@ -13,11 +13,11 @@
 
 
 # Add variable CVODE_examples with the names of the parallel CVODE examples
-
+# "name\;nodes\;tasks"
 SET(CVODE_examples
-  cvAdvDiff_non_p
-  cvDiurnal_kry_bbd_p
-  cvDiurnal_kry_p
+  "cvAdvDiff_non_p\;2\;2"
+  "cvDiurnal_kry_bbd_p\;2\;4"
+  "cvDiurnal_kry_p\;2\;4"
   )
 
 # Check whether we use MPI compiler scripts.
@@ -53,9 +53,17 @@ ENDIF(LAPACK_FOUND)
 
 # Add the build and install targets for each CVODE example
 
-FOREACH(example ${CVODE_examples})
+FOREACH(example_tuple ${CVODE_examples})
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  # first item is example
   ADD_EXECUTABLE(${example} ${example}.c)
-  ADD_TEST(${example} ${TESTRUNNER} ${example})
+  IF(MPI_RUN_COMMAND MATCHES "srun")
+      ADD_TEST(${example} ${TESTRUNNER} ${example} "srun -N${number_of_nodes} -n${number_of_tasks} -ppdebug")
+  ELSE(MPI_RUN_COMMAND MATCHES "srun")
+      ADD_TEST(${example} ${TESTRUNNER} ${example} "mpirun -n ${number_of_tasks}")
+  ENDIF(MPI_RUN_COMMAND MATCHES "srun")
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -63,7 +71,7 @@ FOREACH(example ${CVODE_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parallel)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${CVODE_examples})
+ENDFOREACH(example_tuple ${CVODE_examples})
 
 IF(EXAMPLES_INSTALL)
 
@@ -73,7 +81,10 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "CVODE")
   SET(SOLVER_LIB "sundials_cvode")
-  LIST2STRING(CVODE_examples EXAMPLES)
+  FOREACH(example_tuple ${CVODE_examples})
+  	list(GET example_tuple 0 example)
+  	LIST2STRING(example EXAMPLES)
+  ENDFOREACH(example_tuple ${CVODE_examples})
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

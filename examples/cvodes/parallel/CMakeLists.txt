@@ -13,15 +13,15 @@
 
 
 # Add variable CVODES_examples with the names of the parallel CVODES examples
-
+# "name\;nodes\;tasks"
 SET(CVODES_examples
-  cvsAdvDiff_ASAp_non_p
-  cvsAdvDiff_FSA_non_p
-  cvsAdvDiff_non_p
-  cvsAtmDisp_ASAi_kry_bbd_p
-  cvsDiurnal_FSA_kry_p
-  cvsDiurnal_kry_bbd_p
-  cvsDiurnal_kry_p
+  "cvsAdvDiff_ASAp_non_p\;2\;2"
+  "cvsAdvDiff_FSA_non_p\;2\;2"
+  "cvsAdvDiff_non_p\;2\;2"
+  "cvsAtmDisp_ASAi_kry_bbd_p\;2\;4"
+  "cvsDiurnal_FSA_kry_p\;2\;4"
+  "cvsDiurnal_kry_bbd_p\;2\;4"
+  "cvsDiurnal_kry_p\;2\;4"
   )
 
 # Check whether we use MPI compiler scripts.
@@ -57,9 +57,17 @@ ENDIF(LAPACK_FOUND)
 
 # Add the build and install targets for each CVODES example
 
-FOREACH(example ${CVODES_examples})
+FOREACH(example_tuple ${CVODES_examples})
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  # first item is example
   ADD_EXECUTABLE(${example} ${example}.c)
-  ADD_TEST(${example} ${TESTRUNNER} ${example})
+  IF(MPI_RUN_COMMAND MATCHES "srun")
+      ADD_TEST(${example} ${TESTRUNNER} ${example} "srun -N${number_of_nodes} -n${number_of_tasks} -ppdebug")
+  ELSE(MPI_RUN_COMMAND MATCHES "srun")
+      ADD_TEST(${example} ${TESTRUNNER} ${example} "mpirun -n ${number_of_tasks}")
+  ENDIF(MPI_RUN_COMMAND MATCHES "srun")
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -68,7 +76,7 @@ FOREACH(example ${CVODES_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${CVODES_examples})
+ENDFOREACH(example_tuple ${CVODES_examples})
 
 IF(EXAMPLES_INSTALL)
 

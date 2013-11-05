@@ -696,6 +696,9 @@ ENDIF(KLU_ENABLE)
 # -------------------------------------------------------------
 
 IF(MPI_ENABLE)
+  # get run command for mpi (openmpi or OpenMP or Pthreads(default))
+  SET(MPI_RUN_COMMAND "mpirun" CACHE STRING "mpirun or srun")
+  SHOW_VARIABLE(MPI_RUN_COMMAND STRING "MPI run command: mpirun or srun" "${MPI_RUN_COMMAND}")
   INCLUDE(SundialsMPIC)
   IF(NOT MPIC_FOUND)
     PRINT_WARNING("MPI not functional"

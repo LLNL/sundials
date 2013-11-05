@@ -13,16 +13,16 @@
 
 
 # Add variable IDAS_examples with the names of the parallel IDAS examples
-
+# "name\;nodes\;tasks"
 SET(IDAS_examples
-  idasBruss_ASAp_kry_bbd_p
-  idasBruss_FSA_kry_bbd_p
-  idasBruss_kry_bbd_p
-  idasFoodWeb_kry_bbd_p
-  idasFoodWeb_kry_p
-  idasHeat2D_FSA_kry_bbd_p
-  idasHeat2D_kry_bbd_p
-  idasHeat2D_kry_p
+  "idasBruss_ASAp_kry_bbd_p\;1\;4"
+  "idasBruss_FSA_kry_bbd_p\;1\;4"
+  "idasBruss_kry_bbd_p\;1\;4"
+  "idasFoodWeb_kry_bbd_p\;1\;4"
+  "idasFoodWeb_kry_p\;1\;4"
+  "idasHeat2D_FSA_kry_bbd_p\;1\;4"
+  "idasHeat2D_kry_bbd_p\;1\;4"
+  "idasHeat2D_kry_p\;1\;4"
   )
 
 # Check whether we use MPI compiler scripts.
@@ -58,17 +58,25 @@ ENDIF(LAPACK_FOUND)
 
 # Add the build and install targets for each IDAS example
 
-FOREACH(example ${IDAS_examples})
+FOREACH(example_tuple ${IDAS_examples})
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  # first item is example
   ADD_EXECUTABLE(${example} ${example}.c)
-  ADD_TEST(${example} ${TESTRUNNER} ${example})
+  IF(MPI_RUN_COMMAND MATCHES "srun")
+      ADD_TEST(${example} ${TESTRUNNER} ${example} "srun -N${number_of_nodes} -n${number_of_tasks} -ppdebug")
+  ELSE(MPI_RUN_COMMAND MATCHES "srun")
+      ADD_TEST(${example} ${TESTRUNNER} ${example} "mpirun -n ${number_of_tasks}")
+  ENDIF(MPI_RUN_COMMAND MATCHES "srun")
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   ENDIF(NOT MPI_MPICC)
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/parallel)
+    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parallel)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${IDAS_examples})
+ENDFOREACH(example_tuple ${IDAS_examples})
 
 IF(EXAMPLES_INSTALL)
 
@@ -78,7 +86,10 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "IDAS")
   SET(SOLVER_LIB "sundials_idas")
-  LIST2STRING(IDAS_examples EXAMPLES)
+  FOREACH(example_tuple ${IDAS_examples})
+  	list(GET example_tuple 0 example)
+  	LIST2STRING(example EXAMPLES)
+  ENDFOREACH(example_tuple ${IDAS_examples})
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

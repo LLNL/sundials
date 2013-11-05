@@ -13,12 +13,12 @@
 
 
 # Add variable IDA_examples with the names of the parallel IDA examples
-
+# "name\;nodes\;tasks"
 SET(IDA_examples
-  idaFoodWeb_kry_bbd_p
-  idaFoodWeb_kry_p
-  idaHeat2D_kry_bbd_p
-  idaHeat2D_kry_p
+  "idaFoodWeb_kry_bbd_p\;1\;4"
+  "idaFoodWeb_kry_p\;1\;4"
+  "idaHeat2D_kry_bbd_p\;1\;4"
+  "idaHeat2D_kry_p\;1\;4"
   )
 
 # Check whether we use MPI compiler scripts.
@@ -54,17 +54,25 @@ ENDIF(LAPACK_FOUND)
 
 # Add the build and install targets for each IDA example
 
-FOREACH(example ${IDA_examples})
+FOREACH(example_tuple ${IDA_examples})
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  # first item is example
   ADD_EXECUTABLE(${example} ${example}.c)
-  ADD_TEST(${example} ${TESTRUNNER} ${example})
+  IF(MPI_RUN_COMMAND MATCHES "srun")
+      ADD_TEST(${example} ${TESTRUNNER} ${example} "srun -N${number_of_nodes} -n${number_of_tasks} -ppdebug")
+  ELSE(MPI_RUN_COMMAND MATCHES "srun")
+      ADD_TEST(${example} ${TESTRUNNER} ${example} "mpirun -n ${number_of_tasks}")
+  ENDIF(MPI_RUN_COMMAND MATCHES "srun")
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   ENDIF(NOT MPI_MPICC)
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/parallel)
+    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parallel)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${IDA_examples})
+ENDFOREACH(example_tuple ${IDA_examples})
 
 IF(EXAMPLES_INSTALL)
 
@@ -74,7 +82,11 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "IDA")
   SET(SOLVER_LIB "sundials_ida")
-  LIST2STRING(IDA_examples EXAMPLES)
+  FOREACH(example_tuple ${IDA_examples})
+  	list(GET example_tuple 0 example)
+  	LIST2STRING(example EXAMPLES)
+  ENDFOREACH(example_tuple ${IDA_examples})
+  
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

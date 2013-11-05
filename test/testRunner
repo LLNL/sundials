@@ -5,11 +5,14 @@
 import exceptions, os, subprocess, sys
 
 def main():
-    if len(sys.argv) != 2:
-        error("testRunner expects 1 argument, " + str(len(sys.argv)) + " given.")
+    if len(sys.argv) > 3:
+        error("testRunner expects no more than 2 arguments, " + str(len(sys.argv)) + " given.")
         sys.exit(1)
 
     testName = sys.argv[1]
+    testCommand = "./" + sys.argv[1]
+    if len(sys.argv) == 3:
+    	testCommand = sys.argv[2] + " " + testName
     testDir = os.path.dirname(sys.argv[0])
     outDir = os.path.join(testDir, "output")
     answersDir = os.path.join(testDir, "answers")
@@ -23,11 +26,11 @@ def main():
     testInfos = getInfo(testName, testDir)
     success = True
     for testInfo in testInfos:
+    	error("Eddy: testInfo.arguments = ",testInfo.arguments)
         if testInfo.arguments != "":
             testCommand = "./" + testName + " " + testInfo.arguments
             answerFileName = testName + "_" + testInfo.arguments.replace(" ", "_")
         else:
-            testCommand = "./" + testName
             answerFileName = testName
 
         outPath = os.path.join(outDir, answerFileName)

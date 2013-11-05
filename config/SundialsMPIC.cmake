@@ -13,6 +13,11 @@
 #
 # 
 
+# make sure valid mpi_run_command. If not, then warn and return
+If(MPI_RUN_COMMAND AND NOT MPI_RUN_COMMAND STREQUAL "mpirun" AND NOT MPI_RUN_COMMAND STREQUAL "srun")
+    PRINT_WARNING("Unknown mpi run command: ${MPI_RUN_COMMAND}" "Please enter mpirun or srun")
+ENDIF(MPI_RUN_COMMAND AND NOT MPI_RUN_COMMAND STREQUAL "mpirun" AND NOT MPI_RUN_COMMAND STREQUAL "srun")
+
 set(MPIC_FOUND FALSE)
 set(MPIC_MPI2 FALSE)
 
