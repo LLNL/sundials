@@ -37,7 +37,7 @@ static int kinKLUInit(KINMem kin_mem);
 static int kinKLUSetup(KINMem kin_mem);
 static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
 		       realtype *sJpnorm, realtype *sFdotJp);		       
-static int kinKLUFree(KINMem kin_mem);
+static void kinKLUFree(KINMem kin_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -80,24 +80,23 @@ int kinKLU(void *kin_mem_v, int n, int nnz)
   kin_mem = (KINMem) kin_mem_v;
 
   /* Test if the NVECTOR package is compatible with the Direct solver */
-  if(kin_mem->kin_tempv1->ops->nvgetarraypointer == NULL ||
-     kin_mem->kin_tempv1->ops->nvsetarraypointer == NULL) {
+  if(kin_mem->kin_vtemp1->ops->nvgetarraypointer == NULL ||
+     kin_mem->kin_vtemp1->ops->nvsetarraypointer == NULL) {
     KINProcessError(kin_mem, KINSLS_ILL_INPUT, "KINSLS", "kinKLU", 
 		    MSGSP_BAD_NVECTOR);
     return(KINSLS_ILL_INPUT);
   }
 
-  if (kin_mem->kin_lfree != NULL) flag = kin_mem->kin_lfree(kin_mem);
+  if (kin_mem->kin_lfree != NULL) kin_mem->kin_lfree(kin_mem);
 
   /* Set five main function fields in kin_mem. */
   kin_mem->kin_linit  = kinKLUInit;
   kin_mem->kin_lsetup = kinKLUSetup;
   kin_mem->kin_lsolve = kinKLUSolve;
-  kin_mem->kin_lperf  = NULL;
   kin_mem->kin_lfree  = kinKLUFree;
 
   /* Get memory for kinSlsMemRec. */
-  kinsls_mem = (KINSlsMem) malloc(sizeof(struct kinSlsMemRec));
+  kinsls_mem = (KINSlsMem) malloc(sizeof(struct KINSlsMemRec));
   if (kinsls_mem == NULL) {
     KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "kinKLU", 
 		    MSGSP_MEM_FAIL);
@@ -201,7 +200,7 @@ static int kinKLUSetup(KINMem kin_mem)
 {
   int retval;
   KINSlsMem kinsls_mem;
-  kinSlsSparseJacFn jaceval;
+  KINSlsSparseJacFn jaceval;
   KLUData klu_data;
   SlsMat JacMat;
   void *jacdata;
@@ -224,7 +223,8 @@ static int kinKLUSetup(KINMem kin_mem)
 
   /* Increment nje counter and call Jacobian eval routine. */
   kinsls_mem->s_nje++;
-  retval = jaceval(uu, fval, JacMat, jacdata, vtemp1, vtemp2);
+  retval = jaceval(kin_mem->kin_uu, kin_mem->kin_fval, JacMat, jacdata, 
+		   kin_mem->kin_vtemp1, kin_mem->kin_vtemp2);
 
   if (retval < 0) {
     KINProcessError(kin_mem, KINSLS_JACFUNC_UNRECVR, "KINSLS", 
@@ -277,7 +277,7 @@ static int kinKLUSetup(KINMem kin_mem)
 */
 
 static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
-		       realtype *res_norm)
+		       realtype *sJpnorm, realtype *sFdotJp)		       
 {
   KINSlsMem kinsls_mem;
   KLUData klu_data;
@@ -308,9 +308,9 @@ static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
      Need to check with Alan and likely will need a matvec for matrices in 
      CSC format.  */
 
-  N_VProd(b, fscale, b);
-  N_VProd(b, fscale, b);
-  *sFdotJp = N_VDotProd(fval, b);
+  N_VProd(b, kin_mem->kin_fscale, b);
+  N_VProd(b, kin_mem->kin_fscale, b);
+  *sFdotJp = N_VDotProd(kin_mem->kin_fval, b);
 
   kinsls_mem->s_last_flag = KINSLS_SUCCESS;
   return(KINSLS_SUCCESS);
@@ -320,7 +320,7 @@ static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
   This routine frees memory specific to the kinKLU linear solver.
 */
 
-static int kinKLUFree(KINMem kin_mem)
+static void kinKLUFree(KINMem kin_mem)
 {
   KINSlsMem kinsls_mem;
   KLUData klu_data;
@@ -340,7 +340,5 @@ static int kinKLUFree(KINMem kin_mem)
 
   free(klu_data); 
   free(kin_mem->kin_lmem); 
-
-  return(KINSLS_SUCCESS);
 }
 
