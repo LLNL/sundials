@@ -49,10 +49,12 @@
 /*
  * KINSlsSetSparseJacFn specifies the sparse Jacobian function.
  */
-int KINSlsSetSparseJacFn(void *kin_mem, KINSlsSparseJacFn jac)
+int KINSlsSetSparseJacFn(void *kin_mem_v, KINSlsSparseJacFn jac)
 {
   KINMem kin_mem;
   KINSlsMem kinsls_mem;
+
+  kin_mem = (KINMem) kin_mem_v;
 
   /* Return immediately if kin_mem is NULL */
   if (kin_mem == NULL) {
@@ -77,10 +79,12 @@ int KINSlsSetSparseJacFn(void *kin_mem, KINSlsSparseJacFn jac)
 /*
  * KINSlsGetNumJacEvals returns the number of Jacobian evaluations.
  */
-int KINSlsGetNumJacEvals(void *kin_mem, long int *njevals)
+int KINSlsGetNumJacEvals(void *kin_mem_v, long int *njevals)
 {
   KINMem kin_mem;
   KINSlsMem kinsls_mem;
+
+  kin_mem = (KINMem) kin_mem_v;
 
   /* Return immediately if kin_mem is NULL */
   if (kin_mem == NULL) {
@@ -146,10 +150,12 @@ char *KINSlsGetReturnFlagName(long int flag)
 /*
  * KINSlsGetLastFlag returns the last flag set in a KINSLS function.
  */
-int KINSlsGetLastFlag(void *kin_mem, long int *flag)
+int KINSlsGetLastFlag(void *kin_mem_v, long int *flag)
 {
   KINMem kin_mem;
   KINSlsMem kinsls_mem;
+
+  kin_mem= (KINMem) kin_mem_v;
 
   /* Return immediately if kin_mem is NULL */
   if (kin_mem == NULL) {

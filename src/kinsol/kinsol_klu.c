@@ -24,7 +24,7 @@
 
 #include "kinsol_impl.h"
 #include "kinsol_sparse_impl.h"
-#include "sundials_klu_impl.h"
+#include "sundials/sundials_klu_impl.h"
 
 /* Constants */
 
@@ -64,7 +64,7 @@ static int kinKLUFree(KINMem kin_mem);
  * -----------------------------------------------------------------
  */
 
-int kinKLU(void *kin_mem, int n, int nnz)
+int kinKLU(void *kin_mem_v, int n, int nnz)
 {
   KINMem kin_mem;
   KINSlsMem kinsls_mem;
@@ -77,7 +77,7 @@ int kinKLU(void *kin_mem, int n, int nnz)
 		    MSGSP_KINMEM_NULL);
     return(KINSLS_MEM_NULL);
   }
-  kin_mem = (KINMem) kin_mem;
+  kin_mem = (KINMem) kin_mem_v;
 
   /* Test if the NVECTOR package is compatible with the Direct solver */
   if(kin_mem->kin_tempv1->ops->nvgetarraypointer == NULL ||
