@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------
 # Programmer:  Carol S. Woodward
 # ---------------------------------------------------------------
-# begincopyright(llns)
+# LLNS Copyright Start
 # Copyright (c) 2013, Lawrence Livermore National Security
 # This work was performed under the auspices of the U.S. Department 
 # of Energy by Lawrence Livermore National Laboratory in part under 
@@ -9,7 +9,7 @@
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
-# endcopyright(llns)
+# LLNS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the spc_parallel NVECTOR library
 
