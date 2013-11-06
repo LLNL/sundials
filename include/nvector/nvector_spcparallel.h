@@ -5,57 +5,15 @@
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * begincopyright(llns)
+ * Copyright (c) 2013, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
- *-----------------------------------------------------------------
- * This is the header file for an implementation of an NVECTOR
- * package for for semi-discretized 2D or 3D PDEs and for which the 
- * local data is organized in several groups of variables, igrp=1..Ngrps. 
- * Each group consists of 1...Nspc(igrp). The spatial indexes may also
- * include ghost data points.
- * In other words, the data is organized as a multi-dimensional array,
- * in which the indexes vary (from the slowest to the fastest) as follows:
- *   igrp ( = 0...Ngrp-1)
- *   iz   ( = 0...Nz+2*NGz-1)
- *   iy   ( = 0...Ny+2*NGy-1)
- *   ix   ( = 0...Nx+2*NGx-1)
- *   ispc ( = 0...Nspc(igrp)-1)
- * For 2D PDEs, the user should specify Nz=1, NGz=0.
- *
- * It is assumed that the spatial domain is partitioned over several
- * processes defined by the MPI communicator comm.
- *
- * Part I contains declarations specific to the spcparallel
- * implementation of the supplied NVECTOR module.
- *
- * Part II defines accessor macros that allow the user to efficiently
- * use the type N_Vector without making explicit references to the
- * underlying data structure.
- *
- * Part III contains the prototype for the constructor
- * N_VNew_SpcParallel as well as implementation-specific prototypes
- * for various useful vector operations.
- *
- * Notes:
- *
- *   - The definition of the generic N_Vector structure can be
- *     found in the header file sundials_nvector.h.
- *
- *   - The definition of the type realtype can be found in the
- *     header file sundials_types.h, and it may be changed (at 
- *     the configuration stage) according to the user's needs. 
- *     The sundials_types.h file also contains the definition
- *     for the type booleantype.
- *
- *   - N_Vector arguments to arithmetic vector operations need not
- *     be distinct. For example, the following call:
- *
- *        N_VLinearSum_SpcParallel(a,x,b,y,y);
- *
- *     (which stores the result of the operation a*x+b*y in y)
- *     is legal.
+ * endcopyright(llns)
  * -----------------------------------------------------------------
  */
 
