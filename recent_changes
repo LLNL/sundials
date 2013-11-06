@@ -1,4 +1,4 @@
-Modifications to SUNDIALS after 22 March 2012 Release - as of 29 May 2013
+Modifications to SUNDIALS after 22 March 2012 Release - as of 06 Nov 2013
 
 Note: Some of these modifications are actually accessible by the
 public by way of updates to the website after 3/22/12.
@@ -145,3 +145,24 @@ public by way of updates to the website after 3/22/12.
     example programs.  Also added a new parallel N_Vector kernel, corresponding 
     to a multi-dimensional Cartesian grid with an arbitrary number of ghost zones
     defined at each Cartesian face.
+
+33. Updated all copyright notices to reflect LLNS instead of UC and added
+    ausipices.
+
+34. Updated LICENSE files with LLNS information.
+
+35. Removed all C++-style "//" comments to enforce ANSI C standards.
+
+36. Added KLU as a serial sparse-direct solver option to IDAS and KINSOL.
+
+37. Added SuperLU_MT (the multi-threaded version of SuperLU) as a thread-
+    parallel sparse direct solver option to IDAS.
+
+38. Added fixed point and Picard iteratinos both with Anderson acceleration
+    to KINSOL.
+
+39. Added sparse matrix (CSC format) structure to IDAS and KINSOL.
+
+40. Added openMP and pThreads vector kernels.
+
+41. Added test code for vector kernel routines.
