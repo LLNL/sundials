@@ -1,32 +1,108 @@
-To Do List for SUNDIALS, as of 11/16/12
+To Do List for SUNDIALS, as of 11/6/13
 
-Develop a set of unit tests for the vector kernel operations.  This 
-set of tests should be something a user could employ to verify 
-their own vector kernel is correct.  (Of course, ours should pass these
-tests!)
+(*** items must be completed before KINSOL and ARKode can be released.)
 
-Make build system handling of examples consistent.  Right now, distclean
-does not remove compiled examples.  Also, the install builds an examples
-directory, but the executables are not copied there.
+***(Alan) Pull recent revisions into user guides and READMEs as appropriate
 
-Verify output of examples used in new testing system are indeed correct.
+***(Carol) SuperLU_MT for all solvers
+
+***(Carol, Steve) KLU for all solvers
+
+***(Carol) pcg and FGMRES for all solvers, documentation
+
+***(Carol) Document sparse solvers
+
+***(Carol) IM release of KINSOL and ARKode
+
+***(Carol) Add error flag checks for KLU
+
+***(Carol) Add optional ordering Set routine for SuperLU_MT and KLU for 
+all solvers
+
+***(Carol) Update tarscripts
+
+***(Carol) Update xfig diagrams
+
+***(Carol) Update recent revisions - all to comment
+
+***(Carol, Steve) Note on Windows build
+
+***(Dan) Add documentation for ARKode into SUNDIALS distribution
+
+***(Eddy) Update options for cmake.  Remove autoconf documentation in 
+manuals and INSTALL_NOTES (anywhere else?)
+
+***(Eddy) Add last modified date to each file from SVN
+
+***(Steve) Finalize pthreads implementation and document performance concerns.
+
+***(Steve) Write and test openMP and pThreads with Fortran and document
+
+***(Steve) Document KLU build options
+
+***(Steve) Change header info for all files
+
+(Alan, Carol) Verify output of examples used in new testing system 
+are indeed correct.
 As part of this we probably should tighten absolute tolerances on Krylov
 example codes as there is a good bit of variation on consecutive parallel runs
 and even between systems.  Maybe try abstol = 10^-6?
 
-(CSW, 1/2/13)  
-Provide better guidance as to exactly what the from of the Jacobian is
+(Alan, Carol) Review vector documentation
+
+(Alan) Review header info for all files
+
+(Alan) Review build documentation.
+
+(Alan) Review new xfig diagrams
+
+(Carol) Examples of pcg and FGMRES for all solvers
+
+(Eddy) More rigorous build system testing - please elaborate
+(Eddy) Remove autoconf from build system
+
+(Eddy) Make build system handling of examples consistent.  Right now, distclean
+does not remove compiled examples.  Also, the install builds an examples
+directory, but the executables are not copied there.
+
+(Eddy) C++ example for each solver
+
+(Steve) Look into whether there is any issue with MPI and differing parallel
+results in consecutively run parallel examples.
+
+
+-------------------------------------------------------------------------
+
+Deferred to after release (11/6/13)
+  
+Update all Matlab interfaces
+
+(LEB, 7/30/13) When running tests (i.e. testRunner) the 'output' 
+directory is built
+within the source tree - don't want anything in source tree.  The output
+should be built in the 'Testing' directory relative to the directory in
+which 'make test' is run.
+
+Extend testrunner to test more than one configuratino of 
+SUNDIALS - individual solver builds, w/ and w/out SuperLU_MT and/or KLU,
+etc.
+
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+
+Completed Tasks
+
+
+(Alan) Provide better guidance as to exactly what the from of the Jacobian is
 for use adding a new linear solver.  Math considerations in IDA indicates
 teh Jacobian is dF/dy + alpha dF/dydot.  But, alpha is not defined and
 cj is teh variable in the IDA structures that the user needs for this.
 CVODE likely also has similar disconect but I did not check this.
 
-(LEB, 7/30/13)
-When running tests (i.e. testRunner) the 'output' directory is build
-within the source tree - don't want anything in source tree.  The output
-should be built in the 'Testing' directory relative to the directory in
-which 'make test' is run.
+(Carol, Steve, David, Dan) Develop a set of unit tests for the vector 
+kernel operations.  This 
+set of tests should be something a user could employ to verify 
+their own vector kernel is correct.  (Of course, ours should pass these
+tests!)
 
-(DRR, 9/6/13)
-Need to add ARKode to SUNDIALS' automated testing infrastructure.
-
+(Dan, Eddy) Need to add ARKode to SUNDIALS' automated testing infrastructure.
