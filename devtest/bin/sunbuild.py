@@ -25,9 +25,11 @@ class Logger(object):
         
 def main():
 	svnRepo = "file:///usr/casc/sundials/svnrepo/trunk"
-	sunBaseDir = "/usr/casc/sundials/nightly"
+	sunBaseDir = "/usr/casc/sundials/devtest"
+	sunBinDir = os.path.join(sunBaseDir, "bin")
+	sunNightlyDir = os.path.join(sunBaseDir, "nightly")
 	logFileName = "build.log"
-	tmpLogFile = os.path.join(sunBaseDir, logFileName)
+	tmpLogFile = os.path.join(sunNightlyDir, logFileName)
 	sys.stdout = Logger(tmpLogFile)
 	
 	print "SUNDIALS Automated Build/Test"
@@ -56,7 +58,7 @@ def main():
 			print "svn revision number: " + svnrev
 		
 			# create directory for checkout
-			sunCheckoutDir = os.path.join(sunBaseDir, "rev"+svnrev)
+			sunCheckoutDir = os.path.join(sunNightlyDir, "rev"+svnrev)
 			print "Creating checkout directory: " + sunCheckoutDir
 			if not os.path.exists(sunCheckoutDir):
 				os.makedirs(sunCheckoutDir)
@@ -90,7 +92,7 @@ def main():
 			os.chdir(sunBuildDir)
 			
 			# run CMake to configure
-			cmd = "cmake " + sunSrcDir
+			cmd = "cmake -DMPI_ENABLE=ON " + sunSrcDir
 			print "Configuring with:  " + cmd + " ..."
 			cmdout = runCommandPopen(cmd)
 			print cmdout
@@ -208,8 +210,8 @@ def sendEmail(logFile, subject):
 	# me == the sender's email address
 	me = "SUNDIALS.sunbuild@llnl.gov"
 	# you == the recipient's email address
-	#you = "banks12@llnl.gov"
-	you = "sundials-devs@llnl.gov"
+	you = "banks12@llnl.gov"
+	#you = "sundials-devs@llnl.gov"
 	msg['Subject'] = subject
 	msg['From'] = me
 	msg['To'] = you

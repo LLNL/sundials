@@ -1,0 +1,28 @@
+README info for setting up and running the nightly build/test for SUNDIALS
+
+Initial setup:
+  The SUNDIALS devtest directory should be exported from svn (currently into /usr/casc/sundials on the Tux system)
+  > cd /usr/casc/sundials
+  > svn export file:///usr/casc/sundials/svnrepo/trunk/devtest
+  
+  Change group ownership to nsde:
+  > chgrp -R nsde devtest
+  
+  Set group id to enable inheritance of group ownership:
+  > chmod -R g+s devtest
+  
+  
+  sunbuild.py script - will attempt to extract, build, and test the current revision from the sundials repo trunk.
+  To run the build manually:
+  > source /usr/casc/sundials/devtest/bin/sunset.sh
+  > /usr/casc/sundials/devtest/bin/sunbuild.py
+  
+To run script automatically every night from cron:
+  Edit your personal crontab:
+  > crontab -e
+  
+  Add entry to run the sunbuild.py script (example runs at 2:15 AM every day)
+  15 2 * * * . /usr/casc/sundials/devtest/bin/sunset.sh; /usr/casc/sundials/devtest/bin/sunbuild.py
+
+  
+  
