@@ -11,12 +11,15 @@ Initial setup:
   Set group id to enable inheritance of group ownership:
   > chmod -R g+s devtest
   
+  Make sunbuild.py executable:
+  > chmod +x devtest/bin/sunbuild.py
   
-  sunbuild.py script - will attempt to extract, build, and test the current revision from the sundials repo trunk.
+  The sunbuild.py script - will attempt to extract, build, and test the current revision from the sundials repo trunk.
   To run the build manually:
   > source /usr/casc/sundials/devtest/bin/sunset.sh
   > /usr/casc/sundials/devtest/bin/sunbuild.py
-  
+
+
 To run script automatically every night from cron:
   Edit your personal crontab:
   > crontab -e
@@ -24,5 +27,16 @@ To run script automatically every night from cron:
   Add entry to run the sunbuild.py script (example runs at 2:15 AM every day)
   15 2 * * * . /usr/casc/sundials/devtest/bin/sunset.sh; /usr/casc/sundials/devtest/bin/sunbuild.py
 
+ 
+NOTES:
+  The 'nightly' directory on same level as bin, is required to exist by the script. This directory will have all the revision checkouts and builds.
+ 
+Installing a new version of sunbuild.py and/or sunset.sh:
+  The SUNDIALS devtest directory must be exported with the 'force' option to overwrite the files:
+  > cd /usr/casc/sundials
+  > svn export --force file:///usr/casc/sundials/svnrepo/trunk/devtest
+
+  Make sunbuild.py executable:
+  > chmod +x devtest/bin/sunbuild.py
   
-  
+ 
