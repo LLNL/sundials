@@ -231,8 +231,8 @@ calculations conditionally, depending on the value of the input \id{strategy}
 to \id{KINSol}, and the choice (given by \id{etachoice}) of Forcing Term
 in the Krylov iteration stopping test (see \id{KINSetEtaForm}).
 The precise conditions are as follows:  First, if \id{strategy} is
-either \id{KIN\_PICARD} or \id{KIN\_FP}, neither of these quantities
-need to be computed.  In the other cases, if the linear solver is iterative
+\id{KIN\_FP}, neither of these quantities need to be computed.
+In the other cases, if the linear solver is iterative
 and \id{etachoice} = \id{KIN\_ETACHOICE1} (the default) then both
 \id{sFdotJp} and \id{sFdotJp} must be set.  If \id{strategy} is
 \id{KIN\_LINESEARCH}, then \id{sFdotJp} must be set, regardless of
