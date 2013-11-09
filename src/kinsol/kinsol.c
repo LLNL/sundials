@@ -47,7 +47,6 @@
  *     KINPicardAA
  *   Stopping tests
  *     KINStop
- *     PicardStop
  *     KINForcingTerm
  *   Norm functions
  *     KINScFNorm
@@ -195,8 +194,6 @@ static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale);
 static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u);
 static int KINStop(KINMem kin_mem, booleantype maxStepTaken, 
 		   int sflag);
-static int PicardStop(KINMem kin_mem, booleantype maxStepTaken, 
-		      int sflag, realtype fmax);
 static int AndersenAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x, 
 		       N_Vector x_old, int iter, realtype *R, realtype *gamma);
 
@@ -2413,34 +2410,6 @@ static int KINFP(KINMem kin_mem, long int *iterp,
  * Stopping tests
  * -----------------------------------------------------------------
  */
-
-/*
- * PicardStop
- *
- * This routine checks the current iterate unew to see if the
- * system func(unew) = 0 is satisfied 
- *
- * strategy is KIN_PICARD
- * sflag    is one of KIN_SUCCESS, KIN_MAXITER_REACHED
- */
-
-static int PicardStop(KINMem kin_mem, booleantype maxStepTaken, 
-		      int sflag, realtype fmax)
-{
-
-  /* Check tolerance on scaled function norm at the current iterate */
-
-  if (printfl > 1) 
-    KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "PicardStop", INFO_FMAX, fmax);
-    
-  if (fmax <= fnormtol) return(KIN_SUCCESS);
-    
-  /* Check if the maximum number of iterations is reached */
-
-  if (nni >= mxiter) return(KIN_MAXITER_REACHED);
-
-  return(CONTINUE_ITERATIONS);
-}
 
 
 /*

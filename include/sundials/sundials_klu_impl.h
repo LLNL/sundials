@@ -45,6 +45,7 @@ typedef struct KLUDataRec {
   klu_symbolic *s_Symbolic;
   klu_numeric  *s_Numeric;
   klu_common    s_Common;
+  int           s_ordering;
  
 } *KLUData;
  

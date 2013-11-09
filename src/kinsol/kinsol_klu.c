@@ -33,7 +33,7 @@
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
 
-/* kinKLU linit, lsetup, lsolve, and lfree routines */
+/* KINKLU linit, lsetup, lsolve, and lfree routines */
  
 static int kinKLUInit(KINMem kin_mem);
 static int kinKLUSetup(KINMem kin_mem);
@@ -43,11 +43,11 @@ static void kinKLUFree(KINMem kin_mem);
 
 /*
  * -----------------------------------------------------------------
- * kinKLU
+ * KINKLU
  * -----------------------------------------------------------------
  * This routine initializes the memory record and sets various function
  * fields specific to the KINSOL / KLU linear solver module.  
- * kinKLU first calls the existing lfree routine if this is not NULL.
+ * KINKLU first calls the existing lfree routine if this is not NULL.
  * Then it sets the kin_linit, kin_lsetup, kin_lsolve, kin_lperf, and
  * kin_lfree fields in (*kin_mem) to be kinKLUInit, kinKLUSetup,
  * kinKLUSolve, NULL, and kinKLUFree, respectively.
@@ -59,14 +59,14 @@ static void kinKLUFree(KINMem kin_mem);
  * or KINSLS_ILL_INPUT = -2.
  *
  * NOTE: The KLU linear solver assumes a serial implementation
- *       of the NVECTOR package. Therefore, kinKLU will first 
+ *       of the NVECTOR package. Therefore, KINKLU will first 
  *       test for a compatible N_Vector internal
  *       representation by checking that the functions N_VGetArrayPointer
  *       and N_VSetArrayPointer exist.
  * -----------------------------------------------------------------
  */
 
-int kinKLU(void *kin_mem_v, int n, int nnz)
+int KINKLU(void *kin_mem_v, int n, int nnz)
 {
   KINMem kin_mem;
   KINSlsMem kinsls_mem;
@@ -75,7 +75,7 @@ int kinKLU(void *kin_mem_v, int n, int nnz)
 
   /* Return immediately if kin_mem is NULL. */
   if (kin_mem == NULL) {
-    KINProcessError(NULL, KINSLS_MEM_NULL, "KINSLS", "kinKLU", 
+    KINProcessError(NULL, KINSLS_MEM_NULL, "KINSLS", "KINKLU", 
 		    MSGSP_KINMEM_NULL);
     return(KINSLS_MEM_NULL);
   }
@@ -84,7 +84,7 @@ int kinKLU(void *kin_mem_v, int n, int nnz)
   /* Test if the NVECTOR package is compatible with the Direct solver */
   if(kin_mem->kin_vtemp1->ops->nvgetarraypointer == NULL ||
      kin_mem->kin_vtemp1->ops->nvsetarraypointer == NULL) {
-    KINProcessError(kin_mem, KINSLS_ILL_INPUT, "KINSLS", "kinKLU", 
+    KINProcessError(kin_mem, KINSLS_ILL_INPUT, "KINSLS", "KINKLU", 
 		    MSGSP_BAD_NVECTOR);
     return(KINSLS_ILL_INPUT);
   }
@@ -100,7 +100,7 @@ int kinKLU(void *kin_mem_v, int n, int nnz)
   /* Get memory for kinSlsMemRec. */
   kinsls_mem = (KINSlsMem) malloc(sizeof(struct KINSlsMemRec));
   if (kinsls_mem == NULL) {
-    KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "kinKLU", 
+    KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
 		    MSGSP_MEM_FAIL);
     return(KINSLS_MEM_FAIL);
   }
@@ -108,7 +108,7 @@ int kinKLU(void *kin_mem_v, int n, int nnz)
   /* Get memory for KLUData. */
   klu_data = (KLUData)malloc(sizeof(struct KLUDataRec));
   if (klu_data == NULL) {
-    KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "kinKLU", 
+    KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
 		    MSGSP_MEM_FAIL);
     return(KINSLS_MEM_FAIL);
   }
@@ -122,7 +122,7 @@ int kinKLU(void *kin_mem_v, int n, int nnz)
   /* Allocate memory for the sparse Jacobian */
   kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
   if (kinsls_mem->s_JacMat == NULL) {
-    KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "kinKLU", 
+    KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINKLU", 
 		    MSGSP_MEM_FAIL);
     return(KINSLS_MEM_FAIL);
   }
@@ -137,13 +137,16 @@ int kinKLU(void *kin_mem_v, int n, int nnz)
   /* Set default parameters for KLU */
   flag = klu_defaults(&klu_data->s_Common);
   if (flag == 0) {
-    KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLU", 
+    KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "KINKLU", 
 		    MSGSP_PACKAGE_FAIL);
     return(KINSLS_PACKAGE_FAIL);
   }
-  /* Set ordering as COLAMD.  The default is AMD, ordering 0. */
-  /* This should get changed to a user option */
-  klu_data->s_Common.ordering = 1;
+  /* Set ordering to COLAMD as the kinsol default use.
+     Users can set a different value with KINKLUSetOrdering,
+     and the user-set value is loaded before any call to klu_analyze in
+     kinKLUSetup.  */
+  klu_data->s_ordering = 1;
+  klu_data->s_Common.ordering = klu_data->s_ordering;
 
   /* Attach linear solver memory to the nonlinear solver memory */
   kinsls_mem->s_solver_data = (void *) klu_data;
@@ -156,39 +159,31 @@ int kinKLU(void *kin_mem_v, int n, int nnz)
 
 /*
  * -----------------------------------------------------------------
- * kinKLU interface functions
+ * KINKLU interface functions
  * -----------------------------------------------------------------
  */
 
 /*
-  This routine does remaining initializations specific to the kinKLU
+  This routine does remaining initializations specific to the KINKLU
   linear solver module.  
   It returns 0 if successful.
 */
 
 static int kinKLUInit(KINMem kin_mem)
 {
-  int retval, n;
   KINSlsMem kinsls_mem;
-  KLUData klu_data;
 
   kinsls_mem = (KINSlsMem)kin_mem->kin_lmem;
-  klu_data = (KLUData)kinsls_mem->s_solver_data;
 
   kinsls_mem->s_nje = 0;
   kinsls_mem->s_first_factorize = 1;
-
-  /* ------------------------------------------------------------
-     Allocate storage and initialize statistics variables. 
-     ------------------------------------------------------------*/
-  n = kinsls_mem->s_JacMat->N;
 
   kinsls_mem->s_last_flag = 0;
   return(0);
 }
 
 /*
-  This routine does the setup operations for the kinKLU linear 
+  This routine does the setup operations for the KINKLU linear 
   solver module.  It calls the Jacobian evaluation routine,
   updates counters, and calls the LU factorization routine.
   The return value is either
@@ -243,6 +238,10 @@ static int kinKLUSetup(KINMem kin_mem)
     /* ------------------------------------------------------------
        Get the symbolic factorization
        ------------------------------------------------------------*/ 
+    /* Update the ordering option with any user-updated values from 
+       calls to KINKLUSetOrdering */
+    klu_data->s_Common.ordering = klu_data->s_ordering;
+
     klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->colptrs, 
 				       JacMat->rowvals, &(klu_data->s_Common));
     if (klu_data->s_Symbolic == NULL) {
@@ -255,7 +254,7 @@ static int kinKLUSetup(KINMem kin_mem)
   }
 
   /* ------------------------------------------------------------
-     Compute the LU factorization of  the Jacobian.
+     Compute the LU factorization of the Jacobian.
      ------------------------------------------------------------*/
   klu_data->s_Numeric = klu_factor(JacMat->colptrs, JacMat->rowvals, 
 				   JacMat->data, klu_data->s_Symbolic, 
@@ -273,7 +272,7 @@ static int kinKLUSetup(KINMem kin_mem)
 }
 
 /*
-  This routine handles the solve operation for the kinKLU linear
+  This routine handles the solve operation for the KINKLU linear
   solver module.  It calls the KLU solve routine, 
   then returns KINSLS_SUCCESS = 0.
 */
@@ -281,6 +280,7 @@ static int kinKLUSetup(KINMem kin_mem)
 static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
 		       realtype *sJpnorm, realtype *sFdotJp)		       
 {
+  int flag;
   KINSlsMem kinsls_mem;
   KLUData klu_data;
   SlsMat JacMat;
@@ -296,8 +296,13 @@ static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
   xd = N_VGetArrayPointer(x);
 
   /* Call KLU to solve the linear system */
-  klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, xd, 
+  flag = klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, xd, 
 	    &(klu_data->s_Common));
+  if (flag == 0) {
+    KINProcessError(kin_mem, KINSLS_PACKAGE_FAIL, "KINSLS", "kinKLUSolve", 
+		    MSGSP_PACKAGE_FAIL);
+    return(KINSLS_PACKAGE_FAIL);
+  }
 
   /* Compute the term sFdotJp for use in the linesearch routine.
      This term is subsequently corrected if the step is reduced by
@@ -305,10 +310,6 @@ static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
 
      sFdotJp is the dot product of the scaled f vector and the scaled
      vector J*p, where the scaling uses fscale.                            */
-
-  /* CSW: The liens below mimic those in kinsol_dense.c but seem wrong.
-     Need to check with Alan and likely will need a matvec for matrices in 
-     CSC format.  */
 
   N_VProd(b, kin_mem->kin_fscale, b);
   N_VProd(b, kin_mem->kin_fscale, b);
@@ -319,7 +320,7 @@ static int kinKLUSolve(KINMem kin_mem, N_Vector x, N_Vector b,
 }
 
 /*
-  This routine frees memory specific to the kinKLU linear solver.
+  This routine frees memory specific to the KINKLU linear solver.
 */
 
 static void kinKLUFree(KINMem kin_mem)
@@ -342,5 +343,47 @@ static void kinKLUFree(KINMem kin_mem)
 
   free(klu_data); 
   free(kin_mem->kin_lmem); 
+}
+
+
+/* 
+ * -----------------------------------------------------------------
+ * Optional Input Specification Functions
+ * -----------------------------------------------------------------
+ *
+ * KINKLUSetOrdering sets the ordering used by KLU for reducing fill.
+ * Options are: 0 for AMD, 1 for COLAMD, and 2 for the natural ordering.
+ * The default used in KINSOL is 1 for COLAMD.
+ * -----------------------------------------------------------------
+ */
+
+int KINKLUSetOrdering(void *kin_mem_v, int ordering_choice)
+{
+  KINMem kin_mem;
+  KINSlsMem kinsls_mem;
+  KLUData klu_data;
+
+ /* Return immediately if kin_mem is NULL */
+  if (kin_mem_v == NULL) {
+    KINProcessError(NULL, KINSLS_MEM_NULL, "KINSLS", "KINKLUSetOrdering",
+		    MSGSP_KINMEM_NULL);
+    return(KINSLS_MEM_NULL);
+  }
+  kin_mem = (KINMem) kin_mem_v;
+
+ /* Return if ordering choice argument is not valid */
+  if ( (ordering_choice != 0) && (ordering_choice != 1) && 
+       (ordering_choice != 2) ) {
+    KINProcessError(NULL, KINSLS_ILL_INPUT, "KINSLS", "KINKLUSetOrdering",
+		    MSGSP_ILL_INPUT);
+    return(KINSLS_ILL_INPUT);
+  }
+
+  kinsls_mem = (KINSlsMem) kin_mem->kin_lmem;
+  klu_data = (KLUData) kinsls_mem->s_solver_data;
+
+  klu_data->s_ordering = ordering_choice;
+
+  return(KINSLS_SUCCESS);
 }
 

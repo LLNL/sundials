@@ -160,9 +160,12 @@ int IDAKLU(void *ida_mem, int n, int nnz)
     return(IDASLS_PACKAGE_FAIL);
   }
 
-  /* Set ordering as COLAMD.  The default is AMD, ordering 0. */
-  /* This should get changed to a user option */
-  klu_data->s_Common.ordering = 1;
+  /* Set ordering to COLAMD as the idas default use.
+     Users can set a different value with IDAKLUSetOrdering,
+     and the user-set value is loaded before any call to klu_analyze in
+     IDAKLUSetup.  */
+  klu_data->s_ordering = 1;
+  klu_data->s_Common.ordering = klu_data->s_ordering;
 
   /* Attach linear solver memory to the integrator memory */
   idasls_mem->s_solver_data = (void *) klu_data;
@@ -187,20 +190,12 @@ int IDAKLU(void *ida_mem, int n, int nnz)
 
 static int IDAKLUInit(IDAMem IDA_mem)
 {
-  int retval, n;
   IDASlsMem idasls_mem;
-  KLUData klu_data;
 
   idasls_mem = (IDASlsMem)IDA_mem->ida_lmem;
-  klu_data = (KLUData) idasls_mem->s_solver_data;
 
   idasls_mem->s_nje = 0;
   idasls_mem->s_first_factorize = 1;
-
-  /* ------------------------------------------------------------
-     Allocate storage and initialize statistics variables. 
-     ------------------------------------------------------------*/
-  n = idasls_mem->s_JacMat->N;
 
   idasls_mem->s_last_flag = 0;
   return(0);
@@ -268,8 +263,12 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
     /* ------------------------------------------------------------
        Get the symbolic factorization
        ------------------------------------------------------------*/ 
-    klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->colptrs, JacMat->rowvals, 
-				     &(klu_data->s_Common));
+    /* Update the ordering option with any user-updated values from 
+       calls to KINKLUSetOrdering */
+    klu_data->s_Common.ordering = klu_data->s_ordering;
+
+    klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->colptrs, 
+				       JacMat->rowvals, &(klu_data->s_Common));
     if (klu_data->s_Symbolic == NULL) {
       IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLUSetup", 
 		      MSGSP_PACKAGE_FAIL);
@@ -306,7 +305,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 static int IDAKLUSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 		       N_Vector ycur, N_Vector ypcur, N_Vector rrcur)
 {
-  int last_flag;
+  int last_flag, flag;
   realtype cjratio;
   IDASlsMem idasls_mem;
   KLUData klu_data;
@@ -323,8 +322,13 @@ static int IDAKLUSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   bd = N_VGetArrayPointer(b);
 
   /* Call KLU to solve the linear system */
-  klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, bd, 
+  flag = klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, bd, 
 	    &(klu_data->s_Common));
+  if (flag == 0) {
+    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLUSolve", 
+		    MSGSP_PACKAGE_FAIL);
+    return(IDASLS_PACKAGE_FAIL);
+  }
 
   /* Scale the correction to account for change in cj. */
   if (cjratio != ONE) N_VScale(TWO/(ONE + cjratio), b, b);
@@ -455,3 +459,44 @@ static void IDAKLUFreeB(IDABMem IDAB_mem)
   free(idaslsB_mem);
 }
 
+
+/* 
+ * -----------------------------------------------------------------
+ * Optional Input Specification Functions
+ * -----------------------------------------------------------------
+ *
+ * IDAKLUSetOrdering sets the ordering used by KLU for reducing fill.
+ * Options are: 0 for AMD, 1 for COLAMD, and 2 for the natural ordering.
+ * The default used in KINSOL is 1 for COLAMD.
+ * -----------------------------------------------------------------
+ */
+
+int IDAKLUSetOrdering(void *ida_mem_v, int ordering_choice)
+{
+  IDAMem ida_mem;
+  IDASlsMem idasls_mem;
+  KLUData klu_data;
+
+ /* Return immediately if kin_mem is NULL */
+  if (ida_mem_v == NULL) {
+    IDAProcessError(NULL, IDASLS_MEM_NULL, "IDASLS", "IDAKLUSetOrdering",
+		    MSGSP_IDAMEM_NULL);
+    return(IDASLS_MEM_NULL);
+  }
+  ida_mem = (IDAMem) ida_mem_v;
+
+ /* Return if ordering choice argument is not valid */
+  if ( (ordering_choice != 0) && (ordering_choice != 1) && 
+       (ordering_choice != 2) ) {
+    IDAProcessError(NULL, IDASLS_ILL_INPUT, "IDASLS", "IDAKLUSetOrdering",
+		    MSGSP_ILL_INPUT);
+    return(IDASLS_ILL_INPUT);
+  }
+
+  idasls_mem = (IDASlsMem) ida_mem->ida_lmem;
+  klu_data = (KLUData) idasls_mem->s_solver_data;
+
+  klu_data->s_ordering = ordering_choice;
+
+  return(IDASLS_SUCCESS);
+}

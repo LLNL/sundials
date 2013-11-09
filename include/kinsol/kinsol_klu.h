@@ -15,14 +15,14 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the IDAKLU linear solver module.
+ * This is the header file for the KINKLU linear solver module.
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDASKLU_H
-#define _IDASKLU_H
+#ifndef _KINKLU_H
+#define _KINKLU_H
 
-#include "idas/idas_sparse.h"
+#include "kinsol/kinsol_sparse.h"
 #include "sundials/sundials_sparse.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -31,56 +31,46 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Function : IDAKLU
+ * Function : KINKLU
  * -----------------------------------------------------------------
- * A call to the IDAKLU function links the main integrator      
- * with the IDAKLU linear solver module.                        
+ * A call to the KINKLU function links the main integrator      
+ * with the KINKLU linear solver module.                        
  *                                                                
- * ida_mem is the pointer to integrator memory returned by        
- *     IDACreate.             
+ * kin_mem is the pointer to integrator memory returned by        
+ *     KINCreate.             
  *
  *                                                                
- * IDAKLU returns:                                              
- *     IDASLU_SUCCESS   = 0  if successful                              
- *     IDASLU_LMEM_FAIL = -1 if there was a memory allocation failure   
- *     IDASLU_ILL_INPUT = -2 if NVECTOR found incompatible           
+ * KINKLU returns:                                              
+ *     KINSLU_SUCCESS   = 0  if successful                              
+ *     KINSLU_LMEM_FAIL = -1 if there was a memory allocation failure   
+ *     KINSLU_ILL_INPUT = -2 if NVECTOR found incompatible           
  *                                                                
  * NOTE: The KLU linear solver assumes a serial implementation  
- *       of the NVECTOR package. Therefore, IDAKLU will first
+ *       of the NVECTOR package. Therefore, KINKLU will first
  *       test for a compatible N_Vector internal representation
  *       by checking that the functions N_VGetArrayPointer and
  *       N_VSetArrayPointer exist.
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT int IDAKLU(void *ida_mem, int n, int nnz); 
+  SUNDIALS_EXPORT int KINKLU(void *kin_mem, int n, int nnz); 
 
-/*
- * -----------------------------------------------------------------
- * Function: IDAKLUB
- * -----------------------------------------------------------------
- * IDAKLUB links the main IDAS integrator with the IDAKLU
- * linear solver for the backward integration.
- * -----------------------------------------------------------------
- */
-
-  SUNDIALS_EXPORT int IDAKLUB(void *ida_mem, int which, int nB, int nnzB);
 
 /* 
  * -----------------------------------------------------------------
  * Optional Input Specification Functions
  * -----------------------------------------------------------------
  *
- * IDAKLUSetOrdering sets the ordering used by KLU for reducing fill.
+ * KINKLUSetOrdering sets the ordering used by KLU for reducing fill.
  * Options are: 0 for AMD, 1 for COLAMD, and 2 for the natural ordering.
  * The default used in KINSOL is 1 for COLAMD.
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT int IDAKLUSetOrdering(void *ida_mem, int ordering_choice); 
+  SUNDIALS_EXPORT int KINKLUSetOrdering(void *kin_mem, int ordering_choice); 
 
 
-  
+
 #ifdef __cplusplus
 }
 #endif

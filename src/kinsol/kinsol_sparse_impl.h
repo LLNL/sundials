@@ -79,6 +79,7 @@ typedef struct KINSlsMemRec {
 #define MSGSP_MEM_FAIL "A memory request failed."
 #define MSGSP_LMEM_NULL "Linear solver memory is NULL."
 #define MSGSP_JAC_NOSET "Jacobian evaluation function has not been set."
+#define MSGSP_ILL_INPUT "Invalid input detected."
 #define MSGSP_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 #define MSGSP_PACKAGE_FAIL "A call to an external package failed."
 

@@ -22,11 +22,11 @@
 #ifndef _IDASSPARSE_IMPL_H
 #define _IDASSPARSE_IMPL_H
 
+#include "idas/idas_sparse.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <idas/idas_sparse.h>
 
 /*
  * =================================================================
@@ -107,6 +107,7 @@ typedef struct IDASlsMemRecB {
 #define MSGSP_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGSP_MEM_FAIL "A memory request failed."
 #define MSGSP_LMEM_NULL "Linear solver memory is NULL."
+#define MSGSP_ILL_INPUT "Invalid input detected."
 #define MSGSP_JAC_NOSET "Jacobian evaluation function has not been set."
 #define MSGSP_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 #define MSGSP_PACKAGE_FAIL "A call to an external package failed."
