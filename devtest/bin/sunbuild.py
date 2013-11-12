@@ -210,8 +210,7 @@ def sendEmail(logFile, subject):
 	# me == the sender's email address
 	me = "SUNDIALS.sunbuild@llnl.gov"
 	# you == the recipient's email address
-	you = "banks12@llnl.gov"
-	#you = "sundials-devs@llnl.gov"
+	you = "sundials-devs@llnl.gov"
 	msg['Subject'] = subject
 	msg['From'] = me
 	msg['To'] = you
