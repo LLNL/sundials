@@ -5,10 +5,15 @@
 # Note: You can run the same test with different arguments by adding multiple lines
 cvsAdvDiff_FSA_non:4:10:-sensi stg t
 cvsAdvDiff_FSA_non:4:10:-sensi sim t
+cvsAdvDiff_FSA_non_p:4:10:-sensi stg t
+cvsAdvDiff_FSA_non_p:4:10:-sensi sim t
 cvsDiurnal_FSA_kry:4:10:-sensi stg t
 cvsDiurnal_FSA_kry:4:10:-sensi sim t
-cvsRoberts_FSA_dns:4:10:-sensi stg1 t
-idasRoberts_FSA_dns:4:10:-sensi stg t
+cvsDiurnal_FSA_kry_p:4:10:-sensi stg t
+cvsDiurnal_FSA_kry_p:4:10:-sensi sim t
+cvsRoberts_FSA_dns:4:10:-sensi stg t
+idasRoberts_FSA_dns:4:10:-sensi stg1 t
+idasHeat2D_FSA_kry_bbd_p:4:10:-sensi stg t
 test_nvector_serial:4:10:1000 0
 test_nvector_serial:4:10:10000 0
 test_nvector_openmp:4:10:1000 1 0

@@ -1,4 +1,0 @@
-
-Usage: cvsDiurnal_FSA_kry_p [-nosensi] [-sensi sensi_meth err_con]
-         sensi_meth = sim, stg, or stg1
-         err_con    = t or f

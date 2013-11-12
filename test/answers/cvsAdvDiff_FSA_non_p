@@ -1,4 +1,0 @@
-
-Usage: cvsAdvDiff_FSA_non_p [-nosensi] [-sensi sensi_meth err_con]
-         sensi_meth = sim, stg, or stg1
-         err_con    = t or f
