@@ -26,12 +26,17 @@ SET(ida_SOURCES
   ida_direct.c
   ida_band.c
   ida_dense.c
+  ida_sparse.c
   ida_spils.c
   ida_spbcgs.c
   ida_spgmr.c
   ida_sptfqmr.c
   ida_bbdpre.c
   )
+
+IF(KLU_FOUND)
+    LIST(APPEND ida_SOURCES ida_klu.c)
+ENDIF()
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the IDA library
@@ -42,6 +47,7 @@ SET(shared_SOURCES
   sundials_band.c
   sundials_dense.c
   sundials_iterative.c
+  sundials_sparse.c
   sundials_spbcgs.c
   sundials_spgmr.c
   sundials_sptfqmr.c

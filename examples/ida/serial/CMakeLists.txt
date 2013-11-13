@@ -28,6 +28,10 @@ SET(IDA_examples
   idaSlCrank_dns
   )
 
+SET(IDA_examples_KLU
+  idaRoberts_klu
+  )
+
 # Add variable IDA_examples_BL with the names of the serial IDA examples
 # that use Lapack
 
@@ -53,6 +57,10 @@ IF(LAPACK_FOUND)
   SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${LAPACK_LIBRARIES}")
 ENDIF(LAPACK_FOUND)
 
+IF(KLU_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
+ENDIF(KLU_FOUND)
+
 # Add the build and install targets for each IDA example
 
 FOREACH(example ${IDA_examples})
@@ -76,6 +84,19 @@ IF(LAPACK_FOUND)
     ENDIF(EXAMPLES_INSTALL)
   ENDFOREACH(example ${IDA_examples_BL})
 ENDIF(LAPACK_FOUND)
+
+# If KLU support is enabled, add the build and install targets for
+# the examples using KLU
+IF(KLU_FOUND)
+  FOREACH(example ${IDA_examples_KLU})
+    ADD_EXECUTABLE(${example} ${example}.c)
+    SUNDIALS_ADD_TEST(${example} ${example})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    IF(EXAMPLES_INSTALL)
+      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+    ENDIF(EXAMPLES_INSTALL)
+  ENDFOREACH(example ${IDA_examples_KLU})
+ENDIF(KLU_FOUND)
 
 IF(EXAMPLES_INSTALL)
 

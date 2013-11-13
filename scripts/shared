@@ -41,6 +41,7 @@ $tar $tarfile $distrobase/config/SundialsCXX.cmake
 $tar $tarfile $distrobase/config/SundialsLapack.cmake
 $tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsSuperLU.cmake
+$tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsMPIC.cmake
 $tar $tarfile $distrobase/config/SundialsMPICXX.cmake
 $tar $tarfile $distrobase/config/SundialsMPIF.cmake
@@ -50,6 +51,7 @@ $tar $tarfile $distrobase/config/FindBLAS.cmake
 $tar $tarfile $distrobase/config/FindMPI.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
 $tar $tarfile $distrobase/config/FindSUPERLU.cmake
+$tar $tarfile $distrobase/config/FindKLU.cmake
 
 
 #$tar $tarfile $distrobase/config/sundials.spec
@@ -76,6 +78,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_spbcgs.h
 $tar $tarfile $distrobase/include/sundials/sundials_sptfqmr.h
 $tar $tarfile $distrobase/include/sundials/sundials_pcg.h
 $tar $tarfile $distrobase/include/sundials/sundials_iterative.h
+$tar $tarfile $distrobase/include/sundials/sundials_klu_impl.h
 
 $tar $tarfile $distrobase/include/nvector/nvector_serial.h
 $tar $tarfile $distrobase/include/nvector/nvector_parallel.h
@@ -160,3 +163,10 @@ $tar $tarfile $distrobase/examples/templates/makefile_serial_F77_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_serial_CXX_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_openmp_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_pthreads_C_ex.in
+
+echo "   --- Add regression test files to $tarfile"
+# SGS TODO this should maybe be split up?
+$tar $tarfile $distrobase/test/answers
+$tar $tarfile $distrobase/test/testInfo
+$tar $tarfile $distrobase/test/testRunner
+

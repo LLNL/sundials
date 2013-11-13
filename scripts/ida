@@ -26,6 +26,8 @@ $tar $tarfile $distrobase/include/ida/ida_spbcgs.h
 $tar $tarfile $distrobase/include/ida/ida_sptfqmr.h
 $tar $tarfile $distrobase/include/ida/ida_spils.h
 $tar $tarfile $distrobase/include/ida/ida_bbdpre.h
+$tar $tarfile $distrobase/include/ida/ida_sparse.h
+$tar $tarfile $distrobase/include/ida/ida_klu.h
 
 $tar $tarfile $distrobase/src/ida/LICENSE
 $tar $tarfile $distrobase/src/ida/README
@@ -38,6 +40,7 @@ $tar $tarfile $distrobase/src/ida/ida_ic.c
 $tar $tarfile $distrobase/src/ida/ida_direct.c
 $tar $tarfile $distrobase/src/ida/ida_dense.c
 $tar $tarfile $distrobase/src/ida/ida_band.c
+$tar $tarfile $distrobase/src/ida/ida_klu.c
 $tar $tarfile $distrobase/src/ida/ida_lapack.c
 $tar $tarfile $distrobase/src/ida/ida_spils.c
 $tar $tarfile $distrobase/src/ida/ida_spgmr.c
@@ -48,6 +51,8 @@ $tar $tarfile $distrobase/src/ida/ida_impl.h
 $tar $tarfile $distrobase/src/ida/ida_direct_impl.h
 $tar $tarfile $distrobase/src/ida/ida_spils_impl.h
 $tar $tarfile $distrobase/src/ida/ida_bbdpre_impl.h
+$tar $tarfile $distrobase/src/ida/ida_sparse.c
+$tar $tarfile $distrobase/src/ida/ida_sparse_impl.h
 
 echo "   --- Add fida module to $tarfile"
 
@@ -84,6 +89,8 @@ $tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.c
 $tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.out
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.c
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.out
+# SGS what is out file? 
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.c
 $tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.c
 $tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.out
 

@@ -201,6 +201,7 @@ cp $sundialsdir/Makefile.in $tmpdir/
 cp $sundialsdir/CMakeLists.txt $tmpdir/
 
 cp -r $sundialsdir/config $tmpdir/
+cp -r $sundialsdir/test $tmpdir/
 
 cp -r $sundialsdir/include/sundials $tmpdir/include/
 cp -r $sundialsdir/include/nvector $tmpdir/include/
