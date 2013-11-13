@@ -117,7 +117,7 @@ if(MPIC_PERFORM_TEST)
     "}\n")
   # Use TRY_COMPILE to make the target "mpictest"
   try_compile(MPITEST_OK ${MPITest_DIR} ${MPITest_DIR}
-    mpitest OUTPUT_VARIABLE MY_OUTPUT)
+    mpictest OUTPUT_VARIABLE MY_OUTPUT)
   # To ensure we do not use stuff from the previous attempts, 
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${MPITest_DIR}/CMakeFiles)
