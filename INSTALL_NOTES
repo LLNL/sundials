@@ -598,6 +598,13 @@ Optionally you may run the test suite to verify the installation:
 
     make test    
 
+Problems have been found when trying to reset the C/C++ compiler path
+from within the CMake ccmake tool.  Older versions of ccmake will go
+into infinte loops.  One work-around for this is to set the compiler
+before launching ccmake.  For example:
+
+CC=gcc CXX=g++ ccmake <path to sundials source dir>
+
 ----------------------------
 C.3. Configuration and build under Windows.
 ----------------------------
