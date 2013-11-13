@@ -25,9 +25,10 @@ SET(IDAS_examples
   "idasBruss_kry_bbd_p\;1\;4"
   "idasFoodWeb_kry_bbd_p\;1\;4"
   "idasFoodWeb_kry_p\;1\;4"
-  "idasHeat2D_FSA_kry_bbd_p\;1\;4"
+  "idasHeat2D_FSA_kry_bbd_p\;1\;4\;-sensi stg t"
   "idasHeat2D_kry_bbd_p\;1\;4"
   "idasHeat2D_kry_p\;1\;4"
+
   )
 
 # Check whether we use MPI compiler scripts.
@@ -67,17 +68,30 @@ ENDIF(KLU_FOUND)
 
 # Add the build and install targets for each IDAS example
 
+SET(ADDED_EXECUTABLES "")
 FOREACH(example_tuple ${IDAS_examples})
+  # first item is example
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
   list(GET example_tuple 2 number_of_tasks)
-  # first item is example
-  ADD_EXECUTABLE(${example} ${example}.c)
-  IF(MPI_RUN_COMMAND MATCHES "srun")
-      ADD_TEST(${example} ${TESTRUNNER} ${example} "srun -N${number_of_nodes} -n${number_of_tasks} -ppdebug")
-  ELSE(MPI_RUN_COMMAND MATCHES "srun")
-      ADD_TEST(${example} ${TESTRUNNER} ${example} "mpirun -n ${number_of_tasks}")
-  ENDIF(MPI_RUN_COMMAND MATCHES "srun")
+
+  # Only need to add the executable once
+  LIST(FIND ADDED_EXECUTABLES ${example} index)
+  IF(index EQUAL -1)
+    LIST(APPEND ADDED_EXECUTABLES ${example})
+    ADD_EXECUTABLE(${example} ${example}.c)
+  ENDIF(index EQUAL -1)
+
+  # Optional 4th element is test arguments
+  LIST(LENGTH example_tuple n)
+  IF(n EQUAL 4)
+    LIST(GET example_tuple 3 test_args)
+    STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})
+    SUNDIALS_ADD_TEST(${test_name} ${example} MPI_NPROCS ${number_of_tasks} TEST_ARGS ${test_args})
+  ELSE()
+    SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
+  ENDIF()
+
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})

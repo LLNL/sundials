@@ -1,21 +1,63 @@
 #! /usr/bin/env python
 
-# Author: Chris White (white238@llnl.gov)
+# Author: Steven Smith based on code from : Chris White
 
-import exceptions, os, subprocess, sys
+import exceptions
+import os
+import subprocess
+import sys
+import argparse
+import re
 
 def main():
-    if len(sys.argv) > 3:
-        error("testRunner expects no more than 2 arguments, " + str(len(sys.argv)) + " given.")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description='Sundials test runner for use in ctest.')
+    parser.add_argument('--testname', dest='testName', type=str, required=True,
+                        help='name of the test')
+    parser.add_argument('--executablename', dest='executableName', type=str, required=True,
+                        help='executable, including path')
+    parser.add_argument('--answersdir', dest='answersDir', type=str, required=True,
+                        help='path to answers directory')
+    parser.add_argument('--answerfile', dest='answerFile', type=str, required=False,
+                        help='answer file, filename only specify path using --answersdir')
+    parser.add_argument('--outputdir', dest='outputDir', type=str, required=True,
+                        help='path to output directory')
 
-    testName = sys.argv[1]
-    testCmd = "./" + sys.argv[1]
-    if len(sys.argv) == 3:
-    	testCmd = sys.argv[2] + " " + testName
+    parser.add_argument('--runcommand', dest='runCommand', type=str,
+                        help='command used to run test executable, eg. mpirun')
+    parser.add_argument('--runargs', dest='runArgs', type=str,
+                        help='command line arguments passed to test executable')
+
+    parser.add_argument('--floatprecision', dest='floatPrecision', type=float,
+                        help='precision for floating point failure comparison')
+
+    parser.add_argument('--integerpercentage', dest='integerPercentage', type=int,
+                        help='integer percentage difference for failure comparison')
+
+    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+                        help='run verbosely')
+
+    args = parser.parse_args()
+
+    if(args.verbose):
+        print "testName=%s"%(args.testName)
+        print "executableName=%s"%(args.executableName)
+        print "answersDir=%s"%(args.answersDir)
+        print "answerFile=%s"%(args.answerFile)
+        print "outputDir=%s"%(args.outputDir)
+        print "runCommand=%s"%(args.runCommand)
+        print "runArgs=%s"%(args.runArgs)
+
+    testName = args.testName
+
     testDir = os.path.dirname(sys.argv[0])
-    outDir = os.path.join(testDir, "output")
+    outDir = args.outputDir
+
     answersDir = os.path.join(testDir, "answers")
+    
+    if(args.verbose):
+        print "testDir %s"%testDir
+        print "outDir %s"%outDir
+        print "answersDir %s"%answersDir
 
     if not os.path.exists(outDir):
         os.makedirs(outDir)
@@ -26,27 +68,57 @@ def main():
     testInfos = getInfo(testName, testDir)
     success = True
     for testInfo in testInfos:
-        if testInfo.arguments != "":
-            #testCommand = "./" + testName + " " + testInfo
-            testCommand = testCmd + " " + testInfo.arguments
-            answerFileName = testName + "_" + testInfo.arguments.replace(" ", "_")
-        else:
-            testCommand = testCmd
-            answerFileName = testName
+        if(args.verbose):
+            error("testInfo.arguments = ",testInfo.arguments)
 
-        outPath = os.path.join(outDir, answerFileName)
+        # If running under another program (e.g. mpirun)
+        if(args.runCommand):
+            testCommand = args.runCommand.replace("\"", "").split(" ")
+        else:
+            testCommand = []
+
+        testCommand = testCommand + [args.executableName]
+
+        if(args.runArgs):
+            # Remove first and last quote
+            userArgs=re.sub(r'^"|"$', '', args.runArgs)
+            testCommand = testCommand +  userArgs.split(" ")
+            answerFileName = testName
+        else:
+            if testInfo.arguments != "":
+                testCommand = testCommand + testInfo.arguments.split(" ")
+                answerFileName = testName + "_" + testInfo.arguments.replace(" ", "_")
+            else:
+                answerFileName = testName
+
+        # if user supplies filename overide default choices
+        if(args.answerFile):
+            answerFileName = args.answerFile
+
+        outPath = os.path.join(outDir, args.testName)
+
         answerPath = os.path.join(answersDir, answerFileName)
 
-        print "Starting test..."
-        print "  Floating Point Precision = " + str(testInfo.floatPrecision)
-        print "  Integer Precision = " + str(testInfo.integerPercentage)
-        print "  Command = " + testCommand
-        print "  Answer File = " + answerPath
-        print "  Output File = " + outPath + "\n"
+        # if user supplies precision info overide default choices
+        if(args.floatPrecision):
+            testInfo.floatPrecision=args.floatPrecision
+
+        if(args.integerPercentage):
+            testInfo.integerPercentage=args.integerPercentage
+        
+        if(args.verbose):
+            print "Starting test..."
+            print "  Floating Point Precision = " + str(testInfo.floatPrecision)
+            print "  Integer Precision = " + str(testInfo.integerPercentage)
+            print "  Command " + ' '.join(testCommand)
+            print "  Answer File = " + answerPath
+            print "  Output File = " + outPath + "\n"
 
         outFile = open(outPath, 'w')
         try:
-            testCommand = testCommand.split(" ")
+            if(args.verbose):
+                print "Running command : " + ' '.join(testCommand)
+                        
             process = subprocess.Popen(testCommand, stdout=outFile, stderr=outFile)
             process.wait()
             if process.returncode != 0:
@@ -95,7 +167,7 @@ def compare(outPath, answerPath, testInfo):
             diffCount += 1
             print "Difference:\n  Output: " + outLine + "\n  Answer: " + answerLine + "\n\n"
     if diffCount != 0:
-        error(str(diffCount) + " line differences found.", sys.argv[1])
+        error(str(diffCount) + " line differences found.", outPath)
         return False
     return True
 
@@ -103,6 +175,11 @@ def compareLines(outLine, answerLine, testInfo):
     outTokens = tokenizeLine(outLine)
     answerTokens = tokenizeLine(answerLine)
     if len(outTokens) != len(answerTokens):
+        print "DEBUG: number of tokens differs"
+        print answerTokens
+        print "----------"
+        print outTokens
+        print "----------"
         return False
     for i, outValue in enumerate(outTokens):
         answerValue = answerTokens[i]
@@ -121,6 +198,8 @@ def compareLines(outLine, answerLine, testInfo):
                     return False
             elif outValue != answerValue:
                 print "DEBUG: str"
+                print "outValue <%s>"%(outValue)
+                print "answerValue <%s>"%(answerValue)
                 return False
     return True
 
@@ -155,24 +234,12 @@ def floatCompare(answer, value, precision):
     print "Error: Floating point difference found:\n Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(precision) + " decimals"
     return False
 
-tokenDelimiters = ['\t', ' ', '=']
-
 def tokenizeLine(line):
-    tokens = []
-    currLine = line
-    while(currLine != ""):
-        tokenEnd = 1
-        length = len(currLine)
-        while (tokenEnd < length):
-            if currLine[tokenEnd] in tokenDelimiters:
-                break
-            tokenEnd += 1
-        tokens.append(currLine[0:tokenEnd])
-        currLine = currLine[tokenEnd:]
-        if (currLine != ""):
-            tokens.append(currLine[0:1])
-            currLine = currLine[1:]
-    return tokens
+    return tokenizeLine.pattern.split(line)
+
+# Precompile a pattern since it will be used many times
+tokenizeLine.pattern = re.compile(r';|,|\s+|=+|:|\|\(|\)')
+
 
 def error(message, path=""):
     if path:

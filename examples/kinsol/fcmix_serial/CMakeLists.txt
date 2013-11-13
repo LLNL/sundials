@@ -58,7 +58,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${FKINSOL_examples})
   ADD_EXECUTABLE(${example} ${example}.f)
-  ADD_TEST(${example} ${TESTRUNNER} ${example})
+  SUNDIALS_ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/fcmix_serial)

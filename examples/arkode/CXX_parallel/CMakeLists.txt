@@ -56,7 +56,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${ARKODE_examples})
   ADD_EXECUTABLE(${example} ${example}.cpp)
-  ADD_TEST(${example} ${TESTRUNNER} ${example})
+  SUNDIALS_ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICXX)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})

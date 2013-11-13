@@ -51,16 +51,24 @@ ENDIF(MPI_MPICC)
 
 FOREACH(example ${nvector_parallel_examples})
 
-
   ADD_EXECUTABLE(${example} ${example}.c ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+
   # Run sequentially
-  ADD_TEST(${example} ${TESTRUNNER} ${example})
-  # and run in parallel
-  IF(MPI_RUN_COMMAND MATCHES "srun")
-      ADD_TEST(${example} ${TESTRUNNER} ${example} "srun -N1 -n4 -ppdebug")
-  ELSE(MPI_RUN_COMMAND MATCHES "srun")
-      ADD_TEST(${example} ${TESTRUNNER} ${example} "mpirun -n 4")
-  ENDIF(MPI_RUN_COMMAND MATCHES "srun")
+  SUNDIALS_ADD_TEST("${example}" ${example})
+
+  # Run sequentially with arguments
+  SUNDIALS_ADD_TEST("${example}_1000_0" ${example} TEST_ARGS 1000 0)
+
+  # Run in parallel on 4 procs
+  SUNDIALS_ADD_TEST("${example}_4" ${example} MPI_NPROCS 4)
+  
+  # Parallel with additional arguments and supplying an answer file
+  SUNDIALS_ADD_TEST("${example}_4_1000_0" ${example} MPI_NPROCS 4 TEST_ARGS 1000 0 ANSWER_FILE ${example})
+
+  # Specify floating point precision and integer percentage for comparison
+  SUNDIALS_ADD_TEST("${example}_precision" ${example} MPI_NPROCS 4 TEST_ARGS 1000 0 ANSWER_FILE ${example}
+    FLOAT_PRECISION 5 INTEGER_PERCENTAGE 0)
+  
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
   IF(EXAMPLES_INSTALL)

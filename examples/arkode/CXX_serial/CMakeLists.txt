@@ -48,7 +48,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${ARKODE_examples})
   ADD_EXECUTABLE(${example} ${example}.cpp)
-  ADD_TEST(${example} ${TESTRUNNER} ${example})
+  SUNDIALS_ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cpp ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial)

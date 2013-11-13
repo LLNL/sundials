@@ -21,10 +21,12 @@
 # "name\;nodes\;tasks"
 SET(CVODES_examples
   "cvsAdvDiff_ASAp_non_p\;2\;2"
-  "cvsAdvDiff_FSA_non_p\;2\;2"
+  "cvsAdvDiff_FSA_non_p\;2\;2\;-sensi stg t"
+  "cvsAdvDiff_FSA_non_p\;2\;2\;-sensi sim t"
   "cvsAdvDiff_non_p\;2\;2"
   "cvsAtmDisp_ASAi_kry_bbd_p\;2\;4"
-  "cvsDiurnal_FSA_kry_p\;2\;4"
+  "cvsDiurnal_FSA_kry_p\;2\;4\;-sensi stg t"
+  "cvsDiurnal_FSA_kry_p\;2\;4\;-sensi sim t"
   "cvsDiurnal_kry_bbd_p\;2\;4"
   "cvsDiurnal_kry_p\;2\;4"
   )
@@ -62,17 +64,32 @@ ENDIF(LAPACK_FOUND)
 
 # Add the build and install targets for each CVODES example
 
+# SGS is there a way to query CMAKE variable to get added executables 
+# rather than keeping our own list?
+SET(ADDED_EXECUTABLES "")
 FOREACH(example_tuple ${CVODES_examples})
+  # first item is example
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
   list(GET example_tuple 2 number_of_tasks)
-  # first item is example
-  ADD_EXECUTABLE(${example} ${example}.c)
-  IF(MPI_RUN_COMMAND MATCHES "srun")
-      ADD_TEST(${example} ${TESTRUNNER} ${example} "srun -N${number_of_nodes} -n${number_of_tasks} -ppdebug")
-  ELSE(MPI_RUN_COMMAND MATCHES "srun")
-      ADD_TEST(${example} ${TESTRUNNER} ${example} "mpirun -n ${number_of_tasks}")
-  ENDIF(MPI_RUN_COMMAND MATCHES "srun")
+
+  # Only need to add the executable once
+  LIST(FIND ADDED_EXECUTABLES ${example} index)
+  IF(index EQUAL -1)
+    LIST(APPEND ADDED_EXECUTABLES ${example})
+    ADD_EXECUTABLE(${example} ${example}.c)
+  ENDIF(index EQUAL -1)
+
+  # Optional 4th element is test arguments
+  LIST(LENGTH example_tuple n)
+  IF(n EQUAL 4)
+    LIST(GET example_tuple 3 test_args)
+    STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})
+    SUNDIALS_ADD_TEST(${test_name} ${example} MPI_NPROCS ${number_of_tasks} TEST_ARGS ${test_args})
+  ELSE()
+    SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
+  ENDIF()
+
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})

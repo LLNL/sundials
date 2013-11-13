@@ -23,7 +23,7 @@
 
 # Require a fairly recent cmake version
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.2)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.1)
 
 # Set CMake policy to allow examples to build
 if(COMMAND cmake_policy)
@@ -835,9 +835,10 @@ ENDIF(BUILD_CPODES)
 # Also, if we will generate exported example Makefiles, set 
 # variables needed in generating them from templates.
 
+INCLUDE(SundialsAddTest)
+
 IF(EXAMPLES_ENABLE)
   ENABLE_TESTING()
-  FIND_PROGRAM(TESTRUNNER testRunner PATHS test)
 
   IF(EXAMPLES_INSTALL)
     SET(SHELL "sh")

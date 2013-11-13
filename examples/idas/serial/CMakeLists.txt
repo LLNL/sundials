@@ -32,7 +32,7 @@ SET(IDAS_examples
   idasKrylovDemo_ls
   idasRoberts_ASAi_dns
   idasRoberts_dns
-  idasRoberts_FSA_dns
+  "idasRoberts_FSA_dns\;-sensi stg t"
   idasSlCrank_dns
   idasSlCrank_FSA_dns
   )
@@ -80,14 +80,33 @@ ENDIF(KLU_FOUND)
 
 # Add the build and install targets for each IDAS example
 
-FOREACH(example ${IDAS_examples})
-  ADD_EXECUTABLE(${example} ${example}.c)
-  ADD_TEST(${example} ${TESTRUNNER} ${example})
+# SGS is there a way to query CMAKE variable to get added executables 
+# rather than keeping our own list?
+SET(ADDED_EXECUTABLES "")
+FOREACH(example_tuple ${IDAS_examples})
+  LIST(GET example_tuple 0 example)
+
+  # Only need to add the executable once
+  LIST(FIND ADDED_EXECUTABLES ${example} index)
+  IF(index EQUAL -1)
+    LIST(APPEND ADDED_EXECUTABLES ${example})
+    ADD_EXECUTABLE(${example} ${example}.c)
+  ENDIF(index EQUAL -1)
+
+  LIST(LENGTH example_tuple n)
+  IF(n EQUAL 2)
+    LIST(GET example_tuple 1 test_args)
+    STRING(REGEX REPLACE " " "_" test_name ${example}_${test_args})
+    SUNDIALS_ADD_TEST(${test_name} ${example} TEST_ARGS ${test_args})
+  ELSE()
+    SUNDIALS_ADD_TEST(${example} ${example})
+  ENDIF()
+
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${IDAS_examples})
+ENDFOREACH(example_tuple ${IDAS_examples})
 
 # If Lapack support is enabled, add the build and install targets for
 # the examples using Lapack
@@ -118,7 +137,7 @@ ENDIF(SUPERLU_FOUND)
 IF(KLU_FOUND)
   FOREACH(example ${IDAS_examples_KLU})
     ADD_EXECUTABLE(${example} ${example}.c)
-    ADD_TEST(${example} ${TESTRUNNER} ${example})
+    SUNDIALS_ADD_TEST(${example} ${example})
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
