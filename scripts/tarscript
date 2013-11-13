@@ -165,8 +165,11 @@ fi
 
 # Location of the scripts
 scriptdir=`pwd`
+cd ..
+# Sundials directory
+sundialsdir=`pwd`
 # Location of tarballs
-cd ../..
+cd ..
 rootdir=`pwd`
 
 tmpdir=$rootdir/tmp_dir.$$
@@ -175,7 +178,7 @@ tmpdir=$rootdir/tmp_dir.$$
 # Create temporary directory
 #---------------------------
 echo -e "\n--- Create temporary directory ---"
-echo "copy $rootdir/sundials to $rootdir/$tmpdir"
+echo "copy $sundialsdir to $rootdir/$tmpdir"
 rm -rf $tmpdir
 mkdir $tmpdir
 mkdir $tmpdir/include
@@ -188,32 +191,32 @@ mkdir $tmpdir/examples
 # and create additional files as needed
 #----------------------------------
 
-cp sundials/LICENSE $tmpdir/
-cp sundials/README $tmpdir/ 
-cp sundials/INSTALL_NOTES $tmpdir/
-cp sundials/config.hin $tmpdir/
-cp sundials/configure.ac $tmpdir/configure.ac
-cp sundials/acinclude.m4 $tmpdir/
-cp sundials/Makefile.in $tmpdir/
-cp sundials/CMakeLists.txt $tmpdir/
+cp $sundialsdir/LICENSE $tmpdir/
+cp $sundialsdir/README $tmpdir/ 
+cp $sundialsdir/INSTALL_NOTES $tmpdir/
+cp $sundialsdir/config.hin $tmpdir/
+cp $sundialsdir/configure.ac $tmpdir/configure.ac
+cp $sundialsdir/acinclude.m4 $tmpdir/
+cp $sundialsdir/Makefile.in $tmpdir/
+cp $sundialsdir/CMakeLists.txt $tmpdir/
 
-cp -r sundials/config $tmpdir/
+cp -r $sundialsdir/config $tmpdir/
 
-cp -r sundials/include/sundials $tmpdir/include/
-cp -r sundials/include/nvector $tmpdir/include/
+cp -r $sundialsdir/include/sundials $tmpdir/include/
+cp -r $sundialsdir/include/nvector $tmpdir/include/
 
-cp -r sundials/src/sundials $tmpdir/src/
-cp -r sundials/src/nvec_ser $tmpdir/src/
-cp -r sundials/src/nvec_par $tmpdir/src/
-cp -r sundials/src/nvec_openmp $tmpdir/src/
-cp -r sundials/src/nvec_pthreads $tmpdir/src/
+cp -r $sundialsdir/src/sundials $tmpdir/src/
+cp -r $sundialsdir/src/nvec_ser $tmpdir/src/
+cp -r $sundialsdir/src/nvec_par $tmpdir/src/
+cp -r $sundialsdir/src/nvec_openmp $tmpdir/src/
+cp -r $sundialsdir/src/nvec_pthreads $tmpdir/src/
 
-cp -r sundials/doc/sundials $tmpdir/doc/
+cp -r $sundialsdir/doc/sundials $tmpdir/doc/
 
-cp -r sundials/bin $tmpdir/
+cp -r $sundialsdir/bin $tmpdir/
 
-cp -r sundials/examples/nvector $tmpdir/examples/
-cp -r sundials/examples/templates $tmpdir/examples/
+cp -r $sundialsdir/examples/nvector $tmpdir/examples/
+cp -r $sundialsdir/examples/templates $tmpdir/examples/
 
 cd $tmpdir
 echo -e "\n--- Generate configure script ---"
@@ -223,15 +226,15 @@ autoheader --force
 cd -
 
 if [ $do_sundials = "T" ]; then
-    cp -r sundials/sundialsTB $tmpdir/
-    cp -r sundials/sundialsTB/doc $tmpdir/doc/sundialsTB
+    cp -r $sundialsdir/sundialsTB $tmpdir/
+    cp -r $sundialsdir/sundialsTB/doc $tmpdir/doc/sundialsTB
 fi
 
 if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
-    cp -r sundials/include/arkode $tmpdir/include/
-    cp -r sundials/src/arkode $tmpdir/src/
-    #cp -r sundials/doc/arkode $tmpdir/doc/
-    cp -r sundials/examples/arkode $tmpdir/examples/
+    cp -r $sundialsdir/include/arkode $tmpdir/include/
+    cp -r $sundialsdir/src/arkode $tmpdir/src/
+    #cp -r $sundialsdir/doc/arkode $tmpdir/doc/
+    cp -r $sundialsdir/examples/arkode $tmpdir/examples/
     #if [ $doc = "T" ]; then
     #    echo -e "--- ARKODE documentation"
     #    cd $tmpdir/doc/arkode
@@ -244,10 +247,10 @@ if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
 fi
 
 if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
-    cp -r sundials/include/cvode $tmpdir/include/
-    cp -r sundials/src/cvode $tmpdir/src/
-    cp -r sundials/doc/cvode $tmpdir/doc/
-    cp -r sundials/examples/cvode $tmpdir/examples/
+    cp -r $sundialsdir/include/cvode $tmpdir/include/
+    cp -r $sundialsdir/src/cvode $tmpdir/src/
+    cp -r $sundialsdir/doc/cvode $tmpdir/doc/
+    cp -r $sundialsdir/examples/cvode $tmpdir/examples/
     if [ $doc = "T" ]; then
         echo -e "--- CVODE documentation"
         cd $tmpdir/doc/cvode
@@ -259,10 +262,10 @@ if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
 fi
 
 if [ $do_sundials = "T" -o $do_cvodes = "T" ]; then
-    cp -r sundials/include/cvodes $tmpdir/include/
-    cp -r sundials/src/cvodes $tmpdir/src/
-    cp -r sundials/doc/cvodes $tmpdir/doc/
-    cp -r sundials/examples/cvodes $tmpdir/examples/
+    cp -r $sundialsdir/include/cvodes $tmpdir/include/
+    cp -r $sundialsdir/src/cvodes $tmpdir/src/
+    cp -r $sundialsdir/doc/cvodes $tmpdir/doc/
+    cp -r $sundialsdir/examples/cvodes $tmpdir/examples/
     if [ $doc = "T" ]; then
         echo -e "--- CVODES documentation"
         cd $tmpdir/doc/cvodes
@@ -274,10 +277,10 @@ if [ $do_sundials = "T" -o $do_cvodes = "T" ]; then
 fi
 
 if [ $do_sundials = "T" -o $do_ida = "T" ]; then
-    cp -r sundials/include/ida $tmpdir/include/
-    cp -r sundials/src/ida $tmpdir/src/
-    cp -r sundials/doc/ida $tmpdir/doc/
-    cp -r sundials/examples/ida $tmpdir/examples/
+    cp -r $sundialsdir/include/ida $tmpdir/include/
+    cp -r $sundialsdir/src/ida $tmpdir/src/
+    cp -r $sundialsdir/doc/ida $tmpdir/doc/
+    cp -r $sundialsdir/examples/ida $tmpdir/examples/
     if [ $doc = "T" ]; then
         echo -e "--- IDA documentation"
         cd $tmpdir/doc/ida
@@ -289,10 +292,10 @@ if [ $do_sundials = "T" -o $do_ida = "T" ]; then
 fi
 
 if [ $do_sundials = "T" -o $do_idas = "T" ]; then
-    cp -r sundials/include/idas $tmpdir/include/
-    cp -r sundials/src/idas $tmpdir/src/
-    cp -r sundials/doc/idas $tmpdir/doc/
-    cp -r sundials/examples/idas $tmpdir/examples/
+    cp -r $sundialsdir/include/idas $tmpdir/include/
+    cp -r $sundialsdir/src/idas $tmpdir/src/
+    cp -r $sundialsdir/doc/idas $tmpdir/doc/
+    cp -r $sundialsdir/examples/idas $tmpdir/examples/
     if [ $doc = "T" ]; then
         echo -e "--- IDAS documentation"
         cd $tmpdir/doc/idas
@@ -304,10 +307,10 @@ if [ $do_sundials = "T" -o $do_idas = "T" ]; then
 fi
 
 if [ $do_sundials = "T" -o $do_kinsol = "T" ]; then
-    cp -r sundials/include/kinsol $tmpdir/include/
-    cp -r sundials/src/kinsol $tmpdir/src/
-    cp -r sundials/doc/kinsol $tmpdir/doc/
-    cp -r sundials/examples/kinsol $tmpdir/examples/
+    cp -r $sundialsdir/include/kinsol $tmpdir/include/
+    cp -r $sundialsdir/src/kinsol $tmpdir/src/
+    cp -r $sundialsdir/doc/kinsol $tmpdir/doc/
+    cp -r $sundialsdir/examples/kinsol $tmpdir/examples/
     if [ $doc = "T" ]; then
         echo -e "--- KINSOL documentation"
         cd $tmpdir/doc/kinsol
