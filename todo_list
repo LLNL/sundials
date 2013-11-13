@@ -42,6 +42,13 @@ manuals and INSTALL_NOTES (anywhere else?)
 
 ***(Steve) Change header info for all files
 
+	   Script was run which fixes most file headers.
+
+	   Following should find all files that still need to be updated.
+
+	   grep Regents $(find . -type f) | grep -v 2013 | grep -v .svn | grep -v .hg | awk ' BEGIN {FS=":"} {print $1}'
+
+
 (Alan, Carol) Verify output of examples used in new testing system 
 are indeed correct.
 As part of this we probably should tighten absolute tolerances on Krylov
