@@ -167,6 +167,5 @@ $tar $tarfile $distrobase/examples/templates/makefile_pthreads_C_ex.in
 echo "   --- Add regression test files to $tarfile"
 # SGS TODO this should maybe be split up?
 $tar $tarfile $distrobase/test/answers
-$tar $tarfile $distrobase/test/testInfo
 $tar $tarfile $distrobase/test/testRunner
 
