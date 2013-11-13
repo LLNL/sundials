@@ -20,9 +20,10 @@ function print_usage
 
     # Print help message
     echo ""
-    echo "Usage: tarscript [-hs] [module]"
+    echo "Usage: tarscript [-hsv] [module]"
     echo "   -h       : help"
     echo "   -s       : short (no documentation)"
+    echo "   -q       : quiet"
     echo "   module   : all, sundials, arkode, cvode, cvodes, ida, idas, kinsol"
     echo ""
     echo "Notes: If the module is not specified, all tarballs are created."
@@ -64,14 +65,16 @@ fi
 err=F   # Error flag
 hlp=F   # Help flag
 doc=T   # Documentation flag
+quiet=F # Quiet flag
 
 #----------------
 # Process options
 #----------------
-while getopts ":hs" name ; do
+while getopts ":hsq" name ; do
     case $name in
         h) hlp=T;;
         s) doc=F;;
+        q) quiet=T;;
         ?) echo "Invalid option"; err=T;;
     esac
 done
@@ -147,6 +150,15 @@ if [ $err = "T" -o $hlp = "T" ]; then
     print_usage
 fi
 
+#------------
+# tar command
+#------------
+if [ "$quiet" = "T" ]; then
+    tar="tar -uf"
+else
+    tar="tar -uvf"
+fi
+
 #------------------
 # Define some names
 #------------------
@@ -155,53 +167,55 @@ fi
 scriptdir=`pwd`
 # Location of tarballs
 cd ../..
-tmpdir=`pwd`
+rootdir=`pwd`
+
+tmpdir=$rootdir/tmp_dir.$$
 
 #---------------------------
 # Create temporary directory
 #---------------------------
 echo -e "\n--- Create temporary directory ---"
-echo "copy $tmpdir/sundials to $tmpdir/tmp_dir"
-rm -rf tmp_dir
-mkdir tmp_dir
-mkdir tmp_dir/include
-mkdir tmp_dir/src
-mkdir tmp_dir/doc
-mkdir tmp_dir/examples
+echo "copy $rootdir/sundials to $rootdir/$tmpdir"
+rm -rf $tmpdir
+mkdir $tmpdir
+mkdir $tmpdir/include
+mkdir $tmpdir/src
+mkdir $tmpdir/doc
+mkdir $tmpdir/examples
 
 #----------------------------------
-# Copy appropriate files in tmp_dir
+# Copy appropriate files in $tmpdir
 # and create additional files as needed
 #----------------------------------
 
-cp sundials/LICENSE tmp_dir/
-cp sundials/README tmp_dir/ 
-cp sundials/INSTALL_NOTES tmp_dir/
-cp sundials/config.hin tmp_dir/
-cp sundials/configure.ac tmp_dir/configure.ac
-cp sundials/acinclude.m4 tmp_dir/
-cp sundials/Makefile.in tmp_dir/
-cp sundials/CMakeLists.txt tmp_dir/
+cp sundials/LICENSE $tmpdir/
+cp sundials/README $tmpdir/ 
+cp sundials/INSTALL_NOTES $tmpdir/
+cp sundials/config.hin $tmpdir/
+cp sundials/configure.ac $tmpdir/configure.ac
+cp sundials/acinclude.m4 $tmpdir/
+cp sundials/Makefile.in $tmpdir/
+cp sundials/CMakeLists.txt $tmpdir/
 
-cp -r sundials/config tmp_dir/
+cp -r sundials/config $tmpdir/
 
-cp -r sundials/include/sundials tmp_dir/include/
-cp -r sundials/include/nvector tmp_dir/include/
+cp -r sundials/include/sundials $tmpdir/include/
+cp -r sundials/include/nvector $tmpdir/include/
 
-cp -r sundials/src/sundials tmp_dir/src/
-cp -r sundials/src/nvec_ser tmp_dir/src/
-cp -r sundials/src/nvec_par tmp_dir/src/
-cp -r sundials/src/nvec_openmp tmp_dir/src/
-cp -r sundials/src/nvec_pthreads tmp_dir/src/
+cp -r sundials/src/sundials $tmpdir/src/
+cp -r sundials/src/nvec_ser $tmpdir/src/
+cp -r sundials/src/nvec_par $tmpdir/src/
+cp -r sundials/src/nvec_openmp $tmpdir/src/
+cp -r sundials/src/nvec_pthreads $tmpdir/src/
 
-cp -r sundials/doc/sundials tmp_dir/doc/
+cp -r sundials/doc/sundials $tmpdir/doc/
 
-cp -r sundials/bin tmp_dir/
+cp -r sundials/bin $tmpdir/
 
-cp -r sundials/examples/nvector tmp_dir/examples/
-cp -r sundials/examples/templates tmp_dir/examples/
+cp -r sundials/examples/nvector $tmpdir/examples/
+cp -r sundials/examples/templates $tmpdir/examples/
 
-cd tmp_dir
+cd $tmpdir
 echo -e "\n--- Generate configure script ---"
 aclocal --force
 autoconf --force -o configure configure.ac
@@ -209,18 +223,18 @@ autoheader --force
 cd -
 
 if [ $do_sundials = "T" ]; then
-    cp -r sundials/sundialsTB tmp_dir/
-    cp -r sundials/sundialsTB/doc tmp_dir/doc/sundialsTB
+    cp -r sundials/sundialsTB $tmpdir/
+    cp -r sundials/sundialsTB/doc $tmpdir/doc/sundialsTB
 fi
 
 if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
-    cp -r sundials/include/arkode tmp_dir/include/
-    cp -r sundials/src/arkode tmp_dir/src/
-    #cp -r sundials/doc/arkode tmp_dir/doc/
-    cp -r sundials/examples/arkode tmp_dir/examples/
+    cp -r sundials/include/arkode $tmpdir/include/
+    cp -r sundials/src/arkode $tmpdir/src/
+    #cp -r sundials/doc/arkode $tmpdir/doc/
+    cp -r sundials/examples/arkode $tmpdir/examples/
     #if [ $doc = "T" ]; then
     #    echo -e "--- ARKODE documentation"
-    #    cd tmp_dir/doc/arkode
+    #    cd $tmpdir/doc/arkode
     #    make QUIET= purge
     #    make QUIET= ug_pdf
     #    make QUIET= ex_pdf
@@ -230,13 +244,13 @@ if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
 fi
 
 if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
-    cp -r sundials/include/cvode tmp_dir/include/
-    cp -r sundials/src/cvode tmp_dir/src/
-    cp -r sundials/doc/cvode tmp_dir/doc/
-    cp -r sundials/examples/cvode tmp_dir/examples/
+    cp -r sundials/include/cvode $tmpdir/include/
+    cp -r sundials/src/cvode $tmpdir/src/
+    cp -r sundials/doc/cvode $tmpdir/doc/
+    cp -r sundials/examples/cvode $tmpdir/examples/
     if [ $doc = "T" ]; then
         echo -e "--- CVODE documentation"
-        cd tmp_dir/doc/cvode
+        cd $tmpdir/doc/cvode
         make QUIET= purge
         make QUIET= ug_pdf
         make QUIET= ex_pdf
@@ -245,13 +259,13 @@ if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
 fi
 
 if [ $do_sundials = "T" -o $do_cvodes = "T" ]; then
-    cp -r sundials/include/cvodes tmp_dir/include/
-    cp -r sundials/src/cvodes tmp_dir/src/
-    cp -r sundials/doc/cvodes tmp_dir/doc/
-    cp -r sundials/examples/cvodes tmp_dir/examples/
+    cp -r sundials/include/cvodes $tmpdir/include/
+    cp -r sundials/src/cvodes $tmpdir/src/
+    cp -r sundials/doc/cvodes $tmpdir/doc/
+    cp -r sundials/examples/cvodes $tmpdir/examples/
     if [ $doc = "T" ]; then
         echo -e "--- CVODES documentation"
-        cd tmp_dir/doc/cvodes
+        cd $tmpdir/doc/cvodes
         make QUIET= purge
         make QUIET= ug_pdf
         make QUIET= ex_pdf
@@ -260,13 +274,13 @@ if [ $do_sundials = "T" -o $do_cvodes = "T" ]; then
 fi
 
 if [ $do_sundials = "T" -o $do_ida = "T" ]; then
-    cp -r sundials/include/ida tmp_dir/include/
-    cp -r sundials/src/ida tmp_dir/src/
-    cp -r sundials/doc/ida tmp_dir/doc/
-    cp -r sundials/examples/ida tmp_dir/examples/
+    cp -r sundials/include/ida $tmpdir/include/
+    cp -r sundials/src/ida $tmpdir/src/
+    cp -r sundials/doc/ida $tmpdir/doc/
+    cp -r sundials/examples/ida $tmpdir/examples/
     if [ $doc = "T" ]; then
         echo -e "--- IDA documentation"
-        cd tmp_dir/doc/ida
+        cd $tmpdir/doc/ida
         make QUIET= purge
         make QUIET= ug_pdf
         make QUIET= ex_pdf
@@ -275,13 +289,13 @@ if [ $do_sundials = "T" -o $do_ida = "T" ]; then
 fi
 
 if [ $do_sundials = "T" -o $do_idas = "T" ]; then
-    cp -r sundials/include/idas tmp_dir/include/
-    cp -r sundials/src/idas tmp_dir/src/
-    cp -r sundials/doc/idas tmp_dir/doc/
-    cp -r sundials/examples/idas tmp_dir/examples/
+    cp -r sundials/include/idas $tmpdir/include/
+    cp -r sundials/src/idas $tmpdir/src/
+    cp -r sundials/doc/idas $tmpdir/doc/
+    cp -r sundials/examples/idas $tmpdir/examples/
     if [ $doc = "T" ]; then
         echo -e "--- IDAS documentation"
-        cd tmp_dir/doc/idas
+        cd $tmpdir/doc/idas
         make QUIET= purge
         make QUIET= ug_pdf
         make QUIET= ex_pdf
@@ -290,13 +304,13 @@ if [ $do_sundials = "T" -o $do_idas = "T" ]; then
 fi
 
 if [ $do_sundials = "T" -o $do_kinsol = "T" ]; then
-    cp -r sundials/include/kinsol tmp_dir/include/
-    cp -r sundials/src/kinsol tmp_dir/src/
-    cp -r sundials/doc/kinsol tmp_dir/doc/
-    cp -r sundials/examples/kinsol tmp_dir/examples/
+    cp -r sundials/include/kinsol $tmpdir/include/
+    cp -r sundials/src/kinsol $tmpdir/src/
+    cp -r sundials/doc/kinsol $tmpdir/doc/
+    cp -r sundials/examples/kinsol $tmpdir/examples/
     if [ $doc = "T" ]; then
         echo -e "--- KINSOL documentation"
-        cd tmp_dir/doc/kinsol
+        cd $tmpdir/doc/kinsol
         make QUIET= purge
         make QUIET= ug_pdf
         make QUIET= ex_pdf
@@ -311,7 +325,7 @@ fi
 #---------------------------
 
 # Initial name of the directory to be archived
-distrobase="tmp_dir"
+distrobase="$tmpdir"
 
 
 # SUNDIALS
@@ -323,14 +337,15 @@ if [ $do_sundials = "T" ]; then
     filename="sundials-"$SUN_VER
     
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase
-    $scriptdir/arkode $tarfile $distrobase $doc
-    $scriptdir/cvode $tarfile $distrobase $doc
-    $scriptdir/cvodes $tarfile $distrobase $doc
-    $scriptdir/ida $tarfile $distrobase $doc
-    $scriptdir/idas $tarfile $distrobase $doc
-    $scriptdir/kinsol $tarfile $distrobase $doc
-    $scriptdir/stb $tarfile $distrobase $doc
+    echo "$scriptdir/shared $tarfile $distrobase $tar"
+    $scriptdir/shared $tarfile $distrobase $tar
+    $scriptdir/arkode $tarfile $distrobase $doc $tar
+    $scriptdir/cvode $tarfile $distrobase $doc $tar
+    $scriptdir/cvodes $tarfile $distrobase $doc $tar
+    $scriptdir/ida $tarfile $distrobase $doc $tar
+    $scriptdir/idas $tarfile $distrobase $doc $tar
+    $scriptdir/kinsol $tarfile $distrobase $doc $tar
+    $scriptdir/stb $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 
@@ -343,8 +358,8 @@ if [ $do_arkode = "T" ]; then
     filename="arkode-"$ARK_VER
     
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase
-    $scriptdir/arkode $tarfile $distrobase $doc
+    $scriptdir/shared $tarfile $distrobase $tar
+    $scriptdir/arkode $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 
@@ -357,8 +372,8 @@ if [ $do_cvode = "T" ]; then
     filename="cvode-"$CV_VER
     
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase
-    $scriptdir/cvode $tarfile $distrobase $doc
+    $scriptdir/shared $tarfile $distrobase $tar
+    $scriptdir/cvode $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 
@@ -371,8 +386,8 @@ if [ $do_cvodes = "T" ]; then
     filename="cvodes-"$CVS_VER
     
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase
-    $scriptdir/cvodes $tarfile $distrobase $doc
+    $scriptdir/shared $tarfile $distrobase $tar
+    $scriptdir/cvodes $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
   
@@ -385,8 +400,8 @@ if [ $do_ida = "T" ]; then
     filename="ida-"$IDA_VER
     
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase
-    $scriptdir/ida $tarfile $distrobase $doc
+    $scriptdir/shared $tarfile $distrobase $tar
+    $scriptdir/ida $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
  
@@ -399,8 +414,8 @@ if [ $do_idas = "T" ]; then
     filename="idas-"$IDAS_VER
     
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase
-    $scriptdir/idas $tarfile $distrobase $doc
+    $scriptdir/shared $tarfile $distrobase $tar
+    $scriptdir/idas $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
  
@@ -413,8 +428,8 @@ if [ $do_kinsol = "T" ]; then
     filename="kinsol-"$KIN_VER
     
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase
-    $scriptdir/kinsol $tarfile $distrobase $doc
+    $scriptdir/shared $tarfile $distrobase $tar
+    $scriptdir/kinsol $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 

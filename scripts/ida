@@ -4,107 +4,110 @@ tarfile=$1
 distrobase=$2
 doc=$3
 
+shift 3
+tar=$*
+
 echo "   --- Add ida module to $tarfile"
 
 if [ $doc = "T" ]; then
-#tar ufv $tarfile $distrobase/doc/ida/ida_guide.ps
-tar ufv $tarfile $distrobase/doc/ida/ida_guide.pdf
-#tar ufv $tarfile $distrobase/doc/ida/ida_examples.ps
-tar ufv $tarfile $distrobase/doc/ida/ida_examples.pdf
+#$tar $tarfile $distrobase/doc/ida/ida_guide.ps
+$tar $tarfile $distrobase/doc/ida/ida_guide.pdf
+#$tar $tarfile $distrobase/doc/ida/ida_examples.ps
+$tar $tarfile $distrobase/doc/ida/ida_examples.pdf
 fi
 
-tar ufv $tarfile $distrobase/include/ida/ida.h
-tar ufv $tarfile $distrobase/include/ida/ida_direct.h
-tar ufv $tarfile $distrobase/include/ida/ida_dense.h
-tar ufv $tarfile $distrobase/include/ida/ida_band.h
-tar ufv $tarfile $distrobase/include/ida/ida_lapack.h
-tar ufv $tarfile $distrobase/include/ida/ida_spgmr.h
-tar ufv $tarfile $distrobase/include/ida/ida_spbcgs.h
-tar ufv $tarfile $distrobase/include/ida/ida_sptfqmr.h
-tar ufv $tarfile $distrobase/include/ida/ida_spils.h
-tar ufv $tarfile $distrobase/include/ida/ida_bbdpre.h
+$tar $tarfile $distrobase/include/ida/ida.h
+$tar $tarfile $distrobase/include/ida/ida_direct.h
+$tar $tarfile $distrobase/include/ida/ida_dense.h
+$tar $tarfile $distrobase/include/ida/ida_band.h
+$tar $tarfile $distrobase/include/ida/ida_lapack.h
+$tar $tarfile $distrobase/include/ida/ida_spgmr.h
+$tar $tarfile $distrobase/include/ida/ida_spbcgs.h
+$tar $tarfile $distrobase/include/ida/ida_sptfqmr.h
+$tar $tarfile $distrobase/include/ida/ida_spils.h
+$tar $tarfile $distrobase/include/ida/ida_bbdpre.h
 
-tar ufv $tarfile $distrobase/src/ida/LICENSE
-tar ufv $tarfile $distrobase/src/ida/README
-tar ufv $tarfile $distrobase/src/ida/Makefile.in
-tar ufv $tarfile $distrobase/src/ida/CMakeLists.txt
+$tar $tarfile $distrobase/src/ida/LICENSE
+$tar $tarfile $distrobase/src/ida/README
+$tar $tarfile $distrobase/src/ida/Makefile.in
+$tar $tarfile $distrobase/src/ida/CMakeLists.txt
 
-tar ufv $tarfile $distrobase/src/ida/ida.c
-tar ufv $tarfile $distrobase/src/ida/ida_io.c
-tar ufv $tarfile $distrobase/src/ida/ida_ic.c
-tar ufv $tarfile $distrobase/src/ida/ida_direct.c
-tar ufv $tarfile $distrobase/src/ida/ida_dense.c
-tar ufv $tarfile $distrobase/src/ida/ida_band.c
-tar ufv $tarfile $distrobase/src/ida/ida_lapack.c
-tar ufv $tarfile $distrobase/src/ida/ida_spils.c
-tar ufv $tarfile $distrobase/src/ida/ida_spgmr.c
-tar ufv $tarfile $distrobase/src/ida/ida_spbcgs.c
-tar ufv $tarfile $distrobase/src/ida/ida_sptfqmr.c
-tar ufv $tarfile $distrobase/src/ida/ida_bbdpre.c
-tar ufv $tarfile $distrobase/src/ida/ida_impl.h
-tar ufv $tarfile $distrobase/src/ida/ida_direct_impl.h
-tar ufv $tarfile $distrobase/src/ida/ida_spils_impl.h
-tar ufv $tarfile $distrobase/src/ida/ida_bbdpre_impl.h
+$tar $tarfile $distrobase/src/ida/ida.c
+$tar $tarfile $distrobase/src/ida/ida_io.c
+$tar $tarfile $distrobase/src/ida/ida_ic.c
+$tar $tarfile $distrobase/src/ida/ida_direct.c
+$tar $tarfile $distrobase/src/ida/ida_dense.c
+$tar $tarfile $distrobase/src/ida/ida_band.c
+$tar $tarfile $distrobase/src/ida/ida_lapack.c
+$tar $tarfile $distrobase/src/ida/ida_spils.c
+$tar $tarfile $distrobase/src/ida/ida_spgmr.c
+$tar $tarfile $distrobase/src/ida/ida_spbcgs.c
+$tar $tarfile $distrobase/src/ida/ida_sptfqmr.c
+$tar $tarfile $distrobase/src/ida/ida_bbdpre.c
+$tar $tarfile $distrobase/src/ida/ida_impl.h
+$tar $tarfile $distrobase/src/ida/ida_direct_impl.h
+$tar $tarfile $distrobase/src/ida/ida_spils_impl.h
+$tar $tarfile $distrobase/src/ida/ida_bbdpre_impl.h
 
 echo "   --- Add fida module to $tarfile"
 
-tar ufv $tarfile $distrobase/src/ida/fcmix/Makefile.in
-tar ufv $tarfile $distrobase/src/ida/fcmix/CMakeLists.txt
+$tar $tarfile $distrobase/src/ida/fcmix/Makefile.in
+$tar $tarfile $distrobase/src/ida/fcmix/CMakeLists.txt
 
-tar ufv $tarfile $distrobase/src/ida/fcmix/fida.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidaewt.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidadense.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidaband.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidalapack.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidalapband.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidalapdense.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidabbd.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidajtimes.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidapreco.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidaroot.c
-tar ufv $tarfile $distrobase/src/ida/fcmix/fida.h
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidabbd.h
-tar ufv $tarfile $distrobase/src/ida/fcmix/fidaroot.h
+$tar $tarfile $distrobase/src/ida/fcmix/fida.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidaewt.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidadense.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidaband.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidalapack.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidalapband.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidalapdense.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidabbd.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidajtimes.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidapreco.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidaroot.c
+$tar $tarfile $distrobase/src/ida/fcmix/fida.h
+$tar $tarfile $distrobase/src/ida/fcmix/fidabbd.h
+$tar $tarfile $distrobase/src/ida/fcmix/fidaroot.h
 
 echo "   --- Add ida examples to $tarfile"
 
-tar ufv $tarfile $distrobase/examples/ida/serial/README
-tar ufv $tarfile $distrobase/examples/ida/serial/Makefile.in
-tar ufv $tarfile $distrobase/examples/ida/serial/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.c
-tar ufv $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.out
-tar ufv $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.c
-tar ufv $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.out
-tar ufv $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.c
-tar ufv $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.out
-tar ufv $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.c
-tar ufv $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.out
-tar ufv $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.c
-tar ufv $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.out
-tar ufv $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.c
-tar ufv $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.out
+$tar $tarfile $distrobase/examples/ida/serial/README
+$tar $tarfile $distrobase/examples/ida/serial/Makefile.in
+$tar $tarfile $distrobase/examples/ida/serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.c
+$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.out
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.c
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.out
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.c
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.out
+$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.c
+$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.out
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.c
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.out
+$tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.c
+$tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.out
 
-tar ufv $tarfile $distrobase/examples/ida/fcmix_serial/README
-tar ufv $tarfile $distrobase/examples/ida/fcmix_serial/Makefile.in
-tar ufv $tarfile $distrobase/examples/ida/fcmix_serial/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/ida/fcmix_serial/fidaRoberts_dns.f
-tar ufv $tarfile $distrobase/examples/ida/fcmix_serial/fidaRoberts_dns.out
+$tar $tarfile $distrobase/examples/ida/fcmix_serial/README
+$tar $tarfile $distrobase/examples/ida/fcmix_serial/Makefile.in
+$tar $tarfile $distrobase/examples/ida/fcmix_serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/fcmix_serial/fidaRoberts_dns.f
+$tar $tarfile $distrobase/examples/ida/fcmix_serial/fidaRoberts_dns.out
 
-tar ufv $tarfile $distrobase/examples/ida/parallel/README
-tar ufv $tarfile $distrobase/examples/ida/parallel/Makefile.in
-tar ufv $tarfile $distrobase/examples/ida/parallel/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_bbd_p.c
-tar ufv $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_bbd_p.out
-tar ufv $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_p.c
-tar ufv $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_p.out
-tar ufv $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_bbd_p.c
-tar ufv $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_bbd_p.out
-tar ufv $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_p.c
-tar ufv $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_p.out
+$tar $tarfile $distrobase/examples/ida/parallel/README
+$tar $tarfile $distrobase/examples/ida/parallel/Makefile.in
+$tar $tarfile $distrobase/examples/ida/parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_bbd_p.c
+$tar $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_bbd_p.out
+$tar $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_p.c
+$tar $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_p.out
+$tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_bbd_p.c
+$tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_bbd_p.out
+$tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_p.c
+$tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_p.out
 
-tar ufv $tarfile $distrobase/examples/ida/fcmix_parallel/README
-tar ufv $tarfile $distrobase/examples/ida/fcmix_parallel/Makefile.in
-tar ufv $tarfile $distrobase/examples/ida/fcmix_parallel/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.f
-tar ufv $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.out
+$tar $tarfile $distrobase/examples/ida/fcmix_parallel/README
+$tar $tarfile $distrobase/examples/ida/fcmix_parallel/Makefile.in
+$tar $tarfile $distrobase/examples/ida/fcmix_parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.f
+$tar $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.out
 

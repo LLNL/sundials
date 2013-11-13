@@ -4,101 +4,104 @@ tarfile=$1
 distrobase=$2
 doc=$3
 
+shift 3
+tar=$*
+
 echo "   --- Add kinsol module to $tarfile"
 
 if [ $doc = "T" ]; then
-#tar ufv $tarfile $distrobase/doc/kinsol/kin_guide.ps
-tar ufv $tarfile $distrobase/doc/kinsol/kin_guide.pdf
-#tar ufv $tarfile $distrobase/doc/kinsol/kin_examples.ps
-tar ufv $tarfile $distrobase/doc/kinsol/kin_examples.pdf
+#$tar $tarfile $distrobase/doc/kinsol/kin_guide.ps
+$tar $tarfile $distrobase/doc/kinsol/kin_guide.pdf
+#$tar $tarfile $distrobase/doc/kinsol/kin_examples.ps
+$tar $tarfile $distrobase/doc/kinsol/kin_examples.pdf
 fi
 
-tar ufv $tarfile $distrobase/include/kinsol/kinsol.h
-tar ufv $tarfile $distrobase/include/kinsol/kinsol_spgmr.h
-tar ufv $tarfile $distrobase/include/kinsol/kinsol_spbcgs.h
-tar ufv $tarfile $distrobase/include/kinsol/kinsol_sptfqmr.h
-tar ufv $tarfile $distrobase/include/kinsol/kinsol_dense.h
-tar ufv $tarfile $distrobase/include/kinsol/kinsol_direct.h
-tar ufv $tarfile $distrobase/include/kinsol/kinsol_band.h
-tar ufv $tarfile $distrobase/include/kinsol/kinsol_lapack.h
-tar ufv $tarfile $distrobase/include/kinsol/kinsol_spils.h
-tar ufv $tarfile $distrobase/include/kinsol/kinsol_bbdpre.h
+$tar $tarfile $distrobase/include/kinsol/kinsol.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_spgmr.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_spbcgs.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_sptfqmr.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_dense.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_direct.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_band.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_lapack.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_spils.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_bbdpre.h
 
-tar ufv $tarfile $distrobase/src/kinsol/LICENSE
-tar ufv $tarfile $distrobase/src/kinsol/README
-tar ufv $tarfile $distrobase/src/kinsol/Makefile.in
-tar ufv $tarfile $distrobase/src/kinsol/CMakeLists.txt
+$tar $tarfile $distrobase/src/kinsol/LICENSE
+$tar $tarfile $distrobase/src/kinsol/README
+$tar $tarfile $distrobase/src/kinsol/Makefile.in
+$tar $tarfile $distrobase/src/kinsol/CMakeLists.txt
 
-tar ufv $tarfile $distrobase/src/kinsol/kinsol.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_io.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_spils.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_spgmr.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_spbcgs.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_sptfqmr.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_direct.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_dense.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_band.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_lapack.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_bbdpre.c
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_impl.h
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_spils_impl.h
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_direct_impl.h
-tar ufv $tarfile $distrobase/src/kinsol/kinsol_bbdpre_impl.h
+$tar $tarfile $distrobase/src/kinsol/kinsol.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_io.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_spils.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_spgmr.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_spbcgs.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_sptfqmr.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_direct.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_dense.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_band.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_lapack.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_impl.h
+$tar $tarfile $distrobase/src/kinsol/kinsol_spils_impl.h
+$tar $tarfile $distrobase/src/kinsol/kinsol_direct_impl.h
+$tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre_impl.h
 
 echo "   --- Add fkinsol module to $tarfile"
 
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/Makefile.in
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/CMakeLists.txt
+$tar $tarfile $distrobase/src/kinsol/fcmix/Makefile.in
+$tar $tarfile $distrobase/src/kinsol/fcmix/CMakeLists.txt
 
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkindense.c
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinband.c
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinlapack.c
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinlapdense.c
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinlapband.c
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.c
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h
-tar ufv $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.h
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkindense.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinband.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinlapack.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinlapdense.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinlapband.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.h
 
 echo "   --- Add kinsol examples to $tarfile"
 
-tar ufv $tarfile $distrobase/examples/kinsol/serial/README
-tar ufv $tarfile $distrobase/examples/kinsol/serial/Makefile.in
-tar ufv $tarfile $distrobase/examples/kinsol/serial/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.out
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.out
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.out
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.out
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.out
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.out
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.c
-tar ufv $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.out
+$tar $tarfile $distrobase/examples/kinsol/serial/README
+$tar $tarfile $distrobase/examples/kinsol/serial/Makefile.in
+$tar $tarfile $distrobase/examples/kinsol/serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.c
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.out
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.c
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.out
+$tar $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.c
+$tar $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.out
+$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.c
+$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.out
+$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.c
+$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.out
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.c
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.out
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.c
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.out
 
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/README
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/Makefile.in
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.f
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.out
+$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/README
+$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/Makefile.in
+$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.f
+$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.out
 
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/README
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/Makefile.in
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.c
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.out
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.c
-tar ufv $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.out
+$tar $tarfile $distrobase/examples/kinsol/parallel/README
+$tar $tarfile $distrobase/examples/kinsol/parallel/Makefile.in
+$tar $tarfile $distrobase/examples/kinsol/parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.c
+$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.out
+$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.c
+$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.out
    
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/README
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/Makefile.in
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f
-tar ufv $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out
+$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/README
+$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/Makefile.in
+$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f
+$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out
 
