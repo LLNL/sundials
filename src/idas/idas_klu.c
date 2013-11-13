@@ -264,7 +264,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
        Get the symbolic factorization
        ------------------------------------------------------------*/ 
     /* Update the ordering option with any user-updated values from 
-       calls to KINKLUSetOrdering */
+       calls to IDAKLUSetOrdering */
     klu_data->s_Common.ordering = klu_data->s_ordering;
 
     klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->colptrs, 
@@ -467,7 +467,7 @@ static void IDAKLUFreeB(IDABMem IDAB_mem)
  *
  * IDAKLUSetOrdering sets the ordering used by KLU for reducing fill.
  * Options are: 0 for AMD, 1 for COLAMD, and 2 for the natural ordering.
- * The default used in KINSOL is 1 for COLAMD.
+ * The default used in IDAS is 1 for COLAMD.
  * -----------------------------------------------------------------
  */
 
@@ -477,7 +477,7 @@ int IDAKLUSetOrdering(void *ida_mem_v, int ordering_choice)
   IDASlsMem idasls_mem;
   KLUData klu_data;
 
- /* Return immediately if kin_mem is NULL */
+ /* Return immediately if ida_mem_v is NULL */
   if (ida_mem_v == NULL) {
     IDAProcessError(NULL, IDASLS_MEM_NULL, "IDASLS", "IDAKLUSetOrdering",
 		    MSGSP_IDAMEM_NULL);
