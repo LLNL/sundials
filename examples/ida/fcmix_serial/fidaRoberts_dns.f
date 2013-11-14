@@ -25,7 +25,8 @@ c
       implicit none
 c
 c The following declaration specification should match C type long int.
-      integer*4 neq, iout(25), ipar
+      integer*8 neq
+      integer*8 iout(25), ipar
       integer ier, ierroot, info(2)
       double precision rout(10), rpar
       integer iatol, nout, jout, itask
@@ -246,7 +247,7 @@ c
       implicit none
 c
 c The following declaration specification should match C type long int.
-      integer*4 iout(25)
+      integer*8 iout(25)
       integer nst, reseval, jaceval, nni, ncf, netf, nge
 c
       data nst/3/, reseval/4/, jaceval/17/, nni/7/, netf/5/,
