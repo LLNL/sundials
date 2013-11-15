@@ -38,6 +38,9 @@ manuals and INSTALL_NOTES (anywhere else?)
 
 ***(Steve) Write and test openMP and pThreads with Fortran and document
 
+	   Tests written.
+	   Need to document.
+
 ***(Steve) Document KLU build options
 
 ***(Steve) Change header info for all files

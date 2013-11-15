@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
 # $Revision: 1.7 $
-# $Date: 2012-09-18 23:01:47 $
+# $Date: 2012-09-18 23:01:41 $
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -14,41 +14,44 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for the FKINSOL serial examples
+# CMakeLists.txt file for the FIDA opemp examples
 
 
-# Add variable kinsol_examples with the names of the serial FKINSOL examples
+# Only include tests if OpenMP is enabled
+IF(OPENMP_FOUND)
 
-SET(FKINSOL_examples
-  fkinDiagon_kry
+# Add variable ida_examples with the names of the openmp FIDA examples
+SET(FIDA_examples
+  fidaRoberts_dns_openmp
   )
 
-# Add variable FKINSOL_examples_BL with the names of the serial FKINSOL examples
+# Add variable FIDA_examples_BL with the names of the openmp FIDA examples
 # that use Lapack
 
-SET(FKINSOL_examples_BL
+SET(FIDA_examples_BL
   )
+ENDIF(OPENMP_FOUND)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 
 IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(KINSOL_LIB sundials_kinsol_static)
-  SET(NVECS_LIB sundials_nvecserial_static)
-  SET(FNVECS_LIB sundials_fnvecserial_static)
+  SET(IDA_LIB sundials_ida_static)
+  SET(NVECS_LIB sundials_nvecopenmp_static)
+  SET(FNVECS_LIB sundials_fnvecopenmp_static)
 ELSE(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(KINSOL_LIB sundials_kinsol_shared)
-  SET(NVECS_LIB sundials_nvecserial_shared)
-  SET(FNVECS_LIB sundials_fnvecserial_shared)
+  SET(IDA_LIB sundials_ida_shared)
+  SET(NVECS_LIB sundials_nvecopenmp_shared)
+  SET(FNVECS_LIB sundials_fnvecopenmp_shared)
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Only static FCMIX libraries are available
 
-SET(FKINSOL_LIB sundials_fkinsol_static)
+SET(FIDA_LIB sundials_fida_static)
 
 # Set-up linker flags and link libraries
 
-SET(SUNDIALS_LIBS ${FKINSOL_LIB} ${KINSOL_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+SET(SUNDIALS_LIBS ${FIDA_LIB} ${IDA_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 IF(LAPACK_FOUND)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
   SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${LAPACK_LIBRARIES}")
@@ -58,43 +61,46 @@ IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 ENDIF(KLU_FOUND)
 
-# Add the build and install targets for each FKINSOL example
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
-FOREACH(example ${FKINSOL_examples})
+# Add the build and install targets for each FIDA example
+
+FOREACH(example ${FIDA_examples})
   ADD_EXECUTABLE(${example} ${example}.f)
   SUNDIALS_ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/fcmix_serial)
+    INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_openmp)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${FKINSOL_examples})
+ENDFOREACH(example ${FIDA_examples})
 
 # If Lapack support is enabled, add the build and install targets for
 # the examples using Lapack
 
 IF(LAPACK_FOUND)
-  FOREACH(example ${FKINSOL_examples_BL})
+  FOREACH(example ${FIDA_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.f)
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
     IF(EXAMPLES_INSTALL)
-      INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/fcmix_serial)
+      INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_openmp)
     ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${FKINSOL_examples_BL})
+  ENDFOREACH(example ${FIDA_examples_BL})
 ENDIF(LAPACK_FOUND)
-
 
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/fcmix_serial)
+  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_openmp)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER "KINSOL")
-  SET(SOLVER_LIB "sundials_kinsol")
-  SET(SOLVER_FLIB "sundials_fkinsol")
-  LIST2STRING(FKINSOL_examples EXAMPLES)
+  SET(SOLVER "IDA")
+  SET(SOLVER_LIB "sundials_ida")
+  SET(SOLVER_FLIB "sundials_fida")
+  LIST2STRING(FIDA_examples EXAMPLES)
   IF(LAPACK_FOUND)
-    LIST2STRING(FKINSOL_examples_BL EXAMPLES_BL)
+    LIST2STRING(FIDA_examples_BL EXAMPLES_BL)
   ELSE(LAPACK_FOUND)
     SET(EXAMPLES_BL "")
   ENDIF(LAPACK_FOUND)
@@ -105,34 +111,15 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F77_ex.in
-      ${PROJECT_BINARY_DIR}/examples/kinsol/fcmix_serial/CMakeLists.txt
+      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_F77_ex.in
+      ${PROJECT_BINARY_DIR}/examples/ida/fcmix_openmp/CMakeLists.txt
       @ONLY
       )
 
   # install CMakelists.txt
   INSTALL(
-    FILES ${PROJECT_BINARY_DIR}/examples/kinsol/fcmix_serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/fcmix_serial 
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/fcmix_openmp/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_openmp 
     )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
-  # for the user's own programs.
-
-  IF(UNIX)
-    # generate Makefile and place it in the binary dir
-    CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_F77_ex.in
-      ${PROJECT_BINARY_DIR}/examples/kinsol/fcmix_serial/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/kinsol/fcmix_serial/Makefile_ex 
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/fcmix_serial 
-      RENAME Makefile
-      )
-  ENDIF(UNIX)
 
 ENDIF(EXAMPLES_INSTALL)
