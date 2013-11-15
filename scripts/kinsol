@@ -28,6 +28,7 @@ $tar $tarfile $distrobase/include/kinsol/kinsol_spils.h
 $tar $tarfile $distrobase/include/kinsol/kinsol_bbdpre.h
 $tar $tarfile $distrobase/include/kinsol/kinsol_sparse.h
 $tar $tarfile $distrobase/include/kinsol/kinsol_klu.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_superlumt.h
 
 $tar $tarfile $distrobase/src/kinsol/LICENSE
 $tar $tarfile $distrobase/src/kinsol/README
@@ -44,6 +45,7 @@ $tar $tarfile $distrobase/src/kinsol/kinsol_direct.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_dense.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_band.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_klu.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_superlumt.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_lapack.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_impl.h

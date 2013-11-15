@@ -65,6 +65,7 @@ SET(idas_HEADERS
   idas_dense.h
   idas_direct.h
   idas.h
+  idas_klu.h
   idas_sparse.h
   idas_spbcgs.h
   idas_spgmr.h

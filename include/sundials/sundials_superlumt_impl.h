@@ -15,21 +15,23 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * Implementation header file for the IDAS SuperLUMT linear solver.
+ * Implementation header file for the SUNDIALS interface to the 
+ * SuperLUMT linear solver.
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDASSLUMT_IMPL_H
-#define _IDASSLUMT_IMPL_H
-
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
-extern "C" {
-#endif
+#ifndef _SUNSLUMT_IMPL_H
+#define _SUNSLUMT_IMPL_H
 
 #ifndef _SLUMT_H
 #define _SLUMT_H
 #include "pdsp_defs.h"
 #endif
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /*
  * -----------------------------------------------------------------
  * Definition of SLUMTData
@@ -46,6 +48,8 @@ typedef struct SLUMTDataRec {
   int num_threads; 
   double diag_pivot_thresh; 
   superlumt_options_t *superlumt_options;
+
+  int s_ordering;
  
 } *SLUMTData;
  

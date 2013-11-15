@@ -79,6 +79,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_sptfqmr.h
 $tar $tarfile $distrobase/include/sundials/sundials_pcg.h
 $tar $tarfile $distrobase/include/sundials/sundials_iterative.h
 $tar $tarfile $distrobase/include/sundials/sundials_klu_impl.h
+$tar $tarfile $distrobase/include/sundials/sundials_superlumt_impl.h
 
 $tar $tarfile $distrobase/include/nvector/nvector_serial.h
 $tar $tarfile $distrobase/include/nvector/nvector_parallel.h
