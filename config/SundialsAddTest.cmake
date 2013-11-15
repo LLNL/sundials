@@ -24,9 +24,13 @@
 IF(EXAMPLES_ENABLE)
 
   find_package(PythonInterp)
+  IF(${PYTHON_VERSION_MAJOR} LESS 3)
+      IF(${PYTHON_VERSION_MINOR} LESS 7)
+	message( WARNING "***************************************************************************\nWARNING\nPython version must be 2.7.x or greater in order to run regression tests.\nExamples will build but 'make test' will fail.\n***************************************************************************")
+      ENDIF()
+  ENDIF()
 
   FIND_PROGRAM(TESTRUNNER testRunner PATHS test)
-
 ENDIF(EXAMPLES_ENABLE)
 
 macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
