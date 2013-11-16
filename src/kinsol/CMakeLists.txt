@@ -25,6 +25,7 @@ SET(kinsol_SOURCES
   kinsol_direct.c
   kinsol_band.c
   kinsol_dense.c
+  kinsol_sparse.c
   kinsol_spils.c
   kinsol_spbcgs.c
   kinsol_spgmr.c
@@ -85,7 +86,7 @@ ENDIF(LAPACK_FOUND)
 IF(SUPERLU_FOUND)
   SET(kinsol_SLU_SOURCES kinsol_superlumt.c)
   SET(kinsol_SLU_HEADERS kinsol_superlumt.h)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/include/idas/ kinsol_SLU_HEADERS)
+  ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_SLU_HEADERS)
 ELSE(SUPERLU_FOUND)
   SET(kinsol_SLU_SOURCES "")
   SET(kinsol_SLU_HEADERS "")

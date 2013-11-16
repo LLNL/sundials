@@ -64,7 +64,6 @@ int KINSlsSetSparseJacFn(void *kin_mem_v, KINSlsSparseJacFn jac)
 		    MSGSP_KINMEM_NULL);
     return(KINSLS_MEM_NULL);
   }
-  kin_mem = (KINMem) kin_mem;
 
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSLS_LMEM_NULL, "KINSLS", 
@@ -93,7 +92,6 @@ int KINSlsGetNumJacEvals(void *kin_mem_v, long int *njevals)
     KINProcessError(NULL, KINSLS_MEM_NULL, "KINSLS", "KINSlsGetNumJacEvals", MSGSP_KINMEM_NULL);
     return(KINSLS_MEM_NULL);
   }
-  kin_mem = (KINMem) kin_mem;
 
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSLS_LMEM_NULL, "KINSLS", 
@@ -165,7 +163,6 @@ int KINSlsGetLastFlag(void *kin_mem_v, long int *flag)
 		    MSGSP_KINMEM_NULL);
     return(KINSLS_MEM_NULL);
   }
-  kin_mem = (KINMem) kin_mem;
 
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINSLS_LMEM_NULL, "KINSLS", 
