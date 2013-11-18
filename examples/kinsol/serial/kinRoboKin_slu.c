@@ -414,9 +414,9 @@ static int jac(N_Vector y, N_Vector f,
   IJth(J,8,8) = 2.0*x8;
   */
   J->data[33] = 2.0*x7;
-  J->rowvals[33] = 6;
+  J->rowvals[33] = 7;
   J->data[37] = 2.0*x8;
-  J->rowvals[37] = 6;
+  J->rowvals[37] = 7;
 
   
   /*
