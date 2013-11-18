@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # set path for SUNDIALS build
-export PATH=/usr/casc/sundials/nightly/bin:$PATH
+export PATH=/usr/casc/sundials/devtest/bin:$PATH
 
 # Python
-source /usr/casc/apps/python/2.7.3/setup.sh
+source /usr/apps/python/2.7.3/setup.sh
 
 # cmake
-export CMAKE_HOME=/usr/casc/sundials/nightly/bin/cmake-2.8.10.2
+export CMAKE_HOME=/usr/casc/sundials/apps/rh5/cmake-2.8.10.2
 export PATH=$CMAKE_HOME/bin:$PATH
 
 # openmpi
