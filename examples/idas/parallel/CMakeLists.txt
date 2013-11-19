@@ -80,6 +80,7 @@ FOREACH(example_tuple ${IDAS_examples})
   IF(index EQUAL -1)
     LIST(APPEND ADDED_EXECUTABLES ${example})
     ADD_EXECUTABLE(${example} ${example}.c)
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   ENDIF(index EQUAL -1)
 
   # Optional 4th element is test arguments

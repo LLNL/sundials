@@ -52,6 +52,7 @@ ENDIF(MPI_MPICC)
 FOREACH(example ${nvector_parallel_examples})
 
   ADD_EXECUTABLE(${example} ${example}.c ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
   # Run sequentially
   SUNDIALS_ADD_TEST("${example}" ${example})

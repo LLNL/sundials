@@ -61,6 +61,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${FARKODE_examples})
   ADD_EXECUTABLE(${example} ${example}.f90)
+  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   SUNDIALS_ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPIF90)

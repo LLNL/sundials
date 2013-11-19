@@ -56,6 +56,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${ARKODE_examples})
   ADD_EXECUTABLE(${example} ${example}.cpp)
+  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   SUNDIALS_ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICXX)

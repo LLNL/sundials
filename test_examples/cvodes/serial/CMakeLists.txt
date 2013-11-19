@@ -52,6 +52,7 @@ ENDIF(LAPACK_FOUND)
 FOREACH(example ${cvodes_examples})
   # add build target for example
   ADD_EXECUTABLE(${example} ${example}.c)
+  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   # link to the sundials libraries
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 ENDFOREACH(example ${cvodes_examples})

@@ -60,6 +60,7 @@ FOREACH(example_tuple ${ARKODE_examples})
   list(GET example_tuple 2 number_of_tasks)
   # first item is example
   ADD_EXECUTABLE(${example} ${example}.c)
+  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICC)

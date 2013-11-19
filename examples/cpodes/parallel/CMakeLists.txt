@@ -58,7 +58,7 @@ ENDIF(LAPACK_FOUND)
 
 FOREACH(example ${CPODES_examples})
   ADD_EXECUTABLE(${example} ${example}.c)
-  #ADD_TEST(${example} ${TESTRUNNER} ${example})
+  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})

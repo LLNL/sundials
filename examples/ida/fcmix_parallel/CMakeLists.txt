@@ -68,6 +68,7 @@ ENDIF(KLU_FOUND)
 
 FOREACH(example ${FIDA_examples})
   ADD_EXECUTABLE(${example} ${example}.f)
+  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
   SUNDIALS_ADD_TEST(${example} ${example})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPIF77)

@@ -49,6 +49,7 @@ ENDIF(OPENMP_FOUND)
 
 FOREACH(example ${nvector_openmp_examples})
   ADD_EXECUTABLE(${example} ${example}.c ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
   SUNDIALS_ADD_TEST(${example}_1000_1_0 ${example} TEST_ARGS 1000 1 0)
   SUNDIALS_ADD_TEST(${example}_1000_2_0 ${example} TEST_ARGS 1000 2 0)
