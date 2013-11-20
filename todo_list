@@ -97,6 +97,17 @@ Extend testrunner to test more than one configuratino of
 SUNDIALS - individual solver builds, w/ and w/out SuperLU_MT and/or KLU,
 etc.
 
+Enhancement to testing.  The ordering of tests would be better if core
+features where tested before biggger tests.  For example nvector tests
+are currently last but would be better to identify failures in them
+first.  If vector impls have a bug rest of library will not work.
+
+Enhancement to testing.  Should test the install process; say do a
+link to the installed library for an example program.  Currently it is
+possible to forget to include a header file for in the tarscript.
+Perhaps entire test suite could be setup to build against the install
+directory or development directory?
+
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
 
