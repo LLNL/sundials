@@ -726,7 +726,7 @@ the nonlinear algebraic system.
     strategy used to solve the nonlinear system. It must be of the following: \\
     \ID{KIN\_NONE}  basic Newton iteration \\
     \ID{KIN\_LINESEARCH} Newton with globalization \\
-    \ID{KIN\_FP} fixed point iteration with Anderson Acceleration \\
+    \ID{KIN\_FP} fixed-point iteration with Anderson Acceleration \\
     \ID{KIN\_PICARD} Picard iteration with Anderson Acceleration \\
   \item[u\_scale] (\id{N\_Vector})
     vector containing diagonal elements of scaling matrix $D_u$ for vector \id{u}
@@ -737,7 +737,7 @@ the nonlinear algebraic system.
     vector containing diagonal elements of scaling matrix $D_F$ for $F(u)$ chosen 
     so that the components of $D_F \cdot F($\id{u}$)$ 
     (as a matrix multiplication) all have roughly the same magnitude when 
-    \id{u} is not too near a root of $F(u)$. In the case of a fixed point
+    \id{u} is not too near a root of $F(u)$. In the case of a fixed-point
     iteration, consider $F(u) = G(u) - u$.
   \end{args}
 }
@@ -904,6 +904,8 @@ Function-norm stopping tolerance & \id{KINSetFuncNormTol} & uround$^{1/3}$ \\
 Scaled-step stopping tolerance & \id{KINSetScaledSteptol} & $\text{uround}^{2/3}$ \\
 Inequality constraints on solution & \id{KINSetConstraints} & \id{NULL} \\
 Nonlinear system function & \id{KINSetSysFunc} & none \\
+Anderson Acceleration subspace size & \id{KINSetMAA} & 0 \\
+Alternate stopping test for Picard iter. & \id{KINSetAAStopCrit} & test of $\|F\|$
 \hline
 \multicolumn{3}{|c|}{\bf KINDLS linear solvers} \\
 \hline
@@ -1802,21 +1804,19 @@ flag = KINSetSysFunc(kin\_mem, func);
 %%
 \ucfunction{KINSetMAA}
 {
-flag = KINSetMAA(kin\_mem, maa, setaamem);
+flag = KINSetMAA(kin\_mem, maa);
 }
 {
   The function \ID{KINSetMAA} specifies the size of the subspace used with
-  Anderson acceleration.
+  Anderson acceleration in conjunction with Picard or fixed-point iteration.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[maa] (\id{long int})
-    subspace size for various methods.
-  \item[setaamem] (\id{booleantype})
-    needs to be TRUE or 1 when using Anderson Acceleration, FALSE or 0 for the
-    other methods
+    subspace size for various methods.  A value of 0 means no acceleration,
+    while a positive value means acceleration will be done.
   \end{args}
 }
 {
@@ -1827,12 +1827,15 @@ flag = KINSetMAA(kin\_mem, maa, setaamem);
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KIN\_ILL\_INPUT}]
-    The argument \id{maa} was negative or zero.
+    The argument \id{maa} was negative.
   \end{args}
 }
 {
-  This function sets the subspace size, which needs to be $> -1$ for Anderson Acceleration.
-  It enables additional memory allocation necessary for Anderson Acceleration.
+  This function sets the subspace size, which needs to be $>= 0$ for Anderson
+  Acceleration.  It also allocates additional memory necessary for Anderson Acceleration.
+
+  If the user calls the function KINSetNumMaxIters, that call should be made
+  before the call to KINSetMAA, as the latter uses the value of \id{mxiter}. 
 }
 %%
 %%
@@ -2944,7 +2947,7 @@ The user must provide a function of type \ID{KINSysFn} defined as follows:
 {
   \begin{args}[user\_data]
   \item[u]
-    is the current value of the variable vector, $u$. For fixed point and Picard
+    is the current value of the variable vector, $u$. For fixed-point and Picard
     iterations, it is possible to use a 
     different stopping criterion than the default test, by returning the 
     value that should be tested in $u$ and calling \ID{KINSetAAStopCrit}. 
