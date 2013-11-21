@@ -170,8 +170,8 @@ The type definition of \id{lsolve} is
     is a vector set to an initial guess prior to calling \id{lsolve}. 
     On return it should contain the solution to $J x = b$.
   \item[b]
-    is the right-hand side vector $b$, set to $-F(u)$, evaluated at
-    the current iterate.
+    is the right-hand side vector $b$, set to $-F(u)$ (or $F(u)$ in the case
+    of Picard iteration), evaluated at the current iterate.
   \item[sJpnorm]
     is a pointer to a real scalar to be computed by \id{lsolve}.  The returned
     value \id{sJpnorm} should be equal to $\|D_F Jp\|_2$, the scaled $L_2$
