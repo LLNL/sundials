@@ -119,7 +119,7 @@ int main()
   /* y is used as a template */
 
   /* Set number of prior residuals used in Anderson acceleration */
-  flag = KINSetMAA(kmem, PRIORS, TRUE);
+  flag = KINSetMAA(kmem, PRIORS);
 
   flag = KINInit(kmem, funcRoberts, y);
   if (check_flag(&flag, "KINInit", 1)) return(1);
