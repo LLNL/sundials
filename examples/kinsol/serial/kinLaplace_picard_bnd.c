@@ -115,7 +115,7 @@ int main()
   /* y is used as a template */
 
   /* Use acceleration with up to 3 prior residuals */
-  flag = KINSetMAA(kmem, 3, TRUE);
+  flag = KINSetMAA(kmem, 3);
   if (check_flag(&flag, "KINSetMAA", 1)) return(1);
 
   flag = KINInit(kmem, func, y);
