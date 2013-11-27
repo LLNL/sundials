@@ -905,7 +905,6 @@ Scaled-step stopping tolerance & \id{KINSetScaledSteptol} & $\text{uround}^{2/3}
 Inequality constraints on solution & \id{KINSetConstraints} & \id{NULL} \\
 Nonlinear system function & \id{KINSetSysFunc} & none \\
 Anderson Acceleration subspace size & \id{KINSetMAA} & 0 \\
-Alternate stopping test for Picard iter. & \id{KINSetAAStopCrit} & test of $\|F\|$
 \hline
 \multicolumn{3}{|c|}{\bf KINDLS linear solvers} \\
 \hline
@@ -1834,43 +1833,10 @@ flag = KINSetMAA(kin\_mem, maa);
   This function sets the subspace size, which needs to be $>= 0$ for Anderson
   Acceleration.  It also allocates additional memory necessary for Anderson Acceleration.
 
+  The default value of \id{maa} is 0, indicating no acceleration.
+
   If the user calls the function KINSetNumMaxIters, that call should be made
   before the call to KINSetMAA, as the latter uses the value of \id{mxiter}. 
-}
-%%
-%%
-%%
-\ucfunction{KINSetAAStopCrit}
-{
-flag = KINSetAAStopCrit(kin\_mem, setstop);
-}
-{
-  The function \ID{KINSetAAStopCrit} allows the user to define a 
-  stopping criterion through the user-provided function that evaluates 
-  the nonlinear system function $F(u)$ or $G(u)$.
-}
-{
-  \begin{args}[kin\_mem]
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[setstop] (\id{booleantype})
-    parameter indicates that user will supply stopping criterion.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{KIN\_MEM\_NULL}]
-    The \id{kin\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{
-  This function will allow the user to set a different stopping criterion for
-  Picard with or without Anderson Acceleration.
-  The vector to be tested needs to be provided in the function defined by
-  \ID{KINSetSysFunc}. 
 }
 %%
 %%
@@ -2947,13 +2913,7 @@ The user must provide a function of type \ID{KINSysFn} defined as follows:
 {
   \begin{args}[user\_data]
   \item[u]
-    is the current value of the variable vector, $u$. For fixed-point and Picard
-    iterations, it is possible to use a 
-    different stopping criterion than the default test, by returning the 
-    value that should be tested in $u$ and calling \ID{KINSetAAStopCrit}. 
-    The stopping criterion is then
-    $\| u \|_{D_F,\infty} < {\sc FTOL}$, 
-    where $D_F$ should be a suitable scaling matrix or the identity matrix.
+    is the current value of the variable vector, $u$.
   \item[fval]
     is the output vector $F(u)$.
   \item[user\_data]
