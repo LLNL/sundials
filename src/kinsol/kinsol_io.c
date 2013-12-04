@@ -194,7 +194,7 @@ int KINSetUserData(void *kinmem, void *user_data)
  * -----------------------------------------------------------------
  */
 
-int KINSetMAA(void *kinmem, long int maa, booleantype aamem )
+int KINSetMAA(void *kinmem, long int maa)
 {
   KINMem kin_mem;
 
@@ -207,14 +207,12 @@ int KINSetMAA(void *kinmem, long int maa, booleantype aamem )
     KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMAA", MSG_BAD_MAA);
     return(KIN_ILL_INPUT);
   }
-  else if (maa == 0 && !aamem ) {
-    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMAA", MSG_ZERO_MAA);
-    return(KIN_ILL_INPUT);
-  }
+
+  if (maa > kin_mem->kin_mxiter) maa = kin_mem->kin_mxiter;
 
   kin_mem = (KINMem) kinmem;
   kin_mem->kin_m_aa = maa;
-  kin_mem->kin_aamem_aa = aamem;
+  kin_mem->kin_aamem_aa = (maa == 0) ? FALSE : TRUE;
 
   return(KIN_SUCCESS);
 }
