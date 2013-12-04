@@ -124,23 +124,22 @@ def main():
             purgeNightlyDir(revDirList[-1], maxBuildsPerCurrentRev) # most current rev is last on list
             
         except Exception, e:
-            msg = "Failed: " + str(e)
+            msg = "FAILED: " + str(e)
             cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName)
             return 2
     
         # build successful - cleanup
-        cleanup("Success: Rev: " + svnrev + " | " + msg, startTime, sunCheckoutDir, tmpLogFile, logFileName)
+        msg = "Success: Rev: " + svnrev + " | " + msg
+        cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName)
     
     # catch any other exception
     except:
-        print "Build Aborted!"
         # send log file in progress...
         #print "Sending email from file: ", tmpLogFile
         msg = "ABORT: Build failed for rev: " + str(svnrev)
         cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName)
         raise Exception("ABORT")
 	
-
     # nothing else to do
     return 0
 
@@ -174,19 +173,23 @@ def purgeNightlyDir(rootDir, maxKeepDirs):
 # cleanup
 #
 def cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName):
-    # move and mail log file
+
+    # file spec of final log file in revision checkout directory
+    revLogFile = os.path.join(sunCheckoutDir, logFileName)
+    
+    # print closing info
+    print "\n" + msg
+    print "For details see:  " + revLogFile
+    
     endTime = datetime.datetime.now()
-    print "End time: ", endTime.ctime()
+    print "\nEnd time: ", endTime.ctime()
     elapsedTime = endTime - startTime
     print "Elapsed Time:", elapsedTime
 
     sys.stdout.flush()
     sys.stdout.close()
 
-    # move the log file to the revision checkout directory
-    revLogFile = os.path.join(sunCheckoutDir, logFileName)
-    
-    # don't overwrite a previous log file (since this is daily - this should never happen. But...)
+    # move log file, don't overwrite a previous log file (since this is daily - this should never happen. But...)
     if fileExists(revLogFile):
         revLogFile = tmpLogFile
     else:
