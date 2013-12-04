@@ -203,6 +203,8 @@ int KINSetMAA(void *kinmem, long int maa)
     return(KIN_MEM_NULL);
   }
 
+  kin_mem = (KINMem) kinmem;
+
   if (maa < 0) {
     KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMAA", MSG_BAD_MAA);
     return(KIN_ILL_INPUT);
