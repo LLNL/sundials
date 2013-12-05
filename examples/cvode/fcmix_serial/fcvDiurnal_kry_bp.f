@@ -40,7 +40,7 @@ C
       INTEGER LNETF, IER, MAXL, JPRETYPE, IGSTYPE, JOUT
       INTEGER LLENRW, LLENIW, LLENRWLS, LLENIWLS
 C The following declaration specification should match C type long int.
-      INTEGER*4 NEQ, IOUT(25), IPAR(4)
+      INTEGER*8 NEQ, IOUT(25), IPAR(4)
       INTEGER NST, NFE, NPSET, NPE, NPS, NNI
       INTEGER NLI, NCFN, NCFL, NETF, MU, ML
       INTEGER LENRW, LENIW, LENRWLS, LENIWLS, LENRWBP, LENIWBP, NFEBP
@@ -184,7 +184,7 @@ C
 C
       INTEGER MX, MY
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR(*)
+      INTEGER*8 IPAR(*)
       DOUBLE PRECISION RPAR(*)
 C
       INTEGER MM, JY, JX, NEQ
@@ -254,7 +254,7 @@ C     Routine for right-hand side function f
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR(*)
+      INTEGER*8 IPAR(*)
       INTEGER IER
       DOUBLE PRECISION T, U(2,*), UDOT(2,*), RPAR(*)
 C

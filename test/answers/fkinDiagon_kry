@@ -7,7 +7,7 @@ Example program fkinDiagon_kry:
 
  globalstrategy = KIN_NONE
 
- FKINSOL return code is  21
+ FKINSOL return code is    0
 
 
  The resultant values of uu are:
@@ -48,6 +48,6 @@ Example program fkinDiagon_kry:
 
 Final statistics:
 
-  nni =  28,  nli  =   0
-  nfe =   0,  npe  =   0
-  nps = ***,  ncfl =  13
+  nni =   7,  nli  =  21
+  nfe =   8,  npe  =   2
+  nps =  28,  ncfl =   0

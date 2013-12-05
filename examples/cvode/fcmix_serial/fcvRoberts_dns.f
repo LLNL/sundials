@@ -35,7 +35,7 @@ C
       INTEGER METH, ITMETH, ITOL, ITASK, JOUT, NOUT, IERROOT
       INTEGER INFO(2)
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR, NEQ, IOUT(25)
+      INTEGER*8 IPAR, NEQ, IOUT(25)
       DOUBLE PRECISION RTOL, T, T0, TOUT
       DOUBLE PRECISION Y(3), ATOL(3), ROUT(10), RPAR
 C

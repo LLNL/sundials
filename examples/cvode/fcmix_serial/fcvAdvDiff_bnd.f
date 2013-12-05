@@ -35,7 +35,7 @@ C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE
       INTEGER IER, METH, ITMETH, IATOL, ITASK, JOUT
 C The following declaration specification should match C type long int.
-      INTEGER*4 NEQ, IOUT(25), IPAR(2), MU, ML
+      INTEGER*8 NEQ, IOUT(25), IPAR(2), MU, ML
       DOUBLE PRECISION RTOL, ATOL, T0, T, TOUT, DTOUT, UNORM 
       DOUBLE PRECISION U(MXMY), ROUT(10), RPAR(5)
 C

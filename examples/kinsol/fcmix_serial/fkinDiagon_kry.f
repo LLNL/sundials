@@ -24,7 +24,7 @@ c
       integer PROBSIZE
       parameter(PROBSIZE=128)
 c The following declaration specification should match C type long int.
-      integer*4 neq, iout(15), msbpre
+      integer*8 neq, iout(15), msbpre
       integer ier, globalstrat, maxl, maxlrst, i
       double precision pp, fnormtol, scsteptol
       double precision rout(2), uu(PROBSIZE), scale(PROBSIZE)
