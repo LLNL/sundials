@@ -95,13 +95,13 @@ def main():
             os.chdir(sunBuildDir)
     			
             # run CMake to configure
-            cmd = "cmake -DMPI_ENABLE=ON " + sunSrcDir
+            cmd = "cmake -DMPI_ENABLE=ON -DFCMIX_ENABLE=ON " + sunSrcDir
             print "\n*** Configuring with:  " + cmd + " ..."
             cmdout = runCommandPopen(cmd)
             print cmdout
     			
             # run make to build libs and executables
-            cmd = "make"
+            cmd = "make -j4"
             print "\n*** Building with:  " + cmd + " ..."
             cmdout = runCommandPopen(cmd)
             print cmdout
@@ -129,7 +129,7 @@ def main():
             return 2
     
         # build successful - cleanup
-        msg = "Success: Rev: " + svnrev + " | " + msg
+        msg = "Finished: Rev: " + svnrev + " | " + msg
         cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName)
     
     # catch any other exception
@@ -179,7 +179,8 @@ def cleanup(msg, startTime, sunCheckoutDir, tmpLogFile, logFileName):
     
     # print closing info
     print "\n" + msg
-    print "For details see:  " + revLogFile
+    print "For build details see:  " + revLogFile
+    print "For test details see: " + sunCheckoutDir + "/build/Testing/Temporary/LastTest.log"
     
     endTime = datetime.datetime.now()
     print "\nEnd time: ", endTime.ctime()
@@ -219,11 +220,28 @@ def runCommandPopen(cmd):
 # run external command 
 #
 def runTestCommandPopen(cmd):
-    cmdout = subprocess.check_output(cmd, shell=True)
-    cmdoutList = cmdout.splitlines()
-    # return 3rd from last line (% passed line), and full output.
-    return (cmdoutList[-3], '\n'.join(cmdoutList))
+    cmdout = ""
+    try: 
+        cmdout = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError, e:
+        cmdout = e.output
+    finally:
+        percentLine = findPercentSuccessfulLine(cmdout)
+        return (percentLine, cmdout)
 
+#
+# find % test successful line in 'make test' output
+#
+def findPercentSuccessfulLine(cmdout):
+    # search for line with first word containing %
+    percentLine = ""
+    for line in cmdout.splitlines():
+        if '%' in line.split(' ')[0]:
+            percentLine = line
+            break
+    
+    return percentLine
+    
 
 #
 # send email to SUNDIALS dev list 
