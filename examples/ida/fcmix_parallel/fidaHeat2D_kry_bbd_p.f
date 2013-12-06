@@ -37,7 +37,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -47,7 +47,7 @@ c
 c local variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 mudq, mldq, mukeep, mlkeep, iout(25), ipar
+      integer*8 mudq, mldq, mukeep, mlkeep, iout(25), ipar
       double precision rout(10), rpar
       integer nout, ier
       parameter (nout = 11)
@@ -275,7 +275,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -285,7 +285,7 @@ c
 c local variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 ipar(*)
+      integer*8 ipar(*)
       integer i, iloc, j, jloc, offset, loc
       integer ixbegin, ixend, jybegin, jyend
       integer reserr
@@ -353,7 +353,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -363,7 +363,7 @@ c
 c local variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 ipar(*)
+      integer*8 ipar(*)
       integer reserr
       double precision tres
       double precision u(*), up(*), res(*)
@@ -388,7 +388,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -398,7 +398,7 @@ c
 c local variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nloc, ipar(*)
+      integer*8 nloc, ipar(*)
       integer reserr
       double precision tres, u(*), up(*)
 c
@@ -425,7 +425,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -435,7 +435,7 @@ c
 c local variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nloc, ipar(*)
+      integer*8 nloc, ipar(*)
       integer reserr
       double precision tres, u(*), up(*), res(*)
 c
@@ -503,7 +503,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -563,7 +563,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -619,7 +619,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -674,7 +674,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -684,7 +684,7 @@ c
 c  local variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 iout(*), lenrwbbd, leniwbbd, ngebbd
+      integer*8 iout(*), lenrwbbd, leniwbbd, ngebbd
       double precision tret, umax, u(*), rout(*)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
@@ -715,7 +715,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -752,7 +752,7 @@ c
 c global variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 nlocal, neq
+      integer*8 nlocal, neq
       integer npex, npey, mxsub, mysub, mx, my, ixsub, jysub
       integer thispe, mxsubg, mysubg
       parameter (mxsubg = 5, mysubg = 5)
@@ -793,7 +793,7 @@ c
 c local variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 mudq, mukeep
+      integer*8 mudq, mukeep
       integer num
 c
       write(*,31) num, mudq, mukeep
@@ -816,7 +816,7 @@ c
 c local variables
 c
 c The following declaration specification should match C type long int.
-      integer*4 iout(*)
+      integer*8 iout(*)
 c
       write(*,32) iout(5), iout(6), iout(21)
  32   format(/, 'Error test failures            =', i3, /,

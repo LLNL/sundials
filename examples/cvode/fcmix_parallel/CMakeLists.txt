@@ -20,9 +20,9 @@
 # Add variable FCVODE_examples with the names of the parallel CVODE examples
 
 SET(FCVODE_examples
-  fcvDiag_non_p
-  fcvDiag_kry_bbd_p
-  fcvDiag_kry_p
+  "fcvDiag_non_p\;1\;2"
+  "fcvDiag_kry_bbd_p\;1\;2"
+  "fcvDiag_kry_p\;1\;2"
   )
 
 # Check whether we use MPI compiler scripts.
@@ -64,10 +64,14 @@ ENDIF(LAPACK_FOUND)
 
 # Add the build and install targets for each CVODE example
 
-FOREACH(example ${FCVODE_examples})
+FOREACH(example_tuple ${FCVODE_examples})
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  # first item is example
   ADD_EXECUTABLE(${example} ${example}.f)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-  SUNDIALS_ADD_TEST(${example} ${example})
+  SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPIF77)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -75,7 +79,7 @@ FOREACH(example ${FCVODE_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/fcmix_parallel)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${FCVODE_examples})
+ENDFOREACH(example_tuple ${FCVODE_examples})
 
 IF(EXAMPLES_INSTALL)
 
@@ -86,8 +90,11 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "CVODE")
   SET(SOLVER_LIB "sundials_cvode")
   SET(SOLVER_FLIB "sundials_fcvode")
-  LIST2STRING(FCVODE_examples EXAMPLES)
-
+  FOREACH(example_tuple ${FCVODE_examples})
+    list(GET example_tuple 0 example)
+    LIST2STRING(example EXAMPLES)
+  ENDFOREACH(example_tuple ${FCVODE_examples})
+  
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.

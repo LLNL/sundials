@@ -11,8 +11,8 @@
 # Add variable FARKODE_examples with the names of the parallel ARKODE examples
 
 SET(FARKODE_examples
-  fark_diag_non_p
-  fark_diag_kry_bbd_p
+  "fark_diag_non_p\;1\;4"
+  "fark_diag_kry_bbd_p\;1\;4"
   )
 
 # Add variable ARKODE_extras with the names of auxiliary files to install
@@ -59,10 +59,14 @@ ENDIF(LAPACK_FOUND)
 
 # Add the build and install targets for each ARKODE example
 
-FOREACH(example ${FARKODE_examples})
+FOREACH(example_tuple ${FARKODE_examples})
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  # first item is example
   ADD_EXECUTABLE(${example} ${example}.f)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-  SUNDIALS_ADD_TEST(${example} ${example})
+  SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPIF77)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -70,7 +74,7 @@ FOREACH(example ${FARKODE_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F77_parallel)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${FARKODE_examples})
+ENDFOREACH(example_tuple ${FARKODE_examples})
 
 IF(EXAMPLES_INSTALL)
 
@@ -86,7 +90,10 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "ARKODE")
   SET(SOLVER_LIB "sundials_arkode")
   SET(SOLVER_FLIB "sundials_farkode")
-  LIST2STRING(FARKODE_examples EXAMPLES)
+  FOREACH(example_tuple ${FARKODE_examples})
+    list(GET example_tuple 0 example)
+    LIST2STRING(example EXAMPLES)
+  ENDFOREACH(example_tuple ${FARKODE_examples})
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

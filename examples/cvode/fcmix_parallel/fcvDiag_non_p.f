@@ -12,7 +12,7 @@ C
       INCLUDE "mpif.h"
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 NLOCAL, NEQ, IOUT(25), IPAR(2)
+      INTEGER*8 NLOCAL, NEQ, IOUT(25), IPAR(2)
       PARAMETER (NLOCAL=2)
 C
       INTEGER IER, MYPE, NPES, NOUT, LNST, LNFE, LNNI, LNCF, LNETF
@@ -171,7 +171,7 @@ C
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR(*)
+      INTEGER*8 IPAR(*)
       INTEGER IER, MYPE, NLOCAL, I
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
       DOUBLE PRECISION ALPHA

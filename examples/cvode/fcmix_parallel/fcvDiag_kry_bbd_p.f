@@ -14,7 +14,7 @@ C
       INCLUDE "mpif.h"
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 NLOCAL, NEQ, IOUT(25), IPAR(2), MUDQ, MLDQ, MU, ML
+      INTEGER*8 NLOCAL, NEQ, IOUT(25), IPAR(2), MUDQ, MLDQ, MU, ML
       PARAMETER (NLOCAL=10)   
 C
       INTEGER NOUT, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE
@@ -23,7 +23,7 @@ C
       INTEGER IATOL, ITASK, IPRE, IGS, JOUT
       INTEGER I, NETF
 C The following declaration specification should match C type long int.
-      INTEGER*4 LENRWBBD, LENIWBBD, NGEBBD
+      INTEGER*8 LENRWBBD, LENIWBBD, NGEBBD
       INTEGER NST, NFE, NPSET, NPE, NPS, NNI, NLI, NCFN, NCFL
       INTEGER LENRW, LENIW, LENRWLS, LENIWLS
       DOUBLE PRECISION Y(1024), ROUT(10), RPAR(1)
@@ -267,7 +267,7 @@ C     Routine for right-hand side function f
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR(*)
+      INTEGER*8 IPAR(*)
       INTEGER IER, MYPE, I, NLOCAL
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
       DOUBLE PRECISION ALPHA
@@ -292,7 +292,7 @@ C     Routine to define local approximate function g, here the same as f.
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 NLOC, IPAR(*)
+      INTEGER*8 NLOC, IPAR(*)
       INTEGER IER
       DOUBLE PRECISION T, YLOC(*), GLOC(*), RPAR(*)
 C     

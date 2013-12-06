@@ -14,7 +14,7 @@ C
       INCLUDE "mpif.h"
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 NLOCAL, NEQ, IOUT(25), IPAR(2)
+      INTEGER*8 NLOCAL, NEQ, IOUT(25), IPAR(2)
       PARAMETER (NLOCAL=10)
 C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE, LNLI, LNPS
@@ -279,7 +279,7 @@ C     Routine for right-hand side function f
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR(*)
+      INTEGER*8 IPAR(*)
       INTEGER IER, I, MYPE, NLOCAL
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
       DOUBLE PRECISION ALPHA
@@ -310,7 +310,7 @@ C     local vector segment) is applied to the vector z.
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR(*)
+      INTEGER*8 IPAR(*)
       INTEGER IER, LR, I, MYPE, NLOCAL, ISTART, IBASE 
       DOUBLE PRECISION T, Y(*), FY(*), R(*), Z(*)
       DOUBLE PRECISION GAMMA, DELTA, RPAR(*)

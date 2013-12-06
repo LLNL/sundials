@@ -20,7 +20,7 @@
 # Add variable ida_examples with the names of the parallel IDA examples
 
 SET(FIDA_examples
-  fidaHeat2D_kry_bbd_p
+  "fidaHeat2D_kry_bbd_p\;1\;4"
   )
 
 # Check whether we use MPI compiler scripts.
@@ -66,10 +66,14 @@ ENDIF(KLU_FOUND)
 
 # Add the build and install targets for each IDA example
 
-FOREACH(example ${FIDA_examples})
+FOREACH(example_tuple ${FIDA_examples})
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  # first item is example
   ADD_EXECUTABLE(${example} ${example}.f)
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-  SUNDIALS_ADD_TEST(${example} ${example})
+  SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   IF(NOT MPI_MPIF77)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -77,7 +81,7 @@ FOREACH(example ${FIDA_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.f ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_parallel)
   ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${FIDA_examples})
+ENDFOREACH(example_tuple ${FIDA_examples})
 
 IF(EXAMPLES_INSTALL)
 
@@ -88,7 +92,10 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "IDA")
   SET(SOLVER_LIB "sundials_ida")
   SET(SOLVER_FLIB "sundials_fida")
-  LIST2STRING(FIDA_examples EXAMPLES)
+  FOREACH(example_tuple ${FIDA_examples})
+    list(GET example_tuple 0 example)
+    LIST2STRING(example EXAMPLES)
+  ENDFOREACH(example_tuple ${FIDA_examples})
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
