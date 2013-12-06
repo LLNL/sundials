@@ -478,7 +478,7 @@ void N_VSetArrayPointer_Pthreads(realtype *v_data, N_Vector v)
 
 void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
-  realtype c, *xd, *yd, *zd;
+  realtype c;
   N_Vector v1, v2;
   booleantype test;
 
@@ -488,8 +488,6 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
   Pthreads_Data *thread_data;
 
   pthread_attr_t attr;
-
-  xd = yd = zd = NULL;
 
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
     Vaxpy_Pthreads(a,x,y);
