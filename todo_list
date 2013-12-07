@@ -14,11 +14,6 @@ To Do List for SUNDIALS, as of 11/6/13
 
 ***(Carol) IM release of KINSOL and ARKode
 
-***(Carol) Add error flag checks for KLU
-
-***(Carol) Add optional ordering Set routine for SuperLU_MT and KLU for 
-all solvers
-
 ***(Carol) Update tarscripts
 
 ***(Carol) Update xfig diagrams
@@ -114,9 +109,14 @@ directory or development directory?
 Completed Tasks
 
 
+***(Carol) Add error flag checks for KLU
+
+***(Carol) Add optional ordering Set routine for SuperLU_MT and KLU for 
+all solvers
+
 (Alan) Provide better guidance as to exactly what the from of the Jacobian is
 for use adding a new linear solver.  Math considerations in IDA indicates
-teh Jacobian is dF/dy + alpha dF/dydot.  But, alpha is not defined and
+the Jacobian is dF/dy + alpha dF/dydot.  But, alpha is not defined and
 cj is teh variable in the IDA structures that the user needs for this.
 CVODE likely also has similar disconect but I did not check this.
 

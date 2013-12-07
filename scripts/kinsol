@@ -17,6 +17,7 @@ $tar $tarfile $distrobase/doc/kinsol/kin_examples.pdf
 fi
 
 $tar $tarfile $distrobase/include/kinsol/kinsol.h
+$tar $tarfile $distrobase/include/kinsol/kinsol_spfgmr.h
 $tar $tarfile $distrobase/include/kinsol/kinsol_spgmr.h
 $tar $tarfile $distrobase/include/kinsol/kinsol_spbcgs.h
 $tar $tarfile $distrobase/include/kinsol/kinsol_sptfqmr.h
@@ -38,6 +39,7 @@ $tar $tarfile $distrobase/src/kinsol/CMakeLists.txt
 $tar $tarfile $distrobase/src/kinsol/kinsol.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_io.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_spils.c
+$tar $tarfile $distrobase/src/kinsol/kinsol_spfgmr.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_spgmr.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_spbcgs.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_sptfqmr.c

@@ -28,6 +28,7 @@ SET(kinsol_SOURCES
   kinsol_sparse.c
   kinsol_spils.c
   kinsol_spbcgs.c
+  kinsol_spfgmr.c
   kinsol_spgmr.c
   kinsol_sptfqmr.c
   kinsol_bbdpre.c
@@ -48,6 +49,7 @@ SET(shared_SOURCES
   sundials_iterative.c
   sundials_sparse.c
   sundials_spbcgs.c
+  sundials_spfgmr.c
   sundials_spgmr.c
   sundials_sptfqmr.c
   )
@@ -64,6 +66,7 @@ SET(kinsol_HEADERS
   kinsol.h
   kinsol_klu.h
   kinsol_spbcgs.h
+  kinsol_spfgmr.h
   kinsol_spgmr.h
   kinsol_spils.h
   kinsol_sptfqmr.h
