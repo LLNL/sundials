@@ -187,6 +187,8 @@ c The following declaration specification should match C type long int.
       do 10 i = 1, nlocal
  10      fval(i) = uu(i) * uu(i) - (i + baseadd) * (i + baseadd)
       
+      ier = 0
+      
       return
       end
       
