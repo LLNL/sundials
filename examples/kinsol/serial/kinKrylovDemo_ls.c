@@ -8,7 +8,7 @@
  * -----------------------------------------------------------------
  *
  * This example loops through the available iterative linear solvers:
- * SPGMR, SPBCG and SPTFQMR.
+ * SPGMR, SPBCG, SPTFQMR, and SPFGMR.
  *
  * Example (serial):
  *
@@ -89,6 +89,7 @@
 #include <kinsol/kinsol_spgmr.h>
 #include <kinsol/kinsol_spbcgs.h>
 #include <kinsol/kinsol_sptfqmr.h>
+#include <kinsol/kinsol_spfgmr.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
@@ -128,6 +129,7 @@
 #define USE_SPGMR   0
 #define USE_SPBCG   1
 #define USE_SPTFQMR 2
+#define USE_SPFGMR  3
 
 /* User-defined vector access macro: IJ_Vptr */
 
@@ -246,8 +248,8 @@ int main(void)
      creates a private copy for KINSOL to use. */
   N_VDestroy_Serial(constraints);
 
-  /* START: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
-  for (linsolver = 0; linsolver < 3; ++linsolver) {
+  /* START: Loop through SPGMR, SPBCG, SPTFQMR and SPFGMR linear solver modules */
+  for (linsolver = 0; linsolver < 4; ++linsolver) {
 
     /* Re-initialize user data */
     if (linsolver != 0) SetInitialProfiles(cc, sc);
@@ -307,6 +309,26 @@ int main(void)
 
       break;
 
+    /* (d) SPFGMR */
+    case(USE_SPFGMR):
+
+      /* Print header */
+      printf(" -------");
+      printf(" \n| SPFGMR |\n");
+      printf(" -------\n");
+
+      /* Call KINSpfgmr to specify the linear solver KINSPFGMR with preconditioner
+	 routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
+      maxl = 15; 
+      maxlrst = 2;
+      flag = KINSpfgmr(kmem, maxl);
+      if (check_flag(&flag, "KINSpfgmr", 1)) return(1);
+
+      flag = KINSpilsSetMaxRestarts(kmem, maxlrst);
+      if (check_flag(&flag, "KINSpilsSetMaxRestarts", 1)) return(1);
+
+      break;
+
     }
 
     /* Set preconditioner functions */
@@ -332,7 +354,7 @@ int main(void)
     /* Print final statistics and free memory */  
     PrintFinalStats(kmem, linsolver);
 
-  }  /* END: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
+  }  /* END: Loop through SPGMR, SPBCG, SPTFQMR, and SPFGMR linear solver modules */
 
   N_VDestroy_Serial(cc);
   N_VDestroy_Serial(sc);
@@ -726,6 +748,11 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
     printf("Linear solver is SPTFQMR with maxl = %d\n", maxl);
     break;
 
+  case(USE_SPFGMR):
+    printf("Linear solver is SPFGMR with maxl = %d, maxlrst = %d\n",
+	   maxl, maxlrst);
+    break;
+
   }
 
   printf("Preconditioning uses interaction-only block-diagonal matrix\n");
@@ -830,7 +857,7 @@ static void PrintFinalStats(void *kmem, int linsolver)
   printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
   printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);
 
-  if (linsolver < 2) printf("\n=========================================================\n\n");
+  if (linsolver < 3) printf("\n=========================================================\n\n");
 
 }
 

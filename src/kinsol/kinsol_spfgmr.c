@@ -357,8 +357,9 @@ static int KINSpfgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
 
   /* call SpfgmrSolve */
   ret = SpfgmrSolve(spfgmr_mem, kin_mem, xx, bb, kinspils_mem->s_pretype, 
-		    kinspils_mem->s_gstype, kin_mem->kin_eps, 0,
-		    kinspils_mem->s_maxlrst, kin_mem, kin_mem->kin_fscale, 
+		    kinspils_mem->s_gstype, kin_mem->kin_eps, 
+		    kinspils_mem->s_maxlrst,
+		    kinspils_mem->s_maxl, kin_mem, kin_mem->kin_fscale, 
 		    KINSpilsAtimes,
 		    KINSpilsPSolve, &res_norm, &nli_inc, &nps_inc);
 
