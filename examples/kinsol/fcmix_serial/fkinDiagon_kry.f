@@ -153,7 +153,7 @@ c     function of the following form.
 
       integer ier, i
 c The following declaration specification should match C type long int.
-      integer*4 neq
+      integer*8 neq
       double precision fval(*), uu(*)
 
       common /psize/ neq
@@ -180,7 +180,7 @@ c     to it.  The argument list must also be as illustrated below:
 
       integer ier, i
 c The following declaration specification should match C type long int.
-      integer*4 neq
+      integer*8 neq
       double precision pp
       double precision udata(*), uscale(*), fdata(*), fscale(*)
       double precision vtemp1(*), vtemp2(*)
@@ -208,7 +208,7 @@ c     to it.  The argument list must also be as illustrated below:
 
       integer ier, i
 c The following declaration specification should match C type long int.
-      integer*4 neq
+      integer*8 neq
       double precision pp
       double precision udata(*), uscale(*), fdata(*), fscale(*)
       double precision vv(*), ftem(*)
