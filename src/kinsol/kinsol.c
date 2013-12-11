@@ -2196,7 +2196,7 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R, realtype *g
     }
 
     /* evaluate g = uu - L^{-1}func(u) and return if failed.  
-       For Picard, assume that the fval vecctor has been filled 
+       For Picard, assume that the fval vector has been filled 
        with an eval of the nonlinear residual prior to this call. */
     retval = KINPicardFcnEval(kin_mem, gval, uu, fval);
     if (retval == 0) {
@@ -2300,13 +2300,14 @@ static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vect
       if (retval != 0) return(KIN_LSETUP_FAIL);
     }
 
-    /* call the generic 'lsolve' routine to solve the system Lx = fval
+    /* call the generic 'lsolve' routine to solve the system Lx = -fval
        Note that we are using gval to hold x. */
+    N_VScale(-ONE, fval1, fval1);
     retval = lsolve(kin_mem, gval, fval1, &sJpnorm, &sFdotJp);
 
     if (retval == 0) {
-      /* Update gval = uval - gval since gval = L^{-1}F(uu)  */
-      N_VLinearSum(ONE, uval, -ONE, gval, gval);
+      /* Update gval = uval + gval since gval = -L^{-1}F(uu)  */
+      N_VLinearSum(ONE, uval, ONE, gval, gval);
       return(KIN_SUCCESS);
     }
     else if (retval < 0)                      return(KIN_LSOLVE_FAIL);
