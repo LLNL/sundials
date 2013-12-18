@@ -169,7 +169,7 @@ C Fortran routine for right-hand side function.
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR(*)
+      INTEGER*8 IPAR(*)
       INTEGER IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
@@ -190,7 +190,7 @@ C Fortran routine for root finding
 C
       DOUBLE PRECISION T, Y(*), G(*), RPAR(*)
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR(*)
+      INTEGER*8 IPAR(*)
       INTEGER IER
 C
       G(1) = Y(1) - 1.0D-4
@@ -209,7 +209,7 @@ C Fortran routine for dense user-supplied Jacobian.
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 N, IPAR(*)
+      INTEGER*8 N, IPAR(*)
       INTEGER IER
       DOUBLE PRECISION T, Y(*), FY(*), JAC(N,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)

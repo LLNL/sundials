@@ -131,7 +131,7 @@ C Load IPAR and RPAR with problem constants and U0 with initial values
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR(*)
+      INTEGER*8 IPAR(*)
       INTEGER MX, MY
       DOUBLE PRECISION XMAX, YMAX, U0(MY,MX), RPAR(*)
 C
@@ -189,7 +189,7 @@ C Right-hand side routine
 C
       DOUBLE PRECISION T, U(*), UDOT(*), RPAR(*)
 C The following declaration specification should match C type long int.
-      INTEGER*4 IPAR(*)
+      INTEGER*8 IPAR(*)
       INTEGER IER
 C
       INTEGER I, MX, IOFF, MY, J, IJ
@@ -243,7 +243,7 @@ C Load banded Jacobian
       IMPLICIT NONE
 C
 C The following declaration specification should match C type long int.
-      INTEGER*4 N, MU, ML, MDIM, IPAR(*)
+      INTEGER*8 N, MU, ML, MDIM, IPAR(*)
       INTEGER IER
       DOUBLE PRECISION T, U(*), FU(*), BJAC(MDIM,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)
