@@ -14,7 +14,7 @@ SET(FARKODE_examples
   fark_diurnal_kry_bp
   )
 
-# Add variable fcvode_bl_examples with the names of the serial FARKODE examples
+# Add variable FARKODE_bl_examples with the names of the serial FARKODE examples
 # that use Lapack
 
 SET(FARKODE_examples_BL
