@@ -15,22 +15,27 @@
  Scaling is allowed on the right, and restarts are also allowed.
  We denote the preconditioner and scaling matrices as follows:
    P = right preconditioner
-   S = diagonal matrix of scale factors for P-inverse b
+   S1 = diagonal matrix of scale factors for P-inverse b
+   S2 = diagonal matrix of scale factors for x
  The matrices A and P are not required explicitly; only
  routines that provide A and P-inverse as operators are required.
 
  In this notation, SPFGMR applies the underlying FGMRES method to
  the equivalent transformed system
-   Abar xbar = b , where
-   Abar = A (P-inverse) (S-inverse),   and   xbar = S P x .
+   Abar xbar = bbar , where
+   Abar = S1 A (P-inverse) (S2-inverse),
+   bbar = S1 b , and   xbar = S2 P x .
 
- The scaling matrix must be chosen so that the vector S P x has 
- dimensionless components.  Here, S is a scaling for P x, and 
- may also be thought of as a scaling for b. 
+ The scaling matrix must be chosen so that the vectors S1 b and 
+ S2 P x have dimensionless components.  If preconditioning is not 
+ performed (P = I), then S2 must be a scaling for x, while S1 is a
+ scaling for b.  Similarly, if preconditioning is performed, then S1
+ must be a scaling for b, while S2 is a scaling for P x, and may 
+ also be taken as a scaling for b. 
 
  The stopping test for the SPFGMR iterations is on the L2 norm of
  the scaled preconditioned residual:
-      || b - Abar xbar ||_2  <  delta
+      || bbar - Abar xbar ||_2  <  delta
  with an input test constant delta.
 
  The usage of this SPFGMR solver involves supplying two routines
@@ -43,7 +48,7 @@
     mem  = SpfgmrMalloc(lmax, vec_tmpl);
            to initialize memory,
     flag = SpfgmrSolve(mem,A_data,x,b,...,
-                       P_data,s,atimes,psolve,...);
+                       P_data,s1,s2,atimes,psolve,...);
            to solve the system, and
     SpfgmrFree(mem);
            to free the memory created by SpfgmrMalloc.
@@ -183,7 +188,11 @@ SUNDIALS_EXPORT SpfgmrMem SpfgmrMalloc(int l_max, N_Vector vec_tmpl);
  P_data is a pointer to preconditioner information. This
  pointer is passed to the user-supplied function psolve.
 
- s is an N_Vector of positive scale factors for P x, where
+ s1 is an N_Vector of positive scale factors for b. (Not 
+ tested for positivity.)  Pass NULL if no scaling on b is 
+ required.
+
+ s2 is an N_Vector of positive scale factors for P x, where
  P is the right preconditioner. (Not tested for positivity.)
  Pass NULL if no scaling on P x is required.
 
@@ -200,7 +209,7 @@ SUNDIALS_EXPORT SpfgmrMem SpfgmrMalloc(int l_max, N_Vector vec_tmpl);
  res_norm is a pointer to the L2 norm of the scaled,
  preconditioned residual. On return with value SPFGMR_SUCCESS or
  SPFGMR_RES_REDUCED, (*res_norm) contains the value
- || b - Ax ||_2 for the computed solution x.
+ || s1 (b - Ax) ||_2 for the computed solution x.
  For all other return values, (*res_norm) is undefined. The
  caller is responsible for allocating the memory (*res_norm)
  to be filled in by SpfgmrSolve.
@@ -220,12 +229,11 @@ SUNDIALS_EXPORT SpfgmrMem SpfgmrMalloc(int l_max, N_Vector vec_tmpl);
  to use.
  ---------------------------------------------------------------*/
      
-SUNDIALS_EXPORT int SpfgmrSolve(SpfgmrMem mem, void *A_data, 
-				N_Vector x, N_Vector b, int pretype, 
-				int gstype, realtype delta, 
-				int max_restarts, int maxit, 
-				void *P_data, N_Vector s, 
-				ATimesFn atimes, PSolveFn psolve, 
+SUNDIALS_EXPORT int SpfgmrSolve(SpfgmrMem mem, void *A_data, N_Vector x, 
+				N_Vector b, int pretype, int gstype, 
+				realtype delta, int max_restarts, 
+				int maxit, void *P_data, N_Vector s1, 
+				N_Vector s2, ATimesFn atimes, PSolveFn psolve, 
 				realtype *res_norm, int *nli, int *nps);
 
 

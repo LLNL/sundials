@@ -337,8 +337,8 @@ static int ARKSpfgmrSolve(ARKodeMem ark_mem, N_Vector b,
   retval = SpfgmrSolve(spfgmr_mem, ark_mem, arkspils_mem->s_x, b, 
 		       arkspils_mem->s_pretype, arkspils_mem->s_gstype, 
 		       arkspils_mem->s_delta, 0, arkspils_mem->s_maxl, 
-		       ark_mem, weight, ARKSpilsAtimes, ARKSpilsPSolve, 
-		       &res_norm, &nli_inc, &nps_inc);
+		       ark_mem, weight, weight, ARKSpilsAtimes, 
+		       ARKSpilsPSolve, &res_norm, &nli_inc, &nps_inc);
   N_VScale(ONE, arkspils_mem->s_x, b);
   
   /* Increment counters nli, nps, and ncfl */
@@ -665,8 +665,8 @@ static int ARKMassSpfgmrSolve(ARKodeMem ark_mem, N_Vector b,
   retval = SpfgmrSolve(spfgmr_mem, ark_mem, arkspils_mem->s_x, b, 
 		       arkspils_mem->s_pretype, arkspils_mem->s_gstype, 
 		       arkspils_mem->s_delta, 0, arkspils_mem->s_maxl, 
-		       ark_mem, weight, ARKSpilsMtimes, ARKSpilsMPSolve, 
-		       &res_norm, &nli_inc, &nps_inc);
+		       ark_mem, weight, weight, ARKSpilsMtimes, 
+		       ARKSpilsMPSolve, &res_norm, &nli_inc, &nps_inc);
   N_VScale(ONE, arkspils_mem->s_x, b);
   
   /* Increment counters nli, nps, and ncfl */
