@@ -52,7 +52,6 @@ module UserData
   !      (b) perform exchanges
   !      (c) free module data.
   !---------------------------------------------------------------
-  use mpi
   implicit none
   save
 
@@ -90,6 +89,7 @@ contains
   !---------------------------------------------------------------
   subroutine InitUserData()
     implicit none
+    include "mpif.h"
     nx = 0
     ny = 0
     is = 0
@@ -126,6 +126,7 @@ contains
   subroutine SetupDecomp(ierr)
     ! declarations
     implicit none
+    include "mpif.h"
     integer, intent(out) :: ierr
     integer :: dims(2), periods(2), coords(2)
     
@@ -215,6 +216,7 @@ contains
   subroutine Exchange(y, ierr)
     ! declarations
     implicit none
+    include "mpif.h"
     real*8,  intent(in)  :: y(nxl,nyl)
     integer, intent(out) :: ierr
     integer :: reqSW, reqSE, reqSS, reqSN, reqRW, reqRE, reqRS, reqRN;
@@ -433,6 +435,7 @@ contains
   subroutine PRMS(y,yrms,ierr)
     ! declarations
     implicit none
+    include "mpif.h"
     integer, intent(out) :: ierr
     real*8,  intent(in)  :: y(nxl,nyl)
     real*8,  intent(out) :: yrms
@@ -461,13 +464,13 @@ end module UserData
 ! Main driver program
 !-----------------------------------------------------------------
 program driver
+
   ! inclusions
-  use mpi
   use UserData
+  implicit none
+  include "mpif.h"
 
   ! Declarations
-  implicit none
-
   ! general problem parameters
   real*8,    parameter :: pi = 3.1415926535897932d0
   real*8,    parameter :: T0 = 0.d0     ! initial time 
@@ -689,6 +692,7 @@ subroutine farkifun(t, y, ydot, ipar, rpar, ierr)
   ! declarations
   use UserData
   implicit none
+  include "mpif.h"
   real*8,  intent(in)  :: t, rpar
   integer, intent(in)  :: ipar
   integer, intent(out) :: ierr
