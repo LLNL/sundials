@@ -88,6 +88,37 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v2.8.0}
+
+Only relatively minor modifications were made to the {\cvode} solver:
+
+In \id{cvRootfind}, a minor bug was corrected, where the input
+array \id{rootdir} was ignored, and a line was added to break out of
+root-search loop if the initial interval size is below the tolerance
+\id{ttol}.
+
+In \id{CVLapackBand}, the line \id{smu = MIN(N-1,mu+ml)} was changed to
+\id{smu = mu + ml} to correct an illegal input error for \id{DGBTRF/DGBTRS}.
+
+In order to eliminate or minimize the differences between the sources
+for private functions in {\cvode} and {\cvodes}, the names of 48
+private functions were changed from \id{CV**} to \id{cv**}, and a few
+other names were also changed.
+
+In the FCVODE optional input routines \id{FCVSETIIN} and \id{FCVSETRIN},
+the optional fourth argument \id{key\_length} was removed, with
+hardcoded key string lengths passed to all \id{strncmp} tests.
+
+In all FCVODE examples, integer declarations were revised so that
+those which must match a C type \id{long int} are declared \id{INTEGER*8},
+and a comment was added about the type match.  All other integer
+declarations are just \id{INTEGER}.  Corresponding minor corrections were
+made to the user guide.
+
+Two new {\nvector} modules have been added for parallel computing
+environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
+and one for pThreads, denoted \id{NVECTOR\_PTHREADS}.
+
 \subsection*{Changes in v2.7.0}
 
 One significant design change was made with this release: The problem

@@ -109,6 +109,43 @@ writing in C|)}
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v2.8.0}
+
+Only relatively minor modifications were made to the {\cvodes} solver:
+
+In \id{cvRootfind}, a minor bug was corrected, where the input
+array \id{rootdir} was ignored, and a line was added to break out of
+root-search loop if the initial interval size is below the tolerance
+\id{ttol}.
+
+In \id{CVLapackBand}, the line \id{smu = MIN(N-1,mu+ml)} was changed to
+\id{smu = mu + ml} to correct an illegal input error for \id{DGBTRF/DGBTRS}.
+
+Some minor changes were made in order to minimize the differences
+between the sources for private functions in {\cvodes} and {\cvode} .
+
+An option was added in the case of Adjoint Sensitivity Analysis with
+dense or banded Jacobian:  With a call to \id{CVDlsSetDenseJacFnBS} or
+\id{CVDlsSetBandJacFnBS}, the user can specify a user-supplied Jacobian
+function of type \id{CVDls***JacFnBS}, for the case where the backward
+problem depends on the forward sensitivities.
+
+In \id{CVodeQuadSensInit}, the line\id{cv\_mem->cv\_fQS\_data = ...}
+was corrected (missing \id{Q}).
+
+In the User Guide, a paragraph was added in Section 6.2.1 on
+\id{CVodeAdjReInit}, and a paragraph was added in Section 6.2.9 on
+\id{CVodeGetAdjY}.  In the example \id{cvsRoberts\_ASAi\_dns}, the output
+was revised to include the use of \id{CVodeGetAdjY}.
+
+In the example \id{cvsHessian\_ASA\_FSA}, an error was corrected in the
+function \id{fB2}: \id{y2} in place of \id{y3} in the third term of
+\id{Ith(yBdot,6)}.
+
+Two new {\nvector} modules have been added for parallel computing
+environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
+and one for pThreads, denoted \id{NVECTOR\_PTHREADS}.
+
 \subsection*{Changes in v2.7.0}
 
 One significant design change was made with this release: The problem
