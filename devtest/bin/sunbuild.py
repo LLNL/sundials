@@ -95,7 +95,15 @@ def main():
             os.chdir(sunBuildDir)
     			
             # run CMake to configure
-            cmd = "cmake -DMPI_ENABLE=ON -DFCMIX_ENABLE=ON " + sunSrcDir
+            cmd = "cmake "
+            # enable mpi
+            cmd = cmd + "-DMPI_ENABLE=ON -DFCMIX_ENABLE=ON "
+            # enable klu
+            cmd = cmd + "-DKLU_ENABLE=TRUE -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh5/suitesparse/4.2.1/include "
+            cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh5/suitesparse/4.2.1/lib "
+            # specify source
+            cmd = cmd + sunSrcDir
+            
             print "\n*** Configuring with:  " + cmd + " ..."
             cmdout = runCommandPopen(cmd)
             print cmdout
