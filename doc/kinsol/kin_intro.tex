@@ -93,6 +93,54 @@ interfacing the solver to applications written in {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v2.8.0}
+
+Two major additions were made to the globalization strategy options
+(\id{KINSol} argument \id{strategy}).  One is fixed-point iteration,
+and the other is Picard iteration.  Both can be accelerated by use
+of the Anderson acceleration method.  See the relevant paragraphs in
+Chapter \ref{s:math}.
+
+Two major additions were made to the linear system solvers that are
+availble for use with the {\kinsol} solver.  In the serial case, an
+interface to the KLU sparse direct solver was added.
+For the parallel case, an interface to SuperLU\_MT (the multi-threaded
+version of SuperLU) was added as a thread-parallel sparse direct solver option.
+As part of these additions, a sparse matrix (CSC format) structure 
+was added to {\kinsol}.
+
+Otherwise, only relatively minor modifications were made to {\kinsol}:
+
+In function \id{KINStop}, two return values were corrected to make the values
+of \id{uu} and \id{fval} consistent.
+
+A bug involving initialization of \id{mxnewtstep} was fixed.  
+The error affects the case of repeated user calls to \id{KINSol} with no
+intervening call to \id{KINSetMaxNewtonStep}.
+
+A bug in the increments for difference quotient Jacobian approximations
+was fixed in function \id{kinDlsBandDQJac}.
+
+In \id{KINLapackBand}, the line \id{smu = MIN(N-1,mu+ml)} was changed to
+\id{smu = mu + ml} to correct an illegal input error for \id{DGBTRF/DGBTRS}.
+
+In the FKINSOL module, an incorrect return value \id{ier} in \id{FKINfunc}
+was fixed.
+
+In the FKINSOL optional input routines \id{FKINSETIIN}, \id{FKINSETRIN}, and
+\id{FKINSETVIN}, the optional fourth argument \id{key\_length} was removed,
+with hardcoded key string lengths passed to all \id{strncmp} tests.
+
+In all FKINSOL examples, integer declarations were revised so that
+those which must match a C type \id{long int} are declared \id{INTEGER*8},
+and a comment was added about the type match.  All other integer
+declarations are just \id{INTEGER}.  Corresponding minor corrections were
+made to the user guide.
+
+Two new {\nvector} modules have been added for parallel computing
+environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
+and one for pThreads, denoted \id{NVECTOR\_PTHREADS}.
+
 \subsection*{Changes in v2.7.0}
 
 One significant design change was made with this release: The problem
