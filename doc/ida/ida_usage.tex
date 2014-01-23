@@ -1047,7 +1047,10 @@ for the given problem.
 
 While integrating the IVP, {\ida} has the capability of finding the
 roots of a set of user-defined functions. To activate the rootfinding 
-algorithm, call the following function:
+algorithm, call the following function.  This is normally called only
+once, prior to the first call to \id{IDASolve}, but if the rootfinding
+problem is to be changed during the solution, \id{IDARootInit} can also
+be called prior to a continuation call to \id{IDASolve}. 
 %%
 %%
 \ucfunction{IDARootInit}
@@ -1145,8 +1148,9 @@ But these modes are modified if the user has set a stop time (with
     \id{IDASolve} succeeded by reaching the stop point specified through
     the optional input function \id{IDASetStopTime}.
   \item[\Id{IDA\_ROOT\_RETURN}]
-    \id{IDASolve} succeeded and found one or more roots.  If \id{nrtfn}
-     $>1$, call \id{IDAGetRootInfo} to see which $g_i$ were found to
+    \id{IDASolve} succeeded and found one or more roots.  In this case,
+    \id{tret} is the location of the root.  If \id{nrtfn} $>1$,
+     call \id{IDAGetRootInfo} to see which $g_i$ were found to
      have a root.  See \S\ref{sss:optout_root} for more information.
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} argument was \id{NULL}.
@@ -3993,8 +3997,10 @@ the solution of a problem, where a prior call to \Id{IDAInit} has
 been made. The new problem must have the same size as the previous one.
 \id{IDAReInit} performs the same input checking and initializations 
 that \id{IDAInit} does, but does no memory allocation, assuming that the 
-existing internal memory is sufficient for the new problem.             
-                                                                 
+existing internal memory is sufficient for the new problem.
+A call to \id{IDAReInit} deletes the solution history that was stored
+internally during the previous integration.
+
 The use of \id{IDAReInit} requires that the maximum method order,    
 \Id{maxord}, is no larger for the new problem than for the problem  
 specified in the last call to \id{IDAInit}.  In addition, the same

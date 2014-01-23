@@ -1010,7 +1010,10 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 
 While solving the IVP, {\cvodes} has the capability to find the
 roots of a set of user-defined functions. To activate the root finding 
-algorithm, call the following function:
+algorithm, call the following function.  This is normally called only
+once, prior to the first call to \id{CVode}, but if the rootfinding
+problem is to be changed during the solution, \id{CVodeRootInit} can also
+be called prior to a continuation call to \id{CVode}. 
 %%
 %%
 \ucfunction{CVodeRootInit}
@@ -1108,9 +1111,9 @@ But these modes are modified if the user has set a stop time (with
     \id{CVode} succeeded by reaching the stopping point specified through
     the optional input function \id{CVodeSetStopTime} (see \S\ref{sss:optin_main}).
   \item[\Id{CV\_ROOT\_RETURN}]
-    \id{CVode} succeeded and found one or more roots.  If \id{nrtfn}
-     $>1$, call \id{CVodeGetRootInfo} to see which $g_i$ were found to
-     have a root.
+    \id{CVode} succeeded and found one or more roots.  In this case,
+    \id{tret} is the location of the root.  If \id{nrtfn} $>1$, call
+    \id{CVodeGetRootInfo} to see which $g_i$ were found to have a root.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} argument was \id{NULL}.
   \item[\Id{CV\_NO\_MALLOC}]
@@ -3837,8 +3840,10 @@ the solution of a problem, where a prior call to \Id{CVodeInit}
 been made. The new problem must have the same size as the previous one.
 \id{CVodeReInit} performs the same input checking and initializations 
 that \id{CVodeInit} does, but does no memory allocation as it assumes that the 
-existing internal memory is sufficient for the new problem.             
-                                                                 
+existing internal memory is sufficient for the new problem.
+A call to \id{CVodeReInit} deletes the solution history that was stored
+internally during the previous integration.
+
 The use of \id{CVodeReInit} requires that the maximum method order, denoted by 
 \Id{maxord}, be no larger for the new problem than for the previous problem.
 This condition is  
