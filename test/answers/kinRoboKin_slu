@@ -14,6 +14,7 @@ Initial guess:
           1     0.707107            1
           1     0.707107            1
           1     0.707107            1
+.. Use approximate minimum degree column ordering.
 
 Computed solution:
      l=x+1          x         u=1-x
