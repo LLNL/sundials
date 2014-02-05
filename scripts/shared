@@ -40,7 +40,7 @@ $tar $tarfile $distrobase/config/SundialsFortran90.cmake
 $tar $tarfile $distrobase/config/SundialsCXX.cmake
 $tar $tarfile $distrobase/config/SundialsLapack.cmake
 $tar $tarfile $distrobase/config/SundialsKLU.cmake
-$tar $tarfile $distrobase/config/SundialsSuperLU.cmake
+$tar $tarfile $distrobase/config/SundialsSUPERLUMT.cmake
 $tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsMPIC.cmake
 $tar $tarfile $distrobase/config/SundialsMPICXX.cmake
@@ -50,7 +50,7 @@ $tar $tarfile $distrobase/config/FindLAPACK.cmake
 $tar $tarfile $distrobase/config/FindBLAS.cmake
 $tar $tarfile $distrobase/config/FindMPI.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
-$tar $tarfile $distrobase/config/FindSUPERLU.cmake
+$tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
 
 

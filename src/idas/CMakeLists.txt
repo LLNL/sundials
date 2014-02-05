@@ -87,14 +87,14 @@ ELSE(LAPACK_FOUND)
   SET(idas_BL_HEADERS "")
 ENDIF(LAPACK_FOUND)
 
-IF(SUPERLU_FOUND)
+IF(SUPERLUMT_FOUND)
   SET(idas_SLU_SOURCES idas_superlumt.c)
   SET(idas_SLU_HEADERS idas_superlumt.h)
   ADD_PREFIX(${sundials_SOURCE_DIR}/include/idas/ idas_SLU_HEADERS)
-ELSE(SUPERLU_FOUND)
+ELSE(SUPERLUMT_FOUND)
   SET(idas_SLU_SOURCES "")
   SET(idas_SLU_HEADERS "")
-ENDIF(SUPERLU_FOUND)
+ENDIF(SUPERLUMT_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files.

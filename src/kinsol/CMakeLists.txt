@@ -86,14 +86,14 @@ ELSE(LAPACK_FOUND)
   SET(kinsol_BL_HEADERS "")
 ENDIF(LAPACK_FOUND)
 
-IF(SUPERLU_FOUND)
+IF(SUPERLUMT_FOUND)
   SET(kinsol_SLU_SOURCES kinsol_superlumt.c)
   SET(kinsol_SLU_HEADERS kinsol_superlumt.h)
   ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_SLU_HEADERS)
-ELSE(SUPERLU_FOUND)
+ELSE(SUPERLUMT_FOUND)
   SET(kinsol_SLU_SOURCES "")
   SET(kinsol_SLU_HEADERS "")
-ENDIF(SUPERLU_FOUND)
+ENDIF(SUPERLUMT_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files.

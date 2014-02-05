@@ -62,13 +62,13 @@
  */
 @BLAS_LAPACK_MACRO@
 
-/* SuperLU available
- * If working libraries for SuperLU support were found, then
- *     #define SUNDIALS_SUPERLU 1
+/* SUPERLUMT available
+ * If working libraries for SUPERLUMT support were found, then
+ *     #define SUNDIALS_SUPERLUMT 1
  * otherwise
- *     #define SUNDIALS_SUPERLU 0
+ *     #define SUNDIALS_SUPERLUMT 0
  */
-/* @SUPERLU_MACRO@ */
+/* @SUPERLUMT_MACRO@ */
 
 /* KLU available
  * If working libraries for KLU support were found, then
