@@ -28,10 +28,12 @@ In Table \ref{t:nvecuse} below, we list the vector functions in the
 The table also shows, for each function, which of the code modules uses
 the function. The {\idas} column shows function usage within the main
 integrator module, while the remaining five columns show function usage
-within each of the five {\idas} linear solvers ({\idaspils} stands for any
-of {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr}), the {\idabbdpre}
-preconditioner module, and the {\idas} adjoint sensitivity
-module (denoted here by {\idaa}).
+within each of the five {\idas} linear solvers, the {\idabbdpre}
+preconditioner module, and the {\idas} adjoint sensitivity module
+(denoted here by {\idaa}).
+Here {\idadls} stands for {\idadense} and {\idaband}; {\idaspils} stands
+for any of {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr}; and {\idasparse}
+stands for {\idaklu} and {\idasuperlumt}.
 
 There is one subtlety in the {\idaspils} column hidden by the table, explained
 here for the case of the {\idaspgmr} module. 
@@ -55,33 +57,35 @@ the generic {\dense} and {\band} solvers (used in the implementation of
 \medskip
 \begin{tabular}{|r|c|c|c|c|c|c|} \hline
                                             & 
-\begin{sideways}{\idas}       \end{sideways} & 
-\begin{sideways}{\idadense}  \end{sideways} & 
-\begin{sideways}{\idaband}   \end{sideways} & 
+\begin{sideways}{\idas}      \end{sideways} & 
+\begin{sideways}{\idadls}    \end{sideways} & 
 \begin{sideways}{\idaspils}  \end{sideways} &
+\begin{sideways}{\idasparse} \end{sideways} &
 \begin{sideways}{\idabbdpre} \end{sideways} &
 \begin{sideways}{\idaa}      \end{sideways}  \\ \hline\hline 
-\id{N\_VClone}           & \cm &     &     & \cm & \cm & \cm \\ \hline
-\id{N\_VDestroy}         & \cm &     &     & \cm & \cm & \cm \\ \hline
-\id{N\_VSpace}           & \cm &     &     &     &     &     \\ \hline
-\id{N\_VGetArrayPointer} &     & \cm & \cm &     & \cm &     \\ \hline
-\id{N\_VSetArrayPointer} &     & \cm &     &     &     &     \\ \hline
-\id{N\_VLinearSum}       & \cm & \cm &     & \cm &     & \cm   \\ \hline
-\id{N\_VConst}           & \cm &     &     & \cm &     &    \\ \hline
-\id{N\_VProd}            & \cm &     &     & \cm &     &    \\ \hline
-\id{N\_VDiv}             & \cm &     &     & \cm &     &    \\ \hline
-\id{N\_VScale}           & \cm & \cm & \cm & \cm & \cm & \cm   \\ \hline
-\id{N\_VAbs}             & \cm &     &     &     &     &    \\ \hline
-\id{N\_VInv}             & \cm &     &     &     &     &    \\ \hline
-\id{N\_VAddConst}        & \cm &     &     &     &     &    \\ \hline
-\id{N\_VDotProd}         &     &     &     & \cm &     &    \\ \hline
-\id{N\_VMaxNorm}         & \cm &     &     &     &     &    \\ \hline
-\id{N\_VWrmsNorm}        & \cm &     &     &     &     &    \\ \hline
-\id{N\_VMin}             & \cm &     &     &     &     &    \\ \hline
-\id{N\_VMinQuotient}     & \cm &     &     &     &     &    \\ \hline
-\id{N\_VConstrMask}      & \cm &     &     &     &     &    \\ \hline
-\id{N\_VWrmsNormMask}    & \cm &     &     &     &     &    \\ \hline
-\id{N\_VCompare}         & \cm &     &     &     &     &    \\ \hline
+\id{N\_VClone}              & \cm &     & \cm &     & \cm & \cm \\ \hline
+\id{N\_VDestroy}            & \cm &     & \cm &     & \cm & \cm \\ \hline
+\id{N\_VCloneVectorArray}   & \cm &     &     &     &     & \cm \\ \hline
+\id{N\_VDestroyVectorArray} & \cm &     &     &     &     & \cm \\ \hline
+\id{N\_VSpace}              & \cm &     &     &     &     &     \\ \hline
+\id{N\_VGetArrayPointer}    &     & \cm &     & \cm & \cm &     \\ \hline
+\id{N\_VSetArrayPointer}    &     & \cm &     & \cm &     &     \\ \hline
+\id{N\_VLinearSum}          & \cm & \cm & \cm &     &     & \cm \\ \hline
+\id{N\_VConst}              & \cm &     & \cm &     &     & \cm \\ \hline
+\id{N\_VProd}               & \cm &     & \cm &     &     &     \\ \hline
+\id{N\_VDiv}                & \cm &     & \cm &     &     &     \\ \hline
+\id{N\_VScale}              & \cm & \cm & \cm & \cm & \cm & \cm \\ \hline
+\id{N\_VAbs}                & \cm &     &     &     &     &     \\ \hline
+\id{N\_VInv}                & \cm &     &     &     &     &     \\ \hline
+\id{N\_VAddConst}           & \cm &     &     &     &     &     \\ \hline
+\id{N\_VDotProd}            &     &     & \cm &     &     &     \\ \hline
+\id{N\_VMaxNorm}            & \cm &     &     &     &     &     \\ \hline
+\id{N\_VWrmsNorm}           & \cm &     & \cm &     &     &     \\ \hline
+\id{N\_VMin}                & \cm &     &     &     &     &     \\ \hline
+\id{N\_VMinQuotient}        & \cm &     &     &     &     &     \\ \hline
+\id{N\_VConstrMask}         & \cm &     &     &     &     &     \\ \hline
+\id{N\_VWrmsNormMask}       & \cm &     &     &     &     &     \\ \hline
+\id{N\_VCompare}            & \cm &     &     &     &     &     \\ \hline
 \end{tabular}
 \end{table}
 
