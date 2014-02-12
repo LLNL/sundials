@@ -3,6 +3,9 @@ ARK_UG = ARKode.pdf
 ARK_EX = ARKode_example.pdf
 SHARED_DOC = ../sundials
 HTML_DIR = ../../html/documentation
+# make sure doc/texi2dvi in PATH
+
+export PATH := ../:$(PATH)
 
 ALLDOCS = $(basename $(wildcard *.tex))
 ALLPDF = $(addsuffix .pdf,$(ALLDOCS))

@@ -14,6 +14,9 @@
 
 QUIET =
 
+# make sure doc/texi2dvi in PATH
+export PATH := ../:$(PATH)
+
 SHARED_DOC = ../sundials
 
 HTML_DIR = ../../html/documentation
