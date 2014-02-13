@@ -28,9 +28,11 @@ In Table \ref{t:nvecuse} below, we list the vector functions in the
 The table also shows, for each function, which of the code modules uses
 the function. The {\kinsol} column shows function usage within the main
 solver module, while the remaining five columns show function
-usage within each of the four {\kinsol} linear solvers ({\kinspils}
-stands for any of {\kinspgmr}, {\kinspbcg}, or {\kinsptfqmr}),
+usage within each of the seven {\kinsol} linear solvers, 
 the {\kinbbdpre} preconditioner module, and the {\fkinsol} module.
+Here {\kindls} stands for {\kindense} and {\kinband}; {\kinspils} stands
+for any of {\kinspgmr}, {\kinspbcg}, or {\kinsptfqmr}; and {\kinsparse}
+stands for {\kinklu} and {\kinsuperlumt}.
 
 There is one subtlety in the {\kinspils} column hidden by the table, explained
 here for the case of the {\kinspgmr} module. 
@@ -54,36 +56,36 @@ interested reader.
 
 \begin{table}[htb]
 \centering
-\caption{List of vector functions usage by KINSOL code modules}\label{t:nvecuse}
+\caption{List of vector functions usage by {\kinsol} code modules}\label{t:nvecuse}
 \medskip
 \begin{tabular}{|r|c|c|c|c|c|c|} \hline
                                             &
 \begin{sideways}{\kinsol}    \end{sideways} &
-\begin{sideways}{\kindense}  \end{sideways} &
-\begin{sideways}{\kinband}   \end{sideways} &
+\begin{sideways}{\kindls}    \end{sideways} &
 \begin{sideways}{\kinspils}  \end{sideways} &
+\begin{sideways}{\kinsparse} \end{sideways} &
 \begin{sideways}{\kinbbdpre} \end{sideways} &
 \begin{sideways}{\fkinsol}   \end{sideways} 
 \\ \hline\hline
-%                        KINSOL DENSE BAND  SPILS BPRE FKINSOL
-\id{N\_VClone}           & \cm &     &     & \cm & \cm &     \\ \hline
+%                        KINSOL  DLS  SPILS SPARSE BPRE FKINSOL
+\id{N\_VClone}           & \cm &     & \cm &     & \cm &     \\ \hline
 \id{N\_VCloneEmpty}      &     &     &     &     &     & \cm \\ \hline
-\id{N\_VDestroy}         & \cm &     &     & \cm & \cm & \cm \\ \hline
+\id{N\_VDestroy}         & \cm &     & \cm &     & \cm & \cm \\ \hline
 \id{N\_VSpace}           & \cm &     &     &     &     &     \\ \hline
-\id{N\_VGetArrayPointer} &     & \cm & \cm &     & \cm & \cm \\ \hline
+\id{N\_VGetArrayPointer} &     & \cm &     & \cm & \cm & \cm \\ \hline
 \id{N\_VSetArrayPointer} &     & \cm &     &     &     & \cm \\ \hline
-\id{N\_VLinearSum}       & \cm & \cm &     & \cm &     &     \\ \hline
-\id{N\_VConst}           &     &     &     & \cm &     &     \\ \hline
+\id{N\_VLinearSum}       & \cm & \cm & \cm &     &     &     \\ \hline
+\id{N\_VConst}           &     &     & \cm &     &     &     \\ \hline
 \id{N\_VProd}            & \cm & \cm & \cm & \cm &     &     \\ \hline
-\id{N\_VDiv}             & \cm &     &     & \cm &     &     \\ \hline
+\id{N\_VDiv}             & \cm &     & \cm &     &     &     \\ \hline
 \id{N\_VScale}           & \cm & \cm & \cm & \cm & \cm &     \\ \hline
 \id{N\_VAbs}             & \cm &     &     &     &     &     \\ \hline
 \id{N\_VInv}             & \cm &     &     &     &     &     \\ \hline
-\id{N\_VDotProd}         &     & \cm & \cm & \cm &     &     \\ \hline
+\id{N\_VDotProd}         & \cm & \cm & \cm & \cm &     &     \\ \hline
 \id{N\_VMaxNorm}         & \cm &     &     &     &     &     \\ \hline
 \id{N\_VMin}             & \cm &     &     &     &     &     \\ \hline
-\id{N\_VWL2Norm}         & \cm & \cm & \cm & \cm &     &     \\ \hline
-\id{N\_VL1Norm}          &     &     &     & \cm &     &     \\ \hline
+\id{N\_VWL2Norm}         & \cm &     & \cm &     &     &     \\ \hline
+\id{N\_VL1Norm}          &     &     & \cm &     &     &     \\ \hline
 \id{N\_VConstrMask}      & \cm &     &     &     &     &     \\ \hline
 \id{N\_VMinQuotient}     & \cm &     &     &     &     &     \\ \hline
 \end{tabular}
