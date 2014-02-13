@@ -72,9 +72,8 @@ static int IDAKLUFree(IDAMem IDA_mem);
  *
  * NOTE: The KLU linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, IDAKLU will first 
- *       test for a compatible N_Vector internal
- *       representation by checking that the functions N_VGetArrayPointer
- *       and N_VSetArrayPointer exist.
+ *       test for a compatible N_Vector internal representation
+ *       by checking that the function N_VGetArrayPointer exists.
  * -----------------------------------------------------------------
  */
 
@@ -94,8 +93,7 @@ int IDAKLU(void *ida_mem, int n, int nnz)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the Direct solver */
-  if(IDA_mem->ida_tempv1->ops->nvgetarraypointer == NULL ||
-     IDA_mem->ida_tempv1->ops->nvsetarraypointer == NULL) {
+  if (IDA_mem->ida_tempv1->ops->nvgetarraypointer == NULL) {
     IDAProcessError(IDA_mem, IDASLS_ILL_INPUT, "IDASSLS", "IDAKLU", 
 		    MSGSP_BAD_NVECTOR);
     return(IDASLS_ILL_INPUT);

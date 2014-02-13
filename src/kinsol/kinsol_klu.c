@@ -60,9 +60,8 @@ static void kinKLUFree(KINMem kin_mem);
  *
  * NOTE: The KLU linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, KINKLU will first 
- *       test for a compatible N_Vector internal
- *       representation by checking that the functions N_VGetArrayPointer
- *       and N_VSetArrayPointer exist.
+ *       test for a compatible N_Vector internal representation
+ *       by checking that the function N_VGetArrayPointer exists.
  * -----------------------------------------------------------------
  */
 
@@ -82,8 +81,7 @@ int KINKLU(void *kin_mem_v, int n, int nnz)
   kin_mem = (KINMem) kin_mem_v;
 
   /* Test if the NVECTOR package is compatible with the Direct solver */
-  if(kin_mem->kin_vtemp1->ops->nvgetarraypointer == NULL ||
-     kin_mem->kin_vtemp1->ops->nvsetarraypointer == NULL) {
+  if (kin_mem->kin_vtemp1->ops->nvgetarraypointer == NULL) {
     KINProcessError(kin_mem, KINSLS_ILL_INPUT, "KINSLS", "KINKLU", 
 		    MSGSP_BAD_NVECTOR);
     return(KINSLS_ILL_INPUT);
