@@ -111,7 +111,16 @@ writing in C|)}
 
 \subsection*{Changes in v2.8.0}
 
-Only relatively minor modifications were made to the {\cvodes} solver:
+Two major additions were made to the linear system solvers that are
+availble for use with the {\cvodes} solver.  In the serial case, an
+interface to the KLU sparse direct solver was added.
+For the parallel case, an interface to SuperLU\_MT (the multi-threaded
+version of SuperLU) was added as a thread-parallel sparse direct solver option.
+As part of these additions, a sparse matrix (CSC format) structure 
+was added to {\cvodes}.
+
+Otherwise, only relatively minor modifications were made to the
+{\cvodes} solver:
 
 In \id{cvRootfind}, a minor bug was corrected, where the input
 array \id{rootdir} was ignored, and a line was added to break out of
@@ -145,6 +154,10 @@ function \id{fB2}: \id{y2} in place of \id{y3} in the third term of
 Two new {\nvector} modules have been added for parallel computing
 environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
 and one for pThreads, denoted \id{NVECTOR\_PTHREADS}.
+
+With this version of {\sundials}, support and documentation of the
+Autotools mode of installation is being dropped, in favor of the
+CMake mode, which is considered more widely portable.
 
 \subsection*{Changes in v2.7.0}
 
