@@ -139,7 +139,7 @@ dense or banded Jacobian:  With a call to \id{CVDlsSetDenseJacFnBS} or
 function of type \id{CVDls***JacFnBS}, for the case where the backward
 problem depends on the forward sensitivities.
 
-In \id{CVodeQuadSensInit}, the line\id{cv\_mem->cv\_fQS\_data = ...}
+In \id{CVodeQuadSensInit}, the line \id{cv\_mem->cv\_fQS\_data = ...}
 was corrected (missing \id{Q}).
 
 In the User Guide, a paragraph was added in Section 6.2.1 on
@@ -153,7 +153,7 @@ function \id{fB2}: \id{y2} in place of \id{y3} in the third term of
 
 Two new {\nvector} modules have been added for parallel computing
 environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
-and one for pThreads, denoted \id{NVECTOR\_PTHREADS}.
+and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
 
 With this version of {\sundials}, support and documentation of the
 Autotools mode of installation is being dropped, in favor of the
