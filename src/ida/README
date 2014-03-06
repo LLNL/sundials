@@ -1,5 +1,5 @@
                                IDA
-                    Release 2.7.0, March 2012
+                    Release 2.8.0, ??? 2014
                  Alan C. Hindmarsh and Radu Serban 
             Center for Applied Scientific Computing, LLNL
 
@@ -8,12 +8,11 @@ IDA is a package for the solution of differential-algebraic equation
 (DAE) systems.  It is written in C, but derived from the package DASPK
 [4,5], which is written in FORTRAN. 
 
-IDA can be used both on serial and parallel (MPI) computers.  The main
+IDA can be used both on serial and parallel computers.  The main
 difference is in the NVECTOR module of vector kernels.  The desired
 version is obtained when compiling the example files by linking the
-appropriate library of NVECTOR kernels.  In the parallel version,
-communication between processors is done with the MPI (Message Passage
-Interface) system.
+appropriate library of NVECTOR kernels.  In the parallel versions,
+communication between processors is done with MPI, with OpenMP, or with Pthreads.
 
 When used with the serial NVECTOR module, IDA provides both direct 
 (dense and band) linear solvers and preconditioned Krylov (iterative) 
@@ -61,11 +60,11 @@ chapter in the IDA User Guide.
 C. References
 -------------
 
-[1] A. C. Hindmarsh, R. Serban, and A. Collier, "User Documentation for IDA v2.7.0," 
-    LLNL technical report UCRL-SM-208112, December 2011.
+[1] A. C. Hindmarsh, R. Serban, and A. Collier, "User Documentation for IDA v2.8.0," 
+    LLNL technical report UCRL-SM-208112, ??? 2014.
 
-[2] A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v2.7.0," 
-    LLNL technical report UCRL-SM-208113, December 2011.
+[2] A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v2.8.0," 
+    LLNL technical report UCRL-SM-208113, ??? 2014.
 
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
@@ -84,7 +83,8 @@ C. References
 D. Releases
 -----------
 
-v. 2.6.0   - Mar. 2012
+v. 2.8.0   - ???  2014
+v. 2.7.0   - Mar. 2012
 v. 2.6.0   - May  2009
 v. 2.5.0   - Nov. 2006
 v. 2.4.0   - Mar. 2006
@@ -98,6 +98,34 @@ v. 1.0     - Feb. 1999 (date written)
 
 E. Revision History
 -------------------
+
+v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (??? 2014)
+---------------------------------------------
+
+- New features
+   - Two major additions were made to the linear system solvers that are
+     availble for use with the IDA solver.  In the serial case, an
+     interface to the KLU sparse direct solver was added.
+     For the parallel case, an interface to SuperLU_MT (the multi-threaded
+     version of SuperLU) was added as a thread-parallel sparse direct solver option.
+     As part of these additions, a sparse matrix (CSC format) structure 
+     was added to IDA.
+   - Two new NVECTOR modules have been added for parallel computing
+     environments --- one for openMP, denoted NVECTOR_OPENMP,
+     and one for Pthreads, denoted NVECTOR_PTHREADS.
+
+- Bug fixes
+   - In IDARootfind, a minor bug was corrected, where the input
+     array rootdir was ignored, and a line was added to break out of
+     root-search loop if the initial interval size is below the tolerance
+     ttol.
+   - In IDALapackBand, the line smu = MIN(N-1,mu+ml) was changed to
+     smu = mu + ml to correct an illegal input error for DGBTRF/DGBTRS.
+
+- Changes to user interface
+   - In the FIDA optional input routines FIDASETIIN, FIDASETRIN, and
+     FIDASETVIN, the optional fourth argument key_length was removed, with
+     hardcoded key string lengths passed to all strncmp tests.
 
 v. 2.6.0 (May 2009) ---> v. 2.7.0 (Mar. 2012)
 ---------------------------------------------

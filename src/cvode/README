@@ -1,17 +1,16 @@
                               CVODE
-                    Release 2.7.0, March 2012
+                    Release 2.8.0, ??? 2014
                  Alan C. Hindmarsh and Radu Serban
               Center for Applied Scientific Computing, LLNL
 
 CVODE is a solver for stiff and nonstiff ODE systems (initial value problem) 
 given in explicit form dy/dt = f(t,y). It is written in ANSI standard C.
 
-CVODE can be used both on serial and parallel (MPI) computers.  The main
+CVODE can be used both on serial and parallel computers.  The main
 difference is in the NVECTOR module of vector kernels.  The desired
 version is obtained when compiling the example files by linking the
-appropriate library of NVECTOR kernels.  In the parallel version,
-communication between processors is done with the MPI (Message Passage
-Interface) system. 
+appropriate library of NVECTOR kernels.  In the parallel versions,
+communication between processors is done with MPI, with OpenMP, or with Pthreads.
 
 When used with the serial NVECTOR module, CVODE provides both direct (dense 
 and band) and preconditioned Krylov (iterative) linear solvers. Three different
@@ -56,11 +55,11 @@ chapter in the CVODE User Guide.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.7.0," 
-    LLNL technical report UCRL-SM-208108, December 2011.
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.8.0," 
+    LLNL technical report UCRL-SM-208108, ??? 2014.
 
-[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v2.7.0," 
-    LLNL technical report UCRL-SM-208110, December 2011.
+[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v2.8.0," 
+    LLNL technical report UCRL-SM-208110, ??? 2014.
 
 [3] S.D. Cohen and A.C. Hindmarsh, "CVODE, a Stiff/nonstiff ODE Solver in C,"
     Computers in Physics, 10(2), pp. 138-143, 1996.
@@ -74,6 +73,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.8.0       - ???  2014
 v. 2.7.0       - Mar. 2012
 v. 2.6.0       - May  2009
 v. 2.5.0       - Nov. 2006
@@ -90,6 +90,33 @@ v. 1.0 (CVODE) - Sep. 1994 (date written)
 
 E. Revision History
 -------------------
+
+v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (??? 2014)
+
+- New features
+   - Two major additions were made to the linear system solvers that are
+     availble for use with the CVODE solver.  In the serial case, an
+     interface to the KLU sparse direct solver was added.
+     For the parallel case, an interface to SuperLU_MT (the multi-threaded
+     version of SuperLU) was added as a thread-parallel sparse direct solver option.
+     As part of these additions, a sparse matrix (CSC format) structure 
+     was added to CVODE.
+   - Two new NVECTOR modules have been added for parallel computing
+     environments --- one for openMP, denoted NVECTOR_OPENMP,
+     and one for Pthreads, denoted NVECTOR_PTHREADS.
+
+- Bug fixes
+   - In cvRootfind, a minor bug was corrected, where the input
+     array rootdir was ignored, and a line was added to break out of
+     root-search loop if the initial interval size is below the tolerance
+     ttol.
+   - In CVLapackBand, the line smu = MIN(N-1,mu+ml) was changed to
+     smu = mu + ml to correct an illegal input error for DGBTRF/DGBTRS.
+
+- Changes to user interface
+  - In the FCVODE optional input routines FCVSETIIN and FCVSETRIN,
+    the optional fourth argument key_length was removed, with
+    hardcoded key string lengths passed to all strncmp tests.
 
 v. 2.6.0 (May 2009) ---> v. 2.7.0 (Mar. 2012)
 ---------------------------------------------

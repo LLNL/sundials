@@ -1,5 +1,5 @@
                              KINSOL
-                   Release 2.7.0, March 2012
+                   Release 2.8.0, ??? 2014
            Aaron Collier, Alan C. Hindmarsh, and Radu Serban
              Center for Applied Scientific Computing, LLNL
 
@@ -8,12 +8,12 @@ described as F(u) = 0.  It is newly rewritten in the C language and based
 on the previous Fortran package NKSOL [4], written by Peter Brown and
 Youcef Saad.
 
-KINSOL can be used both on serial and parallel (MPI) computers.
+KINSOL can be used both on serial and parallel computers.
 The difference is only in the NVECTOR module of vector functions.
 The desired version is obtained when compiling the example files
 by linking with the appropriate library of NVECTOR functions.  In the
-parallel version, communication between processes is done via the MPI 
-(Message Passage Interface) system.
+parallel versions, communication between processes is done  
+with MPI, with OpenMP, or with Pthreads.
 
 When used with the serial NVECTOR module, KINSOL provides both direct (dense 
 and band) and preconditioned Krylov (iterative) linear solvers. Three different
@@ -59,11 +59,11 @@ C. References
 -------------
 
 [1] A. M. Collier, A. C. Hindmarsh, R. Serban, and C. S. Woodward,
-    "User Documentation for KINSOL v2.7.0," LLNL technical report
-    UCRL-SM-208116, December 2011. 
+    "User Documentation for KINSOL v2.8.0," LLNL technical report
+    UCRL-SM-208116, ??? 2014.
 
-[2] A. M. Collier and R. Serban, "Example Programs for KINSOL v2.7.0,"
-    LLNL technical report UCRL-SM-208114, December 2011.
+[2] A. M. Collier and R. Serban, "Example Programs for KINSOL v2.8.0,"
+    LLNL technical report UCRL-SM-208114, ??? 2014.
 
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
@@ -82,6 +82,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.8.0   - ???  2014
 v. 2.7.0   - Mar. 2012
 v. 2.6.0   - May  2009
 v. 2.5.0   - Nov. 2006
@@ -96,6 +97,43 @@ v. 1.0     - Aug. 1998 (date written)
 
 E. Revision History
 -------------------
+
+v. 2.7.0 (Mar. 2012) ---> v. 2.8.0 (??? 2014)
+---------------------------------------------
+
+- New features
+   - Two major additions were made to the globalization strategy options
+     (KINSol argument strategy).  One is fixed-point iteration,
+     and the other is Picard iteration.  Both can be accelerated by use
+     of the Anderson acceleration method.
+   - Two major additions were made to the linear system solvers that are
+     availble for use with the KINSOL solver.  In the serial case, an
+     interface to the KLU sparse direct solver was added.
+     For the parallel case, an interface to SuperLU_MT (the multi-threaded
+     version of SuperLU) was added as a thread-parallel sparse direct solver option.
+     As part of these additions, a sparse matrix (CSC format) structure 
+     was added to KINSOL.
+   - Two new NVECTOR modules have been added for parallel computing
+     environments --- one for openMP, denoted NVECTOR_OPENMP,
+     and one for Pthreads, denoted NVECTOR_PTHREADS.
+
+- Bug fixes
+   - In function KINStop, two return values were corrected to make the values
+     of uu and fval consistent.
+   - A bug involving initialization of mxnewtstep was fixed.  
+     The error affects the case of repeated user calls to KINSol with no
+     intervening call to KINSetMaxNewtonStep.
+   - A bug in the increments for difference quotient Jacobian approximations
+     was fixed in function kinDlsBandDQJac.
+   - In KINLapackBand, the line smu = MIN(N-1,mu+ml) was changed to
+     smu = mu + ml to correct an illegal input error for DGBTRF/DGBTRS.
+   - In the FKINSOL module, an incorrect return value ier in FKINfunc
+     was fixed.
+
+- Changes to user interface
+   - In the FKINSOL optional input routines FKINSETIIN, FKINSETRIN, and
+     FKINSETVIN, the optional fourth argument key_length was removed,
+     with hardcoded key string lengths passed to all strncmp tests.
 
 v. 2.6.0 (May 2009) ---> v. 2.7.0 (Mar. 2012)
 ---------------------------------------------
