@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for operations on teh SUNDIALS
+ * This is the implementation file for operations on the SUNDIALS
  * sparse matrix structure.
  * -----------------------------------------------------------------
  */ 
@@ -108,6 +108,7 @@ void PrintSparseMat(SlsMat A)
   int *colptrs;
 
   colptrs = A->colptrs;
+
   M = A->M;
   N = A->N;
   NNZ = A->NNZ;
