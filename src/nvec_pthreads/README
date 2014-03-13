@@ -1,27 +1,27 @@
-                     NVECTOR_OPENMP
-               Release 1.0.0, October 2013
+                     NVECTOR_PTHREADS
+               Release 1.0.0, ??? 2014
 
 
-OpenMP implementation of the NVECTOR module for SUNDIALS. 
+Pthreads implementation of the NVECTOR module for SUNDIALS. 
 
-NVECTOR_OPENMP defines the content field of N_Vector to be a structure 
+NVECTOR_PTHREADS defines the content field of N_Vector to be a structure 
 containing the length of the vector, a pointer to the beginning of a 
 contiguous data array, and a boolean flag indicating ownership of the 
 data array.
 
-NVECTOR_OPENMP defines five macros to provide access to the content of 
-a openmp N_Vector, several constructors for variables of type N_Vector,
+NVECTOR_PTHREADS defines five macros to provide access to the content of 
+a Pthreads N_Vector, several constructors for variables of type N_Vector,
 a constructor for an array of variables of type N_Vector, and destructors
 for N_Vector and N_Vector array.
 
-NVECTOR_OPENMP provides implementations for all vector operations defined
+NVECTOR_PTHREADS provides implementations for all vector operations defined
 by the generic NVECTOR module in the table of operations.
 
 
 A. Documentation
 ----------------
 
-The openmp NVECTOR implementation follows the serial implemenation
+The Pthreads NVECTOR implementation follows the serial implemenation
 fully described in the user documentation for any of the SUNDIALS
 solvers [1-5]. A PDF file for the user guide for a particular solver
 is available in the solver's subdirectory under doc/.
@@ -37,34 +37,32 @@ For complete installation instructions see any of the user guides.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.7.0," 
-    LLNL technical report UCRL-MA-208108, December 2011.
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.8.0," 
+    LLNL technical report UCRL-MA-208108, ??? 2014.
 
-[2] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.7.0," 
-    LLNL technical report UCRL-MA-208111, December 2011.
+[2] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.8.0," 
+    LLNL technical report UCRL-MA-208111, ??? 2014.
 
-[3] A. C. Hindmarsh and R. Serban, "User Documentation for IDA v2.7.0," 
-    LLNL technical report UCRL-MA-208112, December 2011.
+[3] A. C. Hindmarsh, R. Serban,and A. Collier, "User Documentation for IDA v2.8.0," 
+    LLNL technical report UCRL-MA-208112, ??? 2014.
 
-[4] R. Serban and C. Petra,  "User Documentation for IDAS v1.1.0," 
-    LLNL technical report UCRL-SM-234051, December 2011.
+[4] R. Serban, C. Petra, and A. C. Hindmarsh  "User Documentation for IDAS v1.2.0," 
+    LLNL technical report UCRL-SM-234051, ??? 2014.
 
 [5] A. M. Collier, A. C. Hindmarsh, R. Serban,and C. S. Woodward, "User 
-    Documentation for KINSOL v2.7.0," LLNL technical report UCRL-MA-208116, 
-    December 2011.
+    Documentation for KINSOL v2.8.0," LLNL technical report UCRL-MA-208116, 
+    ??? 2014.
+
+[6] D. R. Reynolds, ARKODE User Guide ???
 
 
 D. Releases
 -----------
 
-v. 1.0.0 - Oct. 2013
+v. 1.0.0 - ??? 2014
 
 
 E. Revision History
 -------------------
-
-
-v. 1.0 Oct. 2002) 
-------------------------------------------
 
 Initial implementation
