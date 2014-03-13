@@ -1,5 +1,5 @@
                      NVECTOR_PARALLEL
-                Release 2.5.0, March 2012
+                Release 2.6.0, ??? 2014
 
 
 MPI parallel implementation of the NVECTOR module for SUNDIALS. 
@@ -36,26 +36,29 @@ For complete installation instructions see any of the user guides.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.7.0," 
-    LLNL technical report UCRL-MA-208108, December 2011.
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.8.0," 
+    LLNL technical report UCRL-MA-208108, ??? 2014.
 
-[2] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.7.0," 
-    LLNL technical report UCRL-MA-208111, December 2011.
+[2] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.8.0," 
+    LLNL technical report UCRL-MA-208111, ??? 2014.
 
-[3] A. C. Hindmarsh and R. Serban, "User Documentation for IDA v2.7.0," 
-    LLNL technical report UCRL-MA-208112, December 2011.
+[3] A. C. Hindmarsh, R. Serban,and A. Collier, "User Documentation for IDA v2.8.0," 
+    LLNL technical report UCRL-MA-208112, ??? 2014.
 
-[4] R. Serban and C. Petra,  "User Documentation for IDAS v1.1.0," 
-    LLNL technical report UCRL-SM-234051, December 2011.
+[4] R. Serban, C. Petra, and A. C. Hindmarsh  "User Documentation for IDAS v1.2.0," 
+    LLNL technical report UCRL-SM-234051, ??? 2014.
 
 [5] A. M. Collier, A. C. Hindmarsh, R. Serban,and C. S. Woodward, "User 
-    Documentation for KINSOL v2.7.0," LLNL technical report UCRL-MA-208116, 
-    December 2011.
+    Documentation for KINSOL v2.8.0," LLNL technical report UCRL-MA-208116, 
+    ??? 2014.
+
+[6] D. R. Reynolds, ARKODE User Guide ???
 
 
 D. Releases
 -----------
 
+v. 2.6.0 - ???  2014
 v. 2.5.0 - Mar. 2012
 v. 2.4.0 - May  2009
 v. 2.3.0 - Nov. 2006
@@ -70,6 +73,11 @@ v. 1.0   - Jul. 2002 (first SUNDIALS release)
 
 E. Revision History
 -------------------
+
+v. 2.5.0 (Mar. 2012) ---> v. 2.6.0 (??? 2014)
+---------------------------------------------
+
+- none
 
 v. 2.4.0 (May 2009) ---> v. 2.5.0 (Mar. 2012)
 ---------------------------------------------
