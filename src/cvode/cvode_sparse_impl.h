@@ -15,14 +15,14 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * Implementation header file for the IDALS linear solvers.
+ * Implementation header file for the CVSLS linear solvers.
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDASPARSE_IMPL_H
-#define _IDASPARSE_IMPL_H
+#ifndef _CVSPARSE_IMPL_H
+#define _CVSPARSE_IMPL_H
 
-#include "ida/ida_sparse.h"
+#include "cvode/cvode_sparse.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -30,27 +30,33 @@ extern "C" {
 
 /*
  * =================================================================
- * I D A S S P A R S E    I N T E R N A L    C O N S T A N T S
- * =================================================================
- */
-
-/*
- * =================================================================
- * PART I:  F O R W A R D    P R O B L E M S
+ * C V S P A R S E    I N T E R N A L    C O N S T A N T S
  * =================================================================
  */
 
 /*
  * -----------------------------------------------------------------
- * Types : IDAlsMemRec, IDAlsMem                             
+ * CVSLS solver constants
  * -----------------------------------------------------------------
- * IDAlsMem is pointer to a IDAlsMemRec structure.
+ * CVS_MSBJ   maximum number of steps between Jacobian evaluations
+ * CVS_DGMAX  maximum change in gamma between Jacobian evaluations
+ * -----------------------------------------------------------------
+ */
+ 
+#define CVS_MSBJ  50
+#define CVS_DGMAX RCONST(0.2)
+ 
+/*
+ * -----------------------------------------------------------------
+ * Types : CVSlsMemRec, CVSlsMem                             
+ * -----------------------------------------------------------------
+ * CVSlsMem is pointer to a CVSlsMemRec structure.
  * -----------------------------------------------------------------
  */
 
-typedef struct IDAlsMemRec {
+typedef struct CVSlsMemRec {
 
-  IDASlsSparseJacFn s_jaceval; /* user Jacobian evaluation routine 
+  CVSlsSparseJacFn s_jaceval; /* user Jacobian evaluation routine 
 				  to be called */
   void *s_jacdata;           /* J_data is passed to djac or bjac */
 
@@ -60,12 +66,17 @@ typedef struct IDAlsMemRec {
 
   int s_first_factorize;    /* flag telling whether the first 
 			       factorization needs to happen */
-  SlsMat s_JacMat;          /* J = dF/dy + cj*dF/dy' */
+
+  int s_nstlj;              /* time step of last Jacobian evaluation */
+
+  SlsMat s_JacMat;          /* M = I - gamma * df/dy */
+
+  SlsMat s_savedJ;          /* saved copy of Jacobian */
 
   void *s_solver_data;      /* structure for solver-specific data */
   
 
-} *IDASlsMem;
+} *CVSlsMem;
 
 /*
  * -----------------------------------------------------------------
@@ -76,34 +87,11 @@ typedef struct IDAlsMemRec {
 
 /*
  * =================================================================
- * PART II:  B A C K W A R D    P R O B L E M S
- * =================================================================
- */
-
-/*
- * -----------------------------------------------------------------
- * Types : IDASlsMemRecB, IDASlsMemB       
- * -----------------------------------------------------------------
- * An IDASLS linear solver's specification function attaches such
- * a structure to the lmemB filed of IDABMem
- * -----------------------------------------------------------------
- */
-
-typedef struct IDASlsMemRecB {
-
-  IDASlsSparseJacFnB s_djacB;
-  IDASlsSparseJacFnBS s_djacBS;
-
-} *IDASlsMemB;
-
-
-/*
- * =================================================================
  * E R R O R   M E S S A G E S
  * =================================================================
  */
 
-#define MSGSP_IDAMEM_NULL "Integrator memory is NULL."
+#define MSGSP_CVMEM_NULL "Integrator memory is NULL."
 #define MSGSP_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGSP_MEM_FAIL "A memory request failed."
 #define MSGSP_LMEM_NULL "Linear solver memory is NULL."
@@ -111,12 +99,6 @@ typedef struct IDASlsMemRecB {
 #define MSGSP_JAC_NOSET "Jacobian evaluation function has not been set."
 #define MSGSP_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 #define MSGSP_PACKAGE_FAIL "A call to an external package failed."
-
-#define MSGSP_CAMEM_NULL "idaadj_mem = NULL illegal."
-#define MSGSP_LMEMB_NULL "Linear solver memory is NULL for the backward integration."
-#define MSGSP_BAD_T "Bad t for interpolation."
-#define MSGSP_BAD_WHICH "Illegal value for which."
-#define MSGSP_NO_ADJ "Illegal attempt to call before calling IDAAdjInit."
 
 #ifdef __cplusplus
 }

@@ -101,6 +101,111 @@ void SlsSetToZero(SlsMat A)
 
 }
 
+/* 
+Copy sparse matrix A into sparse matrix B.  
+Assumed that A and B are the same size. 
+*/
+void CopySparseMat(SlsMat A, SlsMat B)
+{
+  int i;
+
+  for (i=0; i<A->NNZ; i++){
+    B->data[i] = A->data[i];
+    B->rowvals[i] = A->rowvals[i];
+  }
+
+  for (i=0; i<A->N; i++) {
+    B->colptrs[i] = B->colptrs[i];
+  }
+  B->colptrs[A->N] = A->NNZ;
+
+}
+
+/* 
+Scale sparse matrix A by coefficient b.  
+*/
+void ScaleSparseMat(realtype b, SlsMat A)
+{
+  int i;
+
+  for (i=0; i<A->NNZ; i++){
+    A->data[i] = b * (A->data[i]);
+  }
+}
+
+/* 
+Add the identity to a sparse matrix.  May need to resize if df/dy has a 
+0-valued diagonal entry.
+*/
+void AddIdentitySparseMat(SlsMat A)
+{
+  int j, i, p, M, N, nz;
+  int *w, *Cp, *Ap, *Ai, *Ci;
+  realtype *x, *Ax, *Cx;
+  SlsMat C;
+
+  M = A->M;
+  N = A->N;
+
+  w = (int *)malloc(M * sizeof(int));
+  x = (realtype *)malloc(M * sizeof(realtype));
+  C = NewSlsMat(A->M, A->N, (A->NNZ)+M);
+
+  Cp = C->colptrs;
+  Ci = C->rowvals;
+  Cx = C->data;
+  Ap = A->colptrs;
+  Ai = A->rowvals;
+  Ax = A->data;
+
+  /* Initialize values */
+  nz = 0;
+  for (j=0; j<M; j++) {
+    w[j] = 0;
+    x[j] = 0.0;
+  }
+
+  for (j=0; j<N; j++) {
+    Cp[j] = nz;
+    for (p=Ap[j]; p<Ap[j+1]; p++) {
+      i = Ai[p];
+      w[i] = j+1;
+      Ci[nz] = i;
+      nz++;
+      x[i] = Ax[p];
+    }
+    if (w[j] < j+1) {
+      Ci[nz] = j;
+      nz++;
+      w[j] = 1.0;
+    } else {
+      x[j] += 1.0;
+    }
+    for (p=Cp[j]; p<nz; p++) {
+      Cx[p] = x[Ci[p]];
+    }
+
+  }
+  Cp[N] = nz;
+  
+  if (A->data) {
+    free(A->data);  
+    A->data = C->data;
+    C->data = NULL;
+  }
+  if (A->rowvals) {
+    free(A->rowvals);
+    A->rowvals = C->rowvals;
+    C->rowvals = NULL;
+  }
+  if (A->colptrs) {
+    free(A->colptrs);
+    A->colptrs = C->colptrs;
+    C->data = NULL;
+  }
+  DestroySparseMat(C); 
+
+}
 
 void PrintSparseMat(SlsMat A)
 {

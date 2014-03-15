@@ -22,11 +22,11 @@
 #ifndef _CVDLS_IMPL_H
 #define _CVDLS_IMPL_H
 
+#include "cvode/cvode_direct.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#include <cvode/cvode_direct.h>
 
 /*
  * -----------------------------------------------------------------
