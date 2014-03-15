@@ -73,7 +73,7 @@ extern "C" {
  *
  * IDAKLUSetOrdering sets the ordering used by KLU for reducing fill.
  * Options are: 0 for AMD, 1 for COLAMD, and 2 for the natural ordering.
- * The default used in KINSOL is 1 for COLAMD.
+ * The default used in IDA is 1 for COLAMD.
  * -----------------------------------------------------------------
  */
 
