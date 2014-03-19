@@ -115,7 +115,7 @@ void CopySparseMat(SlsMat A, SlsMat B)
   }
 
   for (i=0; i<A->N; i++) {
-    B->colptrs[i] = B->colptrs[i];
+    B->colptrs[i] = A->colptrs[i];
   }
   B->colptrs[A->N] = A->NNZ;
 
@@ -149,7 +149,7 @@ void AddIdentitySparseMat(SlsMat A)
 
   w = (int *)malloc(M * sizeof(int));
   x = (realtype *)malloc(M * sizeof(realtype));
-  C = NewSlsMat(A->M, A->N, (A->NNZ)+M);
+  C = NewSparseMat(A->M, A->N, (A->NNZ)+M);
 
   Cp = C->colptrs;
   Ci = C->rowvals;
