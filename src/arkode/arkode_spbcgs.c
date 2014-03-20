@@ -350,6 +350,11 @@ static int ARKSpbcgSolve(ARKodeMem ark_mem, N_Vector b,
   arkspils_mem->s_nps += nps_inc;
   if (retval != SPBCG_SUCCESS) arkspils_mem->s_ncfl++;
 
+  /* Log solver statistics to diagnostics file (if requested) */
+  if (ark_mem->ark_report) 
+    fprintf(ark_mem->ark_diagfp, "      kry  %19.16g  %19.16g  %i  %i\n", 
+	    bnorm, res_norm, nli_inc, nps_inc);
+  
   /* Interpret return value from SpbcgSolve */
   arkspils_mem->s_last_flag = retval;
 
@@ -671,6 +676,11 @@ static int ARKMassSpbcgSolve(ARKodeMem ark_mem, N_Vector b,
   arkspils_mem->s_nps += nps_inc;
   if (retval != SPBCG_SUCCESS) arkspils_mem->s_ncfl++;
 
+  /* Log solver statistics to diagnostics file (if requested) */
+  if (ark_mem->ark_report) 
+    fprintf(ark_mem->ark_diagfp, "      mass  %19.16g  %i  %i\n", 
+	    res_norm, nli_inc, nps_inc);
+  
   /* Interpret return value from SpbcgSolve */
   arkspils_mem->s_last_flag = retval;
 
