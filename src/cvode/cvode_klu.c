@@ -43,7 +43,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 		      N_Vector ycur, N_Vector fcur);
 
-static int cvKLUFree(CVodeMem cv_mem);
+static void cvKLUFree(CVodeMem cv_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -85,19 +85,18 @@ int CVKLU(void *cvode_mem, int n, int nnz)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the Direct solver */
-  if (cv_mem->cv_tempv1->ops->nvgetarraypointer == NULL) {
+  if (cv_mem->cv_tempv->ops->nvgetarraypointer == NULL) {
     cvProcessError(cv_mem, CVSLS_ILL_INPUT, "CVSLS", "cvKLU", 
 		    MSGSP_BAD_NVECTOR);
     return(CVSLS_ILL_INPUT);
   }
 
-  if (cv_mem->cv_lfree != NULL) flag = cv_mem->cv_lfree(cv_mem);
+  if (cv_mem->cv_lfree != NULL) cv_mem->cv_lfree(cv_mem);
 
   /* Set five main function fields in cv_mem. */
   cv_mem->cv_linit  = cvKLUInit;
   cv_mem->cv_lsetup = cvKLUSetup;
   cv_mem->cv_lsolve = cvKLUSolve;
-  cv_mem->cv_lperf  = NULL;
   cv_mem->cv_lfree  = cvKLUFree;
 
   /* Get memory for CVSlsMemRec. */
@@ -136,7 +135,7 @@ int CVKLU(void *cvode_mem, int n, int nnz)
   if (cvsls_mem->s_savedJ == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvKLU", 
 		    MSGSP_MEM_FAIL);
-    DestroySparseMat(JacMat);
+    DestroySparseMat(cvsls_mem->s_JacMat);
     free(cvsls_mem);
     return(CVSLS_MEM_FAIL);
   }
@@ -208,10 +207,11 @@ static int cvKLUInit(CVodeMem cv_mem)
 
 static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred, 
 		      N_Vector fpred, booleantype *jcurPtr,
-		      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+		      N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   booleantype jbad, jok;
-  int retval, last_flag, nst, nstlj, nje;
+  int retval, last_flag;
+  long int nst, nstlj, nje;
   realtype tn, gamma, gammap, dgamma;
   CVSlsMem cvsls_mem;
   CVSlsSparseJacFn jaceval;
@@ -233,7 +233,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   JacMat = cvsls_mem->s_JacMat;
   savedJ = cvsls_mem->s_savedJ;
   nstlj = cvsls_mem->s_nstlj;
-  nje = cvsls_mem->nje;
+  nje = cvsls_mem->s_nje;
 
   /* Check that Jacobian eval routine is set */
   if (jaceval == NULL) {
@@ -260,7 +260,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlj = nst;
     *jcurPtr = TRUE;
     SlsSetToZero(JacMat);
-    retval = jac(tn, ypred, fpred, M, J_data, vtemp1, vtemp2, vtemp3);
+    retval = jaceval(tn, ypred, fpred, JacMat, jacdata, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVSLS_JACFUNC_UNRECVR, "CVSLS", "cvKLUSetup", MSGSP_JACFUNC_FAILED);
       last_flag = CVSLS_JACFUNC_UNRECVR;
@@ -271,8 +271,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
       return(1);
     }
 
-    CopySparseMat(M, savedJ);
-
+    CopySparseMat(JacMat, savedJ);
   }
 
   /* Scale and add I to get M = I - gamma*J */
@@ -325,15 +324,16 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 		      N_Vector ycur, N_Vector fcur)
 {
-  int last_flag, flag;
-  realtype = gamrat;
+  int last_flag, flag, lmm;
+  realtype gamrat;
   CVSlsMem cvsls_mem;
   KLUData klu_data;
   SlsMat JacMat;
   realtype *bd;
   
   gamrat = cv_mem->cv_gamrat;
-  
+  lmm = cv_mem->cv_lmm;
+
   cvsls_mem = (CVSlsMem) cv_mem->cv_lmem;
   JacMat = cvsls_mem->s_JacMat;
 
@@ -364,7 +364,7 @@ static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   This routine frees memory specific to the CVKLU linear solver.
 */
 
-static int cvKLUFree(CVodeMem cv_mem)
+static void cvKLUFree(CVodeMem cv_mem)
 {
   CVSlsMem cvsls_mem;
   KLUData klu_data;
@@ -390,7 +390,7 @@ static int cvKLUFree(CVodeMem cv_mem)
   free(klu_data); 
   free(cv_mem->cv_lmem); 
 
-  return(CVSLS_SUCCESS);
+  return;
 }
 
 /* 

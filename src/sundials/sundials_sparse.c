@@ -188,6 +188,10 @@ void AddIdentitySparseMat(SlsMat A)
   }
   Cp[N] = nz;
   
+  A->N = C->N;
+  A->M = C->M;
+  A->NNZ = C->NNZ;
+
   if (A->data) {
     free(A->data);  
     A->data = C->data;
@@ -201,10 +205,27 @@ void AddIdentitySparseMat(SlsMat A)
   if (A->colptrs) {
     free(A->colptrs);
     A->colptrs = C->colptrs;
-    C->data = NULL;
+    C->colptrs = NULL;
   }
-  DestroySparseMat(C); 
 
+  DestroySparseMat(C); 
+  free(w);
+  free(x);
+
+  /*  Reallocate the new matrix to get rid of any extra space */
+  ReallocSparseMat(A);
+
+}
+
+void ReallocSparseMat(SlsMat A)
+{
+  int nzmax; 
+
+  nzmax = A->colptrs[A->N];
+
+  A->rowvals = realloc(A->rowvals, nzmax*sizeof(int));
+  A->data = realloc(A->data, nzmax*sizeof(realtype));
+  A->NNZ = nzmax;
 }
 
 void PrintSparseMat(SlsMat A)

@@ -108,6 +108,51 @@ SUNDIALS_EXPORT void SlsSetToZero(SlsMat A);
 
 /*
  * -----------------------------------------------------------------
+ * Functions: CopySparseMat
+ * -----------------------------------------------------------------
+ * This function copies sparse matrix A into sparse matrix B.
+ * -----------------------------------------------------------------
+ */
+
+  SUNDIALS_EXPORT void CopySparseMat(SlsMat A, SlsMat B);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: ScaleSparseMat
+ * -----------------------------------------------------------------
+ * This function scales all data entries of a sparse matrix A 
+ * by the realtype number in b.
+ * -----------------------------------------------------------------
+ */
+
+  SUNDIALS_EXPORT void ScaleSparseMat(realtype b, SlsMat A);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: AddIdentitySparseMat
+ * -----------------------------------------------------------------
+ * This function adds the identity matrix to a sparse matrix A.
+ * Note that the resultign matrix may have more nonzero entries than the 
+ * original.  This is accounted for, so that h ereturn matrix may be larger
+ * than the one sent in.
+ * -----------------------------------------------------------------
+ */
+
+  SUNDIALS_EXPORT void AddIdentitySparseMat(SlsMat A);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: ReallocSparseMat
+ * -----------------------------------------------------------------
+ * This function reallocs internal arrays so that the resulting matrix 
+ * holds colptrs[N] nonzeros.
+ * -----------------------------------------------------------------
+ */
+
+  SUNDIALS_EXPORT void ReallocSparseMat(SlsMat A);
+
+/*
+ * -----------------------------------------------------------------
  * Functions: PrintSparseMat
  * -----------------------------------------------------------------
  * This function prints the compressed column matrix information for 
