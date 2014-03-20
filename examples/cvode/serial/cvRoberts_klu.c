@@ -264,7 +264,7 @@ static int Jac(realtype t,
   JacMat->rowvals[3] = 0;
   JacMat->data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]);
   JacMat->rowvals[4] = 1;
-  JacMat->data[5] = RCONST(6.0e7);
+  JacMat->data[5] = RCONST(6.0e7)*yval[1];
   JacMat->rowvals[5] = 2;
 
   JacMat->data[6] = RCONST(1.0e4)*yval[1];
