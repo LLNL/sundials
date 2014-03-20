@@ -177,7 +177,7 @@ void AddIdentitySparseMat(SlsMat A)
     if (w[j] < j+1) {
       Ci[nz] = j;
       nz++;
-      w[j] = 1.0;
+      x[j] = 1.0;
     } else {
       x[j] += 1.0;
     }
