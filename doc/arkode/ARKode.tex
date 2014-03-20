@@ -720,7 +720,7 @@ z_i^{(m)} - z_i^{(m-1)}$, if $m>1$ we update $R_i$ as
 \begin{split}R_i \leftarrow \max\{ 0.3 R_i, \left\|\delta^{(m)}\right\| / \left\|\delta^{(m-1)}\right\| \}.\end{split}\notag\\\begin{split}\end{split}\notag
 \end{gather}
 where the factor 0.3 is user-modifiable as the \emph{crdown} input to the
-the function {\hyperref[c_interface/User_callable:ARKodeSetNonlinCRDown]{\code{ARKodeSetNonlinCRDown()}}} or the \emph{NEWT\_CRDOWN}
+the function {\hyperref[c_interface/User_callable:ARKodeSetNonlinCRDown]{\code{ARKodeSetNonlinCRDown()}}} or the \emph{NONLIN\_CRDOWN}
 argument to {\hyperref[f_interface/Usage:f/_/FARKSETRIN]{\code{FARKSETRIN()}}}.
 
 Denoting the true time step solution as $y_n$, and the computed
@@ -746,7 +746,7 @@ as the \emph{MAX\_NSTEPS} argument to {\hyperref[f_interface/Usage:f/_/FARKSETII
 declare the nonlinear iteration to be divergent if any of the ratios
 $\|\delta^{(m)}\| / \|\delta^{(m-1)}\| > 2.3$ with $m>1$
 (the value 2.3 may be modified as the \emph{rdiv} input to
-{\hyperref[c_interface/User_callable:ARKodeSetNonlinRDiv]{\code{ARKodeSetNonlinRDiv()}}} or the \emph{NEWT\_RDIV} input to
+{\hyperref[c_interface/User_callable:ARKodeSetNonlinRDiv]{\code{ARKodeSetNonlinRDiv()}}} or the \emph{NONLIN\_RDIV} input to
 {\hyperref[f_interface/Usage:f/_/FARKSETRIN]{\code{FARKSETRIN()}}}).  If convergence fails in the fixed
 point iteration, or in the Newton iteration with $J$ or
 ${\mathcal A}$ current, we must then reduce the step size by a
@@ -12260,6 +12260,16 @@ ARKode routine
 {\hyperref[c_interface/User_callable:ARKodeSetNonlinear]{\code{ARKodeSetNonlinear()}}}
 \\\hline
 
+\code{FIXEDPOINT}
+ & 
+{\hyperref[c_interface/User_callable:ARKodeSetFixedPoint]{\code{ARKodeSetFixedPoint()}}}
+\\\hline
+
+\code{NEWTON}
+ & 
+{\hyperref[c_interface/User_callable:ARKodeSetNewton]{\code{ARKodeSetNewton()}}}
+\\\hline
+
 \code{EXPLICIT}
  & 
 {\hyperref[c_interface/User_callable:ARKodeSetExplicit]{\code{ARKodeSetExplicit()}}}
@@ -12436,12 +12446,12 @@ ARKode routine
 {\hyperref[c_interface/User_callable:ARKodeSetMaxCFailGrowth]{\code{ARKodeSetMaxCFailGrowth()}}}
 \\\hline
 
-\code{NEWT\_CRDOWN}
+\code{NONLIN\_CRDOWN}
  & 
 {\hyperref[c_interface/User_callable:ARKodeSetNonlinCRDown]{\code{ARKodeSetNonlinCRDown()}}}
 \\\hline
 
-\code{NEWT\_RDIV}
+\code{NONLIN\_RDIV}
  & 
 {\hyperref[c_interface/User_callable:ARKodeSetNonlinRDiv]{\code{ARKodeSetNonlinRDiv()}}}
 \\\hline
