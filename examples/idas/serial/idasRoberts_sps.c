@@ -363,8 +363,8 @@ static void PrintFinalStats(void *mem)
   check_flag(&retval, "IDAGetNumErrTestFails", 1);
   retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_flag(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  //  retval = IDASlsGetNumResEvals(mem, &nreLS);
-  //  check_flag(&retval, "IDASlsGetNumResEvals", 1);
+  /*  retval = IDASlsGetNumResEvals(mem, &nreLS); */
+  /*  check_flag(&retval, "IDASlsGetNumResEvals", 1); */
   nreLS = 0;
   retval = IDAGetNumGEvals(mem, &nge);
   check_flag(&retval, "IDAGetNumGEvals", 1);
