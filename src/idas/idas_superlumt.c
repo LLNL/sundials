@@ -204,7 +204,7 @@ int IDASuperLUMT(void *ida_mem, int num_threads, int m, int n, int nnz)
 		       SLU_DN, SLU_D, SLU_GE);
   slumt_data->s_B = B;
 
-  /* Set ordering to COLAMD as the kinsol default use.
+  /* Set ordering to COLAMD as the idas default use.
      Users can set a different value with IDASuperLUMTSetOrdering,
      and the user-set value is loaded before any call to factorize the
      matrix in IDASuperLUMTSetup.  */
@@ -309,7 +309,7 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   nprocs = slumt_data->num_threads;
   diag_pivot_thresh = slumt_data->diag_pivot_thresh;
 
-  /* Set option values for SuperL_MT */
+  /* Set option values for SuperLU_MT */
   panel_size = sp_ienv(1);
   relax = sp_ienv(2);
   fact = EQUILIBRATE;

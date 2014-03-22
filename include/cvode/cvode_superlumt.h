@@ -19,64 +19,49 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDASSUPERLUMT_H
-#define _IDASSUPERLUMT_H
+#ifndef _CVSUPERLUMT_H
+#define _CVSUPERLUMT_H
 
-#include "idas/idas_sparse.h"
+#include "cvode/cvode_sparse.h"
 #include "sundials/sundials_sparse.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
 /*
  * -----------------------------------------------------------------
- * Function : IDASuperLUMT
+ * Function : CVSuperLUMT
  * -----------------------------------------------------------------
- * A call to the IDASuperLUMT function links the main integrator      
- * with the IDASuperLUMT linear solver module.                        
+ * A call to the CVSuperLUMT function links the main integrator      
+ * with the CVSuperLUMT linear solver module.                        
  *                                                                
- * ida_mem is the pointer to integrator memory returned by        
- *     IDACreate.             
+ * cv_mem is the pointer to integrator memory returned by        
+ *     CVCreate.             
  *
- * num_threads is the number of threads that SuperLUMT should invoke     
  *                                                                
- * IDASuperLUMT returns:                                              
- *     IDASLU_SUCCESS   = 0  if successful                              
- *     IDASLU_LMEM_FAIL = -1 if there was a memory allocation failure   
- *     IDASLU_ILL_INPUT = -2 if NVECTOR found incompatible           
+ * CVSuperLUMT returns:                                              
+ *     CVSLU_SUCCESS   = 0  if successful                              
+ *     CVSLU_LMEM_FAIL = -1 if there was a memory allocation failure   
+ *     CVSLU_ILL_INPUT = -2 if NVECTOR found incompatible           
  *                                                                
- * NOTE: The SuperLUMT linear solver assumes a serial implementation  
- *       of the NVECTOR package. Therefore, IDASuperLUMT will first
+ * NOTE: The CVSuperLUMT linear solver assumes a serial implementation  
+ *       of the NVECTOR package. Therefore, CVSuperLUMT will first
  *       test for a compatible N_Vector internal representation
  *       by checking that the functions N_VGetArrayPointer and
  *       N_VSetArrayPointer exist.
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT int IDASuperLUMT(void *ida_mem, int num_threads, 
-				   int m, int n, int nnz); 
-
-/*
- * -----------------------------------------------------------------
- * Function: IDASuperLUMTB
- * -----------------------------------------------------------------
- * IDASuperLUMTB links the main IDAS integrator with the IDASuperLUMT
- * linear solver for the backward integration.
- * -----------------------------------------------------------------
- */
-
-  SUNDIALS_EXPORT int IDASuperLUMTB(void *ida_mem, int num_threads, 
-				    int which, int mB, int nB, int nnzB);
-
-
-
+  SUNDIALS_EXPORT int CVSuperLUMT(void *cv_mem, int num_threads,
+				  int m, int n, int nnz); 
 
 /* 
  * -----------------------------------------------------------------
  * Optional Input Specification Functions
  * -----------------------------------------------------------------
  *
- * IDASuperLUMTSetOrdering sets the ordering used by SuperLUMT for 
+ * CVSuperLUMTSetOrdering sets the ordering used by CVSuperLUMT for 
  * reducing fill.
  * Options are: 
  * 0 for natural ordering
@@ -87,8 +72,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT int IDASuperLUMTSetOrdering(void *ida_mem, 
-					      int ordering_choice); 
+  SUNDIALS_EXPORT int CVSuperLUMTSetOrdering(void *cv_mem, 
+					     int ordering_choice); 
 
 
   

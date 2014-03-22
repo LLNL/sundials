@@ -211,7 +211,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   int retval, last_flag;
-  long int nst, nstlj, nje;
+  long int nst, nstlj;
   realtype tn, gamma, gammap, dgamma;
   CVSlsMem cvsls_mem;
   CVSlsSparseJacFn jaceval;
@@ -233,7 +233,6 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   JacMat = cvsls_mem->s_JacMat;
   savedJ = cvsls_mem->s_savedJ;
   nstlj = cvsls_mem->s_nstlj;
-  nje = cvsls_mem->s_nje;
 
   /* Check that Jacobian eval routine is set */
   if (jaceval == NULL) {
@@ -256,7 +255,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     CopySparseMat(savedJ, JacMat);
   } else {
     /* If jok = FALSE, call jac routine for new J value */
-    nje++;
+    cvsls_mem->s_nje++;
     nstlj = nst;
     *jcurPtr = TRUE;
     SlsSetToZero(JacMat);
