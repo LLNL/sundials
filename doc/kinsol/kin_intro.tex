@@ -102,10 +102,11 @@ of the Anderson acceleration method.  See the relevant paragraphs in
 Chapter \ref{s:math}.
 
 Two major additions were made to the linear system solvers that are
-availble for use with the {\kinsol} solver.  In the serial case, an
-interface to the KLU sparse direct solver was added.
-For the parallel case, an interface to SuperLU\_MT (the multi-threaded
-version of SuperLU) was added as a thread-parallel sparse direct solver option.
+availble for use with the {\kinsol} solver.  First, in the serial case,
+an interface to the sparse direct solver KLU was added.
+Second, an interface to SuperLU\_MT, the multi-threaded version of
+SuperLU, was added as a thread-parallel sparse direct solver option,
+to be used with the serial version of the NVECTOR module.
 As part of these additions, a sparse matrix (CSC format) structure 
 was added to {\kinsol}.
 

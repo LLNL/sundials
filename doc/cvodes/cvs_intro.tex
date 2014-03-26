@@ -112,10 +112,11 @@ writing in C|)}
 \subsection*{Changes in v2.8.0}
 
 Two major additions were made to the linear system solvers that are
-availble for use with the {\cvodes} solver.  In the serial case, an
-interface to the KLU sparse direct solver was added.
-For the parallel case, an interface to SuperLU\_MT (the multi-threaded
-version of SuperLU) was added as a thread-parallel sparse direct solver option.
+available for use with the {\cvodes} solver.  First, in the serial case,
+an interface to the sparse direct solver KLU was added.
+Second, an interface to SuperLU\_MT, the multi-threaded version of
+SuperLU, was added as a thread-parallel sparse direct solver option,
+to be used with the serial version of the NVECTOR module.
 As part of these additions, a sparse matrix (CSC format) structure 
 was added to {\cvodes}.
 
