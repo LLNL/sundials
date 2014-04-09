@@ -78,10 +78,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
 <p class="links">
 [
-<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
 ]<br>
 [
 <a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
 ]
 </p>
 
@@ -92,7 +95,30 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <div class="frame">
 <ul>
 
-<li class="title">What's new in v2.7.0?
+<li class="title">What's new in v2.8.0?
+</li><li> New features
+   <ul class="second">
+   <li> Added interface to the sparse direct solver KLU.
+   </li><li> Added interface to SuperLU_MT.
+   </li></ul>
+</li><li> Bug fixes
+   <ul class="second">
+   <li> Fixed minor bug in cvRootfind involving rootdir input.
+   </li><li> Fixed line setting smu in CVLapackBand.
+   </li></ul>
+</li><li> Changes to the FCVODE module
+   <ul class="second">
+   <li> In optional input routines FCVSETIIN and FCVSETRIN, removed the
+        optional fourth argument key_length.
+   </li><li> Revised integer declarations in all examples so that those which must
+             match a C type long int are declared INTEGER*8.
+   </li></ul>
+</li><li> Changes related to the build system
+   <ul class="second">
+   <li> Dropped support and documentation of the Autotools mode of installation.
+   </li></ul>
+
+</li><li class="title">What's new in v2.7.0?
 </li><li> Bug fixes
    <ul class="second">
    <li> logic in CVSetTqBDF changed to avoid a divide by zero
@@ -344,10 +370,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <a href="#top">Top</a>
 ]<br>
 [
-<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
 ]<br>
 [
 <a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
 ]
 </p>
 
@@ -358,7 +387,34 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <div class="frame">
 <ul>
 
-<li class="title">What's new in v2.7.0?
+<li class="title">What's new in v2.8.0?
+</li><li> New features
+   <ul class="second">
+   <li> Added interface to the sparse direct solver KLU.
+   </li><li> Added interface to SuperLU_MT.
+   </li></ul>
+</li><li> Bug fixes
+   <ul class="second">
+   <li> Fixed minor bug in cvRootfind involving rootdir input.
+   </li><li> Fixed line setting smu in CVLapackBand.
+   </li><li> Fixed line setting cv_mem->cv_fQS_data in CVodeQuadSensInit.
+   </li><li> Fixed an error in example cvsHessian_ASA_FSA, in function fB2.
+   </li></ul>
+</li><li> Changes to user interface
+   <ul class="second">
+   <li> Added user Jacobian option functions CVDlsSetDenseJacFnBS and
+        CVDlsSetBandJacFnBS.
+   </li></ul>
+</li><li> Changes to documentation
+   <ul class="second">
+   <li> Added paragraphs on CVodeAdjReInit and CVodeGetAdjY.
+   </li></ul>
+</li><li> Changes related to the build system
+   <ul class="second">
+   <li> Dropped support and documentation of the Autotools mode of installation.
+   </li></ul>
+
+</li><li class="title">What's new in v2.7.0?
 </li><li> Bug fixes
    <ul class="second">
    <li> fixed major logic errors in integration of backward problems
@@ -668,10 +724,43 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <a href="#top">Top</a>
 ]<br>
 [
-<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
 ]<br>
 [
 <a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
+]
+</p>
+
+<!-- ******************************************************************************* -->
+
+<a name="whatsnew_arkode"></a>
+<h1>ARKODE</h1>
+<div class="frame">
+<ul>
+
+<li class="title">What's new in v1.0.0?
+</li><li> Initial release
+   </li></ul>
+
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<a href="#top">Top</a>
+]<br>
+[
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+]<br>
+[
+<a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
 ]
 </p>
 
@@ -682,7 +771,30 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <div class="frame">
 <ul>
 
-<li class="title">What's new in v2.7.0?
+<li class="title">What's new in v2.8.0?
+</li><li> New features
+   <ul class="second">
+   <li> Added interface to the sparse direct solver KLU.
+   </li><li> Added interface to SuperLU_MT.
+   </li></ul>
+</li><li> Bug fixes
+   <ul class="second">
+   <li> Fixed minor bug in IDARootfind involving rootdir input.
+   </li><li> Fixed line setting smu in IDALapackBand.
+   </li></ul>
+</li><li> Changes to the FIDA module
+   <ul class="second">
+   <li> In optional input routines FIDASETIIN, FIDASETRIN, and FIDASETVIN,
+        removed the optional fourth argument key_length.
+   </li><li> Revised integer declarations in all examples so that those which must
+             match a C type long int are declared INTEGER*8.
+   </li></ul>
+</li><li> Changes related to the build system
+   <ul class="second">
+   <li> Dropped support and documentation of the Autotools mode of installation.
+   </li></ul>
+
+</li><li class="title">What's new in v2.7.0?
 </li><li> Bug fixes
    <ul class="second">
    <li> linear solver memory set to zero after being created
@@ -913,10 +1025,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <a href="#top">Top</a>
 ]<br>
 [
-<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
 ]<br>
 [
 <a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
 ]
 </p>
 
@@ -927,7 +1042,32 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <div class="frame">
 <ul>
 
-<li class="title">What's new in v1.1.0?
+<li class="title">What's new in v1.2.0?
+</li><li> New features
+   <ul class="second">
+   <li> Added interface to the sparse direct solver KLU.
+   </li><li> Added interface to SuperLU_MT.
+   </li></ul>
+</li><li> Bug fixes
+   <ul class="second">
+   <li> Fixed minor bug in IDARootfind involving rootdir input.
+   </li><li> Fixed line setting smu in IDALapackBand.
+   </li></ul>
+</li><li> Changes to user interface
+   <ul class="second">
+   <li> Added user Jacobian option functions IDADlsSetDenseJacFnBS and
+        IDADlsSetBandJacFnBS.
+   </li></ul>
+</li><li> Changes to documentation
+   <ul class="second">
+   <li> Added paragraphs on IDAAdjReInit and IDAGetAdjY.
+   </li></ul>
+</li><li> Changes related to the build system
+   <ul class="second">
+   <li> Dropped support and documentation of the Autotools mode of installation.
+   </li></ul>
+
+</li><li class="title">What's new in v1.1.0?
 </li><li> Bug fixes
    <ul class="second">
    <li> fixed major logic errors in integration of backward problems
@@ -959,10 +1099,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <a href="#top">Top</a>
 ]<br>
 [
-<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
 ]<br>
 [
 <a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
 ]
 </p>
 
@@ -973,7 +1116,35 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <div class="frame">
 <ul>
 
-<li class="title">What's new in v2.7.0?
+<li class="title">What's new in v2.8.0?
+</li><li> New features
+   <ul class="second">
+   <li> Added fixed-point iteration and Picard iteration as globalization strategy
+        options, both with Anderson acceleration.
+   </li><li> Added interface to the sparse direct solver KLU.
+   </li><li> Added interface to SuperLU_MT.
+   </li></ul>
+</li><li> Bug fixes
+   <ul class="second">
+   <li> Corrected two return values in function KINStop.
+   </li><li> Fixed line setting smu in KINLapackBand.
+   </li><li> Fixed bug involving initialization of mxnewtstep.
+   </li><li> Fixed bug in difference quotient increments in kinDlsBandDQJac.
+   </li><li> Fixed an incorrect return value ier in FKINSOL function FKINfunc.
+   </li></ul>
+</li><li> Changes to the FKINSOL module
+   <ul class="second">
+   <li> In optional input routines FKINSETIIN, FKINSETRIN, and FKINSETVIN,
+        removed the optional fourth argument key_length.
+   </li><li> Revised integer declarations in all examples so that those which must
+             match a C type long int are declared INTEGER*8.
+   </li></ul>
+</li><li> Changes related to the build system
+   <ul class="second">
+   <li> Dropped support and documentation of the Autotools mode of installation.
+   </li></ul>
+
+</li><li class="title">What's new in v2.7.0?
 </li><li> Bug fixes
    <ul class="second">
    <li> Three major logic bugs were fixed -- involving updating the solution
@@ -1226,10 +1397,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <a href="#top">Top</a>
 ]<br>
 [
-<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
 ]<br>
 [
 <a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
 ]
 </p>
 
@@ -1314,10 +1488,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <a href="#top">Top</a>
 ]<br>
 [
-<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
 ]<br>
 [
 <a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
 ]
 </p>
 
@@ -1328,7 +1505,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <div class="frame">
 <ul>
 
-<li class="title">What's new in v2.5.0?
+<li class="title">What's new in v2.6.0?
+</li><li> New features
+   <ul class="second">
+   <li> Added sparse matrix type (CSC format) and supporting operations.
+   </li></ul>
+
+</li><li class="title">What's new in v2.5.0?
 </li><li> Changes to user interface
    <ul class="second">
    <li> Problem size and related integers (bandwidth parameters etc.)
@@ -1479,10 +1662,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <a href="#top">Top</a>
 ]<br>
 [
-<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
 ]<br>
 [
 <a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
 ]
 </p>
 
@@ -1551,10 +1737,13 @@ routine is problematic on some platforms)
 <a href="#top">Top</a>
 ]<br>
 [
-<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
 ]<br>
 [
 <a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
 ]
 </p>
 
@@ -1626,10 +1815,73 @@ routine is problematic on some platforms)
 <a href="#top">Top</a>
 ]<br>
 [
-<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
 ]<br>
 [
 <a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
+]
+</p>
+
+<!-- ******************************************************************************* -->
+
+<a name="whatsnew_nvecomp"></a>
+<h1>NVECTOR_OPENMP</h1>
+<div class="frame">
+<ul>
+
+<li class="title">What's new in v1.0.0?
+</li><li> Initial release
+   </li></ul>
+
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<a href="#top">Top</a>
+]<br>
+[
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+]<br>
+[
+<a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
+]
+</p>
+
+<!-- ******************************************************************************* -->
+
+<a name="whatsnew_nvecpthr"></a>
+<h1>NVECTOR_PTHREADS</h1>
+<div class="frame">
+<ul>
+
+<li class="title">What's new in v1.0.0?
+</li><li> Initial release
+   </li></ul>
+
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<a href="#top">Top</a>
+]<br>
+[
+<a href="#whatsnew_cvode">CVODE</a>::<a href="#whatsnew_cvodes">CVODES</a>::<a href="#whatsnew_arkode">ARKODE</a>::<a href="#whatsnew_ida">IDA</a>::<a href="#whatsnew_idas">IDAS</a>::<a href="#whatsnew_kinsol">KINSOL</a>::<a href="#whatsnew_stb">sundialsTB</a>
+]<br>
+[
+<a href="#whatsnew_shared">SHARED</a>::<a href="#whatsnew_nvecser">NVECTOR_SERIAL</a>::<a href="#whatsnew_nvecpar">NVECTOR_PARALLEL</a> 
+]<br>
+[
+<a href="#whatsnew_nvecomp">NVECTOR_OPENMP</a>::<a href="#whatsnew_nvecpthr">NVECTOR_PTHREADS</a> 
 ]
 </p>
 
