@@ -45,14 +45,6 @@ static int IDAKLUSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
 static int IDAKLUFree(IDAMem IDA_mem);
 
-/* 
- * ================================================================
- *
- *                   PART I - forward problems
- *
- * ================================================================
- */
-
 /*
  * -----------------------------------------------------------------
  * IDAKLU
@@ -86,7 +78,7 @@ int IDAKLU(void *ida_mem, int n, int nnz)
 
   /* Return immediately if ida_mem is NULL. */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDASLS_MEM_NULL, "IDASSLS", "IDAKLU", 
+    IDAProcessError(NULL, IDASLS_MEM_NULL, "IDASLS", "IDAKLU", 
 		    MSGSP_IDAMEM_NULL);
     return(IDASLS_MEM_NULL);
   }
@@ -94,7 +86,7 @@ int IDAKLU(void *ida_mem, int n, int nnz)
 
   /* Test if the NVECTOR package is compatible with the Direct solver */
   if (IDA_mem->ida_tempv1->ops->nvgetarraypointer == NULL) {
-    IDAProcessError(IDA_mem, IDASLS_ILL_INPUT, "IDASSLS", "IDAKLU", 
+    IDAProcessError(IDA_mem, IDASLS_ILL_INPUT, "IDASLS", "IDAKLU", 
 		    MSGSP_BAD_NVECTOR);
     return(IDASLS_ILL_INPUT);
   }
@@ -111,7 +103,7 @@ int IDAKLU(void *ida_mem, int n, int nnz)
   /* Get memory for IDASlsMemRec. */
   idasls_mem = (IDASlsMem) malloc(sizeof(struct IDASlsMemRec));
   if (idasls_mem == NULL) {
-    IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASSLS", "IDAKLU", 
+    IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASLS", "IDAKLU", 
 		    MSGSP_MEM_FAIL);
     return(IDASLS_MEM_FAIL);
   }
@@ -119,7 +111,7 @@ int IDAKLU(void *ida_mem, int n, int nnz)
   /* Get memory for KLUData. */
   klu_data = (KLUData)malloc(sizeof(struct KLUDataRec));
   if (klu_data == NULL) {
-    IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASSLS", "IDAKLU", 
+    IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASLS", "IDAKLU", 
 		    MSGSP_MEM_FAIL);
     return(IDASLS_MEM_FAIL);
   }
@@ -133,7 +125,7 @@ int IDAKLU(void *ida_mem, int n, int nnz)
   /* Allocate memory for the sparse Jacobian */
   idasls_mem->s_JacMat = NewSparseMat(n, n, nnz);
   if (idasls_mem->s_JacMat == NULL) {
-    IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASSLS", "IDAKLU", 
+    IDAProcessError(IDA_mem, IDASLS_MEM_FAIL, "IDASLS", "IDAKLU", 
 		    MSGSP_MEM_FAIL);
     return(IDASLS_MEM_FAIL);
   }
@@ -148,7 +140,7 @@ int IDAKLU(void *ida_mem, int n, int nnz)
   /* Set default parameters for KLU */
   flag = klu_defaults(&klu_data->s_Common);
   if (flag == 0) {
-    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLU", 
+    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "IDAKLU", 
 		    MSGSP_PACKAGE_FAIL);
     return(IDASLS_PACKAGE_FAIL);
   }
@@ -230,7 +222,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
   /* Check that Jacobian eval routine is set */
   if (jaceval == NULL) {
-    IDAProcessError(IDA_mem, IDASLS_JAC_NOSET, "IDASSLS", "IDAKLUSetup", 
+    IDAProcessError(IDA_mem, IDASLS_JAC_NOSET, "IDASLS", "IDAKLUSetup", 
 		    MSGSP_JAC_NOSET);
     free(idasls_mem); idasls_mem = NULL;
     return(IDASLS_JAC_NOSET);
@@ -242,7 +234,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 		   tmp1, tmp2, tmp3);
 
   if (retval < 0) {
-    IDAProcessError(IDA_mem, IDASLS_JACFUNC_UNRECVR, "IDASSLS", 
+    IDAProcessError(IDA_mem, IDASLS_JACFUNC_UNRECVR, "IDASLS", 
 		    "IDAKLUSetup", MSGSP_JACFUNC_FAILED);
     last_flag = IDASLS_JACFUNC_UNRECVR;
     return(IDASLS_JACFUNC_UNRECVR);
@@ -263,7 +255,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
     klu_data->s_Symbolic = klu_analyze(JacMat->N, JacMat->colptrs, 
 				       JacMat->rowvals, &(klu_data->s_Common));
     if (klu_data->s_Symbolic == NULL) {
-      IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLUSetup", 
+      IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "IDAKLUSetup", 
 		      MSGSP_PACKAGE_FAIL);
       return(IDASLS_PACKAGE_FAIL);
     }
@@ -278,7 +270,7 @@ static int IDAKLUSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 				   klu_data->s_Symbolic, &(klu_data->s_Common));
 
   if (klu_data->s_Numeric == NULL) {
-    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLUSetup", 
+    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "IDAKLUSetup", 
 		    MSGSP_PACKAGE_FAIL);
     return(IDASLS_PACKAGE_FAIL);
   }
@@ -318,7 +310,7 @@ static int IDAKLUSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   flag = klu_solve(klu_data->s_Symbolic, klu_data->s_Numeric, JacMat->N, 1, bd, 
 	    &(klu_data->s_Common));
   if (flag == 0) {
-    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASSLS", "IDAKLUSolve", 
+    IDAProcessError(IDA_mem, IDASLS_PACKAGE_FAIL, "IDASLS", "IDAKLUSolve", 
 		    MSGSP_PACKAGE_FAIL);
     return(IDASLS_PACKAGE_FAIL);
   }
