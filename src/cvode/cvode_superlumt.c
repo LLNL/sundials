@@ -53,8 +53,8 @@ static void cvSuperLUMTFree(CVodeMem cv_mem);
  * fields specific to the CVODE / SuperLUMT linear solver module.  
  * CVSUPERLUMT first calls the existing lfree routine if this is not NULL.
  * Then it sets the cv_linit, cv_lsetup, cv_lsolve, and
- * cv_lfree fields in (*cv_mem) to be CVSuperLUMTInit, CVSuperLUMTSetup,
- * CVSuperLUMTSolve, and CVSuperLUMTFree, respectively.
+ * cv_lfree fields in (*cv_mem) to be cvSuperLUMTInit, cvSuperLUMTSetup,
+ * cvSuperLUMTSolve, and cvSuperLUMTFree, respectively.
  * It allocates memory for a structure of type CVsluMemRec and sets
  * the cv_lmem field in (*cvode_mem) to the address of this structure.
  * It sets setupNonNull in (*cvode_mem) to TRUE.
@@ -256,12 +256,12 @@ static int cvSuperLUMTInit(CVodeMem cv_mem)
      -1  if the jac routine failed unrecoverably.
 */
 
-static int cvSuperLUMTetup(CVodeMem cv_mem, int convfail, N_Vector ypred, 
+static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred, 
 			   N_Vector fpred, booleantype *jcurPtr,
 			   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   booleantype jbad, jok;
-  int retval, last_flag;
+  int retval, last_flag, info;
   int nprocs, panel_size, relax, permc_spec, lwork;
   int *perm_r, *perm_c;
   long int retfac;
@@ -287,7 +287,7 @@ static int cvSuperLUMTetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   gammap = cv_mem->cv_gammap;
   nst = cv_mem->cv_nst;
 
-  slumt_data = (SLUMTData) idasls_mem->s_solver_data;
+  slumt_data = (SLUMTData) cvsls_mem->s_solver_data;
 
   last_flag = cvsls_mem->s_last_flag;
   jaceval = cvsls_mem->s_jaceval;
@@ -414,7 +414,7 @@ static int cvSuperLUMTetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 			    N_Vector ycur, N_Vector fcur)
 {
-  int info, last_flag, flag, lmm;
+  int info, trans, last_flag, flag, lmm;
   int *perm_r, *perm_c;
   realtype gamrat;
   CVSlsMem cvsls_mem;
@@ -429,7 +429,7 @@ static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   cvsls_mem = (CVSlsMem) cv_mem->cv_lmem;
 
-  slumt_data = (SLUMTData) idasls_mem->s_solver_data;
+  slumt_data = (SLUMTData) cvsls_mem->s_solver_data;
   last_flag = cvsls_mem->s_last_flag;
 
   L = slumt_data->s_L;
@@ -464,12 +464,13 @@ static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static void cvSuperLUMTFree(CVodeMem cv_mem)
 {
+  int lwork = 0;
   CVSlsMem cvsls_mem;
   SLUMTData slumt_data;
   
   cvsls_mem = (CVSlsMem) cv_mem->cv_lmem;
 
-  slumt_data = (SLUMTData) idasls_mem->s_solver_data;
+  slumt_data = (SLUMTData) cvsls_mem->s_solver_data;
 
   pxgstrf_finalize(slumt_data->superlumt_options, slumt_data->s_AC);
 
@@ -545,7 +546,7 @@ int CVSuperLUMTSetOrdering(void *cv_mem_v, int ordering_choice)
   }
 
   cvsls_mem = (CVSlsMem) cv_mem->cv_lmem;
-  slumt_data = (SLUMTData) idasls_mem->s_solver_data;
+  slumt_data = (SLUMTData) cvsls_mem->s_solver_data;
 
   slumt_data->s_ordering = ordering_choice;
 

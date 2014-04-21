@@ -33,6 +33,10 @@ SET(CVODE_examples_KLU
   cvRoberts_klu
   )
 
+SET(CVODE_examples_SUPERLUMT
+  cvRoberts_sps
+  )
+
 # Add variable CVODE_examples_BL with the names of the serial CVODE examples
 # that use Lapack
 
@@ -63,6 +67,10 @@ ENDIF(LAPACK_FOUND)
 IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 ENDIF(KLU_FOUND)
+
+IF(SUPERLUMT_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
+ENDIF(SUPERLUMT_FOUND)
 
 # Add the build and install targets for each CVODE example
 
@@ -102,6 +110,20 @@ IF(KLU_FOUND)
     ENDIF(EXAMPLES_INSTALL)
   ENDFOREACH(example ${CVODE_examples_KLU})
 ENDIF(KLU_FOUND)
+
+# If SUPERLUMT support is enabled, add the build and install targets for
+# the examples using SUPERLUMT
+IF(SUPERLUMT_FOUND)
+  FOREACH(example ${CVODE_examples_SUPERLUMT})
+    ADD_EXECUTABLE(${example} ${example}.c)
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SUNDIALS_ADD_TEST(${example} ${example})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    IF(EXAMPLES_INSTALL)
+      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+    ENDIF(EXAMPLES_INSTALL)
+  ENDFOREACH(example ${CVODE_examples_SUPERLUMT})
+ENDIF(SUPERLUMT_FOUND)
 
 IF(EXAMPLES_INSTALL)
 
