@@ -38,6 +38,10 @@ IF(KLU_FOUND)
     LIST(APPEND ida_SOURCES ida_klu.c)
 ENDIF()
 
+IF(SUPERLUMT_FOUND)
+    LIST(APPEND ida_SOURCES ida_superlumt.c)
+ENDIF()
+
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the IDA library
 SET(shared_SOURCES
@@ -68,6 +72,14 @@ SET(ida_HEADERS
   ida_spils.h
   ida_sptfqmr.h
   )
+
+IF(KLU_FOUND)
+    LIST(APPEND ida_HEADERS ida_klu.h)
+ENDIF()
+
+IF(SUPERLUMT_FOUND)
+    LIST(APPEND ida_HEADERS ida_superlumt.h)
+ENDIF()
 
 # Add prefix with complete path to the IDA header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/ida/ ida_HEADERS)

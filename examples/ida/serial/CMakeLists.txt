@@ -15,6 +15,9 @@
 # LLNS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for IDA serial examples
+#
+# CSW 4/19/2014
+#    Added SUPERLUMT logic.
 
 
 # Add variable IDA_examples with the names of the serial IDA examples
@@ -26,6 +29,10 @@ SET(IDA_examples
   idaKrylovDemo_ls
   idaRoberts_dns
   idaSlCrank_dns
+  )
+
+SET(IDA_examples_SUPERLUMT
+  idaRoberts_sps
   )
 
 SET(IDA_examples_KLU
@@ -57,6 +64,10 @@ IF(LAPACK_FOUND)
   SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${LAPACK_LIBRARIES}")
 ENDIF(LAPACK_FOUND)
 
+IF(SUPERLUMT_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
+ENDIF(SUPERLUMT_FOUND)
+
 IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 ENDIF(KLU_FOUND)
@@ -86,6 +97,19 @@ IF(LAPACK_FOUND)
     ENDIF(EXAMPLES_INSTALL)
   ENDFOREACH(example ${IDA_examples_BL})
 ENDIF(LAPACK_FOUND)
+
+# If SUPERLUMT support is enabled, add the build and install targets for
+# the examples using SUPERLUMT
+IF(SUPERLUMT_FOUND)
+  FOREACH(example ${IDA_examples_SUPERLUMT})
+    ADD_EXECUTABLE(${example} ${example}.c)
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    IF(EXAMPLES_INSTALL)
+      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+    ENDIF(EXAMPLES_INSTALL)
+  ENDFOREACH(example ${IDA_examples_SUPERLUMT})
+ENDIF(SUPERLUMT_FOUND)
 
 # If KLU support is enabled, add the build and install targets for
 # the examples using KLU
