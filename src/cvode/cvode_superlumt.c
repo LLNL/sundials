@@ -173,13 +173,6 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
   slumt_data->s_U = (SuperMatrix *)malloc(sizeof(SuperMatrix));
   slumt_data->superlumt_options = (superlumt_options_t *)malloc(sizeof(superlumt_options_t));
 
-  dCreate_CompCol_Matrix(slumt_data->s_A, cvsls_mem->s_JacMat->M, 
-			 cvsls_mem->s_JacMat->N, cvsls_mem->s_JacMat->NNZ, 
-			 cvsls_mem->s_JacMat->data, 
-			 cvsls_mem->s_JacMat->rowvals, 
-			 cvsls_mem->s_JacMat->colptrs, 
-			 SLU_NC, SLU_D, SLU_GE);
-
   panel_size = sp_ienv(1);
   relax = sp_ienv(2);
   StatAlloc(cvsls_mem->s_JacMat->N, num_threads, panel_size, relax, 
@@ -360,6 +353,13 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   ScaleSparseMat(-gamma, JacMat);
   AddIdentitySparseMat(JacMat);
 
+  if (A->Store) {
+    SUPERLU_FREE(A->Store);
+  }
+  dCreate_CompCol_Matrix(A, JacMat->M, JacMat->N, JacMat->NNZ, 
+			 JacMat->data, JacMat->rowvals, JacMat->colptrs, 
+			 SLU_NC, SLU_D, SLU_GE);
+
   if (cvsls_mem->s_first_factorize) {
     /* ------------------------------------------------------------
        Get column permutation vector perm_c[], according to permc_spec:
@@ -367,7 +367,7 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
        ------------------------------------------------------------*/ 
     permc_spec = slumt_data->s_ordering;
     get_perm_c(permc_spec, A, perm_c);
- 
+
     refact= NO;
     cvsls_mem->s_first_factorize = 0;
   }
