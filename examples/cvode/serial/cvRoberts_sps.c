@@ -151,7 +151,6 @@ int main()
 
   /* Call CVSuperLUMT to specify the CVSuperLUMT sparse direct linear solver */
   nnz = NEQ * NEQ;
-  //  flag = CVKLU(cvode_mem, NEQ, nnz);
   flag = CVSuperLUMT(cvode_mem, 1, NEQ, NEQ, nnz);
   if (check_flag(&flag, "CVSuperLUMT", 1)) return(1);
 
