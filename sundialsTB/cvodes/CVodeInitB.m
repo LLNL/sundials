@@ -29,7 +29,7 @@ function [idxB, status] = CVodeInitB(fctB, lmmB, nlsB, tB0, yB0, optionsB)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.3 $Date: 2007/08/21 23:09:18 $
+% $Revision$Date: 2007/08/21 23:09:18 $
 
 mode = 5;
 

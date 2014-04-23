@@ -19,7 +19,7 @@ function mcvsDiscRHS_dns()
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.1 $
+% $Revision$
 
 t0 = 0.0;
 t1 = 1.0;

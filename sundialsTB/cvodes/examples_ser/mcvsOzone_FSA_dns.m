@@ -12,7 +12,7 @@ function mcvsOzone_FSA_dns()
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.2 $Date: 2007/10/26 16:30:47 $
+% $Revision$Date: 2007/10/26 16:30:47 $
 
 
 % -------------------

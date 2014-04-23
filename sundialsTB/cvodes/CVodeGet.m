@@ -27,7 +27,7 @@ function [output, status] = CVodeGet(key, varargin)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.6 $Date: 2007/08/21 17:42:38 $
+% $Revision$Date: 2007/08/21 17:42:38 $
 
 mode = 32;
 

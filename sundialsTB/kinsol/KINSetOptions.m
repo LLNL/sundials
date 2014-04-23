@@ -185,7 +185,7 @@ function options = KINSetOptions(varargin)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.5 $Date: 2007/12/05 21:58:19 $
+% $Revision$Date: 2007/12/05 21:58:19 $
 
 % Based on Matlab's ODESET function
 

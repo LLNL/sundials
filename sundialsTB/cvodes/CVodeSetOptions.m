@@ -223,7 +223,7 @@ function options = CVodeSetOptions(varargin)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.9 $Date: 2007/05/16 17:12:56 $
+% $Revision$Date: 2007/05/16 17:12:56 $
 
 % If called without input and output arguments, print out the possible keywords
 

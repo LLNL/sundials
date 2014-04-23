@@ -11,7 +11,7 @@
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.7 $Date: 2006/07/17 16:49:49 $
+% $Revision$Date: 2006/07/17 16:49:49 $
 
 % Set location of sundialsTB template files location
 s = fileparts(which(mfilename));

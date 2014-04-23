@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2007-10-25 20:03:27 $
+C     $Revision$
+C     $Date$
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, Lapack linear solver
 C                             with dense user Jacobian.

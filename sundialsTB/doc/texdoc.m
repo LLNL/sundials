@@ -12,7 +12,7 @@ function [] = texdoc
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.8 $Date: 2009/04/22 04:14:36 $
+% $Revision$Date: 2009/04/22 04:14:36 $
 
 
 global cv_fct cv_ftp cv_es cv_ep

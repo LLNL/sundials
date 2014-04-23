@@ -22,7 +22,7 @@ function [] = mkinDiagon_kry_p(comm)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.2 $Date: 2007/10/26 16:30:49 $
+% $Revision$Date: 2007/10/26 16:30:49 $
 
 [status npes] = MPI_Comm_size(comm);
 [status mype] = MPI_Comm_rank(comm);

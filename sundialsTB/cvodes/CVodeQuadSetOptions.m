@@ -48,7 +48,7 @@ function options = CVodeQuadSetOptions(varargin)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.3 $Date: 2007/05/11 21:42:52 $
+% $Revision$Date: 2007/05/11 21:42:52 $
 
 % If called without input and output arguments, print out the possible keywords
 

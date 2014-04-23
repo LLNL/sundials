@@ -16,7 +16,7 @@ function ret = N_VMin(x,comm)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.1 $Date$
+% $Revision$Date$
 
 if nargin == 1
   

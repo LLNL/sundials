@@ -22,7 +22,7 @@ function status = IDAQuadReInitB(idxB, yQB0, optionsB)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.2 $Date: 2007/08/21 17:38:42 $
+% $Revision$Date: 2007/08/21 17:38:42 $
 
 mode = 16;
 

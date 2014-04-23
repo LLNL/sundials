@@ -12,7 +12,7 @@ function [] = install_STB
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.23 $Date: 2009/02/08 20:51:44 $
+% $Revision$Date: 2009/02/08 20:51:44 $
 
 % MEX compiler command
 % --------------------

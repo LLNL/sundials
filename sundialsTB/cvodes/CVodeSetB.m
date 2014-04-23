@@ -32,7 +32,7 @@ function status = CVodeSetB(idxB, varargin)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.2 $Date: 2007/05/16 17:12:56 $
+% $Revision$Date: 2007/05/16 17:12:56 $
 
 if (nargin == 0)
   fprintf('        UserData\n');

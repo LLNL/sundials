@@ -53,7 +53,7 @@ function [new_data] = IDAMonitor(call, T, Y, YQ, YS, data)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.4 $Date: 2007/08/21 17:38:42 $
+% $Revision$Date: 2007/08/21 17:38:42 $
 
 if (nargin ~= 6) 
   error('Monitor data not defined.');

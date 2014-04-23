@@ -23,7 +23,7 @@ function mkinRoboKin_dns
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.1 $Date: 2007/10/26 16:30:49 $
+% $Revision$Date: 2007/10/26 16:30:49 $
 
 
 fprintf('\nRobot Kinematics Example\n');

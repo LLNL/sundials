@@ -41,7 +41,7 @@ function [varargout] = IDASolveB(tout,itask)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.5 $Date: 2008/04/10 18:47:59 $
+% $Revision$Date: 2008/04/10 18:47:59 $
 
 mode = 21;
 

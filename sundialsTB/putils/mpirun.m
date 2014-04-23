@@ -18,7 +18,7 @@ function [] = mpirun(fct,npe,dbg)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.2 $Date: 2006/01/06 19:00:15 $
+% $Revision$Date: 2006/01/06 19:00:15 $
 
 ih = isa(fct,'function_handle');
 is = isa(fct,'char');

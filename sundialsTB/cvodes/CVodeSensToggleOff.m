@@ -18,7 +18,7 @@ function status = CVodeSensToggleOff()
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.3 $Date: 2007/05/11 18:51:32 $
+% $Revision$Date: 2007/05/11 18:51:32 $
 
 mode = 18;
 status = cvm(mode);

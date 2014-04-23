@@ -71,7 +71,7 @@ function [si, status] = CVodeGetStatsB(idxB)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.5 $Date: 2007/05/11 18:51:32 $
+% $Revision$Date: 2007/05/11 18:51:32 $
 
 mode = 31;
 

@@ -13,7 +13,7 @@ function CVodeFree()
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.4 $Date: 2006/10/11 18:12:36 $
+% $Revision$Date: 2006/10/11 18:12:36 $
 
 mode = 40;
 cvm(mode);

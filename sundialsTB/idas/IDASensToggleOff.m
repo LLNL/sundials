@@ -18,7 +18,7 @@ function status = IDASensToggleOff()
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.3 $Date: 2007/08/21 17:38:43 $
+% $Revision$Date: 2007/08/21 17:38:43 $
 
 mode = 18;
 status = idm(mode);

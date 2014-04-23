@@ -26,7 +26,7 @@ function status = IDAReInit(t0,yy0,yp0,options)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.3 $Date: 2007/08/21 17:38:42 $
+% $Revision$Date: 2007/08/21 17:38:42 $
 
 mode = 11;
 

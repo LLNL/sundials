@@ -34,7 +34,7 @@ function status = IDASet(varargin)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.2 $Date: 2007/08/21 17:38:43 $
+% $Revision$Date: 2007/08/21 17:38:43 $
 
 if (nargin == 0)
   fprintf('        UserData\n');

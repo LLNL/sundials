@@ -48,7 +48,7 @@ function [new_data] = IDAMonitorB(call, idxB, T, Y, YQ, data)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.1 $Date: 2007/05/11 18:51:32 $
+% $Revision$Date: 2007/05/11 18:51:32 $
 
 
 if (nargin ~= 6) 

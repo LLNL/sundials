@@ -18,7 +18,7 @@ function [] = mcvsAtmDisp_kry_bbd_p(comm)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.1 $Date: 2007/08/21 23:09:18 $
+% $Revision$Date: 2007/08/21 23:09:18 $
 
 %---------------------------------
 % Domain definition

@@ -47,7 +47,7 @@ function options = IDAQuadSetOptions(varargin)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.1 $Date: 2006/08/10 18:01:03 $
+% $Revision$Date: 2006/08/10 18:01:03 $
 
 % If called without input and output arguments, print out the possible keywords
 

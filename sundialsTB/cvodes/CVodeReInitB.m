@@ -28,7 +28,7 @@ function status = CVodeReInitB(idxB, tB0, yB0, optionsB)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.4 $Date: 2007/08/21 17:42:38 $
+% $Revision$Date: 2007/08/21 17:42:38 $
 
 mode = 15;
 

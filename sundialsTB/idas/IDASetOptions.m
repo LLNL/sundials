@@ -189,7 +189,7 @@ function options = IDASetOptions(varargin)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.5 $Date: 2007/08/21 17:38:43 $
+% $Revision$Date: 2007/08/21 17:38:43 $
 
 
 % If called without input and output arguments, print out the possible keywords

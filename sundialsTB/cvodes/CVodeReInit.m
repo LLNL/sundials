@@ -25,7 +25,7 @@ function status = CVodeReInit(t0, y0, options)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.4 $Date: 2007/05/16 17:12:56 $
+% $Revision$Date: 2007/05/16 17:12:56 $
 
 mode = 11;
 

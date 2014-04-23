@@ -24,7 +24,7 @@ function status = IDAInit(fct,t0,yy0,yp0,options)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.3 $Date: 2007/12/05 21:58:18 $
+% $Revision$Date: 2007/12/05 21:58:18 $
 
 mode = 1;
 

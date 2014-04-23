@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: $
- * $Date: $
+ * $Revision$
+ * $Date$
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, Carol Woodward,
  *                and Aaron Collier @ LLNL

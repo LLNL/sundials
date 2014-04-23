@@ -51,7 +51,7 @@ function [new_data] = CVodeMonitorB(call, idxB, T, Y, YQ, data)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.1 $Date: 2006/10/05 22:12:20 $
+% $Revision$Date: 2006/10/05 22:12:20 $
 
 
 if (nargin ~= 6) 

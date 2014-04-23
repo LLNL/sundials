@@ -19,7 +19,7 @@ function ret = N_VWL2Norm(x,w,comm)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.1 $Date$
+% $Revision$Date$
 
 if nargin == 2
   

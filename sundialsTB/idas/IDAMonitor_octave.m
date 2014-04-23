@@ -50,7 +50,7 @@ function [new_data] = IDAMonitor(call, T, Y, YQ, YS, data)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.1 $Date: 2007/05/11 18:51:32 $
+% $Revision$Date: 2007/05/11 18:51:32 $
 
 % NOTES:
 %   - Unlike Matlab, Octave loads children in the normal order

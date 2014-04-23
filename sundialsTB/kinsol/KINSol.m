@@ -47,7 +47,7 @@ function [status, y] = KINSol(y0, strategy, yscale, fscale)
 % All rights reserved.
 % For details, see the LICENSE file.
 % LLNS End Copyright
-% $Revision: 1.2 $Date: 2006/01/06 19:00:02 $
+% $Revision$Date: 2006/01/06 19:00:02 $
 
 mode = 2;
 
