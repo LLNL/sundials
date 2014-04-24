@@ -1,0 +1,134 @@
+#!/usr/bin/perl
+#
+# Script to replace Sundials Copyright.
+#
+
+use strict;
+
+use File::Basename;
+use File::Find;
+use File::Path;
+use File::Compare;
+use Cwd;
+use Text::Wrap;
+use File::Copy;
+
+my $pwd = cwd;
+
+my $debug = 2;
+
+#
+# File pattern to look for
+#
+my $filePattern;
+my $excludePattern;
+my @allfiles = ();
+
+sub selectFile {
+    if ( $File::Find::dir =~ m!$excludePattern! ) {
+	$File::Find::prune = 1;
+    }
+    elsif ( -f && m/$filePattern/ ) {
+	push @allfiles, $File::Find::name;
+	$allfiles[$#allfiles] =~ s|^\./||;
+    }
+    else {
+    }
+}
+
+sub replaceInFiles {
+    $filePattern=$_[0];
+    $excludePattern=$_[1];
+    my $replacePattern=$_[2];
+    my $newPattern=$_[3];
+
+    @allfiles = ();
+    find( \&selectFile, "." );
+    print "files=@allfiles" if ($debug > 2);
+    foreach my $file (@allfiles) {
+
+	print "Working on $file\n";
+	my $filebasename = basename $file;
+	
+	my $tempFile = $filebasename . ".replace.tmp";
+	
+	open FILE, "< $file" || die "Cannot open file $file";
+	my $str = do { local $/; <FILE> };
+	
+	open TEMPFILE, "> $tempFile" || die "Cannot open temporary work file $tempFile";
+	
+	$str =~ s/$replacePattern/$newPattern/gs;
+	
+	print TEMPFILE $str;
+	
+	close FILE || die "Cannot close file $file";
+	close TEMPFILE || die "Cannot close file $tempFile";
+	
+	printf "Replacing original file\n" if ($debug > 2);
+	
+	if(1) {
+	    # Only replace existing file if a replacement was done.
+	    if (compare($file,$tempFile) == 0) {
+		unlink($tempFile);
+	    } else {
+		unlink($file);
+		rename( $tempFile, $file);
+	    }
+	}
+    }
+}
+
+
+# Flush I/O on write to avoid buffering
+$|=1;
+
+my $end_of_line = $/;
+
+#############################################################################
+# Replace in C source files
+#############################################################################
+my $cSrcFilePattern = q!(\.[chI])$!;
+my $fileExcludePattern=q!/(.svn|.hg|CVS|templates)$!;
+my $cReplacePattern=' \* LLNS Copyright Start(.*)LLNS Copyright End\n';
+
+my $cNewCopyright = <<END;
+ * LLNS Copyright Start
+ * Copyright (c) 2014, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+END
+
+# 
+replaceInFiles($cSrcFilePattern,$fileExcludePattern,$cReplacePattern,$cNewCopyright);
+
+#############################################################################
+# Replace in CMake files
+#############################################################################
+
+my $cmakeFilePattern = q!(CMakeLists.txt)$!;
+my $cmakeReplacePattern='# LLNS Copyright Start(.*)LLNS Copyright End\n';
+
+my $cmakeNewCopyright = $cNewCopyright;
+$cmakeNewCopyright =~ s/ \*/\#/g;
+
+replaceInFiles($cmakeFilePattern,$fileExcludePattern,$cmakeReplacePattern,$cmakeNewCopyright);
+
+#############################################################################
+# Replace in Matlab files
+#############################################################################
+
+my $matlabFilePattern = q!(\.[m])$!;
+my $matlabReplacePattern='% LLNS Copyright Start(.*)LLNS Copyright End\n';
+
+my $matlabNewCopyright = $cNewCopyright;
+$matlabNewCopyright =~ s/ \*/\%/g;
+
+replaceInFiles($matlabFilePattern,$fileExcludePattern,$matlabReplacePattern,$matlabNewCopyright);
+
+
+
