@@ -1868,6 +1868,7 @@ char *IDAGetReturnFlagName(long int flag)
     break;
   case IDA_QSRHS_FAIL:
     sprintf(name, "IDA_QSRHS_FAIL");
+    break;
 
     /* IDAA flags follow below. */
   case IDA_NO_ADJ:
