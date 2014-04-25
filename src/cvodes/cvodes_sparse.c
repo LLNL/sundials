@@ -197,3 +197,211 @@ int CVSlsGetLastFlag(void *cvode_mem, long int *flag)
  * =================================================================
  */
 
+/*
+ * -----------------------------------------------------------------
+ * EXPORTED FUNCTIONS
+ * -----------------------------------------------------------------
+ */
+
+int CVSlsSetSparseJacFnB(void *cvode_mem, int which, CVSlsSparseJacFnB jacB)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  CVSlsMemB cvslsB_mem;
+  void *cvodeB_mem;
+  int flag;
+
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVSLS_MEM_NULL, "CVSSLS", "CVSlsSetSparseJacFnB", MSGSP_CVMEM_NULL);
+    return(CVSLS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    cvProcessError(cv_mem, CVSLS_NO_ADJ, "CVSSLS", "CVSlsSetSparseJacFnB", MSGSP_NO_ADJ);
+    return(CVSLS_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check which */
+  if ( which >= ca_mem->ca_nbckpbs ) {
+    cvProcessError(cv_mem, CVSLS_ILL_INPUT, "CVSSLS", "CVSlsSetSparseJacFnB", MSGSP_BAD_WHICH);
+    return(CVSLS_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+
+  if (cvB_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVSLS_LMEMB_NULL, "CVSSLS", "CVSlsSetSparseJacFnB", MSGSP_LMEMB_NULL);
+    return(CVSLS_LMEMB_NULL);
+  }
+  cvslsB_mem = (CVSlsMemB) (cvB_mem->cv_lmem);
+
+  idaslsB_mem->s_djacB = jacB;
+
+  if (jacB != NULL) {
+    flag = CVSlsSetSparseJacFn(cvodeB_mem, cvSlsSparseJacBWrapper);
+  } else {
+    flag = CVSlsSetSparseJacFn(cvodeB_mem, NULL);
+  }
+
+  return(flag);
+}
+
+int CVSlsSetSparseJacFnBS(void *cvode_mem, int which, CVSlsSparseJacFnBS jacBS)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  CVSlsMemB cvslsB_mem;
+  void *cvodeB_mem;
+  int flag;
+
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CVSLS_MEM_NULL, "CVSSLS", "CVSlsSetSparseJacFnBS", MSGSP_CVMEM_NULL);
+    return(CVSLS_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == FALSE) {
+    cvProcessError(cv_mem, CVSLS_NO_ADJ, "CVSSLS", "CVSlsSetSparseJacFnBS", MSGSP_NO_ADJ);
+    return(CVSLS_NO_ADJ);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check which */
+  if ( which >= ca_mem->ca_nbckpbs ) {
+    cvProcessError(cv_mem, CVSLS_ILL_INPUT, "CVSSLS", "CVSlsSetSparseJacFnBS", MSGSP_BAD_WHICH);
+    return(CVSLS_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+
+  if (cvB_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVSLS_LMEMB_NULL, "CVSSLS", "CVSlsSetSparseJacFnBS", MSGSP_LMEMB_NULL);
+    return(CVSLS_LMEMB_NULL);
+  }
+  cvslsB_mem = (CVSlsMemB) (cvB_mem->cv_lmem);
+
+  cvslsB_mem->s_djacBS = jacBS;
+
+  if (jacBS != NULL) {
+    flag = CVSlsSetSparseJacFn(cvodeB_mem, cvSlsSparseJacBSWrapper);
+  } else {
+    flag = CVSlsSetSparseJacFn(cvodeB_mem, NULL);
+  }
+
+  return(flag);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * PRIVATE INTERFACE FUNCTIONS
+ * -----------------------------------------------------------------
+ */
+
+/*
+ * cvSlsSparseJacBWrapper
+ *
+ * This routine interfaces to the CVSlsSparseJacFnB routine provided 
+ * by the user. cvSlsSparseJacBWrapper is of type CVSlsSparseJacFn.
+ * NOTE: data here contains cvode_mem
+ */
+
+static int cvSlsSparseJacBWrapper(long int nB, realtype t,
+				  N_Vector yB, N_Vector fyB, 
+				  SlsMat JB, void *cvode_mem,
+				  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  CVSlsMemB cvslsB_mem;
+  int retval, flag;
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  ca_mem = cv_mem->cv_adj_mem;
+
+  cvB_mem = ca_mem->ca_bckpbCrt;
+
+  cvslsB_mem = (CVSlsMemB) (cvB_mem->cv_lmem);
+
+  /* Forward solution from interpolation */
+  flag = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
+  if (flag != CV_SUCCESS) {
+    cvProcessError(cv_mem, -1, "CVSSLS", "cvSlsSparseJacBWrapper", MSGSP_BAD_TINTERP);
+    return(-1);
+  }
+
+  /* Call user's adjoint dense djacB routine (of type CVSlsSparseJacFnB) */
+  retval = cvslsB_mem->s_djacB(nB, t, ca_mem->ca->ytmp, yB, fyB, JB, 
+			       cvB_mem->cv_user_data, 
+			       tmp1B, tmp2B, tmp3B);
+
+  return(retval);
+}
+
+/*
+ * cvSlsSparseJacBSWrapper
+ *
+ * This routine interfaces to the CVSlsSparseJacFnBS routine provided 
+ * by the user. cvSlsSparseJacBSWrapper is of type CVSlsSparseJacFn.
+ * NOTE: data here contains cvode_mem
+ */
+
+static int cvSlsSparseJacBSWrapper(long int nB, realtype t,
+				   N_Vector yB, N_Vector fyB, 
+				   SlsMat JB, void *cvode_mem,
+				   N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  CVSlsMemB cvslsB_mem;
+  int retval, flag;
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  ca_mem = cv_mem->cv_adj_mem;
+
+  cvB_mem = ca_mem->ca_bckpbCrt;
+
+  cvslsB_mem = (CVSlsMemB) (cvB_mem->cv_lmem);
+
+  /* Forward solution from interpolation */
+  if (ca_mem->ca_IMinterpSensi)
+    flag = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, ca_mem->ca_yStmp);
+  else 
+    flag = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
+  if (flag != CV_SUCCESS) {
+    cvProcessError(cv_mem, -1, "CVSSLS", "cvSlsSparseJacBSWrapper", MSGSP_BAD_TINTERP);
+    return(-1);
+  }
+
+  /* Call user's adjoint dense djacBS routine (of type CVSlsSparseJacFnBS) */
+  retval = cvslsB_mem->s_djacBS(nB, t, ca_mem->ca_ytmp, ca_mem->ca_yStmp, 
+				yB, fyB, JB, cvB_mem->cv_user_data, 
+				tmp1B, tmp2B, tmp3B);
+
+  return(retval);
+}
