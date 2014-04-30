@@ -102,8 +102,8 @@ def main():
             # enable mpi
             cmd = cmd + "-DMPI_ENABLE=ON -DFCMIX_ENABLE=ON "
             # enable klu
-            cmd = cmd + "-DKLU_ENABLE=TRUE -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh5/suitesparse/4.2.1/include "
-            cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh5/suitesparse/4.2.1/lib "
+            cmd = cmd + "-DKLU_ENABLE=TRUE -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/include "
+            cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/lib "
             # specify source
             cmd = cmd + sunSrcDir
             
