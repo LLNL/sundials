@@ -4,13 +4,11 @@
 export PATH=/usr/casc/sundials/devtest/bin:$PATH
 
 # Python
-source /usr/apps/python/2.7.3/setup.sh
+export PATH=/usr/apps/python/latest/bin:$PATH
 
 # cmake
-export CMAKE_HOME=/usr/casc/sundials/apps/rh6/cmake-2.8.10.2
-export PATH=$CMAKE_HOME/bin:$PATH
+source /usr/casc/sundials/apps/rh6/cmake/cmake-2.8.10.2/setup.sh
 
 # openmpi
 source /usr/casc/sundials/apps/rh6/openmpi/1.4.5/setup.sh
-#export PATH=/usr/casc/sundials/apps/rh6/openmpi/1.4.5/bin:$PATH
 umask 002
