@@ -41,6 +41,10 @@ IF(KLU_FOUND)
     LIST(APPEND cvodes_SOURCES cvodes_klu.c)
 ENDIF()
 
+IF(SUPERLUMT_FOUND)
+    LIST(APPEND cvodes_SOURCES cvodes_superlumt.c)
+ENDIF()
+
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the CVODES library
 SET(shared_SOURCES

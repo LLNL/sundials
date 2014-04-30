@@ -455,7 +455,7 @@ int CVKLUSetOrdering(void *cv_mem_v, int ordering_choice)
  */
 
 /*
- * CVKLUB is a wraper around CVKLU. It attaches the CVKLU linear solver
+ * CVKLUB is a wrapper around CVKLU. It attaches the CVKLU linear solver
  * to the backward problem memory block.
  */
 
