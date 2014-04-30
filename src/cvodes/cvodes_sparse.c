@@ -48,13 +48,13 @@
  * =================================================================
  */
 
-static int cvSlsSparseJacBWrapper(long int nB, realtype t,
+static int cvSlsSparseJacBWrapper(realtype t,
 				  N_Vector yB, N_Vector fyB, 
 				  SlsMat JB, void *cvode_mem,
 				  N_Vector tmp1B, N_Vector tmp2B, 
 				  N_Vector tmp3B);
 
-static int cvSlsSparseJacBSWrapper(long int nB, realtype t,
+static int cvSlsSparseJacBSWrapper(realtype t,
 				   N_Vector yB, N_Vector fyB, 
 				   SlsMat JB, void *cvode_mem,
 				   N_Vector tmp1B, N_Vector tmp2B, 
@@ -247,7 +247,7 @@ int CVSlsSetSparseJacFnB(void *cvode_mem, int which, CVSlsSparseJacFnB jacB)
   }
   cvslsB_mem = (CVSlsMemB) (cvB_mem->cv_lmem);
 
-  idaslsB_mem->s_djacB = jacB;
+  cvslsB_mem->s_djacB = jacB;
 
   if (jacB != NULL) {
     flag = CVSlsSetSparseJacFn(cvodeB_mem, cvSlsSparseJacBWrapper);
@@ -327,7 +327,7 @@ int CVSlsSetSparseJacFnBS(void *cvode_mem, int which, CVSlsSparseJacFnBS jacBS)
  * NOTE: data here contains cvode_mem
  */
 
-static int cvSlsSparseJacBWrapper(long int nB, realtype t,
+static int cvSlsSparseJacBWrapper(realtype t,
 				  N_Vector yB, N_Vector fyB, 
 				  SlsMat JB, void *cvode_mem,
 				  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -354,7 +354,7 @@ static int cvSlsSparseJacBWrapper(long int nB, realtype t,
   }
 
   /* Call user's adjoint dense djacB routine (of type CVSlsSparseJacFnB) */
-  retval = cvslsB_mem->s_djacB(nB, t, ca_mem->ca->ytmp, yB, fyB, JB, 
+  retval = cvslsB_mem->s_djacB(t, ca_mem->ca_ytmp, yB, fyB, JB, 
 			       cvB_mem->cv_user_data, 
 			       tmp1B, tmp2B, tmp3B);
 
@@ -369,7 +369,7 @@ static int cvSlsSparseJacBWrapper(long int nB, realtype t,
  * NOTE: data here contains cvode_mem
  */
 
-static int cvSlsSparseJacBSWrapper(long int nB, realtype t,
+static int cvSlsSparseJacBSWrapper(realtype t,
 				   N_Vector yB, N_Vector fyB, 
 				   SlsMat JB, void *cvode_mem,
 				   N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -399,7 +399,7 @@ static int cvSlsSparseJacBSWrapper(long int nB, realtype t,
   }
 
   /* Call user's adjoint dense djacBS routine (of type CVSlsSparseJacFnBS) */
-  retval = cvslsB_mem->s_djacBS(nB, t, ca_mem->ca_ytmp, ca_mem->ca_yStmp, 
+  retval = cvslsB_mem->s_djacBS(t, ca_mem->ca_ytmp, ca_mem->ca_yStmp, 
 				yB, fyB, JB, cvB_mem->cv_user_data, 
 				tmp1B, tmp2B, tmp3B);
 

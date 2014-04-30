@@ -19,10 +19,10 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _CVKLU_H
-#define _CVKLU_H
+#ifndef _CVSKLU_H
+#define _CVSKLU_H
 
-#include "cvode/cvode_sparse.h"
+#include "cvodes/cvodes_sparse.h"
 #include "sundials/sundials_sparse.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

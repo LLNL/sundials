@@ -28,6 +28,7 @@ SET(cvodes_SOURCES
   cvodes_band.c
   cvodes_dense.c
   cvodes_diag.c
+  cvodes_sparse.c
   cvodes_spils.c
   cvodes_spbcgs.c
   cvodes_spgmr.c
@@ -35,6 +36,10 @@ SET(cvodes_SOURCES
   cvodes_bandpre.c
   cvodes_bbdpre.c
   )
+
+IF(KLU_FOUND)
+    LIST(APPEND cvodes_SOURCES cvodes_klu.c)
+ENDIF()
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the CVODES library
@@ -45,6 +50,7 @@ SET(shared_SOURCES
   sundials_band.c
   sundials_dense.c
   sundials_iterative.c
+  sundials_sparse.c
   sundials_spbcgs.c
   sundials_spgmr.c
   sundials_sptfqmr.c
@@ -62,6 +68,7 @@ SET(cvodes_HEADERS
   cvodes_diag.h
   cvodes_direct.h
   cvodes.h
+  cvodes_sparse.h
   cvodes_spbcgs.h
   cvodes_spgmr.h
   cvodes_spils.h

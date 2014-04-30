@@ -51,8 +51,8 @@ extern "C" {
 
 /* Additional last_flag values */
 
-#define CVSLS_JACFUNC_UNRECVR  -5
-#define CVSLS_JACFUNC_RECVR    -6
+#define CVSLS_JACFUNC_UNRECVR  -7
+#define CVSLS_JACFUNC_RECVR    -8
 
 /* Return values for the adjoint module */
 
@@ -161,17 +161,17 @@ SUNDIALS_EXPORT int CVSlsSetSparseJacFn(void *cvode_mem, CVSlsSparseJacFn jac);
  * CVSlsGetNumJacEvals returns the number of calls made to the
  *                      Jacobian evaluation routine jac.
  * CVSlsGetLastFlag    returns the last error flag set by any of
- *                      the IDADLS interface functions.
+ *                      the CVSLS interface functions.
  *
- * The return value of IDADlsGet* is one of:
+ * The return value of CVSlsGet* is one of:
  *    CVSLS_SUCCESS   if successful
  *    CVSLS_MEM_NULL  if the IDA memory was NULL
  *    CVSLS_LMEM_NULL if the linear solver memory was NULL
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVSlsGetNumJacEvals(void *ida_mem, long int *njevals);
-SUNDIALS_EXPORT int CVSlsGetLastFlag(void *ida_mem, long int *flag);
+SUNDIALS_EXPORT int CVSlsGetNumJacEvals(void *cvode_mem, long int *njevals);
+SUNDIALS_EXPORT int CVSlsGetLastFlag(void *cvode_mem, long int *flag);
 
 /*
  * -----------------------------------------------------------------
@@ -205,7 +205,7 @@ SUNDIALS_EXPORT char *CVSlsGetReturnFlagName(long int flag);
 
 typedef int (*CVSlsSparseJacFnB)(realtype t, N_Vector y, 
 				 N_Vector yB, N_Vector fyB,
-				 DlsMat JB, void *user_dataB, 
+				 SlsMat JB, void *user_dataB, 
 				 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 /*
@@ -221,7 +221,7 @@ typedef int (*CVSlsSparseJacFnB)(realtype t, N_Vector y,
 typedef int (*CVSlsSparseJacFnBS)(realtype t,
 				  N_Vector y, N_Vector *yS,
 				  N_Vector yB, N_Vector fyB,
-				  DlsMat JB, void *user_dataB, 
+				  SlsMat JB, void *user_dataB, 
 				  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 /*

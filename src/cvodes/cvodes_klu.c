@@ -45,8 +45,8 @@ static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static void cvKLUFree(CVodeMem cv_mem);
 
-/* CVSDENSE lfreeB function */
-static void cvDenseFreeB(CVodeBMem cvb_mem);
+/* CVKLU lfreeB function */
+static void cvKLUFreeB(CVodeBMem cvb_mem);
 
 /* 
  * ================================================================
@@ -459,13 +459,13 @@ int CVKLUSetOrdering(void *cv_mem_v, int ordering_choice)
  * to the backward problem memory block.
  */
 
-int CVKLUB(void *cvode_mem, int which, long int nB)
+int CVKLUB(void *cvode_mem, int which, int n, int nnz)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   void *cvodeB_mem;
-  CVDlsMemB cvslsB_mem;
+  CVSlsMemB cvslsB_mem;
   int flag;
 
   /* Check if cvode_mem exists */
@@ -484,7 +484,7 @@ int CVKLUB(void *cvode_mem, int which, long int nB)
 
   /* Check which */
   if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CVDLS_ILL_INPUT, "CVSKLU", "CVKLUB", MSGSP_BAD_WHICH);
+    cvProcessError(cv_mem, CVSLS_ILL_INPUT, "CVSKLU", "CVKLUB", MSGSP_BAD_WHICH);
     return(CVSLS_ILL_INPUT);
   }
 
@@ -500,7 +500,7 @@ int CVKLUB(void *cvode_mem, int which, long int nB)
   /* Get memory for CVSlsMemRecB */
   cvslsB_mem = (CVSlsMemB) malloc(sizeof(struct CVSlsMemRecB));
   if (cvslsB_mem == NULL) {
-    cvProcessError(cv_mem, CVDLS_MEM_FAIL, "CVSKLU", "CVKLUB", MSGSP_MEM_FAIL);
+    cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSKLU", "CVKLUB", MSGSP_MEM_FAIL);
     return(CVSLS_MEM_FAIL);
   }
 
@@ -511,7 +511,7 @@ int CVKLUB(void *cvode_mem, int which, long int nB)
   cvB_mem->cv_lmem = cvslsB_mem;
   cvB_mem->cv_lfree = cvKLUFreeB;
 
-  flag = CVKLU(cvodeB_mem, nB);
+  flag = CVKLU(cvodeB_mem, n, nnz);
 
   if (flag != CVSLS_SUCCESS) {
     free(cvslsB_mem);
@@ -528,7 +528,7 @@ int CVKLUB(void *cvode_mem, int which, long int nB)
 
 static void cvKLUFreeB(CVodeBMem cvB_mem)
 {
-  CVDlsMemB cvdlsB_mem;
+  CVSlsMemB cvslsB_mem;
 
   cvslsB_mem = (CVSlsMemB) (cvB_mem->cv_lmem);
 
