@@ -56,7 +56,7 @@ SET(CVODE_examples_KLU
   )
  
 SET(CVODE_examples_SUPERLUMT
-#  cvsRoberts_sps
+  cvsRoberts_sps
   )
 
 # Specify libraries to link against (through the target that was used to 
