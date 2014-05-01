@@ -75,13 +75,15 @@ E. Revision History
 v. 2.5.0 (Mar. 2012) ---> v. 2.6.0 (??? 2014)
 
 - New features
-   - Two major additions were made to the linear system solvers that are
+   - Four additions were made to the linear system solvers that are
      available for use with the various solvers.  In the serial case, an
      interface to the KLU sparse direct solver was added.
      For the parallel case, an interface to SuperLU_MT (the multi-threaded
      version of SuperLU) was added as a thread-parallel sparse direct solver option.
      As part of these additions, a sparse matrix (CSC format) structure 
      was added, with associated operations.
+     Two Krylov solvers were added: a variation of GMRES called Flexible GMRES,
+     and a Preconditioned Conjugate Gradient (PCG) solver.
 
 v. 2.4.0 (May 2009) ---> v. 2.5.0 (Mar. 2012)
 ---------------------------------------------
