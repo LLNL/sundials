@@ -195,8 +195,9 @@ ELSE(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/kinsol")
   SET(BUILD_KINSOL OFF)
 ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/kinsol")
 
+# CPODES is alway OFF for now.
 IF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cpodes")
-  OPTION(BUILD_CPODES  "Build the CPODES library"  ON)
+  OPTION(BUILD_CPODES  "Build the CPODES library"  OFF)
 ELSE(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cpodes")
   SET(BUILD_CPODES OFF)
 ENDIF(IS_DIRECTORY "${sundials_SOURCE_DIR}/src/cpodes")
