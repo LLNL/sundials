@@ -101,6 +101,8 @@ def main():
             cmd = "cmake "
             # enable mpi
             cmd = cmd + "-DMPI_ENABLE=ON -DFCMIX_ENABLE=ON "
+            # enable lapack   (NOTE: will find libraries in LD_LIBRARY_PATH)
+            cmd = cmd + "-DLAPACK_ENABLE=ON "
             # enable klu
             cmd = cmd + "-DKLU_ENABLE=TRUE -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/include "
             cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/lib "
