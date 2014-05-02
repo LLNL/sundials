@@ -9,7 +9,7 @@ export PATH=/usr/apps/python/latest/bin:$PATH
 # cmake
 source /usr/casc/sundials/apps/rh6/cmake/cmake-2.8.10.2/setup.sh
 
-# cmake
+# lapack
 source /usr/casc/sundials/apps/rh6/lapack/3.5.0/setup.sh
 
 # openmpi
