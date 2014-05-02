@@ -60,8 +60,7 @@ ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 IF(LAPACK_FOUND)
-  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
-  SET(SUNDIALS_LIBS "${SUNDIALS_LIBS} ${LAPACK_LIBRARIES}")
+  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
 
 IF(KLU_FOUND)
@@ -85,11 +84,11 @@ FOREACH(example ${CVODE_examples})
 ENDFOREACH(example ${CVODE_examples})
 
 # Add the build and install targets for each Lapack CVODE example (if needed)
-
 IF(LAPACK_FOUND)
   FOREACH(example ${CVODE_examples_BL})
     ADD_EXECUTABLE(${example} ${example}.c)
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SUNDIALS_ADD_TEST(${example} ${example})
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
     IF(EXAMPLES_INSTALL)
       INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
