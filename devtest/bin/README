@@ -36,7 +36,8 @@ Installing a new version of sunbuild.py and/or sunset.sh:
   > cd /usr/casc/sundials
   > svn export --force file:///usr/casc/sundials/svnrepo/trunk/devtest
 
-  Make sunbuild.py executable:
+  Both sunset.sh and sunbuild.py are marked as executable in SVN, If not:
+  > chmod +x devtest/bin/sunset.sh
   > chmod +x devtest/bin/sunbuild.py
   
  
