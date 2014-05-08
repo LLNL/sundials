@@ -206,8 +206,11 @@ int main()
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
       flag = CVSpilsSetPrecType(cvode_mem, PREC_RIGHT);
-      check_flag(&flag, "CVSpilsSetPrecType", 1);
-      
+      if(check_flag(&flag, "CVSpilsSetPrecType", 1)) return(1);
+
+      flag = CVBandPrecInit(cvode_mem, NEQ, mu, ml);
+      if(check_flag(&flag, "CVBandPrecInit", 0)) return(1);
+
       printf("\n\n-------------------------------------------------------");
       printf("------------\n");
     }
