@@ -130,7 +130,7 @@ lenrwls =  2046     leniwls =    10
 lenrwbp =  2400     leniwbp =   200
 nst     =   452
 nfe     =   571     nfetot  =  1381
-nfeLS   =   725     nfeBP   =    85
+nfeLS   =   725     nfeBP   =    40
 nni     =   567     nli     =   725
 nsetups =    74     netf    =    23
 npe     =     8     nps     =  1199
