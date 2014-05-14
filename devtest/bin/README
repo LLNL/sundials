@@ -1,7 +1,8 @@
 README info for setting up and running the nightly build/test for SUNDIALS
 
 Initial setup:
-  The SUNDIALS devtest directory should be exported from svn (currently into /usr/casc/sundials on the Tux system)
+  The SUNDIALS devtest directory should be exported from svn (currently into
+  /usr/casc/sundials on the Tux system)
   > cd /usr/casc/sundials
   > svn export file:///usr/casc/sundials/svnrepo/trunk/devtest
   
@@ -14,7 +15,8 @@ Initial setup:
   Make sunbuild.py executable:
   > chmod +x devtest/bin/sunbuild.py
   
-  The sunbuild.py script - will attempt to extract, build, and test the current revision from the sundials repo trunk.
+  The sunbuild.py script - will attempt to extract, build, and test the current
+  revision from the sundials repo trunk.
   To run the build manually:
   > source /usr/casc/sundials/devtest/bin/sunset.sh
   > /usr/casc/sundials/devtest/bin/sunbuild.py
@@ -25,18 +27,21 @@ To run script automatically every night from cron:
   > crontab -e
   
   Add entry to run the sunbuild.py script (example runs at 2:15 AM every day)
-  15 2 * * * . /usr/casc/sundials/devtest/bin/sunset.sh; /usr/casc/sundials/devtest/bin/sunbuild.py
+  15 2 * * * . /usr/casc/sundials/devtest/bin/sunset.sh;
+               /usr/casc/sundials/devtest/bin/sunbuild.py
 
  
 NOTES:
-  The 'nightly' directory on same level as bin, is required to exist by the script. This directory will have all the revision checkouts and builds.
+  The 'nightly' directory on same level as bin, is required to exist by the script.
+  This directory will have all the revision checkouts and builds.
  
 Installing a new version of sunbuild.py and/or sunset.sh:
-  The SUNDIALS devtest directory must be exported with the 'force' option to overwrite the files:
+  The SUNDIALS devtest directory must be exported with the 'force' option to
+  overwrite the files:
   > cd /usr/casc/sundials
   > svn export --force file:///usr/casc/sundials/svnrepo/trunk/devtest
 
-  Both sunset.sh and sunbuild.py are marked as executable in SVN, If not:
+  Both sunset.sh and sunbuild.py are marked as executable in SVN. If not:
   > chmod +x devtest/bin/sunset.sh
   > chmod +x devtest/bin/sunbuild.py
   
