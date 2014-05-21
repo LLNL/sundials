@@ -46,12 +46,20 @@ sun_org.tex \
 types.tex \
 ug.tex \
 biblio.bib \
+#ug_html.tex \
+#processHTML
+
+UG_SHARED_FIGURES = \
 bandmat.eps \
 sunorg1.eps \
 sunorg2.eps \
-doc_logo.eps \
-#ug_html.tex \
-#processHTML
+doc_logo.eps
+
+UG_CMAKE_FIGURES = \
+ccmakedefault.eps \
+ccmakeempty.eps \
+ccmakeprefix.eps \
+cmaketest.eps
 
 EX_FILES = \
 cv_examples.tex \
@@ -105,7 +113,7 @@ install: ug_pdf ex_pdf
 
 #-------------------------------------------------------------------------------
 
-ug: 	copy_ug cv_guide.aux
+ug: 	copy_ug copy_ug_figs copy_ug_cmake_figs cv_guide.aux
 
 ug_pdf: ug cv_guide.ps
 
@@ -121,6 +129,16 @@ ug_pdf: ug cv_guide.ps
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
 	cp ${SHARED_DOC}/$${i} . ;\
+	done
+
+copy_ug_figs:
+	@for i in ${UG_SHARED_FIGURES} ; do \
+	cp ${SHARED_DOC}/figures/$${i} . ;\
+	done
+
+copy_ug_cmake_figs:
+	@for i in ${UG_CMAKE_FIGURES} ; do \
+	cp ${SHARED_DOC}/figures/cmake/$${i} . ;\
 	done
 
 cv_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
@@ -161,6 +179,8 @@ cv_examples.ps: cv_examples.dvi
 
 clean:
 	rm -rf ${UG_SHARED_FILES}
+	rm -rf ${UG_SHARED_FIGURES}
+	rm -rf ${UG_CMAKE_FIGURES}
 	rm -rf ${EX_SHARED_FILES}
 	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi *.out
 
