@@ -31,7 +31,7 @@ solver module, while the remaining five columns show function
 usage within each of the seven {\kinsol} linear solvers, 
 the {\kinbbdpre} preconditioner module, and the {\fkinsol} module.
 Here {\kindls} stands for {\kindense} and {\kinband}; {\kinspils} stands
-for any of {\kinspgmr}, {\kinspbcg}, or {\kinsptfqmr}; and {\kinsparse}
+for {\kinspgmr}, {\kinspbcg}, and {\kinsptfqmr}; and {\kinsls}
 stands for {\kinklu} and {\kinsuperlumt}.
 
 There is one subtlety in the {\kinspils} column hidden by the table, explained
@@ -63,11 +63,10 @@ interested reader.
 \begin{sideways}{\kinsol}    \end{sideways} &
 \begin{sideways}{\kindls}    \end{sideways} &
 \begin{sideways}{\kinspils}  \end{sideways} &
-\begin{sideways}{\kinsparse} \end{sideways} &
+\begin{sideways}{\kinsls}    \end{sideways} &
 \begin{sideways}{\kinbbdpre} \end{sideways} &
-\begin{sideways}{\fkinsol}   \end{sideways} 
-\\ \hline\hline
-%                        KINSOL  DLS  SPILS SPARSE BPRE FKINSOL
+\begin{sideways}{\fkinsol}   \end{sideways} \\ \hline\hline
+%                        KINSOL  DLS  SPILS SLS    BPRE  FKINSOL
 \id{N\_VClone}           & \cm &     & \cm &     & \cm &     \\ \hline
 \id{N\_VCloneEmpty}      &     &     &     &     &     & \cm \\ \hline
 \id{N\_VDestroy}         & \cm &     & \cm &     & \cm & \cm \\ \hline
