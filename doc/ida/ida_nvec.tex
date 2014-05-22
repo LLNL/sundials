@@ -31,7 +31,7 @@ integrator module, while the remaining five columns show function usage
 within each of the seven {\ida} linear solvers, the {\idabbdpre}
 preconditioner module, and the {\fida} module.
 Here {\idadls} stands for {\idadense} and {\idaband}; {\idaspils} stands
-for any of {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr}; and {\idasparse}
+for {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}; and {\idasls}
 stands for {\idaklu} and {\idasuperlumt}.
 
 There is one subtlety in the {\idaspils} column hidden by the table, explained
@@ -58,9 +58,10 @@ the generic {\dense} and {\band} solvers (used in the implementation of
 \begin{sideways}{\ida}       \end{sideways} &
 \begin{sideways}{\idadls}    \end{sideways} &
 \begin{sideways}{\idaspils}  \end{sideways} &
-\begin{sideways}{\idasparse} \end{sideways} &
+\begin{sideways}{\idasls}    \end{sideways} &
 \begin{sideways}{\idabbdpre} \end{sideways} &
-\begin{sideways}{\fida}      \end{sideways}  \\ \hline\hline 
+\begin{sideways}{\fida}      \end{sideways}  \\ \hline\hline
+%                          IDA   DLS  SPILS  SLS   BBD   FIDA
 \id{N\_VClone}           & \cm &     & \cm &     & \cm & \cm \\ \hline
 \id{N\_VCloneEmpty}      &     &     &     &     &     & \cm \\ \hline
 \id{N\_VDestroy}         & \cm &     & \cm &     & \cm & \cm \\ \hline
