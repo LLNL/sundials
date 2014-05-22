@@ -27,11 +27,12 @@ In Table \ref{t:nvecuse} below, we list the vector functions in the
 {\nvector} module within the {\cvodes} package.
 The table also shows, for each function, which of the code modules uses
 the function. The {\cvodes} column shows function usage within the main
-integrator module, while the remaining six columns show function usage
-within each of the six {\cvodes} linear solvers, the {\cvbandpre} and
+integrator module, while the remaining sevem columns show function usage
+within each of the eight {\cvodes} linear solvers, the {\cvbandpre} and
 {\cvbbdpre} preconditioner modules, and the {\cvodes} adjoint sensitivity
 module (denoted here by {\cvodea}).  Here {\cvdls} stands for {\cvdense} and
-{\cvband}, and {\cvspils} stands for any of {\cvspgmr}, {\cvspbcg}, or {\cvsptfqmr}.
+{\cvband}; {\cvspils} stands for {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr};
+and {\cvsls} stands for {\cvklu} and {\cvsuperlumt}.
 
 There is one subtlety in the {\cvspils} column hidden by the table, explained
 here for the case of the {\cvspgmr} module. 
@@ -64,31 +65,32 @@ interested reader.
 \begin{sideways}{\cvdls}      \end{sideways} &
 \begin{sideways}{\cvdiag}     \end{sideways} &
 \begin{sideways}{\cvspils}    \end{sideways} &
+\begin{sideways}{\cvsls}      \end{sideways} &
 \begin{sideways}{\cvbandpre}  \end{sideways} &
 \begin{sideways}{\cvbbdpre}   \end{sideways} &
 \begin{sideways}{\cvodea}     \end{sideways} \\ \hline\hline
-%                            CVODES DLS  DIAG  SPILS BPRE  BBD   CVODEA
-\id{N\_VClone}              & \cm &     & \cm & \cm &     &     & \cm \\ \hline
-\id{N\_VDestroy}            & \cm &     & \cm & \cm &     &     & \cm \\ \hline
-\id{N\_VCloneVectorArray}   & \cm &     &     &     &     &     & \cm \\ \hline
-\id{N\_VDestroyVectorArray} & \cm &     &     &     &     &     & \cm \\ \hline
-\id{N\_VSpace}              & \cm &     &     &     &     &     &     \\ \hline
-\id{N\_VGetArrayPointer}    &     & \cm &     &     & \cm & \cm &     \\ \hline
-\id{N\_VSetArrayPointer}    &     & \cm &     &     &     &     &     \\ \hline
-\id{N\_VLinearSum}          & \cm & \cm & \cm & \cm &     &     & \cm \\ \hline
-\id{N\_VConst}              & \cm &     &     & \cm &     &     &     \\ \hline
-\id{N\_VProd}               & \cm &     & \cm & \cm &     &     &     \\ \hline
-\id{N\_VDiv}                & \cm &     & \cm & \cm &     &     &     \\ \hline
-\id{N\_VScale}              & \cm & \cm & \cm & \cm & \cm & \cm & \cm \\ \hline
-\id{N\_VAbs}                & \cm &     &     &     &     &     &     \\ \hline
-\id{N\_VInv}                & \cm &     & \cm &     &     &     &     \\ \hline
-\id{N\_VAddConst}           & \cm &     & \cm &     &     &     &     \\ \hline
-\id{N\_VDotProd}            &     &     &     & \cm &     &     &     \\ \hline
-\id{N\_VMaxNorm}            & \cm &     &     &     &     &     &     \\ \hline
-\id{N\_VWrmsNorm}           & \cm & \cm &     & \cm & \cm & \cm &     \\ \hline
-\id{N\_VMin}                & \cm &     &     &     &     &     &     \\ \hline
-\id{N\_VCompare}            &     &     & \cm &     &     &     &     \\ \hline
-\id{N\_VInvTest}            &     &     & \cm &     &     &     &     \\ \hline
+%                            CVODES DLS  DIAG  SPILS  SLS  BPRE   BBD  CVODEA
+\id{N\_VClone}              & \cm &     & \cm & \cm &     &     &     & \cm \\ \hline
+\id{N\_VDestroy}            & \cm &     & \cm & \cm &     &     &     & \cm \\ \hline
+\id{N\_VCloneVectorArray}   & \cm &     &     &     &     &     &     & \cm \\ \hline
+\id{N\_VDestroyVectorArray} & \cm &     &     &     &     &     &     & \cm \\ \hline
+\id{N\_VSpace}              & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VGetArrayPointer}    &     & \cm &     &     & \cm & \cm & \cm &     \\ \hline
+\id{N\_VSetArrayPointer}    &     & \cm &     &     &     &     &     &     \\ \hline
+\id{N\_VLinearSum}          & \cm & \cm & \cm & \cm &     &     &     & \cm \\ \hline
+\id{N\_VConst}              & \cm &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VProd}               & \cm &     & \cm & \cm &     &     &     &     \\ \hline
+\id{N\_VDiv}                & \cm &     & \cm & \cm &     &     &     &     \\ \hline
+\id{N\_VScale}              & \cm & \cm & \cm & \cm & \cm & \cm & \cm & \cm \\ \hline
+\id{N\_VAbs}                & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VInv}                & \cm &     & \cm &     &     &     &     &     \\ \hline
+\id{N\_VAddConst}           & \cm &     & \cm &     &     &     &     &     \\ \hline
+\id{N\_VDotProd}            &     &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VMaxNorm}            & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VWrmsNorm}           & \cm & \cm &     & \cm &     & \cm & \cm &     \\ \hline
+\id{N\_VMin}                & \cm &     &     &     &     &     &     &     \\ \hline
+\id{N\_VCompare}            &     &     & \cm &     &     &     &     &     \\ \hline
+\id{N\_VInvTest}            &     &     & \cm &     &     &     &     &     \\ \hline
 %
 \end{tabular}
 \end{table}
