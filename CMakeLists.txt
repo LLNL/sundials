@@ -255,8 +255,8 @@ IF(UNIX)
   IF(USE_GENERIC_MATH)
     # executables will be linked against -lm 
     SET(EXTRA_LINK_LIBS -lm)
-    # prepare substitution variable GENERIC_MATH_LIB for sundials_config.h
-    SET(GENERIC_MATH_LIB "#define SUNDIALS_USE_GENERIC_MATH")
+    # prepare substitution variable for sundials_config.h
+    SET(SUNDIALS_USE_GENERIC_MATH TRUE)
   ENDIF(USE_GENERIC_MATH)
 ENDIF(UNIX)
 
@@ -270,7 +270,8 @@ if(SUNDIALS_POSIX_TIMERS)
   find_library(SUNDIALS_RT_LIBRARY NAMES rt)
   mark_as_advanced(SUNDIALS_RT_LIBRARY)
   if(SUNDIALS_RT_LIBRARY)
-    SET(SUNDIALS_HAVE_POSIX_TIMERS "#define SUNDIALS_HAVE_POSIX_TIMERS")
+    # sundials_config.h symbol
+    SET(SUNDIALS_HAVE_POSIX_TIMERS TRUE)
     set(EXTRA_LINK_LIBS ${EXTRA_LINK_LIBS} ${SUNDIALS_RT_LIBRARY})
   endif()
 endif()
@@ -606,16 +607,13 @@ ENDIF(F77SCHEME_FOUND)
 # If LAPACK is needed, first try to find the appropriate
 # libraries and linker flags needed to link against them.
 
-# Macro to be inserted in sundials_config.h
-SET(BLAS_LAPACK_MACRO "#define SUNDIALS_BLAS_LAPACK 0")
-
 IF(LAPACK_ENABLE)
 
   # find BLAS and LAPACK Libraries
   INCLUDE(SundialsLapack)
 
   IF(LAPACK_FOUND)
-    SET(BLAS_LAPACK_MACRO "#define SUNDIALS_BLAS_LAPACK 1")
+    SET(SUNDIALS_LAPACK TRUE)
   ELSE(LAPACK_FOUND)
     SHOW_VARIABLE(LAPACK_LIBRARIES STRING "Lapack libraries" "${LAPACK_LIBRARIES}")
   ENDIF(LAPACK_FOUND)
@@ -638,9 +636,6 @@ ENDIF(LAPACK_ENABLE)
 # If SUPERLUMT is needed, first try to find the appropriate
 # libraries to link against them.
 
-# Macro to be inserted in sundials_config.h
-SET(SUPERLUMT_MACRO "#define SUNDIALS_SUPERLUMT 0")
-
 IF(SUPERLUMT_ENABLE)
 
   # get thread type for SUPERLUMT (OpenMP or Pthreads(default))
@@ -652,7 +647,8 @@ IF(SUPERLUMT_ENABLE)
   INCLUDE(SundialsSuperLUMT)
 
   IF(SUPERLUMT_FOUND)
-    SET(SUPERLUMT_MACRO "#define SUNDIALS_SUPERLUMT 1")
+    # sundials_config.h symbol
+    SET(SUNDIALS_SUPERLUMT TRUE)
   ENDIF(SUPERLUMT_FOUND)
 
   IF(SUPERLUMT_LIBRARIES AND NOT SUPERLUMT_FOUND)
@@ -675,9 +671,6 @@ ENDIF(SUPERLUMT_ENABLE)
 # If KLU is requested, first try to find the appropriate libraries to
 # link against them.
 
-# Macro to be inserted in sundials_config.h 
-SET(KLU_MACRO "#define SUNDIALS_KLU 0")
-
 IF(KLU_ENABLE)
 
   SHOW_VARIABLE(KLU_INCLUDE_DIR STRING "KLU include directory"
@@ -688,7 +681,8 @@ IF(KLU_ENABLE)
   INCLUDE(SundialsKLU)
 
   IF(KLU_FOUND) 
-    SET(KLU_MACRO "#define SUNDIALS_KLU 1")
+    # sundials_config.h symbol
+    SET(SUNDIALS_KLU TRUE)
     INCLUDE_DIRECTORIES(${KLU_INCLUDE_DIR})
   ENDIF(KLU_FOUND)
 

@@ -47,36 +47,30 @@
  * If it was decided that generic math functions can be used, then
  *     #define SUNDIALS_USE_GENERIC_MATH
  */
-@GENERIC_MATH_LIB@
+#cmakedefine SUNDIALS_USE_GENERIC_MATH
 
 /* Use POSIX timers if available.
  *     #define SUNDIALS_HAVE_POSIX_TIMERS
  */
-@SUNDIALS_HAVE_POSIX_TIMERS@
+#cmakedefine SUNDIALS_HAVE_POSIX_TIMERS
 
 /* Blas/Lapack available
  * If working libraries for Blas/lapack support were found, then
- *     #define SUNDIALS_BLAS_LAPACK 1
- * otherwise
- *     #define SUNDIALS_BLAS_LAPACK 0
+ *     #define SUNDIALS_BLAS_LAPACK
  */
-@BLAS_LAPACK_MACRO@
+#cmakedefine SUNDIALS_BLAS_LAPACK
 
 /* SUPERLUMT available
  * If working libraries for SUPERLUMT support were found, then
- *     #define SUNDIALS_SUPERLUMT 1
- * otherwise
- *     #define SUNDIALS_SUPERLUMT 0
+ *     #define SUNDIALS_SUPERLUMT 
  */
-/* @SUPERLUMT_MACRO@ */
+#cmakedefine SUNDIALS_SUPERLUMT
 
 /* KLU available
  * If working libraries for KLU support were found, then
- *     #define SUNDIALS_KLU 1
- * otherwise
- *     #define SUNDIALS_KLU 0
+ *     #define SUNDIALS_KLU 
  */
-/* @KLU_MACRO@ */
+#cmakedefine SUNDIALS_KLU
 
 /* FNVECTOR: Allow user to specify different MPI communicator
  * If it was found that the MPI implementation supports MPI_Comm_f2c, then
