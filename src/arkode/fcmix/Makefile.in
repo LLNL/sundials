@@ -46,7 +46,7 @@ LIB_REVISION = 0:1:0
 FARKODE_LIB    = libsundials_farkode.la
 
 FARKODE_SRC_FILES = farkadapt.c farkband.c farkbbd.c farkbp.c farkdense.c farkewt.c farkexpstab.c farkjtimes.c farkode.c farkpreco.c farkroot.c
-FARKODE_BL_SRC_FILES = farklapack.c
+FARKODE_BL_SRC_FILES = farklapack.c farklapdense.c farklapband.c
 
 FARKODE_OBJ_FILES = $(FARKODE_SRC_FILES:.c=.o)
 FARKODE_BL_OBJ_FILES = $(FARKODE_BL_SRC_FILES:.c=.o)
@@ -108,6 +108,10 @@ farkjtimes.lo: $(srcdir)/farkjtimes.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkjtimes.c
 farklapack.lo: $(srcdir)/farklapack.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farklapack.c
+farklapdense.lo: $(srcdir)/farklapdense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farklapdense.c
+farklapband.lo: $(srcdir)/farklapband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farklapband.c
 farkode.lo: $(srcdir)/farkode.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/farkode.c
 farkpreco.lo: $(srcdir)/farkpreco.c

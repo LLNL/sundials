@@ -23,10 +23,28 @@ SET(farkode_SOURCES
   )
 
 IF(LAPACK_FOUND)
-  SET(farkode_BL_SOURCES farklapack.c)
+  SET(farkode_BL_SOURCES farklapack.c farklapdense.c farklapband.c)
 ELSE(LAPACK_FOUND)
   SET(farkode_BL_SOURCES "")
 ENDIF(LAPACK_FOUND)
+
+IF(KLU_FOUND OR SUPERLUMT_FOUND)
+  SET(farkode_SPARSE_SOURCES farksparse.c)
+ELSE(SPARSE_FOUND)
+  SET(farkode_SPARSE_SOURCES "")
+ENDIF(KLU_FOUND OR SUPERLUMT_FOUND)
+
+IF(KLU_FOUND)
+  SET(farkode_KLU_SOURCES farkklu.c)
+ELSE(KLU_FOUND)
+  SET(farkode_KLU_SOURCES "")
+ENDIF(KLU_FOUND)
+
+IF(SUPERLUMT_FOUND)
+  SET(farkode_SUPERLUMT_SOURCES farksuperlumt.c)
+ELSE(SUPERLUMT_FOUND)
+  SET(farkode_SUPERLUMT_SOURCES "")
+ENDIF(SUPERLUMT_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files (both for farkode and arkode)
@@ -41,7 +59,7 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 # coming from inexistent user-provided functions)
 
 # Add the build target for the FARKODE library
-ADD_LIBRARY(sundials_farkode_static STATIC ${farkode_SOURCES} ${farkode_BL_SOURCES})
+ADD_LIBRARY(sundials_farkode_static STATIC ${farkode_SOURCES} ${farkode_BL_SOURCES} ${farkode_SPARSE_SOURCES} ${farkode_KLU_SOURCES} ${farkode_SUPERLUMT_SOURCES})
 
 # Set the library name and make sure it is not deleted
 SET_TARGET_PROPERTIES(sundials_farkode_static

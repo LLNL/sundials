@@ -596,8 +596,6 @@ static int arkMassBandMultiply(N_Vector v, N_Vector Mv,
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
   realtype *vdata=NULL, *Mvdata=NULL;
-  long int ml, mu, N, M, i, is, ie, j;
-  DlsMat A;
 
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
@@ -608,9 +606,6 @@ static int arkMassBandMultiply(N_Vector v, N_Vector Mv,
   ark_mem = (ARKodeMem) arkode_mem;
   arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
 
-  /* zero out the result */
-  N_VConst(0.0, Mv);
-
   /* access the vector arrays (since they must be serial vectors) */
   vdata = N_VGetArrayPointer(v);
   Mvdata = N_VGetArrayPointer(Mv);
@@ -618,18 +613,7 @@ static int arkMassBandMultiply(N_Vector v, N_Vector Mv,
     return(1);
 
   /* perform matrix-vector product and return */
-  ml = arkdls_mem->d_M->ml;
-  mu = arkdls_mem->d_M->mu;
-  N = arkdls_mem->d_M->N;
-  M = arkdls_mem->d_M->M;
-  A = arkdls_mem->d_M;
-  for (j=0; j<N; j++) {                /* loop over columns */
-    is = (0 > j-mu) ? 0 : j-mu;        /* colum nonzero bounds */
-    ie = (M-1 < j+ml) ? M-1 : j+ml;
-    for (i=is; i<=ie; i++) {           /* loop over rows */
-      Mvdata[i] += BAND_ELEM(A,i,j)*vdata[j];
-    }
-  }
+  BandMatvec(arkdls_mem->d_M, vdata, Mvdata);
   return(0);
 }
 

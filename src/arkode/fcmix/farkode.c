@@ -20,6 +20,8 @@
 #include "arkode_impl.h"
 #include <arkode/arkode_band.h>
 #include <arkode/arkode_dense.h>
+#include <arkode/arkode_klu.h>
+#include <arkode/arkode_superlumt.h>
 #include <arkode/arkode_spgmr.h>
 #include <arkode/arkode_spbcgs.h>
 #include <arkode/arkode_sptfqmr.h>
@@ -766,6 +768,11 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
     ARKDlsGetWorkSpace(ARK_arkodemem, &ARK_iout[13], &ARK_iout[14]);  /* LENRWLS, LENIWLS */
     ARKDlsGetLastFlag(ARK_arkodemem, &ARK_iout[15]);                  /* LSTF  */
     ARKDlsGetNumRhsEvals(ARK_arkodemem, &ARK_iout[16]);               /* NFELS */
+    ARKDlsGetNumJacEvals(ARK_arkodemem, &ARK_iout[17]);               /* NJE   */
+    break;
+  case ARK_LS_KLU:
+  case ARK_LS_SUPERLUMT:
+    ARKDlsGetLastFlag(ARK_arkodemem, &ARK_iout[15]);                  /* LSTF  */
     ARKDlsGetNumJacEvals(ARK_arkodemem, &ARK_iout[17]);               /* NJE   */
     break;
   case ARK_LS_SPGMR:

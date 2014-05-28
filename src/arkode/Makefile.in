@@ -47,7 +47,7 @@ LIB_REVISION = 1:0:0
 
 ARKODE_LIB    = libsundials_arkode.la
 
-ARKODE_SRC_FILES = arkode.c arkode_band.c arkode_bandpre.c arkode_bbdpre.c arkode_butcher.c arkode_dense.c arkode_direct.c arkode_io.c arkode_pcg.c arkode_spbcgs.c arkode_spfgmr.c arkode_spgmr.c arkode_spils.c arkode_sptfqmr.c
+ARKODE_SRC_FILES = arkode.c arkode_band.c arkode_bandpre.c arkode_bbdpre.c arkode_butcher.c arkode_dense.c arkode_direct.c arkode_io.c arkode_pcg.c arkode_spbcgs.c arkode_spfgmr.c arkode_spgmr.c arkode_spils.c arkode_sptfqmr.c arkode_sparse.c arkode_klu.c #arkode_superlumt.c
 ARKODE_BL_SRC_FILES = arkode_lapack.c
 
 ARKODE_OBJ_FILES = $(ARKODE_SRC_FILES:.c=.o)
@@ -65,6 +65,8 @@ SHARED_LIB_FILES = $(top_builddir)/src/sundials/sundials_band.lo \
                    $(top_builddir)/src/sundials/sundials_spgmr.lo \
                    $(top_builddir)/src/sundials/sundials_spbcgs.lo \
                    $(top_builddir)/src/sundials/sundials_sptfqmr.lo \
+                   $(top_builddir)/src/sundials/sundials_sparse.lo \
+                   $(top_builddir)/src/sundials/sundials_klu.lo \
                    $(top_builddir)/src/sundials/sundials_math.lo \
                    $(top_builddir)/src/sundials/sundials_nvector.lo
 
@@ -104,6 +106,8 @@ install: $(ARKODE_LIB)
 	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_spgmr.h   $(includedir)/arkode/
 	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_spils.h   $(includedir)/arkode/
 	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_sptfqmr.h $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_sparse.h  $(includedir)/arkode/
+	$(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_klu.h     $(includedir)/arkode/
 	$(INSTALL_HEADER) $(top_srcdir)/src/arkode/arkode_impl.h        $(includedir)/arkode/
 	@if test "X${LAPACK_ENABLED}" = "Xyes"; then \
 	  $(INSTALL_HEADER) $(top_srcdir)/include/arkode/arkode_lapack.h  $(includedir)/arkode/ ; \
@@ -124,6 +128,8 @@ uninstall:
 	rm -f $(includedir)/arkode/arkode_spgmr.h
 	rm -f $(includedir)/arkode/arkode_spils.h
 	rm -f $(includedir)/arkode/arkode_sptfqmr.h
+	rm -f $(includedir)/arkode/arkode_sparse.h
+	rm -f $(includedir)/arkode/arkode_klu.h
 	rm -f $(includedir)/arkode/arkode_impl.h
 	$(rminstalldirs) $(includedir)/arkode
 
@@ -172,6 +178,11 @@ arkode_spils.lo: $(srcdir)/arkode_spils.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_spils.c
 arkode_sptfqmr.lo: $(srcdir)/arkode_sptfqmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_sptfqmr.c
+arkode_sparse.lo: $(srcdir)/arkode_sparse.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_sparse.c
+arkode_klu.lo: $(srcdir)/arkode_klu.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/arkode_klu.c
+
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd ${top_builddir} ;                 \

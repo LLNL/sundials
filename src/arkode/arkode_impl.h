@@ -427,7 +427,7 @@ typedef struct ARKodeMemRec {
   void (*ark_mfree)(struct ARKodeMemRec *ark_mem);
   void *ark_mass_mem;
   int ark_msolve_type;   /* mass matrix type: 0=iterative; 1=dense; 
-			                      2=band; 3=custom */
+			                      2=band; 3=sparse, 4=custom */
 
   /*------------
     Saved Values

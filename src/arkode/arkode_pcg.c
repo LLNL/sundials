@@ -334,8 +334,8 @@ static int ARKPcgSolve(ARKodeMem ark_mem, N_Vector b,
 
   /* Set inputs delta and initial guess x = 0 to PcgSolve */
   arkspils_mem->s_delta = arkspils_mem->s_deltar * arkspils_mem->s_sqrtN;
-  /* N_VConst(ZERO, arkspils_mem->s_x); */
-  N_VConst(ark_mem->ark_uround, arkspils_mem->s_x);
+  N_VConst(ZERO, arkspils_mem->s_x);
+  /* N_VConst(ark_mem->ark_uround, arkspils_mem->s_x); */
 
   /* Call PcgSolve and copy x to b */
   retval = PcgSolve(pcg_mem, ark_mem, arkspils_mem->s_x, b, 

@@ -28,6 +28,13 @@ SET(ARKODE_examples
 SET(ARKODE_examples_BL
   )
 
+# Add variable ARKODE_examples_KLU with the names of the serial ARKODE examples
+# that use KLU
+
+SET(ARKODE_examples_KLU
+  ark_brusselator1D_klu
+  )
+
 # Add variable ARKODE_extras with the names of auxiliary files to install
 
 SET(ARKODE_extras
@@ -56,6 +63,10 @@ IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 ENDIF(LAPACK_FOUND)
 
+IF(KLU_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
+ENDIF(KLU_FOUND)
+
 # Add the build and install targets for each ARKODE example
 
 FOREACH(example ${ARKODE_examples})
@@ -82,6 +93,20 @@ IF(LAPACK_FOUND)
   ENDFOREACH(example ${ARKODE_examples_BL})
 ENDIF(LAPACK_FOUND)
 
+# If KLU support is enabled, add the build and install targets for 
+# the examples using KLU
+IF(KLU_FOUND)
+  FOREACH(example ${ARKODE_examples_KLU})
+    ADD_EXECUTABLE(${example} ${example}.c)
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SUNDIALS_ADD_TEST(${example} ${example})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    IF(EXAMPLES_INSTALL)
+      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
+    ENDIF(EXAMPLES_INSTALL)
+  ENDFOREACH(example ${ARKODE_examples_KLU})
+ENDIF(KLU_FOUND)
+
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -101,6 +126,11 @@ IF(EXAMPLES_INSTALL)
   ELSE(LAPACK_FOUND)
     SET(EXAMPLES_BL "")
   ENDIF(LAPACK_FOUND)
+  IF(KLU_FOUND)
+    LIST2STRING(ARKODE_examples_KLU EXAMPLES_KLU)
+  ELSE(KLU_FOUND)
+    SET(EXAMPLES_KLU "")
+  ENDIF(KLU_FOUND)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

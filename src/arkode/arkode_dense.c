@@ -39,7 +39,7 @@ static int arkMassDenseSolve(ARKodeMem ark_mem, N_Vector b,
 			     N_Vector weight);
 static void arkMassDenseFree(ARKodeMem ark_mem);
 static int arkMassDenseMultiply(N_Vector v, N_Vector Mv, 
-				realtype t, void *user_data);
+				realtype t, void *arkode_mem);
                 
                 
 /*---------------------------------------------------------------
@@ -48,7 +48,7 @@ static int arkMassDenseMultiply(N_Vector v, N_Vector Mv,
  This routine initializes the memory record and sets various 
  function fields specific to the dense linear solver module.  
  ARKDense first calls the existing lfree routine if this is not 
- NULL.  Then it sets the ark_linit, ark_lsetup, ark_lsolve, 
+ NULL.  Then it sets the ark_linit, ark_lsetup, ark_lsolve and
  ark_lfree fields in (*arkode_mem) to be arkDenseInit, 
  arkDenseSetup, arkDenseSolve, and arkDenseFree, respectively.  
  It allocates memory for a structure of type ARKDlsMemRec and 
@@ -570,8 +570,6 @@ static int arkMassDenseMultiply(N_Vector v, N_Vector Mv,
   ARKodeMem ark_mem;
   ARKDlsMassMem arkdls_mem;
   realtype *vdata=NULL, *Mvdata=NULL;
-  realtype *Mcol_j;
-  long int i, j;
 
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
@@ -582,9 +580,6 @@ static int arkMassDenseMultiply(N_Vector v, N_Vector Mv,
   ark_mem = (ARKodeMem) arkode_mem;
   arkdls_mem = (ARKDlsMassMem) ark_mem->ark_mass_mem;
 
-  /* zero out the result */
-  N_VConst(0.0, Mv);
-
   /* access the vector arrays (since they must be serial vectors) */
   vdata = N_VGetArrayPointer(v);
   Mvdata = N_VGetArrayPointer(Mv);
@@ -592,11 +587,7 @@ static int arkMassDenseMultiply(N_Vector v, N_Vector Mv,
     return(1);
 
   /* perform matrix-vector product and return */
-  for (j=0; j<arkdls_mem->d_M->N; j++) {
-    Mcol_j = arkdls_mem->d_M->cols[j];
-    for (i=0; i<arkdls_mem->d_M->M; i++) 
-      Mvdata[i] += Mcol_j[i]*vdata[j];
-  }
+  DenseMatvec(arkdls_mem->d_M, vdata, Mvdata);
   return(0);
 }
 

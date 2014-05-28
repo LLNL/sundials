@@ -4898,6 +4898,11 @@ static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag)
       return(CONV_FAIL);
 
     /* Update current solution guess */
+    /*** I DON'T LIKE THAT I WAIT TO UPDATE YCUR UNTIL THIS POINT; THIS MEANS THAT 
+	 I CAN RETURN WITH A LESS-ACCURATE SOLUTION THAN THE ONE I HAVE IN HAND.  
+	 MOREOVER, I ESTIMATE DCON USING THE EXPECTED ERROR IN THE NEW ITERATE, 
+	 NOT THE COMPUTED ERROR IN THE PREVIOUS ITERATE, SO MY STOP CRITERIA ARE 
+	 EVEN POTENTIALLY INCORRECT. ***/
     N_VScale(ONE, y, ycur);
     
     /* Save norm of correction and loop again */

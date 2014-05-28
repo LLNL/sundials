@@ -18,12 +18,12 @@
    -------------------------
 
 Final Solver Statistics:
-   Internal solver steps = 379 (attempted = 379)
-   Total RHS evals:  Fe = 0,  Fi = 5672
+   Internal solver steps = 189 (attempted = 189)
+   Total RHS evals:  Fe = 0,  Fi = 2824
    Total linear solver setups = 0
-   Total linear iterations = 23691
-   Total number of Jacobian-vector products = 23691
+   Total linear iterations = 13166
+   Total number of Jacobian-vector products = 13166
    Total number of linear solver convergence failures = 0
-   Total number of Newton iterations = 3773
+   Total number of Newton iterations = 1875
    Total number of nonlinear solver convergence failures = 0
    Total number of error test failures = 0

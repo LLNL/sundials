@@ -25,7 +25,12 @@ SET(arkode_SOURCES
   arkode_spgmr.c
   arkode_spils.c
   arkode_sptfqmr.c
+  arkode_sparse.c
   )
+
+IF(KLU_FOUND)
+    LIST(APPEND arkode_SOURCES arkode_klu.c)
+ENDIF()
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the ARKODE library
@@ -41,6 +46,7 @@ SET(shared_SOURCES
   sundials_spfgmr.c
   sundials_spgmr.c
   sundials_sptfqmr.c
+  sundials_sparse.c
   )
 
 # Add prefix with complete path to the common SUNDIALS sources
@@ -60,7 +66,12 @@ SET(arkode_HEADERS
   arkode_spgmr.h
   arkode_spils.h
   arkode_sptfqmr.h
+  arkode_sparse.h
   )
+
+IF(KLU_FOUND)
+    LIST(APPEND arkode_HEADERS arkode_klu.h)
+ENDIF()
 
 # Add prefix with complete path to the ARKODE header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
