@@ -3,7 +3,8 @@
  * $Revision$
  * $Date$
  * -----------------------------------------------------------------
- * Programmer: Carol Woodward @ LLNL
+ * Programmer: Carol Woodward @ LLNL,
+ *             Daniel R. Reynolds @ SMU.
  * -----------------------------------------------------------------
  * For details, see the LICENSE file.
  * -----------------------------------------------------------------
@@ -20,6 +21,7 @@ extern "C" {
 #endif
 
 #include <sundials/sundials_types.h>
+#include <sundials/sundials_direct.h>
 
 /*
  * ==================================================================
@@ -84,7 +86,20 @@ typedef struct _SlsMat {
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ);
+SUNDIALS_EXPORT SlsMat NewSparseMat(int M, int N, int NNZ);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: SlsConvertDls
+ * -----------------------------------------------------------------
+ * SlsConvertDense creates a new sparse matrix from an existing
+ * dense/band matrix by copying all nonzero values into the sparse 
+ * matrix structure.  SlsConvertDense returns NULL if the request 
+ * for matrix storage cannot be satisfied. 
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT SlsMat SlsConvertDls(DlsMat A);
 
 /*
  * -----------------------------------------------------------------
@@ -114,7 +129,7 @@ SUNDIALS_EXPORT void SlsSetToZero(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT void CopySparseMat(SlsMat A, SlsMat B);
+SUNDIALS_EXPORT void CopySparseMat(SlsMat A, SlsMat B);
 
 /*
  * -----------------------------------------------------------------
@@ -125,20 +140,35 @@ SUNDIALS_EXPORT void SlsSetToZero(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT void ScaleSparseMat(realtype b, SlsMat A);
+SUNDIALS_EXPORT void ScaleSparseMat(realtype b, SlsMat A);
 
 /*
  * -----------------------------------------------------------------
  * Functions: AddIdentitySparseMat
  * -----------------------------------------------------------------
- * This function adds the identity matrix to a sparse matrix A.
- * Note that the resultign matrix may have more nonzero entries than the 
- * original.  This is accounted for, so that h ereturn matrix may be larger
- * than the one sent in.
+ * This function adds 1 to every diagonal entry of A.
+ * Note that the resulting matrix may have more nonzero entries than 
+ * the original.  This is accounted for, so that the return matrix 
+ * may be larger than the one sent in.
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT void AddIdentitySparseMat(SlsMat A);
+SUNDIALS_EXPORT void AddIdentitySparseMat(SlsMat A);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: SlsAddMat
+ * -----------------------------------------------------------------
+ * This function adds two sparse matrices: A = A+B.
+ * Note that the resulting matrix may have more nonzero entries than
+ * either of the original matrices.  This is accounted for, so that 
+ * the return matrix may be larger than the ones sent in.  Upon 
+ * successful completion, the return value is zero; otherwise 1 is 
+ * returned.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int SlsAddMat(SlsMat A, SlsMat B);
 
 /*
  * -----------------------------------------------------------------
@@ -149,7 +179,20 @@ SUNDIALS_EXPORT void SlsSetToZero(SlsMat A);
  * -----------------------------------------------------------------
  */
 
-  SUNDIALS_EXPORT void ReallocSparseMat(SlsMat A);
+SUNDIALS_EXPORT void ReallocSparseMat(SlsMat A);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: SlsMatvec
+ * -----------------------------------------------------------------
+ * This function computes the matrix-vector product, y=A*x, where A
+ * is a sparse matrix of dimension MxN, x is a realtype array of 
+ * length N, and y is a realtype array of length M. Upon successful
+ * completion, the return value is zero; otherwise 1 is returned.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int SlsMatvec(SlsMat A, realtype *x, realtype *y);
 
 /*
  * -----------------------------------------------------------------
