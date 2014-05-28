@@ -57,6 +57,11 @@ void BandScale(realtype c, DlsMat A)
   bandScale(c, A->cols, A->M, A->mu, A->ml, A->s_mu);
 }
 
+void BandMatvec(DlsMat A, realtype *x, realtype *y)
+{
+  bandMatvec(A->cols, x, y, A->M, A->mu, A->ml, A->s_mu);
+}
+
 /*
  * -----------------------------------------------------
  * Functions working on realtype**
@@ -238,3 +243,22 @@ void bandAddIdentity(realtype **a, long int n, long int smu)
   for(j=0; j < n; j++)
     a[j][smu] += ONE;
 }
+
+void bandMatvec(realtype **a, realtype *x, realtype *y, long int n, 
+		long int mu, long int ml, long int smu)
+{
+  long int i, j, is, ie;
+  realtype *col_j;
+
+  for (i=0; i<n; i++)
+    y[i] = 0.0;
+
+  for(j=0; j<n; j++) {
+    col_j = a[j]+smu-mu;
+    is = (0 > j-mu) ? 0 : j-mu;
+    ie = (n-1 < j+ml) ? n-1 : j+ml;
+    for (i=is; i<=ie; i++)
+      y[i] += col_j[i-j+mu]*x[j];
+  }
+}
+

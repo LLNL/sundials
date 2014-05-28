@@ -77,6 +77,11 @@ void DenseScale(realtype c, DlsMat A)
   denseScale(c, A->cols, A->M, A->N);
 }
 
+void DenseMatvec(DlsMat A, realtype *x, realtype *y)
+{
+  denseMatvec(A->cols, x, y, A->M, A->N);
+}
+
 long int denseGETRF(realtype **a, long int m, long int n, long int *p)
 {
   long int i, j, k, l;
@@ -376,3 +381,20 @@ void denseAddIdentity(realtype **a, long int n)
   
   for (i=0; i < n; i++) a[i][i] += ONE;
 }
+
+void denseMatvec(realtype **a, realtype *x, realtype *y, long int m, long int n)
+{
+  long int i, j;
+  realtype *col_j;
+
+  for (i=0; i<m; i++) {
+    y[i] = 0.0;
+  }
+
+  for (j=0; j<n; j++) {
+    col_j = a[j];
+    for (i=0; i<m; i++)
+      y[i] += col_j[i]*x[j];
+  }
+}
+

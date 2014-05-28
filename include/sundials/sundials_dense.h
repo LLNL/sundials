@@ -185,6 +185,25 @@ SUNDIALS_EXPORT void denseScale(realtype c, realtype **a, long int m, long int n
 
 SUNDIALS_EXPORT void denseAddIdentity(realtype **a, long int n);
 
+
+/*
+ * -----------------------------------------------------------------
+ * Function: DenseMatvec
+ * -----------------------------------------------------------------
+ * DenseMatvec computes the matrix-vector product y = A*x, where A 
+ * is an M-by-N matrix, x is a vector of length N, and y is a vector
+ * of length M.  No error checking is performed on the length of the
+ * arrays x and y.  Only y is modified in this routine.
+ *
+ * DenseMatvec is a wrapper around denseMatvec which performs the 
+ * actual product by accessing the data in the DlsMat A.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void DenseMatvec(DlsMat A, realtype *x, realtype *y);
+SUNDIALS_EXPORT void denseMatvec(realtype **a, realtype *x, realtype *y, long int m, long int n);
+
+
 #ifdef __cplusplus
 }
 #endif
