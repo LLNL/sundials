@@ -21,7 +21,7 @@ struct _N_VectorContent_OpenMP {
 %%
 %%--------------------------------------------
 %%
-The following five macros are provided to access the content of an {\nvecopenmp}
+The following six macros are provided to access the content of an {\nvecopenmp}
 vector. The suffix \id{\_OMP} in the names denotes OpenMP version.
 %%
 \begin{itemize}
@@ -39,7 +39,7 @@ vector. The suffix \id{\_OMP} in the names denotes OpenMP version.
   
   \verb|#define NV_CONTENT_OMP(v) ( (N_VectorContent_OpenMP)(v->content) )|
   
-\item \ID{NV\_OWN\_DATA\_OMP}, \ID{NV\_DATA\_OMP}, \ID{NV\_LENGTH\_OMP}
+\item \ID{NV\_OWN\_DATA\_OMP}, \ID{NV\_DATA\_OMP}, \ID{NV\_LENGTH\_OMP}, \ID{NV\_NUM_THREADS\_OMP}
 
 
   These macros give individual access to the parts of    
@@ -53,6 +53,10 @@ vector. The suffix \id{\_OMP} in the names denotes OpenMP version.
   The assignment \id{v\_len = NV\_LENGTH\_OMP(v)} sets \id{v\_len} to be     
   the length of \id{v}. On the other hand, the call \id{NV\_LENGTH\_OMP(v) = len\_v} 
   sets the length of \id{v} to be \id{len\_v}.
+                                                            
+  The assignment \id{v\_num\_threads = NV\_NUM\_THREADS\_OMP(v)} sets \id{v\_num\_threads} to be     
+  the number of threads from \id{v}. On the other hand, the call \id{NV\_NUM\_THREADS\_OMP(v) = num\_threads\_v} 
+  sets the number of threads for \id{v} to be \id{num\_threads\_v}.
                                                             
   Implementation: 
   

@@ -21,7 +21,7 @@ struct _N_VectorContent_Pthreads {
 %%
 %%--------------------------------------------
 %%
-The following five macros are provided to access the content of an {\nvecpthreads}
+The following six macros are provided to access the content of an {\nvecpthreads}
 vector. The suffix \id{\_PT} in the names denotes Pthreads version.
 %%
 \begin{itemize}
@@ -39,7 +39,7 @@ vector. The suffix \id{\_PT} in the names denotes Pthreads version.
   
   \verb|#define NV_CONTENT_PT(v) ( (N_VectorContent_Pthreads)(v->content) )|
   
-\item \ID{NV\_OWN\_DATA\_PT}, \ID{NV\_DATA\_PT}, \ID{NV\_LENGTH\_PT}
+\item \ID{NV\_OWN\_DATA\_PT}, \ID{NV\_DATA\_PT}, \ID{NV\_LENGTH\_PT}, \ID{NV\_NUM_THREADS\_PT}
 
 
   These macros give individual access to the parts of    
@@ -53,6 +53,10 @@ vector. The suffix \id{\_PT} in the names denotes Pthreads version.
   The assignment \id{v\_len = NV\_LENGTH\_PT(v)} sets \id{v\_len} to be     
   the length of \id{v}. On the other hand, the call \id{NV\_LENGTH\_PT(v) = len\_v} 
   sets the length of \id{v} to be \id{len\_v}.
+                                                            
+  The assignment \id{v\_num\_threads = NV\_NUM\_THREADS\_PT(v)} sets \id{v\_num\_threads} to be     
+  the number of threads from \id{v}. On the other hand, the call \id{NV\_NUM\_THREADS\_PT(v) = num\_threads\_v} 
+  sets the number of threads for \id{v} to be \id{num\_threads\_v}.
                                                             
   Implementation: 
   
