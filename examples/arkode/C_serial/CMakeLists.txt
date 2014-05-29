@@ -67,6 +67,10 @@ IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 ENDIF(KLU_FOUND)
 
+IF(SUPERLUMT_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
+ENDIF(SUPERLUMT_FOUND)
+
 # Add the build and install targets for each ARKODE example
 
 FOREACH(example ${ARKODE_examples})
@@ -126,11 +130,6 @@ IF(EXAMPLES_INSTALL)
   ELSE(LAPACK_FOUND)
     SET(EXAMPLES_BL "")
   ENDIF(LAPACK_FOUND)
-  IF(KLU_FOUND)
-    LIST2STRING(ARKODE_examples_KLU EXAMPLES_KLU)
-  ELSE(KLU_FOUND)
-    SET(EXAMPLES_KLU "")
-  ENDIF(KLU_FOUND)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
