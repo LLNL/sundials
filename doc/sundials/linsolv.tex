@@ -268,6 +268,7 @@ in the {\dense} package.  For full details, see the header files
 \item \id{DensePOTRS}: solution of $Ax = b$ using the Cholesky factorization of $A$;
 \item \id{DenseGEQRF}: QR factorization of an $m \times n$ matrix, with $m \ge n$;
 \item \id{DenseORMQR}: compute the product $w = Qv$, with $Q$ calculated using \id{DenseGEQRF};
+\item \id{DenseMatvec}: compute the product $y = Ax$, for an $M$ by $N$ matrix $A$;
 \end{itemize}
 \index{DENSE@{\dense} generic linear solver!functions!large matrix|)}
 
@@ -385,6 +386,10 @@ The following functions for small dense matrices are available in the
   \id{denseGEQRF(a,m,n,beta,wrk)}. The real array \id{wrk}, of length \id{m}, must be provided
   as temporary workspace.
 
+\item \ID{denseMatvec}
+  \par \id{denseMatvec(a,x,y,m,n)} calculates the product $y = ax$ for a given vector
+  \id{x} of length \id{n}, and \id{m} by \id{n} matrix \id{a}.
+
 \end{itemize}
 \index{DENSE@{\dense} generic linear solver!functions!small matrix|)}
 
@@ -420,6 +425,7 @@ in the {\band} package.  For full details, see the header files
 \item \id{BandScale}: scale a matrix by a scalar;
 \item \id{BandGBTRF}: LU factorization with partial pivoting;
 \item \id{BandGBTRS}: solution of $Ax = b$ using LU factorization;
+\item \id{BandMatvec}: compute the product $y = Ax$, for a square band matrix $A$;
 \end{itemize}
 \index{BAND@{\band} generic linear solver!functions|)}
 
@@ -478,9 +484,12 @@ The following functions for small band matrices are available in the
   and the pivot array \id{p} has been set by a successful call to 
   \id{bandGETRF(a,n,mu,ml,smu,p)}. The solution $x$ is written into the \id{b} array.
 
+\item \ID{bandMatvec}
+  \par \id{bandMatvec(a,x,y,n,mu,ml,smu)} calculates the product $y = ax$ for a given vector
+  \id{x} of length \id{n}, and \id{n} by \id{n} band matrix \id{a}.
+
 \end{itemize}
 \index{BAND@{\band} generic linear solver!functions!small matrix|)}
-
 
 
 
