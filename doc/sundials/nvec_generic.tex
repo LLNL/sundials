@@ -4,9 +4,11 @@
 The {\sundials} solvers are written in a data-independent manner. 
 They all operate on generic vectors (of type \Id{N\_Vector}) through a set of
 operations defined by the particular {\nvector} implementation.
-Users can provide their own specific implementation of the {\nvector} module
-or use one of two provided within {\sundials}, a serial and an MPI parallel
-implementations.
+Users can provide their own specific implementation of the {\nvector} module,
+or use one of four provided within {\sundials} -- a serial implementation and
+three parallel implementations.  The generic operations are described below.
+In the sections following, the implementations provided with {\sundials}
+are described.
 
 The generic \ID{N\_Vector} type is a pointer to a structure that has an 
 implementation-dependent {\em content} field containing the 
