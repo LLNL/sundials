@@ -2,11 +2,11 @@
 % the SUNDIALS organization
 %
 The family of solvers referred to as {\sundials} consists of the solvers
-{\cvode} (for ODE systems), {\kinsol} (for nonlinear algebraic
+{\cvode} and {\arkode} (for ODE systems), {\kinsol} (for nonlinear algebraic
 systems), and {\ida} (for differential-algebraic systems).  In addition,
 {\sundials} also includes variants of {\cvode} and {\ida} with sensitivity analysis 
-capabilities (using either forward or adjoint methods): {\cvodes} and {\idas},
-respectively.
+capabilities (using either forward or adjoint methods), called {\cvodes} and
+{\idas}, respectively.
 
 The various solvers of this family share many subordinate modules.
 For this reason, it is organized as a family, with a directory
@@ -23,15 +23,18 @@ structure that exploits that sharing (see Fig. \ref{f:sunorg}).
 \end{figure}
 %%
 %%
-The following is a list of the solver packages presently available:
+The following is a list of the solver packages presently available, and
+the basic functionality of each:
 \begin{itemize}
 
 \item {\cvode},  
-  a solver for stiff and nonstiff ODEs $dy/dt = f(t,y)$;
+  a solver for stiff and nonstiff ODE systems $dy/dt = f(t,y)$;
 
 \item {\cvodes},
-  a solver for stiff and nonstiff ODEs
-  with sensitivity analysis capabilities;
+  a solver for stiff and nonstiff ODE systems with sensitivity analysis capabilities;
+
+\item {\arkode},
+  a solver for ODE systems based on additive Runge-Kutta methods;
 
 \item {\ida},
   a solver for differential-algebraic systems $F(t,y,\dot{y}) = 0$;
