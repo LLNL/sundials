@@ -157,7 +157,7 @@ int main()
   /* Call main solver */
   flag = KINSol(kmem,           /* KINSol memory block */
                 y,              /* initial guess on input; solution vector */
-                KIN_PICARD,     /* global stragegy choice */
+                KIN_PICARD,     /* global strategy choice */
                 scale,          /* scaling vector, for the variable cc */
                 scale);         /* scaling vector for function values fval */
   if (check_flag(&flag, "KINSol", 1)) return(1);

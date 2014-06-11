@@ -140,7 +140,7 @@ int main()
   N_VConst_Serial(ONE,scale);
   flag = KINSol(kmem,           /* KINSol memory block */
                 y,              /* initial guess on input; solution vector */
-                KIN_LINESEARCH, /* global stragegy choice */
+                KIN_LINESEARCH, /* global strategy choice */
                 scale,          /* scaling vector, for the variable cc */
                 scale);         /* scaling vector for function values fval */
   if (check_flag(&flag, "KINSol", 1)) return(1);

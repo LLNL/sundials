@@ -253,7 +253,7 @@ int main(void)
   /* Call KINSol and print output concentration profile */
   flag = KINSol(kmem,           /* KINSol memory block */
                 cc,             /* initial guess on input; solution vector */
-                globalstrategy, /* global stragegy choice */
+                globalstrategy, /* global strategy choice */
                 sc,             /* scaling vector, for the variable cc */
                 sc);            /* scaling vector for function values fval */
   if (check_flag(&flag, "KINSol", 1)) return(1);
