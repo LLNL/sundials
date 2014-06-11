@@ -14,6 +14,7 @@ serial and parallel examples of adjoint sensitivity analysis (ASA).
 The names of all the examples are given in the following table.
 
 \newlength{\colone}
+
 \settowidth{\colone}{em*3}
 \begin{center}
   \begin{tabular}{|p{\colone}|l|l|} \hline
@@ -21,8 +22,9 @@ The names of all the examples are given in the following table.
     & Serial examples & Parallel examples \\ \hline
 
     IVP & \id{cvsRoberts\_dns}     \id{cvsRoberts\_dnsL}    & \id{cvsAdvDiff\_non\_p}      \\
-    {}  & \id{cvsRoberts\_dns\_uw} \id{cvsAdvDiff\_bnd}     & \id{cvsDiurnal\_kry\_p}      \\
-    {}  & \id{cvsAdvDiff\_bndL}    \id{cvsDiurnal\_kry}     & \id{cvsDiurnal\_kry\_bbd\_p} \\
+    {}  & \id{cvsRoberts\_dns\_uw} \id{cvsRoberts\_klu}     & \id{cvsDiurnal\_kry\_p}      \\
+    {}  & \id{cvsRoberts\_sps}     \id{cvsAdvDiff\_bnd}     & \id{cvsDiurnal\_kry\_bbd\_p} \\
+    {}  & \id{cvsAdvDiff\_bndL}    \id{cvsDiurnal\_kry}     & {}                           \\
     {}  & \id{cvsDiurnal\_kry\_bp} \id{cvsDirectDemo\_ls}   & {}                           \\
     {}  & \id{cvsKrylovDemo\_ls}   \id{cvsKrylovDemo\_prec} & {}                           \\
     \hline
@@ -35,6 +37,7 @@ The names of all the examples are given in the following table.
     {}  & \id{cvsFoodWeb\_ASAi\_kry} \id{cvsFoodWeb\_ASAp\_kry} & \id{cvsAtmDisp\_ASAi\_kry\_bbd\_p} \\
     {}  & \id{cvsHessian\_ASA\_FSA}                             & {}                                 \\
     \hline
+
 
   \end{tabular}
 \end{center}
@@ -51,7 +54,7 @@ where
   examples using an integral-form model output, or \id{ASAp} for adjoint sensitivity
   examples using an pointwise model output;
 \item [{[ls]}] identifies the linear solver module used (for examples using
-  functional iterations for the nonlinear system solver, \id{non} specifies
+  functional iteration for the nonlinear system solver, \id{non} specifies
   that no linear solver was used);
 \item [{[prec]}] indicates the {\cvodes} preconditioner module used, 
   \id{bp} for {\cvbandpre} or \id{bbd} for {\cvbbdpre} 
@@ -88,6 +91,11 @@ following serial examples (using the {\nvecs} module):
 \item \id{cvsRoberts\_dns\_uw}
   is the same as \id{cvsRoberts\_dns} but demonstrates the user-supplied error
   weight function feature of {\cvodes}.
+\item \id{cvsRoberts\_klu}
+  is the same as \id{cvsRoberts\_dns} but uses the KLU sparse direct linear solver.
+\item \id{cvsRoberts\_sps}
+  is the same as \id{cvsRoberts\_dns} but uses the SuperLUMT sparse direct linear solver
+  (with one thread).
 \item \id{cvsAdvDiff\_bnd}
   solves the semi-discrete form of an advection-diffusion equation in 2-D. 
   \newline

@@ -19,7 +19,7 @@ where
   while for {\fcvode} examples, this is \id{fcv});
 \item [{[PbName]}] identifies the problem;
 \item [{[ls]}] identifies the linear solver module used (for examples using
-  functional iterations for the nonlinear system solver, \id{non} specifies
+  functional iteration for the nonlinear system solver, \id{non} specifies
   that no linear solver was used);
 \item [{[prec]}] indicates the {\cvode} preconditioner module used, \id{bp} for {\cvbandpre}
   or \id{bbd} for {\cvbbdpre} 
@@ -46,6 +46,11 @@ following ten serial examples (using the {\nvecs} module):
 \item \id{cvRoberts\_dns\_uw}
   is the same as \id{cvRoberts\_dns} but demonstrates the user-supplied error
   weight function feature of {\cvode}.
+\item \id{cvRoberts\_klu}
+  is the same as \id{cvRoberts\_dns} but uses the KLU sparse direct linear solver.
+\item \id{cvRoberts\_sps}
+  is the same as \id{cvRoberts\_dns} but uses the SuperLUMT sparse direct linear solver
+  (with one thread).
 \item \id{cvAdvDiff\_bnd}
   solves the semi-discrete form of an advection-diffusion equation in 2-D. 
   \newline
