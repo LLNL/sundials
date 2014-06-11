@@ -42,6 +42,13 @@ directory, the following six serial examples (using the {\nvecs} module):
   The problem is solved with the {\idadense} linear solver using
   a user-supplied Jacobian.
 
+\item \id{idaRoberts\_klu}
+  is the same as \id{idaRoberts\_dns} but uses the KLU sparse direct linear solver.
+
+\item \id{idaRoberts\_sps}
+  is the same as \id{idaRoberts\_dns} but uses the SuperLUMT sparse direct linear solver
+  (with one thread).
+
 \item \id{idaSlCrank\_dns}
   solves a system of index-2 DAEs, modeling a planar slider-crank mechanism.
 
@@ -112,10 +119,10 @@ distribution contains the following four parallel examples
 \end{itemize}
 
 \vspace{0.2in}\noindent
-Within the {\fida} module, in the two directories
-{\em srcdir}\id{/examples/ida/fcmix\_serial} and
-{\em srcdir}\id{/examples/ida/fcmix\_parallel}, are the following
-examples for the {\F}-{\C} interface:
+As part of the {\fida} module, in the four subdirectories \id{fcmix\_serial},
+\id{fcmix\_parallel}, \id{fcmix\_openmp}, and \id{fcmix\_pthreads},
+within the directory {\em srcdir}\id{/examples/ida},
+are the following four examples for the {\F}-{\C} interface:
 %
 \begin{itemize}
 \item \id{fidaRoberts\_dns} is a serial chemical kinetics example ({\dense})
@@ -123,6 +130,12 @@ examples for the {\F}-{\C} interface:
 
 \item \id{fidaHeat2D\_kry\_bbd\_p} is a parallel example ({\spgmr}/{\idabbdpre})
        equivalent to the example \id{idaHeat2D\_kry\_bbd\_p}.
+
+\item \id{fidaRoberts\_dns\_openmp} is the same as \id{fidaRoberts\_dns} but
+       uses the NVECTOR module NVECTOR\_OPENMP.
+
+\item \id{fidaRoberts\_dns\_pthreads} is the same as \id{fidaRoberts\_dns} but
+       uses the NVECTOR module NVECTOR\_PTHREADS.
 
 \end{itemize}
 
