@@ -12,12 +12,13 @@ The {\kinsol} distribution contains examples of four types: serial
 examples.
 %%
 With the exception of ''demo''-type example files, the names of all the examples 
-distributed with {\sundials} are of the form \verb![slv][PbName]_[ls]_[prec]_[p]!, 
-where
+distributed with {\sundials} are of the form
+\verb![slv][PbName]_[strat]_[ls]_[prec]_[p]!, where
 \begin{description}
 \item [{[slv]}] identifies the solver (for {\kinsol} examples this is \id{kin}, 
   while for {\fkinsol} examples, this is \id{fkin});
 \item [{[PbName]}] identifies the problem;
+\item [{[strat]}] identifies the strategy (absent if ``none'' or ``linesearch'');
 \item [{[ls]}] identifies the linear solver module used;
 \item [{[prec]}] indicates the {\kinsol} preconditioner module used
   (only if applicable, for examples using a Krylov linear solver
@@ -33,6 +34,9 @@ Supplied in the {\em srcdir}\id{/examples/kinsol/serial} directory are the
 following serial examples (using the {\nvecs} module):
 
 \begin{itemize}
+\item \id{kinRoberts\_fp}
+  solves the backward Euler time step for a three-species chemical kinetics
+  system, using the fixed point strategy.
 \item \id{kinFerTron\_dns}
   solves the Ferraris-Tronconi problem.
   \newline
@@ -44,10 +48,15 @@ following serial examples (using the {\nvecs} module):
   \newline
   This program solves the problem with the {\kindense} linear solver
   and a user-supplied Jacobian routine.
+\item \id{kinRoboKin\_slu}
+  is the same as \id{kinRoboKin\_dns} but uses the SuperLUMT sparse direct
+  linear solver.
 \item \id{kinLaplace\_bnd}
   solves a simple 2-D elliptic PDE on a unit square.
  \newline
   This program solves the problem with the {\kinband} linear solver.
+\item \id{kinLaplace\_picard\_bnd}
+  is the same as \id{kinLaplace\_bnd} but uses the Picard strategy.
 \item \id{kinFoodWeb\_kry}
   solves a food web model.
   \newline
