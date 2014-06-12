@@ -20,11 +20,11 @@ The names of all the examples are given in the following table.
 
     & Serial examples & Parallel examples \\ \hline
 
-    IVP & \id{idasRoberts\_dns} \id{idasAkzoNob\_dns} & \id{idasHeat2D\_kry\_p}      \\
-    {}  & \id{idasSlCrank\_dns}                       & \id{idasHeat2D\_kry\_bbd\_p} \\
-    {}  & \id{idasHeat2D\_bnd} \id{idasHeat2D\_kry}   & \id{idasFoodWeb\_kry\_p}     \\
-    {}  & \id{idasFoodWeb\_bnd}                       & \id{idasFoodWeb\_kry\_bbd\_p} \\
-    {}  & \id{idasKrylovDemo\_ls}                     & \id{idasBruss\_kry\_bbd\_p}   \\
+    IVP & \id{idasRoberts\_dns}                          & \id{idasHeat2D\_kry\_p}       \\
+    {}  & \id{idasRoberts\_klu} \id{idasRoberts\_sps}    & \id{idasHeat2D\_kry\_bbd\_p}  \\
+    {}  & \id{idasAkzoNob\_dns} \id{idasSlCrank\_dns}    & \id{idasFoodWeb\_kry\_p}      \\
+    {}  & \id{idasHeat2D\_bnd}  \id{idasHeat2D\_kry}     & \id{idasFoodWeb\_kry\_bbd\_p} \\
+    {}  & \id{idasFoodWeb\_bnd} \id{idasKrylovDemo\_ls}  & \id{idasBruss\_kry\_bbd\_p}   \\
     \hline
 
     FSA & \id{idasRoberts\_FSA\_dns} & \id{idasBruss\_FSA\_kry\_bbd\_p} \\
@@ -81,6 +81,13 @@ following serial examples (using the {\nvecs} module):
 
   The problem is solved with the {\idadense} linear solver using
   a user-supplied Jacobian.
+
+\item \id{idasRoberts\_klu}
+  is the same as \id{idasRoberts\_dns} but uses the KLU sparse direct linear solver.
+
+\item \id{idasRoberts\_sps}
+  is the same as \id{idasRoberts\_dns} but uses the SuperLUMT sparse direct linear solver
+  (with one thread).
 
 \item \id{idasAkzoNob\_dns}
   solves the Akzo-Nobel chemical kinetics problem, which consists
