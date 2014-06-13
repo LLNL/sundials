@@ -32,6 +32,10 @@ IF(KLU_FOUND)
     LIST(APPEND arkode_SOURCES arkode_klu.c)
 ENDIF()
 
+IF(SUPERLUMT_FOUND)
+    LIST(APPEND arkode_SOURCES arkode_superlumt.c)
+ENDIF()
+
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the ARKODE library
 SET(shared_SOURCES
@@ -71,6 +75,10 @@ SET(arkode_HEADERS
 
 IF(KLU_FOUND)
     LIST(APPEND arkode_HEADERS arkode_klu.h)
+ENDIF()
+
+IF(SUPERLUMT_FOUND)
+    LIST(APPEND arkode_HEADERS arkode_superlumt.h)
 ENDIF()
 
 # Add prefix with complete path to the ARKODE header files

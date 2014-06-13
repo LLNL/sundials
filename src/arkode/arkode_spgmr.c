@@ -116,6 +116,12 @@ int ARKSpgmr(void *arkode_mem, int pretype, int maxl)
   arkspils_mem->s_pfree  = NULL;
   arkspils_mem->s_P_data = ark_mem->ark_user_data;
 
+  /* Initialize counters */
+  arkspils_mem->s_npe = arkspils_mem->s_nli = 0;
+  arkspils_mem->s_nps = arkspils_mem->s_ncfl = 0;
+  arkspils_mem->s_nstlpre = arkspils_mem->s_njtimes = 0;
+  arkspils_mem->s_nfes = 0;
+
   /* Set default values for the rest of the Spgmr parameters */
   arkspils_mem->s_gstype = MODIFIED_GS;
   arkspils_mem->s_eplifac = ARKSPILS_EPLIN;
@@ -505,6 +511,10 @@ int ARKMassSpgmr(void *arkode_mem, int pretype, int maxl,
   arkspils_mem->s_psolve = NULL;
   arkspils_mem->s_pfree  = NULL;
   arkspils_mem->s_P_data = ark_mem->ark_user_data;
+
+  /* Initialize counters */
+  arkspils_mem->s_npe = arkspils_mem->s_nli  = 0;
+  arkspils_mem->s_nps = arkspils_mem->s_ncfl = 0;
 
   /* Set default values for the rest of the Spgmr parameters */
   arkspils_mem->s_gstype        = MODIFIED_GS;

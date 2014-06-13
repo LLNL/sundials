@@ -3818,6 +3818,8 @@ static int arkStep(ARKodeMem ark_mem)
   saved_t = ark_mem->ark_tn;
   ncf = nef = 0;
   nflag = FIRST_CALL;
+  eflag = ARK_SUCCESS;
+  kflag = SOLVE_SUCCESS;
 
   if ((ark_mem->ark_nst > 0) && (ark_mem->ark_hprime != ark_mem->ark_h)) {
     ark_mem->ark_h = ark_mem->ark_h * ark_mem->ark_eta;

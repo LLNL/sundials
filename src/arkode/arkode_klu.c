@@ -118,6 +118,11 @@ int ARKKLU(void *arkode_mem, int n, int nnz)
   arksls_mem->s_Jdata = ark_mem->ark_user_data;
   ark_mem->ark_setupNonNull = TRUE;
 
+  /* Initialize counters */
+  arksls_mem->s_nje = 0;
+  arksls_mem->s_first_factorize = 1;
+  arksls_mem->s_nstlj = 0;
+
   /* Allocate memory for the sparse Jacobian */
   arksls_mem->s_A = NULL;
   arksls_mem->s_A = NewSparseMat(n, n, nnz);
@@ -230,7 +235,7 @@ static int arkKLUInit(ARKodeMem ark_mem)
   solver module.  It calls the Jacobian evaluation routine,
   updates counters, and calls the LU factorization routine.
   The return value is either
-     ARkSLS_SUCCESS = 0  if successful,
+     ARKSLS_SUCCESS = 0  if successful,
      +1  if the jac routine failed recoverably or the
          LU factorization failed, or
      -1  if the jac routine failed unrecoverably.
@@ -524,12 +529,14 @@ int ARKMassKLU(void *arkode_mem, int n, int nnz,
   }
 
   /* Initialize mass-matrix-related data */
-  arksls_mem->s_Meval = NULL;
+  arksls_mem->s_nme = 0;
+  arksls_mem->s_first_factorize = 1;
+  arksls_mem->s_Meval = smass;
   arksls_mem->s_Mdata = ark_mem->ark_user_data;
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;
   ark_mem->ark_MassSetupNonNull = TRUE;
 
-  /* Allocate memory for the M and M_lu */
+  /* Allocate memory for M and M_lu */
   arksls_mem->s_M = NULL;
   arksls_mem->s_M = NewSparseMat(n, n, nnz);
   if (arksls_mem->s_M == NULL) {
@@ -714,7 +721,7 @@ static int arkMassKLUSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 		    "ARKMassKLUSetup", MSGSP_PACKAGE_FAIL);
     return(ARKSLS_PACKAGE_FAIL);
   }
-  
+
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;
   return(0);
 }
@@ -881,12 +888,12 @@ int ARKKLUSetOrdering(void *arkode_mem, int ordering_choice)
 		    "ARKKLUSetOrdering", MSGSP_ILL_INPUT);
     return(ARKSLS_ILL_INPUT);
   }
-  
+
   arksls_mem = (ARKSlsMem) ark_mem->ark_lmem;
   klu_data = (KLUData) arksls_mem->s_solver_data;
-  
+
   klu_data->s_ordering = ordering_choice;
-  
+
   return(ARKSLS_SUCCESS);
 }
 
@@ -921,12 +928,12 @@ int ARKMassKLUSetOrdering(void *arkode_mem, int ordering_choice)
 		    "ARKKLUSetOrdering", MSGSP_ILL_INPUT);
     return(ARKSLS_ILL_INPUT);
   }
-  
+
   arksls_mem = (ARKSlsMassMem) ark_mem->ark_mass_mem;
   klu_data = (KLUData) arksls_mem->s_solver_data;
-  
+
   klu_data->s_ordering = ordering_choice;
-  
+
   return(ARKSLS_SUCCESS);
 }
 

@@ -105,10 +105,13 @@ int ARKBand(void *arkode_mem, long int N, long int mupper, long int mlower)
   arkdls_mem->d_jacDQ = TRUE;
   arkdls_mem->d_bjac = NULL;
   arkdls_mem->d_J_data = NULL;
-
   arkdls_mem->d_last_flag = ARKDLS_SUCCESS;
-
   ark_mem->ark_setupNonNull = TRUE;
+
+  /* Initialize counters */
+  arkdls_mem->d_nje   = 0;
+  arkdls_mem->d_nfeDQ = 0;
+  arkdls_mem->d_nstlj = 0;
   
   /* Load problem dimension */
   arkdls_mem->d_n = N;
@@ -171,7 +174,7 @@ static int arkBandInit(ARKodeMem ark_mem)
   ARKDlsMem arkdls_mem;
   arkdls_mem = (ARKDlsMem) ark_mem->ark_lmem;
   arkdls_mem->d_nje   = 0;
-  arkdls_mem->d_nfeDQ  = 0;
+  arkdls_mem->d_nfeDQ = 0;
   arkdls_mem->d_nstlj = 0;
 
   /* Set Jacobian function and data, depending on jacDQ */
@@ -422,9 +425,9 @@ int ARKMassBand(void *arkode_mem, long int N, long int mupper,
   arkdls_mem->d_type = SUNDIALS_BAND;
   
   /* Initialize mass-matrix-related data */
+  arkdls_mem->d_nme = 0;
   arkdls_mem->d_bmass = bmass;
   arkdls_mem->d_M_data = NULL;
-
   arkdls_mem->d_last_flag = ARKDLS_SUCCESS;
   ark_mem->ark_MassSetupNonNull = TRUE;
 

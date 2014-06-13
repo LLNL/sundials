@@ -113,6 +113,11 @@ int ARKDense(void *arkode_mem, long int N)
   arkdls_mem->d_last_flag = ARKDLS_SUCCESS;
   ark_mem->ark_setupNonNull = TRUE;
 
+  /* Initialize counters */
+  arkdls_mem->d_nje    = 0;
+  arkdls_mem->d_nfeDQ  = 0;
+  arkdls_mem->d_nstlj  = 0;
+
   /* Set problem dimension */
   arkdls_mem->d_n = N;
 
@@ -409,6 +414,7 @@ int ARKMassDense(void *arkode_mem, long int N, ARKDlsDenseMassFn dmass)
   arkdls_mem->d_type = SUNDIALS_DENSE;
 
   /* Initialize mass-matrix-related data */
+  arkdls_mem->d_nme = 0;
   arkdls_mem->d_dmass = dmass;
   arkdls_mem->d_M_data = NULL;
   arkdls_mem->d_last_flag = ARKDLS_SUCCESS;

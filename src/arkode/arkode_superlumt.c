@@ -15,8 +15,8 @@
 #include "arkode_sparse_impl.h"
 #include "arkode_impl.h"
 
-#include "sundials/sundials_superlumt_impl.h"
-#include "sundials/sundials_math.h"
+#include <sundials/sundials_superlumt_impl.h>
+#include <sundials/sundials_math.h>
 
 /* Constants */
 #define ONE RCONST(1.0)
@@ -72,7 +72,6 @@ int ARKSuperLUMT(void *arkode_mem, int num_threads, int n, int nnz)
   ARKSlsMem arksls_mem;
   SLUMTData slumt_data;
   int *perm_c, *perm_r;
-  int flag;
   int nrhs, panel_size, relax;
   double *bd;
   SuperMatrix *B;
@@ -123,6 +122,11 @@ int ARKSuperLUMT(void *arkode_mem, int num_threads, int n, int nnz)
   arksls_mem->s_Jdata = ark_mem->ark_user_data;
   ark_mem->ark_setupNonNull = TRUE;
 
+  /* Initialize counters */
+  arksls_mem->s_nje = 0;
+  arksls_mem->s_first_factorize = 1;
+  arksls_mem->s_nstlj = 0;
+
   /* Allocate memory for the sparse Jacobian */
   arksls_mem->s_A = NULL;
   arksls_mem->s_A = NewSparseMat(n, n, nnz);
@@ -152,8 +156,8 @@ int ARKSuperLUMT(void *arkode_mem, int num_threads, int n, int nnz)
   if (perm_r == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKSuperLUMT", MSGSP_MEM_FAIL);
-    DestroySparseMat(arksls_mem->s_savedJ);
     DestroySparseMat(arksls_mem->s_A);
+    DestroySparseMat(arksls_mem->s_savedJ);
     free(slumt_data); slumt_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
     return(ARKSLS_MEM_FAIL);
@@ -163,8 +167,8 @@ int ARKSuperLUMT(void *arkode_mem, int num_threads, int n, int nnz)
   if (perm_c == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKSuperLUMT", MSGSP_MEM_FAIL);
-    DestroySparseMat(arksls_mem->s_savedJ);
     DestroySparseMat(arksls_mem->s_A);
+    DestroySparseMat(arksls_mem->s_savedJ);
     free(slumt_data); slumt_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
     free(perm_r); perm_r = NULL;
@@ -185,12 +189,6 @@ int ARKSuperLUMT(void *arkode_mem, int num_threads, int n, int nnz)
   slumt_data->s_U   = (SuperMatrix *) malloc(sizeof(SuperMatrix));
   slumt_data->superlumt_options = 
     (superlumt_options_t *) malloc(sizeof(superlumt_options_t));
-  dCreate_CompCol_Matrix(slumt_data->s_A, arksls_mem->s_A->M, 
-			 arksls_mem->s_A->N, arksls_mem->s_A->NNZ, 
-			 arksls_mem->s_A->data, 
-			 arksls_mem->s_A->rowvals, 
-			 arksls_mem->s_A->colptrs, 
-			 SLU_NC, SLU_D, SLU_GE);
   panel_size = sp_ienv(1);
   relax = sp_ienv(2);
   StatAlloc(arksls_mem->s_A->N, num_threads, panel_size, 
@@ -219,6 +217,7 @@ int ARKSuperLUMT(void *arkode_mem, int num_threads, int n, int nnz)
   return(ARKSLS_SUCCESS);
 }
 
+
 /*---------------------------------------------------------------
  arkSuperLUMTInit:
 
@@ -241,9 +240,9 @@ static int arkSuperLUMTInit(ARKodeMem ark_mem)
   StatInit(arksls_mem->s_A->N, slumt_data->num_threads, 
 	   slumt_data->Gstat);
 
-  arkdls_mem->s_Jdata = ark_mem->ark_user_data;
+  arksls_mem->s_Jdata = ark_mem->ark_user_data;
   arksls_mem->s_last_flag = 0;
-  return(0);
+  return(ARKSLS_SUCCESS);
 }
 
 
@@ -267,7 +266,6 @@ static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail,
   booleantype jbad, jok;
   int retval;
   int panel_size, relax, lwork;
-  long int retfac;
   realtype dgamma;
   double drop_tol;
   fact_t fact;
@@ -323,14 +321,14 @@ static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail,
 				 arksls_mem->s_A, arksls_mem->s_Jdata, 
 				 vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
-      arkProcessError(ark_mem, ARKSLS_JACFUNC_UNREARKR, "ARKSLS", 
+      arkProcessError(ark_mem, ARKSLS_JACFUNC_UNRECVR, "ARKSLS", 
 		      "arkSuperLUMTSetup", MSGSP_JACFUNC_FAILED);
       arksls_mem->s_last_flag = ARKSLS_JACFUNC_UNRECVR;
-      return(-1);
+      return(ARKSLS_JACFUNC_UNRECVR);
     }
     if (retval > 0) {
       arksls_mem->s_last_flag = ARKSLS_JACFUNC_RECVR;
-      return(1);
+      return(ARKSLS_JACFUNC_RECVR);
     }
 
     CopySparseMat(arksls_mem->s_A, arksls_mem->s_savedJ);
@@ -375,6 +373,16 @@ static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail,
     AddIdentitySparseMat(arksls_mem->s_A);
   }
 
+  /* free and reallocate sparse matrix */
+  if (slumt_data->s_A->Store) {
+    SUPERLU_FREE(slumt_data->s_A->Store);
+  }
+  dCreate_CompCol_Matrix(slumt_data->s_A, arksls_mem->s_A->M, 
+			 arksls_mem->s_A->N, arksls_mem->s_A->NNZ, 
+			 arksls_mem->s_A->data, 
+			 arksls_mem->s_A->rowvals, 
+			 arksls_mem->s_A->colptrs, 
+			 SLU_NC, SLU_D, SLU_GE);
 
   /* On first decomposition, set up reusable pieces */ 
   if (arksls_mem->s_first_factorize) {
@@ -407,14 +415,14 @@ static int arkSuperLUMTSetup(ARKodeMem ark_mem, int convfail,
      The following routine will create num_threads threads. */
   pdgstrf(slumt_data->superlumt_options, slumt_data->s_AC, 
 	  slumt_data->perm_r, slumt_data->s_L, slumt_data->s_U, 
-	  slumt_data->Gstat, &info);
-  if (info != 0) {
-    arksls_mem->s_last_flag = info;
-    return(+1);
+	  slumt_data->Gstat, &retval);
+  if (retval != 0) {
+    arksls_mem->s_last_flag = retval;
+    return(ARKSLS_PACKAGE_FAIL);
   }
 
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;
-  return(0);
+  return(ARKSLS_SUCCESS);
 }
 
 
@@ -429,7 +437,7 @@ static int arkSuperLUMTSolve(ARKodeMem ark_mem, N_Vector b,
 			     N_Vector weight, N_Vector ycur, 
 			     N_Vector fcur)
 {
-  int info, flag;
+  int info;
   ARKSlsMem arksls_mem;
   DNformat *Bstore;
   SLUMTData slumt_data;
@@ -491,6 +499,7 @@ static void arkSuperLUMTFree(ARKodeMem ark_mem)
     DestroySparseMat(arksls_mem->s_A);
     arksls_mem->s_A = NULL;
   }
+
   if (arksls_mem->s_savedJ) {
     DestroySparseMat(arksls_mem->s_savedJ);
     arksls_mem->s_savedJ = NULL;
@@ -540,7 +549,6 @@ int ARKMassSuperLUMT(void *arkode_mem, int num_threads,
   ARKSlsMassMem arksls_mem;
   SLUMTData slumt_data;
   int *perm_c, *perm_r;
-  int flag;
   int nrhs, panel_size, relax;
   double *bd;
   SuperMatrix *B;
@@ -562,13 +570,14 @@ int ARKMassSuperLUMT(void *arkode_mem, int num_threads,
 
   if (ark_mem->ark_mfree != NULL) ark_mem->ark_mfree(ark_mem);
 
-  /* Set five main function fields in ark_mem, enable mass matrix. */
+  /* Set main function fields in ark_mem, enable mass matrix. */
   ark_mem->ark_mass_matrix = TRUE;
   ark_mem->ark_minit  = arkMassSuperLUMTInit;
   ark_mem->ark_msetup = arkMassSuperLUMTSetup;
   ark_mem->ark_msolve = arkMassSuperLUMTSolve;
   ark_mem->ark_mfree  = arkMassSuperLUMTFree;
   ark_mem->ark_mtimes = arkMassSuperLUMTMultiply;
+  ark_mem->ark_mtimes_data = (void *) ark_mem;
   ark_mem->ark_msolve_type = 3;
 
   /* Get memory for ARKSlsMassMemRec. */
@@ -589,7 +598,9 @@ int ARKMassSuperLUMT(void *arkode_mem, int num_threads,
   }
 
   /* Initialize mass-matrix-related data */
-  arksls_mem->s_Meval = NULL;
+  arksls_mem->s_nme = 0;
+  arksls_mem->s_first_factorize = 1;
+  arksls_mem->s_Meval = smass;
   arksls_mem->s_Mdata = ark_mem->ark_user_data;
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;
   ark_mem->ark_MassSetupNonNull = TRUE;
@@ -621,8 +632,8 @@ int ARKMassSuperLUMT(void *arkode_mem, int num_threads,
   if (perm_r == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKMassSuperLUMT", MSGSP_MEM_FAIL);
-    DestroySparseMat(arksls_mem->s_M_lu);
     DestroySparseMat(arksls_mem->s_M);
+    DestroySparseMat(arksls_mem->s_M_lu);
     free(slumt_data); slumt_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
     return(ARKSLS_MEM_FAIL);
@@ -632,8 +643,8 @@ int ARKMassSuperLUMT(void *arkode_mem, int num_threads,
   if (perm_c == NULL) {
     arkProcessError(ark_mem, ARKSLS_MEM_FAIL, "ARKSLS", 
 		    "ARKMassSuperLUMT", MSGSP_MEM_FAIL);
-    DestroySparseMat(arksls_mem->s_M_lu);
     DestroySparseMat(arksls_mem->s_M);
+    DestroySparseMat(arksls_mem->s_M_lu);
     free(slumt_data); slumt_data = NULL;
     free(arksls_mem); arksls_mem = NULL;
     free(perm_r); perm_r = NULL;
@@ -654,12 +665,6 @@ int ARKMassSuperLUMT(void *arkode_mem, int num_threads,
   slumt_data->s_U   = (SuperMatrix *) malloc(sizeof(SuperMatrix));
   slumt_data->superlumt_options = 
     (superlumt_options_t *) malloc(sizeof(superlumt_options_t));
-  dCreate_CompCol_Matrix(slumt_data->s_A, arksls_mem->s_M->M, 
-			 arksls_mem->s_M->N, arksls_mem->s_M->NNZ, 
-			 arksls_mem->s_M->data, 
-			 arksls_mem->s_M->rowvals, 
-			 arksls_mem->s_M->colptrs, 
-			 SLU_NC, SLU_D, SLU_GE);
   panel_size = sp_ienv(1);
   relax = sp_ienv(2);
   StatAlloc(arksls_mem->s_M->N, num_threads, panel_size, 
@@ -688,6 +693,7 @@ int ARKMassSuperLUMT(void *arkode_mem, int num_threads,
   return(ARKSLS_SUCCESS);
 }
 
+
 /*---------------------------------------------------------------
  arkMassSuperLUMTInit:
 
@@ -702,15 +708,16 @@ static int arkMassSuperLUMTInit(ARKodeMem ark_mem)
 
   arksls_mem = (ARKSlsMassMem) ark_mem->ark_mass_mem;
   slumt_data = (SLUMTData) arksls_mem->s_solver_data;
+
   arksls_mem->s_nme = 0;
   arksls_mem->s_first_factorize = 1;
 
   /* Allocate storage and initialize statistics variables. */
   StatInit(arksls_mem->s_M->N, slumt_data->num_threads, 
 	   slumt_data->Gstat);
-  arkdls_mem->s_Mdata = ark_mem->ark_user_data;
-  arksls_mem->s_last_flag = 0;
-  return(0);
+  arksls_mem->s_Mdata = ark_mem->ark_user_data;
+  arksls_mem->s_last_flag = ARKSLS_SUCCESS;
+  return(ARKSLS_SUCCESS);
 }
 
 
@@ -731,14 +738,11 @@ static int arkMassSuperLUMTSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 {
   int retval;
   int panel_size, relax, lwork;
-  long int retfac;
-  realtype dgamma;
   double drop_tol;
   fact_t fact;
   trans_t trans;
   yes_no_t refact, usepr;
-  ARKSlsMem arksls_mem;
-  ARKSlsMassMem arksls_mass_mem;
+  ARKSlsMassMem arksls_mem;
   SLUMTData slumt_data;
   void *work;
   
@@ -768,19 +772,32 @@ static int arkMassSuperLUMTSetup(ARKodeMem ark_mem, N_Vector vtemp1,
   retval = arksls_mem->s_Meval(ark_mem->ark_tn, arksls_mem->s_M, 
 			       arksls_mem->s_Mdata, vtemp1, 
 			       vtemp2, vtemp3);
+  arksls_mem->s_nme++;
   if (retval < 0) {
-    arkProcessError(ark_mem, ARKSLS_MASSFUNC_UNREARKR, "ARKSLS", 
+    arkProcessError(ark_mem, ARKSLS_MASSFUNC_UNRECVR, "ARKSLS", 
 		    "arkMassSuperLUMTSetup", MSGSP_MASSFUNC_FAILED);
     arksls_mem->s_last_flag = ARKSLS_MASSFUNC_UNRECVR;
-    return(-1);
+    return(ARKSLS_MASSFUNC_UNRECVR);
   }
   if (retval > 0) {
     arksls_mem->s_last_flag = ARKSLS_MASSFUNC_RECVR;
-    return(1);
+    return(ARKSLS_MASSFUNC_RECVR);
   }
-  
+
   /* Copy M into M_lu for LU decomposition */
   CopySparseMat(arksls_mem->s_M, arksls_mem->s_M_lu);
+
+
+  /* free and reallocate sparse matrix */
+  if (slumt_data->s_A->Store) {
+    SUPERLU_FREE(slumt_data->s_A->Store);
+  }
+  dCreate_CompCol_Matrix(slumt_data->s_A, arksls_mem->s_M->M, 
+			 arksls_mem->s_M->N, arksls_mem->s_M->NNZ, 
+			 arksls_mem->s_M->data, 
+			 arksls_mem->s_M->rowvals, 
+			 arksls_mem->s_M->colptrs, 
+			 SLU_NC, SLU_D, SLU_GE);
 
   /* On first decomposition, set up reusable pieces */ 
   if (arksls_mem->s_first_factorize) {
@@ -813,14 +830,14 @@ static int arkMassSuperLUMTSetup(ARKodeMem ark_mem, N_Vector vtemp1,
      The following routine will create num_threads threads. */
   pdgstrf(slumt_data->superlumt_options, slumt_data->s_AC, 
 	  slumt_data->perm_r, slumt_data->s_L, slumt_data->s_U, 
-	  slumt_data->Gstat, &info);
-  if (info != 0) {
-    arksls_mem->s_last_flag = info;
-    return(+1);
+	  slumt_data->Gstat, &retval);
+  if (retval != 0) {
+    arksls_mem->s_last_flag = retval;
+    return(ARKSLS_PACKAGE_FAIL);
   }
 
   arksls_mem->s_last_flag = ARKSLS_SUCCESS;
-  return(0);
+  return(ARKSLS_SUCCESS);
 }
 
 
@@ -834,7 +851,7 @@ static int arkMassSuperLUMTSetup(ARKodeMem ark_mem, N_Vector vtemp1,
 static int arkMassSuperLUMTSolve(ARKodeMem ark_mem, N_Vector b, 
 				 N_Vector weight)
 {
-  int info, flag;
+  int info;
   ARKSlsMassMem arksls_mem;
   DNformat *Bstore;
   SLUMTData slumt_data;
@@ -891,6 +908,7 @@ static void arkMassSuperLUMTFree(ARKodeMem ark_mem)
     DestroySparseMat(arksls_mem->s_M);
     arksls_mem->s_M = NULL;
   }
+
   if (arksls_mem->s_M_lu) {
     DestroySparseMat(arksls_mem->s_M_lu);
     arksls_mem->s_M_lu = NULL;
@@ -931,7 +949,7 @@ static int arkMassSuperLUMTMultiply(N_Vector v, N_Vector Mv,
   /* Return immediately if arkode_mem is NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSLS_MEM_NULL, "ARKSLS", 
-		    "arkMassSuperLUMTMultiply", MSGS_ARKMEM_NULL);
+		    "arkMassSuperLUMTMultiply", MSGSP_ARKMEM_NULL);
     return(ARKSLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -959,12 +977,14 @@ static int arkMassSuperLUMTMultiply(N_Vector v, N_Vector Mv,
   }
 
   return(0);
+
 }
 
 
 /*===============================================================
  Optional Input Specification Functions
 ===============================================================*/
+
 
 /*---------------------------------------------------------------
  ARKSuperLUMTSetOrdering:
@@ -992,8 +1012,7 @@ int ARKSuperLUMTSetOrdering(void *arkode_mem, int ordering_choice)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Return if ordering choice argument is not valid */
-  if ( (ordering_choice != 0) && (ordering_choice != 1) && 
-       (ordering_choice != 2) && (ordering_choice != 3) ) {
+  if ( (ordering_choice < 0) || (ordering_choice > 3) ) {
     arkProcessError(NULL, ARKSLS_ILL_INPUT, "ARKSLS", 
 		    "ARKSuperLUMTSetOrdering", MSGSP_ILL_INPUT);
     return(ARKSLS_ILL_INPUT);
@@ -1021,9 +1040,9 @@ int ARKSuperLUMTSetOrdering(void *arkode_mem, int ordering_choice)
 ---------------------------------------------------------------*/
 int ARKMassSuperLUMTSetOrdering(void *arkode_mem, int ordering_choice)
 {
-  ARKodeMem ark_mem;
+  ARKodeMem     ark_mem;
   ARKSlsMassMem arksls_mem;
-  SLUMTData slumt_data;
+  SLUMTData     slumt_data;
 
   /* Return immediately if ark_mem is NULL */
   if (arkode_mem == NULL) {
@@ -1034,8 +1053,7 @@ int ARKMassSuperLUMTSetOrdering(void *arkode_mem, int ordering_choice)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Return if ordering choice argument is not valid */
-  if ( (ordering_choice != 0) && (ordering_choice != 1) && 
-       (ordering_choice != 2) && (ordering_choice != 3) ) {
+  if ( (ordering_choice < 0) || (ordering_choice > 3) ) {
     arkProcessError(NULL, ARKSLS_ILL_INPUT, "ARKSLS", 
 		    "ARKMassSuperLUMTSetOrdering", MSGSP_ILL_INPUT);
     return(ARKSLS_ILL_INPUT);
