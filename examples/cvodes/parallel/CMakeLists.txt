@@ -65,6 +65,10 @@ IF(KLU_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 ENDIF(KLU_FOUND)
 
+IF(SUPERLUMT_FOUND)
+  LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
+ENDIF(SUPERLUMT_FOUND)
+
 # Add the build and install targets for each CVODES example
 
 # SGS is there a way to query CMAKE variable to get added executables 

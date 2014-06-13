@@ -77,6 +77,14 @@ SET(cvode_HEADERS
   cvode_sptfqmr.h
   )
 
+IF(KLU_FOUND)
+    LIST(APPEND cvode_HEADERS cvode_klu.h)
+ENDIF()
+
+IF(SUPERLUMT_FOUND)
+    LIST(APPEND cvode_HEADERS cvode_superlumt.h)
+ENDIF()
+
 # Add prefix with complete path to the CVODE header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvode/ cvode_HEADERS)
 
