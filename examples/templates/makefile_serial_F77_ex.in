@@ -43,6 +43,8 @@ F77_LIBS    = @F77_LIBS@
 
 LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecserial -lsundials_nvecserial ${LIBS}
 LIBRARIES_BL = @BLAS_LAPACK_LIBS@
+LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
+LIBRARIES_KLU = @KLU_LIBRARY@ @AMD_LIBRARY@ @COLAMD_LIBRARY@ @BTF_LIBRARY@
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 
@@ -59,8 +61,8 @@ OBJECTS = ${EXAMPLES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL}" ; \
-	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ; \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ; \
 	done
 
 clean:

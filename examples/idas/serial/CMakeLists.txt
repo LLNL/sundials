@@ -157,7 +157,10 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "IDAS")
   SET(SOLVER_LIB "sundials_idas")
-  LIST2STRING(IDAS_examples EXAMPLES)
+  FOREACH(example_tuple ${IDAS_examples})
+  	list(GET example_tuple 0 example)
+  	LIST2STRING(example EXAMPLES)
+  ENDFOREACH(example_tuple ${IDAS_examples})
 
   IF(LAPACK_FOUND)
     LIST2STRING(IDAS_examples_BL EXAMPLES_BL)

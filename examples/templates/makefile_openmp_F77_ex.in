@@ -1,15 +1,15 @@
 # -----------------------------------------------------------------
-# $Revision$
-# $Date$
+# $Revision: 4074 $
+# $Date: 2014-04-23 14:13:52 -0700 (Wed, 23 Apr 2014) $
 # -----------------------------------------------------------------
-# Programmer: Steven Smith @ LLNL
+# Programmer: Daniel R. Reynolds @ SMU
 # -----------------------------------------------------------------
-# Copyright (c) 2013, The Regents of the University of California.
+# Copyright (c) 2014, The Regents of the University of California.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
-# Makefile for @SOLVER@ pthreads examples.
+# Makefile for @SOLVER@ Fortran OpenMP examples
 #
 # This file is generated from a template using various variables
 # set at configuration time. It can be used as a template for
@@ -35,15 +35,13 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-CPP      = @CPP@
-CPPFLAGS = @CPPFLAGS@
-CC       = @CC@
-CFLAGS   = @CFLAGS@
-LDFLAGS  = @LDFLAGS@ @CMAKE_THREAD_LIBS_INIT@
-LIBS     = @LIBS@
+F77         = @F77@
+FFLAGS      = @FFLAGS@ @OpenMP_F77_FLAGS@
+F77_LNKR    = @F77_LNKR@ @OpenMP_F77_FLAGS@
+F77_LDFLAGS = @F77_LDFLAGS@
+F77_LIBS    = @F77_LIBS@
 
-INCLUDES = -I${includedir}
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecserial ${LIBS}
+LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecserial -lsundials_nvecserial ${LIBS}
 LIBRARIES_BL = @BLAS_LAPACK_LIBS@
 LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
 LIBRARIES_KLU = @KLU_LIBRARY@ @AMD_LIBRARY@ @COLAMD_LIBRARY@ @BTF_LIBRARY@
@@ -54,17 +52,17 @@ OBJECTS = ${EXAMPLES:=.o}
 
 # -----------------------------------------------------------------------------------------
 
-.SUFFIXES : .o .c
+.SUFFIXES : .o .f
 
-.c.o :
-	${CC} ${CPPFLAGS} ${CFLAGS} ${INCLUDES} -c $<
+.f.o :
+	${F77} ${FFLAGS} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${CC} -o $${i} $${i}.o ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU}" ; \
-	  ${CC} -o $${i} $${i}.o ${CFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ; \
+	  echo "${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU}" ; \
+	  ${F77_LNKR} -o $${i} $${i}.o ${F77_LDFLAGS} ${F77_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ; \
 	done
 
 clean:

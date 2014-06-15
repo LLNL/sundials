@@ -116,7 +116,10 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "CVODES")
   SET(SOLVER_LIB "sundials_cvodes")
-  LIST2STRING(CVODES_examples EXAMPLES)
+  FOREACH(example_tuple ${CVODES_examples})
+  	list(GET example_tuple 0 example)
+  	LIST2STRING(example EXAMPLES)
+  ENDFOREACH(example_tuple ${CVODES_examples})
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

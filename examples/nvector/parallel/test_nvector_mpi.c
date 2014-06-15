@@ -26,7 +26,7 @@
 #include <sundials/sundials_types.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_math.h>
-#include <test_nvector.h>
+#include "test_nvector.h"
 
 #include <mpi.h>
 

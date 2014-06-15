@@ -45,6 +45,8 @@ LIBS     = @LIBS@
 INCLUDES = -I${includedir}
 LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecserial ${LIBS}
 LIBRARIES_BL = @BLAS_LAPACK_LIBS@
+LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
+LIBRARIES_KLU = @KLU_LIBRARY@ @AMD_LIBRARY@ @COLAMD_LIBRARY@ @BTF_LIBRARY@
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 
@@ -61,8 +63,8 @@ OBJECTS = ${EXAMPLES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${CXX} -o $${i} $${i}.o ${CXXFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL}" ; \
-	  ${CXX} -o $${i} $${i}.o ${CXXFLAGS} ${LDFLAGS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL}; \
+	  echo "${CXX} -o $${i} $${i}.o ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU}" ; \
+	  ${CXX} -o $${i} $${i}.o ${CXXFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ; \
 	done
 
 clean:

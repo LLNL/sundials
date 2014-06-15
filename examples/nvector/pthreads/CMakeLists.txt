@@ -57,7 +57,7 @@ FOREACH(example ${nvector_pthreads_examples})
   TARGET_LINK_LIBRARIES(${example} ${CMAKE_THREAD_LIBS_INIT})
 
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
+    INSTALL(FILES ${example}.c ../test_nvector.c ../test_nvector.h DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example ${nvector_pthreads_examples})
 
@@ -67,6 +67,7 @@ IF(EXAMPLES_INSTALL)
   INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
+  SET(SOLVER_LIB "sundials_nvecpthreads")
   LIST2STRING(nvector_pthreads_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install 

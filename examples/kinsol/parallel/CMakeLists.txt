@@ -77,7 +77,7 @@ FOREACH(example_tuple ${KINSOL_examples})
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   ENDIF(NOT MPI_MPICC)
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parallel)
+    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/parallel)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example_tuple ${KINSOL_examples})
 

@@ -16,7 +16,6 @@ SET(ARKODE_examples
   )
 
 # Add variable ARKODE_extras with the names of auxiliary files to install
-
 SET(ARKODE_extras
   # none yet
   )
@@ -24,7 +23,6 @@ SET(ARKODE_extras
 # Check whether we use MPI compiler scripts.
 # If yes, then change the C compiler to the MPICC script.
 # If not, then add the MPI include directory for MPI headers.
-
 IF(MPI_MPICC)
   # use MPI_MPICC as the compiler
   SET(CMAKE_C_COMPILER ${MPI_MPICC})
@@ -35,7 +33,6 @@ ENDIF(MPI_MPICC)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(ARKODE_LIB sundials_arkode_static)
   SET(NVECP_LIB sundials_nvecparallel_static)
@@ -45,7 +42,6 @@ ELSE(LINK_LIBRARY_TYPE MATCHES "static")
 ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Set-up linker flags and link libraries
-
 SET(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 IF(LAPACK_FOUND)
   LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
@@ -60,7 +56,6 @@ IF(SUPERLUMT_FOUND)
 ENDIF(SUPERLUMT_FOUND)
 
 # Add the build and install targets for each ARKODE example
-
 FOREACH(example_tuple ${ARKODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
@@ -74,7 +69,7 @@ FOREACH(example_tuple ${ARKODE_examples})
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   ENDIF(NOT MPI_MPICC)
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parallel)
+    INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel)
   ENDIF(EXAMPLES_INSTALL)
 ENDFOREACH(example_tuple ${ARKODE_examples})
 

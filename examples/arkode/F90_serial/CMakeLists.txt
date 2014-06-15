@@ -14,10 +14,10 @@ SET(FARKODE_examples
   ark_bruss
   )
 
-# Add variable fcvode_bl_examples with the names of the serial FCVODE examples
+# Add variable farkode_bl_examples with the names of the serial FARKODE examples
 # that use Lapack
 
-SET(FCVODE_examples_BL
+SET(FARKODE_examples_BL
   )
 
 # Add variable ARKODE_extras with the names of auxiliary files to install

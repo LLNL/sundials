@@ -128,4 +128,19 @@ IF(EXAMPLES_INSTALL)
     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_openmp 
     )
 
+  IF(UNIX)
+    # generate Makefile and place it in the binary dir
+    CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmp_F77_ex.in
+      ${PROJECT_BINARY_DIR}/examples/ida/fcmix_openmp/Makefile_ex
+      @ONLY
+      )
+    # install the configured Makefile_ex as Makefile
+    INSTALL(
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/fcmix_openmp/Makefile_ex 
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_openmp
+      RENAME Makefile
+      )
+  ENDIF(UNIX)
+
 ENDIF(EXAMPLES_INSTALL)

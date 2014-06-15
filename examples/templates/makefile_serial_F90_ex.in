@@ -37,12 +37,13 @@ libdir       = @libdir@
 
 F90         = @F90@
 F90FLAGS    = @F90FLAGS@
-F90_LNKR    = @F90_LNKR@
 F90_LDFLAGS = @F90_LDFLAGS@
 F90_LIBS    = @F90_LIBS@
 
 LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_fnvecserial -lsundials_nvecserial ${LIBS}
 LIBRARIES_BL = @BLAS_LAPACK_LIBS@
+LIBRARIES_SLUMT = @SUPERLUMT_LIBS@
+LIBRARIES_KLU = @KLU_LIBRARY@ @AMD_LIBRARY@ @COLAMD_LIBRARY@ @BTF_LIBRARY@
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 
@@ -59,8 +60,8 @@ OBJECTS = ${EXAMPLES:=.o}
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${F90_LNKR} -o $${i} $${i}.o ${F90_LDFLAGS} ${F90_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL}" ; \
-	  ${F90_LNKR} -o $${i} $${i}.o ${F90_LDFLAGS} ${F90_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ; \
+	  echo "${F90} -o $${i} $${i}.o ${F90_LDFLAGS} ${F90_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU}" ; \
+	  ${F90} -o $${i} $${i}.o ${F90_LDFLAGS} ${F90_LIBS} -L${libdir} ${LIBRARIES} ${LIBRARIES_BL} ${LIBRARIES_SLUMT} ${LIBRARIES_KLU} ; \
 	done
 
 clean:
