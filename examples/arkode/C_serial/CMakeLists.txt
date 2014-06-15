@@ -35,6 +35,12 @@ SET(ARKODE_examples_KLU
   ark_brusselator1D_klu
   )
 
+# Add variable ARKODE_examples_SUPERLUMT with the names of the serial ARKODE examples
+# that use SUPERLUMT
+
+SET(ARKODE_examples_SUPERLUMT
+  )
+
 # Add variable ARKODE_extras with the names of auxiliary files to install
 
 SET(ARKODE_extras
@@ -125,11 +131,26 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "ARKODE")
   SET(SOLVER_LIB "sundials_arkode")
   LIST2STRING(ARKODE_examples EXAMPLES)
+
   IF(LAPACK_FOUND)
     LIST2STRING(ARKODE_examples_BL EXAMPLES_BL)
   ELSE(LAPACK_FOUND)
     SET(EXAMPLES_BL "")
   ENDIF(LAPACK_FOUND)
+
+  IF(KLU_FOUND)
+    LIST(APPEND EXAMPLES " ")
+    LIST(APPEND EXAMPLES ${ARKODE_examples_KLU})
+  ENDIF(KLU_FOUND)
+
+  IF(SUPERLUMT_FOUND)
+    LIST(APPEND EXAMPLES " ")
+    LIST(APPEND EXAMPLES ${ARKODE_examples_SUPERLUMT})
+  ENDIF(SUPERLUMT_FOUND)
+
+  STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
+  SET(EXAMPLES ${TMP_STR})
+
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

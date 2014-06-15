@@ -180,6 +180,19 @@ IF(EXAMPLES_INSTALL)
     SET(EXAMPLES_BL "")
   ENDIF(LAPACK_FOUND)
 
+  IF(KLU_FOUND)
+    LIST(APPEND EXAMPLES " ")
+    LIST(APPEND EXAMPLES ${CVODES_examples_KLU})
+  ENDIF(KLU_FOUND)
+
+  IF(SUPERLUMT_FOUND)
+    LIST(APPEND EXAMPLES " ")
+    LIST(APPEND EXAMPLES ${CVODES_examples_SUPERLUMT})
+  ENDIF(SUPERLUMT_FOUND)
+
+  STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
+  SET(EXAMPLES ${TMP_STR})
+
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
   # be used as a template for the user's own programs.

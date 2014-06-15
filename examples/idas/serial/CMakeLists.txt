@@ -168,18 +168,18 @@ IF(EXAMPLES_INSTALL)
     SET(EXAMPLES_BL "")
   ENDIF(LAPACK_FOUND)
 
-  # SGS TODO what are these used for?  Don't seem to be reference anywhere
+  IF(KLU_FOUND)
+    LIST(APPEND EXAMPLES " ")
+    LIST(APPEND EXAMPLES ${IDAS_examples_KLU})
+  ENDIF(KLU_FOUND)
+
   IF(SUPERLUMT_FOUND)
-    LIST2STRING(IDAS_examples_SUPERLUMT EXAMPLES_SUPERLUMT)
-  ELSE(SUPERLUMT_FOUND)
-    SET(EXAMPLES_SUPERLUMT "")
+    LIST(APPEND EXAMPLES " ")
+    LIST(APPEND EXAMPLES ${IDAS_examples_SUPERLUMT})
   ENDIF(SUPERLUMT_FOUND)
 
-  IF(KLU_FOUND)
-    LIST2STRING(IDAS_examples_KLU EXAMPLES_KLU)
-  ELSE(KLU_FOUND)
-    SET(EXAMPLES_KLU "")
-  ENDIF(KLU_FOUND)
+  STRING (REPLACE ";" " " TMP_STR ${EXAMPLES})
+  SET(EXAMPLES ${TMP_STR})
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 

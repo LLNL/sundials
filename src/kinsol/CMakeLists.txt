@@ -78,11 +78,11 @@ SET(kinsol_HEADERS
   )
 
 IF(KLU_FOUND)
-    LIST(APPEND kinsol_HEADERS kinsol_klu.h)
+    LIST(APPEND kinsol_HEADERS kinsol_klu.h kinsol_sparse.h)
 ENDIF()
 
 IF(SUPERLUMT_FOUND)
-    LIST(APPEND kinsol_HEADERS kinsol_superlumt.h)
+    LIST(APPEND kinsol_HEADERS kinsol_superlumt.h kinsol_sparse.h)
 ENDIF()
 
 # Add prefix with complete path to the KINSOL header files

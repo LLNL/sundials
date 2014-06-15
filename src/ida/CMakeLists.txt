@@ -74,11 +74,11 @@ SET(ida_HEADERS
   )
 
 IF(KLU_FOUND)
-    LIST(APPEND ida_HEADERS ida_klu.h)
+    LIST(APPEND ida_HEADERS ida_klu.h ida_sparse.h)
 ENDIF()
 
 IF(SUPERLUMT_FOUND)
-    LIST(APPEND ida_HEADERS ida_superlumt.h)
+    LIST(APPEND ida_HEADERS ida_superlumt.h ida_sparse.h)
 ENDIF()
 
 # Add prefix with complete path to the IDA header files
