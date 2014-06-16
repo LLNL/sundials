@@ -268,7 +268,7 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 			     N_Vector rrp, N_Vector tmp1, N_Vector tmp2,
 			     N_Vector tmp3)
 {
-  int retval, last_flag, info;
+  int retval, info;
   int nprocs, panel_size, relax, permc_spec, lwork;
   int *perm_r, *perm_c;
   long int retfac;
@@ -292,8 +292,6 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   cj = IDA_mem->ida_cj;
 
   slumt_data = (SLUMTData) idasls_mem->s_solver_data;
-
-  last_flag = idasls_mem->s_last_flag;
   jaceval = idasls_mem->s_jaceval;
   jacdata = idasls_mem->s_jacdata;
   JacMat = idasls_mem->s_JacMat;
@@ -335,11 +333,11 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   if (retval < 0) {
     IDAProcessError(IDA_mem, IDASLS_JACFUNC_UNRECVR, "IDASSLS", 
 		    "IDASuperLUMTSetup", MSGSP_JACFUNC_FAILED);
-    last_flag = IDASLS_JACFUNC_UNRECVR;
+    idasls_mem->s_last_flag = IDASLS_JACFUNC_UNRECVR;
     return(IDASLS_JACFUNC_UNRECVR);
   }
   if (retval > 0) {
-    last_flag = IDASLS_JACFUNC_RECVR;
+    idasls_mem->s_last_flag = IDASLS_JACFUNC_RECVR;
     return(+1);
   }
 
@@ -379,10 +377,10 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   pdgstrf(superlumt_options, AC, perm_r, L, U, Gstat, &info);
     
   if (info != 0) {
-    last_flag = info;
+    idasls_mem->s_last_flag = info;
     return(+1);
   }
-  last_flag = IDASLS_SUCCESS;
+  idasls_mem->s_last_flag = IDASLS_SUCCESS;
 
   return(0);
 }
@@ -396,7 +394,7 @@ static int IDASuperLUMTSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 static int IDASuperLUMTSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 			     N_Vector ycur, N_Vector ypcur, N_Vector rrcur)
 {
-  int info, trans, last_flag;
+  int info, trans;
   int *perm_r, *perm_c;
   double cjratio;
   IDASlsMem idasls_mem;
@@ -410,8 +408,6 @@ static int IDASuperLUMTSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   cjratio = IDA_mem->ida_cjratio;
 
   slumt_data = (SLUMTData) idasls_mem->s_solver_data;
-  last_flag = idasls_mem->s_last_flag;
-
   L = slumt_data->s_L;
   U = slumt_data->s_U;
   perm_r = slumt_data->perm_r;
@@ -432,7 +428,7 @@ static int IDASuperLUMTSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
   Bstore->nzval = NULL;
 
-  last_flag = IDASLS_SUCCESS;
+  idasls_mem->s_last_flag = IDASLS_SUCCESS;
   return(IDASLS_SUCCESS);
 }
 

@@ -240,7 +240,7 @@ static int kinSuperLUMTInit(KINMem kin_mem)
 
 static int kinSuperLUMTSetup(KINMem kin_mem)
 {
-  int retval, last_flag, info;
+  int retval, info;
   int nprocs, panel_size, relax, permc_spec, lwork;
   int *perm_r, *perm_c;
   double diag_pivot_thresh, drop_tol;
@@ -261,7 +261,6 @@ static int kinSuperLUMTSetup(KINMem kin_mem)
 
   slumt_data = (SLUMTData) kinsls_mem->s_solver_data;
 
-  last_flag = kinsls_mem->s_last_flag;
   jaceval = kinsls_mem->s_jaceval;
   jacdata = kinsls_mem->s_jacdata;
   JacMat = kinsls_mem->s_JacMat;
@@ -345,7 +344,7 @@ static int kinSuperLUMTSetup(KINMem kin_mem)
   pdgstrf(superlumt_options, AC, perm_r, L, U, Gstat, &info);
     
   if (info != 0) {
-    last_flag = info;
+    kinsls_mem->s_last_flag = info;
     return(+1);
   }
 
@@ -363,7 +362,7 @@ static int kinSuperLUMTSetup(KINMem kin_mem)
 static int kinSuperLUMTSolve(KINMem kin_mem, N_Vector x, N_Vector b,
 			     realtype *sJpnorm, realtype *sFdotJp)		       
 {
-  int info, trans, last_flag;
+  int info, trans;
   int *perm_r, *perm_c;
   KINSlsMem kinsls_mem;
   SuperMatrix *L, *U, *B;
@@ -373,8 +372,6 @@ static int kinSuperLUMTSolve(KINMem kin_mem, N_Vector x, N_Vector b,
   realtype *xd;
   
   kinsls_mem = (KINSlsMem) kin_mem->kin_lmem;
-  last_flag = kinsls_mem->s_last_flag;
-
   slumt_data = (SLUMTData) kinsls_mem->s_solver_data;
 
   L = slumt_data->s_L;
@@ -407,7 +404,7 @@ static int kinSuperLUMTSolve(KINMem kin_mem, N_Vector x, N_Vector b,
   N_VProd(b, kin_mem->kin_fscale, b);
   *sFdotJp = N_VDotProd(kin_mem->kin_fval, b);
 
-  last_flag = KINSLS_SUCCESS;
+  kinsls_mem->s_last_flag = KINSLS_SUCCESS;
   return(KINSLS_SUCCESS);
 }
 

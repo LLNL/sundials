@@ -210,7 +210,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 		      N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   booleantype jbad, jok;
-  int retval, last_flag;
+  int retval;
   long int nst, nstlj;
   realtype tn, gamma, gammap, dgamma;
   CVSlsMem cvsls_mem;
@@ -227,7 +227,6 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   klu_data = (KLUData) cvsls_mem->s_solver_data;
 
-  last_flag = cvsls_mem->s_last_flag;
   jaceval = cvsls_mem->s_jaceval;
   jacdata = cvsls_mem->s_jacdata;
   JacMat = cvsls_mem->s_JacMat;
@@ -256,17 +255,17 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   } else {
     /* If jok = FALSE, call jac routine for new J value */
     cvsls_mem->s_nje++;
-    nstlj = nst;
+    cvsls_mem->s_nstlj = nst;
     *jcurPtr = TRUE;
     SlsSetToZero(JacMat);
     retval = jaceval(tn, ypred, fpred, JacMat, jacdata, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVSLS_JACFUNC_UNRECVR, "CVSLS", "cvKLUSetup", MSGSP_JACFUNC_FAILED);
-      last_flag = CVSLS_JACFUNC_UNRECVR;
+      cvsls_mem->s_last_flag = CVSLS_JACFUNC_UNRECVR;
       return(-1);
     }
     if (retval > 0) {
-      last_flag = CVSLS_JACFUNC_RECVR;
+      cvsls_mem->s_last_flag = CVSLS_JACFUNC_RECVR;
       return(1);
     }
 
@@ -309,7 +308,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     return(CVSLS_PACKAGE_FAIL);
   }
 
-  last_flag = CVSLS_SUCCESS;
+  cvsls_mem->s_last_flag = CVSLS_SUCCESS;
 
   return(0);
 }
@@ -323,7 +322,7 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 		      N_Vector ycur, N_Vector fcur)
 {
-  int last_flag, flag, lmm;
+  int flag, lmm;
   realtype gamrat;
   CVSlsMem cvsls_mem;
   KLUData klu_data;
@@ -337,7 +336,6 @@ static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   JacMat = cvsls_mem->s_JacMat;
 
   klu_data = (KLUData) cvsls_mem->s_solver_data;
-  last_flag = cvsls_mem->s_last_flag;
 
   bd = N_VGetArrayPointer(b);
 
@@ -355,7 +353,7 @@ static int cvKLUSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     N_VScale(TWO/(ONE + gamrat), b, b);
   }
 
-  last_flag = CVSLS_SUCCESS;
+  cvsls_mem->s_last_flag = CVSLS_SUCCESS;
   return(CVSLS_SUCCESS);
 }
 

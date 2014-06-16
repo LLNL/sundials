@@ -332,17 +332,17 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   } else {
     /* If jok = FALSE, call jac routine for new J value */
     cvsls_mem->s_nje++;
-    nstlj = nst;
+    cvsls_mem->s_nstlj = nst;
     *jcurPtr = TRUE;
     SlsSetToZero(JacMat);
     retval = jaceval(tn, ypred, fpred, JacMat, jacdata, vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVSLS_JACFUNC_UNRECVR, "CVSLS", "cvSuperLUMTSetup", MSGSP_JACFUNC_FAILED);
-      last_flag = CVSLS_JACFUNC_UNRECVR;
+      cvsls_mem->s_last_flag = CVSLS_JACFUNC_UNRECVR;
       return(-1);
     }
     if (retval > 0) {
-      last_flag = CVSLS_JACFUNC_RECVR;
+      cvsls_mem->s_last_flag = CVSLS_JACFUNC_RECVR;
       return(1);
     }
 
@@ -396,11 +396,11 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   pdgstrf(superlumt_options, AC, perm_r, L, U, Gstat, &info);
     
   if (info != 0) {
-    last_flag = info;
+    cvsls_mem->s_last_flag = info;
     return(+1);
   }
 
-  last_flag = CVSLS_SUCCESS;
+  cvsls_mem->s_last_flag = CVSLS_SUCCESS;
 
   return(0);
 }
@@ -414,7 +414,7 @@ static int cvSuperLUMTSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 			    N_Vector ycur, N_Vector fcur)
 {
-  int info, trans, last_flag, flag, lmm;
+  int info, trans, flag, lmm;
   int *perm_r, *perm_c;
   realtype gamrat;
   CVSlsMem cvsls_mem;
@@ -430,7 +430,6 @@ static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   cvsls_mem = (CVSlsMem) cv_mem->cv_lmem;
 
   slumt_data = (SLUMTData) cvsls_mem->s_solver_data;
-  last_flag = cvsls_mem->s_last_flag;
 
   L = slumt_data->s_L;
   U = slumt_data->s_U;
@@ -454,7 +453,7 @@ static int cvSuperLUMTSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   Bstore->nzval = NULL;
 
-  last_flag = CVSLS_SUCCESS;
+  cvsls_mem->s_last_flag = CVSLS_SUCCESS;
   return(CVSLS_SUCCESS);
 }
 
