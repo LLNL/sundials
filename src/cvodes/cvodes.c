@@ -5089,7 +5089,7 @@ static int cvStep(CVodeMem cv_mem)
   /* Initialize local counters for convergence and error test failures */
 
   ncf  = nef  = 0;
-  nefQ = 0;
+  nefQ = nefQS = 0;
   ncfS = nefS = 0;
   if (do_sensi_stg1) {
     for (is=0; is<Ns; is++) ncfS1[is] = 0;
