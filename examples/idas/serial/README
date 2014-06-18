@@ -8,7 +8,9 @@ List of serial IDAS examples
   idasHessian_ASA_FSA   : computation of Hessian for Robertson kinetics system
   idasKrylovDemo_ls     : demonstration program with 3 Krylov solvers
   idasRoberts_ASAi_dns  : adjoint sensitivity for Robertson kinetics system
-  idasRoberts_dns       : 3-species Robertson kinetics system  with a user-supplied Jacobian
+  idasRoberts_dns       : 3-species Robertson kinetics system with user Jacobian
+  idasRoberts_klu       : Robertson system with KLU sparse linear solver
+  idasRoberts_sps       : Robertson system with SuperLUMT sparse linear solver
   idasRoberts_FSA_dns   : forward sensitivity for Robertson kinetics system
   idasSlCrank_dns       : slider-crank simulation
   idasSlCrank_FSA_dns   : forward sensitivity for slider-crank

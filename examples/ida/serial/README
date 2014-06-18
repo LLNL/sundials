@@ -5,6 +5,8 @@ List of serial IDA examples
   idaHeat2D_kry    : 2-D heat equation, diagonal preconditioner
   idaKrylovDemo_ls : demonstration program with 3 Krylov solvers
   idaRoberts_dns   : 3-species Robertson kinetics system
+  idaRoberts_klu   : Robertson system with KLU sparse linear solver
+  idaRoberts_sps   : Robertson system with SuperLUMT sparse linear solver
   idaSlCrank_dns   : slider-crank example (stabilized index-2 DAE)
 
 Sample results:

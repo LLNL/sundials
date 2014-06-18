@@ -12,6 +12,8 @@ List of serial CVODES examples
   cvsRoberts_dns        : dense example
   cvsRoberts_dnsL       : dense example (Lapack)
   cvsRoberts_dns_uw     : dense example with user ewt function
+  cvsRoberts_klu        : dense example with KLU sparse linear solver
+  cvsRoberts_sps        : dense example with SuperLUMT sparse linear solver
 
 (2) Forward sensitivity
 
