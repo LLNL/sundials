@@ -1,6 +1,8 @@
 These generic linear solver modules in {\sundials} are organized in
-two families of solvers, the {\em dls} family, which includes direct
-linear solvers appropriate for sequential computations; and the {\em spils}
+three families of solvers, the {\em dls} family, which includes direct
+linear solvers appropriate for sequential computations; the {\em sls}
+family, which includes direct linear solvers for sparse matrices in
+serial or shared-memory computations; and the {\em spils}
 family, which includes scaled preconditioned iterative (Krylov) linear solvers.
 The solvers in each family share common data structures and functions.
 
@@ -13,6 +15,14 @@ The {\em dls} family contains the following two generic linear solvers:
 \end{itemize}
 Note that this family also includes the Blas/Lapack linear solvers (dense and band) 
 available to the {\sundials} solvers, but these are not discussed here.
+
+The {\em sls} family contains the following two sparse direct linear solvers:
+\begin{itemize}
+\item The {\klu} package, a linear solver for compressed-sparse-column
+  matrices, \cite{KLU_site}.
+\item The {\superlumt} package, a threaded linear solver for
+  compressed-sparse-column matrices, \cite{SuperLUMT_site}.
+\end{itemize}
 
 The {\em spils} family contains the following three generic linear solvers:
 \begin{itemize}
@@ -30,7 +40,8 @@ For the sake of space, the functions for the \id{dense} and \id{band} modules
 that work with a matrix type and the functions in the {\spgmr}, {\spbcg}, and {\sptfqmr}
 modules are only summarized briefly, since they are less likely to be of direct use
 in connection with a {\sundials} solver.  However, the functions for dense matrices 
-treated as simple arrays are fully described, because we expect that they will be 
+treated as simple arrays and sparse matrices are fully described,
+because we expect that they will be 
 useful in the implementation of preconditioners used with the combination of one of
 the {\sundials} solvers and one of the {\em spils} linear solvers.
 
@@ -490,6 +501,216 @@ The following functions for small band matrices are available in the
 
 \end{itemize}
 \index{BAND@{\band} generic linear solver!functions!small matrix|)}
+
+
+
+
+
+
+
+% ====================================================================================
+\section{The SLS modules: KLU and SUPERLUMT}\label{s:sls}
+% ====================================================================================
+
+\index{generic linear solvers!SLS@{\sls}}
+\index{generic linear solvers!KLU@{\klu}}
+\index{generic linear solvers!SUPERLUMT@{\superlumt}}
+The files comprising the {\sls} matrix module, used in the {\klu} and
+{\superlumt} linear solver packages, and their locations
+in the {\sundials} {\em srcdir}, are as follows:
+\begin{itemize}
+\item header files (located in {\em srcdir}\id{/include/sundials})\\
+  \id{sundials\_sparse.h} \id{sundials\_klu\_impl.h} \\
+  \id{sundials\_superlumt\_impl.h} \id{sundials\_types.h} \\
+  \id{sundials\_math.h}  \id{sundials\_config.h}
+\item source files (located in {\em srcdir}\id{/src/sundials})\\
+  \id{sundials\_sparse.c} \id{sundials\_math.c}
+\end{itemize}
+%%
+Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
+are relevant to the {\sls} package by itself (see \S\ref{ss:no_config} for details):
+\begin{itemize}
+\item (required) definition of the precision of the {\sundials} type \id{realtype}. 
+  One of the following lines must be present:\\
+  \id{\#define SUNDIALS\_DOUBLE\_PRECISION 1}\\
+  \id{\#define SUNDIALS\_SINGLE\_PRECISION 1}\\
+  \id{\#define SUNDIALS\_EXTENDED\_PRECISION 1}
+\item (optional) use of generic math functions:
+  \id{\#define SUNDIALS\_USE\_GENERIC\_MATH 1}
+\end{itemize}
+The \id{sundials\_types.h} header file defines the {\sundials}
+\id{realtype} and \id{booleantype} types and the macro \id{RCONST}, while the 
+\id{sundials\_math.h} header file is needed for the \id{MIN}, \id{MAX}, and 
+\id{ABS} macros and \id{RAbs} and \id{RSqrt} functions.
+
+% ------------------------------------------------------------------------------
+\subsection{Type SlsMat}
+% ------------------------------------------------------------------------------
+%%
+\index{KLU@{\klu} sparse linear solver!type \id{SlsMat}|(}
+\index{SUPERLUMT@{\superlumt} sparse linear solver!type \id{SlsMat}|(}
+The type \ID{SlsMat}, defined in \id{sundials\_sparse.h} is a pointer to a 
+structure defining a generic compressed-sparse-column matrix, and is
+used with all linear solvers in the {\em sls} family:
+\begin{verbatim}
+typedef struct _SlsMat {
+  int M;
+  int N;
+  int NNZ;
+  realtype *data;
+  int *rowvals;
+  int *colptrs;
+} *SlsMat;
+\end{verbatim}
+%%
+The fields of this structure are as follows (note that a sparse matrix
+of type \id{SlsMat} need not be square): 
+\begin{description}
+  \item[M]  - number of rows
+  \item[N]  - number of columns
+  \item[NNZ]  - maximum number of nonzero entries in the matrix
+    (allocated length of \id{data} and \id{rowvals} arrays)
+  \item[data]  - pointer to a contiguous block of \id{realtype}
+    variables (of length \id{NNZ}), containing the values of the
+    nonzero entries in the matrix
+  \item[rowvals] - pointer to a contiguous block of \id{int} variables
+    (of length \id{NNZ}), containing the row indices of each nonzero
+    entry held in \id{data}
+  \item[colptrs]  - pointer to a contiguous block of \id{int}
+    variables (of length \id{N+1}). Each entry provides the index of
+    the first column entry into the {\id data} and {\id rowvals}
+    arrays, e.g. if {\id colptr[3]=7}, then the first nonzero entry in
+    the fourth column of the matrix is located in {\id data[7]}, and
+    is located in row {\id rowvals[7]} of the matrix.  The last entry
+    points one past the end of the active data in the {\id data} and
+    {\id rowvals} arrays.
+\end{description}
+%%
+%%
+%%
+% \begin{figure}
+% \centerline{\psfig{figure=cscmat.eps,width=4.5 in}}
+% \caption[Diagram of the storage for a compressed-sparse-column matrix of type \id{SlsMat}]
+%   {Diagram of the storage for a compressed-sparse-column matrix of type \id{SlsMat}. Here \id{A} is an
+%   $M \times N$ band matrix of type {\id SlsMat} with a maximum of {\id NNZ} 
+%   nonzero entries.  The row indices and column pointer indices are
+%   numbered from $0$ to $M-1$ and $0$ to $N-1$, respectively, 
+%   and the ($i,j$)-th element of \id{A} is denoted \id{A(i,j)}. Here,
+%   although {\id NNZ} values are allocated, only {\id nnz} are actually
+%   filled in; the greyed-out portions of {\id data} and {\id rowvals}
+%   indicate extra allocated space.}\label{f:cscmat}
+% \end{figure}
+%%
+%%
+
+% ------------------------------------------------------------------------------
+\subsection{Functions in the SLS module}\label{ss:sls_functions}
+% ------------------------------------------------------------------------------
+
+The {\sls} module defines functions that act on sparse matrices of
+type \id{SlsMat}.  For full details, see the header file \id{sundials\_sparse.h}.
+%
+\index{SLS@{\sls} sparse linear solver!functions!small matrix|(}
+\begin{itemize}
+
+\item \ID{NewSparseMat}
+  \par \id{NewSparseMat(M, N, NNZ)} allocates storage for an \id{M} by \id{N}
+  sparse matrix, with storage for up to \id{NNZ} nonzero entries.
+
+\item \ID{SlsConvertDls}
+  \par \id{SlsConvertDls(A)} converts a dense or band matrix \id{A} of type
+  \id{DlsMat} into a new sparse matrix of type \id{SlsMat} by retaining
+  only the nonzero values of the matrix \id{A}.
+
+\item \ID{DestroySparseMat}
+  \par \id{DestroySparseMat(A)} frees the memory for a sparse matrix
+  \id{A} allocated by either \id{NewSparseMat} or \id{SlsConvertDls}.
+
+\item \ID{}
+  \par \id{SlsSetToZero(A)} zeros out the \id{SlsMat} matrix \id{A}.
+  The storage for \id{A} is left unchanged.
+
+\item \ID{CopySparseMat}
+  \par \id{CopySparseMat(A, B)} copies the \id{SlsMat} \id{A} into the
+  \id{SlsMat} \id{B}.  It is assumed that the matrices have the same
+  row/column dimensions.  If \id{B} has insufficient storage to hold
+  all the nonzero entries of \id{A}, the data and row index arrays in
+  \id{B} are reallocated to match those in \id{A}.
+
+\item \ID{ScaleSparseMat}
+  \par \id{ScaleSparseMat(c, A)} scales every element in the
+  \id{SlsMat} \id{A} by the scalar \id{c}.
+
+\item \ID{AddIdentitySparseMat}
+  \par \id{AddIdentitySparseMat(A)} increments the \id{SlsMat} \id{A}
+  by the identity matrix.  If \id{A} is not square, only the existing
+  diagonal values are incremented.  Resizes the \id{data} and
+  \id{rowvals} arrays of \id{A} upon completion to exactly match the
+  nonzero storage for the result.
+
+\item \ID{SlsAddMat}
+  \par \id{SlsAddMat(A, B)} adds two \id{SlsMat} matrices \id{A} and
+  \id{B}, placing the result back in \id{A}.  Resizes the \id{data}
+  and \id{rowvals} arrays of \id{A} upon completion to exactly match
+  the nonzero storage for the result.  Upon successful completion, the
+  return value is zero; otherwise 1 is returned.
+
+\item \ID{ReallocSparseMat}
+  \par \id{ReallocSparseMat(A)} eliminates unused storage in the
+  \id{SlsMat} \id{A} by resizing the internal \id{data} and
+  \id{rowvals} arrays to contain exactly \id{colptrs[N]} values.
+
+\item \ID{SlsMatvec}
+  \par \id{SlsMatvec(A, x, y)} computes the sparse matrix-vector
+  product, $y=Ax$.  If the \id{SlsMat} \id{A} 
+   is a sparse matrix of dimension $M\times N$, then it is assumed
+   that \id{x} is a \id{realtype} array of  length $N$, and \id{y} is a
+   \id{realtype} array of length $M$. Upon successful completion, the
+   return value is zero; otherwise 1 is returned.
+
+\item \ID{PrintSparseMat}
+  \par \id{PrintSparseMat(A)} Prints the \id{SlsMat} matrix \id{A} to
+  standard output.
+
+\end{itemize}
+\index{SLS@{\sls} sparse linear solver!functions!small matrix|)}
+
+
+
+% ------------------------------------------------------------------------------
+\subsection{The KLU solver}\label{ss:klu}
+% ------------------------------------------------------------------------------
+
+{\klu} is a sparse matrix factorization and solver library written by Tim
+Davis \cite{KLU_site}.  In order to use {\klu}-enabled {\sundials} solvers, it is
+assumed that {\klu} has been installed on the system prior to
+installation of {\sundials}, and that {\sundials} has been configured
+appropriately to link with {\klu} (see Section \ref{c:install} for details).
+
+Designed for serial calculations only, {\klu} is supported for
+calculations employing {\sundials}' serial or shared-memory parallel
+{\nvector} modules (see Sections \ref{ss:nvec_ser}, \ref{ss:nvec_openmp}
+and \ref{ss:nvec_pthreads} for details).
+
+
+
+% ------------------------------------------------------------------------------
+\subsection{The SUPERLUMT solver}\label{ss:superlumt}
+% ------------------------------------------------------------------------------
+
+{\superlumt} is a threaded sparse matrix factorization and solver
+library written by X. Sherry Li \cite{SuperLUMT_site}.  In order to use 
+{\superlumt}-enabled {\sundials} solvers, it is assumed that {\superlumt}
+has been installed on the system prior to installation of {\sundials}, and
+that {\sundials} has been configured appropriately to link with
+{\superlumt} (see Section \ref{c:install} for details).
+
+Designed for serial and threaded calculations only, {\superlumt} is
+supported for calculations employing {\sundials}' serial or shared-memory
+parallel {\nvector} modules (see Sections \ref{ss:nvec_ser}, \ref{ss:nvec_openmp}
+and \ref{ss:nvec_pthreads} for details).
+
+
 
 
 
