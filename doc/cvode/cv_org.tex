@@ -42,12 +42,18 @@ is then invoked as needed during the integration.
 At present, the package includes the following eight {\cvode} linear algebra
 modules, organized into two families. The {\em direct} familiy of linear
 solvers provides solvers for the direct solution of linear systems with
-dense or banded matrices and includes:
+dense, banded or sparse matrices and includes:
 \begin{itemize} 
 \item {\cvdense}: LU factorization and backsolving with dense matrices
   (using either an internal implementation or Blas/Lapack); 
 \item {\cvband}: LU factorization and backsolving with banded matrices
   (using either an internal implementation or Blas/Lapack); 
+\item {\cvklu}: LU factorization and backsolving with
+  compressed-sparse-column (CSC) matrices using the KLU linear solver
+  library \cite{KLU_site};
+\item {\cvsuperlumt}: LU factorization and backsolving with
+  compressed-sparse-column (CSC) matrices using the threaded
+  SuperLU\_MT linear solver library \cite{SuperLUMT_site}.
 \end{itemize}
 The {\em spils} family of linear solvers provides scaled preconditioned
 iterative linear solvers and includes:
@@ -68,7 +74,11 @@ future as new algorithms are developed.
 In the case of the direct methods {\cvdense} and {\cvband}
 the package includes an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly.  In the case of the Krylov iterative
+(or an approximation to it) directly.  When using the sparse direct
+linear solvers {\cvklu} and {\cvsuperlumt} the user must supply a
+routine for the Jacobian (or an approximation to it) in CSC format,
+since standard difference quotient approximations do not leverage the
+inherent sparsity of the problem. In the case of the Krylov iterative
 methods {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}, the package includes an algorithm
 for the approximation by difference quotients of the product between the Jacobian
 matrix and a vector of appropriate length. Again, the user has the option of
@@ -96,7 +106,8 @@ of the linear system method.
 
 These modules are also decomposed in another way.
 \index{generic linear solvers!use in {\cvode}|(} 
-With the exception of {\cvdiag} and the modules interfacing to Lapack linear solvers,
+With the exception of {\cvdiag} and the modules interfacing to
+external linear solvers (Lapack, KLU and SuperLU\_MT),
 each of the modules {\cvdense}, {\cvband}, {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}
 is a set of  interface routines built on top of a generic solver module, 
 named {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.  
@@ -111,9 +122,9 @@ revise the {\cvode} package elsewhere.
 
 {\cvode} also provides two preconditioner modules, for use with any of
 the Krylov iterative linear solvers. The first one, {\cvbandpre},
-is intended to be used with {\nvecs} and provides a banded
-difference-quotient Jacobian-based preconditioner, with corresponding
-setup and solve routines.
+is intended to be used with {\nvecs}, {\nvecopenmp} or {\nvecpthreads}
+and provides a banded difference-quotient Jacobian-based
+preconditioner, with corresponding setup and solve routines.
 The second preconditioner module, {\cvbbdpre}, works in conjunction
 with {\nvecp} and generates a preconditioner that is a block-diagonal
 matrix with each block being a band matrix.
