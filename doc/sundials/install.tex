@@ -941,9 +941,10 @@ Although all installed libraries reside under {\em libdir}, the public header fi
 are further organized into subdirectories under {\em includedir}.
 
 The installed libraries and exported header files are listed for
-reference in Table~\ref{t:sundials_files}.  The file extension .{\em lib}
+reference in Tables \ref{t:sundials_files} and \ref{t:sundials_files2}.
+The file extension .{\em lib}
 is typically \id{.so} for shared libraries and \id{.a} for static libraries.
-Note that, in Table~\ref{t:sundials_files}, names are relative to {\em libdir}
+Note that, in the Tables, names are relative to {\em libdir}
 for libraries and to {\em includedir} for header files.
 
 A typical user program need not explicitly include any of the shared
@@ -1023,6 +1024,16 @@ could be used in building a preconditioner).
           &              & arkode/arkode\_sptfqmr.h            & arkode/arkode\_spbcgs.h \\
           &              & arkode/arkode\_pcg.h                & arkode/arkode\_spfgmr.h \\
           &              & arkode/arkode\_bandpre.h            & arkode/arkode\_bbdpre.h \\
+\hline %% --------------------------------------------------
+\end{tabular}
+\end{table}
+
+
+\begin{table}
+\centering
+\caption{{\sundials} libraries and header files (cont.)}\label{t:sundials_files2}
+\medskip
+\begin{tabular}{|l|l|ll|} 
 \hline %% --------------------------------------------------
 {\ida}    & Libraries    & libsundials\_ida.{\em lib}        & libsundials\_fida.a \\
 \cline{2-4}
