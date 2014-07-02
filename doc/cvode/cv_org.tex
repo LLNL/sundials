@@ -40,9 +40,9 @@ is then invoked as needed during the integration.
 
 \index{CVODE@{\cvode} linear solvers!list of|(} 
 At present, the package includes the following eight {\cvode} linear algebra
-modules, organized into two families. The {\em direct} familiy of linear
+modules, organized into two families. The {\em direct} family of linear
 solvers provides solvers for the direct solution of linear systems with
-dense, banded or sparse matrices and includes:
+dense, banded, or sparse matrices, and includes:
 \begin{itemize} 
 \item {\cvdense}: LU factorization and backsolving with dense matrices
   (using either an internal implementation or Blas/Lapack); 
@@ -106,19 +106,16 @@ of the linear system method.
 
 These modules are also decomposed in another way.
 \index{generic linear solvers!use in {\cvode}|(} 
-With the exception of {\cvdiag} and the modules interfacing to
-external linear solvers (Lapack, KLU and SuperLU\_MT),
-each of the modules {\cvdense}, {\cvband}, {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}
-is a set of  interface routines built on top of a generic solver module, 
-named {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.  
-The interfaces deal with the use of these methods in the {\cvode} context, 
-whereas the generic solver is independent of the context.
-While the generic solvers here were generated with {\sundials} in mind, our
-intention is that they be usable in other applications as
-general-purpose solvers.  This separation also allows for any generic
-solver to be replaced by an improved version, with no necessity to
-revise the {\cvode} package elsewhere.
-\index{generic linear solvers!use in {\cvode}|)}
+With the exception of {\cvdiag}, each of the linear solver modules
+({\cvdense} etc.) consists of an interface built on top of a generic linear
+system solver ({\dense} etc.).  The interface deals with the use of the
+particular method in the {\cvode} context, whereas the generic solver is
+independent of the context.  While some of the generic linear system solvers
+({\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}) were written with
+{\sundials} in mind, they are intended to be usable anywhere as general-purpose
+solvers.  This separation also allows for any generic solver to be replaced by
+an improved version, with no necessity to revise the {\cvode} package elsewhere.
+\index{generic linear solvers!use in {\cvode}|)}.
 
 {\cvode} also provides two preconditioner modules, for use with any of
 the Krylov iterative linear solvers. The first one, {\cvbandpre},
