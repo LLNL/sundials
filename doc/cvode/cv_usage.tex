@@ -24,8 +24,8 @@ need to form the complete
 system Jacobian. The following {\cvode} modules can only be used with
 either {\nvecs}, {\nvecopenmp} or {\nvecpthreads}:
 {\cvdense}, {\cvband} (using either the internal or the Lapack implementation),
-{\cvsls} and {\cvbandpre}. Also, the preconditioner module {\cvbbdpre}
-can only be used with {\nvecp}. 
+{\cvklu}, {\cvsuperlumt} and {\cvbandpre}. Also, the preconditioner
+module {\cvbbdpre} can only be used with {\nvecp}. 
 
 {\cvode} uses various constants for both input and output.  These are
 defined as needed in this chapter, but for convenience are also listed

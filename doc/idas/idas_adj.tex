@@ -39,7 +39,9 @@ the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
 implementation used; where this is not the case, usage specifications are given for
 the two implementations provided with {\idas}: steps marked {\p} correspond to 
-{\nvecp}, while steps marked {\s} correspond to {\nvecs}.
+{\nvecp}, steps marked {\omp} correspond to {\nvecopenmp}, steps
++marked {\pt} correspond to {\nvecpthreads}, while steps marked {\s}
+correspond to {\nvecs}. 
 Steps that are unchanged from the skeleton program presented in
 \S\ref{s:forward_usage} are grayed out.
 
@@ -53,8 +55,9 @@ Steps that are unchanged from the skeleton program presented in
   The \id{idas.h} header file also defines additional types, constants, and
   function prototypes for the adjoint sensitivity module user-callable functions.
   In addition, the main program should include an {\nvector} 
-  implementation header file (\id{nvector\_serial.h} or \id{nvector\_parallel.h}
-  for the two implementations provided with {\idas}) and, if Newton iteration 
+  implementation header file (\id{nvector\_serial.h},
+  \id{nvector\_openmp.h}, \id{nvector\_pthreads.h}, or \id{nvector\_parallel.h}
+  for the implementations provided with {\idas}) and, if Newton iteration 
   was selected, the main header file of the desired linear solver module.
 
 \item
@@ -110,8 +113,9 @@ Steps that are unchanged from the skeleton program presented in
  \item \label{i:back_start}
    {\bf Set problem dimensions for the backward problem}
    
-   {\s} set \id{NB}, the number of variables in the backward problem \\
-   {\p} set \id{NB} and \id{NBlocal}
+   {\s, \omp, \pt} set \id{NB}, the number of variables in the backward problem \\
+   {\p} set \id{NB} and \id{NBlocal}\\
+   {\omp, \pt} set \id{num\_threads}
 
 \item
   {\bf Set final values for the backward problem}
@@ -166,7 +170,8 @@ Steps that are unchanged from the skeleton program presented in
   Initialize the linear solver module 
   for the backward problem by calling the appropriate wrapper
   function: \id{IDADenseB}, \id{IDABandB}, \id{IDALapackDenseB}, \id{IDALapackBandB},
-  \id{IDASpgmrB}, \id{IDASpbcgB}, or \id{IDASptfqmr} (see \S\ref{sss:lin_solv_b}). 
+  \id{IDAKLUB}, \id{IDASuperLUMTB}, \id{IDASpgmrB}, \id{IDASpbcgB}, or
+  \id{IDASptfqmr} (see \S\ref{sss:lin_solv_b}).  
   Note that it is not required to use the same linear solver module for both the forward 
   and the backward problems; for example, the forward problem could be solved
   with the {\idadense} linear solver and the backward problem with {\idaspgmr}.
@@ -797,6 +802,8 @@ second argument, \id{which}, the identifier of the backward problem.
   flag = IDABandB(ida_mem, which, nB, mupperB, mlowerB);
   flag = IDALapackDenseB(ida_mem, which, nB);
   flag = IDALapackBandB(ida_mem, which, nB, mupperB, mlowerB);
+  flag = IDAKLUB(ida_mem, which, nB, nnzB);
+  flag = IDASuperLUMTB(ida_mem, num_threads, which, mB, nB, nnzB);
   flag = IDASpgmrB(ida_mem, which, maxlB);
   flag = IDASpbcgB(ida_mem, which, maxlB);
   flag = IDASptfqmrB(ida_mem, which, maxlB);
@@ -805,10 +812,11 @@ second argument, \id{which}, the identifier of the backward problem.
 Their return value \id{flag} (of type \id{int}) can have any of the return values of their counterparts.
 %%
 If the \id{ida\_mem} argument was \id{NULL}, 
-\id{flag} will be \id{IDADLS\_MEM\_NULL} or \id{IDASPILS\_MEM\_NULL}. 
+\id{flag} will be \id{IDADLS\_MEM\_NULL}, \id{IDASLS\_MEM\_NULL} or
+\id{IDASPILS\_MEM\_NULL}. 
 %%
 Also, if \id{which} is not a valid identifier, the functions will return 
-\id{IDADLS\_ILL\_INPUT} or \id{IDASPILS\_ILL\_INPUT}.
+\id{IDADLS\_ILL\_INPUT}, \id{IDASLS\_ILL\_INPUT} or \id{IDASPILS\_ILL\_INPUT}.
 
 
 %%---------------------------------------------------------------------
@@ -1331,6 +1339,98 @@ problem through the following two functions:
 }
 \index{IDABAND@{\idaband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
+
+
+\subsubsection{Sparse linear solvers}
+\index{optional input!sparse linear solver|(}
+\index{IDAKLU@{\idaklu} linear solver!optional input|(}
+\index{IDASUPERLUMT@{\idasuperlumt} linear solver!optional input|(}
+Optional inputs for the {\idaklu} and {\idasuperlumt} linear solver
+modules can be set for the backward problem through the following two
+functions: 
+%%
+\index{Jacobian approximation function!sparse!user-supplied (backward)}
+\ucfunction{IDASlsSetSparseJacFnB}
+{
+  flag = IDASlsSetSparseJacFnB(ida\_mem, which, jacB);
+}
+{
+  The function \ID{IDASlsSetSparseJacFnB} specifies the sparse Jacobian
+  approximation function to be used for the backward problem.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory returned by \id{IDACreate}.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem.
+  \item[jacB] (\id{IDASlsSparseJacFnB})
+    user-defined sparse Jacobian approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASLS\_ILL\_INPUT]
+  \item[\Id{IDASLS\_SUCCESS}] 
+    \id{IDASlsSetSparseJacFnB} succeeded.
+  \item[\Id{IDASLS\_MEM\_NULL}]
+    The \id{ida\_mem} was \id{NULL}.
+  \item[\Id{IDASLS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDASLS\_LMEM\_NULL}]
+    The linear solver has not been initialized with a call to \id{IDAKLUB}
+    or \id{IDASuperLUMTB}.
+  \item[\Id{IDASLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{IDASlsSparseJacFnB} is described in \S\ref{ss:sparsejac_b}.
+}
+
+
+\index{Jacobian approximation function!sparse!user-supplied (backward)}
+\ucfunction{IDASlsSetSparseJacFnBS}
+{
+  flag = IDASlsSetSparseJacFnBS(ida\_mem, which, jacBS);
+}
+{
+  The function \ID{IDASlsSetSparseJacFnBS} specifies the sparse Jacobian
+  approximation function to be used for the backward problem, in the case
+  where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory returned by \id{IDACreate}.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem.
+  \item[jacBS] (\id{IDASlsSparseJacFnBS})
+    user-defined sparse Jacobian approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDASLS\_ILL\_INPUT]
+  \item[\Id{IDASLS\_SUCCESS}] 
+    \id{IDASlsSetSparseJacFnBS} succeeded.
+  \item[\Id{IDASLS\_MEM\_NULL}]
+    The \id{ida\_mem} was \id{NULL}.
+  \item[\Id{IDASLS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDASLS\_LMEM\_NULL}]
+    The linear solver has not been initialized with a call to \id{IDAKLUB}
+    or \id{IDASuperLUMTB}.
+  \item[\Id{IDASLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{IDASlsSparseJacFnBS} is described in \S\ref{ss:sparsejac_b}.
+}
+\index{IDASUPERLUMT@{\idasuperlumt} linear solver!optional input|)}
+\index{IDAKLU@{\idaklu} linear solver!optional input|)}
+\index{optional input!sparse linear solver|)}
 
 
 \subsubsection{SPILS linear solvers}
@@ -2540,6 +2640,181 @@ two types:
 
 
 %%-------------------------------------------------------------------------------------
+\subsection{Jacobian information for the backward problem 
+  (direct method with sparse Jacobian)}\label{ss:sparsejac_b}
+  
+If the direct linear solver with sparse treatment of the Jacobian is selected
+for the backward problem (i.e. \Id{IDAKLUB} or \Id{IDASuperLUMTB} is called
+in step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), the user must provide,
+through a call to \id{IDASlsSetSparseJacFnB} or \id{IDASlsSetSparseJacFnBS}
+(see \S\ref{ss:optional_input_b}), a function of one of the following two types:
+%%
+\index{Jacobian approximation function!sparse!user-supplied (backward)}
+\usfunction{IDASlsSparseJacFnB}
+{
+  typedef int (*IDASlsSparseJacFnB)(&realtype tt, realtype cjB,\\
+                               &N\_Vector yy, N\_Vector yp,\\
+                               &N\_Vector yyB, N\_Vector ypB,\\
+                               &N\_Vector rrB, SlsMat JacB,\\
+                               &void *user\_dataB, N\_Vector tmp1B,\\
+                               &N\_Vector tmp2B, N\_Vector tmp3B);
+}
+{
+  This function computes the sparse Jacobian of the backward problem
+  (or an approximation to it). 
+}
+{
+  \begin{args}[user\_dataB]
+  \item[tt]
+    is the current value of the independent variable.
+  \item[cjB]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
+  \item[yy]
+    is the current value of the forward solution vector.
+  \item[yp]
+    is the current value of the forward solution derivative vector.
+  \item[yyB]
+    is the current value of the backward dependent variable vector.
+  \item[ypB]
+    is the current value of the backward dependent derivative vector.
+  \item[rrB]
+    is the current value of the residual for the backward problem.
+  \item[JacB]
+    is the output approximate sparse Jacobian matrix.
+  \item[user\_dataB]
+    is a pointer to user data --- the parameter passed to \id{IDASetUserDataB}. 
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated  for variables of type \id{N\_Vector} which 
+    can be used by \id{IDASlsSparseJacFnB} as temporary storage or work space.    
+  \end{args}
+}
+{
+  An \id{IDASlsSparseJacFnB} should return 0 if successful, a positive
+  value if a recoverable error occurred (in which case {\idas} will
+  attempt to correct, while {\idaklu} or {\idasuperlumt} sets
+  \id{last\_flag} to \Id{IDASLS\_JACFUNC\_RECVR}), or a negative value
+  if it failed unrecoverably (in which case the integration is halted,
+  \id{IDASolveB} returns \Id{IDA\_LSETUP\_FAIL} and {\idaklu} or
+  {\idasuperlumt} sets \id{last\_flag} to \Id{IDASLS\_JACFUNC\_UNRECVR}).
+}
+{
+  A user-supplied sparse Jacobian function must load the
+  compressed-sparse-column matrix \id{JacB} with an approximation to
+  the Jacobian matrix at the point (\id{tt},\id{yy},\id{yyB}), where
+  \id{yy} is the solution of the original IVP at time \id{tt} and
+  \id{yyB} is the solution of the backward problem at the same time.
+  Storage for \id{JacB} already exists on entry to this function,
+  although the user should ensure that sufficient space is allocated
+  in \id{JacB} to hold the nonzero values to be set; if the existing
+  space is insufficient the user may reallocate the data and row index
+  arrays as needed.  The type of \id{JacB} is \id{SlsMat}, and the
+  amount of allocated space is available within the \id{SlsMat}
+  structure as \id{NNZ}.  The \id{SlsMat} type is further documented
+  in the Section \S\ref{s:sls}.  The user is referred to
+  \S\ref{ss:sjacFn} for details regarding accessing a \id{SlsMat}
+  object.
+
+  {\warn}Before calling the user's \id{IDASlsSparseJacFnB}, {\idas}
+  needs to evaluate (through interpolation) the values of the states
+  from the forward integration.  If an error occurs in the
+  interpolation, {\idas} triggers an unrecoverable failure in the
+  Jacobian function which will halt the integration (\id{IDASolveB}
+  returns \id{IDA\_LSETUP\_FAIL} and {\idaklu} or {\idasuperlumt} sets
+  \id{last\_flag} to \Id{IDASLS\_JACFUNC\_UNRECVR}).
+}
+
+\index{Jacobian approximation function!sparse!user-supplied (backward)}
+\usfunction{IDASlsSparseJacFnBS}
+{
+  typedef int (*IDASlsSparseJacFnBS)(&realtype tt, realtype cjB,\\
+                               &N\_Vector yy, N\_Vector yp,\\
+                               &N\_Vector *yS, N\_Vector *ypS,\\
+                               &N\_Vector yyB, N\_Vector ypB,\\
+                               &N\_Vector rrB, SlsMat JacB,\\
+                               &void *user\_dataB, N\_Vector tmp1B,\\
+                               &N\_Vector tmp2B, N\_Vector tmp3B);
+}
+{
+  This function computes the sparse Jacobian of the backward problem (or an
+  approximation to it), in the case where the backward problem depends on the
+  forward sensitivities.
+}
+{
+  \begin{args}[user\_dataB]
+  \item[tt]
+    is the current value of the independent variable.
+  \item[cjB]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
+  \item[yy]
+    is the current value of the forward solution vector.
+  \item[yp]
+    is the current value of the forward solution derivative vector.
+  \item[yS]
+    a pointer to an array of \id{Ns} vectors containing the sensitivities
+    of the forward solution.
+  \item[ypS]
+    a pointer to an array of \id{Ns} vectors containing the derivatives
+    of the forward solution sensitivities.
+  \item[yyB]
+    is the current value of the backward dependent variable vector.
+  \item[ypB]
+    is the current value of the backward dependent derivative vector.
+  \item[rrB]
+    is the current value of the residual for the backward problem.
+  \item[JacB]
+    is the output approximate sparse Jacobian matrix.
+  \item[user\_dataB]
+    is a pointer to user data --- the parameter passed to \id{IDASetUserDataB}. 
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated  for variables of type \id{N\_Vector} which 
+    can be used by \id{IDASlsSparseJacFnBS} as temporary storage or work space.    
+  \end{args}
+}
+{
+  An \id{IDASlsSparseJacFnBS} should return 0 if successful, a
+  positive value if a recoverable error occurred (in which case
+  {\idas} will attempt to correct, while {\idaklu} or {\idasuperlumt}
+  sets \id{last\_flag} to \Id{IDASLS\_JACFUNC\_RECVR}), or a negative
+  value if it failed unrecoverably (in which case the integration is
+  halted, \id{IDASolveB} returns \Id{IDA\_LSETUP\_FAIL} and
+  {\idaklu} or {\idasuperlumt} sets \id{last\_flag} to
+  \Id{IDASLS\_JACFUNC\_UNRECVR}).
+}
+{
+  A user-supplied sparse Jacobian function must load the
+  compressed-sparse-column matrix \id{JacB} with an approximation to
+  the Jacobian matrix at the point (\id{tt},\id{yy},\id{yS},\id{yyB}),
+  where \id{yy} is the solution of the original IVP at time \id{tt},
+  \id{yS} is the array of forward sensitivities at time \id{tt}, and
+  \id{yyB} is the solution of the backward problem at the same time.
+  Storage for \id{JacB} already exists on entry to this function,
+  although the user should ensure that sufficient space is allocated
+  in \id{JacB} to hold the nonzero values to be set; if the existing
+  space is insufficient the user may reallocate the data and row index
+  arrays as needed.  The type of \id{JacB} is \id{SlsMat}, and the
+  amount of allocated space is available within the \id{SlsMat}
+  structure as \id{NNZ}.  The \id{SlsMat} type is further documented
+  in the Section \S\ref{s:sls}.  The user is referred to
+  \S\ref{ss:sjacFn} for details regarding accessing a \id{SlsMat}
+  object.
+
+  {\warn}Before calling the user's \id{IDASlsSparseJacFnBS}, {\idas}
+  needs to evaluate (through interpolation) the values of the states
+  from the forward integration.  If an error occurs in the
+  interpolation, {\idas} triggers an unrecoverable failure in the
+  Jacobian function which will halt the integration (\id{IDASolveB}
+  returns \id{IDA\_LSETUP\_FAIL} and {\idaklu} or {\idasuperlumt} sets
+  \id{last\_flag} to \Id{IDASLS\_JACFUNC\_UNRECVR}).
+}
+
+
+%%-------------------------------------------------------------------------------------
 \subsection{Jacobian information for the backward problem
    (matrix-vector product)}\label{ss:jactimesvec_b}
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
@@ -2752,7 +3027,7 @@ The adjoint module in {\idas} offers an interface to the band-block-diagonal
 preconditioner module {\idabbdpre} described in section \S\ref{sss:idabbdpre}.
 This generates a preconditioner that is a block-diagonal matrix with each
 block being a band matrix and can be used with one of the Krylov linear solvers
-and with the parallel vector module {\nvecp}.
+and with the MPI-parallel vector module {\nvecp}.
 
 In order to use the {\idabbdpre} module in the solution of the backward problem,
 the user must define one or two additional functions, described at the end of this section. 

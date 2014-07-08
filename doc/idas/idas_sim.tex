@@ -15,11 +15,12 @@ some lines involved in testing), and are included in the {\idas} package.
 The user should be aware that not all linear solver modules are compatible 
 with all {\nvector} implementations. 
 \index{IDAS@{\idas} linear solvers!NVECTOR@{\nvector} compatibility}
-For example, {\nvecp} is not compatible with the direct dense or direct band 
-linear solvers, since these linear solver modules need to form the complete
-system Jacobian.
-The {\idadense} and {\idaband} modules (using either the internal implementation
-or Lapack) can only be used with {\nvecs}. 
+For example, {\nvecp} is not compatible with the direct dense, direct
+band or direct sparse linear solvers, since these linear solver
+modules need to form the complete system Jacobian.  The {\idadense}
+and {\idaband} modules (using either the internal implementation or
+Lapack), as well as the {\idaklu} and {\idasuperlumt} modules can only
+be used with {\nvecs}, {\nvecopenmp} and {\nvecpthreads}. 
 The preconditioner module {\idabbdpre} can only be used with {\nvecp}. 
 
 {\idas} uses various constants for both input and output.  These are
@@ -113,6 +114,12 @@ as follows:
 \item \Id{idas\_lapack.h},
   which is used with Lapack implementations of dense or band direct linear solvers;
   
+\item \Id{idas\_klu.h}, 
+  which is used with the KLU sparse direct linear solver;
+
+\item \Id{idas\_superlumt.h}, 
+  which is used with the SuperLU\_MT threaded sparse direct linear solver;
+
 \item \Id{idas\_spgmr.h}, 
   which is used with the scaled, preconditioned GMRES Krylov linear solver {\spgmr};
 
@@ -129,6 +136,13 @@ defines common functions.  This in turn includes a file
 (\id{sundials\_direct.h}) which defines the matrix type for these
 direct linear solvers (\id{DlsMat}), as well as various functions and
 macros acting on such matrices.
+
+The header files for the KLU and SuperLU\_MT sparse linear solvers
+include the file \id{idas\_sparse.h}, which defines common
+functions. This in turn includes a file (\id{sundials\_sparse.h})
+which defines the matrix type for these sparse direct linear solvers
+(\id{SlsMat}), as well as various functions and macros acting on such
+matrices. 
 
 The header files for the Krylov iterative solvers include \id{idas\_spils.h}
 which defines common functions and which in turn includes a header file (\id{sundials\_iterative.h})
@@ -148,7 +162,9 @@ The following is a skeleton of the user's main program (or calling
 program) for the integration of a DAE IVP. Some steps are independent of the
 {\nvector} implementation used; where this is not the case, usage specifications
 are given for the two implementations provided with {\idas}: steps marked {\p}
-correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
+correspond to {\nvecp}, steps marked {\omp} correspond to
+{\nvecopenmp}, steps marked {\pt} correspond to {\nvecpthreads}, while
+steps marked {\s} correspond to {\nvecs}.
 %%
 %%
 \index{User main program!IDAS@{\idas} usage}
@@ -165,13 +181,19 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 \item
   {\bf Set problem dimensions}
 
-  {\s} Set \id{N}, the problem size $N$.
+  {\s, \omp, \pt} Set \id{N}, the problem size $N$.
+
+  {\omp, \pt} Set \id{num\_threads}, the number of threads to use within
+  the threaded vector functions.
 
   {\p} Set \id{Nlocal}, the local vector length (the sub-vector
   length for this processor); \id{N}, the global vector length (the
   problem size $N$, and the sum of all the values of \id{Nlocal});
   and the active set of processors.
     
+  Note: The variables \id{N} and \id{Nlocal} should be of type
+  \id{long int}.  The variable \id{num\_threads} should be of type \id{int}.
+
 \item
   {\bf Set vectors of initial values}
  
@@ -182,17 +204,29 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 
   {\s} \id{y0  = N\_VMake\_Serial(N, ydata);}
 
+  {\omp} \id{y0 = N\_VMake\_OpenMP(N, num\_threads, ydata);}
+
+  {\pt} \id{y0 = N\_VMake\_Pthreads(N, num\_threads, ydata);}
+
   {\p} \id{y0 = N\_VMake\_Parallel(comm, Nlocal, N, ydata);}
 
   Otherwise, make the calls:
 
   {\s} \id{y0 = N\_VNew\_Serial(N);}
 
+  {\omp} \id{y0 = N\_VNew\_OpenMP(N, num\_threads);}
+
+  {\pt} \id{y0 = N\_VNew\_Pthreads(N, num\_threads);}
+
   {\p} \id{y0 = N\_VNew\_Parallel(comm, Nlocal, N);}
 
   and load initial values into the structure defined by:
 
   {\s} \id{NV\_DATA\_S(y0)}
+
+  {\omp} \id{NV\_DATA\_OMP(y0)}
+
+  {\pt} \id{NV\_DATA\_PT(y0)}
 
   {\p} \id{NV\_DATA\_P(y0)}
 
@@ -246,13 +280,17 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
   Initialize the linear solver module
   with one of the following calls (for details see \S\ref{sss:lin_solv_init}):
 
-  {\s} \id{flag = }\Id{IDADense}\id{(...);}
+  {\s, \omp, \pt} \id{flag = }\Id{IDADense}\id{(...);}
 
-  {\s} \id{flag = }\Id{IDABand}\id{(...);}
+  {\s, \omp, \pt} \id{flag = }\Id{IDABand}\id{(...);}
 
-  {\s} \id{flag = }\Id{IDALapackDense}\id{(...);}
+  {\s, \omp, \pt} \id{flag = }\Id{IDALapackDense}\id{(...);}
 
-  {\s} \id{flag = }\Id{IDALapackBand}\id{(...);}
+  {\s, \omp, \pt} \id{flag = }\Id{IDALapackBand}\id{(...);}
+
+  {\s, \omp, \pt} \id{flag = }\Id{IDAKLU}\id{(...);}
+
+  {\s, \omp, \pt} \id{flag = }\Id{IDASuperLUMT}\id{(...);}
 
   \id{flag = }\Id{IDASpgmr}\id{(...);}
 
@@ -308,6 +346,10 @@ correspond to {\nvecp}, while steps marked {\s} correspond to {\nvecs}.
 
   {\s} \id{N\_VDestroy\_Serial(yret);}
 
+  {\omp} \id{N\_VDestroy\_OpenMP(y);}
+
+  {\pt} \id{N\_VDestroy\_Pthreads(y);}
+  
   {\p} \id{N\_VDestroy\_Parallel(yret);}
   
   and similarly for \id{ypret}.
@@ -623,9 +665,10 @@ the computed values is unsuccessful.
 \subsection{Linear solver specification functions}\label{sss:lin_solv_init}
 
 As previously explained, Newton iteration requires the solution of
-linear systems of the form (\ref{e:DAE_Newtoncorr}).  There are five {\idas} linear
-solvers currently available for this task: {\idadense}, {\idaband}, 
-{\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}.
+linear systems of the form (\ref{e:DAE_Newtoncorr}).  There are seven
+{\idas} linear solvers currently available for this task: {\idadense},
+{\idaband}, {\idaklu}, {\idasuperlumt}, {\idaspgmr}, {\idaspbcg}, and
+{\idasptfqmr}.
 
 The first two linear solvers are direct and derive their
 names from the type of approximation used for the Jacobian 
@@ -635,6 +678,17 @@ respectively. The {\sundials} suite includes both internal implementations of
 these two linear solvers and interfaces to Lapack implementations.
 Together, these linear solvers are referred to as {\idadls} (from Direct
 Linear Solvers).
+
+The second two linear solvers are sparse direct solvers based on
+Gaussian elimination, and require user-supplied routines to construct
+the Jacobian $J = \partial{F}/\partial{y} + \alpha
+\partial{F}/\partial{\dot{y}}$ in compressed-sparse-column format. The
+{\sundials} suite does not include internal implementations of these
+solver libraries, instead requiring compilation of {\sundials} to link
+with existing installations of these libraries (if either is missing,
+{\sundials} will install without the corresponding interface
+routines).  Together, these linear solvers are referred to as {\cvsls}
+(from Sparse Linear Solvers). 
 
 The remaining three {\idas} linear solvers, {\idaspgmr}, {\idaspbcg},
 and {\idasptfqmr}, are Krylov iterative solvers. The {\spgmr}, {\spbcg}, and
@@ -653,7 +707,8 @@ and \S\ref{ss:user_fct_sim}.
 To specify an {\idas} linear solver, after the call to \id{IDACreate} but
 before any calls to \id{IDASolve}, the user's program must call one of the
 functions \Id{IDADense}/\Id{IDALapackDense}, \Id{IDABand}/\Id{IDALapackBand},
-\Id{IDASpgmr}, \Id{IDASpbcg}, or \Id{IDASptfqmr}, as documented below.
+\Id{IDAKLU}, \Id{IDASuperLUMT}, \Id{IDASpgmr}, \Id{IDASpbcg}, or
+\Id{IDASptfqmr}, as documented below. 
 The first argument passed to these functions
 is the {\idas} memory pointer returned by \id{IDACreate}.  A call to one of these
 functions links the main {\idas} integrator to a linear solver and
@@ -711,10 +766,10 @@ described separately in Chapter \ref{s:gen_linsolv}.
   \end{args}
 }
 {
-  The {\idadense} linear solver may not be compatible with a particular
-  implementation of the {\nvector} module. 
-  Of the two {\nvector} modules provided by {\sundials}, only {\nvecs} is 
-  compatible, while {\nvecp} is not.
+  The {\idadense} linear solver is not compatible with all
+  implementations of the {\nvector} module. 
+  Of the {\nvector} modules provided with {\sundials}, only {\nvecs},
+  {\nvecopenmp} and {\nvecpthreads} are compatible, while {\nvecp} is not.
 }
 %%
 %%
@@ -788,9 +843,10 @@ described separately in Chapter \ref{s:gen_linsolv}.
   \end{args}
 }
 {
-  The {\idaband} linear solver may not be compatible with a particular
-  implementation of the {\nvector} module. Of the two {\nvector} modules 
-  provided by {\sundials}, only {\nvecs} is compatible, while {\nvecp} is not.
+  The {\idaband} linear solver is not compatible with all
+  implementations of the {\nvector} module.  Of the {\nvector} modules
+  provided with {\sundials}, only {\nvecs}, {\nvecopenmp} and
+  {\nvecpthreads} are compatible, while {\nvecp} is not. 
   The half-bandwidths are to be set so that the nonzero locations $(i,j)$ in the
   banded (approximate) Jacobian satisfy $-$\id{mlower} $\leq j-i \leq$ \id{mupper}.
 }
@@ -817,6 +873,101 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   Note that \id{N}, \id{mupper}, and \id{mlower} are restricted to be of type \id{int}
   here, because of the corresponding type restriction in the Lapack solvers.
+}
+%%
+%%
+\index{IDAS@{\idas} linear solvers!IDAKLU@{\idaklu}}
+\index{IDAKLU@{\idaklu} linear solver!selection of}
+\index{IDAKLU@{\idaklu} linear solver!NVECTOR@{\nvector} compatibility}
+\ucfunction{IDAKLU}
+{
+  flag = IDAKLU(ida\_mem, N, NNZ);
+}
+{
+  The function \ID{IDAKLU} selects the {\idaklu} linear solver and indicates
+  the use of the internal sparse-direct linear algebra functions. 
+
+  The user's main program must include the \id{idas\_sparse.h} header file.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[N] (\id{int})
+    problem dimension.
+  \item[NNZ] (\id{int})
+    maximum number of nonzero entries in the system Jacobian.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASLS\_ILL\_INPUT]
+  \item[\Id{IDASLS\_SUCCESS}] 
+    The {\idaklu} initialization was successful.
+  \item[\Id{IDASLS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASLS\_ILL\_INPUT}]
+    The {\idaklu} solver is not compatible with the current {\nvector} module.
+  \item[\Id{IDASLS\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \item[\Id{IDASLS\_PACKAGE\_FAIL}]
+    A call to the KLU library returned a failure flag.
+  \end{args}
+}
+{
+  The {\idaklu} linear solver is not compatible with all
+  implementations of the {\nvector} module. 
+  Of the {\nvector} modules provided with {\sundials}, only {\nvecs},
+  {\nvecopenmp} and {\nvecpthreads} are compatible, while {\nvecp} is not.
+}
+%%
+%%
+\index{IDAS@{\idas} linear solvers!IDASUPERLUMT@{\idasuperlumt}}
+\index{IDASUPERLUMT@{\idasuperlumt} linear solver!selection of}
+\index{IDASUPERLUMT@{\idasuperlumt} linear solver!NVECTOR@{\nvector} compatibility}
+\ucfunction{IDASuperLUMT}
+{
+  flag = IDASuperLUMT(ida\_mem, num\_threads, M, N, NNZ);
+}
+{
+  The function \ID{IDASuperLUMT} selects the {\idasuperlumt} linear
+  solver and indicates the use of the internal sparse-direct linear
+  algebra functions.  
+
+  The user's main program must include the \id{idas\_superlumt.h} header file.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[num\_threads] (\id{int})
+    the number of threads to use when factoring/solving the linear systems.
+  \item[M] (\id{int})
+    number of rows in the Jacobian matrix (problem dimension).
+  \item[N] (\id{int})
+    number of columns in the Jacobian matrix (problem dimension).
+  \item[NNZ] (\id{int})
+    maximum number of nonzero entries in the system Jacobian.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASLS\_ILL\_INPUT]
+  \item[\Id{IDASLS\_SUCCESS}] 
+    The {\idasuperlumt} initialization was successful.
+  \item[\Id{IDASLS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASLS\_ILL\_INPUT}]
+    The {\idasuperlumt} solver is not compatible with the current {\nvector} module.
+  \item[\Id{IDASLS\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \end{args}
+}
+{
+  The {\idasuperlumt} linear solver is not compatible with all
+  implementations of the {\nvector} module. 
+  Of the {\nvector} modules provided with {\sundials}, only {\nvecs},
+  {\nvecopenmp} and {\nvecpthreads} are compatible, while {\nvecp} is not.
 }
 %%
 %%
@@ -1275,6 +1426,12 @@ Lower bound on Newton step & \id{IDASetStepToleranceIC} &  uround$^{2/3}$ \\
 \hline
 Dense Jacobian function & \id{IDADlsSetDenseJacFn} & DQ\\
 Band Jacobian function & \id{IDADlsSetBandJacFn} & DQ\\
+\hline
+\multicolumn{3}{|c|}{\bf IDASLS linear solvers} \\
+\hline
+Sparse Jacobian function & \id{IDASlsSetSparseJacFn} & none\\
+Sparse matrix ordering algorithm & \id{IDAKLUSetOrdering} & \id{COLAMD} \\
+Sparse matrix ordering algorithm & \id{IDASuperLUMTSetOrdering} & \id{COLAMD} \\
 \hline
 \multicolumn{3}{|c|}{\bf IDASPILS linear solvers} \\
 \hline
@@ -1934,6 +2091,149 @@ specified through \id{IDASetUserData}.
 \index{optional input!band linear solver|)}
 \index{optional input!dense linear solver|)}
 
+%%
+%%
+%%==================================================================================
+%%
+\subsubsection{Sparse linear solvers optional input functions}\label{sss:optin_sls}
+\index{optional input!sparse linear solver|(}
+\index{IDAKLU@{\idaklu} linear solver!optional input|(}
+\index{IDASUPERLUMT@{\idasuperlumt} linear solver!optional input|(}
+The \index{IDAKLU@{\idaklu} linear solver!Jacobian approximation used by}
+\index{IDASUPERLUMT@{\idasuperlumt} linear solver!Jacobian approximation used by}
+{\idaklu} and {\idasuperlumt} solvers need a function to compute a
+compressed-sparse-column approximation ot the Jacobian matrix $J(t,y,\dot{y})$.  
+This function must be of type \id{IDASlsSparseJacFn}. 
+The user must supply a custom sparse Jacobian function since a
+difference quotient approximation would not leverage the underlying
+sparse matrix structure of the problem.  To specify a user-supplied
+Jacobian function \id{sjac}, {\idaklu} and {\idasuperlumt} provide
+the function \id{IDASlsSetSparseJacFn}.  The {\idaklu} and
+{\idasuperlumt} solvers pass the pointer \id{user\_data} to the sparse
+Jacobian function. This allows the user to create an arbitrary
+structure with relevant problem data and access it during the
+execution of the user-supplied Jacobian function, without using global
+data in the program.  The pointer \id{user\_data} may be specified
+through \id{IDASetUserData}.
+%%
+\index{Jacobian approximation function!sparse!user-supplied}
+\ucfunction{IDASlsSetSparseJacFn}
+{
+  flag = IDASlsSetSparseJacFn(ida\_mem, sjac);
+}
+{
+  The function \ID{IDASlsSetSparseJacFn} specifies the sparse Jacobian
+  approximation function to be used.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[sjac] (\id{IDASlsSparseJacFn})
+    user-defined sparse Jacobian approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASLS\_LMEM\_NULL]
+  \item[\Id{IDASLS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDASLS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASLS\_LMEM\_NULL}]
+    The {\idaklu} or {\idasuperlumt} linear solver has not been initialized.
+  \end{args}
+}
+{
+  The function type \id{IDASlsSparseJacFn} is described in \S\ref{ss:sjacFn}.
+}
+%%
+%%
+\index{IDAKLU@{\idaklu} linear solver!matrix reordering algorithm specification}
+\index{IDASUPERLUMT@{\idasuperlumt} linear solver!matrix reordering algorithm specification}
+Both the {\idaklu} and {\idasuperlumt} solvers can apply reordering
+algorithms to minimize fill-in for the resulting sparse $LU$
+decomposition internal to the solver.  The approximate minimal degree
+ordering for unsymmetric matrices given by the \id{COLAMD} algorithm
+is the default algorithm used within both solvers, but alternate
+orderings may be chosen through one of the following two functions.
+%%
+\ucfunction{IDAKLUSetOrdering}
+{
+  flag = IDAKLUSetOrdering(ida\_mem, ordering\_choice);
+}
+{
+  The function \ID{IDAKLUSetOrdering} specifies the ordering algorithm
+  used by {\idaklu} for reducing fill.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[ordering\_choice] (\id{int})
+    flag denoting algorithm choice:
+    \begin{itemize}
+    \item[0] \id{AMD}
+    \item[1] \id{COLAMD}
+    \item[2] natural ordering
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASLS\_LMEM\_NULL]
+  \item[\Id{IDASLS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDASLS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASLS\_ILL\_INPUT}]
+    The supplied value of \id{ordering\_choice} is illegal.
+  \end{args}
+}
+{
+  The default ordering choice is \id{COLAMD}.
+}
+%%
+%%
+\ucfunction{IDASuperLUMTSetOrdering}
+{
+  flag = IDASuperLUMTSetOrdering(ida\_mem, ordering\_choice);
+}
+{
+  The function \ID{IDASuperLUMTSetOrdering} specifies the ordering algorithm
+  used by {\idasuperlumt} for reducing fill.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[ordering\_choice] (\id{int})
+    flag denoting algorithm choice:
+    \begin{itemize}
+    \item[0] natural ordering
+    \item[1] minimal degree ordering on $J^TJ$
+    \item[2] minimal degree ordering on $J^T + J$
+    \item[3] \id{COLAMD}
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASLS\_LMEM\_NULL]
+  \item[\Id{IDASLS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDASLS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASLS\_ILL\_INPUT}]
+    The supplied value of \id{ordering\_choice} is illegal.
+  \end{args}
+}
+{
+  The default ordering choice is \id{COLAMD}.
+}
+\index{IDASUPERLUMT@{\idasuperlumt} linear solver!optional input|)}
+\index{IDAKLU@{\idaklu} linear solver!optional input|)}
+\index{optional input!sparse linear solver|)}
 %%
 %%==================================================================================
 %%
@@ -3655,6 +3955,99 @@ the name of an optional output from the main solver, a suffix \id{LS}
 \index{optional output!band linear solver|)}
 \index{optional output!dense linear solver|)}
 
+%%
+%%==================================================================================
+%%
+\subsubsection{Sparse linear solvers optional output functions}\label{sss:optout_sls}
+\index{optional output!sparse linear solver|(}
+\index{IDAKLU@{\idaklu} linear solver!optional output|(}
+\index{IDASUPERLUMT@{\idasuperlumt} linear solver!optional output|(}
+The following optional outputs are available from the {\idasls} modules:
+number of calls to the Jacobian routine and last return value from an
+{\idasls} function.
+%%
+%%
+\ucfunction{IDASlsGetNumJacEvals}
+{
+  flag = IDASlsGetNumJacEvals(ida\_mem, \&njevals);
+}
+{
+  The function \ID{IDASlsGetNumJacEvals} returns the
+  cumulative number of calls to the {\idasls} sparse
+  Jacobian approximation function.
+}
+{
+  \begin{args}[njevals]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[njevals] (\id{long int})
+    the cumulative number of calls to the Jacobian function (total so far).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASLS\_LMEM\_NULL]
+  \item[IDASLS\_SUCCESS] 
+    The optional output value has been successfully set.
+  \item[\Id{IDASLS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASLS\_LMEM\_NULL}]
+    The {\idasls} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASlsGetLastFlag}
+{
+  flag = IDASlsGetLastFlag(ida\_mem, \&lsflag);
+}
+{
+  The function \ID{IDASlsGetLastFlag} returns the
+  last return value from an {\idasls} routine. 
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[lsflag] (\id{long int})
+    the value of the last return flag from an {\idasls} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASLS\_LMEM\_NULL]
+  \item[\Id{IDASLS\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{IDASLS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASLS\_LMEM\_NULL}]
+    The {\idasls} linear solver has not been initialized.
+  \end{args}
+}
+{
+}
+%%
+\ucfunction{IDASlsGetReturnFlagName}
+{
+  name = IDASlsGetReturnFlagName(lsflag);
+}
+{
+  The function \ID{IDASlsGetReturnFlagName} returns the
+  name of the {\idasls} constant corresponding to \id{lsflag}.
+}
+{
+  The only argument, of type \id{long int}, is a return flag from an {\idasls} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
+%%
+\index{IDASUPERLUMT@{\idasuperlumt} linear solver!optional output|)}
+\index{IDAKLU@{\idaklu} linear solver!optional output|)}
+\index{optional output!sparse linear solver|)}
+
 %
 %%==================================================================================
 %
@@ -4467,6 +4860,85 @@ function of type \ID{IDADlsBandJacFn} defined as follows:
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
+%%
+%%----------------
+%%
+\subsection{Jacobian information (direct method with sparse Jacobian)}
+\label{ss:sjacFn}
+\index{Jacobian approximation function!sparse!user-supplied|(}
+If the direct linear solver with sparse treatment of the Jacobian is
+used (i.e. either \Id{IDAKLU} or \Id{IDASuperLUMT} is called in Step
+\ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), the user must provide a
+function of type \ID{IDASlsSparseJacFn} defined as follows:
+\usfunction{IDASlsSparseJacFn}
+{
+ typedef int (*IDASlsSparseJacFn&)(realtype t, realtype c\_j,\\ 
+                             &N\_Vector y, N\_Vector yp, N\_Vector r, \\
+                             &SlsMat Jac, void *user\_data, \\
+                             &N\_Vector tmp1, N\_Vector tmp2,N\_Vector tmp3);
+}
+{
+  This function computes the sparse Jacobian $J$ of the DAE system (or an
+  approximation to it), defined by Eq. (\ref{e:DAE_Jacobian}).
+
+}
+{
+  \begin{args}[user\_data]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[yp]
+    is the current value of $\dot{y}(t)$.
+  \item[r]
+    is the current value of the residual vector $F(t,y,\dot{y})$.
+  \item[c\_j]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
+  \item[Jac]
+    is the output (approximate) Jacobian matrix,
+    $J = \partial{F}/\partial{y} + cj ~ \partial{F}/\partial{\dot{y}}$.
+  \item[user\_data]
+    is a pointer to user data, the same as the \id{user\_data}      
+    parameter passed to \id{IDASetUserData}.   
+  \item[tmp1]
+  \item[tmp2]
+  \item[tmp3]
+    are pointers to memory allocated for variables of type \id{N\_Vector} 
+    which can be used by \id{IDASlsSparseJacFn} as temporary storage or work space.    
+  \end{args}
+}
+{
+  A \id{IDASlsSparseJacFn} function type should return $0$ if successful,
+  a positive value if a recoverable error occurred, or a negative value
+  if a nonrecoverable error occurred. 
+
+  In the case of a recoverable error return, 
+  the integrator will attempt to recover by reducing the stepsize,
+  and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
+}
+{
+  A user-supplied sparse Jacobian function must load the
+  compressed-sparse-column matrix \id{Jac} with the elements of the
+  Jacobian $J(t,y,\dot{y})$ at the point (\id{t}, \id{y}, \id{yp}).
+  Storage for \id{Jac} already exists on entry to this function,
+  although the user should ensure that sufficient space is allocated
+  in \id{Jac} to hold the nonzero values to be set; if the existing
+  space is insufficient the user may reallocate the data and row index
+  arrays as needed.  The type of \id{Jac} is \id{SlsMat}, and the
+  amount of allocated space is available within the \id{SlsMat}
+  structure as \id{NNZ}.  The \id{SlsMat} type is further documented
+  in the Section \S\ref{s:sls}. 
+ 
+  If the user's \id{IDASlsSparseJacFn} function uses difference quotient
+  approximations to set the specific nonzero matrix entries, then it
+  may need to access quantities not in the argument list. These
+  include the current step size, the error weights, etc.  To obtain
+  these, use the \id{IDAGet*} functions described in
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed as
+  \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}. 
+}
+\index{Jacobian approximation function!sparse!user-supplied|)}
 %%
 %%----------------
 %%

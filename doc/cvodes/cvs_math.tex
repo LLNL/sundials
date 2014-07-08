@@ -90,8 +90,10 @@ computed explicitly from the available history data.
 For the solution of the linear systems within the Newton corrections, 
 {\cvodes} provides several choices, including the option of an user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
-are organized in two families, a {\em direct} family comprising direct linear 
-solvers for dense or banded matrices and a {\em spils} family comprising
+are organized in three families, a {\em direct} family comprising direct linear 
+solvers for dense or banded matrices, a {\em sparse} family comprising
+direct linear solvers for matrices stored in compressed-sparse-column
+format, and a {\em spils} family comprising
 scaled preconditioned iterative (Krylov) linear solvers. 
 %%
 In addition, {\cvodes} also provides a linear solver module which only uses
@@ -100,9 +102,12 @@ a diagonal approximation of the Jacobian matrix.
 The methods offered through these modules are as follows:
 \begin{itemize}
 \item dense direct solvers, using either an internal implementation or 
-  a Blas/Lapack implementation (serial version only),
+  a Blas/Lapack implementation (serial or threaded vector modules only),
 \item band direct solvers, using either an internal implementation or 
-  a Blas/Lapack implementation (serial version only),
+  a Blas/Lapack implementation (serial or threaded vector modules only),
+\item sparse direct solvers, using either the KLU sparse solver
+  library \cite{KLU_site}, or the PThreads-enabled SuperLU\_MT sparse
+  solver library \cite{SuperLUMT_site} (serial or threaded vector modules only),
 \item a diagonal approximate Jacobian solver,
 \item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
       solver without restarts,
@@ -119,8 +124,8 @@ nonlinear iteration, and Krylov (linear) iteration with a
 problem-specific treatment of the dominant source of stiffness, in the
 form of the user-supplied preconditioner matrix \cite{BrHi:89}.
 %%
-Note that the direct linear solvers (dense and band) can only be 
-used with serial vector representations.
+Note that the direct linear solvers (dense, band, and sparse) can only be 
+used with serial and threaded vector representations.
 
 % WRMS Norm
 %----------
@@ -142,7 +147,7 @@ usually drop the subscript WRMS on norms in what follows.
 % Newton iteration
 %-----------------
 \index{nonlinear system!Newton iteration|(}
-In the cases of a direct solver (dense, band, diagonal), the
+In the cases of a direct solver (dense, band, sparse, or diagonal), the
 iteration is a modified Newton iteration since the iteration matrix
 $M$ is fixed throughout the nonlinear iterations.  However, for any
 of the Krylov methods, it is an Inexact Newton iteration, in which $M$
@@ -236,6 +241,9 @@ case, this scheme requires $N$ evaluations of $f$, one for each column
 of $J$.  In the band case, the columns of $J$ are computed in groups
 by the Curtis-Powell-Reid algorithm, with the number of $f$ evaluations
 equal to the bandwidth.
+
+We note that with the sparse direct solvers, the Jacobian {\em must}
+be supplied by a user routine in compressed-sparse-column format.
 
 In the case of a Krylov method, preconditioning may be used on the left, on
 the right, or both, with user-supplied routines for the preconditioning

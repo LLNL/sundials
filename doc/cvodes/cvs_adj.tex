@@ -39,7 +39,9 @@ the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
 implementation used; where this is not the case, usage specifications are given for the
 two implementations provided with {\cvodes}: steps marked {\p} correspond to 
-{\nvecp}, while steps marked {\s} correspond to {\nvecs}.
+{\nvecp}, steps marked {\omp} correspond to {\nvecopenmp}, steps
+marked {\pt} correspond to {\nvecpthreads}, while steps marked {\s}
+correspond to {\nvecs}. 
 Steps that are unchanged from the skeleton program presented in
 \S\ref{ss:skeleton_sim} are grayed out.
 
@@ -52,8 +54,9 @@ Steps that are unchanged from the skeleton program presented in
   The \id{cvodes.h} header file also defines additional types, constants, and
   function prototypes for the adjoint sensitivity module user-callable functions.
   In addition, the main program should include an {\nvector} 
-  implementation header file (\id{nvector\_serial.h} or \id{nvector\_parallel.h}
-  for the two implementations provided with {\cvodes}) and, if Newton iteration 
+  implementation header file (\id{nvector\_serial.h},
+  \id{nvector\_openmp.h}, \id{nvector\_pthreads.h}, or \id{nvector\_parallel.h}
+  for the implementations provided with {\cvodes}) and, if Newton iteration 
   was selected, the main header file of the desired linear solver module.
 
 \item
@@ -109,8 +112,9 @@ Steps that are unchanged from the skeleton program presented in
  \item \label{i:back_start}
    {\bf Set problem dimensions for the backward problem}
    
-   {\s} set \id{NB}, the number of variables in the backward problem \\
-   {\p} set \id{NB} and \id{NBlocal}
+   {\s, \omp, \pt} set \id{NB}, the number of variables in the backward problem \\
+   {\p} set \id{NB} and \id{NBlocal} \\
+   {\omp, \pt} set \id{num\_threads}
 
 \item
   {\bf Set initial values for the backward problem}
@@ -165,8 +169,8 @@ Steps that are unchanged from the skeleton program presented in
   Initialize the linear solver module 
   for the backward problem by calling the appropriate wrapper
   function: \id{CVDenseB}, \id{CVBandB}, \id{CVLapackDenseB}, \id{CVLapackBandB},
-  \id{CVDiagB}, \id{CVodeSpgmrB}, \id{CVodeSpbcgB}, or \id{CVodeSptfqmrB}
-  (see \S\ref{sss:lin_solv_b}).  Note that
+  \id{CVKLUB}, \id{CVSuperLUMTB}, \id{CVDiagB}, \id{CVodeSpgmrB},
+  \id{CVodeSpbcgB}, or \id{CVodeSptfqmrB} (see \S\ref{sss:lin_solv_b}).  Note that
   it is not required to use the same linear solver module for both the forward 
   and the backward problems; for example, the forward problem could be solved
   with the {\cvdense} linear solver and the backward problem with {\cvspgmr}.
@@ -791,6 +795,8 @@ second argument, \id{which}, the identifier of the backward problem.
   flag = CVBandB(cvode_mem, which, nB, mupperB, mlowerB);
   flag = CVLapackDenseB(cvode_mem, which, nB);
   flag = CVLapackBandB(cvode_mem, which, nB, mupperB, mlowerB);
+  flag = CVSuperLUMTB(cvode_mem, num_threads, which, mB, nB, nnzB);
+  flag = CVKLUB(cvode_mem, which, nB, nnzB);
   flag = CVDiagB(cvode_mem, which);
   flag = CVSpgmrB(cvode_mem, which, pretypeB, maxlB);
   flag = CVSpbcgB(cvode_mem, which, pretypeB, maxlB);
@@ -799,13 +805,14 @@ second argument, \id{which}, the identifier of the backward problem.
 
 Their return value \id{flag} (of type \id{int}) can have any of the return values 
 of their counterparts.
-If the \id{cvode\_mem} argument was \id{NULL}, \id{flag} will be
 %%
 If the \id{cvode\_mem} argument was \id{NULL}, 
-\id{flag} will be \id{CVDLS\_MEM\_NULL}, \id{CVDIAG\_MEM\_NULL}, or \id{CVSPILS\_MEM\_NULL}. 
+\id{flag} will be \id{CVDLS\_MEM\_NULL}, \id{CVSLS\_MEM\_NULL},
+\id{CVDIAG\_MEM\_NULL}, or \id{CVSPILS\_MEM\_NULL}.  
 %%
 Also, if \id{which} is not a valid identifier, the functions will return 
-\id{CVDLS\_ILL\_INPUT}, \id{CVDIAG\_ILL\_INPUT}, or \id{CVSPILS\_ILL\_INPUT}.
+\id{CVDLS\_ILL\_INPUT}, \id{CVSLS\_ILL\_INPUT},
+\id{CVDIAG\_ILL\_INPUT}, or \id{CVSPILS\_ILL\_INPUT}. 
 
 
 %%---------------------------------------------------------------------
@@ -1060,8 +1067,6 @@ problem through the following two functions:
 {
   The function type \id{CVDlsDenseJacFnB} is described in \S\ref{ss:densejac_b}.
 }
-\index{CVDENSE@{\cvdense} linear solver!optional input|)}
-\index{optional input!dense linear solver|)}
 %%
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \ucfunction{CVDlsSetDenseJacFnBS}
@@ -1194,6 +1199,97 @@ problem through the following two functions:
 }
 \index{CVBAND@{\cvband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
+
+
+\subsubsection{Sparse linear solvers}
+\index{optional input!sparse linear solver|(}
+\index{CVKLU@{\cvklu} linear solver!optional input|(}
+\index{CVSUPERLUMT@{\cvsuperlumt} linear solver!optional input|(}
+Optional inputs for the {\cvklu} and {\cvsuperlumt} linear solver
+modules can be set for the backward problem through the following two
+functions: 
+%%
+\index{Jacobian approximation function!sparse!user-supplied (backward)}
+\ucfunction{CVSlsSetSparseJacFnB}
+{
+  flag = CVSlsSetSparseJacFnB(cvode\_mem, which, jacB);
+}
+{
+  The function \ID{CVSlsSetSparseJacFnB} specifies the sparse Jacobian
+  approximation function to be used for the backward problem.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem.
+  \item[jacB] (\id{CVSlsSparseJacFnB})
+    user-defined sparse Jacobian approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVSLS\_ILL\_INPUT]
+  \item[\Id{CVSLS\_SUCCESS}] 
+    \id{CVSlsSetSparseJacFnB} succeeded.
+  \item[\Id{CVSLS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVSLS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVSLS\_LMEM\_NULL}]
+    The linear solver has not been initialized with a call to \id{CVKLUB}
+    or \id{CVSuperLUMTB}.
+  \item[\Id{CVSLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{CVSlsSparseJacFnB} is described in \S\ref{ss:sparsejac_b}.
+}
+%%
+\index{Jacobian approximation function!sparse!user-supplied (backward)}
+\ucfunction{CVSlsSetSparseJacFnBS}
+{
+  flag = CVSlsSetSparseJacFnBS(cvode\_mem, which, jacBS);
+}
+{
+  The function \ID{CVSlsSetSparseJacFnBS} specifies the sparse Jacobian
+  approximation function to be used for the backward problem, in the
+  case where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem.
+  \item[jacBS] (\id{CVSlsSparseJacFnBS})
+    user-defined sparse Jacobian approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVSLS\_ILL\_INPUT]
+  \item[\Id{CVSLS\_SUCCESS}] 
+    \id{CVSlsSetSparseJacFnBS} succeeded.
+  \item[\Id{CVSLS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVSLS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVSLS\_LMEM\_NULL}]
+    The linear solver has not been initialized with a call to \id{CVKLUB}
+    or \id{CVSuperLUMTB}.
+  \item[\Id{CVSLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{CVSlsSparseJacFnBS} is described in \S\ref{ss:sparsejac_b}.
+}
+\index{CVSUPERLUMT@{\cvsuperlumt} linear solver!optional input|)}
+\index{CVKLU@{\cvklu} linear solver!optional input|)}
+\index{optional input!sparse linear solver|)}
 
 
 \subsubsection{SPILS linear solvers}
@@ -2314,6 +2410,156 @@ through a call to \id{CVDlsSetBandJacFnB} or \id{CVDlsSetBandJacFnBS}
 
 %%-------------------------------------------------------------------------------------
 \subsection{Jacobian information for the backward problem
+  (direct method with sparse Jacobian)}\label{ss:sparsejac_b}
+\index{Jacobian approximation function!sparse!user-supplied (backward)}
+If the direct linear solver with sparse treatment of the Jacobian is selected
+for the backward problem (i.e. \Id{CVKLUB} or \Id{CVSuperLUMTB} is called in
+step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), the user must provide,
+through a call to \id{CVSlsSetSparseJacFnB} or \id{CVSlsSetSparseJacFnBS}
+(see \S\ref{ss:optional_input_b}), a function of one of the following two types:
+%%
+\usfunction{CVSlsSparseJacFnB}
+{
+ typedef int (*CVSlsSparseJacFnB)(&realtype t, N\_Vector y, \\
+                                  &N\_Vector yB, N\_Vector fyB, \\
+                                  &SlsMat JacB, void *user\_dataB, \\
+                                  &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                                  &N\_Vector tmp3B);
+}
+{
+  This function computes the sparse Jacobian of the backward problem
+  (or an approximation to it).
+}
+{
+  \begin{args}[user\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the backward dependent variable vector.
+  \item[fyB]
+    is the current value of the backward right-hand side function $f_B$.
+  \item[JacB]
+    is the output approximate sparse Jacobian matrix. 
+  \item[user\_dataB]
+    is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}. 
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated  for variables of type \id{N\_Vector} which 
+    can be used by \id{CVSlsSparseJacFnB} as temporary storage or work space.    
+  \end{args}
+}
+{
+  A \id{CVSlsSparseJacFnB} should return 0 if successful, a positive
+  value if a recoverable error occurred (in which case {\cvodes} will
+  attempt to correct, while {\cvklu} or {\cvsuperlumt} sets
+  \id{last\_flag} to \Id{CVSLS\_JACFUNC\_RECVR}), or a negative value
+  if it failed unrecoverably (in which case the integration is halted,
+  \id{CVodeB} returns \Id{CV\_LSETUP\_FAIL} and {\cvklu} or
+  {\cvsuperlumt} sets \id{last\_flag} to  \Id{CVSLS\_JACFUNC\_UNRECVR}).
+}
+{
+  A user-supplied sparse Jacobian function must load the
+  compressed-sparse-column matrix \id{JacB} with the elements of the
+  Jacobian at the point (\id{t},\id{y},\id{yB}), where \id{y} is the
+  solution of the original IVP at time \id{tt} and \id{yB} is the
+  solution of the backward problem at the same time.  Storage for
+  \id{JacB} already exists on entry to this function, although the
+  user should ensure that sufficient space is allocated in \id{JacB}
+  to hold the nonzero values to be set; if the existing space is
+  insufficient the user may reallocate the data and row index arrays
+  as needed.  The type of \id{JacB} is \id{SlsMat}, and the amount of
+  allocated space is available within the \id{SlsMat} structure as
+  \id{NNZ}.  The \id{SlsMat} type is further documented in the Section
+  \S\ref{s:sls}.  More details on the rest of the arguments passed to
+  a function of type \id{CVSlsSparseJacFnB} are given in \S\ref{ss:sjacFn}.
+
+  {\warn}Before calling the user's \id{CVSlsSparseJacFnB}, {\cvodes}
+  needs to evaluate (through interpolation) the values of the states
+  from the forward integration.  If an error occurs in the
+  interpolation, {\cvodes} triggers an unrecoverable failure in the
+  Jacobian function which will halt the integration (\id{CVodeB}
+  returns \id{CV\_LSETUP\_FAIL} and {\cvklu} or {\cvsuperlumt} sets
+  \id{last\_flag} to \Id{CVSLS\_JACFUNC\_UNRECVR}).
+}
+%%
+\usfunction{CVSlsSparseJacFnBS}
+{
+ typedef int (*CVSlsSparseJacFnBS)(&realtype t, N\_Vector y, N\_Vector *yS,\\
+                                   &N\_Vector yB, N\_Vector fyB, \\
+                                   &SlsMat JacB, void *user\_dataB, \\
+                                   &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                                   &N\_Vector tmp3B);
+}
+{
+  This function computes the sparse Jacobian of the backward problem
+  (or an approximation to it), in the case where the backward problem
+  depends on the forward sensitivities.
+}
+{
+  \begin{args}[user\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yS]
+    a pointer to an array of \id{Ns} vectors containing the sensitivities
+    of the forward solution.
+  \item[yB]
+    is the current value of the backward dependent variable vector.
+  \item[fyB]
+    is the current value of the backward right-hand side function $f_B$.
+  \item[JacB]
+    is the output approximate sparse Jacobian matrix. 
+  \item[user\_dataB]
+    is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}. 
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated  for variables of type \id{N\_Vector} which 
+    can be used by \id{CVSlsSparseJacFnB} as temporary storage or work space.    
+  \end{args}
+}
+{
+  A \id{CVSlsSparseJacFnBS} should return 0 if successful, a positive
+  value if a recoverable error occurred (in which case {\cvodes} will
+  attempt to correct, while {\cvklu} or {\cvsuperlumt} sets
+  \id{last\_flag} to \Id{CVSLS\_JACFUNC\_RECVR}), or a negative value
+  if it failed unrecoverably (in which case the integration is halted,
+  \id{CVodeB} returns \Id{CV\_LSETUP\_FAIL} and {\cvklu} or
+  {\cvsuperlumt} sets \id{last\_flag} to \Id{CVSLS\_JACFUNC\_UNRECVR}).
+}
+{
+  A user-supplied sparse Jacobian function must load the
+  compressed-sparse-column matrix \id{JacB} with the elements of the
+  Jacobian at the point (\id{t},\id{y},\id{yS},\id{yB}), where \id{y}
+  is the solution of the original IVP at time \id{tt}, \id{yS} is the
+  vector of forward sensitivities at time \id{tt}, and \id{yB} is the
+  solution of the backward problem at the same time.  Storage for
+  \id{JacB} already exists on entry to this function, although the
+  user should ensure that sufficient space is allocated in \id{JacB}
+  to hold the nonzero values to be set; if the existing space is
+  insufficient the user may reallocate the data and row index arrays
+  as needed.  The type of \id{JacB} is \id{SlsMat}, and the amount of
+  allocated space is available within the \id{SlsMat} structure as
+  \id{NNZ}.  The \id{SlsMat} type is further documented in the Section
+  \S\ref{s:sls}.  More details on the rest of the arguments passed to
+  a function of type \id{CVSlsSparseJacFnBS} are given in
+  \S\ref{ss:sbjacFn}.
+
+  {\warn}Before calling the user's \id{CVSlsSparseJacFnBS}, {\cvodes}
+  needs to evaluate (through interpolation) the values of the states
+  from the forward integration.  If an error occurs in the
+  interpolation, {\cvodes} triggers an unrecoverable failure in the
+  Jacobian function which will halt the integration (\id{CVodeB}
+  returns \id{CV\_LSETUP\_FAIL} and {\cvklu} or {\cvsuperlumt} sets
+  \id{last\_flag} to \Id{CVSLS\_JACFUNC\_UNRECVR}).
+}
+
+%%-------------------------------------------------------------------------------------
+\subsection{Jacobian information for the backward problem
  (matrix-vector product)}\label{ss:jtimesv_b}
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
 If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr}
@@ -2587,7 +2833,7 @@ The adjoint module in {\cvodes} offers an interface to the band-block-diagonal
 preconditioner module {\cvbbdpre} described in section \S\ref{sss:cvbbdpre}.
 This generates a preconditioner that is a block-diagonal matrix with each
 block being a band matrix and can be used with one of the Krylov linear solvers
-and with the parallel vector module {\nvecp}.
+and with the MPI-parallel vector module {\nvecp}.
 
 In order to use the {\cvbbdpre} module in the solution of the backward problem,
 the user must define one or two additional functions, described at the

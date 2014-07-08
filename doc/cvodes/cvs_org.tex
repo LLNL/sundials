@@ -66,7 +66,7 @@ the backward integration, and the backward integration of the adjoint equations.
 
 \index{CVODES@{\cvodes} linear solvers!list of|(} 
 At present, the package includes the following eight {\cvodes} linear algebra
-modules, organized into two families. The {\em direct} familiy of linear
+modules, organized into two families. The {\em direct} family of linear
 solvers provides solvers for the direct solution of linear systems with
 dense or banded matrices and includes:
 \begin{itemize} 
@@ -74,6 +74,12 @@ dense or banded matrices and includes:
   (using either an internal implementation or Blas/Lapack); 
 \item {\cvband}: LU factorization and backsolving with banded matrices
   (using either an internal implementation or Blas/Lapack); 
+\item {\cvklu}: LU factorization and backsolving with
+  compressed-sparse-column (CSC) matrices using the KLU linear solver
+  library \cite{KLU_site};
+\item {\cvsuperlumt}: LU factorization and backsolving with
+  compressed-sparse-column (CSC) matrices using the threaded
+  SuperLU\_MT linear solver library \cite{SuperLUMT_site}.
 \end{itemize}
 The {\em spils} family of linear solvers provides scaled preconditioned
 iterative linear solvers and includes:
@@ -82,7 +88,7 @@ iterative linear solvers and includes:
 \item {\cvspbcg}: scaled preconditioned Bi-CGStab method;
 \item {\cvsptfqmr}: scaled preconditioned TFQMR method.
 \end{itemize}
-Additionally, {\cvode} includes:
+Additionally, {\cvodes} includes:
 \begin{itemize}
 \item {\cvdiag}: an internally generated diagonal approximation to the 
   Jacobian; 
@@ -94,7 +100,11 @@ future as new algorithms are developed.
 In the case of the direct methods {\cvdense} and {\cvband}
 the package includes an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly.  In the case of the Krylov iterative
+(or an approximation to it) directly.  When using the sparse direct
+linear solvers {\cvklu} and {\cvsuperlumt} the user must supply a
+routine for the Jacobian (or an approximation to it) in CSC format,
+since standard difference quotient approximations do not leverage the
+inherent sparsity of the problem. In the case of the Krylov iterative
 methods {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}, the package includes an algorithm
 for the approximation by difference quotients of the product between the Jacobian
 matrix and a vector of appropriate length. Again, the user has the option of
@@ -122,23 +132,22 @@ of the linear system method.
 
 These modules are also decomposed in another way.
 \index{generic linear solvers!use in {\cvodes}|(} 
-With the exception of {\cvdiag} and the modules interfacing to Lapack linear solvers,
-each of the modules {\cvdense}, {\cvband}, {\cvspgmr}, {\cvspbcg}, and
-{\cvsptfqmr} is a set of interface routines built on top of a generic solver
-module, named {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.
-The interfaces deal with the use of these methods in the {\cvodes} context, 
-whereas the generic solver is independent of the context.
-While the generic solvers here were generated with {\sundials} in mind, our
-intention is that they be usable in other applications as
-general-purpose solvers.  This separation also allows for any generic
-solver to be replaced by an improved version, with no necessity to
-revise the {\cvodes} package elsewhere.
-\index{generic linear solvers!use in {\cvodes}|)}
+With the exception of {\cvdiag}, each of the linear solver modules
+({\cvdense} etc.) consists of an interface built on top of a generic linear
+system solver ({\dense} etc.).  The interface deals with the use of the
+particular method in the {\cvodes} context, whereas the generic solver is
+independent of the context.  While some of the generic linear system solvers
+({\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}) were written with
+{\sundials} in mind, they are intended to be usable anywhere as general-purpose
+solvers.  This separation also allows for any generic solver to be replaced by
+an improved version, with no necessity to revise the {\cvodes} package elsewhere.
+\index{generic linear solvers!use in {\cvodes}|)}.
 
 {\cvodes} also provides two preconditioner modules for use with any of
 the Krylov iterative linear solvers.  The first one, {\cvbandpre}, is
-intended to be used with {\nvecs} and provides banded difference-quotient
-Jacobian-based preconditioner and solver routines.  The second
+intended to be used with {\nvecs}, {\nvecopenmp} or {\nvecpthreads}
+and provides a banded difference-quotient Jacobian-based
+preconditioner, with corresponding setup and solve routines.  The second 
 preconditioner module, {\cvbbdpre}, works in conjunction with {\nvecp}
 and generates a preconditioner that is a block-diagonal matrix with
 each block being a band matrix.

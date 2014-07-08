@@ -103,16 +103,21 @@ whenever the step size or method order changes.
 For the solution of the linear systems within the Newton corrections, 
 {\idas} provides several choices, including the option of an user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
-are organized in two families, a {\em direct} family comprising direct linear 
-solvers for dense or banded matrices and a {\em spils} family comprising
-scaled preconditioned iterative (Krylov) linear solvers. 
+are organized in three families, a {\em direct} family comprising direct linear 
+solvers for dense or banded matrices, a {\em sparse} family comprising
+direct linear solvers for matrices stored in compressed-sparse-column
+format, and a {\em spils} family comprising scaled preconditioned
+iterative (Krylov) linear solvers. 
 %%
 The methods offered through these modules are as follows:
 \begin{itemize}
 \item dense direct solvers, using either an internal implementation or 
-  a Blas/Lapack implementation (serial version only),
+  a Blas/Lapack implementation (serial or threaded vector modules only),
 \item band direct solvers, using either an internal implementation or 
-  a Blas/Lapack implementation (serial version only),
+  a Blas/Lapack implementation (serial or threaded vector modules only),
+\item sparse direct solvers, using either the KLU sparse solver
+  library \cite{KLU_site}, or the PThreads-enabled SuperLU\_MT sparse
+  solver library \cite{SuperLUMT_site} (serial or threaded vector modules only),
 \item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
   solver without restarts,
 \item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
@@ -130,8 +135,8 @@ form of the user-supplied preconditioner matrix \cite{BrHi:89}.
 For the {\em spils} linear solvers,  preconditioning is allowed
 only on the left (see \S\ref{s:preconditioning}).
 %%
-Note that the direct linear solvers (dense and band) can only be 
-used with serial vector representations.
+Note that the direct linear solvers (dense, band and sparse) can only be 
+used with serial or threaded vector representations.
 
 % WRMS Norm
 %----------
@@ -152,7 +157,7 @@ usually drop the subscript WRMS on norms in what follows.
 
 % Newton iteration
 %-----------------
-In the case of a direct linear solver (dense or banded), the nonlinear 
+In the case of a direct linear solver (dense, band or sparse), the nonlinear 
 iteration (\ref{e:DAE_Newtoncorr}) is a Modified Newton iteration, in
 that the Jacobian $J$ is fixed (and usually out of date), with a coefficient 
 $\bar\alpha$ in place of $\alpha$ in $J$. When using one of the Krylov methods
@@ -235,6 +240,10 @@ Jv = [F(t,y+\sigma v, \dot y +\alpha\sigma v) - F(t,y, \dot y)]/\sigma \, ,
 \end{equation*}
 where the increment $\sigma$ is $1/\|v\|$.  As an option, the user can
 specify a constant factor that is inserted into this expression for $\sigma$.
+
+We note that with the sparse direct solvers, the Jacobian {\em must}
+be supplied by a user routine in compressed-sparse-column format.
+
 
 % Error control
 %--------------
