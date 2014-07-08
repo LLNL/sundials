@@ -53,16 +53,21 @@ A test for convergence is made before the iteration continues.
 For solving the linear system given in step 2(a), {\kinsol} provides
 several choices, including the option of a user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
-are organized in two families, a {\em direct} family comprising direct linear 
-solvers for dense or banded matrices and a {\em spils} family comprising
-scaled preconditioned iterative (Krylov) linear solvers. 
+are organized in three families, a {\em direct} family comprising direct linear 
+solvers for dense or banded matrices, a {\em sparse} family comprising
+direct linear solvers for matrices stored in compressed-sparse-column
+format, and a {\em spils} family comprising scaled preconditioned
+iterative (Krylov) linear solvers. 
 %%
 The methods offered through these modules are as follows:
 \begin{itemize}
 \item dense direct solvers, using either an internal implementation or 
-  a Blas/Lapack implementation (serial version only),
+  a Blas/Lapack implementation (serial or threaded vector modules only),
 \item band direct solvers, using either an internal implementation or 
-  a Blas/Lapack implementation (serial version only),
+  a Blas/Lapack implementation (serial or threaded vector modules only),
+\item sparse direct solvers, using either the KLU sparse solver
+  library \cite{KLU_site}, or the PThreads-enabled SuperLU\_MT sparse
+  solver library \cite{SuperLUMT_site} (serial or threaded vector modules only),
 \item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
   solver without restarts,
 \item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
@@ -75,8 +80,8 @@ solved exactly, thus resulting in a Modified Newton method (the Jacobian matrix
 is normally out of date; see below\footnote{{\kinsol} allows the user to enforce 
 a Jacobian evaluation at each iteration thus allowing for an Exact Newton iteration.}). 
 %%
-Note that the direct linear solvers (dense and band) can only be used with 
-serial vector representations.
+Note that the direct linear solvers (dense, band and sparse) can only
+be used with the serial and threaded vector representations.
 
 On the other hand, when using any of the iterative linear solvers
 (GMRES, Bi-CGStab, or TFQMR), the linear system in 2(a) is solved only
@@ -298,6 +303,10 @@ In the dense case, this scheme requires $N$ evaluations of $F$,
 one for each column of $J$.  In the band case, the columns of 
 $J$ are computed in groups, by the Curtis-Powell-Reid algorithm, 
 with the number of $F$ evaluations equal to the bandwidth.
+
+We note that with the sparse direct solvers, the Jacobian {\em must}
+be supplied by a user routine in compressed-sparse-column format,
+i.e. it is not approximated internally within {\kinsol}.
 
 In the case of a Krylov method, Jacobian information is needed 
 only as matrix-vector products $Jv$.  If a routine for $Jv$ is 

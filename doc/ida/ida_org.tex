@@ -94,16 +94,16 @@ of the linear system method.
 These modules are also decomposed in another way.
 \index{generic linear solvers!use in {\ida}|(} 
 With the exception of the modules interfacing to Lapack linear solvers,
-each of the modules {\idadense}, {\idaband}, {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}
-is a set of interface routines built on top of a generic solver module, 
-named {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.  
-The interfaces deal with the use of these methods in the {\ida} context, 
-whereas the generic solver is independent of the context.
-While the generic solvers here were generated with {\sundials} in mind, our
-intention is that they be usable in other applications as
-general-purpose solvers.  This separation also allows for any generic
-solver to be replaced by an improved version, with no necessity to
-revise the {\ida} package elsewhere.
+each of the modules ({\idadense}, etc.) consists of an interface built
+on top of a generic lienar system solver ({\dense}, etc.).  The
+interface deals with the use of the particular method in the {\ida}
+context, whereas the generic solver is independent of the context.
+While some of the generic linear system solvers ({\dense}, {\band},
+{\spgmr}, {\spbcg}, and {\sptfqmr}) were written with {\sundials} in
+mind, they are intended to be usable anywhere as general-purpose
+solvers.  This separation also allows for any generic solver to be
+replaced by an improved version, with no necessity to revise the
+{\ida} package elsewhere.
 \index{generic linear solvers!use in {\ida}|)}
 
 {\ida} also provides a preconditioner module,

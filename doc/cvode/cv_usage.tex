@@ -1388,6 +1388,8 @@ Band Jacobian function & \id{CVDlsSetBandJacFn} & DQ\\
 \multicolumn{3}{|c|}{\bf CVSLS linear solvers} \\
 \hline
 Sparse Jacobian function & \id{CVSlsSetSparseJacFn} & none\\
+Sparse matrix ordering algorithm & \id{CVKLUSetOrdering} & \id{COLAMD} \\
+Sparse matrix ordering algorithm & \id{CVSuperLUMTSetOrdering} & \id{COLAMD} \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPILS linear solvers} \\
 \hline
@@ -2121,6 +2123,92 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
 {
   The function type \id{CVSlsSparseJacFn} is described in \S\ref{ss:sjacFn}.
 }
+%%
+%%
+\index{CVKLU@{\cvklu} linear solver!matrix reordering algorithm specification}
+\index{CVSUPERLUMT@{\cvsuperlumt} linear solver!matrix reordering algorithm specification}
+Both the {\cvklu} and {\cvsuperlumt} solvers can apply reordering
+algorithms to minimize fill-in for the resulting sparse $LU$
+decomposition internal to the solver.  The approximate minimal degree
+ordering for unsymmetric matrices given by the \id{COLAMD} algorithm
+is the default algorithm used within both solvers, but alternate
+orderings may be chosen through one of the following two functions.
+%%
+\ucfunction{CVKLUSetOrdering}
+{
+  flag = CVKLUSetOrdering(cv\_mem, ordering\_choice);
+}
+{
+  The function \ID{CVKLUSetOrdering} specifies the ordering algorithm
+  used by {\cvklu} for reducing fill.
+}
+{
+  \begin{args}[cv\_mem]
+  \item[cv\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[ordering\_choice] (\id{int})
+    flag denoting algorithm choice:
+    \begin{itemize}
+    \item[0] \id{AMD}
+    \item[1] \id{COLAMD}
+    \item[2] natural ordering
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSLS\_LMEM\_NULL]
+  \item[\Id{CVSLS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSLS\_MEM\_NULL}]
+    The \id{cv\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSLS\_ILL\_INPUT}]
+    The supplied value of \id{ordering\_choice} is illegal.
+  \end{args}
+}
+{
+  The default ordering choice is \id{COLAMD}.
+}
+%%
+%%
+\ucfunction{CVSuperLUMTSetOrdering}
+{
+  flag = CVSuperLUMTSetOrdering(cv\_mem, ordering\_choice);
+}
+{
+  The function \ID{CVSuperLUMTSetOrdering} specifies the ordering algorithm
+  used by {\cvsuperlumt} for reducing fill.
+}
+{
+  \begin{args}[cv\_mem]
+  \item[cv\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[ordering\_choice] (\id{int})
+    flag denoting algorithm choice:
+    \begin{itemize}
+    \item[0] natural ordering
+    \item[1] minimal degree ordering on $J^TJ$
+    \item[2] minimal degree ordering on $J^T + J$
+    \item[3] \id{COLAMD}
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSLS\_LMEM\_NULL]
+  \item[\Id{CVSLS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSLS\_MEM\_NULL}]
+    The \id{cv\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSLS\_ILL\_INPUT}]
+    The supplied value of \id{ordering\_choice} is illegal.
+  \end{args}
+}
+{
+  The default ordering choice is \id{COLAMD}.
+}
+%%
+%%
 \index{CVSUPERLUMT@{\cvsuperlumt} linear solver!optional input|)}
 \index{CVKLU@{\cvklu} linear solver!optional input|)}
 \index{optional input!sparse linear solver|)}
@@ -3567,9 +3655,6 @@ the name of an optional output from the main solver, a suffix \id{LS}
 The following optional outputs are available from the {\cvsls} modules:
 number of calls to the Jacobian routine
 and last return value from a {\cvsls} function.
-Note that, where the name of an output would otherwise conflict with
-the name of an optional output from the main solver, a suffix \id{LS}
-(for Linear Solver) has been added here (e.g. \id{lenrwLS}).
 %%
 %%
 \ucfunction{CVSlsGetNumJacEvals}
@@ -3597,7 +3682,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \item[\Id{CVSLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVSLS\_LMEM\_NULL}]
-    The {\cvdls} linear solver has not been initialized.
+    The {\cvsls} linear solver has not been initialized.
   \end{args}
 }
 {}
@@ -3627,7 +3712,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   \item[\Id{CVSLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVSLS\_LMEM\_NULL}]
-    The {\cvdls} linear solver has not been initialized.
+    The {\cvsls} linear solver has not been initialized.
   \end{args}
 }
 {
@@ -4595,7 +4680,7 @@ the user may provide a function of type \Id{CVDlsBandJacFn} defined as follows:
 
 If the direct linear solver with sparse treatment of the Jacobian is used 
 (i.e., \Id{CVKLU} or \Id{CVSuperLUMT} is called in Step
-\ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), the user may provide a
+\ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), the user must provide a
 function of type \Id{CVSlsSparseJacFn} defined by: 
 %
 %
