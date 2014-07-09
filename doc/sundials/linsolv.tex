@@ -563,8 +563,10 @@ typedef struct _SlsMat {
 } *SlsMat;
 \end{verbatim}
 %%
-The fields of this structure are as follows (note that a sparse matrix
-of type \id{SlsMat} need not be square): 
+The fields of this structure are as follows (see Figure \ref{f:cscmat}
+for a diagram of the underlying compressed-sparse-column
+representation in a sparse matrix of type \id{SlsMat}).  Note that a
+sparse matrix of type \id{SlsMat} need not be square.
 \begin{description}
   \item[M]  - number of rows
   \item[N]  - number of columns
@@ -585,21 +587,59 @@ of type \id{SlsMat} need not be square):
     points one past the end of the active data in the {\id data} and
     {\id rowvals} arrays.
 \end{description}
+For example, the $5\times 4$ matrix
+\[
+  \left[\begin{array}{cccc} 
+     0 & 3 & 1 & 0\\
+     3 & 0 & 0 & 2\\
+     0 & 7 & 0 & 0\\
+     1 & 0 & 0 & 9\\
+     0 & 0 & 0 & 5
+  \end{array}\right]
+\]
+could be stored in a \id{SlsMat} structure as either
+\begin{verbatim}
+  M = 5;
+  N = 4;
+  NNZ = 8;
+  data = {3.0, 1.0, 3.0, 7.0, 1.0, 2.0, 9.0, 5.0};
+  rowvals = {1, 3, 0, 2, 0, 1, 3, 4};
+  colptrs = {0, 2, 4, 5, 8};
+\end{verbatim}
+or 
+\begin{verbatim}
+  M = 5;
+  N = 4;
+  NNZ = 10;
+  data = {3.0, 1.0, 3.0, 7.0, 1.0, 2.0, 9.0, 5.0, *, *};
+  rowvals = {1, 3, 0, 2, 0, 1, 3, 4, *, *};
+  colptrs = {0, 2, 4, 5, 8};
+\end{verbatim}
+where the first has no unused space, and the second has additional
+storage (the entries marked with \texttt{*} may contain any values).
 %%
 %%
 %%
-% \begin{figure}
-% \centerline{\psfig{figure=cscmat.eps,width=4.5 in}}
-% \caption[Diagram of the storage for a compressed-sparse-column matrix of type \id{SlsMat}]
-%   {Diagram of the storage for a compressed-sparse-column matrix of type \id{SlsMat}. Here \id{A} is an
-%   $M \times N$ band matrix of type {\id SlsMat} with a maximum of {\id NNZ} 
-%   nonzero entries.  The row indices and column pointer indices are
-%   numbered from $0$ to $M-1$ and $0$ to $N-1$, respectively, 
-%   and the ($i,j$)-th element of \id{A} is denoted \id{A(i,j)}. Here,
-%   although {\id NNZ} values are allocated, only {\id nnz} are actually
-%   filled in; the greyed-out portions of {\id data} and {\id rowvals}
-%   indicate extra allocated space.}\label{f:cscmat}
-% \end{figure}
+\begin{figure}
+\centerline{\psfig{figure=cscmat.eps,width=4.5 in}}
+\caption[Diagram of the storage for a compressed-sparse-column matrix
+  of type \id{SlsMat}] 
+  {Diagram of the storage for a compressed-sparse-column matrix of
+  type \id{SlsMat}. Here \id{A} is an $M \times N$ sparse matrix of
+  type \id{SlsMat} with storage for up to \id{NNZ} nonzero entries
+  (the allocated length of both \id{data} and \id{rowvals}).  The
+  entries in \id{rowvals} may assume values from $0$ to $M-1$,
+  corresponding to the row index (zero-based) of each nonzero value.
+  The entries in \id{data} contain the values of the nonzero entries,
+  with the row $i$, column $j$ entry of \id{A} (again, zero-based)
+  denoted as \id{A(i,j)}.  The \id{colprts} array contains $N+1$
+  entries; the first $N$ denote the starting index of each column
+  within the \id{rowvals} and \id{data} arrays, while the final entry
+  points one past the final nonzero entry.  Here, although \id{NNZ}
+  values are allocated, only \id{nz} are actually filled in; the
+  greyed-out portions of {\id data} and {\id rowvals} indicate extra
+  allocated space.}\label{f:cscmat}
+\end{figure}
 %%
 %%
 

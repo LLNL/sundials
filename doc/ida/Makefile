@@ -51,6 +51,7 @@ biblio.bib \
 
 UG_SHARED_FIGURES = \
 bandmat.eps \
+cscmat.eps \
 sunorg1.eps \
 sunorg2.eps \
 doc_logo.eps
