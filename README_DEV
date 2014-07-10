@@ -1,5 +1,93 @@
-Conventions on shared library versioning
-----------------------------------------
+=========================
+SUNDIALS Developer README
+=========================
+
+This document is broken into three primary sections:
+
+1. New development checklist, covering a minimal set of tasks that
+   should be performed when adding new functionality to SUNDIALS.
+
+2. Description of the SUNDIALS shared library version numbering
+   scheme, including instructions on how to enforce this numbering
+   system using either Libtool or CMake.
+
+3. Table containing the SUNDIALS library version history, which maps
+   between the release numbers of each individual library, the main
+   SUNDIALS library release number, and the associated shared library
+   number (see item 2).
+
+
+
+
+1. New development checklist
+============================
+
+When adding new functionality to SUNDIALS, in the form of bugfixes,
+new solvers, new solver options, new test problems, or modifications
+to the SUNDIALS build system, developers should adhere to the
+following checklist.
+
+a. When adding new source code files, ensure that the corresponding 
+   CMakeLists.txt file(s) is/are updated to include your file(s).  If 
+   your files depend on external libraries, emulate the
+   Latex/KLU/SuperLU_MT CMake options to ensure that these files are
+   only included when SUNDIALS is configured to use that library.
+
+b. Configure SUNDIALS using the C flags "-Wall -ansi -pedantic", to
+   aid in catching compatibility issues on other platforms (Windows). 
+   When building, modify your file to remove any error/warning
+   messages output during compilation of your code.
+
+c. Configure your build with a maximal set of configuration options
+   enabled (shared libraries, OpenMP, Pthreads, MPI, Lapack, KLU or
+   SuperLU_MT, FCMIX).  Run "make", "make test" and "make install" to 
+   ensure that everything functions smoothly.
+
+d. Configure your build with a minimal set of configuration options
+   enabled (serial, C).  Run "make", "make test" and "make install" to 
+   ensure that everything functions smoothly, even when no external
+   libraries are supplied.
+
+e. When implementing a bug-fix to an existing solver:
+   * If this change affects the user interface, update the solver
+     documentation to describe the updated interface.
+   * For any problems that now fail when running "make test", verify
+     that the bugfix either made only cosmetic changes or improved the 
+     results, and copy the updated test output into the examples/ and
+     test/answers/ directories (see item g. below).
+
+f. When adding new solvers or new solver options:
+   * Update the documentation to include descriptions of your work.
+     Ensure that the documentation also compiles ("make ug_pdf" in the
+     relevant directory).
+   * Add a new example problem (or multiple problems) to the examples/
+     directory to demonstrate how to use your solver/option, and to
+     include in SUNDIALS' automated nightly tests.
+   * Update the solver-specific README file, in src/<solver>/, to
+     describe the new feature.
+   * For any problems that now fail when running "make test", verify
+     that your updates either made only cosmetic changes or improved
+     the results, and copy the updated test output into the examples/
+     and test/answers/ directories (see item g. below).
+
+g. When adding new test or example problems to the examples/ directory:
+   * Ensure that your new file has a unique name,
+   * Ensure that the reference output is included, e.g. if a file foo.c
+     is added, also add foo.out. 
+   * Copy this same output file, without the ".out" extension, to the
+     test/answers/ directory. 
+   * Update the example problem documentation for that solver to
+     include a description of the new problem.
+
+h. When adding any new files, update the corresponding solver script in
+   the scripts/ directory to include your file(s) within the
+   distribution. 
+
+
+
+
+2. Conventions on shared library versioning
+===========================================
 
 A complete name is libfoo.so.x.y.z where the VERSION x.y.z represents 
 x = major
@@ -67,8 +155,10 @@ Note that we force SOVERSION to be the same as the major number for compatibilit
 the libtool versioning scheme (at least under Linux)
 
 
-SUNDIALS VERSION HISTORY
-------------------------
+
+
+3. SUNDIALS version history
+===========================
 
 Note: there was no library versioning before sundials-2.2.0
 
