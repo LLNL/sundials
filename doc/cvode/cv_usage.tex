@@ -725,11 +725,10 @@ solver, as specified below.
 \index{CVODE@{\cvode} linear solvers!selecting one|)}
 
 \index{CVODE@{\cvode} linear solvers!built on generic solvers|(} 
-In each case except the diagonal approximation case {\cvdiag} and the
-externally-provided direct solvers (Lapack, KLU and SuperLU\_MT),
+In each case except the diagonal approximation case {\cvdiag},
 the linear solver module used by {\cvode} is actually built on top of a generic
-linear system solver, which may be of interest in itself.  These generic
-solvers, denoted {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr},
+linear system solver, which may be of interest in itself.  These generic solvers,
+denoted {\dense}, {\band}, {\klu}, {\superlumt}, {\spgmr}, {\spbcg}, and {\sptfqmr},
 are described separately in Chapter \ref{s:gen_linsolv}.
 \index{CVODE@{\cvode} linear solvers!built on generic solvers|)}
 
@@ -2130,7 +2129,7 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
 Both the {\cvklu} and {\cvsuperlumt} solvers can apply reordering
 algorithms to minimize fill-in for the resulting sparse $LU$
 decomposition internal to the solver.  The approximate minimal degree
-ordering for unsymmetric matrices given by the \id{COLAMD} algorithm
+ordering for nonsymmetric matrices given by the \id{COLAMD} algorithm
 is the default algorithm used within both solvers, but alternate
 orderings may be chosen through one of the following two functions.
 %%
@@ -2720,6 +2719,12 @@ Size of {\cvdiag} real and integer workspaces & \id{CVDiagGetWorkSpace} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDiagGetNumRhsEvals} \\ 
 Last return from a {\cvdiag} function & \id{CVDiagGetLastFlag} \\ 
 Name of constant associated with a return flag & \id{CVDiagGetReturnFlagName} \\
+\hline
+\multicolumn{2}{|c|}{\bf CVSLS linear solvers} \\
+\hline
+No. of Jacobian evaluations & \id{CVSlsGetNumJacEvals} \\
+Last return from a linear solver function & \id{CVSlsGetLastFlag} \\
+Name of constant associated with a return flag & \id{CVSlsGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVSPILS linear solvers} \\
 \hline
