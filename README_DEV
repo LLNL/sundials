@@ -72,6 +72,10 @@ f. When adding new solvers or new solver options:
 
 g. When adding new test or example problems to the examples/ directory:
    * Ensure that your new file has a unique name,
+   * After running "make install", change to the installed examples/
+     directory and ensure that "make" succeeds, since the
+     CMake-generated Makefile system differs from how the examples are
+     built within SUNDIALS.
    * Ensure that the reference output is included, e.g. if a file foo.c
      is added, also add foo.out. 
    * Copy this same output file, without the ".out" extension, to the
