@@ -39,12 +39,14 @@ SET(ARKODE_examples_KLU
 # that use SUPERLUMT
 
 SET(ARKODE_examples_SUPERLUMT
+  ark_brusselator1D_FEM_slu
   )
 
 # Add variable ARKODE_extras with the names of auxiliary files to install
 
 SET(ARKODE_extras
   plot_brusselator1D.py
+  plot_brusselator1D_FEM.py
   plot_heat1D.py
   plot_heat1D_adapt.py
   plot_sol.py
@@ -116,6 +118,20 @@ IF(KLU_FOUND)
     ENDIF(EXAMPLES_INSTALL)
   ENDFOREACH(example ${ARKODE_examples_KLU})
 ENDIF(KLU_FOUND)
+
+# If SuperLUMT support is enabled, add the build and install targets for 
+# the examples using SuperLUMT
+IF(SUPERLUMT_FOUND)
+  FOREACH(example ${ARKODE_examples_SUPERLUMT})
+    ADD_EXECUTABLE(${example} ${example}.c)
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SUNDIALS_ADD_TEST(${example} ${example})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    IF(EXAMPLES_INSTALL)
+      INSTALL(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
+    ENDIF(EXAMPLES_INSTALL)
+  ENDFOREACH(example ${ARKODE_examples_SUPERLUMT})
+ENDIF(SUPERLUMT_FOUND)
 
 IF(EXAMPLES_INSTALL)
 

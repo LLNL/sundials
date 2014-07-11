@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------
  Programmer(s): Daniel R. Reynolds @ SMU
  ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
+ Copyright (c) 2014, Southern Methodist University.
  All rights reserved.
  For details, see the LICENSE file.
  ----------------------------------------------------------------
@@ -30,7 +30,9 @@
 
  This program solves the problem with the DIRK method, using a
  Newton iteration with the ARKBAND band linear solver, and a
- user-supplied Jacobian routine.
+ user-supplied Jacobian routine.  This example uses the OpenMP 
+ vector kernel, and employs OpenMP threading within the 
+ right-hand side and Jacobian construction functions.
 
  100 outputs are printed at equal intervals, and run statistics 
  are printed at the end.
@@ -41,16 +43,18 @@
 #include <stdlib.h>
 #include <math.h>
 #include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
-#include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
+#include <nvector/nvector_openmp.h>   /* OpenMP N_Vector types, fcts., macros */
 #include <arkode/arkode_band.h>       /* prototype for ARKBand solver */
-#include <sundials/sundials_band.h>   /* defs. of DlsMat and BAND_ELEM */
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
+#ifdef _OPENMP
+#include <omp.h>                      /* OpenMP functions */
+#endif
 
 /* accessor macros between (x,v) location and 1D NVector array */
 #define IDX(x,v) (3*(x)+v)
 
 /* user data structure */
-typedef struct {
+typedef struct {  
   long int N;    /* number of intervals     */
   realtype dx;   /* mesh spacing            */
   realtype a;    /* constant forcing on u   */
@@ -61,10 +65,11 @@ typedef struct {
   realtype ep;   /* stiffness parameter     */
 } *UserData;
 
+
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Jac(long int N, long int mu, long int ml,
-               realtype t, N_Vector y, N_Vector fy,
+               realtype t, N_Vector y, N_Vector fy, 
                DlsMat J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -105,7 +110,7 @@ int main()
   void *arkode_mem = NULL;      /* empty ARKode memory structure */
   realtype pi, t, dTout, tout, u, v, w;
   FILE *FID, *UFID, *VFID, *WFID;
-  int iout;
+  int iout, num_threads;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* allocate udata structure */
@@ -127,24 +132,28 @@ int main()
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem:\n");
   printf("    N = %li,  NEQ = %li\n", udata->N, NEQ);
+#ifdef _OPENMP
+  num_threads = omp_get_max_threads();
+  printf("    num_threads = %i\n", num_threads);
+#endif
   printf("    problem parameters:  a = %g,  b = %g,  ep = %g\n",
-      udata->a, udata->b, udata->ep);
-  printf("    diffusion coefficients:  du = %g,  dv = %g,  dw = %g\n",
-      udata->du, udata->dv, udata->dw);
+	 udata->a, udata->b, udata->ep);
+  printf("    diffusion coefficients:  du = %g,  dv = %g,  dw = %g\n", 
+	 udata->du, udata->dv, udata->dw);
   printf("    reltol = %.1e,  abstol = %.1e\n\n", reltol, abstol);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
-  udata->dx = RCONST(1.0)/(N-1);    /* set spatial mesh spacing */
-  data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
+  y = N_VNew_OpenMP(NEQ, num_threads);      /* Create vector for solution */
+  if (check_flag((void *)y, "N_VNew_OpenMP", 0)) return 1;
+  udata->dx = RCONST(1.0)/(N-1);            /* set spatial mesh spacing */
+  data = N_VGetArrayPointer(y);             /* Access data array for new NVector y */
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  umask = N_VNew_Serial(NEQ);       /* Create serial vector masks */
-  if (check_flag((void *)umask, "N_VNew_Serial", 0)) return 1;
-  vmask = N_VNew_Serial(NEQ);
-  if (check_flag((void *)vmask, "N_VNew_Serial", 0)) return 1;
-  wmask = N_VNew_Serial(NEQ);
-  if (check_flag((void *)wmask, "N_VNew_Serial", 0)) return 1;
+  umask = N_VNew_OpenMP(NEQ, num_threads);  /* Create vector masks */
+  if (check_flag((void *)umask, "N_VNew_OpenMP", 0)) return 1;
+  vmask = N_VNew_OpenMP(NEQ, num_threads);
+  if (check_flag((void *)vmask, "N_VNew_OpenMP", 0)) return 1;
+  wmask = N_VNew_OpenMP(NEQ, num_threads);
+  if (check_flag((void *)wmask, "N_VNew_OpenMP", 0)) return 1;
 
   /* Set initial conditions into y */
   pi = RCONST(4.0)*atan(RCONST(1.0));
@@ -157,17 +166,17 @@ int main()
   /* Set mask array values for each solution component */
   N_VConst(0.0, umask);
   data = N_VGetArrayPointer(umask);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return 1;
   for (i=0; i<N; i++)  data[IDX(i,0)] = RCONST(1.0);
 
   N_VConst(0.0, vmask);
   data = N_VGetArrayPointer(vmask);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return 1;
   for (i=0; i<N; i++)  data[IDX(i,1)] = RCONST(1.0);
 
   N_VConst(0.0, wmask);
   data = N_VGetArrayPointer(wmask);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return 1;
   for (i=0; i<N; i++)  data[IDX(i,2)] = RCONST(1.0);
 
   /* Create the solver memory */
@@ -194,11 +203,11 @@ int main()
   if (check_flag(&flag, "ARKDlsSetBandJacFn", 1)) return 1;
 
   /* output spatial mesh to disk */
-  FID = fopen("bruss_mesh.txt","w");
+  FID=fopen("bruss_mesh.txt","w");
   for (i=0; i<N; i++)  fprintf(FID,"  %.16e\n", udata->dx*i);
   fclose(FID);
-
-  /* Open output streams for results, access data array */
+  
+  /* Open output stream for results, access data arrays */
   UFID=fopen("bruss_u.txt","w");
   VFID=fopen("bruss_v.txt","w");
   WFID=fopen("bruss_w.txt","w");
@@ -251,7 +260,7 @@ int main()
   fclose(UFID);
   fclose(VFID);
   fclose(WFID);
-
+    
   /* Print some final statistics */
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
@@ -283,10 +292,10 @@ int main()
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy_Serial(y);         /* Free vectors */
-  N_VDestroy_Serial(umask);
-  N_VDestroy_Serial(vmask);
-  N_VDestroy_Serial(wmask);
+  N_VDestroy_OpenMP(y);         /* Free vectors */
+  N_VDestroy_OpenMP(umask);
+  N_VDestroy_OpenMP(vmask);
+  N_VDestroy_OpenMP(wmask);
   free(udata);                  /* Free user data */
   ARKodeFree(&arkode_mem);      /* Free integrator memory */
   return 0;
@@ -312,6 +321,9 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
   long int i;
 
+  /* clear out ydot (to be careful) */
+  N_VConst(0.0, ydot);
+
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
   dYdata = N_VGetArrayPointer(ydot);
@@ -322,28 +334,32 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   uconst = du/dx/dx;
   vconst = dv/dx/dx;
   wconst = dw/dx/dx;
+#pragma omp parallel for default(shared) private(i,u,ul,ur,v,vl,vr,w,wl,wr) schedule(static)
   for (i=1; i<N-1; i++) {
+
     /* set shortcuts */
     u = Ydata[IDX(i,0)];  ul = Ydata[IDX(i-1,0)];  ur = Ydata[IDX(i+1,0)];
     v = Ydata[IDX(i,1)];  vl = Ydata[IDX(i-1,1)];  vr = Ydata[IDX(i+1,1)];
     w = Ydata[IDX(i,2)];  wl = Ydata[IDX(i-1,2)];  wr = Ydata[IDX(i+1,2)];
 
-    /* Fill in ODE RHS for u */
+    /* u_t = du*u_xx + a - (w+1)*u + v*u^2 */
     dYdata[IDX(i,0)] = (ul - RCONST(2.0)*u + ur)*uconst + a - (w+RCONST(1.0))*u + v*u*u;
 
-    /* Fill in ODE RHS for v */
+    /* v_t = dv*v_xx + w*u - v*u^2 */
     dYdata[IDX(i,1)] = (vl - RCONST(2.0)*v + vr)*vconst + w*u - v*u*u;
 
-    /* Fill in ODE RHS for w */
+    /* w_t = dw*w_xx + (b-w)/ep - w*u */
     dYdata[IDX(i,2)] = (wl - RCONST(2.0)*w + wr)*wconst + (b-w)/ep - w*u;
+
   }
 
   /* enforce stationary boundaries */
   dYdata[IDX(0,0)]   = dYdata[IDX(0,1)]   = dYdata[IDX(0,2)]   = 0.0;
   dYdata[IDX(N-1,0)] = dYdata[IDX(N-1,1)] = dYdata[IDX(N-1,2)] = 0.0;
 
-  return 0;     /* Return with success */
+  return 0;
 }
+
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
 static int Jac(long int M, long int mu, long int ml,
@@ -355,12 +371,18 @@ static int Jac(long int M, long int mu, long int ml,
   SetToZero(J);                              /* Initialize Jacobian to zero */
 
   /* Fill in the Laplace matrix */
-  LaplaceMatrix(RCONST(1.0), J, udata);
+  if (LaplaceMatrix(RCONST(1.0), J, udata)) {
+    printf("Jacobian calculation error in calling LaplaceMatrix!\n");
+    return 1;
+  }
 
   /* Add in the Jacobian of the reaction terms matrix */
-  ReactionJac(RCONST(1.0), y, J, udata);
+  if (ReactionJac(RCONST(1.0), y, J, udata)) {
+    printf("Jacobian calculation error in calling ReactionJac!\n");
+    return 1;
+  }
 
-  return 0;                                  /* Return with success */
+  return 0;
 }
 
 /*-------------------------------
@@ -374,9 +396,12 @@ static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
   long int i;                /* set shortcuts */
   long int N = udata->N;
   realtype dx = udata->dx;
-
-  /* iterate over intervals, filling in Jacobian of (L*y) */
+  
+  /* iterate over intervals, filling in Jacobian entries */
+#pragma omp parallel for default(shared) private(i) schedule(static)
   for (i=1; i<N-1; i++) {
+
+    /* Jacobian of (L*y) at this node */
     BAND_ELEM(Jac,IDX(i,0),IDX(i-1,0)) += c*udata->du/dx/dx;
     BAND_ELEM(Jac,IDX(i,1),IDX(i-1,1)) += c*udata->dv/dx/dx;
     BAND_ELEM(Jac,IDX(i,2),IDX(i-1,2)) += c*udata->dw/dx/dx;
@@ -388,8 +413,10 @@ static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
     BAND_ELEM(Jac,IDX(i,2),IDX(i+1,2)) += c*udata->dw/dx/dx;
   }
 
-  return 0;                  /* Return with success */
+  return 0;
 }
+
+
 
 /* Routine to compute the Jacobian matrix from R(y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
@@ -401,11 +428,13 @@ static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
   realtype ep = udata->ep;
   realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
-
-  /* iterate over nodes, filling in Jacobian of reaction terms */
+  
+  /* iterate over nodes, filling in Jacobian entries */
+#pragma omp parallel for default(shared) private(i,u,v,w) schedule(static)
   for (i=1; i<N-1; i++) {
 
-    u = Ydata[IDX(i,0)];                       /* set nodal value shortcuts */
+    /* set nodal value shortcuts (shifted index due to start at first interior node) */
+    u = Ydata[IDX(i,0)];
     v = Ydata[IDX(i,1)];
     w = Ydata[IDX(i,2)];
 
@@ -425,7 +454,7 @@ static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
 
   }
 
-  return 0;                                   /* Return with success */
+  return 0;
 }
 
 /* Check function return value...

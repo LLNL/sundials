@@ -9,7 +9,7 @@
 # All rights reserved.
 # For details, see the LICENSE file.
 # -----------------------------------------------------------------
-# CMakeLists.txt for @SOLVER@ serial examples
+# CMakeLists.txt for @SOLVER@ OpenMP examples
 #
 # This file is generated from a template using  various variables
 # set at configuration time. It can be used as a template for
@@ -31,7 +31,7 @@
 # -----------------------------------------------------------------
 
 # Specify project name
-PROJECT(@SOLVER@_serial_examples C)
+PROJECT(@SOLVER@_openmp_examples C)
 
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
@@ -57,7 +57,7 @@ FIND_LIBRARY(SUNDIALS_SOLVER_LIB
 
 # Find the NVECTOR library
 FIND_LIBRARY(SUNDIALS_NVEC_LIB
-  sundials_nvecserial ${SUNDIALS_LIB_DIR}
+  sundials_nvecopenmp ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR library")
 
 # Set additional libraries

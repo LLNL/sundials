@@ -31,7 +31,7 @@
 # -----------------------------------------------------------------
 
 # Specify project name
-PROJECT(@SOLVER@_serial_examples C)
+PROJECT(@SOLVER@_pthreads_examples C)
 
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
