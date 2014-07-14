@@ -2773,12 +2773,11 @@ to be needed in the user code. These are available in the
 corresponding header file associated with the linear solver, as
 specified below.
 
-In each case except the LAPACK, KLU and SuperLU\_MT direct solvers, the
-linear solver module used by ARKode is actually built on top of a
-generic linear system solver, which may be of interest in itself.
-These generic solvers, denoted DENSE, BAND, SPGMR, SPBCG, SPTFQMR,
-SPFGMR and PCG, are described separately in the section
-{\hyperref[linear_solvers/index:linearsolvers]{\emph{Linear Solvers in ARKode}}}.
+In each case the linear solver module used by ARKode is actually built
+on top of a generic linear system solver, which may be of interest in
+itself. These generic solvers, denoted DENSE, BAND, KLU, SUPERLUMT,
+SPGMR, SPBCG, SPTFQMR, SPFGMR and PCG, are described separately in the
+section {\hyperref[linear_solvers/index:linearsolvers]{\emph{Linear Solvers in ARKode}}}.
 \index{ARKDense (C function)}
 
 \begin{fulllineitems}
@@ -6739,6 +6738,34 @@ Sparse mass matrix function
  & 
 none
 \\\hline
+
+Sparse matrix ordering algorithm
+ & 
+{\hyperref[c_interface/User_callable:ARKKLUSetOrdering]{\code{ARKKLUSetOrdering()}}}
+ & 
+\code{COLAMD}
+\\\hline
+
+Sparse mass matrix ordering algorithm
+ & 
+{\hyperref[c_interface/User_callable:ARKMassKLUSetOrdering]{\code{ARKMassKLUSetOrdering()}}}
+ & 
+\code{COLAMD}
+\\\hline
+
+Sparse matrix ordering algorithm
+ & 
+{\hyperref[c_interface/User_callable:ARKSuperLUMTSetOrdering]{\code{ARKSuperLUMTSetOrdering()}}}
+ & 
+\code{COLAMD}
+\\\hline
+
+Sparse mass matrix ordering algorithm
+ & 
+{\hyperref[c_interface/User_callable:ARKMassSuperLUMTSetOrdering]{\code{ARKMassSuperLUMTSetOrdering()}}}
+ & 
+\code{COLAMD}
+\\\hline
 \end{tabulary}
 
 
@@ -6846,6 +6873,179 @@ has been initialized through a call to one of
 
 The function type {\hyperref[c_interface/User_supplied:ARKSlsSparseMassFn]{\code{ARKSlsSparseMassFn()}}} is described in the section
 {\hyperref[c_interface/User_supplied:cinterface-usersupplied]{\emph{User-supplied functions}}}.
+
+\end{fulllineitems}
+
+
+Both the ARKKLU and ARKSUPERLUMT solvers can apply reordering
+algorithms to minimize fill-in for the resulting sparse $LU$
+decomposition internal to the solver.  The approximate minimal degree
+ordering for nonsymmetric matrices given by the \code{COLAMD} algorithm
+is the default algorithm used within both solvers, but alternate
+orderings may be chosen through one of the following two functions.
+\index{ARKKLUSetOrdering (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:ARKKLUSetOrdering}\pysiglinewithargsret{int \bfcode{ARKKLUSetOrdering}}{void\emph{ *arkode\_mem}, int\emph{ ordering\_choice}}{}
+Specifies the ordering algorithm used by ARKKLU for reducing fill
+in the system solver.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{ordering\_choice} -- flag denoting algorithm choice:
+* \emph{0} -- \code{AMD}
+* \emph{1} -- \code{COLAMD}
+* \emph{2} -- natural ordering
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKSLS\_SUCCESS}  if successful
+
+\item {} 
+\emph{ARKSLS\_MEM\_NULL} if the linear solver memory was \code{NULL}
+
+\item {} 
+\emph{ARKSLS\_ILL\_INPUT} if the supplied value of \emph{ordering\_choice} is illegal
+
+\end{itemize}
+
+\item[{\textbf{Notes:}}] \leavevmode\begin{itemize}
+\item {} 
+The default ordering choice is \code{COLAMD}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKMassKLUSetOrdering (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:ARKMassKLUSetOrdering}\pysiglinewithargsret{int \bfcode{ARKMassKLUSetOrdering}}{void\emph{ *arkode\_mem}, int\emph{ ordering\_choice}}{}
+Specifies the ordering algorithm used by ARKKLU for reducing fill
+in the mass matrix solver.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{ordering\_choice} -- flag denoting algorithm choice:
+* \emph{0} -- \code{AMD}
+* \emph{1} -- \code{COLAMD}
+* \emph{2} -- natural ordering
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKSLS\_SUCCESS}  if successful
+
+\item {} 
+\emph{ARKSLS\_MEM\_NULL} if the linear solver memory was \code{NULL}
+
+\item {} 
+\emph{ARKSLS\_ILL\_INPUT} if the supplied value of \emph{ordering\_choice} is illegal
+
+\end{itemize}
+
+\item[{\textbf{Notes:}}] \leavevmode\begin{itemize}
+\item {} 
+The default ordering choice is \code{COLAMD}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKSuperLUMTSetOrdering (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:ARKSuperLUMTSetOrdering}\pysiglinewithargsret{int \bfcode{ARKSuperLUMTSetOrdering}}{void\emph{ *arkode\_mem}, int\emph{ ordering\_choice}}{}
+Specifies the ordering algorithm used by ARKSUPERLUMT for reducing
+fill in the system solver.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{ordering\_choice} -- flag denoting algorithm choice:
+* \emph{0} --natural ordering
+* \emph{1} -- minimal degree ordering on $A^TA$
+* \emph{2} -- minimal degree ordering on $A^T + A$
+* \emph{3} -- \code{COLAMD}
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKSLS\_SUCCESS}  if successful
+
+\item {} 
+\emph{ARKSLS\_MEM\_NULL} if the linear solver memory was \code{NULL}
+
+\item {} 
+\emph{ARKSLS\_ILL\_INPUT} if the supplied value of \emph{ordering\_choice} is illegal
+
+\end{itemize}
+
+\item[{\textbf{Notes:}}] \leavevmode\begin{itemize}
+\item {} 
+The default ordering choice is \code{COLAMD}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKMassSuperLUMTSetOrdering (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:ARKMassSuperLUMTSetOrdering}\pysiglinewithargsret{int \bfcode{ARKMassSuperLUMTSetOrdering}}{void\emph{ *arkode\_mem}, int\emph{ ordering\_choice}}{}
+Specifies the ordering algorithm used by ARKSUPERLUMT for reducing
+fill in the mass matrix solver.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{ordering\_choice} -- flag denoting algorithm choice:
+* \emph{0} --natural ordering
+* \emph{1} -- minimal degree ordering on $M^TM$
+* \emph{2} -- minimal degree ordering on $M^T + M$
+* \emph{3} -- \code{COLAMD}
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKSLS\_SUCCESS}  if successful
+
+\item {} 
+\emph{ARKSLS\_MEM\_NULL} if the linear solver memory was \code{NULL}
+
+\item {} 
+\emph{ARKSLS\_ILL\_INPUT} if the supplied value of \emph{ordering\_choice} is illegal
+
+\end{itemize}
+
+\item[{\textbf{Notes:}}] \leavevmode\begin{itemize}
+\item {} 
+The default ordering choice is \code{COLAMD}
+
+\end{itemize}
+
+\end{description}
 
 \end{fulllineitems}
 

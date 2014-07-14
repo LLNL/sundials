@@ -717,11 +717,10 @@ solver, as specified below.
 \index{IDA@{\ida} linear solvers!selecting one|)}
 
 \index{IDA@{\ida} linear solvers!built on generic solvers|(} 
-In each case (with the exception of the externally-provided direct
-solvers, Lapack, KLU and SuperLU\_MT),
-the linear solver module used by {\ida} is actually built on top of a generic
-linear system solver, which may be of interest in itself.  These
-generic solvers, denoted {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, are
+In each case the linear solver module used by {\ida} is actually built
+on top of a generic linear system solver, which may be of interest in
+itself.  These generic solvers, denoted {\dense}, {\band}, {\klu},
+{\superlumt}, {\spgmr}, {\spbcg}, and {\sptfqmr}, are 
 described separately in Chapter \ref{s:gen_linsolv}.
 \index{IDA@{\ida} linear solvers!built on generic solvers|)}
 %%
@@ -2148,7 +2147,7 @@ through \id{IDASetUserData}.
 Both the {\idaklu} and {\idasuperlumt} solvers can apply reordering
 algorithms to minimize fill-in for the resulting sparse $LU$
 decomposition internal to the solver.  The approximate minimal degree
-ordering for unsymmetric matrices given by the \id{COLAMD} algorithm
+ordering for nonsymmetric matrices given by the \id{COLAMD} algorithm
 is the default algorithm used within both solvers, but alternate
 orderings may be chosen through one of the following two functions.
 %%
@@ -2979,6 +2978,12 @@ No. of Jacobian evaluations & \id{IDADlsGetNumJacEvals} \\
 No. of residual calls for finite diff. Jacobian evals. & \id{IDADlsGetNumResEvals} \\ 
 Last return from a linear solver function & \id{IDADlsGetLastFlag} \\ 
 Name of constant associated with a return flag & \id{IDADlsGetReturnFlagName} \\
+\hline
+\multicolumn{2}{|c|}{\bf IDASLS linear solver} \\
+\hline
+No. of Jacobian evaluations & \id{IDASlsGetNumJacEvals} \\
+Last return from a linear solver function & \id{IDASlsGetLastFlag} \\
+Name of constant associated with a return flag & \id{IDASlsGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDASPILS linear solvers} \\
 \hline
