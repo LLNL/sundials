@@ -926,7 +926,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 \index{CVSUPERLUMT@{\cvsuperlumt} linear solver!NVECTOR@{\nvector} compatibility}
 \ucfunction{CVSuperLUMT}
 {
-  flag = CVSuperLUMT(cvode\_mem, num\_threads, M, N, NNZ);
+  flag = CVSuperLUMT(cvode\_mem, num\_threads, N, NNZ);
 }
 {
   The function \ID{CVSuperLUMT} selects the {\cvsuperlumt} linear
@@ -941,10 +941,8 @@ are described separately in Chapter \ref{s:gen_linsolv}.
     pointer to the {\cvode} memory block.
   \item[num\_threads] (\id{int})
     the number of threads to use when factoring/solving the linear systems.
-  \item[M] (\id{int})
-    number of rows in the Jacobian matrix (problem dimension).
   \item[N] (\id{int})
-    number of columns in the Jacobian matrix (problem dimension).
+    problem dimension).
   \item[NNZ] (\id{int})
     maximum number of nonzero entries in the system Jacobian.
   \end{args}
