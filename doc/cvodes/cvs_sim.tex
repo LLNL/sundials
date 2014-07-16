@@ -730,8 +730,8 @@ solver, as specified below.
 In each case except the diagonal approximation case {\cvdiag},
 the linear solver module used by {\cvodes} is actually built on top of a generic
 linear system solver, which may be of interest in itself.  These generic
-solvers, denoted {\dense}, {\band}, {\klu}, {\superlumt}, {\spgmr}, {\spbcg}, and {\sptfqmr},
-are described separately in Chapter \ref{s:gen_linsolv}.
+solvers, denoted {\dense}, {\band}, {\klu}, {\superlumt}, {\spgmr}, {\spbcg},
+and {\sptfqmr}, are described separately in Chapter \ref{s:gen_linsolv}.
 \index{CVODES@{\cvodes} linear solvers!built on generic solvers|)}
 
 \index{CVODES@{\cvodes} linear solvers!CVDENSE@{\cvdense}}
@@ -968,7 +968,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 \index{CVSUPERLUMT@{\cvsuperlumt} linear solver!NVECTOR@{\nvector} compatibility}
 \ucfunction{CVSuperLUMT}
 {
-  flag = CVSuperLUMT(cvode\_mem, num\_threads, M, N, NNZ);
+  flag = CVSuperLUMT(cvode\_mem, num\_threads, N, NNZ);
 }
 {
   The function \ID{CVSuperLUMT} selects the {\cvsuperlumt} linear
@@ -983,10 +983,8 @@ are described separately in Chapter \ref{s:gen_linsolv}.
     pointer to the {\cvodes} memory block.
   \item[num\_threads] (\id{int})
     the number of threads to use when factoring/solving the linear systems.
-  \item[M] (\id{int})
-    number of rows in the Jacobian matrix (problem dimension).
   \item[N] (\id{int})
-    number of columns in the Jacobian matrix (problem dimension).
+    problem dimension.
   \item[NNZ] (\id{int})
     maximum number of nonzero entries in the system Jacobian.
   \end{args}
@@ -2713,18 +2711,18 @@ No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDlsGetNumRhsEvals} 
 Last return from a linear solver function & \id{CVDlsGetLastFlag} \\ 
 Name of constant associated with a return flag & \id{CVDlsGetReturnFlagName} \\
 \hline
-\multicolumn{2}{|c|}{\bf CVSLS linear solvers} \\
-\hline
-No. of Jacobian evaluations & \id{CVSlsGetNumJacEvals} \\
-Last return from a linear solver function & \id{CVSlsGetLastFlag} \\
-Name of constant associated with a return flag & \id{CVSlsGetReturnFlagName} \\
-\hline
 \multicolumn{2}{|c|}{\bf CVDIAG linear solver} \\
 \hline
 Size of {\cvdiag} real and integer workspaces & \id{CVDiagGetWorkSpace} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDiagGetNumRhsEvals} \\ 
 Last return from a {\cvdiag} function & \id{CVDiagGetLastFlag} \\ 
 Name of constant associated with a return flag & \id{CVDiagGetReturnFlagName} \\
+\hline
+\multicolumn{2}{|c|}{\bf CVSLS linear solvers} \\
+\hline
+No. of Jacobian evaluations & \id{CVSlsGetNumJacEvals} \\
+Last return from a linear solver function & \id{CVSlsGetLastFlag} \\
+Name of constant associated with a return flag & \id{CVSlsGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVSPILS linear solvers} \\
 \hline
