@@ -169,7 +169,7 @@ Steps that are unchanged from the skeleton program presented in
   Initialize the linear solver module 
   for the backward problem by calling the appropriate wrapper
   function: \id{CVDenseB}, \id{CVBandB}, \id{CVLapackDenseB}, \id{CVLapackBandB},
-  \id{CVKLUB}, \id{CVSuperLUMTB}, \id{CVDiagB}, \id{CVodeSpgmrB},
+  \id{CVDiagB}, \id{CVKLUB}, \id{CVSuperLUMTB}, \id{CVodeSpgmrB},
   \id{CVodeSpbcgB}, or \id{CVodeSptfqmrB} (see \S\ref{sss:lin_solv_b}).  Note that
   it is not required to use the same linear solver module for both the forward 
   and the backward problems; for example, the forward problem could be solved
@@ -795,9 +795,9 @@ second argument, \id{which}, the identifier of the backward problem.
   flag = CVBandB(cvode_mem, which, nB, mupperB, mlowerB);
   flag = CVLapackDenseB(cvode_mem, which, nB);
   flag = CVLapackBandB(cvode_mem, which, nB, mupperB, mlowerB);
+  flag = CVDiagB(cvode_mem, which);
   flag = CVSuperLUMTB(cvode_mem, num_threads, which, mB, nB, nnzB);
   flag = CVKLUB(cvode_mem, which, nB, nnzB);
-  flag = CVDiagB(cvode_mem, which);
   flag = CVSpgmrB(cvode_mem, which, pretypeB, maxlB);
   flag = CVSpbcgB(cvode_mem, which, pretypeB, maxlB);
   flag = CVSptfqmrB(cvode_mem, which, pretypeB, maxlB);
