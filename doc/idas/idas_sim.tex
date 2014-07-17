@@ -927,7 +927,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 \index{IDASUPERLUMT@{\idasuperlumt} linear solver!NVECTOR@{\nvector} compatibility}
 \ucfunction{IDASuperLUMT}
 {
-  flag = IDASuperLUMT(ida\_mem, num\_threads, M, N, NNZ);
+  flag = IDASuperLUMT(ida\_mem, num\_threads, N, NNZ);
 }
 {
   The function \ID{IDASuperLUMT} selects the {\idasuperlumt} linear
@@ -942,10 +942,8 @@ described separately in Chapter \ref{s:gen_linsolv}.
     pointer to the {\idas} memory block.
   \item[num\_threads] (\id{int})
     the number of threads to use when factoring/solving the linear systems.
-  \item[M] (\id{int})
-    number of rows in the Jacobian matrix (problem dimension).
   \item[N] (\id{int})
-    number of columns in the Jacobian matrix (problem dimension).
+    problem dimension.
   \item[NNZ] (\id{int})
     maximum number of nonzero entries in the system Jacobian.
   \end{args}

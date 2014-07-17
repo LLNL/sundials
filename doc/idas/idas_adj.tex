@@ -803,7 +803,7 @@ second argument, \id{which}, the identifier of the backward problem.
   flag = IDALapackDenseB(ida_mem, which, nB);
   flag = IDALapackBandB(ida_mem, which, nB, mupperB, mlowerB);
   flag = IDAKLUB(ida_mem, which, nB, nnzB);
-  flag = IDASuperLUMTB(ida_mem, num_threads, which, mB, nB, nnzB);
+  flag = IDASuperLUMTB(ida_mem, num_threads, which, nB, nnzB);
   flag = IDASpgmrB(ida_mem, which, maxlB);
   flag = IDASpbcgB(ida_mem, which, maxlB);
   flag = IDASptfqmrB(ida_mem, which, maxlB);
