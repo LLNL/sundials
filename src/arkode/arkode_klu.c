@@ -358,7 +358,10 @@ static int arkKLUSetup(ARKodeMem ark_mem, int convfail,
     
     arksls_mem->s_first_factorize = 0;
   }
-  
+  else {
+    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+  }
+
   /* Compute the LU factorization of the Jacobian. */
   klu_data->s_Numeric = klu_factor(arksls_mem->s_A->colptrs, 
 				   arksls_mem->s_A->rowvals, 

@@ -294,6 +294,10 @@ static int cvKLUSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
     cvsls_mem->s_first_factorize = 0;
   }
+  else {
+    klu_free_numeric(&(klu_data->s_Numeric), &(klu_data->s_Common));
+  }
+
 
   /* ------------------------------------------------------------
      Compute the LU factorization of  the Jacobian.
