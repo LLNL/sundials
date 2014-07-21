@@ -1,7 +1,7 @@
 
 1D Brusselator PDE test problem:
     N = 201,  NEQ = 603
-    num_threads = 1
+    num_threads = 4
     problem parameters:  a = 0.6,  b = 2,  ep = 1e-05
     diffusion coefficients:  du = 0.025,  dv = 0.025,  dw = 0.025
     reltol = 1.0e-06,  abstol = 1.0e-10
