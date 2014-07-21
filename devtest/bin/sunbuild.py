@@ -98,18 +98,31 @@ def main():
             os.chdir(sunBuildDir)
                 
             # run CMake to configure
-            cmd = "cmake "
+            cmd = "cmake \ \n"
             # enable mpi
-            cmd = cmd + "-DMPI_ENABLE=ON -DFCMIX_ENABLE=ON "
+            cmd = cmd + "-DMPI_ENABLE=ON -DFCMIX_ENABLE=ON \ \n"
             # enable lapack   (NOTE: will find libraries in LD_LIBRARY_PATH)
-            cmd = cmd + "-DLAPACK_ENABLE=ON "
+            cmd = cmd + "-DLAPACK_ENABLE=ON \ \n"
             # enable klu
-            cmd = cmd + "-DKLU_ENABLE=TRUE -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/include "
-            cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/lib "
+            cmd = cmd + "-DKLU_ENABLE=TRUE -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/include \ \n"
+            cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.2.1/lib \ \n"
+            # enable openmp
+            cmd = cmd + "-DOPENMP_ENABLE=TRUE \ \n"
+            # enable pthreads
+            cmd = cmd + "-DPTHREAD_ENABLE=TRUE \ \n"
+            # enable FCMIX
+            cmd = cmd + "-DFCMIX_ENABLE=TRUE \ \n"
+            # enable F90
+            cmd = cmd + "-DF90_ENABLE=TRUE \ \n"
             # specify source
             cmd = cmd + sunSrcDir
             
-            print "\n*** Configuring with:  " + cmd + " ..."
+            print "\n*** Configuring with:\n" + cmd + " ..."
+            
+            # remove newlines from cmd
+            cmd = cmd.replace('\n','')
+            cmd = cmd.replace('\\','')
+            #print "\n*** FYI: " + cmd
             cmdout = runCommandPopen(cmd)
             print cmdout
                 
