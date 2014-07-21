@@ -55,14 +55,15 @@
 
 /* user data structure */
 typedef struct {  
-  long int N;    /* number of intervals     */
-  realtype dx;   /* mesh spacing            */
-  realtype a;    /* constant forcing on u   */
-  realtype b;    /* steady-state value of w */
-  realtype du;   /* diffusion coeff for u   */
-  realtype dv;   /* diffusion coeff for v   */
-  realtype dw;   /* diffusion coeff for w   */
-  realtype ep;   /* stiffness parameter     */
+  long int N;    /* number of intervals      */
+  int nthreads;  /* number of OpenMP threads */
+  realtype dx;   /* mesh spacing             */
+  realtype a;    /* constant forcing on u    */
+  realtype b;    /* steady-state value of w  */
+  realtype du;   /* diffusion coeff for u    */
+  realtype dv;   /* diffusion coeff for v    */
+  realtype dw;   /* diffusion coeff for w    */
+  realtype ep;   /* stiffness parameter      */
 } *UserData;
 
 
@@ -81,7 +82,7 @@ static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Main Program */
-int main()
+int main(int argc, char *argv[])
 {
   /* general problem parameters */
   realtype T0 = RCONST(0.0);    /* initial time */
@@ -117,6 +118,14 @@ int main()
   udata = (UserData) malloc(sizeof(*udata));
   if (check_flag((void *) udata, "malloc", 2)) return 1;
 
+  /* set the number of threads to use */
+  num_threads = 1; /* default value */
+#ifdef _OPENMP
+  num_threads = omp_get_max_threads();   /* overwrite with OMP_NUM_THREADS environment variable */
+#endif
+  if (argc > 1)   /* overwrite with command line value, if supplied */
+    num_threads = strtol(argv[1], NULL, 0);
+
   /* store the inputs in the UserData structure */
   udata->N  = N;
   udata->a  = a;
@@ -125,6 +134,7 @@ int main()
   udata->dv = dv;
   udata->dw = dw;
   udata->ep = ep;
+  udata->nthreads = num_threads;
 
   /* set total allocated vector length */
   NEQ = Nvar*udata->N;
@@ -132,10 +142,7 @@ int main()
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem:\n");
   printf("    N = %li,  NEQ = %li\n", udata->N, NEQ);
-#ifdef _OPENMP
-  num_threads = omp_get_max_threads();
   printf("    num_threads = %i\n", num_threads);
-#endif
   printf("    problem parameters:  a = %g,  b = %g,  ep = %g\n",
 	 udata->a, udata->b, udata->ep);
   printf("    diffusion coefficients:  du = %g,  dv = %g,  dw = %g\n", 
@@ -334,7 +341,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   uconst = du/dx/dx;
   vconst = dv/dx/dx;
   wconst = dw/dx/dx;
-#pragma omp parallel for default(shared) private(i,u,ul,ur,v,vl,vr,w,wl,wr) schedule(static)
+#pragma omp parallel for default(shared) private(i,u,ul,ur,v,vl,vr,w,wl,wr) schedule(static) num_threads(udata->nthreads)
   for (i=1; i<N-1; i++) {
 
     /* set shortcuts */
@@ -398,7 +405,7 @@ static int LaplaceMatrix(realtype c, DlsMat Jac, UserData udata)
   realtype dx = udata->dx;
   
   /* iterate over intervals, filling in Jacobian entries */
-#pragma omp parallel for default(shared) private(i) schedule(static)
+#pragma omp parallel for default(shared) private(i) schedule(static) num_threads(udata->nthreads)
   for (i=1; i<N-1; i++) {
 
     /* Jacobian of (L*y) at this node */
@@ -430,7 +437,7 @@ static int ReactionJac(realtype c, N_Vector y, DlsMat Jac, UserData udata)
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
   
   /* iterate over nodes, filling in Jacobian entries */
-#pragma omp parallel for default(shared) private(i,u,v,w) schedule(static)
+#pragma omp parallel for default(shared) private(i,u,v,w) schedule(static) num_threads(udata->nthreads)
   for (i=1; i<N-1; i++) {
 
     /* set nodal value shortcuts (shifted index due to start at first interior node) */
