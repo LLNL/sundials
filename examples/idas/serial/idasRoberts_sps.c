@@ -39,8 +39,8 @@
 #define NEQ   3
 #define NOUT  12
 
-#define ZERO RCONST(0.0);
-#define ONE  RCONST(1.0);
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
 
 /* Prototypes of functions called by IDA */
 

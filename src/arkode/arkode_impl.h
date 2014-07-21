@@ -52,30 +52,30 @@ extern "C" {
 #define HUND   RCONST(100.0)    /* real 100.0   */
 
 /* Time step controller default values */
-#define CFLFAC    RCONST(0.5);
-#define SAFETY    RCONST(0.96);  /* CVODE uses 1.0  */
-#define BIAS      RCONST(1.5)    /* CVODE uses 6.0  */
-#define GROWTH    RCONST(20.0);  /* CVODE uses 10.0 */
-#define HFIXED_LB RCONST(1.0);   /* CVODE uses 1.0  */
-#define HFIXED_UB RCONST(1.5);   /* CVODE uses 1.5  */
-#define AD0_K1    RCONST(0.58);  /* PID controller constants */
-#define AD0_K2    RCONST(0.21);
-#define AD0_K3    RCONST(0.1);
-#define AD1_K1    RCONST(0.8);   /* PI controller constants */
-#define AD1_K2    RCONST(0.31);
-#define AD2_K1    RCONST(1.0);   /* I controller constants */
-#define AD3_K1    RCONST(0.367); /* explicit Gustafsson controller */
-#define AD3_K2    RCONST(0.268);
-#define AD4_K1    RCONST(0.98);  /* implicit Gustafsson controller */
-#define AD4_K2    RCONST(0.95);
-#define AD5_K1    RCONST(0.367); /* imex Gustafsson controller */
-#define AD5_K2    RCONST(0.268);
-#define AD5_K3    RCONST(0.95);
+#define CFLFAC    RCONST(0.5)
+#define SAFETY    RCONST(0.96)  /* CVODE uses 1.0  */
+#define BIAS      RCONST(1.5)   /* CVODE uses 6.0  */
+#define GROWTH    RCONST(20.0)  /* CVODE uses 10.0 */
+#define HFIXED_LB RCONST(1.0)   /* CVODE uses 1.0  */
+#define HFIXED_UB RCONST(1.5)   /* CVODE uses 1.5  */
+#define AD0_K1    RCONST(0.58)  /* PID controller constants */
+#define AD0_K2    RCONST(0.21)
+#define AD0_K3    RCONST(0.1)
+#define AD1_K1    RCONST(0.8)   /* PI controller constants */
+#define AD1_K2    RCONST(0.31)
+#define AD2_K1    RCONST(1.0)   /* I controller constants */
+#define AD3_K1    RCONST(0.367) /* explicit Gustafsson controller */
+#define AD3_K2    RCONST(0.268)
+#define AD4_K1    RCONST(0.98)  /* implicit Gustafsson controller */
+#define AD4_K2    RCONST(0.95)
+#define AD5_K1    RCONST(0.367) /* imex Gustafsson controller */
+#define AD5_K2    RCONST(0.268)
+#define AD5_K3    RCONST(0.95)
 
 /* Default solver tolerance factor */
-/* #define NLSCOEF   RCONST(0.003);   /\* Hairer & Wanner constant *\/ */
-/* #define NLSCOEF   RCONST(0.2);     /\* CVODE constant *\/ */
-#define NLSCOEF   RCONST(0.1);
+/* #define NLSCOEF   RCONST(0.003)   /\* Hairer & Wanner constant *\/ */
+/* #define NLSCOEF   RCONST(0.2)     /\* CVODE constant *\/ */
+#define NLSCOEF   RCONST(0.1)
 
 /* Control constants for tolerances */
 #define ARK_SS  0

@@ -54,7 +54,7 @@
 
 /* Problem Constants */
 
-#define ZERO  RCONST(0.0);
+#define ZERO  RCONST(0.0)
 
 #define NEQ   3                /* number of equations  */
 #define Y1    RCONST(1.0)      /* initial y components */
