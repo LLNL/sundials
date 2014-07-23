@@ -132,7 +132,7 @@ int main(void)
 
   /* Call IDASuperLUMT and set up the linear solver. */
   nnz = NEQ * NEQ;
-  retval = IDASuperLUMT(mem, 1, NEQ, NEQ, nnz);
+  retval = IDASuperLUMT(mem, 1, NEQ, nnz);
   if(check_flag(&retval, "IDASuperLUMT", 1)) return(1);
   retval = IDASlsSetSparseJacFn(mem, jacrob);
   if(check_flag(&retval, "IDASlsSetSparseJacFn", 1)) return(1);

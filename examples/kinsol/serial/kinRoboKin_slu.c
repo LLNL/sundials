@@ -115,7 +115,7 @@ int main()
   nnz = 56;
   /* Set the number fo threads to use */
   num_threads = 2;
-  flag = KINSuperLUMT(kmem, num_threads, NEQ, NEQ, nnz);
+  flag = KINSuperLUMT(kmem, num_threads, NEQ, nnz);
   if (check_flag(&flag, "KINSuperLUMT", 1)) return(1);
 
   flag = KINSlsSetSparseJacFn(kmem, jac);
