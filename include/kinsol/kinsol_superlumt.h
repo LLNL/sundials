@@ -56,7 +56,7 @@ extern "C" {
  */
 
   SUNDIALS_EXPORT int KINSuperLUMT(void *kin_mem, int num_threads,
-				   int m, int n, int nnz); 
+				   int n, int nnz); 
 
 
 /* 

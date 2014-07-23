@@ -65,7 +65,7 @@ static void kinSuperLUMTFree(KINMem kin_mem);
  * -----------------------------------------------------------------
  */
 
-int KINSuperLUMT(void *kin_mem_v, int num_threads, int m, int n, int nnz)
+int KINSuperLUMT(void *kin_mem_v, int num_threads, int n, int nnz)
 {
   KINMem kin_mem;
   KINSlsMem kinsls_mem;
@@ -121,7 +121,7 @@ int KINSuperLUMT(void *kin_mem_v, int num_threads, int m, int n, int nnz)
   kinsls_mem->s_jacdata = kin_mem->kin_user_data;
 
   /* Allocate memory for the sparse Jacobian */
-  kinsls_mem->s_JacMat = NewSparseMat(m, n, nnz);
+  kinsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
   if (kinsls_mem->s_JacMat == NULL) {
     KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "KINSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -129,7 +129,7 @@ int KINSuperLUMT(void *kin_mem_v, int num_threads, int m, int n, int nnz)
   }
 
    /* Set up memory for the permutations */
-  perm_r = (int *)malloc(m*sizeof(int));
+  perm_r = (int *)malloc(n*sizeof(int));
   if (perm_r == NULL) {
     KINProcessError(kin_mem, KINSLS_MEM_FAIL, "KINSLS", "kinSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -172,7 +172,7 @@ int KINSuperLUMT(void *kin_mem_v, int num_threads, int m, int n, int nnz)
   nrhs = 1;
   bd = NULL;
   B = (SuperMatrix *)malloc(sizeof(SuperMatrix));
-  dCreate_Dense_Matrix(B, m, nrhs, bd, m, 
+  dCreate_Dense_Matrix(B, n, nrhs, bd, n, 
 		       SLU_DN, SLU_D, SLU_GE);
   slumt_data->s_B = B;
 
