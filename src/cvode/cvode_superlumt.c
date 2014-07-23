@@ -1,3 +1,4 @@
+
 /*
  * -----------------------------------------------------------------
  * $Revision$
@@ -69,7 +70,7 @@ static void cvSuperLUMTFree(CVodeMem cv_mem);
  * -----------------------------------------------------------------
  */
 
-int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
+int CVSuperLUMT(void *cvode_mem, int num_threads, int n, int nnz)
 {
   CVodeMem cv_mem;
   CVSlsMem cvsls_mem;
@@ -126,7 +127,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
   cvsls_mem->s_jacdata = cv_mem->cv_user_data;
 
   /* Allocate memory for the sparse Jacobian */
-  cvsls_mem->s_JacMat = NewSparseMat(m, n, nnz);
+  cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
   if (cvsls_mem->s_JacMat == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -135,7 +136,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
   }
 
   /* Allocate memory for saved sparse Jacobian */
-  cvsls_mem->s_savedJ = NewSparseMat(m, n, nnz);
+  cvsls_mem->s_savedJ = NewSparseMat(n, n, nnz);
   if (cvsls_mem->s_savedJ == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -145,7 +146,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
   }
 
   /* Set up memory for the permutations */
-  perm_r = (int *)malloc(m*sizeof(int));
+  perm_r = (int *)malloc(n*sizeof(int));
   if (perm_r == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvSuperLUMT", 
 		   MSGSP_MEM_FAIL);
@@ -182,7 +183,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
   nrhs = 1;
   bd = NULL;
   B = (SuperMatrix *)malloc(sizeof(SuperMatrix));
-  dCreate_Dense_Matrix(B, m, nrhs, bd, m, 
+  dCreate_Dense_Matrix(B, n, nrhs, bd, n, 
 		       SLU_DN, SLU_D, SLU_GE);
   slumt_data->s_B = B;
 
