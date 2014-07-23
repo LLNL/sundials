@@ -41,7 +41,7 @@ modules is specified, and is then invoked as needed.
 At present, the package includes the following seven {\kinsol} linear algebra
 modules, organized into two families. The {\em direct} family of linear
 solvers provides solvers for the direct solution of linear systems with
-dense or banded matrices and includes:
+dense, banded, or sparse matrices and includes:
 \begin{itemize} 
 \item {\kindense}: LU factorization and backsolving with dense matrices
   (using either an internal implementation or Blas/Lapack); 
@@ -65,11 +65,12 @@ The set of linear solver modules distributed with {\kinsol} is intended to be ex
 future as new algorithms are developed.
 \index{KINSOL@{\kinsol} linear solvers!list of|)}
 
-In the case of the direct methods {\kindense} and {\kinband}
-the package includes an algorithm for the approximation of the Jacobian by difference quotients, but
-the user also has the option of supplying the Jacobian (or an approximation to it)
-directly.  When using the sparse direct linear solvers {\kinklu} and
-{\kinsuperlumt} the user must supply a routine for the Jacobian (or an
+In the case of the direct methods {\kindense} and {\kinband} the
+package includes an algorithm for the approximation of the Jacobian by
+difference quotients, but the user also has the option of supplying
+the Jacobian (or an approximation to it) directly.
+When using the sparse direct linear solvers {\kinklu} and
+{\kinsuperlumt}, the user must supply a routine for the Jacobian (or an
 approximation to it) in CSC format, since standard difference quotient
 approximations do not leverage the inherent sparsity of the problem.
 In the case of the Krylov methods {\kinspgmr}, {\kinspbcg} and {\kinsptfqmr},
