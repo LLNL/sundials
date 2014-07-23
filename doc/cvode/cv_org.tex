@@ -71,18 +71,19 @@ The set of linear solver modules distributed with {\cvode} is intended to be exp
 future as new algorithms are developed.
 \index{CVODE@{\cvode} linear solvers!list of|)} 
 
-In the case of the direct methods {\cvdense} and {\cvband}
-the package includes an algorithm for the approximation of the Jacobian by difference
-quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly.  When using the sparse direct
-linear solvers {\cvklu} and {\cvsuperlumt} the user must supply a
-routine for the Jacobian (or an approximation to it) in CSC format,
-since standard difference quotient approximations do not leverage the
-inherent sparsity of the problem. In the case of the Krylov iterative
-methods {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}, the package includes an algorithm
-for the approximation by difference quotients of the product between the Jacobian
-matrix and a vector of appropriate length. Again, the user has the option of
-providing a routine for this operation.
+In the case of the direct methods {\cvdense} and {\cvband} the package
+includes an algorithm for the approximation of the Jacobian by
+difference quotients, but the user also has the option of supplying
+the Jacobian (or an approximation to it) directly.
+When using the sparse direct linear solvers {\cvklu} and
+{\cvsuperlumt}, the user must supply a routine for the Jacobian (or an
+approximation to it) in CSC format, since standard difference quotient
+approximations do not leverage the inherent sparsity of the problem.
+In the case of the Krylov iterative methods {\cvspgmr}, {\cvspbcg},
+and {\cvsptfqmr}, the package includes an algorithm for the
+approximation by difference quotients of the product between the
+Jacobian matrix and a vector of appropriate length. Again, the user
+has the option of providing a routine for this operation.
 For the Krylov methods, \index{preconditioning!setup and solve phases}
 the preconditioning must be supplied by the user, in two phases: 
 setup (preprocessing of Jacobian data) and solve.
