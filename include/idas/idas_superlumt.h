@@ -54,7 +54,7 @@ extern "C" {
  */
 
   SUNDIALS_EXPORT int IDASuperLUMT(void *ida_mem, int num_threads, 
-				   int m, int n, int nnz); 
+				   int n, int nnz); 
 
 /*
  * -----------------------------------------------------------------
@@ -66,7 +66,7 @@ extern "C" {
  */
 
   SUNDIALS_EXPORT int IDASuperLUMTB(void *ida_mem, int num_threads, 
-				    int which, int mB, int nB, int nnzB);
+				    int which, int nB, int nnzB);
 
 
 
