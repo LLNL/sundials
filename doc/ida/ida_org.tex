@@ -40,14 +40,20 @@ is then invoked as needed during the integration.
 
 \index{IDA@{\ida} linear solvers!list of|(} 
 At present, the package includes the following seven {\ida} linear algebra
-modules, organized into two families. The {\em direct} familiy of linear
+modules, organized into two families. The {\em direct} family of linear
 solvers provides solvers for the direct solution of linear systems with
-dense or banded matrices and includes:
+dense, banded, or sparse matrices and includes:
 \begin{itemize} 
 \item {\idadense}: LU factorization and backsolving with dense matrices
   (using either an internal implementation or Blas/Lapack); 
 \item {\idaband}: LU factorization and backsolving with banded matrices
   (using either an internal implementation or Blas/Lapack); 
+\item {\idaklu}: LU factorization and backsolving with
+  compressed-sparse-column (CSC) matrices using the KLU linear solver
+  library \cite{KLU_site};
+\item {\idasuperlumt}: LU factorization and backsolving with
+  compressed-sparse-column (CSC) matrices using the threaded
+  SuperLU\_MT linear solver library \cite{SuperLUMT_site}.
 \end{itemize}
 The {\em spils} family of linear solvers provides scaled preconditioned
 iterative linear solvers and includes:
@@ -60,14 +66,19 @@ The set of linear solver modules distributed with {\ida} is intended to be expan
 future as new algorithms are developed.
 \index{IDA@{\ida} linear solvers!list of|)} 
 
-In the case of the direct methods {\idadense} and {\idaband}
-the package includes an algorithm for the approximation of the Jacobian by difference
-quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly. In the case of the Krylov iterative methods
-{\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}, the package includes an algorithm for
-the approximation by difference quotients of the product between the Jacobian matrix
-and a vector of appropriate length. Again, the user has the option of providing
-a routine for this operation.
+In the case of the direct methods {\idadense} and {\idaband}, the
+package includes an algorithm for the approximation of the Jacobian by
+difference quotients, but the user also has the option of supplying
+the Jacobian (or an approximation to it) directly.
+When using the sparse direct linear solvers {\cvklu} and
+{\cvsuperlumt}, the user must supply a routine for the Jacobian (or an
+approximation to it) in CSC format, since standard difference quotient
+approximations do not leverage the inherent sparsity of the problem.
+In the case of the Krylov iterative methods {\idaspgmr}, {\idaspbcg},
+and {\idasptfqmr}, the package includes an algorithm for the
+approximation by difference quotients of the product between the
+Jacobian matrix and a vector of appropriate length. Again, the user
+has the option of providing a routine for this operation.
 When \index{preconditioning!setup and solve phases} using any of the Krylov
 methods, the user must supply the preconditioning in two phases: 
 a setup phase (preprocessing of Jacobian data) and a solve phase.
@@ -92,9 +103,8 @@ of the linear system method.
 \index{IDA@{\ida} linear solvers!implementation details|)} 
 
 These modules are also decomposed in another way.
-\index{generic linear solvers!use in {\ida}|(} 
-With the exception of the modules interfacing to Lapack linear solvers,
-each of the modules ({\idadense}, etc.) consists of an interface built
+\index{generic linear solvers!use in {\ida}|(}
+Each of the modules ({\idadense}, etc.) consists of an interface built
 on top of a generic lienar system solver ({\dense}, etc.).  The
 interface deals with the use of the particular method in the {\ida}
 context, whereas the generic solver is independent of the context.
@@ -106,10 +116,9 @@ replaced by an improved version, with no necessity to revise the
 {\ida} package elsewhere.
 \index{generic linear solvers!use in {\ida}|)}
 
-{\ida} also provides a preconditioner module,
-{\idabbdpre}, that works in conjunction with {\nvecp} and generates a 
-preconditioner that is a block-diagonal matrix with each block being 
-a band matrix.
+{\ida} also provides a preconditioner module, {\idabbdpre}, that works
+in conjunction with {\nvecp} and generates a preconditioner that is a
+block-diagonal matrix with each block being a band matrix.
 
 All state information used by {\ida} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
