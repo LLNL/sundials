@@ -81,7 +81,7 @@ static void cvSuperLUMTFreeB(CVodeBMem cvb_mem);
  * -----------------------------------------------------------------
  */
 
-int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
+int CVSuperLUMT(void *cvode_mem, int num_threads, int n, int nnz)
 {
   CVodeMem cv_mem;
   CVSlsMem cvsls_mem;
@@ -138,7 +138,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
   cvsls_mem->s_jacdata = cv_mem->cv_user_data;
 
   /* Allocate memory for the sparse Jacobian */
-  cvsls_mem->s_JacMat = NewSparseMat(m, n, nnz);
+  cvsls_mem->s_JacMat = NewSparseMat(n, n, nnz);
   if (cvsls_mem->s_JacMat == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -147,7 +147,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
   }
 
   /* Allocate memory for saved sparse Jacobian */
-  cvsls_mem->s_savedJ = NewSparseMat(m, n, nnz);
+  cvsls_mem->s_savedJ = NewSparseMat(n, n, nnz);
   if (cvsls_mem->s_savedJ == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvSuperLUMT", 
 		    MSGSP_MEM_FAIL);
@@ -157,7 +157,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
   }
 
   /* Set up memory for the permutations */
-  perm_r = (int *)malloc(m*sizeof(int));
+  perm_r = (int *)malloc(n*sizeof(int));
   if (perm_r == NULL) {
     cvProcessError(cv_mem, CVSLS_MEM_FAIL, "CVSLS", "cvSuperLUMT", 
 		   MSGSP_MEM_FAIL);
@@ -194,7 +194,7 @@ int CVSuperLUMT(void *cvode_mem, int num_threads, int m, int n, int nnz)
   nrhs = 1;
   bd = NULL;
   B = (SuperMatrix *)malloc(sizeof(SuperMatrix));
-  dCreate_Dense_Matrix(B, m, nrhs, bd, m, 
+  dCreate_Dense_Matrix(B, n, nrhs, bd, n, 
 		       SLU_DN, SLU_D, SLU_GE);
   slumt_data->s_B = B;
 
@@ -576,7 +576,7 @@ int CVSuperLUMTSetOrdering(void *cv_mem_v, int ordering_choice)
  */
 
 int CVSuperLUMTB(void *cvode_mem, int which, int num_threads, 
-		 int m, int n, int nnz)
+		 int n, int nnz)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -628,7 +628,7 @@ int CVSuperLUMTB(void *cvode_mem, int which, int num_threads,
   cvB_mem->cv_lmem = cvslsB_mem;
   cvB_mem->cv_lfree = cvSuperLUMTFreeB;
 
-  flag = CVSuperLUMT(cvodeB_mem, num_threads, m, n, nnz);
+  flag = CVSuperLUMT(cvodeB_mem, num_threads, n, nnz);
 
   if (flag != CVSLS_SUCCESS) {
     free(cvslsB_mem);

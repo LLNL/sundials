@@ -54,7 +54,7 @@ extern "C" {
  */
 
   SUNDIALS_EXPORT int CVSuperLUMT(void *cv_mem, int num_threads,
-				  int m, int n, int nnz); 
+				  int n, int nnz); 
 
 /* 
  * -----------------------------------------------------------------
@@ -86,7 +86,7 @@ extern "C" {
  */
  
   SUNDIALS_EXPORT int CVSuperLUMTB(void *cvode_mem, int num_threads, 
-				   int which, int mB, int nB, int nnzB);
+				   int which, int nB, int nnzB);
  
  
 
