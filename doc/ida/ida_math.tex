@@ -120,7 +120,7 @@ form of the user-supplied preconditioner matrix \cite{BrHi:89}.
 For the {\em spils} linear solvers,  preconditioning is allowed
 only on the left (see \S\ref{s:preconditioning}).
 %%
-Note that the direct linear solvers (dense, band and sparse) can only be 
+Note that the direct linear solvers (dense, band, and sparse) can only be 
 used with serial and threaded vector representations.
 
 % WRMS Norm
@@ -142,7 +142,7 @@ usually drop the subscript WRMS on norms in what follows.
 
 % Newton iteration
 %-----------------
-In the case of a direct linear solver (dense, band or sparse), the nonlinear 
+In the case of a direct linear solver (dense, band, or sparse), the nonlinear 
 iteration (\ref{e:DAE_Newtoncorr}) is a Modified Newton iteration, in
 that the Jacobian $J$ is fixed (and usually out of date), with a coefficient 
 $\bar\alpha$ in place of $\alpha$ in $J$. When using one of the Krylov methods
