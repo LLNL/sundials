@@ -4081,7 +4081,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The function \ID{IDASpilsGetWorkSpace} returns the global sizes of
-  the {\idaspgmr} real and integer workspaces.
+  the {\idaspils} real and integer workspaces.
 }
 {
   \begin{args}[lenrwLS]
@@ -4410,7 +4410,7 @@ specified in the last call to \id{IDAInit}.  In addition, the same
 will be reused for the new problem.
 
 If there are changes to the linear solver specifications, make the
-appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
+appropriate \id{IDA***} calls, as described in \S\ref{sss:lin_solv_init}.
 
 %%
 %%
