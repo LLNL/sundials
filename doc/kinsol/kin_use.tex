@@ -3693,17 +3693,15 @@ supplied, the default is a difference quotient approximation of these products.
   \end{args}
 }
 {  
-  The value to be returned by the Jacobian-times-vector function should be
-  $0$ if successful. If a recoverable failure occured, the return value should be positive.
-  In this case, {\kinsol} will attempt to correct by calling the preconditioner setup function
-  if the preconditioner information. If this information is current, {\kinsol} halts.
-  If the  Jacobian-times-vector function encounters an unrecoverable error, it should
-  return a negative value, prompting {\kinsol} to halt.
-}
-{
-  If a user-defined routine is not given, then an internal
-  {\kinspgmr} function, using difference quotient approximations,
-  is used.
+  The value to be returned by the Jacobian-times-vector function   should be
+  $0$ if successful. If a recoverable failure occurred, the return
+  value should be positive.  In this case, {\kinsol} will attempt to
+  correct by calling the preconditioner setup function. If this
+  information is current, {\kinsol} halts.  If the
+  Jacobian-times-vector function encounters an unrecoverable error, it
+  should return a negative value, prompting {\kinsol} to halt.  } { If
+  a user-defined routine is not given, then an internal {\kinspgmr}
+  function, using difference quotient approximations, is used.
 
   If the user-provided \id{KINSpilsJacTimesVecFn} function needs the unit roundoff,
   this can be accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
