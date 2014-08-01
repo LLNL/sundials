@@ -25,10 +25,6 @@
  centered differences, with the data distributed over nx*ny
  points on a uniform spatial grid.
 
- The spatial grid parameters nx and ny, the parameters kx and ky, 
- as well as the desired relative and absolute solver tolerances, 
- are provided in the input file input_heat2D.txt.
- 
  This program solves the problem with a DIRK method.  This 
  employs a Newton iteration with the PCG iterative linear solver, 
  which itself uses a Jacobi preconditioner.  The example uses the 
