@@ -1918,13 +1918,13 @@ SUNDIALS_EXPORT int IDASolveB(void *ida_mem, realtype tBout, int itaskB);
 
 /*
  * -----------------------------------------------------------------
- * IDASetAdjNoSensi
+ * IDAAdjSetNoSensi
  * -----------------------------------------------------------------
  * Disables the forward sensitivity analysis in IDASolveF.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDASetAdjNoSensi(void *ida_mem);
+SUNDIALS_EXPORT int IDAAdjSetNoSensi(void *ida_mem);
 
 /*
  * -----------------------------------------------------------------
