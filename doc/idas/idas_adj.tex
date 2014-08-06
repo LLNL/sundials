@@ -368,6 +368,43 @@ The form of the call to this function is
 %%
 %%
 
+
+%%-------------------------------------------------------------------------------
+\subsection{Adjoint sensitivity optional input}
+
+At any time during the integration of the forward problem, the user
+can disable the checkpointing of the forward sensitivities by calling
+the following function:
+
+\ucfunction{IDAAdjSetNoSensi}
+{
+  flag = IDAAdjSetNoSensi(ida\_mem);
+}
+{
+  The function \ID{IDAAdjSetNoSensi} instructs \id{IDASolveF} not
+  to save checkpointing data for forward sensitivities any more.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas}  memory block.
+  \end{args}
+}
+{
+  The return \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDA\_MEM\_FAIL]
+  \item[\Id{IDA\_SUCCESS}]
+    The call to \id{IDACreateB} was successful.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} was \id{NULL}.
+  \item[\Id{IDA\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \end{args}
+}
+{}
+%%-------------------------------------------------------------------------------
+
+
 %%---------------------------------------------------------------------
 \subsection{Forward integration function}
 \label{sss:idasolvef}
@@ -1092,42 +1129,6 @@ To obtain the solution \id{yB} to the backward problem, call the function
 {
   {\warn} The user must allocate space for \id{yB} and \id{ypB}.
 }
-
-
-%%-------------------------------------------------------------------------------
-\subsection{Adjoint sensitivity optional input}
-
-At any time during the integration of the forward problem, the user
-can disable the checkpointing of the forward sensitivities by calling
-the following function:
-
-\ucfunction{IDAAdjSetNoSensi}
-{
-  flag = IDAAdjSetNoSensi(ida\_mem);
-}
-{
-  The function \ID{IDAAdjSetNoSensi} instructs \id{IDASolveF} not
-  to save checkpointing data for forward sensitivities anymore.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas}  memory block.
-  \end{args}
-}
-{
-  The return \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDA\_MEM\_FAIL]
-  \item[\Id{IDA\_SUCCESS}]
-    The call to \id{IDACreateB} was successful.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} was \id{NULL}.
-  \item[\Id{IDA\_NO\_ADJ}]
-    The function \id{IDAAdjInit} has not been previously called.
-  \end{args}
-}
-{}
-%%-------------------------------------------------------------------------------
 
 
 %%---------------------------------------------------------------------
