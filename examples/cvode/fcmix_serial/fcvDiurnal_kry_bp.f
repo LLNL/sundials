@@ -162,12 +162,12 @@ C     Print final statistics.
      &   ' number of conv. failures.. nonlinear =', I3,
      &   ' linear = ', I3/
      &   ' number of error test failures = ', I3/
-     &   ' main solver real/int workspace sizes   = ',2I5/
+     &   ' main solver real/int workspace sizes   = ',2I7/
      &   ' linear solver real/int workspace sizes = ',2I5)
       CALL FCVBPOPT(LENRWBP, LENIWBP, NFEBP)
       WRITE(6,82) LENRWBP, LENIWBP, NFEBP
  82   FORMAT('In CVBANDPRE:'/
-     &        ' real/int workspace sizes = ', 2I5/
+     &        ' real/int workspace sizes = ', 2I7/
      &        ' number of f evaluations  = ', I5)
 C     
       CALL FCVFREE

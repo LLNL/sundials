@@ -3,66 +3,66 @@ Krylov example problem:
  Kinetics-transport, NEQ =  200
 
 
- t =   0.720000E+04     no. steps =   190   order =   5   stepsize =   0.160965E+03
+ t =   0.720000E+04     no. steps =   190   order =   5   stepsize =   0.160950E+03
   c1 (bot.left/middle/top rt.) =   0.104683E+05  0.296373E+05  0.111853E+05
   c2 (bot.left/middle/top rt.) =   0.252672E+12  0.715377E+12  0.269977E+12
 
- t =   0.144000E+05     no. steps =   221   order =   5   stepsize =   0.382687E+03
+ t =   0.144000E+05     no. steps =   221   order =   5   stepsize =   0.382591E+03
   c1 (bot.left/middle/top rt.) =   0.665902E+07  0.531602E+07  0.730081E+07
   c2 (bot.left/middle/top rt.) =   0.258192E+12  0.205680E+12  0.283286E+12
 
- t =   0.216000E+05     no. steps =   246   order =   5   stepsize =   0.278111E+03
+ t =   0.216000E+05     no. steps =   246   order =   5   stepsize =   0.278213E+03
   c1 (bot.left/middle/top rt.) =   0.266497E+08  0.103640E+08  0.293077E+08
   c2 (bot.left/middle/top rt.) =   0.299279E+12  0.102815E+12  0.331344E+12
 
- t =   0.288000E+05     no. steps =   291   order =   4   stepsize =   0.113513E+03
-  c1 (bot.left/middle/top rt.) =   0.870208E+07  0.129196E+08  0.965001E+07
+ t =   0.288000E+05     no. steps =   291   order =   3   stepsize =   0.937017E+02
+  c1 (bot.left/middle/top rt.) =   0.870208E+07  0.129196E+08  0.965000E+07
   c2 (bot.left/middle/top rt.) =   0.338035E+12  0.502927E+12  0.375095E+12
 
- t =   0.360000E+05     no. steps =   331   order =   4   stepsize =   0.885814E+02
+ t =   0.360000E+05     no. steps =   336   order =   4   stepsize =   0.674948E+02
   c1 (bot.left/middle/top rt.) =   0.140403E+05  0.202899E+05  0.156090E+05
-  c2 (bot.left/middle/top rt.) =   0.338677E+12  0.489432E+12  0.376516E+12
+  c2 (bot.left/middle/top rt.) =   0.338676E+12  0.489433E+12  0.376516E+12
 
- t =   0.432000E+05     no. steps =   402   order =   4   stepsize =   0.415260E+03
-  c1 (bot.left/middle/top rt.) =  -0.576856E-08  0.342117E-08 -0.386627E-08
-  c2 (bot.left/middle/top rt.) =   0.338232E+12  0.135500E+12  0.380352E+12
+ t =   0.432000E+05     no. steps =   392   order =   4   stepsize =   0.414455E+03
+  c1 (bot.left/middle/top rt.) =   0.668041E-08 -0.796525E-07  0.733985E-08
+  c2 (bot.left/middle/top rt.) =   0.338232E+12  0.135497E+12  0.380351E+12
 
- t =   0.504000E+05     no. steps =   415   order =   5   stepsize =   0.457901E+03
-  c1 (bot.left/middle/top rt.) =  -0.497941E-17 -0.719339E-14 -0.265325E-14
+ t =   0.504000E+05     no. steps =   406   order =   5   stepsize =   0.431836E+03
+  c1 (bot.left/middle/top rt.) =  -0.340215E-12  0.157018E-09 -0.273169E-11
   c2 (bot.left/middle/top rt.) =   0.335816E+12  0.493026E+12  0.386444E+12
 
- t =   0.576000E+05     no. steps =   430   order =   4   stepsize =   0.219223E+03
-  c1 (bot.left/middle/top rt.) =   0.161106E-16  0.458698E-15 -0.470389E-17
-  c2 (bot.left/middle/top rt.) =   0.332031E+12  0.964973E+12  0.390899E+12
+ t =   0.576000E+05     no. steps =   421   order =   5   stepsize =   0.141102E+03
+  c1 (bot.left/middle/top rt.) =   0.155262E-15  0.921028E-10  0.134227E-12
+  c2 (bot.left/middle/top rt.) =   0.332031E+12  0.964976E+12  0.390899E+12
 
- t =   0.648000E+05     no. steps =   444   order =   4   stepsize =   0.579451E+03
-  c1 (bot.left/middle/top rt.) =   0.950457E-15  0.115369E-13 -0.231605E-15
-  c2 (bot.left/middle/top rt.) =   0.331302E+12  0.892177E+12  0.396342E+12
+ t =   0.648000E+05     no. steps =   435   order =   5   stepsize =   0.715630E+03
+  c1 (bot.left/middle/top rt.) =   0.104898E-18  0.823368E-12  0.975011E-15
+  c2 (bot.left/middle/top rt.) =   0.331302E+12  0.892180E+12  0.396341E+12
 
- t =   0.720000E+05     no. steps =   457   order =   4   stepsize =   0.579451E+03
-  c1 (bot.left/middle/top rt.) =   0.390973E-15 -0.484816E-13  0.254545E-14
-  c2 (bot.left/middle/top rt.) =   0.332972E+12  0.618613E+12  0.403884E+12
+ t =   0.720000E+05     no. steps =   445   order =   5   stepsize =   0.715630E+03
+  c1 (bot.left/middle/top rt.) =  -0.264697E-18 -0.492854E-12  0.105842E-14
+  c2 (bot.left/middle/top rt.) =   0.332972E+12  0.618617E+12  0.403884E+12
 
- t =   0.792000E+05     no. steps =   469   order =   4   stepsize =   0.579451E+03
-  c1 (bot.left/middle/top rt.) =  -0.290314E-14  0.215229E-12  0.355073E-15
-  c2 (bot.left/middle/top rt.) =   0.333440E+12  0.666885E+12  0.412026E+12
+ t =   0.792000E+05     no. steps =   455   order =   5   stepsize =   0.715630E+03
+  c1 (bot.left/middle/top rt.) =   0.548509E-18 -0.168132E-12  0.444986E-15
+  c2 (bot.left/middle/top rt.) =   0.333441E+12  0.666907E+12  0.412025E+12
 
- t =   0.864000E+05     no. steps =   481   order =   4   stepsize =   0.579451E+03
-  c1 (bot.left/middle/top rt.) =   0.235825E-22  0.231595E-17 -0.600745E-15
-  c2 (bot.left/middle/top rt.) =   0.335178E+12  0.910810E+12  0.416250E+12
+ t =   0.864000E+05     no. steps =   465   order =   5   stepsize =   0.715630E+03
+  c1 (bot.left/middle/top rt.) =  -0.237452E-19  0.139876E-12 -0.628874E-14
+  c2 (bot.left/middle/top rt.) =   0.335178E+12  0.910650E+12  0.416250E+12
 
 
 Final statistics:
 
- number of steps        =   481     number of f evals.     =   620
- number of prec. setups =    88
- number of prec. evals. =     9     number of prec. solves =  1096
- number of nonl. iters. =   616     number of lin. iters.  =   561
- average Krylov subspace dimension (NLI/NNI) =   0.910714E+00
+ number of steps        =   465     number of f evals.     =   601
+ number of prec. setups =    83
+ number of prec. evals. =     8     number of prec. solves =  1085
+ number of nonl. iters. =   597     number of lin. iters.  =   574
+ average Krylov subspace dimension (NLI/NNI) =   0.961474E+00
  number of conv. failures.. nonlinear =  0 linear =   0
  number of error test failures =  28
- main solver real/int workspace sizes   =  2089   50
+ main solver real/int workspace sizes   =    2089     50
  linear solver real/int workspace sizes =  2046   10
 In CVBANDPRE:
- real/int workspace sizes =  2400  200
- number of f evaluations  =    45
+ real/int workspace sizes =  159600    200
+ number of f evaluations  =  1600
