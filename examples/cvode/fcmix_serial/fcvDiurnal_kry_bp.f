@@ -42,8 +42,10 @@ C
 C The following declaration specification should match C type long int.
       INTEGER*8 NEQ, IOUT(25), IPAR(4)
       INTEGER NST, NFE, NPSET, NPE, NPS, NNI
-      INTEGER NLI, NCFN, NCFL, NETF, MU, ML
-      INTEGER LENRW, LENIW, LENRWLS, LENIWLS, LENRWBP, LENIWBP, NFEBP
+      INTEGER NLI, NCFN, NCFL, NETF
+      INTEGER LENRW, LENIW, LENRWLS, LENIWLS
+C The following declaration specification should match C type long int.
+      INTEGER*8 MU, ML, LENRWBP, LENIWBP, NFEBP
       DOUBLE PRECISION ATOL, AVDIM, DELT, FLOOR, RTOL, T, TOUT, TWOHR
       DOUBLE PRECISION ROUT(10), U(2,MX,MY), RPAR(12)
 C
