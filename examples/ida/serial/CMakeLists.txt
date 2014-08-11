@@ -37,6 +37,7 @@ SET(IDA_examples_SUPERLUMT
 
 SET(IDA_examples_KLU
   idaRoberts_klu
+  idaHeat2D_klu
   )
 
 # Add variable IDA_examples_BL with the names of the serial IDA examples
