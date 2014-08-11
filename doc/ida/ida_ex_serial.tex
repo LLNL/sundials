@@ -398,3 +398,50 @@ Sample output from \id{idaHeat2D\_kry} follows.
 \includeOutput{idaHeat2D\_kry}{../../examples/ida/serial/idaHeat2D_kry.out}
 %%
 %-----------------------------------------------------------------------------------
+\subsection{A sparse direct example: idaHeat2D\_klu}\label{ss:idaHeat2Dklu}
+
+We provide an example of using {\ida} with the KLU sparse direct solver module
+\id{ida\_klu} that solves the same 2D heat PDE problem as \id{idaHeat2D\_kry}
+with the same zero Dirichlet boundary conditions and central differencing but
+with no preconditioner. This example is mainly based off of the
+\id{idaHeat2D\_bnd} example program.
+
+Due to the nature of the Jacobian matrix of the 2D heat PDE problem in column
+major format, in order to store the Jacobian in compressed sparse column (CSC)
+format, it was necessary to have two separate user-supplied Jacobian functions.
+The function \id{jacHeat3} sets up the Jacobian in the special case that MGRID,
+the number of node points used in the central difference method, is 3. For MGRID
+$\geq$ 4, we use the function \id{jacHeat}.
+
+The main program is written in the same way it was written in
+\id{idaHeat2D\_kry} and \id{idaHeat2D\_bnd} but with a few exceptions. In order
+to use the \id{IDAKLU} solver, the user must determine the number of non-zero
+(\id{nnz}) variables and there is a conditional statement to check the size of
+\id{MGRID} in order to determine which \id{jacHeat} function to use.
+
+The user-supplied function \id{jacHeat3} specifies the values of the Jacobian
+matrix for the \id{MGRID}=3 case for each of the three datatypes needed for CSC
+format: column pointers (\id{colptrs}), actual data values (\id{data}), and row
+value of the data stored (\id{rowvals}). 
+
+The user-supplied function \id{jacHeat} defines the structure of the Jacobian
+matrix for a general \id{MGRID} size greater than or equal to 4 in CSC format
+and fills in the three datatypes as needed. The system Jacobian matrix is
+defined as $J = \partial F/ \partial u + \alpha \partial F/ \partial u'$ with
+\id{cj} $=\alpha$ as before. The column-based structure, which was determined
+heuristically, was generalized for any size in the allowable range and to allow
+for the appropriate number of repeats within the structure of the Jacobian
+matrix. The structure's pattern was found by splitting the matrix into
+\id{MGRID} blocks and determining the pattern within each block separately for
+each of the datatypes.
+
+The \ida package also includes support for SUPERLU\_MT, the parallel sparse
+direct solver. The \id{idaHeat2D\_sps} example has been included to demonstrate
+SUPERLU\_MT. It is very similar to \id{idaHeat2D\_klu}.
+
+Sample output from \id{idaHeat2D\_klu} follows.
+%%
+\includeOutput{idaHeat2D\_klu}{../../examples/ida/serial/idaHeat2D_klu.out}
+%%
+%%
+%-------------------------------------------------------------------------------
