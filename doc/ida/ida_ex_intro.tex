@@ -30,7 +30,7 @@ The following lists summarize all examples distributed with {\ida}.
 
 \vspace{0.2in}\noindent
 The {\ida} distribution contains, in the {\em srcdir}\id{/examples/ida/serial}
-directory, the following six serial examples (using the {\nvecs} module):
+directory, the following nine serial examples (using the {\nvecs} module):
 %%
 \begin{itemize}
 
@@ -69,6 +69,10 @@ directory, the following six serial examples (using the {\nvecs} module):
   solves the same 2-D heat equation problem as \id{idaHeat2D\_bnd}, with the Krylov
   linear solver {\idaspgmr}. The preconditioner uses only the diagonal elements
   of the Jacobian.
+
+\item \id{idaHeat2D\_klu}
+  solves the same 2-D heat equation problem as \id{idaHeat2D\_bnd}, with
+  sparse linear solver {\idaklu}.
 
 \item \id{idaFoodWeb\_bnd}
   solves a system of PDEs modelling a food web problem, with predator-prey
