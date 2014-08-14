@@ -952,6 +952,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 #define netf           (IDA_mem->ida_netf)
 #define nni            (IDA_mem->ida_nni)
 #define nsetups        (IDA_mem->ida_nsetups)
+
 #define ns             (IDA_mem->ida_ns)
 #define linit          (IDA_mem->ida_linit)
 #define lsetup         (IDA_mem->ida_lsetup)
@@ -1669,7 +1670,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
   /* Test for more vector operations, depending on options */
   if (suppressalg)
-    if (id->ops->nvwrmsnormmask == NULL) {
+    if (yy->ops->nvwrmsnormmask == NULL) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup", MSG_BAD_NVECTOR);
       return(IDA_ILL_INPUT);
   }
