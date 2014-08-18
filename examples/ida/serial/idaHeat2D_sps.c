@@ -6,11 +6,11 @@
  * Programmer(s): Allan Taylor, Alan Hindmarsh,
  *                Chris Nguyen, Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example problem for IDA: 2D heat equation, serial, sparse. 
- * Based on idaHeat2D_bnd.c and idaRoberts_klu.c
+ * Example problem for IDA: 2D heat equation, serial, sparse.
+ * Based on idaHeat2D_bnd.c and idaRoberts_sps.c
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the band solver IDABand, and IDACalcIC.
+ * This version uses the sparse solver IDASuperLUMT, and IDACalcIC.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -21,7 +21,7 @@
  * equations u = 0 at the boundaries are appended, to form a DAE
  * system of size N = MGRID^2. Here MGRID = 10.
  *
- * The system is solved with IDA using the banded linear system
+ * The system is solved with IDA using the sparse linear system
  * solver and default difference-quotient Jacobian. 
  * For purposes of illustration,
  * IDACalcIC is called to compute correct values at the boundary,
@@ -37,7 +37,7 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_klu.h>
+#include <ida/ida_superlumt.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_types.h>
 
@@ -159,8 +159,8 @@ int main(void)
 
   /* Call IDAKLU and set up the linear solver  */
   nnz = NEQ*NEQ;
-  ier = IDAKLU(mem, NEQ, nnz);
-  if(check_flag(&ier, "IDAKLU", 1)) return(1);
+  ier = IDASuperLUMT(mem, 1, NEQ, nnz);
+  if(check_flag(&ier, "IDASuperLUMT", 1)) return(1);
   /* check size of Jacobian matrix  */
   if(MGRID >= 4){
     ier = IDASlsSetSparseJacFn(mem, jacHeat);
@@ -239,7 +239,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
   uv = NV_DATA_S(uu); upv = NV_DATA_S(up); resv = NV_DATA_S(resval);
 
   data = (UserData)user_data;
-  mm = data->mm;
+  mm = data->mm; 
   coeff = data->coeff;
   
   /* Initialize resval to uu, to take care of boundary equations. */
@@ -631,7 +631,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 static void PrintHeader(realtype rtol, realtype atol)
 {
-  printf("\nidaHeat2D_klu: Heat equation, serial example problem for IDA\n");
+  printf("\nidaHeat2D_sps: Heat equation, serial example problem for IDA\n");
   printf("          Discretized heat equation on 2D unit square.\n");
   printf("          Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
@@ -645,8 +645,8 @@ static void PrintHeader(realtype rtol, realtype atol)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
   printf("Constraints set to force all solution components >= 0. \n");
-  printf("Linear solver: IDAKLU, sparse direct solver \n");
-  printf("       difference quotient Jacobian\n");
+  printf("Linear solver: IDASuperLU, sparse direct solver \n");
+  printf("       difference quotient Jacobian \n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("IDACalcIC called with input boundary values = %Lg \n",BVAL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)

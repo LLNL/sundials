@@ -33,6 +33,7 @@ SET(IDA_examples
 
 SET(IDA_examples_SUPERLUMT
   idaRoberts_sps
+  idaHeat2D_sps
   )
 
 SET(IDA_examples_KLU
