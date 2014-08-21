@@ -28,6 +28,11 @@
  * -----------------------------------------------------------------
  */
 
+//////////////////////////////////////////////////////////////////////////
+// Note: was still trying to get case MGRID=3 to work amd convert to 
+// CVODE format. Any comments using // were left in for future work notes
+/////////////////////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -83,16 +88,15 @@ typedef struct {
 
 /* Prototypes of functions called by CVODE */
 
-int heatres(realtype tres, N_Vector uu, 
-	    N_Vector resval, void *user_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
-int jacHeat(realtype tt,
+static int jacHeat(realtype tt,
 	    N_Vector yy, N_Vector fy, N_Vector resvec,
 	    SlsMat JacMat, void *user_data,
 	    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Exact same setup as jacHeat. Function needed for special case MGRID=3  */
-int jacHeat3(realtype tt, 
+static int jacHeat3(realtype tt, 
 	    N_Vector yy, N_Vector fy, N_Vector resvec,
 	    SlsMat JacMat, void *user_data,
 	    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
@@ -100,8 +104,8 @@ int jacHeat3(realtype tt,
 /* Prototypes of private functions */
 
 static void PrintHeader(realtype rtol, realtype atol);
-static void PrintOutput(void *mem, realtype t, N_Vector u);
-static void PrintFinalStats(void *mem);
+static void PrintOutput(void *mem, realtype t, N_Vector uu);
+static void PrintFinalStats(void *cvode_mem);
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector res);
 
 static int check_flag(void *flagvalue, char *funcname, int opt);
@@ -143,7 +147,7 @@ int main(void)
   data->coeff = ONE/( (data->dx) * (data->dx) );
 
   /* Initialize uu, up. */
-  SetInitialProfile(data, uu, id, res);
+  SetInitialProfile(data, uu, res);
 
   /* Set constraints to all 1's for nonnegative solution values. */
   N_VConst(ONE, constraints);
@@ -167,7 +171,7 @@ int main(void)
   */
   N_VDestroy_Serial(constraints);
 
-  flag = CVodeInit(cvode_mem, heatres, t0, uu);
+  flag = CVodeInit(cvode_mem, f, t0, uu);
   if(check_flag(&flag, "CVodeInit", 1)) return(1);
 
   flag = CVodeSStolerances(cvode_mem, rtol, atol);
@@ -209,10 +213,10 @@ int main(void)
   }
   
   /* Print remaining counters and free memory. */
-  flag = CVodeGetNumErrTestFails(mem, &netf);
-  check_flag(&ier, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(mem, &ncfn);
-  check_flag(&ier, "CVodeGetNumNonlinSolvConvFails", 1);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   PrintFinalStats(cvode_mem);
@@ -236,16 +240,17 @@ int main(void)
 /*
  * f routine. Compute function f(t,u). 
  */
-
+/////////////////////////////////////////
+// How to define f for heat equation like
+// in Roberts problem?
+////////////////////////////////////////
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype u1, u2, u3, ud1, ud3;
+  realtype u1, ud1;
 
-  u1 = Ith(u,1); u2 = Ith(u,2); u3 = Ith(u,3);
+  u1 = Ith(u,1);
 
-  ud1 = Ith(udot,1) = RCONST(-0.04)*u1 + RCONST(1.0e4)*u2*u3;
-  ud3 = Ith(udot,3) = RCONST(3.0e7)*u2*u2;
-        Ith(udot,2) = -ud1 - ud3;
+  ud1 = Ith(udot,1) = RCONST(4)*u1;
 
   return(0);
 }
@@ -278,12 +283,12 @@ int heatres(realtype tres, N_Vector uu, N_Vector resval,
   }
   
   return(0);
-
-}
+  
+  }
 */
 
 /* Jacobian matrix setup for MGRID=3  */
-int jacHeat3(realtype tt, 
+static int jacHeat3(realtype tt, 
            N_Vector yy, N_Vector fy,
 	   SlsMat JacMat, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
@@ -293,11 +298,14 @@ int jacHeat3(realtype tt,
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx);
 
-  SlsSetToZero(JacMat); /* initialize Jacobian matrix */
-
+  SlsSetToZero(JacMat); // initialize Jacobian matrix
+  
+  //set up number of elements in each column 
+  
+  JacMat -> colptrs[0] = 0;
+  JacMat -> colptrs[1] = 1;
+ 
   /*
-   * set up number of elements in each column 
-   */
   JacMat -> colptrs[0]  = 0;
   JacMat -> colptrs[1]  = 1;
   JacMat -> colptrs[2]  = 3;
@@ -308,11 +316,12 @@ int jacHeat3(realtype tt,
   JacMat -> colptrs[7]  = 10;
   JacMat -> colptrs[8]  = 12;
   JacMat -> colptrs[9]  = 13;
-  
-  /*
-   * set up data and row values stored 
-   */
+  */
+  //set up data and row values stored 
 
+  JacMat -> data[0] = TWO*TWO;
+  JacMat -> rowvals[0] = 0;
+  /*
   JacMat -> data[0] = ONE;
   JacMat -> rowvals[0] = 0;  
   JacMat -> data[1] = ONE;
@@ -339,12 +348,17 @@ int jacHeat3(realtype tt,
   JacMat -> rowvals[11] = 7;
   JacMat -> data[12] = ONE;
   JacMat -> rowvals[12] = 8;
+  */
 
   return(0);
 }
 
+//////////////////////////////////////////////////////////////////
+// Remove boundary points in matrix, redefine without
+//////////////////////////////////////////////////////////////////
+
 /* Jacobian matrix setup for MGRID>=4  */
-int jacHeat(realtype tt, 
+static int jacHeat(realtype tt, 
            N_Vector yy, N_Vector fy, N_Vector resvec,
 	   SlsMat JacMat, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
