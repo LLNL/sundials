@@ -31,7 +31,6 @@ SET(CVODE_examples
 
 SET(CVODE_examples_KLU
   cvRoberts_klu
-  cvHeat2D_klu
   )
 
 SET(CVODE_examples_SUPERLUMT
