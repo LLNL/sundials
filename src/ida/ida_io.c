@@ -223,7 +223,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
   if (IDA_mem->ida_nst > 0) {
 
     if ( (tstop - IDA_mem->ida_tn) * IDA_mem->ida_hh < ZERO ) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetStopTime", MSG_BAD_TSTOP, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetStopTime", MSG_BAD_TSTOP, tstop, IDA_mem->ida_tn);
       return(IDA_ILL_INPUT);
     }
 

@@ -368,7 +368,7 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
   if (cv_mem->cv_nst > 0) {
 
     if ( (tstop - cv_mem->cv_tn) * cv_mem->cv_h < ZERO ) {
-      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetStopTime", MSGCV_BAD_TSTOP, cv_mem->cv_tn);
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetStopTime", MSGCV_BAD_TSTOP, tstop, cv_mem->cv_tn);
       return(CV_ILL_INPUT);
     }
 
