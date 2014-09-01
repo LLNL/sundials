@@ -2284,7 +2284,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     if (rh > ONE) hh /= rh;
 
     if (tstopset) {
-      if ( (tstop - tn)*hh < ZERO) {
+      if ( (tstop - tn)*hh <= ZERO) {
         IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_BAD_TSTOP, tstop, tn);
         return(IDA_ILL_INPUT);
       }

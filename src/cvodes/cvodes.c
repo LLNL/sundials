@@ -2746,6 +2746,15 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       }
     }
 
+    /* Test input tstop for legality. */
+
+    if (tstopset) {
+      if ( (tstop - tn)*(tout - tn) <= ZERO ) {
+        cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_BAD_TSTOP, tstop, tn);
+        return(CV_ILL_INPUT);
+      }
+    }
+
     /* Set initial h (from H0 or cvHin). */
     
     h = hin;
@@ -2755,7 +2764,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     }
     if (h == ZERO) {
       tout_hin = tout;
-      if ( tstopset && (tout-tn)*(tout-tstop) > 0 ) tout_hin = tstop; 
+      if ( tstopset && (tout-tn)*(tout-tstop) > ZERO ) tout_hin = tstop; 
       hflag = cvHin(cv_mem, tout_hin);
       if (hflag != CV_SUCCESS) {
         istate = cvHandleFailure(cv_mem, hflag);
@@ -2769,10 +2778,6 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* Check for approach to tstop */
 
     if (tstopset) {
-      if ( (tstop - tn)*h < ZERO ) {
-        cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_BAD_TSTOP, tstop, tn);
-        return(CV_ILL_INPUT);
-      }
       if ( (tn + h - tstop)*h > ZERO ) 
         h = (tstop - tn)*(ONE-FOUR*uround);
     }
