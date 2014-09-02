@@ -301,6 +301,7 @@ typedef struct ARKodeMemRec {
   /*-------------------------
     Time Step Adaptivity Data 
     -------------------------*/
+  booleantype ark_fixedstep;       /* flag to disable temporal adaptivity    */
   ARKAdaptFn ark_hadapt;           /* function to set the new time step size */
   void      *ark_hadapt_data;      /* user pointer passed to hadapt          */
   realtype   ark_hadapt_ehist[3];  /* error history for time adaptivity      */
@@ -755,7 +756,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define MSGARK_TOO_MUCH_ACC   "At " MSG_TIME ", too much accuracy requested."
 #define MSGARK_HNIL           "Internal " MSG_TIME_H " are such that t + h = t on the next step. The solver will continue anyway."
 #define MSGARK_ERR_FAILS      "At " MSG_TIME_H ", the error test failed repeatedly or with |h| = hmin."
-#define MSGARK_CONV_FAILS     "At " MSG_TIME_H ", the corrector convergence test failed repeatedly or with |h| = hmin."
+#define MSGARK_CONV_FAILS     "At " MSG_TIME_H ", the solver convergence test failed repeatedly or with |h| = hmin."
 #define MSGARK_SETUP_FAILED   "At " MSG_TIME ", the setup routine failed in an unrecoverable manner."
 #define MSGARK_SOLVE_FAILED   "At " MSG_TIME ", the solve routine failed in an unrecoverable manner."
 #define MSGARK_RHSFUNC_FAILED "At " MSG_TIME ", the right-hand side routine failed in an unrecoverable manner."
@@ -764,7 +765,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define MSGARK_RHSFUNC_FIRST  "The right-hand side routine failed at the first call."
 #define MSGARK_RTFUNC_FAILED  "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSGARK_CLOSE_ROOTS    "Root found at and very near " MSG_TIME "."
-#define MSGARK_BAD_TSTOP      "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME_H " in the direction of integration."
+#define MSGARK_BAD_TSTOP      "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME " in the direction of integration."
 #define MSGARK_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
 #define MSGARK_MISSING_FE     "Cannot specify that method is explicit without providing a function pointer to fe(t,y)."
 #define MSGARK_MISSING_FI     "Cannot specify that method is explicit without providing a function pointer to fe(t,y)."

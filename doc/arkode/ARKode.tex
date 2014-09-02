@@ -1326,6 +1326,29 @@ the function {\hyperref[f_interface/Usage:f/_/FARKSETRIN]{\code{FARKSETRIN()}}},
 $1/2$.
 
 
+\subsection{Fixed time stepping}
+\label{Mathematics:mathematics-fixedstep}\label{Mathematics:fixed-time-stepping}
+While ARKode is designed for time step adaptivity, it may additionally
+be called in ``fixed-step'' mode, typically used for debugging purposes
+or for verification against hand-coded Runge-Kutta methods.  In this
+mode, all time step adaptivity is disabled:
+\begin{itemize}
+\item {} 
+temporal error control is disabled,
+
+\item {} 
+nonlinear or linear solver non-convergence results in an error
+(instead of a step size adjustment),
+
+\item {} 
+no check against an explicit stability condition is performed.
+
+\end{itemize}
+
+Additional information on this mode is provided in the section
+{\hyperref[c_interface/User_callable:cinterface-optionalinputs]{\emph{Optional input functions}}}.
+
+
 \section{Mass matrix solver}
 \label{Mathematics:mass-matrix-solver}\label{Mathematics:mathematics-masssolve}
 Within the algorithms described above, there are three locations where a
@@ -4225,6 +4248,13 @@ Supply an initial step size to attempt
 estimated
 \\\hline
 
+Disable time step adaptivity (fixed-step mode)
+ & 
+{\hyperref[c_interface/User_callable:ARKodeSetFixedStep]{\code{ARKodeSetFixedStep()}}}
+ & 
+disabled
+\\\hline
+
 Maximum no. of warnings for $t_n+h = t_n$
  & 
 {\hyperref[c_interface/User_callable:ARKodeSetMaxHnilWarns]{\code{ARKodeSetMaxHnilWarns()}}}
@@ -4512,6 +4542,76 @@ By default, ARKode estimates the initial step size to be the
 solution $h$ of the equation $\left\| \frac{h^2
 \ddot{y}}{2}\right\| = 1$, where $\ddot{y}$ is an estimated
 value of the second derivative of the solution at \emph{t0}.
+
+\end{fulllineitems}
+
+\index{ARKodeSetFixedStep (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:ARKodeSetFixedStep}\pysiglinewithargsret{int \bfcode{ARKodeSetFixedStep}}{void*\emph{ arkode\_mem}, realtype\emph{ hfixed}}{}
+Disabled time step adaptivity within ARKode, and specifies the
+fixed time step size to use for all internal steps.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{hfixed} -- value of the fixed step size to use
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the ARKode memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} Pass 0.0 to return ARKode to the default (adaptive-step) mode.
+
+Use of this function is not recommended, since we may give no
+assurance of the validity of the computed solutions.  It is
+primarily provided for code-to-code verification testing purposes.
+
+When using {\hyperref[c_interface/User_callable:ARKodeSetFixedStep]{\code{ARKodeSetFixedStep()}}}, any values provided to
+the functions
+{\hyperref[c_interface/User_callable:ARKodeSetInitStep]{\code{ARKodeSetInitStep()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetAdaptivityFn]{\code{ARKodeSetAdaptivityFn()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetMaxErrTestFails]{\code{ARKodeSetMaxErrTestFails()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetAdaptivityMethod]{\code{ARKodeSetAdaptivityMethod()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetCFLFraction]{\code{ARKodeSetCFLFraction()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetErrorBias]{\code{ARKodeSetErrorBias()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetFixedStepBounds]{\code{ARKodeSetFixedStepBounds()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetMaxCFailGrowth]{\code{ARKodeSetMaxCFailGrowth()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetMaxEFailGrowth]{\code{ARKodeSetMaxEFailGrowth()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetMaxFirstGrowth]{\code{ARKodeSetMaxFirstGrowth()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetMaxGrowth]{\code{ARKodeSetMaxGrowth()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetSafetyFactor]{\code{ARKodeSetSafetyFactor()}}},
+{\hyperref[c_interface/User_callable:ARKodeSetSmallNumEFails]{\code{ARKodeSetSmallNumEFails()}}} and
+{\hyperref[c_interface/User_callable:ARKodeSetStabilityFn]{\code{ARKodeSetStabilityFn()}}}
+will be ignored, since temporal adaptivity is disabled.
+
+If both {\hyperref[c_interface/User_callable:ARKodeSetFixedStep]{\code{ARKodeSetFixedStep()}}} and
+{\hyperref[c_interface/User_callable:ARKodeSetStopTime]{\code{ARKodeSetStopTime()}}} are used, then the fixed step size
+will be used for all steps until the final step preceding the
+provided stop time (which may be shorter).  To resume use of the
+previous fixed step size, another call to
+{\hyperref[c_interface/User_callable:ARKodeSetFixedStep]{\code{ARKodeSetFixedStep()}}} must be made prior to calling
+{\hyperref[c_interface/User_callable:ARKode]{\code{ARKode()}}} to resume integration.
+
+It is \emph{not} recommended that {\hyperref[c_interface/User_callable:ARKodeSetFixedStep]{\code{ARKodeSetFixedStep()}}} be used
+in concert with {\hyperref[c_interface/User_callable:ARKodeSetMaxStep]{\code{ARKodeSetMaxStep()}}} or
+{\hyperref[c_interface/User_callable:ARKodeSetMinStep]{\code{ARKodeSetMinStep()}}}, since at best those routines will
+provide no useful information to the solver, and at worst they may
+interfere with the desired fixed step size.
 
 \end{fulllineitems}
 
@@ -13553,6 +13653,11 @@ ARKode routine
 \code{LSETUP\_DGMAX}
  & 
 {\hyperref[c_interface/User_callable:ARKodeSetDeltaGammaMax]{\code{ARKodeSetDeltaGammaMax()}}}
+\\\hline
+
+\code{FIXED\_STEP}
+ & 
+{\hyperref[c_interface/User_callable:ARKodeSetFixedStep]{\code{ARKodeSetFixedStep()}}}
 \\\hline
 \end{tabulary}
 

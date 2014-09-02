@@ -519,6 +519,10 @@ SUNDIALS_EXPORT void *ARKodeCreate();
                           | which the solution is not to proceed.
                           | [infinity]
                           |
+ ARKodeSetFixedStep       | specifies to use a fixed step size 
+                          | throughout integration
+                          | [off]
+                          |
  ARKodeSetCFLFraction     | safety factor to use for explicitly 
                           ! stable steps
                           | [0.5]
@@ -659,6 +663,8 @@ SUNDIALS_EXPORT int ARKodeSetMaxStep(void *arkode_mem,
 				     realtype hmax);
 SUNDIALS_EXPORT int ARKodeSetStopTime(void *arkode_mem, 
 				      realtype tstop);
+SUNDIALS_EXPORT int ARKodeSetFixedStep(void *arkode_mem, 
+				       realtype hfixed);
 SUNDIALS_EXPORT int ARKodeSetCFLFraction(void *arkode_mem, 
 					 realtype cfl_frac);
 SUNDIALS_EXPORT int ARKodeSetSafetyFactor(void *arkode_mem, 

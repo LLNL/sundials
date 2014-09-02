@@ -406,6 +406,8 @@ void FARK_SETRIN(char key_name[], realtype *rval, int *ier)
     *ier = ARKodeSetNonlinRDiv(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "LSETUP_DGMAX", 12))
     *ier = ARKodeSetDeltaGammaMax(ARK_arkodemem, *rval);
+  else if (!strncmp(key_name, "FIXED_STEP", 10))
+    *ier = ARKodeSetFixedStep(ARK_arkodemem, *rval);
   else {
     *ier = -99;
     printf("FARKSETRIN: Unrecognized key: %s\n\n",key_name);

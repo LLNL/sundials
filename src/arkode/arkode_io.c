@@ -47,6 +47,7 @@ int ARKodeSetDefaults(void *arkode_mem)
   ark_mem->ark_dense_q          = QDENSE_DEF;     /* dense output order */
   ark_mem->ark_expstab          = arkExpStab;     /* explicit stability fn */
   ark_mem->ark_estab_data       = ark_mem;        /* explicit stability data */
+  ark_mem->ark_fixedstep        = FALSE;          /* default to use adaptive steps */
   ark_mem->ark_hadapt           = NULL;           /* step adaptivity fn */
   ark_mem->ark_hadapt_data      = NULL;           /* step adaptivity data */
   ark_mem->ark_hadapt_cfl       = CFLFAC;         /* explicit stability factor */
@@ -1224,7 +1225,7 @@ int ARKodeSetStopTime(void *arkode_mem, realtype tstop)
     if ( (tstop - ark_mem->ark_tn) * ark_mem->ark_h < ZERO ) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
 		      "ARKodeSetStopTime", MSGARK_BAD_TSTOP, 
-		      tstop, ark_mem->ark_tn, ark_mem->ark_h);
+		      tstop, ark_mem->ark_tn);
       return(ARK_ILL_INPUT);
     }
   }
@@ -1232,6 +1233,42 @@ int ARKodeSetStopTime(void *arkode_mem, realtype tstop)
   ark_mem->ark_tstop    = tstop;
   ark_mem->ark_tstopset = TRUE;
 
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+ ARKodeSetFixedStep:
+
+ Specifies to use a fixed time step size instead of performing 
+ any form of temporal adaptivity.  ARKode will use this step size 
+ for all steps (unless tstop is set, in which case it may need to 
+ modify that last step approaching tstop.  If any (non)linear
+ solver failure occurs, ARKode will immediately return with an 
+ error message since the time step size cannot be modified.  
+
+ Any nonzero argument will result in the use of that fixed step 
+ size; an argument of 0 will re-enable temporal adaptivity.
+---------------------------------------------------------------*/
+int ARKodeSetFixedStep(void *arkode_mem, realtype hfixed)
+{
+  ARKodeMem ark_mem;
+
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+		    "ARKodeSetFixedStep", MSGARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  /* set ark_mem entry */
+  if (hfixed != ZERO) {
+    ark_mem->ark_fixedstep = TRUE;
+    ark_mem->ark_hin = hfixed;
+  } else {
+    ark_mem->ark_fixedstep = FALSE;
+  }
+    
   return(ARK_SUCCESS);
 }
 
@@ -2564,6 +2601,24 @@ char *ARKodeGetReturnFlagName(long int flag)
   case ARK_RTFUNC_FAIL:
     sprintf(name,"ARK_RTFUNC_FAIL");
     break;
+  case ARK_LFREE_FAIL:
+    sprintf(name,"ARK_LFREE_FAIL");
+    break;
+  case ARK_MASSINIT_FAIL:
+    sprintf(name,"ARK_MASSINIT_FAIL");
+    break;
+  case ARK_MASSSETUP_FAIL:
+    sprintf(name,"ARK_MASSSETUP_FAIL");
+    break;
+  case ARK_MASSSOLVE_FAIL:
+    sprintf(name,"ARK_MASSSOLVE_FAIL");
+    break;
+  case ARK_MASSFREE_FAIL:
+    sprintf(name,"ARK_MASSFREE_FAIL");
+    break;
+  case ARK_MASSMULT_FAIL:
+    sprintf(name,"ARK_MASSMULT_FAIL");
+    break;
   case ARK_MEM_FAIL:
     sprintf(name,"ARK_MEM_FAIL");
     break;
@@ -2628,18 +2683,22 @@ int ARKodeWriteParameters(void *arkode_mem, FILE *fp)
   } else {
     fprintf(fp, "  ImEx integrator\n");
   }
-  if (ark_mem->ark_hadapt == NULL) {
-    fprintf(fp, "  Time step adaptivity method %i\n", ark_mem->ark_hadapt_imethod);
-    fprintf(fp, "     Safety factor = %g\n", ark_mem->ark_hadapt_safety);
-    fprintf(fp, "     Bias factor = %g\n", ark_mem->ark_hadapt_bias);
-    fprintf(fp, "     Growth factor = %g\n", ark_mem->ark_hadapt_growth);
-    fprintf(fp, "     Step growth lower bound = %g\n", ark_mem->ark_hadapt_lbound);
-    fprintf(fp, "     Step growth upper bound = %g\n", ark_mem->ark_hadapt_ubound);
-    fprintf(fp, "     k1 = %g\n", ark_mem->ark_hadapt_k1);
-    fprintf(fp, "     k2 = %g\n", ark_mem->ark_hadapt_k2);
-    fprintf(fp, "     k3 = %g\n", ark_mem->ark_hadapt_k3);
+  if (ark_mem->ark_fixedstep) {
+    fprintf(fp, "  Fixed time-stepping enabled\n");
   } else {
-    fprintf(fp, "  User provided time step adaptivity function\n");
+    if (ark_mem->ark_hadapt == NULL) {
+      fprintf(fp, "  Time step adaptivity method %i\n", ark_mem->ark_hadapt_imethod);
+      fprintf(fp, "     Safety factor = %g\n", ark_mem->ark_hadapt_safety);
+      fprintf(fp, "     Bias factor = %g\n", ark_mem->ark_hadapt_bias);
+      fprintf(fp, "     Growth factor = %g\n", ark_mem->ark_hadapt_growth);
+      fprintf(fp, "     Step growth lower bound = %g\n", ark_mem->ark_hadapt_lbound);
+      fprintf(fp, "     Step growth upper bound = %g\n", ark_mem->ark_hadapt_ubound);
+      fprintf(fp, "     k1 = %g\n", ark_mem->ark_hadapt_k1);
+      fprintf(fp, "     k2 = %g\n", ark_mem->ark_hadapt_k2);
+      fprintf(fp, "     k3 = %g\n", ark_mem->ark_hadapt_k3);
+    } else {
+      fprintf(fp, "  User provided time step adaptivity function\n");
+    }
   }
   if (ark_mem->ark_itol == ARK_WF) {
     fprintf(fp, "  User provided error weight function\n");

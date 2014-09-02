@@ -569,8 +569,8 @@
      IMPLICIT, IMEX, IRK_TABLE_NUM, ERK_TABLE_NUM, ARK_TABLE_NUM (pass in an 
      int array of length 2, implicit method first), MAX_NSTEPS, HNIL_WARNS, 
      PREDICT_METHOD, MAX_ERRFAIL, MAX_CONVFAIL, MAX_NITERS, ADAPT_SMALL_NEF 
-     or LSETUP_MSBP.  The int return flag IER is 0 if successful, and nonzero 
-     otherwise.
+     or LSETUP_MSBP.  The int return flag IER is 0 if successful, and 
+     nonzero otherwise.
 
      To set various real optional inputs, make the following call:
 
@@ -582,7 +582,7 @@
      following: INIT_STEP, MAX_STEP, MIN_STEP, STOP_TIME, NLCONV_COEF, 
      ADAPT_CFL, ADAPT_SAFETY, ADAPT_BIAS, ADAPT_GROWTH, ADAPT_BOUNDS (pass in 
      a realtype array of length 2), ADAPT_ETAMX1, ADAPT_ETAMXF, ADAPT_ETACF, 
-     NONLIN_CRDOWN, NONLIN_RDIV, or LSETUP_DGMAX.
+     NONLIN_CRDOWN, NONLIN_RDIV, LSETUP_DGMAX, or FIXED_STEP.
 
      To set the time step adaptivity method (and its associated parameters), 
      make the following call: 
