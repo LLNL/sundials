@@ -483,7 +483,7 @@ int jacHeat(realtype tt,  realtype cj,
   JacMat -> rowvals[0] = 0;
   /* alternating pattern in data, separate loop for each pattern */
   for(i=1;i<MGRID+(MGRID-2)  ;i+=2) JacMat -> rowvals[i] = (i+1)/2;
-  for(i=2;i<MGRID+(MGRID-2)-1;i+=2) JacMat -> rowvals[i] = i/2+MGRID; // i+1 unnecessary here
+  for(i=2;i<MGRID+(MGRID-2)-1;i+=2) JacMat -> rowvals[i] = i/2+MGRID; /* i+1 unnecessary here */
   
   /**** second column block ****/
   JacMat -> rowvals[MGRID+MGRID-2] = MGRID;
@@ -497,7 +497,7 @@ int jacHeat(realtype tt,  realtype cj,
   for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[MGRID+MGRID+5+4*i] = MGRID+3+i;
   for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[MGRID+MGRID+6+4*i] = 2*MGRID+2+i;
   JacMat -> rowvals[2*MGRID+4*(MGRID-2)-5] = MGRID+(MGRID-2)-1;
-  JacMat -> rowvals[2*MGRID+4*(MGRID-2)-4] = MGRID+(MGRID-2); // starting from here, add two diag patterns
+  JacMat -> rowvals[2*MGRID+4*(MGRID-2)-4] = MGRID+(MGRID-2); /* starting from here, add two diag patterns */
   JacMat -> rowvals[2*MGRID+4*(MGRID-2)-3] = 2*MGRID+(MGRID-2);
   JacMat -> rowvals[2*MGRID+4*(MGRID-2)-2] = MGRID+(MGRID-2);
   JacMat -> rowvals[2*MGRID+4*(MGRID-2)-1] = MGRID+(MGRID-2)+1;
@@ -510,7 +510,7 @@ int jacHeat(realtype tt,  realtype cj,
     
     JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+2] = MGRID+(MGRID-2)+2+MGRID*i+1-MGRID;
     JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+3] = MGRID+(MGRID-2)+2+MGRID*i+1;
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+4] = MGRID+(MGRID-2)+2+MGRID*i+2; //*this
+    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+4] = MGRID+(MGRID-2)+2+MGRID*i+2; /* *this */
     JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+5] = MGRID+(MGRID-2)+2+MGRID*i+1+MGRID;
     
     /* 5 in 5*j chosen since there are 5 elements in each column */
@@ -525,7 +525,7 @@ int jacHeat(realtype tt,  realtype cj,
     
     JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+6] = MGRID+(MGRID-2)+2+MGRID*i-2;
     JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+7] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID-1;
-    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+8] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID;//*this+MGRID
+    JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+8] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID; /* *this+MGRID */
     JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+9] = MGRID+(MGRID-2)+2+MGRID*i-2+2*MGRID;
 
     JacMat -> rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+10] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID;
@@ -537,14 +537,14 @@ int jacHeat(realtype tt,  realtype cj,
   
   /**** last-1 column block ****/
   JacMat -> rowvals[TOTAL-6*(MGRID-2)-4] = MGRID*MGRID-1-2*(MGRID-1)-1;
-  JacMat -> rowvals[TOTAL-6*(MGRID-2)-3] = MGRID*MGRID-1-2*(MGRID-1); // starting with this as base
+  JacMat -> rowvals[TOTAL-6*(MGRID-2)-3] = MGRID*MGRID-1-2*(MGRID-1); /* starting with this as base */
   JacMat -> rowvals[TOTAL-6*(MGRID-2)-2] = MGRID*MGRID-1-2*(MGRID-1)-MGRID;
   JacMat -> rowvals[TOTAL-6*(MGRID-2)-1] = MGRID*MGRID-1-2*(MGRID-1);
   JacMat -> rowvals[TOTAL-6*(MGRID-2)  ] = MGRID*MGRID-1-2*(MGRID-1)+1;
   /* middle row values */
   for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[TOTAL-6*(MGRID-2)+1+4*i] = MGRID*MGRID-1-2*(MGRID-1)-MGRID+1+i;
   for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[TOTAL-6*(MGRID-2)+2+4*i] = MGRID*MGRID-1-2*(MGRID-1)+i;
-  for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[TOTAL-6*(MGRID-2)+3+4*i] = MGRID*MGRID-1-2*(MGRID-1)+1+i;//copied above
+  for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[TOTAL-6*(MGRID-2)+3+4*i] = MGRID*MGRID-1-2*(MGRID-1)+1+i;/*copied above*/
   for(i=0;i<(MGRID-4);i++) JacMat -> rowvals[TOTAL-6*(MGRID-2)+4+4*i] = MGRID*MGRID-1-2*(MGRID-1)+2+i;
   JacMat -> rowvals[TOTAL-2*(MGRID-2)-7] = MGRID*MGRID-2*MGRID-2;
   JacMat -> rowvals[TOTAL-2*(MGRID-2)-6] = MGRID*MGRID-MGRID-3;
@@ -559,7 +559,7 @@ int jacHeat(realtype tt,  realtype cj,
   for(i=0;i<(MGRID-2);i++) JacMat -> rowvals[TOTAL-2*(MGRID-2)  +2*i] = MGRID*MGRID-MGRID+1+i;  
   JacMat -> rowvals[TOTAL-1] = MGRID*MGRID-1;
 
-  //PrintSparseMat(JacMat);
+  /*PrintSparseMat(JacMat);*/
  
   return(0);
 }
