@@ -7,7 +7,7 @@ idaHeat2D_klu: Heat equation, serial example problem for IDA
 Tolerance parameters:  rtol = 0   atol = 1e-08
 Constraints set to force all solution components >= 0. 
 Linear solver: IDAKLU, sparse direct solver 
-       difference quotient Jacobian, half-bandwidths = 10 
+       difference quotient Jacobian
 IDACalcIC called with input boundary values = 0 
 
    Output Summary (umax = max-norm of solution) 
@@ -28,4 +28,3 @@ IDACalcIC called with input boundary values = 0
  10.24   0.00000e+00  1  232  260   39   262   5.69e+00 
 
  netf = 2,   ncfn = 0 
-
