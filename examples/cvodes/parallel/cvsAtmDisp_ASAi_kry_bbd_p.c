@@ -78,7 +78,7 @@
 
 #define DIFF_COEF RCONST(1.0)
 #define V_MAX     RCONST(1.0)
-#define L         (YMAX-YMIN)/RCONST(2.0)
+#define L         ((YMAX-YMIN)/RCONST(2.0))
 #define V_COEFF   V_MAX/L/L
 
 /* Initial and final times */
